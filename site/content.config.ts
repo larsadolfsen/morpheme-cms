@@ -1,0 +1,84 @@
+import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
+
+// Kladde, Skjult or Planlagt (Udgivet when left out), and for Planlagt when, in Danish time
+// ("2026-11-01T08:00"): what each one is on the site is in packages/editor/lib/status.mjs.
+const status = {
+  status: z.enum(['draft', 'unlisted', 'scheduled']).optional(),
+  publishAt: z.string().optional(),
+};
+
+// Blog posts: one .md file per post in src/content/blog/.
+// The file name becomes the URL: hvad-er-jalousi.md -> /hvad-er-jalousi/
+const blog = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+  schema: z.object({
+    title: z.string(),
+    date: z.coerce.date(),
+    // Last edit (from WordPress' "modified"); dateModified in the structured data.
+    updated: z.coerce.date().optional(),
+    description: z.string().optional().default(''),
+    categories: z.array(z.string()).optional().default([]),
+    image: z.string().optional(),
+    imageAlt: z.string().optional(),
+    // "Dekorativt billede": `image` is drawn with alt="" (screen readers skip it), whatever `imageAlt` says.
+    imageDecorative: z.boolean().optional(),
+    ...status,
+    // Google title and description (the <title> and meta description). Empty: built from the title.
+    seoTitle: z.string().optional(),
+    seoDescription: z.string().optional(),
+    // The picture shown when it is shared (og:image). Empty: `image`, else the first picture in the text.
+    shareImage: z.string().optional(),
+    // The title and description when it is shared (og:title, og:description). Empty: the Google title and description.
+    shareTitle: z.string().optional(),
+    shareDescription: z.string().optional(),
+    // Words that link here from the other pages and posts (packages/editor/site/autolinks.mjs): the primary
+    // keyword, and more separated by commas.
+    keyword: z.string().optional(),
+    keywords: z.string().optional(),
+    // The address of the page Google should count as the original (rel=canonical). Empty: this one.
+    canonical: z.string().optional(),
+    // Not for search engines: noindex (Base.astro) and not in the sitemap (packages/editor/astro.mjs).
+    noindex: z.boolean().optional().default(false),
+  }),
+});
+
+// Pages migrated from WordPress. `path` is the exact URL, e.g. /parterapi-roskilde/utroskab/
+// Pages created in the editor (/editor/) have no `path`: the file name is the URL (getPages()).
+const pages = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/pages' }),
+  schema: z.object({
+    title: z.string(),
+    path: z
+      .string()
+      .regex(/^\/.*\/$/, 'path skal starte og slutte med /')
+      .optional(),
+    description: z.string().optional().default(''),
+    order: z.number().optional().default(0),
+    ...status,
+    // Google title and description (the <title> and meta description). Empty: built from the title.
+    seoTitle: z.string().optional(),
+    seoDescription: z.string().optional(),
+    // The picture shown when it is shared (og:image). Empty: the first picture in the text.
+    shareImage: z.string().optional(),
+    // The title and description when it is shared (og:title, og:description). Empty: the Google title and description.
+    shareTitle: z.string().optional(),
+    shareDescription: z.string().optional(),
+    // Words that link here from the other pages and posts (packages/editor/site/autolinks.mjs): the primary
+    // keyword, and more separated by commas.
+    keyword: z.string().optional(),
+    keywords: z.string().optional(),
+    // The address of the page Google should count as the original (rel=canonical). Empty: this one.
+    canonical: z.string().optional(),
+    // Not for search engines: noindex (Base.astro) and not in the sitemap (packages/editor/astro.mjs).
+    noindex: z.boolean().optional().default(false),
+    // Across the whole page, without the owner's card beside the text (PageLayout.astro).
+    wide: z.boolean().optional().default(false),
+    // A new version of a page (/ny/…): what the owner should look at or answer before it replaces the
+    // current page. Shown at the top of the new version and on /ny/.
+    review: z.string().optional(),
+    updated: z.coerce.date().optional(),
+  }),
+});
+
+export const collections = { blog, pages };

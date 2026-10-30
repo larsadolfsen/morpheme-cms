@@ -1,0 +1,48 @@
+---
+// The blog (/blog/): the page chosen as the blog page under "Indstillinger" › "Udseende" › "Standardsider"
+// (packages/editor/site/standardPages.ts), which the owner edits as a page in the editor: its heading and introduction at the top
+// with the tags, then its sections: its posts (the standard block "Blog", across the page as on a tag's page), a text,
+// and any other block by its type (PageBlock.astro).
+import BlogIndex from '@theme/components/BlogIndex.astro';
+import BlogPosts from '@theme/components/BlogPosts.astro';
+import TextSection from '@theme/components/TextSection.astro';
+import PageBlock from '@theme/components/home/PageBlock.astro';
+import { getPosts } from '@interstellarcms/cms/site/content';
+import { space } from '@interstellarcms/cms/site/sections';
+import type { StandardPageView } from '@interstellarcms/cms/site/standardPages';
+
+type Props = StandardPageView;
+const { page, heading, intro, sections } = Astro.props;
+const posts = await getPosts();
+// The posts of a "Blog" block: those with any of its tags, all when it has none.
+const postsOf = (categories: unknown) => {
+  const tags = Array.isArray(categories) ? categories.map(String) : [];
+  return posts.filter((p) => !tags.length || p.data.categories.some((c) => tags.includes(c)));
+};
+---
+
+<BlogIndex
+  title={heading}
+  intro={intro ?? ''}
+  seo={{
+    description: page.data.description,
+    seoTitle: page.data.seoTitle,
+    seoDescription: page.data.seoDescription,
+    canonical: page.data.canonical,
+    noindex: page.data.noindex,
+    shareImage: page.data.shareImage,
+    shareTitle: page.data.shareTitle,
+    shareDescription: page.data.shareDescription,
+  }}
+>
+  {sections.map((s, i) => {
+    switch (s.type) {
+      case 'blog':
+        return <BlogPosts posts={postsOf(s.categories)} class={space(i)} />;
+      case 'text':
+        return <TextSection heading={s.heading} body={s.body ?? ''} class={space(i)} />;
+      default:
+        return <PageBlock section={s} />;
+    }
+  })}
+</BlogIndex>

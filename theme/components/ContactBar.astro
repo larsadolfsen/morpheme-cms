@@ -1,0 +1,35 @@
+---
+// A bar at the bottom of a phone's screen ("Indhold" › "Promovering", the kind "Kontaktlinje",
+// packages/editor/site/popups.ts): the first one that is on and shown on this page, with the buttons to call and to a
+// page (the contact page), their texts from the editor: filled and outlined buttons (buttonClass, ui/Button.tsx) in
+// the theme's docked toolbar (toolbarClass, ui/Toolbar.tsx), fixed at the bottom (.theme-action-bar in
+// styles/components.css); only the first bar on a page is shown, this one before the booking bar (Base.astro), and it
+// moves away while the buttons at the top of the front page are on screen (data-action-bar, the script in Base.astro).
+import Icon from '@theme/components/Icon.astro';
+import { buttonClass } from '@theme/ui/Button';
+import { toolbarClass } from '@theme/ui/Toolbar';
+import { popupsAt } from '@interstellarcms/cms/site/popups';
+import { site } from '@interstellarcms/cms/site/site';
+
+const text = (value: unknown, or: string) => (typeof value === 'string' && value.trim()) || or;
+const path = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+// Not on the page its second button goes to (the contact page), as the booking bar is not on the booking page.
+// Without a page of its own, the contact page ("Standardsider").
+const bar = (await popupsAt(path)).find((p) => p.type === 'contactbar' && text(p.data.contactPage, site.contactPath) !== path);
+const call = text(bar?.data.phoneLabel, site.labels.call);
+const page = text(bar?.data.contactPage, site.contactPath);
+const label = text(bar?.data.contactLabel, 'Kontakt');
+---
+
+{bar && (
+  <div class={`${toolbarClass()} theme-action-bar`} role="toolbar" aria-label="Kontakt" data-action-bar>
+    <a href={site.phoneHref} class={buttonClass('filled')} aria-label={`${call} ${site.phone}`}>
+      <Icon name="phone" size={20} />
+      {call}
+    </a>
+    <a href={page} class={buttonClass('outlined')}>
+      <Icon name="envelope-simple" size={20} />
+      {label}
+    </a>
+  </div>
+)}

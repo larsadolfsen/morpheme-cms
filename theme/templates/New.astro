@@ -1,0 +1,70 @@
+---
+// /ny/: the new versions of pages (/ny/<the current page's address>, packages/editor/site/noindex.mjs) next to the current ones,
+// to compare before they replace them, with what to look at on each (`review`; the snackbar on a new version links to
+// its row, /ny/#<id>), and below them the blog posts that are hidden until they are approved. Not for search engines
+// (noindex, not in the sitemap).
+import Base from '@theme/layouts/Base.astro';
+import Icon from '@theme/components/Icon.astro';
+import Container from '@theme/components/Container.astro';
+import PageHeader from '@theme/components/PageHeader.astro';
+import { displayTitle, getPages, getPosts, pageHeading, postPath, stateOf } from '@interstellarcms/cms/site/content';
+import { isPreview, livePath, previewId } from '@interstellarcms/cms/site/noindex.mjs';
+
+const pages = await getPages();
+const byPath = new Map(pages.map((p) => [p.data.path, p]));
+const rows = pages
+  .filter((p) => isPreview(p.data.path))
+  .map((p) => ({ page: p, current: byPath.get(livePath(p.data.path)) }))
+  .sort((a, b) => a.page.data.path.localeCompare(b.page.data.path));
+
+const posts = (await getPosts({ unlisted: true })).filter((p) => stateOf(p.data) === 'unlisted');
+---
+
+<Base title="Nye sider" description="Nye versioner af siderne, til gennemsyn.">
+  <PageHeader
+    title="Nye sider"
+    intro="Nye versioner af siderne ved siden af de nuværende, til gennemsyn. Google ser dem ikke. Når en side er godkendt, kommer den nye tekst over på den nuværende sides adresse."
+  />
+
+  {rows.length > 0 && (
+    <Container as="section" class="mt-12 md:mt-16">
+      <ul class="rounded-panel border border-line px-5 md:px-7">
+        {rows.map(({ page, current }, i) => (
+          <li id={previewId(page.data.path)} class:list={['scroll-mt-24 py-5', i > 0 && 'border-t border-line']}>
+            <p class="text-lg font-medium">{pageHeading(page)}</p>
+            <p class="mt-1.5 flex flex-wrap gap-x-6 gap-y-1">
+              <a href={page.data.path} class="inline-flex items-center gap-1.5 text-accent hover:underline">
+                Ny version <Icon name="arrow-right" size={16} />
+              </a>
+              {current ? (
+                <a href={current.data.path} class="inline-flex items-center gap-1.5 text-muted hover:text-accent">
+                  Nuværende: {displayTitle(current.data.title)}
+                </a>
+              ) : (
+                <span class="text-muted">Ny side, findes ikke i dag</span>
+              )}
+            </p>
+            {page.data.review && <p class="mt-2 max-w-[75ch] text-[0.95rem] whitespace-pre-line text-muted">{page.data.review}</p>}
+          </li>
+        ))}
+      </ul>
+    </Container>
+  )}
+
+  {posts.length > 0 && (
+    <Container as="section" class="mt-12 mb-20 md:mt-16 md:mb-28">
+      <h2 class="text-2xl md:text-3xl">Nye blogindlæg</h2>
+      <p class="mt-2 max-w-[60ch] text-muted">Skjulte, indtil de er godkendt: de står ikke på bloggen, og Google ser dem ikke.</p>
+      <ul class="mt-5 rounded-panel border border-line px-5 md:px-7">
+        {posts.map((p, i) => (
+          <li class:list={['py-4', i > 0 && 'border-t border-line']}>
+            <a href={postPath(p)} class="inline-flex items-center gap-1.5 font-medium hover:text-accent">
+              {displayTitle(p.data.title)} <Icon name="arrow-right" size={16} />
+            </a>
+            {p.data.description && <p class="mt-1 max-w-[75ch] text-[0.95rem] text-muted">{p.data.description}</p>}
+          </li>
+        ))}
+      </ul>
+    </Container>
+  )}
+</Base>

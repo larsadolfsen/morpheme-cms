@@ -1,0 +1,11 @@
+---
+// Page-width container with the site's side gutters. Every full-width block uses it.
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'section'> & { as?: 'section' | 'div' | 'header' };
+const { as: Tag = 'section', class: className, ...rest } = Astro.props;
+---
+
+<Tag class:list={['mx-auto max-w-6xl px-5 md:px-8', className]} {...rest}>
+  <slot />
+</Tag>

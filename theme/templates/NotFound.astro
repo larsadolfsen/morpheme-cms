@@ -1,0 +1,119 @@
+---
+// 404 (the standard theme's): the page chosen as the 404 page under "Indstillinger" › "Udseende" › "Standardsider"
+// (packages/editor/site/standardPages.ts), which the owner edits as a page in the editor. Its heading and introduction, then the
+// page the visitor most likely meant (matched on the words in the address, in the browser), and below that its
+// sections: a text and any block by its type (PageBlock.astro).
+import Base from '@theme/layouts/Base.astro';
+import Icon from '@theme/components/Icon.astro';
+import PageHeader from '@theme/components/PageHeader.astro';
+import Container from '@theme/components/Container.astro';
+import TextSection from '@theme/components/TextSection.astro';
+import PageBlock from '@theme/components/home/PageBlock.astro';
+import { space } from '@interstellarcms/cms/site/sections';
+import { displayTitle, getPages, getPosts, pageHeading } from '@interstellarcms/cms/site/content';
+import { standardPaths, type StandardPageView } from '@interstellarcms/cms/site/standardPages';
+
+type Props = StandardPageView;
+const { heading, intro, sections } = Astro.props;
+// The front page is at / and the blog page at /blog/ (their own addresses send on there); the 404 page is not a page to go to.
+const own = [standardPaths.front, standardPaths.blog, standardPaths.notFound];
+const pages = (await getPages({ previews: false, unlisted: false })).filter((p) => !own.includes(p.data.path));
+const posts = await getPosts();
+// Every page and post the suggestion can point to: [path, title].
+const index: [string, string][] = [
+  ...pages.map((p): [string, string] => [p.data.path, pageHeading(p)]),
+  ...posts.map((p): [string, string] => [`/${p.id}/`, displayTitle(p.data.title)]),
+  ['/blog/', 'Blog'],
+];
+
+// Less space above the first section than on the other pages: the suggestion sits between.
+const spaceOf = (i: number) => (i === 0 ? 'mt-6 md:mt-8' : space(i));
+---
+
+<Base title="Siden findes ikke" noindex>
+  <PageHeader title={heading} intro={intro} />
+
+  <Container as="div" class="mt-8 md:mt-12">
+    <a
+      id="suggestion"
+      hidden
+      class="group flex max-w-2xl items-center justify-between gap-6 rounded-panel border border-accent/40 bg-surface p-5 shadow-soft md:p-6"
+    >
+      <span>
+        <span class="block text-sm text-muted">Mente du</span>
+        <span id="suggestion-title" class="mt-1 block text-xl font-medium group-hover:text-accent"></span>
+      </span>
+      <Icon name="arrow-right" size={22} class="shrink-0 text-accent transition-transform group-hover:translate-x-0.5" />
+    </a>
+  </Container>
+
+  {sections.map((s, i) => {
+    switch (s.type) {
+      case 'text':
+        return <TextSection heading={s.heading} body={s.body ?? ''} class={spaceOf(i)} />;
+      default:
+        // A block: the standard one's or the app's, by its type.
+        return <PageBlock section={s} />;
+    }
+  })}
+
+  <script is:inline type="application/json" id="page-index" set:html={JSON.stringify(index).replace(/</g, '\\u003c')} />
+  <script>
+    // Suggest the page whose address shares the most words with the one that was not found.
+    const decoded = (s: string) => {
+      try {
+        return decodeURIComponent(s);
+      } catch {
+        return s;
+      }
+    };
+    const words = (s: string) =>
+      decoded(s)
+        .toLowerCase()
+        .split(/[^a-z0-9æøå]+/)
+        .filter((w) => w.length > 2 && !/^\d+$/.test(w));
+
+    function distance(a: string, b: string) {
+      const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+      for (let i = 1; i <= a.length; i++) {
+        let prev = row[0];
+        row[0] = i;
+        for (let j = 1; j <= b.length; j++) {
+          const cur = row[j];
+          row[j] = Math.min(row[j] + 1, row[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+          prev = cur;
+        }
+      }
+      return row[b.length];
+    }
+
+    const likeness = (a: string, b: string) => {
+      if (a === b) return 1;
+      // One word inside the other: "pris" in "priser", "terapi" in "psykoterapi".
+      if (a.length >= 4 && b.length >= 4 && (a.includes(b) || b.includes(a))) return 0.8;
+      const d = 1 - distance(a, b) / Math.max(a.length, b.length);
+      return d >= 0.75 ? d : 0;
+    };
+
+    const wanted = words(location.pathname);
+    const index: [string, string][] = JSON.parse(document.getElementById('page-index')!.textContent!);
+    let best: [string, string] | undefined;
+    let bestScore = 0;
+    if (wanted.length) {
+      for (const entry of index) {
+        const have = words(entry[0]);
+        if (!have.length) continue;
+        const hits = wanted.reduce((sum, w) => sum + Math.max(...have.map((h) => likeness(w, h))), 0);
+        // Mostly how many of the wanted words were found; a little for how close the page is in length.
+        const score = hits / wanted.length - 0.02 * Math.abs(have.length - wanted.length);
+        if (score > bestScore) [best, bestScore] = [entry, score];
+      }
+    }
+    if (best && bestScore >= 0.4) {
+      const link = document.getElementById('suggestion') as HTMLAnchorElement;
+      link.href = best[0];
+      document.getElementById('suggestion-title')!.textContent = best[1];
+      link.hidden = false;
+    }
+  </script>
+</Base>

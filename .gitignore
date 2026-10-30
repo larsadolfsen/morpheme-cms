@@ -1,0 +1,3 @@
+node_modules/
+# Written when the package is packed (prepack, scripts/types.mjs).
+*.d.mts

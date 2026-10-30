@@ -1,0 +1,1077 @@
+// The text of a page or blog post: Milkdown (packages/editor/src/markdown.mjs) with a small toolbar.
+// The text is shown in the site's own style (the "prose" classes of the pages). On pages the site's
+// blocks (src/apps/<app>/blocks/) can be put in the text with a button; each is a card with the block as it looks
+// on the site, which opens a menu (Ret, hide on the site, move, Fjern), with a free line kept between
+// two cards to write in. A fixed page's sections are such a text too (SectionsField.tsx), so both look
+// and work the same.
+import { forwardRef, Fragment as ReactFragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { editorViewCtx, type Editor } from '@milkdown/kit/core';
+import type { CmdKey } from '@milkdown/kit/core';
+import type { Ctx } from '@milkdown/kit/ctx';
+import {
+  imageSchema,
+  insertImageCommand,
+  toggleEmphasisCommand,
+  toggleStrongCommand,
+  turnIntoTextCommand,
+  wrapInBlockquoteCommand,
+  wrapInBulletListCommand,
+  wrapInHeadingCommand,
+  wrapInOrderedListCommand,
+} from '@milkdown/kit/preset/commonmark';
+import { history, redoCommand, undoCommand } from '@milkdown/kit/plugin/history';
+import { clipboard } from '@milkdown/kit/plugin/clipboard';
+import { $prose, $view, callCommand } from '@milkdown/kit/utils';
+import { Fragment } from '@milkdown/kit/prose/model';
+import type { Mark, Node } from '@milkdown/kit/prose/model';
+import { Decoration, DecorationSet, type EditorView } from '@milkdown/kit/prose/view';
+import { NodeSelection, Plugin, Selection, TextSelection, type EditorState } from '@milkdown/kit/prose/state';
+import { liftListItem } from '@milkdown/kit/prose/schema-list';
+import { lift } from '@milkdown/kit/prose/commands';
+import {
+  ArrowUUpLeft,
+  ArrowUUpRight,
+  Image,
+  LinkSimple,
+  ListBullets,
+  ListNumbers,
+  Plus,
+  Quotes,
+  TextAa,
+  TextB,
+  TextHThree,
+  TextHOne,
+  TextHTwo,
+  TextItalic,
+  TextT,
+} from '@phosphor-icons/react';
+import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
+import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
+import { IMAGE, type BlockAsk } from './BlockDialog';
+import { askLink } from './LinkSheet';
+import { Menu, MenuItem, Toolbar, ToolbarButton } from './ui';
+import { shownAt } from './images';
+import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
+import { describe, htmlBlock, type BlockProps } from './blocks';
+import { preview } from './registry';
+import { leaveTo } from './FormFrame';
+import { createRoot } from 'react-dom/client';
+import { flushSync } from 'react-dom';
+import { t } from './i18n';
+// The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
+import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
+import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
+import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
+import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
+import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
+import trashIcon from '@phosphor-icons/core/assets/regular/trash.svg?raw';
+import boldIcon from '@phosphor-icons/core/assets/regular/text-b.svg?raw';
+import italicIcon from '@phosphor-icons/core/assets/regular/text-italic.svg?raw';
+import linkIcon from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
+import h1Icon from '@phosphor-icons/core/assets/regular/text-h-one.svg?raw';
+import h2Icon from '@phosphor-icons/core/assets/regular/text-h-two.svg?raw';
+import h3Icon from '@phosphor-icons/core/assets/regular/text-h-three.svg?raw';
+import paletteIcon from '@phosphor-icons/core/assets/regular/palette.svg?raw';
+// ProseMirror's own styles: keep its invisible helpers (around pictures, at the end of lines) out of the layout.
+import '@milkdown/kit/prose/view/style/prosemirror.css';
+
+// parts: the text in parts, for a fixed page's sections (partsOf in markdown.mjs).
+export type MarkdownHandle = { markdown: () => string | null; parts: () => ReturnType<typeof partsOf> | null };
+
+// addImage: asks for a picture (the gallery, Media.tsx); its address on the site. Its description is
+// asked in the sheet. Without it there is no picture button. blocks: asks which block to put in and its fields (BlockDialog);
+// without it there is no block button; with it a free line is kept between two blocks, and before
+// and after them (spacing in markdown.mjs). short: a smaller field, for a short text. h1: the page's own heading, "Overskrift
+// (H1)", can be chosen too (a page's text, which has its H1 at the top; a blog post's is its title).
+type Props = {
+  value: string;
+  onChange: () => void;
+  addImage?: () => Promise<string | null>;
+  blocks?: BlockAsk;
+  /** The sheet a picture or HTML is changed in, when there are no blocks (a blog post). */
+  sheet?: BlockAsk;
+  short?: boolean;
+  h1?: boolean;
+  /** How each part of the text looks on the site (looksOf in sections.mjs), shown so (editor.css). */
+  looks?: (items: LookItem[]) => (string | null)[];
+  /** The headings (H2) are the names of sections (a fixed page's, the front page's: sections.mjs), which the site
+   * draws as text: no colour for them. */
+  sections?: boolean;
+};
+
+// A part of the text at the top level, for `looks`.
+export type LookItem = { kind: 'block'; type: string } | { kind: 'heading' | 'gap' | 'other' } | { kind: 'p'; image: boolean };
+
+const lookItem = (node: Node): LookItem =>
+  node.type.name === 'siteBlock'
+    ? { kind: 'block', type: node.attrs.type }
+    : node.type.name === 'heading' && node.attrs.level === 2
+      ? { kind: 'heading' }
+      : node.type.name !== 'paragraph'
+        ? { kind: 'other' }
+        : node.content.size === 0
+          ? { kind: 'gap' }
+          : { kind: 'p', image: node.content.content.some((n) => n.type.name === 'image') };
+
+// An empty paragraph: a free line between two blocks, which the arrows on a card skip.
+const isGap = (node: Node) => node.type.name === 'paragraph' && node.content.size === 0;
+
+// A card: a block, or a picture (in a paragraph of its own).
+const isCard = (node: Node | null | undefined) => !!node && (node.type.name === 'siteBlock' || node.type.name === 'image');
+
+// Whether deleting back (or forward) from the cursor reaches a card: one is selected, right before
+// (after) the cursor, or before (after) the text the cursor is at the start (end) of.
+function nextToCard(state: EditorState, back: boolean) {
+  const { selection } = state;
+  if (selection instanceof NodeSelection) return isCard(selection.node);
+  if (!selection.empty) return false;
+  const $pos = selection.$from;
+  if (isCard(back ? $pos.nodeBefore : $pos.nodeAfter)) return true;
+  if ($pos.parentOffset !== (back ? 0 : $pos.parent.content.size)) return false;
+  const next = $pos.node(-1).maybeChild($pos.index(-1) + (back ? -1 : 1));
+  return isCard(next) || isCard(back ? next?.lastChild : next?.firstChild);
+}
+
+// Deleting next to a card is ProseMirror's, as with a hardware keyboard (the card is selected, then
+// removed). The keyboards of phones delete without a key (only beforeinput), and the browser then
+// deleted the card, or what is in it, without ProseMirror knowing.
+const cardDeletes = $prose(
+  () =>
+    new Plugin({
+      props: {
+        handleDOMEvents: {
+          beforeinput: (view, event) => {
+            const back = /^delete\w*Backward$/.test(event.inputType);
+            if (!back && !/^delete\w*Forward$/.test(event.inputType)) return false;
+            if (!nextToCard(view.state, back)) return false;
+            event.preventDefault();
+            const key = new KeyboardEvent('keydown', { key: back ? 'Backspace' : 'Delete', keyCode: back ? 8 : 46 });
+            view.someProp('handleKeyDown', (f) => f(view, key));
+            return true;
+          },
+        },
+      },
+    }),
+);
+
+// The free line the cursor is in, which opens up to write in (editor.css; the others are thin).
+const gapHere = $prose(
+  () =>
+    new Plugin({
+      props: {
+        decorations: ({ doc, selection: { $from, empty } }) =>
+          empty && $from.depth === 1 && isGap($from.parent)
+            ? DecorationSet.create(doc, [Decoration.node($from.before(), $from.after(), { class: 'editor-gap-here' })])
+            : null,
+      },
+    }),
+);
+
+// The menu of the card that is open, if any: one at a time; closed by a tap elsewhere or Escape.
+let closeOpenMenu: (() => void) | null = null;
+
+// action: keyboard, whether the choice was made with the keyboard (Enter or Space).
+type CardItem = { icon: string; label: string; action: (keyboard: boolean) => void; danger?: boolean };
+
+// The part of the text at the top level before or after the one at index i (a block, or a paragraph
+// with a picture), skipping the free lines between; null at the start or end.
+function neighbour(doc: Node, i: number, by: -1 | 1) {
+  let j = i + by;
+  while (doc.maybeChild(j) && isGap(doc.child(j))) j += by;
+  return doc.maybeChild(j) ? j : null;
+}
+
+// The element of the part at the top level at index k.
+const partDOM = (view: EditorView, k: number) => view.nodeDOM(view.state.doc.resolve(0).posAtIndex(k)) as HTMLElement | null;
+
+// Swaps the part at the top level at index i with the one before or after it; free lines between
+// stay. The parts glide from where they were to where they are now. Returns the moved part's new
+// index, or null when it cannot move.
+function move(view: EditorView, i: number, by: -1 | 1): number | null {
+  const { doc } = view.state;
+  const j = neighbour(doc, i, by);
+  if (j === null) return null;
+  const node = doc.child(i);
+  const [first, last] = by < 0 ? [j, i] : [i, j];
+  const nodes: Node[] = [];
+  for (let k = first; k <= last; k++) nodes.push(doc.child(k));
+  // Where each part is now, to let it glide from there; by the node, as the text may be tidied after
+  // the move (a section's heading goes with its card).
+  const tops = new Map<Node, number>();
+  doc.forEach((child, _, k) => {
+    const top = partDOM(view, k)?.getBoundingClientRect().top;
+    if (top !== undefined) tops.set(child, top);
+  });
+  const $start = doc.resolve(0);
+  const from = $start.posAtIndex(first);
+  const to = $start.posAtIndex(last) + doc.child(last).nodeSize;
+  const tr = view.state.tr.replaceWith(from, to, Fragment.from([nodes[nodes.length - 1], ...nodes.slice(1, -1), nodes[0]]));
+  // The cursor goes after the moved part, not on a block, which the next key would replace.
+  view.dispatch(tr.setSelection(Selection.near(tr.doc.resolve(by < 0 ? from + node.nodeSize : to))));
+  let at = -1;
+  view.state.doc.forEach((child, _, k) => {
+    if (child === node) at = k;
+    const was = tops.get(child);
+    const el = partDOM(view, k);
+    const dy = was === undefined || !el ? 0 : was - el.getBoundingClientRect().top;
+    if (el && Math.abs(dy) > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches)
+      el.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], {
+        duration: 300,
+        easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+      });
+  });
+  if (at < 0) return null;
+  // Where it went, in view (one step: past one block, paragraph, heading or picture).
+  const moved = partDOM(view, at);
+  requestAnimationFrame(() => moved?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' }));
+  return at;
+}
+
+// Opens the menu of the card at the top level at index k again (after it moved, it is a new card).
+type CardHost = HTMLElement & { openMenu?: (keyboard: boolean, focus?: string) => void };
+function reopen(view: EditorView, k: number, keyboard: boolean, label: string) {
+  const el = partDOM(view, k);
+  const host = (el?.matches('.site-block') ? el : el?.querySelector('.site-block')) as CardHost | null;
+  host?.openMenu?.(keyboard, label);
+}
+
+// The blocks at the top level of the text, in order: their type and whether they are hidden.
+const blocksOf = (doc: Node) => {
+  const blocks: { type: string; hidden: boolean }[] = [];
+  doc.forEach((n) => void (n.type.name === 'siteBlock' && blocks.push({ type: n.attrs.type, hidden: n.attrs.props?.hidden === true })));
+  return blocks;
+};
+
+// "Flyt op" and "Flyt ned" for the part at the top level at index i, where it can be moved: not past
+// the start or end, nor past a block the template locks (locked: their types). The menu stays open on
+// the moved card, so it can be moved again at once.
+const moves = (view: EditorView, i: number | null, locked: string[] = []): CardItem[] => {
+  if (i === null) return [];
+  const step = (by: -1 | 1) => (keyboard: boolean) => {
+    const at = move(view, i, by);
+    if (at !== null) reopen(view, at, keyboard, by < 0 ? t.common.moveUp : t.common.moveDown);
+  };
+  const can = (by: -1 | 1) => {
+    const j = neighbour(view.state.doc, i, by);
+    const next = j === null ? null : view.state.doc.child(j);
+    return !!next && !(next.type.name === 'siteBlock' && locked.includes(next.attrs.type));
+  };
+  return [
+    ...(can(-1) ? [{ icon: arrowUpIcon, label: t.common.moveUp, action: step(-1) }] : []),
+    ...(can(1) ? [{ icon: arrowDownIcon, label: t.common.moveDown, action: step(1) }] : []),
+  ];
+};
+
+// The row of icons on a card (a block or a picture) in the text, opened by tapping it: items, as
+// they are when it opens. Returns how to close it.
+function cardMenu(view: EditorView, dom: HTMLElement, card: HTMLElement, name: string, items: () => (CardItem | undefined | '')[]) {
+  let menu: HTMLElement | null = null;
+  function close() {
+    menu?.remove();
+    menu = null;
+    card.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('pointerdown', outside, true);
+    document.removeEventListener('keydown', escape, true);
+    if (closeOpenMenu === close) closeOpenMenu = null;
+  }
+  const outside = (e: Event) => void (dom.contains(e.target as globalThis.Node) || close());
+  const escape = (e: KeyboardEvent) => {
+    if (e.key !== 'Escape') return;
+    close();
+    card.focus();
+  };
+  // keyboard: opened with Enter or Space, so a choice gets the focus: the first, or the one named
+  // `focus` (the arrow used to move the card, when it opens again on the moved card).
+  function open(keyboard: boolean, focus?: string) {
+    closeOpenMenu?.();
+    menu = dom.appendChild(document.createElement('div'));
+    menu.className = 'site-block-menu';
+    menu.setAttribute('role', 'menu');
+    menu.setAttribute('aria-label', name);
+    for (const it of items()) {
+      if (!it) continue;
+      const b = menu.appendChild(document.createElement('button'));
+      b.type = 'button';
+      b.setAttribute('role', 'menuitem');
+      b.setAttribute('aria-label', it.label);
+      b.title = it.label;
+      b.innerHTML = it.icon.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
+      if (it.danger) b.className = 'site-block-danger';
+      b.addEventListener('click', (e) => {
+        close();
+        it.action(e.detail === 0);
+      });
+    }
+    card.setAttribute('aria-expanded', 'true');
+    closeOpenMenu = close;
+    document.addEventListener('pointerdown', outside, true);
+    document.addEventListener('keydown', escape, true);
+    // On a card taller than the screen, under the toolbar (not above the screen) where the card goes on.
+    const bar = document.querySelector('.editor-tools')?.getBoundingClientRect().bottom ?? 0;
+    const box = dom.getBoundingClientRect();
+    const at = menu.getBoundingClientRect();
+    if (at.top < bar + 8) menu.style.top = `${Math.min(bar + 8 - box.top, box.height - at.height - 8)}px`;
+    if (keyboard)
+      (menu.querySelector<HTMLElement>(`[aria-label="${focus}"]`) ?? menu.querySelector('button'))?.focus({ preventScroll: true });
+  }
+  (dom as CardHost).openMenu = open;
+  card.setAttribute('aria-haspopup', 'menu');
+  card.setAttribute('aria-expanded', 'false');
+  card.addEventListener('mousedown', (e) => e.preventDefault());
+  // While a finger is on the card, the text cannot be written in: a phone does not put the cursor in
+  // the text next to the card and open the keyboard (and a keyboard that is open closes).
+  card.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' || view.props.editable?.(view.state) === false) return;
+    const before = view.props.editable;
+    view.setProps({ editable: () => false });
+    let timer = 0;
+    const unlock = () => {
+      clearTimeout(timer);
+      card.removeEventListener('click', later);
+      document.removeEventListener('pointercancel', unlock, true);
+      view.setProps({ editable: before });
+    };
+    const later = () => setTimeout(unlock);
+    card.addEventListener('click', later, { once: true });
+    document.addEventListener('pointercancel', unlock, { capture: true, once: true });
+    timer = window.setTimeout(unlock, 1000);
+  });
+  card.addEventListener('click', (e) => (menu ? close() : open(e.detail === 0)));
+  return close;
+}
+
+// The address of a picture from its sheet: with its format and crop after it, and marked when it is decorative
+// (crop.mjs).
+const pictureSrc = (props: BlockProps) =>
+  joinPicture(
+    String(props.src),
+    String(props.format ?? ''),
+    (props.crop as number[] | null | undefined) ?? null,
+    props.decorative === true,
+  );
+
+// A picture in the text as a card like a block's, cut to its format, with a menu to change it
+// (another picture, its description for screen readers, its format), move it with its paragraph and
+// remove it.
+// sheet: where it is changed (the sheet of the blocks, BlockDialog.tsx).
+function pictureCard(node: Node, view: EditorView, getPos: () => number | undefined, sheet: () => BlockAsk | undefined) {
+  const dom = document.createElement('span');
+  dom.className = 'site-block site-picture';
+  dom.contentEditable = 'false';
+  const card = dom.appendChild(document.createElement('button'));
+  card.type = 'button';
+  card.className = 'site-block-card';
+  card.setAttribute('aria-label', t.text.image);
+  // Cut to its format as on the site (crop.mjs): in a box of the format.
+  const { src, format, crop, decorative } = splitPicture(node.attrs.src);
+  if (node.attrs.alt && !decorative) card.setAttribute('aria-description', node.attrs.alt);
+  const cut = format ? cropStyle(format, crop) : null;
+  const box = cut?.box ? card.appendChild(document.createElement('span')) : card;
+  if (cut?.box) {
+    box.className = 'picture-crop';
+    box.style.cssText = cut.box;
+  }
+  const img = box.appendChild(document.createElement('img'));
+  img.src = shownAt(src);
+  img.alt = '';
+  if (cut) img.style.cssText = cut.img;
+  if (node.attrs.title) img.title = node.attrs.title;
+  const describe = async () => {
+    const props = await sheet()?.edit(IMAGE, { src, alt: node.attrs.alt ?? '', format, crop, decorative });
+    const pos = getPos();
+    if (!props || pos === undefined) return;
+    view.dispatch(
+      view.state.tr.setNodeMarkup(pos, undefined, { ...node.attrs, src: pictureSrc(props), alt: String(props.alt ?? '').trim() }),
+    );
+  };
+  const remove = () => {
+    const pos = getPos();
+    if (pos !== undefined) view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
+  };
+  const close = cardMenu(view, dom, card, t.text.image, () => {
+    const pos = getPos();
+    return [
+      { icon: pencilIcon, label: t.common.edit, action: describe },
+      ...moves(view, pos === undefined ? null : view.state.doc.resolve(pos).index(0), sheet()?.template?.locked),
+      { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
+    ];
+  });
+  return { dom, update: () => false, stopEvent: () => true, ignoreMutation: () => true, destroy: close };
+}
+
+// The link where the cursor is, or in the selection: where it is (all of it, when the cursor is in it)
+// and its address; null when there is none.
+function linkAt(state: EditorView['state']) {
+  const type = state.schema.marks.link;
+  const { from, to, empty, $from } = state.selection;
+  if (!empty) {
+    let href = '';
+    state.doc.nodesBetween(from, to, (n) => void (href ||= type.isInSet(n.marks)?.attrs.href ?? ''));
+    return href ? { from, to, href } : null;
+  }
+  // The text with the same link around the cursor.
+  type Run = { from: number; to: number; mark: Mark };
+  const start = $from.start();
+  let run: Run | null = null;
+  let found = null as Run | null;
+  $from.parent.forEach((child, offset) => {
+    const mark = type.isInSet(child.marks);
+    const a = start + offset;
+    const b = a + child.nodeSize;
+    if (mark && run && run.mark.eq(mark) && run.to === a) run.to = b;
+    else run = mark ? { from: a, to: b, mark } : null;
+    if (run && run.from < from && from < run.to) found = { ...run };
+  });
+  return found && { from: found.from, to: found.to, href: String(found.mark.attrs.href) };
+}
+
+// The toolbar's and the selection's "Link": the link sheet (LinkSheet.tsx), then the selection, or
+// the link the cursor is in, gets the address, or loses its link; with nothing selected, the page's
+// name (or the address) is put in as the link.
+async function editLink(view: EditorView) {
+  const link = linkAt(view.state);
+  const answer = await askLink(link?.href ?? '');
+  view.focus();
+  if (!answer) return;
+  const { state } = view;
+  const type = state.schema.marks.link;
+  const { from, to } = link ?? state.selection;
+  if (from === to) {
+    if (answer.href)
+      view.dispatch(state.tr.insertText(answer.text, from).addMark(from, from + answer.text.length, type.create({ href: answer.href })));
+    return;
+  }
+  const tr = state.tr.removeMark(from, to, type);
+  view.dispatch(answer.href ? tr.addMark(from, to, type.create({ href: answer.href })) : tr);
+}
+
+/** What applies where the cursor is, or to all of the selection: 'strong', 'emphasis', 'link',
+ * 'h2', 'h3', 'text' (a paragraph, not in a list or quote), 'bullet', 'ordered' and 'quote'; with a colour
+ * (text-colors.mjs) 'textColor' and the colour's class ('color-accent'). For the toolbar and the selection's menu,
+ * which mark them. */
+export function activeOf(state: EditorView['state']): Set<string> {
+  const { selection, storedMarks, schema } = state;
+  const { $from, from, to, empty } = selection;
+  const on = new Set<string>();
+  for (const name of ['strong', 'emphasis', 'link', 'textColor']) {
+    const mark = schema.marks[name];
+    if (empty ? mark.isInSet(storedMarks ?? $from.marks()) : state.doc.rangeHasMark(from, to, mark)) on.add(name);
+  }
+  const color = colorAt(state);
+  if (color) on.add(colorClass(color));
+  const ancestors = Array.from({ length: $from.depth }, (_, i) => $from.node(i + 1).type.name);
+  if ($from.parent.type.name === 'heading') on.add(`h${$from.parent.attrs.level}`);
+  if (ancestors.includes('bullet_list')) on.add('bullet');
+  if (ancestors.includes('ordered_list')) on.add('ordered');
+  if (ancestors.includes('blockquote')) on.add('quote');
+  if ($from.parent.type.name === 'paragraph' && !on.has('bullet') && !on.has('ordered') && !on.has('quote')) on.add('text');
+  return on;
+}
+
+// The colour where the cursor is, or the first in the selection (text-colors.mjs); null without one.
+function colorAt(state: EditorView['state']): string | null {
+  const type = state.schema.marks.textColor;
+  const { from, to, empty, $from } = state.selection;
+  if (empty) return type.isInSet(state.storedMarks ?? $from.marks())?.attrs.color ?? null;
+  let color: string | null = null;
+  state.doc.nodesBetween(from, to, (n) => void (color ??= type.isInSet(n.marks)?.attrs.color ?? null));
+  return color;
+}
+
+/** Gives the selection one of the site's colours (text-colors.mjs), or takes its colour away (null). */
+export function paint(view: EditorView, color: string | null) {
+  const { state } = view;
+  const type = state.schema.marks.textColor;
+  const { from, to } = state.selection;
+  if (from === to) return view.focus();
+  const tr = state.tr.removeMark(from, to, type);
+  view.dispatch(color ? tr.addMark(from, to, type.create({ color })) : tr);
+  view.focus();
+}
+
+// off: not there for the selection (the button is hidden).
+type Look = {
+  icon: string;
+  label: string;
+  on: (state: EditorView['state']) => boolean;
+  action: (button: HTMLElement) => void;
+  off?: (state: EditorView['state']) => boolean;
+};
+
+// Whether a heading (H2) is selected, or a part of one.
+function inH2(state: EditorView['state']) {
+  let found = false;
+  const { from, to } = state.selection;
+  state.doc.nodesBetween(from, to, (n) => void (found ||= n.type.name === 'heading' && n.attrs.level === 2));
+  return found;
+}
+
+// When a word or more is selected: a row of icons over it, to make it bold, italic, a link, one of the site's colours
+// (a menu under the button, opened by `colors`), the page's H1 (`h1`), a heading or a subheading; the ones that apply to
+// the selection are marked. On a phone, where the phone's own menu is over the selection and its handles under it, the
+// row is at the bottom of the screen, over the keyboard. sections: no colour in a heading (H2), the name of a section.
+function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button: HTMLElement) => void) {
+  return new Plugin({
+    view(view) {
+      const menu = document.body.appendChild(document.createElement('div'));
+      menu.className = 'editor-selection-menu';
+      menu.setAttribute('role', 'toolbar');
+      menu.setAttribute('aria-label', t.text.selection);
+      menu.hidden = true;
+      const run = <T,>(command: { key: CmdKey<T> }, payload?: T) => void callCommand(command.key, payload)(ctx);
+      const marked = (state: EditorView['state'], name: string) => activeOf(state).has(name);
+      const heading = (state: EditorView['state'], level: number) => activeOf(state).has(`h${level}`);
+      const looks: Look[] = [
+        { icon: boldIcon, label: t.text.bold, on: (s) => marked(s, 'strong'), action: () => run(toggleStrongCommand) },
+        { icon: italicIcon, label: t.text.italic, on: (s) => marked(s, 'emphasis'), action: () => run(toggleEmphasisCommand) },
+        {
+          icon: linkIcon,
+          label: t.text.link,
+          on: (s) => marked(s, 'link'),
+          action: () => void editLink(view).then(() => update(view)),
+        },
+        {
+          icon: paletteIcon,
+          label: t.text.color,
+          on: (s) => marked(s, 'textColor'),
+          action: colors,
+          off: sections ? inH2 : undefined,
+        },
+        ...(h1 ? [1, 2, 3] : [2, 3]).map((level) => ({
+          icon: [h1Icon, h2Icon, h3Icon][level - 1],
+          label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
+          on: (s: EditorView['state']) => heading(s, level),
+          action: () => (heading(view.state, level) ? run(turnIntoTextCommand) : run(wrapInHeadingCommand, level)),
+        })),
+      ];
+      const buttons = looks.map((look) => {
+        const b = menu.appendChild(document.createElement('button'));
+        b.type = 'button';
+        b.title = look.label;
+        b.setAttribute('aria-label', look.label);
+        b.innerHTML = look.icon.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
+        if (look.action === colors) b.setAttribute('aria-haspopup', 'menu');
+        const act = () => {
+          look.action(b);
+          update(view);
+          // Again when "Gem ændringer" has come after the first change.
+          setTimeout(follow, 100);
+        };
+        // The selection stays: no focus taken with the mouse, and a tap does not end the selection
+        // (its click is the phone's, so the tap acts itself).
+        b.addEventListener('mousedown', (e) => e.preventDefault());
+        b.addEventListener('click', act);
+        b.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+        b.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          act();
+        });
+        return b;
+      });
+      function update(view: EditorView) {
+        const { selection, doc } = view.state;
+        const shown =
+          view.hasFocus() &&
+          selection instanceof TextSelection &&
+          !selection.empty &&
+          doc.textBetween(selection.from, selection.to).trim() !== '';
+        menu.hidden = !shown;
+        if (!shown) return;
+        looks.forEach((look, i) => {
+          buttons[i].hidden = !!look.off?.(view.state);
+          buttons[i].setAttribute('aria-pressed', String(look.on(view.state)));
+        });
+        const { offsetWidth: width, offsetHeight: height } = menu;
+        const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
+        if (matchMedia('(pointer: coarse)').matches) {
+          menu.style.left = `${screen.offsetLeft + (screen.width - width) / 2}px`;
+          // Over "Gem ændringer" when it is there (FormFrame.tsx).
+          const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
+          menu.style.top = `${Math.min(screen.offsetTop + screen.height, save) - height - 12}px`;
+          return;
+        }
+        const text = view.dom.getBoundingClientRect();
+        const start = view.coordsAtPos(selection.from);
+        const end = view.coordsAtPos(selection.to);
+        const middle = start.top === end.top ? (start.left + end.right) / 2 : text.left + text.width / 2;
+        // Over the selection; under it when the toolbar is there.
+        const bar = document.querySelector('.editor-tools')?.getBoundingClientRect().bottom ?? 0;
+        const over = start.top - height - 10;
+        menu.style.left = `${Math.max(4, Math.min(middle - width / 2, innerWidth - width - 4))}px`;
+        menu.style.top = `${over > bar ? over : end.bottom + 10}px`;
+      }
+      // Gone when the text is left (not for a tap on the menu itself, which keeps the focus).
+      const refresh = () => setTimeout(() => update(view));
+      // Where it is follows the page and the keyboard.
+      const follow = () => menu.hidden || update(view);
+      view.dom.addEventListener('blur', refresh);
+      view.dom.addEventListener('focus', refresh);
+      addEventListener('scroll', follow, { passive: true });
+      visualViewport?.addEventListener('resize', follow);
+      visualViewport?.addEventListener('scroll', follow);
+      return {
+        update,
+        destroy: () => {
+          view.dom.removeEventListener('blur', refresh);
+          view.dom.removeEventListener('focus', refresh);
+          removeEventListener('scroll', follow);
+          visualViewport?.removeEventListener('resize', follow);
+          visualViewport?.removeEventListener('scroll', follow);
+          menu.remove();
+        },
+      };
+    },
+  });
+}
+
+// A block in the text as a card: the block as it looks on the site (its draw, src/apps/<app>/blocks/), in a thin frame;
+// for screen readers its name and what is in it (describe in blocks.ts). Tapping it opens a row of
+// icons on it to edit, hide or show, move and remove it. cards: how to draw the previews of the
+// text again, when what they show from elsewhere has changed.
+function blockCard(
+  node: Node,
+  view: EditorView,
+  getPos: () => number | undefined,
+  asker: () => BlockAsk | undefined,
+  cards: Set<() => void>,
+) {
+  const ask = asker();
+  const block = node.attrs.type === HTML ? htmlBlock : ask?.list.find((b) => b.type === node.attrs.type);
+  const hidden = node.attrs.props.hidden === true;
+  // A block gone from the site by itself (a notice whose time is over) is greyed like a hidden one.
+  const over = !!block?.over?.(node.attrs.props);
+  const dom = document.createElement('div');
+  dom.className = hidden || over ? 'site-block site-block-hidden' : 'site-block';
+  dom.contentEditable = 'false';
+  const card = dom.appendChild(document.createElement('button'));
+  card.type = 'button';
+  card.className = 'site-block-card';
+  const name = block?.label ?? node.attrs.type;
+  card.setAttribute('aria-label', name);
+  if (hidden) {
+    // An eye struck through in the corner (for screen readers it says so in the description).
+    const badge = card.appendChild(document.createElement('span'));
+    badge.className = 'site-block-hidden-badge';
+    badge.innerHTML = eyeSlashIcon.replace('<svg', '<svg width="18" height="18" fill="currentColor" aria-hidden="true"');
+  }
+  const shown = card.appendChild(document.createElement('div'));
+  shown.className = ask?.data.page ? 'site-block-preview site-block-section not-prose' : 'site-block-preview not-prose';
+  shown.setAttribute('aria-hidden', 'true');
+  const root = createRoot(shown);
+  const draw = () => {
+    const ask = asker();
+    if (!ask) return;
+    const lines = block ? describe(block, node.attrs.props, ask.data) : [];
+    card.setAttribute('aria-description', [hidden ? t.text.hiddenOnPage : '', ...lines].filter(Boolean).join('. '));
+    // Without a picture of it, what is in it, in lines.
+    const picture = preview(node.attrs.type, node.attrs.props, ask.data) ?? (
+      <div className="site-block-lines">
+        {lines.map((line, i) => (
+          <span key={i}>{line}</span>
+        ))}
+      </div>
+    );
+    flushSync(() => root.render(picture));
+  };
+  draw();
+  cards.add(draw);
+
+  const at = () => {
+    const pos = getPos();
+    return pos === undefined ? null : { pos, $pos: view.state.doc.resolve(pos) };
+  };
+  // Where the card is at the top of the text, to move it.
+  const top = () => {
+    const pos = getPos();
+    return pos === undefined ? null : view.state.doc.resolve(pos).index(0);
+  };
+  const edit = async () => {
+    const props = await asker()?.edit(node.attrs.type, node.attrs.props);
+    const here = at();
+    // The block's fields as changed; still hidden if it was.
+    if (props && here)
+      view.dispatch(
+        view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props: hidden ? { ...props, hidden: true } : props }),
+      );
+  };
+  const toggle = () => {
+    const here = at();
+    if (!here) return;
+    const { hidden: _, ...props } = node.attrs.props;
+    view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props: hidden ? props : { ...props, hidden: true } }));
+  };
+  const remove = () => {
+    const here = at();
+    if (here) view.dispatch(view.state.tr.delete(here.pos, here.pos + node.nodeSize));
+  };
+
+  // The choices that can be made here: no "Ret" without fields (but to where it is edited instead,
+  // Block.edit), no move past the start or end. By the template (collections.ts): a locked block is
+  // only edited, and the last shown one of a block the page must have cannot be hidden or removed.
+  const close = cardMenu(view, dom, card, name, () => {
+    const i = top();
+    const rules = asker()?.template;
+    const type = node.attrs.type;
+    const locked = !!rules?.locked?.includes(type);
+    const shownOfType = blocksOf(view.state.doc).filter((b) => b.type === type && b.hidden === false).length;
+    // (Not written with "!" before "hidden", which Tailwind would take for a class for the site.)
+    const last = hidden === false && !!rules?.required?.includes(type) && shownOfType <= 1;
+    const stays = locked || last;
+    return [
+      block?.fields.length
+        ? { icon: pencilIcon, label: t.common.edit, action: edit }
+        : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
+      block?.shown || (stays && hidden === false)
+        ? undefined
+        : { icon: hidden ? eyeIcon : eyeSlashIcon, label: hidden ? t.text.showOnPage : t.text.hideOnPage, action: toggle },
+      ...(locked ? [] : moves(view, i, rules?.locked)),
+      stays ? undefined : { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
+    ];
+  });
+  // A changed block is drawn anew (update false); taps on the card and its menu are not ProseMirror's.
+  return {
+    dom,
+    update: () => false,
+    stopEvent: () => true,
+    ignoreMutation: () => true,
+    destroy: () => {
+      close();
+      cards.delete(draw);
+      // Not while React may be drawing (the editor goes with its form).
+      queueMicrotask(() => root.unmount());
+    },
+  };
+}
+
+export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
+  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, looks, sections },
+  ref,
+) {
+  const spaced = !!blocks;
+  const root = useRef<HTMLDivElement>(null);
+  const toolbar = useRef<HTMLDivElement>(null);
+  const editor = useRef<Editor | null>(null);
+  const changed = useRef(onChange);
+  changed.current = onChange;
+  const sheeted = useRef(blocks ?? sheetProp);
+  sheeted.current = blocks ?? sheetProp;
+  const looked = useRef(looks);
+  looked.current = looks;
+  // What applies where the cursor is (activeOf), marked in the toolbar.
+  const [active, setActive] = useState<string[]>([]);
+  // The colour button over the selection, while its menu with the colours is open.
+  const [colorsAt, setColorsAt] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    colorsAt?.setAttribute('aria-expanded', 'true');
+    return () => colorsAt?.setAttribute('aria-expanded', 'false');
+  }, [colorsAt]);
+  // The previews of the blocks, drawn again when what they show from elsewhere changes: the lists,
+  // the testimonials, the rest of the site, the page's address or a fixed page's other fields.
+  const cards = useRef(new Set<() => void>());
+  const data = blocks?.data;
+  useEffect(
+    () => queueMicrotask(() => cards.current.forEach((draw) => draw())),
+    [data?.lists, data?.testimonials, data?.site, data?.path, data?.page?.values],
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    // Tell the form as soon as the text changes (Milkdown's own listener waits 200 ms); not for the
+    // free lines put in as the text is loaded.
+    let loaded = false;
+    const marking = $prose(
+      () =>
+        new Plugin({
+          view: () => ({
+            update: (view) => {
+              const now = [...activeOf(view.state)].sort();
+              setActive((was) => (was.join() === now.join() ? was : now));
+            },
+          }),
+        }),
+    );
+    const onEdit = $prose(
+      () => new Plugin({ view: () => ({ update: (view, prev) => void (!loaded || view.state.doc.eq(prev.doc) || changed.current()) }) }),
+    );
+    const selecting = $prose((ctx) => selectionMenu(ctx, !!h1, !!sections, (button) => setColorsAt((open) => (open ? null : button))));
+    const pictureView = $view(imageSchema.node, () => (node, view, getPos) => pictureCard(node, view, getPos, () => sheeted.current));
+    const cardView = $view(
+      siteBlockSchema.node,
+      () => (node, view, getPos) => blockCard(node, view, getPos, () => sheeted.current, cards.current),
+    );
+    // The look of each part on the site, as data-look on it.
+    const looking = $prose(
+      () =>
+        new Plugin({
+          props: {
+            decorations: (state) => {
+              const looks = looked.current;
+              if (!looks) return null;
+              const nodes: { node: Node; pos: number }[] = [];
+              state.doc.forEach((node, pos) => void nodes.push({ node, pos }));
+              const marks = looks(nodes.map(({ node }) => lookItem(node)));
+              return DecorationSet.create(
+                state.doc,
+                nodes.flatMap(({ node, pos }, i) =>
+                  marks[i] ? [Decoration.node(pos, pos + node.nodeSize, { 'data-look': marks[i]! })] : [],
+                ),
+              );
+            },
+          },
+        }),
+    );
+    const made = makeEditor(root.current, value)
+      .use(cardView)
+      .use(pictureView)
+      .use(selecting)
+      .use(cardDeletes)
+      .use(marking)
+      .use(onEdit)
+      .use(looking)
+      .use(gapHere)
+      .use(history)
+      .use(clipboard);
+    (spaced ? made.use(spacing) : made).create().then((created) => {
+      if (cancelled) return created.destroy();
+      editor.current = created;
+      // The free lines between the blocks of the text as it is loaded, and the cursor in the first,
+      // so a key pressed before the text is tapped does not replace the first block.
+      if (spaced)
+        created.action((ctx) => {
+          const view = ctx.get(editorViewCtx);
+          view.dispatch(view.state.tr.setMeta('addToHistory', false));
+          view.dispatch(view.state.tr.setSelection(Selection.atStart(view.state.doc)).setMeta('addToHistory', false));
+        });
+      loaded = true;
+    });
+    return () => {
+      cancelled = true;
+      editor.current?.destroy();
+      editor.current = null;
+    };
+    // The editor is made once per file; the parent gives each file its own key.
+  }, []);
+
+  useImperativeHandle(ref, () => ({
+    markdown: () => editor.current?.action(markdownOf) ?? null,
+    parts: () => editor.current?.action(partsOf) ?? null,
+  }));
+
+  function run<T>(command: { key: CmdKey<T> }, payload?: T) {
+    editor.current?.action(callCommand(command.key, payload));
+  }
+
+  // Makes the text where the cursor is a heading ('h1', 'h2', 'h3'), a paragraph ('text'), a list
+  // ('bullet', 'ordered') or a quote ('quote'), whatever it is now: a list becomes the other kind of
+  // list, and the text of a list or a quote comes out of it to be something else.
+  function setKind(kind: string) {
+    editor.current?.action((ctx) => {
+      const view = ctx.get(editorViewCtx);
+      const { schema, selection } = view.state;
+      const is = (k: string) => activeOf(view.state).has(k);
+      const outOfLists = () => {
+        for (let i = 0; i < 10 && (is('bullet') || is('ordered')) && liftListItem(schema.nodes.list_item)(view.state, view.dispatch); i++);
+      };
+      const outOfQuotes = () => {
+        for (let i = 0; i < 10 && is('quote') && lift(view.state, view.dispatch); i++);
+      };
+      if (kind === 'quote') {
+        if (!is('quote')) {
+          outOfLists();
+          if (is('h1') || is('h2') || is('h3')) callCommand(turnIntoTextCommand.key)(ctx);
+          callCommand(wrapInBlockquoteCommand.key)(ctx);
+        }
+        return view.focus();
+      }
+      if (kind === 'bullet' || kind === 'ordered') {
+        const list = schema.nodes[kind === 'bullet' ? 'bullet_list' : 'ordered_list'];
+        const { $from } = selection;
+        for (let d = $from.depth; d > 0; d--) {
+          const node = $from.node(d);
+          if (node.type.name !== 'bullet_list' && node.type.name !== 'ordered_list') continue;
+          if (node.type !== list) view.dispatch(view.state.tr.setNodeMarkup($from.before(d), list, { spread: node.attrs.spread }));
+          return view.focus();
+        }
+        outOfQuotes();
+        if (is('h1') || is('h2') || is('h3')) callCommand(turnIntoTextCommand.key)(ctx);
+        callCommand((kind === 'bullet' ? wrapInBulletListCommand : wrapInOrderedListCommand).key)(ctx);
+        return view.focus();
+      }
+      outOfLists();
+      outOfQuotes();
+      if (kind === 'text') callCommand(turnIntoTextCommand.key)(ctx);
+      else callCommand(wrapInHeadingCommand.key, Number(kind.slice(1)))(ctx);
+      view.focus();
+    });
+  }
+
+  function link() {
+    editor.current?.action((ctx) => void editLink(ctx.get(editorViewCtx)));
+  }
+
+  function color(name: string | null) {
+    editor.current?.action((ctx) => paint(ctx.get(editorViewCtx), name));
+  }
+
+  // A new picture from the gallery, then the sheet with it and what it shows, where it can still be
+  // changed or left out (the browser's own box for what it shows without a sheet).
+  async function image() {
+    const src = await addImage!();
+    if (!src) return;
+    const sheet = blocks ?? sheetProp;
+    const picked = await sheet?.edit(IMAGE, { src, alt: '' }, true);
+    if (picked) run(insertImageCommand, { src: pictureSrc(picked), alt: String(picked.alt ?? '').trim() });
+  }
+
+  // Puts the chosen block where the cursor is (a paragraph is split around it), or after the block
+  // that is selected. With no text after it, an empty paragraph follows, where the cursor goes, so
+  // the next text or block comes after it instead of replacing it.
+  async function block() {
+    // The blocks and pictures in the text now, for how many of a type there may be (the template).
+    let have: string[] = [];
+    editor.current?.action((ctx) => {
+      const doc = ctx.get(editorViewCtx).state.doc;
+      have = blocksOf(doc).map((b) => b.type);
+      doc.descendants((n) => void (n.type.name === 'image' && have.push(IMAGE)));
+    });
+    const chosen = await blocks!.choose({ image: !!addImage, have });
+    if (!chosen) return;
+    if (chosen.type === IMAGE) return image();
+    editor.current?.action((ctx) => {
+      const view = ctx.get(editorViewCtx);
+      const { state } = view;
+      const node = siteBlockSchema.type(ctx).create({ type: chosen.type, props: chosen.props });
+      let tr = state.tr;
+      // Where the new block ends, when the cursor must be moved past it (-1: it is in text already).
+      let end = -1;
+      if (state.selection instanceof NodeSelection) {
+        tr = tr.insert(state.selection.to, node);
+        end = state.selection.to + node.nodeSize;
+      } else {
+        tr = tr.replaceSelectionWith(node);
+        if (tr.selection instanceof NodeSelection) end = tr.selection.to;
+      }
+      if (end >= 0) {
+        if (!tr.doc.resolve(end).nodeAfter?.isTextblock) tr = tr.insert(end, state.schema.nodes.paragraph.create());
+        tr = tr.setSelection(TextSelection.create(tr.doc, end + 1));
+      }
+      // A section whose heading is written above its card gets one, its name, selected to write over.
+      const chosenBlock = blocks!.list.find((b) => b.type === chosen.type);
+      if (chosenBlock?.lead?.heading) {
+        let at = -1;
+        tr.doc.forEach((n, offset) => void (n === node && (at = offset)));
+        if (at >= 0) {
+          tr = tr.insert(at, state.schema.nodes.heading.create({ level: 2 }, state.schema.text(chosenBlock.label)));
+          tr = tr.setSelection(TextSelection.create(tr.doc, at + 1, at + 1 + chosenBlock.label.length));
+        }
+      }
+      view.dispatch(tr.scrollIntoView());
+      view.focus();
+    });
+  }
+
+  const tools: { label: string; icon: typeof TextB; action: () => void; on?: string }[] = [
+    { label: t.text.bold, icon: TextB, action: () => run(toggleStrongCommand), on: 'strong' },
+    { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis' },
+    { label: t.text.link, icon: LinkSimple, action: link, on: 'link' },
+    ...(h1 ? [{ label: t.text.pageHeading, icon: TextHOne, action: () => setKind('h1'), on: 'h1' }] : []),
+    { label: t.text.heading, icon: TextHTwo, action: () => setKind('h2'), on: 'h2' },
+    { label: t.text.subheading, icon: TextHThree, action: () => setKind('h3'), on: 'h3' },
+    { label: t.text.paragraph, icon: TextT, action: () => setKind('text'), on: 'text' },
+    { label: t.text.bulletList, icon: ListBullets, action: () => setKind('bullet'), on: 'bullet' },
+    { label: t.text.orderedList, icon: ListNumbers, action: () => setKind('ordered'), on: 'ordered' },
+    { label: t.text.quote, icon: Quotes, action: () => setKind('quote'), on: 'quote' },
+    // A picture and the blocks are put in with "+" (a sheet with them all); without blocks (a blog
+    // post) a picture has its own button.
+    ...(blocks
+      ? [{ label: t.text.insert, icon: Plus, action: block }]
+      : addImage
+        ? [{ label: t.text.image, icon: Image, action: image }]
+        : []),
+    { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) },
+    { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand) },
+  ];
+
+  // When the toolbar is too short for all its buttons, the kinds of text (H1, H2, H3, T, the bulleted and
+  // the numbered list and the quote) are one button: the one where the cursor is, with an arrow, and
+  // the others under it.
+  const kinds = tools.filter((t) => ['h1', 'h2', 'h3', 'text', 'bullet', 'ordered', 'quote'].includes(t.on ?? ''));
+  const kind = kinds.find((t) => active.includes(t.on!));
+  const shown = kind ?? kinds.find((t) => t.on === 'text')!;
+  const [narrow, setNarrow] = useState(false);
+  // The button that opened the menu with the kinds of text, while it is open.
+  const [kindsAt, setKindsAt] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    const bar = toolbar.current!;
+    // A button is 2.5rem, with 0.125rem between them and 0.375rem around them, and each of the lines
+    // between the groups 0.5rem (the classes below).
+    const fits = () => setNarrow(bar.clientWidth < tools.length * 42 + 10 + 3 * 10);
+    const watch = new ResizeObserver(fits);
+    watch.observe(bar);
+    return () => watch.disconnect();
+  }, [tools.length]);
+  const tool = ({ label, icon, action, on }: (typeof tools)[number]) => (
+    <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} onClick={action} />
+  );
+
+  // The lines between the marks on the text, the kinds of text, "+" (or "Billede") and "Fortryd".
+  const lineBefore = (item: (typeof tools)[number]) =>
+    item === kinds[0] || item.icon === Plus || item.icon === Image || item.icon === ArrowUUpLeft;
+  // A button of the toolbar; when it is too short, the kinds of text are one button (at the first), with a menu.
+  const button = (item: (typeof tools)[number]) =>
+    !narrow || !kinds.includes(item) ? (
+      tool(item)
+    ) : item === kinds[0] ? (
+      // Not marked: it always shows the kind there is (the menu under it marks it).
+      <ToolbarButton
+        key="kinds"
+        icon={shown.icon}
+        label={t.text.kindIs(shown.label)}
+        menu={!!kindsAt}
+        onClick={(e) => setKindsAt(kindsAt ? null : e.currentTarget)}
+      />
+    ) : null;
+
+  return (
+    <div className="rounded-panel border border-line bg-surface">
+      {/* Stays at the top while scrolling through the text, a little under the app's top bar (Screen.tsx,
+          4rem and its line); on a phone one row that scrolls sideways. The buttons are centred, but
+          start at the left edge when they do not fit (safe), so none is out of reach. */}
+      <Toolbar
+        ref={toolbar}
+        label={t.text.tools}
+        className="editor-tools sticky top-[calc(4.5rem+1px+env(safe-area-inset-top))] z-10 justify-center-safe overflow-x-auto rounded-t-panel border-b border-line md:flex-wrap"
+      >
+        {tools.map((tool) => (
+          <ReactFragment key={tool.label}>
+            {lineBefore(tool) && <span aria-hidden="true" className="mx-1 my-2 w-px shrink-0 self-stretch bg-line" />}
+            {button(tool)}
+          </ReactFragment>
+        ))}
+      </Toolbar>
+      {/* The site's colours (text-colors.mjs), each named in its colour, as it is in the text (its class), and "Ingen
+          farve" in the text's own. */}
+      <Menu anchor={colorsAt} label={t.text.color} onClose={() => setColorsAt(null)}>
+        {TEXT_COLORS.map((name) => (
+          <MenuItem key={name} icon={TextAa} selected={active.includes(colorClass(name))} onClick={() => color(name)}>
+            <span className={colorClass(name)}>{t.text.colors[name as keyof typeof t.text.colors]}</span>
+          </MenuItem>
+        ))}
+        <MenuItem icon={TextAa} selected={!active.includes('textColor')} onClick={() => color(null)}>
+          <span className="text-ink">{t.text.noColor}</span>
+        </MenuItem>
+      </Menu>
+      <Menu anchor={kindsAt} label={t.text.kind} onClose={() => setKindsAt(null)}>
+        {kinds.map(({ label, icon, action, on }) => (
+          <MenuItem key={label} icon={icon} selected={active.includes(on!)} onClick={action}>
+            {label}
+          </MenuItem>
+        ))}
+      </Menu>
+      <div
+        ref={root}
+        className={`editor-text prose max-w-none px-5 py-4 md:px-8 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
+      />
+    </div>
+  );
+});

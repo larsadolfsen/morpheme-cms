@@ -1,0 +1,268 @@
+---
+import '@theme/styles/global.css';
+import Header from '@theme/components/Header.astro';
+import Footer from '@theme/components/Footer.astro';
+import CookieConsent from '@theme/components/CookieConsent.astro';
+import Popup from '@theme/components/Popup.astro';
+import ContactBar from '@theme/components/ContactBar.astro';
+import BookingBar from '@theme/components/BookingBar.astro';
+import AppSlot from '@theme/components/AppSlot.astro';
+// The theme's own font files, loaded before the CSS asks for them (FontPreload.astro).
+import FontPreload from '@theme/components/FontPreload.astro';
+// The site's colours, which the owner changes under "Farver" in the editor (the theme's styles/global.css uses them),
+// as the apps installed change them for the page (packages/editor/site/pageColors.ts: an app's hooks/page-colors.ts).
+import { pageColors } from '@interstellarcms/cms/site/pageColors';
+import { colorsCss } from '@interstellarcms/cms/lib/colors';
+import { site } from '@interstellarcms/cms/site/site';
+import { business, businessRef, person, website, webPage, type Crumb, type Question } from '@interstellarcms/cms/site/schema';
+import { seo } from '@interstellarcms/cms/site/seo';
+import { cookieBanner } from '@site/consent';
+import { shareImage } from '@interstellarcms/cms/site/images.mjs';
+import { isNoindex } from '@interstellarcms/cms/site/noindex.mjs';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Google title and description from the page's front matter (pages and blog posts). */
+  seoTitle?: string;
+  seoDescription?: string;
+  /** The address of the page Google should count as the original (rel=canonical), from the front matter;
+   * else this page itself. */
+  canonical?: string;
+  /** The page's picture: shown when the page is shared, and in the structured data. */
+  image?: string;
+  /** The pictures on the page, in the order they are on it (a blog post's own first, then the real pictures in
+   * its text and blocks, picturesOf), for an app that changes the page's colours (pageColors), with the one it is
+   * shared with after them. */
+  pictures?: (string | undefined)[];
+  /** What `image` shows (og:image:alt). */
+  imageAlt?: string;
+  /** The picture to show when the page is shared, when it is another than `image`. */
+  shareImage?: string;
+  /** The title and description when the page is shared (og:), when they are others than the Google ones. */
+  shareTitle?: string;
+  shareDescription?: string;
+  type?: 'website' | 'article';
+  /** A blog post's date and last edit (article:published_time and article:modified_time). */
+  published?: Date;
+  modified?: Date;
+  noindex?: boolean;
+  /** Breadcrumbs between the front page and this page, for the structured data. */
+  crumbs?: Crumb[];
+  /** The questions and answers on the page, which make it an FAQPage in the structured data. */
+  questions?: Question[];
+  /** More structured data for this page (a blog post, prices). */
+  schema?: Record<string, unknown>[];
+}
+const { title, image, type = 'website', crumbs, questions, schema = [] } = Astro.props;
+// <title> and meta description: the page's own SEO fields (front matter of pages and blog posts),
+// else packages/editor/site/seo.ts (the pages built in code), else the title and description props.
+const entry = seo[Astro.url.pathname];
+const noindex = Astro.props.noindex || entry?.noindex || isNoindex(Astro.url.pathname);
+// `||`, not `??`: an empty field (the content schemas default to '') falls through to the next.
+const fullTitle = Astro.props.seoTitle || entry?.title || (Astro.url.pathname === '/' ? title : `${title} | ${site.name}`);
+const description = Astro.props.seoDescription || entry?.description || Astro.props.description || site.description;
+// When the page is shared: its own title and description for that ("Titel ved deling", "Beskrivelse ved deling"), else
+// the Google ones.
+const ogTitle = Astro.props.shareTitle || fullTitle;
+const ogDescription = Astro.props.shareDescription || description;
+const canonical = new URL(Astro.props.canonical || entry?.canonical || Astro.url.pathname, Astro.site);
+// The picture when the page is shared: the one chosen for that ("Billede ved deling" on the page or in
+// packages/editor/site/seo.ts), else the page's own, else the site's portrait.
+const chosen = Astro.props.shareImage || entry?.image;
+const og = shareImage(chosen || image || site.portrait);
+const ogImage = new URL(og.src, Astro.site);
+// What it shows, when that is known (not for a picture chosen only for sharing).
+const ogAlt = chosen ? undefined : image ? Astro.props.imageAlt : site.portraitAlt;
+const current = Astro.url.pathname;
+// The page's colours: the site's, as the apps installed change them for it, given its pictures, in order, then the one
+// it is shared with ("Billede ved deling"); with the app that changed them and the picture they came from, kept on their
+// <style> for "Farver" › "Sider" in the editor (packages/editor/scripts/page-colors.mjs).
+const {
+  colors,
+  app: colorsApp,
+  picture: colorsPicture,
+} = await pageColors({ path: Astro.url.pathname, pictures: [...(Astro.props.pictures ?? []), chosen] });
+// The cookie banner (and "Cookieindstillinger"): when it is on and there is something to ask about (src/site/consent.ts).
+const banner = cookieBanner;
+
+// Structured data (packages/editor/site/schema.ts): the business, the person behind it, the website, this page and what the page adds.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    // The business in full on the front page and the contact page, a reference elsewhere.
+    current === '/' || current === site.contactPath ? business : businessRef,
+    ...(person ? [person] : []),
+    website,
+    ...webPage({ path: current, title: fullTitle, name: title, description, image, crumbs, questions }),
+    ...schema,
+  ],
+};
+---
+
+<!doctype html>
+<html lang={site.locale.split('-')[0]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {!noindex && <link rel="canonical" href={canonical} />}
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
+    {!noindex && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={ogImage} />
+    {og.type && <meta property="og:image:type" content={og.type} />}
+    {og.width && <meta property="og:image:width" content={String(og.width)} />}
+    {og.height && <meta property="og:image:height" content={String(og.height)} />}
+    {ogAlt && <meta property="og:image:alt" content={ogAlt} />}
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content={site.locale.replace('-', '_')} />
+    {Astro.props.published && <meta property="article:published_time" content={Astro.props.published.toISOString()} />}
+    {Astro.props.modified && <meta property="article:modified_time" content={Astro.props.modified.toISOString()} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    {ogAlt && <meta name="twitter:image:alt" content={ogAlt} />}
+    <FontPreload />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="alternate" type="application/rss+xml" title={`${site.name} blog`} href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content={colors.light.bg} media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content={colors.dark.bg} media="(prefers-color-scheme: dark)" />
+    <style is:inline data-page-colors data-app={colorsApp} data-picture={colorsPicture} set:html={colorsCss(colors)}></style>
+    {!noindex && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      try {
+        const t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+      // Safety net: never leave content hidden if the motion script fails to load. When it has loaded
+      // (the theme's scripts/motion.ts sets data-motion), the sections not yet scrolled to wait for it.
+      setTimeout(
+        () =>
+          !document.documentElement.dataset.motion &&
+          document.querySelectorAll('[data-reveal]').forEach((el) => {
+            if (getComputedStyle(el).opacity === '0' && !el.getAnimations().length) el.style.opacity = '1';
+          }),
+        4000,
+      );
+    </script>
+    <slot name="head" />
+    <AppSlot name="head" />
+  </head>
+  <body class="flex min-h-dvh flex-col">
+    <a
+      href="#hovedindhold"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-on-accent"
+    >
+      Spring til indhold
+    </a>
+
+    <Header />
+
+    <main id="hovedindhold" class="flex-1">
+      <slot />
+    </main>
+
+    {banner && <CookieConsent />}
+    {/* The pop-ups for this page ("Promovering" in the editor). */}
+    <Popup />
+
+    {
+      /* A blog post's related posts, in the footer instead of the practical links. */
+      Astro.slots.has('footer-column') ? (
+        <Footer>
+          <slot name="footer-column" slot="footer-column" />
+        </Footer>
+      ) : (
+        <Footer />
+      )
+    }
+
+    <style is:global>
+      :root .light-hide {
+        display: none;
+      }
+      :root[data-theme='dark'] .light-hide {
+        display: inline-block;
+      }
+      :root[data-theme='dark'] .dark-hide {
+        display: none;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) .light-hide {
+          display: inline-block;
+        }
+        :root:not([data-theme='light']) .dark-hide {
+          display: none;
+        }
+      }
+    </style>
+
+    <script>
+      // What the blocks do in a browser (script.ts in the theme's blocks/<type>/).
+      import { blockScripts } from '@site/scripts';
+      Object.values(blockScripts).forEach((run) => run());
+    </script>
+
+    <script>
+      import '@theme/scripts/motion';
+
+      // Theme toggle: flips between light and dark and remembers the choice.
+      document.querySelectorAll('[data-theme-toggle]').forEach((btn) =>
+        btn.addEventListener('click', () => {
+          const root = document.documentElement;
+          const isDark = root.dataset.theme === 'dark' || (!root.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+          const next = isDark ? 'light' : 'dark';
+          root.dataset.theme = next;
+          try {
+            localStorage.setItem('theme', next);
+          } catch {}
+        }),
+      );
+
+      // Videos from YouTube and Vimeo in the text (packages/editor/lib/video.mjs): the video loads only when it is played.
+      document.querySelectorAll<HTMLAnchorElement>('a[data-video]').forEach((link) =>
+        link.addEventListener('click', (e) => {
+          if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+          e.preventDefault();
+          const frame = document.createElement('iframe');
+          frame.src = link.dataset.video!;
+          frame.title = link.dataset.title ?? '';
+          frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+          frame.allowFullscreen = true;
+          frame.referrerPolicy = 'strict-origin-when-cross-origin';
+          link.replaceWith(frame);
+          frame.focus();
+        }),
+      );
+
+      // Header: a shadow once the page scrolls under it.
+      const header = document.querySelector<HTMLElement>('[data-header]');
+      if (header) {
+        const update = () => header.toggleAttribute('data-stuck', scrollY > 4);
+        addEventListener('scroll', update, { passive: true });
+        update();
+      }
+
+      // The bar at the bottom of a phone's screen (a promotion, ContactBar.astro, BookingBar.astro or an app's): on pages with
+      // buttons at the top, hide it only while those are (almost) fully on screen. A sliver of them
+      // peeking in at the bottom still shows the bar.
+      const bar = document.querySelector<HTMLElement>('[data-action-bar]');
+      const heroCta = document.querySelector('[data-hero-cta]');
+      if (bar && heroCta && 'IntersectionObserver' in window) {
+        new IntersectionObserver(([e]) => bar.toggleAttribute('data-hidden', e.intersectionRatio >= 0.95), {
+          threshold: [0, 0.95],
+        }).observe(heroCta);
+      }
+    </script>
+    {/* The bars at the bottom of a phone's screen, before the apps' (only the first one is shown). */}
+    <ContactBar />
+    <BookingBar />
+    <AppSlot name="body-end" />
+  </body>
+</html>

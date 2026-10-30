@@ -1,0 +1,298 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+/* The theme's UI components, as Material 3 names them (buttons, icon buttons), and the standard blocks of the editor,
+   in this site's design (their variables below). */
+@import './ui.css';
+@import './blocks.css';
+/* The theme's variables and the classes the standard theme's components use with them. */
+@import './components.css';
+
+/*
+  The standard theme's base: what every theme builds on, plain and neutral. The system's own font, a small radius on
+  panels, a light shadow, full pills on controls; the classes the standard theme's components use (.link, .prose,
+  the motion …) besides the UI components (ui.css: buttons, icon buttons, chips, snackbars). The standard theme's own look is over it, in global.css; a theme with a look of its
+  own from a design system (Material) imports only this file, so that look does not mix into its own. Another theme sets
+  its own (its styles/global.css); what it does not draw itself is drawn by the standard theme's components and blocks,
+  in its CSS.
+  Dark mode follows the system unless the visitor picks one (data-theme on <html>).
+
+  The colours (--bg, --surface, --tint, --ink, --muted, --line, --accent, --accent-hover, --on-accent, and Material 3's
+  other colours: --accent-container, --secondary, --secondary-container, --tertiary, --tertiary-container, each with its
+  --on-…)
+  are not here: they are data, src/data/colors.json, which the owner changes under "Farver" in the editor.
+  Base.astro and the editor's page write them into <head> (colorsCss, packages/editor/lib/colors.ts), for
+  light mode and dark mode as below; the editor checks them to WCAG AA before they are saved
+  (colorPairs in src/site/colors.ts). Everything here uses them by name.
+*/
+:root {
+  --radius: 0.75rem;
+  /* The corners of something smaller in or beside a panel: a picture in a list, a row in a menu, an icon's square. */
+  --radius-small: 1rem;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px -12px rgb(0 0 0 / 0.18);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  color-scheme: light;
+
+  /* The standard blocks (blocks.css) in this design; in dark mode too, as they
+     follow the tokens above. */
+  --block-text: var(--ink);
+  --block-muted: var(--muted);
+  --block-accent: var(--accent);
+  --block-accent-hover: var(--accent-hover);
+  --block-on-accent: var(--on-accent);
+  --block-surface: var(--surface);
+  --block-tint: var(--tint);
+  --block-line: var(--line);
+  --block-radius: var(--radius);
+  --block-radius-small: var(--radius-small);
+  --block-control-radius: 9999px;
+  --block-shadow: var(--shadow);
+  --block-ease: var(--ease);
+  /* How far a carousel reaches out to the edges of a phone's screen (ui.css): Container.astro's gutter there (px-5). */
+  --carousel-bleed: 1.25rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 20px 40px -24px rgb(0 0 0 / 0.7);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 20px 40px -24px rgb(0 0 0 / 0.7);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-tint: var(--tint);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-on-accent: var(--on-accent);
+  --color-accent-container: var(--accent-container);
+  --color-on-accent-container: var(--on-accent-container);
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+  --color-tertiary: var(--tertiary);
+  --color-on-tertiary: var(--on-tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+  --radius-panel: var(--radius);
+  --radius-panel-small: var(--radius-small);
+  --shadow-soft: var(--shadow);
+  --ease-soft: var(--ease);
+}
+
+/* z-index scale (documented, no ad-hoc values): action bar 30, header 40, cookie banner 42 (under the
+   open menu, which must stay usable), menu 45, skip link 50 */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5.5rem;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  /* Grid children may contain horizontal scrollers; never let them widen the track. */
+  .grid > * {
+    min-width: 0;
+  }
+}
+
+@layer components {
+  .link {
+    color: var(--accent);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+  }
+  .link:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+/* Long-form text (migrated pages and blog posts). */
+.prose {
+  --tw-prose-body: var(--ink);
+  --tw-prose-headings: var(--ink);
+  --tw-prose-lead: var(--muted);
+  --tw-prose-links: var(--accent);
+  --tw-prose-bold: var(--ink);
+  --tw-prose-counters: var(--muted);
+  --tw-prose-bullets: var(--accent);
+  --tw-prose-hr: var(--line);
+  --tw-prose-quotes: var(--ink);
+  --tw-prose-quote-borders: var(--accent);
+  --tw-prose-captions: var(--muted);
+  --tw-prose-th-borders: var(--line);
+  --tw-prose-td-borders: var(--line);
+  --tw-prose-code: var(--ink);
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+.prose :where(h2, h3, h4) {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.prose :where(h2) {
+  font-size: 1.6em;
+  line-height: 1.2;
+}
+/* Code in a line (cookie names in the privacy policy): on a tint, without the plugin's backticks. */
+.prose :where(:not(pre) > code):not(:where(.not-prose code)) {
+  background: var(--tint);
+  border-radius: 0.3em;
+  padding: 0.1em 0.35em;
+  font-weight: 500;
+}
+.prose :where(:not(pre) > code):not(:where(.not-prose code))::before,
+.prose :where(:not(pre) > code):not(:where(.not-prose code))::after {
+  content: none;
+}
+/* Not the links of a block in the text (not-prose): their look is the block's. */
+.prose :where(a):not(:where(.not-prose a)) {
+  font-weight: 500;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+/* Pictures in the text; not those in a block of the site in it (not-prose, RichText.astro). */
+.prose :where(img):not(:where(.not-prose img)) {
+  border-radius: var(--radius);
+  width: 100%;
+  height: auto;
+}
+/* A picture in the text cut to a format in the editor (packages/editor/lib/crop.mjs): the box is the format, the
+   picture in it as large and as far moved as the part chosen. */
+.picture-crop {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  margin-block: 2em;
+}
+.picture-crop > img {
+  position: absolute;
+  inset: 0 auto auto 0;
+  max-width: none;
+  height: auto;
+  margin: 0;
+  border-radius: 0;
+}
+/* Video embeds (an embed that needs another size, an app's calendar, sets its own). */
+.prose :where(iframe) {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  border: 0;
+  border-radius: var(--radius);
+  margin-block: 2em;
+}
+
+/* Motion.
+   [data-reveal]: sections fade up once when scrolled into view (packages/editor/theme/scripts/motion.ts).
+   The top of a page stands still from the first paint; from another page of the site it fades in (components.css).
+   Off for visitors who prefer reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    opacity: 0;
+  }
+}
+
+/* The site's logo (public/butterfly.svg), colored by background-color via a mask. */
+.butterfly {
+  display: inline-block;
+  -webkit-mask: url('/butterfly.svg') center / contain no-repeat;
+  mask: url('/butterfly.svg') center / contain no-repeat;
+}
+
+/* A block the theme places outside the text (Block.astro in EndBlock.astro and on the prices page): its
+   place gives the space around it, not the text's (.block-in-text). */
+.block-place > .block-in-text {
+  margin-block: 0;
+}
+/* The heading of a block placed outside the text (a front-page section): as the theme's other section headings
+   (SectionHeading.tsx), not the text's; with a label or a subheading (.block-head, blocks.css) the space under the
+   whole head. */
+.block-place > h2,
+.block-place > .block-head {
+  margin-block: 0 2rem;
+}
+.block-place > h2,
+.block-place > .block-head > h2 {
+  font-size: 2.1rem;
+  line-height: 1.25;
+}
+@media (min-width: 48rem) {
+  .block-place > h2,
+  .block-place > .block-head > h2 {
+    font-size: 3rem;
+    line-height: 1;
+  }
+}
+/* Cards placed in the page's full width (a front-page section, PageBlock.astro): three in a row on a computer, as
+   there is room for (in the text, two). */
+@media (min-width: 64rem) {
+  .block-place .block-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* The mark before the name on a testimonial (the standard block's card): a small dot in the accent, which the standard
+   theme's own look (global.css) makes an avatar with the initial. Another mark (e.g. a logo) is that
+   theme's own (its global.css), not the standard theme's. */
+.block-testimonial-mark {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: var(--accent);
+}
+
+/* Boxes side by side ("Links", an app's boxes): the site's panels (outlined cards, ui.css), with a soft shadow
+   instead of the line, more room on a computer and the heading of a section in it. */
+.block-panels > .block-panel {
+  --card-outlined-line: transparent;
+  --card-outlined-shadow: var(--shadow-soft);
+}
+.block-panels .block-panel-title {
+  font-size: 1.5rem;
+}
+@media (min-width: 48rem) {
+  .block-panels > .block-panel {
+    --card-padding: 2rem;
+  }
+}

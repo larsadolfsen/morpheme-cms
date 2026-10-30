@@ -1,0 +1,11 @@
+---
+// A short text from the editor inside the component's own <p> (packages/editor/lib/inline.ts).
+import { inlineHtml } from '@interstellarcms/cms/lib/inline';
+
+interface Props {
+  text: string;
+}
+const html = await inlineHtml(Astro.props.text ?? '');
+---
+
+<Fragment set:html={html} />

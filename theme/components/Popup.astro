@@ -1,0 +1,145 @@
+---
+// Pop-ups (packages/editor/site/popups.ts, "Indhold" › "Promovering" in the editor): those for this page, as a modal dialog in the
+// middle of the screen over its scrim (dialogModalClass, ui/Dialog.tsx) with their box (PopupView.tsx, as in the
+// editor: a picture at the top, a heading, a text and a button).
+// A pop-up of a kind an app adds (`type`, e.g. Mailchimp's) has the app's part under the text instead
+// (src/apps/<app>/popups/View.tsx), which shows the button where it wants; it can tell the script that the visitor is
+// done (the event `popup:done`: not shown again) and that it cannot be shown (an element with `data-popup-off`: an app
+// without its settings). The cross to close it is in the top right corner, over the picture. The script shows the
+// first one the visitor has not closed, `delay` seconds after the page opens, once the page is scrolled `scroll` %
+// down, or as the visitor is about to leave it (`trigger`), and not while the cookie banner is asking or another dialog
+// is open. Closed (the cross, Escape, a tap outside it or its button), it is remembered in the browser and not shown to
+// that visitor again by itself. A button that opens it ("Knapper": "Åbn promovering", `data-open="promotion:<file
+// name>"`) opens it whenever it is tapped, also when it was closed before. Without JavaScript none is shown.
+import PopupView, { type PopupPart } from '@theme/components/PopupView';
+import { loadPopup } from '@theme/components/loadPopup';
+import { dialogModalClass } from '@theme/ui/Dialog';
+import { popupsAt, type Popup } from '@interstellarcms/cms/site/popups';
+
+// The kinds the apps add (src/apps/<app>/popups/: View.tsx and load.ts), by the app's id: what is under the text of one
+// of that kind (Mailchimp: the signup form), given the button. Also when the app is no longer installed: what was made
+// with it stays on the site. A kind of an app without that part is no pop-up, and shows itself (Calendly's booking
+// sheet, in the app's slots/).
+const byApp = <T,>(found: Record<string, T>) =>
+  Object.fromEntries(Object.entries(found).map(([path, m]) => [path.split('/apps/')[1].split('/')[0], m]));
+const parts = byApp(import.meta.glob<{ default: PopupPart }>('/src/apps/*/popups/View.tsx', { eager: true }));
+const loads = byApp(import.meta.glob<{ load: (popup: Popup) => unknown }>('/src/apps/*/popups/load.ts', { eager: true }));
+const shown = await Promise.all(
+  (await popupsAt(Astro.url.pathname))
+    .filter((p) => p.type === 'standard' || (parts[p.type] && loads[p.type]))
+    .map(async (p) => ({ ...p, box: await loadPopup(p), Part: parts[p.type]?.default, part: loads[p.type]?.load(p) })),
+);
+---
+
+{shown.map((p) => (
+  <dialog
+    class={dialogModalClass}
+    aria-labelledby={`popup-${p.slug}`}
+    data-popup={p.slug}
+    data-trigger={p.trigger}
+    data-delay={p.delay}
+    data-scroll={p.scroll}
+  >
+    <PopupView popup={p.box} Part={p.Part} part={p.part} />
+  </dialog>
+))}
+
+<script>
+  const KEY = 'popups-closed';
+  const closed = (): string[] => {
+    try {
+      return JSON.parse(localStorage.getItem(KEY) ?? '[]');
+    } catch {
+      return [];
+    }
+  };
+  const remember = (slug: string) => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify([...new Set([...closed(), slug])]));
+    } catch {}
+  };
+
+  // Those that can be shown (an app's that cannot, without its settings, says so with data-popup-off).
+  const all = [...document.querySelectorAll<HTMLDialogElement>('dialog[data-popup]')].filter((d) => !d.querySelector('[data-popup-off]'));
+  for (const d of all) {
+    const close = () => d.open && d.close();
+    d.addEventListener('close', () => remember(d.dataset.popup!));
+    // An app's kind says the visitor is done (signed up): not shown again, also before it is closed.
+    d.addEventListener('popup:done', () => remember(d.dataset.popup!));
+    d.querySelector('[data-popup-close]')?.addEventListener('click', close);
+    // A tap on the dimmed backdrop (outside the box) closes it.
+    d.addEventListener('click', (e) => e.target === d && close());
+    // Its button closes it first, so what it opens (the page, or an app's sheet over it) opens alone.
+    d.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
+  }
+
+  // A button that opens one of them, whenever it is tapped (not with a key held: a new tab).
+  document.addEventListener('click', (e) => {
+    const link = (e.target as Element | null)?.closest?.<HTMLElement>('[data-open^="promotion:"]');
+    const d = link && all.find((p) => `promotion:${p.dataset.popup}` === link.dataset.open);
+    if (!d || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (e as MouseEvent).button !== 0) return;
+    e.preventDefault();
+    all.forEach((p) => p.open && p.close());
+    d.showModal();
+  });
+
+  // The one that opens by itself: the first the visitor has not closed.
+  const popup = all.find((d) => !closed().includes(d.dataset.popup!));
+  if (popup) {
+    // Not over the cookie banner (CookieConsent.astro), an app's dialog (a booking sheet) or another pop-up
+    // (an app's, src/apps/): it waits until they are answered and closed.
+    const busy = () =>
+      document.getElementById('cookie-consent')?.hidden === false ||
+      [...document.querySelectorAll('dialog')].some((d) => d !== popup && d.open);
+    const show = () => {
+      if (popup.open) return;
+      if (!busy()) return popup.showModal();
+      setTimeout(show, 1000);
+    };
+
+    // How far down the page is scrolled, 0 to 1 (1 for a page too short to scroll).
+    const down = () => {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      return max > 0 ? scrollY / max : 1;
+    };
+    const trigger = popup.dataset.trigger;
+    if (trigger === 'scroll') {
+      const at = Math.min(Number(popup.dataset.scroll) / 100, 0.98);
+      const check = () => {
+        if (down() < at) return;
+        removeEventListener('scroll', check);
+        show();
+      };
+      addEventListener('scroll', check, { passive: true });
+      // A page too short to scroll (or opened further down) gets it without a scroll.
+      setTimeout(check, 1000);
+    } else if (trigger === 'exit') {
+      if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        // The mouse leaves the window at the top: towards the tabs, the address bar or the back button.
+        const leave = (e: MouseEvent) => {
+          if (e.relatedTarget || e.clientY > 0) return;
+          document.removeEventListener('mouseout', leave);
+          show();
+        };
+        document.addEventListener('mouseout', leave);
+      } else {
+        // A phone has no mouse: a quick scroll back up, once the visitor has scrolled a screen down.
+        let mark = { y: scrollY, t: performance.now() };
+        let deepest = scrollY;
+        const flick = () => {
+          const now = performance.now();
+          deepest = Math.max(deepest, scrollY);
+          if (now - mark.t < 150) return;
+          const speed = (mark.y - scrollY) / (now - mark.t);
+          mark = { y: scrollY, t: now };
+          if (deepest < innerHeight || speed < 1.5) return;
+          removeEventListener('scroll', flick);
+          show();
+        };
+        addEventListener('scroll', flick, { passive: true });
+      }
+    } else {
+      setTimeout(show, Number(popup.dataset.delay) * 1000);
+    }
+  }
+</script>

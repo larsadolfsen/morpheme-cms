@@ -1,0 +1,17 @@
+---
+// A text the site's owner writes in Markdown (paragraphs, lists, links, quotes), in the same style as the
+// text on the pages. Rendered with Astro's Markdown pipeline, like the pages (GitHub-flavoured
+// Markdown, typographic quotes).
+import { createMarkdownProcessor } from '@astrojs/markdown-remark';
+
+interface Props {
+  body: string;
+  class?: string;
+}
+const { body, class: className } = Astro.props;
+
+const processor = await createMarkdownProcessor();
+const html = (await processor.render(body ?? '')).code;
+---
+
+<div class:list={['prose max-w-[62ch]', className]} set:html={html} />

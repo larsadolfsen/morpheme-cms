@@ -1,0 +1,28 @@
+---
+// A page's text, with the site's blocks put in it in the editor (packages/editor/lib/blocks.mjs) shown
+// as the real components: each block drawn from its view, the standard blocks' and the apps' (blockSites in
+// packages/editor/src/standard/sites.ts; the folder's name is its type). The text keeps the page's "prose" style; the blocks are outside it (not-prose; the video
+// is in it, as a video written in the text, packages/editor/lib/video.mjs); a block hidden in the editor is left
+// out (splitBlocks). The HTML comes as `html`, or as the default slot (rendered Markdown). `path`: the
+// page's address, for the testimonials' label. `preview`: a new version of a page (/ny/), whose topics
+// show the opening of the new versions too. Each block gets its type, and its shared texts as `texts` (blockTexts).
+import { splitBlocks } from '@interstellarcms/cms/lib/blocks.mjs';
+import { blockSites } from '@interstellarcms/cms/src/standard/sites';
+import { blockTexts } from '@interstellarcms/cms/site/site';
+
+interface Props {
+  html?: string;
+  path?: string;
+  preview?: boolean;
+}
+const { path, preview } = Astro.props;
+const html = Astro.props.html ?? (await Astro.slots.render('default'));
+
+const parts = splitBlocks(html, Object.keys(blockSites));
+---
+
+{parts.map((p, i) => {
+  if (p.html !== undefined) return <Fragment set:html={p.html} />;
+  const Block = blockSites[p.type];
+  return <Block type={p.type} props={p.props} index={i} path={path} preview={preview} texts={blockTexts[p.type]} />;
+})}

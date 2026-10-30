@@ -1,0 +1,150 @@
+/*
+  The theme's variables: what the standard theme's own components (components/, layouts/, templates/) read, so
+  another theme changes them in its styles/global.css instead of with selectors on their markup (docs/editor.md,
+  "Temaets variabler"). The defaults give the standard theme's look, from the theme's own --radius, --shadow and colours.
+  The standard theme's base (base.css) imports this; a theme that writes all its CSS itself imports it too.
+*/
+:root {
+  /* The colour of the shade over the page behind a pop-up (the dialog's scrim, ui.css) and the navigation drawer
+     (ui.css), seen through: the text's, in dark mode the page's. */
+  --theme-scrim-colour: var(--ink);
+  /* The large picture at the top of a page or a blog post, and the newest post's on the blog. */
+  --theme-picture-radius: var(--radius);
+  /* How long one page fades into the next when a link is followed (below). */
+  --theme-page-fade: 0.35s;
+  /* The space above a section of the front page (Section.astro), on a phone and from md, and above its first. */
+  --theme-section-space: 5rem;
+  --theme-section-space-large: 8rem;
+  --theme-home-first-space: var(--theme-section-space);
+  --theme-home-first-space-large: var(--theme-section-space-large);
+  /* The logo (Logo.astro, and at the top of the menu on a phone): the mark (the site's logo) in a tile, its colour and
+     size (a share of the mark's own), the name's weight and size, and the role (hidden with none; on a phone, and from md). */
+  --theme-logo-tile: transparent;
+  --theme-logo-tile-padding: 0;
+  --theme-logo-tile-radius: 0;
+  --theme-logo-mark: var(--accent);
+  --theme-logo-mark-scale: 1;
+  --theme-logo-name-weight: 500;
+  --theme-logo-name-size: 1em;
+  --theme-logo-role-display: block;
+  --theme-logo-role-display-large: block;
+  /* The pictures in the list of posts (PostList.tsx, the blog's other posts). */
+  --theme-post-picture-radius: var(--radius-small);
+}
+
+/* In dark mode the shade is the page's colour, as the text's is light. A theme sets --dialog-scrim and
+   --navigation-drawer-scrim (ui.css) in its :root, and they hold in both modes. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --theme-scrim-colour: var(--bg);
+  }
+}
+
+:root[data-theme='dark'] {
+  --theme-scrim-colour: var(--bg);
+}
+
+@layer components {
+  /* The logo (Logo.astro, MobileMenu.tsx): the mark in its tile, the name and the role. */
+  .theme-logo-tile {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    border-radius: var(--theme-logo-tile-radius);
+    background: var(--theme-logo-tile);
+    padding: var(--theme-logo-tile-padding);
+  }
+  .theme-logo-mark {
+    width: calc(2.25rem * var(--theme-logo-mark-scale));
+    height: calc(2.5rem * var(--theme-logo-mark-scale));
+    background-color: var(--theme-logo-mark);
+  }
+  .theme-logo-mark-small {
+    width: calc(1.75rem * var(--theme-logo-mark-scale));
+    height: calc(2rem * var(--theme-logo-mark-scale));
+  }
+  .theme-logo-name {
+    font-size: var(--theme-logo-name-size);
+    font-weight: var(--theme-logo-name-weight);
+  }
+  .theme-logo-role {
+    display: var(--theme-logo-role-display);
+  }
+  @media (min-width: 48rem) {
+    .theme-logo-role {
+      display: var(--theme-logo-role-display-large);
+    }
+  }
+  /* A picture in the list of posts (PostList.tsx). */
+  .theme-post-picture {
+    border-radius: var(--theme-post-picture-radius);
+  }
+  /* The first section on the front page (templates/Home.astro). */
+  .theme-home-first {
+    --theme-section-space: var(--theme-home-first-space);
+    --theme-section-space-large: var(--theme-home-first-space-large);
+  }
+  /* The bar at the bottom of a phone's screen (a promotion: ContactBar.astro, BookingBar.astro), a docked toolbar
+     (.toolbar-docked, ui.css) fixed there: the page gets room under its footer, and only the first bar on a page is
+     shown. data-hidden: moved down out of sight (while the buttons at the top of the front page are on screen, the script
+     in Base.astro). Not from 48rem (a tablet in landscape, a computer). */
+  .theme-action-bar {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 30;
+    transition: transform 0.5s var(--block-ease);
+  }
+  .theme-action-bar[data-hidden] {
+    transform: translateY(100%);
+  }
+  .theme-action-bar ~ .theme-action-bar {
+    display: none;
+  }
+  @media (width < 48rem) {
+    body:has(.theme-action-bar) {
+      padding-bottom: 6rem;
+    }
+  }
+  @media (width >= 48rem) {
+    .theme-action-bar {
+      display: none;
+    }
+  }
+  /* The editor's drawing of one (src/site/popup.tsx): in its place, as wide as a phone, in a frame. */
+  .theme-action-bar-drawn {
+    max-width: 24rem;
+    margin-inline: auto;
+    border: 1px solid var(--block-line);
+    border-radius: var(--block-radius);
+  }
+}
+
+@layer components {
+  /* With the bar of "Mobilmenu" under the header (MobileNav.astro), a link to a part of a page stops below both. */
+  @media (width < 80rem) {
+    html:has([data-mobile-nav]) {
+      scroll-padding-top: 9.25rem;
+    }
+  }
+}
+
+/* A picture that opens the text (a paragraph of its own) starts where a paragraph would: its space above would come on
+   top of the space under the page's heading. For every theme, also one with its own text style; outside the
+   layers, like the pictures' own space in the text. */
+.prose > p:first-child > :where(img, .picture-crop):only-child {
+  margin-top: 0;
+}
+
+/* Going from one page of the site to another, the old page fades into the new (a cross-document view transition,
+   CSS only), so the colours change softly when every page has its own (content-based colour, packages/editor/site/pageColors.ts).
+   It does not touch the first paint or the first visit (Lighthouse), and a browser without it shows the page at once. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: var(--theme-page-fade);
+    animation-timing-function: var(--ease);
+  }
+}

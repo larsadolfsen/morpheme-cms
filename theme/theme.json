@@ -1,0 +1,32 @@
+{
+  "name": "Saturn",
+  "version": "1.0.1",
+  "author": "Lars Adolfsen",
+  "icon": "/editor/icon-192.png",
+  "license": "UNLICENSED",
+  "thirdParty": [
+    { "package": "tailwindcss", "kind": "library" },
+    { "package": "@tailwindcss/typography", "kind": "library" },
+    { "package": "@fontsource-variable/plus-jakarta-sans", "kind": "font" },
+    { "package": "motion", "kind": "library" }
+  ],
+  "icons": "material-symbols",
+  "description": {
+    "da-DK": "Et lyst og moderne tema med kraftige overskrifter, luftig tekst og bløde skygger. Det passer til de fleste hjemmesider.",
+    "en-US": "A light, modern theme with bold headings, airy text and soft shadows. It suits most websites."
+  },
+  "highlights": {
+    "da-DK": [
+      "Plus Jakarta Sans med kraftige overskrifter",
+      "Hvide flader med tynd kant og store, runde hjørner",
+      "Runde knapper med et let skær i accentfarven",
+      "Googles Material Symbols som ikoner"
+    ],
+    "en-US": [
+      "Plus Jakarta Sans with bold headings",
+      "White panels with a thin edge and large, round corners",
+      "Round buttons with a soft glow in the accent colour",
+      "Google's Material Symbols as icons"
+    ]
+  }
+}

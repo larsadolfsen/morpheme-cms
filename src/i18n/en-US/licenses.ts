@@ -1,0 +1,25 @@
+import type { Messages } from '../da-DK';
+
+export const licenses: Messages['licenses'] = {
+  icons: 'Icon packs',
+  system: 'The editor and the site',
+  app: (name) => `The app ${name}`,
+  theme: (name) => `The theme ${name}`,
+  unlicensed: 'All rights reserved',
+  kinds: { font: 'Font', icons: 'Icons', library: 'Code', image: 'Pictures' },
+  inEditor: 'in the editor',
+  onSite: 'on the site',
+  inApp: (name) => `in the app ${name}`,
+  inTheme: (name) => `in the theme ${name}`,
+  via: (names) => `through ${names}`,
+  notShipped: 'not downloaded from the site',
+  offered: 'can be chosen',
+  version: (version) => `Version ${version}`,
+  own: (name) => `${name} itself`,
+  loading: 'Fetching the licences',
+  missing: 'The licences come once the site is updated.',
+  text: 'Licence text',
+  noText: 'There is no licence text, as all rights are reserved.',
+  standardText: (license) => `The package has no licence file, so this is the standard text of ${license}.`,
+  notFound: 'The licence does not exist.',
+};
