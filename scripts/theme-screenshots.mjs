@@ -12,6 +12,7 @@ import { tmpdir } from 'node:os';
 import { extname, join } from 'node:path';
 import { chromium } from 'playwright';
 import { installedThemes, themeFolder } from '@interstellarcms/cms/site/theme.mjs';
+import { binOf } from './bin.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const standardPages = JSON.parse(readFileSync(join(ROOT, 'src/data/standard-pages.json'), 'utf8'));
@@ -48,7 +49,7 @@ try {
     writeFileSync(file, `${JSON.stringify({ theme }, null, 2)}\n`);
     const out = mkdtempSync(join(tmpdir(), `theme-${theme}-`));
     try {
-      run('npx', ['astro', 'build', '--outDir', out]);
+      run(process.execPath, [binOf('astro'), 'build', '--outDir', out]);
       const server = await serve(out);
       const site = `http://localhost:${server.address().port}`;
       const folder = join(ROOT, `${themeFolder(theme)}/screenshots`);

@@ -9,6 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { activeTheme, installedThemes } from '@interstellarcms/cms/site/theme.mjs';
+import { binOf } from './bin.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const file = join(ROOT, 'src/data/theme.json');
@@ -23,9 +24,9 @@ try {
     writeFileSync(file, `${JSON.stringify({ theme }, null, 2)}\n`);
     const out = mkdtempSync(join(tmpdir(), `theme-${theme}-`));
     try {
-      run('node', [fileURLToPath(new URL('check-content.mjs', import.meta.url))]);
-      run('npx', ['astro', 'build', '--outDir', out]);
-      run('node', [fileURLToPath(new URL('editor-screens.mjs', import.meta.url)), out]);
+      run(process.execPath, [fileURLToPath(new URL('check-content.mjs', import.meta.url))]);
+      run(process.execPath, [binOf('astro'), 'build', '--outDir', out]);
+      run(process.execPath, [fileURLToPath(new URL('editor-screens.mjs', import.meta.url)), out]);
     } catch {
       failed.push(theme);
     } finally {

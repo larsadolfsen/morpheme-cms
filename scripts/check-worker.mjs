@@ -54,7 +54,10 @@ const git = (args, input, env = {}) =>
   });
 const out = (...args) => git(args).toString().trim();
 execFileSync('git', ['init', '-q', '-b', branch, REPO]);
-execFileSync('sh', ['-c', `git -C "${ROOT}" archive HEAD | tar -x -C "${REPO}"`]);
+const tarball = join(REPO, '.git', 'head.tar');
+execFileSync('git', ['-C', ROOT, 'archive', '-o', tarball, 'HEAD']);
+execFileSync('tar', ['-x', '-f', tarball, '-C', REPO]);
+rmSync(tarball);
 git(['add', '-A']);
 git(['commit', '-q', '-m', 'Start']);
 

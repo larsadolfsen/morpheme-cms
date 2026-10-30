@@ -17,6 +17,7 @@ import { chromium } from 'playwright';
 import { createServer } from 'vite';
 import { aliases, themePlugin } from '@interstellarcms/cms/site/theme.mjs';
 import { appFoldersPlugin } from '@interstellarcms/cms/lib/apps.mjs';
+import { binOf } from './bin.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
 
 const ROOT = `${process.cwd()}/`;
@@ -97,7 +98,7 @@ let browser;
 try {
   writeFileSync(THEME, `${JSON.stringify({ theme: 'saturn' }, null, 2)}\n`);
   writeFileSync(COLORS, `${JSON.stringify(blue, null, 2)}\n`);
-  execFileSync('npx', ['astro', 'build', '--outDir', out], { cwd: ROOT, stdio: 'inherit' });
+  execFileSync(process.execPath, [binOf('astro'), 'build', '--outDir', out], { cwd: ROOT, stdio: 'inherit' });
   const { server, site } = await serveBuilt(out);
   // CHROMIUM_PATH: another Chromium than Playwright's own (one installed for another version of Playwright).
   browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });

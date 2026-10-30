@@ -31,9 +31,16 @@ function fetched(spec) {
   if (!existsSync(`${pkg}package.json`)) {
     console.log(`Henter ${spec} til ${cache} …`);
     mkdirSync(cache, { recursive: true });
-    execFileSync('npm', ['install', '--prefix', cache, '--no-save', '--no-package-lock', '--no-audit', '--no-fund', spec], {
-      stdio: 'inherit',
-    });
+    // npm is npm.cmd on Windows, which execFileSync cannot start without a shell: npm's own script with Node, when npm
+    // runs this.
+    const npm = process.env.npm_execpath ? [process.execPath, process.env.npm_execpath] : ['npm'];
+    execFileSync(
+      npm[0],
+      [...npm.slice(1), 'install', '--prefix', cache, '--no-save', '--no-package-lock', '--no-audit', '--no-fund', spec],
+      {
+        stdio: 'inherit',
+      },
+    );
   }
   return pkg;
 }

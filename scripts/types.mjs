@@ -4,6 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { readdirSync, rmSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { binOf } from './bin.mjs';
 
 const PACKAGE = fileURLToPath(new URL('..', import.meta.url));
 
@@ -14,4 +15,7 @@ const declarations = () =>
 
 for (const file of declarations()) rmSync(file);
 if (process.argv[2] === 'write')
-  execFileSync('npx', ['tsc', '-p', join(PACKAGE, 'tsconfig.types.json')], { cwd: PACKAGE, stdio: 'inherit' });
+  execFileSync(process.execPath, [binOf('typescript', 'tsc', PACKAGE), '-p', join(PACKAGE, 'tsconfig.types.json')], {
+    cwd: PACKAGE,
+    stdio: 'inherit',
+  });
