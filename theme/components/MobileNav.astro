@@ -1,0 +1,32 @@
+---
+// The bar under the header ("Mobilmenu" in the editor, mobileNav in packages/editor/site/site.ts), in the header so it stays at the
+// top with it: its links on one line as scrollable tabs (m3.material.io/components/tabs), on a phone and a tablet (where
+// the menu is behind the menu button), to be swiped sideways when they do not fit, with the open page's chosen (its
+// label in its own colour) and scrolled into view: the theme's tabs (ui/Tabs.tsx, .tab in styles/ui.css). Not there when
+// it is turned off or has no links.
+import { tabsClass, tabClass } from '@theme/ui/Tabs';
+import { mobileNav } from '@interstellarcms/cms/site/site';
+
+const current = Astro.url.pathname;
+const isActive = (href: string) => current === href || (href !== '/' && current.startsWith(href));
+---
+
+{mobileNav.length > 0 && (
+  <nav aria-label="Mobilmenu" data-mobile-nav class="xl:hidden xl:group-data-crowded/header:block">
+    <ul class:list={[tabsClass, 'relative mx-auto max-w-6xl px-1 md:px-4']}>
+      {mobileNav.map((item) => (
+        <li>
+          <a href={item.href} class={tabClass} aria-current={isActive(item.href) ? 'page' : undefined}>
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}
+<script>
+  // The open page's link in the middle of the bar when the links do not all fit.
+  const active = document.querySelector<HTMLElement>('[data-mobile-nav] [aria-current="page"]');
+  const bar = active?.closest('ul');
+  if (active && bar) bar.scrollLeft = active.offsetLeft - (bar.clientWidth - active.offsetWidth) / 2;
+</script>

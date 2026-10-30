@@ -1,0 +1,29 @@
+---
+// Responsive <img>: adds srcset + width/height from the image manifest so the browser
+// downloads a size that matches the screen. `sizes` describes the displayed width.
+import { responsive } from '@interstellarcms/cms/site/images.mjs';
+
+interface Props {
+  src: string;
+  alt: string;
+  sizes: string;
+  class?: string;
+  loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
+}
+const { src, alt, sizes, class: className, loading = 'lazy', fetchpriority } = Astro.props;
+const { srcset, width, height } = responsive(src);
+---
+
+<img
+  src={src}
+  srcset={srcset}
+  sizes={srcset ? sizes : undefined}
+  width={width}
+  height={height}
+  alt={alt}
+  loading={fetchpriority === 'high' ? 'eager' : loading}
+  decoding="async"
+  fetchpriority={fetchpriority}
+  class={className}
+/>

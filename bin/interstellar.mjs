@@ -1,0 +1,37 @@
+#!/usr/bin/env node
+// The CMS's commands for a site, run from the site's root (its package.json's scripts): `interstellar <command> [args]`.
+// Each runs this package's scripts (scripts/) in turn, on the site in the working directory, and stops at the first that
+// fails.
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const COMMANDS = {
+  /** Before the site is built or served: the pictures' smaller sizes and the videos' stills. */
+  images: ['responsive-images', 'video-thumbnails'],
+  /** After the site is built: what the Worker and the editor read from dist/. */
+  'after-build': ['scheduled-list', 'link-counts', 'page-colors'],
+  'check:content': ['check-content'],
+  'check:editor': ['editor-roundtrip'],
+  'check:worker': ['check-worker', 'check-consent'],
+  'check:screens': ['editor-screens'],
+  'check:themes': ['check-themes'],
+  'compare-html': ['compare-html'],
+  'app-workers': ['app-workers'],
+  'app-screenshots': ['app-screenshots'],
+  'theme-screenshots': ['theme-screenshots'],
+  'editor-icons': ['editor-icons'],
+};
+
+// Node warns that node:sqlite is experimental, which the consent log's check uses as D1.
+const QUIET = new Set(['check-consent']);
+
+const [command, ...args] = process.argv.slice(2);
+if (!COMMANDS[command]) {
+  console.error(`Brug: interstellar <kommando> […], hvor kommandoen er en af: ${Object.keys(COMMANDS).join(', ')}.`);
+  process.exit(1);
+}
+for (const script of COMMANDS[command]) {
+  const file = fileURLToPath(new URL(`../scripts/${script}.mjs`, import.meta.url));
+  const { status } = spawnSync(process.execPath, [...(QUIET.has(script) ? ['--no-warnings'] : []), file, ...args], { stdio: 'inherit' });
+  if (status !== 0) process.exit(status ?? 1);
+}

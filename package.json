@@ -1,0 +1,105 @@
+{
+  "name": "@interstellarcms/cms",
+  "version": "0.1.0",
+  "description": "Interstellar CMS: the editor for a site built with Astro, its screens, its blocks and the rules a site gives it. See README.md.",
+  "license": "MIT",
+  "author": "Lars Adolfsen",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/larsadolfsen/interstellar-cms.git"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "astro.mjs",
+    "astro.d.mts",
+    "client.d.ts",
+    "bin",
+    "icons",
+    "lib",
+    "pages",
+    "scripts",
+    "site",
+    "src",
+    "theme",
+    "worker"
+  ],
+  "type": "module",
+  "bin": {
+    "interstellar": "bin/interstellar.mjs"
+  },
+  "scripts": {
+    "icons": "node scripts/icon-packs.mjs",
+    "prepack": "node scripts/types.mjs write",
+    "postpack": "node scripts/types.mjs clean"
+  },
+  "peerDependencies": {
+    "@astrojs/markdown-remark": "^7.3.2",
+    "@material/material-color-utilities": "^0.3.0",
+    "@milkdown/kit": "^7.22.3",
+    "@phosphor-icons/core": "^2.1.1",
+    "@phosphor-icons/react": "^2.1.10",
+    "astro": "^7.3.7",
+    "esbuild": "^0.28.2",
+    "jsdom": "^29.1.1",
+    "playwright": "^1.64.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "rehype-raw": "^7.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "remark-smartypants": "^3.0.3",
+    "sharp": "^0.35.5",
+    "unified": "^11.0.5",
+    "vite": "^8.3.4",
+    "wrangler": "^4.152.0",
+    "yaml": "^2.9.1"
+  },
+  "peerDependenciesMeta": {
+    "esbuild": {
+      "optional": true
+    },
+    "jsdom": {
+      "optional": true
+    },
+    "playwright": {
+      "optional": true
+    },
+    "sharp": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    },
+    "wrangler": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@astrojs/markdown-remark": "^7.3.2",
+    "@material/material-color-utilities": "^0.3.0",
+    "@milkdown/kit": "^7.22.3",
+    "@phosphor-icons/core": "^2.1.1",
+    "@phosphor-icons/react": "^2.1.10",
+    "astro": "^7.3.7",
+    "esbuild": "^0.28.2",
+    "jsdom": "^29.1.1",
+    "playwright": "^1.64.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "rehype-raw": "^7.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "remark-smartypants": "^3.0.3",
+    "sharp": "^0.35.5",
+    "typescript": "^6.0.2",
+    "unified": "^11.0.5",
+    "vite": "^8.3.4",
+    "wrangler": "^4.152.0",
+    "yaml": "^2.9.1"
+  }
+}

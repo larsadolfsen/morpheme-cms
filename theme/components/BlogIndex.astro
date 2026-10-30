@@ -1,0 +1,47 @@
+---
+// Blog index and category pages: the header with the categories as filter chips (Chip, the open one chosen; they scroll
+// sideways on mobile), then what the page puts in (the posts, BlogPosts.astro). `seo`: the blog page's own Google texts and the rest
+// of a page's (Base.astro).
+import type { ComponentProps } from 'astro/types';
+import Base from '@theme/layouts/Base.astro';
+import { getCategories } from '@interstellarcms/cms/site/content';
+import { plainText } from '@interstellarcms/cms/site/text';
+import PageHeader from '@theme/components/PageHeader.astro';
+import Chip from '@theme/ui/Chip';
+
+interface Props {
+  title: string;
+  intro: string;
+  activeCategory?: string;
+  seo?: Omit<ComponentProps<typeof Base>, 'title'>;
+}
+const { title, intro, activeCategory, seo } = Astro.props;
+// Without a description of its own, the introduction.
+const description = seo?.description || plainText(intro);
+const categories = await getCategories();
+---
+
+<Base {...seo} title={title} description={description} crumbs={activeCategory ? [{ name: 'Blog', href: '/blog/' }] : []}>
+  <PageHeader title={title} intro={intro}>
+    <nav aria-label="Tags" class="-mx-5 mt-8 md:mx-0">
+      <ul class="flex gap-2 overflow-x-auto px-5 pb-2 [scrollbar-width:none] md:flex-wrap md:overflow-visible md:px-0">
+        <li class="shrink-0">
+          <Chip kind="filter" href="/blog/" label="Alle" selected={!activeCategory} className="shrink-0" />
+        </li>
+        {categories.map((c) => (
+          <li class="shrink-0">
+            <Chip
+              kind="filter"
+              href={`/blog/kategori/${c.slug}/`}
+              label={c.name}
+              selected={activeCategory === c.slug}
+              className="shrink-0"
+            />
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </PageHeader>
+
+  <slot />
+</Base>

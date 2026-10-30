@@ -1,0 +1,51 @@
+---
+// Every blog post and migrated page lives at a root URL, exactly as on the old WordPress site:
+//   blog post  src/content/blog/hvad-er-jalousi.md        -> /hvad-er-jalousi/
+//   page       src/content/pages/parterapi-roskilde/...   -> path from its front matter
+import { render } from 'astro:content';
+import PageLayout from '@theme/layouts/PageLayout.astro';
+import PostLayout from '@theme/layouts/PostLayout.astro';
+import { getPages, getPosts, type Page, type Post } from '@interstellarcms/cms/site/content';
+import { standardPaths } from '@interstellarcms/cms/site/standardPages';
+
+export async function getStaticPaths() {
+  const [posts, pages] = await Promise.all([getPosts({ unlisted: true }), getPages()]);
+  const seen = new Map<string, string>();
+  const claim = (slug: string, source: string) => {
+    if (seen.has(slug)) throw new Error(`URL /${slug}/ is used by both ${seen.get(slug)} and ${source}`);
+    seen.set(slug, source);
+  };
+  // The addresses of the pages in packages/editor/pages/ and of the editor, so a page cannot take them.
+  for (const slug of ['blog', 'editor', 'ny', '404']) claim(slug, `packages/editor/pages/${slug}`);
+
+  // The front page is at / (index.astro) and the blog page at /blog/ (blog/index.astro); their own addresses send on there
+  // (packages/editor/worker/index.js). The 404 page is the page for an address that does not exist (404.astro), so not at its own.
+  const standard = [standardPaths.front, standardPaths.blog, standardPaths.notFound];
+  const pageRoutes = pages
+    .filter((page) => !standard.includes(page.data.path))
+    .map((page) => {
+      const slug = page.data.path.replace(/^\/|\/$/g, '');
+      claim(slug, `pages/${page.id}`);
+      return { params: { slug }, props: { kind: 'page' as const, entry: page } };
+    });
+  const postRoutes = posts.map((post) => {
+    claim(post.id, `blog/${post.id}`);
+    return { params: { slug: post.id }, props: { kind: 'post' as const, entry: post } };
+  });
+  return [...pageRoutes, ...postRoutes];
+}
+
+type Props = { kind: 'page'; entry: Page } | { kind: 'post'; entry: Post };
+const props = Astro.props as Props;
+const { Content } = await render(props.entry);
+---
+
+{props.kind === 'post' ? (
+  <PostLayout post={props.entry}>
+    <Content />
+  </PostLayout>
+) : (
+  <PageLayout page={props.entry}>
+    <Content />
+  </PageLayout>
+)}

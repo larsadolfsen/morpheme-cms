@@ -1,0 +1,108 @@
+// "Blogindlæg", a standard block: 3–6 blog posts as cards, with "Alle indlæg" under them: the newest or
+// random ones with some tags, or those picked. The posts are the site's (the relation `blog`, and
+// BlockData.site.posts), their tags the relation `categories`. How it looks is the theme's
+// (packages/editor/theme/blocks/posts/View.tsx; what it shows: view.ts, and load.ts on the site).
+import { Newspaper } from '@phosphor-icons/react';
+import { defineBlock, type BlockData, type BlockProps } from '../../blocks';
+import { siteT, t } from '../../i18n';
+import type { Relation } from '../../schema';
+import { sharedIn } from '../../shared';
+import { headFields } from '../head';
+import type { PostChoice } from '../site';
+import shared, { allPostsText, postCount } from './shared';
+
+/** The posts a "Blogindlæg" block or a site's own section shows, as the site picks them. Random: the
+ * newest stand here (the site picks anew on each visit), and the note says how many it picks from.
+ * `all`: what "Alle indlæg" says (to a tag when the posts are from one blog tag, or one is picked). */
+export function postsOf(choice: PostChoice, data: BlockData) {
+  const { show = 'categories', categories = [], order = 'newest', picked = [] } = choice;
+  const n = postCount(choice.count);
+  const pool = data.site.posts.filter((p) => !categories.length || p.categories.some((c) => categories.includes(c)));
+  const posts =
+    show === 'picked'
+      ? picked.map((slug) => data.site.posts.find((p) => p.slug === slug)).filter((p) => p !== undefined)
+      : pool.slice(0, n);
+  const random = show !== 'picked' && order === 'random' && pool.length > n;
+  const slug = choice.link || (show !== 'picked' && categories.length === 1 ? categories[0] : null);
+  const tag = slug && !data.site.tagsOffBlog.includes(slug) ? data.relations.categories?.find((o) => o.value === slug)?.label : undefined;
+  return {
+    posts,
+    note: random ? siteT.blocks.posts.randomNote(n, pool.length) : '',
+    all: allPostsText(sharedIn(data.site, 'posts', shared.values), tag),
+  };
+}
+
+// Which posts it shows, for its card: "De nyeste 3 fra Kommunikation", "Tilfældige 3 fra alle indlæg",
+// or the titles of those picked.
+function postsLine(p: BlockProps, data: BlockData): string {
+  const label = (to: Relation, v: string) => data.relations[to]?.find((o) => o.value === v)?.label ?? v;
+  if (p.show === 'picked') return ((p.picked ?? []) as string[]).map((v) => label('blog', v)).join(' · ');
+  const from = ((p.categories ?? []) as string[]).map((v) => label('categories', v)).join(', ') || t.blocks.posts.all;
+  return (p.order === 'random' ? t.blocks.posts.randomFrom : t.blocks.posts.newestFrom)(postCount(p.count), from);
+}
+
+export default defineBlock({
+  label: t.blocks.posts.label,
+  icon: Newspaper,
+  hint: t.blocks.posts.hint,
+  edit: { to: 'blokke/posts', text: t.blocks.posts.edit },
+  fields: [
+    ...headFields,
+    {
+      name: 'show',
+      label: t.blocks.posts.show,
+      type: 'select',
+      required: true,
+      default: 'categories',
+      options: [
+        { label: t.blocks.posts.withTags, value: 'categories' },
+        { label: t.blocks.posts.picked, value: 'picked' },
+      ],
+    },
+    {
+      name: 'categories',
+      label: t.blocks.posts.tags,
+      type: 'relation',
+      to: 'categories',
+      multiple: true,
+      add: t.blocks.posts.addTag,
+      hint: t.blocks.posts.tagsHint,
+      only: { field: 'show', is: ['categories'] },
+    },
+    {
+      name: 'count',
+      label: t.blocks.posts.count,
+      type: 'select',
+      required: true,
+      default: '3',
+      options: ['3', '4', '5', '6'].map((n) => ({ label: t.blocks.posts.countOption(n), value: n })),
+      only: { field: 'show', is: ['categories'] },
+    },
+    {
+      name: 'order',
+      label: t.blocks.posts.order,
+      type: 'select',
+      required: true,
+      default: 'newest',
+      options: [
+        { label: t.blocks.posts.newest, value: 'newest' },
+        { label: t.blocks.posts.random, value: 'random' },
+      ],
+      only: { field: 'show', is: ['categories'] },
+    },
+    {
+      name: 'picked',
+      label: t.blocks.posts.items,
+      type: 'relation',
+      to: 'blog',
+      multiple: true,
+      maxItems: 6,
+      add: t.blocks.posts.addItem,
+      required: true,
+      hint: t.blocks.posts.itemsHint,
+      only: { field: 'show', is: ['picked'] },
+    },
+    { name: 'link', label: t.blocks.posts.link, type: 'relation', to: 'categories', hint: t.blocks.posts.linkHint },
+  ],
+  detail: (p, data) => [postsLine(p, data)],
+});

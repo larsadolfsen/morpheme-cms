@@ -1,0 +1,51 @@
+// The places where an app may change how the site does something of its own, rather than add to it (a block, a kind,
+// a list, its code on every page): each a file in the app's folder, hooks/<place>.ts, whose default export the site's
+// build runs, while the app is installed, for every page. The site gives it what it needs to know and the tools it may
+// use, and keeps what it gives back only when it is right; an app reaches nothing of the site but that. Before an app
+// is installed, its page says what it changes ("Rettigheder", needsOf in src/store.ts, from the files in hooks/).
+//   page-colors  the colours of a page (PageColorsHook): given the page's colours so far (the site's, "Farver", or those
+//                of an app before it), its pictures and the app's settings, it gives the page other colours, or none.
+//                The site runs it in packages/editor/site/pageColors.ts, which a theme calls for every page (Base.astro).
+// No React, browser or Node here: the editor, the build and the check before it use it.
+import type { Colors } from './colors';
+import type { ColorRoles } from './dynamic-colors';
+
+/** The places an app may change the site, by the name of their file in its hooks/ (without .ts). */
+export const APP_HOOKS = ['page-colors'] as const;
+export type AppHook = (typeof APP_HOOKS)[number];
+
+/** The places an app changes, from the paths of the files in its folder (hooks/page-colors.ts: 'page-colors'), and
+ * the files there that are no such place. */
+export function hooksOf(files: string[]): { hooks: AppHook[]; unknown: string[] } {
+  const there = files.filter((f) => f.startsWith('hooks/'));
+  const name = (f: string) => f.slice('hooks/'.length).replace(/\.ts$/, '');
+  return {
+    hooks: APP_HOOKS.filter((h) => there.includes(`hooks/${h}.ts`)),
+    unknown: there.filter((f) => !f.endsWith('.ts') || !(APP_HOOKS as readonly string[]).includes(name(f))),
+  };
+}
+
+/** What the site gives an app's hook for a page's colours. */
+export type PageColorsPage = {
+  /** The page's address on the site ("/om-mig/"). */
+  path: string;
+  /** The page's colours so far: the site's own, or those an app before it gave. */
+  colors: Colors;
+  /** The page's pictures, in the order they are on it (its own first, then those in its text and blocks), and last
+   * the one it is shared with; their addresses on the site. */
+  pictures: string[];
+  /** The app's settings, as saved in the editor over those it starts with. */
+  settings: Record<string, any>;
+  /** The role each of the site's colours takes in a Material 3 scheme (colorRoles), for dynamicColors. */
+  roles: ColorRoles;
+  /** A picture's pixels as RGBA bytes, made small (at most 128 px), as sourceColorsOf takes them; undefined for one
+   * that cannot be read. */
+  pixels: (picture: string) => Promise<Uint8ClampedArray | undefined>;
+  /** Whether the text in colours can be read on its background in both modes, as the site requires (WCAG AA). */
+  readable: (colors: Colors) => boolean;
+};
+
+/** An app's hook for a page's colours (hooks/page-colors.ts): other colours for the page, in both modes, each of the
+ * site's by its name; or undefined to leave them. Colours that are not the site's, or hard to read, are not used. */
+export type PageColorsHook = (page: PageColorsPage) => Colors | undefined | Promise<Colors | undefined>;
+export const definePageColors = (hook: PageColorsHook) => hook;

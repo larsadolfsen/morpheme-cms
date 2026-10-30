@@ -1,0 +1,14 @@
+{
+  // The types of this package's JavaScript modules (.d.mts beside each .mjs), from their JSDoc, written when it is packed
+  // (prepack, scripts/types.mjs): TypeScript reads no types from JavaScript in node_modules/.
+  "compilerOptions": {
+    "allowJs": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "es2023",
+    "skipLibCheck": true
+  },
+  "include": ["astro.mjs", "lib/**/*.mjs", "site/**/*.mjs", "src/**/*.mjs", "scripts/releases.mjs"]
+}

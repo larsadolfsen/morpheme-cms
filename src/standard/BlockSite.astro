@@ -1,0 +1,18 @@
+---
+// A block on the site drawn from its view (view.tsx): the view its contract makes when the site is built (load.ts in
+// its folder: blockLoads in views.ts), drawn by its View.tsx (blockViews) as HTML, without JavaScript; then what the
+// contract puts right after it (`after`: a script that runs as the page is read, structured data). Nothing when there
+// is no view (a notice that is over).
+import type { SiteProps } from '../schema';
+import { blockLoads, blockViews } from './views';
+
+type Props = SiteProps & { type: string };
+const { type, props, index, path, preview, texts } = Astro.props;
+const contract = blockLoads[type];
+const View = blockViews[type];
+const view = contract && View ? await contract.load(props ?? {}, { texts: texts ?? {}, index, path, preview }) : null;
+const after = view === null ? undefined : contract.after?.(view);
+---
+
+{view !== null && <View view={view} />}
+{after && <Fragment set:html={after} />}

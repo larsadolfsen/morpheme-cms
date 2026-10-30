@@ -1,0 +1,602 @@
+/* The standard theme: its base (Tailwind, the blocks, its components' classes) and its own look over it. */
+@import './base.css';
+@import '@fontsource-variable/plus-jakarta-sans';
+
+/*
+  The standard theme's look: Plus Jakarta Sans with heavy, tightly set headings and quiet,
+  roomy text; white panels with a thin edge, large corners and a soft, low shadow; pill buttons in bold, the filled one
+  with a soft glow in the accent; icons in rounded squares in the tint; big step numbers (01, 02 …); points and questions
+  in one panel with hairlines between them; testimonials on light cards with a thin edge, each name with its picture or
+  an avatar of its initial; and the logo in a tile in the accent.
+  The colours are the site's, by name (base.css); the shadows and the glow are mixes of --ink and --accent with
+  transparency, never under text.
+*/
+:root {
+  --radius: 1.5rem;
+  /* A large panel: a banner without a picture or with it behind, an invitation. */
+  --radius-large: 2rem;
+  /* Faint: a hairline of shadow and a little under it. */
+  --shadow: 0 1px 2px color-mix(in srgb, var(--ink) 4%, transparent), 0 6px 16px -10px color-mix(in srgb, var(--ink) 12%, transparent);
+  /* A card pointed at, and a large picture floating over the page. */
+  --shadow-lifted:
+    0 1px 2px color-mix(in srgb, var(--ink) 5%, transparent), 0 16px 36px -20px color-mix(in srgb, var(--ink) 20%, transparent);
+  /* Under a filled button: a soft glow in the accent. */
+  --glow: 0 8px 20px -8px color-mix(in srgb, var(--accent) 60%, transparent);
+  --glow-strong: 0 12px 28px -10px color-mix(in srgb, var(--accent) 70%, transparent);
+
+  /* The header: the logo in a tile in the accent with the mark in the text on it, the name bold, the role only from md
+     (styles/components.css); the top app bar always with a hairline under it, and the menu button a standard icon
+     button, bare (ui.css). */
+  --top-app-bar-line: color-mix(in srgb, var(--line) 70%, transparent);
+  --top-app-bar-stuck-line: color-mix(in srgb, var(--line) 70%, transparent);
+  --theme-logo-tile: var(--accent);
+  --theme-logo-tile-padding: 0.4rem;
+  --theme-logo-tile-radius: 0.875rem;
+  --theme-logo-mark: var(--on-accent);
+  --theme-logo-mark-scale: 0.75;
+  --theme-logo-name-weight: 800;
+  --theme-logo-name-size: 1.2rem;
+  --theme-logo-role-display: none;
+
+  /* The buttons (ui.css): pills in bold, the filled one with a soft glow in the accent, the outlined one's edge darker
+     when pointed at, the text staying in ink. */
+  --button-weight: 700;
+  --button-letter-spacing: -0.01em;
+  --button-filled-shadow: var(--glow);
+  --button-filled-hover-shadow: var(--glow-strong);
+  --button-outlined-hover-text: var(--block-text);
+  --button-outlined-hover-line: color-mix(in srgb, var(--block-text) 35%, var(--block-line));
+  /* A filled toggle (ui.css) that is on: with the filled button's glow. */
+  --button-toggle-selected-shadow: var(--glow);
+  /* The buttons' and icon buttons' corners a little squarer while pressed, more so the smaller they are (ui.css). */
+  --button-xsmall-pressed-radius: calc(var(--radius-small) / 2);
+  --button-small-pressed-radius: calc(var(--radius-small) / 2);
+  --button-pressed-radius: calc(var(--radius-small) * 0.75);
+  --button-large-pressed-radius: var(--radius-small);
+  --button-xlarge-pressed-radius: var(--radius-small);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.25), 0 8px 20px -12px rgb(0 0 0 / 0.5);
+    --shadow-lifted: 0 1px 2px rgb(0 0 0 / 0.3), 0 18px 40px -22px rgb(0 0 0 / 0.6);
+    --glow: 0 8px 22px -10px color-mix(in srgb, var(--accent) 45%, transparent);
+    --glow-strong: 0 12px 30px -10px color-mix(in srgb, var(--accent) 55%, transparent);
+    --block-hero-shade: var(--bg);
+    --block-hero-on-shade: var(--ink);
+  }
+}
+
+:root[data-theme='dark'] {
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.25), 0 8px 20px -12px rgb(0 0 0 / 0.5);
+  --shadow-lifted: 0 1px 2px rgb(0 0 0 / 0.3), 0 18px 40px -22px rgb(0 0 0 / 0.6);
+  --glow: 0 8px 22px -10px color-mix(in srgb, var(--accent) 45%, transparent);
+  --glow-strong: 0 12px 30px -10px color-mix(in srgb, var(--accent) 55%, transparent);
+  --block-hero-shade: var(--bg);
+  --block-hero-on-shade: var(--ink);
+}
+
+@theme inline {
+  --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+@layer base {
+  body {
+    line-height: 1.6;
+  }
+  h1,
+  h2 {
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+  h3 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  /* A button is lifted a little when pointed at. */
+  .button:hover {
+    transform: translateY(-1px);
+  }
+  .button:active {
+    transform: scale(0.98);
+  }
+  .link,
+  .chip {
+    font-weight: 600;
+  }
+}
+
+/* Long-form text: its headings as the page's, its links in semibold. */
+.prose :where(h2) {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+.prose :where(h3, h4) {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.prose :where(a):not(:where(.not-prose a)) {
+  font-weight: 600;
+}
+/* A block's head with a label or a subheading (.block-head, blocks.css), as a landing page's section starts: in the
+   middle, the subheading no wider than is good to read; a plain heading stays where the text's are. */
+.block-head {
+  text-align: center;
+}
+.block-head > .block-subheading {
+  max-width: 40rem;
+  margin-inline: auto;
+}
+.block-head > .block-eyebrow {
+  font-weight: 700;
+}
+/* What is under it, in the middle too, where it is narrower than its place (a front-page section). */
+.block-head + * .block-accordion,
+.block-head + .block-steps {
+  margin-inline: auto;
+}
+
+/* The standard blocks in this theme's look (blocks.css gives their layout and a plain look; this is the theme's own,
+   in the same layer, so the blocks' states – [open], :hover, [aria-pressed] – still apply). */
+@layer components {
+  /* Headings: heavy and tightly set; the text under them quiet. */
+  /* "Banner": a big, heavy heading; without a picture (block-hero-plain) a panel in the accent like the coloured cards
+     (.block-cards-accent), in the middle, the buttons too; with the picture behind it a large panel with the text at the
+     bottom. Across the whole width (block-hero-full, blocks.css) the panels have no corners, and beside its picture it
+     stands on a band in the tint with a lower picture (4:3), so the band is not much higher than its text. */
+  .block-hero-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+  .block-hero-plain {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    border-radius: var(--radius-large);
+    background: var(--block-accent);
+    color: var(--block-on-accent);
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+  .block-hero-plain .block-hero-body {
+    max-width: 44rem;
+  }
+  .block-hero-plain .block-buttons {
+    justify-content: center;
+  }
+  .block-hero-plain .block-hero-note {
+    margin-inline: auto;
+  }
+  .block-hero-plain .block-hero-note > blockquote {
+    border-left: 0;
+    padding-left: 0;
+  }
+  /* On the accent: the text in the colour on it, the quieter parts a little lighter, the links as the text; the filled
+     button turned round (the colour on the accent, with the accent on it), the outlined one only an edge, a text button
+     in the colour on it (the buttons' variables, ui.css). */
+  .block-hero-plain :is(.block-hero-text > * + *, .block-hero-note, .block-hero-note > blockquote > p:last-child:not(:first-child)) {
+    color: color-mix(in srgb, var(--block-on-accent) 85%, transparent);
+  }
+  .block-hero-plain .block-hero-note > blockquote > p {
+    color: var(--block-on-accent);
+  }
+  .block-hero-plain :is(.block-hero-text a, .block-link, .block-hero-note a) {
+    color: inherit;
+  }
+  .block-hero-plain {
+    --button-filled-surface: var(--block-on-accent);
+    --button-filled-hover: var(--block-on-accent);
+    --button-filled-text: var(--block-accent);
+    --button-filled-shadow: none;
+    --button-filled-hover-shadow: none;
+    --button-outlined-surface: transparent;
+    --button-outlined-text: var(--block-on-accent);
+    --button-outlined-line: color-mix(in srgb, var(--block-on-accent) 55%, transparent);
+    --button-outlined-hover-text: var(--block-on-accent);
+    --button-outlined-hover-line: var(--block-on-accent);
+    --button-text-text: var(--block-on-accent);
+    --button-text-hover: color-mix(in srgb, var(--block-on-accent) 12%, transparent);
+  }
+  .block-hero-behind {
+    border-radius: var(--radius-large);
+  }
+  .block-hero-behind .block-hero-body {
+    max-width: 40rem;
+  }
+  @media (min-width: 48rem) {
+    .block-hero-title {
+      font-size: 3.5rem;
+    }
+    .block-hero-plain {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 4rem 3.5rem;
+    }
+  }
+  .block-hero-text > :first-child {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .block-hero-picture {
+    border-radius: var(--block-radius);
+    box-shadow: var(--shadow-lifted);
+  }
+  .block-hero-full:not(.block-hero-behind) .block-hero-picture {
+    aspect-ratio: 4 / 3;
+  }
+  .block-step-title,
+  .block-card-title,
+  .block-panel-title,
+  .block-point-title,
+  .block-post-title,
+  .block-price-card-title,
+  .block-cta-title,
+  .bottom-sheet-headline,
+  .side-sheet-headline {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .block-cta-title {
+    font-weight: 800;
+    letter-spacing: -0.035em;
+  }
+
+  .block-arrow-link,
+  .block-card-more,
+  .block-link,
+  .block-hero-note a {
+    font-weight: 600;
+  }
+
+  /* Panels and cards (ui.css): white with a thin edge, large corners and a soft, low shadow, the big prices too; a card
+     lifts when pointed at. */
+  .block-panel {
+    --card-outlined-shadow: var(--block-shadow);
+  }
+  .block-price-card {
+    --card-elevated-line: var(--block-line);
+  }
+  /* A card's line inside its edge (its border without a colour), with the shadow. */
+  .block-card {
+    --card-outlined-line: transparent;
+    --card-outlined-shadow: inset 0 0 0 1px var(--block-line), var(--block-shadow);
+    --card-padding: 1.75rem;
+    transition:
+      transform 0.4s var(--block-ease),
+      box-shadow 0.4s var(--block-ease);
+  }
+  .block-card-picture {
+    margin: -1.75rem -1.75rem 0.25rem;
+  }
+  /* Cards on the accent: flat (no edge, no shadow), and without pictures in the middle with the icon bare and a big,
+     heavy heading. */
+  .block-cards-accent .block-card {
+    --card-outlined-shadow: 0 0 #0000;
+  }
+  .block-cards-accent:not(.block-cards-pictures) .block-card {
+    align-items: center;
+    --card-padding: 2.5rem 1.75rem;
+    text-align: center;
+  }
+  .block-cards-accent .block-card-icon {
+    padding: 0;
+    background: none;
+  }
+  .block-cards-accent:not(.block-cards-pictures) .block-card-title {
+    font-size: 2rem;
+    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+  .block-card-title {
+    margin-top: 1.25rem;
+  }
+  /* An icon in a small rounded square in the tint (a card's, a point's, a panel's). */
+  .block-card-icon,
+  .block-panel-icon {
+    box-sizing: content-box;
+    padding: 0.75rem;
+    border-radius: var(--block-radius-small);
+    background: var(--block-tint);
+  }
+
+  /* "Udtalelser": calm cards with a thin edge (a mix of the text and the line), on the surface with a touch of the
+     tint, no shadow and smaller corners; no quotation mark, the tags as small, quiet capitals over the text, the text in
+     the body's size and weight, and the name after the round picture or an avatar with the initial
+     (.block-testimonial-mark below). The dots under a slider are quieter, the shown one a short bar in the accent. */
+  .block-testimonial {
+    --card-radius: var(--block-radius-small);
+    --card-outlined-surface: color-mix(in srgb, var(--block-tint) 25%, var(--block-surface));
+    --card-outlined-line: color-mix(in srgb, var(--block-text) 16%, var(--block-line));
+    --card-padding: 1.75rem;
+  }
+  .block-testimonial-quote-mark {
+    display: none;
+  }
+  .block-testimonial-tags {
+    justify-content: flex-start;
+    gap: 0.25rem 1rem;
+    margin-bottom: 1rem;
+  }
+  .block-testimonial-tags .chip {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: var(--block-muted);
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .block-testimonial-tags .chip:hover {
+    box-shadow: none;
+    color: var(--block-accent);
+  }
+  .block-testimonial-text {
+    margin-top: 0;
+    font-size: 1rem;
+  }
+  .block-testimonial-more {
+    margin-top: 1rem;
+    font-weight: 600;
+  }
+  .block-testimonial-name {
+    gap: 0.875rem;
+    padding-top: 1.75rem;
+    font-weight: 400;
+  }
+  .block-testimonial-list {
+    column-gap: 1.25rem;
+  }
+  .block-testimonial-list > * {
+    margin-bottom: 1.25rem;
+  }
+  /* The carousel's page indicator (ui.css): small quiet dots, the chosen one a longer pill in the accent. */
+  .carousel-indicator {
+    --carousel-dot-size: 0.375rem;
+    --carousel-dot-colour: color-mix(in srgb, var(--block-muted) 35%, transparent);
+    --carousel-dot-selected-width: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  .carousel-indicator-dot > span {
+    transition-timing-function: var(--block-ease);
+  }
+  @media (min-width: 48rem) {
+    .block-testimonial {
+      --card-padding: 2rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-indicator-dot > span,
+    .block-testimonial-more svg {
+      transition: none;
+    }
+  }
+
+  /* "Punkter med ikon": one panel with hairlines between the points, as a grid of features. */
+  .block-points {
+    gap: 0;
+    overflow: hidden;
+    border-radius: var(--block-radius);
+    background: var(--block-surface);
+    box-shadow: inset 0 0 0 1px var(--block-line);
+  }
+  .block-point {
+    flex-direction: column;
+    gap: 1.125rem;
+    padding: 1.75rem;
+    /* The lines on the right and under each point; the panel's own edge hides those along it. */
+    box-shadow:
+      1px 0 0 var(--block-line),
+      0 1px 0 var(--block-line);
+  }
+  .block-point-icon {
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: var(--block-radius-small);
+  }
+  .block-point-text {
+    margin-top: 0.375rem;
+    font-size: 0.975rem;
+  }
+
+  /* "Trin": each step a big, heavy number with a zero before it (01, 02 …, a counter, so the block's markup is the same in
+     every theme), the heading under it and the text under that; no line between them. Side by side where there is room. */
+  .block-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 2.5rem 2rem;
+    counter-reset: block-step;
+  }
+  .block-steps > :not(:last-child) {
+    margin-bottom: 0;
+  }
+  .block-steps-line {
+    display: none;
+  }
+  .block-step {
+    flex-direction: column;
+    gap: 1rem;
+    counter-increment: block-step;
+  }
+  .block-step-number {
+    display: block;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: none;
+    color: var(--block-text);
+    font-size: 0;
+  }
+  .block-step-number::before {
+    content: counter(block-step, decimal-leading-zero);
+    font-size: 3.25rem;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+  .block-step-body {
+    padding-top: 0;
+  }
+  .block-step-text {
+    margin-top: 0.5rem;
+  }
+
+  /* "Spørgsmål og svar" and "Foldeliste": one panel with a thin edge and lines between the rows, the questions in the
+     text's weight and the arrow quiet. */
+  .block-accordion {
+    overflow: hidden;
+    border-radius: var(--block-radius);
+    box-shadow: inset 0 0 0 1px var(--block-line);
+  }
+  .block-accordion-label {
+    min-height: 4rem;
+    padding-inline: 1.5rem;
+    font-weight: 400;
+  }
+  .block-accordion-body {
+    padding-inline: 1.5rem;
+  }
+  .block-accordion-row[open] > .block-accordion-label {
+    color: var(--block-text);
+  }
+  .block-accordion-row[open] .block-accordion-icon {
+    color: var(--block-muted);
+  }
+
+  /* "Besked": a box in the tint with a thin edge all round. */
+  .block-notice {
+    border-left: 0;
+    box-shadow: inset 0 0 0 1px var(--block-line);
+    padding: 1.25rem 1.5rem;
+  }
+
+  /* An invitation (the booking prompt at the end of a page): a large, rounded band in the tint. */
+  .block-cta {
+    --card-radius: var(--radius-large);
+  }
+  .block-cta-picture {
+    box-shadow: var(--block-shadow);
+  }
+
+  /* ---- "Tjekliste" and "Priskort" ---- */
+  /* "Tjekliste": a little larger than the text around it, the checks bold. */
+  .block-checklist:not(.block-plan-features) {
+    gap: 1rem 2rem;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+  .block-checklist:not(.block-plan-features) .block-check {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+  .block-check svg g {
+    stroke-width: 3;
+  }
+  /* "Priskort": white cards with a thin edge and the soft shadow, roomy, the price big and heavy; the highlighted one
+     in the accent (as the cards on the accent), its text in the colour read on it, its checks and its filled button
+     turned round, its label a pill a little lighter than the card. */
+  .block-plans-list {
+    gap: 1.25rem;
+  }
+  .block-plan {
+    --card-padding: 2rem 1.75rem;
+    --card-outlined-shadow: var(--block-shadow);
+  }
+  .block-plan-name {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .block-plan-amount {
+    font-size: clamp(1.75rem, 18cqi, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+  .block-plan-features {
+    border-top-color: color-mix(in srgb, var(--block-line) 70%, transparent);
+  }
+  .block-plan-featured {
+    background: var(--block-accent);
+    color: var(--block-on-accent);
+    box-shadow: var(--glow-strong);
+  }
+  .block-plan-featured :is(.block-plan-unit, .block-plan-text) {
+    color: color-mix(in srgb, var(--block-on-accent) 85%, transparent);
+  }
+  .block-plan-featured .block-plan-features {
+    border-top-color: color-mix(in srgb, var(--block-on-accent) 25%, transparent);
+  }
+  .block-plan-featured .block-check {
+    background: var(--block-on-accent);
+    color: var(--block-accent);
+  }
+  .block-plan-featured .block-plan-badge {
+    background: color-mix(in srgb, var(--block-on-accent) 20%, transparent);
+    color: var(--block-on-accent);
+  }
+  .block-plan-featured {
+    --button-filled-surface: var(--block-on-accent);
+    --button-filled-hover: var(--block-on-accent);
+    --button-filled-text: var(--block-accent);
+    --button-filled-shadow: none;
+    --button-filled-hover-shadow: none;
+    --button-outlined-surface: transparent;
+    --button-outlined-text: var(--block-on-accent);
+    --button-outlined-line: color-mix(in srgb, var(--block-on-accent) 55%, transparent);
+    --button-outlined-hover-text: var(--block-on-accent);
+    --button-outlined-hover-line: var(--block-on-accent);
+    --button-text-text: var(--block-on-accent);
+    --button-text-hover: color-mix(in srgb, var(--block-on-accent) 12%, transparent);
+  }
+  /* ---- end of "Tjekliste" and "Priskort" ---- */
+
+  @media (hover: hover) {
+    a.block-card:hover {
+      transform: translateY(-3px);
+      --card-outlined-line: transparent;
+      --card-outlined-shadow: inset 0 0 0 1px var(--block-line), var(--shadow-lifted);
+    }
+    .block-cards-accent a.block-card:hover {
+      --card-outlined-shadow: 0 0 #0000;
+    }
+  }
+}
+
+/* The header: the menu's items in semibold. The footer's headings small, in capitals and spaced out, and the site's
+   name heavy. */
+[data-header] nav a {
+  font-weight: 600;
+}
+.footer-heading {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.footer-name {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+/* The mark before the name on a testimonial without a picture: an avatar, a circle in the tint with the name's first
+   letter (data-initial, Testimonial.tsx), instead of the dot in base.css. */
+.block-testimonial-mark {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  background-color: var(--tint);
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1;
+  font-weight: 600;
+}
+.block-testimonial-mark::before {
+  content: attr(data-initial);
+}

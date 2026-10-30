@@ -1,0 +1,126 @@
+---
+// A page (the standard theme's): back link, title and the text with its blocks (its pictures in it), in one column, and the booking
+// prompt across the page when the text ends with it. A wide page (`wide`, "Hele bredden"): its blocks go across the
+// page, its text keeps a readable width, and its first paragraph is the introduction under the heading (as
+// PageHeader.astro's).
+// data-editor marks what the editor's preview fills in with what is in its form ("Forhåndsvis",
+// packages/editor/src/pagePreview.tsx): the heading, the text, and the booking prompt at the end.
+import Base from '@theme/layouts/Base.astro';
+import Icon from '@theme/components/Icon.astro';
+import EndBlock from '@theme/components/EndBlock.astro';
+import { endBlock } from '@interstellarcms/cms/src/standard/views';
+import { getPages, pageHeading, pageHeadingHtml, parentPage, stateOf, withoutH1, type Page } from '@interstellarcms/cms/site/content';
+import { nav } from '@interstellarcms/cms/site/site';
+import { firstPicture, picturesOf } from '@interstellarcms/cms/site/images.mjs';
+import { splitBlocks } from '@interstellarcms/cms/lib/blocks.mjs';
+import { markdownHtml } from '@interstellarcms/cms/lib/inline';
+import Container from '@theme/components/Container.astro';
+import RichText from '@theme/components/RichText.astro';
+import Snackbar from '@theme/ui/Snackbar';
+import { isPreview, livePath, PREVIEW, previewId } from '@interstellarcms/cms/site/noindex.mjs';
+
+interface Props {
+  page: Page;
+}
+const { page } = Astro.props;
+const all = await getPages();
+const parentEntry = parentPage(page, all);
+// The parent can also be a bespoke page (e.g. /kontakt/), which is not in the collection.
+const parentPath = page.data.path.replace(/[^/]+\/$/, '');
+const parentNav = nav.find((n) => n.href === parentPath);
+const parent = parentEntry
+  ? { href: parentEntry.data.path, title: pageHeading(parentEntry) }
+  : parentNav
+    ? { href: parentNav.href, title: parentNav.label }
+    : undefined;
+const { description, path, wide } = page.data;
+const heading = pageHeading(page);
+// With its colours, when a word in it has one.
+const headingHtml = pageHeadingHtml(page);
+// The picture when the page is shared: the first in its text (a page's pictures are all in its text).
+const picture = firstPicture(page.body);
+// The text with its blocks (RichText.astro). A block at the very end of it whose type goes across the page (endBlock,
+// e.g. "Book en tid", as on most pages) is shown across the page below the text and the column next to it; not when
+// it is hidden (RichText.astro leaves hidden blocks out).
+// Without the H1 at the top of the text (the page's heading, drawn above).
+const html = withoutH1(await Astro.slots.render('default'));
+const end = endBlock(html);
+// The questions in the text's "Spørgsmål og svar" blocks (not the hidden ones), for the structured data
+// (an FAQPage, packages/editor/site/schema.ts); the answers as HTML, as on the page (the block's load.ts).
+const questions = await Promise.all(
+  splitBlocks(html, ['faq'])
+    .flatMap((b) => (b.type === 'faq' ? ((b.props.items ?? []) as { question?: string; answer?: string }[]) : []))
+    .filter((q) => q.question?.trim() && q.answer?.trim())
+    .map(async (q) => ({ question: q.question!.trim(), answer: await markdownHtml(q.answer!) })),
+);
+// A new version of a page (/ny/…, packages/editor/site/noindex.mjs): a message at the bottom when the page opens
+// (the theme's Snackbar, shown by ui/snackbar.script.ts with time to read the links) links to the current
+// page and to the page's row on /ny/, where what the owner should look at stands; its blocks see it as the
+// current page.
+const preview = isPreview(path);
+const current = livePath(path);
+const review = (page.data.review ?? '').trim();
+---
+
+<Base
+  title={heading}
+  description={description}
+  seoTitle={page.data.seoTitle}
+  seoDescription={page.data.seoDescription}
+  canonical={page.data.canonical}
+  noindex={stateOf(page.data) === 'unlisted' || page.data.noindex}
+  image={picture?.src}
+  imageAlt={picture?.alt}
+  pictures={picturesOf(page.body)}
+  shareImage={page.data.shareImage}
+  shareTitle={page.data.shareTitle}
+  shareDescription={page.data.shareDescription}
+  crumbs={parent ? [{ name: parent.title, href: parent.href }] : []}
+  questions={questions}
+>
+  <article>
+    <Container as="header" class="pt-8 md:pt-14">
+      {parent && (
+        <a href={parent.href} class="inline-flex items-center gap-1.5 text-[0.95rem] text-muted hover:text-accent">
+          <Icon name="arrow-left" size={16} />
+          {parent.title}
+        </a>
+      )}
+      <h1
+        data-editor="heading"
+        class="mt-3 max-w-[22ch] text-[length:var(--theme-title-size,2.3rem)] leading-[var(--theme-title-leading,1.06)] md:text-[length:var(--theme-title-size-large,3.75rem)]"
+      >
+        {headingHtml ? <Fragment set:html={headingHtml} /> : heading}
+      </h1>
+    </Container>
+
+    <Container as="div" class:list={[wide ? 'mt-4' : 'mt-8 md:mt-12']}>
+      <div>
+        <div
+          data-editor="text"
+          class:list={[
+            'prose',
+            wide
+              ? 'max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:max-w-[52ch] [&>p:first-child]:text-lg [&>p:first-child]:text-muted md:[&>p:first-child]:text-xl'
+              : 'max-w-[66ch]',
+          ]}
+        >
+          <RichText html={end ? end.html : html} path={current} preview={preview} />
+        </div>
+      </div>
+    </Container>
+  </article>
+
+  {end && <EndBlock type={end.type} props={end.props} data-editor="end" data-editor-block={end.type} />}
+  {preview && (
+    <template data-snackbar data-ms="8000">
+      <Snackbar
+        text="Ny version til gennemsyn. Google ser den ikke."
+        links={[
+          { text: 'Se den nuværende side', href: current },
+          review ? { text: 'Se, hvad der er ændret', href: `${PREVIEW}#${previewId(path)}` } : { text: 'Alle nye sider', href: PREVIEW },
+        ]}
+      />
+    </template>
+  )}
+</Base>

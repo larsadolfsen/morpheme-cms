@@ -1,0 +1,599 @@
+/* The editor's parts are the theme's UI parts (ui.tsx), in the theme's design; its own parts take the theme's variables
+   (--block-radius, --block-radius-small, --block-shadow). Only what is the editor's alone is here. Low specificity
+   (:where), so a theme's :root wins. */
+:where(:root) {
+  /* How a check went (CheckList: the SEO rating), as PageSpeed shows it: the mark before a check that is fine and one
+     that can be done better, and the score's ring (from 90 good, from 50 average, else bad) with its number and the
+     light circle in it; the same in every theme. */
+  --editor-status-good: #0cce6b;
+  --editor-status-good-text: #008800;
+  --editor-status-good-surface: color-mix(in srgb, #0cce6b 10%, var(--surface));
+  --editor-status-average: #ffa400;
+  --editor-status-average-text: #c33300;
+  --editor-status-average-surface: color-mix(in srgb, #ffa400 10%, var(--surface));
+  --editor-status-bad: #ff4e42;
+  --editor-status-bad-text: #cc0000;
+  --editor-status-bad-surface: color-mix(in srgb, #ff4e42 10%, var(--surface));
+}
+
+/* In dark mode the score's number in the light colours, which are read on the dark. */
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme='light'])) {
+    --editor-status-good-text: var(--editor-status-good);
+    --editor-status-average-text: var(--editor-status-average);
+    --editor-status-bad-text: var(--editor-status-bad);
+  }
+}
+:where(:root[data-theme='dark']) {
+  --editor-status-good-text: var(--editor-status-good);
+  --editor-status-average-text: var(--editor-status-average);
+  --editor-status-bad-text: var(--editor-status-bad);
+}
+
+/* The text field (MarkdownEditor.tsx). The rest of the editor uses the site's Tailwind classes. */
+.editor-text .ProseMirror {
+  min-height: 50vh;
+  outline: none;
+}
+
+/* A text in a field (a section of the front page) is short. */
+.editor-text-short .ProseMirror {
+  min-height: 8rem;
+}
+
+/* ProseMirror puts invisible helpers around a picture (empty images and a line break). Next to a
+   full-width picture each gets a line of its own, which shows as empty space; hide them there. */
+.editor-text p:has(> .site-picture) > :is(.ProseMirror-separator, .ProseMirror-trailingBreak) {
+  display: none !important;
+}
+
+/* Milkdown puts a paragraph in every list item; on the site, short lists have none. */
+.editor-text li > p {
+  margin-block: 0;
+}
+
+/* HTML in a line of text is kept as it is but cannot be edited here (on a line of its own it is a
+   block, HTML in markdown.mjs). */
+.editor-text [data-type='html'] {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  border-radius: 0.5rem;
+  background: var(--tint);
+  padding: 0 0.4em;
+  font-family: ui-monospace, monospace;
+  font-size: 0.8em;
+  color: var(--muted);
+}
+
+/* The bar with "Gem" (FormFrame.tsx) slides up when something has been changed; the messages
+   (App.tsx) then go above it. */
+.editor-save-bar {
+  animation: editor-rise 0.2s ease-out;
+}
+
+@keyframes editor-rise {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-save-bar {
+    animation: none;
+  }
+}
+
+/* An element's name as the theme's plain tooltip (useTooltip in ui.tsx): a popover over everything, placed by the
+   script under or over the element; its look is the theme's .tooltip-plain. */
+.editor-tooltip {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  border: 0;
+  width: max-content;
+  pointer-events: none;
+}
+
+/* The field that keeps a form from being saved (WrongField in fields.tsx): the edge of the theme's text field
+   (.text-field-input, its edge a box-shadow) in the accent colour, flashing gently three times; around the whole field
+   when it has no box of its own (a picture, icons, a switcher). It stays until the next try or a change. */
+.editor-wrong .text-field-input {
+  box-shadow:
+    inset 0 0 0 2px var(--accent),
+    0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.editor-wrong:not(:has(.text-field-input)) {
+  border-radius: 1rem;
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .editor-wrong .text-field-input {
+    animation: editor-flash 0.8s ease-in-out 3;
+  }
+
+  .editor-wrong:not(:has(.text-field-input)) {
+    animation: editor-flash-around 0.8s ease-in-out 3;
+  }
+}
+
+@keyframes editor-flash {
+  50% {
+    box-shadow:
+      inset 0 0 0 1px var(--line),
+      0 0 0 3px transparent;
+  }
+}
+
+@keyframes editor-flash-around {
+  50% {
+    outline-color: transparent;
+  }
+}
+
+/* A sheet that is dragged up by its top on a phone (SheetTitle in ui.tsx) is as tall as the screen,
+   below the clock, or as tall as what is in it, if that is less. */
+@media not (min-width: 48rem) {
+  .editor-sheet[data-tall] {
+    max-height: calc(100dvh - env(safe-area-inset-top));
+  }
+}
+
+/* A little motion, so the editor feels like an app: a sheet slides up from the bottom (on a
+   computer, where it is a dialog in the middle, it fades in and grows a little) and the page behind
+   it darkens (a question, ask.tsx, comes up as the theme's dialog does); a new screen fades in; a message rises up; an item of a
+   list that is opened shows its fields softly; a picture in Filer fades in when it has loaded and
+   grows a little under the mouse; a button gives a little when pressed. Only when the phone or
+   computer does not ask for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .editor-sheet[open] {
+    animation: editor-sheet-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* A modal navigation drawer (ModalNavigationDrawer in ui.tsx) slides in from the right edge. */
+  .editor-drawer[open] {
+    animation: editor-drawer-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  :is(.editor-sheet, .editor-drawer)[open]::backdrop {
+    animation: editor-fade 0.25s ease-out;
+  }
+
+  @media (min-width: 48rem) {
+    .editor-sheet[open] {
+      animation: editor-pop 0.2s ease-out;
+    }
+  }
+
+  .editor-screen {
+    animation: editor-enter 0.25s ease-out;
+  }
+
+  .editor-reveal {
+    animation: editor-enter 0.2s ease-out;
+  }
+
+  .editor-fade-in {
+    opacity: 0;
+    transition:
+      opacity 0.3s ease-out,
+      scale 0.3s ease-out;
+  }
+
+  .editor-fade-in[data-loaded] {
+    opacity: 1;
+  }
+
+  /* In the base layer, so a Tailwind class on the button itself still decides. */
+  @layer base {
+    :is(button, a):not(:disabled, .ProseMirror *) {
+      transition:
+        scale 0.12s ease-out,
+        background-color 0.15s,
+        color 0.15s;
+    }
+
+    :is(button, a):not(:disabled, .ProseMirror *):active {
+      scale: 0.97;
+    }
+  }
+}
+
+@keyframes editor-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes editor-drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes editor-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes editor-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes editor-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+:root:has(.editor-save-bar) .snackbar-stack {
+  bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+
+/* On a computer, the messages are in the middle of the content, next to the sidebar (App.tsx). */
+@media (width >= 48rem) {
+  :root .snackbar-stack {
+    padding-left: 4.5rem;
+  }
+  :root[data-sidebar='open'] .snackbar-stack {
+    padding-left: 16rem;
+  }
+}
+
+/* Like an app: no grey flash when tapping links and buttons on a phone, and no zoom on a double tap.
+   Nothing sticks out at the side: on Android, anything wider than the screen, even for a moment while
+   the page opens, makes Chrome lay the whole page out wider than the screen, and as zooming is off
+   (pages/editor/index.astro) it then stays cut off on the right. */
+html,
+body {
+  overflow-x: clip;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* A block of the site in the text (Book en tid, Udtalelser …; MarkdownEditor.tsx): the block as it
+   looks on the site (src/apps/<app>/blocks/, previews.tsx) in a thin, dashed square frame, not text. Tapping it opens a row
+   of icons on it with what can be done with it. The frame stands out a little to the sides, so the block
+   lines up with the text. A picture in the text is a card like it (in its paragraph). */
+.editor-text .site-block {
+  position: relative;
+  margin-block: 1.5em;
+  user-select: none;
+}
+
+.editor-text .site-picture {
+  display: block;
+  margin-block: 0;
+}
+
+.editor-text .site-picture :is(img, .picture-crop) {
+  margin-block: 0;
+}
+
+.editor-text .site-block-card {
+  display: block;
+  width: calc(100% + 1.25rem);
+  margin-inline: -0.625rem;
+  position: relative;
+  border-radius: 0;
+  border: 1.5px dashed color-mix(in srgb, var(--muted) 45%, transparent);
+  padding: 0.5rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease);
+}
+
+.editor-text .site-block-card:hover,
+.editor-text .site-block-card[aria-expanded='true'] {
+  border-color: var(--accent);
+}
+
+.editor-text .site-block-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 0;
+}
+
+.editor-text .site-block-hidden-badge {
+  position: absolute;
+  z-index: 1;
+  top: 1rem;
+  right: 1rem;
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 9999px;
+  background: var(--ink);
+  color: var(--bg);
+}
+
+/* The block's menu: a row of icons on the top edge of the frame, in the middle. */
+.editor-text .site-block-menu {
+  position: absolute;
+  z-index: 15;
+  top: -1.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  max-width: calc(100% - 0.5rem);
+  align-items: center;
+  gap: 0.125rem;
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  background: var(--surface);
+  padding: 0.25rem;
+  box-shadow: var(--shadow);
+}
+
+.editor-text .site-block-menu button {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 9999px;
+}
+
+.editor-text .site-block-menu button:hover,
+.editor-text .site-block-menu button:focus-visible {
+  outline: none;
+  background: var(--tint);
+}
+
+.editor-text .site-block-menu .site-block-danger {
+  color: var(--accent);
+}
+
+/* The icons over the selected text, on a phone at the bottom over the keyboard (selectionMenu in
+   MarkdownEditor.tsx). */
+.editor-selection-menu {
+  position: fixed;
+  z-index: 40;
+  display: flex;
+  gap: 0.125rem;
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  background: var(--surface);
+  padding: 0.25rem;
+  box-shadow: var(--shadow);
+}
+
+.editor-selection-menu[hidden],
+.editor-selection-menu button[hidden] {
+  display: none;
+}
+
+.editor-selection-menu button {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 9999px;
+  color: var(--muted);
+}
+
+.editor-selection-menu button:hover,
+.editor-selection-menu button:focus-visible {
+  outline: none;
+  background: var(--tint);
+  color: var(--ink);
+}
+
+.editor-selection-menu button[aria-pressed='true'] {
+  background: var(--tint);
+  color: var(--accent);
+}
+
+/* Only drawn: the taps go to the card. */
+.editor-text .site-block-preview {
+  pointer-events: none;
+}
+
+/* The space a block keeps around it on the site (a price card, a klippekort) is the frame's here. */
+.editor-text .site-block-preview > :first-child {
+  margin-top: 0;
+}
+
+.editor-text .site-block-preview > :last-child {
+  margin-bottom: 0;
+}
+
+/* A section of a fixed page in the type of the site's pages, not that of the text. */
+.editor-text .site-block-section {
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+.editor-text .site-block-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0 0.25rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+/* A fixed page's text as on the site (data-look, looksOf in sections.mjs): the headings of the
+   sections (SectionHeading, PageSection, the boxes on the front page and the prices page), the text
+   a section takes as its own, the front page's subtitle and introduction (home/Hero.astro) and a
+   page's introduction (PageHeader). Sizes, line heights and colours as the components' classes. */
+.editor-text .ProseMirror > [data-look] {
+  margin-block: 1rem 0;
+  max-width: none;
+}
+
+.editor-text .ProseMirror > h2[data-look] {
+  margin-block: 2.5rem 0.75rem;
+  color: var(--ink);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+.editor-text .ProseMirror > [data-look='section'] {
+  font-size: 2.1rem;
+}
+
+.editor-text .ProseMirror > [data-look='page-section'] {
+  font-size: 2rem;
+}
+
+.editor-text .ProseMirror > h2[data-look='card-title'] {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.editor-text .ProseMirror > h2[data-look='urgent'] {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.editor-text .ProseMirror > [data-look~='section-intro'],
+.editor-text .ProseMirror > [data-look~='page-intro'] {
+  max-width: 52ch;
+  color: var(--muted);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+.editor-text .ProseMirror > [data-look~='page-section-intro'] {
+  max-width: 52ch;
+  color: var(--muted);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+.editor-text .ProseMirror > [data-look~='about'],
+.editor-text .ProseMirror > [data-look~='large'] {
+  font-size: 1.125rem;
+  line-height: 1.625;
+}
+
+.editor-text .ProseMirror > [data-look~='about'][data-look~='rest'],
+.editor-text .ProseMirror > [data-look~='note'] {
+  color: var(--muted);
+}
+
+.editor-text .ProseMirror > [data-look~='note'] {
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+.editor-text .ProseMirror > [data-look~='small-note'] {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.editor-text .ProseMirror > [data-look='hero-subtitle'] {
+  max-width: 30ch;
+  margin-top: 0;
+  font-size: 1.5rem;
+  line-height: 1.375;
+}
+
+.editor-text .ProseMirror > [data-look='hero-intro'] {
+  max-width: 40ch;
+  color: var(--muted);
+  font-size: 1.125rem;
+  line-height: 1.625;
+}
+
+@media (min-width: 768px) {
+  .editor-text .ProseMirror > [data-look='section'] {
+    font-size: 3rem;
+  }
+
+  .editor-text .ProseMirror > [data-look='page-section'] {
+    font-size: 2.25rem;
+  }
+
+  .editor-text .ProseMirror > h2[data-look='card-title'] {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+
+  .editor-text .ProseMirror > [data-look='hero-subtitle'] {
+    font-size: 1.875rem;
+    line-height: 1.375;
+  }
+
+  .editor-text .ProseMirror > [data-look~='page-intro'] {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+/* A block hidden on the site: faded and grey. */
+.editor-text .site-block-hidden .site-block-preview {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+/* A text with blocks (a page, a fixed page's sections): the cards close together, with the free line
+   between two of them to write in: thin, until the cursor is in it (editor-gap-here, MarkdownEditor.tsx)
+   or the pointer over it, when it opens up and says so. */
+.editor-spaced .site-block {
+  margin-block: 0.25rem;
+}
+
+.editor-spaced .ProseMirror > p:has(> br:only-child) {
+  margin-block: 0;
+  border-radius: 0.5rem;
+  padding-inline: 0.5rem;
+  padding-block: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 0.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .editor-spaced .ProseMirror > p:has(> br:only-child) {
+    transition: line-height 0.2s ease-out;
+  }
+}
+
+.editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child) {
+  line-height: 1.5rem;
+}
+
+.editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child)::before {
+  content: 'Skriv tekst her …';
+  position: absolute;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .editor-spaced .ProseMirror > p:has(> br:only-child):hover {
+    line-height: 1.5rem;
+  }
+
+  .editor-spaced .ProseMirror > p:has(> br:only-child):hover::before {
+    content: 'Skriv tekst her …';
+    position: absolute;
+    color: var(--muted);
+    pointer-events: none;
+  }
+}
+
+/* While a sheet or a dialog is open, the page under it does not scroll (only the sheet does). */
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
+dialog {
+  overscroll-behavior: contain;
+}

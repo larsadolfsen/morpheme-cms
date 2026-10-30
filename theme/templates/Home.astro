@@ -1,0 +1,38 @@
+---
+// The front page (the standard theme's): the page chosen under "Indstillinger" › "Udseende" › "Standardsider" (packages/editor/site/home.ts), its
+// heading, then its sections in order: a text, and a block by its type in a section of its own (PageBlock.astro): the
+// standard ones' and the apps', the top ("Hero") among them.
+import Base from '@theme/layouts/Base.astro';
+import Container from '@theme/components/Container.astro';
+import Text from '@theme/components/home/Text.astro';
+import PageBlock from '@theme/components/home/PageBlock.astro';
+import { site } from '@interstellarcms/cms/site/site';
+import { picturesOf } from '@interstellarcms/cms/site/images.mjs';
+import type { FrontPage } from '@interstellarcms/cms/site/home';
+
+type Props = FrontPage;
+const { page, heading, headingHtml, sections } = Astro.props;
+---
+
+<Base
+  title={heading}
+  description={page.data.description || site.description}
+  seoTitle={page.data.seoTitle}
+  seoDescription={page.data.seoDescription}
+  canonical={page.data.canonical}
+  noindex={page.data.noindex}
+  shareImage={page.data.shareImage}
+  pictures={picturesOf(page.body)}
+  shareTitle={page.data.shareTitle}
+  shareDescription={page.data.shareDescription}
+>
+  <Container class="pt-8 md:pt-16">
+    <h1 class="max-w-[22ch] text-[length:var(--theme-title-size,2.4rem)] leading-[var(--theme-title-leading,1.06)] md:text-[length:var(--theme-title-size-large,3.75rem)]">
+      {headingHtml ? <Fragment set:html={headingHtml} /> : heading}
+    </h1>
+  </Container>
+  {sections.map((s, i) => {
+    const first = i === 0 ? 'theme-home-first' : undefined;
+    return s.type === 'text' ? <Text {...s} class={first} /> : <PageBlock section={s} class={first} />;
+  })}
+</Base>

@@ -1,0 +1,32 @@
+---
+// A bar at the bottom of a phone's screen ("Indhold" › "Promovering", the kind "Bookinglinje",
+// packages/editor/site/popups.ts): the first one that is on and shown on this page, with its one or two buttons, the first filled
+// and the second with a line. Each goes where a button of "Knapper" can, and is drawn by the same component
+// (Buttons.tsx, with `bar`): "Book en tid" opens what books on the page (`data-open="booking"`: an app's booking
+// sheet) or goes to the booking page, "Ring" calls, "Åbn promovering" opens a pop-up or an app's booking sheet, and a
+// page is a link. Built of the theme's docked toolbar (toolbarClass, ui/Toolbar.tsx), fixed at the bottom
+// (.theme-action-bar in styles/components.css), and its buttons (ui/Button.tsx), like the contact bar
+// (ContactBar.astro); only the first bar on a page is shown, and it moves away while the buttons at the top of the
+// front page are on screen (data-action-bar, the script in Base.astro). Not on a page one of its buttons goes to (the booking page for "Book en tid") or the thank-you page.
+import Buttons from '@theme/blocks/buttons/Buttons';
+import { toolbarClass } from '@theme/ui/Toolbar';
+import { loadButtons } from '@interstellarcms/cms/src/standard/buttons/load';
+import type { Button } from '@interstellarcms/cms/src/standard/buttons/fields';
+import { popupsAt } from '@interstellarcms/cms/site/popups';
+import { site } from '@interstellarcms/cms/site/site';
+
+const path = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+const goesHere = (b: Button) => (b.to === 'page' ? b.href === path : b.to === 'booking' && path.startsWith(site.bookingPath));
+const bar = site.thanks.includes(path)
+  ? undefined
+  : (await popupsAt(path)).find((p) => p.type === 'bookingbar' && !((p.data.buttons ?? []) as Button[]).some(goesHere));
+const buttons = ((bar?.data.buttons ?? []) as Button[])
+  .slice(0, 2)
+  .map((b, i) => ({ label: b.label, to: b.to, href: b.href, open: b.open, kind: i === 0 ? 'filled' : 'outlined' }));
+---
+
+{buttons.length > 0 && (
+  <div class={`${toolbarClass()} theme-action-bar`} role="toolbar" aria-label={site.labels.book} data-action-bar>
+    <Buttons buttons={await loadButtons(buttons, undefined, { bar: true })} />
+  </div>
+)}

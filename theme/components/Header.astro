@@ -1,0 +1,105 @@
+---
+// The header at the top of every page (layouts/Base.astro), a top app bar (ui/TopAppBar.tsx): the logo, the menu
+// ("Hovedmenu" in the editor) on one line on a computer when it fits, an item's sub-pages in a menu (ui/Menu.tsx) under
+// it, "Book en tid" and the menu button (MobileMenu.tsx) otherwise; neither the menu nor its button when it is turned
+// off. Under it the bar of "Mobilmenu" on a phone and a tablet (MobileNav.astro), when it is on. Base.astro gives it its
+// look for when the page scrolls under it (data-stuck).
+import Icon from '@theme/components/Icon.astro';
+import MobileMenu from '@theme/components/MobileMenu.tsx';
+import Logo from '@theme/components/Logo.astro';
+import Container from '@theme/components/Container.astro';
+import MobileNav from '@theme/components/MobileNav.astro';
+import BookButton from '@theme/components/BookButton';
+import { topAppBarClass } from '@theme/ui/TopAppBar';
+import { menuClass, menuItemClass } from '@theme/ui/Menu';
+import { site, nav, navShown } from '@interstellarcms/cms/site/site';
+
+const current = Astro.url.pathname;
+const isActive = (href: string) => current === href || (href !== '/' && current.startsWith(href));
+---
+
+<header data-header class:list={[topAppBarClass, 'group/header sticky top-0 z-40']}>
+  <Container as="div" data-header-row class="flex h-16 items-center gap-4 md:h-[4.5rem]">
+    <a href="/" class="mr-auto xl:shrink-0 xl:whitespace-nowrap">
+      <Logo />
+    </a>
+
+    {navShown && (
+      <nav aria-label="Hovedmenu" class="hidden shrink-0 xl:block xl:group-data-crowded/header:hidden">
+        <ul class="flex items-center gap-1">
+          {nav.map((item, i) => (
+            <li class="group relative">
+              <a
+                href={item.href}
+                class:list={[
+                  'inline-flex items-center gap-1 rounded-full px-2.5 py-2 text-[0.95rem] whitespace-nowrap transition-colors duration-300 hover:text-accent',
+                  isActive(item.href) ? 'font-medium text-accent' : 'text-ink/80',
+                ]}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+              >
+                {item.label}
+                {item.children && <Icon name="caret-down" size={14} class="opacity-60" />}
+              </a>
+              {item.children && (
+                // Sub-pages open on hover and when a link inside has keyboard focus.
+                <div
+                  class:list={[
+                    'invisible absolute top-full pt-2 opacity-0 transition-opacity duration-200 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100',
+                    i >= nav.length - 2 ? 'right-0' : 'left-0',
+                  ]}
+                >
+                  <ul class={menuClass}>
+                    {item.children.map((child) => (
+                      <li>
+                        <a href={child.href} class={menuItemClass} aria-current={current === child.href ? 'page' : undefined}>
+                          {child.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+
+    {site.bookingPath && <BookButton href={site.bookingPath} label={site.labels.book} size="small" className="hidden md:inline-flex" />}
+    {navShown && (
+      <div class="flex xl:hidden xl:group-data-crowded/header:flex">
+        <MobileMenu
+          client:interact
+          items={nav}
+          current={current}
+          bookingPath={site.bookingPath}
+          phone={site.phone}
+          phoneHref={site.phoneHref}
+          name={site.name}
+          role={site.role}
+        />
+      </div>
+    )}
+  </Container>
+  <MobileNav />
+</header>
+<script is:inline>
+  // When the menu items (set in the editor) don't fit on one line next to the logo, the header
+  // shows the menu button instead, as on smaller screens. Runs before the first paint.
+  {
+    const header = document.querySelector('[data-header]');
+    const row = header.querySelector('[data-header-row]');
+    const fit = () => {
+      header.removeAttribute('data-crowded');
+      header.toggleAttribute('data-crowded', row.scrollWidth > row.clientWidth);
+    };
+    fit();
+    if ('ResizeObserver' in window) {
+      const ro = new ResizeObserver(fit);
+      ro.observe(header);
+      const menu = row.querySelector('nav ul');
+      if (menu) ro.observe(menu);
+    }
+    document.fonts?.ready.then(fit);
+  }
+</script>

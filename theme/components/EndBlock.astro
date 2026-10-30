@@ -1,0 +1,21 @@
+---
+// A block across the page at its end, below the text (Block.astro, by its type): the one that ends a page's text when
+// its type is drawn across the page (endBlock in packages/editor/src/standard/views.ts, e.g. an app's booking block),
+// or the one after every blog post (`postEnd` in the site's config), with its props (empty: its shared texts). The
+// theme only places it.
+// Other attributes go on the outermost element (PageLayout.astro marks the one at the end of a page for
+// the editor's preview, `data-editor`).
+import Block from '@interstellarcms/cms/src/standard/Block.astro';
+import Container from '@theme/components/Container.astro';
+
+interface Props {
+  type: string;
+  props?: Record<string, unknown>;
+  [attribute: `data-${string}`]: string;
+}
+const { type, props = {}, ...rest } = Astro.props;
+---
+
+<Container class="block-place mt-20 md:mt-28" data-reveal {...rest}>
+  <Block type={type} props={props} />
+</Container>

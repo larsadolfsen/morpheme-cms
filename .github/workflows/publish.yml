@@ -1,0 +1,30 @@
+# Publishes the package to npm when a release is made on GitHub with the tag v<version> (the version in package.json),
+# with npm's trusted publishing: no key, and npm shows where each version was built (provenance). The only GitHub
+# Actions the CMS has: this repository is public, where they are free.
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing needs npm 11.5.1 or newer.
+      - run: npm install -g npm@11
+      - name: The release's tag is the package's version
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      # The types of the .mjs modules are written from their JSDoc when it is packed (prepack), with the packages it
+      # is built on as devDependencies.
+      - run: npm ci --no-audit --no-fund
+      - run: npm publish --access public

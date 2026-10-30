@@ -1,0 +1,18 @@
+---
+// The posts of the blog index or a category (BlogPosts.tsx), in the page's width.
+import BlogPostsView from '@theme/components/BlogPosts';
+import Container from '@theme/components/Container.astro';
+import { postViewOf } from '@theme/components/loadPosts';
+import type { Post } from '@interstellarcms/cms/site/content';
+
+interface Props {
+  posts: Post[];
+  /** The space above (packages/editor/site/sections.ts). */
+  class?: string;
+}
+const { posts, class: className } = Astro.props;
+---
+
+<Container class={className ?? (posts.length ? 'mt-10 md:mt-14' : 'mt-10')}>
+  <BlogPostsView posts={posts.map(postViewOf)} />
+</Container>
