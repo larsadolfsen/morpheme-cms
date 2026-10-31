@@ -7,13 +7,13 @@ export default defineSettings({
       label: 'Access Key (Client ID)',
       type: 'string',
       required: true,
-      hint: 'Hent din Access Key i Unsplash Developer Dashboard (https://unsplash.com/oauth/applications). Secret Key behøves ikke, da den kun er til OAuth og aldrig må deles i frontend-kode.',
+      hint: 'Get your Access Key from your Unsplash Developer Dashboard (https://unsplash.com/oauth/applications). Note: Secret Key is not needed as it is only used for OAuth and must not be exposed in client code.',
     },
     {
       name: 'appName',
-      label: 'Applikationsnavn',
+      label: 'Application name',
       type: 'string',
-      hint: 'Navn til obligatorisk UTM-sporing i henhold til Unsplash retningslinjer (f.eks. dit domænenavn).',
+      hint: 'Name used for mandatory UTM tracking in accordance with Unsplash guidelines (e.g. your website domain).',
     },
   ],
   values: {

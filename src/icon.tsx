@@ -6,7 +6,7 @@
 // theme's parts' (Icon.astro, MobileMenu.tsx …) and those to pick from (iconNames, and `icons` in collections.ts,
 // shown as icons by fields.tsx). A name that is not among them is drawn as MISSING, the question mark, marked with
 // data-icon-missing (its name), which check:screens finds on the built site's pages and the editor's screens.
-import { cloneElement, isValidElement, useEffect, useState, type ReactElement } from 'react';
+import { cloneElement, isValidElement, useEffect, useState, type ComponentType, type ReactElement } from 'react';
 import { svgParts } from '../lib/svg.mjs';
 
 const PHOSPHOR = '../node_modules/@phosphor-icons/core/assets/';
@@ -108,12 +108,16 @@ function Drawn({
 }
 
 /** An icon as the theme's UI parts take it (packages/editor/theme/ui/): its name, as the site gives it, or an icon already
- * made, as the editor gives it (a React icon from @phosphor-icons/react, the theme's in its place: <Plus />). */
-export type IconRef = string | ReactElement<{ size?: number; className?: string }>;
+ * made, as the editor gives it (a React icon from @phosphor-icons/react, the theme's in its place: <Plus />, or an icon component: Plus). */
+export type IconRef = string | ReactElement<{ size?: number; className?: string }> | ComponentType<{ size?: number; className?: string }>;
 
-/** An IconRef drawn: a name as Svg draws it, an icon made with this size and class. */
+/** An IconRef drawn: a name as Svg draws it, an icon component invoked, or an icon element cloned with this size and class. */
 export function Glyph({ icon, size = 20, className }: { icon: IconRef; size?: number; className?: string }) {
   if (typeof icon === 'string') return <Svg name={icon} size={size} className={className} />;
+  if (typeof icon === 'function') {
+    const IconComp = icon;
+    return <IconComp size={size} className={className} />;
+  }
   return isValidElement(icon)
     ? cloneElement(icon, { size, className: [icon.props.className, className].filter(Boolean).join(' ') || undefined })
     : null;

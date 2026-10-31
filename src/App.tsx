@@ -162,7 +162,8 @@ import {
 import { config, header, relationsOf, type SiteData, siteName, siteOf, testimonialsOf, usedBy, whatIsAt } from '@site/editor';
 import { themes } from './themes';
 import Screen from './Screen';
-import { Button, EmptyNote, NavigationRail, NavigationRailItem, NavigationRailSection, ProblemNote, startRipples } from './ui';
+import NavigationRail, { NavigationRailItem, NavigationRailSection } from '@theme/ui/NavigationRail';
+import { Button, EmptyNote, ProblemNote, startRipples } from './ui';
 import { setSidebar, useSidebar } from './sidebar';
 import { Ask, ask } from './ask';
 import { LinkAsk } from './LinkSheet';

@@ -77,9 +77,6 @@ import {
   SiteSearchBar,
   SiteNavigationDrawer,
   SiteNavigationDrawerItem,
-  SiteNavigationRail,
-  SiteNavigationRailItem,
-  SiteNavigationRailSection,
   siteNavigationDrawerDialogClass,
   SiteSegmentedButton,
   SiteSideSheet,
@@ -131,7 +128,7 @@ type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
 
 export function Button({ icon: Glyph, wide, className, children, ...rest }: ButtonProps) {
   return (
-    <SiteButton icon={Glyph && <Glyph />} className={[wide && 'w-full', className].filter(Boolean).join(' ')} {...rest}>
+    <SiteButton icon={Glyph && <Glyph />} className={[wide && 'w-full sm:w-auto', className].filter(Boolean).join(' ')} {...rest}>
       {children}
     </SiteButton>
   );
@@ -147,7 +144,7 @@ export function LinkButton({
   ...rest
 }: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> & { kind?: ButtonKind; size?: ButtonSize; wide?: boolean; icon?: Icon }) {
   return (
-    <SiteButton href={href} icon={Glyph && <Glyph />} className={[wide && 'w-full', className].filter(Boolean).join(' ')} {...rest}>
+    <SiteButton href={href} icon={Glyph && <Glyph />} className={[wide && 'w-full sm:w-auto', className].filter(Boolean).join(' ')} {...rest}>
       {children}
     </SiteButton>
   );
@@ -2544,64 +2541,12 @@ export function NavigationDrawer({
   );
 }
 
-/** The editor's sidebar on a computer: the theme's navigation rail (Material 3's), expanded with each part's icon,
- * name and count, or collapsed to the icons with their names under them; its menu button expands and collapses it
- * (`expanded`, `onExpandedChange`), and with `peek` it is expanded over the content without taking room (while the
- * mouse is over the collapsed rail). `header`: the logo and the site's name, under the menu button while expanded. */
-export function NavigationRail({
-  label,
-  menuLabel,
-  expanded,
-  peek,
-  header,
-  onExpandedChange,
-  children,
-  ...rest
-}: {
-  label: string;
-  menuLabel: string;
-  expanded: boolean;
-  peek?: boolean;
-  header?: ReactNode;
-  onExpandedChange: (expanded: boolean) => void;
-  children: ReactNode;
-} & HTMLAttributes<HTMLElement>) {
-  return (
-    <SiteNavigationRail
-      label={label}
-      menuLabel={menuLabel}
-      expanded={expanded || peek}
-      modality={peek && !expanded ? 'modal' : 'standard'}
-      scrim={false}
-      header={header}
-      onExpandedChange={onExpandedChange}
-      {...rest}
-    >
-      {children}
-    </SiteNavigationRail>
-  );
-}
-
-/** Parts of the sidebar under each other, with the group's name over them (the theme's rail section). */
-export const NavigationRailSection = SiteNavigationRailSection;
-
-/** A part in the sidebar: its icon, its name, how many there are (`count`, while expanded) and `selected` when it is
- * open (the theme's rail destination). */
-export function NavigationRailItem({
-  href,
-  icon: Glyph,
-  label,
-  count,
-  selected,
-}: {
-  href: string;
-  icon: Icon;
-  label: string;
-  count?: number | null;
-  selected?: boolean;
-}) {
-  return <SiteNavigationRailItem href={href} icon={<Glyph />} label={label} selected={selected} trailingSupporting={count ?? undefined} />;
-}
+/** The editor's sidebar on a computer: the theme's navigation rail (Material 3's). */
+export {
+  default as NavigationRail,
+  NavigationRailItem,
+  NavigationRailSection,
+} from './themeUi';
 
 // The sidebar's icon turned round: a panel at the right edge.
 const SidebarRight = ((props: IconProps) => <SidebarSimple {...props} mirrored />) as Icon;

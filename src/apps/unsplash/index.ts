@@ -9,11 +9,15 @@ export default defineApp({
   license: 'MIT',
   thirdParty: [],
   icon: Camera,
-  hint: 'Søg og indsæt millioner af gratis fotos i høj opløsning direkte i editoren.',
-  description: `Få adgang til Unsplash direkte i din Interstellar CMS-editor.\n\nSøg i millioner af gratis fotos i høj opløsning, indsæt dem direkte som et dedikeret Unsplash-billede med automatisk fotograf-kreditering eller brug dem overalt i dine tekster og blokke.\n\nAppen overholder alle Unsplash API-retningslinjer med automatisk fotograf-kreditering (inklusive UTM-sporing) og download tracking til fotografernes statistik.`,
+  hint: 'Search and insert millions of high-resolution free photos directly in the editor.',
+  description: `Access Unsplash directly in your Interstellar CMS editor.
+
+Search millions of free high-resolution photos, insert them directly as dedicated Unsplash image blocks with automatic photographer attribution, or use them across your pages and blocks.
+
+The app fully complies with Unsplash API guidelines with automatic photographer credit (including UTM attribution) and download tracking for photographer statistics.`,
   category: 'design',
   version: '1.0.0',
-  keywords: ['unsplash', 'fotos', 'billeder', 'stock', 'media', 'photography'],
+  keywords: ['unsplash', 'photos', 'images', 'stock', 'media', 'photography'],
   settings,
   page,
 });

@@ -20,7 +20,7 @@ import {
 } from '@interstellarcms/cms/src/unsplash';
 import UnsplashPicker from '@interstellarcms/cms/src/UnsplashPicker';
 import UnsplashSettings from '@interstellarcms/cms/src/UnsplashSettings';
-import { t } from '@interstellarcms/cms/src/i18n';
+import { siteText, t } from '@interstellarcms/cms/src/i18n';
 
 export default function UnsplashAppPage({ api }: AppPageProps): ReactElement {
   const [configured, setConfigured] = useState(hasUnsplashConfig);
@@ -70,23 +70,23 @@ export default function UnsplashAppPage({ api }: AppPageProps): ReactElement {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold">Unsplash integration</h3>
+              <h3 className="font-semibold">{siteText('Unsplash integration')}</h3>
               {configured ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                   <CheckCircle size={12} weight="fill" />
-                  Aktiv
+                  {siteText('Active')}
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">
                   <WarningCircle size={12} weight="fill" />
-                  Mangler opsætning
+                  {siteText('Setup required')}
                 </span>
               )}
             </div>
             <p className="text-xs text-muted">
               {rateLimit
-                ? `${rateLimit.limit <= 50 ? 'Demo-tilstand (50 req/t)' : 'Produktion (5.000 req/t)'} • ${rateLimit.remaining} anmodninger tilbage`
-                : 'Søg og indsæt gratis fotos med automatisk download tracking og fotograf-kreditering.'}
+                ? `${rateLimit.limit <= 50 ? t.media.unsplash.demoMode : t.media.unsplash.productionMode} • ${t.media.unsplash.remainingRequests(rateLimit.remaining, rateLimit.limit)}`
+                : siteText('Search and insert free photos with automatic download tracking and photographer attribution.')}
             </p>
           </div>
         </div>
@@ -94,7 +94,7 @@ export default function UnsplashAppPage({ api }: AppPageProps): ReactElement {
         <div className="flex items-center gap-2">
           {configured && (
             <Button kind="outlined" size="small" disabled={testing} onClick={runTest}>
-              {testing ? 'Tester...' : 'Test forbindelse'}
+              {testing ? siteText('Testing...') : siteText('Test connection')}
             </Button>
           )}
           <Button
@@ -103,7 +103,7 @@ export default function UnsplashAppPage({ api }: AppPageProps): ReactElement {
             icon={Gear}
             onClick={() => setEditingSettings(!editingSettings)}
           >
-            {editingSettings ? 'Luk indstillinger' : 'Indstillinger'}
+            {editingSettings ? siteText('Close settings') : siteText('Settings')}
           </Button>
         </div>
       </div>
@@ -130,16 +130,16 @@ export default function UnsplashAppPage({ api }: AppPageProps): ReactElement {
       {/* Live Unsplash Photo Explorer */}
       <div className="space-y-3">
         <div>
-          <h3 className="text-base font-medium">Udforsk fotos</h3>
+          <h3 className="text-base font-medium">{siteText('Explore photos')}</h3>
           <p className="text-xs text-muted">
-            Søg efter fotos, test søgeord og se hvordan billeder præsenteres med Unsplash-kreditering.
+            {siteText('Search for photos, test keywords, and preview how images are credited.')}
           </p>
         </div>
 
         <div className="rounded-xl border border-line bg-surface p-4">
           <UnsplashPicker
             onPick={(src, attribution) => {
-              alert(`Valgt foto: ${src}\n${attribution?.text || ''}`);
+              alert(`${siteText('Selected photo:')} ${src}\n${attribution?.text || ''}`);
             }}
           />
         </div>

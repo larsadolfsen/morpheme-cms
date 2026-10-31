@@ -88,3 +88,25 @@ Før ændringer godkendes eller udgives, skal følgende verificeres:
 | `npm run playground` | Starter den lokale Astro-dev server i `playground/` på port `4321` (`/` for komponenter, `/editor/` for backend). |
 | `npm run demo` | Starter automatisk demoen med MD3 compliance check og persistent dev-server i baggrunden. |
 | `npm run test:editor` | Kører automatiseret Playwright E2E-test af samtlige 55 ruter og underskærme i CMS-editoren (fejlfri rendering og nul crash). |
+
+---
+
+## 5. Sprogarkitektur & Material Design 3 Content Design (English First)
+
+Al tekstproduktion, UI-design og sproglig modellering i dette repository følger de officielle Google Material Design 3 standarder for **Content Design: Global Writing & Word Choice** (jf. `https://m3.material.io/foundations/content-design/global-writing/word-choice` og skillen `.agents/skills/material-content-design/SKILL.md`).
+
+### Grundregler:
+1. **English First som kildesprog:**
+   - Engelsk (`en-US`) defineres og skrives altid først som det primære referencesprog for samtlige skemaer, felter, hints, blok-beskrivelser, fejlmeddelelser og UI-komponenter.
+   - Alle andre sprog (herunder dansk `da-DK`) fungerer som lokaliserende oversættelser (`translations`) af den engelske referenceform.
+   - I agentsvar og teknisk dokumentation skrives der altid på engelsk først, efterfulgt af et dansk resumé, når brugeren kommunikerer på dansk.
+2. **Global Writing & Word Choice:**
+   - **Korte, præcise sætninger i aktiv form** (Active Voice).
+   - **Universelle termer:** Ingen lokale forkortelser eller uforklarede nationale begreber.
+   - **M3 Kanonisk Terminologi:**
+     - Toggles og tilstande: `Enabled` / `Disabled` (dansk: `Aktiveret` / `Deaktiveret`), `On` / `Off` (`Til` / `Fra`).
+     - Dokumentstatus: `Draft`, `Published`, `Scheduled`, `Hidden`.
+     - Handlingsknapper: Aktive verber uden fyldord (`Add tag`, `Edit page`, `Save`).
+3. **Universelt fallback-princip i i18n:**
+   - `defaults/texts.ts` indeholder altid den komplette grundordbog for alle standardfelter, så ingen felter i backend nogensinde falder tilbage til uoversat tekst.
+

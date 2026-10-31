@@ -1,14 +1,25 @@
 export const texts = {
-  'en-US': {
-    'Unsplash-billede': 'Unsplash Image',
-    'Indsæt et foto fra Unsplash med automatisk fotograf-kreditering, format og billedtekst.':
-      'Insert an Unsplash photo with automatic photographer credit, aspect ratio, and caption.',
-    Billede: 'Picture',
-    Billedtekst: 'Caption',
-    Fotograf: 'Photographer',
-    'Fotografens link': "Photographer's link",
-    'Beskrivelse (alt-tekst)': 'Description (alt text)',
-    Format: 'Aspect ratio',
-    'Fuld bredde': 'Full width',
+  'da-DK': {
+    'Unsplash image': 'Unsplash-billede',
+    'Insert an Unsplash photo with automatic photographer credit, aspect ratio, and caption.':
+      'Indsæt et foto fra Unsplash med automatisk fotograf-kreditering, format og billedtekst.',
+    Image: 'Billede',
+    'Choose from the Unsplash tab or your media library.': 'Vælg fra Unsplash-fanen eller dit mediearkiv.',
+    Caption: 'Billedtekst',
+    'Optional caption beneath the photo.': 'Valgfri billedtekst under fotografiet.',
+    Photographer: 'Fotograf',
+    'Name of the photographer on Unsplash.': 'Navn på fotografen hos Unsplash.',
+    'Photographer link': 'Fotografens link',
+    "Link to the photographer's Unsplash profile.": 'Link til fotografens profil på Unsplash.',
+    'Description (alt text)': 'Beskrivelse (alt-tekst)',
+    'Short description for screen readers and accessibility.': 'Kort beskrivelse til skærmlæsere og tilgængelighed.',
+    'Aspect ratio': 'Format',
+    '16:9 (Landscape)': '16:9 (Vandret)',
+    '4:3 (Standard)': '4:3 (Klassisk)',
+    '1:1 (Square)': '1:1 (Kvadratisk)',
+    '3:4 (Portrait)': '3:4 (Portræt)',
+    Original: 'Originalt',
+    'Full width': 'Fuld bredde',
+    'Display full width on screen': 'Vis i fuld bredde på skærmen',
   },
 };

@@ -21,7 +21,7 @@ export function viewOf(props: Record<string, any>): UnsplashImageView | null {
 
   return {
     src: String(props.src),
-    alt: String(props.alt || props.caption || 'Foto fra Unsplash'),
+    alt: String(props.alt || props.caption || 'Photo from Unsplash'),
     caption: props.caption ? String(props.caption) : undefined,
     photographer: props.photographer ? String(props.photographer) : undefined,
     photographerUrl,

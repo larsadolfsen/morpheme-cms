@@ -49,6 +49,7 @@ export default function NavigationRail({
   label,
   menuLabel,
   expanded,
+  peek,
   modality = 'standard',
   expandedBehavior = 'collapse',
   fab,
@@ -62,6 +63,7 @@ export default function NavigationRail({
   label: string;
   menuLabel: string;
   expanded?: boolean;
+  peek?: boolean;
   modality?: NavigationRailModality;
   expandedBehavior?: NavigationRailExpandedBehavior;
   fab?: { icon: string; label: string; href?: string } & Record<string, unknown>;
@@ -71,12 +73,15 @@ export default function NavigationRail({
   className?: string;
   children: ReactNode;
 } & Record<string, unknown>) {
+  const isExpanded = expanded || peek;
+  const effectiveModality = peek && !expanded ? 'modal' : modality;
+  const effectiveScrim = peek && !expanded ? false : scrim;
   const rail = (
     <nav
       aria-label={label}
-      className={[navigationRailClasses(modality, expandedBehavior), className].filter(Boolean).join(' ')}
+      className={[navigationRailClasses(effectiveModality, expandedBehavior), className].filter(Boolean).join(' ')}
       data-navigation-rail=""
-      data-expanded={expanded || undefined}
+      data-expanded={isExpanded || undefined}
       {...rest}
     >
       <div className="navigation-rail-header">
@@ -84,23 +89,23 @@ export default function NavigationRail({
           type="button"
           className={`${iconButtonClass('standard')} navigation-rail-menu`}
           aria-label={menuLabel}
-          aria-expanded={!!expanded}
+          aria-expanded={!!isExpanded}
           data-navigation-rail-menu={onExpandedChange ? undefined : ''}
-          onClick={onExpandedChange && (() => onExpandedChange(!expanded))}
+          onClick={onExpandedChange && (() => onExpandedChange(!isExpanded))}
         >
           <List size={24} />
           <CaretLeft size={24} />
         </button>
-        {fab && <ExtendedFab {...fab} collapsed={!expanded} />}
+        {fab && <ExtendedFab {...fab} collapsed={!isExpanded} />}
         {header != null && <div className="navigation-rail-header-content">{header}</div>}
       </div>
       <div className="navigation-rail-items">{children}</div>
     </nav>
   );
   // A modal one's scrim just before it, over the page and under the rail (navigationRail.script.ts shows it).
-  return modality === 'modal' && scrim ? (
+  return effectiveModality === 'modal' && effectiveScrim ? (
     <>
-      <div className={navigationRailScrimClass} data-navigation-rail-scrim="" hidden={!expanded} />
+      <div className={navigationRailScrimClass} data-navigation-rail-scrim="" hidden={!isExpanded} />
       {rail}
     </>
   ) : (
@@ -129,6 +134,7 @@ export function NavigationRailItem({
   selected,
   badge,
   trailingSupporting,
+  count,
   ...rest
 }: {
   href: string;
@@ -137,7 +143,9 @@ export function NavigationRailItem({
   selected?: boolean;
   badge?: true | number;
   trailingSupporting?: ReactNode;
+  count?: number | null;
 } & Record<string, unknown>) {
+  const trailing = trailingSupporting ?? (count != null ? count : undefined);
   return (
     <Link href={href} className={navigationRailItemClass} aria-current={selected ? 'page' : undefined} {...rest}>
       <span className="navigation-rail-indicator">
@@ -146,8 +154,8 @@ export function NavigationRailItem({
           {badge !== undefined && <Badge count={badge === true ? undefined : badge} className="navigation-rail-badge" />}
         </span>
         <span className="navigation-rail-label">{label}</span>
-        {trailingSupporting != null && trailingSupporting !== '' && (
-          <span className="navigation-rail-trailing-supporting">{trailingSupporting}</span>
+        {trailing != null && trailing !== '' && (
+          <span className="navigation-rail-trailing-supporting">{trailing}</span>
         )}
       </span>
     </Link>

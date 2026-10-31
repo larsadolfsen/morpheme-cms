@@ -83,7 +83,9 @@ export { default as SiteNavigationBar, NavigationBarItem as SiteNavigationBarIte
 export {
   default as SiteNavigationRail,
   NavigationRailItem as SiteNavigationRailItem,
+  NavigationRailItem,
   NavigationRailSection as SiteNavigationRailSection,
+  NavigationRailSection,
 } from '@theme/ui/NavigationRail';
 export { default as SiteSearch, SearchBar as SiteSearchBar } from '@theme/ui/Search';
 export { default as SiteToolbar } from '@theme/ui/Toolbar';
