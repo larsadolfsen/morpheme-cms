@@ -30,6 +30,11 @@
     "worker"
   ],
   "type": "module",
+  "main": "./astro.mjs",
+  "exports": {
+    ".": "./astro.mjs",
+    "./*": "./*"
+  },
   "bin": {
     "interstellar": "bin/interstellar.mjs"
   },

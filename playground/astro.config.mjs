@@ -171,5 +171,8 @@ export default defineConfig({
         'site-editor': root,
       },
     },
+    ssr: {
+      noExternal: ['@interstellarcms/cms'],
+    },
   },
 });
