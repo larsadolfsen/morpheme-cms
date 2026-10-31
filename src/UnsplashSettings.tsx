@@ -113,6 +113,7 @@ export default function UnsplashSettings({ onSaved, onClose }: UnsplashSettingsP
             />
           </div>
         </div>
+        <SupportingText>{t.media.unsplash.accessKeyHint}</SupportingText>
 
         <TextField
           label={t.media.unsplash.appNameLabel}

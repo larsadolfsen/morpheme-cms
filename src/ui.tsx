@@ -2181,7 +2181,7 @@ export function FoldSection({
 }) {
   const id = useId();
   return (
-    <section ref={ref} aria-labelledby={`${id}-title`} className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-line">
+    <section ref={ref} aria-labelledby={`${id}-title`} className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-line pb-2">
       <h2>
         <button
           type="button"
@@ -2199,7 +2199,7 @@ export function FoldSection({
           />
         </button>
       </h2>
-      <div id={`${id}-body`} hidden={!open} className="editor-reveal space-y-6 pt-2 pb-8">
+      <div id={`${id}-body`} hidden={!open} className="editor-reveal space-y-6 pt-2 pb-6">
         {children}
       </div>
     </section>

@@ -107,6 +107,7 @@ export const media = {
     createAccount: 'Create developer account',
     docsLink: 'Developer documentation',
     accessKeyLabel: 'Access Key (Client ID)',
+    accessKeyHint: 'Unsplash displays both an Access Key and a Secret key. Only paste your Access Key here — the Secret key is for OAuth and must be kept confidential.',
     appNameLabel: 'Application Name (optional)',
     saveKey: 'Save key',
     disconnect: 'Disconnect',

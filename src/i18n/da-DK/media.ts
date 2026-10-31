@@ -106,6 +106,7 @@ export const media: Messages['media'] = {
     createAccount: 'Opret udviklerkonto',
     docsLink: 'Udvikler-dokumentation',
     accessKeyLabel: 'Access Key (Client ID)',
+    accessKeyHint: 'Unsplash viser både en Access Key og en Secret key. Indsæt kun din Access Key her — Secret key er til OAuth og må aldrig deles i frontend-kode.',
     appNameLabel: 'Applikationsnavn (valgfrit)',
     saveKey: 'Gem nøgle',
     disconnect: 'Afbryd',

@@ -14,6 +14,7 @@
 // translation is missing.
 import { config } from '@site/config';
 import { appTexts as appFiles, texts } from '@site/texts';
+import { texts as defaultTexts } from '../../defaults/texts';
 import { daDK } from './da-DK';
 import { enUS, type Messages } from './en-US';
 
@@ -99,7 +100,7 @@ export const appTexts: Record<string, Texts> = Object.fromEntries(
 );
 
 const own: Record<string, string> = translatingSite
-  ? Object.assign({}, ...Object.values(appTexts).map((a) => a[locale]), (texts as Texts)[locale])
+  ? Object.assign({}, (defaultTexts as Texts)[locale], ...Object.values(appTexts).map((a) => a[locale]), (texts as Texts)[locale])
   : {};
 
 /** One of the site's own texts (src/site/, src/themes/<theme>/blocks/, src/apps/), written in the site's language, in the editor's:
