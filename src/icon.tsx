@@ -113,14 +113,16 @@ export type IconRef = string | ReactElement<{ size?: number; className?: string 
 
 /** An IconRef drawn: a name as Svg draws it, an icon component invoked, or an icon element cloned with this size and class. */
 export function Glyph({ icon, size = 20, className }: { icon: IconRef; size?: number; className?: string }) {
+  if (!icon) return null;
   if (typeof icon === 'string') return <Svg name={icon} size={size} className={className} />;
-  if (typeof icon === 'function') {
-    const IconComp = icon;
-    return <IconComp size={size} className={className} />;
+  if (isValidElement(icon)) {
+    return cloneElement(icon, { size, className: [icon.props.className, className].filter(Boolean).join(' ') || undefined });
   }
-  return isValidElement(icon)
-    ? cloneElement(icon, { size, className: [icon.props.className, className].filter(Boolean).join(' ') || undefined })
-    : null;
+  if (typeof icon === 'function' || (typeof icon === 'object' && icon !== null && ('render' in icon || '$$typeof' in icon))) {
+    const Component = icon as ComponentType<{ size?: number; className?: string }>;
+    return <Component size={size} className={className} />;
+  }
+  return null;
 }
 
 /** The same as Svg (the editor's fields and the site's promotions draw their icons with it). */
