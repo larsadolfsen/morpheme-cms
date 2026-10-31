@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join, posix } from 'node:path';
 import { existsSync, readFileSync, readdirSync, statSync, mkdirSync, writeFileSync, unlinkSync } from 'node:fs';
 import { appFoldersPlugin } from '../lib/apps.mjs';
+import { themePlugin } from '../site/theme.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
@@ -122,9 +123,8 @@ function localEditorMiddleware() {
             return res.end();
           }
           if (req.method === 'GET') {
-            res.statusCode = 503;
             res.setHeader('Content-Type', 'application/json');
-            return res.end(JSON.stringify({ error: 'no push in demo' }));
+            return res.end(JSON.stringify({ key: null }));
           }
           res.setHeader('Content-Type', 'application/json');
           return res.end(JSON.stringify({ ok: true }));
@@ -496,7 +496,7 @@ export default {
       }
       if (pathname.startsWith('/api/push')) {
         if (request.method === 'DELETE') return new Response(null, { status: 204 });
-        if (request.method === 'GET') return json({ error: 'no push in demo' }, 503);
+        if (request.method === 'GET') return json({ key: null });
         return json({ ok: true });
       }
 
@@ -577,7 +577,7 @@ export default defineConfig({
   root: here,
   integrations: [react(), interactDirective(), demoWorkerIntegration()],
   vite: {
-    plugins: [tailwindcss(), appFoldersPlugin(root), localEditorMiddleware()],
+    plugins: [themePlugin(), tailwindcss(), appFoldersPlugin(root), localEditorMiddleware()],
     resolve: {
       alias: {
         '@theme': resolve(root, 'theme'),

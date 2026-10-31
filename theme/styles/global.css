@@ -443,9 +443,11 @@
   --navigation-bar-indicator-text: var(--ink);
   --navigation-bar-indicator-hover: var(--md-hover);
   --navigation-bar-label-selected-weight: 500;
-  /* The navigation rail: 96px collapsed and 360px wide (MD3 specification 220-360dp), on the page's background without a line, the same indicator
+  /* The navigation rail: 80px (5rem) collapsed and 360px wide (MD3 specification 220-360dp), on the page's background without a line, the same indicator
      (56px high when wide), the labels in label medium, wide in label large. */
-  --navigation-rail-width: 6rem;
+  --navigation-rail-width: 5rem;
+  --navigation-rail-indicator-width: 3.5rem;
+  --navigation-rail-indicator-height: 2rem;
   --navigation-rail-expanded-width: 22.5rem;
   --navigation-rail-expanded-padding: 1.5rem 1.25rem;
   --navigation-rail-padding: 1.5rem 0.5rem;

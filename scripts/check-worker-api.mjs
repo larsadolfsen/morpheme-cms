@@ -146,14 +146,16 @@ async function runTests() {
   // 7. Push notifications (/api/push)
   {
     const getRes = await call('/api/push');
-    assert.equal(getRes.status, 503);
+    assert.equal(getRes.status, 200);
+    const getBody = await getRes.json();
+    assert.equal(getBody.key, null);
 
     const putRes = await call('/api/push', { method: 'PUT', body: {} });
     assert.equal(putRes.status, 200);
 
     const delRes = await call('/api/push', { method: 'DELETE', body: { endpoint: 'https://push.example' } });
     assert.equal(delRes.status, 204);
-    console.log('✓ [Push API]         GET (503) / PUT (200) / DELETE (204) /api/push');
+    console.log('✓ [Push API]         GET (200, key: null) / PUT (200) / DELETE (204) /api/push');
   }
 
   // 8. Editor static/runtime metadata endpoints

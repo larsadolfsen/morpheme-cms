@@ -19,6 +19,7 @@
 // the site; in the editor only drawn). An Astro component gives its elements the classes with navigationRailClass,
 // navigationRailClasses and navigationRailItemClass.
 import type { ReactNode } from 'react';
+import { CaretLeft, List } from '@phosphor-icons/react';
 import { Glyph, Svg, type IconRef } from '@interstellarcms/cms/src/icon';
 import { Link } from '@interstellarcms/cms/src/standard/view';
 import { ExtendedFab } from '@theme/ui/Fab';
@@ -87,8 +88,8 @@ export default function NavigationRail({
           data-navigation-rail-menu={onExpandedChange ? undefined : ''}
           onClick={onExpandedChange && (() => onExpandedChange(!expanded))}
         >
-          <Svg name="list" size={24} />
-          <Svg name="caret-left" size={24} />
+          <List size={24} />
+          <CaretLeft size={24} />
         </button>
         {fab && <ExtendedFab {...fab} collapsed={!expanded} />}
         {header != null && <div className="navigation-rail-header-content">{header}</div>}

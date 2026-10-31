@@ -225,7 +225,7 @@ function subscriptionOf(value) {
 /** The addresses /api/push and /api/push/wait (see above). */
 export async function handlePush(request, env) {
   if (!(await mayEdit(request))) return json({ error: 'forbidden' }, 403);
-  if (!env.PUSH) return json({ error: 'unavailable' }, 503);
+  if (!env.PUSH) return request.method === 'GET' ? json({ key: null }) : json({ error: 'unavailable' }, 503);
   const wait = new URL(request.url).pathname.replace(/\/$/, '') === '/api/push/wait';
   if (request.method === 'GET' && !wait) return json({ key: publicKeyOf(await vapidOf(env.PUSH)) });
   const body = await request.json().catch(() => ({}));

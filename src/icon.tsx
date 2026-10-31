@@ -9,13 +9,13 @@
 import { cloneElement, isValidElement, useEffect, useState, type ReactElement } from 'react';
 import { svgParts } from '../lib/svg.mjs';
 
-const PHOSPHOR = '/node_modules/@phosphor-icons/core/assets/';
+const PHOSPHOR = '../node_modules/@phosphor-icons/core/assets/';
 const regular = import.meta.glob<string>(
-  '/node_modules/@phosphor-icons/core/assets/regular/{arrow-left,arrow-right,arrow-square-out,arrow-up-right,bank,bicycle,book-open,book-open-text,bus,calendar-blank,car,caret-down,caret-left,caret-right,certificate,chats,check,clock,coffee,cookie,copy,device-mobile,door-open,download-simple,envelope-simple,eye,eye-slash,flower-lotus,graduation-cap,hand-heart,handshake,heart,house,info,keyboard,leaf,lifebuoy,lightbulb,list,magnifying-glass,map-pin,map-trifold,medal,minus,moon,pencil-simple,phone,question,sun,ticket,train,trash,user,users,users-three,video-camera,warning-circle,wheelchair,x}.svg',
+  '../node_modules/@phosphor-icons/core/assets/regular/{arrow-left,arrow-right,arrow-square-out,arrow-up-right,bank,bicycle,book-open,book-open-text,bus,calendar-blank,car,caret-down,caret-left,caret-right,certificate,chats,check,clock,coffee,cookie,copy,device-mobile,door-open,download-simple,envelope-simple,eye,eye-slash,flower-lotus,graduation-cap,hand-heart,handshake,heart,house,info,keyboard,leaf,lifebuoy,lightbulb,list,magnifying-glass,map-pin,map-trifold,medal,minus,moon,pencil-simple,phone,question,sun,ticket,train,trash,user,users,users-three,video-camera,warning-circle,wheelchair,x}.svg',
   { query: '?raw', import: 'default', eager: true },
 );
 // The filled ones ("Video": its play button).
-const fills = import.meta.glob<string>('/node_modules/@phosphor-icons/core/assets/fill/{play-fill}.svg', {
+const fills = import.meta.glob<string>('../node_modules/@phosphor-icons/core/assets/fill/{play-fill}.svg', {
   query: '?raw',
   import: 'default',
   eager: true,

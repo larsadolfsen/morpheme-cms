@@ -17,9 +17,22 @@ import { MOTION_SCHEMES } from '@interstellarcms/cms/lib/motion-schemes.mjs';
 /** The site's choice of icon pack, `{ "pack": "<id>" }` (config.icons in src/site/config.ts). */
 const ICONS_FILE = 'src/data/icons.json';
 
-// The site's root (the working directory) and this package's.
-const root = pathToFileURL(`${process.cwd()}/`);
+// The site's root (the working directory, or playground/ when developing in this package) and this package's.
+const defaultSiteRoot = () => {
+  const cwd = pathToFileURL(`${process.cwd()}/`);
+  if (existsSync(new URL('src/data/theme.json', cwd))) return cwd;
+  if (existsSync(new URL('playground/src/data/theme.json', cwd))) return new URL('playground/', cwd);
+  return cwd;
+};
+const root = defaultSiteRoot();
 const pkg = new URL('../', import.meta.url);
+const resolveUrl = (path) => {
+  const inRoot = new URL(path, root);
+  if (existsSync(inRoot)) return inRoot;
+  const inPkg = new URL(path, pkg);
+  if (existsSync(inPkg)) return inPkg;
+  return inRoot;
+};
 
 /** The theme every theme builds on, Material (this package's theme/, id 'saturn'): it has all of THEME_FILES and the look of every
  * standard block. */
@@ -27,7 +40,7 @@ export const STANDARD_THEME = 'material';
 
 /** A theme's folder, from the site's root: the standard theme's is this package's theme/, another's src/themes/<theme>. */
 export const themeFolder = (theme) =>
-  theme === STANDARD_THEME ? relative(process.cwd(), fileURLToPath(new URL('theme', pkg))) : `src/themes/${theme}`;
+  theme === STANDARD_THEME ? relative(fileURLToPath(root), fileURLToPath(new URL('theme', pkg))) : `src/themes/${theme}`;
 
 // What the standard theme has, as its folder in src/themes/: what the site's pages (packages/editor/pages/) and the editor
 // (src/site/) take from it as @theme. Besides these, the look of its blocks (blocks/<type>/) and what they import.
@@ -71,7 +84,7 @@ const folders = (url) =>
         .filter((e) => e.isDirectory())
         .map((e) => e.name)
     : [];
-const has = (path) => existsSync(new URL(path, root));
+const has = (path) => existsSync(resolveUrl(path));
 
 /** The standard blocks' types: their contracts' folders in the editor (packages/editor/src/standard/<type>/). */
 const standardTypes = () => folders(new URL('src/standard/', pkg)).filter((t) => existsSync(new URL(`src/standard/${t}/index.tsx`, pkg)));
@@ -97,7 +110,7 @@ function iconProblems(theme) {
   return problems;
 }
 
-const manifestOf = (theme) => JSON.parse(readFileSync(new URL(`${themeFolder(theme)}/theme.json`, root), 'utf8'));
+const manifestOf = (theme) => JSON.parse(readFileSync(resolveUrl(`${themeFolder(theme)}/theme.json`), 'utf8'));
 
 /** The icon packs a theme brings (src/themes/<theme>/icon-packs/<pack>/, with its pack.json), by their folders. */
 const ownPacks = (theme) =>
@@ -108,7 +121,7 @@ const ownPacks = (theme) =>
 /** The choice of icon pack made under "Indstillinger" › "Udseende" › "Ikonpakker" (src/data/icons.json, `{ "pack": "<id>"
  * }`), or undefined while none is made (then the theme's is used). */
 export function chosenPack() {
-  const file = new URL(ICONS_FILE, root);
+  const file = resolveUrl(ICONS_FILE);
   if (!existsSync(file)) return undefined;
   const { pack } = JSON.parse(readFileSync(file, 'utf8'));
   return pack ?? undefined;
@@ -138,7 +151,7 @@ export function iconPackLicenses() {
   const inUse = iconPack();
   return installedPacks().map((id) => {
     const dir = packFolder(id);
-    const manifest = JSON.parse(readFileSync(new URL(`${dir}/${ICON_PACK_FILE}`, root), 'utf8'));
+    const manifest = JSON.parse(readFileSync(resolveUrl(`${dir}/${ICON_PACK_FILE}`), 'utf8'));
     const set = (x, file) => ({ name: x.name, version: x.version ?? null, author: x.author, license: x.license, file: `${dir}/${file}` });
     return {
       id,
@@ -165,8 +178,8 @@ function themeIcons() {
   const icons = {};
   for (const dir of iconFolders(activeTheme()).reverse())
     if (has(dir))
-      for (const f of readdirSync(new URL(dir, root)))
-        if (f.endsWith('.svg')) icons[f.slice(0, -'.svg'.length)] = readFileSync(new URL(dir + f, root), 'utf8');
+      for (const f of readdirSync(resolveUrl(dir)))
+        if (f.endsWith('.svg')) icons[f.slice(0, -'.svg'.length)] = readFileSync(new URL(f, resolveUrl(dir)), 'utf8');
   for (const [name, svg] of Object.entries(icons)) if (isPhosphors(name, svg)) delete icons[name];
   return icons;
 }
@@ -177,7 +190,7 @@ function themeIcons() {
 export function themeIcon(name, theme = activeTheme()) {
   for (const dir of iconFolders(theme))
     if (has(`${dir}${name}.svg`)) {
-      const svg = readFileSync(new URL(`${dir}${name}.svg`, root), 'utf8');
+      const svg = readFileSync(resolveUrl(`${dir}${name}.svg`), 'utf8');
       return isPhosphors(name, svg) ? null : svg;
     }
   return null;
@@ -397,8 +410,9 @@ export function siteFile(file) {
 
 /** The folder of the theme in use, under src/themes/. */
 export function activeTheme() {
-  const { theme } = JSON.parse(readFileSync(new URL('src/data/theme.json', root), 'utf8'));
-  if (typeof theme !== 'string' || !/^[a-z0-9-]+$/.test(theme) || !existsSync(new URL(`${themeFolder(theme)}/theme.json`, root)))
+  const themeFile = resolveUrl('src/data/theme.json');
+  const { theme } = JSON.parse(readFileSync(themeFile, 'utf8'));
+  if (typeof theme !== 'string' || !/^[a-z0-9-]+$/.test(theme) || !existsSync(resolveUrl(`${themeFolder(theme)}/theme.json`)))
     throw new Error(`src/data/theme.json: temaet ${JSON.stringify(theme)} er ikke installeret (src/themes/<tema>/theme.json).`);
   return theme;
 }
