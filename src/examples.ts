@@ -1,11 +1,14 @@
 // What "Dele" (#udseende/dele: Parts.tsx, BlockParts.tsx) shows the parts and blocks with: made-up pages, posts, tags,
-// testimonials, the lists' made-up rows (`examples` of a list), cookies and contact details in the editor's language, and a plain picture, never what the site has, so
-// the parts look the same on every site.
+// testimonials, the lists' made-up rows (`examples` of a list), cookies and contact details in the editor's language,
+// the apps' made-up settings (AppSettings.example), and a plain picture, never what the site has, so the parts look the
+// same on every site.
 import { categoryOf } from '../lib/cookieCategories.mjs';
 import type { BlockData } from './blocks';
 import { siteOf } from '@site/editor';
 import { t } from './i18n';
-import { listExamples } from './site';
+import { apps, listExamples } from './site';
+import { withDefaults } from './check';
+import type { FolderCollection } from './schema';
 
 /** A plain picture: a sun over two hills, in soft grey. */
 export const examplePicture = `data:image/svg+xml,${encodeURIComponent(
@@ -55,6 +58,7 @@ export function exampleData(): BlockData {
     labels: e.labels,
     buttons: { booking: { text: e.labels.book }, phone: { text: e.labels.call, after: e.contact.phone } },
     cookies: e.cookies.map((c) => ({ ...c, category: categoryOf(c) })),
+    apps: Object.fromEntries(apps.flatMap((a) => (a.settings ? [[a.id, { ...a.settings.values, ...a.settings.example }]] : []))),
   };
   return {
     lists: listExamples,
@@ -69,4 +73,13 @@ export function exampleData(): BlockData {
     },
     site,
   };
+}
+
+/** An entry of a kind of a list of kinds (a pop-up, Mailchimp's) as an example: a new one of the kind, with the
+ * defaults of the fields it has, the made-up name, heading and text, and the plain picture. "Dele" draws each kind
+ * with it, and "Blokindstillinger" an app's kind no entry is made with. */
+export function kindExample(list: FolderCollection, kind: string): Record<string, unknown> {
+  const name = list.kinds!;
+  const fields = list.fields.filter((f) => f.only?.field !== name || f.only.is.includes(kind));
+  return withDefaults(fields, { ...t.parts.examples.entry, image: examplePicture, [name]: kind });
 }

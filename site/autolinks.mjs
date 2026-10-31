@@ -2,11 +2,11 @@
 // (`keyword`, the primary one, and `keywords`, more separated by commas; under
 // "Søgemaskiner" in the editor; the front page's link to / and the blog page's to /blog/, where they are shown, and the
 // 404 page's to nowhere). src/data/internal-links.json, under "Søgemaskineoptimering" ›
-// "Interne links" in the editor (src/site/internalLinks.ts): `enabled` turns the links on or off, `maxPerPage` is the
+// "Interne links" in the editor (packages/editor/defaults/internalLinks.ts): `enabled` turns the links on or off, `maxPerPage` is the
 // most per page. A word links to the page it is a
-// keyword of. Replaces the WordPress plugin that linked every occurrence of a word: here a target is
+// keyword of. Unlike linking every occurrence of a word, a target is
 // linked once per page, at most `maxPerPage` links per page, never to the page itself, never inside
-// headings or existing links, and never as part of a word joined with a hyphen (not "EFT" in "EFT-parterapeut"). Used by the Markdown pipeline (packages/editor/astro.mjs) and by the migration
+// headings or existing links, and never as part of a word joined with a hyphen (not "web" in "web-design"). Used by the Markdown pipeline (packages/editor/astro.mjs) and by an import
 // script, which removes the old plugin links so they are not doubled. Each link has data-link="auto", so how many there
 // are of each word can be counted after the build (packages/editor/scripts/link-counts.mjs, /editor/links.json).
 import { createHash } from 'node:crypto';
@@ -18,7 +18,7 @@ import { stateOf } from '@interstellarcms/cms/lib/status.mjs';
 
 const FILE = path.resolve('src/data/internal-links.json');
 // The front page, the blog page and the 404 page ("Indstillinger" › "Udseende" › "Standardsider",
-// src/site/standardPages.ts): the front page's address sends on to /, the blog page's to /blog/, and the 404 page has none.
+// packages/editor/defaults/standardPages.ts): the front page's address sends on to /, the blog page's to /blog/, and the 404 page has none.
 const STANDARD = path.resolve('src/data/standard-pages.json');
 const PAGES = path.resolve('src/content/pages');
 const POSTS = path.resolve('src/content/blog');
@@ -46,8 +46,9 @@ function linked(href) {
   return href === standard.notFound ? null : href;
 }
 
-/** The .md files in a folder and its subfolders, as paths relative to it. */
-const files = (dir) => fs.readdirSync(dir, { recursive: true }).filter((f) => f.endsWith('.md'));
+/** The .md files in a folder and its subfolders, as paths relative to it (none when there is no folder). */
+const files = (dir) =>
+  fs.existsSync(dir) ? fs.readdirSync(dir, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.md')) : [];
 const frontmatter = (file) => parse(fs.readFileSync(file, 'utf8').match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '') ?? {};
 
 /** The keywords of the pages and posts: [{ href, primary, secondary }]. A page's address is its

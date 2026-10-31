@@ -23,6 +23,7 @@ import {
   type FormEvent,
   type MouseEvent,
   type PointerEvent,
+  isValidElement,
   type ReactElement,
   type ReactNode,
   type Ref,
@@ -37,6 +38,9 @@ import {
   CaretUp,
   Check,
   Funnel,
+  LockSimple,
+  LockSimpleOpen,
+  PencilSimple,
   Plus,
   SidebarSimple,
   X,
@@ -53,10 +57,9 @@ import {
   SiteCard,
   siteCardClass,
   siteListClass,
-  siteListItemClass,
+  siteListClasses,
+  SiteListItem,
   SiteListItemLeadingIcon,
-  SiteListItemTrailingIcon,
-  SiteListItemTrailingSupporting,
   SiteMenu,
   SiteMenuItem,
   sitePlaceMenu,
@@ -64,6 +67,7 @@ import {
   SiteCarousel,
   SiteCheckbox,
   SiteChip,
+  SiteChipSet,
   SiteDivider,
   SiteDatePicker,
   SiteDialog,
@@ -89,15 +93,18 @@ import {
   SiteTextFieldButton,
   SiteTimePicker,
   dayPeriods,
-} from '@site/ui';
+  siteRipples,
+} from './themeUi';
 import { locale, t } from './i18n';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
 import { SvgFile } from './icon';
 import { countries, countryName, dialCodes, flagOf, regionOf } from './countries';
 import { byText } from './schema';
+import { contrast } from '../lib/colors';
+import { motionTiming } from '../lib/motion';
 
 // The parts Material 3 has (a button, an icon button, a chip, a carousel …) are the theme's UI parts
-// (packages/editor/theme/ui/, through @site/ui), the same the site draws, in the theme's design (its ui.css and
+// (packages/editor/theme/ui/, through themeUi.ts), the same the site draws, in the theme's design (its ui.css and
 // styles/global.css): here only what the editor gives them (its icons, what a tap does). The editor's own parts (the
 // SEO rating, the colour field, the form's layout …) take the theme's design from its variables (--block-radius,
 // --block-radius-small, --block-shadow and the site's colours).
@@ -561,17 +568,23 @@ function drag(onMove: (x: number, y: number) => void) {
   };
 }
 
+// A field to drag in (the colour sheet's shades and hues, the colour wheel), and the round thumb on it.
+const ring = 'touch-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none';
+const thumb =
+  'pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white shadow-[0_0_0_1px_rgb(0_0_0/0.3),0_2px_6px_rgb(0_0_0/0.3)]';
+
 /** What is in the sheet a colour is picked in (ColorField): a field with its shades (saturation across,
  * brightness up) and a bar with the hues, both to drag in or move with the arrow keys; what it was and
  * what it becomes side by side, with the colour as text; and the colours to pick from (`swatches`, the
- * site's). "Brug farven" takes it, "Annuller" and the cross leave it as it was. Made again each time the
- * sheet opens, so it starts from the colour the field has. */
+ * site's). "Brug farven" takes it, "Brug og lås" (with `onLock`) takes it and locks it, "Annuller" and the cross
+ * leave it as it was. Made again each time the sheet opens, so it starts from the colour the field has. */
 function ColorSheet({
   id,
   title,
   value,
   swatches,
   onChange,
+  onLock,
   onClose,
 }: {
   id: string;
@@ -579,6 +592,8 @@ function ColorSheet({
   value: string;
   swatches?: string[];
   onChange: (value: string) => void;
+  /** "Brug og lås" as well: takes the colour and locks it (a base colour of the generator, ColorTiles). */
+  onLock?: (value: string) => void;
   onClose: () => void;
 }) {
   const s = t.common.colorSheet;
@@ -595,9 +610,6 @@ function ColorSheet({
     e.preventDefault();
     setHsv(step);
   };
-  const ring = 'touch-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none';
-  const thumb =
-    'pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white shadow-[0_0_0_1px_rgb(0_0_0/0.3),0_2px_6px_rgb(0_0_0/0.3)]';
   return (
     <>
       <SheetTitle title={title} onClose={onClose} />
@@ -672,6 +684,19 @@ function ColorSheet({
           onClose();
         }}
         done={s.use}
+        start={
+          onLock && (
+            <Button
+              kind="outlined"
+              onClick={() => {
+                onLock(color);
+                onClose();
+              }}
+            >
+              {s.useAndLock}
+            </Button>
+          )
+        }
       />
     </>
   );
@@ -762,7 +787,7 @@ export function Notice({ title, children, action }: { title: string; children: R
   return (
     <SiteCard kind="filled" role="status" className="space-y-2">
       <p className="font-medium text-accent">{title}</p>
-      <p className="text-sm">{children}</p>
+      <div className="text-sm">{children}</div>
       {action}
     </SiteCard>
   );
@@ -1011,7 +1036,7 @@ export function ImagePick({ id, src, onPick, onRemove }: { id?: string; src?: st
   );
 }
 
-/** A list of items in a frame (the theme's list on its card, listClass), each a FoldItem that folds out to its fields
+/** A list of items (the theme's segmented list, listClass), each a FoldItem that folds out to its fields
  * (the questions of a block). */
 export function FoldList({ ref, children }: { ref?: Ref<HTMLUListElement>; children: ReactNode }) {
   return (
@@ -1037,16 +1062,16 @@ export function FoldItem({
   children: ReactNode;
 }) {
   return (
-    <li>
-      <div className="flex items-center pr-1.5">
-        <button type="button" aria-expanded={open} className={`${listItemClass} min-w-0 flex-1`} onClick={onToggle}>
-          <CaretRight size={14} className={`shrink-0 text-muted transition-transform ${open ? 'rotate-90' : ''}`} />
-          <span className="truncate">{title}</span>
-        </button>
-        {tools}
-      </div>
+    <ListItem
+      onClick={onToggle}
+      aria-expanded={open}
+      leading={<CaretRight size={14} className={`shrink-0 text-muted transition-transform ${open ? 'rotate-90' : ''}`} />}
+      headline={title}
+      truncate
+      actions={tools && <span className="flex shrink-0 pr-1.5">{tools}</span>}
+    >
       {open && <div className="editor-reveal space-y-4 px-4 pt-1 pb-4">{children}</div>}
-    </li>
+    </ListItem>
   );
 }
 
@@ -1387,6 +1412,16 @@ export function ChipField({
   );
 }
 
+/** The theme's chip set: chips side by side in a group with its name (`label`), on as many lines as they need, or with
+ * `scroll` on one line that scrolls sideways (the harmonies under "Farver" › "Generator"). */
+export function ChipSet({ label, scroll = false, children }: { label: string; scroll?: boolean; children: ReactNode }) {
+  return (
+    <SiteChipSet layout={scroll ? 'scroll' : 'wrap'} label={label}>
+      {children}
+    </SiteChipSet>
+  );
+}
+
 /** The theme's filter chip: one of a few choices side by side (a picture's format), the chosen one marked. Many choices
  * go in a sheet instead (Choice). */
 export function FilterChip({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: ReactNode }) {
@@ -1455,49 +1490,86 @@ export function SegmentedButton<T extends string>({
 // ---------------------------------------------------------------------------------------------------
 // Rows
 
-/** The classes of a row in a list in a frame (Group): the theme's list item (Material 3's), a link or a button across
- * it. A `group`, so a LeadingIcon in it follows the row under the mouse. */
-export const listItemClass = `${siteListItemClass()} group w-full`;
-
-/** A row that does something (Log ud): in the accent colour. */
-export const accentListItemClass = `${listItemClass} text-accent`;
-
-/** The row that deletes what a screen shows, alone in a Group at the bottom: in the middle, in the
- * accent colour. */
-export const deleteListItemClass = `${listItemClass} justify-center font-medium text-accent`;
-
-/** A row that is only shown, not tapped (the version shown now): no colour under the mouse; muted, grey
- * (what cannot be opened: a page that is gone). */
-export const staticListItemClass = `${siteListItemClass()} w-full`;
-export const mutedListItemClass = `${staticListItemClass} text-muted`;
-
 /** The classes of the rows under a row in a list (a submenu): the theme's list, indented along a line, the text a little
  * lighter. */
 export const subListClass = `${siteListClass} ml-5 border-l border-line`;
-export const subListItemClass = `${listItemClass} text-ink/80`;
 
-/** What stands beside a row's text (LeadingIcon, TrailingText, TrailingIcon): in the middle of its first two lines. It
- * stretches with the row up to their height (a name and a small text under it) and stays at the top of a row with
- * more. */
-const firstLinesClass = 'flex max-h-11 shrink-0 items-center self-stretch';
+/** What a row looks like besides the theme's list item: `accent`, a row that does something (Log ud), in the accent
+ * colour; `delete`, the row that deletes what a screen shows, alone in a Group at the bottom, in the middle in the accent
+ * colour; `muted`, grey (what cannot be opened: a page that is gone); `sub`, a row under a row (a submenu), its text a
+ * little lighter. */
+export type RowTone = 'accent' | 'delete' | 'muted' | 'sub';
+const toneClass: Record<RowTone, string> = {
+  accent: 'text-accent',
+  delete: 'justify-center text-center font-medium text-accent',
+  muted: 'text-muted',
+  sub: 'text-ink/80',
+};
 
-/** At the right of a row, before its arrow (Material's trailing supporting text, the theme's): how many there are (the
- * files, the pages, the addresses). */
-export function TrailingText({ children }: { children: ReactNode }) {
+/** A row in a list (Group, listClass): the theme's list item (Material 3's ListItem), with the editor's icons. A link
+ * (`href`), a button (`onClick`) or only shown; its icon before it (`icon`, a Phosphor icon or one drawn; `iconSelected`:
+ * in the selected colour, the open one) or anything there (`leading`: LeadingImage, LeadingToken), its name
+ * (`headline`) and what is under it (`supporting`; `truncate`: each on one line, cut off), how many at the right
+ * (`count`), the arrow of a row that opens something (`arrow`, or another icon: what a tap does) or anything there
+ * (`trailing`), the buttons beside it (`actions`: the arrows, Fjern, a switch) and what is in its <li> after it
+ * (`children`: a sheet it opens, a text it folds out); `tone`: RowTone. The rest (aria-…, ref, style, onClick on a
+ * link) on the row. */
+export function ListItem({
+  icon: shownIcon,
+  iconSelected: shownSelected,
+  arrow,
+  count,
+  tone,
+  className,
+  ...item
+}: {
+  icon?: Icon | ReactElement<{ size?: number; className?: string }>;
+  iconSelected?: boolean;
+  leading?: ReactNode;
+  headline: ReactNode;
+  supporting?: ReactNode;
+  truncate?: boolean;
+  count?: ReactNode;
+  arrow?: boolean | Icon;
+  trailing?: ReactNode;
+  actions?: ReactNode;
+  children?: ReactNode;
+  href?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+  selected?: boolean;
+  tone?: RowTone;
+  className?: string;
+} & Record<string, unknown>) {
+  let icon = shownIcon;
+  let iconSelected = shownSelected;
+  const Arrow = arrow === true ? CaretRight : arrow || null;
+  // A LeadingIcon made beforehand (an app's icon in a list) is the item's leading icon.
+  const made =
+    isValidElement(item.leading) && item.leading.type === LeadingIcon
+      ? (item.leading.props as { icon?: Icon; selected?: boolean; children?: ReactNode })
+      : null;
+  if (made) {
+    icon = made.icon ?? ((made.children || <span className="block size-6" />) as ReactElement<{ size?: number }>);
+    iconSelected = made.selected;
+    item.leading = undefined;
+  }
+  const Lead = icon && !isValidElement(icon) ? (icon as Icon) : null;
+  // Nothing (false, '', null) is no part: `count={n > 0 && n}`.
+  const some = (v: ReactNode) => (v === false || v === '' || v == null ? undefined : v);
   return (
-    <span className={firstLinesClass}>
-      <SiteListItemTrailingSupporting>{children}</SiteListItemTrailingSupporting>
-    </span>
-  );
-}
-
-/** At the right of a row (Material's trailing icon, the theme's): the arrow of a row that opens something, or what a tap
- * on the row does (`icon`: restore, in "Slettede"). */
-export function TrailingIcon({ icon: Glyph = CaretRight }: { icon?: Icon }) {
-  return (
-    <span className={firstLinesClass}>
-      <SiteListItemTrailingIcon icon={<Glyph />} />
-    </span>
+    <SiteListItem
+      {...item}
+      leading={some(item.leading)}
+      supporting={some(item.supporting)}
+      trailing={some(item.trailing)}
+      actions={some(item.actions)}
+      leadingIcon={Lead ? <Lead /> : (icon as ReactElement | undefined)}
+      leadingIconSelected={iconSelected}
+      trailingSupporting={some(count)}
+      trailingIcon={Arrow ? <Arrow /> : undefined}
+      className={[tone && toneClass[tone], className].filter(Boolean).join(' ') || undefined}
+    />
   );
 }
 
@@ -1780,7 +1852,7 @@ export function Preview({ children }: { children: ReactNode }) {
 }
 
 /** A little page in a set of the site's colours (by their names, as "Farver" has them), whatever mode the editor is in:
- * a heading, text, a link, a surface with text, a tinted box and a button, so it shows how readable they are together.
+ * a heading, text, a link, a surface with text, a tinted box, a box in each of the secondary and tertiary colours and a button, so it shows how readable they are together.
  * The colours are CSS variables on it, which the classes take, and the theme's filled button (ui.css) in them. "Farver"
  * (Colors.tsx) and the variants of a colour app. */
 export function ColorsPreview({ colors, title }: { colors: Record<string, string>; title: string }) {
@@ -1802,6 +1874,11 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
         <p className="text-sm">{p.card}</p>
         <p className="rounded-lg bg-tint px-3 py-2 text-sm font-medium text-accent">{p.box}</p>
       </div>
+      {/* The secondary and tertiary colours, which a harmony on the colour wheel places. */}
+      <div className="grid grid-cols-2 gap-2 text-sm font-medium">
+        <p className="rounded-lg bg-secondary-container px-3 py-2 text-on-secondary-container">{p.secondary}</p>
+        <p className="rounded-lg bg-tertiary-container px-3 py-2 text-on-tertiary-container">{p.tertiary}</p>
+      </div>
       <span className="button button-filled button-small">{p.button}</span>
     </div>
   );
@@ -1818,6 +1895,167 @@ export function ColorSwatches({ colors, label }: { colors: string[]; label: stri
   );
 }
 
+/** A base colour in ColorTiles: the colour, its name, what its pen does (`onChange`, with `lock` when "Brug og lås"
+ * took it; `disabled`: the pen is grey and cannot be used), and, for the one that can be locked, whether it is
+ * (`locked`) and what its lock does (`onLock`). */
+export type ColorTile = {
+  color: string;
+  name: string;
+  disabled?: boolean;
+  locked?: boolean;
+  onChange?: (color: string, lock: boolean) => void;
+  onLock?: (locked: boolean) => void;
+};
+
+/** A few colours side by side, each a tile filled with it, with its name and its colour as text in black or white,
+ * whichever is easier to read on it (the generator's three base colours under "Farver"), and the theme's icon buttons
+ * in the same colour: a pen that opens the colour sheet (ColorSheet, without colours to pick from), and on one that
+ * can be locked a lock, on while it is locked, and "Brug og lås" in its sheet. `label` names them together. */
+export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: string }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  // The tile whose sheet is open, and the times it was opened, so it starts again each time.
+  const [editing, setEditing] = useState<{ tile: number; opened: number }>({ tile: 0, opened: 0 });
+  const close = () => dialog.current?.close();
+  const tile = colors[editing.tile];
+  return (
+    <>
+      <ul
+        aria-label={label}
+        className={`grid overflow-hidden rounded-(--block-radius) ${swatchEdge}`}
+        style={{ gridTemplateColumns: `repeat(${colors.length}, minmax(0, 1fr))` }}
+      >
+        {colors.map(({ color, name, disabled, locked, onChange, onLock }, i) => {
+          const text = contrast(color, '#000000') >= contrast(color, '#ffffff') ? '#000000' : '#ffffff';
+          // The icon buttons in the tile's text colour, on and off.
+          const vars = {
+            background: color,
+            color: text,
+            '--icon-button-standard-text': text,
+            '--icon-button-standard-selected-text': text,
+          } as CSSProperties;
+          return (
+            <li key={name} className="flex min-w-0 flex-col gap-1 p-3" style={vars}>
+              <span className="block text-sm font-medium break-words">{name}</span>
+              <span className="block truncate font-mono text-sm uppercase">{color}</span>
+              <span className="mt-auto -ml-2 flex">
+                {onChange && (
+                  <IconButton
+                    icon={PencilSimple}
+                    label={t.common.pickColor(name)}
+                    aria-haspopup="dialog"
+                    disabled={disabled}
+                    onClick={() => {
+                      setEditing((e) => ({ tile: i, opened: e.opened + 1 }));
+                      dialog.current?.showModal();
+                      // The sheet has the focus, not its first button (CLAUDE.md).
+                      dialog.current?.focus();
+                    }}
+                  />
+                )}
+                {onLock && (
+                  <IconButton
+                    icon={locked ? LockSimple : LockSimpleOpen}
+                    label={t.common.lockColor(name)}
+                    selected={!!locked}
+                    onClick={() => onLock(!locked)}
+                  />
+                )}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+      <BottomSheet
+        ref={dialog}
+        tabIndex={-1}
+        aria-label={tile?.name}
+        onClick={(e) => e.target === dialog.current && close()}
+        className="focus:outline-none"
+      >
+        {editing.opened > 0 && tile?.onChange && (
+          <ColorSheet
+            key={editing.opened}
+            id={`color-tile-${editing.tile}`}
+            title={tile.name}
+            value={tile.color}
+            onChange={(c) => tile.onChange?.(c, false)}
+            onLock={tile.onLock && ((c) => tile.onChange?.(c, true))}
+            onClose={close}
+          />
+        )}
+      </BottomSheet>
+    </>
+  );
+}
+
+/** A colour wheel (the generator under "Farver"): every hue round the edge at its most colourful (`edge`, from the top
+ * clockwise), grey in the middle (`middle`), and dots on it (`dots`, x and y from -1 to 1 from the middle, y down), a
+ * locked one with a lock in it. The first is the one chosen, to drag, tap or move with the arrow keys (round the wheel,
+ * and out and in); the others follow it. `disabled`: it cannot be moved (the source colour is locked). `label` names it
+ * for screen readers, `valueText` says what is chosen. */
+export function ColorWheel({
+  edge,
+  middle,
+  dots,
+  label,
+  valueText,
+  disabled = false,
+  onMove,
+}: {
+  edge: string[];
+  middle: string;
+  dots: { x: number; y: number; color: string; locked?: boolean }[];
+  label: string;
+  valueText: string;
+  disabled?: boolean;
+  onMove: (x: number, y: number) => void;
+}) {
+  const [first] = dots;
+  const angle = Math.atan2(first.x, -first.y);
+  const keys = (e: KeyboardEvent) => {
+    const step = ({ ArrowLeft: [-5, 0], ArrowRight: [5, 0], ArrowUp: [0, 0.05], ArrowDown: [0, -0.05] } as Record<string, number[]>)[e.key];
+    if (!step || disabled) return;
+    e.preventDefault();
+    const a = angle + (step[0] * Math.PI) / 180;
+    const r = clamp(Math.hypot(first.x, first.y) + step[1]);
+    onMove(r * Math.sin(a), -r * Math.cos(a));
+  };
+  return (
+    <div
+      role="slider"
+      tabIndex={0}
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={360}
+      aria-valuenow={Math.round(((angle * 180) / Math.PI + 360) % 360)}
+      aria-valuetext={valueText}
+      aria-disabled={disabled || undefined}
+      className={`relative aspect-square w-full max-w-72 rounded-full ${swatchEdge} ${ring}`}
+      style={{ background: `radial-gradient(closest-side, ${middle}, transparent), conic-gradient(${[...edge, edge[0]].join(', ')})` }}
+      {...(disabled ? {} : drag((x, y) => onMove(x * 2 - 1, y * 2 - 1)))}
+      onKeyDown={keys}
+    >
+      {/* The chosen dot last, so it is on top. */}
+      {dots
+        .map((dot, i) => (
+          <span
+            key={i}
+            className={`${thumb} flex items-center justify-center ${i ? 'size-6' : 'size-9'}`}
+            style={{
+              left: `${(dot.x + 1) * 50}%`,
+              top: `${(dot.y + 1) * 50}%`,
+              background: dot.color,
+              color: contrast(dot.color, '#000000') >= contrast(dot.color, '#ffffff') ? '#000000' : '#ffffff',
+            }}
+          >
+            {dot.locked && <LockSimple size={i ? 12 : 16} aria-hidden="true" />}
+          </span>
+        ))
+        .reverse()}
+    </div>
+  );
+}
+
 /** A few icons side by side, each an SVG file as it is, read out together as `label` (an icon pack's, ChoiceRow on
  * "Ikonpakker"): in the row's colour, as its own icons. */
 export function IconSwatches({ icons, label }: { icons: string[]; label: string }) {
@@ -1831,42 +2069,55 @@ export function IconSwatches({ icons, label }: { icons: string[]; label: string 
 }
 
 /** A row in a Group that is one of several choices on a screen of their own ("Ikonpakker"): the theme's list item
- * (listItemClass) as a button, its name and what is under it, what it gives at the right (`trailing`: IconSwatches,
+ * (ListItem) as a button, its name (`headline`) and what is under it (`supporting`), what it gives at the right (`trailing`: IconSwatches,
  * ColorSwatches), and the chosen one marked as a choice in a sheet is (Option): aria-pressed, in the accent colour, with
  * a tick. */
 export function ChoiceRow({
   selected,
+  headline,
+  supporting,
   trailing,
   onClick,
-  children,
 }: {
   selected: boolean;
+  headline: ReactNode;
+  supporting?: ReactNode;
   trailing?: ReactNode;
   onClick: () => void;
-  children: ReactNode;
 }) {
   return (
-    <li>
-      <button type="button" aria-pressed={selected} className={`${listItemClass} ${selected ? 'text-accent' : ''}`} onClick={onClick}>
-        <span className="min-w-0 flex-1">{children}</span>
-        {trailing}
-        <Check size={20} className={`shrink-0 ${selected ? '' : 'invisible'}`} />
-      </button>
-    </li>
+    <ListItem
+      onClick={onClick}
+      aria-pressed={selected}
+      tone={selected ? 'accent' : undefined}
+      headline={headline}
+      supporting={supporting}
+      trailing={
+        <span className="flex items-center gap-3">
+          {trailing}
+          <Check size={20} className={`shrink-0 ${selected ? 'text-accent' : 'invisible'}`} />
+        </span>
+      }
+    />
   );
 }
 
 // ---------------------------------------------------------------------------------------------------
-// Lists in a frame
+// Lists of rows
 
-/** The classes of a list of rows in a frame (in Group, and alone in a sheet: where a picture is used): the theme's list
- * (Material 3's) on the theme's outlined card. */
-export const listClass = `${siteCardClass('outlined')} ${siteListClass}`;
+/** The classes of a list of rows (in Group, and alone in a sheet: where a picture is used): the theme's segmented list
+ * (Material 3 Expressive's), each row on its own surface. */
+export const listClass = siteListClasses('segmented');
 
-/** The small heading over a Group, and over what stands as one (the themes on Konto). */
+/** The small heading over a Group, and over what stands as one (the themes on Konto): in Material 3's title small, as
+ * written (not in capitals, Material 2's subheader), muted as a group's heading in a sheet (SheetGroupTitle). */
 export function GroupTitle({ children }: { children: ReactNode }) {
-  return <h2 className="mb-2 px-4 text-xs font-medium tracking-wide text-muted uppercase">{children}</h2>;
+  return <h2 className="mb-2 px-4 text-sm font-medium tracking-[0.00625rem] text-muted">{children}</h2>;
 }
+
+/** The theme's ripple on every part the editor draws that is pressed (its buttons, rows, chips …), as on the site:
+ * started once, when the editor opens. */
+export const startRipples = siteRipples;
 
 /** Something on its way that takes a moment (Gemmer, Henter versionerne): the theme's loading indicator (Material 3's),
  * as big as the text, before what it is. */
@@ -1955,7 +2206,7 @@ export function FoldSection({
   );
 }
 
-/** Rows in a frame, under a small heading: the start screen, the lists. Never with a note under it. */
+/** Rows in the theme's segmented list, under a small heading: the start screen, the lists. Never with a note under it. */
 export function Group({ title, children }: { title?: string; children: ReactNode }) {
   return (
     <section className="mb-8">
@@ -2072,24 +2323,19 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
         {item.text}
       </span>
     );
-    return (
-      <li key={item.text}>
-        {item.fix ? (
-          <>
-            <button type="button" aria-expanded={shown} className={listItemClass} onClick={() => setOpen(shown ? null : item.text)}>
-              {mark(item.ok)}
-              {text}
-              <CaretDown size={18} className={`shrink-0 text-muted transition-transform ${shown ? 'rotate-180' : ''}`} />
-            </button>
-            {shown && <p className="editor-reveal px-4 pb-3 pl-11 text-muted">{item.fix}</p>}
-          </>
-        ) : (
-          <div className={staticListItemClass}>
-            {mark(item.ok)}
-            {text}
-          </div>
-        )}
-      </li>
+    return item.fix ? (
+      <ListItem
+        key={item.text}
+        onClick={() => setOpen(shown ? null : item.text)}
+        aria-expanded={shown}
+        leading={mark(item.ok)}
+        headline={text}
+        trailing={<CaretDown size={18} className={`shrink-0 text-muted transition-transform ${shown ? 'rotate-180' : ''}`} />}
+      >
+        {shown && <p className="editor-reveal px-4 pb-3 pl-11 text-muted">{item.fix}</p>}
+      </ListItem>
+    ) : (
+      <ListItem key={item.text} leading={mark(item.ok)} headline={text} />
     );
   };
   // The ring: its circle is 2πr = 100 long (r = 15.9155), so the score is how much of it is drawn.
@@ -2525,24 +2771,41 @@ export function FormColumns({
 
 /** The icon before a name in a row or a list of choices, the same everywhere: the theme's leading icon (Material's),
  * grey; `selected`: in the selected colour, the open part in the sidebar (App.tsx). Or what is in it (`children`): the
- * chosen icon of an icon field. Beside its row's first two lines (firstLinesClass). */
+ * chosen icon of an icon field. Beside its row's first two lines, as the theme places it. */
 export function LeadingIcon({ icon: Glyph, selected = false, children }: { icon?: Icon; selected?: boolean; children?: ReactNode }) {
   return (
-    <span className={firstLinesClass}>
-      <SiteListItemLeadingIcon icon={Glyph && <Glyph />} selected={selected}>
-        {children}
-      </SiteListItemLeadingIcon>
-    </span>
+    <SiteListItemLeadingIcon icon={Glyph && <Glyph />} selected={selected}>
+      {children}
+    </SiteListItemLeadingIcon>
   );
 }
 
-/** A picture before a name in a row (Material's leading image): small and square, with the corners of a field, beside
- * its row's first two lines (firstLinesClass), as LeadingIcon; the picture a page's colours came from ("Farver" ›
+/** A picture before a name in a row, as a ListItem's `leading` (Material's leading image): small and square, with the
+ * corners of a field, beside its row's first two lines, as an icon; the picture a page's colours came from ("Farver" ›
  * "Sider"). `alt` empty when the row's text says what it is. */
 export function LeadingImage({ src, alt = '' }: { src: string; alt?: string }) {
+  return <img src={src} alt={alt} loading="lazy" className="size-10 rounded-(--block-radius-small) bg-tint object-cover" />;
+}
+
+/** What a design token is, for the sample of it before its row ("Dele" › "Værdier", Tokens.tsx). */
+export type TokenKind = 'shape' | 'elevation' | 'font' | 'color';
+
+/** A sample of one of the theme's design tokens before its name in a row, as a ListItem's `leading`, beside its first
+ * two lines as an icon,
+ * drawn with the token itself (`value`, its CSS variable as CSS: `var(--radius)`), so it shows what the theme sets: a corner with its radius
+ * (shape), a surface with its shadow (elevation), "Aa" in its font (font; in `weight`, for a type role) and a round of its
+ * colour (color). Material 3 has none; the editor's own. */
+export function LeadingToken({ kind, value, weight }: { kind: TokenKind; value: string; weight?: string }) {
   return (
-    <span className={firstLinesClass}>
-      <img src={src} alt={alt} loading="lazy" className="size-10 rounded-(--block-radius-small) bg-tint object-cover" />
+    <span className="flex size-10 items-center justify-center" aria-hidden="true">
+      {kind === 'shape' && <span className="size-10 border-t-2 border-l-2 border-accent bg-tint" style={{ borderTopLeftRadius: value }} />}
+      {kind === 'elevation' && <span className="size-8 rounded-(--block-radius) bg-surface" style={{ boxShadow: value }} />}
+      {kind === 'font' && (
+        <span className="text-2xl leading-none" style={{ fontFamily: value, fontWeight: weight }}>
+          Aa
+        </span>
+      )}
+      {kind === 'color' && <span className="size-8 rounded-full border border-line" style={{ background: value }} />}
     </span>
   );
 }
@@ -2608,9 +2871,15 @@ export function PageFrame({ html, width, title }: { html: string; width: number;
     watch.observe(el);
     return () => watch.disconnect();
   }, []);
-  const scale = size.width ? Math.min(1, size.width / width) : 1;
+  const availableWidth = size.width;
+  const scale = size.width ? Math.min(1, availableWidth / width) : 1;
   return (
     <div ref={box} className="relative min-h-0 flex-1 overflow-hidden border-t border-line bg-line/40">
+      {scale < 1 && (
+        <div className="absolute top-2 right-4 z-10 rounded-full bg-surface/80 px-2 py-0.5 text-xs text-muted backdrop-blur-xs">
+          {t.preview.zoom}: {Math.round(scale * 100)}%
+        </div>
+      )}
       {size.width > 0 && (
         <iframe
           title={title}
@@ -2679,10 +2948,12 @@ export function SheetTitle({ title, onClose }: { title: string; onClose: () => v
   const glide = (sheet: HTMLDialogElement, to: number, small: number, big: number) => {
     const done = () => (to ? settle(sheet, to === big && big > small) : (onClose(), settle(sheet, false)));
     if (reduced()) return done();
-    sheet.style.transition = 'height 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)';
+    // The site's spatial spring (motionTiming, "Bevægelse").
+    const { duration, easing } = motionTiming('spatial');
+    sheet.style.transition = `height ${duration}ms ${easing}, transform ${duration}ms ${easing}`;
     sheet.style.height = `${to || small}px`;
     sheet.style.transform = to ? 'none' : `translateY(${small}px)`;
-    setTimeout(done, 250);
+    setTimeout(done, duration);
   };
   const toggle = () => {
     const sheet = sheetOf();
@@ -3051,16 +3322,20 @@ export function PickListItem({
   children?: ReactNode;
 }) {
   return (
-    <li>
-      <button ref={ref} type="button" aria-haspopup="dialog" className={listItemClass} onClick={onClick}>
-        <span className="min-w-0 flex-1">{title}</span>
+    <ListItem
+      ref={ref}
+      onClick={onClick}
+      aria-haspopup="dialog"
+      headline={title}
+      trailing={
         <span lang={lang} className="min-w-0 truncate text-muted">
           {chosen}
         </span>
-        <TrailingIcon />
-      </button>
+      }
+      arrow
+    >
       {children}
-    </li>
+    </ListItem>
   );
 }
 

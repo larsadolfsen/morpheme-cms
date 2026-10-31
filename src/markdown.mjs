@@ -8,7 +8,7 @@ import { Plugin } from '@milkdown/kit/prose/state';
 import { blockHtml, parseBlock } from '../lib/blocks.mjs';
 import { COLOR_CLOSE, TEXT_COLORS, colorClass, colorOpen, colorOpened } from '../lib/text-colors.mjs';
 
-// Write Markdown the way the existing files are written (the WordPress import): "-   " bullets and
+// Write Markdown the way imported files are written: "-   " bullets and
 // "* * *" rules, so a save changes as few lines as possible.
 const stringify = { bullet: '-', listItemIndent: 'tab', rule: '*', ruleSpaces: true };
 
@@ -16,7 +16,7 @@ const stringify = { bullet: '-', listItemIndent: 'tab', rule: '*', ruleSpaces: t
 // Milkdown puts HTML at the top of the text in a paragraph; a paragraph that is only a block becomes
 // a siteBlock node (with its type and props) before the text is read. Any type is read: the sections
 // of the fixed pages are blocks too (sections.mjs); the site shows only its own (RichText.astro).
-// Other HTML on a line of its own (YouTube, Vimeo, Calendly, a table from WordPress) is a block too, of the
+// Other HTML on a line of its own (YouTube, Vimeo, Calendly, an imported table) is a block too, of the
 // type HTML, with the HTML as it is as its `code`, and written back as it was.
 export const HTML = 'html';
 const remarkSiteBlocks = $remark('remarkSiteBlocks', () => () => (tree) => {

@@ -1,6 +1,6 @@
 // All the site's redirects as one: the editor's own (src/data/redirects.json, written when a page
 // moves, addresses.ts), the rules (public/_redirects, "<from> <to> 301", one to a line) and the
-// Worker's map ({ paths, ids }, written with one space of indentation by scripts/wp-redirect-map.mjs);
+// Worker's map ({ paths, ids }, written with one space of indentation, e.g. by a migration);
 // their files are in config.ts. The Worker sends on by the editor's own first, then by its map, and
 // then the rules are read (packages/editor/worker/index.js); so does lookup here. "Videresendelser" under
 // Indstillinger (Redirects.tsx) shows and changes them, and a page that takes the address of one

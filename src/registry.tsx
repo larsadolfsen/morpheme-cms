@@ -7,7 +7,7 @@
 //   view.ts     what it shows (its view), made from its fields and the site's data (viewOf);
 //   load.ts     the same view on the site, when it is built (BlockSite.astro);
 // and its look is the theme's (packages/editor/theme/blocks/<type>/, or the theme in use's): View.tsx, which draws its
-// view in the editor (blockViews, from @site/blocks) and on the site. A new folder is a new block, in the editor and on
+// view in the editor (blockViews, from standard/themeBlocks.ts) and on the site. A new folder is a new block, in the editor and on
 // the site; nothing else lists them. The apps (src/apps/<app>/, apps.ts) add blocks the same way, in their folder's
 // blocks/, each with its own View.tsx; they are offered once the app is installed. A theme has no blocks of its own,
 // only the look of the standard ones.
@@ -19,9 +19,9 @@ import { slugOf, type Field, type Lead, type Template } from './schema';
 import { config, everyFixedPage, fixedPages, standardPages, standardPaths, Texts, type Props, type StandardPage } from '@site/editor';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { partsOfMarkdown, sectionsFromParts } from './sections.mjs';
-import { blockViews } from '@site/blocks';
+import { blockViews } from './standard/themeBlocks';
 import { InEditor, type View, type ViewOf } from './standard/view';
-import { appBlocks, appViewOfs, appViews } from '@site/apps';
+import { appBlocks, appViewOfs, appViews } from './appFiles';
 import { blocksIn, splitBlocks } from '../lib/blocks.mjs';
 import { t } from './i18n';
 import { localSiteBlock } from './site';
@@ -115,7 +115,7 @@ export function standardPageOf(file: { path: string; text: string }, files: { pa
   return standardPages.find((p) => paths[p.key] === own);
 }
 
-/** A page's template as a standard page's: its own rules and the standard page's (its `template`, src/site/standardPages.ts). */
+/** A page's template as a standard page's: its own rules and the standard page's (its `template`, packages/editor/defaults/standardPages.ts). */
 export const asStandardTemplate = (template: Template | undefined, standard: StandardPage | undefined): Template | undefined => {
   const own = standard?.template;
   if (!own) return template;

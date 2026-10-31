@@ -1,4 +1,4 @@
-// "Søgeord" under the fields of "Interne links" (Part.below, src/site/internalLinks.ts): every primary and secondary
+// "Søgeord" under the fields of "Interne links" (Part.below, packages/editor/defaults/internalLinks.ts): every primary and secondary
 // keyword of the pages, the posts and the fixed pages with the fields for them ("Søgemaskiner"), each with the page it
 // links to, which of its keywords it is and, at the right, how many pages and posts link with it on the site as it was
 // last built (/editor/links.json, packages/editor/scripts/link-counts.mjs; one that another page has too, which wins, links from none).
@@ -9,20 +9,7 @@
 // "Søgemaskiner" (openAtSeo).
 import { ArrowsDownUp } from '@phosphor-icons/react';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  Choice,
-  EmptyNote,
-  Filters,
-  FormHeading,
-  Group,
-  InputChip,
-  listClass,
-  listItemClass,
-  SearchRow,
-  TrailingText,
-  useKept,
-  TrailingIcon,
-} from './ui';
+import { Choice, EmptyNote, Filters, FormHeading, Group, InputChip, listClass, SearchRow, useKept, ListItem } from './ui';
 import type { RepoFile } from './github';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { openAtSeo } from './EntryForm';
@@ -215,16 +202,16 @@ export default function Keywords({ files }: { files: RepoFile[] }) {
         groups.map((g) => (
           <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
             {g.items.map((k) => (
-              <li key={`${k.word} ${k.href}`}>
-                <a href={k.href} onClick={openAtSeo} className={listItemClass}>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate">{k.word}</span>
-                    <span className="block truncate text-sm text-muted">{t.keywords.on(k.title, k.primary)}</span>
-                  </span>
-                  {counted && <TrailingText>{t.keywords.links(linksOf(k))}</TrailingText>}
-                  <TrailingIcon />
-                </a>
-              </li>
+              <ListItem
+                key={`${k.word} ${k.href}`}
+                href={k.href}
+                onClick={openAtSeo}
+                headline={k.word}
+                supporting={t.keywords.on(k.title, k.primary)}
+                truncate
+                count={counted && t.keywords.links(linksOf(k))}
+                arrow
+              />
             ))}
           </Group>
         ))

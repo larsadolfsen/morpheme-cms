@@ -8,6 +8,7 @@ import { getCategories } from '@interstellarcms/cms/site/content';
 import { plainText } from '@interstellarcms/cms/site/text';
 import PageHeader from '@theme/components/PageHeader.astro';
 import Chip from '@theme/ui/Chip';
+import { siteT } from '@interstellarcms/cms/src/i18n';
 
 interface Props {
   title: string;
@@ -23,10 +24,10 @@ const categories = await getCategories();
 
 <Base {...seo} title={title} description={description} crumbs={activeCategory ? [{ name: 'Blog', href: '/blog/' }] : []}>
   <PageHeader title={title} intro={intro}>
-    <nav aria-label="Tags" class="-mx-5 mt-8 md:mx-0">
+    <nav aria-label={siteT.theme.tags} class="-mx-5 mt-8 md:mx-0">
       <ul class="flex gap-2 overflow-x-auto px-5 pb-2 [scrollbar-width:none] md:flex-wrap md:overflow-visible md:px-0">
         <li class="shrink-0">
-          <Chip kind="filter" href="/blog/" label="Alle" selected={!activeCategory} className="shrink-0" />
+          <Chip kind="filter" href="/blog/" label={siteT.theme.allPosts} selected={!activeCategory} className="shrink-0" />
         </li>
         {categories.map((c) => (
           <li class="shrink-0">

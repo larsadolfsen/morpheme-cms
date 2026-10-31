@@ -10,23 +10,13 @@
 import { useEffect, useState } from 'react';
 import { Check, Smiley } from '@phosphor-icons/react';
 import Screen from './Screen';
-import {
-  Button,
-  EmptyNote,
-  Group,
-  GroupTitle,
-  ImageCarousel,
-  LeadingIcon,
-  listItemClass,
-  staticListItemClass,
-  SupportingText,
-  TrailingText,
-  TrailingIcon,
-} from './ui';
+import { Button, EmptyNote, Group, GroupTitle, ImageCarousel, SupportingText, ListItem } from './ui';
 import { ConflictError, type RepoFile } from './github';
 import type { Env } from './App';
 import { ask } from './ask';
-import { config, iconPacks, packOfTheme, theme, themes, type ThemeInfo } from '@site/editor';
+import { config } from '@site/editor';
+import { iconPacks, packOfTheme } from './iconPacks';
+import { theme, themes, type ThemeInfo } from './themes';
 import {
   changedFiles,
   newer,
@@ -39,8 +29,9 @@ import {
   type StoreRecord,
 } from './store';
 import { askUpdate, DeveloperRow } from './AppList';
-import { StoreLicenseRows } from './Licenses';
+import { StoreLicenseRows } from './Licenses.tsx';
 import { siteT, t } from './i18n';
+import { kindAndName } from './deploy';
 
 /** A theme's page (installed, or in the store). */
 export const themeHref = (id: string) => `#udseende/temaer/${id}`;
@@ -123,7 +114,7 @@ function useThemeActions(env: Env) {
 
   async function change(
     id: string,
-    text: { busy: string; done: string; commit: string },
+    text: { busy: string; done: string; commit: string; change: string },
     next: () => Promise<Parameters<typeof themeChanges>[2]>,
     go: (current: RepoFile[]) => Promise<boolean> = async () => true,
   ): Promise<boolean> {
@@ -135,7 +126,7 @@ function useThemeActions(env: Env) {
         env.notify(null);
         return false;
       }
-      await env.commit(text.commit, themeChanges(id, current, wanted));
+      await env.commit(text.commit, themeChanges(id, current, wanted), text.change);
       env.notify({ text: text.done, kind: 'saved' });
       return true;
     } catch (e) {
@@ -151,7 +142,12 @@ function useThemeActions(env: Env) {
     async install(x: ShownTheme) {
       const done = await change(
         x.id,
-        { busy: t.apps.installing, done: t.library.themeInstalled(x.name), commit: siteT.library.themeCommits.install(x.name) },
+        {
+          busy: t.apps.installing,
+          done: t.library.themeInstalled(x.name),
+          commit: siteT.library.themeCommits.install(x.name),
+          change: t.app.changes.installed(kindAndName(t.app.changes.theme, x.name)),
+        },
         async () => ({ files: await env.store.files(x), record: recordOf(x) }),
       );
       if (done) changed.set(x.id, 'installed');
@@ -164,6 +160,7 @@ function useThemeActions(env: Env) {
           busy: t.apps.updating,
           done: t.library.themeUpdated(x.name, x.version),
           commit: siteT.library.themeCommits.update(x.name, x.version),
+          change: t.app.changes.updated(kindAndName(t.app.changes.theme, x.name), x.version),
         },
         async () => ({ files: await env.store.files(x), record: recordOf(x) }),
         async (current) => {
@@ -190,7 +187,12 @@ function useThemeActions(env: Env) {
       if (!(await ask(t.library.askUninstallTheme(name), t.apps.uninstall))) return false;
       const done = await change(
         id,
-        { busy: t.apps.uninstalling, done: t.library.themeUninstalled(name), commit: siteT.library.themeCommits.uninstall(name) },
+        {
+          busy: t.apps.uninstalling,
+          done: t.library.themeUninstalled(name),
+          commit: siteT.library.themeCommits.uninstall(name),
+          change: t.app.changes.uninstalled(kindAndName(t.app.changes.theme, name)),
+        },
         async () => null,
       );
       if (done) changed.set(id, 'uninstalled');
@@ -224,17 +226,15 @@ export function allThemes(catalog: ShownTheme[] | null | 'failed') {
  * whether it is installed, opening its page. */
 export function ThemeRow({ of }: { of: ReturnType<typeof allThemes>[number] }) {
   return (
-    <li>
-      <a href={themeHref(of.id)} className={listItemClass}>
-        <ThemePicture src={of.icon} />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate font-medium">{of.name}</span>
-          <span className="block truncate text-sm text-muted">{t.library.themeByline(of.version, of.author)}</span>
-        </span>
-        {themeInstalled(of.id) && <TrailingText>{themePending(of.id) ? t.apps.pending : t.apps.installed}</TrailingText>}
-        <TrailingIcon />
-      </a>
-    </li>
+    <ListItem
+      href={themeHref(of.id)}
+      leading={<ThemePicture src={of.icon} />}
+      headline={of.name}
+      supporting={t.library.themeByline(of.version, of.author)}
+      truncate
+      count={themeInstalled(of.id) && (themePending(of.id) ? t.apps.pending : t.apps.installed)}
+      arrow
+    />
   );
 }
 
@@ -297,23 +297,14 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
           {of.highlights.length > 0 && (
             <Group title={t.library.themeHighlights}>
               {of.highlights.map((h) => (
-                <li key={h} className={staticListItemClass}>
-                  <LeadingIcon icon={Check} />
-                  <span className="min-w-0 flex-1">{h}</span>
-                </li>
+                <ListItem key={h} icon={Check} headline={h} />
               ))}
             </Group>
           )}
           {!!of.iconPacks?.length && (
             <Group title={t.common.parts.iconPacks}>
               {of.iconPacks.map((p) => (
-                <li key={p.id} className={staticListItemClass}>
-                  <LeadingIcon icon={Smiley} />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate">{p.name}</span>
-                    <span className="block truncate text-sm text-muted">{t.library.iconPackByline(p.author, p.license)}</span>
-                  </span>
-                </li>
+                <ListItem key={p.id} icon={Smiley} headline={p.name} supporting={t.library.iconPackByline(p.author, p.license)} truncate />
               ))}
             </Group>
           )}

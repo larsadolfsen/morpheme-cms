@@ -123,7 +123,7 @@ export function Glyph({ icon, size = 20, className }: { icon: IconRef; size?: nu
 export const Icon = Svg;
 
 /** The icons to pick from on the standard blocks (a field with `icons`: Kort); this site's own
- * fields have the same (`icons` in src/site/collections.ts). */
+ * fields have the same (`icons` in packages/editor/defaults/collections.ts). */
 export const iconNames = [
   'certificate',
   'heart',

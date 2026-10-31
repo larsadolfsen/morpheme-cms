@@ -4,7 +4,7 @@
 // is expanded (data-collapsed). A modal one (.navigation-rail-modal) shows its scrim while it is expanded, and the scrim,
 // Escape and following one of its links collapse it again. When it collapses with the focus in it and it hides
 // (.navigation-rail-hide), the focus goes back to the button that opened it. Run on every page by the theme's Base.astro
-// (blockScripts, src/site/scripts.ts); without a rail it does nothing.
+// (blockScripts, packages/editor/site/blockScripts.ts); without a rail it does nothing.
 export default function navigationRail() {
   document.querySelectorAll<HTMLElement>('[data-navigation-rail]').forEach((rail) => {
     const scrim = rail.previousElementSibling?.matches('[data-navigation-rail-scrim]')

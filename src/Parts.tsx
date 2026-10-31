@@ -1,7 +1,7 @@
 // "Udseende" › "Dele" › "Editor" (#udseende/dele/editor): the parts only the editor has (ui.tsx: the SEO rating, the
 // colour field, the choices of pages and icons, the form's layout …) in every state, on one screen, to see and agree on
 // how the editor looks, and below them the form fields (fields.tsx), one of each type with the settings it can have.
-// The parts the theme has too (buttons, fields, switches, lists, sheets …) are the theme's, shown under "Tema"
+// The parts the theme has too (buttons, fields, switches, lists, sheets …) are the theme's, shown under "UI-komponenter"
 // (BlockParts.tsx). A part is changed in ui.tsx, and so everywhere at once. All of it is
 // shown with the made-up site of examples.ts, never the site's own, and nothing here is saved.
 import { useMemo, useRef, useState } from 'react';
@@ -31,18 +31,14 @@ import {
 import Screen from './Screen';
 import { Part, PartGroup, PartsShown, useGrouped, useSearched } from './PartsShown';
 import {
-  accentListItemClass,
-  deleteListItemClass,
   EmptyNote,
   FoldSection,
   SharePreview,
   FormHeading,
   GroupTitle,
-  mutedListItemClass,
   ProblemNote,
   SheetGroupTitle,
   SheetList,
-  staticListItemClass,
   ArrowLink,
   Button,
   Checkbox,
@@ -58,7 +54,6 @@ import {
   SheetLink,
   ShownValue,
   subListClass,
-  subListItemClass,
   Choice,
   NewChoice,
   Filters,
@@ -71,13 +66,13 @@ import {
   IconButton,
   LeadingIcon,
   LeadingImage,
+  LeadingToken,
   Label,
   listClass,
   Notice,
   Option,
   PageFrame,
   Preview,
-  listItemClass,
   SearchRow,
   Select,
   BottomSheet,
@@ -87,12 +82,13 @@ import {
   TextField,
   ToolbarButton,
   UnfoldButton,
-  TrailingText,
   ColorSwatches,
+  ColorTiles,
+  ColorWheel,
   ColorsPreview,
   ChoiceRow,
   IconSwatches,
-  TrailingIcon,
+  ListItem,
 } from './ui';
 import { FieldList, Fields, useWrongField, WrongField, type FieldContext } from './fields';
 import { newValue, problemAt } from './check';
@@ -101,7 +97,9 @@ import { examplePicture, exampleData } from './examples';
 import { exampleOf } from './blocks';
 import { siteBlocks } from './registry';
 import type { Field } from './schema';
-import { defaultColors, iconPacks } from '@site/editor';
+import { defaultColors } from '@site/editor';
+import { BASE_COLORS, canSetBaseColor, wheelColor, wheelColors, wheelDots, withBaseColor, type Dynamic } from '../lib/dynamic-colors';
+import { iconPacks } from './iconPacks';
 import type { Env } from './App';
 import { t } from './i18n';
 
@@ -122,6 +120,8 @@ export default function Parts({ env }: { env: Env }) {
   const [seo, setSeo] = useState(false);
   const [asMenu, setAsMenu] = useState(false);
   const [color, setColor] = useState('#3f6db3');
+  // The colour wheel's and the base colours' example: a harmony with the source colour locked.
+  const [wheel, setWheel] = useState<Dynamic>({ source: '#3f6db3', harmony: 'triadic', contrast: 'standard', sourceLocked: true });
   const [phone, setPhone] = useState({ code: '+45', number: examples.contact.phone });
   const [tile, setTile] = useState(0);
   const [placement, setPlacement] = useState('top');
@@ -374,49 +374,30 @@ export default function Parts({ env }: { env: Env }) {
           </PartGroup>
 
           <PartGroup group="lists">
-            <Part
-              name="Group, GroupTitle, LeadingIcon, LeadingImage, TrailingText, TrailingIcon, listItemClass, accentListItemClass, deleteListItemClass, staticListItemClass, mutedListItemClass"
-              use={use.group}
-            >
+            <Part name="ListItem, Group, GroupTitle, LeadingIcon, LeadingImage, LeadingToken" use={use.group}>
               <Group title={sample.group}>
                 {[
                   { icon: FolderSimple, label: sample.media, count: 42 },
                   { icon: PencilSimple, label: sample.pages, count: 12 },
                 ].map((p) => (
-                  <li key={p.label}>
-                    <a href="#udseende/dele/editor" className={listItemClass}>
-                      <LeadingIcon icon={p.icon} />
-                      <span className="min-w-0 flex-1 font-medium">{p.label}</span>
-                      <TrailingText>{p.count}</TrailingText>
-                      <TrailingIcon />
-                    </a>
-                  </li>
+                  <ListItem key={p.label} href="#udseende/dele/editor" icon={p.icon} headline={p.label} count={p.count} arrow />
                 ))}
                 {/* With a text under its name: the icon beside the first two lines. */}
-                <li>
-                  <a href="#udseende/dele/editor" className={listItemClass}>
-                    <LeadingIcon icon={Gear} />
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-medium">{sample.cookieBanner}</span>
-                      <span className="block text-sm text-muted">{sample.cookieHint}</span>
-                    </span>
-                    <TrailingIcon />
-                  </a>
-                </li>
+                <ListItem href="#udseende/dele/editor" icon={Gear} headline={sample.cookieBanner} supporting={sample.cookieHint} arrow />
                 {/* With a picture before its name (the picture a page's colours came from). */}
-                <li>
-                  <span className={staticListItemClass}>
-                    <LeadingImage src={examplePicture} />
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-medium">{sample.pages}</span>
-                      <span className="block text-sm text-muted">/</span>
-                    </span>
+                <ListItem
+                  leading={<LeadingImage src={examplePicture} />}
+                  headline={sample.pages}
+                  supporting="/"
+                  trailing={
                     <ColorSwatches
                       colors={[defaultColors.light.accent, defaultColors.light.tint, defaultColors.light.bg, defaultColors.light.ink]}
                       label={t.colors.light}
                     />
-                  </span>
-                </li>
+                  }
+                />
+                {/* With a sample of one of the theme's tokens before its name ("Dele" › "Værdier"). */}
+                <ListItem leading={<LeadingToken kind="shape" value="var(--radius)" />} headline={sample.corners} supporting="--radius" />
               </Group>
               <div className={row}>
                 <LeadingIcon icon={FolderSimple} />
@@ -425,52 +406,45 @@ export default function Parts({ env }: { env: Env }) {
               <section>
                 <GroupTitle>{sample.rows}</GroupTitle>
                 <ul className={listClass}>
-                  <li>
-                    <span className={staticListItemClass}>{sample.versionNow}</span>
-                  </li>
-                  <li>
-                    <span className={mutedListItemClass}>{t.library.pageGone}</span>
-                  </li>
-                  <li>
-                    <button type="button" className={accentListItemClass}>
-                      <SignOut size={20} />
-                      {t.library.logOut}
-                    </button>
-                  </li>
-                  <li>
-                    <button type="button" className={deleteListItemClass}>
-                      <Trash size={18} />
-                      {t.common.delete}
-                    </button>
-                  </li>
+                  <ListItem headline={sample.versionNow} />
+                  <ListItem tone="muted" headline={t.library.pageGone} />
+                  <ListItem tone="accent" onClick={() => {}} leading={<SignOut size={20} />} headline={t.library.logOut} />
+                  <ListItem
+                    tone="delete"
+                    onClick={() => {}}
+                    headline={
+                      <span className="inline-flex items-center gap-3">
+                        <Trash size={18} />
+                        {t.common.delete}
+                      </span>
+                    }
+                  />
                 </ul>
               </section>
             </Part>
 
-            <Part name="UnfoldButton, subListClass, subListItemClass" use={use.unfold}>
+            <Part name="UnfoldButton, subListClass" use={use.unfold}>
               <ul className={listClass}>
-                <li className="flex items-center">
-                  <a href="#udseende/dele/editor" className={`${listItemClass} min-w-0 flex-1`}>
-                    {sample.pages}
-                  </a>
-                  <UnfoldButton
-                    open={unfolded}
-                    count={3}
-                    label={unfolded ? t.library.hideSubpagesOf(sample.pages) : t.library.showSubpagesOf(sample.pages)}
-                    title={unfolded ? t.library.hideSubpages : t.library.showSubpages}
-                    className="mr-1.5"
-                    onClick={() => setUnfolded(!unfolded)}
-                  />
-                </li>
+                <ListItem
+                  href="#udseende/dele/editor"
+                  headline={sample.pages}
+                  actions={
+                    <span className="shrink-0 pr-1.5">
+                      <UnfoldButton
+                        open={unfolded}
+                        count={3}
+                        label={unfolded ? t.library.hideSubpagesOf(sample.pages) : t.library.showSubpagesOf(sample.pages)}
+                        title={unfolded ? t.library.hideSubpages : t.library.showSubpages}
+                        onClick={() => setUnfolded(!unfolded)}
+                      />
+                    </span>
+                  }
+                />
                 {unfolded && (
                   <li className="pb-2">
                     <ul className={subListClass}>
                       {[1, 2, 3].map((n) => (
-                        <li key={n}>
-                          <a href="#udseende/dele/editor" className={subListItemClass}>
-                            {sample.subpage(n)}
-                          </a>
-                        </li>
+                        <ListItem key={n} tone="sub" href="#udseende/dele/editor" headline={sample.subpage(n)} />
                       ))}
                     </ul>
                   </li>
@@ -492,12 +466,11 @@ export default function Parts({ env }: { env: Env }) {
             <Part name="ScoreRing" use={use.scoreRing}>
               <Group>
                 {[95, 67, 33].map((score, i) => (
-                  <li key={score}>
-                    <div className={staticListItemClass}>
-                      <ScoreRing score={score} label={t.seo.scoreLabel(score)} />
-                      <span className="min-w-0 flex-1">{examples.pages[i]}</span>
-                    </div>
-                  </li>
+                  <ListItem
+                    key={score}
+                    leading={<ScoreRing score={score} label={t.seo.scoreLabel(score)} />}
+                    headline={examples.pages[i]}
+                  />
                 ))}
               </Group>
             </Part>
@@ -706,6 +679,33 @@ export default function Parts({ env }: { env: Env }) {
               />
             </Part>
 
+            <Part name="ColorTiles" use={use.colorTiles}>
+              <ColorTiles
+                label={t.colors.dynamic.base}
+                colors={BASE_COLORS.map((which, i) => ({
+                  color: wheelDots(wheel)[i].color,
+                  name: [t.colors.dynamic.source, t.colors.preview.secondary, t.colors.preview.tertiary][i],
+                  disabled: !canSetBaseColor(wheel, which),
+                  onChange: (color, lock) => setWheel((d) => withBaseColor(d, which, color, lock)),
+                  ...(which === 'source' && {
+                    locked: !!wheel.sourceLocked,
+                    onLock: (locked: boolean) => setWheel((d) => ({ ...d, sourceLocked: locked || undefined })),
+                  }),
+                }))}
+              />
+            </Part>
+
+            <Part name="ColorWheel" use={use.colorWheel}>
+              <ColorWheel
+                {...wheelColors()}
+                dots={wheelDots(wheel).map((dot, i) => ({ ...dot, locked: !i && !!wheel.sourceLocked }))}
+                disabled={wheel.sourceLocked}
+                label={t.colors.dynamic.wheel}
+                valueText={wheel.source}
+                onMove={(x, y) => setWheel((d) => ({ ...d, source: wheelColor(x, y) }))}
+              />
+            </Part>
+
             <Part name="ChoiceRow, IconSwatches" use={use.choiceRow}>
               <Group>
                 {iconPacks.slice(0, 2).map((x, i) => (
@@ -714,10 +714,9 @@ export default function Parts({ env }: { env: Env }) {
                     selected={placement === (i ? 'list' : 'top')}
                     trailing={<IconSwatches icons={x.samples} label={t.library.iconPackSamples(x.name)} />}
                     onClick={() => setPlacement(i ? 'list' : 'top')}
-                  >
-                    <span className="block truncate">{x.name}</span>
-                    <span className="block truncate text-sm text-muted">{t.library.iconPackByline(x.author, x.license)}</span>
-                  </ChoiceRow>
+                    headline={x.name}
+                    supporting={t.library.iconPackByline(x.author, x.license)}
+                  />
                 ))}
               </Group>
             </Part>

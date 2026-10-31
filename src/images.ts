@@ -1,7 +1,7 @@
 // Pictures added in the editor. Before upload they are made at most 2000 px and WebP (JPEG in
 // browsers that cannot write WebP, like Safari), as the old editor did; packages/editor/scripts/responsive-images.mjs
 // makes the smaller sizes when the site is built. They go in public/images/uploads/<year>/<month>/
-// like the pictures from WordPress, and are saved in the same commit as the page that uses them (on
+// like imported pictures, and are saved in the same commit as the page that uses them (on
 // their own from Filer, Media.tsx). PDFs, videos and zip files, from Filer, are saved as they are, in
 // public/filer/ (prepareFile).
 import { useState } from 'react';

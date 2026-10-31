@@ -12,7 +12,7 @@ export default defineShared({
   values: { all: siteT.blocks.posts.allText, allAbout: siteT.blocks.posts.allAboutText },
 });
 
-/** What its "Alle indlæg" says: "Alle indlæg om parforhold" when it goes to a tag (by its name), else
+/** What its "Alle indlæg" says: "Alle indlæg om opskrifter" when it goes to a tag (by its name), else
  * "Alle indlæg". */
 export const allPostsText = (texts: Record<string, string>, tag?: string): string =>
   tag ? fill(texts.allAbout, { tag: tag.toLowerCase() }) : texts.all;

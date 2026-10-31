@@ -1,5 +1,5 @@
 // "Filer" under "Indhold": the pictures uploaded to the site (public/images/uploads/<year>/<month>/,
-// from WordPress and from the editor, images.ts) and the PDFs, videos and zip files (public/filer/,
+// imported or added in the editor, images.ts) and the PDFs, videos and zip files (public/filer/,
 // /filer/ on the site), newest first, with search, the order (newest, oldest, by name), a month or year,
 // the type (Billeder, PDF'er, Videoer, Zip-filer) and whether a page uses them (Gallery). A file that is
 // not a picture is a square with its icon and name. Tapping one opens a sheet from the bottom with the
@@ -20,6 +20,7 @@ import {
   Plus,
   Trash,
   UploadSimple,
+  Globe,
   X,
 } from '@phosphor-icons/react';
 import { moveRedirects, REDIRECTS } from './addresses';
@@ -36,7 +37,6 @@ import {
   TextField,
   listClass,
   SupportingText,
-  listItemClass,
   SearchRow,
   useKept,
   BottomSheet,
@@ -45,7 +45,8 @@ import {
   useWide,
   EmptyNote,
   SheetBody,
-  mutedListItemClass,
+  ListItem,
+  SegmentedButton,
 } from './ui';
 import type { Env } from './App';
 import type { RepoFile } from './github';
@@ -55,7 +56,9 @@ import { collections } from './site';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { fileKindOf, pickedKindOf, pickImage, prepareFile, prepareImage, publicPath, showMoved, shownAt, type Uploads } from './images';
 import { fileIcons, FileView, KINDS, kindOf, type Kind } from './FileView';
-import { SAVED } from './deploy';
+import UnsplashPicker from './UnsplashPicker';
+import { importUnsplashToMedia } from './unsplash';
+import { kindAndName, savedText } from './deploy';
 import { locale, siteT, t } from './i18n';
 
 export const MEDIA = config.folders.media;
@@ -147,7 +150,7 @@ function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, string> | 
       src={near && thumbs ? thumb || shown : undefined}
       alt=""
       decoding="async"
-      className="editor-fade-in size-full object-cover transition-transform duration-300 group-hover:scale-105"
+      className="editor-fade-in size-full object-cover transition-transform duration-(--motion-spatial-duration) ease-(--motion-ease) group-hover:scale-105"
       onLoad={(e) => e.currentTarget.setAttribute('data-loaded', '')}
       onError={() => thumb && setFailed(true)}
     />
@@ -344,6 +347,7 @@ function Gallery({
  * saved with it); its address on the site, or null. The sheet goes on top of a block's sheet. */
 export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Promise<string | null>, ReactElement] {
   const dialog = useRef<HTMLDialogElement>(null);
+  const unsplashDialog = useRef<HTMLDialogElement>(null);
   const answer = useRef<(src: string | null) => void>(() => {});
   const srcs = [...new Set([...pictures.added, ...mediaOf(media)].map((f) => publicPath(f.path)))];
 
@@ -358,6 +362,8 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Pro
       dialog.current?.showModal();
     });
 
+  const [tab, setTab] = useState<'local' | 'unsplash'>('local');
+
   const element = (
     <BottomSheet
       ref={dialog}
@@ -367,19 +373,35 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Pro
     >
       <SheetTitle title={t.media.pick} onClose={() => done(null)} />
       <SheetBody>
-        <Button
-          kind="outlined"
-
-          wide
-          icon={UploadSimple}
-          onClick={async () => {
-            const added = await pictures.upload();
-            if (added) done(publicPath(added.path));
-          }}
-        >
-          {t.media.uploadNew}
-        </Button>
-        <Gallery srcs={srcs} onPick={done} />
+        <div className="mb-4">
+          <SegmentedButton<'local' | 'unsplash'>
+            label={t.media.pick}
+            value={tab}
+            options={[
+              { value: 'local', label: t.media.unsplash.localTab },
+              { value: 'unsplash', label: t.media.unsplash.tab },
+            ]}
+            onChange={setTab}
+          />
+        </div>
+        {tab === 'local' ? (
+          <>
+            <Button
+              kind="outlined"
+              wide
+              icon={UploadSimple}
+              onClick={async () => {
+                const added = await pictures.upload();
+                if (added) done(publicPath(added.path));
+              }}
+            >
+              {t.media.uploadNew}
+            </Button>
+            <Gallery srcs={srcs} onPick={done} />
+          </>
+        ) : (
+          <UnsplashPicker onPick={done} uploads={pictures} />
+        )}
       </SheetBody>
     </BottomSheet>
   );
@@ -408,6 +430,7 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
     return new Set(pictures.map((p) => publicPath(p.path)).filter((src) => code?.includes(src) || texts.some((t) => t.includes(src))));
   }, [files, code]);
   const dialog = useRef<HTMLDialogElement>(null);
+  const unsplashDialog = useRef<HTMLDialogElement>(null);
   const [src, setSrc] = useState<string | null>(null);
   // On a computer the file picked is beside the grid; on a phone in a sheet.
   const wide = useWide();
@@ -449,11 +472,14 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
         : await prepareImage(file);
       env.notify({ text: t.common.saving });
       const name = picture.path.split('/').pop()!;
-      const oids = await env.commit(siteT.media.commit.add(siteT.media.kinds[kind ?? 'picture'].word, name), [
-        { path: picture.path, content: picture.bytes, oid: null },
-      ]);
+      const change = t.app.changes.added(kindAndName(t.media.kinds[kind ?? 'picture'].word, name));
+      const oids = await env.commit(
+        siteT.media.commit.add(siteT.media.kinds[kind ?? 'picture'].word, name),
+        [{ path: picture.path, content: picture.bytes, oid: null }],
+        change,
+      );
       env.onSaved({ path: picture.path, oid: oids[picture.path], text: '' });
-      env.notify({ text: SAVED, kind: 'saved' });
+      env.notify({ text: savedText(change), kind: 'saved' });
     } catch (e) {
       env.notify({ text: t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
     } finally {
@@ -468,12 +494,15 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
     setDeleting(true);
     env.notify({ text: t.common.deleting });
     try {
-      await env.commit(siteT.media.commit.delete(siteT.media.kinds[kindOf(src)].word, src.split('/').pop()!), [
-        { path: file.path, content: null, oid: file.oid },
-      ]);
+      const change = t.app.changes.deleted(kindAndName(t.media.kinds[kindOf(src)].word, fileName(src)));
+      await env.commit(
+        siteT.media.commit.delete(siteT.media.kinds[kindOf(src)].word, src.split('/').pop()!),
+        [{ path: file.path, content: null, oid: file.oid }],
+        change,
+      );
       env.forget([file.path]);
       closeFile();
-      env.notify({ text: SAVED, kind: 'saved' });
+      env.notify({ text: savedText(change), kind: 'saved' });
     } catch (e) {
       env.notify({ text: t.media.notDeleted((e as Error).message), error: true, kind: 'failed' });
     } finally {
@@ -507,12 +536,17 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
       const redirectChanges = changesOf(flat, loaded);
       const moved = redirectChanges.filter((c) => c.path === REDIRECTS).map((c) => ({ path: REDIRECTS, oid: '', text: String(c.content) }));
       const bytes = await env.bytes(file.oid, shownAt(src));
-      const oids = await env.commit(siteT.media.commit.rename(siteT.media.kinds[kindOf(src)].word, fileName(src), fileName(to)), [
-        { path, content: bytes, oid: null },
-        { path: file.path, content: null, oid: file.oid },
-        ...texts.map((f) => ({ path: f.path, content: f.text, oid: files.find((x) => x.path === f.path)!.oid })),
-        ...redirectChanges,
-      ]);
+      const change = t.app.changes.renamed(kindAndName(t.media.kinds[kindOf(src)].word, fileName(src)), fileName(to));
+      const oids = await env.commit(
+        siteT.media.commit.rename(siteT.media.kinds[kindOf(src)].word, fileName(src), fileName(to)),
+        [
+          { path, content: bytes, oid: null },
+          { path: file.path, content: null, oid: file.oid },
+          ...texts.map((f) => ({ path: f.path, content: f.text, oid: files.find((x) => x.path === f.path)!.oid })),
+          ...redirectChanges,
+        ],
+        change,
+      );
       showMoved(src, to);
       env.onSaved(
         { path, oid: oids[path], text: '' },
@@ -521,7 +555,7 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
       setSrc(to);
       setName(stem);
       setEditing(false);
-      env.notify({ text: SAVED, kind: 'saved' });
+      env.notify({ text: savedText(change), kind: 'saved' });
     } catch (e) {
       env.notify({ text: t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
     } finally {
@@ -597,13 +631,9 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
         {usedBy.length || code?.includes(src) ? (
           <ul className={listClass}>
             {usedBy.map((f) => (
-              <li key={f.path}>
-                <a href={`#${f.path}`} className={listItemClass} onClick={closeFile}>
-                  {f.name}
-                </a>
-              </li>
+              <ListItem key={f.path} href={`#${f.path}`} onClick={closeFile} headline={f.name} />
             ))}
-            {code?.includes(src) && <li className={mutedListItemClass}>{t.media.siteDesign}</li>}
+            {code?.includes(src) && <ListItem tone="muted" headline={t.media.siteDesign} />}
           </ul>
         ) : (
           <p className="text-muted">{t.media.noPages}</p>
@@ -630,6 +660,7 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
 
             onClick={() => (location.hash = 'slettet/filer')}
           />
+          <IconButton icon={Globe} label={t.media.unsplash.tab} onClick={() => unsplashDialog.current?.showModal()} />
           <IconButton icon={Plus} label={t.media.add} disabled={adding} onClick={add} />
         </>
       }
@@ -665,6 +696,21 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
       >
         <SheetTitle title={src ? fileName(src) : ''} onClose={() => dialog.current?.close()} />
         {!wide && src && <SheetBody>{details(src)}</SheetBody>}
+      </BottomSheet>
+      <BottomSheet
+        ref={unsplashDialog}
+        onClose={(e) => e.target === e.currentTarget && unsplashDialog.current?.close()}
+        onClick={(e) => e.target === unsplashDialog.current && unsplashDialog.current?.close()}
+      >
+        <SheetTitle title={t.media.unsplash.tab} onClose={() => unsplashDialog.current?.close()} />
+        <SheetBody>
+          <UnsplashPicker
+            onPick={async (src) => {
+              unsplashDialog.current?.close();
+            }}
+            notify={env.notify}
+          />
+        </SheetBody>
       </BottomSheet>
     </Screen>
   );

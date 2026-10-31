@@ -2,7 +2,7 @@
 // when the anchor gets focus from the keyboard; it stays while the mouse is over the anchor or the tooltip and while
 // focus is in them, and goes when they leave, or with Escape (WCAG 1.4.13: it can be dismissed, hovered and stays).
 // Over its anchor, under it when there is no room above, and moved sideways to stay inside the window. Not on a touch
-// (a tap does what the anchor does). Run on every page by the theme's Base.astro (blockScripts, src/site/scripts.ts);
+// (a tap does what the anchor does). Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts);
 // without a tooltip on the page it does nothing.
 const SHOW_MS = 500;
 const HIDE_MS = 150;

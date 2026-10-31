@@ -8,15 +8,20 @@
 // `lines={3}`. What leads it: `leading` (anything: an icon, a picture, a block's own), or Material's leading
 // kinds, an icon (`leadingIcon`), an avatar (`leadingAvatar`: a letter or a picture), an image (`leadingImage`) or a
 // video's thumbnail (`leadingVideo`). What trails it: a trailing supporting text (`trailingSupporting`: a number, a
-// date), an icon (`trailingIcon`) or anything (`trailing`: an arrow). With `control` the item is a choice, the theme's
+// date), anything (`trailing`: swatches, what is chosen) and an icon (`trailingIcon`: an arrow). With `control` the item is a choice, the theme's
 // Checkbox, RadioButton or Switch before or after its text (`at`; a switch after it, the others before it by default),
 // and a tap anywhere on the item changes it; its name is the headline. `selected`: the chosen one; `disabled`: it
-// cannot be followed or changed. With `href` the item is a link (Link: on the site; in the editor only drawn), else a
-// <div>; the rest (data-…, aria-…) on it, and `presentation` takes the <li>'s own role away (an item that is an option
-// of a listbox: Search.tsx). How it looks is the theme's. `className` after the list's own classes (its place in a
-// block). An Astro component without React gives its elements the same classes with listClasses and listItemClass.
-// An item's leading icon, trailing supporting text and trailing icon are parts of their own (ListItemLeadingIcon,
-// ListItemTrailingSupporting, ListItemTrailingIcon), so the editor's rows have the same; an icon is its name, as the site
+// cannot be followed or changed. With `href` the item is a link (Link: on the site; in the editor only drawn), with
+// `onClick` a button (what a tap does: the editor's rows), else a <div>; the rest (data-…, aria-…) on it, and
+// `presentation` takes the <li>'s own role away (an item that is an option of a listbox: Search.tsx). `leadingIconSelected`:
+// its icon in the selected colour (the open one, where the item itself is not drawn selected). `truncate`: its texts each
+// on one line, cut off (a name, an address); else they wrap. `columns`: on a wide screen its headline and supporting text
+// side by side, as columns of the list (an address and where it sends to), under each other on a phone. `actions`: secondary actions beside it (icon buttons, a
+// switch), a multi-action item (Material's) with the item its primary action; `children`: what is in its <li> after it
+// (a sheet it opens, a text it folds out). How it looks is the theme's. `className` after the list's own classes (its
+// place in a block), and after an item's own on the item (its place on a screen). An Astro component without React gives its elements the same classes with listClasses and listItemClass.
+// What leads an item, its leading icon, trailing supporting text and trailing icon are parts of their own (ListItemLeading,
+// ListItemLeadingIcon, ListItemTrailingSupporting, ListItemTrailingIcon), so the editor's rows have the same; an icon is its name, as the site
 // gives it, or an icon made, as the editor gives it (IconRef).
 import { useId, type HTMLAttributes, type ReactNode } from 'react';
 import { Glyph, type IconRef } from '@interstellarcms/cms/src/icon';
@@ -36,6 +41,11 @@ export const listClass = 'list';
 /** A list's classes: its kind's (none for standard) and its dividers' (none for full-width; a segmented list has none). */
 export const listClasses = (kind: ListKind = 'standard', dividers: ListDividers = kind === 'segmented' ? 'none' : 'full-width') =>
   [listClass, kind === 'segmented' && 'list-segmented', dividers !== 'full-width' && `list-dividers-${dividers}`].filter(Boolean).join(' ');
+
+/** A multi-action item's class (Material's): on what holds an item's container, its primary action (a link or a button
+ * with listItemClass), and its secondary actions (icon buttons, a switch) beside it, on one row, which has the primary
+ * action's state (pointed at, pressed). Never an <li> of its own: the <li> holds it. */
+export const listItemMultiActionClass = 'list-item-multi-action';
 
 /** A list item's classes: its lines' (true is two lines), and selected or disabled. */
 export const listItemClass = (lines: boolean | ListItemLines = 1, state: { selected?: boolean; disabled?: boolean } = {}) => {
@@ -78,11 +88,16 @@ export type ListItemControl = {
   icons?: SwitchIcons;
 };
 
+/** What leads an item: anything (a picture, a block's own). */
+export function ListItemLeading({ children }: { children: ReactNode }) {
+  return <span className="list-item-leading">{children}</span>;
+}
+
 /** What leads an item, an icon (`icon`, or something drawn as one: `children`), in the muted colour; in the selected
  * colour in a selected item, or with `selected` (the open one, where the item itself is not drawn selected). */
 export function ListItemLeadingIcon({ icon, selected, children }: { icon?: IconRef; selected?: boolean; children?: ReactNode }) {
   return (
-    <span className={`list-item-leading list-item-leading-icon${selected ? 'list-item-leading-icon-selected' : ''}`}>
+    <span className={['list-item-leading list-item-leading-icon', selected && 'list-item-leading-icon-selected'].filter(Boolean).join(' ')}>
       {icon ? <Glyph icon={icon} size={24} /> : children}
     </span>
   );
@@ -100,8 +115,10 @@ export function ListItemTrailingIcon({ icon, children }: { icon?: IconRef; child
 
 export function ListItem({
   href,
+  onClick,
   leading,
   leadingIcon,
+  leadingIconSelected,
   leadingAvatar,
   leadingImage,
   leadingVideo,
@@ -116,11 +133,18 @@ export function ListItem({
   selected,
   disabled,
   presentation,
+  truncate,
+  columns,
+  actions,
+  className,
+  children,
   ...rest
 }: {
   href?: string;
+  onClick?: () => void;
   leading?: ReactNode;
   leadingIcon?: IconRef;
+  leadingIconSelected?: boolean;
   leadingAvatar?: string | ListItemPicture;
   leadingImage?: ListItemPicture;
   leadingVideo?: ListItemPicture;
@@ -135,6 +159,11 @@ export function ListItem({
   selected?: boolean;
   disabled?: boolean;
   presentation?: boolean;
+  truncate?: boolean;
+  columns?: boolean;
+  actions?: ReactNode;
+  className?: string;
+  children?: ReactNode;
 } & Record<string, unknown>) {
   const id = useId();
   const shown = (v: ReactNode) => v != null && v !== '';
@@ -173,9 +202,9 @@ export function ListItem({
     control && at === 'leading' ? (
       choice
     ) : leading != null ? (
-      <span className="list-item-leading">{leading}</span>
+      <ListItemLeading>{leading}</ListItemLeading>
     ) : leadingIcon ? (
-      <ListItemLeadingIcon icon={leadingIcon} />
+      <ListItemLeadingIcon icon={leadingIcon} selected={leadingIconSelected} />
     ) : typeof leadingAvatar === 'string' ? (
       <span className="list-item-leading list-item-leading-avatar" aria-hidden="true">
         <span className="list-item-avatar">{leadingAvatar}</span>
@@ -188,15 +217,16 @@ export function ListItem({
       <span className="list-item-leading list-item-leading-video">{picture(leadingVideo, 'video')}</span>
     ) : null;
 
+  const cut = truncate ? ' truncate' : '';
   const text = (
     <>
       {shown(overline) && <span className="list-item-overline">{overline}</span>}
       {/* Ids only for a choice, which they name and describe. */}
-      <span id={control && `${id}-headline`} className="list-item-headline">
+      <span id={control && `${id}-headline`} className={`list-item-headline${cut}`}>
         {headline}
       </span>
       {shown(supporting) && (
-        <span id={control && `${id}-supporting`} className="list-item-supporting">
+        <span id={control && `${id}-supporting`} className={`list-item-supporting${cut}`}>
           {supporting}
         </span>
       )}
@@ -205,9 +235,8 @@ export function ListItem({
   const tail = (shown(trailingSupporting) || trailingIcon || trailing != null || (control && at === 'trailing')) && (
     <>
       {shown(trailingSupporting) && <ListItemTrailingSupporting>{trailingSupporting}</ListItemTrailingSupporting>}
-      {(trailingIcon || trailing != null) && (
-        <ListItemTrailingIcon icon={trailing == null ? trailingIcon : undefined}>{trailing}</ListItemTrailingIcon>
-      )}
+      {trailing != null && <ListItemTrailingIcon>{trailing}</ListItemTrailingIcon>}
+      {trailingIcon && <ListItemTrailingIcon icon={trailingIcon} />}
       {control && at === 'trailing' && choice}
     </>
   );
@@ -225,18 +254,34 @@ export function ListItem({
       {tail}
     </>
   );
-  const classes = [listItemClass(n, { selected, disabled }), control && 'list-item-with-control'].filter(Boolean).join(' ');
+  const classes = [listItemClass(n, { selected, disabled }), control && 'list-item-with-control', columns && 'list-item-columns', className]
+    .filter(Boolean)
+    .join(' ');
+  const item =
+    href !== undefined && !control && !disabled ? (
+      <Link href={href} className={classes} aria-current={selected ? 'true' : undefined} {...rest}>
+        {content}
+      </Link>
+    ) : onClick && !control ? (
+      <button type="button" className={classes} disabled={disabled} onClick={onClick} {...rest}>
+        {content}
+      </button>
+    ) : (
+      <div className={classes} aria-disabled={disabled && href !== undefined ? true : undefined} {...rest}>
+        {content}
+      </div>
+    );
   return (
     <li role={presentation ? 'presentation' : undefined}>
-      {href === undefined || control || disabled ? (
-        <div className={classes} aria-disabled={disabled && href !== undefined ? true : undefined} {...rest}>
-          {content}
+      {actions != null && actions !== false ? (
+        <div className={listItemMultiActionClass}>
+          {item}
+          {actions}
         </div>
       ) : (
-        <Link href={href} className={classes} aria-current={selected ? 'true' : undefined} {...rest}>
-          {content}
-        </Link>
+        item
       )}
+      {children}
     </li>
   );
 }

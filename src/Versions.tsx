@@ -12,13 +12,12 @@ import {
   IconButton,
   listClass,
   Notice,
-  listItemClass,
   LoadingIndicator,
   BottomSheet,
   SheetTitle,
   SheetBody,
-  staticListItemClass,
   ProblemNote,
+  ListItem,
 } from './ui';
 import { mayLeave } from './FormFrame';
 import { when } from './when';
@@ -127,25 +126,15 @@ function VersionRows({ list, onPick }: { list: ReturnType<typeof useVersionList>
       {versions && versions.length < 2 && !more && <p className="text-muted">{t.history.none}</p>}
       {versions && versions.length > 0 && (
         <ul className={listClass}>
-          {versions.map((v, i) => {
-            const lines = (
-              <span className="min-w-0 flex-1">
-                <span className="block">{capital(when(v.at))}</span>
-                <span className="block truncate text-sm text-muted">{i === 0 ? t.history.current : v.by && t.history.by(v.by)}</span>
-              </span>
-            );
-            return (
-              <li key={v.commit}>
-                {i === 0 ? (
-                  <span className={staticListItemClass}>{lines}</span>
-                ) : (
-                  <button type="button" className={listItemClass} onClick={() => onPick(v)}>
-                    {lines}
-                  </button>
-                )}
-              </li>
-            );
-          })}
+          {versions.map((v, i) => (
+            <ListItem
+              key={v.commit}
+              onClick={i === 0 ? undefined : () => onPick(v)}
+              headline={capital(when(v.at))}
+              supporting={i === 0 ? t.history.current : v.by && t.history.by(v.by)}
+              truncate
+            />
+          ))}
         </ul>
       )}
       {more && (

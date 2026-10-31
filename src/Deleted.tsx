@@ -8,17 +8,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowCounterClockwise } from '@phosphor-icons/react';
 import Screen from './Screen';
-import { Button, listClass, listItemClass, BottomSheet, SheetTitle, EmptyNote, SheetBody, ProblemNote, TrailingIcon } from './ui';
+import { Button, listClass, BottomSheet, SheetTitle, EmptyNote, SheetBody, ProblemNote, ListItem } from './ui';
 import { fileKindOf, typeOf } from './images';
 import { fileIcons, FileView, kindOf } from './FileView';
 import { ask } from './ask';
 import { REDIRECT_FILES } from './redirects';
-import { entryName, slugOf, type Collection } from './schema';
+import { slugOf, type Collection } from './schema';
 import { asWritten, collections } from './site';
-import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { ConflictError, type DeletedFile, type RepoFile } from './github';
 import type { Env } from './App';
 import { when } from './when';
+import { kindAndName, nameOf, savedText } from './deploy';
 import { config, siteName } from '@site/editor';
 import { locale, siteT, t } from './i18n';
 
@@ -33,16 +33,6 @@ const FILES: string | undefined = (config.folders as { files?: string }).files;
 const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
 
 const fileName = (path: string) => path.split('/').pop() ?? path;
-
-/** What a deleted file was called: a page's or post's title, an entry's name as its list shows it, a
- * picture's file name. */
-function nameOf(collection: Collection | undefined, file: DeletedFile): string {
-  try {
-    if (collection?.kind === 'markdown') return String(readFields(splitFrontmatter(file.text).yaml).title ?? fileName(file.path));
-    if (collection?.kind === 'folder') return entryName(collection, JSON.parse(file.text)) || fileName(file.path);
-  } catch {}
-  return fileName(file.path);
-}
 
 export default function Deleted({ id, files, env }: { id: string; files: RepoFile[]; env: Env }) {
   // The files from "Filer" (pictures, PDFs, videos, zip files), not a list's.
@@ -110,14 +100,16 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
         content = `${JSON.stringify({ order: env.nextOrder(collection!), ...rest }, null, 2)}\n`;
       }
       const what = pictures ? siteT.media.kinds[kindOf(file.path)].word : asWritten(collection!).singular;
+      const change = t.app.changes.restored(kindAndName(pictures ? t.media.kinds[kindOf(file.path)].word : collection!.singular, name));
       const oids = await env.commit(
         siteT.history.commit.restoreDeleted(what, `"${pictures ? fileName(file.path) : slugOf(file.path, folder)}"`),
         [{ path: file.path, content, oid: null }],
+        change,
       );
       env.onSaved({ path: file.path, oid: oids[file.path], text: typeof content === 'string' ? content : '' });
       setDeleted((all) => all?.filter((f) => f.path !== file.path) ?? null);
       dialog.current?.close();
-      env.notify({ text: t.history.restored, kind: 'saved', edit: pictures ? undefined : { to: file.path, text: t.history.open } });
+      env.notify({ text: savedText(change), kind: 'saved', edit: pictures ? undefined : { to: file.path, text: t.history.open } });
     } catch (e) {
       env.notify({
         text: e instanceof ConflictError ? e.message : t.history.notRestored((e as Error).message),
@@ -141,15 +133,15 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
       {deleted && (
         <ul className={listClass}>
           {deleted.map((f) => (
-            <li key={f.path}>
-              <button type="button" className={listItemClass} disabled={busy} onClick={() => open(f)}>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate">{nameOf(collection, f)}</span>
-                  <span className="block truncate text-sm text-muted">{capital(t.history.deletedAt(when(f.at), f.by))}</span>
-                </span>
-                <TrailingIcon icon={ArrowCounterClockwise} />
-              </button>
-            </li>
+            <ListItem
+              key={f.path}
+              onClick={() => open(f)}
+              disabled={busy}
+              headline={nameOf(collection, f)}
+              supporting={capital(t.history.deletedAt(when(f.at), f.by))}
+              truncate
+              arrow={ArrowCounterClockwise}
+            />
           ))}
           {!deleted.length && <EmptyNote item>{t.history.noneDeleted}</EmptyNote>}
         </ul>

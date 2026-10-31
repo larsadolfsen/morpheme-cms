@@ -8,7 +8,7 @@
 // video from YouTube, its largest still is fetched (maxresdefault, else sddefault or hqdefault, which
 // have black bars above and below); for one from Vimeo, the still Vimeo gives for it. Each is cut to
 // 16:9 and written as webp to public/images/_video/<site>-<id>-480.webp and -960.webp, so a visitor
-// gets it from the site and nothing from Google or Vimeo until the video is played (docs/tracking.md).
+// gets it from the site and nothing from Google or Vimeo until the video is played.
 // A video whose still cannot be fetched (no network, a removed video) keeps the plain box. Generated
 // files are git-ignored and fetched once (kept while they exist).
 import fs from 'node:fs/promises';

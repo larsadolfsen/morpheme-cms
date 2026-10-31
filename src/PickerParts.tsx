@@ -1,4 +1,4 @@
-// "Dele" › "Tema" (BlockParts.tsx), the group "Valg af dato og tid": the theme's date and time pickers
+// "Dele" › "UI-komponenter" (BlockParts.tsx), the group "Valg af dato og tid": the theme's date and time pickers
 // (packages/editor/theme/ui/, through @site/editor) as the site draws them: the fields (docked, modal, a range, typed
 // wrong), and what opens from them in each state: the docked picker's month and its list of years, the modal one's
 // month with a day picked, its years, a range and the input mode with an error; the time picker's dial on the hours and
@@ -12,7 +12,7 @@ import {
   SiteTimePickerContainer,
   datePickerTexts,
   timePickerTexts,
-} from '@site/editor';
+} from './themeUi';
 import { Part } from './PartsShown';
 import { Preview } from './ui';
 import { t } from './i18n';

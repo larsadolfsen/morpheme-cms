@@ -7,7 +7,7 @@
 // site reads the page that is the front page without the editor, partsOfMarkdown in sections.mjs, packages/editor/site/home.ts):
 // they must be those the editor reads. Run: npm run check:editor [files...]
 // Milkdown needs a DOM; jsdom stands in for the browser.
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { JSDOM } from 'jsdom';
 
@@ -32,11 +32,12 @@ const { editorViewCtx } = await import('@milkdown/kit/core');
 const { createMarkdownProcessor } = await import('@astrojs/markdown-remark');
 const { makeEditor, markdownOf, partsOf, spacing } = await import('@interstellarcms/cms/src/markdown.mjs');
 const { introOf, partsOfMarkdown, sectionsFromParts, sectionsToMarkdown } = await import('@interstellarcms/cms/src/sections.mjs');
-const { fromSite } = await import('../site/siteConfig.mjs');
-const { frontLeads } = await fromSite('src/site/standardPages.ts');
-// The field of the sections of each fixed page (src/site/collections.ts): the sections whose text is written
+const { withSiteModules } = await import('../site/siteModules.mjs');
+// The field of the sections of each fixed page (@site/collections): the sections whose text is written
 // above their card (their lead), and the page's introduction above them (intro).
-const { collections } = await fromSite('src/site/collections.ts');
+const [{ frontLeads }, { collections }] = await withSiteModules((load) =>
+  Promise.all([load('@site/standardPages'), load('@site/collections')]),
+);
 const { leadsOfField } = await import('@interstellarcms/cms/src/sections.mjs');
 const textOf = Object.fromEntries(
   collections
@@ -47,7 +48,7 @@ const textOf = Object.fromEntries(
 const { splitFrontmatter, writeFields } = await import('@interstellarcms/cms/src/frontmatter.mjs');
 
 const walk = (dir) =>
-  readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+  (existsSync(dir) ? readdirSync(dir, { withFileTypes: true }) : []).flatMap((e) =>
     e.isDirectory() ? walk(join(dir, e.name)) : e.name.endsWith('.md') ? [join(dir, e.name)] : [],
   );
 const fixed = readdirSync('src/data')

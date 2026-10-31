@@ -1,5 +1,5 @@
 // The front page: the page chosen under "Indstillinger" › "Udseende" › "Standardsider" (src/data/standard-pages.json,
-// src/site/standardPages.ts), read
+// packages/editor/defaults/standardPages.ts), read
 // into sections for the theme's templates/Home.astro: each block a section of its own (its type says how it looks,
 // e.g. a theme's components/home/), with the text above it that is its own (its lead), and the rest of the text
 // as sections of text ("text": a heading and Markdown). The types below are the standard blocks'; an app's block is a

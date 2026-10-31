@@ -14,6 +14,7 @@ import { build } from 'esbuild';
 import { workerModules } from './worker-modules.mjs';
 import { config } from '../site/siteConfig.mjs';
 import { blobId, treeId } from '../lib/git.mjs';
+import { ownRepoEnv } from './git-env.mjs';
 
 const ROOT = `${process.cwd()}/`;
 // The editor's own code (this package's src/).
@@ -37,14 +38,15 @@ const problems = [];
 const expect = (ok, what) => ok || problems.push(what);
 
 // ---------------------------------------------------------------------------------------------------
-// The repository: this one's files at HEAD, in one commit.
+// The repository: this one's files at HEAD, in one commit (git's own variables left out, so it is this one's, also in
+// the pre-push hook).
 const git = (args, input, env = {}) =>
   execFileSync('git', args, {
     cwd: REPO,
     input,
     maxBuffer: 1 << 30,
     env: {
-      ...process.env,
+      ...ownRepoEnv(),
       ...env,
       GIT_AUTHOR_NAME: 'Anna',
       GIT_AUTHOR_EMAIL: 'anna@example.com',
@@ -53,7 +55,7 @@ const git = (args, input, env = {}) =>
     },
   });
 const out = (...args) => git(args).toString().trim();
-execFileSync('git', ['init', '-q', '-b', branch, REPO]);
+execFileSync('git', ['init', '-q', '-b', branch, REPO], { env: ownRepoEnv() });
 const tarball = join(REPO, '.git', 'head.tar');
 execFileSync('git', ['-C', ROOT, 'archive', '-o', tarball, 'HEAD']);
 execFileSync('tar', ['-x', '-f', tarball, '-C', REPO]);
@@ -352,11 +354,12 @@ async function run(label, bucket) {
   if (cached) expect(second.github === 1, `${label}: anden åbning spurgte GitHub ${second.github} gange (kun head)`);
   await settle();
 
-  // A save: a changed post, a new file in a new folder, a deleted page and a new picture.
+  // A save: a changed post (a page, when the site has no posts yet), a new file in a new folder, another page deleted and
+  // a new picture.
   const b = await browser();
   const files = first.loaded.folders;
-  const post = files.blog.find((f) => f.path.endsWith('.md'));
-  const page = files.pages.find((f) => f.path.endsWith('.md'));
+  const post = [...files.blog, ...files.pages].find((f) => f.path.endsWith('.md'));
+  const page = files.pages.find((f) => f.path.endsWith('.md') && f !== post);
   const picture = new Uint8Array([0x52, 0x49, 0x46, 0x46, 0, 1, 2, 3, ...new TextEncoder().encode(label)]);
   const changes = [
     { path: post.path, content: `${post.text}\nRettet (${label}).\n`, oid: post.oid },

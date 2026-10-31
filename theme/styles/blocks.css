@@ -23,14 +23,25 @@
                        square, a step on a time line)
     --block-control-radius  the corners of a button and a tag (a pill when large)
     --block-shadow     the shadow of a raised panel
-    --block-ease       the easing of motion
-    --block-ease-quick the easing of a quick change of state (a colour, an arrow that turns or moves)
+    --block-ease       the easing of motion (else the motion scheme's, --motion-ease)
+    --block-ease-quick the easing of a quick change of state (a colour, an arrow that turns or moves; else the motion
+                       scheme's, --motion-ease-quick)
     --block-hero-shade, --block-hero-on-shade  (optional) the colour a picture behind a hero's text is darkened with,
                        and the text's on it; without them the text's colour and the surface's
     --block-page-width, --block-gutter  the page's container (its width, gutters included, and its gutter at the
                        side), whose left edge the text starts at: how far a banner across the whole width reaches out
                        of the text to the window's edges, and where its content starts again (the standard theme's
                        Container.astro: 72rem, 1.25rem and 2rem from 48rem)
+
+  How things move is the site's motion scheme (Material 3's, chosen under "Udseende" › "Bevægelse"; lib/motion.ts), which
+  Base.astro writes into the <head> as springs, each its duration and curve, for `transition` and `animation`:
+    --motion-spatial-fast, --motion-spatial, --motion-spatial-slow   something that moves, grows or changes shape
+    --motion-effects-fast, --motion-effects, --motion-effects-slow   a colour, a shadow, something that fades
+    --motion-spatial-fast-duration … --motion-effects-slow-duration   each one's duration alone, for what must last as
+                       long as it (a visibility that waits for it, a display … allow-discrete)
+    --motion-ease, --motion-ease-quick   the default spatial and effects curves alone, for a duration of one's own
+  Without them (a page without Base.astro's <head>), the values below: the standard scheme's lengths with Material's
+  standard curve.
 
   A site sets the class `js` on <html> as early as it can (this site: Base.astro): then a long
   testimonial is cut with "Læs mere" from the start; without it, the whole text is shown.
@@ -51,8 +62,23 @@
   --block-radius-small: 1rem;
   --block-control-radius: 0.5rem;
   --block-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
-  --block-ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --block-ease-quick: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-spatial-fast: 230ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-spatial: 320ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-spatial-slow: 490ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-effects-fast: 150ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-effects: 240ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-effects-slow: 330ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-spatial-fast-duration: 230ms;
+  --motion-spatial-duration: 320ms;
+  --motion-spatial-slow-duration: 490ms;
+  --motion-effects-fast-duration: 150ms;
+  --motion-effects-duration: 240ms;
+  --motion-effects-slow-duration: 330ms;
+  /* Tailwind's transition-colors, transition-opacity … without a duration of their own: the default effects spring. */
+  --default-transition-duration: var(--motion-effects-duration);
+  --default-transition-timing-function: var(--motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
+  --block-ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
+  --block-ease-quick: var(--motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
   --block-page-width: 72rem;
   --block-gutter: 1.25rem;
 }
@@ -151,7 +177,7 @@
     padding: 0.875rem 1.25rem;
     font-size: 1.125rem;
     line-height: calc(1.75 / 1.125);
-    transition: color 0.3s var(--block-ease-quick);
+    transition: color var(--motion-effects);
   }
   summary.block-accordion-label {
     cursor: pointer;
@@ -165,7 +191,7 @@
   .block-accordion-icon {
     flex-shrink: 0;
     color: var(--block-muted);
-    transition: rotate 0.3s var(--block-ease-quick);
+    transition: rotate var(--motion-spatial);
   }
   @media (hover: hover) {
     summary.block-accordion-label:hover {
@@ -422,67 +448,23 @@
     text-decoration: none;
   }
 
-  /* "Blogindlæg": posts as cards with a picture and a title (posts/PostCards.tsx), on a phone the
-     picture small beside the title, from a tablet three across (four: two by two, or in a row). */
+  /* "Blogindlæg": its posts as the blog shows them (the theme's PostList.tsx and BlogPosts.tsx), "Alle indlæg" under
+     them. */
   .block-posts-in-text.block-in-text {
     margin-block: 2.5rem;
-  }
-  .block-posts {
-    display: grid;
-    gap: 2rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .block-posts > [hidden] {
-    display: none;
-  }
-  .block-post {
-    display: grid;
-    grid-template-columns: 6rem 1fr;
-    align-items: center;
-    gap: 1rem;
-    color: inherit;
-    text-decoration: none;
-  }
-  .block-post-picture {
-    overflow: hidden;
-    border-radius: var(--block-radius-small);
-    background: var(--block-tint);
-  }
-  .block-post-picture img {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    aspect-ratio: 1;
-    object-fit: cover;
-    transition: scale 0.7s var(--block-ease);
-  }
-  .block-post-title {
-    margin: 0;
-    font-size: 1.125rem;
-    line-height: 1.375;
-    font-weight: 500;
-    transition: color 0.15s var(--block-ease-quick);
   }
   .block-posts-all {
     margin-top: 1.5rem;
   }
-  /* In the editor's drawing: random posts, of how many. */
+  /* In the editor's drawing: random posts, of how many; under all of them, how many more there are. */
   .block-posts-note {
     margin: 0 0 1rem;
     font-size: 0.875rem;
     line-height: 1.25rem;
     color: var(--block-muted);
   }
-  @media (hover: hover) {
-    .block-post:hover img {
-      scale: 1.03;
-    }
-    .block-post:hover .block-post-title {
-      color: var(--block-accent);
-    }
+  .block-posts-more {
+    margin: 1rem 0 0;
   }
 
   /* Only for screen readers. */
@@ -603,7 +585,7 @@
     display: none;
   }
   .block-testimonial-more svg {
-    transition: transform 0.3s var(--block-ease-quick);
+    transition: transform var(--motion-spatial);
   }
   .block-testimonial-more[aria-expanded='true'] svg {
     transform: rotate(180deg);
@@ -674,14 +656,15 @@
     flex-direction: column;
     /* Its edge a border in the outlined card's line, so a picture at the top stays inside it. */
     border: 1px solid var(--card-outlined-line, var(--block-line));
-    box-shadow: var(--card-outlined-shadow, 0 0 #0000);
+    /* The card's shadow as it is now (ui.css: at rest, pointed at, dragged), without its line. */
+    box-shadow: var(--card-shadow, 0 0 #0000);
     color: inherit;
     /* The same with a page (a link, as the site has links) and without one (not a link). */
     font-weight: 500;
     text-decoration: none;
     transition:
-      border-color 0.3s var(--block-ease-quick),
-      box-shadow 0.3s var(--block-ease-quick);
+      border-color var(--motion-effects),
+      box-shadow var(--motion-effects);
   }
   .block-card-icon {
     color: var(--block-accent);
@@ -700,7 +683,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: scale 0.7s var(--block-ease);
+    transition: scale var(--motion-spatial-slow);
   }
   .block-card-title {
     margin-top: 1rem;
@@ -727,7 +710,7 @@
     color: var(--block-accent);
   }
   .block-card-arrow {
-    transition: translate 0.3s var(--block-ease-quick);
+    transition: translate var(--motion-spatial);
   }
   /* The cards on the accent ("Kort", `background`): the whole card in it, its text and icon in the colour that is read
      on it. */
@@ -800,43 +783,24 @@
   .block-panel > .list {
     margin-top: 1rem;
   }
-  /* "Punkter med ikon": points side by side where there is room, each with an icon in a circle (points/PointList.tsx).
-     The circle also before an item of a list (e.g. an app's contact block). */
+  /* "Punkter med ikon": a list without dividers (.list in ui.css, points/PointList.tsx), its items side by side where
+     there is room for 16rem each. Nothing in it is tapped, so its icons start where the text around it does. */
   .block-points {
+    --list-item-padding-inline: 0;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
-    gap: 1.5rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    column-gap: 1.5rem;
   }
   .block-points.block-in-text {
-    margin-block: 2.5rem;
+    margin-block: 1.5rem;
   }
-  .block-point {
-    display: flex;
+  /* A check's text is its headline alone and can run over more lines, so it starts at the top and the check stands
+     by its first line. */
+  .block-checklist .list-item-container {
     align-items: flex-start;
-    gap: 1rem;
   }
-  .block-point-icon {
-    display: grid;
-    width: 3rem;
-    height: 3rem;
-    flex-shrink: 0;
-    place-items: center;
-    border-radius: 999px;
-    background: var(--block-tint);
-    color: var(--block-accent);
-  }
-  .block-point-title {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 500;
-    line-height: 1.3;
-  }
-  .block-point-text {
-    margin: 0.25rem 0 0;
-    color: var(--block-muted);
+  .block-checklist .list-item-leading {
+    max-height: var(--list-item-headline-line-height, 1lh);
   }
   /* A picture with a heading, a text and buttons, beside it where there is room for 22rem each, else under it
      (e.g. an app's address block). */
@@ -1142,7 +1106,7 @@
     --card-radius: var(--block-radius-small);
     --card-padding: 0.85rem 1.1rem 0.85rem 0.85rem;
     line-height: 1.45;
-    transition: box-shadow 0.3s var(--block-ease);
+    transition: box-shadow var(--motion-effects);
   }
   .block-link-row.block-in-text {
     margin-block: 1.75rem;
@@ -1153,7 +1117,7 @@
   .block-link-row-arrow {
     flex-shrink: 0;
     color: var(--block-accent);
-    transition: transform 0.3s var(--block-ease);
+    transition: transform var(--motion-spatial);
   }
   a.block-link-row:hover {
     --card-outlined-line: var(--block-accent);
@@ -1354,29 +1318,6 @@
     }
   }
   @media (width >= 40rem) {
-    .block-posts {
-      gap: 1.25rem;
-    }
-    .block-posts-2,
-    .block-posts-4 {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .block-posts-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .block-post {
-      display: block;
-    }
-    .block-post-picture {
-      border-radius: var(--block-radius);
-    }
-    .block-post-picture img {
-      aspect-ratio: 4 / 3;
-    }
-    .block-post-title {
-      margin-top: 1rem;
-      font-size: 1.25rem;
-    }
     .block-buttons {
       flex-direction: row;
       flex-wrap: wrap;
@@ -1453,42 +1394,25 @@
       padding-inline: 2rem;
     }
   }
-  @media (width >= 64rem) {
-    .block-posts-4 {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
   /* ---- "Tjekliste" and "Priskort" ---- */
 
-  /* "Tjekliste" (checklist/Checks.tsx), and what is included on a price card: lines with a check in a circle in the
-     accent before each; with six or more (not on a card), two columns where there is room for 16rem each, never more. */
+  /* "Tjekliste" (checklist/Checks.tsx), and what is included on a price card: a list without dividers (.list in
+     ui.css), a check before each line; with six or more (not on a card), two columns where there is room for 16rem
+     each, never more. Nothing in it is tapped, so it is spaced as a bulleted or numbered list in the text (half a
+     line between its lines, not the height of a list item one taps), and its checks start where the text around it
+     does. */
   .block-checklist {
-    display: grid;
-    gap: 0.75rem 2rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    --list-item-min-height: auto;
+    --list-item-padding-block: 0.25em;
+    --list-item-padding-inline: 0;
   }
   .block-checklist.block-in-text {
-    margin-block: 2rem;
+    margin-block: 1rem;
   }
   .block-checklist:not(.block-plan-features):has(> :nth-child(6)) {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(16rem, calc(50% - 1rem))), 1fr));
-  }
-  .block-checklist > li {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-  .block-check {
     display: grid;
-    width: 1.5rem;
-    height: 1.5rem;
-    flex-shrink: 0;
-    place-items: center;
-    border-radius: 999px;
-    background: var(--block-accent);
-    color: var(--block-on-accent);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(16rem, calc(50% - 1rem))), 1fr));
+    column-gap: 2rem;
   }
 
   /* "Priskort" (pricecards/View.tsx): the cards side by side, as many columns as there are cards where the block has
@@ -1577,13 +1501,7 @@
   .block-plan-features {
     margin-top: 1.5rem;
     border-top: 1px solid var(--block-line);
-    padding-top: 1.5rem;
-    font-size: 0.95rem;
-    line-height: 1.4;
-  }
-  .block-plan-features .block-check {
-    width: 1.25rem;
-    height: 1.25rem;
+    padding-top: 0.5rem;
   }
   .block-buttons.block-plan-buttons {
     flex-direction: column;
@@ -1611,8 +1529,8 @@
       block-size: 0;
       overflow-y: clip;
       transition:
-        block-size 0.4s var(--block-ease),
-        content-visibility 0.4s allow-discrete;
+        block-size var(--motion-spatial),
+        content-visibility var(--motion-spatial-duration) allow-discrete;
     }
     .block-accordion-row[open]::details-content {
       block-size: auto;
@@ -1649,7 +1567,7 @@
 }
 .prose .video-facade svg {
   color: var(--block-accent);
-  transition: transform 0.3s var(--block-ease);
+  transition: transform var(--motion-spatial);
 }
 .prose .video-facade:hover svg {
   transform: scale(1.08);

@@ -3,7 +3,10 @@
   the theme's own components (components/, layouts/) draw their controls with, through the parts in ../ui/ (Button.tsx,
   IconButton.tsx) or, in an Astro component, their classes (buttonClass, iconButtonClass). Only the names, the kinds,
   the parts and the states are Material's; how they look is the theme's. What is here is the standard look, made from
-  the blocks' variables (--block-*, blocks.css), so it follows every theme's colours, corners and motion.
+  the blocks' variables (--block-*, blocks.css), so it follows every theme's colours, corners and motion. Every
+  transition and animation takes one of the site's motion scheme's springs (--motion-spatial-…, --motion-effects-…:
+  blocks.css, lib/motion.ts), which the owner chooses under "Bevægelse": what moves, grows or changes shape the spatial
+  ones (fast for what answers a press), a colour, a shadow or a fade the effects ones.
 
   A theme changes it with the variables below, in :root in its styles/global.css, and with rules on the classes in
   @layer components where a variable is not enough (a state: pointed at, pressed). Each variable is read where the
@@ -22,17 +25,19 @@
     --button-letter-spacing, --button-icon-size   the medium size, its label and its round corners
     --button-xsmall-height, -padding, -gap, -font-size; --button-small-height, -padding, -font-size;
     --button-large-height, -padding, -gap, -font-size, -icon-size; --button-xlarge-…   the other sizes
-    --button-square-radius, --button-<size>-square-radius   the square corners (also an icon button's of the size)
+    --button-square-radius, --button-<size>-square-radius   the square corners (also an icon button's of the size,
+      where it has none of its own)
     --button-pressed-radius, --button-<size>-pressed-radius   the corners while pressed (also an icon button's); none:
       as they are
     --button-text-padding   the space at a text button's sides (it has no surface)
     --button-filled-surface, -hover, -text, -shadow, -hover-shadow
-    --button-tonal-surface, -hover, -text
-    --button-elevated-surface, -text, -shadow, -hover-shadow
+    --button-tonal-surface, -hover, -text, -shadow, -hover-shadow
+    --button-elevated-surface, -text, -shadow, -hover-shadow   (the shadows: at rest, and pointed at; a theme that
+      sets only the one at rest keeps it when pointed at)
     --button-outlined-surface, -text, -line, -hover-text, -hover-line
     --button-text-text, -hover
     --button-toggle-surface, -text, -hover   a filled toggle (a button or an icon button) that is off
-    --button-toggle-selected-surface, -text, -hover, -shadow   a filled toggle that is on
+    --button-toggle-selected-surface, -text, -hover, -shadow, -hover-shadow   a filled toggle that is on
     --button-tonal-selected-surface, -text, -hover; --button-elevated-selected-…; --button-outlined-selected-…   the
       other kinds on
   Icon buttons (IconButton.tsx, iconButtonClass): .icon-button with its kind, .icon-button-standard, -filled, -tonal or
@@ -41,6 +46,8 @@
   one off and on in the button toggle's colours; .icon-button-selected-icon and -unselected-icon).
     --icon-button-size, --icon-button-icon-size   the small size (the default)
     --icon-button-xsmall-size, -icon-size; --icon-button-medium-…; --icon-button-large-…; --icon-button-xlarge-…
+    --icon-button-square-radius, --icon-button-<size>-square-radius   the square corners, where a theme's icon buttons
+      and buttons of the same size are not the same height (else the button's)
     --icon-button-narrow-ratio, --icon-button-wide-ratio   how wide a narrow and a wide one is, to its height
     --icon-button-<kind>-surface, -text, -line   each kind's colours and edge at rest
     --icon-button-standard-selected-text; --icon-button-tonal-unselected-surface, -text;
@@ -55,13 +62,62 @@
 @source '../..';
 @source not '../../site/icons.mjs';
 
+/* ---- Elevation ----
+  The elevation levels (m3.material.io/styles/elevation): how high a part stands over the page, level 0 (on it) to
+  level 5, each a shadow. Every part's shadow below is one of them by default, at the level Material 3 gives that part
+  and its state (its tokens: md.comp.<part>.…container.elevation), and keeps its own variable (--card-elevated-shadow,
+  --menu-shadow …), so a theme can still give one part another shadow. A theme sets the levels to its own look, in
+  light and dark mode, and they are its shadows everywhere; the ones here are a plain, neutral look of their own.
+    --elevation-0 … --elevation-5   the levels; level 0 is no shadow (0 0 #0000, so it can stand in a list of shadows)
+  At rest, pointed at (hover), pressed and dragged, by Material 3; with focus a part is as at rest:
+    level 0  filled, tonal and outlined buttons, icon buttons, filled and outlined cards, chips (not elevated), a
+             standard side sheet, a full-screen dialog on a phone, the top app bar, the navigation bar and rail, the
+             search bar, a plain tooltip
+    level 1  elevated buttons and chips, elevated cards, bottom sheets, a modal side sheet and navigation drawer, the
+             handles of switches and sliders; pointed at: filled and tonal buttons (a toggle too), filled and outlined
+             cards that are links, a chosen filter chip
+    level 2  menus, a rich tooltip, a modal navigation rail, the top app bar once the page scrolls under it; pointed
+             at: elevated buttons, chips and cards
+    level 3  FABs (and the FAB menu's actions), dialogs (a bottom sheet as one), date and time pickers, the search view,
+             a snackbar, a floating toolbar; dragged: filled and outlined cards
+    level 4  pointed at: FABs; dragged: elevated cards, chips
+    level 5  none of the parts by default (M3's highest level, for a theme's own use)
+  Pressed, a part is as at rest: only pointing at it lifts it. Disabled, a button has no shadow.
+*/
+:where(:root) {
+  --elevation-0: 0 0 #0000;
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 12px -6px rgb(0 0 0 / 0.14);
+  --elevation-2: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 20px -8px rgb(0 0 0 / 0.18);
+  --elevation-3: 0 2px 4px rgb(0 0 0 / 0.07), 0 12px 28px -10px rgb(0 0 0 / 0.22);
+  --elevation-4: 0 2px 6px rgb(0 0 0 / 0.08), 0 16px 36px -12px rgb(0 0 0 / 0.26);
+  --elevation-5: 0 4px 8px rgb(0 0 0 / 0.09), 0 20px 44px -12px rgb(0 0 0 / 0.3);
+}
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme='light'])) {
+    --elevation-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px -6px rgb(0 0 0 / 0.5);
+    --elevation-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 20px -8px rgb(0 0 0 / 0.55);
+    --elevation-3: 0 2px 4px rgb(0 0 0 / 0.32), 0 12px 28px -10px rgb(0 0 0 / 0.6);
+    --elevation-4: 0 2px 6px rgb(0 0 0 / 0.34), 0 16px 36px -12px rgb(0 0 0 / 0.65);
+    --elevation-5: 0 4px 8px rgb(0 0 0 / 0.36), 0 20px 44px -12px rgb(0 0 0 / 0.7);
+  }
+}
+:where(:root[data-theme='dark']) {
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px -6px rgb(0 0 0 / 0.5);
+  --elevation-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 20px -8px rgb(0 0 0 / 0.55);
+  --elevation-3: 0 2px 4px rgb(0 0 0 / 0.32), 0 12px 28px -10px rgb(0 0 0 / 0.6);
+  --elevation-4: 0 2px 6px rgb(0 0 0 / 0.34), 0 16px 36px -12px rgb(0 0 0 / 0.65);
+  --elevation-5: 0 4px 8px rgb(0 0 0 / 0.36), 0 20px 44px -12px rgb(0 0 0 / 0.7);
+}
+
 @layer components {
   /* Buttons (m3.material.io/components/buttons): a label, an icon before it and evt. one after it (the arrow). */
   .button {
     --button-box: var(--button-height, 3rem);
     --button-inline: var(--button-padding, 1.6rem);
     --button-glyph: var(--button-icon-size, 1.25rem);
-    --button-round: var(--button-radius, var(--block-control-radius));
+    /* Round is at most half the button's height (Material's full corner), never a huge number, so a corner that
+       changes shape (pressed, toggled) moves between real sizes on the spring, not through 0. */
+    --button-round: min(var(--button-radius, var(--block-control-radius)), var(--button-box) / 2);
     --button-square: var(--button-square-radius, var(--block-radius-small));
     --button-pressed: var(--button-pressed-radius);
     --button-corners: var(--button-round);
@@ -82,11 +138,11 @@
     text-decoration: none;
     cursor: pointer;
     transition:
-      background-color 0.3s var(--block-ease),
-      color 0.3s var(--block-ease),
-      transform 0.3s var(--block-ease),
-      box-shadow 0.3s var(--block-ease),
-      border-radius 0.3s var(--block-ease);
+      background-color var(--motion-effects),
+      color var(--motion-effects),
+      transform var(--motion-spatial-fast),
+      box-shadow var(--motion-effects),
+      border-radius var(--motion-spatial-fast);
   }
   .button > svg {
     flex-shrink: 0;
@@ -154,31 +210,45 @@
   }
 
   /* Filled: the main action, in the accent. */
+  /* Elevation (M3's): filled and tonal on the page (level 0), lifted to level 1 when pointed at; elevated at level 1,
+     at level 2 when pointed at; pressed as at rest (below), disabled without a shadow. */
   .button-filled {
     background: var(--button-filled-surface, var(--block-accent));
     color: var(--button-filled-text, var(--block-on-accent));
-    box-shadow: var(--button-filled-shadow, none);
+    box-shadow: var(--button-filled-shadow, var(--elevation-0));
   }
   .button-filled:hover {
     background: var(--button-filled-hover, var(--block-accent-hover));
-    box-shadow: var(--button-filled-hover-shadow, var(--button-filled-shadow, none));
+    box-shadow: var(--button-filled-hover-shadow, var(--button-filled-shadow, var(--elevation-1)));
   }
   /* Tonal: an important step that is not the main one, on the tint. */
   .button-tonal {
     background: var(--button-tonal-surface, var(--block-tint));
     color: var(--button-tonal-text, var(--block-text));
+    box-shadow: var(--button-tonal-shadow, var(--elevation-0));
   }
   .button-tonal:hover {
     background: var(--button-tonal-hover, color-mix(in srgb, var(--block-text) 8%, var(--block-tint)));
+    box-shadow: var(--button-tonal-hover-shadow, var(--button-tonal-shadow, var(--elevation-1)));
   }
   /* Elevated: on a surface with its shadow, where the page behind it has a colour. */
   .button-elevated {
     background: var(--button-elevated-surface, var(--block-surface));
     color: var(--button-elevated-text, var(--block-accent));
-    box-shadow: var(--button-elevated-shadow, var(--block-shadow));
+    box-shadow: var(--button-elevated-shadow, var(--elevation-1));
   }
   .button-elevated:hover {
-    box-shadow: var(--button-elevated-hover-shadow, var(--button-elevated-shadow, var(--block-shadow)));
+    box-shadow: var(--button-elevated-hover-shadow, var(--button-elevated-shadow, var(--elevation-2)));
+  }
+  /* Pressed: back at rest (M3: only pointing at it lifts it). */
+  .button-filled:active {
+    box-shadow: var(--button-filled-shadow, var(--elevation-0));
+  }
+  .button-tonal:active {
+    box-shadow: var(--button-tonal-shadow, var(--elevation-0));
+  }
+  .button-elevated:active {
+    box-shadow: var(--button-elevated-shadow, var(--elevation-1));
   }
   /* Outlined: another choice beside the main one, with a thin edge. */
   .button-outlined {
@@ -205,20 +275,26 @@
   .button-filled[aria-pressed='false'] {
     background: var(--button-toggle-surface, var(--block-tint));
     color: var(--button-toggle-text, var(--block-text));
-    box-shadow: none;
+    box-shadow: var(--elevation-0);
   }
   .button-filled[aria-pressed='false']:hover {
     background: var(--button-toggle-hover, color-mix(in srgb, var(--block-text) 8%, var(--block-tint)));
-    box-shadow: none;
+    box-shadow: var(--elevation-1);
+  }
+  .button-filled[aria-pressed='false']:active {
+    box-shadow: var(--elevation-0);
   }
   .button-filled[aria-pressed='true'] {
     background: var(--button-toggle-selected-surface, var(--block-accent));
     color: var(--button-toggle-selected-text, var(--block-on-accent));
-    box-shadow: var(--button-toggle-selected-shadow, none);
+    box-shadow: var(--button-toggle-selected-shadow, var(--elevation-0));
   }
   .button-filled[aria-pressed='true']:hover {
     background: var(--button-toggle-selected-hover, var(--block-accent-hover));
-    box-shadow: var(--button-toggle-selected-shadow, none);
+    box-shadow: var(--button-toggle-selected-hover-shadow, var(--button-toggle-selected-shadow, var(--elevation-1)));
+  }
+  .button-filled[aria-pressed='true']:active {
+    box-shadow: var(--button-toggle-selected-shadow, var(--elevation-0));
   }
   .button-tonal[aria-pressed='true'] {
     background: var(--button-tonal-selected-surface, var(--secondary));
@@ -250,6 +326,10 @@
   .button:not([aria-pressed='true']) > .button-selected-icon {
     display: none;
   }
+  /* Disabled: on the page, without a shadow (M3's level 0), also when pointed at. */
+  .button:is(.button-filled, .button-tonal, .button-elevated):disabled {
+    box-shadow: var(--elevation-0);
+  }
 
   /* Icon buttons (m3.material.io/components/icon-buttons): only an icon (its name is read), round or square. */
   .icon-button {
@@ -257,9 +337,11 @@
     --icon-button-ratio: 1;
     --icon-button-width: calc(var(--icon-button-box) * var(--icon-button-ratio));
     --icon-button-glyph: var(--icon-button-icon-size, 1.375rem);
-    --icon-button-square: var(--button-small-square-radius, calc(var(--block-radius-small) * 0.75));
+    --icon-button-square: var(--icon-button-square-radius, var(--button-small-square-radius, calc(var(--block-radius-small) * 0.75)));
     --icon-button-pressed: var(--button-small-pressed-radius, var(--button-pressed-radius));
-    --icon-button-corners: 9999px;
+    /* Round: half its height (see .button's --button-round). */
+    --icon-button-round: calc(var(--icon-button-box) / 2);
+    --icon-button-corners: var(--icon-button-round);
     display: inline-grid;
     flex-shrink: 0;
     /* Centred also where a page shows it as flex (md:flex beside hidden). */
@@ -271,11 +353,11 @@
     border-radius: var(--icon-button-corners);
     cursor: pointer;
     transition:
-      background-color 0.3s var(--block-ease),
-      color 0.3s var(--block-ease),
-      transform 0.3s var(--block-ease),
-      opacity 0.3s var(--block-ease),
-      border-radius 0.3s var(--block-ease);
+      background-color var(--motion-effects),
+      color var(--motion-effects),
+      transform var(--motion-spatial-fast),
+      opacity var(--motion-effects),
+      border-radius var(--motion-spatial-fast);
   }
   .icon-button > svg {
     width: var(--icon-button-glyph);
@@ -293,25 +375,31 @@
   .icon-button-xsmall {
     --icon-button-box: var(--icon-button-xsmall-size, 2.25rem);
     --icon-button-glyph: var(--icon-button-xsmall-icon-size, 1.25rem);
-    --icon-button-square: var(--button-xsmall-square-radius, calc(var(--block-radius-small) * 0.75));
+    --icon-button-square: var(
+      --icon-button-xsmall-square-radius,
+      var(--button-xsmall-square-radius, calc(var(--block-radius-small) * 0.75))
+    );
     --icon-button-pressed: var(--button-xsmall-pressed-radius, var(--button-pressed-radius));
   }
   .icon-button-medium {
     --icon-button-box: var(--icon-button-medium-size, 3.75rem);
     --icon-button-glyph: var(--icon-button-medium-icon-size, 1.5rem);
-    --icon-button-square: var(--button-square-radius, var(--block-radius-small));
+    --icon-button-square: var(--icon-button-medium-square-radius, var(--button-square-radius, var(--block-radius-small)));
     --icon-button-pressed: var(--button-pressed-radius);
   }
   .icon-button-large {
     --icon-button-box: var(--icon-button-large-size, 6rem);
     --icon-button-glyph: var(--icon-button-large-icon-size, 2rem);
-    --icon-button-square: var(--button-large-square-radius, calc(var(--block-radius-small) * 1.75));
+    --icon-button-square: var(--icon-button-large-square-radius, var(--button-large-square-radius, calc(var(--block-radius-small) * 1.75)));
     --icon-button-pressed: var(--button-large-pressed-radius, var(--button-pressed-radius));
   }
   .icon-button-xlarge {
     --icon-button-box: var(--icon-button-xlarge-size, 8.5rem);
     --icon-button-glyph: var(--icon-button-xlarge-icon-size, 2.5rem);
-    --icon-button-square: var(--button-xlarge-square-radius, calc(var(--block-radius-small) * 1.75));
+    --icon-button-square: var(
+      --icon-button-xlarge-square-radius,
+      var(--button-xlarge-square-radius, calc(var(--block-radius-small) * 1.75))
+    );
     --icon-button-pressed: var(--button-xlarge-pressed-radius, var(--button-pressed-radius));
   }
   .icon-button-narrow {
@@ -326,7 +414,7 @@
     --icon-button-corners: var(--icon-button-square);
   }
   .icon-button-square[aria-pressed='true'] {
-    --icon-button-corners: 9999px;
+    --icon-button-corners: var(--icon-button-round);
   }
   /* Standard: only the icon, a light shade when pointed at. */
   .icon-button-standard {
@@ -480,8 +568,8 @@
     min-height: var(--text-field-height, 3rem);
     border-radius: var(--text-field-radius, var(--block-control-radius));
     transition:
-      box-shadow 0.2s var(--block-ease),
-      background-color 0.2s var(--block-ease);
+      box-shadow var(--motion-effects),
+      background-color var(--motion-effects);
   }
   .text-field-input {
     flex: 1;
@@ -569,10 +657,10 @@
     transform: translateY(-50%);
     transform-origin: left center;
     transition:
-      top 0.2s var(--block-ease),
-      left 0.2s var(--block-ease),
-      font-size 0.2s var(--block-ease),
-      color 0.2s var(--block-ease);
+      top var(--motion-spatial-fast),
+      left var(--motion-spatial-fast),
+      font-size var(--motion-spatial-fast),
+      color var(--motion-effects);
   }
   /* After the icon before it. */
   .text-field-with-leading-icon .text-field-label {
@@ -659,7 +747,7 @@
     color: var(--text-field-affix-color, var(--block-muted));
     white-space: nowrap;
     opacity: 0;
-    transition: opacity 0.2s var(--block-ease);
+    transition: opacity var(--motion-effects);
   }
   .text-field-prefix {
     padding-inline-start: var(--text-field-padding, 1.25rem);
@@ -815,17 +903,15 @@
     --chip-height, --chip-padding, --chip-gap, --chip-radius, --chip-font-size, --chip-icon-size   its size and label
     --chip-surface, --chip-line, --chip-hover-text, --chip-hover-line   its colours and edge, and pointed at
     --chip-selected-surface, --chip-selected-hover, --chip-selected-text   a chosen chip, and pointed at
+    --chip-selected-hover-shadow   a chosen filter chip pointed at (level 1)
     --chip-selected-check   whether a chosen filter chip shows its check (none, or a display value: block)
-    --chip-elevated-surface, --chip-elevated-shadow, --chip-elevated-hover-shadow   an elevated chip, and pointed at
-    --chip-dragged-shadow   the shadow that lifts a dragged chip
+    --chip-elevated-surface, --chip-elevated-shadow, --chip-elevated-hover-shadow   an elevated chip (level 1), and
+                     pointed at (level 2; a theme that sets only the one at rest keeps it); pressed, as at rest
+    --chip-dragged-shadow   the shadow that lifts a dragged chip (level 4)
     --chip-disabled-opacity   how much of a disabled chip is seen
     --chip-avatar-size, --chip-avatar-padding   a person's picture, and the room before it
   The label's weight and line height are the text's; a theme sets them with a rule on .chip.
 */
-:where(:root) {
-  --chip-dragged-shadow: 0 12px 28px -10px rgb(0 0 0 / 0.35);
-}
-
 @layer components {
   .chip {
     display: inline-flex;
@@ -842,9 +928,9 @@
     text-decoration: none;
     cursor: pointer;
     transition:
-      background-color 0.3s var(--block-ease),
-      color 0.3s var(--block-ease),
-      box-shadow 0.3s var(--block-ease);
+      background-color var(--motion-effects),
+      color var(--motion-effects),
+      box-shadow var(--motion-effects);
   }
   span.chip {
     cursor: auto;
@@ -882,18 +968,30 @@
   .chip-filter:is([aria-pressed='true'], [aria-current='page']) > .chip-check {
     display: var(--chip-selected-check, none);
   }
+  /* A chosen filter chip is lifted to level 1 when pointed at, and is on the page again while pressed (M3). */
+  .chip-filter:is([aria-pressed='true'], [aria-current='page']):hover {
+    box-shadow: var(--chip-selected-hover-shadow, var(--elevation-1));
+  }
+  .chip-filter:is([aria-pressed='true'], [aria-current='page']):active {
+    box-shadow: var(--elevation-0);
+  }
 
-  /* Elevated: on a surface with a shadow instead of the edge, where it stands on a picture or a colour; also chosen. */
+  /* Elevated: on a surface with a shadow instead of the edge, where it stands on a picture or a colour; also chosen.
+     Level 1, level 2 when pointed at, and as at rest while pressed (M3). */
   .chip-elevated {
     background: var(--chip-elevated-surface, var(--block-surface));
-    box-shadow: var(--chip-elevated-shadow, var(--block-shadow));
   }
-  .chip-elevated:hover {
-    box-shadow: var(--chip-elevated-hover-shadow, var(--chip-elevated-shadow, var(--block-shadow)));
+  .chip-elevated,
+  .chip.chip-elevated:is([aria-pressed='true'], [aria-current='page']) {
+    box-shadow: var(--chip-elevated-shadow, var(--elevation-1));
   }
-  .chip.chip-elevated:is([aria-pressed='true'], [aria-current='page']),
+  .chip-elevated:hover,
   .chip.chip-elevated:is([aria-pressed='true'], [aria-current='page']):hover {
-    box-shadow: var(--chip-elevated-shadow, var(--block-shadow));
+    box-shadow: var(--chip-elevated-hover-shadow, var(--chip-elevated-shadow, var(--elevation-2)));
+  }
+  .chip-elevated:active,
+  .chip.chip-elevated:is([aria-pressed='true'], [aria-current='page']):active {
+    box-shadow: var(--chip-elevated-shadow, var(--elevation-1));
   }
 
   /* A person's picture before the label (an input chip): round, nearer the start. */
@@ -933,7 +1031,7 @@
     height: 1.75rem;
     margin-block: -0.5rem;
     border-radius: 9999px;
-    transition: background-color 0.2s var(--block-ease);
+    transition: background-color var(--motion-effects);
   }
   .chip-remove:hover {
     background: color-mix(in srgb, currentColor 12%, transparent);
@@ -944,11 +1042,11 @@
   .chip-dragged:hover {
     box-shadow:
       inset 0 0 0 1px var(--chip-line, var(--block-line)),
-      var(--chip-dragged-shadow);
+      var(--chip-dragged-shadow, var(--elevation-4));
     cursor: grabbing;
   }
-  .chip-elevated.chip-dragged {
-    box-shadow: var(--chip-dragged-shadow);
+  .chip.chip-elevated.chip-dragged {
+    box-shadow: var(--chip-dragged-shadow, var(--elevation-4));
   }
 
   /* Disabled: seen through, without its shadow, and not to be used. */
@@ -958,6 +1056,39 @@
   }
   .chip-elevated:is(:disabled, [aria-disabled='true']) {
     box-shadow: inset 0 0 0 1px var(--chip-line, var(--block-line));
+  }
+}
+
+/*
+  Chip sets (ChipSet.tsx, chipSetClass; Material's chips side by side, md-chip-set): .chip-set, a group of chips,
+  .chip-set-wrap on as many lines as they need, or .chip-set-scroll on one line that scrolls sideways without a
+  scrollbar, out to the edges of the screen (the chips keep their width; room above and below for their focus ring).
+    --chip-set-gap   the room between the chips
+    --chip-set-bleed   how far a scrolling one reaches out to the edges of the screen (the page's gutter), where its
+                     first chip still starts in line with the text
+*/
+@layer components {
+  .chip-set {
+    display: flex;
+    gap: var(--chip-set-gap, 0.5rem);
+  }
+  .chip-set-wrap {
+    flex-wrap: wrap;
+  }
+  .chip-set-scroll {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding: 0.25rem var(--chip-set-bleed, 0rem);
+    margin: -0.25rem calc(-1 * var(--chip-set-bleed, 0rem));
+    scroll-padding-inline: var(--chip-set-bleed, 0rem);
+  }
+  .chip-set-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .chip-set-scroll > * {
+    flex: none;
   }
 }
 
@@ -972,7 +1103,8 @@
   dialog, .dialog-full-screen in .dialog-modal-full-screen: over the whole screen on a phone, with .dialog-header (the
   close button, the headline and .dialog-header-actions), evt. .dialog-divider, and .dialog-content; from 48rem a
   dialog in the middle of the screen with the same header.
-    --dialog-radius, --dialog-surface, --dialog-shadow, --dialog-line   the container's corners, surface, shadow, edge
+    --dialog-radius, --dialog-surface, --dialog-shadow, --dialog-line   the container's corners, surface, shadow
+                     (level 3; none for a full-screen one on a phone), edge
     --dialog-scrim   the shade over the page behind a modal dialog (else --theme-scrim-colour, the text's colour, in
                      dark mode the page's, seen through)
     --dialog-max-width   how wide a modal dialog is at most
@@ -995,8 +1127,8 @@
   the screen; expanded, as high as what it shows, but not to the top; hidden), data-moving while it is dragged or moves.
     --bottom-sheet-surface, --bottom-sheet-radius, --bottom-sheet-line   its surface (also the cover's), corners, and
                      the lines under the header and over the footer
-    --bottom-sheet-shadow, --bottom-sheet-shadow-large   its shadow on a phone (and a standard one's), and as a dialog
-                     from 48rem
+    --bottom-sheet-shadow, --bottom-sheet-shadow-large   its shadow on a phone (and a standard one's; level 1), and as
+                     a dialog from 48rem (level 3)
     --bottom-sheet-scrim   the shade over the page behind a modal one
     --bottom-sheet-handle   the drag handle's colour
     --bottom-sheet-max-width, --bottom-sheet-top-gap   how wide a standard one is at most, and how far from the top it
@@ -1023,8 +1155,6 @@
     --carousel-dot-size, --carousel-dot-colour, --carousel-dot-selected-width, --carousel-dot-selected-colour
 */
 :where(:root) {
-  --bottom-sheet-shadow: 0 -24px 48px -24px rgb(0 0 0 / 0.35);
-  --bottom-sheet-shadow-large: 0 24px 48px -12px rgb(0 0 0 / 0.35);
   --carousel-large-item-width: 12.5rem;
   --carousel-small-item-min-width: 2.5rem;
   --carousel-small-item-max-width: 3.5rem;
@@ -1037,7 +1167,7 @@
     background: var(--dialog-surface, var(--block-surface));
     box-shadow:
       0 0 0 1px var(--dialog-line, var(--block-line)),
-      var(--dialog-shadow, var(--block-shadow));
+      var(--dialog-shadow, var(--elevation-3));
   }
   /* A modal dialog: in the middle of the screen over the scrim, coming up a little as it opens. */
   .dialog-modal {
@@ -1054,10 +1184,10 @@
   }
   @media (prefers-reduced-motion: no-preference) {
     .dialog-modal[open] {
-      animation: dialog-in 0.4s var(--block-ease);
+      animation: dialog-in var(--motion-spatial);
     }
     .dialog-modal[open]::backdrop {
-      animation: dialog-scrim-in 0.4s ease;
+      animation: dialog-scrim-in var(--motion-effects-slow);
     }
   }
   @keyframes dialog-in {
@@ -1241,7 +1371,7 @@
     overflow: hidden;
     border-radius: var(--bottom-sheet-radius, var(--block-radius)) var(--bottom-sheet-radius, var(--block-radius)) 0 0;
     background: var(--bottom-sheet-surface, var(--block-surface));
-    box-shadow: var(--bottom-sheet-shadow);
+    box-shadow: var(--bottom-sheet-shadow, var(--elevation-1));
     padding-bottom: env(safe-area-inset-bottom);
   }
   .bottom-sheet-drag-handle {
@@ -1334,7 +1464,7 @@
     /* A modal one only: a standard one stays at the bottom. */
     .bottom-sheet-container:where(:not(.bottom-sheet-standard)) {
       border-radius: var(--bottom-sheet-radius, var(--block-radius));
-      box-shadow: var(--bottom-sheet-shadow-large);
+      box-shadow: var(--bottom-sheet-shadow-large, var(--elevation-3));
       padding-bottom: 0;
     }
     :where(.bottom-sheet-container:not(.bottom-sheet-standard)) > .bottom-sheet-drag-handle {
@@ -1446,7 +1576,7 @@
     height: var(--carousel-dot-size, 0.5rem);
     border-radius: 9999px;
     background: var(--carousel-dot-colour, var(--block-line));
-    transition: all 0.3s var(--block-ease-quick);
+    transition: all var(--motion-spatial);
   }
   .carousel-indicator-dot[aria-current='true'] > span {
     width: var(--carousel-dot-selected-width, 1.25rem);
@@ -1531,11 +1661,18 @@
 /*
   Cards (Card.tsx, cardClass; m3.material.io/components/cards): the surface a block or an app's block is, .card with its
   kind, .card-elevated (on the surface with its shadow), .card-filled (on the tint) or .card-outlined (on the surface
-  with a thin edge); a card that is a link is an <a class="card …">, the whole card the link. What is on it (its icon,
-  heading, text, picture) is the block's own (block-…).
+  with a thin edge); a card that is a link is an <a class="card …">, the whole card the link, lifted when pointed at;
+  .card-dragged while it is dragged to another place. What is on it (its icon, heading, text, picture) is the block's
+  own (block-…).
     --card-radius, --card-padding   its corners and the room inside it
     --card-<kind>-surface, --card-<kind>-line, --card-<kind>-shadow   each kind's surface, its edge (a 1px line inside
-                                    it, transparent for none) and its shadow (0 0 #0000 for none)
+                                    it, transparent for none) and its shadow (0 0 #0000 for none): elevated level 1,
+                                    filled and outlined level 0
+    --card-<kind>-hover-shadow      a card that is a link, pointed at: elevated level 2, filled and outlined level 1 (a
+                                    theme that sets only the one at rest keeps it); pressed, as at rest
+    --card-<kind>-dragged-shadow    dragged: elevated level 4, filled and outlined level 3
+  Set here by the kind and the state, not by a theme: --card-shadow, the shadow a card has now (a block that draws
+  the card's edge itself, .block-card, takes it).
   Lists (List.tsx, listClass, listClasses, listItemClass; m3.material.io/components/lists): .list (a <ul>, a line
   between its items; .list-dividers-inset from where the text starts, .list-dividers-middle-inset in from both sides,
   .list-dividers-none without), .list-segmented (M3 Expressive: each item on its own surface); each item's container a
@@ -1545,22 +1682,36 @@
   .list-item-avatar, .list-item-leading-image with .list-item-image, .list-item-leading-video with .list-item-video),
   .list-item-content (a <label> for a choice) with .list-item-overline, .list-item-headline and .list-item-supporting,
   and what trails it (.list-item-trailing-supporting, .list-item-trailing: an icon, an arrow); .list-item-two-line or
-  .list-item-three-line by its lines; .list-item-with-control with the theme's checkbox, radio button or switch in
-  .list-item-control before or after the text; .list-item-selected and .list-item-disabled.
-    A list that is a card (.list.card, the editor's lists in a frame): its items in from its edges by
-    --list-item-padding-inline (else 1rem), the lines between them across it.
+  .list-item-three-line by its lines; .list-item-columns with its headline and supporting text side by side on a wide
+  screen; .list-item-with-control with the theme's checkbox, radio button or switch in
+  .list-item-control before or after the text; .list-item-selected and .list-item-disabled. An item's corners change
+  with its state (Material's shape morphing): pointed at (hover), pressed or focused, and selected. In a segmented list
+  each <li> is the item's surface (also around what is beside its container in it: a button, fields folded out), the
+  first and the last with the list's corners. A multi-action item (.list-item-multi-action): an item's container and
+  secondary actions beside it on one row, which has the container's state.
     --list-divider   the line between the items (transparent for none)
-    --list-item-min-height, --list-item-padding-block, --list-item-padding-inline, --list-item-gap, --list-item-radius
+    --list-item-min-height, --list-item-two-line-min-height, --list-item-three-line-min-height   by its lines
+    --list-item-padding-block, --list-item-padding-inline, --list-item-gap
+    --list-item-radius, --list-item-hover-radius, --list-item-pressed-radius (also focused), --list-item-selected-radius
     --list-item-headline-size, --list-item-headline-weight   the headline of an item with two or three lines
+    --list-item-headline-line-height, --list-item-headline-letter-spacing   the headline of every item
+    --list-item-supporting-size, --list-item-supporting-line-height, --list-item-overline-size,
+    --list-item-overline-line-height, --list-item-trailing-supporting-size   the other texts' size
     --list-item-supporting-text, --list-item-trailing-text, --list-item-overline-text   their colours
     --list-item-hover-text, --list-item-hover-surface   an item that links or is a choice, pointed at
+    --list-item-pressed-surface (else the hover surface), --list-item-hover-trailing-shift (what trails it moves
+    aside when pointed at; 0 for not)
     --list-item-selected-surface, --list-item-selected-text, --list-item-selected-weight, --list-item-disabled-opacity
-    --list-item-leading-icon-color, --list-item-leading-size (what leads an item of its own, for an inset divider)
+    --list-item-leading-icon-color, --list-item-leading-icon-selected-color (ListItemLeadingIcon's `selected`)
+    --list-item-icon-size   the icons that lead and trail an item
+    --list-item-leading-size (what leads an item of its own, for an inset divider)
     --list-item-avatar-size, --list-item-avatar-surface, --list-item-avatar-text, --list-item-image-size,
     --list-item-image-radius, --list-item-video-width, --list-item-video-height   the leading kinds
-    --list-segmented-gap, --list-segmented-radius, --list-segmented-inner-radius, --list-segmented-padding-inline,
-    --list-segmented-surface, --list-segmented-hover-surface, --list-segmented-selected-surface,
-    --list-segmented-selected-text, --list-segmented-selected-radius   a segmented list
+    --list-segmented-gap, --list-segmented-radius (the list's corners), --list-segmented-inner-radius,
+    --list-segmented-hover-radius, --list-segmented-pressed-radius, --list-segmented-selected-radius,
+    --list-segmented-padding-inline, --list-segmented-surface, --list-segmented-hover-surface (over the surface),
+    --list-segmented-pressed-surface, --list-segmented-disabled-surface,
+    --list-segmented-selected-surface, --list-segmented-selected-text   a segmented list
 */
 @layer components {
   .card {
@@ -1572,23 +1723,60 @@
     color: inherit;
     text-decoration: none;
   }
+  /* Each kind at its level (M3's): at rest, also while pressed or with focus; a link pointed at, one level higher; and
+     dragged. */
+  :where(a.card) {
+    transition: box-shadow 0.3s var(--block-ease-quick);
+  }
+  .card-elevated {
+    --card-shadow: var(--card-elevated-shadow, var(--elevation-1));
+  }
+  .card-filled {
+    --card-shadow: var(--card-filled-shadow, var(--elevation-0));
+  }
+  .card-outlined {
+    --card-shadow: var(--card-outlined-shadow, var(--elevation-0));
+  }
+  @media (hover: hover) {
+    a.card-elevated:hover:not(:active, .card-dragged) {
+      --card-shadow: var(--card-elevated-hover-shadow, var(--card-elevated-shadow, var(--elevation-2)));
+    }
+    a.card-filled:hover:not(:active, .card-dragged) {
+      --card-shadow: var(--card-filled-hover-shadow, var(--card-filled-shadow, var(--elevation-1)));
+    }
+    a.card-outlined:hover:not(:active, .card-dragged) {
+      --card-shadow: var(--card-outlined-hover-shadow, var(--card-outlined-shadow, var(--elevation-1)));
+    }
+  }
+  .card-elevated.card-dragged {
+    --card-shadow: var(--card-elevated-dragged-shadow, var(--elevation-4));
+  }
+  .card-filled.card-dragged {
+    --card-shadow: var(--card-filled-dragged-shadow, var(--elevation-3));
+  }
+  .card-outlined.card-dragged {
+    --card-shadow: var(--card-outlined-dragged-shadow, var(--elevation-3));
+  }
+  .card-dragged {
+    cursor: grabbing;
+  }
   .card-elevated {
     background: var(--card-elevated-surface, var(--block-surface));
     box-shadow:
       inset 0 0 0 1px var(--card-elevated-line, transparent),
-      var(--card-elevated-shadow, var(--block-shadow));
+      var(--card-shadow);
   }
   .card-filled {
     background: var(--card-filled-surface, var(--block-tint));
     box-shadow:
       inset 0 0 0 1px var(--card-filled-line, transparent),
-      var(--card-filled-shadow, 0 0 #0000);
+      var(--card-shadow);
   }
   .card-outlined {
     background: var(--card-outlined-surface, var(--block-surface));
     box-shadow:
       inset 0 0 0 1px var(--card-outlined-line, var(--block-line)),
-      var(--card-outlined-shadow, 0 0 #0000);
+      var(--card-shadow);
   }
 
   .list {
@@ -1599,21 +1787,64 @@
   .list > li + li {
     border-top: 1px solid var(--list-divider, var(--block-line));
   }
+  /* --list-item-shape: the item's corners now, by its state (below). */
   .list-item-container {
+    --list-item-shape: var(--list-item-radius, 0);
+    /* The height of its first two lines (the headline and the supporting text's first line), where what stands
+       beside the text stands (below). */
+    --list-item-first-lines: calc(var(--list-item-headline-line-height, 1lh) + var(--list-item-supporting-line-height, 1lh));
     display: flex;
     min-height: var(--list-item-min-height, auto);
     align-items: center;
     gap: var(--list-item-gap, 1.5rem);
-    border-radius: var(--list-item-radius, 0);
+    border-radius: var(--list-item-shape);
     padding: var(--list-item-padding-block, 0.85rem) var(--list-item-padding-inline, 0);
     color: inherit;
     text-decoration: none;
-    transition: background-color 0.3s var(--block-ease);
+    transition:
+      background-color var(--motion-effects),
+      border-radius var(--motion-spatial-fast);
+  }
+  /* Two lines: by its class, or by a supporting text under its headline (an item drawn without ListItem: the editor's
+     rows). */
+  .list-item-two-line,
+  .list-item-container:not(.list-item-three-line):has(> .list-item-content > .list-item-supporting) {
+    min-height: var(--list-item-two-line-min-height, var(--list-item-min-height, auto));
+  }
+  /* Room enough over and under its two lines for its height, so they and what stands beside them are in the middle
+     of an item whose text has no more lines, and at the same place in one whose text runs over more (not with a
+     picture, higher than the lines). */
+  :is(.list-item-two-line, .list-item-container:not(.list-item-three-line):has(> .list-item-content > .list-item-supporting)):not(
+    :has(> :is(.list-item-leading-image, .list-item-leading-video))
+  ) {
+    padding-block: max(
+      var(--list-item-padding-block, 0.85rem),
+      (var(--list-item-two-line-min-height, 0px) - var(--list-item-first-lines)) / 2
+    );
+  }
+  .list-item-three-line {
+    min-height: var(--list-item-three-line-min-height, var(--list-item-min-height, auto));
   }
   .list-item-leading,
   .list-item-trailing {
     display: flex;
     flex-shrink: 0;
+  }
+  /* What stands beside the text (what leads and trails it, a choice) stands in the middle of its first two lines (the
+     headline and the supporting text's first line; of the one, when it has one), and stays there when the text runs
+     over more lines; in an item of three lines at its top (below). */
+  :is(.list-item-leading, .list-item-trailing, .list-item-trailing-supporting, .list-item-control) {
+    align-self: stretch;
+    align-items: center;
+    /* Also beside a text that is not an item's (the editor's rows): the lines' height. */
+    max-height: var(
+      --list-item-first-lines,
+      calc(var(--list-item-headline-line-height, 1lh) + var(--list-item-supporting-line-height, 1lh))
+    );
+  }
+  /* A picture higher than the lines stands in the middle of the item. */
+  :is(.list-item-leading-image, .list-item-leading-video) {
+    max-height: none;
   }
   .list-item-content {
     flex: 1;
@@ -1623,26 +1854,34 @@
   .list-item-supporting {
     display: block;
   }
-  :is(.list-item-two-line, .list-item-three-line) .list-item-headline {
+  /* Columns: on a wide screen the headline and the supporting text side by side, each in half the item's text. */
+  @media (min-width: 48rem) {
+    .list-item-columns .list-item-content {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: baseline;
+      column-gap: 1.5rem;
+    }
+  }
+  .list-item-headline {
+    line-height: var(--list-item-headline-line-height, inherit);
+    letter-spacing: var(--list-item-headline-letter-spacing, inherit);
+    overflow-wrap: anywhere;
+  }
+  :is(.list-item-two-line, .list-item-three-line, .list-item-container:has(> .list-item-content > .list-item-supporting))
+    .list-item-headline {
     font-size: var(--list-item-headline-size, 1.1rem);
     font-weight: var(--list-item-headline-weight, 500);
   }
   .list-item-supporting {
     color: var(--list-item-supporting-text, var(--block-muted));
+    font-size: var(--list-item-supporting-size, inherit);
+    line-height: var(--list-item-supporting-line-height, inherit);
     overflow-wrap: anywhere;
   }
   .list-item-trailing {
     color: var(--list-item-trailing-text, var(--block-muted));
-    transition: transform 0.3s var(--block-ease);
-  }
-  /* A list that is a card (.list.card: the editor's lists in a frame): the lines between its items across it, the items
-     a little in from its edges, and they reach its corners. */
-  .list.card {
-    overflow: hidden;
-    padding: 0;
-  }
-  .list.card > li .list-item-container {
-    padding-inline: var(--list-item-padding-inline, 1rem);
+    transition: transform var(--motion-spatial);
   }
   /* An item that is tapped (a button: the editor's rows) is as one that links. */
   button.list-item-container {
@@ -1650,26 +1889,40 @@
     text-align: start;
     cursor: pointer;
   }
-  button.list-item-container:disabled {
-    opacity: 0.6;
-    cursor: default;
-  }
   :is(a, button:enabled).list-item-container:hover {
     background: var(--list-item-hover-surface, transparent);
     color: var(--list-item-hover-text, var(--block-accent));
   }
   :is(a, button:enabled).list-item-container:hover .list-item-trailing {
-    transform: translateX(3px);
+    transform: translateX(var(--list-item-hover-trailing-shift, 3px));
     color: var(--list-item-hover-text, var(--block-accent));
   }
-  a.list-item-container:hover .list-item-leading-icon {
+  :is(a, button:enabled).list-item-container:hover .list-item-leading-icon {
     color: inherit;
+  }
+  /* Pressed: a stronger state layer. */
+  :is(a, button:enabled).list-item-container:active,
+  .list-item-with-control:not(.list-item-disabled):active {
+    background: var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent));
+  }
+  /* The corners by the state: pointed at, pressed or focused (by the keyboard), and selected (below). */
+  :is(a, button:enabled).list-item-container:hover,
+  .list-item-with-control:not(.list-item-disabled):hover {
+    --list-item-shape: var(--list-item-hover-radius, var(--list-item-radius, 0));
+  }
+  :is(a, button:enabled).list-item-container:is(:active, :focus-visible),
+  .list-item-with-control:not(.list-item-disabled):is(:active, :has(:focus-visible)) {
+    --list-item-shape: var(--list-item-pressed-radius, var(--list-item-hover-radius, var(--list-item-radius, 0)));
   }
 
   /* Three lines: an overline over the headline and one line under it, or two lines under it; what leads and trails
      the item at its top. */
   .list-item-three-line {
     align-items: flex-start;
+  }
+  .list-item-three-line :is(.list-item-leading, .list-item-trailing, .list-item-trailing-supporting, .list-item-control) {
+    align-self: flex-start;
+    max-height: none;
   }
   .list-item-three-line .list-item-supporting {
     display: -webkit-box;
@@ -1683,21 +1936,28 @@
   .list-item-overline {
     display: block;
     color: var(--list-item-overline-text, var(--block-muted));
-    font-size: 0.75rem;
+    font-size: var(--list-item-overline-size, 0.75rem);
+    line-height: var(--list-item-overline-line-height, inherit);
     font-weight: 500;
     letter-spacing: 0.04em;
   }
   .list-item-trailing-supporting {
+    display: flex;
     flex-shrink: 0;
     color: var(--list-item-trailing-text, var(--block-muted));
-    font-size: 0.875rem;
+    font-size: var(--list-item-trailing-supporting-size, 0.875rem);
     font-variant-numeric: tabular-nums;
   }
 
-  /* What leads it, Material's kinds: an icon, an avatar (a letter, or a picture), an image or a video's thumbnail. */
+  /* What leads it, Material's kinds: an icon, an avatar (a letter, or a picture), an image or a video's thumbnail. The
+     icons that lead and trail an item as large as --list-item-icon-size. */
   .list-item-leading-icon {
     color: var(--list-item-leading-icon-color, var(--block-muted));
-    transition: color 0.3s var(--block-ease);
+    transition: color var(--motion-effects);
+  }
+  :is(.list-item-leading-icon, .list-item-trailing) > svg {
+    width: var(--list-item-icon-size, 1.5rem);
+    height: var(--list-item-icon-size, 1.5rem);
   }
   .list-item-avatar {
     display: grid;
@@ -1754,24 +2014,70 @@
     color: var(--list-item-hover-text, var(--block-accent));
   }
 
+  /* A multi-action item (Material's, List.tsx's listItemMultiActionClass): its primary action, an item's container (a
+     link or a button), and its secondary actions (icon buttons, a switch) beside it, on one row that has the primary
+     action's state layer and corners, so pointing at the item shows the whole item; the secondary actions have their
+     own. */
+  .list-item-multi-action {
+    --list-item-shape: var(--list-item-radius, 0);
+    display: flex;
+    align-items: center;
+    border-radius: var(--list-item-shape);
+    transition:
+      background-color var(--motion-effects),
+      border-radius var(--motion-spatial-fast);
+  }
+  .list-item-multi-action > .list-item-container {
+    flex: 1;
+    min-width: 0;
+    border-radius: inherit;
+  }
+  .list-item-multi-action > :is(a, button:enabled).list-item-container:is(:hover, :active) {
+    background: transparent;
+  }
+  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:hover) {
+    --list-item-shape: var(--list-item-hover-radius, var(--list-item-radius, 0));
+    background: var(--list-item-hover-surface, transparent);
+  }
+  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:is(:active, :focus-visible)) {
+    --list-item-shape: var(--list-item-pressed-radius, var(--list-item-hover-radius, var(--list-item-radius, 0)));
+  }
+  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:active) {
+    background: var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent));
+  }
+
   /* Selected, and disabled. */
   .list-item-selected {
+    --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
     background: var(--list-item-selected-surface, transparent);
     color: var(--list-item-selected-text, var(--block-accent));
   }
   .list-item-selected .list-item-headline {
     font-weight: var(--list-item-selected-weight, 500);
   }
-  .list-item-selected .list-item-leading-icon {
+  .list-item-selected :is(.list-item-leading-icon, .list-item-supporting, .list-item-overline, .list-item-trailing),
+  .list-item-selected .list-item-trailing-supporting {
     color: inherit;
+  }
+  /* A selected item pointed at or pressed: the state layer over its surface. */
+  :is(a, button:enabled).list-item-container.list-item-selected:hover {
+    background: linear-gradient(var(--list-item-hover-surface, transparent) 0 0), var(--list-item-selected-surface, transparent);
+  }
+  :is(a, button:enabled).list-item-container.list-item-selected:active {
+    background:
+      linear-gradient(var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)) 0 0),
+      var(--list-item-selected-surface, transparent);
   }
   /* The open one's icon, where the item is not drawn selected (ListItemLeadingIcon's `selected`: the editor's open part). */
   .list-item-leading-icon-selected {
-    color: var(--list-item-selected-text, var(--block-accent));
+    color: var(--list-item-leading-icon-selected-color, var(--list-item-selected-text, var(--block-accent)));
   }
-  .list-item-disabled {
+  /* Disabled: what is in it faded (its choice fades by itself), an item that is tapped (a button) too. */
+  .list-item-disabled > :not(.list-item-control),
+  button.list-item-container:disabled > * {
     opacity: var(--list-item-disabled-opacity, 0.6);
   }
+  button.list-item-container:disabled,
   .list-item-disabled .list-item-content {
     cursor: default;
   }
@@ -1782,7 +2088,7 @@
     --list-item-leading-room: 0px;
   }
   .list > li:has(> * > :is(.list-item-leading, .list-item-control:first-child)) {
-    --list-item-leading-room: calc(var(--list-item-leading-size, 1.5rem) + var(--list-item-gap, 1.5rem));
+    --list-item-leading-room: calc(var(--list-item-leading-size, var(--list-item-icon-size, 1.5rem)) + var(--list-item-gap, 1.5rem));
   }
   .list > li:has(> * > .list-item-leading-avatar) {
     --list-item-leading-size: var(--list-item-avatar-size, 2.5rem);
@@ -1808,33 +2114,92 @@
     margin-inline: var(--divider-inset, 1rem);
   }
 
-  /* Segmented (M3 Expressive): each item on its own surface, a small gap between them, the list's corners round and
-     the corners between the items small; a chosen one on the secondary container. */
+  /* Segmented (M3 Expressive): each item (its <li>) on its own surface, a small gap between them, the list's corners
+     round and the corners between the items small, rounder while the item is pointed at, pressed or focused, and
+     selected; a chosen one on the secondary container. The item's container has its corners, and is the state layer
+     over the surface when pointed at. */
   .list-segmented {
     display: flex;
     flex-direction: column;
     gap: var(--list-segmented-gap, 0.1875rem);
   }
-  .list-segmented > li > .list-item-container {
-    border-radius: var(--list-segmented-inner-radius, 0.25rem);
+  .list-segmented > li {
+    --list-item-shape: var(--list-segmented-inner-radius, 0.25rem);
+    border-radius: var(--list-item-shape);
     background: var(--list-segmented-surface, var(--block-tint));
-    padding-inline: var(--list-segmented-padding-inline, 1rem);
+    transition:
+      background-color var(--motion-effects),
+      border-radius var(--motion-spatial-fast);
   }
-  .list-segmented > li:first-child > .list-item-container {
-    border-start-start-radius: var(--list-segmented-radius, var(--block-radius-small));
-    border-start-end-radius: var(--list-segmented-radius, var(--block-radius-small));
+  .list-segmented
+    > li:has(
+      > :is(a, button:enabled).list-item-container:hover,
+      > .list-item-with-control:not(.list-item-disabled):hover,
+      > .list-item-multi-action > :is(a, button:enabled).list-item-container:hover
+    ) {
+    --list-item-shape: var(--list-segmented-hover-radius, var(--list-segmented-inner-radius, 0.25rem));
   }
-  .list-segmented > li:last-child > .list-item-container {
-    border-end-start-radius: var(--list-segmented-radius, var(--block-radius-small));
-    border-end-end-radius: var(--list-segmented-radius, var(--block-radius-small));
+  .list-segmented
+    > li:has(
+      > :is(a, button:enabled).list-item-container:is(:active, :focus-visible),
+      > .list-item-with-control:not(.list-item-disabled):active,
+      > .list-item-with-control:not(.list-item-disabled) :focus-visible,
+      > .list-item-multi-action > :is(a, button:enabled).list-item-container:is(:active, :focus-visible)
+    ) {
+    --list-item-shape: var(
+      --list-segmented-pressed-radius,
+      var(--list-segmented-hover-radius, var(--list-segmented-inner-radius, 0.25rem))
+    );
   }
-  .list-segmented > li > :is(a.list-item-container, .list-item-with-control:not(.list-item-disabled)):hover {
-    background: var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 5%, var(--block-tint)));
-  }
-  .list-segmented > li > :is(.list-item-selected, .list-item-with-control:has(:checked)) {
-    border-radius: var(--list-segmented-selected-radius, var(--list-segmented-radius, var(--block-radius-small)));
+  /* (A :has() cannot be in another one: the checked choice in it as a descendant.) */
+  .list-segmented > li:has(> .list-item-selected, > .list-item-with-control :checked) {
+    --list-item-shape: var(--list-segmented-selected-radius, var(--list-segmented-radius, var(--block-radius-small)));
     background: var(--list-segmented-selected-surface, var(--secondary-container));
     color: var(--list-segmented-selected-text, var(--on-secondary-container));
+  }
+  /* The first and the last item with the list's corners outside, whatever their state. */
+  .list-segmented > li:first-child {
+    border-start-start-radius: max(var(--list-item-shape), var(--list-segmented-radius, var(--block-radius-small)));
+    border-start-end-radius: max(var(--list-item-shape), var(--list-segmented-radius, var(--block-radius-small)));
+  }
+  .list-segmented > li:last-child {
+    border-end-start-radius: max(var(--list-item-shape), var(--list-segmented-radius, var(--block-radius-small)));
+    border-end-end-radius: max(var(--list-item-shape), var(--list-segmented-radius, var(--block-radius-small)));
+  }
+  .list-segmented > li > .list-item-container {
+    border-radius: inherit;
+    padding-inline: var(--list-segmented-padding-inline, 1rem);
+  }
+  .list-segmented > li > :is(a, button:enabled).list-item-container:hover,
+  .list-segmented > li > .list-item-with-control:not(.list-item-disabled):hover {
+    background: var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 5%, transparent));
+  }
+  .list-segmented > li > :is(a, button:enabled).list-item-container:active,
+  .list-segmented > li > .list-item-with-control:not(.list-item-disabled):active {
+    background: var(
+      --list-segmented-pressed-surface,
+      var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 5%, transparent))
+    );
+  }
+  .list-segmented > li > .list-item-multi-action {
+    border-radius: inherit;
+  }
+  .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:hover) {
+    background: var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 5%, transparent));
+  }
+  .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:active) {
+    background: var(
+      --list-segmented-pressed-surface,
+      var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 5%, transparent))
+    );
+  }
+  /* A disabled item on its own surface (M3 Expressive: a faint layer of the text's colour). */
+  .list-segmented > li:has(> .list-item-disabled, > button.list-item-container:disabled) {
+    background: var(--list-segmented-disabled-surface, var(--list-segmented-surface, var(--block-tint)));
+  }
+  .list-segmented > li > :is(.list-item-selected, .list-item-with-control:has(:checked)) {
+    background: transparent;
+    color: inherit;
   }
 }
 
@@ -1856,7 +2221,8 @@
   .top-app-bar-large-flexible (a larger headline under the bar, wrapping; in the bar once [data-collapsed]); with
   .top-app-bar-center the headline (or the search bar's text) in the middle.
     --top-app-bar-surface, --top-app-bar-line, --top-app-bar-line-width, --top-app-bar-backdrop
-    --top-app-bar-stuck-surface, --top-app-bar-stuck-line, --top-app-bar-stuck-shadow
+    --top-app-bar-stuck-surface, --top-app-bar-stuck-line, --top-app-bar-stuck-shadow   (the shadow: level 2, M3's on
+                     scroll; a theme that shows it by the surface alone, as the standard theme does, sets none)
     --top-app-bar-height, --top-app-bar-padding, --top-app-bar-gap   the bar's height, the room at its sides and between
                      its elements
     --top-app-bar-headline-color, --top-app-bar-headline-weight, --top-app-bar-headline-letter-spacing,
@@ -1876,7 +2242,7 @@
   .dropdown-menu, its button and its .menu (.dropdown-menu-menu) under it; the menus a button or an item opens are
   popovers, placed with CSS anchor positioning (else by ui/dropdownMenu.script.ts).
     --menu-width, --menu-min-width, --menu-max-width, --menu-max-height, --menu-radius, --menu-surface, --menu-line,
-    --menu-shadow, --menu-padding
+    --menu-shadow (level 2), --menu-padding
     --menu-item-height, --menu-item-padding, --menu-item-radius, --menu-item-gap, --menu-item-font-size,
     --menu-item-letter-spacing, --menu-item-text, --menu-item-icon-color, --menu-item-supporting-text,
     --menu-item-hover-surface, --menu-item-hover-text, --menu-item-pressed-surface, --menu-item-selected-surface,
@@ -1896,8 +2262,8 @@
   or a button: the editor's) ([data-active]: the open one, or the one holding it); .navigation-drawer-row, an item
   with .navigation-drawer-toggle after it (it unfolds its sub-pages, aria-expanded); .navigation-drawer-subitem, a
   sub-page ([data-active]).
-    --navigation-drawer-width, --navigation-drawer-radius, --navigation-drawer-surface, --navigation-drawer-shadow,
-    --navigation-drawer-scrim
+    --navigation-drawer-width, --navigation-drawer-radius, --navigation-drawer-surface, --navigation-drawer-shadow
+    (level 1), --navigation-drawer-scrim
     --navigation-drawer-item-height, -padding, -radius, -font-size, -line-height, -letter-spacing, -weight, -text,
     -hover, -active-surface, -active-text, -active-weight
     --navigation-drawer-row-gap, --navigation-drawer-toggle-size, --navigation-drawer-toggle-hover
@@ -1924,7 +2290,9 @@
   .fab-primary-container (the accent's container), .fab-secondary-container or .fab-tertiary-container, from the
   site's colours of those names.
     --fab-size, --fab-radius, --fab-padding, --fab-gap, --fab-icon-size, --fab-shadow, --fab-hover-shadow,
-    --fab-label-font-size, --fab-label-weight, --fab-label-letter-spacing   the FAB and the small extended FAB
+    --fab-label-font-size, --fab-label-weight, --fab-label-letter-spacing   the FAB and the small extended FAB (the
+                     shadows of every size: level 3, level 4 when pointed at, as at rest while pressed; a theme that
+                     sets only the one at rest keeps it)
     --fab-medium-size, -radius, -icon-size, -padding, -gap, -label-font-size, -label-line-height, -label-weight,
     -label-letter-spacing   the medium FAB and extended FAB (padding, gap and label: the extended one's)
     --fab-large-…   the same for the large ones
@@ -1938,14 +2306,14 @@
     background: var(--top-app-bar-surface, color-mix(in oklab, var(--bg) 85%, transparent));
     backdrop-filter: var(--top-app-bar-backdrop, blur(16px));
     transition:
-      background-color 0.3s var(--block-ease-quick),
-      border-color 0.3s var(--block-ease-quick),
-      box-shadow 0.3s var(--block-ease-quick);
+      background-color var(--motion-effects),
+      border-color var(--motion-effects),
+      box-shadow var(--motion-effects);
   }
   .top-app-bar[data-stuck] {
     border-color: var(--top-app-bar-stuck-line, color-mix(in oklab, var(--line) 60%, transparent));
     background: var(--top-app-bar-stuck-surface, var(--top-app-bar-surface, color-mix(in oklab, var(--bg) 85%, transparent)));
-    box-shadow: var(--top-app-bar-stuck-shadow, var(--shadow));
+    box-shadow: var(--top-app-bar-stuck-shadow, var(--elevation-2));
   }
   /* With a kind: the leading button, the headline (or the search bar) and the trailing elements in a row, and what else
      is in it under them. */
@@ -2076,7 +2444,7 @@
     padding: var(--menu-padding, 0.5rem);
     box-shadow:
       0 0 0 1px var(--menu-line, var(--block-line)),
-      var(--menu-shadow, var(--block-shadow));
+      var(--menu-shadow, var(--elevation-2));
   }
   .menu-item {
     display: flex;
@@ -2089,8 +2457,8 @@
     font-size: var(--menu-item-font-size, 0.95rem);
     letter-spacing: var(--menu-item-letter-spacing, normal);
     transition:
-      background-color 0.15s var(--block-ease-quick),
-      color 0.15s var(--block-ease-quick);
+      background-color var(--motion-effects-fast),
+      color var(--motion-effects-fast);
   }
   /* An item that is tapped (a button: the editor's menus and the choices in its sheets): across the menu, its icon before
      its text; the chosen one with aria-checked, aria-pressed or aria-selected. */
@@ -2110,7 +2478,7 @@
     color: var(--menu-item-hover-text, var(--block-accent));
   }
   .menu-item:active {
-    background: var(--menu-item-pressed-surface, color-mix(in srgb, var(--block-text) 6%, var(--block-tint)));
+    background: var(--menu-item-pressed-surface, var(--menu-item-hover-surface, var(--block-tint)));
   }
   .menu-item:is(:disabled, [aria-disabled='true']) {
     opacity: var(--menu-item-disabled-opacity, 0.5);
@@ -2145,7 +2513,7 @@
   .menu-item-trailing-icon {
     flex-shrink: 0;
     color: var(--menu-item-icon-color, var(--block-muted));
-    transition: color 0.15s var(--block-ease-quick);
+    transition: color var(--motion-effects-fast);
   }
   .menu-item:is(:hover, [aria-expanded='true']) :is(.menu-item-icon, .menu-item-trailing-icon),
   .menu-item:is([aria-current='page'], [aria-current='true'], [aria-checked='true'], [aria-selected='true']) .menu-item-icon {
@@ -2180,7 +2548,7 @@
     font-variant-numeric: tabular-nums;
   }
   .menu-item-submenu-icon {
-    transition: translate 0.2s var(--block-ease-quick);
+    transition: translate var(--motion-spatial-fast);
   }
   .menu-item[aria-expanded='true'] .menu-item-submenu-icon {
     translate: 2px 0;
@@ -2211,7 +2579,7 @@
     padding: var(--menu-padding, 0.5rem);
     box-shadow:
       0 0 0 1px var(--menu-line, var(--block-line)),
-      var(--menu-shadow, var(--block-shadow));
+      var(--menu-shadow, var(--elevation-2));
   }
   .menu:has(> .menu-group):not(.menu-groups-divider) > .menu-group:first-child {
     border-start-start-radius: var(--menu-radius, var(--block-radius-small));
@@ -2240,7 +2608,6 @@
     --menu-item-supporting-text: color-mix(in srgb, var(--menu-vibrant-text, var(--block-on-accent)) 80%, transparent);
     --menu-item-hover-surface: color-mix(in srgb, var(--menu-vibrant-text, var(--block-on-accent)) 14%, transparent);
     --menu-item-hover-text: var(--menu-vibrant-text, var(--block-on-accent));
-    --menu-item-pressed-surface: color-mix(in srgb, var(--menu-vibrant-text, var(--block-on-accent)) 22%, transparent);
     --menu-item-selected-surface: var(--menu-vibrant-selected-surface, var(--block-on-accent));
     --menu-item-selected-text: var(--menu-vibrant-selected-text, var(--block-accent));
     --menu-group-label-text: color-mix(in srgb, var(--menu-vibrant-text, var(--block-on-accent)) 80%, transparent);
@@ -2262,10 +2629,10 @@
     border: 0;
     color: var(--block-text);
     transition:
-      opacity 0.15s var(--block-ease-quick),
-      scale 0.15s var(--block-ease-quick),
-      overlay 0.15s allow-discrete,
-      display 0.15s allow-discrete;
+      opacity var(--motion-effects-fast),
+      scale var(--motion-spatial-fast),
+      overlay var(--motion-spatial-fast-duration) allow-discrete,
+      display var(--motion-spatial-fast-duration) allow-discrete;
   }
   /* Closed, also when its groups lay it out (display: flex). */
   .menu[popover]:not(:popover-open) {
@@ -2302,7 +2669,7 @@
     display: inline-block;
   }
   .dropdown-menu .button-trailing-icon {
-    transition: rotate 0.2s var(--block-ease-quick);
+    transition: rotate var(--motion-spatial-fast);
   }
   .dropdown-menu > [aria-expanded='true'] .button-trailing-icon {
     rotate: 180deg;
@@ -2351,7 +2718,7 @@
     color: var(--exposed-dropdown-menu-icon-color, var(--text-field-label-color, var(--block-muted)));
     pointer-events: none;
     translate: 0 -50%;
-    transition: rotate 0.2s var(--block-ease-quick);
+    transition: rotate var(--motion-spatial-fast);
   }
   .exposed-dropdown-menu-select:disabled ~ .exposed-dropdown-menu-icon {
     opacity: 0.6;
@@ -2389,7 +2756,7 @@
       padding: var(--menu-padding, 0.5rem);
       box-shadow:
         0 0 0 1px var(--menu-line, var(--block-line)),
-        var(--menu-shadow, var(--block-shadow));
+        var(--menu-shadow, var(--elevation-2));
       color: var(--block-text);
     }
     .exposed-dropdown-menu-option {
@@ -2401,8 +2768,8 @@
       letter-spacing: var(--menu-item-letter-spacing, normal);
       cursor: pointer;
       transition:
-        background-color 0.15s var(--block-ease-quick),
-        color 0.15s var(--block-ease-quick);
+        background-color var(--motion-effects-fast),
+        color var(--motion-effects-fast);
     }
     .exposed-dropdown-menu-option::checkmark {
       display: none;
@@ -2435,7 +2802,7 @@
     overflow-y: auto;
     border-radius: var(--navigation-drawer-radius, 0);
     background: var(--navigation-drawer-surface, var(--bg));
-    box-shadow: var(--navigation-drawer-shadow, -24px 0 48px -24px rgb(0 0 0 / 0.35));
+    box-shadow: var(--navigation-drawer-shadow, var(--elevation-1));
   }
   .navigation-drawer-item {
     display: flex;
@@ -2451,8 +2818,8 @@
     letter-spacing: var(--navigation-drawer-item-letter-spacing, -0.025em);
     font-weight: var(--navigation-drawer-item-weight, inherit);
     transition:
-      background-color 0.15s var(--block-ease-quick),
-      color 0.15s var(--block-ease-quick);
+      background-color var(--motion-effects-fast),
+      color var(--motion-effects-fast);
   }
   button.navigation-drawer-item {
     width: 100%;
@@ -2499,13 +2866,13 @@
     place-items: center;
     border-radius: 9999px;
     cursor: pointer;
-    transition: background-color 0.15s var(--block-ease-quick);
+    transition: background-color var(--motion-effects-fast);
   }
   .navigation-drawer-toggle:hover {
     background: var(--navigation-drawer-toggle-hover, var(--block-tint));
   }
   .navigation-drawer-toggle > svg {
-    transition: rotate 0.3s var(--block-ease-quick);
+    transition: rotate var(--motion-spatial);
   }
   .navigation-drawer-toggle[aria-expanded='true'] > svg {
     rotate: 180deg;
@@ -2518,7 +2885,7 @@
     padding: var(--navigation-drawer-subitem-padding, 0.625rem 0.75rem 0.625rem 1rem);
     color: var(--navigation-drawer-subitem-text, color-mix(in oklab, var(--block-text) 80%, transparent));
     font-size: var(--navigation-drawer-subitem-font-size, 1.05rem);
-    transition: color 0.15s var(--block-ease-quick);
+    transition: color var(--motion-effects-fast);
   }
   .navigation-drawer-subitem:hover,
   .navigation-drawer-subitem[data-active] {
@@ -2550,8 +2917,8 @@
     font-size: var(--tab-font-size, 0.9375rem);
     font-weight: var(--tab-weight, 500);
     transition:
-      background-color 0.2s var(--block-ease),
-      color 0.2s var(--block-ease);
+      background-color var(--motion-effects),
+      color var(--motion-effects);
   }
   .tab:hover {
     background: var(--tab-hover-surface, color-mix(in srgb, var(--block-text) 6%, transparent));
@@ -2613,7 +2980,7 @@
     justify-content: center;
   }
   :is(.tabs-primary, .tabs-secondary) .tab:active {
-    background: var(--tab-pressed-surface, color-mix(in srgb, var(--block-text) 10%, transparent));
+    background: var(--tab-pressed-surface, var(--tab-hover-surface, color-mix(in srgb, var(--block-text) 6%, transparent)));
   }
   :is(.tabs-primary, .tabs-secondary) .tab:is(:disabled, [aria-disabled='true']) {
     opacity: var(--tab-disabled-opacity, 0.45);
@@ -2634,7 +3001,7 @@
     background: var(--tab-indicator, var(--block-accent));
     content: '';
     transform: scaleX(0);
-    transition: transform 0.25s var(--block-ease);
+    transition: transform var(--motion-spatial);
   }
   .tabs-primary .tab-content::after {
     left: 0.125rem;
@@ -2695,11 +3062,11 @@
     justify-content: center;
     border-radius: var(--fab-radius, var(--block-radius-small));
     padding: 0 var(--fab-padding, 1rem);
-    box-shadow: var(--fab-shadow, var(--block-shadow));
+    box-shadow: var(--fab-shadow, var(--elevation-3));
     transition:
-      box-shadow 0.2s var(--block-ease),
-      background-color 0.2s var(--block-ease),
-      padding 0.3s var(--block-ease);
+      box-shadow var(--motion-effects),
+      background-color var(--motion-effects),
+      padding var(--motion-spatial);
   }
   .fab {
     padding: 0;
@@ -2712,7 +3079,11 @@
   }
   .fab:hover,
   .extended-fab:hover {
-    box-shadow: var(--fab-hover-shadow, var(--fab-shadow, var(--block-shadow)));
+    box-shadow: var(--fab-hover-shadow, var(--fab-shadow, var(--elevation-4)));
+  }
+  .fab:active,
+  .extended-fab:active {
+    box-shadow: var(--fab-shadow, var(--elevation-3));
   }
   /* The medium and the large size (M3 Expressive): taller, with rounder corners and a larger icon, the theme's corners
      scaled as Material's are (16, 20 and 28px). */
@@ -2746,7 +3117,7 @@
   }
 
   /* The colours (M3 Expressive): filled in primary, secondary or tertiary, or tonal in their containers; a state layer
-     of the text's colour when pointed at and pressed. */
+     of the text's colour when pointed at, and pressed under the ripple. */
   .fab-primary {
     background: var(--fab-primary-surface, var(--block-accent));
     color: var(--fab-primary-text, var(--block-on-accent));
@@ -2765,7 +3136,7 @@
     background: var(--fab-secondary-hover, color-mix(in srgb, var(--on-secondary) 8%, var(--secondary)));
   }
   .fab-secondary:active {
-    background: var(--fab-secondary-pressed, color-mix(in srgb, var(--on-secondary) 12%, var(--secondary)));
+    background: var(--fab-secondary-pressed, var(--fab-secondary-hover, color-mix(in srgb, var(--on-secondary) 8%, var(--secondary))));
   }
   .fab-tertiary {
     background: var(--fab-tertiary-surface, var(--tertiary));
@@ -2775,7 +3146,7 @@
     background: var(--fab-tertiary-hover, color-mix(in srgb, var(--on-tertiary) 8%, var(--tertiary)));
   }
   .fab-tertiary:active {
-    background: var(--fab-tertiary-pressed, color-mix(in srgb, var(--on-tertiary) 12%, var(--tertiary)));
+    background: var(--fab-tertiary-pressed, var(--fab-tertiary-hover, color-mix(in srgb, var(--on-tertiary) 8%, var(--tertiary))));
   }
   .fab-primary-container {
     background: var(--fab-primary-container-surface, var(--accent-container));
@@ -2785,7 +3156,10 @@
     background: var(--fab-primary-container-hover, color-mix(in srgb, var(--on-accent-container) 8%, var(--accent-container)));
   }
   .fab-primary-container:active {
-    background: var(--fab-primary-container-pressed, color-mix(in srgb, var(--on-accent-container) 12%, var(--accent-container)));
+    background: var(
+      --fab-primary-container-pressed,
+      var(--fab-primary-container-hover, color-mix(in srgb, var(--on-accent-container) 8%, var(--accent-container)))
+    );
   }
   .fab-secondary-container {
     background: var(--fab-secondary-container-surface, var(--secondary-container));
@@ -2795,7 +3169,10 @@
     background: var(--fab-secondary-container-hover, color-mix(in srgb, var(--on-secondary-container) 8%, var(--secondary-container)));
   }
   .fab-secondary-container:active {
-    background: var(--fab-secondary-container-pressed, color-mix(in srgb, var(--on-secondary-container) 12%, var(--secondary-container)));
+    background: var(
+      --fab-secondary-container-pressed,
+      var(--fab-secondary-container-hover, color-mix(in srgb, var(--on-secondary-container) 8%, var(--secondary-container)))
+    );
   }
   .fab-tertiary-container {
     background: var(--fab-tertiary-container-surface, var(--tertiary-container));
@@ -2805,7 +3182,10 @@
     background: var(--fab-tertiary-container-hover, color-mix(in srgb, var(--on-tertiary-container) 8%, var(--tertiary-container)));
   }
   .fab-tertiary-container:active {
-    background: var(--fab-tertiary-container-pressed, color-mix(in srgb, var(--on-tertiary-container) 12%, var(--tertiary-container)));
+    background: var(
+      --fab-tertiary-container-pressed,
+      var(--fab-tertiary-container-hover, color-mix(in srgb, var(--on-tertiary-container) 8%, var(--tertiary-container)))
+    );
   }
 
   /* An extended FAB's label, in its size's type style (the small: title medium; medium: title large; large: headline
@@ -2819,9 +3199,9 @@
     font-weight: var(--fab-label-weight, 500);
     letter-spacing: var(--fab-label-letter-spacing, normal);
     transition:
-      max-width 0.3s var(--block-ease),
-      padding 0.3s var(--block-ease),
-      opacity 0.2s var(--block-ease);
+      max-width var(--motion-spatial),
+      padding var(--motion-spatial),
+      opacity var(--motion-effects);
   }
   .extended-fab-medium > .extended-fab-label {
     max-width: 20rem;
@@ -2905,13 +3285,13 @@
   }
   .button-group > :is(.button, .icon-button) {
     transition:
-      background-color 0.3s var(--block-ease),
-      color 0.3s var(--block-ease),
-      transform 0.3s var(--block-ease),
-      box-shadow 0.3s var(--block-ease),
-      border-radius 0.3s var(--block-ease),
-      padding 0.3s var(--block-ease),
-      width 0.3s var(--block-ease);
+      background-color var(--motion-effects),
+      color var(--motion-effects),
+      transform var(--motion-spatial-fast),
+      box-shadow var(--motion-effects),
+      border-radius var(--motion-spatial-fast),
+      padding var(--motion-spatial-fast),
+      width var(--motion-spatial-fast);
   }
   /* Pressed, a button in a standard group is 15 % wider and its neighbours narrower, so the group keeps its width. */
   @media (prefers-reduced-motion: no-preference) {
@@ -2954,13 +3334,13 @@
   }
   /* A toggle that is on (its colours are the button's): with the selected corners, fully round in a connected group. */
   .button-group > [aria-pressed='true'] {
-    border-radius: var(--button-group-selected-radius, var(--button-radius, var(--block-control-radius)));
+    border-radius: var(--button-group-selected-radius, var(--button-round, var(--icon-button-round)));
   }
   .button-group-connected > .button[aria-pressed='true'] {
-    border-radius: var(--button-radius, var(--block-control-radius));
+    border-radius: var(--button-round);
   }
   .button-group-connected > .icon-button[aria-pressed='true'] {
-    border-radius: 9999px;
+    border-radius: var(--icon-button-round);
   }
 
   /* Segmented buttons (m3.material.io/components/segmented-buttons): the choices side by side in one frame, each as
@@ -2998,8 +3378,8 @@
     white-space: nowrap;
     cursor: pointer;
     transition:
-      background-color 0.3s var(--block-ease),
-      color 0.3s var(--block-ease);
+      background-color var(--motion-effects),
+      color var(--motion-effects);
   }
   .segmented-button-segment + .segmented-button-segment {
     border-inline-start: 1px solid var(--segmented-button-line, var(--button-outlined-line, var(--block-line)));
@@ -3074,7 +3454,7 @@
     border-radius: 9999px;
   }
   .split-button-arrow {
-    transition: rotate 0.3s var(--block-ease-quick);
+    transition: rotate var(--motion-spatial);
   }
   [aria-expanded='true'] > .split-button-arrow {
     rotate: 180deg;
@@ -3085,8 +3465,8 @@
     inset-inline-end: 0;
     z-index: 20;
     transition:
-      opacity 0.2s var(--block-ease),
-      translate 0.2s var(--block-ease);
+      opacity var(--motion-effects),
+      translate var(--motion-spatial-fast);
   }
   .split-button-menu[hidden] {
     display: none;
@@ -3131,8 +3511,8 @@
   }
   .fab-menu-list > li {
     transition:
-      opacity 0.2s var(--block-ease),
-      translate 0.3s var(--block-ease);
+      opacity var(--motion-effects),
+      translate var(--motion-spatial);
   }
   @starting-style {
     .fab-menu-list > li {
@@ -3155,18 +3535,18 @@
   }
   .fab-menu-button {
     transition:
-      box-shadow 0.2s var(--block-ease),
-      background-color 0.2s var(--block-ease),
-      color 0.2s var(--block-ease),
-      height 0.3s var(--block-ease),
-      min-width 0.3s var(--block-ease),
-      border-radius 0.3s var(--block-ease);
+      box-shadow var(--motion-effects),
+      background-color var(--motion-effects),
+      color var(--motion-effects),
+      height var(--motion-spatial),
+      min-width var(--motion-spatial),
+      border-radius var(--motion-spatial);
   }
   /* Open, the FAB of any size is the close button: round, in the FAB's size, in the set's filled colour. */
   .fab-menu-button[aria-expanded='true'] {
     height: var(--fab-menu-close-size, var(--fab-size, 3.5rem));
     min-width: var(--fab-menu-close-size, var(--fab-size, 3.5rem));
-    border-radius: var(--fab-menu-close-radius, 9999px);
+    border-radius: var(--fab-menu-close-radius, calc(var(--fab-menu-close-size, var(--fab-size, 3.5rem)) / 2));
   }
   .fab-menu-button[aria-expanded='true'] > svg {
     width: var(--fab-menu-close-icon-size, var(--fab-icon-size, 1.5rem));
@@ -3190,7 +3570,7 @@
     background: var(--fab-secondary-hover, color-mix(in srgb, var(--on-secondary) 8%, var(--secondary)));
   }
   .fab-menu-secondary > .fab-menu-button[aria-expanded='true']:active {
-    background: var(--fab-secondary-pressed, color-mix(in srgb, var(--on-secondary) 12%, var(--secondary)));
+    background: var(--fab-secondary-pressed, var(--fab-secondary-hover, color-mix(in srgb, var(--on-secondary) 8%, var(--secondary))));
   }
   .fab-menu-tertiary > .fab-menu-button[aria-expanded='true'] {
     background: var(--fab-tertiary-surface, var(--tertiary));
@@ -3200,7 +3580,7 @@
     background: var(--fab-tertiary-hover, color-mix(in srgb, var(--on-tertiary) 8%, var(--tertiary)));
   }
   .fab-menu-tertiary > .fab-menu-button[aria-expanded='true']:active {
-    background: var(--fab-tertiary-pressed, color-mix(in srgb, var(--on-tertiary) 12%, var(--tertiary)));
+    background: var(--fab-tertiary-pressed, var(--fab-tertiary-hover, color-mix(in srgb, var(--on-tertiary) 8%, var(--tertiary))));
   }
   @media (prefers-reduced-motion: reduce) {
     .fab-menu-button {
@@ -3209,7 +3589,7 @@
   }
   .fab-menu-button > .fab-menu-close-icon {
     display: none;
-    transition: rotate 0.3s var(--block-ease);
+    transition: rotate var(--motion-spatial);
   }
   .fab-menu-button[aria-expanded='true'] > .fab-menu-icon {
     display: none;
@@ -3371,7 +3751,7 @@
     place-items: center;
     border-radius: 9999px;
     background: var(--switch-handle-surface, var(--block-surface));
-    box-shadow: var(--switch-handle-shadow, var(--block-shadow));
+    box-shadow: var(--switch-handle-shadow, var(--elevation-1));
     color: var(--switch-icon-color, var(--block-muted));
     pointer-events: none;
     translate: -50% -50%;
@@ -3403,15 +3783,15 @@
   @media (prefers-reduced-motion: no-preference) {
     .switch-input {
       transition:
-        background-color 0.2s var(--block-ease),
-        box-shadow 0.2s var(--block-ease);
+        background-color var(--motion-effects),
+        box-shadow var(--motion-effects);
     }
     .switch-handle {
       transition:
-        left 0.3s var(--block-ease),
-        width 0.2s var(--block-ease),
-        height 0.2s var(--block-ease),
-        background-color 0.2s var(--block-ease);
+        left var(--motion-spatial),
+        width var(--motion-spatial-fast),
+        height var(--motion-spatial-fast),
+        background-color var(--motion-effects);
     }
   }
 
@@ -3676,7 +4056,7 @@
     border: var(--slider-handle-line-width, 0.1875rem) solid var(--slider-handle-line, var(--block-surface));
     border-radius: var(--slider-handle-radius, 9999px);
     background: var(--slider-handle-surface, var(--block-accent));
-    box-shadow: var(--slider-handle-shadow, var(--block-shadow));
+    box-shadow: var(--slider-handle-shadow, var(--elevation-1));
     pointer-events: auto;
     cursor: grab;
   }
@@ -3687,7 +4067,7 @@
     border: var(--slider-handle-line-width, 0.1875rem) solid var(--slider-handle-line, var(--block-surface));
     border-radius: var(--slider-handle-radius, 9999px);
     background: var(--slider-handle-surface, var(--block-accent));
-    box-shadow: var(--slider-handle-shadow, var(--block-shadow));
+    box-shadow: var(--slider-handle-shadow, var(--elevation-1));
     pointer-events: auto;
     cursor: grab;
   }
@@ -3772,7 +4152,7 @@
   }
   @media (prefers-reduced-motion: no-preference) {
     .slider-value {
-      transition: opacity 0.15s var(--block-ease);
+      transition: opacity var(--motion-effects-fast);
     }
   }
 
@@ -3824,7 +4204,7 @@
     border-start-start-radius: var(--side-sheet-radius, var(--block-radius));
     border-end-start-radius: var(--side-sheet-radius, var(--block-radius));
     background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--block-surface)));
-    box-shadow: var(--side-sheet-shadow, var(--block-shadow));
+    box-shadow: var(--side-sheet-shadow, var(--elevation-1));
   }
   .side-sheet-header {
     display: flex;
@@ -3879,7 +4259,7 @@
   }
   @media (prefers-reduced-motion: no-preference) {
     .side-sheet[open]::backdrop {
-      animation: dialog-scrim-in 0.4s ease;
+      animation: dialog-scrim-in var(--motion-effects-slow);
     }
   }
 }
@@ -4030,14 +4410,14 @@
     left: 0;
     width: calc(var(--progress, 0) * 100%);
     background: var(--linear-progress-indicator-active, var(--block-accent));
-    transition: width 0.3s var(--block-ease);
+    transition: width var(--motion-spatial);
   }
   /* The gap only once there is something before it. */
   .linear-progress-indicator-track {
     right: 0;
     left: calc(var(--progress, 0) * 100% + var(--linear-progress-indicator-gap, 0.25rem) * min(1, var(--progress, 0) * 1000));
     background: var(--linear-progress-indicator-track, var(--block-tint));
-    transition: left 0.3s var(--block-ease);
+    transition: left var(--motion-spatial);
   }
   .linear-progress-indicator-stop {
     position: absolute;
@@ -4082,7 +4462,7 @@
   .circular-progress-indicator-active {
     stroke: var(--circular-progress-indicator-active, var(--block-accent));
     stroke-dasharray: calc(var(--progress, 0) * 100) 100;
-    transition: stroke-dasharray 0.3s var(--block-ease);
+    transition: stroke-dasharray var(--motion-spatial);
   }
   /* Nothing of the arc at 0, not even its round end. */
   .circular-progress-indicator:not(.circular-progress-indicator-indeterminate) .circular-progress-indicator-active {
@@ -4096,7 +4476,7 @@
     stroke-dasharray: 0 calc(var(--progress, 0) * 100 + var(--circular-progress-indicator-shown-gap))
       max(0, var(--circular-progress-indicator-rest)) 100;
     opacity: min(1, max(0, var(--circular-progress-indicator-rest) * 10));
-    transition: stroke-dasharray 0.3s var(--block-ease);
+    transition: stroke-dasharray var(--motion-spatial);
   }
   .circular-progress-indicator-indeterminate > svg {
     animation: circular-progress-indicator-turn 1.4s linear infinite;
@@ -4162,7 +4542,7 @@
         (var(--linear-progress-indicator-wavelength) + var(--linear-progress-indicator-height, 0.375rem) / 2)
     );
     opacity: min(1, calc(var(--progress, 0) * 1000));
-    transition: stroke-dasharray 0.3s var(--block-ease);
+    transition: stroke-dasharray var(--motion-spatial);
     animation: linear-progress-indicator-flow 1.5s linear infinite;
   }
   /* Indeterminate: the two stretches of the wave running along the line, as the flat one's. */
@@ -4241,7 +4621,7 @@
     color: var(--snackbar-text, rgb(255 255 255));
     font-size: var(--snackbar-font-size, 0.875rem);
     line-height: var(--snackbar-line-height, calc(1.25 / 0.875));
-    box-shadow: var(--snackbar-shadow, var(--block-shadow));
+    box-shadow: var(--snackbar-shadow, var(--elevation-3));
     -webkit-backdrop-filter: var(--snackbar-backdrop, blur(8px));
     backdrop-filter: var(--snackbar-backdrop, blur(8px));
     -webkit-user-select: none;
@@ -4306,8 +4686,8 @@
     pointer-events: none;
     text-align: start;
     transition:
-      opacity 0.15s var(--block-ease-quick, var(--block-ease)),
-      visibility 0.15s;
+      opacity var(--motion-effects-fast),
+      visibility var(--motion-effects-fast);
   }
   [data-tooltip-below] > .tooltip {
     top: calc(100% + var(--tooltip-gap, 0.25rem));
@@ -4346,7 +4726,7 @@
     line-height: 1.25rem;
     box-shadow:
       0 0 0 1px var(--tooltip-rich-line, var(--block-line)),
-      var(--tooltip-rich-shadow, var(--block-shadow));
+      var(--tooltip-rich-shadow, var(--elevation-2));
   }
   .tooltip-subhead {
     color: var(--tooltip-rich-subhead, var(--block-text));
@@ -4471,7 +4851,7 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   .snackbar {
-    animation: snackbar-in 0.25s var(--ease);
+    animation: snackbar-in var(--motion-spatial);
   }
 }
 @keyframes snackbar-in {
@@ -4569,15 +4949,13 @@
     --search-view-header-height, --search-view-divider, --search-view-max-height, --search-view-results-padding,
     --search-view-option-surface
   Toolbars (Toolbar, toolbarClass, toolbar.script.ts; m3.material.io/components/toolbars, M3 Expressive): .toolbar with
-  its kind, .toolbar-docked (the whole width with a line over it: the site's bar at the bottom of a phone, whose first
-  button takes the room) or .toolbar-floating (a pill with its shadow, .toolbar-vertical down instead of across), and
+  its kind, .toolbar-docked (the whole width with a line over it: the site's bar at the bottom of a phone) or .toolbar-floating (a pill with its shadow, .toolbar-vertical down instead of across), and
   its colour, .toolbar-standard (the surface) or .toolbar-vibrant (the accent, what stands on it turned around). A
   floating one paired with a FAB stands with it in .toolbar-with-fab (.toolbar-with-fab-vertical: the FAB under it),
   and .toolbar-collapsed while only the FAB is shown.
     --toolbar-gap, --toolbar-fab-gap   the room between its actions, and between it and its FAB
     --toolbar-docked-padding-block, --toolbar-docked-padding-inline, --toolbar-docked-line, --toolbar-docked-line-width,
-    --toolbar-docked-backdrop, --toolbar-docked-button-padding   a docked one's room, edge (its width 0 for none), the
-                     blur behind it and the room at its last button's sides
+    --toolbar-docked-backdrop   a docked one's room, edge (its width 0 for none) and the blur behind it
     --toolbar-floating-padding, --toolbar-floating-radius, --toolbar-floating-line, --toolbar-floating-shadow
     --toolbar-standard-surface, --toolbar-standard-text, --toolbar-vibrant-surface, --toolbar-vibrant-text
 */
@@ -4590,7 +4968,7 @@
     background: var(--navigation-bar-surface, var(--block-surface));
     box-shadow:
       inset 0 1px 0 var(--navigation-bar-line, var(--block-line)),
-      var(--navigation-bar-shadow, 0 0 #0000);
+      var(--navigation-bar-shadow, var(--elevation-0));
   }
   .navigation-bar-item {
     display: flex;
@@ -4619,8 +4997,8 @@
     flex-shrink: 0;
     place-items: center;
     transition:
-      background-color 0.2s var(--block-ease-quick),
-      color 0.2s var(--block-ease-quick);
+      background-color var(--motion-effects),
+      color var(--motion-effects);
   }
   .navigation-bar-indicator {
     display: contents;
@@ -4639,7 +5017,10 @@
     background: var(--navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
   }
   .navigation-bar-item:active .navigation-bar-icon {
-    background: var(--navigation-bar-indicator-pressed, color-mix(in srgb, currentColor 12%, transparent));
+    background: var(
+      --navigation-bar-indicator-pressed,
+      var(--navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent))
+    );
   }
   .navigation-bar-item[aria-current] .navigation-bar-icon {
     background: var(--navigation-bar-indicator-surface, var(--block-tint));
@@ -4686,8 +5067,8 @@
     border-radius: var(--navigation-bar-indicator-radius, 9999px);
     padding-inline: var(--navigation-bar-horizontal-indicator-padding, 1rem);
     transition:
-      background-color 0.2s var(--block-ease-quick),
-      color 0.2s var(--block-ease-quick);
+      background-color var(--motion-effects),
+      color var(--motion-effects);
   }
   .navigation-bar-start .navigation-bar-item .navigation-bar-icon {
     width: 1.5rem;
@@ -4707,7 +5088,10 @@
     background: var(--navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
   }
   .navigation-bar-start .navigation-bar-item:active .navigation-bar-indicator {
-    background: var(--navigation-bar-indicator-pressed, color-mix(in srgb, currentColor 12%, transparent));
+    background: var(
+      --navigation-bar-indicator-pressed,
+      var(--navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent))
+    );
   }
   .navigation-bar-start .navigation-bar-item[aria-current] .navigation-bar-indicator {
     background: var(--navigation-bar-indicator-surface, var(--block-tint));
@@ -4734,8 +5118,8 @@
       border-radius: var(--navigation-bar-indicator-radius, 9999px);
       padding-inline: var(--navigation-bar-horizontal-indicator-padding, 1rem);
       transition:
-        background-color 0.2s var(--block-ease-quick),
-        color 0.2s var(--block-ease-quick);
+        background-color var(--motion-effects),
+        color var(--motion-effects);
     }
     .navigation-bar-auto .navigation-bar-item .navigation-bar-icon {
       width: 1.5rem;
@@ -4755,7 +5139,10 @@
       background: var(--navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
     }
     .navigation-bar-auto .navigation-bar-item:active .navigation-bar-indicator {
-      background: var(--navigation-bar-indicator-pressed, color-mix(in srgb, currentColor 12%, transparent));
+      background: var(
+        --navigation-bar-indicator-pressed,
+        var(--navigation-bar-indicator-hover, color-mix(in srgb, currentColor 8%, transparent))
+      );
     }
     .navigation-bar-auto .navigation-bar-item[aria-current] .navigation-bar-indicator {
       background: var(--navigation-bar-indicator-surface, var(--block-tint));
@@ -4790,12 +5177,12 @@
     background: var(--navigation-rail-surface, var(--block-surface));
     box-shadow: inset -1px 0 0 var(--navigation-rail-line, var(--block-line));
     transition:
-      width 0.3s var(--block-ease),
-      margin 0.3s var(--block-ease),
-      padding 0.3s var(--block-ease),
-      border-radius 0.3s var(--block-ease),
-      box-shadow 0.3s var(--block-ease),
-      visibility 0s linear 0.3s;
+      width var(--motion-spatial),
+      margin var(--motion-spatial),
+      padding var(--motion-spatial),
+      border-radius var(--motion-spatial),
+      box-shadow var(--motion-effects),
+      visibility 0s linear var(--motion-spatial-duration);
   }
   .navigation-rail[data-expanded] {
     width: var(--navigation-rail-expanded-width, 16rem);
@@ -4809,14 +5196,14 @@
     border-start-end-radius: var(--navigation-rail-modal-radius, var(--block-radius));
     border-end-end-radius: var(--navigation-rail-modal-radius, var(--block-radius));
     background: var(--navigation-rail-modal-surface, var(--navigation-rail-surface, var(--block-surface)));
-    box-shadow: var(--navigation-rail-modal-shadow, var(--block-shadow));
+    box-shadow: var(--navigation-rail-modal-shadow, var(--elevation-2));
   }
   .navigation-rail-scrim {
     position: fixed;
     inset: 0;
     z-index: 49;
     background: var(--navigation-rail-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--block-text)) 40%, transparent));
-    animation: navigation-rail-scrim-in 0.3s var(--block-ease);
+    animation: navigation-rail-scrim-in var(--motion-effects);
   }
   .navigation-rail-scrim[hidden] {
     display: none;
@@ -4950,7 +5337,7 @@
     gap: 0.75rem;
     border-radius: var(--navigation-rail-indicator-radius, 9999px);
     padding: 0 1.5rem 0 1rem;
-    transition: background-color 0.2s var(--block-ease-quick);
+    transition: background-color var(--motion-effects);
   }
   .navigation-rail[data-expanded] .navigation-rail-icon {
     width: 1.5rem;
@@ -4989,8 +5376,8 @@
     color: var(--search-bar-text, var(--block-text));
     box-shadow:
       inset 0 0 0 1px var(--search-bar-line, var(--block-line)),
-      var(--search-bar-shadow, 0 0 #0000);
-    transition: background-color 0.2s var(--block-ease-quick);
+      var(--search-bar-shadow, var(--elevation-0));
+    transition: background-color var(--motion-effects);
   }
   .search-bar:has(> .search-bar-field:hover) {
     background: var(--search-bar-hover, color-mix(in srgb, var(--block-text) 4%, var(--search-bar-surface, var(--block-surface))));
@@ -5054,7 +5441,7 @@
   .search-bar:has(.search-bar-input:focus-visible) {
     box-shadow:
       inset 0 0 0 2px var(--block-accent),
-      var(--search-bar-shadow, 0 0 #0000);
+      var(--search-bar-shadow, var(--elevation-0));
   }
   /* The view: over the whole screen on a phone; docked from 48rem, where the bar is (search.script.ts sets where), and
      as the editor draws it. */
@@ -5087,7 +5474,7 @@
     border-radius: var(--search-view-radius, var(--block-radius));
     box-shadow:
       0 0 0 1px var(--search-view-line, var(--block-line)),
-      var(--search-view-shadow, var(--block-shadow));
+      var(--search-view-shadow, var(--elevation-3));
   }
   .search-view-docked {
     inset: var(--search-view-top) auto auto var(--search-view-left);
@@ -5097,7 +5484,7 @@
   }
   @media (prefers-reduced-motion: no-preference) {
     .search-view:modal {
-      animation: search-view-in 0.3s var(--block-ease);
+      animation: search-view-in var(--motion-spatial);
     }
   }
   @keyframes search-view-in {
@@ -5157,20 +5544,14 @@
     align-items: center;
     gap: var(--toolbar-gap, 0.5rem);
   }
-  /* Docked: the whole width, with a line over it; its buttons as the site's bar has them, the first taking the room
-     (one alone the whole width). */
+  /* Docked: the whole width, with a line over it; how wide its actions are is the component's own (the site's bar at
+     the bottom of a phone, components.css). */
   .toolbar-docked {
     justify-content: space-between;
     padding: var(--toolbar-docked-padding-block, 0.75rem) var(--toolbar-docked-padding-inline, 1rem)
       max(var(--toolbar-docked-padding-block, 0.75rem), env(safe-area-inset-bottom));
     border-top: var(--toolbar-docked-line-width, 1px) solid var(--toolbar-docked-line, var(--block-line));
     backdrop-filter: var(--toolbar-docked-backdrop, blur(16px));
-  }
-  .toolbar-docked > .button:first-child {
-    flex: 1;
-  }
-  .toolbar-docked > .button:last-child {
-    padding-inline: var(--toolbar-docked-button-padding, 1.25rem);
   }
   /* Floating: a pill over the page with its shadow, across or down. */
   .toolbar-floating {
@@ -5179,7 +5560,7 @@
     padding: var(--toolbar-floating-padding, 0.5rem);
     box-shadow:
       0 0 0 1px var(--toolbar-floating-line, var(--block-line)),
-      var(--toolbar-floating-shadow, var(--block-shadow));
+      var(--toolbar-floating-shadow, var(--elevation-3));
   }
   .toolbar-vertical {
     flex-direction: column;
@@ -5243,9 +5624,9 @@
   @media (prefers-reduced-motion: no-preference) {
     .toolbar-with-fab > .toolbar {
       transition:
-        opacity 0.2s var(--block-ease),
-        scale 0.2s var(--block-ease),
-        display 0.2s allow-discrete;
+        opacity var(--motion-effects),
+        scale var(--motion-spatial-fast),
+        display var(--motion-spatial-fast-duration) allow-discrete;
     }
     @starting-style {
       .toolbar-with-fab > .toolbar:not(.toolbar-collapsed) {
@@ -5345,7 +5726,7 @@
   }
   @media (prefers-reduced-motion: no-preference) {
     .date-picker-popover[open] {
-      animation: date-picker-in 0.25s var(--block-ease);
+      animation: date-picker-in var(--motion-spatial);
     }
   }
   @keyframes date-picker-in {
@@ -5367,7 +5748,7 @@
     border-radius: var(--date-picker-docked-radius, var(--dialog-radius, var(--block-radius)));
     box-shadow:
       0 0 0 1px var(--dialog-line, var(--block-line)),
-      var(--date-picker-docked-shadow, var(--dialog-shadow, var(--block-shadow)));
+      var(--date-picker-docked-shadow, var(--dialog-shadow, var(--elevation-3)));
   }
   .date-picker-header {
     padding: 1rem 0.75rem 0.75rem 1.5rem;
@@ -5426,7 +5807,7 @@
     font-weight: 600;
     white-space: nowrap;
     cursor: pointer;
-    transition: background-color 0.2s var(--block-ease-quick);
+    transition: background-color var(--motion-effects);
   }
   .date-picker-menu-button:hover:not(:disabled) {
     background: var(--date-picker-day-hover, var(--block-tint));
@@ -5436,7 +5817,7 @@
     cursor: default;
   }
   .date-picker-menu-button-icon {
-    transition: transform 0.2s var(--block-ease-quick);
+    transition: transform var(--motion-spatial-fast);
   }
   .date-picker-menu-button[aria-expanded='true'] .date-picker-menu-button-icon {
     transform: rotate(180deg);
@@ -5480,8 +5861,8 @@
     font-variant-numeric: tabular-nums;
     cursor: pointer;
     transition:
-      background-color 0.2s var(--block-ease-quick),
-      color 0.2s var(--block-ease-quick);
+      background-color var(--motion-effects),
+      color var(--motion-effects);
   }
   .date-picker-day:hover:not(:disabled),
   .date-picker-year:hover {
@@ -5636,8 +6017,8 @@
   .time-picker-box {
     cursor: pointer;
     transition:
-      background-color 0.2s var(--block-ease-quick),
-      color 0.2s var(--block-ease-quick);
+      background-color var(--motion-effects),
+      color var(--motion-effects);
   }
   .time-picker-box:hover {
     background: color-mix(in srgb, var(--block-text) 8%, var(--time-picker-box-surface, var(--block-tint)));
@@ -5783,8 +6164,8 @@
     font-weight: 500;
     cursor: pointer;
     transition:
-      background-color 0.2s var(--block-ease-quick),
-      color 0.2s var(--block-ease-quick);
+      background-color var(--motion-effects),
+      color var(--motion-effects);
   }
   .time-picker-period-button + .time-picker-period-button {
     border-top: 1px solid var(--time-picker-period-line, var(--block-line));
@@ -5832,5 +6213,88 @@
   }
   .time-picker-horizontal[data-view='dial'] .time-picker-dial {
     margin-top: 0;
+  }
+}
+
+/* ---- States: the ripple ---- */
+/*
+  Material 3's pressed state (m3.material.io/foundations/interaction/states/applying-states): pressed, a part grows a
+  wave of its content's colour from where it was pressed until it covers the part, over the part's own colour when
+  pointed at, and the wave fades when it is let go. ../ui/ripple.script.ts draws it, on every page and in the editor, in
+  a .ripple (the layer, in the part's shape) at the end of the part with a .ripple-wave for each press
+  (data-released when let go); the parts it is on are PARTS there, and they stand where they are (position: relative)
+  so the layer can be over them. A theme changes it with these variables (--ripple-opacity: 0 for none), and a part's
+  own pressed colour (its -pressed variable, else as pointed at) is under the wave. With reduced motion the wave does
+  not grow: it fades in and out over the whole part.
+    --ripple-colour (else the text's), --ripple-opacity, --ripple-duration (growing), --ripple-fade (fading)
+*/
+@layer components {
+  :where(
+    .button,
+    .icon-button,
+    .fab,
+    .extended-fab,
+    .chip,
+    .chip-remove,
+    .menu-item,
+    .tab,
+    .segmented-button-segment,
+    .navigation-bar-indicator,
+    .navigation-bar-icon,
+    .navigation-rail-indicator,
+    .navigation-drawer-item,
+    .navigation-drawer-subitem,
+    .navigation-drawer-toggle,
+    a.list-item-container,
+    button.list-item-container,
+    label.list-item-container,
+    [role='button'].list-item-container,
+    a.card,
+    button.card,
+    .date-picker-day,
+    .date-picker-year,
+    .date-picker-menu-item,
+    .time-picker-period-button
+  ) {
+    position: relative;
+  }
+  .ripple {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  .ripple-wave {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--ripple-size);
+    height: var(--ripple-size);
+    background: radial-gradient(closest-side, var(--ripple-colour, currentColor) max(calc(100% - 70px), 65%), transparent 100%);
+    opacity: var(--ripple-opacity, 0.1);
+    transform: translate(var(--ripple-to)) scale(var(--ripple-scale));
+    animation:
+      ripple-grow var(--ripple-duration, 450ms) cubic-bezier(0.2, 0, 0, 1),
+      ripple-in 105ms linear;
+    transition: opacity var(--ripple-fade, 375ms) linear;
+  }
+  .ripple-wave[data-released] {
+    opacity: 0;
+  }
+}
+@keyframes ripple-grow {
+  from {
+    transform: translate(var(--ripple-from)) scale(1);
+  }
+}
+@keyframes ripple-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ripple-wave {
+    animation: ripple-in 105ms linear;
   }
 }

@@ -1,0 +1,47 @@
+---
+// The real Interstellar CMS editor entrypoint
+import '@theme/styles/global.css';
+import App from '@interstellarcms/cms/src/App.tsx';
+import { editorVersion } from '@interstellarcms/cms/site/editor-version.mjs';
+import { config } from '@site/config';
+import colors from '@data/colors.json';
+import { colorsCss } from '@interstellarcms/cms/lib/colors';
+---
+
+<!doctype html>
+<html lang={config.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="editor-version" content={editorVersion()} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/editor/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/editor/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content={config.name} />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content={colors.light.surface} data-color={colors.light.surface} media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content={colors.dark.surface} data-color={colors.dark.surface} media="(prefers-color-scheme: dark)" />
+    <style id="site-colors" is:inline set:html={colorsCss(colors)}></style>
+    <script is:inline>
+      try {
+        const theme = localStorage.getItem('editor-theme');
+        if (theme === 'light' || theme === 'dark') {
+          document.documentElement.dataset.theme = theme;
+          const metas = [...document.querySelectorAll('meta[name="theme-color"]')];
+          const own = metas.find((m) => m.media.includes('dark') === (theme === 'dark'));
+          for (const m of metas) m.content = own.dataset.color;
+        }
+      } catch {}
+    </script>
+    <title>{config.name} Editor</title>
+  </head>
+  <body>
+    <App client:only="react" />
+  </body>
+</html>

@@ -18,6 +18,7 @@ import Container from '@theme/components/Container.astro';
 import RichText from '@theme/components/RichText.astro';
 import Snackbar from '@theme/ui/Snackbar';
 import { isPreview, livePath, PREVIEW, previewId } from '@interstellarcms/cms/site/noindex.mjs';
+import { siteT } from '@interstellarcms/cms/src/i18n';
 
 interface Props {
   page: Page;
@@ -115,10 +116,12 @@ const review = (page.data.review ?? '').trim();
   {preview && (
     <template data-snackbar data-ms="8000">
       <Snackbar
-        text="Ny version til gennemsyn. Google ser den ikke."
+        text={siteT.theme.reviewNotice}
         links={[
-          { text: 'Se den nuværende side', href: current },
-          review ? { text: 'Se, hvad der er ændret', href: `${PREVIEW}#${previewId(path)}` } : { text: 'Alle nye sider', href: PREVIEW },
+          { text: siteT.theme.seeCurrentPage, href: current },
+          review
+            ? { text: siteT.theme.seeChanges, href: `${PREVIEW}#${previewId(path)}` }
+            : { text: siteT.theme.allNewPages, href: PREVIEW },
         ]}
       />
     </template>

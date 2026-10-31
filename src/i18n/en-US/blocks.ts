@@ -1,34 +1,40 @@
-import type { Messages } from '../da-DK';
-
-export const blocks: Messages['blocks'] = {
+// The blocks: putting one in (BlockDialog.tsx), their cards and rules (blocks.ts, registry.tsx) and the standard blocks (standard/).
+export const blocks = {
   insert: 'Insert',
   searchInsert: 'Search blocks',
-  noneHere: 'There are no blocks to insert here.',
-  noneNamed: (query) => `No results for "${query}".`,
-  gone: (type) => `The block "${type}" no longer exists. Remove it from the text.`,
-  notSaved: (why) => `The block can't be saved yet. ${why}`,
+  noneHere: 'There are no blocks to insert here',
+  noneNamed: (query: string) => `No results for "${query}"`,
+  /** A block in the text the editor no longer has. */
+  gone: (type: string) => `The block "${type}" no longer exists. Remove it from the text.`,
+  /** A block whose fields cannot be saved, and why (a message from check.ts). */
+  notSaved: (why: string) => `The block can't be saved yet. ${why}`,
+  /** A picture, chosen and changed like a block. */
   picture: {
     label: 'Image',
     hint: 'Choose an image from Files, or upload a new one.',
     src: 'Image',
     alt: 'Alt text',
     altHint: 'For screen readers and search engines.',
+    /** A picture that is only decoration: drawn with alt="", without an alternative text. */
     decorative: 'Decorative picture',
     decorativeHint: 'Screen readers skip the picture.',
-    decorativeToggle: ['On', 'Off'],
+    decorativeToggle: ['On', 'Off'] as [string, string],
   },
+  /** The lines of the testimonials on the cards. */
   noTestimonials: 'No testimonials yet',
   html: {
     label: 'HTML code',
-    hint: 'E.g. a video or a calendar.',
+    hint: 'For example, a video or a calendar.',
     code: 'Code',
     youtube: 'Video from YouTube',
     vimeo: 'Video from Vimeo',
     calendly: 'Calendar from Calendly',
     table: 'Table',
   },
+  /** The standard blocks (standard/). */
   heading: 'Heading',
   headingHint: 'Optional.',
+  /** A block's head (standard/head.ts): the label above its heading and the subheading under it. */
   eyebrow: 'Label',
   eyebrowHint: 'Shown in small capitals above the heading.',
   subheading: 'Subheading',
@@ -47,8 +53,8 @@ export const blocks: Messages['blocks'] = {
     text: 'Text',
     until: 'Show until',
     untilHint: 'If empty, the notice is always shown.',
-    shownUntil: (day, time) => `Shown until ${day} at ${time}`,
-    over: (day, time) => `No longer shown (until ${day} at ${time})`,
+    shownUntil: (day: string, time: string) => `Shown until ${day} at ${time}`,
+    over: (day: string, time: string) => `No longer shown (until ${day} at ${time})`,
   },
   links: {
     label: 'Links',
@@ -57,14 +63,31 @@ export const blocks: Messages['blocks'] = {
     group: 'group',
     title: 'Heading',
     href: 'Page',
-    hrefHint: 'If empty, the heading is not a link.',
+    hrefHint: 'If empty, the heading isn’t a link.',
     pages: 'Pages',
     page: 'Page',
+    /** The groups it is shown with where no page has it (in the site's language). */
     example: ['First group', 'Second group'],
+  },
+  list: {
+    label: 'List',
+    hint: 'Rows under each other with a heading and a text.',
+    design: 'Design',
+    designStandard: 'Standard',
+    designSegmented: 'Segmented',
+    items: 'Rows',
+    item: 'row',
+    icon: 'Icon',
+    title: 'Heading',
+    text: 'Text',
+    href: 'Page',
+    hrefHint: 'If empty, the row isn’t a link.',
+    exampleTitle: 'Heading',
+    exampleText: 'A short text about the row.',
   },
   points: {
     label: 'Points with icon',
-    hint: 'Points with an icon, a heading and a text.',
+    hint: 'Points with an icon, a heading, and a text.',
     items: 'Points',
     item: 'point',
     icon: 'Icon',
@@ -87,7 +110,7 @@ export const blocks: Messages['blocks'] = {
   },
   hero: {
     label: 'Banner',
-    hint: "The page's top with a text, a picture and buttons.",
+    hint: "The page's top with a text, a picture, and buttons.",
     text: 'Text',
     textHint: 'The first paragraph is the subtitle, and a picture and buttons are put in with +.',
     placement: 'Placement (picture)',
@@ -110,10 +133,13 @@ export const blocks: Messages['blocks'] = {
     moreItems: 'More pages',
     moreItem: 'page',
     moreLabel: 'Button text',
+    /** The shared text ("Blokke" › "Foldeliste"), and what it starts as on a site in this language. */
     more: 'Link text',
     moreHint: '{emne} is the heading of the row.',
     moreText: 'Read more about {emne}',
+    /** In the drawing, for a row without a text of its own (in the site's language). */
     opening: 'The beginning of the text on the page.',
+    /** The rows it is shown with where no page has it (in the site's language). */
     example: ['First topic', 'Second topic', 'Third topic'],
   },
   buttons: {
@@ -126,6 +152,7 @@ export const blocks: Messages['blocks'] = {
     sharedHint: 'Used when the block has no buttons of its own.',
     shared: 'Default buttons',
     text: 'Text',
+    /** The texts a button without its own has (the site's targets, e.g. "Book en tid", "Ring"). */
     textHint: (targets: string[]) => `If empty, ${targets.map((t) => `"${t}"`).join(', ')} or the page title is used.`,
     to: 'Leads to',
     page: 'A page',
@@ -143,6 +170,7 @@ export const blocks: Messages['blocks'] = {
     label: 'Cookie list',
     hint: 'Shows the cookies the website sets.',
     edit: 'Edit cookies',
+    /** The list the block brings, "Cookies" under "Lister" (list.ts), and its fields. */
     entries: {
       label: 'Cookies',
       singular: 'cookie',
@@ -161,14 +189,18 @@ export const blocks: Messages['blocks'] = {
         marketing: 'Marketing',
         targeting: 'Targeted ads',
       },
+      /** The filters of the list: all of them. */
       allProviders: 'All providers',
       allCategories: 'All categories',
+      /** A cookie added to the list by itself (the app "Cookiescanner") and not yet looked through: the heading at the
+       * top of the list, what it says, or that it has no purpose yet, what its form says, and the button. */
       fresh: 'New',
       freshLabel: 'New',
       noPurpose: 'No purpose',
       freshNotice: 'Added to the list by itself. Look it through and approve it.',
       approve: 'Approve',
     },
+    /** The shared texts ("Blokke" › "Cookieliste"), and what they start as on a site in this language. */
     nameHead: 'Heading (name)',
     providerHead: 'Heading (provider)',
     purposeHead: 'Heading (purpose)',
@@ -210,6 +242,7 @@ export const blocks: Messages['blocks'] = {
     tags: 'Tags',
     addTag: 'Add tag',
     tagsHint: 'Without tags, all testimonials are shown.',
+    /** The list the block brings, "Udtalelser" under "Lister" (list.ts), and its fields. */
     entries: {
       label: 'Testimonials',
       singular: 'testimonial',
@@ -222,25 +255,33 @@ export const blocks: Messages['blocks'] = {
       frontPage: 'Show on the front page',
     },
     items: 'Testimonials',
+    /** The shared texts ("Blokke" › "Udtalelser"), and what they start as on a site in this language. */
     more: 'Button text (show more)',
     less: 'Button text (show less)',
     moreText: 'Read more',
     lessText: 'Show less',
+    /** On the site and in the drawings (in the site's language): for screen readers, and when there are none. */
     from: (name: string) => `from ${name}`,
     carousel: 'carousel',
     slide: 'slide',
     slideOf: (n: number, of: number) => `${n} of ${of}`,
     show1: (n: number, name: string) => `Show testimonial ${n}: ${name}`,
-    none: 'No testimonials to show.',
+    none: 'No testimonials to show',
     filterAll: 'All',
     filterLabel: 'Show testimonials with the tag',
   },
   posts: {
     label: 'Blog posts',
-    hint: 'Blog posts with certain tags, or selected posts.',
+    hint: 'Blog posts as a list: all of them, a number with certain tags, or selected ones.',
     edit: 'Edit default texts',
+    /** The field "Design" and its choices: a list, or the newest post large over the list. */
+    design: 'Design',
+    designList: 'List',
+    designFeatured: 'Newest large',
+    /** The field "Which posts" and its choices. */
     show: 'Which posts',
-    withTags: 'With tags',
+    every: 'All',
+    some: 'A number',
     picked: 'Selected',
     tags: 'Tags',
     addTag: 'Add tag',
@@ -252,26 +293,24 @@ export const blocks: Messages['blocks'] = {
     random: 'Random',
     items: 'Blog posts',
     addItem: 'Add blog post',
-    itemsHint: 'At most six posts.',
+    itemsHint: 'At most 6 posts.',
     link: 'Link "All posts"',
     linkHint: 'A tag or the whole blog.',
+    /** The lines on its card. */
     all: 'all posts',
     newestFrom: (n: number, from: string) => `The newest ${n} from ${from}`,
     randomFrom: (n: number, from: string) => `${n} random ones from ${from}`,
+    /** All with some tags (none: all posts), and how many posts that is. */
+    allFrom: (tags: string, n: number) => `${tags || 'All posts'} · ${n} ${n === 1 ? 'post' : 'posts'}`,
+    /** The shared texts ("Blokke" › "Blogindlæg"), and what they start as on a site in this language. */
     allLink: 'Link text (blog)',
     allAboutLink: 'Link text (tag)',
     allAboutHint: '{tag} is the name of the tag.',
     allText: 'All posts',
     allAboutText: 'All posts about {tag}',
+    /** In the drawing (in the site's language): random posts, of how many. */
     randomNote: (n: number, of: number) => `${n} random of ${of} posts`,
-  },
-  blog: {
-    label: 'Blog',
-    hint: 'All blog posts, the newest large and the others as a list.',
-    tags: 'Tags',
-    addTag: 'Add tag',
-    tagsHint: 'Without tags, all posts are shown.',
-    line: (tags: string, n: number) => `${tags || 'All posts'} · ${n} ${n === 1 ? 'post' : 'posts'}`,
+    /** In the drawing (in the site's language), when it shows all: the posts not drawn. */
     more: (n: number) => `and ${n} more ${n === 1 ? 'post' : 'posts'}`,
   },
   cards: {
@@ -284,7 +323,7 @@ export const blocks: Messages['blocks'] = {
     designImage: 'Picture',
     background: 'Background',
     backgroundStandard: 'Standard',
-    backgroundAccent: 'Coloured',
+    backgroundAccent: 'Colored',
     items: 'Cards',
     item: 'card',
     title: 'Heading',
@@ -292,14 +331,17 @@ export const blocks: Messages['blocks'] = {
     icon: 'Icon',
     image: 'Picture',
     href: 'Page',
-    hrefHint: 'Without a page, the card is not a link.',
+    hrefHint: 'Without a page, the card isn’t a link.',
+    /** The shared text ("Blokke" › "Kort"), and what it starts as on a site in this language. */
     more: 'Link text',
     moreText: 'Read more',
+    /** The cards it is shown with where no page has it (in the site's language). */
     example: [
       { icon: 'heart', title: 'About me', text: 'Who I am, and how I work.' },
       { icon: 'chats', title: 'Contact', text: 'How to find me, and how to book an appointment.' },
     ],
   },
+  /** The icons to pick from (iconNames in ../../icon.tsx), by their names. */
   icons: {
     certificate: 'Diploma',
     heart: 'Heart',
@@ -327,7 +369,7 @@ export const blocks: Messages['blocks'] = {
     'map-pin': 'Map pin',
     coffee: 'Coffee',
     wheelchair: 'Wheelchair',
-    info: 'Info',
+    info: 'Information',
     'envelope-simple': 'Letter',
   },
   video: {
@@ -338,14 +380,17 @@ export const blocks: Messages['blocks'] = {
     title: 'Title',
     video: 'Video',
   },
+  /** "Tjekliste" (standard/checklist/). */
   checklist: {
     label: 'Checklist',
     hint: 'Points with a check mark before them.',
     items: 'Points',
     item: 'point',
     text: 'Text',
+    /** The points it is shown with where no page has it (in the site's language). */
     example: ['An answer within one working day', 'No commitment', 'Free access to the material', 'Help when you need it'],
   },
+  /** "Priskort" (standard/pricecards/). */
   pricecards: {
     label: 'Price cards',
     hint: 'Prices side by side with what is included.',
@@ -361,9 +406,10 @@ export const blocks: Messages['blocks'] = {
     button: 'Button',
     buttonItem: 'button',
     featured: 'Highlighted',
-    featuredToggle: ['On', 'Off'],
+    featuredToggle: ['On', 'Off'] as [string, string],
     badge: 'Label',
     badgeHint: 'If empty, no label is shown.',
+    /** The cards it is shown with where no page has it (in the site's language): the middle one highlighted. */
     example: [
       {
         name: 'Basic',
@@ -390,6 +436,6 @@ export const blocks: Messages['blocks'] = {
         features: ['Everything in Standard', 'A dedicated contact', 'Meetings as needed'],
         button: 'Choose Plus',
       },
-    ],
+    ] as { name: string; price: string; unit: string; text: string; features: string[]; button: string; badge?: string }[],
   },
 };

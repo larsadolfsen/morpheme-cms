@@ -2,7 +2,8 @@
 // one set for light mode and one for dark, each a CSS variable by its name without "--":
 //   { "light": { "bg": "#f6f4f1", "accent": "#a3345a", … }, "dark": { … } }
 // and, when they are made from one source colour (dynamic colour, dynamic-colors.ts), the choice they were
-// made from: "dynamic": { "source": "#a3345a", "variant": "tonalSpot", "contrast": "standard" }. (When each page takes
+// made from: "dynamic": { "source": "#a3345a", "harmony": "analogous", "contrast": "standard" } (or a "variant" instead
+// of the "harmony", as one written before the harmonies has). (When each page takes
 // its colours from its picture, content-based colour, that is an app's: packages/editor/site/pageColors.ts.)
 // The site writes them into the <head> of its pages (colorsCss), so its CSS, Tailwind and the blocks
 // take them from there; the editor shows and changes them under "Farver" (Colors.tsx) and checks that

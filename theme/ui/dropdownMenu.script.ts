@@ -7,7 +7,7 @@
 // (tabindex -1, so the focus moves with the keys). A submenu also opens when the mouse rests on its item. Choosing an
 // item closes the menu and goes back to the button, ticking a menuitemcheckbox on or off and making a menuitemradio
 // the chosen one of its group first. Where the browser has no CSS anchor positioning, it places each menu at what
-// opened it. Run on every page by the theme's Base.astro (blockScripts, src/site/scripts.ts); without a dropdown menu
+// opened it. Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts); without a dropdown menu
 // on the page it does nothing.
 const gap = 4;
 const edge = 8;

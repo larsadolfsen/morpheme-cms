@@ -7,7 +7,7 @@
 // (2026-11-02) and into the field (02.11.2026), and fires their input and change events; Annuller, Escape and a tap
 // outside close it without. A date typed in the field is read when the field is left, and the field is marked when it
 // is not a date. React and the drawing are loaded the first time a picker is about to open (pointed at, focused).
-// Run on every page by the theme's Base.astro (blockScripts, src/site/scripts.ts); without a date picker it does nothing.
+// Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts); without a date picker it does nothing.
 import type { DatePickerSettings } from '@theme/ui/DatePicker';
 import type { DatePickerState } from '@theme/ui/DatePickerContainer';
 import {

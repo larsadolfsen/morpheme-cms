@@ -2,7 +2,7 @@
 // hidden), and while they are open its name is the cross's (data-close-label), else its own (data-label). Opened with a
 // key, the focus goes to the first action; the arrow keys go between them, Home and End to the first and the last;
 // Escape closes it and goes back to the FAB, and a choice, a tap outside it or the focus moving out close it. Run on
-// every page by the theme's Base.astro (blockScripts, src/site/scripts.ts); without a FAB menu on the page it does
+// every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts); without a FAB menu on the page it does
 // nothing.
 export default function fabMenu() {
   document.querySelectorAll<HTMLElement>('[data-fab-menu]').forEach((root) => {

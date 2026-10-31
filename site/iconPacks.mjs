@@ -1,5 +1,5 @@
 // The site's icon packs, and which one it draws its icons with, without reading a file: for the site's build
-// (packages/editor/site/icons.mjs, packages/editor/site/theme.mjs) and the editor (src/site/icons.ts) alike.
+// (packages/editor/site/icons.mjs, packages/editor/site/theme.mjs) and the editor (packages/editor/src/iconPacks.ts) alike.
 //
 // An icon pack is a folder: its manifest (pack.json: name, author, licence; ICON_PACK_FILE), its licence (LICENSE, and
 // one more for each set it takes icons from besides its own, `includes`) and an SVG file for every icon the site and the

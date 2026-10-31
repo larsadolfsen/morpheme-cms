@@ -1,9 +1,9 @@
 ---
-// The site's logo (public/butterfly.svg, "Tema" › "Logo og ikon") + its name and role ("Virksomheden"), in the theme's
+// The site's logo (public/logo.svg, "Tema" › "Logo og ikon") + its name and role ("Virksomheden"), in the theme's
 // variables (--theme-logo-*, styles/components.css).
-// The mark is a CSS mask over public/butterfly.svg, so it takes the theme's accent color
+// The mark is a CSS mask over public/logo.svg, so it takes the theme's accent color
 // and the 20 KB file is downloaded once and cached.
-import Butterfly from '@theme/components/Butterfly.astro';
+import LogoMark from '@theme/components/LogoMark.astro';
 import { site } from '@interstellarcms/cms/site/site';
 
 interface Props {
@@ -14,7 +14,7 @@ const { size = 'md' } = Astro.props;
 
 <span class="flex items-center gap-2.5">
   <span class="theme-logo-tile">
-    <Butterfly class:list={['theme-logo-mark', size === 'sm' && 'theme-logo-mark-small']} />
+    <LogoMark class:list={['theme-logo-mark', size === 'sm' && 'theme-logo-mark-small']} />
   </span>
   <span class="leading-tight">
     <span class="theme-logo-name block tracking-tight">{site.name}</span>

@@ -17,6 +17,9 @@
   --theme-section-space-large: 8rem;
   --theme-home-first-space: var(--theme-section-space);
   --theme-home-first-space-large: var(--theme-section-space-large);
+  /* The space over the first block on the blog page, under the tags: its posts, close to them. */
+  --theme-blog-first-space: 2.5rem;
+  --theme-blog-first-space-large: 3.5rem;
   /* The logo (Logo.astro, and at the top of the menu on a phone): the mark (the site's logo) in a tile, its colour and
      size (a share of the mark's own), the name's weight and size, and the role (hidden with none; on a phone, and from md). */
   --theme-logo-tile: transparent;
@@ -84,7 +87,12 @@
     --theme-section-space: var(--theme-home-first-space);
     --theme-section-space-large: var(--theme-home-first-space-large);
   }
-  /* The bar at the bottom of a phone's screen (a promotion: ContactBar.astro, BookingBar.astro), a docked toolbar
+  /* The first block on the blog page (templates/Blog.astro). */
+  .theme-blog-first {
+    --theme-section-space: var(--theme-blog-first-space);
+    --theme-section-space-large: var(--theme-blog-first-space-large);
+  }
+  /* The bar at the bottom of a phone's screen (a promotion: ActionBar.astro), a docked toolbar
      (.toolbar-docked, ui.css) fixed there: the page gets room under its footer, and only the first bar on a page is
      shown. data-hidden: moved down out of sight (while the buttons at the top of the front page are on screen, the script
      in Base.astro). Not from 48rem (a tablet in landscape, a computer). */
@@ -92,7 +100,7 @@
     position: fixed;
     inset: auto 0 0;
     z-index: 30;
-    transition: transform 0.5s var(--block-ease);
+    transition: transform var(--motion-spatial-slow);
   }
   .theme-action-bar[data-hidden] {
     transform: translateY(100%);
@@ -110,7 +118,29 @@
       display: none;
     }
   }
-  /* The editor's drawing of one (src/site/popup.tsx): in its place, as wide as a phone, in a frame. */
+  /* Its buttons and its text, on the site and as the editor draws it: one button alone the whole width; two side by side
+     as wide as each other, unless one's text needs more (a button's text stays on one line), and under each other, each
+     the whole width, when they cannot stand side by side; a text (a list row of two lines, the theme's List) in the room
+     the button beside it leaves, without the row's own room round it, the button as wide as its text (under the text,
+     the whole width, when they cannot stand side by side). */
+  :is(.theme-action-bar, .theme-action-bar-drawn) {
+    flex-wrap: wrap;
+  }
+  :is(.theme-action-bar, .theme-action-bar-drawn) > .button {
+    flex: 1 1 0;
+  }
+  :is(.theme-action-bar, .theme-action-bar-drawn):has(> .theme-action-bar-text) > .button {
+    flex: 1 0 auto;
+  }
+  .theme-action-bar-text {
+    --list-item-padding-block: 0;
+    --list-item-padding-inline: 0;
+    --list-item-min-height: auto;
+    --list-item-two-line-min-height: auto;
+    flex: 1000 1 0;
+    min-width: 8rem;
+  }
+  /* The editor's drawing of one (packages/editor/defaults/popup.tsx): in its place, as wide as a phone, in a frame. */
   .theme-action-bar-drawn {
     max-width: 24rem;
     margin-inline: auto;

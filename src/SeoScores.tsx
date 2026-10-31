@@ -7,20 +7,7 @@
 import { ArrowsDownUp } from '@phosphor-icons/react';
 import { useMemo, useState } from 'react';
 import Screen from './Screen';
-import {
-  Choice,
-  EmptyNote,
-  Filters,
-  Group,
-  InputChip,
-  listClass,
-  listItemClass,
-  ScoreRing,
-  scoreOf,
-  SearchRow,
-  useKept,
-  TrailingIcon,
-} from './ui';
+import { Choice, EmptyNote, Filters, Group, InputChip, listClass, ScoreRing, scoreOf, SearchRow, useKept, ListItem } from './ui';
 import type { RepoFile } from './github';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { fileRating } from './seo';
@@ -175,16 +162,15 @@ export default function SeoScores({ files, env }: { files: RepoFile[]; env: Env 
         shown.map((g) => (
           <Group key={g.collection.id} title={g.collection.label}>
             {g.items.map((r) => (
-              <li key={r.path}>
-                <a href={`#${r.path}`} className={listItemClass}>
-                  <ScoreRing score={r.score} label={t.seo.scoreLabel(r.score)} onClick={openAtSeo} />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate">{r.title}</span>
-                    <span className="block truncate text-sm text-muted">{r.keyword || t.seo.noKeyword}</span>
-                  </span>
-                  <TrailingIcon />
-                </a>
-              </li>
+              <ListItem
+                key={r.path}
+                href={`#${r.path}`}
+                leading={<ScoreRing score={r.score} label={t.seo.scoreLabel(r.score)} onClick={openAtSeo} />}
+                headline={r.title}
+                supporting={r.keyword || t.seo.noKeyword}
+                truncate
+                arrow
+              />
             ))}
           </Group>
         ))

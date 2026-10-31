@@ -1,7 +1,7 @@
 // What a split button (SplitButton.tsx) does on the site: its arrow opens and closes its menu (aria-expanded, the menu's
 // hidden). The arrow keys open it from the arrow (down on the first item, up on the last) and go between its items, Home
 // and End to the first and the last; Escape closes it and goes back to the arrow, and so does a choice; a tap outside it
-// or the focus moving out closes it. Run on every page by the theme's Base.astro (blockScripts, src/site/scripts.ts);
+// or the focus moving out closes it. Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts);
 // without a split button on the page it does nothing.
 export default function splitButton() {
   document.querySelectorAll<HTMLElement>('[data-split-button]').forEach((root) => {

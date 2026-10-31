@@ -1,4 +1,4 @@
-// "Dele" › "Tema" (BlockParts.tsx), the group "Bjælker og søgning": the rest of the theme's navigation parts
+// "Dele" › "UI-komponenter" (BlockParts.tsx), the group "Bjælker og søgning": the rest of the theme's navigation parts
 // (packages/editor/theme/ui/, through @site/editor) as the site draws them, with made-up destinations: the navigation bar
 // with the open one and its badges, with vertical items, horizontal ones and both by its width, the navigation rail
 // collapsed and expanded with its menu button and FAB, in sections with a count at each destination's end (the
@@ -18,7 +18,7 @@ import {
   SiteSearch,
   SiteToolbar,
   SiteButton,
-} from '@site/editor';
+} from './themeUi';
 import { Part } from './PartsShown';
 import { Preview } from './ui';
 import { t } from './i18n';

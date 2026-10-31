@@ -9,7 +9,7 @@ import type { Load } from '../view';
 import { tagsShown } from '.';
 import { headOf } from '../head';
 import shared from './shared';
-import type { TestimonialsView, TestimonialTexts, TestimonialView } from './view';
+import { labelOf, type TestimonialsView, type TestimonialTexts, type TestimonialView } from './view';
 
 /** Testimonials on the site (a site's own too: this site's front page), with their tags (`showTopic`). */
 export const loadTestimonials = (items: TestimonialItem[], showTopic = true): Promise<TestimonialView[]> =>
@@ -33,7 +33,7 @@ export const loadTestimonials = (items: TestimonialItem[], showTopic = true): Pr
 /** Its shared texts, with those saved over them. */
 export const testimonialTexts = (texts?: Record<string, any>): TestimonialTexts => ({ ...shared.values, ...texts }) as TestimonialTexts;
 
-export const load: Load<TestimonialsView> = async (props, { texts, path }) => {
+export const load: Load<TestimonialsView> = async (props, { texts }) => {
   const all = standard.testimonials.list;
   const chosen = () => {
     if (props.show === 'all') return all;
@@ -51,7 +51,7 @@ export const load: Load<TestimonialsView> = async (props, { texts, path }) => {
     ...headOf(props),
     layout: props.layout,
     testimonials: await loadTestimonials(items, tagsShown(props)),
-    label: standard.testimonials.label(path),
+    label: labelOf(props),
     filters: await Promise.all(slugs.map(async (slug) => ({ slug, name: (await standard.testimonials.tag(slug)).name }))),
     texts: testimonialTexts(texts),
   };

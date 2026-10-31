@@ -15,6 +15,7 @@ import {
   collections,
   colorFields,
   colorPairs,
+  colorRoles,
   companyParts,
   config,
   frontLeads,
@@ -24,17 +25,18 @@ import {
   siteProblems,
 } from '@site/editor';
 import { colorProblems, lowContrast, MODES } from '../lib/colors';
-import { dynamicProblems } from '../lib/dynamic-colors';
+import { completeColors, dynamicProblems } from '../lib/dynamic-colors';
 import { APP_HOOKS, hooksOf } from '../lib/hooks';
 import { texts } from '@site/texts';
+import { texts as standardTexts } from '../defaults/texts';
 import type { Part } from './schema';
 import { apps, asStandardTemplate, blockProblems, siteBlocks, standardPageOf, withPageBlocks } from './registry';
 import { installedApps, settingsFile } from './apps';
 import { appFolder, SCREENSHOTS, shotFile, shotOf } from './store';
-import { appFolders } from '@site/apps';
-import { sharedParts, translator, writtenApps, writtenBlockParts, writtenCollections } from './site';
+import { appFolders } from './appFiles';
+import { colorPairs as shownPairs, sharedParts, translator, writtenApps, writtenBlockParts, writtenCollections } from './site';
 import { splitBlocks } from '../lib/blocks.mjs';
-import { appTexts, locales, siteLocale, t, type Texts } from './i18n';
+import { appTexts, DEFAULTS_LOCALE, locales, siteLocale, t, type Texts } from './i18n';
 import { flatten, readAll, REDIRECT_FILES, type AllRedirects } from './redirects';
 
 const ratio = (n: number) => n.toLocaleString(config.locale, { maximumFractionDigits: 1 });
@@ -58,6 +60,8 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
     root?: string,
     defaults?: Record<string, unknown>,
     values?: Record<string, unknown>,
+    // An entry of a list as the list has it now (FolderCollection.upgrade: a contact bar is an action bar).
+    upgrade?: (value: Record<string, unknown>) => Record<string, unknown>,
   ) => {
     const file = byPath.get(path);
     if (!file) return;
@@ -71,6 +75,7 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
     if (root) value = { [root]: value };
     else if (at) value = { ...defaults, ...((value as Record<string, unknown>)[at] ?? {}) };
     else if (values) value = { ...values, ...(value as Record<string, unknown>) };
+    if (upgrade) value = upgrade(value as Record<string, unknown>);
     const problem = check(fields, value as Record<string, unknown>);
     if (problem) problems.push(`${path}: ${problem}`);
   };
@@ -81,7 +86,9 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
       for (const f of c.files)
         data(f.file, f.root ? [...f.fields, f.root] : withPageBlocks(f.fields), undefined, f.fields.length ? undefined : f.root?.name);
     if (c.kind === 'folder')
-      for (const f of files) if (f.path.startsWith(`${c.folder}/`) && f.path.endsWith('.json')) data(f.path, c.fields);
+      for (const f of files)
+        if (f.path.startsWith(`${c.folder}/`) && f.path.endsWith('.json'))
+          data(f.path, c.fields, undefined, undefined, undefined, undefined, c.upgrade && ((v) => c.upgrade!(v, files)));
   }
   for (const part of [
     ...companyParts.flatMap((p) => [p, ...(p.parts ?? [])]),
@@ -121,13 +128,13 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
       problems.push(`${appFolder(app.id)}/${file}: ${t.apps.unlistedScreenshot}`);
   }
 
-  // The colours under "Farver" (Colors.tsx): every colour in both modes, readable together, the choice
-  // of dynamic colour they were made from, if they were.
+  // The colours under "Farver" (Colors.tsx): every colour in both modes (those a file written before them does not have
+  // made, completeColors), readable together, the choice of dynamic colour they were made from, if they were.
   const colorsFile = byPath.get(config.colors);
   if (colorsFile) {
     checked.add(colorsFile.path);
     try {
-      const colors = JSON.parse(colorsFile.text);
+      const colors = completeColors(JSON.parse(colorsFile.text), colorRoles);
       const bad = colorProblems(
         colors,
         colorFields.map((f) => f.name),
@@ -137,7 +144,7 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
         for (const where of dynamicProblems(colors.dynamic)) problems.push(`${colorsFile.path}: ${t.colors.dynamic.wrongAt(where)}`);
       if (!bad.length)
         for (const mode of MODES)
-          for (const pair of lowContrast(colors[mode], colorPairs))
+          for (const pair of lowContrast(colors[mode], shownPairs))
             problems.push(`${colorsFile.path}: ${t.colors[mode]}: ${t.colors.tooLow(pair.what, ratio(pair.ratio), ratio(pair.min))}`);
     } catch {
       problems.push(`${colorsFile.path}: ${t.app.invalidJson}`);
@@ -165,7 +172,7 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
     blocks += splitBlocks(f.text, null).filter((part) => 'type' in part).length;
     const collection = collections.find((c) => c.kind === 'markdown' && f.path.startsWith(`${c.folder}/`));
     const template = collection?.kind === 'markdown' ? collection.template : undefined;
-    // A standard page by its own rules too (the blog page has "Blog"), and the front page's leads read as the site reads
+    // A standard page by its own rules too (the blog page has "Blogindlæg"), and the front page's leads read as the site reads
     // them (packages/editor/site/home.ts).
     const standard = standardPageOf(f, files);
     const front = standard?.key === 'front';
@@ -193,36 +200,56 @@ function chainsOf(all: AllRedirects, flat: AllRedirects): string[] {
 }
 
 /** The site's own texts with no translation, by the editor's other languages, by the file they belong
- * in: the site's in src/site/texts.ts, a block's in its texts.ts (or the site's, for what it takes from
+ * in: the site's in @site/texts, a block's in its texts.ts (or the site's, for what it takes from
  * the site). The editor shows them as they are written. Not the ones said in code (the messages in
  * rules.ts, the lines on the blocks' cards). */
 export function untranslated(): Record<string, Record<string, string[]>> {
-  const missing = (own: Record<string, string>, walk: (w: ReturnType<typeof translator>) => void) => {
+  // The editor shows a site's definitions translated already on a site in another language than Danish, so a text the walk
+  // meets is traced back to the one it was translated from (the translations' tables are by it). A text is written in the
+  // package's language when the package's standard parts or an app have it in Danish (defaults/texts.ts, an app's
+  // texts.ts), else in the site's; it needs a translation in each other language.
+  const tables = [standardTexts, ...Object.values(appTexts)].map((table) => Object.entries(table['en-US'] ?? {}));
+  const danish = new Set(tables.flatMap((entries) => entries.map(([text]) => text)));
+  const original = new Map(tables.flatMap((entries) => entries.map(([text, translated]) => [translated, text] as const)));
+  const writtenIn = (text: string) => (danish.has(text) ? DEFAULTS_LOCALE : siteLocale);
+  const missing = (l: string, own: Record<string, string>, walk: (w: ReturnType<typeof translator>) => void) => {
     const found = new Set<string>();
-    walk(translator((text) => (text in own || found.add(text), text)));
+    walk(
+      translator((shown) => {
+        const text = original.get(shown) ?? shown;
+        if (writtenIn(text) !== l && !(text in own)) found.add(text);
+        return shown;
+      }),
+    );
     return [...found];
   };
   return Object.fromEntries(
     locales
-      .filter((l) => l !== siteLocale)
+      .filter((l) => l !== siteLocale || l !== DEFAULTS_LOCALE)
       .map((l) => {
         const site = (texts as Texts)[l] ?? {};
         const files: Record<string, string[]> = {
-          'src/site/texts.ts': missing(site, (w) => {
+          'src/site/texts.ts': missing(l, site, (w) => {
             collections.forEach(w.collection);
             [...companyParts, ...partScreens.flatMap((s) => s.parts), ...appearance, ...seoParts, ...blockParts].forEach(w.part);
             partScreens.forEach((s) => w.group({ title: s.label, ids: [] }));
             groups.forEach(w.group);
+            colorFields.forEach(w.color);
+            colorPairs.forEach(w.pair);
           }),
         };
         // An app's block's own texts, and the fields of its shared texts (shared.ts), in its texts.ts.
         for (const block of siteBlocks.filter((b) => b.app))
-          files[`src/apps/${block.app}/blocks/${block.type}/texts.ts`] = missing({ ...site, ...appTexts[block.type]?.[l] }, (w) => {
-            w.block(block);
-            sharedParts.filter((p) => p.id === block.type).forEach(w.part);
-          });
+          files[`src/apps/${block.app}/blocks/${block.type}/texts.ts`] = missing(
+            l,
+            { ...site, ...appTexts[`blocks/${block.type}`]?.[l] },
+            (w) => {
+              w.block(block);
+              sharedParts.filter((p) => p.id === block.type).forEach(w.part);
+            },
+          );
         // An app's name, what it does and its settings, in its texts.ts.
-        for (const app of apps) files[`src/apps/${app.id}/texts.ts`] = missing({ ...site, ...appTexts[app.id]?.[l] }, (w) => w.app(app));
+        for (const app of apps) files[`src/apps/${app.id}/texts.ts`] = missing(l, { ...site, ...appTexts[app.id]?.[l] }, (w) => w.app(app));
         return [l, Object.fromEntries(Object.entries(files).filter(([, list]) => list.length))];
       }),
   );

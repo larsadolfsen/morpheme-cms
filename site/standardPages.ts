@@ -1,5 +1,5 @@
 // The blog page, the 404 page and the cookie policy: the pages chosen under "Indstillinger" › "Udseende" › "Standardsider"
-// (src/data/standard-pages.json, src/site/standardPages.ts), read for the theme's templates/Blog.astro (at /blog/) and
+// (src/data/standard-pages.json, packages/editor/defaults/standardPages.ts), read for the theme's templates/Blog.astro (at /blog/) and
 // templates/NotFound.astro (the page for an address that does not exist): the page, its heading (the H1 at the top of
 // its text, else its title), its introduction (the first paragraph of the text before its first heading or block) and the
 // rest, shown, as sections: text ("text": a heading and Markdown) and each block by its type, with its fields; and where

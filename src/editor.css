@@ -69,7 +69,7 @@
 /* The bar with "Gem" (FormFrame.tsx) slides up when something has been changed; the messages
    (App.tsx) then go above it. */
 .editor-save-bar {
-  animation: editor-rise 0.2s ease-out;
+  animation: editor-rise var(--motion-spatial-fast);
 }
 
 @keyframes editor-rise {
@@ -146,41 +146,48 @@
    computer, where it is a dialog in the middle, it fades in and grows a little) and the page behind
    it darkens (a question, ask.tsx, comes up as the theme's dialog does); a new screen fades in; a message rises up; an item of a
    list that is opened shows its fields softly; a picture in Filer fades in when it has loaded and
-   grows a little under the mouse; a button gives a little when pressed. Only when the phone or
-   computer does not ask for less motion. */
+   grows a little under the mouse; a button's colours change softly (pressed, it ripples: the theme's .ripple). Only when
+   the phone or computer does not ask for less motion. */
 @media (prefers-reduced-motion: no-preference) {
   .editor-sheet[open] {
-    animation: editor-sheet-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    animation: editor-sheet-in var(--motion-spatial);
   }
 
   /* A modal navigation drawer (ModalNavigationDrawer in ui.tsx) slides in from the right edge. */
   .editor-drawer[open] {
-    animation: editor-drawer-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    animation: editor-drawer-in var(--motion-spatial);
   }
 
   :is(.editor-sheet, .editor-drawer)[open]::backdrop {
-    animation: editor-fade 0.25s ease-out;
+    animation: editor-fade var(--motion-effects);
   }
 
   @media (min-width: 48rem) {
     .editor-sheet[open] {
-      animation: editor-pop 0.2s ease-out;
+      animation: editor-pop var(--motion-spatial-fast);
     }
   }
 
   .editor-screen {
-    animation: editor-enter 0.25s ease-out;
+    animation: editor-enter var(--motion-spatial);
+    /* A chip set that scrolls reaches out to the screen's edges: the screen's gutter (px-4, md:px-6 in Screen.tsx). */
+    --chip-set-bleed: 1rem;
+  }
+  @media (min-width: 48rem) {
+    .editor-screen {
+      --chip-set-bleed: 1.5rem;
+    }
   }
 
   .editor-reveal {
-    animation: editor-enter 0.2s ease-out;
+    animation: editor-enter var(--motion-spatial-fast);
   }
 
   .editor-fade-in {
     opacity: 0;
     transition:
-      opacity 0.3s ease-out,
-      scale 0.3s ease-out;
+      opacity var(--motion-effects),
+      scale var(--motion-spatial);
   }
 
   .editor-fade-in[data-loaded] {
@@ -191,13 +198,8 @@
   @layer base {
     :is(button, a):not(:disabled, .ProseMirror *) {
       transition:
-        scale 0.12s ease-out,
-        background-color 0.15s,
-        color 0.15s;
-    }
-
-    :is(button, a):not(:disabled, .ProseMirror *):active {
-      scale: 0.97;
+        background-color var(--motion-effects-fast),
+        color var(--motion-effects-fast);
     }
   }
 }
@@ -291,7 +293,7 @@ html {
   padding: 0.5rem;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.2s var(--ease);
+  transition: border-color var(--motion-effects);
 }
 
 .editor-text .site-block-card:hover,
@@ -401,7 +403,7 @@ html {
   pointer-events: none;
 }
 
-/* The space a block keeps around it on the site (a price card, a klippekort) is the frame's here. */
+/* The space a block keeps around it on the site (a price card, a panel) is the frame's here. */
 .editor-text .site-block-preview > :first-child {
   margin-top: 0;
 }
@@ -561,7 +563,7 @@ html {
 
 @media (prefers-reduced-motion: no-preference) {
   .editor-spaced .ProseMirror > p:has(> br:only-child) {
-    transition: line-height 0.2s ease-out;
+    transition: line-height var(--motion-spatial-fast);
   }
 }
 
@@ -589,8 +591,9 @@ html {
   }
 }
 
-/* While a sheet or a dialog is open, the page under it does not scroll (only the sheet does). */
-html:has(dialog[open]) {
+/* While a sheet or a dialog is open (shown modally, showModal), the page under it does not scroll (only the sheet does).
+   Not a <dialog> drawn open in the page, like the search view on "Dele › Tema" (NavigationRestParts.tsx). */
+html:has(dialog:modal) {
   overflow: hidden;
 }
 

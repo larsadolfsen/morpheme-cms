@@ -1,0 +1,12 @@
+{
+  "order": 3,
+  "name": "Elena Rostova",
+  "context": "Accessibility Specialist",
+  "quote": "Google's HCT color science and Material 3 design tokens guarantee WCAG AA contrast on every single tonal surface, in both light and dark mode.",
+  "image": "/images/uploads/2026/10/team-elena.jpg",
+  "categories": [
+    "design",
+    "editing"
+  ],
+  "frontPage": true
+}

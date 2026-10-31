@@ -33,7 +33,7 @@ export async function getPosts({ unlisted = false } = {}) {
 
 /** Which posts a "Blogindlæg" block or the front page's section shows (packages/editor/site/home.ts): those in
  * any of `categories` (all when empty), the newest `count`, or with `order` "random" all of them,
- * to show `count` of at random on the page (PostCards.tsx); or with `show` "picked" those picked. */
+ * to show `count` of at random on the page (the theme's PostList.tsx); or with `show` "picked" those picked. */
 export async function postsFor(
   { show = 'categories', categories = [], order = 'newest', picked = [] }: PostChoice,
   count: number,
@@ -45,7 +45,8 @@ export async function postsFor(
   return { posts: random ? pool : pool.slice(0, count), random };
 }
 export type PostChoice = {
-  show?: 'categories' | 'picked';
+  /** "all": all of them, which "Blogindlæg" lists itself (StandardSite.posts.list), not by this. */
+  show?: 'all' | 'categories' | 'picked';
   categories?: string[];
   /** How many, '3' to '6' (postCount in the standard block Blogindlæg's shared.ts). */
   count?: string;

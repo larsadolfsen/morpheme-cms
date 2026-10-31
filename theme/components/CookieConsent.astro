@@ -1,5 +1,5 @@
 ---
-// Cookie banner: asks about each category of cookies the apps' tags set (consentCategories in src/site/consent.ts:
+// Cookie banner: asks about each category of cookies the apps' tags set (consentCategories in packages/editor/site/consent.ts:
 // preferences, statistics, marketing, targeting), so a yes to one is not a yes to another, before those tags are loaded
 // (afterConsent in src/scripts/tracking.ts). "Ja tak" says yes to all of them and "Nej tak" no, equally easy; "Avanceret"
 // shows each category with what it is for and a box to tick (the theme's Checkbox), and "Gem valg" saves what is
@@ -17,7 +17,8 @@ import Checkbox from '@theme/ui/Checkbox';
 import { dialogClass } from '@theme/ui/Dialog';
 import cookies from '@data/cookies.json';
 import { cookiesHref } from '@interstellarcms/cms/site/standardPages';
-import { consentCategories } from '@site/consent';
+import { consentCategories } from '../../site/consent';
+import { siteT } from '@interstellarcms/cms/src/i18n';
 
 const more = await cookiesHref();
 // Each category with its name and what it is for.
@@ -29,7 +30,7 @@ const necessary = category('necessary');
 <div
   id="cookie-consent"
   role="region"
-  aria-label="Cookies"
+  aria-label={siteT.theme.cookies}
   hidden
   class:list={[
     dialogClass,

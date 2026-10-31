@@ -9,6 +9,7 @@ import type { Picture } from '@interstellarcms/cms/src/standard/view';
 import Dialog from '@theme/ui/Dialog';
 import IconButton from '@theme/ui/IconButton';
 import PopupButton, { type PopupButtonView } from '@theme/components/PopupButton';
+import { siteT } from '@interstellarcms/cms/src/i18n';
 
 export type PopupBoxView = { slug: string; image?: Picture; heading: string; text: string[]; button?: PopupButtonView };
 
@@ -19,7 +20,7 @@ export default function PopupView({ popup, Part, part }: { popup: PopupBoxView; 
   const button = <PopupButton button={popup.button} />;
   return (
     <Dialog className="relative overflow-hidden">
-      <IconButton icon="x" label="Luk" kind="tonal" className="absolute top-3 right-3 z-10" data-popup-close="true" />
+      <IconButton icon="x" label={siteT.theme.close} kind="tonal" className="absolute top-3 right-3 z-10" data-popup-close="true" />
       {popup.image && (
         <img
           src={popup.image.src}

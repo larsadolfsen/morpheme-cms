@@ -1,10 +1,11 @@
 // Rows that fold out (Accordion.tsx), on the site: the text of a row that opens fades in, and where the browser cannot
 // animate ::details-content the height glides (and this keeps one row open). Reduced motion: no animation. Run on
-// every page by the theme's Base.astro (blockScripts, src/site/scripts.ts).
+// every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts). It moves with the site's
+// motion scheme (motionTiming, @interstellarcms/cms/lib/motion.ts).
+import { motionTiming } from '@interstellarcms/cms/lib/motion';
+
 export default function accordion() {
   const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // The theme's easing (blocks.css, --block-ease).
-  const easing = getComputedStyle(document.documentElement).getPropertyValue('--block-ease').trim() || 'ease';
   const bodyOf = (d: HTMLDetailsElement) => d.querySelector<HTMLElement>('.block-accordion-body')!;
 
   // The text of a row that opens fades in and rises a little (also when find-in-page opens it).
@@ -16,10 +17,7 @@ export default function accordion() {
             { opacity: 0, transform: 'translateY(0.5rem)' },
             { opacity: 1, transform: 'none' },
           ],
-          {
-            duration: 450,
-            easing,
-          },
+          motionTiming('spatial'),
         );
     }),
   );
@@ -33,7 +31,7 @@ export default function accordion() {
       const full = { height: `${body.offsetHeight}px`, paddingBottom: getComputedStyle(body).paddingBottom };
       const shut = { height: '0px', paddingBottom: '0px' };
       body.style.overflow = 'hidden';
-      const run = body.animate(open ? [shut, full] : [full, shut], { duration: 400, easing });
+      const run = body.animate(open ? [shut, full] : [full, shut], motionTiming('spatial'));
       run.onfinish = run.oncancel = () => {
         body.style.overflow = '';
         if (!open) d.open = false;

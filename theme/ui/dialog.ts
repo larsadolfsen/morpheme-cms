@@ -5,16 +5,18 @@
 // motion it appears and disappears at once. Its close button (data-dialog-close: a full-screen one's cross, or a
 // button among a basic one's actions) and Escape close it, and a tap on the scrim (outside it) closes a basic one (a
 // full-screen one holds a task that is not done, so only its buttons close it); the page under it does not scroll
-// while it is open. The motion has the theme's easing (themeEase).
+// while it is open. It moves with the site's motion scheme (motionSpring, @interstellarcms/cms/lib/motion.ts).
 import { animate } from 'motion';
-import { themeEase } from '@theme/scripts/ease';
+import { motionSpring } from '@interstellarcms/cms/lib/motion';
 
 export type DialogControls = { open: () => void; close: () => Promise<void> };
+
+export * from './Dialog.tsx';
+export { default } from './Dialog.tsx';
 
 export function dialog(el: HTMLDialogElement): DialogControls {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fullScreen = el.classList.contains('dialog-modal-full-screen');
-  const ease = themeEase();
   let closing = false;
 
   function open() {
@@ -26,7 +28,7 @@ export function dialog(el: HTMLDialogElement): DialogControls {
   async function close() {
     if (!el.open || closing) return;
     closing = true;
-    if (!reduce) await animate(el, { opacity: 0, y: 16 }, { duration: 0.2, ease });
+    if (!reduce) await animate(el, { opacity: 0, y: 16 }, motionSpring('spatial', 'fast'));
     el.close();
     el.style.transform = '';
     el.style.opacity = '';

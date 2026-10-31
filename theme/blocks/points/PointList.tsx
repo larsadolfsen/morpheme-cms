@@ -1,21 +1,21 @@
-// Points side by side where there is room (.block-points in ../blocks.css): each with an icon in a circle, a heading,
-// a text and, with a page and a link's text, the link after the text: the standard block "Punkter med ikon".
+// Points side by side where there is room (.block-points in ../blocks.css), a list without dividers (List.tsx in
+// ../../ui/): each an item with its icon leading it, its heading as the headline and its text as the supporting text,
+// with, with a page and a link's text, the link after the text: the standard block "Punkter med ikon".
 // `className`: the site's own classes on the list.
-import { Svg } from '@interstellarcms/cms/src/icon';
+import List, { ListItem } from '@theme/ui/List';
 import type { Point } from '@interstellarcms/cms/src/standard/points/view';
 import { Link } from '@interstellarcms/cms/src/standard/view';
 
 export default function PointList({ items, className }: { items: Point[]; className?: string }) {
   return (
-    <ul className={className ? `block-points ${className}` : 'block-points'}>
+    <List dividers="none" className={className ? `block-points ${className}` : 'block-points'}>
       {items.map((p, i) => (
-        <li key={i} className="block-point">
-          <span className="block-point-icon">
-            <Svg name={p.icon} size={24} />
-          </span>
-          <div>
-            <h3 className="block-point-title">{p.title}</h3>
-            <p className="block-point-text">
+        <ListItem
+          key={i}
+          leadingIcon={p.icon}
+          headline={p.title}
+          supporting={
+            <>
               {p.text}
               {p.more && p.href && (
                 <>
@@ -25,10 +25,10 @@ export default function PointList({ items, className }: { items: Point[]; classN
                   </Link>
                 </>
               )}
-            </p>
-          </div>
-        </li>
+            </>
+          }
+        />
       ))}
-    </ul>
+    </List>
   );
 }

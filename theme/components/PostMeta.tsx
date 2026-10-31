@@ -1,6 +1,7 @@
-// Date and reading time for a blog post: "12. marts 2024 · 5 min. læsetid" (posts.ts makes them).
+// Date and reading time for a blog post: "12. marts 2024 · 5 min. læsetid" in Danish (posts.ts makes them).
 import { Svg } from '@interstellarcms/cms/src/icon';
 import type { PostView } from '@theme/components/posts';
+import { siteT } from '@interstellarcms/cms/src/i18n';
 
 export default function PostMeta({ post, className }: { post: PostView; className?: string }) {
   return (
@@ -9,7 +10,7 @@ export default function PostMeta({ post, className }: { post: PostView; classNam
       <span aria-hidden="true">·</span>
       <span className="inline-flex items-center gap-1">
         <Svg name="clock" size={15} />
-        {post.minutes} min. læsetid
+        {siteT.theme.readingTime(post.minutes)}
       </span>
     </p>
   );

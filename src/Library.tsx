@@ -23,13 +23,16 @@ import {
   Moon,
   Palette,
   Plus,
+  Ruler,
   Shapes,
   SignOut,
   Sun,
   type Icon,
 } from '@phosphor-icons/react';
-import { byText, type Collection, type Part, type PartScreen } from './schema';
-import { config, countsOf, header, iconPack, iconPacks, relationsOf, siteName, theme, themes, type ThemeInfo } from '@site/editor';
+import { byText, entryData, type Collection, type Part, type PartScreen } from './schema';
+import { config, countsOf, header, relationsOf, siteName } from '@site/editor';
+import { iconPack, iconPacks } from './iconPacks';
+import { theme, themes, type ThemeInfo } from './themes';
 import {
   appearance,
   backFrom,
@@ -57,7 +60,6 @@ import {
   Group,
   IconButton,
   LeadingIcon,
-  listItemClass as row,
   NewChoice,
   SearchRow,
   useKept,
@@ -65,28 +67,25 @@ import {
   UnfoldButton,
   GroupTitle,
   SwitchRow,
-  accentListItemClass,
   IconLink,
-  mutedListItemClass,
-  TrailingText,
   ScoreRing,
   scoreOf,
   Button,
-  staticListItemClass,
   EmptyNote,
-  TrailingIcon,
   ChoiceRow,
+  ColorSwatches,
   IconSwatches,
+  ListItem,
 } from './ui';
 import { openAtSeo } from './EntryForm';
 import { isRated } from './SeoScores';
 import { fileRating } from './seo';
 import { dateName, headed, letterOf } from './Sheet';
 import type { Env } from './App';
-import { SAVED } from './deploy';
+import { kindAndName, savedText } from './deploy';
 import { when } from './when';
 import { untilTime } from '../lib/notice.mjs';
-import { savedTheme, setTheme, type Theme } from './theme';
+import { savedTheme, setTheme, shownMode, type Theme } from './theme';
 import { browserLocale, locale, localeName, locales, savedLocale, setLocale, siteLocale, siteT, siteText, t, type Locale } from './i18n';
 import { appType, EDITOR_TYPES, setDevice, setOn, useNotificationChoices } from './notifications';
 import { snackbar } from '../lib/snackbar';
@@ -96,6 +95,7 @@ import { filesOf, mediaOf } from './Media';
 import { restorable } from './Deleted';
 import { installedApps, kindsOffered, tabsOf } from './apps';
 import { appPartsIn, DeveloperRow } from './AppList';
+import { kindLists } from './BlockParts';
 import {
   chosenPack,
   chosenTheme,
@@ -106,8 +106,11 @@ import {
   themeUpdateOf,
   useThemeCatalog,
 } from './ThemeStore';
-import { STORE_ROUTE } from './store';
-import { OwnerLicenses } from './Licenses';
+import { STANDARD_THEME, STORE_ROUTE } from './store';
+import { MOTION_SCHEMES, schemeInUse, type MotionScheme } from '../lib/motion';
+import { applyMotion } from './theme';
+import { colorsOf } from './Colors';
+import { OwnerLicenses } from './Licenses.tsx';
 import { apps } from './site';
 import { offBlocks } from './registry';
 
@@ -134,7 +137,8 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   const screen = partScreens.find((s) => s.id === id);
   if (screen) return { label: screen.label, href: `#${id}`, count: null };
   if (id === 'seo') return { label: parts.seo, href: '#seo', count: null };
-  const c = collections.find((x) => x.id === id)!;
+  const c = collections.find((x) => x.id === id);
+  if (!c) return { label: id, href: `#${id}`, count: null };
   return { label: c.label, href: hrefOf(c), count: c.kind === 'files' && c.files.length === 1 ? null : countOf(c, files) };
 }
 
@@ -146,16 +150,7 @@ export { LeadingIcon };
 
 // A part of the site as a row: its icon, its name and how many entries it has.
 function PartRow({ id, label, href, count }: { id: string } & ReturnType<typeof partOf>) {
-  return (
-    <li>
-      <a href={href} className={row}>
-        <LeadingIcon icon={icons[id]} />
-        <span className="min-w-0 flex-1 font-medium">{label}</span>
-        {count !== null && <TrailingText>{count}</TrailingText>}
-        <TrailingIcon />
-      </a>
-    </li>
-  );
+  return <ListItem href={href} icon={icons[id]} headline={label} count={count} arrow />;
 }
 
 // The start screen, with when the site was last updated (built on Cloudflare, App.tsx) under the title;
@@ -183,7 +178,7 @@ export function Start({ files, builtAt }: { files: RepoFile[]; builtAt: Date | n
 }
 
 /** "Indstillinger" (#indstillinger), which the gear in the top bar opens (Screen.tsx SettingsLink): the settings of the
- * whole site (settings in src/site/editor.ts: "Analytics", "Apps", "Privatliv", "Promovering", "Søgemaskineoptimering",
+ * whole site (settings in packages/editor/defaults/editor.ts: "Analytics", "Apps", "Privatliv", "Promovering", "Søgemaskineoptimering",
  * "Udseende"), A–Å as a group of the start screen, each going back here (backFrom). */
 export function Settings({ files }: { files: RepoFile[] }) {
   return (
@@ -198,14 +193,15 @@ export function Settings({ files }: { files: RepoFile[] }) {
 }
 
 // "Virksomheden": its parts (CompanyForm.tsx), each on a screen of its own; or one of them with parts
-// of its own ("Betaling"), going back to "Virksomheden".
-export function Company({ part }: { part?: Part }) {
+// of its own ("Betaling"), and the settings of the apps installed of its kinds (Part.apps: MobilePay), going back to
+// "Virksomheden".
+export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
   if (part?.parts)
     return (
       <Parts
         title={part.label}
         route={`virksomheden/${part.id}`}
-        parts={part.parts}
+        parts={[...part.parts, ...appPartsIn(part, files)]}
         back={{ href: '#virksomheden', label: t.common.parts.company }}
       />
     );
@@ -213,9 +209,10 @@ export function Company({ part }: { part?: Part }) {
 }
 
 // "Udseende": first "Temaer" (Themes), with the theme the site is built with at the end of its row (or, after a swap,
-// until the site is built with the new one, that one), and "Ikonpakker" (IconPacks), with the pack chosen; then how the
+// until the site is built with the new one, that one), "Ikonpakker" (IconPacks), with the pack chosen, and "Bevægelse"
+// (MotionSchemes), with the scheme chosen; then how the
 // site looks, the colours (Colors.tsx), the logo and
-// icon (BrandForm.tsx) and the site's own parts there (appearance in src/site/editor.ts: "Standardsider", a screen of its
+// icon (BrandForm.tsx) and the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider", a screen of its
 // own, CompanyForm.tsx, going back here), and how the editor and the blocks look, their parts ("Dele", PartsHome), each on a
 // screen of its own, with the icons the site gives them.
 // The blocks that can be put in are under "Blokke" ("Blokindstillinger", BlockSettings.tsx).
@@ -229,12 +226,23 @@ export function Theme({ files }: { files: RepoFile[] }) {
       icon: icons.ikonpakker,
       detail: iconPacks.find((x) => x.id === chosenPack(files))?.name,
     },
-    { id: 'farver', label: t.common.parts.colors, icon: icons.farver },
+    { id: 'bevaegelse', label: t.common.parts.motion, icon: icons.bevaegelse, detail: t.library.motionSchemes[motionOf(files)] },
+    { id: 'farver', label: t.common.parts.colors, icon: icons.farver, trailing: <ThemeColors files={files} /> },
     { id: 'logo', label: t.common.parts.brand, icon: icons.logo },
     ...appearance,
     { id: 'dele', label: t.common.parts.editorParts, icon: icons.dele },
   ];
   return <Parts title={t.common.parts.appearance} route="udseende" parts={parts} back={backFrom('udseende')} />;
+}
+
+/** By "Farver": the site's primary, secondary and tertiary colours (accent, secondary, tertiary) in the mode the editor
+ * is shown in, as the site has them. */
+function ThemeColors({ files }: { files: RepoFile[] }) {
+  const mode = shownMode();
+  const colors = colorsOf(files)[mode];
+  return (
+    <ColorSwatches colors={['accent', 'secondary', 'tertiary'].map((n) => colors[n])} label={t.colors.pages.swatches(t.colors[mode])} />
+  );
 }
 
 const backToAppearance = { href: '#udseende', label: t.common.parts.appearance };
@@ -246,7 +254,7 @@ function themeStatus(id: string, files: RepoFile[]): string | undefined {
   if (id === chosenTheme(files)) return t.library.themeNext;
 }
 
-/** "Temaer" (#udseende/temaer): the themes installed (src/themes/, @site/theme; and one from the store the site's build
+/** "Temaer" (#udseende/temaer): the themes installed (src/themes/, packages/editor/src/themes.ts; and one from the store the site's build
  * does not have yet, as "Installeres …"), by name, each with its picture, its version and who made it, and whether it is
  * in use or the store has a newer version, opening its page (ThemePage). More are in "Appstore", under "Indstillinger". */
 export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
@@ -264,17 +272,16 @@ export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
             ? t.apps.pending
             : (themeStatus(x.id, files) ?? (themeUpdateOf(installed, catalog) ? t.apps.updateFound : undefined));
           return (
-            <li key={x.id}>
-              <a href={`#udseende/temaer/${x.id}`} className={row}>
-                <ThemePicture src={x.icon} />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium">{x.name}</span>
-                  <span className="block truncate text-sm text-muted">{t.library.themeByline(x.version, x.author)}</span>
-                </span>
-                {status && <TrailingText>{status}</TrailingText>}
-                <TrailingIcon />
-              </a>
-            </li>
+            <ListItem
+              key={x.id}
+              href={`#udseende/temaer/${x.id}`}
+              leading={<ThemePicture src={x.icon} />}
+              headline={x.name}
+              supporting={t.library.themeByline(x.version, x.author)}
+              truncate
+              count={status}
+              arrow
+            />
           );
         })}
       </Group>
@@ -283,7 +290,7 @@ export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
 }
 
 /** "Ikonpakker" (#udseende/ikonpakker): the icon packs installed (the system's own, packages/editor/icons/, and those the themes
- * installed bring; @site/icons), by name, each with who made it, its licence, the theme it came with and a few of its
+ * installed bring; iconPacks.ts), by name, each with who made it, its licence, the theme it came with and a few of its
  * icons as they are, the one chosen ticked (chosenPack), with "I brug" by the one the site and the editor are built with
  * and "Skifter hertil …" by the one chosen until they are. A tap on another asks first and then saves it in the site's
  * file (config.icons) at once, in its own commit, as a theme is; the site and the editor have its icons after the
@@ -302,9 +309,10 @@ export function IconPacks({ env, files }: { env: Env; files: RepoFile[] }) {
     setSaving(true);
     env.notify({ text: t.common.saving });
     try {
-      const oids = await env.commit(siteT.library.iconPackCommit(name), [{ path, content: text, oid: file?.oid || null }]);
+      const change = t.app.changes.chosen(kindAndName(t.app.changes.iconPack, name));
+      const oids = await env.commit(siteT.library.iconPackCommit(name), [{ path, content: text, oid: file?.oid || null }], change);
       env.onSaved({ path, oid: oids[path], text });
-      env.notify({ text: t.library.iconPackSaved, kind: 'saved' });
+      env.notify({ text: t.library.iconPackSaved(capital(change)), kind: 'saved' });
     } catch (e) {
       env.notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
     } finally {
@@ -324,14 +332,84 @@ export function IconPacks({ env, files }: { env: Env; files: RepoFile[] }) {
               selected={x.id === chosen}
               trailing={<IconSwatches icons={x.samples} label={t.library.iconPackSamples(x.name)} />}
               onClick={() => choose(x.id, x.name)}
-            >
-              <span className="block truncate">{x.name}</span>
-              <span className="block truncate text-sm text-muted">{t.library.iconPackByline(x.author, x.license)}</span>
-              {from && <span className="block truncate text-sm text-muted">{t.library.iconPackFrom(from)}</span>}
-              {status && <span className="block text-sm text-muted">{status}</span>}
-            </ChoiceRow>
+              headline={x.name}
+              supporting={
+                <>
+                  {t.library.iconPackByline(x.author, x.license)}
+                  {from && <span className="block">{t.library.iconPackFrom(from)}</span>}
+                  {status && <span className="block">{status}</span>}
+                </>
+              }
+            />
           );
         })}
+      </Group>
+    </Screen>
+  );
+}
+
+/** How the site moves (lib/motion.ts): the scheme chosen in the site's file (config.motion, `{ "scheme": "<scheme>" }`),
+ * as it is saved, else the theme the editor is built with's ("motion" in its theme.json), else the standard theme's. */
+export function motionOf(files: RepoFile[]): MotionScheme {
+  let scheme: unknown;
+  try {
+    scheme = JSON.parse(files.find((f) => f.path === config.motion)?.text ?? '{}').scheme;
+  } catch {}
+  return schemeInUse(scheme, theme.motion, themes.find((x) => x.id === STANDARD_THEME)?.motion);
+}
+
+/** "Bevægelse" (#udseende/bevaegelse): Material 3's motion schemes and our calm one (lib/motion.ts), each with how it
+ * moves, the one in use ticked (motionOf) and "Temaets valg" by the theme's own. A tap on another asks first and then
+ * saves it in the site's file (config.motion) at once, in its own commit, as an icon pack is; the editor moves by it at
+ * once (applyMotion, App.tsx), the site after it is built. */
+export function MotionSchemes({ env, files }: { env: Env; files: RepoFile[] }) {
+  const [saving, setSaving] = useState(false);
+  const chosen = motionOf(files);
+  const ofTheme = schemeInUse(undefined, theme.motion, themes.find((x) => x.id === STANDARD_THEME)?.motion);
+
+  async function choose(scheme: MotionScheme) {
+    if (saving || scheme === chosen) return;
+    const name = t.library.motionSchemes[scheme];
+    if (!(await ask(t.library.changeMotionAsk(name), t.library.changeMotion))) return;
+    const path = config.motion;
+    const file = files.find((f) => f.path === path);
+    const text = `${JSON.stringify({ scheme }, null, 2)}\n`;
+    setSaving(true);
+    env.notify({ text: t.common.saving });
+    try {
+      const change = t.app.changes.chosen(kindAndName(t.app.changes.motion, name));
+      const oids = await env.commit(
+        siteT.library.motionCommit(siteT.library.motionSchemes[scheme]),
+        [{ path, content: text, oid: file?.oid || null }],
+        change,
+      );
+      env.onSaved({ path, oid: oids[path], text });
+      applyMotion(scheme);
+      env.notify({ text: t.library.motionSaved(capital(change)), kind: 'saved' });
+    } catch (e) {
+      env.notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Screen title={t.common.parts.motion} wide back={backToAppearance}>
+      <Group>
+        {MOTION_SCHEMES.map((scheme) => (
+          <ChoiceRow
+            key={scheme}
+            selected={scheme === chosen}
+            onClick={() => choose(scheme)}
+            headline={t.library.motionSchemes[scheme]}
+            supporting={
+              <>
+                {t.library.motionHints[scheme]}
+                {scheme === ofTheme && <span className="block">{t.library.motionOfTheme}</span>}
+              </>
+            }
+          />
+        ))}
       </Group>
     </Screen>
   );
@@ -367,9 +445,10 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
     setSaving(true);
     env.notify({ text: t.common.saving });
     try {
-      const oids = await env.commit(siteT.library.themeCommit(of.name), [{ path, content: text, oid: file?.oid || null }]);
+      const change = t.app.changes.chosen(kindAndName(t.app.changes.theme, of.name));
+      const oids = await env.commit(siteT.library.themeCommit(of.name), [{ path, content: text, oid: file?.oid || null }], change);
       env.onSaved({ path, oid: oids[path], text });
-      env.notify({ text: SAVED, kind: 'saved' });
+      env.notify({ text: savedText(change), kind: 'saved' });
     } catch (e) {
       env.notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
     } finally {
@@ -410,19 +489,13 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
       {highlights.length > 0 && (
         <Group title={t.library.themeHighlights}>
           {highlights.map((h) => (
-            <li key={h} className={staticListItemClass}>
-              <LeadingIcon icon={Check} />
-              <span className="min-w-0 flex-1">{h}</span>
-            </li>
+            <ListItem key={h} icon={Check} headline={h} />
           ))}
         </Group>
       )}
       <Group title={t.library.themeKept}>
         {kept.map(([glyph, text]) => (
-          <li key={text} className={staticListItemClass}>
-            <LeadingIcon icon={glyph} />
-            <span className="min-w-0 flex-1">{text}</span>
-          </li>
+          <ListItem key={text} icon={glyph} headline={text} />
         ))}
       </Group>
       <OwnerLicenses id={`tema/${of.id}`} name={of.name} author={of.author} version={of.version} declared={of} />
@@ -433,12 +506,15 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
 }
 
 /** "Dele" (#udseende/dele): the parts the editor and the site are built of, each on a screen of its own: the editor's
- * (Parts.tsx), the standard blocks as the theme shows them and what the apps add (BlockParts.tsx). */
+ * (Parts.tsx), the theme's UI components, the blocks (the standard ones and the apps') and each list of kinds
+ * ("Promovering", its own kinds and the apps'), as the theme shows them (BlockParts.tsx), and the theme's design tokens ("Værdier", Tokens.tsx). */
 export function PartsHome() {
   const parts: Part[] = [
     { id: 'editor', label: t.parts.screens.editor, icon: icons.dele },
-    { id: 'tema', label: t.parts.screens.theme, icon: icons.udseende },
-    { id: 'apps', label: t.parts.screens.apps, icon: icons.apps },
+    { id: 'ui', label: t.parts.screens.components, icon: icons.udseende },
+    { id: 'blokke', label: t.parts.screens.blocks, icon: icons.blokke },
+    ...kindLists().map((c) => ({ id: `liste/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lister })),
+    { id: 'vaerdier', label: t.parts.screens.values, icon: Ruler },
   ];
   return <Parts title={t.common.parts.editorParts} route="udseende/dele" parts={parts} back={backToAppearance} />;
 }
@@ -604,14 +680,15 @@ function PartGroup({ title, route, parts }: { title?: string; route: string; par
   return (
     <Group title={title}>
       {parts.map((p) => (
-        <li key={p.id}>
-          <a href={p.href ?? `#${route}/${p.id}`} className={row}>
-            <LeadingIcon icon={p.icon} />
-            <span className="min-w-0 flex-1 font-medium">{p.label}</span>
-            {p.detail && <TrailingText>{p.detail}</TrailingText>}
-            <TrailingIcon />
-          </a>
-        </li>
+        <ListItem
+          key={p.id}
+          href={p.href ?? `#${route}/${p.id}`}
+          icon={p.icon}
+          headline={p.label}
+          count={p.detail}
+          trailing={p.trailing}
+          arrow
+        />
       ))}
     </Group>
   );
@@ -656,12 +733,7 @@ export function Account({ user, files, onLogout }: { user: Viewer | null; files:
       <LocalePicker />
       <NotificationChoices files={files} />
       <Group>
-        <li>
-          <button type="button" className={accentListItemClass} onClick={onLogout}>
-            <SignOut size={20} />
-            {t.library.logOut}
-          </button>
-        </li>
+        <ListItem tone="accent" onClick={onLogout} leading={<SignOut size={20} />} headline={t.library.logOut} />
       </Group>
     </Screen>
   );
@@ -833,7 +905,7 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
   }
   const items = own
     .filter((f) => f.path.endsWith('.json'))
-    .map((file) => ({ file, data: JSON.parse(file.text) as Record<string, unknown> }))
+    .map((file) => ({ file, data: entryData(collection, file.text, files) }))
     .sort(
       (a, b) =>
         (collection.orderable ? Number(a.data.order) - Number(b.data.order) : 0) ||
@@ -841,7 +913,7 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
     );
   // The number the site has for each entry (the places that use a tag).
   const count = countsOf(collection, files);
-  // In a list of kinds, each entry says its kind beside its name (Pop op-vindue, Bookinglinje, Mailchimp).
+  // In a list of kinds, each entry says its kind beside its name (Pop op-vindue, Handlingslinje, Mailchimp).
   const kinds = collection.fields.find((f) => f.name === collection.kinds)?.options ?? [];
   const kindLabel = (data: Record<string, unknown>) =>
     kinds.find((o) => o.value === (data[collection.kinds!] ?? kinds[0]?.value))?.label ?? '';
@@ -1198,8 +1270,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
     setBusy(true);
     env.notify({ text: t.library.savingOrder });
     try {
-      await env.reorder(collection, next);
-      env.notify({ text: SAVED, kind: 'saved' });
+      env.notify({ text: savedText(await env.reorder(collection, next)), kind: 'saved' });
     } catch (e) {
       env.notify({ text: t.library.orderNotSaved((e as Error).message), error: true, kind: 'failed' });
     } finally {
@@ -1223,38 +1294,43 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   const listRow = (item: Item) => {
     const i = shown.indexOf(item);
     return (
-      <li key={item.href} className="flex items-center">
-        <a href={item.href} className={`${row} min-w-0 flex-1`}>
-          {ring(item)}
-          <span className={line}>
-            <span className="block truncate md:flex-1">{item.title}</span>
-            {markdown && <Address item={item} />}
-            {pages ? (
-              <SavedTime item={item} />
-            ) : (
-              (item.detail || item.status) && (
-                <span className={meta}>
+      <ListItem
+        key={item.href}
+        href={item.href}
+        leading={ring(item)}
+        headline={item.title}
+        supporting={
+          (markdown || pages || item.detail || item.status) && (
+            <Under item={item} address={markdown}>
+              {pages ? (
+                <SavedTime item={item} />
+              ) : (
+                <>
                   <Status item={item} />
                   {collection.id === 'blog' ? date(item.detail) : item.detail}
-                </span>
-              )
-            )}
-          </span>
-          {item.count != null && <TrailingText>{item.count}</TrailingText>}
-          {!orderable && <TrailingIcon />}
-        </a>
-        {orderable && (
-          <span className="flex shrink-0 pr-2">
-            <IconButton icon={ArrowUp} label={t.common.moveUp} disabled={i === 0 || busy} onClick={() => move(i, i - 1)} />
-            <IconButton
-              icon={ArrowDown}
-              label={t.common.moveDown}
-              disabled={i === shown.length - 1 || busy}
-              onClick={() => move(i, i + 1)}
-            />
-          </span>
-        )}
-      </li>
+                </>
+              )}
+            </Under>
+          )
+        }
+        truncate
+        columns
+        count={item.count}
+        arrow={!orderable}
+        actions={
+          orderable && (
+            <span className="flex shrink-0 pr-2">
+              <IconButton icon={ArrowUp} label={t.common.moveUp} disabled={i === 0 || busy} onClick={() => move(i, i - 1)} />
+              <IconButton
+                icon={ArrowDown}
+                label={t.common.moveDown}
+                disabled={i === shown.length - 1 || busy}
+                onClick={() => move(i, i + 1)}
+              />
+            </span>
+          )
+        }
+      />
     );
   };
   return (
@@ -1401,14 +1477,16 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   );
 }
 
-// The text of a row in a list: the name, and under it its status and date; on a computer the status
-// and date at the right on the same line, so the wider list stays one line a row, and a page's or
-// post's address between them.
-const line = 'min-w-0 flex-1 md:flex md:items-baseline md:gap-6';
-const meta = 'block truncate text-sm text-muted md:w-48 md:shrink-0 md:text-right';
-
-// A page's or post's address, in its row on a computer.
-const Address = ({ item }: { item: Item }) => <span className="hidden truncate text-sm text-muted md:block md:w-1/3">{item.path}</span>;
+// What is under a row's name in a list (its supporting text; beside it on a computer, ListItem's `columns`): its status
+// and date (`children`), at the right on a computer, and there a page's or post's address before them (`address`).
+function Under({ item, address, children }: { item: Item; address?: boolean; children: ReactNode }) {
+  return (
+    <span className="flex gap-6">
+      {address && <span className="hidden min-w-0 flex-1 truncate md:block">{item.path}</span>}
+      <span className="min-w-0 truncate md:ml-auto md:shrink-0 md:text-right">{children}</span>
+    </span>
+  );
+}
 
 // A page's or post's status (Item.status) before its date or time.
 const Status = ({ item }: { item: Item }) => (item.status ? <span className="mr-2 font-medium text-accent">{item.status}</span> : null);
@@ -1416,10 +1494,10 @@ const Status = ({ item }: { item: Item }) => (item.status ? <span className="mr-
 // The time a page was last saved, under its name (a space until it has come, so rows do not jump).
 function SavedTime({ item }: { item: Item }) {
   return (
-    <span className={meta}>
+    <>
       <Status item={item} />
       {item.file && saved.has(item.file.path) ? capital(when(saved.get(item.file.path)!.date)) : '\u00a0'}
-    </span>
+    </>
   );
 }
 
@@ -1443,29 +1521,40 @@ function TreeRows({
     <>
       {branches.map(({ key, item, children }) => {
         const shown = open.has(key);
-        const Row = item.href ? 'a' : 'span';
         return (
           <Fragment key={key}>
-            <li className="flex items-center" style={{ paddingLeft: `${depth * 1.25}rem` }}>
-              <Row href={item.href || undefined} className={`${item.href ? row : mutedListItemClass} min-w-0 flex-1`}>
-                {ring?.(item)}
-                <span className={line}>
-                  <span className="block truncate md:flex-1">{item.title}</span>
-                  {item.href && <Address item={item} />}
-                  {item.href ? <SavedTime item={item} /> : <span className="block text-sm md:shrink-0">{t.library.pageGone}</span>}
-                </span>
-              </Row>
-              {children.length > 0 && (
-                <UnfoldButton
-                  open={shown}
-                  count={children.length}
-                  label={shown ? t.library.hideSubpagesOf(item.title) : t.library.showSubpagesOf(item.title)}
-                  title={shown ? t.library.hideSubpages : t.library.showSubpages}
-                  className="mr-1.5"
-                  onClick={() => toggle(key)}
-                />
-              )}
-            </li>
+            <ListItem
+              href={item.href || undefined}
+              tone={item.href ? undefined : 'muted'}
+              // Indented a step under the item it is under, in the editor's segmented lists.
+              style={depth ? { paddingInlineStart: `calc(var(--list-segmented-padding-inline, 1rem) + ${depth * 1.25}rem)` } : undefined}
+              leading={ring?.(item)}
+              headline={item.title}
+              supporting={
+                item.href ? (
+                  <Under item={item} address>
+                    <SavedTime item={item} />
+                  </Under>
+                ) : (
+                  t.library.pageGone
+                )
+              }
+              truncate
+              columns
+              actions={
+                children.length > 0 && (
+                  <span className="shrink-0 pr-1.5">
+                    <UnfoldButton
+                      open={shown}
+                      count={children.length}
+                      label={shown ? t.library.hideSubpagesOf(item.title) : t.library.showSubpagesOf(item.title)}
+                      title={shown ? t.library.hideSubpages : t.library.showSubpages}
+                      onClick={() => toggle(key)}
+                    />
+                  </span>
+                )
+              }
+            />
             {shown && <TreeRows branches={children} depth={depth + 1} open={open} toggle={toggle} ring={ring} />}
           </Fragment>
         );

@@ -4,7 +4,17 @@
 // is opened as changes that are not saved.
 import { useMemo, useState } from 'react';
 import { Plus } from '@phosphor-icons/react';
-import { entryName, slugify, slugOf, type DataFile, type Field, type FilesCollection, type FolderCollection } from './schema';
+import {
+  entryData,
+  entryName,
+  slugify,
+  slugOf,
+  type Collection,
+  type DataFile,
+  type Field,
+  type FilesCollection,
+  type FolderCollection,
+} from './schema';
 import { config, header, keptBy, sharing, siteName, usesOf } from '@site/editor';
 import { apps, asWritten, collections } from './site';
 import { kindDraw } from './apps';
@@ -18,23 +28,10 @@ import { splitPicture } from '../lib/crop.mjs';
 import { useMediaPicker } from './Media';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
 import { savedOn, VersionNotice, VersionsButton, WithVersions, type ShownVersion } from './Versions';
-import {
-  Button,
-  CheckList,
-  FoldSection,
-  FormColumns,
-  Group,
-  IconButton,
-  Preview,
-  FormHeading,
-  SharePreview,
-  listItemClass,
-  Notice,
-  TrailingIcon,
-} from './ui';
+import { Button, CheckList, FoldSection, FormColumns, Group, IconButton, Preview, FormHeading, SharePreview, Notice, ListItem } from './ui';
 import { plain, SEO_FIELDS, seoRating, SHARE_FIELDS, sharedAs } from './seo';
 import type { Env } from './App';
-import { SAVED } from './deploy';
+import { kindAndName, lower, nameOf, savedText } from './deploy';
 import { siteT, t } from './i18n';
 
 type Props = {
@@ -49,11 +46,11 @@ type Props = {
 // A file that is only a list, without fields of its own beside it (a menu with "Aktiveret" is not).
 const listOnly = (dataFile?: DataFile) => !!dataFile?.root && !dataFile.fields.length;
 
-// A file's values in the form: its data (with the defaults of fields it has none for), or a list
-// under the field's name.
-const valuesOf = (text: string, fields: Field[], dataFile?: DataFile): Record<string, unknown> => {
-  const data = JSON.parse(text);
-  return listOnly(dataFile) ? { [dataFile!.root!.name]: data } : withDefaults(fields, data);
+// A file's values in the form: its data (with the defaults of fields it has none for; an entry of a list as the list has
+// it now, entryData), or a list under the field's name.
+const valuesOf = (text: string, fields: Field[], dataFile: DataFile | undefined, collection: Collection, files: RepoFile[]) => {
+  if (listOnly(dataFile)) return { [dataFile!.root!.name]: JSON.parse(text) } as Record<string, unknown>;
+  return withDefaults(fields, collection.kind === 'folder' && !dataFile ? entryData(collection, text, files) : JSON.parse(text));
 };
 
 // The form starts again with an earlier version, or with the one saved now.
@@ -88,10 +85,15 @@ function Form({
   const isNew = !base.path;
   const kinds = collection.kind === 'folder' ? collection.kinds : undefined;
   const initial = useMemo(
-    () => (isNew ? { ...newValue(fields), ...(kinds && kind ? { [kinds]: kind } : {}) } : valuesOf(base.text, fields, dataFile)),
+    () =>
+      isNew
+        ? { ...newValue(fields), ...(kinds && kind ? { [kinds]: kind } : {}) }
+        : valuesOf(base.text, fields, dataFile, collection, env.files),
     [base],
   );
-  const [values, setValues] = useState<Record<string, unknown>>(() => (version ? valuesOf(version.text, fields, dataFile) : initial));
+  const [values, setValues] = useState<Record<string, unknown>>(() =>
+    version ? valuesOf(version.text, fields, dataFile, collection, env.files) : initial,
+  );
   const notify = env.notify;
   // A form that cannot be saved: why, as a message, and the field marked (useWrongField in fields.tsx), with the section
   // it is in opened first (below).
@@ -149,7 +151,7 @@ function Form({
         ?.options?.find((o) => o.value === kindNow)?.label;
       const slug = slugify(String((from && named[from]) || writtenKind || ''));
       if (!slug) return notify({ text: t.forms.nameNeedsLetters, error: true });
-      // With -2, -3 … when the name is taken (a second bar, named Bookinglinje like the first).
+      // With -2, -3 … when the name is taken (a second bar, named Handlingslinje like the first).
       path = `${folder.folder}/${slug}.json`;
       for (let n = 2; env.files.some((f) => f.path === path); n++) path = `${folder.folder}/${slug}-${n}.json`;
       // A new entry comes last; `order` is the first key, as in the existing files.
@@ -170,17 +172,19 @@ function Form({
           ? siteT.forms.commit.edit(what)
           : siteT.forms.commit.editOne(asWritten(collection).singular, what);
     const changes = [{ path, content: text, oid: base.oid || null }, ...used.map((u) => ({ path: u.path, content: u.bytes, oid: null }))];
+    const entry = dataFile ? lower(dataFile.label) : kindAndName(collection.singular, nameOf(collection, { path, text }));
+    const change = isNew ? t.app.changes.created(entry) : version ? t.app.changes.restored(entry) : t.app.changes.edited(entry);
     setSaving(true);
     notify({ text: t.common.saving });
     try {
-      const oids = await env.commit(message, changes);
+      const oids = await env.commit(message, changes, change);
       pictures.markSaved(used);
       if (fixed) setSavedAt(new Date());
       const saved = { path, oid: oids[path], text };
       setBase(saved);
       setValues(listOnly(dataFile) ? { [dataFile!.root!.name]: JSON.parse(text) } : JSON.parse(text));
       env.onSaved(saved);
-      notify({ text: SAVED, kind: 'saved' });
+      notify({ text: savedText(change), kind: 'saved' });
       // The version is now the one saved: the form as usual again.
       if (version) onVersion(null);
       return true;
@@ -418,12 +422,7 @@ function Form({
           {uses.length > 0 && (
             <Group title={t.forms.usedOn}>
               {uses.map((u) => (
-                <li key={u.path}>
-                  <a href={`#${u.path}`} className={listItemClass}>
-                    <span className="min-w-0 flex-1">{u.name}</span>
-                    <TrailingIcon />
-                  </a>
-                </li>
+                <ListItem key={u.path} href={`#${u.path}`} headline={u.name} arrow />
               ))}
             </Group>
           )}

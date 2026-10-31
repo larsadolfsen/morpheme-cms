@@ -1,11 +1,11 @@
-// "Dele" › "Tema" (BlockParts.tsx), the group "Dialoger, ark og karrusel": the theme's dialog, bottom sheet and carousel
+// "Dele" › "UI-komponenter" (BlockParts.tsx), the group "Dialoger, ark og karrusel": the theme's dialog, bottom sheet and carousel
 // (packages/editor/theme/ui/, through @site/editor) as the site draws them, with made-up texts and the plain picture: a
 // basic dialog, one with an icon, a list and a divider, the container alone (a pop-up's box) and a full-screen one; the
 // modal bottom sheet and the standard one collapsed, half expanded and expanded at the bottom of a frame with a page
 // behind it (it can be dragged and tapped there, as on the site); and the carousel in each of Material's layouts. Only
 // the standard sheet and the carousels do something here; the buttons lead nowhere.
 import type { ReactNode } from 'react';
-import { SiteBottomSheet, SiteButton, SiteCarousel, SiteCheckbox, SiteDialog, SiteTextField, bottomSheetCoverClass } from '@site/editor';
+import { SiteBottomSheet, SiteButton, SiteCarousel, SiteCheckbox, SiteDialog, SiteTextField, bottomSheetCoverClass } from './themeUi';
 import { Part } from './PartsShown';
 import { Preview } from './ui';
 import { examplePicture } from './examples';

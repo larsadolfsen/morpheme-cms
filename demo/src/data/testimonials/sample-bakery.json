@@ -1,0 +1,11 @@
+{
+  "order": 1,
+  "name": "Sarah Lin",
+  "context": "Lead Product Designer",
+  "quote": "The 100% theme parity between frontend and backend is unmatched. Every token, surface, and font matches the Astro site keystroke-by-keystroke.",
+  "image": "/images/uploads/2026/10/team-sarah.jpg",
+  "categories": [
+    "design"
+  ],
+  "frontPage": true
+}

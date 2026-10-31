@@ -2,12 +2,41 @@
 // made from to /editor/version.json (packages/editor/pages/editor/version.json.js), and the editor asks for that
 // until it is the saved commit or a later one. The message is a notification of the type `site` (notifications.ts),
 // which also comes on the phone or computer when the editor is not on screen.
+// Each save says what it changed ("farver ændret", "side “Om” ændret", t.app.changes): right after it (savedText),
+// and, with the other saves since, when the website has been updated with them (changesText, App.tsx save).
 import { graphql, REPO } from './github';
-import { t } from './i18n';
+import { entryName, type Collection } from './schema';
+import { readFields, splitFrontmatter } from './frontmatter.mjs';
+import { locale, t } from './i18n';
 
-// The messages right after saving and deleting; the site is rebuilt in 1-2 minutes.
-export const SAVED = t.common.saved;
-export const DELETED = t.common.deleted;
+const fileName = (path: string) => path.split('/').pop() ?? path;
+
+/** What a file of a list is called: a page's or post's title, an entry's name as its list shows it, else (a picture)
+ * its file name. */
+export function nameOf(collection: Collection | undefined, file: { path: string; text: string }): string {
+  try {
+    if (collection?.kind === 'markdown') return String(readFields(splitFrontmatter(file.text).yaml).title ?? fileName(file.path));
+    if (collection?.kind === 'folder') return entryName(collection, JSON.parse(file.text)) || fileName(file.path);
+  } catch {}
+  return fileName(file.path);
+}
+
+/** A kind or a label inside a sentence: "Side" as "side", but "SEO" as it is. */
+export const lower = (s: string) => (/^\p{Lu}\p{Lu}/u.test(s) ? s : s.charAt(0).toLocaleLowerCase(locale) + s.slice(1));
+const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
+
+/** A thing by its kind and name, as a change says it: side “Om”. */
+export const kindAndName = (kind: string, name: string) => t.app.changes.named(lower(kind), name);
+
+/** The message right after a save, with what it changed; the site is rebuilt in 1-2 minutes. */
+export const savedText = (change: string) => t.common.saved(capital(change));
+
+/** What the saves since the last update changed, as a list: the first three and how many more. */
+export function changesText(changes: string[]): string {
+  const shown = changes.slice(0, 3);
+  const rest = changes.length - shown.length;
+  return new Intl.ListFormat(locale, { type: 'conjunction' }).format(rest ? [...shown, t.app.changes.more(rest)] : shown);
+}
 
 const EVERY = 10_000;
 const GIVE_UP = 10 * 60_000;
@@ -120,7 +149,7 @@ export function keepCurrent(onSite?: (v: Version) => void) {
   };
 }
 
-// Notifications go through the service worker (public/editor/sw.js); registered when the editor opens.
+// Notifications go through the service worker (packages/editor/pages/editor/sw.js); registered when the editor opens.
 export function registerWorker() {
   navigator.serviceWorker?.register('/editor/sw.js').catch(() => {});
 }

@@ -15,6 +15,7 @@ const COMMANDS = {
   'check:worker': ['check-worker', 'check-consent'],
   'check:screens': ['editor-screens'],
   'check:themes': ['check-themes'],
+  'check:demo': ['check-demo'],
   'compare-html': ['compare-html'],
   'app-workers': ['app-workers'],
   'app-screenshots': ['app-screenshots'],

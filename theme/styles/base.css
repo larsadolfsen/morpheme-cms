@@ -22,14 +22,47 @@
   are not here: they are data, src/data/colors.json, which the owner changes under "Farver" in the editor.
   Base.astro and the editor's page write them into <head> (colorsCss, packages/editor/lib/colors.ts), for
   light mode and dark mode as below; the editor checks them to WCAG AA before they are saved
-  (colorPairs in src/site/colors.ts). Everything here uses them by name.
+  (colorPairs in @site/colors). Everything here uses them by name.
 */
 :root {
+  /* Google Material Design 3 (MD3) Expressive & Functional Typography Tokens */
+  --font-brand: 'Roboto Flex', sans-serif;
+  --font-serif: 'Roboto Serif', serif;
+  --font-mono: 'Roboto Mono', monospace;
+  --typescale-expressive-weight: 800;
+  --typescale-expressive-tracking: -0.03em;
+  --typescale-functional-weight: 400;
+
+  /* Google Material Design 3 (MD3) Semantic Spacing Tokens */
+  --spacing-0: 0px;
+  --spacing-25: 2px;
+  --spacing-50: 4px;
+  --spacing-75: 6px;
+  --spacing-100: 8px;
+  --spacing-125: 10px;
+  --spacing-150: 12px;
+  --spacing-175: 14px;
+  --spacing-200: 16px;
+  --spacing-250: 20px;
+  --spacing-300: 24px;
+  --spacing-400: 32px;
+  --spacing-500: 40px;
+  --spacing-600: 48px;
+  --spacing-800: 64px;
+
+  /* Google Material Design 3 (MD3) Window Size Class Breakpoints */
+  --breakpoint-compact: 0px;
+  --breakpoint-medium: 600px;
+  --breakpoint-expanded: 840px;
+  --breakpoint-large: 1200px;
+  --breakpoint-xlarge: 1600px;
+
   --radius: 0.75rem;
   /* The corners of something smaller in or beside a panel: a picture in a list, a row in a menu, an icon's square. */
   --radius-small: 1rem;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px -12px rgb(0 0 0 / 0.18);
-  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  /* The motion scheme's curve (blocks.css, lib/motion.ts). */
+  --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
   color-scheme: light;
 
   /* The standard blocks (blocks.css) in this design; in dark mode too, as they
@@ -49,6 +82,8 @@
   --block-ease: var(--ease);
   /* How far a carousel reaches out to the edges of a phone's screen (ui.css): Container.astro's gutter there (px-5). */
   --carousel-bleed: 1.25rem;
+  /* The same for a chip set that scrolls (ui.css). */
+  --chip-set-bleed: 1.25rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -224,18 +259,18 @@
 /* Motion.
    [data-reveal]: sections fade up once when scrolled into view (packages/editor/theme/scripts/motion.ts).
    The top of a page stands still from the first paint; from another page of the site it fades in (components.css).
-   Off for visitors who prefer reduced motion. */
+   Off for visitors who prefer reduced motion, and with the calm motion scheme ("Bevægelse", data-motion-scheme). */
 @media (prefers-reduced-motion: no-preference) {
-  .js [data-reveal] {
+  .js:not([data-motion-scheme='calm']) [data-reveal] {
     opacity: 0;
   }
 }
 
-/* The site's logo (public/butterfly.svg), colored by background-color via a mask. */
-.butterfly {
+/* The site's logo (public/logo.svg), colored by background-color via a mask. */
+.logo-mark {
   display: inline-block;
-  -webkit-mask: url('/butterfly.svg') center / contain no-repeat;
-  mask: url('/butterfly.svg') center / contain no-repeat;
+  -webkit-mask: url('/logo.svg') center / contain no-repeat;
+  mask: url('/logo.svg') center / contain no-repeat;
 }
 
 /* A block the theme places outside the text (Block.astro in EndBlock.astro and on the prices page): its
@@ -282,12 +317,8 @@
   background-color: var(--accent);
 }
 
-/* Boxes side by side ("Links", an app's boxes): the site's panels (outlined cards, ui.css), with a soft shadow
-   instead of the line, more room on a computer and the heading of a section in it. */
-.block-panels > .block-panel {
-  --card-outlined-line: transparent;
-  --card-outlined-shadow: var(--shadow-soft);
-}
+/* Boxes side by side ("Links", an app's boxes): the site's panels (outlined cards, ui.css, without a shadow), with
+   more room on a computer and the heading of a section in it. */
 .block-panels .block-panel-title {
   font-size: 1.5rem;
 }

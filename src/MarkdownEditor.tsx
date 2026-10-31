@@ -58,6 +58,7 @@ import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { t } from './i18n';
+import { motionTiming } from '../lib/motion';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
 import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
@@ -215,10 +216,7 @@ function move(view: EditorView, i: number, by: -1 | 1): number | null {
     const el = partDOM(view, k);
     const dy = was === undefined || !el ? 0 : was - el.getBoundingClientRect().top;
     if (el && Math.abs(dy) > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches)
-      el.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], {
-        duration: 300,
-        easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
-      });
+      el.animate([{ transform: `translateY(${dy}px)` }, { transform: 'none' }], motionTiming('spatial'));
   });
   if (at < 0) return null;
   // Where it went, in view (one step: past one block, paragraph, heading or picture).

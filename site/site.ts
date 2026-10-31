@@ -37,7 +37,7 @@ export const site = {
   cvr,
   mapsUrl: `https://www.google.com/maps/search/?api=1&query=${`${contact.street}, ${contact.city}`.replace(/ /g, '+')}`,
   bookingPath: config.booking.path,
-  /** The pages a booking or an order ends on (config.ts): no booking bar there. */
+  /** The pages a booking or an order ends on (config.ts): no action bar there. */
   thanks: config.booking.thanks,
   /** The page about the owner, or '' (config.ts). */
   aboutPath: config.aboutPath,
@@ -49,9 +49,9 @@ export const site = {
   booking: { heading: booking.heading, text: booking.text },
   /** The labels of the buttons "Book en tid" and "Ring" (the number comes after). */
   labels: { book: booking.book, call: booking.call },
-  /** The owner's picture (config.ts). */
-  portrait: config.picture.src,
-  portraitAlt: config.picture.alt,
+  /** The owner's picture (config.ts), or '' when the site has none. */
+  portrait: config.picture?.src ?? '',
+  portraitAlt: config.picture?.alt ?? '',
 };
 
 // Primary navigation (menu.json, "Hovedmenu"). Labels, URLs and sub-items started out as the old site's menu.

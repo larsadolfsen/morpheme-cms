@@ -1,6 +1,6 @@
 // A toolbar (m3.material.io/components/toolbars, M3 Expressive; .toolbar in ../styles/ui.css): a row of actions (icon
 // buttons, buttons), docked (`kind`: docked, the default: the whole width at the bottom of the screen, as the site's bar
-// on a phone, components/ContactBar.astro and BookingBar.astro) or floating (a pill over the page), in its colour
+// on a phone, components/ActionBar.astro) or floating (a pill over the page), in its colour
 // (`color`: standard, the surface, the default, or vibrant, the accent), across or, floating, `vertical`. A floating one
 // can be paired with a FAB (`fab`, the theme's Fab from @theme/ui/Fab: beside it, under a vertical one), and then
 // collapse into it (`expanded` false: only the FAB is shown, as while the page scrolls). Its kind and colour are

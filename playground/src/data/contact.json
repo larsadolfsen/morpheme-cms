@@ -1,0 +1,21 @@
+{
+  "heading": "Contact & Community",
+  "intro": "Questions about Interstellar CMS, Astro Edge integration, or the Material Design 3 theme system? Reach out to us.",
+  "sections": [
+    {
+      "type": "reach",
+      "phoneHeading": "Documentation & Chat",
+      "emailHeading": "Developer Inquiries",
+      "bookHeading": "Launch Live Editor",
+      "bookText": "Test the live editor with live preview."
+    }
+  ],
+  "name": "Interstellar CMS",
+  "role": "Material Design 3 & Astro",
+  "phone": "+45 12 34 56 78",
+  "email": "developer@interstellarcms.com",
+  "street": "Astro Edge Way 1",
+  "city": "Copenhagen, Denmark",
+  "seoTitle": "Interstellar CMS | Material Design 3 Showcase",
+  "seoDescription": "Experience Interstellar CMS with Google Material Design 3, Git-backed content management, and Astro Edge performance."
+}

@@ -1,5 +1,5 @@
-// The editor's texts in Danish (Denmark), by the part of the editor they are in. The other languages
-// have the same (Messages); ../index.ts picks one.
+// The editor's texts in Danish (Denmark), translated from the English (../en-US/).
+import type { Messages } from '../en-US';
 import { advanced } from './advanced';
 import { app } from './app';
 import { apps } from './apps';
@@ -21,8 +21,9 @@ import { preview } from './preview';
 import { redirects } from './redirects';
 import { seo } from './seo';
 import { text } from './text';
+import { theme } from './theme';
 
-export const daDK = {
+export const daDK: Messages = {
   common,
   app,
   library,
@@ -44,6 +45,5 @@ export const daDK = {
   history,
   preview,
   advanced,
+  theme,
 };
-
-export type Messages = typeof daDK;

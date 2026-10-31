@@ -1,7 +1,7 @@
 // Every block on the site drawn from its view (view.tsx): its drawing and its contract's load.ts, by type. A standard
 // block's drawing is the theme in use's View.tsx, else the standard theme's; an app's block is its own
 // (src/apps/<app>/blocks/), and is used instead of a standard one by its name.
-import { appLooks, themeViews } from '@site/sites';
+import { appLooks, themeViews } from './siteLooks';
 import type { Contract, View } from './view';
 import { parseBlock } from '../../lib/blocks.mjs';
 

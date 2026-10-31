@@ -14,12 +14,12 @@ export default function cookiesList(say: Messages): OwnedList {
   const own = say.blocks.cookies.entries;
   return {
     kind: 'folder',
-    id: config.lists.cookies,
+    id: config.lists?.cookies ?? 'cookies',
     icon: Cookie,
     create: own.create,
     label: own.label,
     singular: own.singular,
-    folder: config.cookieList,
+    folder: config.cookieList ?? 'src/data/cookie-list',
     deletable: true,
     slugFrom: 'name',
     // Who sets it, with its name under it, so the list is by provider.

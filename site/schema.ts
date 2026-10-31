@@ -1,11 +1,11 @@
 // Structured data (schema.org JSON-LD) for search engines. Base.astro puts one @graph on every page:
 // the business, the person behind it, the website and the page itself, plus what the page adds (a blog post, prices).
-// What is said of the business and the person beyond the contact details is the site's (src/site/schema.ts).
+// What is said of the business and the person beyond the contact details is the site's (@site/schema).
 // Only facts that are on the site; no ratings or reviews.
 import { site } from './site';
 import { schema as facts } from '@site/schema';
 
-/** What a site says of itself in the structured data (src/site/schema.ts). */
+/** What a site says of itself in the structured data (@site/schema). */
 export type SiteSchema = {
   /** The end of the business's and the person's @id (https://<domain>/#<id>). */
   ids: { business: string; person: string };
@@ -33,7 +33,7 @@ export const ids = {
   website: `${origin}/#website`,
 };
 
-// Postcode and town from the address's second line ("4000 Roskilde", contact.json).
+// Postcode and town from the address's second line ("1000 København", contact.json).
 const [, postalCode, town] = site.address.city.match(/^(\d{4})\s+(.+)$/) ?? [, undefined, site.address.city];
 
 // The business in full: on the front page and the contact page (Base.astro). Other pages only refer to it by @id
@@ -44,8 +44,8 @@ export const business = {
   name: site.name,
   description: site.description,
   url: abs('/'),
-  image: abs(site.portrait),
-  logo: abs('/butterfly.svg'),
+  ...(site.portrait ? { image: abs(site.portrait) } : {}),
+  logo: abs('/logo.svg'),
   telephone: site.phoneIntl,
   email: site.email,
   ...(site.cvr ? { taxID: site.cvr } : {}),
@@ -71,7 +71,7 @@ export const person = facts.person && {
   '@id': ids.person,
   name: site.name,
   jobTitle: site.role,
-  image: abs(site.portrait),
+  ...(site.portrait ? { image: abs(site.portrait) } : {}),
   ...(typeof facts.person.url === 'string' ? { url: abs(facts.person.url) } : {}),
   email: site.email,
   telephone: site.phoneIntl,

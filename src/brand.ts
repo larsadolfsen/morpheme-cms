@@ -1,14 +1,15 @@
 // The logo and the icons, made in the browser from a picture the owner picks (BrandForm.tsx).
-//   Logo: public/butterfly.svg, shown next to the name on the site as a CSS mask (global.css .butterfly),
-//     so only its shape counts and it takes the site's colour. An SVG is kept as it is, without code; other
+//   Logo: public/logo.svg, shown next to the name on the site as a CSS mask (base.css .logo-mark),
+//     so only its shape counts and it takes the site's colour. An SVG is kept with only what draws (cleanSvg); other
 //     pictures are put inside an SVG.
 //   Icon: public/favicon.svg (the browser tab, Google), public/favicon.ico (for what asks for that
 //     address), public/apple-touch-icon.png (the site on an iPhone home screen) and the app icons in
 //     public/editor/, drawn on the site's background colour (light mode, colors.json) with the same
 //     margins as packages/editor/scripts/editor-icons.mjs.
 import { t } from './i18n';
+import { cleanSvg } from '../lib/svg.mjs';
 
-export const LOGO = 'public/butterfly.svg';
+export const LOGO = 'public/logo.svg';
 export const FAVICON = 'public/favicon.svg';
 const FAVICON_ICO = 'public/favicon.ico';
 // The PNG icons: size in pixels and the picture's share of the width.
@@ -23,62 +24,16 @@ export const BRAND_FILES = [LOGO, FAVICON, FAVICON_ICO, ...APP_ICONS.map(([path]
 
 export type Picture = { image: HTMLImageElement; svg: string | null };
 
-// An SVG can hold code, which would run if the file was opened on the site (and could read the
-// editor's GitHub login there). So the logo keeps only what draws a shape: the elements and attributes
-// below, no address outside the file (a link only to an id in it, "#..."); everything else is left out.
-const SVG_NS = 'http://www.w3.org/2000/svg';
-const XLINK_NS = 'http://www.w3.org/1999/xlink';
-const ELEMENTS = new Set(
-  'svg g defs symbol use path circle ellipse rect line polyline polygon text tspan clipPath mask linearGradient radialGradient stop title desc style'.split(
-    ' ',
-  ),
-);
-const ATTRIBUTES = new Set(
-  (
-    'id class style viewBox width height x y x1 y1 x2 y2 cx cy r rx ry fx fy fr d points transform preserveAspectRatio ' +
-    'fill fill-rule fill-opacity stroke stroke-width stroke-linecap stroke-linejoin stroke-miterlimit stroke-dasharray ' +
-    'stroke-dashoffset stroke-opacity opacity clip-path clip-rule mask clipPathUnits maskUnits maskContentUnits ' +
-    'offset stop-color stop-opacity gradientUnits gradientTransform spreadMethod display visibility ' +
-    'font-family font-size font-weight font-style text-anchor dominant-baseline letter-spacing'
-  ).split(' '),
-);
-// A url(...) to anything but an id in the file, or CSS that can load or run something.
-const OUTSIDE = /url\s*\(\s*['"]?\s*(?!#)|@import|expression\s*\(|javascript:/i;
-
-function cleanSvg(text: string): Element {
-  const source = new DOMParser().parseFromString(text, 'image/svg+xml').documentElement;
-  if (source.localName !== 'svg' || source.namespaceURI !== SVG_NS) throw new Error(t.company.brand.svgUnreadable);
-  const doc = document.implementation.createDocument(SVG_NS, null, null);
-  const copy = (from: Element): Element | null => {
-    if (from.namespaceURI !== SVG_NS || !ELEMENTS.has(from.localName)) return null;
-    const to = doc.createElementNS(SVG_NS, from.localName);
-    for (const a of Array.from(from.attributes)) {
-      if (OUTSIDE.test(a.value)) continue;
-      if (a.localName === 'href' && (!a.namespaceURI || a.namespaceURI === XLINK_NS)) {
-        if (a.value.startsWith('#')) to.setAttribute('href', a.value);
-      } else if (!a.namespaceURI && ATTRIBUTES.has(a.name)) to.setAttribute(a.name, a.value);
-    }
-    for (const child of Array.from(from.childNodes)) {
-      if (child.nodeType === Node.ELEMENT_NODE) {
-        const el = copy(child as Element);
-        if (el) to.appendChild(el);
-      } else if (child.nodeType === Node.TEXT_NODE || child.nodeType === Node.CDATA_SECTION_NODE) {
-        const value = child.textContent ?? '';
-        if (from.localName !== 'style' || !OUTSIDE.test(value)) to.appendChild(doc.createTextNode(value));
-      }
-    }
-    return to;
-  };
-  return copy(source)!;
-}
-
 // Opens a picture (SVG, PNG, JPEG, WebP).
 export async function openPicture(file: Blob): Promise<Picture> {
   let svg: string | null = null;
   let blob = file;
   if (file.type === 'image/svg+xml' || (file instanceof File && /\.svg$/i.test(file.name))) {
-    const root = cleanSvg(await file.text());
-    svg = new XMLSerializer().serializeToString(root) + '\n';
+    // An SVG can hold code, which would run if the file was opened on the site (and could reach the editor's
+    // GitHub login there), so only what draws is kept (cleanSvg).
+    svg = cleanSvg(await file.text(), { style: true })?.svg ?? null;
+    if (!svg) throw new Error(t.company.brand.svgUnreadable);
+    const root = new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement;
     // Without a width and height an SVG has no size to draw from; give it one from its viewBox.
     const box = root
       .getAttribute('viewBox')
@@ -178,7 +133,7 @@ export function logoFile(picture: Picture): string {
 }
 
 // The icon files from a picture, on the site's background colour (`bg`). `fromLogo`: the logo's shape in
-// the accent colour (`accent`), like the butterfly.
+// the accent colour (`accent`), like the logo.
 export async function iconFiles(
   picture: Picture,
   fromLogo: boolean,

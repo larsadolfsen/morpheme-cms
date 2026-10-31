@@ -4,8 +4,8 @@
 // focus handling, Escape and screen readers work out of the box. Motion: on a phone it slides up and down (a state
 // transition) and its drag handle can be pulled down to close it (feedback), on a computer (from 48rem, a dialog in the
 // middle of the screen) it fades; with reduced motion it appears and disappears at once. Its close button, Escape and a
-// tap on the scrim (outside it) close it; the page under it does not scroll while it is open. The motion has the
-// theme's easing (themeEase).
+// tap on the scrim (outside it) close it; the page under it does not scroll while it is open. It moves with the site's
+// motion scheme (motionSpring, @interstellarcms/cms/lib/motion.ts).
 // A standard one (kind 'standard', at the bottom of the screen without a scrim; bottomSheet.script.ts on every page,
 // or a block's or an app's script that wants its controls): standardBottomSheet(sheet) lets it be dragged by its handle
 // and its header between the states it rests in (collapsed, half-expanded where that is clearly between the others,
@@ -13,10 +13,13 @@
 // a tap on the handle (or Enter or Space on it) expands it when it is collapsed and collapses it otherwise, and its close
 // button hides it. How high each state is, is ui.css's (data-state), read without being painted, so a theme sets it
 // there. It gives its state() and set(state) to show it in another (also again after it is hidden). The height follows
-// with the theme's easing; with reduced motion it changes at once.
+// with the site's motion scheme; with reduced motion it changes at once.
 import { animate } from 'motion';
-import { themeEase } from '@theme/scripts/ease';
-import type { BottomSheetState } from '@theme/ui/BottomSheet';
+import { motionSpring } from '@interstellarcms/cms/lib/motion';
+import type { BottomSheetState } from './BottomSheet.tsx';
+
+export * from './BottomSheet.tsx';
+export { default } from './BottomSheet.tsx';
 
 export type BottomSheetControls = { open: () => void; close: () => Promise<void> };
 export type StandardBottomSheetControls = { state: () => BottomSheetState; set: (state: BottomSheetState) => Promise<void> };
@@ -27,7 +30,6 @@ export function bottomSheet(sheet: HTMLDialogElement): BottomSheetControls {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   // A dialog in the middle on a computer (.bottom-sheet in ui.css): it fades, and has no handle to drag.
   const wide = matchMedia('(width >= 48rem)');
-  const ease = themeEase();
   let closing = false;
 
   function open() {
@@ -35,15 +37,14 @@ export function bottomSheet(sheet: HTMLDialogElement): BottomSheetControls {
     sheet.showModal();
     document.documentElement.style.overflow = 'hidden';
     if (reduce) return;
-    if (wide.matches) animate(panel, { opacity: [0, 1], scale: [0.98, 1] }, { duration: 0.3, ease });
-    else animate(panel, { y: ['100%', '0%'] }, { duration: 0.5, ease });
+    if (wide.matches) animate(panel, { opacity: [0, 1], scale: [0.98, 1] }, motionSpring('spatial'));
+    else animate(panel, { y: ['100%', '0%'] }, motionSpring('spatial'));
   }
 
   async function close() {
     if (!sheet.open || closing) return;
     closing = true;
-    if (!reduce)
-      await animate(panel, wide.matches ? { opacity: 0, scale: 0.98 } : { y: '100%' }, { duration: wide.matches ? 0.2 : 0.35, ease });
+    if (!reduce) await animate(panel, wide.matches ? { opacity: 0, scale: 0.98 } : { y: '100%' }, motionSpring('spatial', 'fast'));
     sheet.close();
     panel.style.transform = '';
     panel.style.opacity = '';
@@ -81,7 +82,7 @@ export function bottomSheet(sheet: HTMLDialogElement): BottomSheetControls {
     const dy = Math.max(0, e.clientY - startY);
     if (dy > 120) close();
     else if (reduce) panel.style.transform = '';
-    else animate(panel, { y: 0 }, { duration: 0.3, ease });
+    else animate(panel, { y: 0 }, motionSpring('spatial'));
   };
   handle?.addEventListener('pointerup', endDrag);
   handle?.addEventListener('pointercancel', endDrag);
@@ -98,7 +99,6 @@ export function standardBottomSheet(sheet: HTMLElement): StandardBottomSheetCont
   const header = sheet.querySelector<HTMLElement>('[data-bottom-sheet-header]');
   const closeButton = sheet.querySelector<HTMLElement>('[data-bottom-sheet-close]');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const ease = themeEase();
   const state = () => (sheet.dataset.state as BottomSheetState | undefined) ?? 'collapsed';
 
   // How high it is in a state, as ui.css draws it: set, measured and put back before anything is painted.
@@ -137,7 +137,7 @@ export function standardBottomSheet(sheet: HTMLElement): StandardBottomSheetCont
     if (reduce || from === height) return shown(to);
     sheet.dataset.state = 'expanded';
     sheet.dataset.moving = '';
-    await animate(sheet, { height: [from, height] }, { duration: 0.35, ease });
+    await animate(sheet, { height: [from, height] }, motionSpring('spatial'));
     delete sheet.dataset.moving;
     shown(to);
   }

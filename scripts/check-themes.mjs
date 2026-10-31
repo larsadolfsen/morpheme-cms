@@ -41,4 +41,5 @@ if (failed.length) {
   console.error(`\nDet virker ikke med ${failed.length === 1 ? 'temaet' : 'temaerne'} ${failed.join(', ')} (se ovenfor).`);
   process.exit(1);
 }
-console.log(`\n${others.length === 1 ? 'Temaet' : 'Temaerne'} ${others.join(', ')} virker også som sitets tema.`);
+if (!others.length) console.log('Der er ingen andre temaer installeret i src/themes/.');
+else console.log(`\n${others.length === 1 ? 'Temaet' : 'Temaerne'} ${others.join(', ')} virker også som sitets tema.`);

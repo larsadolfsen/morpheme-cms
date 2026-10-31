@@ -10,21 +10,10 @@
 import { useEffect, useState } from 'react';
 import { Certificate, Code, Image, Shapes, TextAa, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
-import {
-  EmptyNote,
-  Group,
-  GroupTitle,
-  LeadingIcon,
-  listItemClass,
-  SearchRow,
-  staticListItemClass,
-  SupportingText,
-  TrailingIcon,
-  useKept,
-} from './ui';
+import { EmptyNote, Group, GroupTitle, SearchRow, SupportingText, useKept, ListItem } from './ui';
 import { backFrom } from './site';
 import { apps } from './registry';
-import { themes } from '@site/editor';
+import { themes } from './themes';
 import { byText } from './schema';
 import { locale, t } from './i18n';
 import {
@@ -91,30 +80,22 @@ function LicenseRow({
   version?: string | null;
   href?: string;
 }) {
-  const inner = (
-    <>
-      <LeadingIcon icon={icon} />
-      <span className="min-w-0 flex-1">
-        <span className="block font-medium break-words">{name}</span>
-        {[[version && t.licenses.version(version), lines[0]].filter(Boolean).join(' · '), ...lines.slice(1)].filter(Boolean).map((line) => (
-          <span key={line} className="block text-sm break-words text-muted">
+  const under = [[version && t.licenses.version(version), lines[0]].filter(Boolean).join(' · '), ...lines.slice(1)].filter(Boolean);
+  return (
+    <ListItem
+      href={href}
+      icon={icon}
+      headline={name}
+      supporting={
+        under.length > 0 &&
+        under.map((line) => (
+          <span key={line} className="block">
             {line}
           </span>
-        ))}
-      </span>
-    </>
-  );
-  return (
-    <li>
-      {href ? (
-        <a href={href} className={listItemClass}>
-          {inner}
-          <TrailingIcon />
-        </a>
-      ) : (
-        <div className={staticListItemClass}>{inner}</div>
-      )}
-    </li>
+        ))
+      }
+      arrow={!!href}
+    />
   );
 }
 

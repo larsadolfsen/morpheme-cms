@@ -15,7 +15,6 @@
       "source": "@mdi/svg@7.4.47",
       "licenseFile": "LICENSE-material-design-icons",
       "icons": [
-        "butterfly",
         "github-logo",
         "google-logo"
       ]

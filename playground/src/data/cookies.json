@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "heading": "Cookie & Theme Preferences",
+  "text": "This demo site stores your light/dark mode preference locally to provide a consistent Material Design 3 experience across page reloads. No third-party trackers are used.",
+  "more": "Privacy Policy",
+  "moreHref": "/privatlivspolitik/#cookies",
+  "no": "Decline",
+  "yes": "Accept Preferences"
+}

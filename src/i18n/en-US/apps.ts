@@ -1,11 +1,17 @@
-import type { Messages } from '../da-DK';
+// "Apps" (AppList.tsx): the apps in the site, each on its page, installed with a button; and the app store ("Appstore",
+// store.ts), where more can be found and installed.
+import type { AppHook } from '../../../lib/hooks';
 
-export const apps: Messages['apps'] = {
+export const apps = {
   installed: 'Installed',
   notInstalled: 'Not installed',
-  publisher: (name) => `Developer: ${name}`,
+  /** Under its name on its page: who made it. */
+  publisher: (name: string) => `Developer: ${name}`,
+  /** On its page: its pictures (each opening it whole), what it does more fully, what it needs of the site
+   * (needsOf in store.ts), the cookies it sets and who made it, with a row to their page. */
   screenshots: 'Screenshots',
   about: 'About the app',
+  /** What is new in its last versions (its release notes), on its page. */
   news: 'What’s new',
   needs: 'Permissions',
   needsPages: 'Puts its own code on every page',
@@ -13,70 +19,116 @@ export const apps: Messages['apps'] = {
   needsSends: 'Sends forms to other addresses',
   needsServer: 'Has its own part of the website’s server',
   needsBuild: 'Makes its own files when the website is built',
-  changes: { 'page-colors': 'Changes the pages’ colors' },
-  unknownHook: (places) => `The file is no place an app can change the website: ${places}.`,
+  /** What it changes of what the site does itself, by its file in hooks/ (@interstellarcms/cms/lib/hooks.ts). */
+  changes: { 'page-colors': 'Changes the pages’ colors' } as Record<AppHook, string>,
+  /** In the check before the build: a file in an app's hooks/ that is no place an app may change the site. */
+  unknownHook: (places: string) => `The file is no place an app can change the website: ${places}.`,
   needsNothing: 'None',
+  /** The kinds of notifications it sends (its `notifications`), each turned off under "Konto" › "Notifikationer". */
   notifications: 'Notifications',
   notifiesNone: 'Sends no notifications',
   cookies: 'Cookies',
-  cookieLasts: (lasts) => `Lasts ${lasts}`,
+  /** Its cookies (AppCookie): how long one lasts, and the first row when the cookie banner asks first. */
+  cookieLasts: (lasts: string) => `Lasts ${lasts}`,
   cookiesAsk: 'Set only once the visitor has said yes in the cookie banner',
   noCookies: 'Sets no cookies',
   developer: 'Developer',
+  /** On a developer's page (#apps/udvikler/<navn>): over their apps, and the number of them by their row on an app's page. */
   developerApps: 'Apps',
-  appCount: (n) => (n === 1 ? '1 app' : `${n} apps`),
-  noDeveloper: 'There are no apps from that developer.',
-  unknownScreenshot: (shows) =>
+  appCount: (n: number) => (n === 1 ? '1 app' : `${n} apps`),
+  /** At the address of a developer no app has. */
+  noDeveloper: 'There are no apps from that developer',
+  /** In the check before the build: a picture in an app's index.ts that shows nothing it has (shotOf), one without
+   * its file (screenshots/, packages/editor/scripts/app-screenshots.mjs), and a file there index.ts does not name. */
+  unknownScreenshot: (shows: string) =>
     `The picture "${shows}" shows nothing the app has: blok:<type>, slags:<list>:<variant>, liste:<id>, indstillinger or side.`,
-  noScreenshot: (file) => `${file} does not exist. Take the pictures with npx interstellar app-screenshots.`,
-  unlistedScreenshot: 'The picture is not under screenshots in the app’s index.ts.',
+  noScreenshot: (file: string) => `${file} doesn’t exist. Take the pictures with npx interstellar app-screenshots.`,
+  unlistedScreenshot: 'The picture isn’t under screenshots in the app’s index.ts.',
   install: 'Install',
   uninstall: 'Uninstall',
   installing: 'Installing…',
   uninstalling: 'Uninstalling…',
   updating: 'Updating…',
-  isInstalled: (app) => `${app} is installed.`,
-  isUninstalled: (app) => `${app} is uninstalled.`,
-  isInstalledSoon: (app) => `${app} is installed and can be used once the website is built.`,
-  isUpdatedSoon: (app, version) => `${app} is updated to ${version} and works that way once the website is built.`,
-  askUninstall: (app) => `Uninstall ${app}? What the app adds disappears from the editor.`,
-  activeOf: (block) => `Activated: ${block}`,
+  /** After installing: where its blocks are now. */
+  isInstalled: (app: string) => `${app} is installed`,
+  isUninstalled: (app: string) => `${app} is uninstalled`,
+  /** After installing or updating one from the store, which the site's next build has. */
+  isInstalledSoon: (app: string) => `${app} is installed and can be used once the website is built`,
+  isUpdatedSoon: (app: string, version: string) => `${app} is updated to ${version} and works that way once the website is built`,
+  /** Asked before uninstalling. */
+  askUninstall: (app: string) => `Uninstall ${app}? What the app adds disappears from the editor.`,
+  /** The name of the switch in the row of one of its blocks (or kinds of a list), read by screen readers. */
+  activeOf: (block: string) => `Activated: ${block}`,
+  /** Under "Afinstaller". */
   uninstallHint: 'Can be uninstalled, as nothing on the website uses the app.',
+  /** Over the pages and entries that use it (its blocks, its kind of pop-up). */
   used: 'Used on',
-  notUsed: 'Not used anywhere.',
-  stuck: 'The app is in use and cannot be uninstalled. Remove it from the places above first.',
+  /** In the sheet of something it adds, when it is used nowhere. */
+  notUsed: 'Not used anywhere',
+  /** Under "Afinstaller", which cannot be pressed, while it is used. */
+  stuck: 'The app is in use and can’t be uninstalled. Remove it from the places above first.',
+  /** Over the blocks it adds, and the lists it brings ("Priser"); its kinds of the site's lists (a Mailchimp popup)
+   * are under the list's name. */
   blocks: 'Blocks',
   lists: 'Lists',
+  /** The row on its page to its settings (beside it, the screen they are on: "Analytics"). */
   settings: 'Settings',
+  /** The app store: the button to it over the list of apps, its title, and its search. */
   find: 'Appstore',
   searchStore: 'Search for apps',
   loadingStore: 'Loading apps',
-  storeFailed: 'Could not load the Appstore.',
-  storeBroken: (app) => `${app} could not be loaded correctly from the Appstore.`,
-  notInStore: 'The app is not in the Appstore.',
+  storeFailed: 'Couldn’t load the Appstore',
+  /** On "Appstore" when the site has none (config.store): only the site's own are there. */
+  noStore: 'The site has no Appstore',
+  /** An app's files did not come from the store as its catalog says. */
+  storeBroken: (app: string) => `${app} couldn’t be loaded correctly from the Appstore`,
+  /** At an address of an app the store does not have. */
+  notInStore: 'The app isn’t in the Appstore',
+  /** The filters over the store (by category, and whether it is installed), each with its first choice, and the kinds
+   * of apps (store.ts appCategories). */
   categoryFilter: 'Category',
   allCategories: 'All categories',
   stateFilter: 'Status',
   allStates: 'All',
-  categories: { booking: 'Booking', newsletter: 'Newsletter', analytics: 'Analytics', content: 'Content', design: 'Appearance' },
-  version: (version) => `Version ${version}`,
-  pending: 'Installing …',
+  categories: {
+    booking: 'Booking',
+    newsletter: 'Newsletter',
+    payment: 'Payment',
+    analytics: 'Analytics',
+    content: 'Content',
+    design: 'Appearance',
+  },
+  /** An app's version, under its name on its page. */
+  version: (version: string) => `Version ${version}`,
+  /** An app from the store in the site's file of apps, which the site's build does not have yet. */
+  pending: 'Installing…',
   pendingHint: 'The app can be used once the website is built.',
+  /** A newer version in the store: in the list, and the button on its page. */
   updateFound: 'Update available',
-  update: (version) => `Update to ${version}`,
-  askUpdate: (app, version) => `Update ${app} to ${version}?`,
+  update: (version: string) => `Update to ${version}`,
+  /** Asked before an update, over what is new in it (its release notes, each under t.apps.version). */
+  askUpdate: (app: string, version: string) => `Update ${app} to ${version}?`,
+  /** Under them, when files of it were changed in the site. */
   overwrites: 'What was changed in the files here will be overwritten.',
   updateNow: 'Update',
-  autoUpdated: (app, version) => `${app} has been updated to ${version}.`,
+  /** An app updated on its own when the editor opened (autoUpdate), with a link to its page. */
+  autoUpdated: (app: string, version: string) => `${app} has been updated to ${version}`,
   whatsNew: 'See what’s new',
-  breakingFound: (app, version) => `${app} ${version} is available. It can break something, so it is not updated on its own.`,
+  /** A version with a higher first number in the store, which is not updated to on its own (autoUpdate). */
+  breakingFound: (app: string, version: string) =>
+    `${app} ${version} is available. It can break something, so it isn’t updated on its own.`,
+  /** Asked before such an update, under its release notes. */
   breaking: 'This version has changes that can break something.',
-  noneHere: 'No installed apps have settings here.',
-  settingsOf: (app) => `settings for ${app}`,
-  missing: (id, folder) => `The app "${id}" is installed, but ${folder}/ does not exist.`,
+  /** On a screen with the settings of apps ("Analytics"), when none of them is installed. */
+  noneHere: 'No installed apps have settings here',
+  /** What a save of an app's settings changed, in the commit (siteT). */
+  settingsOf: (app: string) => `settings for ${app}`,
+  /** In the check before the build: an app in the site's file of apps without its folder. */
+  missing: (id: string, folder: string) => `The app "${id}" is installed, but ${folder}/ doesn’t exist.`,
+  /** The commits, in the site's language (siteT). */
   commit: {
-    install: (app) => `Editor: install the app ${app}`,
-    uninstall: (app) => `Editor: uninstall the app ${app}`,
-    update: (app, version) => `Editor: update the app ${app} to ${version}`,
+    install: (app: string) => `Editor: install the app ${app}`,
+    uninstall: (app: string) => `Editor: uninstall the app ${app}`,
+    update: (app: string, version: string) => `Editor: update the app ${app} to ${version}`,
   },
 };

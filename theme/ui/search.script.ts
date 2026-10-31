@@ -4,7 +4,7 @@
 // written narrows the results to those whose text has it (the message .search-view-empty when none has), the arrow keys
 // move through them (aria-activedescendant on the field, aria-selected on the option), and Enter follows the one they
 // are on. The page under it does not scroll while it is open. Run on every page by the theme's Base.astro
-// (blockScripts, src/site/scripts.ts); without a search it does nothing.
+// (blockScripts, packages/editor/site/blockScripts.ts); without a search it does nothing.
 const fold = (text: string) => text.toLocaleLowerCase().normalize('NFKD').replace(/\p{M}/gu, '').trim();
 
 export default function search() {

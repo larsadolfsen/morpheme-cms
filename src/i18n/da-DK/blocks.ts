@@ -1,26 +1,22 @@
-// The blocks: putting one in (BlockDialog.tsx), their cards and rules (blocks.ts, registry.tsx) and the standard blocks (standard/).
-export const blocks = {
+import type { Messages } from '../en-US';
+
+export const blocks: Messages['blocks'] = {
   insert: 'Indsæt',
   searchInsert: 'Søg i blokke',
   noneHere: 'Der er ingen blokke at indsætte her.',
-  noneNamed: (query: string) => `Ingen resultater for "${query}".`,
-  /** A block in the text the editor no longer has. */
-  gone: (type: string) => `Blokken "${type}" findes ikke mere. Fjern den fra teksten.`,
-  /** A block whose fields cannot be saved, and why (a message from check.ts). */
-  notSaved: (why: string) => `Blokken kan ikke gemmes endnu. ${why}`,
-  /** A picture, chosen and changed like a block. */
+  noneNamed: (query) => `Ingen resultater for "${query}".`,
+  gone: (type) => `Blokken "${type}" findes ikke mere. Fjern den fra teksten.`,
+  notSaved: (why) => `Blokken kan ikke gemmes endnu. ${why}`,
   picture: {
     label: 'Billede',
     hint: 'Vælg et billede fra Filer, eller upload et nyt.',
     src: 'Billede',
     alt: 'Alternativ tekst',
     altHint: 'Til skærmlæsere og søgemaskiner.',
-    /** A picture that is only decoration: drawn with alt="", without an alternative text. */
     decorative: 'Dekorativt billede',
     decorativeHint: 'Skærmlæsere springer billedet over.',
     decorativeToggle: ['Til', 'Fra'] as [string, string],
   },
-  /** The lines of the testimonials on the cards. */
   noTestimonials: 'Ingen udtalelser endnu',
   html: {
     label: 'HTML-kode',
@@ -31,10 +27,8 @@ export const blocks = {
     calendly: 'Kalender fra Calendly',
     table: 'Tabel',
   },
-  /** The standard blocks (standard/). */
   heading: 'Overskrift',
   headingHint: 'Valgfri.',
-  /** A block's head (standard/head.ts): the label above its heading and the subheading under it. */
   eyebrow: 'Etiket',
   eyebrowHint: 'Står med små bogstaver over overskriften.',
   subheading: 'Underoverskrift',
@@ -53,8 +47,8 @@ export const blocks = {
     text: 'Tekst',
     until: 'Vis indtil',
     untilHint: 'Hvis feltet er tomt, vises beskeden altid.',
-    shownUntil: (day: string, time: string) => `Vises til ${day} kl. ${time}`,
-    over: (day: string, time: string) => `Vises ikke længere (til ${day} kl. ${time})`,
+    shownUntil: (day, time) => `Vises til ${day} kl. ${time}`,
+    over: (day, time) => `Vises ikke længere (til ${day} kl. ${time})`,
   },
   links: {
     label: 'Links',
@@ -66,8 +60,23 @@ export const blocks = {
     hrefHint: 'Hvis feltet er tomt, er overskriften ikke et link.',
     pages: 'Sider',
     page: 'Side',
-    /** The groups it is shown with where no page has it (in the site's language). */
     example: ['Første gruppe', 'Anden gruppe'],
+  },
+  list: {
+    label: 'Liste',
+    hint: 'Rækker under hinanden med en overskrift og en tekst.',
+    design: 'Design',
+    designStandard: 'Standard',
+    designSegmented: 'Segmenteret',
+    items: 'Rækker',
+    item: 'række',
+    icon: 'Ikon',
+    title: 'Overskrift',
+    text: 'Tekst',
+    href: 'Side',
+    hrefHint: 'Hvis feltet er tomt, er rækken ikke et link.',
+    exampleTitle: 'Overskrift',
+    exampleText: 'En kort tekst om rækken.',
   },
   points: {
     label: 'Punkter med ikon',
@@ -117,13 +126,10 @@ export const blocks = {
     moreItems: 'Flere sider',
     moreItem: 'side',
     moreLabel: 'Knaptekst',
-    /** The shared text ("Blokke" › "Foldeliste"), and what it starts as on a site in this language. */
     more: 'Linktekst',
     moreHint: '{emne} er rækkens overskrift.',
     moreText: 'Læs mere om {emne}',
-    /** In the drawing, for a row without a text of its own (in the site's language). */
     opening: 'Begyndelsen af teksten på siden.',
-    /** The rows it is shown with where no page has it (in the site's language). */
     example: ['Første emne', 'Andet emne', 'Tredje emne'],
   },
   buttons: {
@@ -136,8 +142,7 @@ export const blocks = {
     sharedHint: 'Bruges, når blokken ikke har sine egne knapper.',
     shared: 'Standardknapper',
     text: 'Tekst',
-    /** The texts a button without its own has (the site's targets, e.g. "Book en tid", "Ring"). */
-    textHint: (targets: string[]) => `Hvis feltet er tomt, bruges ${targets.map((t) => `"${t}"`).join(', ')} eller sidens titel.`,
+    textHint: (targets) => `Hvis feltet er tomt, bruges ${targets.map((t) => `"${t}"`).join(', ')} eller sidens titel.`,
     to: 'Fører til',
     page: 'En side',
     href: 'Side',
@@ -154,7 +159,6 @@ export const blocks = {
     label: 'Cookieliste',
     hint: 'Viser de cookies, hjemmesiden sætter.',
     edit: 'Rediger cookies',
-    /** The list the block brings, "Cookies" under "Lister" (list.ts), and its fields. */
     entries: {
       label: 'Cookies',
       singular: 'cookie',
@@ -173,18 +177,14 @@ export const blocks = {
         marketing: 'Marketing',
         targeting: 'Målrettede annoncer',
       },
-      /** The filters of the list: all of them. */
       allProviders: 'Alle udbydere',
       allCategories: 'Alle kategorier',
-      /** A cookie added to the list by itself (the app "Cookiescanner") and not yet looked through: the heading at the
-       * top of the list, what it says, or that it has no purpose yet, what its form says, and the button. */
       fresh: 'Nye',
       freshLabel: 'Ny',
       noPurpose: 'Mangler formål',
       freshNotice: 'Føjet til listen af sig selv. Se den igennem, og godkend den.',
       approve: 'Godkend',
     },
-    /** The shared texts ("Blokke" › "Cookieliste"), and what they start as on a site in this language. */
     nameHead: 'Overskrift (navn)',
     providerHead: 'Overskrift (udbyder)',
     purposeHead: 'Overskrift (formål)',
@@ -226,7 +226,6 @@ export const blocks = {
     tags: 'Tags',
     addTag: 'Tilføj tag',
     tagsHint: 'Uden tags vises alle udtalelser.',
-    /** The list the block brings, "Udtalelser" under "Lister" (list.ts), and its fields. */
     entries: {
       label: 'Udtalelser',
       singular: 'udtalelse',
@@ -239,33 +238,35 @@ export const blocks = {
       frontPage: 'Vis på forsiden',
     },
     items: 'Udtalelser',
-    /** The shared texts ("Blokke" › "Udtalelser"), and what they start as on a site in this language. */
     more: 'Knaptekst (vis mere)',
     less: 'Knaptekst (vis mindre)',
     moreText: 'Læs mere',
     lessText: 'Vis mindre',
-    /** On the site and in the drawings (in the site's language): for screen readers, and when there are none. */
-    from: (name: string) => `fra ${name}`,
+    from: (name) => `fra ${name}`,
     carousel: 'karrusel',
     slide: 'dias',
-    slideOf: (n: number, of: number) => `${n} af ${of}`,
-    show1: (n: number, name: string) => `Vis udtalelse ${n}: ${name}`,
+    slideOf: (n, of) => `${n} af ${of}`,
+    show1: (n, name) => `Vis udtalelse ${n}: ${name}`,
     none: 'Ingen udtalelser at vise.',
     filterAll: 'Alle',
     filterLabel: 'Vis udtalelser med tagget',
   },
   posts: {
     label: 'Blogindlæg',
-    hint: 'Blogindlæg med bestemte tags eller udvalgte indlæg.',
+    hint: 'Blogindlæg som en liste: alle, et antal med bestemte tags eller udvalgte.',
     edit: 'Rediger standardtekster',
+    design: 'Design',
+    designList: 'Liste',
+    designFeatured: 'Det nyeste stort',
     show: 'Hvilke indlæg',
-    withTags: 'Med tags',
+    every: 'Alle',
+    some: 'Et antal',
     picked: 'Udvalgte',
     tags: 'Tags',
     addTag: 'Tilføj tag',
     tagsHint: 'Uden tags vises alle indlæg.',
     count: 'Antal',
-    countOption: (n: string) => `${n} indlæg`,
+    countOption: (n) => `${n} indlæg`,
     order: 'Rækkefølge',
     newest: 'Nyeste',
     random: 'Tilfældige',
@@ -274,29 +275,17 @@ export const blocks = {
     itemsHint: 'Højst seks indlæg.',
     link: 'Link "Alle indlæg"',
     linkHint: 'Et tag eller hele bloggen.',
-    /** The lines on its card. */
     all: 'alle indlæg',
-    newestFrom: (n: number, from: string) => `De nyeste ${n} fra ${from}`,
-    randomFrom: (n: number, from: string) => `Tilfældige ${n} fra ${from}`,
-    /** The shared texts ("Blokke" › "Blogindlæg"), and what they start as on a site in this language. */
+    newestFrom: (n, from) => `De nyeste ${n} fra ${from}`,
+    randomFrom: (n, from) => `Tilfældige ${n} fra ${from}`,
+    allFrom: (tags, n) => `${tags || 'Alle indlæg'} · ${n} indlæg`,
     allLink: 'Linktekst (blog)',
     allAboutLink: 'Linktekst (tag)',
     allAboutHint: '{tag} er taggets navn.',
     allText: 'Alle indlæg',
     allAboutText: 'Alle indlæg om {tag}',
-    /** In the drawing (in the site's language): random posts, of how many. */
-    randomNote: (n: number, of: number) => `Tilfældige ${n} af ${of} indlæg`,
-  },
-  blog: {
-    label: 'Blog',
-    hint: 'Alle blogindlæg, det nyeste stort og de andre som liste.',
-    tags: 'Tags',
-    addTag: 'Tilføj tag',
-    tagsHint: 'Uden tags vises alle indlæg.',
-    /** The line on its card: its tags (none: all posts) and how many posts it shows. */
-    line: (tags: string, n: number) => `${tags || 'Alle indlæg'} · ${n} indlæg`,
-    /** In the drawing (in the site's language): the posts not drawn. */
-    more: (n: number) => `og ${n} indlæg mere`,
+    randomNote: (n, of) => `Tilfældige ${n} af ${of} indlæg`,
+    more: (n) => `og ${n} indlæg mere`,
   },
   cards: {
     label: 'Kort',
@@ -317,16 +306,13 @@ export const blocks = {
     image: 'Billede',
     href: 'Side',
     hrefHint: 'Uden en side er kortet ikke et link.',
-    /** The shared text ("Blokke" › "Kort"), and what it starts as on a site in this language. */
     more: 'Linktekst',
     moreText: 'Læs mere',
-    /** The cards it is shown with where no page has it (in the site's language). */
     example: [
       { icon: 'heart', title: 'Om mig', text: 'Hvem jeg er, og hvordan jeg arbejder.' },
       { icon: 'chats', title: 'Kontakt', text: 'Sådan finder du mig, og sådan booker du en tid.' },
     ],
   },
-  /** The icons to pick from (iconNames in ../../icon.tsx), by their names. */
   icons: {
     certificate: 'Diplom',
     heart: 'Hjerte',
@@ -365,17 +351,14 @@ export const blocks = {
     title: 'Titel',
     video: 'Video',
   },
-  /** "Tjekliste" (standard/checklist/). */
   checklist: {
     label: 'Tjekliste',
     hint: 'Punkter med et flueben foran.',
     items: 'Punkter',
     item: 'punkt',
     text: 'Tekst',
-    /** The points it is shown with where no page has it (in the site's language). */
     example: ['Svar inden for en arbejdsdag', 'Ingen binding', 'Fri adgang til materialet', 'Hjælp, når du har brug for den'],
   },
-  /** "Priskort" (standard/pricecards/). */
   pricecards: {
     label: 'Priskort',
     hint: 'Priser side om side med det, der er med.',
@@ -394,7 +377,6 @@ export const blocks = {
     featuredToggle: ['Til', 'Fra'] as [string, string],
     badge: 'Mærkat',
     badgeHint: 'Hvis feltet er tomt, vises intet mærkat.',
-    /** The cards it is shown with where no page has it (in the site's language): the middle one highlighted. */
     example: [
       {
         name: 'Basis',

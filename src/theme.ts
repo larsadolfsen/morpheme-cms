@@ -4,6 +4,7 @@
 // before the page is drawn, so it does not flash in the other colours. Its own key, so the site's
 // choice (`theme`) is not changed by the editor's.
 import { colorsCss, isColor, type Colors } from '../lib/colors';
+import { motionCss, type MotionScheme } from '../lib/motion';
 
 export type Theme = 'light' | 'auto' | 'dark';
 
@@ -61,7 +62,7 @@ export function applyTheme(chosen: Theme) {
 
 // The site's colours (colors.json, "Farver") as the editor has loaded them, in place of the ones its page
 // was built with, so a change shows at once, before the site is built again: the CSS (colorsCss) in the
-// <style> of the page, and the top bar in the colour of the surfaces.
+// <style> of the page, and the top bar in the background's colour.
 export function applyColors(colors: Colors) {
   let css: string;
   try {
@@ -72,8 +73,18 @@ export function applyColors(colors: Colors) {
   const style = document.getElementById('site-colors');
   if (style && style.textContent !== css) style.textContent = css;
   for (const m of bars()) {
-    const surface = colors[isDark(m) ? 'dark' : 'light'].surface;
-    if (isColor(surface)) m.dataset.color = surface;
+    const bg = colors[isDark(m) ? 'dark' : 'light'].bg;
+    if (isColor(bg)) m.dataset.color = bg;
   }
   applyTheme(savedTheme());
+}
+
+// How the site moves ("Bevægelse") as the editor has loaded it, in place of the scheme its page was built with, so a new
+// choice shows at once, before the site is built again: its springs (motionCss) in the <style> of the page, and its name
+// on <html> for what animates in a script.
+export function applyMotion(scheme: MotionScheme) {
+  const css = motionCss(scheme);
+  const style = document.getElementById('site-motion');
+  if (style && style.textContent !== css) style.textContent = css;
+  document.documentElement.dataset.motionScheme = scheme;
 }

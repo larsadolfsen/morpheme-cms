@@ -1,25 +1,34 @@
-// "Blogindlæg" on the site (view.ts): the posts it picks (from the site, @site/standard), with "Alle indlæg" under them
-// (to a tag, "Alle indlæg om …", when it goes to one; its shared texts); nothing when there are none.
+// "Blogindlæg" on the site (view.ts): the posts it shows (from the site, @site/standard), all of them or those it picks,
+// with "Alle indlæg" under those it picks (to a tag, "Alle indlæg om …", when it goes to one; its shared texts). Nothing
+// when there are none, but where the newest of all would be large (the blog page): there the theme says there are none.
 import { standard } from '@site/standard';
 import { pictureOf } from '../load';
-import type { PostCard } from '../site';
+import type { ListedPost } from '../site';
 import type { Load } from '../view';
 import { headOf } from '../head';
 import shared, { allPostsText, postCount } from './shared';
-import type { PostsView, PostView } from './view';
+import { designOf, type PostView, type PostsView } from './view';
 
-/** Posts on cards, with their pictures' sizes (a site's own too: this site's front page). */
-export const loadPostCards = (posts: PostCard[]): PostView[] =>
-  posts.map((p) => ({ href: p.href, title: p.title, image: p.image ? pictureOf(p.image) : undefined }));
+/** Posts as the site lists them, with their pictures' sizes. */
+export const loadPosts = (posts: ListedPost[]): PostView[] =>
+  posts.map(({ image, ...p }) => ({ ...p, image: image ? pictureOf(image) : undefined }));
 
 export const load: Load<PostsView> = async (props, { texts }) => {
+  const design = designOf(props);
+  if (props.show === 'all') {
+    const categories = Array.isArray(props.categories) ? props.categories.map(String) : [];
+    const posts = await standard.posts.list(categories);
+    if (!posts.length && design === 'list') return null;
+    return { ...headOf(props), design, posts: loadPosts(posts), count: posts.length, random: false };
+  }
   const count = postCount(props.count);
   const { posts, random } = await standard.posts.choose(props, count);
   if (!posts.length) return null;
   const all = standard.posts.all(props);
   return {
     ...headOf(props),
-    posts: loadPostCards(posts),
+    design,
+    posts: loadPosts(posts),
     count,
     random,
     all: { href: all.href, text: allPostsText({ ...shared.values, ...texts }, all.tag) },

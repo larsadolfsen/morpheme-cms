@@ -1,0 +1,24 @@
+{
+  "subtitle": "Om Interstellar CMS",
+  "educationHeading": "Teknologistak",
+  "education": [
+    {
+      "title": "Astro Framework",
+      "where": "astro.build"
+    },
+    {
+      "title": "Google Material Design 3",
+      "where": "m3.material.io"
+    },
+    {
+      "title": "Cloudflare Workers & R2",
+      "where": "cloudflare.com"
+    }
+  ],
+  "educationNote": "Moderne, lynhurtigt og Git-baseret.",
+  "sections": [
+    {
+      "type": "story"
+    }
+  ]
+}

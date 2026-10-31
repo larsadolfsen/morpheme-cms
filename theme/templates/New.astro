@@ -9,6 +9,7 @@ import Container from '@theme/components/Container.astro';
 import PageHeader from '@theme/components/PageHeader.astro';
 import { displayTitle, getPages, getPosts, pageHeading, postPath, stateOf } from '@interstellarcms/cms/site/content';
 import { isPreview, livePath, previewId } from '@interstellarcms/cms/site/noindex.mjs';
+import { siteT } from '@interstellarcms/cms/src/i18n';
 
 const pages = await getPages();
 const byPath = new Map(pages.map((p) => [p.data.path, p]));
@@ -20,11 +21,8 @@ const rows = pages
 const posts = (await getPosts({ unlisted: true })).filter((p) => stateOf(p.data) === 'unlisted');
 ---
 
-<Base title="Nye sider" description="Nye versioner af siderne, til gennemsyn.">
-  <PageHeader
-    title="Nye sider"
-    intro="Nye versioner af siderne ved siden af de nuværende, til gennemsyn. Google ser dem ikke. Når en side er godkendt, kommer den nye tekst over på den nuværende sides adresse."
-  />
+<Base title={siteT.theme.newPages} description={siteT.theme.newPagesDescription}>
+  <PageHeader title={siteT.theme.newPages} intro={siteT.theme.newPagesIntro} />
 
   {rows.length > 0 && (
     <Container as="section" class="mt-12 md:mt-16">
@@ -34,14 +32,14 @@ const posts = (await getPosts({ unlisted: true })).filter((p) => stateOf(p.data)
             <p class="text-lg font-medium">{pageHeading(page)}</p>
             <p class="mt-1.5 flex flex-wrap gap-x-6 gap-y-1">
               <a href={page.data.path} class="inline-flex items-center gap-1.5 text-accent hover:underline">
-                Ny version <Icon name="arrow-right" size={16} />
+                {siteT.theme.newVersion} <Icon name="arrow-right" size={16} />
               </a>
               {current ? (
                 <a href={current.data.path} class="inline-flex items-center gap-1.5 text-muted hover:text-accent">
-                  Nuværende: {displayTitle(current.data.title)}
+                  {siteT.theme.currentPage(displayTitle(current.data.title))}
                 </a>
               ) : (
-                <span class="text-muted">Ny side, findes ikke i dag</span>
+                <span class="text-muted">{siteT.theme.newPage}</span>
               )}
             </p>
             {page.data.review && <p class="mt-2 max-w-[75ch] text-[0.95rem] whitespace-pre-line text-muted">{page.data.review}</p>}
@@ -53,8 +51,8 @@ const posts = (await getPosts({ unlisted: true })).filter((p) => stateOf(p.data)
 
   {posts.length > 0 && (
     <Container as="section" class="mt-12 mb-20 md:mt-16 md:mb-28">
-      <h2 class="text-2xl md:text-3xl">Nye blogindlæg</h2>
-      <p class="mt-2 max-w-[60ch] text-muted">Skjulte, indtil de er godkendt: de står ikke på bloggen, og Google ser dem ikke.</p>
+      <h2 class="text-2xl md:text-3xl">{siteT.theme.newPosts}</h2>
+      <p class="mt-2 max-w-[60ch] text-muted">{siteT.theme.newPostsIntro}</p>
       <ul class="mt-5 rounded-panel border border-line px-5 md:px-7">
         {posts.map((p, i) => (
           <li class:list={['py-4', i > 0 && 'border-t border-line']}>

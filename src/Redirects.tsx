@@ -23,10 +23,8 @@ import {
   Choice,
   Group,
   IconButton,
-  LeadingIcon,
   listClass,
   SupportingText,
-  listItemClass,
   SearchRow,
   useKept,
   BottomSheet,
@@ -35,8 +33,7 @@ import {
   EmptyNote,
   SheetBody,
   ProblemNote,
-  TrailingText,
-  TrailingIcon,
+  ListItem,
 } from './ui';
 import type { Env } from './App';
 import type { RepoFile } from './github';
@@ -45,7 +42,7 @@ import type { Missing } from './notFound';
 import { when } from './when';
 import { headed, letterOf } from './Sheet';
 import { byText } from './schema';
-import { SAVED } from './deploy';
+import { savedText } from './deploy';
 import { config, whatIsAt } from '@site/editor';
 import { siteT, t } from './i18n';
 
@@ -88,10 +85,6 @@ function savedSort(tab: Tab): Sort {
 
 // An address without its slashes, for the order by address.
 const bare = (path: string) => path.replace(/^\/+|\/+$/g, '');
-
-// A row's address and where it goes (or how often it was asked for): under each other on a phone, side
-// by side on a computer.
-const columns = 'min-w-0 flex-1 md:grid md:grid-cols-2 md:items-baseline md:gap-6';
 
 // tab: the list that is open; without it, "Videresendelser" with the rows that open them.
 export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
@@ -157,7 +150,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
   };
 
   // Saves the redirects as they are after a change, in one commit, none through another.
-  async function store(next: AllRedirects, message: string): Promise<boolean> {
+  async function store(next: AllRedirects, message: string, change: string): Promise<boolean> {
     const flat = flatten(next);
     if (typeof flat === 'string') {
       env.notify({ text: flat, error: true });
@@ -168,13 +161,13 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
     setSaving(true);
     env.notify({ text: t.common.saving });
     try {
-      const oids = await env.commit(message, changes);
+      const oids = await env.commit(message, changes, change);
       const saved = changes.map((c) => ({ path: c.path, oid: oids[c.path], text: String(c.content) }));
       setFiles((was) => [...(was ?? []).filter((f) => !saved.some((s) => s.path === f.path)), ...saved]);
       // The editor's own redirects are among the app's files too.
       const own = saved.find((f) => f.path === REDIRECTS);
       if (own) env.onSaved(own);
-      env.notify({ text: SAVED, kind: 'saved' });
+      env.notify({ text: savedText(change), kind: 'saved' });
       return true;
     } catch (e) {
       env.notify({ text: t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
@@ -223,6 +216,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
     const done = await store(
       setRedirect(all, from, to),
       editing.isNew ? siteT.redirects.commit.add(from, to) : siteT.redirects.commit.change(from, to),
+      t.app.changes[editing.isNew ? 'added' : 'edited'](t.app.changes.redirect(from)),
     );
     if (!done) return;
     // Sent on: no longer an address that does not exist.
@@ -238,7 +232,8 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
     // First straight to where it ends, so those that went on through it keep going there.
     const flat = flatten(all);
     if (typeof flat === 'string') return env.notify({ text: flat, error: true });
-    if (await store(setRedirect(flat, from, null), siteT.redirects.commit.delete(from))) dialog.current?.close();
+    const change = t.app.changes.deleted(t.app.changes.redirect(from));
+    if (await store(setRedirect(flat, from, null), siteT.redirects.commit.delete(from), change)) dialog.current?.close();
   }
 
   async function drop(path: string) {
@@ -260,14 +255,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
         {problem && <ProblemNote>{problem}</ProblemNote>}
         <Group>
           {rows.map((r) => (
-            <li key={r.tab}>
-              <a href={`#${TAB_ROUTES[r.tab]}`} className={listItemClass}>
-                <LeadingIcon icon={r.icon} />
-                <span className="min-w-0 flex-1 font-medium">{r.label}</span>
-                {r.count !== null && <TrailingText>{r.count}</TrailingText>}
-                <TrailingIcon />
-              </a>
-            </li>
+            <ListItem key={r.tab} href={`#${TAB_ROUTES[r.tab]}`} icon={r.icon} headline={r.label} count={r.count} arrow />
           ))}
         </Group>
       </Screen>
@@ -348,20 +336,14 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
               missingGroups.map((g) => (
                 <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
                   {g.items.map((m) => (
-                    <li key={m.path}>
-                      <button
-                        type="button"
-                        className={listItemClass}
-                        onClick={() => open({ from: m.path, to: '', isNew: true, missing: m })}
-                      >
-                        <span className={columns}>
-                          <span className="block font-medium break-all">{m.path}</span>
-                          <span className="mt-0.5 block text-sm text-muted md:mt-0">
-                            {t.redirects.missing.seen(m.count, when(new Date(m.last)))}
-                          </span>
-                        </span>
-                      </button>
-                    </li>
+                    // The address and how often it was asked for: under each other on a phone, side by side on a computer.
+                    <ListItem
+                      key={m.path}
+                      onClick={() => open({ from: m.path, to: '', isNew: true, missing: m })}
+                      headline={m.path}
+                      supporting={t.redirects.missing.seen(m.count, when(new Date(m.last)))}
+                      columns
+                    />
                   ))}
                 </Group>
               ))
@@ -378,17 +360,19 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
           groups.map((g) => (
             <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
               {g.items.map((e) => (
-                <li key={e.from}>
-                  <button type="button" className={listItemClass} onClick={() => open({ from: e.from, to: e.to, isNew: false })}>
-                    <span className={columns}>
-                      <span className="block font-medium break-all">{e.from}</span>
-                      <span className="mt-0.5 flex items-start gap-1.5 text-sm text-muted md:mt-0">
-                        <ArrowRight size={14} className="mt-1 shrink-0" />
-                        <span className="min-w-0 break-words">{name(e.to)}</span>
-                      </span>
+                // The address and where it sends to: under each other on a phone, side by side on a computer.
+                <ListItem
+                  key={e.from}
+                  onClick={() => open({ from: e.from, to: e.to, isNew: false })}
+                  headline={e.from}
+                  supporting={
+                    <span className="flex items-start gap-1.5">
+                      <ArrowRight size={14} className="mt-1 shrink-0" />
+                      <span className="min-w-0 break-words">{name(e.to)}</span>
                     </span>
-                  </button>
-                </li>
+                  }
+                  columns
+                />
               ))}
             </Group>
           ))

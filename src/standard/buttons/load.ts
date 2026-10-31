@@ -2,7 +2,7 @@
 // booking sheet or the phone: their address and text from the site, @site/standard), or opens what it picked (a
 // promotion on the page: `picked`); without a text of its own it has the target's, the promotion's or the page's name.
 // What it opens on the page is its `data-open` (ButtonText.open), the address is where it goes without one there or
-// without JavaScript. `bar`: the buttons of a bar at the bottom of a phone's screen (the site's booking bar): the text
+// without JavaScript. `bar`: the buttons of a bar at the bottom of a phone's screen (the site's action bar): the text
 // without what comes after it (the phone number, said to screen readers instead), and without an icon of their own the
 // one of what they do: the calendar to book, the phone, the arrow after a page or a pop-up.
 import { standard } from '@site/standard';

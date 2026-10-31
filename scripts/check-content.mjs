@@ -3,18 +3,19 @@
 // (checkSite.ts in the editor, packages/editor/). Stops with what is wrong, so a broken page never goes
 // out; the site that is out stays as it is; among it every theme (themeProblems, with the icon packs it brings) and
 // the system's icon packs and the choice of one (iconPackProblems), and so an icon the site or the editor draws that a
-// pack has none for. Says too which of the site's texts the
-// editor has no translation of (src/site/texts.ts, a block's texts.ts); that does not stop the build. The editor's
+// pack has none for, and the choice of motion scheme (motionProblems). Says too which of the site's texts the
+// editor has no translation of (@site/texts, a block's texts.ts); that does not stop the build. The editor's
 // code is TypeScript and TSX, so it is loaded with Vite, as the site's own build does.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { config, fromSite } from '../site/siteConfig.mjs';
+import { config } from '../site/siteConfig.mjs';
 import { createServer } from 'vite';
 import {
   aliases,
   blockProblems,
   iconPackProblems,
+  motionProblems,
   installedThemes,
   themeFolder,
   themePlugin,
@@ -27,11 +28,12 @@ import { notesOf, releaseProblems } from './releases.mjs';
 const root = `${process.cwd()}/`;
 // This package's own code, from the site's root (packages/editor/ or node_modules/@interstellarcms/cms/).
 const own = relative(root, fileURLToPath(new URL('..', import.meta.url)));
-const { allowedCspProblems, appCspProblems } = await fromSite('src/site/csp.mjs');
-const { appCookieProblems } = await fromSite('src/site/cookies.mjs');
+const { allowedCspProblems, appCspProblems } = await import('../site/siteCsp.mjs');
+const { appCookieProblems } = await import('../site/appCookies.mjs');
 
 // With the redirects' other two files (siteRedirects in src/site/config.ts): none may send on through another.
 const files = ['src/content', 'src/data']
+  .filter((dir) => existsSync(dir))
   .flatMap((dir) =>
     readdirSync(dir, { recursive: true, withFileTypes: true })
       .filter((e) => e.isFile() && /\.(md|json)$/.test(e.name))
@@ -63,7 +65,7 @@ try {
   result = problemsOf(files);
   missing = untranslated();
   const { config } = await server.ssrLoadModule('/src/site/config.ts');
-  if (existsSync(config.store.catalog)) catalog = JSON.parse(readFileSync(config.store.catalog, 'utf8'));
+  if (config.store && existsSync(config.store.catalog)) catalog = JSON.parse(readFileSync(config.store.catalog, 'utf8'));
   for (const id of appIds(root)) {
     const app = (await server.ssrLoadModule(`/src/apps/${id}/index.ts`)).default;
     for (const x of app.thirdParty ?? []) if (x?.package) declared.add(x.package);
@@ -103,7 +105,7 @@ for (const [locale, files] of Object.entries(missing)) {
 
 // Every theme installed has what a theme must have (the standard theme all of it), so the owner can swap to any of them
 // on "Udseende".
-result.problems.push(...installedThemes().flatMap(themeProblems), ...iconPackProblems());
+result.problems.push(...installedThemes().flatMap(themeProblems), ...iconPackProblems(), ...motionProblems());
 // Every block is drawn from its view, on the site and in the editor alike.
 result.problems.push(...blockProblems());
 // What each app loads from elsewhere is in its csp.json, so the pages' Content-Security-Policy lets it through.

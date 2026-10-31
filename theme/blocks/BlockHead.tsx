@@ -1,5 +1,5 @@
 // A block's head (its contract: @interstellarcms/cms/src/standard/head.ts), over the standard blocks that start a section
-// ("Kort", "Punkter med ikon", "Trin", "Udtalelser", "Spørgsmål og svar", "Blogindlæg", "Foldeliste"), in the text's
+// ("Kort", "Punkter med ikon", "Liste", "Trin", "Udtalelser", "Spørgsmål og svar", "Blogindlæg", "Foldeliste"), in the text's
 // style (InProse). Only a heading: the heading itself, as the text has its headings. With a label above it ("Etiket")
 // or a subheading under it ("Underoverskrift"): the three together (.block-head in ../styles/blocks.css, an <hgroup>),
 // each only when it is there. Nothing without any of them.

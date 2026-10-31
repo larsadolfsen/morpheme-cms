@@ -1,602 +1,1410 @@
-/* The standard theme: its base (Tailwind, the blocks, its components' classes) and its own look over it. */
+@import "./fonts.css";
+/* The standard theme: its base (Tailwind, the blocks, its components' classes) and its own look over it, Material 3. */
 @import './base.css';
-@import '@fontsource-variable/plus-jakarta-sans';
 
 /*
-  The standard theme's look: Plus Jakarta Sans with heavy, tightly set headings and quiet,
-  roomy text; white panels with a thin edge, large corners and a soft, low shadow; pill buttons in bold, the filled one
-  with a soft glow in the accent; icons in rounded squares in the tint; big step numbers (01, 02 …); points and questions
-  in one panel with hairlines between them; testimonials on light cards with a thin edge, each name with its picture or
-  an avatar of its initial; and the logo in a tile in the accent.
-  The colours are the site's, by name (base.css); the shadows and the glow are mixes of --ink and --accent with
-  transparency, never under text.
+  The standard theme's look, Material: the site in Material Design 3 (m3.material.io). Roboto and the M3 type scale (regular headlines,
+  medium titles and labels), the M3 shapes (below), tonal surfaces instead of lines, the M3 elevation levels and its emphasized easing; buttons
+  as wide as their label (filled and tonal) and lists in segments. The theme's own parts (the top app bar, the
+  navigation drawer, the FAB, the footer) are at the end.
+
+  The colours are the site's (src/data/colors.json, "Farver" in the editor), used by name as in the standard theme
+  and mapped to the M3 roles: primary = --accent, on-primary = --on-accent, surface (the page) = --bg, the surface
+  containers = --surface-container-low, --surface-container, --surface-container-high and --surface-container-highest,
+  on-surface = --ink, on-surface-variant = --muted, outline = --outline, outline variant = --line, the inverse colours
+  = --inverse-surface, --inverse-on-surface and --inverse-primary, and the error colours = --error, --on-error,
+  --error-container and --on-error-container. They are M3's own
+  when the colours are made from a source colour (dynamic colour), and every text on them keeps the contrast the editor
+  checks (colorPairs), in light and dark mode.
 */
 :root {
-  --radius: 1.5rem;
-  /* A large panel: a banner without a picture or with it behind, an invitation. */
-  --radius-large: 2rem;
-  /* Faint: a hairline of shadow and a little under it. */
-  --shadow: 0 1px 2px color-mix(in srgb, var(--ink) 4%, transparent), 0 6px 16px -10px color-mix(in srgb, var(--ink) 12%, transparent);
-  /* A card pointed at, and a large picture floating over the page. */
-  --shadow-lifted:
-    0 1px 2px color-mix(in srgb, var(--ink) 5%, transparent), 0 16px 36px -20px color-mix(in srgb, var(--ink) 20%, transparent);
-  /* Under a filled button: a soft glow in the accent. */
-  --glow: 0 8px 20px -8px color-mix(in srgb, var(--accent) 60%, transparent);
-  --glow-strong: 0 12px 28px -10px color-mix(in srgb, var(--accent) 70%, transparent);
+  /* The surfaces and the outline, M3's roles as the site's colours ("Farver"): the page on the background, --surface
+     the lowest container, and the containers each a step towards the text's colour. */
+  --md-background: var(--bg);
+  --md-surface-container-lowest: var(--surface-container-lowest);
+  --md-surface-container-low: var(--surface-container-low);
+  --md-surface-container: var(--surface-container);
+  --md-surface-container-high: var(--surface-container-high);
+  --md-surface-container-highest: var(--surface-container-highest);
+  --md-outline: var(--outline);
+  /* State layers: on-surface (or primary) over the element, 8% pointed at, 10% pressed. */
+  --md-hover: color-mix(in srgb, var(--ink) 8%, transparent);
+  --md-pressed: color-mix(in srgb, var(--ink) 10%, transparent);
+  --md-primary-hover: color-mix(in srgb, var(--accent) 8%, transparent);
+  /* M3's elevation levels (m3.material.io/styles/elevation, as material-web draws them: a key and an ambient shadow),
+     the same in light and dark mode. Every part takes its M3 level from them by default (ui.css). */
+  --elevation-0: 0 0 #0000;
+  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
+  --elevation-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
+  --elevation-3: 0 1px 3px rgb(0 0 0 / 0.3), 0 4px 8px 3px rgb(0 0 0 / 0.15);
+  --elevation-4: 0 2px 3px rgb(0 0 0 / 0.3), 0 6px 10px 4px rgb(0 0 0 / 0.15);
+  --elevation-5: 0 4px 4px rgb(0 0 0 / 0.3), 0 8px 12px 6px rgb(0 0 0 / 0.15);
+  /* The shade over the page behind a dialog, a sheet and the navigation drawer. */
+  --md-scrim: rgb(0 0 0 / 0.32);
+  /* M3's corner radius scale (m3.material.io/styles/shape/corner-radius-scale), its ten steps named for how round a
+     corner is. Every corner in the theme is one of them: a part's variable below maps it to its step, as M3's component
+     tokens do, also one corner at a time (a sheet's top, the inner corners of a split button or a menu's groups).
+     Changing a step (--md-shape-medium) changes every part mapped to it; changing a part's variable (--card-radius)
+     maps that part to another step. Optical roundness (outer radius - padding = inner radius) only where the theme's
+     own layout always puts something in its container's corner (a card's picture at its top: the card's corners);
+     never on something whose place is the block's or the content's, which keeps its own step. */
+  --md-shape-none: 0rem;
+  --md-shape-extra-small: 0.25rem;
+  --md-shape-small: 0.5rem;
+  --md-shape-medium: 0.75rem;
+  --md-shape-large: 1rem;
+  --md-shape-large-increased: 1.25rem;
+  --md-shape-extra-large: 1.75rem;
+  --md-shape-extra-large-increased: 2rem;
+  --md-shape-extra-extra-large: 3rem;
+  --md-shape-full: 9999px;
 
-  /* The header: the logo in a tile in the accent with the mark in the text on it, the name bold, the role only from md
-     (styles/components.css); the top app bar always with a hairline under it, and the menu button a standard icon
-     button, bare (ui.css). */
-  --top-app-bar-line: color-mix(in srgb, var(--line) 70%, transparent);
-  --top-app-bar-stuck-line: color-mix(in srgb, var(--line) 70%, transparent);
-  --theme-logo-tile: var(--accent);
-  --theme-logo-tile-padding: 0.4rem;
-  --theme-logo-tile-radius: 0.875rem;
-  --theme-logo-mark: var(--on-accent);
-  --theme-logo-mark-scale: 0.75;
-  --theme-logo-name-weight: 800;
-  --theme-logo-name-size: 1.2rem;
-  --theme-logo-role-display: none;
+  --radius: var(--md-shape-medium);
+  --shadow: var(--elevation-1);
+  /* The site's motion scheme's curve ("Bevægelse", @interstellarcms/cms/lib/motion.ts). */
+  --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
 
-  /* The buttons (ui.css): pills in bold, the filled one with a soft glow in the accent, the outlined one's edge darker
-     when pointed at, the text staying in ink. */
-  --button-weight: 700;
-  --button-letter-spacing: -0.01em;
-  --button-filled-shadow: var(--glow);
-  --button-filled-hover-shadow: var(--glow-strong);
-  --button-outlined-hover-text: var(--block-text);
-  --button-outlined-hover-line: color-mix(in srgb, var(--block-text) 35%, var(--block-line));
-  /* A filled toggle (ui.css) that is on: with the filled button's glow. */
-  --button-toggle-selected-shadow: var(--glow);
-  /* The buttons' and icon buttons' corners a little squarer while pressed, more so the smaller they are (ui.css). */
-  --button-xsmall-pressed-radius: calc(var(--radius-small) / 2);
-  --button-small-pressed-radius: calc(var(--radius-small) / 2);
-  --button-pressed-radius: calc(var(--radius-small) * 0.75);
-  --button-large-pressed-radius: var(--radius-small);
-  --button-xlarge-pressed-radius: var(--radius-small);
+  --block-surface: var(--md-surface-container-low);
+  --block-radius: var(--md-shape-medium);
+  --block-control-radius: var(--md-shape-full);
+  --block-shadow: var(--elevation-1);
+  --block-ease: var(--ease);
+  /* Pictures in a list, a row, a step on the time line: large corners. */
+  --radius-small: var(--md-shape-large);
+
+  /* The standard theme's components (docs/editor.md, "Temaets variabler"). Dialogs (the cookie question, a pop-up):
+     extra-large increased corners, a high surface container, no line (the third elevation, as every dialog). */
+  --dialog-radius: var(--md-shape-extra-large-increased);
+  --dialog-surface: var(--md-surface-container-high);
+  --dialog-line: transparent;
+  --dialog-scrim: var(--md-scrim);
+  /* A bottom sheet (ui.css; a dialog on a computer): extra-large corners, the lowest surface container (also as a dialog,
+     as M3's on every screen), no lines, the scrim, the drag handle in on-surface-variant at 40% (the first elevation,
+     the third as a dialog, as every bottom sheet). */
+  --bottom-sheet-radius: var(--md-shape-extra-large);
+  --bottom-sheet-surface: var(--md-surface-container-low);
+  --bottom-sheet-line: transparent;
+  --bottom-sheet-scrim: var(--md-scrim);
+  --bottom-sheet-handle: color-mix(in srgb, var(--muted) 40%, transparent);
+  /* The carousel's page indicator: the dots in the outline, the chosen one a longer pill (in the primary colour). */
+  --carousel-dot-colour: var(--md-outline);
+  /* The carousel's items: extra-large corners, none on a full-screen one. */
+  --carousel-item-radius: var(--md-shape-extra-large);
+  --carousel-full-screen-radius: var(--md-shape-none);
+  --carousel-dot-selected-width: 1.5rem;
+  /* The large pictures at the top of a page, a blog post and the blog: extra-large corners. */
+  --theme-picture-radius: var(--md-shape-extra-large);
+  /* Chips (ui.css): 32px, 8px corners, an outline and no container; a chosen filter chip in the secondary container
+     with its check, not in the primary colour. */
+  --chip-height: 2rem;
+  --chip-padding: 0.375rem 1rem;
+  --chip-radius: var(--md-shape-small);
+  --chip-surface: transparent;
+  --chip-line: var(--md-outline);
+  --chip-hover-line: var(--md-outline);
+  --chip-hover-text: currentColor;
+  --chip-font-size: 0.875rem;
+  --chip-selected-surface: var(--tint);
+  --chip-selected-hover: color-mix(in srgb, var(--ink) 8%, var(--tint));
+  --chip-selected-text: var(--ink);
+  --chip-selected-check: block;
+  /* The page's headline: the M3 type scale (display small on a phone, display medium on a computer). */
+  --theme-title-size: 2.25rem;
+  --theme-title-size-large: 2.8125rem;
+  --theme-title-leading: 2.75rem;
+  /* The front page: its headline closer to the first section under it. */
+  --theme-home-first-space: 2.5rem;
+  --theme-home-first-space-large: 4rem;
+
+  /* Buttons (ui.css): M3's small size (40px), as wide as the label, full corners (or square), a label in medium weight; a text
+     button with less room at its sides; tonal in the secondary container, elevated on the lowest container with the
+     first elevation, outlined with M3's outline and its label in the primary colour. */
+  --button-height: 2.5rem;
+  --button-radius: var(--md-shape-full);
+  /* Square buttons and icon buttons by M3's size: medium corners on the small ones (40px, as these buttons), large on
+     the medium (56px: the hero's buttons on a computer, the medium icon button), extra-large on the large. */
+  --button-xsmall-square-radius: var(--md-shape-medium);
+  --button-small-square-radius: var(--md-shape-medium);
+  --button-square-radius: var(--md-shape-medium);
+  --button-large-square-radius: var(--md-shape-extra-large);
+  --button-xlarge-square-radius: var(--md-shape-extra-large);
+  --icon-button-medium-square-radius: var(--md-shape-large);
+  --button-padding: 1.5rem;
+  --button-gap: 0.5rem;
+  --button-font-size: 0.875rem;
+  --button-weight: 500;
+  --button-letter-spacing: 0.00625rem;
+  --button-small-height: 2.5rem;
+  --button-small-padding: 1rem;
+  --button-small-font-size: 0.875rem;
+  --button-xsmall-height: 2.5rem;
+  --button-xsmall-padding: 1rem;
+  --button-xsmall-gap: 0.5rem;
+  --button-xsmall-font-size: 0.875rem;
+  --button-text-padding: 0.75rem;
+  --button-filled-hover: color-mix(in srgb, var(--on-accent) 8%, var(--accent));
+  --button-tonal-surface: var(--tint);
+  --button-tonal-text: var(--ink);
+  --button-tonal-hover: color-mix(in srgb, var(--ink) 8%, var(--tint));
+  --button-elevated-surface: var(--md-surface-container-low);
+  --button-elevated-text: var(--accent);
+  --button-outlined-surface: transparent;
+  --button-outlined-text: var(--accent);
+  --button-outlined-line: var(--md-outline);
+  --button-outlined-hover-text: var(--accent);
+  --button-outlined-hover-line: var(--md-outline);
+  --button-text-text: var(--accent);
+  --button-text-hover: var(--md-primary-hover);
+  /* Icon buttons: 48 by 48 with a 24px icon; standard in on-surface-variant without a container, tonal in the
+     secondary container (the cross on a pop-up, as it can stand on a picture). */
+  --icon-button-size: 3rem;
+  --icon-button-icon-size: 1.5rem;
+  --icon-button-standard-text: var(--muted);
+  --icon-button-tonal-surface: var(--tint);
+  --icon-button-tonal-text: var(--ink);
+  --icon-button-outlined-surface: transparent;
+  --icon-button-outlined-text: var(--muted);
+  --icon-button-outlined-line: var(--md-outline);
+  /* Text fields: 56px, 4px corners, the content 16px from the edges; outlined with M3's outline, on-surface when
+     pointed at and 2px in the primary colour while written in; filled in the highest container with an active
+     indicator under it (on-surface-variant, 2px in the primary colour while written in); what is wrong in the error
+     colour. The checkbox 18px, its name
+     after 16px (M3's 48px target around it). */
+  --text-field-height: 3.5rem;
+  --text-field-padding: 1rem;
+  --text-field-radius: var(--md-shape-extra-small);
+  --text-field-outlined-surface: transparent;
+  --text-field-outlined-line: var(--md-outline);
+  --text-field-outlined-hover-line: var(--ink);
+  --text-field-outlined-focus-line: var(--accent);
+  --text-field-filled-surface: var(--md-surface-container-highest);
+  --text-field-filled-line: var(--muted);
+  --text-field-filled-hover-line: var(--ink);
+  --text-field-filled-focus-line: var(--accent);
+  --text-field-label-surface: var(--md-background);
+  --text-field-error: var(--error);
+  --text-field-disabled-opacity: 0.38;
+  --checkbox-size: 1.125rem;
+  --checkbox-gap: 1rem;
+
+  /* Cards (ui.css): 12px corners; outlined on the surface with the outline variant, elevated on a low container with
+     the first elevation, filled on the highest container. */
+  --card-radius: var(--md-shape-medium);
+  --card-filled-surface: var(--md-surface-container-highest);
+  --card-outlined-surface: var(--surface);
+  --card-outlined-line: var(--line);
+  --card-elevated-surface: var(--md-surface-container-low);
+  /* Lists (M3 Expressive's list tokens): items 56, 72 and 88px high by their lines, 16px in from their sides, 10px over
+     and under their text and 12px between their elements, without lines between them; 20px icons; the headline in body
+     large, the supporting text in body medium, the overline and the trailing text in label small; a state layer in the
+     text's colour when pointed at (8%) and pressed (10%), nothing moving aside; disabled at 38%, a segmented item on a
+     10% layer of the text's colour. Their corners extra-small, medium pointed at, large pressed and focused, large
+     increased selected; a selected one in the secondary container. Segmented: each item on a surface container (a step
+     up from the page, as Material's items on the surface over a container), 2px between them and the list's corners
+     large. */
+  --list-divider: transparent;
+  --list-item-min-height: 3.5rem;
+  --list-item-two-line-min-height: 4.5rem;
+  --list-item-three-line-min-height: 5.5rem;
+  --list-item-padding-block: 0.625rem;
+  --list-item-padding-inline: 1rem;
+  --list-item-gap: 0.75rem;
+  --list-item-radius: var(--md-shape-extra-small);
+  --list-item-hover-radius: var(--md-shape-medium);
+  --list-item-pressed-radius: var(--md-shape-large);
+  --list-item-selected-radius: var(--md-shape-large-increased);
+  --list-item-headline-size: 1rem;
+  --list-item-headline-weight: 400;
+  --list-item-headline-line-height: 1.5rem;
+  --list-item-headline-letter-spacing: 0.03125rem;
+  --list-item-supporting-size: 0.875rem;
+  --list-item-supporting-line-height: 1.25rem;
+  --list-item-overline-size: 0.6875rem;
+  --list-item-overline-line-height: 1rem;
+  --list-item-trailing-supporting-size: 0.6875rem;
+  --list-item-icon-size: 1.25rem;
+  --list-item-hover-surface: var(--md-hover);
+  --list-item-pressed-surface: var(--md-pressed);
+  --list-item-hover-text: var(--ink);
+  --list-item-hover-trailing-shift: 0;
+  --list-item-selected-surface: var(--secondary-container);
+  --list-item-selected-text: var(--on-secondary-container);
+  --list-item-selected-weight: 400;
+  --list-item-leading-icon-selected-color: var(--accent);
+  --list-item-disabled-opacity: 0.38;
+  --list-segmented-gap: 0.125rem;
+  --list-segmented-radius: var(--md-shape-large);
+  --list-segmented-inner-radius: var(--md-shape-extra-small);
+  --list-segmented-hover-radius: var(--md-shape-medium);
+  --list-segmented-pressed-radius: var(--md-shape-large);
+  --list-segmented-selected-radius: var(--md-shape-large-increased);
+  --list-segmented-padding-inline: 1rem;
+  --list-segmented-surface: var(--md-surface-container);
+  --list-segmented-hover-surface: var(--md-hover);
+  --list-segmented-pressed-surface: var(--md-pressed);
+  --list-segmented-disabled-surface: color-mix(in srgb, var(--ink) 10%, transparent);
+
+  /* The header's parts (ui.css): the top app bar on the background, in a surface container once the page scrolls under
+     it (M3 shows its second elevation there by that surface alone), without a line, a shadow or a blur. */
+  --top-app-bar-surface: var(--md-background);
+  --top-app-bar-stuck-surface: var(--md-surface-container);
+  --top-app-bar-line-width: 0;
+  --top-app-bar-backdrop: none;
+  --top-app-bar-stuck-shadow: none;
+  /* Menus: a surface container with small corners (its groups' inner corners extra-small), the second elevation, items 48px high, 112–280px wide, and
+     scrolling when higher than the screen; the open page in the secondary container. */
+  --menu-width: max-content;
+  --menu-min-width: 7rem;
+  --menu-max-width: 17.5rem;
+  --menu-max-height: calc(100dvh - 5rem);
+  --menu-radius: var(--md-shape-small);
+  --menu-group-inner-radius: var(--md-shape-extra-small);
+  --menu-surface: var(--md-surface-container);
+  --menu-line: transparent;
+  --menu-padding: 0.5rem 0;
+  --menu-item-height: 3rem;
+  --menu-item-padding: 0 0.75rem 0 1rem;
+  --menu-item-radius: var(--md-shape-none);
+  --menu-item-font-size: 0.875rem;
+  --menu-item-letter-spacing: 0.01563rem;
+  --menu-item-text: var(--ink);
+  --menu-item-hover-surface: var(--md-hover);
+  --menu-item-hover-text: var(--ink);
+  --menu-item-selected-surface: var(--tint);
+  --menu-item-selected-text: var(--ink);
+  --menu-item-selected-weight: 400;
+  /* Navigation drawers: from the left, large corners towards the page, a low surface container, M3's scrim; items 56px
+     high with a full active indicator in the secondary container, a label in medium weight. */
+  --navigation-drawer-width: min(22.5rem, 88vw);
+  --navigation-drawer-radius: var(--md-shape-none) var(--md-shape-large) var(--md-shape-large) var(--md-shape-none);
+  --navigation-drawer-surface: var(--md-surface-container-low);
+  --navigation-drawer-scrim: var(--md-scrim);
+  --navigation-drawer-item-height: 3.5rem;
+  --navigation-drawer-item-padding: 0 1.5rem 0 1rem;
+  --navigation-drawer-item-radius: var(--md-shape-full);
+  --navigation-drawer-item-font-size: 0.875rem;
+  --navigation-drawer-item-line-height: 1.5;
+  --navigation-drawer-item-letter-spacing: 0.00625rem;
+  --navigation-drawer-item-weight: 500;
+  --navigation-drawer-item-text: var(--muted);
+  --navigation-drawer-item-hover: var(--md-hover);
+  --navigation-drawer-item-active-surface: var(--tint);
+  --navigation-drawer-item-active-text: var(--ink);
+  --navigation-drawer-item-active-weight: 500;
+  --navigation-drawer-row-gap: 0;
+  --navigation-drawer-toggle-size: 3rem;
+  --navigation-drawer-toggle-hover: var(--md-hover);
+  /* FABs: 56px high with large corners, the medium (80px) large increased, the large (96px) extra-large; the third
+     elevation, the fourth when pointed at, a state layer. The secondary
+     container is the theme's (--tint, as everywhere here). */
+  --fab-radius: var(--md-shape-large);
+  --fab-medium-radius: var(--md-shape-large-increased);
+  --fab-large-radius: var(--md-shape-extra-large);
+  --fab-label-letter-spacing: 0.00938rem;
+  --fab-primary-hover: color-mix(in srgb, var(--on-accent) 8%, var(--accent));
+  --fab-secondary-container-surface: var(--tint);
+  --fab-secondary-container-text: var(--ink);
+  --fab-secondary-container-hover: color-mix(in srgb, var(--ink) 8%, var(--tint));
+  /* The buttons that do more than one thing (ui.css, "Actions"), as M3's. Button groups 12px apart, or connected 2px
+     apart with small corners between them (extra-small for the extra-small buttons, large and large increased for the
+     large and extra-large); a toggle off in a surface container in on-surface-variant, on in the primary colour, with
+     medium corners in a standard group. Segmented buttons 40px high (the buttons' height) with the
+     outline and no container, the chosen in the secondary container with its check. Split buttons 2px apart with
+     extra-small corners between them (small for the large, medium for the extra-large). A FAB menu's actions as pills in the secondary container (the theme's --tint, below) and its
+     FAB a circle while open. */
+  --button-group-gap: 0.75rem;
+  --button-group-connected-gap: 0.125rem;
+  --button-group-xsmall-inner-radius: var(--md-shape-extra-small);
+  --button-group-inner-radius: var(--md-shape-small);
+  --button-group-large-inner-radius: var(--md-shape-large);
+  --button-group-xlarge-inner-radius: var(--md-shape-large-increased);
+  --button-group-selected-radius: var(--md-shape-medium);
+  --button-toggle-surface: var(--md-surface-container);
+  --button-toggle-text: var(--muted);
+  --button-toggle-hover: color-mix(in srgb, var(--muted) 8%, var(--md-surface-container));
+  --button-toggle-selected-surface: var(--accent);
+  --button-toggle-selected-text: var(--on-accent);
+  --button-toggle-selected-hover: color-mix(in srgb, var(--on-accent) 8%, var(--accent));
+  --segmented-button-surface: transparent;
+  --segmented-button-line: var(--md-outline);
+  --segmented-button-padding: 0.75rem;
+  --segmented-button-selected-surface: var(--tint);
+  --segmented-button-selected-text: var(--ink);
+  --segmented-button-selected-hover: color-mix(in srgb, var(--ink) 8%, var(--tint));
+  --segmented-button-radius: var(--md-shape-full);
+  --split-button-inner-radius: var(--md-shape-extra-small);
+  --split-button-large-inner-radius: var(--md-shape-small);
+  --split-button-xlarge-inner-radius: var(--md-shape-medium);
+  --fab-menu-close-radius: var(--md-shape-full);
+
+  /* Switches (ui.css): M3's 52 by 32 track, off in the highest container with a 2px outline and a 16px handle in the
+     outline (24px with its icon), on in the primary colour with a 24px handle in on-primary and its icon in the primary
+     colour, 28px while pressed, no shadow; 38% when it cannot be changed. */
+  --switch-width: 3.25rem;
+  --switch-height: 2rem;
+  --switch-track-surface: var(--md-surface-container-highest);
+  --switch-track-line: var(--md-outline);
+  --switch-track-line-width: 2px;
+  --switch-handle-size: 1rem;
+  --switch-handle-icon-size: 1.5rem;
+  --switch-handle-checked-size: 1.5rem;
+  --switch-handle-pressed-size: 1.75rem;
+  --switch-handle-surface: var(--md-outline);
+  --switch-handle-checked-surface: var(--on-accent);
+  --switch-handle-shadow: none;
+  --switch-icon-color: var(--md-surface-container-highest);
+  --switch-icon-checked-color: var(--accent);
+  --switch-disabled-opacity: 0.38;
+  /* Radio buttons: 20px, the name after 16px (M3's 48px target around it), as the checkbox. */
+  --radio-button-size: 1.25rem;
+  --radio-button-gap: 1rem;
+  --radio-group-label-weight: 500;
+  /* Sliders (M3 Expressive): a 16px track with small corners at its ends (medium, large and extra-large on the medium,
+     large and extra-large sliders) and 2px beside the handle, the active part in
+     the primary colour, the inactive in the secondary container, a 4 by 44 handle in the primary colour with 6px of room
+     on each side (2px wide while pressed) and its centre at least 8px from the track's ends, 4px stops, and the value over the handle in a 48 by 44 pill on the inverse
+     surface; 38% when it cannot be moved. */
+  --slider-height: 2.75rem;
+  --slider-track-height: 1rem;
+  --slider-track-radius: var(--md-shape-small);
+  --slider-medium-track-radius: var(--md-shape-medium);
+  --slider-large-track-radius: var(--md-shape-large);
+  --slider-xlarge-track-radius: var(--md-shape-extra-large);
+  --slider-track-inner-radius: 0.125rem;
+  --slider-track-gap: 0.5rem;
+  --slider-active-track: var(--accent);
+  --slider-inactive-track: var(--tint);
+  --slider-handle-width: 0.25rem;
+  --slider-handle-height: 2.75rem;
+  --slider-handle-radius: var(--md-shape-full);
+  --slider-handle-surface: var(--accent);
+  --slider-handle-line-width: 0;
+  --slider-handle-shadow: none;
+  --slider-handle-pressed-width: 0.125rem;
+  --slider-handle-inset: 0.375rem;
+  --slider-stop-color: var(--accent);
+  --slider-stop-active-color: var(--tint);
+  --slider-value-surface: var(--ink);
+  --slider-value-text: var(--surface);
+  --slider-value-radius: var(--md-shape-full);
+  --slider-value-room: 3rem;
+  --slider-disabled-opacity: 0.38;
+  /* Side sheets: a standard one on the page's surface with the outline variant between them, a modal one in a low
+     surface container with large corners towards the page, the first elevation and M3's scrim; the headline in title
+     large, a line in the outline variant over the actions. */
+  --side-sheet-surface: var(--md-background);
+  --side-sheet-modal-surface: var(--md-surface-container-low);
+  --side-sheet-radius: var(--md-shape-large);
+  /* A modal navigation rail: large corners towards the page, as the drawer. */
+  --navigation-rail-modal-radius: var(--md-shape-large);
+  --side-sheet-scrim: var(--md-scrim);
+  --side-sheet-headline-size: 1.375rem;
+  --side-sheet-headline-weight: 400;
+
+  /* Communication (ui.css). A badge in the error colours. A snackbar: the inverse surface and its text, extra-small
+     corners, the third elevation, no blur; its action in the inverse primary with a state layer, the close icon in the
+     inverse surface's text colour. A plain tooltip the same surface with extra-small corners; a rich one on a surface container with medium corners, the second elevation and no line. A
+     linear progress indicator 4px high, a 4px gap before its track and the stop indicator at its end; a circular one
+     with a 4px gap. */
+  --snackbar-radius: var(--md-shape-extra-small);
+  --badge-radius: var(--md-shape-full);
+  --badge-surface: var(--error);
+  --badge-text: var(--on-error);
+  --snackbar-surface: var(--inverse-surface);
+  --snackbar-text: var(--inverse-on-surface);
+  --snackbar-padding-block: 0.875rem;
+  --snackbar-backdrop: none;
+  --snackbar-action-text: var(--inverse-primary);
+  --snackbar-action-hover: color-mix(in srgb, var(--inverse-primary) 8%, transparent);
+  --tooltip-plain-surface: var(--inverse-surface);
+  --tooltip-plain-text: var(--inverse-on-surface);
+  --tooltip-plain-radius: var(--md-shape-extra-small);
+  --tooltip-plain-weight: 400;
+  --tooltip-rich-surface: var(--md-surface-container);
+  --tooltip-rich-text: var(--muted);
+  --tooltip-rich-subhead: var(--ink);
+  --tooltip-rich-subhead-weight: 500;
+  --tooltip-rich-radius: var(--md-shape-medium);
+  --tooltip-rich-line: transparent;
+  --linear-progress-indicator-height: 0.25rem;
+  --linear-progress-indicator-radius: var(--md-shape-full);
+  --linear-progress-indicator-stop-size: 0.25rem;
+  --circular-progress-indicator-gap: 7;
+  /* The navigation bar: 64px (M3 Expressive), in a surface container without a line, the active indicator 56 × 32 in the
+     secondary container, the labels in label medium. */
+  --navigation-bar-height: 4rem;
+  --navigation-bar-surface: var(--md-surface-container);
+  --navigation-bar-line: transparent;
+  --navigation-bar-item-text: var(--muted);
+  --navigation-bar-item-selected-text: var(--ink);
+  --navigation-bar-indicator-width: 3.5rem;
+  --navigation-bar-indicator-radius: var(--md-shape-full);
+  --navigation-bar-indicator-surface: var(--tint);
+  --navigation-bar-indicator-text: var(--ink);
+  --navigation-bar-indicator-hover: var(--md-hover);
+  --navigation-bar-label-selected-weight: 500;
+  /* The navigation rail: 96px collapsed and 220px wide, on the page's background without a line, the same indicator
+     (56px high when wide), the labels in label medium, wide in label large. */
+  --navigation-rail-width: 6rem;
+  --navigation-rail-expanded-width: 13.75rem;
+  --navigation-rail-padding: 1.5rem 0.5rem;
+  --navigation-rail-surface: var(--md-background);
+  --navigation-rail-line: transparent;
+  --navigation-rail-item-text: var(--muted);
+  --navigation-rail-item-selected-text: var(--ink);
+  --navigation-rail-indicator-radius: var(--md-shape-full);
+  --navigation-rail-indicator-surface: var(--tint);
+  --navigation-rail-indicator-text: var(--ink);
+  --navigation-rail-indicator-hover: var(--md-hover);
+  --navigation-rail-label-selected-weight: 500;
+  /* Search: the bar 56px, full corners, in the high surface container with a state layer; the view in it too, docked
+     with extra-large corners and the third elevation, with a divider under its header. */
+  --search-bar-height: 3.5rem;
+  --search-bar-radius: var(--md-shape-full);
+  --search-bar-padding: 1rem;
+  --search-bar-gap: 1rem;
+  --search-bar-surface: var(--md-surface-container-high);
+  --search-bar-line: transparent;
+  --search-bar-hover: color-mix(in srgb, var(--ink) 8%, var(--md-surface-container-high));
+  --search-bar-placeholder: var(--muted);
+  --search-view-surface: var(--md-surface-container-high);
+  --search-view-radius: var(--md-shape-extra-large);
+  --search-view-line: transparent;
+  --search-view-divider: var(--line);
+  --search-view-results-padding: 0.5rem 0;
+  --search-view-option-surface: var(--md-hover);
+  /* Toolbars (M3 Expressive): in a surface container, docked without a line or blur, floating with full corners and
+     the third elevation;
+     vibrant in the primary colour. */
+  --toolbar-standard-surface: var(--md-surface-container);
+  --toolbar-docked-line-width: 0;
+  --toolbar-docked-backdrop: none;
+  --toolbar-floating-line: transparent;
+  --toolbar-floating-radius: var(--md-shape-full);
+  /* Date pickers: the dialog's high surface container and third elevation, a docked one with large corners; the
+     headline regular in the headline-large size, the month and year and the supporting text in on-surface-variant, the
+     line under the header in outline variant; days in 40px circles with a state layer, the range's band in the
+     secondary container. */
+  --date-picker-docked-radius: var(--md-shape-large);
+  --date-picker-day-radius: var(--md-shape-full);
+  --date-picker-headline-size: 2rem;
+  --date-picker-headline-weight: 400;
+  --date-picker-supporting-color: var(--muted);
+  --date-picker-menu-button-text: var(--muted);
+  --date-picker-day-hover: var(--md-hover);
+  --date-picker-range-surface: var(--tint);
+  /* Time pickers: the boxes 96 × 80 with small corners and display-large numbers in the highest surface container, the
+     one on the dial in the secondary container, and the 256px dial in the highest surface container. */
+  --time-picker-headline-color: var(--muted);
+  --time-picker-box-radius: var(--md-shape-small);
+  --time-picker-box-font-size: 3.5625rem;
+  --time-picker-box-weight: 400;
+  --time-picker-box-surface: var(--md-surface-container-highest);
+  --time-picker-box-selected-surface: var(--tint);
+  --time-picker-box-selected-text: var(--ink);
+  --time-picker-dial-surface: var(--md-surface-container-highest);
 }
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.25), 0 8px 20px -12px rgb(0 0 0 / 0.5);
-    --shadow-lifted: 0 1px 2px rgb(0 0 0 / 0.3), 0 18px 40px -22px rgb(0 0 0 / 0.6);
-    --glow: 0 8px 22px -10px color-mix(in srgb, var(--accent) 45%, transparent);
-    --glow-strong: 0 12px 30px -10px color-mix(in srgb, var(--accent) 55%, transparent);
-    --block-hero-shade: var(--bg);
-    --block-hero-on-shade: var(--ink);
+@media (min-width: 48rem) {
+  :root {
+    --theme-title-leading: 3.25rem;
   }
 }
 
+/* The same elevation in dark mode (the standard theme's shadow there is another). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --shadow: var(--elevation-1);
+  }
+}
 :root[data-theme='dark'] {
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.25), 0 8px 20px -12px rgb(0 0 0 / 0.5);
-  --shadow-lifted: 0 1px 2px rgb(0 0 0 / 0.3), 0 18px 40px -22px rgb(0 0 0 / 0.6);
-  --glow: 0 8px 22px -10px color-mix(in srgb, var(--accent) 45%, transparent);
-  --glow-strong: 0 12px 30px -10px color-mix(in srgb, var(--accent) 55%, transparent);
-  --block-hero-shade: var(--bg);
-  --block-hero-on-shade: var(--ink);
+  --shadow: var(--elevation-1);
 }
 
 @theme inline {
-  --font-sans: 'Plus Jakarta Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Roboto Variable', Roboto, ui-sans-serif, system-ui, sans-serif;
 }
 
 @layer base {
   body {
-    line-height: 1.6;
+    background: var(--md-background);
+    font-size: 1rem;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
   }
+  /* Headlines regular, titles medium, no tightening (the M3 type scale). */
   h1,
   h2 {
-    font-weight: 800;
-    letter-spacing: -0.03em;
+    font-weight: 400;
+    letter-spacing: 0;
   }
   h3 {
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+  :focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--md-shape-extra-small);
   }
 }
 
 @layer components {
-  /* A button is lifted a little when pointed at. */
-  .button:hover {
-    transform: translateY(-1px);
+  /* Common buttons (their variables above): a state layer when pointed at (the ripple when pressed; their elevation is
+     ui.css's, at M3's levels), and the corners a little squarer while pressed (M3 Expressive).
+     Side by side, wrapping, also on a phone. */
+  .block-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .button {
+    transition:
+      background-color var(--motion-effects),
+      color var(--motion-effects),
+      box-shadow var(--motion-effects),
+      border-radius var(--motion-spatial-fast);
   }
   .button:active {
-    transform: scale(0.98);
+    transform: none;
+    border-radius: var(--md-shape-medium);
   }
-  .link,
+  .button-outlined:hover {
+    background: var(--md-primary-hover);
+  }
+  .button-text:focus-visible {
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+  /* A text button reaches 48px for a finger, above and below it. */
+  .button-text {
+    position: relative;
+  }
+  .button-text::after {
+    content: '';
+    position: absolute;
+    inset: -0.25rem 0;
+  }
+  /* An M3 button's icon stands before its label: the arrow after a button's text is not shown. */
+  .button-trailing-icon {
+    display: none;
+  }
+  /* The hero's buttons: small (40px) on a phone, so two fit side by side, medium (56px, a larger label) from a
+     tablet. */
+  @media (min-width: 48rem) {
+    .block-hero {
+      --button-height: 3.5rem;
+      --button-square-radius: var(--md-shape-large);
+      --button-padding: 1.75rem;
+      --button-font-size: 1rem;
+    }
+    .block-hero .button:active {
+      border-radius: var(--md-shape-large);
+    }
+  }
+  /* A link with an arrow on its own ("Læs mere", "Alle indlæg"), and "Læs mere" on a testimonial: text buttons, a
+     label in the primary colour with a state layer, the label in line with the text beside it. */
+  .block-arrow-link,
+  .block-testimonial-more {
+    min-height: 2.5rem;
+    margin-inline: -0.75rem;
+    border-radius: var(--md-shape-full);
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.00625rem;
+    transition: background-color var(--motion-effects);
+  }
+  .block-arrow-link:hover,
+  .block-testimonial-more:hover {
+    background: var(--md-primary-hover);
+  }
+  .block-arrow-link:active,
+  .block-testimonial-more:active {
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+  .block-testimonial-more {
+    cursor: pointer;
+  }
+  /* Chips (their variables above): a label in medium weight, a state layer when pointed at; a chosen filter chip with
+     its 18px check before the label, 8px from the edge. */
   .chip {
-    font-weight: 600;
+    font-weight: 500;
+    line-height: 1.25rem;
+    letter-spacing: 0.00625rem;
+    transition:
+      background-color var(--motion-effects),
+      box-shadow var(--motion-effects);
   }
-}
+  .chip:hover {
+    background: var(--md-hover);
+  }
+  .chip-elevated:hover {
+    background: color-mix(in srgb, var(--ink) 8%, var(--chip-elevated-surface, var(--block-surface)));
+  }
+  .chip-filter:is([aria-pressed='true'], [aria-current='page']) {
+    padding-left: 0.5rem;
+  }
+  .block-tag {
+    border-radius: var(--md-shape-small);
+    background: var(--tint);
+    font-weight: 500;
+  }
 
-/* Long-form text: its headings as the page's, its links in semibold. */
-.prose :where(h2) {
-  font-weight: 800;
-  letter-spacing: -0.035em;
-}
-.prose :where(h3, h4) {
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-.prose :where(a):not(:where(.not-prose a)) {
-  font-weight: 600;
-}
-/* A block's head with a label or a subheading (.block-head, blocks.css), as a landing page's section starts: in the
-   middle, the subheading no wider than is good to read; a plain heading stays where the text's are. */
-.block-head {
-  text-align: center;
-}
-.block-head > .block-subheading {
-  max-width: 40rem;
-  margin-inline: auto;
-}
-.block-head > .block-eyebrow {
-  font-weight: 700;
-}
-/* What is under it, in the middle too, where it is narrower than its place (a front-page section). */
-.block-head + * .block-accordion,
-.block-head + .block-steps {
-  margin-inline: auto;
-}
+  /* Text fields (their variables above): the filled one's corners square at the bottom, along its active indicator,
+     which is 2px in the primary colour while it is written in or wrong. */
+  .text-field-filled .text-field-container {
+    border-radius: var(--md-shape-extra-small) var(--md-shape-extra-small) var(--md-shape-none) var(--md-shape-none);
+  }
+  .text-field-filled .text-field-container:hover {
+    background: color-mix(in srgb, var(--ink) 8%, var(--md-surface-container-highest));
+  }
+  .text-field-filled .text-field-container:has(> .text-field-input:focus) {
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+  .text-field-filled.text-field-error .text-field-container,
+  .text-field-filled.text-field-error .text-field-container:hover,
+  .text-field-filled.text-field-error .text-field-container:has(> .text-field-input:focus) {
+    box-shadow: inset 0 -2px 0 var(--text-field-error, var(--accent));
+  }
 
-/* The standard blocks in this theme's look (blocks.css gives their layout and a plain look; this is the theme's own,
-   in the same layer, so the blocks' states – [open], :hover, [aria-pressed] – still apply). */
-@layer components {
-  /* Headings: heavy and tightly set; the text under them quiet. */
-  /* "Banner": a big, heavy heading; without a picture (block-hero-plain) a panel in the accent like the coloured cards
-     (.block-cards-accent), in the middle, the buttons too; with the picture behind it a large panel with the text at the
-     bottom. Across the whole width (block-hero-full, blocks.css) the panels have no corners, and beside its picture it
-     stands on a band in the tint with a lower picture (4:3), so the band is not much higher than its text. */
-  .block-hero-title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    line-height: 1.05;
+  /* An M3 checkbox: an 18px box with a 2px edge in on-surface-variant and 2px corners, filled in the primary colour
+     with the theme's tick in on-primary when ticked, in a round state layer (40px) when pointed at, 38% when it cannot
+     be changed. */
+  .checkbox-box {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: -0.5rem -0.6875rem -0.6875rem;
+    border-radius: var(--md-shape-full);
+    transition: background-color var(--motion-effects);
   }
-  .block-hero-plain {
-    grid-template-columns: minmax(0, 1fr);
-    justify-items: center;
-    border-radius: var(--radius-large);
-    background: var(--block-accent);
-    color: var(--block-on-accent);
-    padding: 3rem 1.5rem;
-    text-align: center;
+  .checkbox:hover .checkbox-box {
+    background: var(--md-hover);
   }
-  .block-hero-plain .block-hero-body {
-    max-width: 44rem;
+  .checkbox:has(.checkbox-input:disabled):hover .checkbox-box {
+    background: transparent;
   }
-  .block-hero-plain .block-buttons {
-    justify-content: center;
+  .checkbox-input {
+    appearance: none;
+    width: 1.125rem;
+    height: 1.125rem;
+    border: 2px solid var(--muted);
+    border-radius: 2px;
+    transition:
+      background-color var(--motion-effects),
+      border-color var(--motion-effects);
   }
-  .block-hero-plain .block-hero-note {
-    margin-inline: auto;
+  .checkbox-input:checked {
+    border-color: var(--accent);
+    background: var(--accent);
   }
-  .block-hero-plain .block-hero-note > blockquote {
+  .checkbox-input:checked + .checkbox-icon {
+    display: block;
+    color: var(--on-accent);
+  }
+  .checkbox-input:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .checkbox-box:has(.checkbox-input:disabled) {
+    opacity: 0.38;
+  }
+
+  /* An M3 switch (its variables above): a round state layer (40px) around the handle when pointed at, in the primary
+     colour when on; the handle off in on-surface-variant when pointed at or pressed. */
+  .switch-handle::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--md-shape-full);
+    translate: -50% -50%;
+    transition: background-color var(--motion-effects);
+  }
+  .switch:hover .switch-input:enabled + .switch-handle::before {
+    background: var(--md-hover);
+  }
+  .switch:hover .switch-input:enabled:checked + .switch-handle::before {
+    background: var(--md-primary-hover);
+  }
+  .switch:hover .switch-input:enabled:not(:checked) + .switch-handle,
+  .switch-input:enabled:active:not(:checked) + .switch-handle {
+    background: var(--muted);
+  }
+  .switch-input:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* An M3 radio button: a 20px ring in on-surface-variant, chosen in the primary colour with a 10px dot in it, in a
+     round state layer (40px) when pointed at, 38% when it cannot be chosen. */
+  .radio-button-box {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: -0.5rem -0.625rem -0.625rem;
+    border-radius: var(--md-shape-full);
+    transition: background-color var(--motion-effects);
+  }
+  .radio-button:hover .radio-button-box {
+    background: var(--md-hover);
+  }
+  .radio-button:has(.radio-button-input:disabled):hover .radio-button-box {
+    background: transparent;
+  }
+  .radio-button-input {
+    appearance: none;
+    border: 2px solid var(--muted);
+    border-radius: var(--md-shape-full);
+    transition: border-color var(--motion-effects);
+  }
+  .radio-button-input:checked {
+    border-color: var(--accent);
+    background: radial-gradient(circle closest-side, var(--accent) 62.5%, transparent calc(62.5% + 0.5px));
+  }
+  .radio-button-input:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--md-shape-full);
+  }
+  .radio-button-box:has(.radio-button-input:disabled) {
+    opacity: 0.38;
+  }
+
+  /* An M3 slider's value: label large in its pill. */
+  .slider-value {
+    min-width: 3rem;
+    padding: 0.75rem 1rem;
+    letter-spacing: 0.00625rem;
+  }
+
+  /* An M3 side sheet's headline in on-surface-variant. */
+  .side-sheet-headline {
+    line-height: 1.75rem;
+    color: var(--muted);
+  }
+
+  /* Icon buttons (their variables above): a state layer when pointed at (the ripple when pressed), no shrinking. The
+     cross on a sheet is 40 by 40 with a 22px icon. */
+  .icon-button {
+    transition: background-color var(--motion-effects);
+  }
+  .icon-button:active {
+    transform: none;
+  }
+  .icon-button-standard:hover,
+  .icon-button-outlined:hover {
+    background: var(--md-hover);
+    color: var(--muted);
+  }
+  .icon-button-outlined:hover {
+    box-shadow: inset 0 0 0 1px var(--md-outline);
+  }
+  .icon-button-tonal:hover {
+    background: color-mix(in srgb, var(--ink) 8%, var(--tint));
+  }
+  /* On a snackbar (the inverse surface): the state layers in its colours. */
+  .snackbar .button-text:focus-visible {
+    background: color-mix(in srgb, var(--inverse-primary) 10%, transparent);
+  }
+  .snackbar .icon-button-standard:hover {
+    background: color-mix(in srgb, var(--inverse-on-surface) 8%, transparent);
+    color: var(--inverse-on-surface);
+  }
+  .bottom-sheet-header {
+    --icon-button-size: 2.5rem;
+    --icon-button-icon-size: 1.375rem;
+  }
+
+  /* "Besked": a filled card in the secondary container. */
+  .block-notice {
     border-left: 0;
-    padding-left: 0;
+    border-radius: var(--md-shape-medium);
+    background: var(--tint);
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    line-height: 1.5;
   }
-  /* On the accent: the text in the colour on it, the quieter parts a little lighter, the links as the text; the filled
-     button turned round (the colour on the accent, with the accent on it), the outlined one only an edge, a text button
-     in the colour on it (the buttons' variables, ui.css). */
-  .block-hero-plain :is(.block-hero-text > * + *, .block-hero-note, .block-hero-note > blockquote > p:last-child:not(:first-child)) {
-    color: color-mix(in srgb, var(--block-on-accent) 85%, transparent);
+
+  /* "Trin": the numbers in the primary container. */
+  .block-step-number {
+    background: var(--tint);
+    color: var(--accent);
+    font-weight: 500;
   }
-  .block-hero-plain .block-hero-note > blockquote > p {
-    color: var(--block-on-accent);
+  .block-step-title {
+    font-size: 1.375rem;
+    line-height: 1.75rem;
+    font-weight: 400;
   }
-  .block-hero-plain :is(.block-hero-text a, .block-link, .block-hero-note a) {
-    color: inherit;
+
+  /* "Spørgsmål og svar": a list in a filled card, a state layer on a row pointed at. */
+  .block-accordion {
+    display: grid;
+    gap: 2px;
+    background: transparent;
+    box-shadow: none;
   }
-  .block-hero-plain {
-    --button-filled-surface: var(--block-on-accent);
-    --button-filled-hover: var(--block-on-accent);
-    --button-filled-text: var(--block-accent);
-    --button-filled-shadow: none;
-    --button-filled-hover-shadow: none;
-    --button-outlined-surface: transparent;
-    --button-outlined-text: var(--block-on-accent);
-    --button-outlined-line: color-mix(in srgb, var(--block-on-accent) 55%, transparent);
-    --button-outlined-hover-text: var(--block-on-accent);
-    --button-outlined-hover-line: var(--block-on-accent);
-    --button-text-text: var(--block-on-accent);
-    --button-text-hover: color-mix(in srgb, var(--block-on-accent) 12%, transparent);
+  .block-accordion > * {
+    overflow: hidden;
+    border-radius: var(--md-shape-extra-small);
+    background: var(--md-surface-container);
   }
-  .block-hero-behind {
-    border-radius: var(--radius-large);
+  .block-accordion > :not(:last-child) {
+    border-bottom: 0;
   }
-  .block-hero-behind .block-hero-body {
-    max-width: 40rem;
+  .block-accordion > :first-child {
+    border-top-left-radius: var(--md-shape-large);
+    border-top-right-radius: var(--md-shape-large);
+  }
+  .block-accordion > :last-child {
+    border-bottom-left-radius: var(--md-shape-large);
+    border-bottom-right-radius: var(--md-shape-large);
+  }
+  .block-accordion-label {
+    font-size: 1rem;
+    line-height: 1.5;
+    font-weight: 500;
+    padding: 1rem 1.5rem;
+    transition:
+      background-color var(--motion-effects),
+      color var(--motion-effects);
+  }
+  .block-accordion-body {
+    padding: 0 1.5rem 1.5rem;
+  }
+  @media (hover: hover) {
+    summary.block-accordion-label:hover {
+      background: var(--md-hover);
+      color: inherit;
+    }
+  }
+
+  /* "Hero": a display headline, a large picture with extra-large corners. */
+  .block-hero-title {
+    font-size: 2.25rem;
+    line-height: 2.75rem;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .block-hero-text > :first-child {
+    font-size: 1.375rem;
+    line-height: 1.75rem;
+  }
+  .block-hero-picture {
+    border-radius: var(--md-shape-extra-large);
+  }
+  /* The quote: a filled card. */
+  .block-hero-note > blockquote {
+    border: 0;
+    border-radius: var(--md-shape-large);
+    background: var(--tint);
+    padding: 1rem 1.25rem;
   }
   @media (min-width: 48rem) {
     .block-hero-title {
-      font-size: 3.5rem;
-    }
-    .block-hero-plain {
-      grid-template-columns: minmax(0, 1fr);
-      padding: 4rem 3.5rem;
+      font-size: 2.8125rem;
+      line-height: 3.25rem;
     }
   }
-  .block-hero-text > :first-child {
-    font-weight: 600;
-    letter-spacing: -0.02em;
-  }
-  .block-hero-picture {
-    border-radius: var(--block-radius);
-    box-shadow: var(--shadow-lifted);
-  }
-  .block-hero-full:not(.block-hero-behind) .block-hero-picture {
-    aspect-ratio: 4 / 3;
-  }
-  .block-step-title,
-  .block-card-title,
-  .block-panel-title,
-  .block-point-title,
-  .block-post-title,
-  .block-price-card-title,
-  .block-cta-title,
-  .bottom-sheet-headline,
-  .side-sheet-headline {
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
-  .block-cta-title {
-    font-weight: 800;
-    letter-spacing: -0.035em;
-  }
 
-  .block-arrow-link,
-  .block-card-more,
-  .block-link,
-  .block-hero-note a {
-    font-weight: 600;
-  }
-
-  /* Panels and cards (ui.css): white with a thin edge, large corners and a soft, low shadow, the big prices too; a card
-     lifts when pointed at. */
-  .block-panel {
-    --card-outlined-shadow: var(--block-shadow);
-  }
-  .block-price-card {
-    --card-elevated-line: var(--block-line);
-  }
-  /* A card's line inside its edge (its border without a colour), with the shadow. */
+  /* "Kort": filled cards, as Material 3's (their outlined cards on the highest container, without the edge or a
+     shadow, also when pointed at), with a state layer when pointed at. */
   .block-card {
-    --card-outlined-line: transparent;
-    --card-outlined-shadow: inset 0 0 0 1px var(--block-line), var(--block-shadow);
-    --card-padding: 1.75rem;
-    transition:
-      transform 0.4s var(--block-ease),
-      box-shadow 0.4s var(--block-ease);
+    border: 0;
+    --card-outlined-surface: var(--md-surface-container-highest);
+    --card-outlined-hover-shadow: var(--elevation-0);
+    transition: background-color var(--motion-effects);
   }
   .block-card-picture {
-    margin: -1.75rem -1.75rem 0.25rem;
-  }
-  /* Cards on the accent: flat (no edge, no shadow), and without pictures in the middle with the icon bare and a big,
-     heavy heading. */
-  .block-cards-accent .block-card {
-    --card-outlined-shadow: 0 0 #0000;
-  }
-  .block-cards-accent:not(.block-cards-pictures) .block-card {
-    align-items: center;
-    --card-padding: 2.5rem 1.75rem;
-    text-align: center;
-  }
-  .block-cards-accent .block-card-icon {
-    padding: 0;
-    background: none;
-  }
-  .block-cards-accent:not(.block-cards-pictures) .block-card-title {
-    font-size: 2rem;
-    line-height: 1.1;
-    font-weight: 800;
-    letter-spacing: -0.04em;
+    border-radius: var(--card-radius) var(--card-radius) var(--md-shape-none) var(--md-shape-none);
   }
   .block-card-title {
-    margin-top: 1.25rem;
+    font-size: 1.375rem;
+    line-height: 1.75rem;
+    font-weight: 400;
+    letter-spacing: 0;
   }
-  /* An icon in a small rounded square in the tint (a card's, a point's, a panel's). */
-  .block-card-icon,
-  .block-panel-icon {
-    box-sizing: content-box;
-    padding: 0.75rem;
-    border-radius: var(--block-radius-small);
-    background: var(--block-tint);
+  .block-card-text {
+    font-weight: 400;
+  }
+  @media (hover: hover) {
+    a.block-card:hover {
+      --card-outlined-surface: color-mix(in srgb, var(--ink) 8%, var(--md-surface-container-highest));
+    }
   }
 
-  /* "Udtalelser": calm cards with a thin edge (a mix of the text and the line), on the surface with a touch of the
-     tint, no shadow and smaller corners; no quotation mark, the tags as small, quiet capitals over the text, the text in
-     the body's size and weight, and the name after the round picture or an avatar with the initial
-     (.block-testimonial-mark below). The dots under a slider are quieter, the shown one a short bar in the accent. */
-  .block-testimonial {
-    --card-radius: var(--block-radius-small);
-    --card-outlined-surface: color-mix(in srgb, var(--block-tint) 25%, var(--block-surface));
-    --card-outlined-line: color-mix(in srgb, var(--block-text) 16%, var(--block-line));
-    --card-padding: 1.75rem;
+  /* Panels and the cards of testimonials and prices: outlined, filled and elevated cards (their variables above). A
+     list in a panel reaches out to its sides, so its items' text is in line with the panel's. */
+  .block-panel > .list {
+    margin-inline: -1rem;
   }
+  .block-panel-title {
+    font-size: 1.375rem;
+    line-height: 1.75rem;
+    font-weight: 400;
+  }
+  .block-testimonial {
+    --card-outlined-surface: var(--md-surface-container);
+    --card-outlined-line: transparent;
+  }
+  .block-testimonial-text {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  /* No quotation mark: a glyph of the font, not one of the theme's icons. */
   .block-testimonial-quote-mark {
     display: none;
   }
-  .block-testimonial-tags {
-    justify-content: flex-start;
-    gap: 0.25rem 1rem;
-    margin-bottom: 1rem;
-  }
-  .block-testimonial-tags .chip {
-    padding: 0;
-    border-radius: 0;
-    background: none;
-    box-shadow: none;
-    color: var(--block-muted);
-    font-size: 0.75rem;
-    line-height: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-  .block-testimonial-tags .chip:hover {
-    box-shadow: none;
-    color: var(--block-accent);
-  }
-  .block-testimonial-text {
-    margin-top: 0;
-    font-size: 1rem;
-  }
-  .block-testimonial-more {
-    margin-top: 1rem;
-    font-weight: 600;
-  }
-  .block-testimonial-name {
-    gap: 0.875rem;
-    padding-top: 1.75rem;
+  .block-price-card-title {
     font-weight: 400;
   }
-  .block-testimonial-list {
-    column-gap: 1.25rem;
+  .block-price-amount {
+    font-weight: 400;
+    letter-spacing: 0;
   }
-  .block-testimonial-list > * {
-    margin-bottom: 1.25rem;
+
+  /* An invitation: a filled card with extra-large corners, its picture with large corners (where it stands is the
+     block's, so it takes no optical roundness from the card). */
+  .block-cta {
+    --card-radius: var(--md-shape-extra-large);
+    --card-padding: 1.5rem;
   }
-  /* The carousel's page indicator (ui.css): small quiet dots, the chosen one a longer pill in the accent. */
-  .carousel-indicator {
-    --carousel-dot-size: 0.375rem;
-    --carousel-dot-colour: color-mix(in srgb, var(--block-muted) 35%, transparent);
-    --carousel-dot-selected-width: 1.5rem;
-    margin-top: 1.5rem;
+  .block-cta-title {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 400;
   }
-  .carousel-indicator-dot > span {
-    transition-timing-function: var(--block-ease);
+  .block-cta-picture {
+    border-radius: var(--md-shape-large);
   }
   @media (min-width: 48rem) {
-    .block-testimonial {
+    .block-cta {
       --card-padding: 2rem;
     }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .carousel-indicator-dot > span,
-    .block-testimonial-more svg {
-      transition: none;
-    }
+
+  /* A link that is one row: a list item in a card, a state layer when pointed at. */
+  .block-link-row {
+    --card-radius: var(--md-shape-medium);
+    --card-outlined-surface: var(--md-surface-container-low);
+    --card-outlined-line: transparent;
+    transition: background-color var(--motion-effects);
+  }
+  a.block-link-row:hover {
+    --card-outlined-surface: color-mix(in srgb, var(--ink) 8%, var(--md-surface-container-low));
+    --card-outlined-line: transparent;
   }
 
-  /* "Punkter med ikon": one panel with hairlines between the points, as a grid of features. */
-  .block-points {
-    gap: 0;
-    overflow: hidden;
-    border-radius: var(--block-radius);
-    background: var(--block-surface);
-    box-shadow: inset 0 0 0 1px var(--block-line);
+  /* A bottom sheet (its variables above): a 32 by 4 drag handle, the headline in M3's headline small. */
+  .bottom-sheet-drag-handle {
+    padding: 1.375rem 0 0.75rem;
   }
-  .block-point {
-    flex-direction: column;
-    gap: 1.125rem;
-    padding: 1.75rem;
-    /* The lines on the right and under each point; the panel's own edge hides those along it. */
-    box-shadow:
-      1px 0 0 var(--block-line),
-      0 1px 0 var(--block-line);
+  .bottom-sheet-drag-handle::before {
+    width: 2rem;
+    height: 0.25rem;
   }
-  .block-point-icon {
-    width: 3.25rem;
-    height: 3.25rem;
-    border-radius: var(--block-radius-small);
-  }
-  .block-point-text {
-    margin-top: 0.375rem;
-    font-size: 0.975rem;
-  }
-
-  /* "Trin": each step a big, heavy number with a zero before it (01, 02 …, a counter, so the block's markup is the same in
-     every theme), the heading under it and the text under that; no line between them. Side by side where there is room. */
-  .block-steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
-    gap: 2.5rem 2rem;
-    counter-reset: block-step;
-  }
-  .block-steps > :not(:last-child) {
-    margin-bottom: 0;
-  }
-  .block-steps-line {
-    display: none;
-  }
-  .block-step {
-    flex-direction: column;
-    gap: 1rem;
-    counter-increment: block-step;
-  }
-  .block-step-number {
-    display: block;
-    width: auto;
-    height: auto;
-    border-radius: 0;
-    background: none;
-    color: var(--block-text);
-    font-size: 0;
-  }
-  .block-step-number::before {
-    content: counter(block-step, decimal-leading-zero);
-    font-size: 3.25rem;
-    line-height: 1;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-  }
-  .block-step-body {
-    padding-top: 0;
-  }
-  .block-step-text {
-    margin-top: 0.5rem;
-  }
-
-  /* "Spørgsmål og svar" and "Foldeliste": one panel with a thin edge and lines between the rows, the questions in the
-     text's weight and the arrow quiet. */
-  .block-accordion {
-    overflow: hidden;
-    border-radius: var(--block-radius);
-    box-shadow: inset 0 0 0 1px var(--block-line);
-  }
-  .block-accordion-label {
-    min-height: 4rem;
-    padding-inline: 1.5rem;
+  .bottom-sheet-headline {
+    font-size: 1.5rem;
+    line-height: 2rem;
     font-weight: 400;
   }
-  .block-accordion-body {
-    padding-inline: 1.5rem;
-  }
-  .block-accordion-row[open] > .block-accordion-label {
-    color: var(--block-text);
-  }
-  .block-accordion-row[open] .block-accordion-icon {
-    color: var(--block-muted);
-  }
-
-  /* "Besked": a box in the tint with a thin edge all round. */
-  .block-notice {
-    border-left: 0;
-    box-shadow: inset 0 0 0 1px var(--block-line);
-    padding: 1.25rem 1.5rem;
-  }
-
-  /* An invitation (the booking prompt at the end of a page): a large, rounded band in the tint. */
-  .block-cta {
-    --card-radius: var(--radius-large);
-  }
-  .block-cta-picture {
-    box-shadow: var(--block-shadow);
-  }
-
-  /* ---- "Tjekliste" and "Priskort" ---- */
-  /* "Tjekliste": a little larger than the text around it, the checks bold. */
-  .block-checklist:not(.block-plan-features) {
-    gap: 1rem 2rem;
-    font-size: 1.0625rem;
-    line-height: 1.6;
-  }
-  .block-checklist:not(.block-plan-features) .block-check {
-    width: 1.75rem;
-    height: 1.75rem;
-  }
-  .block-check svg g {
-    stroke-width: 3;
-  }
-  /* "Priskort": white cards with a thin edge and the soft shadow, roomy, the price big and heavy; the highlighted one
-     in the accent (as the cards on the accent), its text in the colour read on it, its checks and its filled button
-     turned round, its label a pill a little lighter than the card. */
-  .block-plans-list {
-    gap: 1.25rem;
-  }
-  .block-plan {
-    --card-padding: 2rem 1.75rem;
-    --card-outlined-shadow: var(--block-shadow);
-  }
-  .block-plan-name {
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
-  .block-plan-amount {
-    font-size: clamp(1.75rem, 18cqi, 2.75rem);
-    font-weight: 800;
-    letter-spacing: -0.04em;
-  }
-  .block-plan-features {
-    border-top-color: color-mix(in srgb, var(--block-line) 70%, transparent);
-  }
-  .block-plan-featured {
-    background: var(--block-accent);
-    color: var(--block-on-accent);
-    box-shadow: var(--glow-strong);
-  }
-  .block-plan-featured :is(.block-plan-unit, .block-plan-text) {
-    color: color-mix(in srgb, var(--block-on-accent) 85%, transparent);
-  }
-  .block-plan-featured .block-plan-features {
-    border-top-color: color-mix(in srgb, var(--block-on-accent) 25%, transparent);
-  }
-  .block-plan-featured .block-check {
-    background: var(--block-on-accent);
-    color: var(--block-accent);
-  }
-  .block-plan-featured .block-plan-badge {
-    background: color-mix(in srgb, var(--block-on-accent) 20%, transparent);
-    color: var(--block-on-accent);
-  }
-  .block-plan-featured {
-    --button-filled-surface: var(--block-on-accent);
-    --button-filled-hover: var(--block-on-accent);
-    --button-filled-text: var(--block-accent);
-    --button-filled-shadow: none;
-    --button-filled-hover-shadow: none;
-    --button-outlined-surface: transparent;
-    --button-outlined-text: var(--block-on-accent);
-    --button-outlined-line: color-mix(in srgb, var(--block-on-accent) 55%, transparent);
-    --button-outlined-hover-text: var(--block-on-accent);
-    --button-outlined-hover-line: var(--block-on-accent);
-    --button-text-text: var(--block-on-accent);
-    --button-text-hover: color-mix(in srgb, var(--block-on-accent) 12%, transparent);
-  }
-  /* ---- end of "Tjekliste" and "Priskort" ---- */
-
-  @media (hover: hover) {
-    a.block-card:hover {
-      transform: translateY(-3px);
-      --card-outlined-line: transparent;
-      --card-outlined-shadow: inset 0 0 0 1px var(--block-line), var(--shadow-lifted);
-    }
-    .block-cards-accent a.block-card:hover {
-      --card-outlined-shadow: 0 0 #0000;
+  @media (width >= 48rem) {
+    .bottom-sheet-header {
+      padding: 1.5rem 1.5rem 0.75rem;
     }
   }
+
+  /* The editor's drawing of the bar at the bottom of a phone's screen (components.css): without a frame, rounded. */
+  .theme-action-bar-drawn {
+    border: 0;
+    border-radius: var(--md-shape-medium);
+  }
+
+  /* The carousel's page indicator (its variables above): the dots half seen through, the chosen one wholly. */
+  .carousel-indicator-dot > span {
+    opacity: 0.5;
+  }
+  .carousel-indicator-dot[aria-current='true'] > span {
+    opacity: 1;
+  }
+
+  /* The buttons that do more than one thing (their variables above): the ripple when pressed; a split button's
+     corners between its two halves a little rounder while pressed, the outer ones as they are; 38% when a segment
+     cannot be used (M3). A FAB menu's actions in the secondary container, as pills. */
+  .segmented-button-segment:disabled {
+    opacity: 0.38;
+  }
+  .split-button > .button:active {
+    border-radius: var(--block-control-radius);
+  }
+  .split-button > .split-button-leading:active {
+    border-start-end-radius: var(--md-shape-small);
+    border-end-end-radius: var(--md-shape-small);
+  }
+  .split-button > .split-button-trailing:active {
+    border-start-start-radius: var(--md-shape-small);
+    border-end-start-radius: var(--md-shape-small);
+  }
+  .split-button > .split-button-trailing[aria-expanded='true']:active {
+    border-radius: var(--block-control-radius);
+  }
+  .fab-menu-list {
+    --fab-radius: var(--md-shape-full);
+    --fab-primary-container-surface: var(--tint);
+    --fab-primary-container-text: var(--ink);
+    --fab-primary-container-hover: color-mix(in srgb, var(--ink) 8%, var(--tint));
+  }
 }
 
-/* The header: the menu's items in semibold. The footer's headings small, in capitals and spaced out, and the site's
-   name heavy. */
-[data-header] nav a {
-  font-weight: 600;
+/* Long text: headlines regular, titles medium, pictures with large corners. */
+.prose :where(h2) {
+  font-weight: 400;
+  letter-spacing: 0;
 }
-.footer-heading {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
+.prose :where(h3, h4) {
+  font-weight: 500;
+  letter-spacing: 0;
 }
-.footer-name {
-  font-weight: 800;
-  letter-spacing: -0.035em;
+.prose :where(img):not(:where(.not-prose img)),
+.picture-crop,
+.prose :where(iframe) {
+  border-radius: var(--md-shape-large);
 }
 
-/* The mark before the name on a testimonial without a picture: an avatar, a circle in the tint with the name's first
-   letter (data-initial, Testimonial.tsx), instead of the dot in base.css. */
+/* The headings of the front page's sections and of a block placed outside the text: a headline. */
+.block-place > h2,
+.block-place > .block-head > h2 {
+  font-weight: 400;
+}
+
+/* The mark before the name on a testimonial without a picture: an avatar, a circle in the highest surface container
+   (it stands on a container) with the name's first letter (data-initial, Testimonial.tsx), as Material's avatars
+   without a picture, not the standard theme's dot. */
 .block-testimonial-mark {
   display: grid;
   width: 2.5rem;
   height: 2.5rem;
   place-items: center;
-  background-color: var(--tint);
+  border-radius: var(--md-shape-full);
+  background: var(--md-surface-container-highest);
   color: var(--ink);
-  font-size: 0.95rem;
+  font-size: 1rem;
   line-height: 1;
-  font-weight: 600;
+  font-weight: 500;
 }
 .block-testimonial-mark::before {
   content: attr(data-initial);
+}
+
+/* The Material theme's own parts (components/Header.astro, MobileMenu.tsx, Footer.astro). */
+
+/* The top app bar (its variables above, Header.astro): 64px high, above the cookie banner, so its menus are too. */
+/* The menu's items: a label in medium weight, a state layer, the open page in an active indicator (the secondary
+   container). 40px high, and 48px to touch. */
+.md-nav-item,
+.md-nav-toggle {
+  position: relative;
+}
+.md-nav-item::after {
+  content: '';
+  position: absolute;
+  inset: -0.25rem 0;
+}
+.md-nav-toggle::after {
+  content: '';
+  position: absolute;
+  inset: -0.25rem -0.125rem -0.25rem -0.5rem;
+}
+.md-nav-item {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: var(--md-shape-full);
+  padding: 0 1rem;
+  white-space: nowrap;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.00625rem;
+  transition:
+    background-color var(--motion-effects),
+    color var(--motion-effects);
+}
+.md-nav-item:hover {
+  background: var(--md-hover);
+  color: var(--ink);
+}
+.md-nav-item:focus-visible,
+.md-nav-item:active {
+  background: var(--md-pressed);
+  color: var(--ink);
+}
+/* An item with sub-pages: its label, then the button that opens them. */
+.md-nav-item-parent {
+  padding-right: 0.25rem;
+}
+.md-nav-toggle {
+  display: grid;
+  width: 2rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: var(--md-shape-full);
+  color: var(--muted);
+  transition:
+    background-color var(--motion-effects),
+    color var(--motion-effects);
+}
+.md-nav-toggle:hover {
+  background: var(--md-hover);
+  color: var(--ink);
+}
+.md-nav-toggle:focus-visible,
+.md-nav-toggle:active {
+  background: var(--md-pressed);
+  color: var(--ink);
+}
+.md-nav-toggle > svg {
+  transition: transform var(--motion-spatial-fast);
+}
+.md-nav-toggle[aria-expanded='true'] > svg {
+  transform: rotate(180deg);
+}
+.md-nav-item[aria-current='page'],
+li:has(.menu-item[aria-current='page']) > .md-nav-item {
+  background: var(--tint);
+  color: var(--ink);
+}
+/* A menu (its variables above): a state layer with focus from the keyboard (the ripple when pressed), and the open page
+   in the secondary container also when pointed at. */
+.menu-item:focus-visible {
+  background: var(--md-pressed);
+}
+.menu-item[aria-current='page']:hover {
+  background: var(--tint);
+}
+
+/* The extended FAB (its variables above, Header.astro): at the bottom right of the screen, with the ripple when pressed. It
+   shows only its icon while the page scrolls down (data-collapsed). */
+[data-fab] {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 30;
+}
+@media (min-width: 48rem) {
+  [data-fab] {
+    right: 1.5rem;
+    bottom: 1.5rem;
+  }
+}
+/* In the navigation drawer: at the top, in the secondary container, lowered (as in a Google app): M3's lowered FAB, at
+   the first elevation and the second when pointed at. */
+.navigation-drawer > .extended-fab {
+  --fab-shadow: var(--elevation-1);
+  --fab-hover-shadow: var(--elevation-2);
+  margin: 0.25rem 0 0.75rem 0.5rem;
+  align-self: flex-start;
+}
+/* On a phone with a bar at the bottom of the screen (a docked toolbar, components.css), the page's FAB is not shown; the
+   bar's buttons are the common buttons, round and as everywhere else (only pressed a little squarer), the filled one to
+   the right, after the outlined one or the text. */
+@media (width < 48rem) {
+  body:has(.theme-action-bar) [data-fab] {
+    display: none;
+  }
+}
+:is(.theme-action-bar, .theme-action-bar-drawn) > .button-filled {
+  order: 2;
+}
+
+/* The modal navigation drawer (its variables above, MobileMenu.tsx): room inside it; nothing in it is squeezed when its
+   content is higher than the screen, the drawer scrolls instead. */
+.navigation-drawer {
+  padding: 0.75rem 0.75rem max(1rem, env(safe-area-inset-bottom));
+}
+.navigation-drawer > * {
+  flex-shrink: 0;
+}
+.md-drawer-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0 1rem 1rem;
+}
+.md-drawer-name {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+}
+.md-drawer-role {
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+.navigation-drawer-item:focus-visible {
+  background: var(--md-pressed);
+}
+/* An item with sub-pages: its link and the caret in one row, the active indicator around both. */
+.navigation-drawer-row {
+  border-radius: var(--md-shape-full);
+  transition: background-color var(--motion-effects);
+}
+.navigation-drawer-row > .navigation-drawer-item,
+.navigation-drawer-row > .navigation-drawer-item:hover {
+  background: none;
+}
+.navigation-drawer-row:has(> .navigation-drawer-item:hover) {
+  background: var(--md-hover);
+}
+.navigation-drawer-row:has(> .navigation-drawer-item:focus-visible) {
+  background: var(--md-pressed);
+}
+.navigation-drawer-row[data-active] {
+  background: var(--tint);
+}
+.navigation-drawer-row[data-active] > .navigation-drawer-item {
+  color: var(--ink);
+}
+.navigation-drawer-row[data-active]:has(> .navigation-drawer-item:hover) {
+  background: color-mix(in srgb, var(--ink) 8%, var(--tint));
+}
+.navigation-drawer-row[data-active]:has(> .navigation-drawer-item:focus-visible) {
+  background: color-mix(in srgb, var(--ink) 10%, var(--tint));
+}
+.navigation-drawer-toggle {
+  margin-right: 0.25rem;
+  color: var(--muted);
+}
+.navigation-drawer-toggle:focus-visible {
+  background: var(--md-pressed);
+}
+/* Directly in the drawer ("Ring"), not in a row with a caret: as high as its content. */
+.navigation-drawer > .navigation-drawer-item {
+  flex: none;
+}
+/* A sub-page: an item further in, its label in regular weight. */
+.navigation-drawer-subitem {
+  min-height: 3.5rem;
+  gap: 0.75rem;
+  margin-left: 0;
+  border-left: 0;
+  border-radius: var(--md-shape-full);
+  padding: 0 1.5rem 0 2.25rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0.00625rem;
+  transition: background-color var(--motion-effects);
+}
+.navigation-drawer-subitem:hover {
+  background: var(--md-hover);
+  color: var(--muted);
+}
+.navigation-drawer-subitem:focus-visible {
+  background: var(--md-pressed);
+}
+.navigation-drawer-subitem[data-active] {
+  background: var(--tint);
+  color: var(--ink);
+  font-weight: 400;
+}
+.md-divider {
+  margin: 0.5rem 1rem;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+/* The footer: a surface container with extra-large corners at the top, a headline, lists with leading icons and a
+   state layer, and text buttons at the bottom. */
+.md-footer {
+  margin-top: 6rem;
+  border-radius: var(--md-shape-extra-large) var(--md-shape-extra-large) var(--md-shape-none) var(--md-shape-none);
+  background: var(--md-surface-container);
+}
+.md-footer-name {
+  margin-top: 0.75rem;
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+.md-footer-text {
+  margin-top: 0.5rem;
+  max-width: 38ch;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  letter-spacing: 0.01563rem;
+}
+.md-footer-heading,
+.md-footer-column > p {
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  letter-spacing: 0.00625rem;
+}
+.md-footer-list,
+.md-footer-column > ul {
+  margin: 0.5rem -1rem 0;
+}
+.md-footer-item,
+.md-footer-column > ul a {
+  display: flex;
+  min-height: 3rem;
+  align-items: center;
+  gap: 1rem;
+  border-radius: var(--md-shape-full);
+  padding: 0.5rem 1rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: background-color var(--motion-effects);
+}
+.md-footer-item:hover,
+.md-footer-column > ul a:hover {
+  background: var(--md-hover);
+  color: var(--ink);
+}
+.md-footer-item:focus-visible,
+.md-footer-item:active,
+.md-footer-column > ul a:focus-visible,
+.md-footer-column > ul a:active {
+  background: var(--md-pressed);
+  color: var(--ink);
+}
+.md-footer-column > ul > li {
+  margin-block: 0;
+}
+.md-footer-item > svg {
+  flex-shrink: 0;
+}
+.md-footer-column > a {
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+.md-footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  /* Its text buttons (the cookie settings, light or dark) with an 18px icon. */
+  --button-icon-size: 1.125rem;
+}
+.md-footer-bottom > div {
+  margin-inline: -0.75rem;
+}
+/* Room under the footer's last line for the FAB, or for the bar at the bottom of the screen: in the footer instead of
+   under the page (components.css), so the footer reaches the bar. */
+@media (width < 48rem) {
+  body:has(.theme-action-bar):has(.md-footer) {
+    padding-bottom: 0;
+  }
+  body:has(.theme-action-bar, [data-fab]) .md-footer {
+    padding-bottom: 5rem;
+  }
 }

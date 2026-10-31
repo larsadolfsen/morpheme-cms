@@ -1,0 +1,41 @@
+{
+  "testimonials": {
+    "more": "Læs mere",
+    "less": "Vis mindre"
+  },
+  "prices": {
+    "perSession": "pr. samtale",
+    "punchCard": "Klippekort med {antal} samtaler",
+    "total": "{pris} i alt. Du sparer {rabat}.",
+    "readMore": "Læs om {ydelse}"
+  },
+  "offer": {
+    "save": "Spar",
+    "sessions": "{antal} samtaler."
+  },
+  "pricecard": {
+    "duration": "Varighed",
+    "price": "Pris",
+    "save": "Spar",
+    "more": "Læs mere"
+  },
+  "cards": {
+    "more": "Læs mere"
+  },
+  "buttons": {
+    "items": [
+      {
+        "label": "",
+        "to": "booking",
+        "style": "primary",
+        "icon": "arrow-right"
+      },
+      {
+        "label": "",
+        "to": "phone",
+        "style": "ghost",
+        "icon": "phone"
+      }
+    ]
+  }
+}

@@ -21,10 +21,14 @@
 //                    post (SeoScores.tsx); and seo/<part> the site's own (seoParts)
 //   udseende         how the site looks (Library.tsx Theme): udseende/temaer the themes installed (Themes) and udseende/temaer/<theme>
 //                    a theme's page, with the button that swaps to it (ThemePage), udseende/ikonpakker the icon packs (IconPacks),
+//                    udseende/bevaegelse how it moves (MotionSchemes),
 //                    udseende/farver the colours (Colors.tsx;
 //                    udseende/farver/reservefarver the site's own while an app changes the pages'), udseende/logo the logo
 //                    and icon (BrandForm.tsx), udseende/dele the parts (Library.tsx PartsHome): udseende/dele/editor the editor's, every
-//                    one in every state (Parts.tsx), udseende/dele/tema the standard blocks and udseende/dele/apps the apps' (BlockParts.tsx)
+//                    one in every state (Parts.tsx), udseende/dele/ui the theme's UI components, udseende/dele/blokke the
+//                    blocks, the standard ones and the apps', and udseende/dele/liste/<list> each kind of a list of kinds
+//                    ("Promovering"), its own and the apps' (BlockParts.tsx), and udseende/dele/vaerdier the
+//                    theme's design tokens, "Værdier" (Tokens.tsx)
 //   blokvalg         the blocks that can be put in, "Blokindstillinger" (BlockSettings.tsx)
 //   avanceret        "Avanceret", under "Indstillinger": the copy of the site's files in R2 (Advanced.tsx)
 //   licenser         "Licenser", under "Indstillinger": the licences of what the site and the editor are made with, and
@@ -36,7 +40,7 @@
 //                    form, which keeps what is in it (formAt): apps/content-colors/indstillinger/variant
 //   blokke           the blocks, and blokke/<block> the texts all its copies have (blockTexts.ts)
 //   slettet/<id>     what was deleted from a list, or slettet/filer the files (Deleted.tsx)
-//   <file path>      a file being edited, e.g. src/content/blog/hvad-er-jalousi.md
+//   <file path>      a file being edited, e.g. src/content/blog/mit-foerste-indlaeg.md
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AuthError,
@@ -59,7 +63,18 @@ import {
   type RepoFile,
   type Viewer,
 } from './github';
-import { DELETED, hasUnsaved, setUnsaved, keepCurrent, registerWorker, waitForSite } from './deploy';
+import {
+  changesText,
+  hasUnsaved,
+  kindAndName,
+  lower,
+  nameOf,
+  savedText,
+  setUnsaved,
+  keepCurrent,
+  registerWorker,
+  waitForSite,
+} from './deploy';
 import { readCache, writeCache } from './cache';
 import { forgetNotFound, loadNotFound, type Missing } from './notFound';
 import { collectionOf, slugOf, type Collection, type FolderCollection, type Part, type Relation } from './schema';
@@ -67,16 +82,17 @@ import EntryForm, { newMarkdown } from './EntryForm';
 import DataForm from './DataForm';
 import CompanyForm from './CompanyForm';
 import Media, { mediaOf } from './Media';
-import Redirects, { REDIRECTS_ROUTE, TAB_ROUTES } from './Redirects';
-import Consents from './Consents';
+import Redirects, { REDIRECTS_ROUTE, TAB_ROUTES } from './Redirects.tsx';
+import Consents from './Consents.tsx';
 import SeoScores, { SEO_SCORES_ROUTE } from './SeoScores';
 import Deleted from './Deleted';
 import Parts from './Parts';
-import { AppParts, ThemeParts } from './BlockParts';
+import { BlocksParts, ComponentParts, KindParts } from './BlockParts';
+import Tokens from './Tokens';
 import BrandForm from './BrandForm';
 import BlockSettings from './BlockSettings';
 import Advanced, { ADVANCED_ROUTE } from './Advanced';
-import Licenses, { LICENSES_ROUTE, LicensePage } from './Licenses';
+import Licenses, { LICENSES_ROUTE, LicensePage } from './Licenses.tsx';
 import { StoreThemePage } from './ThemeStore';
 import {
   AppPage,
@@ -108,7 +124,7 @@ import {
   type StoreTheme,
 } from './store';
 import Colors, { colorsOf, FALLBACK_ROUTE } from './Colors';
-import { applyColors } from './theme';
+import { applyColors, applyMotion } from './theme';
 import { apps, notOffered } from './registry';
 import {
   Account,
@@ -127,6 +143,8 @@ import {
   ThemePage,
   Themes,
   IconPacks,
+  MotionSchemes,
+  motionOf,
 } from './Library';
 import {
   appearance,
@@ -141,9 +159,10 @@ import {
   partScreens,
   seoParts,
 } from './site';
-import { config, header, relationsOf, type SiteData, siteName, siteOf, testimonialsOf, themes, usedBy, whatIsAt } from '@site/editor';
+import { config, header, relationsOf, type SiteData, siteName, siteOf, testimonialsOf, usedBy, whatIsAt } from '@site/editor';
+import { themes } from './themes';
 import Screen from './Screen';
-import { Button, EmptyNote, NavigationRail, NavigationRailItem, NavigationRailSection, ProblemNote } from './ui';
+import { Button, EmptyNote, NavigationRail, NavigationRailItem, NavigationRailSection, ProblemNote, startRipples } from './ui';
 import { setSidebar, useSidebar } from './sidebar';
 import { Ask, ask } from './ask';
 import { LinkAsk } from './LinkSheet';
@@ -154,7 +173,7 @@ import { arrived, screenOf, up } from './nav';
 import { siteT, siteText, t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, syncDevice, told, waitOnServer } from './notifications';
-import Notifications from './Notifications';
+import Notifications from './Notifications.tsx';
 import { EditorOwn, InEditor } from './standard/view';
 import './editor.css';
 
@@ -173,8 +192,9 @@ export type Env = {
   files: RepoFile[];
   /** Shows a message at the bottom of the screen; null hides it. */
   notify: (status: Status) => void;
-  /** Saves files as one commit (github.ts) and later tells when the site has the change. Returns the new blob ids. */
-  commit: (message: string, changes: Change[]) => Promise<Record<string, string>>;
+  /** Saves files as one commit (github.ts) and later tells when the site has the change. `change`: what it changed, in
+   * the editor's language (t.app.changes, deploy.ts), for that message. Returns the new blob ids. */
+  commit: (message: string, changes: Change[], change: string) => Promise<Record<string, string>>;
   /** When some files were last saved (github.ts); a new file is left out. */
   savedAt: (paths: string[]) => Promise<Record<string, Date>>;
   /** The commits that changed a file, and its text in one of them (github.ts; Versions.tsx). */
@@ -218,7 +238,8 @@ export type Env = {
   onSaved: (file: RepoFile, more?: { files: RepoFile[]; removed: string[] }) => void;
   remove: (collection: Collection & { folder: string }, file: RepoFile, deleting: (b: boolean) => void) => void;
   nextOrder: (collection: FolderCollection) => number;
-  reorder: (collection: Collection, files: RepoFile[]) => Promise<void>;
+  /** Saves a list in a new order; says what changed (deploy.ts). */
+  reorder: (collection: Collection, files: RepoFile[]) => Promise<string>;
 };
 
 // The uploaded pictures only by their paths (no text), for "Filer" (Media.tsx).
@@ -261,11 +282,7 @@ const MOVED: Record<string, string> = {
   'tema/logo': 'udseende/logo',
   'tema/dele': 'udseende/dele',
   'tema/dele/editor': 'udseende/dele/editor',
-  'tema/dele/tema': 'udseende/dele/tema',
-  'tema/dele/apps': 'udseende/dele/apps',
   'virksomheden/bank': 'virksomheden/betaling/bank',
-  'virksomheden/mobilepay': 'virksomheden/betaling/mobilepay',
-  'virksomheden/booking': 'apps/calendly/indstillinger',
   videresendelser: 'seo/videresendelser',
   'videresendelser/alle': 'seo/videresendelser/alle',
   'videresendelser/ikke-fundet': 'seo/videresendelser/ikke-fundet',
@@ -319,14 +336,17 @@ function Editor() {
   }, [sidebar]);
   // Stops waiting for the last save to be on the site.
   const stopWaiting = useRef<() => void>(undefined);
+  // What the saves the editor waits for the website to have changed (save).
+  const waitingFor = useRef<string[]>([]);
 
   useEffect(registerWorker, []);
+  useEffect(startRipples, []);
   // Signed up for the notifications on the phone from the site's Worker, also when the editor is closed, while
   // "På telefonen" is on (notifications.ts).
   useEffect(() => {
     if (signedIn) syncDevice();
   }, [signedIn]);
-  // A tap on such a notification while the editor is open: to the screen it is about (public/editor/sw.js).
+  // A tap on such a notification while the editor is open: to the screen it is about (packages/editor/pages/editor/sw.js).
   useEffect(() => {
     const onMessage = (e: MessageEvent) => typeof e.data?.to === 'string' && leaveTo(`#${e.data.to}`);
     navigator.serviceWorker?.addEventListener('message', onMessage);
@@ -448,6 +468,11 @@ function Editor() {
   useEffect(() => {
     if (colorsFile !== undefined) applyColors(colorsOf(files!));
   }, [colorsFile]);
+  // How the site moves ("Bevægelse") as loaded and saved, also before the site is built again with it.
+  const motionFile = files?.find((f) => f.path === config.motion)?.text;
+  useEffect(() => {
+    if (files) applyMotion(motionOf(files));
+  }, [motionFile, files === null]);
 
   const siteData = useMemo(() => siteOf(files ?? []), [files]);
   const media = useMemo(() => mediaOf(files ?? []), [files]);
@@ -480,14 +505,18 @@ function Editor() {
     );
   }
 
-  async function save(message: string, changes: Change[]) {
+  async function save(message: string, changes: Change[], change: string) {
     const saved = await commit(message, changes);
-    // One message for all saves: a later save is on the site together with or after the ones before.
+    // One message for all saves: a later save is on the site together with or after the ones before. It says what
+    // each of them changed (each once).
     stopWaiting.current?.();
+    if (!waitingFor.current.includes(change)) waitingFor.current.push(change);
+    const what = changesText(waitingFor.current);
     // The Worker says it on the phone too, also when the editor is closed by then (notifications.ts).
-    const onServer = waitOnServer(saved.commit, t.app.siteUpdated, t.app.siteNotUpdated);
+    const onServer = waitOnServer(saved.commit, t.app.siteUpdated(what), t.app.siteNotUpdated(what));
     stopWaiting.current = waitForSite(saved.commit, async (online) => {
-      const text = online ? t.app.siteUpdated : t.app.siteNotUpdated;
+      waitingFor.current = [];
+      const text = online ? t.app.siteUpdated(what) : t.app.siteNotUpdated(what);
       // On screen the editor says it, and the Worker does not; else only the Worker sends it to the phone.
       const byServer = document.visibilityState !== 'visible' && (await onServer);
       if (!byServer) stopServerWait();
@@ -498,6 +527,7 @@ function Editor() {
 
   function signOut() {
     stopWaiting.current?.();
+    waitingFor.current = [];
     // No notifications on this phone for someone signed out: signed off at the Worker while the sign-in is still there.
     void signOff()
       .catch(() => {})
@@ -558,15 +588,18 @@ function Editor() {
       if (!(await ask(t.app.deleteEntry(collection.singular), t.common.delete))) return;
       deleting(true);
       notify({ text: t.common.deleting });
+      const change = t.app.changes.deleted(kindAndName(collection.singular, nameOf(collection, file)));
       try {
-        await save(siteT.app.commit.delete(asWritten(collection).singular, slugOf(file.path, collection.folder)), [
-          { path: file.path, content: null, oid: file.oid },
-        ]);
+        await save(
+          siteT.app.commit.delete(asWritten(collection).singular, slugOf(file.path, collection.folder)),
+          [{ path: file.path, content: null, oid: file.oid }],
+          change,
+        );
         replace([], [file.path]);
         // Back to the list, as with the back arrow: the deleted entry is not left behind it in the history.
         setUnsaved(false);
         up(`#liste/${collection.id}`);
-        notify({ text: DELETED, kind: 'saved' });
+        notify({ text: savedText(change), kind: 'saved' });
       } catch (e) {
         notify({ text: t.app.notDeleted((e as Error).message), error: true, kind: 'failed' });
         deleting(false);
@@ -584,9 +617,11 @@ function Editor() {
         const text = `${JSON.stringify({ order: i + 1, ...rest }, null, 2)}\n`;
         return [{ path: file.path, content: text, oid: file.oid }];
       });
-      if (!changes.length) return;
-      const oids = await save(siteT.app.commit.reorder(asWritten(collection).label.toLowerCase()), changes);
+      const change = t.app.changes.order(lower(collection.label));
+      if (!changes.length) return change;
+      const oids = await save(siteT.app.commit.reorder(asWritten(collection).label.toLowerCase()), changes, change);
       replace(changes.map((c) => ({ path: c.path, oid: oids[c.path], text: c.content })));
+      return change;
     },
   };
 
@@ -740,7 +775,7 @@ function Editor() {
 }
 
 /** The part whose form is at an address (CompanyForm.tsx): an app's settings on a screen of their own, one of
- * "Virksomheden"'s (or of its parts'), "Blokke"'s, "Søgemaskineoptimering"'s, "Udseende"'s, or one on a screen of parts with
+ * "Virksomheden"'s (or of its parts', with the settings of the apps of their kinds), "Søgemaskineoptimering"'s, "Udseende"'s, or one on a screen of parts with
  * the settings of the apps of its kinds ("Analytics"). */
 function partAt(route: string, files: RepoFile[]): Part | null {
   // The settings of an app installed without a screen with its kind, on a screen of their own.
@@ -750,7 +785,8 @@ function partAt(route: string, files: RepoFile[]): Part | null {
   const [, companyId, ownId, ...more] = route.split('/');
   const company = route.startsWith('virksomheden/') && !more.length && companyParts.find((p) => p.id === companyId);
   return (
-    (company && (ownId ? company.parts?.find((p) => p.id === ownId) : company.file && company)) ||
+    (company &&
+      (ownId ? [...(company.parts ?? []), ...appPartsIn(company, files)].find((p) => p.id === ownId) : company.file && company)) ||
     (route.startsWith('blokke/') && blockParts.find((p) => p.id === route.slice(7))) ||
     (route.startsWith('seo/') && seoParts.find((p) => p.id === route.slice(4))) ||
     (route.startsWith('udseende/') && appearance.find((p) => p.id === route.slice(9))) ||
@@ -779,7 +815,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'indstillinger') return <Settings files={files} />;
   if (route === 'header') return <Header files={files} />;
   if (route === 'lister') return <Lists files={files} />;
-  if (route === 'virksomheden') return <Company />;
+  if (route === 'virksomheden') return <Company files={files} />;
   if (route === 'blokke') return <Blocks files={files} />;
   if (route === 'filer') return <Media files={files} env={env} />;
   if (route === 'seo') return <Seo />;
@@ -795,6 +831,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'udseende') return <Theme files={files} />;
   if (route === 'udseende/temaer') return <Themes env={env} files={files} />;
   if (route === 'udseende/ikonpakker') return <IconPacks env={env} files={files} />;
+  if (route === 'udseende/bevaegelse') return <MotionSchemes env={env} files={files} />;
   // A theme installed has its page; one from the store that is not (or not yet built), its page in the store.
   const themeShown = route.startsWith('udseende/temaer/') && themes.find((x) => x.id === route.slice(16));
   if (themeShown) return <ThemePage key={themeShown.id} of={themeShown} env={env} files={files} />;
@@ -827,13 +864,15 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
     return <AppScreenPage key={route} app={ownScreen} id={screenId} env={env} />;
   if (route === 'udseende/dele') return <PartsHome />;
   if (route === 'udseende/dele/editor') return <Parts env={env} />;
-  if (route === 'udseende/dele/tema') return <ThemeParts />;
-  if (route === 'udseende/dele/apps') return <AppParts />;
+  if (route === 'udseende/dele/ui') return <ComponentParts />;
+  if (route === 'udseende/dele/blokke') return <BlocksParts />;
+  if (route.startsWith('udseende/dele/liste/')) return <KindParts key={route} id={route.slice(20)} />;
+  if (route === 'udseende/dele/vaerdier') return <Tokens />;
   if (route.startsWith('slettet/')) return <Deleted id={route.slice(8)} files={files} env={env} />;
   // virksomheden/<part>, or virksomheden/<part>/<its part> (Part.parts).
   const [, companyId, ownId, ...more] = route.split('/');
   const company = route.startsWith('virksomheden/') && !more.length && companyParts.find((p) => p.id === companyId);
-  if (company && company.parts && !ownId) return <Company part={company} />;
+  if (company && company.parts && !ownId) return <Company part={company} files={files} />;
   // A part's form, or the page of one of its fields (Field.page) with the form under it: the same form, so it keeps what
   // is in it while the editor goes between them (useFormPages, inForm).
   const form = formAt(route, files);

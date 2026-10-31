@@ -1,18 +1,18 @@
-import type { Messages } from '../da-DK';
-
-export const parts: Messages['parts'] = {
-  intro: (file) =>
-    `The parts only the editor has, looking the way they do everywhere. The parts are in ${file}; change a part there and it changes everywhere. The buttons, fields, lists, sheets and the other parts the theme has too are the theme’s and are under Theme. Light or dark is picked under Account.`,
+// "Dele" (#udseende/dele): the editor's parts (Parts.tsx), what each is for and the texts in the examples, and the standard
+// blocks and the apps' (BlockParts.tsx), all with the made-up site of examples.ts.
+export const parts = {
+  intro: (file: string) =>
+    `The parts only the editor has, looking the way they do everywhere. The parts are in ${file}; change a part there and it changes everywhere. The buttons, fields, lists, sheets, and the other parts the theme has too are the theme’s and are under Theme. Light or dark is picked under Account.`,
   use: {
-    emptyNote: 'What a list or a screen says when there is nothing in it, or while something is fetched: grey, in the middle.',
-    problemNote: 'What is wrong, in the accent colour: why a sheet cannot be saved, or what could not be read.',
+    emptyNote: 'What a list or a screen says when there is nothing in it, or while something is fetched: gray, in the middle.',
+    problemNote: 'What is wrong, in the accent color: why a sheet can’t be saved, or what couldn’t be read.',
     toolbarButton:
       'A tool in the text’s toolbar: a little smaller, so the bar fits on a phone. With an arrow it opens a menu (the kind of text, when the bar is too narrow).',
     fields:
       'The theme’s fields with the name on their edge and an explanation below. A choice opens the sheet, or a page of its own with what each choice gives (the arrow points there).',
     formField: 'A field that says what is wrong with what was typed, and the number of characters out of the most allowed.',
     fieldGroup: 'Fields that belong together, in a frame with their name on it.',
-    shownValue: 'What a field holds, shown without being edited here: with its icon, or grey when it is made elsewhere.',
+    shownValue: 'What a field holds, shown without being edited here: with its icon, or gray when it is made elsewhere.',
     iconPicker: 'One of many icons: the chosen one with its name, and the button that unfolds them all.',
     imagePick: 'A picture: a small one of it, the button that picks one, and the button that removes it when it may be left out.',
     foldList: 'Items in a frame that each fold out to their fields, with the arrows and Remove beside them.',
@@ -20,33 +20,37 @@ export const parts: Messages['parts'] = {
       'Several picked from a list: the picked ones as chips, and the button that opens the sheet with all the choices. At the bottom of the sheet, a link to make a new one.',
     arrowLink: 'A link to another screen, with an arrow after it: under a field’s name, where it is edited.',
     sheetBody: 'The fields of a sheet, between the title and the buttons. It scrolls when there are many.',
-    notice: 'A message at the top of a screen about what it shows (an earlier version, say), and what can be done.',
+    notice: 'A message at the top of a screen about what it shows, for example, an earlier version, and what you can do.',
     color: 'A color: the swatch opens the sheet where the color is picked, and the color can also be typed.',
     phone: 'A phone number: the country code before it opens the sheet with the countries and a search, and the number is typed after it.',
     searchRow:
-      'The search with the buttons beside it, always in the same order: sort, filter, date, Google and menu or list. Sort is grey while the pages are shown as the menu.',
+      'The search with the buttons beside it, always in the same order: sort, filter, date, Google, and menu or list. Sort is gray while the pages are shown as the menu.',
     choiceTile: 'One of many icons to tap, in a grid.',
     group:
-      'Rows in a frame under a small heading: the start screen and the lists. The icon looks the same everywhere: grey, and in the accent colour for the open part in the sidebar. A small picture can stand before the name instead. A number may stand at the right. A row can also do something (in the accent colour), delete (in the middle) or only be shown (no colour under the mouse, perhaps grey).',
+      'Rows in a frame under a small heading: the start screen and the lists. The icon looks the same everywhere: gray, and in the accent color for the open part in the sidebar. A small picture or a sample of one of the theme’s tokens can stand before the name instead. A number may stand at the right. A row can also do something, in the accent color; delete, in the middle; or only be shown, with no color under the mouse and perhaps gray.',
     checkList:
       'Things that were checked: a score from 0 to 100 in a ring, a red triangle by what could be better (which folds out with how), and a green dot by what is fine.',
     scoreRing:
-      'A score from 0 to 100 in a small ring at the start of a row, in the colours of the ring of checked things: green from 90, orange from 50, else red.',
+      'A score from 0 to 100 in a small ring at the start of a row, in the colors of the ring of checked things: green from 90, orange from 50, else red.',
     unfold:
       'At the right of a row: how many rows are under it, and the arrow that shows them. The rows under it are indented along a line.',
     sheet:
-      'The sheet from the bottom (a dialog on a computer) with choices or fields. An icon or a row (e.g. Language) opens it with the choices, and + (NewChoice) with the kinds something new can be (e.g. a pop-up). The choices can stand under small headings.',
-    preview: 'The preview of a block in a dashed frame. It can be used as on the site (it folds out, say), but a link in it goes nowhere.',
-    colorSwatches: 'A set of colours in small rounds side by side (four of the website’s colours, say).',
+      'The sheet from the bottom (a dialog on a computer) with choices or fields. An icon or a row, for example, Language, opens it with the choices, and + (NewChoice) with the kinds something new can be, for example, a pop-up. The choices can stand under small headings.',
+    preview:
+      'The preview of a block in a dashed frame. It can be used as on the site, for example, folded out, but a link in it goes nowhere.',
+    colorSwatches: 'A set of colors in small rounds side by side, for example, 4 of the website’s colors.',
+    colorTiles:
+      'A few colors side by side, each on a tile with its name, its color code, a pen that opens the color sheet, and on the first a lock, for example, the generator’s 3 base colors.',
+    colorWheel: 'A color wheel with the colors as dots: the big one is dragged, the others follow, and a locked one shows a lock.',
     choiceRow:
-      'One of several choices on a screen of its own, each in a row with what it gives (a few of an icon pack’s icons, say), the chosen one in the accent colour with a tick.',
+      'One of several choices on a screen of its own, each in a row with what it gives, for example, a few of an icon pack’s icons, the chosen one in the accent color with a check mark.',
     colorsPreview:
-      'A little page in a set of the website’s colours: heading, text, link, surface, box and button, so you can see whether they can be read together.',
+      'A little page in a set of the website’s colors: heading, text, link, surface, box, the secondary and tertiary colors, and button, so you can see whether they can be read together.',
     fullScreenSheet:
       'The sheet with a whole page in it (the preview), as tall as the screen. The page is in a frame, as wide as a phone or a computer, and nothing in it runs.',
     foldSection:
       'A section of a long form (a page, a blog post) that folds in and out by its heading. Only the first is open from the start.',
-    sharePreview: "A link to a page as it looks when it is shared: the picture, the site's domain, the title and the description.",
+    sharePreview: "A link to a page as it looks when it is shared: the picture, the site's domain, the title, and the description.",
     formColumns:
       'A form on a wide screen: the text at the left, the status and the other fields on cards at the right. On a smaller screen below each other. The heading over the fields is always the same.',
   },
@@ -64,8 +68,9 @@ export const parts: Messages['parts'] = {
       layout: 'Layout',
       fieldTypes: 'Field types',
     },
-    none: 'No parts match the search.',
+    none: 'No parts match the search',
   },
+  /** The texts in the examples. */
   sample: {
     domain: 'example.com',
     status: 'Status',
@@ -74,10 +79,10 @@ export const parts: Messages['parts'] = {
     insert: 'Insert',
     cookieBanner: 'The cookie banner',
     address: 'Address',
-    addressHint: 'E.g. /about/.',
-    sendsTo: 'Sends to the page "Second page".',
+    addressHint: 'For example, /about/.',
+    sendsTo: 'Sends to the page "Second page."',
     color: 'Accent color',
-    colorHint: 'Buttons, links and icons.',
+    colorHint: 'Buttons, links, and icons.',
     phone: 'Phone',
     description: 'Short description',
     descriptionText: 'A text over several lines.',
@@ -97,15 +102,16 @@ export const parts: Messages['parts'] = {
     newest: 'Newest first',
     oldest: 'Oldest first',
     aSheet: 'A sheet',
+    /** NewChoice: the kinds of a new pop-up. */
     newPopup: 'New pop-up',
     standardKind: 'Standard',
-    standardKindHint: 'With a picture, text and a button.',
+    standardKindHint: 'With a picture, text, and a button.',
     appKind: 'From an app',
     appKindHint: 'With what the app adds.',
     openPage: 'Open a page',
     aPage: 'A page',
     pageText: 'A whole page in a frame, as wide as a phone.',
-    option: (letter) => `Choice ${letter}`,
+    option: (letter: string) => `Choice ${letter}`,
     foldOut: 'Tap to fold out',
     foldedText: 'The text that folds out. A link here goes nowhere:',
     link: 'link',
@@ -113,26 +119,29 @@ export const parts: Messages['parts'] = {
     noticeText: 'This is how it looked then.',
     noticeAction: 'Show the current version',
     cookieHint: 'Asks the visitors for permission to use cookies.',
+    corners: 'Corners',
     showOnFront: 'Show on the front page',
     contact: 'Contact',
     name: 'Name',
     fromTitle: '/made-from-the-title/',
-    question: (n) => `Question ${n}`,
+    question: (n: number) => `Question ${n}`,
     answer: 'Answer',
     newTag: 'Create a tag',
     editColors: 'Edit the colors',
-    subpage: (n) => `Subpage ${n}`,
+    subpage: (n: number) => `Subpage ${n}`,
     openFields: 'Open a sheet with fields',
     withFields: 'A sheet with fields',
     rows: 'Rows',
     versionNow: 'The current version',
   },
+  /** The form fields (fields.tsx), one of each type with the settings it can have: what each type is
+   * for, and the fields and values in the examples. */
   fields: {
-    intro: (file) =>
+    intro: (file: string) =>
       `The fields of the forms and settings, one of each type with the choices it can have. The fields are in ${file} and are built of the parts above. Nothing here is saved.`,
     use: {
       string:
-        'One line of text. It can have to be filled in, have at most a number of characters, have a text that is used when the field is empty, have to have a certain form, be an address, a number in pairs, a phone number or words as chips (one or more), or have a link to where it is edited.',
+        'One line of text. It can have to be filled in, have at most a number of characters, have a text that is used when the field is empty, have to have a certain form, be an address, a number in pairs, a phone number, or words as chips (one or more), or have a link to where it is edited.',
       text: 'Text over several lines, with the same choices as one line.',
       markdown: 'Text with formatting, in the same editor as the pages.',
       number: 'A number.',
@@ -141,26 +150,26 @@ export const parts: Messages['parts'] = {
       select:
         'One of several choices: in the sheet from the bottom, side by side, as icons, or only shown. A choice can have its own explanation, and a field can be there only with one of the choices.',
       relation:
-        'A page, a post or a tag from the site’s lists. A page is picked with the page picker, the fixed pages too; several picked are chips.',
+        'A page, a post, or a tag from the site’s lists. A page is picked with the page picker, the fixed pages too; several picked are chips.',
       image: 'A picture from Files or a new one.',
       readonly: 'Shown, but not edited here.',
       object: 'A group of fields in a frame.',
       list: 'A list of items that each fold out to their fields, or of single choices.',
       blocks: 'The sections of a fixed page as cards in the text, like a page.',
       check:
-        'A form that is not filled in right: a message at the front says what is wrong, and the field is scrolled to and flashes until it is put right. Try with an empty field that must be filled in.',
+        'A form that isn’t filled in right: a message at the front says what is wrong, and the field is scrolled to and flashes until it is put right. Try with an empty field that must be filled in.',
     },
     tryToSave: 'Try to save',
-    allRight: 'All the fields are filled in right.',
+    allRight: 'All the fields are filled in right',
     heading: 'Heading',
     headingHint: 'At most about 60 characters.',
     underName: 'Text (under the name)',
     underNameHint: 'If the field is empty, the site’s name is used.',
-    email: 'E-mail',
-    emailForm: 'Write a whole e-mail address',
+    email: 'Email',
+    emailForm: 'Write a whole email address',
+    cvr: 'CVR number',
     keyword: 'Main keyword',
     keywords: 'Other keywords',
-    cvr: 'CVR number',
     linkText: 'Link text',
     editColors: 'Edit the colors',
     descriptionHint: 'At most about 160 characters.',
@@ -175,7 +184,7 @@ export const parts: Messages['parts'] = {
     listText: 'Text (in the list)',
     listTextHint: 'Only there with the placement In the list.',
     publishedHint: 'The page is on the site.',
-    draftHint: 'The page is not on the site.',
+    draftHint: 'The page isn’t on the site.',
     look: 'Look',
     kind: 'Kind',
     page: 'Page',
@@ -192,6 +201,7 @@ export const parts: Messages['parts'] = {
     pages: 'Pages',
     aPage: 'page',
     aSection: 'section',
+    /** What the examples are filled in with. */
     values: {
       email: 'contact@example.com',
       heading: 'A heading',
@@ -200,6 +210,7 @@ export const parts: Messages['parts'] = {
       answer: 'A session lasts 60 minutes.',
     },
   },
+  /** The made-up site the parts and blocks are shown with (examples.ts), never the site's own. */
   examples: {
     pages: ['First page', 'Second page', 'Third page'],
     tags: ['First tag', 'Second tag'],
@@ -228,26 +239,134 @@ export const parts: Messages['parts'] = {
       street: 'Main Street 1',
       city: '1234 Town',
     },
-    payment: { mobilePay: '12 34 56', bank: 'The Bank', reg: '1234', account: '1234567890' },
+    payment: { bank: 'The Bank', reg: '1234', account: '1234567890' },
     booking: { heading: 'Book a time', text: 'A short text about how to book.' },
     labels: { book: 'Book a time', call: 'Call' },
+    /** What a kind of entry an app adds (a pop-up) is drawn with. */
     entry: { name: 'An example', heading: 'A heading', text: 'A short text that tells a little more.' },
   },
+  /** "Dele" › "Værdier" (#udseende/dele/vaerdier, Tokens.tsx): the theme's design tokens, each with what it is used for. */
+  tokens: {
+    intro: 'The theme’s values for corners, shadows, typography, and colors, as the theme sets them.',
+    groups: { shape: 'Corners', elevation: 'Shadows', type: 'Typography', color: 'Colors' },
+    shape: {
+      radius: 'Panels',
+      radiusSmall: 'What is smaller in a panel',
+      blockRadius: 'Blocks',
+      blockRadiusSmall: 'What is smaller in a block',
+      blockControlRadius: 'Buttons and fields in blocks',
+      pictureRadius: 'Large pictures',
+      postPictureRadius: 'Pictures in lists',
+      logoTileRadius: 'The logo’s tile',
+    },
+    parts: {
+      button: 'Buttons',
+      chip: 'Chips',
+      textField: 'Fields',
+      card: 'Cards',
+      menu: 'Menus',
+      dialog: 'Dialogs',
+      bottomSheet: 'Bottom sheets',
+      sideSheet: 'Side sheets',
+      fab: 'Floating action buttons',
+      snackbar: 'Snackbars',
+      searchBar: 'Search',
+    },
+    /** Material 3's corner radius scale, its steps by name (m3.material.io/styles/shape/corner-radius-scale). */
+    steps: {
+      none: 'None',
+      extraSmall: 'Extra small',
+      small: 'Small',
+      medium: 'Medium',
+      large: 'Large',
+      largeIncreased: 'Large increased',
+      extraLarge: 'Extra large',
+      extraLargeIncreased: 'Extra large increased',
+      extraExtraLarge: 'Extra extra large',
+      full: 'Full',
+    },
+    /** A corner's step and its size ("Medium (12px)"). */
+    step: (step: string, size: string) => `${step} (${size})`,
+    elevation: {
+      /** Material 3's elevation levels, 0 (on the page) to 5. */
+      level: (n: number) => `Level ${n}`,
+      /** A level nothing has (under it, where the list of what has it would be). */
+      unused: 'Not used',
+      /** A shadow that is none of the levels: the theme's own. */
+      own: 'Own shadow',
+      shadow: 'Panels',
+      blockShadow: 'Blocks',
+    },
+    /** The UI parts' shadows at rest, by Material 3's names, listed under their level ("Panels, blocks, and …"). */
+    partShadows: {
+      buttonFilled: 'Filled buttons',
+      buttonTonal: 'Tonal buttons',
+      buttonElevated: 'Elevated buttons',
+      chipElevated: 'Elevated chips',
+      cardFilled: 'Filled cards',
+      cardOutlined: 'Outlined cards',
+      cardElevated: 'Elevated cards',
+      switchHandle: 'Switch handles',
+      sliderHandle: 'Slider handles',
+      menu: 'Menus',
+      tooltipRich: 'Rich tooltips',
+      dialog: 'Dialogs',
+      bottomSheet: 'Bottom sheets',
+      bottomSheetLarge: 'Bottom sheets as dialogs',
+      sideSheet: 'Modal side sheets',
+      navigationDrawer: 'Modal navigation drawer',
+      navigationBar: 'Navigation bar',
+      navigationRailModal: 'Modal navigation rail',
+      topAppBarStuck: 'Top app bar (scrolled)',
+      fab: 'Floating action button',
+      toolbarFloating: 'Floating toolbar',
+      searchBar: 'Search',
+      searchView: 'Search view',
+      snackbar: 'Snackbars',
+      buttonToggleSelected: 'Selected toggle buttons',
+      chipSelected: 'Selected filter chips',
+      chip: 'Chips',
+      /** A part in a state: pointed at with the mouse, or dragged. */
+      hovered: (part: string) => `${part} (hovered)`,
+      dragged: (part: string) => `${part} (dragged)`,
+    },
+    /** The typeface and Material 3's type roles (m3.material.io/styles/typography/type-scale-tokens), each with what the
+     * theme draws in it, and under it its size, line height, and weight as the theme sets them. */
+    type: {
+      typeface: 'Typeface',
+      roles: {
+        display: { name: 'Display', use: 'Heading in Hero' },
+        headline: { name: 'Headline', use: 'Headings in the text' },
+        title: { name: 'Title', use: 'Subheadings in the text' },
+        body: { name: 'Body', use: 'The text' },
+        label: { name: 'Label', use: 'Buttons' },
+      },
+      measures: (use: string, size: string, lineHeight: string, weight: string) =>
+        `${use}: ${size}, line height ${lineHeight}, weight ${weight}`,
+    },
+    /** A token's name and its value, under the row's name. */
+    value: (token: string, value: string) => `${token}: ${value}`,
+    /** A token the theme does not set, with the one it gets instead. */
+    from: (token: string, value: string, from: string) => `${token}: ${value} (as ${from})`,
+  },
+  /** "Dele" (#udseende/dele) and its screens: the editor's parts, the theme's UI components, the blocks (the standard
+   * ones and the apps') and the lists of kinds ("Promotion"). */
   screens: {
     editor: 'Editor',
-    theme: 'Theme',
-    apps: 'Apps',
-    themeIntro:
-      "The theme's buttons and the standard blocks as the theme shows them, in all their versions. The theme gives them their look.",
-    appsIntro: 'What each app adds to the site: its blocks and what it can show, which the theme gives their look.',
+    components: 'UI components',
+    blocks: 'Blocks',
+    values: 'Values',
+    componentsIntro: "The theme's buttons, fields, lists, and other parts in all their kinds and states. The theme gives them their look.",
+    blocksIntro: "The standard blocks and the apps' blocks in all their versions. The theme gives them their look.",
+    /** A list of kinds ("Promotion"), by the list's name for one. */
+    kindsIntro: (one: string) => `Every kind of ${one}, the apps' too, in all its states. The theme gives them their look.`,
     search: 'Search the parts',
-    none: 'No parts match the search.',
-    /** The theme's UI components (packages/editor/theme/ui/), first under "Theme". */
+    none: 'No parts match the search',
+    /** The theme's buttons (packages/editor/theme/ui/), first under "UI components". */
     ui: 'Buttons',
     button:
-      "Filled (what to do), tonal, elevated, outlined and text only, in five sizes, round or square, turned off and on, with an icon and grey when it can't be used.",
-    iconButton:
-      'Button with an icon: standard, filled, tonal and outlined, in five sizes and three widths, round or square, turned off and on.',
+      "Filled for the main action, tonal, elevated, outlined, and text only, in 5 sizes, round or square, turned off and on, with an icon and gray when it can't be used.",
+    iconButton: 'Button with an icon: standard, filled, tonal, and outlined, in 5 sizes and 3 widths, round or square, turned off and on.',
     sizes: { xsmall: 'Extra small', small: 'Small', medium: 'Medium', large: 'Large', xlarge: 'Extra large' },
     shapes: { round: 'Round', square: 'Square' },
     widths: { narrow: 'Narrow', default: 'Default', wide: 'Wide' },
@@ -255,18 +374,18 @@ export const parts: Messages['parts'] = {
     iconKinds: { standard: 'Standard', filled: 'Filled', tonal: 'Tonal', outlined: 'Outlined' },
     withIcon: 'With icon',
     disabled: "Can't be used",
-    /** The theme's form controls (TextField, Checkbox), under "Theme". */
+    /** The theme's form controls (TextField, Checkbox), under "UI components". */
     fields: 'Fields',
     textField:
-      "Field to write in, outlined or filled: empty, filled in, with a line under it, with an error, with only a placeholder and grey when it can't be used, and with an icon, a button to clear it, text before and after, the error's icon, a password, a counter, several lines and only to read.",
+      "Field to write in, outlined or filled: empty, filled in, with a line under it, with an error, with only a placeholder and gray when it can't be used, and with an icon, a button to clear it, text before and after, the error's icon, a password, a counter, several lines, and only to read.",
     checkbox:
-      "Box to tick with its name and a line under it: empty, ticked, neither (some of the choices under it), wrong and grey when it can't be changed.",
+      "Box to check with its name and a line under it: empty, checked, neither (some of the choices under it), wrong and gray when it can't be changed.",
     fieldKinds: { outlined: 'Outlined', filled: 'Filled' },
-    fieldLabel: 'E-mail',
+    fieldLabel: 'Email',
     fieldValue: 'name@example.com',
-    fieldSupporting: 'We only write when there is news.',
-    fieldError: 'Write an e-mail address.',
-    fieldPlaceholder: 'Your e-mail',
+    fieldSupporting: 'You only get an email when there’s news.',
+    fieldError: 'Write an email address.',
+    fieldPlaceholder: 'Your email',
     fieldSearch: 'Search the site',
     fieldClear: 'Clear',
     fieldPhone: 'Phone',
@@ -286,10 +405,12 @@ export const parts: Messages['parts'] = {
     checkboxLabel: 'Statistics',
     checkboxSupporting: 'How the site is used.',
     checkboxParent: 'All cookies',
-    checkboxError: 'Tick the box to go on.',
-    /** The theme's chips (Chip), a group of their own under "Theme". */
+    checkboxError: 'Check the box to continue.',
+    /** The theme's chips (Chip), a group of their own under "UI components". */
     chips: 'Chips',
-    chip: "Assist (a link to something related), filter (one of a few choices, the chosen one marked), input and suggestion: elevated (on a picture), selected, with an icon or a picture, with a button that removes it, while it is dragged, only shown and grey when it can't be used.",
+    chip: "Assist (a link to something related), filter (one of a few choices, the chosen one marked), input and suggestion: elevated (on a picture), selected, with an icon or a picture, with a button that removes it, while it is dragged, only shown, and gray when it can't be used.",
+    chipSet: 'Chips side by side in a group: on as many lines as they need, or on one line that scrolls sideways.',
+    chipSetLayouts: { wrap: 'Several lines', scroll: 'Scroll sideways' },
     chipKinds: { assist: 'Assist', filter: 'Filter', input: 'Input', suggestion: 'Suggestion' },
     selected: 'Selected',
     plain: 'Only shown',
@@ -301,12 +422,12 @@ export const parts: Messages['parts'] = {
     containment: {
       title: 'Dialogs, sheets and carousel',
       dialog:
-        'A box over the page with an icon, a heading, a text and buttons, only the box (e.g. a pop-up or the cookie question), or over the whole screen on a phone with the close button and the action at the top.',
+        'A box over the page with an icon, a heading, a text, and buttons, only the box, for example, a pop-up or the cookie question, or over the whole screen on a phone with the close button and the action at the top.',
       bottomSheet:
-        'A sheet from the bottom: modal over the page (a dialog in the middle on a computer, e.g. the booking sheet), or standard at the bottom of the screen, with the page usable behind it, dragged up and down.',
+        'A sheet from the bottom: modal over the page, on a computer as a dialog in the middle, for example, the booking sheet, or standard at the bottom of the screen, with the page usable behind it, dragged up and down.',
       carousel:
         'Cards or pictures in a row that are swiped sideways, with dots under them: all the same size, in several sizes, one large (from the start or in the middle) and one at a time.',
-      dialogKinds: { basic: 'Basic', icon: 'With icon, list and divider', container: 'Only the box', fullScreen: 'Full screen' },
+      dialogKinds: { basic: 'Basic', icon: 'With icon, list, and divider', container: 'Only the box', fullScreen: 'Full screen' },
       sheetKinds: {
         modal: 'Modal',
         collapsed: 'Standard, collapsed',
@@ -321,7 +442,7 @@ export const parts: Messages['parts'] = {
         fullScreen: 'One at a time',
       },
       choices: ['First choice', 'Second choice', 'Third choice'],
-      fields: ['Name', 'E-mail'],
+      fields: ['Name', 'Email'],
       cancel: 'Cancel',
       accept: 'Accept',
       save: 'Save',
@@ -343,7 +464,7 @@ export const parts: Messages['parts'] = {
     navigation: {
       title: 'Navigation',
       topAppBar:
-        "The bar at the top of a page: only the surface with the site's own header, or the button at the start, the headline and the buttons at the end, small, medium or large, or with the search field. It gets another surface when the page scrolls under it.",
+        "The bar at the top of a page: only the surface with the site's own header, or the button at the start, the headline, and the buttons at the end, small, medium, or large, or with the search field. It gets another surface when the page scrolls under it.",
       stuck: 'When the page scrolls',
       /** The top app bar's kinds and what is in them (TopAppBar.tsx). */
       appBar: {
@@ -359,7 +480,7 @@ export const parts: Messages['parts'] = {
         favourite: 'Save',
         profile: 'Profile',
       },
-      menu: 'Choices on a surface: the pages under an item in the bar, or actions with an icon, a shortcut, text under them, a tick and a submenu, in groups with a gap or a line between them, on the surface or in the accent.',
+      menu: 'Choices on a surface: the pages under an item in the bar, or actions with an icon, a shortcut, text under them, a check mark, and a submenu, in groups with a gap or a line between them, on the surface or in the accent.',
       dropdownMenu: 'A menu a button opens: the arrow keys move in it, Escape closes it.',
       exposedDropdownMenu: 'A field that shows the chosen one of a few choices and opens a menu of them: outlined or filled.',
       menus: {
@@ -388,19 +509,19 @@ export const parts: Messages['parts'] = {
       /** The tabs' made-up views (Tabs.tsx). */
       views: ['Overview', 'Prices', 'Reviews', 'Contact', 'Map', 'Videos'],
       viewList: 'Views',
-      fab: "The screen's main action in a large button: only the icon, or the icon and the text, in three sizes and six colours.",
+      fab: "The screen's main action in a large button: only the icon, or the icon and the text, in 3 sizes and 6 colors.",
       name: 'Name',
       open: 'Open menu',
       pages: ['Home', 'The open page', 'A page with sub-pages', 'Contact'],
       subpages: ['Sub-page', 'The open sub-page'],
       book: 'Book a time',
       kinds: {
-        primary: 'Accent colour',
-        secondary: 'Secondary colour',
-        tertiary: 'Tertiary colour',
-        'primary-container': 'Light accent colour',
-        'secondary-container': 'Light secondary colour',
-        'tertiary-container': 'Light tertiary colour',
+        primary: 'Accent color',
+        secondary: 'Secondary color',
+        tertiary: 'Tertiary color',
+        'primary-container': 'Light accent color',
+        'secondary-container': 'Light secondary color',
+        'tertiary-container': 'Light tertiary color',
       },
       sizes: { fab: 'Regular', medium: 'Medium', large: 'Large' },
       extendedSizes: { small: 'Small', medium: 'Medium', large: 'Large' },
@@ -411,9 +532,9 @@ export const parts: Messages['parts'] = {
       buttonGroup:
         'Buttons that belong together, side by side: apart or joined, in all the buttons’ sizes and shapes. A button that is turned on and off stands out while it is on.',
       segmentedButton: 'A few choices side by side in one frame: one or more chosen, the chosen ones with a check.',
-      splitButton: 'The main action with an arrow beside it that opens a menu with other ways to do it, in the buttons’ five sizes.',
+      splitButton: 'The main action with an arrow beside it that opens a menu with other ways to do it, in the buttons’ 5 sizes.',
       fabMenu:
-        "The screen's main action in a large button of any size that opens a few actions above it and then becomes a cross, in three colour sets.",
+        "The screen's main action in a large button of any size that opens a few actions above it and then becomes a cross, in 3 color sets.",
       group: 'View',
       views: ['Day', 'Week', 'Month'],
       actions: ['Book a time', 'Call', 'Write'],
@@ -426,22 +547,22 @@ export const parts: Messages['parts'] = {
       book: 'Book a time',
       more: 'More ways to book',
       ways: ['Call', 'Send an email', 'Book online'],
-      disabled: 'Cannot be used',
+      disabled: 'Can’t be used',
       kinds: { filled: 'Filled', tonal: 'Tonal', elevated: 'Elevated', outlined: 'Outlined' },
       contact: 'Contact',
       close: 'Close',
-      fabKinds: { primary: 'Accent colour', secondary: 'Secondary colour', tertiary: 'Tertiary colour' },
+      fabKinds: { primary: 'Accent color', secondary: 'Secondary color', tertiary: 'Tertiary color' },
     },
     /** The theme's switches, radio buttons, sliders, dividers and side sheets (SelectionParts.tsx), and what is in the
      * examples. */
     selection: {
       title: 'Switches, choices and side sheets',
-      switch: 'Turns something on or off, with its name before it: off, on, with icons in the handle and grey when it cannot be changed.',
-      radioButton: 'One of a few choices in a group under its name, maybe with a line under it: chosen and grey when it cannot be chosen.',
+      switch: 'Turns something on or off, with its name before it: off, on, with icons in the handle, and gray when it can’t be changed.',
+      radioButton: 'One of a few choices in a group under its name, maybe with a line under it: chosen and gray when it can’t be chosen.',
       slider:
-        'Chooses a number by dragging: freely, in steps with dots, from the middle, a range with two handles and with the number over the handle, in five sizes, with an icon and vertical.',
-      divider: 'A thin line between parts: full width, inset from the start, inset from both sides and vertical.',
-      sideSheet: 'More about what is on the screen, at its side: beside the page or over it, with a headline, a cross and buttons.',
+        'Chooses a number by dragging: freely, in steps with dots, from the middle, a range with 2 handles and with the number over the handle, in 5 sizes, with an icon and vertical.',
+      divider: 'A thin line between parts: full width, inset from the start, inset from both sides, and vertical.',
+      sideSheet: 'More about what is on the screen, at its side: beside the page or over it, with a headline, a cross, and buttons.',
       switchLabel: 'Newsletter',
       switchSupporting: 'An email when there is news.',
       groupLabel: 'When suits you?',
@@ -470,9 +591,10 @@ export const parts: Messages['parts'] = {
       badge: 'A small mark on an icon, an icon button or a menu item: a dot for something new, or a number.',
       loadingIndicator: 'A shape that turns and changes while something short is on its way, alone or in its round container.',
       linearProgressIndicator:
-        'A line that fills up as far as something has come. Without a value, two stretches run along it. Also wavy and thick.',
+        'A line that fills up as far as something has come. Without a value, 2 stretches run along it. Also wavy and thick.',
       circularProgressIndicator: 'The same as a ring, where there is no room for a line. Also wavy and thick.',
-      snackbar: 'A short message at the bottom of the screen, e.g. on a new version of a page, with links, an action or a cross.',
+      snackbar:
+        'A short message at the bottom of the screen, for example, about a new version of a page, with links, an action, or a cross.',
       tooltip: 'A short text by a button while the mouse is over it or it has focus: short, or with a heading and an action.',
       dot: 'Dot',
       number: 'Number',
@@ -484,18 +606,18 @@ export const parts: Messages['parts'] = {
       home: 'Home',
       alone: 'Alone',
       contained: 'In a container',
-      loading: 'Loading …',
+      loading: 'Loading…',
       uploading: 'Uploading',
       percent: (v: number) => `${Math.round(v * 100)}%`,
       indeterminate: 'Without a value',
       shapes: { flat: 'Flat', wavy: 'Wavy' },
       thick: 'Thick',
       sent: 'The message has been sent.',
-      booked: 'Your time is booked. You will get a confirmation by email shortly.',
+      booked: 'Your time is booked. You’ll get a confirmation by email shortly.',
       undo: 'Undo',
       seeBooking: 'See the booking',
       close: 'Close',
-      preview: 'New version for review. Google does not see it.',
+      preview: 'New version for review. Google doesn’t see it.',
       links: ['See the current page', 'All new pages'],
       call: 'Call',
       cancelHeading: 'Cancellation',
@@ -503,7 +625,7 @@ export const parts: Messages['parts'] = {
       readMore: 'Read more',
     },
     /** The rest of the theme's navigation parts (NavigationBar.tsx, NavigationRail.tsx, Search.tsx, Toolbar.tsx in
-     * packages/editor/theme/ui/), under "Theme". */
+     * packages/editor/theme/ui/), under "UI components". */
     navigationRest: {
       title: 'Bars and search',
       navigationBar:
@@ -538,12 +660,11 @@ export const parts: Messages['parts'] = {
       book: 'Book a time',
       call: 'Call',
     },
-    noApps: 'There are no apps.',
-    /** The theme's cards and lists (Card.tsx, List.tsx in packages/editor/theme/ui/), under "Theme". */
+    /** The theme's cards and lists (Card.tsx, List.tsx in packages/editor/theme/ui/), under "UI components". */
     cardsAndLists: {
       title: 'Cards and lists',
-      card: 'A surface with what belongs together: outlined, elevated or filled. The whole card can be a link.',
-      list: 'Items under each other on one, two or three lines, with an icon, an avatar, a picture, a video, a choice, text and an arrow, with or without lines between them, or each on its own surface.',
+      card: "A surface with what belongs together: outlined, elevated, or filled, also while it's dragged. The whole card can be a link.",
+      list: 'Items under each other on 1, 2, or 3 lines, with an icon, an avatar, a picture, a video, a choice, text, and an arrow, with or without lines between them, or each on its own surface. An item can do something when tapped, have actions beside it, and have its text side by side on a wide screen.',
       kinds: { elevated: 'Elevated', filled: 'Filled', outlined: 'Outlined' },
       link: 'Outlined, a link',
       text: 'What is on the card.',
@@ -557,13 +678,19 @@ export const parts: Messages['parts'] = {
         dividers: { 'full-width': 'Lines', inset: 'Lines from the text', 'middle-inset': 'Lines in the middle', none: 'Without lines' },
         segmented: 'Each on its own surface',
         overline: 'Over the headline',
-        long: 'A text under the item that is so long that it takes two lines before it is cut short.',
+        long: 'A text under the item that is so long that it takes 2 lines before it is cut short.',
         trailing: '12',
         headlines: ['Icon', 'Avatar', 'Avatar with a picture', 'Image', 'Video'],
         letter: 'S',
         choices: ['Checkbox', 'Radio button', 'Switch', 'Checkbox after the text'],
         selected: 'Selected',
         disabled: 'Disabled',
+        more: 'Tapped, with actions and in columns',
+        tapped: 'Does something when tapped',
+        withActions: 'With an action beside it',
+        remove: 'Remove',
+        address: '/an-address/',
+        sendsTo: 'Beside it on a wide screen',
       },
     },
     /** The theme's date and time pickers (PickerParts.tsx; DatePicker.tsx, TimePicker.tsx in packages/editor/theme/ui/). */

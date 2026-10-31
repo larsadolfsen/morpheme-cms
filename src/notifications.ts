@@ -199,7 +199,7 @@ export function askToNotify() {
     setDevice(true).catch(() => {});
 }
 
-// The message as a notification on the phone or computer (through the service worker, public/editor/sw.js), when
+// The message as a notification on the phone or computer (through the service worker, packages/editor/pages/editor/sw.js), when
 // "På telefonen" is on and the editor is not on screen.
 async function notifyDevice(text: string) {
   if (document.visibilityState === 'visible' || !deviceOn() || !allowed()) return;

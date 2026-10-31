@@ -1,19 +1,21 @@
-// The posts of the blog index or a category: the newest large, the rest as a list (PostList.tsx); without any, a note
-// and a link to all the posts. BlogPosts.astro puts it in the page's width on the site.
+// Posts with the newest large, the rest as a list (PostList.tsx); without any, a note and a link to all the posts: a
+// tag's page (BlogPosts.astro puts it in the page's width), and the standard block "Blogindlæg" with "Det nyeste stort"
+// (blocks/posts/View.tsx), as on the blog page.
 import Img from '@theme/components/Img';
 import PostList from '@theme/components/PostList';
 import PostMeta from '@theme/components/PostMeta';
 import type { PostView } from '@theme/components/posts';
 import { Link } from '@interstellarcms/cms/src/standard/view';
+import { siteT } from '@interstellarcms/cms/src/i18n';
 
 export default function BlogPosts({ posts }: { posts: PostView[] }) {
   const [featured, ...rest] = posts;
   if (!featured)
     return (
       <div className="rounded-panel bg-tint p-8">
-        <p className="text-lg font-medium">Der er ingen indlæg her endnu.</p>
+        <p className="text-lg font-medium">{siteT.theme.noPosts}</p>
         <Link href="/blog/" className="link mt-3 inline-block">
-          Se alle indlæg
+          {siteT.theme.seeAllPosts}
         </Link>
       </div>
     );
@@ -26,7 +28,7 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
               image={featured.image}
               alt={featured.imageAlt ?? ''}
               fetchPriority="high"
-              className="aspect-[16/10] w-full object-cover transition-transform duration-700 ease-[var(--ease)] group-hover:scale-[1.03]"
+              className="aspect-[16/10] w-full object-cover [transition:scale_var(--motion-spatial-slow)] group-hover:scale-[1.03]"
               sizes="(min-width: 768px) 55vw, calc(100vw - 40px)"
             />
           </div>

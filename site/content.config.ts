@@ -9,13 +9,13 @@ const status = {
 };
 
 // Blog posts: one .md file per post in src/content/blog/.
-// The file name becomes the URL: hvad-er-jalousi.md -> /hvad-er-jalousi/
+// The file name becomes the URL: mit-foerste-indlaeg.md -> /mit-foerste-indlaeg/
 const blog = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
-    // Last edit (from WordPress' "modified"); dateModified in the structured data.
+    // Last edit (when imported, the old site's); dateModified in the structured data.
     updated: z.coerce.date().optional(),
     description: z.string().optional().default(''),
     categories: z.array(z.string()).optional().default([]),
@@ -43,7 +43,7 @@ const blog = defineCollection({
   }),
 });
 
-// Pages migrated from WordPress. `path` is the exact URL, e.g. /parterapi-roskilde/utroskab/
+// Imported pages. `path` is the exact URL, e.g. /ydelser/raadgivning/
 // Pages created in the editor (/editor/) have no `path`: the file name is the URL (getPages()).
 const pages = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/pages' }),

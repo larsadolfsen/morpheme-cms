@@ -6,6 +6,7 @@
 // the list "Udtalelser"; on the site: load.ts.
 import type { BlockData } from '../../blocks';
 import type { TestimonialRow } from '../../fields';
+import { siteT } from '../../i18n';
 import { sharedIn } from '../../shared';
 import { shownAt } from '../../images';
 import type { Picture, ViewOf } from '../view';
@@ -28,10 +29,14 @@ export type TestimonialTexts = { more: string; less: string };
 export type TestimonialsView = HeadView & {
   layout?: string;
   testimonials: TestimonialView[];
+  /** What the slider is called for screen readers: its heading, else the block's name (labelOf). */
   label: string;
   filters: { slug: string; name: string }[];
   texts: TestimonialTexts;
 };
+
+/** What the slider is called for screen readers: the block's heading, else "Udtalelser" in the site's language. */
+export const labelOf = (props: Record<string, any>): string => props.heading?.trim() || siteT.blocks.testimonials.label;
 
 // A tag's name, as the list of tags has it.
 const tagName = (data: BlockData, slug: string) => data.relations.categories?.find((o) => o.value === slug)?.label ?? slug;
@@ -64,7 +69,7 @@ export const viewOf: ViewOf<TestimonialsView> = (props, data) => {
     ...headOf(props),
     layout: props.layout,
     testimonials: shownTestimonials(rows, data, tagsShown(props)),
-    label: '',
+    label: labelOf(props),
     filters: props.layout === 'list' && props.filter !== false ? tagsOf(rows).map((slug) => ({ slug, name: tagName(data, slug) })) : [],
     texts: shownTexts(data),
   };

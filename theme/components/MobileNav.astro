@@ -6,13 +6,14 @@
 // it is turned off or has no links.
 import { tabsClass, tabClass } from '@theme/ui/Tabs';
 import { mobileNav } from '@interstellarcms/cms/site/site';
+import { siteT } from '@interstellarcms/cms/src/i18n';
 
 const current = Astro.url.pathname;
 const isActive = (href: string) => current === href || (href !== '/' && current.startsWith(href));
 ---
 
 {mobileNav.length > 0 && (
-  <nav aria-label="Mobilmenu" data-mobile-nav class="xl:hidden xl:group-data-crowded/header:block">
+  <nav aria-label={siteT.theme.mobileMenu} data-mobile-nav class="xl:hidden xl:group-data-crowded/header:block">
     <ul class:list={[tabsClass, 'relative mx-auto max-w-6xl px-1 md:px-4']}>
       {mobileNav.map((item) => (
         <li>

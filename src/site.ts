@@ -1,11 +1,12 @@
 // The site as the editor shows it: what src/site/ describes (the collections and their fields, the
 // start screen's groups, the screens under "Virksomheden" and "Blokke") with the site's texts in the
-// editor's language (siteText, src/site/texts.ts). The editor takes these from here, not from
+// editor's language (siteText, @site/texts). The editor takes these from here, not from
 // @site/editor. A commit says what was saved in the site's language: asWritten gives back a
 // collection, a file, a part or a block as the site wrote it.
 import * as site from '@site/editor';
+import type { ColorPair } from '../lib/colors';
 import { appIdOf, installedApps, withKinds, type AppDefinition, type AppList, type SiteApp } from './apps';
-import { appBlocks, appFiles, appFolders, appPictures, appShared, appStores } from '@site/apps';
+import { appBlocks, appFiles, appFolders, appPictures, appShared, appStores } from './appFiles';
 import type { BlockDefinition, SiteBlock } from './blocks';
 import type { ListRows } from './fields';
 import { siteT, siteText, t, translatingSite } from './i18n';
@@ -60,6 +61,8 @@ export function translator(say: (text: string) => string) {
       parts: p.parts?.map(part),
     });
   const group = (g: (typeof site.groups)[number]) => ({ ...g, title: say(g.title) });
+  const color = (c: ColorField): ColorField => ({ ...c, label: say(c.label), hint: say(c.hint) });
+  const pair = (p: ColorPair): ColorPair => ({ ...p, what: say(p.what) });
   const app = <A extends AppDefinition>(a: A): A =>
     shown<AppDefinition>(a, {
       label: say(a.label),
@@ -85,8 +88,11 @@ export function translator(say: (text: string) => string) {
         ),
       lists: a.lists?.map((l) => collection(l) as AppList),
     }) as A;
-  return { block, collection, part, group, app };
+  return { block, collection, part, group, color, pair, app };
 }
+
+/** A colour under "Farver" (colorFields in @site/colors): its CSS variable without "--", its name and what it is for. */
+type ColorField = (typeof site.colorFields)[number];
 
 const local = translator(siteText);
 const each = <T>(all: T[], one: (x: T) => T) => (translatingSite ? all.map(one) : all);
@@ -130,7 +136,7 @@ const standardParts = sharedPartsOf(
     return p;
   });
 
-/** The screens under "Blokke" as the site wrote them: its own (src/site/blockTexts.ts) and the blocks'. */
+/** The screens under "Blokke" as the site wrote them: its own (packages/editor/defaults/blockTexts.ts) and the blocks'. */
 export const writtenBlockParts: Part[] = [...site.blockParts, ...sharedParts, ...standardParts];
 
 /** The parts of "Virksomheden"; one with parts of its own (Part.parts) has them going back to it. */
@@ -165,6 +171,10 @@ export const blockParts = [
   ...[...each(sharedParts, local.part), ...standardParts].sort((a, b) => byText(a.label, b.label)),
 ];
 export const groups = each(site.groups, local.group);
+/** The colours under "Farver" (@site/colors), with their names and hints in the editor's language. */
+export const colorFields = each(site.colorFields, local.color);
+/** The pairs that must be readable (@site/colors), with what they are in the editor's language. */
+export const colorPairs = each(site.colorPairs, local.pair);
 /** The settings of the whole site, on "Indstillinger" (#indstillinger) instead of the start screen. */
 export const settings: string[] = site.settings;
 
@@ -176,7 +186,7 @@ export const placeOf = (id: string): string | undefined =>
 export const backFrom = (id: string) =>
   settings.includes(id) ? { href: '#indstillinger', label: t.common.parts.settings } : { href: '#', label: site.siteName };
 
-/** Where a standard page (by its key, src/site/standardPages.ts) is chosen, as the way there from the start screen
+/** Where a standard page (by its key, packages/editor/defaults/standardPages.ts) is chosen, as the way there from the start screen
  * ("Indstillinger › Udseende › Standardsider"): the part with its field in the file of the standard pages. */
 export function standardPageAt(key: string): string {
   const chosenIn = (p: Part) => p.file === site.config.standardPages && !!p.fields?.some((f) => f.name === key);

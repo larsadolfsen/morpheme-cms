@@ -1,6 +1,6 @@
 // What a toolbar (Toolbar.tsx, toolbarClass, role="toolbar") does on the site: it is one stop for Tab, and the arrow
 // keys (left and right, up and down on a vertical one) and Home and End move between its actions (WAI-ARIA's toolbar
-// pattern). Run on every page by the theme's Base.astro (blockScripts, src/site/scripts.ts); without a toolbar it does
+// pattern). Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts); without a toolbar it does
 // nothing.
 const actions = 'a[href], button:not(:disabled), input:not(:disabled)';
 

@@ -10,7 +10,7 @@
 // as the picker's `orientation` says, else on a screen wider than it is high and low (a phone turned on its side), as
 // Material's. A time typed in the field is read when the field is left, and
 // the field is marked when it is not a time. React and the drawing are loaded the first time a picker is about to
-// open (pointed at, focused). Run on every page by the theme's Base.astro (blockScripts, src/site/scripts.ts); without
+// open (pointed at, focused). Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts); without
 // a time picker it does nothing.
 import type { TimePickerFormat, TimePickerOrientation, TimePickerState, TimePickerTexts } from '@theme/ui/TimePickerContainer';
 import { timeFromTyped, timeOf, timeString, timeTyped, twoDigits } from '@theme/ui/dates';

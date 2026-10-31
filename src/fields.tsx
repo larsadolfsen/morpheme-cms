@@ -25,7 +25,6 @@ import {
   MultiChoice,
   SupportingText,
   PhoneField,
-  listItemClass,
   SegmentedButton,
   Select,
   SheetActions,
@@ -35,12 +34,12 @@ import {
   SheetTitle,
   ShownValue,
   subListClass,
-  subListItemClass,
   SwitchRow,
   TextArea,
   TextField,
   ProblemNote,
   type Pickable,
+  ListItem,
 } from './ui';
 import type { Edit, Field, Relation, Template } from './schema';
 import type { SiteData } from '@site/editor';
@@ -320,7 +319,9 @@ function FieldControl({ field, value, onChange }: Props) {
         break;
       }
       if (field.segments) {
-        control = <SegmentedButton label={field.label} value={text} options={offered} onChange={onChange} />;
+        // Without a value (saved before the field was there), its default, as the fields that depend on it have it (inUse).
+        const shown = text || String(field.default ?? '');
+        control = <SegmentedButton label={field.label} value={shown} options={offered} onChange={onChange} />;
         break;
       }
       if (field.icons) {
@@ -655,6 +656,13 @@ export function EditLink({ edit }: { edit: Edit }) {
 
 type Item = Record<string, unknown>;
 
+// An item's title in a list (Field.summary): its field's value, of several the first filled in.
+const summaryOf = (field: Field, item: unknown) =>
+  [field.summary ?? []]
+    .flat()
+    .map((name) => String((item as Item)?.[name] ?? '').trim())
+    .find(Boolean) ?? '';
+
 // A list of items, each opened to its fields. `add={false}` leaves out "Tilføj …" below it, for a
 // list that is added to with "+" in the top bar: an item added at the end, here or there, is opened
 // and scrolled to. (The menu has its own, MenuList.)
@@ -705,7 +713,7 @@ export function ListInput({
   const title = (item: unknown, i: number) =>
     field.field
       ? (named?.find((o) => o.value === item)?.label ?? String(item ?? '')).slice(0, 80)
-      : String((item as Item)?.[field.summary ?? ''] ?? '') || t.forms.numbered(field.singular ?? t.forms.itemTitle, i + 1);
+      : summaryOf(field, item) || t.forms.numbered(field.singular ?? t.forms.itemTitle, i + 1);
   return (
     <div>
       <Label hint={hintOf(field)}>{field.label}</Label>
@@ -738,7 +746,7 @@ export function ListInput({
           </FoldItem>
         ))}
       </FoldList>
-      {/* No more than `maxItems` (the booking bar's two buttons). */}
+      {/* No more than `maxItems` (the action bar's two buttons). */}
       {canAdd && !(field.maxItems !== undefined && value.length >= field.maxItems) && (
         <Button kind="outlined" size="small" icon={Plus} className="mt-2" onClick={add}>
           {t.forms.addOne(field.singular ?? t.forms.item)}
@@ -751,7 +759,7 @@ export function ListInput({
 const capitalFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 // The menu (DataForm.tsx): the items as rows in a list like the editor's other lists (listClass,
-// listItemClass), and the items under one (its list field, the submenu) indented along a line, shown with
+// ListItem), and the items under one (its list field, the submenu) indented along a line, shown with
 // the arrow at the right. An item's text and page are changed in a sheet from the bottom,
 // opened with a tap on it or the pencil, and saved with "Gem"; the sheet also removes it. A new item
 // (+ in the top bar, "Tilføj punkt" under a submenu) opens its sheet at once; "Annuller" there takes it
@@ -782,7 +790,7 @@ export function MenuList({
   const length = useRef(value.length);
   const sub = (field.fields ?? []).find((f) => f.type === 'list');
   const own = (field.fields ?? []).filter((f) => f.type !== 'list');
-  const nameOf = (item: unknown) => String((item as Item)?.[field.summary ?? ''] ?? '');
+  const nameOf = (item: unknown) => summaryOf(field, item);
   const singular = field.singular ?? t.forms.item;
 
   const edit = (i: number, fresh = false) => {
@@ -845,24 +853,29 @@ export function MenuList({
         {value.map((item, i) => {
           const children = sub ? (((item as Item)?.[sub.name] ?? []) as unknown[]) : [];
           return (
-            <li key={i}>
-              <div className="flex items-center pr-1.5">
-                <button type="button" className={`${depth ? subListItemClass : listItemClass} min-w-0 flex-1`} onClick={() => edit(i)}>
-                  <span className="truncate">{nameOf(item) || t.forms.empty}</span>
-                </button>
-                <IconButton icon={PencilSimple} label={t.forms.editOne(nameOf(item))} onClick={() => edit(i)} />
-                <IconButton icon={ArrowUp} label={t.common.moveUp} disabled={i === 0} onClick={() => move(i, i - 1)} />
-                <IconButton icon={ArrowDown} label={t.common.moveDown} disabled={i === value.length - 1} onClick={() => move(i, i + 1)} />
-                {sub && (
-                  <IconButton
-                    icon={CaretDown}
-                    label={open === i ? t.forms.hideChildrenOf(nameOf(item)) : t.forms.showChildrenOf(nameOf(item))}
-                    aria-expanded={open === i}
-                    className={`[&>svg]:transition-transform [&>svg]:duration-300 ${open === i ? '[&>svg]:rotate-180' : ''}`}
-                    onClick={() => setOpen(open === i ? null : i)}
-                  />
-                )}
-              </div>
+            <ListItem
+              key={i}
+              tone={depth ? 'sub' : undefined}
+              onClick={() => edit(i)}
+              headline={nameOf(item) || t.forms.empty}
+              truncate
+              actions={
+                <span className="flex shrink-0 pr-1.5">
+                  <IconButton icon={PencilSimple} label={t.forms.editOne(nameOf(item))} onClick={() => edit(i)} />
+                  <IconButton icon={ArrowUp} label={t.common.moveUp} disabled={i === 0} onClick={() => move(i, i - 1)} />
+                  <IconButton icon={ArrowDown} label={t.common.moveDown} disabled={i === value.length - 1} onClick={() => move(i, i + 1)} />
+                  {sub && (
+                    <IconButton
+                      icon={CaretDown}
+                      label={open === i ? t.forms.hideChildrenOf(nameOf(item)) : t.forms.showChildrenOf(nameOf(item))}
+                      aria-expanded={open === i}
+                      className={`[&>svg]:transition-transform [&>svg]:duration-(--motion-spatial-duration) [&>svg]:ease-(--motion-ease) ${open === i ? '[&>svg]:rotate-180' : ''}`}
+                      onClick={() => setOpen(open === i ? null : i)}
+                    />
+                  )}
+                </span>
+              }
+            >
               {sub && open === i && (
                 <div className="pb-2">
                   <MenuList
@@ -884,7 +897,7 @@ export function MenuList({
                   </Button>
                 </div>
               )}
-            </li>
+            </ListItem>
           );
         })}
       </ul>

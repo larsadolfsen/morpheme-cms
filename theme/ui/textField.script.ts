@@ -1,7 +1,7 @@
 // What a text field (TextField.tsx) does on the site: its counter follows what is written, a multi-line field that
 // grows is as tall as its text, the clear button empties it and the password button shows or hides the password
 // (updateTextField and pressTextField in textFieldUpdate.ts). Run on every page by the theme's Base.astro
-// (blockScripts, src/site/scripts.ts); without such a field on the page it does nothing.
+// (blockScripts, packages/editor/site/blockScripts.ts); without such a field on the page it does nothing.
 import { pressTextField, updateTextField } from './textFieldUpdate';
 
 export default function textField() {

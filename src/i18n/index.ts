@@ -6,14 +6,16 @@
 // build, checkSite.ts) it is the site's.
 // What is the site's own (src/site/, src/apps/<app>/blocks/: the fields, the start screen's groups, the blocks'
 // names) is written in the site's language, and shown in the editor's by the site's own texts
-// (siteText, src/site/texts.ts). The blocks' drawings and the commits (siteT) stay in the site's
+// (siteText, @site/texts). The blocks' drawings and the commits (siteT) stay in the site's
 // language, so the site looks as it is, and the history is in one language, whoever saved.
-// A language is a folder with the texts by the part of the editor they are in (da-DK/index.ts); a new
-// one is a copy of da-DK with its texts, added to `messages`. TypeScript says when a text is missing.
+// A language is a folder with the texts by the part of the editor they are in (en-US/index.ts). English is the
+// reference: its texts are written first (Messages is its type), and every other language translates them; a new
+// one is a copy of da-DK with its texts translated from en-US, added to `messages`. TypeScript says when a
+// translation is missing.
 import { config } from '@site/config';
 import { appTexts as appFiles, texts } from '@site/texts';
-import { daDK, type Messages } from './da-DK';
-import { enUS } from './en-US';
+import { daDK } from './da-DK';
+import { enUS, type Messages } from './en-US';
 
 export type { Messages };
 
@@ -77,16 +79,23 @@ export const t: Messages = messages[locale];
 /** The texts in the site's language: the commits. */
 export const siteT: Messages = messages[siteLocale];
 
-/** Whether the site's own texts are shown in another language than they are written in. */
-export const translatingSite = locale !== siteLocale;
+/** The language the package's standard parts (defaults/) are written in, whatever the site's language is. */
+export const DEFAULTS_LOCALE: Locale = 'da-DK';
+
+/** Whether the site's own texts (written in the site's language) or the package's standard parts (written in
+ * DEFAULTS_LOCALE) may be shown in another language than they are written in. */
+export const translatingSite = locale !== siteLocale || locale !== DEFAULTS_LOCALE;
 
 /** The site's own texts in the editor's other languages: by language, by the text as it is written. */
 export type Texts = Partial<Record<string, Record<string, string>>>;
 
-/** The texts of each app and its blocks (src/apps/<app>/texts.ts, blocks/<type>/texts.ts), by the app's id
- * or the block's type. */
+/** The texts of each app and its blocks (src/apps/<app>/texts.ts, blocks/<type>/texts.ts), by the app's id or
+ * by "blocks/" and the block's type (an app and its block can have the same name, as MobilePay's). */
 export const appTexts: Record<string, Texts> = Object.fromEntries(
-  Object.entries(appFiles).map(([path, m]) => [path.split('/').at(-2)!, m.texts]),
+  Object.entries(appFiles).map(([path, m]) => {
+    const [folder, name] = path.split('/').slice(-3, -1);
+    return [folder === 'blocks' ? `blocks/${name}` : name!, m.texts];
+  }),
 );
 
 const own: Record<string, string> = translatingSite
@@ -94,7 +103,7 @@ const own: Record<string, string> = translatingSite
   : {};
 
 /** One of the site's own texts (src/site/, src/themes/<theme>/blocks/, src/apps/), written in the site's language, in the editor's:
- * its translation in src/site/texts.ts or in a block's texts.ts, else as it is written. `values` fill in
+ * its translation in @site/texts or in a block's texts.ts, else as it is written. `values` fill in
  * its {name}s, after. */
 export function siteText(text: string, values?: Record<string, string | number>): string {
   const said = own[text] ?? text;

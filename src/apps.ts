@@ -52,6 +52,9 @@ export type AppSettings = {
   fields: Field[];
   /** The settings before any are saved, in the site's language. */
   values: Record<string, unknown>;
+  /** Made-up settings over `values`, which its blocks and kinds are drawn with under "Dele" (exampleData in
+   * examples.ts), where the site's own are never shown (MobilePay's number). */
+  example?: Record<string, unknown>;
 };
 export const defineSettings = (settings: AppSettings) => settings;
 
@@ -111,7 +114,7 @@ export type AppNotifications = {
  * the text of the link to it (`link`, in the site's language; without it, the app's name). */
 export type AppNotification = { type: string; id: string; text: string; error?: boolean; to?: string; link?: string };
 
-/** A list an app brings, as the site's own lists (src/site/collections.ts), with its icon under "Lister". */
+/** A list an app brings, as the site's own lists (packages/editor/defaults/collections.ts), with its icon under "Lister". */
 export type AppList = OwnedList;
 
 export type AppDefinition = {
@@ -153,13 +156,14 @@ export type AppDefinition = {
   releaseNotes?: Record<string, string>;
   /** In the app store: what kind of app it is (a filter in the store) and words it is found by, besides its name and
    * what it does ("nyhedsbrev"). The kind also says where its settings are: under "Indstillinger" on the site's screen
-   * with it (PartScreen.apps in partScreens: "analytics" on "Analytics"), so they are where they are used and not on its
-   * page under "Apps", which only installs it; without such a screen, on a screen of their own (#apps/<id>/indstillinger). */
+   * with it (PartScreen.apps in partScreens: "analytics" on "Analytics"), or on a part of "Virksomheden" with it
+   * (Part.apps in companyParts: "payment" on "Betaling"), so they are where they are used and not on its page under
+   * "Apps", which only installs it; without such a screen, on a screen of their own (#apps/<id>/indstillinger). */
   category?: AppCategory;
   keywords?: string[];
   /** The categories of cookies (lib/cookieCategories.mjs) of what it loads that sets cookies (a tag), with these
    * settings (its saved ones over settings.ts); none when it loads nothing that does. The cookie banner asks about each
-   * of them (src/site/consent.ts), and it starts only after a yes to one of them (afterConsent in
+   * of them (packages/editor/site/consent.ts), and it starts only after a yes to one of them (afterConsent in
    * src/scripts/tracking.ts). */
   cookies?: (values: Record<string, unknown>) => ConsentCategory[];
   /** What it shows on its page under its settings while it is installed (Cookiescanner's last scan), drawn with the

@@ -12,7 +12,7 @@ import { asWritten, placeOf, standardPageAt } from './site';
 import { ConflictError, type Change, type RepoFile } from './github';
 import { addressOf, moveRedirects, REDIRECTS, retarget } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES, setRedirect } from './redirects';
-import { TAB_ROUTES } from './Redirects';
+import { TAB_ROUTES } from './Redirects.tsx';
 import { choose } from './ask';
 import { readFields, splitFrontmatter, writeFields } from './frontmatter.mjs';
 import MarkdownEditor, { type MarkdownHandle } from './MarkdownEditor';
@@ -43,7 +43,7 @@ import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
 import { usePagePreview } from './pagePreview';
 import { savedOn, VersionList, VersionNotice, WithVersions, type ShownVersion } from './Versions';
 import type { Env } from './App';
-import { SAVED } from './deploy';
+import { kindAndName, savedText } from './deploy';
 import { siteT, siteText, t } from './i18n';
 import { firstPicture, SEO_FIELDS, seoInputOf, seoRating, SHARE_FIELDS, sharedAs, type SeoCheck } from './seo';
 
@@ -170,8 +170,8 @@ function Form({
   // "Blokindstillinger", nor those of an app not installed (those already in the text stay, and are
   // checked by the template alone when saved).
   const off = useMemo(() => notOffered(env.files), [env.files]);
-  // A page chosen as a standard page ("Indstillinger" › "Udseende" › "Standardsider", src/site/standardPages.ts) has its
-  // rules too (the blog page has "Blog"). The front page is written as it looks: the heading, text and picture of a
+  // A page chosen as a standard page ("Indstillinger" › "Udseende" › "Standardsider", packages/editor/defaults/standardPages.ts) has its
+  // rules too (the blog page has "Blogindlæg"). The front page is written as it looks: the heading, text and picture of a
   // block as the text above its card (its lead), and its top ("Hero") first.
   const paths = standardPaths(env.files.find((f) => f.path === config.standardPages)?.text);
   const standard = url ? standardPages.find((p) => paths[p.key] === url) : undefined;
@@ -532,10 +532,18 @@ function Form({
         : version
           ? siteT.history.commit.restoreVersion(`${asWritten(collection).singular} ${what}`, savedOn(version))
           : siteT.forms.commit.editOne(asWritten(collection).singular, what);
+    const entry = kindAndName(collection.singular, String(values.title ?? '').trim() || name);
+    const change = moved
+      ? t.app.changes.moved(entry, address)
+      : isNew
+        ? t.app.changes.created(entry)
+        : version
+          ? t.app.changes.restored(entry)
+          : t.app.changes.edited(entry);
     setSaving(true);
     notify({ text: t.common.saving });
     try {
-      const oids = await env.commit(message, changes);
+      const oids = await env.commit(message, changes, change);
       const saved = { path, oid: oids[path], text: next };
       pictures.markSaved(used);
       setBase(saved);
@@ -552,7 +560,7 @@ function Form({
         ],
         removed,
       });
-      notify({ text: SAVED, kind: 'saved' });
+      notify({ text: savedText(change), kind: 'saved' });
       // The version is now the one saved: the form as usual again.
       if (version) onVersion(null);
       // A new address: the owner is told, in a dialog that stays until it is closed, that the old one now

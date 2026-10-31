@@ -9,7 +9,7 @@ import Screen from './Screen';
 import { EmptyNote, FormField, GroupTitle, ProblemNote, SegmentedButton, SupportingText, SwitchRow } from './ui';
 import { ConflictError, type RepoFile } from './github';
 import type { Env } from './App';
-import { SAVED } from './deploy';
+import { savedText } from './deploy';
 import { backFrom } from './site';
 import {
   bucketOf,
@@ -74,17 +74,17 @@ export default function Advanced({ env }: { env: Env }) {
     ...(jurisdiction && !(JURISDICTIONS as readonly string[]).includes(jurisdiction) ? [jurisdiction] : []),
   ];
 
-  async function save(text: string, message: string): Promise<boolean> {
+  async function save(text: string, message: string, change: string): Promise<boolean> {
     if (!file) return false;
     const path = file.path;
     setSaving(true);
     env.notify({ text: t.common.saving });
     try {
-      const oids = await env.commit(message, [{ path, content: text, oid: file.oid }]);
+      const oids = await env.commit(message, [{ path, content: text, oid: file.oid }], change);
       const saved = { path, oid: oids[path], text };
       setFile(saved);
       env.onSaved(saved);
-      env.notify({ text: SAVED, kind: 'saved' });
+      env.notify({ text: savedText(change), kind: 'saved' });
       return true;
     } catch (e) {
       env.notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
@@ -96,7 +96,11 @@ export default function Advanced({ env }: { env: Env }) {
 
   async function turn(next: boolean) {
     if (!file || on === null || (next && !ready)) return;
-    await save(withR2Caching(file.text, next), siteT.advanced.r2CachingCommit(next));
+    await save(
+      withR2Caching(file.text, next),
+      siteT.advanced.r2CachingCommit(next),
+      t.app.changes[next ? 'turnedOn' : 'turnedOff'](t.app.changes.r2Caching),
+    );
   }
 
   // Another place names another bucket, so it is asked about again.
@@ -104,7 +108,7 @@ export default function Advanced({ env }: { env: Env }) {
     if (!file || on !== false) return;
     const kept = next === AUTO ? null : next;
     const text = withJurisdiction(file.text, kept);
-    if (await save(text, siteT.advanced.placeCommit(kept && jurisdictionName(kept)))) ask(text);
+    if (await save(text, siteT.advanced.placeCommit(kept && jurisdictionName(kept)), t.app.changes.edited(t.app.changes.place))) ask(text);
   }
 
   return (

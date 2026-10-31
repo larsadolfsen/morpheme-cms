@@ -1,6 +1,6 @@
-import type { Messages } from '../da-DK';
-
-export const common: Messages['common'] = {
+// What many parts of the editor say: the buttons, the editor's own parts on the start screen, the
+// messages after a save, and dates and times.
+export const common = {
   save: 'Save',
   saveChanges: 'Save changes',
   saving: 'Saving…',
@@ -16,30 +16,40 @@ export const common: Messages['common'] = {
   remove: 'Remove',
   delete: 'Delete',
   search: 'Search',
-  searchIn: (what) => `Search ${what.toLowerCase()}`,
+  /** The label of a search in a list: "Søg i sider". */
+  searchIn: (what: string) => `Search ${what.toLowerCase()}`,
   moveUp: 'Move up',
   moveDown: 'Move down',
   notInUse: 'Not in use',
-  noMatch: 'No results.',
-  notSaved: (error) => `Could not save: ${error}`,
-  backTo: (to) => `Back to ${to}`,
-  pickColor: (name) => `${name}: pick a color`,
-  notAColor: 'Write the color as # and six characters, like #a3345a.',
+  noMatch: 'No results',
+  notSaved: (error: string) => `Couldn’t save: ${error}`,
+  backTo: (to: string) => `Back to ${to}`,
+  /** The swatch of a colour field (ColorField), for screen readers. */
+  pickColor: (name: string) => `${name}: pick a color`,
+  /** The lock on the source color in the generator (ColorTiles), a toggle: on while it is locked. */
+  lockColor: (name: string) => `Lock ${name.toLowerCase()}`,
+  notAColor: 'Write the color as # and 6 characters, for example, #a3345a.',
+  /** The country code before a phone number (PhoneField): its button, for screen readers, and its sheet. */
   phoneCode: {
-    label: (country, code) => `Country code: ${country}, ${code}. Pick another country`,
+    label: (country: string, code: string) => `Country code: ${country}, ${code}. Pick another country`,
     title: 'Pick a country',
     search: 'Search countries',
   },
+  /** The sheet a colour is picked in (ColorField). */
   colorSheet: {
+    /** The field with the shades, for screen readers, and where it is in it. */
     shade: 'Saturation and brightness',
-    shadeValue: (saturation, brightness) => `Saturation ${saturation}, brightness ${brightness}`,
+    shadeValue: (saturation: string, brightness: string) => `Saturation ${saturation}, brightness ${brightness}`,
     hue: 'Hue',
     before: 'Before',
     after: 'New',
     code: 'Color code',
     swatches: 'Colors on the website',
     use: 'Use color',
+    /** Takes the color and locks it (the source color in the generator, ColorTiles). */
+    useAndLock: 'Use and lock',
   },
+  /** The theme's date picker (DatePicker in ui.tsx), in the editor's language: its fixed texts. */
   datePicker: {
     select: 'Select date',
     selectRange: 'Select dates',
@@ -50,7 +60,7 @@ export const common: Messages['common'] = {
     end: 'End date',
     format: 'mm/dd/yyyy',
     wrongFormat: 'Enter the date as mm/dd/yyyy.',
-    notAllowed: 'The date cannot be picked.',
+    notAllowed: 'The date can’t be picked.',
     endBeforeStart: 'The end date is before the start date.',
     previousMonth: 'Previous month',
     nextMonth: 'Next month',
@@ -63,6 +73,8 @@ export const common: Messages['common'] = {
     cancel: 'Cancel',
     ok: 'OK',
   },
+  /** The theme's time picker (TimePicker in ui.tsx), in the editor's language: its fixed texts, and the name of the time
+   * beside a date (a date and a time). */
   timePicker: {
     time: 'Time',
     select: 'Select time',
@@ -79,38 +91,54 @@ export const common: Messages['common'] = {
     cancel: 'Cancel',
     ok: 'OK',
   },
+  /** A carousel (Carousel), and each of its items, for screen readers. */
   carousel: {
     name: 'carousel',
     item: 'item',
-    of: (n, all) => `${n} of ${all}`,
+    of: (n: number, all: number) => `${n} of ${all}`,
   },
-  check: { ok: 'Fine', notOk: 'Could be better', score: (ok, all) => `${ok} of ${all} fine` },
+  /** A check in a list of checks (CheckList), for screen readers before its text: fine or not. */
+  check: { ok: 'Fine', notOk: 'Could be better', score: (ok: number, all: number) => `${ok} of ${all} fine` },
+  /** The editor's own parts (not the site's collections). */
   parts: {
     company: 'Business',
     header: 'Header',
     lists: 'Lists',
     blocks: 'Default blocks',
     media: 'Files',
+    /** How the site looks (#udseende, Library.tsx Theme): the theme, the colours, the logo and icon, and the site's own
+     * parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider"). */
     appearance: 'Appearance',
+    /** The themes installed (#udseende/temaer, Library.tsx Themes), the first row under "Udseende". */
     themes: 'Themes',
+    /** The icon packs installed, to choose the one the site draws its icons with (#udseende/ikonpakker, IconPacks). */
     iconPacks: 'Icon packs',
+    /** How the site moves, Material 3's motion schemes (#udseende/bevaegelse, MotionSchemes in Library.tsx). */
+    motion: 'Motion',
     colors: 'Colors',
     brand: 'Logo and icon',
     blockSettings: 'Block settings',
+    /** The apps that come with the site (AppList.tsx, #apps). */
     apps: 'Apps',
+    /** The parts the editor and the site are built of (#udseende/dele: Parts.tsx, BlockParts.tsx). */
     editorParts: 'Parts',
     /** Under Indstillinger: the redirects and the site's own parts (#seo, Library.tsx Seo). */
     seo: 'Search engine optimization',
     redirects: 'Redirects',
     account: 'Account',
+    /** The settings of the whole site (#indstillinger, Library.tsx Settings), opened by the gear in the top bar. */
     settings: 'Settings',
+    /** Under Indstillinger: R2 caching (#avanceret, Advanced.tsx). */
     advanced: 'Advanced',
-    licenses: 'Licences',
+    /** Under Indstillinger: the licences of what the site and the editor are made with (#licenser, Licenses.tsx). */
+    licenses: 'Licenses',
   },
-  saved: 'Saved. You will be told when the website has been updated.',
-  deleted: 'Deleted. You will be told when the website has been updated.',
+  /** Right after a save, with what it changed (savedText in deploy.ts); the site is rebuilt in 1-2 minutes. */
+  saved: (change: string) => `${change}. You’ll get a message when the website is updated.`,
+  /** "i dag kl. 13.42", "i går kl. 9.05", "1. okt. kl. 13.42" (when.ts). */
   today: 'today',
   yesterday: 'yesterday',
-  at: (day, time) => `${day} at ${time}`,
+  at: (day: string, time: string) => `${day} at ${time}`,
+  /** A month heading without a date (Sheet.tsx). */
   noDate: 'No date',
 };

@@ -1,7 +1,7 @@
-// "Dele" (#udseende/dele): the editor's parts (Parts.tsx), what each is for and the texts in the examples, and the standard
-// blocks and the apps' (BlockParts.tsx), all with the made-up site of examples.ts.
-export const parts = {
-  intro: (file: string) =>
+import type { Messages } from '../en-US';
+
+export const parts: Messages['parts'] = {
+  intro: (file) =>
     `De dele, kun editoren har, med det udseende de har overalt. Delene står i ${file}; ændres en del dér, ændres den alle steder. Knapperne, felterne, listerne, arkene og de andre dele, temaet også har, er temaets og står under Tema. Lys eller mørk vælges under Konto.`,
   use: {
     emptyNote: 'Det, en liste eller en skærm siger, når der intet er i den, eller mens noget hentes: gråt, i midten.',
@@ -27,7 +27,7 @@ export const parts = {
       'Søgningen med knapperne ved siden af, altid i samme rækkefølge: sortér, filter, dato, Google og menu eller liste. Sortér er grå, mens siderne vises som menuen.',
     choiceTile: 'Et af mange ikoner at trykke på, i et gitter.',
     group:
-      'Rækker i en ramme under en lille overskrift: startskærmen og listerne. Ikonet er ens overalt: gråt, og i accentfarven for den åbne del i sidebjælken. Foran navnet kan der i stedet stå et lille billede. Til højre står evt. et antal. En række kan også gøre noget (i accentfarven), slette (i midten) eller kun vises (uden farve under musen, evt. grå).',
+      'Rækker i en ramme under en lille overskrift: startskærmen og listerne. Ikonet er ens overalt: gråt, og i accentfarven for den åbne del i sidebjælken. Foran navnet kan der i stedet stå et lille billede eller en prøve på en af temaets tokens. Til højre står evt. et antal. En række kan også gøre noget (i accentfarven), slette (i midten) eller kun vises (uden farve under musen, evt. grå).',
     checkList:
       'Ting, der er tjekket: en score fra 0 til 100 i en ring, en rød trekant ved det, der kan forbedres (som folder sig ud med, hvordan), og en grøn prik ved det, der er i orden.',
     scoreRing:
@@ -39,10 +39,13 @@ export const parts = {
     preview:
       'Forhåndsvisningen af en blok i en stiplet ramme. Den kan bruges som på siden (fx foldes ud), men et link i den fører ingen steder hen.',
     colorSwatches: 'Et sæt farver i små rundinger side om side (fx fire af hjemmesidens farver).',
+    colorTiles:
+      'Nogle farver side om side, hver på en flade med sit navn, sin farvekode, en blyant, der åbner farvearket, og på den første en lås (fx generatorens tre grundfarver).',
+    colorWheel: 'Et farvehjul med farverne som prikker: den store trækkes, de andre følger med, og en låst har en lås.',
     choiceRow:
       'Et af flere valg på en skærm for sig, hvert i en række med det, det giver (fx nogle af en ikonpakkes ikoner), det valgte i accentfarven med et flueben.',
     colorsPreview:
-      'En lille side i et sæt af hjemmesidens farver: overskrift, tekst, link, flade, boks og knap, så man ser, om de kan læses sammen.',
+      'En lille side i et sæt af hjemmesidens farver: overskrift, tekst, link, flade, boks, den sekundære og tertiære farve og knap, så man ser, om de kan læses sammen.',
     fullScreenSheet:
       'Arket med en hel side (forhåndsvisningen), så højt som skærmen. Siden står i en ramme, så bred som en telefon eller en computer, og intet i den kører.',
     foldSection:
@@ -67,7 +70,6 @@ export const parts = {
     },
     none: 'Ingen dele passer til søgningen.',
   },
-  /** The texts in the examples. */
   sample: {
     domain: 'eksempel.dk',
     status: 'Status',
@@ -99,7 +101,6 @@ export const parts = {
     newest: 'Nyeste først',
     oldest: 'Ældste først',
     aSheet: 'Et ark',
-    /** NewChoice: the kinds of a new pop-up. */
     newPopup: 'Nyt pop op-vindue',
     standardKind: 'Standard',
     standardKindHint: 'Med billede, tekst og en knap.',
@@ -108,7 +109,7 @@ export const parts = {
     openPage: 'Åbn en side',
     aPage: 'En side',
     pageText: 'En hel side i en ramme, så bred som en telefon.',
-    option: (letter: string) => `Valg ${letter}`,
+    option: (letter) => `Valg ${letter}`,
     foldOut: 'Tryk for at folde ud',
     foldedText: 'Teksten, der folder sig ud. Et link her fører ingen steder hen:',
     link: 'link',
@@ -116,24 +117,23 @@ export const parts = {
     noticeText: 'Sådan så den ud dengang.',
     noticeAction: 'Vis den nuværende version',
     cookieHint: 'Spørger de besøgende om lov til cookies.',
+    corners: 'Hjørner',
     showOnFront: 'Vis på forsiden',
     contact: 'Kontakt',
     name: 'Navn',
     fromTitle: '/laves-af-titlen/',
-    question: (n: number) => `Spørgsmål ${n}`,
+    question: (n) => `Spørgsmål ${n}`,
     answer: 'Svar',
     newTag: 'Opret et tag',
     editColors: 'Rediger farverne',
-    subpage: (n: number) => `Underside ${n}`,
+    subpage: (n) => `Underside ${n}`,
     openFields: 'Åbn et ark med felter',
     withFields: 'Et ark med felter',
     rows: 'Rækker',
     versionNow: 'Den nuværende version',
   },
-  /** The form fields (fields.tsx), one of each type with the settings it can have: what each type is
-   * for, and the fields and values in the examples. */
   fields: {
-    intro: (file: string) =>
+    intro: (file) =>
       `Felterne i formularerne og indstillingerne, én af hver type med de valg, den kan have. Felterne står i ${file} og er bygget af delene ovenfor. Intet her gemmes.`,
     use: {
       string:
@@ -163,9 +163,9 @@ export const parts = {
     underNameHint: 'Hvis feltet er tomt, bruges sitets navn.',
     email: 'E-mail',
     emailForm: 'Skriv en hel e-mailadresse',
-    cvr: 'CVR-nummer',
     keyword: 'Primært søgeord',
     keywords: 'Sekundære søgeord',
+    cvr: 'CVR-nummer',
     linkText: 'Linktekst',
     editColors: 'Rediger farverne',
     descriptionHint: 'Højst ca. 160 tegn.',
@@ -197,7 +197,6 @@ export const parts = {
     pages: 'Sider',
     aPage: 'side',
     aSection: 'sektion',
-    /** What the examples are filled in with. */
     values: {
       email: 'kontakt@eksempel.dk',
       heading: 'En overskrift',
@@ -206,7 +205,6 @@ export const parts = {
       answer: 'En samtale varer 60 minutter.',
     },
   },
-  /** The made-up site the parts and blocks are shown with (examples.ts), never the site's own. */
   examples: {
     pages: ['Første side', 'Anden side', 'Tredje side'],
     tags: ['Første tag', 'Andet tag'],
@@ -235,22 +233,114 @@ export const parts = {
       street: 'Vejnavn 1',
       city: '1234 Byen',
     },
-    payment: { mobilePay: '12 34 56', bank: 'Banken', reg: '1234', account: '1234567890' },
+    payment: { bank: 'Banken', reg: '1234', account: '1234567890' },
     booking: { heading: 'Book en tid', text: 'En kort tekst om, hvordan man booker.' },
     labels: { book: 'Book en tid', call: 'Ring' },
-    /** What a kind of entry an app adds (a pop-up) is drawn with. */
     entry: { name: 'Et eksempel', heading: 'En overskrift', text: 'En kort tekst, der fortæller lidt mere.' },
   },
-  /** "Dele" (#udseende/dele) and its screens: the editor's parts, the standard blocks as the theme shows them, and the apps'. */
+  tokens: {
+    intro: 'Temaets værdier for hjørner, skygger, typografi og farver, som temaet sætter dem.',
+    groups: { shape: 'Hjørner', elevation: 'Skygger', type: 'Typografi', color: 'Farver' },
+    shape: {
+      radius: 'Paneler',
+      radiusSmall: 'Det mindre i et panel',
+      blockRadius: 'Blokke',
+      blockRadiusSmall: 'Det mindre i en blok',
+      blockControlRadius: 'Knapper og felter i blokke',
+      pictureRadius: 'Store billeder',
+      postPictureRadius: 'Billeder i lister',
+      logoTileRadius: 'Logoets felt',
+    },
+    parts: {
+      button: 'Knapper',
+      chip: 'Chips',
+      textField: 'Felter',
+      card: 'Kort',
+      menu: 'Menuer',
+      dialog: 'Dialoger',
+      bottomSheet: 'Ark nedefra',
+      sideSheet: 'Sideark',
+      fab: 'Svævende knapper',
+      snackbar: 'Beskeder',
+      searchBar: 'Søgning',
+    },
+    steps: {
+      none: 'Ingen',
+      extraSmall: 'Ekstra lille',
+      small: 'Lille',
+      medium: 'Mellem',
+      large: 'Stor',
+      largeIncreased: 'Stor, øget',
+      extraLarge: 'Ekstra stor',
+      extraLargeIncreased: 'Ekstra stor, øget',
+      extraExtraLarge: 'Dobbelt ekstra stor',
+      full: 'Fuld',
+    },
+    step: (step, size) => `${step} (${size})`,
+    elevation: {
+      level: (n) => `Niveau ${n}`,
+      unused: 'Ikke brugt',
+      own: 'Egen skygge',
+      shadow: 'Paneler',
+      blockShadow: 'Blokke',
+    },
+    partShadows: {
+      buttonFilled: 'Fyldte knapper',
+      buttonTonal: 'Tonede knapper',
+      buttonElevated: 'Hævede knapper',
+      chipElevated: 'Hævede chips',
+      cardFilled: 'Fyldte kort',
+      cardOutlined: 'Kort med ramme',
+      cardElevated: 'Hævede kort',
+      switchHandle: 'Kontakternes greb',
+      sliderHandle: 'Skydernes greb',
+      menu: 'Menuer',
+      tooltipRich: 'Værktøjstip med overskrift',
+      dialog: 'Dialoger',
+      bottomSheet: 'Ark nedefra',
+      bottomSheetLarge: 'Ark nedefra som dialog',
+      sideSheet: 'Sideark over siden',
+      navigationDrawer: 'Navigationsskuffe over siden',
+      navigationBar: 'Navigationslinje',
+      navigationRailModal: 'Navigationsskinne over siden',
+      topAppBarStuck: 'Øverste bjælke (når siden ruller)',
+      fab: 'Svævende knap',
+      toolbarFloating: 'Svævende værktøjslinje',
+      searchBar: 'Søgning',
+      searchView: 'Søgevisning',
+      snackbar: 'Beskeder',
+      buttonToggleSelected: 'Valgte skifteknapper',
+      chipSelected: 'Valgte filterchips',
+      chip: 'Chips',
+      hovered: (part) => `${part} (under musen)`,
+      dragged: (part) => `${part} (mens de trækkes)`,
+    },
+    type: {
+      typeface: 'Skrifttype',
+      roles: {
+        display: { name: 'Display', use: 'Overskrift i Hero' },
+        headline: { name: 'Overskrift', use: 'Overskrifter i teksten' },
+        title: { name: 'Titel', use: 'Underoverskrifter i teksten' },
+        body: { name: 'Brødtekst', use: 'Teksten' },
+        label: { name: 'Etiket', use: 'Knapper' },
+      },
+      measures: (use, size, lineHeight, weight) => `${use}: ${size}, linjehøjde ${lineHeight}, vægt ${weight}`,
+    },
+    value: (token, value) => `${token}: ${value}`,
+    from: (token, value, from) => `${token}: ${value} (som ${from})`,
+  },
   screens: {
     editor: 'Editor',
-    theme: 'Tema',
-    apps: 'Apps',
-    themeIntro: 'Temaets knapper og standardblokkene, som temaet viser dem, i alle deres udgaver. Temaet giver dem deres udseende.',
-    appsIntro: 'Det, hver app tilføjer sitet: dens blokke og det, den kan vise, som temaet giver udseendet.',
+    components: 'UI-komponenter',
+    blocks: 'Blokke',
+    values: 'Værdier',
+    componentsIntro: 'Temaets knapper, felter, lister og andre dele i alle deres slags og tilstande. Temaet giver dem deres udseende.',
+    blocksIntro: 'Standardblokkene og appenes blokke i alle deres udgaver. Temaet giver dem deres udseende.',
+    /** A list of kinds ("Promovering"), by the list's name for one. */
+    kindsIntro: (one: string) => `Hver slags ${one}, også appenes, i alle sine tilstande. Temaet giver dem deres udseende.`,
     search: 'Søg i delene',
     none: 'Ingen dele passer til søgningen.',
-    /** The theme's UI components (packages/editor/theme/ui/), first under "Tema". */
+    /** The theme's buttons (packages/editor/theme/ui/), first under "UI-komponenter". */
     ui: 'Knapper',
     button:
       'Fyldt (det, man skal gøre), tonet, hævet, med ramme og kun tekst, i fem størrelser, rund eller firkantet, slået fra og til, med ikon og grå, når den ikke kan bruges.',
@@ -263,7 +353,7 @@ export const parts = {
     iconKinds: { standard: 'Standard', filled: 'Fyldt', tonal: 'Tonet', outlined: 'Med ramme' },
     withIcon: 'Med ikon',
     disabled: 'Kan ikke bruges',
-    /** The theme's form controls (TextField, Checkbox), under "Tema". */
+    /** The theme's form controls (TextField, Checkbox), under "UI-komponenter". */
     fields: 'Felter',
     textField:
       'Felt at skrive i med ramme eller fyldt: tomt, udfyldt, med en linje under, med en fejl, kun med en pladsholder og grå, når det ikke kan bruges, og med ikon, knap til at rydde, tekst før og efter, fejlens ikon, adgangskode, tæller, flere linjer og kun til at læse.',
@@ -272,7 +362,7 @@ export const parts = {
     fieldKinds: { outlined: 'Med ramme', filled: 'Fyldt' },
     fieldLabel: 'E-mail',
     fieldValue: 'navn@eksempel.dk',
-    fieldSupporting: 'Vi skriver kun, når der er nyt.',
+    fieldSupporting: 'Du får kun en mail, når der er nyt.',
     fieldError: 'Skriv en e-mailadresse.',
     fieldPlaceholder: 'Din e-mail',
     fieldSearch: 'Søg på siden',
@@ -295,16 +385,18 @@ export const parts = {
     checkboxSupporting: 'Hvordan siden bliver brugt.',
     checkboxParent: 'Alle cookies',
     checkboxError: 'Sæt flueben for at fortsætte.',
-    /** The theme's chips (Chip), a group of their own under "Tema". */
+    /** The theme's chips (Chip), a group of their own under "UI-komponenter". */
     chips: 'Chips',
     chip: 'Hjælp (et link til noget, der hører til), filter (et af få valg, det valgte markeret), input og forslag: hævet (på et billede), valgt, med ikon eller billede, med en knap, der fjerner den, mens den trækkes, kun vist og grå, når den ikke kan bruges.',
+    chipSet: 'Chips side om side i en gruppe: på så mange linjer, de behøver, eller på én linje, der rulles til siden.',
+    chipSetLayouts: { wrap: 'Flere linjer', scroll: 'Rul til siden' },
     chipKinds: { assist: 'Hjælp', filter: 'Filter', input: 'Input', suggestion: 'Forslag' },
     selected: 'Valgt',
     plain: 'Kun vist',
     elevated: 'Hævet',
     withAvatar: 'Med billede',
     dragged: 'Trækkes',
-    remove: (label: string) => `Fjern ${label}`,
+    remove: (label) => `Fjern ${label}`,
     /** The theme's dialog, bottom sheet and carousel (packages/editor/theme/ui/), and what is in the examples. */
     containment: {
       title: 'Dialoger, ark og karrusel',
@@ -335,8 +427,8 @@ export const parts = {
       save: 'Gem',
       page: 'Siden bag arket kan stadig bruges.',
       dragHandle: 'Fold arket ud eller sammen',
-      picture: (n: number) => `Billede ${n}`,
-      showPicture: (n: number) => `Vis billede ${n}`,
+      picture: (n) => `Billede ${n}`,
+      showPicture: (n) => `Vis billede ${n}`,
       heading: 'Overskrift',
       text: 'En kort tekst om det, boksen handler om.',
       sheetText: 'En kort tekst under overskriften',
@@ -344,8 +436,8 @@ export const parts = {
       close: 'Luk',
       roleDescription: 'karrusel',
       item: 'kort',
-      card: (n: number) => `Kort ${n}`,
-      show: (n: number) => `Vis kort ${n}`,
+      card: (n) => `Kort ${n}`,
+      show: (n) => `Vis kort ${n}`,
     },
     /** The theme's navigation parts (NavigationParts.tsx): the header's. */
     navigation: {
@@ -488,14 +580,14 @@ export const parts = {
       many: 'Mere end 999',
       onIconButton: 'På en ikonknap',
       new: 'Nyt',
-      count: (n: number) => `${n} nye`,
+      count: (n) => `${n} nye`,
       messages: 'Beskeder',
       home: 'Forside',
       alone: 'Alene',
       contained: 'I beholder',
       loading: 'Henter …',
       uploading: 'Uploader',
-      percent: (v: number) => `${Math.round(v * 100)} %`,
+      percent: (v) => `${Math.round(v * 100)} %`,
       indeterminate: 'Uden værdi',
       shapes: { flat: 'Flad', wavy: 'Bølget' },
       thick: 'Tyk',
@@ -512,7 +604,7 @@ export const parts = {
       readMore: 'Læs mere',
     },
     /** The rest of the theme's navigation parts (NavigationBar.tsx, NavigationRail.tsx, Search.tsx, Toolbar.tsx in
-     * packages/editor/theme/ui/), under "Tema". */
+     * packages/editor/theme/ui/), under "UI-komponenter". */
     navigationRest: {
       title: 'Bjælker og søgning',
       navigationBar:
@@ -547,12 +639,11 @@ export const parts = {
       book: 'Book en tid',
       call: 'Ring',
     },
-    noApps: 'Der er ingen apps.',
-    /** The theme's cards and lists (Card.tsx, List.tsx in packages/editor/theme/ui/), under "Tema". */
+    /** The theme's cards and lists (Card.tsx, List.tsx in packages/editor/theme/ui/), under "UI-komponenter". */
     cardsAndLists: {
       title: 'Kort og lister',
-      card: 'En flade med det, der hører sammen: med ramme, hævet eller fyldt. Hele kortet kan være et link.',
-      list: 'Punkter under hinanden på én, to eller tre linjer, med ikon, avatar, billede, video, valg, tekst og pil, med eller uden streger imellem, eller hvert på sin egen flade.',
+      card: 'En flade med det, der hører sammen: med ramme, hævet eller fyldt, også mens det trækkes. Hele kortet kan være et link.',
+      list: 'Punkter under hinanden på én, to eller tre linjer, med ikon, avatar, billede, video, valg, tekst og pil, med eller uden streger imellem, eller hvert på sin egen flade. Et punkt kan gøre noget, når der trykkes, have handlinger ved siden af og have sin tekst side om side på en bred skærm.',
       kinds: { elevated: 'Hævet', filled: 'Fyldt', outlined: 'Med ramme' },
       link: 'Med ramme, et link',
       text: 'Det, der står på kortet.',
@@ -573,6 +664,12 @@ export const parts = {
         choices: ['Afkrydsningsfelt', 'Valgknap', 'Kontakt', 'Afkrydsningsfelt efter teksten'],
         selected: 'Valgt',
         disabled: 'Slået fra',
+        more: 'Tryk, med handlinger og i kolonner',
+        tapped: 'Gør noget, når der trykkes',
+        withActions: 'Med en handling ved siden af',
+        remove: 'Fjern',
+        address: '/en-adresse/',
+        sendsTo: 'Ved siden af på en bred skærm',
       },
     },
     /** The theme's date and time pickers (PickerParts.tsx; DatePicker.tsx, TimePicker.tsx in packages/editor/theme/ui/). */

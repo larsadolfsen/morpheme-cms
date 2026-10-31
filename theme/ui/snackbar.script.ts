@@ -2,7 +2,7 @@
 // of a page, layouts/PageLayout.astro) is shown at the bottom when the page opens, with the editor's snackbar()
 // (@interstellarcms/cms/lib/snackbar.ts: where it stands, how long it stays, `data-ms` on the template when longer, and how it
 // is swiped or tapped away). Its close button and Escape close it. Run on every page by the theme's Base.astro
-// (blockScripts, src/site/scripts.ts); without one on the page it does nothing.
+// (blockScripts, packages/editor/site/blockScripts.ts); without one on the page it does nothing.
 import { snackbar } from '@interstellarcms/cms/lib/snackbar';
 
 export default function snackbars() {

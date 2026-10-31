@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Responsive image variants. Runs automatically before `npm run build` and `npm run dev`.
 //
-// For every image in public/images/uploads/ (migrated from WordPress, in their old year/month
+// For every image in public/images/uploads/ (imported, in their year/month
 // folders, and uploaded in the editor at /editor/) it writes smaller webp copies to public/images/_r/
 // (160, 480, 800 and 1200 px wide, only sizes smaller than the original) and records the
 // original dimensions in src/data/image-manifest.json. Templates (packages/editor/theme/components/Img.astro)

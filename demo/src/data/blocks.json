@@ -1,0 +1,25 @@
+{
+  "testimonials": {
+    "more": "Read more",
+    "less": "Show less"
+  },
+  "cards": {
+    "more": "Learn more"
+  },
+  "buttons": {
+    "items": [
+      {
+        "label": "",
+        "to": "booking",
+        "kind": "filled",
+        "icon": "arrow-right"
+      },
+      {
+        "label": "",
+        "to": "phone",
+        "kind": "outlined",
+        "icon": "phone"
+      }
+    ]
+  }
+}

@@ -1,25 +1,23 @@
-// "Samtykker" under "Privatliv" (Consents.tsx, consents.ts): the visitors' answers in the cookie banner.
-export const consents = {
+// "Consents" under "Privacy" (Consents.tsx, consents.ts), as in Danish (../da-DK/consents.ts).
+import type { Messages } from '../en-US';
+
+export const consents: Messages['consents'] = {
   title: 'Samtykker',
   intro: 'De besøgendes svar i cookiebanneret, med det samtykke-id, banneret viser dem. De slettes efter 2 år.',
-  count: (n: number) => `${n} svar`,
+  count: (n) => `${n} svar`,
   searchLabel: 'Søg efter samtykke-id',
   sorts: { newest: 'Nyeste først', oldest: 'Ældste først' },
   download: 'Hent som CSV',
   loading: 'Henter samtykkerne',
-  notLoaded: (error: string) => `Kunne ikke hente samtykkerne: ${error}`,
-  /** Without the Worker's storage (a preview of a branch, or the site on another host). */
+  notLoaded: (error) => `Kunne ikke hente samtykkerne: ${error}`,
   notKept: 'Samtykkerne gemmes kun på det udgivne site.',
-  /** None, or none matching the search. */
-  none: (query: string) => (query ? `Intet samtykke-id begynder med "${query}".` : 'Ingen har svaret endnu.'),
-  /** Under the id in a row: the yes and no as one line ("Ja: Statistik · Nej: Marketing"). */
+  none: (query) => (query ? `Intet samtykke-id begynder med "${query}".` : 'Ingen har svaret endnu.'),
   yes: 'Ja',
   no: 'Nej',
-  /** In the sheet of one answer. */
-  answered: (when: string) => `Svarede ${when}.`,
-  version: (commit: string) => `Cookiebanneret fra version ${commit}.`,
+  answered: (when) => `Svarede ${when}.`,
+  version: (commit) => `Cookiebanneret fra version ${commit}.`,
   deleteAll: 'Slet svarene med dette id',
-  deleteAsk: (id: string) => `Slet alle svar med samtykke-id ${id}? Det kan ikke fortrydes.`,
+  deleteAsk: (id) => `Slet alle svar med samtykke-id ${id}? Det kan ikke fortrydes.`,
   deleted: 'Svarene er slettet',
-  notDeleted: (error: string) => `Kunne ikke slette svarene: ${error}`,
+  notDeleted: (error) => `Kunne ikke slette svarene: ${error}`,
 };

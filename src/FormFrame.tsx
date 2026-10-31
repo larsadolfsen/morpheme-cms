@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowSquareOut, Binoculars, Trash } from '@phosphor-icons/react';
 import Screen, { type Back } from './Screen';
-import { Button, deleteListItemClass, Group, IconButton, IconLink, LoadingIndicator, type TabChoice } from './ui';
+import { Button, Group, IconButton, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
 import { hasUnsaved, setUnsaved } from './deploy';
 import { askToNotify } from './notifications';
 import { choose } from './ask';
@@ -192,12 +192,17 @@ export default function FormFrame<T extends string>({
       {onDelete && (
         <div className="mt-12">
           <Group>
-            <li>
-              <button type="button" className={deleteListItemClass} disabled={saving} onClick={onDelete}>
-                <Trash size={18} />
-                {deleting ? <LoadingIndicator>{t.app.busy.deleting}</LoadingIndicator> : (deleteLabel ?? t.common.delete)}
-              </button>
-            </li>
+            <ListItem
+              tone="delete"
+              disabled={saving}
+              onClick={onDelete}
+              headline={
+                <span className="inline-flex items-center gap-3">
+                  <Trash size={18} />
+                  {deleting ? <LoadingIndicator>{t.app.busy.deleting}</LoadingIndicator> : (deleteLabel ?? t.common.delete)}
+                </span>
+              }
+            />
           </Group>
         </div>
       )}

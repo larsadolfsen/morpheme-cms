@@ -1,8 +1,10 @@
-// "Dele" › "Tema" (#udseende/dele/tema) and "Dele" › "Apps" (#udseende/dele/apps): the blocks as the theme shows them, every
-// one in every version, to see and agree on how the site looks. Under "Tema" first the theme's UI components (its
-// buttons and icon buttons, text fields and checkboxes, packages/editor/theme/ui/, through @site/editor) in every kind,
-// size and state, then the standard blocks, which every theme styles (packages/editor/src/standard/), each in its own
-// group; under "Apps" what each app adds, its blocks and the kinds of entries it draws (a pop-up, once for each of its states), the app a group. A block's versions are the
+// "Dele" › "UI-komponenter" (#udseende/dele/ui), "Dele" › "Blokke" (#udseende/dele/blokke) and "Dele" › a list of kinds
+// ("Promovering", #udseende/dele/liste/<id>): how the site looks, every part in every version, to see and agree on it.
+// "UI-komponenter" has the theme's UI components (its buttons and icon buttons, text fields and checkboxes …,
+// packages/editor/theme/ui/, through @site/editor) in every kind, size and state; "Blokke" every block, the standard
+// ones (packages/editor/src/standard/), which every theme styles, and then the apps', each in its own group; a list of
+// kinds each of its kinds as the site draws an entry of it, the list's own (the pop-up, the bars) and the apps' (a
+// pop-up, once for each of its states), the kind a group. A block's versions are the
 // options of its choices side by side (a field with `segments`: the designs of "Kort"), the first choice's all, each
 // other's but the one a new block has (its default, else the empty one: the backgrounds of "Kort", with the first's empty
 // option; the width of "Banner", as wide as the text). All of it is drawn with the
@@ -11,7 +13,7 @@
 import { useMemo } from 'react';
 import Screen from './Screen';
 import { Part, PartGroup, PartsShown } from './PartsShown';
-import { EmptyNote, Preview } from './ui';
+import { Preview } from './ui';
 import {
   SiteButton,
   SiteCard,
@@ -25,8 +27,10 @@ import {
   buttonSizes,
   cardKinds,
   chipKinds,
+  chipSetLayouts,
+  SiteChipSet,
   iconButtonWidths,
-} from '@site/editor';
+} from './themeUi';
 import ContainmentParts from './ContainmentParts';
 import NavigationParts from './NavigationParts';
 import ActionParts from './ActionParts';
@@ -36,7 +40,7 @@ import NavigationRestParts from './NavigationRestParts';
 import PickerParts from './PickerParts';
 import { exampleOf, type BlockData, type BlockProps, type SiteBlock } from './blocks';
 import { apps, preview, siteBlocks, standardTypes } from './registry';
-import { examplePicture, exampleData } from './examples';
+import { examplePicture, exampleData, kindExample } from './examples';
 import type { Field, FolderCollection, PreviewVariant } from './schema';
 import { buttonKinds, iconButtonKinds } from './standard/view';
 import { kindDraw } from './apps';
@@ -127,6 +131,25 @@ function ChipParts() {
   );
 }
 
+/** The theme's chip sets, as the site draws them: each layout, with more chips than there is room for on one line. */
+function ChipSetParts() {
+  return (
+    <Part name="ChipSet" use={screens.chipSet}>
+      <Preview>
+        <div className="max-w-sm space-y-4 p-4">
+          {chipSetLayouts.map((layout) => (
+            <SiteChipSet key={layout} layout={layout} label={screens.chipSetLayouts[layout]}>
+              {[...chipKinds, ...chipKinds].map((k, i) => (
+                <SiteChip key={i} kind="filter" selected={!i} label={`${screens.chipSetLayouts[layout]} ${i + 1}`} />
+              ))}
+            </SiteChipSet>
+          ))}
+        </div>
+      </Preview>
+    </Part>
+  );
+}
+
 // The standard blocks (not HTML, which has no look of its own).
 const standardBlocks = siteBlocks.filter((b) => standardTypes.has(b.type));
 
@@ -135,7 +158,7 @@ const toggleKinds = buttonKinds.filter((k) => k !== 'text');
 
 /** The theme's buttons and icon buttons, as the site draws them: every kind, the five sizes, both shapes, each kind
  * that can be a toggle off and on in both shapes, the icon buttons' widths, with an icon, and disabled. */
-function UiParts() {
+function ButtonParts() {
   const row = 'flex flex-wrap items-center gap-3';
   const kinds = t.blocks.buttons.kinds;
   return (
@@ -368,6 +391,12 @@ function CardParts() {
               <p className="font-medium">{say.link}</p>
               <p className="mt-1 text-muted">{say.text}</p>
             </SiteCard>
+            {cardKinds.map((k) => (
+              <SiteCard key={k} kind={k} dragged>
+                <p className="font-medium">{`${say.kinds[k]} · ${screens.dragged}`}</p>
+                <p className="mt-1 text-muted">{say.text}</p>
+              </SiteCard>
+            ))}
           </div>
         </Preview>
       </Part>
@@ -433,6 +462,25 @@ function CardParts() {
                 <SiteListItem control={{ type: 'switch' }} disabled headline={lists.disabled} />
               </SiteList>
             </SiteCard>
+            <SiteCard>
+              <SiteList aria-label={lists.more}>
+                <SiteListItem
+                  onClick={() => {}}
+                  leadingIcon="pencil-simple"
+                  headline={lists.tapped}
+                  supporting={say.supporting}
+                  trailingIcon="caret-right"
+                />
+                <SiteListItem
+                  href=""
+                  headline={lists.withActions}
+                  supporting={lists.long}
+                  truncate
+                  actions={<SiteIconButton icon="trash" label={lists.remove} />}
+                />
+                <SiteListItem href="" headline={lists.address} supporting={lists.sendsTo} columns />
+              </SiteList>
+            </SiteCard>
             {(['middle-inset', 'none'] as const).map((dividers) => (
               <SiteCard key={dividers}>
                 <SiteList dividers={dividers} aria-label={lists.dividers[dividers]}>
@@ -469,8 +517,8 @@ function CardParts() {
   );
 }
 
-export function ThemeParts() {
-  const data = useMemo(exampleData, []);
+/** "Dele" › "UI-komponenter" (#udseende/dele/ui): the theme's UI components in every kind, size and state. */
+export function ComponentParts() {
   const groups = [
     { id: 'ui', title: screens.ui },
     { id: 'fields', title: screens.fields },
@@ -483,21 +531,21 @@ export function ThemeParts() {
     { id: 'communication', title: screens.communication.title },
     { id: 'navigationRest', title: screens.navigationRest.title },
     { id: 'pickers', title: screens.pickers.title },
-    ...standardBlocks.map((b) => ({ id: b.type, title: b.label })),
   ];
   return (
-    <Screen title={screens.theme} back={back}>
+    <Screen title={screens.components} back={back}>
       <div className="space-y-10">
-        <p className="text-muted">{screens.themeIntro}</p>
-        <PartsShown groups={groups} keep="parts-theme" search={screens.search} none={screens.none}>
+        <p className="text-muted">{screens.componentsIntro}</p>
+        <PartsShown groups={groups} keep="parts-components" search={screens.search} none={screens.none}>
           <PartGroup group="ui">
-            <UiParts />
+            <ButtonParts />
           </PartGroup>
           <PartGroup group="fields">
             <FieldParts />
           </PartGroup>
           <PartGroup group="chips">
             <ChipParts />
+            <ChipSetParts />
           </PartGroup>
           <PartGroup group="containment">
             <ContainmentParts />
@@ -523,7 +571,28 @@ export function ThemeParts() {
           <PartGroup group="pickers">
             <PickerParts />
           </PartGroup>
-          {standardBlocks.map((b) => (
+        </PartsShown>
+      </div>
+    </Screen>
+  );
+}
+
+/** "Dele" › "Blokke" (#udseende/dele/blokke): every block, the standard ones and then the apps', each a group of its
+ * own, in all its versions. */
+export function BlocksParts() {
+  const data = useMemo(exampleData, []);
+  const blocks = [...standardBlocks, ...apps.flatMap((app) => siteBlocks.filter((b) => b.app === app.id))];
+  return (
+    <Screen title={screens.blocks} back={back}>
+      <div className="space-y-10">
+        <p className="text-muted">{screens.blocksIntro}</p>
+        <PartsShown
+          groups={blocks.map((b) => ({ id: b.type, title: b.label }))}
+          keep="parts-blocks"
+          search={screens.search}
+          none={screens.none}
+        >
+          {blocks.map((b) => (
             <PartGroup key={b.type} group={b.type}>
               <BlockShown block={b} data={data} />
             </PartGroup>
@@ -534,51 +603,49 @@ export function ThemeParts() {
   );
 }
 
-export function AppParts() {
+/** The lists of kinds ("Promovering"), each a screen of "Dele". */
+export const kindLists = () => collections.filter((c): c is FolderCollection => c.kind === 'folder' && !!c.kinds && !!c.fields?.length);
+
+/** "Dele" › a list of kinds ("Promovering", #udseende/dele/liste/<id>): each of its kinds as the site draws it, its own
+ * (FolderCollection.draws: the pop-up, the bars) and the apps' (AppKind: Mailchimp's signup, once for each of its
+ * states), each a group of its own, as a new one of the kind with the made-up texts (kindExample). */
+export function KindParts({ id }: { id: string }) {
   const data = useMemo(exampleData, []);
-  // Each app with its blocks and the kinds it draws; one with neither is not shown.
-  const shown = apps
-    .map((app) => ({
-      app,
-      blocks: siteBlocks.filter((b) => b.app === app.id),
-      kinds: Object.entries(app.kinds ?? {})
-        .map(([list, k]) => ({
-          ...k,
-          draw: kindDraw(k, collections.find((c) => c.id === list && c.kind === 'folder') as FolderCollection),
-        }))
-        .filter((k) => k.draw),
-    }))
-    .filter((a) => a.blocks.length || a.kinds.length);
-  const entry = { ...t.parts.examples.entry, image: examplePicture };
+  const list = kindLists().find((c) => c.id === id);
+  const kindField = list?.fields.find((f) => f.name === list.kinds);
+  if (!list || !kindField) return null;
+  const own = (kindField.options ?? []).flatMap((o) => {
+    const draw = list.draws?.[o.value];
+    return draw ? [{ id: o.value, label: o.label, hint: o.hint, variants: [{ label: '', props: {} }], draw }] : [];
+  });
+  const added = apps.flatMap((app) => {
+    const kind = app.kinds?.[list.id];
+    const draw = kind && kindDraw(kind, list);
+    return kind && draw
+      ? [{ id: app.id, label: kind.label, hint: kind.hint, variants: kind.variants ?? [{ label: '', props: {} }], draw }]
+      : [];
+  });
+  const kinds = [...own, ...added];
   return (
-    <Screen title={screens.apps} back={back}>
+    <Screen title={list.label} back={back}>
       <div className="space-y-10">
-        <p className="text-muted">{screens.appsIntro}</p>
-        {shown.length ? (
-          <PartsShown
-            groups={shown.map(({ app }) => ({ id: app.id, title: app.label }))}
-            keep="parts-apps"
-            search={screens.search}
-            none={screens.none}
-          >
-            {shown.map(({ app, blocks, kinds }) => (
-              <PartGroup key={app.id} group={app.id}>
-                {blocks.map((b) => (
-                  <BlockShown key={b.type} block={b} data={data} />
-                ))}
-                {kinds.flatMap((k) =>
-                  (k.variants ?? [{ label: '', props: {} }]).map((v) => (
-                    <Part key={`${k.label} ${v.label}`} name={v.label ? `${k.label} · ${v.label}` : k.label} use={k.hint}>
-                      <Preview>{k.draw!({ ...entry, ...v.props }, data)}</Preview>
-                    </Part>
-                  )),
-                )}
-              </PartGroup>
-            ))}
-          </PartsShown>
-        ) : (
-          <EmptyNote>{screens.noApps}</EmptyNote>
-        )}
+        <p className="text-muted">{screens.kindsIntro(list.singular)}</p>
+        <PartsShown
+          groups={kinds.map((k) => ({ id: k.id, title: k.label }))}
+          keep={`parts-list-${list.id}`}
+          search={screens.search}
+          none={screens.none}
+        >
+          {kinds.map((k) => (
+            <PartGroup key={k.id} group={k.id}>
+              {k.variants.map((v) => (
+                <Part key={v.label} name={v.label ? `${k.label} · ${v.label}` : k.label} use={k.hint}>
+                  <Preview>{k.draw({ ...kindExample(list, k.id), ...v.props }, data)}</Preview>
+                </Part>
+              ))}
+            </PartGroup>
+          ))}
+        </PartsShown>
       </div>
     </Screen>
   );

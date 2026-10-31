@@ -109,7 +109,7 @@ function decoded(path) {
   }
 }
 
-// Old links without the trailing slash (/angst instead of /angst/): the assets only redirect those
+// Old links without the trailing slash (/kontakt instead of /kontakt/): the assets only redirect those
 // for pages that exist, and _redirects rules only match the exact address. Look up the address with
 // the slash and send straight to where that ends, so there is one redirect and no 404.
 async function withSlash(url, request, env) {

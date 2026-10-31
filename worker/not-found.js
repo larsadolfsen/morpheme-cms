@@ -44,7 +44,7 @@ export async function recordNotFound(request, url, env) {
 }
 
 // The address as the editor's redirects have it: decoded (/æble/, not /%C3%A6ble/), and with the slash
-// at the end, for /angst is sent on by the redirect from /angst/ (packages/editor/worker/index.js withSlash).
+// at the end, for /kontakt is sent on by the redirect from /kontakt/ (packages/editor/worker/index.js withSlash).
 function addressOf(pathname) {
   let path = pathname;
   try {

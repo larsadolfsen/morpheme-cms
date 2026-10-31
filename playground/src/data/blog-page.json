@@ -1,0 +1,11 @@
+{
+  "heading": "Blog",
+  "intro": "Artikler, nyheder og opdateringer om Interstellar CMS og webudvikling med Astro.",
+  "sections": [
+    {
+      "type": "posts"
+    }
+  ],
+  "seoTitle": "Blog | Interstellar CMS",
+  "seoDescription": "Læs de seneste nyheder og artikler om Interstellar CMS og Astro."
+}

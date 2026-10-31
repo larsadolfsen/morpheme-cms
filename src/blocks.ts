@@ -149,7 +149,7 @@ export function valueText(f: Field, v: unknown, data: BlockData, n = 140): strin
         f.field
           ? valueText(f.field, item, data, 60)
           : (f
-              .fields!.filter((g) => !f.summary || g.name === f.summary)
+              .fields!.filter((g) => !f.summary || [f.summary].flat().includes(g.name))
               .map((g) => valueText(g, (item as BlockProps)[g.name], data, 60))
               .find(Boolean) ?? '');
       return `${f.label}: ${(v as unknown[]).map(one).filter(Boolean).join(' · ')}`;

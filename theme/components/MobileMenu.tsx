@@ -1,17 +1,18 @@
-// Mobile navigation drawer (client island): the theme's modal navigation drawer (ui/NavigationDrawer.tsx), opened and
-// closed with its icon buttons (ui/IconButton.tsx).
-// Rendered through a portal into <body>: the sticky header uses backdrop-filter, which would
-// otherwise become the containing block for position: fixed and clip the drawer.
-// Motion: the drawer slides in from the right and links stagger in (state transition);
-// with reduced motion it appears instantly.
-// Items with sub-pages (as in the old WordPress menu) unfold with the caret next to them;
-// the section with the current page starts open.
+// The menu in Material: the theme's modal navigation drawer (ui/NavigationDrawer.tsx, m3.material.io/components/navigation-drawer), opened by the
+// navigation icon first in the top app bar (Header.astro). It comes in from the left over a scrim, with the site's name,
+// "Book en tid" as an extended FAB (ui/Fab.tsx), the menu's items with the open page in an active indicator, and "Ring" under a
+// divider. Items with sub-pages unfold with the caret at the end of their row (inside the active indicator); the one
+// with the open page starts open.
+// Rendered through a portal into <body>, so nothing on the page can clip it. It moves with the site's motion scheme
+// (motionSpring, @interstellarcms/cms/lib/motion.ts: Material 3's springs, the expressive ones unless the owner chose
+// another under "Bevægelse"); with reduced motion it appears at once.
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { themeEase } from '@theme/scripts/ease';
-import Button from '@theme/ui/Button';
+import { Svg } from '@interstellarcms/cms/src/icon';
+import { motionSpring } from '@interstellarcms/cms/lib/motion';
 import IconButton from '@theme/ui/IconButton';
+import { ExtendedFab } from '@theme/ui/Fab';
 import {
   NavigationDrawerItem,
   NavigationDrawerRow,
@@ -32,6 +33,9 @@ export default function MobileMenu({
   phoneHref,
   name,
   role,
+  book,
+  call,
+  texts,
 }: {
   items: Item[];
   current: string;
@@ -40,6 +44,11 @@ export default function MobileMenu({
   phoneHref: string;
   name: string;
   role: string;
+  /** The site's own labels of "Book en tid" and "Ring". */
+  book: string;
+  call: string;
+  /** Its texts in the site's language (Header.astro has them, so the editor's dictionaries stay out of the browser). */
+  texts: { open: string; close: string; menu: string; drawer: string; subpages: string[] };
 }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -47,8 +56,14 @@ export default function MobileMenu({
   const openButton = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const drawer = useRef<HTMLDivElement>(null);
-  // The theme's easing (only used in the browser, where the menu opens).
-  const [ease] = useState(themeEase);
+  // The scheme's springs (only used in the browser, where the menu opens): in at the default spatial spring, out at the
+  // fast one, and the scrim with the effects'.
+  const [spring] = useState(() => ({
+    enter: motionSpring('spatial'),
+    leave: motionSpring('spatial', 'fast'),
+    fadeIn: motionSpring('effects'),
+    fadeOut: motionSpring('effects', 'fast'),
+  }));
 
   useEffect(() => setMounted(true), []);
 
@@ -95,7 +110,7 @@ export default function MobileMenu({
       <IconButton
         ref={openButton}
         icon="list"
-        label="Åbn menu"
+        label={texts.open}
         onClick={() => setOpen(true)}
         aria-expanded={open}
         aria-controls={open ? 'navigation-drawer' : undefined}
@@ -111,54 +126,45 @@ export default function MobileMenu({
                   onClick={() => setOpen(false)}
                   aria-hidden="true"
                   initial={reduce ? false : { opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={reduce ? undefined : { opacity: 0 }}
-                  transition={{ duration: 0.3, ease }}
+                  animate={{ opacity: 1, transition: spring.fadeIn }}
+                  exit={reduce ? undefined : { opacity: 0, transition: spring.fadeOut }}
                 />
                 <motion.div
                   ref={drawer}
                   id="navigation-drawer"
                   role="dialog"
                   aria-modal="true"
-                  aria-label="Menu"
-                  className={`${navigationDrawerClass} absolute inset-y-0 right-0`}
-                  style={{ paddingBottom: 'max(1.25rem, env(safe-area-inset-bottom))' }}
-                  initial={reduce ? false : { x: '100%' }}
-                  animate={{ x: 0 }}
-                  exit={reduce ? undefined : { x: '100%' }}
-                  transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 380, damping: 40 }}
+                  aria-label={texts.drawer}
+                  className={`${navigationDrawerClass} absolute inset-y-0 left-0`}
+                  initial={reduce ? false : { x: '-100%' }}
+                  animate={{ x: 0, transition: reduce ? { duration: 0 } : spring.enter }}
+                  exit={reduce ? undefined : { x: '-100%', transition: spring.leave }}
                 >
-                  <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <span className="theme-logo-tile">
-                        <span aria-hidden="true" className="butterfly theme-logo-mark shrink-0" />
-                      </span>
-                      <div className="leading-tight">
-                        <p className="theme-logo-name">{name}</p>
-                        <p className="theme-logo-role text-[0.8rem] text-muted">{role}</p>
-                      </div>
+                  <div className="md-drawer-head">
+                    <span aria-hidden="true" className="logo-mark h-10 w-9 shrink-0 bg-accent" />
+                    <div className="min-w-0 flex-1 leading-tight">
+                      <p className="md-drawer-name">{name}</p>
+                      <p className="md-drawer-role">{role}</p>
                     </div>
-                    <IconButton ref={closeButton} icon="x" label="Luk menu" onClick={() => setOpen(false)} />
+                    <IconButton ref={closeButton} icon="x" label={texts.close} onClick={() => setOpen(false)} />
                   </div>
 
-                  <nav aria-label="Hovedmenu" className="px-3 py-4">
-                    <motion.ul
-                      initial={reduce ? false : 'hidden'}
-                      animate="show"
-                      variants={{ show: { transition: { staggerChildren: 0.04, delayChildren: 0.08 } } }}
-                    >
-                      {items.map((item) => (
-                        <motion.li
-                          key={item.href}
-                          variants={{
-                            hidden: { opacity: 0, x: 16 },
-                            show: { opacity: 1, x: 0, transition: { duration: 0.4, ease } },
-                          }}
-                        >
-                          <NavigationDrawerRow>
+                  <ExtendedFab
+                    href={bookingPath}
+                    icon="calendar-blank"
+                    label={book}
+                    kind="secondary-container"
+                    data-open="booking"
+                    onClick={() => setOpen(false)}
+                  />
+
+                  <nav aria-label={texts.menu}>
+                    <ul>
+                      {items.map((item, i) => (
+                        <li key={item.href}>
+                          <NavigationDrawerRow data-active={holdsCurrent(item) || undefined}>
                             <NavigationDrawerItem
                               href={item.href}
-                              active={holdsCurrent(item)}
                               onClick={() => setOpen(false)}
                               aria-current={current === item.href ? 'page' : undefined}
                             >
@@ -166,7 +172,7 @@ export default function MobileMenu({
                             </NavigationDrawerItem>
                             {item.children && (
                               <NavigationDrawerToggle
-                                label={`Undersider til ${item.label}`}
+                                label={texts.subpages[i]}
                                 expanded={expanded === item.href}
                                 onClick={() => setExpanded(expanded === item.href ? null : item.href)}
                                 aria-controls={`sub-${item.href}`}
@@ -179,9 +185,8 @@ export default function MobileMenu({
                                 id={`sub-${item.href}`}
                                 className="overflow-hidden"
                                 initial={reduce ? false : { height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={reduce ? undefined : { height: 0, opacity: 0 }}
-                                transition={{ duration: 0.3, ease }}
+                                animate={{ height: 'auto', opacity: 1, transition: spring.enter }}
+                                exit={reduce ? undefined : { height: 0, opacity: 0, transition: spring.leave }}
                               >
                                 {item.children.map((child) => (
                                   <li key={child.href}>
@@ -198,21 +203,16 @@ export default function MobileMenu({
                               </motion.ul>
                             )}
                           </AnimatePresence>
-                        </motion.li>
+                        </li>
                       ))}
-                    </motion.ul>
+                    </ul>
                   </nav>
 
-                  <div className="mt-auto grid gap-2.5 px-5 pt-4">
-                    {bookingPath && (
-                      <Button href={bookingPath} icon="calendar-blank" data-open="booking" onClick={() => setOpen(false)}>
-                        Book en tid
-                      </Button>
-                    )}
-                    <Button href={phoneHref} kind="outlined" icon="phone">
-                      Ring {phone}
-                    </Button>
-                  </div>
+                  <hr className="md-divider" />
+                  <NavigationDrawerItem href={phoneHref}>
+                    <Svg name="phone" size={24} />
+                    {call} {phone}
+                  </NavigationDrawerItem>
                 </motion.div>
               </div>
             )}

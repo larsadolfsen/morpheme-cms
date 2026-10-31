@@ -1,6 +1,6 @@
 // What testimonials do on the site (Testimonial.tsx, List.tsx): "Læs mere" shown only on texts that are actually cut;
 // a list's buttons with the tags. (The carousel's page indicator, Slider.tsx, is the carousel's: ui/carousel.script.ts.)
-// Run on every page by the theme's Base.astro (blockScripts, src/site/scripts.ts).
+// Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts).
 export default function testimonials() {
   more();
   filters();

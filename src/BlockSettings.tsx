@@ -2,7 +2,7 @@
 // groups, the editor's standard blocks (packages/editor/src/standard/) and those of each app installed under "Apps",
 // under the app's name (e.g. "Mailchimp",
 // src/apps/, AppList.tsx; an app not installed has none here), each with how many pages it is on at its right
-// (TrailingText, as the counts on the editor's front page), or "Deaktiveret" when it is off. An app's group also has
+// (ListItem's count, as the counts on the editor's front page), or "Deaktiveret" when it is off. An app's group also has
 // its kinds of the site's lists (Mailchimp's pop-up), each with how many there are at its right (or "Deaktiveret"), as
 // a block; one with neither says so. Tapping a block opens a sheet from the bottom (a dialog on a computer), as a
 // picture in "Filer" does: what it is, a switch, and the pages it is on, each a link to it in the editor; a kind's the
@@ -27,19 +27,17 @@ import {
   listClass,
   SupportingText,
   Preview,
-  listItemClass,
   SearchRow,
   BottomSheet,
   SheetTitle,
   SwitchRow,
   SheetBody,
-  TrailingText,
-  TrailingIcon,
+  ListItem,
 } from './ui';
 import { ConflictError, type RepoFile } from './github';
 import type { FolderCollection } from './schema';
 import type { Env } from './App';
-import { SAVED } from './deploy';
+import { kindAndName, lower, savedText } from './deploy';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { HTML } from './markdown.mjs';
 import { byText } from './schema';
@@ -49,7 +47,7 @@ import { apps, offBlocks, preview, siteBlocks } from './registry';
 import { installedApps, kindDraw, kindKey, type SiteApp } from './apps';
 import { entriesOf, kindsOf } from './AppList';
 import { asWritten, collections } from './site';
-import { examplePicture } from './examples';
+import { examplePicture, kindExample as newOfKind } from './examples';
 import { headed, letterOf } from './Sheet';
 import { config, siteName } from '@site/editor';
 import { siteT, t } from './i18n';
@@ -94,8 +92,8 @@ function example(
 }
 
 /** An app's kind of a list for its preview: drawn with the fields of its first entry (one that is on, if any), with
- * the entry's name, else with an example; in its first state (Mailchimp's before a signup). None when it has no
- * drawing. */
+ * the entry's name, else with the example "Dele" draws it with (kindExample in examples.ts); in its first state
+ * (Mailchimp's before a signup). None when it has no drawing. */
 function kindExample(app: SiteApp, list: string, files: RepoFile[], data: BlockData): { node: ReactNode; on?: string } | null {
   const kind = app.kinds![list];
   const collection = collections.find((c) => c.id === list && c.kind === 'folder') as FolderCollection | undefined;
@@ -110,7 +108,7 @@ function kindExample(app: SiteApp, list: string, files: RepoFile[], data: BlockD
   });
   const onOff = collection?.onOff;
   const copy = copies.find((c) => !onOff || c.props[onOff] !== false) ?? copies[0];
-  const props = copy?.props ?? { ...t.parts.examples.entry, image: examplePicture };
+  const props = copy?.props ?? (collection ? newOfKind(collection, app.id) : { ...t.parts.examples.entry, image: examplePicture });
   return { node: draw({ ...props, ...kind.variants?.[0]?.props }, data), on: copy?.on };
 }
 
@@ -147,6 +145,8 @@ export type SwitchTexts = {
   onHint: string;
   offHint: string;
   commit: (on: boolean) => string;
+  /** What turning it on or off changed, in the editor's language (deploy.ts). */
+  change: (on: boolean) => string;
 };
 
 /** Whether a block (or an app's kind, by `id`) is on, and `turn`, which turns it on or off, saved at once in its own
@@ -169,9 +169,9 @@ export function useOnOff(id: string, count: number, texts: SwitchTexts, env: Env
     notify({ text: t.common.saving });
     try {
       const path = config.blockSettings;
-      const oids = await env.commit(texts.commit(on), [{ path, content: text, oid: file?.oid || null }]);
+      const oids = await env.commit(texts.commit(on), [{ path, content: text, oid: file?.oid || null }], texts.change(on));
       env.onSaved({ path, oid: oids[path], text });
-      notify({ text: SAVED, kind: 'saved' });
+      notify({ text: savedText(texts.change(on)), kind: 'saved' });
     } catch (e) {
       notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
     } finally {
@@ -207,6 +207,7 @@ export const blockSwitchTexts = (block: SiteBlock, count: number): SwitchTexts =
   onHint: t.blockSettings.onHint,
   offHint: t.blockSettings.offHint,
   commit: (on) => siteT.blockSettings.commit[on ? 'on' : 'off'](siteLabel(block)),
+  change: (on) => t.app.changes[on ? 'turnedOn' : 'turnedOff'](kindAndName(t.app.changes.block, block.label)),
 });
 
 /** What the switch of an app's kind of a list (`list`, its id) says, with `count` entries. */
@@ -221,6 +222,7 @@ export function kindSwitchTexts(app: SiteApp, list: string, count: number): Swit
     onHint: t.blockSettings.kindOnHint(create),
     offHint: t.blockSettings.kindOffHint(create),
     commit: (on) => siteT.blockSettings.commit[on ? 'kindOn' : 'kindOff'](written),
+    change: (on) => t.app.changes[on ? 'turnedOn' : 'turnedOff'](lower(app.kinds![list].label)),
   };
 }
 
@@ -283,22 +285,18 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
     used: pages[b.type].length > 0,
     on: !off.includes(b.type),
     node: (
-      <li key={b.type}>
-        <button
-          type="button"
-          aria-haspopup="dialog"
-          className={listItemClass}
-          onClick={() => {
-            setOpen({ block: b });
-            dialog.current?.showModal();
-          }}
-        >
-          <LeadingIcon icon={b.icon} />
-          <span className="min-w-0 flex-1 font-medium">{b.label}</span>
-          <TrailingText>{off.includes(b.type) ? t.blockSettings.inactive : pages[b.type].length}</TrailingText>
-          <TrailingIcon />
-        </button>
-      </li>
+      <ListItem
+        key={b.type}
+        aria-haspopup="dialog"
+        onClick={() => {
+          setOpen({ block: b });
+          dialog.current?.showModal();
+        }}
+        icon={b.icon}
+        headline={b.label}
+        count={off.includes(b.type) ? t.blockSettings.inactive : pages[b.type].length}
+        arrow
+      />
     ),
   });
   const installed = installedApps(files);
@@ -321,22 +319,18 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
             used: n > 0,
             on,
             node: (
-              <li key={key}>
-                <button
-                  type="button"
-                  aria-haspopup="dialog"
-                  className={listItemClass}
-                  onClick={() => {
-                    setOpen({ app: a, list: k.key });
-                    dialog.current?.showModal();
-                  }}
-                >
-                  <LeadingIcon icon={k.icon} />
-                  <span className="min-w-0 flex-1 font-medium">{k.label}</span>
-                  <TrailingText>{on ? n : t.blockSettings.inactive}</TrailingText>
-                  <TrailingIcon />
-                </button>
-              </li>
+              <ListItem
+                key={key}
+                aria-haspopup="dialog"
+                onClick={() => {
+                  setOpen({ app: a, list: k.key });
+                  dialog.current?.showModal();
+                }}
+                icon={k.icon}
+                headline={k.label}
+                count={on ? n : t.blockSettings.inactive}
+                arrow
+              />
             ),
           };
         }),
@@ -494,13 +488,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
           .map((g) => (
             <Group key={g.title} title={g.title}>
               {g.rows.map((r) => r.node)}
-              {g.empty && (
-                <li>
-                  <div className={listItemClass}>
-                    <span className="text-muted">{t.blockSettings.noBlocks}</span>
-                  </div>
-                </li>
-              )}
+              {g.empty && <ListItem tone="muted" headline={t.blockSettings.noBlocks} />}
             </Group>
           ))
       ) : (
@@ -530,11 +518,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
               {sheet.used.length ? (
                 <ul className={listClass}>
                   {sheet.used.map((u) => (
-                    <li key={u.href}>
-                      <a href={u.href} className={listItemClass} onClick={() => dialog.current?.close()}>
-                        {u.title}
-                      </a>
-                    </li>
+                    <ListItem key={u.href} href={u.href} onClick={() => dialog.current?.close()} headline={u.title} />
                   ))}
                 </ul>
               ) : (

@@ -10,12 +10,19 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { svgParts } from '@interstellarcms/cms/lib/svg.mjs';
+import { cleanSvg } from '@interstellarcms/cms/lib/svg.mjs';
 import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS, THEME_PACKS_FOLDER, themePackId } from './iconPacks.mjs';
 
 // The site's root (the working directory) and this package's.
 const root = pathToFileURL(`${process.cwd()}/`);
 const pkg = new URL('../', import.meta.url);
+/** Whether the system packs are written here (`npm run icons`, where the CMS is made: this package is the site's own
+ * packages/editor/, not in node_modules/ and not outside the site, as for the CMS's demo): only there can it be said that
+ * a pack has icons nothing draws, since the apps of the store and the site that makes the CMS draw them too. */
+const packsWrittenHere = (() => {
+  const path = relative(fileURLToPath(root), fileURLToPath(pkg));
+  return !path.startsWith('..') && !path.split(/[\\/]/).includes('node_modules');
+})();
 
 /** Where the system's own packs are, one folder each (this package's icons/), from the site's root. */
 export const SYSTEM_PACKS_FOLDER = relative(process.cwd(), fileURLToPath(new URL('icons', pkg)));
@@ -65,15 +72,14 @@ export const PACK_SOURCES = {
 
 /** For each system pack but Phosphor's (whose names they are): Phosphor's name → Material Design Icons' (the package in
  * PACK_SOURCES), for an icon the site or the editor draws that its set has none of. Material Symbols: a brand's logo (the
- * account logged in at GitHub, the SEO choices' Google), the butterfly (the logo screen, an app's icon), and the
+ * account logged in at GitHub, the SEO choices' Google) and the
  * things it has nothing that shows (binoculars, a hard disk, swatches, a scan frame, the arrows that widen and narrow
- * the Hero). Lucide, which draws no brands: the logos, and the butterfly in outline, as Lucide draws. */
+ * the Hero). Lucide, which draws no brands: the logos. */
 export const MATERIAL_DESIGN_ICONS = {
   'material-symbols': {
     'arrows-in-line-horizontal': 'arrow-collapse-horizontal',
     'arrows-out-line-horizontal': 'arrow-expand-horizontal',
     binoculars: 'binoculars',
-    butterfly: 'butterfly',
     'github-logo': 'github',
     'google-logo': 'google',
     'hard-drives': 'harddisk',
@@ -81,7 +87,6 @@ export const MATERIAL_DESIGN_ICONS = {
     swatches: 'palette-swatch',
   },
   lucide: {
-    butterfly: 'butterfly-outline',
     'github-logo': 'github',
     'google-logo': 'google',
   },
@@ -113,7 +118,6 @@ export const MATERIAL_SYMBOLS = {
   bus: 'directions_bus',
   'calendar-blank': 'calendar_today',
   'calendar-check': 'event_available',
-  'calendar-x': 'event_busy',
   car: 'directions_car',
   cards: 'cards_stack',
   'caret-down': 'keyboard_arrow_down',
@@ -161,7 +165,6 @@ export const MATERIAL_SYMBOLS = {
   handshake: 'handshake',
   heart: 'favorite',
   house: 'home',
-  'identification-card': 'id_card',
   image: 'image',
   'image-square': 'image',
   info: 'info',
@@ -175,17 +178,17 @@ export const MATERIAL_SYMBOLS = {
   'list-bullets': 'format_list_bulleted',
   'list-checks': 'checklist',
   'list-numbers': 'format_list_numbered',
+  'lock-simple': 'lock',
+  'lock-simple-open': 'lock_open',
   'magnifying-glass': 'search',
   'map-pin': 'location_on',
   'map-trifold': 'map',
   medal: 'military_tech',
   megaphone: 'campaign',
   minus: 'remove',
-  money: 'payments',
   moon: 'dark_mode',
   newspaper: 'newspaper',
   'paint-brush-broad': 'brush',
-  'paint-bucket': 'format_color_fill',
   palette: 'palette',
   'paper-plane-tilt': 'send',
   'pencil-simple': 'edit',
@@ -196,8 +199,8 @@ export const MATERIAL_SYMBOLS = {
   'puzzle-piece': 'extension',
   question: 'help',
   quotes: 'format_quote',
-  receipt: 'receipt',
   rows: 'view_agenda',
+  ruler: 'straighten',
   shapes: 'shapes',
   'share-network': 'share',
   'shield-check': 'verified_user',
@@ -210,6 +213,7 @@ export const MATERIAL_SYMBOLS = {
   square: 'square',
   'square-half-bottom': 'call_to_action',
   'squares-four': 'grid_view',
+  sticker: 'brand_family',
   storefront: 'storefront',
   sun: 'light_mode',
   tag: 'sell',
@@ -231,9 +235,9 @@ export const MATERIAL_SYMBOLS = {
   users: 'group',
   'users-three': 'groups',
   'video-camera': 'videocam',
-  wallet: 'wallet',
   warning: 'warning',
   'warning-circle': 'error',
+  'wave-sine': 'animation',
   wheelchair: 'accessible',
   wrench: 'build',
   x: 'close',
@@ -268,7 +272,6 @@ export const LUCIDE = {
   bus: 'bus',
   'calendar-blank': 'calendar',
   'calendar-check': 'calendar-check',
-  'calendar-x': 'calendar-x',
   car: 'car',
   cards: 'gallery-vertical-end',
   'caret-down': 'chevron-down',
@@ -317,7 +320,6 @@ export const LUCIDE = {
   'hard-drives': 'server',
   heart: 'heart',
   house: 'house',
-  'identification-card': 'id-card',
   image: 'image',
   'image-square': 'image',
   info: 'info',
@@ -331,17 +333,17 @@ export const LUCIDE = {
   'list-bullets': 'list',
   'list-checks': 'list-checks',
   'list-numbers': 'list-ordered',
+  'lock-simple': 'lock',
+  'lock-simple-open': 'lock-open',
   'magnifying-glass': 'search',
   'map-pin': 'map-pin',
   'map-trifold': 'map',
   medal: 'medal',
   megaphone: 'megaphone',
   minus: 'minus',
-  money: 'banknote',
   moon: 'moon',
   newspaper: 'newspaper',
   'paint-brush-broad': 'paintbrush',
-  'paint-bucket': 'paint-bucket',
   palette: 'palette',
   'paper-plane-tilt': 'send',
   'pencil-simple': 'pencil',
@@ -352,8 +354,8 @@ export const LUCIDE = {
   'puzzle-piece': 'puzzle',
   question: 'circle-question-mark',
   quotes: 'quote',
-  receipt: 'receipt',
   rows: 'rows-2',
+  ruler: 'ruler',
   scan: 'scan',
   shapes: 'shapes',
   'share-network': 'share-2',
@@ -367,6 +369,7 @@ export const LUCIDE = {
   square: 'square',
   'square-half-bottom': 'panel-bottom',
   'squares-four': 'layout-grid',
+  sticker: 'sticker',
   storefront: 'store',
   sun: 'sun',
   swatches: 'swatch-book',
@@ -389,9 +392,9 @@ export const LUCIDE = {
   users: 'users',
   'users-three': 'users-round',
   'video-camera': 'video',
-  wallet: 'wallet',
   warning: 'triangle-alert',
   'warning-circle': 'circle-alert',
+  'wave-sine': 'spline',
   wheelchair: 'accessibility',
   wrench: 'wrench',
   x: 'x',
@@ -408,20 +411,17 @@ const mapped = (pack) => (PACK_MAPS[pack] ? [...Object.keys(PACK_MAPS[pack]), ..
 export const isIconName = (name) =>
   /^[a-z0-9-]+$/.test(name) && (has(`${PHOSPHOR}regular/${name}.svg`) || (name.endsWith('-fill') && has(`${PHOSPHOR}fill/${name}.svg`)));
 
-/** What is wrong with an icon's SVG file (`file` its path, for the message): one <svg> with a viewBox, with nothing in it
- * that runs or loads something from elsewhere. */
+/** What is wrong with an icon's SVG file (`file` its path, for the message): one <svg> with a viewBox, with only what
+ * draws in it (what cleanSvg keeps; the rest is left out where it is drawn). */
 export function svgProblems(file, svg) {
-  const problems = [];
-  const parts = svgParts(svg);
-  if (!parts || svg.match(/<svg\b/gi).length > 1 || !/^-?[\d.]+([ ,]+-?[\d.]+){3}$/.test(parts.viewBox?.trim() ?? ''))
-    problems.push(`${file}: et ikon er ét <svg> med en viewBox og intet før eller efter.`);
-  if (
-    /<(script|foreignObject|iframe|object|embed|style)\b|<!(DOCTYPE|ENTITY)|\son[a-z]+\s*=|javascript:/i.test(svg) ||
-    /\b(xlink:)?href\s*=\s*["'](?!#)/i.test(svg) ||
-    /url\(\s*["']?(?!#)/i.test(svg)
-  )
-    problems.push(`${file}: et ikon må ikke have scripts, stil, hændelser (on…) eller hente noget udefra, kun tegning.`);
-  return problems;
+  const clean = cleanSvg(svg);
+  if (!clean || svg.match(/<svg\b/gi).length > 1 || !clean.viewBox)
+    return [`${file}: et ikon er ét <svg> med en viewBox og intet før eller efter.`];
+  if (clean.removed.length)
+    return [
+      `${file}: ${clean.removed.join(', ')} tegner ikke og bliver ikke vist. Et ikon har kun tegning: ingen scripts, stil, hændelser (on…) eller noget, der hentes udefra.`,
+    ];
+  return [];
 }
 
 const folders = (dir) =>
@@ -520,12 +520,17 @@ export function packProblems(id, used = usedIcons()) {
 }
 
 /** What is wrong with a system pack beyond what every pack must be (packProblems): an icon the site or the editor draws
- * that its maps have none for (Phosphor's: one its package has none of), one they name that is not written or a file
- * they do not name (`npm run icons` writes it again), and Phosphor's package at another version than its pack's. */
+ * that its maps have none for (Phosphor's: one its package has none of), and where the packs are written, one they name
+ * that is not written or a file they do not name (`npm run icons` writes it again), and Phosphor's package at another
+ * version than its pack's. */
 function systemPackProblems(id, used) {
   const dir = packFolder(id);
   const problems = [];
   const names = mapped(id);
+  if (!packsWrittenHere) {
+    const unnamed = names ? [...used].sort().filter((name) => !names.includes(name)) : [];
+    return unnamed.length ? [`${PACK_SOURCES[id].name} har intet ikon for ${unnamed.join(', ')}.`] : [];
+  }
   if (names) {
     const map = id === 'material-symbols' ? 'MATERIAL_SYMBOLS' : 'LUCIDE';
     const unnamed = [...used].sort().filter((name) => !names.includes(name));

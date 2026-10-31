@@ -3,6 +3,7 @@
 import BlogIndex from '@theme/components/BlogIndex.astro';
 import BlogPosts from '@theme/components/BlogPosts.astro';
 import type { Post } from '@interstellarcms/cms/site/content';
+import { siteT } from '@interstellarcms/cms/src/i18n';
 
 interface Props {
   /** The tag's slug, its name, and its posts. */
@@ -13,10 +14,6 @@ interface Props {
 const { category, name, posts } = Astro.props;
 ---
 
-<BlogIndex
-  title={name}
-  intro={`${posts.length} ${posts.length === 1 ? 'indlæg' : 'indlæg'} om ${name.toLowerCase()}.`}
-  activeCategory={category}
->
+<BlogIndex title={name} intro={siteT.theme.postsAbout(posts.length, name.toLowerCase())} activeCategory={category}>
   <BlogPosts posts={posts} />
 </BlogIndex>

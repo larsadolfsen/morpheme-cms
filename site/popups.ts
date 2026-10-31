@@ -7,6 +7,8 @@
 // (packages/editor/theme/components/Popup.astro); a kind an app adds without a part in the pop-up shows itself
 // (its slots/), with its own fields in `data`.
 import { getPosts, postPath } from './content';
+import standardPages from '@data/standard-pages.json';
+import { fromContactBar } from '../lib/contactBar';
 
 type PopupData = {
   enabled?: boolean;
@@ -64,6 +66,8 @@ const files = import.meta.glob<PopupData>('@data/popups/*.json', { eager: true, 
 export const popups: Popup[] = Object.entries(files)
   .filter(([, p]) => p.enabled !== false)
   .sort(([a], [b]) => a.localeCompare(b))
+  // A contact bar saved before it became an action bar, as one (lib/contactBar.ts).
+  .map(([file, p]): [string, PopupData] => [file, fromContactBar(p, standardPages.contact) as PopupData])
   .map(([file, p]) => ({
     slug: file.replace(/^.*\/|\.json$/g, ''),
     type: p.type || 'standard',

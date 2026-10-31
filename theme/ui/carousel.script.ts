@@ -1,6 +1,6 @@
 // What a carousel (Carousel.tsx) does on the site: its page indicator is shown, follows the scroll position and jumps
 // to an item, and a multi-browse or hero carousel's items grow and shrink as they pass (carouselLayout in
-// carouselLayout.ts). Run on every page by the theme's Base.astro (blockScripts, src/site/scripts.ts); without a carousel
+// carouselLayout.ts). Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts); without a carousel
 // on the page it does nothing.
 import { carouselLayout, scrollFor, shownItem } from '@theme/ui/carouselLayout';
 

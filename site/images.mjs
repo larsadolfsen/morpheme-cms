@@ -100,7 +100,7 @@ const pictureName = (src) =>
     .replace(/([-_](edited|scaled|e\d{9,}|\d))+$/g, '')
     .replace(/([-_](edited|scaled|e\d{9,}|\d))+$/g, '');
 // Crops saved under a new name, so the name does not show they are the same picture (the site's config).
-const sameAs = config.samePictures;
+const sameAs = config.samePictures ?? {};
 
 /** True when two image paths show the same picture. */
 export function samePicture(a, b) {

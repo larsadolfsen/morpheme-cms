@@ -12,8 +12,8 @@ import rehypeRaw from 'rehype-raw';
 import fs from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createServer } from 'vite';
 import { config } from './site/siteConfig.mjs';
+import { withSiteModules } from './site/siteModules.mjs';
 import { rehypeResponsiveImages } from './site/images.mjs';
 import { linksDigest, rehypeAutoLinks } from './site/autolinks.mjs';
 import { rehypeVideo } from './lib/video.mjs';
@@ -34,9 +34,12 @@ const PAGES = {
   '/blog/kategori/[category]': 'blog/kategori/[category].astro',
   '/ny': 'ny.astro',
   '/rss.xml': 'rss.xml.js',
+  '/robots.txt': 'robots.txt.js',
+  '/_headers': 'headers.js',
   '/editor': 'editor/index.astro',
   '/editor/code-images.json': 'editor/code-images.json.js',
   '/editor/manifest.webmanifest': 'editor/manifest.webmanifest.js',
+  '/editor/sw.js': 'editor/sw.js.js',
   '/editor/thumbnails.json': 'editor/thumbnails.json.js',
   '/editor/version.json': 'editor/version.json.js',
 };
@@ -55,28 +58,6 @@ const pagesIntegration = () => ({
 /** The themes the site is built with: the one in use, and the standard theme it builds on. */
 const themesBuilt = () => [...new Set([activeTheme(), STANDARD_THEME])];
 
-/**
- * The site's TypeScript loaded with Vite as check-content.mjs does (the apps' defineApp), for what runs after the build.
- * @template T
- * @param {(load: (path: string) => Promise<any>) => Promise<T>} use
- * @returns {Promise<T>}
- */
-async function withSiteModules(use) {
-  const server = await createServer({
-    configFile: false,
-    logLevel: 'error',
-    appType: 'custom',
-    plugins: [themePlugin(), appFoldersPlugin(ROOT)],
-    resolve: { alias: aliases() },
-    server: { middlewareMode: true, hmr: false, ws: false },
-  });
-  try {
-    return await use((path) => server.ssrLoadModule(path));
-  } finally {
-    await server.close();
-  }
-}
-
 /** @param {string} file */
 const frontMatter = (file) => fs.readFileSync(file, 'utf8').match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '';
 
@@ -85,8 +66,9 @@ const frontMatter = (file) => fs.readFileSync(file, 'utf8').match(/^---\r?\n([\s
 // not in the sitemap. Drafts are not built, so not in it either.
 /** @param {string} fm @param {string} name */
 const field = (fm, name) => fm.match(new RegExp(`^${name}: *"?(.*?)"?\\s*$`, 'm'))?.[1] ?? '';
-/** @param {string} dir */
-const markdown = (dir) => fs.readdirSync(dir, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.md'));
+/** The .md files in a folder (none when the site has no folder of them yet). @param {string} dir */
+const markdown = (dir) =>
+  fs.existsSync(dir) ? fs.readdirSync(dir, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('.md')) : [];
 const elsewhere = [
   ...markdown('src/content/pages').map((f) => {
     const fm = frontMatter(`src/content/pages/${f}`);
@@ -111,11 +93,11 @@ if ((field(blogPage, 'canonical') && ![blogPath, '/blog/'].includes(field(blogPa
 
 /** The site's Astro config. */
 export async function siteConfig() {
-  // What the site's measuring loads from elsewhere (src/site/csp.mjs).
-  const { siteSources } = await import(pathToFileURL(join(ROOT, 'src/site/csp.mjs')).href);
+  // What the site's apps load from elsewhere (site/siteCsp.mjs).
+  const { siteSources } = await import('./site/siteCsp.mjs');
   return defineConfig({
     site: `https://${config.domain}`,
-    // WordPress URLs all end in a slash; keep them identical.
+    // Every address ends in a slash (imported ones too); keep them identical.
     trailingSlash: 'always',
     // Inline the (small) stylesheet so it does not block the first render.
     build: { format: 'directory', inlineStylesheets: 'always' },
@@ -155,7 +137,7 @@ export async function siteConfig() {
         filter: (page) => !isNoindex(new URL(page).pathname) && !elsewhere.includes(new URL(page).pathname),
       }),
       // Each page's Content-Security-Policy, after it is built: only its own scripts run (packages/editor/lib/csp.mjs),
-      // with what the site's measuring and its apps load from elsewhere (src/site/csp.mjs).
+      // with what the site's measuring and its apps load from elsewhere (packages/editor/site/siteCsp.mjs).
       csp({ site: joined(...siteSources()) }),
       // What each installed app makes after the build (its build.mjs, in dist/_apps/<app>/: Cookiescanner's scan.json).
       appBuilds(ROOT),
@@ -170,7 +152,7 @@ export async function siteConfig() {
       }),
     ],
     vite: {
-      // The editor (packages/editor/) takes this site from src/site/ as @site (src/site/editor.ts), and the
+      // The editor (packages/editor/) takes this site from src/site/ as @site (packages/editor/defaults/editor.ts), and the
       // site and the editor take the theme in use (src/data/theme.json) as @theme: its file, else the standard
       // theme's (themePlugin, packages/editor/site/theme.mjs); and what is in each app's folder (appFoldersPlugin).
       plugins: [themePlugin(), appFoldersPlugin(ROOT), tailwindcss()],

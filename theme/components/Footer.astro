@@ -1,14 +1,15 @@
 ---
-// The footer at the bottom of every page (layouts/Base.astro): the practice, how to reach it and the practical links
-// (footer.json, "På alle sider" › "Footer" in the editor), or what a page puts in the slot `footer-column` instead
-// (a blog post's related posts), and at the bottom the CVR number (if any) and the buttons for the cookie settings and
-// light or dark.
+// The footer in Material: a surface container with extra-large corners at the top, the business as a headline, how to
+// reach it as a list with leading icons, the practical links (footer.json, "På alle sider" › "Footer" in the editor) or
+// what a page puts in the slot `footer-column` instead (a blog post's related posts), and at the bottom the cookie
+// settings and light or dark as text buttons.
 import Icon from '@theme/components/Icon.astro';
 import Container from '@theme/components/Container.astro';
-import Butterfly from '@theme/components/Butterfly.astro';
+import LogoMark from '@theme/components/LogoMark.astro';
 import footer from '@data/footer.json';
 import { site } from '@interstellarcms/cms/site/site';
-import { cookieBanner } from '@site/consent';
+import { cookieBanner } from '@interstellarcms/cms/site/consent';
+import { siteT } from '@interstellarcms/cms/src/i18n';
 
 // "Cookieindstillinger": when the cookie banner is on and there is something to ask about (as in Base.astro).
 const banner = cookieBanner;
@@ -17,23 +18,22 @@ const contactLinks = [
   { href: `mailto:${site.email}`, icon: 'envelope-simple', lines: [site.email] },
   { href: `${site.contactPath}#find-vej`, icon: 'map-pin', lines: [site.address.street, site.address.city] },
 ];
-const practicalLinks = footer.links;
 ---
 
-<footer class="mt-24 border-t border-line md:mt-36">
-  <Container as="div" class="grid gap-10 py-14 md:grid-cols-12 md:py-20">
+<footer class="md-footer">
+  <Container as="div" class="grid gap-10 py-12 md:grid-cols-12 md:py-16">
     <div class="md:col-span-5">
-      <Butterfly class="block h-12 w-11 bg-accent" />
-      <p class="footer-name mt-3 text-2xl font-medium tracking-tight">{site.name}</p>
-      <p class="mt-2 max-w-[38ch] text-muted">{footer.text}</p>
+      <LogoMark class="block h-12 w-11 bg-accent" />
+      <p class="md-footer-name">{site.name}</p>
+      <p class="md-footer-text">{footer.text}</p>
     </div>
     <div class="md:col-span-4">
-      <p class="footer-heading font-medium">{footer.contactHeading}</p>
-      <ul class="mt-3 space-y-2.5 text-muted">
+      <p class="md-footer-heading">{footer.contactHeading}</p>
+      <ul class="md-footer-list">
         {contactLinks.map((c) => (
           <li>
-            <a href={c.href} class="inline-flex items-start gap-2.5 hover:text-accent">
-              <Icon name={c.icon} size={18} class="mt-1 shrink-0" />
+            <a href={c.href} class="md-footer-item">
+              <Icon name={c.icon} size={24} />
               <span>
                 {c.lines.map((line, i) => (
                   <>
@@ -47,14 +47,13 @@ const practicalLinks = footer.links;
         ))}
       </ul>
     </div>
-    <div class="md:col-span-3">
-      {/* Blog posts put related posts here instead of the practical links. */}
+    <div class="md-footer-column md:col-span-3">
       <slot name="footer-column">
-        <p class="footer-heading font-medium">{footer.linksHeading}</p>
-        <ul class="mt-3 space-y-2.5 text-muted">
-          {practicalLinks.map((l) => (
+        <p class="md-footer-heading">{footer.linksHeading}</p>
+        <ul class="md-footer-list">
+          {footer.links.map((l) => (
             <li>
-              <a href={l.href} class="hover:text-accent">
+              <a href={l.href} class="md-footer-item">
                 {l.label}
               </a>
             </li>
@@ -62,22 +61,23 @@ const practicalLinks = footer.links;
         </ul>
       </slot>
     </div>
-    <div class="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6 text-sm text-muted md:col-span-12">
+    <div class="md-footer-bottom md:col-span-12">
       <span>
         © {new Date().getFullYear()} {site.name}
         {site.cvr && <> · CVR {site.cvr}</>}
       </span>
-      <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+      <div class="flex flex-wrap items-center gap-2">
         {banner && (
-          <button type="button" data-cookie-settings class="rounded-full hover:text-ink">
-            Cookieindstillinger
+          <button type="button" data-cookie-settings class="button button-text">
+            <Icon name="cookie" size={18} />
+            {siteT.theme.cookieSettings}
           </button>
         )}
-        <button type="button" data-theme-toggle class="inline-flex items-center gap-2 rounded-full hover:text-ink">
-          <Icon name="moon" size={16} class="dark-hide" />
-          <Icon name="sun" size={16} class="light-hide" />
-          <span class="dark-hide">Mørkt tema</span>
-          <span class="light-hide">Lyst tema</span>
+        <button type="button" data-theme-toggle class="button button-text">
+          <Icon name="moon" size={18} class="dark-hide" />
+          <Icon name="sun" size={18} class="light-hide" />
+          <span class="dark-hide">{siteT.theme.darkTheme}</span>
+          <span class="light-hide">{siteT.theme.lightTheme}</span>
         </button>
       </div>
     </div>

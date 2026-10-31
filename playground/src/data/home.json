@@ -1,0 +1,30 @@
+{
+  "heading": "Welcome to Interstellar CMS",
+  "sections": [
+    {
+      "type": "hero",
+      "text": "A modern, Git-driven CMS built for Astro and Cloudflare with official Google Material Design 3 theme.",
+      "reassurance": "Easily edit pages, blocks, and design tokens directly in your browser with real-time preview."
+    },
+    {
+      "type": "steps",
+      "heading": "How It Works",
+      "items": [
+        {
+          "title": "1. Create & Edit",
+          "text": "Edit content, structured data, and layouts visually or with Markdown in the browser."
+        },
+        {
+          "title": "2. Live 1:1 Preview",
+          "text": "Preview your changes instantly rendered with the exact same Material 3 design tokens."
+        },
+        {
+          "title": "3. Single Atomic Commit",
+          "text": "Every save is an atomic Git commit directly to your GitHub repository without a database."
+        }
+      ]
+    }
+  ],
+  "seoTitle": "Interstellar CMS | Material Design 3 Showcase",
+  "seoDescription": "The Git-backed, edge-native CMS for Astro with official Google Material Design 3 theme system."
+}

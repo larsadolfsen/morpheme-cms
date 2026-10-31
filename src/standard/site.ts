@@ -1,5 +1,5 @@
 // What the standard blocks take from a site, where they need more than their own fields and shared
-// texts. On the site: the site's `@site/standard` (src/site/standard.ts, StandardSite); only the blocks'
+// texts. On the site: the site's `@site/standard` (packages/editor/defaults/standard.ts, StandardSite); only the blocks'
 // load.ts (and the site's own pages that draw the same parts) import it, never the editor, so it
 // may read the site's content (astro:content) and use its components. In the editor: the site's data
 // (BlockData.site, from the site's siteOf), which has StandardSiteData too. And in the site's config
@@ -18,8 +18,8 @@ export type ButtonTargetName = { value: string; label: string; note?: string; pi
  * pop-up); without one there, the address is an ordinary link. */
 export type ButtonText = { text: string; after?: string; open?: string };
 
-/** Which posts a "Blogindlæg" block shows (its fields): those with any of `categories` (all when
- * empty), the newest `count` ('3' to '6') or with `order` "random" picked anew on each visit, or with
+/** Which posts a "Blogindlæg" block shows (its fields): those with any of `categories` (all when empty), with `show`
+ * "all" all of them, else the newest `count` ('3' to '6') or with `order` "random" picked anew on each visit, or with
  * `show` "picked" those picked; and the tag "Alle indlæg" goes to (`link`). */
 export type PostChoice = {
   show?: string;
@@ -30,13 +30,22 @@ export type PostChoice = {
   link?: string;
 };
 
-/** A blog post on a card: its address, title and picture. */
-export type PostCard = { href: string; title: string; image?: string };
+/** A blog post as "Blogindlæg" shows it: its address, title, description, picture (its file), date (ISO)
+ * and reading time in minutes. */
+export type ListedPost = {
+  href: string;
+  title: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
+  date: string;
+  minutes: number;
+};
 
 /** What the editor's drawings of the standard blocks take from the site's data (BlockData.site). */
 export type StandardSiteData = {
   pages: { path: string; title: string }[];
-  /** The posts on the blog, newest first, by file name, with what "Blog" shows of them (reading time in minutes). */
+  /** The posts on the blog, newest first, by file name, with what "Blogindlæg" shows of them (reading time in minutes). */
   posts: {
     slug: string;
     title: string;
@@ -99,18 +108,13 @@ export type StandardSite = {
     anchor(t: TestimonialItem): string;
     /** A tag's name, and its page when it has one. */
     tag(slug: string): Promise<{ name: string; href?: string }>;
-    /** What the slider is called for screen readers on a page ("Udtalelser fra klienter"). */
-    label(path?: string): string;
   };
   posts: {
     /** The posts a choice shows, and whether they are picked at random on the page (then all it picks
      * from are there, and the page shows `count` of them). */
-    choose(choice: PostChoice, count: number): Promise<{ posts: PostCard[]; random: boolean }>;
-    /** The posts on the blog with any of `categories` (all when empty), newest first, as "Blog" shows them: the
-     * address, title, description, picture (its file), date (ISO) and reading time in minutes. */
-    list(
-      categories: string[],
-    ): Promise<{ href: string; title: string; description?: string; image?: string; imageAlt?: string; date: string; minutes: number }[]>;
+    choose(choice: PostChoice, count: number): Promise<{ posts: ListedPost[]; random: boolean }>;
+    /** The posts on the blog with any of `categories` (all when empty), newest first. */
+    list(categories: string[]): Promise<ListedPost[]>;
     /** Where its "Alle indlæg" goes: a tag's page, with the tag's name, or the blog. */
     all(choice: PostChoice): { href: string; tag?: string };
     /** A picture's sizes, for the browser to pick the one that fits (srcset, width and height). Also

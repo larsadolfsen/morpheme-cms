@@ -9,9 +9,9 @@ import { pickImage } from './images';
 import { BRAND_FILES, FAVICON, iconFiles, LOGO, logoFile, openPicture, solid, type Picture } from './brand';
 import type { Env } from './App';
 import { colorsOf } from './Colors';
-import { SAVED } from './deploy';
+import { savedText } from './deploy';
 import { siteName } from '@site/editor';
-import { siteT, t } from './i18n';
+import { locale, siteT, t } from './i18n';
 
 const svgUrl = (text: string) => URL.createObjectURL(new Blob([text], { type: 'image/svg+xml' }));
 
@@ -20,7 +20,7 @@ export default function BrandForm({ env }: { env: Env }) {
   const [loaded, setLoaded] = useState<Record<string, RepoFile> | null>(null);
   // The files to save, by path, and what the previews show.
   const [changes, setChanges] = useState<Record<string, string | Uint8Array>>({});
-  const [logo, setLogo] = useState<{ url: string; picture: Picture | null }>({ url: '/butterfly.svg', picture: null });
+  const [logo, setLogo] = useState<{ url: string; picture: Picture | null }>({ url: '/logo.svg', picture: null });
   const [icon, setIcon] = useState('/editor/icon-192.png');
   const [saving, setSaving] = useState(false);
   // Drawing the icons takes a moment.
@@ -90,10 +90,16 @@ export default function BrandForm({ env }: { env: Env }) {
     const paths = Object.keys(changes);
     const message = siteT.company.commit.brand(LOGO in changes, FAVICON in changes);
     const files = paths.map((path) => ({ path, content: changes[path], oid: loaded[path]?.oid ?? null }));
+    const change = t.app.changes.edited(
+      new Intl.ListFormat(locale, { type: 'conjunction' }).format([
+        ...(LOGO in changes ? [t.app.changes.logo] : []),
+        ...(FAVICON in changes ? [t.app.changes.icon] : []),
+      ]),
+    );
     setSaving(true);
     notify({ text: t.common.saving });
     try {
-      const oids = await env.commit(message, files);
+      const oids = await env.commit(message, files, change);
       setLoaded((all) => ({
         ...all,
         ...Object.fromEntries(
@@ -101,7 +107,7 @@ export default function BrandForm({ env }: { env: Env }) {
         ),
       }));
       setChanges({});
-      notify({ text: SAVED, kind: 'saved' });
+      notify({ text: savedText(change), kind: 'saved' });
       return true;
     } catch (e) {
       notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });

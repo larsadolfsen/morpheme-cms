@@ -12,6 +12,7 @@ import { svgParts } from '@interstellarcms/cms/lib/svg.mjs';
 import { declarationProblems, ownerId } from '@interstellarcms/cms/lib/licenses.mjs';
 import { installedPacks, isIconName, packFolder, packProblems, phosphorFile, svgProblems, usedIcons } from './icons.mjs';
 import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS, THEME_PACKS_FOLDER, packInUse, packTheme, themePackId } from './iconPacks.mjs';
+import { MOTION_SCHEMES } from '@interstellarcms/cms/lib/motion-schemes.mjs';
 
 /** The site's choice of icon pack, `{ "pack": "<id>" }` (config.icons in src/site/config.ts). */
 const ICONS_FILE = 'src/data/icons.json';
@@ -20,9 +21,9 @@ const ICONS_FILE = 'src/data/icons.json';
 const root = pathToFileURL(`${process.cwd()}/`);
 const pkg = new URL('../', import.meta.url);
 
-/** The theme every theme builds on, Saturn (this package's theme/): it has all of THEME_FILES and the look of every
+/** The theme every theme builds on, Material (this package's theme/, id 'saturn'): it has all of THEME_FILES and the look of every
  * standard block. */
-export const STANDARD_THEME = 'saturn';
+export const STANDARD_THEME = 'material';
 
 /** A theme's folder, from the site's root: the standard theme's is this package's theme/, another's src/themes/<theme>. */
 export const themeFolder = (theme) =>
@@ -76,8 +77,8 @@ const has = (path) => existsSync(new URL(path, root));
 const standardTypes = () => folders(new URL('src/standard/', pkg)).filter((t) => existsSync(new URL(`src/standard/${t}/index.tsx`, pkg)));
 
 /** What is wrong with a theme's own icons (icons/<name>.svg, drawn by Svg in packages/editor/src/icon.tsx, in place of
- * its icon pack's): each is one <svg> with a viewBox, with nothing in it that runs or loads something from elsewhere, by
- * a name the site draws. */
+ * its icon pack's): each is one <svg> with a viewBox, with only what draws in it (svgProblems), by a name the site
+ * draws. */
 function iconProblems(theme) {
   const dir = `${themeFolder(theme)}/icons`;
   if (!has(dir)) return [];
@@ -182,6 +183,23 @@ export function themeIcon(name, theme = activeTheme()) {
   return null;
 }
 
+/** The site's choice of motion scheme, `{ "scheme": "<scheme>" }` (config.motion in src/site/config.ts). */
+const MOTION_FILE = 'src/data/motion.json';
+
+/** What is wrong with the choice of motion scheme made under "Udseende" › "Bevægelse" (src/data/motion.json): one that
+ * is not a scheme (lib/motion.ts). */
+export function motionProblems() {
+  const file = new URL(MOTION_FILE, root);
+  if (!existsSync(file)) return [];
+  try {
+    const { scheme } = JSON.parse(readFileSync(file, 'utf8'));
+    if (MOTION_SCHEMES.includes(scheme)) return [];
+    return [`${MOTION_FILE}: bevægelsen ${JSON.stringify(scheme ?? null)} findes ikke. Vælg en under Udseende › Bevægelse.`];
+  } catch (e) {
+    return [`${MOTION_FILE}: ${e.message}`];
+  }
+}
+
 /** What is wrong with the system's icon packs (packProblems; a theme's own are its themeProblems) and the choice of one:
  * src/data/icons.json naming one that is not there. */
 export function iconPackProblems() {
@@ -252,7 +270,8 @@ function reactIcons(icons) {
 /** An icon's SVG file as Phosphor's are (in the text's colour, `fill="currentColor"`), for an import of Phosphor's. */
 const fileIcon = (svg) => {
   const { viewBox, inner } = svgParts(svg);
-  return `export default ${JSON.stringify(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" fill="currentColor">${inner}</svg>`)};`;
+  const box = viewBox ? ` viewBox="${viewBox}"` : '';
+  return `export default ${JSON.stringify(`<svg xmlns="http://www.w3.org/2000/svg"${box} fill="currentColor">${inner}</svg>`)};`;
 };
 
 /** What a theme is missing (the standard theme: of THEME_FILES and the look of every standard block, another: of
@@ -326,6 +345,11 @@ export function themeProblems(theme) {
       problems.push(
         `${themeFolder(theme)}/theme.json: "icons" er den ikonpakke, temaet bruger, når ingen er valgt: ${[...SYSTEM_PACKS, ...own].map((p) => `"${p}"`).join(', ')}.`,
       );
+    // How it moves while the owner has chosen none (lib/motion.ts); without it, the standard theme's.
+    if (manifest.motion !== undefined && !MOTION_SCHEMES.includes(manifest.motion))
+      problems.push(
+        `${themeFolder(theme)}/theme.json: "motion" er den bevægelse, temaet bruger, når ingen er valgt: ${MOTION_SCHEMES.map((s) => `"${s}"`).join(', ')}.`,
+      );
     // Its own licence and the licences of what it brings (fonts, code, pictures), for "Licenser" and the store.
     problems.push(
       ...declarationProblems({
@@ -359,6 +383,18 @@ export function themeProblems(theme) {
   return [...problems, ...iconProblems(theme), ...packs.flatMap((p) => packProblems(themePackId(theme, p), used))];
 }
 
+// A site's own parts (src/site/<file>), else the package's standard ones (defaults/<file>): `@site/<file>`.
+const SITE_DIRS = [fileURLToPath(new URL('src/site/', root)), fileURLToPath(new URL('defaults/', pkg))];
+
+/** The file `@site/<file>` is: the site's src/site/<file>, else the package's defaults/<file>, with or without its
+ * extension (`@site/editor`, as TypeScript writes it), or null. */
+export function siteFile(file) {
+  for (const dir of SITE_DIRS)
+    for (const ext of ['', '.ts', '.tsx', '.mjs', '.js'])
+      if (statSync(dir + file + ext, { throwIfNoEntry: false })?.isFile()) return dir + file + ext;
+  return null;
+}
+
 /** The folder of the theme in use, under src/themes/. */
 export function activeTheme() {
   const { theme } = JSON.parse(readFileSync(new URL('src/data/theme.json', root), 'utf8'));
@@ -367,18 +403,18 @@ export function activeTheme() {
   return theme;
 }
 
-/** @site (the site's src/site/), @data (its data, src/data/) and @saturn (the standard theme, this package's theme/), as
- * Vite's resolve.alias. */
+/** @data (the site's data, src/data/), @saturn (the standard theme, this package's theme/) and @icons (the system's icon
+ * packs), as Vite's resolve.alias. @site is themePlugin's (siteFile). */
 export const aliases = () => ({
-  '@site': fileURLToPath(new URL('src/site', root)),
   '@data': fileURLToPath(new URL('src/data', root)),
-  '@saturn': fileURLToPath(new URL('theme', pkg)),
+    '@saturn': fileURLToPath(new URL('theme', pkg)),
   '@icons': fileURLToPath(new URL('icons', pkg)),
 });
 
-/** @theme as a Vite plugin: `@theme/<file>` is the theme in use's file, else the standard theme's. A glob
+/** @theme and @site as a Vite plugin: `@site/<file>` is the site's own part, else the package's standard one
+ * (siteFile), and `@theme/<file>` is the theme in use's file, else the standard theme's. A glob
  * (`import.meta.glob('@theme/blocks/*\/View.tsx')`) is the theme in use's; whoever globs puts the standard
- * theme's under it (src/site/sites.ts, src/site/blocks.ts).
+ * theme's under it (packages/editor/src/standard/siteLooks.ts, packages/editor/src/standard/themeBlocks.ts).
  * And the theme's icons (themeIcons: its own, else the icon pack in use's, iconPack) in Phosphor's place, on the site
  * and in the editor alike: an import of `@phosphor-icons/react` is Phosphor's with the theme's icons in place of its own
  * (reactIcons), and an SVG file of Phosphor's as text (`?raw`) the theme's, when it has one. An icon neither has is
@@ -399,6 +435,7 @@ export function themePlugin() {
       if (source === PHOSPHOR_REACT) return own && importer !== REACT_ICONS ? REACT_ICONS : null;
       const icon = source.match(PHOSPHOR_FILE)?.[1];
       if (icon) return svgParts(icons[icon]) ? FILE_ICON + icon : null;
+      if (source.startsWith('@site/')) return siteFile(source.slice('@site/'.length));
       if (!source.startsWith('@theme/')) return null;
       const file = source.slice('@theme/'.length);
       if (file.includes('*')) return themes[0] + file;

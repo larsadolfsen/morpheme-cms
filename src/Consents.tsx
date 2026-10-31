@@ -15,7 +15,6 @@ import {
   Group,
   IconLink,
   listClass,
-  listItemClass,
   ProblemNote,
   SearchRow,
   SheetBody,
@@ -23,6 +22,7 @@ import {
   SupportingText,
   BottomSheet,
   useKept,
+  ListItem,
 } from './ui';
 import type { Env } from './App';
 import { CONSENT_API, deleteConsents, loadConsents, type ConsentAnswer } from './consents';
@@ -136,16 +136,16 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
         (shown.length ? (
           <Group>
             {shown.map((a) => (
-              <li key={`${a.id}-${a.at}`}>
-                <button type="button" className={listItemClass} onClick={() => setOpen(a)}>
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-medium break-all">{a.id}</span>
-                    <span className="mt-0.5 block text-sm text-muted">
-                      {when(new Date(a.at))} · {summary(a)}
-                    </span>
-                  </span>
-                </button>
-              </li>
+              <ListItem
+                key={`${a.id}-${a.at}`}
+                onClick={() => setOpen(a)}
+                headline={a.id}
+                supporting={
+                  <>
+                    {when(new Date(a.at))} · {summary(a)}
+                  </>
+                }
+              />
             ))}
           </Group>
         ) : (

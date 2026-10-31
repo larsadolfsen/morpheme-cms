@@ -1,0 +1,10 @@
+---
+// The site's logo (public/logo.svg) as a decorative mark. Size and colour come from the classes,
+// e.g. <LogoMark class="h-9 w-8 bg-accent" />.
+interface Props {
+  class?: string;
+}
+const { class: className = 'bg-accent' } = Astro.props;
+---
+
+<span class:list={['logo-mark shrink-0', className]} aria-hidden="true"></span>

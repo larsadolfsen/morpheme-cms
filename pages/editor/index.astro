@@ -20,12 +20,19 @@ import { editorVersion } from '@interstellarcms/cms/site/editor-version.mjs';
 import { config } from '@site/config';
 // The site's colours (the theme's styles/global.css); the editor puts the ones it has loaded in their place, so
 // a change under "Farver" shows at once (packages/editor/src/theme.ts).
+// With those a file written before them does not have made (completeColors).
 import colors from '@data/colors.json';
 import { colorsCss } from '@interstellarcms/cms/lib/colors';
+import { completeColors } from '@interstellarcms/cms/lib/dynamic-colors';
+import { colorRoles } from '@site/colors';
+// How the site moves, which the editor moves by too (packages/editor/lib/motion.ts); the editor puts a new choice under
+// "Bevægelse" in its place at once (packages/editor/src/theme.ts).
+import { motionCss } from '@interstellarcms/cms/lib/motion';
+import { motionScheme } from '@interstellarcms/cms/site/motion';
 ---
 
 <!doctype html>
-<html lang={config.locale}>
+<html lang={config.locale} data-motion-scheme={motionScheme}>
   <head>
     <meta charset="utf-8" />
     <meta
@@ -41,10 +48,12 @@ import { colorsCss } from '@interstellarcms/cms/lib/colors';
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content={config.name} />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <!-- The top bar in the colour of the surfaces; data-color: that of its own mode, for a picked one. -->
-    <meta name="theme-color" content={colors.light.surface} data-color={colors.light.surface} media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content={colors.dark.surface} data-color={colors.dark.surface} media="(prefers-color-scheme: dark)" />
-    <style id="site-colors" is:inline set:html={colorsCss(colors)}></style>
+    <!-- The top bar in the background's colour, the screens' own and the app bar's at the top; data-color: that of its
+         own mode, for a picked one. -->
+    <meta name="theme-color" content={colors.light.bg} data-color={colors.light.bg} media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content={colors.dark.bg} data-color={colors.dark.bg} media="(prefers-color-scheme: dark)" />
+    <style id="site-colors" is:inline set:html={colorsCss(completeColors(colors, colorRoles))}></style>
+    <style id="site-motion" is:inline set:html={motionCss(motionScheme)}></style>
     <!-- Light or dark as picked on "Konto" (packages/editor/src/theme.ts), before the page is drawn. The
          language (lang) is the site's until the editor has picked its own (packages/editor/src/i18n/). -->
     <script is:inline>

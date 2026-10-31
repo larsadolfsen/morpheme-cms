@@ -10,7 +10,7 @@
 // timePicker.script.ts opens it, draws the picker in its <dialog>, writes the time picked into the inputs and closes
 // it; in the editor's previews it is only drawn, and with `onChange` (the editor's own fields) it works the same way,
 // here, and says the time picked (or '' for none). Its fixed texts (timePickerTexts) are the site's own, in
-// src/site/texts.ts, unless `texts` gives them (the editor's, in its language).
+// @site/texts, unless `texts` gives them (the editor's, in its language).
 import { useEffect, useRef, type ReactNode } from 'react';
 import { siteText, locale } from '@interstellarcms/cms/src/i18n';
 import { timePickerField } from '@theme/ui/timePicker.script';

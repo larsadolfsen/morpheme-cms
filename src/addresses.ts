@@ -9,10 +9,10 @@ import { t } from './i18n';
 
 export const REDIRECTS = config.redirects;
 
-/** Old address -> new address, e.g. "/parterapi/" -> "/parterapi-roskilde/". */
+/** Old address -> new address, e.g. "/om/" -> "/om-mig/". */
 export type Redirects = Record<string, string>;
 
-/** What is typed as an address, as one: "/ny-side/" (a page may have more parts, "/parterapi/utroskab/";
+/** What is typed as an address, as one: "/ny-side/" (a page may have more parts, "/ydelser/raadgivning/";
  * a blog post only one). With or without the slashes or the site's domain; '' when nothing is left. */
 export function addressOf(typed: string, kind: 'page' | 'post'): string {
   const parts = typed

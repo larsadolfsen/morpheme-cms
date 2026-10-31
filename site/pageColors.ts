@@ -15,10 +15,12 @@ import { colorFields, colorPairs, colorRoles } from '@site/colors';
 import { installed, settingsOf } from './apps';
 import { appIdOf, type AppDefinition } from '@interstellarcms/cms/src/apps';
 import { colorProblems, lowContrast, MODES, type Colors } from '@interstellarcms/cms/lib/colors';
+import { completeColors } from '@interstellarcms/cms/lib/dynamic-colors';
 import type { PageColorsHook } from '@interstellarcms/cms/lib/hooks';
 import { splitPicture } from '@interstellarcms/cms/lib/crop.mjs';
 
-const site = colors as Colors;
+// With those a file written before them does not have made (completeColors).
+const site = completeColors(colors as Colors, colorRoles);
 const PUBLIC = path.resolve('public');
 const names = colorFields.map((f) => f.name);
 // Small is enough to find a picture's colours, and quick.

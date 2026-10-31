@@ -1,5 +1,5 @@
 // "Virksomheden": the business, in parts (companyParts), each a screen of its own: its phone, e-mail
-// and address (src/data/contact.json) and its payment details (`payment` in src/data/prices.json), used
+// and address (src/data/contact.json) and its bank details (src/data/payment.json), used
 // all over the site; and its logo and icon (BrandForm.tsx). A part is saved with "Gem ændringer"; the JSON file
 // keeps its keys in their order, so a save only changes what was edited. The same form has the other parts' fields (an
 // app's settings, AppList.tsx appSettingsPart). A field with its choices on a page of their own (Field.page: an app's
@@ -13,7 +13,7 @@ import type { Part } from './schema';
 import { clean, problemAt } from './check';
 import { FieldList, FieldRows, Fields, useWrongField, WrongField, type FieldContext } from './fields';
 import type { Env } from './App';
-import { SAVED } from './deploy';
+import { lower, savedText } from './deploy';
 import { preview as blockPreview } from './registry';
 import { asWritten } from './site';
 import { config, keptBy, siteOf } from '@site/editor';
@@ -27,7 +27,7 @@ type Props = { part: Part; env: Env; files: RepoFile[] };
 /** A part's fields in its file, as a form: the values, whether they are changed, and its save ("Gem
  * ændringer"), which says what is wrong first (useWrongField); here and on an app's page (AppList.tsx). */
 export function usePartForm({ part, env, files }: Props) {
-  const { file: path, at, fields } = part as Required<Part>;
+  const { file: path, at, fields = [] } = part as Required<Part>;
   const notify = env.notify;
   // A form that cannot be saved: why, as a message, and the field marked (useWrongField in fields.tsx).
   const wrongField = useWrongField((text) => notify({ text, error: true }));
@@ -68,16 +68,17 @@ export function usePartForm({ part, env, files }: Props) {
     if (kept) return notify(kept);
     const message = siteT.company.commit.edit(part.commit ?? asWritten(part).label.toLowerCase());
     const changes = [{ path, content: text, oid: base.oid || null }];
+    const change = t.app.changes.edited(lower(part.label));
     setSaving(true);
     notify({ text: t.common.saving });
     try {
-      const oids = await env.commit(message, changes);
+      const oids = await env.commit(message, changes, change);
       const saved = { path, oid: oids[path], text };
       setBase(saved);
       setInitial(valuesOf(text));
       setValues(valuesOf(text));
       env.onSaved(saved);
-      notify({ text: SAVED, kind: 'saved' });
+      notify({ text: savedText(change), kind: 'saved' });
       return true;
     } catch (e) {
       notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
@@ -92,7 +93,7 @@ export function usePartForm({ part, env, files }: Props) {
 /** `at`: the form's address, for its fields' pages (Field.page); `page`: the field whose page is open. */
 export default function CompanyForm({ part, env, files, at: route, page }: Props & { at?: string; page?: string }) {
   const { base, values, setValues, dirty, saving, save, wrongField, context } = usePartForm({ part, env, files });
-  const { file: path, at, fields } = part as Required<Part>;
+  const { file: path, at, fields = [] } = part as Required<Part>;
   // The fields with their choices on a page of their own, and the one open.
   const paged = route ? fields.filter((f) => f.page) : [];
   useFormPages(route ? [route, ...paged.map((f) => `${route}/${f.name}`)] : []);

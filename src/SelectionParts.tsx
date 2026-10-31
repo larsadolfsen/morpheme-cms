@@ -1,10 +1,10 @@
-// "Dele" › "Tema" (BlockParts.tsx), the group "Kontakter, valg og sideark": the theme's switches, radio buttons,
+// "Dele" › "UI-komponenter" (BlockParts.tsx), the group "Kontakter, valg og sideark": the theme's switches, radio buttons,
 // sliders, dividers and side sheets (packages/editor/theme/ui/, through @site/editor) as the site draws them, in every
 // kind and state (the sliders also centered, in each size, with an icon and vertical), with made-up texts. The
 // switches, radio buttons and sliders can be tried (a slider's tracks and labels follow it here as on the site);
 // nothing is saved, and the side sheets are only drawn (on the site a modal one opens over the page with sideSheet()).
 // On a phone the standard one is drawn without the page beside it, as there is no room for both.
-import { SiteButton, SiteDivider, SiteRadioButton, SiteRadioGroup, SiteSideSheet, SiteSlider, SiteSwitch } from '@site/editor';
+import { SiteButton, SiteDivider, SiteRadioButton, SiteRadioGroup, SiteSideSheet, SiteSlider, SiteSwitch } from './themeUi';
 import { Part } from './PartsShown';
 import { Preview } from './ui';
 import { t } from './i18n';

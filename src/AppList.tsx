@@ -54,17 +54,14 @@ import {
   LinkButton,
   listClass,
   SupportingText,
-  listItemClass,
   SearchRow,
   BottomSheet,
   SheetBody,
   SheetTitle,
-  staticListItemClass,
   Switch,
   SwitchRow,
-  TrailingText,
   useKept,
-  TrailingIcon,
+  ListItem,
 } from './ui';
 import { BlockSwitch, blockSwitchTexts, KindSwitch, kindSwitchTexts, pagesWith, useOnOff } from './BlockSettings';
 import { ConflictError, type Change, type RepoFile } from './github';
@@ -83,6 +80,7 @@ import {
   notesSince,
   recordIn,
   DEVELOPER_ROUTE,
+  hasStore,
   newer,
   STORE_ROUTE,
   STORE_THEMES,
@@ -94,27 +92,35 @@ import {
   type StoreRecord,
 } from './store';
 import { apps, offBlocks, siteBlocks } from './registry';
-import { asWritten, backFrom, collections, partScreens } from './site';
-import { byText, slugify, type Part, type PartScreen } from './schema';
+import { asWritten, backFrom, collections, companyParts, partScreens } from './site';
+import { byText, slugify, type Part } from './schema';
 import { headed, letterOf } from './Sheet';
 import { config } from '@site/editor';
 import { allThemes, ThemeRow, themeInstalled, useThemeCatalog } from './ThemeStore';
 import { siteT, siteText, t } from './i18n';
-import { OwnerLicenses, StoreLicenseRows } from './Licenses';
+import { OwnerLicenses, StoreLicenseRows } from './Licenses.tsx';
 import { appType, setOn, told, useNotificationChoices } from './notifications';
+import { kindAndName } from './deploy';
 
 export const appHref = (app: SiteApp) => `#apps/${app.id}`;
 
-/** The screen under "Indstillinger" with an app's settings: the site's with its kind ("Analytics"), if any. */
-export const settingsHome = (app: SiteApp): PartScreen | undefined =>
-  app.category ? partScreens.find((s) => s.apps?.includes(app.category!)) : undefined;
+/** The screen with an app's settings, by its kind, if any: one under "Indstillinger" ("Analytics", partScreens) or a
+ * part of "Virksomheden" with parts ("Betaling", companyParts); its address and its name. */
+export function settingsHome(app: SiteApp): { route: string; label: string } | undefined {
+  const kind = app.category;
+  if (!kind) return undefined;
+  const screen = partScreens.find((s) => s.apps?.includes(kind));
+  if (screen) return { route: screen.id, label: screen.label };
+  const company = companyParts.find((p) => p.parts && p.apps?.includes(kind));
+  return company && { route: `virksomheden/${company.id}`, label: company.label };
+}
 
-/** Where an app's settings are: on the screen with its kind (#maaling/google-analytics), else on a screen of their
- * own (#apps/<id>/indstillinger); null without settings. */
+/** Where an app's settings are: on the screen with its kind (#maaling/google-analytics, #virksomheden/betaling/mobilepay),
+ * else on a screen of their own (#apps/<id>/indstillinger); null without settings. */
 export function settingsRoute(app: SiteApp): string | null {
   if (!app.settings) return null;
   const home = settingsHome(app);
-  return home ? `${home.id}/${app.id}` : `apps/${app.id}/indstillinger`;
+  return home ? `${home.route}/${app.id}` : `apps/${app.id}/indstillinger`;
 }
 
 /** An app's settings as a part, a form of its own (CompanyForm.tsx): its fields in its file, under its name, going back
@@ -130,12 +136,13 @@ export function appSettingsPart(app: SiteApp): Part | null {
     fields: app.settings.fields,
     defaults: app.settings.values,
     commit: siteT.apps.settingsOf(asWritten(app).label),
-    back: home ? { href: `#${home.id}`, label: home.label } : { href: appHref(app), label: app.label },
+    back: home ? { href: `#${home.route}`, label: home.label } : { href: appHref(app), label: app.label },
   };
 }
 
-/** The settings of the apps installed of a screen's kinds (PartScreen.apps), after its own parts. */
-export function appPartsIn(screen: PartScreen, files: RepoFile[]): Part[] {
+/** The settings of the apps installed of a screen's kinds (PartScreen.apps, or Part.apps of a part with parts), after
+ * its own parts. */
+export function appPartsIn(screen: { apps?: AppCategory[] }, files: RepoFile[]): Part[] {
   if (!screen.apps) return [];
   const installed = installedApps(files);
   return apps
@@ -271,7 +278,7 @@ const updateOf = (app: SiteApp, catalog: ShownApp[] | null | 'failed') => {
 };
 
 /** An icon of the store's catalog (Phosphor's name) in front of a row. */
-const StoreIcon = ({ name }: { name?: string }) => <LeadingIcon>{name && <AnyIcon name={name} size={24} />}</LeadingIcon>;
+const storeIcon = (name?: string) => <LeadingIcon>{name && <AnyIcon name={name} size={24} />}</LeadingIcon>;
 
 export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
   const installed = installedApps(files);
@@ -303,7 +310,7 @@ export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
           label: found?.label ?? id,
           publisher: found?.publisher ?? '',
           hint: found?.hint ?? '',
-          icon: <StoreIcon name={found?.icon} />,
+          icon: storeIcon(found?.icon),
           status: t.apps.pending,
         };
       }),
@@ -329,18 +336,16 @@ export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
         groups.map((g) => (
           <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
             {g.items.map((a) => (
-              <li key={a.id}>
-                <a href={`#apps/${a.id}`} className={listItemClass}>
-                  {a.icon}
-                  {/* Who made it under its name. */}
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-medium">{a.label}</span>
-                    {a.publisher && <span className="block text-sm text-muted">{a.publisher}</span>}
-                  </span>
-                  {a.status && <TrailingText>{a.status}</TrailingText>}
-                  <TrailingIcon />
-                </a>
-              </li>
+              // Who made it under its name.
+              <ListItem
+                key={a.id}
+                href={`#apps/${a.id}`}
+                leading={a.icon}
+                headline={a.label}
+                supporting={a.publisher}
+                count={a.status}
+                arrow
+              />
             ))}
           </Group>
         ))
@@ -358,7 +363,7 @@ const backToStore = { href: `#${STORE_ROUTE}`, label: t.apps.find };
 function allApps(catalog: ShownApp[] | null | 'failed') {
   const store = Array.isArray(catalog) ? catalog : [];
   return [
-    ...store.map((a) => ({ ...a, glyph: <StoreIcon name={a.icon} /> })),
+    ...store.map((a) => ({ ...a, glyph: storeIcon(a.icon) })),
     ...apps
       .filter((a) => !a.store && !store.some((s) => s.id === a.id))
       .map((a) => ({
@@ -380,17 +385,14 @@ const developerHref = (name: string) => `#${DEVELOPER_ROUTE}/${slugify(name)}`;
  * opening its page. */
 function AppRow({ app, installed }: { app: ReturnType<typeof allApps>[number]; installed: boolean }) {
   return (
-    <li>
-      <a href={`#apps/${app.id}`} className={listItemClass}>
-        {app.glyph}
-        <span className="min-w-0 flex-1">
-          <span className="block font-medium">{app.label}</span>
-          <span className="block text-sm text-muted">{app.hint}</span>
-        </span>
-        {installed && <TrailingText>{t.apps.installed}</TrailingText>}
-        <TrailingIcon />
-      </a>
-    </li>
+    <ListItem
+      href={`#apps/${app.id}`}
+      leading={app.glyph}
+      headline={app.label}
+      supporting={app.hint}
+      count={installed && t.apps.installed}
+      arrow
+    />
   );
 }
 
@@ -476,15 +478,7 @@ function AppAbout({
   licenses?: ReactNode;
   children?: ReactNode;
 }) {
-  const row = (glyph: Icon, text: string, more?: string) => (
-    <li key={text} className={staticListItemClass}>
-      <LeadingIcon icon={glyph} />
-      <span className="min-w-0 flex-1">
-        <span className="block">{text}</span>
-        {more && <span className="block text-sm text-muted">{more}</span>}
-      </span>
-    </li>
-  );
+  const row = (glyph: Icon, text: string, more?: string) => <ListItem key={text} icon={glyph} headline={text} supporting={more} />;
   const needed = needs
     ? [
         needs.pages && row(Code, t.apps.needsPages),
@@ -573,13 +567,7 @@ function AppAbout({
 export function DeveloperRow({ name }: { name: string }) {
   return (
     <Group title={t.apps.developer}>
-      <li>
-        <a href={developerHref(name)} className={listItemClass}>
-          <LeadingIcon icon={UserCircle} />
-          <span className="min-w-0 flex-1 font-medium">{name}</span>
-          <TrailingIcon />
-        </a>
-      </li>
+      <ListItem href={developerHref(name)} icon={UserCircle} headline={name} arrow />
     </Group>
   );
 }
@@ -683,7 +671,9 @@ export function StorePage({ env, files, tab }: { env: Env; files: RepoFile[]; ta
         </div>
       )}
       {/* The site's own are shown also when the store cannot be read. */}
-      {read === null ? (
+      {!hasStore ? (
+        <EmptyNote>{t.apps.noStore}</EmptyNote>
+      ) : read === null ? (
         <EmptyNote busy>{t.apps.loadingStore}</EmptyNote>
       ) : read === 'failed' ? (
         <EmptyNote>{t.apps.storeFailed}</EmptyNote>
@@ -726,9 +716,9 @@ function cookiesIn(files: { path: string; content: string | Uint8Array }[]): App
 }
 
 /** Saves the changes to an app's folder (appChanges) and to the cookie list (cookieChanges) in one commit, and gives
- * the editor the site's files it changed: the file of apps and the cookie list. */
-async function saveApp(env: Env, message: string, changes: Change[], apps: RepoFile | undefined) {
-  const oids = await env.commit(message, changes);
+ * the editor the site's files it changed: the file of apps and the cookie list. `change`: what it changed (deploy.ts). */
+async function saveApp(env: Env, message: string, change: string, changes: Change[], apps: RepoFile | undefined) {
+  const oids = await env.commit(message, changes, change);
   const site = changes.filter((c) => c.path === config.apps.installed || inCookieList(c.path));
   const saved = site.flatMap((c) => (typeof c.content === 'string' ? [{ path: c.path, oid: oids[c.path], text: c.content }] : []));
   const removed = site.filter((c) => c.content === null).map((c) => c.path);
@@ -770,7 +760,8 @@ export async function autoUpdate(env: Env, files: RepoFile[]) {
       if (changedFiles(app.id, record, current).length) continue;
       const wanted = { files: await env.store.files(next), record: recordOf(next) };
       const changes = [...appChanges(app.id, current, wanted, installed, file), ...cookieChanges(app.id, cookiesIn(wanted.files), files)];
-      await saveApp(env, siteT.apps.commit.update(next.written, next.version), changes, file);
+      const change = t.app.changes.updated(kindAndName(t.app.changes.app, next.label), next.version);
+      await saveApp(env, siteT.apps.commit.update(next.written, next.version), change, changes, file);
       updated.set(app.id, next.version);
       env.notify({
         text: t.apps.autoUpdated(next.label, next.version),
@@ -795,7 +786,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
   async function change(
     id: string,
     // `kind`: the notification it is when it is saved (an update is "Apps opdateret", as one on its own).
-    text: { busy: string; done: string; commit: string; kind?: 'saved' | 'updates' },
+    text: { busy: string; done: string; commit: string; change: string; kind?: 'saved' | 'updates' },
     next: () => Promise<Parameters<typeof appChanges>[2]>,
     // Whether to go on, with the app's files in the site now (an update asks, when some were changed).
     go: (current: RepoFile[]) => Promise<boolean> = async () => true,
@@ -809,7 +800,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
         return false;
       }
       const cookies = cookieChanges(id, wanted ? cookiesIn(wanted.files) : null, files);
-      await saveApp(env, text.commit, [...appChanges(id, current, wanted, installed, file), ...cookies], file);
+      await saveApp(env, text.commit, text.change, [...appChanges(id, current, wanted, installed, file), ...cookies], file);
       env.notify({ text: text.done, kind: text.kind ?? 'saved' });
       return true;
     } catch (e) {
@@ -825,7 +816,12 @@ function useStoreActions(env: Env, files: RepoFile[]) {
     install: (app: ShownApp) =>
       change(
         app.id,
-        { busy: t.apps.installing, done: t.apps.isInstalledSoon(app.label), commit: siteT.apps.commit.install(app.written) },
+        {
+          busy: t.apps.installing,
+          done: t.apps.isInstalledSoon(app.label),
+          commit: siteT.apps.commit.install(app.written),
+          change: t.app.changes.installed(kindAndName(t.app.changes.app, app.label)),
+        },
         async () => ({ files: await env.store.files(app), record: recordOf(app) }),
       ),
     async update(app: ShownApp, record: StoreRecord) {
@@ -835,6 +831,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
           busy: t.apps.updating,
           done: t.apps.isUpdatedSoon(app.label, app.version),
           commit: siteT.apps.commit.update(app.written, app.version),
+          change: t.app.changes.updated(kindAndName(t.app.changes.app, app.label), app.version),
           kind: 'updates',
         },
         async () => ({ files: await env.store.files(app), record: recordOf(app) }),
@@ -855,7 +852,12 @@ function useStoreActions(env: Env, files: RepoFile[]) {
     uninstall: (id: string, label: string, written: string) =>
       change(
         id,
-        { busy: t.apps.uninstalling, done: t.apps.isUninstalled(label), commit: siteT.apps.commit.uninstall(written) },
+        {
+          busy: t.apps.uninstalling,
+          done: t.apps.isUninstalled(label),
+          commit: siteT.apps.commit.uninstall(written),
+          change: t.app.changes.uninstalled(kindAndName(t.app.changes.app, label)),
+        },
         async () => null,
       ),
   };
@@ -947,17 +949,7 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
   const app = Array.isArray(catalog) ? catalog.find((a) => a.id === id) : undefined;
   const pictures = useStorePictures(env, app);
 
-  const row = (a: StoreAdd, key: string) => (
-    <li key={key}>
-      <div className={listItemClass}>
-        <StoreIcon name={a.icon} />
-        <span className="min-w-0 flex-1">
-          <span className="block font-medium">{a.label}</span>
-          {a.hint && <span className="block text-sm text-muted">{a.hint}</span>}
-        </span>
-      </div>
-    </li>
-  );
+  const row = (a: StoreAdd, key: string) => <ListItem key={key} leading={storeIcon(a.icon)} headline={a.label} supporting={a.hint} />;
   // Its kinds under the name of the list they are added to ("Promovering").
   const kinds = app?.adds.kinds ?? [];
   const listName = (list: string) => collections.find((c) => c.id === list)?.label ?? list;
@@ -967,7 +959,7 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
       {app && (
         <>
           <AppHead
-            icon={<StoreIcon name={app.icon} />}
+            icon={storeIcon(app.icon)}
             label={app.label}
             publisher={app.publisher}
             status={pending ? t.apps.pending : t.apps.notInstalled}
@@ -1067,7 +1059,6 @@ function SwitchedRow({
   busy,
   onBusy,
   onOpen,
-  children,
 }: {
   app: SiteApp;
   add: Add;
@@ -1076,34 +1067,37 @@ function SwitchedRow({
   busy: boolean;
   onBusy: (busy: boolean) => void;
   onOpen: () => void;
-  children: ReactNode;
 }) {
   const count = add.uses.length;
   const id = add.block ? add.block.type : kindKey(add.key, app.id);
   const texts = add.block ? blockSwitchTexts(add.block, count) : kindSwitchTexts(app, add.key, count);
   const { on, saving, turn } = useOnOff(id, count, texts, env, files);
   return (
-    <li className="flex items-center">
-      <button type="button" aria-haspopup="dialog" className={`${listItemClass} min-w-0 flex-1`} onClick={onOpen}>
-        {children}
-      </button>
-      <span className="mr-4">
-        <Switch
-          label={t.apps.activeOf(add.label)}
-          selected={on}
-          texts={[t.blockSettings.on, t.blockSettings.off]}
-          disabled={busy || saving}
-          onChange={async (next) => {
-            onBusy(true);
-            try {
-              await turn(next);
-            } finally {
-              onBusy(false);
-            }
-          }}
-        />
-      </span>
-    </li>
+    <ListItem
+      aria-haspopup="dialog"
+      onClick={onOpen}
+      icon={add.icon}
+      headline={add.label}
+      supporting={add.hint}
+      actions={
+        <span className="shrink-0 pr-4">
+          <Switch
+            label={t.apps.activeOf(add.label)}
+            selected={on}
+            texts={[t.blockSettings.on, t.blockSettings.off]}
+            disabled={busy || saving}
+            onChange={async (next) => {
+              onBusy(true);
+              try {
+                await turn(next);
+              } finally {
+                onBusy(false);
+              }
+            }}
+          />
+        </span>
+      }
+    />
   );
 }
 
@@ -1179,7 +1173,8 @@ function AppContent({ app, env, files }: AppProps) {
         { path: config.apps.installed, content: text, oid: file?.oid || null },
         ...cookieChanges(app.id, yes ? (asWritten(app).cookieList ?? []) : null, files),
       ];
-      await saveApp(env, siteT.apps.commit[yes ? 'install' : 'uninstall'](asWritten(app).label), changes, file);
+      const change = t.app.changes[yes ? 'installed' : 'uninstalled'](kindAndName(t.app.changes.app, app.label));
+      await saveApp(env, siteT.apps.commit[yes ? 'install' : 'uninstall'](asWritten(app).label), change, changes, file);
       notify({ text: yes ? t.apps.isInstalled(app.label) : t.apps.isUninstalled(app.label), kind: 'saved' });
     } catch (e) {
       notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
@@ -1192,17 +1187,8 @@ function AppContent({ app, env, files }: AppProps) {
   const addsGroup = (title: string, items: typeof adds) =>
     items.length > 0 && (
       <Group key={title} title={title}>
-        {items.map((a) => {
-          const row = (
-            <>
-              <LeadingIcon icon={a.icon} />
-              <span className="min-w-0 flex-1">
-                <span className="block font-medium">{a.label}</span>
-                {a.hint && <span className="block text-sm text-muted">{a.hint}</span>}
-              </span>
-            </>
-          );
-          return on ? (
+        {items.map((a) =>
+          on ? (
             <SwitchedRow
               key={a.key}
               app={app}
@@ -1215,15 +1201,11 @@ function AppContent({ app, env, files }: AppProps) {
                 setOpenKey(a.key);
                 dialog.current?.showModal();
               }}
-            >
-              {row}
-            </SwitchedRow>
+            />
           ) : (
-            <li key={a.key}>
-              <div className={listItemClass}>{row}</div>
-            </li>
-          );
-        })}
+            <ListItem key={a.key} icon={a.icon} headline={a.label} supporting={a.hint} />
+          ),
+        )}
       </Group>
     );
 
@@ -1274,14 +1256,7 @@ function AppContent({ app, env, files }: AppProps) {
       >
         {settings && (
           <Group>
-            <li>
-              <a href={`#${settings}`} className={listItemClass}>
-                <LeadingIcon icon={Gear} />
-                <span className="min-w-0 flex-1 font-medium">{t.apps.settings}</span>
-                {settingsHome(app) && <TrailingText>{settingsHome(app)!.label}</TrailingText>}
-                <TrailingIcon />
-              </a>
-            </li>
+            <ListItem href={`#${settings}`} icon={Gear} headline={t.apps.settings} count={settingsHome(app)?.label} arrow />
           </Group>
         )}
         {/* What the app shows itself (its `page`), while it is installed. */}
@@ -1298,28 +1273,10 @@ function AppContent({ app, env, files }: AppProps) {
         )}
         {lists.length > 0 && (
           <Group title={t.apps.lists}>
-            {lists.map((l) => {
-              const row = (
-                <>
-                  <LeadingIcon icon={l.icon} />
-                  <span className="min-w-0 flex-1 font-medium">{l.label}</span>
-                  <TrailingText>{l.count}</TrailingText>
-                </>
-              );
+            {lists.map((l) => (
               // Installed, a row opens its list.
-              return (
-                <li key={l.key}>
-                  {on ? (
-                    <a href={l.href} className={listItemClass}>
-                      {row}
-                      <TrailingIcon />
-                    </a>
-                  ) : (
-                    <div className={listItemClass}>{row}</div>
-                  )}
-                </li>
-              );
-            })}
+              <ListItem key={l.key} href={on ? l.href : undefined} icon={l.icon} headline={l.label} count={l.count} arrow={on} />
+            ))}
           </Group>
         )}
         {[...new Set(adds.flatMap((a) => (a.block ? [] : [a.more])))].map((title) =>
@@ -1332,13 +1289,7 @@ function AppContent({ app, env, files }: AppProps) {
       {stuck && (
         <Group title={t.apps.used}>
           {uses.map((u) => (
-            <li key={u.href}>
-              <a href={u.href} className={listItemClass}>
-                <LeadingIcon icon={u.icon} />
-                <span className="min-w-0 flex-1">{u.title}</span>
-                <TrailingIcon />
-              </a>
-            </li>
+            <ListItem key={u.href} href={u.href} icon={u.icon} headline={u.title} arrow />
           ))}
         </Group>
       )}
@@ -1379,11 +1330,7 @@ function AppContent({ app, env, files }: AppProps) {
               {open.uses.length ? (
                 <ul className={listClass}>
                   {open.uses.map((u) => (
-                    <li key={u.href}>
-                      <a href={u.href} className={listItemClass} onClick={() => dialog.current?.close()}>
-                        {u.title}
-                      </a>
-                    </li>
+                    <ListItem key={u.href} href={u.href} onClick={() => dialog.current?.close()} headline={u.title} />
                   ))}
                 </ul>
               ) : (

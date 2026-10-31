@@ -26,46 +26,20 @@ import { hooksOf, type AppHook } from '../lib/hooks';
 import type { StoreLicenses } from './licenses';
 
 /** The version of the contract between the editor and an app (apps.ts: defineApp, its folder, and the theme's parts it
- * draws with: the standard blocks' and the UI components, @theme/blocks/… and @theme/ui/…): an app in the store says
- * which it is written to, and only those the editor can run are offered. Raised when an app written to the one before
- * no longer works. 2: the buttons are the theme's UI components (Button, IconButton), not .block-button. 3: the fields,
- * the bottom sheet, the cards and the lists are too (TextField, BottomSheet with bottomSheet(), Card, List), not
- * .block-input, .block-sheet… and .block-link-list…. 4: the bar at the bottom of a phone is the theme's Toolbar
- * (.toolbar-docked), not .block-bar, beside the rest of Material 3's parts. 5: the parts have Material 3's variants,
- * and some of their names and markup changed: a FAB's `secondary` is Material's secondary colour (the light tint is
- * `secondary-container`), a text field is drawn by its .text-field-container, and the site's colours have Material's
- * containers, secondary and tertiary. 6: an app declares its licence and the third-party work it brings (`license` and
- * `thirdParty` in defineApp), which check:content checks against what it imports, and the Appstore shows. 7: the
- * editor's package is @interstellarcms/cms (was site-editor), which an app imports from. */
-export const APP_API = 7;
+ * draws with: the standard blocks' and the UI components, @theme/blocks/… and @theme/ui/…, imported from
+ * @interstellarcms/cms): an app in the store says which it is written to, and only those the editor can run are
+ * offered. Raised when an app written to the one before no longer works. */
+export const APP_API = 1;
 
 /** The version of the contract between the editor and a theme (what a theme must and may have, "Hvad et tema må" in
- * CLAUDE.md, themeProblems in packages/editor/site/theme.mjs, and the classes it styles): only themes written to it are offered.
- * 2: the buttons are the UI components' (.button-…, .icon-button-… in ui.css), not .btn and .block-button. 3: so are
- * the fields, chips, dialogs, sheets, carousel, cards, lists and the header's parts (.text-field-…, .chip-…, .dialog,
- * .bottom-sheet-…, .carousel-…, .card-…, .list…, .top-app-bar, .menu…, .navigation-drawer…, .tabs, .fab …). 4: so is
- * the bar at the bottom of a phone (.toolbar-docked, not .block-bar), and a theme styles the rest of Material 3's
- * parts (.button-group, .segmented-button, .split-button, .fab-menu, .switch, .radio-button, .slider, .divider,
- * .side-sheet, .badge, .loading-indicator, .linear-/.circular-progress-indicator, .snackbar, .tooltip, .navigation-bar,
- * .navigation-rail, .search-bar, .search-view, .toolbar…, .date-picker…, .time-picker…). 5: the parts have every
- * variant of Material 3 that is not deprecated (sizes, shapes, colours, layouts and states), some with new markup (.fab-
- * <colour>: .fab-secondary is the secondary colour, the tint .fab-secondary-container; .text-field-container draws a
- * field; a navigation bar's pill is on .navigation-bar-icon), and the icons of a theme without its own are the
- * standard theme's Material Symbols. 6: the editor draws with the theme's UI parts too (@site/ui), so a part a theme
- * gives in its own file (ui/) takes what the editor gives it: an icon made already as well as a name (IconRef), an icon
- * button's badge, a switch, checkbox and slider changed with onChange (a switch with its states), a text field without
- * its own label, an input chip's onRemove, the search bar that searches in place (SearchBar), the bottom sheet's header
- * (BottomSheetHeader) and the sheets as high as what is in them or as the screen (bottomSheetFitClass,
- * bottomSheetFullClass). 7: a theme declares its licence and the third-party work it brings (`license` and
- * `thirdParty` in theme.json: its fonts, libraries and images), which check:content checks, and the Appstore shows. 8: a
- * field to write or choose in has its name in it in the editor too, so the theme's TextField takes a soft `limit` and
- * a ReactNode `supporting`, and has a TextFieldButton (a field that is tapped to choose). 9: the editor's dates and
- * times are the theme's DatePicker and TimePicker, so they take `onChange` (and work in the editor with it) and their
- * fixed texts (`texts`). 10: the editor's package is @interstellarcms/cms (was site-editor), which a theme imports from. */
-export const THEME_API = 10;
+ * CLAUDE.md, themeProblems in packages/editor/site/theme.mjs, the standard theme's UI parts with Material 3's names and
+ * variants, the motion scheme's --motion-* springs and motionSpring/motionTiming (@interstellarcms/cms/lib/motion),
+ * and the classes it styles): only themes written to it are offered. Raised when a theme written to the one before no
+ * longer works. */
+export const THEME_API = 2;
 
 /** The kinds of apps, a filter in the store (t.apps.categories). */
-export const appCategories = ['booking', 'newsletter', 'analytics', 'content', 'design'] as const;
+export const appCategories = ['booking', 'newsletter', 'payment', 'analytics', 'content', 'design'] as const;
 export type AppCategory = (typeof appCategories)[number];
 
 /** A file of an app in the store: its path in the app's folder and its git blob id. */
@@ -98,7 +72,7 @@ export function needsOf(files: string[], csp: Partial<Record<string, string[]>> 
  * under "Cookies": its name (`_ga`, `_ga_*`; none for those a service decides itself, only on its page), what it is
  * for and how long it lasts; with a name, also who sets it and its category (lib/cookieCategories.mjs: `necessary`,
  * also without a yes in the cookie banner, or one the visitor says yes to; `when` in an app from before them, categoryOf),
- * for the cookie list in the cookie policy (the site's src/site/cookies.mjs). */
+ * for the cookie list in the cookie policy (the site's packages/editor/site/appCookies.mjs). */
 export type AppCookie = { name?: string; provider?: string; purpose: string; lasts?: string; category?: string; when?: string };
 
 /** A picture of an app in its store page, picked to give an idea of it (`screenshots` in its index.ts, as a theme's):
@@ -226,7 +200,7 @@ export const DEVELOPER_ROUTE = 'apps/udvikler';
 export const appFolder = (id: string) => `${config.apps.folder}/${id}`;
 /** A theme's folder in the site; the standard theme's is always there. */
 export const themeFolder = (id: string) => `${config.themes}/${id}`;
-export const STANDARD_THEME = 'saturn';
+export const STANDARD_THEME = 'material';
 export const RECORD = 'store.json';
 
 /** Whether a version is newer than another ("1.10.0" than "1.9.2"). */
@@ -364,7 +338,17 @@ export function catalogThemes(text: string): ShownTheme[] {
 // The catalog, read once while the editor is open (again after it could not be read).
 let catalog: Promise<string> | null = null;
 
+/** Whether the site has an app store (config.store); without one, "Appstore" has only the site's own apps and themes. */
+export const hasStore = !!config.store;
+
+// The store's repository; only asked for what is in its catalog, so never without one.
+const storeRepo = () => {
+  if (!config.store) throw new Error(t.apps.noStore);
+  return config.store;
+};
+
 function catalogText(): Promise<string> {
+  if (!config.store) return Promise.resolve('{}');
   catalog ??= loadFrom(config.store, config.store.branch, [config.store.catalog]).then(([file]) => {
     if (file?.text == null) throw new Error(t.apps.storeFailed);
     return file.text;
@@ -388,7 +372,7 @@ export async function readApp(app: {
   name?: string;
 }): Promise<{ path: string; content: string | Uint8Array }[]> {
   const found = await loadFrom(
-    config.store,
+    storeRepo(),
     app.ref,
     app.files.map((f) => `${app.path}/${f.path}`),
   );
@@ -396,7 +380,7 @@ export async function readApp(app: {
     app.files.map(async (f) => {
       const file = found.find((x) => x.path === `${app.path}/${f.path}`);
       if (!file || file.oid !== f.oid) throw new Error(t.apps.storeBroken(app.label ?? app.name ?? app.path));
-      return { path: f.path, content: file.text ?? (await loadBytes(f.oid, undefined, config.store)) };
+      return { path: f.path, content: file.text ?? (await loadBytes(f.oid, undefined, storeRepo())) };
     }),
   );
 }
@@ -411,7 +395,7 @@ export async function readScreenshots(app: StoreApp): Promise<{ src: string; lab
       const type = types[x.file.split('.').pop()!.toLowerCase()];
       if (!oid || !type) return null;
       try {
-        const bytes = await loadBytes(oid, undefined, config.store);
+        const bytes = await loadBytes(oid, undefined, storeRepo());
         return { src: URL.createObjectURL(new Blob([bytes as BlobPart], { type })), label: x.label };
       } catch {
         return null;
@@ -429,7 +413,7 @@ export async function readThemeScreenshots(theme: Pick<StoreTheme, 'screenshots'
       const oid = theme.files.find((f) => f.path === `${SCREENSHOTS}/${x.file}`)?.oid;
       if (!oid) return null;
       try {
-        const bytes = await loadBytes(oid, undefined, config.store);
+        const bytes = await loadBytes(oid, undefined, storeRepo());
         return { key: x.key, src: URL.createObjectURL(new Blob([bytes as BlobPart], { type: 'image/jpeg' })) };
       } catch {
         return null;

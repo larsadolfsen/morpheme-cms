@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string",
+      "pattern": "^\\/.*\\/$"
+    },
+    "description": {
+      "default": "",
+      "type": "string"
+    },
+    "order": {
+      "default": 0,
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "unlisted",
+        "scheduled"
+      ]
+    },
+    "publishAt": {
+      "type": "string"
+    },
+    "seoTitle": {
+      "type": "string"
+    },
+    "seoDescription": {
+      "type": "string"
+    },
+    "shareImage": {
+      "type": "string"
+    },
+    "shareTitle": {
+      "type": "string"
+    },
+    "shareDescription": {
+      "type": "string"
+    },
+    "keyword": {
+      "type": "string"
+    },
+    "keywords": {
+      "type": "string"
+    },
+    "canonical": {
+      "type": "string"
+    },
+    "noindex": {
+      "default": false,
+      "type": "boolean"
+    },
+    "wide": {
+      "default": false,
+      "type": "boolean"
+    },
+    "review": {
+      "type": "string"
+    },
+    "updated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

@@ -1,38 +1,48 @@
-import type { Messages } from '../da-DK';
-
-export const blockSettings: Messages['blockSettings'] = {
-  stillOn: (n) => `The block is used on ${n} ${n === 1 ? 'page' : 'pages'}. Remove it from there first.`,
+// "Blokindstillinger" (BlockSettings.tsx).
+export const blockSettings = {
+  stillOn: (n: number) => `The block is used on ${n} ${n === 1 ? 'page' : 'pages'}. Remove it from there first.`,
   on: 'On',
   off: 'Off',
+  /** At the right of a block's row, and the filter, when it is off (its switch: active, off). */
   inactive: 'Deactivated',
   standard: 'Standard blocks',
-  noBlocks: 'The app has no blocks.',
+  /** In the group of an installed app with neither blocks nor kinds. */
+  noBlocks: 'The app has no blocks',
   isStandard: 'A standard block.',
-  isApp: (app) => `An app block from ${app}.`,
-  isKind: (one, app) => `A ${one} block from ${app}.`,
-  stuck: 'The block is used on pages and cannot be turned off.',
+  /** A block of an app (src/apps/): the app's name. */
+  isApp: (app: string) => `An app block from ${app}.`,
+  /** An app's kind of a list, a block of the list (a Mailchimp popup, "En promoveringsblok"): the list's name for one, and
+   * the app's name. */
+  isKind: (one: string, app: string) => `A ${one} block from ${app}.`,
+  stuck: 'The block is used on pages and can’t be turned off',
   onHint: 'Shown under Insert.',
   offHint: 'Not shown under Insert.',
+  /** The switch of an app's kind of a list, and under it: the list's name, its button for a new one ("Ny promovering"),
+   * and its name for more ("promoveringer"). */
   active: 'Activated',
-  kindStuck: (more) => `The block is used in ${more} and cannot be turned off.`,
-  kindStillOn: (n, what) => `The block is used in ${n} ${what}. Delete ${n === 1 ? 'it' : 'them'} first.`,
-  kindOnHint: (create) => `Shown under ${create}.`,
-  kindOffHint: (create) => `Not shown under ${create}.`,
+  kindStuck: (more: string) => `The block is used in ${more} and can’t be turned off`,
+  kindStillOn: (n: number, what: string) => `The block is used in ${n} ${what}. Delete ${n === 1 ? 'it' : 'them'} first.`,
+  kindOnHint: (create: string) => `Shown under ${create}.`,
+  kindOffHint: (create: string) => `Not shown under ${create}.`,
   looks: 'Example',
-  asOn: (page) => `As shown on ${page}.`,
-  empty: 'An example. The block is not used on any page yet.',
-  nothing: 'The block is not used on any page yet, so there is nothing to show.',
-  asIn: (entry) => `As shown in ${entry}.`,
-  kindEmpty: 'An example. The block is not used yet.',
-  kindNothing: 'The block is not used yet, so there is nothing to show.',
+  /** Under the preview: whose fields it has (the page's title). */
+  asOn: (page: string) => `As shown on ${page}`,
+  empty: 'An example. The block isn’t used on any page yet.',
+  nothing: 'The block isn’t used on any page yet, so there is nothing to show',
+  /** Under the preview of an app's kind of a list: whose fields it has (the entry's name), or none. */
+  asIn: (entry: string) => `As shown in ${entry}`,
+  kindEmpty: 'An example. The block isn’t used yet.',
+  kindNothing: 'The block isn’t used yet, so there is nothing to show',
   pages: 'Used on',
-  noPages: 'No pages.',
+  noPages: 'No pages',
+  /** Over the entries of an app's kind of a list (its name for more), and when there are none. */
   usedIn: 'Used in',
-  noEntries: (more) => `No ${more}.`,
+  noEntries: (more: string) => `No ${more}`,
+  /** The commits, in the site's language (siteT). */
   commit: {
-    on: (block) => `Editor: turn on the block: ${block}`,
-    off: (block) => `Editor: turn off the block: ${block}`,
-    kindOn: (kind) => `Editor: turn on: ${kind}`,
-    kindOff: (kind) => `Editor: turn off: ${kind}`,
+    on: (block: string) => `Editor: turn on the block: ${block}`,
+    off: (block: string) => `Editor: turn off the block: ${block}`,
+    kindOn: (kind: string) => `Editor: turn on: ${kind}`,
+    kindOff: (kind: string) => `Editor: turn off: ${kind}`,
   },
 };

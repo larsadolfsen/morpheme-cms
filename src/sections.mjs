@@ -12,7 +12,7 @@
 // (the lead's `upTo`), with its heading, subtitle, introduction and picture, is the text at the very top, before its
 // card; the block and the text after it stay in the card's `text`, with the quote. On the other pages the text at the
 // very top, before the first heading or card, is the page's introduction.
-// The front page is an ordinary page (src/site/standardPages.ts): its text is read into sections the same way, by the editor
+// The front page is an ordinary page (packages/editor/defaults/standardPages.ts): its text is read into sections the same way, by the editor
 // and by the site (partsOfMarkdown, packages/editor/site/home.ts).
 // Shared by the editor and packages/editor/scripts/editor-roundtrip.mjs, which checks that every page comes back the same.
 import { blockHtml, cutAtBlock, parseBlock } from '../lib/blocks.mjs';

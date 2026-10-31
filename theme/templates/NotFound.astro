@@ -1,10 +1,11 @@
 ---
 // 404 (the standard theme's): the page chosen as the 404 page under "Indstillinger" › "Udseende" › "Standardsider"
 // (packages/editor/site/standardPages.ts), which the owner edits as a page in the editor. Its heading and introduction, then the
-// page the visitor most likely meant (matched on the words in the address, in the browser), and below that its
-// sections: a text and any block by its type (PageBlock.astro).
+// page the visitor most likely meant (matched on the words in the address, in the browser; an outlined card,
+// ui/Card.tsx), and below that its sections: a text and any block by its type (PageBlock.astro).
 import Base from '@theme/layouts/Base.astro';
 import Icon from '@theme/components/Icon.astro';
+import Card from '@theme/ui/Card';
 import PageHeader from '@theme/components/PageHeader.astro';
 import Container from '@theme/components/Container.astro';
 import TextSection from '@theme/components/TextSection.astro';
@@ -12,6 +13,7 @@ import PageBlock from '@theme/components/home/PageBlock.astro';
 import { space } from '@interstellarcms/cms/site/sections';
 import { displayTitle, getPages, getPosts, pageHeading } from '@interstellarcms/cms/site/content';
 import { standardPaths, type StandardPageView } from '@interstellarcms/cms/site/standardPages';
+import { siteT } from '@interstellarcms/cms/src/i18n';
 
 type Props = StandardPageView;
 const { heading, intro, sections } = Astro.props;
@@ -30,21 +32,17 @@ const index: [string, string][] = [
 const spaceOf = (i: number) => (i === 0 ? 'mt-6 md:mt-8' : space(i));
 ---
 
-<Base title="Siden findes ikke" noindex>
+<Base title={siteT.theme.notFound} noindex>
   <PageHeader title={heading} intro={intro} />
 
   <Container as="div" class="mt-8 md:mt-12">
-    <a
-      id="suggestion"
-      hidden
-      class="group flex max-w-2xl items-center justify-between gap-6 rounded-panel border border-accent/40 bg-surface p-5 shadow-soft md:p-6"
-    >
+    <Card href="" id="suggestion" hidden className="group flex max-w-2xl items-center justify-between gap-6">
       <span>
-        <span class="block text-sm text-muted">Mente du</span>
+        <span class="block text-sm text-muted">{siteT.theme.didYouMean}</span>
         <span id="suggestion-title" class="mt-1 block text-xl font-medium group-hover:text-accent"></span>
       </span>
       <Icon name="arrow-right" size={22} class="shrink-0 text-accent transition-transform group-hover:translate-x-0.5" />
-    </a>
+    </Card>
   </Container>
 
   {sections.map((s, i) => {
@@ -89,7 +87,7 @@ const spaceOf = (i: number) => (i === 0 ? 'mt-6 md:mt-8' : space(i));
 
     const likeness = (a: string, b: string) => {
       if (a === b) return 1;
-      // One word inside the other: "pris" in "priser", "terapi" in "psykoterapi".
+      // One word inside the other: "pris" in "priser", "kage" in "pandekage".
       if (a.length >= 4 && b.length >= 4 && (a.includes(b) || b.includes(a))) return 0.8;
       const d = 1 - distance(a, b) / Math.max(a.length, b.length);
       return d >= 0.75 ? d : 0;

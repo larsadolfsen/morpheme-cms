@@ -6,7 +6,7 @@ import { config } from './siteConfig.mjs';
 export const NOINDEX = [...config.booking.thanks, '/editor/'];
 
 // New versions of the service pages, for the owner to compare with the current ones before they replace
-// them: /ny/<the current page's address>, e.g. /ny/psykoterapi/angst-behandling/. The overview is
+// them: /ny/<the current page's address>, e.g. /ny/ydelser/raadgivning/. The overview is
 // /ny/ itself (packages/editor/theme/templates/New.astro). Not for search engines either, and not in the lists of pages.
 export const PREVIEW = '/ny/';
 export const isPreview = (path) => path.startsWith(PREVIEW) && path !== PREVIEW;

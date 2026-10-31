@@ -1,5 +1,5 @@
-// The editor's texts in English (United States), as in Danish (../da-DK/).
-import type { Messages } from '../da-DK';
+// The editor's texts in English (United States), by the part of the editor they are in: the reference the other
+// languages translate (Messages); ../index.ts picks one.
 import { advanced } from './advanced';
 import { app } from './app';
 import { apps } from './apps';
@@ -21,8 +21,9 @@ import { preview } from './preview';
 import { redirects } from './redirects';
 import { seo } from './seo';
 import { text } from './text';
+import { theme } from './theme';
 
-export const enUS: Messages = {
+export const enUS = {
   common,
   app,
   library,
@@ -44,4 +45,7 @@ export const enUS: Messages = {
   history,
   preview,
   advanced,
+  theme,
 };
+
+export type Messages = typeof enUS;

@@ -1,4 +1,4 @@
-// The kinds of things the editor edits, which a site describes its content with (src/site/collections.ts):
+// The kinds of things the editor edits, which a site describes its content with (packages/editor/defaults/collections.ts):
 // collections of files and their fields, the blocks of a fixed page and the rules of a text (Template),
 // and the small helpers for them that do not depend on a site.
 //   markdown: a folder of .md files (front matter + text): blog posts and pages.
@@ -12,7 +12,7 @@ import type { SiteData } from '@site/editor';
 import { locale } from './i18n';
 
 /** What a relation field picks from: one of the lists the site makes of its files (relationsOf in
- * src/site/editor.ts), e.g. 'pages', 'blog', 'categories', 'files' (the PDFs). 'fixed': the fixed pages, only offered
+ * packages/editor/defaults/editor.ts), e.g. 'pages', 'blog', 'categories', 'files' (the PDFs). 'fixed': the fixed pages, only offered
  * together with the pages (a field with `fixed`). */
 export type Relation = string;
 
@@ -92,8 +92,8 @@ export type Field = {
   fields?: Field[];
   /** list of single values */
   field?: Field;
-  /** list: the field shown as the title of each item */
-  summary?: string;
+  /** list: the field shown as the title of each item; of several, the first filled in (a button's text or a text). */
+  summary?: string | string[];
   singular?: string;
   /** The value in a new entry. */
   default?: unknown;
@@ -225,7 +225,7 @@ export type FolderCollection = Base & {
    * then be filtered by a page or a tag (Library.tsx List). */
   shownOn?: { pages: string; tags?: string; everywhere?: { field: string; is: string } };
   /** What a button can open of an entry of one of the list's own kinds, by the kind, as AppKind.opens for an app's
-   * kinds: a pop-up opens itself; a kind left out offers nothing (the contact bar). */
+   * kinds: a pop-up opens itself; a kind left out offers nothing (the action bar). */
   opens?: Record<string, Opens>;
   /** The boolean field that turns an entry on and off (a promotion's "Slået til"/"Slået fra"): the list
    * can then be filtered by it, the choices its `toggle` (Library.tsx List). */
@@ -245,6 +245,16 @@ export type FolderCollection = Base & {
    * formål"), what the form says of it (`notice`) and its button that takes the field away (`approve`). Saving the entry
    * takes it away too (DataForm.tsx). */
   fresh?: { field: string; heading: string; label: (data: Record<string, unknown>) => string; notice: string; approve: string };
+  /** An entry as saved before the list changed (of a kind that is gone: a contact bar, now an action bar), as the list
+   * has it now, from its data and the site's files: read so in the list, the form (and saved so) and the check of the
+   * site (entryData: Library.tsx, DataForm.tsx, checkSite.ts). */
+  upgrade?: (data: Record<string, unknown>, files: { path: string; text: string }[]) => Record<string, unknown>;
+};
+
+/** An entry's data from its file's text, as the list has it now (FolderCollection.upgrade). */
+export const entryData = (collection: FolderCollection, text: string, files: { path: string; text: string }[]) => {
+  const data = JSON.parse(text) as Record<string, unknown>;
+  return collection.upgrade ? collection.upgrade(data, files) : data;
 };
 
 /** An entry's name on its own screen and among those deleted: what its list shows, with the line under it after it
@@ -361,14 +371,20 @@ export type Part = {
   href?: string;
   /** At the end of its row, before the arrow: the theme in use, by "Temaer" under "Udseende". */
   detail?: string;
+  /** At the end of its row, after `detail` and before the arrow: the site's primary, secondary and tertiary colours by
+   * "Farver" under "Udseende" (ColorSwatches). */
+  trailing?: ReactNode;
   /** Where its screen goes back to: "Virksomheden", or "Blokke" (blockTexts.ts, site.ts). */
   back?: { href: string; label: string };
   /** What the commit says was edited, in the site's language, when not its name in lower case (an
    * app's settings, AppList.tsx: "indstillinger for Mailchimp"). */
   commit?: string;
   /** Parts of its own, instead of fields: a row that opens a screen with them, each at
-   * #<screen>/<id>/<part> and going back to it ("Virksomheden" › "Betaling" with "MobilePay" and "Bank"). */
+   * #<screen>/<id>/<part> and going back to it ("Virksomheden" › "Betaling" with "Bank"). */
   parts?: Part[];
+  /** With `parts`: the settings of the apps installed of these kinds (AppDefinition.category) come after them, each at
+   * #<screen>/<id>/<app> ("Betaling" with MobilePay; AppList.tsx appPartsIn). */
+  apps?: AppCategory[];
   /** One of the editor's own lists, drawn under its fields: "keywords", every keyword of the pages, posts and fixed
    * pages ("Interne links", Keywords.tsx). */
   below?: 'keywords';

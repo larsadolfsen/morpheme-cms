@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { Info, SlidersHorizontal, Trash, WarningCircle } from '@phosphor-icons/react';
 import { siteName } from '@site/editor';
 import Screen from './Screen';
-import { EmptyNote, Group, IconButton, IconLink, LeadingIcon, listItemClass, staticListItemClass, TrailingIcon } from './ui';
+import { EmptyNote, Group, IconButton, IconLink, ListItem } from './ui';
 import { apps } from './registry';
 import { clearNotifications, markSeen, useNotifications, type Notification } from './notifications';
 import { when } from './when';
@@ -14,26 +14,14 @@ import { t } from './i18n';
 
 function Row({ text, type, error, at, link }: Notification) {
   const app = apps.find((a) => type?.startsWith(`${a.id}/`));
-  const body = (
-    <>
-      <LeadingIcon icon={app?.icon ?? (error ? WarningCircle : Info)} />
-      <span className="min-w-0 flex-1">
-        <span className="block">{text}</span>
-        <span className="block text-sm text-muted">{link ? `${when(new Date(at))} · ${link.text}` : when(new Date(at))}</span>
-      </span>
-    </>
-  );
   return (
-    <li>
-      {link ? (
-        <a href={link.href} className={listItemClass}>
-          {body}
-          <TrailingIcon />
-        </a>
-      ) : (
-        <div className={staticListItemClass}>{body}</div>
-      )}
-    </li>
+    <ListItem
+      href={link?.href}
+      icon={app?.icon ?? (error ? WarningCircle : Info)}
+      headline={text}
+      supporting={link ? `${when(new Date(at))} · ${link.text}` : when(new Date(at))}
+      arrow={!!link}
+    />
   );
 }
 
