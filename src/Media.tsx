@@ -30,6 +30,7 @@ import { dateName, headed, letterOf } from './Sheet';
 import Screen from './Screen';
 import {
   Button,
+  MediaTile,
   InputChip,
   Choice,
   Filters,
@@ -178,15 +179,13 @@ function Grid({ srcs, picked, onPick }: { srcs: string[]; picked?: string | null
     <ul className="grid grid-cols-3 gap-1.5 sm:grid-cols-4 md:grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] md:gap-2">
       {srcs.map((src) => (
         <li key={src}>
-          <button
-            type="button"
-            className={`group block aspect-square w-full overflow-hidden rounded-lg bg-tint ${src === picked ? 'ring-2 ring-accent ring-offset-2 ring-offset-bg' : ''}`}
-            aria-label={nameOfSrc(src)}
-            aria-pressed={picked === undefined ? undefined : src === picked}
+          <MediaTile
+            label={nameOfSrc(src)}
+            selected={picked === undefined ? undefined : src === picked}
             onClick={() => onPick(src)}
           >
             {fileKindOf(src) ? <FileTile src={src} /> : <Thumb src={src} thumbs={thumbs} />}
-          </button>
+          </MediaTile>
         </li>
       ))}
     </ul>

@@ -299,14 +299,15 @@ export default function UnsplashPicker({ onPick, uploads, notify }: UnsplashPick
 
                   {/* Action overlay */}
                   <div className="flex items-center gap-1 border-t border-line bg-surface p-1.5">
-                    <button
-                      type="button"
-                      className="flex-1 rounded px-2 py-1 text-center text-xs font-medium text-primary hover:bg-primary/10"
+                    <Button
+                      kind="text"
+                      size="small"
+                      className="flex-1 text-xs"
                       onClick={() => chooseHotlink(photo)}
                       title={t.media.unsplash.hotlink}
                     >
                       {t.media.unsplash.useImage}
-                    </button>
+                    </Button>
                     {uploads && (
                       <IconButton
                         icon={DownloadSimple}

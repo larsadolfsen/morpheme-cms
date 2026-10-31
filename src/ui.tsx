@@ -251,14 +251,15 @@ export function Toolbar({
   label,
   className,
   children,
+  ...rest
 }: {
   ref?: Ref<HTMLDivElement>;
   label: string;
   className?: string;
   children: ReactNode;
-}) {
+} & Record<string, unknown>) {
   return (
-    <SiteToolbar ref={ref} label={label} kind="docked" className={className} style={closeToolbar}>
+    <SiteToolbar ref={ref} label={label} kind="docked" className={className} style={closeToolbar} {...rest}>
       {children}
     </SiteToolbar>
   );
@@ -1609,12 +1610,14 @@ export const optionClass = () => `${siteMenuItemClass} group disabled:opacity-50
 
 /** A choice in a sheet's list (the theme's menu item): the chosen one marked, with a tick. */
 export function Option({
+  icon: Glyph,
   selected = false,
   disabled,
   onClick,
   children,
   role,
 }: {
+  icon?: Icon;
   selected?: boolean;
   disabled?: boolean;
   onClick: () => void;
@@ -1631,8 +1634,36 @@ export function Option({
       className={optionClass()}
       onClick={onClick}
     >
+      {Glyph && <LeadingIcon icon={Glyph} />}
       <span className="min-w-0 flex-1">{children}</span>
       {selected && <Check size={20} className="shrink-0" />}
+    </button>
+  );
+}
+
+/** A selectable media grid tile: Material 3 surface with elevation hover, aspect-square, and selected outline. */
+export function MediaTile({
+  label,
+  selected = false,
+  onClick,
+  children,
+}: {
+  label: string;
+  selected?: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className={`group relative block aspect-square w-full overflow-hidden rounded-[var(--md-sys-shape-corner-medium,0.75rem)] bg-[var(--tint)] transition-shadow duration-short focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] ${
+        selected ? 'ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--bg)]' : 'hover:shadow-elevation-1'
+      }`}
+      aria-label={label}
+      aria-pressed={selected}
+      onClick={onClick}
+    >
+      {children}
     </button>
   );
 }
@@ -2178,7 +2209,7 @@ export function FoldSection({
 }) {
   const id = useId();
   return (
-    <section ref={ref} aria-labelledby={`${id}-title`} className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-line pb-2">
+    <section ref={ref} aria-labelledby={`${id}-title`} className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-line py-2 !my-0">
       <h2>
         <button
           type="button"
