@@ -91,22 +91,30 @@ Før ændringer godkendes eller udgives, skal følgende verificeres:
 
 ---
 
-## 5. Sprogarkitektur & Material Design 3 Content Design (English First)
+## 5. Generel Tilgang: English First
 
-Al tekstproduktion, UI-design og sproglig modellering i dette repository følger de officielle Google Material Design 3 standarder for **Content Design: Global Writing & Word Choice** (jf. `https://m3.material.io/foundations/content-design/global-writing/word-choice` og skillen `.agents/skills/material-content-design/SKILL.md`).
+At skrive og tænke på engelsk først er en **overordnet og generel tilgang** på tværs af hele projektet, arkitekturen og samarbejdsmodellen:
 
-### Grundregler:
-1. **English First som kildesprog:**
-   - Engelsk (`en-US`) defineres og skrives altid først som det primære referencesprog for samtlige skemaer, felter, hints, blok-beskrivelser, fejlmeddelelser og UI-komponenter.
-   - Alle andre sprog (herunder dansk `da-DK`) fungerer som lokaliserende oversættelser (`translations`) af den engelske referenceform.
-   - I agentsvar og teknisk dokumentation skrives der altid på engelsk først, efterfulgt af et dansk resumé, når brugeren kommunikerer på dansk.
-2. **Global Writing & Word Choice:**
-   - **Korte, præcise sætninger i aktiv form** (Active Voice).
-   - **Universelle termer:** Ingen lokale forkortelser eller uforklarede nationale begreber.
-   - **M3 Kanonisk Terminologi:**
-     - Toggles og tilstande: `Enabled` / `Disabled` (dansk: `Aktiveret` / `Deaktiveret`), `On` / `Off` (`Til` / `Fra`).
-     - Dokumentstatus: `Draft`, `Published`, `Scheduled`, `Hidden`.
-     - Handlingsknapper: Aktive verber uden fyldord (`Add tag`, `Edit page`, `Save`).
-3. **Universelt fallback-princip i i18n:**
-   - `defaults/texts.ts` indeholder altid den komplette grundordbog for alle standardfelter, så ingen felter i backend nogensinde falder tilbage til uoversat tekst.
+1. **Universelt kildesprog (Source of Truth):**
+   - Engelsk (`en-US`) er altid kildesproget for samtlige datamodeller, skemaer, felter, hints, blokke, API'er, kode-kommentarer, fejlbeskeder og teknisk dokumentation.
+   - Alle andre sprog (herunder dansk `da-DK`) er lokaliserende oversættelser (`translations`) af den engelske referenceform.
+2. **Kommunikation og svarform:**
+   - I al AI-agent-kommunikation, tekniske rapporter og kodebesvarelser skrives der **altid på engelsk først**.
+   - Når der kommunikeres med en dansksproget bruger, følger et kort dansk resumé umiddelbart efter den engelske gennemgang.
+3. **i18n Fallback-arkitektur:**
+   - Pakkens centrale standardordbog `defaults/texts.ts` danner det faste referencefundament for alle standardfelter, så ingen komponenter i editoren eller sitet nogensinde falder tilbage til uoversat tekst.
+
+---
+
+## 6. Material Design 3: Global Writing & Word Choice
+
+Al tekstformulering i UI-komponenter, knapper og felter følger de specifikke retningslinjer for **Content Design: Global Writing & Word Choice** (jf. `https://m3.material.io/foundations/content-design/global-writing/word-choice` og skillen `.agents/skills/word-choice/SKILL.md`).
+
+- **Korte, præcise sætninger i aktiv form** (Active Voice).
+- **Universelle termer:** Ingen lokale forkortelser eller uforklarede nationale begreber.
+- **M3 Kanonisk Terminologi:**
+  - Toggles og tilstande: `Enabled` / `Disabled` (dansk: `Aktiveret` / `Deaktiveret`), `On` / `Off` (`Til` / `Fra`).
+  - Dokumentstatus: `Draft`, `Published`, `Scheduled`, `Hidden`.
+  - Handlingsknapper: Aktive verber uden fyldord (`Add tag`, `Edit page`, `Save`).
+
 
