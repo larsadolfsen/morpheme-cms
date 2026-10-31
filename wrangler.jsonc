@@ -2,11 +2,19 @@
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"compatibility_date": "2026-10-23",
 	"compatibility_flags": ["global_fetch_strictly_public"],
-	"name": "@interstellarcms/cms",
-	"main": "@astrojs/cloudflare/entrypoints/server",
+	"name": "interstellar-demo",
+	"main": "./playground/worker.mjs",
 	"assets": {
-		"directory": "./dist",
-		"binding": "ASSETS"
+		"directory": "./playground/dist",
+		"binding": "ASSETS",
+		"not_found_handling": "404-page",
+		"html_handling": "force-trailing-slash",
+		"run_worker_first": [
+			"/api/*",
+			"/version.json",
+			"/editor/*.json",
+			"/editor/sw.js"
+		]
 	},
 	"observability": {
 		"enabled": true
