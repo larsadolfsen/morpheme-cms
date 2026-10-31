@@ -53,7 +53,8 @@ import type { Env } from './App';
 import type { RepoFile } from './github';
 import { fixedName, slugify } from './schema';
 import { config, siteName } from '@site/editor';
-import { collections } from './site';
+import { collections, apps } from './site';
+import { installedApps, type AppMediaProvider } from './apps';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { fileKindOf, pickedKindOf, pickImage, prepareFile, prepareImage, publicPath, showMoved, shownAt, type Uploads } from './images';
 import { fileIcons, FileView, KINDS, kindOf, type Kind } from './FileView';
@@ -346,7 +347,6 @@ function Gallery({
  * saved with it); its address on the site, or null. The sheet goes on top of a block's sheet. */
 export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Promise<string | null>, ReactElement] {
   const dialog = useRef<HTMLDialogElement>(null);
-  const unsplashDialog = useRef<HTMLDialogElement>(null);
   const answer = useRef<(src: string | null) => void>(() => {});
   const srcs = [...new Set([...pictures.added, ...mediaOf(media)].map((f) => publicPath(f.path)))];
 
@@ -361,7 +361,11 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Pro
       dialog.current?.showModal();
     });
 
-  const [tab, setTab] = useState<'local' | 'unsplash'>('local');
+  const installed = installedApps(media);
+  const providers = apps.filter((a) => installed.includes(a.id) && a.mediaProvider).map((a) => a.mediaProvider!);
+  const [tab, setTab] = useState<string>('local');
+  const activeTab = providers.some((p) => p.id === tab) ? tab : 'local';
+  const activeProvider = providers.find((p) => p.id === activeTab);
 
   const element = (
     <BottomSheet
@@ -372,18 +376,22 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Pro
     >
       <SheetTitle title={t.media.pick} onClose={() => done(null)} />
       <SheetBody>
-        <div className="mb-4">
-          <SegmentedButton<'local' | 'unsplash'>
-            label={t.media.pick}
-            value={tab}
-            options={[
-              { value: 'local', label: t.media.unsplash.localTab },
-              { value: 'unsplash', label: t.media.unsplash.tab },
-            ]}
-            onChange={setTab}
-          />
-        </div>
-        {tab === 'local' ? (
+        {providers.length > 0 && (
+          <div className="mb-4">
+            <SegmentedButton<string>
+              label={t.media.pick}
+              value={activeTab}
+              options={[
+                { value: 'local', label: t.media.unsplash.localTab },
+                ...providers.map((p) => ({ value: p.id, label: p.label })),
+              ]}
+              onChange={setTab}
+            />
+          </div>
+        )}
+        {activeProvider ? (
+          <activeProvider.Picker onPick={done} uploads={pictures} />
+        ) : (
           <>
             <Button
               kind="outlined"
@@ -398,8 +406,6 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Pro
             </Button>
             <Gallery srcs={srcs} onPick={done} />
           </>
-        ) : (
-          <UnsplashPicker onPick={done} uploads={pictures} />
         )}
       </SheetBody>
     </BottomSheet>
@@ -429,7 +435,10 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
     return new Set(pictures.map((p) => publicPath(p.path)).filter((src) => code?.includes(src) || texts.some((t) => t.includes(src))));
   }, [files, code]);
   const dialog = useRef<HTMLDialogElement>(null);
-  const unsplashDialog = useRef<HTMLDialogElement>(null);
+  const installed = installedApps(files);
+  const providers = apps.filter((a) => installed.includes(a.id) && a.mediaProvider).map((a) => a.mediaProvider!);
+  const [providerSheet, setProviderSheet] = useState<AppMediaProvider | null>(null);
+  const providerDialog = useRef<HTMLDialogElement>(null);
   const [src, setSrc] = useState<string | null>(null);
   // On a computer the file picked is beside the grid; on a phone in a sheet.
   const wide = useWide();
@@ -659,7 +668,17 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
 
             onClick={() => (location.hash = 'slettet/filer')}
           />
-          <IconButton icon={Globe} label={t.media.unsplash.tab} onClick={() => unsplashDialog.current?.showModal()} />
+          {providers.map((p) => (
+            <IconButton
+              key={p.id}
+              icon={p.icon ?? Globe}
+              label={p.label}
+              onClick={() => {
+                setProviderSheet(p);
+                providerDialog.current?.showModal();
+              }}
+            />
+          ))}
           <IconButton icon={Plus} label={t.media.add} disabled={adding} onClick={add} />
         </>
       }
@@ -697,19 +716,24 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
         {!wide && src && <SheetBody>{details(src)}</SheetBody>}
       </BottomSheet>
       <BottomSheet
-        ref={unsplashDialog}
-        onClose={(e) => e.target === e.currentTarget && unsplashDialog.current?.close()}
-        onClick={(e) => e.target === unsplashDialog.current && unsplashDialog.current?.close()}
+        ref={providerDialog}
+        onClose={(e) => e.target === e.currentTarget && (providerDialog.current?.close(), setProviderSheet(null))}
+        onClick={(e) => e.target === providerDialog.current && (providerDialog.current?.close(), setProviderSheet(null))}
       >
-        <SheetTitle title={t.media.unsplash.tab} onClose={() => unsplashDialog.current?.close()} />
-        <SheetBody>
-          <UnsplashPicker
-            onPick={async (src) => {
-              unsplashDialog.current?.close();
-            }}
-            notify={env.notify}
-          />
-        </SheetBody>
+        {providerSheet && (
+          <>
+            <SheetTitle title={providerSheet.label} onClose={() => (providerDialog.current?.close(), setProviderSheet(null))} />
+            <SheetBody>
+              <providerSheet.Picker
+                onPick={async (src) => {
+                  providerDialog.current?.close();
+                  setProviderSheet(null);
+                }}
+                notify={env.notify}
+              />
+            </SheetBody>
+          </>
+        )}
       </BottomSheet>
     </Screen>
   );

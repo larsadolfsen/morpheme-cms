@@ -3,8 +3,8 @@ export const texts = {
     // App definition
     'Search and insert millions of high-resolution free photos directly in the editor.':
       'Søg og indsæt millioner af gratis fotos i høj opløsning direkte i editoren.',
-    'Access Unsplash directly in your Interstellar CMS editor.\n\nSearch millions of free high-resolution photos, insert them directly as dedicated Unsplash image blocks with automatic photographer attribution, or use them across your pages and blocks.\n\nThe app fully complies with Unsplash API guidelines with automatic photographer credit (including UTM attribution) and download tracking for photographer statistics.':
-      'Få adgang til Unsplash direkte i din Interstellar CMS-editor.\n\nSøg i millioner af gratis fotos i høj opløsning, indsæt dem direkte som et dedikeret Unsplash-billede med automatisk fotograf-kreditering eller brug dem overalt i dine tekster og blokke.\n\nAppen overholder alle Unsplash API-retningslinjer med automatisk fotograf-kreditering (inklusive UTM-sporing) og download tracking til fotografernes statistik.',
+    'Access Unsplash directly in your Interstellar CMS editor.\n\nSearch millions of free high-resolution photos and insert them directly across your pages and blocks.\n\nThe app fully complies with Unsplash API guidelines with automatic photographer credit (including UTM attribution) and download tracking for photographer statistics.':
+      'Få adgang til Unsplash direkte i din Interstellar CMS-editor.\n\nSøg i millioner af gratis fotos i høj opløsning og indsæt dem direkte på tværs af dine sider og blokke.\n\nAppen overholder alle Unsplash API-retningslinjer med automatisk fotograf-kreditering (inklusive UTM-sporing) og download tracking til fotografernes statistik.',
 
     // Settings
     'Access Key (Client ID)': 'Access Key (Client ID)',
