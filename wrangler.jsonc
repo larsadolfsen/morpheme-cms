@@ -11,9 +11,11 @@
 		"not_found_handling": "404-page",
 		"html_handling": "force-trailing-slash",
 		"run_worker_first": [
+			"/oauth/*",
 			"/api/*",
 			"/version.json",
 			"/editor/*.json",
+			"/editor/manifest.webmanifest",
 			"/editor/sw.js"
 		]
 	},

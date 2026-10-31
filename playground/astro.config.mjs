@@ -40,7 +40,19 @@ function filesIn(dir, depth, baseDir) {
   });
 }
 function answerGraphQL(query, baseDir) {
-  const repository = { ref: { target: { oid: 'head' } }, viewerPermission: 'ADMIN' };
+  const now = new Date().toISOString();
+  const target = {
+    oid: 'head',
+    history: { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } },
+  };
+  for (const [, key] of query.matchAll(/(f\d+):\s*history\(/g)) {
+    target[key] = { nodes: [{ committedDate: now }] };
+  }
+  const repository = {
+    ref: { target },
+    object: { history: { nodes: [{ oid: 'head' }] } },
+    viewerPermission: 'ADMIN',
+  };
   for (const [, key, path] of query.matchAll(/(f\d+): object\(expression: "[^:"]+:([^"]+)"\)/g)) {
     const full = resolveFile(baseDir, path);
     if (!existsSync(full) || statSync(full).isDirectory()) repository[key] = null;
@@ -49,48 +61,91 @@ function answerGraphQL(query, baseDir) {
   return { data: { viewer: { login: 'local-admin', name: 'Interstellar Admin' }, repository } };
 }
 
+const MANIFEST_JSON = JSON.stringify({
+  name: 'Interstellar',
+  short_name: 'Interstellar',
+  description: 'Edit the content of interstellar.example.',
+  lang: 'en-US',
+  id: '/editor/',
+  start_url: '/editor/',
+  scope: '/editor/',
+  display: 'standalone',
+  icons: [
+    { src: '/editor/icon-192.png', sizes: '192x192', type: 'image/png' },
+    { src: '/editor/icon-512.png', sizes: '512x512', type: 'image/png' },
+    { src: '/editor/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+  ],
+});
+
 function localEditorMiddleware() {
+  const builtAt = new Date().toISOString();
   return {
     name: 'local-editor-middleware',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
+        const pathname = req.url?.split('?')[0] ?? '';
+        if (pathname.startsWith('/oauth/')) {
+          res.statusCode = 302;
+          res.setHeader('Location', '/editor/');
+          return res.end();
+        }
         if (req.url?.startsWith('/api/r2')) {
           res.setHeader('Content-Type', 'application/json');
           return res.end(JSON.stringify({ bound: false, bucket: 'ready' }));
         }
-        if (req.url === '/editor/version.json' || req.url === '/version.json') {
+        if (pathname === '/editor/version.json' || pathname === '/version.json') {
           res.setHeader('Content-Type', 'application/json');
-          return res.end(JSON.stringify({ version: 'dev' }));
+          return res.end(JSON.stringify({ commit: 'head', builtAt }));
         }
-        if (req.url === '/editor/sw.js') {
+        if (pathname === '/editor/manifest.webmanifest') {
+          res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
+          return res.end(MANIFEST_JSON);
+        }
+        if (pathname === '/editor/sw.js') {
           res.setHeader('Content-Type', 'application/javascript');
           return res.end('// dev service worker\nself.addEventListener("install", () => self.skipWaiting());');
         }
         if (req.url?.startsWith('/api/consent')) {
           res.setHeader('Content-Type', 'application/json');
-          return res.end(JSON.stringify({ consents: [] }));
+          if (req.method === 'DELETE') return res.end(JSON.stringify({ deleted: 0 }));
+          if (req.method === 'POST') return res.end(JSON.stringify({ ok: true }));
+          return res.end(JSON.stringify({ entries: [], total: 0 }));
         }
         if (req.url?.startsWith('/api/not-found')) {
           res.setHeader('Content-Type', 'application/json');
-          return res.end(JSON.stringify({ missing: [] }));
+          if (req.method === 'DELETE') return res.end(JSON.stringify({ ok: true }));
+          return res.end(JSON.stringify({ entries: [] }));
         }
-        if (req.url === '/editor/licenses.json') {
+        if (req.url?.startsWith('/api/push')) {
+          if (req.method === 'DELETE') {
+            res.statusCode = 204;
+            return res.end();
+          }
+          if (req.method === 'GET') {
+            res.statusCode = 503;
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify({ error: 'no push in demo' }));
+          }
+          res.setHeader('Content-Type', 'application/json');
+          return res.end(JSON.stringify({ ok: true }));
+        }
+        if (pathname === '/editor/licenses.json') {
           res.setHeader('Content-Type', 'application/json');
           return res.end(JSON.stringify({ works: [], owners: [] }));
         }
-        if (req.url === '/editor/page-colors.json') {
+        if (pathname === '/editor/page-colors.json') {
           res.setHeader('Content-Type', 'application/json');
           return res.end(JSON.stringify({}));
         }
-        if (req.url === '/editor/links.json') {
+        if (pathname === '/editor/links.json') {
           res.setHeader('Content-Type', 'application/json');
           return res.end(JSON.stringify([]));
         }
-        if (req.url === '/editor/thumbnails.json') {
+        if (pathname === '/editor/thumbnails.json') {
           res.setHeader('Content-Type', 'application/json');
           return res.end(JSON.stringify({}));
         }
-        if (req.url === '/editor/code-images.json') {
+        if (pathname === '/editor/code-images.json') {
           res.setHeader('Content-Type', 'application/json');
           return res.end(JSON.stringify([]));
         }
@@ -194,13 +249,16 @@ function collectAllFiles(baseDir, dir = '') {
 
 function writeDemoWorker(baseDir) {
   const snapshot = collectAllFiles(baseDir);
+  const builtAt = new Date().toISOString();
   const code = `// Auto-generated demo Worker for Cloudflare Workers deployment of playground
 const FILES = ${JSON.stringify(snapshot)};
+const BUILT_AT = ${JSON.stringify(builtAt)};
+const MANIFEST_JSON = ${JSON.stringify(MANIFEST_JSON)};
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
   });
 
 const listed = (path) => ({ path, oid: \`blob:\${path}\`, binary: FILES[path]?.binary ?? true });
@@ -214,7 +272,18 @@ function filesIn(dir, depth) {
 }
 
 function answerGraphQL(query) {
-  const repository = { ref: { target: { oid: 'head' } }, viewerPermission: 'ADMIN' };
+  const target = {
+    oid: 'head',
+    history: { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } },
+  };
+  for (const [, key] of query.matchAll(/(f\\d+):\\s*history\\(/g)) {
+    target[key] = { nodes: [{ committedDate: BUILT_AT }] };
+  }
+  const repository = {
+    ref: { target },
+    object: { history: { nodes: [{ oid: 'head' }] } },
+    viewerPermission: 'ADMIN',
+  };
   for (const [, key, path] of query.matchAll(/(f\\d+): object\\(expression: "[^:"]+:([^"]+)"\\)/g)) {
     const entry = FILES[path];
     if (!entry) repository[key] = null;
@@ -234,20 +303,77 @@ function decodeBase64(b64) {
   }
 }
 
+async function handleOAuth(request, url, env) {
+  if (url.pathname === '/oauth/auth') {
+    if (env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET) {
+      const state = crypto.randomUUID();
+      const github = new URL('https://github.com/login/oauth/authorize');
+      github.search = new URLSearchParams({
+        client_id: env.GITHUB_CLIENT_ID,
+        redirect_uri: \`\${url.origin}/oauth/callback\`,
+        scope: 'repo',
+        state,
+      });
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: github.href,
+          'Set-Cookie': \`cms_oauth_state=\${state}; Path=/oauth/; Max-Age=600; HttpOnly; Secure; SameSite=Lax\`,
+          'Cache-Control': 'no-store',
+        },
+      });
+    }
+    return new Response(null, {
+      status: 302,
+      headers: { Location: new URL('/editor/', url.origin).href, 'Cache-Control': 'no-store' },
+    });
+  }
+  if (url.pathname === '/oauth/callback') {
+    return new Response(
+      '<!doctype html><html lang="da"><head><meta charset="utf-8"><title>Login</title></head><body><script>location.replace("/editor/");</script></body></html>',
+      { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } },
+    );
+  }
+  return null;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const { pathname } = url;
 
+    if (pathname.startsWith('/oauth/')) {
+      const oauthRes = await handleOAuth(request, url, env);
+      if (oauthRes) return oauthRes;
+    }
     if (pathname.startsWith('/api/r2')) return json({ bound: false, bucket: 'ready' });
-    if (pathname === '/editor/version.json' || pathname === '/version.json') return json({ version: 'dev' });
+    if (pathname === '/editor/version.json' || pathname === '/version.json') {
+      return json({ commit: 'head', builtAt: BUILT_AT });
+    }
+    if (pathname === '/editor/manifest.webmanifest') {
+      return new Response(MANIFEST_JSON, {
+        headers: { 'Content-Type': 'application/manifest+json; charset=utf-8' },
+      });
+    }
     if (pathname === '/editor/sw.js') {
       return new Response('// dev service worker\\nself.addEventListener("install", () => self.skipWaiting());', {
         headers: { 'Content-Type': 'application/javascript; charset=utf-8' },
       });
     }
-    if (pathname.startsWith('/api/consent')) return json({ consents: [] });
-    if (pathname.startsWith('/api/not-found')) return json({ missing: [] });
+    if (pathname.startsWith('/api/consent')) {
+      if (request.method === 'DELETE') return json({ deleted: 0 });
+      if (request.method === 'POST') return json({ ok: true });
+      return json({ entries: [], total: 0 });
+    }
+    if (pathname.startsWith('/api/not-found')) {
+      if (request.method === 'DELETE') return json({ ok: true });
+      return json({ entries: [] });
+    }
+    if (pathname.startsWith('/api/push')) {
+      if (request.method === 'DELETE') return new Response(null, { status: 204 });
+      if (request.method === 'GET') return json({ error: 'no push in demo' }, 503);
+      return json({ ok: true });
+    }
     if (pathname === '/editor/licenses.json') return json({ works: [], owners: [] });
     if (pathname === '/editor/page-colors.json') return json({});
     if (pathname === '/editor/links.json') return json([]);
@@ -256,6 +382,17 @@ export default {
 
     if (pathname.startsWith('/api/github/')) {
       const route = pathname.slice('/api/github/'.length);
+      if (route.startsWith('blob/') && request.method === 'GET') {
+        const oid = decodeURIComponent(route.slice('blob/'.length));
+        const filePath = oid.replace(/^blob:/, '');
+        if (FILES[filePath]?.text != null) {
+          return new Response(FILES[filePath].text, {
+            headers: { 'Content-Type': 'application/octet-stream' },
+          });
+        }
+        const pubPath = filePath.replace(/^public/, '');
+        return env.ASSETS.fetch(new Request(new URL(pubPath, url.origin)));
+      }
       let body = {};
       if (request.method === 'POST') {
         try {

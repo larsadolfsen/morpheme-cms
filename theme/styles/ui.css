@@ -4924,7 +4924,7 @@
   expanded rail's modality: standard (beside the content, which makes room for it) or .navigation-rail-modal (over the
   content, which keeps its place, with its shadow and corners, over .navigation-rail-scrim just before it); its
   behaviour: back into the collapsed rail, or .navigation-rail-hide, nothing while it is collapsed.
-    --navigation-rail-width, --navigation-rail-expanded-width, --navigation-rail-padding, --navigation-rail-radius,
+    --navigation-rail-width, --navigation-rail-expanded-width, --navigation-rail-expanded-padding, --navigation-rail-padding, --navigation-rail-radius,
     --navigation-rail-surface, --navigation-rail-line
     --navigation-rail-modal-surface, --navigation-rail-modal-radius, --navigation-rail-modal-shadow,
     --navigation-rail-scrim   a modal one, expanded
@@ -5185,14 +5185,15 @@
       visibility 0s linear var(--motion-spatial-duration);
   }
   .navigation-rail[data-expanded] {
-    width: var(--navigation-rail-expanded-width, 16rem);
+    width: var(--navigation-rail-expanded-width, 22.5rem);
+    padding: var(--navigation-rail-expanded-padding, var(--navigation-rail-padding, 1rem 0.75rem));
     transition-delay: 0s;
   }
   /* Modal: expanded over the content, which keeps its place (the margin takes back what the rail grows by), over the
      scrim. The rail stands in a row beside the content, so its z-index holds without a position of its own. */
   .navigation-rail-modal[data-expanded] {
     z-index: 50;
-    margin-inline-end: calc(var(--navigation-rail-width, 5.5rem) - var(--navigation-rail-expanded-width, 16rem));
+    margin-inline-end: calc(var(--navigation-rail-width, 5.5rem) - var(--navigation-rail-expanded-width, 22.5rem));
     border-start-end-radius: var(--navigation-rail-modal-radius, var(--block-radius));
     border-end-end-radius: var(--navigation-rail-modal-radius, var(--block-radius));
     background: var(--navigation-rail-modal-surface, var(--navigation-rail-surface, var(--block-surface)));
@@ -5221,7 +5222,7 @@
     box-shadow: none;
   }
   .navigation-rail-hide.navigation-rail-modal[data-expanded] {
-    margin-inline-end: calc(-1 * var(--navigation-rail-expanded-width, 16rem));
+    margin-inline-end: calc(-1 * var(--navigation-rail-expanded-width, 22.5rem));
   }
   .navigation-rail-header {
     display: flex;

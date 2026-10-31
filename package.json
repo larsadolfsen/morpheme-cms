@@ -47,6 +47,7 @@
     "playground": "astro dev --root playground",
     "demo": "node .agents/skills/theme-playground/scripts/run-demo.mjs",
     "test:editor": "node scripts/check-editor-pages.mjs",
+    "test:worker": "node scripts/check-worker-api.mjs",
     "check:md3": "node scripts/check-md3.mjs",
     "generate-types": "wrangler types"
   },
