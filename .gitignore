@@ -1,3 +1,4 @@
 node_modules/
+scratch/
 # Written when the package is packed (prepack, scripts/types.mjs).
 *.d.mts

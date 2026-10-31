@@ -2546,7 +2546,7 @@ export {
   default as NavigationRail,
   NavigationRailItem,
   NavigationRailSection,
-} from './themeUi';
+} from '@theme/ui/NavigationRail';
 
 // The sidebar's icon turned round: a panel at the right edge.
 const SidebarRight = ((props: IconProps) => <SidebarSimple {...props} mirrored />) as Icon;
