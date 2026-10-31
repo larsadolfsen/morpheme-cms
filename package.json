@@ -23,6 +23,9 @@
     "scripts",
     "!scripts/starter.mjs",
     "!scripts/check-starter.mjs",
+    "!scripts/check-md3.mjs",
+    "!scripts/check-editor-pages.mjs",
+    "!scripts/check-worker-api.mjs",
     "site",
     "src",
     "starter",
@@ -81,7 +84,7 @@
     "tailwindcss": "^4.3.3",
     "unified": "^11.0.5",
     "vite": "^8.3.4",
-    "wrangler": "^4.152.0",
+    "wrangler": "^4.156.0",
     "yaml": "^2.9.1"
   },
   "peerDependenciesMeta": {

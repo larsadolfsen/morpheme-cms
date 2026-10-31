@@ -4,6 +4,7 @@
 	"compatibility_flags": ["global_fetch_strictly_public"],
 	"name": "interstellar-demo",
 	"main": "./playground/worker.mjs",
+	"keep_vars": true,
 	// "r2_buckets": [{ "binding": "FILES", "bucket_name": "interstellar-demo-files", "jurisdiction": "eu" }],
 	"assets": {
 		"directory": "./playground/dist",

@@ -13,7 +13,7 @@ export const config = defineSite({
   domain: 'interstellar.example',
   siteDescription:
     'Interstellar is the website editor for people who would rather run their business than their website. Edit any page from your phone, and every change is saved and checked.',
-  repo: { owner: 'interstellar', name: 'demo', branch: 'main' },
+  repo: { owner: 'larsadolfsen', name: 'interstellar-cms', branch: 'main' },
   booking: { path: '/get-started/', thanks: [] },
   aboutPath: '/about/',
 });

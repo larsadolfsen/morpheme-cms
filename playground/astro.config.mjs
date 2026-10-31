@@ -250,16 +250,151 @@ function collectAllFiles(baseDir, dir = '') {
 function writeDemoWorker(baseDir) {
   const snapshot = collectAllFiles(baseDir);
   const builtAt = new Date().toISOString();
-  const code = `// Auto-generated demo Worker for Cloudflare Workers deployment of playground
+  const code = `// Auto-generated Cloudflare Worker for playground (protected by GitHub OAuth — owner only)
 const FILES = ${JSON.stringify(snapshot)};
 const BUILT_AT = ${JSON.stringify(builtAt)};
 const MANIFEST_JSON = ${JSON.stringify(MANIFEST_JSON)};
+const REPO = { owner: 'larsadolfsen', name: 'interstellar-cms', branch: 'main' };
+const SESSION_COOKIE = 'editor_session';
+const STATE_COOKIE = 'cms_oauth_state';
+const KEEP_SECONDS = 400 * 24 * 60 * 60;
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
     headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
   });
+
+const sessionCookie = (token) =>
+  \`\${SESSION_COOKIE}=\${token}; Path=/api/; Max-Age=\${KEEP_SECONDS}; HttpOnly; Secure; SameSite=Strict\`;
+const noSession = () =>
+  \`\${SESSION_COOKIE}=; Path=/api/; Max-Age=0; HttpOnly; Secure; SameSite=Strict\`;
+
+function sessionToken(request) {
+  const url = new URL(request.url);
+  const site = request.headers.get('sec-fetch-site');
+  const origin = request.headers.get('origin');
+  if (site ? site !== 'same-origin' : origin && origin !== url.origin) return null;
+  return request.headers.get('cookie')?.match(new RegExp(\`(?:^|;\\\\s*)\${SESSION_COOKIE}=([^;]+)\`))?.[1] ?? null;
+}
+
+const knownTokens = new Map();
+const hashToken = async (token) =>
+  [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token)))].join('.');
+
+async function verifyOwnerToken(token, ask = fetch) {
+  const id = await hashToken(token);
+  const cached = knownTokens.get(id);
+  if (cached && cached.until > Date.now()) return cached;
+  const res = await ask(\`https://api.github.com/repos/\${REPO.owner}/\${REPO.name}\`, {
+    headers: {
+      authorization: \`Bearer \${token}\`,
+      accept: 'application/vnd.github+json',
+      'user-agent': \`\${REPO.name}-worker\`,
+    },
+  });
+  if (res.status === 401) return null;
+  if (!res.ok) return { push: false, login: null };
+  const data = await res.json().catch(() => ({}));
+  const push = data.permissions?.push === true || data.permissions?.admin === true;
+  let user = { login: REPO.owner, name: 'Lars Adolfsen' };
+  if (push) {
+    const uRes = await ask('https://api.github.com/user', {
+      headers: {
+        authorization: \`Bearer \${token}\`,
+        accept: 'application/vnd.github+json',
+        'user-agent': \`\${REPO.name}-worker\`,
+      },
+    }).catch(() => null);
+    if (uRes?.ok) {
+      const u = await uRes.json().catch(() => ({}));
+      if (u.login) user = { login: u.login, name: u.name || u.login };
+    }
+  }
+  const entry = { push, user, until: Date.now() + 10 * 60_000 };
+  knownTokens.set(id, entry);
+  return entry;
+}
+
+async function requireOwner(request, env) {
+  const token = sessionToken(request);
+  if (!token) return { error: json({ error: 'signed out' }, 401) };
+  const verified = await verifyOwnerToken(token, env.__fetch ?? fetch);
+  if (!verified) return { error: json({ error: 'signed out' }, 401) };
+  if (!verified.push) return { error: json({ error: 'forbidden' }, 403) };
+  return { token, user: verified.user };
+}
+
+const escapeHtml = (s) =>
+  String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+function finishOAuth({ token, error }) {
+  const body = error
+    ? \`<p>\${escapeHtml(error)}</p><p><a href="/editor/">Tilbage til editoren</a></p>\`
+    : \`<p>Logger ind…</p><script>location.replace('/editor/');</script>\`;
+  const html = \`<!doctype html><html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Login</title></head><body style="font-family: system-ui, sans-serif; padding: 2rem">\${body}</body></html>\`;
+  const headers = new Headers({
+    'content-type': 'text/html; charset=utf-8',
+    'cache-control': 'no-store',
+    'set-cookie': \`\${STATE_COOKIE}=; Path=/oauth/; Max-Age=0; HttpOnly; Secure; SameSite=Lax\`,
+  });
+  if (token) headers.append('set-cookie', sessionCookie(token));
+  return new Response(html, { status: error ? 403 : 200, headers });
+}
+
+async function handleOAuth(request, url, env) {
+  const ask = env.__fetch ?? fetch;
+  if (url.pathname === '/oauth/auth') {
+    if (!env.GITHUB_CLIENT_ID || !env.GITHUB_CLIENT_SECRET) {
+      return finishOAuth({ error: 'GitHub-login er ikke sat op endnu (mangler GITHUB_CLIENT_ID og GITHUB_CLIENT_SECRET i Cloudflare Worker).' });
+    }
+    const state = crypto.randomUUID();
+    const github = new URL('https://github.com/login/oauth/authorize');
+    github.search = new URLSearchParams({
+      client_id: env.GITHUB_CLIENT_ID,
+      redirect_uri: \`\${url.origin}/oauth/callback\`,
+      scope: 'repo',
+      state,
+    });
+    return new Response(null, {
+      status: 302,
+      headers: {
+        location: github.href,
+        'set-cookie': \`\${STATE_COOKIE}=\${state}; Path=/oauth/; Max-Age=600; HttpOnly; Secure; SameSite=Lax\`,
+        'cache-control': 'no-store',
+      },
+    });
+  }
+  if (url.pathname === '/oauth/callback') {
+    const code = url.searchParams.get('code');
+    const state = url.searchParams.get('state');
+    const cookie = request.headers.get('cookie') ?? '';
+    const expected = cookie.match(new RegExp(\`(?:^|;\\\\s*)\${STATE_COOKIE}=([^;]+)\`))?.[1];
+    if (!code || !state || state !== expected) {
+      return finishOAuth({ error: 'Login mislykkedes (ugyldig eller udløbet forespørgsel). Prøv igen.' });
+    }
+    const res = await ask('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: { accept: 'application/json', 'content-type': 'application/json', 'user-agent': 'interstellar-cms' },
+      body: JSON.stringify({
+        client_id: env.GITHUB_CLIENT_ID,
+        client_secret: env.GITHUB_CLIENT_SECRET,
+        code,
+        redirect_uri: \`\${url.origin}/oauth/callback\`,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.access_token) {
+      return finishOAuth({ error: \`Login mislykkedes: \${data.error_description ?? data.error ?? res.status}\` });
+    }
+    const verified = await verifyOwnerToken(data.access_token, ask);
+    if (!verified?.push) {
+      return finishOAuth({ error: 'Adgang nægtet: Kun ejeren af repositoriet har adgang til editoren.' });
+    }
+    return finishOAuth({ token: data.access_token });
+  }
+  return null;
+}
 
 const listed = (path) => ({ path, oid: \`blob:\${path}\`, binary: FILES[path]?.binary ?? true });
 
@@ -271,7 +406,7 @@ function filesIn(dir, depth) {
     .map(listed);
 }
 
-function answerGraphQL(query) {
+function answerGraphQL(query, user) {
   const target = {
     oid: 'head',
     history: { nodes: [], pageInfo: { hasNextPage: false, endCursor: null } },
@@ -289,7 +424,7 @@ function answerGraphQL(query) {
     if (!entry) repository[key] = null;
     else repository[key] = { oid: \`blob:\${path}\`, text: entry.binary ? null : entry.text };
   }
-  return { data: { viewer: { login: 'local-admin', name: 'Interstellar Admin' }, repository } };
+  return { data: { viewer: user, repository } };
 }
 
 function decodeBase64(b64) {
@@ -303,40 +438,6 @@ function decodeBase64(b64) {
   }
 }
 
-async function handleOAuth(request, url, env) {
-  if (url.pathname === '/oauth/auth') {
-    if (env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET) {
-      const state = crypto.randomUUID();
-      const github = new URL('https://github.com/login/oauth/authorize');
-      github.search = new URLSearchParams({
-        client_id: env.GITHUB_CLIENT_ID,
-        redirect_uri: \`\${url.origin}/oauth/callback\`,
-        scope: 'repo',
-        state,
-      });
-      return new Response(null, {
-        status: 302,
-        headers: {
-          Location: github.href,
-          'Set-Cookie': \`cms_oauth_state=\${state}; Path=/oauth/; Max-Age=600; HttpOnly; Secure; SameSite=Lax\`,
-          'Cache-Control': 'no-store',
-        },
-      });
-    }
-    return new Response(null, {
-      status: 302,
-      headers: { Location: new URL('/editor/', url.origin).href, 'Cache-Control': 'no-store' },
-    });
-  }
-  if (url.pathname === '/oauth/callback') {
-    return new Response(
-      '<!doctype html><html lang="da"><head><meta charset="utf-8"><title>Login</title></head><body><script>location.replace("/editor/");</script></body></html>',
-      { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } },
-    );
-  }
-  return null;
-}
-
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -346,7 +447,8 @@ export default {
       const oauthRes = await handleOAuth(request, url, env);
       if (oauthRes) return oauthRes;
     }
-    if (pathname.startsWith('/api/r2')) return json({ bound: false, bucket: 'ready' });
+
+    // Public editor metadata endpoints (no sensitive data, used by PWA manifest / version check)
     if (pathname === '/editor/version.json' || pathname === '/version.json') {
       return json({ commit: 'head', builtAt: BUILT_AT });
     }
@@ -360,81 +462,99 @@ export default {
         headers: { 'Content-Type': 'application/javascript; charset=utf-8' },
       });
     }
-    if (pathname.startsWith('/api/consent')) {
-      if (request.method === 'DELETE') return json({ deleted: 0 });
-      if (request.method === 'POST') return json({ ok: true });
-      return json({ entries: [], total: 0 });
-    }
-    if (pathname.startsWith('/api/not-found')) {
-      if (request.method === 'DELETE') return json({ ok: true });
-      return json({ entries: [] });
-    }
-    if (pathname.startsWith('/api/push')) {
-      if (request.method === 'DELETE') return new Response(null, { status: 204 });
-      if (request.method === 'GET') return json({ error: 'no push in demo' }, 503);
-      return json({ ok: true });
-    }
     if (pathname === '/editor/licenses.json') return json({ works: [], owners: [] });
     if (pathname === '/editor/page-colors.json') return json({});
     if (pathname === '/editor/links.json') return json([]);
     if (pathname === '/editor/thumbnails.json') return json({});
     if (pathname === '/editor/code-images.json') return json([]);
 
-    if (pathname.startsWith('/api/github/')) {
-      const route = pathname.slice('/api/github/'.length);
-      if (route.startsWith('blob/') && request.method === 'GET') {
-        const oid = decodeURIComponent(route.slice('blob/'.length));
-        const filePath = oid.replace(/^blob:/, '');
-        if (FILES[filePath]?.text != null) {
-          return new Response(FILES[filePath].text, {
-            headers: { 'Content-Type': 'application/octet-stream' },
+    // Logout clears the session cookie
+    if (pathname === '/api/github/logout' && request.method === 'POST') {
+      const token = sessionToken(request);
+      if (token) knownTokens.delete(await hashToken(token));
+      return new Response(null, { status: 204, headers: { 'set-cookie': noSession(), 'cache-control': 'no-store' } });
+    }
+
+    // Public visitor consent submission (POST /api/consent from cookie banner)
+    if (pathname.startsWith('/api/consent') && request.method === 'POST') {
+      return json({ ok: true });
+    }
+
+    // All other /api/* routes require authenticated repo owner (permissions.push === true on larsadolfsen/interstellar-cms)
+    if (pathname.startsWith('/api/')) {
+      const auth = await requireOwner(request, env);
+      if (auth.error) return auth.error;
+
+      if (pathname.startsWith('/api/r2')) return json({ bound: !!env.FILES, bucket: 'ready' });
+      if (pathname.startsWith('/api/consent')) {
+        if (request.method === 'DELETE') return json({ deleted: 0 });
+        return json({ entries: [], total: 0 });
+      }
+      if (pathname.startsWith('/api/not-found')) {
+        if (request.method === 'DELETE') return json({ ok: true });
+        return json({ entries: [] });
+      }
+      if (pathname.startsWith('/api/push')) {
+        if (request.method === 'DELETE') return new Response(null, { status: 204 });
+        if (request.method === 'GET') return json({ error: 'no push in demo' }, 503);
+        return json({ ok: true });
+      }
+
+      if (pathname.startsWith('/api/github/')) {
+        const route = pathname.slice('/api/github/'.length);
+        if (route.startsWith('blob/') && request.method === 'GET') {
+          const oid = decodeURIComponent(route.slice('blob/'.length));
+          const filePath = oid.replace(/^blob:/, '');
+          if (FILES[filePath]?.text != null) {
+            return new Response(FILES[filePath].text, {
+              headers: { 'Content-Type': 'application/octet-stream' },
+            });
+          }
+          const pubPath = filePath.replace(/^public/, '');
+          return env.ASSETS.fetch(new Request(new URL(pubPath, url.origin)));
+        }
+        let body = {};
+        if (request.method === 'POST') {
+          try {
+            body = await request.json();
+          } catch {}
+        }
+        if (route === 'graphql') return json(answerGraphQL(body.query ?? '', auth.user));
+        if (route === 'head') return json({ commit: 'head', tree: 'root' });
+        if (route === 'files') {
+          return json({
+            commit: 'head',
+            tree: 'root',
+            folders: (body.folders ?? []).map((dir) => filesIn(dir, body.depth ?? 3)),
+            paths: (body.paths ?? []).map((p) => (FILES[p] ? listed(p) : null)),
           });
         }
-        const pubPath = filePath.replace(/^public/, '');
-        return env.ASSETS.fetch(new Request(new URL(pubPath, url.origin)));
-      }
-      let body = {};
-      if (request.method === 'POST') {
-        try {
-          body = await request.json();
-        } catch {}
-      }
-      if (route === 'graphql') return json(answerGraphQL(body.query ?? ''));
-      if (route === 'head') return json({ commit: 'head', tree: 'root' });
-      if (route === 'files') {
-        return json({
-          commit: 'head',
-          tree: 'root',
-          folders: (body.folders ?? []).map((dir) => filesIn(dir, body.depth ?? 3)),
-          paths: (body.paths ?? []).map((p) => (FILES[p] ? listed(p) : null)),
-        });
-      }
-      if (route === 'trees') return json({ trees: (body.at ?? []).map(() => null) });
-      if (route === 'texts') {
-        const paths = (body.oids ?? []).map((oid) => String(oid).replace(/^blob:/, ''));
-        return json({
-          texts: Object.fromEntries(paths.map((p) => [\`blob:\${p}\`, FILES[p]?.text ?? ''])),
-        });
-      }
-      if (route === 'commit') {
-        const blobs = {};
-        for (const change of body.changes ?? []) {
-          if (change.deleted || change.content === null) {
-            delete FILES[change.path];
-          } else {
-            const text =
-              change.text !== undefined
-                ? change.text
-                : typeof change.content === 'string'
-                  ? decodeBase64(change.content)
-                  : '';
-            FILES[change.path] = { binary: false, text };
-            blobs[change.path] = \`blob:\${change.path}\`;
-          }
+        if (route === 'trees') return json({ trees: (body.at ?? []).map(() => null) });
+        if (route === 'texts') {
+          const paths = (body.oids ?? []).map((oid) => String(oid).replace(/^blob:/, ''));
+          return json({
+            texts: Object.fromEntries(paths.map((p) => [\`blob:\${p}\`, FILES[p]?.text ?? ''])),
+          });
         }
-        return json({ commit: 'head', blobs, oids: blobs });
+        if (route === 'commit') {
+          const blobs = {};
+          for (const change of body.changes ?? []) {
+            if (change.deleted || change.content === null) {
+              delete FILES[change.path];
+            } else {
+              const text =
+                change.text !== undefined
+                  ? change.text
+                  : typeof change.content === 'string'
+                    ? decodeBase64(change.content)
+                    : '';
+              FILES[change.path] = { binary: false, text };
+              blobs[change.path] = \`blob:\${change.path}\`;
+            }
+          }
+          return json({ commit: 'head', blobs, oids: blobs });
+        }
       }
-      if (route === 'logout') return json({ ok: true });
     }
 
     return env.ASSETS.fetch(request);
