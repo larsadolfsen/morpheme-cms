@@ -23,6 +23,13 @@ const interactDirective = () => ({
 
 const TEXT = /\.(md|mdx|jsonc?|ya?ml|txt|ts|js|mjs|css|astro|svg)$/;
 const listed = (path) => ({ path, oid: `blob:${path}`, binary: !TEXT.test(path) });
+const resolveFile = (baseDir, path) => {
+  const inBase = join(baseDir, path);
+  if (existsSync(inBase)) return inBase;
+  const inRoot = join(root, path);
+  if (path === 'wrangler.jsonc' && existsSync(inRoot)) return inRoot;
+  return inBase;
+};
 function filesIn(dir, depth, baseDir) {
   const fullDir = join(baseDir, dir);
   if (!existsSync(fullDir) || !statSync(fullDir).isDirectory()) return [];
@@ -35,7 +42,7 @@ function filesIn(dir, depth, baseDir) {
 function answerGraphQL(query, baseDir) {
   const repository = { ref: { target: { oid: 'head' } }, viewerPermission: 'ADMIN' };
   for (const [, key, path] of query.matchAll(/(f\d+): object\(expression: "[^:"]+:([^"]+)"\)/g)) {
-    const full = join(baseDir, path);
+    const full = resolveFile(baseDir, path);
     if (!existsSync(full) || statSync(full).isDirectory()) repository[key] = null;
     else repository[key] = { oid: `blob:${path}`, text: TEXT.test(path) ? readFileSync(full, 'utf8') : null };
   }
@@ -109,9 +116,10 @@ function localEditorMiddleware() {
               commit: 'head',
               tree: 'root',
               folders: (body.folders ?? []).map((dir) => filesIn(dir, body.depth ?? 3, here)),
-              paths: (body.paths ?? []).map((path) =>
-                existsSync(join(here, path)) && statSync(join(here, path)).isFile() ? listed(path) : null,
-              ),
+              paths: (body.paths ?? []).map((path) => {
+                const full = resolveFile(here, path);
+                return existsSync(full) && statSync(full).isFile() ? listed(path) : null;
+              }),
             }));
           }
           if (route === 'trees') {
@@ -123,25 +131,35 @@ function localEditorMiddleware() {
             const paths = (body.oids ?? []).map((oid) => oid.replace(/^blob:/, ''));
             return res.end(JSON.stringify({
               texts: Object.fromEntries(
-                paths.map((p) => [
-                  `blob:${p}`,
-                  existsSync(join(here, p)) ? readFileSync(join(here, p), 'utf8') : '',
-                ]),
+                paths.map((p) => {
+                  const full = resolveFile(here, p);
+                  return [`blob:${p}`, existsSync(full) ? readFileSync(full, 'utf8') : ''];
+                }),
               ),
             }));
           }
           if (route === 'commit') {
+            const blobs = {};
             for (const change of body.changes ?? []) {
-              const full = join(here, change.path);
-              if (change.deleted) {
+              const full = resolveFile(here, change.path);
+              if (change.deleted || change.content === null) {
                 if (existsSync(full)) unlinkSync(full);
-              } else if (change.text !== undefined) {
-                mkdirSync(dirname(full), { recursive: true });
-                writeFileSync(full, change.text, 'utf8');
+              } else {
+                const text =
+                  change.text !== undefined
+                    ? change.text
+                    : typeof change.content === 'string'
+                      ? Buffer.from(change.content, 'base64').toString('utf8')
+                      : undefined;
+                if (text !== undefined) {
+                  mkdirSync(dirname(full), { recursive: true });
+                  writeFileSync(full, text, 'utf8');
+                }
+                blobs[change.path] = `blob:${change.path}`;
               }
             }
             res.setHeader('Content-Type', 'application/json');
-            return res.end(JSON.stringify({ commit: 'head', oids: {} }));
+            return res.end(JSON.stringify({ commit: 'head', blobs, oids: blobs }));
           }
           if (route === 'logout') {
             res.setHeader('Content-Type', 'application/json');
@@ -167,6 +185,9 @@ function collectAllFiles(baseDir, dir = '') {
       const binary = !TEXT.test(rel);
       out[rel] = { binary, text: binary ? null : readFileSync(join(baseDir, rel), 'utf8') };
     }
+  }
+  if (!dir && !out['wrangler.jsonc'] && existsSync(join(root, 'wrangler.jsonc'))) {
+    out['wrangler.jsonc'] = { binary: false, text: readFileSync(join(root, 'wrangler.jsonc'), 'utf8') };
   }
   return out;
 }
@@ -200,6 +221,17 @@ function answerGraphQL(query) {
     else repository[key] = { oid: \`blob:\${path}\`, text: entry.binary ? null : entry.text };
   }
   return { data: { viewer: { login: 'local-admin', name: 'Interstellar Admin' }, repository } };
+}
+
+function decodeBase64(b64) {
+  try {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  } catch {
+    return '';
+  }
 }
 
 export default {
@@ -248,11 +280,22 @@ export default {
         });
       }
       if (route === 'commit') {
+        const blobs = {};
         for (const change of body.changes ?? []) {
-          if (change.deleted) delete FILES[change.path];
-          else if (change.text !== undefined) FILES[change.path] = { binary: false, text: change.text };
+          if (change.deleted || change.content === null) {
+            delete FILES[change.path];
+          } else {
+            const text =
+              change.text !== undefined
+                ? change.text
+                : typeof change.content === 'string'
+                  ? decodeBase64(change.content)
+                  : '';
+            FILES[change.path] = { binary: false, text };
+            blobs[change.path] = \`blob:\${change.path}\`;
+          }
         }
-        return json({ commit: 'head', oids: {} });
+        return json({ commit: 'head', blobs, oids: blobs });
       }
       if (route === 'logout') return json({ ok: true });
     }
