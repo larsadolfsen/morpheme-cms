@@ -42,7 +42,8 @@
     "playground": "astro dev --root playground",
     "demo": "node .agents/skills/theme-playground/scripts/run-demo.mjs",
     "test:editor": "node scripts/check-editor-pages.mjs",
-    "check:md3": "node scripts/check-md3.mjs"
+    "check:md3": "node scripts/check-md3.mjs",
+    "generate-types": "wrangler types"
   },
   "peerDependencies": {
     "@astrojs/markdown-remark": "^7.3.2",
@@ -100,6 +101,9 @@
   "devDependencies": {
     "@astrojs/markdown-remark": "^7.3.2",
     "@astrojs/react": "^7.0.1",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource-variable/roboto": "^5.3.0",
     "@fontsource/roboto": "^5.3.0",
     "@material/material-color-utilities": "^0.3.0",
     "@milkdown/kit": "^7.22.3",
@@ -109,6 +113,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.3.7",
     "esbuild": "^0.28.2",
+    "github-slugger": "^2.0.0",
     "jsdom": "^29.1.1",
     "motion": "^14.0.0",
     "playwright": "^1.64.1",
@@ -125,12 +130,10 @@
     "typescript": "^6.0.2",
     "unified": "^11.0.5",
     "vite": "^8.3.4",
-    "wrangler": "^4.152.0",
-    "yaml": "^2.9.1",
-    "@astrojs/rss": "^4.0.19",
-    "@astrojs/sitemap": "^3.7.4",
-    "@fontsource-variable/roboto": "^5.3.0",
-    "github-slugger": "^2.0.0"
+    "wrangler": "^4.156.0",
+    "yaml": "^2.9.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@astrojs/cloudflare": "^14.4.3"
+  }
 }
