@@ -1,54 +1,37 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import {
-  ArrowSquareOut,
   Camera,
   CheckCircle,
-  Gear,
-  Globe,
-  Key,
-  WarningCircle,
 } from '@phosphor-icons/react';
 import type { AppPageProps } from '@interstellarcms/cms/src/apps';
-import { Button, Notice, SupportingText } from '@interstellarcms/cms/src/ui';
+import { Button } from '@interstellarcms/cms/src/ui';
 import {
-  getUnsplashConfig,
-  hasUnsplashConfig,
   testUnsplashConnection,
-  UNSPLASH_DOCS_URL,
-  UNSPLASH_REGISTER_URL,
   type UnsplashRateLimit,
 } from '@interstellarcms/cms/src/unsplash';
 import UnsplashPicker from '@interstellarcms/cms/src/UnsplashPicker';
-import UnsplashSettings from '@interstellarcms/cms/src/UnsplashSettings';
 import { siteText, t } from '@interstellarcms/cms/src/i18n';
 
 export default function UnsplashAppPage({ api }: AppPageProps): ReactElement {
-  const [configured, setConfigured] = useState(hasUnsplashConfig);
-  const [editingSettings, setEditingSettings] = useState(!hasUnsplashConfig());
   const [testing, setTesting] = useState(false);
   const [rateLimit, setRateLimit] = useState<UnsplashRateLimit | undefined>(undefined);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const cfg = getUnsplashConfig();
-    if (cfg?.accessKey) {
-      testUnsplashConnection(cfg.accessKey).then((res) => {
-        if (res.ok && res.rateLimit) {
-          setRateLimit(res.rateLimit);
-        }
-      });
-    }
-  }, [configured]);
+    testUnsplashConnection().then((res) => {
+      if (res.ok && res.rateLimit) {
+        setRateLimit(res.rateLimit);
+      }
+    });
+  }, []);
 
   async function runTest() {
-    const cfg = getUnsplashConfig();
-    if (!cfg?.accessKey) return;
     setTesting(true);
     setStatusMessage(null);
     try {
-      const res = await testUnsplashConnection(cfg.accessKey);
+      const res = await testUnsplashConnection();
       if (res.ok) {
-        setRateLimit(res.rateLimit);
+        if (res.rateLimit) setRateLimit(res.rateLimit);
         setStatusMessage(t.media.unsplash.connected);
       } else {
         setStatusMessage(res.error || t.media.unsplash.keyInvalid);
@@ -71,17 +54,10 @@ export default function UnsplashAppPage({ api }: AppPageProps): ReactElement {
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-semibold">{siteText('Unsplash integration')}</h3>
-              {configured ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                  <CheckCircle size={12} weight="fill" />
-                  {siteText('Active')}
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">
-                  <WarningCircle size={12} weight="fill" />
-                  {siteText('Setup required')}
-                </span>
-              )}
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                <CheckCircle size={12} weight="fill" />
+                {siteText('Active')}
+              </span>
             </div>
             <p className="text-xs text-muted">
               {rateLimit
@@ -92,18 +68,8 @@ export default function UnsplashAppPage({ api }: AppPageProps): ReactElement {
         </div>
 
         <div className="flex items-center gap-2">
-          {configured && (
-            <Button kind="outlined" size="small" disabled={testing} onClick={runTest}>
-              {testing ? siteText('Testing...') : siteText('Test connection')}
-            </Button>
-          )}
-          <Button
-            kind={editingSettings ? 'tonal' : 'filled'}
-            size="small"
-            icon={Gear}
-            onClick={() => setEditingSettings(!editingSettings)}
-          >
-            {editingSettings ? siteText('Close settings') : siteText('Settings')}
+          <Button kind="outlined" size="small" disabled={testing} onClick={runTest}>
+            {testing ? siteText('Testing...') : siteText('Test connection')}
           </Button>
         </div>
       </div>
@@ -111,19 +77,6 @@ export default function UnsplashAppPage({ api }: AppPageProps): ReactElement {
       {statusMessage && (
         <div className="rounded-lg bg-surface-container p-3 text-sm">
           <p>{statusMessage}</p>
-        </div>
-      )}
-
-      {/* Settings section when toggled */}
-      {editingSettings && (
-        <div className="rounded-xl border border-line bg-surface p-4 shadow-sm">
-          <UnsplashSettings
-            onSaved={() => {
-              setConfigured(hasUnsplashConfig());
-              setEditingSettings(false);
-            }}
-            onClose={() => setEditingSettings(false)}
-          />
         </div>
       )}
 
