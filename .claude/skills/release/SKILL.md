@@ -16,7 +16,7 @@ Every command shown to the owner starts with `cd C:/Users/adolf/Documents/Inters
 
 ```
 gh pr list -R larsadolfsen/morpheme-cms --head changeset-release/main --state open --json number,title,url
-gh pr diff <n> -R larsadolfsen/morpheme-cms -- CHANGELOG.md package.json
+gh api repos/larsadolfsen/morpheme-cms/pulls/<n>/files --jq '.[] | select(.filename == "CHANGELOG.md" or .filename == "package.json") | .patch'
 npm view @morphemecms/cms dist-tags --json
 ```
 

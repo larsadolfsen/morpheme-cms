@@ -567,7 +567,7 @@ Every command shown to the owner starts with `cd C:/Users/adolf/Documents/Inters
 
 ```
 gh pr list -R larsadolfsen/morpheme-cms --head changeset-release/main --state open --json number,title,url
-gh pr diff <n> -R larsadolfsen/morpheme-cms -- CHANGELOG.md package.json
+gh api repos/larsadolfsen/morpheme-cms/pulls/<n>/files --jq '.[] | select(.filename == "CHANGELOG.md" or .filename == "package.json") | .patch'
 npm view @morphemecms/cms dist-tags --json
 ```
 
@@ -641,12 +641,17 @@ Expected: no output (not ignored). Run: `git check-ignore -v .claude/worktrees/x
 In Task 4's line in section 1, replace `og udgiver \`latest\`. Flet den aldrig uden ejerens ja.` with
 `og udgiver \`latest\`: ejeren skriver \`/release\` (\`.claude/skills/release/SKILL.md\`). Flet den aldrig uden ejerens ja.`
 
-- [ ] **Step 4: Verify**
+- [x] **Step 4: Verify**
 
 In a new session in `morpheme-cms`, type `/release`. Expected: the skill loads and phase 1 runs; with no Release PR open
 it stops with "Nothing to release". With one open (after Task 4 Step 5), it shows the version and notes and asks;
 answer "Not now" and check that nothing changed (`gh pr view <n> --json state` still `OPEN`). The first real
 "Release" is the owner's call.
+
+**Done 3 November 2026:** with #19 open, a fresh agent ran Phase 1 and stopped at Phase 2's question ("Release 0.1.1
+to every site?", the 0.1.1 notes, no staging build found; options "Release 0.1.1" and "Not now"); after "Not now" #19
+was still `OPEN`. Phase 1's `gh pr diff <n> -- CHANGELOG.md package.json` failed (`gh pr diff` takes no paths); the
+skill (and Step 1 above) now reads the two files' patches with `gh api …/pulls/<n>/files`.
 
 - [x] **Step 5: Commit** (with an empty changeset: nothing a site gets)
 
