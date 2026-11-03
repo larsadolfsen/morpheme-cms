@@ -15,7 +15,7 @@
 // cannot be moved; `name` is the input's (a range's: one for each); `className` goes after its own classes. An Astro component
 // gives an element the same classes with sliderClass.
 import type { ChangeEvent, CSSProperties, FormEvent } from 'react';
-import { Svg } from '@interstellarcms/cms/src/icon';
+import { Svg } from '@morpheme/cms/src/icon';
 import { sliderPlace, stopState, updateSlider } from './sliderUpdate';
 
 /** A slider's sizes, as M3 Expressive names them. */

@@ -10,8 +10,8 @@ import mobileMenu from '@data/mobile-menu.json';
 import blocks from '@data/blocks.json';
 import standardPages from '@data/standard-pages.json';
 import { config } from '@site/config';
-import { sharedTexts, type SharedTexts } from '@interstellarcms/cms/src/shared';
-import { standardShared } from '@interstellarcms/cms/src/standard/sharedTexts';
+import { sharedTexts, type SharedTexts } from '@morpheme/cms/src/shared';
+import { standardShared } from '@morpheme/cms/src/standard/sharedTexts';
 
 // The number with its country code: +45 when it has none (a number in Denmark, saved without it), else
 // its own ("+46 70 12 34 56", picked in the editor).

@@ -1,11 +1,10 @@
 {
   "order": 1,
-  "name": "Sarah Lin",
-  "context": "Lead Product Designer",
-  "quote": "The 100% theme parity between frontend and backend is unmatched. Every token, surface, and font matches the Astro site keystroke-by-keystroke.",
-  "image": "/images/uploads/2026/10/team-sarah.jpg",
+  "name": "Maya, bakery owner",
+  "context": "Sample testimonial",
+  "quote": "I update the menu from my phone before we open. It takes two minutes, and I haven’t had to call anyone since.",
   "categories": [
-    "design"
+    "editing"
   ],
-  "frontPage": true
+  "frontPage": false
 }

@@ -1,4 +1,4 @@
-// The visitor's yes or no to each category of cookies in the cookie banner (@interstellarcms/cms/lib/cookieCategories.mjs:
+// The visitor's yes or no to each category of cookies in the cookie banner (@morpheme/cms/lib/cookieCategories.mjs:
 // preferences, statistics, marketing, targeting; necessary ones are not asked about), and the site's events. The apps that measure
 // (Google Analytics, Google Ads, Google Tag Manager: src/apps/) load their tags with afterConsent, only after a yes to
 // their category (Google consent mode, "basic": the Google tag is not loaded at all until the visitor says yes, and it
@@ -10,7 +10,7 @@
 // - open_booking:     the booking calendar was opened
 // - click_to_call:    a phone link was tapped
 // - email_click:      an e-mail link was clicked
-import { CONSENT_CATEGORIES, isConsentCategory, type ConsentCategory } from '@interstellarcms/cms/lib/cookieCategories.mjs';
+import { CONSENT_CATEGORIES, isConsentCategory, type ConsentCategory } from '@morpheme/cms/lib/cookieCategories.mjs';
 import { cookieList } from './cookieList';
 import { tracking } from './tracking';
 import { site } from './site';

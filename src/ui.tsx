@@ -77,6 +77,9 @@ import {
   SiteSearchBar,
   SiteNavigationDrawer,
   SiteNavigationDrawerItem,
+  SiteNavigationRail,
+  SiteNavigationRailItem,
+  SiteNavigationRailSection,
   siteNavigationDrawerDialogClass,
   SiteSegmentedButton,
   SiteSideSheet,
@@ -128,7 +131,7 @@ type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
 
 export function Button({ icon: Glyph, wide, className, children, ...rest }: ButtonProps) {
   return (
-    <SiteButton icon={Glyph && <Glyph />} className={[wide && 'w-full sm:w-auto', className].filter(Boolean).join(' ')} {...rest}>
+    <SiteButton icon={Glyph && <Glyph />} className={[wide && 'w-full', className].filter(Boolean).join(' ')} {...rest}>
       {children}
     </SiteButton>
   );
@@ -144,7 +147,7 @@ export function LinkButton({
   ...rest
 }: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> & { kind?: ButtonKind; size?: ButtonSize; wide?: boolean; icon?: Icon }) {
   return (
-    <SiteButton href={href} icon={Glyph && <Glyph />} className={[wide && 'w-full sm:w-auto', className].filter(Boolean).join(' ')} {...rest}>
+    <SiteButton href={href} icon={Glyph && <Glyph />} className={[wide && 'w-full', className].filter(Boolean).join(' ')} {...rest}>
       {children}
     </SiteButton>
   );
@@ -251,15 +254,14 @@ export function Toolbar({
   label,
   className,
   children,
-  ...rest
 }: {
   ref?: Ref<HTMLDivElement>;
   label: string;
   className?: string;
   children: ReactNode;
-} & Record<string, unknown>) {
+}) {
   return (
-    <SiteToolbar ref={ref} label={label} kind="docked" className={className} style={closeToolbar} {...rest}>
+    <SiteToolbar ref={ref} label={label} kind="docked" className={className} style={closeToolbar}>
       {children}
     </SiteToolbar>
   );
@@ -785,7 +787,7 @@ export function Notice({ title, children, action }: { title: string; children: R
   return (
     <SiteCard kind="filled" role="status" className="space-y-2">
       <p className="font-medium text-accent">{title}</p>
-      <div className="text-sm">{children}</div>
+      <p className="text-sm">{children}</p>
       {action}
     </SiteCard>
   );
@@ -1610,14 +1612,12 @@ export const optionClass = () => `${siteMenuItemClass} group disabled:opacity-50
 
 /** A choice in a sheet's list (the theme's menu item): the chosen one marked, with a tick. */
 export function Option({
-  icon: Glyph,
   selected = false,
   disabled,
   onClick,
   children,
   role,
 }: {
-  icon?: Icon;
   selected?: boolean;
   disabled?: boolean;
   onClick: () => void;
@@ -1634,36 +1634,8 @@ export function Option({
       className={optionClass()}
       onClick={onClick}
     >
-      {Glyph && <LeadingIcon icon={Glyph} />}
       <span className="min-w-0 flex-1">{children}</span>
       {selected && <Check size={20} className="shrink-0" />}
-    </button>
-  );
-}
-
-/** A selectable media grid tile: Material 3 surface with elevation hover, aspect-square, and selected outline. */
-export function MediaTile({
-  label,
-  selected = false,
-  onClick,
-  children,
-}: {
-  label: string;
-  selected?: boolean;
-  onClick: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      className={`group relative block aspect-square w-full overflow-hidden rounded-[var(--md-sys-shape-corner-medium,0.75rem)] bg-[var(--tint)] transition-shadow duration-short focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] ${
-        selected ? 'ring-2 ring-[var(--accent)] ring-offset-2 ring-offset-[var(--bg)]' : 'hover:shadow-elevation-1'
-      }`}
-      aria-label={label}
-      aria-pressed={selected}
-      onClick={onClick}
-    >
-      {children}
     </button>
   );
 }
@@ -2209,7 +2181,7 @@ export function FoldSection({
 }) {
   const id = useId();
   return (
-    <section ref={ref} aria-labelledby={`${id}-title`} className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-line py-2 !my-0">
+    <section ref={ref} aria-labelledby={`${id}-title`} className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-line">
       <h2>
         <button
           type="button"
@@ -2227,7 +2199,7 @@ export function FoldSection({
           />
         </button>
       </h2>
-      <div id={`${id}-body`} hidden={!open} className="editor-reveal space-y-6 pt-2 pb-6">
+      <div id={`${id}-body`} hidden={!open} className="editor-reveal space-y-6 pt-2 pb-8">
         {children}
       </div>
     </section>
@@ -2572,12 +2544,64 @@ export function NavigationDrawer({
   );
 }
 
-/** The editor's sidebar on a computer: the theme's navigation rail (Material 3's). */
-export {
-  default as NavigationRail,
-  NavigationRailItem,
-  NavigationRailSection,
-} from '@theme/ui/NavigationRail';
+/** The editor's sidebar on a computer: the theme's navigation rail (Material 3's), expanded with each part's icon,
+ * name and count, or collapsed to the icons with their names under them; its menu button expands and collapses it
+ * (`expanded`, `onExpandedChange`), and with `peek` it is expanded over the content without taking room (while the
+ * mouse is over the collapsed rail). `header`: the logo and the site's name, under the menu button while expanded. */
+export function NavigationRail({
+  label,
+  menuLabel,
+  expanded,
+  peek,
+  header,
+  onExpandedChange,
+  children,
+  ...rest
+}: {
+  label: string;
+  menuLabel: string;
+  expanded: boolean;
+  peek?: boolean;
+  header?: ReactNode;
+  onExpandedChange: (expanded: boolean) => void;
+  children: ReactNode;
+} & HTMLAttributes<HTMLElement>) {
+  return (
+    <SiteNavigationRail
+      label={label}
+      menuLabel={menuLabel}
+      expanded={expanded || peek}
+      modality={peek && !expanded ? 'modal' : 'standard'}
+      scrim={false}
+      header={header}
+      onExpandedChange={onExpandedChange}
+      {...rest}
+    >
+      {children}
+    </SiteNavigationRail>
+  );
+}
+
+/** Parts of the sidebar under each other, with the group's name over them (the theme's rail section). */
+export const NavigationRailSection = SiteNavigationRailSection;
+
+/** A part in the sidebar: its icon, its name, how many there are (`count`, while expanded) and `selected` when it is
+ * open (the theme's rail destination). */
+export function NavigationRailItem({
+  href,
+  icon: Glyph,
+  label,
+  count,
+  selected,
+}: {
+  href: string;
+  icon: Icon;
+  label: string;
+  count?: number | null;
+  selected?: boolean;
+}) {
+  return <SiteNavigationRailItem href={href} icon={<Glyph />} label={label} selected={selected} trailingSupporting={count ?? undefined} />;
+}
 
 // The sidebar's icon turned round: a panel at the right edge.
 const SidebarRight = ((props: IconProps) => <SidebarSimple {...props} mirrored />) as Icon;
@@ -2847,15 +2871,9 @@ export function PageFrame({ html, width, title }: { html: string; width: number;
     watch.observe(el);
     return () => watch.disconnect();
   }, []);
-  const availableWidth = size.width;
-  const scale = size.width ? Math.min(1, availableWidth / width) : 1;
+  const scale = size.width ? Math.min(1, size.width / width) : 1;
   return (
     <div ref={box} className="relative min-h-0 flex-1 overflow-hidden border-t border-line bg-line/40">
-      {scale < 1 && (
-        <div className="absolute top-2 right-4 z-10 rounded-full bg-surface/80 px-2 py-0.5 text-xs text-muted backdrop-blur-xs">
-          {t.preview.zoom}: {Math.round(scale * 100)}%
-        </div>
-      )}
       {size.width > 0 && (
         <iframe
           title={title}

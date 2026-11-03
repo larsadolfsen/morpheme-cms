@@ -1,6 +1,6 @@
-﻿@import "./fonts.css";
 /* The standard theme: its base (Tailwind, the blocks, its components' classes) and its own look over it, Material 3. */
 @import './base.css';
+@import '@fontsource-variable/roboto';
 
 /*
   The standard theme's look, Material: the site in Material Design 3 (m3.material.io). Roboto and the M3 type scale (regular headlines,
@@ -61,7 +61,7 @@
 
   --radius: var(--md-shape-medium);
   --shadow: var(--elevation-1);
-  /* The site's motion scheme's curve ("Bevægelse", @interstellarcms/cms/lib/motion.ts). */
+  /* The site's motion scheme's curve ("Bevægelse", @morpheme/cms/lib/motion.ts). */
   --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
 
   --block-surface: var(--md-surface-container-low);
@@ -103,15 +103,11 @@
   --chip-line: var(--md-outline);
   --chip-hover-line: var(--md-outline);
   --chip-hover-text: currentColor;
-  --chip-font-size: 0.875rem;
   --chip-selected-surface: var(--tint);
   --chip-selected-hover: color-mix(in srgb, var(--ink) 8%, var(--tint));
   --chip-selected-text: var(--ink);
   --chip-selected-check: block;
   /* The page's headline: the M3 type scale (display small on a phone, display medium on a computer). */
-  --theme-title-size: 2.25rem;
-  --theme-title-size-large: 2.8125rem;
-  --theme-title-leading: 2.75rem;
   /* The front page: its headline closer to the first section under it. */
   --theme-home-first-space: 2.5rem;
   --theme-home-first-space-large: 4rem;
@@ -131,16 +127,14 @@
   --icon-button-medium-square-radius: var(--md-shape-large);
   --button-padding: 1.5rem;
   --button-gap: 0.5rem;
-  --button-font-size: 0.875rem;
-  --button-weight: 500;
-  --button-letter-spacing: 0.00625rem;
+  --button-font-size: var(--type-label-large-size);
+  --button-weight: var(--type-label-large-weight);
+  --button-letter-spacing: var(--type-label-large-tracking);
   --button-small-height: 2.5rem;
   --button-small-padding: 1rem;
-  --button-small-font-size: 0.875rem;
   --button-xsmall-height: 2.5rem;
   --button-xsmall-padding: 1rem;
   --button-xsmall-gap: 0.5rem;
-  --button-xsmall-font-size: 0.875rem;
   --button-text-padding: 0.75rem;
   --button-filled-hover: color-mix(in srgb, var(--on-accent) 8%, var(--accent));
   --button-tonal-surface: var(--tint);
@@ -213,15 +207,6 @@
   --list-item-hover-radius: var(--md-shape-medium);
   --list-item-pressed-radius: var(--md-shape-large);
   --list-item-selected-radius: var(--md-shape-large-increased);
-  --list-item-headline-size: 1rem;
-  --list-item-headline-weight: 400;
-  --list-item-headline-line-height: 1.5rem;
-  --list-item-headline-letter-spacing: 0.03125rem;
-  --list-item-supporting-size: 0.875rem;
-  --list-item-supporting-line-height: 1.25rem;
-  --list-item-overline-size: 0.6875rem;
-  --list-item-overline-line-height: 1rem;
-  --list-item-trailing-supporting-size: 0.6875rem;
   --list-item-icon-size: 1.25rem;
   --list-item-hover-surface: var(--md-hover);
   --list-item-pressed-surface: var(--md-pressed);
@@ -265,8 +250,6 @@
   --menu-item-height: 3rem;
   --menu-item-padding: 0 0.75rem 0 1rem;
   --menu-item-radius: var(--md-shape-none);
-  --menu-item-font-size: 0.875rem;
-  --menu-item-letter-spacing: 0.01563rem;
   --menu-item-text: var(--ink);
   --menu-item-hover-surface: var(--md-hover);
   --menu-item-hover-text: var(--ink);
@@ -282,10 +265,6 @@
   --navigation-drawer-item-height: 3.5rem;
   --navigation-drawer-item-padding: 0 1.5rem 0 1rem;
   --navigation-drawer-item-radius: var(--md-shape-full);
-  --navigation-drawer-item-font-size: 0.875rem;
-  --navigation-drawer-item-line-height: 1.5;
-  --navigation-drawer-item-letter-spacing: 0.00625rem;
-  --navigation-drawer-item-weight: 500;
   --navigation-drawer-item-text: var(--muted);
   --navigation-drawer-item-hover: var(--md-hover);
   --navigation-drawer-item-active-surface: var(--tint);
@@ -300,7 +279,6 @@
   --fab-radius: var(--md-shape-large);
   --fab-medium-radius: var(--md-shape-large-increased);
   --fab-large-radius: var(--md-shape-extra-large);
-  --fab-label-letter-spacing: 0.00938rem;
   --fab-primary-hover: color-mix(in srgb, var(--on-accent) 8%, var(--accent));
   --fab-secondary-container-surface: var(--tint);
   --fab-secondary-container-text: var(--ink);
@@ -398,8 +376,6 @@
   /* A modal navigation rail: large corners towards the page, as the drawer. */
   --navigation-rail-modal-radius: var(--md-shape-large);
   --side-sheet-scrim: var(--md-scrim);
-  --side-sheet-headline-size: 1.375rem;
-  --side-sheet-headline-weight: 400;
 
   /* Communication (ui.css). A badge in the error colours. A snackbar: the inverse surface and its text, extra-small
      corners, the third elevation, no blur; its action in the inverse primary with a state layer, the close icon in the
@@ -419,11 +395,9 @@
   --tooltip-plain-surface: var(--inverse-surface);
   --tooltip-plain-text: var(--inverse-on-surface);
   --tooltip-plain-radius: var(--md-shape-extra-small);
-  --tooltip-plain-weight: 400;
   --tooltip-rich-surface: var(--md-surface-container);
   --tooltip-rich-text: var(--muted);
   --tooltip-rich-subhead: var(--ink);
-  --tooltip-rich-subhead-weight: 500;
   --tooltip-rich-radius: var(--md-shape-medium);
   --tooltip-rich-line: transparent;
   --linear-progress-indicator-height: 0.25rem;
@@ -443,13 +417,10 @@
   --navigation-bar-indicator-text: var(--ink);
   --navigation-bar-indicator-hover: var(--md-hover);
   --navigation-bar-label-selected-weight: 500;
-  /* The navigation rail: 80px (5rem) collapsed and 360px wide (MD3 specification 220-360dp), on the page's background without a line, the same indicator
+  /* The navigation rail: 96px collapsed and 220px wide, on the page's background without a line, the same indicator
      (56px high when wide), the labels in label medium, wide in label large. */
-  --navigation-rail-width: 5rem;
-  --navigation-rail-indicator-width: 3.5rem;
-  --navigation-rail-indicator-height: 2rem;
-  --navigation-rail-expanded-width: 22.5rem;
-  --navigation-rail-expanded-padding: 1.5rem 1.25rem;
+  --navigation-rail-width: 6rem;
+  --navigation-rail-expanded-width: 13.75rem;
   --navigation-rail-padding: 1.5rem 0.5rem;
   --navigation-rail-surface: var(--md-background);
   --navigation-rail-line: transparent;
@@ -490,8 +461,6 @@
      secondary container. */
   --date-picker-docked-radius: var(--md-shape-large);
   --date-picker-day-radius: var(--md-shape-full);
-  --date-picker-headline-size: 2rem;
-  --date-picker-headline-weight: 400;
   --date-picker-supporting-color: var(--muted);
   --date-picker-menu-button-text: var(--muted);
   --date-picker-day-hover: var(--md-hover);
@@ -500,17 +469,10 @@
      one on the dial in the secondary container, and the 256px dial in the highest surface container. */
   --time-picker-headline-color: var(--muted);
   --time-picker-box-radius: var(--md-shape-small);
-  --time-picker-box-font-size: 3.5625rem;
-  --time-picker-box-weight: 400;
   --time-picker-box-surface: var(--md-surface-container-highest);
   --time-picker-box-selected-surface: var(--tint);
   --time-picker-box-selected-text: var(--ink);
   --time-picker-dial-surface: var(--md-surface-container-highest);
-}
-@media (min-width: 48rem) {
-  :root {
-    --theme-title-leading: 3.25rem;
-  }
 }
 
 /* The same elevation in dark mode (the standard theme's shadow there is another). */
@@ -530,19 +492,6 @@
 @layer base {
   body {
     background: var(--md-background);
-    font-size: 1rem;
-    line-height: 1.5;
-    letter-spacing: 0.01em;
-  }
-  /* Headlines regular, titles medium, no tightening (the M3 type scale). */
-  h1,
-  h2 {
-    font-weight: 400;
-    letter-spacing: 0;
-  }
-  h3 {
-    font-weight: 500;
-    letter-spacing: 0;
   }
   :focus-visible {
     outline: 3px solid var(--accent);
@@ -597,7 +546,9 @@
       --button-height: 3.5rem;
       --button-square-radius: var(--md-shape-large);
       --button-padding: 1.75rem;
-      --button-font-size: 1rem;
+      --button-font-size: var(--type-title-medium-size);
+      --button-weight: var(--type-title-medium-weight);
+      --button-letter-spacing: var(--type-title-medium-tracking);
     }
     .block-hero .button:active {
       border-radius: var(--md-shape-large);
@@ -611,9 +562,10 @@
     margin-inline: -0.75rem;
     border-radius: var(--md-shape-full);
     padding: 0 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    letter-spacing: 0.00625rem;
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
     transition: background-color var(--motion-effects);
   }
   .block-arrow-link:hover,
@@ -630,9 +582,6 @@
   /* Chips (their variables above): a label in medium weight, a state layer when pointed at; a chosen filter chip with
      its 18px check before the label, 8px from the edge. */
   .chip {
-    font-weight: 500;
-    line-height: 1.25rem;
-    letter-spacing: 0.00625rem;
     transition:
       background-color var(--motion-effects),
       box-shadow var(--motion-effects);
@@ -649,7 +598,6 @@
   .block-tag {
     border-radius: var(--md-shape-small);
     background: var(--tint);
-    font-weight: 500;
   }
 
   /* Text fields (their variables above): the filled one's corners square at the bottom, along its active indicator,
@@ -777,12 +725,10 @@
   .slider-value {
     min-width: 3rem;
     padding: 0.75rem 1rem;
-    letter-spacing: 0.00625rem;
   }
 
   /* An M3 side sheet's headline in on-surface-variant. */
   .side-sheet-headline {
-    line-height: 1.75rem;
     color: var(--muted);
   }
 
@@ -824,20 +770,12 @@
     border-radius: var(--md-shape-medium);
     background: var(--tint);
     padding: 1rem 1.5rem;
-    font-size: 1rem;
-    line-height: 1.5;
   }
 
   /* "Trin": the numbers in the primary container. */
   .block-step-number {
     background: var(--tint);
     color: var(--accent);
-    font-weight: 500;
-  }
-  .block-step-title {
-    font-size: 1.375rem;
-    line-height: 1.75rem;
-    font-weight: 400;
   }
 
   /* "Spørgsmål og svar": a list in a filled card, a state layer on a row pointed at. */
@@ -864,9 +802,6 @@
     border-bottom-right-radius: var(--md-shape-large);
   }
   .block-accordion-label {
-    font-size: 1rem;
-    line-height: 1.5;
-    font-weight: 500;
     padding: 1rem 1.5rem;
     transition:
       background-color var(--motion-effects),
@@ -882,17 +817,7 @@
     }
   }
 
-  /* "Hero": a display headline, a large picture with extra-large corners. */
-  .block-hero-title {
-    font-size: 2.25rem;
-    line-height: 2.75rem;
-    font-weight: 400;
-    letter-spacing: 0;
-  }
-  .block-hero-text > :first-child {
-    font-size: 1.375rem;
-    line-height: 1.75rem;
-  }
+  /* "Hero": a large picture with extra-large corners. */
   .block-hero-picture {
     border-radius: var(--md-shape-extra-large);
   }
@@ -902,12 +827,6 @@
     border-radius: var(--md-shape-large);
     background: var(--tint);
     padding: 1rem 1.25rem;
-  }
-  @media (min-width: 48rem) {
-    .block-hero-title {
-      font-size: 2.8125rem;
-      line-height: 3.25rem;
-    }
   }
 
   /* "Kort": filled cards, as Material 3's (their outlined cards on the highest container, without the edge or a
@@ -920,12 +839,6 @@
   }
   .block-card-picture {
     border-radius: var(--card-radius) var(--card-radius) var(--md-shape-none) var(--md-shape-none);
-  }
-  .block-card-title {
-    font-size: 1.375rem;
-    line-height: 1.75rem;
-    font-weight: 400;
-    letter-spacing: 0;
   }
   .block-card-text {
     font-weight: 400;
@@ -941,29 +854,13 @@
   .block-panel > .list {
     margin-inline: -1rem;
   }
-  .block-panel-title {
-    font-size: 1.375rem;
-    line-height: 1.75rem;
-    font-weight: 400;
-  }
   .block-testimonial {
     --card-outlined-surface: var(--md-surface-container);
     --card-outlined-line: transparent;
   }
-  .block-testimonial-text {
-    font-size: 1rem;
-    line-height: 1.5;
-  }
   /* No quotation mark: a glyph of the font, not one of the theme's icons. */
   .block-testimonial-quote-mark {
     display: none;
-  }
-  .block-price-card-title {
-    font-weight: 400;
-  }
-  .block-price-amount {
-    font-weight: 400;
-    letter-spacing: 0;
   }
 
   /* An invitation: a filled card with extra-large corners, its picture with large corners (where it stands is the
@@ -973,9 +870,10 @@
     --card-padding: 1.5rem;
   }
   .block-cta-title {
-    font-size: 1.5rem;
-    line-height: 2rem;
-    font-weight: 400;
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
   }
   .block-cta-picture {
     border-radius: var(--md-shape-large);
@@ -1005,11 +903,6 @@
   .bottom-sheet-drag-handle::before {
     width: 2rem;
     height: 0.25rem;
-  }
-  .bottom-sheet-headline {
-    font-size: 1.5rem;
-    line-height: 2rem;
-    font-weight: 400;
   }
   @media (width >= 48rem) {
     .bottom-sheet-header {
@@ -1059,25 +952,11 @@
   }
 }
 
-/* Long text: headlines regular, titles medium, pictures with large corners. */
-.prose :where(h2) {
-  font-weight: 400;
-  letter-spacing: 0;
-}
-.prose :where(h3, h4) {
-  font-weight: 500;
-  letter-spacing: 0;
-}
+/* Long text: pictures with large corners. */
 .prose :where(img):not(:where(.not-prose img)),
 .picture-crop,
 .prose :where(iframe) {
   border-radius: var(--md-shape-large);
-}
-
-/* The headings of the front page's sections and of a block placed outside the text: a headline. */
-.block-place > h2,
-.block-place > .block-head > h2 {
-  font-weight: 400;
 }
 
 /* The mark before the name on a testimonial without a picture: an avatar, a circle in the highest surface container
@@ -1091,9 +970,10 @@
   border-radius: var(--md-shape-full);
   background: var(--md-surface-container-highest);
   color: var(--ink);
-  font-size: 1rem;
+  font-size: var(--type-title-medium-size);
+  font-weight: var(--type-title-medium-weight);
+  letter-spacing: var(--type-title-medium-tracking);
   line-height: 1;
-  font-weight: 500;
 }
 .block-testimonial-mark::before {
   content: attr(data-initial);
@@ -1127,9 +1007,10 @@
   padding: 0 1rem;
   white-space: nowrap;
   color: var(--muted);
-  font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: 0.00625rem;
+  font-size: var(--type-label-large-size);
+  line-height: var(--type-label-large-line-height);
+  font-weight: var(--type-label-large-weight);
+  letter-spacing: var(--type-label-large-tracking);
   transition:
     background-color var(--motion-effects),
     color var(--motion-effects);
@@ -1236,14 +1117,17 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   padding: 0.25rem 0 1rem 1rem;
 }
 .md-drawer-name {
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.5rem;
+  font-size: var(--type-title-medium-size);
+  line-height: var(--type-title-medium-line-height);
+  font-weight: var(--type-title-medium-weight);
+  letter-spacing: var(--type-title-medium-tracking);
 }
 .md-drawer-role {
   color: var(--muted);
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  font-size: var(--type-body-medium-size);
+  line-height: var(--type-body-medium-line-height);
+  font-weight: var(--type-body-medium-weight);
+  letter-spacing: var(--type-body-medium-tracking);
 }
 .navigation-drawer-item:focus-visible {
   background: var(--md-pressed);
@@ -1295,9 +1179,6 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   border-radius: var(--md-shape-full);
   padding: 0 1.5rem 0 2.25rem;
   color: var(--muted);
-  font-size: 0.875rem;
-  font-weight: 400;
-  letter-spacing: 0.00625rem;
   transition: background-color var(--motion-effects);
 }
 .navigation-drawer-subitem:hover {
@@ -1327,24 +1208,27 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
 }
 .md-footer-name {
   margin-top: 0.75rem;
-  font-size: 1.5rem;
-  line-height: 2rem;
+  font-size: var(--type-headline-small-size);
+  line-height: var(--type-headline-small-line-height);
+  font-weight: var(--type-headline-small-weight);
+  letter-spacing: var(--type-headline-small-tracking);
 }
 .md-footer-text {
   margin-top: 0.5rem;
   max-width: 38ch;
   color: var(--muted);
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  letter-spacing: 0.01563rem;
+  font-size: var(--type-body-medium-size);
+  line-height: var(--type-body-medium-line-height);
+  font-weight: var(--type-body-medium-weight);
+  letter-spacing: var(--type-body-medium-tracking);
 }
 .md-footer-heading,
 .md-footer-column > p {
   color: var(--ink);
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.25rem;
-  letter-spacing: 0.00625rem;
+  font-size: var(--type-label-large-size);
+  line-height: var(--type-label-large-line-height);
+  font-weight: var(--type-label-large-weight);
+  letter-spacing: var(--type-label-large-tracking);
 }
 .md-footer-list,
 .md-footer-column > ul {
@@ -1359,8 +1243,10 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   border-radius: var(--md-shape-full);
   padding: 0.5rem 1rem;
   color: var(--muted);
-  font-size: 0.875rem;
-  line-height: 1.25rem;
+  font-size: var(--type-body-medium-size);
+  line-height: var(--type-body-medium-line-height);
+  font-weight: var(--type-body-medium-weight);
+  letter-spacing: var(--type-body-medium-tracking);
   transition: background-color var(--motion-effects);
 }
 .md-footer-item:hover,
@@ -1394,7 +1280,10 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   border-top: 1px solid var(--line);
   padding-top: 1rem;
   color: var(--muted);
-  font-size: 0.875rem;
+  font-size: var(--type-body-medium-size);
+  line-height: var(--type-body-medium-line-height);
+  font-weight: var(--type-body-medium-weight);
+  letter-spacing: var(--type-body-medium-tracking);
   /* Its text buttons (the cookie settings, light or dark) with an 18px icon. */
   --button-icon-size: 1.125rem;
 }

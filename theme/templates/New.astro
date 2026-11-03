@@ -7,9 +7,9 @@ import Base from '@theme/layouts/Base.astro';
 import Icon from '@theme/components/Icon.astro';
 import Container from '@theme/components/Container.astro';
 import PageHeader from '@theme/components/PageHeader.astro';
-import { displayTitle, getPages, getPosts, pageHeading, postPath, stateOf } from '@interstellarcms/cms/site/content';
-import { isPreview, livePath, previewId } from '@interstellarcms/cms/site/noindex.mjs';
-import { siteT } from '@interstellarcms/cms/src/i18n';
+import { displayTitle, getPages, getPosts, pageHeading, postPath, stateOf } from '@morpheme/cms/site/content';
+import { isPreview, livePath, previewId } from '@morpheme/cms/site/noindex.mjs';
+import { siteT } from '@morpheme/cms/src/i18n';
 
 const pages = await getPages();
 const byPath = new Map(pages.map((p) => [p.data.path, p]));
@@ -29,7 +29,7 @@ const posts = (await getPosts({ unlisted: true })).filter((p) => stateOf(p.data)
       <ul class="rounded-panel border border-line px-5 md:px-7">
         {rows.map(({ page, current }, i) => (
           <li id={previewId(page.data.path)} class:list={['scroll-mt-24 py-5', i > 0 && 'border-t border-line']}>
-            <p class="text-lg font-medium">{pageHeading(page)}</p>
+            <p class="type-title-medium">{pageHeading(page)}</p>
             <p class="mt-1.5 flex flex-wrap gap-x-6 gap-y-1">
               <a href={page.data.path} class="inline-flex items-center gap-1.5 text-accent hover:underline">
                 {siteT.theme.newVersion} <Icon name="arrow-right" size={16} />
@@ -42,7 +42,7 @@ const posts = (await getPosts({ unlisted: true })).filter((p) => stateOf(p.data)
                 <span class="text-muted">{siteT.theme.newPage}</span>
               )}
             </p>
-            {page.data.review && <p class="mt-2 max-w-[75ch] text-[0.95rem] whitespace-pre-line text-muted">{page.data.review}</p>}
+            {page.data.review && <p class="mt-2 max-w-[75ch] type-body-medium whitespace-pre-line text-muted">{page.data.review}</p>}
           </li>
         ))}
       </ul>
@@ -51,7 +51,7 @@ const posts = (await getPosts({ unlisted: true })).filter((p) => stateOf(p.data)
 
   {posts.length > 0 && (
     <Container as="section" class="mt-12 mb-20 md:mt-16 md:mb-28">
-      <h2 class="text-2xl md:text-3xl">{siteT.theme.newPosts}</h2>
+      <h2 class="type-headline-small md:type-headline-medium">{siteT.theme.newPosts}</h2>
       <p class="mt-2 max-w-[60ch] text-muted">{siteT.theme.newPostsIntro}</p>
       <ul class="mt-5 rounded-panel border border-line px-5 md:px-7">
         {posts.map((p, i) => (
@@ -59,7 +59,7 @@ const posts = (await getPosts({ unlisted: true })).filter((p) => stateOf(p.data)
             <a href={postPath(p)} class="inline-flex items-center gap-1.5 font-medium hover:text-accent">
               {displayTitle(p.data.title)} <Icon name="arrow-right" size={16} />
             </a>
-            {p.data.description && <p class="mt-1 max-w-[75ch] text-[0.95rem] text-muted">{p.data.description}</p>}
+            {p.data.description && <p class="mt-1 max-w-[75ch] type-body-medium text-muted">{p.data.description}</p>}
           </li>
         ))}
       </ul>

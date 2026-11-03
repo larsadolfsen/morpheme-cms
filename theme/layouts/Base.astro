@@ -10,19 +10,19 @@ import AppSlot from '@theme/components/AppSlot.astro';
 import FontPreload from '@theme/components/FontPreload.astro';
 // The site's colours, which the owner changes under "Farver" in the editor (the theme's styles/global.css uses them),
 // as the apps installed change them for the page (packages/editor/site/pageColors.ts: an app's hooks/page-colors.ts).
-import { pageColors } from '@interstellarcms/cms/site/pageColors';
-import { colorsCss } from '@interstellarcms/cms/lib/colors';
+import { pageColors } from '@morpheme/cms/site/pageColors';
+import { colorsCss } from '@morpheme/cms/lib/colors';
 // How the site moves (Material 3's motion schemes), which the owner chooses under "Bevægelse" in the editor: its springs
 // as the CSS variables every transition takes, and its name on <html> for the scripts (packages/editor/lib/motion.ts).
-import { motionCss } from '@interstellarcms/cms/lib/motion';
-import { motionScheme } from '@interstellarcms/cms/site/motion';
-import { site } from '@interstellarcms/cms/site/site';
-import { business, businessRef, person, website, webPage, type Crumb, type Question } from '@interstellarcms/cms/site/schema';
-import { seo } from '@interstellarcms/cms/site/seo';
+import { motionCss } from '@morpheme/cms/lib/motion';
+import { motionScheme } from '@morpheme/cms/site/motion';
+import { site } from '@morpheme/cms/site/site';
+import { business, businessRef, person, website, webPage, type Crumb, type Question } from '@morpheme/cms/site/schema';
+import { seo } from '@morpheme/cms/site/seo';
 import { cookieBanner } from '../../site/consent';
-import { shareImage } from '@interstellarcms/cms/site/images.mjs';
-import { isNoindex } from '@interstellarcms/cms/site/noindex.mjs';
-import { siteT } from '@interstellarcms/cms/src/i18n';
+import { shareImage } from '@morpheme/cms/site/images.mjs';
+import { isNoindex } from '@morpheme/cms/site/noindex.mjs';
+import { siteT } from '@morpheme/cms/src/i18n';
 
 interface Props {
   title: string;

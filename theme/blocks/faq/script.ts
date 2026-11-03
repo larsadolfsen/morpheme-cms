@@ -1,8 +1,8 @@
 // Rows that fold out (Accordion.tsx), on the site: the text of a row that opens fades in, and where the browser cannot
 // animate ::details-content the height glides (and this keeps one row open). Reduced motion: no animation. Run on
 // every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts). It moves with the site's
-// motion scheme (motionTiming, @interstellarcms/cms/lib/motion.ts).
-import { motionTiming } from '@interstellarcms/cms/lib/motion';
+// motion scheme (motionTiming, @morpheme/cms/lib/motion.ts).
+import { motionTiming } from '@morpheme/cms/lib/motion';
 
 export default function accordion() {
   const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;

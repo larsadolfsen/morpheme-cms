@@ -24,8 +24,8 @@
 // ListItemLeadingIcon, ListItemTrailingSupporting, ListItemTrailingIcon), so the editor's rows have the same; an icon is its name, as the site
 // gives it, or an icon made, as the editor gives it (IconRef).
 import { useId, type HTMLAttributes, type ReactNode } from 'react';
-import { Glyph, type IconRef } from '@interstellarcms/cms/src/icon';
-import { Link } from '@interstellarcms/cms/src/standard/view';
+import { Glyph, type IconRef } from '@morpheme/cms/src/icon';
+import { Link } from '@morpheme/cms/src/standard/view';
 import Checkbox from '@theme/ui/Checkbox';
 import RadioButton from '@theme/ui/RadioButton';
 import Switch, { type SwitchIcons } from '@theme/ui/Switch';

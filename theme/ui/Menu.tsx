@@ -21,8 +21,8 @@
 // it where anchor positioning is missing, opens a submenu when the mouse rests on its item, and ticks and chooses
 // items. `open` draws it open (the editor). How all of it looks is the theme's.
 import { createContext, useContext, useId, type CSSProperties, type ReactNode } from 'react';
-import { Glyph, Svg, type IconRef } from '@interstellarcms/cms/src/icon';
-import { Link, type ButtonKind } from '@interstellarcms/cms/src/standard/view';
+import { Glyph, Svg, type IconRef } from '@morpheme/cms/src/icon';
+import { Link, type ButtonKind } from '@morpheme/cms/src/standard/view';
 import Button, { type ButtonSize } from '@theme/ui/Button';
 import IconButton from '@theme/ui/IconButton';
 import Divider from '@theme/ui/Divider';

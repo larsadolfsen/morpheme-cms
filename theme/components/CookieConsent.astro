@@ -11,14 +11,14 @@
 // "Cookiebanner"); "Læs mere" goes to the cookie policy ("Standardsider", cookiesHref in packages/editor/site/standardPages.ts).
 // Its `enabled` is read by Base.astro: switched off, neither the banner nor this script (and so no
 // Google tag) is on the site.
-import type { CookieCategory } from '@interstellarcms/cms/lib/cookieCategories.mjs';
+import type { CookieCategory } from '@morpheme/cms/lib/cookieCategories.mjs';
 import { buttonClass } from '@theme/ui/Button';
 import Checkbox from '@theme/ui/Checkbox';
 import { dialogClass } from '@theme/ui/Dialog';
 import cookies from '@data/cookies.json';
-import { cookiesHref } from '@interstellarcms/cms/site/standardPages';
+import { cookiesHref } from '@morpheme/cms/site/standardPages';
 import { consentCategories } from '../../site/consent';
-import { siteT } from '@interstellarcms/cms/src/i18n';
+import { siteT } from '@morpheme/cms/src/i18n';
 
 const more = await cookiesHref();
 // Each category with its name and what it is for.
@@ -38,8 +38,8 @@ const necessary = category('necessary');
   ]}
   style="margin-bottom: env(safe-area-inset-bottom)"
 >
-  <p class="text-lg font-medium">{cookies.heading}</p>
-  <p class="mt-2 text-[0.95rem] text-muted">
+  <p class="type-title-large">{cookies.heading}</p>
+  <p class="mt-2 type-body-medium text-muted">
     {cookies.text}{' '}
     <a href={more} class="text-accent underline underline-offset-4">
       {cookies.more}
@@ -60,19 +60,19 @@ const necessary = category('necessary');
       {cookies.yes}
     </button>
   </div>
-  <button type="button" data-consent="choose" class="link mt-3 text-[0.95rem]">
+  <button type="button" data-consent="choose" class="link mt-3 type-body-medium">
     {cookies.choose}
   </button>
   <button type="button" data-consent="save" hidden class={`${buttonClass('outlined')} mt-2.5 w-full`}>
     {cookies.save}
   </button>
-  <p data-consent-id hidden class="mt-3 text-xs break-all text-muted">
+  <p data-consent-id hidden class="type-body-small mt-3 break-all text-muted">
     {cookies.consentId}: <span></span>
   </p>
 </div>
 
 <script>
-  import type { ConsentCategory } from '@interstellarcms/cms/lib/cookieCategories.mjs';
+  import type { ConsentCategory } from '@morpheme/cms/lib/cookieCategories.mjs';
   import { choose, consentId, storedConsent } from '../../site/tracking.client';
 
   const banner = document.getElementById('cookie-consent');

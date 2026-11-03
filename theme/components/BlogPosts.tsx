@@ -5,15 +5,15 @@ import Img from '@theme/components/Img';
 import PostList from '@theme/components/PostList';
 import PostMeta from '@theme/components/PostMeta';
 import type { PostView } from '@theme/components/posts';
-import { Link } from '@interstellarcms/cms/src/standard/view';
-import { siteT } from '@interstellarcms/cms/src/i18n';
+import { Link } from '@morpheme/cms/src/standard/view';
+import { siteT } from '@morpheme/cms/src/i18n';
 
 export default function BlogPosts({ posts }: { posts: PostView[] }) {
   const [featured, ...rest] = posts;
   if (!featured)
     return (
       <div className="rounded-panel bg-tint p-8">
-        <p className="text-lg font-medium">{siteT.theme.noPosts}</p>
+        <p className="type-title-medium">{siteT.theme.noPosts}</p>
         <Link href="/blog/" className="link mt-3 inline-block">
           {siteT.theme.seeAllPosts}
         </Link>
@@ -35,7 +35,7 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
         )}
         <div className="md:col-span-5">
           <PostMeta post={featured} />
-          <h2 className="mt-2 text-[1.9rem] leading-tight transition-colors group-hover:text-accent md:text-4xl">{featured.title}</h2>
+          <h2 className="mt-2 type-headline-medium transition-colors group-hover:text-accent md:type-headline-large">{featured.title}</h2>
           <p className="mt-3 text-muted">{featured.description}</p>
         </div>
       </Link>

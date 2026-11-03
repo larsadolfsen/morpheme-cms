@@ -14,7 +14,7 @@
 // (--dialog-*). Other attributes go on it, and `className` after its own classes (its place). An Astro component
 // without React gives an element the same classes with dialogClass.
 import type { ReactNode } from 'react';
-import { Svg } from '@interstellarcms/cms/src/icon';
+import { Svg } from '@morpheme/cms/src/icon';
 import Divider from '@theme/ui/Divider';
 import IconButton from '@theme/ui/IconButton';
 

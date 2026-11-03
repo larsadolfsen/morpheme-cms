@@ -10,8 +10,8 @@
 // after its own classes (its width). An Astro component without React gives an element the same classes with
 // buttonClass, and a toggle aria-pressed itself.
 import type { ReactNode } from 'react';
-import { Glyph, Svg, iconFile, type IconRef } from '@interstellarcms/cms/src/icon';
-import { Link, type ButtonKind } from '@interstellarcms/cms/src/standard/view';
+import { Glyph, Svg, iconFile, type IconRef } from '@morpheme/cms/src/icon';
+import { Link, type ButtonKind } from '@morpheme/cms/src/standard/view';
 
 export const buttonSizes = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
 export type ButtonSize = (typeof buttonSizes)[number];

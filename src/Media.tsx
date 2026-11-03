@@ -20,7 +20,6 @@ import {
   Plus,
   Trash,
   UploadSimple,
-  Globe,
   X,
 } from '@phosphor-icons/react';
 import { moveRedirects, REDIRECTS } from './addresses';
@@ -30,7 +29,6 @@ import { dateName, headed, letterOf } from './Sheet';
 import Screen from './Screen';
 import {
   Button,
-  MediaTile,
   InputChip,
   Choice,
   Filters,
@@ -47,19 +45,15 @@ import {
   EmptyNote,
   SheetBody,
   ListItem,
-  SegmentedButton,
 } from './ui';
 import type { Env } from './App';
 import type { RepoFile } from './github';
 import { fixedName, slugify } from './schema';
 import { config, siteName } from '@site/editor';
-import { collections, apps } from './site';
-import { installedApps, type AppMediaProvider } from './apps';
+import { collections } from './site';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { fileKindOf, pickedKindOf, pickImage, prepareFile, prepareImage, publicPath, showMoved, shownAt, type Uploads } from './images';
 import { fileIcons, FileView, KINDS, kindOf, type Kind } from './FileView';
-import UnsplashPicker from './UnsplashPicker';
-import { importUnsplashToMedia } from './unsplash';
 import { kindAndName, savedText } from './deploy';
 import { locale, siteT, t } from './i18n';
 
@@ -180,13 +174,15 @@ function Grid({ srcs, picked, onPick }: { srcs: string[]; picked?: string | null
     <ul className="grid grid-cols-3 gap-1.5 sm:grid-cols-4 md:grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] md:gap-2">
       {srcs.map((src) => (
         <li key={src}>
-          <MediaTile
-            label={nameOfSrc(src)}
-            selected={picked === undefined ? undefined : src === picked}
+          <button
+            type="button"
+            className={`group block aspect-square w-full overflow-hidden rounded-lg bg-tint ${src === picked ? 'ring-2 ring-accent ring-offset-2 ring-offset-bg' : ''}`}
+            aria-label={nameOfSrc(src)}
+            aria-pressed={picked === undefined ? undefined : src === picked}
             onClick={() => onPick(src)}
           >
             {fileKindOf(src) ? <FileTile src={src} /> : <Thumb src={src} thumbs={thumbs} />}
-          </MediaTile>
+          </button>
         </li>
       ))}
     </ul>
@@ -361,12 +357,6 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Pro
       dialog.current?.showModal();
     });
 
-  const installed = installedApps(media);
-  const providers = apps.filter((a) => installed.includes(a.id) && a.mediaProvider).map((a) => a.mediaProvider!);
-  const [tab, setTab] = useState<string>('local');
-  const activeTab = providers.some((p) => p.id === tab) ? tab : 'local';
-  const activeProvider = providers.find((p) => p.id === activeTab);
-
   const element = (
     <BottomSheet
       ref={dialog}
@@ -376,37 +366,19 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Pro
     >
       <SheetTitle title={t.media.pick} onClose={() => done(null)} />
       <SheetBody>
-        {providers.length > 0 && (
-          <div className="mb-4">
-            <SegmentedButton<string>
-              label={t.media.pick}
-              value={activeTab}
-              options={[
-                { value: 'local', label: t.media.unsplash.localTab },
-                ...providers.map((p) => ({ value: p.id, label: p.label })),
-              ]}
-              onChange={setTab}
-            />
-          </div>
-        )}
-        {activeProvider ? (
-          <activeProvider.Picker onPick={done} uploads={pictures} />
-        ) : (
-          <>
-            <Button
-              kind="outlined"
-              wide
-              icon={UploadSimple}
-              onClick={async () => {
-                const added = await pictures.upload();
-                if (added) done(publicPath(added.path));
-              }}
-            >
-              {t.media.uploadNew}
-            </Button>
-            <Gallery srcs={srcs} onPick={done} />
-          </>
-        )}
+        <Button
+          kind="outlined"
+
+          wide
+          icon={UploadSimple}
+          onClick={async () => {
+            const added = await pictures.upload();
+            if (added) done(publicPath(added.path));
+          }}
+        >
+          {t.media.uploadNew}
+        </Button>
+        <Gallery srcs={srcs} onPick={done} />
       </SheetBody>
     </BottomSheet>
   );
@@ -435,10 +407,6 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
     return new Set(pictures.map((p) => publicPath(p.path)).filter((src) => code?.includes(src) || texts.some((t) => t.includes(src))));
   }, [files, code]);
   const dialog = useRef<HTMLDialogElement>(null);
-  const installed = installedApps(files);
-  const providers = apps.filter((a) => installed.includes(a.id) && a.mediaProvider).map((a) => a.mediaProvider!);
-  const [providerSheet, setProviderSheet] = useState<AppMediaProvider | null>(null);
-  const providerDialog = useRef<HTMLDialogElement>(null);
   const [src, setSrc] = useState<string | null>(null);
   // On a computer the file picked is beside the grid; on a phone in a sheet.
   const wide = useWide();
@@ -668,17 +636,6 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
 
             onClick={() => (location.hash = 'slettet/filer')}
           />
-          {providers.map((p) => (
-            <IconButton
-              key={p.id}
-              icon={p.icon ?? Globe}
-              label={p.label}
-              onClick={() => {
-                setProviderSheet(p);
-                providerDialog.current?.showModal();
-              }}
-            />
-          ))}
           <IconButton icon={Plus} label={t.media.add} disabled={adding} onClick={add} />
         </>
       }
@@ -714,26 +671,6 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
       >
         <SheetTitle title={src ? fileName(src) : ''} onClose={() => dialog.current?.close()} />
         {!wide && src && <SheetBody>{details(src)}</SheetBody>}
-      </BottomSheet>
-      <BottomSheet
-        ref={providerDialog}
-        onClose={(e) => e.target === e.currentTarget && (providerDialog.current?.close(), setProviderSheet(null))}
-        onClick={(e) => e.target === providerDialog.current && (providerDialog.current?.close(), setProviderSheet(null))}
-      >
-        {providerSheet && (
-          <>
-            <SheetTitle title={providerSheet.label} onClose={() => (providerDialog.current?.close(), setProviderSheet(null))} />
-            <SheetBody>
-              <providerSheet.Picker
-                onPick={async (src) => {
-                  providerDialog.current?.close();
-                  setProviderSheet(null);
-                }}
-                notify={env.notify}
-              />
-            </SheetBody>
-          </>
-        )}
       </BottomSheet>
     </Screen>
   );

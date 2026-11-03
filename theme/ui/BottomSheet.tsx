@@ -19,7 +19,7 @@
 // `onClose`).
 // How it looks is the theme's (--bottom-sheet-*).
 import { useEffect, useRef, type ReactNode } from 'react';
-import { useOnSite } from '@interstellarcms/cms/src/standard/view';
+import { useOnSite } from '@morpheme/cms/src/standard/view';
 import IconButton from '@theme/ui/IconButton';
 import { standardBottomSheet } from '@theme/ui/bottomSheet';
 

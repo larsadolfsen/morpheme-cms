@@ -82,8 +82,8 @@ import EntryForm, { newMarkdown } from './EntryForm';
 import DataForm from './DataForm';
 import CompanyForm from './CompanyForm';
 import Media, { mediaOf } from './Media';
-import Redirects, { REDIRECTS_ROUTE, TAB_ROUTES } from './Redirects.tsx';
-import Consents from './Consents.tsx';
+import Redirects, { REDIRECTS_ROUTE, TAB_ROUTES } from './Redirects';
+import Consents from './Consents';
 import SeoScores, { SEO_SCORES_ROUTE } from './SeoScores';
 import Deleted from './Deleted';
 import Parts from './Parts';
@@ -92,7 +92,7 @@ import Tokens from './Tokens';
 import BrandForm from './BrandForm';
 import BlockSettings from './BlockSettings';
 import Advanced, { ADVANCED_ROUTE } from './Advanced';
-import Licenses, { LICENSES_ROUTE, LicensePage } from './Licenses.tsx';
+import Licenses, { LICENSES_ROUTE, LicensePage } from './Licenses';
 import { StoreThemePage } from './ThemeStore';
 import {
   AppPage,
@@ -162,8 +162,7 @@ import {
 import { config, header, relationsOf, type SiteData, siteName, siteOf, testimonialsOf, usedBy, whatIsAt } from '@site/editor';
 import { themes } from './themes';
 import Screen from './Screen';
-import NavigationRail, { NavigationRailItem, NavigationRailSection } from '@theme/ui/NavigationRail';
-import { Button, EmptyNote, ProblemNote, startRipples } from './ui';
+import { Button, EmptyNote, NavigationRail, NavigationRailItem, NavigationRailSection, ProblemNote, startRipples } from './ui';
 import { setSidebar, useSidebar } from './sidebar';
 import { Ask, ask } from './ask';
 import { LinkAsk } from './LinkSheet';
@@ -174,7 +173,7 @@ import { arrived, screenOf, up } from './nav';
 import { siteT, siteText, t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, syncDevice, told, waitOnServer } from './notifications';
-import Notifications from './Notifications.tsx';
+import Notifications from './Notifications';
 import { EditorOwn, InEditor } from './standard/view';
 import './editor.css';
 

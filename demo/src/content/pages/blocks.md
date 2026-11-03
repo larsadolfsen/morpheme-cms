@@ -1,9 +1,9 @@
 ---
 title: "Blocks"
-description: "Every block you can build a page from in Interstellar, shown live."
+description: "Every block you can build a page from in Morpheme, shown live."
 wide: true
-seoTitle: "Blocks | Interstellar"
-seoDescription: "Buttons, cards, points, steps, checklists, FAQs, price cards, testimonials and more: every Interstellar block, shown live."
+seoTitle: "Blocks | Morpheme"
+seoDescription: "Buttons, cards, points, steps, checklists, FAQs, price cards, testimonials and more: every Morpheme block, shown live."
 keyword: "blocks"
 ---
 
@@ -20,8 +20,6 @@ Send visitors to a page, start a call or open a pop-up. Pick a style for each bu
 ## Cards
 
 Group related ideas with an icon, a photo or just text, each linking to a page if you like.
-
-<div data-block="cards" data-props="{&quot;design&quot;:&quot;image&quot;,&quot;items&quot;:[{&quot;image&quot;:&quot;/images/uploads/2026/10/modern-architecture.jpg&quot;,&quot;title&quot;:&quot;Architectural Form&quot;,&quot;text&quot;:&quot;Material 3 elevated cards with Unsplash architectural photography.&quot;,&quot;href&quot;:&quot;/about/&quot;},{&quot;image&quot;:&quot;/images/uploads/2026/10/design-studio.jpg&quot;,&quot;title&quot;:&quot;Creative Studio&quot;,&quot;text&quot;:&quot;Clean surfaces and typography hierarchy with responsive imagery.&quot;,&quot;href&quot;:&quot;/blocks/&quot;},{&quot;image&quot;:&quot;/images/uploads/2026/10/aurora-night.jpg&quot;,&quot;title&quot;:&quot;Night Spectrum&quot;,&quot;text&quot;:&quot;Tonal dark theme contrast with living nature photography.&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>
 
 <div data-block="cards" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;With an icon&quot;,&quot;text&quot;:&quot;Icons come from the icon pack you choose under Appearance.&quot;},{&quot;icon&quot;:&quot;heart&quot;,&quot;title&quot;:&quot;On a surface&quot;,&quot;text&quot;:&quot;Cards use your theme’s surfaces, corners and shadows.&quot;},{&quot;icon&quot;:&quot;book-open&quot;,&quot;title&quot;:&quot;With a link&quot;,&quot;text&quot;:&quot;Link a card to a page and “Learn more” appears at the bottom.&quot;,&quot;href&quot;:&quot;/about/&quot;},{&quot;icon&quot;:&quot;medal&quot;,&quot;title&quot;:&quot;Any number&quot;,&quot;text&quot;:&quot;Add as many cards as you like; they wrap neatly on every screen.&quot;}]}"></div>
 
@@ -57,7 +55,7 @@ Rows under each other, as your theme draws a list, or each on its own surface.
 
 Topics that unfold with a short summary and a link to the full page.
 
-<div data-block="accordion" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;Blocks&quot;,&quot;href&quot;:&quot;/blocks/&quot;,&quot;text&quot;:&quot;Every block a page can be built from.&quot;},{&quot;label&quot;:&quot;App store&quot;,&quot;href&quot;:&quot;/app-store/&quot;,&quot;text&quot;:&quot;Apps and themes you install with one tap.&quot;,&quot;more&quot;:[{&quot;label&quot;:&quot;Get started&quot;,&quot;href&quot;:&quot;/get-started/&quot;}]},{&quot;label&quot;:&quot;Interstellar&quot;,&quot;href&quot;:&quot;/about/&quot;,&quot;text&quot;:&quot;What the editor is built on.&quot;}]}"></div>
+<div data-block="accordion" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;Blocks&quot;,&quot;href&quot;:&quot;/blocks/&quot;,&quot;text&quot;:&quot;Every block a page can be built from.&quot;},{&quot;label&quot;:&quot;App store&quot;,&quot;href&quot;:&quot;/app-store/&quot;,&quot;text&quot;:&quot;Apps and themes you install with one tap.&quot;,&quot;more&quot;:[{&quot;label&quot;:&quot;Get started&quot;,&quot;href&quot;:&quot;/get-started/&quot;}]},{&quot;label&quot;:&quot;Morpheme&quot;,&quot;href&quot;:&quot;/about/&quot;,&quot;text&quot;:&quot;What the editor is built on.&quot;}]}"></div>
 
 ## Questions and answers
 
@@ -69,7 +67,7 @@ Questions that unfold to reveal the answer, ready for Google to show in search r
 
 Up to four plans side by side, with what’s included and a button.
 
-<div data-block="pricecards" data-props="{&quot;items&quot;:[{&quot;name&quot;:&quot;Open source&quot;,&quot;price&quot;:&quot;Free&quot;,&quot;text&quot;:&quot;Run Interstellar on your own Cloudflare account.&quot;,&quot;features&quot;:[&quot;The editor and the standard theme&quot;,&quot;MIT license&quot;,&quot;Your own GitHub repository&quot;],&quot;buttons&quot;:[{&quot;label&quot;:&quot;Get started&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/get-started/&quot;,&quot;kind&quot;:&quot;outlined&quot;}]},{&quot;name&quot;:&quot;With apps&quot;,&quot;price&quot;:&quot;Custom&quot;,&quot;text&quot;:&quot;Your site plus apps and themes from the app store.&quot;,&quot;features&quot;:[&quot;Everything in Open source&quot;,&quot;Apps and themes&quot;,&quot;Updates with release notes&quot;],&quot;buttons&quot;:[{&quot;label&quot;:&quot;Browse apps&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/app-store/&quot;,&quot;kind&quot;:&quot;filled&quot;}],&quot;featured&quot;:true,&quot;badge&quot;:&quot;Popular&quot;}]}"></div>
+<div data-block="pricecards" data-props="{&quot;items&quot;:[{&quot;name&quot;:&quot;Open source&quot;,&quot;price&quot;:&quot;Free&quot;,&quot;text&quot;:&quot;Run Morpheme on your own Cloudflare account.&quot;,&quot;features&quot;:[&quot;The editor and the standard theme&quot;,&quot;MIT license&quot;,&quot;Your own GitHub repository&quot;],&quot;buttons&quot;:[{&quot;label&quot;:&quot;Get started&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/get-started/&quot;,&quot;kind&quot;:&quot;outlined&quot;}]},{&quot;name&quot;:&quot;With apps&quot;,&quot;price&quot;:&quot;Custom&quot;,&quot;text&quot;:&quot;Your site plus apps and themes from the app store.&quot;,&quot;features&quot;:[&quot;Everything in Open source&quot;,&quot;Apps and themes&quot;,&quot;Updates with release notes&quot;],&quot;buttons&quot;:[{&quot;label&quot;:&quot;Browse apps&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/app-store/&quot;,&quot;kind&quot;:&quot;filled&quot;}],&quot;featured&quot;:true,&quot;badge&quot;:&quot;Popular&quot;}]}"></div>
 
 ## Testimonials
 

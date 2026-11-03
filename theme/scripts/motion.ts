@@ -1,10 +1,10 @@
 // Page motion, using Motion's vanilla API (same engine as motion/react, without React).
 // Every animation has a job:
 //   [data-reveal]  sections fade up once as they reach the viewport (storytelling)
-// They move with the site's motion scheme's slow spatial spring (motionSpring, @interstellarcms/cms/lib/motion.ts). With
+// They move with the site's motion scheme's slow spatial spring (motionSpring, @morpheme/cms/lib/motion.ts). With
 // the calm scheme, or prefers-reduced-motion, everything is shown instantly (motionReduced).
 import { animate, inView } from 'motion';
-import { motionReduced, motionSpring } from '@interstellarcms/cms/lib/motion';
+import { motionReduced, motionSpring } from '@morpheme/cms/lib/motion';
 
 const reduce = motionReduced();
 const spring = motionSpring('spatial', 'slow');

@@ -3,9 +3,9 @@ title: "Meet the app store"
 date: 2026-09-03
 description: "Booking, newsletters and colors drawn from your photos: apps add new features and stay put when you change themes."
 categories: ["apps"]
-image: "/images/uploads/2026/10/space-station.jpg"
-imageAlt: "Earth from orbit and satellite from Unsplash"
-seoTitle: "Meet the app store | Interstellar"
+image: "/images/uploads/2026/10/andromeda.webp"
+imageAlt: "The Andromeda galaxy among thousands of stars"
+seoTitle: "Meet the app store | Morpheme"
 ---
 
 An app gives your site something it couldn’t do before: new blocks, new kinds of pop-ups, new settings or something on every page.

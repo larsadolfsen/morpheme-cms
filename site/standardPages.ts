@@ -7,7 +7,7 @@
 import { slug } from 'github-slugger';
 import paths from '@data/standard-pages.json';
 import { getPages, type Page } from './content';
-import { pageH1, partsOfMarkdown, sectionsFromParts } from '@interstellarcms/cms/src/sections.mjs';
+import { pageH1, partsOfMarkdown, sectionsFromParts } from '@morpheme/cms/src/sections.mjs';
 
 /** The addresses of the pages that are the front page, the blog page, the 404 page, the contact page, the privacy policy
  * and the cookie policy (their own addresses: the front page is shown at /, the blog page at /blog/, the 404 page at none,

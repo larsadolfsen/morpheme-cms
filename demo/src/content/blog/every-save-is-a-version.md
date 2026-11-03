@@ -3,9 +3,9 @@ title: "Every save is a version"
 date: 2026-09-18
 description: "Your content lives as files on GitHub. Every save is a version you can go back to."
 categories: ["security"]
-image: "/images/uploads/2026/10/developer-setup.jpg"
-imageAlt: "Modern developer setup with code from Unsplash"
-seoTitle: "Every save is a version | Interstellar"
+image: "/images/uploads/2026/10/editor-home.webp"
+imageAlt: "The home page open in the Morpheme editor"
+seoTitle: "Every save is a version | Morpheme"
 ---
 
 There’s no database behind your site. Your pages, posts and settings are files in your own GitHub repository.

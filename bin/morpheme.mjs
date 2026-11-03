@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The CMS's commands for a site, run from the site's root (its package.json's scripts): `interstellar <command> [args]`.
+// The CMS's commands for a site, run from the site's root (its package.json's scripts): `morpheme <command> [args]`.
 // Each runs this package's scripts (scripts/) in turn, on the site in the working directory, and stops at the first that
 // fails.
 import { spawnSync } from 'node:child_process';
@@ -28,7 +28,7 @@ const QUIET = new Set(['check-consent']);
 
 const [command, ...args] = process.argv.slice(2);
 if (!COMMANDS[command]) {
-  console.error(`Brug: interstellar <kommando> […], hvor kommandoen er en af: ${Object.keys(COMMANDS).join(', ')}.`);
+  console.error(`Brug: morpheme <kommando> […], hvor kommandoen er en af: ${Object.keys(COMMANDS).join(', ')}.`);
   process.exit(1);
 }
 for (const script of COMMANDS[command]) {

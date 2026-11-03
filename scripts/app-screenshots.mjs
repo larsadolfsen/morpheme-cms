@@ -6,7 +6,7 @@
 // src/apps/<app>/screenshots/<n>-<what>.jpg (shotFile). The site is built in a folder of its own with the theme and the
 // colours (src/data/theme.json and colors.json as they were after), and the editor has every app installed, with GitHub
 // answered from the files in this repository (built-site.mjs) but the apps' settings, so nothing is saved. Run it when
-// an app's pictures, or how what they show looks, have changed: npx interstellar app-screenshots (or with the apps to
+// an app's pictures, or how what they show looks, have changed: npx morpheme app-screenshots (or with the apps to
 // take, by their folders: … calendly mailchimp). Then, for an app from the app store, raise its version, commit and run
 // npm run store:release.
 import { execFileSync } from 'node:child_process';
@@ -15,8 +15,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 import { createServer } from 'vite';
-import { aliases, themePlugin } from '@interstellarcms/cms/site/theme.mjs';
-import { appFoldersPlugin } from '@interstellarcms/cms/lib/apps.mjs';
+import { aliases, themePlugin } from '@morpheme/cms/site/theme.mjs';
+import { appFoldersPlugin } from '@morpheme/cms/lib/apps.mjs';
 import { binOf } from './bin.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
 
@@ -48,8 +48,8 @@ try {
   const { partScreens } = await load('@site/editor');
   const { companyParts } = await load('@site/company');
   const { colorRoles } = await load('@site/colors');
-  const { dynamicColors } = await load('@interstellarcms/cms/lib/dynamic-colors.ts');
-  const { shotFile } = await load('@interstellarcms/cms/src/store.ts');
+  const { dynamicColors } = await load('@morpheme/cms/lib/dynamic-colors.ts');
+  const { shotFile } = await load('@morpheme/cms/src/store.ts');
   blue = { ...dynamicColors(BLUE, colorRoles), dynamic: BLUE };
   for (const id of ids) {
     const app = (await load(`/src/apps/${id}/index.ts`)).default;

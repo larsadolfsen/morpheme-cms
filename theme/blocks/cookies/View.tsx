@@ -1,7 +1,7 @@
 // "Cookieliste": the cookies as a table, a row each with who sets it first and then its name, which scrolls sideways on
 // a narrow screen. Built of the standard blocks' part .block-table.
-import type { CookiesView } from '@interstellarcms/cms/src/standard/cookies/view';
-import { useInText } from '@interstellarcms/cms/src/standard/view';
+import type { CookiesView } from '@morpheme/cms/src/standard/cookies/view';
+import { useInText } from '@morpheme/cms/src/standard/view';
 
 export default function Cookies({ view }: { view: CookiesView }) {
   const { texts } = view;

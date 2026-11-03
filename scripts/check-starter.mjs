@@ -24,14 +24,14 @@ const npmRun = (cwd, ...args) => run(cwd, npm[0], [...npm.slice(1), ...args]);
 
 run(pkgDir, process.execPath, ['scripts/starter.mjs', '--check']);
 
-const dir = mkdtempSync(join(tmpdir(), 'interstellar-starter-'));
+const dir = mkdtempSync(join(tmpdir(), 'morpheme-starter-'));
 npmRun(pkgDir, 'pack', '--pack-destination', dir);
 const tarball = readdirSync(dir).find((f) => f.endsWith('.tgz'));
 const site = join(dir, 'site');
 cpSync(join(pkgDir, 'starter'), site, { recursive: true });
 const file = join(site, 'package.json');
 const manifest = JSON.parse(readFileSync(file, 'utf8'));
-manifest.dependencies['@interstellarcms/cms'] = `file:../${tarball}`;
+manifest.dependencies['@morpheme/cms'] = `file:../${tarball}`;
 writeFileSync(file, `${JSON.stringify(manifest, null, 2)}\n`);
 
 // A repository with one commit, as a new site's is (check:worker reads the files of HEAD).

@@ -4,7 +4,7 @@
 // The mark is a CSS mask over public/logo.svg, so it takes the theme's accent color
 // and the 20 KB file is downloaded once and cached.
 import LogoMark from '@theme/components/LogoMark.astro';
-import { site } from '@interstellarcms/cms/site/site';
+import { site } from '@morpheme/cms/site/site';
 
 interface Props {
   size?: 'sm' | 'md';
@@ -18,6 +18,6 @@ const { size = 'md' } = Astro.props;
   </span>
   <span class="leading-tight">
     <span class="theme-logo-name block tracking-tight">{site.name}</span>
-    <span class="theme-logo-role text-[0.8rem] text-muted">{site.role}</span>
+    <span class="theme-logo-role type-body-small text-muted">{site.role}</span>
   </span>
 </span>

@@ -29,11 +29,11 @@ export async function handleGitHub(request, env, ctx) {
   if (!token) return json({ error: 'signed out' }, 401);
   const files = filesOf(env, token, ctx);
   try {
-    // The site's own files and GraphQL: only to someone GitHub says may save to the repository.
+    if (route === 'graphql' && method === 'POST') return await question(request, files);
+    // The site's own files: only to someone GitHub says may read the repository.
     const may = await access(request, files.ask);
     if (!may) return json({ error: 'signed out' }, 401);
-    if (!may.push) return json({ error: 'forbidden' }, 403);
-    if (route === 'graphql' && method === 'POST') return await question(request, files);
+    if (!may.read) return json({ error: 'forbidden' }, 403);
     if (route === 'head' && method === 'GET') return json(await files.head());
     if (route.startsWith('blob/') && method === 'GET') return await blob(request, route.slice('blob/'.length), files);
     if (method !== 'POST') return json({ error: 'method' }, 405);

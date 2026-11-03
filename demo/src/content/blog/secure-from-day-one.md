@@ -1,11 +1,11 @@
 ---
 title: "Secure from day one"
 date: 2026-09-10
-description: "Security isn’t a setting you have to remember. It’s how every Interstellar site is built."
+description: "Security isn’t a setting you have to remember. It’s how every Morpheme site is built."
 categories: ["security"]
-image: "/images/uploads/2026/10/nebula-deep.jpg"
-imageAlt: "Deep space cosmic nebula from Unsplash"
-seoTitle: "Secure from day one | Interstellar"
+image: "/images/uploads/2026/10/earth-from-space.webp"
+imageAlt: "The Earth seen from space"
+seoTitle: "Secure from day one | Morpheme"
 ---
 
 Security isn’t something you have to remember to switch on. It’s how your site is built.

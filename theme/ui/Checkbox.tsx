@@ -9,7 +9,7 @@
 // Other attributes (`name`, `value`, `required`, data-…) go on the <input>, and `className` on
 // the label.
 import { useEffect, useRef, type ReactNode } from 'react';
-import { Svg } from '@interstellarcms/cms/src/icon';
+import { Svg } from '@morpheme/cms/src/icon';
 
 /** A checkbox's classes, and the error's when it is wrong. */
 export const checkboxClass = (error = false) => (error ? 'checkbox checkbox-error' : 'checkbox');

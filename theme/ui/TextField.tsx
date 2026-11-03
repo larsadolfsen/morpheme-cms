@@ -17,7 +17,7 @@
 // same classes with textFieldClass, textFieldContainerClass and textFieldInputClass, and so does something that looks
 // like a field but is a button (the editor's choice from a list).
 import { useId, type FormEvent, type MouseEvent, type ReactNode } from 'react';
-import { Glyph, Svg, type IconRef } from '@interstellarcms/cms/src/icon';
+import { Glyph, Svg, type IconRef } from '@morpheme/cms/src/icon';
 import IconButton, { iconButtonClass } from '@theme/ui/IconButton';
 import { counterText, pressTextField, updateTextField } from './textFieldUpdate';
 

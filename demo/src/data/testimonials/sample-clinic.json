@@ -1,12 +1,10 @@
 {
-  "order": 2,
-  "name": "Marcus Vance",
-  "context": "Cloud Systems Architect",
-  "quote": "Replacing heavy SQL databases with atomic Git commits over Cloudflare Workers gave us sub-50ms TTFB across 300+ edge locations globally.",
-  "image": "/images/uploads/2026/10/team-marcus.jpg",
+  "order": 3,
+  "name": "Priya, physical therapy clinic",
+  "context": "Sample testimonial",
+  "quote": "The editor won’t let us publish a page with a missing title or a broken link. That alone has saved us a few embarrassing mornings.",
   "categories": [
-    "security",
-    "apps"
+    "seo"
   ],
-  "frontPage": true
+  "frontPage": false
 }

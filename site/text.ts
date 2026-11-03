@@ -1,7 +1,7 @@
 // Text from the pages, shared by the site (content.ts) and the editor's previews of the blocks
 // (a theme's editor/previews.tsx), which has no content collections. A word in colour (<span class="color-accent">,
-// @interstellarcms/cms/lib/text-colors.mjs) is its text.
-import { withoutColors } from '@interstellarcms/cms/lib/text-colors.mjs';
+// @morpheme/cms/lib/text-colors.mjs) is its text.
+import { withoutColors } from '@morpheme/cms/lib/text-colors.mjs';
 import { config } from '@site/config';
 
 // A title can end in a word for search engines after a dash (`titleEnd` in the site's config, " – København"): kept

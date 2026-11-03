@@ -30,22 +30,22 @@ for (const key of ['addEventListener', 'removeEventListener', 'dispatchEvent']) 
 
 const { editorViewCtx } = await import('@milkdown/kit/core');
 const { createMarkdownProcessor } = await import('@astrojs/markdown-remark');
-const { makeEditor, markdownOf, partsOf, spacing } = await import('@interstellarcms/cms/src/markdown.mjs');
-const { introOf, partsOfMarkdown, sectionsFromParts, sectionsToMarkdown } = await import('@interstellarcms/cms/src/sections.mjs');
+const { makeEditor, markdownOf, partsOf, spacing } = await import('@morpheme/cms/src/markdown.mjs');
+const { introOf, partsOfMarkdown, sectionsFromParts, sectionsToMarkdown } = await import('@morpheme/cms/src/sections.mjs');
 const { withSiteModules } = await import('../site/siteModules.mjs');
 // The field of the sections of each fixed page (@site/collections): the sections whose text is written
 // above their card (their lead), and the page's introduction above them (intro).
 const [{ frontLeads }, { collections }] = await withSiteModules((load) =>
   Promise.all([load('@site/standardPages'), load('@site/collections')]),
 );
-const { leadsOfField } = await import('@interstellarcms/cms/src/sections.mjs');
+const { leadsOfField } = await import('@morpheme/cms/src/sections.mjs');
 const textOf = Object.fromEntries(
   collections
     .filter((c) => c.kind === 'files')
     .flatMap((c) => c.files)
     .map((f) => [f.file, f.fields.find((x) => x.type === 'blocks')]),
 );
-const { splitFrontmatter, writeFields } = await import('@interstellarcms/cms/src/frontmatter.mjs');
+const { splitFrontmatter, writeFields } = await import('@morpheme/cms/src/frontmatter.mjs');
 
 const walk = (dir) =>
   (existsSync(dir) ? readdirSync(dir, { withFileTypes: true }) : []).flatMap((e) =>

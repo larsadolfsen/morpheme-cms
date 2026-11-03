@@ -1,7 +1,7 @@
 // The CMS's demo site (demo/, demo-site.mjs) still works with the CMS: its content checked by the editor's rules
 // (check-content.mjs), each file the same after a save in the editor (editor-roundtrip.mjs) and the site built, with the
 // standard theme, in a folder of its own. Run it when the CMS, the
-// standard theme or the demo has changed: npx interstellar check:demo.
+// standard theme or the demo has changed: npx morpheme check:demo.
 import { execFileSync } from 'node:child_process';
 import { rmSync } from 'node:fs';
 import { join } from 'node:path';

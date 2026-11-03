@@ -111,7 +111,7 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
   // Each app installed is in the site: one from the app store is copied into it when it is installed (store.ts).
   for (const id of installedApps(files))
     if (!apps.some((a) => a.id === id)) problems.push(`${config.apps.installed}: ${t.apps.missing(id, appFolder(id))}`);
-  // Each file in an app's hooks/ is a place an app may change the site (@interstellarcms/cms/lib/hooks.ts).
+  // Each file in an app's hooks/ is a place an app may change the site (@morpheme/cms/lib/hooks.ts).
   for (const app of writtenApps)
     for (const file of hooksOf(appFolders[app.id]?.files ?? []).unknown)
       problems.push(`${appFolder(app.id)}/${file}: ${t.apps.unknownHook(APP_HOOKS.map((h) => `hooks/${h}.ts`).join(', '))}`);

@@ -11,7 +11,8 @@ import {
   Choice,
   Filters,
   InputChip,
-  Option,
+  LeadingIcon,
+  optionClass,
   Preview,
   SearchRow,
   BottomSheet,
@@ -305,13 +306,17 @@ export function useBlockDialog(
               ),
               ...h.items.map((b) => (
                 <li key={b.type}>
-                  <Option
-                    icon={b.icon}
+                  <button
+                    type="button"
+                    className={optionClass()}
                     onClick={() => (b.type === IMAGE ? done({ type: IMAGE, props: {} }) : pick(b.type))}
                   >
-                    <span className="block font-medium">{b.label}</span>
-                    {b.hint && <span className="block text-sm text-muted">{b.hint}</span>}
-                  </Option>
+                    <LeadingIcon icon={b.icon} />
+                    <span className="min-w-0">
+                      <span className="block font-medium">{b.label}</span>
+                      {b.hint && <span className="block text-sm text-muted">{b.hint}</span>}
+                    </span>
+                  </button>
                 </li>
               )),
             ])}

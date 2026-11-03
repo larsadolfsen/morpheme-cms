@@ -4,15 +4,14 @@
 // Material 3's corner radius scale where the size is one of its steps, with what has it under; the shadows, one row for
 // each of Material 3's elevation levels (ui.css, set by the theme to its own look) with what has it under (the theme's
 // panels and blocks and its UI parts at rest, hovered and dragged), and one for each shadow that is none of them; the
-// typography: the typeface and Material 3's type roles, each read from a hidden sample of what the theme draws in it (the
-// Hero's heading, the text's headings and paragraphs, a button); and the site's colours (colorFields, "Farver") in the
-// mode the editor is in. Each row has a sample drawn with the value (LeadingToken), read from the page
-// (getComputedStyle), so a theme's own values show without the editor knowing them, and they follow light and dark
-// mode. Nothing here is saved.
-import { Fragment, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+// typography: the typeface and Material 3's type scale (ui.css), each step with its size, line height, weight and
+// tracking; and the site's colours (colorFields, "Farver") in the mode the editor is in. Each row has a sample drawn
+// with the value (LeadingToken), read from the page (getComputedStyle), so a theme's own values show without the editor
+// knowing them, and they follow light and dark mode. Nothing here is saved.
+import { useEffect, useState, type ReactNode } from 'react';
 import { colorFields } from './site';
 import Screen from './Screen';
-import { Button, Group, LeadingToken, ListItem, type TokenKind } from './ui';
+import { Group, LeadingToken, ListItem, type TokenKind } from './ui';
 import { locale, t } from './i18n';
 
 const say = t.parts.tokens;
@@ -107,76 +106,30 @@ const shadows: Token[] = [
 
 const typeface: Token = { token: '--font-sans', label: say.type.typeface };
 
-/** Material 3's type roles (m3.material.io/styles/typography/type-scale-tokens), largest first, each with a hidden sample
- * of what the theme draws in it, so its size, line height, weight and font are read as the theme sets them. */
+/** Material 3's type scale (m3.material.io/styles/typography/type-scale-tokens, ui.css): its five roles, each in three
+ * sizes, largest first, each a set of variables (--type-display-large-size, -line-height, -weight, -tracking). */
 type Role = keyof typeof say.type.roles;
-const roles: { role: Role; sample: ReactNode }[] = [
-  {
-    role: 'display',
-    sample: (
-      <div className="block-hero">
-        <div className="block-hero-body">
-          <h2 className="block-hero-title" data-role="display">
-            Aa
-          </h2>
-        </div>
-      </div>
-    ),
-  },
-  {
-    role: 'headline',
-    sample: (
-      <div className="prose">
-        <h2 data-role="headline">Aa</h2>
-      </div>
-    ),
-  },
-  {
-    role: 'title',
-    sample: (
-      <div className="prose">
-        <h3 data-role="title">Aa</h3>
-      </div>
-    ),
-  },
-  {
-    role: 'body',
-    sample: (
-      <div className="prose">
-        <p data-role="body">Aa</p>
-      </div>
-    ),
-  },
-  {
-    role: 'label',
-    sample: (
-      <Button type="button" tabIndex={-1} data-role="label">
-        Aa
-      </Button>
-    ),
-  },
-];
+type Size = keyof typeof say.type.sizes;
+const typeScale: { role: Role; size: Size; token: string }[] = (Object.keys(say.type.roles) as Role[]).flatMap((role) =>
+  (Object.keys(say.type.sizes) as Size[]).map((size) => ({ role, size, token: `--type-${role}-${size}` })),
+);
 
-type Measured = { family: string; weight: string; size: string; lineHeight: string };
+/** A length in px ("3.5625rem" is "57px" with 16px text, "-0.015625rem" "-0.25px"); anything else as it is. */
+function inPixels(value: string, rootSize: number) {
+  const length = /^(-?[\d.]+)(rem|px)$/.exec(value);
+  return length ? `${+(parseFloat(length[1]) * (length[2] === 'rem' ? rootSize : 1)).toFixed(2)}px` : value || '–';
+}
 
-/** A length in px as it is shown ("51.75px", "16px"); anything else ("normal") as it is. */
-const px = (value: string) => (/^[\d.]+px$/.test(value) ? `${+parseFloat(value).toFixed(2)}px` : value);
-
-/** The type roles as the theme draws them, read from their samples in `box` again each time the look may have changed. */
-function useTypeRoles(changes: number) {
-  const box = useRef<HTMLDivElement>(null);
-  const [measured, setMeasured] = useState<Partial<Record<Role, Measured>>>({});
-  useLayoutEffect(() => {
-    const read: Partial<Record<Role, Measured>> = {};
-    for (const { role } of roles) {
-      const el = box.current?.querySelector(`[data-role="${role}"]`);
-      if (!el) continue;
-      const style = getComputedStyle(el);
-      read[role] = { family: style.fontFamily, weight: style.fontWeight, size: px(style.fontSize), lineHeight: px(style.lineHeight) };
-    }
-    setMeasured(read);
-  }, [changes]);
-  return { box, measured };
+/** What is under a step's name: its variables and their values, in px. */
+function typeValues(token: string, style: CSSStyleDeclaration, rootSize: number) {
+  const read = (part: string) => style.getPropertyValue(`${token}-${part}`).trim();
+  return say.type.values(
+    `${token}-*`,
+    inPixels(read('size'), rootSize),
+    inPixels(read('line-height'), rootSize),
+    read('weight') || '–',
+    inPixels(read('tracking'), rootSize),
+  );
 }
 
 const colors: Token[] = colorFields.map((f) => ({ token: `--${f.name}`, label: f.label }));
@@ -316,8 +269,7 @@ function shadowRows() {
 }
 
 export default function Tokens() {
-  const changes = useLookChanges();
-  const { box, measured } = useTypeRoles(changes);
+  useLookChanges();
   const style = getComputedStyle(document.documentElement);
   const rootSize = parseFloat(style.fontSize) || 16;
   const list = new Intl.ListFormat(locale, { type: 'conjunction' });
@@ -348,15 +300,17 @@ export default function Tokens() {
         <TokenRow kind="font" value={cssValue(typeface)} label={typeface.label}>
           {described(typeface, style, rootSize)}
         </TokenRow>
-        {roles.map(({ role }) => {
-          const m = measured[role];
-          const { name, use } = say.type.roles[role];
-          return (
-            <TokenRow key={role} kind="font" value={m?.family ?? cssValue(typeface)} weight={m?.weight} label={name}>
-              {m ? say.type.measures(use, m.size, m.lineHeight, m.weight) : use}
-            </TokenRow>
-          );
-        })}
+        {typeScale.map(({ role, size, token }) => (
+          <TokenRow
+            key={token}
+            kind="font"
+            value={cssValue(typeface)}
+            weight={`var(${token}-weight)`}
+            label={say.type.step(say.type.roles[role], say.type.sizes[size])}
+          >
+            {typeValues(token, style, rootSize)}
+          </TokenRow>
+        ))}
       </Group>
       {groups.map((g) => (
         <Group key={g.title} title={g.title}>
@@ -367,11 +321,6 @@ export default function Tokens() {
           ))}
         </Group>
       ))}
-      <div ref={box} aria-hidden="true" className="pointer-events-none invisible absolute h-0 w-full overflow-hidden">
-        {roles.map(({ role, sample }) => (
-          <Fragment key={role}>{sample}</Fragment>
-        ))}
-      </div>
     </Screen>
   );
 }

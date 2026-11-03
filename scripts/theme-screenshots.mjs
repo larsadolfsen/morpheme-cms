@@ -4,13 +4,13 @@
 // page in SHOTS taken, into the theme's screenshots/<n>-<key>.jpg (the standard theme's in this package's theme/, another's
 // in src/themes/<theme>/; packages/editor/src/themes.ts reads them; their names in the editor are t.library.themeShots[key]). Without
 // the cookie question and the pop-ups, which would cover the page. Run it again when a theme or the demo has changed much:
-// npx interstellar theme-screenshots (or with the themes to take, by folder: … saturn material).
+// npx morpheme theme-screenshots (or with the themes to take, by folder: … saturn material).
 import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { extname, join } from 'node:path';
 import { chromium } from 'playwright';
-import { installedThemes, themeFolder } from '@interstellarcms/cms/site/theme.mjs';
+import { installedThemes, themeFolder } from '@morpheme/cms/site/theme.mjs';
 import { binOf } from './bin.mjs';
 import { demoSite } from './demo-site.mjs';
 

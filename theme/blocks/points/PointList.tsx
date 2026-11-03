@@ -3,8 +3,8 @@
 // with, with a page and a link's text, the link after the text: the standard block "Punkter med ikon".
 // `className`: the site's own classes on the list.
 import List, { ListItem } from '@theme/ui/List';
-import type { Point } from '@interstellarcms/cms/src/standard/points/view';
-import { Link } from '@interstellarcms/cms/src/standard/view';
+import type { Point } from '@morpheme/cms/src/standard/points/view';
+import { Link } from '@morpheme/cms/src/standard/view';
 
 export default function PointList({ items, className }: { items: Point[]; className?: string }) {
   return (

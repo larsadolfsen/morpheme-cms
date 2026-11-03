@@ -28,7 +28,7 @@ export const apps: Messages['apps'] = {
   noDeveloper: 'Der er ingen apps fra den udvikler.',
   unknownScreenshot: (shows) =>
     `Billedet "${shows}" viser intet, appen har: blok:<type>, slags:<liste>:<variant>, liste:<id>, indstillinger eller side.`,
-  noScreenshot: (file) => `${file} findes ikke. Tag billederne med npx interstellar app-screenshots.`,
+  noScreenshot: (file) => `${file} findes ikke. Tag billederne med npx morpheme app-screenshots.`,
   unlistedScreenshot: 'Billedet står ikke under screenshots i appens index.ts.',
   install: 'Installer',
   uninstall: 'Afinstaller',

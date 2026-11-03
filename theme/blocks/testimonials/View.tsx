@@ -3,8 +3,8 @@
 import BlockHead from '@theme/blocks/BlockHead';
 import List from '@theme/blocks/testimonials/List';
 import Slider from '@theme/blocks/testimonials/Slider';
-import type { TestimonialsView } from '@interstellarcms/cms/src/standard/testimonials/view';
-import { useInText } from '@interstellarcms/cms/src/standard/view';
+import type { TestimonialsView } from '@morpheme/cms/src/standard/testimonials/view';
+import { useInText } from '@morpheme/cms/src/standard/view';
 
 export default function Testimonials({ view }: { view: TestimonialsView }) {
   const inText = useInText() || 'block-in-text';

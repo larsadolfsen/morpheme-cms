@@ -334,15 +334,13 @@ export const parts = {
      * theme draws in it, and under it its size, line height, and weight as the theme sets them. */
     type: {
       typeface: 'Typeface',
-      roles: {
-        display: { name: 'Display', use: 'Heading in Hero' },
-        headline: { name: 'Headline', use: 'Headings in the text' },
-        title: { name: 'Title', use: 'Subheadings in the text' },
-        body: { name: 'Body', use: 'The text' },
-        label: { name: 'Label', use: 'Buttons' },
-      },
-      measures: (use: string, size: string, lineHeight: string, weight: string) =>
-        `${use}: ${size}, line height ${lineHeight}, weight ${weight}`,
+      /** Material 3's type scale (m3.material.io/styles/typography/type-scale-tokens): its roles and sizes, a step by
+       * both ("Title large"), and under it its variables and their values. */
+      roles: { display: 'Display', headline: 'Headline', title: 'Title', body: 'Body', label: 'Label' },
+      sizes: { large: 'large', medium: 'medium', small: 'small' },
+      step: (role: string, size: string) => `${role} ${size}`,
+      values: (token: string, size: string, lineHeight: string, weight: string, tracking: string) =>
+        `${token}: ${size}, line height ${lineHeight}, weight ${weight}, letter spacing ${tracking}`,
     },
     /** A token's name and its value, under the row's name. */
     value: (token: string, value: string) => `${token}: ${value}`,

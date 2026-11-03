@@ -1,4 +1,4 @@
-// The types a site with the CMS has besides its own (`/// <reference types="@interstellarcms/cms/client" />` in its
+// The types a site with the CMS has besides its own (`/// <reference types="@morpheme/cms/client" />` in its
 // src/env.d.ts): the modules the build makes and the directive it adds (astro.mjs).
 /// <reference path="./src/virtual.d.ts" />
 

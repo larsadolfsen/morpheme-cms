@@ -4,12 +4,12 @@
 // its `label` and `href` or other attributes on it), under the text when it is long (`longerAction`), and evt. a
 // button that closes it (`closeLabel`, its name). Read by screen readers as a status (`error`: an alert). On the site
 // it is drawn in a <template data-snackbar> (with `data-ms` for how long it stays), and ui/snackbar.script.ts shows it
-// at the bottom with the editor's snackbar() (@interstellarcms/cms/lib/snackbar.ts: where messages stand, how long, and how
+// at the bottom with the editor's snackbar() (@morpheme/cms/lib/snackbar.ts: where messages stand, how long, and how
 // they are swiped away, the same as the editor's messages); in the editor only drawn. How it looks is the theme's
 // (--snackbar-*). An Astro component gives an element the same classes with snackbarClass.
 import { Fragment } from 'react';
-import { Svg } from '@interstellarcms/cms/src/icon';
-import { Link } from '@interstellarcms/cms/src/standard/view';
+import { Svg } from '@morpheme/cms/src/icon';
+import { Link } from '@morpheme/cms/src/standard/view';
 import Button from '@theme/ui/Button';
 import IconButton from '@theme/ui/IconButton';
 

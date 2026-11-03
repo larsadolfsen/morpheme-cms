@@ -317,14 +317,11 @@ export const parts: Messages['parts'] = {
     },
     type: {
       typeface: 'Skrifttype',
-      roles: {
-        display: { name: 'Display', use: 'Overskrift i Hero' },
-        headline: { name: 'Overskrift', use: 'Overskrifter i teksten' },
-        title: { name: 'Titel', use: 'Underoverskrifter i teksten' },
-        body: { name: 'Brødtekst', use: 'Teksten' },
-        label: { name: 'Etiket', use: 'Knapper' },
-      },
-      measures: (use, size, lineHeight, weight) => `${use}: ${size}, linjehøjde ${lineHeight}, vægt ${weight}`,
+      roles: { display: 'Display', headline: 'Overskrift', title: 'Titel', body: 'Brødtekst', label: 'Etiket' },
+      sizes: { large: 'stor', medium: 'mellem', small: 'lille' },
+      step: (role, size) => `${role} ${size}`,
+      values: (token, size, lineHeight, weight, tracking) =>
+        `${token}: ${size}, linjehøjde ${lineHeight}, vægt ${weight}, spatiering ${tracking}`,
     },
     value: (token, value) => `${token}: ${value}`,
     from: (token, value, from) => `${token}: ${value} (som ${from})`,

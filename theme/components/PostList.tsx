@@ -4,7 +4,7 @@
 import Img from '@theme/components/Img';
 import PostMeta from '@theme/components/PostMeta';
 import type { PostView } from '@theme/components/posts';
-import { Link, useOnSite } from '@interstellarcms/cms/src/standard/view';
+import { Link, useOnSite } from '@morpheme/cms/src/standard/view';
 
 // Shows the number in data-random-posts of the posts in the list just before it, picked at random.
 const PICK = `(() => {
@@ -45,8 +45,8 @@ export default function PostList({
               )}
               <div>
                 <PostMeta post={post} />
-                <h3 className="mt-1 text-lg leading-snug font-medium transition-colors group-hover:text-accent">{post.title}</h3>
-                {post.description && <p className="mt-1.5 line-clamp-2 text-[0.95rem] text-muted">{post.description}</p>}
+                <h3 className="mt-1 type-title-medium transition-colors group-hover:text-accent">{post.title}</h3>
+                {post.description && <p className="mt-1.5 line-clamp-2 type-body-medium text-muted">{post.description}</p>}
               </div>
             </Link>
           </li>

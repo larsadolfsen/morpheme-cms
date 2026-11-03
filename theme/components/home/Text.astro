@@ -2,7 +2,7 @@
 // A text the site's owner writes: an optional heading and Markdown.
 import Section from '@theme/components/Section.astro';
 import Markdown from '@theme/components/Markdown.astro';
-import type { HomeSection } from '@interstellarcms/cms/site/home';
+import type { HomeSection } from '@morpheme/cms/site/home';
 
 type Props = Extract<HomeSection, { type: 'text' }> & { class?: string };
 const { heading, body, class: className } = Astro.props;

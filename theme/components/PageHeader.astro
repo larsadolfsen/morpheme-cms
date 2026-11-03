@@ -12,11 +12,9 @@ const { title, intro } = Astro.props;
 ---
 
 <Container as="header" class="pt-8 md:pt-14">
-  <h1 class="max-w-[18ch] text-[length:var(--theme-title-size,2.4rem)] leading-[var(--theme-title-leading,1.06)] md:text-[length:var(--theme-title-size-large,3.75rem)]">
-    {title}
-  </h1>
+  <h1 class="theme-title max-w-[18ch]">{title}</h1>
   {intro && (
-    <p class="mt-4 max-w-[52ch] text-lg text-muted md:text-xl">
+    <p class="type-body-large md:type-title-large mt-4 max-w-[52ch] text-muted">
       <Inline text={intro} />
     </p>
   )}

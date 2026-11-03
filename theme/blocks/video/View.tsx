@@ -1,11 +1,11 @@
 // "Video": the video before it is played, in the text's style, as a video written in the text
-// (@interstellarcms/cms/lib/video.mjs, .video-facade in ../blocks.css): a link to the video with its still, a play button and
+// (@morpheme/cms/lib/video.mjs, .video-facade in ../blocks.css): a link to the video with its still, a play button and
 // its title; a click puts the video in its place (Base.astro). A new link is a new video, with its own still. In the
 // editor a still the site does not have yet is YouTube's or Vimeo's, else the plain box.
 import { useState } from 'react';
-import { Svg } from '@interstellarcms/cms/src/icon';
-import type { VideoView } from '@interstellarcms/cms/src/standard/video/view';
-import { InProse, Link, useOnSite } from '@interstellarcms/cms/src/standard/view';
+import { Svg } from '@morpheme/cms/src/icon';
+import type { VideoView } from '@morpheme/cms/src/standard/video/view';
+import { InProse, Link, useOnSite } from '@morpheme/cms/src/standard/view';
 
 export default function Video({ view }: { view: VideoView }) {
   return <Facade key={view.href} view={view} />;

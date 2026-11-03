@@ -1,9 +1,9 @@
 ---
 // A block a page can have, as a section of the front page (`pageBlocks` in packages/editor/defaults/collections.ts): the standard
 // one's or the app's (Block.astro, by its type), in the front page's width and space, with its shared texts.
-import Block from '@interstellarcms/cms/src/standard/Block.astro';
+import Block from '@morpheme/cms/src/standard/Block.astro';
 import Section from '@theme/components/Section.astro';
-import { blockTexts } from '@interstellarcms/cms/site/site';
+import { blockTexts } from '@morpheme/cms/site/site';
 
 interface Props {
   section: { type: string; hidden?: boolean } & Record<string, unknown>;

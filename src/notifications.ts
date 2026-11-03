@@ -152,8 +152,7 @@ async function signUp() {
   if (!worker) return;
   const res = await api(PUSH, 'GET');
   if (!res.ok) return;
-  const { key } = (await res.json()) as { key?: string | null };
-  if (!key) return;
+  const { key } = (await res.json()) as { key: string };
   let subscription = await worker.pushManager.getSubscription();
   if (subscription && b64url(subscription.options.applicationServerKey) !== key) {
     await subscription.unsubscribe();

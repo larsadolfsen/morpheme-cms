@@ -2,6 +2,6 @@
   "singleQuote": true,
   "printWidth": 140,
   "plugins": ["prettier-plugin-astro", "prettier-plugin-tailwindcss"],
-  "tailwindStylesheet": "./node_modules/@interstellarcms/cms/theme/styles/global.css",
+  "tailwindStylesheet": "./node_modules/@morpheme/cms/theme/styles/global.css",
   "overrides": [{ "files": "*.astro", "options": { "parser": "astro" } }]
 }
