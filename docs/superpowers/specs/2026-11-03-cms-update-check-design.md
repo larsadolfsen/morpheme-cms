@@ -80,7 +80,7 @@ In the binding `PUSH`, which every site has (the starter's `wrangler.jsonc`), ea
 
 | Key | Value | Its id |
 | --- | --- | --- |
-| `cms:update` | `{ commit, from, to, at, state, undoCommit? }`: the newest update, `state` one of `'waiting'`, `'done'`, `'undone'`, `'stuck'` (the undo did not build either); one at a time | `commit`, the SHA of the update's commit |
+| `cms:update` | `{ commit, from, to, at, state, undoCommit?, undoAt? }`: the newest update, `state` one of `'waiting'`, `'undoing'` (the undo is committed and its build watched by its check run, as the update's was), `'done'`, `'undone'`, `'stuck'` (the undo did not build either); one at a time | `commit`, the SHA of the update's commit |
 | `cms:skip:<version>` | `{ version, commit, at }`: a version that was undone, which is not taken by itself again | the version |
 | `cms:notes:<version>` | `{ version, text }`: the version's section of `CHANGELOG.md` | the version |
 | `cms:checked` | `{ at, latest, problem? }`: when npm was last asked, what `latest` was, and why it could not be taken by itself | (one key) |
