@@ -1,4 +1,4 @@
-// "Samtykker" under "Privatliv" (Consents.tsx, consents.ts): the visitors' answers in the cookie banner.
+// "Samtykker" under "Privatliv" (Consents.tsx, consentData.ts): the visitors' answers in the cookie banner.
 export const consents = {
   title: 'Consents',
   intro: 'The visitors’ answers in the cookie banner, with the consent ID the banner shows them. They are deleted after 2 years.',

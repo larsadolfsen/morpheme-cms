@@ -23,7 +23,7 @@ import { config } from '@site/config';
 import { loadBytes, loadFrom, type Change, type RepoFile } from './github';
 import { locale, t } from './i18n';
 import { hooksOf, type AppHook } from '../lib/hooks';
-import type { StoreLicenses } from './licenses';
+import type { StoreLicenses } from './licenseData';
 
 /** The version of the contract between the editor and an app (apps.ts: defineApp, its folder, and the theme's parts it
  * draws with: the standard blocks' and the UI components, @theme/blocks/… and @theme/ui/…, imported from

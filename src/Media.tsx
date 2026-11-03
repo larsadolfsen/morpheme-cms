@@ -23,7 +23,7 @@ import {
   X,
 } from '@phosphor-icons/react';
 import { moveRedirects, REDIRECTS } from './addresses';
-import { changesOf, flatten, readAll, REDIRECT_FILES } from './redirects';
+import { changesOf, flatten, readAll, REDIRECT_FILES } from './redirectData';
 import { ask } from './ask';
 import { dateName, headed, letterOf } from './Sheet';
 import Screen from './Screen';
@@ -501,7 +501,7 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
     setRenaming(true);
     env.notify({ text: t.common.saving });
     try {
-      // The redirects (redirects.ts): the old address sends on to the new one, and those that sent to
+      // The redirects (redirectData.ts): the old address sends on to the new one, and those that sent to
       // the old address send straight to the new one (no chain).
       const loaded = await env.load(REDIRECT_FILES);
       const all = readAll(loaded);

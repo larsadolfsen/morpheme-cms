@@ -1,5 +1,5 @@
 // The editor's notifications on the phone or computer also when the editor is closed: Web Push from the Worker
-// (packages/editor/src/notifications.ts, packages/editor/pages/editor/sw.js). A device where "På telefonen" is on under "Konto" ›
+// (packages/editor/src/notificationData.ts, packages/editor/pages/editor/sw.js). A device where "På telefonen" is on under "Konto" ›
 // "Notifikationer" signs up here with the browser's push subscription, the types it has turned off and the editor's
 // language; the Worker sends to the browser's push service (Google's, Mozilla's, Apple's), which wakes the editor's
 // service worker, which shows it. Kept in Workers KV (the binding PUSH in wrangler.jsonc):

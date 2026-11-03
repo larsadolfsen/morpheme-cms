@@ -167,12 +167,12 @@ import { setSidebar, useSidebar } from './sidebar';
 import { Ask, ask } from './ask';
 import { LinkAsk } from './LinkSheet';
 import { type ListRows, type Option, type TestimonialRow } from './fields';
-import { endOf, entriesOf, lookup, readAll } from './redirects';
+import { endOf, entriesOf, lookup, readAll } from './redirectData';
 import { inForm, leaveTo, type Status } from './FormFrame';
 import { arrived, screenOf, up } from './nav';
 import { siteT, siteText, t } from './i18n';
 import { snackbar } from '../lib/snackbar';
-import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, syncDevice, told, waitOnServer } from './notifications';
+import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, syncDevice, told, waitOnServer } from './notificationData';
 import Notifications from './Notifications';
 import { EditorOwn, InEditor } from './standard/view';
 import './editor.css';
@@ -203,7 +203,7 @@ export type Env = {
   /** The files deleted from a folder (github.ts deletedFiles; Deleted.tsx). */
   deleted: (folder: string, options?: { text?: boolean }) => Promise<DeletedFile[]>;
   /** Why a new page or post cannot have this address (it is taken), or null; redirects: the files of
-   * the redirects as they are now (redirects.ts, loaded with `load`). */
+   * the redirects as they are now (redirectData.ts, loaded with `load`). */
   taken: (address: string, redirects: RepoFile[]) => Taken | null;
   /** Single files outside the folders the app loads (github.ts loadFiles). */
   load: (paths: string[]) => Promise<RepoFile[]>;
@@ -253,11 +253,11 @@ const RESERVED = config.reserved;
 
 /** Why a new page or post cannot have an address (/<slug>/): a message; with `redirect` when the site
  * sends it on elsewhere, which the site's owner may remove (EntryForm.tsx): where it ends after every redirect
- * (redirects.ts), its name, and how many other addresses send on through it. */
+ * (redirectData.ts), its name, and how many other addresses send on through it. */
 export type Taken = { text: string; redirect?: { end: string; name: string; via: number } };
 
 // Why a new page or post cannot have an address (/<slug>/), or null. redirects: the files of the
-// redirects (redirects.ts), as they are now.
+// redirects (redirectData.ts), as they are now.
 function taken(address: string, relations: Record<Relation, Option[]>, redirects: RepoFile[]): Taken | null {
   const pages = [...relations.pages, ...relations.fixed].map((o) => o.value);
   const posts = relations.blog.map((o) => `/${o.value}/`);
@@ -342,7 +342,7 @@ function Editor() {
   useEffect(registerWorker, []);
   useEffect(startRipples, []);
   // Signed up for the notifications on the phone from the site's Worker, also when the editor is closed, while
-  // "På telefonen" is on (notifications.ts).
+  // "På telefonen" is on (notificationData.ts).
   useEffect(() => {
     if (signedIn) syncDevice();
   }, [signedIn]);
@@ -478,7 +478,7 @@ function Editor() {
   const media = useMemo(() => mediaOf(files ?? []), [files]);
 
   // A message at the bottom (snackbar in lib/snackbar.ts, the same as on the site), with a link to what it
-  // is about; one of a kind kept in the notifications too (notifications.ts).
+  // is about; one of a kind kept in the notifications too (notificationData.ts).
   function notify(next: Status, device = true) {
     const edit = next?.edit;
     if (next?.kind)
@@ -512,7 +512,7 @@ function Editor() {
     stopWaiting.current?.();
     if (!waitingFor.current.includes(change)) waitingFor.current.push(change);
     const what = changesText(waitingFor.current);
-    // The Worker says it on the phone too, also when the editor is closed by then (notifications.ts).
+    // The Worker says it on the phone too, also when the editor is closed by then (notificationData.ts).
     const onServer = waitOnServer(saved.commit, t.app.siteUpdated(what), t.app.siteNotUpdated(what));
     stopWaiting.current = waitForSite(saved.commit, async (online) => {
       waitingFor.current = [];
@@ -632,7 +632,7 @@ function Editor() {
   }, [signedIn, loaded]);
 
   // What the installed apps have to say (AppNotifications in apps.ts): asked when the editor opens and every 15 minutes
-  // while it is open; each comes once, at the bottom and under "Notifikationer", while its type is on (notifications.ts).
+  // while it is open; each comes once, at the bottom and under "Notifikationer", while its type is on (notificationData.ts).
   const notifying = installedApps(files ?? [])
     .filter((id) => apps.some((a) => a.id === id && a.notifications))
     .join();

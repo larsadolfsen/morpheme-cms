@@ -99,7 +99,7 @@ import { config } from '@site/editor';
 import { allThemes, ThemeRow, themeInstalled, useThemeCatalog } from './ThemeStore';
 import { siteT, siteText, t } from './i18n';
 import { OwnerLicenses, StoreLicenseRows } from './Licenses';
-import { appType, setOn, told, useNotificationChoices } from './notifications';
+import { appType, setOn, told, useNotificationChoices } from './notificationData';
 import { kindAndName } from './deploy';
 
 export const appHref = (app: SiteApp) => `#apps/${app.id}`;

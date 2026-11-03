@@ -16,7 +16,7 @@ import { settings, siteName } from '@site/editor';
 import { t } from './i18n';
 import { IconButton, IconLink, TabPanel, TabRow, TopAppBar, type TabChoice } from './ui';
 import { up } from './nav';
-import { unseen, useNotifications } from './notifications';
+import { unseen, useNotifications } from './notificationData';
 
 // `label` is the screen back goes to, named by the back arrow and the breadcrumbs. `guard` takes every
 // way out of the screen (back, the breadcrumbs and the logo) and goes it, after warning about changes

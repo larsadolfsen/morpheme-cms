@@ -10,7 +10,7 @@ export const library = {
   notificationsNew: (count: number) => `Notifications, ${count} new`,
   noNotifications: 'No notifications',
   clearNotifications: 'Clear notifications',
-  /** On "Konto" › "Notifikationer" (Library.tsx NotificationChoices, notifications.ts). */
+  /** On "Konto" › "Notifikationer" (Library.tsx NotificationChoices, notificationData.ts). */
   /** The sliders on "Notifikationer": to "Konto", where they are turned on or off. */
   notificationChoices: 'Choose notifications',
   onDevice: 'On the phone',

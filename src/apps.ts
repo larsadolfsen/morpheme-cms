@@ -44,7 +44,7 @@ import type { BlockData } from './blocks';
 import type { Field, FolderCollection, KindPart, Opens, OwnedList, PreviewVariant } from './schema';
 import type { ConsentCategory } from '../lib/cookieCategories.mjs';
 import type { AppCategory, AppCookie, AppNeeds, AppShot, StoreRecord } from './store';
-import type { ThirdParty } from './licenses';
+import type { ThirdParty } from './licenseData';
 import { config } from '@site/config';
 
 /** An app's settings, on its page once it is installed (#apps/<app>, AppList.tsx). */
@@ -101,7 +101,7 @@ export type AppScreen = { title: string; page: ComponentType<AppPageProps> };
  * the editor's parts and given the same `api`. */
 export type AppTab = { label: string; icon: Icon; page: ComponentType<AppPageProps> };
 
-/** The notifications an app sends ("Notifikationer", notifications.ts). `types`: each kind it sends, by its id, with its
+/** The notifications an app sends ("Notifikationer", notificationData.ts). `types`: each kind it sends, by its id, with its
  * name (in the site's language, shown with siteText), under "Konto" › "Notifikationer", where each can be turned off; it
  * sends no other. `check`: what it has to say now, asked with its `api` when the editor opens and every 15 minutes while
  * it is open; each comes once (by its `id`). */

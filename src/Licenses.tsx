@@ -26,7 +26,7 @@ import {
   type LicenseWhere,
   type StoreLicenses,
   type ThirdParty,
-} from './licenses';
+} from './licenseData';
 
 export const LICENSES_ROUTE = 'licenser';
 

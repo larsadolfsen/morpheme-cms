@@ -10,7 +10,7 @@ import { ArrowSquareOut, Binoculars, Trash } from '@phosphor-icons/react';
 import Screen, { type Back } from './Screen';
 import { Button, Group, IconButton, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
 import { hasUnsaved, setUnsaved } from './deploy';
-import { askToNotify } from './notifications';
+import { askToNotify } from './notificationData';
 import { choose } from './ask';
 import { when } from './when';
 import { useSidebar } from './sidebar';
@@ -18,9 +18,9 @@ import type { Env } from './App';
 import { t } from './i18n';
 
 import type { Edit } from './schema';
-import type { EditorType } from './notifications';
+import type { EditorType } from './notificationData';
 
-// `kind`: what kind of notification it is (notifications.ts: `site`, `saved`, `failed`), kept under "Notifikationer";
+// `kind`: what kind of notification it is (notificationData.ts: `site`, `saved`, `failed`), kept under "Notifikationer";
 // without it, it is only shown at the bottom (something going on, a form that cannot be saved).
 export type Status = { text: string; error?: boolean; edit?: Edit; kind?: EditorType } | null;
 

@@ -11,7 +11,7 @@ import { config, frontLeads, headingLooks, sectionLooks, sharing, standardPages,
 import { asWritten, placeOf, standardPageAt } from './site';
 import { ConflictError, type Change, type RepoFile } from './github';
 import { addressOf, moveRedirects, REDIRECTS, retarget } from './addresses';
-import { changesOf, flatten, readAll, REDIRECT_FILES, setRedirect } from './redirects';
+import { changesOf, flatten, readAll, REDIRECT_FILES, setRedirect } from './redirectData';
 import { TAB_ROUTES } from './Redirects';
 import { choose } from './ask';
 import { readFields, splitFrontmatter, writeFields } from './frontmatter.mjs';
@@ -409,7 +409,7 @@ function Form({
     const name = post || isNew ? address.split('/').at(-2)! : slugOf(base.path, collection.folder);
     const path = isNew || (post && moved) ? `${collection.folder}/${name}.md` : base.path;
     // A new page or post, or a new address: not where another page is, or an address the site sends on
-    // elsewhere (the files of the redirects as they are now, redirects.ts).
+    // elsewhere (the files of the redirects as they are now, redirectData.ts).
     let loaded: RepoFile[] = [];
     if (isNew || moved)
       try {
@@ -481,7 +481,7 @@ function Form({
     }
     let next = `---\n${yaml}\n---\n${body}`;
 
-    // The redirects (redirects.ts): a freed address no longer sends on (those that went on through it
+    // The redirects (redirectData.ts): a freed address no longer sends on (those that went on through it
     // first go straight to where it sent them), the old address sends on to the new one, the new
     // address is the page's (the editor's own redirect from it goes), and none sends on through another.
     let redirectChanges: Change[] = [];

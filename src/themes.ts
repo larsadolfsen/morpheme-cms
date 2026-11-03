@@ -5,7 +5,7 @@
 // from the store (packages/editor/src/store.ts), where it came from (store.json) are read: their code is not loaded.
 import chosen from '@data/theme.json';
 import { STANDARD_THEME, type StoreRecord } from './store';
-import type { ThirdParty } from './licenses';
+import type { ThirdParty } from './licenseData';
 
 export type ThemeInfo = {
   /** Its folder in src/themes/, as saved in src/data/theme.json. */
