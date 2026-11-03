@@ -82,6 +82,7 @@ flowchart LR
 1. **Orkestratoren** designer snitflader, definerer datamodeller og bryder opgaven ned i konkrete trin.
 2. **Subagenterne og Developer (Ollama)** udfører delopgaverne og genererer kode.
 3. **Orkestratoren** gennemgår, tester (se nedenfor), sender fejl tilbage til den, der skrev koden, og integrerer den.
+4. **Hver pull request har en changeset** (`npx changeset`, eller `npx changeset --empty`, når intet, et site får, ændres): patch, minor eller major og én linjes release note på engelsk. Se `.changeset/README.md`.
 
 ---
 
