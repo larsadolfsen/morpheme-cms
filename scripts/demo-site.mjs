@@ -9,7 +9,7 @@ import { cpSync, mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'node
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { STANDARD_THEME, themeFolder } from '@morpheme/cms/site/theme.mjs';
+import { STANDARD_THEME, themeFolder } from '@morphemecms/cms/site/theme.mjs';
 
 const STARTER = fileURLToPath(new URL('../starter/', import.meta.url));
 const DEMO = fileURLToPath(new URL('../demo/', import.meta.url));

@@ -10,7 +10,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { cleanSvg } from '@morpheme/cms/lib/svg.mjs';
+import { cleanSvg } from '@morphemecms/cms/lib/svg.mjs';
 import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS, THEME_PACKS_FOLDER, themePackId } from './iconPacks.mjs';
 
 // The site's root (the working directory) and this package's.

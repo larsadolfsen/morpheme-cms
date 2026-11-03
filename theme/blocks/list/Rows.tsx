@@ -3,7 +3,7 @@
 // text, and, with a page, the whole row a link with an arrow after it. With a text on any row, all rows have two lines,
 // so they are alike. `className`: the classes of where it is (the space of a block in the text).
 import List, { ListItem } from '@theme/ui/List';
-import type { ListDesign, ListRow } from '@morpheme/cms/src/standard/list/view';
+import type { ListDesign, ListRow } from '@morphemecms/cms/src/standard/list/view';
 
 export default function Rows({ items, design, className }: { items: ListRow[]; design: ListDesign; className?: string }) {
   const withText = items.some((r) => r.text);

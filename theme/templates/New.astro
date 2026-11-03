@@ -7,9 +7,9 @@ import Base from '@theme/layouts/Base.astro';
 import Icon from '@theme/components/Icon.astro';
 import Container from '@theme/components/Container.astro';
 import PageHeader from '@theme/components/PageHeader.astro';
-import { displayTitle, getPages, getPosts, pageHeading, postPath, stateOf } from '@morpheme/cms/site/content';
-import { isPreview, livePath, previewId } from '@morpheme/cms/site/noindex.mjs';
-import { siteT } from '@morpheme/cms/src/i18n';
+import { displayTitle, getPages, getPosts, pageHeading, postPath, stateOf } from '@morphemecms/cms/site/content';
+import { isPreview, livePath, previewId } from '@morphemecms/cms/site/noindex.mjs';
+import { siteT } from '@morphemecms/cms/src/i18n';
 
 const pages = await getPages();
 const byPath = new Map(pages.map((p) => [p.data.path, p]));

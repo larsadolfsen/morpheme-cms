@@ -3,9 +3,9 @@
 // computer, with the carousel's page indicator under them. With one testimonial it is just the card (Testimonial.tsx);
 // in the editor with none, a note. `label`: what it is called for screen readers; `short`: two lines each, with a link
 // to the whole text.
-import { siteT } from '@morpheme/cms/src/i18n';
-import type { TestimonialTexts, TestimonialView } from '@morpheme/cms/src/standard/testimonials/view';
-import { useOnSite } from '@morpheme/cms/src/standard/view';
+import { siteT } from '@morphemecms/cms/src/i18n';
+import type { TestimonialTexts, TestimonialView } from '@morphemecms/cms/src/standard/testimonials/view';
+import { useOnSite } from '@morphemecms/cms/src/standard/view';
 import Testimonial from '@theme/blocks/testimonials/Testimonial';
 import Carousel from '@theme/ui/Carousel';
 

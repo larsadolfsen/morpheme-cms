@@ -2,7 +2,7 @@
 // are, by their CSS variable in the theme (without "--"), the pairs that must be readable
 // (WCAG AA, checked before a save and before the build), and the colours a site has until it is given its own
 // ("Brug standardfarverne"), and the Material colour role each takes when they are made from one source
-// colour (dynamic colour, @morpheme/cms/lib/dynamic-colors.ts). The colours themselves are in
+// colour (dynamic colour, @morphemecms/cms/lib/dynamic-colors.ts). The colours themselves are in
 // src/data/colors.json (config.colors).
 import type { ColorPair, Colors } from '../lib/colors';
 import { dynamicColors, type ColorRoles } from '../lib/dynamic-colors';

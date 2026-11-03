@@ -1,7 +1,7 @@
 ---
 // A tag's page on the blog, drawn by the theme (src/themes/<theme>/templates/Category.astro).
 import Category from '@theme/templates/Category.astro';
-import { getCategories, getPosts } from '@morpheme/cms/site/content';
+import { getCategories, getPosts } from '@morphemecms/cms/site/content';
 
 export async function getStaticPaths() {
   const [categories, posts] = await Promise.all([getCategories(), getPosts()]);

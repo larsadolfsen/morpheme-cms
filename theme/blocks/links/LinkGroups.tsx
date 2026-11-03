@@ -3,9 +3,9 @@
 // each with an arrow. Two boxes side by side where there is room. `className`: the site's own classes on it.
 import Panel from '@theme/blocks/Panel';
 import List, { ListItem } from '@theme/ui/List';
-import { Svg } from '@morpheme/cms/src/icon';
-import type { LinkGroup } from '@morpheme/cms/src/standard/links/view';
-import { Link } from '@morpheme/cms/src/standard/view';
+import { Svg } from '@morphemecms/cms/src/icon';
+import type { LinkGroup } from '@morphemecms/cms/src/standard/links/view';
+import { Link } from '@morphemecms/cms/src/standard/view';
 
 export default function LinkGroups({ groups, className }: { groups: LinkGroup[]; className?: string }) {
   return (

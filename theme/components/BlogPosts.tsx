@@ -5,8 +5,8 @@ import Img from '@theme/components/Img';
 import PostList from '@theme/components/PostList';
 import PostMeta from '@theme/components/PostMeta';
 import type { PostView } from '@theme/components/posts';
-import { Link } from '@morpheme/cms/src/standard/view';
-import { siteT } from '@morpheme/cms/src/i18n';
+import { Link } from '@morphemecms/cms/src/standard/view';
+import { siteT } from '@morphemecms/cms/src/i18n';
 
 export default function BlogPosts({ posts }: { posts: PostView[] }) {
   const [featured, ...rest] = posts;

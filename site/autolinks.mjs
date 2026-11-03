@@ -14,7 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parse } from 'yaml';
 import { isPreview, livePath } from './noindex.mjs';
-import { stateOf } from '@morpheme/cms/lib/status.mjs';
+import { stateOf } from '@morphemecms/cms/lib/status.mjs';
 
 const FILE = path.resolve('src/data/internal-links.json');
 // The front page, the blog page and the 404 page ("Indstillinger" › "Udseende" › "Standardsider",

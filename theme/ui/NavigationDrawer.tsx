@@ -8,8 +8,8 @@
 // scrim is the dialog's. Links are Link (on the site; in the editor's previews only drawn), an item without `href` a
 // button (the editor's: a part of a form); other attributes (onClick, aria-…) go on them.
 import type { ReactNode } from 'react';
-import { Svg } from '@morpheme/cms/src/icon';
-import { Link } from '@morpheme/cms/src/standard/view';
+import { Svg } from '@morphemecms/cms/src/icon';
+import { Link } from '@morphemecms/cms/src/standard/view';
 
 /** The drawer's class, and its scrim's. */
 export const navigationDrawerClass = 'navigation-drawer';

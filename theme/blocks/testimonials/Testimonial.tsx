@@ -8,10 +8,10 @@
 // theme that shows it (the standard theme's and Material's avatars; a theme with a logo as its mark leaves it out).
 import { useLayoutEffect, useRef, useState } from 'react';
 import Card from '@theme/ui/Card';
-import { Svg } from '@morpheme/cms/src/icon';
-import { siteT } from '@morpheme/cms/src/i18n';
-import type { TestimonialTexts, TestimonialView } from '@morpheme/cms/src/standard/testimonials/view';
-import { Link, useOnSite } from '@morpheme/cms/src/standard/view';
+import { Svg } from '@morphemecms/cms/src/icon';
+import { siteT } from '@morphemecms/cms/src/i18n';
+import type { TestimonialTexts, TestimonialView } from '@morphemecms/cms/src/standard/testimonials/view';
+import { Link, useOnSite } from '@morphemecms/cms/src/standard/view';
 import Chip from '@theme/ui/Chip';
 
 export default function Testimonial({

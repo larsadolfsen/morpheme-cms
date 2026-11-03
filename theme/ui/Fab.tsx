@@ -10,8 +10,8 @@
 // and `className` after its own classes. An Astro component gives an element the same classes with fabClass and
 // extendedFabClass.
 import type { ReactNode } from 'react';
-import { Glyph, type IconRef } from '@morpheme/cms/src/icon';
-import { Link } from '@morpheme/cms/src/standard/view';
+import { Glyph, type IconRef } from '@morphemecms/cms/src/icon';
+import { Link } from '@morphemecms/cms/src/standard/view';
 
 export const fabKinds = ['primary', 'secondary', 'tertiary', 'primary-container', 'secondary-container', 'tertiary-container'] as const;
 export type FabKind = (typeof fabKinds)[number];

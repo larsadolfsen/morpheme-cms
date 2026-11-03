@@ -8,7 +8,7 @@
 // the end of a row that names it). Other attributes (`name`, `value`, data-…) go on the <input>, and `className` on the
 // label. An Astro component gives an element the same classes with switchClass.
 import type { ReactNode } from 'react';
-import { Svg } from '@morpheme/cms/src/icon';
+import { Svg } from '@morphemecms/cms/src/icon';
 
 export type SwitchIcons = 'both' | 'selected';
 

@@ -19,7 +19,7 @@ export const apps = {
   needsSends: 'Sends forms to other addresses',
   needsServer: 'Has its own part of the website’s server',
   needsBuild: 'Makes its own files when the website is built',
-  /** What it changes of what the site does itself, by its file in hooks/ (@morpheme/cms/lib/hooks.ts). */
+  /** What it changes of what the site does itself, by its file in hooks/ (@morphemecms/cms/lib/hooks.ts). */
   changes: { 'page-colors': 'Changes the pages’ colors' } as Record<AppHook, string>,
   /** In the check before the build: a file in an app's hooks/ that is no place an app may change the site. */
   unknownHook: (places: string) => `The file is no place an app can change the website: ${places}.`,

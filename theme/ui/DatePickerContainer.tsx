@@ -17,7 +17,7 @@ import Dialog from '@theme/ui/Dialog';
 import IconButton from '@theme/ui/IconButton';
 import Button from '@theme/ui/Button';
 import TextField from '@theme/ui/TextField';
-import { Svg } from '@morpheme/cms/src/icon';
+import { Svg } from '@morphemecms/cms/src/icon';
 import { dayHeadline, dayName, monthName, monthOfDay, weekdaysOf, weeksOf } from '@theme/ui/dates';
 
 export type DatePickerKind = 'docked' | 'modal';

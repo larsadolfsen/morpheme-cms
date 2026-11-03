@@ -5,7 +5,7 @@
 // transition) and its drag handle can be pulled down to close it (feedback), on a computer (from 48rem, a dialog in the
 // middle of the screen) it fades; with reduced motion it appears and disappears at once. Its close button, Escape and a
 // tap on the scrim (outside it) close it; the page under it does not scroll while it is open. It moves with the site's
-// motion scheme (motionSpring, @morpheme/cms/lib/motion.ts).
+// motion scheme (motionSpring, @morphemecms/cms/lib/motion.ts).
 // A standard one (kind 'standard', at the bottom of the screen without a scrim; bottomSheet.script.ts on every page,
 // or a block's or an app's script that wants its controls): standardBottomSheet(sheet) lets it be dragged by its handle
 // and its header between the states it rests in (collapsed, half-expanded where that is clearly between the others,
@@ -15,7 +15,7 @@
 // there. It gives its state() and set(state) to show it in another (also again after it is hidden). The height follows
 // with the site's motion scheme; with reduced motion it changes at once.
 import { animate } from 'motion';
-import { motionSpring } from '@morpheme/cms/lib/motion';
+import { motionSpring } from '@morphemecms/cms/lib/motion';
 import type { BottomSheetState } from '@theme/ui/BottomSheet';
 
 export type BottomSheetControls = { open: () => void; close: () => Promise<void> };

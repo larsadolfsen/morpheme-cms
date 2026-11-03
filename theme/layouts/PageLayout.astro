@@ -8,17 +8,17 @@
 import Base from '@theme/layouts/Base.astro';
 import Icon from '@theme/components/Icon.astro';
 import EndBlock from '@theme/components/EndBlock.astro';
-import { endBlock } from '@morpheme/cms/src/standard/views';
-import { getPages, pageHeading, pageHeadingHtml, parentPage, stateOf, withoutH1, type Page } from '@morpheme/cms/site/content';
-import { nav } from '@morpheme/cms/site/site';
-import { firstPicture, picturesOf } from '@morpheme/cms/site/images.mjs';
-import { splitBlocks } from '@morpheme/cms/lib/blocks.mjs';
-import { markdownHtml } from '@morpheme/cms/lib/inline';
+import { endBlock } from '@morphemecms/cms/src/standard/views';
+import { getPages, pageHeading, pageHeadingHtml, parentPage, stateOf, withoutH1, type Page } from '@morphemecms/cms/site/content';
+import { nav } from '@morphemecms/cms/site/site';
+import { firstPicture, picturesOf } from '@morphemecms/cms/site/images.mjs';
+import { splitBlocks } from '@morphemecms/cms/lib/blocks.mjs';
+import { markdownHtml } from '@morphemecms/cms/lib/inline';
 import Container from '@theme/components/Container.astro';
 import RichText from '@theme/components/RichText.astro';
 import Snackbar from '@theme/ui/Snackbar';
-import { isPreview, livePath, PREVIEW, previewId } from '@morpheme/cms/site/noindex.mjs';
-import { siteT } from '@morpheme/cms/src/i18n';
+import { isPreview, livePath, PREVIEW, previewId } from '@morphemecms/cms/site/noindex.mjs';
+import { siteT } from '@morphemecms/cms/src/i18n';
 
 interface Props {
   page: Page;

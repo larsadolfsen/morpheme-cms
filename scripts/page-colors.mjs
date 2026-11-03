@@ -6,7 +6,7 @@
 // packages/editor/site/pageColors.ts), without them for a page with the site's own. Without the new versions under /ny/ and the editor.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { isPreview } from '@morpheme/cms/site/noindex.mjs';
+import { isPreview } from '@morphemecms/cms/site/noindex.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const DIST = join(ROOT, process.argv[2] ?? 'dist');

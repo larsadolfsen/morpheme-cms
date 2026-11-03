@@ -1,7 +1,7 @@
 // What the editor edits on a site, and how: the one place the editor (packages/editor/, the package
-// @morpheme/cms) takes the site from, as `@site/editor`. This and the other files of defaults/ are a site's
+// @morphemecms/cms) takes the site from, as `@site/editor`. This and the other files of defaults/ are a site's
 // standard parts: a site has them unless its src/site/ has a file of the same name (siteFile in site/theme.mjs), which
-// may take the standard one from @morpheme/cms/defaults/<file> and add its own.
+// may take the standard one from @morphemecms/cms/defaults/<file> and add its own.
 //   collections   the parts of the site and their fields (collections.ts)
 //   groups, lists, header, icons   the start screen
 //   appearance    the site's own parts under "Udseende", after the logo and icon ("Standardsider")

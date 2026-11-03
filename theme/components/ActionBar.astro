@@ -13,11 +13,11 @@
 import Buttons from '@theme/blocks/buttons/Buttons';
 import List, { ListItem } from '@theme/ui/List';
 import { toolbarClass } from '@theme/ui/Toolbar';
-import { loadButtons } from '@morpheme/cms/src/standard/buttons/load';
-import type { Button } from '@morpheme/cms/src/standard/buttons/fields';
-import { popupsAt } from '@morpheme/cms/site/popups';
-import { site } from '@morpheme/cms/site/site';
-import { siteT } from '@morpheme/cms/src/i18n';
+import { loadButtons } from '@morphemecms/cms/src/standard/buttons/load';
+import type { Button } from '@morphemecms/cms/src/standard/buttons/fields';
+import { popupsAt } from '@morphemecms/cms/site/popups';
+import { site } from '@morphemecms/cms/site/site';
+import { siteT } from '@morphemecms/cms/src/i18n';
 
 const path = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
 // An item of the bar: a button, or a text (`type`; without one, a button).

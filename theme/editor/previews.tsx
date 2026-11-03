@@ -5,7 +5,7 @@
 // (Texts, contactOf, Text …). Links and buttons are only drawn
 // (Link, InEditor): the card around a preview is the button that opens the block's menu (MarkdownEditor.tsx).
 import { createContext, useContext, type ReactNode } from 'react';
-import type { BlockData, BlockProps, DrawBlock } from '@morpheme/cms/src/blocks';
+import type { BlockData, BlockProps, DrawBlock } from '@morphemecms/cms/src/blocks';
 import type { SiteData } from '@site/sitedata';
 
 export const cx = (...names: unknown[]) => names.filter(Boolean).join(' ');

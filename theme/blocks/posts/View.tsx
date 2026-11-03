@@ -6,9 +6,9 @@ import ArrowLink from '@theme/blocks/ArrowLink';
 import BlockHead from '@theme/blocks/BlockHead';
 import BlogPosts from '@theme/components/BlogPosts';
 import PostList from '@theme/components/PostList';
-import type { PostsView } from '@morpheme/cms/src/standard/posts/view';
-import { useInText } from '@morpheme/cms/src/standard/view';
-import { formatDate } from '@morpheme/cms/site/format';
+import type { PostsView } from '@morphemecms/cms/src/standard/posts/view';
+import { useInText } from '@morphemecms/cms/src/standard/view';
+import { formatDate } from '@morphemecms/cms/site/format';
 
 export default function Posts({ view }: { view: PostsView }) {
   const posts = view.posts.map((p) => ({ ...p, dateText: formatDate(new Date(p.date)) }));

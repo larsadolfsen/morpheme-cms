@@ -4,7 +4,7 @@
 import Img from '@theme/components/Img';
 import PostMeta from '@theme/components/PostMeta';
 import type { PostView } from '@theme/components/posts';
-import { Link, useOnSite } from '@morpheme/cms/src/standard/view';
+import { Link, useOnSite } from '@morphemecms/cms/src/standard/view';
 
 // Shows the number in data-random-posts of the posts in the list just before it, picked at random.
 const PICK = `(() => {

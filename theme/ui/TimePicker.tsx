@@ -12,7 +12,7 @@
 // here, and says the time picked (or '' for none). Its fixed texts (timePickerTexts) are the site's own, in
 // @site/texts, unless `texts` gives them (the editor's, in its language).
 import { useEffect, useRef, type ReactNode } from 'react';
-import { siteText, locale } from '@morpheme/cms/src/i18n';
+import { siteText, locale } from '@morphemecms/cms/src/i18n';
 import { timePickerField } from '@theme/ui/timePicker.script';
 import IconButton from '@theme/ui/IconButton';
 import TextField from '@theme/ui/TextField';

@@ -31,7 +31,7 @@ const site = join(dir, 'site');
 cpSync(join(pkgDir, 'starter'), site, { recursive: true });
 const file = join(site, 'package.json');
 const manifest = JSON.parse(readFileSync(file, 'utf8'));
-manifest.dependencies['@morpheme/cms'] = `file:../${tarball}`;
+manifest.dependencies['@morphemecms/cms'] = `file:../${tarball}`;
 writeFileSync(file, `${JSON.stringify(manifest, null, 2)}\n`);
 
 // A repository with one commit, as a new site's is (check:worker reads the files of HEAD).

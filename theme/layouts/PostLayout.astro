@@ -2,19 +2,19 @@
 // Blog post template. A narrow reading column, the site's owner as author; related posts in the footer.
 // data-editor marks what the editor's preview fills in with what is in its form ("Forhåndsvis",
 // packages/editor/src/pagePreview.tsx): the heading, the picture and the text.
-import { firstImage, heroImage, picturesOf } from '@morpheme/cms/site/images.mjs';
+import { firstImage, heroImage, picturesOf } from '@morphemecms/cms/site/images.mjs';
 import Base from '@theme/layouts/Base.astro';
 import Icon from '@theme/components/Icon.astro';
 import Img from '@theme/components/Img.astro';
 import EndBlock from '@theme/components/EndBlock.astro';
-import { categoryName, getPosts, postPath, stateOf, type Post } from '@morpheme/cms/site/content';
+import { categoryName, getPosts, postPath, stateOf, type Post } from '@morphemecms/cms/site/content';
 import PostMeta from '@theme/components/PostMeta';
 import Chip from '@theme/ui/Chip';
 import { postViewOf } from '@theme/components/loadPosts';
-import { site } from '@morpheme/cms/site/site';
-import { isBlogCategory } from '@morpheme/cms/site/categories';
-import { blogPosting } from '@morpheme/cms/site/schema';
-import { siteT } from '@morpheme/cms/src/i18n';
+import { site } from '@morphemecms/cms/site/site';
+import { isBlogCategory } from '@morphemecms/cms/site/categories';
+import { blogPosting } from '@morphemecms/cms/site/schema';
+import { siteT } from '@morphemecms/cms/src/i18n';
 
 interface Props {
   post: Post;

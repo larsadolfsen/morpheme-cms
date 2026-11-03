@@ -1,6 +1,6 @@
 import rss from '@astrojs/rss';
-import { getPosts } from '@morpheme/cms/site/content';
-import { site } from '@morpheme/cms/site/site';
+import { getPosts } from '@morphemecms/cms/site/content';
+import { site } from '@morphemecms/cms/site/site';
 
 export async function GET(context) {
   const posts = await getPosts();

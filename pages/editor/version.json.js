@@ -5,7 +5,7 @@
 // fingerprint of the editor's code (packages/editor/site/editor-version.mjs): an open editor with another one
 // reloads itself.
 import { execSync } from 'node:child_process';
-import { editorVersion } from '@morpheme/cms/site/editor-version.mjs';
+import { editorVersion } from '@morphemecms/cms/site/editor-version.mjs';
 
 function head() {
   try {

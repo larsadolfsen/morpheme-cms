@@ -4,7 +4,7 @@ An editor for websites built with [Astro](https://astro.build) and run on [Cloud
 site's owner edits pages, posts, pictures and settings in the browser at `/editor/`, and every save is one commit on
 GitHub. MIT licensed, see [LICENSE](LICENSE).
 
-`@morpheme/cms` is the editor, the site's pages and its Astro setup (`siteConfig()` in `astro.mjs`), the
+`@morphemecms/cms` is the editor, the site's pages and its Astro setup (`siteConfig()` in `astro.mjs`), the
 standard theme *Material* (`theme/`, id `saturn`), the site's Worker (`worker/`) and the `morpheme` command (`bin/`). A site
 gives it its settings (`src/site/`, over the standard ones in `defaults/`), its content (`src/content/`, `src/data/`), its themes (`src/themes/`) and its
 apps (`src/apps/`).
@@ -36,12 +36,12 @@ Hele vejledningen står i `docs/editor.md` i sitets repo. Her er kun det, et sit
 ## Det, sitet skal have
 
 - **`src/site/`**, som pakken tager som `@site`, og kun derfra; en fil, sitet ikke har, er pakkens i `defaults/`:
-  - `config.ts` og `worker.js` skal sitet selv have (`config.ts` med `defineSite` fra `@morpheme/cms/site/defineSite.mjs`: kun det, der er sitets eget); resten kan det have for at give mere end standarden (som standardens fra `@morpheme/cms/defaults/<fil>` med sit eget lagt til).
+  - `config.ts` og `worker.js` skal sitet selv have (`config.ts` med `defineSite` fra `@morphemecms/cms/site/defineSite.mjs`: kun det, der er sitets eget); resten kan det have for at give mere end standarden (som standardens fra `@morphemecms/cms/defaults/<fil>` med sit eget lagt til).
   - `@site/editor`: `collections`, `groups`, `lists`, `icons`, `siteName`, `companyParts`, `blockParts`, `relationsOf`, `usedBy`, `usesOf`, `countsOf`, `whatIsAt`, `testimonialsOf`, `siteOf`, `fixedPages`, `everyFixedPage`, `Texts`, `sectionLooks`, `headingLooks` og `config`, og typerne `Props` og `SiteData`.
   - `@site/config`: sitets navn, domæne, GitHub-repo og mapper.
   - `@site/worker` (til Workeren): `apps`, `contact`, `moved`, `standard`, `oldAddresses` (sitets videresendelser fra gamle adresser, `{ ids, paths }`) og appenes del af Workeren (`appWorkers`, `appTexts`).
-- **`@site`** for `src/site/`, ellers `defaults/`: i Vite (`siteFile` i `themePlugin`, `site/theme.mjs`, brugt af `astro.mjs` og `scripts/check-content.mjs`, der indlæser reglerne med Vite) og i TypeScript (`paths` i `tsconfig.json`: `"@site/*": ["./src/site/*", "./node_modules/@morpheme/cms/defaults/*"]`); til Workeren `@site/config` og `@site/worker` i `alias` i `wrangler.jsonc`, med `main` sat til pakkens `worker/index.js`.
-- **Sitets egne blokke** i appenes `blocks/<type>/` (`src/apps/<app>/blocks/<type>/`), hver med `index.tsx` (`defineBlock` fra `@morpheme/cms/src/blocks`), `view.ts` og `load.ts` (det, blokken viser, i editoren og på sitet) og `View.tsx` (tegningen, begge steder). Pakken finder dem selv.
+- **`@site`** for `src/site/`, ellers `defaults/`: i Vite (`siteFile` i `themePlugin`, `site/theme.mjs`, brugt af `astro.mjs` og `scripts/check-content.mjs`, der indlæser reglerne med Vite) og i TypeScript (`paths` i `tsconfig.json`: `"@site/*": ["./src/site/*", "./node_modules/@morphemecms/cms/defaults/*"]`); til Workeren `@site/config` og `@site/worker` i `alias` i `wrangler.jsonc`, med `main` sat til pakkens `worker/index.js`.
+- **Sitets egne blokke** i appenes `blocks/<type>/` (`src/apps/<app>/blocks/<type>/`), hver med `index.tsx` (`defineBlock` fra `@morphemecms/cms/src/blocks`), `view.ts` og `load.ts` (det, blokken viser, i editoren og på sitet) og `View.tsx` (tegningen, begge steder). Pakken finder dem selv.
 - **Et standardtema**, som alle sitets temaer bygger på, med standardblokkenes udseende (`blocks/<type>/View.tsx`, én tegning til sitet og editoren), som pakken selv finder (dette site: `packages/editor/theme/`, `packages/editor/src/standard/siteLooks.ts` og `packages/editor/src/standard/themeBlocks.ts`).
 - **Siderne** er pakkens (`pages/`, sat ind af `siteConfig()` i `astro.mjs`): sitets sider, bloggen, 404, `/ny/` og editoren (siden, der viser `src/App.tsx`, manifestet, `version.json` og billederne, sitets egen kode bruger). Sitets `astro.config.mjs` er kun `export default await siteConfig()`, og `src/content.config.ts` henter samlingerne fra `site/content.config`.
 - **Standardblokkenes stil:** `blocks.css` i standardtemaet (dette site: `packages/editor/theme/styles/blocks.css`), importeret i hvert temas CSS, og variablerne `--block-*` sat til temaets farver og former.

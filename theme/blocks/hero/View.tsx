@@ -6,8 +6,8 @@
 // the text under them, with a quote written in it. Until the buttons scroll into view, a bar at the bottom of a phone's
 // screen may show them (data-hero-cta, Base.astro).
 import Buttons from '@theme/blocks/buttons/Buttons';
-import type { HeroView } from '@morpheme/cms/src/standard/hero/view';
-import { useInText } from '@morpheme/cms/src/standard/view';
+import type { HeroView } from '@morphemecms/cms/src/standard/hero/view';
+import { useInText } from '@morphemecms/cms/src/standard/view';
 
 export default function Hero({ view }: { view: HeroView }) {
   const { image } = view;

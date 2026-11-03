@@ -8,7 +8,7 @@
 // written, and moves through them with the arrow keys (Enter follows the one it is on). In the editor only drawn:
 // `open` draws the view (as docked) with `query` in the field instead of the bar. How it looks is the theme's.
 import { useId, type ReactNode } from 'react';
-import { Svg } from '@morpheme/cms/src/icon';
+import { Svg } from '@morphemecms/cms/src/icon';
 import IconButton from '@theme/ui/IconButton';
 import List, { ListItem } from '@theme/ui/List';
 

@@ -4,7 +4,7 @@
 // <body> (a banner, a dialog). Base.astro has the two places and nothing else about apps. An app that is
 // not installed puts nothing there.
 import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
-import { installed } from '@morpheme/cms/site/apps';
+import { installed } from '@morphemecms/cms/site/apps';
 
 type Props = { name: 'head' | 'body-end' };
 const { name } = Astro.props;

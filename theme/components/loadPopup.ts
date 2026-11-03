@@ -1,8 +1,8 @@
 // A pop-up's box on the site (PopupView.tsx): its picture with the sizes the site has made of it, and its button
 // (PopupButton.tsx) with the site's targets and pages.
-import { loadButtons } from '@morpheme/cms/src/standard/buttons/load';
-import { pictureOf } from '@morpheme/cms/src/standard/load';
-import type { Popup } from '@morpheme/cms/site/popups';
+import { loadButtons } from '@morphemecms/cms/src/standard/buttons/load';
+import { pictureOf } from '@morphemecms/cms/src/standard/load';
+import type { Popup } from '@morphemecms/cms/site/popups';
 import type { PopupBoxView } from '@theme/components/PopupView';
 import type { PopupButtonView } from '@theme/components/PopupButton';
 

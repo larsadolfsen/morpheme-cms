@@ -14,7 +14,7 @@ I vores økosystem indgår to helt adskilte repositories, som **aldrig** må for
    - Ansvarlig for pakke-distribution og licenser.
    - Indeholder **ingen** CMS-logik, Astro-koder eller tema-implementeringer.
 
-2. **`morpheme-cms` (Dette repository – Selve CMS-produktet `@morpheme/cms`):**
+2. **`morpheme-cms` (Dette repository – Selve CMS-produktet `@morphemecms/cms`):**
    - Selve Astro-editoren, CMS-kernen og det officielle standardtema.
    - Indeholder editoren (`src/`, `pages/`), fælles biblioteker (`lib/`), sitets Cloudflare Worker (`worker/`), standardtemaet (`theme/`), starteren (`starter/`) og demoen (`demo/`).
    - Udgives på npmjs.com som en offentlig pakke: en release på GitHub med tagget `v<version>` (`.github/workflows/publish.yml`).

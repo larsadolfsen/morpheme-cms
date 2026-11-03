@@ -4,7 +4,7 @@
 // /ny/ and the editor. A keyword without links is not in it.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { isPreview } from '@morpheme/cms/site/noindex.mjs';
+import { isPreview } from '@morphemecms/cms/site/noindex.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const DIST = join(ROOT, process.argv[2] ?? 'dist');

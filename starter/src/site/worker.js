@@ -1,4 +1,4 @@
-// What the site's Worker (@morpheme/cms/worker/) has from this site, as `@site/worker` (the alias in wrangler.jsonc).
+// What the site's Worker (@morphemecms/cms/worker/) has from this site, as `@site/worker` (the alias in wrangler.jsonc).
 // JavaScript, not TypeScript, because it imports worker/apps.js, which the build writes.
 import oldAddresses from '../data/old-addresses.json';
 import apps from '../data/apps.json';

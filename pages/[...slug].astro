@@ -5,8 +5,8 @@
 import { render } from 'astro:content';
 import PageLayout from '@theme/layouts/PageLayout.astro';
 import PostLayout from '@theme/layouts/PostLayout.astro';
-import { getPages, getPosts, type Page, type Post } from '@morpheme/cms/site/content';
-import { standardPaths } from '@morpheme/cms/site/standardPages';
+import { getPages, getPosts, type Page, type Post } from '@morphemecms/cms/site/content';
+import { standardPaths } from '@morphemecms/cms/site/standardPages';
 
 export async function getStaticPaths() {
   const [posts, pages] = await Promise.all([getPosts({ unlisted: true }), getPages()]);
