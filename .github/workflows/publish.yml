@@ -1,30 +1,104 @@
-# Publishes the package to npm when a release is made on GitHub with the tag v<version> (the version in package.json),
-# with npm's trusted publishing: no key, and npm shows where each version was built (provenance). The only GitHub
-# Actions the CMS has: this repository is public, where they are free.
+# On each push to main: Changesets keeps the "Release @morphemecms/cms" pull request open, and when that pull request
+# has been merged, the new version is staged on npm for latest; once the owner has approved it on npmjs.com (2FA), it
+# gets the tag v<version> and a GitHub release. While changesets are pending, a test version (X.Y.Z-next-<time>) is
+# staged for next, and once approved, morpheme-staging is rebuilt. npm's trusted publishing trusts this one file and
+# lets it only stage (npm stage publish): no key, and nothing reaches npm without the owner's approval.
 name: Publish
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
   id-token: write
 
 jobs:
-  publish:
+  release:
     runs-on: ubuntu-latest
+    # One at a time; the jobs that wait for an approval do not hold it.
+    concurrency: release
+    outputs:
+      pending: ${{ steps.changesets.outputs.hasChangesets }}
+      staged: ${{ steps.stage.outputs.version }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-      # Trusted publishing needs npm 11.5.1 or newer.
-      - run: npm install -g npm@11
-      - name: The release's tag is the package's version
-        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
-      # The types of the .mjs modules are written from their JSDoc when it is packed (prepack), with the packages it
-      # is built on as devDependencies.
+      # npm stage publish needs npm 11.15.0 or newer.
+      - run: npm install -g npm@^11.15.0
+      # The types of the .mjs modules are written from their JSDoc when it is packed (prepack).
       - run: npm ci --no-audit --no-fund
-      - run: npm publish --access public
+      - id: changesets
+        uses: changesets/action@v1
+        with:
+          title: Release @morphemecms/cms
+          commit: Release @morphemecms/cms
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # No changesets pending: the Release PR was merged (or nothing changed). Stage its version unless npm has it.
+      - id: stage
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: |
+          v=$(node -p "require('./package.json').version")
+          if npm view "@morphemecms/cms@$v" version >/dev/null 2>&1; then exit 0; fi
+          npm stage publish --tag latest
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+  latest:
+    needs: release
+    if: needs.release.outputs.staged != ''
+    runs-on: ubuntu-latest
+    # Waits for the owner's approval: up to six hours, then re-run this job.
+    timeout-minutes: 360
+    env:
+      V: ${{ needs.release.outputs.staged }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait until the owner has approved it on npmjs.com
+        run: until npm view "@morphemecms/cms@$V" version >/dev/null 2>&1; do sleep 60; done
+      - name: Tag it and make the GitHub release with its section of CHANGELOG.md
+        run: |
+          git tag "v$V"
+          git push origin "v$V"
+          notes=$(node -e "const s=require('fs').readFileSync('CHANGELOG.md','utf8').split(/^## /m).find(x=>x.split(/\r?\n/)[0].trim()===process.env.V)||'';console.log(s.split(/\r?\n/).slice(1).join('\n').trim())")
+          gh release create "v$V" --title "v$V" --notes "$notes"
+
+  next:
+    needs: release
+    if: needs.release.outputs.pending == 'true'
+    runs-on: ubuntu-latest
+    # Waits for the owner's approval: up to six hours, then re-run this job.
+    timeout-minutes: 360
+    # At job level, so the steps' "if" can see whether it is set.
+    env:
+      STAGING_DEPLOY_HOOK: ${{ secrets.STAGING_DEPLOY_HOOK }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm install -g npm@^11.15.0
+      - run: npm ci --no-audit --no-fund
+      # Only in this checkout: nothing is committed.
+      - run: npx changeset version --snapshot next
+      # Only empty changesets pending: the version is unchanged, and there is nothing to stage.
+      - id: stage
+        run: |
+          v=$(node -p "require('./package.json').version")
+          if [ "$v" = "$(git show HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")" ]; then exit 0; fi
+          npm stage publish --tag next
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+      - name: Wait until the owner has approved it on npmjs.com
+        if: steps.stage.outputs.version != ''
+        run: until npm view "@morphemecms/cms@$V" version >/dev/null 2>&1; do sleep 60; done
+        env:
+          V: ${{ steps.stage.outputs.version }}
+      - name: Rebuild morpheme-staging with it
+        if: steps.stage.outputs.version != '' && env.STAGING_DEPLOY_HOOK != ''
+        run: curl -fsS -X POST "$STAGING_DEPLOY_HOOK" > /dev/null
