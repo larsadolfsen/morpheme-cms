@@ -1,20 +1,24 @@
 # Development flow and releases Implementation Plan
 
+> **Status: in progress** since 3 November 2026, run by the session *Website npm package integration*.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or
 > superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Merging a pull request and releasing a version of `@morphemecms/cms` become two steps: each merge to `main`
-publishes a test version under npm's `next` tag for a staging site, and a Changesets Release PR, merged when the owner
-says go, publishes `latest`.
+stages a test version for npm's `next` tag for a staging site, and a Changesets Release PR, merged when the owner
+says go, stages `latest`; each is on npm once the owner approves it with 2FA.
 
 **Architecture:** Changesets records each pull request's bump and release note in `.changeset/`. `check.yml` runs the
 checks and requires a changeset on every pull request. `publish.yml` runs on each push to `main`: `changesets/action`
-keeps the Release PR open (or publishes `latest` when it has been merged), and a second job publishes a snapshot to
-`next` and calls the staging site's Cloudflare Deploy Hook. `morpheme-staging` is a site like any other that installs
+keeps the Release PR open (or stages `latest` when it has been merged), and a second job stages a snapshot for
+`next`; each staged version is on npm only once the owner approves it with 2FA (Task 4), and then the staging site's
+Cloudflare Deploy Hook is called. `morpheme-staging` is a site like any other that installs
 `@morphemecms/cms@next` in each build.
 
 **Tech Stack:** GitHub Actions (free: the repository is public), `@changesets/cli`, `@changesets/changelog-git`,
-`changesets/action@v1`, npm trusted publishing (npm 11.5.1+), Cloudflare Workers Builds and Deploy Hooks.
+`changesets/action@v1`, npm trusted publishing with staged publishing (`npm stage publish`, npm 11.15.0+), Cloudflare
+Workers Builds and Deploy Hooks.
 
 **Spec:** `docs/superpowers/specs/2026-11-03-development-flow-and-releases-design.md`
 
@@ -23,13 +27,14 @@ keeps the Release PR open (or publishes `latest` when it has been merged), and a
 - Tasks are numbered `release-flow/<n>`, append-only.
 - Repository: `larsadolfsen/morpheme-cms`; package `@morphemecms/cms`; npm tags `next` (tests) and `latest` (sites).
 - No npm key anywhere: publishing uses trusted publishing only; npm trusts **one** workflow file, `publish.yml`, so
-  both publishing jobs live in it.
+  both publishing jobs live in it. That trust allows only `npm stage publish`: every version waits for the owner's
+  2FA approval on npmjs.com, which no agent ever gives.
 - The only secret is `STAGING_DEPLOY_HOOK` (Actions secret in `morpheme-cms`). Never put its value in a file, a commit,
   a prompt to the local model, or the chat: the owner sets it with `gh secret set`.
 - Snapshot versions: `X.Y.Z-next-<datetime>` (`"prereleaseTemplate": "{tag}-{datetime}"`, `useCalculatedVersion`).
 - Changeset bumps follow *Appbutikken* in `morpheme-website`'s `CLAUDE.md`: major only when something a site has stops
   working as before. Release notes in English, for a site's owner.
-- Node 24 and `npm install -g npm@11` in every publishing job, as in today's `publish.yml`.
+- Node 24 and `npm install -g npm@^11.15.0` in every publishing job (`npm stage` needs 11.15.0).
 - Every source file starts with a 2–3 line header comment (YAML files: `#` comments), as the existing workflows do.
 - Repository settings, Cloudflare dashboard steps, npm settings and secrets are the **owner's** steps or need his yes
   first (Interstellar `CLAUDE.md`: confirm before outward-facing changes). Each such step says so.
@@ -42,7 +47,9 @@ keeps the Release PR open (or publishes `latest` when it has been merged), and a
 - **P1.** `@morphemecms/cms@0.1.0` is on npm, published once by hand (step 1 of `docs/repositories.md` in
   `morpheme-website`), and on npmjs.com *Settings › Trusted publishing* names `larsadolfsen/morpheme-cms` and
   workflow `publish.yml`. Blocks Task 4 and Task 5's first build. Check: `npm view @morphemecms/cms version` prints
-  `0.1.0`. **0.1.0 is on npm (3 November 2026, 18:55 UTC); trusted publishing still to be turned on.**
+  `0.1.0`. **0.1.0 is on npm (3 November 2026, 18:55 UTC); trusted publishing is set (3 November 2026), with the
+  permission *npm stage publish* only and *Pending validation* until the first staged version, due before
+  5 November 2026, 19:09 UTC (Task 4, Step 5).**
 
 ## File structure
 
@@ -104,8 +111,9 @@ Every pull request into `main` has one file here, made with `npx changeset`: whe
 something a site has stops working as before) and one line of release note, in English, for a site's owner. A pull
 request that changes nothing a site gets (docs, CI, tests only) adds `npx changeset --empty`.
 
-Each merge publishes a test version under npm's `next` tag for `morpheme-staging`; the *Release* pull request, merged
-when the owner says go, turns the files here into `CHANGELOG.md` and publishes `latest`
+Each merge stages a test version for npm's `next` tag for `morpheme-staging`; the *Release* pull request, merged
+when the owner says go, turns the files here into `CHANGELOG.md` and stages `latest`. A staged version is on npm once
+the owner approves it with 2FA
 (`docs/superpowers/specs/2026-11-03-development-flow-and-releases-design.md`).
 ```
 
@@ -252,10 +260,17 @@ No commit (settings only). Record in the PR of Task 4 that this is done.
 
 ---
 
-### Task release-flow/4: Publish next on each merge, latest from the Release PR
+### Task release-flow/4: Stage next on each merge, latest from the Release PR
+
+**Decided 3 November 2026:** npm's trusted publisher for `publish.yml` allows only `npm stage publish` (the owner
+chose stage-only). So the workflow never publishes: it stages a version, and the owner approves it with 2FA on
+npmjs.com (*Staged Packages*) or with `npm stage approve <stage-id>`. Only then is it on npm. Nobody but the owner
+approves; an agent never does. Unapproved `next` versions can be rejected there (`npm stage reject <stage-id>`).
 
 **Blocked by:** P1 (0.1.0 on npm, trusted publishing set to `publish.yml`), Task 1 merged.
 `STAGING_DEPLOY_HOOK` is set in Task 5; until then the deploy-hook step is skipped (its `if`).
+**Deadline:** npm validates the trusted publisher with the first staged version; it must come before
+**5 November 2026, 19:09 UTC** (Step 5), or the owner sets it up again.
 
 **Files:**
 - Modify (rewrite): `.github/workflows/publish.yml`
@@ -263,42 +278,23 @@ No commit (settings only). Record in the PR of Task 4 that this is done.
 
 **Interfaces:**
 - Consumes: Changesets (Task 1). Secret `STAGING_DEPLOY_HOOK` (Task 5), optional.
-- Produces: npm tags `next` and `latest`; branch `changeset-release/main` with the PR *Release @morphemecms/cms*; tags
-  `vX.Y.Z` and GitHub releases.
+- Produces: staged versions for npm's tags `next` and `latest` (published when the owner approves them); branch
+  `changeset-release/main` with the PR *Release @morphemecms/cms*; tags `vX.Y.Z` and GitHub releases, made once
+  `latest` is approved.
 
-- [ ] **Step 1: Confirm `changesets/action@v1` publishes with trusted publishing**
-
-Read the action's README/changelog (`gh api repos/changesets/action/releases --jq '.[0:5][] | .tag_name + " " + .body'`)
-for OIDC / trusted publishing support without `NPM_TOKEN`.
-If supported: use Step 2 as written. If not: in Step 2, remove `publish:` from the action and add after it the step
+- [ ] **Step 1: Rewrite `.github/workflows/publish.yml`**
 
 ```yaml
-      - name: The Release PR was merged, so publish latest
-        if: steps.changesets.outputs.hasChangesets == 'false'
-        run: |
-          npx changeset publish
-          git push --follow-tags
-          v=$(node -p "require('./package.json').version")
-          gh release view "v$v" >/dev/null 2>&1 || gh release create "v$v" --title "v$v" \
-            --notes "$(node -e "const c=require('fs').readFileSync('CHANGELOG.md','utf8').split(/^## /m)[1]||'';console.log(c.split('\n').slice(1).join('\n').trim())")"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
-
-- [ ] **Step 2: Rewrite `.github/workflows/publish.yml`**
-
-```yaml
-# On each push to main: Changesets keeps the "Release @morphemecms/cms" pull request open, and when that pull request has
-# been merged, publishes the new version to npm's latest tag, with the tag v<version> and a GitHub release. While
-# changesets are pending, a test version (X.Y.Z-next-<time>) goes to npm's next tag and morpheme-staging is rebuilt.
-# npm's trusted publishing trusts this one file: no key, and npm shows where each version was built.
+# On each push to main: Changesets keeps the "Release @morphemecms/cms" pull request open, and when that pull request
+# has been merged, the new version is staged on npm for latest; once the owner has approved it on npmjs.com (2FA), it
+# gets the tag v<version> and a GitHub release. While changesets are pending, a test version (X.Y.Z-next-<time>) is
+# staged for next, and once approved, morpheme-staging is rebuilt. npm's trusted publishing trusts this one file and
+# lets it only stage (npm stage publish): no key, and nothing reaches npm without the owner's approval.
 name: Publish
 
 on:
   push:
     branches: [main]
-
-concurrency: publish
 
 permissions:
   contents: write
@@ -308,16 +304,19 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # One at a time; the jobs that wait for an approval do not hold it.
+    concurrency: release
     outputs:
       pending: ${{ steps.changesets.outputs.hasChangesets }}
+      staged: ${{ steps.stage.outputs.version }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-      # Trusted publishing needs npm 11.5.1 or newer.
-      - run: npm install -g npm@11
+      # npm stage publish needs npm 11.15.0 or newer.
+      - run: npm install -g npm@^11.15.0
       # The types of the .mjs modules are written from their JSDoc when it is packed (prepack).
       - run: npm ci --no-audit --no-fund
       - id: changesets
@@ -325,25 +324,61 @@ jobs:
         with:
           title: Release @morphemecms/cms
           commit: Release @morphemecms/cms
-          publish: npx changeset publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # No changesets pending: the Release PR was merged (or nothing changed). Stage its version unless npm has it.
+      - id: stage
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: |
+          v=$(node -p "require('./package.json').version")
+          if npm view "@morphemecms/cms@$v" version >/dev/null 2>&1; then exit 0; fi
+          npm stage publish --tag latest
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+  latest:
+    needs: release
+    if: needs.release.outputs.staged != ''
+    runs-on: ubuntu-latest
+    # Waits for the owner's approval: up to six hours, then re-run this job.
+    timeout-minutes: 360
+    env:
+      V: ${{ needs.release.outputs.staged }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait until the owner has approved it on npmjs.com
+        run: until npm view "@morphemecms/cms@$V" version >/dev/null 2>&1; do sleep 60; done
+      - name: Tag it and make the GitHub release with its section of CHANGELOG.md
+        run: |
+          git tag "v$V"
+          git push origin "v$V"
+          notes=$(node -e "const s=require('fs').readFileSync('CHANGELOG.md','utf8').split(/^## /m).find(x=>x.split(/\r?\n/)[0].trim()===process.env.V)||'';console.log(s.split(/\r?\n/).slice(1).join('\n').trim())")
+          gh release create "v$V" --title "v$V" --notes "$notes"
 
   next:
     needs: release
     if: needs.release.outputs.pending == 'true'
     runs-on: ubuntu-latest
+    # Waits for the owner's approval: up to six hours, then re-run this job.
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-      - run: npm install -g npm@11
+      - run: npm install -g npm@^11.15.0
       - run: npm ci --no-audit --no-fund
       # Only in this checkout: nothing is committed.
       - run: npx changeset version --snapshot next
-      - run: npx changeset publish --tag next --no-git-tag
+      - id: stage
+        run: |
+          npm stage publish --tag next
+          echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Wait until the owner has approved it on npmjs.com
+        run: until npm view "@morphemecms/cms@$V" version >/dev/null 2>&1; do sleep 60; done
+        env:
+          V: ${{ steps.stage.outputs.version }}
       - name: Rebuild morpheme-staging with it
         if: env.STAGING_DEPLOY_HOOK != ''
         run: curl -fsS -X POST "$STAGING_DEPLOY_HOOK" > /dev/null
@@ -351,33 +386,40 @@ jobs:
           STAGING_DEPLOY_HOOK: ${{ secrets.STAGING_DEPLOY_HOOK }}
 ```
 
-- [ ] **Step 3: Update `AGENTS.md`** section 1, replace the line
+- [ ] **Step 2: Update `AGENTS.md`** section 1, replace the line
 `- Udgives på npmjs.com som en offentlig pakke: en release på GitHub med tagget \`v<version>\` (\`.github/workflows/publish.yml\`).`
 with
 
 ```markdown
-   - Udgives på npmjs.com som en offentlig pakke (`.github/workflows/publish.yml`): hver merge til `main` udgiver en
-     testversion under npm-tagget `next` til `morpheme-staging`; pull requesten *Release @morphemecms/cms*, som
-     Changesets holder åben, flettes, når ejeren siger til, og udgiver `latest`. Flet den aldrig uden ejerens ja.
+   - Udgives på npmjs.com som en offentlig pakke (`.github/workflows/publish.yml`): hver merge til `main` lægger en
+     testversion klar under npm-tagget `next` til `morpheme-staging`; pull requesten *Release @morphemecms/cms*, som
+     Changesets holder åben, flettes, når ejeren siger til, og lægger `latest` klar. En version er først på npm, når
+     ejeren har godkendt den på npmjs.com med 2FA (*staged publishing*); en agent godkender aldrig. Flet aldrig
+     Release-PR'en uden ejerens ja.
 ```
 
-- [ ] **Step 4: Commit, PR, merge with the owner's yes** (the PR carries an empty changeset)
+- [ ] **Step 3: Commit, PR, merge** (the PR carries an empty changeset)
 
 ```bash
 git add .github/workflows/publish.yml AGENTS.md .changeset
-git commit -m "Publish next on each merge and latest from the Release PR"
+git commit -m "Stage next on each merge and latest from the Release PR"
 ```
 
-- [ ] **Step 5: Verify after the merge**
+- [ ] **Step 4: Verify after the merge**
 
 Run: `gh run list -R larsadolfsen/morpheme-cms -w Publish -L 1`
-Expected: success, and nothing published (only an empty changeset was pending, which bumps nothing; `next` is
-skipped or publishes nothing, since npm has 0.1.0).
-Then, with the owner's yes, merge a PR with a `patch` changeset. Expected: `npm view @morphemecms/cms dist-tags`
-shows `next: 0.1.1-next-<time>`, and a PR *Release @morphemecms/cms* is open (`gh pr list -H changeset-release/main`)
-that raises the version to 0.1.1 and adds its section to `CHANGELOG.md`. Merging the Release PR (`gh pr merge --admin --merge`) and its `latest` publish is the
-owner's first real release: do it only when he says go; then expect `dist-tags.latest` 0.1.1, tag `v0.1.1`
-(`gh release view v0.1.1`), and no new `next`.
+Expected: success, nothing staged (only an empty changeset was pending, which bumps nothing; npm has 0.1.0).
+
+- [ ] **Step 5: The first staged version, before the deadline**
+
+With the owner's yes, merge a PR with a `patch` changeset. Expected: the `next` job stages `0.1.1-next-<time>` and
+waits; `npm stage list @morphemecms/cms` (the owner's) shows it, and npmjs.com's *Trusted Publisher* no longer says
+*Pending validation*. The owner approves it (2FA). Expected: the job goes on, `npm view @morphemecms/cms dist-tags`
+shows `next: 0.1.1-next-<time>` (if the approval did not set the tag, record it here and add
+`npm dist-tag add` to the plan), and a PR *Release @morphemecms/cms* is open (`gh pr list -H changeset-release/main`)
+that raises the version to 0.1.1 and adds its section to `CHANGELOG.md`. Merging the Release PR is the owner's first
+real release (`/release`, Task 7): then the `release` job stages 0.1.1 for `latest`, the owner approves it, and the
+`latest` job tags `v0.1.1` and makes its GitHub release.
 
 ---
 
@@ -408,8 +450,8 @@ In `morpheme-cms`: `npm run build`. Then copy `.morpheme/demo/site/` to
 - `wrangler.jsonc`: `"name": "morpheme-staging"`, and
 
 ```jsonc
-  // Each build takes the newest test version of the CMS (npm's next tag, published by morpheme-cms on each merge to
-  // main), without a commit; a version that fails the checks is not deployed.
+  // Each build takes the newest test version of the CMS (npm's next tag, staged by morpheme-cms on each merge to
+  // main and approved by the owner), without a commit; a version that fails the checks is not deployed.
   "build": {
     "command": "npm install @morphemecms/cms@next --no-save && npm run check && npm run build",
   },
@@ -447,8 +489,8 @@ cd C:/Users/adolf/Documents/Interstellar/morpheme-cms && gh secret set STAGING_D
 
 - [ ] **Step 7: Verify end to end**
 
-Merge any PR in `morpheme-cms` with the owner's yes. Expected: `publish.yml`'s *Rebuild morpheme-staging with it*
-step runs; Cloudflare's build list for `morpheme-staging` shows a build *Triggered by* `morpheme-cms next`
+Merge any PR with a non-empty changeset in `morpheme-cms` with the owner's yes, and the owner approves the staged
+`next` version. Expected: `publish.yml`'s *Rebuild morpheme-staging with it* step runs after the approval; Cloudflare's build list for `morpheme-staging` shows a build *Triggered by* `morpheme-cms next`
 (Cloudflare connector, read-only); its log shows the new `next` version; the owner logs in at the staging site's
 `/editor/`, edits a page and saves, and the save is a commit in `morpheme-staging`.
 
@@ -543,19 +585,31 @@ gh pr merge <n> -R larsadolfsen/morpheme-cms --admin --merge
 
 (`--admin`: the Release PR is opened by Actions' token, so its check never runs; `main` lets admins bypass it.)
 
-## Phase 4 - Verify
+## Phase 4 - The owner approves on npm
 
 ```
 gh run list -R larsadolfsen/morpheme-cms -w Publish -L 1 --json databaseId,headSha,status
+```
+
+The run must be on the merge commit (`headSha`). When its `release` job has staged X.Y.Z (its *stage* step
+succeeded), tell the owner, in the question box: "X.Y.Z is staged. Approve it with 2FA on npmjs.com (the package's
+*Staged Packages* tab) or with `npm stage approve <stage-id>` (`npm stage list @morphemecms/cms` shows the id)."
+Options: "Approved", "Reject it". Never approve or reject it yourself: npm requires the owner's 2FA, and the approval
+is the release. "Reject it": the owner rejects it on npmjs.com; stop and report that nothing was released.
+
+## Phase 5 - Verify
+
+```
 gh run watch <id> -R larsadolfsen/morpheme-cms --exit-status
 npm view @morphemecms/cms dist-tags.latest
 gh release view vX.Y.Z -R larsadolfsen/morpheme-cms --json tagName,url
 ```
 
-The run must be on the merge commit (`headSha`), succeed, `latest` must print X.Y.Z (npm can lag a minute: check up to
-three times, a minute apart, with a Monitor until-loop), and the release must exist. Anything else: stop and report.
+The run's `latest` job (it waits for the approval) must succeed, `latest` must print X.Y.Z (npm can lag a minute:
+check up to three times, a minute apart, with a Monitor until-loop), and the release must exist. Anything else: stop
+and report.
 
-## Phase 5 - Report
+## Phase 6 - Report
 
 Version, the release notes, and the links: `https://www.npmjs.com/package/@morphemecms/cms/v/X.Y.Z` and the GitHub
 release's URL. Sites get it at their editor's next update check.
