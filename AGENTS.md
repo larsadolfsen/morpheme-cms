@@ -17,7 +17,11 @@ I vores økosystem indgår to helt adskilte repositories, som **aldrig** må for
 2. **`morpheme-cms` (Dette repository – Selve CMS-produktet `@morphemecms/cms`):**
    - Selve Astro-editoren, CMS-kernen og det officielle standardtema.
    - Indeholder editoren (`src/`, `pages/`), fælles biblioteker (`lib/`), sitets Cloudflare Worker (`worker/`), standardtemaet (`theme/`), starteren (`starter/`) og demoen (`demo/`).
-   - Udgives på npmjs.com som en offentlig pakke: en release på GitHub med tagget `v<version>` (`.github/workflows/publish.yml`).
+   - Udgives på npmjs.com som en offentlig pakke (`.github/workflows/publish.yml`): hver merge til `main` lægger en
+     testversion klar under npm-tagget `next` til `morpheme-staging`; pull requesten *Release @morphemecms/cms*, som
+     Changesets holder åben, flettes, når ejeren siger til, og lægger `latest` klar. En version er først på npm, når
+     ejeren har godkendt den på npmjs.com med 2FA (*staged publishing*); en agent godkender aldrig. Flet aldrig
+     Release-PR'en uden ejerens ja.
    - Indtil videre er `packages/editor/` i `larsadolfsen/morpheme-website` kilden, og dette repo får den samme mappe, som den er (se `docs/repositories.md` dér).
 
 > [!IMPORTANT]
