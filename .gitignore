@@ -1,3 +1,6 @@
 node_modules/
 # Written when the package is packed (prepack, scripts/types.mjs).
 *.d.mts
+# The demo, built by npm run build (scripts/demo-build.mjs), and wrangler's own files.
+.morpheme/
+.wrangler/
