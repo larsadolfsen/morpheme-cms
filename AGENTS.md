@@ -49,32 +49,38 @@ I vores økosystem indgår to helt adskilte repositories, som **aldrig** må for
 
 ## 3. Roller og Samarbejdsfordeling
 
-Al udvikling i dette repo følger en todelt agent-model:
+Al udvikling i dette repo styres af én orkestrator, der uddelegerer:
 
 ```mermaid
 flowchart LR
-    A["Senior Architect<br/>(AI / Antigravity)"] -->|"1. Design snitflader & krav"| D["Developer<br/>(Lokal Ollama: qwen2.5-coder:14b)"]
-    D -->|"2. Rå kode & boilerplate"| A
+    A["Orkestrator<br/>(Claude i skyen)"] -->|"1. Snitflader, krav & delopgaver"| S["Claude-subagenter"]
+    A -->|"1. Tungt kodearbejde"| D["Developer<br/>(Lokal Ollama via ollama launch claude)"]
+    S -->|"2. Resultater"| A
+    D -->|"2. Kode"| A
     A -->|"3. Gennemgang, test & integration"| R["interstellar-cms codebase"]
 ```
 
-### 1. Senior Architect (AI / Antigravity)
-- **Ansvar:** Systemarkitektur, snitfladedesign, modulkontrakter, sikkerhed, kvalitetssikring, overblik og nedbrydning af opgaver.
+### 1. Orkestrator (Claude i skyen)
+- **Ansvar:** Systemarkitektur, snitfladedesign, modulkontrakter, sikkerhed, kvalitetssikring, overblik, nedbrydning og uddelegering af opgaver.
 - **Opgaver:**
   - Fastlægger API'er, komponent-props og types.
-  - Specificerer opgaver klart til Developer.
+  - Specificerer opgaver klart til subagenterne og Developer.
   - Validerer al modtaget kode mod projektets standarder, WCAG AA, A11y og MD3-regler.
   - Integrerer og committer færdigtestede ændringer.
 
-### 2. Developer (Lokal Ollama, fx `qwen2.5-coder:14b` / `llama3.2`)
-- **Ansvar:** Hurtig og tung kodegenerering, boilerplate-kodning, funktionelle delimplementationer og rå komponentudkast.
-- **Kommunikation:** Kontaktes via Ollama CLI eller lokal API (`http://127.0.0.1:11434`).
-- **Instruks:** Skal altid modtage veldefinerede krav og snitflader fra arkitekten før udførelse.
+### 2. Claude-subagenter
+- **Ansvar:** Afgrænsede eller parallelle opgaver fra orkestratoren (søgning, gennemgang, mindre ændringer).
+
+### 3. Developer (Lokal Ollama)
+- **Ansvar:** Tung kodegenerering, boilerplate-kodning, funktionelle delimplementationer og rå komponentudkast.
+- **Model:** Startes med `ollama launch claude` (Claude Code med en lokal model); helst `qwen3.8:27b`, `gemma4:12b` med mindre hukommelse.
+- **Kommunikation:** Nås fra skyen kun, når pc'en er forbundet med Remote Control (Claude Desktop eller `claude remote-control` i mappen); ellers laver orkestratoren arbejdet selv eller med subagenter.
+- **Instruks:** Skal altid modtage veldefinerede krav og snitflader fra orkestratoren før udførelse.
 
 ### Samarbejdsflow
-1. **Arkitekten** designer snitflader, definerer datamodeller og bryder opgaven ned i konkrete trin.
-2. **Developer (Ollama)** genererer kodeblokke, rå templates eller boilerplate.
-3. **Arkitekten** gennemgår, tester (`check:md3` / `playground`), retter eventuelle fejl og integrerer koden.
+1. **Orkestratoren** designer snitflader, definerer datamodeller og bryder opgaven ned i konkrete trin.
+2. **Subagenterne og Developer (Ollama)** udfører delopgaverne og genererer kode.
+3. **Orkestratoren** gennemgår, tester (`check:md3` / `playground`), retter eventuelle fejl og integrerer koden.
 
 ---
 
