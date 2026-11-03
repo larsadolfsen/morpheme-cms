@@ -76,12 +76,12 @@ flowchart LR
 - **Instruks:** Skal altid modtage veldefinerede krav og snitflader fra orkestratoren, som gennemgår koden og kører tjekkene, før den committes.
 
 ### 4. Claude i skyen (claude.ai/code)
-- **Hvornår:** Når pc'en er slukket, eller til en opgave, der skal køre for sig i en ren container. Den når ikke Ollama og laver arbejdet selv eller med subagenter.
+- **Hvornår:** Når pc'en er slukket, eller til en opgave, der skal køre for sig i en ren container. Den når ikke Ollama og lader subagenter skrive koden.
 
 ### Samarbejdsflow
 1. **Orkestratoren** designer snitflader, definerer datamodeller og bryder opgaven ned i konkrete trin.
 2. **Subagenterne og Developer (Ollama)** udfører delopgaverne og genererer kode.
-3. **Orkestratoren** gennemgår, tester (se nedenfor), retter eventuelle fejl og integrerer koden.
+3. **Orkestratoren** gennemgår, tester (se nedenfor), sender fejl tilbage til den, der skrev koden, og integrerer den.
 
 ---
 
