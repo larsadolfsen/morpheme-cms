@@ -78,12 +78,12 @@ Workers Builds and Deploy Hooks.
 - Produces: `npx changeset`, `npx changeset status --since=origin/main` (Task 2), `npx changeset version
   [--snapshot next]` and `npx changeset publish [--tag next --no-git-tag]` (Task 4); `CHANGELOG.md` in the package.
 
-- [ ] **Step 1: Install the tools**
+- [x] **Step 1: Install the tools**
 
 Run: `npm install --save-dev @changesets/cli @changesets/changelog-git`
 Expected: both in `devDependencies`, `package-lock.json` updated.
 
-- [ ] **Step 2: Write `.changeset/config.json`**
+- [x] **Step 2: Write `.changeset/config.json`**
 
 ```json
 {
@@ -101,7 +101,7 @@ Expected: both in `devDependencies`, `package-lock.json` updated.
 }
 ```
 
-- [ ] **Step 3: Write `.changeset/README.md`**
+- [x] **Step 3: Write `.changeset/README.md`**
 
 ```markdown
 # Changesets
@@ -117,7 +117,7 @@ the owner approves it with 2FA
 (`docs/superpowers/specs/2026-11-03-development-flow-and-releases-design.md`).
 ```
 
-- [ ] **Step 4: Write `CHANGELOG.md`**
+- [x] **Step 4: Write `CHANGELOG.md`**
 
 ```markdown
 # @morphemecms/cms
@@ -125,7 +125,7 @@ the owner approves it with 2FA
 
 (Changesets adds each version below this heading.)
 
-- [ ] **Step 5: Add `CHANGELOG.md` to `files` in `package.json`**, right after `"LICENSE"`:
+- [x] **Step 5: Add `CHANGELOG.md` to `files` in `package.json`**, right after `"LICENSE"`:
 
 ```json
   "files": [
@@ -134,14 +134,14 @@ the owner approves it with 2FA
     "README.md",
 ```
 
-- [ ] **Step 6: Add to `AGENTS.md`**, under *Samarbejdsflow*, after item 3:
+- [x] **Step 6: Add to `AGENTS.md`**, under *Samarbejdsflow*, after item 3:
 
 ```markdown
 4. **Hver pull request har en changeset** (`npx changeset`, eller `npx changeset --empty`, når intet, et site får,
    ændres): patch, minor eller major og én linjes release note på engelsk. Se `.changeset/README.md`.
 ```
 
-- [ ] **Step 7: Verify**
+- [x] **Step 7: Verify**
 
 Run: `npx changeset status`
 Expected: exit 0, "NO packages to be bumped".
@@ -152,7 +152,7 @@ Expected: `CHANGELOG.md` listed; nothing from `.changeset/`.
 Run: `npm run build`
 Expected: the demo builds as before.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add .changeset package.json package-lock.json CHANGELOG.md AGENTS.md
@@ -171,7 +171,7 @@ git commit -m "Record each change's version and release note with Changesets"
 - Consumes: `npx changeset status --since=origin/main` (Task 1).
 - Produces: the status check named `check` (Task 3 requires it).
 
-- [ ] **Step 1: Write `.github/workflows/check.yml`**
+- [x] **Step 1: Write `.github/workflows/check.yml`**
 
 ```yaml
 # The CMS's checks on each pull request into main, and that it has a changeset (.changeset/README.md), so main can
@@ -204,7 +204,7 @@ jobs:
       - run: npm run build
 ```
 
-- [ ] **Step 2: Verify on a real pull request**
+- [x] **Step 2: Verify on a real pull request**
 
 Push the branch, open the PR (`gh pr create`), and run: `gh pr checks --watch`
 Expected: `check` passes (this PR carries an empty changeset, Task 1 Step 7 pattern: add one with
@@ -213,7 +213,7 @@ Then push a temporary commit that deletes the changeset and run `gh pr checks --
 Expected: `check` fails at *The pull request has a changeset*. Revert that commit (`git revert HEAD`), push, green
 again.
 
-- [ ] **Step 3: Commit** (before Step 2's push)
+- [x] **Step 3: Commit** (before Step 2's push)
 
 ```bash
 git add .github/workflows/check.yml .changeset
@@ -229,12 +229,12 @@ git commit -m "Run the checks on every pull request into main"
 **Interfaces:**
 - Consumes: the `check` status check (Task 2, merged).
 
-- [ ] **Step 1: Delete branches on merge**
+- [x] **Step 1: Delete branches on merge**
 
 Run: `gh api -X PATCH repos/larsadolfsen/morpheme-cms -f delete_branch_on_merge=true --jq .delete_branch_on_merge`
 Expected: `true`
 
-- [ ] **Step 2: Require `check` on `main`, admins may bypass** (the Release PR's check never runs, spec section 1)
+- [x] **Step 2: Require `check` on `main`, admins may bypass** (the Release PR's check never runs, spec section 1)
 
 ```bash
 gh api -X PUT repos/larsadolfsen/morpheme-cms/branches/main/protection --input - <<'EOF'
@@ -251,7 +251,7 @@ EOF
 
 Expected: JSON with `"contexts": ["check"]` and `"enforce_admins": {"enabled": false, ...}`.
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run: `gh api repos/larsadolfsen/morpheme-cms/branches/main/protection --jq '.required_status_checks.contexts'`
 Expected: `["check"]`. A PR with a red `check` shows *Merging is blocked* in `gh pr view <n>`.
@@ -269,6 +269,11 @@ approves; an agent never does. Unapproved `next` versions can be rejected there 
 
 **Blocked by:** P1 (0.1.0 on npm, trusted publishing set to `publish.yml`), Task 1 merged.
 `STAGING_DEPLOY_HOOK` is set in Task 5; until then the deploy-hook step is skipped (its `if`).
+**Owner's yes first:** the repository setting *Settings › Actions › General › Workflow permissions › Allow GitHub
+Actions to create and approve pull requests* must be on, or `changesets/action` fails when it opens the Release PR
+(`gh api -X PUT repos/larsadolfsen/morpheme-cms/actions/permissions/workflow -f default_workflow_permissions=read
+-F can_approve_pull_request_reviews=true`). Turned on with the owner's yes on 3 November 2026, after the first
+Publish run failed on it.
 **Deadline:** npm validates the trusted publisher with the first staged version; it must come before
 **5 November 2026, 19:09 UTC** (Step 5), or the owner sets it up again.
 
@@ -282,7 +287,7 @@ approves; an agent never does. Unapproved `next` versions can be rejected there 
   `changeset-release/main` with the PR *Release @morphemecms/cms*; tags `vX.Y.Z` and GitHub releases, made once
   `latest` is approved.
 
-- [ ] **Step 1: Rewrite `.github/workflows/publish.yml`**
+- [x] **Step 1: Rewrite `.github/workflows/publish.yml`**
 
 ```yaml
 # On each push to main: Changesets keeps the "Release @morphemecms/cms" pull request open, and when that pull request
@@ -386,7 +391,7 @@ jobs:
           STAGING_DEPLOY_HOOK: ${{ secrets.STAGING_DEPLOY_HOOK }}
 ```
 
-- [ ] **Step 2: Update `AGENTS.md`** section 1, replace the line
+- [x] **Step 2: Update `AGENTS.md`** section 1, replace the line
 `- Udgives på npmjs.com som en offentlig pakke: en release på GitHub med tagget \`v<version>\` (\`.github/workflows/publish.yml\`).`
 with
 
@@ -398,28 +403,30 @@ with
      Release-PR'en uden ejerens ja.
 ```
 
-- [ ] **Step 3: Commit, PR, merge** (the PR carries an empty changeset)
+- [x] **Step 3: Commit, PR, merge** (the PR carries an empty changeset)
 
 ```bash
 git add .github/workflows/publish.yml AGENTS.md .changeset
 git commit -m "Stage next on each merge and latest from the Release PR"
 ```
 
-- [ ] **Step 4: Verify after the merge**
+- [x] **Step 4: Verify after the merge**
 
 Run: `gh run list -R larsadolfsen/morpheme-cms -w Publish -L 1`
 Expected: success, nothing staged (only an empty changeset was pending, which bumps nothing; npm has 0.1.0).
 
-- [ ] **Step 5: The first staged version, before the deadline**
+- [x] **Step 5: The first staged version, before the deadline**
 
 With the owner's yes, merge a PR with a `patch` changeset. Expected: the `next` job stages `0.1.1-next-<time>` and
 waits; `npm stage list @morphemecms/cms` (the owner's) shows it, and npmjs.com's *Trusted Publisher* no longer says
 *Pending validation*. The owner approves it (2FA). Expected: the job goes on, `npm view @morphemecms/cms dist-tags`
-shows `next: 0.1.1-next-<time>` (if the approval did not set the tag, record it here and add
-`npm dist-tag add` to the plan), and a PR *Release @morphemecms/cms* is open (`gh pr list -H changeset-release/main`)
+shows `next: 0.1.1-next-<time>`, and a PR *Release @morphemecms/cms* is open (`gh pr list -H changeset-release/main`)
 that raises the version to 0.1.1 and adds its section to `CHANGELOG.md`. Merging the Release PR is the owner's first
 real release (`/release`, Task 7): then the `release` job stages 0.1.1 for `latest`, the owner approves it, and the
 `latest` job tags `v0.1.1` and makes its GitHub release.
+
+**Done 3 November 2026:** #17 staged `0.1.1-next-20261103223426`; the owner approved it, and the approval set the
+`next` tag itself (`npm view @morphemecms/cms dist-tags`), so no `npm dist-tag add` is needed. The Release PR is #19.
 
 ---
 
@@ -437,13 +444,13 @@ real release (`/release`, Task 7): then the `release` job stages 0.1.1 for `late
 - Consumes: `@morphemecms/cms@next` on npm (Task 4).
 - Produces: the Worker `morpheme-staging`, and its Deploy Hook URL, stored as `STAGING_DEPLOY_HOOK` (Task 4's step).
 
-- [ ] **Step 1: Make the folder from the demo**
+- [x] **Step 1: Make the folder from the demo**
 
 In `morpheme-cms`: `npm run build`. Then copy `.morpheme/demo/site/` to
 `C:\Users\adolf\Documents\Interstellar\morpheme-staging`, without `node_modules/`, `dist/` and `.morpheme/`
 (`robocopy .morpheme\demo\site ..\morpheme-staging /E /XD node_modules dist .morpheme .astro`). `git init -b main` there.
 
-- [ ] **Step 2: Point it at `next` and at itself**
+- [x] **Step 2: Point it at `next` and at itself**
 
 - `package.json`: `"name": "morpheme-staging"`, and `"@morphemecms/cms": "next"` in `dependencies`.
 - `src/site/config.ts`: `repo: { owner: 'larsadolfsen', name: 'morpheme-staging', branch: 'main' },`
@@ -460,12 +467,12 @@ In `morpheme-cms`: `npm run build`. Then copy `.morpheme/demo/site/` to
 - `README.md`, at the top: `The CMS's staging site: @morphemecms/cms@next, rebuilt by morpheme-cms's publish.yml
   after each merge to main. For trying the next version before it is released; not a customer's site.`
 
-- [ ] **Step 3: Verify locally**
+- [x] **Step 3: Verify locally**
 
 Run: `npm install && npm install @morphemecms/cms@next --no-save && npm run check && npm run build`
 Expected: green; `node -p "require('@morphemecms/cms/package.json').version"` prints the `next` version.
 
-- [ ] **Step 4: Commit and create the repository** (owner's yes: a new repository on GitHub)
+- [x] **Step 4: Commit and create the repository** (owner's yes: a new repository on GitHub)
 
 ```bash
 git add -A   # a new repository: review `git status` first; no .env, no .dev.vars
@@ -539,7 +546,7 @@ git commit -m "Describe the CMS's next and latest releases in platform.md"
 - Consumes: branch `changeset-release/main` and its PR (Task 4), npm tags `next`/`latest`, Worker `morpheme-staging`
   (Task 5).
 
-- [ ] **Step 1: Write `.claude/skills/release/SKILL.md`**
+- [x] **Step 1: Write `.claude/skills/release/SKILL.md`**
 
 ````markdown
 ---
@@ -615,7 +622,7 @@ Version, the release notes, and the links: `https://www.npmjs.com/package/@morph
 release's URL. Sites get it at their editor's next update check.
 ````
 
-- [ ] **Step 2: Make the folder committable**
+- [x] **Step 2: Make the folder committable**
 
 Add to `.gitignore`:
 
@@ -629,7 +636,7 @@ Then (owner's checkout, local only): in `.git/info/exclude` replace `.claude/` w
 Run: `git check-ignore -v .claude/skills/release/SKILL.md`
 Expected: no output (not ignored). Run: `git check-ignore -v .claude/worktrees/x` - Expected: `.gitignore:...`.
 
-- [ ] **Step 3: Point AGENTS.md at it**
+- [x] **Step 3: Point AGENTS.md at it**
 
 In Task 4's line in section 1, replace `og udgiver \`latest\`. Flet den aldrig uden ejerens ja.` with
 `og udgiver \`latest\`: ejeren skriver \`/release\` (\`.claude/skills/release/SKILL.md\`). Flet den aldrig uden ejerens ja.`
@@ -641,7 +648,7 @@ it stops with "Nothing to release". With one open (after Task 4 Step 5), it show
 answer "Not now" and check that nothing changed (`gh pr view <n> --json state` still `OPEN`). The first real
 "Release" is the owner's call.
 
-- [ ] **Step 5: Commit** (with an empty changeset: nothing a site gets)
+- [x] **Step 5: Commit** (with an empty changeset: nothing a site gets)
 
 ```bash
 git add .claude/skills/release/SKILL.md .gitignore AGENTS.md .changeset
