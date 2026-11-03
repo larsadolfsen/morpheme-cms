@@ -3,9 +3,9 @@ title: "Colors everyone can read"
 date: 2026-10-09
 description: "Pick one color and the editor builds a full palette for light and dark mode, then checks that every word stays readable."
 categories: ["design"]
-image: "/images/uploads/2026/10/fluid-gradient.jpg"
-imageAlt: "Vibrant fluid gradient color art from Unsplash"
-seoTitle: "Colors everyone can read | Interstellar"
+image: "/images/uploads/2026/10/editor-colors.webp"
+imageAlt: "The color settings in the Morpheme editor"
+seoTitle: "Colors everyone can read | Morpheme"
 ---
 
 Under Appearance › Colors you set your site’s colors. Choose each one yourself, or pick a single color and let the editor do the rest.

@@ -6,7 +6,7 @@
 // <li>). `className` after its own classes (the block's: its layout and what is on it); the rest (aria-…, id, data-…)
 // on it. An Astro component without React gives an element the same classes with cardClass.
 import type { HTMLAttributes, ReactNode } from 'react';
-import { Link } from '@interstellarcms/cms/src/standard/view';
+import { Link } from '@morpheme/cms/src/standard/view';
 
 export const cardKinds = ['elevated', 'filled', 'outlined'] as const;
 export type CardKind = (typeof cardKinds)[number];

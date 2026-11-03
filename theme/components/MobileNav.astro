@@ -5,8 +5,8 @@
 // label in its own colour) and scrolled into view: the theme's tabs (ui/Tabs.tsx, .tab in styles/ui.css). Not there when
 // it is turned off or has no links.
 import { tabsClass, tabClass } from '@theme/ui/Tabs';
-import { mobileNav } from '@interstellarcms/cms/site/site';
-import { siteT } from '@interstellarcms/cms/src/i18n';
+import { mobileNav } from '@morpheme/cms/site/site';
+import { siteT } from '@morpheme/cms/src/i18n';
 
 const current = Astro.url.pathname;
 const isActive = (href: string) => current === href || (href !== '/' && current.startsWith(href));

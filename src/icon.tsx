@@ -6,16 +6,16 @@
 // theme's parts' (Icon.astro, MobileMenu.tsx …) and those to pick from (iconNames, and `icons` in collections.ts,
 // shown as icons by fields.tsx). A name that is not among them is drawn as MISSING, the question mark, marked with
 // data-icon-missing (its name), which check:screens finds on the built site's pages and the editor's screens.
-import { cloneElement, isValidElement, useEffect, useState, type ComponentType, type ReactElement } from 'react';
+import { cloneElement, isValidElement, useEffect, useState, type ReactElement } from 'react';
 import { svgParts } from '../lib/svg.mjs';
 
-const PHOSPHOR = '../node_modules/@phosphor-icons/core/assets/';
+const PHOSPHOR = '/node_modules/@phosphor-icons/core/assets/';
 const regular = import.meta.glob<string>(
-  '../node_modules/@phosphor-icons/core/assets/regular/{arrow-left,arrow-right,arrow-square-out,arrow-up-right,bank,bicycle,book-open,book-open-text,bus,calendar-blank,car,caret-down,caret-left,caret-right,certificate,chats,check,clock,coffee,cookie,copy,device-mobile,door-open,download-simple,envelope-simple,eye,eye-slash,flower-lotus,graduation-cap,hand-heart,handshake,heart,house,info,keyboard,leaf,lifebuoy,lightbulb,list,magnifying-glass,map-pin,map-trifold,medal,minus,moon,pencil-simple,phone,question,sun,ticket,train,trash,user,users,users-three,video-camera,warning-circle,wheelchair,x}.svg',
+  '/node_modules/@phosphor-icons/core/assets/regular/{arrow-left,arrow-right,arrow-square-out,arrow-up-right,bank,bicycle,book-open,book-open-text,bus,calendar-blank,car,caret-down,caret-left,caret-right,certificate,chats,check,clock,coffee,cookie,copy,device-mobile,door-open,download-simple,envelope-simple,eye,eye-slash,flower-lotus,graduation-cap,hand-heart,handshake,heart,house,info,keyboard,leaf,lifebuoy,lightbulb,list,magnifying-glass,map-pin,map-trifold,medal,minus,moon,pencil-simple,phone,question,sun,ticket,train,trash,user,users,users-three,video-camera,warning-circle,wheelchair,x}.svg',
   { query: '?raw', import: 'default', eager: true },
 );
 // The filled ones ("Video": its play button).
-const fills = import.meta.glob<string>('../node_modules/@phosphor-icons/core/assets/fill/{play-fill}.svg', {
+const fills = import.meta.glob<string>('/node_modules/@phosphor-icons/core/assets/fill/{play-fill}.svg', {
   query: '?raw',
   import: 'default',
   eager: true,
@@ -108,21 +108,15 @@ function Drawn({
 }
 
 /** An icon as the theme's UI parts take it (packages/editor/theme/ui/): its name, as the site gives it, or an icon already
- * made, as the editor gives it (a React icon from @phosphor-icons/react, the theme's in its place: <Plus />, or an icon component: Plus). */
-export type IconRef = string | ReactElement<{ size?: number; className?: string }> | ComponentType<{ size?: number; className?: string }>;
+ * made, as the editor gives it (a React icon from @phosphor-icons/react, the theme's in its place: <Plus />). */
+export type IconRef = string | ReactElement<{ size?: number; className?: string }>;
 
-/** An IconRef drawn: a name as Svg draws it, an icon component invoked, or an icon element cloned with this size and class. */
+/** An IconRef drawn: a name as Svg draws it, an icon made with this size and class. */
 export function Glyph({ icon, size = 20, className }: { icon: IconRef; size?: number; className?: string }) {
-  if (!icon) return null;
   if (typeof icon === 'string') return <Svg name={icon} size={size} className={className} />;
-  if (isValidElement(icon)) {
-    return cloneElement(icon, { size, className: [icon.props.className, className].filter(Boolean).join(' ') || undefined });
-  }
-  if (typeof icon === 'function' || (typeof icon === 'object' && icon !== null && ('render' in icon || '$$typeof' in icon))) {
-    const Component = icon as ComponentType<{ size?: number; className?: string }>;
-    return <Component size={size} className={className} />;
-  }
-  return null;
+  return isValidElement(icon)
+    ? cloneElement(icon, { size, className: [icon.props.className, className].filter(Boolean).join(' ') || undefined })
+    : null;
 }
 
 /** The same as Svg (the editor's fields and the site's promotions draw their icons with it). */

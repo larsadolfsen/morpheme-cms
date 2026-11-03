@@ -12,7 +12,7 @@ import { asWritten, placeOf, standardPageAt } from './site';
 import { ConflictError, type Change, type RepoFile } from './github';
 import { addressOf, moveRedirects, REDIRECTS, retarget } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES, setRedirect } from './redirects';
-import { TAB_ROUTES } from './Redirects.tsx';
+import { TAB_ROUTES } from './Redirects';
 import { choose } from './ask';
 import { readFields, splitFrontmatter, writeFields } from './frontmatter.mjs';
 import MarkdownEditor, { type MarkdownHandle } from './MarkdownEditor';

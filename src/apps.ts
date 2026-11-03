@@ -20,7 +20,7 @@
 //   slots/head.astro, slots/body-end.astro  what it puts on every page of the site, in <head> or at the
 //                 end of <body> (AppSlot.astro), while it is installed;
 //   hooks/<place>.ts  how it changes something the site does itself, run by the site's build while it is installed
-//                 (@interstellarcms/cms/lib/hooks.ts: hooks/page-colors.ts, the colours of a page);
+//                 (@morpheme/cms/lib/hooks.ts: hooks/page-colors.ts, the colours of a page);
 //   page in index.ts  what it shows on its page under its settings (AppPage), drawn with the editor's parts (ui.tsx),
 //                 asking its own addresses in the Worker (`api`);
 //   screens in index.ts  screens of its own under its page (#apps/<app>/<screen>, AppScreenPage), drawn as its page,
@@ -175,20 +175,6 @@ export type AppDefinition = {
   /** Tabs it adds to the site's lists while it is installed, by the list's id, each at #liste/<list>/<app>. */
   tabs?: Record<string, AppTab>;
   notifications?: AppNotifications;
-  /** A media provider (photo stock, AI generator, media library) plugged into the media picker and image blocks */
-  mediaProvider?: AppMediaProvider;
-};
-
-/** A media provider an app contributes to the media picker and image block (e.g. Unsplash, Pexels, AI Generator) */
-export type AppMediaProvider = {
-  id: string;
-  label: string;
-  icon?: Icon;
-  Picker: ComponentType<{
-    onPick: (src: string, attribution?: { text: string; markdown?: string; html?: string }) => void;
-    uploads?: any;
-    notify?: (status: { text: string; error?: boolean } | null) => void;
-  }>;
 };
 export const defineApp = (app: AppDefinition) => app;
 

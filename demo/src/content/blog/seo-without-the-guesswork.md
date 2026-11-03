@@ -4,8 +4,8 @@ date: 2026-09-25
 description: "An SEO score on every page, automatic internal links and redirects that never pile up."
 categories: ["seo"]
 image: "/images/uploads/2026/10/editor-seo.webp"
-imageAlt: "The search engine settings in the Interstellar editor"
-seoTitle: "SEO without the guesswork | Interstellar"
+imageAlt: "The search engine settings in the Morpheme editor"
+seoTitle: "SEO without the guesswork | Morpheme"
 ---
 
 A great page is only great if people can find it. The editor helps while you write.

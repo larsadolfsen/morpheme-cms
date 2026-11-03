@@ -4,8 +4,8 @@ date: 2026-10-02
 description: "Schedule a post for the moment it matters, and your site publishes it on its own."
 categories: ["editing"]
 image: "/images/uploads/2026/10/editor-blog.webp"
-imageAlt: "The list of blog posts in the Interstellar editor"
-seoTitle: "Write now, publish later | Interstellar"
+imageAlt: "The list of blog posts in the Morpheme editor"
+seoTitle: "Write now, publish later | Morpheme"
 ---
 
 Every post and page has a status at the top of the editor.

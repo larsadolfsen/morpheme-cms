@@ -1,7 +1,7 @@
 // A picture with the sizes the site made of it (pictureOf, packages/editor/site/images.mjs), so the browser downloads one that fits
 // the screen; in the editor the picture itself. `sizes` is the width it is shown in; a picture fetched first
 // (`fetchPriority` 'high') is not lazy.
-import type { Picture } from '@interstellarcms/cms/src/standard/view';
+import type { Picture } from '@morpheme/cms/src/standard/view';
 
 export default function Img({
   image,

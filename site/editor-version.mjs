@@ -13,21 +13,14 @@ import { fileURLToPath } from 'node:url';
 const DIRS = [fileURLToPath(new URL('..', import.meta.url)), 'src/themes', 'src/apps', 'src/site'];
 
 export function editorVersion() {
-  try {
-    const hash = createHash('sha256');
-    for (const dir of DIRS.filter((d) => existsSync(d)))
-      for (const entry of readdirSync(dir, { recursive: true, withFileTypes: true })
-        .filter((e) => e.isFile() && !relative(dir, e.parentPath || '').split(sep).includes('node_modules'))
-        .map((e) => join(e.parentPath || '', e.name))
-        .sort())
-        hash.update(entry).update(readFileSync(entry));
-    if (existsSync('src/data/theme.json')) hash.update(readFileSync('src/data/theme.json'));
-    else if (existsSync('playground/src/data/theme.json')) hash.update(readFileSync('playground/src/data/theme.json'));
-    else hash.update('theme:material');
-    if (existsSync('src/data/icons.json')) hash.update(readFileSync('src/data/icons.json'));
-    else if (existsSync('playground/src/data/icons.json')) hash.update(readFileSync('playground/src/data/icons.json'));
-    return hash.digest('hex').slice(0, 12);
-  } catch {
-    return 'dev';
-  }
+  const hash = createHash('sha256');
+  for (const dir of DIRS.filter((d) => existsSync(d)))
+    for (const entry of readdirSync(dir, { recursive: true, withFileTypes: true })
+      .filter((e) => e.isFile() && !relative(dir, e.parentPath).split(sep).includes('node_modules'))
+      .map((e) => join(e.parentPath, e.name))
+      .sort())
+      hash.update(entry).update(readFileSync(entry));
+  hash.update(readFileSync('src/data/theme.json'));
+  if (existsSync('src/data/icons.json')) hash.update(readFileSync('src/data/icons.json'));
+  return hash.digest('hex').slice(0, 12);
 }

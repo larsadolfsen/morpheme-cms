@@ -8,10 +8,10 @@
     // As the CMS resolves them when it builds the site (site/theme.mjs): the site's own part, else the CMS's standard
     // one; the theme in use (here the standard theme, Material), else the standard theme.
     "paths": {
-      "@site/*": ["./src/site/*", "./node_modules/@interstellarcms/cms/defaults/*"],
+      "@site/*": ["./src/site/*", "./node_modules/@morpheme/cms/defaults/*"],
       "@data/*": ["./src/data/*"],
-      "@theme/*": ["./node_modules/@interstellarcms/cms/theme/*"],
-      "@saturn/*": ["./node_modules/@interstellarcms/cms/theme/*"]
+      "@theme/*": ["./node_modules/@morpheme/cms/theme/*"],
+      "@saturn/*": ["./node_modules/@morpheme/cms/theme/*"]
     }
   }
 }

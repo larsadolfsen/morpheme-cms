@@ -170,7 +170,7 @@ export default function Screen<T extends string>({
           </div>
         )}
       </TopAppBar>
-      <main role="main" className={`editor-screen mx-auto px-4 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] md:px-6 md:pt-8 ${width}`}>
+      <main className={`editor-screen mx-auto px-4 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] md:px-6 md:pt-8 ${width}`}>
         {tabs ? (
           <TabPanel id={id} value={tabs.value}>
             {children}

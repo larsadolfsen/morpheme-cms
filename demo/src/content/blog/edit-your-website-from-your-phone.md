@@ -1,11 +1,11 @@
 ---
 title: "Edit your website from your phone"
 date: 2026-10-27
-description: "Most website changes are small and urgent. Interstellar lets you make them from wherever you are."
+description: "Most website changes are small and urgent. Morpheme lets you make them from wherever you are."
 categories: ["editing"]
-image: "/images/uploads/2026/10/design-studio.jpg"
-imageAlt: "Creative design studio workstation from Unsplash"
-seoTitle: "Edit your website from your phone | Interstellar"
+image: "/images/uploads/2026/10/editor-pages.webp"
+imageAlt: "The list of pages in the Morpheme editor on a phone"
+seoTitle: "Edit your website from your phone | Morpheme"
 ---
 
 Most website changes are small and urgent: new opening hours, a photo from this morning, a typo someone just spotted. You shouldn’t have to wait until you’re back at a desk to fix them.

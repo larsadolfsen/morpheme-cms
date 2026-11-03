@@ -19,9 +19,8 @@
 // the site; in the editor only drawn). An Astro component gives its elements the classes with navigationRailClass,
 // navigationRailClasses and navigationRailItemClass.
 import type { ReactNode } from 'react';
-import { CaretLeft, List } from '@phosphor-icons/react';
-import { Glyph, Svg, type IconRef } from '@interstellarcms/cms/src/icon';
-import { Link } from '@interstellarcms/cms/src/standard/view';
+import { Glyph, Svg, type IconRef } from '@morpheme/cms/src/icon';
+import { Link } from '@morpheme/cms/src/standard/view';
 import { ExtendedFab } from '@theme/ui/Fab';
 import { iconButtonClass } from '@theme/ui/IconButton';
 import Badge from '@theme/ui/Badge';
@@ -49,7 +48,6 @@ export default function NavigationRail({
   label,
   menuLabel,
   expanded,
-  peek,
   modality = 'standard',
   expandedBehavior = 'collapse',
   fab,
@@ -63,7 +61,6 @@ export default function NavigationRail({
   label: string;
   menuLabel: string;
   expanded?: boolean;
-  peek?: boolean;
   modality?: NavigationRailModality;
   expandedBehavior?: NavigationRailExpandedBehavior;
   fab?: { icon: string; label: string; href?: string } & Record<string, unknown>;
@@ -73,15 +70,12 @@ export default function NavigationRail({
   className?: string;
   children: ReactNode;
 } & Record<string, unknown>) {
-  const isExpanded = expanded || peek;
-  const effectiveModality = peek && !expanded ? 'modal' : modality;
-  const effectiveScrim = peek && !expanded ? false : scrim;
   const rail = (
     <nav
       aria-label={label}
-      className={[navigationRailClasses(effectiveModality, expandedBehavior), className].filter(Boolean).join(' ')}
+      className={[navigationRailClasses(modality, expandedBehavior), className].filter(Boolean).join(' ')}
       data-navigation-rail=""
-      data-expanded={isExpanded || undefined}
+      data-expanded={expanded || undefined}
       {...rest}
     >
       <div className="navigation-rail-header">
@@ -89,23 +83,23 @@ export default function NavigationRail({
           type="button"
           className={`${iconButtonClass('standard')} navigation-rail-menu`}
           aria-label={menuLabel}
-          aria-expanded={!!isExpanded}
+          aria-expanded={!!expanded}
           data-navigation-rail-menu={onExpandedChange ? undefined : ''}
-          onClick={onExpandedChange && (() => onExpandedChange(!isExpanded))}
+          onClick={onExpandedChange && (() => onExpandedChange(!expanded))}
         >
-          <List size={24} />
-          <CaretLeft size={24} />
+          <Svg name="list" size={24} />
+          <Svg name="caret-left" size={24} />
         </button>
-        {fab && <ExtendedFab {...fab} collapsed={!isExpanded} />}
+        {fab && <ExtendedFab {...fab} collapsed={!expanded} />}
         {header != null && <div className="navigation-rail-header-content">{header}</div>}
       </div>
       <div className="navigation-rail-items">{children}</div>
     </nav>
   );
   // A modal one's scrim just before it, over the page and under the rail (navigationRail.script.ts shows it).
-  return effectiveModality === 'modal' && effectiveScrim ? (
+  return modality === 'modal' && scrim ? (
     <>
-      <div className={navigationRailScrimClass} data-navigation-rail-scrim="" hidden={!isExpanded} />
+      <div className={navigationRailScrimClass} data-navigation-rail-scrim="" hidden={!expanded} />
       {rail}
     </>
   ) : (
@@ -134,7 +128,6 @@ export function NavigationRailItem({
   selected,
   badge,
   trailingSupporting,
-  count,
   ...rest
 }: {
   href: string;
@@ -143,9 +136,7 @@ export function NavigationRailItem({
   selected?: boolean;
   badge?: true | number;
   trailingSupporting?: ReactNode;
-  count?: number | null;
 } & Record<string, unknown>) {
-  const trailing = trailingSupporting ?? (count != null ? count : undefined);
   return (
     <Link href={href} className={navigationRailItemClass} aria-current={selected ? 'page' : undefined} {...rest}>
       <span className="navigation-rail-indicator">
@@ -154,8 +145,8 @@ export function NavigationRailItem({
           {badge !== undefined && <Badge count={badge === true ? undefined : badge} className="navigation-rail-badge" />}
         </span>
         <span className="navigation-rail-label">{label}</span>
-        {trailing != null && trailing !== '' && (
-          <span className="navigation-rail-trailing-supporting">{trailing}</span>
+        {trailingSupporting != null && trailingSupporting !== '' && (
+          <span className="navigation-rail-trailing-supporting">{trailingSupporting}</span>
         )}
       </span>
     </Link>

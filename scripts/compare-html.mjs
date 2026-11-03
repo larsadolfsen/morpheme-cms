@@ -1,5 +1,5 @@
 // Compares the pages of two built sites, so a change in how the blocks are drawn can be shown to give the same site:
-// npx interstellar compare-html <before> [after, else dist]. Build the site before the change into a folder of its own
+// npx morpheme compare-html <before> [after, else dist]. Build the site before the change into a folder of its own
 // (npx astro build --outDir <before>), make the change, build again, and compare. What only differs in how it is
 // written is the same: whitespace between tags, comments (also those React puts between two pieces of text), the order
 // of a tag's attributes (and one written twice, in capitals, or with an empty value; an empty class; the order of the
@@ -14,7 +14,7 @@ import { join, relative, resolve } from 'node:path';
 const ROOT = `${process.cwd()}/`;
 const [before, after = 'dist'] = process.argv.slice(2).map((d) => resolve(ROOT, d));
 if (!before || !existsSync(before) || !existsSync(after)) {
-  console.error('Brug: npx interstellar compare-html <bygget site før> [bygget site efter, ellers dist]');
+  console.error('Brug: npx morpheme compare-html <bygget site før> [bygget site efter, ellers dist]');
   process.exit(1);
 }
 

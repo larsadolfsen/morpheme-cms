@@ -5,7 +5,7 @@
 // part of the page's outline; `title` (also an empty one) in an <h2>, or `titleAs`; `className`: the place's own, after
 // the part's (useInText's in the text); the rest (aria-label, hidden, data-…) on the box.
 import type { HTMLAttributes, ReactNode } from 'react';
-import { Svg } from '@interstellarcms/cms/src/icon';
+import { Svg } from '@morpheme/cms/src/icon';
 import Card from '@theme/ui/Card';
 
 type Props = Omit<HTMLAttributes<HTMLElement>, 'title'> & {

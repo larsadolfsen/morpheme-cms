@@ -1,13 +1,13 @@
 ---
 title: "Privacy policy"
 description: "What this site stores and which cookies it sets."
-seoTitle: "Privacy policy | Interstellar"
-seoDescription: "What the Interstellar demo stores about you, and which cookies it sets."
+seoTitle: "Privacy policy | Morpheme"
+seoDescription: "What the Morpheme demo stores about you, and which cookies it sets."
 ---
 
 # Privacy policy
 
-This is Interstellar’s demo site. It doesn’t store anything about you, and it sets no analytics or advertising cookies.
+This is Morpheme’s demo site. It doesn’t store anything about you, and it sets no analytics or advertising cookies.
 
 ## When you email us
 
@@ -21,4 +21,4 @@ If an app that measures visits or shows ads is installed, the cookie banner asks
 
 ## Your rights
 
-You can always ask what we’ve stored about you, and ask us to correct or delete it. Email hello@interstellar.example.
+You can always ask what we’ve stored about you, and ask us to correct or delete it. Email hello@morpheme.example.

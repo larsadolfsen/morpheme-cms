@@ -4,11 +4,11 @@
 // of a page's (Base.astro).
 import type { ComponentProps } from 'astro/types';
 import Base from '@theme/layouts/Base.astro';
-import { getCategories } from '@interstellarcms/cms/site/content';
-import { plainText } from '@interstellarcms/cms/site/text';
+import { getCategories } from '@morpheme/cms/site/content';
+import { plainText } from '@morpheme/cms/site/text';
 import PageHeader from '@theme/components/PageHeader.astro';
 import Chip from '@theme/ui/Chip';
-import { siteT } from '@interstellarcms/cms/src/i18n';
+import { siteT } from '@morpheme/cms/src/i18n';
 
 interface Props {
   title: string;

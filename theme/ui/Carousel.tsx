@@ -17,7 +17,7 @@
 // the site's language); `className` after its own classes (its place in the text). An Astro component gives an element
 // the same classes with carouselClass.
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { useOnSite } from '@interstellarcms/cms/src/standard/view';
+import { useOnSite } from '@morpheme/cms/src/standard/view';
 import {
   carouselLayout,
   keylineLayouts,

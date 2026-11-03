@@ -110,7 +110,7 @@ import { STANDARD_THEME, STORE_ROUTE } from './store';
 import { MOTION_SCHEMES, schemeInUse, type MotionScheme } from '../lib/motion';
 import { applyMotion } from './theme';
 import { colorsOf } from './Colors';
-import { OwnerLicenses } from './Licenses.tsx';
+import { OwnerLicenses } from './Licenses';
 import { apps } from './site';
 import { offBlocks } from './registry';
 
@@ -137,8 +137,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   const screen = partScreens.find((s) => s.id === id);
   if (screen) return { label: screen.label, href: `#${id}`, count: null };
   if (id === 'seo') return { label: parts.seo, href: '#seo', count: null };
-  const c = collections.find((x) => x.id === id);
-  if (!c) return { label: id, href: `#${id}`, count: null };
+  const c = collections.find((x) => x.id === id)!;
   return { label: c.label, href: hrefOf(c), count: c.kind === 'files' && c.files.length === 1 ? null : countOf(c, files) };
 }
 

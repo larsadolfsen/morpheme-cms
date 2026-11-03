@@ -5,11 +5,11 @@
 // instead (`Part`, src/apps/<app>/popups/View.tsx, given its view and the button), which shows the button where it
 // wants.
 import type { ComponentType, ReactNode } from 'react';
-import type { Picture } from '@interstellarcms/cms/src/standard/view';
+import type { Picture } from '@morpheme/cms/src/standard/view';
 import Dialog from '@theme/ui/Dialog';
 import IconButton from '@theme/ui/IconButton';
 import PopupButton, { type PopupButtonView } from '@theme/components/PopupButton';
-import { siteT } from '@interstellarcms/cms/src/i18n';
+import { siteT } from '@morpheme/cms/src/i18n';
 
 export type PopupBoxView = { slug: string; image?: Picture; heading: string; text: string[]; button?: PopupButtonView };
 
@@ -33,10 +33,7 @@ export default function PopupView({ popup, Part, part }: { popup: PopupBoxView; 
         />
       )}
       <div className="p-6 md:p-8">
-        <h2
-          id={`popup-${popup.slug}`}
-          className={popup.image ? 'text-2xl font-medium tracking-tight' : 'pr-12 text-2xl font-medium tracking-tight'}
-        >
+        <h2 id={`popup-${popup.slug}`} className={popup.image ? 'type-headline-small' : 'pr-12 type-headline-small'}>
           {popup.heading}
         </h2>
         {popup.text.map((t, i) => (

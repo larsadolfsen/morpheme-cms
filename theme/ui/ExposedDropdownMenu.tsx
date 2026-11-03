@@ -9,7 +9,7 @@
 // field's. Other attributes (`name`, `required`, `disabled`, `onChange`, data-…) go on the <select>, and `className` on
 // the field around it.
 import { useId } from 'react';
-import { Svg } from '@interstellarcms/cms/src/icon';
+import { Svg } from '@morpheme/cms/src/icon';
 import { textFieldClass, type TextFieldKind } from '@theme/ui/TextField';
 
 export type ExposedDropdownMenuOption = { value: string; label: string; disabled?: boolean };

@@ -3,14 +3,14 @@ title: "Switch themes without losing anything"
 date: 2026-10-16
 description: "A theme changes how your site looks, never what it says."
 categories: ["design"]
-image: "/images/uploads/2026/10/aurora-night.jpg"
-imageAlt: "Aurora borealis northern lights night sky from Unsplash"
-seoTitle: "Switch themes without losing anything | Interstellar"
+image: "/images/uploads/2026/10/saturn.webp"
+imageAlt: "Saturn and its rings against a black sky"
+seoTitle: "Switch themes without losing anything | Morpheme"
 ---
 
 A theme decides how your site looks: the fonts, the shapes, the shadows and how each block is drawn. It never touches what your site says.
 
-![A theme’s page in the Interstellar editor, with pictures of the site in that theme](/images/uploads/2026/10/editor-themes.webp)
+![A theme’s page in the Morpheme editor, with pictures of the site in that theme](/images/uploads/2026/10/editor-themes.webp)
 
 ## Built on Material
 

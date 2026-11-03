@@ -25,38 +25,6 @@
   (colorPairs in @site/colors). Everything here uses them by name.
 */
 :root {
-  /* Google Material Design 3 (MD3) Expressive & Functional Typography Tokens */
-  --font-brand: 'Roboto Flex', sans-serif;
-  --font-serif: 'Roboto Serif', serif;
-  --font-mono: 'Roboto Mono', monospace;
-  --typescale-expressive-weight: 800;
-  --typescale-expressive-tracking: -0.03em;
-  --typescale-functional-weight: 400;
-
-  /* Google Material Design 3 (MD3) Semantic Spacing Tokens */
-  --spacing-0: 0px;
-  --spacing-25: 2px;
-  --spacing-50: 4px;
-  --spacing-75: 6px;
-  --spacing-100: 8px;
-  --spacing-125: 10px;
-  --spacing-150: 12px;
-  --spacing-175: 14px;
-  --spacing-200: 16px;
-  --spacing-250: 20px;
-  --spacing-300: 24px;
-  --spacing-400: 32px;
-  --spacing-500: 40px;
-  --spacing-600: 48px;
-  --spacing-800: 64px;
-
-  /* Google Material Design 3 (MD3) Window Size Class Breakpoints */
-  --breakpoint-compact: 0px;
-  --breakpoint-medium: 600px;
-  --breakpoint-expanded: 840px;
-  --breakpoint-large: 1200px;
-  --breakpoint-xlarge: 1600px;
-
   --radius: 0.75rem;
   /* The corners of something smaller in or beside a panel: a picture in a list, a row in a menu, an icon's square. */
   --radius-small: 1rem;
@@ -137,7 +105,10 @@
     background: var(--bg);
     color: var(--ink);
     font-family: var(--font-sans);
-    font-size: 1.0625rem;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -154,8 +125,8 @@
   h2,
   h3 {
     text-wrap: balance;
-    font-weight: 500;
-    letter-spacing: -0.025em;
+    font-weight: var(--type-headline-large-weight);
+    letter-spacing: var(--type-headline-large-tracking);
   }
   p {
     text-wrap: pretty;
@@ -195,16 +166,29 @@
   --tw-prose-th-borders: var(--line);
   --tw-prose-td-borders: var(--line);
   --tw-prose-code: var(--ink);
-  font-size: 1.125rem;
-  line-height: 1.75;
+  font-size: var(--type-body-large-size);
+  line-height: var(--type-body-large-line-height);
+  font-weight: var(--type-body-large-weight);
+  letter-spacing: var(--type-body-large-tracking);
 }
-.prose :where(h2, h3, h4) {
-  font-weight: 500;
-  letter-spacing: -0.02em;
-}
+/* The text's headings: a headline, a title under it and a smaller title under that (the type scale, ui.css). */
 .prose :where(h2) {
-  font-size: 1.6em;
-  line-height: 1.2;
+  font-size: var(--type-headline-medium-size);
+  line-height: var(--type-headline-medium-line-height);
+  font-weight: var(--type-headline-medium-weight);
+  letter-spacing: var(--type-headline-medium-tracking);
+}
+.prose :where(h3) {
+  font-size: var(--type-title-large-size);
+  line-height: var(--type-title-large-line-height);
+  font-weight: var(--type-title-large-weight);
+  letter-spacing: var(--type-title-large-tracking);
+}
+.prose :where(h4) {
+  font-size: var(--type-title-medium-size);
+  line-height: var(--type-title-medium-line-height);
+  font-weight: var(--type-title-medium-weight);
+  letter-spacing: var(--type-title-medium-tracking);
 }
 /* Code in a line (cookie names in the privacy policy): on a tint, without the plugin's backticks. */
 .prose :where(:not(pre) > code):not(:where(.not-prose code)) {
@@ -287,14 +271,18 @@
 }
 .block-place > h2,
 .block-place > .block-head > h2 {
-  font-size: 2.1rem;
-  line-height: 1.25;
+  font-size: var(--type-headline-large-size);
+  line-height: var(--type-headline-large-line-height);
+  font-weight: var(--type-headline-large-weight);
+  letter-spacing: var(--type-headline-large-tracking);
 }
 @media (min-width: 48rem) {
   .block-place > h2,
   .block-place > .block-head > h2 {
-    font-size: 3rem;
-    line-height: 1;
+    font-size: var(--type-display-medium-size);
+    line-height: var(--type-display-medium-line-height);
+    font-weight: var(--type-display-medium-weight);
+    letter-spacing: var(--type-display-medium-tracking);
   }
 }
 /* Cards placed in the page's full width (a front-page section, PageBlock.astro): three in a row on a computer, as
@@ -320,7 +308,10 @@
 /* Boxes side by side ("Links", an app's boxes): the site's panels (outlined cards, ui.css, without a shadow), with
    more room on a computer and the heading of a section in it. */
 .block-panels .block-panel-title {
-  font-size: 1.5rem;
+  font-size: var(--type-headline-small-size);
+  line-height: var(--type-headline-small-line-height);
+  font-weight: var(--type-headline-small-weight);
+  letter-spacing: var(--type-headline-small-tracking);
 }
 @media (min-width: 48rem) {
   .block-panels > .block-panel {

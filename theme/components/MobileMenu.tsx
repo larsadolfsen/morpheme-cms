@@ -4,13 +4,13 @@
 // divider. Items with sub-pages unfold with the caret at the end of their row (inside the active indicator); the one
 // with the open page starts open.
 // Rendered through a portal into <body>, so nothing on the page can clip it. It moves with the site's motion scheme
-// (motionSpring, @interstellarcms/cms/lib/motion.ts: Material 3's springs, the expressive ones unless the owner chose
+// (motionSpring, @morpheme/cms/lib/motion.ts: Material 3's springs, the expressive ones unless the owner chose
 // another under "Bevægelse"); with reduced motion it appears at once.
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Svg } from '@interstellarcms/cms/src/icon';
-import { motionSpring } from '@interstellarcms/cms/lib/motion';
+import { Svg } from '@morpheme/cms/src/icon';
+import { motionSpring } from '@morpheme/cms/lib/motion';
 import IconButton from '@theme/ui/IconButton';
 import { ExtendedFab } from '@theme/ui/Fab';
 import {

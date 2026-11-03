@@ -10,10 +10,10 @@ import PageHeader from '@theme/components/PageHeader.astro';
 import Container from '@theme/components/Container.astro';
 import TextSection from '@theme/components/TextSection.astro';
 import PageBlock from '@theme/components/home/PageBlock.astro';
-import { space } from '@interstellarcms/cms/site/sections';
-import { displayTitle, getPages, getPosts, pageHeading } from '@interstellarcms/cms/site/content';
-import { standardPaths, type StandardPageView } from '@interstellarcms/cms/site/standardPages';
-import { siteT } from '@interstellarcms/cms/src/i18n';
+import { space } from '@morpheme/cms/site/sections';
+import { displayTitle, getPages, getPosts, pageHeading } from '@morpheme/cms/site/content';
+import { standardPaths, type StandardPageView } from '@morpheme/cms/site/standardPages';
+import { siteT } from '@morpheme/cms/src/i18n';
 
 type Props = StandardPageView;
 const { heading, intro, sections } = Astro.props;
@@ -38,8 +38,8 @@ const spaceOf = (i: number) => (i === 0 ? 'mt-6 md:mt-8' : space(i));
   <Container as="div" class="mt-8 md:mt-12">
     <Card href="" id="suggestion" hidden className="group flex max-w-2xl items-center justify-between gap-6">
       <span>
-        <span class="block text-sm text-muted">{siteT.theme.didYouMean}</span>
-        <span id="suggestion-title" class="mt-1 block text-xl font-medium group-hover:text-accent"></span>
+        <span class="type-body-medium block text-muted">{siteT.theme.didYouMean}</span>
+        <span id="suggestion-title" class="type-title-large mt-1 block group-hover:text-accent"></span>
       </span>
       <Icon name="arrow-right" size={22} class="shrink-0 text-accent transition-transform group-hover:translate-x-0.5" />
     </Card>

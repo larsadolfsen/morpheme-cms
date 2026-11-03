@@ -81,13 +81,9 @@ export { default as siteRipples } from '@theme/ui/ripple.script';
 /** The rest of the theme's navigation parts, for "Dele" › "UI-komponenter" (NavigationRestParts.tsx). */
 export { default as SiteNavigationBar, NavigationBarItem as SiteNavigationBarItem } from '@theme/ui/NavigationBar';
 export {
-  default,
   default as SiteNavigationRail,
-  default as NavigationRail,
   NavigationRailItem as SiteNavigationRailItem,
-  NavigationRailItem,
   NavigationRailSection as SiteNavigationRailSection,
-  NavigationRailSection,
 } from '@theme/ui/NavigationRail';
 export { default as SiteSearch, SearchBar as SiteSearchBar } from '@theme/ui/Search';
 export { default as SiteToolbar } from '@theme/ui/Toolbar';

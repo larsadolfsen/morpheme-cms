@@ -10,8 +10,8 @@
 // attributes go on them. An Astro component gives its elements the classes with navigationBarClass,
 // navigationBarClasses and navigationBarItemClass.
 import type { ReactNode } from 'react';
-import { Svg } from '@interstellarcms/cms/src/icon';
-import { Link } from '@interstellarcms/cms/src/standard/view';
+import { Svg } from '@morpheme/cms/src/icon';
+import { Link } from '@morpheme/cms/src/standard/view';
 import Badge from '@theme/ui/Badge';
 
 export type NavigationBarIconPosition = 'top' | 'start' | 'auto';

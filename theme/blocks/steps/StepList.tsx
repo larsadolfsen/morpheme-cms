@@ -1,7 +1,7 @@
 // Numbered steps along a line, each with a heading and a text (.block-steps in ../blocks.css): the standard block
 // "Trin", and the site's own steps (this site's front page, home/Steps.astro). `className`: the site's own classes on
 // it, e.g. a margin.
-import type { Step } from '@interstellarcms/cms/src/standard/steps/view';
+import type { Step } from '@morpheme/cms/src/standard/steps/view';
 
 export default function StepList({ items, className }: { items: Step[]; className?: string }) {
   return (

@@ -148,21 +148,15 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
   return `<!doctype html>\n${doc.documentElement.outerHTML}`;
 }
 
-type WindowSizeClass = 'compact' | 'medium' | 'expanded' | 'large' | 'xlarge';
-const WINDOW_SIZES: Record<WindowSizeClass, { width: number; label: string }> = {
-  compact: { width: 390, label: 'Compact' },
-  medium: { width: 700, label: 'Medium' },
-  expanded: { width: 1024, label: 'Expanded' },
-  large: { width: 1280, label: 'Large' },
-  xlarge: { width: 1600, label: 'Extra Large' },
-};
+type Device = 'phone' | 'computer';
+const WIDTH: Record<Device, number> = { phone: 390, computer: 1280 };
 
 /** The sheet with the preview, and how to open it with a draft (made when it opens). */
 export function usePagePreview(): [(draft: () => PageDraft | null) => void, ReactNode] {
   const dialog = useRef<HTMLDialogElement>(null);
   const [html, setHtml] = useState<string | null>(null);
   const [problem, setProblem] = useState('');
-  const [device, setDevice] = useState<WindowSizeClass>('compact');
+  const [device, setDevice] = useState<Device>(() => (matchMedia('(min-width: 48rem)').matches ? 'computer' : 'phone'));
   const run = useRef(0);
 
   function open(make: () => PageDraft | null) {
@@ -193,17 +187,14 @@ export function usePagePreview(): [(draft: () => PageDraft | null) => void, Reac
           label={t.preview.device}
           value={device}
           options={[
-            { value: 'compact', label: 'Compact (390px)', icon: DeviceMobile },
-            { value: 'medium', label: 'Medium (700px)', icon: DeviceMobile },
-            { value: 'expanded', label: 'Expanded (1024px)', icon: Desktop },
-            { value: 'large', label: 'Large (1280px)', icon: Desktop },
-            { value: 'xlarge', label: 'Extra Large (1600px)', icon: Desktop },
+            { value: 'phone', label: t.preview.phone, icon: DeviceMobile },
+            { value: 'computer', label: t.preview.computer, icon: Desktop },
           ]}
           onChange={setDevice}
         />
       </div>
       {html ? (
-        <PageFrame html={html} width={WINDOW_SIZES[device].width} title={t.preview.title} />
+        <PageFrame html={html} width={WIDTH[device]} title={t.preview.title} />
       ) : (
         <p className="px-5 text-muted">{problem || t.preview.making}</p>
       )}

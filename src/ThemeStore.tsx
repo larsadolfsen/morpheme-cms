@@ -29,7 +29,7 @@ import {
   type StoreRecord,
 } from './store';
 import { askUpdate, DeveloperRow } from './AppList';
-import { StoreLicenseRows } from './Licenses.tsx';
+import { StoreLicenseRows } from './Licenses';
 import { siteT, t } from './i18n';
 import { kindAndName } from './deploy';
 

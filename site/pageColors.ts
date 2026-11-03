@@ -1,6 +1,6 @@
 // The colours of one page, for the theme (Base.astro, which knows no app by name): the site's own (src/data/colors.json,
 // "Farver"), changed by the apps installed that change a page's colours (hooks/page-colors.ts, PageColorsHook in
-// @interstellarcms/cms/lib/hooks.ts), in the order of their ids, each given the colours the one before left. An app gets the
+// @morpheme/cms/lib/hooks.ts), in the order of their ids, each given the colours the one before left. An app gets the
 // page's address, its pictures, its own settings, the colours' roles, and the pixels of a picture read small, so it
 // never reads the site's files itself; what it gives is kept only when it is the site's colours, by their names, and
 // readable in both modes (colorPairs); else, and when it fails, the page keeps the colours it had, and the build says so.
@@ -13,11 +13,11 @@ import sharp from 'sharp';
 import colors from '@data/colors.json';
 import { colorFields, colorPairs, colorRoles } from '@site/colors';
 import { installed, settingsOf } from './apps';
-import { appIdOf, type AppDefinition } from '@interstellarcms/cms/src/apps';
-import { colorProblems, lowContrast, MODES, type Colors } from '@interstellarcms/cms/lib/colors';
-import { completeColors } from '@interstellarcms/cms/lib/dynamic-colors';
-import type { PageColorsHook } from '@interstellarcms/cms/lib/hooks';
-import { splitPicture } from '@interstellarcms/cms/lib/crop.mjs';
+import { appIdOf, type AppDefinition } from '@morpheme/cms/src/apps';
+import { colorProblems, lowContrast, MODES, type Colors } from '@morpheme/cms/lib/colors';
+import { completeColors } from '@morpheme/cms/lib/dynamic-colors';
+import type { PageColorsHook } from '@morpheme/cms/lib/hooks';
+import { splitPicture } from '@morpheme/cms/lib/crop.mjs';
 
 // With those a file written before them does not have made (completeColors).
 const site = completeColors(colors as Colors, colorRoles);

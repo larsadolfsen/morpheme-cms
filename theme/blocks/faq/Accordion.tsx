@@ -7,8 +7,8 @@
 // it opens. Reduced motion: no animation.
 import { useId } from 'react';
 import PageRow from '@theme/blocks/accordion/PageRow';
-import { Svg } from '@interstellarcms/cms/src/icon';
-import type { AccordionRow } from '@interstellarcms/cms/src/standard/faq/view';
+import { Svg } from '@morpheme/cms/src/icon';
+import type { AccordionRow } from '@morpheme/cms/src/standard/faq/view';
 
 export default function Accordion({ rows, group }: { rows: AccordionRow[]; group?: string }) {
   const own = useId();

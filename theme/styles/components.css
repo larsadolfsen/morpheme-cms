@@ -33,6 +33,16 @@
   --theme-logo-role-display-large: block;
   /* The pictures in the list of posts (PostList.tsx, the blog's other posts). */
   --theme-post-picture-radius: var(--radius-small);
+  /* A page's and a post's title (.theme-title): display small on a phone, display medium from md (the type scale,
+     ui.css). */
+  --theme-title-size: var(--type-display-small-size);
+  --theme-title-leading: var(--type-display-small-line-height);
+  --theme-title-size-large: var(--type-display-medium-size);
+}
+@media (min-width: 48rem) {
+  :root {
+    --theme-title-leading: var(--type-display-medium-line-height);
+  }
 }
 
 /* In dark mode the shade is the page's colour, as the text's is light. A theme sets --dialog-scrim and
@@ -176,5 +186,21 @@
   ::view-transition-new(root) {
     animation-duration: var(--theme-page-fade);
     animation-timing-function: var(--ease);
+  }
+}
+
+/* A page's and a post's title (PageHeader.astro, PageLayout.astro, PostLayout.astro, Home.astro): the display role, by
+   the variables above. */
+.theme-title {
+  font-size: var(--theme-title-size);
+  line-height: var(--theme-title-leading);
+  font-weight: var(--type-display-small-weight);
+  letter-spacing: var(--type-display-small-tracking);
+}
+@media (min-width: 48rem) {
+  .theme-title {
+    font-size: var(--theme-title-size-large);
+    font-weight: var(--type-display-medium-weight);
+    letter-spacing: var(--type-display-medium-tracking);
   }
 }

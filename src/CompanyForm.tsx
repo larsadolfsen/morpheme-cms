@@ -27,7 +27,7 @@ type Props = { part: Part; env: Env; files: RepoFile[] };
 /** A part's fields in its file, as a form: the values, whether they are changed, and its save ("Gem
  * ændringer"), which says what is wrong first (useWrongField); here and on an app's page (AppList.tsx). */
 export function usePartForm({ part, env, files }: Props) {
-  const { file: path, at, fields = [] } = part as Required<Part>;
+  const { file: path, at, fields } = part as Required<Part>;
   const notify = env.notify;
   // A form that cannot be saved: why, as a message, and the field marked (useWrongField in fields.tsx).
   const wrongField = useWrongField((text) => notify({ text, error: true }));
@@ -93,7 +93,7 @@ export function usePartForm({ part, env, files }: Props) {
 /** `at`: the form's address, for its fields' pages (Field.page); `page`: the field whose page is open. */
 export default function CompanyForm({ part, env, files, at: route, page }: Props & { at?: string; page?: string }) {
   const { base, values, setValues, dirty, saving, save, wrongField, context } = usePartForm({ part, env, files });
-  const { file: path, at, fields = [] } = part as Required<Part>;
+  const { file: path, at, fields } = part as Required<Part>;
   // The fields with their choices on a page of their own, and the one open.
   const paged = route ? fields.filter((f) => f.page) : [];
   useFormPages(route ? [route, ...paged.map((f) => `${route}/${f.name}`)] : []);

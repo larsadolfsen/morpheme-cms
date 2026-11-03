@@ -101,8 +101,10 @@
     border-radius: var(--block-radius);
     background: var(--block-tint);
     padding: 1rem 1.25rem;
-    font-size: 1.125rem;
-    line-height: calc(1.75 / 1.125);
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
   }
 
   /* "Trin": numbered steps along a line (steps/StepList.tsx). */
@@ -139,18 +141,20 @@
     border-radius: 9999px;
     background: var(--block-accent);
     color: var(--block-on-accent);
-    font-size: 1.25rem;
-    line-height: calc(1.75 / 1.25);
-    font-weight: 500;
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
     font-variant-numeric: tabular-nums;
   }
   .block-step-body {
     padding-top: 0.5rem;
   }
   .block-step-title {
-    font-size: 1.25rem;
-    line-height: calc(1.75 / 1.25);
-    font-weight: 500;
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
   }
   .block-step-text {
     margin-top: 0.375rem;
@@ -175,8 +179,10 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 0.875rem 1.25rem;
-    font-size: 1.125rem;
-    line-height: calc(1.75 / 1.125);
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
     transition: color var(--motion-effects);
   }
   summary.block-accordion-label {
@@ -211,7 +217,10 @@
   /* An answer as it was written: paragraphs and lists apart, links in the accent. */
   .block-accordion-answer {
     max-width: 60ch;
-    line-height: 1.625;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
     color: var(--block-muted);
   }
   .block-accordion-answer * + * {
@@ -248,13 +257,16 @@
   }
   .block-hero-title {
     margin: 0 0 1.25rem;
-    font-size: 2rem;
-    line-height: 1.15;
-    font-weight: 500;
+    font-size: var(--type-display-small-size);
+    line-height: var(--type-display-small-line-height);
+    font-weight: var(--type-display-small-weight);
+    letter-spacing: var(--type-display-small-tracking);
   }
   .block-hero-text > :first-child {
-    font-size: 1.5rem;
-    line-height: 1.3;
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
   }
   .block-hero-text > * + * {
     margin-top: 1rem;
@@ -266,7 +278,10 @@
   .block-hero-note {
     margin-top: 1rem;
     max-width: 44ch;
-    font-size: 0.95rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     color: var(--block-muted);
   }
   .block-hero-note > * + * {
@@ -281,14 +296,18 @@
   }
   .block-hero-note > blockquote > p {
     margin: 0;
-    font-size: 1.125rem;
-    line-height: 1.4;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
     color: var(--block-text);
   }
   .block-hero-note > blockquote > p:last-child:not(:first-child) {
     margin-top: 0.5rem;
-    font-size: 0.95rem;
-    line-height: inherit;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     color: var(--block-muted);
   }
   .block-hero-picture {
@@ -387,7 +406,10 @@
       padding: 4rem 3.5rem;
     }
     .block-hero-title {
-      font-size: 2.5rem;
+      font-size: var(--type-display-medium-size);
+      line-height: var(--type-display-medium-line-height);
+      font-weight: var(--type-display-medium-weight);
+      letter-spacing: var(--type-display-medium-tracking);
     }
     .block-hero-body > .block-buttons {
       flex-direction: row;
@@ -459,8 +481,10 @@
   /* In the editor's drawing: random posts, of how many; under all of them, how many more there are. */
   .block-posts-note {
     margin: 0 0 1rem;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     color: var(--block-muted);
   }
   .block-posts-more {
@@ -530,9 +554,10 @@
     display: block;
     height: 2.5rem;
     margin-bottom: -1rem;
-    font-size: 3.75rem;
-    line-height: 1;
-    font-weight: 500;
+    font-size: var(--type-display-large-size);
+    line-height: var(--type-display-large-line-height);
+    font-weight: var(--type-display-large-weight);
+    letter-spacing: var(--type-display-large-tracking);
     color: var(--block-accent);
   }
   .block-testimonial-tags {
@@ -542,13 +567,17 @@
     gap: 0.5rem;
   }
   .block-testimonial-tags .chip {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
   }
   .block-testimonial-text {
     margin: 0.75rem 0 0;
-    font-size: 1.05rem;
-    line-height: 1.625;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
   }
   .block-testimonial-text > * {
     margin: 0;
@@ -576,8 +605,10 @@
     padding: 0;
     background: none;
     font: inherit;
-    font-size: 0.95rem;
-    font-weight: 500;
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
     color: var(--block-accent);
     text-decoration: none;
   }
@@ -625,7 +656,10 @@
      (accordion/PageRow.tsx). */
   .block-row-text {
     max-width: 60ch;
-    line-height: 1.625;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
     color: var(--block-muted);
   }
   .block-row-links {
@@ -687,10 +721,10 @@
   }
   .block-card-title {
     margin-top: 1rem;
-    font-size: 1.25rem;
-    line-height: calc(1.75 / 1.25);
-    font-weight: 500;
-    letter-spacing: -0.025em;
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
   }
   /* Only text: the heading at the top. */
   .block-card-title:first-child {
@@ -737,9 +771,10 @@
   }
   .block-panel-title {
     margin: 0;
-    font-size: 1.3rem;
-    line-height: 1.2;
-    font-weight: 500;
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
   }
   .block-panel-text {
     margin-top: 0.4rem;
@@ -819,14 +854,18 @@
   }
   .block-media-title {
     margin: 0;
-    font-size: 1.6rem;
-    line-height: 1.2;
-    font-weight: 500;
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
   }
   .block-media-text {
     margin: 1rem 0 0;
     font-style: normal;
-    line-height: 1.6;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
   }
   .block-media-body > .block-buttons {
     margin-top: 1.5rem;
@@ -862,9 +901,10 @@
   }
   .block-copy-value {
     white-space: nowrap;
-    font-size: 1.5rem;
-    font-weight: 500;
-    letter-spacing: -0.02em;
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
     font-variant-numeric: tabular-nums;
   }
   .block-panel > .block-buttons-row {
@@ -908,7 +948,10 @@
     color: var(--block-on-accent);
   }
   .block-timeline-when {
-    font-size: 0.95rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     color: var(--block-muted);
   }
   .block-timeline > li:last-child .block-timeline-when {
@@ -916,8 +959,10 @@
     opacity: 0.9;
   }
   .block-timeline-value {
-    font-size: 1.25rem;
-    font-weight: 500;
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
   }
   @media (width >= 40rem) {
     .block-timeline {
@@ -941,7 +986,10 @@
     }
     .block-timeline-value {
       margin-top: 1.5rem;
-      font-size: 1.5rem;
+      font-size: var(--type-headline-small-size);
+      line-height: var(--type-headline-small-line-height);
+      font-weight: var(--type-headline-small-weight);
+      letter-spacing: var(--type-headline-small-tracking);
     }
   }
 
@@ -974,13 +1022,17 @@
   }
   .block-person-name {
     display: block;
-    font-size: 1.1rem;
-    font-weight: 500;
-    letter-spacing: -0.01em;
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
   }
   .block-person-role {
     display: block;
-    font-size: 0.9rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     color: var(--block-muted);
   }
 
@@ -991,8 +1043,10 @@
     margin: 0;
     padding: 0;
     list-style: none;
-    font-size: 0.95rem;
-    line-height: 1.4;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
   }
   .block-icon-list > li {
     display: flex;
@@ -1014,7 +1068,10 @@
     margin: 0;
   }
   .block-facts dt {
-    font-size: 0.9rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     color: var(--block-muted);
   }
   .block-facts dd {
@@ -1025,9 +1082,10 @@
     text-align: right;
   }
   .block-facts-amount {
-    font-size: 1.3rem;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
     font-variant-numeric: tabular-nums;
   }
 
@@ -1040,8 +1098,10 @@
     width: 100%;
     min-width: 40rem;
     border-collapse: collapse;
-    font-size: 0.95rem;
-    line-height: 1.45;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
   }
   .block-table :is(th, td) {
     padding: 0.625rem 1rem 0.625rem 0;
@@ -1050,8 +1110,10 @@
     vertical-align: top;
   }
   .block-table thead th {
-    font-size: 0.85rem;
-    font-weight: 500;
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
     color: var(--block-muted);
   }
   .block-table tbody th {
@@ -1079,19 +1141,26 @@
     line-height: 1.1;
   }
   .block-badge > span {
-    font-size: 0.75rem;
+    font-size: var(--type-label-small-size);
+    line-height: var(--type-label-small-line-height);
+    font-weight: var(--type-label-small-weight);
+    letter-spacing: var(--type-label-small-tracking);
   }
   .block-badge > strong {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
     font-variant-numeric: tabular-nums;
   }
   .block-with-badge {
     display: flex;
     align-items: flex-start;
     gap: 1rem;
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
   }
   .block-with-badge > p {
     margin: 0;
@@ -1105,7 +1174,10 @@
     gap: 1rem;
     --card-radius: var(--block-radius-small);
     --card-padding: 0.85rem 1.1rem 0.85rem 0.85rem;
-    line-height: 1.45;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
     transition: box-shadow var(--motion-effects);
   }
   .block-link-row.block-in-text {
@@ -1144,9 +1216,10 @@
   }
   .block-cta-title {
     margin: 0;
-    font-size: 1.5rem;
-    line-height: 1.375;
-    font-weight: 500;
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
   }
   .block-cta-text {
     margin-top: 0.5rem;
@@ -1184,9 +1257,10 @@
   }
   .block-price-card-title {
     margin: 0;
-    font-size: 1.5rem;
-    line-height: 2rem;
-    font-weight: 500;
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
   }
   /* A small fact in a light pill (the duration), its icon in the accent. */
   .block-tag {
@@ -1198,18 +1272,20 @@
     border-radius: var(--block-control-radius);
     background: var(--block-tint);
     padding: 0.25rem 0.75rem;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
   }
   .block-tag svg {
     color: var(--block-accent);
   }
   .block-price-amount {
     margin-top: 1.5rem;
-    font-size: 3rem;
-    line-height: 1;
-    font-weight: 500;
-    letter-spacing: -0.025em;
+    font-size: var(--type-display-medium-size);
+    line-height: var(--type-display-medium-line-height);
+    font-weight: var(--type-display-medium-weight);
+    letter-spacing: var(--type-display-medium-tracking);
     font-variant-numeric: tabular-nums;
   }
   .block-price-unit {
@@ -1260,9 +1336,10 @@
     border-top: 1px solid var(--block-line);
   }
   .block-price-row-name {
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-    font-weight: 500;
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
     color: inherit;
     text-decoration: none;
   }
@@ -1270,26 +1347,34 @@
     color: var(--block-accent);
   }
   .block-price-row-text {
-    font-size: 0.95rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     color: var(--block-muted);
   }
   .block-price-row-note {
     margin-top: 0.25rem;
     max-width: 60ch;
-    font-size: 0.95rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     color: var(--block-muted);
   }
   .block-price-row-price {
-    font-size: 1.5rem;
-    line-height: 2rem;
-    font-weight: 500;
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
     font-variant-numeric: tabular-nums;
   }
   .block-price-row-price > span {
     display: block;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 400;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     color: var(--block-muted);
   }
   /* A quiet text with an icon before it (the terms under the prices). */
@@ -1298,7 +1383,10 @@
     gap: 0.625rem;
     margin-top: 1rem;
     max-width: 70ch;
-    font-size: 0.95rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     color: var(--block-muted);
   }
   .block-terms svg {
@@ -1337,21 +1425,29 @@
       --card-padding: 1.75rem;
     }
     .block-row-text {
-      font-size: 1.125rem;
+      font-size: var(--type-body-large-size);
+      line-height: var(--type-body-large-line-height);
+      font-weight: var(--type-body-large-weight);
+      letter-spacing: var(--type-body-large-tracking);
     }
     .block-notice {
       padding: 1.25rem 1.5rem;
     }
     .block-accordion-label {
       padding-inline: 2rem;
-      font-size: 1.25rem;
-      line-height: calc(1.75 / 1.25);
+      font-size: var(--type-title-medium-size);
+      line-height: var(--type-title-medium-line-height);
+      font-weight: var(--type-title-medium-weight);
+      letter-spacing: var(--type-title-medium-tracking);
     }
     .block-accordion-body {
       padding: 0 2rem 2rem;
     }
     .block-accordion-answer {
-      font-size: 1.125rem;
+      font-size: var(--type-body-large-size);
+      line-height: var(--type-body-large-line-height);
+      font-weight: var(--type-body-large-weight);
+      letter-spacing: var(--type-body-large-tracking);
     }
     .block-cta {
       grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -1371,7 +1467,10 @@
       grid-column: span 4;
     }
     .block-cta-title {
-      font-size: 1.875rem;
+      font-size: var(--type-headline-medium-size);
+      line-height: var(--type-headline-medium-line-height);
+      font-weight: var(--type-headline-medium-weight);
+      letter-spacing: var(--type-headline-medium-tracking);
     }
     .block-prices,
     .block-price-cards {
@@ -1384,11 +1483,16 @@
       --card-padding: 2rem;
     }
     .block-price-card-title {
-      font-size: 1.875rem;
-      line-height: 2.25rem;
+      font-size: var(--type-headline-medium-size);
+      line-height: var(--type-headline-medium-line-height);
+      font-weight: var(--type-headline-medium-weight);
+      letter-spacing: var(--type-headline-medium-tracking);
     }
     .block-price-amount {
-      font-size: 3.75rem;
+      font-size: var(--type-display-large-size);
+      line-height: var(--type-display-large-line-height);
+      font-weight: var(--type-display-large-weight);
+      letter-spacing: var(--type-display-large-tracking);
     }
     .block-price-list {
       padding-inline: 2rem;
@@ -1467,15 +1571,17 @@
     background: var(--block-accent);
     color: var(--block-on-accent);
     padding: 0.25rem 0.75rem;
-    font-size: 0.8125rem;
-    line-height: 1.25rem;
-    font-weight: 600;
+    font-size: var(--type-label-medium-size);
+    line-height: var(--type-label-medium-line-height);
+    font-weight: var(--type-label-medium-weight);
+    letter-spacing: var(--type-label-medium-tracking);
   }
   .block-plan-name {
     margin: 0;
-    font-size: 1.25rem;
-    line-height: 1.3;
-    font-weight: 500;
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
   }
   .block-plan-price {
     display: flex;
@@ -1485,10 +1591,10 @@
     margin: 1rem 0 0;
   }
   .block-plan-amount {
-    font-size: clamp(1.5rem, 16cqi, 2.25rem);
-    line-height: 1.1;
-    font-weight: 600;
-    letter-spacing: -0.025em;
+    font-size: clamp(var(--type-headline-small-size), 16cqi, var(--type-display-small-size));
+    line-height: var(--type-headline-large-line-height);
+    font-weight: var(--type-headline-large-weight);
+    letter-spacing: var(--type-headline-large-tracking);
     font-variant-numeric: tabular-nums;
   }
   .block-plan-unit {
@@ -1577,8 +1683,10 @@
   display: -webkit-box;
   max-width: 40ch;
   overflow: hidden;
-  font-size: 1.125rem;
-  line-height: 1.4;
+  font-size: var(--type-title-medium-size);
+  line-height: var(--type-title-medium-line-height);
+  font-weight: var(--type-title-medium-weight);
+  letter-spacing: var(--type-title-medium-tracking);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -1622,8 +1730,10 @@
   filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.5));
 }
 .video-facade-still .video-facade-title {
-  font-size: 1rem;
-  line-height: 1.3;
+  font-size: var(--type-title-small-size);
+  line-height: var(--type-title-small-line-height);
+  font-weight: var(--type-title-small-weight);
+  letter-spacing: var(--type-title-small-tracking);
   color: #fff;
   text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
 }
@@ -1633,7 +1743,10 @@
     height: 4.5rem;
   }
   .video-facade-still .video-facade-title {
-    font-size: 1.125rem;
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
   }
 }
 
@@ -1661,16 +1774,18 @@
   margin-top: 0.5rem;
 }
 .block-head > .block-eyebrow {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  line-height: 1.4;
+  font-size: var(--type-label-medium-size);
+  line-height: var(--type-label-medium-line-height);
+  font-weight: var(--type-label-medium-weight);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--block-accent);
 }
 .block-head > .block-subheading {
-  font-size: 1.25rem;
-  line-height: 1.55;
+  font-size: var(--type-title-large-size);
+  line-height: var(--type-title-large-line-height);
+  font-weight: var(--type-title-large-weight);
+  letter-spacing: var(--type-title-large-tracking);
   color: var(--block-muted);
 }
 

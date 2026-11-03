@@ -8,17 +8,17 @@
 import Base from '@theme/layouts/Base.astro';
 import Icon from '@theme/components/Icon.astro';
 import EndBlock from '@theme/components/EndBlock.astro';
-import { endBlock } from '@interstellarcms/cms/src/standard/views';
-import { getPages, pageHeading, pageHeadingHtml, parentPage, stateOf, withoutH1, type Page } from '@interstellarcms/cms/site/content';
-import { nav } from '@interstellarcms/cms/site/site';
-import { firstPicture, picturesOf } from '@interstellarcms/cms/site/images.mjs';
-import { splitBlocks } from '@interstellarcms/cms/lib/blocks.mjs';
-import { markdownHtml } from '@interstellarcms/cms/lib/inline';
+import { endBlock } from '@morpheme/cms/src/standard/views';
+import { getPages, pageHeading, pageHeadingHtml, parentPage, stateOf, withoutH1, type Page } from '@morpheme/cms/site/content';
+import { nav } from '@morpheme/cms/site/site';
+import { firstPicture, picturesOf } from '@morpheme/cms/site/images.mjs';
+import { splitBlocks } from '@morpheme/cms/lib/blocks.mjs';
+import { markdownHtml } from '@morpheme/cms/lib/inline';
 import Container from '@theme/components/Container.astro';
 import RichText from '@theme/components/RichText.astro';
 import Snackbar from '@theme/ui/Snackbar';
-import { isPreview, livePath, PREVIEW, previewId } from '@interstellarcms/cms/site/noindex.mjs';
-import { siteT } from '@interstellarcms/cms/src/i18n';
+import { isPreview, livePath, PREVIEW, previewId } from '@morpheme/cms/site/noindex.mjs';
+import { siteT } from '@morpheme/cms/src/i18n';
 
 interface Props {
   page: Page;
@@ -82,15 +82,12 @@ const review = (page.data.review ?? '').trim();
   <article>
     <Container as="header" class="pt-8 md:pt-14">
       {parent && (
-        <a href={parent.href} class="inline-flex items-center gap-1.5 text-[0.95rem] text-muted hover:text-accent">
+        <a href={parent.href} class="inline-flex items-center gap-1.5 type-body-medium text-muted hover:text-accent">
           <Icon name="arrow-left" size={16} />
           {parent.title}
         </a>
       )}
-      <h1
-        data-editor="heading"
-        class="mt-3 max-w-[22ch] text-[length:var(--theme-title-size,2.3rem)] leading-[var(--theme-title-leading,1.06)] md:text-[length:var(--theme-title-size-large,3.75rem)]"
-      >
+      <h1 data-editor="heading" class="theme-title mt-3 max-w-[22ch]">
         {headingHtml ? <Fragment set:html={headingHtml} /> : heading}
       </h1>
     </Container>
@@ -102,7 +99,7 @@ const review = (page.data.review ?? '').trim();
           class:list={[
             'prose',
             wide
-              ? 'max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:max-w-[52ch] [&>p:first-child]:text-lg [&>p:first-child]:text-muted md:[&>p:first-child]:text-xl'
+              ? 'max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:max-w-[52ch] [&>p:first-child]:type-body-large [&>p:first-child]:text-muted md:[&>p:first-child]:type-title-large'
               : 'max-w-[66ch]',
           ]}
         >

@@ -1,10 +1,10 @@
-# Et site med Interstellar CMS
+# Et site med Morpheme CMS
 
 Hjemmesiden er bygget med [Astro](https://astro.build), kører på [Cloudflare](https://www.cloudflare.com) og rettes i
 editoren på `/editor/`: sider, indlæg, billeder og indstillinger. Hvert gem er ét commit i dette repo, og Cloudflare
 bygger og udgiver sitet af sig selv bagefter.
 
-Editoren, standardtemaet *Material* og sitets Worker er pakken [`@interstellarcms/cms`](https://www.npmjs.com/package/@interstellarcms/cms)
+Editoren, standardtemaet *Material* og sitets Worker er pakken [`@morpheme/cms`](https://www.npmjs.com/package/@morpheme/cms)
 (MIT). Det, der er sitets eget, står her:
 
 - `src/site/config.ts`: sitets navn, domæne, sprog og GitHub-repo; resten er pakkens standard (`defineSite`).

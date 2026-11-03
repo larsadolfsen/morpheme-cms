@@ -10,25 +10,12 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { cleanSvg } from '@interstellarcms/cms/lib/svg.mjs';
+import { cleanSvg } from '@morpheme/cms/lib/svg.mjs';
 import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS, THEME_PACKS_FOLDER, themePackId } from './iconPacks.mjs';
 
-// The site's root (the working directory, or playground/ when developing in this package) and this package's.
-const defaultSiteRoot = () => {
-  const cwd = pathToFileURL(`${process.cwd()}/`);
-  if (existsSync(new URL('src/data/theme.json', cwd))) return cwd;
-  if (existsSync(new URL('playground/src/data/theme.json', cwd))) return new URL('playground/', cwd);
-  return cwd;
-};
-const root = defaultSiteRoot();
+// The site's root (the working directory) and this package's.
+const root = pathToFileURL(`${process.cwd()}/`);
 const pkg = new URL('../', import.meta.url);
-const resolveUrl = (path) => {
-  const inRoot = new URL(path, root);
-  if (existsSync(inRoot)) return inRoot;
-  const inPkg = new URL(path, pkg);
-  if (existsSync(inPkg)) return inPkg;
-  return inRoot;
-};
 /** Whether the system packs are written here (`npm run icons`, where the CMS is made: this package is the site's own
  * packages/editor/, not in node_modules/ and not outside the site, as for the CMS's demo): only there can it be said that
  * a pack has icons nothing draws, since the apps of the store and the site that makes the CMS draw them too. */
@@ -38,7 +25,7 @@ const packsWrittenHere = (() => {
 })();
 
 /** Where the system's own packs are, one folder each (this package's icons/), from the site's root. */
-export const SYSTEM_PACKS_FOLDER = relative(fileURLToPath(root), fileURLToPath(new URL('icons', pkg)));
+export const SYSTEM_PACKS_FOLDER = relative(process.cwd(), fileURLToPath(new URL('icons', pkg)));
 
 /** A pack's folder, from its id, from the site's root: a system pack's in this package, a theme's in its folder. */
 export const packFolder = (id) => {
@@ -46,7 +33,7 @@ export const packFolder = (id) => {
   return pack ? `src/themes/${theme}/${THEME_PACKS_FOLDER}/${pack}` : `${SYSTEM_PACKS_FOLDER}/${theme}`;
 };
 const PHOSPHOR = 'node_modules/@phosphor-icons/core/assets/';
-const has = (path) => existsSync(resolveUrl(path));
+const has = (path) => existsSync(new URL(path, root));
 
 /** The packages the system's packs are written from, at the versions they are (not in package.json, so neither an
  * install nor the site's build fetches them; packages/editor/scripts/icon-packs.mjs fetches them into node_modules/.cache/), and what
@@ -439,7 +426,7 @@ export function svgProblems(file, svg) {
 
 const folders = (dir) =>
   has(dir)
-    ? readdirSync(resolveUrl(dir), { withFileTypes: true })
+    ? readdirSync(new URL(dir, root), { withFileTypes: true })
         .filter((e) => e.isDirectory())
         .map((e) => e.name)
     : [];
@@ -461,8 +448,8 @@ export function packIcons(id) {
   const dir = `${packFolder(id)}/`;
   const icons = {};
   if (has(dir))
-    for (const f of readdirSync(resolveUrl(dir)))
-      if (f.endsWith('.svg')) icons[f.slice(0, -'.svg'.length)] = readFileSync(new URL(f, resolveUrl(dir)), 'utf8');
+    for (const f of readdirSync(new URL(dir, root)))
+      if (f.endsWith('.svg')) icons[f.slice(0, -'.svg'.length)] = readFileSync(new URL(dir + f, root), 'utf8');
   return icons;
 }
 
@@ -471,7 +458,7 @@ export function packIcons(id) {
 export function phosphorFile(name) {
   const file =
     name.endsWith('-fill') && has(`${PHOSPHOR}fill/${name}.svg`) ? `${PHOSPHOR}fill/${name}.svg` : `${PHOSPHOR}regular/${name}.svg`;
-  return has(file) ? readFileSync(resolveUrl(file), 'utf8') : null;
+  return has(file) ? readFileSync(new URL(file, root), 'utf8') : null;
 }
 
 const isText = (x) => typeof x === 'string' && x.trim() !== '';

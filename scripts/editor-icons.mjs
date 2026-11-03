@@ -2,7 +2,7 @@
 // The PNG icons (the editor's app icons in public/editor/, the site's public/apple-touch-icon.png and
 // public/favicon.ico), made from the mark in public/favicon.svg on the site's background colour
 // (light mode, src/data/colors.json). Run again only if the favicon changes:
-// npx interstellar editor-icons
+// npx morpheme editor-icons
 //   icon-192/512: the icon on Android and in the browser; maskable: Android may crop it to a circle,
 //   so the mark keeps inside the middle 60 %; apple-touch-icon: the iPhone home screen (the editor's
 //   and the site's); favicon.ico: for browsers and programs that ask for /favicon.ico, not the SVG.

@@ -1,12 +1,12 @@
 // The site on Cloudflare: the build (npm run build) writes the static site to ./dist, and `wrangler deploy` uploads it as
-// static assets, with the CMS's Worker (@interstellarcms/cms/worker/index.js) in front: the editor's login and its way to
+// static assets, with the CMS's Worker (@morpheme/cms/worker/index.js) in front: the editor's login and its way to
 // GitHub, the redirects, the consent log, the notifications and the scheduled pages.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "interstellar-site",
+  "name": "morpheme-site",
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "node_modules/@interstellarcms/cms/worker/index.js",
+  "main": "node_modules/@morpheme/cms/worker/index.js",
   // What the Worker has from this site: its settings and src/site/worker.js (its redirects, apps and contact).
   "alias": { "@site/config": "./src/site/config.ts", "@site/worker": "./src/site/worker.js" },
   // Keep the variables added in the dashboard (Settings → Variables and secrets) on every deploy.
@@ -17,7 +17,7 @@
   "kv_namespaces": [{ "binding": "NOT_FOUND" }, { "binding": "PUSH" }],
   // FILES: R2 caching, the copy of the site's files in R2 in front of GitHub. Turned on and off in the editor
   // ("Indstillinger" › "Avanceret"), which comments this line in or out, and turns it on only when Cloudflare has the bucket.
-  // "r2_buckets": [{ "binding": "FILES", "bucket_name": "interstellar-site-files", "jurisdiction": "eu" }],
+  // "r2_buckets": [{ "binding": "FILES", "bucket_name": "morpheme-site-files", "jurisdiction": "eu" }],
   // CONSENT: the consent log, the visitors' answers in the cookie banner, in D1, created by `wrangler deploy` the first time.
   "d1_databases": [{ "binding": "CONSENT" }],
   // Builds of other branches than main run `wrangler preview`, which needs this block.

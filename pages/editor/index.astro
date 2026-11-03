@@ -15,20 +15,20 @@
 // editor-version: the fingerprint of this editor's code, also in /editor/version.json; an editor
 // left open reloads itself when the two differ (packages/editor/src/deploy.ts).
 import '@theme/styles/global.css';
-import App from '@interstellarcms/cms/src/App.tsx';
-import { editorVersion } from '@interstellarcms/cms/site/editor-version.mjs';
+import App from '@morpheme/cms/src/App.tsx';
+import { editorVersion } from '@morpheme/cms/site/editor-version.mjs';
 import { config } from '@site/config';
 // The site's colours (the theme's styles/global.css); the editor puts the ones it has loaded in their place, so
 // a change under "Farver" shows at once (packages/editor/src/theme.ts).
 // With those a file written before them does not have made (completeColors).
 import colors from '@data/colors.json';
-import { colorsCss } from '@interstellarcms/cms/lib/colors';
-import { completeColors } from '@interstellarcms/cms/lib/dynamic-colors';
+import { colorsCss } from '@morpheme/cms/lib/colors';
+import { completeColors } from '@morpheme/cms/lib/dynamic-colors';
 import { colorRoles } from '@site/colors';
 // How the site moves, which the editor moves by too (packages/editor/lib/motion.ts); the editor puts a new choice under
 // "Bevægelse" in its place at once (packages/editor/src/theme.ts).
-import { motionCss } from '@interstellarcms/cms/lib/motion';
-import { motionScheme } from '@interstellarcms/cms/site/motion';
+import { motionCss } from '@morpheme/cms/lib/motion';
+import { motionScheme } from '@morpheme/cms/site/motion';
 ---
 
 <!doctype html>

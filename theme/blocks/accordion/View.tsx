@@ -2,8 +2,8 @@
 // with PageRow.tsx) with the space of a block in the text.
 import BlockHead from '@theme/blocks/BlockHead';
 import Accordion from '@theme/blocks/faq/Accordion';
-import type { AccordionView } from '@interstellarcms/cms/src/standard/accordion/view';
-import { useInText } from '@interstellarcms/cms/src/standard/view';
+import type { AccordionView } from '@morpheme/cms/src/standard/accordion/view';
+import { useInText } from '@morpheme/cms/src/standard/view';
 
 export default function AccordionBlock({ view }: { view: AccordionView }) {
   return (

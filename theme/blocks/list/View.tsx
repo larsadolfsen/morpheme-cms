@@ -1,8 +1,8 @@
 // "Liste": its head in the text (BlockHead.tsx), and Rows.tsx with the space of a block in the text.
 import BlockHead from '@theme/blocks/BlockHead';
 import Rows from '@theme/blocks/list/Rows';
-import type { ListView } from '@interstellarcms/cms/src/standard/list/view';
-import { useInText } from '@interstellarcms/cms/src/standard/view';
+import type { ListView } from '@morpheme/cms/src/standard/list/view';
+import { useInText } from '@morpheme/cms/src/standard/view';
 
 export default function ListBlock({ view }: { view: ListView }) {
   return (

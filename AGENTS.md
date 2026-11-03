@@ -8,22 +8,23 @@ Dette dokument definerer den overordnede arkitektur, afgrænsning, roller og wor
 
 I vores økosystem indgår to helt adskilte repositories, som **aldrig** må forveksles:
 
-1. **`Interstellar` (Butikken / Distributionsserveren):**
-   - Cloudflare Worker-repository (`larsadolfsen/Interstellar`).
+1. **`morpheme-appstore` (Butikken / Distributionsserveren):**
+   - Cloudflare Worker-repository (`larsadolfsen/morpheme-appstore`).
    - Fungerer som et privat npm-registry med Cloudflare D1 (metadata, tokens, nøgler) og Cloudflare KV (tarballs).
    - Ansvarlig for pakke-distribution og licenser.
    - Indeholder **ingen** CMS-logik, Astro-koder eller tema-implementeringer.
 
-2. **`interstellar-cms` (Dette repository – Selve CMS-produktet `@interstellarcms/cms`):**
+2. **`morpheme-cms` (Dette repository – Selve CMS-produktet `@morpheme/cms`):**
    - Selve Astro-editoren, CMS-kernen og det officielle standardtema.
-   - Indeholder editoren (`src/`, `pages/`), fælles biblioteker (`lib/`), sitets Cloudflare Worker (`worker/`), standardtemaet (`theme/`) og test-playgrounden (`playground/`).
-   - Når nye versioner er klar og verificeret, bygges og udgives de herfra til butikken via `npm publish`.
+   - Indeholder editoren (`src/`, `pages/`), fælles biblioteker (`lib/`), sitets Cloudflare Worker (`worker/`), standardtemaet (`theme/`), starteren (`starter/`) og demoen (`demo/`).
+   - Udgives på npmjs.com som en offentlig pakke: en release på GitHub med tagget `v<version>` (`.github/workflows/publish.yml`).
+   - Indtil videre er `packages/editor/` i `larsadolfsen/morpheme-website` kilden, og dette repo får den samme mappe, som den er (se `docs/repositories.md` dér).
 
 > [!IMPORTANT]
 > Dette repository er **ikke** butikken eller Cloudflare npm-registryet. Al udvikling her vedrører CMS-editoren, Astro-integrationen, standardtemaet Material Design 3 (*Material*) og de tilhørende blokke og komponenter.
 >
 > **Fælles tema-princip (Frontend & Backend):**
-> Både sitets frontend og administrations-editoren (`/editor/`) anvender og deler **nøjagtig det samme tema** (`theme/styles/global.css`, `theme/styles/fonts.css`, MD3-tokens, typografi og UI-komponenter). Editoren har intet separat font- eller stilsystem: alt arver direkte fra temaets tokens, overflader og lokale Google-fonte.
+> Både sitets frontend og administrations-editoren (`/editor/`) anvender og deler **nøjagtig det samme tema** (`theme/styles/global.css`, MD3-tokens, typografi og UI-komponenter). Editoren har intet separat font- eller stilsystem: alt arver direkte fra temaets tokens, overflader og skrifter.
 
 ---
 
@@ -33,17 +34,14 @@ I vores økosystem indgår to helt adskilte repositories, som **aldrig** må for
   - `theme/styles/`: MD3 design tokens (3-tier: `md.ref.*`, `md.sys.*`, `md.comp.*`), typografi (Roboto / Roboto Flex), elevation og color scales.
   - `theme/ui/`: M3 UI-komponenter (Buttons, Cards, Chips, Dialogs, Top App Bar, Navigation Bar/Rail/Drawer mv.).
   - `theme/blocks/`: Standardblokke og deres visuelle udtryk (`View.tsx`, CSS).
-- **`playground/`**: Isoleret test- og udviklingsmiljø.
-  - Kører uafhængigt af produktionssitet via `npm run playground`.
-  - Frontend showcase på `http://localhost:4321/` (alle 36 M3-komponenter og lys/mørk tilstand).
-  - Administrations-editor på `http://localhost:4321/editor/` (live test af blokke og forhåndsvisning).
+- **`demo/`**: CMS'ets demo, et opdigtet site lagt oven på starteren, som CMS'et udvikles og tjekkes med, og som temaernes billeder tages af (`npx morpheme check:demo`).
+- **`starter/`**: Det, et nyt site begynder med (knappen *Deploy to Cloudflare*).
 - **`src/` og `pages/`**: Selve CMS-editoren og administrationsfladen.
   - `src/`: React-baseret editor UI, skærme, felter, state management (`store.ts`), live preview (`pagePreview.tsx`) og blok-registry (`blocks.ts`).
   - `pages/`: Astro-sider og routing til administrationsfladen.
-- **`scripts/check-md3.mjs`**: Automatisk valideringsscript for Material Design 3 compliance.
 - **`lib/`**: Fælles hjælpefunktioner delt mellem editor og site (blok-parsing `blocks.mjs`, billedbeskæring `crop.mjs`, status, datoer, video-håndtering mv.).
 - **`worker/`**: Sitets standard Cloudflare Worker (login/session, GitHub-commit proxy, R2 backup, redirects og planlagte opgaver).
-- **`bin/`**: CLI-værktøjet `interstellar` til billedbehandling, build-hooks og validering.
+- **`bin/`**: CLI-værktøjet `morpheme` til billedbehandling, build-hooks og validering.
 
 ---
 
@@ -57,11 +55,11 @@ flowchart LR
     A -->|"1. Veldefineret, mekanisk kode"| D["Developer<br/>(Ollama på samme pc)"]
     S -->|"2. Resultater"| A
     D -->|"2. Kode"| A
-    A -->|"3. Gennemgang, test & integration"| R["interstellar-cms codebase"]
+    A -->|"3. Gennemgang, test & integration"| R["morpheme-cms codebase"]
 ```
 
 ### 1. Orkestrator (Claude Code lokalt på pc'en)
-- **Hvor:** `Documents\Interstellar\<repo>` på ejerens pc, på ejerens abonnement; `/rc` for at følge med fra telefonen.
+- **Hvor:** repoets mappe på ejerens pc, på ejerens abonnement; `/rc` for at følge med fra telefonen.
 - **Ansvar:** Systemarkitektur, snitfladedesign, modulkontrakter, sikkerhed, kvalitetssikring, overblik, nedbrydning og uddelegering af opgaver.
 - **Opgaver:**
   - Fastlægger API'er, komponent-props og types.
@@ -83,20 +81,23 @@ flowchart LR
 ### Samarbejdsflow
 1. **Orkestratoren** designer snitflader, definerer datamodeller og bryder opgaven ned i konkrete trin.
 2. **Subagenterne og Developer (Ollama)** udfører delopgaverne og genererer kode.
-3. **Orkestratoren** gennemgår, tester (`check:md3` / `playground`), retter eventuelle fejl og integrerer koden.
+3. **Orkestratoren** gennemgår, tester (se nedenfor), retter eventuelle fejl og integrerer koden.
 
 ---
 
 ## 4. Verifikations- og Testkommandoer
 
-Før ændringer godkendes eller udgives, skal følgende verificeres:
+Før ændringer godkendes eller udgives, skal følgende verificeres. Indtil CMS'et kun rettes her (trin 4 i
+`docs/repositories.md` i `larsadolfsen/morpheme-website`), køres de fra roden af `morpheme-website`, hvor pakken er
+`packages/editor/`:
 
 | Kommando | Beskrivelse |
 | :--- | :--- |
-| `npm run check:md3` | Kører den fulde Material Design 3 validering (tokens, typografi, spacing, scaffold slots og 36/36 komponenter). |
-| `npm run playground` | Starter den lokale Astro-dev server i `playground/` på port `4321` (`/` for komponenter, `/editor/` for backend). |
-| `npm run demo` | Starter automatisk demoen med MD3 compliance check og persistent dev-server i baggrunden. |
-| `npm run test:editor` | Kører automatiseret Playwright E2E-test af samtlige 55 ruter og underskærme i CMS-editoren (fejlfri rendering og nul crash). |
+| `npm run check` | Prettier, typerne, `check:content` (editorens regler), `check:editor` (samme side efter en gem) og `check:worker`. |
+| `npm run check:screens` | Efter `npm run build`: alle editorens skærme åbner uden fejl, på en telefon og en computer, og alle ikoner findes. |
+| `npm run check:themes` | Det samme med hvert af de andre temaer. |
+| `npm run check:starter` | Starteren virker som et site med pakken fra `npm pack`. |
+| `npx morpheme check:demo` | Demoen bygger med standardtemaet og følger editorens regler. |
 
 ---
 

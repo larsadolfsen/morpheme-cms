@@ -19,7 +19,7 @@ export const apps = {
   needsSends: 'Sends forms to other addresses',
   needsServer: 'Has its own part of the website’s server',
   needsBuild: 'Makes its own files when the website is built',
-  /** What it changes of what the site does itself, by its file in hooks/ (@interstellarcms/cms/lib/hooks.ts). */
+  /** What it changes of what the site does itself, by its file in hooks/ (@morpheme/cms/lib/hooks.ts). */
   changes: { 'page-colors': 'Changes the pages’ colors' } as Record<AppHook, string>,
   /** In the check before the build: a file in an app's hooks/ that is no place an app may change the site. */
   unknownHook: (places: string) => `The file is no place an app can change the website: ${places}.`,
@@ -42,7 +42,7 @@ export const apps = {
    * its file (screenshots/, packages/editor/scripts/app-screenshots.mjs), and a file there index.ts does not name. */
   unknownScreenshot: (shows: string) =>
     `The picture "${shows}" shows nothing the app has: blok:<type>, slags:<list>:<variant>, liste:<id>, indstillinger or side.`,
-  noScreenshot: (file: string) => `${file} doesn’t exist. Take the pictures with npx interstellar app-screenshots.`,
+  noScreenshot: (file: string) => `${file} doesn’t exist. Take the pictures with npx morpheme app-screenshots.`,
   unlistedScreenshot: 'The picture isn’t under screenshots in the app’s index.ts.',
   install: 'Install',
   uninstall: 'Uninstall',

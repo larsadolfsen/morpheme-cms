@@ -1,12 +1,15 @@
 {
-  "name": "@interstellarcms/cms",
+  "name": "@morpheme/cms",
   "version": "0.1.0",
-  "description": "Interstellar CMS: the editor for a site built with Astro, its screens, its blocks and the rules a site gives it. See README.md.",
+  "description": "Morpheme CMS: the editor for a site built with Astro, its screens, its blocks and the rules a site gives it. See README.md.",
   "license": "MIT",
   "author": "Lars Adolfsen",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/larsadolfsen/interstellar-cms.git"
+    "url": "git+https://github.com/larsadolfsen/morpheme-cms.git"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "LICENSE",
@@ -23,9 +26,6 @@
     "scripts",
     "!scripts/starter.mjs",
     "!scripts/check-starter.mjs",
-    "!scripts/check-md3.mjs",
-    "!scripts/check-editor-pages.mjs",
-    "!scripts/check-worker-api.mjs",
     "site",
     "src",
     "starter",
@@ -33,26 +33,13 @@
     "worker"
   ],
   "type": "module",
-  "main": "./astro.mjs",
-  "exports": {
-    ".": "./astro.mjs",
-    "./*": "./*"
-  },
   "bin": {
-    "interstellar": "bin/interstellar.mjs"
+    "morpheme": "bin/morpheme.mjs"
   },
   "scripts": {
     "icons": "node scripts/icon-packs.mjs",
     "prepack": "node scripts/types.mjs write",
-    "postpack": "node scripts/types.mjs clean",
-    "dev": "astro dev --root playground",
-    "build": "astro build --root playground",
-    "playground": "astro dev --root playground",
-    "demo": "node .agents/skills/theme-playground/scripts/run-demo.mjs",
-    "test:editor": "node scripts/check-editor-pages.mjs",
-    "test:worker": "node scripts/check-worker-api.mjs",
-    "check:md3": "node scripts/check-md3.mjs",
-    "generate-types": "wrangler types"
+    "postpack": "node scripts/types.mjs clean"
   },
   "peerDependencies": {
     "@astrojs/markdown-remark": "^7.3.2",
@@ -84,7 +71,7 @@
     "tailwindcss": "^4.3.3",
     "unified": "^11.0.5",
     "vite": "^8.3.4",
-    "wrangler": "^4.156.0",
+    "wrangler": "^4.152.0",
     "yaml": "^2.9.1"
   },
   "peerDependenciesMeta": {
@@ -113,7 +100,6 @@
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource-variable/roboto": "^5.3.0",
-    "@fontsource/roboto": "^5.3.0",
     "@material/material-color-utilities": "^0.3.0",
     "@milkdown/kit": "^7.22.3",
     "@phosphor-icons/core": "^2.1.1",
@@ -139,10 +125,7 @@
     "typescript": "^6.0.2",
     "unified": "^11.0.5",
     "vite": "^8.3.4",
-    "wrangler": "^4.156.0",
+    "wrangler": "^4.152.0",
     "yaml": "^2.9.1"
-  },
-  "dependencies": {
-    "@astrojs/cloudflare": "^14.4.3"
   }
 }

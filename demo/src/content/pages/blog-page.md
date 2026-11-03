@@ -1,7 +1,7 @@
 ---
 title: "Blog"
-seoTitle: "Blog | Interstellar"
-seoDescription: "Tips on editing, design, SEO, apps and security for websites built with Interstellar."
+seoTitle: "Blog | Morpheme"
+seoDescription: "Tips on editing, design, SEO, apps and security for websites built with Morpheme."
 ---
 
 # Blog

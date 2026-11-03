@@ -17,7 +17,7 @@ export type ThemeInfo = {
   /** Its picture, an address on the site. */
   icon: string;
   /** Its own licence ("UNLICENSED" when all rights are reserved) and the third-party work it brings (fonts, code,
-   * pictures), on its page and under "Licenser" (@interstellarcms/cms/lib/licenses.mjs). */
+   * pictures), on its page and under "Licenser" (@morpheme/cms/lib/licenses.mjs). */
   license: string;
   thirdParty: ThirdParty[];
   /** The icon pack it uses while none is chosen ("icons" in its theme.json: a system pack, or one of its own by its

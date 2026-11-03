@@ -1,28 +1,22 @@
 ---
-title: "About the Material 3 Theme"
-seoTitle: "About Material Design 3 | Interstellar CMS"
-seoDescription: "Google Material Design 3 (Material) implemented for Astro: 3-tier design tokens, local Roboto typography, 5 scaffold slots, and edge-native CMS parity."
-keyword: "Material Design 3 Theme"
+title: "About Morpheme"
+description: "What Morpheme is built on, and why your site stays fast and safe."
+seoTitle: "About Morpheme"
+seoDescription: "Morpheme is a free, open-source website editor built on Astro, Cloudflare and GitHub. Here’s how it saves your work and keeps your site fast."
 ---
 
-# Material Design 3: Built for Modern Astro
+# About Morpheme
 
-The official Material theme in Interstellar CMS implements Google’s Material Design 3 specification without compromise.
+Morpheme is a website editor for sites built with [Astro](https://astro.build) and hosted on [Cloudflare](https://www.cloudflare.com). It’s free and open source under the MIT license.
 
-![Earth and space station satellite view from Unsplash](/images/uploads/2026/10/space-station.jpg)
+![The Earth seen from space, with clouds over the ocean](/images/uploads/2026/10/earth-from-space.webp)
 
-## 3-Tier Design Tokens
+<div data-block="points" data-props="{&quot;eyebrow&quot;:&quot;Under the hood&quot;,&quot;heading&quot;:&quot;Three proven parts&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;book-open-text&quot;,&quot;title&quot;:&quot;GitHub&quot;,&quot;text&quot;:&quot;Your content lives as plain files in your own repository. Every save is one commit.&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Astro&quot;,&quot;text&quot;:&quot;Your site is built ahead of time into finished pages that open instantly.&quot;},{&quot;icon&quot;:&quot;lifebuoy&quot;,&quot;title&quot;:&quot;Cloudflare&quot;,&quot;text&quot;:&quot;Pages are served from a location near each visitor, and sign-in runs on Cloudflare Workers.&quot;}]}"></div>
 
-Design systems break when component implementations leak into brand tokens. Interstellar enforces a mathematical 3-tier token hierarchy:
+## How saving works
 
-1. **Reference Tokens (`md.ref.*`):** 13 tonal steps calculated using Google’s HCT (Hue, Chroma, Tone) perceptual algorithm.
-2. **System Tokens (`md.sys.*`):** Semantic application roles: Primary, Secondary, Surface Containers (Lowest to Highest), and Elevation Levels 0 to 5.
-3. **Component Tokens (`md.comp.*`):** Over 508 isolated properties mapping System tokens directly to individual components.
+When you tap Save, the editor first checks the page. If something’s missing, it tells you what and highlights the field until it’s fixed. Then your change is saved to GitHub, Cloudflare rebuilds your site, and you get a notification when it’s live.
 
-<div data-block="cards" data-props="{&quot;design&quot;:&quot;image&quot;,&quot;items&quot;:[{&quot;image&quot;:&quot;/images/uploads/2026/10/modern-architecture.jpg&quot;,&quot;title&quot;:&quot;5 Scaffold Slots&quot;,&quot;text&quot;:&quot;Top App Bar, Navigation Pane, Primary Content, Supporting Pane, and Scrim adapting across all 5 Window Size Classes.&quot;},{&quot;image&quot;:&quot;/images/uploads/2026/10/fluid-gradient.jpg&quot;,&quot;title&quot;:&quot;Google HCT Color&quot;,&quot;text&quot;:&quot;Perceptually uniform contrast guaranteeing WCAG AA accessibility in light and dark modes.&quot;},{&quot;image&quot;:&quot;/images/uploads/2026/10/developer-setup.jpg&quot;,&quot;title&quot;:&quot;Local Font Suite&quot;,&quot;text&quot;:&quot;Roboto Flex, Roboto Plain, Roboto Serif, and Roboto Mono preloaded locally as WOFF2 with zero external CDN calls.&quot;}]}"></div>
+Every save is listed under Earlier versions, and deleted photos can be restored from Deleted files.
 
-## 100% Shared Theme Parity
-
-Traditional CMS architectures suffer from visual drift: what editors see in the admin preview rarely matches the live website.
-
-In Interstellar CMS, both the public Astro site and the `/editor/` import the exact same tokens, fonts, and blocks from `@theme`. Keystrokes in the editor render with pixel-perfect accuracy against responsive device viewports.
+<div data-block="checklist" data-props="{&quot;eyebrow&quot;:&quot;Fast and safe&quot;,&quot;heading&quot;:&quot;Built in, not bolted on&quot;,&quot;items&quot;:[&quot;Photos are resized for every screen&quot;,&quot;Every page has a Content Security Policy, so only its own scripts run&quot;,&quot;Your sign-in is a cookie only your site’s server can read&quot;,&quot;No tracking or ad cookies before a visitor says yes&quot;]}"></div>

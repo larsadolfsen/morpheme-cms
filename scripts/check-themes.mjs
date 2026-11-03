@@ -8,7 +8,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { activeTheme, installedThemes } from '@interstellarcms/cms/site/theme.mjs';
+import { activeTheme, installedThemes } from '@morpheme/cms/site/theme.mjs';
 import { binOf } from './bin.mjs';
 
 const ROOT = `${process.cwd()}/`;

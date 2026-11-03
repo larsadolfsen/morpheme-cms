@@ -13,11 +13,11 @@
 import Buttons from '@theme/blocks/buttons/Buttons';
 import List, { ListItem } from '@theme/ui/List';
 import { toolbarClass } from '@theme/ui/Toolbar';
-import { loadButtons } from '@interstellarcms/cms/src/standard/buttons/load';
-import type { Button } from '@interstellarcms/cms/src/standard/buttons/fields';
-import { popupsAt } from '@interstellarcms/cms/site/popups';
-import { site } from '@interstellarcms/cms/site/site';
-import { siteT } from '@interstellarcms/cms/src/i18n';
+import { loadButtons } from '@morpheme/cms/src/standard/buttons/load';
+import type { Button } from '@morpheme/cms/src/standard/buttons/fields';
+import { popupsAt } from '@morpheme/cms/site/popups';
+import { site } from '@morpheme/cms/site/site';
+import { siteT } from '@morpheme/cms/src/i18n';
 
 const path = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
 // An item of the bar: a button, or a text (`type`; without one, a button).

@@ -6,9 +6,9 @@ import Base from '@theme/layouts/Base.astro';
 import Container from '@theme/components/Container.astro';
 import Text from '@theme/components/home/Text.astro';
 import PageBlock from '@theme/components/home/PageBlock.astro';
-import { site } from '@interstellarcms/cms/site/site';
-import { picturesOf } from '@interstellarcms/cms/site/images.mjs';
-import type { FrontPage } from '@interstellarcms/cms/site/home';
+import { site } from '@morpheme/cms/site/site';
+import { picturesOf } from '@morpheme/cms/site/images.mjs';
+import type { FrontPage } from '@morpheme/cms/site/home';
 
 type Props = FrontPage;
 const { page, heading, headingHtml, sections } = Astro.props;
@@ -27,9 +27,7 @@ const { page, heading, headingHtml, sections } = Astro.props;
   shareDescription={page.data.shareDescription}
 >
   <Container class="pt-8 md:pt-16">
-    <h1 class="max-w-[22ch] text-[length:var(--theme-title-size,2.4rem)] leading-[var(--theme-title-leading,1.06)] md:text-[length:var(--theme-title-size-large,3.75rem)]">
-      {headingHtml ? <Fragment set:html={headingHtml} /> : heading}
-    </h1>
+    <h1 class="theme-title max-w-[22ch]">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
   </Container>
   {sections.map((s, i) => {
     const first = i === 0 ? 'theme-home-first' : undefined;

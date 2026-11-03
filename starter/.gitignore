@@ -8,7 +8,7 @@ dist/
 .DS_Store
 Thumbs.db
 
-# Written by the build (interstellar images).
+# Written by the build (morpheme images).
 public/images/_r/
 public/images/_s/
 public/images/_video/

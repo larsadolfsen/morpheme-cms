@@ -7,8 +7,8 @@
 // menu is open (aria-expanded). `open` draws it open (the editor). On the site ui/splitButton.script.ts opens and closes the
 // menu. Other attributes (data-…) go on the main action, and `className` on the whole.
 import { useId, type ReactNode } from 'react';
-import { Svg } from '@interstellarcms/cms/src/icon';
-import type { ButtonKind } from '@interstellarcms/cms/src/standard/view';
+import { Svg } from '@morpheme/cms/src/icon';
+import type { ButtonKind } from '@morpheme/cms/src/standard/view';
 import Button, { buttonClass, type ButtonSize } from '@theme/ui/Button';
 import { Menu } from '@theme/ui/Menu';
 

@@ -747,9 +747,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
 ) {
   const spaced = !!blocks;
   const root = useRef<HTMLDivElement>(null);
-  const box = useRef<HTMLDivElement>(null);
   const toolbar = useRef<HTMLDivElement>(null);
-  const [stuck, setStuck] = useState(false);
   const editor = useRef<Editor | null>(null);
   const changed = useRef(onChange);
   changed.current = onChange;
@@ -1002,23 +1000,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // The button that opened the menu with the kinds of text, while it is open.
   const [kindsAt, setKindsAt] = useState<HTMLElement | null>(null);
   useEffect(() => {
-    const check = () => {
-      if (!box.current) return;
-      const rect = box.current.getBoundingClientRect();
-      const topBar = document.querySelector('.top-app-bar')?.getBoundingClientRect().bottom ?? 65;
-      const stickyTop = topBar + 12;
-      setStuck(rect.top <= stickyTop && rect.bottom > stickyTop + 48);
-    };
-    check();
-    window.addEventListener('scroll', check, { passive: true, capture: true });
-    window.addEventListener('resize', check, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', check, true);
-      window.removeEventListener('resize', check);
-    };
-  }, []);
-
-  useEffect(() => {
     const bar = toolbar.current!;
     // A button is 2.5rem, with 0.125rem between them and 0.375rem around them, and each of the lines
     // between the groups 0.5rem (the classes below).
@@ -1050,19 +1031,14 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     ) : null;
 
   return (
-    <div ref={box} className="rounded-panel border border-line bg-surface">
-      {/* Stays at the top while scrolling through the text, with equal margin around top and sides and rounded corners;
-          on a phone one row that scrolls sideways. The buttons are centred, but start at the left edge when they do not
-          fit (safe), so none is out of reach. */}
+    <div className="rounded-panel border border-line bg-surface">
+      {/* Stays at the top while scrolling through the text, a little under the app's top bar (Screen.tsx,
+          4rem and its line); on a phone one row that scrolls sideways. The buttons are centred, but
+          start at the left edge when they do not fit (safe), so none is out of reach. */}
       <Toolbar
         ref={toolbar}
         label={t.text.tools}
-        data-stuck={stuck || undefined}
-        className={`editor-tools sticky top-[calc(4.75rem+1px+env(safe-area-inset-top))] z-10 justify-center-safe overflow-x-auto transition-[margin,border-radius,box-shadow,border-color] duration-200 ease-out md:flex-wrap ${
-          stuck
-            ? 'mx-3 rounded-panel border border-line shadow-md'
-            : 'mx-0 rounded-t-panel border-b border-line'
-        }`}
+        className="editor-tools sticky top-[calc(4.5rem+1px+env(safe-area-inset-top))] z-10 justify-center-safe overflow-x-auto rounded-t-panel border-b border-line md:flex-wrap"
       >
         {tools.map((tool) => (
           <ReactFragment key={tool.label}>

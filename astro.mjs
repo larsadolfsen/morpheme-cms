@@ -46,7 +46,7 @@ const PAGES = {
 
 /** @returns {import('astro').AstroIntegration} */
 const pagesIntegration = () => ({
-  name: 'interstellar-pages',
+  name: 'morpheme-pages',
   hooks: {
     'astro:config:setup': ({ injectRoute }) => {
       for (const [pattern, file] of Object.entries(PAGES))

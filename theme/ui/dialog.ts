@@ -5,14 +5,11 @@
 // motion it appears and disappears at once. Its close button (data-dialog-close: a full-screen one's cross, or a
 // button among a basic one's actions) and Escape close it, and a tap on the scrim (outside it) closes a basic one (a
 // full-screen one holds a task that is not done, so only its buttons close it); the page under it does not scroll
-// while it is open. It moves with the site's motion scheme (motionSpring, @interstellarcms/cms/lib/motion.ts).
+// while it is open. It moves with the site's motion scheme (motionSpring, @morpheme/cms/lib/motion.ts).
 import { animate } from 'motion';
-import { motionSpring } from '@interstellarcms/cms/lib/motion';
+import { motionSpring } from '@morpheme/cms/lib/motion';
 
 export type DialogControls = { open: () => void; close: () => Promise<void> };
-
-export * from './Dialog.tsx';
-export { default } from './Dialog.tsx';
 
 export function dialog(el: HTMLDialogElement): DialogControls {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;

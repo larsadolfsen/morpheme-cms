@@ -6,7 +6,6 @@
 // Needs the Worker secrets GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET from a GitHub App whose
 // callback URL is https://<hostname>/oauth/callback (installed on this repo only; see docs/editor.md).
 // Who may edit is decided by GitHub: only people with write access to the repository can save.
-import { config } from '@site/config';
 import { sessionCookie } from './session.js';
 
 const STATE_COOKIE = 'cms_oauth_state';
@@ -59,7 +58,7 @@ async function callback(request, url, env) {
 
   const res = await fetch('https://github.com/login/oauth/access_token', {
     method: 'POST',
-    headers: { accept: 'application/json', 'content-type': 'application/json', 'user-agent': 'interstellar-cms' },
+    headers: { accept: 'application/json', 'content-type': 'application/json', 'user-agent': 'morpheme-cms' },
     body: JSON.stringify({
       client_id: env.GITHUB_CLIENT_ID,
       client_secret: env.GITHUB_CLIENT_SECRET,
@@ -70,17 +69,6 @@ async function callback(request, url, env) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok || !data.access_token) {
     return finish({ error: `Login mislykkedes: ${data.error_description ?? data.error ?? res.status}` });
-  }
-  const repoRes = await fetch(https://api.github.com/repos//\, {
-    headers: {
-      authorization: Bearer \,
-      accept: 'application/vnd.github+json',
-      'user-agent': \-worker,
-    },
-  });
-  const repoData = repoRes.ok ? await repoRes.json().catch(() => ({})) : {};
-  if (repoData?.permissions?.push !== true) {
-    return finish({ error: 'Kun personer med skriveadgang til GitHub-repoet har adgang til editoren.' });
   }
   return finish({ token: data.access_token });
 }

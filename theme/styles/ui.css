@@ -1,4 +1,4 @@
-﻿/*
+/*
   The theme's UI components, named as Material 3 names them (m3.material.io/components): what the blocks, the apps and
   the theme's own components (components/, layouts/) draw their controls with, through the parts in ../ui/ (Button.tsx,
   IconButton.tsx) or, in an Astro component, their classes (buttonClass, iconButtonClass). Only the names, the kinds,
@@ -109,6 +109,176 @@
   --elevation-5: 0 4px 8px rgb(0 0 0 / 0.36), 0 20px 44px -12px rgb(0 0 0 / 0.7);
 }
 
+/* ---- Typography ----
+  The type scale (m3.material.io/styles/typography/type-scale-tokens): Material 3's five roles, display, headline,
+  title, body and label, each in a large, a medium and a small size, each with its size, line height, weight and
+  tracking (letter spacing). All text on the site is set with one of them: every block (blocks.css), the text
+  (base.css) and every part below has the role Material 3 gives it, and keeps its own variable where it has one
+  (--button-font-size, --chip-font-size …), so a theme can still give one part another size. A theme sets the scale to
+  its own look, in :root in its styles/global.css, and it is its text everywhere; the values here are Material 3's.
+    --type-<role>-<size>-size, -line-height, -weight, -tracking   <role>: display, headline, title, body or label;
+      <size>: large, medium or small
+    display    the largest text: the Hero's heading, a price
+    headline   the headings of the text and of a section
+    title      the headings of a card, a panel, a row or a sheet; medium and small also names and emphasized labels
+    body       the text: large the text of pages and blocks, medium and small what is smaller beside it
+    label      what is on a control (a button, a chip, a tab, a tag), a badge and a small heading over others
+  Bold or a link inside a text keeps the text's role, with its own weight. The typeface is --font-sans.
+*/
+:where(:root) {
+  --type-display-large-size: 3.5625rem;
+  --type-display-large-line-height: 4rem;
+  --type-display-large-weight: 400;
+  --type-display-large-tracking: -0.015625rem;
+  --type-display-medium-size: 2.8125rem;
+  --type-display-medium-line-height: 3.25rem;
+  --type-display-medium-weight: 400;
+  --type-display-medium-tracking: 0;
+  --type-display-small-size: 2.25rem;
+  --type-display-small-line-height: 2.75rem;
+  --type-display-small-weight: 400;
+  --type-display-small-tracking: 0;
+  --type-headline-large-size: 2rem;
+  --type-headline-large-line-height: 2.5rem;
+  --type-headline-large-weight: 400;
+  --type-headline-large-tracking: 0;
+  --type-headline-medium-size: 1.75rem;
+  --type-headline-medium-line-height: 2.25rem;
+  --type-headline-medium-weight: 400;
+  --type-headline-medium-tracking: 0;
+  --type-headline-small-size: 1.5rem;
+  --type-headline-small-line-height: 2rem;
+  --type-headline-small-weight: 400;
+  --type-headline-small-tracking: 0;
+  --type-title-large-size: 1.375rem;
+  --type-title-large-line-height: 1.75rem;
+  --type-title-large-weight: 400;
+  --type-title-large-tracking: 0;
+  --type-title-medium-size: 1rem;
+  --type-title-medium-line-height: 1.5rem;
+  --type-title-medium-weight: 500;
+  --type-title-medium-tracking: 0.009375rem;
+  --type-title-small-size: 0.875rem;
+  --type-title-small-line-height: 1.25rem;
+  --type-title-small-weight: 500;
+  --type-title-small-tracking: 0.00625rem;
+  --type-body-large-size: 1rem;
+  --type-body-large-line-height: 1.5rem;
+  --type-body-large-weight: 400;
+  --type-body-large-tracking: 0.03125rem;
+  --type-body-medium-size: 0.875rem;
+  --type-body-medium-line-height: 1.25rem;
+  --type-body-medium-weight: 400;
+  --type-body-medium-tracking: 0.015625rem;
+  --type-body-small-size: 0.75rem;
+  --type-body-small-line-height: 1rem;
+  --type-body-small-weight: 400;
+  --type-body-small-tracking: 0.025rem;
+  --type-label-large-size: 0.875rem;
+  --type-label-large-line-height: 1.25rem;
+  --type-label-large-weight: 500;
+  --type-label-large-tracking: 0.00625rem;
+  --type-label-medium-size: 0.75rem;
+  --type-label-medium-line-height: 1rem;
+  --type-label-medium-weight: 500;
+  --type-label-medium-tracking: 0.03125rem;
+  --type-label-small-size: 0.6875rem;
+  --type-label-small-line-height: 1rem;
+  --type-label-small-weight: 500;
+  --type-label-small-tracking: 0.03125rem;
+}
+/* A role as a utility, for a theme's own components and layouts: type-title-large, md:type-headline-small … */
+@utility type-display-large {
+  font-size: var(--type-display-large-size);
+  line-height: var(--type-display-large-line-height);
+  font-weight: var(--type-display-large-weight);
+  letter-spacing: var(--type-display-large-tracking);
+}
+@utility type-display-medium {
+  font-size: var(--type-display-medium-size);
+  line-height: var(--type-display-medium-line-height);
+  font-weight: var(--type-display-medium-weight);
+  letter-spacing: var(--type-display-medium-tracking);
+}
+@utility type-display-small {
+  font-size: var(--type-display-small-size);
+  line-height: var(--type-display-small-line-height);
+  font-weight: var(--type-display-small-weight);
+  letter-spacing: var(--type-display-small-tracking);
+}
+@utility type-headline-large {
+  font-size: var(--type-headline-large-size);
+  line-height: var(--type-headline-large-line-height);
+  font-weight: var(--type-headline-large-weight);
+  letter-spacing: var(--type-headline-large-tracking);
+}
+@utility type-headline-medium {
+  font-size: var(--type-headline-medium-size);
+  line-height: var(--type-headline-medium-line-height);
+  font-weight: var(--type-headline-medium-weight);
+  letter-spacing: var(--type-headline-medium-tracking);
+}
+@utility type-headline-small {
+  font-size: var(--type-headline-small-size);
+  line-height: var(--type-headline-small-line-height);
+  font-weight: var(--type-headline-small-weight);
+  letter-spacing: var(--type-headline-small-tracking);
+}
+@utility type-title-large {
+  font-size: var(--type-title-large-size);
+  line-height: var(--type-title-large-line-height);
+  font-weight: var(--type-title-large-weight);
+  letter-spacing: var(--type-title-large-tracking);
+}
+@utility type-title-medium {
+  font-size: var(--type-title-medium-size);
+  line-height: var(--type-title-medium-line-height);
+  font-weight: var(--type-title-medium-weight);
+  letter-spacing: var(--type-title-medium-tracking);
+}
+@utility type-title-small {
+  font-size: var(--type-title-small-size);
+  line-height: var(--type-title-small-line-height);
+  font-weight: var(--type-title-small-weight);
+  letter-spacing: var(--type-title-small-tracking);
+}
+@utility type-body-large {
+  font-size: var(--type-body-large-size);
+  line-height: var(--type-body-large-line-height);
+  font-weight: var(--type-body-large-weight);
+  letter-spacing: var(--type-body-large-tracking);
+}
+@utility type-body-medium {
+  font-size: var(--type-body-medium-size);
+  line-height: var(--type-body-medium-line-height);
+  font-weight: var(--type-body-medium-weight);
+  letter-spacing: var(--type-body-medium-tracking);
+}
+@utility type-body-small {
+  font-size: var(--type-body-small-size);
+  line-height: var(--type-body-small-line-height);
+  font-weight: var(--type-body-small-weight);
+  letter-spacing: var(--type-body-small-tracking);
+}
+@utility type-label-large {
+  font-size: var(--type-label-large-size);
+  line-height: var(--type-label-large-line-height);
+  font-weight: var(--type-label-large-weight);
+  letter-spacing: var(--type-label-large-tracking);
+}
+@utility type-label-medium {
+  font-size: var(--type-label-medium-size);
+  line-height: var(--type-label-medium-line-height);
+  font-weight: var(--type-label-medium-weight);
+  letter-spacing: var(--type-label-medium-tracking);
+}
+@utility type-label-small {
+  font-size: var(--type-label-small-size);
+  line-height: var(--type-label-small-line-height);
+  font-weight: var(--type-label-small-weight);
+  letter-spacing: var(--type-label-small-tracking);
+}
+
 @layer components {
   /* Buttons (m3.material.io/components/buttons): a label, an icon before it and evt. one after it (the arrow). */
   .button {
@@ -131,9 +301,9 @@
     min-height: var(--button-box);
     padding: 0 var(--button-inline);
     font-family: inherit;
-    font-weight: var(--button-weight, 500);
-    font-size: var(--button-font-size, 1rem);
-    letter-spacing: var(--button-letter-spacing, normal);
+    font-weight: var(--button-weight, var(--type-title-medium-weight));
+    font-size: var(--button-font-size, var(--type-title-medium-size));
+    letter-spacing: var(--button-letter-spacing, var(--type-title-medium-tracking));
     line-height: 1;
     text-decoration: none;
     cursor: pointer;
@@ -169,7 +339,7 @@
     --button-square: var(--button-xsmall-square-radius, calc(var(--block-radius-small) * 0.75));
     --button-pressed: var(--button-xsmall-pressed-radius, var(--button-pressed-radius));
     gap: var(--button-xsmall-gap, 0.4rem);
-    font-size: var(--button-xsmall-font-size, 0.9rem);
+    font-size: var(--button-xsmall-font-size, var(--type-label-large-size));
   }
   .button-xsmall > .button-trailing-icon {
     width: var(--button-glyph);
@@ -180,7 +350,7 @@
     --button-inline: var(--button-small-padding, 1.2rem);
     --button-square: var(--button-small-square-radius, calc(var(--block-radius-small) * 0.75));
     --button-pressed: var(--button-small-pressed-radius, var(--button-pressed-radius));
-    font-size: var(--button-small-font-size, 0.95rem);
+    font-size: var(--button-small-font-size, var(--type-label-large-size));
   }
   .button-large {
     --button-box: var(--button-large-height, 4rem);
@@ -189,7 +359,7 @@
     --button-square: var(--button-large-square-radius, calc(var(--block-radius-small) * 1.75));
     --button-pressed: var(--button-large-pressed-radius, var(--button-pressed-radius));
     gap: var(--button-large-gap, 0.75rem);
-    font-size: var(--button-large-font-size, 1.25rem);
+    font-size: var(--button-large-font-size, var(--type-headline-small-size));
   }
   .button-xlarge {
     --button-box: var(--button-xlarge-height, 5.5rem);
@@ -198,7 +368,7 @@
     --button-square: var(--button-xlarge-square-radius, calc(var(--block-radius-small) * 1.75));
     --button-pressed: var(--button-xlarge-pressed-radius, var(--button-pressed-radius));
     gap: var(--button-xlarge-gap, 1rem);
-    font-size: var(--button-xlarge-font-size, 1.625rem);
+    font-size: var(--button-xlarge-font-size, var(--type-headline-large-size));
   }
   /* The shapes: round (the default) or square; a toggle that is on takes the other one. */
   .button-square,
@@ -582,7 +752,7 @@
     background: transparent;
     color: var(--block-text);
     font: inherit;
-    font-size: var(--text-field-font-size, inherit);
+    font-size: var(--text-field-font-size, var(--type-body-large-size));
   }
   .text-field-input:focus {
     outline: none;
@@ -673,7 +843,7 @@
   }
   .text-field-input:focus + .text-field-label,
   .text-field-input:not(:placeholder-shown) + .text-field-label {
-    font-size: 0.75rem;
+    font-size: var(--type-body-small-size);
   }
   .text-field-input:focus + .text-field-label {
     color: var(--text-field-outlined-focus-line, var(--block-accent));
@@ -819,8 +989,10 @@
     gap: 1rem;
     margin: 0.25rem var(--text-field-padding, 1.25rem) 0;
     color: var(--text-field-supporting-color, var(--block-muted));
-    font-size: 0.75rem;
-    line-height: 1rem;
+    font-size: var(--type-body-small-size);
+    line-height: var(--type-body-small-line-height);
+    font-weight: var(--type-body-small-weight);
+    letter-spacing: var(--type-body-small-tracking);
   }
   .text-field-supporting {
     flex: 1;
@@ -886,8 +1058,10 @@
   .checkbox-supporting {
     display: block;
     color: var(--checkbox-supporting-color, var(--block-muted));
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
   }
 }
 
@@ -924,7 +1098,10 @@
     background: var(--chip-surface, var(--block-surface));
     box-shadow: inset 0 0 0 1px var(--chip-line, var(--block-line));
     font-family: inherit;
-    font-size: var(--chip-font-size, 0.95rem);
+    font-size: var(--chip-font-size, var(--type-label-large-size));
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
     text-decoration: none;
     cursor: pointer;
     transition:
@@ -1223,9 +1400,10 @@
   .dialog-headline {
     flex-shrink: 0;
     margin: 0 0 1rem;
-    font-size: var(--dialog-headline-size, 1.5rem);
-    font-weight: var(--dialog-headline-weight, 500);
-    line-height: 1.3;
+    font-size: var(--dialog-headline-size, var(--type-headline-small-size));
+    font-weight: var(--dialog-headline-weight, var(--type-headline-small-weight));
+    letter-spacing: var(--type-headline-small-tracking);
+    line-height: var(--type-headline-small-line-height);
   }
   .dialog-with-icon .dialog-headline {
     text-align: center;
@@ -1280,7 +1458,8 @@
     flex: 1;
     min-width: 0;
     margin: 0 0 0 0.5rem;
-    font-size: var(--dialog-full-screen-headline-size, 1.25rem);
+    font-size: var(--dialog-full-screen-headline-size, var(--type-title-large-size));
+    line-height: var(--type-title-large-line-height);
   }
   .dialog-header-actions {
     display: flex;
@@ -1408,13 +1587,17 @@
   }
   .bottom-sheet-headline {
     margin: 0;
-    font-size: 1.125rem;
-    line-height: 1.25;
-    font-weight: 500;
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
   }
   .bottom-sheet-supporting-text {
     margin: 0;
-    font-size: 0.8rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     color: var(--block-muted);
   }
   .bottom-sheet-content {
@@ -1451,7 +1634,10 @@
     margin: 0;
     padding: 0.75rem 1.25rem;
     border-top: 1px solid var(--bottom-sheet-line, var(--block-line));
-    font-size: 0.875rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     color: var(--block-muted);
     text-align: center;
   }
@@ -1864,19 +2050,20 @@
     }
   }
   .list-item-headline {
-    line-height: var(--list-item-headline-line-height, inherit);
-    letter-spacing: var(--list-item-headline-letter-spacing, inherit);
+    line-height: var(--list-item-headline-line-height, var(--type-body-large-line-height));
+    letter-spacing: var(--list-item-headline-letter-spacing, var(--type-body-large-tracking));
     overflow-wrap: anywhere;
   }
   :is(.list-item-two-line, .list-item-three-line, .list-item-container:has(> .list-item-content > .list-item-supporting))
     .list-item-headline {
-    font-size: var(--list-item-headline-size, 1.1rem);
-    font-weight: var(--list-item-headline-weight, 500);
+    font-size: var(--list-item-headline-size, var(--type-body-large-size));
+    font-weight: var(--list-item-headline-weight, var(--type-body-large-weight));
   }
   .list-item-supporting {
     color: var(--list-item-supporting-text, var(--block-muted));
-    font-size: var(--list-item-supporting-size, inherit);
-    line-height: var(--list-item-supporting-line-height, inherit);
+    font-size: var(--list-item-supporting-size, var(--type-body-medium-size));
+    letter-spacing: var(--type-body-medium-tracking);
+    line-height: var(--list-item-supporting-line-height, var(--type-body-medium-line-height));
     overflow-wrap: anywhere;
   }
   .list-item-trailing {
@@ -1936,16 +2123,17 @@
   .list-item-overline {
     display: block;
     color: var(--list-item-overline-text, var(--block-muted));
-    font-size: var(--list-item-overline-size, 0.75rem);
-    line-height: var(--list-item-overline-line-height, inherit);
-    font-weight: 500;
-    letter-spacing: 0.04em;
+    font-size: var(--list-item-overline-size, var(--type-label-small-size));
+    line-height: var(--list-item-overline-line-height, var(--type-label-small-line-height));
+    font-weight: var(--type-label-small-weight);
+    letter-spacing: var(--type-label-small-tracking);
   }
   .list-item-trailing-supporting {
     display: flex;
     flex-shrink: 0;
     color: var(--list-item-trailing-text, var(--block-muted));
-    font-size: var(--list-item-trailing-supporting-size, 0.875rem);
+    font-size: var(--list-item-trailing-supporting-size, var(--type-label-small-size));
+    letter-spacing: var(--type-label-small-tracking);
     font-variant-numeric: tabular-nums;
   }
 
@@ -2365,10 +2553,10 @@
     margin: 0;
     overflow: hidden;
     font-family: inherit;
-    font-size: var(--top-app-bar-small-headline-font-size, 1.25rem);
-    font-weight: var(--top-app-bar-headline-weight, 600);
-    letter-spacing: var(--top-app-bar-headline-letter-spacing, -0.01em);
-    line-height: 1.3;
+    font-size: var(--top-app-bar-small-headline-font-size, var(--type-title-large-size));
+    font-weight: var(--top-app-bar-headline-weight, var(--type-title-large-weight));
+    letter-spacing: var(--top-app-bar-headline-letter-spacing, var(--type-title-large-tracking));
+    line-height: var(--type-title-large-line-height);
     white-space: nowrap;
     text-overflow: ellipsis;
   }
@@ -2376,8 +2564,8 @@
     margin: 0;
     overflow: hidden;
     color: var(--top-app-bar-subtitle-color, var(--block-muted));
-    font-size: var(--top-app-bar-small-subtitle-font-size, 0.8125rem);
-    line-height: 1.35;
+    font-size: var(--top-app-bar-small-subtitle-font-size, var(--type-label-medium-size));
+    line-height: var(--type-label-medium-line-height);
     white-space: nowrap;
     text-overflow: ellipsis;
   }
@@ -2409,23 +2597,25 @@
     padding-bottom: var(--top-app-bar-medium-padding-bottom, 0.75rem);
   }
   .top-app-bar-medium-flexible:not([data-collapsed]) .top-app-bar-headline {
-    font-size: var(--top-app-bar-medium-headline-font-size, 1.75rem);
-    line-height: 1.2;
+    font-size: var(--top-app-bar-medium-headline-font-size, var(--type-headline-medium-size));
+    line-height: var(--type-headline-medium-line-height);
   }
   .top-app-bar-medium-flexible:not([data-collapsed]) .top-app-bar-subtitle {
     margin-top: 0.125rem;
-    font-size: var(--top-app-bar-medium-subtitle-font-size, 0.9375rem);
+    font-size: var(--top-app-bar-medium-subtitle-font-size, var(--type-label-large-size));
+    line-height: var(--type-label-large-line-height);
   }
   .top-app-bar-large-flexible:not([data-collapsed]) .top-app-bar-headline-group {
     padding-bottom: var(--top-app-bar-large-padding-bottom, 1rem);
   }
   .top-app-bar-large-flexible:not([data-collapsed]) .top-app-bar-headline {
-    font-size: var(--top-app-bar-large-headline-font-size, 2.25rem);
-    line-height: 1.15;
+    font-size: var(--top-app-bar-large-headline-font-size, var(--type-display-small-size));
+    line-height: var(--type-display-small-line-height);
   }
   .top-app-bar-large-flexible:not([data-collapsed]) .top-app-bar-subtitle {
     margin-top: 0.25rem;
-    font-size: var(--top-app-bar-large-subtitle-font-size, 1rem);
+    font-size: var(--top-app-bar-large-subtitle-font-size, var(--type-title-medium-size));
+    line-height: var(--type-title-medium-line-height);
   }
   .top-app-bar:is(.top-app-bar-medium-flexible, .top-app-bar-large-flexible)[data-collapsed] {
     grid-template-rows: auto;
@@ -2454,8 +2644,8 @@
     border-radius: var(--menu-item-radius, calc(var(--block-radius-small) - 0.25rem));
     padding: var(--menu-item-padding, 0.5rem 0.75rem);
     color: var(--menu-item-text, color-mix(in oklab, var(--block-text) 80%, transparent));
-    font-size: var(--menu-item-font-size, 0.95rem);
-    letter-spacing: var(--menu-item-letter-spacing, normal);
+    font-size: var(--menu-item-font-size, var(--type-body-medium-size));
+    letter-spacing: var(--menu-item-letter-spacing, var(--type-body-medium-tracking));
     transition:
       background-color var(--motion-effects-fast),
       color var(--motion-effects-fast);
@@ -2494,7 +2684,7 @@
     border: 0;
     background: transparent;
     font: inherit;
-    font-size: var(--menu-item-font-size, 0.95rem);
+    font-size: var(--menu-item-font-size, var(--type-body-medium-size));
     text-align: start;
     cursor: pointer;
   }
@@ -2536,15 +2726,18 @@
   }
   .menu-item-supporting {
     color: var(--menu-item-supporting-text, var(--block-muted));
-    font-size: 0.8125rem;
-    font-weight: 400;
-    line-height: 1.25rem;
+    font-size: var(--type-body-small-size);
+    line-height: var(--type-body-small-line-height);
+    font-weight: var(--type-body-small-weight);
+    letter-spacing: var(--type-body-small-tracking);
   }
   .menu-item-trailing-supporting {
     flex-shrink: 0;
     color: var(--menu-item-supporting-text, var(--block-muted));
-    font-size: 0.8125rem;
-    font-weight: 400;
+    font-size: var(--type-body-small-size);
+    line-height: var(--type-body-small-line-height);
+    font-weight: var(--type-body-small-weight);
+    letter-spacing: var(--type-body-small-tracking);
     font-variant-numeric: tabular-nums;
   }
   .menu-item-submenu-icon {
@@ -2560,9 +2753,10 @@
     display: block;
     padding: 0.5rem 0.75rem 0.25rem;
     color: var(--menu-group-label-text, var(--block-muted));
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.02em;
+    font-size: var(--type-label-medium-size);
+    line-height: var(--type-label-medium-line-height);
+    font-weight: var(--type-label-medium-weight);
+    letter-spacing: var(--type-label-medium-tracking);
   }
   .menu:has(> .menu-group):not(.menu-groups-divider) {
     display: flex;
@@ -2764,8 +2958,8 @@
       border-radius: var(--menu-item-radius, calc(var(--block-radius-small) - 0.25rem));
       padding: var(--menu-item-padding, 0.5rem 0.75rem);
       color: var(--menu-item-text, color-mix(in oklab, var(--block-text) 80%, transparent));
-      font-size: var(--menu-item-font-size, 0.95rem);
-      letter-spacing: var(--menu-item-letter-spacing, normal);
+      font-size: var(--menu-item-font-size, var(--type-body-medium-size));
+      letter-spacing: var(--menu-item-letter-spacing, var(--type-body-medium-tracking));
       cursor: pointer;
       transition:
         background-color var(--motion-effects-fast),
@@ -2813,10 +3007,10 @@
     border-radius: var(--navigation-drawer-item-radius, var(--block-radius-small));
     padding: var(--navigation-drawer-item-padding, 0.875rem 0.75rem);
     color: var(--navigation-drawer-item-text, inherit);
-    font-size: var(--navigation-drawer-item-font-size, 1.25rem);
-    line-height: var(--navigation-drawer-item-line-height, calc(1.75 / 1.25));
-    letter-spacing: var(--navigation-drawer-item-letter-spacing, -0.025em);
-    font-weight: var(--navigation-drawer-item-weight, inherit);
+    font-size: var(--navigation-drawer-item-font-size, var(--type-label-large-size));
+    line-height: var(--navigation-drawer-item-line-height, var(--type-label-large-line-height));
+    letter-spacing: var(--navigation-drawer-item-letter-spacing, var(--type-label-large-tracking));
+    font-weight: var(--navigation-drawer-item-weight, var(--type-label-large-weight));
     transition:
       background-color var(--motion-effects-fast),
       color var(--motion-effects-fast);
@@ -2884,7 +3078,8 @@
     border-left: 1px solid var(--navigation-drawer-subitem-line, var(--block-line));
     padding: var(--navigation-drawer-subitem-padding, 0.625rem 0.75rem 0.625rem 1rem);
     color: var(--navigation-drawer-subitem-text, color-mix(in oklab, var(--block-text) 80%, transparent));
-    font-size: var(--navigation-drawer-subitem-font-size, 1.05rem);
+    font-size: var(--navigation-drawer-subitem-font-size, var(--type-body-medium-size));
+    letter-spacing: var(--type-body-medium-tracking);
     transition: color var(--motion-effects-fast);
   }
   .navigation-drawer-subitem:hover,
@@ -2914,8 +3109,9 @@
     padding: var(--tab-padding, 0 1rem);
     white-space: nowrap;
     color: var(--tab-text, var(--block-muted));
-    font-size: var(--tab-font-size, 0.9375rem);
-    font-weight: var(--tab-weight, 500);
+    font-size: var(--tab-font-size, var(--type-title-small-size));
+    letter-spacing: var(--type-title-small-tracking);
+    font-weight: var(--tab-weight, var(--type-title-small-weight));
     transition:
       background-color var(--motion-effects),
       color var(--motion-effects);
@@ -3195,9 +3391,9 @@
     overflow: hidden;
     padding-left: var(--fab-gap, 0.75rem);
     white-space: nowrap;
-    font-size: var(--fab-label-font-size, 1rem);
-    font-weight: var(--fab-label-weight, 500);
-    letter-spacing: var(--fab-label-letter-spacing, normal);
+    font-size: var(--fab-label-font-size, var(--type-title-medium-size));
+    font-weight: var(--fab-label-weight, var(--type-title-medium-weight));
+    letter-spacing: var(--fab-label-letter-spacing, var(--type-title-medium-tracking));
     transition:
       max-width var(--motion-spatial),
       padding var(--motion-spatial),
@@ -3206,18 +3402,18 @@
   .extended-fab-medium > .extended-fab-label {
     max-width: 20rem;
     padding-left: var(--fab-medium-gap, 0.75rem);
-    font-size: var(--fab-medium-label-font-size, 1.375rem);
-    line-height: var(--fab-medium-label-line-height, 1.75rem);
-    font-weight: var(--fab-medium-label-weight, 400);
-    letter-spacing: var(--fab-medium-label-letter-spacing, normal);
+    font-size: var(--fab-medium-label-font-size, var(--type-title-large-size));
+    line-height: var(--fab-medium-label-line-height, var(--type-title-large-line-height));
+    font-weight: var(--fab-medium-label-weight, var(--type-title-large-weight));
+    letter-spacing: var(--fab-medium-label-letter-spacing, var(--type-title-large-tracking));
   }
   .extended-fab-large > .extended-fab-label {
     max-width: 20rem;
     padding-left: var(--fab-large-gap, 1rem);
-    font-size: var(--fab-large-label-font-size, 1.5rem);
-    line-height: var(--fab-large-label-line-height, 2rem);
-    font-weight: var(--fab-large-label-weight, 400);
-    letter-spacing: var(--fab-large-label-letter-spacing, normal);
+    font-size: var(--fab-large-label-font-size, var(--type-headline-small-size));
+    line-height: var(--fab-large-label-line-height, var(--type-headline-small-line-height));
+    font-weight: var(--fab-large-label-weight, var(--type-headline-small-weight));
+    letter-spacing: var(--fab-large-label-letter-spacing, var(--type-headline-small-tracking));
   }
   .extended-fab[data-collapsed] > .extended-fab-label {
     max-width: 0;
@@ -3371,9 +3567,9 @@
     background: transparent;
     color: var(--segmented-button-text, var(--block-text));
     font-family: inherit;
-    font-size: var(--segmented-button-font-size, var(--button-small-font-size, 0.95rem));
-    font-weight: var(--button-weight, 500);
-    letter-spacing: var(--button-letter-spacing, normal);
+    font-size: var(--segmented-button-font-size, var(--button-small-font-size, var(--type-label-large-size)));
+    font-weight: var(--button-weight, var(--type-label-large-weight));
+    letter-spacing: var(--button-letter-spacing, var(--type-label-large-tracking));
     line-height: 1;
     white-space: nowrap;
     cursor: pointer;
@@ -3705,13 +3901,18 @@
   .switch-supporting {
     display: block;
     color: var(--switch-supporting-color, var(--block-muted));
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
   }
   /* What it is, on or off (Til, Fra), before the track: in the accent while it is on. */
   .switch-state {
     color: var(--switch-state-color, var(--block-muted));
-    font-size: 0.875rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
   }
   .switch:has(.switch-input:checked) > .switch-state {
     color: var(--switch-state-checked-color, var(--block-accent));
@@ -3826,8 +4027,10 @@
   .radio-button-supporting {
     display: block;
     color: var(--radio-button-supporting-color, var(--block-muted));
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
   }
   .radio-group {
     display: grid;
@@ -4105,9 +4308,10 @@
     padding: 0.25rem 0.5rem;
     background: var(--slider-value-surface, var(--block-text));
     color: var(--slider-value-text, var(--block-surface));
-    font-size: 0.875rem;
-    font-weight: 500;
-    line-height: 1.25rem;
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
     text-align: center;
     white-space: nowrap;
     pointer-events: none;
@@ -4218,9 +4422,10 @@
     flex: 1;
     min-width: 0;
     margin: 0;
-    font-size: var(--side-sheet-headline-size, 1.25rem);
-    font-weight: var(--side-sheet-headline-weight, 500);
-    line-height: 1.3;
+    font-size: var(--side-sheet-headline-size, var(--type-title-large-size));
+    font-weight: var(--side-sheet-headline-weight, var(--type-title-large-weight));
+    line-height: var(--type-title-large-line-height);
+    letter-spacing: var(--type-title-large-tracking);
   }
   .side-sheet-content {
     flex: 1;
@@ -4294,7 +4499,7 @@
     --circular-progress-indicator-size, -thickness (in 48ths of the size), -active, -track, -gap (in hundredths of the
     ring, with the round ends: 0 for none), -thick-thickness, -thick-size, -wavy-size, -wavy-thick-size
   Snackbars (Snackbar, snackbarClass; m3.material.io/components/snackbar): .snackbar-stack holds them at the bottom of
-  the screen, the newest lowest (@interstellarcms/cms/lib/snackbar.ts, which draws the editor's messages and shows the site's);
+  the screen, the newest lowest (@morpheme/cms/lib/snackbar.ts, which draws the editor's messages and shows the site's);
   .snackbar with .snackbar-supporting-text, its links (.snackbar-link, with an arrow) and evt. .snackbar-actions (the
   action, a text button, .snackbar-action, and the close button, a standard icon button, .snackbar-close), under the
   text with .snackbar-longer-action. The buttons on it get the snackbar's colours.
@@ -4330,8 +4535,9 @@
     min-width: var(--badge-large-size, 1rem);
     height: var(--badge-large-size, 1rem);
     padding: 0 var(--badge-padding, 0.25rem);
-    font-size: var(--badge-font-size, 0.6875rem);
-    font-weight: var(--badge-weight, 500);
+    font-size: var(--badge-font-size, var(--type-label-small-size));
+    letter-spacing: var(--type-label-small-tracking);
+    font-weight: var(--badge-weight, var(--type-label-small-weight));
     font-variant-numeric: tabular-nums;
     line-height: 1;
   }
@@ -4619,8 +4825,9 @@
     background: var(--snackbar-surface, rgb(0 0 0 / 0.8));
     padding: var(--snackbar-padding-block, 0.75rem) var(--snackbar-padding-inline, 1rem);
     color: var(--snackbar-text, rgb(255 255 255));
-    font-size: var(--snackbar-font-size, 0.875rem);
-    line-height: var(--snackbar-line-height, calc(1.25 / 0.875));
+    font-size: var(--snackbar-font-size, var(--type-body-medium-size));
+    letter-spacing: var(--type-body-medium-tracking);
+    line-height: var(--snackbar-line-height, var(--type-body-medium-line-height));
     box-shadow: var(--snackbar-shadow, var(--elevation-3));
     -webkit-backdrop-filter: var(--snackbar-backdrop, blur(8px));
     backdrop-filter: var(--snackbar-backdrop, blur(8px));
@@ -4706,9 +4913,10 @@
     background: var(--tooltip-plain-surface, var(--block-text));
     padding: var(--tooltip-plain-padding, 0.25rem 0.5rem);
     color: var(--tooltip-plain-text, var(--bg));
-    font-size: var(--tooltip-plain-font-size, 0.75rem);
-    font-weight: var(--tooltip-plain-weight, 500);
-    line-height: 1rem;
+    font-size: var(--tooltip-plain-font-size, var(--type-body-small-size));
+    letter-spacing: var(--type-body-small-tracking);
+    font-weight: var(--tooltip-plain-weight, var(--type-body-small-weight));
+    line-height: var(--type-body-small-line-height);
   }
   /* Rich: a subhead, a text and evt. an action on a surface, from the anchor's start. */
   .tooltip-rich {
@@ -4722,15 +4930,20 @@
     background: var(--tooltip-rich-surface, var(--block-surface));
     padding: var(--tooltip-rich-padding, 0.75rem 1rem);
     color: var(--tooltip-rich-text, var(--block-muted));
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     box-shadow:
       0 0 0 1px var(--tooltip-rich-line, var(--block-line)),
       var(--tooltip-rich-shadow, var(--elevation-2));
   }
   .tooltip-subhead {
     color: var(--tooltip-rich-subhead, var(--block-text));
-    font-weight: var(--tooltip-rich-subhead-weight, 600);
+    font-size: var(--type-title-small-size);
+    line-height: var(--type-title-small-line-height);
+    font-weight: var(--tooltip-rich-subhead-weight, var(--type-title-small-weight));
+    letter-spacing: var(--type-title-small-tracking);
   }
   .tooltip-actions {
     display: flex;
@@ -4924,7 +5137,7 @@
   expanded rail's modality: standard (beside the content, which makes room for it) or .navigation-rail-modal (over the
   content, which keeps its place, with its shadow and corners, over .navigation-rail-scrim just before it); its
   behaviour: back into the collapsed rail, or .navigation-rail-hide, nothing while it is collapsed.
-    --navigation-rail-width, --navigation-rail-expanded-width, --navigation-rail-expanded-padding, --navigation-rail-padding, --navigation-rail-radius,
+    --navigation-rail-width, --navigation-rail-expanded-width, --navigation-rail-padding, --navigation-rail-radius,
     --navigation-rail-surface, --navigation-rail-line
     --navigation-rail-modal-surface, --navigation-rail-modal-radius, --navigation-rail-modal-shadow,
     --navigation-rail-scrim   a modal one, expanded
@@ -5032,11 +5245,12 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    line-height: 1rem;
+    line-height: var(--type-label-medium-line-height);
   }
   .navigation-bar-label {
-    font-size: var(--navigation-bar-label-font-size, 0.75rem);
-    font-weight: var(--navigation-bar-label-weight, 500);
+    font-size: var(--navigation-bar-label-font-size, var(--type-label-medium-size));
+    letter-spacing: var(--type-label-medium-tracking);
+    font-weight: var(--navigation-bar-label-weight, var(--type-label-medium-weight));
   }
   .navigation-bar-item[aria-current] .navigation-bar-label {
     font-weight: var(--navigation-bar-label-selected-weight, 700);
@@ -5077,8 +5291,8 @@
     color: inherit;
   }
   .navigation-bar-start .navigation-bar-label {
-    font-size: var(--navigation-bar-horizontal-label-font-size, 0.875rem);
-    line-height: 1.25rem;
+    font-size: var(--navigation-bar-horizontal-label-font-size, var(--type-label-large-size));
+    line-height: var(--type-label-large-line-height);
   }
   .navigation-bar-start .navigation-bar-badge:not(.badge-small) {
     top: -0.625rem;
@@ -5128,8 +5342,8 @@
       color: inherit;
     }
     .navigation-bar-auto .navigation-bar-label {
-      font-size: var(--navigation-bar-horizontal-label-font-size, 0.875rem);
-      line-height: 1.25rem;
+      font-size: var(--navigation-bar-horizontal-label-font-size, var(--type-label-large-size));
+      line-height: var(--type-label-large-line-height);
     }
     .navigation-bar-auto .navigation-bar-badge:not(.badge-small) {
       top: -0.625rem;
@@ -5167,7 +5381,7 @@
      FAB over them; wide, each destination's icon and label side by side in the pill. */
   .navigation-rail {
     display: flex;
-    width: var(--navigation-rail-width, 5rem);
+    width: var(--navigation-rail-width, 5.5rem);
     flex-shrink: 0;
     flex-direction: column;
     gap: 1.5rem;
@@ -5185,15 +5399,14 @@
       visibility 0s linear var(--motion-spatial-duration);
   }
   .navigation-rail[data-expanded] {
-    width: var(--navigation-rail-expanded-width, 22.5rem);
-    padding: var(--navigation-rail-expanded-padding, var(--navigation-rail-padding, 1rem 0.75rem));
+    width: var(--navigation-rail-expanded-width, 16rem);
     transition-delay: 0s;
   }
   /* Modal: expanded over the content, which keeps its place (the margin takes back what the rail grows by), over the
      scrim. The rail stands in a row beside the content, so its z-index holds without a position of its own. */
   .navigation-rail-modal[data-expanded] {
     z-index: 50;
-    margin-inline-end: calc(var(--navigation-rail-width, 5rem) - var(--navigation-rail-expanded-width, 22.5rem));
+    margin-inline-end: calc(var(--navigation-rail-width, 5.5rem) - var(--navigation-rail-expanded-width, 16rem));
     border-start-end-radius: var(--navigation-rail-modal-radius, var(--block-radius));
     border-end-end-radius: var(--navigation-rail-modal-radius, var(--block-radius));
     background: var(--navigation-rail-modal-surface, var(--navigation-rail-surface, var(--block-surface)));
@@ -5222,7 +5435,7 @@
     box-shadow: none;
   }
   .navigation-rail-hide.navigation-rail-modal[data-expanded] {
-    margin-inline-end: calc(-1 * var(--navigation-rail-expanded-width, 22.5rem));
+    margin-inline-end: calc(-1 * var(--navigation-rail-expanded-width, 16rem));
   }
   .navigation-rail-header {
     display: flex;
@@ -5271,9 +5484,10 @@
     display: none;
     padding-inline: 1rem;
     color: var(--navigation-rail-section-label-text, var(--block-muted));
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
+    font-size: var(--type-label-medium-size);
+    line-height: var(--type-label-medium-line-height);
+    font-weight: var(--type-label-medium-weight);
+    letter-spacing: var(--type-label-medium-tracking);
     white-space: nowrap;
   }
   .navigation-rail[data-expanded] .navigation-rail-section-label {
@@ -5288,7 +5502,10 @@
     display: none;
     margin-inline-start: auto;
     color: var(--navigation-rail-item-text, var(--block-muted));
-    font-size: 0.75rem;
+    font-size: var(--type-label-medium-size);
+    line-height: var(--type-label-medium-line-height);
+    font-weight: var(--type-label-medium-weight);
+    letter-spacing: var(--type-label-medium-tracking);
     font-variant-numeric: tabular-nums;
   }
   .navigation-rail[data-expanded] .navigation-rail-trailing-supporting {
@@ -5298,8 +5515,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    min-height: 3.5rem;
     gap: 0.25rem;
     color: var(--navigation-rail-item-text, var(--block-muted));
     text-decoration: none;
@@ -5324,8 +5539,9 @@
     color: var(--navigation-rail-indicator-text, var(--block-accent));
   }
   .navigation-rail-label {
-    font-size: var(--navigation-rail-label-font-size, 0.75rem);
-    font-weight: var(--navigation-rail-label-weight, 500);
+    font-size: var(--navigation-rail-label-font-size, var(--type-label-medium-size));
+    letter-spacing: var(--type-label-medium-tracking);
+    font-weight: var(--navigation-rail-label-weight, var(--type-label-medium-weight));
   }
   .navigation-rail-item[aria-current] .navigation-rail-label {
     font-weight: var(--navigation-rail-label-selected-weight, 700);
@@ -5355,8 +5571,8 @@
     color: var(--navigation-rail-indicator-text, var(--block-accent));
   }
   .navigation-rail[data-expanded] .navigation-rail-label {
-    font-size: var(--navigation-rail-expanded-label-font-size, 0.875rem);
-    line-height: 1.25rem;
+    font-size: var(--navigation-rail-expanded-label-font-size, var(--type-label-large-size));
+    line-height: var(--type-label-large-line-height);
   }
   @media (prefers-reduced-motion: reduce) {
     .navigation-rail {
@@ -5398,7 +5614,7 @@
     background: transparent;
     color: inherit;
     font: inherit;
-    font-size: var(--search-bar-font-size, 1rem);
+    font-size: var(--search-bar-font-size, var(--type-body-large-size));
     text-align: start;
     cursor: text;
   }
@@ -5514,7 +5730,7 @@
     background: transparent;
     color: inherit;
     font: inherit;
-    font-size: var(--search-bar-font-size, 1rem);
+    font-size: var(--search-bar-font-size, var(--type-body-large-size));
     outline: none;
   }
   .search-view-input::placeholder {
@@ -5760,8 +5976,10 @@
   .date-picker-supporting-text {
     margin: 0;
     color: var(--date-picker-supporting-color, var(--block-muted));
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
   }
   .date-picker-headline-row {
     display: flex;
@@ -5772,13 +5990,14 @@
   }
   .date-picker-headline {
     margin: 0;
-    font-size: var(--date-picker-headline-size, 1.75rem);
-    font-weight: var(--date-picker-headline-weight, 500);
-    line-height: 1.25;
+    font-size: var(--date-picker-headline-size, var(--type-headline-large-size));
+    font-weight: var(--date-picker-headline-weight, var(--type-headline-large-weight));
+    line-height: var(--type-headline-large-line-height);
+    letter-spacing: var(--type-headline-large-tracking);
   }
   /* A range's two days, smaller, so they fit on one line. */
   .date-picker[data-range] .date-picker-headline {
-    font-size: calc(var(--date-picker-headline-size, 1.75rem) * 0.75);
+    font-size: calc(var(--date-picker-headline-size, var(--type-headline-large-size)) * 0.75);
   }
   .date-picker-controls {
     display: flex;
@@ -5806,8 +6025,10 @@
     background: transparent;
     color: var(--date-picker-menu-button-text, var(--block-text));
     font: inherit;
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
     white-space: nowrap;
     cursor: pointer;
     transition: background-color var(--motion-effects);
@@ -5841,8 +6062,10 @@
     height: 3rem;
     padding: 0;
     color: var(--date-picker-weekday-text, var(--block-text));
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
   }
   .date-picker-cell {
     height: 3rem;
@@ -5860,7 +6083,10 @@
     background: transparent;
     color: var(--date-picker-day-text, var(--block-text));
     font: inherit;
-    font-size: 0.875rem;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
     font-variant-numeric: tabular-nums;
     cursor: pointer;
     transition:
@@ -5935,7 +6161,10 @@
     background: transparent;
     color: var(--date-picker-day-text, var(--block-text));
     font: inherit;
-    font-size: 1rem;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
     text-align: left;
     cursor: pointer;
   }
@@ -5981,9 +6210,10 @@
     justify-self: start;
     margin: 0 0 1.25rem;
     color: var(--time-picker-headline-color, var(--block-muted));
-    font-size: 0.875rem;
-    font-weight: 500;
-    line-height: 1.25rem;
+    font-size: var(--type-label-medium-size);
+    line-height: var(--type-label-medium-line-height);
+    font-weight: var(--type-label-medium-weight);
+    letter-spacing: var(--type-label-medium-tracking);
   }
   .time-picker-selector,
   .time-picker-input {
@@ -5999,7 +6229,7 @@
     place-items: center;
     width: 1.5rem;
     height: var(--time-picker-box-height, 5rem);
-    font-size: var(--time-picker-box-font-size, 3.25rem);
+    font-size: var(--time-picker-box-font-size, var(--type-display-large-size));
     line-height: 1;
   }
   .time-picker-box,
@@ -6011,8 +6241,8 @@
     background: var(--time-picker-box-surface, var(--block-tint));
     color: var(--time-picker-box-text, var(--block-text));
     font: inherit;
-    font-size: var(--time-picker-box-font-size, 3.25rem);
-    font-weight: var(--time-picker-box-weight, 500);
+    font-size: var(--time-picker-box-font-size, var(--type-display-large-size));
+    font-weight: var(--time-picker-box-weight, var(--type-display-large-weight));
     font-variant-numeric: tabular-nums;
     line-height: 1;
     text-align: center;
@@ -6067,13 +6297,19 @@
     width: var(--time-picker-dial-knob, 3rem);
     height: var(--time-picker-dial-knob, 3rem);
     margin: calc(var(--time-picker-dial-knob, 3rem) / -2);
-    font-size: 1rem;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
     font-variant-numeric: tabular-nums;
     pointer-events: none;
     transform: rotate(var(--time-picker-angle)) translateY(calc(-1 * var(--time-picker-ring))) rotate(calc(-1 * var(--time-picker-angle)));
   }
   .time-picker-dial-number[data-inner] {
-    font-size: 0.875rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
     transform: rotate(var(--time-picker-angle)) translateY(calc(var(--time-picker-dial-knob, 3rem) * 0.75 - var(--time-picker-ring)))
       rotate(calc(-1 * var(--time-picker-angle)));
   }
@@ -6130,7 +6366,10 @@
     justify-self: stretch;
     margin: 0.75rem 0 0;
     color: var(--text-field-error, var(--block-accent));
-    font-size: 0.875rem;
+    font-size: var(--type-body-small-size);
+    line-height: var(--type-body-small-line-height);
+    font-weight: var(--type-body-small-weight);
+    letter-spacing: var(--type-body-small-tracking);
     text-align: center;
   }
   .time-picker-actions {
@@ -6163,8 +6402,10 @@
     background: transparent;
     color: var(--time-picker-period-text, var(--block-muted));
     font: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
     cursor: pointer;
     transition:
       background-color var(--motion-effects),
