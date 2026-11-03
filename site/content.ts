@@ -2,8 +2,8 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import { categories, isBlogCategory } from './categories';
 import { displayTitle } from './text';
 import { isPreview } from './noindex.mjs';
-import { stateOf } from '@morpheme/cms/lib/status.mjs';
-import { pageH1 } from '@morpheme/cms/src/sections.mjs';
+import { stateOf } from '@morphemecms/cms/lib/status.mjs';
+import { pageH1 } from '@morphemecms/cms/src/sections.mjs';
 
 // From text.ts, which the editor uses too (it has no content collections).
 export { displayTitle, openingText } from './text';

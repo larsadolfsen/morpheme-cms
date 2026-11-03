@@ -8,11 +8,11 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { svgParts } from '@morpheme/cms/lib/svg.mjs';
-import { declarationProblems, ownerId } from '@morpheme/cms/lib/licenses.mjs';
+import { svgParts } from '@morphemecms/cms/lib/svg.mjs';
+import { declarationProblems, ownerId } from '@morphemecms/cms/lib/licenses.mjs';
 import { installedPacks, isIconName, packFolder, packProblems, phosphorFile, svgProblems, usedIcons } from './icons.mjs';
 import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS, THEME_PACKS_FOLDER, packInUse, packTheme, themePackId } from './iconPacks.mjs';
-import { MOTION_SCHEMES } from '@morpheme/cms/lib/motion-schemes.mjs';
+import { MOTION_SCHEMES } from '@morphemecms/cms/lib/motion-schemes.mjs';
 
 /** The site's choice of icon pack, `{ "pack": "<id>" }` (config.icons in src/site/config.ts). */
 const ICONS_FILE = 'src/data/icons.json';
@@ -131,7 +131,7 @@ export function iconPack(theme = activeTheme()) {
 }
 
 /** The icon packs there are with their licences, from their manifests, for "Licenser" under "Indstillinger" (IconPack
- * in @morpheme/cms/lib/licenses.mjs, licensesIntegration in packages/editor/astro.mjs): each pack's id, name, version, who made it,
+ * in @morphemecms/cms/lib/licenses.mjs, licensesIntegration in packages/editor/astro.mjs): each pack's id, name, version, who made it,
  * its licence's name and file (LICENSE in its folder), the theme it came with, whether the site draws with it, and each
  * set it takes icons from besides its own (`includes`, with its `licenseFile`). packProblems checks the manifests. */
 export function iconPackLicenses() {
@@ -291,7 +291,7 @@ export function themeProblems(theme) {
   const css = `${themeFolder(theme)}/styles/global.css`;
   if (has(css) && !UI_IMPORT.test(readFileSync(new URL(css, root), 'utf8')))
     problems.push(
-      `${css}: importerer ikke temaets UI-dele (knapperne): @import '@morpheme/cms/theme/styles/ui.css', eller standardtemaets base.css eller global.css, der gør det.`,
+      `${css}: importerer ikke temaets UI-dele (knapperne): @import '@morphemecms/cms/theme/styles/ui.css', eller standardtemaets base.css eller global.css, der gør det.`,
     );
   for (const type of folders(new URL(`${themeFolder(theme)}/blocks/`, root))) {
     const dir = `${themeFolder(theme)}/blocks/${type}`;

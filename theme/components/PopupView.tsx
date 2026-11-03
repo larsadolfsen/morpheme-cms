@@ -5,11 +5,11 @@
 // instead (`Part`, src/apps/<app>/popups/View.tsx, given its view and the button), which shows the button where it
 // wants.
 import type { ComponentType, ReactNode } from 'react';
-import type { Picture } from '@morpheme/cms/src/standard/view';
+import type { Picture } from '@morphemecms/cms/src/standard/view';
 import Dialog from '@theme/ui/Dialog';
 import IconButton from '@theme/ui/IconButton';
 import PopupButton, { type PopupButtonView } from '@theme/components/PopupButton';
-import { siteT } from '@morpheme/cms/src/i18n';
+import { siteT } from '@morphemecms/cms/src/i18n';
 
 export type PopupBoxView = { slug: string; image?: Picture; heading: string; text: string[]; button?: PopupButtonView };
 

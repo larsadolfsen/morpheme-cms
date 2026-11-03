@@ -6,9 +6,9 @@
 // out (splitBlocks). The HTML comes as `html`, or as the default slot (rendered Markdown). `path`: the
 // page's address, for the testimonials' label. `preview`: a new version of a page (/ny/), whose topics
 // show the opening of the new versions too. Each block gets its type, and its shared texts as `texts` (blockTexts).
-import { splitBlocks } from '@morpheme/cms/lib/blocks.mjs';
-import { blockSites } from '@morpheme/cms/src/standard/sites';
-import { blockTexts } from '@morpheme/cms/site/site';
+import { splitBlocks } from '@morphemecms/cms/lib/blocks.mjs';
+import { blockSites } from '@morphemecms/cms/src/standard/sites';
+import { blockTexts } from '@morphemecms/cms/site/site';
 
 interface Props {
   html?: string;

@@ -1,8 +1,8 @@
 // "Trin": its head in the text (BlockHead.tsx), and StepList.tsx with the space of a block in the text.
 import BlockHead from '@theme/blocks/BlockHead';
 import StepList from '@theme/blocks/steps/StepList';
-import type { StepsView } from '@morpheme/cms/src/standard/steps/view';
-import { useInText } from '@morpheme/cms/src/standard/view';
+import type { StepsView } from '@morphemecms/cms/src/standard/steps/view';
+import { useInText } from '@morphemecms/cms/src/standard/view';
 
 export default function Steps({ view }: { view: StepsView }) {
   return (

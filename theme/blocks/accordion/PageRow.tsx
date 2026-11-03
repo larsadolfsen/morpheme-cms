@@ -2,9 +2,9 @@
 // (`link`: its text, e.g. "Læs mere om priser", the shared text of "Foldeliste"), and links to more specific pages
 // (`more`, e.g. "Depression som ung", as chips). The standard block "Foldeliste", and a site's own rows (this site's front
 // page, home/Topics.astro).
-import { Svg } from '@morpheme/cms/src/icon';
-import type { PageRowView } from '@morpheme/cms/src/standard/accordion/view';
-import { Link } from '@morpheme/cms/src/standard/view';
+import { Svg } from '@morphemecms/cms/src/icon';
+import type { PageRowView } from '@morphemecms/cms/src/standard/accordion/view';
+import { Link } from '@morphemecms/cms/src/standard/view';
 import Chip from '@theme/ui/Chip';
 
 export default function PageRow(row: PageRowView) {

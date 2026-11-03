@@ -1,2 +1,2 @@
 /// <reference types="astro/client" />
-/// <reference types="@morpheme/cms/client" />
+/// <reference types="@morphemecms/cms/client" />

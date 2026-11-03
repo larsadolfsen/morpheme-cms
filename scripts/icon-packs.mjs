@@ -17,9 +17,9 @@
 // are not in package.json, and large); Phosphor's is the site's own dependency.
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS } from '@morpheme/cms/site/iconPacks.mjs';
-import { packFolder } from '@morpheme/cms/site/icons.mjs';
-import { MATERIAL_DESIGN_ICONS, PACK_MAPS, PACK_SOURCES, phosphorFile, usedIcons } from '@morpheme/cms/site/icons.mjs';
+import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS } from '@morphemecms/cms/site/iconPacks.mjs';
+import { packFolder } from '@morphemecms/cms/site/icons.mjs';
+import { MATERIAL_DESIGN_ICONS, PACK_MAPS, PACK_SOURCES, phosphorFile, usedIcons } from '@morphemecms/cms/site/icons.mjs';
 
 const MDI = 'material-design-icons';
 const version = (spec) => spec.replace(/^.*@/, '');

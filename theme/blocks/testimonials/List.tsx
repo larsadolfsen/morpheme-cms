@@ -3,9 +3,9 @@
 // `filters`, filter chips (Chip) with their tags over them (.block-filters; with two tags or more): one shows only those with that
 // tag, "Alle" all of them again (on the site by script.ts; without JavaScript all are shown and the buttons are hidden;
 // in the editor only drawn, "Alle" chosen). Each has its anchor, so a short one elsewhere can link to it.
-import { siteT } from '@morpheme/cms/src/i18n';
-import type { TestimonialTexts, TestimonialView } from '@morpheme/cms/src/standard/testimonials/view';
-import { useOnSite } from '@morpheme/cms/src/standard/view';
+import { siteT } from '@morphemecms/cms/src/i18n';
+import type { TestimonialTexts, TestimonialView } from '@morphemecms/cms/src/standard/testimonials/view';
+import { useOnSite } from '@morphemecms/cms/src/standard/view';
 import Testimonial from '@theme/blocks/testimonials/Testimonial';
 import Chip from '@theme/ui/Chip';
 

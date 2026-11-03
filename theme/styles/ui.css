@@ -4499,7 +4499,7 @@
     --circular-progress-indicator-size, -thickness (in 48ths of the size), -active, -track, -gap (in hundredths of the
     ring, with the round ends: 0 for none), -thick-thickness, -thick-size, -wavy-size, -wavy-thick-size
   Snackbars (Snackbar, snackbarClass; m3.material.io/components/snackbar): .snackbar-stack holds them at the bottom of
-  the screen, the newest lowest (@morpheme/cms/lib/snackbar.ts, which draws the editor's messages and shows the site's);
+  the screen, the newest lowest (@morphemecms/cms/lib/snackbar.ts, which draws the editor's messages and shows the site's);
   .snackbar with .snackbar-supporting-text, its links (.snackbar-link, with an arrow) and evt. .snackbar-actions (the
   action, a text button, .snackbar-action, and the close button, a standard icon button, .snackbar-close), under the
   text with .snackbar-longer-action. The buttons on it get the snackbar's colours.

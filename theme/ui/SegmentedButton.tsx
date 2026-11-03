@@ -6,7 +6,7 @@
 // segment's `value`, data-value), or, in the editor, the segment's own attributes (onClick), which go on its button.
 // Other attributes (data-…) go on the group, and `className` after its own class. An
 // Astro component gives its elements the same classes with segmentedButtonClass and segmentedButtonSegmentClass.
-import { Glyph, Svg, type IconRef } from '@morpheme/cms/src/icon';
+import { Glyph, Svg, type IconRef } from '@morphemecms/cms/src/icon';
 
 export type Segment = { label: string; icon?: IconRef; value?: string; selected?: boolean; disabled?: boolean } & Record<string, unknown>;
 

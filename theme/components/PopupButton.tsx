@@ -2,7 +2,7 @@
 // (Buttons.tsx), or a PDF to download in the same look. A pop-up of an app's kind (a Mailchimp signup) gets it and shows
 // it where it wants (after the signup).
 import Buttons from '@theme/blocks/buttons/Buttons';
-import type { ButtonView } from '@morpheme/cms/src/standard/buttons/view';
+import type { ButtonView } from '@morphemecms/cms/src/standard/buttons/view';
 import Button from '@theme/ui/Button';
 
 /** Its button: a PDF to download (its address and text), or the buttons' view (one). */

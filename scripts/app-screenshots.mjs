@@ -15,8 +15,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 import { createServer } from 'vite';
-import { aliases, themePlugin } from '@morpheme/cms/site/theme.mjs';
-import { appFoldersPlugin } from '@morpheme/cms/lib/apps.mjs';
+import { aliases, themePlugin } from '@morphemecms/cms/site/theme.mjs';
+import { appFoldersPlugin } from '@morphemecms/cms/lib/apps.mjs';
 import { binOf } from './bin.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
 
@@ -48,8 +48,8 @@ try {
   const { partScreens } = await load('@site/editor');
   const { companyParts } = await load('@site/company');
   const { colorRoles } = await load('@site/colors');
-  const { dynamicColors } = await load('@morpheme/cms/lib/dynamic-colors.ts');
-  const { shotFile } = await load('@morpheme/cms/src/store.ts');
+  const { dynamicColors } = await load('@morphemecms/cms/lib/dynamic-colors.ts');
+  const { shotFile } = await load('@morphemecms/cms/src/store.ts');
   blue = { ...dynamicColors(BLUE, colorRoles), dynamic: BLUE };
   for (const id of ids) {
     const app = (await load(`/src/apps/${id}/index.ts`)).default;

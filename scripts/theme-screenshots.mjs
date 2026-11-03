@@ -10,7 +10,7 @@ import { createServer } from 'node:http';
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { extname, join } from 'node:path';
 import { chromium } from 'playwright';
-import { installedThemes, themeFolder } from '@morpheme/cms/site/theme.mjs';
+import { installedThemes, themeFolder } from '@morphemecms/cms/site/theme.mjs';
 import { binOf } from './bin.mjs';
 import { demoSite } from './demo-site.mjs';
 

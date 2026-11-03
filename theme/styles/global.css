@@ -61,7 +61,7 @@
 
   --radius: var(--md-shape-medium);
   --shadow: var(--elevation-1);
-  /* The site's motion scheme's curve ("Bevægelse", @morpheme/cms/lib/motion.ts). */
+  /* The site's motion scheme's curve ("Bevægelse", @morphemecms/cms/lib/motion.ts). */
   --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
 
   --block-surface: var(--md-surface-container-low);

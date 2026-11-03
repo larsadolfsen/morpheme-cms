@@ -10,10 +10,10 @@ import PageHeader from '@theme/components/PageHeader.astro';
 import Container from '@theme/components/Container.astro';
 import TextSection from '@theme/components/TextSection.astro';
 import PageBlock from '@theme/components/home/PageBlock.astro';
-import { space } from '@morpheme/cms/site/sections';
-import { displayTitle, getPages, getPosts, pageHeading } from '@morpheme/cms/site/content';
-import { standardPaths, type StandardPageView } from '@morpheme/cms/site/standardPages';
-import { siteT } from '@morpheme/cms/src/i18n';
+import { space } from '@morphemecms/cms/site/sections';
+import { displayTitle, getPages, getPosts, pageHeading } from '@morphemecms/cms/site/content';
+import { standardPaths, type StandardPageView } from '@morphemecms/cms/site/standardPages';
+import { siteT } from '@morphemecms/cms/src/i18n';
 
 type Props = StandardPageView;
 const { heading, intro, sections } = Astro.props;

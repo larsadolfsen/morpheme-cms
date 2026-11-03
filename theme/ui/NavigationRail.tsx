@@ -19,8 +19,8 @@
 // the site; in the editor only drawn). An Astro component gives its elements the classes with navigationRailClass,
 // navigationRailClasses and navigationRailItemClass.
 import type { ReactNode } from 'react';
-import { Glyph, Svg, type IconRef } from '@morpheme/cms/src/icon';
-import { Link } from '@morpheme/cms/src/standard/view';
+import { Glyph, Svg, type IconRef } from '@morphemecms/cms/src/icon';
+import { Link } from '@morphemecms/cms/src/standard/view';
 import { ExtendedFab } from '@theme/ui/Fab';
 import { iconButtonClass } from '@theme/ui/IconButton';
 import Badge from '@theme/ui/Badge';

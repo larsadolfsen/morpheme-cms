@@ -9,9 +9,9 @@
 // `href` it is a link (Link: on the site; in the editor only drawn; never a toggle), else a <button type="button">.
 // Other attributes (data-…, disabled) go on it, and `className` after its own classes (its place). An Astro component
 // without React gives an element the same classes with iconButtonClass, and a toggle aria-pressed itself.
-import { Glyph, type IconRef } from '@morpheme/cms/src/icon';
+import { Glyph, type IconRef } from '@morphemecms/cms/src/icon';
 import Badge from '@theme/ui/Badge';
-import { Link, type IconButtonKind } from '@morpheme/cms/src/standard/view';
+import { Link, type IconButtonKind } from '@morphemecms/cms/src/standard/view';
 import { ToggleIcon, type ButtonShape, type ButtonSize } from '@theme/ui/Button';
 
 export const iconButtonWidths = ['narrow', 'default', 'wide'] as const;

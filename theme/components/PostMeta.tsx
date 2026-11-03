@@ -1,7 +1,7 @@
 // Date and reading time for a blog post: "12. marts 2024 · 5 min. læsetid" in Danish (posts.ts makes them).
-import { Svg } from '@morpheme/cms/src/icon';
+import { Svg } from '@morphemecms/cms/src/icon';
 import type { PostView } from '@theme/components/posts';
-import { siteT } from '@morpheme/cms/src/i18n';
+import { siteT } from '@morphemecms/cms/src/i18n';
 
 export default function PostMeta({ post, className }: { post: PostView; className?: string }) {
   return (

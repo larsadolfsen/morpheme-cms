@@ -12,8 +12,8 @@
 // the button that removes it. Other attributes (data-…, aria-…, onClick) go on the button or the link, and `className`
 // after its own classes. The label is a prop, not children, so an Astro component shows it as it is (BlogIndex.astro).
 import type { ReactNode } from 'react';
-import { Glyph, Svg, type IconRef } from '@morpheme/cms/src/icon';
-import { Link } from '@morpheme/cms/src/standard/view';
+import { Glyph, Svg, type IconRef } from '@morphemecms/cms/src/icon';
+import { Link } from '@morphemecms/cms/src/standard/view';
 
 export type ChipKind = 'assist' | 'filter' | 'input' | 'suggestion';
 

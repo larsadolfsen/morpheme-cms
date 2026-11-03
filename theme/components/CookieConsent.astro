@@ -11,14 +11,14 @@
 // "Cookiebanner"); "Læs mere" goes to the cookie policy ("Standardsider", cookiesHref in packages/editor/site/standardPages.ts).
 // Its `enabled` is read by Base.astro: switched off, neither the banner nor this script (and so no
 // Google tag) is on the site.
-import type { CookieCategory } from '@morpheme/cms/lib/cookieCategories.mjs';
+import type { CookieCategory } from '@morphemecms/cms/lib/cookieCategories.mjs';
 import { buttonClass } from '@theme/ui/Button';
 import Checkbox from '@theme/ui/Checkbox';
 import { dialogClass } from '@theme/ui/Dialog';
 import cookies from '@data/cookies.json';
-import { cookiesHref } from '@morpheme/cms/site/standardPages';
+import { cookiesHref } from '@morphemecms/cms/site/standardPages';
 import { consentCategories } from '../../site/consent';
-import { siteT } from '@morpheme/cms/src/i18n';
+import { siteT } from '@morphemecms/cms/src/i18n';
 
 const more = await cookiesHref();
 // Each category with its name and what it is for.
@@ -72,7 +72,7 @@ const necessary = category('necessary');
 </div>
 
 <script>
-  import type { ConsentCategory } from '@morpheme/cms/lib/cookieCategories.mjs';
+  import type { ConsentCategory } from '@morphemecms/cms/lib/cookieCategories.mjs';
   import { choose, consentId, storedConsent } from '../../site/tracking.client';
 
   const banner = document.getElementById('cookie-consent');

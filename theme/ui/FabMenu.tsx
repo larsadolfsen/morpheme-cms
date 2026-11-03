@@ -8,7 +8,7 @@
 // (`className`). `open` draws it open (the editor). On the site ui/fabMenu.script.ts opens and closes it. Other
 // attributes (data-…) go on the whole.
 import { useId } from 'react';
-import { Svg } from '@morpheme/cms/src/icon';
+import { Svg } from '@morphemecms/cms/src/icon';
 import { ExtendedFab, fabClass, type FabKind, type FabSize } from '@theme/ui/Fab';
 
 export type FabMenuItem = { icon: string; label: string; href?: string } & Record<string, unknown>;

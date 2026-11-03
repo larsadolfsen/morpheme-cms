@@ -1,4 +1,4 @@
-// What the cookie banner asks about: the categories of cookies (@morpheme/cms/lib/cookieCategories.mjs) of what the
+// What the cookie banner asks about: the categories of cookies (@morphemecms/cms/lib/cookieCategories.mjs) of what the
 // installed apps load with their settings (`cookies` in their index.ts: Google Analytics statistics, Google Ads
 // marketing, Google Tag Manager both), each a yes or no of its own; and whether the site has the banner (and
 // "Cookieindstillinger" in the footer) at all: when it is switched on ("Privatliv" › "Cookiebanner",

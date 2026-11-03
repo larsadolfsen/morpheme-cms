@@ -20,7 +20,7 @@
 //   slots/head.astro, slots/body-end.astro  what it puts on every page of the site, in <head> or at the
 //                 end of <body> (AppSlot.astro), while it is installed;
 //   hooks/<place>.ts  how it changes something the site does itself, run by the site's build while it is installed
-//                 (@morpheme/cms/lib/hooks.ts: hooks/page-colors.ts, the colours of a page);
+//                 (@morphemecms/cms/lib/hooks.ts: hooks/page-colors.ts, the colours of a page);
 //   page in index.ts  what it shows on its page under its settings (AppPage), drawn with the editor's parts (ui.tsx),
 //                 asking its own addresses in the Worker (`api`);
 //   screens in index.ts  screens of its own under its page (#apps/<app>/<screen>, AppScreenPage), drawn as its page,

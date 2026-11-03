@@ -20,13 +20,13 @@ import {
   themeFolder,
   themePlugin,
   themeProblems,
-} from '@morpheme/cms/site/theme.mjs';
-import { appFoldersPlugin, appIds, appWorkersProblems } from '@morpheme/cms/lib/apps.mjs';
-import { codePackageProblems, declarationProblems, ownerId } from '@morpheme/cms/lib/licenses.mjs';
+} from '@morphemecms/cms/site/theme.mjs';
+import { appFoldersPlugin, appIds, appWorkersProblems } from '@morphemecms/cms/lib/apps.mjs';
+import { codePackageProblems, declarationProblems, ownerId } from '@morphemecms/cms/lib/licenses.mjs';
 import { notesOf, releaseProblems } from './releases.mjs';
 
 const root = `${process.cwd()}/`;
-// This package's own code, from the site's root (packages/editor/ or node_modules/@morpheme/cms/).
+// This package's own code, from the site's root (packages/editor/ or node_modules/@morphemecms/cms/).
 const own = relative(root, fileURLToPath(new URL('..', import.meta.url)));
 const { allowedCspProblems, appCspProblems } = await import('../site/siteCsp.mjs');
 const { appCookieProblems } = await import('../site/appCookies.mjs');
@@ -52,7 +52,7 @@ const server = await createServer({
   server: { middlewareMode: true, hmr: false, ws: false },
 });
 let result, missing;
-// The licences ("Licenser" under "Indstillinger", @morpheme/cms/lib/licenses.mjs): each app's own and those of the
+// The licences ("Licenser" under "Indstillinger", @morphemecms/cms/lib/licenses.mjs): each app's own and those of the
 // third-party work it brings (its defineApp), installed or not, as each theme's (themeProblems), with the packages they
 // declare, which they give what a package lacks for.
 const licenses = [];
@@ -61,7 +61,7 @@ const declared = new Set();
 let catalog = {};
 const releases = [];
 try {
-  const { problemsOf, untranslated } = await server.ssrLoadModule('@morpheme/cms/src/checkSite.ts');
+  const { problemsOf, untranslated } = await server.ssrLoadModule('@morphemecms/cms/src/checkSite.ts');
   result = problemsOf(files);
   missing = untranslated();
   const { config } = await server.ssrLoadModule('/src/site/config.ts');

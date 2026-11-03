@@ -1,5 +1,5 @@
 // The cookies the apps set (src/apps/<app>/cookies.json): each app names those it sets, with who sets them, what for,
-// how long they last and their category (@morpheme/cms/lib/cookieCategories.mjs: 'necessary', set also without a yes in
+// how long they last and their category (@morphemecms/cms/lib/cookieCategories.mjs: 'necessary', set also without a yes in
 // the cookie banner, or 'preferences', 'statistics', 'marketing' or 'targeting', only after a yes to it), in the site's language, as its csp.json names what it loads; one without a name (those a service decides itself) is
 // only a line on the app's page in the editor (`cookieList` in its index.ts, AppCookie in packages/editor/src/store.ts).
 // Those with a name are added to the site's cookie list ("Lister" › "Cookies", which the standard block "Cookieliste"

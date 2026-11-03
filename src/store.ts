@@ -27,13 +27,13 @@ import type { StoreLicenses } from './licenses';
 
 /** The version of the contract between the editor and an app (apps.ts: defineApp, its folder, and the theme's parts it
  * draws with: the standard blocks' and the UI components, @theme/blocks/… and @theme/ui/…, imported from
- * @morpheme/cms): an app in the store says which it is written to, and only those the editor can run are
+ * @morphemecms/cms): an app in the store says which it is written to, and only those the editor can run are
  * offered. Raised when an app written to the one before no longer works. */
 export const APP_API = 1;
 
 /** The version of the contract between the editor and a theme (what a theme must and may have, "Hvad et tema må" in
  * CLAUDE.md, themeProblems in packages/editor/site/theme.mjs, the standard theme's UI parts with Material 3's names and
- * variants, the motion scheme's --motion-* springs and motionSpring/motionTiming (@morpheme/cms/lib/motion),
+ * variants, the motion scheme's --motion-* springs and motionSpring/motionTiming (@morphemecms/cms/lib/motion),
  * and the classes it styles): only themes written to it are offered. Raised when a theme written to the one before no
  * longer works. */
 export const THEME_API = 2;
@@ -51,7 +51,7 @@ export type StoreAdd = { label: string; icon: string; hint?: string };
 /** What an app needs of the site, as its folder says (needsOf): its code on every page (slots/), what it loads from
  * other addresses and where its forms send to (its csp.json, by host), its own part of the site's Worker (worker.js),
  * a step when the site is built (build.mjs) and what it changes of what the site does itself (hooks/,
- * @morpheme/cms/lib/hooks.ts; not in a catalog written before there were any). Shown on its page under "Rettigheder",
+ * @morphemecms/cms/lib/hooks.ts; not in a catalog written before there were any). Shown on its page under "Rettigheder",
  * before it is installed. */
 export type AppNeeds = { pages: boolean; loads: string[]; sends: string[]; server: boolean; build: boolean; changes?: AppHook[] };
 

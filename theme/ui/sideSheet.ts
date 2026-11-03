@@ -3,9 +3,9 @@
 // and back, Escape closes it, and screen readers know it is modal. Motion: it slides in from the side of the screen it
 // stands at and out again (a state transition), the scrim fading in with it (ui.css); with reduced motion it appears
 // and disappears at once. Its close button, Escape and a tap on the scrim (outside it) close it; the page under it does
-// not scroll while it is open. It moves with the site's motion scheme (motionSpring, @morpheme/cms/lib/motion.ts).
+// not scroll while it is open. It moves with the site's motion scheme (motionSpring, @morphemecms/cms/lib/motion.ts).
 import { animate } from 'motion';
-import { motionSpring } from '@morpheme/cms/lib/motion';
+import { motionSpring } from '@morphemecms/cms/lib/motion';
 
 export type SideSheetControls = { open: () => void; close: () => Promise<void> };
 

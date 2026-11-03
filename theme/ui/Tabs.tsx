@@ -11,8 +11,8 @@
 // panel's id; the open one aria-selected), which tabs.script.ts does on the site. How it looks is the theme's. An Astro
 // component gives its elements the classes with tabsClass, tabsClasses and tabClass.
 import type { ReactNode } from 'react';
-import { Glyph, type IconRef } from '@morpheme/cms/src/icon';
-import { Link } from '@morpheme/cms/src/standard/view';
+import { Glyph, type IconRef } from '@morphemecms/cms/src/icon';
+import { Link } from '@morphemecms/cms/src/standard/view';
 import Badge from '@theme/ui/Badge';
 
 export type TabsKind = 'primary' | 'secondary';

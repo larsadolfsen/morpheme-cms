@@ -7,7 +7,7 @@
 import setting from '@data/standard-pages.json';
 import { getPages, type Page, type PostChoice } from './content';
 import { isBlogCategory } from './categories';
-import { pageH1, partsOfMarkdown, sectionsFromParts } from '@morpheme/cms/src/sections.mjs';
+import { pageH1, partsOfMarkdown, sectionsFromParts } from '@morphemecms/cms/src/sections.mjs';
 import { frontLeads } from '@site/standardPages';
 
 type Link = { label: string; href: string };

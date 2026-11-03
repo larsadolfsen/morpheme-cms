@@ -1,7 +1,7 @@
 // "Links": its heading in the text, and LinkGroups.tsx with the space of a block in the text.
 import LinkGroups from '@theme/blocks/links/LinkGroups';
-import type { LinksView } from '@morpheme/cms/src/standard/links/view';
-import { InProse, useInText } from '@morpheme/cms/src/standard/view';
+import type { LinksView } from '@morphemecms/cms/src/standard/links/view';
+import { InProse, useInText } from '@morphemecms/cms/src/standard/view';
 
 export default function Links({ view }: { view: LinksView }) {
   return (

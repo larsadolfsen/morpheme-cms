@@ -1,7 +1,7 @@
 // A blog post on the site, as BlogPosts.tsx, PostList.tsx and PostMeta.tsx draw it (posts.ts), with its picture's sizes.
-import { pictureOf } from '@morpheme/cms/src/standard/load';
-import { postPath, type Post } from '@morpheme/cms/site/content';
-import { formatDate, readingMinutes } from '@morpheme/cms/site/format';
+import { pictureOf } from '@morphemecms/cms/src/standard/load';
+import { postPath, type Post } from '@morphemecms/cms/site/content';
+import { formatDate, readingMinutes } from '@morphemecms/cms/site/format';
 import type { PostView } from '@theme/components/posts';
 
 export const postViewOf = (post: Post): PostView => ({

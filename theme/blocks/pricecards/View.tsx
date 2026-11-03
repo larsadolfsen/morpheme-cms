@@ -7,8 +7,8 @@ import BlockHead from '@theme/blocks/BlockHead';
 import Buttons from '@theme/blocks/buttons/Buttons';
 import Checks from '@theme/blocks/checklist/Checks';
 import Card from '@theme/ui/Card';
-import type { PriceCardsView } from '@morpheme/cms/src/standard/pricecards/view';
-import { useInText } from '@morpheme/cms/src/standard/view';
+import type { PriceCardsView } from '@morphemecms/cms/src/standard/pricecards/view';
+import { useInText } from '@morphemecms/cms/src/standard/view';
 
 export default function PriceCards({ view }: { view: PriceCardsView }) {
   return (

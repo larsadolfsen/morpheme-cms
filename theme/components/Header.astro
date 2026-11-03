@@ -15,8 +15,8 @@ import MobileNav from '@theme/components/MobileNav.astro';
 import { topAppBarClass } from '@theme/ui/TopAppBar';
 import { menuClass, menuItemClass } from '@theme/ui/Menu';
 import { extendedFabClass } from '@theme/ui/Fab';
-import { site, nav, navShown } from '@morpheme/cms/site/site';
-import { siteT } from '@morpheme/cms/src/i18n';
+import { site, nav, navShown } from '@morphemecms/cms/site/site';
+import { siteT } from '@morphemecms/cms/src/i18n';
 
 const current = Astro.url.pathname;
 const isActive = (href: string) => current === href || (href !== '/' && current.startsWith(href));
