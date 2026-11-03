@@ -109,6 +109,27 @@ A push that leaves no changeset pending (the Release PR's merge, or only empty c
   release with the version's section of `CHANGELOG.md`.
 - `morpheme-website` and Sara's site follow `latest`, as `docs/platform.md` already says.
 
+### /release: the skill that does it
+
+The owner releases by typing `/release` in a session in `morpheme-cms`. The skill is
+`.claude/skills/release/SKILL.md` in this repository (so cloud sessions have it too) and runs the same gated steps
+each time:
+
+1. **Take stock (read-only):** the open Release PR (`gh pr list --head changeset-release/main`): its version and the
+   section of `CHANGELOG.md` it adds; `npm view @morphemecms/cms dist-tags`: the `next` staging runs and the current
+   `latest`; the newest build of the Worker `morpheme-staging` (Cloudflare connector, read-only). Stops and says why
+   when there is no Release PR, or staging's newest build failed or does not run the newest `next`.
+2. **Ask** with the question box: *Release X.Y.Z to every site?*, with the release notes. Always asked, also with the
+   standing go-ahead to merge: a merge reaches `main`, a release reaches every site. No answer is no.
+3. **Merge** the Release PR: `gh pr merge <n> --admin --merge`.
+4. **Watch** the Publish run (`gh run watch`), then check that `dist-tags.latest` is X.Y.Z and that the tag `vX.Y.Z`
+   and its GitHub release exist.
+5. **Report** the version, its notes and the links (npm, GitHub release). A failing step is reported with its output
+   verbatim and nothing is retried or republished by hand.
+
+Every command the skill shows the owner starts with `cd` into `morpheme-cms`. The skill never runs `npm publish`
+itself, never bumps a version by hand, and never merges anything but the Release PR.
+
 ## The workflows
 
 | File | When | What |
