@@ -67,7 +67,7 @@ before the next starts. Before a batch starts, mark it *in progress* below on `m
 | Batch | File | Ends with | Status |
 | --- | --- | --- | --- |
 | 1. The pure parts | `2026-11-03-cms-update-check-batch-1.md` | `node --test packages/editor/lib/*.test.mjs` green, with the new modules' tests | done (3 November 2026, morpheme-website#553) |
-| 2. The Worker | `2026-11-03-cms-update-check-batch-2.md` | `npm run check:worker` green, with the update's whole round trip against fakes | not started |
+| 2. The Worker | `2026-11-03-cms-update-check-batch-2.md` | `npm run check:worker` green, with the update's whole round trip against fakes | in progress (4 November 2026) |
 | 3. The page, the starter and the docs | `2026-11-03-cms-update-check-batch-3.md` | *Indstillinger › Morpheme* on `npm run dev`, and the package in `morpheme-cms` | not started |
 
 ## Owner steps (not code)
