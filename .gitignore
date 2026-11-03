@@ -4,3 +4,5 @@ node_modules/
 # The demo, built by npm run build (scripts/demo-build.mjs), and wrangler's own files.
 .morpheme/
 .wrangler/
+# Claude Code's worktrees; .claude/skills/ is committed.
+.claude/worktrees/
