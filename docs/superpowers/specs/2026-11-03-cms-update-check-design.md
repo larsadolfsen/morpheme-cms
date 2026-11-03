@@ -113,6 +113,7 @@ Worker to the devices with it on (`push.js`), in each device's language.
 | --- | --- |
 | npm or GitHub cannot be reached | Nothing that hour; `cms:checked.problem` says it, and the page shows when the last check worked. |
 | No `GITHUB_PUBLISH_TOKEN`, or no `PUSH` binding (a branch's preview, the demo) | Nothing is checked or committed; the page says why. |
+| The token cannot write to the repository (GitHub answers 403) | Nothing is committed; `cms:checked.problem` says so, and the page names the version that is waiting and that the token needs *Contents: Read and write*. The hourly check goes on, so the update is taken the hour after the permission is given. |
 | The branch moved on between reading and committing | The commit is made on the newest head, as `publish.js` does. |
 | The owner saves while an update is waiting | Their commits stay; the undo changes only the dependency and its lock entry. |
 | The token cannot read check runs | The 20-minute fallback undoes it instead; the page says that undoing is slow because of it. |
@@ -122,7 +123,9 @@ Worker to the devices with it on (`push.js`), in each device's language.
 
 - **The token.** Reading check runs needs read access to *Checks* on the site's repository, besides *Contents: Read
   and write*. The setup (`docs/editor.md`, *Opsætning*) and the starter's README name it. When the token is replaced by
-  the site's GitHub App installation token (step 3 in `docs/platform.md`), the app asks for the same two.
+  the site's GitHub App installation token (step 3 in `docs/platform.md`), the app asks for the same two. **Today
+  (3 November 2026) the token cannot write**, so no site updates itself yet: giving it *Contents: Read and write* (and
+  *Checks: Read*) is the owner's step, and the plan's round trip waits for it.
 - **Nothing from npm runs in the Worker.** It reads JSON and one text file from npm and writes them into
   `package.json` and the lock; `npm ci` in the build checks the tarball against the `integrity` the Worker wrote,
   which is npm's own.
