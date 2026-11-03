@@ -510,17 +510,18 @@ Merge any PR with a non-empty changeset in `morpheme-cms` with the owner's yes, 
 **Files:**
 - Modify: `docs/platform.md`, the paragraph starting `**Udgivelse:** når en ændring med en hævet version`
 
-- [ ] **Step 1: Replace the paragraph with**
+- [x] **Step 1: Replace the paragraph with** (staged publishing: each version waits for the owner's 2FA approval)
 
 ```markdown
-**Udgivelse:** hver merge til `main` i CMS-repoet udgiver en testversion under npm-tagget `next`, som
-`morpheme-staging` bygges med; Changesets samler ændringernes versioner og release notes i pull requesten _Release
-@morphemecms/cms_, og når ejeren har prøvet den på staging og flettet den, udgiver Actions den som `latest` med
-trusted publishing (`docs/superpowers/specs/2026-11-03-development-flow-and-releases-design.md` i CMS-repoet). npm
-tager aldrig imod en version, det har, igen.
+**Udgivelse:** hver merge til `main` i CMS-repoet lægger en testversion klar under npm-tagget `next`, som
+`morpheme-staging` bygges med; Changesets samler ændringernes versioner og release notes i pull requesten
+_Release @morphemecms/cms_, og når ejeren har prøvet den på staging og flettet den, lægger Actions den klar som `latest`
+med trusted publishing (`docs/superpowers/specs/2026-11-03-development-flow-and-releases-design.md` i CMS-repoet). En
+version er først på npm, når ejeren har godkendt den på npmjs.com med 2FA; en agent godkender aldrig. npm tager aldrig
+imod en version, det har, igen.
 ```
 
-- [ ] **Step 2: Verify and commit**
+- [x] **Step 2: Verify and commit**
 
 Run: `npm run check` (Prettier formats Markdown). Expected: green.
 
