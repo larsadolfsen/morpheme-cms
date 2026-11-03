@@ -42,7 +42,7 @@ keeps the Release PR open (or publishes `latest` when it has been merged), and a
 - **P1.** `@morphemecms/cms@0.1.0` is on npm, published once by hand (step 1 of `docs/repositories.md` in
   `morpheme-website`), and on npmjs.com *Settings › Trusted publishing* names `larsadolfsen/morpheme-cms` and
   workflow `publish.yml`. Blocks Task 4 and Task 5's first build. Check: `npm view @morphemecms/cms version` prints
-  `0.1.0`.
+  `0.1.0`. **0.1.0 is on npm (3 November 2026, 18:55 UTC); trusted publishing still to be turned on.**
 
 ## File structure
 
@@ -57,6 +57,7 @@ keeps the Release PR open (or publishes `latest` when it has been merged), and a
 | `.github/workflows/publish.yml` | 4 | Release PR, `latest`, `next`, deploy hook |
 | `larsadolfsen/morpheme-staging` (new repo) | 5 | the staging site |
 | `morpheme-website/docs/platform.md` | 6 | *Udgivelse* describes the new flow |
+| `.claude/skills/release/SKILL.md`, `.gitignore` | 7 | `/release`: the owner's one command for a release |
 
 ---
 
@@ -441,7 +442,7 @@ name `morpheme-cms next`, branch `main`, Create, copy the URL.
 Run in a terminal (paste the URL when asked; never in the chat):
 
 ```bash
-gh secret set STAGING_DEPLOY_HOOK -R larsadolfsen/morpheme-cms
+cd C:/Users/adolf/Documents/Interstellar/morpheme-cms && gh secret set STAGING_DEPLOY_HOOK -R larsadolfsen/morpheme-cms
 ```
 
 - [ ] **Step 7: Verify end to end**
@@ -481,8 +482,123 @@ git commit -m "Describe the CMS's next and latest releases in platform.md"
 
 ---
 
+### Task release-flow/7: The /release skill
+
+**Blocked by:** Task 4 merged (the Release PR exists). Task 5 for the staging check (until then the skill reports
+"no staging build found" and still asks).
+
+**Files:**
+- Create: `.claude/skills/release/SKILL.md`
+- Modify: `.gitignore` (add `.claude/worktrees/`), `AGENTS.md` (Task 4's release line: *med `/release`*)
+- Local only, not committed: in `.git/info/exclude` of the owner's checkout, replace the line `.claude/` with
+  `.claude/worktrees/`, so the skill's folder is not ignored there.
+
+**Interfaces:**
+- Consumes: branch `changeset-release/main` and its PR (Task 4), npm tags `next`/`latest`, Worker `morpheme-staging`
+  (Task 5).
+
+- [ ] **Step 1: Write `.claude/skills/release/SKILL.md`**
+
+````markdown
+---
+name: release
+description: Use when the owner wants to release @morphemecms/cms to the sites - "/release", "release the CMS", "publish to latest", "udgiv CMS'et". Checks the Release PR and staging, asks once, merges the Release PR and verifies npm, the tag and the GitHub release.
+---
+
+# Releasing @morphemecms/cms
+
+Announce "Using release". A release reaches every site (the editor updates itself to a new minor or patch), so each
+phase is a gate: a failure stops here and is reported with its output verbatim. Never `npm publish` by hand, never
+bump a version by hand, never merge anything but the Release PR, never retry a failed publish. Design:
+`docs/superpowers/specs/2026-11-03-development-flow-and-releases-design.md` (section 4).
+
+Every command shown to the owner starts with `cd C:/Users/adolf/Documents/Interstellar/morpheme-cms && `.
+
+## Phase 1 - Take stock (read-only)
+
+```
+gh pr list -R larsadolfsen/morpheme-cms --head changeset-release/main --state open --json number,title,url
+gh pr diff <n> -R larsadolfsen/morpheme-cms -- CHANGELOG.md package.json
+npm view @morphemecms/cms dist-tags --json
+```
+
+- No open Release PR: stop - "Nothing to release: no changes are waiting (no changesets merged since the last
+  release)."
+- The Release PR's version: `version` in its `package.json` diff. Its notes: the lines it adds to `CHANGELOG.md`.
+- Staging: the newest build of the Worker `morpheme-staging` (Cloudflare connector, read-only - list builds). Stop if it
+  failed ("Staging's newest build failed: <link>; fix main first"). If it is older than the newest `next` publish, or
+  none is found, say so in the question below instead of stopping.
+
+## Phase 2 - Ask
+
+Question box, one question: "Release X.Y.Z to every site?" with the notes and the staging line in the question text.
+Options: "Release X.Y.Z", "Not now". Asked every time, also when a standing go-ahead to merge exists. Skipped or
+"Not now": stop, change nothing.
+
+## Phase 3 - Merge
+
+```
+gh pr merge <n> -R larsadolfsen/morpheme-cms --admin --merge
+```
+
+(`--admin`: the Release PR is opened by Actions' token, so its check never runs; `main` lets admins bypass it.)
+
+## Phase 4 - Verify
+
+```
+gh run list -R larsadolfsen/morpheme-cms -w Publish -L 1 --json databaseId,headSha,status
+gh run watch <id> -R larsadolfsen/morpheme-cms --exit-status
+npm view @morphemecms/cms dist-tags.latest
+gh release view vX.Y.Z -R larsadolfsen/morpheme-cms --json tagName,url
+```
+
+The run must be on the merge commit (`headSha`), succeed, `latest` must print X.Y.Z (npm can lag a minute: check up to
+three times, a minute apart, with a Monitor until-loop), and the release must exist. Anything else: stop and report.
+
+## Phase 5 - Report
+
+Version, the release notes, and the links: `https://www.npmjs.com/package/@morphemecms/cms/v/X.Y.Z` and the GitHub
+release's URL. Sites get it at their editor's next update check.
+````
+
+- [ ] **Step 2: Make the folder committable**
+
+Add to `.gitignore`:
+
+```gitignore
+# Claude Code's worktrees; .claude/skills/ is committed.
+.claude/worktrees/
+```
+
+Then (owner's checkout, local only): in `.git/info/exclude` replace `.claude/` with `.claude/worktrees/`.
+
+Run: `git check-ignore -v .claude/skills/release/SKILL.md`
+Expected: no output (not ignored). Run: `git check-ignore -v .claude/worktrees/x` - Expected: `.gitignore:...`.
+
+- [ ] **Step 3: Point AGENTS.md at it**
+
+In Task 4's line in section 1, replace `og udgiver \`latest\`. Flet den aldrig uden ejerens ja.` with
+`og udgiver \`latest\`: ejeren skriver \`/release\` (\`.claude/skills/release/SKILL.md\`). Flet den aldrig uden ejerens ja.`
+
+- [ ] **Step 4: Verify**
+
+In a new session in `morpheme-cms`, type `/release`. Expected: the skill loads and phase 1 runs; with no Release PR open
+it stops with "Nothing to release". With one open (after Task 4 Step 5), it shows the version and notes and asks;
+answer "Not now" and check that nothing changed (`gh pr view <n> --json state` still `OPEN`). The first real
+"Release" is the owner's call.
+
+- [ ] **Step 5: Commit** (with an empty changeset: nothing a site gets)
+
+```bash
+git add .claude/skills/release/SKILL.md .gitignore AGENTS.md .changeset
+git commit -m "Add /release, which releases the CMS from the Release PR"
+```
+
+---
+
 ## Order
 
-Task 1 → Task 2 → Task 3. Task 1 + P1 → Task 4 → Task 5. Task 6 any time after the spec is merged.
+Task 1 → Task 2 → Task 3. Task 1 + P1 → Task 4 → Task 5. Task 4 → Task 7 (its staging check needs Task 5). Task 6 any
+time after the spec is merged.
 Tasks 2 and 4 touch different files and can be built side by side once Task 1 is merged; Task 4's `AGENTS.md` edit is
 a different section from Task 1's.
