@@ -53,14 +53,15 @@ Al udvikling i dette repo styres af én orkestrator, der uddelegerer:
 
 ```mermaid
 flowchart LR
-    A["Orkestrator<br/>(Claude i skyen)"] -->|"1. Snitflader, krav & delopgaver"| S["Claude-subagenter"]
-    A -->|"1. Tungt kodearbejde"| D["Developer<br/>(Lokal Ollama via ollama launch claude)"]
+    A["Orkestrator<br/>(Claude Code lokalt på pc'en)"] -->|"1. Delopgaver, der kræver repoets regler"| S["Claude-subagenter"]
+    A -->|"1. Veldefineret, mekanisk kode"| D["Developer<br/>(Ollama på samme pc)"]
     S -->|"2. Resultater"| A
     D -->|"2. Kode"| A
     A -->|"3. Gennemgang, test & integration"| R["interstellar-cms codebase"]
 ```
 
-### 1. Orkestrator (Claude i skyen)
+### 1. Orkestrator (Claude Code lokalt på pc'en)
+- **Hvor:** `Documents\Interstellar\<repo>` på ejerens pc, på ejerens abonnement; `/rc` for at følge med fra telefonen.
 - **Ansvar:** Systemarkitektur, snitfladedesign, modulkontrakter, sikkerhed, kvalitetssikring, overblik, nedbrydning og uddelegering af opgaver.
 - **Opgaver:**
   - Fastlægger API'er, komponent-props og types.
@@ -69,13 +70,15 @@ flowchart LR
   - Integrerer og committer færdigtestede ændringer.
 
 ### 2. Claude-subagenter
-- **Ansvar:** Afgrænsede eller parallelle opgaver fra orkestratoren (søgning, gennemgang, mindre ændringer).
+- **Ansvar:** Afgrænsede eller parallelle opgaver fra orkestratoren (søgning, gennemgang, mindre ændringer); førstevalget, når opgaven kræver at kende repoets regler.
 
-### 3. Developer (Lokal Ollama)
-- **Ansvar:** Tung kodegenerering, boilerplate-kodning, funktionelle delimplementationer og rå komponentudkast.
-- **Model:** Startes med `ollama launch claude` (Claude Code med en lokal model); helst `qwen3.8:27b`, `gemma4:12b` med mindre hukommelse.
-- **Kommunikation:** Nås fra skyen kun, når pc'en er forbundet med Remote Control (Claude Desktop eller `claude remote-control` i mappen); ellers laver orkestratoren arbejdet selv eller med subagenter.
-- **Instruks:** Skal altid modtage veldefinerede krav og snitflader fra orkestratoren før udførelse.
+### 3. Developer (Ollama på samme pc)
+- **Ansvar:** Veldefinerede, mekaniske opgaver med en præcis specifikation (boilerplate, tests, oversættelser, omskrivninger).
+- **Model og adgang:** `qwen3.8:27b` gennem Ollamas API på `http://127.0.0.1:11434`.
+- **Instruks:** Skal altid modtage veldefinerede krav og snitflader fra orkestratoren, som gennemgår koden og kører tjekkene, før den committes.
+
+### 4. Claude i skyen (claude.ai/code)
+- **Hvornår:** Når pc'en er slukket, eller til en opgave, der skal køre for sig i en ren container. Den når ikke Ollama og laver arbejdet selv eller med subagenter.
 
 ### Samarbejdsflow
 1. **Orkestratoren** designer snitflader, definerer datamodeller og bryder opgaven ned i konkrete trin.
