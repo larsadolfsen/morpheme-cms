@@ -49,3 +49,4 @@ Hele vejledningen står i `docs/editor.md` i sitets repo. Her er kun det, et sit
 - **Layoutene til sider og blogindlæg** markerer med `data-editor`, hvad *Forhåndsvis* sætter ind (`src/pagePreview.tsx`): `heading`, `image`, `text` og evt. `end` med `data-editor-block` (en blok, der slutter teksten, står dér).
 - **Afhængighederne** i `peerDependencies`: alt, pakkens kode henter (Astro og dens integrationer, React, Milkdown, Phosphor, Tailwind, motion, standardtemaets skrift, yaml og det, der laver Markdown i *Forhåndsvis*: unified, remark og rehype), og det, kommandoerne bruger (Vite, esbuild, sharp, Wrangler, og til tjekkene i en browser Playwright og jsdom). Starterens `package.json` har dem alle (`scripts/starter.mjs`).
 - **Starteren** (`starter/`): det, et nyt site begynder med, tjekket som et site med pakken fra `npm pack` (`scripts/check-starter.mjs`).
+
