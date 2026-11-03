@@ -1,0 +1,34 @@
+// The CMS's demo on Cloudflare, the Worker morpheme-demo: `npm run build` (scripts/demo-build.mjs) builds the demo into
+// .morpheme/demo/site/, and `wrangler deploy` uploads its dist/ as static assets with the CMS's Worker in front, as a site
+// from the starter has it (starter/wrangler.jsonc). Not in the package.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "morpheme-demo",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // The package as the build copied it there (demo-build.mjs), as a site has it from npm.
+  "main": "node_modules/@morphemecms/cms/worker/index.js",
+  // What the Worker has from the demo: its settings and src/site/worker.js.
+  "alias": {
+    "@site/config": "./.morpheme/demo/site/src/site/config.ts",
+    "@site/worker": "./.morpheme/demo/site/src/site/worker.js",
+  },
+  // Keep the variables added in the dashboard (Settings → Variables and secrets) on every deploy.
+  "keep_vars": true,
+  "observability": { "logs": { "enabled": true, "invocation_logs": true } },
+  // No KV, D1, R2 or crons: the Worker does without them (not-found.js, push.js, consent.js), so the demo creates nothing
+  // in the account, and its made-up repository gets no scheduled commits.
+  // Builds of other branches than main run `wrangler preview`, which needs this block.
+  "previews": {},
+  // Cloudflare's builds of other branches have no build command of their own, so wrangler builds the demo first.
+  "build": {
+    "command": "npm run build",
+  },
+  "assets": {
+    "directory": "./.morpheme/demo/site/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "html_handling": "force-trailing-slash",
+    "run_worker_first": true,
+  },
+}

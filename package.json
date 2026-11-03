@@ -26,6 +26,7 @@
     "scripts",
     "!scripts/starter.mjs",
     "!scripts/check-starter.mjs",
+    "!scripts/demo-build.mjs",
     "site",
     "src",
     "starter",
@@ -37,6 +38,7 @@
     "morpheme": "bin/morpheme.mjs"
   },
   "scripts": {
+    "build": "node scripts/demo-build.mjs",
     "icons": "node scripts/icon-packs.mjs",
     "prepack": "node scripts/types.mjs write",
     "postpack": "node scripts/types.mjs clean"

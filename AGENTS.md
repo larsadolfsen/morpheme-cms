@@ -34,7 +34,7 @@ I vores økosystem indgår to helt adskilte repositories, som **aldrig** må for
   - `theme/styles/`: MD3 design tokens (3-tier: `md.ref.*`, `md.sys.*`, `md.comp.*`), typografi (Roboto / Roboto Flex), elevation og color scales.
   - `theme/ui/`: M3 UI-komponenter (Buttons, Cards, Chips, Dialogs, Top App Bar, Navigation Bar/Rail/Drawer mv.).
   - `theme/blocks/`: Standardblokke og deres visuelle udtryk (`View.tsx`, CSS).
-- **`demo/`**: CMS'ets demo, et opdigtet site lagt oven på starteren, som CMS'et udvikles og tjekkes med, og som temaernes billeder tages af (`npx morpheme check:demo`).
+- **`demo/`**: CMS'ets demo, et opdigtet site lagt oven på starteren, som CMS'et udvikles og tjekkes med, og som temaernes billeder tages af (`npx morpheme check:demo`). `npm run build` (`scripts/demo-build.mjs`, ikke i pakken) bygger den i `.morpheme/demo/site/` med en kopi af pakken, som npm ville pakke den, og `wrangler.jsonc` lægger den på Workeren `morpheme-demo`.
 - **`starter/`**: Det, et nyt site begynder med (knappen *Deploy to Cloudflare*).
 - **`src/` og `pages/`**: Selve CMS-editoren og administrationsfladen.
   - `src/`: React-baseret editor UI, skærme, felter, state management (`store.ts`), live preview (`pagePreview.tsx`) og blok-registry (`blocks.ts`).
