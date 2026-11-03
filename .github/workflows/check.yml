@@ -1,0 +1,28 @@
+# The CMS's checks on each pull request into main, and that it has a changeset (.changeset/README.md), so main can
+# always be released. Free here: the repository is public. The checks that still run from morpheme-website's root are
+# added here as each comes to run from this repository's root.
+name: Check
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # changeset status compares with origin/main.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --no-audit --no-fund
+      - name: The pull request has a changeset
+        run: npx changeset status --since=origin/main
+      # The demo on the starter: its content checked by the editor's rules, built, and after-build (scripts/demo-build.mjs).
+      - run: npm run build
