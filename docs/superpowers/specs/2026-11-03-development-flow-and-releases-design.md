@@ -1,5 +1,10 @@
 # Development flow and releases for @morphemecms/cms
 
+> **Changed 3 November 2026:** npm's trusted publisher for `publish.yml` allows only *staged publishing*, so where
+> this design says a workflow *publishes* to `next` or `latest`, it stages the version (`npm stage publish`), and the
+> version is on npm once the owner approves it with 2FA on npmjs.com. The deploy hook, the tag and the GitHub release
+> follow the approval. Details in Task 4 of the plan.
+
 > **Status:** design, approved by the owner on 3 November 2026. Covers `larsadolfsen/morpheme-cms` and a new staging
 > site. Out of scope: moving the CMS's source out of `morpheme-website`'s `packages/editor/` (the owner's own work),
 > the release flow of `morpheme-apps`, and the editor's own update check (step 6 in `docs/platform.md` in
