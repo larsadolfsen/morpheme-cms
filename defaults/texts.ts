@@ -26,6 +26,9 @@ export const texts: Record<string, Record<string, string>> = {
     'Skærmlæsere springer billedet over.': 'Screen readers skip the picture.',
     Til: 'On',
     Fra: 'Off',
+    Sidekolonne: 'Side column',
+    'Blokken ved siden af teksten vises på siden. Den vælges under Udseende › Sidekolonne.':
+      'The block beside the text is shown on the page. It is chosen under Appearance › Side column.',
     'Hele bredden': 'Full width',
     'Siden fylder hele bredden uden spalten ved siden af teksten.': 'The page fills the whole width without the column beside the text.',
     Status: 'Status',

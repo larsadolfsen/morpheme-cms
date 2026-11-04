@@ -118,6 +118,7 @@ export const MATERIAL_SYMBOLS = {
   bus: 'directions_bus',
   'calendar-blank': 'calendar_today',
   'calendar-check': 'event_available',
+  'calendar-x': 'event_busy',
   car: 'directions_car',
   cards: 'cards_stack',
   'caret-down': 'keyboard_arrow_down',
@@ -165,6 +166,7 @@ export const MATERIAL_SYMBOLS = {
   handshake: 'handshake',
   heart: 'favorite',
   house: 'home',
+  'identification-card': 'id_card',
   image: 'image',
   'image-square': 'image',
   info: 'info',
@@ -186,6 +188,7 @@ export const MATERIAL_SYMBOLS = {
   medal: 'military_tech',
   megaphone: 'campaign',
   minus: 'remove',
+  money: 'payments',
   moon: 'dark_mode',
   newspaper: 'newspaper',
   'paint-brush-broad': 'brush',
@@ -199,6 +202,7 @@ export const MATERIAL_SYMBOLS = {
   'puzzle-piece': 'extension',
   question: 'help',
   quotes: 'format_quote',
+  receipt: 'receipt',
   rows: 'view_agenda',
   ruler: 'straighten',
   shapes: 'shapes',
@@ -235,6 +239,7 @@ export const MATERIAL_SYMBOLS = {
   users: 'group',
   'users-three': 'groups',
   'video-camera': 'videocam',
+  wallet: 'wallet',
   warning: 'warning',
   'warning-circle': 'error',
   'wave-sine': 'animation',
@@ -272,6 +277,7 @@ export const LUCIDE = {
   bus: 'bus',
   'calendar-blank': 'calendar',
   'calendar-check': 'calendar-check',
+  'calendar-x': 'calendar-x',
   car: 'car',
   cards: 'gallery-vertical-end',
   'caret-down': 'chevron-down',
@@ -320,6 +326,7 @@ export const LUCIDE = {
   'hard-drives': 'server',
   heart: 'heart',
   house: 'house',
+  'identification-card': 'id-card',
   image: 'image',
   'image-square': 'image',
   info: 'info',
@@ -341,6 +348,7 @@ export const LUCIDE = {
   medal: 'medal',
   megaphone: 'megaphone',
   minus: 'minus',
+  money: 'banknote',
   moon: 'moon',
   newspaper: 'newspaper',
   'paint-brush-broad': 'paintbrush',
@@ -354,6 +362,7 @@ export const LUCIDE = {
   'puzzle-piece': 'puzzle',
   question: 'circle-question-mark',
   quotes: 'quote',
+  receipt: 'receipt',
   rows: 'rows-2',
   ruler: 'ruler',
   scan: 'scan',
@@ -392,6 +401,7 @@ export const LUCIDE = {
   users: 'users',
   'users-three': 'users-round',
   'video-camera': 'video',
+  wallet: 'wallet',
   warning: 'triangle-alert',
   'warning-circle': 'circle-alert',
   'wave-sine': 'spline',
@@ -402,6 +412,11 @@ export const LUCIDE = {
 
 /** Each system pack's map: Phosphor's name → its set's icon (Phosphor's: its own names, no map). */
 export const PACK_MAPS = { 'material-symbols': MATERIAL_SYMBOLS, lucide: LUCIDE };
+
+/** The names of Phosphor's pack: the icons the site and the editor draw (`used`), and every name the other system
+ * packs' maps name (an app's icon, which the CMS itself may not draw), sorted. */
+export const phosphorNames = (used) =>
+  [...new Set([...used, ...Object.values(PACK_MAPS).flatMap(Object.keys), ...Object.values(MATERIAL_DESIGN_ICONS).flatMap(Object.keys)])].sort();
 
 /** The names the system's pack has an icon by in its maps (its set's and Material Design Icons'); all for Phosphor's. */
 const mapped = (pack) => (PACK_MAPS[pack] ? [...Object.keys(PACK_MAPS[pack]), ...Object.keys(MATERIAL_DESIGN_ICONS[pack] ?? {})] : null);
@@ -553,7 +568,7 @@ function systemPackProblems(id, used) {
       );
   }
   const written = Object.keys(packIcons(id));
-  const wanted = names ?? [...used];
+  const wanted = names ?? phosphorNames(used);
   const unwritten = wanted.filter((name) => !written.includes(name)).sort();
   const stray = written.filter((name) => !wanted.includes(name)).sort();
   if (unwritten.length) problems.push(`${dir}/ mangler ${unwritten.join(', ')}: kør npm run icons.`);

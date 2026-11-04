@@ -21,7 +21,7 @@
  * What a site can say of itself, else the standard: the owner's picture (beside a blog post, and shown when a page with
  * none of its own is shared), the booking page and the pages a booking ends on, the page about the owner, the block
  * drawn after every blog post, the word a page's title can end in, pictures that are the same though their names say
- * otherwise, and the file of its redirects from old addresses.
+ * otherwise, the file of its redirects from old addresses, and the logo in the structured data.
  * @typedef {object} SiteChoices
  * @property {{ src: string; alt: string } | null} picture The owner's picture, or none.
  * @property {{ path: string; thanks: string[] }} booking The booking page, where "Book en tid" goes when no booking sheet
@@ -36,6 +36,8 @@
  * @property {{ rules: string; map: string }} siteRedirects The site's other redirects: rules ("<from> <to> 301", one to a
  *   line) and the Worker's map (`{ ids, paths }`, worker/index.js), shown and changed with the editor's own under
  *   Videresendelser (src/redirectData.ts).
+ * @property {string} logo The address of the site's logo in the structured data (the business's `logo`,
+ *   site/schema.ts), a path on the site ("/logo.svg").
  */
 
 /** @type {SiteChoices} */
@@ -47,6 +49,7 @@ const CHOICES = {
   titleEnd: '',
   samePictures: {},
   siteRedirects: { rules: 'public/_redirects', map: 'src/data/old-addresses.json' },
+  logo: '/logo.svg',
 };
 
 /** The same on every site. */
@@ -81,6 +84,9 @@ const STANDARD = {
   /** How the site moves, `{ "scheme": "expressive" | "standard" | "calm" }`, under "Udseende" › "Bevægelse" (Motion in
    * src/Motion.tsx; lib/motion.ts, site/motion.ts). Without it, the theme's ("motion" in its theme.json). */
   motion: 'src/data/motion.json',
+  /** The block drawn in a column beside the text of ordinary pages, `{ "block": "<type>" | null }`, under "Udseende" ›
+   * "Sidekolonne" (SideColumn in src/SideColumn.tsx; site/side.ts). Without it, no page has a column. */
+  side: 'src/data/side.json',
   /** The folder of the themes installed, one for each (<folder>/) (site/theme.mjs); one from the store (src/store.ts) is
    * copied into it and deleted from it. */
   themes: 'src/themes',

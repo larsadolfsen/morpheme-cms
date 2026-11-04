@@ -113,6 +113,7 @@ import { colorsOf } from './Colors';
 import { OwnerLicenses } from './Licenses';
 import { apps } from './site';
 import { offBlocks } from './registry';
+import { sideChoicesOf, sideSettingOf } from './SideColumn';
 
 // Where a part opens: its list, or the file itself when it is one file (the menu).
 const hrefOf = (c: Collection) => (c.kind === 'files' && c.files.length === 1 ? `#${c.files[0].file}` : `#liste/${c.id}`);
@@ -208,8 +209,8 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
 }
 
 // "Udseende": first "Temaer" (Themes), with the theme the site is built with at the end of its row (or, after a swap,
-// until the site is built with the new one, that one), "Ikonpakker" (IconPacks), with the pack chosen, and "Bevægelse"
-// (MotionSchemes), with the scheme chosen; then how the
+// until the site is built with the new one, that one), "Ikonpakker" (IconPacks), with the pack chosen, "Bevægelse"
+// (MotionSchemes), with the scheme chosen, and "Sidekolonne" (SideColumn.tsx), with the block chosen; then how the
 // site looks, the colours (Colors.tsx), the logo and
 // icon (BrandForm.tsx) and the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider", a screen of its
 // own, CompanyForm.tsx, going back here), and how the editor and the blocks look, their parts ("Dele", PartsHome), each on a
@@ -226,6 +227,12 @@ export function Theme({ files }: { files: RepoFile[] }) {
       detail: iconPacks.find((x) => x.id === chosenPack(files))?.name,
     },
     { id: 'bevaegelse', label: t.common.parts.motion, icon: icons.bevaegelse, detail: t.library.motionSchemes[motionOf(files)] },
+    {
+      id: 'sidekolonne',
+      label: t.common.parts.sideColumn,
+      icon: icons.sidekolonne,
+      detail: sideChoicesOf(files).find((x) => x.type === sideSettingOf(files))?.label ?? t.library.sideNone,
+    },
     { id: 'farver', label: t.common.parts.colors, icon: icons.farver, trailing: <ThemeColors files={files} /> },
     { id: 'logo', label: t.common.parts.brand, icon: icons.logo },
     ...appearance,

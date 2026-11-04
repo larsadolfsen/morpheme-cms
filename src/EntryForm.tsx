@@ -14,7 +14,9 @@ import { addressOf, moveRedirects, REDIRECTS, retarget } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES, setRedirect } from './redirectData';
 import { TAB_ROUTES } from './Redirects';
 import { choose } from './ask';
-import { readFields, splitFrontmatter, writeFields } from './frontmatter.mjs';
+import { sideSettingOf } from './SideColumn';
+import { sideSwitchShown } from '../lib/side-block.mjs';
+import { booleanRead, booleanWrite, readFields, splitFrontmatter, writeFields } from './frontmatter.mjs';
 import MarkdownEditor, { type MarkdownHandle } from './MarkdownEditor';
 import { useBlockDialog } from './BlockDialog';
 import { blockHtml } from '../lib/blocks.mjs';
@@ -115,7 +117,7 @@ function valuesOf(collection: MarkdownCollection, file: RepoFile): Record<string
     collection.fields.map((f) => {
       const v = data[f.name];
       if (f.name === 'path') return [f.name, addressNow(collection, file, data)];
-      if (f.type === 'boolean') return [f.name, v === true];
+      if (f.type === 'boolean') return [f.name, booleanRead(v, f.missing)];
       if (f.multiple) return [f.name, Array.isArray(v) ? v.map(String) : []];
       return [f.name, v == null ? '' : String(v)];
     }),
@@ -128,9 +130,12 @@ const scrolling = (): ScrollBehavior => (matchMedia('(prefers-reduced-motion: re
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 // The values as they are saved: a field only in use with another's value (Field.only: "Tidspunkt" with
-// "Planlagt") is empty without it, so it leaves the file.
+// "Planlagt") is empty without it, so it leaves the file; a switch that is on when its key is missing (Field.missing,
+// "Sidekolonne") leaves the file when it is on (booleanWrite).
 const inForm = (fields: Field[], values: Record<string, unknown>) =>
-  Object.fromEntries(fields.map((f) => [f.name, inUse(f, fields, values) ? values[f.name] : '']));
+  Object.fromEntries(
+    fields.map((f) => [f.name, inUse(f, fields, values) ? (f.type === 'boolean' ? booleanWrite(values[f.name], f.missing) : values[f.name]) : '']),
+  );
 
 type Props = { collection: MarkdownCollection; file: RepoFile; env: Env };
 
@@ -593,7 +598,11 @@ function Form({
       const layout = collection.fields.filter((f) => f.layout);
       const relaid = !isNew && changed.some((f) => f.layout);
       const sameLayout = (data: Record<string, unknown>) =>
-        layout.every((f) => String(data[f.name] || '') === String(values[f.name] || ''));
+        layout.every((f) =>
+          f.type === 'boolean'
+            ? booleanRead(data[f.name], f.missing) === (values[f.name] === true)
+            : String(data[f.name] || '') === String(values[f.name] || ''),
+        );
       const changes = (...names: string[]) => isNew || relaid || changed.some((f) => names.includes(f.name));
       const others =
         isNew || relaid
@@ -630,8 +639,10 @@ function Form({
       set('date', String(v).slice(0, 10));
   };
   // The fields in use (Field.only).
+  // "Sidekolonne" only while src/data/side.json chooses a block and the page is not "Hele bredden" (sideSwitchShown).
+  const sideShown = sideSwitchShown({ block: sideSettingOf(env.files) }, values);
   const field = (f: Field) =>
-    inUse(f, collection.fields, values) && <FieldInput key={f.name} field={f} value={values[f.name]} onChange={(v) => onChange(f, v)} />;
+    inUse(f, collection.fields, values) && (f.name !== 'side' || sideShown) && <FieldInput key={f.name} field={f} value={values[f.name]} onChange={(v) => onChange(f, v)} />;
 
   return (
     <Fields.Provider value={fields}>

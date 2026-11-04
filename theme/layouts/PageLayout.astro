@@ -1,5 +1,6 @@
 ---
-// A page (the standard theme's): back link, title and the text with its blocks (its pictures in it), in one column, and the booking
+// A page (the standard theme's): back link, title and the text with its blocks (its pictures in it), in one column (with
+// the block src/data/side.json chooses in a column beside it, when there is one: sideBlock), and the booking
 // prompt across the page when the text ends with it. A wide page (`wide`, "Hele bredden"): its blocks go across the
 // page, its text keeps a readable width, and its first paragraph is the introduction under the heading (as
 // PageHeader.astro's).
@@ -8,9 +9,10 @@
 import Base from '@theme/layouts/Base.astro';
 import Icon from '@theme/components/Icon.astro';
 import EndBlock from '@theme/components/EndBlock.astro';
-import { endBlock } from '@morphemecms/cms/src/standard/views';
+import Block from '@morphemecms/cms/src/standard/Block.astro';
+import { blockLoads, endBlock, sideBlock } from '@morphemecms/cms/src/standard/views';
 import { getPages, pageHeading, pageHeadingHtml, parentPage, stateOf, withoutH1, type Page } from '@morphemecms/cms/site/content';
-import { nav } from '@morphemecms/cms/site/site';
+import { blockTexts, nav } from '@morphemecms/cms/site/site';
 import { firstPicture, picturesOf } from '@morphemecms/cms/site/images.mjs';
 import { splitBlocks } from '@morphemecms/cms/lib/blocks.mjs';
 import { markdownHtml } from '@morphemecms/cms/lib/inline';
@@ -61,6 +63,13 @@ const questions = await Promise.all(
 const preview = isPreview(path);
 const current = livePath(path);
 const review = (page.data.review ?? '').trim();
+// The block beside the text (sideBlock): when its type's load gives a view; else the page is drawn as without one.
+const sideType = sideBlock(page.data);
+const sideText = end ? end.html : html;
+const side =
+  sideType && (await blockLoads[sideType].load({}, { texts: blockTexts[sideType] ?? {}, index: 0, path: current, preview, html: sideText })) !== null
+    ? sideType
+    : null;
 ---
 
 <Base
@@ -93,7 +102,7 @@ const review = (page.data.review ?? '').trim();
     </Container>
 
     <Container as="div" class:list={[wide ? 'mt-4' : 'mt-8 md:mt-12']}>
-      <div>
+      <div {...(side ? { class: 'page-with-side' } : {})}>
         <div
           data-editor="text"
           class:list={[
@@ -103,8 +112,13 @@ const review = (page.data.review ?? '').trim();
               : 'max-w-[66ch]',
           ]}
         >
-          <RichText html={end ? end.html : html} path={current} preview={preview} />
+          <RichText html={sideText} path={current} preview={preview} />
         </div>
+        {side && (
+          <aside class="page-side">
+            <Block type={side} texts={blockTexts[side]} path={current} preview={preview} html={sideText} />
+          </aside>
+        )}
       </div>
     </Container>
   </article>

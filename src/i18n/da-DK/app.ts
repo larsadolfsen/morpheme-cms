@@ -30,6 +30,7 @@ export const app: Messages['app'] = {
     theme: 'tema',
     iconPack: 'ikonpakke',
     motion: 'bevægelse',
+    sideColumn: 'sidekolonne',
     colors: 'farver',
     redirect: (from) => `videresendelse fra ${from}`,
     logo: 'logo',

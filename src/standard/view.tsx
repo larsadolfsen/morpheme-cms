@@ -76,8 +76,9 @@ export const shownPicture = (src: string): Picture => ({ src: shownAt(src) });
 export type ViewOf<V> = (props: Record<string, any>, data: BlockData) => V | null;
 
 /** Where a block stands on the site, for its load.ts: its shared texts (shared.ts, with those saved over them), its
- * place among the parts of the text, the page's address, and whether the page is a new version (/ny/). */
-export type LoadContext = { texts: Record<string, any>; index: number; path?: string; preview?: boolean };
+ * place among the parts of the text, the page's address, whether the page is a new version (/ny/), and, for a block
+ * drawn beside the page's text (`beside`), the text as HTML. */
+export type LoadContext = { texts: Record<string, any>; index: number; path?: string; preview?: boolean; html?: string };
 
 /** What a block's contract makes its view from on the site, when it is built (load.ts). Null: nothing is shown. */
 export type Load<V> = (props: Record<string, any>, at: LoadContext) => Promise<V | null>;
@@ -89,6 +90,8 @@ export type Contract<V> = {
   after?: (view: V) => string | undefined;
   /** Drawn across the page, below the text and the column beside it, when it ends a page's text (endBlock in views.ts). */
   across?: boolean;
+  /** Can be drawn in a column beside the text of a page, when src/data/side.json chooses its type (sideBlock in views.ts). */
+  beside?: boolean;
 };
 
 /** The kinds of a button, as Material 3 names them (m3.material.io/components/buttons): what a block's or an app's

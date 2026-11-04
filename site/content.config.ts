@@ -1,3 +1,5 @@
+// The site's content collections (blog posts, pages) and their front matter. Exposes `collections` for Astro.
+// Depends on astro:content.
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
@@ -74,6 +76,8 @@ const pages = defineCollection({
     noindex: z.boolean().optional().default(false),
     // Across the whole page, without the owner's card beside the text (PageLayout.astro).
     wide: z.boolean().optional().default(false),
+    // `false`: without the block beside the text, which src/data/side.json chooses (PageLayout.astro).
+    side: z.boolean().optional(),
     // A new version of a page (/ny/…): what the owner should look at or answer before it replaces the
     // current page. Shown at the top of the new version and on /ny/.
     review: z.string().optional(),

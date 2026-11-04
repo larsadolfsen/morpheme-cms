@@ -19,7 +19,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS } from '@morphemecms/cms/site/iconPacks.mjs';
 import { packFolder } from '@morphemecms/cms/site/icons.mjs';
-import { MATERIAL_DESIGN_ICONS, PACK_MAPS, PACK_SOURCES, phosphorFile, usedIcons } from '@morphemecms/cms/site/icons.mjs';
+import { MATERIAL_DESIGN_ICONS, PACK_MAPS, PACK_SOURCES, phosphorFile, phosphorNames, usedIcons } from '@morphemecms/cms/site/icons.mjs';
 
 const MDI = 'material-design-icons';
 const version = (spec) => spec.replace(/^.*@/, '');
@@ -78,7 +78,7 @@ const lines = (fill) => (inner) =>
 
 // What each pack's files are, by Phosphor's name: its set's, and those from Material Design Icons.
 function sourcesOf(id) {
-  if (id === 'phosphor') return used.map((name) => ({ name, text: () => phosphorFile(name) }));
+  if (id === 'phosphor') return phosphorNames(used).map((name) => ({ name, text: () => phosphorFile(name) }));
   const map = PACK_MAPS[id];
   const mdi = MATERIAL_DESIGN_ICONS[id] ?? {};
   return [
@@ -104,7 +104,7 @@ for (const id of SYSTEM_PACKS) {
     );
   for (const { name, icon, file } of sources)
     if (file && !existsSync(file)) problems.push(`${PACK_SOURCES[id].name} har intet "${icon}" (for ${name}).`);
-  if (id === 'phosphor') for (const name of used) if (!phosphorFile(name)) problems.push(`Phosphor har intet "${name}".`);
+  if (id === 'phosphor') for (const name of phosphorNames(used)) if (!phosphorFile(name)) problems.push(`Phosphor har intet "${name}".`);
 }
 if (problems.length) {
   for (const p of problems) console.error(p);
