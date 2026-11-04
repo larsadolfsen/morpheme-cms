@@ -1,5 +1,18 @@
 # @morphemecms/cms
 
+## 0.5.0
+
+### Minor Changes
+
+- 322a404: Connect a site to the Morpheme store from the editor's Appstore. A key set by hand in MORPHEME_STORE_KEY still works.
+
+### Patch Changes
+
+- eb1f36f: A site's build reads Phosphor's icons one at a time, so it passes on Cloudflare's build image, which allows 1024 open files.
+- 6844676: The editor's start screen shows the installed CMS version before the update time, e.g. "Morpheme 0.5.0 · Updated 19.26". A pre-release shows short ("0.5.0-next"); a click shows the full version.
+- 2fa2bb3: New sites install a fixed postcss-selector-parser (6.1.5) under @tailwindcss/typography, which closes CVE-2026-104844.
+- f343523: The package has the types of the theme's `editor/looks.mjs`, so a site's type check (`tsc`) passes again.
+
 ## 0.4.0
 
 ### Minor Changes
