@@ -3,7 +3,7 @@
 // close button, `closeLabel`, and what it does in the editor, `onClose`; none without it), what it shows (`children`, scrolling when it is long) and evt. its
 // actions at the bottom (`actions`: buttons). Its kind (`kind`): 'standard', beside what it is about on the page, an
 // <aside> named by its headline, its place the page's; or 'modal', over the page in a <dialog> with sideSheetClass over
-// the scrim, which sideSheet() in sideSheet.ts opens, closes and lets slide in from the side (the <dialog> gets
+// the scrim, which sideSheet() in sideSheetControl.ts opens, closes and lets slide in from the side (the <dialog> gets
 // aria-labelledby with `headlineId`). How it looks is the theme's (--side-sheet-*). In the editor only drawn, as high as
 // its place.
 import type { ReactNode } from 'react';

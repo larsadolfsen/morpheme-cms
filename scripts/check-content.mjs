@@ -22,6 +22,7 @@ import {
   themeProblems,
 } from '@morphemecms/cms/site/theme.mjs';
 import { appFoldersPlugin, appIds, appWorkersProblems } from '@morphemecms/cms/lib/apps.mjs';
+import { caseCollisionProblems } from '@morphemecms/cms/lib/caseCollisions.mjs';
 import { codePackageProblems, declarationProblems, ownerId } from '@morphemecms/cms/lib/licenses.mjs';
 import { notesOf, releaseProblems } from './releases.mjs';
 
@@ -116,6 +117,8 @@ result.problems.push(...allowedCspProblems());
 result.problems.push(...appCookieProblems());
 // The Worker has the part of each app that has one (worker/apps.js).
 result.problems.push(...appWorkersProblems(root));
+// No two files of the package or the site differ only by case (an import would find the wrong one on Windows).
+result.problems.push(...caseCollisionProblems(root, [own, 'src']));
 // Every app and theme says what its licence is and what it brings (the icon packs say theirs, themeProblems), and
 // every package the site's and the editor's code imports, and those they depend on, has a licence the editor can show
 // under "Licenser" (more than the build ships, which stops on its own when something it ships has none).

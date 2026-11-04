@@ -35,7 +35,7 @@
  *   saved under a new name), by name (samePicture in site/images.mjs).
  * @property {{ rules: string; map: string }} siteRedirects The site's other redirects: rules ("<from> <to> 301", one to a
  *   line) and the Worker's map (`{ ids, paths }`, worker/index.js), shown and changed with the editor's own under
- *   Videresendelser (src/redirects.ts).
+ *   Videresendelser (src/redirectData.ts).
  * @property {{ owner: string; name: string; branch: string; catalog: string } | null} store The app store ("Apps" ›
  *   "Appstore", src/store.ts): the GitHub repository and branch of its catalog (`catalog`, the apps and themes that can
  *   be installed, each with where its folder is in the repository, at which commit), or none: then "Appstore" has only

@@ -1272,7 +1272,7 @@
 /* ---- Containment: Dialog, BottomSheet, Carousel ---- */
 /*
   Dialogs (Dialog.tsx, dialogClass, dialogClassOf, dialogModalClass, dialogFullScreenModalClass, and dialog() in
-  dialog.ts for what a modal one does in a browser; m3.material.io/components/dialogs): .dialog is the container (a
+  dialogControl.ts for what a modal one does in a browser; m3.material.io/components/dialogs): .dialog is the container (a
   pop-up's box, the cookie question), and .dialog-modal the <dialog> it is shown in over the page, in the middle with
   the scrim behind it (a pop-up, Popup.astro). With its parts it is Material's basic dialog, .dialog-basic: evt. its
   icon (.dialog-icon, centred over the headline with .dialog-with-icon), .dialog-headline, .dialog-supporting-text,
@@ -1290,7 +1290,7 @@
     --dialog-full-screen-max-width, --dialog-full-screen-headline-size   a full-screen dialog from 48rem, and its
                      headline in its header
   Bottom sheets (BottomSheet.tsx, bottomSheetClass, bottomSheetContainerClass, and bottomSheet() and
-  standardBottomSheet() in bottomSheet.ts for what it does in a browser, bottomSheet.script.ts on the site;
+  standardBottomSheet() in bottomSheetControl.ts for what it does in a browser, bottomSheet.script.ts on the site;
   m3.material.io/components/bottom-sheets): a modal one's <dialog> is .bottom-sheet (an app's: Calendly's calendar), at
   most 44rem wide and nearly as high as the screen, from the bottom on a phone and in the middle of the screen from
   48rem (a dialog there, rounded all round, without the drag handle; with .bottom-sheet-fit as high as what is in
@@ -1669,7 +1669,7 @@
   }
 
   /* A standard bottom sheet: at the bottom of the screen with the page usable behind it, no scrim; as high as the state
-     it rests in (data-state), its height followed by bottomSheet.ts while it moves. 100cqh is the screen's height, or
+     it rests in (data-state), its height followed by bottomSheetControl.ts while it moves. 100cqh is the screen's height, or
      the frame's that is a size container (the editor's drawing, which holds it with contain: layout). */
   .bottom-sheet-standard {
     position: fixed;
@@ -3866,7 +3866,7 @@
   .divider-inset (in from the start) or .divider-middle-inset (in from both sides), and .divider-vertical (top to
   bottom, between things side by side).
     --divider-color, --divider-thickness, --divider-inset   the line, and how far in an inset one starts
-  Side sheets (SideSheet.tsx, sideSheetClass, sideSheetContainerClass, and sideSheet() in sideSheet.ts for what a modal
+  Side sheets (SideSheet.tsx, sideSheetClass, sideSheetContainerClass, and sideSheet() in sideSheetControl.ts for what a modal
   one does in a browser; m3.material.io/components/side-sheets): .side-sheet-container with its kind,
   .side-sheet-standard (beside what it is about, with a line between) or .side-sheet-modal (over the page, in the
   <dialog> .side-sheet at the side of the screen, over the scrim like a dialog's); in it .side-sheet-header

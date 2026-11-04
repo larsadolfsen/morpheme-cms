@@ -383,8 +383,8 @@ export function themeProblems(theme) {
   return [...problems, ...iconProblems(theme), ...packs.flatMap((p) => packProblems(themePackId(theme, p), used))];
 }
 
-// A site's own parts (src/site/<file>), else the package's standard ones (defaults/<file>): `@site/<file>`.
-const SITE_DIRS = [fileURLToPath(new URL('src/site/', root)), fileURLToPath(new URL('defaults/', pkg))];
+// A site's own parts (src/site/<file>), else the package's standard ones (defaults/<file>): `@site/<file>`. With `/` only, as Vite's ids (Windows).
+const SITE_DIRS = [fileURLToPath(new URL('src/site/', root)), fileURLToPath(new URL('defaults/', pkg))].map((d) => d.replaceAll('\\', '/'));
 
 /** The file `@site/<file>` is: the site's src/site/<file>, else the package's defaults/<file>, with or without its
  * extension (`@site/editor`, as TypeScript writes it), or null. */
@@ -422,7 +422,7 @@ export const aliases = () => ({
  * pack and no icons of its own nothing is changed. The pack is read when the site is built, so a new choice
  * (src/data/icons.json) or theme is in the site and the editor after the next build. */
 export function themePlugin() {
-  const themes = [activeTheme(), STANDARD_THEME].map((t) => fileURLToPath(new URL(`${themeFolder(t)}/`, root)));
+  const themes = [activeTheme(), STANDARD_THEME].map((t) => fileURLToPath(new URL(`${themeFolder(t)}/`, root)).replaceAll('\\', '/'));
   const icons = themeIcons();
   const own = Object.keys(icons).length > 0;
   return {

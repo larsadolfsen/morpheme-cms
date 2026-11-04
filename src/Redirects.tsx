@@ -1,7 +1,7 @@
 // "Videresendelser" under Indstillinger › "Søgemaskineoptimering" (#seo/videresendelser): two rows with how many
 // each has, each opening a screen of its own.
 // "Alle videresendelser" (#seo/videresendelser/alle): every address of a page the site sends on elsewhere
-// (redirects.ts), by address, with where it sends to, and search. Tapping one opens a sheet where
+// (redirectData.ts), by address, with where it sends to, and search. Tapping one opens a sheet where
 // where it sends to can be changed, or the redirect deleted; "+" adds a new one (in the editor's own,
 // src/data/redirects.json). Each save is one commit, and none sends on through another afterwards
 // (flatten): a redirect to an address that is sent on goes straight to where that ends, and those
@@ -37,7 +37,7 @@ import {
 } from './ui';
 import type { Env } from './App';
 import type { RepoFile } from './github';
-import { changesOf, entriesOf, flatten, lookup, readAll, REDIRECT_FILES, setRedirect, type AllRedirects } from './redirects';
+import { changesOf, entriesOf, flatten, lookup, readAll, REDIRECT_FILES, setRedirect, type AllRedirects } from './redirectData';
 import type { Missing } from './notFound';
 import { when } from './when';
 import { headed, letterOf } from './Sheet';

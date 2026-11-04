@@ -1,5 +1,5 @@
 // "Samtykker" (#privatliv/samtykker, Part.opens 'consents'): the visitors' answers in the cookie banner, as the site's
-// Worker keeps them (consents.ts, packages/editor/worker/consent.js), newest first, so the site can show that a visitor said yes. Over
+// Worker keeps them (consentData.ts, packages/editor/worker/consent.js), newest first, so the site can show that a visitor said yes. Over
 // the list the search by consent id (the one the banner shows the visitor under "Cookieindstillinger", asked of the
 // Worker, so older answers are found too) and the order (kept in this browser); in the top bar the download of all of
 // them as CSV. Tapping one opens a sheet with when, the banner's version and each yes or no, and the button that deletes
@@ -25,7 +25,7 @@ import {
   ListItem,
 } from './ui';
 import type { Env } from './App';
-import { CONSENT_API, deleteConsents, loadConsents, type ConsentAnswer } from './consents';
+import { CONSENT_API, deleteConsents, loadConsents, type ConsentAnswer } from './consentData';
 import { CONSENT_CATEGORIES } from '../lib/cookieCategories.mjs';
 import { when } from './when';
 import { t } from './i18n';

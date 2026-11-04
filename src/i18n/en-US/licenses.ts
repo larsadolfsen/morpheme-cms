@@ -1,6 +1,6 @@
 // "Licenser" under "Indstillinger" (Licenses.tsx): the third-party work the site and the editor are made with, and the
 // licences on an app's and a theme's page.
-import type { LicenseKind } from '../../licenses';
+import type { LicenseKind } from '../../licenseData';
 
 export const licenses = {
   /** The groups: the icon packs, what the editor and the site's own code bring, and each app and theme in use. */

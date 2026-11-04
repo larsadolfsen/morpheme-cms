@@ -87,7 +87,7 @@ import { when } from './when';
 import { untilTime } from '../lib/notice.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
 import { browserLocale, locale, localeName, locales, savedLocale, setLocale, siteLocale, siteT, siteText, t, type Locale } from './i18n';
-import { appType, EDITOR_TYPES, setDevice, setOn, useNotificationChoices } from './notifications';
+import { appType, EDITOR_TYPES, setDevice, setOn, useNotificationChoices } from './notificationData';
 import { snackbar } from '../lib/snackbar';
 import { ask } from './ask';
 import { pagesWith } from './BlockSettings';
@@ -738,7 +738,7 @@ export function Account({ user, files, onLogout }: { user: Viewer | null; files:
   );
 }
 
-// "Notifikationer" (notifications.ts): "På telefonen", a switch for each of the editor's types, and under the name of each
+// "Notifikationer" (notificationData.ts): "På telefonen", a switch for each of the editor's types, and under the name of each
 // installed app that sends any, a switch for each of its types (`notifications` in its index.ts).
 function NotificationChoices({ files }: { files: RepoFile[] }) {
   const { off, device } = useNotificationChoices();

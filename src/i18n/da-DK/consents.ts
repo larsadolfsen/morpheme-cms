@@ -1,4 +1,4 @@
-// "Consents" under "Privacy" (Consents.tsx, consents.ts), as in Danish (../da-DK/consents.ts).
+// "Consents" under "Privacy" (Consents.tsx, consentData.ts), as in Danish (../da-DK/consents.ts).
 import type { Messages } from '../en-US';
 
 export const consents: Messages['consents'] = {

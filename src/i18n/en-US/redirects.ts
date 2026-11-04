@@ -1,4 +1,4 @@
-// "Videresendelser" (Redirects.tsx, redirects.ts).
+// "Videresendelser" (Redirects.tsx, redirectData.ts).
 export const redirects = {
   notLoaded: (error: string) => `Couldn’t load the redirects: ${error}`,
   noFrom: 'Type the address that should redirect.',
@@ -8,7 +8,7 @@ export const redirects = {
   alreadyRedirects: (from: string) => `There’s already a redirect from ${from}. Edit it in the list.`,
   /** Deleting one; `via`: how many other addresses send on through it. */
   deleteAsk: (from: string, via: number) => `Delete the redirect from ${from}? The address then shows the not-found page.`,
-  /** redirects.ts: the addresses that come back to one, joined by arrows. */
+  /** redirectData.ts: the addresses that come back to one, joined by arrows. */
   loop: (addresses: string) => `The redirects would go in a loop (${addresses}).`,
   /** checkSite.ts: a redirect that sends on through another, before the site is built. */
   chain: (from: string, to: string, end: string) =>

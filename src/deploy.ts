@@ -1,6 +1,6 @@
 // After a save: tells when the site has been rebuilt with it. Each build writes the commit it was
 // made from to /editor/version.json (packages/editor/pages/editor/version.json.js), and the editor asks for that
-// until it is the saved commit or a later one. The message is a notification of the type `site` (notifications.ts),
+// until it is the saved commit or a later one. The message is a notification of the type `site` (notificationData.ts),
 // which also comes on the phone or computer when the editor is not on screen.
 // Each save says what it changed ("farver ændret", "side “Om” ændret", t.app.changes): right after it (savedText),
 // and, with the other saves since, when the website has been updated with them (changesText, App.tsx save).

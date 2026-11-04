@@ -12,7 +12,7 @@ import { Button, listClass, BottomSheet, SheetTitle, EmptyNote, SheetBody, Probl
 import { fileKindOf, typeOf } from './images';
 import { fileIcons, FileView, kindOf } from './FileView';
 import { ask } from './ask';
-import { REDIRECT_FILES } from './redirects';
+import { REDIRECT_FILES } from './redirectData';
 import { slugOf, type Collection } from './schema';
 import { asWritten, collections } from './site';
 import { ConflictError, type DeletedFile, type RepoFile } from './github';

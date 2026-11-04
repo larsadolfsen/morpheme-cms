@@ -3,14 +3,14 @@
 // close button, `closeLabel`), what it shows (`children`, filling the rest; what stands in place of a frame while it
 // loads has bottomSheetCoverClass) and evt. a footer (`footer`). Its kind (`kind`) is Material's:
 // - 'modal' (the default): over the page and its scrim, in a <dialog> with bottomSheetClass (an app's: Calendly's
-//   Sheet.astro), which bottomSheet() in bottomSheet.ts opens, closes and lets be dragged down; in the editor only
+//   Sheet.astro), which bottomSheet() in bottomSheetControl.ts opens, closes and lets be dragged down; in the editor only
 //   drawn, as high as `height` says.
 // - 'standard': at the bottom of the screen with the page usable behind it, without a scrim, a <section> named by its
 //   headline. It rests in one of its states (`state`, where it starts: 'collapsed', only the handle and the header;
 //   'half-expanded', at most half the screen's height; 'expanded', as high as what it shows, nearly to the top; or
 //   'hidden'), and its handle is a button (`dragHandleLabel`, what it says to a screen reader) that is dragged between
 //   them or tapped to expand and collapse it; with a close button it can be hidden. On the site bottomSheet.script.ts
-//   lets it be dragged (standardBottomSheet() in bottomSheet.ts, which a block's or an app's script can also use); in
+//   lets it be dragged (standardBottomSheet() in bottomSheetControl.ts, which a block's or an app's script can also use); in
 //   the editor it is drawn in its state and dragged here, at the bottom of its frame (which holds it with
 //   contain: layout, and is a size container).
 // The editor's own sheets (choices, fields) are modal ones in a <dialog> with bottomSheetFitClass, as high as what is in
@@ -21,7 +21,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useOnSite } from '@morphemecms/cms/src/standard/view';
 import IconButton from '@theme/ui/IconButton';
-import { standardBottomSheet } from '@theme/ui/bottomSheet';
+import { standardBottomSheet } from '@theme/ui/bottomSheetControl';
 
 /** The kinds of a bottom sheet, and the states a standard one rests in, as Material 3 names them. */
 export type BottomSheetKind = 'modal' | 'standard';

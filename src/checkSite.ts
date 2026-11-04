@@ -5,7 +5,7 @@
 // screens under "Virksomheden" and "Blokke", the apps installed and their settings (src/apps/), and the
 // colours ("Farver": colours, readable together). A hidden block is not on the site, so it may be unfinished.
 // The rules of a page's template (collections.ts) too: what may be there, how many, and what must.
-// The redirects (redirects.ts): none sends on through another, and none in a loop. And the site's own rules
+// The redirects (redirectData.ts): none sends on through another, and none in a loop. And the site's own rules
 // (siteProblems in its rules.ts: a button that opens a promotion not on its page).
 // And the site's texts the editor has no translation of (untranslated).
 import { check } from './check';
@@ -37,7 +37,7 @@ import { appFolders } from './appFiles';
 import { colorPairs as shownPairs, sharedParts, translator, writtenApps, writtenBlockParts, writtenCollections } from './site';
 import { splitBlocks } from '../lib/blocks.mjs';
 import { appTexts, DEFAULTS_LOCALE, locales, siteLocale, t, type Texts } from './i18n';
-import { flatten, readAll, REDIRECT_FILES, type AllRedirects } from './redirects';
+import { flatten, readAll, REDIRECT_FILES, type AllRedirects } from './redirectData';
 
 const ratio = (n: number) => n.toLocaleString(config.locale, { maximumFractionDigits: 1 });
 

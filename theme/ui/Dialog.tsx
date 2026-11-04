@@ -10,7 +10,7 @@
 //   (`divider`), and under them what it shows (`supportingText` and `children`, scrolling). From 48rem, where Material
 //   shows it as a dialog, it is in the middle of the screen over the scrim, with the same header.
 // Shown modally it is in a <dialog> with dialogModalClass (a full-screen one with dialogFullScreenModalClass), which
-// dialog() in dialog.ts (or the script that shows it: Popup.astro) opens and closes. How it looks is the theme's
+// dialog() in dialogControl.ts (or the script that shows it: Popup.astro) opens and closes. How it looks is the theme's
 // (--dialog-*). Other attributes go on it, and `className` after its own classes (its place). An Astro component
 // without React gives an element the same classes with dialogClass.
 import type { ReactNode } from 'react';
