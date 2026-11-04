@@ -4,9 +4,9 @@
 // theme or the look of a block, is the standard theme's, styled by the theme in use's CSS. The site and the editor
 // reach the theme as @theme (themePlugin: the theme in use's file, else the standard theme's), and the site's own
 // parts (src/site/) as @site (aliases): for packages/editor/astro.mjs and packages/editor/scripts/check-content.mjs. Stops with what is
-// wrong, when the theme named is not installed.
+// wrong, when the theme named is not installed. Also the virtual module with all Phosphor's icons (allIconsModule).
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { relative } from 'node:path';
+import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { svgParts } from '@morphemecms/cms/lib/svg.mjs';
 import { declarationProblems, ownerId } from '@morphemecms/cms/lib/licenses.mjs';
@@ -268,12 +268,34 @@ function reactIcons(icons) {
   return lines.join('\n');
 }
 
-/** An icon's SVG file as Phosphor's are (in the text's colour, `fill="currentColor"`), for an import of Phosphor's. */
-const fileIcon = (svg) => {
+/** The text of an icon's SVG file as Phosphor's are (in the text's colour, `fill="currentColor"`), not JSON-encoded. */
+const themedSvg = (svg) => {
   const { viewBox, inner } = svgParts(svg);
   const box = viewBox ? ` viewBox="${viewBox}"` : '';
-  return `export default ${JSON.stringify(`<svg xmlns="http://www.w3.org/2000/svg"${box} fill="currentColor">${inner}</svg>`)};`;
+  return `<svg xmlns="http://www.w3.org/2000/svg"${box} fill="currentColor">${inner}</svg>`;
 };
+
+/** An icon's SVG file as Phosphor's are, for an import of Phosphor's. */
+const fileIcon = (svg) => `export default ${JSON.stringify(themedSvg(svg))};`;
+
+/** The virtual module with all Phosphor's icons (regular) as text (src/allIcons.ts). */
+export const ALL_ICONS = 'virtual:all-icons';
+
+/** The module code of all Phosphor's icons in `folder` (its `regular/` folder), by the keys `import.meta.glob` gave, the
+ * theme's (`icons`, as themeIcons returns them) in place of Phosphor's own. The files are read one at a time: a glob
+ * opens them all at once, and the build image's limit of open files (1024) stops the build. */
+export function allIconsModule(folder, icons) {
+  const all = {};
+  for (const file of readdirSync(folder)
+    .filter((f) => f.endsWith('.svg'))
+    .sort()) {
+    const name = file.slice(0, -'.svg'.length);
+    all[`/node_modules/@phosphor-icons/core/assets/regular/${file}`] = svgParts(icons[name])
+      ? themedSvg(icons[name])
+      : readFileSync(join(folder, file), 'utf8');
+  }
+  return `export const allIcons = ${JSON.stringify(all)};`;
+}
 
 /** What a theme is missing (the standard theme: of THEME_FILES and the look of every standard block, another: of
  * OWN_FILES), what is wrong in its theme.json (name, version, author, icon), a block of its own (a folder in its
@@ -444,6 +466,7 @@ export function themePlugin() {
     resolveId(source, importer) {
       // The theme's icons import Phosphor's own.
       if (source === PHOSPHOR_REACT) return own && importer !== REACT_ICONS ? REACT_ICONS : null;
+      if (source === ALL_ICONS) return '\0' + ALL_ICONS;
       const icon = source.match(PHOSPHOR_FILE)?.[1];
       if (icon) return svgParts(icons[icon]) ? FILE_ICON + icon : null;
       if (source.startsWith('@site/')) return siteFile(source.slice('@site/'.length));
@@ -458,6 +481,8 @@ export function themePlugin() {
     },
     load(id) {
       if (id === REACT_ICONS) return reactIcons(icons);
+      if (id === '\0' + ALL_ICONS)
+        return allIconsModule(fileURLToPath(new URL('node_modules/@phosphor-icons/core/assets/regular/', root)), icons);
       if (id.startsWith(FILE_ICON)) return fileIcon(icons[id.slice(FILE_ICON.length)]);
       return null;
     },
