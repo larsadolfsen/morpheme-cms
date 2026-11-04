@@ -12,7 +12,7 @@ const COMMANDS = {
   'after-build': ['scheduled-list', 'link-counts', 'page-colors'],
   'check:content': ['check-content'],
   'check:editor': ['editor-roundtrip'],
-  'check:worker': ['check-worker', 'check-consent', 'check-store'],
+  'check:worker': ['check-worker', 'check-consent', 'check-store', 'check-cms-update'],
   'check:screens': ['editor-screens'],
   'check:themes': ['check-themes'],
   'check:demo': ['check-demo'],

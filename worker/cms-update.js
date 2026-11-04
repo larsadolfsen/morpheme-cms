@@ -1,0 +1,245 @@
+// The Worker takes the CMS's new versions by itself: each hour it asks npm for the newest @morphemecms/cms, commits the new exact
+// version in package.json and package-lock.json, and each minute watches the commit's check run, undoing a version that did not build.
+// Exposes RUNNING, checkForUpdate, startUpdate, watchUpdate, cmsStatus and handleCms (/api/cms). Needs GITHUB_PUBLISH_TOKEN and the
+// KV binding PUSH. Depends on github.js, session.js, push.js and lib/{lockfile,cms-version,changelog}.mjs; I/O is injected (`deps`).
+import { config } from '@site/config';
+import { cms as cmsEn } from '../src/i18n/en-US/cms';
+import { cms as cmsDa } from '../src/i18n/da-DK/cms';
+import { addToLock, NeedsNpm } from '../lib/lockfile.mjs';
+import { compareVersions, managedVersion, nextVersion, PACKAGE, watchStep } from '../lib/cms-version.mjs';
+import { fileFromTar, gunzip, sectionsBetween } from '../lib/changelog.mjs';
+import pkg from '../package.json';
+import { GitHubError } from './files.js';
+import { commitFiles, readFiles } from './github.js';
+import { json } from './not-found.js';
+import { notifyAll } from './push.js';
+import { mayEdit } from './session.js';
+
+/** The version this Worker itself runs. */
+export const RUNNING = pkg.version;
+
+const PACKAGE_JSON = 'package.json';
+const LOCK = 'package-lock.json';
+const NPM = 'https://registry.npmjs.org';
+const NPM_NAME = '@morphemecms%2fcms';
+const BUILD_APP = 'cloudflare-workers-and-pages';
+
+const defaultDeps = { readFiles, commitFiles, fetch: (...args) => fetch(...args), notify: notifyAll, mayEdit };
+
+/** The site's language for the commits: its own, else the same language, else Danish. */
+const siteTexts = () => {
+  const code = String(config.locale ?? '');
+  return code === 'en-US' || (code !== 'da-DK' && code.startsWith('en')) ? cmsEn : cmsDa;
+};
+
+const iso = (now) => new Date(now).toISOString();
+
+/** Whether GitHub says the token may not write (GraphQL answers a read-only token with HTTP 200 and an error). */
+const forbidden = (e) => e instanceof GitHubError && (e.status === 403 || /not accessible|forbidden/i.test(e.message));
+
+async function getJson(deps, url, init) {
+  const res = await deps.fetch(url, init);
+  if (!res.ok) throw new Error(`${res.status} ${url}`);
+  return res.json();
+}
+
+/** `JSON.stringify(x, null, 2)` with the file's own line ending at its end, as npm writes. */
+const written = (value, original) => JSON.stringify(value, null, 2) + (original?.includes('\r\n') ? '\r\n' : '\n');
+
+/** The files' texts parsed, and the branch's head. */
+async function readSite(env, deps) {
+  const { head, texts } = await deps.readFiles(env, [PACKAGE_JSON, LOCK]);
+  return {
+    head,
+    texts,
+    packageJson: texts[0] ? JSON.parse(texts[0]) : null,
+    lock: typeof texts[1] === 'string' ? JSON.parse(texts[1]) : null,
+  };
+}
+
+/** The files with `version` of the package in them, as changes for one commit. */
+async function filesFor(env, deps, site, version) {
+  const manifest = await getJson(deps, `${NPM}/${NPM_NAME}/${version}`);
+  if (!site.lock) throw new NeedsNpm('package-lock.json mangler.');
+  const out = addToLock(site.packageJson, site.lock, manifest);
+  return [
+    { path: PACKAGE_JSON, text: written(out.packageJson, site.texts[0]) },
+    { path: LOCK, text: written(out.lock, site.texts[1]) },
+  ];
+}
+
+/** Sends the notification in both languages; its text is the English sentence. */
+async function tell(env, deps, key, version, error) {
+  const text = cmsEn[key](version);
+  await deps.notify(
+    env,
+    { type: 'updates', id: 'cms', text, error },
+    { 'en-US': { [text]: text }, 'da-DK': { [text]: cmsDa[key](version) } },
+  );
+}
+
+const putJson = (kv, key, value) => kv.put(key, JSON.stringify(value));
+
+/** Writes package.json and the lock for `version`, commits it and keeps `cms:update`. Throws NeedsNpm or a GitHubError. */
+export async function startUpdate(env, version, deps = defaultDeps, now = Date.now()) {
+  const site = await readSite(env, deps);
+  const managed = managedVersion(site.packageJson, site.lock);
+  if (!('version' in managed)) throw new Error('not-managed');
+  const changes = await filesFor(env, deps, site, version);
+  const commit = await deps.commitFiles(env, site.head, siteTexts().commitUpdate(version), changes);
+  const update = { commit, from: managed.version, to: version, at: iso(now), state: 'waiting' };
+  await putJson(env.PUSH, 'cms:update', update);
+  return update;
+}
+
+/** The sections of the changelog from `current` to `latest`, each kept as cms:notes:<version>. */
+async function keepNotes(env, deps, current, latest) {
+  const manifest = await getJson(deps, `${NPM}/${NPM_NAME}/${latest}`);
+  const res = await deps.fetch(manifest.dist.tarball);
+  if (!res.ok) return;
+  const changelog = fileFromTar(await gunzip(new Uint8Array(await res.arrayBuffer())), 'package/CHANGELOG.md');
+  if (!changelog) return;
+  for (const { version, text } of sectionsBetween(changelog, current, latest))
+    await putJson(env.PUSH, `cms:notes:${version}`, { version, text });
+}
+
+const versionsUnder = async (kv, prefix) => (await kv.list({ prefix })).keys.map((k) => k.name.slice(prefix.length));
+
+/** Each hour: asks npm for the newest version and takes it when it may. */
+export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) {
+  if (!env.GITHUB_PUBLISH_TOKEN || !env.PUSH) return;
+  const kv = env.PUSH;
+  const update = await kv.get('cms:update', 'json');
+  if (update?.state === 'waiting' || update?.state === 'undoing') return;
+  const before = await kv.get('cms:checked', 'json');
+  let latest = before?.latest ?? null;
+  const record = (problem) =>
+    putJson(kv, 'cms:checked', { at: iso(now), latest, ...(problem ? { problem } : {}), ...(before?.noChecks ? { noChecks: true } : {}) });
+
+  let site;
+  try {
+    site = await readSite(env, deps);
+  } catch {
+    return record({ kind: 'unreachable' });
+  }
+  const managed = managedVersion(site.packageJson, site.lock);
+  if (!('version' in managed)) return record({ kind: 'not-managed', detail: managed.reason });
+  try {
+    latest = (await getJson(deps, `${NPM}/-/package/${NPM_NAME}/dist-tags`)).latest;
+  } catch {
+    return record({ kind: 'unreachable' });
+  }
+  const next = nextVersion(managed.version, latest, await versionsUnder(kv, 'cms:skip:'));
+  if (!next) return record();
+  if (!(await kv.get(`cms:notes:${latest}`, 'json'))) await keepNotes(env, deps, managed.version, latest).catch(() => {});
+  if (!next.auto) return record({ kind: next.why });
+  try {
+    await startUpdate(env, next.version, deps, now);
+  } catch (e) {
+    if (e instanceof NeedsNpm) return record({ kind: 'needs-npm', detail: e.message });
+    return record(forbidden(e) ? { kind: 'cannot-write' } : { kind: 'unreachable' });
+  }
+  return record();
+}
+
+/** The conclusion of the newest check run of Cloudflare's build on a commit; null when none, or when GitHub will not say. */
+async function checkOf(env, deps, sha, now) {
+  const { owner, name } = config.repo;
+  const res = await deps.fetch(`https://api.github.com/repos/${owner}/${name}/commits/${sha}/check-runs`, {
+    headers: { authorization: `Bearer ${env.GITHUB_PUBLISH_TOKEN}`, accept: 'application/vnd.github+json', 'user-agent': `${name}-worker` },
+  });
+  if (res.status === 403) {
+    const checked = await env.PUSH.get('cms:checked', 'json');
+    if (!checked?.noChecks) await putJson(env.PUSH, 'cms:checked', { at: iso(now), latest: null, ...checked, noChecks: true });
+    return null;
+  }
+  if (!res.ok) return null;
+  const { check_runs: runs = [] } = await res.json().catch(() => ({}));
+  const run = runs
+    .filter((r) => r.app?.slug === BUILD_APP)
+    .sort((a, b) => Date.parse(b.started_at ?? '') - Date.parse(a.started_at ?? ''))[0];
+  return run?.conclusion === 'success' || run?.conclusion === 'failure' ? run.conclusion : null;
+}
+
+/** The update written back to the version it came from, committed. Returns the commit's id. */
+async function undoCommit(env, deps, update) {
+  const site = await readSite(env, deps);
+  const changes = await filesFor(env, deps, site, update.from);
+  return deps.commitFiles(env, site.head, siteTexts().commitUndo(update.to), changes);
+}
+
+/** Each minute: watches the update's (or its undo's) check run. One KV read when nothing is waiting. */
+export async function watchUpdate(env, deps = defaultDeps, now = Date.now()) {
+  if (!env.PUSH) return;
+  const kv = env.PUSH;
+  const update = await kv.get('cms:update', 'json');
+  if (update?.state !== 'waiting' && update?.state !== 'undoing') return;
+  if (!env.GITHUB_PUBLISH_TOKEN) return;
+  const sha = update.state === 'waiting' ? update.commit : update.undoCommit;
+  const check = update.state === 'waiting' && update.to === RUNNING ? null : await checkOf(env, deps, sha, now).catch(() => null);
+  const step = watchStep(update, RUNNING, check, now);
+  if (step === 'wait') return;
+  if (step === 'done') {
+    await putJson(kv, 'cms:update', { ...update, state: 'done' });
+    return tell(env, deps, 'notifyDone', update.to);
+  }
+  if (step === 'undone') {
+    await putJson(kv, 'cms:update', { ...update, state: 'undone' });
+    return tell(env, deps, 'notifyUndone', update.to, true);
+  }
+  if (step === 'undo') {
+    try {
+      const commit = await undoCommit(env, deps, update);
+      await putJson(kv, `cms:skip:${update.to}`, { version: update.to, commit: update.commit, at: iso(now) });
+      return await putJson(kv, 'cms:update', { ...update, state: 'undoing', undoCommit: commit, undoAt: iso(now) });
+    } catch {
+      // The undo could not be committed either.
+    }
+  }
+  await putJson(kv, 'cms:update', { ...update, state: 'stuck' });
+  return tell(env, deps, 'notifyStuck', update.to, true);
+}
+
+/** What the page shows: the running version, the token, what npm said, the update, the skipped versions and the notes. */
+export async function cmsStatus(env) {
+  const kv = env.PUSH;
+  const status = { running: RUNNING, token: !!env.GITHUB_PUBLISH_TOKEN, kv: !!kv, checked: null, update: null, skipped: [], notes: [] };
+  if (!kv) return status;
+  status.checked = await kv.get('cms:checked', 'json');
+  status.update = await kv.get('cms:update', 'json');
+  status.skipped = await versionsUnder(kv, 'cms:skip:');
+  const plain = /^\d+\.\d+\.\d+$/;
+  const wanted = (await versionsUnder(kv, 'cms:notes:')).filter(
+    (v) =>
+      plain.test(v) && compareVersions(v, RUNNING) === 1 && (!status.checked?.latest || compareVersions(v, status.checked.latest) <= 0),
+  );
+  wanted.sort((a, b) => compareVersions(b, a));
+  const notes = await Promise.all(wanted.map((v) => kv.get(`cms:notes:${v}`, 'json')));
+  status.notes = notes.filter(Boolean).map(({ version, text }) => ({ version, text }));
+  return status;
+}
+
+/** `GET /api/cms` (the status) and `POST /api/cms/update { version }`; null for other addresses. */
+export async function handleCms(request, env, ctx, deps = defaultDeps) {
+  const match = /^\/api\/cms(\/update)?\/?$/.exec(new URL(request.url).pathname);
+  if (!match) return null;
+  const posting = !!match[1];
+  if (request.method !== (posting ? 'POST' : 'GET')) return json({ error: 'method' }, 405);
+  if (!(await deps.mayEdit(request))) return json({ error: 'forbidden' }, 403);
+  if (!posting) return json(await cmsStatus(env));
+  if (!env.GITHUB_PUBLISH_TOKEN || !env.PUSH) return json({ error: 'not-set-up' }, 503);
+  const { version } = await request.json().catch(() => ({}));
+  const checked = await env.PUSH.get('cms:checked', 'json');
+  if (typeof version !== 'string' || version !== checked?.latest) return json({ error: 'version' }, 400);
+  const current = await env.PUSH.get('cms:update', 'json');
+  if (current?.state === 'waiting' || current?.state === 'undoing') return json({ error: 'waiting' }, 409);
+  await env.PUSH.delete(`cms:skip:${version}`);
+  try {
+    return json({ update: await startUpdate(env, version, deps) });
+  } catch (e) {
+    if (e instanceof NeedsNpm) return json({ error: 'needs-npm', detail: e.message }, 422);
+    if (forbidden(e)) return json({ error: 'cannot-write' }, 502);
+    if (e?.message === 'not-managed') return json({ error: 'not-managed' }, 409);
+    return json({ error: 'unreachable' }, 502);
+  }
+}
