@@ -39,6 +39,7 @@ import {
   PuzzlePiece,
   Shapes,
   ShieldCheck,
+  SidebarSimple,
   Signpost,
   Smiley,
   SlidersHorizontal,
@@ -133,6 +134,7 @@ export const icons: Record<string, Icon> = {
   logo: Sticker,
   ikonpakker: Smiley,
   bevaegelse: WaveSine,
+  sidekolonne: SidebarSimple,
   dele: Shapes,
 };
 

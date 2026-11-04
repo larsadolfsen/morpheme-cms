@@ -89,6 +89,9 @@ const STANDARD = {
   /** How the site moves, `{ "scheme": "expressive" | "standard" | "calm" }`, under "Udseende" › "Bevægelse" (Motion in
    * src/Motion.tsx; lib/motion.ts, site/motion.ts). Without it, the theme's ("motion" in its theme.json). */
   motion: 'src/data/motion.json',
+  /** The block drawn in a column beside the text of ordinary pages, `{ "block": "<type>" | null }`, under "Udseende" ›
+   * "Sidekolonne" (SideColumn in src/SideColumn.tsx; site/side.ts). Without it, no page has a column. */
+  side: 'src/data/side.json',
   /** The folder of the themes installed, one for each (<folder>/) (site/theme.mjs); one from the store (src/store.ts) is
    * copied into it and deleted from it. */
   themes: 'src/themes',
