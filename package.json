@@ -138,5 +138,10 @@
     "vite": "^8.3.4",
     "wrangler": "^4.152.0",
     "yaml": "^2.9.1"
+  },
+  "overrides": {
+    "@tailwindcss/typography": {
+      "postcss-selector-parser": "^6.1.5"
+    }
   }
 }
