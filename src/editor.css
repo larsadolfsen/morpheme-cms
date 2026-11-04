@@ -310,6 +310,11 @@
   margin-bottom: 1rem;
 }
 
+/* The rail (and the room above it for a phone's notch) in the open drawer's colour, so it does not change when the drawer opens. */
+.editor-main-rail-frame {
+  --navigation-rail-surface: var(--navigation-drawer-surface, var(--surface-container-low, var(--bg)));
+}
+
 @keyframes editor-pop {
   from {
     opacity: 0;

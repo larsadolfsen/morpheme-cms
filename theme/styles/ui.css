@@ -75,7 +75,8 @@
     --elevation-0-surface … --elevation-5-surface   the level's colour (the site's surface-container colours)
     --elevation-1-rest-shadow … -5-rest-shadow      the shadow a part shows at rest on that level; a theme turns resting
                                                      shadows off here and keeps the lift, which reads --elevation-N
-  At rest, pointed at (hover), pressed and dragged, by Material 3; with focus a part is as at rest:
+  At rest (the shadow reads --elevation-N-rest-shadow), pointed at (hover), pressed and dragged (the lift reads
+  --elevation-N), by Material 3; with focus a part is as at rest:
     level 0  filled, tonal and outlined buttons, icon buttons, filled and outlined cards, chips (not elevated), a
              standard side sheet, a full-screen dialog on a phone, the top app bar, the navigation bar and rail, the
              search bar, a plain tooltip
@@ -420,9 +421,9 @@
   }
   /* Elevated: on a surface with its shadow, where the page behind it has a colour. */
   .button-elevated {
-    background: var(--button-elevated-surface, var(--block-surface));
+    background: var(--button-elevated-surface, var(--elevation-1-surface));
     color: var(--button-elevated-text, var(--block-accent));
-    box-shadow: var(--button-elevated-shadow, var(--elevation-1));
+    box-shadow: var(--button-elevated-shadow, var(--elevation-1-rest-shadow));
   }
   .button-elevated:hover {
     box-shadow: var(--button-elevated-hover-shadow, var(--button-elevated-shadow, var(--elevation-2)));
@@ -435,7 +436,7 @@
     box-shadow: var(--button-tonal-shadow, var(--elevation-0));
   }
   .button-elevated:active {
-    box-shadow: var(--button-elevated-shadow, var(--elevation-1));
+    box-shadow: var(--button-elevated-shadow, var(--elevation-1-rest-shadow));
   }
   /* Outlined: another choice beside the main one, with a thin edge. */
   .button-outlined {
@@ -1202,11 +1203,11 @@
   /* Elevated: on a surface with a shadow instead of the edge, where it stands on a picture or a colour; also chosen.
      Level 1, level 2 when pointed at, and as at rest while pressed (M3). */
   .chip-elevated {
-    background: var(--chip-elevated-surface, var(--block-surface));
+    background: var(--chip-elevated-surface, var(--elevation-1-surface));
   }
   .chip-elevated,
   .chip.chip-elevated:is([aria-pressed='true'], [aria-current='page']) {
-    box-shadow: var(--chip-elevated-shadow, var(--elevation-1));
+    box-shadow: var(--chip-elevated-shadow, var(--elevation-1-rest-shadow));
   }
   .chip-elevated:hover,
   .chip.chip-elevated:is([aria-pressed='true'], [aria-current='page']):hover {
@@ -1214,7 +1215,7 @@
   }
   .chip-elevated:active,
   .chip.chip-elevated:is([aria-pressed='true'], [aria-current='page']):active {
-    box-shadow: var(--chip-elevated-shadow, var(--elevation-1));
+    box-shadow: var(--chip-elevated-shadow, var(--elevation-1-rest-shadow));
   }
 
   /* A person's picture before the label (an input chip): round, nearer the start. */
@@ -1399,10 +1400,10 @@
   /* A dialog's container. */
   .dialog {
     border-radius: var(--dialog-radius, var(--block-radius));
-    background: var(--dialog-surface, var(--block-surface));
+    background: var(--dialog-surface, var(--elevation-3-surface));
     box-shadow:
       0 0 0 1px var(--dialog-line, var(--block-line)),
-      var(--dialog-shadow, var(--elevation-3));
+      var(--dialog-shadow, var(--elevation-3-rest-shadow));
   }
   /* A modal dialog: in the middle of the screen over the scrim, coming up a little as it opens. */
   .dialog-modal {
@@ -1607,8 +1608,8 @@
     height: 100%;
     overflow: hidden;
     border-radius: var(--bottom-sheet-radius, var(--block-radius)) var(--bottom-sheet-radius, var(--block-radius)) 0 0;
-    background: var(--bottom-sheet-surface, var(--block-surface));
-    box-shadow: var(--bottom-sheet-shadow, var(--elevation-1));
+    background: var(--bottom-sheet-surface, var(--elevation-1-surface));
+    box-shadow: var(--bottom-sheet-shadow, var(--elevation-1-rest-shadow));
     padding-bottom: env(safe-area-inset-bottom);
   }
   .bottom-sheet-drag-handle {
@@ -1709,7 +1710,7 @@
     overflow-y: auto;
     margin: 0;
     padding: 1.25rem;
-    background: var(--bottom-sheet-surface, var(--block-surface));
+    background: var(--bottom-sheet-surface, var(--elevation-1-surface));
     color: var(--block-muted);
     text-align: center;
   }
@@ -1741,7 +1742,7 @@
     /* A modal one only: a standard one stays at the bottom. */
     .bottom-sheet-container:where(:not(.bottom-sheet-standard, [data-wide='side-sheet'], [data-wide='sheet'])) {
       border-radius: var(--bottom-sheet-radius, var(--block-radius));
-      box-shadow: var(--bottom-sheet-shadow-large, var(--elevation-3));
+      box-shadow: var(--bottom-sheet-shadow-large, var(--elevation-3-rest-shadow));
       padding-bottom: 0;
     }
     :where(.bottom-sheet-container:not(.bottom-sheet-standard, [data-wide='side-sheet'], [data-wide='sheet'])) > .bottom-sheet-drag-handle {
@@ -1840,7 +1841,7 @@
       padding-bottom: 0;
       border-radius: 0;
       border-inline-start: 1px solid var(--side-sheet-line, var(--block-line));
-      background: var(--side-sheet-surface, var(--block-surface));
+      background: var(--side-sheet-surface, var(--elevation-0-surface));
       box-shadow: none;
     }
     .bottom-sheet-standard[data-wide='side-sheet'] > .bottom-sheet-drag-handle,
@@ -1892,8 +1893,8 @@
       border-radius: 0;
       border-start-start-radius: var(--side-sheet-radius, var(--block-radius));
       border-end-start-radius: var(--side-sheet-radius, var(--block-radius));
-      background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--block-surface)));
-      box-shadow: var(--side-sheet-shadow, var(--elevation-1));
+      background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--elevation-1-surface)));
+      box-shadow: var(--side-sheet-shadow, var(--elevation-1-rest-shadow));
       padding-bottom: 0;
     }
     .bottom-sheet-container:not(.bottom-sheet-standard)[data-wide='side-sheet'] > .bottom-sheet-drag-handle {
@@ -2109,7 +2110,7 @@
     transition: box-shadow 0.3s var(--block-ease-quick);
   }
   .card-elevated {
-    --card-shadow: var(--card-elevated-shadow, var(--elevation-1));
+    --card-shadow: var(--card-elevated-shadow, var(--elevation-1-rest-shadow));
   }
   .card-filled {
     --card-shadow: var(--card-filled-shadow, var(--elevation-0));
@@ -2141,7 +2142,7 @@
     cursor: grabbing;
   }
   .card-elevated {
-    background: var(--card-elevated-surface, var(--block-surface));
+    background: var(--card-elevated-surface, var(--elevation-1-surface));
     box-shadow:
       inset 0 0 0 1px var(--card-elevated-line, transparent),
       var(--card-shadow);
@@ -2153,7 +2154,7 @@
       var(--card-shadow);
   }
   .card-outlined {
-    background: var(--card-outlined-surface, var(--block-surface));
+    background: var(--card-outlined-surface, var(--elevation-0-surface));
     box-shadow:
       inset 0 0 0 1px var(--card-outlined-line, var(--block-line)),
       var(--card-shadow);
@@ -2603,7 +2604,7 @@
   .top-app-bar-large-flexible (a larger headline under the bar, wrapping; in the bar once [data-collapsed]); with
   .top-app-bar-center the headline (or the search bar's text) in the middle.
     --top-app-bar-surface, --top-app-bar-line, --top-app-bar-line-width, --top-app-bar-backdrop
-    --top-app-bar-stuck-surface, --top-app-bar-stuck-line, --top-app-bar-stuck-shadow   (the shadow: level 2, M3's on
+    --top-app-bar-stuck-surface (level 2's colour), --top-app-bar-stuck-line, --top-app-bar-stuck-shadow   (the shadow: level 2, M3's on
                      scroll; a theme that shows it by the surface alone, as the standard theme does, sets none)
     --top-app-bar-height, --top-app-bar-padding, --top-app-bar-gap   the bar's height, the room at its sides and between
                      its elements
@@ -2653,7 +2654,7 @@
   (.navigation-drawer-section-label, title small) with, in one that follows another, the divider
   (.navigation-drawer-section-divider, edge to edge).
     --navigation-drawer-width (360dp, at most the screen less 56dp), --navigation-drawer-radius (0 16dp 16dp 0; under
-    right-to-left --navigation-drawer-radius-rtl), --navigation-drawer-surface (surface container low),
+    right-to-left --navigation-drawer-radius-rtl), --navigation-drawer-surface (level 1's colour),
     --navigation-drawer-shadow (level 1), --navigation-drawer-scrim, --navigation-drawer-inset (12dp each side, from
     the edges to the items), --navigation-drawer-padding (all of it, with room for the home indicator),
     --navigation-drawer-section-gap (8dp around the divider), --navigation-drawer-section-label-text
@@ -2706,8 +2707,8 @@
   }
   .top-app-bar[data-stuck] {
     border-color: var(--top-app-bar-stuck-line, color-mix(in oklab, var(--line) 60%, transparent));
-    background: var(--top-app-bar-stuck-surface, var(--top-app-bar-surface, color-mix(in oklab, var(--bg) 85%, transparent)));
-    box-shadow: var(--top-app-bar-stuck-shadow, var(--elevation-2));
+    background: var(--top-app-bar-stuck-surface, var(--elevation-2-surface));
+    box-shadow: var(--top-app-bar-stuck-shadow, var(--elevation-2-rest-shadow));
   }
   /* With a kind: the leading button, the headline (or the search bar) and the trailing elements in a row, and what else
      is in it under them. */
@@ -2836,11 +2837,11 @@
     max-height: var(--menu-max-height, none);
     overflow-y: auto;
     border-radius: var(--menu-radius, var(--block-radius-small));
-    background: var(--menu-surface, var(--block-surface));
+    background: var(--menu-surface, var(--elevation-2-surface));
     padding: var(--menu-padding, 0.5rem);
     box-shadow:
       0 0 0 1px var(--menu-line, var(--block-line)),
-      var(--menu-shadow, var(--elevation-2));
+      var(--menu-shadow, var(--elevation-2-rest-shadow));
   }
   .menu-item {
     display: flex;
@@ -2975,11 +2976,11 @@
   }
   .menu:has(> .menu-group):not(.menu-groups-divider) > .menu-group {
     border-radius: var(--menu-group-inner-radius, var(--menu-radius, var(--block-radius-small)));
-    background: var(--menu-surface, var(--block-surface));
+    background: var(--menu-surface, var(--elevation-2-surface));
     padding: var(--menu-padding, 0.5rem);
     box-shadow:
       0 0 0 1px var(--menu-line, var(--block-line)),
-      var(--menu-shadow, var(--elevation-2));
+      var(--menu-shadow, var(--elevation-2-rest-shadow));
   }
   .menu:has(> .menu-group):not(.menu-groups-divider) > .menu-group:first-child {
     border-start-start-radius: var(--menu-radius, var(--block-radius-small));
@@ -3152,11 +3153,11 @@
       margin-block: var(--dropdown-menu-gap, 0.25rem);
       border: 0;
       border-radius: var(--menu-radius, var(--block-radius-small));
-      background: var(--menu-surface, var(--block-surface));
+      background: var(--menu-surface, var(--elevation-2-surface));
       padding: var(--menu-padding, 0.5rem);
       box-shadow:
         0 0 0 1px var(--menu-line, var(--block-line)),
-        var(--menu-shadow, var(--elevation-2));
+        var(--menu-shadow, var(--elevation-2-rest-shadow));
       color: var(--block-text);
     }
     .exposed-dropdown-menu-option {
@@ -3202,8 +3203,8 @@
     overflow-y: auto;
     border-radius: var(--navigation-drawer-radius, 0 1rem 1rem 0);
     padding: var(--navigation-drawer-padding, 0.75rem var(--navigation-drawer-inset, 0.75rem) max(1rem, env(safe-area-inset-bottom)));
-    background: var(--navigation-drawer-surface, var(--surface-container-low, var(--bg)));
-    box-shadow: var(--navigation-drawer-shadow, var(--elevation-1));
+    background: var(--navigation-drawer-surface, var(--elevation-1-surface));
+    box-shadow: var(--navigation-drawer-shadow, var(--elevation-1-rest-shadow));
   }
   .navigation-drawer:dir(rtl) {
     border-radius: var(--navigation-drawer-radius-rtl, 1rem 0 0 1rem);
@@ -3574,7 +3575,7 @@
     justify-content: center;
     border-radius: var(--fab-radius, var(--block-radius-small));
     padding: 0 var(--fab-padding, 1rem);
-    box-shadow: var(--fab-shadow, var(--elevation-3));
+    box-shadow: var(--fab-shadow, var(--elevation-3-rest-shadow));
     transition:
       box-shadow var(--motion-effects),
       background-color var(--motion-effects),
@@ -3595,7 +3596,7 @@
   }
   .fab:active,
   .extended-fab:active {
-    box-shadow: var(--fab-shadow, var(--elevation-3));
+    box-shadow: var(--fab-shadow, var(--elevation-3-rest-shadow));
   }
   /* The medium and the large size (M3 Expressive): taller, with rounder corners and a larger icon, the theme's corners
      scaled as Material's are (16, 20 and 28px). */
@@ -4276,7 +4277,7 @@
     place-items: center;
     border-radius: 9999px;
     background: var(--switch-handle-surface, var(--block-surface));
-    box-shadow: var(--switch-handle-shadow, var(--elevation-1));
+    box-shadow: var(--switch-handle-shadow, var(--elevation-1-rest-shadow));
     color: var(--switch-icon-color, var(--block-muted));
     pointer-events: none;
     translate: -50% -50%;
@@ -4583,7 +4584,7 @@
     border: var(--slider-handle-line-width, 0.1875rem) solid var(--slider-handle-line, var(--block-surface));
     border-radius: var(--slider-handle-radius, 9999px);
     background: var(--slider-handle-surface, var(--block-accent));
-    box-shadow: var(--slider-handle-shadow, var(--elevation-1));
+    box-shadow: var(--slider-handle-shadow, var(--elevation-1-rest-shadow));
     pointer-events: auto;
     cursor: grab;
   }
@@ -4594,7 +4595,7 @@
     border: var(--slider-handle-line-width, 0.1875rem) solid var(--slider-handle-line, var(--block-surface));
     border-radius: var(--slider-handle-radius, 9999px);
     background: var(--slider-handle-surface, var(--block-accent));
-    box-shadow: var(--slider-handle-shadow, var(--elevation-1));
+    box-shadow: var(--slider-handle-shadow, var(--elevation-1-rest-shadow));
     pointer-events: auto;
     cursor: grab;
   }
@@ -4720,7 +4721,7 @@
     flex-direction: column;
     flex-shrink: 0;
     overflow: hidden;
-    background: var(--side-sheet-surface, var(--block-surface));
+    background: var(--side-sheet-surface, var(--elevation-0-surface));
     color: var(--block-text);
   }
   .side-sheet-standard {
@@ -4731,8 +4732,8 @@
     height: 100%;
     border-start-start-radius: var(--side-sheet-radius, var(--block-radius));
     border-end-start-radius: var(--side-sheet-radius, var(--block-radius));
-    background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--block-surface)));
-    box-shadow: var(--side-sheet-shadow, var(--elevation-1));
+    background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--elevation-1-surface)));
+    box-shadow: var(--side-sheet-shadow, var(--elevation-1-rest-shadow));
   }
   .side-sheet-header {
     display: flex;
@@ -5152,7 +5153,7 @@
     font-size: var(--snackbar-font-size, var(--type-body-medium-size));
     letter-spacing: var(--type-body-medium-tracking);
     line-height: var(--snackbar-line-height, var(--type-body-medium-line-height));
-    box-shadow: var(--snackbar-shadow, var(--elevation-3));
+    box-shadow: var(--snackbar-shadow, var(--elevation-3-rest-shadow));
     -webkit-backdrop-filter: var(--snackbar-backdrop, blur(8px));
     backdrop-filter: var(--snackbar-backdrop, blur(8px));
     -webkit-user-select: none;
@@ -5251,7 +5252,7 @@
     gap: 0.25rem;
     translate: var(--tooltip-shift, 0px) 0;
     border-radius: var(--tooltip-rich-radius, var(--block-radius-small));
-    background: var(--tooltip-rich-surface, var(--block-surface));
+    background: var(--tooltip-rich-surface, var(--elevation-2-surface));
     padding: var(--tooltip-rich-padding, 0.75rem 1rem);
     color: var(--tooltip-rich-text, var(--block-muted));
     font-size: var(--type-body-medium-size);
@@ -5260,7 +5261,7 @@
     letter-spacing: var(--type-body-medium-tracking);
     box-shadow:
       0 0 0 1px var(--tooltip-rich-line, var(--block-line)),
-      var(--tooltip-rich-shadow, var(--elevation-2));
+      var(--tooltip-rich-shadow, var(--elevation-2-rest-shadow));
   }
   .tooltip-subhead {
     color: var(--tooltip-rich-subhead, var(--block-text));
@@ -5462,8 +5463,8 @@
   content, which keeps its place, with its shadow and corners, over .navigation-rail-scrim just before it); its
   behaviour: back into the collapsed rail, or .navigation-rail-hide, nothing while it is collapsed.
     --navigation-rail-width, --navigation-rail-expanded-width, --navigation-rail-padding, --navigation-rail-radius,
-    --navigation-rail-surface, --navigation-rail-line
-    --navigation-rail-modal-surface, --navigation-rail-modal-radius, --navigation-rail-modal-shadow,
+    --navigation-rail-surface (level 0's colour), --navigation-rail-line
+    --navigation-rail-modal-surface (level 2's colour), --navigation-rail-modal-radius, --navigation-rail-modal-shadow,
     --navigation-rail-scrim   a modal one, expanded
     --navigation-rail-item-gap, --navigation-rail-item-text, --navigation-rail-item-selected-text
     --navigation-rail-indicator-width, --navigation-rail-indicator-height, --navigation-rail-expanded-indicator-height,
@@ -5712,7 +5713,7 @@
     overflow: hidden;
     border-radius: var(--navigation-rail-radius, 0);
     padding: var(--navigation-rail-padding, 1rem 0.75rem);
-    background: var(--navigation-rail-surface, var(--block-surface));
+    background: var(--navigation-rail-surface, var(--elevation-0-surface));
     box-shadow: inset -1px 0 0 var(--navigation-rail-line, var(--block-line));
     transition:
       width var(--motion-spatial),
@@ -5733,8 +5734,8 @@
     margin-inline-end: calc(var(--navigation-rail-width, 5.5rem) - var(--navigation-rail-expanded-width, 16rem));
     border-start-end-radius: var(--navigation-rail-modal-radius, var(--block-radius));
     border-end-end-radius: var(--navigation-rail-modal-radius, var(--block-radius));
-    background: var(--navigation-rail-modal-surface, var(--navigation-rail-surface, var(--block-surface)));
-    box-shadow: var(--navigation-rail-modal-shadow, var(--elevation-2));
+    background: var(--navigation-rail-modal-surface, var(--elevation-2-surface));
+    box-shadow: var(--navigation-rail-modal-shadow, var(--elevation-2-rest-shadow));
   }
   .navigation-rail-scrim {
     position: fixed;
@@ -6002,7 +6003,7 @@
     overflow: hidden;
     border: 0;
     padding: 0;
-    background: var(--search-view-surface, var(--block-surface));
+    background: var(--search-view-surface, var(--elevation-3-surface));
     color: var(--block-text);
   }
   .search-view[open] {
@@ -6021,7 +6022,7 @@
     border-radius: var(--search-view-radius, var(--block-radius));
     box-shadow:
       0 0 0 1px var(--search-view-line, var(--block-line)),
-      var(--search-view-shadow, var(--elevation-3));
+      var(--search-view-shadow, var(--elevation-3-rest-shadow));
   }
   .search-view-docked {
     inset: var(--search-view-top) auto auto var(--search-view-left);
@@ -6107,7 +6108,7 @@
     padding: var(--toolbar-floating-padding, 0.5rem);
     box-shadow:
       0 0 0 1px var(--toolbar-floating-line, var(--block-line)),
-      var(--toolbar-floating-shadow, var(--elevation-3));
+      var(--toolbar-floating-shadow, var(--elevation-3-rest-shadow));
   }
   .toolbar-vertical {
     flex-direction: column;
@@ -6295,7 +6296,7 @@
     border-radius: var(--date-picker-docked-radius, var(--dialog-radius, var(--block-radius)));
     box-shadow:
       0 0 0 1px var(--dialog-line, var(--block-line)),
-      var(--date-picker-docked-shadow, var(--dialog-shadow, var(--elevation-3)));
+      var(--date-picker-docked-shadow, var(--dialog-shadow, var(--elevation-3-rest-shadow)));
   }
   .date-picker-header {
     padding: 1rem 0.75rem 0.75rem 1.5rem;
@@ -6512,7 +6513,7 @@
 
   /* The input mode: the theme's text fields, on the dialog's surface (behind an outlined field's name too). */
   .date-picker-input {
-    --text-field-label-surface: var(--dialog-surface, var(--block-surface));
+    --text-field-label-surface: var(--dialog-surface, var(--elevation-3-surface));
     display: grid;
     gap: 1rem;
     padding: 1.25rem 0.75rem 0.5rem;

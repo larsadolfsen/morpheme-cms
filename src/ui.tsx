@@ -111,6 +111,7 @@ import {
 import { locale, t } from './i18n';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
 import { SvgFile } from './icon';
+import { SiteLogoLink } from './SiteLogoLink';
 import { countries, countryName, dialCodes, flagOf, regionOf } from './countries';
 import { byText } from './schema';
 import { contrast } from '../lib/colors';
@@ -2771,7 +2772,7 @@ export function MainDrawer({
 // menu button at the top, which opens the drawer. Never expanded itself: the drawer is what expands (MainDrawer).
 function MainRail({ label, onOpen, children }: { label: string; onOpen: () => void; children: ReactNode }) {
   return (
-    <aside className="sticky top-0 z-10 h-dvh shrink-0 self-start bg-(--navigation-rail-surface,var(--bg)) pt-[env(safe-area-inset-top)]">
+    <aside className="editor-main-rail-frame sticky top-0 z-10 h-dvh shrink-0 self-start bg-(--navigation-rail-surface,var(--bg)) pt-[env(safe-area-inset-top)]">
       <SiteNavigationRail
         label={label}
         menuLabel={t.library.openMenu}
@@ -2786,8 +2787,14 @@ function MainRail({ label, onOpen, children }: { label: string; onOpen: () => vo
 }
 
 // The menu button at the top of either drawer: its icon over the items' icons, level with the top bar's logo; it closes the drawer.
-function MainDrawerMenuButton({ onClick }: { onClick: () => void }) {
-  return <MenuButton label={t.library.closeMenu} open onClick={onClick} className="ms-1 mt-2 mb-7 self-start" />;
+// The modal drawer (`logo`) shows the site's logo after the button.
+function MainDrawerMenuButton({ onClick, logo }: { onClick: () => void; logo?: boolean }) {
+  return (
+    <div className="ms-1 mt-2 mb-7 flex items-center gap-1 self-start">
+      <MenuButton label={t.library.closeMenu} open onClick={onClick} />
+      {logo && <SiteLogoLink />}
+    </div>
+  );
 }
 
 // What is inside either drawer: the sections in a <nav>.
@@ -2886,7 +2893,7 @@ function ModalMainDrawer({
           }
         }}
       >
-        <MainDrawerMenuButton onClick={() => onOpenChange(false)} />
+        <MainDrawerMenuButton onClick={() => onOpenChange(false)} logo />
         <MainDrawerBody label={label}>{children}</MainDrawerBody>
       </SiteNavigationDrawer>
     </dialog>

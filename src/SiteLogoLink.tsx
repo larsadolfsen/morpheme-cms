@@ -1,4 +1,4 @@
-// The logo and the site's name at the start of the top bar, after the menu button (Screen.tsx): one link to the start screen.
+// The logo and the site's name at the start of the top bar, after the menu button (Screen.tsx), and in the modal drawer after its close button (ui.tsx): one link to the start screen.
 // Exposes SiteLogoLink; the link's click goes through `onClick` (Screen's `leave`, so the unsaved-changes warning shows).
 import type { MouseEventHandler } from 'react';
 import { siteName } from '@site/editor';
