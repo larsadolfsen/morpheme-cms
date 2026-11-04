@@ -1,5 +1,19 @@
 # @morphemecms/cms
 
+## 0.4.0
+
+### Minor Changes
+
+- cf46cb1: An app's block and pop-up name their view module `viewOf.ts` (it was `view.ts`), so it no longer collides with `View.tsx` on Windows.
+- 1fcbd56: The site updates Morpheme by itself: a new minor or patch version on npm is installed within the hour and undone when the site cannot be built. See Settings › Morpheme.
+
+### Patch Changes
+
+- dd9ab22: Settings › Morpheme says when the site has no KV storage (PUSH), and no longer fails to open when the site runs a pre-release of Morpheme.
+- cf9f144: Keep the line breaks of a file's front matter (CRLF or LF) when the editor writes it back.
+- 6cb2c17: `check:worker` passes when the site runs a pre-release of Morpheme (as the staging site does).
+- 682da97: New sites from the starter can reach the Morpheme store on the same Cloudflare account, and Prettier skips store theme files.
+
 ## 0.3.0
 
 ### Minor Changes
