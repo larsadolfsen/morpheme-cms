@@ -1,0 +1,31 @@
+---
+// A "Related posts" section under a blog post: up to three PostCard components in a responsive grid. A theme may replace
+// this file to redesign the section.
+import Container from '@theme/components/Container.astro';
+import PostCard from '@theme/components/PostCard';
+import { siteT } from '@morphemecms/cms/src/i18n';
+import type { PostView } from '@theme/components/posts';
+
+interface Props {
+  posts: PostView[];
+}
+
+const { posts } = Astro.props;
+---
+
+{
+  posts.length > 0 && (
+    <Container class="mt-12 md:mt-16" aria-labelledby="related-posts">
+      <h2 id="related-posts" class="type-headline-small">
+        {siteT.theme.relatedPosts}
+      </h2>
+      <ul class="mt-6 grid gap-6 md:grid-cols-3">
+        {posts.map((post) => (
+          <li>
+            <PostCard post={post} />
+          </li>
+        ))}
+      </ul>
+    </Container>
+  )
+}
