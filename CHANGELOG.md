@@ -1,5 +1,15 @@
 # @morphemecms/cms
 
+## 0.6.0
+
+### Minor Changes
+
+- 3723ec1: The front page no longer forces a Banner. A Banner there is an ordinary block: it can be moved, hidden or removed. An app block can be the top of the front page instead.
+
+### Patch Changes
+
+- f0080db: `morpheme check:content` reads a site's files with `/` in their paths on Windows too, so it finds the standard pages there.
+
 ## 0.5.0
 
 ### Minor Changes
