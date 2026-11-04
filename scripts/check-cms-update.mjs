@@ -384,14 +384,15 @@ for (const [what, patch] of [
 
 // The page's notes: from the running version up to the newest, newest first.
 {
-  const [major, minor, patch] = RUNNING.split('-')[0].split('.').map(Number);
+  const running = RUNNING.split('-')[0];
+  const [major, minor, patch] = running.split('.').map(Number);
   const next1 = `${major}.${minor}.${patch + 1}`;
   const next2 = `${major}.${minor}.${patch + 2}`;
   const w = world();
-  for (const v of ['0.0.0', RUNNING, next1, next2, '9.9.9'])
+  for (const v of ['0.0.0', running, next1, next2, '9.9.9'])
     await w.kv.put(`cms:notes:${v}`, JSON.stringify({ version: v, text: `Notes ${v}` }));
   await w.kv.put('cms:checked', JSON.stringify({ at: new Date(T0).toISOString(), latest: next2 }));
-  const { notes } = await cmsStatus(w.env);
+  const { notes } = await cmsStatus(w.env, running);
   expect(
     notes.map((n) => n.version).join() === `${next2},${next1}`,
     `noterne var ${notes.map((n) => n.version).join()}, ikke ${next2},${next1}`,
