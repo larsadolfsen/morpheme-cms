@@ -110,6 +110,7 @@ export const common: Messages['common'] = {
     settings: 'Indstillinger',
     advanced: 'Avanceret',
     licenses: 'Licenser',
+    morpheme: 'Morpheme',
   },
   saved: (change) => `${change}. Du får besked, når hjemmesiden er opdateret.`,
   today: 'i dag',

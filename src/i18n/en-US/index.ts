@@ -6,6 +6,7 @@ import { apps } from './apps';
 import { blocks } from './blocks';
 import { blockSettings } from './blockSettings';
 import { check } from './check';
+import { cms } from './cms';
 import { colors } from './colors';
 import { common } from './common';
 import { company } from './company';
@@ -41,6 +42,7 @@ export const enUS = {
   seo,
   keywords,
   licenses,
+  cms,
   parts,
   history,
   preview,
