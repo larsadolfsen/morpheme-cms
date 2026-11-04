@@ -9,8 +9,8 @@
 // and its look is the theme's (packages/editor/theme/blocks/<type>/, or the theme in use's): View.tsx, which draws its
 // view in the editor (blockViews, from standard/themeBlocks.ts) and on the site. A new folder is a new block, in the editor and on
 // the site; nothing else lists them. The apps (src/apps/<app>/, apps.ts) add blocks the same way, in their folder's
-// blocks/, each with its own View.tsx; they are offered once the app is installed. A theme has no blocks of its own,
-// only the look of the standard ones.
+// blocks/, each with its own View.tsx and viewOf.ts for view.ts (it would differ from View.tsx only in case); they
+// are offered once the app is installed. A theme has no blocks of its own, only the look of the standard ones.
 import type { ReactNode } from 'react';
 import { appIdOf, installedApps } from './apps';
 import { htmlBlock, type BlockData, type BlockDefinition, type BlockProps, type DrawBlock, type SiteBlock } from './blocks';
@@ -60,7 +60,7 @@ export const siteBlocks: SiteBlock[] = [
   ...Object.entries(fromApps).map(([path, m]) =>
     localSiteBlock({
       ...m.default,
-      draw: drawn(appViews[beside(path, 'View.tsx')]?.default, appViewOfs[beside(path, 'view.ts')]?.viewOf),
+      draw: drawn(appViews[beside(path, 'View.tsx')]?.default, appViewOfs[beside(path, 'viewOf.ts')]?.viewOf),
       type: typeOf(path),
       app: appIdOf(path),
     }),
