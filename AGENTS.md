@@ -22,7 +22,7 @@ I vores økosystem indgår to helt adskilte repositories, som **aldrig** må for
      Changesets holder åben, flettes, når ejeren skriver `/release` (`.claude/skills/release/SKILL.md`), og lægger `latest` klar. En version er først på npm, når
      ejeren har godkendt den på npmjs.com med 2FA (*staged publishing*); en agent godkender aldrig. Flet aldrig
      Release-PR'en uden ejerens ja.
-   - Indtil videre er `packages/editor/` i `larsadolfsen/morpheme-website` kilden, og dette repo får den samme mappe, som den er (se `docs/repositories.md` dér).
+   - This repository is the only source of the CMS (since 2026-11-05). `larsadolfsen/morpheme-website` installs `@morphemecms/cms` from npm and has no `packages/editor/`; its check fails if that folder comes back. Every change to the editor, the theme *Material*, the Worker, the starter or the demo is a pull request here.
 
 > [!IMPORTANT]
 > Dette repository er **ikke** butikken eller Cloudflare npm-registryet. Al udvikling her vedrører CMS-editoren, Astro-integrationen, standardtemaet Material Design 3 (*Material*) og de tilhørende blokke og komponenter.
@@ -92,9 +92,9 @@ flowchart LR
 
 ## 4. Verifikations- og Testkommandoer
 
-Før ændringer godkendes eller udgives, skal følgende verificeres. Indtil CMS'et kun rettes her (trin 4 i
-`docs/repositories.md` i `larsadolfsen/morpheme-website`), køres de fra roden af `morpheme-website`, hvor pakken er
-`packages/editor/`:
+Before changes are approved or published, verify the following from the root of this repository, on the demo
+(`npm run build` builds it in `.morpheme/demo/site/`). This repository has no `npm run check` script yet: run its
+parts (`npx prettier --check .`, `node --test` over the `*.test.mjs` files, `npm run build`).
 
 | Kommando | Beskrivelse |
 | :--- | :--- |
