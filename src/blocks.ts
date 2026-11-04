@@ -44,7 +44,7 @@ export type SiteBlock = {
   /** Before its name where it is picked (BlockDialog.tsx). */
   icon: Icon;
   /** How it looks on the site, with what is in it now (the card in the text, its sheet): its View.tsx given the view
-   * its view.ts makes (registry.tsx). Without it, the card has the lines of describe. */
+   * its view.ts (an app's: viewOf.ts) makes (registry.tsx). Without it, the card has the lines of describe. */
   draw?: (props: Record<string, any>, data: BlockData) => ReactNode;
   /** Gone from the site by itself (a notice whose time is over): its card is greyed, like a hidden one. */
   over?: (props: BlockProps) => boolean;

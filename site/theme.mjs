@@ -465,7 +465,7 @@ export function themePlugin() {
 }
 
 /** What a block is missing to be drawn from its view (packages/editor/src/standard/view.tsx): a standard block's
- * contract its view.ts and load.ts, an app's block (src/apps/<app>/blocks/<type>/) those and its View.tsx; and the
+ * contract its view.ts and load.ts, an app's block (src/apps/<app>/blocks/<type>/) its viewOf.ts, load.ts and View.tsx; and the
  * files of how a block looked before (Site.astro, draw.tsx), which nothing uses now. */
 export function blockProblems() {
   const problems = [];
@@ -475,7 +475,7 @@ export function blockProblems() {
   for (const app of folders(new URL('src/apps/', root)))
     for (const type of folders(new URL(`src/apps/${app}/blocks/`, root))) {
       const dir = `src/apps/${app}/blocks/${type}`;
-      for (const f of ['index.tsx', 'view.ts', 'load.ts', 'View.tsx']) if (!has(`${dir}/${f}`)) problems.push(`${dir}/${f} mangler.`);
+      for (const f of ['index.tsx', 'viewOf.ts', 'load.ts', 'View.tsx']) if (!has(`${dir}/${f}`)) problems.push(`${dir}/${f} mangler.`);
       for (const f of OLD_LOOK)
         if (has(`${dir}/${f}`)) problems.push(`${dir}/${f}: blokken tegnes af View.tsx, både på sitet og i editoren.`);
     }

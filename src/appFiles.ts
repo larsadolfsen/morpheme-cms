@@ -24,6 +24,6 @@ export const appPictures = import.meta.glob<string>('/src/apps/*/screenshots/*.{
 });
 export const appBlocks = import.meta.glob<{ default: BlockDefinition }>('/src/apps/*/blocks/*/index.tsx', { eager: true });
 export const appShared = import.meta.glob<{ default: SharedTexts }>('/src/apps/*/blocks/*/shared.ts', { eager: true });
-/** The apps' blocks drawn from their view: their drawing (View.tsx) and what makes their view in the editor (view.ts). */
+/** The apps' blocks drawn from their view: their drawing (View.tsx) and what makes their view in the editor (viewOf.ts). */
 export const appViews = import.meta.glob<{ default: View<any> }>('/src/apps/*/blocks/*/View.tsx', { eager: true });
-export const appViewOfs = import.meta.glob<{ viewOf: ViewOf<any> }>('/src/apps/*/blocks/*/view.ts', { eager: true });
+export const appViewOfs = import.meta.glob<{ viewOf: ViewOf<any> }>('/src/apps/*/blocks/*/viewOf.ts', { eager: true });

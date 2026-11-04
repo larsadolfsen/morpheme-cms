@@ -264,7 +264,7 @@ export const entryName = (collection: FolderCollection, data: Record<string, unk
 
 /** An app's part of an entry of its kind, drawn in the list's own drawing (a Mailchimp signup in a pop-up's box), on the
  * site and in the editor alike: its drawing (`View`, given its view and the entry's own button to show where it wants)
- * and what makes its view in the editor (`viewOf`, as a block's view.ts). */
+ * and what makes its view in the editor (`viewOf`, in its viewOf.ts, as an app's block). */
 export type KindPart = {
   View: ComponentType<{ view: any; button: ReactNode }>;
   viewOf: (values: Record<string, any>, data: BlockData) => unknown;
