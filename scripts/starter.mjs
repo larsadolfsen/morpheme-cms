@@ -15,11 +15,11 @@ const pkg = JSON.parse(readFileSync(`${pkgDir}package.json`, 'utf8'));
 const check = process.argv.includes('--check');
 const problems = [];
 
-// The package's code (what `files` ships), by the packages it imports.
+// The package's code (what `files` ships, without its tests), by the packages it imports.
 const own = new Set([pkg.name, ...Object.keys(pkg.peerDependencies)]);
 const shipped = (file) => pkg.files.some((entry) => file === entry || file.startsWith(`${entry}/`));
 for (const [name, files] of importsIn(pkgDir)) {
-  const file = files.map((f) => f.slice(pkgDir.length)).find(shipped);
+  const file = files.map((f) => f.slice(pkgDir.length)).find((f) => shipped(f) && !/\.test\.\w+$/.test(f));
   if (file && !own.has(name)) problems.push(`${file} henter ${name}, som ikke står i peerDependencies.`);
 }
 for (const [name, range] of Object.entries(pkg.peerDependencies))
