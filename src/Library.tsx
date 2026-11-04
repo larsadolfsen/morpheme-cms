@@ -33,7 +33,7 @@ import { byText, entryData, type Collection, type Part, type PartScreen } from '
 import { config, countsOf, header, relationsOf, siteName } from '@site/editor';
 import { iconPack, iconPacks } from './iconPacks';
 import { theme, themes, type ThemeInfo } from './themes';
-import { CmsVersion } from './CmsVersion';
+import { StartStatus } from './StartStatus';
 import {
   appearance,
   backFrom,
@@ -156,19 +156,14 @@ function PartRow({ id, label, href, count }: { id: string } & ReturnType<typeof 
   return <ListItem href={href} icon={icons[id]} headline={label} count={count} arrow />;
 }
 
-// The start screen, with the CMS version (CmsVersion.tsx) and when the site was last updated (built on Cloudflare, App.tsx) under the title;
+// The start screen, with the CMS version and when the site was last updated (StartStatus.tsx) under the title;
 // on a computer the groups two side by side.
 export function Start({ files, builtAt }: { files: RepoFile[]; builtAt: Date | null }) {
   return (
     <Screen
       title={siteName}
       wide
-      status={
-        <>
-          <CmsVersion />
-          {builtAt && `${t.library.statusSeparator}${t.library.siteUpdated(when(builtAt, { short: true }))}`}
-        </>
-      }
+      status={<StartStatus builtAt={builtAt} />}
       // The notifications, the settings and the account in the top bar, on a phone too (Screen.tsx).
       home
     >
