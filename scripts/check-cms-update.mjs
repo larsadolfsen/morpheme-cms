@@ -384,12 +384,18 @@ for (const [what, patch] of [
 
 // The page's notes: from the running version up to the newest, newest first.
 {
+  const [major, minor, patch] = RUNNING.split('-')[0].split('.').map(Number);
+  const next1 = `${major}.${minor}.${patch + 1}`;
+  const next2 = `${major}.${minor}.${patch + 2}`;
   const w = world();
-  for (const v of ['0.0.9', RUNNING, '0.1.1', '0.1.2', '9.9.9'])
+  for (const v of ['0.0.0', RUNNING, next1, next2, '9.9.9'])
     await w.kv.put(`cms:notes:${v}`, JSON.stringify({ version: v, text: `Notes ${v}` }));
-  await w.kv.put('cms:checked', JSON.stringify({ at: new Date(T0).toISOString(), latest: '0.1.2' }));
+  await w.kv.put('cms:checked', JSON.stringify({ at: new Date(T0).toISOString(), latest: next2 }));
   const { notes } = await cmsStatus(w.env);
-  expect(notes.map((n) => n.version).join() === '0.1.2,0.1.1', `noterne var ${notes.map((n) => n.version).join()}, ikke 0.1.2,0.1.1`);
+  expect(
+    notes.map((n) => n.version).join() === `${next2},${next1}`,
+    `noterne var ${notes.map((n) => n.version).join()}, ikke ${next2},${next1}`,
+  );
 }
 
 if (problems.length) {
