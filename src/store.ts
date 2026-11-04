@@ -1,13 +1,13 @@
 // The app store ("Indstillinger" › "Appstore", #indstillinger/appstore, AppList.tsx): the apps that are not in the site
-// and can be installed. The store is a GitHub repository (config.store) with a catalog (catalog.json): each app with
+// and can be installed. The store is reached through the site's Worker (/api/store/catalog, /api/store/files/<oid>;
+// the Worker holds the site's key to it, and the editor never calls the store itself): each app of its catalog with
 // its id, its version and the version of the contract it is written to (APP_API), its name, who made it, its icon
 // (Phosphor's name), what it does (in a sentence, and more fully), its category and the words it is found by, what it
 // adds (its blocks, the lists it brings and its kinds of the site's lists), what it needs (needsOf), the cookies it
 // sets, its pictures, what is new in each version (its release notes), its texts in the editor's other languages (as an app's texts.ts), its
-// licence and those of the third-party work it brings (StoreLicenses), and where its folder is in the
-// repository at which commit, file by file with their blob ids.
-// Installing one copies its folder into the site's (config.apps.folder/<id>/, at that commit, each file checked
-// against its id), with a note of where it came from (store.json, StoreRecord), and puts it among the apps installed,
+// licence and those of the third-party work it brings (StoreLicenses), and its folder file by file with their blob ids.
+// Installing one copies its folder into the site's (config.apps.folder/<id>/, each file checked against its id), with a
+// note of where it came from (store.json, StoreRecord; its `ref` is the version), and puts it among the apps installed,
 // in one commit (appChanges); the site's next build has it. Updating copies the newer version over it, and
 // uninstalling deletes the folder, also in one commit each. What was made with it (its settings, its entries) is the
 // site's data and stays.
@@ -17,26 +17,19 @@
 // with its store.json), and it can then be chosen under "Udseende" › "Temaer"; updating and uninstalling are as for
 // an app (themeChanges), and the theme in use cannot be uninstalled.
 // The catalog is what is released: an app's or a theme's entry is written from its folder by `npm run store:release
-// -- <id>` (scripts/store-release.mjs) when the owner releases it, not by each merge (packages/editor/scripts/releases.mjs). Until the real store exists, it is this repository's own (store/catalog.json, with the apps' folders in
-// src/apps/ and the themes' in src/themes/).
+// -- <id>` (scripts/store-release.mjs) when the owner releases it, not by each merge (packages/editor/scripts/releases.mjs).
+// A site whose Worker has no store key has no store (storeConnected): "Appstore" has only the site's own.
 import { config } from '@site/config';
-import { loadBytes, loadFrom, type Change, type RepoFile } from './github';
+import type { Change, RepoFile } from './github';
+import { blobId } from '../lib/git.mjs';
 import { locale, t } from './i18n';
 import { hooksOf, type AppHook } from '../lib/hooks';
 import type { StoreLicenses } from './licenseData';
+import { APP_API, THEME_API } from '../lib/contracts.mjs';
+import { RECORD, STANDARD, isText, validApp, validTheme } from '../lib/storeEntries.mjs';
 
-/** The version of the contract between the editor and an app (apps.ts: defineApp, its folder, and the theme's parts it
- * draws with: the standard blocks' and the UI components, @theme/blocks/… and @theme/ui/…, imported from
- * @morphemecms/cms): an app in the store says which it is written to, and only those the editor can run are
- * offered. Raised when an app written to the one before no longer works. */
-export const APP_API = 2;
-
-/** The version of the contract between the editor and a theme (what a theme must and may have, "Hvad et tema må" in
- * CLAUDE.md, themeProblems in packages/editor/site/theme.mjs, the standard theme's UI parts with Material 3's names and
- * variants, the motion scheme's --motion-* springs and motionSpring/motionTiming (@morphemecms/cms/lib/motion),
- * and the classes it styles): only themes written to it are offered. Raised when a theme written to the one before no
- * longer works. */
-export const THEME_API = 3;
+// The contracts this editor runs (lib/contracts.mjs, also read by the site's Worker).
+export { APP_API, THEME_API };
 
 /** The kinds of apps, a filter in the store (t.apps.categories). */
 export const appCategories = ['booking', 'newsletter', 'payment', 'analytics', 'content', 'design'] as const;
@@ -142,14 +135,12 @@ export type StoreApp = {
   adds: { blocks: StoreAdd[]; lists: StoreAdd[]; kinds: (StoreAdd & { list: string })[] };
   /** Its texts in the editor's other languages, by the text as it is written. */
   texts?: Partial<Record<string, Record<string, string>>>;
-  /** Where its folder is in the store's repository, and at which commit. */
-  path: string;
-  ref: string;
+  /** Its folder, file by file. */
   files: StoreFile[];
 };
 
 /** A theme in the store's catalog: as its theme.json has it (its texts by the editor's language), its pictures of a
- * site in it (screenshots/<n>-<key>.jpg, t.library.themeShots) and where its folder is in the store's repository. */
+ * site in it (screenshots/<n>-<key>.jpg, t.library.themeShots) and its folder, file by file. */
 export type StoreTheme = {
   id: string;
   version: string;
@@ -168,8 +159,6 @@ export type StoreTheme = {
   /** The icon packs it brings (its icon-packs/<id>/, with their pack.json: name, who made it, licence), installed with it
    * and chosen under "Udseende" › "Ikonpakker". */
   iconPacks?: { id: string; name: string; author: string; license: string }[];
-  path: string;
-  ref: string;
   files: StoreFile[];
 };
 
@@ -185,7 +174,8 @@ export type ShownTheme = Omit<StoreTheme, 'description' | 'highlights' | 'releas
  * it (for the commits), and all its words in both, for the search. */
 export type ShownApp = StoreApp & { written: string; words: string };
 
-/** Where an app installed from the store came from: its version, the store's commit and its files (store.json). */
+/** Where an app installed from the store came from: its version, the version again as `ref` (an older store.json has
+ * the store's commit there) and its files (store.json). */
 export type StoreRecord = { version: string; ref: string; files: StoreFile[] };
 
 /** The store's address in the editor, under "Indstillinger" (its apps; its themes at STORE_THEMES), its address
@@ -200,8 +190,8 @@ export const DEVELOPER_ROUTE = 'apps/udvikler';
 export const appFolder = (id: string) => `${config.apps.folder}/${id}`;
 /** A theme's folder in the site; the standard theme's is always there. */
 export const themeFolder = (id: string) => `${config.themes}/${id}`;
-export const STANDARD_THEME = 'saturn';
-export const RECORD = 'store.json';
+export const STANDARD_THEME = STANDARD;
+export { RECORD };
 
 /** Whether a version is newer than another ("1.10.0" than "1.9.2"). */
 export function newer(a: string, b: string): boolean {
@@ -230,27 +220,8 @@ const notesOf = (x: unknown) =>
     ? Object.fromEntries(Object.entries(x).filter((e): e is [string, string] => isText(e[1])))
     : undefined;
 
-const isText = (v: unknown): v is string => typeof v === 'string' && v.trim() !== '';
-const isAdd = (v: any) => isText(v?.label) && isText(v?.icon);
-const ID = /^[a-z0-9][a-z0-9-]*$/;
-// A file's path in an app's folder: only within it.
-const isPath = (v: unknown) => isText(v) && v.split('/').every((part) => part !== '' && part !== '.' && part !== '..');
-
-/** Whether an entry of the catalog has what an app needs, written to the contract the editor runs, with files only in
- * its own folder, and not the store's own address. */
-function valid(a: any): a is StoreApp {
-  return (
-    ID.test(a?.id ?? '') &&
-    ![STORE_BEFORE, DEVELOPER_ROUTE].includes(`apps/${a.id}`) &&
-    isText(a.version) &&
-    a.api === APP_API &&
-    [a.label, a.publisher, a.icon, a.hint, a.path, a.ref].every(isText) &&
-    Array.isArray(a.files) &&
-    a.files.length > 0 &&
-    a.files.every((f: any) => isText(f?.oid) && isPath(f?.path) && f.path !== RECORD) &&
-    ['blocks', 'lists', 'kinds'].every((k) => Array.isArray(a.adds?.[k]) && a.adds[k].every(isAdd))
-  );
-}
+const validStoreApp = (a: any): a is StoreApp => validApp(a, APP_API);
+const validStoreTheme = (x: any): x is StoreTheme => validTheme(x, THEME_API);
 
 /** The apps in a catalog (catalog.json, as text) the editor can install, with their texts in its language. */
 export function catalogApps(text: string): ShownApp[] {
@@ -261,7 +232,7 @@ export function catalogApps(text: string): ShownApp[] {
     return [];
   }
   const apps: unknown[] = Array.isArray(json?.apps) ? json.apps : [];
-  return apps.filter(valid).map((a) => {
+  return apps.filter(validStoreApp).map((a) => {
     const own = a.texts?.[locale];
     const say = (s: string) => own?.[s] ?? s;
     const add = <A extends StoreAdd>(x: A): A => ({ ...x, label: say(x.label), ...(x.hint ? { hint: say(x.hint) } : {}) });
@@ -291,20 +262,6 @@ export function catalogApps(text: string): ShownApp[] {
   });
 }
 
-/** Whether an entry of the catalog has what a theme needs, written to the contract the editor runs, with files only
- * in its own folder; never the standard theme, which every site has. */
-function validTheme(x: any): x is StoreTheme {
-  return (
-    ID.test(x?.id ?? '') &&
-    x.id !== STANDARD_THEME &&
-    x.api === THEME_API &&
-    [x.version, x.name, x.author, x.icon, x.path, x.ref].every(isText) &&
-    Array.isArray(x.files) &&
-    x.files.length > 0 &&
-    x.files.every((f: any) => isText(f?.oid) && isPath(f?.path) && f.path !== RECORD)
-  );
-}
-
 /** The themes in a catalog (catalog.json, as text) the editor can install, with their texts in its language (else the
  * first they have). */
 export function catalogThemes(text: string): ShownTheme[] {
@@ -316,7 +273,7 @@ export function catalogThemes(text: string): ShownTheme[] {
   }
   const themes: unknown[] = Array.isArray(json?.themes) ? json.themes : [];
   const inLocale = <T>(x?: Record<string, T>) => x && (x[locale] ?? Object.values(x)[0]);
-  return themes.filter(validTheme).map((x) => {
+  return themes.filter(validStoreTheme).map((x) => {
     const description = inLocale(x.description);
     const highlights = inLocale(x.highlights) ?? [];
     return {
@@ -338,24 +295,31 @@ export function catalogThemes(text: string): ShownTheme[] {
 // The catalog, read once while the editor is open (again after it could not be read).
 let catalog: Promise<string> | null = null;
 
-/** Whether the site has an app store (config.store); without one, "Appstore" has only the site's own apps and themes. */
-export const hasStore = !!config.store;
-
-// The store's repository; only asked for what is in its catalog, so never without one.
-const storeRepo = () => {
-  if (!config.store) throw new Error(t.apps.noStore);
-  return config.store;
-};
-
+// The catalog as the site's Worker passes it on: `{ connected: false }` when the site has no key to the store.
 function catalogText(): Promise<string> {
-  if (!config.store) return Promise.resolve('{}');
-  catalog ??= loadFrom(config.store, config.store.branch, [config.store.catalog]).then(([file]) => {
-    if (file?.text == null) throw new Error(t.apps.storeFailed);
-    return file.text;
-  });
+  catalog ??= fetch('/api/store/catalog').then(
+    (res) => {
+      if (!res.ok) throw new Error(t.apps.storeFailed);
+      return res.text();
+    },
+    () => {
+      throw new Error(t.apps.storeFailed);
+    },
+  );
   catalog.catch(() => (catalog = null));
   return catalog;
 }
+
+/** Whether the site's Worker has a store key; without one, "Appstore" has only the site's own apps and themes. Fails when
+ * the catalog cannot be read. */
+export const storeConnected = (): Promise<boolean> =>
+  catalogText().then((text) => {
+    try {
+      return JSON.parse(text)?.connected !== false;
+    } catch {
+      return true;
+    }
+  });
 
 /** The store's apps. Fails when the catalog cannot be read. */
 export const readCatalog = (): Promise<ShownApp[]> => catalogText().then(catalogApps);
@@ -363,24 +327,40 @@ export const readCatalog = (): Promise<ShownApp[]> => catalogText().then(catalog
 /** The store's themes. Fails when the catalog cannot be read. */
 export const readThemes = (): Promise<ShownTheme[]> => catalogText().then(catalogThemes);
 
-/** An app's (or a theme's) files from the store (its folder at the catalog's commit), each checked against its blob id. */
+// A file from the store by its blob id (through the site's Worker), checked against the id.
+async function readFile(oid: string): Promise<Uint8Array> {
+  const res = await fetch(`/api/store/files/${oid}`);
+  if (!res.ok) throw new Error(t.apps.storeFailed);
+  const bytes = new Uint8Array(await res.arrayBuffer());
+  if ((await blobId(bytes)) !== oid) throw new Error(t.apps.storeFailed);
+  return bytes;
+}
+
+// The text of a file, or null when it is binary (a NUL, or not UTF-8), as GitHub told them apart before.
+function textOf(bytes: Uint8Array): string | null {
+  if (bytes.includes(0)) return null;
+  try {
+    // ignoreBOM keeps a leading BOM in the text, so it encodes back to the same bytes (and the same blob id).
+    return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes);
+  } catch {
+    return null;
+  }
+}
+
+/** An app's (or a theme's) files from the store, each checked against its blob id; text files as text. */
 export async function readApp(app: {
-  path: string;
-  ref: string;
   files: StoreFile[];
   label?: string;
   name?: string;
 }): Promise<{ path: string; content: string | Uint8Array }[]> {
-  const found = await loadFrom(
-    storeRepo(),
-    app.ref,
-    app.files.map((f) => `${app.path}/${f.path}`),
-  );
   return Promise.all(
     app.files.map(async (f) => {
-      const file = found.find((x) => x.path === `${app.path}/${f.path}`);
-      if (!file || file.oid !== f.oid) throw new Error(t.apps.storeBroken(app.label ?? app.name ?? app.path));
-      return { path: f.path, content: file.text ?? (await loadBytes(f.oid, undefined, storeRepo())) };
+      try {
+        const bytes = await readFile(f.oid);
+        return { path: f.path, content: textOf(bytes) ?? bytes };
+      } catch {
+        throw new Error(t.apps.storeBroken(app.label ?? app.name ?? f.path));
+      }
     }),
   );
 }
@@ -395,7 +375,7 @@ export async function readScreenshots(app: StoreApp): Promise<{ src: string; lab
       const type = types[x.file.split('.').pop()!.toLowerCase()];
       if (!oid || !type) return null;
       try {
-        const bytes = await loadBytes(oid, undefined, storeRepo());
+        const bytes = await readFile(oid);
         return { src: URL.createObjectURL(new Blob([bytes as BlobPart], { type })), label: x.label };
       } catch {
         return null;
@@ -413,7 +393,7 @@ export async function readThemeScreenshots(theme: Pick<StoreTheme, 'screenshots'
       const oid = theme.files.find((f) => f.path === `${SCREENSHOTS}/${x.file}`)?.oid;
       if (!oid) return null;
       try {
-        const bytes = await loadBytes(oid, undefined, storeRepo());
+        const bytes = await readFile(oid);
         return { key: x.key, src: URL.createObjectURL(new Blob([bytes as BlobPart], { type: 'image/jpeg' })) };
       } catch {
         return null;

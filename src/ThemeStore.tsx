@@ -110,7 +110,7 @@ const canUninstall = (id: string, files: RepoFile[]) =>
  * Each says true when it was saved. */
 function useThemeActions(env: Env) {
   const [saving, setSaving] = useState(false);
-  const recordOf = (x: ShownTheme): StoreRecord => ({ version: x.version, ref: x.ref, files: x.files });
+  const recordOf = (x: ShownTheme): StoreRecord => ({ version: x.version, ref: x.version, files: x.files });
 
   async function change(
     id: string,

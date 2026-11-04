@@ -78,7 +78,7 @@ export const apps = {
   searchStore: 'Search for apps',
   loadingStore: 'Loading apps',
   storeFailed: 'Couldn’t load the Appstore',
-  /** On "Appstore" when the site has none (config.store): only the site's own are there. */
+  /** On "Appstore" when the site's Worker has no store key: only the site's own are there. */
   noStore: 'The site has no Appstore',
   /** An app's files did not come from the store as its catalog says. */
   storeBroken: (app: string) => `${app} couldn’t be loaded correctly from the Appstore`,

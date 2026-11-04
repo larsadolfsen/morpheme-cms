@@ -1,9 +1,10 @@
 // The built site served on this computer, with what the editor asks of GitHub (through the site's Worker) answered from
-// the files in this repository, for the scripts that open the editor in a browser (editor-screens.mjs,
-// app-screenshots.mjs): no sign-in, and nothing changes.
+// the files in this repository, and the app store from a made-up catalog, for the scripts that open the editor in a
+// browser (editor-screens.mjs, app-screenshots.mjs): no sign-in, and nothing changes.
 import { createServer } from 'node:http';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { extname, join, posix } from 'node:path';
+import { APP_API, THEME_API } from '../lib/contracts.mjs';
 
 const ROOT = `${process.cwd()}/`;
 
@@ -81,12 +82,46 @@ function workerAnswer(route, body, texts) {
   return null;
 }
 
+// The app store, as the site's Worker passes it on (packages/editor/worker/store.js), made up: one app and one theme in
+// the catalog's shape, and no file by any id.
+const STORE_CATALOG = {
+  apps: [
+    {
+      id: 'sample-app',
+      version: '1.0.0',
+      api: APP_API,
+      label: 'Sample app',
+      publisher: 'Example Studio',
+      icon: 'star',
+      hint: 'A made-up app for the checks.',
+      adds: { blocks: [], lists: [], kinds: [] },
+      files: [{ path: 'index.ts', oid: '0'.repeat(40) }],
+    },
+  ],
+  themes: [
+    {
+      id: 'sample-theme',
+      version: '1.0.0',
+      api: THEME_API,
+      name: 'Sample theme',
+      author: 'Example Studio',
+      icon: 'palette',
+      files: [{ path: 'theme.json', oid: '1'.repeat(40) }],
+    },
+  ],
+};
+
 /** Opens the editor (/editor/) of the site at `site` in `page`, signed in, with GitHub answered from the files on disk
  * (`texts`: some with other texts), and waits until it has loaded the site. */
 export async function openEditor(page, site, texts = {}) {
   // R2 caching under "Avanceret": Cloudflare has the bucket (packages/editor/worker/r2-status.js).
   await page.route(`${site}/api/r2?**`, (r) =>
     r.fulfill({ contentType: 'application/json', body: JSON.stringify({ bound: false, bucket: 'ready' }) }),
+  );
+  await page.route(`${site}/api/store/**`, (r) =>
+    new URL(r.request().url()).pathname === '/api/store/catalog'
+      ? r.fulfill({ contentType: 'application/json', body: JSON.stringify(STORE_CATALOG) })
+      : r.fulfill({ status: 404 }),
   );
   await page.route(`${site}/api/github/**`, (r) => {
     const route = new URL(r.request().url()).pathname.slice('/api/github/'.length);
