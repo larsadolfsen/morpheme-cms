@@ -121,6 +121,7 @@ at least one is filled. Showing them as icons in the footer is a separate, later
 | `site/site.ts` | wiring | Reads `src/data/social.json` and exposes `site.social: Social`. |
 | `defaults/company.ts` | data | Adds the part `{ id: 'sociale-medier', file: 'src/data/social.json', fields: socialFields }`. |
 | `defaults/collections.ts` | data | `socialFields`: 7 string fields with the https pattern, 5 boolean fields. |
+| `theme/components/PostHeader.astro` | UI | Back link, title, `PostAuthor`, `PostMeta` with tags, `ShareRow`. |
 | `theme/components/PostAuthor.astro` | UI | Picture, name, role. |
 | `theme/components/PostMeta.tsx` | UI | Gets an optional `tags: { label: string; href: string }[]`; drawn after the reading time. Other users of `PostMeta` pass nothing and are unchanged. |
 | `theme/components/ShareRow.astro` | UI | The share buttons (`ui/IconButton.tsx`) and the copy-link script with `ui/Snackbar.tsx`. |
@@ -157,10 +158,30 @@ Add them to the system packs with `npm run icons`. Packs without brand icons (Ma
 from Material Design Icons, as `scripts/icon-packs.mjs` does for other missing icons. `check:screens` finds a missing
 icon on the built pages.
 
-## Other themes
+## Other themes: replace parts by file
 
-A theme without its own `layouts/PostLayout.astro` (Venus) inherits all of this through `@theme`, styled by its own
-CSS tokens. A theme with its own `PostLayout.astro` keeps its own until it changes it. `check:themes` covers this.
+A theme chooses how the post looks part by part. It uses the theme system that exists today (`@theme`: the theme in
+use's file, else Material's). There is no new setting.
+
+- `PostLayout.astro` only composes. It imports every part as `@theme/components/<Part>`, never by a relative path.
+- A theme restyles a part with its own CSS tokens, or ships a file with the same name to redesign that part.
+- The replaceable parts:
+
+| File | Part |
+|---|---|
+| `components/PostHeader.astro` | Back link, title, author, byline and share row together |
+| `components/PostAuthor.astro` | Picture, name, role |
+| `components/PostMeta.tsx` | Date, reading time, tags |
+| `components/ShareRow.astro` | Share buttons and copy link |
+| `components/PostCard.tsx` | One related-post card |
+| `components/RelatedPosts.astro` | The related-posts section |
+| `layouts/PostLayout.astro` | The whole page (as today) |
+
+- Add these files to `THEME_FILES` (`site/theme.mjs`). Then the check confirms Material has each one, and the list
+  documents what a theme may replace.
+- A theme without its own files (Venus today) inherits all of this, styled by its CSS tokens. `check:themes` covers this.
+- The data stays in the layout: a part gets its data as props (`Post`, `Social`, `PostView`), so a theme's part needs no
+  data code.
 
 ## Starter and demo
 
