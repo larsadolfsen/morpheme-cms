@@ -66,7 +66,7 @@ export default function CommunicationParts() {
               </div>
             </Example>
           </div>
-          <SiteNavigationDrawer className="px-3 py-4">
+          <SiteNavigationDrawer>
             <SiteNavigationDrawerRow>
               <SiteNavigationDrawerItem href="">{say.home}</SiteNavigationDrawerItem>
             </SiteNavigationDrawerRow>

@@ -38,7 +38,7 @@ export default function PickerParts() {
       <Part name="DatePicker" use={say.datePicker}>
         <Preview>
           <div className="space-y-6 p-4">
-            <div className="grid gap-6 sm:grid-cols-2" role="group" aria-label={say.fields}>
+            <div className="grid gap-6 medium:grid-cols-2" role="group" aria-label={say.fields}>
               <SiteDatePicker label={say.date} name="date" />
               <SiteDatePicker label={say.date} name="date-modal" kind="modal" value={picked} />
               <SiteDatePicker label={say.period} name="from" endName="to" range value={start} endValue={end} />
@@ -126,7 +126,7 @@ export default function PickerParts() {
       </Part>
       <Part name="TimePicker" use={say.timePicker}>
         <Preview>
-          <div className="grid gap-6 p-4 sm:grid-cols-2" role="group" aria-label={say.fields}>
+          <div className="grid gap-6 p-4 medium:grid-cols-2" role="group" aria-label={say.fields}>
             <SiteTimePicker label={say.time} name="time" />
             <SiteTimePicker label={say.time} name="time-set" value="14:30" />
             <SiteTimePicker label={`${say.time} (${say.twelveHours})`} name="time-12" value="14:30" timeFormat="12h" />

@@ -4,7 +4,8 @@
 // in the middle, with a subtitle, a long headline and collapsed), a menu (the header's pages, and actions in both
 // colours with their icons, shortcuts, texts, ticks, a choice, a disabled one, dividers, groups with a gap and with a
 // line, and a submenu drawn open), a dropdown menu closed and drawn open, the exposed dropdown menu in both kinds in
-// every state, the navigation drawer with an item's sub-pages unfolded, the tabs (only the text, as the bar of
+// every state, the navigation drawer with an item's sub-pages unfolded, and the standard one with sections, icons and counts,
+// in two levels (items with a trailing arrow, and the back row over a list), the tabs (only the text, as the bar of
 // "Mobilmenu", and primary and secondary, fixed and scrollable, with icons over and beside their labels, badges, and a
 // tab list with a tab that cannot be chosen), and the FABs and extended FABs in their colours and sizes, an extended
 // FAB also collapsed. Only drawn: the links lead nowhere, and nothing opens.
@@ -21,8 +22,10 @@ import {
   SiteMenuGroup,
   SiteMenuItem,
   SiteNavigationDrawer,
+  SiteNavigationDrawerBack,
   SiteNavigationDrawerItem,
   SiteNavigationDrawerRow,
+  SiteNavigationDrawerSection,
   SiteNavigationDrawerSubitem,
   SiteNavigationDrawerToggle,
   SiteSearch,
@@ -40,6 +43,9 @@ import { t } from './i18n';
 const say = t.parts.screens.navigation;
 const [home, open, parent, contact] = say.pages;
 const [sub, openSub] = say.subpages;
+const [mail, account] = say.drawerSections;
+const [backLabel] = say.drawerBack;
+const [inbox, messages, favourites, trash, profile] = say.drawerItems;
 const row = 'flex flex-wrap items-center gap-4';
 const kinds = ['primary', 'secondary'] as const;
 const bar = say.appBar;
@@ -204,7 +210,7 @@ export default function NavigationParts() {
             <SiteMenu groups="divider" aria-label={menus.divider}>
               {groups()}
             </SiteMenu>
-            <div className="pb-24 sm:pr-72">
+            <div className="pb-24 medium:pr-72">
               <SiteMenu aria-label={menus.share}>{groups(true)}</SiteMenu>
             </div>
           </div>
@@ -231,7 +237,7 @@ export default function NavigationParts() {
             {(['outlined', 'filled'] as const).map((kind) => {
               const options = menus.options.map((label, i) => ({ value: String(i), label, disabled: i === 3 }));
               return (
-                <div key={kind} className="grid gap-6 sm:grid-cols-2" aria-label={menus.kinds[kind]} role="group">
+                <div key={kind} className="grid gap-6 medium:grid-cols-2" aria-label={menus.kinds[kind]} role="group">
                   <SiteExposedDropdownMenu kind={kind} label={menus.field} options={options} />
                   <SiteExposedDropdownMenu kind={kind} label={menus.field} options={options} value="1" />
                   <SiteExposedDropdownMenu kind={kind} label={menus.field} options={options} value="0" supporting={menus.supporting} />
@@ -245,25 +251,65 @@ export default function NavigationParts() {
       </Part>
       <Part name="NavigationDrawer" use={say.navigationDrawer}>
         <Preview>
-          <SiteNavigationDrawer className="px-3 py-4">
-            <SiteNavigationDrawerRow>
-              <SiteNavigationDrawerItem href="">{home}</SiteNavigationDrawerItem>
-            </SiteNavigationDrawerRow>
-            <SiteNavigationDrawerRow data-active="">
-              <SiteNavigationDrawerItem href="" active>
-                {parent}
+          <div className="flex flex-wrap items-start gap-6">
+            <SiteNavigationDrawer>
+              <SiteNavigationDrawerRow>
+                <SiteNavigationDrawerItem href="">{home}</SiteNavigationDrawerItem>
+              </SiteNavigationDrawerRow>
+              <SiteNavigationDrawerRow data-active="">
+                <SiteNavigationDrawerItem href="" active>
+                  {parent}
+                </SiteNavigationDrawerItem>
+                <SiteNavigationDrawerToggle label={parent} expanded />
+              </SiteNavigationDrawerRow>
+              <SiteNavigationDrawerSubitem href="">{sub}</SiteNavigationDrawerSubitem>
+              <SiteNavigationDrawerSubitem href="" active>
+                {openSub}
+              </SiteNavigationDrawerSubitem>
+              <SiteNavigationDrawerRow>
+                <SiteNavigationDrawerItem href="">{contact}</SiteNavigationDrawerItem>
+                <SiteNavigationDrawerToggle label={contact} expanded={false} />
+              </SiteNavigationDrawerRow>
+            </SiteNavigationDrawer>
+            <SiteNavigationDrawer variant="standard">
+              <SiteNavigationDrawerSection label={mail}>
+                <SiteNavigationDrawerItem href="" icon="envelope-simple" badge={24} active>
+                  {inbox}
+                </SiteNavigationDrawerItem>
+                <SiteNavigationDrawerItem href="" icon="chats" badge={3}>
+                  {messages}
+                </SiteNavigationDrawerItem>
+                <SiteNavigationDrawerItem href="" icon="heart">
+                  {favourites}
+                </SiteNavigationDrawerItem>
+                <SiteNavigationDrawerItem href="" icon="trash">
+                  {trash}
+                </SiteNavigationDrawerItem>
+              </SiteNavigationDrawerSection>
+              <SiteNavigationDrawerSection label={account}>
+                <SiteNavigationDrawerItem href="" icon="user">
+                  {profile}
+                </SiteNavigationDrawerItem>
+              </SiteNavigationDrawerSection>
+            </SiteNavigationDrawer>
+            <SiteNavigationDrawer variant="standard">
+              <SiteNavigationDrawerItem icon="envelope-simple" trailing="arrow-right" active>
+                {mail}
               </SiteNavigationDrawerItem>
-              <SiteNavigationDrawerToggle label={parent} expanded />
-            </SiteNavigationDrawerRow>
-            <SiteNavigationDrawerSubitem href="">{sub}</SiteNavigationDrawerSubitem>
-            <SiteNavigationDrawerSubitem href="" active>
-              {openSub}
-            </SiteNavigationDrawerSubitem>
-            <SiteNavigationDrawerRow>
-              <SiteNavigationDrawerItem href="">{contact}</SiteNavigationDrawerItem>
-              <SiteNavigationDrawerToggle label={contact} expanded={false} />
-            </SiteNavigationDrawerRow>
-          </SiteNavigationDrawer>
+              <SiteNavigationDrawerItem icon="user" trailing="arrow-right">
+                {account}
+              </SiteNavigationDrawerItem>
+            </SiteNavigationDrawer>
+            <SiteNavigationDrawer variant="standard">
+              <SiteNavigationDrawerBack label={backLabel} />
+              <SiteNavigationDrawerItem href="" icon="envelope-simple" badge={24} active>
+                {inbox}
+              </SiteNavigationDrawerItem>
+              <SiteNavigationDrawerItem href="" icon="chats">
+                {messages}
+              </SiteNavigationDrawerItem>
+            </SiteNavigationDrawer>
+          </div>
         </Preview>
       </Part>
       <Part name="Tabs" use={say.tabs}>

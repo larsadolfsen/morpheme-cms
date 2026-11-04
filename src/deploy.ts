@@ -1,10 +1,11 @@
 // After a save: tells when the site has been rebuilt with it. Each build writes the commit it was
 // made from to /editor/version.json (packages/editor/pages/editor/version.json.js), and the editor asks for that
 // until it is the saved commit or a later one. The message is a notification of the type `site` (notificationData.ts),
-// which also comes on the phone or computer when the editor is not on screen.
+// which also comes on the phone or computer when the editor is not on screen. It gives up after 20 minutes, or 10 with paidBuilds.
 // Each save says what it changed ("farver ændret", "side “Om” ændret", t.app.changes): right after it (savedText),
 // and, with the other saves since, when the website has been updated with them (changesText, App.tsx save).
 import { graphql, REPO } from './github';
+import { giveUpAfter } from '../lib/build-settings.mjs';
 import { entryName, type Collection } from './schema';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { locale, t } from './i18n';
@@ -39,10 +40,9 @@ export function changesText(changes: string[]): string {
 }
 
 const EVERY = 10_000;
-const GIVE_UP = 10 * 60_000;
 
 // What the site was last built from: the commit, the fingerprint of the editor's code and when.
-type Version = { commit?: string; editor?: string; builtAt?: string };
+type Version = { commit?: string; editor?: string; builtAt?: string; paidBuilds?: boolean };
 async function version(): Promise<Version> {
   try {
     const res = await fetch('/editor/version.json', { cache: 'no-store' });
@@ -51,8 +51,6 @@ async function version(): Promise<Version> {
     return {};
   }
 }
-
-const built = async () => (await version()).commit ?? null;
 
 // Whether `commit` is among the last commits up to `build` (the site may be built from a later one).
 async function includes(build: string, commit: string): Promise<boolean> {
@@ -78,16 +76,16 @@ async function includes(build: string, commit: string): Promise<boolean> {
 }
 
 // Waits for `commit` to be on the site: done(true) when it is, done(false) when it is not after
-// 10 minutes. Returns a function that stops waiting (a newer save takes over).
+// giveUpAfter(paidBuilds) (20 minutes on the free plan, 10 on Workers Paid; paidBuilds is in version.json). Returns a function that stops waiting (a newer save takes over).
 export function waitForSite(commit: string, done: (online: boolean) => void): () => void {
-  const until = Date.now() + GIVE_UP;
+  const started = Date.now();
   // The build last looked at, so GitHub is asked about each build once.
   let seen: string | null = null;
   let stopped = false;
   let timer: ReturnType<typeof setTimeout>;
 
   async function check() {
-    const build = await built();
+    const { commit: build, paidBuilds } = await version();
     if (stopped) return;
     if (build && build !== seen) {
       seen = build;
@@ -95,7 +93,7 @@ export function waitForSite(commit: string, done: (online: boolean) => void): ()
       if (stopped) return;
       if (online) return done(true);
     }
-    if (Date.now() > until) {
+    if (Date.now() > started + giveUpAfter(paidBuilds === true)) {
       // Without any version file (a build from before it existed) there is nothing to tell.
       if (seen) done(false);
       return;

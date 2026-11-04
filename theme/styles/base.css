@@ -93,6 +93,16 @@
   --ease-soft: var(--ease);
 }
 
+/* Material 3's breakpoints (m3.material.io/foundations/layout/breakpoints): Tailwind's medium:, expanded:, large: and
+   extra-large: (and max-…:), and theme(--breakpoint-…) in a @media; the same as lib/breakpoints.mjs for scripts. */
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-medium: 37.5rem;
+  --breakpoint-expanded: 52.5rem;
+  --breakpoint-large: 75rem;
+  --breakpoint-extra-large: 100rem;
+}
+
 /* z-index scale (documented, no ad-hoc values): action bar 30, header 40, cookie banner 42 (under the
    open menu, which must stay usable), menu 45, skip link 50 */
 
@@ -276,7 +286,7 @@
   font-weight: var(--type-headline-large-weight);
   letter-spacing: var(--type-headline-large-tracking);
 }
-@media (min-width: 48rem) {
+@media (width >= theme(--breakpoint-medium)) {
   .block-place > h2,
   .block-place > .block-head > h2 {
     font-size: var(--type-display-medium-size);
@@ -287,7 +297,7 @@
 }
 /* Cards placed in the page's full width (a front-page section, PageBlock.astro): three in a row on a computer, as
    there is room for (in the text, two). */
-@media (min-width: 64rem) {
+@media (width >= theme(--breakpoint-expanded)) {
   .block-place .block-cards {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -313,7 +323,7 @@
   font-weight: var(--type-headline-small-weight);
   letter-spacing: var(--type-headline-small-tracking);
 }
-@media (min-width: 48rem) {
+@media (width >= theme(--breakpoint-medium)) {
   .block-panels > .block-panel {
     --card-padding: 2rem;
   }

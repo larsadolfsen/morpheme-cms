@@ -1,4 +1,4 @@
-// What is wrong when a form cannot be saved, also in the check before the build (check.ts).
+// What is wrong when a form cannot be saved, also in the check before the website is updated (check.ts).
 export const check = {
   /** What a value must be, when it is another kind (a file edited by hand). */
   kinds: {
@@ -6,11 +6,11 @@ export const check = {
     object: 'must be a group of fields',
     number: 'must be a number',
     boolean: 'must be on or off',
-    text: 'must be a text',
+    text: 'must be text',
   },
   address: 'Write the address with letters or digits',
   onlyDigits: 'Write only digits',
-  digits: (n: number) => `Write ${n} digits`,
+  digits: (n: number) => (n === 1 ? 'Write 1 digit' : `Write ${n} digits`),
   fillIn: (label: string) => `Fill in "${label}."`,
   /** A label and what is wrong with its value. */
   wrong: (label: string, problem: string) => `${label}: ${problem}.`,
@@ -28,4 +28,7 @@ export const check = {
   atMostItems: (label: string, max: number) => `There can be at most ${max} in "${label}."`,
   mustBeOnPage: (name: string) => `"${name}" must be on the page.`,
   mustBeShown: (name: string) => `"${name}" must be shown on the page.`,
+  recordShape: 'A file’s tags need "src" (the file’s address) and the lists "categories" and "removed".',
+  recordOverlap: (tag: string) => `The tag "${tag}" is both chosen and removed.`,
+  recordDuplicate: (src: string) => `Another file of tags is for ${src}.`,
 };

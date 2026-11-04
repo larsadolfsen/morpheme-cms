@@ -25,4 +25,5 @@ npm run dev
 ```
 
 `npm run check` kører tjekkene (formatering, typer, indholdet efter editorens regler, editoren og Workeren), før hver
-push og før hver bygning på Cloudflare, og `npm run build` bygger sitet i `dist/`.
+push. Cloudflare bygger med `npx morpheme ci-build`: alle tjekkene, eller kun editorens egne, når kun indhold er ændret
+siden det live site; og `npm run build` bygger sitet i `dist/`.

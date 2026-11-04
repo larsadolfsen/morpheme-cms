@@ -1,6 +1,8 @@
 /* The editor's parts are the theme's UI parts (ui.tsx), in the theme's design; its own parts take the theme's variables
    (--block-radius, --block-radius-small, --block-shadow). Only what is the editor's alone is here. Low specificity
    (:where), so a theme's :root wins. */
+@reference '../theme/styles/base.css';
+
 :where(:root) {
   /* How a check went (CheckList: the SEO rating), as PageSpeed shows it: the mark before a check that is fine and one
      that can be done better, and the score's ring (from 90 good, from 50 average, else bad) with its number and the
@@ -14,6 +16,17 @@
   --editor-status-bad: #ff4e42;
   --editor-status-bad-text: #cc0000;
   --editor-status-bad-surface: color-mix(in srgb, #ff4e42 10%, var(--surface));
+
+  /* The dotted frame round an H2 section of a page or blog post (sectionFrame.ts): its line, the space between the line and
+     the text, the space above a section, and the space between two parts inside it (em: it scales with the part's text). */
+  --editor-section-frame: 2px dotted var(--block-line);
+  --editor-section-pad: 1rem;
+  --editor-section-gap: 2rem;
+  --editor-section-rhythm: 0.625em;
+
+  /* A form's sections pane (SectionPane in ui.tsx): Material 3's 412dp pane against the window's end edge
+     (m3.material.io/foundations/layout/breakpoints/large-extra-large). */
+  --section-pane-width: 25.75rem;
 }
 
 /* In dark mode the score's number in the light colours, which are read on the dark. */
@@ -50,6 +63,51 @@
 /* Milkdown puts a paragraph in every list item; on the site, short lists have none. */
 .editor-text li > p {
   margin-block: 0;
+}
+
+/* The dotted frame round an H2 section (data-section-part, sectionFrame.ts): one line made of the parts' own borders. The space
+   between two parts is padding, not margin, so the line is never broken; the space above a section is outside its line. */
+.editor-text .ProseMirror > [data-section-part] {
+  margin-block: 0;
+  border-inline: var(--editor-section-frame);
+  padding-inline: var(--editor-section-pad);
+  padding-block: var(--editor-section-rhythm);
+}
+
+.editor-text .ProseMirror > :is(h2, h3)[data-section-part] {
+  padding-block-start: calc(var(--editor-section-rhythm) * 2);
+}
+
+.editor-text .ProseMirror > :is([data-section-part='start'], [data-section-part='only']) {
+  margin-block-start: var(--editor-section-gap);
+  border-block-start: var(--editor-section-frame);
+  padding-block-start: var(--editor-section-pad);
+}
+
+.editor-text .ProseMirror > :is([data-section-part='end'], [data-section-part='only']) {
+  border-block-end: var(--editor-section-frame);
+  padding-block-end: var(--editor-section-pad);
+}
+
+/* The colour of an H2 section (data-section-color, sectionFrame.ts): the theme's own colours, as the site draws the panel (wave 4).
+   On the accent the text takes the colour made for it, through the prose variables, so headings, bold and links stay readable. */
+.editor-text .ProseMirror > [data-section-color='surface'] {
+  background: var(--block-surface);
+}
+
+.editor-text .ProseMirror > [data-section-color='tint'] {
+  background: var(--block-tint);
+}
+
+.editor-text .ProseMirror > [data-section-color='accent'] {
+  --tw-prose-body: var(--block-on-accent);
+  --tw-prose-headings: var(--block-on-accent);
+  --tw-prose-bold: var(--block-on-accent);
+  --tw-prose-links: var(--block-on-accent);
+  --tw-prose-bullets: var(--block-on-accent);
+  --tw-prose-counters: var(--block-on-accent);
+  background: var(--block-accent);
+  color: var(--block-on-accent);
 }
 
 /* HTML in a line of text is kept as it is but cannot be edited here (on a line of its own it is a
@@ -136,7 +194,7 @@
 
 /* A sheet that is dragged up by its top on a phone (SheetTitle in ui.tsx) is as tall as the screen,
    below the clock, or as tall as what is in it, if that is less. */
-@media not (min-width: 48rem) {
+@media (width < theme(--breakpoint-medium)) {
   .editor-sheet[data-tall] {
     max-height: calc(100dvh - env(safe-area-inset-top));
   }
@@ -153,27 +211,31 @@
     animation: editor-sheet-in var(--motion-spatial);
   }
 
-  /* A modal navigation drawer (ModalNavigationDrawer in ui.tsx) slides in from the right edge. */
-  .editor-drawer[open] {
-    animation: editor-drawer-in var(--motion-spatial);
-  }
-
-  :is(.editor-sheet, .editor-drawer)[open]::backdrop {
+  .editor-sheet[open]::backdrop {
     animation: editor-fade var(--motion-effects);
   }
 
-  @media (min-width: 48rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .editor-sheet[open] {
       animation: editor-pop var(--motion-spatial-fast);
     }
   }
 
+  /* The main drawer (MainDrawer in ui.tsx) slides in from the start edge: the left, the right when the text runs right to left. */
+  .editor-main-drawer[open] {
+    animation: editor-main-drawer-in var(--motion-spatial);
+  }
+
+  .editor-main-drawer[open]::backdrop {
+    animation: editor-fade var(--motion-effects);
+  }
+
   .editor-screen {
     animation: editor-enter var(--motion-spatial);
-    /* A chip set that scrolls reaches out to the screen's edges: the screen's gutter (px-4, md:px-6 in Screen.tsx). */
+    /* A chip set that scrolls reaches out to the screen's edges: the screen's gutter (px-4, medium:px-6 in Screen.tsx). */
     --chip-set-bleed: 1rem;
   }
-  @media (min-width: 48rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .editor-screen {
       --chip-set-bleed: 1.5rem;
     }
@@ -210,10 +272,42 @@
   }
 }
 
-@keyframes editor-drawer-in {
+@keyframes editor-main-drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes editor-main-drawer-in-rtl {
   from {
     transform: translateX(100%);
   }
+}
+
+/* A drag along the drawer reaches MainDrawer's swipe to close; scrolling its list still works. */
+.editor-main-drawer {
+  touch-action: pan-y;
+}
+
+.editor-main-drawer:dir(rtl)[open] {
+  animation-name: editor-main-drawer-in-rtl;
+}
+
+/* From medium the drawers (MainDrawer in ui.tsx) take the rail's place (MainRail): they share its icon column, the middle
+   of the rail. On a phone the drawer keeps the theme's (Material 3's navigation drawer). The rail's menu button stands
+   level with the top bar's logo, as the drawers' does; the rail's items keep their place. */
+@media (width >= theme(--breakpoint-medium)) {
+  .editor-main-drawer-panel {
+    --navigation-drawer-inset: 1.25rem;
+  }
+}
+
+.editor-main-rail {
+  --navigation-rail-padding: 0.5rem 0.5rem 1.5rem;
+}
+
+.editor-main-rail .navigation-rail-header {
+  margin-bottom: 1rem;
 }
 
 @keyframes editor-pop {
@@ -240,13 +334,47 @@
   bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
 
-/* On a computer, the messages are in the middle of the content, next to the sidebar (App.tsx). */
-@media (width >= 48rem) {
-  :root .snackbar-stack {
-    padding-left: 4.5rem;
+/* The screen's main actions (FabMenu in ui.tsx) at the bottom right, above the content; the messages above them. */
+.editor-fab {
+  position: fixed;
+  right: calc(1rem + env(safe-area-inset-right));
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 30;
+}
+
+:root:has(.editor-fab) .snackbar-stack {
+  bottom: calc(6rem + env(safe-area-inset-bottom));
+}
+
+/* From medium the navigation rail stands at the start edge of the window (MainMenu.tsx), so the messages are in the middle of
+   the content next to it and the save bar starts where it ends; at expanded and wider, while the standard drawer is open
+   in the rail's place, they keep clear of the drawer instead. The widths are the theme's. The top bar and its tabs (Screen.tsx)
+   stand beside the rail and the drawer, so they need no room. */
+@media (width >= theme(--breakpoint-medium)) {
+  .snackbar-stack {
+    padding-left: var(--navigation-rail-width, 5.5rem);
   }
+  .editor-save-bar {
+    left: var(--navigation-rail-width, 5.5rem);
+  }
+}
+@media (width >= theme(--breakpoint-expanded)) {
   :root[data-sidebar='open'] .snackbar-stack {
-    padding-left: 16rem;
+    padding-left: var(--navigation-drawer-width, 22.5rem);
+  }
+  :root[data-sidebar='open'] .editor-save-bar {
+    left: var(--navigation-drawer-width, 22.5rem);
+  }
+}
+
+/* The sections pane (FormColumns' `pane` in ui.tsx) stands against the window's end edge on large and wider: the content
+   keeps clear of it, so the form is centred to its left, and the save bar ends where the pane begins. */
+@media (width >= theme(--breakpoint-large)) {
+  .editor-content:has(.editor-section-pane) {
+    padding-inline-end: var(--section-pane-width);
+  }
+  :root:has(.editor-section-pane) .editor-save-bar {
+    right: var(--section-pane-width);
   }
 }
 
@@ -514,7 +642,7 @@ html {
   line-height: 1.625;
 }
 
-@media (min-width: 768px) {
+@media (width >= theme(--breakpoint-medium)) {
   .editor-text .ProseMirror > [data-look='section'] {
     font-size: 3rem;
   }

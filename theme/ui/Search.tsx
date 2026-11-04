@@ -1,7 +1,7 @@
 // A search (m3.material.io/components/search, .search in ../styles/ui.css): the search bar (its leading icon,
 // `leadingIcon`, the theme's magnifying glass if it has none, the placeholder, `label`, and what stands after it,
 // `trailing`: icon buttons, an avatar) and the search view it opens (a <dialog>: over the whole screen on a phone, docked
-// where the bar is from 48rem), with the button back (`backLabel`), the field (a role="combobox"), the button that
+// where the bar is from the medium breakpoint), with the button back (`backLabel`), the field (a role="combobox"), the button that
 // empties it (`clearLabel`), and the results (`results`, the theme's list, List and ListItem, as a role="listbox" of
 // links, each its headline, evt. its supporting text and its icon) or, when none fits, `emptyText`. On the site
 // search.script.ts opens and closes it (the back button, Escape, a tap outside), narrows the results to what is

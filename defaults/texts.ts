@@ -226,6 +226,7 @@ export const texts: Record<string, Record<string, string>> = {
     // "Privatliv" (privacy.ts).
     Privatliv: 'Privacy',
     Cookiebanner: 'Cookie banner',
+    Cookies: 'Cookies',
     'Når banneret er fra, er der ingen måling eller annoncer.': 'When the banner is off, there is no analytics or ads.',
     'Rediger privatlivspolitik': 'Edit privacy policy',
     Aktiveret: 'Activated',
@@ -290,7 +291,7 @@ export const texts: Record<string, Record<string, string>> = {
     'Knaptekst (ring)': 'Button text (call)',
     'Telefonnummeret vises efter teksten.': 'The phone number is shown after the text.',
     Blokke: 'Blocks',
-    Standardblokke: 'Default blocks',
+    Blokskabeloner: 'Block templates',
     Knapper: 'Buttons',
     Ring: 'Call',
     'Ved Ring vises telefonnummeret efter teksten.': 'With Call, the phone number is shown after the text.',
@@ -300,13 +301,18 @@ export const texts: Record<string, Record<string, string>> = {
     '{hvad} ({navn})': '{hvad} ({navn})',
     Indhold: 'Content',
     Indstillinger: 'Settings',
-    'På alle sider': 'On every page',
+    Globalt: 'Globals',
+    Oversigt: 'Dashboard',
+    Apps: 'Apps',
+    Udseende: 'Appearance',
     'Tilføjer et "Læs mere"-link under teksten.': 'Adds a "Læs mere" link under the text.',
     // Said by the editor from the site's rules (rules.ts).
     'Rediger forsiden': 'Edit the front page',
     'Rediger siden': 'Edit the page',
     'Tagget bruges på et blogindlæg. Fjern det fra det først.': 'The tag is used on a blog post. Remove it from the post first.',
     'Tagget bruges på {antal} blogindlæg. Fjern det fra dem først.': 'The tag is used on {antal} blog posts. Remove it from them first.',
+    'Tagget bruges på en side. Fjern det fra den først.': 'The tag is used on a page. Remove it from the page first.',
+    'Tagget bruges på {antal} sider. Fjern det fra dem først.': 'The tag is used on {antal} pages. Remove it from them first.',
     'Tagget bruges på en udtalelse. Fjern det fra den først.': 'The tag is used on a testimonial. Remove it from the testimonial first.',
     'Tagget bruges i promoveringen "{navn}". Fjern det fra den først.':
       'The tag is used in the promotion "{navn}". Remove it from the promotion first.',
@@ -327,6 +333,9 @@ export const texts: Record<string, Record<string, string>> = {
     Standardknapper: 'Default buttons',
     'Rediger standardknapperne': 'Edit the default buttons',
     'Tagget bruges på {antal} udtalelser. Fjern det fra dem først.': 'The tag is used on {antal} testimonials. Remove it from them first.',
+    'Tagget bruges på en fil. Fjern det fra den først.': 'The tag is used on a file. Remove it from the file first.',
+    'Tagget bruges på {antal} filer. Fjern det fra dem først.': 'The tag is used on {antal} files. Remove it from them first.',
+    'Åbn filen': 'Open the file',
     'Tagget vælger indlæggene på forsiden under "Fra bloggen". Vælg et andet først.':
       'The tag picks the posts on the front page under "Fra bloggen". Pick another one first.',
     'Indlægget er valgt til forsiden under "Fra bloggen". Vælg et andet først.':

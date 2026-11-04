@@ -1,5 +1,5 @@
 // "Indstillinger" › "Apps" (#apps): the apps installed (src/apps/, apps.ts: the site's own and those from the app store,
-// with one from the store not yet built as "Installeres …"), each with who made it under its name and, from the store,
+// with one from the store not yet built as "Installeres…"), each with who made it under its name and, from the store,
 // that it has a newer version, with search (by name, who made it and what it does), the order (A–Å, Å–A, kept in this
 // browser) and headings by the first letter, as the lists under "Indhold" have. "Indstillinger" › "Appstore"
 // (#indstillinger/appstore): all apps, those in the app store (store.ts) and the site's own, installed or not, with search (by name, what they

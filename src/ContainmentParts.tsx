@@ -1,11 +1,15 @@
-// "Dele" › "UI-komponenter" (BlockParts.tsx), the group "Dialoger, ark og karrusel": the theme's dialog, bottom sheet and carousel
-// (packages/editor/theme/ui/, through @site/editor) as the site draws them, with made-up texts and the plain picture: a
-// basic dialog, one with an icon, a list and a divider, the container alone (a pop-up's box) and a full-screen one; the
-// modal bottom sheet and the standard one collapsed, half expanded and expanded at the bottom of a frame with a page
-// behind it (it can be dragged and tapped there, as on the site); and the carousel in each of Material's layouts. Only
-// the standard sheet and the carousels do something here; the buttons lead nowhere.
+// "Dele" › "UI-komponenter" (BlockParts.tsx), the group "Dialoger, ark og karrusel": the theme's dialog, bottom sheet and
+// carousel (packages/editor/theme/ui/, through @site/editor) as the site draws them, with made-up texts and the plain
+// picture: a basic dialog, one with an icon, a list and a divider, the container alone (a pop-up's box) and a
+// full-screen one; the modal bottom sheet, three times, one per wide (a button opens it in a real dialog: on a phone at
+// half height, pulled up to full height; on a computer a dialog, a side sheet or a sheet with margins) and the standard
+// one collapsed, half expanded and expanded (and with the resize and collapse buttons) at the bottom of a frame with a
+// page behind it (it can be dragged and tapped there, as on the site; from the medium width they become a side sheet,
+// and one with wide="sheet" stays a sheet); and the carousel in each of Material's
+// layouts. The modal sheet, the standard sheet and the carousels do something here; the other buttons lead nowhere.
 import type { ReactNode } from 'react';
-import { SiteBottomSheet, SiteButton, SiteCarousel, SiteCheckbox, SiteDialog, SiteTextField, bottomSheetCoverClass } from './themeUi';
+import { SiteBottomSheet, SiteButton, SiteCarousel, SiteCheckbox, SiteDialog, SiteTextField } from './themeUi';
+import ModalSheetSample from './ModalSheetSample';
 import { Part } from './PartsShown';
 import { Preview } from './ui';
 import { examplePicture } from './examples';
@@ -44,7 +48,7 @@ function Dialogs() {
     </>
   );
   return (
-    <div className="grid gap-6 p-4 lg:grid-cols-2">
+    <div className="grid gap-6 p-4 expanded:grid-cols-2">
       <Shown label={say.dialogKinds.basic}>
         <SiteDialog headline={say.heading} supportingText={say.text} actions={actions} />
       </Shown>
@@ -87,37 +91,85 @@ function Dialogs() {
 }
 
 function BottomSheets() {
-  const standard = (state: 'collapsed' | 'half-expanded' | 'expanded', label: string) => (
+  // The frame holds the sheet (contain: layout) and is as high as a phone screen to it (a size container).
+  const frame = (label: string, sheet: ReactNode) => (
     <Shown label={label}>
-      {/* The frame holds the sheet (contain: layout) and is as high as a screen to it (a size container). */}
-      <div className="[container-type:size] relative h-96 overflow-hidden rounded-xl border border-line [contain:layout]">
+      <div className="[container-type:size] relative h-160 overflow-hidden rounded-xl border border-line [contain:layout]">
         <p className="p-4 text-muted">{say.page}</p>
-        <SiteBottomSheet
-          kind="standard"
-          state={state}
-          headline={say.heading}
-          supportingText={say.sheetText}
-          dragHandleLabel={say.dragHandle}
-        >
-          {numbers.slice(0, 4).map((n) => (
-            <p key={n} className="mb-3 text-muted">
-              {say.text}
-            </p>
-          ))}
-        </SiteBottomSheet>
+        {sheet}
       </div>
     </Shown>
   );
+  const texts = (count: number) =>
+    Array.from({ length: count }, (_, i) => (
+      <p key={i + 1} className="mb-3 text-muted">
+        {say.text}
+      </p>
+    ));
+  const standard = (state: 'collapsed' | 'half-expanded' | 'expanded', label: string) =>
+    frame(
+      label,
+      <SiteBottomSheet
+        kind="standard"
+        state={state}
+        headline={say.heading}
+        supportingText={say.sheetText}
+        peek={say.sheetPeek}
+        dragHandleLabel={say.dragHandle}
+      >
+        {texts(4)}
+      </SiteBottomSheet>,
+    );
   return (
-    <div className="grid gap-6 p-4 lg:grid-cols-2">
+    <div className="grid gap-6 p-4 expanded:grid-cols-2">
       <Shown label={say.sheetKinds.modal}>
-        <SiteBottomSheet headline={say.heading} supportingText={say.sheetText} closeLabel={say.close} footer={say.footer} height="18rem">
-          <p className={bottomSheetCoverClass}>{say.text}</p>
-        </SiteBottomSheet>
+        <ModalSheetSample />
+      </Shown>
+      <Shown label={say.sheetKinds.modalSideSheet}>
+        <ModalSheetSample wide="side-sheet" label={say.openSideSheet} />
+      </Shown>
+      <Shown label={say.sheetKinds.modalSheet}>
+        <ModalSheetSample wide="sheet" label={say.openWideSheet} />
       </Shown>
       {standard('collapsed', say.sheetKinds.collapsed)}
       {standard('half-expanded', say.sheetKinds.halfExpanded)}
       {standard('expanded', say.sheetKinds.expanded)}
+      {frame(
+        say.sheetKinds.wideSheet,
+        <SiteBottomSheet
+          kind="standard"
+          wide="sheet"
+          headline={say.heading}
+          supportingText={say.sheetText}
+          dragHandleLabel={say.dragHandle}
+        >
+          {texts(4)}
+        </SiteBottomSheet>,
+      )}
+      {frame(
+        say.sheetKinds.fixed,
+        <SiteBottomSheet kind="standard" states={['expanded']} dragHandle={false} label={say.sheetLabel}>
+          <p className="text-muted">{say.text}</p>
+        </SiteBottomSheet>,
+      )}
+      {frame(
+        say.sheetKinds.resizeButton,
+        <SiteBottomSheet kind="standard" headline={say.heading} dragHandle={false} resizeLabel={say.resize}>
+          {texts(4)}
+        </SiteBottomSheet>,
+      )}
+      {frame(
+        say.sheetKinds.collapseButton,
+        <SiteBottomSheet
+          kind="standard"
+          state="expanded"
+          headline={say.heading}
+          dragHandleLabel={say.dragHandle}
+          collapseLabel={say.collapse}
+        >
+          {texts(12)}
+        </SiteBottomSheet>,
+      )}
     </div>
   );
 }

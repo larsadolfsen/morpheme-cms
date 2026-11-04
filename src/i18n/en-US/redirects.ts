@@ -26,13 +26,13 @@ export const redirects = {
   pageFilter: 'Show by page',
   /** Over the posts among its choices. */
   postsGroup: 'Blog posts',
-  loading: 'Loading the redirects',
+  loading: 'Loading the redirects…',
   /** None, or none matching the search. */
   none: (query: string) => `No redirects${query ? ` with "${query}"` : ''}`,
   from: 'From',
   fromHint: 'For example, /old-page/.',
   to: 'To',
-  toHint: 'For example, /about-us/, or / for the home page.',
+  toHint: 'For example, /about/, or / for the home page.',
   /** Where it sends to; `noPage`: an address of the site no page in the editor has. */
   sendsTo: (name: string, noPage: boolean) => `Goes to ${name}${noPage ? ', which isn’t a page in the editor' : ''}.`,
   deleteRedirect: 'Delete redirect',
@@ -42,7 +42,7 @@ export const redirects = {
     title: 'Not found',
     intro: 'Addresses visitors tried to open that don’t exist.',
     searchLabel: 'Search the addresses',
-    loading: 'Loading the addresses',
+    loading: 'Loading the addresses…',
     notLoaded: (error: string) => `Couldn’t load the addresses that don’t exist: ${error}`,
     /** The site does not keep them (yet). */
     notKept: 'The website doesn’t yet record addresses that don’t exist',

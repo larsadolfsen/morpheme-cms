@@ -13,7 +13,6 @@ import { hasUnsaved, setUnsaved } from './deploy';
 import { askToNotify } from './notificationData';
 import { choose } from './ask';
 import { when } from './when';
-import { useSidebar } from './sidebar';
 import type { Env } from './App';
 import { t } from './i18n';
 
@@ -33,7 +32,7 @@ type Props<T extends string> = {
   view?: string;
   /** More in the top bar, before the link to the site. */
   actions?: ReactNode;
-  /** The icon of the form's navigation drawer, the last in the top bar (Screen). */
+  /** The button at the end of the top bar, after the account (a form's SectionsButton in ui.tsx). */
   drawer?: ReactNode;
   /** The form's tabs, in the top bar (Screen). */
   tabs?: TabChoice<T>;
@@ -150,8 +149,6 @@ export default function FormFrame<T extends string>({
   wide,
   children,
 }: Props<T>) {
-  // On a computer the save bar starts where the sidebar (or its rail, sidebar.ts) ends.
-  const sidebar = useSidebar();
   const save = useRef(onSave);
   save.current = onSave;
   useEffect(() => {
@@ -207,10 +204,8 @@ export default function FormFrame<T extends string>({
         </div>
       )}
       {(dirty || saving) && (
-        <div
-          className={`editor-save-bar fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md ${sidebar ? 'md:left-64' : 'md:left-18'}`}
-        >
-          <div className="mx-auto max-w-3xl px-4 py-3 md:px-6">
+        <div className="editor-save-bar fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
+          <div className="mx-auto max-w-3xl px-4 py-3 medium:px-6">
             {/* "Forhåndsvis" beside "Gem". */}
             <div className={onPreview ? 'grid grid-cols-[auto_1fr] gap-2' : ''}>
               {onPreview && (

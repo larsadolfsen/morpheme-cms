@@ -23,6 +23,9 @@
                        square, a step on a time line)
     --block-control-radius  the corners of a button and a tag (a pill when large)
     --block-shadow     the shadow of a raised panel
+    --block-section-padding, --block-section-margin  the space inside, and above and below, a coloured section of a text
+                       (.text-section: a panel the width of the text column, on --block-surface, --block-tint or --block-accent; on the accent
+                       the blocks in it get inverted variables: text, accent and line on-accent, surface and tint a veil of it)
     --block-ease       the easing of motion (else the motion scheme's, --motion-ease)
     --block-ease-quick the easing of a quick change of state (a colour, an arrow that turns or moves; else the motion
                        scheme's, --motion-ease-quick)
@@ -31,7 +34,7 @@
     --block-page-width, --block-gutter  the page's container (its width, gutters included, and its gutter at the
                        side), whose left edge the text starts at: how far a banner across the whole width reaches out
                        of the text to the window's edges, and where its content starts again (the standard theme's
-                       Container.astro: 72rem, 1.25rem and 2rem from 48rem)
+                       Container.astro: 72rem, 1.25rem and 2rem from the medium width)
 
   How things move is the site's motion scheme (Material 3's, chosen under "Udseende" › "Bevægelse"; lib/motion.ts), which
   Base.astro writes into the <head> as springs, each its duration and curve, for `transition` and `animation`:
@@ -81,8 +84,10 @@
   --block-ease-quick: var(--motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
   --block-page-width: 72rem;
   --block-gutter: 1.25rem;
+  --block-section-padding: 1.5rem;
+  --block-section-margin: 2rem;
 }
-@media (min-width: 48rem) {
+@media (width >= theme(--breakpoint-medium)) {
   :where(:root) {
     --block-gutter: 2rem;
   }
@@ -93,6 +98,62 @@
   /* A block in the text of a page: the space above and below it. */
   .block-in-text {
     margin-block: 2rem;
+  }
+
+  /* A coloured section of a page's or post's text (lib/text-sections.mjs, RichText.astro): a panel the width of the text
+     column, from its heading to the next (its first and last parts' margins: at the end of the file). */
+  .text-section {
+    margin-block: var(--block-section-margin);
+    border-radius: var(--block-radius);
+    padding: var(--block-section-padding);
+  }
+  .text-section-surface {
+    background: var(--block-surface);
+    box-shadow: var(--block-shadow);
+  }
+  .text-section-tint {
+    background: var(--block-tint);
+  }
+  /* On the accent everything in the text is the text-on-accent colour (the prose colours are variables, .prose in base.css),
+     links too: they are underlined by the prose style. The section's real colours are kept in private variables first
+     (--section-…): the blocks in it get the variables swapped (below), and a variable cannot swap with another on the
+     same element. */
+  .text-section-accent {
+    --section-accent: var(--block-accent);
+    --section-on-accent: var(--block-on-accent);
+    --section-text: var(--block-text);
+    --section-surface: var(--block-surface);
+    background: var(--section-accent);
+    color: var(--section-on-accent);
+    --tw-prose-body: var(--section-on-accent);
+    --tw-prose-headings: var(--section-on-accent);
+    --tw-prose-lead: var(--section-on-accent);
+    --tw-prose-links: var(--section-on-accent);
+    --tw-prose-bold: var(--section-on-accent);
+    --tw-prose-counters: var(--section-on-accent);
+    --tw-prose-bullets: var(--section-on-accent);
+    --tw-prose-hr: var(--section-on-accent);
+    --tw-prose-quotes: var(--section-on-accent);
+    --tw-prose-quote-borders: var(--section-on-accent);
+    --tw-prose-captions: var(--section-on-accent);
+    --tw-prose-code: var(--section-on-accent);
+  }
+  /* The blocks in it read as an inverted theme on the accent: text, lines and the accent itself are the text-on-accent
+     colour, a surface is a veil of it, and what was text-on-accent (a filled button's label, a step number) is the
+     accent. Dark mode follows, as the variables do. */
+  .text-section-accent > * {
+    --block-text: var(--section-on-accent);
+    --block-muted: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
+    --block-accent: var(--section-on-accent);
+    --block-accent-hover: color-mix(in srgb, var(--section-on-accent) 88%, var(--section-accent));
+    --block-on-accent: var(--section-accent);
+    --block-surface: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
+    --block-tint: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
+    --block-line: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
+    --block-shadow: none;
+    /* A hero with its picture behind the text is darkened with the section's own text colour, in its own surface. */
+    --block-hero-shade: var(--section-text);
+    --block-hero-on-shade: var(--section-surface);
   }
 
   /* "Besked": a short notice in a box with the accent along its left edge (notice/). */
@@ -393,7 +454,7 @@
   body:has(.block-hero-full.block-in-text) {
     overflow-x: clip;
   }
-  @media (min-width: 48rem) {
+  @media (width >= theme(--breakpoint-expanded)) {
     .block-hero {
       grid-template-columns: 7fr 5fr;
       gap: 3rem;
@@ -964,7 +1025,7 @@
     font-weight: var(--type-title-large-weight);
     letter-spacing: var(--type-title-large-tracking);
   }
-  @media (width >= 40rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .block-timeline {
       grid-auto-columns: 1fr;
       grid-auto-flow: column;
@@ -1000,7 +1061,7 @@
     padding-top: 1.25rem;
   }
   /* Only on phones and tablets (a block a site shows beside the text on a computer). */
-  @media (width >= 64rem) {
+  @media (width >= theme(--breakpoint-expanded)) {
     .block-small-screens {
       display: none;
     }
@@ -1405,7 +1466,7 @@
       scale: 1.03;
     }
   }
-  @media (width >= 40rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .block-buttons {
       flex-direction: row;
       flex-wrap: wrap;
@@ -1420,7 +1481,7 @@
       text-align: right;
     }
   }
-  @media (width >= 48rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .block-testimonial {
       --card-padding: 1.75rem;
     }
@@ -1737,7 +1798,7 @@
   color: #fff;
   text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
 }
-@media (min-width: 768px) {
+@media (width >= theme(--breakpoint-medium)) {
   .prose .video-facade-still svg {
     width: 4.5rem;
     height: 4.5rem;
@@ -1754,7 +1815,7 @@
    heading is the text's own <h2>, without this): the label in small capitals, spaced out, in the accent; the
    subheading larger and quiet. Mostly in the text's style (.prose), so outside the layers, like the video above, whose
    margins it sets in place of the text's; a theme that places a block outside the text sets its own (.block-place in
-   the standard theme). A theme gives it its own look outside the layers too (the standard theme: in the middle). */
+   the standard theme). A label above a heading in a text has the same look. A theme gives it its own look outside the layers too (the standard theme: in the middle). */
 .block-head {
   margin-block: 2.5em 1.25em;
 }
@@ -1773,7 +1834,8 @@
 .block-head > .block-eyebrow + h2 {
   margin-top: 0.5rem;
 }
-.block-head > .block-eyebrow {
+.block-head > .block-eyebrow,
+.prose .block-eyebrow {
   font-size: var(--type-label-medium-size);
   line-height: var(--type-label-medium-line-height);
   font-weight: var(--type-label-medium-weight);
@@ -1787,6 +1849,15 @@
   font-weight: var(--type-title-large-weight);
   letter-spacing: var(--type-title-large-tracking);
   color: var(--block-muted);
+}
+
+/* A label above a heading in a text (packages/editor/lib/eyebrow.mjs): a block's label, with the heading's space above
+   it and close to its heading. */
+.prose .block-eyebrow {
+  margin-block: 2em 0;
+}
+.prose .block-eyebrow + :is(h1, h2, h3) {
+  margin-top: 0.5rem;
 }
 
 /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
@@ -1805,4 +1876,20 @@
 .block-hero-behind :is(.color-accent, .color-muted),
 .block-hero-behind :is(.color-accent, .color-muted) :is(strong, em, a) {
   color: inherit;
+}
+
+/* A word in the accent's or the quiet text's colour (above) on a section with the accent as its background would not
+   be read: there it has the section's text colour. */
+.text-section-accent :is(.color-accent, .color-muted),
+.text-section-accent :is(.color-accent, .color-muted) :is(strong, em, a) {
+  color: inherit;
+}
+
+/* The first and last parts of a coloured section lose the prose margins that would add to the panel's padding. Outside
+   the layers, as the prose style (Tailwind's typography) is in the utilities layer, which wins over components. */
+.text-section > :first-child {
+  margin-top: 0;
+}
+.text-section > :last-child {
+  margin-bottom: 0;
 }

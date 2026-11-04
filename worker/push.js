@@ -26,13 +26,15 @@ import { config } from '@site/config';
 import { contact } from '@site/worker';
 import { json } from './not-found.js';
 import { mayEdit } from './session.js';
+import { giveUpAfter } from '../lib/build-settings.mjs';
 
 const VAPID = 'vapid';
 const DEVICE = 'device:';
 const WAIT = 'wait:';
 const WAITING = 'waiting';
-// How long the editor waits for a save to be on the site (packages/editor/src/deploy.ts GIVE_UP).
-const GIVE_UP = 10 * 60_000;
+// How long the editor waits for a save to be on the site (packages/editor/src/deploy.ts): giveUpAfter(paidBuilds), where
+// paidBuilds is in /editor/version.json. Before a wait is checked that is not known: the longest limit is used.
+const LONGEST = giveUpAfter(false);
 // A device not seen (the editor not opened on it) for half a year drops out by itself.
 const KEEP = 180 * 24 * 60 * 60;
 // How long a push service keeps a notification for a device that is off.
@@ -198,7 +200,7 @@ export async function waitForBuilds(env, now = Date.now()) {
     const at = Date.parse(wait.at);
     // A build made before the save cannot have it.
     const online = !!built.commit && builtAt >= at && (await includes(env, built.commit, wait.commit).catch(() => false));
-    const late = now - at > GIVE_UP;
+    const late = now - at > giveUpAfter(built.paidBuilds === true);
     if (!online && !late) continue;
     await env.PUSH.delete(name);
     const device = await env.PUSH.get(DEVICE + wait.device, 'json');
@@ -239,8 +241,8 @@ export async function handlePush(request, env) {
     const metadata = { commit: body.commit, device: id, text: text(body.text), failText: text(body.failText), at };
     if (isRoute(body.to)) metadata.to = body.to;
     // The value is empty: all of it is in the metadata, which the list each minute gives with the key.
-    await env.PUSH.put(WAIT + id, '', { metadata, expirationTtl: (2 * GIVE_UP) / 1000 });
-    await env.PUSH.put(WAITING, String(Date.now() + GIVE_UP + 2 * 60_000));
+    await env.PUSH.put(WAIT + id, '', { metadata, expirationTtl: (2 * LONGEST) / 1000 });
+    await env.PUSH.put(WAITING, String(Date.now() + LONGEST + 2 * 60_000));
     return json({ ok: true });
   }
   if (wait && request.method === 'DELETE') {

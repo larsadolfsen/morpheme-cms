@@ -1,17 +1,18 @@
 // A FAB menu (m3.material.io/components/fab-menu, .fab-menu in ../styles/ui.css): the theme's FAB (its classes,
-// fabClass: `icon`, its name `label`, its size `size`, any of the FAB sizes, and its colour `fabKind`, any of the FAB
-// colours, the menu's `kind` filled if it has none) that opens two to six related actions above it (`items`, each the
-// theme's ExtendedFab: its icon and label, with `href` a link), the last nearest the FAB. The menu comes in Material's
-// three colour sets (`kind`: primary, the default, secondary or tertiary): while it is open (aria-expanded) the FAB is a
-// round close button with a cross (its name `closeLabel`) in the set's filled colour, and the actions are in its
-// container colour, so they stand apart from it. Where it stands (fixed at the bottom of the screen) is the component's
-// (`className`). `open` draws it open (the editor). On the site ui/fabMenu.script.ts opens and closes it. Other
-// attributes (data-…) go on the whole.
+// fabClass: `icon`, a name or an icon, its name `label`, its size `size`, any of the FAB sizes, and its colour
+// `fabKind`, any of the FAB colours, the menu's `kind` filled if it has none) that opens two to six related actions
+// above it (`items`, each the theme's ExtendedFab: its icon and label, with `href` a link), the last nearest the FAB.
+// The menu comes in Material's three colour sets (`kind`: primary, the default, secondary or tertiary): while it is
+// open (aria-expanded) the FAB is a round close button with a cross (its name `closeLabel`) in the set's filled
+// colour, and the actions are in its container colour, so they stand apart from it. Where it stands (fixed at the
+// bottom of the screen) is the component's (`className`). `open` draws it open (the editor). ui/fabMenu.script.ts
+// opens and closes it (on the site, and in the editor through setUpFabMenu). Other attributes (data-…) go on the
+// whole.
 import { useId } from 'react';
-import { Svg } from '@morphemecms/cms/src/icon';
+import { Glyph, Svg, type IconRef } from '@morphemecms/cms/src/icon';
 import { ExtendedFab, fabClass, type FabKind, type FabSize } from '@theme/ui/Fab';
 
-export type FabMenuItem = { icon: string; label: string; href?: string } & Record<string, unknown>;
+export type FabMenuItem = { icon: IconRef; label: string; href?: string } & Record<string, unknown>;
 export const fabMenuKinds = ['primary', 'secondary', 'tertiary'] as const;
 export type FabMenuKind = (typeof fabMenuKinds)[number];
 
@@ -30,7 +31,7 @@ export default function FabMenu({
   className,
   ...rest
 }: {
-  icon: string;
+  icon: IconRef;
   label: string;
   closeLabel: string;
   items: FabMenuItem[];
@@ -52,7 +53,7 @@ export default function FabMenu({
         data-label={label}
         data-close-label={closeLabel}
       >
-        <Svg name={icon} size={24} className="fab-menu-icon" />
+        <Glyph icon={icon} size={24} className="fab-menu-icon" />
         <Svg name="x" size={24} className="fab-menu-close-icon" />
       </button>
       <ul id={list} className="fab-menu-list" aria-label={label} hidden={!open}>

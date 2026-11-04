@@ -4,11 +4,12 @@
 // theme's surface or (`background`) the accent: the standard block "Kort", and a site's own cards (this site's front
 // page).
 // `className`: the site's own classes on the list, e.g. its margin.
+import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
 import { Svg } from '@morphemecms/cms/src/icon';
 import type { LinkCard } from '@morphemecms/cms/src/standard/cards/view';
 import Card from '@theme/ui/Card';
 
-const sizes = '(min-width: 640px) 352px, 100vw';
+const sizes = `(min-width: ${BREAKPOINTS.medium}px) 352px, 100vw`;
 
 export default function LinkCards({
   items,

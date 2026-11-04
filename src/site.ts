@@ -1,5 +1,5 @@
 // The site as the editor shows it: what src/site/ describes (the collections and their fields, the
-// start screen's groups, the screens under "Virksomheden" and "Blokke") with the site's texts in the
+// menu's sections (groups), the screens under "Virksomheden" and "Blokke") with the site's texts in the
 // editor's language (siteText, @site/texts). The editor takes these from here, not from
 // @site/editor. A commit says what was saved in the site's language: asWritten gives back a
 // collection, a file, a part or a block as the site wrote it.
@@ -160,9 +160,14 @@ export const appearance = each(
   site.appearance.map((p) => ({ ...p, back: { href: '#udseende', label: t.common.parts.appearance } })),
   local.part,
 );
-/** The site's own parts under "Søgemaskineoptimering" (#seo, Library.tsx Seo), after the redirects, each going back to it. */
+/** Where a screen goes back to: the start screen. The menu's sections ("Indhold" …) are lists in the drawer, not screens,
+ * so Redirects and "Interne links" under "Indhold" go there too. */
+export const backFrom = (_id: string) => ({ href: '#', label: site.siteName });
+
+/** The site's own parts under "Søgemaskineoptimering" (#seo/<id>, in the menu under "Indhold"), each going back
+ * to the start screen (backFrom). */
 export const seoParts = each(
-  site.seoParts.map((p) => ({ ...p, back: { href: '#seo', label: t.common.parts.seo } })),
+  site.seoParts.map((p) => ({ ...p, back: backFrom(p.id) })),
   local.part,
 );
 /** The site's own first ("Book en tid"), then the blocks' by their names. */
@@ -175,19 +180,14 @@ export const groups = each(site.groups, local.group);
 export const colorFields = each(site.colorFields, local.color);
 /** The pairs that must be readable (@site/colors), with what they are in the editor's language. */
 export const colorPairs = each(site.colorPairs, local.pair);
-/** The settings of the whole site, on "Indstillinger" (#indstillinger) instead of the start screen. */
+/** The settings of the whole site, the drawer's last section. */
 export const settings: string[] = site.settings;
 
-/** Where a part of the start screen is, as the way there says it: its group's title, or "Indstillinger" for a setting. */
-export const placeOf = (id: string): string | undefined =>
-  settings.includes(id) ? t.common.parts.settings : groups.find((g) => g.ids.includes(id))?.title;
-
-/** Where a screen goes back to: "Indstillinger" for a setting ("Udseende", "Apps", "Analytics" …), else the start screen. */
-export const backFrom = (id: string) =>
-  settings.includes(id) ? { href: '#indstillinger', label: t.common.parts.settings } : { href: '#', label: site.siteName };
+/** Where a part of the menu is, as the way there says it: the title of the section it is in ("Indhold › …"). */
+export const placeOf = (id: string): string | undefined => groups.find((g) => g.ids.includes(id))?.title;
 
 /** Where a standard page (by its key, packages/editor/defaults/standardPages.ts) is chosen, as the way there from the start screen
- * ("Indstillinger › Udseende › Standardsider"): the part with its field in the file of the standard pages. */
+ * ("Udseende › Standardsider"): the part with its field in the file of the standard pages. */
 export function standardPageAt(key: string): string {
   const chosenIn = (p: Part) => p.file === site.config.standardPages && !!p.fields?.some((f) => f.name === key);
   const screen = [{ id: 'udseende', label: t.common.parts.appearance, parts: appearance }, ...partScreens].find((s) =>
@@ -303,15 +303,25 @@ export const listRowsOf = (files: { path: string; text: string }[]): ListRows =>
     ]),
   );
 
-/** The icon of each part on the start screen, in the sidebar and under "Lister", by its id: the site's, and the
- * standard blocks' and the apps' lists'. */
-export const icons = { ...site.icons, ...Object.fromEntries(ownedLists.map((l) => [l.id, l.icon])) };
+/** The icon of each part on the start screen, in the sidebar and under "Lister", by its id: the site's, the
+ * standard blocks' and the apps' lists', and those of the parts the menu lists (appearance, seoParts, partScreens). */
+export const icons = {
+  ...site.icons,
+  ...Object.fromEntries(ownedLists.map((l) => [l.id, l.icon])),
+  // The parts the menu lists by their id: the site's standard pages, Internal links and the parts of the screens with parts.
+  ...Object.fromEntries(
+    [...appearance, ...seoParts, ...partScreens.flatMap((s) => s.parts)].flatMap((p) => (p.icon ? [[p.id, p.icon]] : [])),
+  ),
+};
 
 /** The short lists, under "Lister" (#lister): the site's, the standard blocks' and the apps', which go back there too. */
 export const lists = [...site.lists, ...ownedLists.map((l) => l.id)];
 
-/** The lists under "Lister" now: the site's, the standard blocks' and those of the apps installed. */
+/** The lists under "Lister" now: the site's, the standard blocks' and those of the apps installed, without the cookie
+ * list, which is a row under "Privatliv" (privacy.ts). */
 export const listsShown = (files: { path: string; text: string }[]) => {
   const installed = installedApps(files);
-  return [...site.lists, ...[...standardLists, ...listsOf(writtenApps.filter((a) => installed.includes(a.id)))].map((l) => l.id)];
+  return [...site.lists, ...[...standardLists, ...listsOf(writtenApps.filter((a) => installed.includes(a.id)))].map((l) => l.id)].filter(
+    (id) => id !== site.config.lists.cookies,
+  );
 };

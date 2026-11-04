@@ -6,6 +6,8 @@ export const library = {
   cmsVersion: (version: string) => `Morpheme ${version}`,
   /** Between the CMS version and the update time in the start screen's status. */
   statusSeparator: ' · ',
+  /** The start screen's FAB menu (StartFab.tsx), which makes a new page or blog post. */
+  createNew: 'Create',
   githubAccount: (login: string) => `GitHub account: ${login}`,
   logOut: 'Log out',
   /** The bell in the top bar and its screen (#notifikationer, Notifications.tsx): the messages shown at the bottom. */
@@ -25,9 +27,9 @@ export const library = {
   off: 'Off',
   /** Under a theme's name under "Temaer" and on its page: its version and who made it. */
   themeByline: (version: string, author: string) => `Version ${version} · ${author}`,
-  /** By the theme the site is built with, under "Temaer" and on its page. */
+  /** By the theme the website uses, under "Temaer" and on its page. */
   themeInUse: 'In use',
-  /** By the theme it is changed to, until the site is built with it: under "Temaer", and on its page. */
+  /** By the theme it is changed to, until the website is updated: under "Temaer", and on its page. */
   themeNext: 'Changing to it',
   themeChanging: (name: string) => `Changing to ${name} in a few minutes`,
   /** On a theme's page: the pictures of the site in it (packages/editor/scripts/theme-screenshots.mjs), each by what it shows. */
@@ -45,24 +47,24 @@ export const library = {
   themeKeptContent: 'Pages and posts',
   themeKeptBrand: 'Colors and logo',
   themeKeptBlocks: "All blocks, in the theme's look",
-  /** The button on a theme's page that swaps the theme the site is built with to it. */
+  /** The button on a theme's page that swaps the theme the website uses to it. */
   useTheme: 'Use the theme',
   /** The question's button before the theme is changed. */
   changeTheme: 'Change theme',
   /** Asked before the theme is changed. */
-  changeThemeAsk: (name: string) => `The website gets the theme ${name}. It is updated in a few minutes.`,
+  changeThemeAsk: (name: string) => `The website gets the theme ${name} in a few minutes`,
   /** The commit, in the site's language (siteT). */
   themeCommit: (name: string) => `Editor: change theme to ${name}`,
   /** A theme from the store (ThemeStore.tsx): installed, updated or uninstalled, asked before it is uninstalled, why
    * one in use cannot be, and under "Afinstaller" when it can; a theme the store does not have; how many a developer
    * has made; and the commits, in the site's language (siteT). */
-  themeInstalled: (name: string) => `${name} is installed and can be chosen once the website is built`,
-  themeUpdated: (name: string, version: string) => `${name} is updated to ${version} and looks that way once the website is built`,
+  themeInstalled: (name: string) => `${name} is installed. You can choose it in a few minutes.`,
+  themeUpdated: (name: string, version: string) => `${name} is updated to ${version}. The website uses it in a few minutes.`,
   themeUninstalled: (name: string) => `${name} is uninstalled`,
   askUninstallTheme: (name: string) => `Uninstall ${name}? The theme is removed from the website.`,
   themeStuck: 'The theme is in use and can’t be uninstalled. Choose another theme first.',
   themeUninstallHint: 'Can be uninstalled, as the website doesn’t use the theme.',
-  themePendingHint: 'The theme can be chosen once the website is built.',
+  themePendingHint: 'You can choose the theme in a few minutes.',
   themeNotInStore: 'The theme isn’t in the Appstore',
   themeCount: (n: number) => (n === 1 ? '1 theme' : `${n} themes`),
   searchThemes: 'Search for themes',
@@ -79,10 +81,10 @@ export const library = {
   iconPackFrom: (theme: string) => `From the theme ${theme}`,
   iconPackSamples: (name: string) => `Icons from ${name}`,
   iconPackInUse: 'In use',
-  iconPackNext: 'Changing to it once the website is built',
-  changeIconPackAsk: (name: string) => `The website and the editor get the icons from ${name} once the website is built in a few minutes`,
+  iconPackNext: 'Changing to it in a few minutes',
+  changeIconPackAsk: (name: string) => `The website and the editor get the icons from ${name} in a few minutes`,
   changeIconPack: 'Change icon pack',
-  iconPackSaved: (change: string) => `${change}. The website and the editor get the new icons once the website is built.`,
+  iconPackSaved: (change: string) => `${change}. The website and the editor get the new icons in a few minutes.`,
   iconPackCommit: (name: string) => `Editor: change icon pack to ${name}`,
   /** Under "Bevægelse" (MotionSchemes in Library.tsx): each motion scheme's name and how it moves (lib/motion.ts); by the
    * theme's own; asked before one is chosen, the question's button, what is said after it is saved, and the commit, in
@@ -94,9 +96,9 @@ export const library = {
     calm: 'What moves does so briefly, and sections are shown right away',
   },
   motionOfTheme: 'The theme’s choice',
-  changeMotionAsk: (name: string) => `The website gets the ${name} motion once it’s built in a few minutes. The editor gets it right away.`,
+  changeMotionAsk: (name: string) => `The website gets the ${name} motion in a few minutes. The editor gets it right away.`,
   changeMotion: 'Change motion',
-  motionSaved: (change: string) => `${change}. The website gets the new motion once it’s built.`,
+  motionSaved: (change: string) => `${change}. The website gets the new motion in a few minutes.`,
   motionCommit: (name: string) => `Editor: change motion to ${name}`,
   /** Under "Sidekolonne" (SideColumn.tsx): the choice of no block and what is under it, what is said when no block can be
    * drawn there, asked before one is chosen, the question's button, what is said after it is saved, and the commit, in
@@ -185,8 +187,12 @@ export const library = {
   hideSubpages: 'Hide subpages',
   showSubpagesOf: (title: string) => `Show subpages of ${title}`,
   hideSubpagesOf: (title: string) => `Hide subpages of ${title}`,
-  openSidebar: 'Open the sidebar',
-  closeSidebar: 'Close the sidebar',
-  sidebar: 'The sidebar',
+  /** The name of the main navigation drawer (the site's parts in four sections). */
+  navigation: 'Navigation',
+  /** The top bar's menu button, which opens and closes that drawer. */
+  openMenu: 'Open the menu',
+  closeMenu: 'Close the menu',
+  /** The back row of a section's list in the main drawer (the first level). */
+  mainMenu: 'Main menu',
   breadcrumbs: 'Breadcrumbs',
 };

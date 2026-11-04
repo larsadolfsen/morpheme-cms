@@ -1,4 +1,4 @@
-// "Videresendelser" under Indstillinger › "Søgemaskineoptimering" (#seo/videresendelser): two rows with how many
+// "Videresendelser" under Indhold (#seo/videresendelser): two rows with how many
 // each has, each opening a screen of its own.
 // "Alle videresendelser" (#seo/videresendelser/alle): every address of a page the site sends on elsewhere
 // (redirectData.ts), by address, with where it sends to, and search. Tapping one opens a sheet where
@@ -45,6 +45,7 @@ import { byText } from './schema';
 import { savedText } from './deploy';
 import { config, whatIsAt } from '@site/editor';
 import { siteT, t } from './i18n';
+import { backFrom } from './site';
 
 // An address as typed, as one: "/ny-side/", "/" for the front page, a #part kept, the site's own
 // domain left out; a link to another site as it is. '' when nothing is typed.
@@ -251,7 +252,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
       { tab: 'missing' as const, label: t.redirects.missing.title, icon: LinkBreak, count: missing && files ? stillMissing.length : null },
     ];
     return (
-      <Screen title={t.common.parts.redirects} wide back={{ href: '#seo', label: t.common.parts.seo }}>
+      <Screen title={t.common.parts.redirects} wide back={backFrom('videresendelser')}>
         {problem && <ProblemNote>{problem}</ProblemNote>}
         <Group>
           {rows.map((r) => (

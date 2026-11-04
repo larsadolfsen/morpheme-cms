@@ -4,12 +4,11 @@ export const preview = {
   /** The button, the icon in the top bar, and the sheet. */
   button: 'Preview',
   title: 'Preview',
-  /** How wide the page is shown. */
-  device: 'Show as',
-  phone: 'Phone',
-  computer: 'Computer',
-  making: 'Making the preview…',
+  /** How wide the page is shown: Material 3's window sizes, each at its narrowest. */
+  size: 'Window size',
+  sizes: { compact: 'Compact', medium: 'Medium', expanded: 'Expanded', large: 'Large', extraLarge: 'Extra-large' },
+  making: 'Loading the preview…',
   failed: (error: string) => `Couldn’t create the preview: ${error}`,
   notHere: 'That page can’t be previewed',
-  pageNotLoaded: (status: number) => `The page answered ${status}`,
+  pageNotLoaded: (status: number) => `The page couldn’t be loaded, error ${status}`,
 };

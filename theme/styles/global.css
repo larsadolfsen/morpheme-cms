@@ -17,7 +17,8 @@
   when the colours are made from a source colour (dynamic colour), and every text on them keeps the contrast the editor
   checks (colorPairs), in light and dark mode.
 */
-:root {
+:root,
+.text-section-accent > * {
   /* The surfaces and the outline, M3's roles as the site's colours ("Farver"): the page on the background, --surface
      the lowest container, and the containers each a step towards the text's colour. */
   --md-background: var(--bg);
@@ -258,18 +259,7 @@
   --menu-item-selected-weight: 400;
   /* Navigation drawers: from the left, large corners towards the page, a low surface container, M3's scrim; items 56px
      high with a full active indicator in the secondary container, a label in medium weight. */
-  --navigation-drawer-width: min(22.5rem, 88vw);
-  --navigation-drawer-radius: var(--md-shape-none) var(--md-shape-large) var(--md-shape-large) var(--md-shape-none);
-  --navigation-drawer-surface: var(--md-surface-container-low);
   --navigation-drawer-scrim: var(--md-scrim);
-  --navigation-drawer-item-height: 3.5rem;
-  --navigation-drawer-item-padding: 0 1.5rem 0 1rem;
-  --navigation-drawer-item-radius: var(--md-shape-full);
-  --navigation-drawer-item-text: var(--muted);
-  --navigation-drawer-item-hover: var(--md-hover);
-  --navigation-drawer-item-active-surface: var(--tint);
-  --navigation-drawer-item-active-text: var(--ink);
-  --navigation-drawer-item-active-weight: 500;
   --navigation-drawer-row-gap: 0;
   --navigation-drawer-toggle-size: 3rem;
   --navigation-drawer-toggle-hover: var(--md-hover);
@@ -475,6 +465,40 @@
   --time-picker-dial-surface: var(--md-surface-container-highest);
 }
 
+/* The blocks in a section on the accent (blocks.css) read as an inverted theme: the site's colours below are swapped for
+   it, and the list above (the M3 aliases and the parts' variables, which are resolved where they are declared) is
+   declared again on them (the selector of its rule), so every part takes the swapped colours. The section's own
+   colours are in --section-… (blocks.css). */
+.text-section-accent > * {
+  --ink: var(--section-on-accent);
+  --muted: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
+  --line: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
+  --outline: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
+  --bg: var(--section-accent);
+  --accent: var(--section-on-accent);
+  --accent-hover: color-mix(in srgb, var(--section-on-accent) 88%, var(--section-accent));
+  --on-accent: var(--section-accent);
+  --tint: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
+  --surface: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
+  --surface-container-lowest: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
+  --surface-container-low: color-mix(in srgb, var(--section-on-accent) 12%, transparent);
+  --surface-container: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
+  --surface-container-high: color-mix(in srgb, var(--section-on-accent) 18%, transparent);
+  --surface-container-highest: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
+  --secondary: var(--section-on-accent);
+  --on-secondary: var(--section-accent);
+  --secondary-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
+  --on-secondary-container: var(--section-on-accent);
+  --tertiary: var(--section-on-accent);
+  --on-tertiary: var(--section-accent);
+  --tertiary-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
+  --on-tertiary-container: var(--section-on-accent);
+  --accent-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
+  --on-accent-container: var(--section-on-accent);
+  --block-shadow: none;
+  --shadow: none;
+}
+
 /* The same elevation in dark mode (the standard theme's shadow there is another). */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
@@ -541,7 +565,7 @@
   }
   /* The hero's buttons: small (40px) on a phone, so two fit side by side, medium (56px, a larger label) from a
      tablet. */
-  @media (min-width: 48rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .block-hero {
       --button-height: 3.5rem;
       --button-square-radius: var(--md-shape-large);
@@ -878,7 +902,7 @@
   .block-cta-picture {
     border-radius: var(--md-shape-large);
   }
-  @media (min-width: 48rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .block-cta {
       --card-padding: 2rem;
     }
@@ -904,7 +928,7 @@
     width: 2rem;
     height: 0.25rem;
   }
-  @media (width >= 48rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .bottom-sheet-header {
       padding: 1.5rem 1.5rem 0.75rem;
     }
@@ -1076,7 +1100,7 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   bottom: max(1rem, env(safe-area-inset-bottom));
   z-index: 30;
 }
-@media (min-width: 48rem) {
+@media (width >= theme(--breakpoint-medium)) {
   [data-fab] {
     right: 1.5rem;
     bottom: 1.5rem;
@@ -1093,7 +1117,7 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
 /* On a phone with a bar at the bottom of the screen (a docked toolbar, components.css), the page's FAB is not shown; the
    bar's buttons are the common buttons, round and as everywhere else (only pressed a little squarer), the filled one to
    the right, after the outlined one or the text. */
-@media (width < 48rem) {
+@media (width < theme(--breakpoint-medium)) {
   body:has(.theme-action-bar) [data-fab] {
     display: none;
   }
@@ -1102,14 +1126,7 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   order: 2;
 }
 
-/* The modal navigation drawer (its variables above, MobileMenu.tsx): room inside it; nothing in it is squeezed when its
-   content is higher than the screen, the drawer scrolls instead. */
-.navigation-drawer {
-  padding: 0.75rem 0.75rem max(1rem, env(safe-area-inset-bottom));
-}
-.navigation-drawer > * {
-  flex-shrink: 0;
-}
+/* The site's menu in the navigation drawer (its values are ui.css's, MobileMenu.tsx): its head. */
 .md-drawer-head {
   display: flex;
   align-items: center;
@@ -1129,16 +1146,15 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   font-weight: var(--type-body-medium-weight);
   letter-spacing: var(--type-body-medium-tracking);
 }
-.navigation-drawer-item:focus-visible {
-  background: var(--md-pressed);
-}
 /* An item with sub-pages: its link and the caret in one row, the active indicator around both. */
 .navigation-drawer-row {
   border-radius: var(--md-shape-full);
   transition: background-color var(--motion-effects);
 }
 .navigation-drawer-row > .navigation-drawer-item,
-.navigation-drawer-row > .navigation-drawer-item:hover {
+.navigation-drawer-row > .navigation-drawer-item:hover,
+.navigation-drawer-row > .navigation-drawer-item:focus-visible,
+.navigation-drawer-row > .navigation-drawer-item:active {
   background: none;
 }
 .navigation-drawer-row:has(> .navigation-drawer-item:hover) {
@@ -1148,16 +1164,16 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   background: var(--md-pressed);
 }
 .navigation-drawer-row[data-active] {
-  background: var(--tint);
+  background: var(--secondary-container);
 }
 .navigation-drawer-row[data-active] > .navigation-drawer-item {
-  color: var(--ink);
+  color: var(--on-secondary-container);
 }
 .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:hover) {
-  background: color-mix(in srgb, var(--ink) 8%, var(--tint));
+  background: color-mix(in srgb, var(--on-secondary-container) 8%, var(--secondary-container));
 }
 .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:focus-visible) {
-  background: color-mix(in srgb, var(--ink) 10%, var(--tint));
+  background: color-mix(in srgb, var(--on-secondary-container) 10%, var(--secondary-container));
 }
 .navigation-drawer-toggle {
   margin-right: 0.25rem;
@@ -1189,14 +1205,9 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   background: var(--md-pressed);
 }
 .navigation-drawer-subitem[data-active] {
-  background: var(--tint);
-  color: var(--ink);
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
   font-weight: 400;
-}
-.md-divider {
-  margin: 0.5rem 1rem;
-  border: 0;
-  border-top: 1px solid var(--line);
 }
 
 /* The footer: a surface container with extra-large corners at the top, a headline, lists with leading icons and a
@@ -1292,7 +1303,7 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
 }
 /* Room under the footer's last line for the FAB, or for the bar at the bottom of the screen: in the footer instead of
    under the page (components.css), so the footer reaches the bar. */
-@media (width < 48rem) {
+@media (width < theme(--breakpoint-medium)) {
   body:has(.theme-action-bar):has(.md-footer) {
     padding-bottom: 0;
   }

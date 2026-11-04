@@ -1,7 +1,8 @@
 // "Licenser" (#licenser), under "Indstillinger": the third-party work the site and the editor are made with, as the
 // site was last built (/editor/licenses.json, licensesIntegration in packages/editor/lib/licenses.mjs), with a search by
 // name, who made it and the licence's name. First the icon packs (the system's, each with the sets it takes icons from
-// besides its own), then what the editor and the site's own code bring (the npm packages shipped in what is downloaded),
+// besides its own), then what the editor and the site's own code bring (the npm packages shipped in what is downloaded,
+// the CMS's own licence "Morpheme CMS itself" first, with its version),
 // then each theme the site is built with and each app installed, under its name: its own licence first, then what it
 // brings (what it declares, its icon packs and what is shipped through them alone). Each row has the work's name, its
 // version, licence and who made it, and what it is and where it is used; one with a text opens it
@@ -15,9 +16,12 @@ import { backFrom } from './site';
 import { apps } from './registry';
 import { themes } from './themes';
 import { byText } from './schema';
+import { PACKAGE } from '../lib/cms-version.mjs';
 import { locale, t } from './i18n';
 import {
+  CMS_NAME,
   loadLicenses,
+  splitCms,
   UNLICENSED,
   type LicensedWork,
   type LicenseKind,
@@ -115,18 +119,20 @@ function WorkRow({ work, owners, places, open = true }: { work: LicensedWork; ow
   );
 }
 
-/** An app's or a theme's own licence, first in its group. */
+/** An app's, a theme's or the CMS's own licence (`name`: whose), first in its group. */
 function OwnRow({
   owner,
+  name,
   open = true,
 }: {
   open?: boolean;
-  owner: Pick<LicenseOwner, 'id' | 'kind' | 'key' | 'name' | 'author' | 'license' | 'version'> & { text?: string | null };
+  name: string;
+  owner: Pick<LicenseOwner, 'author' | 'license' | 'version'> & { id: string; text?: string | null };
 }) {
   return (
     <LicenseRow
       icon={Certificate}
-      name={t.licenses.own(ownerName(owner))}
+      name={t.licenses.own(name)}
       lines={[byline(owner.license, owner.author)]}
       version={owner.version}
       href={open && owner.text ? hrefOf(owner.id) : undefined}
@@ -165,18 +171,23 @@ export default function Licenses() {
   const owners = file?.owners ?? [];
   // The system's icon packs (a theme's own are under it, `where` it).
   const packs = file ? sorted(file.works.filter((w) => w.kind === 'icons' && !w.where.some((x) => x.startsWith('tema/')))) : [];
-  const system = file ? sorted(file.works.filter((w) => w.kind !== 'icons' && w.where.some((x) => x === 'editor' || x === 'site'))) : [];
+  // What the editor and the site bring: the CMS's own licence first, the rest A–Å.
+  const { cms, rest: system } = splitCms(
+    file ? sorted(file.works.filter((w) => w.kind !== 'icons' && w.where.some((x) => x === 'editor' || x === 'site'))) : [],
+  );
+  const ownCms = cms && (fits(cms) || matches(CMS_NAME)) ? cms : null;
   // The themes the site is built with, then the apps installed, each A–Å.
   const inUse = owners
     .filter((o) => o.inUse)
     .sort((a, b) => (a.kind === b.kind ? byText(ownerName(a), ownerName(b)) : a.kind === 'theme' ? -1 : 1));
   const groups = [
-    { key: 'icons', title: t.licenses.icons, own: null, works: packs.filter(fits) },
-    { key: 'system', title: t.licenses.system, own: null, works: system.filter(fits) },
+    { key: 'icons', title: t.licenses.icons, own: null, ownName: '', works: packs.filter(fits) },
+    { key: 'system', title: t.licenses.system, own: ownCms, ownName: CMS_NAME, works: system.filter(fits) },
     ...inUse.map((o) => ({
       key: o.id,
       title: o.kind === 'app' ? t.licenses.app(ownerName(o)) : t.licenses.theme(ownerName(o)),
       own: matches(ownerName(o), o.author, o.license, licenseName(o.license)) ? o : null,
+      ownName: ownerName(o),
       works: file ? worksOf(o, file).filter(fits) : [],
     })),
   ].filter((g) => g.own || g.works.length);
@@ -193,7 +204,7 @@ export default function Licenses() {
           {groups.length ? (
             groups.map((g) => (
               <Group key={g.key} title={g.title}>
-                {g.own && <OwnRow owner={g.own} />}
+                {g.own && <OwnRow owner={g.own} name={g.ownName} />}
                 {g.works.map((w) => (
                   <WorkRow key={w.id} work={w} owners={owners} places={g.key === 'system' || g.key === 'icons'} />
                 ))}
@@ -228,7 +239,8 @@ export function LicensePage({ id }: { id: string }) {
   const file = useLicenses();
   const work = file?.works.find((w) => w.id === id);
   const owner = file?.owners.find((o) => o.id === id);
-  const name = work?.name ?? (owner ? t.licenses.own(ownerName(owner)) : t.common.parts.licenses);
+  const isCms = work?.id === PACKAGE;
+  const name = isCms ? t.licenses.own(CMS_NAME) : (work?.name ?? (owner ? t.licenses.own(ownerName(owner)) : t.common.parts.licenses));
   const text = work?.text ?? owner?.text;
   const back = { href: `#${LICENSES_ROUTE}`, label: t.common.parts.licenses };
   return (
@@ -240,7 +252,11 @@ export function LicensePage({ id }: { id: string }) {
       ) : (
         <>
           <Group>
-            {work ? <WorkRow work={work} owners={file?.owners ?? []} places open={false} /> : <OwnRow owner={owner!} open={false} />}
+            {work && !isCms ? (
+              <WorkRow work={work} owners={file?.owners ?? []} places open={false} />
+            ) : (
+              <OwnRow owner={(work ?? owner)!} name={isCms ? CMS_NAME : ownerName(owner!)} open={false} />
+            )}
           </Group>
           <section className="mb-8">
             <GroupTitle>{t.licenses.text}</GroupTitle>
@@ -292,7 +308,7 @@ export function OwnerLicenses({
   };
   return (
     <Group title={t.common.parts.licenses}>
-      <OwnRow owner={self} />
+      <OwnRow owner={self} name={ownerName(self)} />
       {owner && file
         ? worksOf(owner, file).map((w) => <WorkRow key={w.id} work={w} owners={file.owners} places={false} />)
         : (declared.thirdParty ?? []).map((x, i) =>

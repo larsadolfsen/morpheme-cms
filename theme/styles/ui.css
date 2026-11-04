@@ -58,17 +58,23 @@
   -square, -pressed and -corners.
 */
 /* The classes in the CMS's own code (this package, also from node_modules/, where Tailwind does not look by itself);
-   the names in the icon packs' maps (MATERIAL_SYMBOLS, LUCIDE, site/icons.mjs) are not classes. */
+   the names in the icon packs' maps (MATERIAL_SYMBOLS, LUCIDE, site/icons.mjs) and the tests' examples are not classes. */
 @source '../..';
 @source not '../../site/icons.mjs';
+@source not '../../**/*.test.mjs';
 
 /* ---- Elevation ----
   The elevation levels (m3.material.io/styles/elevation): how high a part stands over the page, level 0 (on it) to
-  level 5, each a shadow. Every part's shadow below is one of them by default, at the level Material 3 gives that part
-  and its state (its tokens: md.comp.<part>.…container.elevation), and keeps its own variable (--card-elevated-shadow,
-  --menu-shadow …), so a theme can still give one part another shadow. A theme sets the levels to its own look, in
-  light and dark mode, and they are its shadows everywhere; the ones here are a plain, neutral look of their own.
-    --elevation-0 … --elevation-5   the levels; level 0 is no shadow (0 0 #0000, so it can stand in a list of shadows)
+  level 5. A level is a colour and a shadow. Every part's shadow below is one of them by default, at the level Material
+  3 gives that part and its state (its tokens: md.comp.<part>.…container.elevation), and keeps its own variable
+  (--card-elevated-shadow, --menu-shadow …), so a theme can still give one part another shadow. A theme sets the levels
+  to its own look, in light and dark mode, and they are its shadows everywhere; the ones here are a plain, neutral look
+  of their own.
+    --elevation-0 … --elevation-5                   the level's shadow; level 0 is no shadow (0 0 #0000, so it can
+                                                     stand in a list of shadows)
+    --elevation-0-surface … --elevation-5-surface   the level's colour (the site's surface-container colours)
+    --elevation-1-rest-shadow … -5-rest-shadow      the shadow a part shows at rest on that level; a theme turns resting
+                                                     shadows off here and keeps the lift, which reads --elevation-N
   At rest, pointed at (hover), pressed and dragged, by Material 3; with focus a part is as at rest:
     level 0  filled, tonal and outlined buttons, icon buttons, filled and outlined cards, chips (not elevated), a
              standard side sheet, a full-screen dialog on a phone, the top app bar, the navigation bar and rail, the
@@ -91,6 +97,17 @@
   --elevation-3: 0 2px 4px rgb(0 0 0 / 0.07), 0 12px 28px -10px rgb(0 0 0 / 0.22);
   --elevation-4: 0 2px 6px rgb(0 0 0 / 0.08), 0 16px 36px -12px rgb(0 0 0 / 0.26);
   --elevation-5: 0 4px 8px rgb(0 0 0 / 0.09), 0 20px 44px -12px rgb(0 0 0 / 0.3);
+  --elevation-0-surface: var(--bg);
+  --elevation-1-surface: var(--surface-container-low, var(--block-surface));
+  --elevation-2-surface: var(--surface-container, var(--block-surface));
+  --elevation-3-surface: var(--surface-container-high, var(--block-surface));
+  --elevation-4-surface: var(--surface-container-highest, var(--block-surface));
+  --elevation-5-surface: var(--surface-container-highest, var(--block-surface));
+  --elevation-1-rest-shadow: var(--elevation-1);
+  --elevation-2-rest-shadow: var(--elevation-2);
+  --elevation-3-rest-shadow: var(--elevation-3);
+  --elevation-4-rest-shadow: var(--elevation-4);
+  --elevation-5-rest-shadow: var(--elevation-5);
 }
 @media (prefers-color-scheme: dark) {
   :where(:root:not([data-theme='light'])) {
@@ -187,7 +204,7 @@
   --type-label-small-weight: 500;
   --type-label-small-tracking: 0.03125rem;
 }
-/* A role as a utility, for a theme's own components and layouts: type-title-large, md:type-headline-small … */
+/* A role as a utility, for a theme's own components and layouts: type-title-large, medium:type-headline-small … */
 @utility type-display-large {
   font-size: var(--type-display-large-size);
   line-height: var(--type-display-large-line-height);
@@ -514,7 +531,7 @@
     --icon-button-corners: var(--icon-button-round);
     display: inline-grid;
     flex-shrink: 0;
-    /* Centred also where a page shows it as flex (md:flex beside hidden). */
+    /* Centred also where a page shows it as flex (medium:flex beside hidden). */
     place-items: center;
     place-content: center;
     width: var(--icon-button-width);
@@ -701,7 +718,8 @@
   something is written, .text-field-visibility, aria-pressed while the password is shown); under it
   .text-field-supporting-row with the line (.text-field-supporting, what is wrong with it in .text-field-error) and the
   counter (.text-field-counter; .text-field-counter-over past the field's limit). A button or a link that is tapped to choose (the editor's choice from a list) can be
-  the .text-field-input (textFieldInputClass) in the container. A read-only field ([readonly]) looks as an enabled one; with the focus its edge is the
+  the .text-field-input (textFieldInputClass) in the container; with aria-expanded while its menu is open (its edge and name in the accent,
+  its arrow up), and in .text-field-small a small box as wide as what is chosen. A read-only field ([readonly]) looks as an enabled one; with the focus its edge is the
   line's colour.
     --text-field-height, --text-field-padding, --text-field-radius, --text-field-font-size   the field
     --text-field-<kind>-surface, -line, -hover-line, -focus-line   each kind's colours and edge (resting, pointed at,
@@ -773,6 +791,16 @@
   .text-field-input:disabled {
     cursor: default;
   }
+  /* A small box (TextFieldButton's size="small"): as wide as what is chosen, for a row's choice (SettingRow). */
+  .text-field-small {
+    --text-field-height: var(--text-field-small-height, 2.5rem);
+    --text-field-padding: var(--text-field-small-padding, 0.75rem);
+    --text-field-font-size: var(--text-field-small-font-size, var(--type-body-medium-size));
+    --text-field-icon-padding: var(--text-field-small-icon-padding, 0.5rem);
+    --text-field-icon-gap: var(--text-field-small-icon-gap, 0.5rem);
+    width: max-content;
+    max-width: 100%;
+  }
   .text-field:has(.text-field-input:disabled) .text-field-supporting-row {
     opacity: var(--text-field-disabled-opacity, 0.6);
   }
@@ -800,8 +828,16 @@
   }
   .text-field-error .text-field-container,
   .text-field-error .text-field-container:hover,
-  .text-field-error .text-field-container:has(> .text-field-input:focus) {
+  .text-field-error .text-field-container:has(> .text-field-input:is(:focus, [aria-expanded='true'])) {
     box-shadow: inset 0 0 0 2px var(--text-field-error, var(--block-accent));
+  }
+  /* A choice whose menu is open under it (the button's aria-expanded): the edge as with the focus, which has moved into
+     the menu; and the arrow turned up. */
+  .text-field-outlined .text-field-container:has(> .text-field-input[aria-expanded='true']) {
+    box-shadow: inset 0 0 0 2px var(--text-field-outlined-focus-line, var(--block-accent));
+  }
+  .text-field-filled .text-field-container:has(> .text-field-input[aria-expanded='true']) {
+    box-shadow: inset 0 0 0 2px var(--text-field-filled-focus-line, var(--block-accent));
   }
   /* Read-only: as an enabled field, and with the focus its edge in the line's colour, as it cannot be written in. */
   .text-field-outlined .text-field-container:has(> .text-field-input[readonly]:focus) {
@@ -851,8 +887,14 @@
   .text-field-input[readonly]:focus + .text-field-label {
     color: var(--text-field-label-color, var(--block-muted));
   }
+  .text-field-outlined .text-field-input[aria-expanded='true'] + .text-field-label {
+    color: var(--text-field-outlined-focus-line, var(--block-accent));
+  }
+  .text-field-filled .text-field-input[aria-expanded='true'] + .text-field-label {
+    color: var(--text-field-filled-focus-line, var(--block-accent));
+  }
   .text-field-error .text-field-label,
-  .text-field-error .text-field-input:focus + .text-field-label {
+  .text-field-error .text-field-input:is(:focus, [aria-expanded='true']) + .text-field-label {
     color: var(--text-field-error, var(--block-accent));
   }
   /* Outlined: the name on the edge, on the field's surface, at its start (also past the icon before it). */
@@ -893,6 +935,10 @@
   }
   .text-field-trailing-icon {
     margin-inline-end: var(--text-field-icon-padding, 0.875rem);
+    transition: rotate var(--motion-spatial-fast);
+  }
+  .text-field-container:has(> button.text-field-input[aria-expanded='true']) > .text-field-trailing-icon {
+    rotate: 180deg;
   }
   /* The buttons bare (standard icon buttons without their surface), as the icons beside them. */
   .text-field-trailing-action {
@@ -1278,7 +1324,7 @@
   icon (.dialog-icon, centred over the headline with .dialog-with-icon), .dialog-headline, .dialog-supporting-text,
   .dialog-content (what else it shows, scrolling), evt. .dialog-divider and .dialog-actions at its end. A full-screen
   dialog, .dialog-full-screen in .dialog-modal-full-screen: over the whole screen on a phone, with .dialog-header (the
-  close button, the headline and .dialog-header-actions), evt. .dialog-divider, and .dialog-content; from 48rem a
+  close button, the headline and .dialog-header-actions), evt. .dialog-divider, and .dialog-content; from the medium width a
   dialog in the middle of the screen with the same header.
     --dialog-radius, --dialog-surface, --dialog-shadow, --dialog-line   the container's corners, surface, shadow
                      (level 3; none for a full-screen one on a phone), edge
@@ -1287,35 +1333,47 @@
     --dialog-max-width   how wide a modal dialog is at most
     --dialog-padding   the room inside a basic dialog, and at the sides of a full-screen one's content
     --dialog-icon-color, --dialog-headline-size, --dialog-headline-weight, --dialog-supporting-text-color   its parts
-    --dialog-full-screen-max-width, --dialog-full-screen-headline-size   a full-screen dialog from 48rem, and its
+    --dialog-full-screen-max-width, --dialog-full-screen-headline-size   a full-screen dialog from the medium width, and its
                      headline in its header
   Bottom sheets (BottomSheet.tsx, bottomSheetClass, bottomSheetContainerClass, and bottomSheet() and
   standardBottomSheet() in bottomSheetControl.ts for what it does in a browser, bottomSheet.script.ts on the site;
   m3.material.io/components/bottom-sheets): a modal one's <dialog> is .bottom-sheet (an app's: Calendly's calendar), at
   most 44rem wide and nearly as high as the screen, from the bottom on a phone and in the middle of the screen from
-  48rem (a dialog there, rounded all round, without the drag handle; with .bottom-sheet-fit as high as what is in
-  it: the editor's sheets; with .bottom-sheet-full as high as the screen, and wider on a computer: the editor's preview
-  of a page); in it .bottom-sheet-container with
-  .bottom-sheet-drag-handle, .bottom-sheet-header (.bottom-sheet-headline, .bottom-sheet-supporting-text and the close
-  button), .bottom-sheet-content (what it shows, filling the rest: a frame, and over it what stands in its place,
-  .bottom-sheet-cover) and .bottom-sheet-footer. A standard one is the container itself, .bottom-sheet-standard, at the
-  bottom of the screen (in the editor of its frame, with contain: layout and a size container) without a scrim, its
-  drag handle a button, in the state it rests in (data-state: collapsed, only the handle and the header; half-expanded, at most half as high as
-  the screen; expanded, as high as what it shows, but not to the top; hidden), data-moving while it is dragged or moves.
+  the medium width (a dialog there, rounded all round, without the drag handle; with .bottom-sheet-fit as high as what
+  is in it: the editor's sheets; with .bottom-sheet-full as high as the screen, and wider on a computer: the editor's
+  preview of a page); in it .bottom-sheet-container with .bottom-sheet-drag-handle, .bottom-sheet-header
+  (.bottom-sheet-headline, .bottom-sheet-supporting-text and .bottom-sheet-actions: the resize, collapse and close
+  buttons), .bottom-sheet-peek (what a standard one shows even while collapsed), .bottom-sheet-content (what it shows,
+  filling the rest: a frame, and over it what stands in its place, .bottom-sheet-cover) and .bottom-sheet-footer. On a
+  phone bottomSheet() gives a modal one's container data-sized (it opens at the height its data-start says, 'half' or
+  'full', and is pulled by modalSheetSize.ts), data-full at full height (the content scrolls, and a frame takes
+  touches, only then) and data-moving while it is pulled. A standard one is the container itself,
+  .bottom-sheet-standard, at the bottom of the screen (in the editor of its frame, with contain: layout and a size
+  container) without a scrim, its drag handle a button, in the state it rests in (data-state: collapsed, only the
+  handle and the header; half-expanded, at most half as high as the screen; expanded, as high as what it shows, but
+  not to the top; hidden), data-moving while it is dragged or moves, data-full while it is expanded and as high as it
+  can be (the collapse button shows only then).
     --bottom-sheet-surface, --bottom-sheet-radius, --bottom-sheet-line   its surface (also the cover's), corners, and
                      the lines under the header and over the footer
     --bottom-sheet-shadow, --bottom-sheet-shadow-large   its shadow on a phone (and a standard one's; level 1), and as
-                     a dialog from 48rem (level 3)
+                     a dialog from the medium width (level 3)
     --bottom-sheet-scrim   the shade over the page behind a modal one
     --bottom-sheet-handle   the drag handle's colour
     --bottom-sheet-max-width, --bottom-sheet-top-gap   how wide a standard one is at most, and how far from the top it
                      stays when it is expanded
+    --bottom-sheet-margin-wide   a standard one with wide="sheet" (from the medium width) stays this far from the
+                     sides and from the top (3.5rem); wide="side-sheet" (the default) draws it as a standard side
+                     sheet at the end of the screen (--side-sheet-* tokens, full height, no handle or buttons, every
+                     part shown); a modal one's wide="dialog" (the default; the dialog in the middle, also a container without
+                     the attribute), "side-sheet" (a modal side sheet at the end: --side-sheet-modal-surface, -radius, -shadow,
+                     -scrim and -width, full height, no handle, slid in from the end) and "sheet" (stays a bottom sheet, as
+                     wide as --bottom-sheet-max-width at most, the margin from the sides and the top, slid up)
   Carousels (Carousel.tsx, carouselClass, carousel.script.ts and carouselLayout.ts;
   m3.material.io/components/carousel): .carousel with its items in a row to swipe (.carousel-items, each a
   .carousel-item; native scroll-snap), and under them the theme's addition to M3's carousel, a page indicator
   (.carousel-indicator with a .carousel-indicator-dot for each item, the one in view aria-current). Uncontained (no
-  class of its own): each item as wide as the others, one with the next peeking in on a phone, two from 40rem, three
-  from 64rem, reaching out to a phone's edges. The contained layouts, .carousel-contained with their own:
+  class of its own): each item as wide as the others, one with the next peeking in on a phone, two from the medium width, three
+  from the expanded width, reaching out to a phone's edges. The contained layouts, .carousel-contained with their own:
   .carousel-multi-browse (large items, a medium and a small one) and .carousel-hero (large ones and a small one;
   .carousel-center: between two small ones), whose items' masks (.carousel-item-mask, what is in an item, filling it)
   carouselLayout.ts moves and clips as they scroll (--carousel-item-width on the row, --carousel-mask-inset on a mask,
@@ -1479,7 +1537,7 @@
     margin-bottom: 1rem;
   }
   /* On a phone over the whole screen, without corners, edge or shadow. */
-  @media (width < 48rem) {
+  @media (width < theme(--breakpoint-medium)) {
     .dialog-modal-full-screen {
       width: 100%;
       max-width: none;
@@ -1495,8 +1553,8 @@
       box-shadow: none;
     }
   }
-  /* From 48rem a dialog in the middle of the screen, with the same header. */
-  @media (width >= 48rem) {
+  /* From the medium width a dialog in the middle of the screen, with the same header. */
+  @media (width >= theme(--breakpoint-medium)) {
     .dialog-modal-full-screen {
       max-width: var(--dialog-full-screen-max-width, 35rem);
     }
@@ -1585,6 +1643,12 @@
   .bottom-sheet-heading {
     min-width: 0;
   }
+  .bottom-sheet-actions {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    margin-inline-start: auto;
+  }
   .bottom-sheet-headline {
     margin: 0;
     font-size: var(--type-headline-small-size);
@@ -1592,13 +1656,20 @@
     font-weight: var(--type-headline-small-weight);
     letter-spacing: var(--type-headline-small-tracking);
   }
-  .bottom-sheet-supporting-text {
-    margin: 0;
+  .bottom-sheet-supporting-text,
+  .bottom-sheet-peek {
     font-size: var(--type-body-medium-size);
     line-height: var(--type-body-medium-line-height);
     font-weight: var(--type-body-medium-weight);
     letter-spacing: var(--type-body-medium-tracking);
+  }
+  .bottom-sheet-supporting-text {
+    margin: 0;
     color: var(--block-muted);
+  }
+  .bottom-sheet-peek {
+    flex: none;
+    padding: 0.75rem 1.25rem 1rem;
   }
   .bottom-sheet-content {
     position: relative;
@@ -1612,6 +1683,22 @@
     height: 100%;
     border: 0;
     background: transparent;
+  }
+  /* A modal sheet that bottomSheet() sizes (on a phone): the content scrolls only at full height; below it a touch on the
+     content, also over a frame, pulls the sheet. */
+  .bottom-sheet-container[data-sized] > :is(.bottom-sheet-drag-handle, .bottom-sheet-header) {
+    touch-action: none;
+  }
+  .bottom-sheet-container[data-sized] > .bottom-sheet-content {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .bottom-sheet-container[data-sized]:not([data-full]) > .bottom-sheet-content {
+    overflow: hidden;
+    touch-action: none;
+  }
+  .bottom-sheet-container[data-sized]:not([data-full]) > .bottom-sheet-content > iframe {
+    pointer-events: none;
   }
   /* Over the frame while it loads, or in its place: in the middle, scrolling when it is long. */
   .bottom-sheet-cover {
@@ -1641,19 +1728,23 @@
     color: var(--block-muted);
     text-align: center;
   }
-  @media (width >= 48rem) {
-    .bottom-sheet {
+  /* From the medium width a modal sheet becomes what its container's data-wide says (BottomSheet's `wide`). 'dialog', or a
+     container without the attribute (hand-written ones: Calendly's, and the editor's sheets), is a dialog in the middle of
+     the screen: the rules below, which the other two values keep out of with :where(:not(:has(...))) so their
+     specificity stays what it was. 'side-sheet' and 'sheet' follow after the standard sheet's rules. */
+  @media (width >= theme(--breakpoint-medium)) {
+    .bottom-sheet:where(:not(:has(> [data-wide='side-sheet'], > [data-wide='sheet']))) {
       inset: 0;
       height: min(88dvh, 52rem);
       margin: auto;
     }
     /* A modal one only: a standard one stays at the bottom. */
-    .bottom-sheet-container:where(:not(.bottom-sheet-standard)) {
+    .bottom-sheet-container:where(:not(.bottom-sheet-standard, [data-wide='side-sheet'], [data-wide='sheet'])) {
       border-radius: var(--bottom-sheet-radius, var(--block-radius));
       box-shadow: var(--bottom-sheet-shadow-large, var(--elevation-3));
       padding-bottom: 0;
     }
-    :where(.bottom-sheet-container:not(.bottom-sheet-standard)) > .bottom-sheet-drag-handle {
+    :where(.bottom-sheet-container:not(.bottom-sheet-standard, [data-wide='side-sheet'], [data-wide='sheet'])) > .bottom-sheet-drag-handle {
       display: none;
     }
     .bottom-sheet-fit {
@@ -1663,7 +1754,7 @@
       width: min(92vw, 80rem);
       height: 90vh;
     }
-    :where(.bottom-sheet-container:not(.bottom-sheet-standard)) > .bottom-sheet-header {
+    :where(.bottom-sheet-container:not(.bottom-sheet-standard, [data-wide='side-sheet'], [data-wide='sheet'])) > .bottom-sheet-header {
       padding-top: 1rem;
     }
   }
@@ -1682,7 +1773,11 @@
     margin-inline: auto;
     color: var(--block-text);
   }
+  /* The handle's button is Material 3's touch target, 3rem (48px) high, the bar centred in it. */
   .bottom-sheet-standard > .bottom-sheet-drag-handle {
+    align-items: center;
+    min-height: 3rem;
+    padding: 0;
     width: 100%;
     border: 0;
     background: none;
@@ -1696,6 +1791,10 @@
     cursor: grab;
     touch-action: none;
   }
+  /* Without a handle the header is at the top. */
+  .bottom-sheet-standard > .bottom-sheet-header:first-child {
+    padding-top: 1rem;
+  }
   .bottom-sheet-standard > .bottom-sheet-content {
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -1707,6 +1806,14 @@
   .bottom-sheet-standard[data-state='collapsed'] > .bottom-sheet-header {
     border-bottom-color: transparent;
   }
+  /* The resize button's caret: up at the lowest stop, down above it. The collapse button shows only at full height. */
+  [data-bottom-sheet-resize][aria-expanded='true'] > .bottom-sheet-resize-up,
+  [data-bottom-sheet-resize]:not([aria-expanded='true']) > .bottom-sheet-resize-down {
+    display: none;
+  }
+  .bottom-sheet-standard:not([data-full]) [data-bottom-sheet-collapse] {
+    display: none;
+  }
   .bottom-sheet-standard[data-state='half-expanded'] {
     max-height: 50cqh;
   }
@@ -1715,6 +1822,93 @@
   }
   .bottom-sheet-standard[data-moving] {
     user-select: none;
+  }
+  /* From the medium width a standard sheet becomes what data-wide says (BottomSheet's `wide`; bottomSheetControl.ts does
+     nothing to it then). 'side-sheet': a standard side sheet (.side-sheet-standard's look, through its tokens) at the end
+     of the screen, full height, without handle, resize, collapse and close buttons, and with every part shown whatever
+     its state (but hidden stays hidden). 'sheet': stays at the bottom, --bottom-sheet-margin-wide from the sides and the
+     top. */
+  @media (width >= theme(--breakpoint-medium)) {
+    .bottom-sheet-standard[data-wide='side-sheet'] {
+      inset-block: 0;
+      inset-inline: auto 0;
+      width: var(--side-sheet-width, 22.5rem);
+      max-width: 100%;
+      height: auto;
+      max-height: none;
+      margin: 0;
+      padding-bottom: 0;
+      border-radius: 0;
+      border-inline-start: 1px solid var(--side-sheet-line, var(--block-line));
+      background: var(--side-sheet-surface, var(--block-surface));
+      box-shadow: none;
+    }
+    .bottom-sheet-standard[data-wide='side-sheet'] > .bottom-sheet-drag-handle,
+    .bottom-sheet-standard[data-wide='side-sheet'] [data-bottom-sheet-resize],
+    .bottom-sheet-standard[data-wide='side-sheet'] [data-bottom-sheet-collapse],
+    .bottom-sheet-standard[data-wide='side-sheet'] [data-bottom-sheet-close] {
+      display: none;
+    }
+    .bottom-sheet-standard[data-wide='side-sheet'] > .bottom-sheet-header {
+      min-height: 4.5rem;
+      padding: 1rem 0.75rem 0.5rem var(--side-sheet-padding, 1.5rem);
+      border-bottom-color: transparent;
+      cursor: auto;
+      touch-action: auto;
+    }
+    .bottom-sheet-standard[data-wide='side-sheet'] > .bottom-sheet-content {
+      padding: 0 var(--side-sheet-padding, 1.5rem) var(--side-sheet-padding, 1.5rem);
+    }
+    .bottom-sheet-standard[data-wide='side-sheet'] > :is(.bottom-sheet-content, .bottom-sheet-footer) {
+      display: revert;
+    }
+    .bottom-sheet-standard[data-wide='sheet'] {
+      width: calc(100% - 2 * var(--bottom-sheet-margin-wide, 3.5rem));
+    }
+    .bottom-sheet-standard[data-wide='sheet']:not([data-state='half-expanded']) {
+      max-height: calc(100cqh - var(--bottom-sheet-margin-wide, 3.5rem));
+    }
+  }
+  /* A modal sheet from the medium width. 'side-sheet': a modal side sheet (.side-sheet-modal's look, through its tokens) at
+     the end of the screen, full height, over its scrim, without the drag handle; bottomSheet() slides it in from the end.
+     'sheet': stays a bottom sheet (with its handle), --bottom-sheet-max-width wide at most and --bottom-sheet-margin-wide
+     from the sides and the top; bottomSheet() slides it up. */
+  @media (width >= theme(--breakpoint-medium)) {
+    .bottom-sheet:has(> [data-wide='side-sheet']) {
+      inset: 0 0 0 auto;
+      width: var(--side-sheet-width, 22.5rem);
+      max-width: 100%;
+      height: 100%;
+      max-height: none;
+      margin: 0;
+    }
+    .bottom-sheet:has(> [data-wide='side-sheet']):dir(rtl) {
+      inset: 0 auto 0 0;
+    }
+    .bottom-sheet:has(> [data-wide='side-sheet'])::backdrop {
+      background: var(--side-sheet-scrim, color-mix(in srgb, var(--theme-scrim-colour, var(--block-text)) 50%, transparent));
+    }
+    .bottom-sheet-container:not(.bottom-sheet-standard)[data-wide='side-sheet'] {
+      border-radius: 0;
+      border-start-start-radius: var(--side-sheet-radius, var(--block-radius));
+      border-end-start-radius: var(--side-sheet-radius, var(--block-radius));
+      background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--block-surface)));
+      box-shadow: var(--side-sheet-shadow, var(--elevation-1));
+      padding-bottom: 0;
+    }
+    .bottom-sheet-container:not(.bottom-sheet-standard)[data-wide='side-sheet'] > .bottom-sheet-drag-handle {
+      display: none;
+    }
+    .bottom-sheet-container:not(.bottom-sheet-standard)[data-wide='side-sheet'] > .bottom-sheet-header {
+      min-height: 4.5rem;
+      padding: 1rem 0.75rem 0.5rem var(--side-sheet-padding, 1.5rem);
+      border-bottom-color: transparent;
+    }
+    .bottom-sheet:has(> [data-wide='sheet']) {
+      width: calc(100% - 2 * var(--bottom-sheet-margin-wide, 3.5rem));
+      max-width: var(--bottom-sheet-max-width, 40rem);
+      max-height: calc(100dvh - var(--bottom-sheet-margin-wide, 3.5rem));
+    }
   }
 
   /* A carousel: its items in a row to swipe, and the page indicator under them. */
@@ -1768,19 +1962,19 @@
     width: var(--carousel-dot-selected-width, 1.25rem);
     background: var(--carousel-dot-selected-colour, var(--block-accent));
   }
-  @media (width >= 40rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .carousel-item {
       width: calc((100% - 1rem) / 2);
     }
   }
-  @media (width >= 48rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .carousel-items {
       margin: 0;
       padding: 0;
       scroll-padding-inline: 0;
     }
   }
-  @media (width >= 64rem) {
+  @media (width >= theme(--breakpoint-expanded)) {
     .carousel-item {
       width: calc((100% - 2rem) / 3);
     }
@@ -1830,13 +2024,13 @@
     width: 100%;
     scroll-snap-stop: always;
   }
-  @media (width < 48rem) {
+  @media (width < theme(--breakpoint-medium)) {
     .carousel-full-screen .carousel-item-mask {
       border-radius: var(--carousel-full-screen-radius, 0);
       clip-path: none;
     }
   }
-  @media (width >= 48rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .carousel-full-screen .carousel-items {
       margin: 0;
     }
@@ -2041,7 +2235,7 @@
     display: block;
   }
   /* Columns: on a wide screen the headline and the supporting text side by side, each in half the item's text. */
-  @media (min-width: 48rem) {
+  @media (width >= theme(--breakpoint-expanded)) {
     .list-item-columns .list-item-content {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -2446,14 +2640,26 @@
     --exposed-dropdown-menu-icon-size, --exposed-dropdown-menu-icon-color
   Navigation drawer (NavigationDrawer, NavigationDrawerItem, NavigationDrawerToggle, NavigationDrawerSubitem,
   navigationDrawerClass, navigationDrawerScrimClass): .navigation-drawer, the drawer, over .navigation-drawer-scrim;
-  .navigation-drawer-dialog, a <dialog> it is in (its ::backdrop the scrim); .navigation-drawer-item, a page (a link,
-  or a button: the editor's) ([data-active]: the open one, or the one holding it); .navigation-drawer-row, an item
-  with .navigation-drawer-toggle after it (it unfolds its sub-pages, aria-expanded); .navigation-drawer-subitem, a
-  sub-page ([data-active]).
-    --navigation-drawer-width, --navigation-drawer-radius, --navigation-drawer-surface, --navigation-drawer-shadow
-    (level 1), --navigation-drawer-scrim
-    --navigation-drawer-item-height, -padding, -radius, -font-size, -line-height, -letter-spacing, -weight, -text,
-    -hover, -active-surface, -active-text, -active-weight
+  .navigation-drawer-standard, the standard one, beside the content (--navigation-drawer-standard-shadow, level 0);
+  .navigation-drawer-dialog, a <dialog> it is in, at the start edge (its ::backdrop the scrim); .navigation-drawer-item,
+  a page (a link, or a button: the editor's) ([data-active]: the open one, or the one holding it), its
+  .navigation-drawer-icon (24dp, outlined; the filled .navigation-drawer-selected-icon in its place while
+  [data-active]) and .navigation-drawer-label, and evt. .navigation-drawer-badge, the text at its end
+  (--navigation-drawer-badge-text, on surface variant; on secondary container on the active item);
+  .navigation-drawer-trailing, an icon at the end of an item (an arrow to a list); .navigation-drawer-back, the back row
+  (an item with an arrow before its label);
+  .navigation-drawer-row, an item with .navigation-drawer-toggle after it (it unfolds its sub-pages, aria-expanded);
+  .navigation-drawer-subitem, a sub-page ([data-active]); .navigation-drawer-section, items under a label
+  (.navigation-drawer-section-label, title small) with, in one that follows another, the divider
+  (.navigation-drawer-section-divider, edge to edge).
+    --navigation-drawer-width (360dp, at most the screen less 56dp), --navigation-drawer-radius (0 16dp 16dp 0; under
+    right-to-left --navigation-drawer-radius-rtl), --navigation-drawer-surface (surface container low),
+    --navigation-drawer-shadow (level 1), --navigation-drawer-scrim, --navigation-drawer-inset (12dp each side, from
+    the edges to the items), --navigation-drawer-padding (all of it, with room for the home indicator),
+    --navigation-drawer-section-gap (8dp around the divider), --navigation-drawer-section-label-text
+    --navigation-drawer-item-height (56dp), -padding (16dp start and end), -gap (12dp), -radius (full), -font-size,
+    -line-height, -letter-spacing, -weight (label large), -text (on surface variant), -hover and -pressed (state
+    layers), -active-surface (secondary container), -active-text (on secondary container), -active-weight (700)
     --navigation-drawer-row-gap, --navigation-drawer-toggle-size, --navigation-drawer-toggle-hover
     --navigation-drawer-subitem-indent, -line, -padding, -font-size, -text, -active-text
   Tabs (Tabs, Tab, tabsClass, tabsClasses, tabClass, tabs.script.ts): .tabs, a row of tabs to swipe sideways, or sharing
@@ -2883,7 +3089,7 @@
   .menu:has(.menu-submenu:not([popover])) {
     overflow: visible;
   }
-  @media (max-width: 40rem) {
+  @media (width < theme(--breakpoint-medium)) {
     /* No room beside it on a phone: under its item, a little in, as a popover flips when it has no room. */
     .menu-submenu:not([popover]) {
       top: calc(100% + var(--menu-submenu-gap, 0.25rem));
@@ -2991,22 +3197,37 @@
   }
   .navigation-drawer {
     display: flex;
-    width: var(--navigation-drawer-width, min(22rem, 88vw));
+    width: var(--navigation-drawer-width, min(22.5rem, calc(100vw - 3.5rem)));
     flex-direction: column;
     overflow-y: auto;
-    border-radius: var(--navigation-drawer-radius, 0);
-    background: var(--navigation-drawer-surface, var(--bg));
+    border-radius: var(--navigation-drawer-radius, 0 1rem 1rem 0);
+    padding: var(--navigation-drawer-padding, 0.75rem var(--navigation-drawer-inset, 0.75rem) max(1rem, env(safe-area-inset-bottom)));
+    background: var(--navigation-drawer-surface, var(--surface-container-low, var(--bg)));
     box-shadow: var(--navigation-drawer-shadow, var(--elevation-1));
+  }
+  .navigation-drawer:dir(rtl) {
+    border-radius: var(--navigation-drawer-radius-rtl, 1rem 0 0 1rem);
+  }
+  /* Nothing in it is squeezed when its content is higher than the screen: the drawer scrolls instead. */
+  .navigation-drawer > * {
+    flex-shrink: 0;
+  }
+  /* Standard: beside the content, as high as its row, no scrim, at level 0 (the content makes room for it). */
+  .navigation-drawer-standard {
+    height: 100%;
+    flex-shrink: 0;
+    box-shadow: var(--navigation-drawer-standard-shadow, var(--elevation-0, none));
   }
   .navigation-drawer-item {
     display: flex;
-    min-height: var(--navigation-drawer-item-height, 0);
+    min-height: var(--navigation-drawer-item-height, 3.5rem);
     flex: 1;
     align-items: center;
-    gap: 0.75rem;
-    border-radius: var(--navigation-drawer-item-radius, var(--block-radius-small));
-    padding: var(--navigation-drawer-item-padding, 0.875rem 0.75rem);
-    color: var(--navigation-drawer-item-text, inherit);
+    gap: var(--navigation-drawer-item-gap, 0.75rem);
+    border-radius: var(--navigation-drawer-item-radius, 9999px);
+    padding: var(--navigation-drawer-item-padding, 0 1rem);
+    color: var(--navigation-drawer-item-text, var(--block-muted));
+    text-decoration: none;
     font-size: var(--navigation-drawer-item-font-size, var(--type-label-large-size));
     line-height: var(--navigation-drawer-item-line-height, var(--type-label-large-line-height));
     letter-spacing: var(--navigation-drawer-item-letter-spacing, var(--type-label-large-tracking));
@@ -3020,10 +3241,12 @@
     text-align: start;
     cursor: pointer;
   }
-  /* In a <dialog> (navigationDrawerDialogClass: the editor's): at the end of the screen, as high as it, over the scrim. */
+  /* In a <dialog> (navigationDrawerDialogClass: the editor's): at the start of the screen (left, right in right-to-left
+     languages), as high as it, over the scrim. */
   .navigation-drawer-dialog {
     position: fixed;
-    inset: 0 0 0 auto;
+    inset-block: 0;
+    inset-inline: 0 auto;
     width: auto;
     max-width: none;
     height: 100dvh;
@@ -3039,13 +3262,106 @@
   .navigation-drawer-dialog::backdrop {
     background: var(--navigation-drawer-scrim, color-mix(in srgb, var(--theme-scrim-colour) 45%, transparent));
   }
+  /* State layers (as the theme's other items): the item's own colour over it, 8% pointed at, 10% focused or pressed. */
   .navigation-drawer-item:hover {
-    background: var(--navigation-drawer-item-hover, var(--block-tint));
+    background: var(--navigation-drawer-item-hover, color-mix(in srgb, currentColor 8%, transparent));
+  }
+  .navigation-drawer-item:focus-visible,
+  .navigation-drawer-item:active {
+    background: var(--navigation-drawer-item-pressed, color-mix(in srgb, currentColor 10%, transparent));
+  }
+  .navigation-drawer-item:focus-visible {
+    outline-offset: -2px;
   }
   .navigation-drawer-item[data-active] {
-    background: var(--navigation-drawer-item-active-surface, var(--block-tint));
-    color: var(--navigation-drawer-item-active-text, var(--block-accent));
-    font-weight: var(--navigation-drawer-item-active-weight, 500);
+    background: var(--navigation-drawer-item-active-surface, var(--secondary-container));
+    color: var(--navigation-drawer-item-active-text, var(--on-secondary-container));
+    font-weight: var(--navigation-drawer-item-active-weight, 700);
+  }
+  .navigation-drawer-item[data-active]:hover {
+    background: color-mix(in srgb, currentColor 8%, var(--navigation-drawer-item-active-surface, var(--secondary-container)));
+  }
+  .navigation-drawer-item[data-active]:focus-visible,
+  .navigation-drawer-item[data-active]:active {
+    background: color-mix(in srgb, currentColor 10%, var(--navigation-drawer-item-active-surface, var(--secondary-container)));
+  }
+  /* Sections: a label (title small, 56dp high) over the items; the divider is in every section and shown only in one that
+     follows another, edge to edge (it takes the drawer's inset back). */
+  .navigation-drawer-section {
+    display: flex;
+    flex-direction: column;
+  }
+  .navigation-drawer-section-divider {
+    display: none;
+  }
+  .navigation-drawer-section + .navigation-drawer-section > .navigation-drawer-section-divider {
+    display: block;
+    margin-block: var(--navigation-drawer-section-gap, 0.5rem);
+    margin-inline: calc(-1 * var(--navigation-drawer-inset, 0.75rem));
+  }
+  .navigation-drawer-section-label {
+    display: flex;
+    min-height: var(--navigation-drawer-item-height, 3.5rem);
+    align-items: center;
+    padding-inline: var(--navigation-drawer-item-padding-inline, 1rem);
+    color: var(--navigation-drawer-section-label-text, var(--block-muted));
+    font-size: var(--type-title-small-size);
+    line-height: var(--type-title-small-line-height);
+    font-weight: var(--type-title-small-weight);
+    letter-spacing: var(--type-title-small-tracking);
+  }
+  .navigation-drawer-icon {
+    display: grid;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    place-items: center;
+  }
+  .navigation-drawer-icon > svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  /* The outlined icon, and the filled one in its place on the active item. */
+  .navigation-drawer-item:not([data-active]) > .navigation-drawer-icon > .navigation-drawer-selected-icon,
+  .navigation-drawer-item[data-active] > .navigation-drawer-icon > .navigation-drawer-unselected-icon {
+    display: none;
+  }
+  .navigation-drawer-label {
+    min-width: 0;
+    flex: 1;
+  }
+  /* The badge label text at the end of an item: how many there are (label large, on surface variant; on secondary container
+     on the active item). */
+  .navigation-drawer-badge {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    color: var(--navigation-drawer-badge-text, var(--block-muted));
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
+    font-variant-numeric: tabular-nums;
+  }
+  .navigation-drawer-item[data-active] > .navigation-drawer-badge {
+    color: var(--navigation-drawer-item-active-text, var(--on-secondary-container));
+  }
+  /* The trailing icon at the end of an item (an arrow to the list it opens); the back row has the item's look. */
+  .navigation-drawer-trailing {
+    display: grid;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    place-items: center;
+    margin-inline-start: auto;
+  }
+  .navigation-drawer-trailing:dir(rtl) {
+    scale: -1 1;
+  }
+  .navigation-drawer-badge + .navigation-drawer-trailing {
+    margin-inline-start: 0;
+  }
+  .navigation-drawer-back:dir(rtl) > .navigation-drawer-icon {
+    scale: -1 1;
   }
   .navigation-drawer-row {
     display: flex;
@@ -3445,7 +3761,7 @@
     --button-group-inner-radius (the small and medium buttons'), --button-group-xsmall-inner-radius, -large-, -xlarge-
   Toggles' colours are the buttons' (--button-toggle-*, --button-<kind>-selected-*, --icon-button-…-selected-*).
   Segmented button (SegmentedButton, segmentedButtonClass, segmentedButtonSegmentClass): .segmented-button, the frame
-  (the whole width on a phone, as wide as its choices from 40rem), with a .segmented-button-segment for each (the chosen with aria-pressed="true"), in it .segmented-button-check (shown
+  (the whole width on a phone, as wide as its choices from the medium width), with a .segmented-button-segment for each (the chosen with aria-pressed="true"), in it .segmented-button-check (shown
   on the chosen), evt. .segmented-button-icon (hidden on the chosen, the check in its place) and
   .segmented-button-label.
     --segmented-button-height, -padding, -gap, -radius, -font-size, -icon-size   (the button's where it has none)
@@ -3541,7 +3857,7 @@
 
   /* Segmented buttons (m3.material.io/components/segmented-buttons): the choices side by side in one frame, each as
      wide as the widest. */
-  /* The whole width on a phone, the choices sharing it; as wide as its choices from 40rem. */
+  /* The whole width on a phone, the choices sharing it; as wide as its choices from the medium width. */
   .segmented-button {
     display: grid;
     grid-auto-columns: 1fr;
@@ -3550,7 +3866,7 @@
     border-radius: var(--segmented-button-radius, var(--button-radius, var(--block-control-radius)));
     background: var(--segmented-button-surface, var(--block-surface));
   }
-  @media (width >= 40rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .segmented-button {
       display: inline-grid;
     }
@@ -3811,8 +4127,11 @@
 
 /* ---- Selection and the rest of containment: Switch, RadioButton, Slider, Divider, SideSheet ---- */
 /*
-  Switches (Switch.tsx, switchClass; m3.material.io/components/switch): .switch, a <label> with its text (.switch-text:
-  .switch-label and .switch-supporting), evt. what it is on or off (.switch-state), and after them the track
+  Setting rows (SettingRow.tsx): .setting-row, with its text (.setting-row-text: .setting-row-label and
+  .setting-row-supporting) and after it what sets it.
+    --setting-row-gap, --setting-row-label-weight, --setting-row-supporting-color   the room before what sets it, the name
+      and the line under it (else the switch's --switch-label-weight and --switch-supporting-color)
+  Switches (Switch.tsx, switchClass; m3.material.io/components/switch): .switch, a setting row, a <label>, evt. what it is on or off (.switch-state), and after them the track
   (.switch-track: the <input role="switch">,
   .switch-input, drawn as the track with appearance: none, and its handle, .switch-handle, with the theme's icons,
   .switch-icon-on and .switch-icon-off, when it has them: .switch-icons).
@@ -3880,31 +4199,36 @@
       room inside it, the headline, and the line over the actions
 */
 @layer components {
-  /* Switches: the name, and the track with its handle after it. */
-  .switch {
+  /* A setting's row (SettingRow.tsx): the name and the line under it, then what sets it, on one line; the switch's
+     and the editor's dropdown row both. */
+  .setting-row {
     display: flex;
     align-items: center;
-    gap: var(--switch-gap, 1rem);
-    cursor: pointer;
+    gap: var(--setting-row-gap, 1rem);
   }
-  .switch:has(.switch-input:disabled) {
-    cursor: default;
-  }
-  .switch-text {
+  .setting-row-text {
     flex: 1;
     min-width: 0;
   }
-  .switch-label {
+  .setting-row-label {
     display: block;
-    font-weight: var(--switch-label-weight, 500);
+    font-weight: var(--setting-row-label-weight, var(--switch-label-weight, 500));
   }
-  .switch-supporting {
+  .setting-row-supporting {
     display: block;
-    color: var(--switch-supporting-color, var(--block-muted));
+    color: var(--setting-row-supporting-color, var(--switch-supporting-color, var(--block-muted)));
     font-size: var(--type-body-medium-size);
     line-height: var(--type-body-medium-line-height);
     font-weight: var(--type-body-medium-weight);
     letter-spacing: var(--type-body-medium-tracking);
+  }
+  /* Switches: a setting row with the track and its handle after the name. */
+  .switch {
+    gap: var(--switch-gap, var(--setting-row-gap, 1rem));
+    cursor: pointer;
+  }
+  .switch:has(.switch-input:disabled) {
+    cursor: default;
   }
   /* What it is, on or off (Til, Fra), before the track: in the accent while it is on. */
   .switch-state {
@@ -4804,7 +5128,7 @@
     background-color: transparent;
     padding: 0 1rem;
   }
-  @media (width < 48rem) {
+  @media (width < theme(--breakpoint-medium)) {
     body:has([data-action-bar]) .snackbar-stack {
       bottom: calc(6.5rem + env(safe-area-inset-bottom));
     }
@@ -5152,7 +5476,7 @@
   button with the leading icon, .search-bar-leading, and the placeholder, .search-bar-placeholder; and
   .search-bar-trailing, what stands after it; .search-bar-input in place of the button in a bar that searches in place,
   SearchBar) and .search-view (the <dialog> it opens: over the whole screen on a phone,
-  docked where the bar is from 48rem, and so in the editor), in it .search-view-header (back, the field,
+  docked where the bar is from the medium width, and so in the editor), in it .search-view-header (back, the field,
   .search-view-input, a role="combobox", and .search-view-clear), .search-view-results (the theme's list as a
   role="listbox", the option the arrow keys are on with aria-selected) and .search-view-empty (when nothing fits).
     --search-bar-height, --search-bar-radius, --search-bar-padding, --search-bar-gap, --search-bar-surface,
@@ -5523,6 +5847,10 @@
   .navigation-rail-item[aria-current] {
     color: var(--navigation-rail-item-selected-text, var(--block-text));
   }
+  button.navigation-rail-item {
+    width: 100%;
+    cursor: pointer;
+  }
   .navigation-rail-indicator {
     display: contents;
   }
@@ -5662,7 +5990,7 @@
       inset 0 0 0 2px var(--block-accent),
       var(--search-bar-shadow, var(--elevation-0));
   }
-  /* The view: over the whole screen on a phone; docked from 48rem, where the bar is (search.script.ts sets where), and
+  /* The view: over the whole screen on a phone; docked from the medium width, where the bar is (search.script.ts sets where), and
      as the editor draws it. */
   .search-view {
     inset: 0;

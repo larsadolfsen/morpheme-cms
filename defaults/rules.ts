@@ -8,6 +8,8 @@ import type { Status } from '../src/FormFrame';
 import { blocksIn } from '../lib/blocks.mjs';
 import { readFields, splitFrontmatter } from '../src/frontmatter.mjs';
 import { siteText } from '../src/i18n';
+import { promotionTags, recordUse, tagUses, taggedWith } from '../src/tagUses.mjs';
+import type { TagFolders } from '../src/tagUses.mjs';
 import { byText, fixedName, slugOf, type Collection, type Relation } from '../src/schema';
 import { collections } from '@site/collections';
 import { config } from '@site/config';
@@ -256,8 +258,15 @@ export function siteProblems(files: { path: string; text: string }[]): string[] 
   return problems;
 }
 
-// The tags a promotion is shown on the posts of (Promovering, "Vises på": "Blogindlæg med tags").
-const promotionTags = (d: Record<string, unknown>): string[] => (d.where === 'tags' && Array.isArray(d.tags) ? d.tags.map(String) : []);
+// Where the tag uses are (tagUses.mjs): the blog and pages folders, the testimonials, the promotions and the
+// file records.
+const TAG_FOLDERS: TagFolders = {
+  blog: config.folders.blog,
+  pages: config.folders.pages,
+  testimonials: 'src/data/testimonials',
+  popups: 'src/data/popups',
+  fileRecords: config.fileRecords,
+};
 
 // Why an entry cannot be deleted (something on the site uses it), with a link to where, or null.
 export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]): Status {
@@ -282,9 +291,7 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
     (home ? (blocksIn(home.text) as { type: string; props: Record<string, unknown> }[]) : []).map((b) => [b.type, b.props]),
   );
   if (collection.id === 'kategorier') {
-    const posts = files.filter(
-      (f) => f.path.startsWith(`${config.folders.blog}/`) && ((fm(f).categories as string[]) ?? []).includes(slug),
-    );
+    const { posts, pages, testimonials: quotes, records } = taggedWith(files, slug, TAG_FOLDERS);
     if (posts.length)
       return {
         text:
@@ -293,9 +300,15 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
             : siteText('Tagget bruges på {antal} blogindlæg. Fjern det fra dem først.', { antal: posts.length }),
         error: true,
       };
-    const quotes = files.filter(
-      (f) => f.path.startsWith('src/data/testimonials/') && ((json(f).categories as string[] | undefined) ?? []).includes(slug),
-    );
+    if (pages.length)
+      return {
+        text:
+          pages.length === 1
+            ? siteText('Tagget bruges på en side. Fjern det fra den først.')
+            : siteText('Tagget bruges på {antal} sider. Fjern det fra dem først.', { antal: pages.length }),
+        error: true,
+        ...(pages.length === 1 ? { edit: { to: pages[0].path, text: siteText('Rediger siden') } } : {}),
+      };
     if (quotes.length)
       return {
         text:
@@ -303,6 +316,15 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
             ? siteText('Tagget bruges på en udtalelse. Fjern det fra den først.')
             : siteText('Tagget bruges på {antal} udtalelser. Fjern det fra dem først.', { antal: quotes.length }),
         error: true,
+      };
+    if (records.length)
+      return {
+        text:
+          records.length === 1
+            ? siteText('Tagget bruges på en fil. Fjern det fra den først.')
+            : siteText('Tagget bruges på {antal} filer. Fjern det fra dem først.', { antal: records.length }),
+        error: true,
+        ...(records.length === 1 ? { edit: { to: recordUse(records[0], config.fileRecords)!.path, text: siteText('Åbn filen') } } : {}),
       };
     // A promotion shown on the posts with the tag (Promovering, "Blogindlæg med tags").
     const promotion = files.find(
@@ -346,7 +368,7 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
       };
   }
   // Any other place under "Bruges på" (usesOf): a "Blogindlæg" or "Udtalelser" block that picks the tag, on a
-  // page or in a post.
+  // page or in a post. Files with the tag are handled above (records), so the first use is never a file record.
   if (collection.id === 'kategorier') {
     const use = usesOf(collection, files)(file)[0];
     if (use) {
@@ -381,47 +403,23 @@ function nameOf(file: RepoFile): string {
 export type Use = { path: string; name: string };
 
 // The places on the site that use an entry, by the entry's file, each once (the tag's "Bruges på", DataForm.tsx,
-// and the number at it in its list, Library.tsx); [] for none. For a tag: the blog posts, testimonials and
-// promotions that have it, and the pages and posts with a "Blogindlæg" or "Udtalelser" block that
+// and the number at it in its list, Library.tsx); [] for none. For a tag: the blog posts, pages, testimonials,
+// promotions and files (by the route "filer/<path>" and the file's name) that have it, and the pages and posts with a "Blogindlæg" or "Udtalelser" block that
 // picks it (its tags, or the tag "Alle indlæg" goes to). Made once for the whole list.
 export function usesOf(collection: Collection, files: RepoFile[]): (file: RepoFile) => Use[] {
   if (collection.kind === 'files' || collection.id !== 'kategorier') return () => [];
-  const uses = tagUses(files);
+  const uses = tagUses(files, TAG_FOLDERS);
   return (file) =>
     [...(uses.get(slugOf(file.path, collection.folder))?.values() ?? [])]
-      .map((f) => ({ path: f.path, name: nameOf(f) }))
+      .map((f) => recordUse(f, config.fileRecords) ?? { path: f.path, name: nameOf(f) })
       .sort((a, b) => byText(a.name, b.name));
-}
-
-// The files that use each tag (usesOf), by the tag, each file once.
-function tagUses(files: RepoFile[]): Map<string, Map<string, RepoFile>> {
-  const uses = new Map<string, Map<string, RepoFile>>();
-  const add = (f: RepoFile, slugs: unknown) => {
-    for (const slug of Array.isArray(slugs) ? slugs.map(String) : []) {
-      if (!uses.has(slug)) uses.set(slug, new Map());
-      uses.get(slug)!.set(f.path, f);
-    }
-  };
-  const block = (f: RepoFile, type: unknown, props: Record<string, unknown>) => {
-    if (type === 'posts' || type === 'testimonials')
-      add(f, [...(Array.isArray(props.categories) ? props.categories : []), ...(props.link ? [props.link] : [])]);
-  };
-  const inFolder = (f: RepoFile, folder: string, ext: string) => f.path.startsWith(`${folder}/`) && f.path.endsWith(ext);
-  for (const f of files) {
-    if (inFolder(f, config.folders.blog, '.md') || inFolder(f, config.folders.pages, '.md')) {
-      if (inFolder(f, config.folders.blog, '.md')) add(f, fm(f).categories);
-      for (const b of blocksIn(f.text) as { type: string; props: Record<string, unknown> }[]) block(f, b.type, b.props);
-    } else if (inFolder(f, 'src/data/testimonials', '.json')) add(f, json(f).categories);
-    else if (inFolder(f, 'src/data/popups', '.json')) add(f, promotionTags(json(f)));
-  }
-  return uses;
 }
 
 // The number at the right of an entry in the list of a part, by the entry's file, or null for none
 // (Library.tsx): at each tag, the number of places that use it (usesOf).
 export function countsOf(collection: Collection, files: RepoFile[]): (file: RepoFile) => number | null {
   if (collection.kind === 'files' || collection.id !== 'kategorier') return () => null;
-  const uses = tagUses(files);
+  const uses = tagUses(files, TAG_FOLDERS);
   return (file) => uses.get(slugOf(file.path, collection.folder))?.size ?? 0;
 }
 

@@ -9,6 +9,7 @@ import remarkSmartypants from 'remark-smartypants';
 import remarkRehype from 'remark-rehype';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
+import { rehypeEmphasize } from './rehype-emphasize.mjs';
 
 /** The pipeline, also for a whole page's text (pagePreview.tsx). */
 export const processor = unified()
@@ -17,6 +18,7 @@ export const processor = unified()
   .use(remarkSmartypants)
   .use(remarkRehype, { allowDangerousHtml: true })
   .use(rehypeRaw)
+  .use(rehypeEmphasize)
   .use(rehypeStringify, { allowDangerousHtml: true });
 
 /** A short text's HTML made to stand inside a <p> of its own: its paragraphs separated by a line break, and anything

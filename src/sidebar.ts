@@ -1,5 +1,5 @@
-// Whether the sidebar is open on a computer (App.tsx), closed and opened with the button at its top
-// or, while it is closed, at the start of the top bar (Screen.tsx). Kept in this browser.
+// Whether the standard navigation drawer is open (expanded and wider, MainDrawer in ui.tsx), opened and closed with the menu
+// button at the top of the navigation rail and of the drawer (ui.tsx, through menuOpen.ts). Kept in this browser (`editor-sidebar`).
 import { useSyncExternalStore } from 'react';
 
 const KEY = 'editor-sidebar';

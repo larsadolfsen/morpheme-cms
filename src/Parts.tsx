@@ -7,6 +7,9 @@
 import { useMemo, useRef, useState } from 'react';
 import {
   AppWindow,
+  Article,
+  Eye,
+  SlidersHorizontal,
   Gear,
   ArrowDown,
   ArrowsDownUp,
@@ -29,6 +32,8 @@ import {
   Trash,
 } from '@phosphor-icons/react';
 import Screen from './Screen';
+import EditorFooter from './EditorFooter';
+import { MainDrawerSample } from './MainDrawerParts';
 import { Part, PartGroup, PartsShown, useGrouped, useSearched } from './PartsShown';
 import {
   EmptyNote,
@@ -89,6 +94,11 @@ import {
   ChoiceRow,
   IconSwatches,
   ListItem,
+  MenuRow,
+  SectionList,
+  SectionPane,
+  SectionSheet,
+  SectionsButton,
 } from './ui';
 import { FieldList, Fields, useWrongField, WrongField, type FieldContext } from './fields';
 import { newValue, problemAt } from './check';
@@ -100,6 +110,7 @@ import type { Field } from './schema';
 import { defaultColors } from '@site/editor';
 import { BASE_COLORS, canSetBaseColor, wheelColor, wheelColors, wheelDots, withBaseColor, type Dynamic } from '../lib/dynamic-colors';
 import { iconPacks } from './iconPacks';
+import { jurisdictionName } from './r2Caching';
 import type { Env } from './App';
 import { t } from './i18n';
 
@@ -125,6 +136,7 @@ export default function Parts({ env }: { env: Env }) {
   const [phone, setPhone] = useState({ code: '+45', number: examples.contact.phone });
   const [tile, setTile] = useState(0);
   const [placement, setPlacement] = useState('top');
+  const [menuPick, setMenuPick] = useState('auto');
   const [unfolded, setUnfolded] = useState(false);
   const [front, setFront] = useState(true);
   // An e-mail address without its domain: the field says what is wrong.
@@ -134,6 +146,13 @@ export default function Parts({ env }: { env: Env }) {
   const [picture, setPicture] = useState(examplePicture);
   const [folded, setFolded] = useState<number | null>(0);
   const [sectionOpen, setSectionOpen] = useState<number | null>(0);
+  const [sectionsSheet, setSectionsSheet] = useState(false);
+  const [sectionPicked, setSectionPicked] = useState('content');
+  const sectionItems = [
+    { id: 'content', label: t.forms.sections.content, icon: Article },
+    { id: 'status', label: t.forms.sections.status, icon: Eye, badge: 2 },
+    { id: 'other', label: t.forms.otherFields, icon: SlidersHorizontal },
+  ];
   const [tags, setTags] = useState(['a', 'b']);
   const dialog = useRef<HTMLDialogElement>(null);
   const fieldsDialog = useRef<HTMLDialogElement>(null);
@@ -423,6 +442,26 @@ export default function Parts({ env }: { env: Env }) {
               </section>
             </Part>
 
+            <Part name="MenuRow" use={use.menuRow}>
+              <MenuRow
+                label={t.advanced.place}
+                hint={t.advanced.placeHint}
+                value={menuPick}
+                options={[
+                  { value: 'auto', label: t.advanced.placeAuto },
+                  { value: 'eu', label: jurisdictionName('eu') },
+                ]}
+                onChange={setMenuPick}
+              />
+              <MenuRow
+                label={t.advanced.place}
+                value="auto"
+                options={[{ value: 'auto', label: t.advanced.placeAuto }]}
+                disabled
+                onChange={() => {}}
+              />
+            </Part>
+
             <Part name="UnfoldButton, subListClass" use={use.unfold}>
               <ul className={listClass}>
                 <ListItem
@@ -645,6 +684,14 @@ export default function Parts({ env }: { env: Env }) {
               />
             </Part>
 
+            <Part name="MainDrawer, MainDrawerSection, MainDrawerItem, MenuButton" use={use.mainDrawer}>
+              <MainDrawerSample />
+            </Part>
+
+            <Part name="EditorFooter" use={use.editorFooter}>
+              <EditorFooter />
+            </Part>
+
             <Part name="FoldSection" use={use.foldSection}>
               <div>
                 {[t.forms.sections.content, t.forms.otherFields].map((title, i) => (
@@ -658,6 +705,30 @@ export default function Parts({ env }: { env: Env }) {
                   </FoldSection>
                 ))}
               </div>
+            </Part>
+
+            <Part name="SectionList, SectionPane, SectionSheet, SectionsButton" use={use.sectionList}>
+              <div className="space-y-4">
+                <div className={row}>
+                  <SectionsButton label={t.forms.sections.title} open={sectionsSheet} onClick={() => setSectionsSheet(true)} />
+                </div>
+                <div className="max-w-sm">
+                  <SectionPane title={t.forms.sections.title} open>
+                    <SectionList title={t.forms.sections.title} items={sectionItems} value={sectionPicked} onChange={setSectionPicked} />
+                  </SectionPane>
+                </div>
+              </div>
+              <SectionSheet title={t.forms.sections.title} open={sectionsSheet} onClose={() => setSectionsSheet(false)}>
+                <SectionList
+                  title={t.forms.sections.title}
+                  items={sectionItems}
+                  value={sectionPicked}
+                  onChange={(id) => {
+                    setSectionPicked(id);
+                    setSectionsSheet(false);
+                  }}
+                />
+              </SectionSheet>
             </Part>
 
             <Part name="SharePreview" use={use.sharePreview}>

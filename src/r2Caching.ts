@@ -1,3 +1,4 @@
+// Also here: planStatus, whether the account has Workers Paid (/api/plan, packages/editor/worker/plan-status.js), asked for "Betalt bygning".
 // R2 caching: the Worker's copy of the site's files in R2 (packages/editor/worker/files.js), turned on and off under "Indstillinger" ›
 // "Avanceret" (Advanced.tsx). It is the line of its bucket (`"r2_buckets": …`, the binding FILES) in the Worker's settings
 // (config.wrangler): there when it is on, there as a comment ("// …") when it is off, so a deploy never asks for a bucket
@@ -38,6 +39,19 @@ export const withJurisdiction = (text: string, jurisdiction: string | null): str
 
 /** A jurisdiction's name, as Cloudflare writes it. */
 export const jurisdictionName = (jurisdiction: string): string => ({ eu: 'EU', fedramp: 'FedRAMP' })[jurisdiction] ?? jurisdiction;
+
+/** Whether the account has Workers Paid, as the Worker says (packages/editor/worker/plan-status.js); 'failed' when it can't be asked. */
+export type PaidState = 'yes' | 'no' | 'no-key' | 'refused' | 'failed';
+
+export async function planStatus(): Promise<PaidState> {
+  try {
+    const res = await fetch('/api/plan', { cache: 'no-store' });
+    if (!res.ok || !res.headers.get('content-type')?.includes('application/json')) return 'failed';
+    return (await res.json()).paid;
+  } catch {
+    return 'failed';
+  }
+}
 
 /** The bucket at Cloudflare, as the Worker says (packages/editor/worker/r2-status.js). */
 export type BucketState = 'ready' | 'no-bucket' | 'no-r2' | 'no-key' | 'refused' | 'failed';

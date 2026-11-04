@@ -10,7 +10,7 @@ export const seo = {
   sorts: { low: 'Lowest first', high: 'Highest first', az: 'A–Z', za: 'Z–A' },
   /** The ring, read aloud. */
   scoreLabel: (score: number) => `SEO rating ${score} of 100`,
-  /** The filters in the funnel: by the colour of the rating, by whether a primary keyword is filled in, and by kind. */
+  /** The filters in the funnel: by the color of the rating, by whether a primary keyword is filled in, and by kind. */
   ratingFilter: 'Rating',
   allRatings: 'All ratings',
   ratings: { good: 'Good (90–100)', average: 'Average (50–89)', bad: 'Poor (0–49)' },

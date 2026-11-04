@@ -1,11 +1,11 @@
 // The editor's frame (App.tsx, FormFrame.tsx, ask.tsx), logging in and saving to GitHub (github.ts, cache.ts), pictures (images.ts) and addresses (addresses.ts, checkSite.ts).
 export const app = {
   logIn: 'Log in with GitHub',
-  loading: 'Loading the website’s content',
+  loading: 'Loading the website’s content…',
   cannotSave: (login: string) => `The account ${login} doesn’t have access to save. Log in with another GitHub account under Account.`,
   notFound: 'Not found',
   nothingAt: (route: string) => `There’s nothing at the address ${route}`,
-  /** After a save, when the site has been rebuilt with it (or not); `changes`: what the saves since the last update
+  /** After a save, when the website has been updated with it (or not); `changes`: what the saves since the last update
    * changed, as a list (changesText in deploy.ts). */
   siteUpdated: (changes: string) => `The website has been updated: ${changes}.`,
   siteNotUpdated: (changes: string) => `The website wasn’t updated (${changes}). Restore the previous version under Earlier versions.`,
@@ -40,8 +40,10 @@ export const app = {
     redirect: (from: string) => `redirect from ${from}`,
     logo: 'logo',
     icon: 'icon',
-    r2Caching: 'R2 caching',
+    r2Caching: 'faster editor',
     place: 'storage location',
+    fastContentBuilds: 'faster updates for content',
+    paidBuilds: 'Workers Paid plan',
   },
   /** Why a new page or post cannot have an address. */
   addressTaken: (address: string) => `There’s already a page or blog post with the address ${address}.`,
@@ -62,7 +64,7 @@ export const app = {
   viewOnSite: 'View on the website',
   /** GitHub (github.ts). */
   loggedOut: 'You have been logged out. Log in again.',
-  githubAnswered: (status: number) => `GitHub answered ${status}`,
+  githubAnswered: (status: number) => `GitHub returned error ${status}. Try again.`,
   pictureNotLoaded: 'The picture couldn’t be loaded from GitHub. Check your connection and try again.',
   pictureNotWhole: 'The picture couldn’t be loaded completely. Try again.',
   changedElsewhere: 'The file was changed elsewhere. Copy your text and reload the page.',
@@ -71,7 +73,7 @@ export const app = {
   pictureNotOpened: 'The picture couldn’t be opened. Use a JPEG, PNG, or WebP picture.',
   pictureNotReady: 'The picture couldn’t be prepared',
   preparingPicture: 'Preparing the picture…',
-  /** The check before the build (checkSite.ts). */
+  /** The check before the website is updated (checkSite.ts). */
   invalidJson: 'The file isn’t valid JSON',
   blocksOff: 'Turned off',
   block: 'Block',

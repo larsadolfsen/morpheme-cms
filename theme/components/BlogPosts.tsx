@@ -6,6 +6,7 @@ import PostList from '@theme/components/PostList';
 import PostMeta from '@theme/components/PostMeta';
 import type { PostView } from '@theme/components/posts';
 import { Link } from '@morphemecms/cms/src/standard/view';
+import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
 import { siteT } from '@morphemecms/cms/src/i18n';
 
 export default function BlogPosts({ posts }: { posts: PostView[] }) {
@@ -21,25 +22,27 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
     );
   return (
     <>
-      <Link href={featured.href} className="group grid items-center gap-6 md:grid-cols-12 md:gap-12">
+      <Link href={featured.href} className="group grid items-center gap-6 medium:gap-12 expanded:grid-cols-12">
         {featured.image && (
-          <div className="overflow-hidden rounded-(--theme-picture-radius) md:col-span-7">
+          <div className="overflow-hidden rounded-(--theme-picture-radius) expanded:col-span-7">
             <Img
               image={featured.image}
               alt={featured.imageAlt ?? ''}
               fetchPriority="high"
               className="aspect-[16/10] w-full object-cover [transition:scale_var(--motion-spatial-slow)] group-hover:scale-[1.03]"
-              sizes="(min-width: 768px) 55vw, calc(100vw - 40px)"
+              sizes={`(min-width: ${BREAKPOINTS.expanded}px) 55vw, calc(100vw - 40px)`}
             />
           </div>
         )}
-        <div className="md:col-span-5">
+        <div className="expanded:col-span-5">
           <PostMeta post={featured} />
-          <h2 className="mt-2 type-headline-medium transition-colors group-hover:text-accent md:type-headline-large">{featured.title}</h2>
+          <h2 className="mt-2 type-headline-medium transition-colors group-hover:text-accent medium:type-headline-large">
+            {featured.title}
+          </h2>
           <p className="mt-3 text-muted">{featured.description}</p>
         </div>
       </Link>
-      {rest.length > 0 && <PostList posts={rest} className="mt-12 md:mt-16" />}
+      {rest.length > 0 && <PostList posts={rest} className="mt-12 medium:mt-16" />}
     </>
   );
 }

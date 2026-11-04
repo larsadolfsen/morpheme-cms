@@ -17,6 +17,7 @@ import { withSiteModules } from './site/siteModules.mjs';
 import { rehypeResponsiveImages } from './site/images.mjs';
 import { linksDigest, rehypeAutoLinks } from './site/autolinks.mjs';
 import { rehypeVideo } from './lib/video.mjs';
+import { rehypeEmphasize } from './lib/rehype-emphasize.mjs';
 import { csp, joined } from './lib/csp.mjs';
 import { appBuilds, appFoldersPlugin } from './lib/apps.mjs';
 import { isNoindex } from './site/noindex.mjs';
@@ -111,6 +112,8 @@ export async function siteConfig() {
           // HTML written in the Markdown (tables, iframes, links) as elements before the plugins below,
           // so they see it too (Astro would parse it only after them).
           rehypeRaw,
+          // Bold as <strong class="emphasize">, for a theme to style (lib/rehype-emphasize.mjs).
+          rehypeEmphasize,
           [rehypeResponsiveImages, { sizes: '(min-width: 800px) 720px, calc(100vw - 40px)' }],
           // Internal links from the keywords (src/data/internal-links.json); with what they are made from, so the pages
           // rendered before (node_modules/.astro) are rendered again when it changes (linksDigest).

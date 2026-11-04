@@ -1,9 +1,10 @@
 // Opens every screen of the editor (/editor/) in a browser, on a phone and on a computer, and fails
 // when one breaks: an error on the page, something its Content-Security-Policy stopped, an empty app, or a link to an
 // address with nothing on it, or an icon that is not found (drawn as the question mark, data-icon-missing: Svg in
-// packages/editor/src/icon.tsx), there or on one of the built site's pages.
-// The screens are found as the editor's own links: from the start screen (and "Indstillinger", #indstillinger, "Dele", #udseende/dele, "Temaer",
-// #udseende/temaer, "Søgemaskineoptimering", #seo, and "Appstore", #indstillinger/appstore), and
+// packages/editor/src/icon.tsx), there or on one of the built site's pages. An icon drawn from Material Symbols instead
+// of the icon pack (data-icon-fallback) is only listed, with where it is: it does not fail.
+// The screens are found as the editor's own links: from the start screen (the drawer's links are in the page also while it is
+// closed) and "Dele", #udseende/dele, "Temaer", #udseende/temaer, "Søgemaskineoptimering", #seo, "Appstore", #indstillinger/appstore, and "Apps", #apps, which the menu no longer links to), and
 // from each screen it opens, two steps down. GitHub is answered from the files in this repository, so it needs no login
 // and changes nothing. It runs on the built site: npm run build && npm run check:screens (or on another
 // folder with a built site, its path after the command: packages/editor/scripts/check-themes.mjs).
@@ -26,14 +27,21 @@ const missingIcon = (name) =>
     ? `ikonet "${name}" findes ikke (et spørgsmålstegn i stedet): skriv det i packages/editor/src/icon.tsx`
     : 'et ikon er ikke en SVG-fil (et spørgsmålstegn i stedet)';
 
+const fallbackIcon = (name) =>
+  `ikonet "${name}" er fra Material Symbols (ikke i ikonpakken): giv det et ikon i hver pakkes kort, hvis det skal blive`;
+
 // The icons not found on the built site's pages: each one once, with the pages it is on.
 const problems = [];
 const missingOn = new Map();
+// The icons drawn from Material Symbols (named, with where they are: up to 3 places), listed, not failed on.
+const fallbackOn = new Map();
+const fallbackAt = (name, place) => fallbackOn.set(name, new Set([...(fallbackOn.get(name) ?? []), place]));
 for (const entry of readdirSync(DIST, { recursive: true, withFileTypes: true })) {
   if (!entry.isFile() || !entry.name.endsWith('.html')) continue;
   const file = join(entry.parentPath, entry.name);
   for (const [, name] of readFileSync(file, 'utf8').matchAll(/data-icon-missing="([^"]*)"/g))
     missingOn.set(name, new Set([...(missingOn.get(name) ?? []), `/${relative(DIST, file)}`]));
+  for (const [, name] of readFileSync(file, 'utf8').matchAll(/data-icon-fallback="([^"]*)"/g)) fallbackAt(name, `/${relative(DIST, file)}`);
 }
 for (const [name, pages] of missingOn) {
   const shown = [...pages].slice(0, 3).join(', ');
@@ -60,10 +68,10 @@ for (const [width, height] of [
   });
   await openEditor(page, site);
 
-  // From the start screen, and from "Indstillinger" (the gear in the top bar), "Dele", "Temaer",
-  // "Søgemaskineoptimering" and "Appstore" (the apps' pages and their developers'), whose screens are a step further
-  // down than the others.
-  const starts = ['', 'indstillinger', 'udseende/dele', 'udseende/temaer', 'seo', 'indstillinger/appstore'];
+  // From the start screen (the drawer's links), and from "Dele", "Temaer", "Søgemaskineoptimering" and "Appstore"
+  // (the apps' pages and their developers'), whose screens are a step further down than the others. "Apps" (the list of
+  // the apps installed) has no row in the menu, so it is a start of its own.
+  const starts = ['', 'udseende/dele', 'udseende/temaer', 'seo', 'indstillinger/appstore', 'apps'];
   const seen = new Set(starts);
   let next = starts;
   for (let depth = 0; depth <= 2 && next.length; depth++) {
@@ -78,7 +86,9 @@ for (const [width, height] of [
         text: document.body.innerText,
         links: [...document.querySelectorAll('a[href^="#"]')].map((a) => a.getAttribute('href').slice(1)),
         missing: [...document.querySelectorAll('[data-icon-missing]')].map((e) => e.getAttribute('data-icon-missing')),
+        fallback: [...document.querySelectorAll('[data-icon-fallback]')].map((e) => e.getAttribute('data-icon-fallback')),
       }));
+      for (const name of new Set(state.fallback)) fallbackAt(name, `${width}px #${hash}`);
       for (const name of new Set(state.missing)) problems.push(`${width}px #${hash}: ${missingIcon(name)}`);
       if (state.empty) problems.push(`${width}px #${hash}: skærmen er tom`);
       if (state.text.includes(`Der er ikke noget på adressen ${hash}.`))
@@ -120,6 +130,10 @@ for (const [state, { shows, hides }] of Object.entries(keyStates)) {
 
 await browser.close();
 server.close();
+for (const [name, places] of fallbackOn) {
+  const shown = [...places].slice(0, 3).join(', ');
+  console.log(`${shown}${places.size > 3 ? ` og ${places.size - 3} steder til` : ''}: ${fallbackIcon(name)}`);
+}
 if (problems.length) {
   console.error(`${problems.length} fejl i editoren eller på sitet:\n${[...new Set(problems)].join('\n')}`);
   process.exit(1);

@@ -7,7 +7,7 @@
 //   evt. a divider over the actions (`divider`) and the actions at its end (`actions`: buttons, the main one last).
 // - 'full-screen': over the whole screen on a phone, for a task with several steps; in its header the close button
 //   (`closeLabel`, data-dialog-close), the headline and the action (`actions`: a text button), evt. a divider under it
-//   (`divider`), and under them what it shows (`supportingText` and `children`, scrolling). From 48rem, where Material
+//   (`divider`), and under them what it shows (`supportingText` and `children`, scrolling). From the medium breakpoint, where Material
 //   shows it as a dialog, it is in the middle of the screen over the scrim, with the same header.
 // Shown modally it is in a <dialog> with dialogModalClass (a full-screen one with dialogFullScreenModalClass), which
 // dialog() in dialogControl.ts (or the script that shows it: Popup.astro) opens and closes. How it looks is the theme's

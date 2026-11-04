@@ -9,16 +9,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Svg } from '@morphemecms/cms/src/icon';
 import { motionSpring } from '@morphemecms/cms/lib/motion';
 import IconButton from '@theme/ui/IconButton';
 import { ExtendedFab } from '@theme/ui/Fab';
 import {
   NavigationDrawerItem,
   NavigationDrawerRow,
+  NavigationDrawerSection,
   NavigationDrawerSubitem,
   NavigationDrawerToggle,
+  focusNavigationDrawerItem,
   navigationDrawerClass,
+  navigationDrawerKeys,
   navigationDrawerScrimClass,
 } from '@theme/ui/NavigationDrawer';
 
@@ -54,7 +56,6 @@ export default function MobileMenu({
   const [mounted, setMounted] = useState(false);
   const reduce = useReducedMotion();
   const openButton = useRef<HTMLButtonElement>(null);
-  const closeButton = useRef<HTMLButtonElement>(null);
   const drawer = useRef<HTMLDivElement>(null);
   // The scheme's springs (only used in the browser, where the menu opens): in at the default spatial spring, out at the
   // fast one, and the scrim with the effects'.
@@ -65,14 +66,21 @@ export default function MobileMenu({
     fadeOut: motionSpring('effects', 'fast'),
   }));
 
-  useEffect(() => setMounted(true), []);
+  // The edge it comes from is the start edge: it slides in from the left, and from the right in right-to-left languages.
+  const [away, setAway] = useState('-100%');
+  useEffect(() => {
+    setMounted(true);
+    setAway(getComputedStyle(document.documentElement).direction === 'rtl' ? '100%' : '-100%');
+  }, []);
 
   useEffect(() => {
     if (!open) return;
     const root = document.documentElement;
     const prevOverflow = root.style.overflow;
     root.style.overflow = 'hidden';
-    closeButton.current?.focus();
+    // The focus goes to the first item; the arrow keys, Home and End move between them.
+    if (drawer.current) focusNavigationDrawerItem(drawer.current);
+    const stopKeys = drawer.current ? navigationDrawerKeys(drawer.current) : undefined;
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false);
@@ -92,6 +100,7 @@ export default function MobileMenu({
     };
     document.addEventListener('keydown', onKey);
     return () => {
+      stopKeys?.();
       document.removeEventListener('keydown', onKey);
       // Closed by "Book en tid": the booking sheet (a modal dialog) is open now and keeps the page
       // still and the focus itself.
@@ -135,10 +144,10 @@ export default function MobileMenu({
                   role="dialog"
                   aria-modal="true"
                   aria-label={texts.drawer}
-                  className={`${navigationDrawerClass} absolute inset-y-0 left-0`}
-                  initial={reduce ? false : { x: '-100%' }}
+                  className={`${navigationDrawerClass} absolute inset-y-0 start-0`}
+                  initial={reduce ? false : { x: away }}
                   animate={{ x: 0, transition: reduce ? { duration: 0 } : spring.enter }}
-                  exit={reduce ? undefined : { x: '-100%', transition: spring.leave }}
+                  exit={reduce ? undefined : { x: away, transition: spring.leave }}
                 >
                   <div className="md-drawer-head">
                     <span aria-hidden="true" className="logo-mark h-10 w-9 shrink-0 bg-accent" />
@@ -146,7 +155,7 @@ export default function MobileMenu({
                       <p className="md-drawer-name">{name}</p>
                       <p className="md-drawer-role">{role}</p>
                     </div>
-                    <IconButton ref={closeButton} icon="x" label={texts.close} onClick={() => setOpen(false)} />
+                    <IconButton icon="x" label={texts.close} onClick={() => setOpen(false)} />
                   </div>
 
                   <ExtendedFab
@@ -158,61 +167,63 @@ export default function MobileMenu({
                     onClick={() => setOpen(false)}
                   />
 
-                  <nav aria-label={texts.menu}>
-                    <ul>
-                      {items.map((item, i) => (
-                        <li key={item.href}>
-                          <NavigationDrawerRow data-active={holdsCurrent(item) || undefined}>
-                            <NavigationDrawerItem
-                              href={item.href}
-                              onClick={() => setOpen(false)}
-                              aria-current={current === item.href ? 'page' : undefined}
-                            >
-                              {item.label}
-                            </NavigationDrawerItem>
-                            {item.children && (
-                              <NavigationDrawerToggle
-                                label={texts.subpages[i]}
-                                expanded={expanded === item.href}
-                                onClick={() => setExpanded(expanded === item.href ? null : item.href)}
-                                aria-controls={`sub-${item.href}`}
-                              />
-                            )}
-                          </NavigationDrawerRow>
-                          <AnimatePresence initial={false}>
-                            {item.children && expanded === item.href && (
-                              <motion.ul
-                                id={`sub-${item.href}`}
-                                className="overflow-hidden"
-                                initial={reduce ? false : { height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1, transition: spring.enter }}
-                                exit={reduce ? undefined : { height: 0, opacity: 0, transition: spring.leave }}
+                  <NavigationDrawerSection>
+                    <nav aria-label={texts.menu}>
+                      <ul>
+                        {items.map((item, i) => (
+                          <li key={item.href}>
+                            <NavigationDrawerRow data-active={holdsCurrent(item) || undefined}>
+                              <NavigationDrawerItem
+                                href={item.href}
+                                onClick={() => setOpen(false)}
+                                aria-current={current === item.href ? 'page' : undefined}
                               >
-                                {item.children.map((child) => (
-                                  <li key={child.href}>
-                                    <NavigationDrawerSubitem
-                                      href={child.href}
-                                      active={current === child.href}
-                                      onClick={() => setOpen(false)}
-                                      aria-current={current === child.href ? 'page' : undefined}
-                                    >
-                                      {child.label}
-                                    </NavigationDrawerSubitem>
-                                  </li>
-                                ))}
-                              </motion.ul>
-                            )}
-                          </AnimatePresence>
-                        </li>
-                      ))}
-                    </ul>
-                  </nav>
+                                {item.label}
+                              </NavigationDrawerItem>
+                              {item.children && (
+                                <NavigationDrawerToggle
+                                  label={texts.subpages[i]}
+                                  expanded={expanded === item.href}
+                                  onClick={() => setExpanded(expanded === item.href ? null : item.href)}
+                                  aria-controls={`sub-${item.href}`}
+                                />
+                              )}
+                            </NavigationDrawerRow>
+                            <AnimatePresence initial={false}>
+                              {item.children && expanded === item.href && (
+                                <motion.ul
+                                  id={`sub-${item.href}`}
+                                  className="overflow-hidden"
+                                  initial={reduce ? false : { height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1, transition: spring.enter }}
+                                  exit={reduce ? undefined : { height: 0, opacity: 0, transition: spring.leave }}
+                                >
+                                  {item.children.map((child) => (
+                                    <li key={child.href}>
+                                      <NavigationDrawerSubitem
+                                        href={child.href}
+                                        active={current === child.href}
+                                        onClick={() => setOpen(false)}
+                                        aria-current={current === child.href ? 'page' : undefined}
+                                      >
+                                        {child.label}
+                                      </NavigationDrawerSubitem>
+                                    </li>
+                                  ))}
+                                </motion.ul>
+                              )}
+                            </AnimatePresence>
+                          </li>
+                        ))}
+                      </ul>
+                    </nav>
+                  </NavigationDrawerSection>
 
-                  <hr className="md-divider" />
-                  <NavigationDrawerItem href={phoneHref}>
-                    <Svg name="phone" size={24} />
-                    {call} {phone}
-                  </NavigationDrawerItem>
+                  <NavigationDrawerSection>
+                    <NavigationDrawerItem href={phoneHref} icon="phone">
+                      {call} {phone}
+                    </NavigationDrawerItem>
+                  </NavigationDrawerSection>
                 </motion.div>
               </div>
             )}
