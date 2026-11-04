@@ -52,6 +52,8 @@ export const site = {
   /** The owner's picture (config.ts), or '' when the site has none. */
   portrait: config.picture?.src ?? '',
   portraitAlt: config.picture?.alt ?? '',
+  /** The logo in the structured data (config.ts), '/logo.svg' unless the site says otherwise. */
+  logo: config.logo || '/logo.svg',
 };
 
 // Primary navigation (menu.json, "Hovedmenu"). Labels, URLs and sub-items started out as the old site's menu.
