@@ -31,6 +31,7 @@
 //                    theme's design tokens, "Værdier" (Tokens.tsx)
 //   blokvalg         the blocks that can be put in, "Blokindstillinger" (BlockSettings.tsx)
 //   avanceret        "Avanceret", under "Indstillinger": the copy of the site's files in R2 (Advanced.tsx)
+//   morpheme         "Morpheme", under "Indstillinger": the CMS's version, a newer one and its notes, an update's progress (CmsPage.tsx)
 //   licenser         "Licenser", under "Indstillinger": the licences of what the site and the editor are made with, and
 //                    licenser/<id> one with its text (Licenses.tsx)
 //   apps             the apps that come with the site, apps/<app> one with its button to install it and, while it
@@ -92,6 +93,7 @@ import Tokens from './Tokens';
 import BrandForm from './BrandForm';
 import BlockSettings from './BlockSettings';
 import Advanced, { ADVANCED_ROUTE } from './Advanced';
+import CmsPage, { CMS_ROUTE } from './CmsPage';
 import Licenses, { LICENSES_ROUTE, LicensePage } from './Licenses';
 import { StoreThemePage } from './ThemeStore';
 import {
@@ -841,6 +843,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'udseende/logo') return <BrandForm env={env} />;
   if (route === 'blokvalg') return <BlockSettings env={env} files={files} />;
   if (route === ADVANCED_ROUTE) return <Advanced env={env} />;
+  if (route === CMS_ROUTE) return <CmsPage />;
   if (route === LICENSES_ROUTE) return <Licenses />;
   if (route.startsWith(`${LICENSES_ROUTE}/`)) return <LicensePage key={route} id={route.slice(LICENSES_ROUTE.length + 1)} />;
   if (route === 'apps') return <Apps env={env} files={files} />;

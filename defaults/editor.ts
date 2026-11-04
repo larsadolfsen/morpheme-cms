@@ -43,6 +43,7 @@ import {
   Signpost,
   Smiley,
   SlidersHorizontal,
+  Sparkle,
   SquareHalfBottom,
   SquaresFour,
   Sticker,
@@ -126,6 +127,7 @@ export const icons: Record<string, Icon> = {
   blokvalg: ToggleRight,
   apps: PuzzlePiece,
   appstore: Storefront,
+  morpheme: Sparkle,
   avanceret: Wrench,
   licenser: Certificate,
   // The screens under "Udseende" (Library.tsx Theme).
@@ -156,7 +158,7 @@ export const groups: { title: string; ids: string[] }[] = [
 
 /** The settings of the whole site, not on the start screen but on "Indstillinger" (#indstillinger, Library.tsx
  * Settings), which the gear in the top bar opens (Screen.tsx SettingsLink); A–Å as a group's. */
-export const settings: string[] = ['udseende', 'apps', 'appstore', 'maaling', 'promovering', 'privatliv', 'seo', 'avanceret', 'licenser'];
+export const settings: string[] = ['udseende', 'apps', 'appstore', 'morpheme', 'maaling', 'promovering', 'privatliv', 'seo', 'avanceret', 'licenser'];
 
 /** The site's own short lists, on a screen of their own under "Lister" (#lister), with those the standard blocks
  * bring ("Udtalelser") and the apps (their lists.ts). */

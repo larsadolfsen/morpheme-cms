@@ -134,6 +134,8 @@ export const common = {
     advanced: 'Advanced',
     /** Under Indstillinger: the licences of what the site and the editor are made with (#licenser, Licenses.tsx). */
     licenses: 'Licenses',
+    /** Under Indstillinger: the CMS's version and its updates (#morpheme). */
+    morpheme: 'Morpheme',
   },
   /** Right after a save, with what it changed (savedText in deploy.ts); the site is rebuilt in 1-2 minutes. */
   saved: (change: string) => `${change}. You’ll get a message when the website is updated.`,

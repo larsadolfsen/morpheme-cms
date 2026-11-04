@@ -41,6 +41,7 @@
   "scripts": {
     "build": "node scripts/demo-build.mjs",
     "icons": "node scripts/icon-packs.mjs",
+    "release:version": "changeset version && node scripts/starter.mjs",
     "prepack": "node scripts/types.mjs write",
     "postpack": "node scripts/types.mjs clean"
   },

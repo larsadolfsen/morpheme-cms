@@ -111,6 +111,19 @@ const STORE_CATALOG = {
   ],
 };
 
+/** What the Worker's GET /api/cms answers (worker/cms-update.js cmsStatus), made up so "Morpheme" (#morpheme) opens with
+ * a new major version and its notes, an undone update, and two problems (no token, no check runs to read). The other
+ * states (up to date, waiting, skipped, needs npm) are covered by src/cmsView.test.mjs. */
+const CMS_STATUS = {
+  running: JSON.parse(readFileSync(`${import.meta.dirname}/../package.json`, 'utf8')).version,
+  token: false,
+  kv: true,
+  checked: { at: '2026-11-03T08:00:00.000Z', latest: '99.0.0', problem: { kind: 'major' }, noChecks: true },
+  update: { state: 'undone', to: '0.0.1', at: '2026-11-02T10:30:00.000Z' },
+  skipped: ['0.0.1'],
+  notes: [{ version: '99.0.0', text: 'A made-up note for the checks.\n\nA second paragraph.' }],
+};
+
 /** Opens the editor (/editor/) of the site at `site` in `page`, signed in, with GitHub answered from the files on disk
  * (`texts`: some with other texts), and waits until it has loaded the site. */
 export async function openEditor(page, site, texts = {}) {
@@ -118,6 +131,7 @@ export async function openEditor(page, site, texts = {}) {
   await page.route(`${site}/api/r2?**`, (r) =>
     r.fulfill({ contentType: 'application/json', body: JSON.stringify({ bound: false, bucket: 'ready' }) }),
   );
+  await page.route(`${site}/api/cms`, (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify(CMS_STATUS) }));
   await page.route(`${site}/api/store/**`, (r) =>
     new URL(r.request().url()).pathname === '/api/store/catalog'
       ? r.fulfill({ contentType: 'application/json', body: JSON.stringify(STORE_CATALOG) })

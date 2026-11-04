@@ -28,7 +28,7 @@ for (const [name, range] of Object.entries(pkg.peerDependencies))
 // A site needs every peer the commands and the build use, the optional ones too, except Playwright (only for the
 // checks in a browser, run where they are needed).
 const deps = Object.fromEntries(
-  [[pkg.name, `^${pkg.version}`], ...Object.entries(pkg.peerDependencies).filter(([name]) => name !== 'playwright')].sort(([a], [b]) =>
+  [[pkg.name, pkg.version], ...Object.entries(pkg.peerDependencies).filter(([name]) => name !== 'playwright')].sort(([a], [b]) =>
     a.localeCompare(b),
   ),
 );
