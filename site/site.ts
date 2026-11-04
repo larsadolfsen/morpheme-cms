@@ -1,4 +1,4 @@
-// Name, title, phone, email, address and CVR number: contact.json; the texts of "Book en tid": booking.json (the calendar
+// Name, title, phone, email, address and CVR number: contact.json; the profiles and share buttons: social.json (optional, an older site has none); the texts of "Book en tid": booking.json (the calendar
 // is the app Calendly's, src/apps/calendly/); the menus: menu.json and mobile-menu.json; the shared texts of the other blocks: their shared.ts, with those saved in
 // blocks.json over them (`blockTexts`).
 // The site's owner edits them in the editor (/editor/); what the editor does not edit is the site's config
@@ -10,6 +10,7 @@ import mobileMenu from '@data/mobile-menu.json';
 import blocks from '@data/blocks.json';
 import standardPages from '@data/standard-pages.json';
 import { config } from '@site/config';
+import { socialOf } from './social.mjs';
 import { sharedTexts, type SharedTexts } from '@morphemecms/cms/src/shared';
 import { standardShared } from '@morphemecms/cms/src/standard/sharedTexts';
 
@@ -18,6 +19,9 @@ import { standardShared } from '@morphemecms/cms/src/standard/sharedTexts';
 const phoneIntl = `${contact.phone.trim().startsWith('+') ? '+' : '+45'}${contact.phone.replace(/\D/g, '')}`;
 // The CVR number, when it is filled in ("Virksomheden" › "Kontakt").
 const { cvr = '' } = contact as typeof contact & { cvr?: string };
+
+// Optional file: an older site has no social.json, so it is read with a glob, not an import.
+const socialFile = Object.values(import.meta.glob<Record<string, unknown>>('/src/data/social.json', { eager: true, import: 'default' }))[0];
 
 export const site = {
   name: contact.name,
@@ -52,6 +56,8 @@ export const site = {
   /** The owner's picture (config.ts), or '' when the site has none. */
   portrait: config.picture?.src ?? '',
   portraitAlt: config.picture?.alt ?? '',
+  /** Profiles and share buttons (Company › Social media, social.json); all buttons on without the file. */
+  social: socialOf(socialFile),
   /** The logo in the structured data (config.ts), '/logo.svg' unless the site says otherwise. */
   logo: config.logo || '/logo.svg',
 };

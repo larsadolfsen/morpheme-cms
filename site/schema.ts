@@ -3,6 +3,7 @@
 // What is said of the business and the person beyond the contact details is the site's (@site/schema).
 // Only facts that are on the site; no ratings or reviews.
 import { site } from './site';
+import { sameAsOf } from './social.mjs';
 import { schema as facts } from '@site/schema';
 
 /** What a site says of itself in the structured data (@site/schema). */
@@ -61,6 +62,7 @@ export const business = {
   hasMap: site.mapsUrl,
   ...(facts.offers ? { hasOfferCatalog: { '@id': abs(facts.offers) } } : {}),
   ...(facts.person ? { founder: { '@id': ids.person }, employee: { '@id': ids.person } } : {}),
+  ...(site.social.profiles.length ? { sameAs: sameAsOf(site.social.profiles) } : {}),
 };
 
 export const businessRef = { '@type': facts.businessType, '@id': ids.business, name: site.name, url: abs('/') };
