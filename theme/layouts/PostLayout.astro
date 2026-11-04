@@ -8,6 +8,7 @@ import Icon from '@theme/components/Icon.astro';
 import Img from '@theme/components/Img.astro';
 import EndBlock from '@theme/components/EndBlock.astro';
 import { categoryName, getPosts, postPath, stateOf, type Post } from '@morphemecms/cms/site/content';
+import ShareRow from '@theme/components/ShareRow.astro';
 import PostMeta from '@theme/components/PostMeta';
 import Chip from '@theme/ui/Chip';
 import { postViewOf } from '@theme/components/loadPosts';
@@ -27,6 +28,10 @@ const imageAlt = post.data.imageDecorative ? undefined : post.data.imageAlt;
 const onBlog = categories.filter(isBlogCategory);
 // Some posts also have their featured image (or another version of it) inside the text; never show it twice.
 const image = heroImage(post.data.image, post.body);
+
+// The picture a share to Pinterest pins: the one chosen for sharing, else the post's own, with the site's address in front.
+const sharePicture = post.data.shareImage || post.data.image || firstImage(post.body);
+const picture = sharePicture?.startsWith('/') ? site.url + sharePicture : sharePicture || undefined;
 
 // Related: most shared categories first, then newest.
 const related = (await getPosts())
@@ -84,6 +89,7 @@ const related = (await getPosts())
           <PostMeta post={postViewOf(post)} />
         </div>
       </div>
+      <ShareRow url={site.url + postPath(post)} title={title} picture={picture} share={site.social.share} />
     </header>
 
     {image && (
