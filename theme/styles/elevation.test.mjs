@@ -115,3 +115,54 @@ test('elevated card hover still reads --elevation-2', () => {
 test('outlined card keeps --elevation-0', () => {
   assert.equal(count(uiCss, '--card-shadow: var(--card-outlined-shadow, var(--elevation-0));'), 1);
 });
+
+// The Material theme (global.css): colour at rest, a shadow only for the FAB and the lift.
+const globalCss = read('./global.css');
+
+for (let level = 1; level <= 5; level++) {
+  test(`global.css sets --elevation-${level}-rest-shadow to no shadow`, () => {
+    assert.equal(count(globalCss, `  --elevation-${level}-rest-shadow: var(--elevation-0);\n`), 1);
+  });
+}
+
+const addedLines = [
+  ['--fab-shadow: var(--elevation-3);', 1],
+  ['--fab-hover-shadow: var(--elevation-4);', 1],
+  ['--block-shadow: var(--elevation-1-rest-shadow);', 1],
+  // Light mode once, then the dark-mode media block and the dark theme attribute.
+  ['--shadow: var(--elevation-1-rest-shadow);', 3],
+];
+
+for (const [line, times] of addedLines) {
+  test(`global.css has ${line} ${times} time(s)`, () => {
+    assert.equal(count(globalCss, line), times);
+  });
+}
+
+const removedDeclarations = [
+  '--button-elevated-surface',
+  '--card-elevated-surface',
+  '--side-sheet-surface',
+  '--side-sheet-modal-surface',
+  '--bottom-sheet-surface',
+  '--dialog-surface',
+  '--top-app-bar-stuck-surface',
+  '--top-app-bar-stuck-shadow',
+  '--navigation-rail-surface',
+  '--navigation-drawer-surface',
+  '--menu-surface',
+  '--tooltip-rich-surface',
+  '--search-view-surface',
+  '--switch-handle-shadow',
+  '--slider-handle-shadow',
+];
+
+for (const name of removedDeclarations) {
+  test(`global.css no longer declares ${name}`, () => {
+    assert.equal(count(globalCss, `${name}:`), 0);
+  });
+}
+
+test('global.css keeps the extended FAB lines in the navigation drawer', () => {
+  assert.equal(count(globalCss, '  --fab-shadow: var(--elevation-1);\n  --fab-hover-shadow: var(--elevation-2);\n'), 1);
+});
