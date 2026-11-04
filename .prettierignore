@@ -1,0 +1,19 @@
+dist
+node_modules
+public
+.astro
+.wrangler
+package-lock.json
+# Written by the editor (/editor/) in its own form; formatting them here would give changes on every save.
+demo/src/content
+demo/src/data/**/*.json
+# What npx morpheme app-workers writes.
+demo/worker/
+# Markdown: the docs use *emphasis*, which Prettier would rewrite.
+*.md
+# Agents' worktrees (Claude Code): their own checkouts, not part of this one.
+.claude/worktrees/
+# Written by npm run icons (scripts/icon-packs.mjs) from the sets' packages.
+icons/*/pack.json
+# The starter: a site of its own, checked with its own settings (starter/.prettierrc.json).
+starter/

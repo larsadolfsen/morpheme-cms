@@ -134,7 +134,10 @@ const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
 // "Sidekolonne") leaves the file when it is on (booleanWrite).
 const inForm = (fields: Field[], values: Record<string, unknown>) =>
   Object.fromEntries(
-    fields.map((f) => [f.name, inUse(f, fields, values) ? (f.type === 'boolean' ? booleanWrite(values[f.name], f.missing) : values[f.name]) : '']),
+    fields.map((f) => [
+      f.name,
+      inUse(f, fields, values) ? (f.type === 'boolean' ? booleanWrite(values[f.name], f.missing) : values[f.name]) : '',
+    ]),
   );
 
 type Props = { collection: MarkdownCollection; file: RepoFile; env: Env };
@@ -642,7 +645,8 @@ function Form({
   // "Sidekolonne" only while src/data/side.json chooses a block and the page is not "Hele bredden" (sideSwitchShown).
   const sideShown = sideSwitchShown({ block: sideSettingOf(env.files) }, values);
   const field = (f: Field) =>
-    inUse(f, collection.fields, values) && (f.name !== 'side' || sideShown) && <FieldInput key={f.name} field={f} value={values[f.name]} onChange={(v) => onChange(f, v)} />;
+    inUse(f, collection.fields, values) &&
+    (f.name !== 'side' || sideShown) && <FieldInput key={f.name} field={f} value={values[f.name]} onChange={(v) => onChange(f, v)} />;
 
   return (
     <Fields.Provider value={fields}>

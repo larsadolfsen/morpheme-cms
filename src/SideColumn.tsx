@@ -72,7 +72,12 @@ export default function SideColumn({ env, files }: { env: Env; files: RepoFile[]
   return (
     <Screen title={t.common.parts.sideColumn} wide back={back}>
       <Group>
-        <ChoiceRow selected={!chosen} onClick={() => choose(null, t.library.sideNone)} headline={t.library.sideNone} supporting={t.library.sideNoneHint} />
+        <ChoiceRow
+          selected={!chosen}
+          onClick={() => choose(null, t.library.sideNone)}
+          headline={t.library.sideNone}
+          supporting={t.library.sideNoneHint}
+        />
         {choices.map((x) => (
           <ChoiceRow key={x.type} selected={x.type === chosen} onClick={() => choose(x.type, x.label)} headline={x.label} />
         ))}

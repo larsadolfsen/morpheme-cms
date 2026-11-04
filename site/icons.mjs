@@ -416,7 +416,9 @@ export const PACK_MAPS = { 'material-symbols': MATERIAL_SYMBOLS, lucide: LUCIDE 
 /** The names of Phosphor's pack: the icons the site and the editor draw (`used`), and every name the other system
  * packs' maps name (an app's icon, which the CMS itself may not draw), sorted. */
 export const phosphorNames = (used) =>
-  [...new Set([...used, ...Object.values(PACK_MAPS).flatMap(Object.keys), ...Object.values(MATERIAL_DESIGN_ICONS).flatMap(Object.keys)])].sort();
+  [
+    ...new Set([...used, ...Object.values(PACK_MAPS).flatMap(Object.keys), ...Object.values(MATERIAL_DESIGN_ICONS).flatMap(Object.keys)]),
+  ].sort();
 
 /** The names the system's pack has an icon by in its maps (its set's and Material Design Icons'); all for Phosphor's. */
 const mapped = (pack) => (PACK_MAPS[pack] ? [...Object.keys(PACK_MAPS[pack]), ...Object.keys(MATERIAL_DESIGN_ICONS[pack] ?? {})] : null);
