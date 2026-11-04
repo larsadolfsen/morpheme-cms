@@ -1,13 +1,16 @@
 // What the editor asks of the store, through the Worker (the store's key never leaves it): the catalog and the files in it.
 // Exposes handleStore(request, env, ctx, ask) and STORE_URL; used by packages/editor/worker/index.js (/api/store/*).
-// Depends on packages/editor/worker/session.js (sign-in and access) and packages/editor/lib/contracts.mjs (APP_API, THEME_API).
-//   GET /api/store/catalog       the store's catalog for this site's contracts; { connected: false } without MORPHEME_STORE_KEY
+// Depends on packages/editor/worker/session.js (sign-in and access), packages/editor/worker/store-connection.js (the key) and packages/editor/lib/contracts.mjs (APP_API, THEME_API).
+//   GET /api/store/catalog       the store's catalog for this site's contracts; { connected: false } without a key
 //   GET /api/store/files/<oid>   a file of the store by its git id, streamed through with its content-type and cache-control
+// The key is MORPHEME_STORE_KEY or the one from "Connect to Morpheme"; a key from the button that the store refuses is forgotten.
 import { APP_API, THEME_API } from '../lib/contracts.mjs';
 import { access, sessionToken } from './session.js';
 import { json } from './not-found.js';
+import { forgetKey, storeKey } from './store-connection.js';
 
-export const STORE_URL = 'https://morpheme-appstore.larsadolfsen.workers.dev';
+export { STORE_URL } from './store-connection.js';
+import { STORE_URL } from './store-connection.js';
 
 const OID = /^[0-9a-f]{40}$/;
 
@@ -22,17 +25,22 @@ export async function handleStore(request, env, _ctx, ask = fetch) {
   const isCatalog = route === 'catalog';
   const oid = route.startsWith('files/') ? route.slice('files/'.length) : null;
   if (!isCatalog && !(oid !== null && OID.test(oid))) return json({ error: 'not found' }, 404);
-  if (!env.MORPHEME_STORE_KEY) return isCatalog ? json({ connected: false }) : json({ error: 'not found' }, 404);
+  const found = await storeKey(env);
+  if (!found) return isCatalog ? json({ connected: false }) : json({ error: 'not found' }, 404);
 
   const base = env.MORPHEME_STORE_URL ?? STORE_URL;
   const url = isCatalog ? `${base}/store/catalog?app=${APP_API}&theme=${THEME_API}` : `${base}/store/files/${oid}`;
   let res;
   try {
-    res = await ask(url, { headers: { authorization: `Bearer ${env.MORPHEME_STORE_KEY}` } });
+    res = await ask(url, { headers: { authorization: `Bearer ${found.key}` } });
   } catch {
     return json({ error: 'store failed' }, 502);
   }
-  if (res.status === 401 || res.status === 403) return json({ error: 'store refused' }, 502);
+  if (res.status === 401 || res.status === 403) {
+    if (found.by !== 'button') return json({ error: 'store refused' }, 502);
+    await forgetKey(env);
+    return isCatalog ? json({ connected: false }) : json({ error: 'not found' }, 404);
+  }
   if (!isCatalog && res.status === 404) return json({ error: 'not found' }, 404);
   if (res.status !== 200) return json({ error: 'store failed' }, 502);
   if (isCatalog) {

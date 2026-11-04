@@ -124,19 +124,36 @@ const CMS_STATUS = {
   notes: [{ version: '99.0.0', text: 'A made-up note for the checks.\n\nA second paragraph.' }],
 };
 
+// The site's key to the store (/api/store/connection, packages/editor/worker/store-connection.js), made up, in the three
+// states "Appstore" shows: a key from the button, no key and the editor may connect, no key and it may only read. A POST
+// or DELETE moves a fake store between the first two, as the Worker would.
+export const STORE_STATES = {
+  button: { connected: true, by: 'button', site: 'site_sample', since: '2026-11-04T08:00:00.000Z', mayChange: true },
+  open: { connected: false, mayChange: true },
+  readOnly: { connected: false, mayChange: false },
+};
+
 /** Opens the editor (/editor/) of the site at `site` in `page`, signed in, with GitHub answered from the files on disk
- * (`texts`: some with other texts), and waits until it has loaded the site. */
-export async function openEditor(page, site, texts = {}) {
+ * (`texts`: some with other texts), and waits until it has loaded the site. `store`: the state of the site's key to the
+ * store (a key of STORE_STATES). */
+export async function openEditor(page, site, texts = {}, store = 'button') {
+  let state = STORE_STATES[store];
   // R2 caching under "Avanceret": Cloudflare has the bucket (packages/editor/worker/r2-status.js).
   await page.route(`${site}/api/r2?**`, (r) =>
     r.fulfill({ contentType: 'application/json', body: JSON.stringify({ bound: false, bucket: 'ready' }) }),
   );
   await page.route(`${site}/api/cms`, (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify(CMS_STATUS) }));
-  await page.route(`${site}/api/store/**`, (r) =>
-    new URL(r.request().url()).pathname === '/api/store/catalog'
-      ? r.fulfill({ contentType: 'application/json', body: JSON.stringify(STORE_CATALOG) })
-      : r.fulfill({ status: 404 }),
-  );
+  await page.route(`${site}/api/store/**`, (r) => {
+    const path = new URL(r.request().url()).pathname;
+    const answer = (body) => r.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
+    if (path === '/api/store/catalog') return answer(state.connected ? STORE_CATALOG : { connected: false });
+    if (path === '/api/store/connection') {
+      if (r.request().method() === 'POST') state = STORE_STATES.button;
+      if (r.request().method() === 'DELETE') state = STORE_STATES.open;
+      return answer(state);
+    }
+    return r.fulfill({ status: 404 });
+  });
   await page.route(`${site}/api/github/**`, (r) => {
     const route = new URL(r.request().url()).pathname.slice('/api/github/'.length);
     const found = workerAnswer(route, JSON.parse(r.request().postData() || '{}'), texts);
