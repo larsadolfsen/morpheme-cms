@@ -9,25 +9,11 @@
 // "Kontakt", the footer's "Find vej" and Google's contact details (the structured data) go to it. The privacy policy and
 // the cookie policy are shown at their own addresses too; the cookie banner's "Læs mere" goes to the cookie policy (its
 // heading about cookies, when it is the privacy policy: cookiesHref in packages/editor/site/standardPages.ts). What of a section of the front page is only text and pictures is
-// written as text above its card (its lead, packages/editor/src/sections.mjs): in the editor, when that page is open
+// written as text above its card (its lead, lead.ts in the block's folder, frontLeads.ts; packages/editor/src/sections.mjs): in the editor, when that page is open
 // (EntryForm.tsx), and on the site, when it is read into sections. No React here, so the build can use it.
-import type { Lead, Template } from '../src/schema';
+import type { Template } from '../src/schema';
 
-/** The text above a block's card that is the block's own on the front page: its heading, text and picture. The top is
- * the standard block "Banner", whose text up to its "Knapper" block (with its heading and picture) is the text at the
- * top; the block and the text after it are on its card. */
-export const frontLeads: Record<string, Lead> = {
-  hero: { body: 'text', upTo: 'buttons' },
-  accordion: { heading: 'heading', body: 'intro' },
-  testimonials: { heading: 'heading' },
-  presentation: { heading: 'heading', body: 'paragraphs', list: true },
-  cards: { heading: 'heading' },
-  book: { image: true },
-  steps: { heading: 'heading' },
-  prices: { heading: 'heading', body: 'notes', list: true },
-  posts: { heading: 'heading' },
-  address: { image: true, heading: 'heading', body: 'text' },
-};
+export { frontLeads } from '../src/standard/frontLeads';
 
 /** A standard page: its field in the file (`key`), its name there and in a message ("Forsiden …") in the site's language,
  * where it is shown (null: nowhere at an address, the 404 page; left out: at its own address), the rules its page has
