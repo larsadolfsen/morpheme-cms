@@ -11,9 +11,14 @@ interface Props {
   props?: Record<string, unknown>;
   /** Its shared texts, when the block takes them as RichText.astro gives them (blockTexts). */
   texts?: Record<string, unknown>;
+  /** The page's address, and whether it is a new version, for a block that needs them (PageLayout.astro's column). */
+  path?: string;
+  preview?: boolean;
+  /** The page's text as HTML, for a block drawn beside it. */
+  html?: string;
 }
-const { type, props = {}, texts } = Astro.props;
+const { type, props = {}, texts, path, preview, html } = Astro.props;
 const Site = blockSites[type];
 ---
 
-{Site && <Site type={type} props={props} texts={texts} />}
+{Site && <Site type={type} props={props} path={path} preview={preview} texts={texts} html={html} />}

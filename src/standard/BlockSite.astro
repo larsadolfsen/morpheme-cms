@@ -7,10 +7,10 @@ import type { SiteProps } from '../schema';
 import { blockLoads, blockViews } from './views';
 
 type Props = SiteProps & { type: string };
-const { type, props, index, path, preview, texts } = Astro.props;
+const { type, props, index, path, preview, texts, html } = Astro.props;
 const contract = blockLoads[type];
 const View = blockViews[type];
-const view = contract && View ? await contract.load(props ?? {}, { texts: texts ?? {}, index, path, preview }) : null;
+const view = contract && View ? await contract.load(props ?? {}, { texts: texts ?? {}, index, path, preview, html }) : null;
 const after = view === null ? undefined : contract.after?.(view);
 ---
 
