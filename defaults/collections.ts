@@ -174,6 +174,59 @@ export const contactFields: Field[] = [
   },
 ];
 
+// The social media (src/data/social.json, a part of its own under "Virksomheden", company.ts): the site's profiles, and
+// which share buttons a post shows. A switch that is not in the file is on (company.ts gives the form that default).
+export const socialFields: Field[] = [
+  {
+    name: 'facebook',
+    label: 'Facebook',
+    type: 'string',
+    hint: 'Adressen på sitets profil. Vises i Googles data om virksomheden.',
+    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+  },
+  {
+    name: 'instagram',
+    label: 'Instagram',
+    type: 'string',
+    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+  },
+  {
+    name: 'linkedin',
+    label: 'LinkedIn',
+    type: 'string',
+    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+  },
+  {
+    name: 'x',
+    label: 'X',
+    type: 'string',
+    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+  },
+  {
+    name: 'youtube',
+    label: 'YouTube',
+    type: 'string',
+    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+  },
+  {
+    name: 'tiktok',
+    label: 'TikTok',
+    type: 'string',
+    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+  },
+  {
+    name: 'pinterest',
+    label: 'Pinterest',
+    type: 'string',
+    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+  },
+  { name: 'shareFacebook', label: 'Del på Facebook', type: 'boolean' },
+  { name: 'shareX', label: 'Del på X', type: 'boolean' },
+  { name: 'shareLinkedin', label: 'Del på LinkedIn', type: 'boolean' },
+  { name: 'sharePinterest', label: 'Del på Pinterest', type: 'boolean', hint: 'Vises kun, når indlægget har et billede.' },
+  { name: 'shareCopyLink', label: 'Kopiér link', type: 'boolean' },
+];
+
 // The bank details, a part of its own under "Betaling" (company.ts, src/data/payment.json).
 export const bankFields: Field[] = [
   { name: 'bank', label: 'Bank', type: 'string', required: true },
