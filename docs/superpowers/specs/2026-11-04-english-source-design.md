@@ -39,6 +39,11 @@ Danish is allowed only in these folders:
 | `src/i18n/da-DK/` | the editor's UI texts | typed `Messages`, as today |
 | `defaults/i18n/da-DK/` | the standard parts' texts (replaces `defaults/texts.ts`) | `Record<string, string>`, English text → Danish text |
 | `starter/i18n/da-DK/` | the starter's content in Danish | the same files as the starter's English content |
+| `worker/i18n/da-DK.js` | the Worker's messages to the owner and its commit messages | `Record<string, string>`, English → Danish |
+
+The rule in one line: Danish is allowed only in a path that contains a folder `i18n/da-DK/` or a file
+`i18n/da-DK.js`. A test fixture that needs Danish letters writes them as escapes (`æ`, `ø`, `å`), and
+so does a regular expression that must match them.
 
 `defaults/i18n/da-DK/` has one file per source file it translates (`editor.ts`, `collections.ts`, `rules.ts` …) and
 an `index.ts` that joins them. The apps' own `texts.ts` files live in `morpheme-apps` and follow in that project.
@@ -52,8 +57,8 @@ an `index.ts` that joins them. The apps' own `texts.ts` files live in `morpheme-
   in a new entry). It translates into the site's language (`config.locale`), not the editor's.
 - `check:content` already lists missing translations. For `da-DK` it fails the check instead of only reporting.
   A changed English text then cannot silently lose its Danish.
-- `morpheme new` copies `starter/i18n/da-DK/` over the English starter content when the new site's locale is
-  `da-DK`.
+- There is no `morpheme new` today: a new site is a copy of `starter/`. A new command, `morpheme locale da-DK`,
+  lays the copy's `i18n/da-DK/` over its English content, sets `config.locale`, and deletes the copy's `i18n/` folder.
 
 Approach B (typed message keys for every label) was rejected. It costs about three times the work, and site authors
 would have to write keys too.
@@ -96,7 +101,8 @@ folders and fails when it finds:
 2. a quoted string that equals a Danish value from `defaults/i18n/da-DK/` or `src/i18n/da-DK/`. Values that equal
    their English key ("Tags", "Analytics") are skipped.
 
-Binary files are skipped. `CHANGELOG.md` is skipped (its old entries are history). A `pending` list of paths in the
+Binary files are skipped. `CHANGELOG.md` and `docs/superpowers/` are skipped: they are history, and a plan for this
+work must name the Danish ids it renames. `AGENTS.md`, `README.md` and the other docs are in scope. A `PENDING` list of paths in the
 script lets the batches convert the repo one part at a time. Each batch removes its paths. The last batch deletes the
 list. The pure part (`findDanish(text, danishValues)`) has unit tests.
 
@@ -115,12 +121,12 @@ Each batch is one PR. Each passes `npm run check`, `npm run check:screens` and `
 
 | # | Batch | Worker |
 |---|---|---|
-| 1 | `check:language` with tests and a `pending` list of every current path; `inSiteLanguage()` | Sonnet |
-| 2 | `defaults/`: English texts and ids, `editor.ts` first; `texts.ts` → `defaults/i18n/da-DK/`; `DEFAULTS_LOCALE` → `en-US`; the id and URL renames in every file | Sonnet |
+| 1 | `check:language` with tests and a `PENDING` list of every current path; `translate()`, `inSiteLanguage()` | Sonnet |
+| 2 | `defaults/`: English texts and ids, `editor.ts` first; `texts.ts` → `defaults/i18n/da-DK/`; `DEFAULTS_LOCALE` → `en-US`; the id and URL renames in every file; `check:content` fails on a missing `da-DK` entry | Sonnet |
 | 3 | `site/` and `lib/` | Ollama runner, with the term table from batch 2 |
 | 4 | `src/` (mostly comments that name Danish labels) | Ollama runner |
-| 5 | `theme/`, `worker/`, `pages/`, `scripts/` | Ollama runner |
-| 6 | starter content in English, `starter/i18n/da-DK/`, `morpheme new`; delete the `pending` list | Sonnet |
+| 5 | `theme/`, `worker/` (with `worker/i18n/da-DK.js`), `pages/`, `scripts/`, the docs | Ollama runner, Sonnet for texts people read |
+| 6 | starter content in English, `starter/i18n/da-DK/`, `morpheme locale`; delete the `PENDING` list | Sonnet |
 
 Batch 2 writes the term table (Danish UI label → English label) that batches 3 to 5 use for the comments that name
 labels. A master plan and one file per batch follow this spec in `docs/superpowers/plans/`.
@@ -128,7 +134,7 @@ labels. A master plan and one file per batch follow this spec in `docs/superpowe
 ## Tests
 
 - `findDanish()`: unit tests for æøå, a Danish dictionary value, a value equal to its key, a binary file and a
-  `pending` path.
+  `PENDING` path.
 - `inSiteLanguage()`: unit tests for a Danish site with an English editor and the reverse.
 - `check:content`: a missing `da-DK` entry fails.
 - `check:screens`: every editor screen opens in both languages after the id renames.
