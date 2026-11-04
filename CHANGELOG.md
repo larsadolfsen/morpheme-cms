@@ -1,5 +1,11 @@
 # @morphemecms/cms
 
+## 0.7.0
+
+### Minor Changes
+
+- e15a802: Bring the editor up to date with morpheme-website's copy: the navigation rail and two-level main menu, and the other editor changes made there since 3 November.
+
 ## 0.6.0
 
 ### Minor Changes
