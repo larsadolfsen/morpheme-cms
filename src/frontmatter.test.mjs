@@ -25,3 +25,9 @@ test('a switch without a missing value is written as it is', () => {
   assert.equal(booleanWrite(true, undefined), true);
   assert.equal(booleanWrite(false, undefined), false);
 });
+
+test('front matter with CRLF line breaks is written back unchanged, and added fields use CRLF too', () => {
+  const crlf = 'title: "Om os"\r\nwide: false';
+  assert.equal(writeFields(crlf, {}), crlf);
+  assert.equal(writeFields(crlf, { side: false }), `${crlf}\r\nside: false`);
+});
