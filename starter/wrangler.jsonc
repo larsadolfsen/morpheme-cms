@@ -5,7 +5,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "morpheme-site",
   "compatibility_date": "2026-09-01",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"], // public fetch: the store is on this account
   "main": "node_modules/@morphemecms/cms/worker/index.js",
   // What the Worker has from this site: its settings and src/site/worker.js (its redirects, apps and contact).
   "alias": { "@site/config": "./src/site/config.ts", "@site/worker": "./src/site/worker.js" },
