@@ -38,7 +38,7 @@ const files = ['src/content', 'src/data']
   .flatMap((dir) =>
     readdirSync(dir, { recursive: true, withFileTypes: true })
       .filter((e) => e.isFile() && /\.(md|json)$/.test(e.name))
-      .map((e) => join(e.parentPath, e.name)),
+      .map((e) => join(e.parentPath, e.name).replaceAll('\\', '/')),
   )
   .concat([config.siteRedirects.rules, config.siteRedirects.map])
   .map((path) => ({ path, text: readFileSync(path, 'utf8') }));
