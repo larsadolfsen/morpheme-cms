@@ -32,7 +32,7 @@ export function socialOf(raw) {
     x: 'shareX',
     linkedin: 'shareLinkedin',
     pinterest: 'sharePinterest',
-    'copy-link': 'shareCopyLink'
+    'copy-link': 'shareCopyLink',
   };
 
   const share = [];
