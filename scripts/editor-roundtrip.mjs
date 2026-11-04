@@ -5,7 +5,7 @@
 // sections as blocks (packages/editor/src/sections.mjs) and read back: the sections must be the same, a section
 // of text with the same heading and the same HTML. Every page is also read into sections as the front page (as the
 // site reads the page that is the front page without the editor, partsOfMarkdown in sections.mjs, packages/editor/site/home.ts):
-// they must be those the editor reads. Run: npm run check:editor [files...]
+// they must be those the editor reads. A page with the switch "Sidekolonne" off and on again has the same front matter. Run: npm run check:editor [files...]
 // Milkdown needs a DOM; jsdom stands in for the browser.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -45,7 +45,7 @@ const textOf = Object.fromEntries(
     .flatMap((c) => c.files)
     .map((f) => [f.file, f.fields.find((x) => x.type === 'blocks')]),
 );
-const { splitFrontmatter, writeFields } = await import('@morphemecms/cms/src/frontmatter.mjs');
+const { booleanWrite, splitFrontmatter, writeFields } = await import('@morphemecms/cms/src/frontmatter.mjs');
 
 const walk = (dir) =>
   (existsSync(dir) ? readdirSync(dir, { withFileTypes: true }) : []).flatMap((e) =>
@@ -102,6 +102,17 @@ for (const file of files) {
     failed++;
     console.log(`\n✗ ${file}\n  front matter skrives ikke tilbage uændret`);
     continue;
+  }
+  // The switch "Sidekolonne" (side): off writes `side: false`; on again removes the key, and the front matter is as before.
+  if (file.includes('src/content/pages/')) {
+    const off = writeFields(yaml, { side: booleanWrite(false, true) });
+    if (!/^side: false$/m.test(off) || writeFields(off, { side: booleanWrite(true, true) }) !== writeFields(yaml, { side: '' })) {
+      failed++;
+      console.log(`
+✗ ${file}
+  Sidekolonne slået fra og til giver ikke det samme front matter`);
+      continue;
+    }
   }
   const root = document.createElement('div');
   // As in the editor: with the free lines between the blocks, written without them.

@@ -94,6 +94,18 @@ export const library = {
   changeMotion: 'Change motion',
   motionSaved: (change: string) => `${change}. The website gets the new motion once it’s built.`,
   motionCommit: (name: string) => `Editor: change motion to ${name}`,
+  /** Under "Sidekolonne" (SideColumn.tsx): the choice of no block and what is under it, what is said when no block can be
+   * drawn there, asked before one is chosen, the question's button, what is said after it is saved, and the commit, in
+   * the site's language (siteT). */
+  sideNone: 'None',
+  sideNoneHint: 'The pages have no column beside their text',
+  sideEmpty: 'No installed block can be drawn beside the text of a page.',
+  changeSideAsk: (name: string) => `The pages get the column ${name} once the website is built in a few minutes.`,
+  changeSideNoneAsk: 'The pages lose the column beside their text once the website is built in a few minutes.',
+  changeSide: 'Change side column',
+  sideSaved: (change: string) => `${change}. The website gets the change once it’s built.`,
+  sideCommit: (name: string) => `Editor: change side column to ${name}`,
+  sideCommitNone: 'Editor: turn off the side column',
   /** A theme whose icon pack is chosen cannot be uninstalled, nor updated to a version without it (ThemeStore.tsx). */
   themeIconPackStuck: "The theme's icon pack is in use, so the theme can’t be uninstalled. Choose another icon pack first.",
   themeDropsIconPack: (name: string, pack: string) =>

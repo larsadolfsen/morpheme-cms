@@ -97,6 +97,7 @@ export const common: Messages['common'] = {
     themes: 'Temaer',
     iconPacks: 'Ikonpakker',
     motion: 'Bevægelse',
+    sideColumn: 'Sidekolonne',
     colors: 'Farver',
     brand: 'Logo og ikon',
     blockSettings: 'Blokindstillinger',
