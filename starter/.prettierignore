@@ -8,4 +8,5 @@ package-lock.json
 src/content
 src/data/**/*.json
 src/apps/*/store.json
+src/themes
 *.md
