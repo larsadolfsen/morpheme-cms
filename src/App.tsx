@@ -112,6 +112,7 @@ import {
   readApp,
   readCatalog,
   readScreenshots,
+  storeConnected,
   readThemes,
   readThemeScreenshots,
   STORE_BEFORE,
@@ -213,15 +214,10 @@ export type Env = {
   /** The app store (store.ts): its apps and its themes, an app's or a theme's files from it, and their pictures (as
    * addresses in this browser). */
   store: {
+    connected: () => Promise<boolean>;
     catalog: () => Promise<ShownApp[]>;
     themes: () => Promise<ShownTheme[]>;
-    files: (of: {
-      path: string;
-      ref: string;
-      files: StoreFile[];
-      label?: string;
-      name?: string;
-    }) => Promise<{ path: string; content: string | Uint8Array }[]>;
+    files: (of: { files: StoreFile[]; label?: string; name?: string }) => Promise<{ path: string; content: string | Uint8Array }[]>;
     screenshots: (app: StoreApp) => Promise<{ src: string; label: string }[]>;
     themeScreenshots: (theme: Pick<StoreTheme, 'screenshots' | 'files'>) => Promise<{ key: string; src: string }[]>;
   };
@@ -563,6 +559,7 @@ function Editor() {
     load: (paths) => loadFiles(paths),
     folder: (path) => loadFolders({ all: path }, 8).then((r) => r.folders.all),
     store: {
+      connected: storeConnected,
       catalog: readCatalog,
       themes: readThemes,
       files: readApp,

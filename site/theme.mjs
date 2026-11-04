@@ -13,6 +13,7 @@ import { declarationProblems, ownerId } from '@morphemecms/cms/lib/licenses.mjs'
 import { installedPacks, isIconName, packFolder, packProblems, phosphorFile, svgProblems, usedIcons } from './icons.mjs';
 import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS, THEME_PACKS_FOLDER, packInUse, packTheme, themePackId } from './iconPacks.mjs';
 import { MOTION_SCHEMES } from '@morphemecms/cms/lib/motion-schemes.mjs';
+import { storeImportProblems } from './storeTheme.mjs';
 
 /** The site's choice of icon pack, `{ "pack": "<id>" }` (config.icons in src/site/config.ts). */
 const ICONS_FILE = 'src/data/icons.json';
@@ -336,6 +337,16 @@ export function themeProblems(theme) {
       problems.push(
         `${themeFolder(theme)}/theme.json: "store" kan kun være true (temaet står i Appstore, npm run store:release), og standardtemaet har det ikke.`,
       );
+    // A theme from the store is copied in as its folder only: its CSS imports nothing from outside it but the CMS.
+    if (manifest.store === true) {
+      const styles = `${themeFolder(theme)}/styles`;
+      for (const f of has(styles) ? readdirSync(new URL(`${styles}/`, root), { recursive: true }) : [])
+        if (String(f).endsWith('.css')) {
+          const inTheme = `styles/${String(f).replaceAll('\\', '/')}`;
+          for (const p of storeImportProblems(readFileSync(new URL(`${themeFolder(theme)}/${inTheme}`, root), 'utf8'), inTheme))
+            problems.push(`${themeFolder(theme)}/${p}`);
+        }
+    }
     // The icon pack it uses by default: a system pack, or one of its own by its folder; the standard theme's a system pack.
     const own = ownPacks(theme);
     if (

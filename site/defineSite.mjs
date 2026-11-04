@@ -21,7 +21,7 @@
  * What a site can say of itself, else the standard: the owner's picture (beside a blog post, and shown when a page with
  * none of its own is shared), the booking page and the pages a booking ends on, the page about the owner, the block
  * drawn after every blog post, the word a page's title can end in, pictures that are the same though their names say
- * otherwise, the file of its redirects from old addresses, the logo in the structured data, and its app store.
+ * otherwise, the file of its redirects from old addresses, and the logo in the structured data.
  * @typedef {object} SiteChoices
  * @property {{ src: string; alt: string } | null} picture The owner's picture, or none.
  * @property {{ path: string; thanks: string[] }} booking The booking page, where "Book en tid" goes when no booking sheet
@@ -36,10 +36,6 @@
  * @property {{ rules: string; map: string }} siteRedirects The site's other redirects: rules ("<from> <to> 301", one to a
  *   line) and the Worker's map (`{ ids, paths }`, worker/index.js), shown and changed with the editor's own under
  *   Videresendelser (src/redirectData.ts).
- * @property {{ owner: string; name: string; branch: string; catalog: string } | null} store The app store ("Apps" ›
- *   "Appstore", src/store.ts): the GitHub repository and branch of its catalog (`catalog`, the apps and themes that can
- *   be installed, each with where its folder is in the repository, at which commit), or none: then "Appstore" has only
- *   the site's own.
  * @property {string} logo The address of the site's logo in the structured data (the business's `logo`,
  *   site/schema.ts), a path on the site ("/logo.svg").
  */
@@ -53,7 +49,6 @@ const CHOICES = {
   titleEnd: '',
   samePictures: {},
   siteRedirects: { rules: 'public/_redirects', map: 'src/data/old-addresses.json' },
-  store: null,
   logo: '/logo.svg',
 };
 
