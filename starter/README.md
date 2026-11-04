@@ -9,6 +9,7 @@ Editoren, standardtemaet *Material* og sitets Worker er pakken [`@morphemecms/cm
 
 - `src/site/config.ts`: sitets navn, domæne, sprog og GitHub-repo; resten er pakkens standard (`defineSite`).
 - `src/site/worker.js`: det, Workeren har fra sitet.
+- Hemmeligheden `MORPHEME_STORE_KEY` (`npx wrangler secret put MORPHEME_STORE_KEY`) forbinder sitet til Morpheme-butikken; uden den har *Appstore* kun sitets egne apps og temaer.
 - `src/content/`: siderne og indlæggene, `src/data/`: sitets indstillinger, `public/`: billeder, logo og ikoner.
 - `src/themes/` og `src/apps/`: temaer og apps fra appbutikken, når der er installeret nogen.
 

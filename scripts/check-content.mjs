@@ -65,8 +65,7 @@ try {
   const { problemsOf, untranslated } = await server.ssrLoadModule('@morphemecms/cms/src/checkSite.ts');
   result = problemsOf(files);
   missing = untranslated();
-  const { config } = await server.ssrLoadModule('/src/site/config.ts');
-  if (config.store && existsSync(config.store.catalog)) catalog = JSON.parse(readFileSync(config.store.catalog, 'utf8'));
+  if (existsSync('store/catalog.json')) catalog = JSON.parse(readFileSync('store/catalog.json', 'utf8'));
   for (const id of appIds(root)) {
     const app = (await server.ssrLoadModule(`/src/apps/${id}/index.ts`)).default;
     for (const x of app.thirdParty ?? []) if (x?.package) declared.add(x.package);

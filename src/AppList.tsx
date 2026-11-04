@@ -80,7 +80,6 @@ import {
   notesSince,
   recordIn,
   DEVELOPER_ROUTE,
-  hasStore,
   newer,
   STORE_ROUTE,
   STORE_THEMES,
@@ -264,6 +263,23 @@ function useCatalog(env: Env, skip = false): ShownApp[] | null | 'failed' {
     };
   }, [skip]);
   return catalog;
+}
+
+/** Whether the site's Worker has a store key (store.ts storeConnected): null while it is not known; a catalog that could
+ * not be read counts as connected (the list says it failed). */
+function useStoreConnected(env: Env): boolean | null {
+  const [connected, setConnected] = useState<boolean | null>(null);
+  useEffect(() => {
+    let on = true;
+    env.store.connected().then(
+      (yes) => on && setConnected(yes),
+      () => on && setConnected(true),
+    );
+    return () => {
+      on = false;
+    };
+  }, []);
+  return connected;
 }
 
 // The apps updated while the editor is open, by their id, to their version: their page and the list say so until the
@@ -582,6 +598,7 @@ export function StorePage({ env, files, tab }: { env: Env; files: RepoFile[]; ta
   const installed = installedApps(files);
   const catalog = useCatalog(env);
   const themeCatalog = useThemeCatalog(env);
+  const connected = useStoreConnected(env);
   const [query, setQuery] = useKept('butik-soeg', '');
   const [sort, pickSort] = useSort();
   const [category, setCategory] = useKept<AppCategory | ''>('butik-kategori', '');
@@ -671,9 +688,9 @@ export function StorePage({ env, files, tab }: { env: Env; files: RepoFile[]; ta
         </div>
       )}
       {/* The site's own are shown also when the store cannot be read. */}
-      {!hasStore ? (
+      {connected === false ? (
         <EmptyNote>{t.apps.noStore}</EmptyNote>
-      ) : read === null ? (
+      ) : read === null || connected === null ? (
         <EmptyNote busy>{t.apps.loadingStore}</EmptyNote>
       ) : read === 'failed' ? (
         <EmptyNote>{t.apps.storeFailed}</EmptyNote>
@@ -701,7 +718,7 @@ export function StorePage({ env, files, tab }: { env: Env; files: RepoFile[]; ta
   );
 }
 
-const recordOf = (app: ShownApp): StoreRecord => ({ version: app.version, ref: app.ref, files: app.files });
+const recordOf = (app: ShownApp): StoreRecord => ({ version: app.version, ref: app.version, files: app.files });
 
 /** The cookies an app sets (its cookies.json among its files from the store), in the site's language; none when it
  * has no such file. */
