@@ -6,4 +6,10 @@ import { execFileSync } from 'node:child_process';
 // The variables, as this git names them.
 const local = execFileSync('git', ['rev-parse', '--local-env-vars'], { encoding: 'utf8' }).split('\n').filter(Boolean);
 
+// Removes those variables from process.env itself, for a test whose code calls git with the inherited environment.
+export const clearRepoEnv = () => {
+  const own = ownRepoEnv();
+  for (const name of Object.keys(process.env)) if (!(name in own)) delete process.env[name];
+};
+
 export const ownRepoEnv = (env = process.env) => Object.fromEntries(Object.entries(env).filter(([name]) => !local.includes(name)));

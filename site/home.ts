@@ -4,6 +4,7 @@
 // e.g. a theme's components/home/), with the text above it that is its own (its lead), and the rest of the text
 // as sections of text ("text": a heading and Markdown). The types below are the standard blocks'; an app's block is a
 // section too, by its own type, which the theme that draws it types itself (e.g. its components/home/sections.ts).
+// A section under a coloured heading has its colour as `sectionColor` (src/sections.mjs).
 import setting from '@data/standard-pages.json';
 import { getPages, type Page, type PostChoice } from './content';
 import { isBlogCategory } from './categories';
@@ -44,7 +45,7 @@ export const allPostsLink = (choice: { show?: string; categories?: string[]; lin
 };
 
 export type SectionType = keyof Sections;
-export type HomeSection = { [T in SectionType]: { type: T; hidden?: boolean } & Sections[T] }[SectionType];
+export type HomeSection = { [T in SectionType]: { type: T; hidden?: boolean; sectionColor?: string } & Sections[T] }[SectionType];
 
 /** The address of the page that is the front page; its own address sends on to / (packages/editor/worker/index.js). */
 export const frontPath = setting.front;
@@ -56,7 +57,7 @@ export type FrontPage = { page: Page; heading: string; headingHtml?: string; sec
 export async function frontPage(): Promise<FrontPage> {
   const page = (await getPages({ previews: false })).find((p) => p.data.path === frontPath);
   if (!page) throw new Error(`src/data/standard-pages.json: forsiden, ${frontPath}, findes ikke, eller den er en kladde.`);
-  const sections = sectionsFromParts(partsOfMarkdown(page.body ?? ''), frontLeads) as HomeSection[];
+  const sections = sectionsFromParts(partsOfMarkdown(page.body ?? ''), frontLeads, { colors: true }) as HomeSection[];
   const h1 = pageH1(page.body);
   return { page, heading: h1.heading || page.data.title, headingHtml: h1.html, sections: sections.filter((s) => !s.hidden) };
 }

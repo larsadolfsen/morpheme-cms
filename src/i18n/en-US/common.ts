@@ -104,7 +104,7 @@ export const common = {
     company: 'Business',
     header: 'Header',
     lists: 'Lists',
-    blocks: 'Default blocks',
+    blocks: 'Block templates',
     media: 'Files',
     /** How the site looks (#udseende, Library.tsx Theme): the theme, the colours, the logo and icon, and the site's own
      * parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider"). */
@@ -128,9 +128,9 @@ export const common = {
     seo: 'Search engine optimization',
     redirects: 'Redirects',
     account: 'Account',
-    /** The settings of the whole site (#indstillinger, Library.tsx Settings), opened by the gear in the top bar. */
+    /** The last section of the main drawer, and the first part of the path to a setting (placeOf in site.ts). */
     settings: 'Settings',
-    /** Under Indstillinger: R2 caching (#avanceret, Advanced.tsx). */
+    /** Under Indstillinger: the faster editor (#avanceret, Advanced.tsx). */
     advanced: 'Advanced',
     /** Under Indstillinger: the licences of what the site and the editor are made with (#licenser, Licenses.tsx). */
     licenses: 'Licenses',

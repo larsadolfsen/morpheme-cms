@@ -1,5 +1,5 @@
 // "Privatliv": what the site asks and tells its visitors about their data, as screens of their own (CompanyForm.tsx),
-// at #privatliv/<id>: the cookie banner (src/data/cookies.json, read by packages/editor/theme/components/CookieConsent.astro),
+// at #privatliv/<id>, and the cookie list's row: the cookie banner (src/data/cookies.json, read by packages/editor/theme/components/CookieConsent.astro),
 // "Privatlivssider", which pages are the privacy policy and the cookie policy, as a list like "Standardsider" (in the
 // same file, config.standardPages; standardPages.ts), and "Samtykker", the visitors' answers in the banner.
 import { Cookie, FileText, ListChecks } from '@phosphor-icons/react';
@@ -65,6 +65,9 @@ export const privacy: PartScreen = {
         ...categoryFields('targeting', 'målrettede annoncer'),
       ],
     },
+    // The site's list of cookies ("Cookies", the standard block "Cookieliste"), a screen of its own under "Lister"'s
+    // address space (#liste/<id>): only its row is here, and the list goes back to this screen (Library.tsx).
+    { id: 'cookies', label: 'Cookies', icon: Cookie, href: `#liste/${config.lists.cookies}` },
     {
       id: 'privatlivssider',
       label: 'Privatlivssider',

@@ -21,13 +21,13 @@ const contactLinks = [
 ---
 
 <footer class="md-footer">
-  <Container as="div" class="grid gap-10 py-12 md:grid-cols-12 md:py-16">
-    <div class="md:col-span-5">
+  <Container as="div" class="grid gap-10 py-12 expanded:grid-cols-12 medium:py-16">
+    <div class="expanded:col-span-5">
       <LogoMark class="block h-12 w-11 bg-accent" />
       <p class="md-footer-name">{site.name}</p>
       <p class="md-footer-text">{footer.text}</p>
     </div>
-    <div class="md:col-span-4">
+    <div class="expanded:col-span-4">
       <p class="md-footer-heading">{footer.contactHeading}</p>
       <ul class="md-footer-list">
         {contactLinks.map((c) => (
@@ -47,7 +47,7 @@ const contactLinks = [
         ))}
       </ul>
     </div>
-    <div class="md-footer-column md:col-span-3">
+    <div class="md-footer-column expanded:col-span-3">
       <slot name="footer-column">
         <p class="md-footer-heading">{footer.linksHeading}</p>
         <ul class="md-footer-list">
@@ -61,7 +61,7 @@ const contactLinks = [
         </ul>
       </slot>
     </div>
-    <div class="md-footer-bottom md:col-span-12">
+    <div class="md-footer-bottom expanded:col-span-12">
       <span>
         © {new Date().getFullYear()} {site.name}
         {site.cvr && <> · CVR {site.cvr}</>}

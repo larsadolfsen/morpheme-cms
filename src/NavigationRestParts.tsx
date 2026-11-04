@@ -2,7 +2,7 @@
 // (packages/editor/theme/ui/, through @site/editor) as the site draws them, with made-up destinations: the navigation bar
 // with the open one and its badges, with vertical items, horizontal ones and both by its width, the navigation rail
 // collapsed and expanded with its menu button and FAB, in sections with a count at each destination's end (the
-// editor's sidebar), expanded over the content (modal, over its scrim), and one that
+// theme's rail, which sites use), expanded over the content (modal, over its scrim), and one that
 // hides while it is collapsed, collapsed (opened by a button beside it) and expanded, the search bar and the view it
 // opens, and the toolbars, docked and floating in both colours, across and vertical (the docked one with buttons as the
 // site's bar at the bottom of a phone; floating ones also with a FAB, and folded into it). Only drawn: the links lead

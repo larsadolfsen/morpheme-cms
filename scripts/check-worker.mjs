@@ -4,7 +4,7 @@
 // as GitHub's GraphQL and REST APIs give it), with R2 in memory. With the cache, without it (no binding FILES) and
 // with an R2 that fails, the editor must get exactly the files git has, save, see the versions and the deleted files
 // and restore them; with the cache, an opening after a save may ask GitHub for nothing but the branch's head, and
-// everything in R2 must give its git id. Nothing goes to GitHub or Cloudflare. Run: npm run check:worker
+// everything in R2 must give its git id. /api/r2 and /api/plan must say what Cloudflare says. Nothing goes to GitHub or Cloudflare. Run: npm run check:worker
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -58,7 +58,8 @@ const out = (...args) => git(args).toString().trim();
 execFileSync('git', ['init', '-q', '-b', branch, REPO], { env: ownRepoEnv() });
 const tarball = join(REPO, '.git', 'head.tar');
 execFileSync('git', ['-C', ROOT, 'archive', '-o', tarball, 'HEAD']);
-execFileSync('tar', ['-x', '-f', tarball, '-C', REPO]);
+// From inside the folder, by a relative path: GNU tar (Git's on Windows) reads C:\… as a remote host's file.
+execFileSync('tar', ['-x', '-f', join('.git', 'head.tar')], { cwd: REPO });
 rmSync(tarball);
 git(['add', '-A']);
 git(['commit', '-q', '-m', 'Start']);
@@ -213,6 +214,8 @@ const requests = [];
 let cloudflare = [500, {}];
 let cloudflareJurisdiction = null;
 let r2Env = {};
+// Cloudflare's answer about the account's subscriptions, for /api/plan ([status, body]).
+let subscriptions = [500, {}];
 async function github(url, init) {
   asked++;
   requests.push(`${url} ${init.body ?? ''}`);
@@ -228,7 +231,12 @@ async function github(url, init) {
 // ---------------------------------------------------------------------------------------------------
 // The Worker, with R2 in memory (or none, or one that fails), and the editor's github.ts in a "browser" whose
 // requests to /api/github/ go to it, signed in.
-const [{ handleGitHub }, { readFiles, commitFiles }, { handleR2 }] = await workerModules('editor-github.js', 'github.js', 'r2-status.js');
+const [{ handleGitHub }, { readFiles, commitFiles }, { handleR2 }, { handlePlan, paidFrom }] = await workerModules(
+  'editor-github.js',
+  'github.js',
+  'r2-status.js',
+  'plan-status.js',
+);
 
 function memoryBucket() {
   const objects = new Map();
@@ -280,6 +288,8 @@ globalThis.fetch = async (input, init = {}) => {
     return new Headers(init.headers).get('cf-r2-jurisdiction') === cloudflareJurisdiction
       ? Response.json(cloudflare[1], { status: cloudflare[0] })
       : Response.json({ success: false, errors: [{ code: 10006, message: 'The specified bucket does not exist.' }] }, { status: 404 });
+  if (url === 'https://api.cloudflare.com/client/v4/accounts/account/subscriptions')
+    return Response.json(subscriptions[1], { status: subscriptions[0] });
   if (!url.startsWith('/api/github/')) return new Response(null, { status: 404 });
   const request = new Request(`https://editor.example${url}`, {
     ...init,
@@ -313,7 +323,7 @@ await build({
   ],
 });
 let browsers = 0;
-const browser = () => import(`${bundle}?${browsers++}`);
+const browser = () => import(`${pathToFileURL(bundle).href}?${browsers++}`);
 
 // ---------------------------------------------------------------------------------------------------
 // What git has, as the editor had it before: each file in a folder `depth` levels down, with its text ('' for binary).
@@ -542,6 +552,44 @@ try {
     expect(other.status === 403, `/api/r2 svarede en anden side med ${other.status}, ikke 403`);
   }
 
+  // /api/plan (packages/editor/worker/plan-status.js): whether the account has Workers Paid, for "Betalt bygning".
+  {
+    const plan = (id, state) => ({ rate_plan: { id }, ...(state === undefined ? {} : { state }) });
+    expect(paidFrom([plan('WORKERS_PAID', 'Paid')]) === true, 'paidFrom: WORKERS_PAID med store bogstaver er ikke betalt');
+    expect(paidFrom([plan('workers_paid')]) === true, 'paidFrom: workers_paid uden tilstand er ikke betalt');
+    expect(paidFrom([plan('workers_paid', 'trial')]) === true, 'paidFrom: en prøveperiode er ikke betalt');
+    expect(paidFrom([plan('workers_paid', 'Cancelled')]) === false, 'paidFrom: en opsagt plan er betalt');
+    expect(paidFrom([plan('cf_free', 'Paid'), plan('zone_pro', 'Paid')]) === false, 'paidFrom: en zoneplan er Workers Paid');
+    expect(
+      paidFrom(undefined) === false && paidFrom({}) === false && paidFrom(null) === false,
+      'paidFrom: noget, der ikke er en liste, er betalt',
+    );
+    const signedIn = { cookie: 'editor_session=token', 'sec-fetch-site': 'same-origin' };
+    const askPlan = (headers = signedIn, method = 'GET') =>
+      handlePlan(new Request('https://editor.example/api/plan', { headers, method }), r2Env).then(async (r) => ({
+        status: r.status,
+        ...(await r.json()),
+      }));
+    const keyed = { CLOUDFLARE_ACCOUNT_ID: 'account', CLOUDFLARE_R2_TOKEN: 'key' };
+    r2Env = {};
+    expect((await askPlan()).paid === 'no-key', '/api/plan uden Workerens nøgle sagde ikke no-key');
+    r2Env = keyed;
+    subscriptions = [403, { success: false, errors: [{ code: 10000, message: 'Authentication error' }] }];
+    expect((await askPlan()).paid === 'refused', '/api/plan sagde ikke refused, da Cloudflare svarede 403');
+    subscriptions = [500, { success: false, errors: [] }];
+    expect((await askPlan()).paid === 'failed', '/api/plan sagde ikke failed, da Cloudflare svarede 500');
+    subscriptions = [200, { success: true, errors: [], result: [plan('WORKERS_PAID', 'Paid')] }];
+    expect((await askPlan()).paid === 'yes', '/api/plan sagde ikke yes med Workers Paid');
+    subscriptions = [200, { success: true, errors: [], result: [plan('cf_free', 'Paid')] }];
+    expect((await askPlan()).paid === 'no', '/api/plan sagde ikke no uden Workers Paid');
+    expect(
+      (await askPlan({ cookie: 'editor_session=token', 'sec-fetch-site': 'same-site' })).status === 403,
+      '/api/plan svarede en anden side ikke med 403',
+    );
+    expect((await askPlan(signedIn, 'POST')).status === 405, '/api/plan svarede en POST ikke med 405');
+    r2Env = {};
+  }
+
   // Everything in R2 is the repository's, gives its git id, and was written once.
   for (const [key, value] of bucket.objects) {
     const [o, r, kind, oid] = key.split('/');
@@ -554,6 +602,50 @@ try {
   for (const [key, n] of bucket.puts) expect(n === 1, `R2: ${key} blev skrevet ${n} gange`);
   for (const oid of truncated)
     expect(!bucket.objects.has(`${owner}/${name}/blob/${oid}`), `R2: en fil, GitHub kun gav en del af, blev gemt`);
+
+  // How long a wait for a build lasts (packages/editor/worker/push.js waitForBuilds, build-settings.mjs giveUpAfter): a wait of
+  // 15 minutes is still waiting when version.json has no paidBuilds (free plan: 20 minutes), is given up with
+  // paidBuilds: true (10 minutes), and every wait is given up after 20.
+  {
+    const [{ waitForBuilds }] = await workerModules('push.js');
+    const minute = 60_000;
+    const now = Date.now();
+    const commit = 'a'.repeat(40);
+    const kv = (waits) => {
+      const store = new Map(waits.map(([key, at]) => [key, { metadata: { commit, device: key, at: new Date(at).toISOString() } }]));
+      store.set('waiting', { value: String(now + 30 * minute) });
+      return {
+        store,
+        get: async (key) => store.get(key)?.value ?? null,
+        put: async () => {},
+        delete: async (key) => void store.delete(key),
+        list: async ({ prefix }) => ({
+          keys: [...store].filter(([key]) => key.startsWith(prefix)).map(([name, { metadata }]) => ({ name, metadata })),
+        }),
+      };
+    };
+    // A build from before the saves, so none of them is on the site.
+    const assets = (paid) => ({
+      fetch: async () =>
+        Response.json({
+          commit: 'b'.repeat(40),
+          builtAt: new Date(now - 60 * minute).toISOString(),
+          ...(paid === undefined ? {} : { paidBuilds: paid }),
+        }),
+    });
+    for (const [paid, minutes, waiting] of [
+      [undefined, 15, true],
+      [false, 15, true],
+      [true, 15, false],
+      [undefined, 25, false],
+      [true, 25, false],
+    ]) {
+      const PUSH = kv([['wait:x', now - minutes * minute]]);
+      await waitForBuilds({ PUSH, ASSETS: assets(paid) }, now);
+      const label = `et ventende gem på ${minutes} minutter, paidBuilds ${paid}`;
+      expect(PUSH.store.has('wait:x') === waiting, `${label}: ${waiting ? 'blev opgivet for tidligt' : 'blev ikke opgivet'}`);
+    }
+  }
 } finally {
   console.log = log;
   rmSync(WORK, { recursive: true, force: true });

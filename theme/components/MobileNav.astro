@@ -13,8 +13,8 @@ const isActive = (href: string) => current === href || (href !== '/' && current.
 ---
 
 {mobileNav.length > 0 && (
-  <nav aria-label={siteT.theme.mobileMenu} data-mobile-nav class="xl:hidden xl:group-data-crowded/header:block">
-    <ul class:list={[tabsClass, 'relative mx-auto max-w-6xl px-1 md:px-4']}>
+  <nav aria-label={siteT.theme.mobileMenu} data-mobile-nav class="large:hidden large:group-data-crowded/header:block">
+    <ul class:list={[tabsClass, 'relative mx-auto max-w-6xl px-1 medium:px-4']}>
       {mobileNav.map((item) => (
         <li>
           <a href={item.href} class={tabClass} aria-current={isActive(item.href) ? 'page' : undefined}>

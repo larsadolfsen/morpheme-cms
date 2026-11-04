@@ -11,7 +11,6 @@ import {
   useRef,
   useState,
   type AnchorHTMLAttributes,
-  type HTMLAttributes,
   type ButtonHTMLAttributes,
   type ChangeEvent,
   type CSSProperties,
@@ -30,6 +29,7 @@ import {
   type RefObject,
   type TextareaHTMLAttributes,
 } from 'react';
+import { createPortal } from 'react-dom';
 import {
   ArrowRight,
   ArrowsDownUp,
@@ -38,14 +38,16 @@ import {
   CaretUp,
   Check,
   Funnel,
+  Layout,
   LockSimple,
   LockSimpleOpen,
   PencilSimple,
   Plus,
+  Sidebar,
   SidebarSimple,
+  SquareHalf,
   X,
   type Icon,
-  type IconProps,
 } from '@phosphor-icons/react';
 import {
   SiteBadge,
@@ -72,20 +74,30 @@ import {
   SiteDatePicker,
   SiteDialog,
   siteDialogModalClass,
+  SiteExtendedFab,
+  SiteFabMenu,
   SiteIconButton,
   SiteLoadingIndicator,
   SiteSearchBar,
   SiteNavigationDrawer,
-  SiteNavigationDrawerItem,
   SiteNavigationRail,
   SiteNavigationRailItem,
-  SiteNavigationRailSection,
+  SiteNavigationDrawerBack,
+  SiteNavigationDrawerItem,
+  SiteNavigationDrawerRow,
+  SiteNavigationDrawerSection,
+  SiteNavigationDrawerSubitem,
+  SiteNavigationDrawerToggle,
   siteNavigationDrawerDialogClass,
+  siteFocusNavigationDrawerItem,
+  siteSideSheet,
+  siteSideSheetDialogClass,
   SiteSegmentedButton,
   SiteSideSheet,
   SiteTab,
   SiteTabs,
   SiteSlider,
+  SiteSettingRow,
   SiteSwitch,
   SiteTextField,
   SiteToolbar,
@@ -93,15 +105,20 @@ import {
   SiteTextFieldButton,
   SiteTimePicker,
   dayPeriods,
+  setUpFabMenu,
   siteRipples,
 } from './themeUi';
 import { locale, t } from './i18n';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
 import { SvgFile } from './icon';
+import { SiteLogoLink } from './SiteLogoLink';
 import { countries, countryName, dialCodes, flagOf, regionOf } from './countries';
 import { byText } from './schema';
 import { contrast } from '../lib/colors';
 import { motionTiming } from '../lib/motion';
+import { atLeast, type Breakpoint } from '../lib/breakpoints.mjs';
+import { swipeCloses } from '../lib/drawer-swipe.mjs';
+import { menuLayout } from '../lib/menu-layout.mjs';
 
 // The parts Material 3 has (a button, an icon button, a chip, a carousel …) are the theme's UI parts
 // (packages/editor/theme/ui/, through themeUi.ts), the same the site draws, in the theme's design (its ui.css and
@@ -454,7 +471,7 @@ export function DateTimeField({
   const [day = '', time = ''] = value.split('T');
   const join = (d: string, h: string) => (d ? `${d}T${h || '00:00'}` : '');
   return (
-    <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+    <div className="grid gap-3 medium:grid-cols-[1fr_auto]">
       <DatePicker id={id} {...field} value={day} onChange={(d) => onChange(join(d, time))} />
       <TimePicker id={`${id}-time`} value={time.slice(0, 5)} onChange={(h) => onChange(join(day, h))} />
     </div>
@@ -464,18 +481,19 @@ export function DateTimeField({
 /** A field that is tapped to choose (Select, PagePicker, a phone number's country code): the theme's TextFieldButton,
  * a button in the text field, or with `href` a link (to a page with the choices), showing what is chosen (`children`)
  * with what it says in itself (InField) and an arrow at its end (`arrow`: CaretDown, the default, opens a sheet;
- * CaretRight leads to a page). */
+ * CaretRight leads to a page); `size="small"`: a small box without the name, for a row's choice (MenuRow). */
 export function ChoiceField({
   href,
   arrow: Arrow = CaretDown,
+  size,
   label,
   hint,
   problem,
   children,
   ...rest
-}: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & InField & { href?: string; arrow?: Icon }) {
+}: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & InField & { href?: string; arrow?: Icon; size?: 'small' }) {
   return (
-    <SiteTextFieldButton label={label} supporting={hint} error={problem} href={href} trailingIcon={<Arrow />} {...rest}>
+    <SiteTextFieldButton label={label} supporting={hint} error={problem} size={size} href={href} trailingIcon={<Arrow />} {...rest}>
       {children}
     </SiteTextFieldButton>
   );
@@ -1646,24 +1664,32 @@ export function Option({
 /** A menu under the button that opened it (`anchor`; null while it is closed): the theme's menu with its choices
  * (MenuItem) over the screen, placed as the theme places one (sitePlaceMenu: under the button, over it when there is no
  * room under it), and again when the page scrolls or the window changes; on a phone in a sheet from the bottom with
- * `label` as its title (useWide), so a long one is not too long for the screen. A choice closes it, and so do a tap
+ * `label` as its title (useAtLeast('medium')), so a long one is not too long for the screen. A choice closes it, and so do a tap
  * outside it, Esc, and the button going out of sight (the sheet: its cross and a swipe down). The button says it opens
- * one (aria-haspopup="menu", aria-expanded). */
+ * one (aria-haspopup="menu", aria-expanded). `attached`: the dropdown of a field (ChoiceMenu: Material 3's exposed
+ * dropdown menu), the `anchor` being the field's box: the menu is at least as wide as it, the focus goes into it (on the
+ * chosen one), the arrow keys, Home and End move between the choices, and a choice, Esc and Tab close it, the first two
+ * giving the focus back to the field. */
 export function Menu({
   anchor,
   label,
+  attached,
+  keyboard,
   onClose,
   children,
 }: {
   anchor: HTMLElement | null;
   /** What the choices are, for screen readers, and the sheet's title on a phone. */
   label: string;
+  attached?: boolean;
+  /** With `attached`: it was opened with the keyboard, so a choice has the focus (and its ring); else the menu has it. */
+  keyboard?: boolean;
   onClose: () => void;
   children: ReactNode;
 }) {
   const menu = useRef<HTMLUListElement>(null);
   const sheet = useRef<HTMLDialogElement>(null);
-  const wide = useWide();
+  const wide = useAtLeast('medium');
   useEffect(() => {
     if (wide) return;
     const el = sheet.current;
@@ -1681,14 +1707,41 @@ export function Menu({
       if (e.type === 'keydown' && (e as globalThis.KeyboardEvent).key !== 'Escape') return;
       // A tap on the button itself is its own: it closes the menu.
       if (e.type === 'pointerdown' && (menu.current?.contains(e.target as Node) || anchor.contains(e.target as Node))) return;
+      if (e.type === 'keydown' && attached) {
+        // Esc closes only the menu (not the sheet or dialog the field is in), and the field has the focus again.
+        e.preventDefault();
+        e.stopPropagation();
+        anchor.querySelector<HTMLElement>('button')?.focus();
+      }
       onClose();
     };
     // Where the button is now; closed when it is no longer shown (the row over a selection, gone with the selection).
     const place = () => {
       if (!anchor.isConnected || !anchor.getClientRects().length) return onClose();
-      if (menu.current) sitePlaceMenu(menu.current, anchor);
+      if (!menu.current) return;
+      if (attached) {
+        const { width } = anchor.getBoundingClientRect();
+        Object.assign(menu.current.style, {
+          width: 'max-content',
+          minWidth: `${width}px`,
+          maxWidth: `max(${width}px, var(--menu-width, 18rem))`,
+        });
+      }
+      sitePlaceMenu(menu.current, anchor);
+      if (attached) {
+        // Wider than the field: it grows from the field's end edge, inside the screen.
+        const box = anchor.getBoundingClientRect();
+        const { offsetWidth } = menu.current;
+        if (offsetWidth > box.width) menu.current.style.left = `${Math.max(8, box.right - offsetWidth)}px`;
+      }
     };
     place();
+    if (attached) {
+      const items = [...(menu.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? [])];
+      const first = items.find((i) => i.getAttribute('aria-checked') === 'true') ?? items[0];
+      // With the mouse the menu itself has the focus (arrow keys work, no ring on a choice).
+      (keyboard ? first : menu.current)?.focus({ preventScroll: true });
+    }
     for (const type of ['pointerdown', 'keydown']) document.addEventListener(type, close, true);
     addEventListener('scroll', place, { capture: true, passive: true });
     addEventListener('resize', place, { passive: true });
@@ -1697,7 +1750,7 @@ export function Menu({
       removeEventListener('scroll', place, { capture: true });
       removeEventListener('resize', place);
     };
-  }, [anchor, wide]);
+  }, [anchor, wide, attached, keyboard]);
   if (!wide)
     return (
       <BottomSheet
@@ -1710,7 +1763,7 @@ export function Menu({
       >
         <SheetTitle title={label} onClose={() => sheet.current?.close()} />
         <SheetList div>
-          <SiteMenu role="menu" aria-label={label}>
+          <SiteMenu role="menu" aria-label={label} className="w-full max-w-none">
             {children}
           </SiteMenu>
         </SheetList>
@@ -1722,12 +1775,28 @@ export function Menu({
       ref={menu}
       role="menu"
       aria-label={label}
-      className="fixed z-30"
-      onClick={(e: MouseEvent) => (e.target as Element).closest('[role^="menuitem"]') && onClose()}
+      className="fixed z-30 focus:outline-none"
+      tabIndex={attached ? -1 : undefined}
+      onClick={(e: MouseEvent) => {
+        if (!(e.target as Element).closest('[role^="menuitem"]')) return;
+        if (attached) anchor.querySelector<HTMLElement>('button')?.focus();
+        onClose();
+      }}
+      onKeyDown={attached ? (e: KeyboardEvent<HTMLElement>) => (e.key === 'Tab' ? onClose() : moveInMenu(e)) : undefined}
     >
       {children}
     </SiteMenu>
   );
+}
+
+// The keys of an attached menu: the arrow keys (round), Home and End go between its choices.
+function moveInMenu(e: KeyboardEvent<HTMLElement>) {
+  const items = [...e.currentTarget.querySelectorAll<HTMLElement>('[role^="menuitem"]:not(:disabled)')];
+  const at = items.indexOf(document.activeElement as HTMLElement);
+  const to = { ArrowDown: at + 1, ArrowUp: at < 0 ? items.length - 1 : at - 1, Home: 0, End: items.length - 1 }[e.key];
+  if (to === undefined) return;
+  e.preventDefault();
+  items[(to + items.length) % items.length]?.focus();
 }
 
 /** A choice in a Menu: the theme's menu item, with its icon before it; `selected`: the one that is chosen now, marked
@@ -1748,6 +1817,33 @@ export function MenuItem({
     <SiteMenuItem icon={Glyph && <Glyph />} selected={selected} onMouseDown={(e: MouseEvent) => e.preventDefault()} onClick={onClick}>
       {children}
     </SiteMenuItem>
+  );
+}
+
+/** A setting on one line with its choice at the right: the name (`label`) and what it does under it (`hint`) at the left,
+ * and at the right the chosen one (`value`, shown with its label from `options`) in a small outlined box (Select's
+ * field, small), which opens the choices under it (on a phone in a sheet titled with the name), the chosen one checked.
+ * The same row as SwitchRow (the theme's SettingRow, no frame around it), but for a setting with a few choices, not
+ * on/off. `disabled`: it cannot be changed now (the box is grey). */
+export function MenuRow<T extends string>({
+  label,
+  hint,
+  value,
+  options,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  hint?: ReactNode;
+  value: T;
+  options: { value: T; label: string }[];
+  disabled?: boolean;
+  onChange: (value: T) => void;
+}) {
+  return (
+    <SiteSettingRow label={label} supporting={hint}>
+      <ChoiceMenu size="small" aria-label={label} title={label} value={value} options={options} disabled={disabled} onChange={onChange} />
+    </SiteSettingRow>
   );
 }
 
@@ -2138,7 +2234,7 @@ const inText = {
 } as CSSProperties;
 
 /** What a list or a screen says when it has nothing to show (Ingen …), or while it is fetched (`busy`,
- * with the LoadingIndicator: Henter …): grey, in the middle. `item`: as an item of a list. */
+ * with the LoadingIndicator: Henter…): grey, in the middle. `item`: as an item of a list. */
 export function EmptyNote({ item, busy, children }: { item?: boolean; busy?: boolean; children: ReactNode }) {
   const className = 'px-4 py-6 text-center text-muted';
   const text = busy ? <LoadingIndicator>{children}</LoadingIndicator> : children;
@@ -2158,7 +2254,7 @@ export function ProblemNote({ alert, children }: { alert?: boolean; children: Re
 /** A heading over fields in a form (Andre felter, SEO); `first` at the top of a column, without the space
  * above it on a wide screen. */
 export function FormHeading({ first, children }: { first?: boolean; children: ReactNode }) {
-  return <h2 className={`pt-4 text-xl font-semibold ${first ? 'xl:pt-0' : ''}`}>{children}</h2>;
+  return <h2 className={`pt-4 text-xl font-semibold ${first ? 'large:pt-0' : ''}`}>{children}</h2>;
 }
 
 /** A section of a long form that folds in and out (the sections of a page; Material 3 has no accordion, so it has its
@@ -2439,10 +2535,19 @@ export function ImageCarousel({ label, images }: { label: string; images: { src:
   );
 }
 
-/** Whether the screen is as wide as a computer's (md, 48rem), kept up to date when the window changes:
- * then what is picked in a list or a grid is shown in a SideSheet beside it, not in a sheet. */
-export function useWide() {
-  return useMedia('(min-width: 48rem)');
+/** Whether the window is at least as wide as one of Material 3's breakpoints, kept up to date when the window changes.
+ * Use the breakpoint the CSS it goes with changes at (a menu's sheet turns into a dialog from medium, a file's side
+ * panel is beside the grid from expanded). */
+export function useAtLeast(name: Exclude<Breakpoint, 'compact'>) {
+  return useMedia(atLeast(name));
+}
+
+/** How the main menu is laid out in this window (lib/menu-layout.mjs): whether the navigation rail stands, which way it
+ * expands, and whether the top bar has the menu button. */
+export function useMenuLayout() {
+  const medium = useAtLeast('medium');
+  const expanded = useAtLeast('expanded');
+  return menuLayout(expanded ? 'expanded' : medium ? 'medium' : 'compact');
 }
 
 // Whether the screen is as a media query says, kept up to date when the window changes.
@@ -2489,7 +2594,7 @@ export function useKept<T>(key: string | null, first: T): [T, (value: T) => void
 
 /** On a computer: what is picked in a screen's list or grid (a file in Filer), in the theme's side sheet at the right
  * of it, with its title and a cross that closes it; it stays in view while the screen scrolls. On a
- * phone the same is in a sheet (useWide). */
+ * phone the same is in a sheet (useAtLeast). */
 export function SideSheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
   const id = useId();
   return (
@@ -2505,15 +2610,15 @@ export function SideSheet({ title, onClose, children }: { title: string; onClose
   );
 }
 
-/** One destination in a NavigationDrawer: its id, its name and its icon, and evt. the theme's Badge (how many are new
- * there; or a dot). */
+/** One entry of a SectionList: its id, its name and its icon, and evt. the theme's Badge (how many are new there; or a
+ * dot). */
 export type NavigationItem = { id: string; label: string; icon: Icon; badge?: number | boolean };
 
-/** The theme's navigation drawer (Material 3's): the parts of a screen (the sections of a page's long form: Indhold,
- * Status, Andre felter …, which a tap scrolls to), each the theme's drawer item with its icon, the one open or in view
- * (`value`) marked as the theme marks it. On a wide computer screen it stands beside what it opens (in FormColumns'
- * right column); narrower, it is in a ModalNavigationDrawer. */
-export function NavigationDrawer({
+/** The sections of a long form (a page's, a post's: Indhold, Status, Andre felter …), as the theme's list (Material 3's
+ * List and ListItem): each with its icon, its name and evt. its badge, the one open or in view (`value`) selected; a tap
+ * calls `onChange` with its id (EntryForm scrolls to it). `title` names the navigation. In a SectionPane on large and
+ * wider screens, in a SectionSheet below. */
+export function SectionList({
   title,
   items,
   value,
@@ -2526,17 +2631,20 @@ export function NavigationDrawer({
 }) {
   return (
     <nav aria-label={title}>
-      <ul className="space-y-1">
-        {items.map(({ id, label, icon: Glyph, badge }) => {
+      <ul className={siteListClasses('standard', 'none')}>
+        {items.map(({ id, label, icon, badge }) => {
           const open = id === value;
           return (
-            <li key={id}>
-              <SiteNavigationDrawerItem active={open} aria-current={open ? 'page' : undefined} onClick={() => onChange(id)}>
-                <Glyph size={22} weight={open ? 'fill' : 'regular'} />
-                {label}
-                {badge ? <SiteBadge count={badge === true ? undefined : badge} /> : null}
-              </SiteNavigationDrawerItem>
-            </li>
+            <ListItem
+              key={id}
+              icon={icon}
+              iconSelected={open}
+              selected={open}
+              aria-current={open ? 'location' : undefined}
+              headline={label}
+              trailing={badge ? <SiteBadge count={badge === true ? undefined : badge} /> : undefined}
+              onClick={() => onChange(id)}
+            />
           );
         })}
       </ul>
@@ -2544,50 +2652,283 @@ export function NavigationDrawer({
   );
 }
 
-/** The editor's sidebar on a computer: the theme's navigation rail (Material 3's), expanded with each part's icon,
- * name and count, or collapsed to the icons with their names under them; its menu button expands and collapses it
- * (`expanded`, `onExpandedChange`), and with `peek` it is expanded over the content without taking room (while the
- * mouse is over the collapsed rail). `header`: the logo and the site's name, under the menu button while expanded. */
-export function NavigationRail({
-  label,
-  menuLabel,
-  expanded,
-  peek,
-  header,
-  onExpandedChange,
-  children,
-  ...rest
-}: {
-  label: string;
-  menuLabel: string;
-  expanded: boolean;
-  peek?: boolean;
-  header?: ReactNode;
-  onExpandedChange: (expanded: boolean) => void;
-  children: ReactNode;
-} & HTMLAttributes<HTMLElement>) {
+/** The pane at the end of a long form on large and wider screens (Material 3's 412dp pane): the theme's standard side
+ * sheet titled `title`, with the form's SectionList in it (`children`); it stays in view while the form scrolls. Nothing
+ * when it is not `open`: the button in the top bar (SectionsButton) shows and hides it. Its place in the form is
+ * FormColumns' `pane`, against the window's end edge; below large it is not drawn (a SectionSheet is). */
+export function SectionPane({ title, open, children }: { title: string; open: boolean; children: ReactNode }) {
+  const id = useId();
+  if (!open) return null;
   return (
-    <SiteNavigationRail
-      label={label}
-      menuLabel={menuLabel}
-      expanded={expanded || peek}
-      modality={peek && !expanded ? 'modal' : 'standard'}
-      scrim={false}
-      header={header}
-      onExpandedChange={onExpandedChange}
-      {...rest}
-    >
+    <SiteSideSheet headline={title} headlineId={id} className="editor-reveal h-full w-full [--side-sheet-width:var(--section-pane-width)]">
       {children}
-    </SiteNavigationRail>
+    </SiteSideSheet>
   );
 }
 
-/** Parts of the sidebar under each other, with the group's name over them (the theme's rail section). */
-export const NavigationRailSection = SiteNavigationRailSection;
+/** The sections below large: the theme's modal side sheet (Material 3's), from the end edge over the screen, titled
+ * `title`, with the form's SectionList in it (`children`). Controlled: `open` shows it (the theme's `sideSheet()` slides
+ * it in; with reduced motion it just appears), and `onClose` is called when it has been closed by its cross, Escape or a
+ * tap on the scrim; a choice closes it by the caller setting `open` to false. The page does not scroll while it is
+ * open (the theme's control), and it is given back if the sheet is taken away while open (the window grows to large). */
+export function SectionSheet({
+  title,
+  open,
+  onClose,
+  children,
+}: {
+  title: string;
+  open: boolean;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  const id = useId();
+  const dialog = useRef<HTMLDialogElement>(null);
+  const control = useRef<ReturnType<typeof siteSideSheet> | undefined>(undefined);
+  const closed = useRef(onClose);
+  closed.current = onClose;
+  useEffect(() => {
+    const el = dialog.current!;
+    control.current = siteSideSheet(el);
+    const done = () => closed.current();
+    el.addEventListener('close', done);
+    return () => {
+      el.removeEventListener('close', done);
+      if (el.open) el.close();
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
+  useEffect(() => {
+    if (open) control.current?.open();
+    else void control.current?.close();
+  }, [open]);
+  return (
+    <dialog ref={dialog} aria-labelledby={id} className={siteSideSheetDialogClass}>
+      <SiteSideSheet kind="modal" headline={title} headlineId={id} closeLabel={t.common.close}>
+        {children}
+      </SiteSideSheet>
+    </dialog>
+  );
+}
 
-/** A part in the sidebar: its icon, its name, how many there are (`count`, while expanded) and `selected` when it is
- * open (the theme's rail destination). */
-export function NavigationRailItem({
+/** The button at the end of the top bar (Screen's `drawer`) for a form's sections: on large and wider it shows and hides
+ * the SectionPane (`open`: it is shown, so the icon is `right_panel_close` (`square-half`), else `right_panel_open` (`layout`)),
+ * below it opens the SectionSheet, so the icon is always `right_panel_open`. `label` names it. */
+export function SectionsButton({ label, open, onClick }: { label: string; open?: boolean; onClick: () => void }) {
+  const pane = useAtLeast('large');
+  return <IconButton icon={pane && open ? SquareHalf : Layout} label={label} aria-expanded={open} onClick={onClick} />;
+}
+
+/** The editor's main navigation (Material 3's navigation drawer, the theme's, in its design): the site's parts in sections
+ * (`MainDrawerSection`, `MainDrawerItem`), at the full height of the window, with the menu button at the top. From medium
+ * and wider a navigation rail (`rail`: its destinations, `MainRailItem` and `MainRailSectionItem`) stands in its place while
+ * the drawer is closed; its menu button, or a section in it, opens the drawer (`onOpenChange`). The drawer is standard at
+ * expanded and wider, beside the content (`open` shows and hides it, and the rail the other way round); modal below, over a
+ * scrim, closing on a choice, the scrim, Escape or a swipe toward its edge, with focus on the first item when it opens
+ * (lib/menu-layout.mjs). `variant` forces one of them, without the rail (the parts page does).
+ * It has two levels when its children do (`MainDrawerSectionItem`, `MainDrawerBack`): `onEscape` is called for Escape and
+ * answers true when it used the key (went back to the first level), so the modal drawer stays open; false lets it close. */
+export function MainDrawer({
+  label,
+  open,
+  onOpenChange,
+  onEscape,
+  variant,
+  rail,
+  children,
+}: {
+  label: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onEscape?: () => boolean;
+  variant?: 'modal' | 'standard';
+  rail?: ReactNode;
+  children: ReactNode;
+}) {
+  const layout = useMenuLayout();
+  const shown = variant ?? layout.expanded;
+  const railShown = rail !== undefined && variant === undefined && layout.rail && !(shown === 'standard' && open);
+  return (
+    <>
+      {railShown && (
+        <MainRail label={label} onOpen={() => onOpenChange(true)}>
+          {rail}
+        </MainRail>
+      )}
+      {shown === 'standard' ? (
+        <StandardMainDrawer label={label} open={open} onOpenChange={onOpenChange} onEscape={onEscape}>
+          {children}
+        </StandardMainDrawer>
+      ) : (
+        <ModalMainDrawer label={label} open={open} onOpenChange={onOpenChange} onEscape={onEscape}>
+          {children}
+        </ModalMainDrawer>
+      )}
+    </>
+  );
+}
+
+// The collapsed navigation rail (the theme's): sticky, the full height of the window with room for a phone's notch, with its
+// menu button at the top, which opens the drawer. Never expanded itself: the drawer is what expands (MainDrawer).
+function MainRail({ label, onOpen, children }: { label: string; onOpen: () => void; children: ReactNode }) {
+  return (
+    <aside className="editor-main-rail-frame sticky top-0 z-10 h-dvh shrink-0 self-start bg-(--navigation-rail-surface,var(--bg)) pt-[env(safe-area-inset-top)]">
+      <SiteNavigationRail
+        label={label}
+        menuLabel={t.library.openMenu}
+        expanded={false}
+        onExpandedChange={onOpen}
+        className="editor-main-rail h-full"
+      >
+        {children}
+      </SiteNavigationRail>
+    </aside>
+  );
+}
+
+// The menu button at the top of either drawer: its icon over the items' icons, level with the top bar's logo; it closes the drawer.
+// The modal drawer (`logo`) shows the site's logo after the button.
+function MainDrawerMenuButton({ onClick, logo }: { onClick: () => void; logo?: boolean }) {
+  return (
+    <div className="ms-1 mt-2 mb-7 flex items-center gap-1 self-start">
+      <MenuButton label={t.library.closeMenu} open onClick={onClick} />
+      {logo && <SiteLogoLink />}
+    </div>
+  );
+}
+
+// What is inside either drawer: the sections in a <nav>.
+function MainDrawerBody({ label, children }: { label: string; children: ReactNode }) {
+  return <nav aria-label={label}>{children}</nav>;
+}
+
+// The standard drawer: beside the content, sticky, the full height of the window (room at the top for a phone's notch), with
+// the menu button at the top; there only while it is open (the theme's drawer handles the arrow keys).
+function StandardMainDrawer({
+  label,
+  open,
+  onOpenChange,
+  onEscape,
+  children,
+}: {
+  label: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onEscape?: () => boolean;
+  children: ReactNode;
+}) {
+  if (!open) return null;
+  return (
+    <aside className="sticky top-0 z-10 h-dvh shrink-0 self-start overflow-y-auto">
+      <SiteNavigationDrawer
+        variant="standard"
+        className="editor-main-drawer-panel min-h-full pt-[env(safe-area-inset-top)]"
+        onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
+          if (e.key === 'Escape' && onEscape?.()) e.preventDefault();
+        }}
+      >
+        <MainDrawerMenuButton onClick={() => onOpenChange(false)} />
+        <MainDrawerBody label={label}>{children}</MainDrawerBody>
+      </SiteNavigationDrawer>
+    </aside>
+  );
+}
+
+// The modal drawer: a <dialog> from the start edge over its scrim. Always in the page (closed it is not drawn), so the
+// links are there for check:screens. Escape closes the dialog itself; the scrim is a click on the dialog, not on its content.
+function ModalMainDrawer({
+  label,
+  open,
+  onOpenChange,
+  onEscape,
+  children,
+}: {
+  label: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onEscape?: () => boolean;
+  children: ReactNode;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  // Escape that went back a level: the dialog must not close on it (keydown comes before the dialog's cancel).
+  const escaped = useRef(false);
+  const down = useRef<{ x: number; y: number } | null>(null);
+  useEffect(() => {
+    const el = dialog.current;
+    if (!el) return;
+    if (open && !el.open) {
+      el.showModal();
+      siteFocusNavigationDrawerItem(el);
+    } else if (!open && el.open) el.close();
+  }, [open]);
+  return (
+    <dialog
+      ref={dialog}
+      aria-label={label}
+      className={`${siteNavigationDrawerDialogClass} editor-main-drawer`}
+      onClose={() => onOpenChange(false)}
+      onCancel={(e) => {
+        if (escaped.current) e.preventDefault();
+        escaped.current = false;
+      }}
+      onClick={(e) => {
+        if (e.target === dialog.current || (e.target as Element).closest('a[href]')) onOpenChange(false);
+      }}
+      onPointerDown={(e) => (down.current = { x: e.clientX, y: e.clientY })}
+      onPointerUp={(e) => {
+        const from = down.current;
+        down.current = null;
+        if (from && swipeCloses(e.clientX - from.x, e.clientY - from.y, getComputedStyle(e.currentTarget).direction === 'rtl'))
+          onOpenChange(false);
+      }}
+    >
+      <SiteNavigationDrawer
+        variant="modal"
+        className="editor-main-drawer-panel pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+        onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
+          escaped.current = false;
+          if (e.key === 'Escape' && onEscape?.()) {
+            escaped.current = true;
+            e.preventDefault();
+          }
+        }}
+      >
+        <MainDrawerMenuButton onClick={() => onOpenChange(false)} logo />
+        <MainDrawerBody label={label}>{children}</MainDrawerBody>
+      </SiteNavigationDrawer>
+    </dialog>
+  );
+}
+
+/** A destination in the main navigation rail: Home, a link; its icon (filled while `selected`) over its name. */
+export function MainRailItem({ href, icon: Glyph, label, selected }: { href: string; icon: Icon; label: string; selected?: boolean }) {
+  return <SiteNavigationRailItem href={href} icon={<Glyph weight={selected ? 'fill' : 'regular'} />} label={label} selected={selected} />;
+}
+
+/** A section in the main navigation rail: a button that opens the drawer at that section's list (`onClick`); `selected`
+ * when the open screen is in it. */
+export function MainRailSectionItem({
+  icon: Glyph,
+  label,
+  selected,
+  onClick,
+}: {
+  icon: Icon;
+  label: string;
+  selected?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <SiteNavigationRailItem icon={<Glyph weight={selected ? 'fill' : 'regular'} />} label={label} selected={selected} onClick={onClick} />
+  );
+}
+
+/** A section of the main drawer: its title over its items, a divider between sections (the theme's). */
+export const MainDrawerSection = SiteNavigationDrawerSection;
+
+/** A part in the main drawer: its icon (filled while open), its name, how many there are (`count`, at the end) and
+ * `selected` when it is the open one. */
+export function MainDrawerItem({
   href,
   icon: Glyph,
   label,
@@ -2600,15 +2941,131 @@ export function NavigationRailItem({
   count?: number | null;
   selected?: boolean;
 }) {
-  return <SiteNavigationRailItem href={href} icon={<Glyph />} label={label} selected={selected} trailingSupporting={count ?? undefined} />;
+  return (
+    <SiteNavigationDrawerItem
+      href={href}
+      active={selected}
+      aria-current={selected ? 'page' : undefined}
+      icon={<Glyph weight={selected ? 'fill' : 'regular'} />}
+      badge={count ?? undefined}
+    >
+      {label}
+    </SiteNavigationDrawerItem>
+  );
 }
 
-// The sidebar's icon turned round: a panel at the right edge.
-const SidebarRight = ((props: IconProps) => <SidebarSimple {...props} mirrored />) as Icon;
+/** A section on the first level of the main drawer: its icon, its name and an arrow to its list. A button (it shows the
+ * list in the same drawer, so the modal drawer stays open); `selected` when the open screen is in it. */
+export function MainDrawerSectionItem({
+  icon: Glyph,
+  label,
+  selected,
+  onClick,
+}: {
+  icon: Icon;
+  label: string;
+  selected?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <SiteNavigationDrawerItem
+      active={selected}
+      aria-current={selected ? 'true' : undefined}
+      icon={<Glyph weight={selected ? 'fill' : 'regular'} />}
+      trailing="caret-right"
+      onClick={onClick}
+    >
+      {label}
+    </SiteNavigationDrawerItem>
+  );
+}
 
-/** The icon of a navigation drawer, the last in the top bar (Screen's `drawer`): the panel at the right edge opens and
- * shuts. */
-export function NavigationDrawerButton({
+/** The back row at the top of a section's list in the main drawer: the first level's name (`label`); `onClick` shows it. */
+export function MainDrawerBack({ label, onClick }: { label: string; onClick: () => void }) {
+  return <SiteNavigationDrawerBack label={label} onClick={onClick} />;
+}
+
+/** A part with sub-screens in a section's list: the part as an item with the button that folds its sub-screens out
+ * (`MainDrawerSubitem`) after it. `selected` when the part itself is the open screen; `open` folds it out (it holds the
+ * open screen), and later changes of it fold it out too. The sub-screens stay in the page, `hidden` while it is folded in. */
+export function MainDrawerFold({
+  href,
+  icon: Glyph,
+  label,
+  count,
+  selected,
+  open,
+  children,
+}: {
+  href: string;
+  icon: Icon;
+  label: string;
+  count?: number | null;
+  selected?: boolean;
+  open?: boolean;
+  children: ReactNode;
+}) {
+  const [unfolded, setUnfolded] = useState(Boolean(open));
+  useEffect(() => {
+    if (open) setUnfolded(true);
+  }, [open]);
+  return (
+    <>
+      <SiteNavigationDrawerRow>
+        <SiteNavigationDrawerItem
+          href={href}
+          active={selected}
+          aria-current={selected ? 'page' : undefined}
+          icon={<Glyph weight={selected || open ? 'fill' : 'regular'} />}
+          badge={count ?? undefined}
+        >
+          {label}
+        </SiteNavigationDrawerItem>
+        <SiteNavigationDrawerToggle
+          label={unfolded ? t.library.hideSubpagesOf(label) : t.library.showSubpagesOf(label)}
+          expanded={unfolded}
+          onClick={() => setUnfolded(!unfolded)}
+        />
+      </SiteNavigationDrawerRow>
+      <div hidden={!unfolded}>{children}</div>
+    </>
+  );
+}
+
+/** A sub-screen of a `MainDrawerFold`, `selected` when it is the open one. */
+export function MainDrawerSubitem({ href, label, selected }: { href: string; label: string; selected?: boolean }) {
+  return (
+    <SiteNavigationDrawerSubitem href={href} active={selected} aria-current={selected ? 'page' : undefined}>
+      {label}
+    </SiteNavigationDrawerSubitem>
+  );
+}
+
+/** One level of the main drawer (the first, or a section's list). Every level stays in the page; the ones not `shown` are
+ * `hidden`, so out of the accessibility tree and the focus order. A level takes the focus when it is shown after a change of
+ * level (`focus`: `list`, the first item under the back row, or `top`, the section it came from). */
+export function MainDrawerLevel({ shown = true, focus, children }: { shown?: boolean; focus?: 'list' | 'top'; children: ReactNode }) {
+  const el = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = el.current;
+    if (!shown || !focus || !root) return;
+    const target =
+      focus === 'list'
+        ? root.querySelector<HTMLElement>('.navigation-drawer-item:not(.navigation-drawer-back), .navigation-drawer-subitem')
+        : (root.querySelector<HTMLElement>('[data-active]') ?? root.querySelector<HTMLElement>('.navigation-drawer-item'));
+    target?.focus();
+  }, [shown, focus]);
+  return (
+    <div ref={el} hidden={!shown} className={shown ? 'contents' : undefined}>
+      {children}
+    </div>
+  );
+}
+
+/** The panel icon at the start of the top bar on every screen (Screen.tsx): it opens and closes the main drawer. `open`: the drawer
+ * is shown, so the icon is `left_panel_close` (`sidebar`), else `left_panel_open` (`sidebar-simple`). `label` says what the next
+ * press does. */
+export function MenuButton({
   label,
   open,
   onClick,
@@ -2619,66 +3076,7 @@ export function NavigationDrawerButton({
   onClick: () => void;
   className?: string;
 }) {
-  return (
-    <IconButton
-      icon={SidebarRight}
-      label={label}
-      selected={open}
-      aria-expanded={open}
-
-      className={className}
-      onClick={onClick}
-    />
-  );
-}
-
-/** A modal navigation drawer (Material 3): the NavigationDrawer in the theme's drawer, in a <dialog> that slides in from
- * the right edge over the screen, opened by its icon in the top bar (NavigationDrawerButton) and closed by a choice, the cross, Escape or a tap
- * beside it. */
-export function ModalNavigationDrawer({
-  title,
-  items,
-  value,
-  onChange,
-  className = '',
-}: {
-  title: string;
-  items: NavigationItem[];
-  value: string;
-  onChange: (id: string) => void;
-  className?: string;
-}) {
-  const dialog = useRef<HTMLDialogElement>(null);
-  const close = () => dialog.current?.close();
-  return (
-    <>
-      <NavigationDrawerButton label={title} className={className} onClick={() => dialog.current?.showModal()} />
-      <dialog
-        ref={dialog}
-        aria-label={title}
-        onClick={(e) => e.target === dialog.current && close()}
-        className={`${siteNavigationDrawerDialogClass} editor-drawer`}
-      >
-        <SiteNavigationDrawer className="pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
-          <div className="flex items-center gap-2 pt-3 pr-3 pb-2 pl-5">
-            <h2 className="min-w-0 flex-1 truncate text-lg font-medium">{title}</h2>
-            <IconButton icon={X} label={t.common.close} onClick={close} />
-          </div>
-          <div className="px-3 pb-4">
-            <NavigationDrawer
-              title={title}
-              items={items}
-              value={value}
-              onChange={(id) => {
-                onChange(id);
-                close();
-              }}
-            />
-          </div>
-        </SiteNavigationDrawer>
-      </dialog>
-    </>
-  );
+  return <IconButton icon={open ? Sidebar : SidebarSimple} label={label} aria-expanded={open} className={className} onClick={onClick} />;
 }
 
 /** Tabs (Material 3): what they are called (`label`), the one open (`value`), each one's name and icon, and the
@@ -2737,7 +3135,7 @@ export function TabPanel({ id, value, className = '', children }: { id: string; 
   );
 }
 
-/** A form in two columns on a wide computer screen (xl): `main` in the wide one, and at the right
+/** A form in two columns on a wide computer screen (large): `main` in the wide one, and at the right
  * `first` (the status, or the fields beside a preview) and `side` (the other fields), each on a card,
  * or without one (`cards` false: a preview that is its own card). `sticky`: the right column stays in
  * view while the form scrolls (alone, it spans both rows, so it has the whole height to stay in). Narrower, one column as on a phone: `first`, `main`, then `side`. */
@@ -2747,24 +3145,35 @@ export function FormColumns({
   side,
   cards = true,
   sticky = false,
-  wideOnly = false,
+  pane,
 }: {
   first?: ReactNode;
   main: ReactNode;
   side?: ReactNode;
   cards?: boolean;
   sticky?: boolean;
-  /** The right column only on a wide computer screen (a form's NavigationDrawer, which is a ModalNavigationDrawer narrower). */
-  wideOnly?: boolean;
+  /** A SectionPane, on large and wider screens against the window's end edge under the top bar (412dp, fixed while the form
+   * scrolls; editor.css lets the content column keep clear of it, so `main` is centred to its left); below large nothing.
+   * Instead of `first` and `side`. */
+  pane?: ReactNode;
 }) {
-  // On a wide computer screen (xl) each of the right column's parts on the theme's outlined card.
-  const carded = useMedia('(min-width: 80rem)') && cards;
-  const right = `space-y-6 xl:col-start-2 ${carded ? siteCardClass('outlined') : ''} ${sticky ? 'xl:sticky xl:top-24' : ''} ${wideOnly ? 'hidden xl:block' : ''}`;
+  // On a wide computer screen (large) each of the right column's parts on the theme's outlined card.
+  const carded = useAtLeast('large') && cards;
+  const right = `space-y-6 large:col-start-2 ${carded ? siteCardClass('outlined') : ''} ${sticky ? 'large:sticky large:top-24' : ''}`;
   return (
-    <div className="flex flex-col gap-6 xl:grid xl:grid-cols-[minmax(0,1fr)_22rem] xl:grid-rows-[auto_1fr] xl:items-start xl:gap-x-8">
-      {first && <div className={`${right} ${side ? 'xl:row-start-1' : 'xl:row-span-2 xl:row-start-1'}`}>{first}</div>}
-      <div className="min-w-0 space-y-6 xl:col-start-1 xl:row-span-2 xl:row-start-1">{main}</div>
-      {side && <div className={`${right} ${first ? 'xl:row-start-2' : 'xl:row-span-2 xl:row-start-1'}`}>{side}</div>}
+    <div
+      className={`flex flex-col gap-6 ${
+        pane ? '' : 'large:grid large:grid-cols-[minmax(0,1fr)_22rem] large:grid-rows-[auto_1fr] large:items-start large:gap-x-8'
+      }`}
+    >
+      {first && <div className={`${right} ${side ? 'large:row-start-1' : 'large:row-span-2 large:row-start-1'}`}>{first}</div>}
+      <div className="min-w-0 space-y-6 large:col-start-1 large:row-span-2 large:row-start-1">{main}</div>
+      {side && <div className={`${right} ${first ? 'large:row-start-2' : 'large:row-span-2 large:row-start-1'}`}>{side}</div>}
+      {pane && (
+        <div className="editor-section-pane hidden large:fixed large:end-0 large:top-(--top-bar-height) large:z-10 large:block large:h-[calc(100dvh-var(--top-bar-height))] large:w-(--section-pane-width)">
+          {pane}
+        </div>
+      )}
     </div>
   );
 }
@@ -2859,7 +3268,7 @@ export function BottomSheet({
 }
 
 /** A web page in a frame, in a full BottomSheet (the preview of a page): `html` is the whole page, drawn as
- * wide as `width` (a phone's or a computer's) and made smaller to fit, scrolled in the frame. Nothing
+ * wide as `width` (one of Material 3's window sizes) and made smaller to fit, scrolled in the frame. Nothing
  * in it runs (no scripts), and its links lead nowhere. */
 export function PageFrame({ html, width, title }: { html: string; width: number; title: string }) {
   const box = useRef<HTMLDivElement>(null);
@@ -2962,7 +3371,7 @@ export function SheetTitle({ title, onClose }: { title: string; onClose: () => v
 
   const down = (e: PointerEvent<HTMLDivElement>) => {
     // Not the cross, and not on a computer, where the sheet is a dialog in the middle.
-    if ((e.target as Element).closest('button:not([data-bottom-sheet-handle])') || matchMedia('(min-width: 48rem)').matches) return;
+    if ((e.target as Element).closest('button:not([data-bottom-sheet-handle])') || matchMedia(atLeast('medium')).matches) return;
     drag.current = { id: e.pointerId, y: e.clientY, last: e.clientY, at: e.timeStamp, v: 0, from: 0, small: 0, big: 0, moved: false };
     dragged.current = false;
   };
@@ -3012,7 +3421,7 @@ export function SheetTitle({ title, onClose }: { title: string; onClose: () => v
       onPointerMove={move}
       onPointerUp={up}
       onPointerCancel={up}
-      className="shrink-0 touch-none select-none md:touch-auto md:select-auto"
+      className="shrink-0 touch-none select-none medium:touch-auto medium:select-auto"
     >
       <SiteBottomSheetHeader
         headline={title}
@@ -3243,9 +3652,67 @@ export function PhoneField({ code, onCode, children }: { code: string; onCode: (
   );
 }
 
-/** A field with a choice: it shows what is chosen, and opens the sheet with the choices (ChoiceSheet),
- * not the phone's own list. `title` is the sheet's (the field's name); `empty` is shown, muted, while
- * nothing is chosen; with `search` a search field over the choices, when there may be many. With `href`, the choices
+/** A choice's field with its menu (Material 3's exposed dropdown menu) for a few choices: the field (ChoiceField) shows
+ * what is chosen (`empty`, muted, while nothing is) with its arrow, which points up while the menu is open, and a tap,
+ * Enter, Space or the down arrow opens the Menu (`attached`) right under it, as wide as the field, the chosen one
+ * checked. Select's field and MenuRow's small box (`size`) are this one. `title`: the menu's name on a phone. */
+function ChoiceMenu<T extends string>({
+  title,
+  value,
+  options,
+  empty,
+  onChange,
+  ...field
+}: Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type' | 'onChange' | 'title' | 'value'> &
+  InField & {
+    title: string;
+    value: T;
+    options: ChoiceOption<T>[];
+    empty?: string;
+    size?: 'small';
+    onChange: (v: T) => void;
+  }) {
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  const chosen = options.find((o) => o.value === value);
+  // The field's box (the button's parent) is what the menu sits under, so it is as wide as the whole field.
+  const [keyboard, setKeyboard] = useState(false);
+  const toggle = (button: HTMLElement, byKeyboard: boolean) => {
+    setKeyboard(byKeyboard);
+    setAnchor(anchor ? null : button.parentElement);
+  };
+  return (
+    <>
+      <ChoiceField
+        {...field}
+        aria-haspopup="menu"
+        aria-expanded={!!anchor}
+        // A click with no pointer (Enter, Space) has detail 0.
+        onClick={(e: MouseEvent<HTMLElement>) => toggle(e.currentTarget, e.detail === 0)}
+        onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
+          if (e.key !== 'ArrowDown' || anchor) return;
+          e.preventDefault();
+          toggle(e.currentTarget, true);
+        }}
+      >
+        <span lang={chosen?.lang} className={`min-w-0 flex-1 truncate ${chosen ? '' : 'opacity-60'}`}>
+          {chosen ? chosen.label : empty}
+        </span>
+      </ChoiceField>
+      <Menu attached keyboard={keyboard} anchor={anchor} label={title} onClose={() => setAnchor(null)}>
+        {options.map((o) => (
+          <MenuItem key={o.value} selected={o.value === value} onClick={() => onChange(o.value)}>
+            {o.label}
+          </MenuItem>
+        ))}
+      </Menu>
+    </>
+  );
+}
+
+/** A field with a choice: it shows what is chosen, and opens the choices: on a computer a menu right under the field
+ * (ChoiceMenu), on a phone the sheet with the choices (ChoiceSheet), not the phone's own list. `title` is the sheet's (the
+ * field's name); `empty` is shown, muted, while nothing is chosen; with `search` a search field over the choices, when
+ * there may be many, they are always in the sheet, as are choices in groups or with a detail. With `href`, the choices
  * are on a page of their own (a field's page, Field.page), which it links to, the arrow pointing there, and no sheet. */
 export function Select<T extends string>({
   id,
@@ -3268,7 +3735,10 @@ export function Select<T extends string>({
   onChange: (v: T) => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const wide = useAtLeast('medium');
   const chosen = options.find((o) => o.value === value);
+  if (wide && !href && !search && !options.some((o) => o.group || o.detail))
+    return <ChoiceMenu id={id} title={title} value={value} options={options} empty={empty} onChange={onChange} {...field} />;
   if (href)
     return (
       <ChoiceField id={id} href={href} arrow={CaretRight} {...field}>
@@ -3398,5 +3868,39 @@ export function NewChoice<T extends string>({
         </SheetList>
       </BottomSheet>
     </>
+  );
+}
+
+/** One action of a FAB menu: its icon, its name and where it goes. */
+export type FabAction = { icon: Icon; label: string; href: string };
+
+// An action's icon, drawn.
+const iconOf = ({ icon: Item }: FabAction) => <Item />;
+
+/** The screen's main actions at the bottom right (.editor-fab, editor.css): the theme's FAB menu, opened and closed as
+ * on the site (setUpFabMenu), or with one action that action as an extended FAB; nothing without any. Drawn in a portal
+ * on <body>, since the screen's entrance animation (a transform) would make its <main> the containing block of a fixed FAB. */
+export function FabMenu({ icon: Glyph, label, items }: { icon: Icon; label: string; items: FabAction[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const menu = items.length > 1;
+  useEffect(() => {
+    const root = ref.current?.querySelector<HTMLElement>('[data-fab-menu]');
+    return root ? setUpFabMenu(root) : undefined;
+  }, [menu]);
+  if (items.length === 0) return null;
+  return createPortal(
+    <div ref={ref} className="editor-fab">
+      {menu ? (
+        <SiteFabMenu
+          icon={<Glyph />}
+          label={label}
+          closeLabel={t.common.close}
+          items={items.map((item) => ({ ...item, icon: iconOf(item) }))}
+        />
+      ) : (
+        <SiteExtendedFab icon={iconOf(items[0])} label={items[0].label} href={items[0].href} />
+      )}
+    </div>,
+    document.body,
   );
 }

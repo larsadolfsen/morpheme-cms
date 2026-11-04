@@ -3,6 +3,7 @@
 // its title; a click puts the video in its place (Base.astro). A new link is a new video, with its own still. In the
 // editor a still the site does not have yet is YouTube's or Vimeo's, else the plain box.
 import { useState } from 'react';
+import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
 import { Svg } from '@morphemecms/cms/src/icon';
 import type { VideoView } from '@morphemecms/cms/src/standard/video/view';
 import { InProse, Link, useOnSite } from '@morphemecms/cms/src/standard/view';
@@ -26,7 +27,7 @@ function Facade({ view }: { view: VideoView }) {
             className="video-facade-image"
             src={still.src}
             srcSet={still.srcset}
-            sizes={still.srcset && '(min-width: 768px) 720px, 100vw'}
+            sizes={still.srcset && `(min-width: ${BREAKPOINTS.expanded}px) 720px, 100vw`}
             alt=""
             loading="lazy"
             decoding="async"

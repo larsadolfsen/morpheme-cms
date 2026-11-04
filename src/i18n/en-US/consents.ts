@@ -1,15 +1,15 @@
 // "Samtykker" under "Privatliv" (Consents.tsx, consentData.ts): the visitors' answers in the cookie banner.
 export const consents = {
   title: 'Consents',
-  intro: 'The visitors’ answers in the cookie banner, with the consent ID the banner shows them. They are deleted after 2 years.',
+  intro: 'The visitors’ answers in the cookie banner, with the consent ID the banner shows them. Answers are kept for 2 years.',
   count: (n: number) => `${n} ${n === 1 ? 'answer' : 'answers'}`,
   searchLabel: 'Search by consent ID',
   sorts: { newest: 'Newest first', oldest: 'Oldest first' },
   download: 'Download as CSV',
-  loading: 'Loading the consents',
+  loading: 'Loading the consents…',
   notLoaded: (error: string) => `Couldn’t load the consents: ${error}`,
-  /** Without the Worker's storage (a preview of a branch, or the site on another host). */
-  notKept: 'Consents are kept only on the published site',
+  /** Answers aren't stored in a preview of a branch, or on the site on another host. */
+  notKept: 'Consents are kept only on the published website',
   /** None, or none matching the search. */
   none: (query: string) => (query ? `No consent ID starts with "${query}"` : 'No one has answered yet'),
   /** Under the id in a row: the yes and no as one line ("Ja: Statistik · Nej: Marketing"). */

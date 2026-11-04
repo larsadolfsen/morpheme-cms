@@ -31,7 +31,7 @@ export const useSearched = () => useContext(Shown).query.trim();
 export const useGrouped = () => useContext(Shown).sort === 'group';
 
 /** The search, the order and the filter over the parts (`children`, PartGroup), with "Ingen dele passer
- * til søgningen." (or `none`) when none is shown. `keep`: the key they are kept under; `search`: the search's name. */
+ * til søgningen" (or `none`) when none is shown. `keep`: the key they are kept under; `search`: the search's name. */
 export function PartsShown({
   groups,
   keep,

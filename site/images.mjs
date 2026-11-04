@@ -23,7 +23,7 @@ export function responsive(src) {
 }
 
 // The sizes of a picture shown `scale` times wider than its box (cut to a format, crop.mjs), e.g.
-// "(min-width: 800px) 720px, calc(100vw - 40px)" twice as wide.
+// a list like "720px, calc(100vw - 40px)" twice as wide.
 const scaled = (sizes, scale) =>
   scale === 1
     ? sizes

@@ -291,7 +291,7 @@ function ButtonParts() {
  * prefix and a suffix, the error's icon, a password with its button, a counter, read-only, and several lines (growing,
  * and three rows); and a checkbox empty, ticked, with a line, disabled, indeterminate and wrong. */
 function FieldParts() {
-  const fields = 'grid gap-6 sm:grid-cols-2';
+  const fields = 'grid gap-6 medium:grid-cols-2';
   return (
     <>
       <Part name="TextField" use={screens.textField}>
@@ -380,7 +380,7 @@ function CardParts() {
     <>
       <Part name="Card" use={say.card}>
         <Preview>
-          <div className="grid gap-4 p-4 sm:grid-cols-2">
+          <div className="grid gap-4 p-4 medium:grid-cols-2">
             {cardKinds.map((k) => (
               <SiteCard key={k} kind={k}>
                 <p className="font-medium">{say.kinds[k]}</p>
@@ -402,7 +402,7 @@ function CardParts() {
       </Part>
       <Part name="List" use={say.list}>
         <Preview>
-          <div className="grid items-start gap-4 p-4 lg:grid-cols-2">
+          <div className="grid items-start gap-4 p-4 expanded:grid-cols-2">
             <SiteCard>
               <SiteList>
                 <SiteListItem headline={one} />

@@ -1,6 +1,6 @@
 // The site's Worker's modules (packages/editor/worker/) for the checks, built as wrangler builds them: with the
 // aliases in wrangler.jsonc (`@site/config`, `@site/worker`), in one bundle, so they share what they keep, as in the
-// Worker. Used by packages/editor/scripts/check-worker.mjs and packages/editor/scripts/check-consent.mjs.
+// Worker (`cloudflare:workers`, which only the runtime has, is an empty stand-in). Used by packages/editor/scripts/check-worker.mjs and packages/editor/scripts/check-consent.mjs.
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -27,6 +27,16 @@ export async function workerModules(...names) {
     platform: 'node',
     outfile,
     alias: Object.fromEntries(Object.entries(alias).map(([from, to]) => [from, join(ROOT, to)])),
+    // `cloudflare:workers` only exists in the Worker's runtime (the app Cookiescanner's Playwright asks for its `env`).
+    plugins: [
+      {
+        name: 'cloudflare-workers-stub',
+        setup(b) {
+          b.onResolve({ filter: /^cloudflare:workers$/ }, () => ({ path: 'cloudflare:workers', namespace: 'stub' }));
+          b.onLoad({ filter: /.*/, namespace: 'stub' }, () => ({ contents: 'export const env = {};', loader: 'js' }));
+        },
+      },
+    ],
     logLevel: 'silent',
   });
   const bundle = await import(pathToFileURL(outfile).href);

@@ -2,8 +2,10 @@
 // Only what was changed is written: untouched fields keep their exact text, and the body is only
 // rewritten by Milkdown when the text was edited (packages/editor/scripts/editor-roundtrip.mjs checks that this
 // gives the same page). A new address (Adresse) moves the page or post, with a redirect from the
-// old one (addresses.ts). An earlier version (Versions.tsx) is opened as changes that are not saved,
+// old one (addresses.ts). The Filer files the page newly refers to get the page's tags in the same commit (autoTags.mjs).
+// An earlier version (Versions.tsx) is opened as changes that are not saved,
 // at the address the page or post has now.
+// The form's sections are listed in a pane (large and wider) or a side sheet (below): SectionList in ui.tsx.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { slugify, slugOf, type Field, type MarkdownCollection } from './schema';
@@ -22,8 +24,11 @@ import { useBlockDialog } from './BlockDialog';
 import { blockHtml } from '../lib/blocks.mjs';
 import { sectionBlocks } from './blocks';
 import { looksOf, pageH1 } from './sections.mjs';
-import { shownAt, useUploads } from './images';
-import { useMediaPicker } from './Media';
+import { sectionInView, spyLine } from '../lib/section-in-view.mjs';
+import { publicPath, shownAt, useUploads } from './images';
+import { filerAddresses, useMediaPicker } from './Media';
+import { autoTagChanges, newlyUsed } from './autoTags.mjs';
+import { recordsIn } from './fileRecords.mjs';
 import { inUse, problemAt } from './check';
 import { isOver } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
@@ -34,11 +39,13 @@ import {
   CheckList,
   FoldSection,
   FormColumns,
-  ModalNavigationDrawer,
-  NavigationDrawer,
-  NavigationDrawerButton,
   type NavigationItem,
+  SectionList,
+  SectionPane,
+  SectionSheet,
+  SectionsButton,
   SharePreview,
+  useAtLeast,
   useInView,
 } from './ui';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
@@ -60,8 +67,8 @@ const SHARE = SHARE_FIELDS;
 // The sections of the form, under each other on one page, each folding in and out under its heading (FoldSection in
 // ui.tsx): the text with the title and heading (open from the start), the status, the other fields, those for search
 // engines, those for social media, and the earlier versions (folded from the start, so the page is short; nothing is remembered till
-// the next time). Its navigation drawer (on a wide computer screen in the right column, narrower from the icon at the
-// right of the top bar) opens one and scrolls to it, and marks the one in view. A field that keeps the form from being
+// the next time). Its list (on large and wider screens in a pane at the end of the form, narrower in a side sheet from the
+// button at the right of the top bar) opens one and scrolls to it, and marks the one in view. A field that keeps the form from being
 // saved has its section opened and is scrolled to (FieldInput in fields.tsx).
 type Section = 'content' | 'status' | 'other' | 'seo' | 'share' | 'versions';
 const sectionOf = (path: string): Section => {
@@ -102,9 +109,8 @@ export const newMarkdown = (collection: MarkdownCollection, off: string[] = []):
 
 // The address of a saved page or post: a page's own `path`, or else /<file name>/ (packages/editor/site/content.ts).
 // '' for a new one.
-// Where the redirects are, as the start screen has it: its group (the site's), or "Indstillinger", › "Søgemaskineoptimering" › "Videresendelser" ›
-// "Alle videresendelser".
-const redirectsPath = () => [placeOf('seo'), t.common.parts.seo, t.common.parts.redirects, t.redirects.all].filter(Boolean).join(' › ');
+// Where the redirects are, as the menu has it: "Indhold" › "Videresendelser" › "Alle videresendelser".
+const redirectsPath = () => [placeOf('videresendelser'), t.common.parts.redirects, t.redirects.all].filter(Boolean).join(' › ');
 
 function addressNow(collection: MarkdownCollection, file: RepoFile, data: Record<string, unknown>) {
   if (!file.path) return '';
@@ -220,8 +226,11 @@ function Form({
     (text) => notify({ text, error: true }),
     (path) => unfold(sectionOf(path)),
   );
-  // On a wide computer screen: the navigation drawer beside the form, until its icon puts it away.
-  const [drawer, setDrawer] = useState(true);
+  // On large and wider screens: the sections pane at the end of the form, until its button puts it away; narrower, the
+  // sections are in a side sheet, opened by the same button.
+  const large = useAtLeast('large');
+  const [pane, setPane] = useState(true);
+  const [sheet, setSheet] = useState(false);
   const has = (id: Section) => collection.fields.some(inSection(id));
   const sections: NavigationItem[] = [
     { id: 'content', label: t.forms.sections.content, icon: Article },
@@ -232,8 +241,8 @@ function Form({
     ...(isNew ? [] : [{ id: 'versions', label: t.history.versions, icon: ClockCounterClockwise }]),
   ];
   const shows = (id: Section) => sections.some((s) => s.id === id);
-  // The section in view, marked in the drawer: while the page scrolls, the last one whose top is above a third of the
-  // screen (at the bottom of the page, the last one in view). A tap in the drawer marks its own and scrolls there; the
+  // The section in view, marked in the sections list: while the page scrolls, the last one whose top is above a third of the
+  // screen (at the bottom of the page, the last one in view). A tap in the list marks its own and scrolls there; the
   // mark stays meanwhile (`steering`, until the scroll ends).
   const [section, setSection] = useState<Section>('content');
   const boxes = useRef<Partial<Record<Section, HTMLElement | null>>>({});
@@ -249,7 +258,7 @@ function Form({
   // The sections that are open; at first only the text (and "Søgemaskiner" when it is opened at it, `opening`).
   const [open, setOpen] = useState<ReadonlySet<Section>>(() => new Set(['content', ...(opening === 'seo' ? ['seo' as const] : [])]));
   const unfold = (id: Section) => setOpen((was) => (was.has(id) ? was : new Set([...was, id])));
-  // A section opened by its heading is marked in the drawer; one folded, the one in view now (the page is shorter,
+  // A section opened by its heading is marked in the sections list; one folded, the one in view now (the page is shorter,
   // without a scroll).
   const toggle = (id: Section) => {
     const opening = !open.has(id);
@@ -267,14 +276,11 @@ function Form({
     spy.current = () => {
       frame = 0;
       if (performance.now() < steering.current) return;
-      const bottom = innerHeight + scrollY >= document.documentElement.scrollHeight - 8;
-      const line = bottom ? innerHeight - 96 : innerHeight / 3;
-      let here: Section | undefined;
-      for (const id of order.current) {
-        const top = boxes.current[id]?.getBoundingClientRect().top;
-        if (top !== undefined && (here === undefined || top <= line)) here = id;
-      }
-      if (here) setSection(here);
+      const atBottom = innerHeight + scrollY >= document.documentElement.scrollHeight - 8;
+      const tops: Record<string, number | undefined> = {};
+      for (const id of order.current) tops[id] = boxes.current[id]?.getBoundingClientRect().top;
+      const here = sectionInView(order.current, tops, spyLine(innerHeight, atBottom));
+      if (here) setSection(here as Section);
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(spy.current);
@@ -285,7 +291,7 @@ function Form({
       cancelAnimationFrame(frame);
     };
   }, []);
-  // Opens a section and scrolls to it (or to `box` in it: the text), after the drawer on a phone has closed (the page does
+  // Opens a section and scrolls to it (or to `box` in it: the text), after the side sheet below large has been told to close (the page does
   // not scroll while a dialog is open). It is opened at once (flushSync), so it is there to scroll to.
   const textBox = useRef<HTMLDivElement>(null);
   const goTo = (id: Section, box?: HTMLElement | null) => {
@@ -301,11 +307,11 @@ function Form({
     if (shows('seo')) goTo('seo');
   }, []);
   // The field marked as wrong is scrolled to by itself (FieldInput), its section opened (useWrongField) and marked in the
-  // drawer.
+  // sections list.
   useEffect(() => {
     if (wrongField.field) steer(sectionOf(wrongField.field.path));
   }, [wrongField.field?.at]);
-  // A section: where it is, for the drawer, its heading (its name in the drawer), and whether it is open.
+  // A section: where it is, for the sections list, its heading (its name in the list), and whether it is open.
   const sectionProps = (id: Section) => ({
     ref: (el: HTMLElement | null) => void (boxes.current[id] = el),
     title: sections.find((s) => s.id === id)!.label,
@@ -362,7 +368,9 @@ function Form({
     site: sharing,
   });
 
-  // A picture is kept in the browser until "Gem", which uploads it with the page.
+  // A picture is kept in the browser until "Gem", which uploads it with the page. A file in Filer the page refers to
+  // now and did not in its last saved version (a picture, a PDF field, a link) gets the page's tags at "Gem" (autoTags.mjs).
+  const tagged = collection.fields.some((f) => f.name === 'categories' && f.type === 'relation' && f.to === 'categories');
   const pictures = useUploads(notify);
   const [pickImage, picker] = useMediaPicker(env.media, pictures);
 
@@ -525,12 +533,22 @@ function Form({
     // Pictures that were added and are still used.
     const used = pictures.usedIn(next);
     const removed = base.path && path !== base.path ? [base.path] : [];
+    // The page's tags to the Filer files it newly refers to (the text as last saved against the text now), in the same commit.
+    const recordChanges = tagged
+      ? autoTagChanges(
+          recordsIn(env.files, config.fileRecords),
+          config.fileRecords,
+          newlyUsed(isNew ? '' : base.text, next, [...new Set([...filerAddresses(env.files), ...used.map((u) => publicPath(u.path))])]),
+          Array.isArray(saved.categories) ? (saved.categories as string[]) : [],
+        )
+      : [];
     const changes: Change[] = [
       { path, content: next, oid: path === base.path ? base.oid || null : null },
       ...removed.map((p) => ({ path: p, content: null, oid: base.oid })),
       ...others.map((f) => ({ path: f.path, content: f.text, oid: f.oid })),
       ...redirectChanges,
       ...used.map((u) => ({ path: u.path, content: u.bytes, oid: null })),
+      ...recordChanges,
     ];
     const what = `"${slugOf(path, collection.folder)}"`;
     const message = moved
@@ -565,6 +583,9 @@ function Form({
           ...redirectChanges
             .filter((c) => c.path === REDIRECTS)
             .map((c) => ({ path: REDIRECTS, oid: oids[REDIRECTS], text: String(c.content) })),
+          ...recordChanges
+            .filter((c) => typeof c.content === 'string')
+            .map((c) => ({ path: c.path, oid: oids[c.path], text: String(c.content) })),
         ],
         removed,
       });
@@ -657,14 +678,11 @@ function Form({
           status={savedStatus({ savedAt, saving, deleting, isNew })}
           view={isNew ? undefined : url}
           drawer={
-            <>
-              <div className="contents xl:hidden">
-                <ModalNavigationDrawer title={t.forms.sections.title} items={sections} value={section} onChange={pick} />
-              </div>
-              <div className="hidden xl:contents">
-                <NavigationDrawerButton label={t.forms.sections.title} open={drawer} onClick={() => setDrawer(!drawer)} />
-              </div>
-            </>
+            <SectionsButton
+              label={t.forms.sections.title}
+              open={large ? pane : sheet}
+              onClick={() => (large ? setPane(!pane) : setSheet(true))}
+            />
           }
           dirty={dirty}
           saving={saving || deleting}
@@ -673,12 +691,10 @@ function Form({
           onPreview={showPreview}
           onDelete={collection.deletable && !isNew ? () => env.remove(collection, base, setDeleting) : undefined}
           deleteLabel={t.forms.deleteOne(collection.singular)}
-          panel
         >
           {version && <VersionNotice version={version} onCurrent={() => onVersion(null)} />}
           <FormColumns
             sticky
-            wideOnly
             main={
               <>
                 <FoldSection {...sectionProps('content')}>
@@ -700,6 +716,7 @@ function Form({
                           : undefined
                       }
                       sections={front}
+                      frame
                     />
                   </div>
                 </FoldSection>
@@ -739,10 +756,29 @@ function Form({
                 )}
               </>
             }
-            side={drawer && <NavigationDrawer title={t.forms.sections.title} items={sections} value={section} onChange={pick} />}
+            pane={
+              pane ? (
+                <SectionPane title={t.forms.sections.title} open>
+                  <SectionList title={t.forms.sections.title} items={sections} value={section} onChange={pick} />
+                </SectionPane>
+              ) : undefined
+            }
           />
         </FormFrame>
         {blockDialog}
+        {!large && (
+          <SectionSheet title={t.forms.sections.title} open={sheet} onClose={() => setSheet(false)}>
+            <SectionList
+              title={t.forms.sections.title}
+              items={sections}
+              value={section}
+              onChange={(id) => {
+                setSheet(false);
+                pick(id);
+              }}
+            />
+          </SectionSheet>
+        )}
         {picker}
         {previewSheet}
       </WrongField.Provider>

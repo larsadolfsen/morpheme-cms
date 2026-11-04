@@ -26,7 +26,7 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
 <header data-header class:list={[topAppBarClass, 'group/header sticky top-0 z-[43]']}>
   <Container as="div" data-header-row class="flex h-16 items-center gap-1">
     {navShown && (
-      <div class="-ml-2 mr-1 xl:hidden xl:group-data-crowded/header:block">
+      <div class="-ml-2 mr-1 large:hidden large:group-data-crowded/header:block">
         <MobileMenu
           client:interact
           items={nav}
@@ -48,12 +48,12 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
         />
       </div>
     )}
-    <a href="/" class="md-top-app-bar-title mr-auto xl:shrink-0 xl:whitespace-nowrap">
+    <a href="/" class="md-top-app-bar-title mr-auto large:shrink-0 large:whitespace-nowrap">
       <Logo />
     </a>
 
     {navShown && (
-      <nav aria-label={siteT.theme.mainMenu} class="hidden shrink-0 xl:block xl:group-data-crowded/header:hidden">
+      <nav aria-label={siteT.theme.mainMenu} class="hidden shrink-0 large:block large:group-data-crowded/header:hidden">
         <ul class="flex items-center gap-1">
           {nav.map((item, i) => (
             <li class="group relative flex items-center" data-nav-item>

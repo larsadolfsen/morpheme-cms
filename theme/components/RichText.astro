@@ -5,8 +5,9 @@
 // is in it, as a video written in the text, packages/editor/lib/video.mjs); a block hidden in the editor is left
 // out (splitBlocks). The HTML comes as `html`, or as the default slot (rendered Markdown). `path`: the
 // page's address, for the testimonials' label. `preview`: a new version of a page (/ny/), whose topics
-// show the opening of the new versions too. Each block gets its type, and its shared texts as `texts` (blockTexts).
+// show the opening of the new versions too. A section with a colour is drawn as <section class="text-section text-section-<color>"> around its parts (lib/text-sections.mjs). Each block gets its type, and its shared texts as `texts` (blockTexts).
 import { splitBlocks } from '@morphemecms/cms/lib/blocks.mjs';
+import { sectionClass, sectionsOf } from '@morphemecms/cms/lib/text-sections.mjs';
 import { blockSites } from '@morphemecms/cms/src/standard/sites';
 import { blockTexts } from '@morphemecms/cms/site/site';
 
@@ -14,15 +15,29 @@ interface Props {
   html?: string;
   path?: string;
   preview?: boolean;
+  // false: the text only, its blocks left as written (a blog post's text, which draws none).
+  blocks?: boolean;
 }
-const { path, preview } = Astro.props;
+const { path, preview, blocks = true } = Astro.props;
 const html = Astro.props.html ?? (await Astro.slots.render('default'));
 
-const parts = splitBlocks(html, Object.keys(blockSites));
+// A section with a colour (lib/text-sections.mjs) is a run of its own, drawn as a panel around its parts (blocks.css).
+let n = 0;
+const runs = sectionsOf(html).map((run) => ({
+  color: run.color,
+  parts: splitBlocks(run.html, blocks ? Object.keys(blockSites) : []).map((p) => ({ ...p, index: n++ })),
+}));
 ---
 
-{parts.map((p, i) => {
-  if (p.html !== undefined) return <Fragment set:html={p.html} />;
-  const Block = blockSites[p.type];
-  return <Block type={p.type} props={p.props} index={i} path={path} preview={preview} texts={blockTexts[p.type]} />;
+{runs.map((run) => {
+  const Run = run.color ? 'section' : Fragment;
+  return (
+    <Run {...(run.color ? { class: sectionClass(run.color) } : {})}>
+      {run.parts.map((p) => {
+        if (p.html !== undefined) return <Fragment set:html={p.html} />;
+        const Block = blockSites[p.type];
+        return <Block type={p.type} props={p.props} index={p.index} path={path} preview={preview} texts={blockTexts[p.type]} />;
+      })}
+    </Run>
+  );
 })}

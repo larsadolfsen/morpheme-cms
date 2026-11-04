@@ -3,11 +3,11 @@
 // standard parts: a site has them unless its src/site/ has a file of the same name (siteFile in site/theme.mjs), which
 // may take the standard one from @morphemecms/cms/defaults/<file> and add its own.
 //   collections   the parts of the site and their fields (collections.ts)
-//   groups, lists, header, icons   the start screen
+//   groups, settings, lists, header, icons   the menu and the start screen
 //   appearance    the site's own parts under "Udseende", after the logo and icon ("Standardsider")
 //   companyParts, blockParts   the screens under "Virksomheden" and "Blokke" (company.ts, blockTexts.ts)
 //   partScreens   parts of the start screen that are screens with parts of their own (privacy.ts)
-//   seoParts      the site's own parts under "Søgemaskineoptimering", after the redirects (internalLinks.ts)
+//   seoParts      the site's own parts under "Søgemaskineoptimering" (#seo/<id>), in the menu under "Indhold" (internalLinks.ts)
 //   relationsOf, usedBy, keptBy   what a field picks from, what cannot be deleted, and what cannot be saved so (rules.ts)
 //   siteProblems  what is wrong by the site's own rules, before it is built (rules.ts)
 //   usesOf, countsOf   the places that use an entry (a tag's "Bruges på") and their number at it in its list (rules.ts)
@@ -21,14 +21,17 @@
 //   siteName      the title of the start screen and the way back to it
 //   sharing       what a page shared on social media shows when it has nothing of its own (Base.astro)
 import {
+  Article,
   Browser,
   Buildings,
   Certificate,
-  ChartLineUp,
   DeviceMobile,
   FileText,
   House,
   FolderSimple,
+  Gauge,
+  GearSix,
+  GlobeSimple,
   List as ListIcon,
   MagnifyingGlass,
   Megaphone,
@@ -42,7 +45,6 @@ import {
   SidebarSimple,
   Signpost,
   Smiley,
-  SlidersHorizontal,
   Sparkle,
   SquareHalfBottom,
   SquaresFour,
@@ -83,15 +85,10 @@ export { HEADINGS as headingLooks, LOOKS as sectionLooks } from '@theme/editor/l
 export { frontLeads, standardPages, standardPaths, type StandardPage } from '@site/standardPages';
 export { colorFields, colorPairs, colorRoles, defaultColors } from '@site/colors';
 
-/** Parts of the start screen that are a screen with parts, each a screen of its own: "Privatliv" (privacy.ts), and
- * "Analytics" and "Promovering" with the settings of the apps installed that measure (Google Analytics, Google Ads,
- * Google Tag Manager) and of those that add a kind of promotion (Calendly, Mailchimp), by their kind
- * (AppDefinition.category, the app store's); the apps' own pages under "Apps" only install them. */
-export const partScreens: PartScreen[] = [
-  { id: 'maaling', label: 'Analytics', parts: [], apps: ['analytics'] },
-  { id: 'promovering', label: 'Promovering', parts: [], apps: ['booking', 'newsletter'] },
-  privacy,
-];
+/** Parts of the start screen that are a screen with parts, each a screen of its own: "Privatliv" (privacy.ts). The
+ * settings of the apps, also those that measure (Google Analytics …) or add a kind of promotion (Calendly, Mailchimp),
+ * are on their own app pages under "Apps" (AppList.tsx settingsRoute). */
+export const partScreens: PartScreen[] = [privacy];
 
 /** The site's own parts under "Søgemaskineoptimering", each a screen of its own at #seo/<id>, after the editor's
  * "Videresendelser": "Interne links" (internalLinks.ts). */
@@ -106,6 +103,7 @@ export const sharing = { name: site.name, description: site.description, picture
 
 /** The icon of each part on the start screen and in the sidebar, by its id. */
 export const icons: Record<string, Icon> = {
+  home: Gauge,
   blog: Newspaper,
   pages: FileText,
   header: Browser,
@@ -114,11 +112,13 @@ export const icons: Record<string, Icon> = {
   kategorier: Tag,
   popups: Megaphone,
   virksomheden: Buildings,
+  // The sections of the main menu that are not also a part.
+  indhold: Article,
+  globalt: GlobeSimple,
+  indstillinger: GearSix,
   blokke: SquaresFour,
   filer: FolderSimple,
   privatliv: ShieldCheck,
-  maaling: ChartLineUp,
-  promovering: SlidersHorizontal,
   lister: ListChecks,
   footer: SquareHalfBottom,
   seo: MagnifyingGlass,
@@ -140,44 +140,6 @@ export const icons: Record<string, Icon> = {
   dele: Shapes,
 };
 
-// The parts of the site on the start screen, in groups: the content the owner writes and uploads (the
-// pages, the blog, its tags, the pop-ups and the files), what is on every page (the
-// header with the menus, the footer and "Virksomheden": name, contact and booking), the blocks (their
-// shared texts, "Lister", the testimonials and prices they show, which the standard blocks and the apps bring, and
-// "Blokindstillinger", which of them can be put in); the settings of the whole site are on a page of their own (settings).
-// Each is a collection (collections.ts), except "maaling", "promovering" and "privatliv" (partScreens) and the editor's own "virksomheden" (companyParts), "blokke"
-// (blockParts), "filer" (the pictures, PDFs, videos and zip files), "header", "lister", "udseende" (the theme, the colours, the logo
-// and icon, the standard pages (appearance) and the editor's parts: Colors.tsx, BrandForm.tsx and Parts.tsx), "blokvalg" (which blocks can be put in, BlockSettings.tsx), "apps"
-// (the apps that come with the site, src/apps/, AppList.tsx) and "seo" (the redirects, Redirects.tsx, and seoParts). The editor shows
-// each group's parts A–Å by their names in its language (partsIn in Library.tsx), whatever the order here.
-export const groups: { title: string; ids: string[] }[] = [
-  { title: 'Indhold', ids: ['pages', 'blog', 'kategorier', 'popups', 'filer'] },
-  { title: 'På alle sider', ids: ['header', 'footer', 'virksomheden'] },
-  { title: 'Blokke', ids: ['blokke', 'lister', 'blokvalg'] },
-];
-
-/** The settings of the whole site, not on the start screen but on "Indstillinger" (#indstillinger, Library.tsx
- * Settings), which the gear in the top bar opens (Screen.tsx SettingsLink); A–Å as a group's. */
-export const settings: string[] = [
-  'udseende',
-  'apps',
-  'appstore',
-  'morpheme',
-  'maaling',
-  'promovering',
-  'privatliv',
-  'seo',
-  'avanceret',
-  'licenser',
-];
-
-/** The site's own short lists, on a screen of their own under "Lister" (#lister), with those the standard blocks
- * bring ("Udtalelser") and the apps (their lists.ts). */
-export const lists: string[] = [];
-
-/** What is in the header on every page, on a screen of its own under "Header" (#header). */
-export const header = ['menu', 'mobilmenu'];
-
 /** The site's own parts under "Udseende" (#udseende), after the logo and icon, each a screen of its own at #udseende/<id>:
  * "Standardsider", which pages are the front page, the blog page, the 404 page and the contact page, as a list
  * (standardPageFieldsOf in collections.ts; the privacy policy and the cookie policy are under "Privatliv", privacy.ts). */
@@ -191,3 +153,45 @@ export const appearance: Part[] = [
     rows: true,
   },
 ];
+
+// The editor's menu: eight sections in a fixed order, shown in the order written here, never A–Å. "Oversigt" is a link to the
+// start screen (`href`) without a list; the others have a list of parts, each an id: the content the owner writes and
+// uploads ("Indhold": the pages, the blog, the short lists, the pop-ups, the tags, the files, "interne-links" (seoParts)
+// and "videresendelser", Redirects.tsx), what is on every page ("Globalt": the header with the menus, the footer and
+// "Virksomheden": name, contact and booking), the apps ("Apps": the apps that come with the site, src/apps/, AppList.tsx,
+// and "appstore"), the blocks ("Blokke": their shared texts, and "Blokvalg", which of them can be put in), how the site
+// looks ("Udseende": the theme, the icon packs, the motion, the side column (SideColumn.tsx), the colours, the logo and icon, the standard pages
+// (appearance) and the editor's parts: Colors.tsx, BrandForm.tsx and Parts.tsx), the parts of "Privatliv" (privacy.ts)
+// and the settings of the whole site ("Indstillinger").
+// Each part is a collection (collections.ts), except those named above, "privatliv"'s (partScreens) and the editor's own
+// "virksomheden" (companyParts), "blokke" (blockParts), "filer" (the pictures, PDFs, videos and zip files), "header", "lister"
+// and "blokvalg" (BlockSettings.tsx).
+const settingsIds = ['morpheme', 'avanceret'];
+export const groups: { id: string; title: string; href?: string; ids: string[] }[] = [
+  { id: 'home', title: 'Oversigt', href: '#', ids: [] },
+  {
+    id: 'indhold',
+    title: 'Indhold',
+    ids: ['pages', 'blog', 'lister', 'popups', 'kategorier', 'filer', internalLinks.id, 'videresendelser'],
+  },
+  { id: 'globalt', title: 'Globalt', ids: ['header', 'footer', 'virksomheden'] },
+  { id: 'apps', title: 'Apps', ids: ['apps', 'appstore'] },
+  { id: 'blokke', title: 'Blokke', ids: ['blokke', 'blokvalg'] },
+  {
+    id: 'udseende',
+    title: 'Udseende',
+    ids: ['temaer', 'ikonpakker', 'bevaegelse', 'sidekolonne', 'farver', 'logo', ...appearance.map((p) => p.id), 'dele'],
+  },
+  { id: 'privatliv', title: 'Privatliv', ids: privacy.parts.map((p) => p.id) },
+  { id: 'indstillinger', title: 'Indstillinger', ids: settingsIds },
+];
+
+/** The settings of the whole site: the ids of the last section, "Indstillinger", written once. */
+export const settings: string[] = settingsIds;
+
+/** The site's own short lists, on a screen of their own under "Lister" (#lister), with those the standard blocks
+ * bring ("Udtalelser") and the apps (their lists.ts). */
+export const lists: string[] = [];
+
+/** What is in the header on every page, on a screen of its own under "Header" (#header). */
+export const header = ['menu', 'mobilmenu'];

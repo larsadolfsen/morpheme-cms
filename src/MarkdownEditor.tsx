@@ -4,7 +4,15 @@
 // on the site, which opens a menu (Ret, hide on the site, move, Fjern), with a free line kept between
 // two cards to write in. A fixed page's sections are such a text too (SectionsField.tsx), so both look
 // and work the same.
-import { forwardRef, Fragment as ReactFragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import {
+  forwardRef,
+  Fragment as ReactFragment,
+  type MouseEvent as ReactMouseEvent,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import { editorViewCtx, type Editor } from '@milkdown/kit/core';
 import type { CmdKey } from '@milkdown/kit/core';
 import type { Ctx } from '@milkdown/kit/ctx';
@@ -35,6 +43,7 @@ import {
   LinkSimple,
   ListBullets,
   ListNumbers,
+  Palette,
   Plus,
   Quotes,
   TextAa,
@@ -46,7 +55,12 @@ import {
   TextT,
 } from '@phosphor-icons/react';
 import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
+import { firstHeading, topHeadings } from './firstHeading.mjs';
+import { showsH1Choice } from '../lib/heading-levels.mjs';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
+import { SECTION_COLORS } from '../lib/section-marker.mjs';
+import { sectionHeading, setSectionColor } from './sectionState.mjs';
+import { sectionFrame } from './sectionFrame';
 import { IMAGE, type BlockAsk } from './BlockDialog';
 import { askLink } from './LinkSheet';
 import { Menu, MenuItem, Toolbar, ToolbarButton } from './ui';
@@ -59,6 +73,9 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { t } from './i18n';
 import { motionTiming } from '../lib/motion';
+import { stillTimer } from '../lib/still-timer.mjs';
+import { STILL_MS, wordRange } from './stillCursor.mjs';
+import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
 import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
@@ -73,6 +90,7 @@ import h1Icon from '@phosphor-icons/core/assets/regular/text-h-one.svg?raw';
 import h2Icon from '@phosphor-icons/core/assets/regular/text-h-two.svg?raw';
 import h3Icon from '@phosphor-icons/core/assets/regular/text-h-three.svg?raw';
 import paletteIcon from '@phosphor-icons/core/assets/regular/palette.svg?raw';
+import tagIcon from '@phosphor-icons/core/assets/regular/tag.svg?raw';
 // ProseMirror's own styles: keep its invisible helpers (around pictures, at the end of lines) out of the layout.
 import '@milkdown/kit/prose/view/style/prosemirror.css';
 
@@ -82,8 +100,8 @@ export type MarkdownHandle = { markdown: () => string | null; parts: () => Retur
 // addImage: asks for a picture (the gallery, Media.tsx); its address on the site. Its description is
 // asked in the sheet. Without it there is no picture button. blocks: asks which block to put in and its fields (BlockDialog);
 // without it there is no block button; with it a free line is kept between two blocks, and before
-// and after them (spacing in markdown.mjs). short: a smaller field, for a short text. h1: the page's own heading, "Overskrift
-// (H1)", can be chosen too (a page's text, which has its H1 at the top; a blog post's is its title).
+// and after them (spacing in markdown.mjs). short: a smaller field, for a short text. h1: a page's text, where the
+// first heading is the page's H1 by itself (firstHeading.mjs); a blog post's H1 is its title.
 type Props = {
   value: string;
   onChange: () => void;
@@ -98,6 +116,9 @@ type Props = {
   /** The headings (H2) are the names of sections (a fixed page's, the front page's: sections.mjs), which the site
    * draws as text: no colour for them. */
   sections?: boolean;
+  /** Whether the text has the section frame and the colour button (pages and posts). Without it: on unless `sections`.
+   * The front page sets `sections` (its H2s are names drawn by the theme, no word colours) and `frame` (its sections take their colour). */
+  frame?: boolean;
 };
 
 // A part of the text at the top level, for `looks`.
@@ -446,7 +467,7 @@ async function editLink(view: EditorView) {
 /** What applies where the cursor is, or to all of the selection: 'strong', 'emphasis', 'link',
  * 'h2', 'h3', 'text' (a paragraph, not in a list or quote), 'bullet', 'ordered' and 'quote'; with a colour
  * (text-colors.mjs) 'textColor' and the colour's class ('color-accent'). For the toolbar and the selection's menu,
- * which mark them. */
+ * 'section' and 'section-<colour>' in a top-level H2 (sectionState.mjs), which mark them. */
 export function activeOf(state: EditorView['state']): Set<string> {
   const { selection, storedMarks, schema } = state;
   const { $from, from, to, empty } = selection;
@@ -463,6 +484,11 @@ export function activeOf(state: EditorView['state']): Set<string> {
   if (ancestors.includes('ordered_list')) on.add('ordered');
   if (ancestors.includes('blockquote')) on.add('quote');
   if ($from.parent.type.name === 'paragraph' && !on.has('bullet') && !on.has('ordered') && !on.has('quote')) on.add('text');
+  const section = sectionHeading(state);
+  if (section) {
+    on.add('section');
+    if (section.color) on.add(`section-${section.color}`);
+  }
   return on;
 }
 
@@ -487,14 +513,19 @@ export function paint(view: EditorView, color: string | null) {
   view.focus();
 }
 
-// off: not there for the selection (the button is hidden).
+// off: not there for the selection (the button is hidden). word: at a still cursor it acts on the word the cursor is
+// in, which is selected first.
 type Look = {
   icon: string;
   label: string;
   on: (state: EditorView['state']) => boolean;
   action: (button: HTMLElement) => void;
   off?: (state: EditorView['state']) => boolean;
+  word?: boolean;
 };
+
+// The levels of the top-level headings of a document, in order.
+const levelsOf = (doc: EditorView['state']['doc']): number[] => topHeadings(doc).map(({ node }) => node.attrs.level);
 
 // Whether a heading (H2) is selected, or a part of one.
 function inH2(state: EditorView['state']) {
@@ -504,10 +535,15 @@ function inH2(state: EditorView['state']) {
   return found;
 }
 
-// When a word or more is selected: a row of icons over it, to make it bold, italic, a link, one of the site's colours
-// (a menu under the button, opened by `colors`), the page's H1 (`h1`), a heading or a subheading; the ones that apply to
-// the selection are marked. On a phone, where the phone's own menu is over the selection and its handles under it, the
-// row is at the bottom of the screen, over the keyboard. sections: no colour in a heading (H2), the name of a section.
+// Whether the cursor is in a label above a heading (eyebrow.mjs), which has no bold, italic, link or colour.
+const inLabel = (state: EditorView['state']) => state.selection.$from.parent.type.name === 'eyebrow';
+
+// When a word or more is selected, or the cursor has stood still in a word (STILL_MS, stillCursor.mjs): a row of icons
+// over it, to make it bold, italic, a link, one of the site's colours (a menu under the button, opened by `colors`), the
+// page's H1 (`h1`, only while the text has none), a heading or a subheading, a label above the heading; the ones that apply are marked. At a still
+// cursor, bold, italic, link and colour act on the whole word, the headings on the line; a move or a keypress hides the
+// row. On a phone, where the phone's own menu is over the selection and its handles under it, the row is at the bottom
+// of the screen, over the keyboard. sections: no colour in a heading (H2), the name of a section.
 function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button: HTMLElement) => void) {
   return new Plugin({
     view(view) {
@@ -518,30 +554,77 @@ function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button
       menu.hidden = true;
       const run = <T,>(command: { key: CmdKey<T> }, payload?: T) => void callCommand(command.key, payload)(ctx);
       const marked = (state: EditorView['state'], name: string) => activeOf(state).has(name);
-      const heading = (state: EditorView['state'], level: number) => activeOf(state).has(`h${level}`);
+      // On a page the Heading button also stands for the H1 (firstHeading.mjs).
+      const heading = (state: EditorView['state'], level: number) =>
+        activeOf(state).has(`h${level}`) || (h1 && level === 2 && activeOf(state).has('h1'));
       const looks: Look[] = [
-        { icon: boldIcon, label: t.text.bold, on: (s) => marked(s, 'strong'), action: () => run(toggleStrongCommand) },
-        { icon: italicIcon, label: t.text.italic, on: (s) => marked(s, 'emphasis'), action: () => run(toggleEmphasisCommand) },
+        {
+          icon: boldIcon,
+          label: t.text.bold,
+          on: (s) => marked(s, 'strong'),
+          action: () => run(toggleStrongCommand),
+          off: inLabel,
+          word: true,
+        },
+        {
+          icon: italicIcon,
+          label: t.text.italic,
+          on: (s) => marked(s, 'emphasis'),
+          action: () => run(toggleEmphasisCommand),
+          off: inLabel,
+          word: true,
+        },
         {
           icon: linkIcon,
           label: t.text.link,
           on: (s) => marked(s, 'link'),
           action: () => void editLink(view).then(() => update(view)),
+          off: inLabel,
+          word: true,
         },
         {
           icon: paletteIcon,
           label: t.text.color,
           on: (s) => marked(s, 'textColor'),
           action: colors,
-          off: sections ? inH2 : undefined,
+          off: (s) => inLabel(s) || (sections && inH2(s)),
+          word: true,
         },
         ...(h1 ? [1, 2, 3] : [2, 3]).map((level) => ({
           icon: [h1Icon, h2Icon, h3Icon][level - 1],
           label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
           on: (s: EditorView['state']) => heading(s, level),
           action: () => (heading(view.state, level) ? run(turnIntoTextCommand) : run(wrapInHeadingCommand, level)),
+          // The H1 choice is gone as soon as the page's text has an H1.
+          off: level === 1 ? (s: EditorView['state']) => !showsH1Choice(levelsOf(s.doc)) : undefined,
         })),
+        // A label above the heading. Not on a fixed page's H1 or H2, whose headings are its sections (sections.mjs).
+        {
+          icon: tagIcon,
+          label: t.blocks.eyebrow,
+          on: hasLabel,
+          action: () => toggleLabel(view),
+          off: (s) => {
+            const heading = labelledHeading(s);
+            return !heading || (sections && heading.level <= 2);
+          },
+        },
       ];
+      // Where the cursor stood still in a word, so the row is shown for that word; null after a move. A change made by
+      // a button (acting) is no move.
+      let stillAt: number | null = null;
+      let acting = false;
+      const still = stillTimer(STILL_MS, () => {
+        if (!view.hasFocus() || !wordRange(view.state)) return;
+        stillAt = view.state.selection.from;
+        update(view);
+      });
+      const stillWord = (state: EditorView['state']) => (stillAt === state.selection.from ? wordRange(state) : null);
+      // The state as if the word at a still cursor were selected, so the buttons are marked as for the word.
+      const asShown = (state: EditorView['state']) => {
+        const word = stillWord(state);
+        return word ? state.apply(state.tr.setSelection(TextSelection.create(state.doc, word.from, word.to))) : state;
+      };
       const buttons = looks.map((look) => {
         const b = menu.appendChild(document.createElement('button'));
         b.type = 'button';
@@ -550,7 +633,14 @@ function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button
         b.innerHTML = look.icon.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
         if (look.action === colors) b.setAttribute('aria-haspopup', 'menu');
         const act = () => {
-          look.action(b);
+          const word = look.word ? stillWord(view.state) : null;
+          if (word) view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, word.from, word.to)));
+          acting = true;
+          try {
+            look.action(b);
+          } finally {
+            acting = false;
+          }
           update(view);
           // Again when "Gem ændringer" has come after the first change.
           setTimeout(follow, 100);
@@ -568,16 +658,16 @@ function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button
       });
       function update(view: EditorView) {
         const { selection, doc } = view.state;
-        const shown =
-          view.hasFocus() &&
-          selection instanceof TextSelection &&
-          !selection.empty &&
-          doc.textBetween(selection.from, selection.to).trim() !== '';
+        const word = stillWord(view.state);
+        const selected =
+          selection instanceof TextSelection && !selection.empty && doc.textBetween(selection.from, selection.to).trim() !== '';
+        const shown = view.hasFocus() && (selected || !!word);
         menu.hidden = !shown;
         if (!shown) return;
+        const state = asShown(view.state);
         looks.forEach((look, i) => {
-          buttons[i].hidden = !!look.off?.(view.state);
-          buttons[i].setAttribute('aria-pressed', String(look.on(view.state)));
+          buttons[i].hidden = !!look.off?.(state);
+          buttons[i].setAttribute('aria-pressed', String(look.on(state)));
         });
         const { offsetWidth: width, offsetHeight: height } = menu;
         const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
@@ -589,8 +679,9 @@ function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button
           return;
         }
         const text = view.dom.getBoundingClientRect();
-        const start = view.coordsAtPos(selection.from);
-        const end = view.coordsAtPos(selection.to);
+        const { from, to } = word ?? selection;
+        const start = view.coordsAtPos(from);
+        const end = view.coordsAtPos(to);
         const middle = start.top === end.top ? (start.left + end.right) / 2 : text.left + text.width / 2;
         // Over the selection; under it when the toolbar is there.
         const bar = document.querySelector('.editor-tools')?.getBoundingClientRect().bottom ?? 0;
@@ -608,8 +699,16 @@ function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button
       visualViewport?.addEventListener('resize', follow);
       visualViewport?.addEventListener('scroll', follow);
       return {
-        update,
+        // A move or a keypress hides the row at a still cursor and waits again.
+        update: (view: EditorView, prev: EditorState) => {
+          if (!acting && (!prev.selection.eq(view.state.selection) || !prev.doc.eq(view.state.doc))) {
+            stillAt = null;
+            still.restart();
+          }
+          update(view);
+        },
         destroy: () => {
+          still.stop();
           view.dom.removeEventListener('blur', refresh);
           view.dom.removeEventListener('focus', refresh);
           removeEventListener('scroll', follow);
@@ -742,10 +841,11 @@ function blockCard(
 }
 
 export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
-  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, looks, sections },
+  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, looks, sections, frame },
   ref,
 ) {
   const spaced = !!blocks;
+  const framed = frame ?? !sections;
   const root = useRef<HTMLDivElement>(null);
   const toolbar = useRef<HTMLDivElement>(null);
   const editor = useRef<Editor | null>(null);
@@ -757,12 +857,20 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   looked.current = looks;
   // What applies where the cursor is (activeOf), marked in the toolbar.
   const [active, setActive] = useState<string[]>([]);
+  // Whether the page's text has no H1, so the H1 choice is shown (showsH1Choice).
+  const [h1Choice, setH1Choice] = useState(true);
   // The colour button over the selection, while its menu with the colours is open.
   const [colorsAt, setColorsAt] = useState<HTMLElement | null>(null);
   useEffect(() => {
     colorsAt?.setAttribute('aria-expanded', 'true');
     return () => colorsAt?.setAttribute('aria-expanded', 'false');
   }, [colorsAt]);
+  // The button for the colour of a section, while its menu is open.
+  const [sectionAt, setSectionAt] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    sectionAt?.setAttribute('aria-expanded', 'true');
+    return () => sectionAt?.setAttribute('aria-expanded', 'false');
+  }, [sectionAt]);
   // The previews of the blocks, drawn again when what they show from elsewhere changes: the lists,
   // the testimonials, the rest of the site, the page's address or a fixed page's other fields.
   const cards = useRef(new Set<() => void>());
@@ -782,7 +890,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         new Plugin({
           view: () => ({
             update: (view) => {
-              const now = [...activeOf(view.state)].sort();
+              const choice = showsH1Choice(levelsOf(view.state.doc));
+              setH1Choice((was) => (was === choice ? was : choice));
+              // On a page the first heading is the H1 by itself (firstHeading.mjs); the Heading button stands for it.
+              const now = [...activeOf(view.state)].map((name) => (h1 && name === 'h1' ? 'h2' : name)).sort();
               setActive((was) => (was.join() === now.join() ? was : now));
             },
           }),
@@ -818,7 +929,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           },
         }),
     );
-    const made = makeEditor(root.current, value)
+    let made = makeEditor(root.current, value)
       .use(cardView)
       .use(pictureView)
       .use(selecting)
@@ -826,9 +937,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(marking)
       .use(onEdit)
       .use(looking)
+      .use(sectionFrame(framed))
       .use(gapHere)
       .use(history)
       .use(clipboard);
+    // A page (h1) keeps its first heading as its H1 and has no other H1 (firstHeading.mjs); a blog post's H1 is its title.
+    if (h1) made = made.use(firstHeading);
     (spaced ? made.use(spacing) : made).create().then((created) => {
       if (cancelled) return created.destroy();
       editor.current = created;
@@ -911,6 +1025,14 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     editor.current?.action((ctx) => paint(ctx.get(editorViewCtx), name));
   }
 
+  function sectionColor(name: string | null) {
+    editor.current?.action((ctx) => {
+      const view = ctx.get(editorViewCtx);
+      setSectionColor(view, name);
+      view.focus();
+    });
+  }
+
   // A new picture from the gallery, then the sheet with it and what it shows, where it can still be
   // changed or left out (the browser's own box for what it shows without a sheet).
   async function image() {
@@ -968,17 +1090,27 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
-  const tools: { label: string; icon: typeof TextB; action: () => void; on?: string }[] = [
+  const tools: { label: string; icon: typeof TextB; action: (e: ReactMouseEvent<HTMLButtonElement>) => void; on?: string }[] = [
     { label: t.text.bold, icon: TextB, action: () => run(toggleStrongCommand), on: 'strong' },
     { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis' },
     { label: t.text.link, icon: LinkSimple, action: link, on: 'link' },
-    ...(h1 ? [{ label: t.text.pageHeading, icon: TextHOne, action: () => setKind('h1'), on: 'h1' }] : []),
+    ...(h1 && h1Choice ? [{ label: t.text.pageHeading, icon: TextHOne, action: () => setKind('h1'), on: 'h1' }] : []),
     { label: t.text.heading, icon: TextHTwo, action: () => setKind('h2'), on: 'h2' },
     { label: t.text.subheading, icon: TextHThree, action: () => setKind('h3'), on: 'h3' },
     { label: t.text.paragraph, icon: TextT, action: () => setKind('text'), on: 'text' },
     { label: t.text.bulletList, icon: ListBullets, action: () => setKind('bullet'), on: 'bullet' },
     { label: t.text.orderedList, icon: ListNumbers, action: () => setKind('ordered'), on: 'ordered' },
     { label: t.text.quote, icon: Quotes, action: () => setKind('quote'), on: 'quote' },
+    // The colour of the section the cursor's H2 starts (not a fixed page's text, whose H2s are its sections' names; the front page has it).
+    ...(framed && active.includes('section')
+      ? [
+          {
+            label: t.text.sectionColor,
+            icon: Palette,
+            action: (e: ReactMouseEvent<HTMLButtonElement>) => setSectionAt(sectionAt ? null : e.currentTarget),
+          },
+        ]
+      : []),
     // A picture and the blocks are put in with "+" (a sheet with them all); without blocks (a blog
     // post) a picture has its own button.
     ...(blocks
@@ -1038,7 +1170,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       <Toolbar
         ref={toolbar}
         label={t.text.tools}
-        className="editor-tools sticky top-[calc(4.5rem+1px+env(safe-area-inset-top))] z-10 justify-center-safe overflow-x-auto rounded-t-panel border-b border-line md:flex-wrap"
+        className="editor-tools sticky top-[calc(4.5rem+1px+env(safe-area-inset-top))] z-10 justify-center-safe overflow-x-auto rounded-t-panel border-b border-line medium:flex-wrap"
       >
         {tools.map((tool) => (
           <ReactFragment key={tool.label}>
@@ -1059,16 +1191,27 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           <span className="text-ink">{t.text.noColor}</span>
         </MenuItem>
       </Menu>
+      {/* The theme's three colours for a section (section-marker.mjs), and "Ingen"; the one it has is marked. */}
+      <Menu anchor={sectionAt} label={t.text.sectionColor} onClose={() => setSectionAt(null)}>
+        <MenuItem icon={Palette} selected={!active.some((a) => a.startsWith('section-'))} onClick={() => sectionColor(null)}>
+          {t.text.sectionColors.none}
+        </MenuItem>
+        {SECTION_COLORS.map((name) => (
+          <MenuItem key={name} icon={Palette} selected={active.includes(`section-${name}`)} onClick={() => sectionColor(name)}>
+            {t.text.sectionColors[name as keyof typeof t.text.sectionColors]}
+          </MenuItem>
+        ))}
+      </Menu>
       <Menu anchor={kindsAt} label={t.text.kind} onClose={() => setKindsAt(null)}>
         {kinds.map(({ label, icon, action, on }) => (
-          <MenuItem key={label} icon={icon} selected={active.includes(on!)} onClick={action}>
+          <MenuItem key={label} icon={icon} selected={active.includes(on!)} onClick={action as () => void}>
             {label}
           </MenuItem>
         ))}
       </Menu>
       <div
         ref={root}
-        className={`editor-text prose max-w-none px-5 py-4 md:px-8 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
+        className={`editor-text prose max-w-none px-5 py-4 medium:px-8 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
       />
     </div>
   );

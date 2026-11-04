@@ -4,7 +4,7 @@ export const blockSettings = {
   on: 'On',
   off: 'Off',
   /** At the right of a block's row, and the filter, when it is off (its switch: active, off). */
-  inactive: 'Deactivated',
+  inactive: 'Disabled',
   standard: 'Standard blocks',
   /** In the group of an installed app with neither blocks nor kinds. */
   noBlocks: 'The app has no blocks',
@@ -19,7 +19,7 @@ export const blockSettings = {
   offHint: 'Not shown under Insert.',
   /** The switch of an app's kind of a list, and under it: the list's name, its button for a new one ("Ny promovering"),
    * and its name for more ("promoveringer"). */
-  active: 'Activated',
+  active: 'Enabled',
   kindStuck: (more: string) => `The block is used in ${more} and can’t be turned off`,
   kindStillOn: (n: number, what: string) => `The block is used in ${n} ${what}. Delete ${n === 1 ? 'it' : 'them'} first.`,
   kindOnHint: (create: string) => `Shown under ${create}.`,
@@ -28,11 +28,11 @@ export const blockSettings = {
   /** Under the preview: whose fields it has (the page's title). */
   asOn: (page: string) => `As shown on ${page}`,
   empty: 'An example. The block isn’t used on any page yet.',
-  nothing: 'The block isn’t used on any page yet, so there is nothing to show',
+  nothing: 'The block isn’t used on any page yet, so there’s nothing to show',
   /** Under the preview of an app's kind of a list: whose fields it has (the entry's name), or none. */
   asIn: (entry: string) => `As shown in ${entry}`,
   kindEmpty: 'An example. The block isn’t used yet.',
-  kindNothing: 'The block isn’t used yet, so there is nothing to show',
+  kindNothing: 'The block isn’t used yet, so there’s nothing to show',
   pages: 'Used on',
   noPages: 'No pages',
   /** Over the entries of an app's kind of a list (its name for more), and when there are none. */

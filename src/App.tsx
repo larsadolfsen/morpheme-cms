@@ -1,19 +1,19 @@
 // The editor at /editor/ (docs/editor.md): sign in with GitHub, pick a part of the site, edit and
-// save. The address after # says what is open, so reloading keeps it:
+// save. The layout: the full-height navigation rail or drawer (MainMenu.tsx) with, beside it, the top bar (topBarSlot.tsx) over the screen. The address after # says what is open, so reloading keeps it:
 //   (empty)          the start page
 //   liste/<id>       the list of a part, e.g. liste/priser, and liste/<id>/<app> a tab an installed app adds to it
 //                    (AppDefinition.tabs): liste/cookies/cookiescanner
 //   header           what is in the header on every page (the menu)
 //   lister           the short lists (the testimonials, the apps' lists)
-//   indstillinger    the settings of the whole site (Library.tsx Settings), opened by the gear in the top bar:
-//                    indstillinger/appstore the app store, its apps, and indstillinger/appstore/temaer its themes (AppList.tsx StorePage)
+//   indstillinger/appstore   the app store, its apps, and indstillinger/appstore/temaer its themes (AppList.tsx StorePage); the
+//                    other settings are screens of their own, in the drawer's last section (MainMenu.tsx)
 //   ny/<id>          a new entry, ny/<id>/<kind> one of a kind (a pop-up: standard, or an app's)
 //   virksomheden     the business, and virksomheden/<part> its parts: kontakt, betaling; and
 //                    virksomheden/betaling/<part> its own parts: mobilepay, bank
 //   <screen>         a screen with parts of the site's own (partScreens), and <screen>/<part> its parts:
 //                    privatliv/cookiebanner, privatliv/privatlivssider, or one of the editor's own screens (Part.opens):
 //                    privatliv/samtykker the visitors' answers in the cookie banner (Consents.tsx); and the settings of the apps installed with
-//                    its category: maaling/google-analytics, promovering/calendly
+//                    its category: maaling/google-analytics
 //   filer            the uploaded pictures, PDFs, videos and zip files (Media.tsx)
 //   seo              "Søgemaskineoptimering" (Library.tsx Seo): seo/videresendelser the redirects' two lists
 //                    (Redirects.tsx): seo/videresendelser/alle the redirects, and seo/videresendelser/ikke-fundet
@@ -138,10 +138,8 @@ import {
   List,
   Lists,
   PartsHome,
-  partsIn,
   PartsScreen,
   Seo,
-  Settings,
   Start,
   Theme,
   ThemePage,
@@ -150,24 +148,14 @@ import {
   MotionSchemes,
   motionOf,
 } from './Library';
-import {
-  appearance,
-  asWritten,
-  blockParts,
-  collections,
-  companyParts,
-  groups,
-  icons,
-  listRowsOf,
-  lists,
-  partScreens,
-  seoParts,
-} from './site';
-import { config, header, relationsOf, type SiteData, siteName, siteOf, testimonialsOf, usedBy, whatIsAt } from '@site/editor';
+import { appearance, asWritten, blockParts, collections, companyParts, listRowsOf, partScreens, seoParts } from './site';
+import { config, relationsOf, type SiteData, siteName, siteOf, testimonialsOf, usedBy, whatIsAt } from '@site/editor';
 import { themes } from './themes';
 import Screen from './Screen';
-import { Button, EmptyNote, NavigationRail, NavigationRailItem, NavigationRailSection, ProblemNote, startRipples } from './ui';
-import { setSidebar, useSidebar } from './sidebar';
+import { Button, EmptyNote, ProblemNote, startRipples } from './ui';
+import { useMenuOpen } from './menuOpen';
+import { MainMenu } from './MainMenu';
+import { TopBarLayout } from './topBarSlot';
 import { Ask, ask } from './ask';
 import { LinkAsk } from './LinkSheet';
 import { type ListRows, type Option, type TestimonialRow } from './fields';
@@ -285,6 +273,10 @@ const MOVED: Record<string, string> = {
   videresendelser: 'seo/videresendelser',
   'videresendelser/alle': 'seo/videresendelser/alle',
   'videresendelser/ikke-fundet': 'seo/videresendelser/ikke-fundet',
+  // The settings of the booking and newsletter apps were on a screen "Promovering"; they are on the apps' own pages now.
+  promovering: 'apps',
+  'promovering/calendly': 'apps/calendly/indstillinger',
+  'promovering/mailchimp': 'apps/mailchimp/indstillinger',
   [STORE_BEFORE]: STORE_ROUTE,
   [`${STORE_BEFORE}/temaer`]: STORE_THEMES,
 };
@@ -317,11 +309,6 @@ function Editor() {
   // Whether someone is signed in (the Worker keeps the sign-in, packages/editor/worker/session.js): null until the Worker or this
   // browser's copy of the files (cache.ts) has said.
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
-  // Whether the sidebar is open on a computer (sidebar.ts).
-  const sidebar = useSidebar();
-  // While it is closed: the mouse over the rail, which then shows the whole sidebar over the content.
-  const [peek, setPeek] = useState(false);
-  const peekTimer = useRef(0);
   const [user, setUser] = useState<Viewer | null>(null);
   const [files, setFiles] = useState<RepoFile[] | null>(null);
   const [error, setError] = useState('');
@@ -329,10 +316,11 @@ function Editor() {
   // Counts the visits to an address: a form starts fresh on each, but not when a new entry that was
   // just saved gets its own address.
   const [visit, setVisit] = useState(0);
-  // The messages at the bottom stand in the middle of the content, next to the sidebar (editor.css).
+  // The messages at the bottom and the save bar stand next to the standard drawer while it is open (editor.css).
+  const { open: menuOpen } = useMenuOpen();
   useEffect(() => {
-    document.documentElement.dataset.sidebar = sidebar ? 'open' : 'closed';
-  }, [sidebar]);
+    document.documentElement.dataset.sidebar = menuOpen ? 'open' : 'closed';
+  }, [menuOpen]);
   // Stops waiting for the last save to be on the site.
   const stopWaiting = useRef<() => void>(undefined);
   // What the saves the editor waits for the website to have changed (save).
@@ -679,97 +667,35 @@ function Editor() {
     );
   }
 
-  // The part of the site that is open, for the sidebar: the menu under "Header", the lists and testimonials under
-  // "Lister", the front page under "Udseende".
-  const open = collectionOf(collections, route)?.collection;
-  const part = open?.id || route.replace(/^(liste|ny|slettet)\/([^/]+).*/, '$2');
-  const current = lists.includes(part)
-    ? 'lister'
-    : header.includes(part)
-      ? 'header'
-      : part.startsWith('virksomheden')
-        ? 'virksomheden'
-        : part.startsWith('blokke')
-          ? 'blokke'
-          : part.startsWith('udseende')
-            ? 'udseende'
-            : part.startsWith('seo')
-              ? 'seo'
-              : part.startsWith('apps')
-                ? 'apps'
-                : (partScreens.find((s) => part.startsWith(`${s.id}/`))?.id ?? part);
-
   return (
     <>
-      <div className="md:flex">
-        {/* On a computer: the parts of the site in the theme's navigation rail, expanded and collapsed with its menu
-          button; under it, while expanded, the logo and the name, which go to the start screen (the account is in the
-          top bar, Screen.tsx). Collapsed, the mouse over it shows it expanded over the content for a moment (a short wait
-          first, so passing over it does not), until the mouse leaves. On a phone, the start screen is the menu. */}
-        <aside
-          className="sticky top-0 z-30 hidden h-dvh shrink-0 pt-[env(safe-area-inset-top)] md:flex"
-          onPointerEnter={(e) => {
-            if (sidebar || e.pointerType !== 'mouse') return;
-            peekTimer.current = window.setTimeout(() => setPeek(true), 150);
-          }}
-          onPointerLeave={() => {
-            clearTimeout(peekTimer.current);
-            setPeek(false);
-          }}
-        >
-          <NavigationRail
-            label={t.library.sidebar}
-            menuLabel={sidebar ? t.library.closeSidebar : t.library.openSidebar}
-            expanded={sidebar}
-            peek={peek}
-            onExpandedChange={(open) => {
-              setPeek(false);
-              setSidebar(open);
-            }}
-            header={
-              <a href="#" className="flex min-w-0 items-center gap-3 font-semibold">
-                <img src="/editor/icon-192.png" alt="" className="size-7 shrink-0 rounded-lg" />
-                <span className="truncate">{siteName}</span>
-              </a>
-            }
-          >
-            {groups.map((g) => (
-              <NavigationRailSection key={g.title} label={g.title}>
-                {partsIn(g.ids, files ?? []).map(({ id, label, href, count }) => (
-                  <NavigationRailItem
-                    key={id}
-                    href={href}
-                    icon={icons[id]}
-                    label={label}
-                    count={files ? count : null}
-                    selected={current === id}
-                  />
-                ))}
-              </NavigationRailSection>
-            ))}
-          </NavigationRail>
-        </aside>
-
-        <div className="min-w-0 flex-1">
-          {files ? (
-            <>
-              {user && !user.canSave && (
-                <p className="bg-accent px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] text-center text-sm text-on-accent">
-                  {t.app.cannotSave(user.login)}
-                </p>
-              )}
+      <TopBarLayout
+        aside={<MainMenu route={route} files={files} />}
+        above={
+          files &&
+          user &&
+          !user.canSave && (
+            <p className="bg-accent px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] text-center text-sm text-on-accent">
+              {t.app.cannotSave(user.login)}
+            </p>
+          )
+        }
+      >
+        <>
+          <div className="editor-content min-w-0 flex-1">
+            {files ? (
               <Page key={visit} route={route} files={files} env={env} user={user} builtAt={builtAt} onLogout={signOut} />
-            </>
-          ) : (
-            <Screen title={siteName}>
-              <EmptyNote busy={!error}>{error || t.app.loading}</EmptyNote>
-            </Screen>
-          )}
-        </div>
+            ) : (
+              <Screen title={siteName}>
+                <EmptyNote busy={!error}>{error || t.app.loading}</EmptyNote>
+              </Screen>
+            )}
+          </div>
 
-        <LinkAsk groups={linkGroups} />
-        <Ask />
-      </div>
+          <LinkAsk groups={linkGroups} />
+          <Ask />
+        </>
+      </TopBarLayout>
     </>
   );
 }
@@ -809,15 +735,15 @@ function formAt(route: string, files: RepoFile[]): { part: Part; at: string; pag
 type PageProps = { route: string; files: RepoFile[]; env: Env; user: Viewer | null; builtAt: Date | null; onLogout: () => void };
 
 function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
-  if (!route) return <Start files={files} builtAt={builtAt} />;
+  if (!route) return <Start builtAt={builtAt} />;
   if (route === 'konto') return <Account user={user} files={files} onLogout={onLogout} />;
   if (route === 'notifikationer') return <Notifications />;
-  if (route === 'indstillinger') return <Settings files={files} />;
   if (route === 'header') return <Header files={files} />;
   if (route === 'lister') return <Lists files={files} />;
   if (route === 'virksomheden') return <Company files={files} />;
   if (route === 'blokke') return <Blocks files={files} />;
-  if (route === 'filer') return <Media files={files} env={env} />;
+  if (route === 'filer' || route.startsWith('filer/'))
+    return <Media key={route} files={files} env={env} open={route === 'filer' ? undefined : '/' + route.slice('filer/'.length)} />;
   if (route === 'seo') return <Seo />;
   if (route === REDIRECTS_ROUTE) return <Redirects env={env} />;
   if (route === SEO_SCORES_ROUTE) return <SeoScores files={files} env={env} />;

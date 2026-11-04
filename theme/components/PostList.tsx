@@ -4,6 +4,7 @@
 import Img from '@theme/components/Img';
 import PostMeta from '@theme/components/PostMeta';
 import type { PostView } from '@theme/components/posts';
+import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
 import { Link, useOnSite } from '@morphemecms/cms/src/standard/view';
 
 // Shows the number in data-random-posts of the posts in the list just before it, picked at random.
@@ -29,16 +30,19 @@ export default function PostList({
   const onSite = useOnSite();
   return (
     <>
-      <ul className={['grid gap-x-12 md:grid-cols-2', className].filter(Boolean).join(' ')} data-random-posts={random ? count : undefined}>
+      <ul
+        className={['grid gap-x-12 expanded:grid-cols-2', className].filter(Boolean).join(' ')}
+        data-random-posts={random ? count : undefined}
+      >
         {posts.map((post, i) => (
           <li key={post.href || post.title} hidden={random && i >= count} className="border-t border-line">
-            <Link href={post.href} className="group grid grid-cols-[5.5rem_1fr] gap-4 py-5 sm:grid-cols-[8rem_1fr] sm:gap-5">
+            <Link href={post.href} className="group grid grid-cols-[5.5rem_1fr] gap-4 py-5 medium:grid-cols-[8rem_1fr] medium:gap-5">
               {post.image ? (
                 <Img
                   image={post.image}
                   alt=""
                   className="theme-post-picture aspect-square w-full object-cover"
-                  sizes="(min-width: 640px) 128px, 88px"
+                  sizes={`(min-width: ${BREAKPOINTS.medium}px) 128px, 88px`}
                 />
               ) : (
                 <span className="theme-post-picture aspect-square bg-tint" />

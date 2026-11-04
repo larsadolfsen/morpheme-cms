@@ -1,7 +1,9 @@
 // The licences of the third-party work the site and the editor are made with ("Licenser" under "Indstillinger",
 // Licenses.tsx), as the build finds them (/editor/licenses.json, licensesIntegration in packages/editor/lib/licenses.mjs),
 // what an app (defineApp) and a theme (theme.json) declare (their own licence and the third-party work they bring), and
-// what the store's catalog has of them (scripts/store-release.mjs, storeLicenses).
+// what the store's catalog has of them (scripts/store-release.mjs, storeLicenses). Also splits the CMS's own licence out
+// of the works the editor and the site bring (splitCms), to be shown first. Depends on PACKAGE (lib/cms-version.mjs).
+import { PACKAGE } from '../lib/cms-version.mjs';
 
 /** What a third-party work is to the site: a font, icons, code (a library, also styles) or pictures. */
 export type LicenseKind = 'font' | 'icons' | 'library' | 'image';
@@ -77,3 +79,12 @@ export function loadLicenses(): Promise<LicensesFile | null> {
     .catch(() => null);
   return loaded;
 }
+
+/** The works the editor and the site bring, split in the CMS's own licence (the work with the CMS's package name, none
+ * when the build did not find it) and the rest, which keeps its order. */
+export function splitCms<W extends Pick<LicensedWork, 'id'>>(works: W[]): { cms: W | null; rest: W[] } {
+  return { cms: works.find((w) => w.id === PACKAGE) ?? null, rest: works.filter((w) => w.id !== PACKAGE) };
+}
+
+/** The CMS's name in its own licence row ("Morpheme CMS itself"); a product name, so it is not translated. */
+export const CMS_NAME = 'Morpheme CMS';

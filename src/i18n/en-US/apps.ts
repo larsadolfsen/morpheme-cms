@@ -18,10 +18,10 @@ export const apps = {
   needsLoads: 'Loads from other addresses',
   needsSends: 'Sends forms to other addresses',
   needsServer: 'Has its own part of the website’s server',
-  needsBuild: 'Makes its own files when the website is built',
+  needsBuild: 'Makes its own files when the website is updated',
   /** What it changes of what the site does itself, by its file in hooks/ (@morphemecms/cms/lib/hooks.ts). */
   changes: { 'page-colors': 'Changes the pages’ colors' } as Record<AppHook, string>,
-  /** In the check before the build: a file in an app's hooks/ that is no place an app may change the site. */
+  /** In the check before the website is updated: a file in an app's hooks/ that is no place an app may change the site. */
   unknownHook: (places: string) => `The file is no place an app can change the website: ${places}.`,
   needsNothing: 'None',
   /** The kinds of notifications it sends (its `notifications`), each turned off under "Konto" › "Notifikationer". */
@@ -52,13 +52,13 @@ export const apps = {
   /** After installing: where its blocks are now. */
   isInstalled: (app: string) => `${app} is installed`,
   isUninstalled: (app: string) => `${app} is uninstalled`,
-  /** After installing or updating one from the store, which the site's next build has. */
-  isInstalledSoon: (app: string) => `${app} is installed and can be used once the website is built`,
-  isUpdatedSoon: (app: string, version: string) => `${app} is updated to ${version} and works that way once the website is built`,
+  /** After installing or updating one from the store, which the website gets in a few minutes. */
+  isInstalledSoon: (app: string) => `${app} is installed and can be used in a few minutes`,
+  isUpdatedSoon: (app: string, version: string) => `${app} is updated to ${version}. The website uses it in a few minutes.`,
   /** Asked before uninstalling. */
   askUninstall: (app: string) => `Uninstall ${app}? What the app adds disappears from the editor.`,
   /** The name of the switch in the row of one of its blocks (or kinds of a list), read by screen readers. */
-  activeOf: (block: string) => `Activated: ${block}`,
+  activeOf: (block: string) => `Enabled: ${block}`,
   /** Under "Afinstaller". */
   uninstallHint: 'Can be uninstalled, as nothing on the website uses the app.',
   /** Over the pages and entries that use it (its blocks, its kind of pop-up). */
@@ -76,10 +76,10 @@ export const apps = {
   /** The app store: the button to it over the list of apps, its title, and its search. */
   find: 'Appstore',
   searchStore: 'Search for apps',
-  loadingStore: 'Loading apps',
+  loadingStore: 'Loading apps…',
   storeFailed: 'Couldn’t load the Appstore',
   /** On "Appstore" when the site's Worker has no store key: only the site's own are there. */
-  noStore: 'The site has no Appstore',
+  noStore: 'The website has no Appstore',
   /** On "Appstore": the box that connects the site to the Morpheme store, the row that disconnects it, and the answer at the store's hourly limit. */
   connectTitle: 'The website is not connected to Morpheme',
   connectText: 'Connect it to install apps and themes from the Appstore.',
@@ -110,7 +110,7 @@ export const apps = {
   version: (version: string) => `Version ${version}`,
   /** An app from the store in the site's file of apps, which the site's build does not have yet. */
   pending: 'Installing…',
-  pendingHint: 'The app can be used once the website is built.',
+  pendingHint: 'The app can be used in a few minutes.',
   /** A newer version in the store: in the list, and the button on its page. */
   updateFound: 'Update available',
   update: (version: string) => `Update to ${version}`,

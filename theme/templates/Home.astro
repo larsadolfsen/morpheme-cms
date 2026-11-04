@@ -26,7 +26,7 @@ const { page, heading, headingHtml, sections } = Astro.props;
   shareTitle={page.data.shareTitle}
   shareDescription={page.data.shareDescription}
 >
-  <Container class="pt-8 md:pt-16">
+  <Container class="pt-8 medium:pt-16">
     <h1 class="theme-title max-w-[22ch]">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
   </Container>
   {sections.map((s, i) => {

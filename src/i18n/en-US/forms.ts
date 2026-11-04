@@ -41,14 +41,14 @@ export const forms = {
     /** "Skjul for søgemaskiner (noindex)" is ticked. */
     noindex: (post: boolean) => `The ${post ? 'post' : 'page'} is hidden from Google`,
     /** "Canonical URL" is a page the editor does not know. */
-    noCanonical: 'Canonical URL points to a page that doesn’t exist',
+    noCanonical: 'The canonical URL (the page Google should list) points to a page that doesn’t exist',
     allAlt: 'All pictures have an alt text',
     noAlt: (n: number) => `${n} ${n === 1 ? 'picture has' : 'pictures have'} no alt text`,
     goodLinks: (n: number): string => (n === 1 ? 'The link has a descriptive text' : 'The links have descriptive text'),
     /** The first link whose text is only "klik her", "læs mere" and the like. */
     vagueLink: (text: string) => `The link "${text}" doesn’t say where it leads`,
     /** How to do better, under a check that is not fine when it is folded out. */
-    fixNoH1: 'Write the page’s heading at the top of the text, and make it Heading (H1).',
+    fixNoH1: 'Write the page’s heading at the top of the text, as a Heading.',
     fixManyH1: 'Make the others Heading or Subheading.',
     fixH1First: 'Move the heading (H1) up, so it comes first in the text.',
     fixTitle: 'Write a Google title of at most about 60 characters.',
@@ -76,7 +76,7 @@ export const forms = {
     titleNeedsLetters: 'The title must have letters or digits.',
     /** Planlagt (scheduled), with a time that has passed. */
     scheduledPast: 'The time has already passed. Choose a later time, or choose Published.',
-    /** The page is a standard page ("Forside", "Blogside" …, chosen `where`: "Indstillinger › Udseende › Standardsider")
+    /** The page is a standard page ("Forside", "Blogside" …, chosen `where`: "Udseende › Standardsider")
      * and was made Kladde or Planlagt. */
     standardPage: (label: string, where: string) =>
       `The page is chosen as ${label} under ${where} and must be published. Choose another page there first.`,
@@ -94,7 +94,7 @@ export const forms = {
       `${reason} ${typed ? 'Choose another address' : `Give the ${post ? 'post' : 'page'} another title`}.`,
     fileExists: (name: string) => `There’s already a file named ${name}.md. Choose another address.`,
     empty: (post: boolean) => `${post ? 'An empty blog post' : 'An empty page'} can’t be saved.`,
-    movedTitle: 'A redirect has been created',
+    movedTitle: 'Redirect created',
     movedText: (address: string, old: string, post: boolean, where: string) =>
       `The ${post ? 'post' : 'page'} now has the address ${address}. The old address, ${old}, now redirects here.`,
     ok: 'OK',
@@ -103,7 +103,7 @@ export const forms = {
   /** An entry of a folder or a single file (DataForm.tsx). */
   nameNeedsLetters: 'The name must have letters or digits.',
   /** The fields (fields.tsx). */
-  fromTitle: 'Generated from the title when the page is first saved.',
+  fromTitle: 'Created from the title the first time you save the page.',
   noIcon: 'No icon',
   pickIcon: 'Choose an icon',
   noIconYet: 'No icon yet',

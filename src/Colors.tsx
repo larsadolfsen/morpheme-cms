@@ -359,7 +359,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
           first={preview(mode)}
           main={
             <>
-              <div className="grid gap-5 sm:grid-cols-2">
+              <div className="grid gap-5 medium:grid-cols-2">
                 {colorFields.map((field) => {
                   const id = `color-${mode}-${field.name}`;
                   return (
