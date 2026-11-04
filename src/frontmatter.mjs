@@ -28,7 +28,10 @@ export function writeFields(yaml, changes) {
     if (value !== '' && value != null) doc.set(key, toNode(doc, key, value));
     else if (doc.has(key)) doc.delete(key);
   }
-  return doc.contents?.items?.length ? doc.toString(STRINGIFY).replace(/\n$/, '') : '';
+  if (!doc.contents?.items?.length) return '';
+  const text = doc.toString(STRINGIFY).replace(/\n$/, '');
+  // The yaml package writes \n; a file with \r\n keeps its line breaks (a checkout on Windows).
+  return yaml.includes('\r\n') ? text.replace(/\n/g, '\r\n') : text;
 }
 
 function toNode(doc, key, value) {
