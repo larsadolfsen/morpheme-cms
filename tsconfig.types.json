@@ -10,5 +10,7 @@
     "target": "es2023",
     "skipLibCheck": true
   },
-  "include": ["astro.mjs", "lib/**/*.mjs", "site/**/*.mjs", "src/**/*.mjs", "scripts/releases.mjs"]
+  "include": ["astro.mjs", "lib/**/*.mjs", "site/**/*.mjs", "src/**/*.mjs", "scripts/releases.mjs"],
+  // Tests are not part of the package; some import .ts modules, which would leave .d.ts files beside them.
+  "exclude": ["**/*.test.mjs"]
 }
