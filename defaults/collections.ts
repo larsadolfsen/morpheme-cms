@@ -176,49 +176,52 @@ export const contactFields: Field[] = [
 
 // The social media (src/data/social.json, a part of its own under "Virksomheden", company.ts): the site's profiles, and
 // which share buttons a post shows. A switch that is not in the file is on (company.ts gives the form that default).
+// A profile address: empty, or one that begins with https://.
+const httpsAddress: [string, string] = ['^$|^https://\\S+$', 'Skriv en adresse, der begynder med https://'];
+
 export const socialFields: Field[] = [
   {
     name: 'facebook',
     label: 'Facebook',
     type: 'string',
     hint: 'Adressen på sitets profil. Vises i Googles data om virksomheden.',
-    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+    pattern: httpsAddress,
   },
   {
     name: 'instagram',
     label: 'Instagram',
     type: 'string',
-    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+    pattern: httpsAddress,
   },
   {
     name: 'linkedin',
     label: 'LinkedIn',
     type: 'string',
-    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+    pattern: httpsAddress,
   },
   {
     name: 'x',
     label: 'X',
     type: 'string',
-    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+    pattern: httpsAddress,
   },
   {
     name: 'youtube',
     label: 'YouTube',
     type: 'string',
-    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+    pattern: httpsAddress,
   },
   {
     name: 'tiktok',
     label: 'TikTok',
     type: 'string',
-    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+    pattern: httpsAddress,
   },
   {
     name: 'pinterest',
     label: 'Pinterest',
     type: 'string',
-    pattern: ['^$|^https://\S+$', 'Skriv en adresse, der begynder med https://'],
+    pattern: httpsAddress,
   },
   { name: 'shareFacebook', label: 'Del på Facebook', type: 'boolean' },
   { name: 'shareX', label: 'Del på X', type: 'boolean' },
