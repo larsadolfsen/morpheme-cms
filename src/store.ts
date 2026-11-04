@@ -310,6 +310,11 @@ function catalogText(): Promise<string> {
   return catalog;
 }
 
+/** Makes the catalog be read again, the next time it is asked for (after the site is connected or disconnected). */
+export function forgetCatalog(): void {
+  catalog = null;
+}
+
 /** Whether the site's Worker has a store key; without one, "Appstore" has only the site's own apps and themes. Fails when
  * the catalog cannot be read. */
 export const storeConnected = (): Promise<boolean> =>

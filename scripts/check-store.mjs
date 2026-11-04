@@ -1,11 +1,13 @@
 // Checks the site's Worker's questions to the store (packages/editor/worker/store.js): /api/store/catalog and /api/store/files/<oid>,
-// who may ask, what happens without a key, and the store's refusals and failures. GitHub and the store are played by a fake
-// fetch that records each request; nothing goes to either.
+// who may ask, what happens without a key, the key from the button (in D1, played by Node's SQLite) that is forgotten when
+// the store refuses it, and the store's refusals and failures. GitHub and the store are played by a fake fetch that records
+// each request; nothing goes to either.
 // Run: npm run check:worker
 import { APP_API, THEME_API } from '../lib/contracts.mjs';
+import { DatabaseSync } from 'node:sqlite';
 import { workerModules } from './worker-modules.mjs';
 
-const [{ handleStore, STORE_URL }] = await workerModules('store.js', 'session.js');
+const [{ handleStore, STORE_URL }, , { storeKey }] = await workerModules('store.js', 'session.js', 'store-connection.js');
 
 const problems = [];
 const expect = (ok, what) => ok || problems.push(what);
@@ -24,6 +26,28 @@ function world({ repoAccess = { pull: true, push: false }, store = () => new Res
   };
   return { ask, storeCalls };
 }
+
+/** D1, as much of it as the Worker uses, on an SQLite database in memory. */
+function d1() {
+  const db = new DatabaseSync(':memory:');
+  const statement = (sql, args = []) => ({
+    bind: (...values) => statement(sql, values),
+    run: async () => ({ meta: { changes: Number(db.prepare(sql).run(...args).changes) } }),
+    all: async () => ({ results: db.prepare(sql).all(...args) }),
+    first: async (column) => db.prepare(sql).get(...args)?.[column] ?? null,
+  });
+  return { db, prepare: (sql) => statement(sql), batch: async (list) => Promise.all(list.map((s) => s.run())) };
+}
+/** An env with a key from the button in its database (the table is made by storeKey, as on first use). */
+async function envWithRow(key) {
+  const CONSENT = d1();
+  await storeKey({ CONSENT });
+  CONSENT.db
+    .prepare('INSERT INTO store_connection (site, key, connected) VALUES (?, ?, ?)')
+    .run(`site_${'a1'.repeat(12)}`, key, '2026-11-04T10:00:00.000Z');
+  return { CONSENT };
+}
+const rowCount = (env) => env.CONSENT.db.prepare('SELECT COUNT(*) AS n FROM store_connection').get().n;
 
 let n = 0;
 /** A request from the editor's page; a fresh token each time (the Worker remembers what GitHub said about a token). */
@@ -143,6 +167,32 @@ for (const [status, error] of [
   const { res, text } = await call(w, 'catalog');
   expect(res.status === 502 && JSON.parse(text).error === 'store failed', `en netværksfejl gav ${res.status} ${text}`);
   expect(!text.includes(KEY), 'svaret på en netværksfejl indeholdt nøglen');
+}
+
+// A key from the button: the store gets it as the bearer; when the store refuses it, the row goes, the catalog says
+// "not connected" and a file is not found. A key set by hand that is refused stays a 502.
+{
+  const w = world();
+  await call(w, 'catalog', await envWithRow('isk_row'));
+  expect(
+    w.storeCalls[0]?.headers.authorization === 'Bearer isk_row',
+    `kataloget blev spurgt med ${w.storeCalls[0]?.headers.authorization}`,
+  );
+}
+for (const status of [401, 403]) {
+  for (const path of ['catalog', `files/${OID}`]) {
+    const env = await envWithRow('isk_row');
+    const { res, text } = await call(world({ store: () => new Response('no', { status }) }), path, env);
+    const want = path === 'catalog' ? res.status === 200 && JSON.parse(text).connected === false : res.status === 404;
+    expect(want, `butikkens ${status} på ${path} med en nøgle fra knappen gav ${res.status} ${text}`);
+    expect(rowCount(env) === 0, `butikkens ${status} på ${path} lod nøglen fra knappen stå`);
+  }
+}
+{
+  const env = { ...(await envWithRow('isk_row')), MORPHEME_STORE_KEY: KEY };
+  const { res, text } = await call(world({ store: () => new Response('no', { status: 401 }) }), 'catalog', env);
+  expect(res.status === 502 && JSON.parse(text).error === 'store refused', `en nøgle i hånden, der blev afvist, gav ${res.status} ${text}`);
+  expect(rowCount(env) === 1, 'en nøgle i hånden, der blev afvist, slettede rækken');
 }
 
 // Other methods and addresses.

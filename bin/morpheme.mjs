@@ -12,7 +12,7 @@ const COMMANDS = {
   'after-build': ['scheduled-list', 'link-counts', 'page-colors'],
   'check:content': ['check-content'],
   'check:editor': ['editor-roundtrip'],
-  'check:worker': ['check-worker', 'check-consent', 'check-store', 'check-cms-update'],
+  'check:worker': ['check-worker', 'check-consent', 'check-store', 'check-cms-update', 'check-store-connection'],
   'check:screens': ['editor-screens'],
   'check:themes': ['check-themes'],
   'check:demo': ['check-demo'],
@@ -24,7 +24,7 @@ const COMMANDS = {
 };
 
 // Node warns that node:sqlite is experimental, which the consent log's check uses as D1.
-const QUIET = new Set(['check-consent']);
+const QUIET = new Set(['check-consent', 'check-store-connection']);
 
 const [command, ...args] = process.argv.slice(2);
 if (!COMMANDS[command]) {

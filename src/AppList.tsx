@@ -98,6 +98,9 @@ import { config } from '@site/editor';
 import { allThemes, ThemeRow, themeInstalled, useThemeCatalog } from './ThemeStore';
 import { siteT, siteText, t } from './i18n';
 import { OwnerLicenses, StoreLicenseRows } from './Licenses';
+import { StoreConnectNotice } from './StoreConnectNotice';
+import { StoreConnectedRow } from './StoreConnectedRow';
+import { connection, type StoreConnection } from './storeConnection';
 import { appType, setOn, told, useNotificationChoices } from './notificationData';
 import { kindAndName } from './deploy';
 
@@ -594,8 +597,18 @@ export function DeveloperRow({ name }: { name: string }) {
  * and those installed, each with its version and who made it; each opening its page. With search (by name, what it
  * does, who made it and the words it is found by, in both languages), the order and the filters by category (apps)
  * and by whether it is installed, each picked one as a chip. */
-export function StorePage({ env, files, tab }: { env: Env; files: RepoFile[]; tab: 'apps' | 'themes' }) {
+export function StorePage(props: { env: Env; files: RepoFile[]; tab: 'apps' | 'themes' }) {
+  // Connecting or disconnecting draws the screen again from the start, so the catalogs and the key are asked again.
+  const [round, setRound] = useState(0);
+  return <StoreScreen key={round} {...props} again={() => setRound((r) => r + 1)} />;
+}
+
+function StoreScreen({ env, files, tab, again }: { env: Env; files: RepoFile[]; tab: 'apps' | 'themes'; again: () => void }) {
   const installed = installedApps(files);
+  const [key, setKey] = useState<StoreConnection | null>(null);
+  useEffect(() => {
+    connection().then(setKey, () => {});
+  }, []);
   const catalog = useCatalog(env);
   const themeCatalog = useThemeCatalog(env);
   const connected = useStoreConnected(env);
@@ -689,7 +702,7 @@ export function StorePage({ env, files, tab }: { env: Env; files: RepoFile[]; ta
       )}
       {/* The site's own are shown also when the store cannot be read. */}
       {connected === false ? (
-        <EmptyNote>{t.apps.noStore}</EmptyNote>
+        <StoreConnectNotice mayChange={key?.mayChange ?? false} onConnected={again} />
       ) : read === null || connected === null ? (
         <EmptyNote busy>{t.apps.loadingStore}</EmptyNote>
       ) : read === 'failed' ? (
@@ -714,6 +727,7 @@ export function StorePage({ env, files, tab }: { env: Env; files: RepoFile[]; ta
           </Group>
         ))
       )}
+      {key?.connected && key.by === 'button' && key.mayChange && <StoreConnectedRow site={key.site} onDisconnected={again} />}
     </Screen>
   );
 }

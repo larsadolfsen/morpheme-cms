@@ -14,7 +14,8 @@
 //   (packages/editor/worker/session.js), and what the editor asks of GitHub with it (/api/github/*, packages/editor/worker/editor-github.js), the site's
 //   files through the cache in R2 (packages/editor/worker/files.js).
 // - what the editor asks of the app store (/api/store/catalog and /api/store/files/<oid>, packages/editor/worker/store.js), with the
-//   site's key (MORPHEME_STORE_KEY) that never leaves the Worker.
+//   site's key (MORPHEME_STORE_KEY, or the one from "Connect to Morpheme", /api/store/connection, packages/editor/worker/store-connection.js, in D1)
+//   that never leaves the Worker.
 // - the addresses visitors came to that do not exist, for the editor (/api/not-found, packages/editor/worker/not-found.js).
 // - the visitors' answers in the cookie banner, the consent log (/api/consent, packages/editor/worker/consent.js, in D1), and each hour
 //   those older than two years deleted.
@@ -36,6 +37,7 @@ import { handleNotFound, isVisit, json, recordNotFound } from './not-found.js';
 import { forgetOldConsents, handleConsent } from './consent.js';
 import { access, mayEdit } from './session.js';
 import { handleGitHub } from './editor-github.js';
+import { handleConnection } from './store-connection.js';
 import { handleStore } from './store.js';
 import { handleR2 } from './r2-status.js';
 import { publishScheduled, SCHEDULED_LIST } from './publish.js';
@@ -149,6 +151,7 @@ export default {
     if (url.pathname === '/api/consent') return handleConsent(request, env);
     if (url.pathname === '/api/r2') return handleR2(request, env);
     if (url.pathname.startsWith('/api/github/')) return handleGitHub(request, env, ctx);
+    if (url.pathname === '/api/store/connection') return handleConnection(request, env, ctx);
     if (url.pathname.startsWith('/api/store/')) return handleStore(request, env, ctx);
     if (/^\/api\/push(\/wait)?\/?$/.test(url.pathname)) return handlePush(request, env);
     if (/^\/api\/cms(\/update)?\/?$/.test(url.pathname)) return handleCms(request, env, ctx);

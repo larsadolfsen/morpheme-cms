@@ -80,6 +80,14 @@ export const apps = {
   storeFailed: 'Couldn’t load the Appstore',
   /** On "Appstore" when the site's Worker has no store key: only the site's own are there. */
   noStore: 'The site has no Appstore',
+  /** On "Appstore": the box that connects the site to the Morpheme store, the row that disconnects it, and the answer at the store's hourly limit. */
+  connectTitle: 'The website is not connected to Morpheme',
+  connectText: 'Connect it to install apps and themes from the Appstore.',
+  connect: 'Connect to Morpheme',
+  connected: 'Connected to Morpheme',
+  disconnect: 'Disconnect from Morpheme',
+  disconnectAsk: 'Disconnect the website from Morpheme? Installed apps and themes stay.',
+  connectBusy: 'Many websites are connecting right now. Try again in an hour.',
   /** An app's files did not come from the store as its catalog says. */
   storeBroken: (app: string) => `${app} couldn’t be loaded correctly from the Appstore`,
   /** At an address of an app the store does not have. */
