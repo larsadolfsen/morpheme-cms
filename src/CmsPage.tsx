@@ -12,7 +12,7 @@ import { when } from './when';
 
 export const CMS_ROUTE = 'morpheme';
 
-type Problem = 'unreachable' | 'cannot-write' | 'no-token' | 'not-managed' | 'slow-undo';
+type Problem = 'unreachable' | 'cannot-write' | 'no-token' | 'no-kv' | 'not-managed' | 'slow-undo';
 type UpdateState = 'waiting' | 'undoing' | 'done' | 'undone' | 'stuck';
 type View = {
   running: string;
@@ -130,10 +130,11 @@ export default function CmsPage() {
   );
 }
 
-const kindText: Record<Problem, 'unreachable' | 'cannotWrite' | 'noToken' | 'notManaged' | 'slowUndo'> = {
+const kindText: Record<Problem, 'unreachable' | 'cannotWrite' | 'noToken' | 'noKv' | 'notManaged' | 'slowUndo'> = {
   unreachable: 'unreachable',
   'cannot-write': 'cannotWrite',
   'no-token': 'noToken',
+  'no-kv': 'noKv',
   'not-managed': 'notManaged',
   'slow-undo': 'slowUndo',
 };

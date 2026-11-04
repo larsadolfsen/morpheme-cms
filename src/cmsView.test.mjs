@@ -103,6 +103,12 @@ test('no token', () => {
   assert.deepEqual(view.problems, ['no-token']);
 });
 
+test('no kv', () => {
+  const status = makeStatus({ kv: false });
+  const view = cmsView(status, now);
+  assert.deepEqual(view.problems, ['no-kv']);
+});
+
 test('cannot write', () => {
   const status = makeStatus({ checked: { problem: { kind: 'cannot-write' } } });
   const view = cmsView(status, now);

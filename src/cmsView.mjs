@@ -64,6 +64,9 @@ export function cmsView(status, now = Date.now()) {
   if (status.token === false) {
     problems.push('no-token');
   }
+  if (status.kv === false) {
+    problems.push('no-kv');
+  }
   if (status.checked?.problem) {
     const kind = status.checked.problem.kind;
     if (kind === 'unreachable' || kind === 'cannot-write' || kind === 'not-managed') {
