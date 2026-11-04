@@ -398,6 +398,16 @@ for (const [what, patch] of [
   );
 }
 
+// A pre-release running: the status answers, with no notes.
+{
+  const w = world();
+  for (const v of ['0.1.0', '0.2.0']) await w.kv.put(`cms:notes:${v}`, JSON.stringify({ version: v, text: `Notes ${v}` }));
+  await w.kv.put('cms:checked', JSON.stringify({ at: new Date(T0).toISOString(), latest: '0.2.0' }));
+  const status = await cmsStatus(w.env, '0.2.0-next-1').catch((e) => e);
+  expect(status?.running === '0.2.0-next-1', `en forudgivelse gav ${status?.message ?? status?.running}, ikke status`);
+  expect(Array.isArray(status?.notes) && status.notes.length === 0, 'en forudgivelse gav noter');
+}
+
 if (problems.length) {
   console.error(problems.map((p) => `- ${p}`).join('\n'));
   process.exit(1);

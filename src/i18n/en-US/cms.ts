@@ -23,6 +23,7 @@ export const cms = {
   unreachable: 'npm or GitHub couldn’t be reached.',
   cannotWrite: 'The site’s GitHub token can’t save. Give it Contents: Read and write.',
   noToken: 'The site has no GitHub token (GITHUB_PUBLISH_TOKEN).',
+  noKv: 'The site has no KV storage (PUSH), so it can’t look for new versions.',
   notManaged: 'The site’s package.json decides the version.',
   slowUndo: 'The token can’t read check runs, so a failed update is undone after 20 minutes.',
   /** The site's notifications (Notifications.tsx) and the commits the Worker writes, in the site's language. */

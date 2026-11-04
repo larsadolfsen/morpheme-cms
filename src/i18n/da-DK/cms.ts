@@ -20,6 +20,7 @@ export const cms: Messages['cms'] = {
   unreachable: 'npm eller GitHub kunne ikke nås.',
   cannotWrite: 'Sitets GitHub-nøgle kan ikke gemme. Giv den Contents: Read and write.',
   noToken: 'Sitet har ingen GitHub-nøgle (GITHUB_PUBLISH_TOKEN).',
+  noKv: 'Sitet har intet KV-lager (PUSH), så det kan ikke se efter nye versioner.',
   notManaged: 'Sitets package.json bestemmer versionen.',
   slowUndo: 'Nøglen kan ikke læse check runs, så en fejlet opdatering fortrydes først efter 20 minutter.',
   notifyDone: (v) => `Morpheme er opdateret til ${v}`,
