@@ -35,11 +35,18 @@ Options: "Release X.Y.Z", "Not now". Asked every time, also when a standing go-a
 
 ## Phase 3 - Merge
 
+The Release PR is opened by Actions' token, so GitHub holds its `Check` run until someone approves it
+(`action_required`). `check.yml` skips the changeset step on `changeset-release/main`, so the run can pass.
+
 ```
-gh pr merge <n> -R larsadolfsen/morpheme-cms --admin --merge
+gh run list -R larsadolfsen/morpheme-cms -w Check -b changeset-release/main -L 1 --json databaseId,headSha,conclusion
+gh api -X POST repos/larsadolfsen/morpheme-cms/actions/runs/<id>/approve
+gh run watch <id> -R larsadolfsen/morpheme-cms --exit-status
+gh pr merge <n> -R larsadolfsen/morpheme-cms --merge
 ```
 
-(`--admin`: the Release PR is opened by Actions' token, so its check never runs; `main` lets admins bypass it.)
+The run must be on the Release PR's newest commit (`headSha`). Approve it only when its conclusion is
+`action_required`. A failed run stops here: report its output.
 
 ## Phase 4 - The owner approves on npm
 

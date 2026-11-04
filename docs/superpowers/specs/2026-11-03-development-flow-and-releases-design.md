@@ -47,9 +47,10 @@ Two sites show unreleased code, each for its own purpose:
   exception in *Ingen betaling til GitHub*). **Depends on** the checks running from this repository's root; until the
   owner's move of the source is done, `check.yml` runs only the checks that already run here, and each one is added
   when it does.
-- **Branch protection on `main`:** the `check` job must pass, no direct pushes. Admins may bypass it, because the
-  Release PR (section 4) is opened by Actions' own token, whose pull requests do not start other workflows, so its
-  check never runs; it is merged with `gh pr merge --admin`. **Delete branch on merge** is turned on.
+- **Branch protection on `main`:** the `check` job must pass, no direct pushes. The Release PR (section 4) is opened
+  by Actions' own token, so GitHub holds its check until someone approves the run (`action_required`); `check.yml`
+  skips the changeset step on `changeset-release/main`, as the Release PR removes the changesets. Then it merges
+  like any pull request. **Delete branch on merge** is turned on.
 - **A changeset per pull request.** `npx changeset` writes `.changeset/<random-name>.md`; a pull request that changes
   nothing a site gets (docs, CI, tests only) adds `npx changeset --empty`.
 - **A merge never publishes `latest`.**
@@ -107,8 +108,8 @@ A push that leaves no changeset pending (the Release PR's merge, or only empty c
 
 - On each push to `main` with changesets pending, `changesets/action` opens or updates one pull request,
   **Release x.y.z**: the version in `package.json` raised, the changesets moved into `CHANGELOG.md`.
-- When the owner has tried the change on staging and says go, the Release PR is merged (`gh pr merge --admin`, see
-  section 1).
+- When the owner has tried the change on staging and says go, the Release PR's check is approved and, once it
+  passes, the Release PR is merged (see section 1).
 - That push has no changesets pending and a version npm does not have, so the same action runs
   `npx changeset publish`: it publishes to `latest` with trusted publishing, tags `vX.Y.Z`, and makes the GitHub
   release with the version's section of `CHANGELOG.md`.
@@ -126,7 +127,7 @@ each time:
    when there is no Release PR, or staging's newest build failed or does not run the newest `next`.
 2. **Ask** with the question box: *Release X.Y.Z to every site?*, with the release notes. Always asked, also with the
    standing go-ahead to merge: a merge reaches `main`, a release reaches every site. No answer is no.
-3. **Merge** the Release PR: `gh pr merge <n> --admin --merge`.
+3. **Merge** the Release PR: approve its held `Check` run, wait for it to pass, then `gh pr merge <n> --merge`.
 4. **Watch** the Publish run (`gh run watch`), then check that `dist-tags.latest` is X.Y.Z and that the tag `vX.Y.Z`
    and its GitHub release exist.
 5. **Report** the version, its notes and the links (npm, GitHub release). A failing step is reported with its output

@@ -23,6 +23,7 @@ jobs:
           node-version: 24
       - run: npm ci --no-audit --no-fund
       - name: The pull request has a changeset
+        if: github.head_ref != 'changeset-release/main' # The Release PR turns the changesets into CHANGELOG.md.
         run: npx changeset status --since=origin/main
       # The demo on the starter: its content checked by the editor's rules, built, and after-build (scripts/demo-build.mjs).
       - run: npm run build
