@@ -7,14 +7,14 @@
 //   screenshots/  the pictures it is shown with in the store, picked to give an idea of it (`screenshots` in
 //                 index.ts, packages/editor/scripts/app-screenshots.mjs), on its page;
 //   texts.ts      its texts in the editor's other languages, as a block's;
-//   blocks/<type>/  the blocks it adds, each a folder like a standard block's (index.tsx, view.ts, load.ts,
+//   blocks/<type>/  the blocks it adds, each a folder like a standard block's (index.tsx, viewOf.ts, load.ts,
 //                 View.tsx, texts.ts, evt. shared.ts and script.ts);
 //   lists in index.ts  the lists it brings (`lists`, a FolderCollection each, with its icon): under "Lister" while
 //                 it is installed, and on its page; the entries are files in the site's data (src/data/), so
 //                 they stay, as the rest of the content, when it is uninstalled;
 //   <list>/       a kind of entry it adds to one of the site's lists (`kinds` in index.ts), e.g. popups/: a
 //                 pop-up with a signup form, chosen under "+" with the list's own kinds (FolderCollection
-//                 .kinds); its part (View.tsx, given its view by view.ts in the editor and load.ts on the site,
+//                 .kinds); its part (View.tsx, given its view by viewOf.ts in the editor and load.ts on the site,
 //                 and script.ts for what it does in a browser) is drawn in the pop-up under its text, on the site
 //                 (Popup.astro finds them) and in the editor (`part` in index.ts, kindDraw);
 //   slots/head.astro, slots/body-end.astro  what it puts on every page of the site, in <head> or at the
