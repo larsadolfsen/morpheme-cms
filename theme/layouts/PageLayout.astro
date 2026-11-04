@@ -67,7 +67,8 @@ const review = (page.data.review ?? '').trim();
 const sideType = sideBlock(page.data);
 const sideText = end ? end.html : html;
 const side =
-  sideType && (await blockLoads[sideType].load({}, { texts: blockTexts[sideType] ?? {}, index: 0, path: current, preview, html: sideText })) !== null
+  sideType &&
+  (await blockLoads[sideType].load({}, { texts: blockTexts[sideType] ?? {}, index: 0, path: current, preview, html: sideText })) !== null
     ? sideType
     : null;
 ---
