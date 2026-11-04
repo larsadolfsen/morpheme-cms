@@ -28,6 +28,7 @@ const { demoSite } = await import('./demo-site.mjs');
 const site = join(root, '.morpheme/demo/site');
 rmSync(site, { recursive: true, force: true });
 renameSync(demoSite(), site);
+console.log('DIAG', process.version, execFileSync('sh', ['-c', 'echo sh-soft=$(ulimit -Sn) sh-hard=$(ulimit -Hn) nproc=$(nproc); grep "open files" /proc/self/limits /proc/$PPID/limits; cat /proc/sys/fs/file-max /proc/sys/fs/nr_open; head -2 /etc/os-release'], { encoding: 'utf8' }));
 
 const run = (args) => execFileSync(process.execPath, args, { cwd: site, stdio: 'inherit' });
 run([join(self, 'scripts/check-content.mjs')]);
