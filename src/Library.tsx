@@ -111,6 +111,7 @@ import { MOTION_SCHEMES, schemeInUse, type MotionScheme } from '../lib/motion';
 import { applyMotion } from './theme';
 import { colorsOf } from './Colors';
 import { OwnerLicenses } from './Licenses';
+import { CMS_ROUTE } from './CmsPage';
 import { apps } from './site';
 import { offBlocks } from './registry';
 import { sideChoicesOf, sideSettingOf } from './SideColumn';
@@ -133,6 +134,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'blokvalg') return { label: parts.blockSettings, href: '#blokvalg', count: null };
   if (id === 'apps') return { label: parts.apps, href: '#apps', count: null };
   if (id === 'appstore') return { label: t.apps.find, href: `#${STORE_ROUTE}`, count: null };
+  if (id === 'morpheme') return { label: parts.morpheme, href: `#${CMS_ROUTE}`, count: null };
   if (id === 'avanceret') return { label: parts.advanced, href: '#avanceret', count: null };
   if (id === 'licenser') return { label: parts.licenses, href: '#licenser', count: null };
   const screen = partScreens.find((s) => s.id === id);
