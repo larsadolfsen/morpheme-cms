@@ -45,7 +45,7 @@ export const business = {
   description: site.description,
   url: abs('/'),
   ...(site.portrait ? { image: abs(site.portrait) } : {}),
-  logo: abs('/logo.svg'),
+  logo: abs(site.logo),
   telephone: site.phoneIntl,
   email: site.email,
   ...(site.cvr ? { taxID: site.cvr } : {}),

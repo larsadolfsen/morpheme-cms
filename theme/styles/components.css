@@ -20,6 +20,10 @@
   /* The space over the first block on the blog page, under the tags: its posts, close to them. */
   --theme-blog-first-space: 2.5rem;
   --theme-blog-first-space-large: 3.5rem;
+  /* The column beside the text of a page (PageLayout.astro, the block src/data/side.json chooses): its width and the gap
+     between it and the text, from md. */
+  --theme-side-width: 20rem;
+  --theme-side-gap: 3rem;
   /* The logo (Logo.astro, and at the top of the menu on a phone): the mark (the site's logo) in a tile, its colour and
      size (a share of the mark's own), the name's weight and size, and the role (hidden with none; on a phone, and from md). */
   --theme-logo-tile: transparent;
@@ -186,6 +190,25 @@
   ::view-transition-new(root) {
     animation-duration: var(--theme-page-fade);
     animation-timing-function: var(--ease);
+  }
+}
+
+/* A page with a block beside its text (PageLayout.astro): the text, then the column (on a phone below the text); from md
+   two columns, the second one staying in view while the text is read. */
+.page-with-side > .page-side {
+  margin-top: 3rem;
+}
+@media (min-width: 48rem) {
+  .page-with-side {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--theme-side-width);
+    column-gap: var(--theme-side-gap);
+    align-items: start;
+  }
+  .page-with-side > .page-side {
+    margin-top: 0;
+    position: sticky;
+    top: 6rem;
   }
 }
 

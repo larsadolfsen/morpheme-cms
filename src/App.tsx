@@ -21,7 +21,7 @@
 //                    post (SeoScores.tsx); and seo/<part> the site's own (seoParts)
 //   udseende         how the site looks (Library.tsx Theme): udseende/temaer the themes installed (Themes) and udseende/temaer/<theme>
 //                    a theme's page, with the button that swaps to it (ThemePage), udseende/ikonpakker the icon packs (IconPacks),
-//                    udseende/bevaegelse how it moves (MotionSchemes),
+//                    udseende/bevaegelse how it moves (MotionSchemes), udseende/sidekolonne the block beside the pages' text (SideColumn),
 //                    udseende/farver the colours (Colors.tsx;
 //                    udseende/farver/reservefarver the site's own while an app changes the pages'), udseende/logo the logo
 //                    and icon (BrandForm.tsx), udseende/dele the parts (Library.tsx PartsHome): udseende/dele/editor the editor's, every
@@ -126,6 +126,7 @@ import {
 } from './store';
 import Colors, { colorsOf, FALLBACK_ROUTE } from './Colors';
 import { applyColors, applyMotion } from './theme';
+import SideColumn from './SideColumn';
 import { apps, notOffered } from './registry';
 import {
   Account,
@@ -829,6 +830,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'udseende/temaer') return <Themes env={env} files={files} />;
   if (route === 'udseende/ikonpakker') return <IconPacks env={env} files={files} />;
   if (route === 'udseende/bevaegelse') return <MotionSchemes env={env} files={files} />;
+  if (route === 'udseende/sidekolonne') return <SideColumn env={env} files={files} />;
   // A theme installed has its page; one from the store that is not (or not yet built), its page in the store.
   const themeShown = route.startsWith('udseende/temaer/') && themes.find((x) => x.id === route.slice(16));
   if (themeShown) return <ThemePage key={themeShown.id} of={themeShown} env={env} files={files} />;

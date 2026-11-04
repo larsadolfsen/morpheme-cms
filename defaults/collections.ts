@@ -348,6 +348,17 @@ export const collections: Collection[] = [
         hint: 'Siden fylder hele bredden uden spalten ved siden af teksten.',
       },
       {
+        name: 'side',
+        label: 'Sidekolonne',
+        type: 'boolean',
+        toggle: ['Til', 'Fra'],
+        // Without the key the column is on; only "Fra" is written (side: false).
+        default: true,
+        missing: true,
+        layout: true,
+        hint: 'Blokken ved siden af teksten vises på siden. Den vælges under Udseende › Sidekolonne.',
+      },
+      {
         name: 'review',
         label: 'Til gennemsyn',
         type: 'text',

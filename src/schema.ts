@@ -414,4 +414,6 @@ export type SiteProps<P = Record<string, any>> = {
   path?: string;
   preview?: boolean;
   texts?: Record<string, any>;
+  /** The page's text, for a block drawn beside it (`beside` in its load.ts). */
+  html?: string;
 };

@@ -3,7 +3,7 @@
 // page's H1), the first paragraph the subtitle, the others the introduction, and the text after the buttons is under
 // them, a quote ("> …") in it too (fields.ts); the picture beside the text or behind it (`placement`), across the whole
 // width of the window or as wide as the text (`width`); at the top of a page or anywhere in its text. At the top of the
-// front page its text up to the buttons is written as the text above its card (`frontLeads` in packages/editor/defaults/standardPages.ts,
+// front page its text up to the buttons is written as the text above its card (`lead.ts` in this folder,
 // sections.mjs). How it looks is the theme's
 // (packages/editor/theme/blocks/hero/View.tsx; what it shows: view.ts, and load.ts on the site).
 import { ArrowsInLineHorizontal, ArrowsOutLineHorizontal, Columns, ImageSquare, Sparkle } from '@phosphor-icons/react';
