@@ -15,8 +15,12 @@
       "source": "@mdi/svg@7.4.47",
       "licenseFile": "LICENSE-material-design-icons",
       "icons": [
+        "facebook-logo",
         "github-logo",
-        "google-logo"
+        "google-logo",
+        "linkedin-logo",
+        "pinterest-logo",
+        "x-logo"
       ]
     }
   ]

@@ -80,15 +80,23 @@ export const MATERIAL_DESIGN_ICONS = {
     'arrows-in-line-horizontal': 'arrow-collapse-horizontal',
     'arrows-out-line-horizontal': 'arrow-expand-horizontal',
     binoculars: 'binoculars',
+    'facebook-logo': 'facebook',
     'github-logo': 'github',
     'google-logo': 'google',
+    'linkedin-logo': 'linkedin',
+    'pinterest-logo': 'pinterest',
     'hard-drives': 'harddisk',
     scan: 'scan-helper',
     swatches: 'palette-swatch',
+    'x-logo': 'twitter',
   },
   lucide: {
+    'facebook-logo': 'facebook',
     'github-logo': 'github',
     'google-logo': 'google',
+    'linkedin-logo': 'linkedin',
+    'pinterest-logo': 'pinterest',
+    'x-logo': 'twitter',
   },
 };
 
