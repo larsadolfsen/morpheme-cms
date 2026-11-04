@@ -2,6 +2,10 @@
 // with choices (Sheet.tsx).
 export const library = {
   siteUpdated: (when: string) => `Updated ${when}`,
+  /** The CMS's name and version on the start screen (CmsVersion.tsx), before the update time. */
+  cmsVersion: (version: string) => `Morpheme ${version}`,
+  /** Between the CMS version and the update time in the start screen's status. */
+  statusSeparator: ' · ',
   githubAccount: (login: string) => `GitHub account: ${login}`,
   logOut: 'Log out',
   /** The bell in the top bar and its screen (#notifikationer, Notifications.tsx): the messages shown at the bottom. */

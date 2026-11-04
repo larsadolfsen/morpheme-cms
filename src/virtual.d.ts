@@ -3,3 +3,8 @@ declare module 'virtual:app-folders' {
   const folders: Record<string, { files: string[]; csp?: Partial<Record<string, string[]>> }>;
   export default folders;
 }
+
+// All Phosphor's icons (regular) as text, by their file (allIconsModule in site/theme.mjs).
+declare module 'virtual:all-icons' {
+  export const allIcons: Record<string, string>;
+}

@@ -2,6 +2,8 @@ import type { Messages } from '../en-US';
 
 export const library: Messages['library'] = {
   siteUpdated: (when) => `Opdateret ${when}`,
+  cmsVersion: (version) => `Morpheme ${version}`,
+  statusSeparator: ' · ',
   githubAccount: (login) => `GitHub-konto: ${login}`,
   logOut: 'Log ud',
   notifications: 'Notifikationer',
