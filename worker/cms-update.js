@@ -200,18 +200,19 @@ export async function watchUpdate(env, deps = defaultDeps, now = Date.now()) {
   return tell(env, deps, 'notifyStuck', update.to, true);
 }
 
-/** What the page shows: the running version, the token, what npm said, the update, the skipped versions and the notes. */
-export async function cmsStatus(env) {
+/** What the page shows: the running version, the token, what npm said, the update, the skipped versions and the notes; no notes when the running version is a pre-release. */
+export async function cmsStatus(env, running = RUNNING) {
   const kv = env.PUSH;
-  const status = { running: RUNNING, token: !!env.GITHUB_PUBLISH_TOKEN, kv: !!kv, checked: null, update: null, skipped: [], notes: [] };
+  const status = { running, token: !!env.GITHUB_PUBLISH_TOKEN, kv: !!kv, checked: null, update: null, skipped: [], notes: [] };
+  const plain = /^\d+\.\d+\.\d+$/;
   if (!kv) return status;
   status.checked = await kv.get('cms:checked', 'json');
   status.update = await kv.get('cms:update', 'json');
   status.skipped = await versionsUnder(kv, 'cms:skip:');
-  const plain = /^\d+\.\d+\.\d+$/;
+  if (!plain.test(running)) return status;
   const wanted = (await versionsUnder(kv, 'cms:notes:')).filter(
     (v) =>
-      plain.test(v) && compareVersions(v, RUNNING) === 1 && (!status.checked?.latest || compareVersions(v, status.checked.latest) <= 0),
+      plain.test(v) && compareVersions(v, running) === 1 && (!status.checked?.latest || compareVersions(v, status.checked.latest) <= 0),
   );
   wanted.sort((a, b) => compareVersions(b, a));
   const notes = await Promise.all(wanted.map((v) => kv.get(`cms:notes:${v}`, 'json')));
