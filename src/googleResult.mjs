@@ -6,7 +6,11 @@ const SEPARATOR = ' › ';
 
 const text = (s) => String(s ?? '').trim();
 
-/** The page's own title as the site writes it in <title> when it has no Google title. */
+/**
+ * The page's own title as the site writes it in <title> when it has no Google title.
+ * @param {{ title?: string | null; front?: boolean; siteName?: string | null }} input
+ * @returns {string}
+ */
 export function pageTitle({ title, front = false, siteName }) {
   const own = text(title);
   if (!own) return String(siteName ?? '');
@@ -14,7 +18,12 @@ export function pageTitle({ title, front = false, siteName }) {
   return `${own} | ${siteName ?? ''}`;
 }
 
-/** The title and description a Google result shows for the page. `site`: { name, description }. */
+/**
+ * The title and description a Google result shows for the page. `site`: { name, description }.
+ * @param {{ title?: string | null; front?: boolean; seoTitle?: string | null; seoDescription?: string | null;
+ *   description?: string | null; site: { name?: string | null; description?: string | null } }} input
+ * @returns {{ title: string; description: string }}
+ */
 export function searchedAs({ title, front = false, seoTitle, seoDescription, description, site }) {
   const resultTitle = text(seoTitle) || pageTitle({ title, front, siteName: site.name });
   const resultDescription = text(seoDescription) || text(description) || String(site.description ?? '');
