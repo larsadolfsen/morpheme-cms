@@ -289,7 +289,7 @@ function Form({
           title={dataFile ? dataFile.label : isNew ? collection.create! : entryName(folder!, clean(fields, initial)) || kindLabel}
           back={
             header.includes(collection.id)
-              ? { href: '#header', label: t.common.parts.header }
+              ? { href: '#udseende/header', label: t.common.parts.header }
               : collection.kind === 'files' && collection.files.length === 1
                 ? { href: '#', label: siteName }
                 : { href: `#liste/${collection.id}`, label: collection.label }

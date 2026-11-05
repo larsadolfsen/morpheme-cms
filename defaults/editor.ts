@@ -193,5 +193,5 @@ export const settings: string[] = settingsIds;
  * bring ("Udtalelser") and the apps (their lists.ts). */
 export const lists: string[] = [];
 
-/** What is in the header on every page, on a screen of its own under "Header" (#header). */
+/** What is in the header on every page, on one screen under "Udseende" › "Header" (#udseende/header, HeaderSettings.tsx). */
 export const header = ['menu', 'mobilmenu', 'headerknap'];
