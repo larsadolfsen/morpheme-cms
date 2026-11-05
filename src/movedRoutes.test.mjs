@@ -98,6 +98,7 @@ test('every old route prefix opens the screen where it is now', () => {
     filer: 'files',
     'seo/videresendelser': 'seo/redirects',
     'seo/videresendelser/alle': 'seo/redirects/all',
+    'seo/interne-links': 'seo/internal-links',
     'seo/vurdering': 'seo/rating',
     blokvalg: 'block-settings',
     avanceret: 'advanced',
