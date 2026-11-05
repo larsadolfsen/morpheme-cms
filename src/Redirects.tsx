@@ -11,7 +11,7 @@
 // it off the list. One that has become a page or sends on since is not shown. Over each list, as over
 // the lists under "Indhold", the search, the order (kept in this browser; by address under the first
 // letter) and, over the redirects, the funnel that shows only those to one page or post, picked as a
-// chip.
+// chip. The Save and Delete buttons show the loading indicator while their save runs (Forget does not).
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ArrowsDownUp, Funnel, LinkBreak, Plus, Signpost, Trash, X } from '@phosphor-icons/react';
 import { addressOf, escape, REDIRECTS } from './addresses';
@@ -144,14 +144,16 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
 
   const dialog = useRef<HTMLDialogElement>(null);
   const [editing, setEditing] = useState<Editing | null>(null);
-  const [saving, setSaving] = useState(false);
+  // Which store is running (null: none). Only the button that started it shows busy; all three stay disabled.
+  const [running, setRunning] = useState<'save' | 'delete' | null>(null);
+  const saving = running !== null;
   const open = (e: Editing) => {
     setEditing(e);
     dialog.current?.showModal();
   };
 
   // Saves the redirects as they are after a change, in one commit, none through another.
-  async function store(next: AllRedirects, message: string, change: string): Promise<boolean> {
+  async function store(next: AllRedirects, message: string, change: string, kind: 'save' | 'delete'): Promise<boolean> {
     const flat = flatten(next);
     if (typeof flat === 'string') {
       env.notify({ text: flat, error: true });
@@ -159,7 +161,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
     }
     const changes = changesOf(flat, files!);
     if (!changes.length) return true;
-    setSaving(true);
+    setRunning(kind);
     env.notify({ text: t.common.saving });
     try {
       const oids = await env.commit(message, changes, change);
@@ -174,7 +176,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
       env.notify({ text: t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
       return false;
     } finally {
-      setSaving(false);
+      setRunning(null);
     }
   }
 
@@ -218,6 +220,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
       setRedirect(all, from, to),
       editing.isNew ? siteT.redirects.commit.add(from, to) : siteT.redirects.commit.change(from, to),
       t.app.changes[editing.isNew ? 'added' : 'edited'](t.app.changes.redirect(from)),
+      'save',
     );
     if (!done) return;
     // Sent on: no longer an address that does not exist.
@@ -234,7 +237,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
     const flat = flatten(all);
     if (typeof flat === 'string') return env.notify({ text: flat, error: true });
     const change = t.app.changes.deleted(t.app.changes.redirect(from));
-    if (await store(setRedirect(flat, from, null), siteT.redirects.commit.delete(from), change)) dialog.current?.close();
+    if (await store(setRedirect(flat, from, null), siteT.redirects.commit.delete(from), change, 'delete')) dialog.current?.close();
   }
 
   async function drop(path: string) {
@@ -430,16 +433,16 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
                 onChange={(e) => setEditing({ ...editing, to: e.target.value })}
               />
             </div>
-            <Button type="submit" wide disabled={saving}>
-              {saving ? t.common.saving : m ? t.redirects.missing.sendOn : t.common.save}
+            <Button type="submit" busy={running === 'save'} disabled={saving}>
+              {m ? t.redirects.missing.sendOn : t.common.save}
             </Button>
             {m && (
-              <Button kind="outlined" wide icon={X} disabled={saving} onClick={() => drop(m.path)}>
+              <Button kind="outlined" icon={X} disabled={saving} onClick={() => drop(m.path)}>
                 {t.redirects.missing.forget}
               </Button>
             )}
             {!editing.isNew && (
-              <Button kind="outlined" wide icon={Trash} disabled={saving} onClick={() => remove(editing.from)}>
+              <Button kind="outlined" icon={Trash} busy={running === 'delete'} disabled={saving} onClick={() => remove(editing.from)}>
                 {t.redirects.deleteRedirect}
               </Button>
             )}

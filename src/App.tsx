@@ -3,7 +3,6 @@
 //   (empty)          the start page
 //   liste/<id>       the list of a part, e.g. liste/priser, and liste/<id>/<app> a tab an installed app adds to it
 //                    (AppDefinition.tabs): liste/cookies/cookiescanner
-//   header           what is in the header on every page (the menu)
 //   lister           the short lists (the testimonials, the apps' lists)
 //   indstillinger/appstore   the app store, its apps, and indstillinger/appstore/temaer its themes (AppList.tsx StorePage); the
 //                    other settings are screens of their own, in the drawer's last section (MainMenu.tsx)
@@ -22,6 +21,8 @@
 //   udseende         how the site looks (Library.tsx Theme): udseende/temaer the themes installed (Themes) and udseende/temaer/<theme>
 //                    a theme's page, with the button that swaps to it (ThemePage), udseende/ikonpakker the icon packs (IconPacks),
 //                    udseende/bevaegelse how it moves (MotionSchemes), udseende/sidekolonne the block beside the pages' text (SideColumn),
+//                    udseende/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
+//                    udseende/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
 //                    udseende/farver the colours (Colors.tsx;
 //                    udseende/farver/reservefarver the site's own while an app changes the pages'), udseende/logo the logo
 //                    and icon (BrandForm.tsx), udseende/dele the parts (Library.tsx PartsHome): udseende/dele/editor the editor's, every
@@ -35,10 +36,13 @@
 //   licenser         "Licenser", under "Indstillinger": the licences of what the site and the editor are made with, and
 //                    licenser/<id> one with its text (Licenses.tsx)
 //   apps             the apps that come with the site, apps/<app> one with its button to install it and, while it
-//                    is installed, a row to its settings: on the screen with its category (maaling/<app>), else
-//                    apps/<app>/indstillinger (AppList.tsx settingsRoute)
+//                    is installed, the tabs of its page (AppList.tsx AppPage): Settings at apps/<app>, with its settings
+//                    form (also on the screen with its category, maaling/<app>, AppList.tsx settingsRoute), and
+//                    Information at apps/<app>/om (before an app's own screens, AppDefinition.screens)
+//   apps/<app>/indstillinger/<field>  the page of a field of its settings with its choices on a page of their own
+//                    (Field.page), over its Settings tab, which keeps what is in it: apps/content-colors/indstillinger/variant
 //   <form>/<field>   the page of a field of a part's form with its choices on a page of their own (Field.page), over the
-//                    form, which keeps what is in it (formAt): apps/content-colors/indstillinger/variant
+//                    form, which keeps what is in it (formAt)
 //   blokke           the blocks, and blokke/<block> the texts all its copies have (blockTexts.ts)
 //   slettet/<id>     what was deleted from a list, or slettet/filer the files (Deleted.tsx)
 //   <file path>      a file being edited, e.g. src/content/blog/mit-foerste-indlaeg.md
@@ -103,7 +107,7 @@ import {
   appPartsIn,
   autoUpdate,
   DeveloperPage,
-  appSettingsPart,
+  settingsHome,
   settingsRoute,
   StoreAppPage,
   StorePage,
@@ -129,12 +133,13 @@ import {
 import Colors, { colorsOf, FALLBACK_ROUTE } from './Colors';
 import { applyColors, applyMotion } from './theme';
 import SideColumn from './SideColumn';
+import HeaderSettings from './HeaderSettings';
+import FooterSettings from './FooterSettings';
 import { apps, notOffered } from './registry';
 import {
   Account,
   Blocks,
   Company,
-  Header,
   List,
   Lists,
   PartsHome,
@@ -164,6 +169,8 @@ import { inForm, leaveTo, type Status } from './FormFrame';
 import { arrived, screenOf, up } from './nav';
 import { siteT, siteText, t } from './i18n';
 import { snackbar } from '../lib/snackbar';
+import { appRouteOf } from '../lib/appRoute.mjs';
+import { movedRoute } from './movedRoutes.mjs';
 import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, syncDevice, told, waitOnServer } from './notificationData';
 import Notifications from './Notifications';
 import { EditorOwn, InEditor } from './standard/view';
@@ -258,37 +265,22 @@ function taken(address: string, relations: Record<Relation, Option[]>, redirects
   return { text: t.app.addressRedirects(address, name), redirect: { end, name, via } };
 }
 
-// Screens that have moved, by their old address: a link or a bookmark to one opens it where it is now.
-const MOVED: Record<string, string> = {
-  farver: 'udseende/farver',
-  'virksomheden/logo': 'udseende/logo',
-  'tema/blokvalg': 'blokvalg',
-  dele: 'udseende/dele',
-  tema: 'udseende',
-  'tema/farver': 'udseende/farver',
-  'tema/logo': 'udseende/logo',
-  'tema/dele': 'udseende/dele',
-  'tema/dele/editor': 'udseende/dele/editor',
-  'virksomheden/bank': 'virksomheden/betaling/bank',
-  videresendelser: 'seo/videresendelser',
-  'videresendelser/alle': 'seo/videresendelser/alle',
-  'videresendelser/ikke-fundet': 'seo/videresendelser/ikke-fundet',
-  // The settings of the booking and newsletter apps were on a screen "Promovering"; they are on the apps' own pages now.
-  promovering: 'apps',
-  'promovering/calendly': 'apps/calendly/indstillinger',
-  'promovering/mailchimp': 'apps/mailchimp/indstillinger',
+// The app store's screens that have moved (movedRoutes.mjs has the others).
+const STORE_MOVED: Record<string, string> = {
   [STORE_BEFORE]: STORE_ROUTE,
   [`${STORE_BEFORE}/temaer`]: STORE_THEMES,
 };
 
 // The editor's address after the "#" (nav.ts screenOf).
 function routeOf(hash: string) {
-  const route = MOVED[screenOf(hash)] ?? screenOf(hash);
+  const route = movedRoute(screenOf(hash), STORE_MOVED);
   // An app's settings: on the screen with its category, when it has one ("Analytics", AppList.tsx settingsRoute), and so
-  // the pages of their fields (Field.page) after them.
+  // the pages of their fields (Field.page) after them. Otherwise they are on the Settings tab of its page: apps/<id>
+  // (a field's page, apps/<id>/indstillinger/<field>, stays, drawn by the same page).
   const app = apps.find((a) => route === `apps/${a.id}/indstillinger` || route.startsWith(`apps/${a.id}/indstillinger/`));
   const rest = app ? route.slice(`apps/${app.id}/indstillinger`.length) : '';
-  const moved = (app && settingsRoute(app) && `${settingsRoute(app)}${rest}`) || route;
+  const kindScreen = app && settingsHome(app) && settingsRoute(app);
+  const moved = !app ? route : kindScreen ? `${kindScreen}${rest}` : rest ? route : `apps/${app.id}`;
   if (moved !== screenOf(hash)) history.replaceState(history.state, '', `#${moved}`);
   return moved;
 }
@@ -655,13 +647,7 @@ function Editor() {
       <main className="mx-auto flex min-h-dvh max-w-sm flex-col items-center justify-center gap-5 px-6 pb-[env(safe-area-inset-bottom)] text-center">
         <img src="/editor/icon-192.png" alt="" className="size-20 rounded-[1.375rem] shadow-soft" />
         <h1 className="text-2xl font-semibold">{siteName}</h1>
-        {signedIn === null && !error ? (
-          <EmptyNote busy>{t.app.loading}</EmptyNote>
-        ) : (
-          <Button wide onClick={login}>
-            {t.app.logIn}
-          </Button>
-        )}
+        {signedIn === null && !error ? <EmptyNote busy>{t.app.loading}</EmptyNote> : <Button onClick={login}>{t.app.logIn}</Button>}
         {error && <ProblemNote>{error}</ProblemNote>}
       </main>
     );
@@ -700,13 +686,9 @@ function Editor() {
   );
 }
 
-/** The part whose form is at an address (CompanyForm.tsx): an app's settings on a screen of their own, one of
- * "Virksomheden"'s (or of its parts', with the settings of the apps of their kinds), "Søgemaskineoptimering"'s, "Udseende"'s, or one on a screen of parts with
+/** The part whose form is at an address (CompanyForm.tsx): one of "Virksomheden"'s (or of its parts', with the settings of the apps of their kinds), "Søgemaskineoptimering"'s, "Udseende"'s, or one on a screen of parts with
  * the settings of the apps of its kinds ("Analytics"). */
 function partAt(route: string, files: RepoFile[]): Part | null {
-  // The settings of an app installed without a screen with its kind, on a screen of their own.
-  const settingsOf = apps.find((a) => route === `apps/${a.id}/indstillinger`);
-  if (settingsOf) return (installedApps(files).includes(settingsOf.id) && appSettingsPart(settingsOf)) || null;
   // virksomheden/<part>, or virksomheden/<part>/<its part> (Part.parts).
   const [, companyId, ownId, ...more] = route.split('/');
   const company = route.startsWith('virksomheden/') && !more.length && companyParts.find((p) => p.id === companyId);
@@ -738,7 +720,6 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (!route) return <Start builtAt={builtAt} />;
   if (route === 'konto') return <Account user={user} files={files} onLogout={onLogout} />;
   if (route === 'notifikationer') return <Notifications />;
-  if (route === 'header') return <Header files={files} />;
   if (route === 'lister') return <Lists files={files} />;
   if (route === 'virksomheden') return <Company files={files} />;
   if (route === 'blokke') return <Blocks files={files} />;
@@ -759,6 +740,8 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'udseende/ikonpakker') return <IconPacks env={env} files={files} />;
   if (route === 'udseende/bevaegelse') return <MotionSchemes env={env} files={files} />;
   if (route === 'udseende/sidekolonne') return <SideColumn env={env} files={files} />;
+  if (route === 'udseende/header') return <HeaderSettings env={env} />;
+  if (route === 'udseende/footer') return <FooterSettings env={env} />;
   // A theme installed has its page; one from the store that is not (or not yet built), its page in the store.
   const themeShown = route.startsWith('udseende/temaer/') && themes.find((x) => x.id === route.slice(16));
   if (themeShown) return <ThemePage key={themeShown.id} of={themeShown} env={env} files={files} />;
@@ -777,12 +760,15 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === STORE_THEMES) return <StorePage env={env} files={files} tab="themes" />;
   if (route.startsWith(`${DEVELOPER_ROUTE}/`))
     return <DeveloperPage key={route} slug={route.slice(DEVELOPER_ROUTE.length + 1)} env={env} files={files} />;
-  // An app in the site (its own, or one from the store while it is installed) has its page; one from the store that is
-  // not (or no longer) installed, its page in the store.
-  if (/^apps\/[^/]+$/.test(route)) {
-    const app = apps.find((a) => a.id === route.slice(5));
-    if (app && (!app.store || installedApps(files).includes(app.id))) return <AppPage app={app} env={env} files={files} />;
-    return <StoreAppPage key={route} id={route.slice(5)} env={env} files={files} />;
+  // An app in the site (its own, or one from the store while it is installed) has its page, with the tabs Settings
+  // (apps/<id>, and a settings field's page, apps/<id>/indstillinger/<field>) and Information (apps/<id>/om, matched
+  // before an app's own screens); one from the store that is not (or no longer) installed, its page in the store.
+  const shownApp = route.startsWith('apps/') ? apps.find((a) => appRouteOf(route, a.id)) : undefined;
+  const shown = shownApp && appRouteOf(route, shownApp.id);
+  if (shownApp && shown && (!shownApp.store || installedApps(files).includes(shownApp.id)))
+    return <AppPage key={shownApp.id} app={shownApp} env={env} files={files} tab={shown.tab} page={shown.page} />;
+  if (shownApp || /^apps\/[^/]+$/.test(route)) {
+    return <StoreAppPage key={route} id={route.split('/')[1]} env={env} files={files} />;
   }
   // A screen of an app's own under its page, while it is installed (Cookiescanner's "Blokeret adresse").
   const [, screenApp, screenId, ...deeper] = route.split('/');
@@ -820,7 +806,8 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   }
 
   const found = collectionOf(collections, route);
-  const file = files.find((f) => f.path === route);
+  // An optional file (the header's) that the site has not got yet opens empty; the first save makes it.
+  const file = files.find((f) => f.path === route) ?? (found?.dataFile?.optional ? { path: route, oid: '', text: '{}\n' } : undefined);
   if (!found || !file)
     return (
       <Screen title={t.app.notFound} back={{ href: '#', label: siteName }}>

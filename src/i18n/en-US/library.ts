@@ -100,6 +100,10 @@ export const library = {
   changeMotion: 'Change motion',
   motionSaved: (change: string) => `${change}. The website gets the new motion in a few minutes.`,
   motionCommit: (name: string) => `Editor: change motion to ${name}`,
+  /** Appearance › Header (HeaderSettings.tsx): the group with the menu button's side. */
+  headerMenuButton: 'Menu button',
+  /** Appearance › Footer (FooterSettings.tsx): the groups of the footer's fields. */
+  footerSections: { text: 'Text', contact: 'Contact', links: 'Links' },
   /** Under "Sidekolonne" (SideColumn.tsx): the choice of no block and what is under it, what is said when no block can be
    * drawn there, asked before one is chosen, the question's button, what is said after it is saved, and the commit, in
    * the site's language (siteT). */
@@ -192,7 +196,9 @@ export const library = {
   /** The top bar's menu button, which opens and closes that drawer. */
   openMenu: 'Open the menu',
   closeMenu: 'Close the menu',
-  /** The back row of a section's list in the main drawer (the first level). */
+  /** The first level of the main drawer: the name of the back row's target (its accessible name is "Back to Main menu"). */
   mainMenu: 'Main menu',
+  /** The visible label of the back row in the main drawer's header, on a section's list. */
+  back: 'Back',
   breadcrumbs: 'Breadcrumbs',
 };

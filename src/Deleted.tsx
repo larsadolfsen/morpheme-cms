@@ -5,7 +5,7 @@
 // the site sends it on, which it says, and where to), a price or testimonial last in the list. A
 // file from "Filer" is shown in a sheet first (FileView.tsx; a PDF, a video or a zip file with its icon
 // and name over it), with "Gendan" under it, and comes back with its record of tags (fileRecords.mjs) when it
-// was deleted together with it and no live record has its address.
+// was deleted together with it and no live record has its address. "Gendan" shows the loading indicator while it restores.
 import { useEffect, useRef, useState } from 'react';
 import { ArrowCounterClockwise } from '@phosphor-icons/react';
 import Screen from './Screen';
@@ -44,6 +44,8 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
   const [deleted, setDeleted] = useState<DeletedFile[] | null>(null);
   const [problem, setProblem] = useState('');
   const [busy, setBusy] = useState(false);
+  // True only while a restore runs (not while `open` fetches the bytes); the sheet's button shows busy for it.
+  const [restoring, setRestoring] = useState(false);
   // The file shown in the sheet, and its bytes as an address the <img> can show.
   const dialog = useRef<HTMLDialogElement>(null);
   const [shown, setShown] = useState<{ file: DeletedFile; src: string; bytes: Uint8Array } | null>(null);
@@ -86,6 +88,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
     const name = nameOf(collection, file);
     if (!pictures && !(await ask(t.history.restoreAsk(name), t.history.restore))) return;
     setBusy(true);
+    setRestoring(true);
     env.notify({ text: t.history.restoring });
     try {
       let content: string | Uint8Array = file.text;
@@ -132,6 +135,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
       });
     } finally {
       setBusy(false);
+      setRestoring(false);
     }
   }
 
@@ -180,8 +184,8 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
             )}
             <FileView src={shown.src} name={fileName(shown.file.path)} />
             <p className="text-sm text-muted">{capital(t.history.deletedAt(when(shown.file.at), shown.file.by))}</p>
-            <Button wide disabled={busy} onClick={() => restore(shown.file, shown.bytes)}>
-              {busy ? t.history.restoring : t.history.restore}
+            <Button busy={restoring} disabled={busy} onClick={() => restore(shown.file, shown.bytes)}>
+              {t.history.restore}
             </Button>
           </SheetBody>
         )}

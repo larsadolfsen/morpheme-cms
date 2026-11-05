@@ -18,7 +18,7 @@ const { posts } = Astro.props;
     <h2 id="related-posts" class="type-headline-small">
       {siteT.theme.relatedPosts}
     </h2>
-    <ul class="mt-6 grid gap-6 medium:grid-cols-3">
+    <ul class="mt-6 grid gap-(--card-gap) medium:grid-cols-3">
       {posts.map((post) => (
         <li>
           <PostCard post={post} />

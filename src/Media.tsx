@@ -9,6 +9,7 @@
 // saved with the tick: the file moves, the pages that use it get the new address in the same commit,
 // and the old address sends on to it (addresses.ts). "+" uploads a new file, saved at once. The same
 // pictures (not the other files) are the gallery a picture is chosen from in the forms (useMediaPicker).
+// The buttons that run (add, rename, delete, upload new) show the loading indicator while they do.
 // The funnel in Filer also filters by a tag (fileTagFilter.mjs; only tags some file has).
 // The clock in the top bar, "Slettede filer", opens the files that were deleted (Deleted.tsx).
 import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
@@ -394,8 +395,8 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Pro
         <Button
           kind="outlined"
 
-          wide
           icon={UploadSimple}
+          busy={pictures.uploading}
           onClick={async () => {
             const added = await pictures.upload();
             if (added) done(publicPath(added.path));
@@ -635,6 +636,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
                 icon={Check}
                 label={t.media.saveName}
                 kind="filled"
+                busy={renaming}
                 disabled={renaming || name === stemOf(src) || !slugify(name) || slugify(name) === stemOf(src)}
               />
             </>
@@ -667,8 +669,8 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
       </div>
       <MediaTags key={src} src={src} files={files} env={env} />
       {code && !used.has(src) && (
-        <Button kind="outlined" wide icon={Trash} disabled={deleting} onClick={() => remove(src)}>
-          {deleting ? t.common.deleting : t.media.kinds[kindOf(src)].delete}
+        <Button kind="outlined" icon={Trash} busy={deleting} disabled={deleting} onClick={() => remove(src)}>
+          {t.media.kinds[kindOf(src)].delete}
         </Button>
       )}
     </>
@@ -687,7 +689,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
 
             onClick={() => (location.hash = 'slettet/filer')}
           />
-          <IconButton icon={Plus} label={t.media.add} disabled={adding} onClick={add} />
+          <IconButton icon={Plus} label={t.media.add} busy={adding} disabled={adding} onClick={add} />
         </>
       }
     >

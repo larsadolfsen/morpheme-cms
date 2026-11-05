@@ -11,20 +11,14 @@ import { access, sessionToken } from './session.js';
 // Lives here, not in store.js, so store.js can import storeKey from this file without a cycle; store.js exports it again.
 export const STORE_URL = 'https://morpheme-appstore.larsadolfsen.workers.dev';
 
-// The table, made the first time an isolate needs it for a database (D1 has no migrations on deploy), as in consent.js.
-const ready = new WeakMap();
-function table(db) {
-  if (!ready.has(db)) {
-    const made = db
-      .prepare('CREATE TABLE IF NOT EXISTS store_connection (site TEXT PRIMARY KEY, key TEXT NOT NULL, connected TEXT NOT NULL)')
-      .run()
-      .catch((e) => {
-        ready.delete(db);
-        throw e;
-      });
-    ready.set(db, made);
-  }
-  return ready.get(db);
+// The table (D1 has no migrations on deploy), as in consent.js. Each request makes it until one create has finished; only
+// then does the isolate remember it for that database. A pending create is never shared: its I/O belongs to the request
+// that started it, and if that request is cancelled the promise never settles and every later request would wait for it.
+const ready = new WeakSet();
+async function table(db) {
+  if (ready.has(db)) return;
+  await db.prepare('CREATE TABLE IF NOT EXISTS store_connection (site TEXT PRIMARY KEY, key TEXT NOT NULL, connected TEXT NOT NULL)').run();
+  ready.add(db);
 }
 
 /** The key the Worker asks the store with: the one set by hand (MORPHEME_STORE_KEY) first, else the one from the button; null without. */

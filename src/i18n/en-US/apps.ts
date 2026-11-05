@@ -71,13 +71,16 @@ export const apps = {
    * are under the list's name. */
   blocks: 'Blocks',
   lists: 'Lists',
-  /** The row on its page to its settings (beside it, the screen they are on: "Analytics"). */
-  settings: 'Settings',
+  /** The tabs of an installed app's page, in the top bar: its settings, and what it says about itself. */
+  tabSettings: 'Settings',
+  tabInfo: 'Information',
+  /** The tabs' name, read by screen readers. */
+  tabs: 'Sections of the app',
   /** The app store: the button to it over the list of apps, its title, and its search. */
   find: 'Appstore',
   searchStore: 'Search for apps',
   loadingStore: 'Loading apps…',
-  storeFailed: 'Couldn’t load the Appstore',
+  storeFailed: 'Can’t reach the store. Try again in 10 minutes.',
   /** On "Appstore" when the site's Worker has no store key: only the site's own are there. */
   noStore: 'The website has no Appstore',
   /** On "Appstore": the box that connects the site to the Morpheme store, the row that disconnects it, and the answer at the store's hourly limit. */

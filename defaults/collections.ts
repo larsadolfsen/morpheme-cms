@@ -6,11 +6,55 @@
 //             block "Udtalelser"'s, packages/editor/src/standard/testimonials/list.ts, an app's lists its own,
 //             src/apps/<app>/lists.ts).
 //   files:    single .json files: the settings (the standard pages …), the footer and the menu.
-import { AppWindow, SquareHalfBottom } from '@phosphor-icons/react';
+import { AppWindow, ArrowsHorizontal, ColumnsPlusLeft, ColumnsPlusRight, File, SquareHalfBottom } from '@phosphor-icons/react';
 import type { Collection, Field } from '../src/schema';
 import { fromContactBar } from '../lib/contactBar';
 import { config } from '@site/config';
 import { standardPaths } from '@site/standardPages';
+
+// The fields of one button of the action bar (the bottom bar on a phone, ActionBar.astro) and of the button in the header
+// ("Headerknap", src/data/header.json): its text, where it leads, and the promotion or page it leads to.
+const barButtonLabel: Field = {
+  name: 'label',
+  label: 'Knaptekst',
+  type: 'string',
+  max: 30,
+  hint: 'Hvis feltet er tomt, bruges standardteksten eller sidens navn.',
+};
+
+const barButtonTo: Field = {
+  name: 'to',
+  label: 'Fører til',
+  type: 'select',
+  required: true,
+  default: 'booking',
+  options: [
+    { label: 'Book en tid', value: 'booking' },
+    { label: 'Ring', value: 'phone' },
+    { label: 'Åbn promovering', value: 'promotion', onPage: 'promotions' },
+    { label: 'En side', value: 'page' },
+  ],
+};
+
+const barButtonOpen: Field = {
+  name: 'open',
+  label: 'Promovering',
+  type: 'relation',
+  to: 'promotions',
+  onPage: true,
+  required: true,
+  only: { field: 'to', is: ['promotion'] },
+};
+
+const barButtonHref: Field = {
+  name: 'href',
+  label: 'Side',
+  type: 'relation',
+  to: 'pages',
+  fixed: true,
+  required: true,
+  only: { field: 'to', is: ['page'] },
+};
 
 // The page Google should count as the original of a page or a post (rel=canonical); empty is itself.
 // Under "Søgemaskiner" with the Google texts (EntryForm.tsx).
@@ -136,7 +180,7 @@ const keywords: Field[] = [
 // The business, on "Virksomheden" (CompanyForm.tsx): its name and title, phone, e-mail, address and CVR number
 // (src/data/contact.json), shown at the top and bottom of every page and in the blocks that show them ("Kontakt" and
 // "Adresse"); and the bank details (src/data/payment.json), shown in "Betaling". The calendar
-// is the app Calendly's (src/apps/calendly/).
+// is the app Calendly's (morpheme-apps/apps/calendly/).
 export const contactFields: Field[] = [
   { name: 'name', label: 'Navn', type: 'string', required: true },
   { name: 'role', label: 'Titel', type: 'string', required: true },
@@ -407,22 +451,20 @@ export const collections: Collection[] = [
         hint: 'Vises ikke på hjemmesiden.',
       },
       {
-        name: 'wide',
-        label: 'Hele bredden',
-        type: 'boolean',
+        name: 'template',
+        label: 'Skabelon',
+        type: 'select',
+        segments: true,
         layout: true,
-        hint: 'Siden fylder hele bredden uden spalten ved siden af teksten.',
-      },
-      {
-        name: 'side',
-        label: 'Sidekolonne',
-        type: 'boolean',
-        toggle: ['Til', 'Fra'],
-        // Without the key the column is on; only "Fra" is written (side: false).
-        default: true,
-        missing: true,
-        layout: true,
-        hint: 'Blokken ved siden af teksten vises på siden. Den vælges under Udseende › Sidekolonne.',
+        // The options the theme in use offers, the first of its list the default (templateFieldOf in src/templateField.ts).
+        offered: 'templates',
+        options: [
+          { label: 'En kolonne', value: 'single', icon: File },
+          { label: 'Fuld bredde', value: 'full', icon: ArrowsHorizontal },
+          { label: 'Sidebjælke til venstre', value: 'sidebar-left', icon: ColumnsPlusLeft },
+          { label: 'Sidebjælke til højre', value: 'sidebar-right', icon: ColumnsPlusRight },
+        ],
+        hint: 'Temaet bestemmer, hvilke skabeloner der findes.',
       },
       {
         name: 'review',
@@ -469,7 +511,7 @@ export const collections: Collection[] = [
     // src/data/popups/<slug>.json, read by packages/editor/site/popups.ts, on every page or those picked under "Sider".
     // The pop-ups are shown by packages/editor/theme/components/Popup.astro; a kind an app adds without a part
     // in the pop-up (src/apps/<app>/popups/View.tsx) shows itself (the app Calendly's booking sheet,
-    // src/apps/calendly/, when a button opens it).
+    // morpheme-apps/apps/calendly/, when a button opens it).
     kind: 'folder',
     id: 'popups',
     create: 'Ny promovering',
@@ -695,46 +737,10 @@ export const collections: Collection[] = [
             hint: 'Står under overskriften.',
             only: { field: 'type', is: ['text'] },
           },
-          {
-            name: 'label',
-            label: 'Knaptekst',
-            type: 'string',
-            max: 30,
-            hint: 'Hvis feltet er tomt, bruges standardteksten eller sidens navn.',
-            only: { field: 'type', is: ['button'] },
-          },
-          {
-            name: 'to',
-            label: 'Fører til',
-            type: 'select',
-            required: true,
-            default: 'booking',
-            only: { field: 'type', is: ['button'] },
-            options: [
-              { label: 'Book en tid', value: 'booking' },
-              { label: 'Ring', value: 'phone' },
-              { label: 'Åbn promovering', value: 'promotion', onPage: 'promotions' },
-              { label: 'En side', value: 'page' },
-            ],
-          },
-          {
-            name: 'open',
-            label: 'Promovering',
-            type: 'relation',
-            to: 'promotions',
-            onPage: true,
-            required: true,
-            only: { field: 'to', is: ['promotion'] },
-          },
-          {
-            name: 'href',
-            label: 'Side',
-            type: 'relation',
-            to: 'pages',
-            fixed: true,
-            required: true,
-            only: { field: 'to', is: ['page'] },
-          },
+          { ...barButtonLabel, only: { field: 'type', is: ['button'] } },
+          { ...barButtonTo, only: { field: 'type', is: ['button'] } },
+          barButtonOpen,
+          barButtonHref,
         ],
       },
     ],
@@ -845,6 +851,54 @@ export const collections: Collection[] = [
           summary: 'label',
           fields: [{ name: 'label', label: 'Tekst', type: 'string', required: true }, menuHref],
         },
+      },
+    ],
+  },
+  {
+    kind: 'files',
+    id: 'headerknap',
+    label: 'Headerknap',
+    singular: 'headerknap',
+    files: [
+      // src/data/header.json, optional (a site without it has no button and the menu button at the start), read by the header
+      // (Header.astro). The button is one of the action bar's (barButtonLabel …).
+      {
+        file: 'src/data/header.json',
+        label: 'Headeren',
+        view: '/',
+        optional: true,
+        fields: [
+          {
+            name: 'button',
+            label: 'Handlingsknap',
+            type: 'object',
+            fields: [
+              {
+                name: 'enabled',
+                label: 'Aktiveret',
+                type: 'boolean',
+                toggle: ['Til', 'Fra'],
+                default: false,
+                hint: 'Knappen står i headeren.',
+              },
+              barButtonLabel,
+              barButtonTo,
+              barButtonOpen,
+              barButtonHref,
+            ],
+          },
+          {
+            name: 'menuSide',
+            label: 'Menuknappens placering',
+            type: 'select',
+            segments: true,
+            default: 'start',
+            options: [
+              { label: 'Venstre', value: 'start' },
+              { label: 'Højre', value: 'end' },
+            ],
+          },
+        ],
       },
     ],
   },

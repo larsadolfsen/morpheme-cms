@@ -25,6 +25,8 @@ export type ThemeInfo = {
   icons?: string;
   /** How it moves while the owner has chosen none ("motion" in its theme.json: a scheme of lib/motion.ts). */
   motion?: string;
+  /** The page templates it offers, the first the default ("templates" in its theme.json: ids of lib/page-template.mjs). */
+  templates?: string[];
   /** What it looks like, in a sentence or two, by the editor's language ("da-DK"), on its page. */
   description?: Record<string, string>;
   /** What it gives the site, a few short points by the editor's language, on its page. */
@@ -79,6 +81,7 @@ export const themes: ThemeInfo[] = Object.entries(manifests)
     thirdParty: m.thirdParty,
     ...(m.icons ? { icons: m.icons } : {}),
     ...(m.motion ? { motion: m.motion } : {}),
+    ...(m.templates ? { templates: m.templates } : {}),
     description: m.description,
     highlights: m.highlights,
     screenshots: screenshotsOf(idOf(path)),

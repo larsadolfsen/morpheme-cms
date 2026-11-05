@@ -63,6 +63,10 @@ export type Field = {
    * chosen, in place of the field's own (the status of a page: what each one means). `onPage`: offered only while
    * that relation has a choice on the page being edited (a button that opens a promotion); chosen, it is still shown. */
   options?: { label: string; value: string; icon?: Icon; hint?: string; onPage?: Relation }[];
+  /** select: the options come from the theme in use. 'templates': a page's templates, the theme's "templates" (lib/page-template.mjs); the
+   * field shows those of its options the theme offers (templateFieldOf in templateField.ts), its default is the theme's first, which
+   * is written as no key, and it is hidden while at most one is left. */
+  offered?: 'templates';
   /** select: the options are icons (their names, `icons`), shown as the icons to tap (fields.tsx). */
   icons?: boolean;
   /** select: the options side by side in a bar, the chosen one raised (SegmentedButton in ui.tsx), for two or
@@ -106,7 +110,7 @@ export type Field = {
   only?: { field: string; is: string[] };
   /** boolean: shown as a switch, with what it says when on and when off. */
   toggle?: [string, string];
-  /** Its value changes how the page is laid out (a page across the whole width): "Forhåndsvis" shows a page whose value
+  /** Its value changes how the page is laid out (its template): "Forhåndsvis" shows a page whose value
    * is changed in another page saved with the same value (EntryForm.tsx). */
   layout?: boolean;
   /** blocks: a list where each item has a `type`, one of these, which gives its fields. */
@@ -288,6 +292,8 @@ export type DataFile = {
   root?: Field;
   /** A fixed page called by its label, not its H1 (the front page). */
   byLabel?: boolean;
+  /** The site may have no such file: its screen opens on an empty one, and the first save makes the file (the header). */
+  optional?: boolean;
 };
 
 /** A fixed page's name in the editor: its H1 (`heading`), as the page has it now; the front page

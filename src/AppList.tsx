@@ -5,41 +5,25 @@
 // (#indstillinger/appstore): all apps, those in the app store (store.ts) and the site's own, installed or not, with search (by name, what they
 // do, who made them and the words they are found by), the same order and a funnel by category. An app's page
 // (#apps/<app>) is the same for every app and without examples: its name, who made it, whether it is installed, its
-// version (from the store) and what it does, "Installer" (or "Opdater til …"), its pictures (each opening it whole),
-// what it does more fully ("Om appen"), a row to its settings (installed: on the screen under "Indstillinger" with its
-// kind, "Analytics" or "Promovering", where their fields are saved with "Gem ændringer" in their file,
-// config.apps.settings; its page only installs it), what it adds (its blocks, the lists it brings: "Priser", each opening
-// its list, and its kinds of the site's lists: a Mailchimp popup; installed, each with its switch at the end of its row
-// and opening a sheet with where it is used and the same switch, as under "Blokindstillinger", and a kind's button to a
-// new one, while it is on), what it needs of the site ("Rettigheder", needsOf in store.ts: its code on every page,
-// the addresses it loads from and sends forms to, its part of the Worker, a step in the build), the cookies it sets
-// (and whether the cookie banner asks first), who made it (a row to their page, #apps/udvikler/<name>, with all their
-// apps), and "Afinstaller"; installing, updating and uninstalling are each saved at once in its own commit,
-// as a block turned on or off under "Blokindstillinger". One of the site's own is installed or uninstalled in the site's
+// version (from the store) and what it does, "Installer" (or "Opdater til …"); installed, it has two tabs: "Indstillinger"
+// (#apps/<app>: its settings form, saved with "Gem ændringer" in their file, config.apps.settings, also on the screen
+// under "Indstillinger" with its kind, "Analytics" or "Promovering"; AppFormPage.tsx; then what it shows itself, what it
+// adds (AppAdds.tsx: its blocks, the lists it brings: "Priser", each opening its list, and its kinds of the site's lists:
+// a Mailchimp popup; each with its switch at the end of its row and opening a sheet with where it is used and the same
+// switch, as under "Blokindstillinger", and a kind's button to a new one, while it is on), its notifications with their
+// switches, and "Afinstaller", AppSettingsTab.tsx) and "Information" (#apps/<app>/om, AppInfoTab.tsx: its pictures, what
+// it does more fully ("Om appen"), what it needs of the site ("Rettigheder", needsOf in store.ts: its code on every page,
+// the addresses it loads from and sends forms to, its part of the Worker, a step in the build), the cookies it sets (and
+// whether the cookie banner asks first), who made it (a row to their page, #apps/udvikler/<name>, with all their apps),
+// and where it is used); one not installed has no tabs; installing, updating and uninstalling are each saved at once in its own commit,
+// as a block turned on or off under "Blokindstillinger". The button pressed shows the loading indicator while it runs (busyAction.mjs). One of the site's own is installed or uninstalled in the site's
 // file of apps; one from the store is copied into the site, or deleted from it, with it (appChanges in store.ts), and
 // its page before it is installed is drawn from the store's catalog (StoreAppPage). Installed, its blocks and kinds are
 // under "Blokindstillinger" (under its name), its blocks under "Indsæt" and its kinds under "+" of their list. An app in
 // use (one of its blocks on a page, an entry of its kind or in its list) cannot be uninstalled, as a block on a page
 // cannot be turned off; its page says where it is used, so uninstalling never changes the site.
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import {
-  ArrowsDownUp,
-  Bell,
-  CheckCircle,
-  Code,
-  Cookie,
-  Gear,
-  Globe,
-  Hammer,
-  HardDrives,
-  Palette,
-  PaperPlaneTilt,
-  PuzzlePiece,
-  ShieldCheck,
-  Swatches,
-  UserCircle,
-  type Icon,
-} from '@phosphor-icons/react';
+import { useEffect, useState, type ReactNode } from 'react';
+import { ArrowsDownUp, Gear, Info, PuzzlePiece, Swatches, UserCircle, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
 import {
   Button,
@@ -48,28 +32,19 @@ import {
   EmptyNote,
   Filters,
   Group,
-  GroupTitle,
-  ImageCarousel,
   LeadingIcon,
-  LinkButton,
-  listClass,
   SupportingText,
   SearchRow,
-  BottomSheet,
-  SheetBody,
-  SheetTitle,
-  Switch,
-  SwitchRow,
   useKept,
   ListItem,
+  type TabChoice,
 } from './ui';
-import { BlockSwitch, blockSwitchTexts, KindSwitch, kindSwitchTexts, pagesWith, useOnOff } from './BlockSettings';
+import { pagesWith } from './BlockSettings';
 import { ConflictError, type Change, type RepoFile } from './github';
-import { categoryOf } from '../lib/cookieCategories.mjs';
 import { cookieChanges, inCookieList } from './cookieList';
 import type { Env } from './App';
 import { ask, choose } from './ask';
-import { installedApps, kindKey, settingsFile, type SiteApp } from './apps';
+import { installedApps, settingsFile, type SiteApp } from './apps';
 import { AnyIcon } from './icon';
 import {
   appCategories,
@@ -85,12 +60,11 @@ import {
   STORE_THEMES,
   type AppCategory,
   type AppCookie,
-  type AppNeeds,
   type ShownApp,
   type StoreAdd,
   type StoreRecord,
 } from './store';
-import { apps, offBlocks, siteBlocks } from './registry';
+import { apps, siteBlocks } from './registry';
 import { asWritten, backFrom, collections, companyParts, partScreens } from './site';
 import { byText, slugify, type Part } from './schema';
 import { headed, letterOf } from './Sheet';
@@ -101,8 +75,14 @@ import { OwnerLicenses, StoreLicenseRows } from './Licenses';
 import { StoreConnectNotice } from './StoreConnectNotice';
 import { StoreConnectedRow } from './StoreConnectedRow';
 import { connection, type StoreConnection } from './storeConnection';
-import { appType, setOn, told, useNotificationChoices } from './notificationData';
+import { told } from './notificationData';
 import { kindAndName } from './deploy';
+import AppInfoTab from './AppInfoTab';
+import AppAdds from './AppAdds';
+import AppFormPage from './AppFormPage';
+import AppSettingsTab from './AppSettingsTab';
+import { INFO_KEY } from '../lib/appRoute.mjs';
+import { busyFor } from './busyAction.mjs';
 
 export const appHref = (app: SiteApp) => `#apps/${app.id}`;
 
@@ -118,11 +98,11 @@ export function settingsHome(app: SiteApp): { route: string; label: string } | u
 }
 
 /** Where an app's settings are: on the screen with its kind (#maaling/google-analytics, #virksomheden/betaling/mobilepay),
- * else on a screen of their own (#apps/<id>/indstillinger); null without settings. */
+ * else on the Settings tab of its page (#apps/<id>); null without settings. */
 export function settingsRoute(app: SiteApp): string | null {
   if (!app.settings) return null;
   const home = settingsHome(app);
-  return home ? `${home.route}/${app.id}` : `apps/${app.id}/indstillinger`;
+  return home ? `${home.route}/${app.id}` : `apps/${app.id}`;
 }
 
 /** An app's settings as a part, a form of its own (CompanyForm.tsx): its fields in its file, under its name, going back
@@ -467,121 +447,6 @@ export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; fi
   );
 }
 
-/** What every app's page says about it, from its folder or the store's catalog: its pictures (each opening it whole),
- * what it does more fully, what it needs of the site (needsOf), the cookies it sets (`consent`: the cookie banner asks
- * first), and who made it, with a row to their page. `children`: what stands between its description and what it
- * needs (its settings and what it adds). */
-function AppAbout({
-  pictures,
-  description,
-  news = [],
-  needs,
-  notifies = [],
-  cookies,
-  consent,
-  publisher,
-  licenses,
-  children,
-}: {
-  pictures: { src: string; label: string }[];
-  description?: string;
-  news?: { version: string; text: string }[];
-  needs?: AppNeeds;
-  /** The kinds of notifications it sends (AppNotifications), under "Notifikationer": their names, and installed their
-   * types, each with its switch, the same as under "Konto" › "Notifikationer". */
-  notifies?: { label: string; type?: string }[];
-  cookies: AppCookie[];
-  consent: boolean;
-  publisher: string;
-  /** Its licences, under "Licenser" (OwnerLicenses, or StoreLicenseRows from the catalog). */
-  licenses?: ReactNode;
-  children?: ReactNode;
-}) {
-  const row = (glyph: Icon, text: string, more?: string) => <ListItem key={text} icon={glyph} headline={text} supporting={more} />;
-  const needed = needs
-    ? [
-        needs.pages && row(Code, t.apps.needsPages),
-        needs.loads.length > 0 && row(Globe, t.apps.needsLoads, needs.loads.join(', ')),
-        needs.sends.length > 0 && row(PaperPlaneTilt, t.apps.needsSends, needs.sends.join(', ')),
-        needs.server && row(HardDrives, t.apps.needsServer),
-        needs.build && row(Hammer, t.apps.needsBuild),
-        ...(needs.changes ?? []).map((hook) => row(Palette, t.apps.changes[hook])),
-      ].filter((x) => !!x)
-    : [];
-  const lasts = (c: AppCookie) => c.lasts && t.apps.cookieLasts(c.lasts);
-  // A named cookie's category (lib/cookieCategories.mjs), first under its name.
-  const category = (c: AppCookie) => t.blocks.cookies.entries.categories[categoryOf(c)];
-  const { off } = useNotificationChoices();
-  return (
-    <>
-      {pictures.length > 0 && (
-        <section className="mb-8">
-          <GroupTitle>{t.apps.screenshots}</GroupTitle>
-          <ImageCarousel label={t.apps.screenshots} images={pictures} />
-        </section>
-      )}
-      {description && (
-        <section className="mb-8">
-          <GroupTitle>{t.apps.about}</GroupTitle>
-          {description.split(/\n\s*\n/).map((p) => (
-            <p key={p} className="mb-3 px-4 last:mb-0">
-              {p}
-            </p>
-          ))}
-        </section>
-      )}
-      {news.length > 0 && (
-        <section className="mb-8">
-          <GroupTitle>{t.apps.news}</GroupTitle>
-          {news.map((n) => (
-            <div key={n.version} className="mb-3 px-4 last:mb-0">
-              <h3 className="font-medium">{t.apps.version(n.version)}</h3>
-              {n.text.split(/\n\s*\n/).map((p) => (
-                <p key={p} className="text-muted">
-                  {p}
-                </p>
-              ))}
-            </div>
-          ))}
-        </section>
-      )}
-      {children}
-      {needs && <Group title={t.apps.needs}>{needed.length ? needed : row(CheckCircle, t.apps.needsNothing)}</Group>}
-      {notifies.some((n) => n.type) ? (
-        <section className="mb-8">
-          <GroupTitle>{t.apps.notifications}</GroupTitle>
-          <div className="space-y-5 px-4">
-            {notifies.map((n) => (
-              <SwitchRow
-                key={n.type}
-                label={n.label}
-                texts={[t.library.on, t.library.off]}
-                selected={!off.includes(n.type!)}
-                onChange={(yes) => setOn(n.type!, yes)}
-              />
-            ))}
-          </div>
-        </section>
-      ) : (
-        <Group title={t.apps.notifications}>
-          {notifies.length ? notifies.map((n) => row(Bell, n.label)) : row(Bell, t.apps.notifiesNone)}
-        </Group>
-      )}
-      <Group title={t.apps.cookies}>
-        {consent && row(ShieldCheck, t.apps.cookiesAsk)}
-        {cookies.map((c) =>
-          c.name
-            ? row(Cookie, c.name, [category(c), c.purpose, lasts(c)].filter(Boolean).join(' · '))
-            : row(Cookie, c.purpose, lasts(c) || undefined),
-        )}
-        {!consent && !cookies.length && row(Cookie, t.apps.noCookies)}
-      </Group>
-      {licenses}
-      <DeveloperRow name={publisher} />
-    </>
-  );
-}
-
 /** Who made an app or a theme, under "Udvikler", as a row to their page with all they have made. */
 export function DeveloperRow({ name }: { name: string }) {
   return (
@@ -806,23 +671,28 @@ export async function autoUpdate(env: Env, files: RepoFile[]) {
   }
 }
 
+type StoreAction = 'install' | 'update' | 'uninstall';
+
 /** Installing, updating and uninstalling an app from the store, each saved at once in its own commit: its folder
  * copied from the store, or deleted, with the site's file of apps (appChanges in store.ts). Each says true when it
  * was saved. */
 function useStoreActions(env: Env, files: RepoFile[]) {
-  const [saving, setSaving] = useState(false);
+  // Which action runs, on which app; `asking` while a dialog waits for the user (busyAction.mjs shows only the pressed button).
+  const [running, setRunning] = useState<{ id: string; action: StoreAction; asking: boolean } | null>(null);
+  const saving = !!running;
   const installed = installedApps(files);
   const file = files.find((f) => f.path === config.apps.installed);
 
   async function change(
     id: string,
+    action: StoreAction,
     // `kind`: the notification it is when it is saved (an update is "Apps opdateret", as one on its own).
     text: { busy: string; done: string; commit: string; change: string; kind?: 'saved' | 'updates' },
     next: () => Promise<Parameters<typeof appChanges>[2]>,
     // Whether to go on, with the app's files in the site now (an update asks, when some were changed).
     go: (current: RepoFile[]) => Promise<boolean> = async () => true,
   ): Promise<boolean> {
-    setSaving(true);
+    setRunning({ id, action, asking: false });
     env.notify({ text: text.busy });
     try {
       const [current, wanted] = await Promise.all([env.folder(appFolder(id)), next()]);
@@ -830,6 +700,9 @@ function useStoreActions(env: Env, files: RepoFile[]) {
         env.notify(null);
         return false;
       }
+      // `go` cleared the message (and its dialog stopped the button being busy): saving goes on.
+      setRunning({ id, action, asking: false });
+      env.notify({ text: text.busy });
       const cookies = cookieChanges(id, wanted ? cookiesIn(wanted.files) : null, files);
       await saveApp(env, text.commit, text.change, [...appChanges(id, current, wanted, installed, file), ...cookies], file);
       env.notify({ text: text.done, kind: text.kind ?? 'saved' });
@@ -838,15 +711,17 @@ function useStoreActions(env: Env, files: RepoFile[]) {
       env.notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
       return false;
     } finally {
-      setSaving(false);
+      setRunning(null);
     }
   }
 
   return {
     saving,
+    busy: (id: string, action: StoreAction) => busyFor(running, id, action),
     install: (app: ShownApp) =>
       change(
         app.id,
+        'install',
         {
           busy: t.apps.installing,
           done: t.apps.isInstalledSoon(app.label),
@@ -858,6 +733,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
     async update(app: ShownApp, record: StoreRecord) {
       const done = await change(
         app.id,
+        'update',
         {
           busy: t.apps.updating,
           done: t.apps.isUpdatedSoon(app.label, app.version),
@@ -868,6 +744,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
         async () => ({ files: await env.store.files(app), record: recordOf(app) }),
         async (current) => {
           env.notify(null);
+          setRunning({ id: app.id, action: 'update', asking: true });
           return askUpdate(
             app.label,
             record.version,
@@ -883,6 +760,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
     uninstall: (id: string, label: string, written: string) =>
       change(
         id,
+        'uninstall',
         {
           busy: t.apps.uninstalling,
           done: t.apps.isUninstalled(label),
@@ -975,7 +853,7 @@ function useStorePictures(env: Env, app: ShownApp | undefined) {
  * catalog: as an app's page in the site, what it adds without switches, and "Installer" (or "Afinstaller"). */
 export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: RepoFile[] }) {
   const catalog = useCatalog(env);
-  const { saving, install, uninstall } = useStoreActions(env, files);
+  const { saving, busy, install, uninstall } = useStoreActions(env, files);
   const pending = installedApps(files).includes(id);
   const app = Array.isArray(catalog) ? catalog.find((a) => a.id === id) : undefined;
   const pictures = useStorePictures(env, app);
@@ -999,12 +877,12 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
           />
           {!pending && (
             <div className="mb-8">
-              <Button wide disabled={saving} onClick={() => install(app)}>
+              <Button disabled={saving} busy={busy(app.id, 'install')} onClick={() => install(app)}>
                 {t.apps.install}
               </Button>
             </div>
           )}
-          <AppAbout
+          <AppInfoTab
             pictures={pictures}
             description={app.description}
             news={newsOf(app.releaseNotes, app.version)}
@@ -1022,7 +900,7 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
                 {kinds.filter((k) => k.list === list).map((k, i) => row(k, `${i}`))}
               </Group>
             ))}
-          </AppAbout>
+          </AppInfoTab>
         </>
       )}
       {!app &&
@@ -1036,9 +914,8 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
         <div>
           <Button
             kind="outlined"
-
-            wide
             disabled={saving}
+            busy={busy(id, 'uninstall')}
             onClick={async () => {
               const label = app?.label ?? id;
               if (await ask(t.apps.askUninstall(label), t.apps.uninstall)) uninstall(id, label, app?.written ?? id);
@@ -1053,95 +930,45 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
   );
 }
 
-/** What an app adds but its lists, each on its page under "Blokke" or the name of its list ("Promovering") with a sheet: its blocks, and its kinds of the site's
- * lists (a Mailchimp popup), each with where it is used and its switch; a kind with a button to a new one. */
-function addsOf(app: SiteApp, files: RepoFile[]) {
-  return [
-    ...siteBlocks
-      .filter((b) => b.app === app.id)
-      .map((b) => ({
-        key: b.type,
-        icon: b.icon,
-        label: b.label,
-        hint: b.hint,
-        block: b,
-        create: undefined,
-        uses: pagesWith(b.type, files).map((p) => ({ href: `#${p.path}`, title: p.title })),
-      })),
-    ...kindsOf(app).map((k) => ({
-      ...k,
-      block: undefined,
-      create: k.create ? { href: `#ny/${k.key}/${app.id}`, label: k.create } : undefined,
-      uses: entriesOf(app, k.key, files),
-    })),
-  ];
-}
-
-type Add = ReturnType<typeof addsOf>[number];
-
-/** The row of a block (or a kind of a list) an installed app adds: tapped, it opens its sheet; at its end the switch
- * that turns it on or off, as the one in the sheet ("Aktiveret"), saved at once. Used, it cannot be turned off, and
- * the switch says why. The only switch in a row (CLAUDE.md). */
-function SwitchedRow({
-  app,
-  add,
-  env,
-  files,
-  busy,
-  onBusy,
-  onOpen,
-}: {
-  app: SiteApp;
-  add: Add;
-  env: Env;
-  files: RepoFile[];
-  busy: boolean;
-  onBusy: (busy: boolean) => void;
-  onOpen: () => void;
-}) {
-  const count = add.uses.length;
-  const id = add.block ? add.block.type : kindKey(add.key, app.id);
-  const texts = add.block ? blockSwitchTexts(add.block, count) : kindSwitchTexts(app, add.key, count);
-  const { on, saving, turn } = useOnOff(id, count, texts, env, files);
-  return (
-    <ListItem
-      aria-haspopup="dialog"
-      onClick={onOpen}
-      icon={add.icon}
-      headline={add.label}
-      supporting={add.hint}
-      actions={
-        <span className="shrink-0 pr-4">
-          <Switch
-            label={t.apps.activeOf(add.label)}
-            selected={on}
-            texts={[t.blockSettings.on, t.blockSettings.off]}
-            disabled={busy || saving}
-            onChange={async (next) => {
-              onBusy(true);
-              try {
-                await turn(next);
-              } finally {
-                onBusy(false);
-              }
-            }}
-          />
-        </span>
-      }
-    />
-  );
-}
-
 const backToApps = { href: '#apps', label: t.common.parts.apps };
 
 type AppProps = { app: SiteApp; env: Env; files: RepoFile[] };
 
-/** An app's page, the same for every app: it installs the app; its settings are on a screen of their own (settingsRoute). */
-export function AppPage({ app, env, files }: AppProps) {
+type AppTab = 'settings' | 'information';
+
+/** The tabs of an installed app's page, in the top bar: Settings (#apps/<id>) and Information (#apps/<id>/om). A form
+ * with unsaved changes asks first, as for every address (App.tsx). */
+const tabsOf = (app: SiteApp, tab: AppTab): TabChoice<AppTab> => ({
+  label: t.apps.tabs,
+  value: tab,
+  options: [
+    { value: 'settings', label: t.apps.tabSettings, icon: Gear },
+    { value: 'information', label: t.apps.tabInfo, icon: Info },
+  ],
+  onChange: (v) => (location.hash = v === 'settings' ? appHref(app) : `${appHref(app)}/${INFO_KEY}`),
+});
+
+/** An app's page, the same for every app: it installs the app. Installed, it has the tabs Settings (its settings form,
+ * what it adds, "Afinstaller") and Information; `page`: the field of its settings whose page is open (Field.page).
+ * One that is not installed has no tabs. */
+export function AppPage({ app, env, files, tab, page }: AppProps & { tab: AppTab; page?: string }) {
   // One that is not installed is found under "Appstore".
-  return (
-    <Screen title={app.label} wide back={installedApps(files).includes(app.id) ? backToApps : backToStore}>
-      <AppContent app={app} env={env} files={files} />
+  if (!installedApps(files).includes(app.id))
+    return (
+      <Screen title={app.label} wide back={backToStore}>
+        <AppContent app={app} env={env} files={files} tab="information" />
+      </Screen>
+    );
+  const part = appSettingsPart(app);
+  const content = (fields?: ReactNode) => <AppContent app={app} env={env} files={files} tab={tab} fields={fields} />;
+  // With settings, the Save bar and the question about unsaved changes (FormFrame); the form is kept on both tabs.
+  return part ? (
+    <AppFormPage app={app} part={part} env={env} files={files} page={page} tabs={tabsOf(app, tab)} back={backToApps}>
+      {content}
+    </AppFormPage>
+  ) : (
+    <Screen title={app.label} wide back={backToApps} tabs={tabsOf(app, tab)}>
+      {content()}
     </Screen>
   );
 }
@@ -1160,31 +987,23 @@ export function AppScreenPage({ app, id, env }: { app: SiteApp; id: string; env:
 }
 
 /** What every app's page has, in this order: its name, who made it, whether it is installed, its version (from the
- * store) and what it does; "Installer" (or, from the store, "Opdater" when it has a newer version); its pictures and
- * what it does more fully; a row to its settings (installed), with where they are; what it adds (its blocks, its kinds
- * of lists); what it needs, its cookies and who made it (AppAbout); where it is used; and "Afinstaller". */
-function AppContent({ app, env, files }: AppProps) {
+ * store) and what it does; "Installer" (or, from the store, "Opdater" when it has a newer version); then, installed on
+ * the Settings tab, its settings form (`fields`) and what AppSettingsTab has, else what AppInfoTab has (what it adds,
+ * not installed, with the pictures, what it needs, its cookies, who made it and where it is used). */
+function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; fields?: ReactNode }) {
   const notify = env.notify;
-  const dialog = useRef<HTMLDialogElement>(null);
-  const [toggling, setToggling] = useState(false);
+  const [toggling, setToggling] = useState<'install' | 'uninstall' | null>(null);
   const store = useStoreActions(env, files);
-  const saving = toggling || store.saving;
+  const saving = !!toggling || store.saving;
   const catalog = useCatalog(env);
   const update = updateOf(app, catalog);
   // Its release notes as the store has them: also those of a version the site's build does not have yet.
   const inStore = Array.isArray(catalog) ? catalog.find((a) => a.id === app.id) : undefined;
-  const [openKey, setOpenKey] = useState<string | null>(null);
-  // While one row's switch saves, the others wait.
-  const [switching, setSwitching] = useState(false);
   const installed = installedApps(files);
   const on = installed.includes(app.id);
   // Where it is used: while it is, it cannot be uninstalled.
   const uses = on ? usesOf(app, files) : [];
   const stuck = uses.length > 0;
-  const adds = addsOf(app, files);
-  const lists = listsOf(app, files);
-  const open = adds.find((a) => a.key === openKey);
-  const settings = on && settingsRoute(app);
 
   // Installed or uninstalled, saved at once in its own commit. One in use cannot be uninstalled. One from the store
   // is deleted from the site (it can be installed again from the store).
@@ -1196,7 +1015,7 @@ function AppContent({ app, env, files }: AppProps) {
     const next = installed.filter((id) => id !== app.id).concat(yes ? [app.id] : []);
     const text = `${JSON.stringify({ installed: [...new Set(next)].sort() }, null, 2)}\n`;
     if (text === file?.text) return;
-    setToggling(true);
+    setToggling(yes ? 'install' : 'uninstall');
     notify({ text: yes ? t.apps.installing : t.apps.uninstalling });
     try {
       // With its cookies added to the cookie list, or those it added taken out.
@@ -1210,35 +1029,9 @@ function AppContent({ app, env, files }: AppProps) {
     } catch (e) {
       notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
     } finally {
-      setToggling(false);
+      setToggling(null);
     }
   }
-
-  // What it adds under a heading. Installed, each row opens its sheet and has its switch at its end.
-  const addsGroup = (title: string, items: typeof adds) =>
-    items.length > 0 && (
-      <Group key={title} title={title}>
-        {items.map((a) =>
-          on ? (
-            <SwitchedRow
-              key={a.key}
-              app={app}
-              add={a}
-              env={env}
-              files={files}
-              busy={switching}
-              onBusy={setSwitching}
-              onOpen={() => {
-                setOpenKey(a.key);
-                dialog.current?.showModal();
-              }}
-            />
-          ) : (
-            <ListItem key={a.key} icon={a.icon} headline={a.label} supporting={a.hint} />
-          ),
-        )}
-      </Group>
-    );
 
   return (
     <div>
@@ -1253,124 +1046,54 @@ function AppContent({ app, env, files }: AppProps) {
       {(!on || (update && app.store)) && (
         <div className="mb-8">
           {on ? (
-            <Button wide disabled={saving} onClick={() => store.update(update!, app.store!)}>
+            <Button disabled={saving} busy={store.busy(app.id, 'update')} onClick={() => store.update(update!, app.store!)}>
               {t.apps.update(update!.version)}
             </Button>
           ) : (
-            <Button wide disabled={saving} onClick={() => install(true)}>
+            <Button disabled={saving} busy={toggling === 'install' || store.busy(app.id, 'install')} onClick={() => install(true)}>
               {t.apps.install}
             </Button>
           )}
         </div>
       )}
-      <AppAbout
-        pictures={app.pictures}
-        description={app.description}
-        news={app.store ? newsOf(inStore?.releaseNotes ?? app.releaseNotes, update?.version ?? versionOf(app)) : []}
-        needs={app.needs}
-        notifies={Object.entries(app.notifications?.types ?? {}).map(([id, label]) => ({
-          label: siteText(label),
-          ...(on ? { type: appType(app.id, id) } : {}),
-        }))}
-        cookies={app.cookieList ?? []}
-        consent={!!app.cookies}
-        publisher={app.publisher}
-        licenses={
-          <OwnerLicenses
-            id={`app/${app.id}`}
-            name={app.label}
-            author={app.publisher}
-            version={app.store && versionOf(app)}
-            declared={app}
+      {on && tab === 'settings' ? (
+        <>
+          {fields}
+          <AppSettingsTab
+            app={app}
+            env={env}
+            files={files}
+            busy={saving}
+            uninstalling={toggling === 'uninstall' || store.busy(app.id, 'uninstall')}
+            stuck={stuck}
+            onUninstall={() => install(false)}
           />
-        }
-      >
-        {settings && (
-          <Group>
-            <ListItem href={`#${settings}`} icon={Gear} headline={t.apps.settings} count={settingsHome(app)?.label} arrow />
-          </Group>
-        )}
-        {/* What the app shows itself (its `page`), while it is installed. */}
-        {on && app.page && (
-          <div data-app-page={app.id}>
-            <app.page api={(path, init) => env.appApi(app.id, path, init)} />
-          </div>
-        )}
-        {/* What it adds: its blocks under "Blokke", the lists it brings under "Lister" (as on "Lister", each opening its
-          list), and its kinds under the name of the list they are added to ("Promovering"). */}
-        {addsGroup(
-          t.apps.blocks,
-          adds.filter((a) => a.block),
-        )}
-        {lists.length > 0 && (
-          <Group title={t.apps.lists}>
-            {lists.map((l) => (
-              // Installed, a row opens its list.
-              <ListItem key={l.key} href={on ? l.href : undefined} icon={l.icon} headline={l.label} count={l.count} arrow={on} />
-            ))}
-          </Group>
-        )}
-        {[...new Set(adds.flatMap((a) => (a.block ? [] : [a.more])))].map((title) =>
-          addsGroup(
-            title,
-            adds.filter((a) => !a.block && a.more === title),
-          ),
-        )}
-      </AppAbout>
-      {stuck && (
-        <Group title={t.apps.used}>
-          {uses.map((u) => (
-            <ListItem key={u.href} href={u.href} icon={u.icon} headline={u.title} arrow />
-          ))}
-        </Group>
+        </>
+      ) : (
+        <AppInfoTab
+          pictures={app.pictures}
+          description={app.description}
+          news={app.store ? newsOf(inStore?.releaseNotes ?? app.releaseNotes, update?.version ?? versionOf(app)) : []}
+          needs={app.needs}
+          notifies={Object.values(app.notifications?.types ?? {}).map((label) => ({ label: siteText(label) }))}
+          cookies={app.cookieList ?? []}
+          consent={!!app.cookies}
+          publisher={app.publisher}
+          licenses={
+            <OwnerLicenses
+              id={`app/${app.id}`}
+              name={app.label}
+              author={app.publisher}
+              version={app.store && versionOf(app)}
+              declared={app}
+            />
+          }
+          uses={uses}
+        >
+          {/* Not installed, what it adds is listed here; installed, it is on the Settings tab. */}
+          {!on && <AppAdds app={app} env={env} files={files} on={false} />}
+        </AppInfoTab>
       )}
-      {/* As wide as the fields and the rows above. */}
-      {on && (
-        <div>
-          <Button kind="outlined" wide disabled={saving || stuck} onClick={() => install(false)}>
-            {t.apps.uninstall}
-          </Button>
-          <SupportingText className="mt-2">{stuck ? t.apps.stuck : t.apps.uninstallHint}</SupportingText>
-        </div>
-      )}
-      <BottomSheet
-        ref={dialog}
-        aria-label={open?.label}
-        onClose={(e) => e.target === e.currentTarget && setOpenKey(null)}
-        onClick={(e) => e.target === dialog.current && dialog.current?.close()}
-      >
-        <SheetTitle title={open?.label ?? ''} onClose={() => dialog.current?.close()} />
-        {open && (
-          <SheetBody>
-            <div className="flex items-start gap-3">
-              <LeadingIcon icon={open.icon} />
-              <p className="pt-1.5 text-muted">{open.hint ?? open.label}</p>
-            </div>
-            {open.block ? (
-              <BlockSwitch block={open.block} env={env} files={files} />
-            ) : (
-              <KindSwitch app={app} list={open.key} env={env} files={files} />
-            )}
-            {open.create && !offBlocks(files).includes(kindKey(open.key, app.id)) && (
-              <LinkButton href={open.create.href} wide onClick={() => dialog.current?.close()}>
-                {open.create.label}
-              </LinkButton>
-            )}
-            <div>
-              <p className="mb-1 font-medium">{t.apps.used}</p>
-              {open.uses.length ? (
-                <ul className={listClass}>
-                  {open.uses.map((u) => (
-                    <ListItem key={u.href} href={u.href} onClick={() => dialog.current?.close()} headline={u.title} />
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-muted">{t.apps.notUsed}</p>
-              )}
-            </div>
-          </SheetBody>
-        )}
-      </BottomSheet>
     </div>
   );
 }

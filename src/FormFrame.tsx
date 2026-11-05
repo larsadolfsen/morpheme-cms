@@ -206,22 +206,22 @@ export default function FormFrame<T extends string>({
       {(dirty || saving) && (
         <div className="editor-save-bar fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
           <div className="mx-auto max-w-3xl px-4 py-3 medium:px-6">
-            {/* "Forhåndsvis" beside "Gem": across the bar on a phone, at its end from medium. */}
-            <div className={['gap-2 medium:flex medium:justify-end', onPreview && 'grid grid-cols-[auto_1fr]'].filter(Boolean).join(' ')}>
+            {/* Preview beside Save, at the end of the bar, each as wide as its label. */}
+            <div className="flex justify-end gap-2">
               {onPreview && (
                 <Button kind="outlined" icon={Binoculars} aria-haspopup="dialog" onClick={onPreview}>
                   {t.preview.button}
                 </Button>
               )}
               <Button
-                wide
                 disabled={saving}
+                busy={saving && !deleting}
                 onClick={() => {
                   askToNotify();
                   void onSave();
                 }}
               >
-                {saving ? <LoadingIndicator>{deleting ? t.app.busy.deleting : t.app.busy.saving}</LoadingIndicator> : t.common.saveChanges}
+                {t.common.saveChanges}
               </Button>
             </div>
           </div>

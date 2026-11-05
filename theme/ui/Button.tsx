@@ -8,10 +8,15 @@
 // is on, where the site draws the icon filled. With `href` it is a link (Link: on the site; in the editor only drawn;
 // never a toggle), else a <button> (`type`, button by default). Other attributes (data-…, aria-…, disabled) go on it, and `className`
 // after its own classes (its width). An Astro component without React gives an element the same classes with
-// buttonClass, and a toggle aria-pressed itself.
-import type { ReactNode } from 'react';
+// buttonClass, and a toggle aria-pressed itself. With `busy` (a <button> only; a link ignores it) the button is
+// disabled, aria-busy and .button-busy while its action runs. Nothing else changes for the first --button-busy-delay
+// (200 ms; M3 loading indicator); then the label and icons go, the button shrinks to a circle (its width becomes its
+// height) and a loading indicator in the label's colour, without a container, stands in the middle (aria-hidden: the
+// button keeps its name). When busy ends, it is the button again.
+import { useEffect, useRef, type ReactNode } from 'react';
 import { Glyph, Svg, iconFile, type IconRef } from '@morphemecms/cms/src/icon';
 import { Link, type ButtonKind } from '@morphemecms/cms/src/standard/view';
+import BusyContent from './BusyContent';
 
 export const buttonSizes = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
 export type ButtonSize = (typeof buttonSizes)[number];
@@ -40,6 +45,7 @@ export default function Button({
   size,
   shape,
   selected,
+  busy,
   icon,
   trailingIcon,
   href,
@@ -52,6 +58,7 @@ export default function Button({
   size?: ButtonSize;
   shape?: ButtonShape;
   selected?: boolean;
+  busy?: boolean;
   icon?: IconRef;
   trailingIcon?: IconRef;
   href?: string;
@@ -59,7 +66,13 @@ export default function Button({
   className?: string;
   children: ReactNode;
 } & Record<string, unknown>) {
-  const classes = [buttonClass(kind, size, shape), className].filter(Boolean).join(' ');
+  const isBusy = busy === true && href === undefined;
+  const ref = useRef<HTMLButtonElement>(null);
+  // The width it shrinks from (a width cannot move from auto), read while the label is still there.
+  useEffect(() => {
+    if (isBusy && ref.current) ref.current.style.setProperty('--button-busy-from', `${ref.current.offsetWidth}px`);
+  }, [isBusy]);
+  const classes = [buttonClass(kind, size, shape), isBusy && 'button-busy', className].filter(Boolean).join(' ');
   const toggle = selected !== undefined && href === undefined;
   const content = (
     <>
@@ -69,8 +82,15 @@ export default function Button({
     </>
   );
   return href === undefined ? (
-    <button type={type} className={classes} aria-pressed={toggle ? selected : undefined} {...rest}>
-      {content}
+    <button
+      ref={ref}
+      type={type}
+      className={classes}
+      aria-pressed={toggle ? selected : undefined}
+      {...rest}
+      {...(isBusy ? { disabled: true, 'aria-busy': true } : {})}
+    >
+      {isBusy ? <BusyContent>{content}</BusyContent> : content}
     </button>
   ) : (
     <Link href={href} className={classes} {...rest}>

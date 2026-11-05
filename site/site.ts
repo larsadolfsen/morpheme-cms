@@ -1,5 +1,5 @@
 // Name, title, phone, email, address and CVR number: contact.json; the profiles and share buttons: social.json (optional, an
-// older site has none); the texts of "Book en tid": booking.json (the calendar is the app Calendly's, src/apps/calendly/);
+// older site has none); the texts of "Book en tid": booking.json (the calendar is the app Calendly's, morpheme-apps/apps/calendly/);
 // the menus: menu.json and mobile-menu.json; the shared texts of the other blocks: their shared.ts, with those saved in
 // blocks.json over them (`blockTexts`).
 // The site's owner edits them in the editor (/editor/); what the editor does not edit is the site's config
@@ -12,6 +12,7 @@ import blocks from '@data/blocks.json';
 import standardPages from '@data/standard-pages.json';
 import { config } from '@site/config';
 import { socialOf } from './social.mjs';
+import { headerOf, sortedNav } from './header.mjs';
 import { sharedTexts, type SharedTexts } from '@morphemecms/cms/src/shared';
 import { standardShared } from '@morphemecms/cms/src/standard/sharedTexts';
 
@@ -23,6 +24,11 @@ const { cvr = '' } = contact as typeof contact & { cvr?: string };
 
 // Optional file: an older site has no social.json, so it is read with a glob, not an import.
 const socialFile = Object.values(import.meta.glob<Record<string, unknown>>('/src/data/social.json', { eager: true, import: 'default' }))[0];
+
+// Optional file (header.json, "Header"): a site without it keeps the header as it is.
+const headerFile = Object.values(import.meta.glob<Record<string, unknown>>('/src/data/header.json', { eager: true, import: 'default' }))[0];
+/** The header's button (in place of the phone icon, or null) and the side of the mobile menu button. */
+export const header = headerOf(headerFile);
 
 export const site = {
   name: contact.name,
@@ -65,13 +71,12 @@ export const site = {
 
 // Primary navigation (menu.json, "Hovedmenu"). Labels, URLs and sub-items started out as the old site's menu.
 export type NavItem = { label: string; href: string; children?: { label: string; href: string }[] };
-export const nav: NavItem[] = menu.items;
+// Sub-items in alphabetical order (Danish: æ, ø, å last), in both the desktop and the mobile menu.
+export const nav: NavItem[] = sortedNav(menu.items);
 /** Whether the header has the menu and its button ("Aktiveret" under "Hovedmenu"). */
 export const navShown = menu.enabled !== false;
 /** The links in the bar under the header on a phone (mobile-menu.json, "Mobilmenu"); none when it is turned off. */
 export const mobileNav: { label: string; href: string }[] = mobileMenu.enabled ? mobileMenu.items : [];
-// Sub-items in alphabetical order (Danish: æ, ø, å last), in both the desktop and the mobile menu.
-for (const item of nav) item.children?.sort((a, b) => a.label.localeCompare(b.label, 'da'));
 
 /** The texts every copy of a block has ("Blokke" in the editor), with {…} for what differs, by
  * the block's type: those written in its shared.ts, with the saved ones (blocks.json) over them. The

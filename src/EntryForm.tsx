@@ -5,9 +5,9 @@
 // old one (addresses.ts). The Filer files the page newly refers to get the page's tags in the same commit (autoTags.mjs).
 // An earlier version (Versions.tsx) is opened as changes that are not saved,
 // at the address the page or post has now. Its preview draft says whether it is a post (post, for the lead).
-// The form's sections are listed as "on this page" in a card at the end of the form (large and wider only): SectionList in ui.tsx.
+// The form's sections are listed as "on this page" in a card at the end of the form (large and wider only): SectionList in ui.tsx;
+// which are open and the one in view: formSections.ts.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { flushSync } from 'react-dom';
 import { slugify, slugOf, type Field, type MarkdownCollection } from './schema';
 import { config, frontLeads, headingLooks, sectionLooks, sharing, standardPages, standardPaths } from '@site/editor';
 import { asWritten, placeOf, standardPageAt } from './site';
@@ -16,15 +16,15 @@ import { addressOf, moveRedirects, REDIRECTS, retarget } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES, setRedirect } from './redirectData';
 import { TAB_ROUTES } from './Redirects';
 import { choose } from './ask';
-import { sideSettingOf } from './SideColumn';
-import { sideSwitchShown } from '../lib/side-block.mjs';
+import { offeredTemplatesOf, shownTemplate, templateFieldOf } from './templateField';
+import { templateOf, templateWritten } from '../lib/page-template.mjs';
 import { booleanRead, booleanWrite, readFields, splitFrontmatter, writeFields } from './frontmatter.mjs';
 import MarkdownEditor, { type MarkdownHandle } from './MarkdownEditor';
 import { useBlockDialog } from './BlockDialog';
 import { blockHtml } from '../lib/blocks.mjs';
 import { sectionBlocks } from './blocks';
 import { looksOf, pageH1 } from './sections.mjs';
-import { sectionInView, spyLine } from '../lib/section-in-view.mjs';
+import { useFormSections } from './formSections';
 import { publicPath, shownAt, useUploads } from './images';
 import { filerAddresses, useMediaPicker } from './Media';
 import { autoTagChanges, newlyUsed } from './autoTags.mjs';
@@ -117,19 +117,23 @@ function valuesOf(collection: MarkdownCollection, file: RepoFile): Record<string
   );
 }
 
-// Scrolling to a part of the form: smoothly, unless less motion is asked for.
-const scrolling = (): ScrollBehavior => (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
-
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 // The values as they are saved: a field only in use with another's value (Field.only: "Tidspunkt" with
-// "Planlagt") is empty without it, so it leaves the file; a switch that is on when its key is missing (Field.missing,
-// "Sidekolonne") leaves the file when it is on (booleanWrite).
-const inForm = (fields: Field[], values: Record<string, unknown>) =>
+// "Planlagt") is empty without it, so it leaves the file; a switch that is on when its key is missing (Field.missing)
+// leaves the file when it is on (booleanWrite); a field of the theme's templates (Field.offered) leaves it for the theme's
+// default, `offered` (templateWritten).
+const inForm = (fields: Field[], values: Record<string, unknown>, offered: string[]) =>
   Object.fromEntries(
     fields.map((f) => [
       f.name,
-      inUse(f, fields, values) ? (f.type === 'boolean' ? booleanWrite(values[f.name], f.missing) : values[f.name]) : '',
+      !inUse(f, fields, values)
+        ? ''
+        : f.offered === 'templates'
+          ? templateWritten(values[f.name], offered)
+          : f.type === 'boolean'
+            ? booleanWrite(values[f.name], f.missing)
+            : values[f.name],
     ]),
   );
 
@@ -200,8 +204,10 @@ function Form({
   const [savedAt, setSavedAt] = useSavedAt(env, file.path);
 
   const isNew = !base.path;
-  const asSaved = useMemo(() => inForm(collection.fields, values), [collection, values]);
-  const was = useMemo(() => inForm(collection.fields, initial), [collection, initial]);
+  // The templates the theme chosen offers, for the field `offered: 'templates'.
+  const offered = useMemo(() => offeredTemplatesOf(env.files), [env.files]);
+  const asSaved = useMemo(() => inForm(collection.fields, values, offered), [collection, values, offered]);
+  const was = useMemo(() => inForm(collection.fields, initial, offered), [collection, initial, offered]);
   const changed = collection.fields.filter((f) => !same(asSaved[f.name], was[f.name]));
   const dirty = bodyChanged || changed.length > 0;
 
@@ -225,64 +231,13 @@ function Form({
     ...(isNew ? [] : [{ id: 'versions', label: t.history.versions }]),
   ];
   const shows = (id: Section) => sections.some((s) => s.id === id);
-  // The section in view, marked in the sections list: while the page scrolls, the last one whose top is above a third of the
-  // screen (at the bottom of the page, the last one in view). A tap in the list marks its own and scrolls there; the
-  // mark stays meanwhile (`steering`, until the scroll ends).
-  const [section, setSection] = useState<Section>('content');
-  const boxes = useRef<Partial<Record<Section, HTMLElement | null>>>({});
-  const order = useRef<Section[]>([]);
-  order.current = sections.map((s) => s.id as Section);
-  const steering = useRef(0);
-  const spy = useRef(() => {});
-  const steer = (id: Section) => {
-    setSection(id);
-    steering.current = performance.now() + 1500;
-    addEventListener('scrollend', () => (steering.current = 0), { once: true });
-  };
-  // The sections that are open; at first only the text (and "Søgemaskiner" when it is opened at it, `opening`).
-  const [open, setOpen] = useState<ReadonlySet<Section>>(() => new Set(['content', ...(opening === 'seo' ? ['seo' as const] : [])]));
-  const unfold = (id: Section) => setOpen((was) => (was.has(id) ? was : new Set([...was, id])));
-  // A section opened by its heading is marked in the sections list; one folded, the one in view now (the page is shorter,
-  // without a scroll).
-  const toggle = (id: Section) => {
-    const opening = !open.has(id);
-    setOpen((was) => {
-      const next = new Set(was);
-      if (opening) next.add(id);
-      else next.delete(id);
-      return next;
-    });
-    if (opening) setSection(id);
-    else requestAnimationFrame(() => spy.current());
-  };
-  useEffect(() => {
-    let frame = 0;
-    spy.current = () => {
-      frame = 0;
-      if (performance.now() < steering.current) return;
-      const atBottom = innerHeight + scrollY >= document.documentElement.scrollHeight - 8;
-      const tops: Record<string, number | undefined> = {};
-      for (const id of order.current) tops[id] = boxes.current[id]?.getBoundingClientRect().top;
-      const here = sectionInView(order.current, tops, spyLine(innerHeight, atBottom));
-      if (here) setSection(here as Section);
-    };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(spy.current);
-    };
-    addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      removeEventListener('scroll', onScroll);
-      cancelAnimationFrame(frame);
-    };
-  }, []);
-  // Opens a section and scrolls to it (or to `box` in it: the text). It is opened at once (flushSync), so it is there to scroll to.
+  // The sections: which are open, at first only the text (and "Søgemaskiner" when it is opened at it, `opening`); the one in
+  // view, marked in the sections list; a tap there opens one and scrolls to it (formSections.ts).
+  const { section, steer, unfold, goTo, pick, sectionProps } = useFormSections<Section>(sections, [
+    'content',
+    ...(opening === 'seo' ? ['seo' as const] : []),
+  ]);
   const textBox = useRef<HTMLDivElement>(null);
-  const goTo = (id: Section, box?: HTMLElement | null) => {
-    if (!open.has(id)) flushSync(() => unfold(id));
-    steer(id);
-    requestAnimationFrame(() => (box ?? boxes.current[id])?.scrollIntoView({ block: 'start', behavior: scrolling() }));
-  };
-  const pick = (id: string) => goTo(id as Section);
   // Opened from "SEO-vurdering" (SeoScores.tsx): straight to "Søgemaskiner" (open from the start, `open`).
   useEffect(() => {
     if (opening !== 'seo') return;
@@ -294,13 +249,6 @@ function Form({
   useEffect(() => {
     if (wrongField.field) steer(sectionOf(wrongField.field.path));
   }, [wrongField.field?.at]);
-  // A section: where it is, for the sections list, its heading (its name in the list), and whether it is open.
-  const sectionProps = (id: Section) => ({
-    ref: (el: HTMLElement | null) => void (boxes.current[id] = el),
-    title: sections.find((s) => s.id === id)!.label,
-    open: open.has(id),
-    onToggle: () => toggle(id),
-  });
 
   // The SEO rating at the top of "Søgemaskiner" (seo.ts), again with every change of a field while that is open and near
   // the screen (`seoBox`, what is in the section, is hidden while it is folded); the same for the preview of a shared link
@@ -460,7 +408,7 @@ function Form({
 
     // A new file gets all its filled-in fields in the order of the form; an existing one only the changed. As saved:
     // the values given (a new one without a title has its name, "Ny side 1", named()), not only those in the form.
-    const saved = inForm(collection.fields, values);
+    const saved = inForm(collection.fields, values, offered);
     const written = (isNew ? collection.fields.filter((f) => !same(saved[f.name], []) && f.type !== 'readonly') : changed).filter(
       (f) => f.name !== 'path',
     );
@@ -597,7 +545,7 @@ function Form({
   }
 
   // "Forhåndsvis": the page or post with what is changed in the form; a new one, or one whose layout is changed in the
-  // form (a field with `layout`, "Hele bredden"), in the page of another one of its kind saved with that layout, with
+  // form (a field with `layout`, the template), in the page of another one of its kind saved with that layout, with
   // all of the form put in it (pagePreview.tsx).
   const [openPreview, previewSheet] = usePagePreview();
   const showPreview = () =>
@@ -606,9 +554,11 @@ function Form({
       const relaid = !isNew && changed.some((f) => f.layout);
       const sameLayout = (data: Record<string, unknown>) =>
         layout.every((f) =>
-          f.type === 'boolean'
-            ? booleanRead(data[f.name], f.missing) === (values[f.name] === true)
-            : String(data[f.name] || '') === String(values[f.name] || ''),
+          f.offered === 'templates'
+            ? templateOf({ template: data[f.name] }, offered) === templateOf({ template: values[f.name] }, offered)
+            : f.type === 'boolean'
+              ? booleanRead(data[f.name], f.missing) === (values[f.name] === true)
+              : String(data[f.name] || '') === String(values[f.name] || ''),
         );
       const changes = (...names: string[]) => isNew || relaid || changed.some((f) => names.includes(f.name));
       const others =
@@ -648,11 +598,14 @@ function Form({
       set('date', String(v).slice(0, 10));
   };
   // The fields in use (Field.only).
-  // "Sidekolonne" only while src/data/side.json chooses a block and the page is not "Hele bredden" (sideSwitchShown).
-  const sideShown = sideSwitchShown({ block: sideSettingOf(env.files) }, values);
-  const field = (f: Field) =>
-    inUse(f, collection.fields, values) &&
-    (f.name !== 'side' || sideShown) && <FieldInput key={f.name} field={f} value={values[f.name]} onChange={(v) => onChange(f, v)} />;
+  // A field of the theme's templates (Field.offered) shows the options the theme offers, and not while only one is left.
+  const field = (f: Field) => {
+    if (!inUse(f, collection.fields, values)) return false;
+    const shown = f.offered ? templateFieldOf(f, env.files) : f;
+    if (!shown) return false;
+    const value = f.offered ? shownTemplate(shown, values[f.name]) : values[f.name];
+    return <FieldInput key={f.name} field={shown} value={value} onChange={(v) => onChange(f, v)} />;
+  };
 
   return (
     <Fields.Provider value={fields}>

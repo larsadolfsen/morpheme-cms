@@ -79,7 +79,7 @@ function googleSettings() {
 }
 
 /** Google's data layer with the visitor's answer in consent mode, for a tag of Google's (googleTag, Google Tag
- * Manager's container, src/apps/gtm/), set up once, before the first tag loads; a new answer updates it (choose). */
+ * Manager's container, morpheme-apps/apps/gtm/), set up once, before the first tag loads; a new answer updates it (choose). */
 export function googleConsent() {
   window.dataLayer = window.dataLayer || [];
   if (typeof window.gtag === 'function') return;
@@ -95,7 +95,7 @@ export function googleConsent() {
 let tagged = false;
 
 /** The Google tag (gtag.js) with this ID (Google Analytics' G-…, Google Ads' AW-…), for the apps that measure with it
- * (src/apps/google-analytics/, src/apps/google-ads/), in afterConsent: loaded once for all of them, each ID configured. */
+ * (morpheme-apps/apps/google-analytics/, morpheme-apps/apps/google-ads/), in afterConsent: loaded once for all of them, each ID configured. */
 export function googleTag(id: string, config: Record<string, unknown> = {}) {
   googleConsent();
   window.gtag('config', id, config);
@@ -202,7 +202,7 @@ export const consentOf = (meta: HTMLElement | null) => (meta?.dataset.consent ??
 
 /** Runs `run` once the visitor has said yes to one of `categories` in the cookie banner (now, if they already have),
  * on the site's own address (`hosts`, or with ?tracking=test): for an app that loads something that sets cookies
- * (`cookies` in its index.ts, e.g. Google Analytics, src/apps/google-analytics/). A no to all of them after a yes
+ * (`cookies` in its index.ts, e.g. Google Analytics, morpheme-apps/apps/google-analytics/). A no to all of them after a yes
  * reloads the page, so it stops. */
 export function afterConsent(categories: ConsentCategory[], run: () => void) {
   if (categories.some(granted)) start(categories, run);
@@ -213,7 +213,7 @@ export function afterConsent(categories: ConsentCategory[], run: () => void) {
 removeCookies(CONSENT_CATEGORIES.filter((category) => !granted(category)));
 
 // A time was booked: an app that books says so with the event "booking:done" on the window, with how
-// (`method`, e.g. "calendly": src/apps/calendly/).
+// (`method`, e.g. "calendly": morpheme-apps/apps/calendly/).
 addEventListener('booking:done', (e) => track('book_appointment', { method: (e as CustomEvent).detail?.method }));
 
 document.addEventListener('click', (e) => {

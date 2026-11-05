@@ -1,7 +1,6 @@
 ---
 title: "Blocks"
 description: "Every block you can build a page from in Morpheme, shown live."
-wide: true
 seoTitle: "Blocks | Morpheme"
 seoDescription: "Buttons, cards, points, steps, checklists, FAQs, price cards, testimonials and more: every Morpheme block, shown live."
 keyword: "blocks"

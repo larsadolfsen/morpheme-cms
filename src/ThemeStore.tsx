@@ -5,11 +5,13 @@
 // it); and on the page of one installed from the store (ThemePage in Library.tsx) "Opdater til …" and "Afinstaller"
 // (ThemeStoreButtons). Installing copies its folder into the site's themes (config.themes/<id>/, with its store.json),
 // updating copies the newer version over it and uninstalling deletes it, each saved at once in its own commit
-// (themeChanges); the site's next build has it, and only then can it be chosen ("Brug temaet"). The theme in use, the one
-// the site is changing to and the standard theme cannot be uninstalled.
+// (themeChanges), the button pressed showing the loading indicator while it runs; the site's next build has it, and
+// only then can it be chosen ("Brug temaet"). The theme in use, the one the site is changing to and the standard theme
+// cannot be uninstalled.
 import { useEffect, useState } from 'react';
 import { Check, Smiley } from '@phosphor-icons/react';
 import Screen from './Screen';
+import { busyFor } from './busyAction.mjs';
 import { Button, EmptyNote, Group, GroupTitle, ImageCarousel, SupportingText, ListItem } from './ui';
 import { ConflictError, type RepoFile } from './github';
 import type { Env } from './App';
@@ -106,19 +108,24 @@ const themeOfPack = (files: RepoFile[]) => iconPacks.find((x) => x.id === chosen
 const canUninstall = (id: string, files: RepoFile[]) =>
   id !== STANDARD_THEME && id !== theme.id && id !== chosenTheme(files) && id !== themeOfPack(files);
 
+type ThemeAction = 'install' | 'update' | 'uninstall';
+
 /** Installing, updating and uninstalling a theme from the store, each saved at once in its own commit (themeChanges).
  * Each says true when it was saved. */
 function useThemeActions(env: Env) {
-  const [saving, setSaving] = useState(false);
+  // Which action runs, on which theme (busyAction.mjs shows only the pressed button).
+  const [running, setRunning] = useState<{ id: string; action: ThemeAction; asking: boolean } | null>(null);
+  const saving = !!running;
   const recordOf = (x: ShownTheme): StoreRecord => ({ version: x.version, ref: x.version, files: x.files });
 
   async function change(
     id: string,
+    action: ThemeAction,
     text: { busy: string; done: string; commit: string; change: string },
     next: () => Promise<Parameters<typeof themeChanges>[2]>,
     go: (current: RepoFile[]) => Promise<boolean> = async () => true,
   ): Promise<boolean> {
-    setSaving(true);
+    setRunning({ id, action, asking: false });
     env.notify({ text: text.busy });
     try {
       const [current, wanted] = await Promise.all([env.folder(themeFolder(id)), next()]);
@@ -126,6 +133,9 @@ function useThemeActions(env: Env) {
         env.notify(null);
         return false;
       }
+      // `go` cleared the message (and its dialog stopped the button being busy): saving goes on.
+      setRunning({ id, action, asking: false });
+      env.notify({ text: text.busy });
       await env.commit(text.commit, themeChanges(id, current, wanted), text.change);
       env.notify({ text: text.done, kind: 'saved' });
       return true;
@@ -133,15 +143,17 @@ function useThemeActions(env: Env) {
       env.notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
       return false;
     } finally {
-      setSaving(false);
+      setRunning(null);
     }
   }
 
   return {
     saving,
+    busy: (id: string, action: ThemeAction) => busyFor(running, id, action),
     async install(x: ShownTheme) {
       const done = await change(
         x.id,
+        'install',
         {
           busy: t.apps.installing,
           done: t.library.themeInstalled(x.name),
@@ -156,6 +168,7 @@ function useThemeActions(env: Env) {
     async update(x: ShownTheme, record: StoreRecord) {
       const done = await change(
         x.id,
+        'update',
         {
           busy: t.apps.updating,
           done: t.library.themeUpdated(x.name, x.version),
@@ -171,6 +184,7 @@ function useThemeActions(env: Env) {
             env.notify({ text: t.library.themeDropsIconPack(x.name, pack.name), error: true });
             return false;
           }
+          setRunning({ id: x.id, action: 'update', asking: true });
           return askUpdate(
             x.name,
             record.version,
@@ -187,6 +201,7 @@ function useThemeActions(env: Env) {
       if (!(await ask(t.library.askUninstallTheme(name), t.apps.uninstall))) return false;
       const done = await change(
         id,
+        'uninstall',
         {
           busy: t.apps.uninstalling,
           done: t.library.themeUninstalled(name),
@@ -277,7 +292,11 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
           </div>
           {!pending && (
             <div className="mb-8">
-              <Button wide disabled={actions.saving} onClick={async () => (await actions.install(of)) && redraw((n) => n + 1)}>
+              <Button
+                disabled={actions.saving}
+                busy={actions.busy(of.id, 'install')}
+                onClick={async () => (await actions.install(of)) && redraw((n) => n + 1)}
+              >
                 {t.apps.install}
               </Button>
             </div>
@@ -314,9 +333,8 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
             <div>
               <Button
                 kind="outlined"
-
-                wide
                 disabled={actions.saving}
+                busy={actions.busy(of.id, 'uninstall')}
                 onClick={async () => (await actions.uninstall(of.id, of.name)) && redraw((n) => n + 1)}
               >
                 {t.apps.uninstall}
@@ -345,7 +363,7 @@ export function ThemeStoreButtons({ of, env, files, top }: { of: ThemeInfo; env:
   if (top)
     return update ? (
       <div className="mb-8">
-        <Button wide disabled={actions.saving} onClick={() => actions.update(update, of.store!)}>
+        <Button disabled={actions.saving} busy={actions.busy(of.id, 'update')} onClick={() => actions.update(update, of.store!)}>
           {t.apps.update(update.version)}
         </Button>
       </div>
@@ -355,9 +373,8 @@ export function ThemeStoreButtons({ of, env, files, top }: { of: ThemeInfo; env:
     <div>
       <Button
         kind="outlined"
-
-        wide
         disabled={actions.saving || !free}
+        busy={actions.busy(of.id, 'uninstall')}
         onClick={async () => (await actions.uninstall(of.id, of.name)) && redraw((n) => n + 1)}
       >
         {t.apps.uninstall}

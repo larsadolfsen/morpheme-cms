@@ -126,24 +126,23 @@ import { menuLayout } from '../lib/menu-layout.mjs';
 
 /** The theme's button (Material 3's buttons): filled, the one thing to do; tonal, an important step that is not the
  * main one; elevated, one on a coloured background; outlined, another choice beside it ("Annuller" too); text, a small
- * step on the side (Fjern, Tilføj). medium (the default): side by side, and with `wide` across the screen or a sheet on a
- * phone (compact) and the width of its text from medium (Gem ændringer); small: in a line of text or by a field (Skift billede, Tilføj tag). */
+ * step on the side (Fjern, Tilføj). medium (the default): the width of its text on every screen (Gem ændringer); small: in a line of text or by a field (Skift billede, Tilføj tag). */
 export type { ButtonKind };
 export type ButtonSize = 'medium' | 'small';
 
 type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
   kind?: ButtonKind;
   size?: ButtonSize;
-  /** Across the screen or the sheet on a phone (compact), the width of its text from medium. */
-  wide?: boolean;
   /** Before the text. */
   icon?: Icon;
+  /** Its action runs: disabled, and after a moment a loading indicator. */
+  busy?: boolean;
   type?: 'button' | 'submit';
 };
 
-export function Button({ icon: Glyph, wide, className, children, ...rest }: ButtonProps) {
+export function Button({ icon: Glyph, className, children, ...rest }: ButtonProps) {
   return (
-    <SiteButton icon={Glyph && <Glyph />} className={[wide && 'w-full medium:w-auto', className].filter(Boolean).join(' ')} {...rest}>
+    <SiteButton icon={Glyph && <Glyph />} className={className} {...rest}>
       {children}
     </SiteButton>
   );
@@ -152,19 +151,13 @@ export function Button({ icon: Glyph, wide, className, children, ...rest }: Butt
 /** A link that looks like a Button: to another screen, or a file to open or download. */
 export function LinkButton({
   icon: Glyph,
-  wide,
   className,
   href = '',
   children,
   ...rest
-}: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> & { kind?: ButtonKind; size?: ButtonSize; wide?: boolean; icon?: Icon }) {
+}: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> & { kind?: ButtonKind; size?: ButtonSize; icon?: Icon }) {
   return (
-    <SiteButton
-      href={href}
-      icon={Glyph && <Glyph />}
-      className={[wide && 'w-full medium:w-auto', className].filter(Boolean).join(' ')}
-      {...rest}
-    >
+    <SiteButton href={href} icon={Glyph && <Glyph />} className={className} {...rest}>
       {children}
     </SiteButton>
   );
@@ -180,6 +173,8 @@ type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' 
   kind?: IconButtonKind;
   selected?: boolean;
   badge?: number | boolean;
+  /** Its action runs: disabled, and after a moment a loading indicator. */
+  busy?: boolean;
   type?: 'button' | 'submit';
 };
 
@@ -1513,13 +1508,13 @@ export function SegmentedButton<T extends string>({
 export const subListClass = `${siteListClass} ml-5 border-l border-line`;
 
 /** What a row looks like besides the theme's list item: `accent`, a row that does something (Log ud), in the accent
- * colour; `delete`, the row that deletes what a screen shows, alone in a Group at the bottom, in the middle in the accent
+ * colour; `delete`, the row that deletes what a screen shows, alone in a Group at the bottom, in the middle in the error
  * colour; `muted`, grey (what cannot be opened: a page that is gone); `sub`, a row under a row (a submenu), its text a
  * little lighter. */
 export type RowTone = 'accent' | 'delete' | 'muted' | 'sub';
 const toneClass: Record<RowTone, string> = {
   accent: 'text-accent',
-  delete: 'justify-center text-center font-medium text-accent',
+  delete: 'justify-center text-center font-medium text-(--error)',
   muted: 'text-muted',
   sub: 'text-ink/80',
 };
@@ -2736,17 +2731,21 @@ function MainRail({ label, onOpen, children }: { label: string; onOpen: () => vo
   );
 }
 
-// The header row at the top of either drawer: `header` (the signed-in user, MainMenu.tsx) at the start and the menu button at
-// the end, which closes the drawer and stays level with the top bar's menu button. The row has the drawer items' inline
-// padding (the list row's own is off), so the avatar, wider than the 24px icon, is pulled back by half the difference to be
-// centred over the items' icons, and the button is centred on the 1.5rem box of the items' trailing arrows (a negative
-// end margin from the button's own width).
+// The header row at the top of either drawer: `header` (the signed-in user on the first level, the back row on a section's
+// list; MainMenu.tsx) at the start and the menu button at the end, which closes the drawer and stays level with the top bar's
+// menu button. The header cell starts at the drawer items' outer edge: the row has no start padding, and the header (the
+// account row, the back row) brings the items' inline padding itself, so its pill (editor.css, .editor-main-drawer-header)
+// has the shape of an item's and the avatar or arrow stands over the items' icons. The button is centred on the 1.5rem box
+// of the items' trailing arrows (a negative end margin from the button's own width). A divider (middle inset) stands under the row.
 function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header?: ReactNode }) {
   return (
-    <div className="mt-2 mb-7 flex items-center gap-1 p-(--navigation-drawer-item-padding,0_1rem) py-0 [--list-item-padding-inline:0]">
-      <div className="ms-[calc((1.5rem-var(--list-item-avatar-size,2.5rem))/2)] min-w-0 flex-1">{header}</div>
-      <MenuButton label={t.library.closeMenu} open onClick={onClick} className="-me-[calc((var(--icon-button-width)-1.5rem)/2)]" />
-    </div>
+    <>
+      <div className="editor-main-drawer-header mt-2 mb-3 flex items-center gap-1 p-(--navigation-drawer-item-padding,0_1rem) py-0 ps-0">
+        <div className="min-w-0 flex-1">{header}</div>
+        <MenuButton label={t.library.closeMenu} open onClick={onClick} className="-me-[calc((var(--icon-button-width)-1.5rem)/2)]" />
+      </div>
+      <SiteDivider kind="middle-inset" className="mb-4" />
+    </>
   );
 }
 
@@ -2937,9 +2936,13 @@ export function MainDrawerSectionItem({
   );
 }
 
-/** The back row at the top of a section's list in the main drawer: the first level's name (`label`); `onClick` shows it. */
-export function MainDrawerBack({ label, onClick }: { label: string; onClick: () => void }) {
-  return <SiteNavigationDrawerBack label={label} onClick={onClick} />;
+/** The back row in the main drawer's header row (the `header` of MainDrawer) on a section's list: an arrow and `label`, with
+ * `name` as its accessible name (where it goes); `onClick` shows the first level. It is a drawer item (the pill, the inline
+ * padding), so its arrow stands over the items' icons; it is as high as the account row (56px, a drawer item's height). */
+export function MainDrawerBack({ label, name, onClick }: { label: string; name?: string; onClick: () => void }) {
+  return (
+    <SiteNavigationDrawerBack label={label} aria-label={name} onClick={onClick} className="navigation-drawer-item navigation-drawer-back" />
+  );
 }
 
 /** A part with sub-screens in a section's list: the part as an item with the button that folds its sub-screens out
@@ -3208,28 +3211,36 @@ export function Dialog({ ref, className, children, ...rest }: DialogHTMLAttribut
 
 /** The sheet from the bottom (a dialog in the middle on a computer): the theme's bottom sheet, as high as what is in
  * it, on a <dialog> (`ref`; opened with showModal), with a SheetTitle and SheetBody, SheetList or SheetActions in it.
- * `full`: as high as the screen, and wider on a computer, with a whole page in it (the preview, PageFrame). */
+ * `full`: as high as the screen, and wider on a computer, with a whole page in it (the preview, PageFrame).
+ * `panel`: the theme's modal side sheet (data-wide="side-sheet") at the window's end edge under the top bar, half the space
+ * beside the start panel (.editor-side-panel in editor.css); the rest of the page stays in view, inert as under a dialog. */
 export function BottomSheet({
   ref,
   full,
+  panel,
   className,
   children,
   ...rest
-}: DialogHTMLAttributes<HTMLDialogElement> & { ref?: Ref<HTMLDialogElement>; full?: boolean }) {
+}: DialogHTMLAttributes<HTMLDialogElement> & { ref?: Ref<HTMLDialogElement>; full?: boolean; panel?: boolean }) {
   const sheet = full ? siteBottomSheetFullClass : siteBottomSheetFitClass;
   return (
-    <dialog ref={ref} className={[sheet, 'editor-sheet', className].filter(Boolean).join(' ')} {...rest}>
-      <div className={siteBottomSheetContainerClass()}>{children}</div>
+    <dialog ref={ref} className={[sheet, 'editor-sheet', panel && 'editor-side-panel', className].filter(Boolean).join(' ')} {...rest}>
+      <div className={siteBottomSheetContainerClass()} data-wide={panel ? 'side-sheet' : undefined}>
+        {children}
+      </div>
     </dialog>
   );
 }
 
 /** A web page in a frame, in a full BottomSheet (the preview of a page): `html` is the whole page, drawn as
  * wide as `width` (one of Material 3's window sizes) and made smaller to fit, scrolled in the frame. Nothing
- * in it runs (no scripts), and its links lead nowhere. */
-export function PageFrame({ html, width, title }: { html: string; width: number; title: string }) {
+ * in it runs (no scripts), and its links lead nowhere. With `part` (a selector: the header) only that part of the page is
+ * shown, as high as it is (measured when the page is in the frame), in the frame's own place: Appearance › Header. */
+export function PageFrame({ html, width, title, part }: { html: string; width: number; title: string; part?: string }) {
   const box = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
+  // Where the part is in the page (px of the page), once it is in the frame.
+  const [cut, setCut] = useState<{ top: number; height: number } | null>(null);
   useEffect(() => {
     const el = box.current;
     if (!el) return;
@@ -3238,15 +3249,30 @@ export function PageFrame({ html, width, title }: { html: string; width: number;
     return () => watch.disconnect();
   }, []);
   const scale = size.width ? Math.min(1, size.width / width) : 1;
+  const measure = (frame: HTMLIFrameElement) => {
+    const doc = frame.contentDocument;
+    const el = part && doc?.querySelector(part);
+    if (!doc || !el) return;
+    // Only the part is shown: the page does not scroll in its frame.
+    doc.documentElement.style.overflow = 'hidden';
+    const r = el.getBoundingClientRect();
+    setCut({ top: r.top, height: r.height });
+  };
+  const height = part ? (cut ? cut.top + cut.height : width) : size.height / scale;
   return (
-    <div ref={box} className="relative min-h-0 flex-1 overflow-hidden border-t border-line bg-line/40">
+    <div
+      ref={box}
+      className="relative min-h-0 flex-1 overflow-hidden border-t border-line bg-line/40"
+      style={part ? { height: (cut?.height ?? 0) * scale } : undefined}
+    >
       {size.width > 0 && (
         <iframe
           title={title}
           srcDoc={html}
           sandbox="allow-same-origin"
           className="absolute top-0 left-1/2 origin-top border-0 bg-white"
-          style={{ width, height: size.height / scale, transform: `translateX(-50%) scale(${scale})` }}
+          style={{ width, height, top: -(cut?.top ?? 0) * scale, transform: `translateX(-50%) scale(${scale})` }}
+          onLoad={part ? (e) => measure(e.currentTarget) : undefined}
         />
       )}
     </div>
