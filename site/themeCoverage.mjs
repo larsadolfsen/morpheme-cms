@@ -16,7 +16,7 @@ export function styledClasses(themeCss) {
   const classes = new Set();
   const root = postcss.parse(themeCss);
 
-  root.walkRules(rule => {
+  root.walkRules((rule) => {
     // Skip if inside @layer
     let node = rule.parent;
     while (node) {
@@ -27,15 +27,13 @@ export function styledClasses(themeCss) {
     }
 
     // Skip if no non-custom property declarations
-    const hasNormalDecl = rule.nodes.some(
-      n => n.type === 'decl' && !n.prop.startsWith('--')
-    );
+    const hasNormalDecl = rule.nodes.some((n) => n.type === 'decl' && !n.prop.startsWith('--'));
     if (!hasNormalDecl) return;
 
     // Extract subject classes
-    rule.selectors.forEach(selector => {
+    rule.selectors.forEach((selector) => {
       selectorParser((selectors) => {
-        selectors.each(sel => {
+        selectors.each((sel) => {
           // Find subject compound: nodes after last combinator
           let lastCombinatorIdx = -1;
           sel.nodes.forEach((n, i) => {
@@ -51,9 +49,9 @@ export function styledClasses(themeCss) {
               classes.add(compound.value);
             } else if (compound.type === 'pseudo' && (compound.value === ':is' || compound.value === ':where')) {
               if (compound.nodes) {
-                compound.nodes.forEach(n => {
+                compound.nodes.forEach((n) => {
                   if (n.type === 'selector') {
-                    n.nodes.forEach(sub => extractFromCompound(sub));
+                    n.nodes.forEach((sub) => extractFromCompound(sub));
                   } else {
                     extractFromCompound(n);
                   }
@@ -62,11 +60,11 @@ export function styledClasses(themeCss) {
             } else if (compound.type === 'pseudo') {
               // Skip :not, :has, etc.
             } else if (compound.nodes) {
-              compound.nodes.forEach(n => extractFromCompound(n));
+              compound.nodes.forEach((n) => extractFromCompound(n));
             }
           };
 
-          subjectNodes.forEach(n => extractFromCompound(n));
+          subjectNodes.forEach((n) => extractFromCompound(n));
         });
       }).processSync(selector);
     });
@@ -108,11 +106,11 @@ export function partPieces(materialCss, parts) {
   const root = postcss.parse(materialCss);
   const classMap = new Map();
 
-  root.walkRules(rule => {
-    rule.selectors.forEach(selector => {
+  root.walkRules((rule) => {
+    rule.selectors.forEach((selector) => {
       selectorParser((selectors) => {
-        selectors.each(sel => {
-          sel.walk(n => {
+        selectors.each((sel) => {
+          sel.walk((n) => {
             if (n.type === 'class') {
               const partId = partOf(n.value, parts);
               if (partId) {
@@ -149,7 +147,7 @@ export function themeCoverage({ materialCss, themeCss, parts }) {
     if (!piecesMap[part.id]) continue;
 
     const pieces = piecesMap[part.id];
-    const missing = pieces.filter(p => !styledSet.has(p)).sort();
+    const missing = pieces.filter((p) => !styledSet.has(p)).sort();
 
     let status;
     if (missing.length === 0) {
@@ -164,7 +162,7 @@ export function themeCoverage({ materialCss, themeCss, parts }) {
       group: part.group,
       status,
       pieces: pieces.length,
-      missing
+      missing,
     };
   }
 

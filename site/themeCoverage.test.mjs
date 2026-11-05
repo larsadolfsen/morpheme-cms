@@ -50,14 +50,14 @@ test(':has', () => {
 });
 
 test('pseudo-element', () => {
-  const result = styledClasses('.chip::before { content: \'\' }');
+  const result = styledClasses(".chip::before { content: '' }");
   assert.deepEqual([...result].sort(), ['chip']);
 });
 
 test('longest prefix', () => {
   const P = [
     { id: 'Button', group: 'ui', prefixes: ['button'] },
-    { id: 'ButtonGroup', group: 'ui', prefixes: ['button-group'] }
+    { id: 'ButtonGroup', group: 'ui', prefixes: ['button-group'] },
   ];
   assert.equal(partOf('button-group-x', P), 'ButtonGroup');
 });
@@ -70,7 +70,7 @@ test('exact prefix', () => {
 test('no false prefix', () => {
   const P = [
     { id: 'Button', group: 'ui', prefixes: ['button'] },
-    { id: 'ButtonGroup', group: 'ui', prefixes: ['button-group'] }
+    { id: 'ButtonGroup', group: 'ui', prefixes: ['button-group'] },
   ];
   assert.equal(partOf('buttonx', P), null);
 });
@@ -78,7 +78,7 @@ test('no false prefix', () => {
 test('pieces', () => {
   const P2 = [
     { id: 'Button', group: 'ui', prefixes: ['button'] },
-    { id: 'Chip', group: 'ui', prefixes: ['chip'] }
+    { id: 'Chip', group: 'ui', prefixes: ['chip'] },
   ];
   const materialCss = '@layer fallback { .button{a:b} .button-text{a:b} } .chip{a:b}';
   const result = partPieces(materialCss, P2);
@@ -88,7 +88,7 @@ test('pieces', () => {
 test('own', () => {
   const P2 = [
     { id: 'Button', group: 'ui', prefixes: ['button'] },
-    { id: 'Chip', group: 'ui', prefixes: ['chip'] }
+    { id: 'Chip', group: 'ui', prefixes: ['chip'] },
   ];
   const materialCss = '@layer fallback { .button{a:b} .button-text{a:b} } .chip{a:b}';
   const themeCss = '.button{a:b} .button-text{a:b}';
@@ -99,7 +99,7 @@ test('own', () => {
 test('partly', () => {
   const P2 = [
     { id: 'Button', group: 'ui', prefixes: ['button'] },
-    { id: 'Chip', group: 'ui', prefixes: ['chip'] }
+    { id: 'Chip', group: 'ui', prefixes: ['chip'] },
   ];
   const materialCss = '@layer fallback { .button{a:b} .button-text{a:b} } .chip{a:b}';
   const themeCss = '.button{a:b}';
@@ -110,7 +110,7 @@ test('partly', () => {
 test('material', () => {
   const P2 = [
     { id: 'Button', group: 'ui', prefixes: ['button'] },
-    { id: 'Chip', group: 'ui', prefixes: ['chip'] }
+    { id: 'Chip', group: 'ui', prefixes: ['chip'] },
   ];
   const materialCss = '@layer fallback { .button{a:b} .button-text{a:b} } .chip{a:b}';
   const themeCss = '';
@@ -122,7 +122,7 @@ test('empty part left out', () => {
   const P2 = [
     { id: 'Button', group: 'ui', prefixes: ['button'] },
     { id: 'Chip', group: 'ui', prefixes: ['chip'] },
-    { id: 'Gone', group: 'ui', prefixes: ['gone'] }
+    { id: 'Gone', group: 'ui', prefixes: ['gone'] },
   ];
   const materialCss = '@layer fallback { .button{a:b} .button-text{a:b} } .chip{a:b}';
   const themeCss = '';
@@ -133,7 +133,7 @@ test('empty part left out', () => {
 test('group copied', () => {
   const P2 = [
     { id: 'Button', group: 'ui', prefixes: ['button'] },
-    { id: 'Chip', group: 'frame', prefixes: ['chip'] }
+    { id: 'Chip', group: 'frame', prefixes: ['chip'] },
   ];
   const materialCss = '@layer fallback { .button{a:b} .button-text{a:b} } .chip{a:b}';
   const themeCss = '';
