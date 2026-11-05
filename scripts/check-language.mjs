@@ -26,7 +26,6 @@ const PENDING = [
   'defaults/schema.ts',
   'defaults/sitedata.ts',
   'defaults/standard.ts',
-  'defaults/standardPages.ts',
   'defaults/texts.ts',
   'demo/',
   'lib/',
