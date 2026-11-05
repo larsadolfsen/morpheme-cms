@@ -27,3 +27,9 @@ declare module 'virtual:theme-coverage' {
   } | null;
   export default coverage;
 }
+
+// The id of the app whose folder the importing file is in (appSelf in site/appSelf.mjs; app contract 3).
+declare module '@app/self' {
+  const self: { readonly id: string };
+  export default self;
+}

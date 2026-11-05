@@ -20,3 +20,8 @@ test('the extra moves come first', () => {
   assert.equal(movedRoute('butik', { butik: 'indstillinger/appstore' }), 'indstillinger/appstore');
   assert.equal(movedRoute('tema', { butik: 'x' }), 'udseende');
 });
+
+test('the old booking and newsletter settings open the apps by their permanent ids', () => {
+  assert.equal(movedRoute('promovering/calendly'), 'apps/app_a030dfba69793996');
+  assert.equal(movedRoute('promovering/mailchimp'), 'apps/app_5c4b6ba067ef127f');
+});
