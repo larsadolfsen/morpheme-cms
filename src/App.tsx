@@ -10,7 +10,7 @@
 //   company     the business, and company/<part> its parts: contact, payment; and
 //                    company/payment/<part> its own parts: mobilepay, bank
 //   <screen>         a screen with parts of the site's own (partScreens), and <screen>/<part> its parts:
-//                    privacy/cookiebanner, privacy/privatlivssider, or one of the editor's own screens (Part.opens):
+//                    privacy/cookie-banner, privacy/privatlivssider, or one of the editor's own screens (Part.opens):
 //                    privacy/consents the visitors' answers in the cookie banner (Consents.tsx); and the settings of the apps installed with
 //                    its category: analytics/google-analytics
 //   files            the uploaded pictures, PDFs, videos and zip files (Media.tsx)

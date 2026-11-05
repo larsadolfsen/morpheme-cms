@@ -51,6 +51,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   'udseende/standardsider': 'appearance/default-pages',
   maaling: 'analytics',
   privatliv: 'privacy',
+  'privatliv/cookiebanner': 'privacy/cookie-banner',
   'privatliv/samtykker': 'privacy/consents',
   lister: 'lists',
   liste: 'list',

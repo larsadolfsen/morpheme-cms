@@ -21,7 +21,7 @@ export const privacy: PartScreen = {
   label: 'Privacy',
   parts: [
     {
-      id: 'cookiebanner',
+      id: 'cookie-banner',
       label: 'Cookie banner',
       icon: Cookie,
       file: 'src/data/cookies.json',

@@ -70,6 +70,7 @@ test('every old route prefix opens the screen where it is now', () => {
     maaling: 'analytics',
     'maaling/google-analytics': 'analytics/google-analytics',
     privatliv: 'privacy',
+    'privatliv/cookiebanner': 'privacy/cookie-banner',
     'privatliv/samtykker': 'privacy/consents',
     lister: 'lists',
     liste: 'list',
