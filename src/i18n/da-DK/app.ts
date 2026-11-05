@@ -11,6 +11,7 @@ export const app: Messages['app'] = {
   changes: {
     named: (kind, name) => `${kind} “${name}”`,
     edited: (what) => `${what} ændret`,
+    setTo: (what, value) => `${what} sat til ${value}`,
     created: (what) => `${what} oprettet`,
     added: (what) => `${what} tilføjet`,
     deleted: (what) => `${what} slettet`,
@@ -21,7 +22,7 @@ export const app: Messages['app'] = {
     turnedOn: (what) => `${what} slået til`,
     turnedOff: (what) => `${what} slået fra`,
     chosen: (what) => `${what} valgt`,
-    installed: (what) => `${what} installeret`,
+    installed: (what, version) => (version ? `${what} ${version} installeret` : `${what} installeret`),
     updated: (what, version) => `${what} opdateret til ${version}`,
     uninstalled: (what) => `${what} afinstalleret`,
     more: (count) => (count === 1 ? '1 ændring mere' : `${count} ændringer mere`),
