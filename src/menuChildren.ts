@@ -27,7 +27,7 @@ export function childrenOf(id: string, files: RepoFile[]): MenuChild[] {
   if (id === 'redirects') {
     return [
       { id: 'all', label: t.redirects.all, href: `#${TAB_ROUTES.redirects}` },
-      { id: 'ikke-fundet', label: t.redirects.missing.title, href: `#${TAB_ROUTES.missing}` },
+      { id: 'not-found', label: t.redirects.missing.title, href: `#${TAB_ROUTES.missing}` },
     ];
   }
   return [];

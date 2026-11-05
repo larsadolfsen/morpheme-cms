@@ -6,7 +6,7 @@
 // src/data/redirects.json). Each save is one commit, and none sends on through another afterwards
 // (flatten): a redirect to an address that is sent on goes straight to where that ends, and those
 // that went on through a deleted one go on to where it sent them.
-// "Ikke fundet" (#seo/redirects/ikke-fundet): the addresses visitors came to that do not exist (notFound.ts), most visits
+// "Ikke fundet" (#seo/redirects/not-found): the addresses visitors came to that do not exist (notFound.ts), most visits
 // first. Tapping one opens the same sheet, to send it on to a page (then it is off that list) or take
 // it off the list. One that has become a page or sends on since is not shown. Over each list, as over
 // the lists under "Indhold", the search, the order (kept in this browser; by address under the first
@@ -66,7 +66,7 @@ type Editing = { from: string; to: string; isNew: boolean; missing?: Missing };
 export type Tab = 'redirects' | 'missing';
 
 // Where each list opens, under "Videresendelser".
-export const TAB_ROUTES: Record<Tab, string> = { redirects: 'seo/redirects/all', missing: 'seo/redirects/ikke-fundet' };
+export const TAB_ROUTES: Record<Tab, string> = { redirects: 'seo/redirects/all', missing: 'seo/redirects/not-found' };
 /** Where "Videresendelser" opens, under "Søgemaskineoptimering". */
 export const REDIRECTS_ROUTE = 'seo/redirects';
 
@@ -74,7 +74,7 @@ export const REDIRECTS_ROUTE = 'seo/redirects';
 // that do not exist by the visits, the last visit or the address. Kept in this browser, each its own.
 type Sort = 'az' | 'za' | 'page' | 'visits' | 'last';
 const SORTS: Record<Tab, Sort[]> = { redirects: ['az', 'za', 'page'], missing: ['visits', 'last', 'az', 'za'] };
-const sortKey = (tab: Tab) => `editor-sort-${tab === 'redirects' ? 'redirects' : 'ikke-fundet'}`;
+const sortKey = (tab: Tab) => `editor-sort-${tab === 'redirects' ? 'redirects' : 'not-found'}`;
 
 function savedSort(tab: Tab): Sort {
   try {

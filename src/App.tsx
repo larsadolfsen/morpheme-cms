@@ -15,7 +15,7 @@
 //                    its category: analytics/google-analytics
 //   files            the uploaded pictures, PDFs, videos and zip files (Media.tsx)
 //   seo              "Søgemaskineoptimering" (Library.tsx Seo): seo/redirects the redirects' two lists
-//                    (Redirects.tsx): seo/redirects/all the redirects, and seo/redirects/ikke-fundet
+//                    (Redirects.tsx): seo/redirects/all the redirects, and seo/redirects/not-found
 //                    the addresses visitors came to that do not exist; seo/rating the SEO rating of every page and
 //                    post (SeoScores.tsx); and seo/<part> the site's own (seoParts)
 //   appearance         how the site looks (Library.tsx Theme): appearance/themes the themes installed (Themes) and appearance/themes/<theme>

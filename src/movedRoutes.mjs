@@ -15,7 +15,7 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   'virksomheden/bank': 'company/payment/bank',
   videresendelser: 'seo/redirects',
   'videresendelser/alle': 'seo/redirects/all',
-  'videresendelser/ikke-fundet': 'seo/redirects/ikke-fundet',
+  'videresendelser/ikke-fundet': 'seo/redirects/not-found',
   // The settings of the booking and newsletter apps were on a screen "Promovering"; they are on the apps' own pages now.
   promovering: 'apps',
   'promovering/calendly': 'apps/calendly',
@@ -75,6 +75,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   filer: 'files',
   'seo/videresendelser': 'seo/redirects',
   'seo/videresendelser/alle': 'seo/redirects/all',
+  'seo/videresendelser/ikke-fundet': 'seo/redirects/not-found',
   'seo/interne-links': 'seo/internal-links',
   'seo/vurdering': 'seo/rating',
   blokvalg: 'block-settings',
