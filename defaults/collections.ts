@@ -763,7 +763,7 @@ export const collections: Collection[] = [
             label: 'Heading (contact)',
             type: 'string',
             required: true,
-            edit: { to: 'company/kontakt', text: 'Edit phone, email and address' },
+            edit: { to: 'company/contact', text: 'Edit phone, email and address' },
           },
           { name: 'linksHeading', label: 'Heading (links)', type: 'string', required: true },
           {

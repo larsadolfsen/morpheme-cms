@@ -161,7 +161,7 @@ export type Template = {
  * bar opens the booking sheet, as "Book en tid" does), else the entry itself opens. */
 export type Opens = { label: string; as?: string };
 
-/** A place in the editor (a route, e.g. 'company/kontakt') and the text of the link to it. */
+/** A place in the editor (a route, e.g. 'company/contact') and the text of the link to it. */
 export type Edit = { to: string; text: string };
 
 // A kind of item in a list of blocks (a fixed page's sections; in the editor cards in its text, SectionsField.tsx).

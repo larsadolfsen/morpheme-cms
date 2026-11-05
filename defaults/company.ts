@@ -9,7 +9,7 @@ import { bankFields, contactFields, socialFields } from '@site/collections';
 
 /** The parts of "Business", in their order, at #company/<id> ("Payment"'s at #company/payment/<id>). */
 export const companyParts: Part[] = [
-  { id: 'kontakt', label: 'Contact', icon: AddressBook, file: 'src/data/contact.json', fields: contactFields },
+  { id: 'contact', label: 'Contact', icon: AddressBook, file: 'src/data/contact.json', fields: contactFields },
   {
     id: 'sociale-medier',
     label: 'Social media',

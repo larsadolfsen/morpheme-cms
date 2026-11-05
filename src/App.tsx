@@ -7,7 +7,7 @@
 //   settings/appstore   the app store, its apps, and settings/appstore/themes its themes (AppList.tsx StorePage); the
 //                    other settings are screens of their own, in the drawer's last section (MainMenu.tsx)
 //   new/<id>         a new entry, new/<id>/<kind> one of a kind (a pop-up: standard, or an app's)
-//   company     the business, and company/<part> its parts: kontakt, payment; and
+//   company     the business, and company/<part> its parts: contact, payment; and
 //                    company/payment/<part> its own parts: mobilepay, bank
 //   <screen>         a screen with parts of the site's own (partScreens), and <screen>/<part> its parts:
 //                    privacy/cookiebanner, privacy/privatlivssider, or one of the editor's own screens (Part.opens):
