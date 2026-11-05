@@ -819,7 +819,8 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   }
 
   const found = collectionOf(collections, route);
-  const file = files.find((f) => f.path === route);
+  // An optional file (the header's) that the site has not got yet opens empty; the first save makes it.
+  const file = files.find((f) => f.path === route) ?? (found?.dataFile?.optional ? { path: route, oid: '', text: '{}\n' } : undefined);
   if (!found || !file)
     return (
       <Screen title={t.app.notFound} back={{ href: '#', label: siteName }}>

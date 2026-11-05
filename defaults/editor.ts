@@ -194,4 +194,4 @@ export const settings: string[] = settingsIds;
 export const lists: string[] = [];
 
 /** What is in the header on every page, on a screen of its own under "Header" (#header). */
-export const header = ['menu', 'mobilmenu'];
+export const header = ['menu', 'mobilmenu', 'headerknap'];
