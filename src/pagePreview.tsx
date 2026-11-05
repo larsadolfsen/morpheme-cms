@@ -15,6 +15,9 @@
 // page of another one. As on the site but for this: a changed text has the pictures themselves (not
 // the sizes the build makes), its words are not yet links to other pages (packages/editor/site/autolinks.mjs), and
 // a video written in it as HTML is the video.
+//
+// A post's text starts with its lead, a paragraph drawn larger and before the picture (data-editor="lead",
+// theme/layouts/PostLayout.astro; lib/lead.mjs). The preview splits the text the same way, for a post only (postLead.mjs).
 import { useRef, useState, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
@@ -23,6 +26,7 @@ import { sectionClass, sectionsOf } from '../lib/text-sections.mjs';
 import { BREAKPOINTS, breakpointOf, type Breakpoint } from '../lib/breakpoints.mjs';
 import { processor } from '../lib/markdown';
 import { splitPicture } from '../lib/crop.mjs';
+import { isPostPage, leadFill } from './postLead.mjs';
 import { preview as drawBlock, siteBlocks } from './registry';
 import { shownAt } from './images';
 import { pageH1 } from './sections.mjs';
@@ -40,6 +44,8 @@ export type PageDraft = {
   headingHtml?: string;
   /** The picture at the top (a blog post's); null: none. */
   image?: { src: string; alt: string } | null;
+  /** A blog post (not a page): only its text starts with a lead. */
+  post?: boolean;
   /** The text, in Markdown with its blocks. */
   body?: string;
   /** What the blocks are drawn with. */
@@ -136,8 +142,22 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
       end.innerHTML = blockHtml(block.type, block.props, draft.data);
     } else end?.remove();
     const text = doc.querySelector('[data-editor="text"]')!;
+    // A post's lead goes before its picture (or before its text when it has none), as in PostLayout.astro.
+    const { lead, rest } = leadFill(html, isPostPage(draft));
+    let leadBox = doc.querySelector('[data-editor="lead"]');
+    if (!lead) leadBox?.remove();
+    else {
+      if (!leadBox) {
+        // The text's own tag and class plus post-lead, as the layout does (a theme may replace the layout).
+        leadBox = doc.createElement(text.tagName);
+        leadBox.setAttribute('data-editor', 'lead');
+        leadBox.className = `${text.className} post-lead`;
+        (doc.querySelector('[data-editor="image"]') ?? text).before(leadBox);
+      }
+      leadBox.innerHTML = lead;
+    }
     const types = siteBlocks.map((b) => b.type);
-    text.innerHTML = sectionsOf(html)
+    text.innerHTML = sectionsOf(rest)
       .map((run) => {
         const inner = splitBlocks(run.html, types)
           .map((p) => ('html' in p ? p.html : blockHtml(p.type, p.props, draft.data)))

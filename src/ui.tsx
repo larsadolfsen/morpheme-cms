@@ -127,15 +127,15 @@ import { menuLayout } from '../lib/menu-layout.mjs';
 
 /** The theme's button (Material 3's buttons): filled, the one thing to do; tonal, an important step that is not the
  * main one; elevated, one on a coloured background; outlined, another choice beside it ("Annuller" too); text, a small
- * step on the side (Fjern, Tilføj). medium (the default): side by side, and across the screen or a sheet with `wide`
- * (Gem ændringer); small: in a line of text or by a field (Skift billede, Tilføj tag). */
+ * step on the side (Fjern, Tilføj). medium (the default): side by side, and with `wide` across the screen or a sheet on a
+ * phone (compact) and the width of its text from medium (Gem ændringer); small: in a line of text or by a field (Skift billede, Tilføj tag). */
 export type { ButtonKind };
 export type ButtonSize = 'medium' | 'small';
 
 type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
   kind?: ButtonKind;
   size?: ButtonSize;
-  /** Across the screen or the sheet. */
+  /** Across the screen or the sheet on a phone (compact), the width of its text from medium. */
   wide?: boolean;
   /** Before the text. */
   icon?: Icon;
@@ -144,7 +144,7 @@ type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
 
 export function Button({ icon: Glyph, wide, className, children, ...rest }: ButtonProps) {
   return (
-    <SiteButton icon={Glyph && <Glyph />} className={[wide && 'w-full', className].filter(Boolean).join(' ')} {...rest}>
+    <SiteButton icon={Glyph && <Glyph />} className={[wide && 'w-full medium:w-auto', className].filter(Boolean).join(' ')} {...rest}>
       {children}
     </SiteButton>
   );
@@ -160,7 +160,12 @@ export function LinkButton({
   ...rest
 }: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> & { kind?: ButtonKind; size?: ButtonSize; wide?: boolean; icon?: Icon }) {
   return (
-    <SiteButton href={href} icon={Glyph && <Glyph />} className={[wide && 'w-full', className].filter(Boolean).join(' ')} {...rest}>
+    <SiteButton
+      href={href}
+      icon={Glyph && <Glyph />}
+      className={[wide && 'w-full medium:w-auto', className].filter(Boolean).join(' ')}
+      {...rest}
+    >
       {children}
     </SiteButton>
   );

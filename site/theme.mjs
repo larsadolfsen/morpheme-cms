@@ -34,12 +34,16 @@ export const themeFolder = (theme) =>
 // What the standard theme has, as its folder in src/themes/: what the site's pages (packages/editor/pages/) and the editor
 // (src/site/) take from it as @theme. Besides these, the look of its blocks (blocks/<type>/) and what they import.
 // Another theme needs only theme.json and styles/global.css (OWN_FILES); the rest it may have, else it is the
-// standard theme's.
+// standard theme's. A theme may replace each part of the post page (components/Post*, ShareRow, RelatedPosts) by a file
+// of the same name.
 export const THEME_FILES = [
   'theme.json',
   'styles/global.css',
   'layouts/PageLayout.astro',
   'layouts/PostLayout.astro',
+  ...['PostHeader.astro', 'PostAuthor.astro', 'PostMeta.tsx', 'ShareRow.astro', 'PostCard.tsx', 'RelatedPosts.astro'].map(
+    (f) => `components/${f}`,
+  ),
   ...['Home', 'Blog', 'Category', 'New', 'NotFound'].map((t) => `templates/${t}.astro`),
   'editor/previews.tsx',
   'editor/looks.mjs',

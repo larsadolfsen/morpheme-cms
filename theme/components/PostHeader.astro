@@ -1,0 +1,36 @@
+---
+// The header of a blog post: back link, title, author (from site), byline with tags, and share row, left-aligned.
+// Props: title, post (PostView), tags, share (ShareRow's props). A theme may replace this file to redesign the header.
+import Icon from '@theme/components/Icon.astro';
+import PostAuthor from '@theme/components/PostAuthor.astro';
+import PostMeta from '@theme/components/PostMeta';
+import ShareRow from '@theme/components/ShareRow.astro';
+import type { PostView } from '@theme/components/posts';
+import type { ShareId } from '@morphemecms/cms/site/social.mjs';
+import { site } from '@morphemecms/cms/site/site';
+import { siteT } from '@morphemecms/cms/src/i18n';
+
+interface Props {
+  title: string;
+  post: PostView;
+  tags: { label: string; href: string }[];
+  share: { url: string; title: string; picture?: string; share: ShareId[] };
+}
+const { title, post, tags, share } = Astro.props;
+---
+
+<header class="mx-auto max-w-3xl px-5 pt-8 medium:px-8 medium:pt-14">
+  <a href="/blog/" class="inline-flex items-center gap-1.5 type-body-medium text-muted hover:text-accent">
+    <Icon name="arrow-left" size={16} /> {siteT.theme.blog}
+  </a>
+  <h1 data-editor="heading" class="theme-title mt-3">
+    {title}
+  </h1>
+  <div class="mt-6">
+    <PostAuthor name={site.name} role={site.role} portrait={site.portrait} />
+  </div>
+  <PostMeta post={post} tags={tags} className="mt-3" />
+  <div class="mt-4">
+    <ShareRow {...share} />
+  </div>
+</header>
