@@ -16,7 +16,7 @@
 // the addresses it loads from and sends forms to, its part of the Worker, a step in the build), the cookies it sets (and
 // whether the cookie banner asks first), who made it (a row to their page, #apps/udvikler/<name>, with all their apps),
 // and where it is used); one not installed has no tabs; installing, updating and uninstalling are each saved at once in its own commit,
-// as a block turned on or off under "Blokindstillinger". One of the site's own is installed or uninstalled in the site's
+// as a block turned on or off under "Blokindstillinger". The button pressed shows the loading indicator while it runs (busyAction.mjs). One of the site's own is installed or uninstalled in the site's
 // file of apps; one from the store is copied into the site, or deleted from it, with it (appChanges in store.ts), and
 // its page before it is installed is drawn from the store's catalog (StoreAppPage). Installed, its blocks and kinds are
 // under "Blokindstillinger" (under its name), its blocks under "Indsæt" and its kinds under "+" of their list. An app in
@@ -82,6 +82,7 @@ import AppAdds from './AppAdds';
 import AppFormPage from './AppFormPage';
 import AppSettingsTab from './AppSettingsTab';
 import { INFO_KEY } from '../lib/appRoute.mjs';
+import { busyFor } from './busyAction.mjs';
 
 export const appHref = (app: SiteApp) => `#apps/${app.id}`;
 
@@ -670,23 +671,28 @@ export async function autoUpdate(env: Env, files: RepoFile[]) {
   }
 }
 
+type StoreAction = 'install' | 'update' | 'uninstall';
+
 /** Installing, updating and uninstalling an app from the store, each saved at once in its own commit: its folder
  * copied from the store, or deleted, with the site's file of apps (appChanges in store.ts). Each says true when it
  * was saved. */
 function useStoreActions(env: Env, files: RepoFile[]) {
-  const [saving, setSaving] = useState(false);
+  // Which action runs, on which app; `asking` while a dialog waits for the user (busyAction.mjs shows only the pressed button).
+  const [running, setRunning] = useState<{ id: string; action: StoreAction; asking: boolean } | null>(null);
+  const saving = !!running;
   const installed = installedApps(files);
   const file = files.find((f) => f.path === config.apps.installed);
 
   async function change(
     id: string,
+    action: StoreAction,
     // `kind`: the notification it is when it is saved (an update is "Apps opdateret", as one on its own).
     text: { busy: string; done: string; commit: string; change: string; kind?: 'saved' | 'updates' },
     next: () => Promise<Parameters<typeof appChanges>[2]>,
     // Whether to go on, with the app's files in the site now (an update asks, when some were changed).
     go: (current: RepoFile[]) => Promise<boolean> = async () => true,
   ): Promise<boolean> {
-    setSaving(true);
+    setRunning({ id, action, asking: false });
     env.notify({ text: text.busy });
     try {
       const [current, wanted] = await Promise.all([env.folder(appFolder(id)), next()]);
@@ -694,6 +700,9 @@ function useStoreActions(env: Env, files: RepoFile[]) {
         env.notify(null);
         return false;
       }
+      // `go` cleared the message (and its dialog stopped the button being busy): saving goes on.
+      setRunning({ id, action, asking: false });
+      env.notify({ text: text.busy });
       const cookies = cookieChanges(id, wanted ? cookiesIn(wanted.files) : null, files);
       await saveApp(env, text.commit, text.change, [...appChanges(id, current, wanted, installed, file), ...cookies], file);
       env.notify({ text: text.done, kind: text.kind ?? 'saved' });
@@ -702,15 +711,17 @@ function useStoreActions(env: Env, files: RepoFile[]) {
       env.notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
       return false;
     } finally {
-      setSaving(false);
+      setRunning(null);
     }
   }
 
   return {
     saving,
+    busy: (id: string, action: StoreAction) => busyFor(running, id, action),
     install: (app: ShownApp) =>
       change(
         app.id,
+        'install',
         {
           busy: t.apps.installing,
           done: t.apps.isInstalledSoon(app.label),
@@ -722,6 +733,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
     async update(app: ShownApp, record: StoreRecord) {
       const done = await change(
         app.id,
+        'update',
         {
           busy: t.apps.updating,
           done: t.apps.isUpdatedSoon(app.label, app.version),
@@ -732,6 +744,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
         async () => ({ files: await env.store.files(app), record: recordOf(app) }),
         async (current) => {
           env.notify(null);
+          setRunning({ id: app.id, action: 'update', asking: true });
           return askUpdate(
             app.label,
             record.version,
@@ -747,6 +760,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
     uninstall: (id: string, label: string, written: string) =>
       change(
         id,
+        'uninstall',
         {
           busy: t.apps.uninstalling,
           done: t.apps.isUninstalled(label),
@@ -839,7 +853,7 @@ function useStorePictures(env: Env, app: ShownApp | undefined) {
  * catalog: as an app's page in the site, what it adds without switches, and "Installer" (or "Afinstaller"). */
 export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: RepoFile[] }) {
   const catalog = useCatalog(env);
-  const { saving, install, uninstall } = useStoreActions(env, files);
+  const { saving, busy, install, uninstall } = useStoreActions(env, files);
   const pending = installedApps(files).includes(id);
   const app = Array.isArray(catalog) ? catalog.find((a) => a.id === id) : undefined;
   const pictures = useStorePictures(env, app);
@@ -863,7 +877,7 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
           />
           {!pending && (
             <div className="mb-8">
-              <Button disabled={saving} onClick={() => install(app)}>
+              <Button disabled={saving} busy={busy(app.id, 'install')} onClick={() => install(app)}>
                 {t.apps.install}
               </Button>
             </div>
@@ -900,8 +914,8 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
         <div>
           <Button
             kind="outlined"
-
             disabled={saving}
+            busy={busy(id, 'uninstall')}
             onClick={async () => {
               const label = app?.label ?? id;
               if (await ask(t.apps.askUninstall(label), t.apps.uninstall)) uninstall(id, label, app?.written ?? id);
@@ -978,9 +992,9 @@ export function AppScreenPage({ app, id, env }: { app: SiteApp; id: string; env:
  * not installed, with the pictures, what it needs, its cookies, who made it and where it is used). */
 function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; fields?: ReactNode }) {
   const notify = env.notify;
-  const [toggling, setToggling] = useState(false);
+  const [toggling, setToggling] = useState<'install' | 'uninstall' | null>(null);
   const store = useStoreActions(env, files);
-  const saving = toggling || store.saving;
+  const saving = !!toggling || store.saving;
   const catalog = useCatalog(env);
   const update = updateOf(app, catalog);
   // Its release notes as the store has them: also those of a version the site's build does not have yet.
@@ -1001,7 +1015,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
     const next = installed.filter((id) => id !== app.id).concat(yes ? [app.id] : []);
     const text = `${JSON.stringify({ installed: [...new Set(next)].sort() }, null, 2)}\n`;
     if (text === file?.text) return;
-    setToggling(true);
+    setToggling(yes ? 'install' : 'uninstall');
     notify({ text: yes ? t.apps.installing : t.apps.uninstalling });
     try {
       // With its cookies added to the cookie list, or those it added taken out.
@@ -1015,7 +1029,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
     } catch (e) {
       notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
     } finally {
-      setToggling(false);
+      setToggling(null);
     }
   }
 
@@ -1032,11 +1046,11 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
       {(!on || (update && app.store)) && (
         <div className="mb-8">
           {on ? (
-            <Button disabled={saving} onClick={() => store.update(update!, app.store!)}>
+            <Button disabled={saving} busy={store.busy(app.id, 'update')} onClick={() => store.update(update!, app.store!)}>
               {t.apps.update(update!.version)}
             </Button>
           ) : (
-            <Button disabled={saving} onClick={() => install(true)}>
+            <Button disabled={saving} busy={toggling === 'install' || store.busy(app.id, 'install')} onClick={() => install(true)}>
               {t.apps.install}
             </Button>
           )}
@@ -1045,7 +1059,15 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
       {on && tab === 'settings' ? (
         <>
           {fields}
-          <AppSettingsTab app={app} env={env} files={files} busy={saving} stuck={stuck} onUninstall={() => install(false)} />
+          <AppSettingsTab
+            app={app}
+            env={env}
+            files={files}
+            busy={saving}
+            uninstalling={toggling === 'uninstall' || store.busy(app.id, 'uninstall')}
+            stuck={stuck}
+            onUninstall={() => install(false)}
+          />
         </>
       ) : (
         <AppInfoTab

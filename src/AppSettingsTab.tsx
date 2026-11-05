@@ -1,5 +1,5 @@
 // The Settings tab of an installed app's page, below its head and its settings form: what the app shows itself (`page`),
-// what it adds with its switches, its kinds of notifications with their switches, and "Afinstaller" with its text.
+// what it adds with its switches, its kinds of notifications with their switches, and "Afinstaller" with its text (it shows the loading indicator while it uninstalls).
 // Exposes AppSettingsTab (default). Depends on AppAdds.tsx, AppNotificationSwitches.tsx, ./ui and notificationData.ts.
 import { Button, SupportingText } from './ui';
 import AppAdds from './AppAdds';
@@ -10,12 +10,13 @@ import type { SiteApp } from './apps';
 import { appType } from './notificationData';
 import { siteText, t } from './i18n';
 
-/** `busy`: something is saving; `stuck`: the app is in use, so it cannot be uninstalled; `onUninstall`: "Afinstaller". */
+/** `busy`: something is saving; `uninstalling`: this app is uninstalled now; `stuck`: the app is in use, so it cannot be uninstalled; `onUninstall`: "Afinstaller". */
 export default function AppSettingsTab({
   app,
   env,
   files,
   busy,
+  uninstalling,
   stuck,
   onUninstall,
 }: {
@@ -23,6 +24,7 @@ export default function AppSettingsTab({
   env: Env;
   files: RepoFile[];
   busy: boolean;
+  uninstalling: boolean;
   stuck: boolean;
   onUninstall: () => void;
 }) {
@@ -42,7 +44,7 @@ export default function AppSettingsTab({
       {notifies.length > 0 && <AppNotificationSwitches notifies={notifies} />}
       {/* As wide as the fields and the rows above. */}
       <div>
-        <Button kind="outlined" disabled={busy || stuck} onClick={onUninstall}>
+        <Button kind="outlined" disabled={busy || stuck} busy={uninstalling} onClick={onUninstall}>
           {t.apps.uninstall}
         </Button>
         <SupportingText className="mt-2">{stuck ? t.apps.stuck : t.apps.uninstallHint}</SupportingText>
