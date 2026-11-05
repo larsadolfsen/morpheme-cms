@@ -143,7 +143,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   const appearanceLabel = {
     themes: parts.themes,
     'icon-packs': parts.iconPacks,
-    bevaegelse: parts.motion,
+    motion: parts.motion,
     sidekolonne: parts.sideColumn,
     colors: parts.colors,
     logo: parts.brand,
@@ -227,7 +227,7 @@ export function Theme({ files }: { files: RepoFile[] }) {
       icon: icons['icon-packs'],
       detail: iconPacks.find((x) => x.id === chosenPack(files))?.name,
     },
-    { id: 'bevaegelse', label: t.common.parts.motion, icon: icons.bevaegelse, detail: t.library.motionSchemes[motionOf(files)] },
+    { id: 'motion', label: t.common.parts.motion, icon: icons.motion, detail: t.library.motionSchemes[motionOf(files)] },
     {
       id: 'sidekolonne',
       label: t.common.parts.sideColumn,
@@ -367,7 +367,7 @@ export function motionOf(files: RepoFile[]): MotionScheme {
   return schemeInUse(scheme, theme.motion, themes.find((x) => x.id === STANDARD_THEME)?.motion);
 }
 
-/** "Bevægelse" (#appearance/bevaegelse): Material 3's motion schemes and our calm one (lib/motion.ts), each with how it
+/** "Bevægelse" (#appearance/motion): Material 3's motion schemes and our calm one (lib/motion.ts), each with how it
  * moves, the one in use ticked (motionOf) and "Temaets valg" by the theme's own. A tap on another asks first and then
  * saves it in the site's file (config.motion) at once, in its own commit, as an icon pack is; the editor moves by it at
  * once (applyMotion, App.tsx), the site after it is built. */

@@ -114,7 +114,7 @@ export const common = {
     themes: 'Themes',
     /** The icon packs installed, to choose the one the site draws its icons with (#appearance/icon-packs, IconPacks). */
     iconPacks: 'Icon packs',
-    /** How the site moves, Material 3's motion schemes (#appearance/bevaegelse, MotionSchemes in Library.tsx). */
+    /** How the site moves, Material 3's motion schemes (#appearance/motion, MotionSchemes in Library.tsx). */
     motion: 'Motion',
     /** The block drawn in a column beside the text of the pages (#appearance/sidekolonne, SideColumn.tsx). */
     sideColumn: 'Side column',
