@@ -37,7 +37,7 @@
   --section-pane-width: calc(var(--navigation-drawer-width, 22.5rem) + var(--section-pane-gap));
   --section-pane-gap: 2rem;
 
-  /* The side panel of a block's fields and the section settings (BlockDialog's standard side sheet from medium, BottomSheet
+  /* The side panel of a block's fields and the section settings (BlockDialog's standard side sheet from expanded, BottomSheet
      `panel` in ui.tsx from large): M3's side sheet is 400dp (25rem) wide at most; where the window is narrower it is half
      the space beside the start panel, the content column taking the other half (see below). */
   --side-panel-width: min(25rem, calc((100vw - var(--column-start)) / 2));
@@ -520,11 +520,11 @@
   }
 }
 
-/* The block dialog's standard side sheet (.editor-side-sheet: BlockDialog.tsx, not modal, from medium) stands at the window's
+/* The block dialog's standard side sheet (.editor-side-sheet: BlockDialog.tsx, not modal, from expanded) stands at the window's
    end edge from the top of the window to its bottom (M3), with its divider the whole height. BlockDialog.tsx sets
    [data-side-panel] on the root while it is open: the top bar (.editor-top-bar-slot, topBarSlot.tsx) ends at the sheet's
    start edge, it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= theme(--breakpoint-expanded)) {
   :root[data-side-panel] {
     --column-end: var(--side-panel-width);
   }
