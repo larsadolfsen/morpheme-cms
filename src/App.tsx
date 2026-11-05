@@ -670,7 +670,7 @@ function Editor() {
   return (
     <>
       <TopBarLayout
-        aside={<MainMenu route={route} files={files} />}
+        aside={<MainMenu route={route} files={files} user={user} />}
         above={
           files &&
           user &&
