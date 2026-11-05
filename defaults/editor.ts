@@ -108,7 +108,7 @@ export const icons: Record<string, Icon> = {
   pages: FileText,
   header: Browser,
   menu: ListIcon,
-  mobilmenu: DeviceMobile,
+  'mobile-menu': DeviceMobile,
   tags: Tag,
   popups: Megaphone,
   virksomheden: Buildings,
@@ -194,4 +194,4 @@ export const settings: string[] = settingsIds;
 export const lists: string[] = [];
 
 /** What is in the header on every page, on one screen under "Appearance" › "Header" (#appearance/header, HeaderSettings.tsx). */
-export const header = ['menu', 'mobilmenu', 'headerknap'];
+export const header = ['menu', 'mobile-menu', 'headerknap'];

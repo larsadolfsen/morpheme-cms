@@ -824,7 +824,7 @@ export const collections: Collection[] = [
   },
   {
     kind: 'files',
-    id: 'mobilmenu',
+    id: 'mobile-menu',
     label: 'Mobile menu',
     singular: 'mobile menu',
     files: [
