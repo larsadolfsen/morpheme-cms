@@ -126,3 +126,8 @@ test('the old colours route opens the colours screen under Appearance', () => {
 test('an old parts route keeps a list id and opens at its English route', () => {
   assert.equal(movedRoute('udseende/dele/liste/kontakt'), 'appearance/parts/list/kontakt');
 });
+
+test('the old theme routes open the screens under Appearance', () => {
+  assert.equal(movedRoute('tema'), 'appearance');
+  assert.equal(movedRoute('tema/dele/editor'), 'appearance/parts/editor');
+});

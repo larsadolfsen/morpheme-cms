@@ -507,7 +507,7 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
           <ListItem key={text} icon={glyph} headline={text} />
         ))}
       </Group>
-      <OwnerLicenses id={`tema/${of.id}`} name={of.name} author={of.author} version={of.version} declared={of} />
+      <OwnerLicenses id={`theme/${of.id}`} name={of.name} author={of.author} version={of.version} declared={of} />
       <DeveloperRow name={of.author} />
       <ThemeStoreButtons of={of} env={env} files={files} />
     </Screen>

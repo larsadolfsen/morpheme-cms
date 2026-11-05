@@ -46,7 +46,7 @@ const ownerName = (o: Pick<LicenseOwner, 'kind' | 'key' | 'name'>) =>
 /** Who brings a work, as a sentence's end: "i editoren og på sitet", "i temaet Material". */
 function placesOf(where: LicenseWhere[], owners: LicenseOwner[]) {
   // The editor and the site first, then the themes and the apps.
-  const rank = (w: LicenseWhere) => (w === 'editor' ? 0 : w === 'site' ? 1 : w.startsWith('tema/') ? 2 : 3);
+  const rank = (w: LicenseWhere) => (w === 'editor' ? 0 : w === 'site' ? 1 : w.startsWith('theme/') ? 2 : 3);
   const named = [...where]
     .sort((a, b) => rank(a) - rank(b))
     .map((w) => {
@@ -170,7 +170,7 @@ export default function Licenses() {
 
   const owners = file?.owners ?? [];
   // The system's icon packs (a theme's own are under it, `where` it).
-  const packs = file ? sorted(file.works.filter((w) => w.kind === 'icons' && !w.where.some((x) => x.startsWith('tema/')))) : [];
+  const packs = file ? sorted(file.works.filter((w) => w.kind === 'icons' && !w.where.some((x) => x.startsWith('theme/')))) : [];
   // What the editor and the site bring: the CMS's own licence first, the rest A–Å.
   const { cms, rest: system } = splitCms(
     file ? sorted(file.works.filter((w) => w.kind !== 'icons' && w.where.some((x) => x === 'editor' || x === 'site'))) : [],
@@ -295,7 +295,7 @@ export function OwnerLicenses({
 }) {
   const file = useLicenses();
   const owner = file?.owners.find((o) => o.id === id);
-  const [kind, key] = id.split('/') as ['app' | 'tema', string];
+  const [kind, key] = id.split('/') as ['app' | 'theme', string];
   const self = owner ?? {
     id,
     kind: kind === 'app' ? ('app' as const) : ('theme' as const),
