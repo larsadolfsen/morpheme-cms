@@ -185,7 +185,7 @@ export function Start({ builtAt }: { builtAt: Date | null }) {
       title={siteName}
       wide
       status={<StartStatus builtAt={builtAt} />}
-      // The notifications and the account in the top bar, on a phone too (Screen.tsx).
+      // The link to the website in the top bar (Screen.tsx).
       home
     >
       <StartFab />
