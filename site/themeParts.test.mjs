@@ -4,8 +4,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
 import postcss from 'postcss';
 import selectorParser from 'postcss-selector-parser';
 import { THEME_PARTS, NOT_PARTS } from './themeParts.mjs';
