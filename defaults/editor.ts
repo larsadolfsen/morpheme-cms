@@ -67,7 +67,7 @@ export { config };
 import { collections, standardPageFieldsOf } from '@site/collections';
 import { drawActionBar, drawPopup } from '@site/popup';
 
-// A pop-up and an action bar ("Promovering") drawn beside their form (popup.tsx), and an app's kind with a
+// A pop-up and an action bar ("Promotion") drawn beside their form (popup.tsx), and an app's kind with a
 // part in the pop-up's box (Mailchimp's signup: drawPart; an app's other kinds have their own drawing). Set here, as
 // collections.ts is also read by packages/editor/scripts/editor-roundtrip.mjs in plain Node, which cannot read JSX.
 const promotions = collections.find((c) => c.id === 'popups');
