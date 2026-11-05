@@ -66,8 +66,8 @@ export const privacy: PartScreen = {
       ],
     },
     // The site's list of cookies ("Cookies", the standard block "Cookie list"), a screen of its own under "Lists"'s
-    // address space (#liste/<id>): only its row is here, and the list goes back to this screen (Library.tsx).
-    { id: 'cookies', label: 'Cookies', icon: Cookie, href: `#liste/${config.lists.cookies}` },
+    // address space (#list/<id>): only its row is here, and the list goes back to this screen (Library.tsx).
+    { id: 'cookies', label: 'Cookies', icon: Cookie, href: `#list/${config.lists.cookies}` },
     {
       id: 'privatlivssider',
       label: 'Privacy pages',

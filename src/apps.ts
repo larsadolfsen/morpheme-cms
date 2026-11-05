@@ -25,7 +25,7 @@
 //                 asking its own addresses in the Worker (`api`);
 //   screens in index.ts  screens of its own under its page (#apps/<app>/<screen>, AppScreenPage), drawn as its page,
 //                 which links to them (Cookiescanner's "Blokeret adresse");
-//   tabs in index.ts  tabs it adds to the site's lists (#liste/<list>/<app>, after the list's own tab in the top app
+//   tabs in index.ts  tabs it adds to the site's lists (#list/<list>/<app>, after the list's own tab in the top app
 //                 bar, Library.tsx List), drawn as its page (Cookiescanner's "Problemer" on "Cookies");
 //   notifications in index.ts  the kinds of notifications it sends, each turned off under "Konto", and how it finds
 //                 them (`check`, with `api`; AppNotifications);
@@ -173,7 +173,7 @@ export type AppDefinition = {
    * "settings", the Settings tab's field pages, and not "om", the Information tab: the editor matches those
    * first, so a screen with either key is never shown), each linked to from its page. */
   screens?: Record<string, AppScreen>;
-  /** Tabs it adds to the site's lists while it is installed, by the list's id, each at #liste/<list>/<app>. */
+  /** Tabs it adds to the site's lists while it is installed, by the list's id, each at #list/<list>/<app>. */
   tabs?: Record<string, AppTab>;
   notifications?: AppNotifications;
 };

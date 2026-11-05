@@ -99,7 +99,7 @@ const STANDARD = {
   menu: 'src/data/menu.json',
   /** Addresses of the site that are not pages, which a new page or post cannot have. */
   reserved: ['/editor/', '/admin/', '/oauth/', '/images/', '/filer/', '/ny/', '/404/'],
-  /** The lists the standard blocks use, by what they hold, and their ids (their addresses, #liste/<id>): the
+  /** The lists the standard blocks use, by what they hold, and their ids (their addresses, #list/<id>): the
    * testimonials, the list the block "Udtalelser" brings (src/standard/testimonials/list.ts), the tags, which a
    * testimonial's "Opret et tag" makes a new one of, and the cookies, the list the block "Cookieliste" brings. */
   lists: { testimonials: 'udtalelser', tags: 'tags', cookies: 'cookies' },

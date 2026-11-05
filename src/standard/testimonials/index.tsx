@@ -36,7 +36,7 @@ export default defineBlock({
   label: t.blocks.testimonials.label,
   icon: Quotes,
   hint: t.blocks.testimonials.hint,
-  edit: { to: `liste/${config.lists.testimonials}`, text: t.blocks.testimonials.edit },
+  edit: { to: `list/${config.lists.testimonials}`, text: t.blocks.testimonials.edit },
   fields: [
     ...headFields,
     {

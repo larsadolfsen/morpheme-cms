@@ -1,8 +1,8 @@
 // The editor at /editor/ (docs/editor.md): sign in with GitHub, pick a part of the site, edit and
 // save. The layout: the full-height navigation rail or drawer (MainMenu.tsx) with, beside it, the top bar (topBarSlot.tsx) over the screen. The address after # says what is open, so reloading keeps it:
 //   (empty)          the start page
-//   liste/<id>       the list of a part, e.g. liste/priser, and liste/<id>/<app> a tab an installed app adds to it
-//                    (AppDefinition.tabs): liste/cookies/cookiescanner
+//   list/<id>       the list of a part, e.g. list/priser, and list/<id>/<app> a tab an installed app adds to it
+//                    (AppDefinition.tabs): list/cookies/cookiescanner
 //   lists           the short lists (the testimonials, the apps' lists)
 //   settings/appstore   the app store, its apps, and settings/appstore/temaer its themes (AppList.tsx StorePage); the
 //                    other settings are screens of their own, in the drawer's last section (MainMenu.tsx)
@@ -27,7 +27,7 @@
 //                    appearance/farver/reservefarver the site's own while an app changes the pages'), appearance/logo the logo
 //                    and icon (BrandForm.tsx), appearance/dele the parts (Library.tsx PartsHome): appearance/dele/editor the editor's, every
 //                    one in every state (Parts.tsx), appearance/dele/ui the theme's UI components, appearance/dele/blocks the
-//                    blocks, the standard ones and the apps', and appearance/dele/liste/<list> each kind of a list of kinds
+//                    blocks, the standard ones and the apps', and appearance/dele/list/<list> each kind of a list of kinds
 //                    ("Promovering"), its own and the apps' (BlockParts.tsx), and appearance/dele/vaerdier the
 //                    theme's design tokens, "Værdier" (Tokens.tsx)
 //   blokvalg         the blocks that can be put in, "Blokindstillinger" (BlockSettings.tsx)
@@ -578,7 +578,7 @@ function Editor() {
         replace([], [file.path]);
         // Back to the list, as with the back arrow: the deleted entry is not left behind it in the history.
         setUnsaved(false);
-        up(`#liste/${collection.id}`);
+        up(`#list/${collection.id}`);
         notify({ text: savedText(change), kind: 'saved' });
       } catch (e) {
         notify({ text: t.app.notDeleted((e as Error).message), error: true, kind: 'failed' });
@@ -781,7 +781,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'appearance/dele/editor') return <Parts env={env} />;
   if (route === 'appearance/dele/ui') return <ComponentParts />;
   if (route === 'appearance/dele/blocks') return <BlocksParts />;
-  if (route.startsWith('appearance/dele/liste/')) return <KindParts key={route} id={route.slice('appearance/dele/liste/'.length)} />;
+  if (route.startsWith('appearance/dele/list/')) return <KindParts key={route} id={route.slice('appearance/dele/list/'.length)} />;
   if (route === 'appearance/dele/vaerdier') return <Tokens />;
   if (route.startsWith('slettet/')) return <Deleted id={route.slice(8)} files={files} env={env} />;
   // company/<part>, or company/<part>/<its part> (Part.parts).
@@ -792,9 +792,9 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   // is in it while the editor goes between them (useFormPages, inForm).
   const form = formAt(route, files);
   if (form) return <CompanyForm part={form.part} at={form.at} page={form.page} env={env} files={files} />;
-  // A list, or a tab an installed app adds to it (liste/<id>/<app>).
+  // A list, or a tab an installed app adds to it (list/<id>/<app>).
   const [, listId, listTab, ...below] = route.split('/');
-  const listed = route.startsWith('liste/') && !below.length && collections.find((c) => c.id === listId);
+  const listed = route.startsWith('list/') && !below.length && collections.find((c) => c.id === listId);
   if (listed) return <List key={listed.id} collection={listed} tab={listTab} files={files} env={env} />;
 
   // ny/<list>, or ny/<list>/<kind> for one of its kinds (a pop-up: standard, mailchimp).

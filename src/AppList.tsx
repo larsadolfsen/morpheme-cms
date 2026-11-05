@@ -155,7 +155,7 @@ export const listsOf = (app: SiteApp, files: RepoFile[]) =>
     key: l.id,
     icon: l.icon,
     label: l.label,
-    href: `#liste/${l.id}`,
+    href: `#list/${l.id}`,
     count: files.filter((f) => f.path.startsWith(`${l.folder}/`) && f.path.endsWith('.json')).length,
   }));
 
@@ -185,7 +185,7 @@ export function kindsOf(app: SiteApp) {
             icon: kind.icon,
             label: kind.label,
             hint: kind.hint,
-            href: `#liste/${c.id}`,
+            href: `#list/${c.id}`,
             one: c.singular,
             more: c.label,
             create: c.create,

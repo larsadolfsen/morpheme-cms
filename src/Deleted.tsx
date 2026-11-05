@@ -67,7 +67,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
     );
 
   const label = pictures ? t.history.files : collection!.label;
-  const back = pictures ? { href: '#files', label: t.common.parts.media } : { href: `#liste/${id}`, label: collection!.label };
+  const back = pictures ? { href: '#files', label: t.common.parts.media } : { href: `#list/${id}`, label: collection!.label };
 
   async function open(file: DeletedFile) {
     if (!pictures) return restore(file);

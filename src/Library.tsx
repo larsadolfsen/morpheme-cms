@@ -5,7 +5,7 @@
 // and posts can be filtered by their status and by what they pick (a post's tags), a list of what is
 // shown on pages (Promovering) by a page, its kind and whether it is on, as "Filer" (Filters). In a list that can be deleted from, the clock in the top bar ("Slettede …") opens
 // what was deleted (Deleted.tsx), as in "Filer". The tabs the apps installed add to a list (AppDefinition.tabs, Cookiescanner's
-// "Problemer" on "Cookies") are in its top app bar after the list's own, each at #liste/<list>/<app>. "Use theme" and the move arrows show the
+// "Problemer" on "Cookies") are in its top app bar after the list's own, each at #list/<list>/<app>. "Use theme" and the move arrows show the
 // loading indicator while they run (only the pressed one).
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
@@ -118,7 +118,7 @@ import { offBlocks } from './registry';
 import { sideChoicesOf, sideSettingOf } from './SideColumn';
 
 // Where a part opens: its list, or the file itself when it is one file (the menu).
-export const hrefOf = (c: Collection) => (c.kind === 'files' && c.files.length === 1 ? `#${c.files[0].file}` : `#liste/${c.id}`);
+export const hrefOf = (c: Collection) => (c.kind === 'files' && c.files.length === 1 ? `#${c.files[0].file}` : `#list/${c.id}`);
 
 const countOf = (c: Collection, files: RepoFile[]): number =>
   c.kind === 'files' ? c.files.length : files.filter((f) => f.path.startsWith(`${c.folder}/`)).length;
@@ -522,7 +522,7 @@ export function PartsHome() {
     { id: 'editor', label: t.parts.screens.editor, icon: icons.dele },
     { id: 'ui', label: t.parts.screens.components, icon: icons.appearance },
     { id: 'blocks', label: t.parts.screens.blocks, icon: icons.blocks },
-    ...kindLists().map((c) => ({ id: `liste/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lists })),
+    ...kindLists().map((c) => ({ id: `list/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lists })),
     { id: 'vaerdier', label: t.parts.screens.values, icon: Ruler },
   ];
   return <Parts title={t.common.parts.editorParts} route="appearance/dele" parts={parts} back={backToAppearance} />;
@@ -1359,7 +1359,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
                 { value: '', label: collection.label, icon: icons[collection.id as keyof typeof icons] ?? ListIcon },
                 ...appTabs.map((a) => ({ value: a.app.id, label: siteText(a.tab.label), icon: a.tab.icon })),
               ],
-              onChange: (v) => (location.hash = v ? `liste/${collection.id}/${v}` : `liste/${collection.id}`),
+              onChange: (v) => (location.hash = v ? `list/${collection.id}/${v}` : `list/${collection.id}`),
             }
           : undefined
       }

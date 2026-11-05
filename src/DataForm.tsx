@@ -314,7 +314,7 @@ function Form({
                 ? { href: '#appearance/footer', label: t.common.parts.footer }
                 : collection.kind === 'files' && collection.files.length === 1
                   ? { href: '#', label: siteName }
-                  : { href: `#liste/${collection.id}`, label: collection.label }
+                  : { href: `#list/${collection.id}`, label: collection.label }
           }
           status={fixed ? savedStatus({ savedAt, saving, deleting }) : undefined}
           view={view}

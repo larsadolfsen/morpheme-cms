@@ -1,5 +1,5 @@
 // "Dele" › "UI-komponenter" (#appearance/dele/ui), "Dele" › "Blokke" (#appearance/dele/blocks) and "Dele" › a list of kinds
-// ("Promovering", #appearance/dele/liste/<id>): how the site looks, every part in every version, to see and agree on it.
+// ("Promovering", #appearance/dele/list/<id>): how the site looks, every part in every version, to see and agree on it.
 // "UI-komponenter" also has the active theme's coverage (summary, mark on each part, filter by style) and the site frame's parts.
 // "UI-komponenter" has the theme's UI components (its buttons and icon buttons, text fields and checkboxes …,
 // packages/editor/theme/ui/, through @site/editor) in every kind, size and state; "Blokke" every block, the standard
@@ -616,7 +616,7 @@ export function BlocksParts() {
 /** The lists of kinds ("Promovering"), each a screen of "Dele". */
 export const kindLists = () => collections.filter((c): c is FolderCollection => c.kind === 'folder' && !!c.kinds && !!c.fields?.length);
 
-/** "Dele" › a list of kinds ("Promovering", #appearance/dele/liste/<id>): each of its kinds as the site draws it, its own
+/** "Dele" › a list of kinds ("Promovering", #appearance/dele/list/<id>): each of its kinds as the site draws it, its own
  * (FolderCollection.draws: the pop-up, the bars) and the apps' (AppKind: Mailchimp's signup, once for each of its
  * states), each a group of its own, as a new one of the kind with the made-up texts (kindExample). */
 export function KindParts({ id }: { id: string }) {

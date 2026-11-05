@@ -623,7 +623,7 @@ function Form({
       <WrongField.Provider value={wrongField.field}>
         <FormFrame
           title={formTitle}
-          back={{ href: `#liste/${collection.id}`, label: collection.label }}
+          back={{ href: `#list/${collection.id}`, label: collection.label }}
           status={savedStatus({ savedAt, saving, deleting, isNew })}
           view={isNew ? undefined : url}
           dirty={dirty}

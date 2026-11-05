@@ -30,7 +30,7 @@ const BLUE = { source: '#1a73e8', variant: 'tonalSpot', contrast: 'standard' };
 const ids = process.argv.length > 2 ? process.argv.slice(2) : readdirSync(APPS).filter((id) => existsSync(join(APPS, id, 'index.ts')));
 
 // The pictures each app picks, read as store-release.mjs does, in their order. `part`: its drawing under "Dele" ›
-// "Blokke" or the list's screen (`parts`: #appearance/dele/blocks, #appearance/dele/liste/<list>) by the part's name; `editor`: a screen of the editor (`at`: from the top of what is
+// "Blokke" or the list's screen (`parts`: #appearance/dele/blocks, #appearance/dele/list/<list>) by the part's name; `editor`: a screen of the editor (`at`: from the top of what is
 // there). And each app's settings as the pictures show them: those it starts with, and the made-up ones of its picture.
 const vite = await createServer({
   configFile: false,
@@ -67,8 +67,8 @@ try {
       else if (what === 'slags') {
         const kind = app.kinds[key];
         const variant = kind.variants?.[Number(n)];
-        shots[id].push({ name, parts: `liste/${key}`, part: variant ? `${kind.label} · ${variant.label}` : kind.label });
-      } else if (what === 'liste') shots[id].push({ name, editor: `liste/${key}` });
+        shots[id].push({ name, parts: `list/${key}`, part: variant ? `${kind.label} · ${variant.label}` : kind.label });
+      } else if (what === 'liste') shots[id].push({ name, editor: `list/${key}` });
       else if (what === 'indstillinger') {
         // Where they are, as settingsRoute in AppList.tsx: on the screen or the part of "Virksomheden" with its kind.
         const home = app.category && partScreens.find((s) => s.apps?.includes(app.category));

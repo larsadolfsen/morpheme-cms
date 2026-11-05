@@ -38,6 +38,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   filer: 'files',
   privatliv: 'privacy',
   lister: 'lists',
+  liste: 'list',
 });
 
 /**
