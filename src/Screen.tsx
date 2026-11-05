@@ -1,6 +1,6 @@
 // A screen of the editor: a top bar like in an app, beside the navigation rail and the drawer (it is drawn into
 // topBarSlot.tsx's place, at the top of the content), above the content. Below medium, where there is no rail, the panel
-// button at its start opens and closes the main drawer (MainMenu.tsx, menuOpen.ts; from medium it is the rail's); at expanded and wider the logo and the site's name after it (one link to the start screen,
+// button at its start opens and closes the main drawer (MainMenu.tsx, menuOpen.ts; from medium it is the rail's; not on a screen with a back arrow); at expanded and wider the logo and the site's name after it (one link to the start screen,
 // through `back.guard`), below expanded the back arrow, the title and the status as in an app (the logo only on the start
 // screen); at the end the actions, the notifications and the account, on every screen (on a phone the account only on the
 // start screen, `home`). At expanded and wider the way here as breadcrumbs (the screen above, when that is not the start
@@ -116,7 +116,7 @@ export default function Screen<T extends string>({
   const bar = (
     <TopAppBar>
       <div className="flex h-16 items-center gap-1 px-2 medium:gap-3 medium:px-6">
-        {menuButtonInTopBar && (
+        {menuButtonInTopBar && !back && (
           <MenuButton
             label={menu.open ? t.library.closeMenu : t.library.openMenu}
             open={menu.open}
