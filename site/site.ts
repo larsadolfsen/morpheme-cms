@@ -1,5 +1,5 @@
 // Name, title, phone, email, address and CVR number: contact.json; the profiles and share buttons: social.json (optional, an
-// older site has none); the texts of "Book en tid": booking.json (the calendar is the app Calendly's, src/apps/calendly/);
+// older site has none); the texts of "Book en tid": booking.json (the calendar is the app Calendly's, morpheme-apps/apps/calendly/);
 // the menus: menu.json and mobile-menu.json; the shared texts of the other blocks: their shared.ts, with those saved in
 // blocks.json over them (`blockTexts`).
 // The site's owner edits them in the editor (/editor/); what the editor does not edit is the site's config

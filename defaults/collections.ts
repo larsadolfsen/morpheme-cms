@@ -136,7 +136,7 @@ const keywords: Field[] = [
 // The business, on "Virksomheden" (CompanyForm.tsx): its name and title, phone, e-mail, address and CVR number
 // (src/data/contact.json), shown at the top and bottom of every page and in the blocks that show them ("Kontakt" and
 // "Adresse"); and the bank details (src/data/payment.json), shown in "Betaling". The calendar
-// is the app Calendly's (src/apps/calendly/).
+// is the app Calendly's (morpheme-apps/apps/calendly/).
 export const contactFields: Field[] = [
   { name: 'name', label: 'Navn', type: 'string', required: true },
   { name: 'role', label: 'Titel', type: 'string', required: true },
@@ -469,7 +469,7 @@ export const collections: Collection[] = [
     // src/data/popups/<slug>.json, read by packages/editor/site/popups.ts, on every page or those picked under "Sider".
     // The pop-ups are shown by packages/editor/theme/components/Popup.astro; a kind an app adds without a part
     // in the pop-up (src/apps/<app>/popups/View.tsx) shows itself (the app Calendly's booking sheet,
-    // src/apps/calendly/, when a button opens it).
+    // morpheme-apps/apps/calendly/, when a button opens it).
     kind: 'folder',
     id: 'popups',
     create: 'Ny promovering',
