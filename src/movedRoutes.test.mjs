@@ -72,6 +72,7 @@ test('every old route prefix opens the screen where it is now', () => {
     privatliv: 'privacy',
     'privatliv/cookiebanner': 'privacy/cookie-banner',
     'privatliv/samtykker': 'privacy/consents',
+    'privatliv/privatlivssider': 'privacy/privacy-pages',
     lister: 'lists',
     liste: 'list',
     'liste/priser/cookiescanner': 'list/priser/cookiescanner',

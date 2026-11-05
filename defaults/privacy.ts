@@ -42,7 +42,7 @@ export const privacy: PartScreen = {
           type: 'string',
           required: true,
           hint: 'The link goes to the cookie policy.',
-          edit: { to: 'privacy/privatlivssider', text: 'Edit privacy pages' },
+          edit: { to: 'privacy/privacy-pages', text: 'Edit privacy pages' },
         },
         { name: 'no', label: 'Button text (no)', type: 'string', required: true, max: 20 },
         { name: 'yes', label: 'Button text (yes)', type: 'string', required: true, max: 20 },
@@ -69,7 +69,7 @@ export const privacy: PartScreen = {
     // address space (#list/<id>): only its row is here, and the list goes back to this screen (Library.tsx).
     { id: 'cookies', label: 'Cookies', icon: Cookie, href: `#list/${config.lists.cookies}` },
     {
-      id: 'privatlivssider',
+      id: 'privacy-pages',
       label: 'Privacy pages',
       icon: FileText,
       file: config.standardPages,

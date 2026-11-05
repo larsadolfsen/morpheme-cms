@@ -53,6 +53,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   privatliv: 'privacy',
   'privatliv/cookiebanner': 'privacy/cookie-banner',
   'privatliv/samtykker': 'privacy/consents',
+  'privatliv/privatlivssider': 'privacy/privacy-pages',
   lister: 'lists',
   liste: 'list',
   'liste/kategorier': 'list/tags',
