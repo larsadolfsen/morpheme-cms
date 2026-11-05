@@ -2,7 +2,7 @@
 // each has, each opening a screen of its own.
 // "Alle videresendelser" (#seo/redirects/all): every address of a page the site sends on elsewhere
 // (redirectData.ts), by address, with where it sends to, and search. Tapping one opens a sheet where
-// where it sends to can be changed, or the redirect deleted; "+" adds a new one (in the editor's own,
+// where it sends to can be changed, or the redirect deleted; the FAB adds a new one (in the editor's own,
 // src/data/redirects.json). Each save is one commit, and none sends on through another afterwards
 // (flatten): a redirect to an address that is sent on goes straight to where that ends, and those
 // that went on through a deleted one go on to where it sent them.
@@ -13,16 +13,16 @@
 // letter) and, over the redirects, the funnel that shows only those to one page or post, picked as a
 // chip. The Save and Delete buttons show the loading indicator while their save runs (Forget does not).
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, ArrowsDownUp, Funnel, LinkBreak, Plus, Signpost, Trash, X } from '@phosphor-icons/react';
+import { ArrowRight, ArrowsDownUp, Funnel, LinkBreak, Signpost, Trash, X } from '@phosphor-icons/react';
 import { addressOf, escape, REDIRECTS } from './addresses';
 import { ask } from './ask';
+import { CreateFab } from './CreateFab';
 import Screen from './Screen';
 import {
   Button,
   InputChip,
   Choice,
   Group,
-  IconButton,
   listClass,
   SupportingText,
   SearchRow,
@@ -279,17 +279,6 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
             ? t.redirects.count(entries.length)
             : undefined
       }
-      actions={
-        tab === 'redirects' && (
-          <IconButton
-            icon={Plus}
-            label={t.redirects.new}
-
-            disabled={!files}
-            onClick={() => open({ from: '', to: '', isNew: true })}
-          />
-        )
-      }
     >
       <p className="mb-4 text-muted">{tab === 'redirects' ? t.redirects.intro : t.redirects.missing.intro}</p>
       <SearchRow
@@ -449,6 +438,9 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
           </SheetBody>
         )}
       </BottomSheet>
+      {tab === 'redirects' && (
+        <CreateFab label={t.redirects.new} disabled={!files} onClick={() => open({ from: '', to: '', isNew: true })} />
+      )}
     </Screen>
   );
 }
