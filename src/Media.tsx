@@ -230,7 +230,7 @@ function Gallery({
   const all = !!used;
   // In Filer, kept for coming back to it (from a file's page); in a picker, from the start each time.
   const [kind, setKind] = useKept<'' | Kind>(all ? 'files-type' : null, '');
-  const [query, setQuery] = useKept(all ? 'files-soeg' : null, '');
+  const [query, setQuery] = useKept(all ? 'files-search' : null, '');
   const [sort, setSort] = useState<Sort>(() => {
     try {
       const saved = localStorage.getItem(SORT_KEY);
@@ -238,8 +238,8 @@ function Gallery({
     } catch {}
     return 'new';
   });
-  const [date, setDate] = useKept(all ? 'files-dato' : null, '');
-  const [use, setUse] = useKept<'' | 'used' | 'unused'>(all ? 'files-brug' : null, '');
+  const [date, setDate] = useKept(all ? 'files-date' : null, '');
+  const [use, setUse] = useKept<'' | 'used' | 'unused'>(all ? 'files-use' : null, '');
   const [tag, setTag] = useKept(all ? 'files-tag' : null, '');
 
   function pickSort(next: Sort) {
