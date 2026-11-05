@@ -30,7 +30,7 @@
 //                    blocks, the standard ones and the apps', and appearance/dele/list/<list> each kind of a list of kinds
 //                    ("Promovering"), its own and the apps' (BlockParts.tsx), and appearance/dele/vaerdier the
 //                    theme's design tokens, "Værdier" (Tokens.tsx)
-//   blokvalg         the blocks that can be put in, "Blokindstillinger" (BlockSettings.tsx)
+//   block-settings         the blocks that can be put in, "Blokindstillinger" (BlockSettings.tsx)
 //   avanceret        "Avanceret", under "Indstillinger": the copy of the site's files in R2 (Advanced.tsx)
 //   morpheme         "Morpheme", under "Indstillinger": the CMS's version, a newer one and its notes, an update's progress (CmsPage.tsx)
 //   licenser         "Licenser", under "Indstillinger": the licences of what the site and the editor are made with, and
@@ -751,7 +751,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'appearance/farver' || route === FALLBACK_ROUTE)
     return <Colors env={env} files={files} fallback={route === FALLBACK_ROUTE} />;
   if (route === 'appearance/logo') return <BrandForm env={env} />;
-  if (route === 'blokvalg') return <BlockSettings env={env} files={files} />;
+  if (route === 'block-settings') return <BlockSettings env={env} files={files} />;
   if (route === ADVANCED_ROUTE) return <Advanced env={env} />;
   if (route === CMS_ROUTE) return <CmsPage />;
   if (route === LICENSES_ROUTE) return <Licenses />;

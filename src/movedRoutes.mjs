@@ -5,7 +5,7 @@
 export const MOVED = /** @type {Record<string, string>} */ ({
   farver: 'appearance/farver',
   'virksomheden/logo': 'appearance/logo',
-  'tema/blokvalg': 'blokvalg',
+  'tema/blokvalg': 'block-settings',
   dele: 'appearance/dele',
   tema: 'appearance',
   'tema/farver': 'appearance/farver',
@@ -40,6 +40,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   lister: 'lists',
   liste: 'list',
   videresendelser: 'redirects',
+  blokvalg: 'block-settings',
 });
 
 /**

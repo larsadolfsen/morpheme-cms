@@ -124,7 +124,7 @@ export const icons: Record<string, Icon> = {
   seo: MagnifyingGlass,
   redirects: Signpost,
   appearance: PaintBrushBroad,
-  blokvalg: ToggleRight,
+  'block-settings': ToggleRight,
   apps: PuzzlePiece,
   appstore: Storefront,
   morpheme: Sparkle,
@@ -165,7 +165,7 @@ export const appearance: Part[] = [
 // and the settings of the whole site ("Settings").
 // Each part is a collection (collections.ts), except those named above, "privacy"'s (partScreens) and the editor's own
 // "company" (companyParts), "blocks" (blockParts), id files (the pictures, PDFs, videos and zip files), "header", "lists"
-// and "blokvalg" (BlockSettings.tsx).
+// and "block-settings" (BlockSettings.tsx).
 const settingsIds = ['morpheme', 'avanceret'];
 export const groups: { id: string; title: string; href?: string; ids: string[] }[] = [
   { id: 'home', title: 'Dashboard', href: '#', ids: [] },
@@ -176,7 +176,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
   },
   { id: 'globalt', title: 'Globals', ids: ['header', 'footer', 'company'] },
   { id: 'apps', title: 'Apps', ids: ['apps', 'appstore'] },
-  { id: 'blocks', title: 'Blocks', ids: ['blocks', 'blokvalg'] },
+  { id: 'blocks', title: 'Blocks', ids: ['blocks', 'block-settings'] },
   {
     id: 'appearance',
     title: 'Appearance',

@@ -133,7 +133,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'blocks') return { label: parts.blocks, href: '#blocks', count: blockParts.length };
   if (id === 'files') return { label: parts.media, href: '#files', count: mediaOf(files).length + filesOf(files).length };
   if (id === 'appearance') return { label: parts.appearance, href: '#appearance', count: null };
-  if (id === 'blokvalg') return { label: parts.blockSettings, href: '#blokvalg', count: null };
+  if (id === 'block-settings') return { label: parts.blockSettings, href: '#block-settings', count: null };
   if (id === 'apps') return { label: parts.apps, href: '#apps', count: null };
   if (id === 'appstore') return { label: t.apps.find, href: `#${STORE_ROUTE}`, count: null };
   if (id === 'redirects') return { label: parts.redirects, href: `#${REDIRECTS_ROUTE}`, count: null };
