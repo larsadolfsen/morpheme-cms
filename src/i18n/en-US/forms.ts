@@ -62,7 +62,7 @@ export const forms = {
   },
   /** Over the places that use an entry (a tag), DataForm.tsx. */
   usedOn: 'Used on',
-  address: 'Address',
+  address: 'URL',
   writeAddress: 'Write the address with letters or digits.',
   /** The commits; `what` is a name or a file name in quotation marks. */
   commit: {
