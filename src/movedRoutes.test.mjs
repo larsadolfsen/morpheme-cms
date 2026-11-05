@@ -20,3 +20,18 @@ test('the extra moves come first', () => {
   assert.equal(movedRoute('butik', { butik: 'indstillinger/appstore' }), 'indstillinger/appstore');
   assert.equal(movedRoute('tema', { butik: 'x' }), 'udseende');
 });
+
+test('a renamed segment is replaced anywhere in an address', () => {
+  const renamed = { indstillinger: 'settings', dele: 'parts', liste: 'list' };
+  assert.equal(movedRoute('indstillinger/appstore', {}, renamed), 'settings/appstore');
+  assert.equal(movedRoute('udseende/dele/liste/kontakt', {}, renamed), 'udseende/parts/list/kontakt');
+});
+
+test('a segment that is not renamed stays', () => {
+  assert.equal(movedRoute('settings/appstore'), 'settings/appstore');
+  assert.equal(movedRoute('blog/mit-indlaeg'), 'blog/mit-indlaeg');
+});
+
+test('a moved address wins over a renamed segment', () => {
+  assert.equal(movedRoute('tema', {}, { tema: 'x' }), 'udseende');
+});

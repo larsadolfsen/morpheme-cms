@@ -1,5 +1,5 @@
 // The editor's screens that have moved, by their old address after the "#": a link or a bookmark to one opens it where
-// it is now. Exposes MOVED and movedRoute (pure). Used by App.tsx (routeOf), which adds the app store's own.
+// it is now. Exposes MOVED, RENAMED and movedRoute (pure). Used by App.tsx (routeOf), which adds the app store's own.
 
 /** Where each moved screen is now, by its old address. */
 export const MOVED = /** @type {Record<string, string>} */ ({
@@ -26,10 +26,21 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   'src/data/footer.json': 'udseende/footer',
 });
 
+/** Danish address segment -> English segment, one entry per renamed route id. Old links keep working through it. */
+export const RENAMED = /** @type {Record<string, string>} */ ({});
+
 /**
- * The address a screen is at now: where it moved to (`more` first, then MOVED), else the same address.
+ * The address a screen is at now: where it moved to (`more` first, then MOVED), else the same address with each
+ * renamed segment replaced.
  * @param {string} route
  * @param {Record<string, string>} [more]
+ * @param {Record<string, string>} [renamed]
  * @returns {string}
  */
-export const movedRoute = (route, more = {}) => more[route] ?? MOVED[route] ?? route;
+export const movedRoute = (route, more = {}, renamed = RENAMED) =>
+  more[route] ??
+  MOVED[route] ??
+  route
+    .split('/')
+    .map((segment) => renamed[segment] ?? segment)
+    .join('/');
