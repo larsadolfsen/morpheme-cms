@@ -11,7 +11,7 @@
 // (fields only; the section settings are a sheet from the bottom there). Both end with Gem (Indsæt) and Annuller.
 // Their open, close, focus and Escape are the theme's (sideSheet() and standardSideSheet(), sideSheetControl.ts); leave() is their beforeClose.
 // Another block tapped while one is open closes the open one first (the question when changed). In the standard side sheet a
-// card already in the text also has "Remove" at the end of the actions (the answer 'remove'). Exposes useBlockDialog, IMAGE.
+// card already in the text also has "Remove" after Cancel in the actions (the answer 'remove'). Exposes useBlockDialog, IMAGE.
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactElement } from 'react';
 import { ArrowsDownUp, Image } from '@phosphor-icons/react';
 import {
@@ -391,13 +391,8 @@ export function useBlockDialog(
               {t.common.cancel}
             </Button>
             {open.step === 'fields' && open.removable && !open.isNew && look === 'side-sheet' && (
-              // At the far end of the row, in the error colour (the theme's text button with its colour variable).
-              <Button
-                kind="text"
-                className="ml-auto"
-                style={{ '--button-text-text': 'var(--error)' } as CSSProperties}
-                onClick={() => done('remove')}
-              >
+              // After Save and Cancel in the start-aligned row, in the error colour (the theme's text button with its colour variable).
+              <Button kind="text" style={{ '--button-text-text': 'var(--error)' } as CSSProperties} onClick={() => done('remove')}>
                 {t.common.remove}
               </Button>
             )}
