@@ -21,7 +21,6 @@ import {
   ListBullets,
   Moon,
   Palette,
-  Plus,
   Ruler,
   Shapes,
   SignOut,
@@ -33,6 +32,7 @@ import { config, countsOf, header, relationsOf, siteName } from '@site/editor';
 import { iconPack, iconPacks } from './iconPacks';
 import { theme, themes, type ThemeInfo } from './themes';
 import { StartFab } from './StartFab';
+import { ListFab } from './ListFab';
 import { StartStatus } from './StartStatus';
 import {
   appearance,
@@ -60,14 +60,12 @@ import {
   Group,
   IconButton,
   LeadingIcon,
-  NewChoice,
   SearchRow,
   useKept,
   SegmentedButton,
   UnfoldButton,
   GroupTitle,
   SwitchRow,
-  IconLink,
   ScoreRing,
   scoreOf,
   Button,
@@ -178,7 +176,7 @@ function PartRow({ id, label, href, count }: { id: string } & ReturnType<typeof 
 }
 
 // The start screen: the site's name, the CMS version and when the site was last updated (built on Cloudflare, App.tsx), as StartStatus.tsx shows them, under it, and the FAB
-// menu for a new page or post (StartFab.tsx). The parts of the site are in the main drawer (MainMenu.tsx); the rest is left empty for now.
+// menu for a new page or post (StartFab.tsx); each list has its own FAB for a new entry (ListFab.tsx). The parts of the site are in the main drawer (MainMenu.tsx); the rest is left empty for now.
 export function Start({ builtAt }: { builtAt: Date | null }) {
   return (
     <Screen
@@ -1374,13 +1372,6 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
               onClick={() => (location.hash = `slettet/${collection.id}`)}
             />
           )}
-          {/* Of more than one kind (a pop-up: Standard or an app's, e.g. Mailchimp): a sheet to pick it. */}
-          {collection.create &&
-            (kinds.length > 1 ? (
-              <NewChoice title={collection.create} options={kinds} onChange={(kind) => (location.hash = `#ny/${collection.id}/${kind}`)} />
-            ) : (
-              <IconLink href={`#ny/${collection.id}`} label={collection.create!} icon={Plus} />
-            ))}
         </>
       }
     >
@@ -1479,6 +1470,8 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
       ) : (
         <p className="mb-8 px-1 text-muted">{t.common.noMatch}</p>
       )}
+      {/* A new entry: the list's FAB, or a FAB menu of its kinds when it has several (a pop-up: Standard or an app's, e.g. Mailchimp). */}
+      <ListFab collection={collection} kinds={kinds} />
     </Screen>
   );
 }

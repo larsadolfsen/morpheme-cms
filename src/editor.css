@@ -408,8 +408,23 @@
   z-index: 30;
 }
 
+/* A FAB whose action runs or cannot be used now (FabAction.busy, .disabled): dimmed, and nothing to press. */
+.editor-fab :is(.extended-fab, .fab):disabled {
+  opacity: 0.38;
+  pointer-events: none;
+}
+
 :root:has(.editor-fab) .snackbar-stack {
   bottom: calc(6rem + env(safe-area-inset-bottom));
+}
+
+/* While a form's save bar is up (FormFrame.tsx) the FAB stands above it, so it does not cover Save; the messages above both. */
+:root:has(.editor-save-bar) .editor-fab {
+  bottom: calc(6.5rem + env(safe-area-inset-bottom));
+}
+
+:root:has(.editor-save-bar):has(.editor-fab) .snackbar-stack {
+  bottom: calc(11.5rem + env(safe-area-inset-bottom));
 }
 
 /* From medium the navigation rail stands at the start edge of the window (MainMenu.tsx), so the messages are in the middle of

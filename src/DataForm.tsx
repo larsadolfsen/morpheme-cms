@@ -4,7 +4,6 @@
 // is opened as changes that are not saved. Exposes DataForm (default). Its values from the file and back: dataFileValues.ts;
 // a menu's fields: DataFileFields.tsx.
 import { useMemo, useState } from 'react';
-import { Plus } from '@phosphor-icons/react';
 import { entryName, slugify, slugOf, type DataFile, type FilesCollection, type FolderCollection } from './schema';
 import { config, header, keptBy, sharing, siteName, usesOf } from '@site/editor';
 import { apps, asWritten, collections } from './site';
@@ -12,6 +11,7 @@ import { kindDraw } from './apps';
 import { ConflictError, type RepoFile } from './github';
 import { clean, newItem, newValue, problemAt } from './check';
 import { FieldInput, FieldList, Fields, useWrongField, WrongField, type FieldContext } from './fields';
+import { CreateFab } from './CreateFab';
 import { DataFileFields } from './DataFileFields';
 import { dataOf, fieldsOf, listOnly, valuesOf } from './dataFileValues';
 import SectionsField from './SectionsField';
@@ -21,7 +21,7 @@ import { splitPicture } from '../lib/crop.mjs';
 import { useMediaPicker } from './Media';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
 import { savedOn, VersionNotice, VersionsButton, WithVersions, type ShownVersion } from './Versions';
-import { Button, CheckList, FoldSection, FormColumns, Group, IconButton, Preview, FormHeading, SharePreview, Notice, ListItem } from './ui';
+import { Button, CheckList, FoldSection, FormColumns, Group, Preview, FormHeading, SharePreview, Notice, ListItem } from './ui';
 import { SearchPreview } from './SearchPreview';
 import { searchedAs } from './googleResult.mjs';
 import { plain, SEO_FIELDS, seoRating, SHARE_FIELDS, sharedAs } from './seo';
@@ -34,7 +34,7 @@ type Props = {
   dataFile?: DataFile;
   file: RepoFile;
   env: Env;
-  /** A new entry of this kind (FolderCollection.kinds), picked under "+". */
+  /** A new entry of this kind (FolderCollection.kinds), picked in the list's create FAB menu. */
   kind?: string;
 };
 
@@ -294,7 +294,7 @@ function Form({
       label: v.label,
       node: draw({ ...values, ...v.props }, { lists: env.lists, testimonials: env.testimonials, relations: env.relations, site: env.site }),
     }));
-  // A file that is a list (the menus) is added to with "+" in the top bar, like the other lists; its own fields
+  // A file that is a list (the menus) is added to with the FAB, like the other lists; its own fields
   // ("Aktiveret") stand above it.
   const root = dataFile?.root;
   // Where the entry is used on the site (a tag: its posts, testimonials, promotions and blocks), each opening it.
@@ -318,19 +318,7 @@ function Form({
           }
           status={fixed ? savedStatus({ savedAt, saving, deleting }) : undefined}
           view={view}
-          actions={
-            <>
-              {!isNew && <VersionsButton env={env} path={base.path} onPick={onVersion} />}
-              {root && (
-                <IconButton
-                  icon={Plus}
-                  label={t.forms.addOne(root.singular!)}
-
-                  onClick={() => setItems([...items, newItem(root)])}
-                />
-              )}
-            </>
-          }
+          actions={!isNew && <VersionsButton env={env} path={base.path} onPick={onVersion} />}
           dirty={dirty}
           saving={saving || deleting}
           deleting={deleting}
@@ -424,6 +412,8 @@ function Form({
               ))}
             </Group>
           )}
+          {/* A single-file list: a new item in it. */}
+          {root && <CreateFab label={t.forms.addOne(root.singular!)} onClick={() => setItems([...items, newItem(root)])} />}
         </FormFrame>
         {picker}
       </WrongField.Provider>

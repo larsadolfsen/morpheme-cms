@@ -7,27 +7,18 @@
 // "Slet billede" (…) when nothing uses it (also not the site's own code, /editor/code-images.json). Its
 // name, under the title, can be changed with the pencil after it (not one the site's code uses),
 // saved with the tick: the file moves, the pages that use it get the new address in the same commit,
-// and the old address sends on to it (addresses.ts). "+" uploads a new file, saved at once. The same
+// and the old address sends on to it (addresses.ts). The FAB uploads a new file, saved at once. The same
 // pictures (not the other files) are the gallery a picture is chosen from in the forms (useMediaPicker).
 // The buttons that run (add, rename, delete, upload new) show the loading indicator while they do.
 // The funnel in Filer also filters by a tag (fileTagFilter.mjs; only tags some file has).
 // The clock in the top bar, "Slettede filer", opens the files that were deleted (Deleted.tsx).
 import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
-import {
-  ArrowsDownUp,
-  CalendarBlank,
-  Check,
-  ClockCounterClockwise,
-  PencilSimple,
-  Plus,
-  Trash,
-  UploadSimple,
-  X,
-} from '@phosphor-icons/react';
+import { ArrowsDownUp, CalendarBlank, Check, ClockCounterClockwise, PencilSimple, Trash, UploadSimple, X } from '@phosphor-icons/react';
 import { moveRedirects, REDIRECTS } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES } from './redirectData';
 import { ask } from './ask';
 import { dateName, headed, letterOf } from './Sheet';
+import { CreateFab } from './CreateFab';
 import Screen from './Screen';
 import {
   Button,
@@ -689,7 +680,6 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
 
             onClick={() => (location.hash = 'slettet/filer')}
           />
-          <IconButton icon={Plus} label={t.media.add} busy={adding} disabled={adding} onClick={add} />
         </>
       }
     >
@@ -727,6 +717,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
         <SheetTitle title={src ? fileName(src) : ''} onClose={() => dialog.current?.close()} />
         {!wide && src && <SheetBody>{details(src)}</SheetBody>}
       </BottomSheet>
+      <CreateFab label={t.media.add} busy={adding} disabled={adding} onClick={add} />
     </Screen>
   );
 }
