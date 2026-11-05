@@ -4,7 +4,8 @@
 // theme or the look of a block, is the standard theme's, styled by the theme in use's CSS. The site and the editor
 // reach the theme as @theme (themePlugin: the theme in use's file, else the standard theme's), and the site's own
 // parts (src/site/) as @site (aliases): for packages/editor/astro.mjs and packages/editor/scripts/check-content.mjs. Stops with what is
-// wrong, when the theme named is not installed. Also the virtual module with all Phosphor's icons (allIconsModule).
+// wrong, when the theme named is not installed. Also the virtual modules with all Phosphor's icons (allIconsModule) and with the theme's coverage of Material's parts
+// (coverageModule, site/themeCoverageFiles.mjs).
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -16,6 +17,7 @@ import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS, THEME_PACKS_FOLDER, pa
 import { MOTION_SCHEMES } from '@morphemecms/cms/lib/motion-schemes.mjs';
 import { templateProblems } from '@morphemecms/cms/lib/page-template.mjs';
 import { storeImportProblems } from './storeTheme.mjs';
+import { coverageModule } from './themeCoverageFiles.mjs';
 
 /** The site's choice of icon pack, `{ "pack": "<id>" }` (config.icons in src/site/config.ts). */
 const ICONS_FILE = 'src/data/icons.json';
@@ -298,6 +300,8 @@ const fileIcon = (svg) => `export default ${JSON.stringify(themedSvg(svg))};`;
 
 /** The virtual module with all Phosphor's icons (regular) as text (src/allIcons.ts). */
 export const ALL_ICONS = 'virtual:all-icons';
+/** The virtual module with the theme's coverage of Material's parts (coverageModule). */
+export const THEME_COVERAGE = 'virtual:theme-coverage';
 
 /** The module code of all Phosphor's icons in `folder` (its `regular/` folder), by the keys `import.meta.glob` gave, the
  * theme's (`icons`, as themeIcons returns them) in place of Phosphor's own. The files are read one at a time: a glob
@@ -489,6 +493,7 @@ export function themePlugin() {
       // The theme's icons import Phosphor's own.
       if (source === PHOSPHOR_REACT) return own && importer !== REACT_ICONS ? REACT_ICONS : null;
       if (source === ALL_ICONS) return '\0' + ALL_ICONS;
+      if (source === THEME_COVERAGE) return '\0' + THEME_COVERAGE;
       if (source === MATERIAL_ALL) return MATERIAL_ALL_ID;
       if (source === MATERIAL_SSR) return MATERIAL_SSR_ID;
       const icon = source.match(PHOSPHOR_FILE)?.[1];
@@ -507,6 +512,7 @@ export function themePlugin() {
       if (id === MATERIAL_ALL_ID) return materialModule();
       if (id === MATERIAL_SSR_ID) return materialSsrModule(options?.ssr);
       if (id === REACT_ICONS) return reactIcons(icons);
+      if (id === '\0' + THEME_COVERAGE) return coverageModule(activeTheme());
       if (id === '\0' + ALL_ICONS)
         return allIconsModule(fileURLToPath(new URL('node_modules/@phosphor-icons/core/assets/regular/', root)), icons);
       if (id.startsWith(FILE_ICON)) return fileIcon(icons[id.slice(FILE_ICON.length)]);
