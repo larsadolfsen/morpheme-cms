@@ -22,6 +22,7 @@ export const text: Messages['text'] = {
   color: 'Farve',
   colors: { accent: 'Accentfarve', muted: 'Stille tekst' },
   noColor: 'Ingen farve',
+  sectionSettings: 'Sektionsindstillinger',
   sectionColor: 'Sektionsfarve',
   sectionColors: { none: 'Ingen', surface: 'Flade', tint: 'Tone', accent: 'Accent' },
   linkTo: 'Linket går til',

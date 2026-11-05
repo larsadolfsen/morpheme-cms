@@ -3,7 +3,7 @@
 // blocks (src/apps/<app>/blocks/) can be put in the text with a button; each is a card with the block as it looks
 // on the site, which opens a menu (Ret, hide on the site, move, Fjern), with a free line kept between
 // two cards to write in. A fixed page's sections are such a text too (SectionsField.tsx), so both look
-// and work the same.
+// and work the same. The last tool, "Section settings", opens the section's sheet (BlockDialog.tsx).
 import {
   forwardRef,
   Fragment as ReactFragment,
@@ -43,7 +43,6 @@ import {
   LinkSimple,
   ListBullets,
   ListNumbers,
-  Palette,
   Plus,
   Quotes,
   TextAa,
@@ -62,6 +61,7 @@ import { SECTION_COLORS } from '../lib/section-marker.mjs';
 import { sectionHeading, setSectionColor } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
 import { IMAGE, type BlockAsk } from './BlockDialog';
+import SectionSettingsIcon from './SectionSettingsIcon';
 import { askLink } from './LinkSheet';
 import { Menu, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { shownAt } from './images';
@@ -865,12 +865,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     colorsAt?.setAttribute('aria-expanded', 'true');
     return () => colorsAt?.setAttribute('aria-expanded', 'false');
   }, [colorsAt]);
-  // The button for the colour of a section, while its menu is open.
-  const [sectionAt, setSectionAt] = useState<HTMLElement | null>(null);
-  useEffect(() => {
-    sectionAt?.setAttribute('aria-expanded', 'true');
-    return () => sectionAt?.setAttribute('aria-expanded', 'false');
-  }, [sectionAt]);
   // The previews of the blocks, drawn again when what they show from elsewhere changes: the lists,
   // the testimonials, the rest of the site, the page's address or a fixed page's other fields.
   const cards = useRef(new Set<() => void>());
@@ -1025,10 +1019,14 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     editor.current?.action((ctx) => paint(ctx.get(editorViewCtx), name));
   }
 
-  function sectionColor(name: string | null) {
+  // The sheet with the settings of the section the cursor is in (its colour), then the colour set.
+  async function sectionSettings() {
+    const current = SECTION_COLORS.find((name) => active.includes(`section-${name}`)) ?? null;
+    const answered = await (blocks ?? sheetProp)?.section(current);
+    if (!answered) return;
     editor.current?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
-      setSectionColor(view, name);
+      setSectionColor(view, answered.color);
       view.focus();
     });
   }
@@ -1101,16 +1099,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.bulletList, icon: ListBullets, action: () => setKind('bullet'), on: 'bullet' },
     { label: t.text.orderedList, icon: ListNumbers, action: () => setKind('ordered'), on: 'ordered' },
     { label: t.text.quote, icon: Quotes, action: () => setKind('quote'), on: 'quote' },
-    // The colour of the section the cursor's H2 starts (not a fixed page's text, whose H2s are its sections' names; the front page has it).
-    ...(framed && active.includes('section')
-      ? [
-          {
-            label: t.text.sectionColor,
-            icon: Palette,
-            action: (e: ReactMouseEvent<HTMLButtonElement>) => setSectionAt(sectionAt ? null : e.currentTarget),
-          },
-        ]
-      : []),
     // A picture and the blocks are put in with "+" (a sheet with them all); without blocks (a blog
     // post) a picture has its own button.
     ...(blocks
@@ -1120,11 +1108,16 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         : []),
     { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) },
     { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand) },
+    // The settings of the section the cursor's H2 starts (not a fixed page's text, whose H2s are its sections' names; the front page has it).
+    ...(framed && active.includes('section') && (blocks ?? sheetProp)
+      ? [{ label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings }]
+      : []),
   ];
 
   // When the toolbar is too short for all its buttons, the kinds of text (H1, H2, H3, T, the bulleted and
   // the numbered list and the quote) are one button: the one where the cursor is, with an arrow, and
   // the others under it.
+  const hasSettings = tools.some((item) => item.icon === SectionSettingsIcon);
   const kinds = tools.filter((t) => ['h1', 'h2', 'h3', 'text', 'bullet', 'ordered', 'quote'].includes(t.on ?? ''));
   const kind = kinds.find((t) => active.includes(t.on!));
   const shown = kind ?? kinds.find((t) => t.on === 'text')!;
@@ -1135,18 +1128,18 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     const bar = toolbar.current!;
     // A button is 2.5rem, with 0.125rem between them and 0.375rem around them, and each of the lines
     // between the groups 0.5rem (the classes below).
-    const fits = () => setNarrow(bar.clientWidth < tools.length * 42 + 10 + 3 * 10);
+    const fits = () => setNarrow(bar.clientWidth < tools.length * 42 + 10 + (3 + (hasSettings ? 1 : 0)) * 10);
     const watch = new ResizeObserver(fits);
     watch.observe(bar);
     return () => watch.disconnect();
-  }, [tools.length]);
+  }, [tools.length, hasSettings]);
   const tool = ({ label, icon, action, on }: (typeof tools)[number]) => (
     <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} onClick={action} />
   );
 
   // The lines between the marks on the text, the kinds of text, "+" (or "Billede") and "Fortryd".
   const lineBefore = (item: (typeof tools)[number]) =>
-    item === kinds[0] || item.icon === Plus || item.icon === Image || item.icon === ArrowUUpLeft;
+    item === kinds[0] || item.icon === Plus || item.icon === Image || item.icon === ArrowUUpLeft || item.icon === SectionSettingsIcon;
   // A button of the toolbar; when it is too short, the kinds of text are one button (at the first), with a menu.
   const button = (item: (typeof tools)[number]) =>
     !narrow || !kinds.includes(item) ? (
@@ -1190,17 +1183,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         <MenuItem icon={TextAa} selected={!active.includes('textColor')} onClick={() => color(null)}>
           <span className="text-ink">{t.text.noColor}</span>
         </MenuItem>
-      </Menu>
-      {/* The theme's three colours for a section (section-marker.mjs), and "Ingen"; the one it has is marked. */}
-      <Menu anchor={sectionAt} label={t.text.sectionColor} onClose={() => setSectionAt(null)}>
-        <MenuItem icon={Palette} selected={!active.some((a) => a.startsWith('section-'))} onClick={() => sectionColor(null)}>
-          {t.text.sectionColors.none}
-        </MenuItem>
-        {SECTION_COLORS.map((name) => (
-          <MenuItem key={name} icon={Palette} selected={active.includes(`section-${name}`)} onClick={() => sectionColor(name)}>
-            {t.text.sectionColors[name as keyof typeof t.text.sectionColors]}
-          </MenuItem>
-        ))}
       </Menu>
       <Menu anchor={kindsAt} label={t.text.kind} onClose={() => setKindsAt(null)}>
         {kinds.map(({ label, icon, action, on }) => (
