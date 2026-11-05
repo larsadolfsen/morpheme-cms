@@ -477,7 +477,7 @@ export const moveChanges = (
   current: RepoFile[],
   site: RepoFile[],
 ) => moveItem(entry, legacy, next, current, site, sitePaths);
-export { appliedTo, legacyOf, mergeChanges } from './legacyMove';
+export { appliedTo, installedHere, legacyOf, mergeChanges } from './legacyMove';
 
 /** The files of an app installed from the store that were changed in the site since (in its folder, `current`, not
  * as its note says), by their paths in the folder: an update writes over them. */

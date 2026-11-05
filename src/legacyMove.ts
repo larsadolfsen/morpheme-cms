@@ -1,5 +1,5 @@
 // The legacy move: a store app or theme installed under its old id (folder `src/apps/mailchimp/`) moves to its permanent
-// id (`app_` or `theme_` plus 16 hex) when it is updated. Exposes legacyOf (is a legacy copy installed?) and moveChanges
+// id (`app_` or `theme_` plus 16 hex) when it is updated. Exposes legacyOf (is a legacy copy installed?), installedHere (does the store list show an entry as installed?) and moveChanges
 // (one list of changes: new folder, old files deleted, every id rewritten; docs/store-ids.md Table 1). Pure; the site's
 // paths are passed in (store.ts binds them to the site's config). Depends on lib/folderChanges.mjs.
 import type { Change, RepoFile } from './github';
@@ -25,6 +25,17 @@ type Next = { files: { path: string; content: string | Uint8Array }[]; record: S
  * apps or themes the site has, with `store` when the folder has a store.json); else null (none, or the site's own). */
 export function legacyOf(entry: { legacy?: string }, folders: { id: string; store?: unknown }[]): string | null {
   return entry.legacy && folders.some((f) => f.id === entry.legacy && f.store) ? entry.legacy : null;
+}
+
+/** Whether the store's list counts a catalog entry as installed: its own id is installed, or its old id (`entry.legacy`)
+ * is, as a copy from the store (`folders`: the apps or themes the site has). `installed`: the ids installed. */
+export function installedHere(
+  entry: { id: string; legacy?: string },
+  installed: string[],
+  folders: { id: string; store?: unknown }[],
+): boolean {
+  const old = legacyOf(entry, folders);
+  return installed.includes(entry.id) || (old !== null && installed.includes(old));
 }
 
 const parse = (text: string): any => {
