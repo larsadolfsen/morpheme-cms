@@ -25,10 +25,10 @@
 //                    appearance/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
 //                    appearance/colors the colours (Colors.tsx;
 //                    appearance/colors/fallback-colors the site's own while an app changes the pages'), appearance/logo the logo
-//                    and icon (BrandForm.tsx), appearance/dele the parts (Library.tsx PartsHome): appearance/dele/editor the editor's, every
-//                    one in every state (Parts.tsx), appearance/dele/ui the theme's UI components, appearance/dele/blocks the
-//                    blocks, the standard ones and the apps', and appearance/dele/list/<list> each kind of a list of kinds
-//                    ("Promovering"), its own and the apps' (BlockParts.tsx), and appearance/dele/vaerdier the
+//                    and icon (BrandForm.tsx), appearance/parts the parts (Library.tsx PartsHome): appearance/parts/editor the editor's, every
+//                    one in every state (Parts.tsx), appearance/parts/ui the theme's UI components, appearance/parts/blocks the
+//                    blocks, the standard ones and the apps', and appearance/parts/list/<list> each kind of a list of kinds
+//                    ("Promovering"), its own and the apps' (BlockParts.tsx), and appearance/parts/vaerdier the
 //                    theme's design tokens, "Værdier" (Tokens.tsx)
 //   block-settings         the blocks that can be put in, "Blokindstillinger" (BlockSettings.tsx)
 //   advanced        "Avanceret", under "Indstillinger": the copy of the site's files in R2 (Advanced.tsx)
@@ -777,12 +777,12 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
     route.startsWith('apps/') && !deeper.length && apps.find((a) => a.id === screenApp && screenId && a.screens?.[screenId]);
   if (ownScreen && installedApps(files).includes(ownScreen.id))
     return <AppScreenPage key={route} app={ownScreen} id={screenId} env={env} />;
-  if (route === 'appearance/dele') return <PartsHome />;
-  if (route === 'appearance/dele/editor') return <Parts env={env} />;
-  if (route === 'appearance/dele/ui') return <ComponentParts />;
-  if (route === 'appearance/dele/blocks') return <BlocksParts />;
-  if (route.startsWith('appearance/dele/list/')) return <KindParts key={route} id={route.slice('appearance/dele/list/'.length)} />;
-  if (route === 'appearance/dele/vaerdier') return <Tokens />;
+  if (route === 'appearance/parts') return <PartsHome />;
+  if (route === 'appearance/parts/editor') return <Parts env={env} />;
+  if (route === 'appearance/parts/ui') return <ComponentParts />;
+  if (route === 'appearance/parts/blocks') return <BlocksParts />;
+  if (route.startsWith('appearance/parts/list/')) return <KindParts key={route} id={route.slice('appearance/parts/list/'.length)} />;
+  if (route === 'appearance/parts/vaerdier') return <Tokens />;
   if (route.startsWith('slettet/')) return <Deleted id={route.slice(8)} files={files} env={env} />;
   // company/<part>, or company/<part>/<its part> (Part.parts).
   const [, companyId, ownId, ...more] = route.split('/');

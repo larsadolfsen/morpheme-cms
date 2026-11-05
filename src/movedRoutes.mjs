@@ -6,12 +6,12 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   farver: 'appearance/colors',
   'virksomheden/logo': 'appearance/logo',
   'tema/blokvalg': 'block-settings',
-  dele: 'appearance/dele',
+  dele: 'appearance/parts',
   tema: 'appearance',
   'tema/farver': 'appearance/colors',
   'tema/logo': 'appearance/logo',
-  'tema/dele': 'appearance/dele',
-  'tema/dele/editor': 'appearance/dele/editor',
+  'tema/dele': 'appearance/parts',
+  'tema/dele/editor': 'appearance/parts/editor',
   'virksomheden/bank': 'company/betaling/bank',
   videresendelser: 'seo/redirects',
   'videresendelser/alle': 'seo/redirects/alle',
@@ -49,6 +49,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   ikonpakker: 'icon-packs',
   bevaegelse: 'motion',
   sidekolonne: 'side-column',
+  dele: 'parts',
 });
 
 /**

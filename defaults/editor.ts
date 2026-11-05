@@ -137,7 +137,7 @@ export const icons: Record<string, Icon> = {
   'icon-packs': Smiley,
   motion: WaveSine,
   'side-column': SidebarSimple,
-  dele: Shapes,
+  parts: Shapes,
 };
 
 /** The site's own parts under "Appearance" (#appearance), after the logo and icon, each a screen of its own at #appearance/<id>:
@@ -180,7 +180,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
   {
     id: 'appearance',
     title: 'Appearance',
-    ids: ['themes', 'icon-packs', 'motion', 'side-column', 'colors', 'logo', ...appearance.map((p) => p.id), 'dele'],
+    ids: ['themes', 'icon-packs', 'motion', 'side-column', 'colors', 'logo', ...appearance.map((p) => p.id), 'parts'],
   },
   { id: 'privacy', title: 'Privacy', ids: privacy.parts.map((p) => p.id) },
   { id: 'settings', title: 'Settings', ids: settingsIds },

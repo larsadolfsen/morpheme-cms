@@ -147,7 +147,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
     'side-column': parts.sideColumn,
     colors: parts.colors,
     logo: parts.brand,
-    dele: parts.editorParts,
+    parts: parts.editorParts,
   }[id];
   const appearancePart = appearanceLabel ?? appearance.find((p) => p.id === id)?.label;
   if (appearancePart) return { label: appearancePart, href: `#appearance/${id}`, count: null };
@@ -239,7 +239,7 @@ export function Theme({ files }: { files: RepoFile[] }) {
     { id: 'header', label: t.common.parts.header, icon: icons.header },
     { id: 'footer', label: t.common.parts.footer, icon: icons.footer },
     ...appearance,
-    { id: 'dele', label: t.common.parts.editorParts, icon: icons.dele },
+    { id: 'parts', label: t.common.parts.editorParts, icon: icons.parts },
   ];
   return <Parts title={t.common.parts.appearance} route="appearance" parts={parts} back={backFrom('appearance')} />;
 }
@@ -514,18 +514,18 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
   );
 }
 
-/** "Dele" (#appearance/dele): the parts the editor and the site are built of, each on a screen of its own: the editor's
+/** "Dele" (#appearance/parts): the parts the editor and the site are built of, each on a screen of its own: the editor's
  * (Parts.tsx), the theme's UI components, the blocks (the standard ones and the apps') and each list of kinds
  * ("Promovering", its own kinds and the apps'), as the theme shows them (BlockParts.tsx), and the theme's design tokens ("Værdier", Tokens.tsx). */
 export function PartsHome() {
   const parts: Part[] = [
-    { id: 'editor', label: t.parts.screens.editor, icon: icons.dele },
+    { id: 'editor', label: t.parts.screens.editor, icon: icons.parts },
     { id: 'ui', label: t.parts.screens.components, icon: icons.appearance },
     { id: 'blocks', label: t.parts.screens.blocks, icon: icons.blocks },
     ...kindLists().map((c) => ({ id: `list/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lists })),
     { id: 'vaerdier', label: t.parts.screens.values, icon: Ruler },
   ];
-  return <Parts title={t.common.parts.editorParts} route="appearance/dele" parts={parts} back={backToAppearance} />;
+  return <Parts title={t.common.parts.editorParts} route="appearance/parts" parts={parts} back={backToAppearance} />;
 }
 
 /** "Søgemaskineoptimering" (#seo), no longer in the menu: "Videresendelser" (Redirects.tsx, #seo/redirects) and then

@@ -123,7 +123,7 @@ export const common = {
     blockSettings: 'Block settings',
     /** The apps that come with the site (AppList.tsx, #apps). */
     apps: 'Apps',
-    /** The parts the editor and the site are built of (#appearance/dele: Parts.tsx, BlockParts.tsx). */
+    /** The parts the editor and the site are built of (#appearance/parts: Parts.tsx, BlockParts.tsx). */
     editorParts: 'Parts',
     /** Under Indstillinger: the redirects and the site's own parts (#seo, Library.tsx Seo). */
     seo: 'Search engine optimization',

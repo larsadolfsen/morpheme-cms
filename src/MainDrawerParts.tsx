@@ -1,4 +1,4 @@
-// The main drawer and its menu button on #appearance/dele/editor (Parts.tsx): the modal drawer in its two levels (sections, and
+// The main drawer and its menu button on #appearance/parts/editor (Parts.tsx): the modal drawer in its two levels (sections, and
 // a section's list with the back row and a fold-out), opened from a button, so it can be tried at any width, and the menu
 // button open and closed. The drawer's header is a sample user (AccountRow). Exposes MainDrawerSample. Uses MainDrawer and
 // its parts from ui.tsx.

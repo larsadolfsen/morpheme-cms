@@ -43,3 +43,7 @@ test('an old route to the app store opens it at its English route', () => {
 test('the old colours route opens the colours screen under Appearance', () => {
   assert.equal(movedRoute('farver'), 'appearance/colors');
 });
+
+test('an old parts route keeps a list id and opens at its English route', () => {
+  assert.equal(movedRoute('udseende/dele/liste/kontakt'), 'appearance/parts/list/kontakt');
+});
