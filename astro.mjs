@@ -20,6 +20,7 @@ import { rehypeVideo } from './lib/video.mjs';
 import { rehypeEmphasize } from './lib/rehype-emphasize.mjs';
 import { csp, joined } from './lib/csp.mjs';
 import { appBuilds, appFoldersPlugin } from './lib/apps.mjs';
+import { appSelf } from './site/appSelf.mjs';
 import { isNoindex } from './site/noindex.mjs';
 import { activeTheme, aliases, iconPackLicenses, STANDARD_THEME, themeIcon, themePlugin } from './site/theme.mjs';
 import { licensesIntegration, siteOwners } from './lib/licenses.mjs';
@@ -158,7 +159,7 @@ export async function siteConfig() {
       // The editor (packages/editor/) takes this site from src/site/ as @site (packages/editor/defaults/editor.ts), and the
       // site and the editor take the theme in use (src/data/theme.json) as @theme: its file, else the standard
       // theme's (themePlugin, packages/editor/site/theme.mjs); and what is in each app's folder (appFoldersPlugin).
-      plugins: [themePlugin(), appFoldersPlugin(ROOT), tailwindcss()],
+      plugins: [themePlugin(), appFoldersPlugin(ROOT), appSelf(), tailwindcss()],
       resolve: { alias: aliases() },
     },
   });
