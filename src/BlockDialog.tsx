@@ -144,6 +144,7 @@ export function useBlockDialog(
       setOpen(first);
       setValues(props);
       if (first.step === 'fields') shown.current = asWritten(first.type, props);
+      if (first.step === 'section') shown.current = JSON.stringify(props.color ?? '');
       setProblem('');
       wrongField.stop(null);
       setQuery('');
@@ -172,7 +173,6 @@ export function useBlockDialog(
     choose: (offer) => ask({ step: 'choose', image: offer?.image, have: offer?.have }),
     section: async (color) => {
       const answered = await ask({ step: 'section' }, { color: color ?? '' });
-      shown.current = JSON.stringify(color ?? '');
       return answered && { color: answered.props.color ? String(answered.props.color) : null };
     },
     edit: async (type, props, isNew = false) => {
