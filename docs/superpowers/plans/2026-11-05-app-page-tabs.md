@@ -131,50 +131,31 @@ Acceptance:
 
 ### Task 3: Move `AppAbout` to `src/AppInfoTab.tsx`
 
-Worker: Ollama runner (a move with a fixed interface).
+Worker: Ollama runner (a pure move with a fixed interface; no change in behaviour).
 
 **Files:**
 - Create: `src/AppInfoTab.tsx`
 - Create: `src/AppNotificationSwitches.tsx`
-- Modify: `src/AppList.tsx` (remove `AppAbout`, lines 470–583 today; import `AppInfoTab`)
+- Modify: `src/AppList.tsx` (remove `AppAbout`, lines 470–583 today; use `AppInfoTab` in `StoreAppPage` and
+  `AppContent`)
 
 **Interfaces:**
-- Consumes: the props of `AppAbout` today, without `children`.
+- Consumes: the props of `AppAbout` today.
 - Produces:
 
 ```ts
-export default function AppInfoTab(props: {
-  pictures: { src: string; label: string }[];
-  description?: string;
-  news?: { version: string; text: string }[];
-  needs?: AppNeeds;
-  /** Only rows without switches: the kinds of notifications the app sends (names only). */
-  notifies?: { label: string }[];
-  cookies: AppCookie[];
-  consent: boolean;
-  publisher: string;
-  licenses?: ReactNode;
-  /** Where the app is used, under "Bruges på" (Danish label), last. */
-  uses?: { href: string; title: string; icon: Icon }[];
-}): JSX.Element;
-```
-
-- Order: Pictures, About the app, What's new, Permissions, Notifications (names only), Cookies, Licences, Developer,
-  Where it is used.
-- The notification switches (today `AppAbout` lines 550–565, the `section` with `SwitchRow`s) move to
-  `src/AppNotificationSwitches.tsx`:
-
-```ts
+// src/AppInfoTab.tsx: today's AppAbout, the same props (children included: StoreAppPage puts what an app adds there).
+export default function AppInfoTab(props: AppAbout props): JSX.Element;
+// src/AppNotificationSwitches.tsx: today AppAbout lines 550–565, the section with SwitchRows.
 /** The app's kinds of notifications under "Notifikationer" (Danish label), each with its switch. */
 export default function AppNotificationSwitches(props: { notifies: { label: string; type: string }[] }): JSX.Element;
 ```
 
+- `AppInfoTab` renders `AppNotificationSwitches` where the switch section is today.
 - `DeveloperRow` stays exported from `src/AppList.tsx`.
 
 Acceptance:
-- [ ] Move the markup. Do not change the markup of the groups that stay.
-- [ ] Until Task 4, `AppContent` renders `AppInfoTab`, then `AppNotificationSwitches` when the app is installed and
-  has types, then its other content. The page shows the same items as before. Only the order changes.
+- [ ] Move the markup. Do not change it. The pages show the same as before.
 - [ ] Add the header comment to each new file. Update the header of `src/AppList.tsx`.
 - [ ] Run the checks in "Global constraints".
 - [ ] Commit the three files: "Move the app page's information to AppInfoTab".
@@ -221,6 +202,9 @@ Behaviour:
 - `AppSettingsTab` order: the app's own page part (`app.page`); Blocks; Lists; the kinds; `AppNotificationSwitches`
   (only when the app has types); Uninstall with its supporting text. The bottom sheet for an added item stays here.
 - Remove the "Indstillinger" row (`ListItem` with `Gear`) from the app page.
+- `AppInfoTab` gets an optional prop `uses` (Where it is used, the group from `AppContent`, rendered last). On the
+  installed Information tab, pass `notifies` without `type`, so it shows the names only. The switches are on Settings.
+- `StoreAppPage` keeps its use of `AppInfoTab` with `children`.
 - The form keeps unsaved values across a field page: one `AppPage` stays mounted for `apps/<id>` and
   `apps/<id>/indstillinger/<field>`. Give it a stable `key` (the app id).
 
