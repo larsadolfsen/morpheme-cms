@@ -133,7 +133,7 @@ export const common = {
     settings: 'Settings',
     /** Under Indstillinger: the faster editor (#advanced, Advanced.tsx). */
     advanced: 'Advanced',
-    /** Under Indstillinger: the licences of what the site and the editor are made with (#licenser, Licenses.tsx). */
+    /** Under Indstillinger: the licences of what the site and the editor are made with (#licenses, Licenses.tsx). */
     licenses: 'Licenses',
     /** Under Indstillinger: the CMS's version and its updates (#morpheme). */
     morpheme: 'Morpheme',

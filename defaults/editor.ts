@@ -129,7 +129,7 @@ export const icons: Record<string, Icon> = {
   appstore: Storefront,
   morpheme: Sparkle,
   advanced: Wrench,
-  licenser: Certificate,
+  licenses: Certificate,
   // The screens under "Appearance" (Library.tsx Theme).
   temaer: Swatches,
   farver: Palette,

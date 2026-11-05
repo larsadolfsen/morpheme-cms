@@ -33,8 +33,8 @@
 //   block-settings         the blocks that can be put in, "Blokindstillinger" (BlockSettings.tsx)
 //   advanced        "Avanceret", under "Indstillinger": the copy of the site's files in R2 (Advanced.tsx)
 //   morpheme         "Morpheme", under "Indstillinger": the CMS's version, a newer one and its notes, an update's progress (CmsPage.tsx)
-//   licenser         "Licenser", under "Indstillinger": the licences of what the site and the editor are made with, and
-//                    licenser/<id> one with its text (Licenses.tsx)
+//   licenses         "Licenser", under "Indstillinger": the licences of what the site and the editor are made with, and
+//                    licenses/<id> one with its text (Licenses.tsx)
 //   apps             the apps that come with the site, apps/<app> one with its button to install it and, while it
 //                    is installed, the tabs of its page (AppList.tsx AppPage): Settings at apps/<app>, with its settings
 //                    form (also on the screen with its category, analytics/<app>, AppList.tsx settingsRoute), and

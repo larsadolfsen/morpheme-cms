@@ -158,7 +158,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   }
   if (id === 'morpheme') return { label: parts.morpheme, href: `#${CMS_ROUTE}`, count: null };
   if (id === 'advanced') return { label: parts.advanced, href: '#advanced', count: null };
-  if (id === 'licenser') return { label: parts.licenses, href: '#licenser', count: null };
+  if (id === 'licenses') return { label: parts.licenses, href: '#licenses', count: null };
   const screen = partScreens.find((s) => s.id === id);
   if (screen) return { label: screen.label, href: `#${id}`, count: null };
   if (id === 'seo') return { label: parts.seo, href: '#seo', count: null };
