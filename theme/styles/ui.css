@@ -43,6 +43,14 @@
     --button-toggle-selected-surface, -text, -hover, -shadow, -hover-shadow   a filled toggle that is on
     --button-tonal-selected-surface, -text, -hover; --button-elevated-selected-…; --button-outlined-selected-…   the
       other kinds on
+  A busy button or icon button (busy: disabled, aria-busy, .button-busy or .icon-button-busy; M3 loading indicator): for
+  the first delay it looks unchanged (full colours, though it is disabled); then its label and icons go, a button
+  shrinks to a circle (its width becomes its height; with reduced motion at once) and a loading indicator in the
+  label's colour, without a container, stands in the middle (an icon button keeps its size and the indicator takes
+  its icon's).
+    --button-busy-delay   the wait before it shows (200ms; a shorter wait shows nothing)
+    --button-busy-indicator-size   a button's indicator (1.5rem, or its icon's size where that is larger)
+    --icon-button-busy-indicator-size   an icon button's indicator (its icon's size)
   Icon buttons (IconButton.tsx, iconButtonClass): .icon-button with its kind, .icon-button-standard, -filled, -tonal or
   -outlined, its size, .icon-button-xsmall, none (small), -medium, -large or -xlarge, its width, .icon-button-narrow,
   none or -wide, and its shape, none (round) or .icon-button-square. A toggle as a button's (aria-pressed; the filled
@@ -57,8 +65,8 @@
     --icon-button-tonal-selected-surface, -text; --icon-button-outlined-selected-surface, -text   the toggles' that are
       not the filled one's
   Set here by the sizes, the widths and the shapes, not by a theme: --button-box, --button-inline, --button-glyph,
-  --button-round, --button-square, --button-pressed, --button-corners, and --icon-button-box, -ratio, -width, -glyph,
-  -square, -pressed and -corners.
+  --button-round, --button-square, --button-pressed, --button-corners, --button-busy-after, --button-busy-size,
+  --button-busy-from, and --icon-button-box, -ratio, -width, -glyph, -square, -pressed and -corners.
 */
 /* The classes in the CMS's own code (this package, also from node_modules/, where Tailwind does not look by itself);
    the names in the icon packs' maps (MATERIAL_SYMBOLS, LUCIDE, site/icons.mjs) and the tests' examples are not classes. */
@@ -351,6 +359,45 @@
   .button:disabled {
     opacity: 0.6;
     cursor: default;
+  }
+  /* Busy (M3 loading indicator): under the delay it looks unchanged. After it the label and icons go and a button
+     shrinks to a circle (--button-busy-from is its width, set by Button.tsx); the indicator, in the label's colour,
+     stands in the middle. */
+  :is(.button-busy, .icon-button-busy) {
+    --button-busy-after: var(--button-busy-delay, 200ms);
+    position: relative;
+  }
+  /* Busy is disabled but not dimmed: full colours, the indicator too. */
+  :is(.button.button-busy, .icon-button.icon-button-busy):disabled {
+    opacity: 1;
+    cursor: progress;
+  }
+  .button-busy {
+    --button-busy-size: var(--button-busy-indicator-size, max(1.5rem, var(--button-glyph)));
+    overflow: hidden;
+    animation: button-busy-shrink var(--motion-spatial) var(--button-busy-after) both;
+  }
+  .icon-button-busy {
+    --button-busy-size: var(--icon-button-busy-indicator-size, var(--icon-button-glyph));
+  }
+  :is(.button-busy, .icon-button-busy) > .button-busy-content {
+    display: contents;
+    animation: button-busy-hide 0s var(--button-busy-after) forwards;
+  }
+  :is(.button-busy, .icon-button-busy) > .button-busy-indicator {
+    --loading-indicator-size: var(--button-busy-size);
+    --loading-indicator-shape-size: calc(var(--button-busy-size) * 2.375 / 3);
+    --loading-indicator-colour: currentColor;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    visibility: hidden;
+    animation: button-busy-show 0s var(--button-busy-after) forwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .button-busy {
+      animation-duration: 0s;
+    }
   }
   /* The sizes: Material's five, the medium one the default. */
   .button-xsmall {
@@ -5273,6 +5320,26 @@
   .tooltip-actions {
     display: flex;
     margin: 0.25rem 0 -0.25rem calc(-1 * var(--button-text-padding, 1rem));
+  }
+}
+
+@keyframes button-busy-shrink {
+  from {
+    width: var(--button-busy-from, auto);
+  }
+  to {
+    width: var(--button-box);
+    padding-inline: 0;
+  }
+}
+@keyframes button-busy-hide {
+  to {
+    visibility: hidden;
+  }
+}
+@keyframes button-busy-show {
+  to {
+    visibility: visible;
   }
 }
 

@@ -135,6 +135,8 @@ type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
   size?: ButtonSize;
   /** Before the text. */
   icon?: Icon;
+  /** Its action runs: disabled, and after a moment a loading indicator. */
+  busy?: boolean;
   type?: 'button' | 'submit';
 };
 
@@ -171,6 +173,8 @@ type IconButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' 
   kind?: IconButtonKind;
   selected?: boolean;
   badge?: number | boolean;
+  /** Its action runs: disabled, and after a moment a loading indicator. */
+  busy?: boolean;
   type?: 'button' | 'submit';
 };
 
