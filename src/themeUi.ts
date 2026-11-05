@@ -1,6 +1,7 @@
 // The theme's UI parts (packages/editor/theme/ui/, Material 3's names), which the editor draws with too:
 // on its own screens (packages/editor/src/ui.tsx, which takes nothing of the theme from anywhere else) and on "Dele" ›
-// "UI-komponenter" (BlockParts.tsx). Only the theme's parts, nothing of the editor, so the editor's parts can be made of them as
+// "UI-komponenter" (BlockParts.tsx); among them the full-screen dialog's header (SiteDialogHeader) and its classes, which the
+// editor's own full-screen step uses. Only the theme's parts, nothing of the editor, so the editor's parts can be made of them as
 // it loads.
 export { default as SiteButton, buttonShapes, buttonSizes } from '@theme/ui/Button';
 export { default as SiteIconButton, iconButtonWidths } from '@theme/ui/IconButton';
@@ -15,7 +16,13 @@ export { default as SiteCheckbox } from '@theme/ui/Checkbox';
 export { default as SiteChip, chipKinds } from '@theme/ui/Chip';
 export { default as SiteChipSet, chipSetLayouts } from '@theme/ui/ChipSet';
 export { bottomSheet as siteBottomSheet } from '@theme/ui/bottomSheetControl';
-export { default as SiteDialog, dialogModalClass as siteDialogModalClass } from '@theme/ui/Dialog';
+export {
+  default as SiteDialog,
+  DialogHeader as SiteDialogHeader,
+  dialogClassOf as siteDialogClassOf,
+  dialogFullScreenModalClass as siteDialogFullScreenModalClass,
+  dialogModalClass as siteDialogModalClass,
+} from '@theme/ui/Dialog';
 export {
   default as SiteBottomSheet,
   BottomSheetHeader as SiteBottomSheetHeader,
