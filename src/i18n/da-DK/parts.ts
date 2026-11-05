@@ -340,6 +340,28 @@ export const parts: Messages['parts'] = {
     blocks: 'Blokke',
     values: 'Værdier',
     componentsIntro: 'Temaets knapper, felter, lister og andre dele i alle deres slags og tilstande. Temaet giver dem deres udseende.',
+    /** Theme coverage on "UI components": which parts the active theme styles, which it leaves to Material. */
+    coverage: {
+      /** A part's status badge. */
+      status: { own: 'Egen stil', partly: 'Delvist egen', material: 'Material' },
+      /** The summary line under the intro. */
+      summary: (theme, own, total) =>
+        `${theme} giver ${own} af ${total} dele fuld egen stil. ${total - own} bruger stadig Material helt eller delvist.`,
+      /** Label before the list of pieces the theme does not style. */
+      missing: 'Overladt til Material:',
+      /** Title of the filter group by status. */
+      filter: 'Stil',
+      all: 'Alle',
+    },
+    /** The site frame's parts, last group on "UI components". */
+    frame: {
+      title: 'Sidens ramme',
+      headerMenu: 'Topbjælkens menupunkter og knappen, der åbner en undermenu.',
+      drawerHead: 'Sidens navn og rolle øverst i navigationsskuffen.',
+      footer: 'Sidefoden: dens kolonner, overskrifter, links og bundlinjen.',
+      actionBar: 'Bjælken med sidens handlinger.',
+      logo: 'Logoet: dets mærke, navn og rolle.',
+    },
     blocksIntro: 'Standardblokkene og appenes blokke i alle deres udgaver. Temaet giver dem deres udseende.',
     /** A list of kinds ("Promovering"), by the list's name for one. */
     kindsIntro: (one: string) => `Hver slags ${one}, også appenes, i alle sine tilstande. Temaet giver dem deres udseende.`,

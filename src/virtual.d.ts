@@ -18,3 +18,12 @@ declare module 'virtual:app-folders' {
 declare module 'virtual:all-icons' {
   export const allIcons: Record<string, string>;
 }
+
+// How the theme in use covers Material's parts, null for the standard theme (coverageModule in site/themeCoverageFiles.mjs).
+declare module 'virtual:theme-coverage' {
+  const coverage: {
+    theme: string;
+    parts: Record<string, { group: 'ui' | 'frame'; status: 'own' | 'partly' | 'material'; pieces: number; missing: string[] }>;
+  } | null;
+  export default coverage;
+}
