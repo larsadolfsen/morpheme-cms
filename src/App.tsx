@@ -38,7 +38,7 @@
 //   apps             the apps that come with the site, apps/<app> one with its button to install it and, while it
 //                    is installed, the tabs of its page (AppList.tsx AppPage): Settings at apps/<app>, with its settings
 //                    form (also on the screen with its category, analytics/<app>, AppList.tsx settingsRoute), and
-//                    Information at apps/<app>/om (before an app's own screens, AppDefinition.screens)
+//                    Information at apps/<app>/about (before an app's own screens, AppDefinition.screens)
 //   apps/<app>/settings/<field>  the page of a field of its settings with its choices on a page of their own
 //                    (Field.page), over its Settings tab, which keeps what is in it: apps/content-colors/settings/variant
 //   <form>/<field>   the page of a field of a part's form with its choices on a page of their own (Field.page), over the
@@ -762,7 +762,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route.startsWith(`${DEVELOPER_ROUTE}/`))
     return <DeveloperPage key={route} slug={route.slice(DEVELOPER_ROUTE.length + 1)} env={env} files={files} />;
   // An app in the site (its own, or one from the store while it is installed) has its page, with the tabs Settings
-  // (apps/<id>, and a settings field's page, apps/<id>/settings/<field>) and Information (apps/<id>/om, matched
+  // (apps/<id>, and a settings field's page, apps/<id>/settings/<field>) and Information (apps/<id>/about, matched
   // before an app's own screens); one from the store that is not (or no longer) installed, its page in the store.
   const shownApp = route.startsWith('apps/') ? apps.find((a) => appRouteOf(route, a.id)) : undefined;
   const shown = shownApp && appRouteOf(route, shownApp.id);

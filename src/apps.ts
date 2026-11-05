@@ -170,7 +170,7 @@ export type AppDefinition = {
    * editor's parts (ui.tsx), its texts with siteText. */
   page?: ComponentType<AppPageProps>;
   /** Screens of its own under its page while it is installed, by the last part of their address (#apps/<id>/<key>; not
-   * "settings", the Settings tab's field pages, and not "om", the Information tab: the editor matches those
+   * "settings", the Settings tab's field pages, and not "about", the Information tab: the editor matches those
    * first, so a screen with either key is never shown), each linked to from its page. */
   screens?: Record<string, AppScreen>;
   /** Tabs it adds to the site's lists while it is installed, by the list's id, each at #list/<list>/<app>. */

@@ -53,6 +53,7 @@ test('every old route prefix opens the screen where it is now', () => {
     'indstillinger/appstore/temaer': 'settings/appstore/themes',
     'apps/google-analytics/indstillinger': 'apps/google-analytics/settings',
     'apps/udvikler/acme': 'apps/developer/acme',
+    'apps/cms-version/om': 'apps/cms-version/about',
     'apps/content-colors/indstillinger/variant': 'apps/content-colors/settings/variant',
     udseende: 'appearance',
     'udseende/temaer': 'appearance/themes',

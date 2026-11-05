@@ -36,6 +36,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   indstillinger: 'settings',
   'indstillinger/appstore/temaer': 'settings/appstore/themes',
   'apps/*/indstillinger': 'apps/*/settings',
+  'apps/*/om': 'apps/*/about',
   'apps/udvikler': 'apps/developer',
   udseende: 'appearance',
   'udseende/temaer': 'appearance/themes',

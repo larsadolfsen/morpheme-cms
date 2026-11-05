@@ -11,7 +11,7 @@
 // adds (AppAdds.tsx: its blocks, the lists it brings: "Priser", each opening its list, and its kinds of the site's lists:
 // a Mailchimp popup; each with its switch at the end of its row and opening a sheet with where it is used and the same
 // switch, as under "Blokindstillinger", and a kind's button to a new one, while it is on), its notifications with their
-// switches, and "Afinstaller", AppSettingsTab.tsx) and "Information" (#apps/<app>/om, AppInfoTab.tsx: its pictures, what
+// switches, and "Afinstaller", AppSettingsTab.tsx) and "Information" (#apps/<app>/about, AppInfoTab.tsx: its pictures, what
 // it does more fully ("Om appen"), what it needs of the site ("Rettigheder", needsOf in store.ts: its code on every page,
 // the addresses it loads from and sends forms to, its part of the Worker, a step in the build), the cookies it sets (and
 // whether the cookie banner asks first), who made it (a row to their page, #apps/developer/<name>, with all their apps),
@@ -936,7 +936,7 @@ type AppProps = { app: SiteApp; env: Env; files: RepoFile[] };
 
 type AppTab = 'settings' | 'information';
 
-/** The tabs of an installed app's page, in the top bar: Settings (#apps/<id>) and Information (#apps/<id>/om). A form
+/** The tabs of an installed app's page, in the top bar: Settings (#apps/<id>) and Information (#apps/<id>/about). A form
  * with unsaved changes asks first, as for every address (App.tsx). */
 const tabsOf = (app: SiteApp, tab: AppTab): TabChoice<AppTab> => ({
   label: t.apps.tabs,
