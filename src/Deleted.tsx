@@ -62,7 +62,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
   if (!folder)
     return (
       <Screen title={t.app.notFound} back={{ href: '#', label: siteName }}>
-        <EmptyNote>{t.app.nothingAt(`slettet/${id}`)}</EmptyNote>
+        <EmptyNote>{t.app.nothingAt(`deleted/${id}`)}</EmptyNote>
       </Screen>
     );
 

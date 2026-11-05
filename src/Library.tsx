@@ -1371,7 +1371,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
               icon={ClockCounterClockwise}
               label={t.history.deletedOf(collection.label)}
 
-              onClick={() => (location.hash = `slettet/${collection.id}`)}
+              onClick={() => (location.hash = `deleted/${collection.id}`)}
             />
           )}
           {/* Of more than one kind (a pop-up: Standard or an app's, e.g. Mailchimp): a sheet to pick it. */}

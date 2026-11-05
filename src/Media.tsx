@@ -687,7 +687,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
             icon={ClockCounterClockwise}
             label={t.history.deletedOf(t.history.files)}
 
-            onClick={() => (location.hash = 'slettet/files')}
+            onClick={() => (location.hash = 'deleted/files')}
           />
           <IconButton icon={Plus} label={t.media.add} busy={adding} disabled={adding} onClick={add} />
         </>

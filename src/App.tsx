@@ -44,7 +44,7 @@
 //   <form>/<field>   the page of a field of a part's form with its choices on a page of their own (Field.page), over the
 //                    form, which keeps what is in it (formAt)
 //   blocks           the blocks, and blocks/<block> the texts all its copies have (blockTexts.ts)
-//   slettet/<id>     what was deleted from a list, or slettet/files the files (Deleted.tsx)
+//   deleted/<id>     what was deleted from a list, or deleted/files the files (Deleted.tsx)
 //   <file path>      a file being edited, e.g. src/content/blog/mit-foerste-indlaeg.md
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -783,7 +783,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'appearance/parts/blocks') return <BlocksParts />;
   if (route.startsWith('appearance/parts/list/')) return <KindParts key={route} id={route.slice('appearance/parts/list/'.length)} />;
   if (route === 'appearance/parts/values') return <Tokens />;
-  if (route.startsWith('slettet/')) return <Deleted id={route.slice(8)} files={files} env={env} />;
+  if (route.startsWith('deleted/')) return <Deleted id={route.slice('deleted/'.length)} files={files} env={env} />;
   // company/<part>, or company/<part>/<its part> (Part.parts).
   const [, companyId, ownId, ...more] = route.split('/');
   const company = route.startsWith('company/') && !more.length && companyParts.find((p) => p.id === companyId);
