@@ -1,6 +1,7 @@
 # Development flow and releases Implementation Plan
 
-> **Status: in progress** since 3 November 2026, run by the session *Website npm package integration*.
+> **Status: done** on 5 November 2026 (in progress since 3 November 2026, run by the session *Website npm package
+> integration*).
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or
 > superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -65,6 +66,7 @@ Workers Builds and Deploy Hooks.
 | `larsadolfsen/morpheme-staging` (new repo) | 5 | the staging site |
 | `morpheme-website/docs/platform.md` | 6 | *Udgivelse* describes the new flow |
 | `.claude/skills/release/SKILL.md`, `.gitignore` | 7 | `/release`: the owner's one command for a release |
+| `package.json` (`scripts`), `.github/workflows/check.yml`, `AGENTS.md` | 8 | `npm run check` and the CI that runs it |
 
 ---
 
@@ -480,13 +482,13 @@ git commit -m "Make the CMS's staging site from the demo"
 gh repo create larsadolfsen/morpheme-staging --private --source . --push
 ```
 
-- [ ] **Step 5 (owner): Cloudflare**
+- [x] **Step 5 (owner): Cloudflare**
 
 Workers & Pages › Create › Import a repository › `larsadolfsen/morpheme-staging`, Worker name `morpheme-staging`.
 Then the GitHub login for the editor as the starter's README describes. Then *Settings › Builds › Deploy Hooks*:
 name `morpheme-cms next`, branch `main`, Create, copy the URL.
 
-- [ ] **Step 6 (owner): The secret**
+- [x] **Step 6 (owner): The secret**
 
 Run in a terminal (paste the URL when asked; never in the chat):
 
@@ -494,12 +496,19 @@ Run in a terminal (paste the URL when asked; never in the chat):
 cd C:/Users/adolf/Documents/Interstellar/morpheme-cms && gh secret set STAGING_DEPLOY_HOOK -R larsadolfsen/morpheme-cms
 ```
 
-- [ ] **Step 7: Verify end to end**
+- [x] **Step 7: Verify end to end**
 
 Merge any PR with a non-empty changeset in `morpheme-cms` with the owner's yes, and the owner approves the staged
 `next` version. Expected: `publish.yml`'s *Rebuild morpheme-staging with it* step runs after the approval; Cloudflare's build list for `morpheme-staging` shows a build *Triggered by* `morpheme-cms next`
 (Cloudflare connector, read-only); its log shows the new `next` version; the owner logs in at the staging site's
 `/editor/`, edits a page and saves, and the save is a commit in `morpheme-staging`.
+
+**Done by 5 November 2026:** `STAGING_DEPLOY_HOOK` is set (4 November, 17:54 UTC, `gh secret list`). Publish runs
+since then ran *Rebuild morpheme-staging with it* with success (for example run 42026616369, 12:22 UTC). Cloudflare's
+build list for `morpheme-staging` shows builds from source `deploy_hook` (11:25 to 14:34 UTC) and builds from
+`push_event` with the commits *Editor: install the app MobilePay* and *Editor: uninstall the app MobilePay*: saves
+in the staging site's editor. Note: the newest hook build (14:34 UTC, `0.9.1`) failed at the content check of the
+pages; that is a fault of staging's content or of `0.9.1`, not of this flow.
 
 ---
 
@@ -660,6 +669,40 @@ skill (and Step 1 above) now reads the two files' patches with `gh api …/pulls
 git add .claude/skills/release/SKILL.md .gitignore AGENTS.md .changeset
 git commit -m "Add /release, which releases the CMS from the Release PR"
 ```
+
+---
+
+### Task release-flow/8: npm run check, and CI runs it
+
+**Added 5 November 2026.** The source moved to this repository (see `AGENTS.md`, section 1), so the checks of spec
+section 1 run from its root now. Before this task, `check.yml` ran only `npm run build`, and pull requests merged
+without the tests.
+
+**Files:**
+- Modify: `package.json` (`scripts`), `.github/workflows/check.yml`, `AGENTS.md` (section 4)
+
+**Interfaces:**
+- Produces: the root scripts `check`, `check:types`, `check:editor`, `check:screens`, `check:demo`, `check:starter`
+  and `test`. The status check `check` (Task 3) keeps its name.
+
+| Script | Runs |
+| --- | --- |
+| `test` | `node --test "{lib,scripts,site,src,theme}/**/*.test.mjs"` |
+| `check:types` | `tsc -p tsconfig.types.json --noEmit` (the types `prepack` writes) |
+| `check:editor`, `check:screens` | `bin/morpheme.mjs <command>` in `.morpheme/demo/site/` (after `npm run build`) |
+| `check:demo` | `bin/morpheme.mjs check:demo` (the demo with the standard theme) |
+| `check:starter` | `scripts/check-starter.mjs` (the starter with the packed package: its `check`, with the site's types and `check:worker`, and its build) |
+| `check` | `format:check`, `check:language` (from the English source plan), `test`, `check:types`, `build`, `check:editor` |
+
+`check:worker` runs only in `check:starter`: it archives the site's git `HEAD`, and `.morpheme/demo/site/` is no git
+repository. `check:themes` is not in CI (spec section 1 does not list it).
+
+- [x] **Step 1: Add the scripts** to `package.json`.
+- [x] **Step 2: Run them in `check.yml`:** `npm run check`, `npx playwright install --with-deps chromium`,
+  `npm run check:screens`, `npm run check:demo`, `npm run check:starter`, after the changeset step.
+- [x] **Step 3: Update `AGENTS.md` section 4.**
+- [x] **Step 4: Verify.** Run `npm run check` and `npm run check:screens`. Expected: green. The pull request's `check`
+  job is green.
 
 ---
 

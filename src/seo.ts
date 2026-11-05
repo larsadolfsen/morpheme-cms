@@ -7,6 +7,7 @@
 import { t } from './i18n';
 import { decorativeOf } from '../lib/crop.mjs';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
+import { searchedAs } from './googleResult.mjs';
 
 /** What the rating looks at: a blog post (whose title is its H1) or a page (whose H1 is in its text). */
 export type SeoInput = {
@@ -71,8 +72,8 @@ export const SHARE_FIELDS = ['shareImage', 'shareTitle', 'shareDescription'];
 
 /** What a page shows when a link to it is shared (Facebook, LinkedIn, a message), worked out as Base.astro writes its
  * og: tags: the title when shared, else the Google title, else the page's own with the site's name after it (the front
- * page's without); the description when shared, else the Google description, else the page's own (`description`: its
- * "Kort beskrivelse", a fixed page's introduction), else the site's; the picture when shared, else the page's own
+ * page's without; a page without a title: only the site's name, as `searchedAs` has it); the description when shared,
+ * else the Google description, else the page's own (`description`: its "Kort beskrivelse", a fixed page's introduction), else the site's; the picture when shared, else the page's own
  * (`image`: "Billede øverst", else the first picture in the text), else the site's. */
 export type ShareInput = {
   /** The page's own title as the site has it: a page's H1, a post's title, a fixed page's heading, a tag's name. */
@@ -89,11 +90,14 @@ export type ShareInput = {
   site: { name: string; description: string; picture: string };
 };
 
-export const sharedAs = (input: ShareInput) => ({
-  title: input.shareTitle?.trim() || input.seoTitle?.trim() || (input.front ? input.title : `${input.title} | ${input.site.name}`),
-  description: input.shareDescription?.trim() || input.seoDescription?.trim() || input.description?.trim() || input.site.description,
-  image: input.shareImage || input.image || input.site.picture,
-});
+export const sharedAs = (input: ShareInput) => {
+  const searched = searchedAs(input);
+  return {
+    title: input.shareTitle?.trim() || searched.title,
+    description: input.shareDescription?.trim() || searched.description,
+    image: input.shareImage || input.image || input.site.picture,
+  };
+};
 
 /** The first picture in a text (its address), not one in the text of a block in it (a "Banner"'s, on its line of HTML),
  * as the site picks it (firstImage in packages/editor/site/images.mjs). */

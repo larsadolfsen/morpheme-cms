@@ -16,13 +16,20 @@ on Danish outside the language folders.
 
 ## Start condition
 
-**Paused.** Start no batch before step 4 of `docs/repositories.md` in `morpheme-website` is done. Step 4 moves
-`packages/editor/` into this repo and removes the copy there. Until then `AGENTS.md` section 4 runs the checks from
-`morpheme-website`. When the move is done:
+**Met on 2026-11-05.** Step 4 of `docs/repositories.md` in `morpheme-website` is done: this repo is the only source of
+the CMS, and `AGENTS.md` section 4 runs the checks from this repo's root.
 
-- [ ] Do a fetch of `origin/main`.
-- [ ] Count the Danish lines again (Batch 1, Task 1.1, step 1). Update the counts in this file.
-- [ ] Do a check of the paths in each batch file against the current tree. Correct the paths that moved.
+- [x] Do a fetch of `origin/main` (2026-11-05, `49a717a4`).
+- [x] Count the Danish lines again. On 2026-11-05: 183 files, 942 lines with æ, ø or å outside the language files.
+- [ ] Do a check of the paths in each batch file against the current tree. Batch 1: done. Batches 2–6: do it before
+  each batch starts; other sessions still move files.
+
+## Status
+
+| Batch | Status |
+|---|---|
+| 1 | Done (2026-11-05, branch `feat/english-source-batch-1`). `PENDING` has 13 prefixes. `danishValuesOf` also skips a value with no letter and a value that is an English text too (`src/i18n/en-US/`). `--all` ignores `PENDING`: on 2026-11-05 it found 2443 texts in 355 files. |
+| 2–6 | Not started. Wait for the go-ahead after batch 1. |
 
 ## Batches
 

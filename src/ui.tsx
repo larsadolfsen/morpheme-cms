@@ -2466,11 +2466,12 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
 
 /** How a link to a page looks when it is shared on social media (Facebook, LinkedIn, a message), as a card: its picture
  * cut to 1.91:1 (one on its side or square keeps its upper part, as the site cuts it), the site's domain in small
- * capitals, the title and the description, each cut off after two lines. Material 3 has none, so it has its own name. */
+ * capitals, the title and the description, each cut off after two lines. It is never wider than 500 px, the width of a link
+ * card in the Facebook feed, and sits at the start of its column. Material 3 has none, so it has its own name. */
 export function SharePreview({ image, domain, title, description }: { image: string; domain: string; title: string; description: string }) {
   const [tall, setTall] = useState(false);
   return (
-    <figure aria-label={t.forms.sharePreview} className={`${siteCardClass('outlined')} overflow-hidden p-0`}>
+    <figure aria-label={t.forms.sharePreview} className={`${siteCardClass('outlined')} max-w-[500px] overflow-hidden p-0`}>
       <img
         src={image}
         alt=""

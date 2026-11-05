@@ -8,6 +8,7 @@ import type { KindPart } from '../src/schema';
 import { buttonsOf } from '../src/standard/buttons/view';
 import { shownPicture } from '../src/standard/view';
 import PopupView from '@theme/components/PopupView';
+import BottomSheet from '@theme/ui/BottomSheet';
 import Button from '@theme/ui/Button';
 import Toolbar from '@theme/ui/Toolbar';
 import List, { ListItem } from '@theme/ui/List';
@@ -43,7 +44,8 @@ export function drawPopup(p: Record<string, any>, data: BlockData, part?: KindPa
 }
 
 // An action bar ("Promovering", the kind "Handlingslinje") as it looks on a phone (ActionBar.astro in the
-// theme): its one or two items side by side, each a text (a list row of two lines: its heading over its text) or a button, the first button filled, the buttons with their own texts or those of their target
+// theme): the same standard bottom sheet (BottomSheet, .theme-action-bar-drawn in styles/components.css: in its place,
+// a phone wide) with the same toolbar row in it, its one or two items side by side, each a text (a list row of two lines: its heading over its text) or a button, the first button filled, the buttons with their own texts or those of their target
 // ("Book en tid", "Ring"), of what they open (a pop-up's heading, an app's booking sheet: "Book en tid") or of their
 // page; the calendar for what books, the phone for "Ring", the arrow after a page or a pop-up.
 export function drawActionBar(p: Record<string, any>, data: BlockData) {
@@ -55,39 +57,48 @@ export function drawActionBar(p: Record<string, any>, data: BlockData) {
   if (!buttons.length) return null;
   const first = buttons.findIndex((b) => b.type !== 'text');
   return (
-    <Toolbar label={siteT.theme.actions} className="theme-action-bar-drawn not-prose">
-      {buttons.map((b, i) => {
-        if (b.type === 'text')
+    <BottomSheet
+      kind="standard"
+      wide="sheet"
+      dragHandle={false}
+      states={['expanded']}
+      label={siteT.theme.actions}
+      className="theme-action-bar-drawn not-prose"
+    >
+      <Toolbar label={siteT.theme.actions} className="theme-action-bar-row">
+        {buttons.map((b, i) => {
+          if (b.type === 'text')
+            return (
+              <List key={i} dividers="none" className="theme-action-bar-text">
+                <ListItem headline={String(b.heading ?? '').trim()} supporting={String(b.text ?? '').trim() || undefined} />
+              </List>
+            );
+          const own = String(b.label ?? '').trim();
+          const opens = b.to === 'promotion' ? data.relations.promotions?.find((o) => o.value === b.open) : undefined;
+          // What it does: "Book en tid" also for a promotion that stands for it (an app's booking sheet).
+          const to = opens?.as ?? b.to;
+          const text =
+            to === 'phone'
+              ? own || data.site.labels.call
+              : to === 'page'
+                ? own || pageName(b.href ?? '') || ''
+                : to === 'promotion'
+                  ? own || opens?.text || ''
+                  : own || data.site.labels.book;
+          const arrow = to === 'page' || to === 'promotion';
           return (
-            <List key={i} dividers="none" className="theme-action-bar-text">
-              <ListItem headline={String(b.heading ?? '').trim()} supporting={String(b.text ?? '').trim() || undefined} />
-            </List>
+            <Button
+              key={i}
+              href=""
+              kind={i === first ? 'filled' : 'outlined'}
+              icon={arrow ? undefined : to === 'phone' ? 'phone' : 'calendar-blank'}
+              trailingIcon={arrow ? 'arrow-right' : undefined}
+            >
+              {text}
+            </Button>
           );
-        const own = String(b.label ?? '').trim();
-        const opens = b.to === 'promotion' ? data.relations.promotions?.find((o) => o.value === b.open) : undefined;
-        // What it does: "Book en tid" also for a promotion that stands for it (an app's booking sheet).
-        const to = opens?.as ?? b.to;
-        const text =
-          to === 'phone'
-            ? own || data.site.labels.call
-            : to === 'page'
-              ? own || pageName(b.href ?? '') || ''
-              : to === 'promotion'
-                ? own || opens?.text || ''
-                : own || data.site.labels.book;
-        const arrow = to === 'page' || to === 'promotion';
-        return (
-          <Button
-            key={i}
-            href=""
-            kind={i === first ? 'filled' : 'outlined'}
-            icon={arrow ? undefined : to === 'phone' ? 'phone' : 'calendar-blank'}
-            trailingIcon={arrow ? 'arrow-right' : undefined}
-          >
-            {text}
-          </Button>
-        );
-      })}
-    </Toolbar>
+        })}
+      </Toolbar>
+    </BottomSheet>
   );
 }

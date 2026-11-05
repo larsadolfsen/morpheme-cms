@@ -17,6 +17,14 @@
   --editor-status-bad-text: #cc0000;
   --editor-status-bad-surface: color-mix(in srgb, #ff4e42 10%, var(--surface));
 
+  /* A Google result (SearchPreview.tsx) in Google's own colours, light: its background, the title, the site's name, the
+     address and the text, and the date before the text. */
+  --google-background: #fff;
+  --google-title: #1a0dab;
+  --google-site: #202124;
+  --google-text: #4d5156;
+  --google-date: #70757a;
+
   /* The dotted frame round an H2 section of a page or blog post (sectionFrame.ts): its line, the space between the line and
      the text, the space above a section, and the space between two parts inside it (em: it scales with the part's text). */
   --editor-section-frame: 2px dotted var(--block-line);
@@ -34,15 +42,25 @@
   --side-panel-width: calc((100vw - var(--column-start)) / 2);
 }
 
-/* In dark mode the score's number in the light colours, which are read on the dark. */
+/* In dark mode the score's number in the light colours, which are read on the dark, and Google's dark colours. */
 @media (prefers-color-scheme: dark) {
   :where(:root:not([data-theme='light'])) {
+    --google-background: #1f1f1f;
+    --google-title: #99c3ff;
+    --google-site: #dadce0;
+    --google-text: #bfbfbf;
+    --google-date: #9aa0a6;
     --editor-status-good-text: var(--editor-status-good);
     --editor-status-average-text: var(--editor-status-average);
     --editor-status-bad-text: var(--editor-status-bad);
   }
 }
 :where(:root[data-theme='dark']) {
+  --google-background: #1f1f1f;
+  --google-title: #99c3ff;
+  --google-site: #dadce0;
+  --google-text: #bfbfbf;
+  --google-date: #9aa0a6;
   --editor-status-good-text: var(--editor-status-good);
   --editor-status-average-text: var(--editor-status-average);
   --editor-status-bad-text: var(--editor-status-bad);
@@ -827,7 +845,9 @@ html {
 
 /* A text with blocks (a page, a fixed page's sections): the cards close together, with the free line
    between two of them to write in: thin, until the cursor is in it (editor-gap-here, MarkdownEditor.tsx)
-   or the pointer over it, when it opens up and says so. */
+   or the pointer over it, when it opens up and says so. An open line is a one-cell grid: the hint (::before) and the
+   line break share the cell, so the line is as tall as the hint, however many lines it wraps to, and the cursor sits
+   at the start of the hint. */
 .editor-spaced .site-block {
   margin-block: 0.25rem;
 }
@@ -848,26 +868,36 @@ html {
 }
 
 .editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child) {
+  display: grid;
   line-height: 1.5rem;
 }
 
 .editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child)::before {
-  content: 'Skriv tekst her …';
-  position: absolute;
+  content: var(--editor-gap-text);
+  grid-area: 1 / 1;
   color: var(--muted);
   pointer-events: none;
 }
 
+.editor-spaced .ProseMirror:focus > p.editor-gap-here > br:only-child {
+  grid-area: 1 / 1;
+}
+
 @media (hover: hover) {
   .editor-spaced .ProseMirror > p:has(> br:only-child):hover {
+    display: grid;
     line-height: 1.5rem;
   }
 
   .editor-spaced .ProseMirror > p:has(> br:only-child):hover::before {
-    content: 'Skriv tekst her …';
-    position: absolute;
+    content: var(--editor-gap-text);
+    grid-area: 1 / 1;
     color: var(--muted);
     pointer-events: none;
+  }
+
+  .editor-spaced .ProseMirror > p:hover > br:only-child {
+    grid-area: 1 / 1;
   }
 }
 
