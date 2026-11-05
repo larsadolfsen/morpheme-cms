@@ -1,5 +1,11 @@
 # @morphemecms/cms
 
+## 0.10.1
+
+### Patch Changes
+
+- 4d17412: The top bar shows an Open website link on the start screen instead of the account icon; the account is in the main drawer's header.
+
 ## 0.10.0
 
 ### Minor Changes
