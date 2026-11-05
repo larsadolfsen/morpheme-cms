@@ -557,7 +557,7 @@ const BLOCK_SORT_KEY = 'editor-sort-blocks';
 type Use = '' | 'used' | 'unused';
 
 export function Blocks({ files }: { files: RepoFile[] }) {
-  const [query, setQuery] = useKept('blocks-soeg', '');
+  const [query, setQuery] = useKept('blocks-search', '');
   const [sort, setSort] = useState<BlockSort>(() => {
     try {
       const saved = localStorage.getItem(BLOCK_SORT_KEY);
@@ -565,8 +565,8 @@ export function Blocks({ files }: { files: RepoFile[] }) {
     } catch {}
     return 'group';
   });
-  const [group, setGroup] = useKept('blocks-gruppe', '');
-  const [use, setUse] = useKept<Use>('blocks-brug', '');
+  const [group, setGroup] = useKept('blocks-group', '');
+  const [use, setUse] = useKept<Use>('blocks-use', '');
   // The blocks on a page (any copy, also a hidden one), by their type (a part's id).
   const used = useMemo(() => new Set(blockParts.filter((p) => pagesWith(p.id, files).length).map((p) => p.id)), [files]);
   const bothUses = blockParts.some((p) => used.has(p.id)) && blockParts.some((p) => !used.has(p.id));
@@ -1041,7 +1041,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   // The tabs the apps installed add to it, and the one open (none: the list's own).
   const appTabs = tabsOf(collection.id, apps, installedApps(files));
   const appTab = appTabs.find((a) => a.app.id === tab);
-  const [query, setQuery] = useKept(`${collection.id}-soeg`, '');
+  const [query, setQuery] = useKept(`${collection.id}-search`, '');
   // The move that runs (row and target row, null: none); only its arrow shows busy, all arrows stay disabled meanwhile.
   const [moving, setMoving] = useState<{ from: number; to: number } | null>(null);
   const busy = moving !== null;
@@ -1101,7 +1101,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   // A list of what is shown on pages: only those on one page or the posts of one tag (and those on every
   // page), picked among the pages and tags the entries are on, by their names (relationsOf), the tags
   // under a heading of their own (`tag:<slug>`); all again when that one is no longer among them.
-  const [onPage, setOnPage] = useKept(`${collection.id}-side`, '');
+  const [onPage, setOnPage] = useKept(`${collection.id}-page`, '');
   const pageNames = useMemo(() => {
     if (!items.some((i) => i.shownOn)) return [];
     const { pages: all, fixed, categories } = relationsOf(files);
