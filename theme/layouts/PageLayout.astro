@@ -1,9 +1,8 @@
 ---
-// A page (the standard theme's): back link, title and the text with its blocks (its pictures in it), in one column (with
-// the block src/data/side.json chooses in a column beside it, when there is one: sideBlock), and the booking
-// prompt across the page when the text ends with it. A wide page (`wide`, "Hele bredden"): its blocks go across the
-// page, its text keeps a readable width, and its first paragraph is the introduction under the heading (as
-// PageHeader.astro's).
+// A page (the standard theme's): back link, title and the text with its blocks (its pictures in it), in one column, or
+// with the block src/data/side.json chooses in a column beside it (sideBlock) when its template is a sidebar one
+// (`template`, lib/page-template.mjs: the theme's "templates"), and the booking prompt across the page when the text ends
+// with it. The wrapper carries data-template, so a theme can style a template; `full` is drawn like `single` here.
 // data-editor marks what the editor's preview fills in with what is in its form ("Forhåndsvis",
 // packages/editor/src/pagePreview.tsx): the heading, the text, and the booking prompt at the end.
 import Base from '@theme/layouts/Base.astro';
@@ -15,6 +14,8 @@ import { getPages, pageHeading, pageHeadingHtml, parentPage, stateOf, withoutH1,
 import { blockTexts, nav } from '@morphemecms/cms/site/site';
 import { firstPicture, picturesOf } from '@morphemecms/cms/site/images.mjs';
 import { splitBlocks } from '@morphemecms/cms/lib/blocks.mjs';
+import { hasSidebar, templateOf } from '@morphemecms/cms/lib/page-template.mjs';
+import { offeredTemplates } from '@morphemecms/cms/site/templates';
 import { markdownHtml } from '@morphemecms/cms/lib/inline';
 import Container from '@theme/components/Container.astro';
 import RichText from '@theme/components/RichText.astro';
@@ -36,7 +37,8 @@ const parent = parentEntry
   : parentNav
     ? { href: parentNav.href, title: parentNav.label }
     : undefined;
-const { description, path, wide } = page.data;
+const { description, path } = page.data;
+const template = templateOf(page.data, offeredTemplates);
 const heading = pageHeading(page);
 // With its colours, when a word in it has one.
 const headingHtml = pageHeadingHtml(page);
@@ -64,7 +66,7 @@ const preview = isPreview(path);
 const current = livePath(path);
 const review = (page.data.review ?? '').trim();
 // The block beside the text (sideBlock): when its type's load gives a view; else the page is drawn as without one.
-const sideType = sideBlock(page.data);
+const sideType = sideBlock(template);
 const sideText = end ? end.html : html;
 const side =
   sideType &&
@@ -89,7 +91,7 @@ const side =
   crumbs={parent ? [{ name: parent.title, href: parent.href }] : []}
   questions={questions}
 >
-  <article>
+  <article data-template={template}>
     <Container as="header" class="pt-8 medium:pt-14">
       {parent && (
         <a href={parent.href} class="inline-flex items-center gap-1.5 type-body-medium text-muted hover:text-accent">
@@ -102,17 +104,9 @@ const side =
       </h1>
     </Container>
 
-    <Container as="div" class:list={[wide ? 'mt-4' : 'mt-8 medium:mt-12']}>
-      <div {...(side ? { class: 'page-with-side' } : {})}>
-        <div
-          data-editor="text"
-          class:list={[
-            'prose',
-            wide
-              ? 'max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:max-w-[52ch] [&>p:first-child]:type-body-large [&>p:first-child]:text-muted medium:[&>p:first-child]:type-title-large'
-              : 'max-w-[66ch]',
-          ]}
-        >
+    <Container as="div" class="mt-8 medium:mt-12">
+      <div {...(side ? { class: 'page-with-side', 'data-side': template === 'sidebar-left' ? 'left' : 'right' } : {})}>
+        <div data-editor="text" class="prose max-w-[66ch]">
           <RichText html={sideText} path={current} preview={preview} />
         </div>
         {side && (
