@@ -294,6 +294,31 @@
   animation-name: editor-main-drawer-in-rtl;
 }
 
+/* The main drawer's header row (MainDrawerMenuButton in ui.tsx): the account row is a pill, shaped and shaded as a drawer
+   item is when pointed at. Its inline padding puts the avatar's centre over the items' icons (the avatar is wider than the
+   24px icon: half the difference less than the items' padding). The avatar has a 1px border inside its size. */
+.editor-main-drawer-header {
+  --editor-drawer-header-text: var(--navigation-drawer-item-text, var(--block-muted));
+  --editor-drawer-header-padding: calc(
+    var(--navigation-drawer-item-padding-inline, 1rem) - (var(--list-item-avatar-size, 2.5rem) - 1.5rem) / 2
+  );
+  --list-item-padding-inline: var(--editor-drawer-header-padding);
+  --list-item-radius: var(--navigation-drawer-item-radius, 9999px);
+  --list-item-hover-radius: var(--navigation-drawer-item-radius, 9999px);
+  --list-item-hover-surface: var(--navigation-drawer-item-hover, color-mix(in srgb, var(--editor-drawer-header-text) 8%, transparent));
+  --list-item-pressed-surface: var(--navigation-drawer-item-pressed, color-mix(in srgb, var(--editor-drawer-header-text) 10%, transparent));
+  --list-item-hover-text: inherit;
+}
+
+.editor-main-drawer-header .list-item-container:focus-visible {
+  background: var(--list-item-pressed-surface);
+}
+
+.editor-main-drawer-header .list-item-avatar {
+  box-sizing: border-box;
+  border: 1px solid var(--block-line);
+}
+
 /* From medium the drawers (MainDrawer in ui.tsx) take the rail's place (MainRail): they share its icon column, the middle
    of the rail. On a phone the drawer keeps the theme's (Material 3's navigation drawer). The rail's menu button stands
    level with the top bar's logo, as the drawers' does; the rail's items keep their place. */
