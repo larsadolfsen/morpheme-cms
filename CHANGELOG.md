@@ -1,5 +1,17 @@
 # @morphemecms/cms
 
+## 0.8.0
+
+### Minor Changes
+
+- b201ffd: Material is now every theme's fallback: a theme imports `@morphemecms/cms/theme/styles/global.css`, anything it does not style is Material's, and its own rules always win.
+- 3c68cc9: Richer blog post page: author role, tags and share buttons in the header, a lead paragraph, and related-post cards; new Company › Social media settings.
+
+### Patch Changes
+
+- 0358c3e: Show a page or post form's sections as an "on this page" list on a card at the end of the form, on large screens, and keep the editor's content column centred on the window.
+- 1323fa8: Wide buttons fill the width only on phones; the save bar's buttons sit at the end on larger screens.
+
 ## 0.7.1
 
 ### Patch Changes
