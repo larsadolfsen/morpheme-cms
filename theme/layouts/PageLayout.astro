@@ -8,12 +8,23 @@
 // paragraph is the lead (type-lead, ui.css: the --type-lead-* tokens), muted and 52ch wide.
 // data-editor marks what the editor's preview fills in with what is in its form ("Forhåndsvis",
 // packages/editor/src/pagePreview.tsx): the heading, the text, and the booking prompt at the end.
+// A page whose H1 has a section colour (the marker before it, lib/section-marker.mjs) draws the heading and the text up to the
+// first H2 in one panel (data-editor="h1-section", sectionClass); with a column beside the text the panel holds the heading only.
 import Base from '@theme/layouts/Base.astro';
-import Icon from '@theme/components/Icon.astro';
+import PageHeading from '@theme/components/PageHeading.astro';
 import EndBlock from '@theme/components/EndBlock.astro';
 import Block from '@morphemecms/cms/src/standard/Block.astro';
 import { blockLoads, endBlock, sideBlock } from '@morphemecms/cms/src/standard/views';
-import { getPages, pageHeading, pageHeadingHtml, parentPage, stateOf, withoutH1, type Page } from '@morphemecms/cms/site/content';
+import {
+  getPages,
+  h1SectionColor,
+  pageHeading,
+  pageHeadingHtml,
+  parentPage,
+  stateOf,
+  withoutH1,
+  type Page,
+} from '@morphemecms/cms/site/content';
 import { blockTexts, nav } from '@morphemecms/cms/site/site';
 import { firstPicture, picturesOf } from '@morphemecms/cms/site/images.mjs';
 import { splitBlocks } from '@morphemecms/cms/lib/blocks.mjs';
@@ -22,6 +33,7 @@ import { offeredTemplates } from '@morphemecms/cms/site/templates';
 import { markdownHtml } from '@morphemecms/cms/lib/inline';
 import Container from '@theme/components/Container.astro';
 import RichText from '@theme/components/RichText.astro';
+import { introOf, sectionClass } from '@morphemecms/cms/lib/text-sections.mjs';
 import Snackbar from '@theme/ui/Snackbar';
 import { isPreview, livePath, PREVIEW, previewId } from '@morphemecms/cms/site/noindex.mjs';
 import { siteT } from '@morphemecms/cms/src/i18n';
@@ -51,7 +63,10 @@ const picture = firstPicture(page.body);
 // e.g. "Book en tid", as on most pages) is shown across the page below the text and the column next to it; not when
 // it is hidden (RichText.astro leaves hidden blocks out).
 // Without the H1 at the top of the text (the page's heading, drawn above).
-const html = withoutH1(await Astro.slots.render('default'));
+const text = await Astro.slots.render('default');
+const html = withoutH1(text);
+// The colour of the H1's section (the marker before the H1): the heading and the text up to the first H2 are one panel.
+const h1Color = h1SectionColor(text);
 const end = endBlock(html);
 // The questions in the text's "Spørgsmål og svar" blocks (not the hidden ones), for the structured data
 // (an FAQPage, packages/editor/site/schema.ts); the answers as HTML, as on the page (the block's load.ts).
@@ -76,6 +91,12 @@ const side =
   (await blockLoads[sideType].load({}, { texts: blockTexts[sideType] ?? {}, index: 0, path: current, preview, html: sideText })) !== null
     ? sideType
     : null;
+// In a coloured H1 section the text up to the first H2 (intro) is in the panel with the heading; with a column beside the text
+// the text stays whole in its grid and the panel holds the heading only.
+const { intro, rest } = h1Color && !side ? introOf(sideText) : { intro: '', rest: sideText };
+const textClass = side
+  ? 'prose max-w-[66ch]'
+  : 'prose max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:type-lead [&>p:first-child]:text-muted [&>p:first-child]:max-w-[52ch]';
 ---
 
 <Base
@@ -96,28 +117,24 @@ const side =
 >
   <article data-template={template}>
     <Container as="header" class="pt-8 medium:pt-14">
-      {parent && (
-        <a href={parent.href} class="inline-flex items-center gap-1.5 type-body-medium text-muted hover:text-accent">
-          <Icon name="arrow-left" size={16} />
-          {parent.title}
-        </a>
+      {h1Color ? (
+        <section class={sectionClass(h1Color)} data-editor="h1-section">
+          <PageHeading parent={parent} heading={heading} headingHtml={headingHtml} />
+          {intro && (
+            <div data-editor="intro" class={textClass}>
+              <RichText html={intro} path={current} preview={preview} />
+            </div>
+          )}
+        </section>
+      ) : (
+        <PageHeading parent={parent} heading={heading} headingHtml={headingHtml} />
       )}
-      <h1 data-editor="heading" class="theme-title mt-3 max-w-[22ch]">
-        {headingHtml ? <Fragment set:html={headingHtml} /> : heading}
-      </h1>
     </Container>
 
     <Container as="div" class="mt-8 medium:mt-12">
       <div {...(side ? { class: 'page-with-side', 'data-side': template === 'sidebar-left' ? 'left' : 'right' } : {})}>
-        <div
-          data-editor="text"
-          class={
-            side
-              ? 'prose max-w-[66ch]'
-              : 'prose max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:type-lead [&>p:first-child]:text-muted [&>p:first-child]:max-w-[52ch]'
-          }
-        >
-          <RichText html={sideText} path={current} preview={preview} />
+        <div data-editor="text" class={textClass}>
+          <RichText html={rest} path={current} preview={preview} />
         </div>
         {side && (
           <aside class="page-side">
