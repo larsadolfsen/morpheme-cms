@@ -186,7 +186,7 @@ export type StoreRecord = { version: string; ref: string; files: StoreFile[] };
 export const STORE_ROUTE = 'settings/appstore';
 export const STORE_THEMES = 'settings/appstore/themes';
 export const STORE_BEFORE = 'apps/butik';
-export const DEVELOPER_ROUTE = 'apps/udvikler';
+export const DEVELOPER_ROUTE = 'apps/developer';
 
 /** An app's folder in the site, and the note in it of where it came from. */
 export const appFolder = (id: string) => `${config.apps.folder}/${id}`;

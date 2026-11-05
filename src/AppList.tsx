@@ -14,7 +14,7 @@
 // switches, and "Afinstaller", AppSettingsTab.tsx) and "Information" (#apps/<app>/om, AppInfoTab.tsx: its pictures, what
 // it does more fully ("Om appen"), what it needs of the site ("Rettigheder", needsOf in store.ts: its code on every page,
 // the addresses it loads from and sends forms to, its part of the Worker, a step in the build), the cookies it sets (and
-// whether the cookie banner asks first), who made it (a row to their page, #apps/udvikler/<name>, with all their apps),
+// whether the cookie banner asks first), who made it (a row to their page, #apps/developer/<name>, with all their apps),
 // and where it is used); one not installed has no tabs; installing, updating and uninstalling are each saved at once in its own commit,
 // as a block turned on or off under "Blokindstillinger". The button pressed shows the loading indicator while it runs (busyAction.mjs). One of the site's own is installed or uninstalled in the site's
 // file of apps; one from the store is copied into the site, or deleted from it, with it (appChanges in store.ts), and
@@ -395,7 +395,7 @@ function AppRow({ app, installed }: { app: ReturnType<typeof allApps>[number]; i
   );
 }
 
-/** A developer's page (#apps/udvikler/<name>): their name, and all their apps and themes (in the store and the site's
+/** A developer's page (#apps/developer/<name>): their name, and all their apps and themes (in the store and the site's
  * own), each opening its page. */
 export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; files: RepoFile[] }) {
   const installed = installedApps(files);
