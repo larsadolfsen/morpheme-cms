@@ -114,7 +114,7 @@ export const icons: Record<string, Icon> = {
   company: Buildings,
   // The sections of the main menu that are not also a part.
   content: Article,
-  globalt: GlobeSimple,
+  global: GlobeSimple,
   settings: GearSix,
   blocks: SquaresFour,
   files: FolderSimple,
@@ -174,7 +174,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
     title: 'Content',
     ids: ['pages', 'blog', 'lists', 'popups', 'tags', 'files', internalLinks.id, 'redirects'],
   },
-  { id: 'globalt', title: 'Globals', ids: ['header', 'footer', 'company'] },
+  { id: 'global', title: 'Globals', ids: ['header', 'footer', 'company'] },
   { id: 'apps', title: 'Apps', ids: ['apps', 'appstore'] },
   { id: 'blocks', title: 'Blocks', ids: ['blocks', 'block-settings'] },
   {

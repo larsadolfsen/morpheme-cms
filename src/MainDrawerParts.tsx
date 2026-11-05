@@ -53,7 +53,7 @@ export function MainDrawerSample() {
         {section === null ? (
           <MainDrawerLevel>
             <MainDrawerItem href="" icon={icons.home} label={parts.company} />
-            <MainDrawerSectionItem icon={icons.globalt} label={parts.header} selected onClick={() => setSection('globalt')} />
+            <MainDrawerSectionItem icon={icons.global} label={parts.header} selected onClick={() => setSection('global')} />
             <MainDrawerSectionItem icon={icons.appearance} label={parts.appearance} onClick={() => setSection('appearance')} />
           </MainDrawerLevel>
         ) : (
