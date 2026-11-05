@@ -22,7 +22,7 @@ export const app: Messages['app'] = {
     turnedOn: (what) => `${what} slået til`,
     turnedOff: (what) => `${what} slået fra`,
     chosen: (what) => `${what} valgt`,
-    installed: (what) => `${what} installeret`,
+    installed: (what, version) => (version ? `${what} ${version} installeret` : `${what} installeret`),
     updated: (what, version) => `${what} opdateret til ${version}`,
     uninstalled: (what) => `${what} afinstalleret`,
     more: (count) => (count === 1 ? '1 ændring mere' : `${count} ændringer mere`),

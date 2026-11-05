@@ -26,7 +26,7 @@ export const app = {
     turnedOn: (what: string) => `${what} turned on`,
     turnedOff: (what: string) => `${what} turned off`,
     chosen: (what: string) => `${what} chosen`,
-    installed: (what: string) => `${what} installed`,
+    installed: (what: string, version?: string) => (version ? `${what} ${version} installed` : `${what} installed`),
     updated: (what: string, version: string) => `${what} updated to ${version}`,
     uninstalled: (what: string) => `${what} uninstalled`,
     /** After the first three. */

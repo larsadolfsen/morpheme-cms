@@ -727,7 +727,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
           busy: t.apps.installing,
           done: t.apps.isInstalledSoon(app.label),
           commit: siteT.apps.commit.install(app.written),
-          change: t.app.changes.installed(kindAndName(t.app.changes.app, app.label)),
+          change: t.app.changes.installed(kindAndName(t.app.changes.app, app.label), app.version),
         },
         async () => ({ files: await env.store.files(app), record: recordOf(app) }),
       ),
