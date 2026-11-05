@@ -12,6 +12,7 @@ import blocks from '@data/blocks.json';
 import standardPages from '@data/standard-pages.json';
 import { config } from '@site/config';
 import { socialOf } from './social.mjs';
+import { headerOf } from './header.mjs';
 import { sharedTexts, type SharedTexts } from '@morphemecms/cms/src/shared';
 import { standardShared } from '@morphemecms/cms/src/standard/sharedTexts';
 
@@ -23,6 +24,11 @@ const { cvr = '' } = contact as typeof contact & { cvr?: string };
 
 // Optional file: an older site has no social.json, so it is read with a glob, not an import.
 const socialFile = Object.values(import.meta.glob<Record<string, unknown>>('/src/data/social.json', { eager: true, import: 'default' }))[0];
+
+// Optional file (header.json, "Header"): a site without it keeps the header as it is.
+const headerFile = Object.values(import.meta.glob<Record<string, unknown>>('/src/data/header.json', { eager: true, import: 'default' }))[0];
+/** The header's button (in place of the phone icon, or null) and the side of the mobile menu button. */
+export const header = headerOf(headerFile);
 
 export const site = {
   name: contact.name,
