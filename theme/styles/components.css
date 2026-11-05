@@ -1,4 +1,7 @@
 /*
+  Material is every theme's fallback: its rules that set more than custom properties sit in @layer fallback (declared last in
+  base.css), so a theme's own unlayered rules win over them, whatever the specificity. Custom properties stay unlayered.
+
   The theme's variables: what the standard theme's own components (components/, layouts/, templates/) read, so
   another theme changes them in its styles/global.css instead of with selectors on their markup (docs/editor.md,
   "Temaets variabler"). The defaults give the standard theme's look, from the theme's own --radius, --shadow and colours.
@@ -172,11 +175,13 @@
   }
 }
 
-/* A picture that opens the text (a paragraph of its own) starts where a paragraph would: its space above would come on
+@layer fallback {
+  /* A picture that opens the text (a paragraph of its own) starts where a paragraph would: its space above would come on
    top of the space under the page's heading. For every theme, also one with its own text style; outside the
    layers, like the pictures' own space in the text. */
-.prose > p:first-child > :where(img, .picture-crop):only-child {
-  margin-top: 0;
+  .prose > p:first-child > :where(img, .picture-crop):only-child {
+    margin-top: 0;
+  }
 }
 
 /* Going from one page of the site to another, the old page fades into the new (a cross-document view transition,
@@ -186,44 +191,48 @@
   @view-transition {
     navigation: auto;
   }
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: var(--theme-page-fade);
-    animation-timing-function: var(--ease);
-  }
 }
+@layer fallback {
+  @media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: var(--theme-page-fade);
+      animation-timing-function: var(--ease);
+    }
+  }
 
-/* A page with a block beside its text (PageLayout.astro): the text, then the column (on a phone below the text); from medium
+  /* A page with a block beside its text (PageLayout.astro): the text, then the column (on a phone below the text); from medium
    two columns, the second one staying in view while the text is read. */
-.page-with-side > .page-side {
-  margin-top: 3rem;
-}
-@media (width >= theme(--breakpoint-medium)) {
-  .page-with-side {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--theme-side-width);
-    column-gap: var(--theme-side-gap);
-    align-items: start;
-  }
   .page-with-side > .page-side {
-    margin-top: 0;
-    position: sticky;
-    top: 6rem;
+    margin-top: 3rem;
   }
-}
+  @media (width >= theme(--breakpoint-medium)) {
+    .page-with-side {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) var(--theme-side-width);
+      column-gap: var(--theme-side-gap);
+      align-items: start;
+    }
+    .page-with-side > .page-side {
+      margin-top: 0;
+      position: sticky;
+      top: 6rem;
+    }
+  }
 
-/* A page's and a post's title (PageHeader.astro, PageLayout.astro, PostLayout.astro, Home.astro): the display role, by
+  /* A page's and a post's title (PageHeader.astro, PageLayout.astro, PostLayout.astro, Home.astro): the display role, by
    the variables above. */
-.theme-title {
-  font-size: var(--theme-title-size);
-  line-height: var(--theme-title-leading);
-  font-weight: var(--type-display-small-weight);
-  letter-spacing: var(--type-display-small-tracking);
-}
-@media (width >= theme(--breakpoint-medium)) {
   .theme-title {
-    font-size: var(--theme-title-size-large);
-    font-weight: var(--type-display-medium-weight);
-    letter-spacing: var(--type-display-medium-tracking);
+    font-size: var(--theme-title-size);
+    line-height: var(--theme-title-leading);
+    font-weight: var(--type-display-small-weight);
+    letter-spacing: var(--type-display-small-tracking);
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .theme-title {
+      font-size: var(--theme-title-size-large);
+      font-weight: var(--type-display-medium-weight);
+      letter-spacing: var(--type-display-medium-tracking);
+    }
   }
 }
