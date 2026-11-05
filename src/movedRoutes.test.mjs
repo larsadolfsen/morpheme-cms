@@ -86,6 +86,7 @@ test('every old route prefix opens the screen where it is now', () => {
     'slettet/filer': 'slettet/files',
     virksomheden: 'company',
     'virksomheden/kontakt': 'company/kontakt',
+    'virksomheden/betaling/mobilepay': 'company/payment/mobilepay',
     blokke: 'blocks',
     'blokke/accordion': 'blocks/accordion',
     filer: 'files',
