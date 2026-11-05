@@ -109,20 +109,19 @@
     --theme-section-space: var(--theme-blog-first-space);
     --theme-section-space-large: var(--theme-blog-first-space-large);
   }
-  /* The bar at the bottom of a phone's screen (a promotion: ActionBar.astro), a docked toolbar
-     (.toolbar-docked, ui.css) fixed there: the page gets room under its footer, and only the first bar on a page is
-     shown. data-hidden: moved down out of sight (while the buttons at the top of the front page are on screen, the script
-     in Base.astro). Not from the medium width (a tablet in portrait, a computer). */
+  /* The bar at the bottom of a phone's screen (a promotion: ActionBar.astro), a standard bottom sheet
+     (.bottom-sheet-standard, ui.css: fixed at the bottom, its surface, corners and shadow) with a docked toolbar in it
+     (.theme-action-bar-row): the page gets room under its footer, and only the first bar on a page is shown.
+     data-hidden: moved down out of sight (while the buttons at the top of the front page are on screen, the script in
+     Base.astro). Not from the medium width (a tablet in portrait, a computer): the display rules name both classes, so
+     they win over the sheet's own display and its data-wide="side-sheet" whatever the order of the files. */
   .theme-action-bar {
-    position: fixed;
-    inset: auto 0 0;
-    z-index: 30;
     transition: transform var(--motion-spatial-slow);
   }
   .theme-action-bar[data-hidden] {
     transform: translateY(100%);
   }
-  .theme-action-bar ~ .theme-action-bar {
+  .bottom-sheet-standard.theme-action-bar ~ .bottom-sheet-standard.theme-action-bar {
     display: none;
   }
   @media (width < theme(--breakpoint-medium)) {
@@ -131,22 +130,36 @@
     }
   }
   @media (width >= theme(--breakpoint-medium)) {
-    .theme-action-bar {
+    .bottom-sheet-standard.theme-action-bar {
       display: none;
     }
   }
-  /* Its buttons and its text, on the site and as the editor draws it: one button alone the whole width; two side by side
+  /* The sheet's room round what is in it is the row's (the toolbar's), which has no surface of its own (the sheet's shows),
+     no line over it and no blur behind it. */
+  .bottom-sheet-standard:is(.theme-action-bar, .theme-action-bar-drawn) {
+    padding-bottom: 0;
+  }
+  .bottom-sheet-standard:is(.theme-action-bar, .theme-action-bar-drawn) > .bottom-sheet-content {
+    overflow: visible;
+    padding: 0;
+  }
+  .toolbar.theme-action-bar-row {
+    --toolbar-docked-line-width: 0px;
+    --toolbar-docked-backdrop: none;
+    background: none;
+  }
+  /* Its buttons and its text, in the row, on the site and as the editor draws it: one button alone the whole width; two side by side
      as wide as each other, unless one's text needs more (a button's text stays on one line), and under each other, each
      the whole width, when they cannot stand side by side; a text (a list row of two lines, the theme's List) in the room
      the button beside it leaves, without the row's own room round it, the button as wide as its text (under the text,
      the whole width, when they cannot stand side by side). */
-  :is(.theme-action-bar, .theme-action-bar-drawn) {
+  .theme-action-bar-row {
     flex-wrap: wrap;
   }
-  :is(.theme-action-bar, .theme-action-bar-drawn) > .button {
+  .theme-action-bar-row > .button {
     flex: 1 1 0;
   }
-  :is(.theme-action-bar, .theme-action-bar-drawn):has(> .theme-action-bar-text) > .button {
+  .theme-action-bar-row:has(> .theme-action-bar-text) > .button {
     flex: 1 0 auto;
   }
   .theme-action-bar-text {
@@ -157,12 +170,15 @@
     flex: 1000 1 0;
     min-width: 8rem;
   }
-  /* The editor's drawing of one (packages/editor/defaults/popup.tsx): in its place, as wide as a phone, in a frame. */
-  .theme-action-bar-drawn {
+  /* The editor's drawing of one (defaults/popup.tsx): the same sheet, in its place in the editor's frame
+     instead of fixed at the bottom of the screen, as wide as a phone, with the sheet's own corners and shadow. It is a
+     wide="sheet" there (the editor is wider than the medium width), the selector names data-wide to win over that. */
+  .bottom-sheet-standard.theme-action-bar-drawn[data-wide] {
+    position: static;
+    width: 100%;
     max-width: 24rem;
+    max-height: none;
     margin-inline: auto;
-    border: 1px solid var(--block-line);
-    border-radius: var(--block-radius);
   }
 }
 

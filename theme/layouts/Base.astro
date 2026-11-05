@@ -64,7 +64,9 @@ const { title, image, type = 'website', crumbs, questions, schema = [] } = Astro
 const entry = seo[Astro.url.pathname];
 const noindex = Astro.props.noindex || entry?.noindex || isNoindex(Astro.url.pathname);
 // `||`, not `??`: an empty field (the content schemas default to '') falls through to the next.
-const fullTitle = Astro.props.seoTitle || entry?.title || (Astro.url.pathname === '/' ? title : `${title} | ${site.name}`);
+// A page without a title shows only the site's name, without " | " (pageTitle in src/googleResult.mjs).
+const fullTitle =
+  Astro.props.seoTitle || entry?.title || (!title ? site.name : Astro.url.pathname === '/' ? title : `${title} | ${site.name}`);
 const description = Astro.props.seoDescription || entry?.description || Astro.props.description || site.description;
 // When the page is shared: its own title and description for that ("Titel ved deling", "Beskrivelse ved deling"), else
 // the Google ones.

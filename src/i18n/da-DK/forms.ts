@@ -10,6 +10,12 @@ export const forms: Messages['forms'] = {
   seo: 'Søgemaskiner',
   share: 'Sociale medier',
   sharePreview: 'Sådan ser et link til siden ud, når det deles',
+  searchPreview: {
+    on: 'Google-resultat på',
+    mobile: 'Mobil',
+    desktop: 'Computer',
+    result: 'Forhåndsvisning af Google-resultatet',
+  },
   tagShared: (n, name) => `${n} indlæg om ${name.toLowerCase()}.`,
   seoRating: {
     title: 'SEO-vurdering',
