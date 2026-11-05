@@ -84,7 +84,13 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
       open={open}
       onOpenChange={setOpen}
       onEscape={onEscape}
-      header={user && <AccountRow user={user} supporting={config.domain} href="#konto" />}
+      header={
+        shown === null ? (
+          user && <AccountRow user={user} supporting={config.domain} href="#konto" />
+        ) : (
+          <MainDrawerBack label={t.library.back} name={t.common.backTo(t.library.mainMenu)} onClick={() => show(null)} />
+        )
+      }
       rail={tree.map((entry) =>
         entry.href !== undefined ? (
           <MainRailItem key={entry.id} href={entry.href} icon={icons[entry.id]} label={entry.label} selected={route === ''} />
@@ -116,7 +122,6 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
       </MainDrawerLevel>
       {sections.map((section) => (
         <MainDrawerLevel key={section.id} shown={shown === section.id} focus={focus}>
-          <MainDrawerBack label={t.library.mainMenu} onClick={() => show(null)} />
           {section.items.map(({ id, label, href, count, children }) => {
             const here = place.section === section.id && place.item === id;
             const shownCount = files ? count : null;

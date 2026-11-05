@@ -2736,17 +2736,20 @@ function MainRail({ label, onOpen, children }: { label: string; onOpen: () => vo
   );
 }
 
-// The header row at the top of either drawer: `header` (the signed-in user, MainMenu.tsx) at the start and the menu button at
-// the end, which closes the drawer and stays level with the top bar's menu button. The row has the drawer items' inline
+// The header row at the top of either drawer: `header` (the signed-in user on the first level, the back row on a section's
+// list; MainMenu.tsx) at the start and the menu button at the end, which closes the drawer and stays level with the top bar's menu button. The row has the drawer items' inline
 // padding (the list row's own is off), so the avatar, wider than the 24px icon, is pulled back by half the difference to be
 // centred over the items' icons, and the button is centred on the 1.5rem box of the items' trailing arrows (a negative
-// end margin from the button's own width).
+// end margin from the button's own width). A divider (middle inset) stands under the row.
 function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header?: ReactNode }) {
   return (
-    <div className="mt-2 mb-7 flex items-center gap-1 p-(--navigation-drawer-item-padding,0_1rem) py-0 [--list-item-padding-inline:0]">
-      <div className="ms-[calc((1.5rem-var(--list-item-avatar-size,2.5rem))/2)] min-w-0 flex-1">{header}</div>
-      <MenuButton label={t.library.closeMenu} open onClick={onClick} className="-me-[calc((var(--icon-button-width)-1.5rem)/2)]" />
-    </div>
+    <>
+      <div className="mt-2 mb-3 flex items-center gap-1 p-(--navigation-drawer-item-padding,0_1rem) py-0 [--list-item-padding-inline:0]">
+        <div className="ms-[calc((1.5rem-var(--list-item-avatar-size,2.5rem))/2)] min-w-0 flex-1">{header}</div>
+        <MenuButton label={t.library.closeMenu} open onClick={onClick} className="-me-[calc((var(--icon-button-width)-1.5rem)/2)]" />
+      </div>
+      <SiteDivider kind="middle-inset" className="mb-4" />
+    </>
   );
 }
 
@@ -2937,9 +2940,19 @@ export function MainDrawerSectionItem({
   );
 }
 
-/** The back row at the top of a section's list in the main drawer: the first level's name (`label`); `onClick` shows it. */
-export function MainDrawerBack({ label, onClick }: { label: string; onClick: () => void }) {
-  return <SiteNavigationDrawerBack label={label} onClick={onClick} />;
+/** The back row in the main drawer's header row (the `header` of MainDrawer) on a section's list: an arrow and `label`, with
+ * `name` as its accessible name (where it goes); `onClick` shows the first level. Its arrow stands over the items' icons: the
+ * header row has the items' inline padding already, so the row's own start padding is off, and the start margin undoes the
+ * half-difference the header cell pulls back for the avatar (MainDrawerMenuButton). */
+export function MainDrawerBack({ label, name, onClick }: { label: string; name?: string; onClick: () => void }) {
+  return (
+    <SiteNavigationDrawerBack
+      label={label}
+      aria-label={name}
+      onClick={onClick}
+      className="navigation-drawer-item navigation-drawer-back ms-[calc((var(--list-item-avatar-size,2.5rem)-1.5rem)/2)] min-h-(--list-item-two-line-min-height,4.5rem) ps-0"
+    />
+  );
 }
 
 /** A part with sub-screens in a section's list: the part as an item with the button that folds its sub-screens out

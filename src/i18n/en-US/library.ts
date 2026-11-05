@@ -192,7 +192,9 @@ export const library = {
   /** The top bar's menu button, which opens and closes that drawer. */
   openMenu: 'Open the menu',
   closeMenu: 'Close the menu',
-  /** The back row of a section's list in the main drawer (the first level). */
+  /** The first level of the main drawer: the name of the back row's target (its accessible name is "Back to Main menu"). */
   mainMenu: 'Main menu',
+  /** The visible label of the back row in the main drawer's header, on a section's list. */
+  back: 'Back',
   breadcrumbs: 'Breadcrumbs',
 };
