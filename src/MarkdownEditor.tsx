@@ -55,7 +55,7 @@ import {
 } from '@phosphor-icons/react';
 import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
-import { showsH1Choice } from '../lib/heading-levels.mjs';
+import { headingChoices } from '../lib/heading-levels.mjs';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
 import { SECTION_COLORS } from '../lib/section-marker.mjs';
 import { sectionHeading, setSectionColor } from './sectionState.mjs';
@@ -540,7 +540,7 @@ const inLabel = (state: EditorView['state']) => state.selection.$from.parent.typ
 
 // When a word or more is selected, or the cursor has stood still in a word (STILL_MS, stillCursor.mjs): a row of icons
 // over it, to make it bold, italic, a link, one of the site's colours (a menu under the button, opened by `colors`), the
-// page's H1 (`h1`, only while the text has none), a heading or a subheading, a label above the heading; the ones that apply are marked. At a still
+// page's headings (`h1`: only the levels headingChoices gives for the text), a heading or a subheading, a label above the heading; the ones that apply are marked. At a still
 // cursor, bold, italic, link and colour act on the whole word, the headings on the line; a move or a keypress hides the
 // row. On a phone, where the phone's own menu is over the selection and its handles under it, the row is at the bottom
 // of the screen, over the keyboard. sections: no colour in a heading (H2), the name of a section.
@@ -595,8 +595,8 @@ function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button
           label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
           on: (s: EditorView['state']) => heading(s, level),
           action: () => (heading(view.state, level) ? run(turnIntoTextCommand) : run(wrapInHeadingCommand, level)),
-          // The H1 choice is gone as soon as the page's text has an H1.
-          off: level === 1 ? (s: EditorView['state']) => !showsH1Choice(levelsOf(s.doc)) : undefined,
+          // On a page only the levels headingChoices gives are offered: H1 until the text has one, then H2 and H3.
+          off: h1 ? (s: EditorView['state']) => !headingChoices(levelsOf(s.doc)).includes(level) : undefined,
         })),
         // A label above the heading. Not on a fixed page's H1 or H2, whose headings are its sections (sections.mjs).
         {
@@ -857,8 +857,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   looked.current = looks;
   // What applies where the cursor is (activeOf), marked in the toolbar.
   const [active, setActive] = useState<string[]>([]);
-  // Whether the page's text has no H1, so the H1 choice is shown (showsH1Choice).
-  const [h1Choice, setH1Choice] = useState(true);
+  // The heading levels the toolbar offers on a page (headingChoices): [1] while the text has no H1, then [2, 3].
+  const [choices, setChoices] = useState<number[]>([1]);
   // The colour button over the selection, while its menu with the colours is open.
   const [colorsAt, setColorsAt] = useState<HTMLElement | null>(null);
   useEffect(() => {
@@ -884,8 +884,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         new Plugin({
           view: () => ({
             update: (view) => {
-              const choice = showsH1Choice(levelsOf(view.state.doc));
-              setH1Choice((was) => (was === choice ? was : choice));
+              const next = headingChoices(levelsOf(view.state.doc));
+              setChoices((was) => (was.join() === next.join() ? was : next));
               // On a page the first heading is the H1 by itself (firstHeading.mjs); the Heading button stands for it.
               const now = [...activeOf(view.state)].map((name) => (h1 && name === 'h1' ? 'h2' : name)).sort();
               setActive((was) => (was.join() === now.join() ? was : now));
@@ -1092,9 +1092,13 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.bold, icon: TextB, action: () => run(toggleStrongCommand), on: 'strong' },
     { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis' },
     { label: t.text.link, icon: LinkSimple, action: link, on: 'link' },
-    ...(h1 && h1Choice ? [{ label: t.text.pageHeading, icon: TextHOne, action: () => setKind('h1'), on: 'h1' }] : []),
-    { label: t.text.heading, icon: TextHTwo, action: () => setKind('h2'), on: 'h2' },
-    { label: t.text.subheading, icon: TextHThree, action: () => setKind('h3'), on: 'h3' },
+    // On a page the levels in choices (H1 until the text has one); a blog post has H2 and H3.
+    ...(h1 ? choices : [2, 3]).map((level) => ({
+      label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
+      icon: [TextHOne, TextHTwo, TextHThree][level - 1],
+      action: () => setKind(`h${level}`),
+      on: `h${level}`,
+    })),
     { label: t.text.paragraph, icon: TextT, action: () => setKind('text'), on: 'text' },
     { label: t.text.bulletList, icon: ListBullets, action: () => setKind('bullet'), on: 'bullet' },
     { label: t.text.orderedList, icon: ListNumbers, action: () => setKind('ordered'), on: 'ordered' },
