@@ -50,6 +50,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   bevaegelse: 'motion',
   sidekolonne: 'side-column',
   dele: 'parts',
+  vaerdier: 'values',
 });
 
 /**

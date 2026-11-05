@@ -523,7 +523,7 @@ export function PartsHome() {
     { id: 'ui', label: t.parts.screens.components, icon: icons.appearance },
     { id: 'blocks', label: t.parts.screens.blocks, icon: icons.blocks },
     ...kindLists().map((c) => ({ id: `list/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lists })),
-    { id: 'vaerdier', label: t.parts.screens.values, icon: Ruler },
+    { id: 'values', label: t.parts.screens.values, icon: Ruler },
   ];
   return <Parts title={t.common.parts.editorParts} route="appearance/parts" parts={parts} back={backToAppearance} />;
 }

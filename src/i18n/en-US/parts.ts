@@ -253,7 +253,7 @@ export const parts = {
     /** What a kind of entry an app adds (a pop-up) is drawn with. */
     entry: { name: 'An example', heading: 'A heading', text: 'A short text that tells a little more.' },
   },
-  /** "Dele" › "Værdier" (#appearance/parts/vaerdier, Tokens.tsx): the theme's design tokens, each with what it is used for. */
+  /** "Dele" › "Værdier" (#appearance/parts/values, Tokens.tsx): the theme's design tokens, each with what it is used for. */
   tokens: {
     intro: 'The theme’s values for corners, shadows, typography, and colors, as the theme sets them.',
     groups: { shape: 'Corners', elevation: 'Shadows', type: 'Typography', color: 'Colors' },

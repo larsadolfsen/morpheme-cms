@@ -28,7 +28,7 @@
 //                    and icon (BrandForm.tsx), appearance/parts the parts (Library.tsx PartsHome): appearance/parts/editor the editor's, every
 //                    one in every state (Parts.tsx), appearance/parts/ui the theme's UI components, appearance/parts/blocks the
 //                    blocks, the standard ones and the apps', and appearance/parts/list/<list> each kind of a list of kinds
-//                    ("Promovering"), its own and the apps' (BlockParts.tsx), and appearance/parts/vaerdier the
+//                    ("Promovering"), its own and the apps' (BlockParts.tsx), and appearance/parts/values the
 //                    theme's design tokens, "Værdier" (Tokens.tsx)
 //   block-settings         the blocks that can be put in, "Blokindstillinger" (BlockSettings.tsx)
 //   advanced        "Avanceret", under "Indstillinger": the copy of the site's files in R2 (Advanced.tsx)
@@ -782,7 +782,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'appearance/parts/ui') return <ComponentParts />;
   if (route === 'appearance/parts/blocks') return <BlocksParts />;
   if (route.startsWith('appearance/parts/list/')) return <KindParts key={route} id={route.slice('appearance/parts/list/'.length)} />;
-  if (route === 'appearance/parts/vaerdier') return <Tokens />;
+  if (route === 'appearance/parts/values') return <Tokens />;
   if (route.startsWith('slettet/')) return <Deleted id={route.slice(8)} files={files} env={env} />;
   // company/<part>, or company/<part>/<its part> (Part.parts).
   const [, companyId, ownId, ...more] = route.split('/');
