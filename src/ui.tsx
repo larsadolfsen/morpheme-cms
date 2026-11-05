@@ -1504,13 +1504,13 @@ export function SegmentedButton<T extends string>({
 export const subListClass = `${siteListClass} ml-5 border-l border-line`;
 
 /** What a row looks like besides the theme's list item: `accent`, a row that does something (Log ud), in the accent
- * colour; `delete`, the row that deletes what a screen shows, alone in a Group at the bottom, in the middle in the accent
+ * colour; `delete`, the row that deletes what a screen shows, alone in a Group at the bottom, in the middle in the error
  * colour; `muted`, grey (what cannot be opened: a page that is gone); `sub`, a row under a row (a submenu), its text a
  * little lighter. */
 export type RowTone = 'accent' | 'delete' | 'muted' | 'sub';
 const toneClass: Record<RowTone, string> = {
   accent: 'text-accent',
-  delete: 'justify-center text-center font-medium text-accent',
+  delete: 'justify-center text-center font-medium text-(--error)',
   muted: 'text-muted',
   sub: 'text-ink/80',
 };
