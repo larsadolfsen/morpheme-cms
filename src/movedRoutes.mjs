@@ -45,6 +45,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   licenser: 'licenses',
   temaer: 'themes',
   farver: 'colors',
+  reservefarver: 'fallback-colors',
 });
 
 /**

@@ -24,7 +24,7 @@
 //                    appearance/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
 //                    appearance/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
 //                    appearance/colors the colours (Colors.tsx;
-//                    appearance/colors/reservefarver the site's own while an app changes the pages'), appearance/logo the logo
+//                    appearance/colors/fallback-colors the site's own while an app changes the pages'), appearance/logo the logo
 //                    and icon (BrandForm.tsx), appearance/dele the parts (Library.tsx PartsHome): appearance/dele/editor the editor's, every
 //                    one in every state (Parts.tsx), appearance/dele/ui the theme's UI components, appearance/dele/blocks the
 //                    blocks, the standard ones and the apps', and appearance/dele/list/<list> each kind of a list of kinds

@@ -15,7 +15,7 @@
 // farver", src/apps/content-colors/: pageColors in packages/editor/site/pageColors.ts). While an app installed changes the pages'
 // colours (hooks/page-colors.ts), each mode shows the pages' colours instead (PageColors), as the site was last built
 // (/editor/page-colors.json, packages/editor/scripts/page-colors.mjs): first a notice that the apps give them, with a button to the
-// site's own, which are only the fallback ("Reservefarver", #appearance/colors/reservefarver, a page of the same form, so
+// site's own, which are only the fallback ("Reservefarver", #appearance/colors/fallback-colors, a page of the same form, so
 // what is unsaved stays), then the apps, each to its settings, the pages with colours from a picture (the picture, the
 // page and its colours in the mode open), and those with the site's own. Saved with "Gem ændringer" in one commit; the
 // editor shows the new colours at once (theme.ts applyColors), the site when it is built again.
@@ -112,7 +112,7 @@ const CHANGE = t.app.changes.edited(t.app.changes.colors);
 type Tab = Mode | 'generator';
 
 /** The page with the site's own colours, while an app changes the pages' colours: the fallback. */
-export const FALLBACK_ROUTE = 'appearance/colors/reservefarver';
+export const FALLBACK_ROUTE = 'appearance/colors/fallback-colors';
 
 /** The apps installed that change the pages' colours (hooks/page-colors.ts). */
 const colorApps = (files: RepoFile[]) => {
