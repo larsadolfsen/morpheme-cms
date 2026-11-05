@@ -2541,6 +2541,9 @@ export function useAtLeast(name: Exclude<Breakpoint, 'compact'>) {
   return useMedia(atLeast(name));
 }
 
+/** Whether the window is at least as wide as the breakpoint right now (not kept up to date: for a tap's handler). */
+export const atLeastNow = (name: Exclude<Breakpoint, 'compact'>) => matchMedia(atLeast(name)).matches;
+
 /** How the main menu is laid out in this window (lib/menu-layout.mjs): whether the navigation rail stands, which way it
  * expands, and whether the top bar has the menu button. */
 export function useMenuLayout() {
