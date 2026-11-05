@@ -2,7 +2,7 @@
 // (src/data/contact.json) and its bank details (src/data/payment.json, under "Betaling", where a site may add its
 // other ways to pay, and where the settings of the apps installed that are a way to pay come after, as MobilePay's),
 // used all over the site; and its social media (src/data/social.json): the profiles and the post's share buttons.
-// The logo and the icon are under "Udseende" (BrandForm.tsx); the link to the calendar in Calendly is the app Calendly's (src/apps/calendly/).
+// The logo and the icon are under "Udseende" (BrandForm.tsx); the link to the calendar in Calendly is the app Calendly's (morpheme-apps/apps/calendly/).
 import { AddressBook, Bank, CreditCard, ShareNetwork } from '@phosphor-icons/react';
 import type { Part } from '../src/schema';
 import { bankFields, contactFields, socialFields } from '@site/collections';
