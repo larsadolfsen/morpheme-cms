@@ -91,6 +91,7 @@ test('every old route prefix opens the screen where it is now', () => {
     'blokke/accordion': 'blocks/accordion',
     filer: 'files',
     'seo/videresendelser': 'seo/redirects',
+    'seo/vurdering': 'seo/rating',
     blokvalg: 'block-settings',
     avanceret: 'advanced',
     licenser: 'licenses',

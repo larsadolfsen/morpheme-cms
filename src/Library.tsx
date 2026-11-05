@@ -530,7 +530,7 @@ export function PartsHome() {
 
 /** "Søgemaskineoptimering" (#seo), no longer in the menu: "Videresendelser" (Redirects.tsx, #seo/redirects) and then
  * the site's own parts (seoParts: "Interne links"), each on a screen of its own (CompanyForm.tsx). "SEO-vurdering"
- * (SeoScores.tsx, #seo/vurdering) is hidden: nothing links to it. */
+ * (SeoScores.tsx, #seo/rating) is hidden: nothing links to it. */
 export function Seo() {
   const parts: Part[] = [{ id: 'redirects', label: t.common.parts.redirects, icon: icons.redirects }, ...seoParts];
   return <Parts title={t.common.parts.seo} route="seo" parts={parts} back={backFrom('seo')} />;
