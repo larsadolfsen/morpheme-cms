@@ -27,7 +27,7 @@ import { blockTexts, nav, site } from '../site/site';
 import { popups } from '../site/popups';
 import { opensOf } from '@site/opens';
 
-// A post as "Blogindlæg" shows it.
+// A post as "Blog posts" shows it.
 const listedPost = (p: Post): ListedPost => ({
   href: postPath(p),
   title: p.data.title,
@@ -61,14 +61,14 @@ export const standard: StandardSite = {
     const page = (await byPath()).get(href);
     return page ? displayTitle(page.data.title) : nav.flatMap((n) => [n, ...(n.children ?? [])]).find((n) => n.href === href)?.label;
   },
-  // "Book en tid" opens the booking sheet on the page (`data-open="booking"`, the app Calendly's), and
-  // goes to the booking page without one there; "Ring" has the number after its text.
+  // "Book an appointment" opens the booking sheet on the page (`data-open="booking"`, the app Calendly's), and
+  // goes to the booking page without one there; "Call" has the number after its text.
   buttons: {
     booking: { href: site.bookingPath, text: site.labels.book, open: 'booking' },
     phone: { href: site.phoneHref, text: site.labels.call, after: site.phone },
   },
-  // "Åbn promovering": a promotion turned on that a button can open (opens.ts). One that stands for a target does
-  // what it does (the booking sheet: "Book en tid"); a pop-up opens itself (`data-open="promotion:<file name>"`,
+  // "Open promotion": a promotion turned on that a button can open (opens.ts). One that stands for a target does
+  // what it does (the booking sheet: "Book an appointment"); a pop-up opens itself (`data-open="promotion:<file name>"`,
   // Popup.astro), with its heading as the text.
   picked(target, value) {
     const promotion = target === 'promotion' ? popups.find((p) => p.slug === value) : undefined;
@@ -85,7 +85,10 @@ export const standard: StandardSite = {
     // Only a tag with posts has a page (/blog/kategori/<slug>/).
     async tag(slug) {
       tagPages ??= getCategories().then((all) => new Set(all.map((c) => c.slug)));
-      return { name: categoryName(slug), href: (await tagPages).has(slug) ? `/blog/kategori/${slug}/` : undefined };
+      return {
+        name: categoryName(slug),
+        href: (await tagPages).has(slug) ? `/blog/kategori/${slug}/` : undefined,
+      };
     },
   },
   posts: {
