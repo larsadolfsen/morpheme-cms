@@ -1,5 +1,11 @@
 # @morphemecms/cms
 
+## 0.9.1
+
+### Patch Changes
+
+- 2e5bc1d: Sites type-check again: the header settings screen passes its theme the right data.
+
 ## 0.9.0
 
 ### Minor Changes
