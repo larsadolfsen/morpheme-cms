@@ -19,6 +19,7 @@
 // The catalog is what is released: an app's or a theme's entry is written from its folder by `npm run store:release
 // -- <id>` (scripts/store-release.mjs) when the owner releases it, not by each merge (packages/editor/scripts/releases.mjs).
 // A site whose Worker has no store key has no store (storeConnected): "Appstore" has only the site's own.
+// Depends on storeFetch.ts (timedFetch) for requests to the store.
 import { config } from '@site/config';
 import type { Change, RepoFile } from './github';
 import { blobId } from '../lib/git.mjs';
@@ -27,6 +28,7 @@ import { hooksOf, type AppHook } from '../lib/hooks';
 import type { StoreLicenses } from './licenseData';
 import { APP_API, THEME_API } from '../lib/contracts.mjs';
 import { RECORD, STANDARD, isText, validApp, validTheme } from '../lib/storeEntries.mjs';
+import { timedFetch } from './storeFetch';
 
 // The contracts this editor runs (lib/contracts.mjs, also read by the site's Worker).
 export { APP_API, THEME_API };
@@ -297,7 +299,7 @@ let catalog: Promise<string> | null = null;
 
 // The catalog as the site's Worker passes it on: `{ connected: false }` when the site has no key to the store.
 function catalogText(): Promise<string> {
-  catalog ??= fetch('/api/store/catalog').then(
+  catalog ??= timedFetch(fetch, '/api/store/catalog').then(
     (res) => {
       if (!res.ok) throw new Error(t.apps.storeFailed);
       return res.text();
@@ -334,7 +336,7 @@ export const readThemes = (): Promise<ShownTheme[]> => catalogText().then(catalo
 
 // A file from the store by its blob id (through the site's Worker), checked against the id.
 async function readFile(oid: string): Promise<Uint8Array> {
-  const res = await fetch(`/api/store/files/${oid}`);
+  const res = await timedFetch(fetch, `/api/store/files/${oid}`);
   if (!res.ok) throw new Error(t.apps.storeFailed);
   const bytes = new Uint8Array(await res.arrayBuffer());
   if ((await blobId(bytes)) !== oid) throw new Error(t.apps.storeFailed);
