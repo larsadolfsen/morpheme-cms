@@ -1,5 +1,11 @@
 # @morphemecms/cms
 
+## 0.7.1
+
+### Patch Changes
+
+- 36e2e3b: Fix the Cloudflare build stopping with "Too many open files" by serving all Material Symbols icons as one module.
+
 ## 0.7.0
 
 ### Minor Changes
