@@ -134,7 +134,7 @@ export const icons: Record<string, Icon> = {
   themes: Swatches,
   colors: Palette,
   logo: Sticker,
-  ikonpakker: Smiley,
+  'icon-packs': Smiley,
   bevaegelse: WaveSine,
   sidekolonne: SidebarSimple,
   dele: Shapes,
@@ -180,7 +180,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
   {
     id: 'appearance',
     title: 'Appearance',
-    ids: ['themes', 'ikonpakker', 'bevaegelse', 'sidekolonne', 'colors', 'logo', ...appearance.map((p) => p.id), 'dele'],
+    ids: ['themes', 'icon-packs', 'bevaegelse', 'sidekolonne', 'colors', 'logo', ...appearance.map((p) => p.id), 'dele'],
   },
   { id: 'privacy', title: 'Privacy', ids: privacy.parts.map((p) => p.id) },
   { id: 'settings', title: 'Settings', ids: settingsIds },

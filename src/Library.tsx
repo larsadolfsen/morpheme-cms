@@ -142,7 +142,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   // The screens under "Udseende" (Theme): the ones the editor has, then the site's own (appearance).
   const appearanceLabel = {
     themes: parts.themes,
-    ikonpakker: parts.iconPacks,
+    'icon-packs': parts.iconPacks,
     bevaegelse: parts.motion,
     sidekolonne: parts.sideColumn,
     colors: parts.colors,
@@ -222,9 +222,9 @@ export function Theme({ files }: { files: RepoFile[] }) {
   const parts: Part[] = [
     { id: 'themes', label: t.common.parts.themes, icon: icons.themes, detail: chosen.name },
     {
-      id: 'ikonpakker',
+      id: 'icon-packs',
       label: t.common.parts.iconPacks,
-      icon: icons.ikonpakker,
+      icon: icons['icon-packs'],
       detail: iconPacks.find((x) => x.id === chosenPack(files))?.name,
     },
     { id: 'bevaegelse', label: t.common.parts.motion, icon: icons.bevaegelse, detail: t.library.motionSchemes[motionOf(files)] },
@@ -298,7 +298,7 @@ export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
   );
 }
 
-/** "Ikonpakker" (#appearance/ikonpakker): the icon packs installed (the system's own, packages/editor/icons/, and those the themes
+/** "Ikonpakker" (#appearance/icon-packs): the icon packs installed (the system's own, packages/editor/icons/, and those the themes
  * installed bring; iconPacks.ts), by name, each with who made it, its licence, the theme it came with and a few of its
  * icons as they are, the one chosen ticked (chosenPack), with "I brug" by the one the site and the editor are built with
  * and "Skifter hertil …" by the one chosen until they are. A tap on another asks first and then saves it in the site's

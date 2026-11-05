@@ -19,7 +19,7 @@
 //                    the addresses visitors came to that do not exist; seo/vurdering the SEO rating of every page and
 //                    post (SeoScores.tsx); and seo/<part> the site's own (seoParts)
 //   appearance         how the site looks (Library.tsx Theme): appearance/themes the themes installed (Themes) and appearance/themes/<theme>
-//                    a theme's page, with the button that swaps to it (ThemePage), appearance/ikonpakker the icon packs (IconPacks),
+//                    a theme's page, with the button that swaps to it (ThemePage), appearance/icon-packs the icon packs (IconPacks),
 //                    appearance/bevaegelse how it moves (MotionSchemes), appearance/sidekolonne the block beside the pages' text (SideColumn),
 //                    appearance/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
 //                    appearance/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
@@ -737,7 +737,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (opening?.p.opens === 'consents') return <Consents env={env} back={{ href: `#${opening.s.id}`, label: opening.s.label }} />;
   if (route === 'appearance') return <Theme files={files} />;
   if (route === 'appearance/themes') return <Themes env={env} files={files} />;
-  if (route === 'appearance/ikonpakker') return <IconPacks env={env} files={files} />;
+  if (route === 'appearance/icon-packs') return <IconPacks env={env} files={files} />;
   if (route === 'appearance/bevaegelse') return <MotionSchemes env={env} files={files} />;
   if (route === 'appearance/sidekolonne') return <SideColumn env={env} files={files} />;
   if (route === 'appearance/header') return <HeaderSettings env={env} />;
