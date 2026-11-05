@@ -1,5 +1,25 @@
 # @morphemecms/cms
 
+## 0.12.0
+
+### Minor Changes
+
+- 382abd8: An H1 starts a section with its own section colour, as an H2 does.
+- 3123242: Store items have permanent ids: installed copies move to their new folder on their next update. Apps get their own id from @app/self (app contract 3).
+
+### Patch Changes
+
+- fd2fedf: From tablet width, tapping a block or picture opens its side panel; Remove is in the panel.
+- 1459102: The side panel opens from 840px and collapses the drawer to the rail below 1200px; the modal side sheet is used below 840px; the top bar scrolls with the page.
+- 79b6b33: The text toolbar and the menus over the text are white with a shadow.
+- 25d29f7: The create button of every list, of Files and of Redirects is a floating action button instead of a + in the top bar; a list of several kinds opens a menu of them. The FAB stands above a form's save bar.
+- d39abb5: The side panel follows Material 3: at most 400dp wide, full height, M3 spacing.
+- ee4fbba: Preview and View on site stand at the end of the page's title row on wide screens.
+- aa964b2: The package's checks now type-check its whole source the way a site does, so type errors a site would hit are caught before release.
+- ca51ab8: Fix the store's installed filter for apps with an old id.
+- 6b95110: Fix type errors that sites hit in the text editor.
+- abef25a: Sites type-check the video block: the types of `player` and `facadeOf` make `frame` optional, as the block calls them.
+
 ## 0.11.0
 
 ### Minor Changes
