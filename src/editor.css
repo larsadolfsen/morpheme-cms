@@ -504,10 +504,25 @@
     right: var(--section-pane-width);
   }
 
-  /* The side panel (.editor-side-panel: BottomSheet `panel`; BlockDialog.tsx sets [data-side-panel] on the root while it is
-     open) stands at the window's end edge under the top bar, the full remaining height. It takes the "on this page" area's
-     place (that is hidden), and the content, which stays in view, inert behind the modal <dialog>, keeps clear of it. Its
-     backdrop is clear: the page is not dimmed. */
+  /* BottomSheet's `panel` (.editor-side-panel): the theme's modal side sheet at the window's end edge under the top bar,
+     the full remaining height; its backdrop is clear. */
+  .editor-side-panel {
+    inset: var(--top-bar-height) 0 0 auto;
+    width: var(--side-panel-width);
+    height: calc(100dvh - var(--top-bar-height));
+  }
+  .editor-side-panel:dir(rtl) {
+    inset: var(--top-bar-height) auto 0 0;
+  }
+  .editor-side-panel::backdrop {
+    background: transparent;
+  }
+}
+
+/* The block dialog's standard side sheet (.editor-side-sheet: BlockDialog.tsx, not modal, from medium) stands at the window's
+   end edge under the top bar, the full remaining height. BlockDialog.tsx sets [data-side-panel] on the root while it is
+   open: it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
+@media (width >= theme(--breakpoint-medium)) {
   :root[data-side-panel] {
     --column-end: var(--side-panel-width);
   }
@@ -520,16 +535,16 @@
   :root[data-side-panel] .editor-save-bar {
     right: var(--side-panel-width);
   }
-  .editor-side-panel {
+  .editor-side-sheet {
+    position: fixed;
     inset: var(--top-bar-height) 0 0 auto;
+    z-index: 20;
     width: var(--side-panel-width);
+    max-width: none;
     height: calc(100dvh - var(--top-bar-height));
   }
-  .editor-side-panel:dir(rtl) {
+  .editor-side-sheet:dir(rtl) {
     inset: var(--top-bar-height) auto 0 0;
-  }
-  .editor-side-panel::backdrop {
-    background: transparent;
   }
 }
 

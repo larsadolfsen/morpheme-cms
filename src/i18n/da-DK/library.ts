@@ -11,6 +11,7 @@ export const library: Messages['library'] = {
   notificationsNew: (count) => `Notifikationer, ${count} nye`,
   noNotifications: 'Ingen notifikationer',
   clearNotifications: 'Ryd notifikationer',
+  openWebsite: 'Åbn hjemmesiden',
   notificationChoices: 'Vælg notifikationer',
   onDevice: 'På telefonen',
   onDeviceHint: 'Også når editoren er lukket.',

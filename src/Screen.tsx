@@ -2,8 +2,8 @@
 // topBarSlot.tsx's place, at the top of the content), above the content. Below medium, where there is no rail, the panel
 // button at its start opens and closes the main drawer (MainMenu.tsx, menuOpen.ts; from medium it is the rail's; not on a screen with a back arrow); at expanded and wider the logo and the site's name after it (one link to the start screen,
 // through `back.guard`), below expanded the back arrow, the title and the status as in an app (the logo only on the start
-// screen); at the end the actions, the notifications and the account, on every screen (on a phone the account only on the
-// start screen, `home`). At expanded and wider the way here as breadcrumbs (the screen above, when that is not the start
+// screen); at the end the actions and the notifications, on every screen, and on the start screen (`home`) the link to the
+// website. At expanded and wider the way here as breadcrumbs (the screen above, when that is not the start
 // screen), the title and the status stand in a row under the bar, at the top of the content. The bar stays at the top while
 // scrolling and keeps clear of a phone's notch. A screen's tabs (`tabs`) are the bottom of the bar, under the title, as wide
 // as the content, and stay with it. The back arrow goes to the screen above, back in the history when that is the screen
@@ -13,7 +13,7 @@
 // Under the content of every screen is the editor's footer (EditorFooter.tsx).
 import { useId, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowLeft, Bell, CaretRight, UserCircle } from '@phosphor-icons/react';
+import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
 import { IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
 import { up } from './nav';
@@ -31,8 +31,8 @@ export type Back = { href: string; label: string; guard?: (go: () => void) => vo
 // `status`: more about the screen, e.g. when it was last saved: under the title, on a computer after it.
 // `wide`: the content is wider on a computer (lists, the files); `panel`: a form with its other fields
 // beside the text on a wide computer screen (FormColumns in ui.tsx). `drawer`: a button at the end of the
-// bar, after the account. `home`: the start screen,
-// with the account on a phone too. `tabs`: the screen's tabs, in the bar, with the open one's content.
+// bar, after the notifications. `home`: the start screen,
+// with the link to the website. `tabs`: the screen's tabs, in the bar, with the open one's content.
 type Props<T extends string> = {
   title: string;
   back?: Back;
@@ -46,22 +46,12 @@ type Props<T extends string> = {
   children: ReactNode;
 };
 
-/** The account (#konto) in a top bar: the avatar icon, at the right of the gear. */
-export function AccountLink({ className = '' }: { className?: string }) {
-  const current = location.hash === '#konto';
-  return (
-    <IconLink
-      href="#konto"
-      icon={UserCircle}
-      label={t.common.parts.account}
-      aria-current={current ? 'page' : undefined}
-      selected={current}
-      className={className}
-    />
-  );
+/** The website (the site's home page, "/") in a new tab: in the top bar of the start screen, after the bell. */
+export function WebsiteLink() {
+  return <IconLink href="/" target="_blank" rel="noopener" icon={ArrowSquareOut} label={t.library.openWebsite} />;
 }
 
-/** The bell in the top bar, before the account: the notifications (#notifikationer, Notifications.tsx), with a dot
+/** The bell in the top bar, before the link to the website: the notifications (#notifikationer, Notifications.tsx), with a dot
  * while some are not seen yet. */
 export function NotificationsLink({ className = '' }: { className?: string }) {
   const count = unseen(useNotifications());
@@ -147,7 +137,7 @@ export default function Screen<T extends string>({
         <div className="hidden min-w-0 flex-1 expanded:block" />
         <div className="flex shrink-0 items-center justify-end gap-1">{actions}</div>
         <NotificationsLink />
-        <AccountLink className={home ? '' : 'hidden medium:inline-grid'} />
+        {home && <WebsiteLink />}
         {drawer}
       </div>
       {tabs && (
