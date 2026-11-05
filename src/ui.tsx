@@ -2,7 +2,7 @@
 // look, set here. A screen uses these and never writes the classes of a button or a field itself
 // (CLAUDE.md), so the editor looks the same everywhere and a change here changes it everywhere. They
 // are all shown, in every state, on the screen #udseende/dele (Parts.tsx). The screen itself, with its top bar,
-// is Screen.tsx.
+// is Screen.tsx. Also the headers of a sheet (SheetTitle) and of a full-screen step (FullScreenTitle, BottomSheet `fullScreen`).
 import {
   useEffect,
   useId,
@@ -71,6 +71,9 @@ import {
   SiteDivider,
   SiteDatePicker,
   SiteDialog,
+  SiteDialogHeader,
+  siteDialogClassOf,
+  siteDialogFullScreenModalClass,
   siteDialogModalClass,
   SiteExtendedFab,
   SiteFabMenu,
@@ -3212,20 +3215,27 @@ export function Dialog({ ref, className, children, ...rest }: DialogHTMLAttribut
 /** The sheet from the bottom (a dialog in the middle on a computer): the theme's bottom sheet, as high as what is in
  * it, on a <dialog> (`ref`; opened with showModal), with a SheetTitle and SheetBody, SheetList or SheetActions in it.
  * `full`: as high as the screen, and wider on a computer, with a whole page in it (the preview, PageFrame).
+ * `fullScreen`: the theme's full-screen dialog (over the whole screen on a phone, a dialog in the middle from the medium
+ * width), with a FullScreenTitle and a SheetBody in it, no SheetActions.
  * `panel`: the theme's modal side sheet (data-wide="side-sheet") at the window's end edge under the top bar, half the space
- * beside the start panel (.editor-side-panel in editor.css); the rest of the page stays in view, inert as under a dialog. */
+ * beside the start panel (.editor-side-panel in editor.css); the rest of the page stays in view, inert as under a dialog.
+ * `fullScreen` and `panel` are never both set. */
 export function BottomSheet({
   ref,
   full,
+  fullScreen,
   panel,
   className,
   children,
   ...rest
-}: DialogHTMLAttributes<HTMLDialogElement> & { ref?: Ref<HTMLDialogElement>; full?: boolean; panel?: boolean }) {
-  const sheet = full ? siteBottomSheetFullClass : siteBottomSheetFitClass;
+}: DialogHTMLAttributes<HTMLDialogElement> & { ref?: Ref<HTMLDialogElement>; full?: boolean; fullScreen?: boolean; panel?: boolean }) {
+  const sheet = fullScreen ? siteDialogFullScreenModalClass : full ? siteBottomSheetFullClass : siteBottomSheetFitClass;
   return (
     <dialog ref={ref} className={[sheet, 'editor-sheet', panel && 'editor-side-panel', className].filter(Boolean).join(' ')} {...rest}>
-      <div className={siteBottomSheetContainerClass()} data-wide={panel ? 'side-sheet' : undefined}>
+      <div
+        className={fullScreen ? siteDialogClassOf('full-screen') : siteBottomSheetContainerClass()}
+        data-wide={panel ? 'side-sheet' : undefined}
+      >
         {children}
       </div>
     </dialog>
@@ -3414,6 +3424,36 @@ export function SheetTitle({ title, onClose }: { title: string; onClose: () => v
         onClose={onClose}
       />
     </div>
+  );
+}
+
+/** The top of a full-screen step (the fields of a block): the cross that closes it (t.common.close), the title and the
+ * main action as a text button (`done`: Gem, Indsæt). The theme's full-screen dialog header (SiteDialogHeader), on a phone
+ * over the whole screen, in a dialog in the middle and in the side panel. */
+export function FullScreenTitle({
+  title,
+  onClose,
+  done,
+  onDone,
+  disabled,
+}: {
+  title: string;
+  onClose: () => void;
+  done: string;
+  onDone: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <SiteDialogHeader
+      headline={title}
+      closeLabel={t.common.close}
+      onClose={onClose}
+      actions={
+        <Button kind="text" disabled={disabled} onClick={onDone}>
+          {done}
+        </Button>
+      }
+    />
   );
 }
 

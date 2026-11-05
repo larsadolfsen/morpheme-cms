@@ -6,7 +6,9 @@
 // the search, the order (A–Å, Å–A or by group, kept in this browser) and the funnel with the filter by group
 // (the standard blocks, each app's under its name), the one picked as a chip. Also the sheet of a section's
 // settings (its colour, SectionSettings.tsx), which goes the same way as a block's fields: Annuller, Gem, the question when closed changed.
-// On a large screen the fields and the section settings are in a side panel instead of the dialog (sheetPlacement.mjs, .editor-side-panel).
+// The fields are the theme's full-screen dialog (FullScreenTitle, BottomSheet `fullScreen`) with Gem/Indsæt at the top: over the whole
+// screen on a phone, a dialog in the middle from 600px. On a large screen the fields (same header) and the section settings are in a
+// side panel instead of the dialog (sheetLook in sheetPlacement.mjs, .editor-side-panel).
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { ArrowsDownUp, Image } from '@phosphor-icons/react';
 import {
@@ -18,6 +20,7 @@ import {
   Preview,
   SearchRow,
   BottomSheet,
+  FullScreenTitle,
   SheetActions,
   SheetBody,
   SheetTitle,
@@ -40,7 +43,7 @@ import { t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 import { closeChanged } from './ask';
 import SectionSettings from './SectionSettings';
-import { inPanel } from './sheetPlacement.mjs';
+import { sheetLook } from './sheetPlacement.mjs';
 
 export type BlockAsk = {
   list: SiteBlock[];
@@ -269,7 +272,11 @@ export function useBlockDialog(
           .map((g) => ({ key: g as string | null, items: found.filter((b) => groupOf(b) === g) }))
           .filter((g) => g.items.length > 0)
       : headed(found, (b) => letterOf(b.label));
-  const panel = inPanel(open?.step, large);
+  const look = sheetLook(open?.step, large);
+  const panel = look === 'panel';
+  const fullScreen = look === 'full-screen';
+  // The fields have their action at the top (FullScreenTitle); the choice and the section settings keep the sheet's title and bar.
+  const fieldsStep = open?.step === 'fields';
   const title = open?.step === 'section' ? t.text.sectionSettings : block ? block.label : t.blocks.insert;
   // While the panel is open, the page makes room for it (editor.css: [data-side-panel]).
   useEffect(() => {
@@ -277,10 +284,18 @@ export function useBlockDialog(
     document.documentElement.setAttribute('data-side-panel', '');
     return () => document.documentElement.removeAttribute('data-side-panel');
   }, [panel]);
+  // One <dialog> for all steps: when a new block goes from the choice to its fields, what a drag of SheetTitle left on it goes.
+  useEffect(() => {
+    const sheet = dialog.current;
+    if (!fieldsStep || !sheet) return;
+    sheet.removeAttribute('data-tall');
+    for (const property of ['height', 'max-height', 'transform', 'transition']) sheet.style.removeProperty(property);
+  }, [fieldsStep]);
   const element = (
     <BottomSheet
       ref={dialog}
       aria-label={title}
+      fullScreen={fullScreen}
       panel={panel}
       // React passes on the close of a sheet inside it (the categories, a page): only its own counts.
       onClose={(e) => e.target === e.currentTarget && answer.current(null)}
@@ -292,7 +307,16 @@ export function useBlockDialog(
       // A tap beside a dialog leaves it; beside the panel is the page, which is inert while it is open.
       onClick={(e) => !panel && e.target === dialog.current && void leave()}
     >
-      <SheetTitle title={title} onClose={() => void leave()} />
+      {block && fieldsStep ? (
+        <FullScreenTitle
+          title={title}
+          onClose={() => void leave()}
+          onDone={() => save(block.type)}
+          done={open.isNew ? t.blocks.insert : t.common.save}
+        />
+      ) : (
+        <SheetTitle title={title} onClose={() => void leave()} />
+      )}
       {open?.step === 'choose' && (
         <>
           <SearchRow
@@ -396,7 +420,6 @@ export function useBlockDialog(
             )}
             {problem && <ProblemNote>{problem}</ProblemNote>}
           </SheetBody>
-          <SheetActions onCancel={() => void leave()} onDone={() => save(block.type)} done={open.isNew ? t.blocks.insert : t.common.save} />
         </>
       )}
     </BottomSheet>
