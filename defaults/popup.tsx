@@ -1,6 +1,6 @@
-// The site's own kinds of promotion drawn beside their form in the editor. A pop-up ("Promovering", the
-// kind "Pop op-vindue") as it looks on the site: the theme's box (PopupView.tsx, the same as Popup.astro shows on the
-// site) with the picture, heading and text, and its button: "Book en tid", "Ring" with the number, a page by its name,
+// The site's own kinds of promotion drawn beside their form in the editor. A pop-up ("Promotion", the
+// kind "Pop-up") as it looks on the site: the theme's box (PopupView.tsx, the same as Popup.astro shows on the
+// site) with the picture, heading and text, and its button: "Book an appointment", "Call" with the number, a page by its name,
 // or "Download PDF", with the button's own text when it has one; and an app's kind with a part in it (Mailchimp's
 // signup, drawPart: FolderCollection.drawPart). Links and buttons are only drawn.
 import type { BlockData } from '../src/blocks';
@@ -43,11 +43,11 @@ export function drawPopup(p: Record<string, any>, data: BlockData, part?: KindPa
   );
 }
 
-// An action bar ("Promovering", the kind "Handlingslinje") as it looks on a phone (ActionBar.astro in the
+// An action bar ("Promotion", the kind "Action bar") as it looks on a phone (ActionBar.astro in the
 // theme): the same standard bottom sheet (BottomSheet, .theme-action-bar-drawn in styles/components.css: in its place,
 // a phone wide) with the same toolbar row in it, its one or two items side by side, each a text (a list row of two lines: its heading over its text) or a button, the first button filled, the buttons with their own texts or those of their target
-// ("Book en tid", "Ring"), of what they open (a pop-up's heading, an app's booking sheet: "Book en tid") or of their
-// page; the calendar for what books, the phone for "Ring", the arrow after a page or a pop-up.
+// ("Book an appointment", "Call"), of what they open (a pop-up's heading, an app's booking sheet: "Book an appointment") or of their
+// page; the calendar for what books, the phone for "Call", the arrow after a page or a pop-up.
 export function drawActionBar(p: Record<string, any>, data: BlockData) {
   const pageName = (href: string) =>
     [...(data.relations.fixed ?? []), ...(data.relations.pages ?? [])].find((o) => o.value === href)?.label;
@@ -75,7 +75,7 @@ export function drawActionBar(p: Record<string, any>, data: BlockData) {
             );
           const own = String(b.label ?? '').trim();
           const opens = b.to === 'promotion' ? data.relations.promotions?.find((o) => o.value === b.open) : undefined;
-          // What it does: "Book en tid" also for a promotion that stands for it (an app's booking sheet).
+          // What it does: "Book an appointment" also for a promotion that stands for it (an app's booking sheet).
           const to = opens?.as ?? b.to;
           const text =
             to === 'phone'
