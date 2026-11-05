@@ -132,7 +132,7 @@ export const icons: Record<string, Icon> = {
   licenses: Certificate,
   // The screens under "Appearance" (Library.tsx Theme).
   themes: Swatches,
-  farver: Palette,
+  colors: Palette,
   logo: Sticker,
   ikonpakker: Smiley,
   bevaegelse: WaveSine,
@@ -180,7 +180,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
   {
     id: 'appearance',
     title: 'Appearance',
-    ids: ['themes', 'ikonpakker', 'bevaegelse', 'sidekolonne', 'farver', 'logo', ...appearance.map((p) => p.id), 'dele'],
+    ids: ['themes', 'ikonpakker', 'bevaegelse', 'sidekolonne', 'colors', 'logo', ...appearance.map((p) => p.id), 'dele'],
   },
   { id: 'privacy', title: 'Privacy', ids: privacy.parts.map((p) => p.id) },
   { id: 'settings', title: 'Settings', ids: settingsIds },

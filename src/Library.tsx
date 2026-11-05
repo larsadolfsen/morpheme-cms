@@ -145,7 +145,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
     ikonpakker: parts.iconPacks,
     bevaegelse: parts.motion,
     sidekolonne: parts.sideColumn,
-    farver: parts.colors,
+    colors: parts.colors,
     logo: parts.brand,
     dele: parts.editorParts,
   }[id];
@@ -234,7 +234,7 @@ export function Theme({ files }: { files: RepoFile[] }) {
       icon: icons.sidekolonne,
       detail: sideChoicesOf(files).find((x) => x.type === sideSettingOf(files))?.label ?? t.library.sideNone,
     },
-    { id: 'farver', label: t.common.parts.colors, icon: icons.farver, trailing: <ThemeColors files={files} /> },
+    { id: 'colors', label: t.common.parts.colors, icon: icons.colors, trailing: <ThemeColors files={files} /> },
     { id: 'logo', label: t.common.parts.brand, icon: icons.logo },
     { id: 'header', label: t.common.parts.header, icon: icons.header },
     { id: 'footer', label: t.common.parts.footer, icon: icons.footer },

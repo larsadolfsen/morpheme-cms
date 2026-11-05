@@ -169,7 +169,7 @@ export default function Parts({ env }: { env: Env }) {
             </Part>
 
             <Part name="ArrowLink" use={use.arrowLink}>
-              <ArrowLink href="#appearance/farver">{sample.editColors}</ArrowLink>
+              <ArrowLink href="#appearance/colors">{sample.editColors}</ArrowLink>
             </Part>
           </PartGroup>
 
@@ -811,7 +811,7 @@ function fieldTypes(): FieldType[] {
         { name: 'phone', label: sample.phone, type: 'string', phone: '+45', digitsInPairs: 8 },
         { name: 'keyword', label: f.keyword, type: 'string', chips: 'one' },
         { name: 'keywords', label: f.keywords, type: 'string', chips: 'many' },
-        { name: 'linkText', label: f.linkText, type: 'string', edit: { to: 'appearance/farver', text: f.editColors } },
+        { name: 'linkText', label: f.linkText, type: 'string', edit: { to: 'appearance/colors', text: f.editColors } },
       ],
     },
     {

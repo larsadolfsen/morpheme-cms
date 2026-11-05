@@ -23,8 +23,8 @@
 //                    appearance/bevaegelse how it moves (MotionSchemes), appearance/sidekolonne the block beside the pages' text (SideColumn),
 //                    appearance/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
 //                    appearance/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
-//                    appearance/farver the colours (Colors.tsx;
-//                    appearance/farver/reservefarver the site's own while an app changes the pages'), appearance/logo the logo
+//                    appearance/colors the colours (Colors.tsx;
+//                    appearance/colors/reservefarver the site's own while an app changes the pages'), appearance/logo the logo
 //                    and icon (BrandForm.tsx), appearance/dele the parts (Library.tsx PartsHome): appearance/dele/editor the editor's, every
 //                    one in every state (Parts.tsx), appearance/dele/ui the theme's UI components, appearance/dele/blocks the
 //                    blocks, the standard ones and the apps', and appearance/dele/list/<list> each kind of a list of kinds
@@ -748,7 +748,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (/^appearance\/themes\/[^/]+$/.test(route))
     return <StoreThemePage key={route} id={route.slice('appearance/themes/'.length)} env={env} />;
   // The colours, or the site's own on a page of the same form while an app changes the pages' (FALLBACK_ROUTE).
-  if (route === 'appearance/farver' || route === FALLBACK_ROUTE)
+  if (route === 'appearance/colors' || route === FALLBACK_ROUTE)
     return <Colors env={env} files={files} fallback={route === FALLBACK_ROUTE} />;
   if (route === 'appearance/logo') return <BrandForm env={env} />;
   if (route === 'block-settings') return <BlockSettings env={env} files={files} />;

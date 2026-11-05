@@ -39,3 +39,7 @@ test('a moved address wins over a renamed segment', () => {
 test('an old route to the app store opens it at its English route', () => {
   assert.equal(movedRoute('indstillinger/appstore'), 'settings/appstore');
 });
+
+test('the old colours route opens the colours screen under Appearance', () => {
+  assert.equal(movedRoute('farver'), 'appearance/colors');
+});

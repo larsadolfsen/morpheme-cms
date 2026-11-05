@@ -3,12 +3,12 @@
 
 /** Where each moved screen is now, by its old address. */
 export const MOVED = /** @type {Record<string, string>} */ ({
-  farver: 'appearance/farver',
+  farver: 'appearance/colors',
   'virksomheden/logo': 'appearance/logo',
   'tema/blokvalg': 'block-settings',
   dele: 'appearance/dele',
   tema: 'appearance',
-  'tema/farver': 'appearance/farver',
+  'tema/farver': 'appearance/colors',
   'tema/logo': 'appearance/logo',
   'tema/dele': 'appearance/dele',
   'tema/dele/editor': 'appearance/dele/editor',
@@ -44,6 +44,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   avanceret: 'advanced',
   licenser: 'licenses',
   temaer: 'themes',
+  farver: 'colors',
 });
 
 /**
