@@ -56,7 +56,7 @@ function rate(collection: MarkdownCollection, file: RepoFile, relations: Env['re
 export const isRated = (c: Collection): c is MarkdownCollection => c.kind === 'markdown' && c.fields.some((f) => f.name === 'seoTitle');
 
 export default function SeoScores({ files, env }: { files: RepoFile[]; env: Env }) {
-  const [query, setQuery] = useKept('seo-soeg', '');
+  const [query, setQuery] = useKept('seo-search', '');
   const [sort, setSort] = useState(savedSort);
   function pickSort(next: Sort) {
     setSort(next);
@@ -75,8 +75,8 @@ export default function SeoScores({ files, env }: { files: RepoFile[]; env: Env 
   const all = groups.flatMap((g) => g.items);
   const average = all.length ? Math.round(all.reduce((sum, r) => sum + r.score, 0) / all.length) : null;
   const [rating, setRating] = useKept<Rating | ''>('seo-rating', '');
-  const [hasKeyword, setHasKeyword] = useKept<HasKeyword | ''>('seo-soegeord', '');
-  const [kind, setKind] = useKept('seo-slags', '');
+  const [hasKeyword, setHasKeyword] = useKept<HasKeyword | ''>('seo-keywords', '');
+  const [kind, setKind] = useKept('seo-kind', '');
   const shownKind = groups.some((g) => g.collection.id === kind) ? kind : '';
   const kindName = groups.find((g) => g.collection.id === shownKind)?.collection.label ?? '';
   const filters = [
