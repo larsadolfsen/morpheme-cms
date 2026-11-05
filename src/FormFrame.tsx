@@ -3,7 +3,8 @@
 // of the screen with "Gem" (across the bar on a phone, at its end from medium), which is only there when something
 // has been changed. Messages are shown by the app (Env.notify); the first "Gem" asks whether the editor may also send notifications.
 // Leaving with changes that are not saved asks first, to save them or not (in the editor's dialog;
-// closing or reloading the page asks in the browser's own). "Forhåndsvis" beside "Gem" and in the top bar shows the page with
+// closing or reloading the page asks in the browser's own). "Forhåndsvis" beside "Gem" and, as a page action (Screen.tsx `pageActions`:
+// the end of the title row from expanded, the top bar below it), shows the page with
 // what is in the form, before it is saved (pagePreview.tsx).
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowSquareOut, Binoculars, Trash } from '@phosphor-icons/react';
@@ -177,9 +178,9 @@ export default function FormFrame<T extends string>({
       drawer={drawer}
       tabs={tabs}
       back={{ guard: leaveTo, ...back }}
-      actions={
+      actions={actions}
+      pageActions={
         <>
-          {actions}
           {onPreview && <IconButton icon={Binoculars} label={t.preview.button} aria-haspopup="dialog" onClick={onPreview} />}
           {view && <IconLink href={view} target="_blank" rel="noopener" label={t.app.viewOnSite} icon={ArrowSquareOut} />}
         </>
