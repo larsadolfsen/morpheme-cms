@@ -221,7 +221,7 @@ export const contactFields: Field[] = [
 // The social media (src/data/social.json, a part of its own under "Business", company.ts): the site's profiles, and
 // which share buttons a post shows. A switch that is not in the file is on (company.ts gives the form that default).
 // A profile address: empty, or one that begins with https://.
-const httpsAddress: [string, string] = ['^$|^https://\\S+$', 'Skriv en adresse, der begynder med https://'];
+const httpsAddress: [string, string] = ['^$|^https://\\S+$', 'Write an address that starts with https://'];
 
 export const socialFields: Field[] = [
   {

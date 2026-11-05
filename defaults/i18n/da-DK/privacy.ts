@@ -34,4 +34,5 @@ export const privacy: Record<string, string> = {
   'Privacy pages': 'Privatlivssider',
   Consents: 'Samtykker',
   'Default pages': 'Standardsider',
+  Cookies: 'Cookies',
 };
