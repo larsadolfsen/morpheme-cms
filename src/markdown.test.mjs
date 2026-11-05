@@ -1,4 +1,4 @@
-// Tests for src/markdown.mjs: the section colour marker is read into the H2's `section` attribute and written back as it was
+// Tests for src/markdown.mjs: the section colour marker is read into the H1's or H2's `section` attribute and written back as it was
 // (before the label, if any). Milkdown needs a DOM; jsdom stands in. Run: node --test packages/editor/src/markdown.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -46,6 +46,20 @@ test('a coloured section comes back byte for byte', async () => {
   assert.deepEqual(nodes, ['heading', 'paragraph', 'heading:tint', 'paragraph', 'heading:accent', 'paragraph']);
 });
 
+test('a coloured H1 comes back byte for byte', async () => {
+  const text = marked('tint', '# About\n\nText\n');
+  const { saved, nodes } = await through(text);
+  assert.equal(saved, text);
+  assert.deepEqual(nodes, ['heading:tint', 'paragraph']);
+});
+
+test('the marker comes before a label above the H1', async () => {
+  const text = marked('accent', '<p class="block-eyebrow">Welcome</p>\n\n# About\n\nText\n');
+  const { saved, nodes } = await through(text);
+  assert.equal(saved, text);
+  assert.ok(nodes.includes('heading:accent'));
+});
+
 test('a text without markers is written as before', async () => {
   const text = '# Title\n\n## One\n\nText\n';
   assert.equal((await through(text)).saved, text);
@@ -58,7 +72,7 @@ test('the marker comes before a label above the H2', async () => {
   assert.ok(nodes.includes('heading:surface'));
 });
 
-test('a marker not followed by an H2 is dropped', async () => {
+test('a marker not followed by an H1 or H2 is dropped', async () => {
   assert.deepEqual(await through(marked('tint', 'Plain text\n\n## B\n')), {
     saved: 'Plain text\n\n## B\n',
     nodes: ['paragraph', 'heading'],

@@ -292,7 +292,7 @@ function cardMenu(
   dom: HTMLElement,
   card: HTMLElement,
   name: string,
-  items: () => (CardItem | undefined | '')[],
+  items: () => (CardItem | undefined | false | '')[],
   tap?: () => void,
 ) {
   let menu: HTMLElement | null = null;
@@ -493,7 +493,7 @@ async function editLink(view: EditorView) {
 /** What applies where the cursor is, or to all of the selection: 'strong', 'emphasis', 'link',
  * 'h2', 'h3', 'text' (a paragraph, not in a list or quote), 'bullet', 'ordered' and 'quote'; with a colour
  * (text-colors.mjs) 'textColor' and the colour's class ('color-accent'). For the toolbar and the selection's menu,
- * 'section' and 'section-<colour>' in a top-level H2 (sectionState.mjs), which mark them. */
+ * 'section' and 'section-<colour>' in a top-level H1 or H2 (sectionState.mjs), which mark them. */
 export function activeOf(state: EditorView['state']): Set<string> {
   const { selection, storedMarks, schema } = state;
   const { $from, from, to, empty } = selection;
@@ -553,11 +553,11 @@ type Look = {
 // The levels of the top-level headings of a document, in order.
 const levelsOf = (doc: EditorView['state']['doc']): number[] => topHeadings(doc).map(({ node }) => node.attrs.level);
 
-// Whether a heading (H2) is selected, or a part of one.
-function inH2(state: EditorView['state']) {
+// Whether a heading that starts a section (H1 or H2) is selected, or a part of one.
+function inSectionHeading(state: EditorView['state']) {
   let found = false;
   const { from, to } = state.selection;
-  state.doc.nodesBetween(from, to, (n) => void (found ||= n.type.name === 'heading' && n.attrs.level === 2));
+  state.doc.nodesBetween(from, to, (n) => void (found ||= n.type.name === 'heading' && n.attrs.level <= 2));
   return found;
 }
 
@@ -569,7 +569,7 @@ const inLabel = (state: EditorView['state']) => state.selection.$from.parent.typ
 // page's headings (`h1`: only the levels headingChoices gives for the text), a heading or a subheading, a label above the heading; the ones that apply are marked. At a still
 // cursor, bold, italic, link and colour act on the whole word, the headings on the line; a move or a keypress hides the
 // row. On a phone, where the phone's own menu is over the selection and its handles under it, the row is at the bottom
-// of the screen, over the keyboard. sections: no colour in a heading (H2), the name of a section.
+// of the screen, over the keyboard. sections: no colour in a heading (H1 or H2), the name of a section.
 function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button: HTMLElement) => void) {
   return new Plugin({
     view(view) {
@@ -613,7 +613,7 @@ function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button
           label: t.text.color,
           on: (s) => marked(s, 'textColor'),
           action: colors,
-          off: (s) => inLabel(s) || (sections && inH2(s)),
+          off: (s) => inLabel(s) || (sections && inSectionHeading(s)),
           word: true,
         },
         ...(h1 ? [1, 2, 3] : [2, 3]).map((level) => ({
@@ -1079,7 +1079,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     if (!src) return;
     const sheet = blocks ?? sheetProp;
     const picked = await sheet?.edit(IMAGE, { src, alt: '' }, true);
-    if (picked) run(insertImageCommand, { src: pictureSrc(picked), alt: String(picked.alt ?? '').trim() });
+    if (picked && picked !== 'remove') run(insertImageCommand, { src: pictureSrc(picked), alt: String(picked.alt ?? '').trim() });
   }
 
   // Puts the chosen block where the cursor is (a paragraph is split around it), or after the block
@@ -1153,8 +1153,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         : []),
     { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) },
     { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand) },
-    // The settings of the section the cursor's H2 starts (not a fixed page's text, whose H2s are its sections' names; the front page has it).
-    ...(framed && active.includes('section') && (blocks ?? sheetProp)
+    // The settings of the section the cursor's H1 or H2 starts (not a fixed page's text, whose H2s are its sections' names; the front
+    // page has it for its H2s, but not for its H1, which stays the banner without a colour).
+    ...(framed && active.includes('section') && !(sections && active.includes('h1')) && (blocks ?? sheetProp)
       ? [{ label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings }]
       : []),
   ];
