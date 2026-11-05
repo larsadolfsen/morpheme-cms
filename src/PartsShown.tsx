@@ -1,12 +1,15 @@
 // The parts of a screen that shows parts in every state ("Dele": Parts.tsx, BlockParts.tsx), with the search, the order and the filters of the editor's lists ("Standardblokke",
 // Library.tsx): a search in the parts' names and what they are for, the order (by group, A–Å or Å–A,
 // kept in this browser; A–Å under the first letter of the names) and the funnel with the filter by
-// group, the one picked as a chip that removes it. The search and the group are kept while the editor
-// is open.
+// group, the one picked as a chip that removes it. A screen can add the filter by style (how much of a part
+// the active theme styles itself, coverage.ts), and each part then carries its mark (CoverageBadge.tsx). The
+// search, the group and the style are kept while the editor is open.
 import { createContext, useContext, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowsDownUp } from '@phosphor-icons/react';
 import { Choice, EmptyNote, Filters, FormHeading, InputChip, SearchRow, SupportingText, useKept } from './ui';
 import { byText } from './schema';
+import { CoverageBadge } from './CoverageBadge';
+import { themeCoverage } from './coverage';
 import { headed, letterOf } from './Sheet';
 import { t } from './i18n';
 
@@ -14,11 +17,20 @@ export type PartGroupInfo = { id: string; title: string };
 
 type Sort = 'group' | 'az' | 'za';
 const SORTS: Sort[] = ['group', 'az', 'za'];
+const STATUSES = ['own', 'partly', 'material'] as const;
 
 // What is picked over the parts: a group ('' all of them), what is searched for, the order, the groups'
-// names, and by name, where each part stands when they are sorted by name.
-const Shown = createContext<{ group: string; query: string; sort: Sort; groups: PartGroupInfo[]; order: Map<string, number> }>({
+// names, the status picked in the style filter ('' all), and by name, where each part stands when they are sorted by name.
+const Shown = createContext<{
+  group: string;
+  style: string;
+  query: string;
+  sort: Sort;
+  groups: PartGroupInfo[];
+  order: Map<string, number>;
+}>({
   group: '',
+  style: '',
   query: '',
   sort: 'group',
   groups: [],
@@ -31,22 +43,28 @@ export const useSearched = () => useContext(Shown).query.trim();
 export const useGrouped = () => useContext(Shown).sort === 'group';
 
 /** The search, the order and the filter over the parts (`children`, PartGroup), with "Ingen dele passer
- * til søgningen" (or `none`) when none is shown. `keep`: the key they are kept under; `search`: the search's name. */
+ * til søgningen" (or `none`) when none is shown. `keep`: the key they are kept under; `search`: the search's name;
+ * `styleFilter`: adds the filter by style (own, partly, Material), when the theme in use has a coverage. */
 export function PartsShown({
   groups,
   keep,
   search: searchLabel = t.parts.filter.search,
   none = t.parts.filter.none,
+  styleFilter = false,
   children,
 }: {
   groups: PartGroupInfo[];
   keep: string;
   search?: string;
   none?: string;
+  styleFilter?: boolean;
   children: ReactNode;
 }) {
   const [shownGroup, setGroup] = useKept(`${keep}-group`, '');
   const group = groups.some((g) => g.id === shownGroup) ? shownGroup : '';
+  const withStyle = styleFilter && !!themeCoverage;
+  const [shownStyle, setStyle] = useKept(`${keep}-style`, '');
+  const style = withStyle ? shownStyle : '';
   const [search, setSearch] = useKept(`${keep}-search`, '');
   const sortKey = `editor-sort-${keep}`;
   const [sort, setSort] = useState<Sort>(() => {
@@ -101,7 +119,7 @@ export function PartsShown({
           filter={
             <Filters
               title={t.library.filter}
-              selected={!!group}
+              selected={!!group || !!style}
               groups={[
                 {
                   title: t.library.groupFilter,
@@ -109,6 +127,19 @@ export function PartsShown({
                   options: [{ value: '', label: t.library.allGroups }, ...groups.map((g) => ({ value: g.id, label: g.title }))],
                   onChange: setGroup,
                 },
+                ...(withStyle
+                  ? [
+                      {
+                        title: t.parts.screens.coverage.filter,
+                        value: style,
+                        options: [
+                          { value: '', label: t.parts.screens.coverage.all },
+                          ...STATUSES.map((s) => ({ value: s, label: t.parts.screens.coverage.status[s] })),
+                        ],
+                        onChange: setStyle,
+                      },
+                    ]
+                  : []),
               ]}
             />
           }
@@ -121,7 +152,7 @@ export function PartsShown({
           </div>
         )}
       </div>
-      <Shown.Provider value={{ group, query: search, sort, groups, order }}>
+      <Shown.Provider value={{ group, style, query: search, sort, groups, order }}>
         <div ref={list} className={sort === 'group' ? 'space-y-10' : 'flex flex-col gap-10'}>
           {headings.map((h) => (
             <div key={h.key} style={{ order: h.order }}>
@@ -151,9 +182,13 @@ export function PartGroup({ group, children }: { group: string; children: ReactN
   );
 }
 
-/** A part's name and what it is for, above it; nothing when it is not what is searched for. */
-export function Part({ name, use, children }: { name: string; use?: string; children: ReactNode }) {
+/** A part's name and what it is for, above it, with its coverage mark when the theme in use has one for it
+ * (`coverage`: the id in the catalogue, the first word of the name when not given); nothing when it is not
+ * what is searched for, or when the style filter picks another status. */
+export function Part({ name, use, coverage, children }: { name: string; use?: string; coverage?: string; children?: ReactNode }) {
   const shown = useContext(Shown);
+  const covered = themeCoverage?.parts[coverage ?? name.split(',')[0].trim()];
+  if (shown.style && covered?.status !== shown.style) return null;
   const query = shown.query.trim().toLocaleLowerCase();
   if (query && !`${name} ${use ?? ''}`.toLocaleLowerCase().includes(query)) return null;
   return (
@@ -161,6 +196,7 @@ export function Part({ name, use, children }: { name: string; use?: string; chil
       <div>
         <h2 className="font-mono text-sm font-medium text-accent">{name}</h2>
         {use && <SupportingText>{use}</SupportingText>}
+        {covered && <CoverageBadge coverage={covered} />}
       </div>
       {children}
     </section>
