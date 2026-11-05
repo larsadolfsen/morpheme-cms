@@ -79,6 +79,11 @@
   padding-block-start: calc(var(--editor-section-rhythm) * 2);
 }
 
+/* A list keeps its own indent inside the frame, so its bullets and numbers stand clear of the line. */
+.editor-text .ProseMirror > :is(ul, ol)[data-section-part] {
+  padding-inline-start: calc(var(--editor-section-pad) + 1.625em);
+}
+
 .editor-text .ProseMirror > :is([data-section-part='start'], [data-section-part='only']) {
   margin-block-start: var(--editor-section-gap);
   border-block-start: var(--editor-section-frame);
