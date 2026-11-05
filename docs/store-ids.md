@@ -39,7 +39,7 @@ Not in a site repo, so the move does not touch them:
 | `site/theme.mjs:59` | `existsSync(src/themes/<name>/theme.json)` (no regex) | A folder counts as an installed theme (`installedThemes`) | no: it accepts any folder name that has a `theme.json` |
 | `lib/apps.mjs:48` | `key`: `/^[A-Za-z_$][\w$]*$/` (JS identifier) | Whether an app id is written bare or quoted in `worker/apps.js` | no: `_` is allowed, so `app_...` is written bare as a valid identifier |
 | `worker/index.js:81` | `/^\/api\/([\w-]+)(?:\/|$)/` | The first segment of an app's Worker address `/api/<app id>/` | no: `\w` includes `_`, so `app_...` is accepted |
-| `worker/push.js:214` | `isRoute`: `/^[\w\-/æøåÆØÅ]{1,200}$/` | A notification's `to` route, such as `apps/<id>` | no: `\w` includes `_` |
+| `worker/push.js:214` | `isRoute`: a regex of word characters, `-`, `/` and the Danish letters, 1 to 200 long | A notification's `to` route, such as `apps/<id>` | no: `\w` includes `_` |
 | `src/App.tsx:770` | `/^apps\/[^/]+$/` | The app page route `apps/<id>` | no: any text without `/` is accepted |
 | `src/App.tsx:748` | `/^udseende\/temaer\/[^/]+$/` | The store's theme page route `udseende/temaer/<theme id>` | no: any text without `/` is accepted |
 | `lib/appRoute.mjs:17` | `parts[1] !== id` (no regex) | Whether a route is the page of app `id` (`appRouteOf`) | no: string equality |
