@@ -6,10 +6,15 @@
 // the search, the order (A–Å, Å–A or by group, kept in this browser) and the funnel with the filter by group
 // (the standard blocks, each app's under its name), the one picked as a chip. Also the sheet of a section's
 // settings (its colour, SectionSettings.tsx), which goes the same way as a block's fields: Annuller, Gem, the question when closed changed.
-// On a large screen the fields and the section settings are in a side panel instead of the dialog (sheetPlacement.mjs, .editor-side-panel).
-import { useEffect, useRef, useState, type ReactElement } from 'react';
+// The fields and the section settings are in the theme's side sheet (sheetPlacement.mjs): a standard one beside the page from
+// medium (not modal: the page stays usable, .editor-side-sheet in editor.css), a modal one over the page below it
+// (fields only; the section settings are a sheet from the bottom there). Both end with Gem (Indsæt) and Annuller.
+// Their open, close, focus and Escape are the theme's (sideSheet() and standardSideSheet(), sideSheetControl.ts); leave() is their beforeClose.
+// Another block tapped while one is open closes the open one first (the question when changed). Exposes useBlockDialog, IMAGE.
+import { useEffect, useId, useRef, useState, type ReactElement } from 'react';
 import { ArrowsDownUp, Image } from '@phosphor-icons/react';
 import {
+  Button,
   Choice,
   Filters,
   InputChip,
@@ -40,7 +45,8 @@ import { t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 import { closeChanged } from './ask';
 import SectionSettings from './SectionSettings';
-import { inPanel } from './sheetPlacement.mjs';
+import { sheetLook } from './sheetPlacement.mjs';
+import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
 
 export type BlockAsk = {
   list: SiteBlock[];
@@ -118,9 +124,25 @@ export function useBlockDialog(
 ): [BlockAsk, ReactElement] {
   const blockOf = (type: string) => (type === IMAGE ? picture : type === HTML ? htmlBlock : list.find((b) => b.type === type));
   const dialog = useRef<HTMLDialogElement>(null);
-  const large = useAtLeast('large');
+  // The modal side sheet's <dialog> (below medium) and its controls; the standard one's box (from medium).
+  const sideDialog = useRef<HTMLDialogElement>(null);
+  const sideControls = useRef<ReturnType<typeof siteSideSheet> | null>(null);
+  const standard = useRef<HTMLDivElement>(null);
+  const standardControls = useRef<ReturnType<typeof siteStandardSideSheet> | null>(null);
+  const headingId = useId();
+  const medium = useAtLeast('medium');
   const answer = useRef<(a: Answer) => void>(() => {});
   const [open, setOpen] = useState<Open | null>(null);
+  // What is open now (set at once, where `open` follows a render later), the look it has, when the last one has closed
+  // (a new one waits for it), and what had the focus before (back to it from a standard side sheet).
+  const openNow = useRef<Open | null>(null);
+  const lookNow = useRef('sheet');
+  const closing = useRef<Promise<void>>(Promise.resolve());
+  const trigger = useRef<HTMLElement | null>(null);
+  const show = (next: Open | null) => {
+    openNow.current = next;
+    setOpen(next);
+  };
   const [values, setValues] = useState<BlockProps>({});
   const [problem, setProblem] = useState('');
   // Why it cannot be saved, as a message in front of the sheet too (below the fields it can be out of
@@ -142,10 +164,17 @@ export function useBlockDialog(
   // The fields as they were when they were shown, to tell whether they have been changed.
   const shown = useRef('');
 
-  const ask = (first: Open, props: BlockProps = {}) =>
-    new Promise<Answer>((resolve) => {
+  // Another one asked for while one is open (a tap on another block, or on "+" in the text): the open one is left first
+  // (with the question when it is changed), and the new one opens when it has closed. Stay in the open one: null.
+  const ask = async (first: Open, props: BlockProps = {}): Promise<Answer> => {
+    const from = document.activeElement;
+    await closing.current;
+    if (openNow.current && !(await latest.current.leave())) return null;
+    await closing.current;
+    if (from instanceof HTMLElement && from !== document.body) trigger.current = from;
+    return new Promise<Answer>((resolve) => {
       answer.current = resolve;
-      setOpen(first);
+      show(first);
       setValues(props);
       if (first.step === 'fields') shown.current = asWritten(first.type, props);
       if (first.step === 'section') shown.current = JSON.stringify(props.color ?? '');
@@ -153,8 +182,53 @@ export function useBlockDialog(
       wrongField.stop(null);
       setQuery('');
       setGroup('');
-      dialog.current?.showModal();
     });
+  };
+
+  // Which dialog is open follows the look of the step: the sheet from the bottom, or the modal side sheet (below).
+  const look: string = open ? sheetLook(open.step, medium) : 'sheet';
+  lookNow.current = look;
+  useEffect(() => {
+    const sheet = dialog.current;
+    if (open && look === 'sheet') {
+      if (sheet && !sheet.open) sheet.showModal();
+    } else if (sheet?.open) sheet.close();
+  }, [look, !!open]);
+
+  // The two side sheets are the theme's (sideSheetControl.ts). Their cross, Escape and (modal) a tap on the scrim go to
+  // leave() first (a question when changed), which closes them itself, so beforeClose always answers false.
+  const beforeClose = async () => {
+    await latest.current.leave();
+    return false;
+  };
+
+  // The modal side sheet (below medium).
+  useEffect(() => {
+    const d = sideDialog.current;
+    if (look !== 'modal-side-sheet' || !d) return;
+    sideControls.current = siteSideSheet(d, { beforeClose });
+    sideControls.current.open();
+    return () => {
+      sideControls.current = null;
+      document.documentElement.style.overflow = '';
+    };
+  }, [look]);
+
+  // The standard side sheet (from medium): the page makes room for it (editor.css: [data-side-panel]), the focus moves
+  // into it and back to what had it before when it closes.
+  useEffect(() => {
+    if (look !== 'side-sheet') return;
+    document.documentElement.setAttribute('data-side-panel', '');
+    const box = standard.current?.querySelector<HTMLElement>('[data-side-sheet-container]');
+    if (box) {
+      standardControls.current = siteStandardSideSheet(box, { beforeClose });
+      standardControls.current.open(trigger.current ?? undefined);
+    }
+    return () => {
+      standardControls.current = null;
+      document.documentElement.removeAttribute('data-side-panel');
+    };
+  }, [look]);
 
   // The search, once the list to choose from is shown. The keyboard would cover the list on a phone;
   // there it opens when the search is tapped.
@@ -163,11 +237,17 @@ export function useBlockDialog(
     if (choosing && matchMedia('(pointer: fine)').matches) search.current?.focus();
   }, [choosing]);
 
+  // Answer and close (the side sheet slides out first; the next one waits for `closing`).
   const done = (a: Answer) => {
     answer.current(a);
     answer.current = () => {};
-    dialog.current?.close();
-    setOpen(null);
+    openNow.current = null;
+    closing.current = (async () => {
+      if (sideControls.current && sideDialog.current?.open) await sideControls.current.close();
+      else if (standardControls.current) await standardControls.current.close();
+      else if (dialog.current?.open) dialog.current.close();
+      setOpen(null);
+    })();
   };
 
   const asker: BlockAsk = {
@@ -197,30 +277,39 @@ export function useBlockDialog(
     if (!fields.length) return done({ type, props: {} });
     shown.current = asWritten(type, newValue(fields));
     setValues(newValue(fields));
-    setOpen({ step: 'fields', type, isNew: true });
+    show({ step: 'fields', type, isNew: true });
   }
 
+  /** true when it was saved (and so is closed). */
   function save(type: string) {
     const fields = blockOf(type)!.fields;
-    if (wrongField.stop(problemAt(fields, values))) return;
+    if (wrongField.stop(problemAt(fields, values))) return false;
     done({ type, props: clean(fields, values) });
+    return true;
   }
 
   // Closed (Annuller, the cross, a swipe down, Esc, a tap beside it) with the fields changed: the owner is
   // asked whether to keep them ("Indsæt", "Gem"), leave them or stay.
-  async function leave() {
+  // true when it has closed (not when the owner stays in it, or a field keeps it from being saved).
+  async function leave(): Promise<boolean> {
+    const finish = (a: Answer) => {
+      done(a);
+      return true;
+    };
     if (open?.step === 'section') {
-      if (JSON.stringify(values.color ?? '') === shown.current) return done(null);
+      if (JSON.stringify(values.color ?? '') === shown.current) return finish(null);
       const choice = await closeChanged(t.common.save);
-      if (choice === 'keep') saveSection();
-      else if (choice === 'discard') done(null);
-      return;
+      if (choice === 'keep') return (saveSection(), true);
+      return choice === 'discard' && finish(null);
     }
-    if (open?.step !== 'fields' || asWritten(open.type, values) === shown.current) return done(null);
+    if (open?.step !== 'fields' || asWritten(open.type, values) === shown.current) return finish(null);
     const choice = await closeChanged(open.isNew ? t.blocks.insert : t.common.save);
-    if (choice === 'keep') save(open.type);
-    else if (choice === 'discard') done(null);
+    if (choice === 'keep') return save(open.type);
+    return choice === 'discard' && finish(null);
   }
+  // The ask() of an earlier render may be the one called: it leaves through the latest.
+  const latest = useRef({ leave });
+  latest.current = { leave };
 
   function saveSection() {
     done({ type: SECTION, props: { color: values.color ?? '' } });
@@ -269,137 +358,166 @@ export function useBlockDialog(
           .map((g) => ({ key: g as string | null, items: found.filter((b) => groupOf(b) === g) }))
           .filter((g) => g.items.length > 0)
       : headed(found, (b) => letterOf(b.label));
-  const panel = inPanel(open?.step, large);
   const title = open?.step === 'section' ? t.text.sectionSettings : block ? block.label : t.blocks.insert;
-  // While the panel is open, the page makes room for it (editor.css: [data-side-panel]).
-  useEffect(() => {
-    if (!panel) return;
-    document.documentElement.setAttribute('data-side-panel', '');
-    return () => document.documentElement.removeAttribute('data-side-panel');
-  }, [panel]);
-  const element = (
-    <BottomSheet
-      ref={dialog}
-      aria-label={title}
-      panel={panel}
-      // React passes on the close of a sheet inside it (the categories, a page): only its own counts.
-      onClose={(e) => e.target === e.currentTarget && answer.current(null)}
-      onCancel={(e) => {
-        if (e.target !== e.currentTarget) return;
-        e.preventDefault();
-        void leave();
-      }}
-      // A tap beside a dialog leaves it; beside the panel is the page, which is inert while it is open.
-      onClick={(e) => !panel && e.target === dialog.current && void leave()}
-    >
-      <SheetTitle title={title} onClose={() => void leave()} />
-      {open?.step === 'choose' && (
-        <>
-          <SearchRow
-            inputRef={search}
-            value={query}
-            onChange={setQuery}
-            label={t.blocks.searchInsert}
-            sort={
-              <Choice
-                title={t.library.sort}
-                icon={ArrowsDownUp}
-                value={shownSort}
-                options={INSERT_SORTS.filter((s) => grouped || s !== 'group').map((s) => ({ value: s, label: t.library.sorts[s] }))}
-                onChange={pickSort}
-              />
-            }
-            filter={
-              grouped && (
-                <Filters
-                  title={t.library.filter}
-                  selected={!!shownGroup}
-                  groups={[
-                    {
-                      title: t.library.groupFilter,
-                      value: shownGroup,
-                      options: [{ value: '', label: t.library.allGroups }, ...groupNames.map((g) => ({ value: g, label: g }))],
-                      onChange: setGroup,
-                    },
-                  ]}
+  const sectionSettings = <SectionSettings color={String(values.color ?? '')} onChange={(color) => setValues({ color })} />;
+  // A side sheet (the same markup, standard or modal): the block's fields or the section settings, with Gem (Indsæt) and Annuller.
+  const sideSheetOf = (kind: 'standard' | 'modal') =>
+    open &&
+    (open.step === 'section' || block) && (
+      <SiteSideSheet
+        kind={kind}
+        headline={open.step === 'fields' && open.isNew ? t.blocks.insert : title}
+        headlineId={headingId}
+        closeLabel={t.common.close}
+        className={kind === 'standard' ? 'editor-side-sheet' : undefined}
+        actions={
+          <>
+            <Button onClick={() => (open.step === 'section' ? saveSection() : save(open.type))}>
+              {open.step === 'fields' && open.isNew ? t.blocks.insert : t.common.save}
+            </Button>
+            <Button kind="outlined" onClick={() => void leave()}>
+              {t.common.cancel}
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-5">
+          {open.step === 'section' ? (
+            sectionSettings
+          ) : (
+            <>
+              {block?.edit && (
+                <p className="text-sm">
+                  <EditLink edit={block.edit} />
+                </p>
+              )}
+              {block?.preview && <Preview>{preview(block.type, values, data)}</Preview>}
+              <WrongField.Provider value={wrongField.field}>
+                <FieldList fields={block!.fields} value={values} onChange={(v) => setValues(v as BlockProps)} />
+              </WrongField.Provider>
+              {block!.type === IMAGE && crop && !data.page && !!values.src && (
+                <CropField
+                  src={String(values.src)}
+                  format={String(values.format ?? '')}
+                  crop={(values.crop as Cut) ?? null}
+                  onChange={(next) =>
+                    setValues((v) => ({ ...v, ...next({ format: String(v.format ?? ''), crop: (v.crop as Cut) ?? null }) }))
+                  }
                 />
-              )
-            }
-            className="mx-5 mb-2 shrink-0"
-          />
-          {shownGroup && (
-            <div className="mx-5 mb-2 flex shrink-0 flex-wrap gap-2">
-              <InputChip removeLabel={t.library.removeFilter(shownGroup)} onRemove={() => setGroup('')}>
-                {shownGroup}
-              </InputChip>
-            </div>
+              )}
+              {problem && <ProblemNote>{problem}</ProblemNote>}
+            </>
           )}
-          <SheetList>
-            {headings.map((h) => [
-              h.key && (
-                <li key={`heading-${h.key}`}>
-                  <SheetGroupTitle>{h.key}</SheetGroupTitle>
-                </li>
-              ),
-              ...h.items.map((b) => (
-                <li key={b.type}>
-                  <button
-                    type="button"
-                    className={optionClass()}
-                    onClick={() => (b.type === IMAGE ? done({ type: IMAGE, props: {} }) : pick(b.type))}
-                  >
-                    <LeadingIcon icon={b.icon} />
-                    <span className="min-w-0">
-                      <span className="block font-medium">{b.label}</span>
-                      {b.hint && <span className="block text-sm text-muted">{b.hint}</span>}
-                    </span>
-                  </button>
-                </li>
-              )),
-            ])}
-            {!offered.length && <EmptyNote item>{t.blocks.noneHere}</EmptyNote>}
-            {offered.length > 0 && !found.length && (
-              <EmptyNote item>{query.trim() ? t.blocks.noneNamed(query.trim()) : t.common.noMatch}</EmptyNote>
+        </div>
+      </SiteSideSheet>
+    );
+  const element = (
+    <>
+      <BottomSheet
+        ref={dialog}
+        aria-label={title}
+        // React passes on the close of a sheet inside it (the categories, a page): only its own counts. Closed by
+        // something else than leave() and done(): answer it as cancelled.
+        onClose={(e) => e.target === e.currentTarget && lookNow.current === 'sheet' && openNow.current && done(null)}
+        onCancel={(e) => {
+          if (e.target !== e.currentTarget) return;
+          e.preventDefault();
+          void leave();
+        }}
+        // A tap beside a dialog leaves it.
+        onClick={(e) => e.target === dialog.current && void leave()}
+      >
+        <SheetTitle title={title} onClose={() => void leave()} />
+        {open?.step === 'choose' && (
+          <>
+            <SearchRow
+              inputRef={search}
+              value={query}
+              onChange={setQuery}
+              label={t.blocks.searchInsert}
+              sort={
+                <Choice
+                  title={t.library.sort}
+                  icon={ArrowsDownUp}
+                  value={shownSort}
+                  options={INSERT_SORTS.filter((s) => grouped || s !== 'group').map((s) => ({ value: s, label: t.library.sorts[s] }))}
+                  onChange={pickSort}
+                />
+              }
+              filter={
+                grouped && (
+                  <Filters
+                    title={t.library.filter}
+                    selected={!!shownGroup}
+                    groups={[
+                      {
+                        title: t.library.groupFilter,
+                        value: shownGroup,
+                        options: [{ value: '', label: t.library.allGroups }, ...groupNames.map((g) => ({ value: g, label: g }))],
+                        onChange: setGroup,
+                      },
+                    ]}
+                  />
+                )
+              }
+              className="mx-5 mb-2 shrink-0"
+            />
+            {shownGroup && (
+              <div className="mx-5 mb-2 flex shrink-0 flex-wrap gap-2">
+                <InputChip removeLabel={t.library.removeFilter(shownGroup)} onRemove={() => setGroup('')}>
+                  {shownGroup}
+                </InputChip>
+              </div>
             )}
-          </SheetList>
-        </>
+            <SheetList>
+              {headings.map((h) => [
+                h.key && (
+                  <li key={`heading-${h.key}`}>
+                    <SheetGroupTitle>{h.key}</SheetGroupTitle>
+                  </li>
+                ),
+                ...h.items.map((b) => (
+                  <li key={b.type}>
+                    <button
+                      type="button"
+                      className={optionClass()}
+                      onClick={() => (b.type === IMAGE ? done({ type: IMAGE, props: {} }) : pick(b.type))}
+                    >
+                      <LeadingIcon icon={b.icon} />
+                      <span className="min-w-0">
+                        <span className="block font-medium">{b.label}</span>
+                        {b.hint && <span className="block text-sm text-muted">{b.hint}</span>}
+                      </span>
+                    </button>
+                  </li>
+                )),
+              ])}
+              {!offered.length && <EmptyNote item>{t.blocks.noneHere}</EmptyNote>}
+              {offered.length > 0 && !found.length && (
+                <EmptyNote item>{query.trim() ? t.blocks.noneNamed(query.trim()) : t.common.noMatch}</EmptyNote>
+              )}
+            </SheetList>
+          </>
+        )}
+        {look === 'sheet' && open?.step === 'section' && (
+          <>
+            <SheetBody>{sectionSettings}</SheetBody>
+            <SheetActions onCancel={() => void leave()} onDone={saveSection} done={t.common.save} />
+          </>
+        )}
+      </BottomSheet>
+      {look === 'modal-side-sheet' && (
+        <dialog ref={sideDialog} className={siteSideSheetDialogClass} aria-labelledby={headingId}>
+          {sideSheetOf('modal')}
+        </dialog>
       )}
-      {open?.step === 'section' && (
-        <>
-          <SheetBody>
-            <SectionSettings color={String(values.color ?? '')} onChange={(color) => setValues({ color })} />
-          </SheetBody>
-          <SheetActions onCancel={() => void leave()} onDone={saveSection} done={t.common.save} />
-        </>
+      {look === 'side-sheet' && (
+        // The standard side sheet is not modal: the page stays usable.
+        <div ref={standard} className="contents">
+          {sideSheetOf('standard')}
+        </div>
       )}
-      {block && open?.step === 'fields' && (
-        <>
-          <SheetBody>
-            {block.edit && (
-              <p className="text-sm">
-                <EditLink edit={block.edit} />
-              </p>
-            )}
-            {block.preview && <Preview>{preview(block.type, values, data)}</Preview>}
-            <WrongField.Provider value={wrongField.field}>
-              <FieldList fields={block.fields} value={values} onChange={(v) => setValues(v as BlockProps)} />
-            </WrongField.Provider>
-            {block.type === IMAGE && crop && !data.page && !!values.src && (
-              <CropField
-                src={String(values.src)}
-                format={String(values.format ?? '')}
-                crop={(values.crop as Cut) ?? null}
-                onChange={(next) =>
-                  setValues((v) => ({ ...v, ...next({ format: String(v.format ?? ''), crop: (v.crop as Cut) ?? null }) }))
-                }
-              />
-            )}
-            {problem && <ProblemNote>{problem}</ProblemNote>}
-          </SheetBody>
-          <SheetActions onCancel={() => void leave()} onDone={() => save(block.type)} done={open.isNew ? t.blocks.insert : t.common.save} />
-        </>
-      )}
-    </BottomSheet>
+    </>
   );
   return [asker, element];
 }

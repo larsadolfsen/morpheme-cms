@@ -76,7 +76,7 @@ export { default as SiteSlider } from '@theme/ui/Slider';
 export { default as SiteDivider } from '@theme/ui/Divider';
 export { default as SiteSideSheet } from '@theme/ui/SideSheet';
 export { sideSheetClass as siteSideSheetDialogClass } from '@theme/ui/SideSheet';
-export { sideSheet as siteSideSheet } from '@theme/ui/sideSheetControl';
+export { sideSheet as siteSideSheet, standardSideSheet as siteStandardSideSheet } from '@theme/ui/sideSheetControl';
 /** The theme's communication parts, for "Dele" › "UI-komponenter" (CommunicationParts.tsx). */
 export { default as SiteBadge } from '@theme/ui/Badge';
 export { default as SiteLoadingIndicator } from '@theme/ui/LoadingIndicator';

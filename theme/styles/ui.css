@@ -4269,8 +4269,8 @@
   .divider-inset (in from the start) or .divider-middle-inset (in from both sides), and .divider-vertical (top to
   bottom, between things side by side).
     --divider-color, --divider-thickness, --divider-inset   the line, and how far in an inset one starts
-  Side sheets (SideSheet.tsx, sideSheetClass, sideSheetContainerClass, and sideSheet() in sideSheetControl.ts for what a modal
-  one does in a browser; m3.material.io/components/side-sheets): .side-sheet-container with its kind,
+  Side sheets (SideSheet.tsx, sideSheetClass, sideSheetContainerClass, and sideSheet() and standardSideSheet() in
+  sideSheetControl.ts for what they do in a browser, sideSheet.script.ts for a button with data-side-sheet-open="<id>"; m3.material.io/components/side-sheets): .side-sheet-container with its kind,
   .side-sheet-standard (beside what it is about, with a line between) or .side-sheet-modal (over the page, in the
   <dialog> .side-sheet at the side of the screen, over the scrim like a dialog's); in it .side-sheet-header
   (.side-sheet-headline and the close button), .side-sheet-content (scrolling) and .side-sheet-actions.
@@ -4806,6 +4806,9 @@
     overflow: hidden;
     background: var(--side-sheet-surface, var(--elevation-0-surface));
     color: var(--block-text);
+  }
+  .side-sheet-container[hidden] {
+    display: none;
   }
   .side-sheet-standard {
     border-inline-start: 1px solid var(--side-sheet-line, var(--block-line));
