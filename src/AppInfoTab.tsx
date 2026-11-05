@@ -1,6 +1,6 @@
 // What every app's page says about it (AppList.tsx: AppContent and StoreAppPage): its pictures, what it does, what
-// is new, what it needs of the site, its notifications, its cookies, its licences and who made it. Exposes AppInfoTab
-// (default). Depends on ./ui, ./i18n, ./AppNotificationSwitches and AppList.tsx's DeveloperRow.
+// is new, what it needs of the site, its notifications (names only), its cookies, its licences, who made it and where it
+// is used. Exposes AppInfoTab (default). Depends on ./ui, ./i18n and AppList.tsx's DeveloperRow.
 import type { ReactNode } from 'react';
 import {
   Bell,
@@ -19,7 +19,6 @@ import { GroupTitle, Group, ImageCarousel, ListItem } from './ui';
 import { t } from './i18n';
 import { categoryOf } from '../lib/cookieCategories.mjs';
 import type { AppCookie, AppNeeds } from './store';
-import AppNotificationSwitches from './AppNotificationSwitches';
 import { DeveloperRow } from './AppList';
 
 /** What every app's page says about it, from its folder or the store's catalog: its pictures (each opening it whole),
@@ -36,20 +35,23 @@ export default function AppInfoTab({
   consent,
   publisher,
   licenses,
+  uses,
   children,
 }: {
   pictures: { src: string; label: string }[];
   description?: string;
   news?: { version: string; text: string }[];
   needs?: AppNeeds;
-  /** The kinds of notifications it sends (AppNotifications), under "Notifikationer": their names, and installed their
-   * types, each with its switch, the same as under "Konto" › "Notifikationer". */
-  notifies?: { label: string; type?: string }[];
+  /** The kinds of notifications it sends (AppNotifications), under "Notifikationer": their names. Their switches are
+   * on the Settings tab (AppNotificationSwitches). */
+  notifies?: { label: string }[];
   cookies: AppCookie[];
   consent: boolean;
   publisher: string;
   /** Its licences, under "Licenser" (OwnerLicenses, or StoreLicenseRows from the catalog). */
   licenses?: ReactNode;
+  /** Where it is used ("Bruges på"), last. */
+  uses?: { href: string; title: string; icon: Icon }[];
   children?: ReactNode;
 }) {
   const row = (glyph: Icon, text: string, more?: string) => <ListItem key={text} icon={glyph} headline={text} supporting={more} />;
@@ -101,13 +103,9 @@ export default function AppInfoTab({
       )}
       {children}
       {needs && <Group title={t.apps.needs}>{needed.length ? needed : row(CheckCircle, t.apps.needsNothing)}</Group>}
-      {notifies.some((n) => n.type) ? (
-        <AppNotificationSwitches notifies={notifies} />
-      ) : (
-        <Group title={t.apps.notifications}>
-          {notifies.length ? notifies.map((n) => row(Bell, n.label)) : row(Bell, t.apps.notifiesNone)}
-        </Group>
-      )}
+      <Group title={t.apps.notifications}>
+        {notifies.length ? notifies.map((n) => row(Bell, n.label)) : row(Bell, t.apps.notifiesNone)}
+      </Group>
       <Group title={t.apps.cookies}>
         {consent && row(ShieldCheck, t.apps.cookiesAsk)}
         {cookies.map((c) =>
@@ -119,6 +117,13 @@ export default function AppInfoTab({
       </Group>
       {licenses}
       <DeveloperRow name={publisher} />
+      {uses && uses.length > 0 && (
+        <Group title={t.apps.used}>
+          {uses.map((u) => (
+            <ListItem key={u.href} href={u.href} icon={u.icon} headline={u.title} arrow />
+          ))}
+        </Group>
+      )}
     </>
   );
 }
