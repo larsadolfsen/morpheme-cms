@@ -15,6 +15,7 @@ export const app = {
   changes: {
     named: (kind: string, name: string) => `${kind} “${name}”`,
     edited: (what: string) => `${what} changed`,
+    setTo: (what: string, value: string) => `${what} set to ${value}`,
     created: (what: string) => `${what} created`,
     added: (what: string) => `${what} added`,
     deleted: (what: string) => `${what} deleted`,

@@ -11,6 +11,7 @@ export const app: Messages['app'] = {
   changes: {
     named: (kind, name) => `${kind} “${name}”`,
     edited: (what) => `${what} ændret`,
+    setTo: (what, value) => `${what} sat til ${value}`,
     created: (what) => `${what} oprettet`,
     added: (what) => `${what} tilføjet`,
     deleted: (what) => `${what} slettet`,

@@ -118,6 +118,7 @@ export function appSettingsPart(app: SiteApp): Part | null {
     fields: app.settings.fields,
     defaults: app.settings.values,
     commit: siteT.apps.settingsOf(asWritten(app).label),
+    changedTo: app.settings.changedTo,
     back: home ? { href: `#${home.route}`, label: home.label } : { href: appHref(app), label: app.label },
   };
 }

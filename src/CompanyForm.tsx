@@ -5,6 +5,7 @@
 // app's settings, AppList.tsx appSettingsPart). A field with its choices on a page of their own (Field.page: an app's
 // "Variant") has it at the form's address with its name after it (`at`, `page`, App.tsx): the form stays open under it
 // with what is in it, saved or not (useFieldPages), a choice there goes back to it, and it comes back where it was.
+// A save says what it changed through partChange.ts ("… set to <value>" when the part has `changedTo`).
 // Exposes CompanyForm and usePartForm; the fields (with the block preview) are PartFields.tsx, a field's page PartFieldPage.tsx,
 // the providers around them PartFormProviders.tsx.
 import { useState } from 'react';
@@ -14,6 +15,7 @@ import PartFields, { hasPreview } from './PartFields';
 import PartFieldPage from './PartFieldPage';
 import PartFormProviders from './PartFormProviders';
 import { useFieldPages } from './useFieldPages';
+import { partChange } from './partChange';
 import type { Part } from './schema';
 import { clean, problemAt } from './check';
 import { useWrongField, type FieldContext } from './fields';
@@ -69,10 +71,16 @@ export function usePartForm({ part, env, files }: Props) {
     if (kept) return notify(kept);
     const message = siteT.company.commit.edit(part.commit ?? asWritten(part).label.toLowerCase());
     const changes = [{ path, content: text, oid: base.oid || null }];
-    const change = t.app.changes.edited(lower(part.label));
     setSaving(true);
     notify({ text: t.common.saving });
     try {
+      const change = await partChange(
+        lower(part.label),
+        cleaned,
+        part.changedTo,
+        { api: (p, init) => env.appApi(part.id, p, init) },
+        t.app.changes,
+      );
       const oids = await env.commit(message, changes, change);
       const saved = { path, oid: oids[path], text };
       setBase(saved);

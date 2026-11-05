@@ -8,6 +8,7 @@ import type { Icon } from '@phosphor-icons/react';
 import type { ComponentType, ReactNode } from 'react';
 import type { BlockData } from './blocks';
 import type { AppCategory } from './store';
+import type { AppPageProps } from './apps';
 import type { SiteData } from '@site/editor';
 import { locale } from './i18n';
 
@@ -385,6 +386,10 @@ export type Part = {
   /** What the commit says was edited, in the site's language, when not its name in lower case (an
    * app's settings, AppList.tsx: "indstillinger for Mailchimp"). */
   commit?: string;
+  /** The value a save of its fields sets, said in the notice after it ("CMS-version set to 0.10.0"), asked with the saved
+   * values and the app's own addresses in the Worker (`api`); undefined, or a failure, says "CMS-version changed"
+   * (partChange.ts). An app's settings copy it from AppSettings.changedTo (AppList.tsx appSettingsPart). */
+  changedTo?: (values: Record<string, unknown>, props: AppPageProps) => Promise<string | undefined>;
   /** Parts of its own, instead of fields: a row that opens a screen with them, each at
    * #<screen>/<id>/<part> and going back to it ("Virksomheden" › "Betaling" with "Bank"). */
   parts?: Part[];

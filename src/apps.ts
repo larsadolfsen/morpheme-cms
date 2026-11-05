@@ -55,6 +55,9 @@ export type AppSettings = {
   /** Made-up settings over `values`, which its blocks and kinds are drawn with under "Dele" (exampleData in
    * examples.ts), where the site's own are never shown (MobilePay's number). */
   example?: Record<string, unknown>;
+  /** The value a save of these settings sets, said in the notice after it ("CMS-version set to 0.10.0"), asked with the
+   * saved values and the app's own addresses in the Worker (`api`); undefined, or a failure, says "CMS-version changed". */
+  changedTo?: (values: Record<string, unknown>, props: AppPageProps) => Promise<string | undefined>;
 };
 export const defineSettings = (settings: AppSettings) => settings;
 
