@@ -1,5 +1,10 @@
 # Theme coverage marks: implementation plan
 
+> **Status: done** on 5 November 2026. All six tasks are on `main` through the theme coverage PR. Not released (the
+> owner's step). Workers: Task 1 and Task 2 the Ollama runner; Task 3, Task 4 and Task 5 Sonnet agents (the local runner
+> crashed on Task 4); Task 6 and the licences fix (`lib/licenses.mjs`, `OWN_VIRTUAL`) the orchestrator. The Venus check
+> shows 1 of 45 parts fully own: Venus styles most parts through custom properties only, which count as Material.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or
 > superpowers:executing-plans to implement this plan task by task. Steps use checkbox (`- [ ]`) syntax for tracking.
 > Worker routing follows `Interstellar/CLAUDE.md` (the Ollama runner by default).
@@ -83,7 +88,7 @@ Rules:
 - `themeCoverage` gives `own` when all pieces are styled, `material` when none is, else `partly`. `missing` is the
   sorted unstyled pieces. A part without pieces is not in the result.
 
-- [ ] **Step 1: Write the failing tests** in `site/themeCoverage.test.mjs` (`node:test`, `node:assert/strict`):
+- [x] **Step 1: Write the failing tests** in `site/themeCoverage.test.mjs` (`node:test`, `node:assert/strict`):
 
 | Test | Input | Expected |
 | --- | --- | --- |
@@ -107,12 +112,12 @@ Rules:
 | empty part left out | a part whose prefix matches no class | its id is not a key |
 | `group` copied | Chip has `group: 'frame'` | result `Chip.group === 'frame'` |
 
-- [ ] **Step 2: Run the tests. Expect them to fail.**
+- [x] **Step 2: Run the tests. Expect them to fail.**
   Run: `node --test site/themeCoverage.test.mjs`. Expected: FAIL, module not found.
-- [ ] **Step 3: Write `site/themeCoverage.mjs`.** Use the interfaces and rules above. No file access.
-- [ ] **Step 4: Run the tests. Expect them to pass.**
+- [x] **Step 3: Write `site/themeCoverage.mjs`.** Use the interfaces and rules above. No file access.
+- [x] **Step 4: Run the tests. Expect them to pass.**
   Run: `node --test site/themeCoverage.test.mjs`. Expected: all pass.
-- [ ] **Step 5: Commit.** Message: `Add theme coverage functions`.
+- [x] **Step 5: Commit.** Message: `Add theme coverage functions`.
 
 Runner call (`-Repo` is the session worktree, so the task branch starts from the session branch):
 
@@ -186,9 +191,9 @@ pwsh -NoProfile -File C:\Users\adolf\Documents\Interstellar\orchestrator\runner\
 | Logo | frame | `theme-logo` |
 
 `NOT_PARTS` (classes of `ui.css` that are no part): `astro`, `material`, `comp`, `elevation`, `ripple`,
-`ripple-wave`, `block-card`.
+`ripple-wave`, `block-card`, `js` (the root flag `:root:not(.js)` of the no-JS tooltip fallback).
 
-- [ ] **Step 1: Write the failing tests** in `site/themeParts.test.mjs`. Read the four files of `theme/styles/`
+- [x] **Step 1: Write the failing tests** in `site/themeParts.test.mjs`. Read the four files of `theme/styles/`
   (`base.css`, `ui.css`, `components.css`, `global.css`) with `readFileSync`, joined in that order.
 
 | Test | Expected |
@@ -199,11 +204,11 @@ pwsh -NoProfile -File C:\Users\adolf\Documents\Interstellar\orchestrator\runner\
 | Material as a theme | `themeCoverage({ materialCss, themeCss: materialCss, parts })` gives `material` for every part |
 | spot checks | `partOf('chip-set-wrap') === 'ChipSet'`, `partOf('fab-menu-item') === 'FabMenu'`, `partOf('top-app-bar-search') === 'TopAppBar'`, `partOf('md-footer-list') === 'Footer'` |
 
-- [ ] **Step 2: Run the tests. Expect them to fail.** Run: `node --test site/themeParts.test.mjs`.
-- [ ] **Step 3: Write `site/themeParts.mjs`** with the table above.
-- [ ] **Step 4: Run the tests. Expect them to pass.** If the `ui.css` test names a class that is not in the table,
+- [x] **Step 2: Run the tests. Expect them to fail.** Run: `node --test site/themeParts.test.mjs`.
+- [x] **Step 3: Write `site/themeParts.mjs`** with the table above.
+- [x] **Step 4: Run the tests. Expect them to pass.** If the `ui.css` test names a class that is not in the table,
   stop and report the class. Do not add it to `NOT_PARTS` without the orchestrator.
-- [ ] **Step 5: Commit.** Message: `Add the catalogue of parts a theme styles`.
+- [x] **Step 5: Commit.** Message: `Add the catalogue of parts a theme styles`.
 
 Runner call: the same as Task 1, with spec `theme-coverage-2-parts.md`, paths
 `site/themeParts.mjs,site/themeParts.test.mjs`, branch `feat/theme-coverage-parts` and check
@@ -247,7 +252,7 @@ Rules:
   `npm install` for the lock file.
 - Update the header of `site/theme.mjs` (the plugin's list of virtual modules).
 
-- [ ] **Step 1: Write the failing tests** in `site/themeCoverageFiles.test.mjs` on a temp folder (`mkdtempSync`):
+- [x] **Step 1: Write the failing tests** in `site/themeCoverageFiles.test.mjs` on a temp folder (`mkdtempSync`):
 
 | Test | Expected |
 | --- | --- |
@@ -257,11 +262,11 @@ Rules:
 | missing file | an import of `./gone.css` → throws, message contains `gone.css` |
 | standard theme | `coverageModule('saturn')` → `export default null;` |
 
-- [ ] **Step 2: Run the tests. Expect them to fail.** Run: `node --test site/themeCoverageFiles.test.mjs`.
-- [ ] **Step 3: Write `site/themeCoverageFiles.mjs`, the plugin branch, the type and `src/coverage.ts`.**
-- [ ] **Step 4: Run the checks.** Run: `node --test site/themeCoverageFiles.test.mjs site/theme.test.mjs`, then
+- [x] **Step 2: Run the tests. Expect them to fail.** Run: `node --test site/themeCoverageFiles.test.mjs`.
+- [x] **Step 3: Write `site/themeCoverageFiles.mjs`, the plugin branch, the type and `src/coverage.ts`.**
+- [x] **Step 4: Run the checks.** Run: `node --test site/themeCoverageFiles.test.mjs site/theme.test.mjs`, then
   `npm run build`. Expected: pass; the build has no unresolved-import error.
-- [ ] **Step 5: Commit.** Two commits, in this order, so each commit builds: first `Make postcss a dependency of
+- [x] **Step 5: Commit.** Two commits, in this order, so each commit builds: first `Make postcss a dependency of
   sites` (`package.json`, `package-lock.json`), then `Serve the theme's coverage as a virtual module` (code, tests).
 
 ---
@@ -307,12 +312,12 @@ en-US values:
 | `frame.actionBar` | `The bar with the page's actions.` |
 | `frame.logo` | `The logo: its mark, name and role.` |
 
-- [ ] **Step 1: Add the en-US keys** after `componentsIntro` in `src/i18n/en-US/parts.ts`.
-- [ ] **Step 2: Add the da-DK keys** in the same place in `src/i18n/da-DK/parts.ts`. Use natural Danish and the
+- [x] **Step 1: Add the en-US keys** after `componentsIntro` in `src/i18n/en-US/parts.ts`.
+- [x] **Step 2: Add the da-DK keys** in the same place in `src/i18n/da-DK/parts.ts`. Use natural Danish and the
   editor's fixed words. `Material` stays `Material`.
-- [ ] **Step 3: Run the checks.** Run: `npx prettier --check src/i18n` and `npm run build`. Expected: pass (the da-DK
+- [x] **Step 3: Run the checks.** Run: `npx prettier --check src/i18n` and `npm run build`. Expected: pass (the da-DK
   dictionary type must match en-US).
-- [ ] **Step 4: Commit.** Message: `Add the theme coverage texts`.
+- [x] **Step 4: Commit.** Message: `Add the theme coverage texts`.
 
 ---
 
@@ -349,13 +354,13 @@ Rules:
   last, with `<FrameParts />`.
 - Update the headers of `src/PartsShown.tsx` and `src/BlockParts.tsx`.
 
-- [ ] **Step 1: Write `CoverageBadge`, `CoverageSummary` and `FrameParts`.**
-- [ ] **Step 2: Change `Part` and `PartsShown`.**
-- [ ] **Step 3: Change `ComponentParts`.**
-- [ ] **Step 4: Run the checks.** Run: `npx prettier --check .` and `npm run build`. Expected: pass.
-- [ ] **Step 5: Check by hand on the demo (Material).** Run `npm run build`, then the demo's dev server. Open
+- [x] **Step 1: Write `CoverageBadge`, `CoverageSummary` and `FrameParts`.**
+- [x] **Step 2: Change `Part` and `PartsShown`.**
+- [x] **Step 3: Change `ComponentParts`.**
+- [x] **Step 4: Run the checks.** Run: `npx prettier --check .` and `npm run build`. Expected: pass.
+- [x] **Step 5: Check by hand on the demo (Material).** Run `npm run build`, then the demo's dev server. Open
   `/editor/#udseende/dele/ui`. Expected: no badge, no summary, no *Style* filter, the *Site frame* group present.
-- [ ] **Step 6: Commit.** Three commits: `Add the coverage badge and summary`, `Mark each part with its coverage`
+- [x] **Step 6: Commit.** Three commits: `Add the coverage badge and summary`, `Mark each part with its coverage`
   (`PartsShown.tsx`), `Add the site frame group to UI components` (`FrameParts.tsx`, `BlockParts.tsx`).
 
 ---
@@ -364,16 +369,16 @@ Rules:
 
 **Worker:** the orchestrator (git and checks only).
 
-- [ ] **Step 1: Add `.changeset/theme-coverage.md`** with the text from *Global constraints*. Commit:
+- [x] **Step 1: Add `.changeset/theme-coverage.md`** with the text from *Global constraints*. Commit:
   `Add the theme coverage changeset`.
-- [ ] **Step 2: Run the checks.** Run `npx prettier --check .`, `node --test` over `site/*.test.mjs` and
+- [x] **Step 2: Run the checks.** Run `npx prettier --check .`, `node --test` over `site/*.test.mjs` and
   `theme/styles/*.test.mjs`, and `npm run build`. Expected: pass.
-- [ ] **Step 3: Pack the branch.** Run `npm pack` in the worktree. Expected: `morphemecms-cms-<version>.tgz`.
-- [ ] **Step 4: Install the pack in a `morpheme-apps` worktree.** In its `site/`, run `npm install <path to .tgz>`.
+- [x] **Step 3: Pack the branch.** Run `npm pack` in the worktree. Expected: `morphemecms-cms-<version>.tgz`.
+- [x] **Step 4: Install the pack in a `morpheme-apps` worktree.** In its `site/`, run `npm install <path to .tgz>`.
   Set Venus as the active theme there. Do not commit this worktree.
-- [ ] **Step 5: Open the editor on that site.** Open `/editor/#udseende/dele/ui`. Expected: the summary names Venus;
+- [x] **Step 5: Open the editor on that site.** Open `/editor/#udseende/dele/ui`. Expected: the summary names Venus;
   Checkbox, RadioButton, Switch, Slider, DatePicker and TimePicker show *Material*; *Style* › *Material* shows only
   the gaps.
-- [ ] **Step 6: Take a screenshot.** Send it to the owner.
-- [ ] **Step 7: Open the PR and merge.** Merge per the standing go-ahead when the checks pass. Remove the
+- [x] **Step 6: Take a screenshot.** Send it to the owner.
+- [x] **Step 7: Open the PR and merge.** Merge per the standing go-ahead when the checks pass. Remove the
   `morpheme-apps` worktree.
