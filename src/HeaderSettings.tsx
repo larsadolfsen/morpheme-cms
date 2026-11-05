@@ -2,7 +2,7 @@
 // (SettingsSections.tsx): a preview of the header as the form has it, on a phone and a computer (partPreview.tsx), over the
 // sections Main menu (menu.json), Mobile menu (mobile-menu.json), Action button and Menu button (header.json). "Gem
 // ændringer" saves each changed file in its own commit (useDataFiles.ts). Exposes HeaderSettings (default). Uses
-// DataFileFields.tsx, fields.tsx, headerPreview.mjs and headerTheme.tsx.
+// DataFileFields.tsx, fields.tsx, blocks.ts (BlockData), headerPreview.mjs and headerTheme.tsx.
 import { useMemo, type ReactNode } from 'react';
 import FormFrame from './FormFrame';
 import { FieldList, Fields, ObjectFields, WrongField, type FieldContext } from './fields';
@@ -10,6 +10,7 @@ import { DataFileFields } from './DataFileFields';
 import { useDataFiles, type DataFilePart } from './useDataFiles';
 import { SettingsSections, useSettingsSections, type SettingsSection } from './SettingsSections';
 import { PartPreview } from './partPreview';
+import type { BlockData } from './blocks';
 import { headerDraft, swapHeader } from './headerPreview.mjs';
 import { headerThemeOf } from './headerTheme';
 import { collections } from './site';
@@ -60,11 +61,13 @@ export default function HeaderSettings({ env }: { env: Env }) {
     layout.steer(id);
   });
   const context: FieldContext = { relations: env.relations, lists: env.lists, testimonials: env.testimonials, site: env.site };
+  // What the theme draws the header's button from (headerThemeOf): the same site data, as the block cards have it.
+  const data: BlockData = { lists: env.lists, testimonials: env.testimonials, relations: env.relations, site: env.site };
 
   // What the form changes, put into a copy of the site's front page each time it changes.
   const swap = useMemo(() => {
     const draft = headerDraft(shapeOf(form.initial), shapeOf(form.values));
-    return (doc: Document) => swapHeader(doc, draft, headerThemeOf(draft.button, context));
+    return (doc: Document) => swapHeader(doc, draft, headerThemeOf(draft.button, data));
   }, [form.initial, form.values]);
 
   const fieldsOf = ({ file, field }: Place): ReactNode => {
