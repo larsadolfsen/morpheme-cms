@@ -127,7 +127,7 @@ test('taggedWith lists the file records with a tag in their categories', () => {
 
 test('recordUse gives the Filer path and the file name of a file record', () => {
   assert.deepEqual(recordUse(andromeda, 'src/data/files'), {
-    path: 'filer/images/uploads/2026/10/andromeda.webp',
+    path: 'files/images/uploads/2026/10/andromeda.webp',
     name: 'andromeda.webp',
   });
 });

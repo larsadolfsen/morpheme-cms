@@ -9,7 +9,7 @@ import { appIdOf, installedApps, withKinds, type AppDefinition, type AppList, ty
 import { appBlocks, appFiles, appFolders, appPictures, appShared, appStores } from './appFiles';
 import type { BlockDefinition, SiteBlock } from './blocks';
 import type { ListRows } from './fields';
-import { siteT, siteText, t, translatingSite } from './i18n';
+import { inSiteLanguage, siteT, siteText, t, translatingSite } from './i18n';
 import { byText, type Block, type Collection, type DataFile, type Edit, type Field, type OwnedList, type Part } from './schema';
 import { blockTypeOf, type SharedTexts } from './shared';
 import { appFolder, needsOf, SCREENSHOTS, shotFile } from './store';
@@ -19,17 +19,40 @@ const written = new WeakMap<object, object>();
 /** A collection, a file, a part or a block as the site wrote it, in its language: for the commits. */
 export const asWritten = <T extends object>(shown: T): T => (written.get(shown) as T | undefined) ?? shown;
 
-// Only the keys a thing has, so it is the same as it was but for its texts.
-function shown<T extends object>(from: T, texts: Partial<T>): T {
+// Only the keys a thing has, so it is the same as it was but for its texts. `link`: remember `from` as what it was written as.
+function shownAs<T extends object>(from: T, texts: Partial<T>, link: boolean): T {
   const to = { ...from };
   for (const key of Object.keys(texts) as (keyof T)[]) if (from[key] !== undefined) to[key] = texts[key]!;
-  written.set(to, from);
+  if (link) written.set(to, from);
   return to;
 }
 
 /** The site's parts with every text of theirs said by `say`: the label, the hint, the link elsewhere,
- * the message of a pattern, the options, a switch's two words … of each field, block, file and part. */
-export function translator(say: (text: string) => string) {
+ * the message of a pattern, the options, a switch's two words … of each field, block, file and part.
+ * `sayWritten`: what asWritten gives back for each thing it returns, with its texts said by it (the standard parts'
+ * English in the site's language, inSiteLanguage); without it, asWritten gives back the thing as it was. */
+export function translator(say: (text: string) => string, sayWritten?: (text: string) => string) {
+  const shownTexts = build(say, !sayWritten);
+  if (!sayWritten) return shownTexts;
+  const writtenTexts = build(sayWritten, false);
+  const both =
+    <A extends object>(one: (x: A) => A, said: (x: A) => A) =>
+    (x: A): A => {
+      const to = one(x);
+      written.set(to, said(x));
+      return to;
+    };
+  return {
+    ...shownTexts,
+    block: both(shownTexts.block, writtenTexts.block),
+    collection: both(shownTexts.collection, writtenTexts.collection),
+    part: both(shownTexts.part, writtenTexts.part),
+    app: both(shownTexts.app, writtenTexts.app),
+  } as typeof shownTexts;
+}
+
+function build(say: (text: string) => string, link: boolean) {
+  const shown = <T extends object>(from: T, texts: Partial<T>): T => shownAs(from, texts, link);
   const maybe = (text?: string) => (text === undefined ? text : say(text));
   const edit = (e?: Edit) => e && { ...e, text: say(e.text) };
   const field = (f: Field): Field =>
@@ -94,7 +117,8 @@ export function translator(say: (text: string) => string) {
 /** A colour under "Farver" (colorFields in @site/colors): its CSS variable without "--", its name and what it is for. */
 type ColorField = (typeof site.colorFields)[number];
 
-const local = translator(siteText);
+// A commit names a part in the site's language: the standard parts' English texts through inSiteLanguage, the site's own as written.
+const local = translator(siteText, inSiteLanguage);
 const each = <T>(all: T[], one: (x: T) => T) => (translatingSite ? all.map(one) : all);
 
 // The screens under "Blokke" of the blocks with shared texts (shared.ts in the block's folder), named and
@@ -117,7 +141,7 @@ function sharedPartsOf(blocks: Folders<BlockDefinition>, shared: Folders<SharedT
         fields,
         defaults: values,
         preview: { type, ...preview },
-        back: { href: '#blokke', label: t.common.parts.blocks },
+        back: { href: '#blocks', label: t.common.parts.blocks },
       },
     ];
   });
@@ -142,7 +166,7 @@ export const writtenBlockParts: Part[] = [...site.blockParts, ...sharedParts, ..
 /** The parts of "Virksomheden"; one with parts of its own (Part.parts) has them going back to it. */
 export const companyParts = each(
   site.companyParts.map((p) =>
-    p.parts ? { ...p, parts: p.parts.map((s) => ({ ...s, back: { href: `#virksomheden/${p.id}`, label: p.label } })) } : p,
+    p.parts ? { ...p, parts: p.parts.map((s) => ({ ...s, back: { href: `#company/${p.id}`, label: p.label } })) } : p,
   ),
   local.part,
 );
@@ -155,9 +179,9 @@ export const partScreens = site.partScreens.map((s) => ({
     local.part,
   ),
 }));
-/** The site's own parts under "Udseende" (#udseende, Library.tsx Theme), after the logo and icon, each going back to it. */
+/** The site's own parts under "Udseende" (#appearance, Library.tsx Theme), after the logo and icon, each going back to it. */
 export const appearance = each(
-  site.appearance.map((p) => ({ ...p, back: { href: '#udseende', label: t.common.parts.appearance } })),
+  site.appearance.map((p) => ({ ...p, back: { href: '#appearance', label: t.common.parts.appearance } })),
   local.part,
 );
 /** Where a screen goes back to: the start screen. The menu's sections ("Indhold" …) are lists in the drawer, not screens,
@@ -190,7 +214,7 @@ export const placeOf = (id: string): string | undefined => groups.find((g) => g.
  * ("Udseende › Standardsider"): the part with its field in the file of the standard pages. */
 export function standardPageAt(key: string): string {
   const chosenIn = (p: Part) => p.file === site.config.standardPages && !!p.fields?.some((f) => f.name === key);
-  const screen = [{ id: 'udseende', label: t.common.parts.appearance, parts: appearance }, ...partScreens].find((s) =>
+  const screen = [{ id: 'appearance', label: t.common.parts.appearance, parts: appearance }, ...partScreens].find((s) =>
     s.parts.some(chosenIn),
   );
   if (!screen) return '';
@@ -314,7 +338,7 @@ export const icons = {
   ),
 };
 
-/** The short lists, under "Lister" (#lister): the site's, the standard blocks' and the apps', which go back there too. */
+/** The short lists, under "Lister" (#lists): the site's, the standard blocks' and the apps', which go back there too. */
 export const lists = [...site.lists, ...ownedLists.map((l) => l.id)];
 
 /** The lists under "Lister" now: the site's, the standard blocks' and those of the apps installed, without the cookie

@@ -116,7 +116,7 @@ const plain = (s: string) =>
 
 type InsertSort = 'az' | 'za' | 'group';
 const INSERT_SORTS: InsertSort[] = ['az', 'za', 'group'];
-const INSERT_SORT_KEY = 'editor-sort-indsaet';
+const INSERT_SORT_KEY = 'editor-sort-insert';
 
 // A block's group: the app's name for an app's block, otherwise the standard blocks (also the picture and HTML).
 const groupOf = (b: SiteBlock) => (b.app ? (apps.find((a) => a.id === b.app)?.label ?? b.app) : t.blockSettings.standard);

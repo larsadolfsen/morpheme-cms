@@ -29,7 +29,8 @@ the CMS, and `AGENTS.md` section 4 runs the checks from this repo's root.
 | Batch | Status |
 |---|---|
 | 1 | Done (2026-11-05, branch `feat/english-source-batch-1`). `PENDING` has 13 prefixes. `danishValuesOf` also skips a value with no letter and a value that is an English text too (`src/i18n/en-US/`). `--all` ignores `PENDING`: on 2026-11-05 it found 2443 texts in 355 files. |
-| 2–6 | Not started. Wait for the go-ahead after batch 1. |
+| 2 | In progress (2026-11-05, branch `feat/english-source-batch-2`). Merge only after the theme coverage PR is in `main`. |
+| 3–6 | Not started. Each waits for its own go-ahead. |
 
 ## Batches
 

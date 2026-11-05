@@ -11,14 +11,14 @@ test('the start screen makes a page or a blog post', () => {
 });
 
 test('a list without kinds, or with one, has one action named after its create label', () => {
-  assert.deepEqual(listFab({ id: 'pages', create: 'New page' }, []), [{ label: 'New page', href: '#ny/pages' }]);
-  assert.deepEqual(listFab({ id: 'popups', create: 'New promotion' }, [standard]), [{ label: 'New promotion', href: '#ny/popups' }]);
+  assert.deepEqual(listFab({ id: 'pages', create: 'New page' }, []), [{ label: 'New page', href: '#new/pages' }]);
+  assert.deepEqual(listFab({ id: 'popups', create: 'New promotion' }, [standard]), [{ label: 'New promotion', href: '#new/popups' }]);
 });
 
 test('a list of several kinds has one action per kind', () => {
   assert.deepEqual(listFab({ id: 'popups', create: 'New promotion' }, [standard, mailchimp]), [
-    { label: 'Standard', href: '#ny/popups/standard' },
-    { label: 'Mailchimp', href: '#ny/popups/mailchimp' },
+    { label: 'Standard', href: '#new/popups/standard' },
+    { label: 'Mailchimp', href: '#new/popups/mailchimp' },
   ]);
 });
 

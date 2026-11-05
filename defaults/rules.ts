@@ -20,7 +20,7 @@ const fm = (file: RepoFile) => readFields(splitFrontmatter(file.text).yaml);
 // A page's address: `path`, or /<file name>/ for pages made in the editor.
 const pagePath = (f: RepoFile) => String(fm(f).path ?? `/${slugOf(f.path, config.folders.pages)}/`);
 const isPage = (f: RepoFile) => f.path.startsWith(`${config.folders.pages}/`) && f.path.endsWith('.md');
-// The addresses of the standard pages, by their key ("Indstillinger" › "Udseende" › "Standardsider", standardPages.ts).
+// The addresses of the standard pages, by their key ("Settings" › "Appearance" › "Default pages", standardPages.ts).
 const standardOf = (files: { path: string; text: string }[]) => standardPaths(files.find((f) => f.path === config.standardPages)?.text);
 // The page that is a standard page (the front page: 'front'), if it is there.
 const standardFile = (files: RepoFile[], key: string) => {
@@ -64,7 +64,7 @@ export function relationsOf(files: RepoFile[]): Record<Relation, Option[]> {
   return {
     // Pages are stored by their address: `path`, or /<file name>/ for pages made in the editor.
     pages: inFolder(config.folders.pages, '.md').map(page).sort(byLabel),
-    // The pages that can be a standard page ("Indstillinger" › "Udseende" › "Standardsider"): those on the site, not a
+    // The pages that can be a standard page ("Settings" › "Appearance" › "Default pages"): those on the site, not a
     // draft, one waiting for its time or a new version of a page (/ny/).
     standardPages: inFolder(config.folders.pages, '.md')
       .filter((f) => !['draft', 'scheduled'].includes(String(fm(f).status ?? '')) && !pagePath(f).startsWith('/ny/'))
@@ -72,7 +72,7 @@ export function relationsOf(files: RepoFile[]): Record<Relation, Option[]> {
       .sort(byLabel),
     // The front page (/) and the blog (/blog/), whichever pages they are, the blog by its page's title.
     fixed: [
-      { value: '/', label: siteText('Forside'), inMenu: menu.has('/') },
+      { value: '/', label: siteText('Front page'), inMenu: menu.has('/') },
       {
         value: '/blog/',
         label: String((standardFile(files, 'blog') && fm(standardFile(files, 'blog')!).title) || siteText('Blog')),
@@ -93,9 +93,9 @@ export function relationsOf(files: RepoFile[]): Record<Relation, Option[]> {
     testimonials: inFolder('src/data/testimonials', '.json')
       .map((f) => ({ value: slugOf(f.path, 'src/data/testimonials'), label: String(json(f).name) }))
       .sort(byLabel),
-    // The promotions turned on that a button can open ("Knapper": "Åbn promovering", opens.ts), by what opens with
-    // the promotion's name ("Bookingarket (Calendly bookingark)"), where they are shown (a button offers those on its
-    // page) and the button's text: a pop-up's heading, or that of the target it stands for ("Book en tid").
+    // The promotions turned on that a button can open ("Buttons": "Open promotion", opens.ts), by what opens with
+    // the promotion's name ("Booking sheet (Calendly booking sheet)"), where they are shown (a button offers those on its
+    // page) and the button's text: a pop-up's heading, or that of the target it stands for ("Book an appointment").
     promotions: inFolder('src/data/popups', '.json')
       .flatMap((f) => {
         const d = json(f);
@@ -112,7 +112,7 @@ export function relationsOf(files: RepoFile[]): Record<Relation, Option[]> {
         ];
       })
       .sort(byLabel),
-    // The PDFs in "Filer", by their address on the site (/filer/<name>.pdf), named by their file name.
+    // The PDFs in "Files", by their address on the site (/filer/<name>.pdf), named by their file name.
     files: inFolder(config.folders.files, '.pdf')
       .map((f) => ({ value: f.path.replace(/^public/, ''), label: f.path.split('/').pop()! }))
       .sort(byLabel),
@@ -121,16 +121,16 @@ export function relationsOf(files: RepoFile[]): Record<Relation, Option[]> {
 
 const frontPage = (files: RepoFile[]) => ({
   to: standardFile(files, 'front')?.path ?? config.standardPages,
-  text: siteText('Rediger forsiden'),
+  text: siteText('Edit the front page'),
 });
 
 // Where a button that opens a promotion is: a page (`path`), the shared buttons (on any page: neither), or an action bar
 // (`bar`: the pages it is shown on, or none for every page or the posts with its tags).
 type Opener = { file: string; title: string; path?: string; bar?: { pages?: string[] } };
 
-// The buttons that open a promotion ("Knapper": "Åbn promovering", the button's `open`), where they are: the page with
+// The buttons that open a promotion ("Buttons": "Open promotion", the button's `open`), where they are: the page with
 // the block (its file, title and the address it is shown at: the front page's /), the shared buttons
-// ("Standardblokke" › "Knapper", on any page: no address), or an action bar ("Promovering").
+// ("Standard blocks" › "Buttons", on any page: no address), or an action bar ("Promotion").
 function openersOf(slug: string, files: { path: string; text: string }[]): Opener[] {
   const opens = (items: unknown) =>
     Array.isArray(items) &&
@@ -143,7 +143,7 @@ function openersOf(slug: string, files: { path: string; text: string }[]): Opene
   const found: Opener[] = [];
   for (const f of files) {
     if (f.path.startsWith(`${config.folders.pages}/`) && f.path.endsWith('.md')) {
-      // Also a "Knapper" block in a block's text (a "Banner"'s), where its quotes are written as &quot;.
+      // Also a "Buttons" block in a block's text (a "Banner"'s), where its quotes are written as &quot;.
       if (!/data-block=(?:"|\\&quot;)buttons/.test(f.text)) continue;
       const d = fm(f as RepoFile);
       if (
@@ -155,12 +155,12 @@ function openersOf(slug: string, files: { path: string; text: string }[]): Opene
       if (d.type === 'bookingbar' && d.enabled !== false && opens(d.buttons))
         found.push({
           file: f.path,
-          title: siteText('Handlingslinje'),
+          title: siteText('Action bar'),
           bar: { pages: d.where === 'all' || d.where === 'tags' ? undefined : Array.isArray(d.pages) ? d.pages.map(String) : [] },
         });
     } else if (f.path === config.blockTexts) {
       if (opens((json(f as RepoFile).buttons as Record<string, unknown> | undefined)?.items))
-        found.push({ file: 'blokke/buttons', title: siteText('Standardknapper') });
+        found.push({ file: 'blocks/buttons', title: siteText('Default buttons') });
     }
   }
   return found;
@@ -180,20 +180,20 @@ function shownFor(d: Record<string, unknown>, at: Opener) {
 const openerText = (at: Opener) =>
   at.bar
     ? siteText(
-        'En knap i handlingslinjen åbner promoveringen, så den skal være slået til og vises alle steder, hvor linjen vises. Ret knappen først.',
+        'A button in the action bar opens the promotion, so it must be turned on and shown everywhere the bar is shown. Change the button first.',
       )
     : at.path
-      ? siteText('En knap på siden "{side}" åbner promoveringen, så den skal være slået til og vises dér. Ret knappen først.', {
+      ? siteText('A button on the page "{side}" opens the promotion, so it must be on and shown there. Change the button first.', {
           side: at.title,
         })
-      : siteText('Standardknapperne åbner promoveringen, så den skal være slået til og vises på alle sider. Ret dem først.');
+      : siteText('The default buttons open the promotion, so it must be on and shown on every page. Change them first.');
 const openerEdit = (at: Opener) => ({
   to: at.file,
-  text: siteText(at.bar ? 'Rediger handlingslinjen' : at.path ? 'Rediger siden' : 'Rediger standardknapperne'),
+  text: siteText(at.bar ? 'Edit the action bar' : at.path ? 'Edit the page' : 'Edit the default buttons'),
 });
 
 /** Why a promotion cannot be saved like this (turned off, or no longer shown on a page where a button opens it,
- * "Knapper": "Åbn promovering"), with a link to the button, or the standard pages (the same page twice, or a page
+ * "Buttons": "Open promotion"), with a link to the button, or the standard pages (the same page twice, or a page
  * without the block it must have, with a link to it), or null. Before it is saved (DataForm.tsx; the standard pages in
  * CompanyForm.tsx, without a collection). */
 export function keptBy(collection: Collection | null, path: string, data: Record<string, unknown>, files: RepoFile[]): Status {
@@ -208,18 +208,18 @@ export function keptBy(collection: Collection | null, path: string, data: Record
 function standardKept(data: Record<string, unknown>, files: RepoFile[]): Status {
   const chosen = standardPages.map((p) => ({ ...p, path: String(data[p.key] ?? '') })).filter((p) => p.path);
   if (!differentPages(Object.fromEntries(chosen.map((p) => [p.key, p.path]))))
-    return { text: siteText('Standardsiderne skal være forskellige sider.'), error: true };
+    return { text: siteText('The default pages must be different pages.'), error: true };
   for (const p of chosen) {
     const page = files.find((f) => isPage(f) && pagePath(f) === p.path);
     if (!p.needs || !page || blocksIn(page.text).some((b: { type: string }) => b.type === p.needs!.type)) continue;
     return {
-      text: siteText('Siden "{side}" har ikke blokken {blok}, som {hvad} skal have. Sæt den ind på siden først.', {
+      text: siteText('The page "{side}" does not have the block {blok}, which {hvad} must have. Put it in on the page first.', {
         side: String(fm(page).title),
         blok: siteText(p.needs.label),
         hvad: siteText(p.the).toLowerCase(),
       }),
       error: true,
-      edit: { to: page.path, text: siteText('Rediger siden') },
+      edit: { to: page.path, text: siteText('Edit the page') },
     };
   }
   return null;
@@ -230,16 +230,16 @@ function standardKept(data: Record<string, unknown>, files: RepoFile[]): Status 
  * shown on its page. */
 export function siteProblems(files: { path: string; text: string }[]): string[] {
   const problems: string[] = [];
-  // The standard pages are pages on the site ("Indstillinger" › "Udseende" › "Standardsider"), different ones (but for
+  // The standard pages are pages on the site ("Settings" › "Appearance" › "Default pages"), different ones (but for
   // the cookie policy, which may be the privacy policy).
   if (files.some((f) => f.path === config.standardPages)) {
     for (const p of standardPages) {
       const page = standardFile(files as RepoFile[], p.key);
       if (!page || ['draft', 'scheduled'].includes(String(fm(page).status ?? '')))
-        problems.push(`${config.standardPages}: ${siteText('{side} skal være en side, der er udgivet.', { side: siteText(p.the) })}`);
+        problems.push(`${config.standardPages}: ${siteText('{side} must be a published page.', { side: siteText(p.the) })}`);
     }
     if (!differentPages(standardOf(files)))
-      problems.push(`${config.standardPages}: ${siteText('Standardsiderne skal være forskellige sider.')}`);
+      problems.push(`${config.standardPages}: ${siteText('The default pages must be different pages.')}`);
   }
   const promotions = files.filter((f) => f.path.startsWith('src/data/popups/') && f.path.endsWith('.json'));
   const slugs = new Set<string>();
@@ -249,8 +249,8 @@ export function siteProblems(files: { path: string; text: string }[]): string[] 
     for (const at of openersOf(slug, files)) {
       if (file && shownFor(json(file as RepoFile), at)) continue;
       problems.push(
-        `${at.file.startsWith('blokke/') ? config.blockTexts : at.file}: ${
-          file ? openerText(at) : siteText('En knap åbner promoveringen "{navn}", som ikke findes.', { navn: slug })
+        `${at.file.startsWith('blocks/') ? config.blockTexts : at.file}: ${
+          file ? openerText(at) : siteText('A button opens the promotion "{navn}", which does not exist.', { navn: slug })
         }`,
       );
     }
@@ -272,16 +272,16 @@ const TAG_FOLDERS: TagFolders = {
 export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]): Status {
   if (collection.kind === 'files') return null;
   const slug = slugOf(file.path, collection.folder);
-  // A promotion a button opens ("Knapper": "Åbn promovering").
+  // A promotion a button opens ("Buttons": "Open promotion").
   if (collection.id === 'popups') {
     const [at] = openersOf(slug, files);
     if (at)
       return {
         text: at.bar
-          ? siteText('En knap i handlingslinjen åbner promoveringen. Ret knappen først.')
+          ? siteText('A button in the action bar opens the promotion. Change the button first.')
           : at.path
-            ? siteText('En knap på siden "{side}" åbner promoveringen. Ret knappen først.', { side: at.title })
-            : siteText('Standardknapperne åbner promoveringen. Ret dem først.'),
+            ? siteText('A button on the page "{side}" opens the promotion. Change the button first.', { side: at.title })
+            : siteText('The default buttons open the promotion. Change them first.'),
         error: true,
         edit: openerEdit(at),
       };
@@ -290,69 +290,71 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
   const front = Object.fromEntries(
     (home ? (blocksIn(home.text) as { type: string; props: Record<string, unknown> }[]) : []).map((b) => [b.type, b.props]),
   );
-  if (collection.id === 'kategorier') {
+  if (collection.id === 'tags') {
     const { posts, pages, testimonials: quotes, records } = taggedWith(files, slug, TAG_FOLDERS);
     if (posts.length)
       return {
         text:
           posts.length === 1
-            ? siteText('Tagget bruges på et blogindlæg. Fjern det fra det først.')
-            : siteText('Tagget bruges på {antal} blogindlæg. Fjern det fra dem først.', { antal: posts.length }),
+            ? siteText('The tag is used on a blog post. Remove it from the post first.')
+            : siteText('The tag is used on {antal} blog posts. Remove it from them first.', { antal: posts.length }),
         error: true,
       };
     if (pages.length)
       return {
         text:
           pages.length === 1
-            ? siteText('Tagget bruges på en side. Fjern det fra den først.')
-            : siteText('Tagget bruges på {antal} sider. Fjern det fra dem først.', { antal: pages.length }),
+            ? siteText('The tag is used on a page. Remove it from the page first.')
+            : siteText('The tag is used on {antal} pages. Remove it from them first.', { antal: pages.length }),
         error: true,
-        ...(pages.length === 1 ? { edit: { to: pages[0].path, text: siteText('Rediger siden') } } : {}),
+        ...(pages.length === 1 ? { edit: { to: pages[0].path, text: siteText('Edit the page') } } : {}),
       };
     if (quotes.length)
       return {
         text:
           quotes.length === 1
-            ? siteText('Tagget bruges på en udtalelse. Fjern det fra den først.')
-            : siteText('Tagget bruges på {antal} udtalelser. Fjern det fra dem først.', { antal: quotes.length }),
+            ? siteText('The tag is used on a testimonial. Remove it from the testimonial first.')
+            : siteText('The tag is used on {antal} testimonials. Remove it from them first.', { antal: quotes.length }),
         error: true,
       };
     if (records.length)
       return {
         text:
           records.length === 1
-            ? siteText('Tagget bruges på en fil. Fjern det fra den først.')
-            : siteText('Tagget bruges på {antal} filer. Fjern det fra dem først.', { antal: records.length }),
+            ? siteText('The tag is used on a file. Remove it from the file first.')
+            : siteText('The tag is used on {antal} files. Remove it from them first.', { antal: records.length }),
         error: true,
-        ...(records.length === 1 ? { edit: { to: recordUse(records[0], config.fileRecords)!.path, text: siteText('Åbn filen') } } : {}),
+        ...(records.length === 1 ? { edit: { to: recordUse(records[0], config.fileRecords)!.path, text: siteText('Open the file') } } : {}),
       };
-    // A promotion shown on the posts with the tag (Promovering, "Blogindlæg med tags").
+    // A promotion shown on the posts with the tag (Promotion, "Blog posts with tags").
     const promotion = files.find(
       (f) => f.path.startsWith('src/data/popups/') && f.path.endsWith('.json') && promotionTags(json(f)).includes(slug),
     );
     if (promotion) {
       const d = json(promotion);
       return {
-        text: siteText('Tagget bruges i promoveringen "{navn}". Fjern det fra den først.', { navn: String(d.heading ?? d.name ?? '') }),
+        text: siteText('The tag is used in the promotion "{navn}". Remove it from the promotion first.', {
+          navn: String(d.heading ?? d.name ?? ''),
+        }),
         error: true,
-        edit: { to: promotion.path, text: siteText('Rediger promoveringen') },
+        edit: { to: promotion.path, text: siteText('Edit the promotion') },
       };
     }
     const fp = front.posts as Record<string, unknown> | undefined;
     if ((fp?.categories as string[] | undefined)?.includes(slug) || fp?.link === slug)
       return {
-        text: siteText('Tagget vælger indlæggene på forsiden under "Fra bloggen". Vælg et andet først.'),
+        text: siteText('The tag picks the posts on the front page under "From the blog". Pick another one first.'),
         error: true,
         edit: frontPage(files),
       };
   }
   if (collection.id === 'blog' && ((front.posts as Record<string, unknown>)?.picked as string[])?.includes(slug))
     return {
-      text: siteText('Indlægget er valgt til forsiden under "Fra bloggen". Vælg et andet først.'),
+      text: siteText('The post is picked for the front page under "From the blog". Pick another one first.'),
       error: true,
       edit: frontPage(files),
     };
-  // A "Blogindlæg" block in a page that picks the post (its props are in the text).
+  // A "Blog posts" block in a page that picks the post (its props are in the text).
   if (collection.id === 'blog') {
     const page = files.find(
       (f) =>
@@ -360,28 +362,28 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
     );
     if (page)
       return {
-        text: siteText('Indlægget er valgt i en blok med blogindlæg på siden "{side}". Vælg et andet først.', {
+        text: siteText('The post is picked in a block of blog posts on the page "{side}". Pick another one first.', {
           side: String(fm(page).title),
         }),
         error: true,
-        edit: { to: page.path, text: siteText('Rediger siden') },
+        edit: { to: page.path, text: siteText('Edit the page') },
       };
   }
-  // Any other place under "Bruges på" (usesOf): a "Blogindlæg" or "Udtalelser" block that picks the tag, on a
+  // Any other place under "Used on" (usesOf): a "Blog posts" or "Testimonials" block that picks the tag, on a
   // page or in a post. Files with the tag are handled above (records), so the first use is never a file record.
-  if (collection.id === 'kategorier') {
+  if (collection.id === 'tags') {
     const use = usesOf(collection, files)(file)[0];
     if (use) {
       const post = use.path.startsWith(`${config.folders.blog}/`);
       return {
         text: siteText(
           post
-            ? 'Tagget er valgt i en blok i blogindlægget "{side}". Vælg et andet først.'
-            : 'Tagget er valgt i en blok på siden "{side}". Vælg et andet først.',
+            ? 'The tag is picked in a block in the blog post "{side}". Pick another one first.'
+            : 'The tag is picked in a block on the page "{side}". Pick another one first.',
           { side: use.name },
         ),
         error: true,
-        edit: { to: use.path, text: siteText(post ? 'Rediger indlægget' : 'Rediger siden') },
+        edit: { to: use.path, text: siteText(post ? 'Edit the post' : 'Edit the page') },
       };
     }
   }
@@ -402,12 +404,12 @@ function nameOf(file: RepoFile): string {
 
 export type Use = { path: string; name: string };
 
-// The places on the site that use an entry, by the entry's file, each once (the tag's "Bruges på", DataForm.tsx,
+// The places on the site that use an entry, by the entry's file, each once (the tag's "Used on", DataForm.tsx,
 // and the number at it in its list, Library.tsx); [] for none. For a tag: the blog posts, pages, testimonials,
-// promotions and files (by the route "filer/<path>" and the file's name) that have it, and the pages and posts with a "Blogindlæg" or "Udtalelser" block that
-// picks it (its tags, or the tag "Alle indlæg" goes to). Made once for the whole list.
+// promotions and files (by the route "files/<path>" and the file's name) that have it, and the pages and posts with a "Blog posts" or "Testimonials" block that
+// picks it (its tags, or the tag "All posts" goes to). Made once for the whole list.
 export function usesOf(collection: Collection, files: RepoFile[]): (file: RepoFile) => Use[] {
-  if (collection.kind === 'files' || collection.id !== 'kategorier') return () => [];
+  if (collection.kind === 'files' || collection.id !== 'tags') return () => [];
   const uses = tagUses(files, TAG_FOLDERS);
   return (file) =>
     [...(uses.get(slugOf(file.path, collection.folder))?.values() ?? [])]
@@ -418,7 +420,7 @@ export function usesOf(collection: Collection, files: RepoFile[]): (file: RepoFi
 // The number at the right of an entry in the list of a part, by the entry's file, or null for none
 // (Library.tsx): at each tag, the number of places that use it (usesOf).
 export function countsOf(collection: Collection, files: RepoFile[]): (file: RepoFile) => number | null {
-  if (collection.kind === 'files' || collection.id !== 'kategorier') return () => null;
+  if (collection.kind === 'files' || collection.id !== 'tags') return () => null;
   const uses = tagUses(files, TAG_FOLDERS);
   return (file) => uses.get(slugOf(file.path, collection.folder))?.size ?? 0;
 }
@@ -430,19 +432,19 @@ export const testimonialsOf = (files: RepoFile[]) =>
     .map((f) => ({ ...(json(f) as TestimonialRow & { order?: number }), slug: slugOf(f.path, 'src/data/testimonials') }))
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-/** What is at an address, as said in a message: "forsiden", 'siden "Om mig" (/om-mig/)',
+/** What is at an address, as said in a message: 'the front page', 'the page "About me" (/about-me/)',
  * or the address (where a redirect sends to, App.tsx). */
 export function whatIsAt(address: string, relations: Record<Relation, Option[]>): string {
   const base = address.split('#')[0];
-  if (base === '/') return siteText('forsiden');
-  if (base === '/blog/') return siteText('bloggen');
+  if (base === '/') return siteText('the front page');
+  if (base === '/blog/') return siteText('the blog');
   const page = [...relations.fixed, ...relations.pages].find((o) => o.value === base);
-  if (page) return siteText('siden "{navn}" ({adresse})', { navn: page.label, adresse: address });
+  if (page) return siteText('the page "{navn}" ({adresse})', { navn: page.label, adresse: address });
   const post = relations.blog.find((o) => `/${o.value}/` === base);
-  if (post) return siteText('blogindlægget "{navn}" ({adresse})', { navn: post.label, adresse: address });
+  if (post) return siteText('the blog post "{navn}" ({adresse})', { navn: post.label, adresse: address });
   const tag = relations.categories.find((o) => `/blog/kategori/${o.value}/` === base);
-  if (tag) return siteText('tagget "{navn}" på bloggen ({adresse})', { navn: tag.label, adresse: address });
+  if (tag) return siteText('the tag "{navn}" on the blog ({adresse})', { navn: tag.label, adresse: address });
   if (base.startsWith(config.folders.media.replace(/^public/, '') + '/'))
-    return siteText('billedet {navn}', { navn: base.split('/').pop()! });
+    return siteText('the picture {navn}', { navn: base.split('/').pop()! });
   return address;
 }

@@ -1,4 +1,4 @@
-// "Udseende" › "Footer" (#udseende/footer): the footer's text under the name, its two headings and its links (footer.json),
+// "Udseende" › "Footer" (#appearance/footer): the footer's text under the name, its two headings and its links (footer.json),
 // on one screen laid out as a page's form (SettingsSections.tsx): a preview of the footer as the form has it, on a phone and
 // a computer (partPreview.tsx), over the sections Text, Contact and Links. "Gem ændringer" saves the file in its own
 // commit (useDataFiles.ts). Exposes FooterSettings (default). Uses fields.tsx and footerPreview.mjs.
@@ -30,7 +30,7 @@ const placeOf = (path: string) => places.find((p) => p.names.includes(path.split
 // The class of a link in the footer (Footer.astro), for a footer whose page has no link to copy.
 const THEME = { linkClass: 'md-footer-item' };
 
-const back = { href: '#udseende', label: t.common.parts.appearance };
+const back = { href: '#appearance', label: t.common.parts.appearance };
 
 export default function FooterSettings({ env }: { env: Env }) {
   const layout = useSettingsSections(places);

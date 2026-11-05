@@ -1,12 +1,12 @@
-// "Interne links" under "Søgemaskineoptimering": the keywords of the pages, the posts and the blog page become links
+// "Internal links" under "Search engine optimization": the keywords of the pages, the posts and the blog page become links
 // to them when the site is built (packages/editor/site/autolinks.mjs), in src/data/internal-links.json: whether they do and how many
 // per page; under them the list of the keywords (`below`, Keywords.tsx in the editor).
 import { LinkSimple } from '@phosphor-icons/react';
 import type { Part } from '../src/schema';
 
 export const internalLinks: Part = {
-  id: 'interne-links',
-  label: 'Interne links',
+  id: 'internal-links',
+  label: 'Internal links',
   icon: LinkSimple,
   file: 'src/data/internal-links.json',
   defaults: { enabled: true, maxPerPage: 8 },
@@ -14,17 +14,17 @@ export const internalLinks: Part = {
   fields: [
     {
       name: 'enabled',
-      label: 'Aktiveret',
+      label: 'Activated',
       type: 'boolean',
-      toggle: ['Til', 'Fra'],
-      hint: 'Søgeordene på siderne og blogindlæggene bliver links til dem, når hjemmesiden opdateres.',
+      toggle: ['On', 'Off'],
+      hint: 'The keywords of the pages and blog posts become links to them when the website is updated.',
     },
     {
       name: 'maxPerPage',
-      label: 'Antal links (pr. side)',
+      label: 'Number of links (per page)',
       type: 'number',
       required: true,
-      hint: 'Højst så mange automatiske links på en side eller i et indlæg.',
+      hint: 'At most this many automatic links on a page or in a post.',
     },
   ],
 };

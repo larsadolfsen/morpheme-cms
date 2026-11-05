@@ -33,7 +33,7 @@ export const apps = {
   cookiesAsk: 'Set only once the visitor has said yes in the cookie banner',
   noCookies: 'Sets no cookies',
   developer: 'Developer',
-  /** On a developer's page (#apps/udvikler/<navn>): over their apps, and the number of them by their row on an app's page. */
+  /** On a developer's page (#apps/developer/<name>): over their apps, and the number of them by their row on an app's page. */
   developerApps: 'Apps',
   appCount: (n: number) => (n === 1 ? '1 app' : `${n} apps`),
   /** At the address of a developer no app has. */

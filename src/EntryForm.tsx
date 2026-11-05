@@ -99,7 +99,7 @@ export const newMarkdown = (collection: MarkdownCollection, off: string[] = []):
 // The address of a saved page or post: a page's own `path`, or else /<file name>/ (packages/editor/site/content.ts).
 // '' for a new one.
 // Where the redirects are, as the menu has it: "Indhold" › "Videresendelser" › "Alle videresendelser".
-const redirectsPath = () => [placeOf('videresendelser'), t.common.parts.redirects, t.redirects.all].filter(Boolean).join(' › ');
+const redirectsPath = () => [placeOf('redirects'), t.common.parts.redirects, t.redirects.all].filter(Boolean).join(' › ');
 
 function addressNow(collection: MarkdownCollection, file: RepoFile, data: Record<string, unknown>) {
   if (!file.path) return '';
@@ -623,7 +623,7 @@ function Form({
       <WrongField.Provider value={wrongField.field}>
         <FormFrame
           title={formTitle}
-          back={{ href: `#liste/${collection.id}`, label: collection.label }}
+          back={{ href: `#list/${collection.id}`, label: collection.label }}
           status={savedStatus({ savedAt, saving, deleting, isNew })}
           view={isNew ? undefined : url}
           dirty={dirty}

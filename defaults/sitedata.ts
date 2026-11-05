@@ -1,7 +1,7 @@
 // What the previews of the blocks (src/apps/<app>/blocks/, previews.tsx) show from elsewhere on the site, from the files
 // as the editor has them now: the pages (their titles and texts, for the topics and the services),
 // the blog posts, the phone, e-mail and address (contact.json), the payment details (payment.json) and
-// the texts of the "Book en tid" box (booking.json), the settings of the apps (src/apps/) and the cookie list.
+// the texts of the "Book an appointment" box (booking.json), the settings of the apps (src/apps/) and the cookie list.
 import type { RepoFile } from '../src/github';
 import type { StandardSiteData } from '../src/standard/site';
 import { categoryOf } from '../lib/cookieCategories.mjs';
@@ -30,13 +30,13 @@ export type SiteData = {
   /** The bank details, and what else the site keeps in payment.json (a site's other ways to pay). */
   payment: { bank: string; reg: string; account: string } & Record<string, string>;
   booking: { heading: string; text: string };
-  /** The labels of the buttons "Book en tid" and "Ring …" (booking.json). */
+  /** The labels of the buttons "Book an appointment" and "Call …" (booking.json). */
   labels: { book: string; call: string };
   /** The texts every copy of a block has (its shared.ts, saved in blocks.json). */
   blocks: BlockTexts;
-  /** The texts of the buttons of "Knapper" that go elsewhere than a page (config.buttonTargets). */
+  /** The texts of the buttons of "Buttons" that go elsewhere than a page (config.buttonTargets). */
   buttons: StandardSiteData['buttons'];
-  /** The tags not shown on the blog ("Blogkategori" off, packages/editor/site/categories.ts). */
+  /** The tags not shown on the blog ("Blog category" off, packages/editor/site/categories.ts). */
   tagsOffBlog: string[];
   /** The settings of the apps as saved (config.apps.settings), by the app's id; an app's blocks put
    * them over those in its settings.ts. */

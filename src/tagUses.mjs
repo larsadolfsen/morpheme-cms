@@ -87,7 +87,7 @@ export function tagUses(files, folders) {
 }
 
 /**
- * A file record's use of a tag: the Filer address the file record is for, as a path under filer/.
+ * A file record's use of a tag: the Filer address the file record is for, as a path under files/.
  * @param {TagFile} file
  * @param {string} folder the file records folder
  * @returns {{ path: string; name: string } | null}
@@ -95,7 +95,7 @@ export function tagUses(files, folders) {
 export function recordUse(file, folder) {
   const record = folder !== undefined && isRecordPath(file.path, folder) ? parseRecord(file.text) : null;
   if (!record) return null;
-  return { path: `filer${record.src}`, name: record.src.slice(record.src.lastIndexOf('/') + 1) };
+  return { path: `files${record.src}`, name: record.src.slice(record.src.lastIndexOf('/') + 1) };
 }
 
 /**

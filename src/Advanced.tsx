@@ -1,4 +1,4 @@
-// "Avanceret" (#avanceret), under "Indstillinger": R2 caching, the copy of the site's files in Cloudflare R2 the Worker
+// "Avanceret" (#advanced), under "Indstillinger": R2 caching, the copy of the site's files in Cloudflare R2 the Worker
 // answers the editor from (packages/editor/worker/files.js), turned on and off with "Aktiveret" in the Worker's settings (r2Caching.ts),
 // saved at once in its own commit. Off, the Worker asks GitHub for everything. It can only be turned on when Cloudflare
 // has the bucket (the Worker asks, /api/r2), else a deploy would fail; under the switch, why not, and, until the site is
@@ -32,7 +32,7 @@ import { buildSettingsOf, withBuildSetting, type BuildSetting } from './buildSet
 import { BUILD_SETTINGS_PATH } from '../lib/build-settings.mjs';
 import { siteT, t } from './i18n';
 
-export const ADVANCED_ROUTE = 'avanceret';
+export const ADVANCED_ROUTE = 'advanced';
 
 // "Placering" when Cloudflare places the bucket (no jurisdiction).
 const AUTO = 'auto';

@@ -1,4 +1,4 @@
-// "Udseende" › "Dele" › "Editor" (#udseende/dele/editor): the parts only the editor has (ui.tsx: the SEO rating, the
+// "Udseende" › "Dele" › "Editor" (#appearance/parts/editor): the parts only the editor has (ui.tsx: the SEO rating, the
 // colour field, the choices of pages and icons, the form's layout …) in every state, on one screen, to see and agree on
 // how the editor looks, and below them the form fields (fields.tsx), one of each type with the settings it can have.
 // The parts the theme has too (buttons, fields, switches, lists, sheets …) are the theme's, shown under "UI-komponenter"
@@ -118,7 +118,7 @@ const GROUPS = (['buttons', 'fields', 'choices', 'lists', 'sheets', 'messages', 
 }));
 
 export default function Parts({ env }: { env: Env }) {
-  const [sort, setSort] = useState('nyeste');
+  const [sort, setSort] = useState('newest');
   const [filter, setFilter] = useState('');
   const [content, setContent] = useState('');
   const [picked, setPicked] = useState('a');
@@ -155,7 +155,7 @@ export default function Parts({ env }: { env: Env }) {
   const page = useMemo(() => exampleData().relations.pages[1].value, []);
 
   return (
-    <Screen title={t.parts.screens.editor} back={{ href: '#udseende/dele', label: t.common.parts.editorParts }}>
+    <Screen title={t.parts.screens.editor} back={{ href: '#appearance/parts', label: t.common.parts.editorParts }}>
       <div className="space-y-10">
         <p className="text-muted">{t.parts.intro('packages/editor/src/ui.tsx')}</p>
         <PartsShown groups={GROUPS} keep="parts">
@@ -169,7 +169,7 @@ export default function Parts({ env }: { env: Env }) {
             </Part>
 
             <Part name="ArrowLink" use={use.arrowLink}>
-              <ArrowLink href="#udseende/farver">{sample.editColors}</ArrowLink>
+              <ArrowLink href="#appearance/colors">{sample.editColors}</ArrowLink>
             </Part>
           </PartGroup>
 
@@ -199,7 +199,7 @@ export default function Parts({ env }: { env: Env }) {
                     { value: 'top', label: sample.top },
                     { value: 'list', label: sample.inList },
                   ]}
-                  href="#udseende/dele/editor"
+                  href="#appearance/parts/editor"
                   onChange={setPlacement}
                 />
               </div>
@@ -273,7 +273,7 @@ export default function Parts({ env }: { env: Env }) {
                 max={3}
                 footer={(close) => (
                   <SheetLink
-                    href="#udseende/dele/editor"
+                    href="#appearance/parts/editor"
                     onClick={(e) => {
                       e.preventDefault();
                       close();
@@ -327,8 +327,8 @@ export default function Parts({ env }: { env: Env }) {
                     value={sort}
                     disabled={asMenu}
                     options={[
-                      { value: 'nyeste', label: sample.newest },
-                      { value: 'aeldste', label: sample.oldest },
+                      { value: 'newest', label: sample.newest },
+                      { value: 'oldest', label: sample.oldest },
                     ]}
                     onChange={setSort}
                   />
@@ -393,10 +393,10 @@ export default function Parts({ env }: { env: Env }) {
                   { icon: FolderSimple, label: sample.media, count: 42 },
                   { icon: PencilSimple, label: sample.pages, count: 12 },
                 ].map((p) => (
-                  <ListItem key={p.label} href="#udseende/dele/editor" icon={p.icon} headline={p.label} count={p.count} arrow />
+                  <ListItem key={p.label} href="#appearance/parts/editor" icon={p.icon} headline={p.label} count={p.count} arrow />
                 ))}
                 {/* With a text under its name: the icon beside the first two lines. */}
-                <ListItem href="#udseende/dele/editor" icon={Gear} headline={sample.cookieBanner} supporting={sample.cookieHint} arrow />
+                <ListItem href="#appearance/parts/editor" icon={Gear} headline={sample.cookieBanner} supporting={sample.cookieHint} arrow />
                 {/* With a picture before its name (the picture a page's colours came from). */}
                 <ListItem
                   leading={<LeadingImage src={examplePicture} />}
@@ -459,7 +459,7 @@ export default function Parts({ env }: { env: Env }) {
             <Part name="UnfoldButton, subListClass" use={use.unfold}>
               <ul className={listClass}>
                 <ListItem
-                  href="#udseende/dele/editor"
+                  href="#appearance/parts/editor"
                   headline={sample.pages}
                   actions={
                     <span className="shrink-0 pr-1.5">
@@ -477,7 +477,7 @@ export default function Parts({ env }: { env: Env }) {
                   <li className="pb-2">
                     <ul className={subListClass}>
                       {[1, 2, 3].map((n) => (
-                        <ListItem key={n} tone="sub" href="#udseende/dele/editor" headline={sample.subpage(n)} />
+                        <ListItem key={n} tone="sub" href="#appearance/parts/editor" headline={sample.subpage(n)} />
                       ))}
                     </ul>
                   </li>
@@ -534,8 +534,8 @@ export default function Parts({ env }: { env: Env }) {
                   icon={ArrowsDownUp}
                   value={sort}
                   options={[
-                    { value: 'nyeste', label: sample.newest },
-                    { value: 'aeldste', label: sample.oldest },
+                    { value: 'newest', label: sample.newest },
+                    { value: 'oldest', label: sample.oldest },
                   ]}
                   onChange={setSort}
                 />
@@ -572,8 +572,8 @@ export default function Parts({ env }: { env: Env }) {
                   search={t.common.search}
                   value={sort}
                   options={[
-                    { value: 'nyeste', label: sample.newest },
-                    { value: 'aeldste', label: sample.oldest },
+                    { value: 'newest', label: sample.newest },
+                    { value: 'oldest', label: sample.oldest },
                   ]}
                   onChange={setSort}
                 />
@@ -811,7 +811,7 @@ function fieldTypes(): FieldType[] {
         { name: 'phone', label: sample.phone, type: 'string', phone: '+45', digitsInPairs: 8 },
         { name: 'keyword', label: f.keyword, type: 'string', chips: 'one' },
         { name: 'keywords', label: f.keywords, type: 'string', chips: 'many' },
-        { name: 'linkText', label: f.linkText, type: 'string', edit: { to: 'udseende/farver', text: f.editColors } },
+        { name: 'linkText', label: f.linkText, type: 'string', edit: { to: 'appearance/colors', text: f.editColors } },
       ],
     },
     {

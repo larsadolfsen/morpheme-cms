@@ -1,4 +1,4 @@
-// "Licenser" (#licenser), under "Indstillinger": the third-party work the site and the editor are made with, as the
+// "Licenser" (#licenses), under "Indstillinger": the third-party work the site and the editor are made with, as the
 // site was last built (/editor/licenses.json, licensesIntegration in packages/editor/lib/licenses.mjs), with a search by
 // name, who made it and the licence's name. First the icon packs (the system's, each with the sets it takes icons from
 // besides its own), then what the editor and the site's own code bring (the npm packages shipped in what is downloaded,
@@ -6,7 +6,7 @@
 // then each theme the site is built with and each app installed, under its name: its own licence first, then what it
 // brings (what it declares, its icon packs and what is shipped through them alone). Each row has the work's name, its
 // version, licence and who made it, and what it is and where it is used; one with a text opens it
-// (#licenser/<id>, LicensePage). An app's and a theme's page has its group too (OwnerLicenses), and one in the store,
+// (#licenses/<id>, LicensePage). An app's and a theme's page has its group too (OwnerLicenses), and one in the store,
 // from the catalog, the same without the texts (StoreLicenseRows).
 import { useEffect, useState } from 'react';
 import { Certificate, Code, Image, Shapes, TextAa, type Icon } from '@phosphor-icons/react';
@@ -32,7 +32,7 @@ import {
   type ThirdParty,
 } from './licenseData';
 
-export const LICENSES_ROUTE = 'licenser';
+export const LICENSES_ROUTE = 'licenses';
 
 const KIND_ICONS: Record<LicenseKind, Icon> = { font: TextAa, icons: Shapes, library: Code, image: Image };
 
@@ -46,7 +46,7 @@ const ownerName = (o: Pick<LicenseOwner, 'kind' | 'key' | 'name'>) =>
 /** Who brings a work, as a sentence's end: "i editoren og på sitet", "i temaet Material". */
 function placesOf(where: LicenseWhere[], owners: LicenseOwner[]) {
   // The editor and the site first, then the themes and the apps.
-  const rank = (w: LicenseWhere) => (w === 'editor' ? 0 : w === 'site' ? 1 : w.startsWith('tema/') ? 2 : 3);
+  const rank = (w: LicenseWhere) => (w === 'editor' ? 0 : w === 'site' ? 1 : w.startsWith('theme/') ? 2 : 3);
   const named = [...where]
     .sort((a, b) => rank(a) - rank(b))
     .map((w) => {
@@ -159,7 +159,7 @@ const worksOf = (owner: LicenseOwner, file: LicensesFile) =>
 
 export default function Licenses() {
   const file = useLicenses();
-  const [query, setQuery] = useKept('licenser-soeg', '');
+  const [query, setQuery] = useKept('licenses-search', '');
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   const matches = (...texts: (string | null | undefined)[]) => {
     const all = texts.filter(Boolean).join(' ').toLowerCase();
@@ -170,7 +170,7 @@ export default function Licenses() {
 
   const owners = file?.owners ?? [];
   // The system's icon packs (a theme's own are under it, `where` it).
-  const packs = file ? sorted(file.works.filter((w) => w.kind === 'icons' && !w.where.some((x) => x.startsWith('tema/')))) : [];
+  const packs = file ? sorted(file.works.filter((w) => w.kind === 'icons' && !w.where.some((x) => x.startsWith('theme/')))) : [];
   // What the editor and the site bring: the CMS's own licence first, the rest A–Å.
   const { cms, rest: system } = splitCms(
     file ? sorted(file.works.filter((w) => w.kind !== 'icons' && w.where.some((x) => x === 'editor' || x === 'site'))) : [],
@@ -233,7 +233,7 @@ const paragraphsOf = (text: string) =>
     )
     .filter(Boolean);
 
-/** One licence (#licenser/<id>): a work's, or an app's or a theme's own: its name, licence, who made it, what it is and
+/** One licence (#licenses/<id>): a work's, or an app's or a theme's own: its name, licence, who made it, what it is and
  * its version, and its text. */
 export function LicensePage({ id }: { id: string }) {
   const file = useLicenses();
@@ -295,7 +295,7 @@ export function OwnerLicenses({
 }) {
   const file = useLicenses();
   const owner = file?.owners.find((o) => o.id === id);
-  const [kind, key] = id.split('/') as ['app' | 'tema', string];
+  const [kind, key] = id.split('/') as ['app' | 'theme', string];
   const self = owner ?? {
     id,
     kind: kind === 'app' ? ('app' as const) : ('theme' as const),

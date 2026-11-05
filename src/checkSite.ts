@@ -8,7 +8,7 @@
 // The redirects (redirectData.ts): none sends on through another, and none in a loop. And the site's own rules
 // (siteProblems in its rules.ts: a button that opens a promotion not on its page).
 // The file records (src/data/files: the tags of files in Filer): each is valid, no tag is both chosen and removed, one per address.
-// And the site's texts the editor has no translation of (untranslated).
+// And the site's texts the editor has no translation of, and a converted standard text with no Danish (untranslated).
 import { check } from './check';
 import {
   appearance,
@@ -29,7 +29,7 @@ import { colorProblems, lowContrast, MODES } from '../lib/colors';
 import { completeColors, dynamicProblems } from '../lib/dynamic-colors';
 import { APP_HOOKS, hooksOf } from '../lib/hooks';
 import { texts } from '@site/texts';
-import { texts as standardTexts } from '../defaults/texts';
+import { defaultsDaDK } from '../defaults/i18n/da-DK';
 import type { Part } from './schema';
 import { apps, asStandardTemplate, blockProblems, siteBlocks, standardPageOf, withPageBlocks } from './registry';
 import { installedApps, settingsFile } from './apps';
@@ -37,6 +37,14 @@ import { appFolder, SCREENSHOTS, shotFile, shotOf } from './store';
 import { appFolders } from './appFiles';
 import { colorPairs as shownPairs, sharedParts, translator, writtenApps, writtenBlockParts, writtenCollections } from './site';
 import { splitBlocks } from '../lib/blocks.mjs';
+import { splitMissing } from '../lib/translate.mjs';
+import { collections as standardCollections } from '../defaults/collections';
+import { companyParts as standardCompany } from '../defaults/company';
+import { blockParts as standardBlocks } from '../defaults/blockTexts';
+import { colorFields as standardColorFields, colorPairs as standardColorPairs } from '../defaults/colors';
+import { privacy as standardPrivacy } from '../defaults/privacy';
+import { internalLinks as standardInternalLinks } from '../defaults/internalLinks';
+import { appearance as standardAppearance, groups as standardGroups } from '../defaults/editor';
 import { isRecordPath, recordProblems } from './fileRecords.mjs';
 import { appTexts, DEFAULTS_LOCALE, locales, siteLocale, t, type Texts } from './i18n';
 import { flatten, readAll, REDIRECT_FILES, type AllRedirects } from './redirectData';
@@ -212,19 +220,73 @@ function chainsOf(all: AllRedirects, flat: AllRedirects): string[] {
   return lines;
 }
 
+type Definitions = {
+  collections: typeof collections;
+  parts: Part[];
+  screens: typeof partScreens;
+  groups: typeof groups;
+  colorFields: typeof colorFields;
+  colorPairs: typeof colorPairs;
+};
+
+/** The definitions the walk goes over: the site's (the standard parts, merged with the site's own) ... */
+const siteDefinitions: Definitions = {
+  collections,
+  parts: [...companyParts, ...partScreens.flatMap((s) => s.parts), ...appearance, ...seoParts, ...blockParts],
+  screens: partScreens,
+  groups,
+  colorFields,
+  colorPairs,
+};
+/** ... and the package's own standard parts, as defaults/ writes them, whatever the site overrides. */
+const standardDefinitions: Definitions = {
+  collections: standardCollections,
+  parts: [...standardCompany, ...standardPrivacy.parts, ...standardAppearance, standardInternalLinks, ...standardBlocks],
+  screens: [standardPrivacy],
+  groups: standardGroups,
+  colorFields: standardColorFields,
+  colorPairs: standardColorPairs,
+};
+
+/** Shows each text of the definitions to the translator `w`. */
+function walkDefinitions(w: ReturnType<typeof translator>, d: Definitions) {
+  d.collections.forEach(w.collection);
+  d.parts.forEach(w.part);
+  d.screens.forEach((s) => w.group({ id: s.id, title: s.label, ids: [] }));
+  d.groups.forEach(w.group);
+  d.colorFields.forEach(w.color);
+  d.colorPairs.forEach(w.pair);
+}
+
 /** The site's own texts with no translation, by the editor's other languages, by the file they belong
  * in: the site's in @site/texts, a block's in its texts.ts (or the site's, for what it takes from
  * the site). The editor shows them as they are written. Not the ones said in code (the messages in
- * rules.ts, the lines on the blocks' cards). */
+ * rules.ts, the lines on the blocks' cards). A text of the package's standard parts with no translation in a language
+ * (defaults/i18n/da-DK/ for da-DK, a blank value too) is under 'defaults/i18n/da-DK/index.ts': it stops `check:content`. */
 export function untranslated(): Record<string, Record<string, string[]>> {
-  // The editor shows a site's definitions translated already on a site in another language than Danish, so a text the walk
-  // meets is traced back to the one it was translated from (the translations' tables are by it). A text is written in the
-  // package's language when the package's standard parts or an app have it in Danish (defaults/texts.ts, an app's
-  // texts.ts), else in the site's; it needs a translation in each other language.
-  const tables = [standardTexts, ...Object.values(appTexts)].map((table) => Object.entries(table['en-US'] ?? {}));
+  // The editor shows a site's definitions translated already on a site in another language than the standard parts', so a text
+  // the walk meets is traced back to the one it was translated from (the translations' tables are by it). The standard parts are
+  // written in English (the keys of defaults/i18n/da-DK/); the texts of an app are still written in Danish (its texts.ts, until
+  // the apps are converted); every other text is written in the site's language. A text needs a translation in each other language.
+  const tables = Object.values(appTexts).map((table) => Object.entries(table['en-US'] ?? {}));
   const danish = new Set(tables.flatMap((entries) => entries.map(([text]) => text)));
   const original = new Map(tables.flatMap((entries) => entries.map(([text, translated]) => [translated, text] as const)));
-  const writtenIn = (text: string) => (danish.has(text) ? DEFAULTS_LOCALE : siteLocale);
+  // An entry with no Danish (a blank value) is no translation. The walk meets the Danish as it is shown.
+  const converted = Object.entries(defaultsDaDK);
+  const english = new Set(converted.map(([text]) => text));
+  const inDanish = Object.fromEntries(converted.filter(([, danish]) => danish.trim()));
+  for (const [text, danish] of Object.entries(inDanish)) original.set(danish, text);
+  const writtenIn = (text: string) => (english.has(text) ? DEFAULTS_LOCALE : danish.has(text) ? 'da-DK' : siteLocale);
+  // The texts of the package's standard parts: the walk over defaults/'s own definitions, so one with no Danish entry is known too.
+  const standardSet = new Set<string>();
+  walkDefinitions(
+    translator((shown) => {
+      standardSet.add(original.get(shown) ?? shown);
+      return shown;
+    }),
+    standardDefinitions,
+  );
+  const lacking = new Map<string, Set<string>>();
   const missing = (l: string, own: Record<string, string>, walk: (w: ReturnType<typeof translator>) => void) => {
     const found = new Set<string>();
     walk(
@@ -234,22 +296,21 @@ export function untranslated(): Record<string, Record<string, string[]>> {
         return shown;
       }),
     );
-    return [...found];
+    // A text of the package's standard parts stops the check, the others (the site's own, an app's) only warn.
+    const split = splitMissing(found, standardSet);
+    split.standard.forEach((text) => lacking.set(l, (lacking.get(l) ?? new Set()).add(text)));
+    return split.own;
   };
-  return Object.fromEntries(
+  const gaps = Object.fromEntries(
     locales
       .filter((l) => l !== siteLocale || l !== DEFAULTS_LOCALE)
       .map((l) => {
-        const site = (texts as Texts)[l] ?? {};
+        const site = {
+          ...(l === 'da-DK' ? inDanish : {}),
+          ...Object.fromEntries(Object.entries((texts as Texts)[l] ?? {}).filter(([, v]) => v.trim())),
+        };
         const files: Record<string, string[]> = {
-          'src/site/texts.ts': missing(l, site, (w) => {
-            collections.forEach(w.collection);
-            [...companyParts, ...partScreens.flatMap((s) => s.parts), ...appearance, ...seoParts, ...blockParts].forEach(w.part);
-            partScreens.forEach((s) => w.group({ id: s.id, title: s.label, ids: [] }));
-            groups.forEach(w.group);
-            colorFields.forEach(w.color);
-            colorPairs.forEach(w.pair);
-          }),
+          'src/site/texts.ts': missing(l, site, (w) => walkDefinitions(w, siteDefinitions)),
         };
         // An app's block's own texts, and the fields of its shared texts (shared.ts), in its texts.ts.
         for (const block of siteBlocks.filter((b) => b.app))
@@ -266,4 +327,9 @@ export function untranslated(): Record<string, Record<string, string[]>> {
         return [l, Object.fromEntries(Object.entries(files).filter(([, list]) => list.length))];
       }),
   );
+  // A standard text with no Danish: no entry in defaults/i18n/da-DK/, or a blank one.
+  const blank = converted.filter(([, danish]) => !danish.trim()).map(([text]) => text);
+  for (const text of blank) lacking.set('da-DK', (lacking.get('da-DK') ?? new Set()).add(text));
+  for (const [l, list] of lacking) gaps[l] = { ...gaps[l], 'defaults/i18n/da-DK/index.ts': [...list] };
+  return gaps;
 }

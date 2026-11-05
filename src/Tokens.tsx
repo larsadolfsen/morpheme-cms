@@ -1,4 +1,4 @@
-// "Dele" › "Værdier" (#udseende/dele/vaerdier): the theme's design tokens, as the theme in use sets them, to see them in one
+// "Dele" › "Værdier" (#appearance/parts/values): the theme's design tokens, as the theme in use sets them, to see them in one
 // place: the corners, one row for each size the theme uses (the theme's base, base.css and components.css, which every
 // theme has, and its UI parts', ui.css: each part's own variable, else the one ui.css gives it instead), named by
 // Material 3's corner radius scale where the size is one of its steps, with what has it under; the shadows, one row for
@@ -15,7 +15,7 @@ import { Group, LeadingToken, ListItem, type TokenKind } from './ui';
 import { locale, t } from './i18n';
 
 const say = t.parts.tokens;
-const back = { href: '#udseende/dele', label: t.common.parts.editorParts };
+const back = { href: '#appearance/parts', label: t.common.parts.editorParts };
 
 /** A token: its CSS variable, its name here, and for a part's own the token or the value ui.css gives it when the theme
  * does not set it (its `var(--chip-radius, var(--block-control-radius))`). */

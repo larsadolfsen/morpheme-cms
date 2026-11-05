@@ -13,7 +13,6 @@ const PENDING = [
   'AGENTS.md',
   'README.md',
   'astro.mjs',
-  'defaults/',
   'demo/',
   'lib/',
   'pages/',

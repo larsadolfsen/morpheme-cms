@@ -3,7 +3,7 @@
 // (packages/editor/site/*.ts); keep them in step.
 //   markdown: a folder of .md files (front matter + text): blog posts and pages.
 //   folder:   a folder of .json files, one entry per file: categories, promotions (the testimonials are the standard
-//             block "Udtalelser"'s, packages/editor/src/standard/testimonials/list.ts, an app's lists its own,
+//             block "Testimonials"'s, packages/editor/src/standard/testimonials/list.ts, an app's lists its own,
 //             src/apps/<app>/lists.ts).
 //   files:    single .json files: the settings (the standard pages …), the footer and the menu.
 import { AppWindow, ArrowsHorizontal, ColumnsPlusLeft, ColumnsPlusRight, File, SquareHalfBottom } from '@phosphor-icons/react';
@@ -13,32 +13,32 @@ import { config } from '@site/config';
 import { standardPaths } from '@site/standardPages';
 
 // The fields of one button of the action bar (the bottom bar on a phone, ActionBar.astro) and of the button in the header
-// ("Headerknap", src/data/header.json): its text, where it leads, and the promotion or page it leads to.
+// ("Header button", src/data/header.json): its text, where it leads, and the promotion or page it leads to.
 const barButtonLabel: Field = {
   name: 'label',
-  label: 'Knaptekst',
+  label: 'Button text',
   type: 'string',
   max: 30,
-  hint: 'Hvis feltet er tomt, bruges standardteksten eller sidens navn.',
+  hint: "If the field is empty, the standard text or the page's name is used.",
 };
 
 const barButtonTo: Field = {
   name: 'to',
-  label: 'Fører til',
+  label: 'Leads to',
   type: 'select',
   required: true,
   default: 'booking',
   options: [
-    { label: 'Book en tid', value: 'booking' },
-    { label: 'Ring', value: 'phone' },
-    { label: 'Åbn promovering', value: 'promotion', onPage: 'promotions' },
-    { label: 'En side', value: 'page' },
+    { label: 'Book an appointment', value: 'booking' },
+    { label: 'Call', value: 'phone' },
+    { label: 'Open promotion', value: 'promotion', onPage: 'promotions' },
+    { label: 'A page', value: 'page' },
   ],
 };
 
 const barButtonOpen: Field = {
   name: 'open',
-  label: 'Promovering',
+  label: 'Promotion',
   type: 'relation',
   to: 'promotions',
   onPage: true,
@@ -48,7 +48,7 @@ const barButtonOpen: Field = {
 
 const barButtonHref: Field = {
   name: 'href',
-  label: 'Side',
+  label: 'Page',
   type: 'relation',
   to: 'pages',
   fixed: true,
@@ -57,39 +57,39 @@ const barButtonHref: Field = {
 };
 
 // The page Google should count as the original of a page or a post (rel=canonical); empty is itself.
-// Under "Søgemaskiner" with the Google texts (EntryForm.tsx).
+// Under "Search engines" with the Google texts (EntryForm.tsx).
 const canonical: Field = {
   name: 'canonical',
   label: 'Canonical URL',
   type: 'relation',
   to: 'pages',
   fixed: true,
-  hint: 'Den side, Google skal vise i stedet for denne.',
+  hint: 'The page Google should show instead of this one.',
 };
 
-// Not for search engines: noindex, and not in the sitemap. Under "Søgemaskiner" too.
+// Not for search engines: noindex, and not in the sitemap. Under "Search engines" too.
 const noindex: Field = {
   name: 'noindex',
-  label: 'Skjul for søgemaskiner (noindex)',
+  label: 'Hide from search engines (noindex)',
   type: 'boolean',
-  hint: 'Siden vises ikke i Google.',
+  hint: 'The page is not shown in Google.',
 };
 
-// The text of the picture at the top of a post (a page has its pictures in its text): "Dekorativt billede" (drawn with alt="", screen readers skip
-// it), else its alternative text.
+// The text of the picture at the top of a post (a page has its pictures in its text): "Decorative picture" (drawn with alt="", screen readers skip
+// it), else its alt text.
 const topImageText: Field[] = [
   {
     name: 'imageDecorative',
-    label: 'Dekorativt billede',
+    label: 'Decorative picture',
     type: 'boolean',
-    toggle: ['Til', 'Fra'],
-    hint: 'Skærmlæsere springer billedet over.',
+    toggle: ['On', 'Off'],
+    hint: 'Screen readers skip the picture.',
   },
-  { name: 'imageAlt', label: 'Alternativ tekst', type: 'string', only: { field: 'imageDecorative', is: ['', 'false'] } },
+  { name: 'imageAlt', label: 'Alt text', type: 'string', only: { field: 'imageDecorative', is: ['', 'false'] } },
 ];
 
-// "Status" at the top of a page or post (EntryForm.tsx): Kladde, Skjult, Udgivet or Planlagt, and for
-// Planlagt when (packages/editor/lib/status.mjs). Udgivet is no `status` in the file. A post's date follows the time.
+// "Status" at the top of a page or post (EntryForm.tsx): Draft, Hidden, Published or Scheduled, and for
+// Scheduled when (packages/editor/lib/status.mjs). Published is no `status` in the file. A post's date follows the time.
 const status = (hidden: string): Field[] => [
   {
     name: 'status',
@@ -97,96 +97,96 @@ const status = (hidden: string): Field[] => [
     type: 'select',
     segments: true,
     options: [
-      { value: 'draft', label: 'Kladde', hint: 'Vises ikke på hjemmesiden.' },
-      { value: 'unlisted', label: 'Skjult', hint: hidden },
-      { value: '', label: 'Udgivet', hint: 'Vises på hjemmesiden.' },
-      { value: 'scheduled', label: 'Planlagt', hint: 'Vises på hjemmesiden fra tidspunktet nedenfor.' },
+      { value: 'draft', label: 'Draft', hint: 'Not shown on the website.' },
+      { value: 'unlisted', label: 'Hidden', hint: hidden },
+      { value: '', label: 'Published', hint: 'Shown on the website.' },
+      { value: 'scheduled', label: 'Scheduled', hint: 'Shown on the website from the time below.' },
     ],
   },
   {
     name: 'publishAt',
-    label: 'Tidspunkt',
+    label: 'Time',
     type: 'datetime',
     required: true,
     only: { field: 'status', is: ['scheduled'] },
-    hint: 'Udgives senest en time efter.',
+    hint: 'Published at most an hour after.',
   },
 ];
 
-// The Google texts, and the picture when the page is shared, which the editor shows under "Sociale medier" (SHARE_FIELDS
+// The Google texts, and the picture when the page is shared, which the editor shows under "Social media" (SHARE_FIELDS
 // in packages/editor/src/seo.ts).
 const seo: Field[] = [
   {
     name: 'seoTitle',
-    label: 'Google-titel',
+    label: 'Google title',
     type: 'string',
-    hint: 'Højst ca. 60 tegn.',
+    hint: 'At most about 60 characters.',
     max: 70,
   },
   {
     name: 'seoDescription',
-    label: 'Google-beskrivelse',
+    label: 'Google description',
     type: 'text',
-    hint: 'Ca. 140-155 tegn.',
+    hint: 'About 140-155 characters.',
     max: 170,
   },
   // og:image (Base.astro), cut to 1200 × 630 by packages/editor/scripts/responsive-images.mjs.
   {
     name: 'shareImage',
-    label: 'Billede ved deling',
+    label: 'Picture when shared',
     type: 'image',
-    hint: 'Vises, når siden deles, fx på Facebook.',
+    hint: 'Shown when the page is shared, e.g. on Facebook.',
   },
 ];
 
-// The title and description when a page or post is shared (og:title, og:description in Base.astro), under "Sociale
-// medier" with the picture.
+// The title and description when a page or post is shared (og:title, og:description in Base.astro), under "Social
+// media" with the picture.
 const shareTexts: Field[] = [
   {
     name: 'shareTitle',
-    label: 'Titel ved deling',
+    label: 'Title when shared',
     type: 'string',
-    hint: 'Hvis feltet er tomt, bruges Google-titlen.',
+    hint: 'If the field is empty, the Google title is used.',
     max: 70,
   },
   {
     name: 'shareDescription',
-    label: 'Beskrivelse ved deling',
+    label: 'Description when shared',
     type: 'text',
-    hint: 'Hvis feltet er tomt, bruges Google-beskrivelsen.',
+    hint: 'If the field is empty, the Google description is used.',
     max: 170,
   },
 ];
 
 // The words that link to a page or post from the others (packages/editor/site/autolinks.mjs). Under
-// "Søgemaskiner" with the Google texts (EntryForm.tsx).
+// "Search engines" with the Google texts (EntryForm.tsx).
 const keywords: Field[] = [
   {
     name: 'keyword',
-    label: 'Primært søgeord',
+    label: 'Main keyword',
     type: 'string',
     chips: 'one',
-    hint: 'Ordet bliver et link hertil fra andre sider.',
+    hint: 'The word becomes a link to here from other pages.',
   },
   {
     name: 'keywords',
-    label: 'Sekundære søgeord',
+    label: 'Other keywords',
     type: 'string',
     chips: 'many',
-    hint: 'Hvert ord bliver et link hertil fra andre sider.',
+    hint: 'Each word becomes a link to here from other pages.',
   },
 ];
 
-// The business, on "Virksomheden" (CompanyForm.tsx): its name and title, phone, e-mail, address and CVR number
-// (src/data/contact.json), shown at the top and bottom of every page and in the blocks that show them ("Kontakt" and
-// "Adresse"); and the bank details (src/data/payment.json), shown in "Betaling". The calendar
+// The business, on "Business" (CompanyForm.tsx): its name and title, phone, e-mail, address and CVR number
+// (src/data/contact.json), shown at the top and bottom of every page and in the blocks that show them ("Contact" and
+// "Address"); and the bank details (src/data/payment.json), shown in "Payment". The calendar
 // is the app Calendly's (morpheme-apps/apps/calendly/).
 export const contactFields: Field[] = [
-  { name: 'name', label: 'Navn', type: 'string', required: true },
-  { name: 'role', label: 'Titel', type: 'string', required: true },
+  { name: 'name', label: 'Name', type: 'string', required: true },
+  { name: 'role', label: 'Title', type: 'string', required: true },
   {
     name: 'phone',
-    label: 'Telefon',
+    label: 'Phone',
     type: 'string',
     required: true,
     digitsInPairs: 8,
@@ -194,41 +194,41 @@ export const contactFields: Field[] = [
   },
   {
     name: 'email',
-    label: 'E-mail',
+    label: 'Email',
     type: 'string',
     required: true,
     pattern: [
       '^[A-Za-z0-9._%+-]+@[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)*\\.[A-Za-z]{2,}$',
-      'Skriv en gyldig e-mailadresse',
+      'Write a valid email address',
     ],
   },
   {
     name: 'street',
-    label: 'Vej og nummer',
+    label: 'Street and number',
     type: 'string',
     required: true,
   },
-  { name: 'city', label: 'Postnummer og by', type: 'string', required: true },
+  { name: 'city', label: 'Postcode and town', type: 'string', required: true },
   {
     name: 'cvr',
-    label: 'CVR-nummer',
+    label: 'CVR number',
     type: 'string',
-    hint: 'Vises nederst på hver side.',
-    pattern: ['^\\d{8}$', 'Et CVR-nummer har otte cifre'],
+    hint: 'Shown at the bottom of every page.',
+    pattern: ['^\\d{8}$', 'A CVR number has eight digits'],
   },
 ];
 
-// The social media (src/data/social.json, a part of its own under "Virksomheden", company.ts): the site's profiles, and
+// The social media (src/data/social.json, a part of its own under "Business", company.ts): the site's profiles, and
 // which share buttons a post shows. A switch that is not in the file is on (company.ts gives the form that default).
 // A profile address: empty, or one that begins with https://.
-const httpsAddress: [string, string] = ['^$|^https://\\S+$', 'Skriv en adresse, der begynder med https://'];
+const httpsAddress: [string, string] = ['^$|^https://\\S+$', 'Write an address that starts with https://'];
 
 export const socialFields: Field[] = [
   {
     name: 'facebook',
     label: 'Facebook',
     type: 'string',
-    hint: 'Adressen på sitets profil. Vises i Googles data om virksomheden.',
+    hint: "The address of the site's profile. Shown in Google's data about the business.",
     pattern: httpsAddress,
   },
   {
@@ -267,94 +267,94 @@ export const socialFields: Field[] = [
     type: 'string',
     pattern: httpsAddress,
   },
-  { name: 'shareFacebook', label: 'Del på Facebook', type: 'boolean' },
-  { name: 'shareX', label: 'Del på X', type: 'boolean' },
-  { name: 'shareLinkedin', label: 'Del på LinkedIn', type: 'boolean' },
-  { name: 'sharePinterest', label: 'Del på Pinterest', type: 'boolean', hint: 'Vises kun, når indlægget har et billede.' },
-  { name: 'shareCopyLink', label: 'Kopiér link', type: 'boolean' },
+  { name: 'shareFacebook', label: 'Share on Facebook', type: 'boolean' },
+  { name: 'shareX', label: 'Share on X', type: 'boolean' },
+  { name: 'shareLinkedin', label: 'Share on LinkedIn', type: 'boolean' },
+  { name: 'sharePinterest', label: 'Share on Pinterest', type: 'boolean', hint: 'Shown only when the post has a picture.' },
+  { name: 'shareCopyLink', label: 'Copy link', type: 'boolean' },
 ];
 
-// The bank details, a part of its own under "Betaling" (company.ts, src/data/payment.json).
+// The bank details, a part of its own under "Payment" (company.ts, src/data/payment.json).
 export const bankFields: Field[] = [
   { name: 'bank', label: 'Bank', type: 'string', required: true },
-  { name: 'reg', label: 'Reg.nr.', type: 'string', required: true },
-  { name: 'account', label: 'Kontonummer', type: 'string', required: true },
+  { name: 'reg', label: 'Reg. no.', type: 'string', required: true },
+  { name: 'account', label: 'Account number', type: 'string', required: true },
 ];
 
 // The standard pages (src/data/standard-pages.json, config.standardPages, packages/editor/defaults/standardPages.ts), each a field that
 // picks a page, as rows of a list (Part.rows): the front page, shown at / (packages/editor/site/home.ts), the blog page, shown at
 // /blog/, the page shown for an address that does not exist (packages/editor/site/standardPages.ts) and the contact page under
-// "Udseende" › "Standardsider" (appearance in editor.ts), and the privacy policy and the cookie policy under "Privatliv" ›
-// "Privatlivssider" (privacy.ts). Different pages, but the cookie policy may be the privacy policy (keptBy in rules.ts).
+// "Appearance" › "Default pages" (appearance in editor.ts), and the privacy policy and the cookie policy under "Privacy" ›
+// "Privacy pages" (privacy.ts). Different pages, but the cookie policy may be the privacy policy (keptBy in rules.ts).
 const standardPageFields: Field[] = [
   {
     name: 'front',
-    label: 'Forside',
+    label: 'Front page',
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'Siden vises på forsiden, og dens egen adresse sender videre dertil.',
+    hint: 'The page is shown on the front page, and its own address sends on there.',
   },
   {
     name: 'blog',
-    label: 'Blogside',
+    label: 'Blog page',
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'Siden vises på /blog/, og dens egen adresse sender videre dertil.',
+    hint: 'The page is shown at /blog/, and its own address sends on there.',
   },
   {
     name: 'notFound',
-    label: '404-side',
+    label: '404 page',
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'Siden vises, når en adresse ikke findes.',
+    hint: 'The page is shown when an address does not exist.',
   },
   {
     name: 'contact',
-    label: 'Kontaktside',
+    label: 'Contact page',
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'Linket til vejvisningen går hertil.',
+    hint: 'The link to the directions goes here.',
   },
   {
     name: 'privacy',
-    label: 'Privatlivspolitik',
+    label: 'Privacy policy',
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'Siden, der fortæller, hvilke oplysninger der gemmes, og hvorfor.',
+    hint: 'The page that tells what information is stored, and why.',
   },
   {
     name: 'cookies',
-    label: 'Cookiepolitik',
+    label: 'Cookie policy',
     type: 'relation',
     to: 'standardPages',
     required: true,
-    hint: 'Cookiebannerets link går hertil; det må være privatlivspolitikken.',
+    hint: "The cookie banner's link goes here; it may be the privacy policy.",
   },
 ];
 
 /** The fields of the standard pages by their keys, in that order. */
 export const standardPageFieldsOf = (...keys: string[]) => keys.map((key) => standardPageFields.find((f) => f.name === key)!);
 
-/** The "Book en tid" box's own heading and text, in a page's text; empty,
- * the shared ones ("Blokke" › "Book en tid", booking.json). */
+/** The "Book an appointment" box's own heading and text, in a page's text; empty,
+ * the shared ones ("Blocks" › "Book an appointment", booking.json). */
 export const bookingTexts: Field[] = [
   {
     name: 'heading',
-    label: 'Overskrift',
+    label: 'Heading',
     type: 'string',
-    hint: 'Hvis feltet er tomt, bruges standardteksten.',
+    hint: 'If empty, the default text is used.',
     placeholder: (site) => site.booking.heading,
   },
   {
     name: 'text',
-    label: 'Tekst',
+    label: 'Text',
     type: 'text',
-    hint: 'Hvis feltet er tomt, bruges standardteksten.',
+    hint: 'If empty, the default text is used.',
     placeholder: (site) => site.booking.text,
   },
 ];
@@ -362,64 +362,64 @@ export const bookingTexts: Field[] = [
 // The icons the owner picks from on the site's own fields (the same as the standard blocks', iconNames in
 // packages/editor/src/icon.tsx, which draws them).
 export const icons = [
-  ['Diplom', 'certificate'],
-  ['Hjerte', 'heart'],
-  ['Hånd med hjerte', 'hand-heart'],
-  ['Tre personer', 'users-three'],
-  ['To personer', 'users'],
-  ['Studenterhue', 'graduation-cap'],
-  ['Håndtryk', 'handshake'],
-  ['Bog', 'book-open'],
-  ['Bog med tekst', 'book-open-text'],
-  ['Medalje', 'medal'],
-  ['Samtale', 'chats'],
-  ['Lotusblomst', 'flower-lotus'],
-  ['Blad', 'leaf'],
-  ['Pære', 'lightbulb'],
-  ['Tog', 'train'],
+  ['Diploma', 'certificate'],
+  ['Heart', 'heart'],
+  ['Hand with heart', 'hand-heart'],
+  ['Three people', 'users-three'],
+  ['Two people', 'users'],
+  ['Graduation cap', 'graduation-cap'],
+  ['Handshake', 'handshake'],
+  ['Book', 'book-open'],
+  ['Book with text', 'book-open-text'],
+  ['Medal', 'medal'],
+  ['Conversation', 'chats'],
+  ['Lotus flower', 'flower-lotus'],
+  ['Leaf', 'leaf'],
+  ['Light bulb', 'lightbulb'],
+  ['Train', 'train'],
   ['Bus', 'bus'],
-  ['Cykel', 'bicycle'],
-  ['Bil', 'car'],
-  ['Dør', 'door-open'],
-  ['Videokamera', 'video-camera'],
-  ['Redningskrans', 'lifebuoy'],
-  ['Telefon', 'phone'],
-  ['Ur', 'clock'],
-  ['Kortnål', 'map-pin'],
-  ['Kaffe', 'coffee'],
-  ['Kørestol', 'wheelchair'],
-  ['Info', 'info'],
-  ['Brev', 'envelope-simple'],
+  ['Bicycle', 'bicycle'],
+  ['Car', 'car'],
+  ['Door', 'door-open'],
+  ['Video camera', 'video-camera'],
+  ['Lifebuoy', 'lifebuoy'],
+  ['Phone', 'phone'],
+  ['Clock', 'clock'],
+  ['Map pin', 'map-pin'],
+  ['Coffee', 'coffee'],
+  ['Wheelchair', 'wheelchair'],
+  ['Information', 'info'],
+  ['Letter', 'envelope-simple'],
 ].map(([label, value]) => ({ label, value }));
 
 // A link in the menu: any page, the front page and the blog too, stored by its address.
-const menuHref: Field = { name: 'href', label: 'Side', type: 'relation', to: 'pages', fixed: true, required: true };
+const menuHref: Field = { name: 'href', label: 'Page', type: 'relation', to: 'pages', fixed: true, required: true };
 
 export const collections: Collection[] = [
   {
     kind: 'markdown',
     id: 'blog',
-    create: 'Nyt blogindlæg',
-    label: 'Blogindlæg',
-    singular: 'blogindlæg',
+    create: 'New blog post',
+    label: 'Blog posts',
+    singular: 'blog post',
     folder: 'src/content/blog',
     deletable: true,
     fields: [
-      ...status('Vises ikke på bloggen eller i Google, men kan åbnes på sin adresse.'),
-      { name: 'title', label: 'Titel', type: 'string', required: true },
-      { name: 'date', label: 'Dato', type: 'date', required: true },
-      { name: 'path', label: 'Adresse', type: 'string', address: 'post' },
-      { name: 'description', label: 'Kort beskrivelse', type: 'text' },
+      ...status('Not shown on the blog or in Google, but can be opened at its address.'),
+      { name: 'title', label: 'Title', type: 'string', required: true },
+      { name: 'date', label: 'Date', type: 'date', required: true },
+      { name: 'path', label: 'URL', type: 'string', address: 'post' },
+      { name: 'description', label: 'Short description', type: 'text' },
       {
         name: 'categories',
         label: 'Tags',
         type: 'relation',
         to: 'categories',
         multiple: true,
-        add: 'Tilføj tag',
-        edit: { to: 'ny/kategorier', text: 'Opret et tag' },
+        add: 'Add tag',
+        edit: { to: 'new/tags', text: 'Create a tag' },
       },
-      { name: 'image', label: 'Billede øverst', type: 'image' },
+      { name: 'image', label: 'Picture at the top', type: 'image' },
       ...topImageText,
       ...seo,
       ...shareTexts,
@@ -431,46 +431,46 @@ export const collections: Collection[] = [
   {
     kind: 'markdown',
     id: 'pages',
-    create: 'Ny side',
-    label: 'Sider',
-    singular: 'side',
+    create: 'New page',
+    label: 'Pages',
+    singular: 'page',
     folder: 'src/content/pages',
     fields: [
-      ...status('Vises ikke i Google, men kan åbnes på sin adresse.'),
-      { name: 'title', label: 'Titel', type: 'string', required: true },
-      { name: 'path', label: 'Adresse', type: 'string', address: 'page' },
-      { name: 'description', label: 'Kort beskrivelse', type: 'text' },
+      ...status('Not shown in Google, but can be opened at its address.'),
+      { name: 'title', label: 'Title', type: 'string', required: true },
+      { name: 'path', label: 'URL', type: 'string', address: 'page' },
+      { name: 'description', label: 'Short description', type: 'text' },
       {
         name: 'categories',
         label: 'Tags',
         type: 'relation',
         to: 'categories',
         multiple: true,
-        add: 'Tilføj tag',
-        edit: { to: 'ny/kategorier', text: 'Opret et tag' },
-        hint: 'Vises ikke på hjemmesiden.',
+        add: 'Add tag',
+        edit: { to: 'new/tags', text: 'Create a tag' },
+        hint: 'Not shown on the website.',
       },
       {
         name: 'template',
-        label: 'Skabelon',
+        label: 'Template',
         type: 'select',
         segments: true,
         layout: true,
         // The options the theme in use offers, the first of its list the default (templateFieldOf in src/templateField.ts).
         offered: 'templates',
         options: [
-          { label: 'En kolonne', value: 'single', icon: File },
-          { label: 'Fuld bredde', value: 'full', icon: ArrowsHorizontal },
-          { label: 'Sidebjælke til venstre', value: 'sidebar-left', icon: ColumnsPlusLeft },
-          { label: 'Sidebjælke til højre', value: 'sidebar-right', icon: ColumnsPlusRight },
+          { label: 'Single column', value: 'single', icon: File },
+          { label: 'Full width', value: 'full', icon: ArrowsHorizontal },
+          { label: 'Sidebar left', value: 'sidebar-left', icon: ColumnsPlusLeft },
+          { label: 'Sidebar right', value: 'sidebar-right', icon: ColumnsPlusRight },
         ],
-        hint: 'Temaet bestemmer, hvilke skabeloner der findes.',
+        hint: 'The theme decides which templates there are.',
       },
       {
         name: 'review',
-        label: 'Til gennemsyn',
+        label: 'For review',
         type: 'text',
-        hint: 'Vises kun på sider under /ny/.',
+        hint: 'Only shown on pages under /ny/.',
       },
       ...seo,
       ...shareTexts,
@@ -479,14 +479,14 @@ export const collections: Collection[] = [
       noindex,
     ],
     blocks: true,
-    // One "Book en tid" a page (at the very end it goes across the page, PageLayout.astro). A new page
+    // One "Book an appointment" a page (at the very end it goes across the page, PageLayout.astro). A new page
     // starts empty.
     template: { max: { booking: 1 } },
   },
   {
     kind: 'folder',
-    id: 'kategorier',
-    create: 'Nyt tag',
+    id: 'tags',
+    create: 'New tag',
     label: 'Tags',
     singular: 'tag',
     folder: 'src/data/categories',
@@ -494,29 +494,29 @@ export const collections: Collection[] = [
     slugFrom: 'name',
     summary: (d) => String(d.name ?? ''),
     fields: [
-      { name: 'name', label: 'Navn', type: 'string', required: true },
+      { name: 'name', label: 'Name', type: 'string', required: true },
       ...seo,
       {
         name: 'blogCategory',
-        label: 'Blogkategori',
+        label: 'Blog category',
         type: 'boolean',
-        toggle: ['Vis', 'Skjul'],
+        toggle: ['Show', 'Hide'],
         default: true,
-        hint: 'Vis tagget på bloggen med sin egen side.',
+        hint: 'Show the tag on the blog with its own page.',
       },
     ],
   },
   {
-    // "Promovering": what is laid over the pages to get visitors to book, call or sign up, in
-    // src/data/popups/<slug>.json, read by packages/editor/site/popups.ts, on every page or those picked under "Sider".
+    // "Promotion": what is laid over the pages to get visitors to book, call or sign up, in
+    // src/data/popups/<slug>.json, read by packages/editor/site/popups.ts, on every page or those picked under "Pages".
     // The pop-ups are shown by packages/editor/theme/components/Popup.astro; a kind an app adds without a part
     // in the pop-up (src/apps/<app>/popups/View.tsx) shows itself (the app Calendly's booking sheet,
     // morpheme-apps/apps/calendly/, when a button opens it).
     kind: 'folder',
     id: 'popups',
-    create: 'Ny promovering',
-    label: 'Promovering',
-    singular: 'promovering',
+    create: 'New promotion',
+    label: 'Promotion',
+    singular: 'promotion',
     folder: 'src/data/popups',
     deletable: true,
     // A pop-up by its heading; a kind without one by its name (the app's bar), else by the kind's name
@@ -534,8 +534,8 @@ export const collections: Collection[] = [
     omit: {
       bookingbar: ['image', 'heading', 'text', 'trigger', 'button'],
     },
-    // What a button ("Knapper": "Åbn promovering") can open of one: a pop-up itself, the action bar nothing (opens.ts).
-    opens: { standard: { label: 'Pop op-vindue' } },
+    // What a button ("Buttons": "Open promotion") can open of one: a pop-up itself, the action bar nothing (opens.ts).
+    opens: { standard: { label: 'Pop-up' } },
     // A contact bar (`contactbar`, a kind of its own before it became an action bar) is an action bar with its two
     // buttons, to call and to its page, without one the contact page (packages/editor/lib/contactBar.ts).
     upgrade: (data, files) => fromContactBar(data, standardPaths(files.find((f) => f.path === config.standardPages)?.text).contact ?? ''),
@@ -548,49 +548,49 @@ export const collections: Collection[] = [
         // Without one (those made before there were kinds), it is the standard one.
         default: 'standard',
         options: [
-          { label: 'Pop op-vindue', value: 'standard', icon: AppWindow, hint: 'Med billede, tekst og en knap.' },
+          { label: 'Pop-up', value: 'standard', icon: AppWindow, hint: 'With a picture, text and a button.' },
           {
-            label: 'Handlingslinje',
+            label: 'Action bar',
             value: 'bookingbar',
             icon: SquareHalfBottom,
-            hint: 'Knapper eller tekst nederst på skærmen på en telefon.',
+            hint: 'Buttons or text at the bottom of the screen on a phone.',
           },
         ],
       },
       {
         name: 'enabled',
-        label: 'Aktiveret',
+        label: 'Activated',
         type: 'boolean',
-        toggle: ['Til', 'Fra'],
+        toggle: ['On', 'Off'],
         default: true,
       },
-      // At the top of the box, to its edges in 3:2, as on the cards with a picture ("Kort").
-      { name: 'image', label: 'Billede', type: 'image', hint: 'Vises øverst, skåret til 3:2.' },
-      { name: 'heading', label: 'Overskrift', type: 'string', required: true, max: 80 },
-      { name: 'text', label: 'Tekst', type: 'text' },
+      // At the top of the box, to its edges in 3:2, as on the cards with a picture ("Cards").
+      { name: 'image', label: 'Picture', type: 'image', hint: 'Shown at the top, cropped to 3:2.' },
+      { name: 'heading', label: 'Heading', type: 'string', required: true, max: 80 },
+      { name: 'text', label: 'Text', type: 'text' },
       // Where it is shown, for every kind: on every page, on those picked (without `where`, from
       // before, those picked), or on the blog posts with one of the tags picked and those tags' pages.
       {
         name: 'where',
-        label: 'Vises på',
+        label: 'Shown on',
         type: 'select',
         default: 'some',
         options: [
-          { label: 'Alle sider', value: 'all' },
-          { label: 'Udvalgte sider', value: 'some' },
-          { label: 'Blogindlæg med tags', value: 'tags' },
+          { label: 'All pages', value: 'all' },
+          { label: 'Selected pages', value: 'some' },
+          { label: 'Blog posts with tags', value: 'tags' },
         ],
       },
       {
         name: 'pages',
-        label: 'Sider',
+        label: 'Pages',
         type: 'relation',
         to: 'pages',
         fixed: true,
         multiple: true,
         required: true,
-        add: 'Tilføj side',
-        hint: 'Vises kun på disse sider.',
+        add: 'Add page',
+        hint: 'Only shown on these pages.',
         only: { field: 'where', is: ['some'] },
       },
       {
@@ -600,92 +600,92 @@ export const collections: Collection[] = [
         to: 'categories',
         multiple: true,
         required: true,
-        add: 'Tilføj tag',
-        hint: 'Vises på blogindlæg med et af disse tags og på taggenes sider.',
+        add: 'Add tag',
+        hint: "Shown on blog posts with one of these tags and on the tags' pages.",
         only: { field: 'where', is: ['tags'] },
       },
       // When it opens (packages/editor/theme/components/Popup.astro): after `delay`, at `scroll` % down the page, or as the
       // visitor is about to leave it.
       {
         name: 'trigger',
-        label: 'Vises',
+        label: 'Shown',
         type: 'select',
         required: true,
         default: 'time',
-        hint: 'Hver besøgende ser det, til de lukker det.',
+        hint: 'Each visitor sees it until they close it.',
         options: [
-          { label: 'Efter en tid', value: 'time' },
-          { label: 'Når siden er rullet ned', value: 'scroll' },
+          { label: 'After a while', value: 'time' },
+          { label: 'When the page is scrolled down', value: 'scroll' },
           {
-            label: 'Når den besøgende vil forlade siden',
+            label: 'When the visitor is about to leave the page',
             value: 'exit',
-            hint: 'På en telefon: når den besøgende ruller hurtigt op.',
+            hint: 'On a phone: when the visitor scrolls up quickly.',
           },
         ],
       },
       {
         name: 'delay',
-        label: 'Vises efter',
+        label: 'Shown after',
         type: 'select',
         required: true,
         default: '5',
         only: { field: 'trigger', is: ['time'] },
         options: [
-          { label: 'Med det samme', value: '0' },
-          { label: '5 sekunder', value: '5' },
-          { label: '10 sekunder', value: '10' },
-          { label: '30 sekunder', value: '30' },
+          { label: 'At once', value: '0' },
+          { label: '5 seconds', value: '5' },
+          { label: '10 seconds', value: '10' },
+          { label: '30 seconds', value: '30' },
         ],
       },
       {
         name: 'scroll',
-        label: 'Rullet ned',
+        label: 'Scrolled down',
         type: 'select',
         required: true,
         default: '25',
         options: [
-          { label: '25 % af siden', value: '25' },
-          { label: '50 % af siden', value: '50' },
-          { label: '75 % af siden', value: '75' },
-          { label: 'Hele siden', value: '100' },
+          { label: '25% of the page', value: '25' },
+          { label: '50% of the page', value: '50' },
+          { label: '75% of the page', value: '75' },
+          { label: 'The whole page', value: '100' },
         ],
         only: { field: 'trigger', is: ['scroll'] },
       },
       {
         name: 'button',
-        label: 'Knap',
+        label: 'Button',
         type: 'select',
         required: true,
         default: 'booking',
         options: [
-          { label: 'Book en tid', value: 'booking' },
-          { label: 'Ring', value: 'phone' },
-          { label: 'En side', value: 'page' },
+          { label: 'Book an appointment', value: 'booking' },
+          { label: 'Call', value: 'phone' },
+          { label: 'A page', value: 'page' },
           { label: 'Download PDF', value: 'file' },
-          { label: 'Ingen knap', value: 'none' },
+          { label: 'No button', value: 'none' },
         ],
       },
       {
         name: 'label',
-        label: 'Knaptekst',
+        label: 'Button text',
         type: 'string',
         max: 30,
-        hint: 'Hvis feltet er tomt, bruges standardteksten.',
+        hint: 'If empty, the default text is used.',
         only: { field: 'button', is: ['booking', 'phone', 'page', 'file'] },
       },
-      // A PDF from "Filer" (public/filer/), by its address (/filer/<name>.pdf).
+      // A PDF from "Files" (public/filer/), by its address (/filer/<name>.pdf).
       {
         name: 'file',
         label: 'PDF',
         type: 'relation',
         to: 'files',
         required: true,
-        edit: { to: 'filer', text: 'Upload en PDF' },
+        edit: { to: 'files', text: 'Upload a PDF' },
         only: { field: 'button', is: ['file'] },
       },
       {
         name: 'href',
-        label: 'Side (knap)',
+        label: 'Page (button)',
         type: 'relation',
         to: 'pages',
         fixed: true,
@@ -693,20 +693,20 @@ export const collections: Collection[] = [
         only: { field: 'button', is: ['page'] },
       },
       // The action bar's one or two items, each a button or a text (`type`; without one, a button, as before there were
-      // texts). The first button is filled, a second with a line. Each button goes where a button of "Knapper" can
+      // texts). The first button is filled, a second with a line. Each button goes where a button of "Buttons" can
       // (Button in packages/editor/src/standard/buttons/fields.ts, the targets of `buttonTargets` in config.ts and a
-      // page): "Book en tid" (what books on the page, an app's booking sheet, else the booking page), "Ring", "Åbn
-      // promovering" (one shown on every page: a pop-up, or an app's booking sheet) or a page. A text is a list row of
+      // page): "Book an appointment" (what books on the page, an app's booking sheet, else the booking page), "Call", "Open
+      // promotion" (one shown on every page: a pop-up, or an app's booking sheet) or a page. A text is a list row of
       // two lines, its heading over its text, beside the button (ActionBar.astro).
       {
         name: 'buttons',
-        label: 'Knapper og tekst',
-        singular: 'punkt',
+        label: 'Buttons and text',
+        singular: 'item',
         type: 'list',
         summary: ['label', 'heading'],
         required: true,
         maxItems: 2,
-        hint: 'Højst to punkter.',
+        hint: 'At most two items.',
         default: [{ type: 'button', label: '', to: 'booking' }],
         only: { field: 'type', is: ['bookingbar'] },
         fields: [
@@ -717,13 +717,13 @@ export const collections: Collection[] = [
             segments: true,
             default: 'button',
             options: [
-              { label: 'Knap', value: 'button' },
-              { label: 'Tekst', value: 'text' },
+              { label: 'Button', value: 'button' },
+              { label: 'Text', value: 'text' },
             ],
           },
           {
             name: 'heading',
-            label: 'Overskrift',
+            label: 'Heading',
             type: 'string',
             required: true,
             max: 30,
@@ -731,10 +731,10 @@ export const collections: Collection[] = [
           },
           {
             name: 'text',
-            label: 'Tekst',
+            label: 'Text',
             type: 'string',
             max: 40,
-            hint: 'Står under overskriften.',
+            hint: 'Shown under the heading.',
             only: { field: 'type', is: ['text'] },
           },
           { ...barButtonLabel, only: { field: 'type', is: ['button'] } },
@@ -754,18 +754,18 @@ export const collections: Collection[] = [
       // src/data/footer.json, read by packages/editor/theme/layouts/Base.astro.
       {
         file: 'src/data/footer.json',
-        label: 'Footeren',
+        label: 'The footer',
         view: '/',
         fields: [
-          { name: 'text', label: 'Tekst (under navnet)', type: 'text', required: true },
+          { name: 'text', label: 'Text (under the name)', type: 'text', required: true },
           {
             name: 'contactHeading',
-            label: 'Overskrift (kontakt)',
+            label: 'Heading (contact)',
             type: 'string',
             required: true,
-            edit: { to: 'virksomheden/kontakt', text: 'Rediger telefon, e-mail og adresse' },
+            edit: { to: 'company/contact', text: 'Edit phone, email and address' },
           },
-          { name: 'linksHeading', label: 'Overskrift (links)', type: 'string', required: true },
+          { name: 'linksHeading', label: 'Heading (links)', type: 'string', required: true },
           {
             name: 'links',
             label: 'Links',
@@ -773,7 +773,7 @@ export const collections: Collection[] = [
             type: 'list',
             summary: 'label',
             required: true,
-            fields: [{ name: 'label', label: 'Tekst', type: 'string', required: true }, menuHref],
+            fields: [{ name: 'label', label: 'Text', type: 'string', required: true }, menuHref],
           },
         ],
       },
@@ -782,40 +782,40 @@ export const collections: Collection[] = [
   {
     kind: 'files',
     id: 'menu',
-    label: 'Hovedmenu',
-    singular: 'hovedmenu',
+    label: 'Main menu',
+    singular: 'main menu',
     files: [
       // src/data/menu.json, read by packages/editor/site/site.ts (nav, navShown) for the header (Header.astro, MobileMenu.tsx).
       {
         file: 'src/data/menu.json',
-        label: 'Hovedmenuen',
+        label: 'The main menu',
         view: '/',
         fields: [
           {
             name: 'enabled',
-            label: 'Aktiveret',
+            label: 'Activated',
             type: 'boolean',
-            toggle: ['Til', 'Fra'],
+            toggle: ['On', 'Off'],
             default: true,
-            hint: 'Når menuen er fra, har headeren hverken menu eller menuknap.',
+            hint: 'When the menu is off, the header has neither menu nor menu button.',
           },
         ],
         root: {
           name: 'items',
-          label: 'Menupunkter',
-          singular: 'menupunkt',
+          label: 'Menu items',
+          singular: 'menu item',
           type: 'list',
           summary: 'label',
           fields: [
-            { name: 'label', label: 'Tekst', type: 'string', required: true },
+            { name: 'label', label: 'Text', type: 'string', required: true },
             menuHref,
             {
               name: 'children',
-              label: 'Undermenu',
-              singular: 'punkt',
+              label: 'Submenu',
+              singular: 'item',
               type: 'list',
               summary: 'label',
-              fields: [{ name: 'label', label: 'Tekst', type: 'string', required: true }, menuHref],
+              fields: [{ name: 'label', label: 'Text', type: 'string', required: true }, menuHref],
             },
           ],
         },
@@ -824,62 +824,62 @@ export const collections: Collection[] = [
   },
   {
     kind: 'files',
-    id: 'mobilmenu',
-    label: 'Mobilmenu',
-    singular: 'mobilmenu',
+    id: 'mobile-menu',
+    label: 'Mobile menu',
+    singular: 'mobile menu',
     files: [
       // src/data/mobile-menu.json, read by packages/editor/site/site.ts (mobileNav) for the bar under the header (MobileNav.astro).
       {
         file: 'src/data/mobile-menu.json',
-        label: 'Mobilmenuen',
+        label: 'The mobile menu',
         view: '/',
         fields: [
           {
             name: 'enabled',
-            label: 'Aktiveret',
+            label: 'Activated',
             type: 'boolean',
-            toggle: ['Til', 'Fra'],
+            toggle: ['On', 'Off'],
             default: false,
-            hint: 'Punkterne står på en linje under headeren på en telefon og kan skubbes til siden.',
+            hint: 'The items are on a line under the header on a phone and can be swiped sideways.',
           },
         ],
         root: {
           name: 'items',
-          label: 'Menupunkter',
-          singular: 'menupunkt',
+          label: 'Menu items',
+          singular: 'menu item',
           type: 'list',
           summary: 'label',
-          fields: [{ name: 'label', label: 'Tekst', type: 'string', required: true }, menuHref],
+          fields: [{ name: 'label', label: 'Text', type: 'string', required: true }, menuHref],
         },
       },
     ],
   },
   {
     kind: 'files',
-    id: 'headerknap',
-    label: 'Headerknap',
-    singular: 'headerknap',
+    id: 'header-button',
+    label: 'Header button',
+    singular: 'header button',
     files: [
       // src/data/header.json, optional (a site without it has no button and the menu button at the start), read by the header
       // (Header.astro). The button is one of the action bar's (barButtonLabel …).
       {
         file: 'src/data/header.json',
-        label: 'Headeren',
+        label: 'The header',
         view: '/',
         optional: true,
         fields: [
           {
             name: 'button',
-            label: 'Handlingsknap',
+            label: 'Action button',
             type: 'object',
             fields: [
               {
                 name: 'enabled',
-                label: 'Aktiveret',
+                label: 'Activated',
                 type: 'boolean',
-                toggle: ['Til', 'Fra'],
+                toggle: ['On', 'Off'],
                 default: false,
-                hint: 'Knappen står i headeren.',
+                hint: 'The button is in the header.',
               },
               barButtonLabel,
               barButtonTo,
@@ -889,13 +889,13 @@ export const collections: Collection[] = [
           },
           {
             name: 'menuSide',
-            label: 'Menuknappens placering',
+            label: 'Menu button position',
             type: 'select',
             segments: true,
             default: 'start',
             options: [
-              { label: 'Venstre', value: 'start' },
-              { label: 'Højre', value: 'end' },
+              { label: 'Left', value: 'start' },
+              { label: 'Right', value: 'end' },
             ],
           },
         ],

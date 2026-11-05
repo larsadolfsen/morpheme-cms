@@ -9,7 +9,7 @@ type Step = { at: number; prev: string | null };
 
 const step = () => history.state as Step | null;
 
-/** The screen of an address ("#liste/sider" → "liste/sider", "#" → ""); one with a broken %-sign is
+/** The screen of an address ("#list/sider" → "list/sider", "#" → ""); one with a broken %-sign is
  * the start screen. */
 export function screenOf(hash: string) {
   try {

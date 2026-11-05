@@ -1,4 +1,4 @@
-// "SEO-vurdering" under "Søgemaskineoptimering" (#seo/vurdering): every page and blog post with the score of its SEO
+// "SEO-vurdering" under "Søgemaskineoptimering" (#seo/rating): every page and blog post with the score of its SEO
 // rating (seo.ts, the same as at the top of "Søgemaskiner" on it) in a ring at the start of its row, and its
 // primary keyword under its name, under "Sider" and "Blogindlæg", the lowest first. Over them, as over the lists, a
 // search by name and keyword, the order (lowest or highest first, A–Å or Å–A, kept in this browser) and the funnel with
@@ -18,7 +18,7 @@ import { byText, type Collection, type MarkdownCollection } from './schema';
 import { t } from './i18n';
 
 /** Where it opens, under "Søgemaskineoptimering". */
-export const SEO_SCORES_ROUTE = 'seo/vurdering';
+export const SEO_SCORES_ROUTE = 'seo/rating';
 
 type Sort = 'low' | 'high' | 'az' | 'za';
 const SORTS: Sort[] = ['low', 'high', 'az', 'za'];
@@ -56,7 +56,7 @@ function rate(collection: MarkdownCollection, file: RepoFile, relations: Env['re
 export const isRated = (c: Collection): c is MarkdownCollection => c.kind === 'markdown' && c.fields.some((f) => f.name === 'seoTitle');
 
 export default function SeoScores({ files, env }: { files: RepoFile[]; env: Env }) {
-  const [query, setQuery] = useKept('seo-soeg', '');
+  const [query, setQuery] = useKept('seo-search', '');
   const [sort, setSort] = useState(savedSort);
   function pickSort(next: Sort) {
     setSort(next);
@@ -74,9 +74,9 @@ export default function SeoScores({ files, env }: { files: RepoFile[]; env: Env 
   );
   const all = groups.flatMap((g) => g.items);
   const average = all.length ? Math.round(all.reduce((sum, r) => sum + r.score, 0) / all.length) : null;
-  const [rating, setRating] = useKept<Rating | ''>('seo-vurdering', '');
-  const [hasKeyword, setHasKeyword] = useKept<HasKeyword | ''>('seo-soegeord', '');
-  const [kind, setKind] = useKept('seo-slags', '');
+  const [rating, setRating] = useKept<Rating | ''>('seo-rating', '');
+  const [hasKeyword, setHasKeyword] = useKept<HasKeyword | ''>('seo-keywords', '');
+  const [kind, setKind] = useKept('seo-kind', '');
   const shownKind = groups.some((g) => g.collection.id === kind) ? kind : '';
   const kindName = groups.find((g) => g.collection.id === shownKind)?.collection.label ?? '';
   const filters = [

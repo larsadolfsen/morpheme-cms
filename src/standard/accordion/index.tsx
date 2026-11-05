@@ -14,7 +14,7 @@ export default defineBlock({
   label: t.blocks.accordion.label,
   icon: Rows,
   hint: t.blocks.accordion.hint,
-  edit: { to: 'blokke/accordion', text: t.blocks.accordion.edit },
+  edit: { to: 'blocks/accordion', text: t.blocks.accordion.edit },
   fields: [
     ...headFields,
     {

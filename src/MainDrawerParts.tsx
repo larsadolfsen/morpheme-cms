@@ -1,4 +1,4 @@
-// The main drawer and its menu button on #udseende/dele/editor (Parts.tsx): the modal drawer in its two levels (sections, and
+// The main drawer and its menu button on #appearance/parts/editor (Parts.tsx): the modal drawer in its two levels (sections, and
 // a section's list with the back row and a fold-out), opened from a button, so it can be tried at any width, and the menu
 // button open and closed. The drawer's header is a sample user (AccountRow). Exposes MainDrawerSample. Uses MainDrawer and
 // its parts from ui.tsx.
@@ -53,8 +53,8 @@ export function MainDrawerSample() {
         {section === null ? (
           <MainDrawerLevel>
             <MainDrawerItem href="" icon={icons.home} label={parts.company} />
-            <MainDrawerSectionItem icon={icons.globalt} label={parts.header} selected onClick={() => setSection('globalt')} />
-            <MainDrawerSectionItem icon={icons.udseende} label={parts.appearance} onClick={() => setSection('udseende')} />
+            <MainDrawerSectionItem icon={icons.global} label={parts.header} selected onClick={() => setSection('global')} />
+            <MainDrawerSectionItem icon={icons.appearance} label={parts.appearance} onClick={() => setSection('appearance')} />
           </MainDrawerLevel>
         ) : (
           <MainDrawerLevel focus="list">

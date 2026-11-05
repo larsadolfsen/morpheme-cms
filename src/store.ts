@@ -1,4 +1,4 @@
-// The app store ("Indstillinger" › "Appstore", #indstillinger/appstore, AppList.tsx): the apps that are not in the site
+// The app store ("Indstillinger" › "Appstore", #settings/appstore, AppList.tsx): the apps that are not in the site
 // and can be installed. The store is reached through the site's Worker (/api/store/catalog, /api/store/files/<oid>;
 // the Worker holds the site's key to it, and the editor never calls the store itself): each app of its catalog with
 // its id, its version and the version of the contract it is written to (APP_API), its name, who made it, its icon
@@ -190,10 +190,10 @@ export type StoreRecord = { version: string; ref: string; files: StoreFile[] };
 /** The store's address in the editor, under "Indstillinger" (its apps; its themes at STORE_THEMES), its address
  * before (STORE_BEFORE, which opens it, App.tsx MOVED), and that of a developer's page (DEVELOPER_ROUTE/<slug>); no
  * app can have the ids of the last two. */
-export const STORE_ROUTE = 'indstillinger/appstore';
-export const STORE_THEMES = 'indstillinger/appstore/temaer';
+export const STORE_ROUTE = 'settings/appstore';
+export const STORE_THEMES = 'settings/appstore/themes';
 export const STORE_BEFORE = 'apps/butik';
-export const DEVELOPER_ROUTE = 'apps/udvikler';
+export const DEVELOPER_ROUTE = 'apps/developer';
 
 /** An app's folder in the site, and the note in it of where it came from. */
 export const appFolder = (id: string) => `${config.apps.folder}/${id}`;

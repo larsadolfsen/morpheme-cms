@@ -1,5 +1,5 @@
-// "Dele" › "UI-komponenter" (#udseende/dele/ui), "Dele" › "Blokke" (#udseende/dele/blokke) and "Dele" › a list of kinds
-// ("Promovering", #udseende/dele/liste/<id>): how the site looks, every part in every version, to see and agree on it.
+// "Dele" › "UI-komponenter" (#appearance/parts/ui), "Dele" › "Blokke" (#appearance/parts/blocks) and "Dele" › a list of kinds
+// ("Promovering", #appearance/parts/list/<id>): how the site looks, every part in every version, to see and agree on it.
 // "UI-komponenter" also has the active theme's coverage (summary, mark on each part, filter by style) and the site frame's parts.
 // "UI-komponenter" has the theme's UI components (its buttons and icon buttons, text fields and checkboxes …,
 // packages/editor/theme/ui/, through @site/editor) in every kind, size and state; "Blokke" every block, the standard
@@ -52,7 +52,7 @@ import { t } from './i18n';
 import { Svg } from './icon';
 
 const { screens } = t.parts;
-const back = { href: '#udseende/dele', label: t.common.parts.editorParts };
+const back = { href: '#appearance/parts', label: t.common.parts.editorParts };
 
 // The fields filled in with the plain picture where they have none (a card's, a list's items').
 function pictured(fields: Field[], props: BlockProps): BlockProps {
@@ -520,7 +520,7 @@ function CardParts() {
   );
 }
 
-/** "Dele" › "UI-komponenter" (#udseende/dele/ui): the theme's UI components in every kind, size and state. */
+/** "Dele" › "UI-komponenter" (#appearance/parts/ui): the theme's UI components in every kind, size and state. */
 export function ComponentParts() {
   const groups = [
     { id: 'ui', title: screens.ui },
@@ -587,7 +587,7 @@ export function ComponentParts() {
   );
 }
 
-/** "Dele" › "Blokke" (#udseende/dele/blokke): every block, the standard ones and then the apps', each a group of its
+/** "Dele" › "Blokke" (#appearance/parts/blocks): every block, the standard ones and then the apps', each a group of its
  * own, in all its versions. */
 export function BlocksParts() {
   const data = useMemo(exampleData, []);
@@ -616,7 +616,7 @@ export function BlocksParts() {
 /** The lists of kinds ("Promovering"), each a screen of "Dele". */
 export const kindLists = () => collections.filter((c): c is FolderCollection => c.kind === 'folder' && !!c.kinds && !!c.fields?.length);
 
-/** "Dele" › a list of kinds ("Promovering", #udseende/dele/liste/<id>): each of its kinds as the site draws it, its own
+/** "Dele" › a list of kinds ("Promovering", #appearance/parts/list/<id>): each of its kinds as the site draws it, its own
  * (FolderCollection.draws: the pop-up, the bars) and the apps' (AppKind: Mailchimp's signup, once for each of its
  * states), each a group of its own, as a new one of the kind with the made-up texts (kindExample). */
 export function KindParts({ id }: { id: string }) {
