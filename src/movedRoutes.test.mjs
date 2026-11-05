@@ -64,6 +64,7 @@ test('every old route prefix opens the screen where it is now', () => {
     'udseende/dele/editor': 'appearance/parts/editor',
     'udseende/dele/blokke': 'appearance/parts/blocks',
     'udseende/dele/vaerdier': 'appearance/parts/values',
+    'udseende/standardsider': 'appearance/default-pages',
     'udseende/logo': 'appearance/logo',
     maaling: 'analytics',
     'maaling/google-analytics': 'analytics/google-analytics',

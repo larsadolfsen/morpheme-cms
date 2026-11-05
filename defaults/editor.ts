@@ -145,7 +145,7 @@ export const icons: Record<string, Icon> = {
  * (standardPageFieldsOf in collections.ts; the privacy policy and the cookie policy are under "Privacy", privacy.ts). */
 export const appearance: Part[] = [
   {
-    id: 'standardsider',
+    id: 'default-pages',
     label: 'Default pages',
     icon: House,
     file: config.standardPages,

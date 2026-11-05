@@ -47,6 +47,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   'udseende/dele/blokke': 'appearance/parts/blocks',
   'udseende/dele/liste': 'appearance/parts/list',
   'udseende/dele/vaerdier': 'appearance/parts/values',
+  'udseende/standardsider': 'appearance/default-pages',
   maaling: 'analytics',
   privatliv: 'privacy',
   lister: 'lists',
