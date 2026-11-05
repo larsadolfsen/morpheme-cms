@@ -138,7 +138,7 @@ function VersionRows({ list, onPick }: { list: ReturnType<typeof useVersionList>
         </ul>
       )}
       {more && (
-        <Button kind="outlined" wide disabled={loading} onClick={() => load(more)}>
+        <Button kind="outlined" disabled={loading} onClick={() => load(more)}>
           {loading ? <LoadingIndicator>{t.history.loading}</LoadingIndicator> : t.history.more}
         </Button>
       )}

@@ -19,11 +19,11 @@ export function FileView({ src, name }: { src: string; name: string }) {
   if (kind === 'picture') return <img src={src} alt="" className="max-h-[45dvh] w-full rounded-xl bg-tint object-contain" />;
   if (kind === 'video') return <video src={src} controls preload="metadata" className="max-h-[45dvh] w-full rounded-xl bg-tint" />;
   return kind === 'pdf' ? (
-    <LinkButton href={src} target="_blank" rel="noopener" kind="outlined" wide icon={ArrowSquareOut}>
+    <LinkButton href={src} target="_blank" rel="noopener" kind="outlined" icon={ArrowSquareOut}>
       {t.media.openPdf}
     </LinkButton>
   ) : (
-    <LinkButton href={src} download={name} kind="outlined" wide icon={DownloadSimple}>
+    <LinkButton href={src} download={name} kind="outlined" icon={DownloadSimple}>
       {t.media.download}
     </LinkButton>
   );

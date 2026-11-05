@@ -164,7 +164,7 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
             <SupportingText>{t.consents.answered(when(new Date(open.at)))}</SupportingText>
             <SupportingText>{summary(open)}</SupportingText>
             {open.version && <SupportingText>{t.consents.version(open.version.slice(0, 7))}</SupportingText>}
-            <Button kind="outlined" wide icon={Trash} disabled={deleting} onClick={() => remove(open.id)}>
+            <Button kind="outlined" icon={Trash} disabled={deleting} onClick={() => remove(open.id)}>
               {t.consents.deleteAll}
             </Button>
           </SheetBody>

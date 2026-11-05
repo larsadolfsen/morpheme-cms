@@ -394,7 +394,6 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Pro
         <Button
           kind="outlined"
 
-          wide
           icon={UploadSimple}
           onClick={async () => {
             const added = await pictures.upload();
@@ -667,7 +666,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
       </div>
       <MediaTags key={src} src={src} files={files} env={env} />
       {code && !used.has(src) && (
-        <Button kind="outlined" wide icon={Trash} disabled={deleting} onClick={() => remove(src)}>
+        <Button kind="outlined" icon={Trash} disabled={deleting} onClick={() => remove(src)}>
           {deleting ? t.common.deleting : t.media.kinds[kindOf(src)].delete}
         </Button>
       )}

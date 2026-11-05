@@ -277,7 +277,7 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
           </div>
           {!pending && (
             <div className="mb-8">
-              <Button wide disabled={actions.saving} onClick={async () => (await actions.install(of)) && redraw((n) => n + 1)}>
+              <Button disabled={actions.saving} onClick={async () => (await actions.install(of)) && redraw((n) => n + 1)}>
                 {t.apps.install}
               </Button>
             </div>
@@ -315,7 +315,6 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
               <Button
                 kind="outlined"
 
-                wide
                 disabled={actions.saving}
                 onClick={async () => (await actions.uninstall(of.id, of.name)) && redraw((n) => n + 1)}
               >
@@ -345,7 +344,7 @@ export function ThemeStoreButtons({ of, env, files, top }: { of: ThemeInfo; env:
   if (top)
     return update ? (
       <div className="mb-8">
-        <Button wide disabled={actions.saving} onClick={() => actions.update(update, of.store!)}>
+        <Button disabled={actions.saving} onClick={() => actions.update(update, of.store!)}>
           {t.apps.update(update.version)}
         </Button>
       </div>
@@ -356,7 +355,6 @@ export function ThemeStoreButtons({ of, env, files, top }: { of: ThemeInfo; env:
       <Button
         kind="outlined"
 
-        wide
         disabled={actions.saving || !free}
         onClick={async () => (await actions.uninstall(of.id, of.name)) && redraw((n) => n + 1)}
       >

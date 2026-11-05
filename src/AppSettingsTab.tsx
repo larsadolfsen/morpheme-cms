@@ -42,7 +42,7 @@ export default function AppSettingsTab({
       {notifies.length > 0 && <AppNotificationSwitches notifies={notifies} />}
       {/* As wide as the fields and the rows above. */}
       <div>
-        <Button kind="outlined" wide disabled={busy || stuck} onClick={onUninstall}>
+        <Button kind="outlined" disabled={busy || stuck} onClick={onUninstall}>
           {t.apps.uninstall}
         </Button>
         <SupportingText className="mt-2">{stuck ? t.apps.stuck : t.apps.uninstallHint}</SupportingText>
