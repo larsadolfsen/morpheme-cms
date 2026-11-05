@@ -397,9 +397,49 @@
   font-weight: var(--type-label-medium-weight);
 }
 
+/* The content column (.editor-column: Screen.tsx's tabs row and its main) stands centred on the window, not in the space
+   beside the panels. --column-start and --column-end are the widths of the panels beside the content: the navigation
+   rail from medium, the standard drawer instead of it from expanded while it is open (:root[data-sidebar='open']; the
+   modal drawer below expanded is over the content, so the rail counts), and the "on this page" area at the end from large
+   (.editor-section-pane). The column keeps its width (--column-width, set by Screen.tsx) and moves off the middle only as
+   far as it must to stay clear of the panels: its start margin is the middle of the window less the start panel, but
+   not less than nothing and not more than the space left between the panels less the column. Only when that space is
+   smaller than the column does it get narrower. (Measured against the window's width, 100vw, scrollbar and all.) Below
+   medium nothing stands beside the content and the column is centred by auto margins. */
+:root {
+  --column-start: 0px;
+  --column-end: 0px;
+}
+.editor-column {
+  max-width: var(--column-width);
+  margin-inline: auto;
+}
+@media (width >= theme(--breakpoint-medium)) {
+  :root {
+    --column-start: var(--navigation-rail-width, 5.5rem);
+  }
+  .editor-column {
+    margin-inline-start: clamp(
+      0px,
+      (100vw - var(--column-width)) / 2 - var(--column-start),
+      100vw - var(--column-start) - var(--column-end) - var(--column-width)
+    );
+    margin-inline-end: auto;
+  }
+}
+@media (width >= theme(--breakpoint-expanded)) {
+  :root[data-sidebar='open'] {
+    --column-start: var(--navigation-drawer-width, 22.5rem);
+  }
+}
+
 /* The "on this page" area (FormColumns' `pane` in ui.tsx) stands against the window's end edge on large and wider: the
-   content keeps clear of it, so the form is centred to its left, and the save bar ends where the area begins. */
+   content keeps clear of it (its end padding; --column-end tells the column, so it stays centred on the window while
+   there is room), and the save bar ends where the area begins. */
 @media (width >= theme(--breakpoint-large)) {
+  :root:has(.editor-section-pane) {
+    --column-end: var(--section-pane-width);
+  }
   .editor-content:has(.editor-section-pane) {
     padding-inline-end: var(--section-pane-width);
   }

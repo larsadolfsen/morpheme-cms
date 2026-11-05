@@ -8,7 +8,8 @@
 // scrolling and keeps clear of a phone's notch. A screen's tabs (`tabs`) are the bottom of the bar, under the title, as wide
 // as the content, and stay with it. The back arrow goes to the screen above, back in the history when that is the screen
 // before (nav.ts up). The content is as wide as a form reads well, or wider for lists and the grid of files (`wide`) and for
-// a form with its fields beside the text (`panel`).
+// a form with its fields beside the text (`panel`). The column (editor.css .editor-column) stands centred on the window,
+// off-centre only as far as the panels beside it require.
 // Under the content of every screen is the editor's footer (EditorFooter.tsx).
 import { useId, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
@@ -93,7 +94,13 @@ export default function Screen<T extends string>({
   const id = useId();
   const menu = useMenuOpen();
   const { menuButtonInTopBar } = useMenuLayout();
-  const width = wide ? 'max-w-3xl medium:max-w-5xl' : panel ? 'max-w-3xl large:max-w-6xl' : 'max-w-3xl';
+  // The column's widest width (--column-width: 48rem; 64rem from medium for `wide`, 72rem from large for `panel`); editor.css
+  // (.editor-column) keeps it centred on the window.
+  const width = wide
+    ? 'editor-column [--column-width:48rem] medium:[--column-width:64rem]'
+    : panel
+      ? 'editor-column [--column-width:48rem] large:[--column-width:72rem]'
+      : 'editor-column [--column-width:48rem]';
   // A link out of the screen, through `guard`: the back arrow goes up (nav.ts), the other links as links.
   const leave = (go?: () => void) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!go && !back?.guard) return;
@@ -145,7 +152,7 @@ export default function Screen<T extends string>({
       </div>
       {tabs && (
         <div className="editor-bar-tabs">
-          <div className={`mx-auto medium:px-6 ${width}`}>
+          <div className={`medium:px-6 ${width}`}>
             <TabRow id={id} {...tabs} />
           </div>
         </div>
@@ -155,7 +162,7 @@ export default function Screen<T extends string>({
   return (
     <div className="min-h-dvh">
       {slot ? createPortal(bar, slot) : bar}
-      <main className={`editor-screen mx-auto px-4 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 ${width}`}>
+      <main className={`editor-screen px-4 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 ${width}`}>
         {/* At expanded and wider: the way here, the title and the status, under the bar. */}
         <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">
           {crumbs.length > 0 && (
