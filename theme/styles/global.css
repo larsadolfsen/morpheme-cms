@@ -1121,7 +1121,7 @@
       display: none;
     }
   }
-  :is(.theme-action-bar, .theme-action-bar-drawn) > .button-filled {
+  :is(.theme-action-bar-row, .theme-action-bar-drawn) > .button-filled {
     order: 2;
   }
 
