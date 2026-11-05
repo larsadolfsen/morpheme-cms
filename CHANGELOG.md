@@ -1,5 +1,43 @@
 # @morphemecms/cms
 
+## 0.9.0
+
+### Minor Changes
+
+- 34d7f2f: An installed app's page has the tabs Settings and Information.
+- a5f16e1: Show block and section settings in a side panel on large screens.
+- 995f08e: Buttons and icon buttons show the M3 loading indicator while their action runs.
+- 9b1d632: An optional `src/data/header.json` adds a header action button (in place of the phone icon on larger screens) and sets the menu button's side; the new Appearance › Header and Appearance › Footer screens edit all header and footer settings with a live preview on a phone and a computer.
+- facf878: A page chooses a template from the ones its theme offers (`template` in the front matter, "templates" in theme.json: single, full, sidebar-left, sidebar-right). The page flags `wide` and `side` are gone. A site must migrate its `wide: true` pages (for example to `template: single`) and may remove `side: false`.
+
+### Patch Changes
+
+- 09924d5: Install, update and uninstall buttons show the loading indicator while they run.
+- 3a40970: The Save and "More versions" buttons use the busy button with the loading indicator.
+- e1a9843: Media, redirect, restore, theme and move buttons show the loading indicator while they run.
+- 46636dc: Buttons in the editor are as wide as their label on every screen (Material 3), never across the screen.
+- c22e682: Cards side by side or under each other keep 8dp between them, set by the new token `--card-gap`.
+- 9047684: Cards in the Cards block rise to the first elevation when pointed at, as Material 3's filled cards do.
+- 22d9179: Cards have 16dp of room inside them, as Material 3 has, and a card's picture follows that room.
+- a9e9e95: Cards that link are tinted when pointed at or focused, as in Material 3, and no longer get an accent outline.
+- 35e53d0: The editor's Appstore and the cookie consent log no longer hang when an earlier request was cancelled.
+- 13998ad: Show the row that deletes what a screen shows (Delete promotion, Delete page …) in the theme's error colour.
+- 5c4fa60: Show the signed-in user and the site's domain at the top of the main drawer.
+- bb36d48: The main drawer's account row is a pill like the drawer items, with a 1px border on the avatar, centred over the item icons.
+- 1ab26e9: Show the main drawer's back row in its header row, instead of the account row, on a section's list.
+- fc064fe: Align the main drawer header with the drawer's icons and arrows.
+- 2c6ee27: Show a divider under the main drawer's header row.
+- 152fb04: Make the main drawer's header row as high as a drawer item.
+- 7d1f31b: The text toolbar has round corners and room all round it, also while it sticks under the top bar.
+- c19ddf7: On a phone, hide the top bar's side panel button on screens that show a back arrow.
+- 5db8ddc: Give every list item headline Material 3's label text size and weight.
+- efbac0c: Lists in a page's dotted section frame keep their indent, so the bullets stand clear of the line.
+- 86b0867: The "on this page" card on large screens is as wide as the navigation drawer.
+- 5005d1f: Replace the section colour menu with a section settings sheet.
+- eeb55b6: The template single draws its blocks across the column again and shows its first paragraph as a lead; the new `--type-lead-*` tokens (default: title large) let a theme style every lead.
+- 46b7672: The Appstore no longer waits for ever when the store does not answer. After 15 seconds it says "Can't reach the store. Try again in 10 minutes."
+- 0210960: The update message stays while an update is saved.
+
 ## 0.8.0
 
 ### Minor Changes
