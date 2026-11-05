@@ -48,7 +48,7 @@ export const THEME_PARTS = [
   { id: 'FabMenu', group: 'frame', prefixes: ['fab-menu'] },
   { id: 'Footer', group: 'frame', prefixes: ['md-footer'] },
   { id: 'ActionBar', group: 'frame', prefixes: ['theme-action-bar'] },
-  { id: 'Logo', group: 'frame', prefixes: ['theme-logo'] }
+  { id: 'Logo', group: 'frame', prefixes: ['theme-logo'] },
 ];
 
 /** Classes of theme/styles/ui.css that belong to no part. @type {string[]} */

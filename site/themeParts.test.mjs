@@ -21,9 +21,9 @@ const materialCss = [baseCss, uiCss, componentsCss, globalCss].join('\n');
 function getUiCssClasses() {
   const classes = new Set();
   const root = postcss.parse(uiCss);
-  root.walkRules(rule => {
-    selectorParser(selector => {
-      selector.walkClasses(cls => {
+  root.walkRules((rule) => {
+    selectorParser((selector) => {
+      selector.walkClasses((cls) => {
         classes.add(cls.value);
       });
     }).processSync(rule.selector);
@@ -32,7 +32,7 @@ function getUiCssClasses() {
 }
 
 test('unique ids', () => {
-  const ids = THEME_PARTS.map(p => p.id);
+  const ids = THEME_PARTS.map((p) => p.id);
   const uniqueIds = new Set(ids);
   assert.equal(ids.length, uniqueIds.size, 'IDs in THEME_PARTS must be unique');
 });
@@ -47,7 +47,7 @@ test('every part has pieces', () => {
 
 test('ui.css fully covered', () => {
   const uiClasses = getUiCssClasses();
-  const uncovered = uiClasses.filter(cls => {
+  const uncovered = uiClasses.filter((cls) => {
     const part = partOf(cls, THEME_PARTS);
     return part === null && !NOT_PARTS.includes(cls);
   });
