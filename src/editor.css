@@ -837,7 +837,7 @@ html {
 }
 
 .editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child)::before {
-  content: 'Skriv tekst her …';
+  content: var(--editor-gap-text);
   position: absolute;
   color: var(--muted);
   pointer-events: none;
@@ -849,7 +849,7 @@ html {
   }
 
   .editor-spaced .ProseMirror > p:has(> br:only-child):hover::before {
-    content: 'Skriv tekst her …';
+    content: var(--editor-gap-text);
     position: absolute;
     color: var(--muted);
     pointer-events: none;
