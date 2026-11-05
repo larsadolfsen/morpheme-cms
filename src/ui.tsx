@@ -2737,12 +2737,15 @@ function MainRail({ label, onOpen, children }: { label: string; onOpen: () => vo
 }
 
 // The header row at the top of either drawer: `header` (the signed-in user, MainMenu.tsx) at the start and the menu button at
-// the end, which closes the drawer and stays level with the top bar's menu button.
+// the end, which closes the drawer and stays level with the top bar's menu button. The row has the drawer items' inline
+// padding (the list row's own is off), so the avatar, wider than the 24px icon, is pulled back by half the difference to be
+// centred over the items' icons, and the button is centred on the 1.5rem box of the items' trailing arrows (a negative
+// end margin from the button's own width).
 function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header?: ReactNode }) {
   return (
-    <div className="mt-2 mb-7 flex items-center gap-1 ps-2 pe-1">
-      <div className="min-w-0 flex-1">{header}</div>
-      <MenuButton label={t.library.closeMenu} open onClick={onClick} />
+    <div className="mt-2 mb-7 flex items-center gap-1 p-(--navigation-drawer-item-padding,0_1rem) py-0 [--list-item-padding-inline:0]">
+      <div className="ms-[calc((1.5rem-var(--list-item-avatar-size,2.5rem))/2)] min-w-0 flex-1">{header}</div>
+      <MenuButton label={t.library.closeMenu} open onClick={onClick} className="-me-[calc((var(--icon-button-width)-1.5rem)/2)]" />
     </div>
   );
 }
