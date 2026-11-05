@@ -31,6 +31,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   indstillinger: 'settings',
   udseende: 'appearance',
   maaling: 'analytics',
+  kategorier: 'tags',
 });
 
 /**

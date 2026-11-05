@@ -417,7 +417,7 @@ export const collections: Collection[] = [
         to: 'categories',
         multiple: true,
         add: 'Add tag',
-        edit: { to: 'ny/kategorier', text: 'Create a tag' },
+        edit: { to: 'ny/tags', text: 'Create a tag' },
       },
       { name: 'image', label: 'Picture at the top', type: 'image' },
       ...topImageText,
@@ -447,7 +447,7 @@ export const collections: Collection[] = [
         to: 'categories',
         multiple: true,
         add: 'Add tag',
-        edit: { to: 'ny/kategorier', text: 'Create a tag' },
+        edit: { to: 'ny/tags', text: 'Create a tag' },
         hint: 'Not shown on the website.',
       },
       {
@@ -485,7 +485,7 @@ export const collections: Collection[] = [
   },
   {
     kind: 'folder',
-    id: 'kategorier',
+    id: 'tags',
     create: 'New tag',
     label: 'Tags',
     singular: 'tag',

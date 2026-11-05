@@ -109,7 +109,7 @@ export const icons: Record<string, Icon> = {
   header: Browser,
   menu: ListIcon,
   mobilmenu: DeviceMobile,
-  kategorier: Tag,
+  tags: Tag,
   popups: Megaphone,
   virksomheden: Buildings,
   // The sections of the main menu that are not also a part.
@@ -172,7 +172,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
   {
     id: 'indhold',
     title: 'Content',
-    ids: ['pages', 'blog', 'lister', 'popups', 'kategorier', 'filer', internalLinks.id, 'videresendelser'],
+    ids: ['pages', 'blog', 'lister', 'popups', 'tags', 'filer', internalLinks.id, 'videresendelser'],
   },
   { id: 'globalt', title: 'Globals', ids: ['header', 'footer', 'virksomheden'] },
   { id: 'apps', title: 'Apps', ids: ['apps', 'appstore'] },

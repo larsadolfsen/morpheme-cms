@@ -102,7 +102,7 @@ const STANDARD = {
   /** The lists the standard blocks use, by what they hold, and their ids (their addresses, #liste/<id>): the
    * testimonials, the list the block "Udtalelser" brings (src/standard/testimonials/list.ts), the tags, which a
    * testimonial's "Opret et tag" makes a new one of, and the cookies, the list the block "Cookieliste" brings. */
-  lists: { testimonials: 'udtalelser', tags: 'kategorier', cookies: 'cookies' },
+  lists: { testimonials: 'udtalelser', tags: 'tags', cookies: 'cookies' },
   /** The folder of the site's cookie list, "Cookies" under "Lister" (the standard block "Cookieliste",
    * src/standard/cookies/list.ts): a file per cookie, those an app sets added when it is installed and taken out when it
    * is uninstalled (src/cookieList.ts). */
