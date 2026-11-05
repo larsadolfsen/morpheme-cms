@@ -3,13 +3,11 @@
    (:where), so a theme's :root wins. */
 @reference '../theme/styles/base.css';
 
-:root {
+:where(:root) {
   /* The menus and the toolbar of the text: Material 3's menu surface and shadow (elevation level 2). */
   --editor-menu-surface: var(--surface-container-lowest);
   --editor-menu-shadow: var(--elevation-2);
-}
 
-:where(:root) {
   /* How a check went (CheckList: the SEO rating), as PageSpeed shows it: the mark before a check that is fine and one
      that can be done better, and the score's ring (from 90 good, from 50 average, else bad) with its number and the
      light circle in it; the same in every theme. */
