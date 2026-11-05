@@ -101,6 +101,10 @@
       "optional": true
     }
   },
+  "dependencies": {
+    "postcss": "^8.5.32",
+    "postcss-selector-parser": "^6.0.10"
+  },
   "devDependencies": {
     "@astrojs/markdown-remark": "^7.3.2",
     "@astrojs/react": "^7.0.1",
@@ -122,7 +126,6 @@
     "jsdom": "^29.1.1",
     "motion": "^14.0.0",
     "playwright": "^1.64.1",
-    "postcss": "^8.5.32",
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
     "prettier-plugin-tailwindcss": "^0.8.1",
