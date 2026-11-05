@@ -98,6 +98,7 @@ test('every old route prefix opens the screen where it is now', () => {
     avanceret: 'advanced',
     licenser: 'licenses',
     konto: 'account',
+    notifikationer: 'notifications',
     'licenser/mit': 'licenses/mit',
   };
   for (const [old, now] of Object.entries(cases)) assert.equal(movedRoute(old), now, old);

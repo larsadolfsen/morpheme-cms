@@ -75,6 +75,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   avanceret: 'advanced',
   licenser: 'licenses',
   konto: 'account',
+  notifikationer: 'notifications',
 });
 
 /**

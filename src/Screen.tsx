@@ -51,14 +51,14 @@ export function WebsiteLink() {
   return <IconLink href="/" target="_blank" rel="noopener" icon={ArrowSquareOut} label={t.library.openWebsite} />;
 }
 
-/** The bell in the top bar, before the link to the website: the notifications (#notifikationer, Notifications.tsx), with a dot
+/** The bell in the top bar, before the link to the website: the notifications (#notifications, Notifications.tsx), with a dot
  * while some are not seen yet. */
 export function NotificationsLink({ className = '' }: { className?: string }) {
   const count = unseen(useNotifications());
-  const current = location.hash === '#notifikationer';
+  const current = location.hash === '#notifications';
   return (
     <IconLink
-      href="#notifikationer"
+      href="#notifications"
       icon={Bell}
       label={count ? t.library.notificationsNew(count) : t.library.notifications}
       aria-current={current ? 'page' : undefined}

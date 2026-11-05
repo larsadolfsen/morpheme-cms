@@ -1,4 +1,4 @@
-// "Notifikationer" (#notifikationer), which the bell in the top bar opens (Screen.tsx NotificationsLink): the
+// "Notifikationer" (#notifications), which the bell in the top bar opens (Screen.tsx NotificationsLink): the
 // notifications of the editor and the apps (notificationData.ts), newest first, each with when it came and, when it had
 // one, a link to what it is about; an app's with the app's icon. Opening it marks them seen; at the top the bin clears
 // them and the sliders open "Konto", where each type is turned on or off.
