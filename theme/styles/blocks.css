@@ -770,7 +770,7 @@
   /* The picture fills the top of the card, out to its edges. */
   .block-card-picture {
     display: block;
-    margin: -1.5rem -1.5rem 0.25rem;
+    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0.25rem;
     overflow: hidden;
     border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px) 0 0;
     background: var(--block-tint);
