@@ -338,7 +338,7 @@ export const icons = {
   ),
 };
 
-/** The short lists, under "Lister" (#lister): the site's, the standard blocks' and the apps', which go back there too. */
+/** The short lists, under "Lister" (#lists): the site's, the standard blocks' and the apps', which go back there too. */
 export const lists = [...site.lists, ...ownedLists.map((l) => l.id)];
 
 /** The lists under "Lister" now: the site's, the standard blocks' and those of the apps installed, without the cookie

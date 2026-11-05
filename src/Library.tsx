@@ -129,7 +129,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'company') return { label: parts.company, href: '#company', count: null };
   if (id === 'header') return { label: parts.header, href: '#appearance/header', count: null };
   if (id === 'footer') return { label: parts.footer, href: '#appearance/footer', count: null };
-  if (id === 'lister') return { label: parts.lists, href: '#lister', count: listsShown(files).length };
+  if (id === 'lists') return { label: parts.lists, href: '#lists', count: listsShown(files).length };
   if (id === 'blocks') return { label: parts.blocks, href: '#blocks', count: blockParts.length };
   if (id === 'files') return { label: parts.media, href: '#files', count: mediaOf(files).length + filesOf(files).length };
   if (id === 'appearance') return { label: parts.appearance, href: '#appearance', count: null };
@@ -522,7 +522,7 @@ export function PartsHome() {
     { id: 'editor', label: t.parts.screens.editor, icon: icons.dele },
     { id: 'ui', label: t.parts.screens.components, icon: icons.appearance },
     { id: 'blocks', label: t.parts.screens.blocks, icon: icons.blocks },
-    ...kindLists().map((c) => ({ id: `liste/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lister })),
+    ...kindLists().map((c) => ({ id: `liste/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lists })),
     { id: 'vaerdier', label: t.parts.screens.values, icon: Ruler },
   ];
   return <Parts title={t.common.parts.editorParts} route="appearance/dele" parts={parts} back={backToAppearance} />;
@@ -1345,7 +1345,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
         collection.id === config.lists.cookies && privacyScreen
           ? { href: `#${privacyScreen.id}`, label: privacyScreen.label }
           : lists.includes(collection.id)
-            ? { href: '#lister', label: t.common.parts.lists }
+            ? { href: '#lists', label: t.common.parts.lists }
             : header.includes(collection.id)
               ? { href: '#appearance/header', label: t.common.parts.header }
               : { href: '#', label: siteName }

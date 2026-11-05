@@ -3,7 +3,7 @@
 //   (empty)          the start page
 //   liste/<id>       the list of a part, e.g. liste/priser, and liste/<id>/<app> a tab an installed app adds to it
 //                    (AppDefinition.tabs): liste/cookies/cookiescanner
-//   lister           the short lists (the testimonials, the apps' lists)
+//   lists           the short lists (the testimonials, the apps' lists)
 //   settings/appstore   the app store, its apps, and settings/appstore/temaer its themes (AppList.tsx StorePage); the
 //                    other settings are screens of their own, in the drawer's last section (MainMenu.tsx)
 //   ny/<id>          a new entry, ny/<id>/<kind> one of a kind (a pop-up: standard, or an app's)
@@ -720,7 +720,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (!route) return <Start builtAt={builtAt} />;
   if (route === 'konto') return <Account user={user} files={files} onLogout={onLogout} />;
   if (route === 'notifikationer') return <Notifications />;
-  if (route === 'lister') return <Lists files={files} />;
+  if (route === 'lists') return <Lists files={files} />;
   if (route === 'company') return <Company files={files} />;
   if (route === 'blocks') return <Blocks files={files} />;
   if (route === 'files' || route.startsWith('files/'))

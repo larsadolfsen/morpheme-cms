@@ -119,7 +119,7 @@ export const icons: Record<string, Icon> = {
   blocks: SquaresFour,
   files: FolderSimple,
   privacy: ShieldCheck,
-  lister: ListChecks,
+  lists: ListChecks,
   footer: SquareHalfBottom,
   seo: MagnifyingGlass,
   videresendelser: Signpost,
@@ -164,7 +164,7 @@ export const appearance: Part[] = [
 // (appearance) and the editor's parts: Colors.tsx, BrandForm.tsx and Parts.tsx), the parts of "Privacy" (privacy.ts)
 // and the settings of the whole site ("Settings").
 // Each part is a collection (collections.ts), except those named above, "privacy"'s (partScreens) and the editor's own
-// "company" (companyParts), "blocks" (blockParts), id files (the pictures, PDFs, videos and zip files), "header", "lister"
+// "company" (companyParts), "blocks" (blockParts), id files (the pictures, PDFs, videos and zip files), "header", "lists"
 // and "blokvalg" (BlockSettings.tsx).
 const settingsIds = ['morpheme', 'avanceret'];
 export const groups: { id: string; title: string; href?: string; ids: string[] }[] = [
@@ -172,7 +172,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
   {
     id: 'indhold',
     title: 'Content',
-    ids: ['pages', 'blog', 'lister', 'popups', 'tags', 'files', internalLinks.id, 'videresendelser'],
+    ids: ['pages', 'blog', 'lists', 'popups', 'tags', 'files', internalLinks.id, 'videresendelser'],
   },
   { id: 'globalt', title: 'Globals', ids: ['header', 'footer', 'company'] },
   { id: 'apps', title: 'Apps', ids: ['apps', 'appstore'] },
@@ -189,7 +189,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
 /** The settings of the whole site: the ids of the last section, "Settings", written once. */
 export const settings: string[] = settingsIds;
 
-/** The site's own short lists, on a screen of their own under "Lists" (#lister), with those the standard blocks
+/** The site's own short lists, on a screen of their own under "Lists" (#lists), with those the standard blocks
  * bring ("Testimonials") and the apps (their lists.ts). */
 export const lists: string[] = [];
 

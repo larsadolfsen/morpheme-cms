@@ -13,7 +13,7 @@ test('the old footer form opens Appearance › Footer', () => {
 
 test('an address that has not moved stays', () => {
   assert.equal(movedRoute('appearance/header'), 'appearance/header');
-  assert.equal(movedRoute('lister'), 'lister');
+  assert.equal(movedRoute('lists'), 'lists');
 });
 
 test('the extra moves come first', () => {

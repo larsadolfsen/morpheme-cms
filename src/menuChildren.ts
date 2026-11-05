@@ -18,7 +18,7 @@ const listOf = (ids: string[]): MenuChild[] =>
 
 /** The sub-items of a menu item, in their order: none for most. */
 export function childrenOf(id: string, files: RepoFile[]): MenuChild[] {
-  if (id === 'lister') return listOf(listsShown(files));
+  if (id === 'lists') return listOf(listsShown(files));
   if (id === 'company') return companyParts.map((p) => ({ id: p.id, label: p.label, href: `#company/${p.id}` }));
   if (id === 'apps') {
     const installed = installedApps(files);
