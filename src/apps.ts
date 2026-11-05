@@ -227,7 +227,7 @@ export function withKinds<C extends { id: string; kind: string; fields?: Field[]
 }
 
 /** An app's kind of a list as it is turned off under "Blokindstillinger", among the blocks turned off ("popups/mailchimp",
- * as its address under "+", #ny/popups/mailchimp). */
+ * as its address under "+", #new/popups/mailchimp). */
 export const kindKey = (list: string, app: string) => `${list}/${app}`;
 
 /** The kinds a new entry of a list can be, under its "+": its own, and those of the apps installed and not turned off

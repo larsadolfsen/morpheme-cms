@@ -6,7 +6,7 @@
 //   lists           the short lists (the testimonials, the apps' lists)
 //   settings/appstore   the app store, its apps, and settings/appstore/themes its themes (AppList.tsx StorePage); the
 //                    other settings are screens of their own, in the drawer's last section (MainMenu.tsx)
-//   ny/<id>          a new entry, ny/<id>/<kind> one of a kind (a pop-up: standard, or an app's)
+//   new/<id>         a new entry, new/<id>/<kind> one of a kind (a pop-up: standard, or an app's)
 //   company     the business, and company/<part> its parts: kontakt, betaling; and
 //                    company/betaling/<part> its own parts: mobilepay, bank
 //   <screen>         a screen with parts of the site's own (partScreens), and <screen>/<part> its parts:
@@ -557,7 +557,7 @@ function Editor() {
       replace([file, ...(more?.files ?? [])], more?.removed);
       // A new entry, or a post that got a new address: from now on it is edited as the file it
       // became. A form that saves another file than the one at its address (Virksomheden) stays where it is.
-      if (route.startsWith('ny/') || more?.removed.includes(route)) {
+      if (route.startsWith('new/') || more?.removed.includes(route)) {
         history.replaceState(history.state, '', `#${file.path}`);
         setRoute(file.path);
       }
@@ -797,9 +797,9 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   const listed = route.startsWith('list/') && !below.length && collections.find((c) => c.id === listId);
   if (listed) return <List key={listed.id} collection={listed} tab={listTab} files={files} env={env} />;
 
-  // ny/<list>, or ny/<list>/<kind> for one of its kinds (a pop-up: standard, mailchimp).
+  // new/<list>, or new/<list>/<kind> for one of its kinds (a pop-up: standard, mailchimp).
   const [, newIn, newKind] = route.split('/');
-  const creating = route.startsWith('ny/') && collections.find((c) => c.id === newIn && c.create);
+  const creating = route.startsWith('new/') && collections.find((c) => c.id === newIn && c.create);
   if (creating) {
     if (creating.kind === 'markdown') return <EntryForm collection={creating} file={newMarkdown(creating, notOffered(files))} env={env} />;
     if (creating.kind === 'folder')

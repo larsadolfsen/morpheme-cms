@@ -1377,9 +1377,9 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
           {/* Of more than one kind (a pop-up: Standard or an app's, e.g. Mailchimp): a sheet to pick it. */}
           {collection.create &&
             (kinds.length > 1 ? (
-              <NewChoice title={collection.create} options={kinds} onChange={(kind) => (location.hash = `#ny/${collection.id}/${kind}`)} />
+              <NewChoice title={collection.create} options={kinds} onChange={(kind) => (location.hash = `#new/${collection.id}/${kind}`)} />
             ) : (
-              <IconLink href={`#ny/${collection.id}`} label={collection.create!} icon={Plus} />
+              <IconLink href={`#new/${collection.id}`} label={collection.create!} icon={Plus} />
             ))}
         </>
       }

@@ -29,7 +29,7 @@ function addsOf(app: SiteApp, files: RepoFile[]) {
     ...kindsOf(app).map((k) => ({
       ...k,
       block: undefined,
-      create: k.create ? { href: `#ny/${k.key}/${app.id}`, label: k.create } : undefined,
+      create: k.create ? { href: `#new/${k.key}/${app.id}`, label: k.create } : undefined,
       uses: entriesOf(app, k.key, files),
     })),
   ];
