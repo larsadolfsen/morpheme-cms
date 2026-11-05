@@ -97,6 +97,7 @@ test('every old route prefix opens the screen where it is now', () => {
     blokvalg: 'block-settings',
     avanceret: 'advanced',
     licenser: 'licenses',
+    konto: 'account',
     'licenser/mit': 'licenses/mit',
   };
   for (const [old, now] of Object.entries(cases)) assert.equal(movedRoute(old), now, old);

@@ -718,7 +718,7 @@ type PageProps = { route: string; files: RepoFile[]; env: Env; user: Viewer | nu
 
 function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (!route) return <Start builtAt={builtAt} />;
-  if (route === 'konto') return <Account user={user} files={files} onLogout={onLogout} />;
+  if (route === 'account') return <Account user={user} files={files} onLogout={onLogout} />;
   if (route === 'notifikationer') return <Notifications />;
   if (route === 'lists') return <Lists files={files} />;
   if (route === 'company') return <Company files={files} />;

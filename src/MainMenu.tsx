@@ -86,7 +86,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
       onEscape={onEscape}
       header={
         shown === null ? (
-          user && <AccountRow user={user} supporting={config.domain} href="#konto" />
+          user && <AccountRow user={user} supporting={config.domain} href="#account" />
         ) : (
           <MainDrawerBack label={t.library.back} name={t.common.backTo(t.library.mainMenu)} onClick={() => show(null)} />
         )

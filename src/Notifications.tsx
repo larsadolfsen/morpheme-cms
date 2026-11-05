@@ -41,7 +41,7 @@ export default function Notifications() {
             disabled={!items.length}
             onClick={clearNotifications}
           />
-          <IconLink href="#konto" icon={SlidersHorizontal} label={t.library.notificationChoices} />
+          <IconLink href="#account" icon={SlidersHorizontal} label={t.library.notificationChoices} />
         </>
       }
     >
