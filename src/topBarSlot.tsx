@@ -1,7 +1,8 @@
-// Where the editor's top bar stands: one sticky place at the top of the content column, beside the full-height navigation
-// rail or drawer (`aside`; App.tsx wraps the layout in TopBarLayout), which Screen.tsx draws its bar into. Exposes
-// TopBarLayout and useTopBarSlot. It keeps `--top-bar-height` (the bar's height) on the layout, for the sections pane.
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+// Where the editor's top bar stands: one place at the top of the content column, beside the full-height navigation
+// rail or drawer (`aside`; App.tsx wraps the layout in TopBarLayout), which Screen.tsx draws its bar into. The bar scrolls
+// away with the page. Exposes TopBarLayout and useTopBarSlot.
+// While the side panel is open the place ends at the panel's start edge (.editor-top-bar-slot in editor.css).
+import { createContext, useContext, useState, type ReactNode } from 'react';
 
 const Slot = createContext<HTMLElement | null>(null);
 
@@ -13,22 +14,13 @@ export const useTopBarSlot = () => useContext(Slot);
  * screen's bar does not first stand in the screen and then move. */
 export function TopBarLayout({ above, aside, children }: { above?: ReactNode; aside?: ReactNode; children: ReactNode }) {
   const [slot, setSlot] = useState<HTMLDivElement | null>(null);
-  const [layout, setLayout] = useState<HTMLDivElement | null>(null);
-  useEffect(() => {
-    if (!slot || !layout) return;
-    const measure = () => layout.style.setProperty('--top-bar-height', `${slot.offsetHeight}px`);
-    measure();
-    const watch = new ResizeObserver(measure);
-    watch.observe(slot);
-    return () => watch.disconnect();
-  }, [slot, layout]);
   return (
-    <div ref={setLayout} className="[--top-bar-height:4rem]">
+    <div>
       {above}
       <div className="flex">
         {aside}
         <div className="min-w-0 flex-1">
-          <div ref={setSlot} className="sticky top-0 z-20" />
+          <div ref={setSlot} className="editor-top-bar-slot" />
           <Slot.Provider value={slot}>{slot && children}</Slot.Provider>
         </div>
       </div>
