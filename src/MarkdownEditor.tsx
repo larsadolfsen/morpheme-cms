@@ -1208,7 +1208,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       <Toolbar
         ref={toolbar}
         label={t.text.tools}
-        className="editor-tools sticky top-[calc(5rem+1px+env(safe-area-inset-top))] z-10 m-2 justify-center-safe overflow-x-auto rounded-panel border border-line medium:flex-wrap"
+        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 m-2 justify-center-safe overflow-x-auto rounded-panel border border-line medium:flex-wrap"
       >
         {tools.map((tool) => (
           <ReactFragment key={tool.label}>

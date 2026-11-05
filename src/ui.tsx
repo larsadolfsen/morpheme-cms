@@ -2605,7 +2605,7 @@ export function SideSheet({ title, onClose, children }: { title: string; onClose
       headlineId={id}
       closeLabel={t.common.close}
       onClose={onClose}
-      className="editor-reveal sticky top-24 max-h-[calc(100dvh-7rem)] self-start"
+      className="editor-reveal sticky top-8 max-h-[calc(100dvh-3rem)] self-start"
     >
       <div className="space-y-5">{children}</div>
     </SiteSideSheet>
@@ -2652,12 +2652,12 @@ export function SectionList({
 }
 
 /** The "on this page" card at the end of a long form on large and wider screens: the theme's outlined card, as tall as
- * its content (it scrolls inside only when that is taller than the window less the top bar), with the small `caption`
+ * its content (it scrolls inside only when that is taller than the window), with the small `caption`
  * (Afsnit), the form's `title` under it and the form's SectionList (`children`). It stays in view while the form
  * scrolls. Its place is FormColumns' `pane`, against the window's end edge; below large it is not drawn. */
 export function SectionPane({ caption, title, children }: { caption: string; title: string; children: ReactNode }) {
   return (
-    <div className={`${siteCardClass('outlined')} max-h-[calc(100dvh-var(--top-bar-height)-2*var(--section-pane-gap))] overflow-y-auto`}>
+    <div className={`${siteCardClass('outlined')} max-h-[calc(100dvh-2*var(--section-pane-gap))] overflow-y-auto`}>
       <p className="section-pane-caption m-0 text-muted">{caption}</p>
       <h2 className="section-pane-title m-0 mb-3 text-ink">{title}</h2>
       {children}
@@ -3123,7 +3123,7 @@ export function FormColumns({
 }) {
   // On a wide computer screen (large) each of the right column's parts on the theme's outlined card.
   const carded = useAtLeast('large') && cards;
-  const right = `space-y-6 large:col-start-2 ${carded ? siteCardClass('outlined') : ''} ${sticky ? 'large:sticky large:top-24' : ''}`;
+  const right = `space-y-6 large:col-start-2 ${carded ? siteCardClass('outlined') : ''} ${sticky ? 'large:sticky large:top-8' : ''}`;
   return (
     <div
       className={`flex flex-col gap-6 ${
@@ -3134,7 +3134,7 @@ export function FormColumns({
       <div className="min-w-0 space-y-6 large:col-start-1 large:row-span-2 large:row-start-1">{main}</div>
       {side && <div className={`${right} ${first ? 'large:row-start-2' : 'large:row-span-2 large:row-start-1'}`}>{side}</div>}
       {pane && (
-        <div className="editor-section-pane hidden large:fixed large:end-0 large:top-[calc(var(--top-bar-height)+var(--section-pane-gap))] large:z-10 large:block large:w-(--section-pane-width) large:pe-(--section-pane-gap)">
+        <div className="editor-section-pane hidden large:fixed large:end-0 large:top-(--section-pane-gap) large:z-10 large:block large:w-(--section-pane-width) large:pe-(--section-pane-gap)">
           {pane}
         </div>
       )}
@@ -3186,7 +3186,7 @@ export function LeadingToken({ kind, value, weight }: { kind: TokenKind; value: 
 // ---------------------------------------------------------------------------------------------------
 // The sheet from the bottom
 
-/** A screen's top bar (Screen.tsx): the theme's top app bar (Material 3's), at the top of the screen while it scrolls,
+/** A screen's top bar (Screen.tsx): the theme's top app bar (Material 3's), at the top of the screen (it scrolls away with the page),
  * below a phone's clock, and marked as the theme marks it once the screen has scrolled under it (data-stuck). */
 export function TopAppBar({ children }: { children: ReactNode }) {
   const [stuck, setStuck] = useState(false);
@@ -3197,7 +3197,7 @@ export function TopAppBar({ children }: { children: ReactNode }) {
     return () => removeEventListener('scroll', check);
   }, []);
   return (
-    <SiteTopAppBar className="sticky top-0 z-20 pt-[env(safe-area-inset-top)]" data-stuck={stuck || undefined}>
+    <SiteTopAppBar className="pt-[env(safe-area-inset-top)]" data-stuck={stuck || undefined}>
       {children}
     </SiteTopAppBar>
   );

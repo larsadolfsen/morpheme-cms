@@ -33,7 +33,7 @@
   --editor-section-rhythm: 0.625em;
 
   /* A form's "on this page" area (SectionPane in ui.tsx) against the window's end edge: its width (the card is as wide as the navigation drawer), the card in it
-     stands --section-pane-gap in from the end edge and from under the top bar. */
+     stands --section-pane-gap in from the end edge and from the window's top edge. */
   --section-pane-width: calc(var(--navigation-drawer-width, 22.5rem) + var(--section-pane-gap));
   --section-pane-gap: 2rem;
 
