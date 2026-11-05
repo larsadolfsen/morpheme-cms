@@ -11,7 +11,7 @@ import { bankFields, contactFields, socialFields } from '@site/collections';
 export const companyParts: Part[] = [
   { id: 'contact', label: 'Contact', icon: AddressBook, file: 'src/data/contact.json', fields: contactFields },
   {
-    id: 'sociale-medier',
+    id: 'social-media',
     label: 'Social media',
     icon: ShareNetwork,
     file: 'src/data/social.json',

@@ -67,6 +67,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   'slettet/filer': 'deleted/files',
   virksomheden: 'company',
   'virksomheden/kontakt': 'company/contact',
+  'virksomheden/sociale-medier': 'company/social-media',
   'virksomheden/betaling': 'company/payment',
   blokke: 'blocks',
   filer: 'files',
