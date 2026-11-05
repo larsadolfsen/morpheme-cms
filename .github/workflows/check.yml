@@ -22,6 +22,10 @@ jobs:
         with:
           node-version: 24
       - run: npm ci --no-audit --no-fund
+      # Danish text only in the language files; scripts/check-language.mjs.
+      - run: npm run check:language
+      # The language check's and the text lookup's own tests.
+      - run: node --test lib/danish.test.mjs lib/translate.test.mjs
       - name: The pull request has a changeset
         if: github.head_ref != 'changeset-release/main' # The Release PR turns the changesets into CHANGELOG.md.
         run: npx changeset status --since=origin/main

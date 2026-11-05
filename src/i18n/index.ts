@@ -8,6 +8,7 @@
 // names) is written in the site's language, and shown in the editor's by the site's own texts
 // (siteText, @site/texts). The blocks' drawings and the commits (siteT) stay in the site's
 // language, so the site looks as it is, and the history is in one language, whoever saved.
+// A value the editor writes into content (a default text) is in the site's language too (inSiteLanguage).
 // A language is a folder with the texts by the part of the editor they are in (en-US/index.ts). English is the
 // reference: its texts are written first (Messages is its type), and every other language translates them; a new
 // one is a copy of da-DK with its texts translated from en-US, added to `messages`. TypeScript says when a
@@ -16,6 +17,7 @@ import { config } from '@site/config';
 import { appTexts as appFiles, texts } from '@site/texts';
 import { daDK } from './da-DK';
 import { enUS, type Messages } from './en-US';
+import { translate } from '../../lib/translate.mjs';
 
 export type { Messages };
 
@@ -106,8 +108,20 @@ const own: Record<string, string> = translatingSite
  * its translation in @site/texts or in a block's texts.ts, else as it is written. `values` fill in
  * its {name}s, after. */
 export function siteText(text: string, values?: Record<string, string | number>): string {
-  const said = own[text] ?? text;
-  return values ? said.replace(/\{(\w+)\}/g, (all, name: string) => (name in values ? String(values[name]) : all)) : said;
+  return translate(own, text, values);
+}
+
+const inSite: Record<string, string> =
+  siteLocale === DEFAULTS_LOCALE
+    ? {}
+    : Object.assign({}, ...Object.values(appTexts).map((a) => a[siteLocale]), (texts as Texts)[siteLocale]);
+
+/** A text of the package's standard parts (written in DEFAULTS_LOCALE) in the site's language, for a value that the
+ * editor writes into content (a default button text): its translation in @site/texts or in a block's texts.ts, else
+ * as it is written. `values` fill in its {name}s, after. Not the editor's language: content is in the site's
+ * language, whoever saves. */
+export function inSiteLanguage(text: string, values?: Record<string, string | number>): string {
+  return translate(inSite, text, values);
 }
 
 /** A language by its own name ("Dansk (Danmark)", "English (United States)"), or by its name in another

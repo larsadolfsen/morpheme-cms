@@ -99,6 +99,7 @@ Before changes are approved or published, verify the following from the root of 
 | Kommando | Beskrivelse |
 | :--- | :--- |
 | `npm run check` | Prettier, the unit tests (`npm test`), the package's types (`check:types`), the demo built (`npm run build`, its content checked by the editor's rules) and `check:editor` on it (each page the same after a save). |
+| `npm run check:language` | No Danish text outside the language files (i18n/da-DK/); PENDING in scripts/check-language.mjs lists the parts not converted yet. |
 | `npm run check:screens` | Efter `npm run build`: alle editorens skærme åbner uden fejl, på en telefon og en computer, og alle ikoner findes. |
 | `node ../../../bin/morpheme.mjs check:themes` (in `.morpheme/demo/site/`) | Det samme med hvert af de andre temaer. |
 | `npm run check:starter` | Starteren virker som et site med pakken fra `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. |
