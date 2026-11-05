@@ -1,5 +1,6 @@
 ---
-// Blog post template. A narrow reading column, the site's owner as author; related posts in the footer.
+// Blog post template. A narrow reading column, the site's owner as author. The header (back link, title, author, byline
+// with tags, share row) is PostHeader.
 // data-editor marks what the editor's preview fills in with what is in its form ("Forhåndsvis",
 // packages/editor/src/pagePreview.tsx): the heading, the picture and the text. The text goes through RichText (blocks={false}: a post draws no blocks, but its coloured sections are panels).
 import { firstImage, heroImage, picturesOf } from '@morphemecms/cms/site/images.mjs';
@@ -9,9 +10,7 @@ import Img from '@theme/components/Img.astro';
 import EndBlock from '@theme/components/EndBlock.astro';
 import RichText from '@theme/components/RichText.astro';
 import { categoryName, getPosts, postPath, stateOf, type Post } from '@morphemecms/cms/site/content';
-import ShareRow from '@theme/components/ShareRow.astro';
-import PostMeta from '@theme/components/PostMeta';
-import Chip from '@theme/ui/Chip';
+import PostHeader from '@theme/components/PostHeader.astro';
 import { postViewOf } from '@theme/components/loadPosts';
 import { site } from '@morphemecms/cms/site/site';
 import { isBlogCategory } from '@morphemecms/cms/site/categories';
@@ -25,7 +24,7 @@ const { post } = Astro.props;
 const { title, description, date, updated, categories } = post.data;
 // A decorative picture (imageDecorative) has no alternative text.
 const imageAlt = post.data.imageDecorative ? undefined : post.data.imageAlt;
-// The pills under the post: only the blog categories (the others have no page).
+// The tags in the byline: only the blog categories (the others have no page).
 const onBlog = categories.filter(isBlogCategory);
 // Some posts also have their featured image (or another version of it) inside the text; never show it twice.
 const image = heroImage(post.data.image, post.body);
@@ -74,24 +73,12 @@ const related = (await getPosts())
   ]}
 >
   <article>
-    <header class="mx-auto max-w-3xl px-5 pt-8 medium:px-8 medium:pt-14">
-      <a href="/blog/" class="inline-flex items-center gap-1.5 type-body-medium text-muted hover:text-accent">
-        <Icon name="arrow-left" size={16} /> {siteT.theme.blog}
-      </a>
-      <h1 data-editor="heading" class="theme-title mt-3">
-        {title}
-      </h1>
-      <div class="mt-6 flex items-center gap-3">
-        {site.portrait && (
-          <Img src={site.portrait} alt="" loading="eager" class="size-11 rounded-full object-cover object-[50%_20%]" sizes="44px" />
-        )}
-        <div class="leading-snug">
-          <span class="block font-medium">{site.name}</span>
-          <PostMeta post={postViewOf(post)} />
-        </div>
-      </div>
-      <ShareRow url={site.url + postPath(post)} title={title} picture={picture} share={site.social.share} />
-    </header>
+    <PostHeader
+      title={title}
+      post={postViewOf(post)}
+      tags={onBlog.map((c) => ({ label: categoryName(c), href: `/blog/kategori/${c}/` }))}
+      share={{ url: site.url + postPath(post), title, picture, share: site.social.share }}
+    />
 
     {image && (
       <div data-editor="image" class="mx-auto mt-8 max-w-5xl px-5 medium:mt-12 medium:px-8">
@@ -108,18 +95,6 @@ const related = (await getPosts())
     <div data-editor="text" class="prose mx-auto mt-10 max-w-3xl px-5 medium:mt-14 medium:px-8">
       <RichText html={await Astro.slots.render('default')} blocks={false} />
     </div>
-
-    <footer class="mx-auto mt-12 max-w-3xl px-5 medium:px-8">
-      {onBlog.length > 0 && (
-        <ul class="flex flex-wrap gap-2" aria-label="Tags">
-          {onBlog.map((c) => (
-            <li>
-              <Chip href={`/blog/kategori/${c}/`} label={categoryName(c)} />
-            </li>
-          ))}
-        </ul>
-      )}
-    </footer>
   </article>
 
   {site.postEnd && <EndBlock type={site.postEnd} />}
