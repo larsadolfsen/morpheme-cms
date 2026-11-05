@@ -412,7 +412,8 @@ function pictureCard(node: Node, view: EditorView, getPos: () => number | undefi
   if (cut) img.style.cssText = cut.img;
   if (node.attrs.title) img.title = node.attrs.title;
   const describe = async () => {
-    const props = await sheet()?.edit(IMAGE, { src, alt: node.attrs.alt ?? '', format, crop, decorative });
+    const props = await sheet()?.edit(IMAGE, { src, alt: node.attrs.alt ?? '', format, crop, decorative }, false, true);
+    if (props === 'remove') return remove();
     const pos = getPos();
     if (!props || pos === undefined) return;
     view.dispatch(
@@ -423,7 +424,7 @@ function pictureCard(node: Node, view: EditorView, getPos: () => number | undefi
     const pos = getPos();
     if (pos !== undefined) view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
   };
-  // From medium a picture's sheet is the side panel: a tap opens it, and the menu has no pen.
+  // From medium a picture's sheet is the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
   const inPanelNow = () => editsInPanel(atLeastNow('medium'), true);
   const close = cardMenu(
     view,
@@ -435,7 +436,7 @@ function pictureCard(node: Node, view: EditorView, getPos: () => number | undefi
       return [
         !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: describe },
         ...moves(view, pos === undefined ? null : view.state.doc.resolve(pos).index(0), sheet()?.template?.locked),
-        { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
+        !inPanelNow() && { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
       ];
     },
     () => inPanelNow() && void describe(),
@@ -807,8 +808,20 @@ function blockCard(
     const pos = getPos();
     return pos === undefined ? null : view.state.doc.resolve(pos).index(0);
   };
+  // What the template (collections.ts) says of this block: a locked one is only edited, and the last shown one of a block
+  // the page must have cannot be hidden or removed (stays).
+  const keeps = () => {
+    const rules = asker()?.template;
+    const type = node.attrs.type;
+    const locked = !!rules?.locked?.includes(type);
+    const shownOfType = blocksOf(view.state.doc).filter((b) => b.type === type && b.hidden === false).length;
+    // (Not written with "!" before "hidden", which Tailwind would take for a class for the site.)
+    const last = hidden === false && !!rules?.required?.includes(type) && shownOfType <= 1;
+    return { rules, locked, stays: locked || last };
+  };
   const edit = async () => {
-    const props = await asker()?.edit(node.attrs.type, node.attrs.props);
+    const props = await asker()?.edit(node.attrs.type, node.attrs.props, false, !keeps().stays);
+    if (props === 'remove') return remove();
     const here = at();
     // The block's fields as changed; still hidden if it was.
     if (props && here)
@@ -830,7 +843,7 @@ function blockCard(
   // The choices that can be made here: no "Ret" without fields (but to where it is edited instead,
   // Block.edit), no move past the start or end. By the template (collections.ts): a locked block is
   // only edited, and the last shown one of a block the page must have cannot be hidden or removed.
-  // From medium the block's fields are in the side panel: a tap opens it, and the menu has no pen.
+  // From medium the block's fields are in the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
   const inPanelNow = () => editsInPanel(atLeastNow('medium'), !!block?.fields.length);
   const close = cardMenu(
     view,
@@ -839,13 +852,7 @@ function blockCard(
     name,
     () => {
       const i = top();
-      const rules = asker()?.template;
-      const type = node.attrs.type;
-      const locked = !!rules?.locked?.includes(type);
-      const shownOfType = blocksOf(view.state.doc).filter((b) => b.type === type && b.hidden === false).length;
-      // (Not written with "!" before "hidden", which Tailwind would take for a class for the site.)
-      const last = hidden === false && !!rules?.required?.includes(type) && shownOfType <= 1;
-      const stays = locked || last;
+      const { rules, locked, stays } = keeps();
       return [
         block?.fields.length
           ? !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
@@ -854,7 +861,7 @@ function blockCard(
           ? undefined
           : { icon: hidden ? eyeIcon : eyeSlashIcon, label: hidden ? t.text.showOnPage : t.text.hideOnPage, action: toggle },
         ...(locked ? [] : moves(view, i, rules?.locked)),
-        stays ? undefined : { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
+        stays || inPanelNow() ? undefined : { icon: trashIcon, label: t.common.remove, action: remove, danger: true },
       ];
     },
     () => inPanelNow() && void edit(),
