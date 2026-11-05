@@ -1,5 +1,6 @@
 // One related post under a blog post (RelatedPosts.astro): a Material card (ui/Card.tsx) with the post's picture, its
 // title, and its date and reading time (PostMeta.tsx). A theme may replace this file to redesign the card.
+import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
 import Card from '@theme/ui/Card';
 import Img from '@theme/components/Img';
 import PostMeta from '@theme/components/PostMeta';
@@ -12,7 +13,7 @@ export default function PostCard({ post }: { post: PostView }) {
         <Img
           image={post.image}
           alt={post.imageAlt ?? ''}
-          sizes="(min-width: 768px) 33vw, 100vw"
+          sizes={`(min-width: ${BREAKPOINTS.medium}px) 33vw, 100vw`}
           className="aspect-[4/3] w-full object-cover"
         />
       )}
