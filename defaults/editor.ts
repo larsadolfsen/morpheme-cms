@@ -194,4 +194,4 @@ export const settings: string[] = settingsIds;
 export const lists: string[] = [];
 
 /** What is in the header on every page, on one screen under "Appearance" › "Header" (#appearance/header, HeaderSettings.tsx). */
-export const header = ['menu', 'mobile-menu', 'headerknap'];
+export const header = ['menu', 'mobile-menu', 'header-button'];

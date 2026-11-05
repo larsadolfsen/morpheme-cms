@@ -19,7 +19,7 @@ import type { Env } from './App';
 import { t } from './i18n';
 
 // The header's three files, by their collections (defaults/collections.ts), as the preview names them.
-const FILES = { menu: 'menu', mobileMenu: 'mobile-menu', header: 'headerknap' } as const;
+const FILES = { menu: 'menu', mobileMenu: 'mobile-menu', header: 'header-button' } as const;
 const parts: DataFilePart[] = Object.values(FILES).flatMap((id) => {
   const collection = collections.find((c): c is FilesCollection => c.id === id && c.kind === 'files');
   return collection ? [{ collection, dataFile: collection.files[0] }] : [];

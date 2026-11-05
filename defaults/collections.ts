@@ -856,7 +856,7 @@ export const collections: Collection[] = [
   },
   {
     kind: 'files',
-    id: 'headerknap',
+    id: 'header-button',
     label: 'Header button',
     singular: 'header button',
     files: [
