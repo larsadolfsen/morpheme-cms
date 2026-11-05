@@ -1,7 +1,6 @@
 ---
 title: "App store"
 description: "Add new features to your site with one tap: apps and themes from the app store."
-wide: true
 seoTitle: "App store | Morpheme"
 seoDescription: "Add booking, newsletter signups, content-based colors and new themes to your site with one tap. Every install can be undone."
 keyword: "app store"

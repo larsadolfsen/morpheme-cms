@@ -2,6 +2,7 @@
 // Depends on astro:content.
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { PAGE_TEMPLATES } from '../lib/page-template.mjs';
 
 // Kladde, Skjult or Planlagt (Udgivet when left out), and for Planlagt when, in Danish time
 // ("2026-11-01T08:00"): what each one is on the site is in packages/editor/lib/status.mjs.
@@ -76,10 +77,8 @@ const pages = defineCollection({
     canonical: z.string().optional(),
     // Not for search engines: noindex (Base.astro) and not in the sitemap (packages/editor/astro.mjs).
     noindex: z.boolean().optional().default(false),
-    // Across the whole page, without the owner's card beside the text (PageLayout.astro).
-    wide: z.boolean().optional().default(false),
-    // `false`: without the block beside the text, which src/data/side.json chooses (PageLayout.astro).
-    side: z.boolean().optional(),
+    // The page's template, one the theme offers (lib/page-template.mjs; PageLayout.astro). Left out: the theme's first.
+    template: z.enum(PAGE_TEMPLATES as [string, ...string[]]).optional(),
     // A new version of a page (/ny/…): what the owner should look at or answer before it replaces the
     // current page. Shown at the top of the new version and on /ny/.
     review: z.string().optional(),

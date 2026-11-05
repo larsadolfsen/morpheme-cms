@@ -202,7 +202,7 @@
   }
 
   /* A page with a block beside its text (PageLayout.astro): the text, then the column (on a phone below the text); from medium
-   two columns, the second one staying in view while the text is read. */
+   two columns, the one beside the text staying in view while the text is read; on the left for `sidebar-left`. */
   .page-with-side > .page-side {
     margin-top: 3rem;
   }
@@ -217,6 +217,13 @@
       margin-top: 0;
       position: sticky;
       top: 6rem;
+    }
+    /* Template sidebar-left: the column first, though it comes after the text in the page. */
+    .page-with-side[data-side='left'] {
+      grid-template-columns: var(--theme-side-width) minmax(0, 1fr);
+    }
+    .page-with-side[data-side='left'] > .page-side {
+      order: -1;
     }
   }
 
