@@ -44,6 +44,8 @@ export type PageDraft = {
   headingHtml?: string;
   /** The picture at the top (a blog post's); null: none. */
   image?: { src: string; alt: string } | null;
+  /** A blog post (not a page): only its text starts with a lead. */
+  post?: boolean;
   /** The text, in Markdown with its blocks. */
   body?: string;
   /** What the blocks are drawn with. */
@@ -141,21 +143,15 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
     } else end?.remove();
     const text = doc.querySelector('[data-editor="text"]')!;
     // A post's lead goes before its picture (or before its text when it has none), as in PostLayout.astro.
-    const { lead, rest } = leadFill(
-      html,
-      isPostPage({
-        hasLeadSlot: !!doc.querySelector('[data-editor="lead"]'),
-        hasImageSlot: !!doc.querySelector('[data-editor="image"]'),
-        draftHasImage: draft.image !== undefined,
-      }),
-    );
+    const { lead, rest } = leadFill(html, isPostPage(draft));
     let leadBox = doc.querySelector('[data-editor="lead"]');
     if (!lead) leadBox?.remove();
     else {
       if (!leadBox) {
-        leadBox = doc.createElement('div');
+        // The text's own tag and class plus post-lead, as the layout does (a theme may replace the layout).
+        leadBox = doc.createElement(text.tagName);
         leadBox.setAttribute('data-editor', 'lead');
-        leadBox.className = 'prose mx-auto mt-10 max-w-3xl px-5 md:px-8 post-lead';
+        leadBox.className = `${text.className} post-lead`;
         (doc.querySelector('[data-editor="image"]') ?? text).before(leadBox);
       }
       leadBox.innerHTML = lead;

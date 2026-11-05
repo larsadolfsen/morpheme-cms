@@ -1,4 +1,4 @@
-// Tests for isPostPage and leadFill (postLead.mjs).
+// Tests for isPostPage (draft.post) and leadFill (postLead.mjs).
 // Run with: node --test src/postLead.test.mjs
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
@@ -16,10 +16,13 @@ test('a page with a paragraph first stays unsplit', () => {
   assert.deepEqual(leadFill('<p>Hi</p><h2>A</h2>', false), { lead: '', rest: '<p>Hi</p><h2>A</h2>' });
 });
 
-test('a post is known by its lead slot, its picture slot or a picture in the draft', () => {
-  const none = { hasLeadSlot: false, hasImageSlot: false, draftHasImage: false };
-  assert.equal(isPostPage(none), false);
-  assert.equal(isPostPage({ ...none, hasLeadSlot: true }), true);
-  assert.equal(isPostPage({ ...none, hasImageSlot: true }), true);
-  assert.equal(isPostPage({ ...none, draftHasImage: true }), true);
+test('a post without a picture, text starting with a paragraph, has a lead', () => {
+  const isPost = isPostPage({ post: true });
+  assert.deepEqual(leadFill('<p>Hi</p>', isPost), { lead: '<p>Hi</p>', rest: '' });
+});
+
+test('only a draft marked post is a post', () => {
+  assert.equal(isPostPage({ post: true }), true);
+  assert.equal(isPostPage({ post: false }), false);
+  assert.equal(isPostPage({}), false);
 });
