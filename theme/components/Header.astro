@@ -8,7 +8,8 @@
 // icon while the page scrolls down. Not on the booking page and the thank-you page; on a phone with a bar at the
 // bottom of the screen, the bar's first button is the FAB instead (global.css). header.json (optional, site/header.mjs) can put a
 // button in place of the phone icon (shown from the medium window size up), and the menu button at the end; data-editor marks the
-// header, the menu button and the button's place (header-cta) for the editor's preview.
+// header, the menu button, the menu's items (header-nav) and the button's place (header-cta) for the editor's preview; their
+// classes are in headerParts.ts, which the preview shares.
 import Icon from '@theme/components/Icon.astro';
 import MobileMenu from '@theme/components/MobileMenu.tsx';
 import Logo from '@theme/components/Logo.astro';
@@ -18,6 +19,7 @@ import { topAppBarClass } from '@theme/ui/TopAppBar';
 import { menuClass, menuItemClass } from '@theme/ui/Menu';
 import { extendedFabClass } from '@theme/ui/Fab';
 import Buttons from '@theme/blocks/buttons/Buttons';
+import { headerCtaClass, headerEdge, headerMenuClass } from '@theme/components/headerParts';
 import { loadButtons } from '@morphemecms/cms/src/standard/buttons/load';
 import { site, nav, navShown, header } from '@morphemecms/cms/site/site';
 import { siteT } from '@morphemecms/cms/src/i18n';
@@ -51,7 +53,7 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
 <header data-header data-editor="header" class:list={[topAppBarClass, 'group/header sticky top-0 z-[43]']}>
   <Container as="div" data-header-row class="flex h-16 items-center gap-1">
     {navShown && !menuEnd && (
-      <div data-editor="header-menu" class="-ml-2 mr-1 large:hidden large:group-data-crowded/header:block">
+      <div data-editor="header-menu" class={headerMenuClass('start')}>
         <MobileMenu client:interact {...menuProps} />
       </div>
     )}
@@ -60,7 +62,11 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
     </a>
 
     {navShown && (
-      <nav aria-label={siteT.theme.mainMenu} class="hidden shrink-0 large:block large:group-data-crowded/header:hidden">
+      <nav
+        aria-label={siteT.theme.mainMenu}
+        data-editor="header-nav"
+        class="hidden shrink-0 large:block large:group-data-crowded/header:hidden"
+      >
         <ul class="flex items-center gap-1">
           {nav.map((item, i) => (
             <li class="group relative flex items-center" data-nav-item>
@@ -110,14 +116,14 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
     )}
 
     {button ? (
-      <div data-editor="header-cta" class="hidden shrink-0 medium:block">
+      <div data-editor="header-cta" class={headerCtaClass}>
         <Buttons buttons={[button]} />
       </div>
     ) : (
       <a
         href={site.phoneHref}
         data-editor="header-cta"
-        class="icon-button icon-button-standard -mr-2 ml-1"
+        class:list={['icon-button icon-button-standard', headerEdge.end]}
         aria-label={`${site.labels.call} ${site.phone}`}
         title={site.phone}
       >
@@ -125,7 +131,7 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
       </a>
     )}
     {navShown && menuEnd && (
-      <div data-editor="header-menu" class="-mr-2 ml-1 large:hidden large:group-data-crowded/header:block">
+      <div data-editor="header-menu" class={headerMenuClass('end')}>
         <MobileMenu client:interact {...menuProps} />
       </div>
     )}
