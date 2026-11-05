@@ -8,7 +8,7 @@
 // puts a block that ends the text (data-editor="end", with its type in data-editor-block). Only what
 // was changed is put in, so the rest is exactly as on the site. The text is the site's Markdown
 // (Astro's pipeline, with the HTML written in it), and its blocks are drawn as in the editor
-// (registry.tsx preview), with the site's classes; a coloured section is a panel as on the site (lib/text-sections.mjs).
+// (registry.tsx preview), with the site's classes; a coloured section, and a coloured H1 with the text up to the first H2 (pageH1Panel.mjs), is a panel as on the site (lib/text-sections.mjs).
 //
 // Exposes pageDocument, usePagePreview and PageDraft, and for the preview of a part every page has (partPreview.tsx) siteShell,
 // documentHtml, htmlOf and PREVIEW_WIDTH.
@@ -25,7 +25,8 @@ import { useRef, useState, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { parseBlock, splitBlocks } from '../lib/blocks.mjs';
-import { sectionClass, sectionsOf } from '../lib/text-sections.mjs';
+import { introOf, sectionClass, sectionsOf } from '../lib/text-sections.mjs';
+import { h1SectionColor, withoutH1 } from '../lib/without-h1.mjs';
 import { BREAKPOINTS, breakpointOf, type Breakpoint } from '../lib/breakpoints.mjs';
 import { processor } from '../lib/markdown';
 import { splitPicture } from '../lib/crop.mjs';
@@ -33,6 +34,7 @@ import { isPostPage, leadFill } from './postLead.mjs';
 import { preview as drawBlock, siteBlocks } from './registry';
 import { shownAt } from './images';
 import { pageH1 } from './sections.mjs';
+import { setH1Panel } from './pageH1Panel.mjs';
 import type { BlockData } from './blocks';
 import { PageFrame, BottomSheet, SegmentedButton, SheetTitle } from './ui';
 import { t } from './i18n';
@@ -144,8 +146,11 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
   }
 
   if (draft.body !== undefined) {
-    // A page's H1 at the top of its text is drawn in its own place above (draft.heading), as on the site.
-    let html = await markdownHtml(pageH1(draft.body).rest);
+    // A page's H1 at the top of its text is drawn in its own place above (draft.heading), as on the site; the colour of its
+    // section (the marker before it) puts the heading and the text up to the first H2 in one panel (setH1Panel).
+    const whole = isPostPage(draft) ? '' : await markdownHtml(draft.body);
+    const h1Color = h1SectionColor(whole);
+    let html = isPostPage(draft) ? await markdownHtml(pageH1(draft.body).rest) : withoutH1(whole);
     // A block that ends the text, where the layout puts it.
     const end = doc.querySelector('[data-editor="end"]');
     const type = end?.getAttribute('data-editor-block');
@@ -171,14 +176,19 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
       leadBox.innerHTML = lead;
     }
     const types = siteBlocks.map((b) => b.type);
-    text.innerHTML = sectionsOf(rest)
-      .map((run) => {
-        const inner = splitBlocks(run.html, types)
-          .map((p) => ('html' in p ? p.html : blockHtml(p.type, p.props, draft.data)))
-          .join('');
-        return run.color ? `<section class="${sectionClass(run.color)}">${inner}</section>` : inner;
-      })
-      .join('');
+    const runs = (part: string) =>
+      sectionsOf(part)
+        .map((run) => {
+          const inner = splitBlocks(run.html, types)
+            .map((p) => ('html' in p ? p.html : blockHtml(p.type, p.props, draft.data)))
+            .join('');
+          return run.color ? `<section class="${sectionClass(run.color)}">${inner}</section>` : inner;
+        })
+        .join('');
+    // With a column beside the text the panel holds the heading only, as on the site.
+    const { intro, rest: below } = h1Color && !text.closest('[data-side]') ? introOf(rest) : { intro: '', rest };
+    setH1Panel(doc, h1Color, runs(intro));
+    text.innerHTML = runs(below);
   }
   return documentHtml(doc);
 }

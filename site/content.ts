@@ -1,14 +1,17 @@
+// The site's content collections (pages and blog posts): their status, paths, headings, and a page's text without its H1.
+// Exposes getPages, getPosts, pageHeading, pageHeadingHtml, withoutH1 and h1SectionColor. Depends on astro:content and lib/.
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { categories, isBlogCategory } from './categories';
 import { displayTitle } from './text';
 import { isPreview } from './noindex.mjs';
 import { stateOf } from '@morphemecms/cms/lib/status.mjs';
 import { pageH1 } from '@morphemecms/cms/src/sections.mjs';
-import { withoutH1 } from '@morphemecms/cms/lib/without-h1.mjs';
+import { h1SectionColor, withoutH1 } from '@morphemecms/cms/lib/without-h1.mjs';
 
 // From text.ts, which the editor uses too (it has no content collections).
 export { displayTitle, openingText } from './text';
-export { stateOf, withoutH1 };
+// withoutH1 and h1SectionColor: a page's text without its H1 (and its marker), and the colour of the H1's section (PageLayout.astro).
+export { h1SectionColor, stateOf, withoutH1 };
 
 export type Post = CollectionEntry<'blog'>;
 // Every page has a path: its own, or /<file name>/ for pages created in the editor.
