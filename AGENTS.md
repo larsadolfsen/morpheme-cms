@@ -104,6 +104,14 @@ parts (`npx prettier --check .`, `node --test` over the `*.test.mjs` files, `npm
 | `npm run check:starter` | Starteren virker som et site med pakken fra `npm pack`. |
 | `npx morpheme check:demo` | Demoen bygger med standardtemaet og følger editorens regler. |
 
+### Worker rule: no pending I/O promise in module memory
+
+Cloudflare binds each I/O promise (D1, KV, R2, `fetch`) to the request that started it. Worker code (`worker/*.js`)
+never keeps a pending I/O promise in module memory for later requests: when the first request stops, every later
+request that awaits that promise hangs. Keep only finished results (a flag or a value set after `await`).
+`node --test scripts/pending-shared.test.mjs` scans `worker/*.js` for this and fails on it. A deliberate exception
+carries the comment `// pending-ok` with the reason.
+
 ---
 
 ## 5. Generel Tilgang: English First
