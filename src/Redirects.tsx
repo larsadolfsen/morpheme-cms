@@ -99,7 +99,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
   }, []);
   const all = useMemo(() => (files ? readAll(files) : null), [files]);
   const entries = useMemo(() => (all ? entriesOf(all) : []), [all]);
-  const [query, setQuery] = useKept('redirects-soeg', '');
+  const [query, setQuery] = useKept('redirects-search', '');
   const q = query.trim().toLowerCase();
   const name = (to: string) => whatIsAt(to, env.relations);
   // The pages and posts the redirects send to (not a picture or another site), by their names as in the
