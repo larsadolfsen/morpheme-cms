@@ -5,7 +5,7 @@ import { config } from '@site/config';
 import type { SiteSchema } from '../site/schema';
 
 export const schema: SiteSchema = {
-  ids: { business: 'virksomhed', person: 'person' },
+  ids: { business: 'business', person: 'person' },
   businessType: 'LocalBusiness',
   country: config.locale.split('-')[1] ?? 'DK',
   terms: {},

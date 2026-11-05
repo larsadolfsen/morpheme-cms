@@ -131,7 +131,7 @@ export function webPage({
       isPartOf: { '@id': ids.website },
       about: { '@id': ids.business },
       ...(image ? { primaryImageOfPage: abs(image) } : {}),
-      ...(trail.length ? { breadcrumb: { '@id': `${url}#broedkrummer` } } : {}),
+      ...(trail.length ? { breadcrumb: { '@id': `${url}#breadcrumbs` } } : {}),
       ...(questions.length
         ? {
             mainEntity: questions.map((q) => ({
@@ -146,7 +146,7 @@ export function webPage({
       ? [
           {
             '@type': 'BreadcrumbList',
-            '@id': `${url}#broedkrummer`,
+            '@id': `${url}#breadcrumbs`,
             itemListElement: trail.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: abs(c.href) })),
           },
         ]
@@ -175,7 +175,7 @@ export function blogPosting({
   const url = abs(path);
   return {
     '@type': 'BlogPosting',
-    '@id': `${url}#indlaeg`,
+    '@id': `${url}#post`,
     headline: title,
     description,
     datePublished: date.toISOString(),
