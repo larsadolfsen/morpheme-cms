@@ -1,3 +1,8 @@
+declare module 'virtual:material-symbols' {
+  const files: Record<string, string>;
+  export default files;
+}
+
 declare module 'virtual:material-symbols-ssr' {
   const files: Record<string, string>;
   export default files;
