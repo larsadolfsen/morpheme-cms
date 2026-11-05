@@ -22,24 +22,7 @@
 // use (one of its blocks on a page, an entry of its kind or in its list) cannot be uninstalled, as a block on a page
 // cannot be turned off; its page says where it is used, so uninstalling never changes the site.
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import {
-  ArrowsDownUp,
-  Bell,
-  CheckCircle,
-  Code,
-  Cookie,
-  Gear,
-  Globe,
-  Hammer,
-  HardDrives,
-  Palette,
-  PaperPlaneTilt,
-  PuzzlePiece,
-  ShieldCheck,
-  Swatches,
-  UserCircle,
-  type Icon,
-} from '@phosphor-icons/react';
+import { ArrowsDownUp, Gear, PuzzlePiece, Swatches, UserCircle, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
 import {
   Button,
@@ -48,8 +31,6 @@ import {
   EmptyNote,
   Filters,
   Group,
-  GroupTitle,
-  ImageCarousel,
   LeadingIcon,
   LinkButton,
   listClass,
@@ -59,13 +40,11 @@ import {
   SheetBody,
   SheetTitle,
   Switch,
-  SwitchRow,
   useKept,
   ListItem,
 } from './ui';
 import { BlockSwitch, blockSwitchTexts, KindSwitch, kindSwitchTexts, pagesWith, useOnOff } from './BlockSettings';
 import { ConflictError, type Change, type RepoFile } from './github';
-import { categoryOf } from '../lib/cookieCategories.mjs';
 import { cookieChanges, inCookieList } from './cookieList';
 import type { Env } from './App';
 import { ask, choose } from './ask';
@@ -85,7 +64,6 @@ import {
   STORE_THEMES,
   type AppCategory,
   type AppCookie,
-  type AppNeeds,
   type ShownApp,
   type StoreAdd,
   type StoreRecord,
@@ -101,8 +79,9 @@ import { OwnerLicenses, StoreLicenseRows } from './Licenses';
 import { StoreConnectNotice } from './StoreConnectNotice';
 import { StoreConnectedRow } from './StoreConnectedRow';
 import { connection, type StoreConnection } from './storeConnection';
-import { appType, setOn, told, useNotificationChoices } from './notificationData';
+import { appType, told } from './notificationData';
 import { kindAndName } from './deploy';
+import AppInfoTab from './AppInfoTab';
 
 export const appHref = (app: SiteApp) => `#apps/${app.id}`;
 
@@ -464,121 +443,6 @@ export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; fi
           <EmptyNote>{t.apps.noDeveloper}</EmptyNote>
         ))}
     </Screen>
-  );
-}
-
-/** What every app's page says about it, from its folder or the store's catalog: its pictures (each opening it whole),
- * what it does more fully, what it needs of the site (needsOf), the cookies it sets (`consent`: the cookie banner asks
- * first), and who made it, with a row to their page. `children`: what stands between its description and what it
- * needs (its settings and what it adds). */
-function AppAbout({
-  pictures,
-  description,
-  news = [],
-  needs,
-  notifies = [],
-  cookies,
-  consent,
-  publisher,
-  licenses,
-  children,
-}: {
-  pictures: { src: string; label: string }[];
-  description?: string;
-  news?: { version: string; text: string }[];
-  needs?: AppNeeds;
-  /** The kinds of notifications it sends (AppNotifications), under "Notifikationer": their names, and installed their
-   * types, each with its switch, the same as under "Konto" › "Notifikationer". */
-  notifies?: { label: string; type?: string }[];
-  cookies: AppCookie[];
-  consent: boolean;
-  publisher: string;
-  /** Its licences, under "Licenser" (OwnerLicenses, or StoreLicenseRows from the catalog). */
-  licenses?: ReactNode;
-  children?: ReactNode;
-}) {
-  const row = (glyph: Icon, text: string, more?: string) => <ListItem key={text} icon={glyph} headline={text} supporting={more} />;
-  const needed = needs
-    ? [
-        needs.pages && row(Code, t.apps.needsPages),
-        needs.loads.length > 0 && row(Globe, t.apps.needsLoads, needs.loads.join(', ')),
-        needs.sends.length > 0 && row(PaperPlaneTilt, t.apps.needsSends, needs.sends.join(', ')),
-        needs.server && row(HardDrives, t.apps.needsServer),
-        needs.build && row(Hammer, t.apps.needsBuild),
-        ...(needs.changes ?? []).map((hook) => row(Palette, t.apps.changes[hook])),
-      ].filter((x) => !!x)
-    : [];
-  const lasts = (c: AppCookie) => c.lasts && t.apps.cookieLasts(c.lasts);
-  // A named cookie's category (lib/cookieCategories.mjs), first under its name.
-  const category = (c: AppCookie) => t.blocks.cookies.entries.categories[categoryOf(c)];
-  const { off } = useNotificationChoices();
-  return (
-    <>
-      {pictures.length > 0 && (
-        <section className="mb-8">
-          <GroupTitle>{t.apps.screenshots}</GroupTitle>
-          <ImageCarousel label={t.apps.screenshots} images={pictures} />
-        </section>
-      )}
-      {description && (
-        <section className="mb-8">
-          <GroupTitle>{t.apps.about}</GroupTitle>
-          {description.split(/\n\s*\n/).map((p) => (
-            <p key={p} className="mb-3 px-4 last:mb-0">
-              {p}
-            </p>
-          ))}
-        </section>
-      )}
-      {news.length > 0 && (
-        <section className="mb-8">
-          <GroupTitle>{t.apps.news}</GroupTitle>
-          {news.map((n) => (
-            <div key={n.version} className="mb-3 px-4 last:mb-0">
-              <h3 className="font-medium">{t.apps.version(n.version)}</h3>
-              {n.text.split(/\n\s*\n/).map((p) => (
-                <p key={p} className="text-muted">
-                  {p}
-                </p>
-              ))}
-            </div>
-          ))}
-        </section>
-      )}
-      {children}
-      {needs && <Group title={t.apps.needs}>{needed.length ? needed : row(CheckCircle, t.apps.needsNothing)}</Group>}
-      {notifies.some((n) => n.type) ? (
-        <section className="mb-8">
-          <GroupTitle>{t.apps.notifications}</GroupTitle>
-          <div className="space-y-5 px-4">
-            {notifies.map((n) => (
-              <SwitchRow
-                key={n.type}
-                label={n.label}
-                texts={[t.library.on, t.library.off]}
-                selected={!off.includes(n.type!)}
-                onChange={(yes) => setOn(n.type!, yes)}
-              />
-            ))}
-          </div>
-        </section>
-      ) : (
-        <Group title={t.apps.notifications}>
-          {notifies.length ? notifies.map((n) => row(Bell, n.label)) : row(Bell, t.apps.notifiesNone)}
-        </Group>
-      )}
-      <Group title={t.apps.cookies}>
-        {consent && row(ShieldCheck, t.apps.cookiesAsk)}
-        {cookies.map((c) =>
-          c.name
-            ? row(Cookie, c.name, [category(c), c.purpose, lasts(c)].filter(Boolean).join(' · '))
-            : row(Cookie, c.purpose, lasts(c) || undefined),
-        )}
-        {!consent && !cookies.length && row(Cookie, t.apps.noCookies)}
-      </Group>
-      {licenses}
-      <DeveloperRow name={publisher} />
-    </>
   );
 }
 
@@ -1004,7 +868,7 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
               </Button>
             </div>
           )}
-          <AppAbout
+          <AppInfoTab
             pictures={pictures}
             description={app.description}
             news={newsOf(app.releaseNotes, app.version)}
@@ -1022,7 +886,7 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
                 {kinds.filter((k) => k.list === list).map((k, i) => row(k, `${i}`))}
               </Group>
             ))}
-          </AppAbout>
+          </AppInfoTab>
         </>
       )}
       {!app &&
@@ -1162,7 +1026,7 @@ export function AppScreenPage({ app, id, env }: { app: SiteApp; id: string; env:
 /** What every app's page has, in this order: its name, who made it, whether it is installed, its version (from the
  * store) and what it does; "Installer" (or, from the store, "Opdater" when it has a newer version); its pictures and
  * what it does more fully; a row to its settings (installed), with where they are; what it adds (its blocks, its kinds
- * of lists); what it needs, its cookies and who made it (AppAbout); where it is used; and "Afinstaller". */
+ * of lists); what it needs, its cookies and who made it (AppInfoTab); where it is used; and "Afinstaller". */
 function AppContent({ app, env, files }: AppProps) {
   const notify = env.notify;
   const dialog = useRef<HTMLDialogElement>(null);
@@ -1263,7 +1127,7 @@ function AppContent({ app, env, files }: AppProps) {
           )}
         </div>
       )}
-      <AppAbout
+      <AppInfoTab
         pictures={app.pictures}
         description={app.description}
         news={app.store ? newsOf(inStore?.releaseNotes ?? app.releaseNotes, update?.version ?? versionOf(app)) : []}
@@ -1316,7 +1180,7 @@ function AppContent({ app, env, files }: AppProps) {
             adds.filter((a) => !a.block && a.more === title),
           ),
         )}
-      </AppAbout>
+      </AppInfoTab>
       {stuck && (
         <Group title={t.apps.used}>
           {uses.map((u) => (
