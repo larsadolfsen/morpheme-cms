@@ -363,6 +363,28 @@ export const parts = {
     blocks: 'Blocks',
     values: 'Values',
     componentsIntro: "The theme's buttons, fields, lists, and other parts in all their kinds and states. The theme gives them their look.",
+    /** Theme coverage on "UI components": which parts the active theme styles, which it leaves to Material. */
+    coverage: {
+      /** A part's status badge. */
+      status: { own: 'Own style', partly: 'Partly own', material: 'Material' },
+      /** The summary line under the intro. */
+      summary: (theme: string, own: number, total: number) =>
+        `${theme} styles ${own} of ${total} parts fully. ${total - own} still use Material in part or in full.`,
+      /** Label before the list of pieces the theme does not style. */
+      missing: 'Left to Material:',
+      /** Title of the filter group by status. */
+      filter: 'Style',
+      all: 'All',
+    },
+    /** The site frame's parts, last group on "UI components". */
+    frame: {
+      title: 'Site frame',
+      headerMenu: "The top app bar's menu items and the button that opens a sub-menu.",
+      drawerHead: "The site's name and role at the top of the navigation drawer.",
+      footer: 'The footer: its columns, headings, links and the bottom line.',
+      actionBar: "The bar with the page's actions.",
+      logo: 'The logo: its mark, name and role.',
+    },
     blocksIntro: "The standard blocks and the apps' blocks in all their versions. The theme gives them their look.",
     /** A list of kinds ("Promotion"), by the list's name for one. */
     kindsIntro: (one: string) => `Every kind of ${one}, the apps' too, in all its states. The theme gives them their look.`,
