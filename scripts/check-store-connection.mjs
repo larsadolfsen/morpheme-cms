@@ -219,6 +219,55 @@ expect((await call(world(), 'PUT', await envWith())).res.status === 405, 'PUT ga
   expect((await storeKey({ CONSENT: env.CONSENT })) === null, 'storeKey efter forgetKey gav ikke null');
 }
 
+// The table setup is never shared while pending: an earlier request that never settles must not block a later one.
+{
+  /** A D1 whose create-table queries act as `plan` says, in turn ('hang', 'fail', else done); `seen.creates` counts them. */
+  const planned = (plan) => {
+    const store = d1();
+    const real = store.prepare;
+    const seen = { creates: 0 };
+    store.prepare = (sql) => {
+      const statement = real(sql);
+      if (!sql.startsWith('CREATE TABLE')) return statement;
+      return {
+        ...statement,
+        run: () => {
+          const how = plan[seen.creates++];
+          if (how === 'hang') return new Promise(() => {});
+          if (how === 'fail') return Promise.reject(new Error('D1 failed'));
+          return statement.run();
+        },
+      };
+    };
+    return { CONSENT: store, seen };
+  };
+  const within = (promise) =>
+    Promise.race([
+      promise.then(
+        () => 'done',
+        () => 'failed',
+      ),
+      new Promise((resolve) => setTimeout(() => resolve('hung'), 1000)),
+    ]);
+
+  const hung = planned(['hang']);
+  void storeKey(hung).catch(() => {}); // the first request: its create never settles
+  const later = await within(storeKey(hung));
+  expect(later === 'done', `et senere kald til storeKey blev ${later}, da det første kalds oprettelse hang`);
+  expect(hung.seen.creates === 2, `det senere kald oprettede tabellen ${hung.seen.creates - 1} gange, ikke 1`);
+
+  const once = planned([]);
+  await storeKey(once);
+  await storeKey(once);
+  await forgetKey(once);
+  expect(once.seen.creates === 1, `tabellen blev oprettet ${once.seen.creates} gange efter en vellykket oprettelse, ikke 1`);
+
+  const failed = planned(['fail']);
+  expect((await within(storeKey(failed))) === 'failed', 'storeKey gav ikke fejlen fra en oprettelse, der fejlede');
+  expect((await within(storeKey(failed))) === 'done', 'storeKey prøvede ikke igen efter en oprettelse, der fejlede');
+  expect(failed.seen.creates === 2, `efter en fejl blev tabellen oprettet ${failed.seen.creates} gange, ikke 2`);
+}
+
 if (problems.length) {
   console.error(problems.map((p) => `- ${p}`).join('\n'));
   process.exit(1);

@@ -42,7 +42,13 @@ export function MainDrawerSample() {
           return inList;
         }}
         variant="modal"
-        header={<AccountRow user={sampleUser} supporting="example.com" href="" />}
+        header={
+          section === null ? (
+            <AccountRow user={sampleUser} supporting="example.com" href="" />
+          ) : (
+            <MainDrawerBack label={t.library.back} name={t.common.backTo(t.library.mainMenu)} onClick={() => setSection(null)} />
+          )
+        }
       >
         {section === null ? (
           <MainDrawerLevel>
@@ -52,7 +58,6 @@ export function MainDrawerSample() {
           </MainDrawerLevel>
         ) : (
           <MainDrawerLevel focus="list">
-            <MainDrawerBack label={t.library.mainMenu} onClick={() => setSection(null)} />
             <MainDrawerFold href="" icon={icons.header} label={parts.header} open>
               <MainDrawerSubitem href="" label={parts.apps} selected />
             </MainDrawerFold>

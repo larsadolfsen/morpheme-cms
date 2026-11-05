@@ -106,6 +106,52 @@ expect((await handleConsent(visitor({ id: ID, choices: { statistics: true } }), 
 expect((await handleConsent(editor('editor'), none)).status === 503, 'editoren fik ikke at vide, at der ikke gemmes samtykker');
 await forgetOldConsents(none);
 
+// The table setup is never shared while pending: an earlier request that never settles must not block a later one.
+// Each case loads its own copy of the Worker's code, because the Worker keeps whether the table exists in the module.
+{
+  /** A D1 whose create-table batch acts as `plan` says, in turn ('hang', 'fail', else done); `seen.creates` counts them. */
+  const planned = (plan) => {
+    const fake = d1();
+    const seen = { creates: 0 };
+    const batch = fake.batch;
+    fake.batch = (list) => {
+      const how = plan[seen.creates++];
+      if (how === 'hang') return new Promise(() => {});
+      if (how === 'fail') return Promise.reject(new Error('D1 failed'));
+      return batch(list);
+    };
+    return { CONSENT: fake, ASSETS, seen };
+  };
+  const within = (promise) =>
+    Promise.race([
+      promise.then(
+        () => 'done',
+        () => 'failed',
+      ),
+      new Promise((resolve) => setTimeout(() => resolve('hung'), 1000)),
+    ]);
+  const answer = (module, e) => within(module.handleConsent(visitor({ id: ID, choices: { statistics: true } }), e));
+
+  const [hangs] = await workerModules('consent.js');
+  const hung = planned(['hang']);
+  void answer(hangs, hung); // the first request: its create never settles
+  const later = await answer(hangs, hung);
+  expect(later === 'done', `et senere svar blev ${later}, da det første kalds oprettelse hang`);
+  expect(hung.seen.creates === 2, `det senere svar oprettede tabellen ${hung.seen.creates - 1} gange, ikke 1`);
+
+  const [once] = await workerModules('consent.js');
+  const done = planned([]);
+  await answer(once, done);
+  await answer(once, done);
+  expect(done.seen.creates === 1, `tabellen blev oprettet ${done.seen.creates} gange efter en vellykket oprettelse, ikke 1`);
+
+  const [retries] = await workerModules('consent.js');
+  const failed = planned(['fail']);
+  expect((await answer(retries, failed)) === 'failed', 'et svar gav ikke fejlen fra en oprettelse, der fejlede');
+  expect((await answer(retries, failed)) === 'done', 'et svar prøvede ikke igen efter en oprettelse, der fejlede');
+  expect(failed.seen.creates === 2, `efter en fejl blev tabellen oprettet ${failed.seen.creates} gange, ikke 2`);
+}
+
 if (problems.length) {
   console.error(`${problems.length} fejl i samtykkeloggen:\n${problems.join('\n')}`);
   process.exit(1);
