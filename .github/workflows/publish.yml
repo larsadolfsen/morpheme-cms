@@ -26,8 +26,8 @@ jobs:
       pending: ${{ steps.changesets.outputs.hasChangesets }}
       staged: ${{ steps.stage.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
@@ -64,7 +64,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       STAGING_DEPLOY_HOOK: ${{ secrets.STAGING_DEPLOY_HOOK }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Wait until the owner has approved it on npmjs.com
         timeout-minutes: 240
         run: until npm view "@morphemecms/cms@$V" version >/dev/null 2>&1; do sleep 60; done
@@ -92,8 +92,8 @@ jobs:
     env:
       STAGING_DEPLOY_HOOK: ${{ secrets.STAGING_DEPLOY_HOOK }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
