@@ -505,15 +505,15 @@
     right: var(--section-pane-width);
   }
 
-  /* BottomSheet's `panel` (.editor-side-panel): the theme's modal side sheet at the window's end edge under the top bar,
-     the full remaining height; its backdrop is clear. */
+  /* BottomSheet's `panel` (.editor-side-panel): the theme's modal side sheet at the window's end edge, the full window
+     height like the standard one; its backdrop is clear. */
   .editor-side-panel {
-    inset: var(--top-bar-height) 0 0 auto;
+    inset: 0 0 0 auto;
     width: var(--side-panel-width);
-    height: calc(100dvh - var(--top-bar-height));
+    height: 100dvh;
   }
   .editor-side-panel:dir(rtl) {
-    inset: var(--top-bar-height) auto 0 0;
+    inset: 0 auto 0 0;
   }
   .editor-side-panel::backdrop {
     background: transparent;
@@ -521,8 +521,9 @@
 }
 
 /* The block dialog's standard side sheet (.editor-side-sheet: BlockDialog.tsx, not modal, from medium) stands at the window's
-   end edge under the top bar, the full remaining height. BlockDialog.tsx sets [data-side-panel] on the root while it is
-   open: it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
+   end edge from the top of the window to its bottom (M3), with its divider the whole height. BlockDialog.tsx sets
+   [data-side-panel] on the root while it is open: the top bar (.editor-top-bar-slot, topBarSlot.tsx) ends at the sheet's
+   start edge, it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
 @media (width >= theme(--breakpoint-medium)) {
   :root[data-side-panel] {
     --column-end: var(--side-panel-width);
@@ -541,14 +542,17 @@
   }
   .editor-side-sheet {
     position: fixed;
-    inset: var(--top-bar-height) 0 0 auto;
+    inset: 0 0 0 auto;
     z-index: 20;
     width: var(--side-panel-width);
     max-width: none;
-    height: calc(100dvh - var(--top-bar-height));
+    height: 100dvh;
   }
   .editor-side-sheet:dir(rtl) {
-    inset: var(--top-bar-height) auto 0 0;
+    inset: 0 auto 0 0;
+  }
+  :root[data-side-panel] .editor-top-bar-slot {
+    padding-inline-end: var(--side-panel-width);
   }
 }
 
