@@ -3858,14 +3858,22 @@ export function NewChoice<T extends string>({
   );
 }
 
-/** One action of a FAB menu: its icon, its name and where it goes. */
-export type FabAction = { icon: Icon; label: string; href: string };
+/** One action of a FAB menu: its icon, its name and what it does: a link (`href`) or a button (`onClick`). While `busy` its
+ * action runs, and it is disabled as with `disabled`. */
+export type FabAction = { icon: Icon; label: string; href?: string; onClick?: () => void; busy?: boolean; disabled?: boolean };
 
 // An action's icon, drawn.
 const iconOf = ({ icon: Item }: FabAction) => <Item />;
 
+// What an action's element gets besides its icon and name: busy is disabled and aria-busy (a link has neither).
+const fabProps = ({ href, onClick, busy, disabled }: FabAction) => ({
+  href,
+  onClick,
+  ...(href === undefined ? { disabled: disabled || busy, 'aria-busy': busy || undefined } : {}),
+});
+
 /** The screen's main actions at the bottom right (.editor-fab, editor.css): the theme's FAB menu, opened and closed as
- * on the site (setUpFabMenu), or with one action that action as an extended FAB; nothing without any. Drawn in a portal
+ * on the site (setUpFabMenu), or with one action that action as an extended FAB (a link, or a button); nothing without any. Drawn in a portal
  * on <body>, since the screen's entrance animation (a transform) would make its <main> the containing block of a fixed FAB. */
 export function FabMenu({ icon: Glyph, label, items }: { icon: Icon; label: string; items: FabAction[] }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -3882,10 +3890,10 @@ export function FabMenu({ icon: Glyph, label, items }: { icon: Icon; label: stri
           icon={<Glyph />}
           label={label}
           closeLabel={t.common.close}
-          items={items.map((item) => ({ ...item, icon: iconOf(item) }))}
+          items={items.map((item) => ({ label: item.label, icon: iconOf(item), ...fabProps(item) }))}
         />
       ) : (
-        <SiteExtendedFab icon={iconOf(items[0])} label={items[0].label} href={items[0].href} />
+        <SiteExtendedFab icon={iconOf(items[0])} label={items[0].label} {...fabProps(items[0])} />
       )}
     </div>,
     document.body,
