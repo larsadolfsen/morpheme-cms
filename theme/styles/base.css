@@ -189,7 +189,7 @@
   letter-spacing: var(--type-title-large-tracking);
 }
 /* The text right after the lead (no picture between): the space the prose puts between paragraphs (1.25em), not the
-   larger space of a text under a picture. */
+   larger space of a text under a picture. Unlayered on purpose: it must beat the mt-10 / medium:mt-14 utilities (a layer). */
 .prose.post-lead + .prose {
   margin-top: 1.25em;
 }
