@@ -509,6 +509,16 @@ function FieldControl({ field, value, onChange }: Props) {
 // that depends on one there (inUse).
 const AroundHere = createContext<Around | undefined>(undefined);
 
+/** An object field's own fields without its group, whose heading is elsewhere (a section of Appearance › Header: "Action
+ * button"), at the object's path, so a wrong one is marked as it is in the group (WrongField). */
+export function ObjectFields({ field, value, onChange }: Props) {
+  return (
+    <PathHere.Provider value={joined(useContext(PathHere), field.name)}>
+      <FieldList fields={field.fields!} value={(value ?? {}) as Record<string, unknown>} onChange={onChange} />
+    </PathHere.Provider>
+  );
+}
+
 // The fields of an object, in order.
 export function FieldList({
   fields,
