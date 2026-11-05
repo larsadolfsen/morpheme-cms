@@ -1,4 +1,4 @@
-// A screen's one create action as an extended FAB (Files, Redirects, a single-file list form): a button, busy and
+// A screen's one create action as a FAB (Files, Redirects, a single-file list form): a button, busy and
 // disabled as the screen says. Exposes CreateFab. Uses FabMenu (ui.tsx).
 import { Plus } from '@phosphor-icons/react';
 import { FabMenu } from './ui';

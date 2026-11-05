@@ -6,7 +6,7 @@ import { icons } from './site';
 import { FabMenu } from './ui';
 
 export function ListFab({ collection, kinds }: { collection: { id: string; create?: string }; kinds: { value: string; label: string }[] }) {
-  // One action is the extended FAB's (the +); each of several kinds has its list's icon.
+  // One action is the FAB's (the +); each of several kinds has its list's icon.
   const actions = listFab(collection, kinds);
   const icon = actions.length > 1 ? (icons[collection.id] ?? Plus) : Plus;
   return <FabMenu icon={Plus} label={collection.create ?? ''} items={actions.map((a) => ({ ...a, icon }))} />;

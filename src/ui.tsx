@@ -72,7 +72,7 @@ import {
   SiteDatePicker,
   SiteDialog,
   siteDialogModalClass,
-  SiteExtendedFab,
+  SiteFab,
   SiteFabMenu,
   SiteIconButton,
   SiteLoadingIndicator,
@@ -3873,7 +3873,7 @@ const fabProps = ({ href, onClick, busy, disabled }: FabAction) => ({
 });
 
 /** The screen's main actions at the bottom right (.editor-fab, editor.css): the theme's FAB menu, opened and closed as
- * on the site (setUpFabMenu), or with one action that action as an extended FAB (a link, or a button); nothing without any. Drawn in a portal
+ * on the site (setUpFabMenu), or with one action that action as a FAB (its icon, its name as its tooltip and read by screen readers; a link, or a button); nothing without any. Drawn in a portal
  * on <body>, since the screen's entrance animation (a transform) would make its <main> the containing block of a fixed FAB. */
 export function FabMenu({ icon: Glyph, label, items }: { icon: Icon; label: string; items: FabAction[] }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -3893,7 +3893,7 @@ export function FabMenu({ icon: Glyph, label, items }: { icon: Icon; label: stri
           items={items.map((item) => ({ label: item.label, icon: iconOf(item), ...fabProps(item) }))}
         />
       ) : (
-        <SiteExtendedFab icon={iconOf(items[0])} label={items[0].label} {...fabProps(items[0])} />
+        <SiteFab icon={iconOf(items[0])} label={items[0].label} title={items[0].label} {...fabProps(items[0])} />
       )}
     </div>,
     document.body,
