@@ -186,7 +186,7 @@ pwsh -NoProfile -File C:\Users\adolf\Documents\Interstellar\orchestrator\runner\
 | Logo | frame | `theme-logo` |
 
 `NOT_PARTS` (classes of `ui.css` that are no part): `astro`, `material`, `comp`, `elevation`, `ripple`,
-`ripple-wave`, `block-card`.
+`ripple-wave`, `block-card`, `js` (the root flag `:root:not(.js)` of the no-JS tooltip fallback).
 
 - [ ] **Step 1: Write the failing tests** in `site/themeParts.test.mjs`. Read the four files of `theme/styles/`
   (`base.css`, `ui.css`, `components.css`, `global.css`) with `readFileSync`, joined in that order.
