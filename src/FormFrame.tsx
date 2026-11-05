@@ -215,12 +215,13 @@ export default function FormFrame<T extends string>({
               )}
               <Button
                 disabled={saving}
+                busy={saving && !deleting}
                 onClick={() => {
                   askToNotify();
                   void onSave();
                 }}
               >
-                {saving ? <LoadingIndicator>{deleting ? t.app.busy.deleting : t.app.busy.saving}</LoadingIndicator> : t.common.saveChanges}
+                {t.common.saveChanges}
               </Button>
             </div>
           </div>
