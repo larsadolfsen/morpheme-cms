@@ -12,8 +12,7 @@
 // Shown modally it is in a <dialog> with dialogModalClass (a full-screen one with dialogFullScreenModalClass), which
 // dialog() in dialogControl.ts (or the script that shows it: Popup.astro) opens and closes. How it looks is the theme's
 // (--dialog-*). Other attributes go on it, and `className` after its own classes (its place). An Astro component
-// without React gives an element the same classes with dialogClass. The header of a full-screen dialog is its own part,
-// DialogHeader (exported; `onClose` is the close button's click), which the editor draws in its side panel too.
+// without React gives an element the same classes with dialogClass.
 import type { ReactNode } from 'react';
 import { Svg } from '@morphemecms/cms/src/icon';
 import Divider from '@theme/ui/Divider';
@@ -31,40 +30,6 @@ export const dialogClassOf = (kind: DialogKind = 'basic', parts = false) =>
 export const dialogModalClass = 'dialog-modal';
 export const dialogFullScreenModalClass = 'dialog-modal dialog-modal-full-screen';
 
-/** A dialog's headline: the one <h2> that both kinds draw. */
-function DialogHeadline({ headline, headlineId }: { headline: ReactNode; headlineId?: string }) {
-  return (
-    <h2 id={headlineId} className="dialog-headline">
-      {headline}
-    </h2>
-  );
-}
-
-/** The header of a full-screen dialog: the close button at the start (with `closeLabel`; data-dialog-close, `onClose` on
- * click), the headline (`headline`, its id `headlineId`) and `actions` at the end. It looks the same outside a
- * .dialog-full-screen. */
-export function DialogHeader({
-  headline,
-  headlineId,
-  closeLabel,
-  onClose,
-  actions,
-}: {
-  headline?: ReactNode;
-  headlineId?: string;
-  closeLabel?: string;
-  onClose?: () => void;
-  actions?: ReactNode;
-}) {
-  return (
-    <div className="dialog-header">
-      {closeLabel && <IconButton icon="x" label={closeLabel} data-dialog-close="" onClick={onClose} />}
-      {headline && <DialogHeadline headline={headline} headlineId={headlineId} />}
-      {actions && <div className="dialog-header-actions">{actions}</div>}
-    </div>
-  );
-}
-
 export default function Dialog({
   kind = 'basic',
   icon,
@@ -74,7 +39,6 @@ export default function Dialog({
   divider,
   actions,
   closeLabel,
-  onClose,
   className,
   children,
   ...rest
@@ -87,19 +51,26 @@ export default function Dialog({
   divider?: boolean;
   actions?: ReactNode;
   closeLabel?: string;
-  onClose?: () => void;
   className?: string;
   children?: ReactNode;
 } & Record<string, unknown>) {
   const parts = Boolean(icon || headline || supportingText || actions);
   const classes = [dialogClassOf(kind, parts), icon && kind === 'basic' && 'dialog-with-icon', className].filter(Boolean).join(' ');
-  const title = headline && <DialogHeadline headline={headline} headlineId={headlineId} />;
+  const title = headline && (
+    <h2 id={headlineId} className="dialog-headline">
+      {headline}
+    </h2>
+  );
   const supporting = supportingText && <div className="dialog-supporting-text">{supportingText}</div>;
 
   if (kind === 'full-screen')
     return (
       <div className={classes} {...rest}>
-        <DialogHeader headline={headline} headlineId={headlineId} closeLabel={closeLabel} onClose={onClose} actions={actions} />
+        <div className="dialog-header">
+          {closeLabel && <IconButton icon="x" label={closeLabel} data-dialog-close="" />}
+          {title}
+          {actions && <div className="dialog-header-actions">{actions}</div>}
+        </div>
         {divider && <Divider className="dialog-divider" />}
         <div className="dialog-content">
           {supporting}
