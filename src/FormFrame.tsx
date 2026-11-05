@@ -1,7 +1,7 @@
 // What every form in the editor has around its fields: the top bar with the way back and a link to
 // the page on the site, "Slet" below the fields where entries can be deleted, and a bar at the bottom
-// of the screen with "Gem", which is only there when something has been changed. Messages are shown
-// by the app (Env.notify); the first "Gem" asks whether the editor may also send notifications.
+// of the screen with "Gem" (across the bar on a phone, at its end from medium), which is only there when something
+// has been changed. Messages are shown by the app (Env.notify); the first "Gem" asks whether the editor may also send notifications.
 // Leaving with changes that are not saved asks first, to save them or not (in the editor's dialog;
 // closing or reloading the page asks in the browser's own). "Forhåndsvis" beside "Gem" and in the top bar shows the page with
 // what is in the form, before it is saved (pagePreview.tsx).
@@ -206,8 +206,8 @@ export default function FormFrame<T extends string>({
       {(dirty || saving) && (
         <div className="editor-save-bar fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
           <div className="mx-auto max-w-3xl px-4 py-3 medium:px-6">
-            {/* "Forhåndsvis" beside "Gem". */}
-            <div className={onPreview ? 'grid grid-cols-[auto_1fr] gap-2' : ''}>
+            {/* "Forhåndsvis" beside "Gem": across the bar on a phone, at its end from medium. */}
+            <div className={['gap-2 medium:flex medium:justify-end', onPreview && 'grid grid-cols-[auto_1fr]'].filter(Boolean).join(' ')}>
               {onPreview && (
                 <Button kind="outlined" icon={Binoculars} aria-haspopup="dialog" onClick={onPreview}>
                   {t.preview.button}
