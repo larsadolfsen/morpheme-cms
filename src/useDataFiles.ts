@@ -18,7 +18,9 @@ export type DataFilePart = { collection: FilesCollection; dataFile: DataFile };
 
 type Values = Record<string, unknown>;
 
-export function useDataFiles(env: Env, parts: DataFilePart[]) {
+/** `onWrong`: a file's field keeps it from being saved (its place in `parts`, the field's path), before it is marked: so
+ * the screen can open what the field is in. */
+export function useDataFiles(env: Env, parts: DataFilePart[], onWrong?: (i: number, path: string) => void) {
   const { notify } = env;
   // The files as last saved (or loaded); an optional one the site has not got yet is empty (dataFileIn).
   const [bases, setBases] = useState<RepoFile[]>(() =>
@@ -39,6 +41,7 @@ export function useDataFiles(env: Env, parts: DataFilePart[]) {
       const problem = problemAt(fieldsOf(parts[i].dataFile), values[i]);
       if (problem) {
         setWrongIn(i);
+        onWrong?.(i, problem.path);
         wrongField.stop(problem);
         return false;
       }
