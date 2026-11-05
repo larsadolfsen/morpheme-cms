@@ -762,18 +762,21 @@ const capitalFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 // ListItem), and the items under one (its list field, the submenu) indented along a line, shown with
 // the arrow at the right. An item's text and page are changed in a sheet from the bottom,
 // opened with a tap on it or the pencil, and saved with "Gem"; the sheet also removes it. A new item
-// (+ in the top bar, "Tilføj punkt" under a submenu) opens its sheet at once; "Annuller" there takes it
-// away again. The arrows move an item up and down.
+// (+ in the top bar, "Tilføj punkt" under a submenu, and under the menu with `add`) opens its sheet at once; "Annuller"
+// there takes it away again. The arrows move an item up and down.
 export function MenuList({
   field,
   value,
   onChange,
   depth = 0,
+  add = false,
 }: {
   field: Field;
   value: unknown[];
   onChange: (v: unknown) => void;
   depth?: number;
+  /** "Tilføj …" under the list too, where the top bar has no "+" for it (two menus on one screen: Appearance › Header). */
+  add?: boolean;
 }) {
   const [open, setOpen] = useState<number | null>(null);
   // The item whose sheet is open, its fields as they are being changed (and as they were, written as
@@ -884,23 +887,20 @@ export function MenuList({
                     onChange={(v) => onChange(value.map((x, j) => (j === i ? { ...(x as Item), [sub.name]: v } : x)))}
                     depth={depth + 1}
                   />
-                  <Button
-                    kind="text"
-                    size="small"
-                    icon={Plus}
-                    className="mt-1 ml-5"
+                  <AddItem
+                    field={sub}
+                    sub
                     onClick={() =>
                       onChange(value.map((x, j) => (j === i ? { ...(x as Item), [sub.name]: [...children, newItem(sub)] } : x)))
                     }
-                  >
-                    {t.forms.addOne(sub.singular ?? t.forms.item)}
-                  </Button>
+                  />
                 </div>
               )}
             </ListItem>
           );
         })}
       </ul>
+      {add && <AddItem field={field} onClick={() => onChange([...value, newItem(field)])} />}
       <BottomSheet
         ref={sheetRef}
         aria-label={editing ? nameOf(editing.value) || capitalFirst(singular) : undefined}
@@ -938,5 +938,14 @@ export function MenuList({
         )}
       </BottomSheet>
     </div>
+  );
+}
+
+// "Tilføj …" (an item to a list of the menu): under a submenu (`sub`, indented as its items), or under the menu.
+function AddItem({ field, sub = false, onClick }: { field: Field; sub?: boolean; onClick: () => void }) {
+  return (
+    <Button kind="text" size="small" icon={Plus} className={sub ? 'mt-1 ml-5' : 'mt-1'} onClick={onClick}>
+      {t.forms.addOne(field.singular ?? t.forms.item)}
+    </Button>
   );
 }

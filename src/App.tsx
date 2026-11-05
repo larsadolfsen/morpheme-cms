@@ -3,7 +3,6 @@
 //   (empty)          the start page
 //   liste/<id>       the list of a part, e.g. liste/priser, and liste/<id>/<app> a tab an installed app adds to it
 //                    (AppDefinition.tabs): liste/cookies/cookiescanner
-//   header           what is in the header on every page (the menu)
 //   lister           the short lists (the testimonials, the apps' lists)
 //   indstillinger/appstore   the app store, its apps, and indstillinger/appstore/temaer its themes (AppList.tsx StorePage); the
 //                    other settings are screens of their own, in the drawer's last section (MainMenu.tsx)
@@ -22,6 +21,7 @@
 //   udseende         how the site looks (Library.tsx Theme): udseende/temaer the themes installed (Themes) and udseende/temaer/<theme>
 //                    a theme's page, with the button that swaps to it (ThemePage), udseende/ikonpakker the icon packs (IconPacks),
 //                    udseende/bevaegelse how it moves (MotionSchemes), udseende/sidekolonne the block beside the pages' text (SideColumn),
+//                    udseende/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
 //                    udseende/farver the colours (Colors.tsx;
 //                    udseende/farver/reservefarver the site's own while an app changes the pages'), udseende/logo the logo
 //                    and icon (BrandForm.tsx), udseende/dele the parts (Library.tsx PartsHome): udseende/dele/editor the editor's, every
@@ -132,12 +132,12 @@ import {
 import Colors, { colorsOf, FALLBACK_ROUTE } from './Colors';
 import { applyColors, applyMotion } from './theme';
 import SideColumn from './SideColumn';
+import HeaderSettings from './HeaderSettings';
 import { apps, notOffered } from './registry';
 import {
   Account,
   Blocks,
   Company,
-  Header,
   List,
   Lists,
   PartsHome,
@@ -168,6 +168,7 @@ import { arrived, screenOf, up } from './nav';
 import { siteT, siteText, t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 import { appRouteOf } from '../lib/appRoute.mjs';
+import { movedRoute } from './movedRoutes.mjs';
 import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, syncDevice, told, waitOnServer } from './notificationData';
 import Notifications from './Notifications';
 import { EditorOwn, InEditor } from './standard/view';
@@ -262,32 +263,15 @@ function taken(address: string, relations: Record<Relation, Option[]>, redirects
   return { text: t.app.addressRedirects(address, name), redirect: { end, name, via } };
 }
 
-// Screens that have moved, by their old address: a link or a bookmark to one opens it where it is now.
-const MOVED: Record<string, string> = {
-  farver: 'udseende/farver',
-  'virksomheden/logo': 'udseende/logo',
-  'tema/blokvalg': 'blokvalg',
-  dele: 'udseende/dele',
-  tema: 'udseende',
-  'tema/farver': 'udseende/farver',
-  'tema/logo': 'udseende/logo',
-  'tema/dele': 'udseende/dele',
-  'tema/dele/editor': 'udseende/dele/editor',
-  'virksomheden/bank': 'virksomheden/betaling/bank',
-  videresendelser: 'seo/videresendelser',
-  'videresendelser/alle': 'seo/videresendelser/alle',
-  'videresendelser/ikke-fundet': 'seo/videresendelser/ikke-fundet',
-  // The settings of the booking and newsletter apps were on a screen "Promovering"; they are on the apps' own pages now.
-  promovering: 'apps',
-  'promovering/calendly': 'apps/calendly',
-  'promovering/mailchimp': 'apps/mailchimp',
+// The app store's screens that have moved (movedRoutes.mjs has the others).
+const STORE_MOVED: Record<string, string> = {
   [STORE_BEFORE]: STORE_ROUTE,
   [`${STORE_BEFORE}/temaer`]: STORE_THEMES,
 };
 
 // The editor's address after the "#" (nav.ts screenOf).
 function routeOf(hash: string) {
-  const route = MOVED[screenOf(hash)] ?? screenOf(hash);
+  const route = movedRoute(screenOf(hash), STORE_MOVED);
   // An app's settings: on the screen with its category, when it has one ("Analytics", AppList.tsx settingsRoute), and so
   // the pages of their fields (Field.page) after them. Otherwise they are on the Settings tab of its page: apps/<id>
   // (a field's page, apps/<id>/indstillinger/<field>, stays, drawn by the same page).
@@ -734,7 +718,6 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (!route) return <Start builtAt={builtAt} />;
   if (route === 'konto') return <Account user={user} files={files} onLogout={onLogout} />;
   if (route === 'notifikationer') return <Notifications />;
-  if (route === 'header') return <Header files={files} />;
   if (route === 'lister') return <Lists files={files} />;
   if (route === 'virksomheden') return <Company files={files} />;
   if (route === 'blokke') return <Blocks files={files} />;
@@ -755,6 +738,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'udseende/ikonpakker') return <IconPacks env={env} files={files} />;
   if (route === 'udseende/bevaegelse') return <MotionSchemes env={env} files={files} />;
   if (route === 'udseende/sidekolonne') return <SideColumn env={env} files={files} />;
+  if (route === 'udseende/header') return <HeaderSettings env={env} />;
   // A theme installed has its page; one from the store that is not (or not yet built), its page in the store.
   const themeShown = route.startsWith('udseende/temaer/') && themes.find((x) => x.id === route.slice(16));
   if (themeShown) return <ThemePage key={themeShown.id} of={themeShown} env={env} files={files} />;

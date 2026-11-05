@@ -67,6 +67,7 @@ export const library: Messages['library'] = {
   changeMotion: 'Skift bevægelse',
   motionSaved: (change) => `${change}. Hjemmesiden får den nye bevægelse om et par minutter.`,
   motionCommit: (name) => `Editor: skift bevægelse til ${name}`,
+  headerMenuButton: 'Menuknap',
   sideNone: 'Ingen',
   sideNoneHint: 'Siderne har ingen kolonne ved siden af teksten',
   sideEmpty: 'Ingen installeret blok kan tegnes ved siden af en sides tekst.',

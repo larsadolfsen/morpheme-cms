@@ -10,6 +10,9 @@
 // (Astro's pipeline, with the HTML written in it), and its blocks are drawn as in the editor
 // (registry.tsx preview), with the site's classes; a coloured section is a panel as on the site (lib/text-sections.mjs).
 //
+// Exposes pageDocument, usePagePreview and PageDraft, and for the preview of a part every page has (partPreview.tsx) siteShell,
+// documentHtml, htmlOf and PREVIEW_WIDTH.
+//
 // The page is shown in a frame without scripts (sandbox), so nothing of the site runs on the editor's
 // address, where its login is kept, and its links lead nowhere. A new page or post is shown in the
 // page of another one. As on the site but for this: a changed text has the pictures themselves (not
@@ -56,9 +59,8 @@ export type PageDraft = {
 // but those that read the site's files.
 const markdownHtml = async (markdown: string) => String(await processor.process(markdown));
 
-// A block drawn as in the editor, as HTML.
-function blockHtml(type: string, props: Record<string, unknown>, data: BlockData) {
-  const drawn: ReactNode = drawBlock(type, props, data);
+/** What React draws (a block, a part of the header drawn with the theme's components), as HTML. */
+export function htmlOf(drawn: ReactNode) {
   if (!drawn) return '';
   const box = document.createElement('div');
   const root = createRoot(box);
@@ -67,6 +69,9 @@ function blockHtml(type: string, props: Record<string, unknown>, data: BlockData
   root.unmount();
   return html;
 }
+
+// A block drawn as in the editor, as HTML.
+const blockHtml = (type: string, props: Record<string, unknown>, data: BlockData) => htmlOf(drawBlock(type, props, data));
 
 // A picture made ready in this visit, which the site does not have yet (images.ts shownAt), in the
 // page itself.
@@ -89,25 +94,34 @@ async function sitePage(address: string) {
   return new DOMParser().parseFromString(await res.text(), 'text/html');
 }
 
+/** The first of the site's pages (their addresses) that has a part (`has`, a selector), without its scripts and with its own
+ * addresses as on the site, for a frame (PageFrame); a link in it opens nothing (target, and no popups in the frame).
+ * Also for the preview of a part on every page (partPreview.tsx). */
+export async function siteShell(addresses: string | string[], has: string): Promise<Document> {
+  for (const address of [addresses].flat()) {
+    const doc = await sitePage(address);
+    if (!doc.querySelector(has)) continue;
+    doc.querySelectorAll('script').forEach((s) => s.remove());
+    const base = doc.createElement('base');
+    base.href = new URL(address, location.href).href;
+    base.target = '_blank';
+    doc.head.prepend(base);
+    return doc;
+  }
+  throw new Error(t.preview.notHere);
+}
+
+/** A page made ready (siteShell) as HTML for a frame, with the pictures made ready in this visit in it. */
+export async function documentHtml(doc: Document): Promise<string> {
+  await Promise.all(
+    [...doc.querySelectorAll('img')].map(async (img) => img.setAttribute('src', await inline(img.getAttribute('src') ?? ''))),
+  );
+  return `<!doctype html>\n${doc.documentElement.outerHTML}`;
+}
+
 /** The page with the draft in it, as HTML for a frame (PageFrame). */
 export async function pageDocument(draft: PageDraft): Promise<string> {
-  let doc: Document | null = null;
-  let shell = '';
-  for (const address of [draft.shell].flat()) {
-    const page = await sitePage(address);
-    if (page.querySelector('[data-editor="text"]')) {
-      doc = page;
-      shell = address;
-      break;
-    }
-  }
-  if (!doc) throw new Error(t.preview.notHere);
-  doc.querySelectorAll('script').forEach((s) => s.remove());
-  // Its own addresses as on the site; a link opens nothing (target, and no popups in the frame).
-  const base = doc.createElement('base');
-  base.href = new URL(shell, location.href).href;
-  base.target = '_blank';
-  doc.head.prepend(base);
+  const doc = await siteShell(draft.shell, '[data-editor="text"]');
 
   const heading = doc.querySelector('[data-editor="heading"]');
   if (heading && draft.headingHtml) heading.innerHTML = draft.headingHtml;
@@ -166,17 +180,14 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
       })
       .join('');
   }
-
-  await Promise.all(
-    [...doc.querySelectorAll('img')].map(async (img) => img.setAttribute('src', await inline(img.getAttribute('src') ?? ''))),
-  );
-  return `<!doctype html>\n${doc.documentElement.outerHTML}`;
+  return documentHtml(doc);
 }
 
-// The widths the page is shown at: Material 3's breakpoints, each at the narrowest window it has, so its tightest
-// layout is seen; compact at a common phone's.
+// The sizes the page is shown at: Material 3's breakpoints.
 const SIZES: Breakpoint[] = ['compact', 'medium', 'expanded', 'large', 'extraLarge'];
-const WIDTH: Record<Breakpoint, number> = { ...BREAKPOINTS, compact: 390 };
+/** The width of the page at each size: the narrowest window it has, so its tightest layout is seen; compact at a common
+ * phone's. Also the preview of a part (partPreview.tsx). */
+export const PREVIEW_WIDTH: Record<Breakpoint, number> = { ...BREAKPOINTS, compact: 390 };
 
 /** The sheet with the preview, and how to open it with a draft (made when it opens). */
 export function usePagePreview(): [(draft: () => PageDraft | null) => void, ReactNode] {
@@ -218,7 +229,7 @@ export function usePagePreview(): [(draft: () => PageDraft | null) => void, Reac
         />
       </div>
       {html ? (
-        <PageFrame html={html} width={WIDTH[size]} title={t.preview.title} />
+        <PageFrame html={html} width={PREVIEW_WIDTH[size]} title={t.preview.title} />
       ) : (
         <p className="px-5 text-muted">{problem || t.preview.making}</p>
       )}
