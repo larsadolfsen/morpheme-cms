@@ -7,7 +7,7 @@
 // (the standard blocks, each app's under its name), the one picked as a chip. Also the sheet of a section's
 // settings (its colour, SectionSettings.tsx), which goes the same way as a block's fields: Annuller, Gem, the question when closed changed.
 // The fields and the section settings are in the theme's side sheet (sheetPlacement.mjs): a standard one beside the page from
-// medium (not modal: the page stays usable, .editor-side-sheet in editor.css), a modal one over the page below it
+// expanded (not modal: the page stays usable, .editor-side-sheet in editor.css), a modal one over the page below it
 // (fields only; the section settings are a sheet from the bottom there). Both end with Gem (Indsæt) and Annuller.
 // Their open, close, focus and Escape are the theme's (sideSheet() and standardSideSheet(), sideSheetControl.ts); leave() is their beforeClose.
 // Another block tapped while one is open closes the open one first (the question when changed). In the standard side sheet a
@@ -47,6 +47,7 @@ import { snackbar } from '../lib/snackbar';
 import { closeChanged } from './ask';
 import SectionSettings from './SectionSettings';
 import { sheetLook } from './sheetPlacement.mjs';
+import { setPanelOpen } from './sidePanel';
 import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
 
 export type BlockAsk = {
@@ -129,13 +130,13 @@ export function useBlockDialog(
 ): [BlockAsk, ReactElement] {
   const blockOf = (type: string) => (type === IMAGE ? picture : type === HTML ? htmlBlock : list.find((b) => b.type === type));
   const dialog = useRef<HTMLDialogElement>(null);
-  // The modal side sheet's <dialog> (below medium) and its controls; the standard one's box (from medium).
+  // The modal side sheet's <dialog> (below expanded) and its controls; the standard one's box (from expanded).
   const sideDialog = useRef<HTMLDialogElement>(null);
   const sideControls = useRef<ReturnType<typeof siteSideSheet> | null>(null);
   const standard = useRef<HTMLDivElement>(null);
   const standardControls = useRef<ReturnType<typeof siteStandardSideSheet> | null>(null);
   const headingId = useId();
-  const medium = useAtLeast('medium');
+  const expanded = useAtLeast('expanded');
   const answer = useRef<(a: Answer) => void>(() => {});
   const [open, setOpen] = useState<Open | null>(null);
   // What is open now (set at once, where `open` follows a render later), the look it has, when the last one has closed
@@ -191,7 +192,7 @@ export function useBlockDialog(
   };
 
   // Which dialog is open follows the look of the step: the sheet from the bottom, or the modal side sheet (below).
-  const look: string = open ? sheetLook(open.step, medium) : 'sheet';
+  const look: string = open ? sheetLook(open.step, expanded) : 'sheet';
   lookNow.current = look;
   useEffect(() => {
     const sheet = dialog.current;
@@ -207,7 +208,7 @@ export function useBlockDialog(
     return false;
   };
 
-  // The modal side sheet (below medium).
+  // The modal side sheet (below expanded).
   useEffect(() => {
     const d = sideDialog.current;
     if (look !== 'modal-side-sheet' || !d) return;
@@ -219,11 +220,12 @@ export function useBlockDialog(
     };
   }, [look]);
 
-  // The standard side sheet (from medium): the page makes room for it (editor.css: [data-side-panel]), the focus moves
+  // The standard side sheet (from expanded): the page makes room for it (editor.css: [data-side-panel]), the focus moves
   // into it and back to what had it before when it closes.
   useEffect(() => {
     if (look !== 'side-sheet') return;
     document.documentElement.setAttribute('data-side-panel', '');
+    setPanelOpen(true);
     const box = standard.current?.querySelector<HTMLElement>('[data-side-sheet-container]');
     if (box) {
       standardControls.current = siteStandardSideSheet(box, { beforeClose });
@@ -232,6 +234,7 @@ export function useBlockDialog(
     return () => {
       standardControls.current = null;
       document.documentElement.removeAttribute('data-side-panel');
+      setPanelOpen(false);
     };
   }, [look]);
 

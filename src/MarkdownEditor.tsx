@@ -1,7 +1,7 @@
 // The text of a page or blog post: Milkdown (packages/editor/src/markdown.mjs) with a small toolbar.
 // The text is shown in the site's own style (the "prose" classes of the pages). On pages the site's
 // blocks (src/apps/<app>/blocks/) can be put in the text with a button; each is a card with the block as it looks
-// on the site, which opens a menu (hide on the site, move; below medium also Ret, Fjern; from medium a tap opens the
+// on the site, which opens a menu (hide on the site, move; below expanded also Ret, Fjern; from expanded a tap opens the
 // side panel instead), with a free line kept between
 // two cards to write in. A fixed page's sections are such a text too (SectionsField.tsx), so both look
 // and work the same. The last tool, "Section settings", opens the section's sheet (BlockDialog.tsx).
@@ -286,7 +286,7 @@ const moves = (view: EditorView, i: number | null, locked: string[] = []): CardI
 
 // The row of icons on a card (a block or a picture) in the text, opened by tapping it: items, as
 // they are when it opens (no row when there are none). `tap` runs first on a tap that opens the row (not on one that
-// closes it): from medium it opens the card's side panel. Returns how to close it.
+// closes it): from expanded it opens the card's side panel. Returns how to close it.
 function cardMenu(
   view: EditorView,
   dom: HTMLElement,
@@ -424,8 +424,8 @@ function pictureCard(node: Node, view: EditorView, getPos: () => number | undefi
     const pos = getPos();
     if (pos !== undefined) view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
   };
-  // From medium a picture's sheet is the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
-  const inPanelNow = () => editsInPanel(atLeastNow('medium'), true);
+  // From expanded a picture's sheet is the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
+  const inPanelNow = () => editsInPanel(atLeastNow('expanded'), true);
   const close = cardMenu(
     view,
     dom,
@@ -843,8 +843,8 @@ function blockCard(
   // The choices that can be made here: no "Ret" without fields (but to where it is edited instead,
   // Block.edit), no move past the start or end. By the template (collections.ts): a locked block is
   // only edited, and the last shown one of a block the page must have cannot be hidden or removed.
-  // From medium the block's fields are in the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
-  const inPanelNow = () => editsInPanel(atLeastNow('medium'), !!block?.fields.length);
+  // From expanded the block's fields are in the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
+  const inPanelNow = () => editsInPanel(atLeastNow('expanded'), !!block?.fields.length);
   const close = cardMenu(
     view,
     dom,
@@ -1208,7 +1208,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       <Toolbar
         ref={toolbar}
         label={t.text.tools}
-        className="editor-tools sticky top-[calc(5rem+1px+env(safe-area-inset-top))] z-10 m-2 justify-center-safe overflow-x-auto rounded-panel border border-line medium:flex-wrap"
+        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 m-2 justify-center-safe overflow-x-auto rounded-panel border border-line medium:flex-wrap"
       >
         {tools.map((tool) => (
           <ReactFragment key={tool.label}>
