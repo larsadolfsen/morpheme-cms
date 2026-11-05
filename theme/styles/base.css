@@ -181,6 +181,13 @@
   font-weight: var(--type-body-large-weight);
   letter-spacing: var(--type-body-large-tracking);
 }
+/* A blog post's lead: its first paragraph, in the body-large type. */
+.prose.post-lead {
+  font-size: var(--type-body-large-size);
+  line-height: var(--type-body-large-line-height);
+  font-weight: var(--type-body-large-weight);
+  letter-spacing: var(--type-body-large-tracking);
+}
 /* The text's headings: a headline, a title under it and a smaller title under that (the type scale, ui.css). */
 .prose :where(h2) {
   font-size: var(--type-headline-medium-size);
