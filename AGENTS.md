@@ -94,11 +94,12 @@ flowchart LR
 
 Before changes are approved or published, verify the following from the root of this repository, on the demo
 (`npm run build` builds it in `.morpheme/demo/site/`). This repository has no `npm run check` script yet: run its
-parts (`npx prettier --check .`, `node --test` over the `*.test.mjs` files, `npm run build`).
+parts (`npx prettier --check .`, `node --test` over the `*.test.mjs` files, `npm run check:language`, `npm run build`).
 
 | Kommando | Beskrivelse |
 | :--- | :--- |
 | `npm run check` | Prettier, typerne, `check:content` (editorens regler), `check:editor` (samme side efter en gem) og `check:worker`. |
+| `npm run check:language` | No Danish text outside the language files (i18n/da-DK/); PENDING in scripts/check-language.mjs lists the parts not converted yet. |
 | `npm run check:screens` | Efter `npm run build`: alle editorens skærme åbner uden fejl, på en telefon og en computer, og alle ikoner findes. |
 | `npm run check:themes` | Det samme med hvert af de andre temaer. |
 | `npm run check:starter` | Starteren virker som et site med pakken fra `npm pack`. |

@@ -86,7 +86,7 @@ export const parts = {
     bold: 'Bold',
     insert: 'Insert',
     cookieBanner: 'The cookie banner',
-    address: 'Address',
+    address: 'URL',
     addressHint: 'For example, /about/.',
     sendsTo: 'Sends to the page "Second page."',
     color: 'Accent color',

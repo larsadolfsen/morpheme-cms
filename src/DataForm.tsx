@@ -22,6 +22,8 @@ import { useMediaPicker } from './Media';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
 import { savedOn, VersionNotice, VersionsButton, WithVersions, type ShownVersion } from './Versions';
 import { Button, CheckList, FoldSection, FormColumns, Group, IconButton, Preview, FormHeading, SharePreview, Notice, ListItem } from './ui';
+import { SearchPreview } from './SearchPreview';
+import { searchedAs } from './googleResult.mjs';
 import { plain, SEO_FIELDS, seoRating, SHARE_FIELDS, sharedAs } from './seo';
 import type { Env } from './App';
 import { kindAndName, lower, nameOf, savedText } from './deploy';
@@ -215,28 +217,46 @@ function Form({
       relations: env.relations,
     });
   }, [seoNow, seoFields.length]);
-  const seoSection = seoFields.length > 0 && (
-    <FoldSection title={t.forms.seo} open={seoOpen} onToggle={() => setSeoOpen(!seoOpen)}>
-      {rating.length > 0 && <CheckList title={t.forms.seoRating.title} items={rating} />}
-      <FieldList fields={seoFields} value={values} onChange={(v) => setValues(v as Record<string, unknown>)} />
-    </FoldSection>
-  );
-  // The link as shared (BlogIndex.astro): the heading or the tag's name with the site's name after it, and the
+  // The page as the site writes it (BlogIndex.astro): the heading or the tag's name with the site's name after it, and the
   // introduction or, on a tag, the number of its posts on the blog.
-  const card = () => {
+  const pageNow = () => {
     const name = String(values.heading ?? values.name ?? '');
     const intro = text?.intro ? plain(String(values[text.intro] ?? '')) : '';
     const tag = collection.kind === 'folder' && base.path ? slugOf(base.path, collection.folder) : '';
     const count = env.site.posts.filter((p) => p.categories.includes(tag)).length;
-    return sharedAs({
+    return {
       title: name,
       seoTitle: String(values.seoTitle ?? ''),
       seoDescription: String(values.seoDescription ?? ''),
-      shareImage: String(values.shareImage ?? ''),
       description: intro || (collection.kind === 'folder' ? siteT.forms.tagShared(count, name) : ''),
       site: sharing,
-    });
+    };
   };
+  // The link as shared.
+  const card = () => sharedAs({ ...pageNow(), shareImage: String(values.shareImage ?? '') });
+  // The Google result (SearchPreview) at the page's address on the site: a fixed page's own, a tag's /blog/kategori/<file
+  // name>/ (its name for one not saved yet).
+  const resultPath = () => {
+    if (fixed) return dataFile!.view;
+    if (collection.kind !== 'folder') return '/';
+    return `/blog/kategori/${base.path ? slugOf(base.path, collection.folder) : slugify(String(values.name ?? ''))}/`;
+  };
+  const result = seoFields.length > 0 && seoOpen ? searchedAs(pageNow()) : null;
+  const seoSection = seoFields.length > 0 && (
+    <FoldSection title={t.forms.seo} open={seoOpen} onToggle={() => setSeoOpen(!seoOpen)}>
+      {rating.length > 0 && <CheckList title={t.forms.seoRating.title} items={rating} />}
+      {result && (
+        <SearchPreview
+          domain={config.domain}
+          path={resultPath()}
+          siteName={sharing.name}
+          title={result.title}
+          description={result.description}
+        />
+      )}
+      <FieldList fields={seoFields} value={values} onChange={(v) => setValues(v as Record<string, unknown>)} />
+    </FoldSection>
+  );
   const shared = shareFields.length > 0 && shareOpen ? card() : null;
   const shareSection = shareFields.length > 0 && (
     <FoldSection title={t.forms.share} open={shareOpen} onToggle={() => setShareOpen(!shareOpen)}>

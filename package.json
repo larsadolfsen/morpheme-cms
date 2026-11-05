@@ -43,6 +43,7 @@
     "icons": "node scripts/icon-packs.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "check:language": "node scripts/check-language.mjs",
     "release:version": "changeset version && node scripts/starter.mjs",
     "prepack": "node scripts/types.mjs write",
     "postpack": "node scripts/types.mjs clean"
