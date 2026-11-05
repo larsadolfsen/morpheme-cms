@@ -1,4 +1,4 @@
-// What "Dele" (#udseende/dele: Parts.tsx, BlockParts.tsx) shows the parts and blocks with: made-up pages, posts, tags,
+// What "Dele" (#appearance/dele: Parts.tsx, BlockParts.tsx) shows the parts and blocks with: made-up pages, posts, tags,
 // testimonials, the lists' made-up rows (`examples` of a list), cookies and contact details in the editor's language,
 // the apps' made-up settings (AppSettings.example), and a plain picture, never what the site has, so the parts look the
 // same on every site.

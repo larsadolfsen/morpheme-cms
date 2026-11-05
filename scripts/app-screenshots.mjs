@@ -30,7 +30,7 @@ const BLUE = { source: '#1a73e8', variant: 'tonalSpot', contrast: 'standard' };
 const ids = process.argv.length > 2 ? process.argv.slice(2) : readdirSync(APPS).filter((id) => existsSync(join(APPS, id, 'index.ts')));
 
 // The pictures each app picks, read as store-release.mjs does, in their order. `part`: its drawing under "Dele" ›
-// "Blokke" or the list's screen (`parts`: #udseende/dele/blokke, #udseende/dele/liste/<list>) by the part's name; `editor`: a screen of the editor (`at`: from the top of what is
+// "Blokke" or the list's screen (`parts`: #appearance/dele/blokke, #appearance/dele/liste/<list>) by the part's name; `editor`: a screen of the editor (`at`: from the top of what is
 // there). And each app's settings as the pictures show them: those it starts with, and the made-up ones of its picture.
 const vite = await createServer({
   configFile: false,
@@ -135,7 +135,7 @@ try {
     for (const [i, shot] of shots[id].entries()) {
       const options = { path: join(folder, shot.name), type: 'jpeg', quality: 80 };
       if (shot.part) {
-        await go(`udseende/dele/${shot.parts}`);
+        await go(`appearance/dele/${shot.parts}`);
         // Tall enough for the whole drawing, under the screen's top bar.
         await editor.setViewportSize({ width: phone.width, height: 1600 });
         const drawing = editor.locator(`section[data-part="${shot.part}"] > :last-child`).first();

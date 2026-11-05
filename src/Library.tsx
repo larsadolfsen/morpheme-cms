@@ -127,12 +127,12 @@ const countOf = (c: Collection, files: RepoFile[]): number =>
 export function partOf(id: string, files: RepoFile[]): { label: string; href: string; count: number | null } {
   const { parts } = t.common;
   if (id === 'virksomheden') return { label: parts.company, href: '#virksomheden', count: null };
-  if (id === 'header') return { label: parts.header, href: '#udseende/header', count: null };
-  if (id === 'footer') return { label: parts.footer, href: '#udseende/footer', count: null };
+  if (id === 'header') return { label: parts.header, href: '#appearance/header', count: null };
+  if (id === 'footer') return { label: parts.footer, href: '#appearance/footer', count: null };
   if (id === 'lister') return { label: parts.lists, href: '#lister', count: listsShown(files).length };
   if (id === 'blokke') return { label: parts.blocks, href: '#blokke', count: blockParts.length };
   if (id === 'filer') return { label: parts.media, href: '#filer', count: mediaOf(files).length + filesOf(files).length };
-  if (id === 'udseende') return { label: parts.appearance, href: '#udseende', count: null };
+  if (id === 'appearance') return { label: parts.appearance, href: '#appearance', count: null };
   if (id === 'blokvalg') return { label: parts.blockSettings, href: '#blokvalg', count: null };
   if (id === 'apps') return { label: parts.apps, href: '#apps', count: null };
   if (id === 'appstore') return { label: t.apps.find, href: `#${STORE_ROUTE}`, count: null };
@@ -150,7 +150,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
     dele: parts.editorParts,
   }[id];
   const appearancePart = appearanceLabel ?? appearance.find((p) => p.id === id)?.label;
-  if (appearancePart) return { label: appearancePart, href: `#udseende/${id}`, count: null };
+  if (appearancePart) return { label: appearancePart, href: `#appearance/${id}`, count: null };
   // The parts of a screen with parts ("Privatliv"): where each opens, or its screen's address with its id.
   for (const screen of partScreens) {
     const own = screen.parts.find((p) => p.id === id);
@@ -241,7 +241,7 @@ export function Theme({ files }: { files: RepoFile[] }) {
     ...appearance,
     { id: 'dele', label: t.common.parts.editorParts, icon: icons.dele },
   ];
-  return <Parts title={t.common.parts.appearance} route="udseende" parts={parts} back={backFrom('udseende')} />;
+  return <Parts title={t.common.parts.appearance} route="appearance" parts={parts} back={backFrom('appearance')} />;
 }
 
 /** By "Farver": the site's primary, secondary and tertiary colours (accent, secondary, tertiary) in the mode the editor
@@ -254,8 +254,8 @@ function ThemeColors({ files }: { files: RepoFile[] }) {
   );
 }
 
-const backToAppearance = { href: '#udseende', label: t.common.parts.appearance };
-const backToThemes = { href: '#udseende/temaer', label: t.common.parts.themes };
+const backToAppearance = { href: '#appearance', label: t.common.parts.appearance };
+const backToThemes = { href: '#appearance/temaer', label: t.common.parts.themes };
 
 /** Under a theme's name: whether the site is built with it ("I brug") or is changing to it ("Skifter hertil"). */
 function themeStatus(id: string, files: RepoFile[]): string | undefined {
@@ -263,7 +263,7 @@ function themeStatus(id: string, files: RepoFile[]): string | undefined {
   if (id === chosenTheme(files)) return t.library.themeNext;
 }
 
-/** "Temaer" (#udseende/temaer): the themes installed (src/themes/, packages/editor/src/themes.ts; and one from the store the site's build
+/** "Temaer" (#appearance/temaer): the themes installed (src/themes/, packages/editor/src/themes.ts; and one from the store the site's build
  * does not have yet, as "Installeres…"), by name, each with its picture, its version and who made it, and whether it is
  * in use or the store has a newer version, opening its page (ThemePage). More are in "Appstore", under "Indstillinger". */
 export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
@@ -283,7 +283,7 @@ export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
           return (
             <ListItem
               key={x.id}
-              href={`#udseende/temaer/${x.id}`}
+              href={`#appearance/temaer/${x.id}`}
               leading={<ThemePicture src={x.icon} />}
               headline={x.name}
               supporting={t.library.themeByline(x.version, x.author)}
@@ -298,7 +298,7 @@ export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
   );
 }
 
-/** "Ikonpakker" (#udseende/ikonpakker): the icon packs installed (the system's own, packages/editor/icons/, and those the themes
+/** "Ikonpakker" (#appearance/ikonpakker): the icon packs installed (the system's own, packages/editor/icons/, and those the themes
  * installed bring; iconPacks.ts), by name, each with who made it, its licence, the theme it came with and a few of its
  * icons as they are, the one chosen ticked (chosenPack), with "I brug" by the one the site and the editor are built with
  * and "Skifter hertil …" by the one chosen until they are. A tap on another asks first and then saves it in the site's
@@ -367,7 +367,7 @@ export function motionOf(files: RepoFile[]): MotionScheme {
   return schemeInUse(scheme, theme.motion, themes.find((x) => x.id === STANDARD_THEME)?.motion);
 }
 
-/** "Bevægelse" (#udseende/bevaegelse): Material 3's motion schemes and our calm one (lib/motion.ts), each with how it
+/** "Bevægelse" (#appearance/bevaegelse): Material 3's motion schemes and our calm one (lib/motion.ts), each with how it
  * moves, the one in use ticked (motionOf) and "Temaets valg" by the theme's own. A tap on another asks first and then
  * saves it in the site's file (config.motion) at once, in its own commit, as an icon pack is; the editor moves by it at
  * once (applyMotion, App.tsx), the site after it is built. */
@@ -424,7 +424,7 @@ export function MotionSchemes({ env, files }: { env: Env; files: RepoFile[] }) {
   );
 }
 
-/** A theme's page (#udseende/temaer/<id>), the same for every theme, made to show what it would make of the site, so
+/** A theme's page (#appearance/temaer/<id>), the same for every theme, made to show what it would make of the site, so
  * it can be chosen or not: its picture, name, version and who made it, and whether it is in use; "Brug temaet", for any
  * other than the one chosen, which asks first and then saves it in the site's file (config.theme) at once, in its own
  * commit, and the site is built with it; the pictures of the site in it (its screenshots/, packages/editor/scripts/theme-screenshots.mjs),
@@ -514,18 +514,18 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
   );
 }
 
-/** "Dele" (#udseende/dele): the parts the editor and the site are built of, each on a screen of its own: the editor's
+/** "Dele" (#appearance/dele): the parts the editor and the site are built of, each on a screen of its own: the editor's
  * (Parts.tsx), the theme's UI components, the blocks (the standard ones and the apps') and each list of kinds
  * ("Promovering", its own kinds and the apps'), as the theme shows them (BlockParts.tsx), and the theme's design tokens ("Værdier", Tokens.tsx). */
 export function PartsHome() {
   const parts: Part[] = [
     { id: 'editor', label: t.parts.screens.editor, icon: icons.dele },
-    { id: 'ui', label: t.parts.screens.components, icon: icons.udseende },
+    { id: 'ui', label: t.parts.screens.components, icon: icons.appearance },
     { id: 'blokke', label: t.parts.screens.blocks, icon: icons.blokke },
     ...kindLists().map((c) => ({ id: `liste/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lister })),
     { id: 'vaerdier', label: t.parts.screens.values, icon: Ruler },
   ];
-  return <Parts title={t.common.parts.editorParts} route="udseende/dele" parts={parts} back={backToAppearance} />;
+  return <Parts title={t.common.parts.editorParts} route="appearance/dele" parts={parts} back={backToAppearance} />;
 }
 
 /** "Søgemaskineoptimering" (#seo), no longer in the menu: "Videresendelser" (Redirects.tsx, #seo/videresendelser) and then
@@ -1347,7 +1347,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
           : lists.includes(collection.id)
             ? { href: '#lister', label: t.common.parts.lists }
             : header.includes(collection.id)
-              ? { href: '#udseende/header', label: t.common.parts.header }
+              ? { href: '#appearance/header', label: t.common.parts.header }
               : { href: '#', label: siteName }
       }
       tabs={

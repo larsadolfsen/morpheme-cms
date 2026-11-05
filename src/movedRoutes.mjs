@@ -3,15 +3,15 @@
 
 /** Where each moved screen is now, by its old address. */
 export const MOVED = /** @type {Record<string, string>} */ ({
-  farver: 'udseende/farver',
-  'virksomheden/logo': 'udseende/logo',
+  farver: 'appearance/farver',
+  'virksomheden/logo': 'appearance/logo',
   'tema/blokvalg': 'blokvalg',
-  dele: 'udseende/dele',
-  tema: 'udseende',
-  'tema/farver': 'udseende/farver',
-  'tema/logo': 'udseende/logo',
-  'tema/dele': 'udseende/dele',
-  'tema/dele/editor': 'udseende/dele/editor',
+  dele: 'appearance/dele',
+  tema: 'appearance',
+  'tema/farver': 'appearance/farver',
+  'tema/logo': 'appearance/logo',
+  'tema/dele': 'appearance/dele',
+  'tema/dele/editor': 'appearance/dele/editor',
   'virksomheden/bank': 'virksomheden/betaling/bank',
   videresendelser: 'seo/videresendelser',
   'videresendelser/alle': 'seo/videresendelser/alle',
@@ -21,14 +21,15 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   'promovering/calendly': 'apps/calendly',
   'promovering/mailchimp': 'apps/mailchimp',
   // The header's menus and settings were on a screen of their own under "Globalt"; they are under "Udseende" now.
-  header: 'udseende/header',
+  header: 'appearance/header',
   // The footer's form was the file's own screen; it is under "Udseende" now.
-  'src/data/footer.json': 'udseende/footer',
+  'src/data/footer.json': 'appearance/footer',
 });
 
 /** Danish address segment -> English segment, one entry per renamed route id. Old links keep working through it. */
 export const RENAMED = /** @type {Record<string, string>} */ ({
   indstillinger: 'settings',
+  udseende: 'appearance',
 });
 
 /**

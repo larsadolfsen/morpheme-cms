@@ -1,7 +1,7 @@
 // The editor's parts: every button, field, switch, chip and row a screen is made of, each with one
 // look, set here. A screen uses these and never writes the classes of a button or a field itself
 // (CLAUDE.md), so the editor looks the same everywhere and a change here changes it everywhere. They
-// are all shown, in every state, on the screen #udseende/dele (Parts.tsx). The screen itself, with its top bar,
+// are all shown, in every state, on the screen #appearance/dele (Parts.tsx). The screen itself, with its top bar,
 // is Screen.tsx.
 import {
   useEffect,

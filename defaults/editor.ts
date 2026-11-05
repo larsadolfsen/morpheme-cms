@@ -123,7 +123,7 @@ export const icons: Record<string, Icon> = {
   footer: SquareHalfBottom,
   seo: MagnifyingGlass,
   videresendelser: Signpost,
-  udseende: PaintBrushBroad,
+  appearance: PaintBrushBroad,
   blokvalg: ToggleRight,
   apps: PuzzlePiece,
   appstore: Storefront,
@@ -140,7 +140,7 @@ export const icons: Record<string, Icon> = {
   dele: Shapes,
 };
 
-/** The site's own parts under "Appearance" (#udseende), after the logo and icon, each a screen of its own at #udseende/<id>:
+/** The site's own parts under "Appearance" (#appearance), after the logo and icon, each a screen of its own at #appearance/<id>:
  * "Default pages", which pages are the front page, the blog page, the 404 page and the contact page, as a list
  * (standardPageFieldsOf in collections.ts; the privacy policy and the cookie policy are under "Privacy", privacy.ts). */
 export const appearance: Part[] = [
@@ -178,7 +178,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
   { id: 'apps', title: 'Apps', ids: ['apps', 'appstore'] },
   { id: 'blokke', title: 'Blocks', ids: ['blokke', 'blokvalg'] },
   {
-    id: 'udseende',
+    id: 'appearance',
     title: 'Appearance',
     ids: ['temaer', 'ikonpakker', 'bevaegelse', 'sidekolonne', 'farver', 'logo', ...appearance.map((p) => p.id), 'dele'],
   },
@@ -193,5 +193,5 @@ export const settings: string[] = settingsIds;
  * bring ("Testimonials") and the apps (their lists.ts). */
 export const lists: string[] = [];
 
-/** What is in the header on every page, on one screen under "Appearance" › "Header" (#udseende/header, HeaderSettings.tsx). */
+/** What is in the header on every page, on one screen under "Appearance" › "Header" (#appearance/header, HeaderSettings.tsx). */
 export const header = ['menu', 'mobilmenu', 'headerknap'];

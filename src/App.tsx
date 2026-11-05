@@ -18,17 +18,17 @@
 //                    (Redirects.tsx): seo/videresendelser/alle the redirects, and seo/videresendelser/ikke-fundet
 //                    the addresses visitors came to that do not exist; seo/vurdering the SEO rating of every page and
 //                    post (SeoScores.tsx); and seo/<part> the site's own (seoParts)
-//   udseende         how the site looks (Library.tsx Theme): udseende/temaer the themes installed (Themes) and udseende/temaer/<theme>
-//                    a theme's page, with the button that swaps to it (ThemePage), udseende/ikonpakker the icon packs (IconPacks),
-//                    udseende/bevaegelse how it moves (MotionSchemes), udseende/sidekolonne the block beside the pages' text (SideColumn),
-//                    udseende/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
-//                    udseende/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
-//                    udseende/farver the colours (Colors.tsx;
-//                    udseende/farver/reservefarver the site's own while an app changes the pages'), udseende/logo the logo
-//                    and icon (BrandForm.tsx), udseende/dele the parts (Library.tsx PartsHome): udseende/dele/editor the editor's, every
-//                    one in every state (Parts.tsx), udseende/dele/ui the theme's UI components, udseende/dele/blokke the
-//                    blocks, the standard ones and the apps', and udseende/dele/liste/<list> each kind of a list of kinds
-//                    ("Promovering"), its own and the apps' (BlockParts.tsx), and udseende/dele/vaerdier the
+//   appearance         how the site looks (Library.tsx Theme): appearance/temaer the themes installed (Themes) and appearance/temaer/<theme>
+//                    a theme's page, with the button that swaps to it (ThemePage), appearance/ikonpakker the icon packs (IconPacks),
+//                    appearance/bevaegelse how it moves (MotionSchemes), appearance/sidekolonne the block beside the pages' text (SideColumn),
+//                    appearance/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
+//                    appearance/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
+//                    appearance/farver the colours (Colors.tsx;
+//                    appearance/farver/reservefarver the site's own while an app changes the pages'), appearance/logo the logo
+//                    and icon (BrandForm.tsx), appearance/dele the parts (Library.tsx PartsHome): appearance/dele/editor the editor's, every
+//                    one in every state (Parts.tsx), appearance/dele/ui the theme's UI components, appearance/dele/blokke the
+//                    blocks, the standard ones and the apps', and appearance/dele/liste/<list> each kind of a list of kinds
+//                    ("Promovering"), its own and the apps' (BlockParts.tsx), and appearance/dele/vaerdier the
 //                    theme's design tokens, "Værdier" (Tokens.tsx)
 //   blokvalg         the blocks that can be put in, "Blokindstillinger" (BlockSettings.tsx)
 //   avanceret        "Avanceret", under "Indstillinger": the copy of the site's files in R2 (Advanced.tsx)
@@ -697,7 +697,7 @@ function partAt(route: string, files: RepoFile[]): Part | null {
       (ownId ? [...(company.parts ?? []), ...appPartsIn(company, files)].find((p) => p.id === ownId) : company.file && company)) ||
     (route.startsWith('blokke/') && blockParts.find((p) => p.id === route.slice(7))) ||
     (route.startsWith('seo/') && seoParts.find((p) => p.id === route.slice(4))) ||
-    (route.startsWith('udseende/') && appearance.find((p) => p.id === route.slice(9))) ||
+    (route.startsWith('appearance/') && appearance.find((p) => p.id === route.slice('appearance/'.length))) ||
     partScreens.flatMap((s) => [...s.parts, ...appPartsIn(s, files)].filter((p) => route === `${s.id}/${p.id}`))[0] ||
     null
   );
@@ -735,21 +735,22 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   // A part of a screen of parts that is one of the editor's own screens (Part.opens), going back to that screen.
   const opening = partScreens.flatMap((s) => s.parts.filter((p) => p.opens && route === `${s.id}/${p.id}`).map((p) => ({ s, p })))[0];
   if (opening?.p.opens === 'consents') return <Consents env={env} back={{ href: `#${opening.s.id}`, label: opening.s.label }} />;
-  if (route === 'udseende') return <Theme files={files} />;
-  if (route === 'udseende/temaer') return <Themes env={env} files={files} />;
-  if (route === 'udseende/ikonpakker') return <IconPacks env={env} files={files} />;
-  if (route === 'udseende/bevaegelse') return <MotionSchemes env={env} files={files} />;
-  if (route === 'udseende/sidekolonne') return <SideColumn env={env} files={files} />;
-  if (route === 'udseende/header') return <HeaderSettings env={env} />;
-  if (route === 'udseende/footer') return <FooterSettings env={env} />;
+  if (route === 'appearance') return <Theme files={files} />;
+  if (route === 'appearance/temaer') return <Themes env={env} files={files} />;
+  if (route === 'appearance/ikonpakker') return <IconPacks env={env} files={files} />;
+  if (route === 'appearance/bevaegelse') return <MotionSchemes env={env} files={files} />;
+  if (route === 'appearance/sidekolonne') return <SideColumn env={env} files={files} />;
+  if (route === 'appearance/header') return <HeaderSettings env={env} />;
+  if (route === 'appearance/footer') return <FooterSettings env={env} />;
   // A theme installed has its page; one from the store that is not (or not yet built), its page in the store.
-  const themeShown = route.startsWith('udseende/temaer/') && themes.find((x) => x.id === route.slice(16));
+  const themeShown = route.startsWith('appearance/temaer/') && themes.find((x) => x.id === route.slice('appearance/temaer/'.length));
   if (themeShown) return <ThemePage key={themeShown.id} of={themeShown} env={env} files={files} />;
-  if (/^udseende\/temaer\/[^/]+$/.test(route)) return <StoreThemePage key={route} id={route.slice(16)} env={env} />;
+  if (/^appearance\/temaer\/[^/]+$/.test(route))
+    return <StoreThemePage key={route} id={route.slice('appearance/temaer/'.length)} env={env} />;
   // The colours, or the site's own on a page of the same form while an app changes the pages' (FALLBACK_ROUTE).
-  if (route === 'udseende/farver' || route === FALLBACK_ROUTE)
+  if (route === 'appearance/farver' || route === FALLBACK_ROUTE)
     return <Colors env={env} files={files} fallback={route === FALLBACK_ROUTE} />;
-  if (route === 'udseende/logo') return <BrandForm env={env} />;
+  if (route === 'appearance/logo') return <BrandForm env={env} />;
   if (route === 'blokvalg') return <BlockSettings env={env} files={files} />;
   if (route === ADVANCED_ROUTE) return <Advanced env={env} />;
   if (route === CMS_ROUTE) return <CmsPage />;
@@ -776,12 +777,12 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
     route.startsWith('apps/') && !deeper.length && apps.find((a) => a.id === screenApp && screenId && a.screens?.[screenId]);
   if (ownScreen && installedApps(files).includes(ownScreen.id))
     return <AppScreenPage key={route} app={ownScreen} id={screenId} env={env} />;
-  if (route === 'udseende/dele') return <PartsHome />;
-  if (route === 'udseende/dele/editor') return <Parts env={env} />;
-  if (route === 'udseende/dele/ui') return <ComponentParts />;
-  if (route === 'udseende/dele/blokke') return <BlocksParts />;
-  if (route.startsWith('udseende/dele/liste/')) return <KindParts key={route} id={route.slice(20)} />;
-  if (route === 'udseende/dele/vaerdier') return <Tokens />;
+  if (route === 'appearance/dele') return <PartsHome />;
+  if (route === 'appearance/dele/editor') return <Parts env={env} />;
+  if (route === 'appearance/dele/ui') return <ComponentParts />;
+  if (route === 'appearance/dele/blokke') return <BlocksParts />;
+  if (route.startsWith('appearance/dele/liste/')) return <KindParts key={route} id={route.slice('appearance/dele/liste/'.length)} />;
+  if (route === 'appearance/dele/vaerdier') return <Tokens />;
   if (route.startsWith('slettet/')) return <Deleted id={route.slice(8)} files={files} env={env} />;
   // virksomheden/<part>, or virksomheden/<part>/<its part> (Part.parts).
   const [, companyId, ownId, ...more] = route.split('/');

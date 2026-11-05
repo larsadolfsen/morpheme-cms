@@ -1,4 +1,4 @@
-// "Udseende" › "Header" (#udseende/header): what is in the header on every page, on one screen laid out as a page's form
+// "Udseende" › "Header" (#appearance/header): what is in the header on every page, on one screen laid out as a page's form
 // (SettingsSections.tsx): a preview of the header as the form has it, on a phone and a computer (partPreview.tsx), over the
 // sections Main menu (menu.json), Mobile menu (mobile-menu.json), Action button and Menu button (header.json). "Gem
 // ændringer" saves each changed file in its own commit (useDataFiles.ts). Exposes HeaderSettings (default). Uses
@@ -51,7 +51,7 @@ const shapeOf = (values: Values) => ({
   header: values[at(FILES.header)] ?? {},
 });
 
-const back = { href: '#udseende', label: t.common.parts.appearance };
+const back = { href: '#appearance', label: t.common.parts.appearance };
 
 export default function HeaderSettings({ env }: { env: Env }) {
   const layout = useSettingsSections(places);

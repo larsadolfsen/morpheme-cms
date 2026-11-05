@@ -107,23 +107,23 @@ export const common = {
     lists: 'Lists',
     blocks: 'Block templates',
     media: 'Files',
-    /** How the site looks (#udseende, Library.tsx Theme): the theme, the colours, the logo and icon, and the site's own
+    /** How the site looks (#appearance, Library.tsx Theme): the theme, the colours, the logo and icon, and the site's own
      * parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider"). */
     appearance: 'Appearance',
-    /** The themes installed (#udseende/temaer, Library.tsx Themes), the first row under "Udseende". */
+    /** The themes installed (#appearance/temaer, Library.tsx Themes), the first row under "Udseende". */
     themes: 'Themes',
-    /** The icon packs installed, to choose the one the site draws its icons with (#udseende/ikonpakker, IconPacks). */
+    /** The icon packs installed, to choose the one the site draws its icons with (#appearance/ikonpakker, IconPacks). */
     iconPacks: 'Icon packs',
-    /** How the site moves, Material 3's motion schemes (#udseende/bevaegelse, MotionSchemes in Library.tsx). */
+    /** How the site moves, Material 3's motion schemes (#appearance/bevaegelse, MotionSchemes in Library.tsx). */
     motion: 'Motion',
-    /** The block drawn in a column beside the text of the pages (#udseende/sidekolonne, SideColumn.tsx). */
+    /** The block drawn in a column beside the text of the pages (#appearance/sidekolonne, SideColumn.tsx). */
     sideColumn: 'Side column',
     colors: 'Colors',
     brand: 'Logo and icon',
     blockSettings: 'Block settings',
     /** The apps that come with the site (AppList.tsx, #apps). */
     apps: 'Apps',
-    /** The parts the editor and the site are built of (#udseende/dele: Parts.tsx, BlockParts.tsx). */
+    /** The parts the editor and the site are built of (#appearance/dele: Parts.tsx, BlockParts.tsx). */
     editorParts: 'Parts',
     /** Under Indstillinger: the redirects and the site's own parts (#seo, Library.tsx Seo). */
     seo: 'Search engine optimization',
