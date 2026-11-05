@@ -24,9 +24,10 @@
   --editor-section-gap: 2rem;
   --editor-section-rhythm: 0.625em;
 
-  /* A form's sections pane (SectionPane in ui.tsx): Material 3's 412dp pane against the window's end edge
-     (m3.material.io/foundations/layout/breakpoints/large-extra-large). */
-  --section-pane-width: 25.75rem;
+  /* A form's "on this page" area (SectionPane in ui.tsx) against the window's end edge: its width, the card in it
+     stands --section-pane-gap in from the end edge and from under the top bar. */
+  --section-pane-width: 16rem;
+  --section-pane-gap: 2rem;
 }
 
 /* In dark mode the score's number in the light colours, which are read on the dark. */
@@ -372,8 +373,32 @@
   }
 }
 
-/* The sections pane (FormColumns' `pane` in ui.tsx) stands against the window's end edge on large and wider: the content
-   keeps clear of it, so the form is centred to its left, and the save bar ends where the pane begins. */
+/* The type of the "on this page" card (SectionPane and SectionList in ui.tsx), from the theme's type roles: the small
+   caption, the form's name under it, and a section's name (the one in view in medium weight). */
+.section-pane-caption {
+  font-size: var(--type-label-small-size);
+  line-height: var(--type-label-small-line-height);
+  font-weight: var(--type-label-small-weight);
+  letter-spacing: var(--type-label-small-tracking);
+}
+.section-pane-title {
+  font-size: var(--type-headline-small-size);
+  line-height: var(--type-headline-small-line-height);
+  font-weight: var(--type-headline-small-weight);
+  letter-spacing: var(--type-headline-small-tracking);
+}
+.section-list-item {
+  font-size: var(--type-body-medium-size);
+  line-height: var(--type-body-medium-line-height);
+  font-weight: var(--type-body-medium-weight);
+  letter-spacing: var(--type-body-medium-tracking);
+}
+.section-list-item[aria-current='location'] {
+  font-weight: var(--type-label-medium-weight);
+}
+
+/* The "on this page" area (FormColumns' `pane` in ui.tsx) stands against the window's end edge on large and wider: the
+   content keeps clear of it, so the form is centred to its left, and the save bar ends where the area begins. */
 @media (width >= theme(--breakpoint-large)) {
   .editor-content:has(.editor-section-pane) {
     padding-inline-end: var(--section-pane-width);

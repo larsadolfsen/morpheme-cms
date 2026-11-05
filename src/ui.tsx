@@ -38,14 +38,12 @@ import {
   CaretUp,
   Check,
   Funnel,
-  Layout,
   LockSimple,
   LockSimpleOpen,
   PencilSimple,
   Plus,
   Sidebar,
   SidebarSimple,
-  SquareHalf,
   X,
   type Icon,
 } from '@phosphor-icons/react';
@@ -90,8 +88,6 @@ import {
   SiteNavigationDrawerToggle,
   siteNavigationDrawerDialogClass,
   siteFocusNavigationDrawerItem,
-  siteSideSheet,
-  siteSideSheetDialogClass,
   SiteSegmentedButton,
   SiteSideSheet,
   SiteTab,
@@ -2610,14 +2606,13 @@ export function SideSheet({ title, onClose, children }: { title: string; onClose
   );
 }
 
-/** One entry of a SectionList: its id, its name and its icon, and evt. the theme's Badge (how many are new there; or a
- * dot). */
-export type NavigationItem = { id: string; label: string; icon: Icon; badge?: number | boolean };
+/** One entry of a SectionList: its id, its name and evt. the theme's Badge (how many are new there; or a dot). */
+export type NavigationItem = { id: string; label: string; badge?: number | boolean };
 
-/** The sections of a long form (a page's, a post's: Indhold, Status, Andre felter …), as the theme's list (Material 3's
- * List and ListItem): each with its icon, its name and evt. its badge, the one open or in view (`value`) selected; a tap
- * calls `onChange` with its id (EntryForm scrolls to it). `title` names the navigation. In a SectionPane on large and
- * wider screens, in a SectionSheet below. */
+/** The sections of a long form (a page's, a post's: Indhold, Status, Andre felter …) as an "on this page" list, as on
+ * m3.material.io: plain text, no icons and no surface; the one in view (`value`) in the accent colour and medium
+ * weight (`aria-current="location"`). A tap calls `onChange` with its id (EntryForm scrolls to it). Evt. the theme's
+ * Badge after the name. `title` names the navigation. In a SectionPane. */
 export function SectionList({
   title,
   items,
@@ -2631,92 +2626,37 @@ export function SectionList({
 }) {
   return (
     <nav aria-label={title}>
-      <ul className={siteListClasses('standard', 'none')}>
-        {items.map(({ id, label, icon, badge }) => {
-          const open = id === value;
-          return (
-            <ListItem
-              key={id}
-              icon={icon}
-              iconSelected={open}
-              selected={open}
-              aria-current={open ? 'location' : undefined}
-              headline={label}
-              trailing={badge ? <SiteBadge count={badge === true ? undefined : badge} /> : undefined}
+      <ul className="m-0 flex list-none flex-col gap-1 p-0">
+        {items.map(({ id, label, badge }) => (
+          <li key={id}>
+            <button
+              type="button"
+              aria-current={id === value ? 'location' : undefined}
               onClick={() => onChange(id)}
-            />
-          );
-        })}
+              className="section-list-item flex w-full items-center gap-2 rounded-(--block-radius-small) px-2 py-2 text-start text-muted transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none aria-[current=location]:text-accent"
+            >
+              <span className="min-w-0">{label}</span>
+              {badge ? <SiteBadge count={badge === true ? undefined : badge} /> : null}
+            </button>
+          </li>
+        ))}
       </ul>
     </nav>
   );
 }
 
-/** The pane at the end of a long form on large and wider screens (Material 3's 412dp pane): the theme's standard side
- * sheet titled `title`, with the form's SectionList in it (`children`); it stays in view while the form scrolls. Nothing
- * when it is not `open`: the button in the top bar (SectionsButton) shows and hides it. Its place in the form is
- * FormColumns' `pane`, against the window's end edge; below large it is not drawn (a SectionSheet is). */
-export function SectionPane({ title, open, children }: { title: string; open: boolean; children: ReactNode }) {
-  const id = useId();
-  if (!open) return null;
+/** The "on this page" card at the end of a long form on large and wider screens: the theme's outlined card, as tall as
+ * its content (it scrolls inside only when that is taller than the window less the top bar), with the small `caption`
+ * (Afsnit), the form's `title` under it and the form's SectionList (`children`). It stays in view while the form
+ * scrolls. Its place is FormColumns' `pane`, against the window's end edge; below large it is not drawn. */
+export function SectionPane({ caption, title, children }: { caption: string; title: string; children: ReactNode }) {
   return (
-    <SiteSideSheet headline={title} headlineId={id} className="editor-reveal h-full w-full [--side-sheet-width:var(--section-pane-width)]">
+    <div className={`${siteCardClass('outlined')} max-h-[calc(100dvh-var(--top-bar-height)-2*var(--section-pane-gap))] overflow-y-auto`}>
+      <p className="section-pane-caption m-0 text-muted">{caption}</p>
+      <h2 className="section-pane-title m-0 mb-3 text-ink">{title}</h2>
       {children}
-    </SiteSideSheet>
+    </div>
   );
-}
-
-/** The sections below large: the theme's modal side sheet (Material 3's), from the end edge over the screen, titled
- * `title`, with the form's SectionList in it (`children`). Controlled: `open` shows it (the theme's `sideSheet()` slides
- * it in; with reduced motion it just appears), and `onClose` is called when it has been closed by its cross, Escape or a
- * tap on the scrim; a choice closes it by the caller setting `open` to false. The page does not scroll while it is
- * open (the theme's control), and it is given back if the sheet is taken away while open (the window grows to large). */
-export function SectionSheet({
-  title,
-  open,
-  onClose,
-  children,
-}: {
-  title: string;
-  open: boolean;
-  onClose: () => void;
-  children: ReactNode;
-}) {
-  const id = useId();
-  const dialog = useRef<HTMLDialogElement>(null);
-  const control = useRef<ReturnType<typeof siteSideSheet> | undefined>(undefined);
-  const closed = useRef(onClose);
-  closed.current = onClose;
-  useEffect(() => {
-    const el = dialog.current!;
-    control.current = siteSideSheet(el);
-    const done = () => closed.current();
-    el.addEventListener('close', done);
-    return () => {
-      el.removeEventListener('close', done);
-      if (el.open) el.close();
-      document.documentElement.style.overflow = '';
-    };
-  }, []);
-  useEffect(() => {
-    if (open) control.current?.open();
-    else void control.current?.close();
-  }, [open]);
-  return (
-    <dialog ref={dialog} aria-labelledby={id} className={siteSideSheetDialogClass}>
-      <SiteSideSheet kind="modal" headline={title} headlineId={id} closeLabel={t.common.close}>
-        {children}
-      </SiteSideSheet>
-    </dialog>
-  );
-}
-
-/** The button at the end of the top bar (Screen's `drawer`) for a form's sections: on large and wider it shows and hides
- * the SectionPane (`open`: it is shown, so the icon is `right_panel_close` (`square-half`), else `right_panel_open` (`layout`)),
- * below it opens the SectionSheet, so the icon is always `right_panel_open`. `label` names it. */
-export function SectionsButton({ label, open, onClick }: { label: string; open?: boolean; onClick: () => void }) {
-  const pane = useAtLeast('large');
-  return <IconButton icon={pane && open ? SquareHalf : Layout} label={label} aria-expanded={open} onClick={onClick} />;
 }
 
 /** The editor's main navigation (Material 3's navigation drawer, the theme's, in its design): the site's parts in sections
@@ -3152,8 +3092,8 @@ export function FormColumns({
   side?: ReactNode;
   cards?: boolean;
   sticky?: boolean;
-  /** A SectionPane, on large and wider screens against the window's end edge under the top bar (412dp, fixed while the form
-   * scrolls; editor.css lets the content column keep clear of it, so `main` is centred to its left); below large nothing.
+  /** A SectionPane, on large and wider screens against the window's end edge under the top bar (--section-pane-width
+   * wide, fixed while the form scrolls; editor.css lets the content column keep clear of it); below large nothing.
    * Instead of `first` and `side`. */
   pane?: ReactNode;
 }) {
@@ -3170,7 +3110,7 @@ export function FormColumns({
       <div className="min-w-0 space-y-6 large:col-start-1 large:row-span-2 large:row-start-1">{main}</div>
       {side && <div className={`${right} ${first ? 'large:row-start-2' : 'large:row-span-2 large:row-start-1'}`}>{side}</div>}
       {pane && (
-        <div className="editor-section-pane hidden large:fixed large:end-0 large:top-(--top-bar-height) large:z-10 large:block large:h-[calc(100dvh-var(--top-bar-height))] large:w-(--section-pane-width)">
+        <div className="editor-section-pane hidden large:fixed large:end-0 large:top-[calc(var(--top-bar-height)+var(--section-pane-gap))] large:z-10 large:block large:w-(--section-pane-width) large:pe-(--section-pane-gap)">
           {pane}
         </div>
       )}

@@ -30,7 +30,7 @@ export type Back = { href: string; label: string; guard?: (go: () => void) => vo
 // `status`: more about the screen, e.g. when it was last saved: under the title, on a computer after it.
 // `wide`: the content is wider on a computer (lists, the files); `panel`: a form with its other fields
 // beside the text on a wide computer screen (FormColumns in ui.tsx). `drawer`: a button at the end of the
-// bar, after the account (a form's SectionsButton). `home`: the start screen,
+// bar, after the account. `home`: the start screen,
 // with the account on a phone too. `tabs`: the screen's tabs, in the bar, with the open one's content.
 type Props<T extends string> = {
   title: string;

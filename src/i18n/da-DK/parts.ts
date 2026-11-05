@@ -60,7 +60,7 @@ export const parts: Messages['parts'] = {
     editorFooter:
       'Linjen nederst på hver skærm, under indholdet, med et link til licenserne for det, hjemmesiden og editoren er lavet med.',
     sectionList:
-      'Afsnittene i en lang formular som en liste, hvor det afsnit, der ses, er markeret. På en stor skærm står den i et panel for enden af formularen, som knappen yderst i topbjælken viser og skjuler; på en mindre skærm åbner knappen den i et sidepanel, der lukker, når man vælger et afsnit.',
+      'Afsnittene i en lang formular som en »på denne side«-liste på et kort: almindelig tekst, det afsnit, der ses, i den primære farve, og formularens navn over. Den bliver i billedet for enden af formularen på en stor skærm; på en mindre skærm vises den ikke.',
   },
   /** Over the parts: the search, and the groups to show one of (as Material 3 sorts its components). */
   filter: {

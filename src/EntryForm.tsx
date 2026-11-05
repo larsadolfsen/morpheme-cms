@@ -5,7 +5,7 @@
 // old one (addresses.ts). The Filer files the page newly refers to get the page's tags in the same commit (autoTags.mjs).
 // An earlier version (Versions.tsx) is opened as changes that are not saved,
 // at the address the page or post has now.
-// The form's sections are listed in a pane (large and wider) or a side sheet (below): SectionList in ui.tsx.
+// The form's sections are listed as "on this page" in a card at the end of the form (large and wider only): SectionList in ui.tsx.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { slugify, slugOf, type Field, type MarkdownCollection } from './schema';
@@ -34,20 +34,7 @@ import { isOver } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
 import { asStandardTemplate, blockProblems, notOffered, siteBlocks } from './registry';
 import { FieldInput, Fields, useWrongField, WrongField, type FieldContext } from './fields';
-import { Article, ClockCounterClockwise, Eye, MagnifyingGlass, ShareNetwork, SlidersHorizontal } from '@phosphor-icons/react';
-import {
-  CheckList,
-  FoldSection,
-  FormColumns,
-  type NavigationItem,
-  SectionList,
-  SectionPane,
-  SectionSheet,
-  SectionsButton,
-  SharePreview,
-  useAtLeast,
-  useInView,
-} from './ui';
+import { CheckList, FoldSection, FormColumns, type NavigationItem, SectionList, SectionPane, SharePreview, useInView } from './ui';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
 import { usePagePreview } from './pagePreview';
 import { savedOn, VersionList, VersionNotice, WithVersions, type ShownVersion } from './Versions';
@@ -67,8 +54,8 @@ const SHARE = SHARE_FIELDS;
 // The sections of the form, under each other on one page, each folding in and out under its heading (FoldSection in
 // ui.tsx): the text with the title and heading (open from the start), the status, the other fields, those for search
 // engines, those for social media, and the earlier versions (folded from the start, so the page is short; nothing is remembered till
-// the next time). Its list (on large and wider screens in a pane at the end of the form, narrower in a side sheet from the
-// button at the right of the top bar) opens one and scrolls to it, and marks the one in view. A field that keeps the form from being
+// the next time). Its list (an "on this page" card at the end of the form, on large and wider screens only) opens one and
+// scrolls to it, and marks the one in view. A field that keeps the form from being
 // saved has its section opened and is scrolled to (FieldInput in fields.tsx).
 type Section = 'content' | 'status' | 'other' | 'seo' | 'share' | 'versions';
 const sectionOf = (path: string): Section => {
@@ -226,19 +213,16 @@ function Form({
     (text) => notify({ text, error: true }),
     (path) => unfold(sectionOf(path)),
   );
-  // On large and wider screens: the sections pane at the end of the form, until its button puts it away; narrower, the
-  // sections are in a side sheet, opened by the same button.
-  const large = useAtLeast('large');
-  const [pane, setPane] = useState(true);
-  const [sheet, setSheet] = useState(false);
+  // The form's name, in the top bar and over the sections list (the "on this page" card, on large and wider screens).
+  const formTitle = isNew ? collection.create! : String(initial.title || collection.singular);
   const has = (id: Section) => collection.fields.some(inSection(id));
   const sections: NavigationItem[] = [
-    { id: 'content', label: t.forms.sections.content, icon: Article },
-    ...(has('status') ? [{ id: 'status', label: t.forms.sections.status, icon: Eye }] : []),
-    ...(has('other') ? [{ id: 'other', label: t.forms.otherFields, icon: SlidersHorizontal }] : []),
-    ...(has('seo') ? [{ id: 'seo', label: t.forms.seo, icon: MagnifyingGlass }] : []),
-    ...(has('share') ? [{ id: 'share', label: t.forms.share, icon: ShareNetwork }] : []),
-    ...(isNew ? [] : [{ id: 'versions', label: t.history.versions, icon: ClockCounterClockwise }]),
+    { id: 'content', label: t.forms.sections.content },
+    ...(has('status') ? [{ id: 'status', label: t.forms.sections.status }] : []),
+    ...(has('other') ? [{ id: 'other', label: t.forms.otherFields }] : []),
+    ...(has('seo') ? [{ id: 'seo', label: t.forms.seo }] : []),
+    ...(has('share') ? [{ id: 'share', label: t.forms.share }] : []),
+    ...(isNew ? [] : [{ id: 'versions', label: t.history.versions }]),
   ];
   const shows = (id: Section) => sections.some((s) => s.id === id);
   // The section in view, marked in the sections list: while the page scrolls, the last one whose top is above a third of the
@@ -291,8 +275,7 @@ function Form({
       cancelAnimationFrame(frame);
     };
   }, []);
-  // Opens a section and scrolls to it (or to `box` in it: the text), after the side sheet below large has been told to close (the page does
-  // not scroll while a dialog is open). It is opened at once (flushSync), so it is there to scroll to.
+  // Opens a section and scrolls to it (or to `box` in it: the text), . It is opened at once (flushSync), so it is there to scroll to.
   const textBox = useRef<HTMLDivElement>(null);
   const goTo = (id: Section, box?: HTMLElement | null) => {
     if (!open.has(id)) flushSync(() => unfold(id));
@@ -673,17 +656,10 @@ function Form({
     <Fields.Provider value={fields}>
       <WrongField.Provider value={wrongField.field}>
         <FormFrame
-          title={isNew ? collection.create! : String(initial.title || collection.singular)}
+          title={formTitle}
           back={{ href: `#liste/${collection.id}`, label: collection.label }}
           status={savedStatus({ savedAt, saving, deleting, isNew })}
           view={isNew ? undefined : url}
-          drawer={
-            <SectionsButton
-              label={t.forms.sections.title}
-              open={large ? pane : sheet}
-              onClick={() => (large ? setPane(!pane) : setSheet(true))}
-            />
-          }
           dirty={dirty}
           saving={saving || deleting}
           deleting={deleting}
@@ -757,28 +733,13 @@ function Form({
               </>
             }
             pane={
-              pane ? (
-                <SectionPane title={t.forms.sections.title} open>
-                  <SectionList title={t.forms.sections.title} items={sections} value={section} onChange={pick} />
-                </SectionPane>
-              ) : undefined
+              <SectionPane caption={t.forms.sections.title} title={formTitle}>
+                <SectionList title={t.forms.sections.title} items={sections} value={section} onChange={pick} />
+              </SectionPane>
             }
           />
         </FormFrame>
         {blockDialog}
-        {!large && (
-          <SectionSheet title={t.forms.sections.title} open={sheet} onClose={() => setSheet(false)}>
-            <SectionList
-              title={t.forms.sections.title}
-              items={sections}
-              value={section}
-              onChange={(id) => {
-                setSheet(false);
-                pick(id);
-              }}
-            />
-          </SectionSheet>
-        )}
         {picker}
         {previewSheet}
       </WrongField.Provider>

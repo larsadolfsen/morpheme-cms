@@ -60,7 +60,7 @@ export const parts = {
     editorFooter:
       'The line at the bottom of every screen, under the content, with a link to the licenses of what the website and the editor are made with.',
     sectionList:
-      'The sections of a long form as a list, with the one in view selected. On a large screen it is in a pane at the end of the form, shown and hidden by the button at the end of the top bar; on a smaller screen the button opens it in a side sheet, which closes when you choose a section.',
+      'The sections of a long form as an "on this page" list on a card: plain text, the section in view in the accent color, and the form’s name over it. It stays in view at the end of the form on a large screen; on a smaller screen it is not shown.',
   },
   /** Over the parts: the search, and the groups to show one of (as Material 3 sorts its components). */
   filter: {
