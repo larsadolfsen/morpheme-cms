@@ -1,4 +1,4 @@
-// "Dele" › "UI-komponenter" (#appearance/dele/ui), "Dele" › "Blokke" (#appearance/dele/blokke) and "Dele" › a list of kinds
+// "Dele" › "UI-komponenter" (#appearance/dele/ui), "Dele" › "Blokke" (#appearance/dele/blocks) and "Dele" › a list of kinds
 // ("Promovering", #appearance/dele/liste/<id>): how the site looks, every part in every version, to see and agree on it.
 // "UI-komponenter" also has the active theme's coverage (summary, mark on each part, filter by style) and the site frame's parts.
 // "UI-komponenter" has the theme's UI components (its buttons and icon buttons, text fields and checkboxes …,
@@ -587,7 +587,7 @@ export function ComponentParts() {
   );
 }
 
-/** "Dele" › "Blokke" (#appearance/dele/blokke): every block, the standard ones and then the apps', each a group of its
+/** "Dele" › "Blokke" (#appearance/dele/blocks): every block, the standard ones and then the apps', each a group of its
  * own, in all its versions. */
 export function BlocksParts() {
   const data = useMemo(exampleData, []);

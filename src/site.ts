@@ -141,7 +141,7 @@ function sharedPartsOf(blocks: Folders<BlockDefinition>, shared: Folders<SharedT
         fields,
         defaults: values,
         preview: { type, ...preview },
-        back: { href: '#blokke', label: t.common.parts.blocks },
+        back: { href: '#blocks', label: t.common.parts.blocks },
       },
     ];
   });

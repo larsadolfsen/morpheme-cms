@@ -153,7 +153,7 @@ export const library = {
     savedOldest: 'Least recently changed first',
     /** A list of kinds (Promovering), under a heading for each kind. */
     type: 'By type',
-    /** "Standardblokke" (#blokke), in the groups by where the blocks come from. */
+    /** "Standardblokke" (#blocks), in the groups by where the blocks come from. */
     group: 'By group',
   },
   /** The funnel over a list of what is shown on pages (Promovering), with its filters in one sheet. */
@@ -172,7 +172,7 @@ export const library = {
   /** The filter by whether an entry is turned on, and its first choice. */
   onOffFilter: 'Status',
   allOnOff: 'All',
-  /** The filters over "Standardblokke" (#blokke): by the group (where the block comes from) and by whether
+  /** The filters over "Standardblokke" (#blocks): by the group (where the block comes from) and by whether
    * the block is on a page, each with its first choice. */
   groupFilter: 'Group',
   allGroups: 'All groups',

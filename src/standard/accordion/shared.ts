@@ -5,7 +5,7 @@ import { siteT, t } from '../../i18n';
 import { defineShared } from '../../shared';
 
 /** The rows it is shown with where no page has it: its screen under "Blokke" and "Tilgængelige
- * blokke" (index.tsx). In the site's language, like the drawing. */
+ * blocks" (index.tsx). In the site's language, like the drawing. */
 export const example = { items: siteT.blocks.accordion.example.map((label) => ({ label, href: '' })) };
 
 export default defineShared({

@@ -6,7 +6,7 @@
 import { CalendarCheck } from '@phosphor-icons/react';
 import type { Part } from '../src/schema';
 
-const back = { href: '#blokke', label: 'Block templates' };
+const back = { href: '#blocks', label: 'Block templates' };
 
 export const blockParts: Part[] = (
   [

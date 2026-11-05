@@ -160,7 +160,7 @@ function openersOf(slug: string, files: { path: string; text: string }[]): Opene
         });
     } else if (f.path === config.blockTexts) {
       if (opens((json(f as RepoFile).buttons as Record<string, unknown> | undefined)?.items))
-        found.push({ file: 'blokke/buttons', title: siteText('Default buttons') });
+        found.push({ file: 'blocks/buttons', title: siteText('Default buttons') });
     }
   }
   return found;
@@ -249,7 +249,7 @@ export function siteProblems(files: { path: string; text: string }[]): string[] 
     for (const at of openersOf(slug, files)) {
       if (file && shownFor(json(file as RepoFile), at)) continue;
       problems.push(
-        `${at.file.startsWith('blokke/') ? config.blockTexts : at.file}: ${
+        `${at.file.startsWith('blocks/') ? config.blockTexts : at.file}: ${
           file ? openerText(at) : siteText('A button opens the promotion "{navn}", which does not exist.', { navn: slug })
         }`,
       );

@@ -26,7 +26,7 @@
 //                    appearance/farver the colours (Colors.tsx;
 //                    appearance/farver/reservefarver the site's own while an app changes the pages'), appearance/logo the logo
 //                    and icon (BrandForm.tsx), appearance/dele the parts (Library.tsx PartsHome): appearance/dele/editor the editor's, every
-//                    one in every state (Parts.tsx), appearance/dele/ui the theme's UI components, appearance/dele/blokke the
+//                    one in every state (Parts.tsx), appearance/dele/ui the theme's UI components, appearance/dele/blocks the
 //                    blocks, the standard ones and the apps', and appearance/dele/liste/<list> each kind of a list of kinds
 //                    ("Promovering"), its own and the apps' (BlockParts.tsx), and appearance/dele/vaerdier the
 //                    theme's design tokens, "Værdier" (Tokens.tsx)
@@ -43,7 +43,7 @@
 //                    (Field.page), over its Settings tab, which keeps what is in it: apps/content-colors/settings/variant
 //   <form>/<field>   the page of a field of a part's form with its choices on a page of their own (Field.page), over the
 //                    form, which keeps what is in it (formAt)
-//   blokke           the blocks, and blokke/<block> the texts all its copies have (blockTexts.ts)
+//   blocks           the blocks, and blocks/<block> the texts all its copies have (blockTexts.ts)
 //   slettet/<id>     what was deleted from a list, or slettet/filer the files (Deleted.tsx)
 //   <file path>      a file being edited, e.g. src/content/blog/mit-foerste-indlaeg.md
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -695,7 +695,7 @@ function partAt(route: string, files: RepoFile[]): Part | null {
   return (
     (company &&
       (ownId ? [...(company.parts ?? []), ...appPartsIn(company, files)].find((p) => p.id === ownId) : company.file && company)) ||
-    (route.startsWith('blokke/') && blockParts.find((p) => p.id === route.slice(7))) ||
+    (route.startsWith('blocks/') && blockParts.find((p) => p.id === route.slice(7))) ||
     (route.startsWith('seo/') && seoParts.find((p) => p.id === route.slice(4))) ||
     (route.startsWith('appearance/') && appearance.find((p) => p.id === route.slice('appearance/'.length))) ||
     partScreens.flatMap((s) => [...s.parts, ...appPartsIn(s, files)].filter((p) => route === `${s.id}/${p.id}`))[0] ||
@@ -722,7 +722,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'notifikationer') return <Notifications />;
   if (route === 'lister') return <Lists files={files} />;
   if (route === 'company') return <Company files={files} />;
-  if (route === 'blokke') return <Blocks files={files} />;
+  if (route === 'blocks') return <Blocks files={files} />;
   if (route === 'filer' || route.startsWith('filer/'))
     return <Media key={route} files={files} env={env} open={route === 'filer' ? undefined : '/' + route.slice('filer/'.length)} />;
   if (route === 'seo') return <Seo />;
@@ -780,7 +780,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'appearance/dele') return <PartsHome />;
   if (route === 'appearance/dele/editor') return <Parts env={env} />;
   if (route === 'appearance/dele/ui') return <ComponentParts />;
-  if (route === 'appearance/dele/blokke') return <BlocksParts />;
+  if (route === 'appearance/dele/blocks') return <BlocksParts />;
   if (route.startsWith('appearance/dele/liste/')) return <KindParts key={route} id={route.slice('appearance/dele/liste/'.length)} />;
   if (route === 'appearance/dele/vaerdier') return <Tokens />;
   if (route.startsWith('slettet/')) return <Deleted id={route.slice(8)} files={files} env={env} />;

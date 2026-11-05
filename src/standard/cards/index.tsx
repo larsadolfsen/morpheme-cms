@@ -13,7 +13,7 @@ export default defineBlock({
   label: t.blocks.cards.label,
   icon: Cards,
   hint: t.blocks.cards.hint,
-  edit: { to: 'blokke/cards', text: t.blocks.cards.edit },
+  edit: { to: 'blocks/cards', text: t.blocks.cards.edit },
   fields: [
     ...headFields,
     // An icon is the empty choice: so are the cards from before there was a choice.

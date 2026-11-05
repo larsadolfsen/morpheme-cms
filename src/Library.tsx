@@ -130,7 +130,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'header') return { label: parts.header, href: '#appearance/header', count: null };
   if (id === 'footer') return { label: parts.footer, href: '#appearance/footer', count: null };
   if (id === 'lister') return { label: parts.lists, href: '#lister', count: listsShown(files).length };
-  if (id === 'blokke') return { label: parts.blocks, href: '#blokke', count: blockParts.length };
+  if (id === 'blocks') return { label: parts.blocks, href: '#blocks', count: blockParts.length };
   if (id === 'filer') return { label: parts.media, href: '#filer', count: mediaOf(files).length + filesOf(files).length };
   if (id === 'appearance') return { label: parts.appearance, href: '#appearance', count: null };
   if (id === 'blokvalg') return { label: parts.blockSettings, href: '#blokvalg', count: null };
@@ -521,7 +521,7 @@ export function PartsHome() {
   const parts: Part[] = [
     { id: 'editor', label: t.parts.screens.editor, icon: icons.dele },
     { id: 'ui', label: t.parts.screens.components, icon: icons.appearance },
-    { id: 'blokke', label: t.parts.screens.blocks, icon: icons.blokke },
+    { id: 'blocks', label: t.parts.screens.blocks, icon: icons.blocks },
     ...kindLists().map((c) => ({ id: `liste/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lister })),
     { id: 'vaerdier', label: t.parts.screens.values, icon: Ruler },
   ];
@@ -553,11 +553,11 @@ export function PartsScreen({ screen, files }: { screen: PartScreen; files: Repo
 // and the funnel with the filters by group and by whether the block is on a page, each picked one as a chip.
 type BlockSort = 'group' | 'az' | 'za';
 const BLOCK_SORTS: BlockSort[] = ['group', 'az', 'za'];
-const BLOCK_SORT_KEY = 'editor-sort-blokke';
+const BLOCK_SORT_KEY = 'editor-sort-blocks';
 type Use = '' | 'used' | 'unused';
 
 export function Blocks({ files }: { files: RepoFile[] }) {
-  const [query, setQuery] = useKept('blokke-soeg', '');
+  const [query, setQuery] = useKept('blocks-soeg', '');
   const [sort, setSort] = useState<BlockSort>(() => {
     try {
       const saved = localStorage.getItem(BLOCK_SORT_KEY);
@@ -565,8 +565,8 @@ export function Blocks({ files }: { files: RepoFile[] }) {
     } catch {}
     return 'group';
   });
-  const [group, setGroup] = useKept('blokke-gruppe', '');
-  const [use, setUse] = useKept<Use>('blokke-brug', '');
+  const [group, setGroup] = useKept('blocks-gruppe', '');
+  const [use, setUse] = useKept<Use>('blocks-brug', '');
   // The blocks on a page (any copy, also a hidden one), by their type (a part's id).
   const used = useMemo(() => new Set(blockParts.filter((p) => pagesWith(p.id, files).length).map((p) => p.id)), [files]);
   const bothUses = blockParts.some((p) => used.has(p.id)) && blockParts.some((p) => !used.has(p.id));
@@ -650,9 +650,9 @@ export function Blocks({ files }: { files: RepoFile[] }) {
       {!inGroups.length ? (
         <p className="mb-8 px-1 text-muted">{t.common.noMatch}</p>
       ) : sort === 'group' ? (
-        inGroups.map((g) => <PartGroup key={g.title} title={g.title} route="blokke" parts={g.parts} />)
+        inGroups.map((g) => <PartGroup key={g.title} title={g.title} route="blocks" parts={g.parts} />)
       ) : (
-        lettered.map((g) => <PartGroup key={g.key ?? 'all'} title={g.key ?? undefined} route="blokke" parts={g.items} />)
+        lettered.map((g) => <PartGroup key={g.key ?? 'all'} title={g.key ?? undefined} route="blocks" parts={g.items} />)
       )}
     </Screen>
   );
