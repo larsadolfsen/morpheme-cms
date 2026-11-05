@@ -1,7 +1,8 @@
 # Full-screen block fields (design)
 
-> **Status:** approved by the owner on 5 November 2026. Plan:
-> [2026-11-05-full-screen-block-fields.md](../plans/2026-11-05-full-screen-block-fields.md).
+> **Status:** superseded on 5 November 2026 by
+> [2026-11-05-block-side-sheet-design.md](2026-11-05-block-side-sheet-design.md). The owner chose Material 3's side
+> sheet after the first build. Kept as the record of the first design.
 
 ## Problem
 
@@ -27,6 +28,24 @@ reason.
 - One header in all three layouts: the close button (X) at the start, the name of the block, and the main action at
   the end. The main action is a text button: "Save" for a block that exists, "Insert" for a new block.
 - The bar with "Cancel" and "Save" at the bottom goes away for the "fields" step.
+
+## Amendment (owner, 5 November 2026, after the first build)
+
+These replace the layout table, the header and the bar above and in the Design:
+
+| Window width | The fields of a block | The section settings |
+|---|---|---|
+| Below 1200px (`large`) | Full screen, also from 600px | As before (sheet) |
+| 1200px and up | Split screen: a card beside the page | Split screen: a card beside the page |
+
+- Full screen: the name of the block at the start of the header, the close button (X) at the end. No action in the
+  header. A sticky Save at the bottom (the look of `src/SaveBar.tsx`, from `FormFrame.tsx`). It shows only when the
+  fields have changed. A new block shows "Insert" at once.
+- Split screen: the area keeps the page's normal background. The content sits in the text editor's card
+  (`src/EditorCard.tsx`, from `MarkdownEditor.tsx`). The header has the title only: no drag handle, no close button.
+  At the bottom: "Cancel" always, and "Save" ("Insert" for a new block) only when something has changed.
+- While the split screen is open, the page's own save bar is hidden.
+- The choice of a block does not change.
 
 ## Design
 
