@@ -3,6 +3,12 @@
    (:where), so a theme's :root wins. */
 @reference '../theme/styles/base.css';
 
+:root {
+  /* The menus and the toolbar of the text: Material 3's menu surface and shadow (elevation level 2). */
+  --editor-menu-surface: var(--surface-container-lowest);
+  --editor-menu-shadow: var(--elevation-2);
+}
+
 :where(:root) {
   /* How a check went (CheckList: the SEO rating), as PageSpeed shows it: the mark before a check that is fine and one
      that can be done better, and the score's ring (from 90 good, from 50 average, else bad) with its number and the
@@ -632,9 +638,9 @@ html {
   gap: 0.125rem;
   border: 1px solid var(--line);
   border-radius: 9999px;
-  background: var(--surface);
+  background: var(--editor-menu-surface);
   padding: 0.25rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--editor-menu-shadow);
 }
 
 .editor-text .site-block-menu button {
@@ -656,6 +662,12 @@ html {
   color: var(--accent);
 }
 
+/* The text's toolbar (MarkdownEditor.tsx, Toolbar in ui.tsx): the menu surface and shadow. */
+.editor-tools {
+  --toolbar-standard-surface: var(--editor-menu-surface);
+  box-shadow: var(--editor-menu-shadow);
+}
+
 /* The icons over the selected text, on a phone at the bottom over the keyboard (selectionMenu in
    MarkdownEditor.tsx). */
 .editor-selection-menu {
@@ -665,9 +677,9 @@ html {
   gap: 0.125rem;
   border: 1px solid var(--line);
   border-radius: 9999px;
-  background: var(--surface);
+  background: var(--editor-menu-surface);
   padding: 0.25rem;
-  box-shadow: var(--shadow);
+  box-shadow: var(--editor-menu-shadow);
 }
 
 .editor-selection-menu[hidden],
