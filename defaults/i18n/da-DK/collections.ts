@@ -103,6 +103,7 @@ export const collections: Record<string, string> = {
   Coffee: 'Kaffe',
   Wheelchair: 'Kørestol',
   Letter: 'Brev',
+  Information: 'Info',
   'New blog post': 'Nyt blogindlæg',
   'Blog posts': 'Blogindlæg',
   'blog post': 'blogindlæg',

@@ -388,7 +388,7 @@ export const icons = [
   ['Map pin', 'map-pin'],
   ['Coffee', 'coffee'],
   ['Wheelchair', 'wheelchair'],
-  ['Info', 'info'],
+  ['Information', 'info'],
   ['Letter', 'envelope-simple'],
 ].map(([label, value]) => ({ label, value }));
 
