@@ -1,4 +1,4 @@
-// "Udseende" › "Sidekolonne" (#appearance/sidekolonne): the block drawn in a column beside the text of the pages, chosen
+// "Udseende" › "Sidekolonne" (#appearance/side-column): the block drawn in a column beside the text of the pages, chosen
 // among "Ingen" and the installed blocks that can be (`beside` in their load.ts), saved in the site's file (config.side)
 // in its own commit. Exposes SideColumn, sideSettingOf and sideChoicesOf (also used by the page form and by Library.tsx).
 // Uses ui.tsx (ChoiceRow, Group), registry.tsx (siteBlocks) and lib/side-block.mjs.

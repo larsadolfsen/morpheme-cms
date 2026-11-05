@@ -116,7 +116,7 @@ export const common = {
     iconPacks: 'Icon packs',
     /** How the site moves, Material 3's motion schemes (#appearance/motion, MotionSchemes in Library.tsx). */
     motion: 'Motion',
-    /** The block drawn in a column beside the text of the pages (#appearance/sidekolonne, SideColumn.tsx). */
+    /** The block drawn in a column beside the text of the pages (#appearance/side-column, SideColumn.tsx). */
     sideColumn: 'Side column',
     colors: 'Colors',
     brand: 'Logo and icon',
