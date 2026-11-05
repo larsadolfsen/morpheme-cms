@@ -372,7 +372,7 @@ export function useBlockDialog(
         className={kind === 'standard' ? 'editor-side-sheet' : undefined}
         actions={
           <>
-            <Button onClick={() => (open.step === 'section' ? saveSection() : save(open.type))}>
+            <Button onClick={() => (open.step === 'fields' ? save(open.type) : saveSection())}>
               {open.step === 'fields' && open.isNew ? t.blocks.insert : t.common.save}
             </Button>
             <Button kind="outlined" onClick={() => void leave()}>
