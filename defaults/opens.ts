@@ -15,5 +15,4 @@ const ownOpens = (collections.find((c) => c.id === 'popups') as FolderCollection
 
 /** What a button opens of a promotion of this kind (its `type`; without one, the pop-up), or undefined for nothing. */
 export const opensOf = (kind: string | undefined): Opens | undefined =>
-  ownOpens[kind || 'standard'] ??
-  Object.entries(appFiles).find(([path]) => appIdOf(path) === kind)?.[1].default.kinds?.popups?.opens;
+  ownOpens[kind || 'standard'] ?? Object.entries(appFiles).find(([path]) => appIdOf(path) === kind)?.[1].default.kinds?.popups?.opens;
