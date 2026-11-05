@@ -181,12 +181,17 @@
   font-weight: var(--type-body-large-weight);
   letter-spacing: var(--type-body-large-tracking);
 }
-/* A blog post's lead: its first paragraph, in the body-large type. */
+/* A blog post's lead: its first paragraph, one step larger than the text (the title-large size, with the body weight). */
 .prose.post-lead {
-  font-size: var(--type-body-large-size);
-  line-height: var(--type-body-large-line-height);
+  font-size: var(--type-title-large-size);
+  line-height: var(--type-title-large-line-height);
   font-weight: var(--type-body-large-weight);
-  letter-spacing: var(--type-body-large-tracking);
+  letter-spacing: var(--type-title-large-tracking);
+}
+/* The text right after the lead (no picture between): the space the prose puts between paragraphs (1.25em), not the
+   larger space of a text under a picture. */
+.prose.post-lead + .prose {
+  margin-top: 1.25em;
 }
 /* The text's headings: a headline, a title under it and a smaller title under that (the type scale, ui.css). */
 .prose :where(h2) {
