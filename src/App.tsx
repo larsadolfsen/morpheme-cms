@@ -13,7 +13,7 @@
 //                    privatliv/cookiebanner, privatliv/privatlivssider, or one of the editor's own screens (Part.opens):
 //                    privatliv/samtykker the visitors' answers in the cookie banner (Consents.tsx); and the settings of the apps installed with
 //                    its category: analytics/google-analytics
-//   filer            the uploaded pictures, PDFs, videos and zip files (Media.tsx)
+//   files            the uploaded pictures, PDFs, videos and zip files (Media.tsx)
 //   seo              "Søgemaskineoptimering" (Library.tsx Seo): seo/videresendelser the redirects' two lists
 //                    (Redirects.tsx): seo/videresendelser/alle the redirects, and seo/videresendelser/ikke-fundet
 //                    the addresses visitors came to that do not exist; seo/vurdering the SEO rating of every page and
@@ -44,7 +44,7 @@
 //   <form>/<field>   the page of a field of a part's form with its choices on a page of their own (Field.page), over the
 //                    form, which keeps what is in it (formAt)
 //   blocks           the blocks, and blocks/<block> the texts all its copies have (blockTexts.ts)
-//   slettet/<id>     what was deleted from a list, or slettet/filer the files (Deleted.tsx)
+//   slettet/<id>     what was deleted from a list, or slettet/files the files (Deleted.tsx)
 //   <file path>      a file being edited, e.g. src/content/blog/mit-foerste-indlaeg.md
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -723,8 +723,8 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'lister') return <Lists files={files} />;
   if (route === 'company') return <Company files={files} />;
   if (route === 'blocks') return <Blocks files={files} />;
-  if (route === 'filer' || route.startsWith('filer/'))
-    return <Media key={route} files={files} env={env} open={route === 'filer' ? undefined : '/' + route.slice('filer/'.length)} />;
+  if (route === 'files' || route.startsWith('files/'))
+    return <Media key={route} files={files} env={env} open={route === 'files' ? undefined : '/' + route.slice('files/'.length)} />;
   if (route === 'seo') return <Seo />;
   if (route === REDIRECTS_ROUTE) return <Redirects env={env} />;
   if (route === SEO_SCORES_ROUTE) return <SeoScores files={files} env={env} />;

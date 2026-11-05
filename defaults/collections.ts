@@ -680,7 +680,7 @@ export const collections: Collection[] = [
         type: 'relation',
         to: 'files',
         required: true,
-        edit: { to: 'filer', text: 'Upload a PDF' },
+        edit: { to: 'files', text: 'Upload a PDF' },
         only: { field: 'button', is: ['file'] },
       },
       {

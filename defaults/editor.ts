@@ -117,7 +117,7 @@ export const icons: Record<string, Icon> = {
   globalt: GlobeSimple,
   settings: GearSix,
   blocks: SquaresFour,
-  filer: FolderSimple,
+  files: FolderSimple,
   privatliv: ShieldCheck,
   lister: ListChecks,
   footer: SquareHalfBottom,
@@ -164,7 +164,7 @@ export const appearance: Part[] = [
 // (appearance) and the editor's parts: Colors.tsx, BrandForm.tsx and Parts.tsx), the parts of "Privacy" (privacy.ts)
 // and the settings of the whole site ("Settings").
 // Each part is a collection (collections.ts), except those named above, "privatliv"'s (partScreens) and the editor's own
-// "company" (companyParts), "blocks" (blockParts), id filer (the pictures, PDFs, videos and zip files), "header", "lister"
+// "company" (companyParts), "blocks" (blockParts), id files (the pictures, PDFs, videos and zip files), "header", "lister"
 // and "blokvalg" (BlockSettings.tsx).
 const settingsIds = ['morpheme', 'avanceret'];
 export const groups: { id: string; title: string; href?: string; ids: string[] }[] = [
@@ -172,7 +172,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
   {
     id: 'indhold',
     title: 'Content',
-    ids: ['pages', 'blog', 'lister', 'popups', 'tags', 'filer', internalLinks.id, 'videresendelser'],
+    ids: ['pages', 'blog', 'lister', 'popups', 'tags', 'files', internalLinks.id, 'videresendelser'],
   },
   { id: 'globalt', title: 'Globals', ids: ['header', 'footer', 'company'] },
   { id: 'apps', title: 'Apps', ids: ['apps', 'appstore'] },

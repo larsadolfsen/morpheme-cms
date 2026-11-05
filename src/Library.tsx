@@ -131,7 +131,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'footer') return { label: parts.footer, href: '#appearance/footer', count: null };
   if (id === 'lister') return { label: parts.lists, href: '#lister', count: listsShown(files).length };
   if (id === 'blocks') return { label: parts.blocks, href: '#blocks', count: blockParts.length };
-  if (id === 'filer') return { label: parts.media, href: '#filer', count: mediaOf(files).length + filesOf(files).length };
+  if (id === 'files') return { label: parts.media, href: '#files', count: mediaOf(files).length + filesOf(files).length };
   if (id === 'appearance') return { label: parts.appearance, href: '#appearance', count: null };
   if (id === 'blokvalg') return { label: parts.blockSettings, href: '#blokvalg', count: null };
   if (id === 'apps') return { label: parts.apps, href: '#apps', count: null };

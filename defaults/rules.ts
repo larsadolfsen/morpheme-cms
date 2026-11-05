@@ -406,7 +406,7 @@ export type Use = { path: string; name: string };
 
 // The places on the site that use an entry, by the entry's file, each once (the tag's "Used on", DataForm.tsx,
 // and the number at it in its list, Library.tsx); [] for none. For a tag: the blog posts, pages, testimonials,
-// promotions and files (by the route "filer/<path>" and the file's name) that have it, and the pages and posts with a "Blog posts" or "Testimonials" block that
+// promotions and files (by the route "files/<path>" and the file's name) that have it, and the pages and posts with a "Blog posts" or "Testimonials" block that
 // picks it (its tags, or the tag "All posts" goes to). Made once for the whole list.
 export function usesOf(collection: Collection, files: RepoFile[]): (file: RepoFile) => Use[] {
   if (collection.kind === 'files' || collection.id !== 'tags') return () => [];

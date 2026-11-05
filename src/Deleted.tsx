@@ -38,7 +38,7 @@ const fileName = (path: string) => path.split('/').pop() ?? path;
 
 export default function Deleted({ id, files, env }: { id: string; files: RepoFile[]; env: Env }) {
   // The files from "Filer" (pictures, PDFs, videos, zip files), not a list's.
-  const pictures = id === 'filer';
+  const pictures = id === 'files';
   const collection = pictures ? undefined : collections.find((c) => c.id === id && restorable(c));
   const folder = pictures ? MEDIA : collection && collection.kind !== 'files' ? collection.folder : '';
   const [deleted, setDeleted] = useState<DeletedFile[] | null>(null);
@@ -67,7 +67,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
     );
 
   const label = pictures ? t.history.files : collection!.label;
-  const back = pictures ? { href: '#filer', label: t.common.parts.media } : { href: `#liste/${id}`, label: collection!.label };
+  const back = pictures ? { href: '#files', label: t.common.parts.media } : { href: `#liste/${id}`, label: collection!.label };
 
   async function open(file: DeletedFile) {
     if (!pictures) return restore(file);
