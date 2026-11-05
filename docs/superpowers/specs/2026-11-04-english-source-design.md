@@ -68,29 +68,139 @@ would have to write keys too.
 Ids and URL segments become English slugs. This is a breaking change for sites that override a standard part by its
 id, and for saved links. The changelog says so. Sara's site gets its own follow-up fix after the release.
 
-Known mapping (batch 2 completes the list from a search of every route and id):
+The complete mapping (batch 2, Task 2.1, from a search of `defaults/`, `site/`, `src/`, `lib/`, `theme/`, `pages/`,
+`scripts/`, `worker/`, `starter/` and the docs). Slugs are lower case, words joined by `-`. The rows from the first
+version of this table are unchanged. The column "Kind" says where the id lives: a **route** is a segment of the
+editor's address after `#`; a **part** is an id in a menu, `icons` or `settings` map (`defaults/editor.ts`,
+`defaults/company.ts`, `defaults/privacy.ts`, `defaults/collections.ts`); a **key** is a browser-storage key or a
+stored sort value of the editor.
 
-| Danish | English | | Danish | English |
-|---|---|---|---|---|
-| `indstillinger` | `settings` | | `udseende` | `appearance` |
-| `maaling` | `analytics` | | `promovering` | `promotion` |
-| `kategorier` | `tags` | | `mobilmenu` | `mobile-menu` |
-| `virksomheden` | `company` | | `blokke` | `blocks` |
-| `filer` | `files` | | `privatliv` | `privacy` |
-| `lister` | `lists` | | `liste` | `list` |
-| `videresendelser` | `redirects` | | `blokvalg` | `block-settings` |
-| `avanceret` | `advanced` | | `licenser` | `licenses` |
-| `temaer` | `themes` | | `farver` | `colors` |
-| `reservefarver` | `fallback-colors` | | `ikonpakker` | `icon-packs` |
-| `bevaegelse` | `motion` | | `sidekolonne` | `side-column` |
-| `dele` | `parts` | | `vaerdier` | `values` |
-| `standardsider` | `default-pages` | | `udtalelser` | `testimonials` |
-| `ny` | `new` | | `samtykker` | `consents` |
-| `betaling` | `payment` | | `vurdering` | `rating` |
-| `udvikler` | `developer` | | `alle` | `all` |
+**Routes and part ids**
 
-Folder names on disk (`public/filer`) are site data, not ids. Batch 2 decides each one by whether existing sites
-have files there; a rename of site data needs a migration and is out of scope unless the owner agrees.
+| Danish           | English           | Kind               | Note                                                                                              |
+| ---------------- | ----------------- | ------------------ | ------------------------------------------------------------------------------------------------- |
+| `indstillinger`  | `settings`        | route, part        | Also the app tab `apps/<id>/indstillinger` (`SETTINGS_KEY` in `lib/appRoute.mjs`).               |
+| `udseende`       | `appearance`      | route, part        |                                                                                                   |
+| `maaling`        | `analytics`       | route              | Only in comments and in `lib/menu.test.mjs` ("gone" ids); an app category, kept by the apps.      |
+| `promovering`    | `promotion`       | route              | Old route in `MOVED` (`src/movedRoutes.mjs`); an app category.                                    |
+| `kategorier`     | `tags`            | route, part, list  | Collection id and `config.lists.tags` in `site/defineSite.mjs`; the folder `src/data/categories` stays. |
+| `mobilmenu`      | `mobile-menu`     | part               | The data file is `src/data/mobile-menu.json` already.                                             |
+| `virksomheden`   | `company`         | route, part        |                                                                                                   |
+| `blokke`         | `blocks`          | route, part        | Also the virtual file `blokke/<block>` for block texts (`defaults/rules.ts`, `edit.to`).          |
+| `filer`          | `files`           | route, part        | The route only. The folder `public/filer` and the address `/filer/` are site data (below).        |
+| `privatliv`      | `privacy`         | route, part        |                                                                                                   |
+| `lister`         | `lists`           | route, part        |                                                                                                   |
+| `liste`          | `list`            | route              | `liste/<id>`; also `udseende/dele/liste/<id>`.                                                    |
+| `videresendelser`| `redirects`       | route, part        | `seo/videresendelser` and its tabs.                                                               |
+| `blokvalg`       | `block-settings`  | route, part        |                                                                                                   |
+| `avanceret`      | `advanced`        | route, part        | `ADVANCED_ROUTE`.                                                                                 |
+| `licenser`       | `licenses`        | route, part        | `LICENSES_ROUTE`.                                                                                 |
+| `temaer`         | `themes`          | route, part        | `udseende/temaer` and `indstillinger/appstore/temaer`.                                            |
+| `farver`         | `colors`          | route, part        | Old route in `MOVED` too.                                                                         |
+| `reservefarver`  | `fallback-colors` | route              | `FALLBACK_ROUTE`.                                                                                 |
+| `ikonpakker`     | `icon-packs`      | route, part        |                                                                                                   |
+| `bevaegelse`     | `motion`          | route, part        |                                                                                                   |
+| `sidekolonne`    | `side-column`     | route, part        |                                                                                                   |
+| `dele`           | `parts`           | route, part        | `udseende/dele` and its sub-routes; also in `src/ui.tsx` and `src/i18n/*/parts.ts` comments.      |
+| `vaerdier`       | `values`          | route              | `udseende/dele/vaerdier`.                                                                         |
+| `standardsider`  | `default-pages`   | part               | The spec's choice. The config key `standardPages` stays.                                          |
+| `udtalelser`     | `testimonials`    | list id            | `config.lists.testimonials`. The page address `/udtalelser/` is site data (below).               |
+| `ny`             | `new`             | route              | `ny/<list>/<kind>`. The site address `/ny/` is site data (below).                                 |
+| `samtykker`      | `consents`        | part               |                                                                                                   |
+| `betaling`       | `payment`         | route, part        | `virksomheden/betaling/<id>`.                                                                     |
+| `vurdering`      | `rating`          | route              | `seo/vurdering` (`SEO_SCORES_ROUTE`).                                                             |
+| `udvikler`       | `developer`       | route, app id      | `DEVELOPER_ROUTE`; also in `REFUSED_APPS` (`lib/storeEntries.mjs`).                               |
+| `alle`           | `all`             | route              | `seo/videresendelser/alle` (the tab "All").                                                       |
+| `indhold`        | `content`         | group, part        | Menu section. Do not mix it with the form-section ids `content` in `EntryForm.tsx`.              |
+| `globalt`        | `global`          | group, part        | Menu section.                                                                                     |
+| `konto`          | `account`         | route              |                                                                                                   |
+| `notifikationer` | `notifications`   | route              |                                                                                                   |
+| `slettet`        | `deleted`         | route              | `slettet/<id>`, `slettet/filer`.                                                                  |
+| `tema`           | `theme`           | route, owner kind  | Old routes in `MOVED`; the owner id `tema/<id>` in `lib/licenses.mjs` (`ownerId`).               |
+| `kontakt`        | `contact`         | part               | Company part. The page address `/kontakt/` in comments and tests is site data.                    |
+| `sociale-medier` | `social-media`    | part               | Company part.                                                                                     |
+| `cookiebanner`   | `cookie-banner`   | part               | `privatliv/cookiebanner`.                                                                         |
+| `privatlivssider`| `privacy-pages`   | part               | `privatliv/privatlivssider`.                                                                      |
+| `interne-links`  | `internal-links`  | part               | `seo/interne-links`; the data file is `src/data/internal-links.json` already.                     |
+| `headerknap`     | `header-button`   | part               | Collection id in `defaults/collections.ts` and `header` in `defaults/editor.ts`.                  |
+| `ikke-fundet`    | `not-found`       | route              | `seo/videresendelser/ikke-fundet`.                                                                |
+| `om`             | `about`           | route              | The app tab `apps/<id>/om` (`INFO_KEY` in `lib/appRoute.mjs`). A page address `/om/` is site data. |
+| `butik`          | `store`           | app id, route      | The app store's old id (`STORE_BEFORE = 'apps/butik'`, `REFUSED_APPS`). The apps repo owns the id; judgement call. |
+
+**Schema and page anchors (output ids)**
+
+| Danish         | English        | Kind          | Note                                                                                                |
+| -------------- | -------------- | ------------- | --------------------------------------------------------------------------------------------------- |
+| `virksomhed`   | `business`     | JSON-LD id    | `defaults/schema.ts` `ids.business`; becomes `#business` in the page's JSON-LD graph.               |
+| `broedkrummer` | `breadcrumbs`  | JSON-LD id    | `site/schema.ts` (`#broedkrummer`).                                                                 |
+| `indlaeg`      | `post`         | JSON-LD id    | `site/schema.ts` (`#indlaeg`).                                                                      |
+| `hovedindhold` | `main-content` | anchor        | The skip link in `theme/layouts/Base.astro`; both the `id` and the `href`.                          |
+
+**Browser-storage keys and stored values** (an owner's saved filters and sorts are lost once; no data is lost)
+
+| Danish                 | English                 | Kind       | Note                                                                    |
+| ---------------------- | ----------------------- | ---------- | ----------------------------------------------------------------------- |
+| `nyeste`               | `newest`                | sort value | `Library.tsx`, `Parts.tsx`; also in `src/ui.tsx` (flagged, see below).  |
+| `aeldste`              | `oldest`                | sort value | Same files as `nyeste`.                                                 |
+| `vis`                  | `show`                  | stored value | `seoKey` in `Library.tsx`.                                            |
+| `skjul`                | `hide`                  | stored value | `seoKey` in `Library.tsx`.                                            |
+| `apps-soeg`            | `apps-search`           | key        | `AppList.tsx`.                                                          |
+| `blokke-gruppe`        | `blocks-group`          | key        | `Library.tsx`.                                                          |
+| `blokke-soeg`          | `blocks-search`         | key        | `Library.tsx`.                                                          |
+| `butik-soeg`           | `store-search`          | key        | `AppList.tsx`.                                                          |
+| `butik-kategori`       | `store-category`        | key        | `AppList.tsx`.                                                          |
+| `butik-status`         | `store-status`          | key        | `AppList.tsx`.                                                          |
+| `licenser-soeg`        | `licenses-search`       | key        | `Licenses.tsx`.                                                         |
+| `samtykker-soeg`       | `consents-search`       | key        | `Consents.tsx`.                                                         |
+| `seo-slags`            | `seo-kind`              | key        | `SeoScores.tsx`.                                                        |
+| `seo-soeg`             | `seo-search`            | key        | `SeoScores.tsx`.                                                        |
+| `soegeord-side`        | `keywords-page`         | key        | `Keywords.tsx`.                                                         |
+| `soegeord-soeg`        | `keywords-search`       | key        | `Keywords.tsx`.                                                         |
+| `soegeord-slags`       | `keywords-kind`         | key        | `Keywords.tsx`.                                                         |
+| `videresendelser-soeg` | `redirects-search`      | key        | `Redirects.tsx`.                                                        |
+| `filer-type`           | `files-type`            | key        | `Media.tsx`.                                                            |
+| `filer-soeg`           | `files-search`          | key        | `Media.tsx`.                                                            |
+| `filer-dato`           | `files-date`            | key        | `Media.tsx`.                                                            |
+| `filer-brug`           | `files-use`             | key        | `Media.tsx`.                                                            |
+| `filer-tag`            | `files-tag`             | key        | `Media.tsx`.                                                            |
+| `editor-sort-soegeord` | `editor-sort-keywords`  | key        | `Keywords.tsx`.                                                         |
+| `editor-sort-indsaet`  | `editor-sort-insert`    | key        | `BlockDialog.tsx` (flagged, see below).                                 |
+
+The other `editor-sort-<id>` and `<collection.id>-soeg|-side|-type` keys are built from an id above and from the
+suffixes `-soeg` (`-search`) and `-side` (`-page`); they change with their id. `-type`, `-group` and `-search` stay.
+
+**Names the editor generates** (new files only; existing files keep their names)
+
+| Danish    | English   | Kind                | Note                                                      |
+| --------- | --------- | ------------------- | --------------------------------------------------------- |
+| `billede` | `picture` | file name fallback  | `src/images.ts`, when an upload has no usable name.       |
+| `fil`     | `file`    | file name fallback  | `src/images.ts`, and `lib/scheduled.mjs` (a message word). |
+
+**Site data on disk (not renamed in this batch).** These are names in a site's own folders and addresses. A rename
+needs a migration, and the owner has not agreed to one.
+
+| Name                                    | Where                                                           | Why it stays                                           |
+| --------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
+| `public/filer` (address `/filer/`)      | `config.folders.files`, `reserved` in `site/defineSite.mjs`     | Existing sites keep uploaded files there. *site data*  |
+| `/ny/<address>` (the new-version pages) | `site/noindex.mjs`, `reserved` in `site/defineSite.mjs`         | A live address. The editor route `ny/<list>` is renamed. *site data* |
+| `/udtalelser/`                          | `testimonialsPath` in `site/testimonials.ts`                    | The address of a site's page. *site data*              |
+| `src/content/pages/privatlivspolitik.md` | `edit.to` in `defaults/privacy.ts`                             | The file of a site's page. *site data*                 |
+| `#find-vej`                             | `theme/components/Footer.astro`, comments                       | An anchor in a site's contact page content; defined by the site, not here. *site data* |
+| `/kontakt/`, `/om/`, `/om-mig/`, `/ydelser/…` | comments, tests, examples                                 | Addresses of a site's pages. *site data*               |
+
+No other folder name on disk is Danish: `src/content/blog`, `src/content/pages`, `src/data/*` (`categories`,
+`testimonials`, `popups`, `cookie-list`, `files` and the data files), `public/images/uploads` and `src/apps` are
+English already.
+
+**Judgement calls** (the slug was not a straight translation, or the id is not owned here): `butik` → `store` (the
+app store's own id, kept by the apps repo); `standardsider` → `default-pages` (the spec's first choice, although the
+config key is `standardPages`); `indlaeg` → `post` (a blog post's JSON-LD node); `broedkrummer` → `breadcrumbs`;
+`virksomhed` → `business` (the schema.org type is `LocalBusiness`); `soegeord-side` → `keywords-page`; `vis`/`skjul`
+→ `show`/`hide`; `hovedindhold` → `main-content`; `indhold` → `content` and `globalt` → `global`.
+
+**Old links (owner decides in Task 2.4).** Adding each renamed route to `MOVED` in `src/movedRoutes.mjs` keeps a saved link
+or bookmark to a Danish route working. The Danish routes in `MOVED` would then be the only Danish ids left outside the
+language files; without it the old links stop working, as the changelog says.
 
 ### Enforcement: `check:language`
 
