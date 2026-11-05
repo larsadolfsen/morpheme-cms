@@ -1,7 +1,7 @@
 // Tests for sheetPlacement.mjs: the look (side-sheet, modal-side-sheet, or sheet) and the panel flag of each step.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sheetLook, inPanel } from './sheetPlacement.mjs';
+import { sheetLook, inPanel, editsInPanel } from './sheetPlacement.mjs';
 
 test("'fields' below medium is a modal side sheet and not in the panel", () => {
   assert.equal(sheetLook('fields', false), 'modal-side-sheet');
@@ -41,4 +41,11 @@ test('a closed sheet below medium is a sheet and not in the panel', () => {
 test('a closed sheet at medium is a sheet and not in the panel', () => {
   assert.equal(sheetLook(undefined, true), 'sheet');
   assert.equal(inPanel(undefined, true), false);
+});
+
+test('a card edits in the panel only at medium and with fields', () => {
+  assert.equal(editsInPanel(true, true), true);
+  assert.equal(editsInPanel(false, true), false);
+  assert.equal(editsInPanel(true, false), false);
+  assert.equal(editsInPanel(false, false), false);
 });

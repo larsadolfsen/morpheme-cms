@@ -10,8 +10,9 @@
 // medium (not modal: the page stays usable, .editor-side-sheet in editor.css), a modal one over the page below it
 // (fields only; the section settings are a sheet from the bottom there). Both end with Gem (Indsæt) and Annuller.
 // Their open, close, focus and Escape are the theme's (sideSheet() and standardSideSheet(), sideSheetControl.ts); leave() is their beforeClose.
-// Another block tapped while one is open closes the open one first (the question when changed). Exposes useBlockDialog, IMAGE.
-import { useEffect, useId, useRef, useState, type ReactElement } from 'react';
+// Another block tapped while one is open closes the open one first (the question when changed). In the standard side sheet a
+// card already in the text also has "Remove" at the end of the actions (the answer 'remove'). Exposes useBlockDialog, IMAGE.
+import { useEffect, useId, useRef, useState, type CSSProperties, type ReactElement } from 'react';
 import { ArrowsDownUp, Image } from '@phosphor-icons/react';
 import {
   Button,
@@ -58,13 +59,17 @@ export type BlockAsk = {
    * than once, unless the template says how many (have: the types in the text now, one for each, IMAGE for a picture).
    * image: a picture is offered first, and chosen as the type IMAGE. */
   choose: (offer?: { image?: boolean; have?: string[] }) => Promise<{ type: string; props: BlockProps } | null>;
-  /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Indsæt"). */
-  edit: (type: string, props: BlockProps, isNew?: boolean) => Promise<BlockProps | null>;
+  /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Indsæt"). removable: the
+   * card may be removed, so the side panel has "Remove"; 'remove' when it is tapped (never when removable is not true). */
+  edit: (type: string, props: BlockProps, isNew?: boolean, removable?: boolean) => Promise<BlockProps | 'remove' | null>;
   /** The settings of the section the cursor is in (now its colour; null: none); the new ones, or null when cancelled. */
   section: (color: string | null) => Promise<{ color: string | null } | null>;
 };
 
-type Open = { step: 'choose'; image?: boolean; have?: string[] } | { step: 'fields'; type: string; isNew: boolean } | { step: 'section' };
+type Open =
+  | { step: 'choose'; image?: boolean; have?: string[] }
+  | { step: 'fields'; type: string; isNew: boolean; removable?: boolean }
+  | { step: 'section' };
 
 /** The type a section's settings are answered with (not a block's). */
 const SECTION = 'section';
@@ -99,7 +104,7 @@ const picture: SiteBlock = {
     },
   ],
 };
-type Answer = { type: string; props: BlockProps } | null;
+type Answer = { type: string; props: BlockProps } | 'remove' | null;
 
 // Text as searched: lower case, without accents (as in PagePicker.tsx).
 const plain = (s: string) =>
@@ -254,16 +259,23 @@ export function useBlockDialog(
     list,
     template,
     data,
-    choose: (offer) => ask({ step: 'choose', image: offer?.image, have: offer?.have }),
+    choose: async (offer) => {
+      const answered = await ask({ step: 'choose', image: offer?.image, have: offer?.have });
+      return answered === 'remove' ? null : answered;
+    },
     section: async (color) => {
       const answered = await ask({ step: 'section' }, { color: color ?? '' });
-      return answered && { color: answered.props.color ? String(answered.props.color) : null };
+      if (!answered || answered === 'remove') return null;
+      return { color: answered.props.color ? String(answered.props.color) : null };
     },
-    edit: async (type, props, isNew = false) => {
+    edit: async (type, props, isNew = false, removable = false) => {
       const fields = blockOf(type)?.fields ?? [];
       // A block on the page with what a field it has no value for means; a new one with the defaults.
-      const a = await ask({ step: 'fields', type, isNew }, isNew ? { ...newValue(fields), ...props } : savedValue(fields, props));
-      return a && a.props;
+      const a = await ask(
+        { step: 'fields', type, isNew, removable },
+        isNew ? { ...newValue(fields), ...props } : savedValue(fields, props),
+      );
+      return a === 'remove' ? a : a && a.props;
     },
   };
 
@@ -378,6 +390,17 @@ export function useBlockDialog(
             <Button kind="outlined" onClick={() => void leave()}>
               {t.common.cancel}
             </Button>
+            {open.step === 'fields' && open.removable && !open.isNew && look === 'side-sheet' && (
+              // At the far end of the row, in the error colour (the theme's text button with its colour variable).
+              <Button
+                kind="text"
+                className="ml-auto"
+                style={{ '--button-text-text': 'var(--error)' } as CSSProperties}
+                onClick={() => done('remove')}
+              >
+                {t.common.remove}
+              </Button>
+            )}
           </>
         }
       >
