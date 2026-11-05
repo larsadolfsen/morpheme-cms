@@ -41,6 +41,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   liste: 'list',
   videresendelser: 'redirects',
   blokvalg: 'block-settings',
+  avanceret: 'advanced',
 });
 
 /**

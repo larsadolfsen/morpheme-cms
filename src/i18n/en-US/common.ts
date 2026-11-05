@@ -131,7 +131,7 @@ export const common = {
     account: 'Account',
     /** The last section of the main drawer, and the first part of the path to a setting (placeOf in site.ts). */
     settings: 'Settings',
-    /** Under Indstillinger: the faster editor (#avanceret, Advanced.tsx). */
+    /** Under Indstillinger: the faster editor (#advanced, Advanced.tsx). */
     advanced: 'Advanced',
     /** Under Indstillinger: the licences of what the site and the editor are made with (#licenser, Licenses.tsx). */
     licenses: 'Licenses',

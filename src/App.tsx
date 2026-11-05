@@ -31,7 +31,7 @@
 //                    ("Promovering"), its own and the apps' (BlockParts.tsx), and appearance/dele/vaerdier the
 //                    theme's design tokens, "Værdier" (Tokens.tsx)
 //   block-settings         the blocks that can be put in, "Blokindstillinger" (BlockSettings.tsx)
-//   avanceret        "Avanceret", under "Indstillinger": the copy of the site's files in R2 (Advanced.tsx)
+//   advanced        "Avanceret", under "Indstillinger": the copy of the site's files in R2 (Advanced.tsx)
 //   morpheme         "Morpheme", under "Indstillinger": the CMS's version, a newer one and its notes, an update's progress (CmsPage.tsx)
 //   licenser         "Licenser", under "Indstillinger": the licences of what the site and the editor are made with, and
 //                    licenser/<id> one with its text (Licenses.tsx)

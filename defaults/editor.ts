@@ -128,7 +128,7 @@ export const icons: Record<string, Icon> = {
   apps: PuzzlePiece,
   appstore: Storefront,
   morpheme: Sparkle,
-  avanceret: Wrench,
+  advanced: Wrench,
   licenser: Certificate,
   // The screens under "Appearance" (Library.tsx Theme).
   temaer: Swatches,
@@ -166,7 +166,7 @@ export const appearance: Part[] = [
 // Each part is a collection (collections.ts), except those named above, "privacy"'s (partScreens) and the editor's own
 // "company" (companyParts), "blocks" (blockParts), id files (the pictures, PDFs, videos and zip files), "header", "lists"
 // and "block-settings" (BlockSettings.tsx).
-const settingsIds = ['morpheme', 'avanceret'];
+const settingsIds = ['morpheme', 'advanced'];
 export const groups: { id: string; title: string; href?: string; ids: string[] }[] = [
   { id: 'home', title: 'Dashboard', href: '#', ids: [] },
   {
