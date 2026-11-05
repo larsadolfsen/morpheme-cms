@@ -1,5 +1,6 @@
 // "Dele" › "UI-komponenter" (#udseende/dele/ui), "Dele" › "Blokke" (#udseende/dele/blokke) and "Dele" › a list of kinds
 // ("Promovering", #udseende/dele/liste/<id>): how the site looks, every part in every version, to see and agree on it.
+// "UI-komponenter" also has the active theme's coverage (summary, mark on each part, filter by style) and the site frame's parts.
 // "UI-komponenter" has the theme's UI components (its buttons and icon buttons, text fields and checkboxes …,
 // packages/editor/theme/ui/, through @site/editor) in every kind, size and state; "Blokke" every block, the standard
 // ones (packages/editor/src/standard/), which every theme styles, and then the apps', each in its own group; a list of
@@ -13,6 +14,8 @@
 import { useMemo } from 'react';
 import Screen from './Screen';
 import { Part, PartGroup, PartsShown } from './PartsShown';
+import { CoverageSummary } from './CoverageSummary';
+import FrameParts from './FrameParts';
 import { Preview } from './ui';
 import {
   SiteButton,
@@ -531,12 +534,16 @@ export function ComponentParts() {
     { id: 'communication', title: screens.communication.title },
     { id: 'navigationRest', title: screens.navigationRest.title },
     { id: 'pickers', title: screens.pickers.title },
+    { id: 'frame', title: screens.frame.title },
   ];
   return (
     <Screen title={screens.components} back={back}>
       <div className="space-y-10">
-        <p className="text-muted">{screens.componentsIntro}</p>
-        <PartsShown groups={groups} keep="parts-components" search={screens.search} none={screens.none}>
+        <div className="space-y-3">
+          <p className="text-muted">{screens.componentsIntro}</p>
+          <CoverageSummary />
+        </div>
+        <PartsShown groups={groups} keep="parts-components" search={screens.search} none={screens.none} styleFilter>
           <PartGroup group="ui">
             <ButtonParts />
           </PartGroup>
@@ -570,6 +577,9 @@ export function ComponentParts() {
           </PartGroup>
           <PartGroup group="pickers">
             <PickerParts />
+          </PartGroup>
+          <PartGroup group="frame">
+            <FrameParts />
           </PartGroup>
         </PartsShown>
       </div>
