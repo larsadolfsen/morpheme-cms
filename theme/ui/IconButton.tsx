@@ -8,9 +8,12 @@
 // it filled. `badge`: the theme's Badge at its icon's corner, a number or a dot (true), which `label` should say too. With
 // `href` it is a link (Link: on the site; in the editor only drawn; never a toggle), else a <button type="button">.
 // Other attributes (data-…, disabled) go on it, and `className` after its own classes (its place). An Astro component
-// without React gives an element the same classes with iconButtonClass, and a toggle aria-pressed itself.
+// without React gives an element the same classes with iconButtonClass, and a toggle aria-pressed itself. With `busy`
+// (a <button> only) it is disabled, aria-busy and .icon-button-busy: after --button-busy-delay (200 ms) the icon is
+// replaced by a loading indicator of its size (BusyContent); the button keeps its size.
 import { Glyph, type IconRef } from '@morphemecms/cms/src/icon';
 import Badge from '@theme/ui/Badge';
+import BusyContent from '@theme/ui/BusyContent';
 import { Link, type IconButtonKind } from '@morphemecms/cms/src/standard/view';
 import { ToggleIcon, type ButtonShape, type ButtonSize } from '@theme/ui/Button';
 
@@ -44,6 +47,7 @@ export default function IconButton({
   shape,
   selected,
   badge,
+  busy,
   href,
   className,
   ...rest
@@ -56,17 +60,26 @@ export default function IconButton({
   shape?: ButtonShape;
   selected?: boolean;
   badge?: number | boolean;
+  busy?: boolean;
   href?: string;
   className?: string;
 } & Record<string, unknown>) {
-  const classes = [iconButtonClass(kind, size, width, shape), className].filter(Boolean).join(' ');
+  const isBusy = busy === true && href === undefined;
+  const classes = [iconButtonClass(kind, size, width, shape), isBusy && 'icon-button-busy', className].filter(Boolean).join(' ');
   const toggle = selected !== undefined && href === undefined;
   const glyph =
     toggle && typeof icon === 'string' ? <ToggleIcon part="icon-button" name={icon} size={22} /> : <Glyph icon={icon} size={22} />;
   const button =
     href === undefined ? (
-      <button type="button" aria-label={label} className={classes} aria-pressed={toggle ? selected : undefined} {...rest}>
-        {glyph}
+      <button
+        type="button"
+        aria-label={label}
+        className={classes}
+        aria-pressed={toggle ? selected : undefined}
+        {...rest}
+        {...(isBusy ? { disabled: true, 'aria-busy': true } : {})}
+      >
+        {isBusy ? <BusyContent>{glyph}</BusyContent> : glyph}
       </button>
     ) : (
       <Link href={href} aria-label={label} className={classes} {...rest}>
