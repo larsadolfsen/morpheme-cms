@@ -2943,15 +2943,10 @@ export function MainDrawerSectionItem({
 
 /** The back row in the main drawer's header row (the `header` of MainDrawer) on a section's list: an arrow and `label`, with
  * `name` as its accessible name (where it goes); `onClick` shows the first level. It is a drawer item (the pill, the inline
- * padding), so its arrow stands over the items' icons; it is as high as the account row. */
+ * padding), so its arrow stands over the items' icons; it is as high as the account row (56px, a drawer item's height). */
 export function MainDrawerBack({ label, name, onClick }: { label: string; name?: string; onClick: () => void }) {
   return (
-    <SiteNavigationDrawerBack
-      label={label}
-      aria-label={name}
-      onClick={onClick}
-      className="navigation-drawer-item navigation-drawer-back min-h-(--list-item-two-line-min-height,4.5rem)"
-    />
+    <SiteNavigationDrawerBack label={label} aria-label={name} onClick={onClick} className="navigation-drawer-item navigation-drawer-back" />
   );
 }
 
