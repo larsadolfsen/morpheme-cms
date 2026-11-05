@@ -93,8 +93,8 @@ type ThemeCoverage = { theme: string; parts: Record<string, PartCoverage> } | nu
   `styles/global.css` with the relative `@import`s it follows (one level and deeper). It skips package imports
   (`@morphemecms/cms/…`).
 - It reads the files when the site is built or the dev server starts, as the theme's icons are read now.
-- `postcss` moves from `devDependencies` to `dependencies`: a site runs this code. Vite depends on `postcss` already,
-  so nothing new is installed.
+- `postcss` moves from `devDependencies` to `dependencies`, and `postcss-selector-parser` (`^6.0.10`, installed now
+  through Tailwind) is added there: a site runs this code.
 
 ### 4. Editor: *Appearance › Parts › UI components*
 
@@ -102,13 +102,13 @@ type ThemeCoverage = { theme: string; parts: Record<string, PartCoverage> } | nu
   *Material*. For *Partly own* it lists the missing pieces in mono under the badge.
 - **`Part`** (`src/PartsShown.tsx`): gets an optional `coverage` prop, the catalogue id. It defaults to the first name
   in `name` (`'ListItem, Group, …'` → `'ListItem'`). It shows the badge next to the name when the module has an entry.
-- **Summary** at the top of the screen, from the module: e.g. "Venus styles 31 of 43 parts itself. 12 use
-  Material." (`CoverageSummary`, `src/CoverageSummary.tsx`).
+- **Summary** at the top of the screen, from the module: e.g. "Venus styles 31 of 45 parts fully. 14 still
+  use Material in part or in full." (`CoverageSummary`, `src/CoverageSummary.tsx`).
 - **Filter**: `PartsShown` gets an optional second filter group, *Style*: All, Own style, Partly own, Material. Kept
   as the group filter is kept. A part without a catalogue entry is hidden while the filter is not *All*.
-- **Site frame group**: a new group on the screen. It reuses the existing drawings of TopAppBar, NavigationDrawer, Fab
-  and FabMenu (the same `Part` with the `coverage` id), and adds status-only parts for HeaderMenu, DrawerHead, Footer,
-  ActionBar and Logo (`FrameParts`, `src/FrameParts.tsx`).
+- **Site frame group**: a new group on the screen, last. TopAppBar, NavigationDrawer, Fab and FabMenu keep their
+  drawings in their present groups, with their badges. The new group has status-only parts for HeaderMenu,
+  DrawerHead, Footer, ActionBar and Logo (`FrameParts`, `src/FrameParts.tsx`).
 - On the standard theme nothing of this shows: no badges, no summary, no *Style* filter.
 - Texts: en-US first in `src/i18n/en-US/parts.ts`, then da-DK.
 
