@@ -83,7 +83,7 @@ import { fileRating } from './seo';
 import { dateName, headed, letterOf } from './Sheet';
 import type { Env } from './App';
 import { kindAndName, savedText } from './deploy';
-import { when } from './when';
+import { shortDate, when } from './when';
 import { untilTime } from '../lib/notice.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
 import { browserLocale, locale, localeName, locales, savedLocale, setLocale, siteLocale, siteT, siteText, t, type Locale } from './i18n';
@@ -1035,12 +1035,6 @@ function savedSort(c: Collection, sorts: Sort[], first: Sort): Sort {
 // "i dag kl. 13.42" as "I dag kl. 13.42", alone on its line.
 const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
 
-// "2023-10-01" as "1. okt. 2023" (in the editor's language).
-const date = (iso: string) =>
-  /^\d{4}-\d{2}-\d{2}$/.test(iso)
-    ? new Date(`${iso}T12:00`).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })
-    : iso;
-
 export function List({ collection, tab, files, env }: { collection: Collection; tab?: string; files: RepoFile[]; env: Env }) {
   // The kinds a new entry can be: the list's own and those of the apps installed and not turned off (apps.ts).
   const kinds = collection.kind === 'folder' ? kindsOffered(collection, apps, installedApps(files), offBlocks(files)) : [];
@@ -1309,7 +1303,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
               ) : (
                 <>
                   <Status item={item} />
-                  {collection.id === 'blog' ? date(item.detail) : item.detail}
+                  {collection.id === 'blog' ? shortDate(item.detail) : item.detail}
                 </>
               )}
             </Under>

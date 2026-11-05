@@ -42,4 +42,6 @@ export const text = {
   hiddenOnPage: 'Hidden on the page',
   showOnPage: 'Show on the page',
   hideOnPage: 'Hide on the page',
+  /** Shown in an empty line of the text, under the pointer or the cursor. */
+  typeHere: 'Start typing… Make your first heading count, because it becomes the H1 that readers and search engines see first.',
 };

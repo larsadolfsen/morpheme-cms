@@ -42,6 +42,8 @@
 // them (bottomSheetFullClass: as high as the screen, a whole page in it), with the container and its header
 // (BottomSheetHeader, whose handle is a button there, `onHandle`, named `handleLabel`, and whose close button does
 // `onClose`).
+// Other attributes (data-…, as the action bar's data-action-bar) go on the container, as Toolbar's do on it, and `className`
+// after its own classes.
 // How it looks is the theme's (--bottom-sheet-*).
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { useOnSite } from '@morphemecms/cms/src/standard/view';
@@ -183,6 +185,7 @@ export default function BottomSheet({
   height,
   className,
   children,
+  ...rest
 }: {
   state?: BottomSheetState;
   states?: [BottomSheetState, ...BottomSheetState[]];
@@ -195,7 +198,8 @@ export default function BottomSheet({
   height?: string;
   className?: string;
   children: ReactNode;
-} & BottomSheetKindWide &
+} & Record<`data-${string}`, unknown> &
+  BottomSheetKindWide &
   BottomSheetName &
   BottomSheetResize) {
   const shownState = state ?? startState(states);
@@ -223,6 +227,7 @@ export default function BottomSheet({
       data-state={standard ? shownState : undefined}
       data-states={standard && states ? states.join(' ') : undefined}
       style={height ? { height } : undefined}
+      {...rest}
     >
       <BottomSheetHeader
         headline={headline}
