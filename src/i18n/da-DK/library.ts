@@ -106,8 +106,8 @@ export const library: Messages['library'] = {
   statusShown: { all: 'Alle', published: 'Udgivet', draft: 'Kladde', unlisted: 'Skjult', scheduled: 'Planlagt' },
   sort: 'Sortér',
   sorts: {
-    nyeste: 'Nyeste først',
-    aeldste: 'Ældste først',
+    newest: 'Nyeste først',
+    oldest: 'Ældste først',
     az: 'A–Å',
     za: 'Å–A',
     savedNewest: 'Senest ændret først',

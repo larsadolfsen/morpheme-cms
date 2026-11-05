@@ -118,7 +118,7 @@ const GROUPS = (['buttons', 'fields', 'choices', 'lists', 'sheets', 'messages', 
 }));
 
 export default function Parts({ env }: { env: Env }) {
-  const [sort, setSort] = useState('nyeste');
+  const [sort, setSort] = useState('newest');
   const [filter, setFilter] = useState('');
   const [content, setContent] = useState('');
   const [picked, setPicked] = useState('a');
@@ -327,8 +327,8 @@ export default function Parts({ env }: { env: Env }) {
                     value={sort}
                     disabled={asMenu}
                     options={[
-                      { value: 'nyeste', label: sample.newest },
-                      { value: 'aeldste', label: sample.oldest },
+                      { value: 'newest', label: sample.newest },
+                      { value: 'oldest', label: sample.oldest },
                     ]}
                     onChange={setSort}
                   />
@@ -534,8 +534,8 @@ export default function Parts({ env }: { env: Env }) {
                   icon={ArrowsDownUp}
                   value={sort}
                   options={[
-                    { value: 'nyeste', label: sample.newest },
-                    { value: 'aeldste', label: sample.oldest },
+                    { value: 'newest', label: sample.newest },
+                    { value: 'oldest', label: sample.oldest },
                   ]}
                   onChange={setSort}
                 />
@@ -572,8 +572,8 @@ export default function Parts({ env }: { env: Env }) {
                   search={t.common.search}
                   value={sort}
                   options={[
-                    { value: 'nyeste', label: sample.newest },
-                    { value: 'aeldste', label: sample.oldest },
+                    { value: 'newest', label: sample.newest },
+                    { value: 'oldest', label: sample.oldest },
                   ]}
                   onChange={setSort}
                 />

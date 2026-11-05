@@ -1096,7 +1096,7 @@ const PAGE_STATES: PageState[] = ['published', 'draft', 'unlisted', 'scheduled']
  * menu links to it and its date. */
 export type Pickable = { value: string; label: string; state?: PageState; inMenu?: boolean; date?: string };
 
-type PickSort = 'nyeste' | 'aeldste' | 'az' | 'za';
+type PickSort = 'newest' | 'oldest' | 'az' | 'za';
 type InMenu = '' | 'in' | 'out';
 
 /** The order and the filters of a sheet of choices (PagePicker, MultiChoice), as over the lists: the arrows with A–Å and
@@ -1106,7 +1106,7 @@ type InMenu = '' | 'in' | 'out';
  * and `arrange` orders and filters choices. */
 export function usePickTools(all: Pickable[], keep: string) {
   const dated = all.some((o) => o.date);
-  const sorts: PickSort[] = dated ? ['nyeste', 'aeldste', 'az', 'za'] : ['az', 'za'];
+  const sorts: PickSort[] = dated ? ['newest', 'oldest', 'az', 'za'] : ['az', 'za'];
   const sortKey = `editor-sort-valg-${keep}`;
   const [savedSort, setSort] = useState<PickSort | null>(() => {
     try {
@@ -1151,8 +1151,8 @@ export function usePickTools(all: Pickable[], keep: string) {
 
   const byDate = (a: Pickable, b: Pickable) => (b.date ?? '').localeCompare(a.date ?? '');
   const compare: Record<PickSort, (a: Pickable, b: Pickable) => number> = {
-    nyeste: (a, b) => byDate(a, b) || byText(a.label, b.label),
-    aeldste: (a, b) => byDate(b, a) || byText(a.label, b.label),
+    newest: (a, b) => byDate(a, b) || byText(a.label, b.label),
+    oldest: (a, b) => byDate(b, a) || byText(a.label, b.label),
     az: (a, b) => byText(a.label, b.label),
     za: (a, b) => byText(b.label, a.label),
   };

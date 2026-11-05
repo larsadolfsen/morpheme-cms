@@ -1006,16 +1006,16 @@ const saved = new Map<string, { oid: string; date: Date }>();
 
 // The ways a list can be sorted; by time only where the entries have one: blog posts by their date,
 // pages by when they were last saved; by their kind where they have kinds (Promovering).
-type Sort = 'nyeste' | 'aeldste' | 'az' | 'za' | 'type';
+type Sort = 'newest' | 'oldest' | 'az' | 'za' | 'type';
 const sortLabel = (c: Collection, s: Sort) => {
   const { sorts } = t.library;
-  return c.id === 'pages' && s === 'nyeste' ? sorts.savedNewest : c.id === 'pages' && s === 'aeldste' ? sorts.savedOldest : sorts[s];
+  return c.id === 'pages' && s === 'newest' ? sorts.savedNewest : c.id === 'pages' && s === 'oldest' ? sorts.savedOldest : sorts[s];
 };
 
 const byTitle = (a: Item, b: Item) => byText(a.title, b.title);
 const compare: Record<Sort, (a: Item, b: Item) => number> = {
-  nyeste: (a, b) => (b.date ?? '').localeCompare(a.date ?? '') || byTitle(a, b),
-  aeldste: (a, b) => (a.date ?? '').localeCompare(b.date ?? '') || byTitle(a, b),
+  newest: (a, b) => (b.date ?? '').localeCompare(a.date ?? '') || byTitle(a, b),
+  oldest: (a, b) => (a.date ?? '').localeCompare(b.date ?? '') || byTitle(a, b),
   az: byTitle,
   za: (a, b) => byTitle(b, a),
   type: (a, b) => byText(a.kind ?? '', b.kind ?? '') || byTitle(a, b),
@@ -1060,7 +1060,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
     collection.kind === 'files' || (collection.kind === 'folder' && collection.orderable) || items.length < 2
       ? []
       : collection.id === 'blog' || pages
-        ? ['nyeste', 'aeldste', 'az', 'za']
+        ? ['newest', 'oldest', 'az', 'za']
         : collection.kind === 'folder' && collection.kinds
           ? ['az', 'za', 'type']
           : ['az', 'za'];

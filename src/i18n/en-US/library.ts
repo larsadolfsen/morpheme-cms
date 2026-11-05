@@ -144,8 +144,8 @@ export const library = {
   statusShown: { all: 'All', published: 'Published', draft: 'Draft', unlisted: 'Hidden', scheduled: 'Scheduled' },
   sort: 'Sort',
   sorts: {
-    nyeste: 'Newest first',
-    aeldste: 'Oldest first',
+    newest: 'Newest first',
+    oldest: 'Oldest first',
     az: 'A–Z',
     za: 'Z–A',
     /** The pages, by when they were last saved. */
