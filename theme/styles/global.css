@@ -752,7 +752,8 @@
   }
 
   /* An M3 side sheet's headline in on-surface-variant. */
-  .side-sheet-headline {
+  .side-sheet-headline,
+  .bottom-sheet-container[data-wide='side-sheet'] .bottom-sheet-headline {
     color: var(--muted);
   }
 
