@@ -194,6 +194,8 @@
   /* Cards (ui.css): 12px corners; outlined on the surface with the outline variant, elevated on a low container with
      the first elevation, filled on the highest container. */
   --card-radius: var(--md-shape-medium);
+  /* The room between cards side by side or under each other: 8px (Material 3's at most). */
+  --card-gap: 0.5rem;
   --card-filled-surface: var(--md-surface-container-highest);
   --card-outlined-surface: var(--surface);
   --card-outlined-line: var(--line);

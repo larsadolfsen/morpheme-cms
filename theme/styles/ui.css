@@ -2049,6 +2049,7 @@
   .card-dragged while it is dragged to another place. What is on it (its icon, heading, text, picture) is the block's
   own (block-…).
     --card-radius, --card-padding   its corners and the room inside it (16px, as Material 3's)
+    --card-gap                      the room between cards (8px; the grid or list of cards sets it as its gap)
     --card-<kind>-surface, --card-<kind>-line, --card-<kind>-shadow   each kind's surface, its edge (a 1px line inside
                                     it, transparent for none) and its shadow (0 0 #0000 for none): elevated level 1,
                                     filled and outlined level 0
