@@ -251,9 +251,8 @@ export function kindsOffered(
 export const tabsOf = (list: string, apps: SiteApp[], installed: string[]) =>
   apps.flatMap((app) => (installed.includes(app.id) && app.tabs?.[list] ? [{ app, tab: app.tabs[list] }] : []));
 
-/** The id of an app from the path of a file in its folder ("/src/apps/mailchimp/index.ts": "mailchimp",
- * also ".../apps/mailchimp/popups/View.tsx"). */
-export const appIdOf = (path: string) => path.split('/apps/')[1].split('/')[0];
+// The id of an app from the path of a file in its folder (lib/appId.mjs, also read by the @app/self plugin).
+export { appIdOf } from '../lib/appId.mjs';
 
 /** The file of an app's settings (config.apps.settings/<id>.json). */
 export const settingsFile = (id: string) => `${config.apps.settings}/${id}.json`;
