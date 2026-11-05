@@ -215,6 +215,12 @@
   --type-label-small-line-height: 1rem;
   --type-label-small-weight: 500;
   --type-label-small-tracking: 0.03125rem;
+  /* The lead (an intro paragraph: type-lead, a blog post's first paragraph, a single page's first paragraph). Each is the
+     title large's; a theme sets these four to change every lead. */
+  --type-lead-size: var(--type-title-large-size);
+  --type-lead-line-height: var(--type-title-large-line-height);
+  --type-lead-weight: var(--type-title-large-weight);
+  --type-lead-tracking: var(--type-title-large-tracking);
 }
 /* A role as a utility, for a theme's own components and layouts: type-title-large, medium:type-headline-small … */
 @utility type-display-large {
@@ -258,6 +264,12 @@
   line-height: var(--type-title-large-line-height);
   font-weight: var(--type-title-large-weight);
   letter-spacing: var(--type-title-large-tracking);
+}
+@utility type-lead {
+  font-size: var(--type-lead-size);
+  line-height: var(--type-lead-line-height);
+  font-weight: var(--type-lead-weight);
+  letter-spacing: var(--type-lead-tracking);
 }
 @utility type-title-medium {
   font-size: var(--type-title-medium-size);

@@ -3,6 +3,9 @@
 // with the block src/data/side.json chooses in a column beside it (sideBlock) when its template is a sidebar one
 // (`template`, lib/page-template.mjs: the theme's "templates"), and the booking prompt across the page when the text ends
 // with it. The wrapper carries data-template, so a theme can style a template; `full` is drawn like `single` here.
+// Width: with a column beside it the text is 66ch wide, blocks and all; without one (single, full) the text column is the
+// container's width, its blocks (not-prose) span it, and its other parts (paragraphs, headings) keep 66ch. Its first
+// paragraph is the lead (type-lead, ui.css: the --type-lead-* tokens), muted and 52ch wide.
 // data-editor marks what the editor's preview fills in with what is in its form ("Forhåndsvis",
 // packages/editor/src/pagePreview.tsx): the heading, the text, and the booking prompt at the end.
 import Base from '@theme/layouts/Base.astro';
@@ -106,7 +109,14 @@ const side =
 
     <Container as="div" class="mt-8 medium:mt-12">
       <div {...(side ? { class: 'page-with-side', 'data-side': template === 'sidebar-left' ? 'left' : 'right' } : {})}>
-        <div data-editor="text" class="prose max-w-[66ch]">
+        <div
+          data-editor="text"
+          class={
+            side
+              ? 'prose max-w-[66ch]'
+              : 'prose max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:type-lead [&>p:first-child]:text-muted [&>p:first-child]:max-w-[52ch]'
+          }
+        >
           <RichText html={sideText} path={current} preview={preview} />
         </div>
         {side && (
