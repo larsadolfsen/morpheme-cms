@@ -477,10 +477,10 @@ function StoreScreen({ env, files, tab, again }: { env: Env; files: RepoFile[]; 
   const catalog = useCatalog(env);
   const themeCatalog = useThemeCatalog(env);
   const connected = useStoreConnected(env);
-  const [query, setQuery] = useKept('butik-soeg', '');
+  const [query, setQuery] = useKept('store-search', '');
   const [sort, pickSort] = useSort();
-  const [category, setCategory] = useKept<AppCategory | ''>('butik-kategori', '');
-  const [state, setState] = useKept<'' | 'installed' | 'notInstalled'>('butik-status', '');
+  const [category, setCategory] = useKept<AppCategory | ''>('store-category', '');
+  const [state, setState] = useKept<'' | 'installed' | 'notInstalled'>('store-status', '');
   const apps = tab === 'apps';
   const read = apps ? catalog : themeCatalog;
 

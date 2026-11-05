@@ -17,7 +17,7 @@ test('an address that has not moved stays', () => {
 });
 
 test('the extra moves come first', () => {
-  assert.equal(movedRoute('butik', { butik: 'indstillinger/appstore' }), 'indstillinger/appstore');
+  assert.equal(movedRoute('butik', { butik: 'settings/appstore' }), 'settings/appstore');
   assert.equal(movedRoute('tema', { butik: 'x' }), 'appearance');
 });
 
