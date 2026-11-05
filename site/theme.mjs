@@ -11,7 +11,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { svgParts } from '@morphemecms/cms/lib/svg.mjs';
 import { declarationProblems, ownerId } from '@morphemecms/cms/lib/licenses.mjs';
 import { installedPacks, isIconName, packFolder, packProblems, phosphorFile, svgProblems, usedIcons } from './icons.mjs';
-import { MATERIAL_SSR, materialSsrModule } from './materialSymbols.mjs';
+import { MATERIAL_ALL, MATERIAL_SSR, materialModule, materialSsrModule } from './materialSymbols.mjs';
 import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS, THEME_PACKS_FOLDER, packInUse, packTheme, themePackId } from './iconPacks.mjs';
 import { MOTION_SCHEMES } from '@morphemecms/cms/lib/motion-schemes.mjs';
 import { storeImportProblems } from './storeTheme.mjs';
@@ -227,6 +227,7 @@ const PHOSPHOR_REACT = '@phosphor-icons/react';
 const PHOSPHOR_FILE = /@phosphor-icons\/core\/assets\/(?:regular|fill)\/([a-z0-9-]+)\.svg\?raw$/;
 const REACT_ICONS = '\0site-theme-icons';
 const FILE_ICON = '\0site-theme-icon:';
+const MATERIAL_ALL_ID = `\0${MATERIAL_ALL}`;
 const MATERIAL_SSR_ID = `\0${MATERIAL_SSR}`;
 
 /** The React component's name of a Phosphor icon by its file's name (`caret-right` → CaretRight), when Phosphor has it. */
@@ -471,6 +472,7 @@ export function themePlugin() {
       // The theme's icons import Phosphor's own.
       if (source === PHOSPHOR_REACT) return own && importer !== REACT_ICONS ? REACT_ICONS : null;
       if (source === ALL_ICONS) return '\0' + ALL_ICONS;
+      if (source === MATERIAL_ALL) return MATERIAL_ALL_ID;
       if (source === MATERIAL_SSR) return MATERIAL_SSR_ID;
       const icon = source.match(PHOSPHOR_FILE)?.[1];
       if (icon) return svgParts(icons[icon]) ? FILE_ICON + icon : null;
@@ -485,6 +487,7 @@ export function themePlugin() {
       return null;
     },
     load(id, options) {
+      if (id === MATERIAL_ALL_ID) return materialModule();
       if (id === MATERIAL_SSR_ID) return materialSsrModule(options?.ssr);
       if (id === REACT_ICONS) return reactIcons(icons);
       if (id === '\0' + ALL_ICONS)
