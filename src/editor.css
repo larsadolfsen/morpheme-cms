@@ -37,13 +37,14 @@
   --editor-section-rhythm: 0.625em;
 
   /* A form's "on this page" area (SectionPane in ui.tsx) against the window's end edge: its width (the card is as wide as the navigation drawer), the card in it
-     stands --section-pane-gap in from the end edge and from under the top bar. */
+     stands --section-pane-gap in from the end edge and from the window's top edge. */
   --section-pane-width: calc(var(--navigation-drawer-width, 22.5rem) + var(--section-pane-gap));
   --section-pane-gap: 2rem;
 
-  /* The side panel of a block's fields and the section settings (BottomSheet `panel` in ui.tsx) on large and wider: half the
-     space beside the start panel, the content column taking the other half (see below). */
-  --side-panel-width: calc((100vw - var(--column-start)) / 2);
+  /* The side panel of a block's fields and the section settings (BlockDialog's standard side sheet from expanded, BottomSheet
+     `panel` in ui.tsx from large): M3's side sheet is 400dp (25rem) wide at most; where the window is narrower it is half
+     the space beside the start panel, the content column taking the other half (see below). */
+  --side-panel-width: min(25rem, calc((100vw - var(--column-start)) / 2));
 }
 
 /* In dark mode the score's number in the light colours, which are read on the dark, and Google's dark colours. */
@@ -465,8 +466,8 @@
    not less than nothing and not more than the space left between the panels less the column. Only when that space is
    smaller than the column does it get narrower. (Measured against the window's width, 100vw, scrollbar and all.) Below
    medium nothing stands beside the content and the column is centred by auto margins. While the side panel is open (see
-   the end of this block) the panel takes the end half of the space beside the start panel and the column the other half:
-   --column-width stays the column's most, so on a very wide window it is narrower than its half. */
+   the end of this block) the column is centred in the space between the start panel and the side panel by auto margins
+   (the content's end padding keeps it clear of the panel), still no wider than --column-width. */
 :root {
   --column-start: 0px;
   --column-end: 0px;
@@ -508,25 +509,26 @@
     right: var(--section-pane-width);
   }
 
-  /* BottomSheet's `panel` (.editor-side-panel): the theme's modal side sheet at the window's end edge under the top bar,
-     the full remaining height; its backdrop is clear. */
+  /* BottomSheet's `panel` (.editor-side-panel): the theme's modal side sheet at the window's end edge, the full window
+     height like the standard one; its backdrop is clear. */
   .editor-side-panel {
-    inset: var(--top-bar-height) 0 0 auto;
+    inset: 0 0 0 auto;
     width: var(--side-panel-width);
-    height: calc(100dvh - var(--top-bar-height));
+    height: 100dvh;
   }
   .editor-side-panel:dir(rtl) {
-    inset: var(--top-bar-height) auto 0 0;
+    inset: 0 auto 0 0;
   }
   .editor-side-panel::backdrop {
     background: transparent;
   }
 }
 
-/* The block dialog's standard side sheet (.editor-side-sheet: BlockDialog.tsx, not modal, from medium) stands at the window's
-   end edge under the top bar, the full remaining height. BlockDialog.tsx sets [data-side-panel] on the root while it is
-   open: it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
-@media (width >= theme(--breakpoint-medium)) {
+/* The block dialog's standard side sheet (.editor-side-sheet: BlockDialog.tsx, not modal, from expanded) stands at the window's
+   end edge from the top of the window to its bottom (M3), with its divider the whole height. BlockDialog.tsx sets
+   [data-side-panel] on the root while it is open: the top bar (.editor-top-bar-slot, topBarSlot.tsx) ends at the sheet's
+   start edge, it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
+@media (width >= theme(--breakpoint-expanded)) {
   :root[data-side-panel] {
     --column-end: var(--side-panel-width);
   }
@@ -536,19 +538,25 @@
   :root[data-side-panel] .editor-content {
     padding-inline-end: var(--side-panel-width);
   }
+  :root[data-side-panel] .editor-column {
+    margin-inline: auto;
+  }
   :root[data-side-panel] .editor-save-bar {
     right: var(--side-panel-width);
   }
   .editor-side-sheet {
     position: fixed;
-    inset: var(--top-bar-height) 0 0 auto;
+    inset: 0 0 0 auto;
     z-index: 20;
     width: var(--side-panel-width);
     max-width: none;
-    height: calc(100dvh - var(--top-bar-height));
+    height: 100dvh;
   }
   .editor-side-sheet:dir(rtl) {
-    inset: var(--top-bar-height) auto 0 0;
+    inset: 0 auto 0 0;
+  }
+  :root[data-side-panel] .editor-top-bar-slot {
+    padding-inline-end: var(--side-panel-width);
   }
 }
 
