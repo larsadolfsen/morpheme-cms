@@ -40,8 +40,7 @@ const listedPost = (p: Post): ListedPost => ({
 
 let pages: Promise<Map<string, Page>> | undefined;
 let tagPages: Promise<Set<string>> | undefined;
-const byPath = () =>
-  (pages ??= getPages().then((all) => new Map(all.map((p) => [p.data.path, p]))));
+const byPath = () => (pages ??= getPages().then((all) => new Map(all.map((p) => [p.data.path, p]))));
 
 export const standard: StandardSite = {
   texts: blockTexts,
@@ -55,16 +54,12 @@ export const standard: StandardSite = {
   // Its heading; a page built in code (such as /kontakt/) by its name in the menu.
   async pageName(href) {
     const page = (await byPath()).get(href);
-    return (
-      page ? pageHeading(page) : nav.flatMap((n) => [n, ...(n.children ?? [])]).find((n) => n.href === href)?.label ?? href
-    );
+    return page ? pageHeading(page) : (nav.flatMap((n) => [n, ...(n.children ?? [])]).find((n) => n.href === href)?.label ?? href);
   },
   // Its title, as in the menu and the lists of pages; a page built in code by its name in the menu.
   async pageTitle(href) {
     const page = (await byPath()).get(href);
-    return page
-      ? displayTitle(page.data.title)
-      : nav.flatMap((n) => [n, ...(n.children ?? [])]).find((n) => n.href === href)?.label;
+    return page ? displayTitle(page.data.title) : nav.flatMap((n) => [n, ...(n.children ?? [])]).find((n) => n.href === href)?.label;
   },
   // "Book an appointment" opens the booking sheet on the page (`data-open="booking"`, the app Calendly's), and
   // goes to the booking page without one there; "Call" has the number after its text.
@@ -102,11 +97,7 @@ export const standard: StandardSite = {
       return { posts: posts.map(listedPost), random };
     },
     async list(categories) {
-      return (
-        await getPosts()
-      )
-        .filter((p) => !categories.length || p.data.categories.some((c) => categories.includes(c)))
-        .map(listedPost);
+      return (await getPosts()).filter((p) => !categories.length || p.data.categories.some((c) => categories.includes(c))).map(listedPost);
     },
     // A tag's page when the posts are from one blog tag (or one is picked for the link), else the blog.
     all(choice) {
