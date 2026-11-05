@@ -14,6 +14,7 @@ import { installedPacks, isIconName, packFolder, packProblems, phosphorFile, svg
 import { MATERIAL_ALL, MATERIAL_SSR, materialModule, materialSsrModule } from './materialSymbols.mjs';
 import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS, THEME_PACKS_FOLDER, packInUse, packTheme, themePackId } from './iconPacks.mjs';
 import { MOTION_SCHEMES } from '@morphemecms/cms/lib/motion-schemes.mjs';
+import { templateProblems } from '@morphemecms/cms/lib/page-template.mjs';
 import { storeImportProblems } from './storeTheme.mjs';
 
 /** The site's choice of icon pack, `{ "pack": "<id>" }` (config.icons in src/site/config.ts). */
@@ -400,6 +401,8 @@ export function themeProblems(theme) {
       problems.push(
         `${themeFolder(theme)}/theme.json: "motion" er den bevægelse, temaet bruger, når ingen er valgt: ${MOTION_SCHEMES.map((s) => `"${s}"`).join(', ')}.`,
       );
+    // The page templates it offers (lib/page-template.mjs); without the key, the standard theme's list.
+    for (const p of templateProblems(manifest.templates)) problems.push(`${themeFolder(theme)}/theme.json: ${p}`);
     // Its own licence and the licences of what it brings (fonts, code, pictures), for "Licenser" and the store.
     problems.push(
       ...declarationProblems({
