@@ -11,16 +11,23 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const npm = process.env.npm_execpath ? [process.execPath, process.env.npm_execpath] : ['npm'];
 
 // The package in node_modules/@morphemecms/cms/, as a site has it from npm: the demo's astro.config.mjs, its Worker and
-// demo-site.mjs import it by that name. A copy of the files npm would pack, not a link to this folder, which holds
-// node_modules/ itself: a recursive readdirSync (usedIcons in site/icons.mjs) follows the link round and round.
+// demo-site.mjs import it by that name. A copy of the files npm packs, with their types (the .d.mts files of prepack,
+// written for the copy only), not a link to this folder, which holds node_modules/ itself: a recursive readdirSync
+// (usedIcons in site/icons.mjs) follows the link round and round.
 const self = join(root, 'node_modules/@morphemecms/cms');
-const [{ files }] = JSON.parse(
-  execFileSync(npm[0], [...npm.slice(1), 'pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: root, encoding: 'utf8' }),
-);
-rmSync(self, { recursive: true, force: true });
-for (const { path } of files) {
-  mkdirSync(dirname(join(self, path)), { recursive: true });
-  cpSync(join(root, path), join(self, path));
+const types = (arg) => execFileSync(process.execPath, [join(root, 'scripts/types.mjs'), ...arg], { cwd: root, stdio: 'inherit' });
+types(['write']);
+try {
+  const [{ files }] = JSON.parse(
+    execFileSync(npm[0], [...npm.slice(1), 'pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: root, encoding: 'utf8' }),
+  );
+  rmSync(self, { recursive: true, force: true });
+  for (const { path } of files) {
+    mkdirSync(dirname(join(self, path)), { recursive: true });
+    cpSync(join(root, path), join(self, path));
+  }
+} finally {
+  types([]);
 }
 const { demoSite } = await import('./demo-site.mjs');
 
