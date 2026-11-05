@@ -12,6 +12,14 @@ export const forms = {
    * to it looks (SharePreview in ui.tsx). */
   share: 'Social media',
   sharePreview: 'How a link to the page looks when it is shared',
+  /** The preview of the Google result at the top of "Søgemaskiner" (SearchPreview.tsx): the name of its tabs, the tabs and
+   * what a screen reader says of the result. */
+  searchPreview: {
+    on: 'Google result on',
+    mobile: 'Mobile',
+    desktop: 'Desktop',
+    result: 'Preview of the Google result',
+  },
   /** What a tag's page says about itself when it is shared without a Google description (the site's text, Category.astro). */
   tagShared: (n: number, name: string) => `${n} ${n === 1 ? 'post' : 'posts'} about ${name.toLowerCase()}.`,
   /** The SEO rating at the top of "Søgemaskiner" (seo.ts): its heading and what each check says; `post`: a
