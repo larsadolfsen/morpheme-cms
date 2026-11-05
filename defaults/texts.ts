@@ -15,7 +15,7 @@ export const texts: Record<string, Record<string, string>> = {
     'Nyt blogindlæg': 'New blog post',
     Titel: 'Title',
     Dato: 'Date',
-    Adresse: 'Address',
+    Adresse: 'URL',
     'Kort beskrivelse': 'Short description',
     Tags: 'Tags',
     'Opret et tag': 'Create a tag',

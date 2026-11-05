@@ -34,6 +34,8 @@ import { isOver } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
 import { asStandardTemplate, blockProblems, notOffered, siteBlocks } from './registry';
 import { FieldInput, Fields, useWrongField, WrongField, type FieldContext } from './fields';
+import { SearchPreview } from './SearchPreview';
+import { searchedAs } from './googleResult.mjs';
 import { CheckList, FoldSection, FormColumns, type NavigationItem, SectionList, SectionPane, SharePreview, useInView } from './ui';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
 import { usePagePreview } from './pagePreview';
@@ -286,18 +288,27 @@ function Form({
   // The link as it is shared: as Base.astro writes it, from a page's H1 (pageH1) or a post's title, and its picture
   // (a post's "Billede øverst", else the first in the text; a page has its pictures in its text, and the front page shows
   // the site's picture, as Home.astro).
-  const card = sharedAs({
+  const shared = {
     title: (!post && pageH1(body).heading) || String(values.title ?? ''),
     front,
     seoTitle: String(values.seoTitle ?? ''),
     seoDescription: String(values.seoDescription ?? ''),
+    description: String(values.description ?? ''),
+    site: sharing,
+  };
+  const card = sharedAs({
+    ...shared,
     shareTitle: String(values.shareTitle ?? ''),
     shareDescription: String(values.shareDescription ?? ''),
     shareImage: String(values.shareImage ?? ''),
-    description: String(values.description ?? ''),
     image: front ? undefined : String(values.image ?? '') || firstPicture(body),
-    site: sharing,
   });
+  // The Google result (SearchPreview), at the address the page or post has now: the one typed in "Adresse" or, for a new
+  // one without, /<title>/, as "Gem" works it out; the front page is at /.
+  const result = searchedAs(shared);
+  const resultPath = front
+    ? '/'
+    : addressOf(String(values.path ?? ''), post ? 'post' : 'page') || (isNew ? `/${slugify(String(values.title ?? ''))}/` : url);
 
   // A picture is kept in the browser until "Gem", which uploads it with the page. A file in Filer the page refers to
   // now and did not in its last saved version (a picture, a PDF field, a link) gets the page's tags at "Gem" (autoTags.mjs).
@@ -663,6 +674,14 @@ function Form({
                   <FoldSection {...sectionProps('seo')}>
                     <div ref={seoBox} className="space-y-6">
                       {rating.length > 0 && <CheckList title={t.forms.seoRating.title} items={rating} />}
+                      <SearchPreview
+                        domain={config.domain}
+                        path={resultPath}
+                        siteName={sharing.name}
+                        title={result.title}
+                        description={result.description}
+                        date={post ? String(values.date ?? '') : undefined}
+                      />
                       {collection.fields.filter(inSection('seo')).map(field)}
                     </div>
                   </FoldSection>
