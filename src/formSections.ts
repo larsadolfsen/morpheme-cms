@@ -1,16 +1,19 @@
 // The sections of a long form, under each other on one page, each folding in and out under its heading (FoldSection in
 // ui.tsx), with their "on this page" list (SectionList, large and wider): which are open, the one in view (marked in the
-// list while the page scrolls), and a tap in the list, which opens one and scrolls to it. Exposes useFormSections. Used by
-// EntryForm.tsx. Uses lib/section-in-view.mjs.
+// list while the page scrolls), and a tap in the list, which opens one and scrolls to it. With `single` only one is open
+// at a time: opening one folds the others (the settings screens on a phone, SettingsSections.tsx). Exposes
+// useFormSections. Used by EntryForm.tsx and SettingsSections.tsx. Uses lib/section-in-view.mjs and lib/fold-open.mjs.
 import { useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { NavigationItem } from './ui';
 import { sectionInView, spyLine } from '../lib/section-in-view.mjs';
+import { onlyFirst, withOpen } from '../lib/fold-open.mjs';
 
 const scrolling = (): ScrollBehavior => (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
 
-/** `sections`: the form's sections, in their order; `start`: those open from the start (the first marked in the list). */
-export function useFormSections<S extends string>(sections: NavigationItem[], start: S[]) {
+/** `sections`: the form's sections, in their order; `start`: those open from the start (the first marked in the list);
+ * `single`: only one open at a time. */
+export function useFormSections<S extends string>(sections: NavigationItem[], start: S[], single = false) {
   // The section in view, marked in the sections list: while the page scrolls, the last one whose top is above a third of the
   // screen (at the bottom of the page, the last one in view). A tap in the list marks its own and scrolls there; the
   // mark stays meanwhile (`steering`, until the scroll ends).
@@ -25,11 +28,15 @@ export function useFormSections<S extends string>(sections: NavigationItem[], st
     steering.current = performance.now() + 1500;
     addEventListener('scrollend', () => (steering.current = 0), { once: true });
   };
-  const [open, setOpen] = useState<ReadonlySet<S>>(() => new Set(start));
-  const opened = (was: ReadonlySet<S>, id: S): ReadonlySet<S> => (was.has(id) ? was : new Set([...was, id]));
+  const [open, setOpen] = useState<ReadonlySet<S>>(() => new Set(single ? start.slice(0, 1) : start));
+  const opened = (was: ReadonlySet<S>, id: S) => withOpen(was, id, single);
   const unfold = (id: S) => setOpen((was) => opened(was, id));
+  // The window narrowed to `single`: only the first of those open stays open.
+  useEffect(() => {
+    if (single) setOpen((was) => onlyFirst(was, order.current));
+  }, [single]);
   // A section opened by its heading is marked in the sections list; one folded, the one in view now (the page is shorter,
-  // without a scroll).
+  // without a scroll). With `single`, one whose heading went up out of view as the one above it folded is scrolled to.
   const toggle = (id: S) => {
     const opening = !open.has(id);
     setOpen((was) => {
@@ -40,6 +47,11 @@ export function useFormSections<S extends string>(sections: NavigationItem[], st
     });
     if (opening) setSection(id);
     else requestAnimationFrame(() => spy.current());
+    if (opening && single)
+      requestAnimationFrame(() => {
+        const box = boxes.current[id];
+        if (box && box.getBoundingClientRect().top < 0) box.scrollIntoView({ block: 'start', behavior: scrolling() });
+      });
   };
   useEffect(() => {
     let frame = 0;
