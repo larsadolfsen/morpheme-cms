@@ -275,7 +275,7 @@ function Form({
       cancelAnimationFrame(frame);
     };
   }, []);
-  // Opens a section and scrolls to it (or to `box` in it: the text), . It is opened at once (flushSync), so it is there to scroll to.
+  // Opens a section and scrolls to it (or to `box` in it: the text). It is opened at once (flushSync), so it is there to scroll to.
   const textBox = useRef<HTMLDivElement>(null);
   const goTo = (id: Section, box?: HTMLElement | null) => {
     if (!open.has(id)) flushSync(() => unfold(id));
