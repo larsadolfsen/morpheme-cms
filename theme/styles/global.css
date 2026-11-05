@@ -854,23 +854,17 @@
   }
 
   /* "Kort": filled cards, as Material 3's (their outlined cards on the highest container, without the edge or a
-     shadow, also when pointed at), with a state layer when pointed at. */
+     shadow, also when pointed at), with the card's state layer (ui.css) when pointed at or focused. */
   .block-card {
     border: 0;
     --card-outlined-surface: var(--md-surface-container-highest);
     --card-outlined-hover-shadow: var(--elevation-0);
-    transition: background-color var(--motion-effects);
   }
   .block-card-picture {
     border-radius: var(--card-radius) var(--card-radius) var(--md-shape-none) var(--md-shape-none);
   }
   .block-card-text {
     font-weight: 400;
-  }
-  @media (hover: hover) {
-    a.block-card:hover {
-      --card-outlined-surface: color-mix(in srgb, var(--ink) 8%, var(--md-surface-container-highest));
-    }
   }
 
   /* Panels and the cards of testimonials and prices: outlined, filled and elevated cards (their variables above). A

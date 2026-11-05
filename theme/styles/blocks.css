@@ -1459,9 +1459,6 @@
   }
 
   @media (hover: hover) {
-    a.block-card:hover {
-      --card-outlined-line: var(--block-accent);
-    }
     a.block-card:hover .block-card-arrow {
       translate: 0.25rem 0;
     }
