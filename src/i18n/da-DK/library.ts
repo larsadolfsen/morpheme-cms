@@ -144,5 +144,6 @@ export const library: Messages['library'] = {
   openMenu: 'Åbn menuen',
   closeMenu: 'Luk menuen',
   mainMenu: 'Hovedmenu',
+  back: 'Tilbage',
   breadcrumbs: 'Brødkrummer',
 };
