@@ -700,6 +700,9 @@ function useStoreActions(env: Env, files: RepoFile[]) {
         env.notify(null);
         return false;
       }
+      // `go` cleared the message (and its dialog stopped the button being busy): saving goes on.
+      setRunning({ id, action, asking: false });
+      env.notify({ text: text.busy });
       const cookies = cookieChanges(id, wanted ? cookiesIn(wanted.files) : null, files);
       await saveApp(env, text.commit, text.change, [...appChanges(id, current, wanted, installed, file), ...cookies], file);
       env.notify({ text: text.done, kind: text.kind ?? 'saved' });
@@ -741,6 +744,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
         async () => ({ files: await env.store.files(app), record: recordOf(app) }),
         async (current) => {
           env.notify(null);
+          setRunning({ id: app.id, action: 'update', asking: true });
           return askUpdate(
             app.label,
             record.version,

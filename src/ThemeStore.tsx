@@ -133,6 +133,9 @@ function useThemeActions(env: Env) {
         env.notify(null);
         return false;
       }
+      // `go` cleared the message (and its dialog stopped the button being busy): saving goes on.
+      setRunning({ id, action, asking: false });
+      env.notify({ text: text.busy });
       await env.commit(text.commit, themeChanges(id, current, wanted), text.change);
       env.notify({ text: text.done, kind: 'saved' });
       return true;
@@ -181,6 +184,7 @@ function useThemeActions(env: Env) {
             env.notify({ text: t.library.themeDropsIconPack(x.name, pack.name), error: true });
             return false;
           }
+          setRunning({ id: x.id, action: 'update', asking: true });
           return askUpdate(
             x.name,
             record.version,
