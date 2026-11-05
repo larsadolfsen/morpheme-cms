@@ -8,6 +8,7 @@ import type { Icon } from '@phosphor-icons/react';
 import type { ComponentType, ReactNode } from 'react';
 import type { BlockData } from './blocks';
 import type { AppCategory } from './store';
+import type { AppPageProps } from './apps';
 import type { SiteData } from '@site/editor';
 import { locale } from './i18n';
 
@@ -76,7 +77,7 @@ export type Field = {
    * picked when it is made). */
   locked?: boolean;
   /** select: the choices on a page of their own under the form, at its address with the field's name after it
-   * (#apps/content-colors/indstillinger/variant), in place of the sheet, drawn by this with what each gives (a picture of
+   * (#apps/content-colors/settings/variant), in place of the sheet, drawn by this with what each gives (a picture of
    * it); the field links there. Only a field of a part's own form (CompanyForm.tsx: an app's settings), not one in a
    * group or a list; elsewhere the choices are in the sheet. */
   page?: ComponentType<FieldPageProps>;
@@ -161,7 +162,7 @@ export type Template = {
  * bar opens the booking sheet, as "Book en tid" does), else the entry itself opens. */
 export type Opens = { label: string; as?: string };
 
-/** A place in the editor (a route, e.g. 'virksomheden/kontakt') and the text of the link to it. */
+/** A place in the editor (a route, e.g. 'company/contact') and the text of the link to it. */
 export type Edit = { to: string; text: string };
 
 // A kind of item in a list of blocks (a fixed page's sections; in the editor cards in its text, SectionsField.tsx).
@@ -385,6 +386,10 @@ export type Part = {
   /** What the commit says was edited, in the site's language, when not its name in lower case (an
    * app's settings, AppList.tsx: "indstillinger for Mailchimp"). */
   commit?: string;
+  /** The value a save of its fields sets, said in the notice after it ("CMS-version set to 0.10.0"), asked with the saved
+   * values and the app's own addresses in the Worker (`api`); undefined, or a failure, says "CMS-version changed"
+   * (partChange.ts). An app's settings copy it from AppSettings.changedTo (AppList.tsx appSettingsPart). */
+  changedTo?: (values: Record<string, unknown>, props: AppPageProps) => Promise<string | undefined>;
   /** Parts of its own, instead of fields: a row that opens a screen with them, each at
    * #<screen>/<id>/<part> and going back to it ("Virksomheden" › "Betaling" with "Bank"). */
   parts?: Part[];

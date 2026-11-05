@@ -11,7 +11,7 @@ export default defineBlock({
   label: t.blocks.cookies.label,
   icon: Cookie,
   hint: t.blocks.cookies.hint,
-  edit: { to: `liste/${config.lists.cookies}`, text: t.blocks.cookies.edit },
+  edit: { to: `list/${config.lists.cookies}`, text: t.blocks.cookies.edit },
   fields: [],
   example: {},
 });

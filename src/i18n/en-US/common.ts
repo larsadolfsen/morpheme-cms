@@ -107,23 +107,23 @@ export const common = {
     lists: 'Lists',
     blocks: 'Block templates',
     media: 'Files',
-    /** How the site looks (#udseende, Library.tsx Theme): the theme, the colours, the logo and icon, and the site's own
+    /** How the site looks (#appearance, Library.tsx Theme): the theme, the colours, the logo and icon, and the site's own
      * parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider"). */
     appearance: 'Appearance',
-    /** The themes installed (#udseende/temaer, Library.tsx Themes), the first row under "Udseende". */
+    /** The themes installed (#appearance/themes, Library.tsx Themes), the first row under "Udseende". */
     themes: 'Themes',
-    /** The icon packs installed, to choose the one the site draws its icons with (#udseende/ikonpakker, IconPacks). */
+    /** The icon packs installed, to choose the one the site draws its icons with (#appearance/icon-packs, IconPacks). */
     iconPacks: 'Icon packs',
-    /** How the site moves, Material 3's motion schemes (#udseende/bevaegelse, MotionSchemes in Library.tsx). */
+    /** How the site moves, Material 3's motion schemes (#appearance/motion, MotionSchemes in Library.tsx). */
     motion: 'Motion',
-    /** The block drawn in a column beside the text of the pages (#udseende/sidekolonne, SideColumn.tsx). */
+    /** The block drawn in a column beside the text of the pages (#appearance/side-column, SideColumn.tsx). */
     sideColumn: 'Side column',
     colors: 'Colors',
     brand: 'Logo and icon',
     blockSettings: 'Block settings',
     /** The apps that come with the site (AppList.tsx, #apps). */
     apps: 'Apps',
-    /** The parts the editor and the site are built of (#udseende/dele: Parts.tsx, BlockParts.tsx). */
+    /** The parts the editor and the site are built of (#appearance/parts: Parts.tsx, BlockParts.tsx). */
     editorParts: 'Parts',
     /** Under Indstillinger: the redirects and the site's own parts (#seo, Library.tsx Seo). */
     seo: 'Search engine optimization',
@@ -131,9 +131,9 @@ export const common = {
     account: 'Account',
     /** The last section of the main drawer, and the first part of the path to a setting (placeOf in site.ts). */
     settings: 'Settings',
-    /** Under Indstillinger: the faster editor (#avanceret, Advanced.tsx). */
+    /** Under Indstillinger: the faster editor (#advanced, Advanced.tsx). */
     advanced: 'Advanced',
-    /** Under Indstillinger: the licences of what the site and the editor are made with (#licenser, Licenses.tsx). */
+    /** Under Indstillinger: the licences of what the site and the editor are made with (#licenses, Licenses.tsx). */
     licenses: 'Licenses',
     /** Under Indstillinger: the CMS's version and its updates (#morpheme). */
     morpheme: 'Morpheme',

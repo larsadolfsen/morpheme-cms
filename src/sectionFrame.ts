@@ -1,5 +1,5 @@
-// The dotted frame round each H2 section of a page or blog post: sets data-section-part (start, middle, end, only) and
-// data-section-color (the H2's section colour) on the top-level nodes of a section, which editor.css draws. Exposes
+// The dotted frame round each H1 or H2 section of a page or blog post: sets data-section-part (start, middle, end, only) and
+// data-section-color (the heading's section colour) on the top-level nodes of a section, which editor.css draws. Exposes
 // sectionFrame (a Milkdown plugin). Uses lib/section-ranges.mjs and src/sectionState.mjs.
 import { $prose } from '@milkdown/kit/utils';
 import type { Node } from '@milkdown/kit/prose/model';
@@ -29,7 +29,7 @@ function sectionDecorations(doc: Node): Decoration[] {
   );
 }
 
-/** on: false for a fixed page's text (MarkdownEditor's `sections`), whose H2s are the names of its sections: no frame. */
+/** on: false for a fixed page's text (MarkdownEditor's `sections`), whose headings are the names of its sections: no frame. */
 export const sectionFrame = (on: boolean) =>
   $prose(
     () =>

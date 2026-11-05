@@ -1,4 +1,4 @@
-// The notifications (#notifikationer, Notifications.tsx): what the editor and the apps have to say that is worth
+// The notifications (#notifications, Notifications.tsx): what the editor and the apps have to say that is worth
 // reading again, newest first, with when it came and the link it had. Each has a type: the editor's own (`site`: the
 // site is updated or not, `saved`: something is saved, deleted, restored or installed, `failed`: it could not be,
 // `updates`: an app from the store updated on its own, AppList.tsx autoUpdate), or

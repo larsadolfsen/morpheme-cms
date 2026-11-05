@@ -9,9 +9,7 @@
 // (siteText, @site/texts). The blocks' drawings and the commits (siteT) stay in the site's
 // language, so the site looks as it is, and the history is in one language, whoever saved.
 // A value the editor writes into content (a default text) is in the site's language too (inSiteLanguage).
-// While the standard parts move to English (docs/superpowers/plans/2026-11-04-english-source.md), the dictionary of a
-// language joins the standard parts' English -> Danish dictionary (defaults/i18n/da-DK/, for da-DK) with the apps' and the
-// site's own texts for it (joinDictionaries, lib/translate.mjs).
+// The standard parts are written in English; their Danish is in defaults/i18n/da-DK/, the default of @site/texts.
 // A language is a folder with the texts by the part of the editor they are in (en-US/index.ts). English is the
 // reference: its texts are written first (Messages is its type), and every other language translates them; a new
 // one is a copy of da-DK with its texts translated from en-US, added to `messages`. TypeScript says when a
@@ -20,8 +18,7 @@ import { config } from '@site/config';
 import { appTexts as appFiles, texts } from '@site/texts';
 import { daDK } from './da-DK';
 import { enUS, type Messages } from './en-US';
-import { defaultsDaDK } from '../../defaults/i18n/da-DK';
-import { joinDictionaries, translate } from '../../lib/translate.mjs';
+import { translate } from '../../lib/translate.mjs';
 
 export type { Messages };
 
@@ -86,15 +83,11 @@ export const t: Messages = messages[locale];
 export const siteT: Messages = messages[siteLocale];
 
 /** The language the package's standard parts (defaults/) are written in, whatever the site's language is. */
-export const DEFAULTS_LOCALE: Locale = 'da-DK';
-
-/** The standard parts' dictionary: English text -> Danish (defaults/i18n/da-DK/), for the Danish editor and a Danish site. */
-const standard = { language: 'da-DK', dictionary: defaultsDaDK };
+export const DEFAULTS_LOCALE: Locale = 'en-US';
 
 /** Whether the site's own texts (written in the site's language) or the package's standard parts (written in
- * DEFAULTS_LOCALE) may be shown in another language than they are written in. Until the standard parts are all English
- * (Task 2.5), the converted ones are English although DEFAULTS_LOCALE is da-DK: they need the Danish dictionary. */
-export const translatingSite = locale !== siteLocale || locale !== DEFAULTS_LOCALE || Object.keys(defaultsDaDK).length > 0;
+ * DEFAULTS_LOCALE) may be shown in another language than they are written in. */
+export const translatingSite = locale !== siteLocale || locale !== DEFAULTS_LOCALE;
 
 /** The site's own texts in the editor's other languages: by language, by the text as it is written. */
 export type Texts = Partial<Record<string, Record<string, string>>>;
@@ -108,7 +101,7 @@ export const appTexts: Record<string, Texts> = Object.fromEntries(
   }),
 );
 
-const own = joinDictionaries(locale, standard, ...Object.values(appTexts).map((a) => a[locale]), (texts as Texts)[locale]);
+const own = Object.assign({}, ...Object.values(appTexts).map((a) => a[locale]), (texts as Texts)[locale]);
 
 /** One of the site's own texts (src/site/, src/themes/<theme>/blocks/, src/apps/), written in the site's language, in the editor's:
  * its translation in @site/texts or in a block's texts.ts, else as it is written. `values` fill in
@@ -117,7 +110,7 @@ export function siteText(text: string, values?: Record<string, string | number>)
   return translate(own, text, values);
 }
 
-const inSite = joinDictionaries(siteLocale, standard, ...Object.values(appTexts).map((a) => a[siteLocale]), (texts as Texts)[siteLocale]);
+const inSite = Object.assign({}, ...Object.values(appTexts).map((a) => a[siteLocale]), (texts as Texts)[siteLocale]);
 
 /** A text of the package's standard parts (written in DEFAULTS_LOCALE) in the site's language, for a value that the
  * editor writes into content (a default button text): its translation in @site/texts or in a block's texts.ts, else

@@ -1,4 +1,4 @@
-// The app store ("Indstillinger" › "Appstore", #indstillinger/appstore, AppList.tsx): the apps that are not in the site
+// The app store ("Indstillinger" › "Appstore", #settings/appstore, AppList.tsx): the apps that are not in the site
 // and can be installed. The store is reached through the site's Worker (/api/store/catalog, /api/store/files/<oid>;
 // the Worker holds the site's key to it, and the editor never calls the store itself): each app of its catalog with
 // its id, its version and the version of the contract it is written to (APP_API), its name, who made it, its icon
@@ -29,6 +29,8 @@ import type { StoreLicenses } from './licenseData';
 import { APP_API, THEME_API } from '../lib/contracts.mjs';
 import { RECORD, STANDARD, isText, validApp, validTheme } from '../lib/storeEntries.mjs';
 import { timedFetch } from './storeFetch';
+import { folderChanges } from '../lib/folderChanges.mjs';
+import { moveChanges as moveItem, type SitePaths } from './legacyMove';
 
 // The contracts this editor runs (lib/contracts.mjs, also read by the site's Worker).
 export { APP_API, THEME_API };
@@ -111,6 +113,9 @@ export const SCREENSHOTS = 'screenshots';
 /** An app in the store's catalog. */
 export type StoreApp = {
   id: string;
+  /** Its readable name for addresses (`publisher/name`) and the id it had before its permanent one (`legacy`). */
+  handle?: string;
+  legacy?: string;
   version: string;
   api: number;
   label: string;
@@ -145,6 +150,8 @@ export type StoreApp = {
  * site in it (screenshots/<n>-<key>.jpg, t.library.themeShots) and its folder, file by file. */
 export type StoreTheme = {
   id: string;
+  handle?: string;
+  legacy?: string;
   version: string;
   api: number;
   name: string;
@@ -183,10 +190,10 @@ export type StoreRecord = { version: string; ref: string; files: StoreFile[] };
 /** The store's address in the editor, under "Indstillinger" (its apps; its themes at STORE_THEMES), its address
  * before (STORE_BEFORE, which opens it, App.tsx MOVED), and that of a developer's page (DEVELOPER_ROUTE/<slug>); no
  * app can have the ids of the last two. */
-export const STORE_ROUTE = 'indstillinger/appstore';
-export const STORE_THEMES = 'indstillinger/appstore/temaer';
+export const STORE_ROUTE = 'settings/appstore';
+export const STORE_THEMES = 'settings/appstore/themes';
 export const STORE_BEFORE = 'apps/butik';
-export const DEVELOPER_ROUTE = 'apps/udvikler';
+export const DEVELOPER_ROUTE = 'apps/developer';
 
 /** An app's folder in the site, and the note in it of where it came from. */
 export const appFolder = (id: string) => `${config.apps.folder}/${id}`;
@@ -420,33 +427,6 @@ export function themeChanges(
   return folderChanges(themeFolder(id), current, next);
 }
 
-/** The changes that make a folder in the site (`current`, its files now) the store's version of an app or a theme, with
- * the note of where it came from, or remove it (`next` null). */
-function folderChanges(
-  folder: string,
-  current: RepoFile[],
-  next: { files: { path: string; content: string | Uint8Array }[]; record: StoreRecord } | null,
-): Change[] {
-  const now = new Map(current.map((f) => [f.path, f.oid]));
-  const wanted: { path: string; content: string | Uint8Array; oid?: string }[] = next
-    ? [
-        ...next.files.map((f) => ({
-          path: `${folder}/${f.path}`,
-          content: f.content,
-          oid: next.record.files.find((r) => r.path === f.path)?.oid,
-        })),
-        { path: `${folder}/${RECORD}`, content: `${JSON.stringify(next.record, null, 2)}\n` },
-      ]
-    : [];
-  return [
-    // A file the site has as it is in the store is left as it is.
-    ...wanted
-      .filter((w) => !w.oid || now.get(w.path) !== w.oid)
-      .map((w) => ({ path: w.path, content: w.content, oid: now.get(w.path) ?? null })),
-    ...current.filter((f) => !wanted.some((w) => w.path === f.path)).map((f) => ({ path: f.path, content: null, oid: f.oid })),
-  ];
-}
-
 /** The changes that make an app's folder in the site (`current`, its files now) the store's version, with the note of
  * where it came from, or remove it (`next` null: uninstalling); and the site's file of apps with it among those
  * installed or not (`installed`: their ids now, `file`: the file). In one commit. */
@@ -473,6 +453,31 @@ export function recordIn(current: RepoFile[], root: string): StoreRecord | undef
     return undefined;
   }
 }
+
+/** Where the site keeps what names an app or a theme (docs/store-ids.md); the popups' folder is the collection's. */
+const sitePaths: SitePaths = {
+  appsFolder: config.apps.folder,
+  themesFolder: config.themes,
+  installed: config.apps.installed,
+  settings: config.apps.settings,
+  theme: config.theme,
+  icons: config.icons,
+  blockSettings: config.blockSettings,
+  popups: 'src/data/popups',
+  cookieList: config.cookieList,
+};
+
+/** The changes that update a store app or theme to its permanent folder: from its legacy folder (`legacy`, its files now
+ * `current`) with every id in the site's files (`site`) rewritten, or, without `legacy`, as appChanges or themeChanges
+ * do for the folder. In one commit (legacyMove.ts). */
+export const moveChanges = (
+  entry: { id: string },
+  legacy: string | null,
+  next: Parameters<typeof moveItem>[2],
+  current: RepoFile[],
+  site: RepoFile[],
+) => moveItem(entry, legacy, next, current, site, sitePaths);
+export { appliedTo, installedHere, legacyOf, mergeChanges } from './legacyMove';
 
 /** The files of an app installed from the store that were changed in the site since (in its folder, `current`, not
  * as its note says), by their paths in the folder: an update writes over them. */

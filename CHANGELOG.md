@@ -1,5 +1,22 @@
 # @morphemecms/cms
 
+## 0.11.0
+
+### Minor Changes
+
+- 999d21e: Save notices name the version: app installs, and an app's settings through `changedTo`.
+
+### Patch Changes
+
+- 5a64119: Sites type-check again: the block side sheet's save button narrows to the fields step before it reads the block's type, so `BlockDialog.tsx` no longer fails `tsc` in a site.
+- 4d4d32a: Sites type-check again: the types of `searchedAs` and `pageTitle` make every input optional except `site`, so the share preview no longer fails `tsc` in a site.
+
+## 0.10.1
+
+### Patch Changes
+
+- 4d17412: The top bar shows an Open website link on the start screen instead of the account icon; the account is in the main drawer's header.
+
 ## 0.10.0
 
 ### Minor Changes

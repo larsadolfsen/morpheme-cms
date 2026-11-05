@@ -4,7 +4,7 @@ import { siteT, t } from '../../i18n';
 import { defineShared } from '../../shared';
 
 /** The cards it is shown with where no page has it: its screen under "Blokke" and "Tilgængelige
- * blokke" (index.tsx). In the site's language, like the drawing. With a page, so the link's text,
+ * blocks" (index.tsx). In the site's language, like the drawing. With a page, so the link's text,
  * which is edited there, is on them. */
 export const example = { items: siteT.blocks.cards.example.map((c) => ({ ...c, href: '/' })) };
 

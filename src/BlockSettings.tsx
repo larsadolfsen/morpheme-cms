@@ -1,4 +1,4 @@
-// "Blokke" › "Blokindstillinger" (#blokvalg): the blocks that can be put in the text of a page, in
+// "Blokke" › "Blokindstillinger" (#block-settings): the blocks that can be put in the text of a page, in
 // groups, the editor's standard blocks (packages/editor/src/standard/) and those of each app installed under "Apps",
 // under the app's name (e.g. "Mailchimp",
 // src/apps/, AppList.tsx; an app not installed has none here), each with how many pages it is on at its right
@@ -243,7 +243,7 @@ export function KindSwitch({ app, list, env, files }: { app: SiteApp; list: stri
 type Sort = 'group' | 'az' | 'za';
 const SORTS: Sort[] = ['group', 'az', 'za'];
 // The order picked last time, in this browser.
-const SORT_KEY = 'editor-sort-blokvalg';
+const SORT_KEY = 'editor-sort-block-settings';
 type OnOff = '' | 'on' | 'off';
 type Use = '' | 'used' | 'unused';
 

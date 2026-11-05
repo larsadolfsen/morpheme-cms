@@ -108,44 +108,44 @@ export const icons: Record<string, Icon> = {
   pages: FileText,
   header: Browser,
   menu: ListIcon,
-  mobilmenu: DeviceMobile,
-  kategorier: Tag,
+  'mobile-menu': DeviceMobile,
+  tags: Tag,
   popups: Megaphone,
-  virksomheden: Buildings,
+  company: Buildings,
   // The sections of the main menu that are not also a part.
-  indhold: Article,
-  globalt: GlobeSimple,
-  indstillinger: GearSix,
-  blokke: SquaresFour,
-  filer: FolderSimple,
-  privatliv: ShieldCheck,
-  lister: ListChecks,
+  content: Article,
+  global: GlobeSimple,
+  settings: GearSix,
+  blocks: SquaresFour,
+  files: FolderSimple,
+  privacy: ShieldCheck,
+  lists: ListChecks,
   footer: SquareHalfBottom,
   seo: MagnifyingGlass,
-  videresendelser: Signpost,
-  udseende: PaintBrushBroad,
-  blokvalg: ToggleRight,
+  redirects: Signpost,
+  appearance: PaintBrushBroad,
+  'block-settings': ToggleRight,
   apps: PuzzlePiece,
   appstore: Storefront,
   morpheme: Sparkle,
-  avanceret: Wrench,
-  licenser: Certificate,
+  advanced: Wrench,
+  licenses: Certificate,
   // The screens under "Appearance" (Library.tsx Theme).
-  temaer: Swatches,
-  farver: Palette,
+  themes: Swatches,
+  colors: Palette,
   logo: Sticker,
-  ikonpakker: Smiley,
-  bevaegelse: WaveSine,
-  sidekolonne: SidebarSimple,
-  dele: Shapes,
+  'icon-packs': Smiley,
+  motion: WaveSine,
+  'side-column': SidebarSimple,
+  parts: Shapes,
 };
 
-/** The site's own parts under "Appearance" (#udseende), after the logo and icon, each a screen of its own at #udseende/<id>:
+/** The site's own parts under "Appearance" (#appearance), after the logo and icon, each a screen of its own at #appearance/<id>:
  * "Default pages", which pages are the front page, the blog page, the 404 page and the contact page, as a list
  * (standardPageFieldsOf in collections.ts; the privacy policy and the cookie policy are under "Privacy", privacy.ts). */
 export const appearance: Part[] = [
   {
-    id: 'standardsider',
+    id: 'default-pages',
     label: 'Default pages',
     icon: House,
     file: config.standardPages,
@@ -163,35 +163,35 @@ export const appearance: Part[] = [
 // looks ("Appearance": the theme, the icon packs, the motion, the side column (SideColumn.tsx), the colors, the logo and icon, the standard pages
 // (appearance) and the editor's parts: Colors.tsx, BrandForm.tsx and Parts.tsx), the parts of "Privacy" (privacy.ts)
 // and the settings of the whole site ("Settings").
-// Each part is a collection (collections.ts), except those named above, "privatliv"'s (partScreens) and the editor's own
-// "virksomheden" (companyParts), "blokke" (blockParts), id filer (the pictures, PDFs, videos and zip files), "header", "lister"
-// and "blokvalg" (BlockSettings.tsx).
-const settingsIds = ['morpheme', 'avanceret'];
+// Each part is a collection (collections.ts), except those named above, "privacy"'s (partScreens) and the editor's own
+// "company" (companyParts), "blocks" (blockParts), id files (the pictures, PDFs, videos and zip files), "header", "lists"
+// and "block-settings" (BlockSettings.tsx).
+const settingsIds = ['morpheme', 'advanced'];
 export const groups: { id: string; title: string; href?: string; ids: string[] }[] = [
   { id: 'home', title: 'Dashboard', href: '#', ids: [] },
   {
-    id: 'indhold',
+    id: 'content',
     title: 'Content',
-    ids: ['pages', 'blog', 'lister', 'popups', 'kategorier', 'filer', internalLinks.id, 'videresendelser'],
+    ids: ['pages', 'blog', 'lists', 'popups', 'tags', 'files', internalLinks.id, 'redirects'],
   },
-  { id: 'globalt', title: 'Globals', ids: ['header', 'footer', 'virksomheden'] },
+  { id: 'global', title: 'Globals', ids: ['header', 'footer', 'company'] },
   { id: 'apps', title: 'Apps', ids: ['apps', 'appstore'] },
-  { id: 'blokke', title: 'Blocks', ids: ['blokke', 'blokvalg'] },
+  { id: 'blocks', title: 'Blocks', ids: ['blocks', 'block-settings'] },
   {
-    id: 'udseende',
+    id: 'appearance',
     title: 'Appearance',
-    ids: ['temaer', 'ikonpakker', 'bevaegelse', 'sidekolonne', 'farver', 'logo', ...appearance.map((p) => p.id), 'dele'],
+    ids: ['themes', 'icon-packs', 'motion', 'side-column', 'colors', 'logo', ...appearance.map((p) => p.id), 'parts'],
   },
-  { id: 'privatliv', title: 'Privacy', ids: privacy.parts.map((p) => p.id) },
-  { id: 'indstillinger', title: 'Settings', ids: settingsIds },
+  { id: 'privacy', title: 'Privacy', ids: privacy.parts.map((p) => p.id) },
+  { id: 'settings', title: 'Settings', ids: settingsIds },
 ];
 
 /** The settings of the whole site: the ids of the last section, "Settings", written once. */
 export const settings: string[] = settingsIds;
 
-/** The site's own short lists, on a screen of their own under "Lists" (#lister), with those the standard blocks
+/** The site's own short lists, on a screen of their own under "Lists" (#lists), with those the standard blocks
  * bring ("Testimonials") and the apps (their lists.ts). */
 export const lists: string[] = [];
 
-/** What is in the header on every page, on one screen under "Appearance" › "Header" (#udseende/header, HeaderSettings.tsx). */
-export const header = ['menu', 'mobilmenu', 'headerknap'];
+/** What is in the header on every page, on one screen under "Appearance" › "Header" (#appearance/header, HeaderSettings.tsx). */
+export const header = ['menu', 'mobile-menu', 'header-button'];

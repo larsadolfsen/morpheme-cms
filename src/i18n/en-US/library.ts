@@ -10,7 +10,7 @@ export const library = {
   createNew: 'Create',
   githubAccount: (login: string) => `GitHub account: ${login}`,
   logOut: 'Log out',
-  /** The bell in the top bar and its screen (#notifikationer, Notifications.tsx): the messages shown at the bottom. */
+  /** The bell in the top bar and its screen (#notifications, Notifications.tsx): the messages shown at the bottom. */
   notifications: 'Notifications',
   /** The bell's name while some are not seen yet. */
   notificationsNew: (count: number) => `Notifications, ${count} new`,
@@ -144,8 +144,8 @@ export const library = {
   statusShown: { all: 'All', published: 'Published', draft: 'Draft', unlisted: 'Hidden', scheduled: 'Scheduled' },
   sort: 'Sort',
   sorts: {
-    nyeste: 'Newest first',
-    aeldste: 'Oldest first',
+    newest: 'Newest first',
+    oldest: 'Oldest first',
     az: 'A–Z',
     za: 'Z–A',
     /** The pages, by when they were last saved. */
@@ -153,7 +153,7 @@ export const library = {
     savedOldest: 'Least recently changed first',
     /** A list of kinds (Promovering), under a heading for each kind. */
     type: 'By type',
-    /** "Standardblokke" (#blokke), in the groups by where the blocks come from. */
+    /** "Standardblokke" (#blocks), in the groups by where the blocks come from. */
     group: 'By group',
   },
   /** The funnel over a list of what is shown on pages (Promovering), with its filters in one sheet. */
@@ -172,7 +172,7 @@ export const library = {
   /** The filter by whether an entry is turned on, and its first choice. */
   onOffFilter: 'Status',
   allOnOff: 'All',
-  /** The filters over "Standardblokke" (#blokke): by the group (where the block comes from) and by whether
+  /** The filters over "Standardblokke" (#blocks): by the group (where the block comes from) and by whether
    * the block is on a page, each with its first choice. */
   groupFilter: 'Group',
   allGroups: 'All groups',

@@ -5,7 +5,7 @@ import { LinkSimple } from '@phosphor-icons/react';
 import type { Part } from '../src/schema';
 
 export const internalLinks: Part = {
-  id: 'interne-links',
+  id: 'internal-links',
   label: 'Internal links',
   icon: LinkSimple,
   file: 'src/data/internal-links.json',

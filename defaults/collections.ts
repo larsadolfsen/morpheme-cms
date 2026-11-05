@@ -221,7 +221,7 @@ export const contactFields: Field[] = [
 // The social media (src/data/social.json, a part of its own under "Business", company.ts): the site's profiles, and
 // which share buttons a post shows. A switch that is not in the file is on (company.ts gives the form that default).
 // A profile address: empty, or one that begins with https://.
-const httpsAddress: [string, string] = ['^$|^https://\\S+$', 'Skriv en adresse, der begynder med https://'];
+const httpsAddress: [string, string] = ['^$|^https://\\S+$', 'Write an address that starts with https://'];
 
 export const socialFields: Field[] = [
   {
@@ -388,7 +388,7 @@ export const icons = [
   ['Map pin', 'map-pin'],
   ['Coffee', 'coffee'],
   ['Wheelchair', 'wheelchair'],
-  ['Info', 'info'],
+  ['Information', 'info'],
   ['Letter', 'envelope-simple'],
 ].map(([label, value]) => ({ label, value }));
 
@@ -417,7 +417,7 @@ export const collections: Collection[] = [
         to: 'categories',
         multiple: true,
         add: 'Add tag',
-        edit: { to: 'ny/kategorier', text: 'Create a tag' },
+        edit: { to: 'new/tags', text: 'Create a tag' },
       },
       { name: 'image', label: 'Picture at the top', type: 'image' },
       ...topImageText,
@@ -447,7 +447,7 @@ export const collections: Collection[] = [
         to: 'categories',
         multiple: true,
         add: 'Add tag',
-        edit: { to: 'ny/kategorier', text: 'Create a tag' },
+        edit: { to: 'new/tags', text: 'Create a tag' },
         hint: 'Not shown on the website.',
       },
       {
@@ -485,7 +485,7 @@ export const collections: Collection[] = [
   },
   {
     kind: 'folder',
-    id: 'kategorier',
+    id: 'tags',
     create: 'New tag',
     label: 'Tags',
     singular: 'tag',
@@ -680,7 +680,7 @@ export const collections: Collection[] = [
         type: 'relation',
         to: 'files',
         required: true,
-        edit: { to: 'filer', text: 'Upload a PDF' },
+        edit: { to: 'files', text: 'Upload a PDF' },
         only: { field: 'button', is: ['file'] },
       },
       {
@@ -763,7 +763,7 @@ export const collections: Collection[] = [
             label: 'Heading (contact)',
             type: 'string',
             required: true,
-            edit: { to: 'virksomheden/kontakt', text: 'Edit phone, email and address' },
+            edit: { to: 'company/contact', text: 'Edit phone, email and address' },
           },
           { name: 'linksHeading', label: 'Heading (links)', type: 'string', required: true },
           {
@@ -824,7 +824,7 @@ export const collections: Collection[] = [
   },
   {
     kind: 'files',
-    id: 'mobilmenu',
+    id: 'mobile-menu',
     label: 'Mobile menu',
     singular: 'mobile menu',
     files: [
@@ -856,7 +856,7 @@ export const collections: Collection[] = [
   },
   {
     kind: 'files',
-    id: 'headerknap',
+    id: 'header-button',
     label: 'Header button',
     singular: 'header button',
     files: [

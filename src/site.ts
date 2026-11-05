@@ -141,7 +141,7 @@ function sharedPartsOf(blocks: Folders<BlockDefinition>, shared: Folders<SharedT
         fields,
         defaults: values,
         preview: { type, ...preview },
-        back: { href: '#blokke', label: t.common.parts.blocks },
+        back: { href: '#blocks', label: t.common.parts.blocks },
       },
     ];
   });
@@ -166,7 +166,7 @@ export const writtenBlockParts: Part[] = [...site.blockParts, ...sharedParts, ..
 /** The parts of "Virksomheden"; one with parts of its own (Part.parts) has them going back to it. */
 export const companyParts = each(
   site.companyParts.map((p) =>
-    p.parts ? { ...p, parts: p.parts.map((s) => ({ ...s, back: { href: `#virksomheden/${p.id}`, label: p.label } })) } : p,
+    p.parts ? { ...p, parts: p.parts.map((s) => ({ ...s, back: { href: `#company/${p.id}`, label: p.label } })) } : p,
   ),
   local.part,
 );
@@ -179,9 +179,9 @@ export const partScreens = site.partScreens.map((s) => ({
     local.part,
   ),
 }));
-/** The site's own parts under "Udseende" (#udseende, Library.tsx Theme), after the logo and icon, each going back to it. */
+/** The site's own parts under "Udseende" (#appearance, Library.tsx Theme), after the logo and icon, each going back to it. */
 export const appearance = each(
-  site.appearance.map((p) => ({ ...p, back: { href: '#udseende', label: t.common.parts.appearance } })),
+  site.appearance.map((p) => ({ ...p, back: { href: '#appearance', label: t.common.parts.appearance } })),
   local.part,
 );
 /** Where a screen goes back to: the start screen. The menu's sections ("Indhold" …) are lists in the drawer, not screens,
@@ -214,7 +214,7 @@ export const placeOf = (id: string): string | undefined => groups.find((g) => g.
  * ("Udseende › Standardsider"): the part with its field in the file of the standard pages. */
 export function standardPageAt(key: string): string {
   const chosenIn = (p: Part) => p.file === site.config.standardPages && !!p.fields?.some((f) => f.name === key);
-  const screen = [{ id: 'udseende', label: t.common.parts.appearance, parts: appearance }, ...partScreens].find((s) =>
+  const screen = [{ id: 'appearance', label: t.common.parts.appearance, parts: appearance }, ...partScreens].find((s) =>
     s.parts.some(chosenIn),
   );
   if (!screen) return '';
@@ -338,7 +338,7 @@ export const icons = {
   ),
 };
 
-/** The short lists, under "Lister" (#lister): the site's, the standard blocks' and the apps', which go back there too. */
+/** The short lists, under "Lister" (#lists): the site's, the standard blocks' and the apps', which go back there too. */
 export const lists = [...site.lists, ...ownedLists.map((l) => l.id)];
 
 /** The lists under "Lister" now: the site's, the standard blocks' and those of the apps installed, without the cookie

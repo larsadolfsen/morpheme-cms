@@ -26,7 +26,7 @@ type Keyword = { word: string; primary: boolean; title: string; href: string; ad
 type Counts = Record<string, { href: string; pages: number }>;
 
 type Sort = 'az' | 'za' | 'most' | 'fewest';
-const SORT_KEY = 'editor-sort-soegeord';
+const SORT_KEY = 'editor-sort-keywords';
 function savedSort(): Sort {
   try {
     const s = localStorage.getItem(SORT_KEY);
@@ -85,11 +85,11 @@ function keywordsOf(files: RepoFile[]): Keyword[] {
 }
 
 export default function Keywords({ files }: { files: RepoFile[] }) {
-  const [query, setQuery] = useKept('soegeord-soeg', '');
+  const [query, setQuery] = useKept('keywords-search', '');
   const [sort, setSort] = useState(savedSort);
-  const [which, setWhich] = useKept<'' | 'primary' | 'secondary'>('soegeord-slags', '');
-  const [linked, setLinked] = useKept<'' | 'with' | 'without'>('soegeord-links', '');
-  const [kind, setKind] = useKept('soegeord-side', '');
+  const [which, setWhich] = useKept<'' | 'primary' | 'secondary'>('keywords-kind', '');
+  const [linked, setLinked] = useKept<'' | 'with' | 'without'>('keywords-links', '');
+  const [kind, setKind] = useKept('keywords-page', '');
   // undefined while they load; null when the site has none (not built since they came, or offline).
   const [counts, setCounts] = useState<Counts | null>();
   useEffect(() => {

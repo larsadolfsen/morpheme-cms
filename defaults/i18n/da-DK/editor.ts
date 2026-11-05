@@ -9,4 +9,5 @@ export const editor: Record<string, string> = {
   Appearance: 'Udseende',
   Privacy: 'Privatliv',
   Settings: 'Indstillinger',
+  Apps: 'Apps',
 };

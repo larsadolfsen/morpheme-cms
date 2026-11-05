@@ -2,7 +2,7 @@
 // with one from the store not yet built as "Installeres…"), each with who made it under its name and, from the store,
 // that it has a newer version, with search (by name, who made it and what it does), the order (A–Å, Å–A, kept in this
 // browser) and headings by the first letter, as the lists under "Indhold" have. "Indstillinger" › "Appstore"
-// (#indstillinger/appstore): all apps, those in the app store (store.ts) and the site's own, installed or not, with search (by name, what they
+// (#settings/appstore): all apps, those in the app store (store.ts) and the site's own, installed or not, with search (by name, what they
 // do, who made them and the words they are found by), the same order and a funnel by category. An app's page
 // (#apps/<app>) is the same for every app and without examples: its name, who made it, whether it is installed, its
 // version (from the store) and what it does, "Installer" (or "Opdater til …"); installed, it has two tabs: "Indstillinger"
@@ -11,10 +11,10 @@
 // adds (AppAdds.tsx: its blocks, the lists it brings: "Priser", each opening its list, and its kinds of the site's lists:
 // a Mailchimp popup; each with its switch at the end of its row and opening a sheet with where it is used and the same
 // switch, as under "Blokindstillinger", and a kind's button to a new one, while it is on), its notifications with their
-// switches, and "Afinstaller", AppSettingsTab.tsx) and "Information" (#apps/<app>/om, AppInfoTab.tsx: its pictures, what
+// switches, and "Afinstaller", AppSettingsTab.tsx) and "Information" (#apps/<app>/about, AppInfoTab.tsx: its pictures, what
 // it does more fully ("Om appen"), what it needs of the site ("Rettigheder", needsOf in store.ts: its code on every page,
 // the addresses it loads from and sends forms to, its part of the Worker, a step in the build), the cookies it sets (and
-// whether the cookie banner asks first), who made it (a row to their page, #apps/udvikler/<name>, with all their apps),
+// whether the cookie banner asks first), who made it (a row to their page, #apps/developer/<name>, with all their apps),
 // and where it is used); one not installed has no tabs; installing, updating and uninstalling are each saved at once in its own commit,
 // as a block turned on or off under "Blokindstillinger". The button pressed shows the loading indicator while it runs (busyAction.mjs). One of the site's own is installed or uninstalled in the site's
 // file of apps; one from the store is copied into the site, or deleted from it, with it (appChanges in store.ts), and
@@ -49,6 +49,11 @@ import { AnyIcon } from './icon';
 import {
   appCategories,
   appChanges,
+  appliedTo,
+  installedHere,
+  legacyOf,
+  mergeChanges,
+  moveChanges,
   appFolder,
   breaking,
   changedFiles,
@@ -64,7 +69,7 @@ import {
   type StoreAdd,
   type StoreRecord,
 } from './store';
-import { apps, siteBlocks } from './registry';
+import { apps, apps as siteApps, siteBlocks } from './registry';
 import { asWritten, backFrom, collections, companyParts, partScreens } from './site';
 import { byText, slugify, type Part } from './schema';
 import { headed, letterOf } from './Sheet';
@@ -94,10 +99,10 @@ export function settingsHome(app: SiteApp): { route: string; label: string } | u
   const screen = partScreens.find((s) => s.apps?.includes(kind));
   if (screen) return { route: screen.id, label: screen.label };
   const company = companyParts.find((p) => p.parts && p.apps?.includes(kind));
-  return company && { route: `virksomheden/${company.id}`, label: company.label };
+  return company && { route: `company/${company.id}`, label: company.label };
 }
 
-/** Where an app's settings are: on the screen with its kind (#maaling/google-analytics, #virksomheden/betaling/mobilepay),
+/** Where an app's settings are: on the screen with its kind (#analytics/google-analytics, #company/payment/mobilepay),
  * else on the Settings tab of its page (#apps/<id>); null without settings. */
 export function settingsRoute(app: SiteApp): string | null {
   if (!app.settings) return null;
@@ -118,6 +123,7 @@ export function appSettingsPart(app: SiteApp): Part | null {
     fields: app.settings.fields,
     defaults: app.settings.values,
     commit: siteT.apps.settingsOf(asWritten(app).label),
+    changedTo: app.settings.changedTo,
     back: home ? { href: `#${home.route}`, label: home.label } : { href: appHref(app), label: app.label },
   };
 }
@@ -155,7 +161,7 @@ export const listsOf = (app: SiteApp, files: RepoFile[]) =>
     key: l.id,
     icon: l.icon,
     label: l.label,
-    href: `#liste/${l.id}`,
+    href: `#list/${l.id}`,
     count: files.filter((f) => f.path.startsWith(`${l.folder}/`) && f.path.endsWith('.json')).length,
   }));
 
@@ -185,7 +191,7 @@ export function kindsOf(app: SiteApp) {
             icon: kind.icon,
             label: kind.label,
             hint: kind.hint,
-            href: `#liste/${c.id}`,
+            href: `#list/${c.id}`,
             one: c.singular,
             more: c.label,
             create: c.create,
@@ -272,7 +278,7 @@ const versionOf = (app: SiteApp) => updated.get(app.id) ?? app.store?.version ??
 
 /** The newer version of an app from the store, when the store has one. */
 const updateOf = (app: SiteApp, catalog: ShownApp[] | null | 'failed') => {
-  const found = app.store && Array.isArray(catalog) ? catalog.find((a) => a.id === app.id) : undefined;
+  const found = app.store && Array.isArray(catalog) ? catalog.find((a) => a.id === app.id || a.legacy === app.id) : undefined;
   return found && newer(found.version, versionOf(app)) ? found : undefined;
 };
 
@@ -283,7 +289,7 @@ export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
   const installed = installedApps(files);
   const catalog = useCatalog(env);
   const store = Array.isArray(catalog) ? catalog : [];
-  const [query, setQuery] = useKept('apps-soeg', '');
+  const [query, setQuery] = useKept('apps-search', '');
   const [sort, pickSort] = useSort();
 
   // The apps installed: the site's own and those from the store; and one from the store in the file of apps that the
@@ -395,7 +401,7 @@ function AppRow({ app, installed }: { app: ReturnType<typeof allApps>[number]; i
   );
 }
 
-/** A developer's page (#apps/udvikler/<name>): their name, and all their apps and themes (in the store and the site's
+/** A developer's page (#apps/developer/<name>): their name, and all their apps and themes (in the store and the site's
  * own), each opening its page. */
 export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; files: RepoFile[] }) {
   const installed = installedApps(files);
@@ -456,9 +462,9 @@ export function DeveloperRow({ name }: { name: string }) {
   );
 }
 
-/** "Appstore" (#indstillinger/appstore, under "Indstillinger"): in a tab of its own each in the top app bar, all apps,
+/** "Appstore" (#settings/appstore, under "Indstillinger"): in a tab of its own each in the top app bar, all apps,
  * those in the app store and the site's own, each with what it does and whether it is installed, and all themes
- * (#indstillinger/appstore/temaer, ThemeStore.tsx), those in the store
+ * (#settings/appstore/themes, ThemeStore.tsx), those in the store
  * and those installed, each with its version and who made it; each opening its page. With search (by name, what it
  * does, who made it and the words it is found by, in both languages), the order and the filters by category (apps)
  * and by whether it is installed, each picked one as a chip. */
@@ -477,10 +483,10 @@ function StoreScreen({ env, files, tab, again }: { env: Env; files: RepoFile[]; 
   const catalog = useCatalog(env);
   const themeCatalog = useThemeCatalog(env);
   const connected = useStoreConnected(env);
-  const [query, setQuery] = useKept('butik-soeg', '');
+  const [query, setQuery] = useKept('store-search', '');
   const [sort, pickSort] = useSort();
-  const [category, setCategory] = useKept<AppCategory | ''>('butik-kategori', '');
-  const [state, setState] = useKept<'' | 'installed' | 'notInstalled'>('butik-status', '');
+  const [category, setCategory] = useKept<AppCategory | ''>('store-category', '');
+  const [state, setState] = useKept<'' | 'installed' | 'notInstalled'>('store-status', '');
   const apps = tab === 'apps';
   const read = apps ? catalog : themeCatalog;
 
@@ -490,7 +496,7 @@ function StoreScreen({ env, files, tab, again }: { env: Env; files: RepoFile[]; 
     allApps(catalog)
       .filter((a) => words.every((w) => a.words.includes(w)))
       .filter((a) => !category || a.category === category)
-      .filter((a) => !state || installed.includes(a.id) === (state === 'installed'))
+      .filter((a) => !state || installedHere(a, installed, siteApps) === (state === 'installed'))
       .sort((a, b) => order(a.label, b.label)),
     (a) => letterOf(a.label),
   );
@@ -691,11 +697,13 @@ function useStoreActions(env: Env, files: RepoFile[]) {
     next: () => Promise<Parameters<typeof appChanges>[2]>,
     // Whether to go on, with the app's files in the site now (an update asks, when some were changed).
     go: (current: RepoFile[]) => Promise<boolean> = async () => true,
+    // The id the app is installed under, when it is a legacy copy that moves to `id` (moveChanges).
+    legacy: string | null = null,
   ): Promise<boolean> {
     setRunning({ id, action, asking: false });
     env.notify({ text: text.busy });
     try {
-      const [current, wanted] = await Promise.all([env.folder(appFolder(id)), next()]);
+      const [current, wanted] = await Promise.all([env.folder(appFolder(legacy ?? id)), next()]);
       if (!(await go(current))) {
         env.notify(null);
         return false;
@@ -703,8 +711,11 @@ function useStoreActions(env: Env, files: RepoFile[]) {
       // `go` cleared the message (and its dialog stopped the button being busy): saving goes on.
       setRunning({ id, action, asking: false });
       env.notify({ text: text.busy });
-      const cookies = cookieChanges(id, wanted ? cookiesIn(wanted.files) : null, files);
-      await saveApp(env, text.commit, text.change, [...appChanges(id, current, wanted, installed, file), ...cookies], file);
+      const moved = legacy && wanted ? moveChanges({ id }, legacy, wanted, current, files) : null;
+      // The cookie list as the move leaves it (the legacy id rewritten), then the new release's cookies on it: one set of changes.
+      const cookies = cookieChanges(id, wanted ? cookiesIn(wanted.files) : null, moved ? appliedTo(files, moved) : files);
+      const changes = moved ? mergeChanges(moved, cookies) : [...appChanges(id, current, wanted, installed, file), ...cookies];
+      await saveApp(env, text.commit, text.change, changes, file);
       env.notify({ text: text.done, kind: text.kind ?? 'saved' });
       return true;
     } catch (e) {
@@ -726,11 +737,11 @@ function useStoreActions(env: Env, files: RepoFile[]) {
           busy: t.apps.installing,
           done: t.apps.isInstalledSoon(app.label),
           commit: siteT.apps.commit.install(app.written),
-          change: t.app.changes.installed(kindAndName(t.app.changes.app, app.label)),
+          change: t.app.changes.installed(kindAndName(t.app.changes.app, app.label), app.version),
         },
         async () => ({ files: await env.store.files(app), record: recordOf(app) }),
       ),
-    async update(app: ShownApp, record: StoreRecord) {
+    async update(app: ShownApp, record: StoreRecord, legacy: string | null = null) {
       const done = await change(
         app.id,
         'update',
@@ -750,9 +761,10 @@ function useStoreActions(env: Env, files: RepoFile[]) {
             record.version,
             app.version,
             notesSince(app.releaseNotes, record.version, app.version),
-            changedFiles(app.id, record, current),
+            changedFiles(app.id, record, current, appFolder(legacy ?? app.id)),
           );
         },
+        legacy,
       );
       if (done) updated.set(app.id, app.version);
       return done;
@@ -936,7 +948,7 @@ type AppProps = { app: SiteApp; env: Env; files: RepoFile[] };
 
 type AppTab = 'settings' | 'information';
 
-/** The tabs of an installed app's page, in the top bar: Settings (#apps/<id>) and Information (#apps/<id>/om). A form
+/** The tabs of an installed app's page, in the top bar: Settings (#apps/<id>) and Information (#apps/<id>/about). A form
  * with unsaved changes asks first, as for every address (App.tsx). */
 const tabsOf = (app: SiteApp, tab: AppTab): TabChoice<AppTab> => ({
   label: t.apps.tabs,
@@ -1046,7 +1058,11 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
       {(!on || (update && app.store)) && (
         <div className="mb-8">
           {on ? (
-            <Button disabled={saving} busy={store.busy(app.id, 'update')} onClick={() => store.update(update!, app.store!)}>
+            <Button
+              disabled={saving}
+              busy={store.busy(update!.id, 'update')}
+              onClick={() => store.update(update!, app.store!, legacyOf(update!, apps))}
+            >
               {t.apps.update(update!.version)}
             </Button>
           ) : (

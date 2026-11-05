@@ -35,7 +35,7 @@ export default function testimonialsList(say: Messages): OwnedList {
         to: 'categories',
         multiple: true,
         add: own.addTag,
-        edit: { to: `ny/${config.lists.tags}`, text: own.entries.createTag },
+        edit: { to: `new/${config.lists.tags}`, text: own.entries.createTag },
       },
       { name: 'frontPage', label: own.entries.frontPage, type: 'boolean', default: true },
     ],

@@ -160,7 +160,7 @@ function openersOf(slug: string, files: { path: string; text: string }[]): Opene
         });
     } else if (f.path === config.blockTexts) {
       if (opens((json(f as RepoFile).buttons as Record<string, unknown> | undefined)?.items))
-        found.push({ file: 'blokke/buttons', title: siteText('Default buttons') });
+        found.push({ file: 'blocks/buttons', title: siteText('Default buttons') });
     }
   }
   return found;
@@ -249,7 +249,7 @@ export function siteProblems(files: { path: string; text: string }[]): string[] 
     for (const at of openersOf(slug, files)) {
       if (file && shownFor(json(file as RepoFile), at)) continue;
       problems.push(
-        `${at.file.startsWith('blokke/') ? config.blockTexts : at.file}: ${
+        `${at.file.startsWith('blocks/') ? config.blockTexts : at.file}: ${
           file ? openerText(at) : siteText('A button opens the promotion "{navn}", which does not exist.', { navn: slug })
         }`,
       );
@@ -290,7 +290,7 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
   const front = Object.fromEntries(
     (home ? (blocksIn(home.text) as { type: string; props: Record<string, unknown> }[]) : []).map((b) => [b.type, b.props]),
   );
-  if (collection.id === 'kategorier') {
+  if (collection.id === 'tags') {
     const { posts, pages, testimonials: quotes, records } = taggedWith(files, slug, TAG_FOLDERS);
     if (posts.length)
       return {
@@ -371,7 +371,7 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
   }
   // Any other place under "Used on" (usesOf): a "Blog posts" or "Testimonials" block that picks the tag, on a
   // page or in a post. Files with the tag are handled above (records), so the first use is never a file record.
-  if (collection.id === 'kategorier') {
+  if (collection.id === 'tags') {
     const use = usesOf(collection, files)(file)[0];
     if (use) {
       const post = use.path.startsWith(`${config.folders.blog}/`);
@@ -406,10 +406,10 @@ export type Use = { path: string; name: string };
 
 // The places on the site that use an entry, by the entry's file, each once (the tag's "Used on", DataForm.tsx,
 // and the number at it in its list, Library.tsx); [] for none. For a tag: the blog posts, pages, testimonials,
-// promotions and files (by the route "filer/<path>" and the file's name) that have it, and the pages and posts with a "Blog posts" or "Testimonials" block that
+// promotions and files (by the route "files/<path>" and the file's name) that have it, and the pages and posts with a "Blog posts" or "Testimonials" block that
 // picks it (its tags, or the tag "All posts" goes to). Made once for the whole list.
 export function usesOf(collection: Collection, files: RepoFile[]): (file: RepoFile) => Use[] {
-  if (collection.kind === 'files' || collection.id !== 'kategorier') return () => [];
+  if (collection.kind === 'files' || collection.id !== 'tags') return () => [];
   const uses = tagUses(files, TAG_FOLDERS);
   return (file) =>
     [...(uses.get(slugOf(file.path, collection.folder))?.values() ?? [])]
@@ -420,7 +420,7 @@ export function usesOf(collection: Collection, files: RepoFile[]): (file: RepoFi
 // The number at the right of an entry in the list of a part, by the entry's file, or null for none
 // (Library.tsx): at each tag, the number of places that use it (usesOf).
 export function countsOf(collection: Collection, files: RepoFile[]): (file: RepoFile) => number | null {
-  if (collection.kind === 'files' || collection.id !== 'kategorier') return () => null;
+  if (collection.kind === 'files' || collection.id !== 'tags') return () => null;
   const uses = tagUses(files, TAG_FOLDERS);
   return (file) => uses.get(slugOf(file.path, collection.folder))?.size ?? 0;
 }

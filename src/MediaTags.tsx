@@ -74,11 +74,11 @@ export default function MediaTags({ src, files, env }: { src: string; files: Rep
         keep="categories"
         footer={(close) => (
           <SheetLink
-            href="#ny/kategorier"
+            href="#new/tags"
             onClick={(e) => {
               e.preventDefault();
               close();
-              leaveTo('#ny/kategorier');
+              leaveTo('#new/tags');
             }}
           >
             {t.media.createTag}

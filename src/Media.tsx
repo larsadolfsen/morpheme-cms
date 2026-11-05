@@ -229,8 +229,8 @@ function Gallery({
   // All the files, not only pictures (Filer), with their type.
   const all = !!used;
   // In Filer, kept for coming back to it (from a file's page); in a picker, from the start each time.
-  const [kind, setKind] = useKept<'' | Kind>(all ? 'filer-type' : null, '');
-  const [query, setQuery] = useKept(all ? 'filer-soeg' : null, '');
+  const [kind, setKind] = useKept<'' | Kind>(all ? 'files-type' : null, '');
+  const [query, setQuery] = useKept(all ? 'files-search' : null, '');
   const [sort, setSort] = useState<Sort>(() => {
     try {
       const saved = localStorage.getItem(SORT_KEY);
@@ -238,9 +238,9 @@ function Gallery({
     } catch {}
     return 'new';
   });
-  const [date, setDate] = useKept(all ? 'filer-dato' : null, '');
-  const [use, setUse] = useKept<'' | 'used' | 'unused'>(all ? 'filer-brug' : null, '');
-  const [tag, setTag] = useKept(all ? 'filer-tag' : null, '');
+  const [date, setDate] = useKept(all ? 'files-date' : null, '');
+  const [use, setUse] = useKept<'' | 'used' | 'unused'>(all ? 'files-use' : null, '');
+  const [tag, setTag] = useKept(all ? 'files-tag' : null, '');
 
   function pickSort(next: Sort) {
     setSort(next);
@@ -419,7 +419,7 @@ const codeImages = () =>
     .then((r) => (r.ok ? (r.json() as Promise<string[]>) : null))
     .catch(() => null));
 
-// open: the address of a file to show picked at once (the route filer/<address>); ignored when no such file exists.
+// open: the address of a file to show picked at once (the route files/<address>); ignored when no such file exists.
 export default function Media({ files, env, open }: { files: RepoFile[]; env: Env; open?: string }) {
   // The pictures and the other files.
   const pictures = [...mediaOf(files), ...filesOf(files)];
@@ -687,7 +687,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
             icon={ClockCounterClockwise}
             label={t.history.deletedOf(t.history.files)}
 
-            onClick={() => (location.hash = 'slettet/filer')}
+            onClick={() => (location.hash = 'deleted/files')}
           />
           <IconButton icon={Plus} label={t.media.add} busy={adding} disabled={adding} onClick={add} />
         </>

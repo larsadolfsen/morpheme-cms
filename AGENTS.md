@@ -126,7 +126,7 @@ At skrive og tænke på engelsk først er en **overordnet og generel tilgang** p
    - I al AI-agent-kommunikation, tekniske rapporter og kodebesvarelser skrives der **altid på engelsk først**.
    - Når der kommunikeres med en dansksproget bruger, følger et kort dansk resumé umiddelbart efter den engelske gennemgang.
 3. **i18n Fallback-arkitektur:**
-   - Pakkens centrale standardordbog `defaults/texts.ts` danner det faste referencefundament for alle standardfelter, så ingen komponenter i editoren eller sitet nogensinde falder tilbage til uoversat tekst.
+   - Standarddelene er skrevet på engelsk; deres danske tekster ligger i `defaults/i18n/da-DK/` (samlet i `defaults/texts.ts`, standarden for `@site/texts`). Mangler en standardtekst sin danske, stopper `check:content`.
 
 ---
 

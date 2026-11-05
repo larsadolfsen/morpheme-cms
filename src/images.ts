@@ -98,7 +98,7 @@ export async function prepareImage(file: File): Promise<Upload> {
   const now = new Date();
   const folder = `${config.folders.media}/${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}`;
   // A short random ending, so two pictures called IMG_1234 do not get the same name.
-  const name = `${slugify(file.name.replace(/\.[^.]*$/, '')) || 'billede'}-${Math.random().toString(36).slice(2, 6)}`;
+  const name = `${slugify(file.name.replace(/\.[^.]*$/, '')) || 'picture'}-${Math.random().toString(36).slice(2, 6)}`;
   const ext = blob.type === 'image/webp' ? 'webp' : 'jpg';
   const upload = {
     url: URL.createObjectURL(blob),
@@ -119,7 +119,7 @@ export const FILE_MAX_MB = 10;
 export async function prepareFile(file: File, taken: string[]): Promise<Upload> {
   if (file.size > FILE_MAX_MB * 1024 * 1024) throw new Error(t.media.tooBig(FILE_MAX_MB));
   const folder = config.folders.files;
-  const stem = slugify(file.name.replace(/\.[^.]*$/, '')) || 'fil';
+  const stem = slugify(file.name.replace(/\.[^.]*$/, '')) || 'file';
   const ending = pickedEnding(file);
   let path = `${folder}/${stem}.${ending}`;
   for (let n = 2; taken.includes(path); n++) path = `${folder}/${stem}-${n}.${ending}`;

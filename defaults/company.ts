@@ -7,11 +7,11 @@ import { AddressBook, Bank, CreditCard, ShareNetwork } from '@phosphor-icons/rea
 import type { Part } from '../src/schema';
 import { bankFields, contactFields, socialFields } from '@site/collections';
 
-/** The parts of "Business", in their order, at #virksomheden/<id> ("Payment"'s at #virksomheden/betaling/<id>). */
+/** The parts of "Business", in their order, at #company/<id> ("Payment"'s at #company/payment/<id>). */
 export const companyParts: Part[] = [
-  { id: 'kontakt', label: 'Contact', icon: AddressBook, file: 'src/data/contact.json', fields: contactFields },
+  { id: 'contact', label: 'Contact', icon: AddressBook, file: 'src/data/contact.json', fields: contactFields },
   {
-    id: 'sociale-medier',
+    id: 'social-media',
     label: 'Social media',
     icon: ShareNetwork,
     file: 'src/data/social.json',
@@ -20,7 +20,7 @@ export const companyParts: Part[] = [
     defaults: { shareFacebook: true, shareX: true, shareLinkedin: true, sharePinterest: true, shareCopyLink: true },
   },
   {
-    id: 'betaling',
+    id: 'payment',
     label: 'Payment',
     icon: CreditCard,
     apps: ['payment'],

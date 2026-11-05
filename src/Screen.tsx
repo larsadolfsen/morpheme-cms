@@ -2,9 +2,10 @@
 // topBarSlot.tsx's place, at the top of the content), above the content. Below medium, where there is no rail, the panel
 // button at its start opens and closes the main drawer (MainMenu.tsx, menuOpen.ts; from medium it is the rail's; not on a screen with a back arrow); at expanded and wider the logo and the site's name after it (one link to the start screen,
 // through `back.guard`), below expanded the back arrow, the title and the status as in an app (the logo only on the start
-// screen); at the end the actions and the notifications, on every screen, and on the start screen (`home`) the link to the
+// screen); at the end the page actions (below expanded), the actions and the notifications, on every screen, and on the start screen (`home`) the link to the
 // website. At expanded and wider the way here as breadcrumbs (the screen above, when that is not the start
-// screen), the title and the status stand in a row under the bar, at the top of the content. The bar stays at the top while
+// screen), the title and the status stand in a row under the bar, at the top of the content, and the page actions
+// (`pageActions`) at the end of that row. The bar stays at the top while
 // scrolling and keeps clear of a phone's notch. A screen's tabs (`tabs`) are the bottom of the bar, under the title, as wide
 // as the content, and stay with it. The back arrow goes to the screen above, back in the history when that is the screen
 // before (nav.ts up). The content is as wide as a form reads well, or wider for lists and the grid of files (`wide`) and for
@@ -38,6 +39,9 @@ type Props<T extends string> = {
   back?: Back;
   status?: ReactNode;
   actions?: ReactNode;
+  /** The screen's own actions (a form's Preview and View on site): from expanded at the end of the row under the bar,
+   * below expanded in the top bar, before `actions`. */
+  pageActions?: ReactNode;
   drawer?: ReactNode;
   tabs?: TabChoice<T>;
   home?: boolean;
@@ -51,14 +55,14 @@ export function WebsiteLink() {
   return <IconLink href="/" target="_blank" rel="noopener" icon={ArrowSquareOut} label={t.library.openWebsite} />;
 }
 
-/** The bell in the top bar, before the link to the website: the notifications (#notifikationer, Notifications.tsx), with a dot
+/** The bell in the top bar, before the link to the website: the notifications (#notifications, Notifications.tsx), with a dot
  * while some are not seen yet. */
 export function NotificationsLink({ className = '' }: { className?: string }) {
   const count = unseen(useNotifications());
-  const current = location.hash === '#notifikationer';
+  const current = location.hash === '#notifications';
   return (
     <IconLink
-      href="#notifikationer"
+      href="#notifications"
       icon={Bell}
       label={count ? t.library.notificationsNew(count) : t.library.notifications}
       aria-current={current ? 'page' : undefined}
@@ -74,6 +78,7 @@ export default function Screen<T extends string>({
   back,
   status,
   actions,
+  pageActions,
   drawer,
   tabs,
   home = false,
@@ -135,7 +140,10 @@ export default function Screen<T extends string>({
           )}
         </div>
         <div className="hidden min-w-0 flex-1 expanded:block" />
-        <div className="flex shrink-0 items-center justify-end gap-1">{actions}</div>
+        <div className="flex shrink-0 items-center justify-end gap-1">
+          {pageActions && <div className="flex items-center gap-1 expanded:hidden">{pageActions}</div>}
+          {actions}
+        </div>
         <NotificationsLink />
         {home && <WebsiteLink />}
         {drawer}
@@ -169,6 +177,8 @@ export default function Screen<T extends string>({
           )}
           <h1 className="truncate font-medium">{title}</h1>
           {status && <p className="shrink-0 text-sm text-muted">{status}</p>}
+          {/* The icons are taller than the text: the negative margin keeps the row's height. */}
+          {pageActions && <div className="-my-3 ml-auto flex shrink-0 items-center gap-1">{pageActions}</div>}
         </div>
         {tabs ? (
           <TabPanel id={id} value={tabs.value}>

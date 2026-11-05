@@ -5,7 +5,7 @@
 // and posts can be filtered by their status and by what they pick (a post's tags), a list of what is
 // shown on pages (Promovering) by a page, its kind and whether it is on, as "Filer" (Filters). In a list that can be deleted from, the clock in the top bar ("Slettede …") opens
 // what was deleted (Deleted.tsx), as in "Filer". The tabs the apps installed add to a list (AppDefinition.tabs, Cookiescanner's
-// "Problemer" on "Cookies") are in its top app bar after the list's own, each at #liste/<list>/<app>. "Use theme" and the move arrows show the
+// "Problemer" on "Cookies") are in its top app bar after the list's own, each at #list/<list>/<app>. "Use theme" and the move arrows show the
 // loading indicator while they run (only the pressed one).
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
@@ -118,7 +118,7 @@ import { offBlocks } from './registry';
 import { sideChoicesOf, sideSettingOf } from './SideColumn';
 
 // Where a part opens: its list, or the file itself when it is one file (the menu).
-export const hrefOf = (c: Collection) => (c.kind === 'files' && c.files.length === 1 ? `#${c.files[0].file}` : `#liste/${c.id}`);
+export const hrefOf = (c: Collection) => (c.kind === 'files' && c.files.length === 1 ? `#${c.files[0].file}` : `#list/${c.id}`);
 
 const countOf = (c: Collection, files: RepoFile[]): number =>
   c.kind === 'files' ? c.files.length : files.filter((f) => f.path.startsWith(`${c.folder}/`)).length;
@@ -126,39 +126,39 @@ const countOf = (c: Collection, files: RepoFile[]): number =>
 // A part's name, where it opens, and how many entries it has (null for one file): for the main drawer (MainMenu.tsx).
 export function partOf(id: string, files: RepoFile[]): { label: string; href: string; count: number | null } {
   const { parts } = t.common;
-  if (id === 'virksomheden') return { label: parts.company, href: '#virksomheden', count: null };
-  if (id === 'header') return { label: parts.header, href: '#udseende/header', count: null };
-  if (id === 'footer') return { label: parts.footer, href: '#udseende/footer', count: null };
-  if (id === 'lister') return { label: parts.lists, href: '#lister', count: listsShown(files).length };
-  if (id === 'blokke') return { label: parts.blocks, href: '#blokke', count: blockParts.length };
-  if (id === 'filer') return { label: parts.media, href: '#filer', count: mediaOf(files).length + filesOf(files).length };
-  if (id === 'udseende') return { label: parts.appearance, href: '#udseende', count: null };
-  if (id === 'blokvalg') return { label: parts.blockSettings, href: '#blokvalg', count: null };
+  if (id === 'company') return { label: parts.company, href: '#company', count: null };
+  if (id === 'header') return { label: parts.header, href: '#appearance/header', count: null };
+  if (id === 'footer') return { label: parts.footer, href: '#appearance/footer', count: null };
+  if (id === 'lists') return { label: parts.lists, href: '#lists', count: listsShown(files).length };
+  if (id === 'blocks') return { label: parts.blocks, href: '#blocks', count: blockParts.length };
+  if (id === 'files') return { label: parts.media, href: '#files', count: mediaOf(files).length + filesOf(files).length };
+  if (id === 'appearance') return { label: parts.appearance, href: '#appearance', count: null };
+  if (id === 'block-settings') return { label: parts.blockSettings, href: '#block-settings', count: null };
   if (id === 'apps') return { label: parts.apps, href: '#apps', count: null };
   if (id === 'appstore') return { label: t.apps.find, href: `#${STORE_ROUTE}`, count: null };
-  if (id === 'videresendelser') return { label: parts.redirects, href: `#${REDIRECTS_ROUTE}`, count: null };
+  if (id === 'redirects') return { label: parts.redirects, href: `#${REDIRECTS_ROUTE}`, count: null };
   const seoPart = seoParts.find((p) => p.id === id);
   if (seoPart) return { label: seoPart.label, href: `#seo/${id}`, count: null };
   // The screens under "Udseende" (Theme): the ones the editor has, then the site's own (appearance).
   const appearanceLabel = {
-    temaer: parts.themes,
-    ikonpakker: parts.iconPacks,
-    bevaegelse: parts.motion,
-    sidekolonne: parts.sideColumn,
-    farver: parts.colors,
+    themes: parts.themes,
+    'icon-packs': parts.iconPacks,
+    motion: parts.motion,
+    'side-column': parts.sideColumn,
+    colors: parts.colors,
     logo: parts.brand,
-    dele: parts.editorParts,
+    parts: parts.editorParts,
   }[id];
   const appearancePart = appearanceLabel ?? appearance.find((p) => p.id === id)?.label;
-  if (appearancePart) return { label: appearancePart, href: `#udseende/${id}`, count: null };
+  if (appearancePart) return { label: appearancePart, href: `#appearance/${id}`, count: null };
   // The parts of a screen with parts ("Privatliv"): where each opens, or its screen's address with its id.
   for (const screen of partScreens) {
     const own = screen.parts.find((p) => p.id === id);
     if (own) return { label: own.label, href: own.href ?? `#${screen.id}/${id}`, count: null };
   }
   if (id === 'morpheme') return { label: parts.morpheme, href: `#${CMS_ROUTE}`, count: null };
-  if (id === 'avanceret') return { label: parts.advanced, href: '#avanceret', count: null };
-  if (id === 'licenser') return { label: parts.licenses, href: '#licenser', count: null };
+  if (id === 'advanced') return { label: parts.advanced, href: '#advanced', count: null };
+  if (id === 'licenses') return { label: parts.licenses, href: '#licenses', count: null };
   const screen = partScreens.find((s) => s.id === id);
   if (screen) return { label: screen.label, href: `#${id}`, count: null };
   if (id === 'seo') return { label: parts.seo, href: '#seo', count: null };
@@ -201,12 +201,12 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
     return (
       <Parts
         title={part.label}
-        route={`virksomheden/${part.id}`}
+        route={`company/${part.id}`}
         parts={[...part.parts, ...appPartsIn(part, files)]}
-        back={{ href: '#virksomheden', label: t.common.parts.company }}
+        back={{ href: '#company', label: t.common.parts.company }}
       />
     );
-  return <Parts title={t.common.parts.company} route="virksomheden" parts={companyParts} />;
+  return <Parts title={t.common.parts.company} route="company" parts={companyParts} />;
 }
 
 // "Udseende": first "Temaer" (Themes), with the theme the site is built with at the end of its row (or, after a swap,
@@ -220,28 +220,28 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
 export function Theme({ files }: { files: RepoFile[] }) {
   const chosen = themes.find((x) => x.id === chosenTheme(files)) ?? theme;
   const parts: Part[] = [
-    { id: 'temaer', label: t.common.parts.themes, icon: icons.temaer, detail: chosen.name },
+    { id: 'themes', label: t.common.parts.themes, icon: icons.themes, detail: chosen.name },
     {
-      id: 'ikonpakker',
+      id: 'icon-packs',
       label: t.common.parts.iconPacks,
-      icon: icons.ikonpakker,
+      icon: icons['icon-packs'],
       detail: iconPacks.find((x) => x.id === chosenPack(files))?.name,
     },
-    { id: 'bevaegelse', label: t.common.parts.motion, icon: icons.bevaegelse, detail: t.library.motionSchemes[motionOf(files)] },
+    { id: 'motion', label: t.common.parts.motion, icon: icons.motion, detail: t.library.motionSchemes[motionOf(files)] },
     {
-      id: 'sidekolonne',
+      id: 'side-column',
       label: t.common.parts.sideColumn,
-      icon: icons.sidekolonne,
+      icon: icons['side-column'],
       detail: sideChoicesOf(files).find((x) => x.type === sideSettingOf(files))?.label ?? t.library.sideNone,
     },
-    { id: 'farver', label: t.common.parts.colors, icon: icons.farver, trailing: <ThemeColors files={files} /> },
+    { id: 'colors', label: t.common.parts.colors, icon: icons.colors, trailing: <ThemeColors files={files} /> },
     { id: 'logo', label: t.common.parts.brand, icon: icons.logo },
     { id: 'header', label: t.common.parts.header, icon: icons.header },
     { id: 'footer', label: t.common.parts.footer, icon: icons.footer },
     ...appearance,
-    { id: 'dele', label: t.common.parts.editorParts, icon: icons.dele },
+    { id: 'parts', label: t.common.parts.editorParts, icon: icons.parts },
   ];
-  return <Parts title={t.common.parts.appearance} route="udseende" parts={parts} back={backFrom('udseende')} />;
+  return <Parts title={t.common.parts.appearance} route="appearance" parts={parts} back={backFrom('appearance')} />;
 }
 
 /** By "Farver": the site's primary, secondary and tertiary colours (accent, secondary, tertiary) in the mode the editor
@@ -254,8 +254,8 @@ function ThemeColors({ files }: { files: RepoFile[] }) {
   );
 }
 
-const backToAppearance = { href: '#udseende', label: t.common.parts.appearance };
-const backToThemes = { href: '#udseende/temaer', label: t.common.parts.themes };
+const backToAppearance = { href: '#appearance', label: t.common.parts.appearance };
+const backToThemes = { href: '#appearance/themes', label: t.common.parts.themes };
 
 /** Under a theme's name: whether the site is built with it ("I brug") or is changing to it ("Skifter hertil"). */
 function themeStatus(id: string, files: RepoFile[]): string | undefined {
@@ -263,7 +263,7 @@ function themeStatus(id: string, files: RepoFile[]): string | undefined {
   if (id === chosenTheme(files)) return t.library.themeNext;
 }
 
-/** "Temaer" (#udseende/temaer): the themes installed (src/themes/, packages/editor/src/themes.ts; and one from the store the site's build
+/** "Temaer" (#appearance/themes): the themes installed (src/themes/, packages/editor/src/themes.ts; and one from the store the site's build
  * does not have yet, as "Installeres…"), by name, each with its picture, its version and who made it, and whether it is
  * in use or the store has a newer version, opening its page (ThemePage). More are in "Appstore", under "Indstillinger". */
 export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
@@ -283,7 +283,7 @@ export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
           return (
             <ListItem
               key={x.id}
-              href={`#udseende/temaer/${x.id}`}
+              href={`#appearance/themes/${x.id}`}
               leading={<ThemePicture src={x.icon} />}
               headline={x.name}
               supporting={t.library.themeByline(x.version, x.author)}
@@ -298,7 +298,7 @@ export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
   );
 }
 
-/** "Ikonpakker" (#udseende/ikonpakker): the icon packs installed (the system's own, packages/editor/icons/, and those the themes
+/** "Ikonpakker" (#appearance/icon-packs): the icon packs installed (the system's own, packages/editor/icons/, and those the themes
  * installed bring; iconPacks.ts), by name, each with who made it, its licence, the theme it came with and a few of its
  * icons as they are, the one chosen ticked (chosenPack), with "I brug" by the one the site and the editor are built with
  * and "Skifter hertil …" by the one chosen until they are. A tap on another asks first and then saves it in the site's
@@ -367,7 +367,7 @@ export function motionOf(files: RepoFile[]): MotionScheme {
   return schemeInUse(scheme, theme.motion, themes.find((x) => x.id === STANDARD_THEME)?.motion);
 }
 
-/** "Bevægelse" (#udseende/bevaegelse): Material 3's motion schemes and our calm one (lib/motion.ts), each with how it
+/** "Bevægelse" (#appearance/motion): Material 3's motion schemes and our calm one (lib/motion.ts), each with how it
  * moves, the one in use ticked (motionOf) and "Temaets valg" by the theme's own. A tap on another asks first and then
  * saves it in the site's file (config.motion) at once, in its own commit, as an icon pack is; the editor moves by it at
  * once (applyMotion, App.tsx), the site after it is built. */
@@ -424,7 +424,7 @@ export function MotionSchemes({ env, files }: { env: Env; files: RepoFile[] }) {
   );
 }
 
-/** A theme's page (#udseende/temaer/<id>), the same for every theme, made to show what it would make of the site, so
+/** A theme's page (#appearance/themes/<id>), the same for every theme, made to show what it would make of the site, so
  * it can be chosen or not: its picture, name, version and who made it, and whether it is in use; "Brug temaet", for any
  * other than the one chosen, which asks first and then saves it in the site's file (config.theme) at once, in its own
  * commit, and the site is built with it; the pictures of the site in it (its screenshots/, packages/editor/scripts/theme-screenshots.mjs),
@@ -507,37 +507,37 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
           <ListItem key={text} icon={glyph} headline={text} />
         ))}
       </Group>
-      <OwnerLicenses id={`tema/${of.id}`} name={of.name} author={of.author} version={of.version} declared={of} />
+      <OwnerLicenses id={`theme/${of.id}`} name={of.name} author={of.author} version={of.version} declared={of} />
       <DeveloperRow name={of.author} />
       <ThemeStoreButtons of={of} env={env} files={files} />
     </Screen>
   );
 }
 
-/** "Dele" (#udseende/dele): the parts the editor and the site are built of, each on a screen of its own: the editor's
+/** "Dele" (#appearance/parts): the parts the editor and the site are built of, each on a screen of its own: the editor's
  * (Parts.tsx), the theme's UI components, the blocks (the standard ones and the apps') and each list of kinds
  * ("Promovering", its own kinds and the apps'), as the theme shows them (BlockParts.tsx), and the theme's design tokens ("Værdier", Tokens.tsx). */
 export function PartsHome() {
   const parts: Part[] = [
-    { id: 'editor', label: t.parts.screens.editor, icon: icons.dele },
-    { id: 'ui', label: t.parts.screens.components, icon: icons.udseende },
-    { id: 'blokke', label: t.parts.screens.blocks, icon: icons.blokke },
-    ...kindLists().map((c) => ({ id: `liste/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lister })),
-    { id: 'vaerdier', label: t.parts.screens.values, icon: Ruler },
+    { id: 'editor', label: t.parts.screens.editor, icon: icons.parts },
+    { id: 'ui', label: t.parts.screens.components, icon: icons.appearance },
+    { id: 'blocks', label: t.parts.screens.blocks, icon: icons.blocks },
+    ...kindLists().map((c) => ({ id: `list/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lists })),
+    { id: 'values', label: t.parts.screens.values, icon: Ruler },
   ];
-  return <Parts title={t.common.parts.editorParts} route="udseende/dele" parts={parts} back={backToAppearance} />;
+  return <Parts title={t.common.parts.editorParts} route="appearance/parts" parts={parts} back={backToAppearance} />;
 }
 
-/** "Søgemaskineoptimering" (#seo), no longer in the menu: "Videresendelser" (Redirects.tsx, #seo/videresendelser) and then
+/** "Søgemaskineoptimering" (#seo), no longer in the menu: "Videresendelser" (Redirects.tsx, #seo/redirects) and then
  * the site's own parts (seoParts: "Interne links"), each on a screen of its own (CompanyForm.tsx). "SEO-vurdering"
- * (SeoScores.tsx, #seo/vurdering) is hidden: nothing links to it. */
+ * (SeoScores.tsx, #seo/rating) is hidden: nothing links to it. */
 export function Seo() {
-  const parts: Part[] = [{ id: 'videresendelser', label: t.common.parts.redirects, icon: icons.videresendelser }, ...seoParts];
+  const parts: Part[] = [{ id: 'redirects', label: t.common.parts.redirects, icon: icons.redirects }, ...seoParts];
   return <Parts title={t.common.parts.seo} route="seo" parts={parts} back={backFrom('seo')} />;
 }
 
 // A screen with parts of the site's own (partScreens): "Privatliv"; and with the settings of the apps installed with its
-// category (PartScreen.apps): "Analytics" and "Promovering", each opening the app's form (#maaling/google-analytics).
+// category (PartScreen.apps): "Analytics" and "Promovering", each opening the app's form (#analytics/google-analytics).
 export function PartsScreen({ screen, files }: { screen: PartScreen; files: RepoFile[] }) {
   const parts = [...screen.parts, ...appPartsIn(screen, files)];
   return (
@@ -553,11 +553,11 @@ export function PartsScreen({ screen, files }: { screen: PartScreen; files: Repo
 // and the funnel with the filters by group and by whether the block is on a page, each picked one as a chip.
 type BlockSort = 'group' | 'az' | 'za';
 const BLOCK_SORTS: BlockSort[] = ['group', 'az', 'za'];
-const BLOCK_SORT_KEY = 'editor-sort-blokke';
+const BLOCK_SORT_KEY = 'editor-sort-blocks';
 type Use = '' | 'used' | 'unused';
 
 export function Blocks({ files }: { files: RepoFile[] }) {
-  const [query, setQuery] = useKept('blokke-soeg', '');
+  const [query, setQuery] = useKept('blocks-search', '');
   const [sort, setSort] = useState<BlockSort>(() => {
     try {
       const saved = localStorage.getItem(BLOCK_SORT_KEY);
@@ -565,8 +565,8 @@ export function Blocks({ files }: { files: RepoFile[] }) {
     } catch {}
     return 'group';
   });
-  const [group, setGroup] = useKept('blokke-gruppe', '');
-  const [use, setUse] = useKept<Use>('blokke-brug', '');
+  const [group, setGroup] = useKept('blocks-group', '');
+  const [use, setUse] = useKept<Use>('blocks-use', '');
   // The blocks on a page (any copy, also a hidden one), by their type (a part's id).
   const used = useMemo(() => new Set(blockParts.filter((p) => pagesWith(p.id, files).length).map((p) => p.id)), [files]);
   const bothUses = blockParts.some((p) => used.has(p.id)) && blockParts.some((p) => !used.has(p.id));
@@ -650,9 +650,9 @@ export function Blocks({ files }: { files: RepoFile[] }) {
       {!inGroups.length ? (
         <p className="mb-8 px-1 text-muted">{t.common.noMatch}</p>
       ) : sort === 'group' ? (
-        inGroups.map((g) => <PartGroup key={g.title} title={g.title} route="blokke" parts={g.parts} />)
+        inGroups.map((g) => <PartGroup key={g.title} title={g.title} route="blocks" parts={g.parts} />)
       ) : (
-        lettered.map((g) => <PartGroup key={g.key ?? 'all'} title={g.key ?? undefined} route="blokke" parts={g.items} />)
+        lettered.map((g) => <PartGroup key={g.key ?? 'all'} title={g.key ?? undefined} route="blocks" parts={g.items} />)
       )}
     </Screen>
   );
@@ -975,7 +975,7 @@ type View = 'liste' | 'menu';
 const seoKey = (c: Collection) => `editor-seo-${c.id}`;
 function savedSeo(c: Collection): boolean {
   try {
-    return localStorage.getItem(seoKey(c)) === 'vis';
+    return localStorage.getItem(seoKey(c)) === 'show';
   } catch {
     return false;
   }
@@ -1006,16 +1006,16 @@ const saved = new Map<string, { oid: string; date: Date }>();
 
 // The ways a list can be sorted; by time only where the entries have one: blog posts by their date,
 // pages by when they were last saved; by their kind where they have kinds (Promovering).
-type Sort = 'nyeste' | 'aeldste' | 'az' | 'za' | 'type';
+type Sort = 'newest' | 'oldest' | 'az' | 'za' | 'type';
 const sortLabel = (c: Collection, s: Sort) => {
   const { sorts } = t.library;
-  return c.id === 'pages' && s === 'nyeste' ? sorts.savedNewest : c.id === 'pages' && s === 'aeldste' ? sorts.savedOldest : sorts[s];
+  return c.id === 'pages' && s === 'newest' ? sorts.savedNewest : c.id === 'pages' && s === 'oldest' ? sorts.savedOldest : sorts[s];
 };
 
 const byTitle = (a: Item, b: Item) => byText(a.title, b.title);
 const compare: Record<Sort, (a: Item, b: Item) => number> = {
-  nyeste: (a, b) => (b.date ?? '').localeCompare(a.date ?? '') || byTitle(a, b),
-  aeldste: (a, b) => (a.date ?? '').localeCompare(b.date ?? '') || byTitle(a, b),
+  newest: (a, b) => (b.date ?? '').localeCompare(a.date ?? '') || byTitle(a, b),
+  oldest: (a, b) => (a.date ?? '').localeCompare(b.date ?? '') || byTitle(a, b),
   az: byTitle,
   za: (a, b) => byTitle(b, a),
   type: (a, b) => byText(a.kind ?? '', b.kind ?? '') || byTitle(a, b),
@@ -1041,7 +1041,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   // The tabs the apps installed add to it, and the one open (none: the list's own).
   const appTabs = tabsOf(collection.id, apps, installedApps(files));
   const appTab = appTabs.find((a) => a.app.id === tab);
-  const [query, setQuery] = useKept(`${collection.id}-soeg`, '');
+  const [query, setQuery] = useKept(`${collection.id}-search`, '');
   // The move that runs (row and target row, null: none); only its arrow shows busy, all arrows stay disabled meanwhile.
   const [moving, setMoving] = useState<{ from: number; to: number } | null>(null);
   const busy = moving !== null;
@@ -1060,7 +1060,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
     collection.kind === 'files' || (collection.kind === 'folder' && collection.orderable) || items.length < 2
       ? []
       : collection.id === 'blog' || pages
-        ? ['nyeste', 'aeldste', 'az', 'za']
+        ? ['newest', 'oldest', 'az', 'za']
         : collection.kind === 'folder' && collection.kinds
           ? ['az', 'za', 'type']
           : ['az', 'za'];
@@ -1101,7 +1101,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   // A list of what is shown on pages: only those on one page or the posts of one tag (and those on every
   // page), picked among the pages and tags the entries are on, by their names (relationsOf), the tags
   // under a heading of their own (`tag:<slug>`); all again when that one is no longer among them.
-  const [onPage, setOnPage] = useKept(`${collection.id}-side`, '');
+  const [onPage, setOnPage] = useKept(`${collection.id}-page`, '');
   const pageNames = useMemo(() => {
     if (!items.some((i) => i.shownOn)) return [];
     const { pages: all, fixed, categories } = relationsOf(files);
@@ -1249,7 +1249,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   function pickSeo(next: boolean) {
     setSeo(next);
     try {
-      localStorage.setItem(seoKey(collection), next ? 'vis' : 'skjul');
+      localStorage.setItem(seoKey(collection), next ? 'show' : 'hide');
     } catch {}
   }
 
@@ -1336,7 +1336,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
       />
     );
   };
-  const privacyScreen = partScreens.find((s) => s.id === 'privatliv');
+  const privacyScreen = partScreens.find((s) => s.id === 'privacy');
   return (
     <Screen
       title={collection.label}
@@ -1345,9 +1345,9 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
         collection.id === config.lists.cookies && privacyScreen
           ? { href: `#${privacyScreen.id}`, label: privacyScreen.label }
           : lists.includes(collection.id)
-            ? { href: '#lister', label: t.common.parts.lists }
+            ? { href: '#lists', label: t.common.parts.lists }
             : header.includes(collection.id)
-              ? { href: '#udseende/header', label: t.common.parts.header }
+              ? { href: '#appearance/header', label: t.common.parts.header }
               : { href: '#', label: siteName }
       }
       tabs={
@@ -1359,7 +1359,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
                 { value: '', label: collection.label, icon: icons[collection.id as keyof typeof icons] ?? ListIcon },
                 ...appTabs.map((a) => ({ value: a.app.id, label: siteText(a.tab.label), icon: a.tab.icon })),
               ],
-              onChange: (v) => (location.hash = v ? `liste/${collection.id}/${v}` : `liste/${collection.id}`),
+              onChange: (v) => (location.hash = v ? `list/${collection.id}/${v}` : `list/${collection.id}`),
             }
           : undefined
       }
@@ -1371,15 +1371,15 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
               icon={ClockCounterClockwise}
               label={t.history.deletedOf(collection.label)}
 
-              onClick={() => (location.hash = `slettet/${collection.id}`)}
+              onClick={() => (location.hash = `deleted/${collection.id}`)}
             />
           )}
           {/* Of more than one kind (a pop-up: Standard or an app's, e.g. Mailchimp): a sheet to pick it. */}
           {collection.create &&
             (kinds.length > 1 ? (
-              <NewChoice title={collection.create} options={kinds} onChange={(kind) => (location.hash = `#ny/${collection.id}/${kind}`)} />
+              <NewChoice title={collection.create} options={kinds} onChange={(kind) => (location.hash = `#new/${collection.id}/${kind}`)} />
             ) : (
-              <IconLink href={`#ny/${collection.id}`} label={collection.create!} icon={Plus} />
+              <IconLink href={`#new/${collection.id}`} label={collection.create!} icon={Plus} />
             ))}
         </>
       }

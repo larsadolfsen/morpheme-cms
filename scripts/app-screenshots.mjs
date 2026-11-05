@@ -17,6 +17,7 @@ import { chromium } from 'playwright';
 import { createServer } from 'vite';
 import { aliases, themePlugin } from '@morphemecms/cms/site/theme.mjs';
 import { appFoldersPlugin } from '@morphemecms/cms/lib/apps.mjs';
+import { appSelf } from '@morphemecms/cms/site/appSelf.mjs';
 import { binOf } from './bin.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
 
@@ -30,13 +31,13 @@ const BLUE = { source: '#1a73e8', variant: 'tonalSpot', contrast: 'standard' };
 const ids = process.argv.length > 2 ? process.argv.slice(2) : readdirSync(APPS).filter((id) => existsSync(join(APPS, id, 'index.ts')));
 
 // The pictures each app picks, read as store-release.mjs does, in their order. `part`: its drawing under "Dele" ›
-// "Blokke" or the list's screen (`parts`: #udseende/dele/blokke, #udseende/dele/liste/<list>) by the part's name; `editor`: a screen of the editor (`at`: from the top of what is
+// "Blokke" or the list's screen (`parts`: #appearance/parts/blocks, #appearance/parts/list/<list>) by the part's name; `editor`: a screen of the editor (`at`: from the top of what is
 // there). And each app's settings as the pictures show them: those it starts with, and the made-up ones of its picture.
 const vite = await createServer({
   configFile: false,
   logLevel: 'error',
   appType: 'custom',
-  plugins: [themePlugin(), appFoldersPlugin(ROOT)],
+  plugins: [themePlugin(), appFoldersPlugin(ROOT), appSelf()],
   resolve: { alias: aliases() },
   server: { middlewareMode: true, hmr: false, ws: false },
 });
@@ -61,20 +62,20 @@ try {
       if (what === 'blok')
         shots[id].push({
           name,
-          parts: 'blokke',
+          parts: 'blocks',
           part: (await load(`/src/apps/${id}/blocks/${key}/index.tsx`)).default.label,
         });
       else if (what === 'slags') {
         const kind = app.kinds[key];
         const variant = kind.variants?.[Number(n)];
-        shots[id].push({ name, parts: `liste/${key}`, part: variant ? `${kind.label} · ${variant.label}` : kind.label });
-      } else if (what === 'liste') shots[id].push({ name, editor: `liste/${key}` });
+        shots[id].push({ name, parts: `list/${key}`, part: variant ? `${kind.label} · ${variant.label}` : kind.label });
+      } else if (what === 'liste') shots[id].push({ name, editor: `list/${key}` });
       else if (what === 'indstillinger') {
         // Where they are, as settingsRoute in AppList.tsx: on the screen or the part of "Virksomheden" with its kind.
         const home = app.category && partScreens.find((s) => s.apps?.includes(app.category));
         const company = app.category && companyParts.find((p) => p.parts && p.apps?.includes(app.category));
-        const at = home ? home.id : company ? `virksomheden/${company.id}` : `apps/${id}`;
-        shots[id].push({ name, editor: `${at}/${home || company ? id : 'indstillinger'}` });
+        const at = home ? home.id : company ? `company/${company.id}` : `apps/${id}`;
+        shots[id].push({ name, editor: `${at}/${home || company ? id : 'settings'}` });
         Object.assign(settings[id], shot.values);
       } else shots[id].push({ name, editor: `apps/${id}`, at: `[data-app-page="${id}"]` });
     }
@@ -135,7 +136,7 @@ try {
     for (const [i, shot] of shots[id].entries()) {
       const options = { path: join(folder, shot.name), type: 'jpeg', quality: 80 };
       if (shot.part) {
-        await go(`udseende/dele/${shot.parts}`);
+        await go(`appearance/parts/${shot.parts}`);
         // Tall enough for the whole drawing, under the screen's top bar.
         await editor.setViewportSize({ width: phone.width, height: 1600 });
         const drawing = editor.locator(`section[data-part="${shot.part}"] > :last-child`).first();

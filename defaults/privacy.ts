@@ -1,5 +1,5 @@
 // "Privacy": what the site asks and tells its visitors about their data, as screens of their own (CompanyForm.tsx),
-// at #privatliv/<id>, and the cookie list's row: the cookie banner (src/data/cookies.json, read by packages/editor/theme/components/CookieConsent.astro),
+// at #privacy/<id>, and the cookie list's row: the cookie banner (src/data/cookies.json, read by packages/editor/theme/components/CookieConsent.astro),
 // "Privacy pages", which pages are the privacy policy and the cookie policy, as a list like "Default pages" (in the
 // same file, config.standardPages; standardPages.ts), and "Consents", the visitors' answers in the banner.
 import { Cookie, FileText, ListChecks } from '@phosphor-icons/react';
@@ -17,11 +17,11 @@ function categoryFields(category: CookieCategory, place: string, hint = 'Shown w
 }
 
 export const privacy: PartScreen = {
-  id: 'privatliv',
+  id: 'privacy',
   label: 'Privacy',
   parts: [
     {
-      id: 'cookiebanner',
+      id: 'cookie-banner',
       label: 'Cookie banner',
       icon: Cookie,
       file: 'src/data/cookies.json',
@@ -42,7 +42,7 @@ export const privacy: PartScreen = {
           type: 'string',
           required: true,
           hint: 'The link goes to the cookie policy.',
-          edit: { to: 'privatliv/privatlivssider', text: 'Edit privacy pages' },
+          edit: { to: 'privacy/privacy-pages', text: 'Edit privacy pages' },
         },
         { name: 'no', label: 'Button text (no)', type: 'string', required: true, max: 20 },
         { name: 'yes', label: 'Button text (yes)', type: 'string', required: true, max: 20 },
@@ -66,10 +66,10 @@ export const privacy: PartScreen = {
       ],
     },
     // The site's list of cookies ("Cookies", the standard block "Cookie list"), a screen of its own under "Lists"'s
-    // address space (#liste/<id>): only its row is here, and the list goes back to this screen (Library.tsx).
-    { id: 'cookies', label: 'Cookies', icon: Cookie, href: `#liste/${config.lists.cookies}` },
+    // address space (#list/<id>): only its row is here, and the list goes back to this screen (Library.tsx).
+    { id: 'cookies', label: 'Cookies', icon: Cookie, href: `#list/${config.lists.cookies}` },
     {
-      id: 'privatlivssider',
+      id: 'privacy-pages',
       label: 'Privacy pages',
       icon: FileText,
       file: config.standardPages,
@@ -77,6 +77,6 @@ export const privacy: PartScreen = {
       rows: true,
     },
     // The visitors' answers in the banner, kept by the Worker (packages/editor/worker/consent.js): the editor's own screen (Consents.tsx).
-    { id: 'samtykker', label: 'Consents', icon: ListChecks, opens: 'consents' },
+    { id: 'consents', label: 'Consents', icon: ListChecks, opens: 'consents' },
   ],
 };

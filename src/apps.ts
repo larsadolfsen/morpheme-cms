@@ -25,7 +25,7 @@
 //                 asking its own addresses in the Worker (`api`);
 //   screens in index.ts  screens of its own under its page (#apps/<app>/<screen>, AppScreenPage), drawn as its page,
 //                 which links to them (Cookiescanner's "Blokeret adresse");
-//   tabs in index.ts  tabs it adds to the site's lists (#liste/<list>/<app>, after the list's own tab in the top app
+//   tabs in index.ts  tabs it adds to the site's lists (#list/<list>/<app>, after the list's own tab in the top app
 //                 bar, Library.tsx List), drawn as its page (Cookiescanner's "Problemer" on "Cookies");
 //   notifications in index.ts  the kinds of notifications it sends, each turned off under "Konto", and how it finds
 //                 them (`check`, with `api`; AppNotifications);
@@ -55,6 +55,9 @@ export type AppSettings = {
   /** Made-up settings over `values`, which its blocks and kinds are drawn with under "Dele" (exampleData in
    * examples.ts), where the site's own are never shown (MobilePay's number). */
   example?: Record<string, unknown>;
+  /** The value a save of these settings sets, said in the notice after it ("CMS-version set to 0.10.0"), asked with the
+   * saved values and the app's own addresses in the Worker (`api`); undefined, or a failure, says "CMS-version changed". */
+  changedTo?: (values: Record<string, unknown>, props: AppPageProps) => Promise<string | undefined>;
 };
 export const defineSettings = (settings: AppSettings) => settings;
 
@@ -158,7 +161,7 @@ export type AppDefinition = {
    * what it does ("nyhedsbrev"). The kind also says where its settings are: under "Indstillinger" on the site's screen
    * with it (PartScreen.apps in partScreens: "analytics" on "Analytics"), or on a part of "Virksomheden" with it
    * (Part.apps in companyParts: "payment" on "Betaling"), so they are where they are used and not on its page under
-   * "Apps", which only installs it; without such a screen, on a screen of their own (#apps/<id>/indstillinger). */
+   * "Apps", which only installs it; without such a screen, on a screen of their own (#apps/<id>/settings). */
   category?: AppCategory;
   keywords?: string[];
   /** The categories of cookies (lib/cookieCategories.mjs) of what it loads that sets cookies (a tag), with these
@@ -170,10 +173,10 @@ export type AppDefinition = {
    * editor's parts (ui.tsx), its texts with siteText. */
   page?: ComponentType<AppPageProps>;
   /** Screens of its own under its page while it is installed, by the last part of their address (#apps/<id>/<key>; not
-   * "indstillinger", the Settings tab's field pages, and not "om", the Information tab: the editor matches those
+   * "settings", the Settings tab's field pages, and not "about", the Information tab: the editor matches those
    * first, so a screen with either key is never shown), each linked to from its page. */
   screens?: Record<string, AppScreen>;
-  /** Tabs it adds to the site's lists while it is installed, by the list's id, each at #liste/<list>/<app>. */
+  /** Tabs it adds to the site's lists while it is installed, by the list's id, each at #list/<list>/<app>. */
   tabs?: Record<string, AppTab>;
   notifications?: AppNotifications;
 };
@@ -227,7 +230,7 @@ export function withKinds<C extends { id: string; kind: string; fields?: Field[]
 }
 
 /** An app's kind of a list as it is turned off under "Blokindstillinger", among the blocks turned off ("popups/mailchimp",
- * as its address under "+", #ny/popups/mailchimp). */
+ * as its address under "+", #new/popups/mailchimp). */
 export const kindKey = (list: string, app: string) => `${list}/${app}`;
 
 /** The kinds a new entry of a list can be, under its "+": its own, and those of the apps installed and not turned off
@@ -248,9 +251,8 @@ export function kindsOffered(
 export const tabsOf = (list: string, apps: SiteApp[], installed: string[]) =>
   apps.flatMap((app) => (installed.includes(app.id) && app.tabs?.[list] ? [{ app, tab: app.tabs[list] }] : []));
 
-/** The id of an app from the path of a file in its folder ("/src/apps/mailchimp/index.ts": "mailchimp",
- * also ".../apps/mailchimp/popups/View.tsx"). */
-export const appIdOf = (path: string) => path.split('/apps/')[1].split('/')[0];
+// The id of an app from the path of a file in its folder (lib/appId.mjs, also read by the @app/self plugin).
+export { appIdOf } from '../lib/appId.mjs';
 
 /** The file of an app's settings (config.apps.settings/<id>.json). */
 export const settingsFile = (id: string) => `${config.apps.settings}/${id}.json`;

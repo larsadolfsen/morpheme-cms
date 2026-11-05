@@ -20,8 +20,8 @@ export type ThirdParty =
 /** The licence of one's own work that grants nothing ("all rights reserved"), as npm writes it. */
 export const UNLICENSED = 'UNLICENSED';
 
-/** Who brings a work: the editor, the site's own code, or an app or a theme (`app/<id>`, `tema/<id>`, LicenseOwner.id). */
-export type LicenseWhere = 'editor' | 'site' | `app/${string}` | `tema/${string}`;
+/** Who brings a work: the editor, the site's own code, or an app or a theme (`app/<id>`, `theme/<id>`, LicenseOwner.id). */
+export type LicenseWhere = 'editor' | 'site' | `app/${string}` | `theme/${string}`;
 
 /** A third-party work as the build found it: its id (a package's name; `ikoner/<id>` for an icon set; `<owner>/<name>`
  * for another work an app or a theme declares), its name, version, who made it, its licence's name and text (`standard`:
@@ -46,7 +46,7 @@ export type LicensedWork = {
 /** An app or a theme with its own licence (`text`: LICENSE in its folder, none when it is UNLICENSED) and the works it
  * brings (their ids: those it declares, and those shipped through them alone), and whether the site is built with it. */
 export type LicenseOwner = {
-  id: `app/${string}` | `tema/${string}`;
+  id: `app/${string}` | `theme/${string}`;
   kind: 'app' | 'theme';
   /** Its folder's name in src/apps/ or src/themes/. */
   key: string;

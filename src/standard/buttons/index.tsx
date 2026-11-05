@@ -11,7 +11,7 @@ export default defineBlock({
   label: t.blocks.buttons.label,
   icon: CursorClick,
   hint: t.blocks.buttons.hint,
-  edit: { to: 'blokke/buttons', text: t.blocks.buttons.edit },
+  edit: { to: 'blocks/buttons', text: t.blocks.buttons.edit },
   fields: [{ ...buttonList, hint: t.blocks.buttons.itemsHint }],
   preview: true,
   detail: (p) => [

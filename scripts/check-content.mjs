@@ -5,7 +5,7 @@
 // the system's icon packs and the choice of one (iconPackProblems), and so an icon the site or the editor draws that a
 // pack has none for, and the choice of motion scheme (motionProblems), and names in a folder that differ only in case
 // (casingProblems). Says too which of the site's texts the
-// editor has no translation of (@site/texts, a block's texts.ts); that does not stop the build. The editor's
+// editor has no translation of (@site/texts, a block's texts.ts); that does not stop the build, but a standard part's text with no Danish (defaults/i18n/da-DK/) does. The editor's
 // code is TypeScript and TSX, so it is loaded with Vite, as the site's own build does. Exits early, without checking, when
 // MORPHEME_CONTENT_CHECKED names the commit being built (morpheme ci-build already ran it; already-checked.mjs).
 import { execFileSync } from 'node:child_process';
@@ -25,6 +25,7 @@ import {
   themeProblems,
 } from '@morphemecms/cms/site/theme.mjs';
 import { appFoldersPlugin, appIds, appWorkersProblems } from '@morphemecms/cms/lib/apps.mjs';
+import { appSelf } from '@morphemecms/cms/site/appSelf.mjs';
 import { caseCollisionProblems } from '@morphemecms/cms/lib/caseCollisions.mjs';
 import { codePackageProblems, declarationProblems, ownerId } from '@morphemecms/cms/lib/licenses.mjs';
 import { breakpointProblems } from '@morphemecms/cms/site/breakpoints.mjs';
@@ -70,7 +71,7 @@ const server = await createServer({
   logLevel: 'error',
   appType: 'custom',
   // As in packages/editor/astro.mjs: the editor takes the site from src/site/ as @site, and the theme in use as @theme.
-  plugins: [themePlugin(), appFoldersPlugin(process.cwd())],
+  plugins: [themePlugin(), appFoldersPlugin(process.cwd()), appSelf()],
   resolve: { alias: aliases() },
   server: { middlewareMode: true, hmr: false, ws: false },
 });
@@ -122,6 +123,15 @@ try {
 
 for (const [locale, files] of Object.entries(missing)) {
   for (const [file, texts] of Object.entries(files)) {
+    // A standard part's text with no translation stops the check; the site's own only warns.
+    if (file.startsWith('defaults/i18n/')) {
+      result.problems.push(
+        ...texts.map(
+          (text) => `${file}: standardteksten ${JSON.stringify(text)} mangler på ${locale}. Skriv den i defaults/i18n/${locale}/.`,
+        ),
+      );
+      continue;
+    }
     console.warn(`\nEditoren viser ${texts.length} af sitets tekster uoversat på ${locale}. Skriv dem i ${file}:\n`);
     for (const text of texts) console.warn(`  ${JSON.stringify(text)}`);
   }

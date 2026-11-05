@@ -49,7 +49,7 @@ export default defineBlock({
   label: t.blocks.posts.label,
   icon: Newspaper,
   hint: t.blocks.posts.hint,
-  edit: { to: 'blokke/posts', text: t.blocks.posts.edit },
+  edit: { to: 'blocks/posts', text: t.blocks.posts.edit },
   fields: [
     ...headFields,
     // A list (the empty choice: so are the blocks from before there was a choice), or the newest large over the list
