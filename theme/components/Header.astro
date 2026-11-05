@@ -7,7 +7,7 @@
 // as an extended FAB at the bottom right of the screen (ui/Fab.tsx, m3.material.io/components/extended-fab), which shows only its
 // icon while the page scrolls down. Not on the booking page and the thank-you page; on a phone with a bar at the
 // bottom of the screen, the bar's first button is the FAB instead (global.css). header.json (optional, site/header.mjs) can put a
-// button in place of the phone icon from the medium window size up, and the menu button at the end; data-editor marks the
+// button in place of the phone icon (shown from the medium window size up), and the menu button at the end; data-editor marks the
 // header, the menu button and the button's place (header-cta) for the editor's preview.
 import Icon from '@theme/components/Icon.astro';
 import MobileMenu from '@theme/components/MobileMenu.tsx';
@@ -109,20 +109,21 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
       </nav>
     )}
 
-    {button && (
+    {button ? (
       <div data-editor="header-cta" class="hidden shrink-0 medium:block">
         <Buttons buttons={[button]} />
       </div>
+    ) : (
+      <a
+        href={site.phoneHref}
+        data-editor="header-cta"
+        class="icon-button icon-button-standard -mr-2 ml-1"
+        aria-label={`${site.labels.call} ${site.phone}`}
+        title={site.phone}
+      >
+        <Icon name="phone" size={24} />
+      </a>
     )}
-    <a
-      href={site.phoneHref}
-      data-editor={button ? undefined : 'header-cta'}
-      class:list={['icon-button icon-button-standard -mr-2 ml-1', button && 'medium:hidden']}
-      aria-label={`${site.labels.call} ${site.phone}`}
-      title={site.phone}
-    >
-      <Icon name="phone" size={24} />
-    </a>
     {navShown && menuEnd && (
       <div data-editor="header-menu" class="-mr-2 ml-1 large:hidden large:group-data-crowded/header:block">
         <MobileMenu client:interact {...menuProps} />
