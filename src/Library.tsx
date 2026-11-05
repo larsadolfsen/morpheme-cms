@@ -1,4 +1,4 @@
-// The start screen of the editor (empty but for its title, status and FAB) and the
+// The account screen (who is signed in, AccountRow) and the start screen of the editor (empty but for its title, status and FAB) and the
 // list of each part: blog posts newest first, the rest by name, prices and testimonials in their order
 // on the site (with arrows to move them), and a search. Lists that are not in an order of their own can
 // be sorted another way (a list of kinds, by its kinds too); the choice is kept in this browser. Pages
@@ -15,7 +15,6 @@ import {
   ClockCounterClockwise,
   CircleHalf,
   FileText,
-  GithubLogo,
   GoogleLogo,
   List as ListIcon,
   ListBullets,
@@ -49,6 +48,7 @@ import {
 } from './site';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { ConflictError, type RepoFile, type Viewer } from './github';
+import { AccountRow } from './AccountRow';
 import Screen from './Screen';
 import {
   ImageCarousel,
@@ -718,15 +718,11 @@ export function Account({ user, files, onLogout }: { user: Viewer | null; files:
     // Titled with the name of the one logged in.
     <Screen title={user ? (user.name ?? user.login) : t.common.parts.account} back={{ href: '#', label: siteName }}>
       {/* Who is logged in, as plain text: nothing to tap. */}
-      <div className="mb-8 flex items-center gap-3 px-4">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-full text-muted">
-          <GithubLogo size={28} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate font-medium">{user ? (user.name ?? user.login) : ''}</span>
-          {user && <span className="block truncate text-sm text-muted">{t.library.githubAccount(user.login)}</span>}
-        </span>
-      </div>
+      {user && (
+        <div className="mb-8">
+          <AccountRow user={user} supporting={t.library.githubAccount(user.login)} />
+        </div>
+      )}
       <section className="mb-8">
         <GroupTitle>{t.library.theme}</GroupTitle>
         <ThemePicker />

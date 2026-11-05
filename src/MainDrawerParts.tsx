@@ -1,9 +1,11 @@
 // The main drawer and its menu button on #udseende/dele/editor (Parts.tsx): the modal drawer in its two levels (sections, and
 // a section's list with the back row and a fold-out), opened from a button, so it can be tried at any width, and the menu
-// button open and closed. Exposes MainDrawerSample. Uses MainDrawer and its parts from ui.tsx.
+// button open and closed. The drawer's header is a sample user (AccountRow). Exposes MainDrawerSample. Uses MainDrawer and
+// its parts from ui.tsx.
 import { useState } from 'react';
 import { icons } from './site';
 import { t } from './i18n';
+import { AccountRow } from './AccountRow';
 import {
   Button,
   MainDrawer,
@@ -17,6 +19,8 @@ import {
 } from './ui';
 
 const { parts } = t.common;
+
+const sampleUser = { login: 'octocat', name: 'Octo Cat', canSave: true };
 
 export function MainDrawerSample() {
   const [open, setOpen] = useState(false);
@@ -38,6 +42,7 @@ export function MainDrawerSample() {
           return inList;
         }}
         variant="modal"
+        header={<AccountRow user={sampleUser} supporting="example.com" href="" />}
       >
         {section === null ? (
           <MainDrawerLevel>

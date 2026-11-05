@@ -1,7 +1,8 @@
 // The editor's main menu (App.tsx renders it): the drawer (ui.tsx MainDrawer) in two levels. The first lists Home and the
 // sections; a section opens its list, under a back row, with the open screen marked and its fold-out folded out. Apps lists
 // Appstore and a row per app installed. From medium and wider the first level is also the collapsed navigation rail
-// (MainRailItem), whose sections open the drawer at their list. Exposes MainMenu. The tree and the open place are lib/menu.mjs
+// (MainRailItem), whose sections open the drawer at their list. The drawer's header is the signed-in user (AccountRow), a link
+// to the account. Exposes MainMenu. The tree and the open place are lib/menu.mjs
 // (menuTree, currentPlace); it only wires them to the drawer.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { config, header } from '@site/editor';
@@ -10,6 +11,7 @@ import { STORE_ROUTE } from './store';
 import { collectionOf } from './schema';
 import { apps, collections, groups, icons, lists, partScreens } from './site';
 import { partOf } from './Library';
+import { AccountRow } from './AccountRow';
 import { childrenOf } from './menuChildren';
 import { t } from './i18n';
 import { useMenuOpen } from './menuOpen';
@@ -24,9 +26,9 @@ import {
   MainRailItem,
   MainRailSectionItem,
 } from './ui';
-import type { RepoFile } from './github';
+import type { RepoFile, Viewer } from './github';
 
-export function MainMenu({ route, files }: { route: string; files: RepoFile[] | null }) {
+export function MainMenu({ route, files, user }: { route: string; files: RepoFile[] | null; user: Viewer | null }) {
   const { open, setOpen } = useMenuOpen();
   const tree = useMemo(
     () =>
@@ -82,6 +84,7 @@ export function MainMenu({ route, files }: { route: string; files: RepoFile[] | 
       open={open}
       onOpenChange={setOpen}
       onEscape={onEscape}
+      header={user && <AccountRow user={user} supporting={config.domain} href="#konto" />}
       rail={tree.map((entry) =>
         entry.href !== undefined ? (
           <MainRailItem key={entry.id} href={entry.href} icon={icons[entry.id]} label={entry.label} selected={route === ''} />

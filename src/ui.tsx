@@ -107,7 +107,6 @@ import {
 import { locale, t } from './i18n';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
 import { SvgFile } from './icon';
-import { SiteLogoLink } from './SiteLogoLink';
 import { countries, countryName, dialCodes, flagOf, regionOf } from './countries';
 import { byText } from './schema';
 import { contrast } from '../lib/colors';
@@ -2206,6 +2205,9 @@ export function ChoiceRow({
  * (Material 3 Expressive's), each row on its own surface. */
 export const listClass = siteListClasses('segmented');
 
+/** The classes of a list without surfaces (the theme's standard list): a row or two that stand on the page, AccountRow. */
+export const plainListClass = siteListClasses('standard');
+
 /** The small heading over a Group, and over what stands as one (the themes on Konto): in Material 3's title small, as
  * written (not in capitals, Material 2's subheader), muted as a group's heading in a sheet (SheetGroupTitle). */
 export function GroupTitle({ children }: { children: ReactNode }) {
@@ -2665,7 +2667,8 @@ export function SectionPane({ caption, title, children }: { caption: string; tit
 }
 
 /** The editor's main navigation (Material 3's navigation drawer, the theme's, in its design): the site's parts in sections
- * (`MainDrawerSection`, `MainDrawerItem`), at the full height of the window, with the menu button at the top. From medium
+ * (`MainDrawerSection`, `MainDrawerItem`), at the full height of the window, with a header row at the top: `header` (the
+ * signed-in user, AccountRow) at the start and the menu button at the end. From medium
  * and wider a navigation rail (`rail`: its destinations, `MainRailItem` and `MainRailSectionItem`) stands in its place while
  * the drawer is closed; its menu button, or a section in it, opens the drawer (`onOpenChange`). The drawer is standard at
  * expanded and wider, beside the content (`open` shows and hides it, and the rail the other way round); modal below, over a
@@ -2680,6 +2683,7 @@ export function MainDrawer({
   onEscape,
   variant,
   rail,
+  header,
   children,
 }: {
   label: string;
@@ -2688,6 +2692,7 @@ export function MainDrawer({
   onEscape?: () => boolean;
   variant?: 'modal' | 'standard';
   rail?: ReactNode;
+  header?: ReactNode;
   children: ReactNode;
 }) {
   const layout = useMenuLayout();
@@ -2701,11 +2706,11 @@ export function MainDrawer({
         </MainRail>
       )}
       {shown === 'standard' ? (
-        <StandardMainDrawer label={label} open={open} onOpenChange={onOpenChange} onEscape={onEscape}>
+        <StandardMainDrawer label={label} open={open} onOpenChange={onOpenChange} onEscape={onEscape} header={header}>
           {children}
         </StandardMainDrawer>
       ) : (
-        <ModalMainDrawer label={label} open={open} onOpenChange={onOpenChange} onEscape={onEscape}>
+        <ModalMainDrawer label={label} open={open} onOpenChange={onOpenChange} onEscape={onEscape} header={header}>
           {children}
         </ModalMainDrawer>
       )}
@@ -2731,13 +2736,13 @@ function MainRail({ label, onOpen, children }: { label: string; onOpen: () => vo
   );
 }
 
-// The menu button at the top of either drawer: its icon over the items' icons, level with the top bar's logo; it closes the drawer.
-// The modal drawer (`logo`) shows the site's logo after the button.
-function MainDrawerMenuButton({ onClick, logo }: { onClick: () => void; logo?: boolean }) {
+// The header row at the top of either drawer: `header` (the signed-in user, MainMenu.tsx) at the start and the menu button at
+// the end, which closes the drawer and stays level with the top bar's menu button.
+function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header?: ReactNode }) {
   return (
-    <div className="ms-1 mt-2 mb-7 flex items-center gap-1 self-start">
+    <div className="mt-2 mb-7 flex items-center gap-1 ps-2 pe-1">
+      <div className="min-w-0 flex-1">{header}</div>
       <MenuButton label={t.library.closeMenu} open onClick={onClick} />
-      {logo && <SiteLogoLink />}
     </div>
   );
 }
@@ -2754,12 +2759,14 @@ function StandardMainDrawer({
   open,
   onOpenChange,
   onEscape,
+  header,
   children,
 }: {
   label: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEscape?: () => boolean;
+  header?: ReactNode;
   children: ReactNode;
 }) {
   if (!open) return null;
@@ -2772,7 +2779,7 @@ function StandardMainDrawer({
           if (e.key === 'Escape' && onEscape?.()) e.preventDefault();
         }}
       >
-        <MainDrawerMenuButton onClick={() => onOpenChange(false)} />
+        <MainDrawerMenuButton onClick={() => onOpenChange(false)} header={header} />
         <MainDrawerBody label={label}>{children}</MainDrawerBody>
       </SiteNavigationDrawer>
     </aside>
@@ -2786,12 +2793,14 @@ function ModalMainDrawer({
   open,
   onOpenChange,
   onEscape,
+  header,
   children,
 }: {
   label: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEscape?: () => boolean;
+  header?: ReactNode;
   children: ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -2838,7 +2847,7 @@ function ModalMainDrawer({
           }
         }}
       >
-        <MainDrawerMenuButton onClick={() => onOpenChange(false)} logo />
+        <MainDrawerMenuButton onClick={() => onOpenChange(false)} header={header} />
         <MainDrawerBody label={label}>{children}</MainDrawerBody>
       </SiteNavigationDrawer>
     </dialog>
