@@ -4,7 +4,8 @@
 // actions at the bottom (`actions`: buttons). Its kind (`kind`): 'standard', beside what it is about on the page, an
 // <aside> named by its headline, its place the page's; or 'modal', over the page in a <dialog> with sideSheetClass over
 // the scrim, which sideSheet() in sideSheetControl.ts opens, closes and lets slide in from the side (the <dialog> gets
-// aria-labelledby with `headlineId`). How it looks is the theme's (--side-sheet-*). In the editor only drawn, as high as
+// aria-labelledby with `headlineId`). A standard one takes an `id` and `hidden`: a button with data-side-sheet-open="<id>"
+// shows it (sideSheet.script.ts, standardSideSheet()). How it looks is the theme's (--side-sheet-*). In the editor only drawn, as high as
 // its place.
 import type { ReactNode } from 'react';
 import IconButton from '@theme/ui/IconButton';
@@ -19,6 +20,8 @@ export default function SideSheet({
   kind = 'standard',
   headline,
   headlineId,
+  id,
+  hidden,
   closeLabel,
   onClose,
   actions,
@@ -28,6 +31,9 @@ export default function SideSheet({
   kind?: SideSheetKind;
   headline: ReactNode;
   headlineId?: string;
+  /** A standard side sheet's id, and whether it starts hidden (a button with data-side-sheet-open shows it). */
+  id?: string;
+  hidden?: boolean;
   closeLabel?: string;
   onClose?: () => void;
   actions?: ReactNode;
@@ -37,6 +43,8 @@ export default function SideSheet({
   const Container = kind === 'standard' ? 'aside' : 'div';
   return (
     <Container
+      id={kind === 'standard' ? id : undefined}
+      hidden={kind === 'standard' ? hidden : undefined}
       className={[sideSheetContainerClass(kind), className].filter(Boolean).join(' ')}
       aria-labelledby={kind === 'standard' ? headlineId : undefined}
       data-side-sheet-container=""
