@@ -283,7 +283,7 @@ export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
   const installed = installedApps(files);
   const catalog = useCatalog(env);
   const store = Array.isArray(catalog) ? catalog : [];
-  const [query, setQuery] = useKept('apps-soeg', '');
+  const [query, setQuery] = useKept('apps-search', '');
   const [sort, pickSort] = useSort();
 
   // The apps installed: the site's own and those from the store; and one from the store in the file of apps that the
