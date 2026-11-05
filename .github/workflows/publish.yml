@@ -4,6 +4,8 @@
 # test version (X.Y.Z-next-<time>) is staged for next, and once approved, morpheme-staging is rebuilt. npm's trusted
 # publishing trusts this one file and lets it only stage (npm stage publish): no key, and nothing reaches npm without
 # the owner's approval.
+# The jobs that wait for an approval must not fill the runner slots: a newer push cancels the older waiting "next"
+# job, and each wait step has a timeout. "latest" is never cancelled by a newer run.
 name: Publish
 
 on:
@@ -64,6 +66,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Wait until the owner has approved it on npmjs.com
+        timeout-minutes: 240
         run: until npm view "@morphemecms/cms@$V" version >/dev/null 2>&1; do sleep 60; done
       - name: Tag it and make the GitHub release with its section of CHANGELOG.md
         run: |
@@ -79,6 +82,10 @@ jobs:
     needs: release
     if: needs.release.outputs.pending == 'true'
     runs-on: ubuntu-latest
+    # A newer push cancels an older "next" job that still waits for approval.
+    concurrency:
+      group: publish-next
+      cancel-in-progress: true
     # Waits for the owner's approval: up to six hours, then re-run this job.
     timeout-minutes: 360
     # At job level, so the steps' "if" can see whether it is set.
@@ -103,6 +110,7 @@ jobs:
           echo "version=$v" >> "$GITHUB_OUTPUT"
       - name: Wait until the owner has approved it on npmjs.com
         if: steps.stage.outputs.version != ''
+        timeout-minutes: 60
         run: until npm view "@morphemecms/cms@$V" version >/dev/null 2>&1; do sleep 60; done
         env:
           V: ${{ steps.stage.outputs.version }}
