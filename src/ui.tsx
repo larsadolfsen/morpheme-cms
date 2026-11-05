@@ -3211,18 +3211,23 @@ export function Dialog({ ref, className, children, ...rest }: DialogHTMLAttribut
 
 /** The sheet from the bottom (a dialog in the middle on a computer): the theme's bottom sheet, as high as what is in
  * it, on a <dialog> (`ref`; opened with showModal), with a SheetTitle and SheetBody, SheetList or SheetActions in it.
- * `full`: as high as the screen, and wider on a computer, with a whole page in it (the preview, PageFrame). */
+ * `full`: as high as the screen, and wider on a computer, with a whole page in it (the preview, PageFrame).
+ * `panel`: the theme's modal side sheet (data-wide="side-sheet") at the window's end edge under the top bar, half the space
+ * beside the start panel (.editor-side-panel in editor.css); the rest of the page stays in view, inert as under a dialog. */
 export function BottomSheet({
   ref,
   full,
+  panel,
   className,
   children,
   ...rest
-}: DialogHTMLAttributes<HTMLDialogElement> & { ref?: Ref<HTMLDialogElement>; full?: boolean }) {
+}: DialogHTMLAttributes<HTMLDialogElement> & { ref?: Ref<HTMLDialogElement>; full?: boolean; panel?: boolean }) {
   const sheet = full ? siteBottomSheetFullClass : siteBottomSheetFitClass;
   return (
-    <dialog ref={ref} className={[sheet, 'editor-sheet', className].filter(Boolean).join(' ')} {...rest}>
-      <div className={siteBottomSheetContainerClass()}>{children}</div>
+    <dialog ref={ref} className={[sheet, 'editor-sheet', panel && 'editor-side-panel', className].filter(Boolean).join(' ')} {...rest}>
+      <div className={siteBottomSheetContainerClass()} data-wide={panel ? 'side-sheet' : undefined}>
+        {children}
+      </div>
     </dialog>
   );
 }
