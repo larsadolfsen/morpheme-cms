@@ -53,7 +53,7 @@ export const apps: Messages['apps'] = {
   find: 'Appstore',
   searchStore: 'Søg efter apps',
   loadingStore: 'Henter apps…',
-  storeFailed: 'Kunne ikke hente Appstore',
+  storeFailed: 'Kan ikke nå butikken. Prøv igen om 10 minutter.',
   noStore: 'Hjemmesiden har ingen Appstore',
   connectTitle: 'Hjemmesiden er ikke forbundet til Morpheme',
   connectText: 'Forbind den for at installere apps og temaer fra Appstore.',

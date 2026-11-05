@@ -80,7 +80,7 @@ export const apps = {
   find: 'Appstore',
   searchStore: 'Search for apps',
   loadingStore: 'Loading apps…',
-  storeFailed: 'Couldn’t load the Appstore',
+  storeFailed: 'Can’t reach the store. Try again in 10 minutes.',
   /** On "Appstore" when the site's Worker has no store key: only the site's own are there. */
   noStore: 'The website has no Appstore',
   /** On "Appstore": the box that connects the site to the Morpheme store, the row that disconnects it, and the answer at the store's hourly limit. */
