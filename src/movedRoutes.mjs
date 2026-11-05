@@ -1,5 +1,5 @@
-// The editor's screens that have moved, by their old address after the "#": a link or a bookmark to one opens it where
-// it is now. Exposes MOVED, RENAMED and movedRoute (pure). Used by App.tsx (routeOf), which adds the app store's own.
+// The editor's screens that have moved or been renamed, by their old address after the "#": a link or a bookmark to one
+// opens it where it is now. Exposes MOVED, RENAMED and movedRoute (pure). Used by App.tsx (routeOf), which adds the app store's own.
 
 /** Where each moved screen is now, by its old address. */
 export const MOVED = /** @type {Record<string, string>} */ ({
@@ -26,45 +26,71 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   'src/data/footer.json': 'appearance/footer',
 });
 
-/** Danish address segment -> English segment, one entry per renamed route id. Old links keep working through it. */
+/**
+ * Old route prefix (Danish, one or more segments, as the routes were before the ids got English names) -> its new
+ * English prefix. Only a route that starts with the old prefix is renamed, and the rest of it is data (a file path, a
+ * slug, an id) that keeps its name. A key segment `*` matches any one segment and keeps it (in the value too).
+ * Old links keep working through it. The longest matching key wins.
+ */
 export const RENAMED = /** @type {Record<string, string>} */ ({
   indstillinger: 'settings',
+  'indstillinger/appstore/temaer': 'settings/appstore/themes',
+  'apps/*/indstillinger': 'apps/*/settings',
   udseende: 'appearance',
+  'udseende/temaer': 'appearance/themes',
+  'udseende/ikonpakker': 'appearance/icon-packs',
+  'udseende/bevaegelse': 'appearance/motion',
+  'udseende/sidekolonne': 'appearance/side-column',
+  'udseende/farver': 'appearance/colors',
+  'udseende/farver/reservefarver': 'appearance/colors/fallback-colors',
+  'udseende/dele': 'appearance/parts',
+  'udseende/dele/blokke': 'appearance/parts/blocks',
+  'udseende/dele/liste': 'appearance/parts/list',
+  'udseende/dele/vaerdier': 'appearance/parts/values',
   maaling: 'analytics',
-  kategorier: 'tags',
-  mobilmenu: 'mobile-menu',
-  virksomheden: 'company',
-  blokke: 'blocks',
-  filer: 'files',
   privatliv: 'privacy',
   lister: 'lists',
   liste: 'list',
-  videresendelser: 'redirects',
+  'liste/kategorier': 'list/tags',
+  'liste/mobilmenu': 'list/mobile-menu',
+  'ny/kategorier': 'ny/tags',
+  'slettet/kategorier': 'slettet/tags',
+  'slettet/mobilmenu': 'slettet/mobile-menu',
+  'slettet/filer': 'slettet/files',
+  virksomheden: 'company',
+  blokke: 'blocks',
+  filer: 'files',
+  'seo/videresendelser': 'seo/redirects',
   blokvalg: 'block-settings',
   avanceret: 'advanced',
   licenser: 'licenses',
-  temaer: 'themes',
-  farver: 'colors',
-  reservefarver: 'fallback-colors',
-  ikonpakker: 'icon-packs',
-  bevaegelse: 'motion',
-  sidekolonne: 'side-column',
-  dele: 'parts',
-  vaerdier: 'values',
 });
 
 /**
- * The address a screen is at now: where it moved to (`more` first, then MOVED), else the same address with each
- * renamed segment replaced.
+ * The address a screen is at now: where it moved to (`more` first, then MOVED), else the address with its longest old
+ * prefix in `renamed` replaced and the rest as it is, else the same address.
  * @param {string} route
  * @param {Record<string, string>} [more]
  * @param {Record<string, string>} [renamed]
  * @returns {string}
  */
-export const movedRoute = (route, more = {}, renamed = RENAMED) =>
-  more[route] ??
-  MOVED[route] ??
-  route
-    .split('/')
-    .map((segment) => renamed[segment] ?? segment)
-    .join('/');
+export const movedRoute = (route, more = {}, renamed = RENAMED) => {
+  const moved = more[route] ?? MOVED[route];
+  if (moved !== undefined) return moved;
+  const parts = route.split('/');
+  let best = null;
+  for (const key of Object.keys(renamed)) {
+    const old = key.split('/');
+    if (old.length > parts.length || (best && old.length <= best.old.length)) continue;
+    if (old.every((segment, n) => segment === '*' || segment === parts[n])) best = { key, old };
+  }
+  if (!best) return route;
+  const kept = parts.slice(0, best.old.length);
+  let n = 0;
+  const now = renamed[best.key].split('/').map((segment) => {
+    if (segment !== '*') return segment;
+    while (best.old[n] !== '*') n += 1;
+    return kept[n++];
+  });
+  return [...now, ...parts.slice(best.old.length)].join('/');
+};
