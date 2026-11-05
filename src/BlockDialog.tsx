@@ -4,7 +4,8 @@
 // so it must be inside the form's Fields.Provider. list: the blocks of this text (the site's blocks on a
 // page, the sections on a fixed page). Over the blocks to choose from, as under "Standardblokke" (Library.tsx):
 // the search, the order (A–Å, Å–A or by group, kept in this browser) and the funnel with the filter by group
-// (the standard blocks, each app's under its name), the one picked as a chip.
+// (the standard blocks, each app's under its name), the one picked as a chip. Also the sheet of a section's
+// settings (its colour, SectionSettings.tsx), which goes the same way as a block's fields: Annuller, Gem, the question when closed changed.
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { ArrowsDownUp, Image } from '@phosphor-icons/react';
 import {
@@ -36,6 +37,7 @@ import CropField, { type Cut } from './Crop';
 import { t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 import { closeChanged } from './ask';
+import SectionSettings from './SectionSettings';
 
 export type BlockAsk = {
   list: SiteBlock[];
@@ -49,9 +51,14 @@ export type BlockAsk = {
   choose: (offer?: { image?: boolean; have?: string[] }) => Promise<{ type: string; props: BlockProps } | null>;
   /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Indsæt"). */
   edit: (type: string, props: BlockProps, isNew?: boolean) => Promise<BlockProps | null>;
+  /** The settings of the section the cursor is in (now its colour; null: none); the new ones, or null when cancelled. */
+  section: (color: string | null) => Promise<{ color: string | null } | null>;
 };
 
-type Open = { step: 'choose'; image?: boolean; have?: string[] } | { step: 'fields'; type: string; isNew: boolean };
+type Open = { step: 'choose'; image?: boolean; have?: string[] } | { step: 'fields'; type: string; isNew: boolean } | { step: 'section' };
+
+/** The type a section's settings are answered with (not a block's). */
+const SECTION = 'section';
 
 /** The choice of a picture in the sheet ("+" in the toolbar, MarkdownEditor.tsx), and a picture in the
  * text, which is changed here like a block's fields: another from the gallery, and its description, or
@@ -163,6 +170,11 @@ export function useBlockDialog(
     template,
     data,
     choose: (offer) => ask({ step: 'choose', image: offer?.image, have: offer?.have }),
+    section: async (color) => {
+      const answered = await ask({ step: 'section' }, { color: color ?? '' });
+      shown.current = JSON.stringify(color ?? '');
+      return answered && { color: answered.props.color ? String(answered.props.color) : null };
+    },
     edit: async (type, props, isNew = false) => {
       const fields = blockOf(type)?.fields ?? [];
       // A block on the page with what a field it has no value for means; a new one with the defaults.
@@ -193,10 +205,21 @@ export function useBlockDialog(
   // Closed (Annuller, the cross, a swipe down, Esc, a tap beside it) with the fields changed: the owner is
   // asked whether to keep them ("Indsæt", "Gem"), leave them or stay.
   async function leave() {
+    if (open?.step === 'section') {
+      if (JSON.stringify(values.color ?? '') === shown.current) return done(null);
+      const choice = await closeChanged(t.common.save);
+      if (choice === 'keep') saveSection();
+      else if (choice === 'discard') done(null);
+      return;
+    }
     if (open?.step !== 'fields' || asWritten(open.type, values) === shown.current) return done(null);
     const choice = await closeChanged(open.isNew ? t.blocks.insert : t.common.save);
     if (choice === 'keep') save(open.type);
     else if (choice === 'discard') done(null);
+  }
+
+  function saveSection() {
+    done({ type: SECTION, props: { color: values.color ?? '' } });
   }
 
   function pickSort(next: InsertSort) {
@@ -242,10 +265,11 @@ export function useBlockDialog(
           .map((g) => ({ key: g as string | null, items: found.filter((b) => groupOf(b) === g) }))
           .filter((g) => g.items.length > 0)
       : headed(found, (b) => letterOf(b.label));
+  const title = open?.step === 'section' ? t.text.sectionSettings : block ? block.label : t.blocks.insert;
   const element = (
     <BottomSheet
       ref={dialog}
-      aria-label={block ? block.label : t.blocks.insert}
+      aria-label={title}
       // React passes on the close of a sheet inside it (the categories, a page): only its own counts.
       onClose={(e) => e.target === e.currentTarget && answer.current(null)}
       onCancel={(e) => {
@@ -255,7 +279,7 @@ export function useBlockDialog(
       }}
       onClick={(e) => e.target === dialog.current && void leave()}
     >
-      <SheetTitle title={block ? block.label : t.blocks.insert} onClose={() => void leave()} />
+      <SheetTitle title={title} onClose={() => void leave()} />
       {open?.step === 'choose' && (
         <>
           <SearchRow
@@ -325,6 +349,14 @@ export function useBlockDialog(
               <EmptyNote item>{query.trim() ? t.blocks.noneNamed(query.trim()) : t.common.noMatch}</EmptyNote>
             )}
           </SheetList>
+        </>
+      )}
+      {open?.step === 'section' && (
+        <>
+          <SheetBody>
+            <SectionSettings color={String(values.color ?? '')} onChange={(color) => setValues({ color })} />
+          </SheetBody>
+          <SheetActions onCancel={() => void leave()} onDone={saveSection} done={t.common.save} />
         </>
       )}
       {block && open?.step === 'fields' && (
