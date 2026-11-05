@@ -20,3 +20,9 @@ export function when(date: Date, { short = false } = {}) {
   if (short && shown === t.common.today) return time;
   return t.common.at(shown, time);
 }
+
+// "2023-10-01" as "1. okt. 2023" (in the editor's language); anything else as it is.
+export const shortDate = (iso: string) =>
+  /^\d{4}-\d{2}-\d{2}$/.test(iso)
+    ? new Date(`${iso}T12:00`).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })
+    : iso;
