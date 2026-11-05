@@ -4,23 +4,24 @@
 // keeps its keys in their order, so a save only changes what was edited. The same form has the other parts' fields (an
 // app's settings, AppList.tsx appSettingsPart). A field with its choices on a page of their own (Field.page: an app's
 // "Variant") has it at the form's address with its name after it (`at`, `page`, App.tsx): the form stays open under it
-// with what is in it, saved or not (useFormPages), a choice there goes back to it, and it comes back where it was.
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+// with what is in it, saved or not (useFieldPages), a choice there goes back to it, and it comes back where it was.
+// Exposes CompanyForm and usePartForm; the fields (with the block preview) are PartFields.tsx, a field's page PartFieldPage.tsx,
+// the providers around them PartFormProviders.tsx.
+import { useState } from 'react';
 import { ConflictError, type RepoFile } from './github';
-import FormFrame, { useFormPages } from './FormFrame';
-import Keywords from './Keywords';
+import FormFrame from './FormFrame';
+import PartFields, { hasPreview } from './PartFields';
+import PartFieldPage from './PartFieldPage';
+import PartFormProviders from './PartFormProviders';
+import { useFieldPages } from './useFieldPages';
 import type { Part } from './schema';
 import { clean, problemAt } from './check';
-import { FieldList, FieldRows, Fields, useWrongField, WrongField, type FieldContext } from './fields';
+import { useWrongField, type FieldContext } from './fields';
 import type { Env } from './App';
 import { lower, savedText } from './deploy';
-import { preview as blockPreview } from './registry';
 import { asWritten } from './site';
-import { config, keptBy, siteOf } from '@site/editor';
-import { parseBlock } from '../lib/blocks.mjs';
-import { FormColumns, Preview } from './ui';
+import { keptBy } from '@site/editor';
 import { siteT, t } from './i18n';
-import { up } from './nav';
 
 type Props = { part: Part; env: Env; files: RepoFile[] };
 
@@ -92,118 +93,27 @@ export function usePartForm({ part, env, files }: Props) {
 
 /** `at`: the form's address, for its fields' pages (Field.page); `page`: the field whose page is open. */
 export default function CompanyForm({ part, env, files, at: route, page }: Props & { at?: string; page?: string }) {
-  const { base, values, setValues, dirty, saving, save, wrongField, context } = usePartForm({ part, env, files });
-  const { file: path, at, fields } = part as Required<Part>;
+  const form = usePartForm({ part, env, files });
+  const { dirty, saving, save } = form;
   // The fields with their choices on a page of their own, and the one open.
-  const paged = route ? fields.filter((f) => f.page) : [];
-  useFormPages(route ? [route, ...paged.map((f) => `${route}/${f.name}`)] : []);
+  const open = useFieldPages(part, route, route, page);
   const pageOf = route ? (name: string) => `#${route}/${name}` : undefined;
-  const open = paged.find((f) => f.name === page);
-  // Where the form was scrolled to, kept while it is shown, so it comes back there from a field's page.
-  const scrolled = useRef(0);
-  useEffect(() => {
-    if (open) return;
-    const keep = () => (scrolled.current = scrollY);
-    addEventListener('scroll', keep, { passive: true });
-    return () => removeEventListener('scroll', keep);
-  }, [open]);
-  useLayoutEffect(() => {
-    scrollTo(0, open ? 0 : scrolled.current);
-  }, [open]);
-  // Back to the form: the field that keeps it from being saved is there (useWrongField).
-  const back = () => up(`#${route}`);
-
-  // The block with the fields as they are: the site's data with this file as it would be saved; once for
-  // each of its variants, under its name, if it has them.
-  const shown = useMemo(() => {
-    if (!part.preview) return null;
-    const { type, props = {}, shared, variants } = part.preview;
-    const data = JSON.parse(base.text) as Record<string, any>;
-    Object.assign(at ? (data[at] ??= {}) : data, values);
-    // With the file as it would be saved, also when it is not there yet (the first block with shared texts).
-    const edited = [...files.filter((f) => f.path !== path), { path, oid: '', text: JSON.stringify(data) }];
-    // The first copy of the block on a page, for its own texts and numbers.
-    const line = new RegExp(`<div data-block="${type}"[^\\n]*?></div>`);
-    const found = files.map((f) => f.path.startsWith(`${config.folders.pages}/`) && f.text.match(line)?.[0]).find(Boolean);
-    const own = (!shared && !variants && found && parseBlock(found)?.props) || props;
-    const shownWith = { lists: env.lists, testimonials: env.testimonials, relations: env.relations, site: siteOf(edited) };
-    return (variants ?? [{ label: '', props: {} }]).map((v) => ({
-      label: v.label,
-      block: blockPreview(type, { ...own, ...v.props }, shownWith),
-    }));
-  }, [values, files]);
-
-  if (open) {
-    const Page = open.page!;
-    return (
-      <Fields.Provider value={{ ...context, pageOf }}>
-        <WrongField.Provider value={wrongField.field}>
-          <FormFrame
-            title={open.label}
-            back={{ href: `#${route}`, label: part.label, guard: (go) => go() }}
-            dirty={dirty}
-            saving={saving}
-            onSave={() => {
-              if (problemAt(fields, values)) back();
-              return save();
-            }}
-            wide
-          >
-            {open.hint && <p className="text-muted">{open.hint}</p>}
-            <Page
-              field={open}
-              value={String(values[open.name] ?? '')}
-              values={values}
-              onChange={(v) => {
-                if (wrongField.field?.path === open.name) wrongField.field.clear();
-                setValues({ ...values, [open.name]: v });
-                back();
-              }}
-            />
-          </FormFrame>
-        </WrongField.Provider>
-      </Fields.Provider>
-    );
-  }
-
   return (
-    <Fields.Provider value={{ ...context, pageOf }}>
-      <WrongField.Provider value={wrongField.field}>
+    <PartFormProviders form={form} pageOf={pageOf}>
+      {open ? (
+        <PartFieldPage part={part} field={open} route={route!} form={form} back={{ href: `#${route}`, label: part.label }} />
+      ) : (
         <FormFrame
           title={part.label}
           back={part.back ?? { href: '#virksomheden', label: t.common.parts.company }}
           dirty={dirty}
           saving={saving}
           onSave={save}
-          panel={!!shown}
+          panel={hasPreview(part)}
         >
-          {shown ? (
-            // A block's texts: on a wide computer screen the block as wide as on a page, and the fields
-            // beside it at the right (FormColumns); narrower, the fields and then the block.
-            <FormColumns
-              first={<FieldList fields={fields} value={values} onChange={(v) => setValues(v as Record<string, unknown>)} />}
-              main={
-                <div>
-                  <p className="mb-2 font-medium">{t.company.preview}</p>
-                  <div className="space-y-6">
-                    {shown.map((s) => (
-                      <section key={s.label}>
-                        {s.label && <h3 className="mb-2 text-sm font-medium text-muted">{s.label}</h3>}
-                        <Preview>{s.block}</Preview>
-                      </section>
-                    ))}
-                  </div>
-                </div>
-              }
-            />
-          ) : part.rows ? (
-            <FieldRows fields={fields} value={values} onChange={setValues} />
-          ) : (
-            <FieldList fields={fields} value={values} onChange={(v) => setValues(v as Record<string, unknown>)} />
-          )}
-          {part.below === 'keywords' && <Keywords files={files} />}
+          <PartFields part={part} files={files} env={env} form={form} />
         </FormFrame>
-      </WrongField.Provider>
-    </Fields.Provider>
+      )}
+    </PartFormProviders>
   );
 }
