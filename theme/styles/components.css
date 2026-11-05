@@ -170,7 +170,7 @@
     flex: 1000 1 0;
     min-width: 8rem;
   }
-  /* The editor's drawing of one (packages/editor/defaults/popup.tsx): the same sheet, in its place in the editor's frame
+  /* The editor's drawing of one (defaults/popup.tsx): the same sheet, in its place in the editor's frame
      instead of fixed at the bottom of the screen, as wide as a phone, with the sheet's own corners and shadow. It is a
      wide="sheet" there (the editor is wider than the medium width), the selector names data-wide to win over that. */
   .bottom-sheet-standard.theme-action-bar-drawn[data-wide] {
