@@ -1164,13 +1164,13 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
 
   return (
     <div className="rounded-panel border border-line bg-surface">
-      {/* Stays at the top while scrolling through the text, a little under the app's top bar (Screen.tsx,
+      {/* A bar with round corners and room all round it, inside the text's box. Stays at the top while scrolling through the text, a little under the app's top bar (Screen.tsx,
           4rem and its line); on a phone one row that scrolls sideways. The buttons are centred, but
           start at the left edge when they do not fit (safe), so none is out of reach. */}
       <Toolbar
         ref={toolbar}
         label={t.text.tools}
-        className="editor-tools sticky top-[calc(4.5rem+1px+env(safe-area-inset-top))] z-10 justify-center-safe overflow-x-auto rounded-t-panel border-b border-line medium:flex-wrap"
+        className="editor-tools sticky top-[calc(5rem+1px+env(safe-area-inset-top))] z-10 m-2 justify-center-safe overflow-x-auto rounded-panel border border-line medium:flex-wrap"
       >
         {tools.map((tool) => (
           <ReactFragment key={tool.label}>
