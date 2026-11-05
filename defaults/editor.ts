@@ -113,7 +113,7 @@ export const icons: Record<string, Icon> = {
   popups: Megaphone,
   company: Buildings,
   // The sections of the main menu that are not also a part.
-  indhold: Article,
+  content: Article,
   globalt: GlobeSimple,
   settings: GearSix,
   blocks: SquaresFour,
@@ -170,7 +170,7 @@ const settingsIds = ['morpheme', 'advanced'];
 export const groups: { id: string; title: string; href?: string; ids: string[] }[] = [
   { id: 'home', title: 'Dashboard', href: '#', ids: [] },
   {
-    id: 'indhold',
+    id: 'content',
     title: 'Content',
     ids: ['pages', 'blog', 'lists', 'popups', 'tags', 'files', internalLinks.id, 'redirects'],
   },
