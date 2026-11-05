@@ -3117,7 +3117,7 @@ export function FormColumns({
   cards?: boolean;
   sticky?: boolean;
   /** A SectionPane, on large and wider screens against the window's end edge under the top bar (--section-pane-width
-   * wide, fixed while the form scrolls; editor.css lets the content column keep clear of it); below large nothing.
+   * wide, in an absolute strip along the content that its card sticks in while the form scrolls; editor.css lets the content column keep clear of it); below large nothing.
    * Instead of `first` and `side`. */
   pane?: ReactNode;
 }) {
@@ -3134,8 +3134,8 @@ export function FormColumns({
       <div className="min-w-0 space-y-6 large:col-start-1 large:row-span-2 large:row-start-1">{main}</div>
       {side && <div className={`${right} ${first ? 'large:row-start-2' : 'large:row-span-2 large:row-start-1'}`}>{side}</div>}
       {pane && (
-        <div className="editor-section-pane hidden large:fixed large:end-0 large:top-(--section-pane-gap) large:z-10 large:block large:w-(--section-pane-width) large:pe-(--section-pane-gap)">
-          {pane}
+        <div className="editor-section-pane hidden large:absolute large:inset-y-0 large:end-0 large:z-10 large:block large:w-(--section-pane-width) large:pe-(--section-pane-gap)">
+          <div className="large:sticky large:top-(--section-pane-gap) large:mt-(--section-pane-gap)">{pane}</div>
         </div>
       )}
     </div>
