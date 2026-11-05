@@ -26,6 +26,9 @@ npm view @morphemecms/cms dist-tags --json
 - Staging: the newest build of the Worker `morpheme-staging` (Cloudflare connector, read-only - list builds). Stop if it
   failed ("Staging's newest build failed: <link>; fix main first"). If it is older than the newest `next` publish, or
   none is found, say so in the question below instead of stopping.
+- Staging's channel: `gh api repos/larsadolfsen/morpheme-staging/contents/cms-channel.txt -H "Accept: application/vnd.github.raw"`.
+  If it is `released`, staging shows the released version, not this one: say so in the question below
+  ("Staging shows the released version, so X.Y.Z is not tried there").
 
 ## Phase 2 - Ask
 

@@ -1,8 +1,9 @@
 # On each push to main: Changesets keeps the "Release @morphemecms/cms" pull request open, and when that pull request
 # has been merged, the new version is staged on npm for latest; once the owner has approved it on npmjs.com (2FA), it
-# gets the tag v<version> and a GitHub release. While changesets are pending, a test version (X.Y.Z-next-<time>) is
-# staged for next, and once approved, morpheme-staging is rebuilt. npm's trusted publishing trusts this one file and
-# lets it only stage (npm stage publish): no key, and nothing reaches npm without the owner's approval.
+# gets the tag v<version> and a GitHub release, and morpheme-staging is rebuilt. While changesets are pending, a
+# test version (X.Y.Z-next-<time>) is staged for next, and once approved, morpheme-staging is rebuilt. npm's trusted
+# publishing trusts this one file and lets it only stage (npm stage publish): no key, and nothing reaches npm without
+# the owner's approval.
 name: Publish
 
 on:
@@ -59,6 +60,7 @@ jobs:
     env:
       V: ${{ needs.release.outputs.staged }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      STAGING_DEPLOY_HOOK: ${{ secrets.STAGING_DEPLOY_HOOK }}
     steps:
       - uses: actions/checkout@v4
       - name: Wait until the owner has approved it on npmjs.com
@@ -69,6 +71,9 @@ jobs:
           git push origin "v$V"
           notes=$(node -e "const s=require('fs').readFileSync('CHANGELOG.md','utf8').split(/^## /m).find(x=>x.split(/\r?\n/)[0].trim()===process.env.V)||'';console.log(s.split(/\r?\n/).slice(1).join('\n').trim())")
           gh release create "v$V" --title "v$V" --notes "$notes"
+      - name: Rebuild morpheme-staging with it
+        if: env.STAGING_DEPLOY_HOOK != ''
+        run: curl -fsS -X POST "$STAGING_DEPLOY_HOOK" > /dev/null
 
   next:
     needs: release
