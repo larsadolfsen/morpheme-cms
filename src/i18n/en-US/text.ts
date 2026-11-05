@@ -26,7 +26,8 @@ export const text = {
   color: 'Color',
   colors: { accent: 'Accent color', muted: 'Muted text' },
   noColor: 'No color',
-  /** The button for the colour of a section (an H2 and what follows it), and the choices in its menu (packages/editor/lib/section-marker.mjs). */
+  /** The button for the settings of a section (an H2 and what follows it), and its sheet's colour choices (packages/editor/lib/section-marker.mjs). */
+  sectionSettings: 'Section settings',
   sectionColor: 'Section color',
   sectionColors: { none: 'None', surface: 'Surface', tint: 'Tint', accent: 'Accent' },
   /** The sheet of a link (LinkSheet.tsx). */

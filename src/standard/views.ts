@@ -25,10 +25,10 @@ export const blockLoads: Record<string, Contract<any>> = {
 };
 
 /** The block type drawn in a column beside the text of a page, or null: the one src/data/side.json chooses, when its
- * load.ts says `beside`, unless the page is `wide` or has `side: false` (lib/side-block.mjs). The theme's page layout
+ * load.ts says `beside` and the page's template has a sidebar (lib/side-block.mjs). The theme's page layout
  * (PageLayout.astro) draws it with Block.astro, given the page's text as `html`. */
-export const sideBlock = (page: { wide?: boolean; side?: boolean }): string | null =>
-  sideBlockOf(page, sideSetting, (type) => blockLoads[type]?.beside === true);
+export const sideBlock = (template: string): string | null =>
+  sideBlockOf(template, sideSetting, (type) => blockLoads[type]?.beside === true);
 
 // A block's tag in the text, at its very end (blocks.mjs writes it so).
 const END = /<div data-block="([\w-]+)"(?: data-props="[^"]*")?\s*><\/div>\s*$/;

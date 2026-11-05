@@ -16,8 +16,8 @@ import { addressOf, moveRedirects, REDIRECTS, retarget } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES, setRedirect } from './redirectData';
 import { TAB_ROUTES } from './Redirects';
 import { choose } from './ask';
-import { sideSettingOf } from './SideColumn';
-import { sideSwitchShown } from '../lib/side-block.mjs';
+import { offeredTemplatesOf, shownTemplate, templateFieldOf } from './templateField';
+import { templateOf, templateWritten } from '../lib/page-template.mjs';
 import { booleanRead, booleanWrite, readFields, splitFrontmatter, writeFields } from './frontmatter.mjs';
 import MarkdownEditor, { type MarkdownHandle } from './MarkdownEditor';
 import { useBlockDialog } from './BlockDialog';
@@ -120,13 +120,20 @@ function valuesOf(collection: MarkdownCollection, file: RepoFile): Record<string
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 // The values as they are saved: a field only in use with another's value (Field.only: "Tidspunkt" with
-// "Planlagt") is empty without it, so it leaves the file; a switch that is on when its key is missing (Field.missing,
-// "Sidekolonne") leaves the file when it is on (booleanWrite).
-const inForm = (fields: Field[], values: Record<string, unknown>) =>
+// "Planlagt") is empty without it, so it leaves the file; a switch that is on when its key is missing (Field.missing)
+// leaves the file when it is on (booleanWrite); a field of the theme's templates (Field.offered) leaves it for the theme's
+// default, `offered` (templateWritten).
+const inForm = (fields: Field[], values: Record<string, unknown>, offered: string[]) =>
   Object.fromEntries(
     fields.map((f) => [
       f.name,
-      inUse(f, fields, values) ? (f.type === 'boolean' ? booleanWrite(values[f.name], f.missing) : values[f.name]) : '',
+      !inUse(f, fields, values)
+        ? ''
+        : f.offered === 'templates'
+          ? templateWritten(values[f.name], offered)
+          : f.type === 'boolean'
+            ? booleanWrite(values[f.name], f.missing)
+            : values[f.name],
     ]),
   );
 
@@ -197,8 +204,10 @@ function Form({
   const [savedAt, setSavedAt] = useSavedAt(env, file.path);
 
   const isNew = !base.path;
-  const asSaved = useMemo(() => inForm(collection.fields, values), [collection, values]);
-  const was = useMemo(() => inForm(collection.fields, initial), [collection, initial]);
+  // The templates the theme chosen offers, for the field `offered: 'templates'.
+  const offered = useMemo(() => offeredTemplatesOf(env.files), [env.files]);
+  const asSaved = useMemo(() => inForm(collection.fields, values, offered), [collection, values, offered]);
+  const was = useMemo(() => inForm(collection.fields, initial, offered), [collection, initial, offered]);
   const changed = collection.fields.filter((f) => !same(asSaved[f.name], was[f.name]));
   const dirty = bodyChanged || changed.length > 0;
 
@@ -399,7 +408,7 @@ function Form({
 
     // A new file gets all its filled-in fields in the order of the form; an existing one only the changed. As saved:
     // the values given (a new one without a title has its name, "Ny side 1", named()), not only those in the form.
-    const saved = inForm(collection.fields, values);
+    const saved = inForm(collection.fields, values, offered);
     const written = (isNew ? collection.fields.filter((f) => !same(saved[f.name], []) && f.type !== 'readonly') : changed).filter(
       (f) => f.name !== 'path',
     );
@@ -536,7 +545,7 @@ function Form({
   }
 
   // "Forhåndsvis": the page or post with what is changed in the form; a new one, or one whose layout is changed in the
-  // form (a field with `layout`, "Hele bredden"), in the page of another one of its kind saved with that layout, with
+  // form (a field with `layout`, the template), in the page of another one of its kind saved with that layout, with
   // all of the form put in it (pagePreview.tsx).
   const [openPreview, previewSheet] = usePagePreview();
   const showPreview = () =>
@@ -545,9 +554,11 @@ function Form({
       const relaid = !isNew && changed.some((f) => f.layout);
       const sameLayout = (data: Record<string, unknown>) =>
         layout.every((f) =>
-          f.type === 'boolean'
-            ? booleanRead(data[f.name], f.missing) === (values[f.name] === true)
-            : String(data[f.name] || '') === String(values[f.name] || ''),
+          f.offered === 'templates'
+            ? templateOf({ template: data[f.name] }, offered) === templateOf({ template: values[f.name] }, offered)
+            : f.type === 'boolean'
+              ? booleanRead(data[f.name], f.missing) === (values[f.name] === true)
+              : String(data[f.name] || '') === String(values[f.name] || ''),
         );
       const changes = (...names: string[]) => isNew || relaid || changed.some((f) => names.includes(f.name));
       const others =
@@ -587,11 +598,14 @@ function Form({
       set('date', String(v).slice(0, 10));
   };
   // The fields in use (Field.only).
-  // "Sidekolonne" only while src/data/side.json chooses a block and the page is not "Hele bredden" (sideSwitchShown).
-  const sideShown = sideSwitchShown({ block: sideSettingOf(env.files) }, values);
-  const field = (f: Field) =>
-    inUse(f, collection.fields, values) &&
-    (f.name !== 'side' || sideShown) && <FieldInput key={f.name} field={f} value={values[f.name]} onChange={(v) => onChange(f, v)} />;
+  // A field of the theme's templates (Field.offered) shows the options the theme offers, and not while only one is left.
+  const field = (f: Field) => {
+    if (!inUse(f, collection.fields, values)) return false;
+    const shown = f.offered ? templateFieldOf(f, env.files) : f;
+    if (!shown) return false;
+    const value = f.offered ? shownTemplate(shown, values[f.name]) : values[f.name];
+    return <FieldInput key={f.name} field={shown} value={value} onChange={(v) => onChange(f, v)} />;
+  };
 
   return (
     <Fields.Provider value={fields}>

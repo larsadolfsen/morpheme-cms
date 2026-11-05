@@ -6,7 +6,7 @@
 //             block "Udtalelser"'s, packages/editor/src/standard/testimonials/list.ts, an app's lists its own,
 //             src/apps/<app>/lists.ts).
 //   files:    single .json files: the settings (the standard pages …), the footer and the menu.
-import { AppWindow, SquareHalfBottom } from '@phosphor-icons/react';
+import { AppWindow, ArrowsHorizontal, ColumnsPlusLeft, ColumnsPlusRight, File, SquareHalfBottom } from '@phosphor-icons/react';
 import type { Collection, Field } from '../src/schema';
 import { fromContactBar } from '../lib/contactBar';
 import { config } from '@site/config';
@@ -451,22 +451,20 @@ export const collections: Collection[] = [
         hint: 'Vises ikke på hjemmesiden.',
       },
       {
-        name: 'wide',
-        label: 'Hele bredden',
-        type: 'boolean',
+        name: 'template',
+        label: 'Skabelon',
+        type: 'select',
+        segments: true,
         layout: true,
-        hint: 'Siden fylder hele bredden uden spalten ved siden af teksten.',
-      },
-      {
-        name: 'side',
-        label: 'Sidekolonne',
-        type: 'boolean',
-        toggle: ['Til', 'Fra'],
-        // Without the key the column is on; only "Fra" is written (side: false).
-        default: true,
-        missing: true,
-        layout: true,
-        hint: 'Blokken ved siden af teksten vises på siden. Den vælges under Udseende › Sidekolonne.',
+        // The options the theme in use offers, the first of its list the default (templateFieldOf in src/templateField.ts).
+        offered: 'templates',
+        options: [
+          { label: 'En kolonne', value: 'single', icon: File },
+          { label: 'Fuld bredde', value: 'full', icon: ArrowsHorizontal },
+          { label: 'Sidebjælke til venstre', value: 'sidebar-left', icon: ColumnsPlusLeft },
+          { label: 'Sidebjælke til højre', value: 'sidebar-right', icon: ColumnsPlusRight },
+        ],
+        hint: 'Temaet bestemmer, hvilke skabeloner der findes.',
       },
       {
         name: 'review',

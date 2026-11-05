@@ -5,7 +5,8 @@
 // and posts can be filtered by their status and by what they pick (a post's tags), a list of what is
 // shown on pages (Promovering) by a page, its kind and whether it is on, as "Filer" (Filters). In a list that can be deleted from, the clock in the top bar ("Slettede …") opens
 // what was deleted (Deleted.tsx), as in "Filer". The tabs the apps installed add to a list (AppDefinition.tabs, Cookiescanner's
-// "Problemer" on "Cookies") are in its top app bar after the list's own, each at #liste/<list>/<app>.
+// "Problemer" on "Cookies") are in its top app bar after the list's own, each at #liste/<list>/<app>. "Use theme" and the move arrows show the
+// loading indicator while they run (only the pressed one).
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   ArrowDown,
@@ -476,7 +477,7 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
       </div>
       {of.id !== chosen && themeInstalled(of.id) && (
         <div className="mb-8">
-          <Button disabled={saving} onClick={use}>
+          <Button busy={saving} disabled={saving} onClick={use}>
             {t.library.useTheme}
           </Button>
         </div>
@@ -1047,7 +1048,9 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   const appTabs = tabsOf(collection.id, apps, installedApps(files));
   const appTab = appTabs.find((a) => a.app.id === tab);
   const [query, setQuery] = useKept(`${collection.id}-soeg`, '');
-  const [busy, setBusy] = useState(false);
+  // The move that runs (row and target row, null: none); only its arrow shows busy, all arrows stay disabled meanwhile.
+  const [moving, setMoving] = useState<{ from: number; to: number } | null>(null);
+  const busy = moving !== null;
   const items = useMemo(() => itemsOf(collection, files), [collection, files]);
   const pages = collection.id === 'pages';
   // Pages and posts: their address in a column on a computer, and a filter that shows only those with
@@ -1266,14 +1269,14 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   async function move(i: number, to: number) {
     const next = items.map((item) => item.file!);
     [next[i], next[to]] = [next[to], next[i]];
-    setBusy(true);
+    setMoving({ from: i, to });
     env.notify({ text: t.library.savingOrder });
     try {
       env.notify({ text: savedText(await env.reorder(collection, next)), kind: 'saved' });
     } catch (e) {
       env.notify({ text: t.library.orderNotSaved((e as Error).message), error: true, kind: 'failed' });
     } finally {
-      setBusy(false);
+      setMoving(null);
     }
   }
 
@@ -1319,10 +1322,17 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
         actions={
           orderable && (
             <span className="flex shrink-0 pr-2">
-              <IconButton icon={ArrowUp} label={t.common.moveUp} disabled={i === 0 || busy} onClick={() => move(i, i - 1)} />
+              <IconButton
+                icon={ArrowUp}
+                label={t.common.moveUp}
+                busy={moving?.from === i && moving.to === i - 1}
+                disabled={i === 0 || busy}
+                onClick={() => move(i, i - 1)}
+              />
               <IconButton
                 icon={ArrowDown}
                 label={t.common.moveDown}
+                busy={moving?.from === i && moving.to === i + 1}
                 disabled={i === shown.length - 1 || busy}
                 onClick={() => move(i, i + 1)}
               />

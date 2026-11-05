@@ -4,7 +4,9 @@
 // so it must be inside the form's Fields.Provider. list: the blocks of this text (the site's blocks on a
 // page, the sections on a fixed page). Over the blocks to choose from, as under "Standardblokke" (Library.tsx):
 // the search, the order (A–Å, Å–A or by group, kept in this browser) and the funnel with the filter by group
-// (the standard blocks, each app's under its name), the one picked as a chip.
+// (the standard blocks, each app's under its name), the one picked as a chip. Also the sheet of a section's
+// settings (its colour, SectionSettings.tsx), which goes the same way as a block's fields: Annuller, Gem, the question when closed changed.
+// On a large screen the fields and the section settings are in a side panel instead of the dialog (sheetPlacement.mjs, .editor-side-panel).
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { ArrowsDownUp, Image } from '@phosphor-icons/react';
 import {
@@ -23,6 +25,7 @@ import {
   ProblemNote,
   SheetList,
   SheetGroupTitle,
+  useAtLeast,
 } from './ui';
 import { htmlBlock, type BlockData, type BlockProps, type SiteBlock } from './blocks';
 import { clean, newValue, problemAt, savedValue } from './check';
@@ -36,6 +39,8 @@ import CropField, { type Cut } from './Crop';
 import { t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 import { closeChanged } from './ask';
+import SectionSettings from './SectionSettings';
+import { inPanel } from './sheetPlacement.mjs';
 
 export type BlockAsk = {
   list: SiteBlock[];
@@ -49,9 +54,14 @@ export type BlockAsk = {
   choose: (offer?: { image?: boolean; have?: string[] }) => Promise<{ type: string; props: BlockProps } | null>;
   /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Indsæt"). */
   edit: (type: string, props: BlockProps, isNew?: boolean) => Promise<BlockProps | null>;
+  /** The settings of the section the cursor is in (now its colour; null: none); the new ones, or null when cancelled. */
+  section: (color: string | null) => Promise<{ color: string | null } | null>;
 };
 
-type Open = { step: 'choose'; image?: boolean; have?: string[] } | { step: 'fields'; type: string; isNew: boolean };
+type Open = { step: 'choose'; image?: boolean; have?: string[] } | { step: 'fields'; type: string; isNew: boolean } | { step: 'section' };
+
+/** The type a section's settings are answered with (not a block's). */
+const SECTION = 'section';
 
 /** The choice of a picture in the sheet ("+" in the toolbar, MarkdownEditor.tsx), and a picture in the
  * text, which is changed here like a block's fields: another from the gallery, and its description, or
@@ -108,6 +118,7 @@ export function useBlockDialog(
 ): [BlockAsk, ReactElement] {
   const blockOf = (type: string) => (type === IMAGE ? picture : type === HTML ? htmlBlock : list.find((b) => b.type === type));
   const dialog = useRef<HTMLDialogElement>(null);
+  const large = useAtLeast('large');
   const answer = useRef<(a: Answer) => void>(() => {});
   const [open, setOpen] = useState<Open | null>(null);
   const [values, setValues] = useState<BlockProps>({});
@@ -137,6 +148,7 @@ export function useBlockDialog(
       setOpen(first);
       setValues(props);
       if (first.step === 'fields') shown.current = asWritten(first.type, props);
+      if (first.step === 'section') shown.current = JSON.stringify(props.color ?? '');
       setProblem('');
       wrongField.stop(null);
       setQuery('');
@@ -163,6 +175,10 @@ export function useBlockDialog(
     template,
     data,
     choose: (offer) => ask({ step: 'choose', image: offer?.image, have: offer?.have }),
+    section: async (color) => {
+      const answered = await ask({ step: 'section' }, { color: color ?? '' });
+      return answered && { color: answered.props.color ? String(answered.props.color) : null };
+    },
     edit: async (type, props, isNew = false) => {
       const fields = blockOf(type)?.fields ?? [];
       // A block on the page with what a field it has no value for means; a new one with the defaults.
@@ -193,10 +209,21 @@ export function useBlockDialog(
   // Closed (Annuller, the cross, a swipe down, Esc, a tap beside it) with the fields changed: the owner is
   // asked whether to keep them ("Indsæt", "Gem"), leave them or stay.
   async function leave() {
+    if (open?.step === 'section') {
+      if (JSON.stringify(values.color ?? '') === shown.current) return done(null);
+      const choice = await closeChanged(t.common.save);
+      if (choice === 'keep') saveSection();
+      else if (choice === 'discard') done(null);
+      return;
+    }
     if (open?.step !== 'fields' || asWritten(open.type, values) === shown.current) return done(null);
     const choice = await closeChanged(open.isNew ? t.blocks.insert : t.common.save);
     if (choice === 'keep') save(open.type);
     else if (choice === 'discard') done(null);
+  }
+
+  function saveSection() {
+    done({ type: SECTION, props: { color: values.color ?? '' } });
   }
 
   function pickSort(next: InsertSort) {
@@ -242,10 +269,19 @@ export function useBlockDialog(
           .map((g) => ({ key: g as string | null, items: found.filter((b) => groupOf(b) === g) }))
           .filter((g) => g.items.length > 0)
       : headed(found, (b) => letterOf(b.label));
+  const panel = inPanel(open?.step, large);
+  const title = open?.step === 'section' ? t.text.sectionSettings : block ? block.label : t.blocks.insert;
+  // While the panel is open, the page makes room for it (editor.css: [data-side-panel]).
+  useEffect(() => {
+    if (!panel) return;
+    document.documentElement.setAttribute('data-side-panel', '');
+    return () => document.documentElement.removeAttribute('data-side-panel');
+  }, [panel]);
   const element = (
     <BottomSheet
       ref={dialog}
-      aria-label={block ? block.label : t.blocks.insert}
+      aria-label={title}
+      panel={panel}
       // React passes on the close of a sheet inside it (the categories, a page): only its own counts.
       onClose={(e) => e.target === e.currentTarget && answer.current(null)}
       onCancel={(e) => {
@@ -253,9 +289,10 @@ export function useBlockDialog(
         e.preventDefault();
         void leave();
       }}
-      onClick={(e) => e.target === dialog.current && void leave()}
+      // A tap beside a dialog leaves it; beside the panel is the page, which is inert while it is open.
+      onClick={(e) => !panel && e.target === dialog.current && void leave()}
     >
-      <SheetTitle title={block ? block.label : t.blocks.insert} onClose={() => void leave()} />
+      <SheetTitle title={title} onClose={() => void leave()} />
       {open?.step === 'choose' && (
         <>
           <SearchRow
@@ -325,6 +362,14 @@ export function useBlockDialog(
               <EmptyNote item>{query.trim() ? t.blocks.noneNamed(query.trim()) : t.common.noMatch}</EmptyNote>
             )}
           </SheetList>
+        </>
+      )}
+      {open?.step === 'section' && (
+        <>
+          <SheetBody>
+            <SectionSettings color={String(values.color ?? '')} onChange={(color) => setValues({ color })} />
+          </SheetBody>
+          <SheetActions onCancel={() => void leave()} onDone={saveSection} done={t.common.save} />
         </>
       )}
       {block && open?.step === 'fields' && (

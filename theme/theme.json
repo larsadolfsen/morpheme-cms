@@ -7,6 +7,7 @@
   "thirdParty": [],
   "icons": "material-symbols",
   "motion": "expressive",
+  "templates": ["single", "sidebar-right", "sidebar-left"],
   "description": {
     "da-DK": "Hjemmesiden i Googles Material Design 3, som mange kender fra Android: klar, enkel og velkendt.",
     "en-US": "The website in Google's Material Design 3, which many know from Android: clear, simple and familiar."
