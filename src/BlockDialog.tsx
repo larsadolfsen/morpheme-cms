@@ -9,6 +9,7 @@
 // The fields and the section settings are in the theme's side sheet (sheetPlacement.mjs): a standard one beside the page from
 // medium (not modal: the page stays usable, .editor-side-sheet in editor.css), a modal one over the page below it
 // (fields only; the section settings are a sheet from the bottom there). Both end with Gem (Indsæt) and Annuller.
+// Their open, close, focus and Escape are the theme's (sideSheet() and standardSideSheet(), sideSheetControl.ts); leave() is their beforeClose.
 // Another block tapped while one is open closes the open one first (the question when changed). Exposes useBlockDialog, IMAGE.
 import { useEffect, useId, useRef, useState, type ReactElement } from 'react';
 import { ArrowsDownUp, Image } from '@phosphor-icons/react';
@@ -45,7 +46,7 @@ import { snackbar } from '../lib/snackbar';
 import { closeChanged } from './ask';
 import SectionSettings from './SectionSettings';
 import { sheetLook } from './sheetPlacement.mjs';
-import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass } from './themeUi';
+import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
 
 export type BlockAsk = {
   list: SiteBlock[];
@@ -127,6 +128,7 @@ export function useBlockDialog(
   const sideDialog = useRef<HTMLDialogElement>(null);
   const sideControls = useRef<ReturnType<typeof siteSideSheet> | null>(null);
   const standard = useRef<HTMLDivElement>(null);
+  const standardControls = useRef<ReturnType<typeof siteStandardSideSheet> | null>(null);
   const headingId = useId();
   const medium = useAtLeast('medium');
   const answer = useRef<(a: Answer) => void>(() => {});
@@ -193,42 +195,39 @@ export function useBlockDialog(
     } else if (sheet?.open) sheet.close();
   }, [look, !!open]);
 
-  // The modal side sheet: opened with the theme's sideSheet(), which would close it at once on its cross, Escape and a tap
-  // on the scrim. They go to leave() first instead (a question when changed), in the capture phase before the theme's.
+  // The two side sheets are the theme's (sideSheetControl.ts). Their cross, Escape and (modal) a tap on the scrim go to
+  // leave() first (a question when changed), which closes them itself, so beforeClose always answers false.
+  const beforeClose = async () => {
+    await latest.current.leave();
+    return false;
+  };
+
+  // The modal side sheet (below medium).
   useEffect(() => {
     const d = sideDialog.current;
     if (look !== 'modal-side-sheet' || !d) return;
-    const own = (e: Event) => {
-      const target = e.target as Element;
-      const cross = target.closest?.('[data-side-sheet-close]');
-      if (!(target === d || (e.type === 'click' && cross?.closest('dialog') === d))) return;
-      e.stopImmediatePropagation();
-      e.preventDefault();
-      void latest.current.leave();
-    };
-    d.addEventListener('cancel', own, true);
-    d.addEventListener('click', own, true);
-    sideControls.current = siteSideSheet(d);
+    sideControls.current = siteSideSheet(d, { beforeClose });
     sideControls.current.open();
     return () => {
-      d.removeEventListener('cancel', own, true);
-      d.removeEventListener('click', own, true);
       sideControls.current = null;
       document.documentElement.style.overflow = '';
     };
   }, [look]);
 
-  // The standard side sheet: the page makes room for it (editor.css: [data-side-panel]) and the focus moves into it.
+  // The standard side sheet (from medium): the page makes room for it (editor.css: [data-side-panel]), the focus moves
+  // into it and back to what had it before when it closes.
   useEffect(() => {
     if (look !== 'side-sheet') return;
     document.documentElement.setAttribute('data-side-panel', '');
-    const box = standard.current;
-    const first =
-      box?.querySelector<HTMLElement>(
-        '.side-sheet-content :is(input, textarea, select, button, a[href], [tabindex]:not([tabindex="-1"]))',
-      ) ?? box?.querySelector<HTMLElement>('[data-side-sheet-close]');
-    first?.focus();
-    return () => document.documentElement.removeAttribute('data-side-panel');
+    const box = standard.current?.querySelector<HTMLElement>('[data-side-sheet-container]');
+    if (box) {
+      standardControls.current = siteStandardSideSheet(box, { beforeClose });
+      standardControls.current.open(trigger.current ?? undefined);
+    }
+    return () => {
+      standardControls.current = null;
+      document.documentElement.removeAttribute('data-side-panel');
+    };
   }, [look]);
 
   // The search, once the list to choose from is shown. The keyboard would cover the list on a phone;
@@ -243,11 +242,10 @@ export function useBlockDialog(
     answer.current(a);
     answer.current = () => {};
     openNow.current = null;
-    const wasStandard = lookNow.current === 'side-sheet';
     closing.current = (async () => {
       if (sideControls.current && sideDialog.current?.open) await sideControls.current.close();
+      else if (standardControls.current) await standardControls.current.close();
       else if (dialog.current?.open) dialog.current.close();
-      if (wasStandard && trigger.current?.isConnected) trigger.current.focus();
       setOpen(null);
     })();
   };
@@ -371,7 +369,6 @@ export function useBlockDialog(
         headline={open.step === 'fields' && open.isNew ? t.blocks.insert : title}
         headlineId={headingId}
         closeLabel={t.common.close}
-        onClose={() => void leave()}
         className={kind === 'standard' ? 'editor-side-sheet' : undefined}
         actions={
           <>
@@ -515,16 +512,8 @@ export function useBlockDialog(
         </dialog>
       )}
       {look === 'side-sheet' && (
-        // The standard side sheet is not modal: the page stays usable. Escape inside it leaves it (not one meant for a dialog in it).
-        <div
-          ref={standard}
-          className="contents"
-          onKeyDown={(e) => {
-            if (e.key !== 'Escape' || e.defaultPrevented || (e.target as Element).closest('dialog')) return;
-            e.preventDefault();
-            void leave();
-          }}
-        >
+        // The standard side sheet is not modal: the page stays usable.
+        <div ref={standard} className="contents">
           {sideSheetOf('standard')}
         </div>
       )}
