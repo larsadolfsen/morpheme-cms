@@ -184,7 +184,7 @@ export type StoreRecord = { version: string; ref: string; files: StoreFile[] };
  * before (STORE_BEFORE, which opens it, App.tsx MOVED), and that of a developer's page (DEVELOPER_ROUTE/<slug>); no
  * app can have the ids of the last two. */
 export const STORE_ROUTE = 'settings/appstore';
-export const STORE_THEMES = 'settings/appstore/temaer';
+export const STORE_THEMES = 'settings/appstore/themes';
 export const STORE_BEFORE = 'apps/butik';
 export const DEVELOPER_ROUTE = 'apps/udvikler';
 

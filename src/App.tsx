@@ -4,7 +4,7 @@
 //   list/<id>       the list of a part, e.g. list/priser, and list/<id>/<app> a tab an installed app adds to it
 //                    (AppDefinition.tabs): list/cookies/cookiescanner
 //   lists           the short lists (the testimonials, the apps' lists)
-//   settings/appstore   the app store, its apps, and settings/appstore/temaer its themes (AppList.tsx StorePage); the
+//   settings/appstore   the app store, its apps, and settings/appstore/themes its themes (AppList.tsx StorePage); the
 //                    other settings are screens of their own, in the drawer's last section (MainMenu.tsx)
 //   ny/<id>          a new entry, ny/<id>/<kind> one of a kind (a pop-up: standard, or an app's)
 //   company     the business, and company/<part> its parts: kontakt, betaling; and
@@ -18,7 +18,7 @@
 //                    (Redirects.tsx): seo/redirects/alle the redirects, and seo/redirects/ikke-fundet
 //                    the addresses visitors came to that do not exist; seo/vurdering the SEO rating of every page and
 //                    post (SeoScores.tsx); and seo/<part> the site's own (seoParts)
-//   appearance         how the site looks (Library.tsx Theme): appearance/temaer the themes installed (Themes) and appearance/temaer/<theme>
+//   appearance         how the site looks (Library.tsx Theme): appearance/themes the themes installed (Themes) and appearance/themes/<theme>
 //                    a theme's page, with the button that swaps to it (ThemePage), appearance/ikonpakker the icon packs (IconPacks),
 //                    appearance/bevaegelse how it moves (MotionSchemes), appearance/sidekolonne the block beside the pages' text (SideColumn),
 //                    appearance/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
@@ -736,17 +736,17 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   const opening = partScreens.flatMap((s) => s.parts.filter((p) => p.opens && route === `${s.id}/${p.id}`).map((p) => ({ s, p })))[0];
   if (opening?.p.opens === 'consents') return <Consents env={env} back={{ href: `#${opening.s.id}`, label: opening.s.label }} />;
   if (route === 'appearance') return <Theme files={files} />;
-  if (route === 'appearance/temaer') return <Themes env={env} files={files} />;
+  if (route === 'appearance/themes') return <Themes env={env} files={files} />;
   if (route === 'appearance/ikonpakker') return <IconPacks env={env} files={files} />;
   if (route === 'appearance/bevaegelse') return <MotionSchemes env={env} files={files} />;
   if (route === 'appearance/sidekolonne') return <SideColumn env={env} files={files} />;
   if (route === 'appearance/header') return <HeaderSettings env={env} />;
   if (route === 'appearance/footer') return <FooterSettings env={env} />;
   // A theme installed has its page; one from the store that is not (or not yet built), its page in the store.
-  const themeShown = route.startsWith('appearance/temaer/') && themes.find((x) => x.id === route.slice('appearance/temaer/'.length));
+  const themeShown = route.startsWith('appearance/themes/') && themes.find((x) => x.id === route.slice('appearance/themes/'.length));
   if (themeShown) return <ThemePage key={themeShown.id} of={themeShown} env={env} files={files} />;
-  if (/^appearance\/temaer\/[^/]+$/.test(route))
-    return <StoreThemePage key={route} id={route.slice('appearance/temaer/'.length)} env={env} />;
+  if (/^appearance\/themes\/[^/]+$/.test(route))
+    return <StoreThemePage key={route} id={route.slice('appearance/themes/'.length)} env={env} />;
   // The colours, or the site's own on a page of the same form while an app changes the pages' (FALLBACK_ROUTE).
   if (route === 'appearance/farver' || route === FALLBACK_ROUTE)
     return <Colors env={env} files={files} fallback={route === FALLBACK_ROUTE} />;

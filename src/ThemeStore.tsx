@@ -1,6 +1,6 @@
-// The themes in the app store (store.ts): their tab in "Appstore" (#settings/appstore/temaer, StoreThemes), all themes, those
+// The themes in the app store (store.ts): their tab in "Appstore" (#settings/appstore/themes, StoreThemes), all themes, those
 // in the store and those installed, with the same search, order and status filter as the apps; the page of one that
-// is not installed (#appearance/temaer/<id>, StoreThemePage), drawn from the catalog as a theme's page (its picture,
+// is not installed (#appearance/themes/<id>, StoreThemePage), drawn from the catalog as a theme's page (its picture,
 // name, version, who made it, "Installer", its pictures of a site in it, what it is and gives the site, and who made
 // it); and on the page of one installed from the store (ThemePage in Library.tsx) "Opdater til …" and "Afinstaller"
 // (ThemeStoreButtons). Installing copies its folder into the site's themes (config.themes/<id>/, with its store.json),
@@ -36,7 +36,7 @@ import { siteT, t } from './i18n';
 import { kindAndName } from './deploy';
 
 /** A theme's page (installed, or in the store). */
-export const themeHref = (id: string) => `#appearance/temaer/${id}`;
+export const themeHref = (id: string) => `#appearance/themes/${id}`;
 
 /** A theme's picture (its theme.json's icon), where a row has its icon. */
 export function ThemePicture({ src }: { src: string }) {
@@ -253,7 +253,7 @@ export function ThemeRow({ of }: { of: ReturnType<typeof allThemes>[number] }) {
   );
 }
 
-/** The page of a theme in the store that is not installed, or installed but not yet built (#appearance/temaer/<id>),
+/** The page of a theme in the store that is not installed, or installed but not yet built (#appearance/themes/<id>),
  * from the catalog: as a theme's page, with "Installer" (or "Afinstaller"). */
 export function StoreThemePage({ id, env }: { id: string; env: Env }) {
   const catalog = useThemeCatalog(env);

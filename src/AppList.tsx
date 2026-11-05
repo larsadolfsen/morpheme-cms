@@ -458,7 +458,7 @@ export function DeveloperRow({ name }: { name: string }) {
 
 /** "Appstore" (#settings/appstore, under "Indstillinger"): in a tab of its own each in the top app bar, all apps,
  * those in the app store and the site's own, each with what it does and whether it is installed, and all themes
- * (#settings/appstore/temaer, ThemeStore.tsx), those in the store
+ * (#settings/appstore/themes, ThemeStore.tsx), those in the store
  * and those installed, each with its version and who made it; each opening its page. With search (by name, what it
  * does, who made it and the words it is found by, in both languages), the order and the filters by category (apps)
  * and by whether it is installed, each picked one as a chip. */

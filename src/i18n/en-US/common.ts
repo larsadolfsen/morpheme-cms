@@ -110,7 +110,7 @@ export const common = {
     /** How the site looks (#appearance, Library.tsx Theme): the theme, the colours, the logo and icon, and the site's own
      * parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider"). */
     appearance: 'Appearance',
-    /** The themes installed (#appearance/temaer, Library.tsx Themes), the first row under "Udseende". */
+    /** The themes installed (#appearance/themes, Library.tsx Themes), the first row under "Udseende". */
     themes: 'Themes',
     /** The icon packs installed, to choose the one the site draws its icons with (#appearance/ikonpakker, IconPacks). */
     iconPacks: 'Icon packs',

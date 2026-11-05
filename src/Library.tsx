@@ -141,7 +141,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (seoPart) return { label: seoPart.label, href: `#seo/${id}`, count: null };
   // The screens under "Udseende" (Theme): the ones the editor has, then the site's own (appearance).
   const appearanceLabel = {
-    temaer: parts.themes,
+    themes: parts.themes,
     ikonpakker: parts.iconPacks,
     bevaegelse: parts.motion,
     sidekolonne: parts.sideColumn,
@@ -220,7 +220,7 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
 export function Theme({ files }: { files: RepoFile[] }) {
   const chosen = themes.find((x) => x.id === chosenTheme(files)) ?? theme;
   const parts: Part[] = [
-    { id: 'temaer', label: t.common.parts.themes, icon: icons.temaer, detail: chosen.name },
+    { id: 'themes', label: t.common.parts.themes, icon: icons.themes, detail: chosen.name },
     {
       id: 'ikonpakker',
       label: t.common.parts.iconPacks,
@@ -255,7 +255,7 @@ function ThemeColors({ files }: { files: RepoFile[] }) {
 }
 
 const backToAppearance = { href: '#appearance', label: t.common.parts.appearance };
-const backToThemes = { href: '#appearance/temaer', label: t.common.parts.themes };
+const backToThemes = { href: '#appearance/themes', label: t.common.parts.themes };
 
 /** Under a theme's name: whether the site is built with it ("I brug") or is changing to it ("Skifter hertil"). */
 function themeStatus(id: string, files: RepoFile[]): string | undefined {
@@ -263,7 +263,7 @@ function themeStatus(id: string, files: RepoFile[]): string | undefined {
   if (id === chosenTheme(files)) return t.library.themeNext;
 }
 
-/** "Temaer" (#appearance/temaer): the themes installed (src/themes/, packages/editor/src/themes.ts; and one from the store the site's build
+/** "Temaer" (#appearance/themes): the themes installed (src/themes/, packages/editor/src/themes.ts; and one from the store the site's build
  * does not have yet, as "Installeres…"), by name, each with its picture, its version and who made it, and whether it is
  * in use or the store has a newer version, opening its page (ThemePage). More are in "Appstore", under "Indstillinger". */
 export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
@@ -283,7 +283,7 @@ export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
           return (
             <ListItem
               key={x.id}
-              href={`#appearance/temaer/${x.id}`}
+              href={`#appearance/themes/${x.id}`}
               leading={<ThemePicture src={x.icon} />}
               headline={x.name}
               supporting={t.library.themeByline(x.version, x.author)}
@@ -424,7 +424,7 @@ export function MotionSchemes({ env, files }: { env: Env; files: RepoFile[] }) {
   );
 }
 
-/** A theme's page (#appearance/temaer/<id>), the same for every theme, made to show what it would make of the site, so
+/** A theme's page (#appearance/themes/<id>), the same for every theme, made to show what it would make of the site, so
  * it can be chosen or not: its picture, name, version and who made it, and whether it is in use; "Brug temaet", for any
  * other than the one chosen, which asks first and then saves it in the site's file (config.theme) at once, in its own
  * commit, and the site is built with it; the pictures of the site in it (its screenshots/, packages/editor/scripts/theme-screenshots.mjs),

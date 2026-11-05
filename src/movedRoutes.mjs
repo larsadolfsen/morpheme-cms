@@ -43,6 +43,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   blokvalg: 'block-settings',
   avanceret: 'advanced',
   licenser: 'licenses',
+  temaer: 'themes',
 });
 
 /**
