@@ -132,15 +132,18 @@ export async function prepareFile(file: File, taken: string[]): Promise<Upload> 
 export const publicPath = (path: string) => path.replace(/^public/, '');
 
 // The pictures added in a form (a page, a fixed page), kept in the browser until "Gem", which saves
-// them in the same commit. upload: pick one and make it ready; added: those not saved yet, newest
+// them in the same commit. upload: pick one and make it ready; uploading: true while a chosen picture
+// is made ready (a button shows busy); added: those not saved yet, newest
 // first (offered in the gallery, MediaPicker.tsx); saving: the pictures a text uses.
 export function useUploads(notify: (status: Status) => void) {
   const [uploads, setUploads] = useState<Upload[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   async function upload(): Promise<Upload | null> {
     const file = await pickImage();
     if (!file) return null;
     notify({ text: t.app.preparingPicture });
+    setUploading(true);
     try {
       const prepared = await prepareImage(file);
       setUploads((u) => [...u, prepared]);
@@ -149,6 +152,8 @@ export function useUploads(notify: (status: Status) => void) {
     } catch (e) {
       notify({ text: (e as Error).message, error: true });
       return null;
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -157,7 +162,7 @@ export function useUploads(notify: (status: Status) => void) {
   const usedIn = (text: string) => uploads.filter((u) => !u.saved && text.includes(publicPath(u.path)));
   const markSaved = (pictures: Upload[]) => setUploads((all) => all.map((u) => (pictures.includes(u) ? { ...u, saved: true } : u)));
 
-  return { upload, added, usedIn, markSaved };
+  return { upload, uploading, added, usedIn, markSaved };
 }
 
 export type Uploads = ReturnType<typeof useUploads>;
