@@ -1,5 +1,22 @@
 # @morphemecms/cms
 
+## 0.10.0
+
+### Minor Changes
+
+- 999142f: The action bar at the bottom of a phone's screen is a standard bottom sheet, on the site and in the editor.
+- 50d360d: The fields of a block and the section settings open in a side sheet: over the page on a phone, beside it on a tablet and a computer.
+- 358c778: The page and post forms show a Google result preview for phone and computer; the shared-link card keeps its shared width.
+- 40b5fe3: Themes can open a side sheet on the site: a button with data-side-sheet-open opens the side sheet with that id.
+- f501efb: Mark the parts the theme leaves to Material on Parts › UI components.
+
+### Patch Changes
+
+- 22d5764: The editor check no longer fails every page on Linux builds after the page template choice.
+- 6dc373f: The text editor's empty-line hint follows the editor's language and says that the first heading is an H1.
+- 1478765: On a page, the heading menus offer only H1 until the text has one, then H2 and H3.
+- 64f9da7: Sites type-check again: `searchedAs` and `pageTitle` take `front` as optional (default `false`), so the SEO form and the share preview no longer fail `tsc` in a site.
+
 ## 0.9.1
 
 ### Patch Changes
