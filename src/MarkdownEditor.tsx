@@ -292,7 +292,7 @@ function cardMenu(
   dom: HTMLElement,
   card: HTMLElement,
   name: string,
-  items: () => (CardItem | undefined | '')[],
+  items: () => (CardItem | undefined | false | '')[],
   tap?: () => void,
 ) {
   let menu: HTMLElement | null = null;
@@ -1079,7 +1079,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     if (!src) return;
     const sheet = blocks ?? sheetProp;
     const picked = await sheet?.edit(IMAGE, { src, alt: '' }, true);
-    if (picked) run(insertImageCommand, { src: pictureSrc(picked), alt: String(picked.alt ?? '').trim() });
+    if (picked && picked !== 'remove') run(insertImageCommand, { src: pictureSrc(picked), alt: String(picked.alt ?? '').trim() });
   }
 
   // Puts the chosen block where the cursor is (a paragraph is split around it), or after the block
