@@ -22,9 +22,10 @@ export type ButtonShape = (typeof buttonShapes)[number];
 export const buttonClass = (kind: ButtonKind = 'filled', size: ButtonSize = 'medium', shape: ButtonShape = 'round') =>
   ['button', `button-${kind}`, size !== 'medium' && `button-${size}`, shape !== 'round' && `button-${shape}`].filter(Boolean).join(' ');
 
-/** A toggle's icon (a Button's, an IconButton's): the icon, and the same icon filled while it is on, where the site
- * draws it filled (the theme shows the one of the state it is in: .<part>-unselected-icon, .<part>-selected-icon). */
-export function ToggleIcon({ part, name, size }: { part: 'button' | 'icon-button'; name: string; size: number }) {
+/** A toggle's icon (a Button's, an IconButton's, a navigation drawer item's): the icon, and the same icon filled while
+ * it is on, where the site draws it filled (the theme shows the one of the state it is in: .<part>-unselected-icon,
+ * .<part>-selected-icon). */
+export function ToggleIcon({ part, name, size }: { part: 'button' | 'icon-button' | 'navigation-drawer'; name: string; size: number }) {
   if (!iconFile(name, 'fill')) return <Svg name={name} size={size} />;
   return (
     <>

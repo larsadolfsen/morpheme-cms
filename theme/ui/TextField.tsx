@@ -196,16 +196,19 @@ export default function TextField({
   );
 }
 
-/** A field that is tapped to choose (the editor's choice from a list, which opens its own sheet, or with `href` a page
- * with the choices): the text field (its kind and its look) with a button, or a link, in its container showing what is
- * chosen (`children`), its name on its edge (`label`; without it, it is named by `aria-label`), an icon at its end
- * (`trailingIcon`: caret-down, the default, or the arrow to a page), and the line under it (`supporting`) or what is
- * wrong (`error`). Other attributes (onClick, aria-…) go on the button, and `className` on the field around it. */
+/** A field that is tapped to choose (the editor's choice from a list, which opens its own sheet or a menu under it, or
+ * with `href` a page with the choices): the text field (its kind and its look) with a button, or a link, in its container
+ * showing what is chosen (`children`), its name on its edge (`label`; without it, it is named by `aria-label`), an icon at
+ * its end (`trailingIcon`: caret-down, the default, or the arrow to a page), and the line under it (`supporting`) or what
+ * is wrong (`error`). `size="small"`: a small box, as wide as what is chosen, for a row's choice (a setting's, the
+ * editor's MenuRow). While its menu is open (aria-expanded on the button) its edge and name are in the accent and the
+ * arrow points up. Other attributes (onClick, aria-…) go on the button, and `className` on the field around it. */
 export function TextFieldButton({
   label,
   supporting,
   error,
   kind,
+  size,
   href,
   trailingIcon = 'caret-down',
   id,
@@ -217,6 +220,7 @@ export function TextFieldButton({
   supporting?: ReactNode;
   error?: string | boolean;
   kind?: TextFieldKind;
+  size?: 'small';
   href?: string;
   trailingIcon?: IconRef;
   id?: string;
@@ -229,7 +233,14 @@ export function TextFieldButton({
   const described = line ? `${field}-supporting` : undefined;
   return (
     <div
-      className={[textFieldClass(kind, !!error), label === undefined && 'text-field-without-label', className].filter(Boolean).join(' ')}
+      className={[
+        textFieldClass(kind, !!error),
+        label === undefined && 'text-field-without-label',
+        size === 'small' && 'text-field-small',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
     >
       <div className={textFieldContainerClass}>
         {href === undefined ? (

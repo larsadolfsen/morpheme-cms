@@ -43,7 +43,7 @@
   --theme-title-leading: var(--type-display-small-line-height);
   --theme-title-size-large: var(--type-display-medium-size);
 }
-@media (min-width: 48rem) {
+@media (width >= theme(--breakpoint-medium)) {
   :root {
     --theme-title-leading: var(--type-display-medium-line-height);
   }
@@ -87,7 +87,7 @@
   .theme-logo-role {
     display: var(--theme-logo-role-display);
   }
-  @media (min-width: 48rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .theme-logo-role {
       display: var(--theme-logo-role-display-large);
     }
@@ -109,7 +109,7 @@
   /* The bar at the bottom of a phone's screen (a promotion: ActionBar.astro), a docked toolbar
      (.toolbar-docked, ui.css) fixed there: the page gets room under its footer, and only the first bar on a page is
      shown. data-hidden: moved down out of sight (while the buttons at the top of the front page are on screen, the script
-     in Base.astro). Not from 48rem (a tablet in landscape, a computer). */
+     in Base.astro). Not from the medium width (a tablet in portrait, a computer). */
   .theme-action-bar {
     position: fixed;
     inset: auto 0 0;
@@ -122,12 +122,12 @@
   .theme-action-bar ~ .theme-action-bar {
     display: none;
   }
-  @media (width < 48rem) {
+  @media (width < theme(--breakpoint-medium)) {
     body:has(.theme-action-bar) {
       padding-bottom: 6rem;
     }
   }
-  @media (width >= 48rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .theme-action-bar {
       display: none;
     }
@@ -165,7 +165,7 @@
 
 @layer components {
   /* With the bar of "Mobilmenu" under the header (MobileNav.astro), a link to a part of a page stops below both. */
-  @media (width < 80rem) {
+  @media (width < theme(--breakpoint-large)) {
     html:has([data-mobile-nav]) {
       scroll-padding-top: 9.25rem;
     }
@@ -193,12 +193,12 @@
   }
 }
 
-/* A page with a block beside its text (PageLayout.astro): the text, then the column (on a phone below the text); from md
+/* A page with a block beside its text (PageLayout.astro): the text, then the column (on a phone below the text); from medium
    two columns, the second one staying in view while the text is read. */
 .page-with-side > .page-side {
   margin-top: 3rem;
 }
-@media (min-width: 48rem) {
+@media (width >= theme(--breakpoint-medium)) {
   .page-with-side {
     display: grid;
     grid-template-columns: minmax(0, 1fr) var(--theme-side-width);
@@ -220,7 +220,7 @@
   font-weight: var(--type-display-small-weight);
   letter-spacing: var(--type-display-small-tracking);
 }
-@media (min-width: 48rem) {
+@media (width >= theme(--breakpoint-medium)) {
   .theme-title {
     font-size: var(--theme-title-size-large);
     font-weight: var(--type-display-medium-weight);

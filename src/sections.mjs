@@ -15,9 +15,11 @@
 // The front page is an ordinary page (packages/editor/defaults/standardPages.ts): its text is read into sections the same way, by the editor
 // and by the site (partsOfMarkdown, packages/editor/site/home.ts).
 // Shared by the editor and packages/editor/scripts/editor-roundtrip.mjs, which checks that every page comes back the same.
+// Depends on lib/blocks.mjs, lib/crop.mjs, lib/text-colors.mjs and the section colour marker (lib/section-marker.mjs).
 import { blockHtml, cutAtBlock, parseBlock } from '../lib/blocks.mjs';
 import { decorated, decorativeOf } from '../lib/crop.mjs';
 import { coloredHtml, withoutColors } from '../lib/text-colors.mjs';
+import { SECTION_COLORS, isLabelLine } from '../lib/section-marker.mjs';
 
 // Text that is plain in the file (a heading, a picture's description); in Markdown every sign that
 // could mean something is escaped, and back from Markdown the escapes go again. The page's
@@ -96,16 +98,18 @@ function hero(lead, props) {
 
 // A section with a lead from the text before its card (`run`): what is left of the run first, as
 // sections of text, then the section with its picture, heading and text.
-function withLead(run, block, lead) {
+function withLead(run, block, lead, blockColor) {
   let rest = [...run];
   let heading;
   let body = '';
+  let color = blockColor;
   if (lead.heading) {
     const at = rest.findLastIndex((p) => 'heading' in p);
     // A section with only a heading has no place for text: with text after it, the heading and the
     // text stay a section of text (as they look in the editor), and the section has no heading.
     if (at >= 0 && (lead.body || at === rest.length - 1)) {
       heading = rest[at].heading;
+      color = rest[at].sectionColor;
       body = rest
         .slice(at + 1)
         .map((p) => p.markdown)
@@ -135,26 +139,39 @@ function withLead(run, block, lead) {
     ...(lead.heading ? { [lead.heading]: heading ?? '' } : {}),
     ...(lead.body && paragraphs.length ? { [lead.body]: lead.list ? paragraphs : paragraphs.join('\n\n') } : {}),
   };
-  return [...textSections(rest), { type: block.type, ...own, ...block.props }];
+  return [...textSections(rest), { type: block.type, ...own, ...block.props, ...colorOf(color) }];
 }
 
-/** The sections for the parts of the text (partsOf in markdown.mjs); leads as for sectionsToMarkdown. */
-export function sectionsFromParts(parts, leads = {}) {
-  const first = parts.findIndex((p) => p.block);
-  if (first >= 0 && parts[first].block.type === 'hero' && leads.hero)
-    return [hero(parts.slice(0, first), parts[first].block.props), ...sectionsFromParts(parts.slice(first + 1), leads)];
+const colorOf = (color) => (color ? { sectionColor: color } : {});
+
+// Each part with the colour of the H2 it is under (`sectionColor`): a heading starts it, a heading without a colour ends it.
+function withColors(parts) {
+  let current = null;
+  return parts.map((part) => {
+    if ('heading' in part) current = part.color ?? null;
+    return current ? { ...part, sectionColor: current } : part;
+  });
+}
+
+/** The sections for the parts of the text (partsOf in markdown.mjs); leads as for sectionsToMarkdown. `colors`: the front
+ * page: each section also has the colour of its H2 as `sectionColor` (the top, the "Banner", has none). */
+export function sectionsFromParts(parts, leads = {}, options = {}) {
+  const all = options.colors ? withColors(parts) : parts;
+  const first = all.findIndex((p) => p.block);
+  if (first >= 0 && all[first].block.type === 'hero' && leads.hero)
+    return [hero(parts.slice(0, first), all[first].block.props), ...sectionsFromParts(parts.slice(first + 1), leads, options)];
   const sections = [];
   // The text since the last card, for the next card (its lead) or as sections of text.
   let run = [];
-  for (const part of parts) {
+  for (const part of all) {
     if (!part.block) {
       run.push(part);
       continue;
     }
     // A "Hero" further down is a card with all of its fields (only the top's are written above it).
     const lead = part.block.type === 'hero' ? undefined : leads[part.block.type];
-    if (lead) sections.push(...withLead(run, part.block, lead));
-    else sections.push(...textSections(run), { type: part.block.type, ...part.block.props });
+    if (lead) sections.push(...withLead(run, part.block, lead, part.sectionColor));
+    else sections.push(...textSections(run), { type: part.block.type, ...part.block.props, ...colorOf(part.sectionColor) });
     run = [];
   }
   return [...sections, ...textSections(run)];
@@ -167,12 +184,12 @@ function textSections(parts) {
   let text = null;
   for (const part of parts) {
     if ('heading' in part) {
-      text = part.heading ? { type: 'text', heading: part.heading, body: '' } : { type: 'text', body: '' };
+      text = { type: 'text', ...(part.heading ? { heading: part.heading } : {}), body: '', ...colorOf(part.sectionColor) };
       sections.push(text);
     } else if (text) {
       text.body = part.markdown;
       text = null;
-    } else sections.push({ type: 'text', body: part.markdown });
+    } else sections.push({ type: 'text', body: part.markdown, ...colorOf(part.sectionColor) });
   }
   return sections.filter((s) => s.heading || s.body);
 }
@@ -238,31 +255,50 @@ export const plainHeading = (s) =>
 const atx = (level) => new RegExp(`^ {0,3}#{${level}}(?!#)(?:[ \t]+(.*?))?(?:[ \t]+#+)?[ \t]*$`);
 const h1Line = atx(1);
 
-/** A page's H1: the heading "# …" on the first line of its text that is not empty (the page's own heading, written
- * at the top of its text), as text, and the text without it. Without one: no heading, and the text as it is. With a
- * word or more in colour, `html` is the heading as HTML with its colours (coloredHtml), for the layout to draw. */
+/** A page's H1: the first heading "# …" of its text outside fenced code, wherever it stands (the editor makes the first
+ * heading of a page its H1, src/firstHeading.mjs, but text may stand above it), as text, and the text without that line
+ * (what stood above it first, a blank line, then what stood below). Without one: no heading, and the text as it is.
+ * With a word or more in colour, `html` is the heading as HTML with its colours (coloredHtml), for the layout to draw. */
 export function pageH1(markdown) {
   const text = String(markdown ?? '');
-  const match = text.match(/^(?:[ \t]*\r?\n)*([^\r\n]*)(?:\r?\n|$)/);
-  const line = match?.[1] ?? '';
-  const h1 = line.match(h1Line);
-  if (!h1) return { heading: undefined, rest: text };
-  const heading = plainHeading(h1[1] ?? '') || undefined;
-  return {
-    heading,
-    html: heading && coloredHtml(h1[1] ?? '', plainHeading),
-    rest: text.slice(match[0].length).replace(/^(?:[ \t]*\r?\n)+/, ''),
-  };
+  const lines = text.split(/(?<=\n)/);
+  const bare = (line) => line.replace(/\r?\n$/, '');
+  let fence = null;
+  let at = -1;
+  for (let i = 0; i < lines.length && at < 0; i++) {
+    const line = bare(lines[i]);
+    const mark = line.match(/^ {0,3}(`{3,}|~{3,})/)?.[1];
+    if (fence) {
+      if (mark && mark[0] === fence[0] && mark.length >= fence.length) fence = null;
+    } else if (mark) fence = mark;
+    else if (h1Line.test(line)) at = i;
+  }
+  if (at < 0) return { heading: undefined, rest: text };
+  const h1 = bare(lines[at]).match(h1Line);
+  const heading = plainHeading(h1?.[1] ?? '') || undefined;
+  const before = lines.slice(0, at).join('');
+  const after = lines
+    .slice(at + 1)
+    .join('')
+    .replace(/^(?:[ \t]*\r?\n)+/, '');
+  const eol = text.includes('\r\n') ? '\r\n' : '\n';
+  const rest = !before.trim() ? after : after ? `${before.trimEnd()}${eol}${eol}${after}` : before.trimEnd();
+  return { heading, html: heading && coloredHtml(h1?.[1] ?? '', plainHeading), rest };
 }
+
+// A section's colour marker on its own line (lib/section-marker.mjs); any colour name, so an unknown one is dropped too.
+const MARKER_LINE = /^ {0,3}<div data-section="([^"]*)"><\/div>[ \t]*$/;
 
 /** The parts of a page's Markdown as the editor reads them (partsOf in markdown.mjs), without the editor: each block,
  * each heading at the top level (H2), and the Markdown between them; for the site, which reads the front page into
  * sections (packages/editor/site/home.ts). The page's H1 ("# …") is no section's and is left out. `npm run check:editor` checks
- * that it gives the editor's sections for every page. */
+ * that it gives the editor's sections for every page. A colour marker before an H2 is its part's `color`. */
 export function partsOfMarkdown(markdown) {
   const parts = [];
   let run = [];
   let fence = null;
+  // The colour of a marker line, kept for the H2 it stands before (blank lines and a label line may come between).
+  let pending = null;
   const flush = () => {
     const text = run.join('\n').trim();
     if (text) parts.push({ markdown: text });
@@ -277,25 +313,36 @@ export function partsOfMarkdown(markdown) {
     }
     if (mark) {
       fence = mark;
+      pending = null;
       run.push(line);
+      continue;
+    }
+    // The marker is never text: it is the colour of the H2 after it, or dropped (unknown colour, or no H2 after it).
+    const marker = line.match(MARKER_LINE);
+    if (marker) {
+      pending = SECTION_COLORS.includes(marker[1]) ? marker[1] : null;
       continue;
     }
     const block = parseBlock(line);
     if (block) {
       flush();
+      pending = null;
       parts.push({ block });
       continue;
     }
     if (h1Line.test(line)) {
       flush();
+      pending = null;
       continue;
     }
     const heading = line.match(atx(2));
     if (heading) {
       flush();
-      parts.push({ heading: plainHeading(heading[1] ?? '') });
+      parts.push({ heading: plainHeading(heading[1] ?? ''), ...(pending ? { color: pending } : {}) });
+      pending = null;
       continue;
     }
+    if (line.trim() && !isLabelLine(line)) pending = null;
     run.push(line);
   }
   flush();

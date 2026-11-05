@@ -1,4 +1,4 @@
-// The start screen of the editor (the parts of the site in groups, like a phone's settings) and the
+// The start screen of the editor (empty but for its title, status and FAB) and the
 // list of each part: blog posts newest first, the rest by name, prices and testimonials in their order
 // on the site (with arrows to move them), and a search. Lists that are not in an order of their own can
 // be sorted another way (a list of kinds, by its kinds too); the choice is kept in this browser. Pages
@@ -15,7 +15,6 @@ import {
   ClockCounterClockwise,
   CircleHalf,
   FileText,
-  Gauge,
   GithubLogo,
   GoogleLogo,
   List as ListIcon,
@@ -33,6 +32,7 @@ import { byText, entryData, type Collection, type Part, type PartScreen } from '
 import { config, countsOf, header, relationsOf, siteName } from '@site/editor';
 import { iconPack, iconPacks } from './iconPacks';
 import { theme, themes, type ThemeInfo } from './themes';
+import { StartFab } from './StartFab';
 import { StartStatus } from './StartStatus';
 import {
   appearance,
@@ -41,13 +41,11 @@ import {
   blockParts,
   collections,
   companyParts,
-  groups,
   icons,
   lists,
   listsShown,
   partScreens,
   seoParts,
-  settings,
 } from './site';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { ConflictError, type RepoFile, type Viewer } from './github';
@@ -108,6 +106,7 @@ import {
   useThemeCatalog,
 } from './ThemeStore';
 import { STANDARD_THEME, STORE_ROUTE } from './store';
+import { REDIRECTS_ROUTE } from './Redirects';
 import { MOTION_SCHEMES, schemeInUse, type MotionScheme } from '../lib/motion';
 import { applyMotion } from './theme';
 import { colorsOf } from './Colors';
@@ -118,12 +117,12 @@ import { offBlocks } from './registry';
 import { sideChoicesOf, sideSettingOf } from './SideColumn';
 
 // Where a part opens: its list, or the file itself when it is one file (the menu).
-const hrefOf = (c: Collection) => (c.kind === 'files' && c.files.length === 1 ? `#${c.files[0].file}` : `#liste/${c.id}`);
+export const hrefOf = (c: Collection) => (c.kind === 'files' && c.files.length === 1 ? `#${c.files[0].file}` : `#liste/${c.id}`);
 
 const countOf = (c: Collection, files: RepoFile[]): number =>
   c.kind === 'files' ? c.files.length : files.filter((f) => f.path.startsWith(`${c.folder}/`)).length;
 
-// A part's name, where it opens, and how many entries it has (null for one file).
+// A part's name, where it opens, and how many entries it has (null for one file): for the main drawer (MainMenu.tsx).
 export function partOf(id: string, files: RepoFile[]): { label: string; href: string; count: number | null } {
   const { parts } = t.common;
   if (id === 'virksomheden') return { label: parts.company, href: '#virksomheden', count: null };
@@ -135,6 +134,26 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'blokvalg') return { label: parts.blockSettings, href: '#blokvalg', count: null };
   if (id === 'apps') return { label: parts.apps, href: '#apps', count: null };
   if (id === 'appstore') return { label: t.apps.find, href: `#${STORE_ROUTE}`, count: null };
+  if (id === 'videresendelser') return { label: parts.redirects, href: `#${REDIRECTS_ROUTE}`, count: null };
+  const seoPart = seoParts.find((p) => p.id === id);
+  if (seoPart) return { label: seoPart.label, href: `#seo/${id}`, count: null };
+  // The screens under "Udseende" (Theme): the ones the editor has, then the site's own (appearance).
+  const appearanceLabel = {
+    temaer: parts.themes,
+    ikonpakker: parts.iconPacks,
+    bevaegelse: parts.motion,
+    sidekolonne: parts.sideColumn,
+    farver: parts.colors,
+    logo: parts.brand,
+    dele: parts.editorParts,
+  }[id];
+  const appearancePart = appearanceLabel ?? appearance.find((p) => p.id === id)?.label;
+  if (appearancePart) return { label: appearancePart, href: `#udseende/${id}`, count: null };
+  // The parts of a screen with parts ("Privatliv"): where each opens, or its screen's address with its id.
+  for (const screen of partScreens) {
+    const own = screen.parts.find((p) => p.id === id);
+    if (own) return { label: own.label, href: own.href ?? `#${screen.id}/${id}`, count: null };
+  }
   if (id === 'morpheme') return { label: parts.morpheme, href: `#${CMS_ROUTE}`, count: null };
   if (id === 'avanceret') return { label: parts.advanced, href: '#avanceret', count: null };
   if (id === 'licenser') return { label: parts.licenses, href: '#licenser', count: null };
@@ -145,7 +164,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   return { label: c.label, href: hrefOf(c), count: c.kind === 'files' && c.files.length === 1 ? null : countOf(c, files) };
 }
 
-/** The parts of a group on the start screen (and in the sidebar), A–Å by their names in the editor's language. */
+/** The parts of a group on a screen with parts (Parts), A–Å by their names in the editor's language. */
 export const partsIn = (ids: string[], files: RepoFile[]) =>
   ids.map((id) => ({ id, ...partOf(id, files) })).sort((a, b) => byText(a.label, b.label));
 
@@ -156,41 +175,18 @@ function PartRow({ id, label, href, count }: { id: string } & ReturnType<typeof 
   return <ListItem href={href} icon={icons[id]} headline={label} count={count} arrow />;
 }
 
-// The start screen, with the CMS version and when the site was last updated (StartStatus.tsx) under the title;
-// on a computer the groups two side by side.
-export function Start({ files, builtAt }: { files: RepoFile[]; builtAt: Date | null }) {
+// The start screen: the site's name, the CMS version and when the site was last updated (built on Cloudflare, App.tsx), as StartStatus.tsx shows them, under it, and the FAB
+// menu for a new page or post (StartFab.tsx). The parts of the site are in the main drawer (MainMenu.tsx); the rest is left empty for now.
+export function Start({ builtAt }: { builtAt: Date | null }) {
   return (
     <Screen
       title={siteName}
       wide
       status={<StartStatus builtAt={builtAt} />}
-      // The notifications, the settings and the account in the top bar, on a phone too (Screen.tsx).
+      // The notifications and the account in the top bar, on a phone too (Screen.tsx).
       home
     >
-      <div className="md:grid md:grid-cols-2 md:items-start md:gap-x-6">
-        {groups.map((g) => (
-          <Group key={g.title} title={g.title}>
-            {partsIn(g.ids, files).map((p) => (
-              <PartRow key={p.id} {...p} />
-            ))}
-          </Group>
-        ))}
-      </div>
-    </Screen>
-  );
-}
-
-/** "Indstillinger" (#indstillinger), which the gear in the top bar opens (Screen.tsx SettingsLink): the settings of the
- * whole site (settings in packages/editor/defaults/editor.ts: "Analytics", "Apps", "Privatliv", "Promovering", "Søgemaskineoptimering",
- * "Udseende"), A–Å as a group of the start screen, each going back here (backFrom). */
-export function Settings({ files }: { files: RepoFile[] }) {
-  return (
-    <Screen title={t.common.parts.settings} wide back={{ href: '#', label: siteName }}>
-      <Group>
-        {partsIn(settings, files).map((p) => (
-          <PartRow key={p.id} {...p} />
-        ))}
-      </Group>
+      <StartFab />
     </Screen>
   );
 }
@@ -264,7 +260,7 @@ function themeStatus(id: string, files: RepoFile[]): string | undefined {
 }
 
 /** "Temaer" (#udseende/temaer): the themes installed (src/themes/, packages/editor/src/themes.ts; and one from the store the site's build
- * does not have yet, as "Installeres …"), by name, each with its picture, its version and who made it, and whether it is
+ * does not have yet, as "Installeres…"), by name, each with its picture, its version and who made it, and whether it is
  * in use or the store has a newer version, opening its page (ThemePage). More are in "Appstore", under "Indstillinger". */
 export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
   const catalog = useThemeCatalog(env);
@@ -528,15 +524,11 @@ export function PartsHome() {
   return <Parts title={t.common.parts.editorParts} route="udseende/dele" parts={parts} back={backToAppearance} />;
 }
 
-/** "Søgemaskineoptimering" (#seo) under Indstillinger: "SEO-vurdering" (SeoScores.tsx, #seo/vurdering), "Videresendelser"
- * (Redirects.tsx, #seo/videresendelser) and then the site's own parts (seoParts: "Interne links"), each on a screen of
- * its own (CompanyForm.tsx). */
+/** "Søgemaskineoptimering" (#seo), no longer in the menu: "Videresendelser" (Redirects.tsx, #seo/videresendelser) and then
+ * the site's own parts (seoParts: "Interne links"), each on a screen of its own (CompanyForm.tsx). "SEO-vurdering"
+ * (SeoScores.tsx, #seo/vurdering) is hidden: nothing links to it. */
 export function Seo() {
-  const parts: Part[] = [
-    { id: 'vurdering', label: t.seo.title, icon: Gauge },
-    { id: 'videresendelser', label: t.common.parts.redirects, icon: icons.videresendelser },
-    ...seoParts,
-  ];
+  const parts: Part[] = [{ id: 'videresendelser', label: t.common.parts.redirects, icon: icons.videresendelser }, ...seoParts];
   return <Parts title={t.common.parts.seo} route="seo" parts={parts} back={backFrom('seo')} />;
 }
 
@@ -1342,16 +1334,19 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
       />
     );
   };
+  const privacyScreen = partScreens.find((s) => s.id === 'privatliv');
   return (
     <Screen
       title={collection.label}
       wide
       back={
-        lists.includes(collection.id)
-          ? { href: '#lister', label: t.common.parts.lists }
-          : header.includes(collection.id)
-            ? { href: '#header', label: t.common.parts.header }
-            : { href: '#', label: siteName }
+        collection.id === config.lists.cookies && privacyScreen
+          ? { href: `#${privacyScreen.id}`, label: privacyScreen.label }
+          : lists.includes(collection.id)
+            ? { href: '#lister', label: t.common.parts.lists }
+            : header.includes(collection.id)
+              ? { href: '#header', label: t.common.parts.header }
+              : { href: '#', label: siteName }
       }
       tabs={
         appTabs.length > 0
@@ -1491,8 +1486,8 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
 function Under({ item, address, children }: { item: Item; address?: boolean; children: ReactNode }) {
   return (
     <span className="flex gap-6">
-      {address && <span className="hidden min-w-0 flex-1 truncate md:block">{item.path}</span>}
-      <span className="min-w-0 truncate md:ml-auto md:shrink-0 md:text-right">{children}</span>
+      {address && <span className="hidden min-w-0 flex-1 truncate expanded:block">{item.path}</span>}
+      <span className="min-w-0 truncate expanded:ml-auto expanded:shrink-0 expanded:text-right">{children}</span>
     </span>
   );
 }

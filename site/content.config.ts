@@ -56,6 +56,8 @@ const pages = defineCollection({
       .regex(/^\/.*\/$/, 'path skal starte og slutte med /')
       .optional(),
     description: z.string().optional().default(''),
+    // Tags chosen in the editor, not shown on the page.
+    categories: z.array(z.string()).optional().default([]),
     order: z.number().optional().default(0),
     ...status,
     // Google title and description (the <title> and meta description). Empty: built from the title.

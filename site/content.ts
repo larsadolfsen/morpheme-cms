@@ -4,10 +4,11 @@ import { displayTitle } from './text';
 import { isPreview } from './noindex.mjs';
 import { stateOf } from '@morphemecms/cms/lib/status.mjs';
 import { pageH1 } from '@morphemecms/cms/src/sections.mjs';
+import { withoutH1 } from '@morphemecms/cms/lib/without-h1.mjs';
 
 // From text.ts, which the editor uses too (it has no content collections).
 export { displayTitle, openingText } from './text';
-export { stateOf };
+export { stateOf, withoutH1 };
 
 export type Post = CollectionEntry<'blog'>;
 // Every page has a path: its own, or /<file name>/ for pages created in the editor.
@@ -88,9 +89,6 @@ export const pageHeading = (page: Page) => pageH1(page.body ?? '').heading ?? di
 /** The H1 of a page as HTML, when a word in it has a colour (<span class="color-accent">, packages/editor/lib/text-colors.mjs),
  * for the layout to draw in its place; else undefined, and the layout draws pageHeading. */
 export const pageHeadingHtml = (page: Page): string | undefined => pageH1(page.body ?? '').html;
-
-/** A page's text as HTML without its H1 at the top, which the layout draws in its own place (above the picture). */
-export const withoutH1 = (html: string) => html.replace(/^\s*<h1\b[^>]*>[\s\S]*?<\/h1>\s*/, '');
 
 /** Anchor for a testimonial on the testimonials page, e.g. "marie-louise-eriksen". */
 export const testimonialId = (t: { name: string }) =>

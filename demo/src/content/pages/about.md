@@ -13,6 +13,8 @@ Morpheme is a website editor for sites built with [Astro](https://astro.build) a
 
 <div data-block="points" data-props="{&quot;eyebrow&quot;:&quot;Under the hood&quot;,&quot;heading&quot;:&quot;Three proven parts&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;book-open-text&quot;,&quot;title&quot;:&quot;GitHub&quot;,&quot;text&quot;:&quot;Your content lives as plain files in your own repository. Every save is one commit.&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Astro&quot;,&quot;text&quot;:&quot;Your site is built ahead of time into finished pages that open instantly.&quot;},{&quot;icon&quot;:&quot;lifebuoy&quot;,&quot;title&quot;:&quot;Cloudflare&quot;,&quot;text&quot;:&quot;Pages are served from a location near each visitor, and sign-in runs on Cloudflare Workers.&quot;}]}"></div>
 
+<p class="block-eyebrow">Step by step</p>
+
 ## How saving works
 
 When you tap Save, the editor first checks the page. If something’s missing, it tells you what and highlights the field until it’s fixed. Then your change is saved to GitHub, Cloudflare rebuilds your site, and you get a notification when it’s live.

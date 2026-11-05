@@ -9,6 +9,7 @@
 // saved with the tick: the file moves, the pages that use it get the new address in the same commit,
 // and the old address sends on to it (addresses.ts). "+" uploads a new file, saved at once. The same
 // pictures (not the other files) are the gallery a picture is chosen from in the forms (useMediaPicker).
+// The funnel in Filer also filters by a tag (fileTagFilter.mjs; only tags some file has).
 // The clock in the top bar, "Slettede filer", opens the files that were deleted (Deleted.tsx).
 import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import {
@@ -41,10 +42,11 @@ import {
   BottomSheet,
   SheetTitle,
   SideSheet,
-  useWide,
+  useAtLeast,
   EmptyNote,
   SheetBody,
   ListItem,
+  type Pickable,
 } from './ui';
 import type { Env } from './App';
 import type { RepoFile } from './github';
@@ -54,6 +56,9 @@ import { collections } from './site';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { fileKindOf, pickedKindOf, pickImage, prepareFile, prepareImage, publicPath, showMoved, shownAt, type Uploads } from './images';
 import { fileIcons, FileView, KINDS, kindOf, type Kind } from './FileView';
+import MediaTags from './MediaTags';
+import { deleteRecord, recordsIn, renameRecord } from './fileRecords.mjs';
+import { tagFilterOptions, tagIndex, withTag } from './fileTagFilter.mjs';
 import { kindAndName, savedText } from './deploy';
 import { locale, siteT, t } from './i18n';
 
@@ -71,6 +76,9 @@ export const filesOf = (files: RepoFile[]) =>
   FILES
     ? files.filter((f) => f.path.startsWith(`${FILES}/`) && fileKindOf(f.path)).sort((a, b) => a.path.localeCompare(b.path, locale))
     : [];
+
+/** The addresses on the site of every file Filer lists: the pictures, then the PDFs, videos and zip files. */
+export const filerAddresses = (files: RepoFile[]): string[] => [...mediaOf(files), ...filesOf(files)].map((f) => publicPath(f.path));
 
 // What a file that uses a picture or another file is called: a page's or post's title, a fixed page's name, an
 // entry's as its list shows it (a pop-up); null for a file the editor does not open (the list of
@@ -171,7 +179,7 @@ function Grid({ srcs, picked, onPick }: { srcs: string[]; picked?: string | null
   const [thumbs, setThumbs] = useState<Record<string, string> | null>(null);
   useEffect(() => void thumbnails().then(setThumbs), []);
   return (
-    <ul className="grid grid-cols-3 gap-1.5 sm:grid-cols-4 md:grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] md:gap-2">
+    <ul className="grid grid-cols-3 gap-1.5 medium:grid-cols-4 expanded:grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] expanded:gap-2">
       {srcs.map((src) => (
         <li key={src}>
           <button
@@ -200,15 +208,20 @@ const monthOf = (src: string) => {
 };
 /** The pictures with search, their order and the filters, and the month between them when they are
  * in the order of their dates, the first letter when by name. used: the files a page uses (Filer): then
- * the funnel opens a sheet with both filters, by use and by type. picked: the file shown beside it. */
+ * the funnel opens a sheet with the filters by use and by type, and by tag when tags is given (each file's
+ * tags, from tagIndex) and some file has one of the tagOptions. picked: the file shown beside it. */
 function Gallery({
   srcs,
   used,
+  tags,
+  tagOptions = [],
   picked,
   onPick,
 }: {
   srcs: string[];
   used?: Set<string>;
+  tags?: Map<string, string[]>;
+  tagOptions?: Pickable[];
   picked?: string | null;
   onPick: (src: string) => void;
 }) {
@@ -226,6 +239,7 @@ function Gallery({
   });
   const [date, setDate] = useKept(all ? 'filer-dato' : null, '');
   const [use, setUse] = useKept<'' | 'used' | 'unused'>(all ? 'filer-brug' : null, '');
+  const [tag, setTag] = useKept(all ? 'filer-tag' : null, '');
 
   function pickSort(next: Sort) {
     setSort(next);
@@ -239,12 +253,16 @@ function Gallery({
   const years = [...new Set(months.filter(Boolean).map((m) => m.slice(0, 4)))];
   // The types there are files of (and the one chosen); the filter by type only when there are two or more.
   const kinds = KINDS.filter((k) => k === kind || srcs.some((src) => kindOf(src) === k));
+  // The tags some file has (and the one chosen), for the filter by tag.
+  const tagChoices = tags ? tagFilterOptions(tags, tagOptions, tag) : [];
+  const withTagged = tags ? new Set(withTag(srcs, tags, tag)) : null;
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   const shown = srcs
     .filter((src) => words.every((w) => nameOfSrc(src).toLowerCase().includes(w)))
     .filter((src) => !date || monthOf(src) === date || monthOf(src).startsWith(`${date}-`))
     .filter((src) => !use || used?.has(src) === (use === 'used'))
     .filter((src) => !kind || kindOf(src) === kind)
+    .filter((src) => !withTagged || withTagged.has(src))
     .sort((a, b) =>
       sort === 'name'
         ? nameOfSrc(a).localeCompare(nameOfSrc(b), locale)
@@ -256,6 +274,7 @@ function Gallery({
     date && { label: dateName(date), clear: () => setDate('') },
     use && { label: use === 'used' ? t.media.inUse : t.common.notInUse, clear: () => setUse('') },
     kind && { label: t.media.kinds[kind].plural, clear: () => setKind('') },
+    tag && { label: tagOptions.find((o) => o.value === tag)?.label ?? tag, clear: () => setTag('') },
   ].filter((c) => !!c);
 
   return (
@@ -277,7 +296,7 @@ function Gallery({
           all && (
             <Filters
               title={t.media.filter}
-              selected={!!use || !!kind}
+              selected={!!use || !!kind || !!tag}
               groups={[
                 {
                   title: t.media.use,
@@ -297,6 +316,12 @@ function Gallery({
                     ...kinds.map((value) => ({ value, label: t.media.kinds[value].plural })),
                   ],
                   onChange: (v: string) => setKind(v as typeof kind),
+                },
+                tagChoices.length > 0 && {
+                  title: t.media.tagFilter,
+                  value: tag,
+                  options: [{ value: '', label: t.media.allTags }, ...tagChoices],
+                  onChange: setTag,
                 },
               ].filter((g) => !!g)}
             />
@@ -393,7 +418,8 @@ const codeImages = () =>
     .then((r) => (r.ok ? (r.json() as Promise<string[]>) : null))
     .catch(() => null));
 
-export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
+// open: the address of a file to show picked at once (the route filer/<address>); ignored when no such file exists.
+export default function Media({ files, env, open }: { files: RepoFile[]; env: Env; open?: string }) {
   // The pictures and the other files.
   const pictures = [...mediaOf(files), ...filesOf(files)];
   const [code, setCode] = useState<string[] | null>(null);
@@ -406,10 +432,13 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
       .map((f) => f.text);
     return new Set(pictures.map((p) => publicPath(p.path)).filter((src) => code?.includes(src) || texts.some((t) => t.includes(src))));
   }, [files, code]);
+  // Each file's tags, for the filter by tag.
+  const tags = useMemo(() => tagIndex(recordsIn(files, config.fileRecords)), [files]);
   const dialog = useRef<HTMLDialogElement>(null);
-  const [src, setSrc] = useState<string | null>(null);
+  const opened = open && pictures.some((p) => publicPath(p.path) === open) ? open : null;
+  const [src, setSrc] = useState<string | null>(opened);
   // On a computer the file picked is beside the grid; on a phone in a sheet.
-  const wide = useWide();
+  const wide = useAtLeast('expanded');
   const closeFile = () => {
     if (dialog.current?.open) dialog.current.close();
     else setSrc(null);
@@ -424,9 +453,13 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
       dialog.current.close();
     } else if (!wide && !dialog.current?.open) dialog.current?.showModal();
   }, [wide]);
+  // Opened at a file on a phone: the sheet opens with the screen.
+  useEffect(() => {
+    if (opened && !wide) dialog.current?.showModal();
+  }, []);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [name, setName] = useState('');
+  const [name, setName] = useState(opened ? stemOf(opened) : '');
   const [renaming, setRenaming] = useState(false);
   // The name being changed: the field shown instead of the pencil after the name.
   const [editing, setEditing] = useState(false);
@@ -463,7 +496,7 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
     }
   }
 
-  // A file nothing uses, deleted at once in its own commit (after asking).
+  // A file nothing uses, deleted at once in its own commit (after asking), with its record of tags.
   async function remove(src: string) {
     const file = pictures.find((p) => publicPath(p.path) === src);
     if (!file || !(await ask(t.media.kinds[kindOf(src)].deleteAsk, t.common.delete))) return;
@@ -471,12 +504,13 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
     env.notify({ text: t.common.deleting });
     try {
       const change = t.app.changes.deleted(kindAndName(t.media.kinds[kindOf(src)].word, fileName(src)));
+      const record = deleteRecord(recordsIn(files, config.fileRecords), src);
       await env.commit(
         siteT.media.commit.delete(siteT.media.kinds[kindOf(src)].word, src.split('/').pop()!),
-        [{ path: file.path, content: null, oid: file.oid }],
+        [{ path: file.path, content: null, oid: file.oid }, ...(record ? [record] : [])],
         change,
       );
-      env.forget([file.path]);
+      env.forget([file.path, ...(record ? [record.path] : [])]);
       closeFile();
       env.notify({ text: savedText(change), kind: 'saved' });
     } catch (e) {
@@ -487,7 +521,8 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
   }
 
   // A new name for a picture, saved at once in one commit: the file under its new name (same folder
-  // and ending), the old one deleted, the texts with its address changed and the redirect.
+  // and ending), the old one deleted, the texts with its address changed, the redirect and the file's record of tags (same
+  // record file, its address changed).
   async function rename(src: string) {
     const file = pictures.find((p) => publicPath(p.path) === src);
     const stem = slugify(name);
@@ -496,8 +531,16 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
     const to = publicPath(path);
     if (files.some((f) => f.path === path)) return env.notify({ text: t.media.nameTaken, error: true });
     const texts = files
-      .filter((f) => f.text && f.path !== REDIRECTS && !f.path.startsWith(`${MEDIA}/`) && f.text.includes(src))
+      .filter(
+        (f) =>
+          f.text &&
+          f.path !== REDIRECTS &&
+          !f.path.startsWith(`${MEDIA}/`) &&
+          !f.path.startsWith(`${config.fileRecords}/`) &&
+          f.text.includes(src),
+      )
       .map((f) => ({ ...f, text: readdress(f.text, src, to) }));
+    const record = renameRecord(recordsIn(files, config.fileRecords), src, to);
     setRenaming(true);
     env.notify({ text: t.common.saving });
     try {
@@ -520,13 +563,20 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
           { path: file.path, content: null, oid: file.oid },
           ...texts.map((f) => ({ path: f.path, content: f.text, oid: files.find((x) => x.path === f.path)!.oid })),
           ...redirectChanges,
+          ...(record ? [record] : []),
         ],
         change,
       );
       showMoved(src, to);
       env.onSaved(
         { path, oid: oids[path], text: '' },
-        { files: [...texts, ...moved].map((f) => ({ ...f, oid: oids[f.path] })), removed: [file.path] },
+        {
+          files: [...texts, ...moved, ...(record ? [{ path: record.path, oid: '', text: String(record.content) }] : [])].map((f) => ({
+            ...f,
+            oid: oids[f.path],
+          })),
+          removed: [file.path],
+        },
       );
       setSrc(to);
       setName(stem);
@@ -615,6 +665,7 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
           <p className="text-muted">{t.media.noPages}</p>
         )}
       </div>
+      <MediaTags key={src} src={src} files={files} env={env} />
       {code && !used.has(src) && (
         <Button kind="outlined" wide icon={Trash} disabled={deleting} onClick={() => remove(src)}>
           {deleting ? t.common.deleting : t.media.kinds[kindOf(src)].delete}
@@ -640,11 +691,13 @@ export default function Media({ files, env }: { files: RepoFile[]; env: Env }) {
         </>
       }
     >
-      <div className="md:flex md:items-start md:gap-6">
+      <div className="expanded:flex expanded:items-start expanded:gap-6">
         <div className="min-w-0 flex-1">
           <Gallery
-            srcs={pictures.map((p) => publicPath(p.path))}
+            srcs={filerAddresses(files)}
             used={used}
+            tags={tags}
+            tagOptions={env.relations.categories}
             picked={wide ? src : undefined}
             onPick={(src) => {
               setSrc(src);

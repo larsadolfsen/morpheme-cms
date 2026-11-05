@@ -1,5 +1,6 @@
 // "Forhåndsvis" (FormFrame.tsx): a page or a blog post as it looks on the site with what is in its form
-// now, at once and without saving, in a sheet, as wide as a phone or a computer.
+// now, at once and without saving, in a sheet, at each of Material 3's window sizes
+// (lib/breakpoints.mjs).
 //
 // The page as it is on the site gives everything around what the form changes: the header, the footer,
 // the layout and the site's CSS. The site's layouts mark what the form changes (data-editor): the
@@ -7,7 +8,7 @@
 // puts a block that ends the text (data-editor="end", with its type in data-editor-block). Only what
 // was changed is put in, so the rest is exactly as on the site. The text is the site's Markdown
 // (Astro's pipeline, with the HTML written in it), and its blocks are drawn as in the editor
-// (registry.tsx preview), with the site's classes.
+// (registry.tsx preview), with the site's classes; a coloured section is a panel as on the site (lib/text-sections.mjs).
 //
 // The page is shown in a frame without scripts (sandbox), so nothing of the site runs on the editor's
 // address, where its login is kept, and its links lead nowhere. A new page or post is shown in the
@@ -17,8 +18,9 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
-import { DeviceMobile, Desktop } from '@phosphor-icons/react';
 import { parseBlock, splitBlocks } from '../lib/blocks.mjs';
+import { sectionClass, sectionsOf } from '../lib/text-sections.mjs';
+import { BREAKPOINTS, breakpointOf, type Breakpoint } from '../lib/breakpoints.mjs';
 import { processor } from '../lib/markdown';
 import { splitPicture } from '../lib/crop.mjs';
 import { preview as drawBlock, siteBlocks } from './registry';
@@ -134,11 +136,14 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
       end.innerHTML = blockHtml(block.type, block.props, draft.data);
     } else end?.remove();
     const text = doc.querySelector('[data-editor="text"]')!;
-    text.innerHTML = splitBlocks(
-      html,
-      siteBlocks.map((b) => b.type),
-    )
-      .map((p) => ('html' in p ? p.html : blockHtml(p.type, p.props, draft.data)))
+    const types = siteBlocks.map((b) => b.type);
+    text.innerHTML = sectionsOf(html)
+      .map((run) => {
+        const inner = splitBlocks(run.html, types)
+          .map((p) => ('html' in p ? p.html : blockHtml(p.type, p.props, draft.data)))
+          .join('');
+        return run.color ? `<section class="${sectionClass(run.color)}">${inner}</section>` : inner;
+      })
       .join('');
   }
 
@@ -148,15 +153,17 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
   return `<!doctype html>\n${doc.documentElement.outerHTML}`;
 }
 
-type Device = 'phone' | 'computer';
-const WIDTH: Record<Device, number> = { phone: 390, computer: 1280 };
+// The widths the page is shown at: Material 3's breakpoints, each at the narrowest window it has, so its tightest
+// layout is seen; compact at a common phone's.
+const SIZES: Breakpoint[] = ['compact', 'medium', 'expanded', 'large', 'extraLarge'];
+const WIDTH: Record<Breakpoint, number> = { ...BREAKPOINTS, compact: 390 };
 
 /** The sheet with the preview, and how to open it with a draft (made when it opens). */
 export function usePagePreview(): [(draft: () => PageDraft | null) => void, ReactNode] {
   const dialog = useRef<HTMLDialogElement>(null);
   const [html, setHtml] = useState<string | null>(null);
   const [problem, setProblem] = useState('');
-  const [device, setDevice] = useState<Device>(() => (matchMedia('(min-width: 48rem)').matches ? 'computer' : 'phone'));
+  const [size, setSize] = useState<Breakpoint>(() => breakpointOf(innerWidth));
   const run = useRef(0);
 
   function open(make: () => PageDraft | null) {
@@ -184,17 +191,14 @@ export function usePagePreview(): [(draft: () => PageDraft | null) => void, Reac
       <SheetTitle title={t.preview.title} onClose={close} />
       <div className="px-5 pb-3">
         <SegmentedButton
-          label={t.preview.device}
-          value={device}
-          options={[
-            { value: 'phone', label: t.preview.phone, icon: DeviceMobile },
-            { value: 'computer', label: t.preview.computer, icon: Desktop },
-          ]}
-          onChange={setDevice}
+          label={t.preview.size}
+          value={size}
+          options={SIZES.map((s) => ({ value: s, label: t.preview.sizes[s] }))}
+          onChange={setSize}
         />
       </div>
       {html ? (
-        <PageFrame html={html} width={WIDTH[device]} title={t.preview.title} />
+        <PageFrame html={html} width={WIDTH[size]} title={t.preview.title} />
       ) : (
         <p className="px-5 text-muted">{problem || t.preview.making}</p>
       )}

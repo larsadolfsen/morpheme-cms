@@ -187,7 +187,7 @@ export default function ActionParts() {
                 <SiteFabMenu key={size} size={size} icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} />
               ))}
             </div>
-            <div className="grid gap-6 sm:grid-cols-2">
+            <div className="grid gap-6 medium:grid-cols-2">
               {fabMenuKinds.map((kind) => (
                 <div key={kind} className="flex justify-end pt-52">
                   <SiteFabMenu kind={kind} icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} open />

@@ -6,6 +6,7 @@
 // of text with the same heading and the same HTML. Every page is also read into sections as the front page (as the
 // site reads the page that is the front page without the editor, partsOfMarkdown in sections.mjs, packages/editor/site/home.ts):
 // they must be those the editor reads. A page with the switch "Sidekolonne" off and on again has the same front matter. Run: npm run check:editor [files...]
+// A built-in sample with section colours checks that the editor and the site give the front page's sections the same colours.
 // Milkdown needs a DOM; jsdom stands in for the browser.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -60,6 +61,31 @@ const processor = await createMarkdownProcessor();
 const render = async (md) => (await processor.render(md)).code.replace(/\s+/g, ' ').trim();
 
 let failed = 0;
+// On a page the first heading is the H1 by itself (src/firstHeading.mjs): after a change to the text, and only then.
+const { firstHeading } = await import('@morphemecms/cms/src/firstHeading.mjs');
+const headingLevelsOf = (view) => {
+  const levels = [];
+  view.state.doc.forEach((node) => void (node.type.name === 'heading' && levels.push(node.attrs.level)));
+  return levels;
+};
+for (const [markdown, edit, expected] of [
+  ['## First\n\ntext\n\n# Second\n\n### Third', true, [1, 2, 3]],
+  ['## First\n\ntext\n\n# Second\n\n### Third', false, [2, 1, 3]],
+  ['# First\n\n# Second\n\ntext', true, [1, 2]],
+  ['text only', true, []],
+]) {
+  const editor = await makeEditor(document.createElement('div'), markdown).use(firstHeading).create();
+  const view = editor.action((ctx) => ctx.get(editorViewCtx));
+  if (edit) view.dispatch(view.state.tr.insertText('x', view.state.doc.content.size - 1));
+  const levels = headingLevelsOf(view);
+  await editor.destroy();
+  if (levels.join() === expected.join()) continue;
+  failed++;
+  console.log(
+    `\n✗ første overskrift er H1 (packages/editor/src/firstHeading.mjs)\n  tekst:  ${JSON.stringify(markdown)}${edit ? ' (ændret)' : ''}\n  vente:  ${expected}\n  fik:    ${levels}`,
+  );
+}
+
 // A fixed page's introduction and sections, as the editor reads them back.
 async function sectionsBack(sections, intro, field) {
   const leads = leadsOfField(field);
@@ -83,6 +109,35 @@ const comparable = async (intro, sections) =>
       ),
     )),
   ]);
+
+// A text with coloured sections must give the same sections (with their colours) in the editor as on the site.
+const { blockHtml } = await import('@morphemecms/cms/lib/blocks.mjs');
+const colorSample = [
+  '# Sample',
+  '<div data-section="tint"></div>',
+  '## Hours',
+  'Open daily.',
+  '<div data-section="accent"></div>',
+  '## Steps',
+  blockHtml('steps', {}),
+  '## Plain',
+  'End.',
+].join('\n\n');
+const frontSections = async (body, parts) => [
+  await comparable('', sectionsFromParts(parts, frontLeads, { colors: true })),
+  await comparable('', sectionsFromParts(partsOfMarkdown(body), frontLeads, { colors: true })),
+];
+{
+  const editor = await makeEditor(document.createElement('div'), colorSample).use(spacing).create();
+  const [editors, site] = await frontSections(colorSample, editor.action(partsOf));
+  await editor.destroy();
+  if (editors !== site || !editors.includes('"sectionColor":"tint"') || !editors.includes('"sectionColor":"accent"')) {
+    console.log(
+      `\n✗ en tekst med sektionsfarver giver ikke de samme sektioner i editoren og på sitet\n  editoren: ${editors}\n  sitet:    ${site}`,
+    );
+    process.exit(1);
+  }
+}
 
 for (const file of files) {
   if (file.endsWith('.json')) {
@@ -116,7 +171,9 @@ for (const file of files) {
   }
   const root = document.createElement('div');
   // As in the editor: with the free lines between the blocks, written without them.
-  const editor = await makeEditor(root, body).use(spacing).create();
+  // A page also has the first-heading rule: opening and saving it must not change it.
+  const made = makeEditor(root, body).use(spacing);
+  const editor = await (file.includes('src/content/pages/') ? made.use(firstHeading) : made).create();
   editor.action((ctx) => ctx.get(editorViewCtx).dispatch(ctx.get(editorViewCtx).state.tr));
   const saved = editor.action(markdownOf);
   const parts = editor.action(partsOf);
@@ -126,9 +183,11 @@ for (const file of files) {
       await comparable('', sectionsFromParts(parts, frontLeads)),
       await comparable('', sectionsFromParts(partsOfMarkdown(body), frontLeads)),
     ];
-    if (editors !== site) {
+    const [editorColors, siteColors] = await frontSections(body, parts);
+    if (editors !== site || editorColors !== siteColors) {
       failed++;
-      console.log(`\n✗ ${file} som forside\n  editoren: ${editors.slice(0, 300)}\n  sitet:    ${site.slice(0, 300)}`);
+      const [shownEditor, shownSite] = editors !== site ? [editors, site] : [editorColors, siteColors];
+      console.log(`\n✗ ${file} som forside\n  editoren: ${shownEditor.slice(0, 300)}\n  sitet:    ${shownSite.slice(0, 300)}`);
       continue;
     }
   }

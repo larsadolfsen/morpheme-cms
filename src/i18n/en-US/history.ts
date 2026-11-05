@@ -3,7 +3,7 @@
 export const history = {
   /** The button in the top bar of a form, and the sheet it opens. */
   versions: 'Earlier versions',
-  loading: 'Loading the versions',
+  loading: 'Loading the versions…',
   notLoaded: (error: string) => `Couldn’t load the versions: ${error}`,
   none: 'There are no earlier versions',
   /** Who saved a version (their name on GitHub). */
@@ -24,7 +24,7 @@ export const history = {
   deletedNote: 'Deleted items can be restored.',
   /** What was deleted from Filer: "Slettede filer". */
   files: 'files',
-  loadingDeleted: 'Loading deleted items',
+  loadingDeleted: 'Loading deleted items…',
   deletedNotLoaded: (error: string) => `Couldn’t load deleted items: ${error}`,
   noneDeleted: 'Nothing has been deleted recently',
   deletedAt: (when: string, by: string) => (by ? `Deleted ${when} by ${by}` : `Deleted ${when}`),

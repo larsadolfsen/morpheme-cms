@@ -4,17 +4,18 @@
 // anything that cannot stand inside a <p> (a list, a picture) is shown as its text.
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 import { inlineOf } from './markdown';
+import { rehypeEmphasize } from './rehype-emphasize.mjs';
 
 let processor: ReturnType<typeof createMarkdownProcessor> | undefined;
 
 export async function inlineHtml(markdown: string): Promise<string> {
-  processor ??= createMarkdownProcessor();
+  processor ??= createMarkdownProcessor({ rehypePlugins: [rehypeEmphasize] });
   return inlineOf((await (await processor).render(markdown)).code.trim());
 }
 
 /** A longer text the site's owner writes in the editor (an answer in "Spørgsmål og svar") as HTML: paragraphs,
  * lists, bold, italic and links. */
 export async function markdownHtml(markdown: string): Promise<string> {
-  processor ??= createMarkdownProcessor();
+  processor ??= createMarkdownProcessor({ rehypePlugins: [rehypeEmphasize] });
   return (await (await processor).render(markdown)).code.trim();
 }

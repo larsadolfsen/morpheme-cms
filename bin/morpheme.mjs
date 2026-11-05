@@ -10,9 +10,11 @@ const COMMANDS = {
   images: ['responsive-images', 'video-thumbnails'],
   /** After the site is built: what the Worker and the editor read from dist/. */
   'after-build': ['scheduled-list', 'link-counts', 'page-colors'],
+  /** The Cloudflare build command: the content lane or the full lane, then the build. */
+  'ci-build': ['ci-build'],
   'check:content': ['check-content'],
   'check:editor': ['editor-roundtrip'],
-  'check:worker': ['check-worker', 'check-consent', 'check-store', 'check-cms-update', 'check-store-connection'],
+  'check:worker': ['check-worker', 'check-consent', 'check-cms-update', 'check-store', 'check-store-connection'],
   'check:screens': ['editor-screens'],
   'check:themes': ['check-themes'],
   'check:demo': ['check-demo'],

@@ -14,7 +14,7 @@ export function StartStatus({ builtAt }: { builtAt: Date | null }) {
   const updated = builtAt ? t.library.siteUpdated(when(builtAt, { short: true })) : null;
   return (
     <>
-      <span className="expanded:inline hidden">
+      <span className="hidden expanded:inline">
         <CmsVersion />
         {updated && `${t.library.statusSeparator}${updated}`}
       </span>

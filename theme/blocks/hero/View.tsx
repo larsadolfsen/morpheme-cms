@@ -7,12 +7,13 @@
 // screen may show them (data-hero-cta, Base.astro).
 import Buttons from '@theme/blocks/buttons/Buttons';
 import type { HeroView } from '@morphemecms/cms/src/standard/hero/view';
+import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
 import { useInText } from '@morphemecms/cms/src/standard/view';
 
 export default function Hero({ view }: { view: HeroView }) {
   const { image } = view;
   // The widths the picture is shown in: behind the text the whole block's, beside it a part of it.
-  const sizes = view.behind ? (view.full ? '100vw' : '(min-width: 1152px) 1152px, 100vw') : '(min-width: 768px) 40vw, 100vw';
+  const sizes = view.behind ? (view.full ? '100vw' : 'min(72rem, 100vw)') : `(min-width: ${BREAKPOINTS.expanded}px) 40vw, 100vw`;
   return (
     <div
       className={useInText('block-hero', view.behind && 'block-hero-behind', !image && 'block-hero-plain', view.full && 'block-hero-full')}

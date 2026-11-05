@@ -22,9 +22,10 @@
   "d1_databases": [{ "binding": "CONSENT" }],
   // Builds of other branches than main run `wrangler preview`, which needs this block.
   "previews": {},
-  // The checks first, so a branch that fails them is neither built nor deployed.
+  // morpheme ci-build runs the checks first (all of them, or just the editor's when only content changed since the live
+  // commit), so a branch that fails them is neither built nor deployed.
   "build": {
-    "command": "npm run check && npm run build",
+    "command": "npx morpheme ci-build",
   },
   // Each hour, the pages and posts that are Planlagt are published once their time has come, and the apps do theirs. Each
   // minute, whether the site has been built with a save, for the notification on the phone.

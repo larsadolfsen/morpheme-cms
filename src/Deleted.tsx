@@ -4,12 +4,14 @@
 // in one commit, under its old name: a page or post at its old address (not when another has it, or
 // the site sends it on, which it says, and where to), a price or testimonial last in the list. A
 // file from "Filer" is shown in a sheet first (FileView.tsx; a PDF, a video or a zip file with its icon
-// and name over it), with "Gendan" under it.
+// and name over it), with "Gendan" under it, and comes back with its record of tags (fileRecords.mjs) when it
+// was deleted together with it and no live record has its address.
 import { useEffect, useRef, useState } from 'react';
 import { ArrowCounterClockwise } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { Button, listClass, BottomSheet, SheetTitle, EmptyNote, SheetBody, ProblemNote, ListItem } from './ui';
-import { fileKindOf, typeOf } from './images';
+import { fileKindOf, publicPath, typeOf } from './images';
+import { deletedRecordFor, recordsIn } from './fileRecords.mjs';
 import { fileIcons, FileView, kindOf } from './FileView';
 import { ask } from './ask';
 import { REDIRECT_FILES } from './redirectData';
@@ -99,14 +101,26 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
         const { order: _, ...rest } = JSON.parse(file.text) as Record<string, unknown>;
         content = `${JSON.stringify({ order: env.nextOrder(collection!), ...rest }, null, 2)}\n`;
       }
+      // A file from "Filer" comes back with its record of tags: the one deleted in the same commit (same time).
+      const changes: { path: string; content: string | Uint8Array; oid: string | null }[] = [{ path: file.path, content, oid: null }];
+      if (pictures) {
+        const deletedRecords = await env.deleted(config.fileRecords, { text: true });
+        const record = deletedRecordFor(publicPath(file.path), file.at, deletedRecords, recordsIn(files, config.fileRecords));
+        if (record) changes.push({ path: record.path, content: record.text, oid: null });
+      }
       const what = pictures ? siteT.media.kinds[kindOf(file.path)].word : asWritten(collection!).singular;
       const change = t.app.changes.restored(kindAndName(pictures ? t.media.kinds[kindOf(file.path)].word : collection!.singular, name));
       const oids = await env.commit(
         siteT.history.commit.restoreDeleted(what, `"${pictures ? fileName(file.path) : slugOf(file.path, folder)}"`),
-        [{ path: file.path, content, oid: null }],
+        changes,
         change,
       );
-      env.onSaved({ path: file.path, oid: oids[file.path], text: typeof content === 'string' ? content : '' });
+      env.onSaved(
+        { path: file.path, oid: oids[file.path], text: typeof content === 'string' ? content : '' },
+        changes.length > 1
+          ? { files: changes.slice(1).map((c) => ({ path: c.path, oid: oids[c.path], text: String(c.content) })), removed: [] }
+          : undefined,
+      );
       setDeleted((all) => all?.filter((f) => f.path !== file.path) ?? null);
       dialog.current?.close();
       env.notify({ text: savedText(change), kind: 'saved', edit: pictures ? undefined : { to: file.path, text: t.history.open } });

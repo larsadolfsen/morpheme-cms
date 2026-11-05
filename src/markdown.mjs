@@ -1,12 +1,16 @@
 // The Milkdown setup shared by the editor (/editor/) and packages/editor/scripts/editor-roundtrip.mjs, so the check
 // runs the same Markdown parser and writer as the browser.
 import { Editor, editorViewCtx, rootCtx, defaultValueCtx, remarkStringifyOptionsCtx, serializerCtx } from '@milkdown/kit/core';
-import { commonmark } from '@milkdown/kit/preset/commonmark';
+import { commonmark, headingSchema, strongAttr } from '@milkdown/kit/preset/commonmark';
 import { gfm } from '@milkdown/kit/preset/gfm';
 import { $markSchema, $nodeSchema, $prose, $remark } from '@milkdown/kit/utils';
 import { Plugin } from '@milkdown/kit/prose/state';
 import { blockHtml, parseBlock } from '../lib/blocks.mjs';
 import { COLOR_CLOSE, TEXT_COLORS, colorClass, colorOpen, colorOpened } from '../lib/text-colors.mjs';
+import { SECTION_COLORS, isLabelLine, markerColor, sectionMarker } from '../lib/section-marker.mjs';
+import { EMPHASIZE } from '../lib/rehype-emphasize.mjs';
+import { eyebrowText } from '../lib/eyebrow.mjs';
+import { eyebrowKeeper, eyebrowKeymap, eyebrowSchema } from './eyebrow.mjs';
 
 // Write Markdown the way imported files are written: "-   " bullets and
 // "* * *" rules, so a save changes as few lines as possible.
@@ -18,11 +22,15 @@ const stringify = { bullet: '-', listItemIndent: 'tab', rule: '*', ruleSpaces: t
 // of the fixed pages are blocks too (sections.mjs); the site shows only its own (RichText.astro).
 // Other HTML on a line of its own (YouTube, Vimeo, Calendly, an imported table) is a block too, of the
 // type HTML, with the HTML as it is as its `code`, and written back as it was.
+// A label above a heading is read here too (eyebrow.mjs).
 export const HTML = 'html';
 const remarkSiteBlocks = $remark('remarkSiteBlocks', () => () => (tree) => {
-  tree.children = tree.children.map((child) => {
+  tree.children = tree.children.map((child, i) => {
     const only = child.type === 'paragraph' && child.children?.length === 1 ? child.children[0] : child;
     if (only.type !== 'html') return child;
+    // A label right before a heading (lib/eyebrow.mjs) is the node eyebrow (eyebrow.mjs), not a block.
+    const label = tree.children[i + 1]?.type === 'heading' ? eyebrowText(String(only.value)) : null;
+    if (label !== null) return { type: 'eyebrow', value: label };
     const block = parseBlock(String(only.value), null);
     return block
       ? { type: 'siteBlock', blockType: block.type, props: block.props }
@@ -122,6 +130,56 @@ export const textColorSchema = $markSchema('textColor', () => ({
   },
 }));
 
+// The colour of a section (packages/editor/lib/section-marker.mjs): the marker line before an H2, or before the label above it
+// (eyebrow), is read into the H2's attribute `section` and written back before it. It must be read before remarkSiteBlocks
+// sees it, so it is the first plugin of that kind in makeEditor. A marker with nothing to colour is dropped.
+const htmlOf = (node) => {
+  const only = node?.type === 'paragraph' && node.children?.length === 1 ? node.children[0] : node;
+  return only?.type === 'html' ? String(only.value) : '';
+};
+const remarkSectionMarkers = $remark('remarkSectionMarkers', () => () => (tree) => {
+  const parts = tree.children;
+  tree.children = parts.filter((child, i) => {
+    const color = markerColor(htmlOf(child));
+    if (color === null) return true;
+    const next = isLabelLine(htmlOf(parts[i + 1])) ? parts[i + 2] : parts[i + 1];
+    if (next?.type === 'heading' && next.depth === 2) next.section = color;
+    return false;
+  });
+});
+
+// The commonmark heading with the section colour as an attribute (only an H2 has one). Written back before the heading, or
+// before its label, which is already the last thing written (a line of HTML).
+/** @type {import('@milkdown/kit/utils').$NodeSchema<'heading'>} */
+export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => {
+  const base = prev(ctx);
+  return {
+    ...base,
+    attrs: { ...base.attrs, section: { default: null, validate: 'string|null' } },
+    parseMarkdown: {
+      match: base.parseMarkdown.match,
+      runner: (state, node, type) => {
+        state.openNode(type, { level: node.depth, section: node.depth === 2 ? (node.section ?? null) : null });
+        state.next(node.children);
+        state.closeNode();
+      },
+    },
+    toMarkdown: {
+      match: base.toMarkdown.match,
+      runner: (state, node) => {
+        const { level, section } = node.attrs;
+        const written = state.top()?.children;
+        if (level === 2 && SECTION_COLORS.includes(section) && Array.isArray(written)) {
+          const last = written.at(-1);
+          const at = last?.type === 'html' && isLabelLine(last.value) ? written.length - 1 : written.length;
+          written.splice(at, 0, { type: 'html', value: sectionMarker(section) });
+        }
+        base.toMarkdown.runner(state, node);
+      },
+    },
+  };
+});
+
 /** A Milkdown editor of the text, in root (not created yet). @param {HTMLElement | null} root @param {string} markdown
  * @returns {import('@milkdown/kit/core').Editor} */
 export function makeEditor(root, markdown) {
@@ -130,19 +188,27 @@ export function makeEditor(root, markdown) {
       ctx.set(rootCtx, root);
       ctx.set(defaultValueCtx, markdown);
       ctx.update(remarkStringifyOptionsCtx, (options) => ({ ...options, ...stringify }));
+      // Bold as on the site (lib/rehype-emphasize.mjs).
+      ctx.set(strongAttr.key, () => ({ class: EMPHASIZE }));
     })
     .use(commonmark)
     .use(gfm)
+    .use(headingWithSection)
+    .use(remarkSectionMarkers)
     .use(remarkSiteBlocks)
     .use(siteBlockSchema)
     .use(remarkTextColors)
-    .use(textColorSchema);
+    .use(textColorSchema)
+    .use(eyebrowSchema)
+    .use(eyebrowKeeper)
+    .use(eyebrowKeymap);
 }
 
 // The text in parts, for a fixed page's sections (sections.mjs): each block, each heading at the top
 // level ("Overskrift", H2), and the Markdown of the text between them. Empty paragraphs (the lines
 // kept free between two blocks to write in), empty headings (left when one is deleted) and the page's H1
 // (no section's) are left out.
+// An H2's colour (its `section`) is the part's `color`.
 export function partsOf(ctx) {
   const doc = ctx.get(editorViewCtx).state.doc;
   const serialize = ctx.get(serializerCtx);
@@ -160,7 +226,7 @@ export function partsOf(ctx) {
       parts.push({ block: { type: node.attrs.type, props: node.attrs.props } });
     } else if (node.type.name === 'heading' && node.attrs.level === 2) {
       flush();
-      parts.push({ heading: node.textContent.trim() });
+      parts.push({ heading: node.textContent.trim(), ...(node.attrs.section ? { color: node.attrs.section } : {}) });
     } else if (node.type.name === 'heading' && node.attrs.level === 1) {
       flush();
     } else if (!((node.type.name === 'paragraph' || node.type.name === 'heading') && !node.textContent.trim() && !node.childCount))
@@ -198,7 +264,9 @@ export function markdownOf(ctx) {
   const doc = ctx.get(editorViewCtx).state.doc;
   const kept = [];
   doc.forEach((node) => {
-    if (!(node.type.name === 'paragraph' && node.content.size === 0)) kept.push(node);
+    // Nor an empty label (added, then left without a text).
+    const empty = node.content.size === 0 && (node.type.name === 'paragraph' || node.type.name === 'eyebrow');
+    if (!empty) kept.push(node);
   });
   return ctx.get(serializerCtx)(doc.type.create(null, kept));
 }

@@ -1,22 +1,26 @@
-// A screen of the editor: a top bar like in an app (a back arrow, the screen's title, actions on the
-// right) above the content. The back arrow goes to the screen above, back in the history when that is
-// the screen before (nav.ts up), so it goes the same way as the phone's back gesture. Without a back
-// arrow (the start screen), the logo is there instead. On a computer the top bar goes across the whole
-// window beside the sidebar (which has the logo and the site's name, App.tsx): at the left the way there
-// as breadcrumbs (the start screen and the screen above, when that is not the start screen), the title
-// and the status after it; at the right the actions, the notifications, the settings and the account, on every screen.
-// On a phone the notifications are on every screen too, the settings and the account only on the start screen (`home`). The bar stays at
-// the top while scrolling and keeps clear of a phone's notch. A screen's tabs (`tabs`) are the bottom of the bar, under the title,
-// as wide as the content, and stay with it. The content is as wide as a form reads
-// well, or wider for lists and the grid of files (`wide`) and for a form with its fields beside the text
-// (`panel`).
+// A screen of the editor: a top bar like in an app, beside the navigation rail and the drawer (it is drawn into
+// topBarSlot.tsx's place, at the top of the content), above the content. Below medium, where there is no rail, the panel
+// button at its start opens and closes the main drawer (MainMenu.tsx, menuOpen.ts; from medium it is the rail's); at expanded and wider the logo and the site's name after it (one link to the start screen,
+// through `back.guard`), below expanded the back arrow, the title and the status as in an app (the logo only on the start
+// screen); at the end the actions, the notifications and the account, on every screen (on a phone the account only on the
+// start screen, `home`). At expanded and wider the way here as breadcrumbs (the screen above, when that is not the start
+// screen), the title and the status stand in a row under the bar, at the top of the content. The bar stays at the top while
+// scrolling and keeps clear of a phone's notch. A screen's tabs (`tabs`) are the bottom of the bar, under the title, as wide
+// as the content, and stay with it. The back arrow goes to the screen above, back in the history when that is the screen
+// before (nav.ts up). The content is as wide as a form reads well, or wider for lists and the grid of files (`wide`) and for
+// a form with its fields beside the text (`panel`).
+// Under the content of every screen is the editor's footer (EditorFooter.tsx).
 import { useId, type ReactNode } from 'react';
-import { ArrowLeft, Bell, CaretRight, Gear, UserCircle } from '@phosphor-icons/react';
-import { settings, siteName } from '@site/editor';
+import { createPortal } from 'react-dom';
+import { ArrowLeft, Bell, CaretRight, UserCircle } from '@phosphor-icons/react';
 import { t } from './i18n';
-import { IconButton, IconLink, TabPanel, TabRow, TopAppBar, type TabChoice } from './ui';
+import { IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
 import { up } from './nav';
+import EditorFooter from './EditorFooter';
+import { useMenuOpen } from './menuOpen';
 import { unseen, useNotifications } from './notificationData';
+import { SiteLogoLink } from './SiteLogoLink';
+import { useTopBarSlot } from './topBarSlot';
 
 // `label` is the screen back goes to, named by the back arrow and the breadcrumbs. `guard` takes every
 // way out of the screen (back, the breadcrumbs and the logo) and goes it, after warning about changes
@@ -25,9 +29,9 @@ export type Back = { href: string; label: string; guard?: (go: () => void) => vo
 
 // `status`: more about the screen, e.g. when it was last saved: under the title, on a computer after it.
 // `wide`: the content is wider on a computer (lists, the files); `panel`: a form with its other fields
-// beside the text on a wide computer screen (FormColumns in ui.tsx). `drawer`: the icon of the screen's navigation
-// drawer (NavigationDrawerButton, ModalNavigationDrawer), the last in the bar, after the account. `home`: the start screen,
-// with the settings and the account on a phone too. `tabs`: the screen's tabs, in the bar, with the open one's content.
+// beside the text on a wide computer screen (FormColumns in ui.tsx). `drawer`: a button at the end of the
+// bar, after the account (a form's SectionsButton). `home`: the start screen,
+// with the account on a phone too. `tabs`: the screen's tabs, in the bar, with the open one's content.
 type Props<T extends string> = {
   title: string;
   back?: Back;
@@ -56,7 +60,7 @@ export function AccountLink({ className = '' }: { className?: string }) {
   );
 }
 
-/** The bell in the top bar, at the left of the gear: the notifications (#notifikationer, Notifications.tsx), with a dot
+/** The bell in the top bar, before the account: the notifications (#notifikationer, Notifications.tsx), with a dot
  * while some are not seen yet. */
 export function NotificationsLink({ className = '' }: { className?: string }) {
   const count = unseen(useNotifications());
@@ -69,24 +73,6 @@ export function NotificationsLink({ className = '' }: { className?: string }) {
       aria-current={current ? 'page' : undefined}
       selected={current}
       badge={count > 0}
-      className={className}
-    />
-  );
-}
-
-/** The gear in the top bar, at the left of the account: "Indstillinger" (#indstillinger, Library.tsx Settings), marked
- * there and on the settings it opens ("Udseende", "Apps", "Analytics" … and their screens). Only when the site has any. */
-export function SettingsLink({ className = '' }: { className?: string }) {
-  if (!settings.length) return null;
-  const route = location.hash.slice(1);
-  const current = route === 'indstillinger' || settings.some((id) => route === id || route.startsWith(`${id}/`));
-  return (
-    <IconLink
-      href="#indstillinger"
-      icon={Gear}
-      label={t.common.parts.settings}
-      aria-current={current ? 'page' : undefined}
-      selected={current}
       className={className}
     />
   );
@@ -105,7 +91,9 @@ export default function Screen<T extends string>({
   children,
 }: Props<T>) {
   const id = useId();
-  const width = wide ? 'max-w-3xl md:max-w-5xl' : panel ? 'max-w-3xl xl:max-w-6xl' : 'max-w-3xl';
+  const menu = useMenuOpen();
+  const { menuButtonInTopBar } = useMenuLayout();
+  const width = wide ? 'max-w-3xl medium:max-w-5xl' : panel ? 'max-w-3xl large:max-w-6xl' : 'max-w-3xl';
   // A link out of the screen, through `guard`: the back arrow goes up (nav.ts), the other links as links.
   const leave = (go?: () => void) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!go && !back?.guard) return;
@@ -115,62 +103,76 @@ export default function Screen<T extends string>({
     if (back?.guard) back.guard(way);
     else way();
   };
-  return (
-    <div className="min-h-dvh">
-      <TopAppBar>
-        <div className="flex h-16 items-center gap-1 px-2 md:gap-3 md:px-6">
-          {back ? (
-            <a
-              href={back.href}
-              onClick={leave(() => up(back.href))}
-              title={t.common.backTo(back.label)}
-              aria-label={t.common.backTo(back.label)}
-              className="flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-tint md:hidden"
-            >
-              <ArrowLeft size={24} />
-            </a>
-          ) : (
-            // The start screen: the logo before the name.
-            <img src="/editor/icon-192.png" alt="" className="mx-2 size-9 shrink-0 rounded-xl md:hidden" />
+  const slot = useTopBarSlot();
+  // The way here, without the start screen: the logo in the bar is the way there.
+  const crumbs = back && back.href !== '#' ? [back] : [];
+  const bar = (
+    <TopAppBar>
+      <div className="flex h-16 items-center gap-1 px-2 medium:gap-3 medium:px-6">
+        {menuButtonInTopBar && (
+          <MenuButton
+            label={menu.open ? t.library.closeMenu : t.library.openMenu}
+            open={menu.open}
+            onClick={menu.toggle}
+            className="shrink-0"
+          />
+        )}
+        <SiteLogoLink onClick={leave()} className={home ? '' : 'hidden expanded:flex'} />
+        {back && (
+          <a
+            href={back.href}
+            onClick={leave(() => up(back.href))}
+            title={t.common.backTo(back.label)}
+            aria-label={t.common.backTo(back.label)}
+            className="flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-tint expanded:hidden"
+          >
+            <ArrowLeft size={24} />
+          </a>
+        )}
+        <div className="flex min-w-0 flex-1 flex-col pl-1 expanded:hidden">
+          <h1 className="truncate text-xl leading-tight">{title}</h1>
+          {status && (
+            <p data-subtitle className="truncate text-xs text-muted">
+              {status}
+            </p>
           )}
-          <div className="flex min-w-0 flex-1 flex-col pl-1 md:hidden">
-            <h1 className="truncate text-xl leading-tight">{title}</h1>
-            {status && (
-              <p data-subtitle className="truncate text-xs text-muted">
-                {status}
-              </p>
-            )}
-          </div>
-          {/* On a computer: the way here, the title and the status. */}
-          <div className="hidden min-w-0 flex-1 items-center gap-x-2 md:flex">
-            {back && (
-              <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-muted">
-                {(back.href === '#' ? [back] : [{ href: '#', label: siteName }, back]).map((c) => (
-                  <span key={c.href} className="flex items-center gap-2">
-                    <a href={c.href} onClick={leave()} className="max-w-48 truncate hover:text-accent hover:underline">
-                      {c.label}
-                    </a>
-                    <CaretRight size={14} className="shrink-0" />
-                  </span>
-                ))}
-              </nav>
-            )}
-            <h1 className="truncate font-medium">{title}</h1>
-            {status && <p className="shrink-0 text-sm text-muted">{status}</p>}
-          </div>
-          <div className="flex shrink-0 items-center justify-end gap-1">{actions}</div>
-          <NotificationsLink />
-          <SettingsLink className={home ? '' : 'hidden md:inline-grid'} />
-          <AccountLink className={home ? '' : 'hidden md:inline-grid'} />
-          {drawer}
         </div>
-        {tabs && (
-          <div className={`mx-auto md:px-6 ${width}`}>
+        <div className="hidden min-w-0 flex-1 expanded:block" />
+        <div className="flex shrink-0 items-center justify-end gap-1">{actions}</div>
+        <NotificationsLink />
+        <AccountLink className={home ? '' : 'hidden medium:inline-grid'} />
+        {drawer}
+      </div>
+      {tabs && (
+        <div className="editor-bar-tabs">
+          <div className={`mx-auto medium:px-6 ${width}`}>
             <TabRow id={id} {...tabs} />
           </div>
-        )}
-      </TopAppBar>
-      <main className={`editor-screen mx-auto px-4 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] md:px-6 md:pt-8 ${width}`}>
+        </div>
+      )}
+    </TopAppBar>
+  );
+  return (
+    <div className="min-h-dvh">
+      {slot ? createPortal(bar, slot) : bar}
+      <main className={`editor-screen mx-auto px-4 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 ${width}`}>
+        {/* At expanded and wider: the way here, the title and the status, under the bar. */}
+        <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">
+          {crumbs.length > 0 && (
+            <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-muted">
+              {crumbs.map((c) => (
+                <span key={c.href} className="flex items-center gap-2">
+                  <a href={c.href} onClick={leave()} className="max-w-48 truncate hover:text-accent hover:underline">
+                    {c.label}
+                  </a>
+                  <CaretRight size={14} className="shrink-0" />
+                </span>
+              ))}
+            </nav>
+          )}
+          <h1 className="truncate font-medium">{title}</h1>
+          {status && <p className="shrink-0 text-sm text-muted">{status}</p>}
+        </div>
         {tabs ? (
           <TabPanel id={id} value={tabs.value}>
             {children}
@@ -178,6 +180,7 @@ export default function Screen<T extends string>({
         ) : (
           children
         )}
+        <EditorFooter />
       </main>
     </div>
   );

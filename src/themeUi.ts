@@ -14,11 +14,13 @@ export {
 export { default as SiteCheckbox } from '@theme/ui/Checkbox';
 export { default as SiteChip, chipKinds } from '@theme/ui/Chip';
 export { default as SiteChipSet, chipSetLayouts } from '@theme/ui/ChipSet';
+export { bottomSheet as siteBottomSheet } from '@theme/ui/bottomSheetControl';
 export { default as SiteDialog, dialogModalClass as siteDialogModalClass } from '@theme/ui/Dialog';
 export {
   default as SiteBottomSheet,
   BottomSheetHeader as SiteBottomSheetHeader,
   bottomSheetCoverClass,
+  bottomSheetClass as siteBottomSheetClass,
   bottomSheetContainerClass as siteBottomSheetContainerClass,
   bottomSheetFitClass as siteBottomSheetFitClass,
   bottomSheetFullClass as siteBottomSheetFullClass,
@@ -47,9 +49,13 @@ export { placeMenu as sitePlaceMenu } from '@theme/ui/dropdownMenu.script';
 export { default as SiteExposedDropdownMenu } from '@theme/ui/ExposedDropdownMenu';
 export {
   NavigationDrawer as SiteNavigationDrawer,
+  NavigationDrawerBack as SiteNavigationDrawerBack,
+  focusNavigationDrawerItem as siteFocusNavigationDrawerItem,
   navigationDrawerDialogClass as siteNavigationDrawerDialogClass,
+  navigationDrawerKeys as siteNavigationDrawerKeys,
   NavigationDrawerItem as SiteNavigationDrawerItem,
   NavigationDrawerRow as SiteNavigationDrawerRow,
+  NavigationDrawerSection as SiteNavigationDrawerSection,
   NavigationDrawerSubitem as SiteNavigationDrawerSubitem,
   NavigationDrawerToggle as SiteNavigationDrawerToggle,
 } from '@theme/ui/NavigationDrawer';
@@ -61,12 +67,16 @@ export { default as SiteButtonGroup, buttonGroupKinds } from '@theme/ui/ButtonGr
 export { default as SiteSegmentedButton } from '@theme/ui/SegmentedButton';
 export { default as SiteSplitButton, splitButtonKinds } from '@theme/ui/SplitButton';
 export { default as SiteFabMenu, fabMenuKinds } from '@theme/ui/FabMenu';
+export { setUpFabMenu } from '@theme/ui/fabMenu.script';
 /** The theme's selection parts, dividers and side sheets, for "Dele" › "UI-komponenter" (SelectionParts.tsx). */
 export { default as SiteSwitch } from '@theme/ui/Switch';
+export { default as SiteSettingRow } from '@theme/ui/SettingRow';
 export { default as SiteRadioButton, RadioGroup as SiteRadioGroup } from '@theme/ui/RadioButton';
 export { default as SiteSlider } from '@theme/ui/Slider';
 export { default as SiteDivider } from '@theme/ui/Divider';
 export { default as SiteSideSheet } from '@theme/ui/SideSheet';
+export { sideSheetClass as siteSideSheetDialogClass } from '@theme/ui/SideSheet';
+export { sideSheet as siteSideSheet } from '@theme/ui/sideSheetControl';
 /** The theme's communication parts, for "Dele" › "UI-komponenter" (CommunicationParts.tsx). */
 export { default as SiteBadge } from '@theme/ui/Badge';
 export { default as SiteLoadingIndicator } from '@theme/ui/LoadingIndicator';

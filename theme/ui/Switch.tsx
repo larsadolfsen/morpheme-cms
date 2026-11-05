@@ -1,6 +1,6 @@
-// A switch (m3.material.io/components/switch, .switch in ../styles/ui.css): its name (`label`) and a line under the
-// name (`supporting`), and after them the track with its handle, all of it one <label>, so a click anywhere switches
-// it; the switch is a native <input type="checkbox" role="switch">, so Space switches it and screen readers say
+// A switch (m3.material.io/components/switch, .switch in ../styles/ui.css): a SettingRow (SettingRow.tsx) with its name
+// (`label`) and a line under it (`supporting`), and after them the track with its handle, all of it one <label>, so a
+// click anywhere switches it; the switch is a native <input type="checkbox" role="switch">, so Space switches it and screen readers say
 // "on"/"off". `icons`: the theme's icons in the handle, 'both' (a check when it is on, a cross when it is off) or
 // 'selected' (only the check); none without it. `checked`: on from the start, or, with `onChange` (the editor), whether
 // it is on now; `disabled`: it cannot be changed. `states`: what it is on and off ("Til", "Fra"), shown before the
@@ -9,6 +9,7 @@
 // label. An Astro component gives an element the same classes with switchClass.
 import type { ReactNode } from 'react';
 import { Svg } from '@morphemecms/cms/src/icon';
+import SettingRow from './SettingRow';
 
 export type SwitchIcons = 'both' | 'selected';
 
@@ -36,13 +37,12 @@ export default function Switch({
   // Changed by the editor (onChange): on as it says; else on from the start, then by the visitor.
   const on = rest.onChange ? { checked: Boolean(checked) } : { defaultChecked: checked };
   return (
-    <label className={[switchClass(icons), className].filter(Boolean).join(' ')}>
-      {!hideLabel && (
-        <span className="switch-text">
-          <span className="switch-label">{label}</span>
-          {supporting && <span className="switch-supporting">{supporting}</span>}
-        </span>
-      )}
+    <SettingRow
+      as="label"
+      className={[switchClass(icons), className].filter(Boolean).join(' ')}
+      label={hideLabel ? null : label}
+      supporting={hideLabel ? null : supporting}
+    >
       {states && (
         <span className="switch-state" aria-hidden="true">
           {states[checked ? 0 : 1]}
@@ -55,6 +55,6 @@ export default function Switch({
           {icons === 'both' && <Svg name="x" size={16} className="switch-icon switch-icon-off" />}
         </span>
       </span>
-    </label>
+    </SettingRow>
   );
 }

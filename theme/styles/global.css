@@ -17,7 +17,8 @@
   when the colours are made from a source colour (dynamic colour), and every text on them keeps the contrast the editor
   checks (colorPairs), in light and dark mode.
 */
-:root {
+:root,
+.text-section-accent > * {
   /* The surfaces and the outline, M3's roles as the site's colours ("Farver"): the page on the background, --surface
      the lowest container, and the containers each a step towards the text's colour. */
   --md-background: var(--bg);
@@ -39,6 +40,15 @@
   --elevation-3: 0 1px 3px rgb(0 0 0 / 0.3), 0 4px 8px 3px rgb(0 0 0 / 0.15);
   --elevation-4: 0 2px 3px rgb(0 0 0 / 0.3), 0 6px 10px 4px rgb(0 0 0 / 0.15);
   --elevation-5: 0 4px 4px rgb(0 0 0 / 0.3), 0 8px 12px 6px rgb(0 0 0 / 0.15);
+  /* M3 shows elevation by colour: the theme's parts have no shadow at rest. Only the FAB (below) and the lift when a part
+     is pointed at or dragged have one. */
+  --elevation-1-rest-shadow: var(--elevation-0);
+  --elevation-2-rest-shadow: var(--elevation-0);
+  --elevation-3-rest-shadow: var(--elevation-0);
+  --elevation-4-rest-shadow: var(--elevation-0);
+  --elevation-5-rest-shadow: var(--elevation-0);
+  --fab-shadow: var(--elevation-3);
+  --fab-hover-shadow: var(--elevation-4);
   /* The shade over the page behind a dialog, a sheet and the navigation drawer. */
   --md-scrim: rgb(0 0 0 / 0.32);
   /* M3's corner radius scale (m3.material.io/styles/shape/corner-radius-scale), its ten steps named for how round a
@@ -60,14 +70,14 @@
   --md-shape-full: 9999px;
 
   --radius: var(--md-shape-medium);
-  --shadow: var(--elevation-1);
+  --shadow: var(--elevation-1-rest-shadow);
   /* The site's motion scheme's curve ("Bevægelse", @morphemecms/cms/lib/motion.ts). */
   --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
 
   --block-surface: var(--md-surface-container-low);
   --block-radius: var(--md-shape-medium);
   --block-control-radius: var(--md-shape-full);
-  --block-shadow: var(--elevation-1);
+  --block-shadow: var(--elevation-1-rest-shadow);
   --block-ease: var(--ease);
   /* Pictures in a list, a row, a step on the time line: large corners. */
   --radius-small: var(--md-shape-large);
@@ -75,14 +85,12 @@
   /* The standard theme's components (docs/editor.md, "Temaets variabler"). Dialogs (the cookie question, a pop-up):
      extra-large increased corners, a high surface container, no line (the third elevation, as every dialog). */
   --dialog-radius: var(--md-shape-extra-large-increased);
-  --dialog-surface: var(--md-surface-container-high);
   --dialog-line: transparent;
   --dialog-scrim: var(--md-scrim);
   /* A bottom sheet (ui.css; a dialog on a computer): extra-large corners, the lowest surface container (also as a dialog,
      as M3's on every screen), no lines, the scrim, the drag handle in on-surface-variant at 40% (the first elevation,
      the third as a dialog, as every bottom sheet). */
   --bottom-sheet-radius: var(--md-shape-extra-large);
-  --bottom-sheet-surface: var(--md-surface-container-low);
   --bottom-sheet-line: transparent;
   --bottom-sheet-scrim: var(--md-scrim);
   --bottom-sheet-handle: color-mix(in srgb, var(--muted) 40%, transparent);
@@ -140,7 +148,6 @@
   --button-tonal-surface: var(--tint);
   --button-tonal-text: var(--ink);
   --button-tonal-hover: color-mix(in srgb, var(--ink) 8%, var(--tint));
-  --button-elevated-surface: var(--md-surface-container-low);
   --button-elevated-text: var(--accent);
   --button-outlined-surface: transparent;
   --button-outlined-text: var(--accent);
@@ -187,7 +194,6 @@
   --card-filled-surface: var(--md-surface-container-highest);
   --card-outlined-surface: var(--surface);
   --card-outlined-line: var(--line);
-  --card-elevated-surface: var(--md-surface-container-low);
   /* Lists (M3 Expressive's list tokens): items 56, 72 and 88px high by their lines, 16px in from their sides, 10px over
      and under their text and 12px between their elements, without lines between them; 20px icons; the headline in body
      large, the supporting text in body medium, the overline and the trailing text in label small; a state layer in the
@@ -232,10 +238,8 @@
   /* The header's parts (ui.css): the top app bar on the background, in a surface container once the page scrolls under
      it (M3 shows its second elevation there by that surface alone), without a line, a shadow or a blur. */
   --top-app-bar-surface: var(--md-background);
-  --top-app-bar-stuck-surface: var(--md-surface-container);
   --top-app-bar-line-width: 0;
   --top-app-bar-backdrop: none;
-  --top-app-bar-stuck-shadow: none;
   /* Menus: a surface container with small corners (its groups' inner corners extra-small), the second elevation, items 48px high, 112–280px wide, and
      scrolling when higher than the screen; the open page in the secondary container. */
   --menu-width: max-content;
@@ -244,7 +248,6 @@
   --menu-max-height: calc(100dvh - 5rem);
   --menu-radius: var(--md-shape-small);
   --menu-group-inner-radius: var(--md-shape-extra-small);
-  --menu-surface: var(--md-surface-container);
   --menu-line: transparent;
   --menu-padding: 0.5rem 0;
   --menu-item-height: 3rem;
@@ -258,18 +261,7 @@
   --menu-item-selected-weight: 400;
   /* Navigation drawers: from the left, large corners towards the page, a low surface container, M3's scrim; items 56px
      high with a full active indicator in the secondary container, a label in medium weight. */
-  --navigation-drawer-width: min(22.5rem, 88vw);
-  --navigation-drawer-radius: var(--md-shape-none) var(--md-shape-large) var(--md-shape-large) var(--md-shape-none);
-  --navigation-drawer-surface: var(--md-surface-container-low);
   --navigation-drawer-scrim: var(--md-scrim);
-  --navigation-drawer-item-height: 3.5rem;
-  --navigation-drawer-item-padding: 0 1.5rem 0 1rem;
-  --navigation-drawer-item-radius: var(--md-shape-full);
-  --navigation-drawer-item-text: var(--muted);
-  --navigation-drawer-item-hover: var(--md-hover);
-  --navigation-drawer-item-active-surface: var(--tint);
-  --navigation-drawer-item-active-text: var(--ink);
-  --navigation-drawer-item-active-weight: 500;
   --navigation-drawer-row-gap: 0;
   --navigation-drawer-toggle-size: 3rem;
   --navigation-drawer-toggle-hover: var(--md-hover);
@@ -329,7 +321,6 @@
   --switch-handle-pressed-size: 1.75rem;
   --switch-handle-surface: var(--md-outline);
   --switch-handle-checked-surface: var(--on-accent);
-  --switch-handle-shadow: none;
   --switch-icon-color: var(--md-surface-container-highest);
   --switch-icon-checked-color: var(--accent);
   --switch-disabled-opacity: 0.38;
@@ -357,7 +348,6 @@
   --slider-handle-radius: var(--md-shape-full);
   --slider-handle-surface: var(--accent);
   --slider-handle-line-width: 0;
-  --slider-handle-shadow: none;
   --slider-handle-pressed-width: 0.125rem;
   --slider-handle-inset: 0.375rem;
   --slider-stop-color: var(--accent);
@@ -370,8 +360,6 @@
   /* Side sheets: a standard one on the page's surface with the outline variant between them, a modal one in a low
      surface container with large corners towards the page, the first elevation and M3's scrim; the headline in title
      large, a line in the outline variant over the actions. */
-  --side-sheet-surface: var(--md-background);
-  --side-sheet-modal-surface: var(--md-surface-container-low);
   --side-sheet-radius: var(--md-shape-large);
   /* A modal navigation rail: large corners towards the page, as the drawer. */
   --navigation-rail-modal-radius: var(--md-shape-large);
@@ -395,7 +383,6 @@
   --tooltip-plain-surface: var(--inverse-surface);
   --tooltip-plain-text: var(--inverse-on-surface);
   --tooltip-plain-radius: var(--md-shape-extra-small);
-  --tooltip-rich-surface: var(--md-surface-container);
   --tooltip-rich-text: var(--muted);
   --tooltip-rich-subhead: var(--ink);
   --tooltip-rich-radius: var(--md-shape-medium);
@@ -422,7 +409,6 @@
   --navigation-rail-width: 6rem;
   --navigation-rail-expanded-width: 13.75rem;
   --navigation-rail-padding: 1.5rem 0.5rem;
-  --navigation-rail-surface: var(--md-background);
   --navigation-rail-line: transparent;
   --navigation-rail-item-text: var(--muted);
   --navigation-rail-item-selected-text: var(--ink);
@@ -441,7 +427,6 @@
   --search-bar-line: transparent;
   --search-bar-hover: color-mix(in srgb, var(--ink) 8%, var(--md-surface-container-high));
   --search-bar-placeholder: var(--muted);
-  --search-view-surface: var(--md-surface-container-high);
   --search-view-radius: var(--md-shape-extra-large);
   --search-view-line: transparent;
   --search-view-divider: var(--line);
@@ -475,14 +460,48 @@
   --time-picker-dial-surface: var(--md-surface-container-highest);
 }
 
+/* The blocks in a section on the accent (blocks.css) read as an inverted theme: the site's colours below are swapped for
+   it, and the list above (the M3 aliases and the parts' variables, which are resolved where they are declared) is
+   declared again on them (the selector of its rule), so every part takes the swapped colours. The section's own
+   colours are in --section-… (blocks.css). */
+.text-section-accent > * {
+  --ink: var(--section-on-accent);
+  --muted: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
+  --line: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
+  --outline: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
+  --bg: var(--section-accent);
+  --accent: var(--section-on-accent);
+  --accent-hover: color-mix(in srgb, var(--section-on-accent) 88%, var(--section-accent));
+  --on-accent: var(--section-accent);
+  --tint: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
+  --surface: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
+  --surface-container-lowest: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
+  --surface-container-low: color-mix(in srgb, var(--section-on-accent) 12%, transparent);
+  --surface-container: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
+  --surface-container-high: color-mix(in srgb, var(--section-on-accent) 18%, transparent);
+  --surface-container-highest: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
+  --secondary: var(--section-on-accent);
+  --on-secondary: var(--section-accent);
+  --secondary-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
+  --on-secondary-container: var(--section-on-accent);
+  --tertiary: var(--section-on-accent);
+  --on-tertiary: var(--section-accent);
+  --tertiary-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
+  --on-tertiary-container: var(--section-on-accent);
+  --accent-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
+  --on-accent-container: var(--section-on-accent);
+  --block-shadow: none;
+  --shadow: none;
+}
+
 /* The same elevation in dark mode (the standard theme's shadow there is another). */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --shadow: var(--elevation-1);
+    --shadow: var(--elevation-1-rest-shadow);
   }
 }
 :root[data-theme='dark'] {
-  --shadow: var(--elevation-1);
+  --shadow: var(--elevation-1-rest-shadow);
 }
 
 @theme inline {
@@ -541,7 +560,7 @@
   }
   /* The hero's buttons: small (40px) on a phone, so two fit side by side, medium (56px, a larger label) from a
      tablet. */
-  @media (min-width: 48rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .block-hero {
       --button-height: 3.5rem;
       --button-square-radius: var(--md-shape-large);
@@ -878,7 +897,7 @@
   .block-cta-picture {
     border-radius: var(--md-shape-large);
   }
-  @media (min-width: 48rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .block-cta {
       --card-padding: 2rem;
     }
@@ -904,7 +923,7 @@
     width: 2rem;
     height: 0.25rem;
   }
-  @media (width >= 48rem) {
+  @media (width >= theme(--breakpoint-medium)) {
     .bottom-sheet-header {
       padding: 1.5rem 1.5rem 0.75rem;
     }
@@ -1076,7 +1095,7 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   bottom: max(1rem, env(safe-area-inset-bottom));
   z-index: 30;
 }
-@media (min-width: 48rem) {
+@media (width >= theme(--breakpoint-medium)) {
   [data-fab] {
     right: 1.5rem;
     bottom: 1.5rem;
@@ -1093,7 +1112,7 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
 /* On a phone with a bar at the bottom of the screen (a docked toolbar, components.css), the page's FAB is not shown; the
    bar's buttons are the common buttons, round and as everywhere else (only pressed a little squarer), the filled one to
    the right, after the outlined one or the text. */
-@media (width < 48rem) {
+@media (width < theme(--breakpoint-medium)) {
   body:has(.theme-action-bar) [data-fab] {
     display: none;
   }
@@ -1102,14 +1121,7 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   order: 2;
 }
 
-/* The modal navigation drawer (its variables above, MobileMenu.tsx): room inside it; nothing in it is squeezed when its
-   content is higher than the screen, the drawer scrolls instead. */
-.navigation-drawer {
-  padding: 0.75rem 0.75rem max(1rem, env(safe-area-inset-bottom));
-}
-.navigation-drawer > * {
-  flex-shrink: 0;
-}
+/* The site's menu in the navigation drawer (its values are ui.css's, MobileMenu.tsx): its head. */
 .md-drawer-head {
   display: flex;
   align-items: center;
@@ -1129,16 +1141,15 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   font-weight: var(--type-body-medium-weight);
   letter-spacing: var(--type-body-medium-tracking);
 }
-.navigation-drawer-item:focus-visible {
-  background: var(--md-pressed);
-}
 /* An item with sub-pages: its link and the caret in one row, the active indicator around both. */
 .navigation-drawer-row {
   border-radius: var(--md-shape-full);
   transition: background-color var(--motion-effects);
 }
 .navigation-drawer-row > .navigation-drawer-item,
-.navigation-drawer-row > .navigation-drawer-item:hover {
+.navigation-drawer-row > .navigation-drawer-item:hover,
+.navigation-drawer-row > .navigation-drawer-item:focus-visible,
+.navigation-drawer-row > .navigation-drawer-item:active {
   background: none;
 }
 .navigation-drawer-row:has(> .navigation-drawer-item:hover) {
@@ -1148,16 +1159,16 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   background: var(--md-pressed);
 }
 .navigation-drawer-row[data-active] {
-  background: var(--tint);
+  background: var(--secondary-container);
 }
 .navigation-drawer-row[data-active] > .navigation-drawer-item {
-  color: var(--ink);
+  color: var(--on-secondary-container);
 }
 .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:hover) {
-  background: color-mix(in srgb, var(--ink) 8%, var(--tint));
+  background: color-mix(in srgb, var(--on-secondary-container) 8%, var(--secondary-container));
 }
 .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:focus-visible) {
-  background: color-mix(in srgb, var(--ink) 10%, var(--tint));
+  background: color-mix(in srgb, var(--on-secondary-container) 10%, var(--secondary-container));
 }
 .navigation-drawer-toggle {
   margin-right: 0.25rem;
@@ -1189,14 +1200,9 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
   background: var(--md-pressed);
 }
 .navigation-drawer-subitem[data-active] {
-  background: var(--tint);
-  color: var(--ink);
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
   font-weight: 400;
-}
-.md-divider {
-  margin: 0.5rem 1rem;
-  border: 0;
-  border-top: 1px solid var(--line);
 }
 
 /* The footer: a surface container with extra-large corners at the top, a headline, lists with leading icons and a
@@ -1292,7 +1298,7 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
 }
 /* Room under the footer's last line for the FAB, or for the bar at the bottom of the screen: in the footer instead of
    under the page (components.css), so the footer reaches the bar. */
-@media (width < 48rem) {
+@media (width < theme(--breakpoint-medium)) {
   body:has(.theme-action-bar):has(.md-footer) {
     padding-bottom: 0;
   }

@@ -10,9 +10,9 @@ export const blocks = {
   notSaved: (why: string) => `The block can't be saved yet. ${why}`,
   /** A picture, chosen and changed like a block. */
   picture: {
-    label: 'Image',
-    hint: 'Choose an image from Files, or upload a new one.',
-    src: 'Image',
+    label: 'Picture',
+    hint: 'Choose a picture from Files, or upload a new one.',
+    src: 'Picture',
     alt: 'Alt text',
     altHint: 'For screen readers and search engines.',
     /** A picture that is only decoration: drawn with alt="", without an alternative text. */
@@ -112,7 +112,7 @@ export const blocks = {
     label: 'Banner',
     hint: "The page's top with a text, a picture, and buttons.",
     text: 'Text',
-    textHint: 'The first paragraph is the subtitle, and a picture and buttons are put in with +.',
+    textHint: 'The first paragraph is the subtitle. Add a picture and buttons with +.',
     placement: 'Placement (picture)',
     placementBeside: 'Beside',
     placementBehind: 'Behind the text',
@@ -192,12 +192,12 @@ export const blocks = {
       /** The filters of the list: all of them. */
       allProviders: 'All providers',
       allCategories: 'All categories',
-      /** A cookie added to the list by itself (the app "Cookiescanner") and not yet looked through: the heading at the
+      /** A cookie added to the list automatically (the app "Cookiescanner") and not yet looked through: the heading at the
        * top of the list, what it says, or that it has no purpose yet, what its form says, and the button. */
       fresh: 'New',
       freshLabel: 'New',
       noPurpose: 'No purpose',
-      freshNotice: 'Added to the list by itself. Look it through and approve it.',
+      freshNotice: 'Added to the list automatically. Review it and approve it.',
       approve: 'Approve',
     },
     /** The shared texts ("Blokke" › "Cookieliste"), and what they start as on a site in this language. */

@@ -13,6 +13,6 @@ interface Props {
 const { posts, class: className } = Astro.props;
 ---
 
-<Container class={className ?? (posts.length ? 'mt-10 md:mt-14' : 'mt-10')}>
+<Container class={className ?? (posts.length ? 'mt-10 medium:mt-14' : 'mt-10')}>
   <BlogPostsView posts={posts.map(postViewOf)} />
 </Container>

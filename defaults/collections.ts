@@ -397,6 +397,16 @@ export const collections: Collection[] = [
       { name: 'path', label: 'Adresse', type: 'string', address: 'page' },
       { name: 'description', label: 'Kort beskrivelse', type: 'text' },
       {
+        name: 'categories',
+        label: 'Tags',
+        type: 'relation',
+        to: 'categories',
+        multiple: true,
+        add: 'Tilføj tag',
+        edit: { to: 'ny/kategorier', text: 'Opret et tag' },
+        hint: 'Vises ikke på hjemmesiden.',
+      },
+      {
         name: 'wide',
         label: 'Hele bredden',
         type: 'boolean',

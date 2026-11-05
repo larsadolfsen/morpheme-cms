@@ -9,7 +9,7 @@ export const parts: Messages['parts'] = {
     toolbarButton:
       'Værktøj i tekstens værktøjslinje: lidt mindre, så linjen er der på en telefon. Med en pil åbner den en menu (teksttypen, når linjen er for smal).',
     fields:
-      'Temaets felter med navnet på kanten og en forklaring under. Et valg åbner arket, eller en side for sig med det, hvert valg giver (pilen peger derhen).',
+      'Temaets felter med navnet på kanten og en forklaring under. Et valg åbner en menu lige under feltet på en computer, eller arket på en telefon, eller en side for sig med det, hvert valg giver (pilen peger derhen).',
     formField: 'Et felt, der siger, hvad der er galt med det skrevne, og antal tegn af det højeste antal.',
     fieldGroup: 'Felter, der hører sammen, i en ramme med deres navn på.',
     shownValue: 'Det, et felt har, vist uden at kunne rettes her: med sit ikon, eller gråt, når det laves et andet sted.',
@@ -27,15 +27,17 @@ export const parts: Messages['parts'] = {
       'Søgningen med knapperne ved siden af, altid i samme rækkefølge: sortér, filter, dato, Google og menu eller liste. Sortér er grå, mens siderne vises som menuen.',
     choiceTile: 'Et af mange ikoner at trykke på, i et gitter.',
     group:
-      'Rækker i en ramme under en lille overskrift: startskærmen og listerne. Ikonet er ens overalt: gråt, og i accentfarven for den åbne del i sidebjælken. Foran navnet kan der i stedet stå et lille billede eller en prøve på en af temaets tokens. Til højre står evt. et antal. En række kan også gøre noget (i accentfarven), slette (i midten) eller kun vises (uden farve under musen, evt. grå).',
+      'Rækker i en ramme under en lille overskrift: startskærmen og listerne. Ikonet er ens overalt: gråt, og i accentfarven for den åbne del i menuen. Foran navnet kan der i stedet stå et lille billede eller en prøve på en af temaets værdier. Til højre står evt. et antal. En række kan også gøre noget (i accentfarven), slette (i midten) eller kun vises (uden farve under musen, evt. grå).',
     checkList:
       'Ting, der er tjekket: en score fra 0 til 100 i en ring, en rød trekant ved det, der kan forbedres (som folder sig ud med, hvordan), og en grøn prik ved det, der er i orden.',
     scoreRing:
       'En score fra 0 til 100 i en lille ring forrest i en række, i samme farver som ringen i Ting, der er tjekket: grøn fra 90, orange fra 50, ellers rød.',
+    menuRow:
+      'En indstilling i samme række som en kontakt: navn og hvad den gør til venstre, og til højre det valgte i en lille ramme med en pil. Den åbner valgene under sig (et ark på en telefon), det valgte med hak. Grå, mens indstillingen ikke kan ændres.',
     unfold:
       'Til højre i en række: hvor mange rækker der er under den, og pilen, der viser dem. Rækkerne under står indrykket langs en streg.',
     sheet:
-      'Arket nedefra (en dialog på en computer) med valg eller felter. Et ikon eller en række (fx Sprog) åbner det med valgene, og + (NewChoice) med de slags, noget nyt kan være (fx et pop op-vindue). Valgene kan stå under små overskrifter.',
+      'Arket nedefra (en dialog på en computer) med valg eller felter. Et ikon eller en række (fx Sprog) åbner det med valgene, og + åbner det med de slags, noget nyt kan være (fx et pop op-vindue). Valgene kan stå under små overskrifter.',
     preview:
       'Forhåndsvisningen af en blok i en stiplet ramme. Den kan bruges som på siden (fx foldes ud), men et link i den fører ingen steder hen.',
     colorSwatches: 'Et sæt farver i små rundinger side om side (fx fire af hjemmesidens farver).',
@@ -50,9 +52,15 @@ export const parts: Messages['parts'] = {
       'Arket med en hel side (forhåndsvisningen), så højt som skærmen. Siden står i en ramme, så bred som en telefon eller en computer, og intet i den kører.',
     foldSection:
       'Et afsnit i en lang formular (en side, et blogindlæg), der foldes ind og ud med sin overskrift. Kun det første er åbent fra start.',
-    sharePreview: 'Et link til en side, som det ser ud, når det deles: billedet, sitets domæne, titlen og beskrivelsen.',
+    sharePreview: 'Et link til en side, som det ser ud, når det deles: billedet, hjemmesidens domæne, titlen og beskrivelsen.',
     formColumns:
       'En formular på en bred skærm: teksten til venstre, status og de andre felter på kort til højre. På en mindre skærm under hinanden. Overskriften over felterne er altid den samme.',
+    mainDrawer:
+      'Editorens menu: hjemmesidens dele i afsnit, den åbne markeret. På en bred skærm står den ved siden af indholdet, og menuknappen i starten af topbjælken viser og skjuler den; på en mindre skærm åbner den over siden og lukker ved et valg, et tryk ved siden af, Escape eller et stryg. Vist her som den, der åbner over siden.',
+    editorFooter:
+      'Linjen nederst på hver skærm, under indholdet, med et link til licenserne for det, hjemmesiden og editoren er lavet med.',
+    sectionList:
+      'Afsnittene i en lang formular som en liste, hvor det afsnit, der ses, er markeret. På en stor skærm står den i et panel for enden af formularen, som knappen yderst i topbjælken viser og skjuler; på en mindre skærm åbner knappen den i et sidepanel, der lukker, når man vælger et afsnit.',
   },
   /** Over the parts: the search, and the groups to show one of (as Material 3 sorts its components). */
   filter: {
@@ -68,7 +76,7 @@ export const parts: Messages['parts'] = {
       layout: 'Layout',
       fieldTypes: 'Felttyper',
     },
-    none: 'Ingen dele passer til søgningen.',
+    none: 'Ingen dele passer til søgningen',
   },
   sample: {
     domain: 'eksempel.dk',
@@ -137,7 +145,7 @@ export const parts: Messages['parts'] = {
       `Felterne i formularerne og indstillingerne, én af hver type med de valg, den kan have. Felterne står i ${file} og er bygget af delene ovenfor. Intet her gemmes.`,
     use: {
       string:
-        'En linje tekst. Den kan skulle udfyldes, have højst et antal tegn, have en tekst, der bruges, når feltet er tomt, skulle have en bestemt form, være en adresse, et tal i par, et telefonnummer eller ord som chips (ét eller flere), eller have et link til der, den rettes.',
+        'En linje tekst. Den kan være påkrævet, have en længdegrænse, vise en tekst, mens den er tom, kræve en bestemt form, rumme en adresse, et tal i par, et telefonnummer eller ord som chips, eller linke til det sted, hvor den rettes.',
       text: 'Tekst over flere linjer, med de samme valg som en linje.',
       markdown: 'Tekst med formatering, i samme editor som siderne.',
       number: 'Et tal.',
@@ -146,7 +154,7 @@ export const parts: Messages['parts'] = {
       select:
         'Et af flere valg: i arket nedefra, side om side, som ikoner, eller kun vist. Et valg kan have sin egen forklaring, og et felt kan stå kun ved ét af valgene.',
       relation:
-        'En side, et indlæg eller et tag fra sitets lister. En side vælges med sidevælgeren, også de faste sider; flere valg står som chips.',
+        'En side, et indlæg eller et tag fra hjemmesidens lister. En side vælges med sidevælgeren, også de faste sider; flere valg står som chips.',
       image: 'Et billede fra Filer eller et nyt.',
       readonly: 'Vises, men rettes ikke her.',
       object: 'En gruppe felter i en ramme.',
@@ -156,11 +164,11 @@ export const parts: Messages['parts'] = {
         'En formular, der ikke er udfyldt rigtigt: en besked forrest siger, hvad der er galt, og feltet rulles frem og blinker, til det rettes. Prøv med et tomt felt, der skal udfyldes.',
     },
     tryToSave: 'Prøv at gemme',
-    allRight: 'Alle felter er udfyldt rigtigt.',
+    allRight: 'Alle felter er udfyldt rigtigt',
     heading: 'Overskrift',
     headingHint: 'Højst ca. 60 tegn.',
     underName: 'Tekst (under navnet)',
-    underNameHint: 'Hvis feltet er tomt, bruges sitets navn.',
+    underNameHint: 'Hvis feltet er tomt, bruges hjemmesidens navn.',
     email: 'E-mail',
     emailForm: 'Skriv en hel e-mailadresse',
     keyword: 'Primært søgeord',
@@ -178,9 +186,9 @@ export const parts: Messages['parts'] = {
     shown: 'Vises',
     hidden: 'Skjult',
     listText: 'Tekst (i listen)',
-    listTextHint: 'Står kun ved placeringen I listen.',
-    publishedHint: 'Siden er på sitet.',
-    draftHint: 'Siden er ikke på sitet.',
+    listTextHint: 'Vises kun ved placeringen I listen.',
+    publishedHint: 'Siden er på hjemmesiden.',
+    draftHint: 'Siden er ikke på hjemmesiden.',
     look: 'Udseende',
     kind: 'Slags',
     page: 'Side',
@@ -336,7 +344,7 @@ export const parts: Messages['parts'] = {
     /** A list of kinds ("Promovering"), by the list's name for one. */
     kindsIntro: (one: string) => `Hver slags ${one}, også appenes, i alle sine tilstande. Temaet giver dem deres udseende.`,
     search: 'Søg i delene',
-    none: 'Ingen dele passer til søgningen.',
+    none: 'Ingen dele passer til søgningen',
     /** The theme's buttons (packages/editor/theme/ui/), first under "UI-komponenter". */
     ui: 'Knapper',
     button:
@@ -362,7 +370,7 @@ export const parts: Messages['parts'] = {
     fieldSupporting: 'Du får kun en mail, når der er nyt.',
     fieldError: 'Skriv en e-mailadresse.',
     fieldPlaceholder: 'Din e-mail',
-    fieldSearch: 'Søg på siden',
+    fieldSearch: 'Søg på hjemmesiden',
     fieldClear: 'Ryd',
     fieldPhone: 'Telefon',
     fieldPrefix: '+45',
@@ -379,7 +387,7 @@ export const parts: Messages['parts'] = {
     fieldReadOnly: 'Kundenummer',
     fieldReadOnlyValue: '10 482',
     checkboxLabel: 'Statistik',
-    checkboxSupporting: 'Hvordan siden bliver brugt.',
+    checkboxSupporting: 'Hvordan hjemmesiden bliver brugt.',
     checkboxParent: 'Alle cookies',
     checkboxError: 'Sæt flueben for at fortsætte.',
     /** The theme's chips (Chip), a group of their own under "UI-komponenter". */
@@ -405,10 +413,16 @@ export const parts: Messages['parts'] = {
         'Kort eller billeder på en række, der skubbes til siden, med prikker under: lige store, i flere størrelser, ét stort (fra starten eller i midten) og ét ad gangen.',
       dialogKinds: { basic: 'Almindelig', icon: 'Med ikon, liste og skillelinje', container: 'Kun boksen', fullScreen: 'Hele skærmen' },
       sheetKinds: {
-        modal: 'Modalt',
+        modal: 'Modalt, en dialog på en computer',
+        modalSideSheet: 'Modalt, et sideark på en computer',
+        modalSheet: 'Modalt, forbliver et ark på en computer',
         collapsed: 'Standard, foldet sammen',
         halfExpanded: 'Standard, halvt foldet ud',
         expanded: 'Standard, foldet ud',
+        fixed: 'Standard, fast, uden håndtag og overskrift',
+        resizeButton: 'Standard, knap til størrelsen i stedet for håndtaget',
+        collapseButton: 'Standard, knap til at folde sammen i fuld højde',
+        wideSheet: 'Standard, forbliver et ark på en computer, mens de andre bliver et sideark der',
       },
       layouts: {
         uncontained: 'Lige store',
@@ -424,11 +438,28 @@ export const parts: Messages['parts'] = {
       save: 'Gem',
       page: 'Siden bag arket kan stadig bruges.',
       dragHandle: 'Fold arket ud eller sammen',
+      openSheet: 'Åbn det modale ark',
+      openSideSheet: 'Åbn det modale ark som sideark',
+      openWideSheet: 'Åbn det modale ark med margener',
+      paragraphs: [
+        'På en telefon åbner arket i halv skærmhøjde.',
+        'Træk i håndtaget, overskriften eller denne tekst opad for at gøre det så højt, skærmen tillader.',
+        'Når arket er i fuld højde, kan denne tekst rulles.',
+        'Stryg nedad fra toppen af teksten, eller træk i håndtaget nedad, for at lukke det.',
+        'Et hurtigt stryg op eller ned går direkte til fuld højde eller lukker arket.',
+        'Et kort træk nedad, der slippes, sender arket tilbage til halv højde.',
+        'På en computer er arket en dialog, et sideark eller et ark med margener, som eksemplet siger.',
+        'Denne tekst gør kun arket langt nok til, at det skal rulles.',
+      ],
       picture: (n) => `Billede ${n}`,
       showPicture: (n) => `Vis billede ${n}`,
       heading: 'Overskrift',
       text: 'En kort tekst om det, boksen handler om.',
       sheetText: 'En kort tekst under overskriften',
+      sheetPeek: 'En linje, der vises, mens arket er foldet sammen',
+      sheetLabel: 'Detaljer',
+      resize: 'Fold arket ud eller sammen',
+      collapse: 'Fold arket sammen',
       footer: 'En linje nederst',
       close: 'Luk',
       roleDescription: 'karrusel',
@@ -440,7 +471,7 @@ export const parts: Messages['parts'] = {
     navigation: {
       title: 'Navigation',
       topAppBar:
-        'Bjælken øverst på en side: kun fladen med sitets egen header, eller knappen forrest, overskriften og knapperne bagerst, lille, mellem eller stor, eller med søgefeltet. Den får en anden flade, når siden rulles under den.',
+        'Bjælken øverst på en side: kun fladen med hjemmesidens egen header, eller knappen forrest, overskriften og knapperne bagerst, lille, mellem eller stor, eller med søgefeltet. Den får en anden flade, når siden rulles under den.',
       stuck: 'Når siden rulles',
       /** The top app bar's kinds and what is in them (TopAppBar.tsx). */
       appBar: {
@@ -450,9 +481,9 @@ export const parts: Messages['parts'] = {
         long: 'En lang overskrift, der må gå over flere linjer',
         collapsed: 'foldet sammen',
         back: 'Tilbage',
-        search: 'Søg på siden',
+        search: 'Søg på hjemmesiden',
         clear: 'Ryd',
-        empty: 'Intet passer til søgningen.',
+        empty: 'Intet passer til søgningen',
         favourite: 'Gem',
         profile: 'Profil',
       },
@@ -480,7 +511,11 @@ export const parts: Messages['parts'] = {
         error: 'Vælg en behandling.',
         kinds: { outlined: 'Med ramme', filled: 'Fyldt' },
       },
-      navigationDrawer: 'Menuen, der åbner over siden på en telefon: siderne, en med undersider foldet ud, den åbne markeret.',
+      navigationDrawer:
+        'Menuen, der åbner over siden på en telefon: siderne, en med undersider foldet ud, den åbne markeret. Standardmenuen står ved siden af siden med sektioner, ikoner og antal, og i to niveauer: sektioner med en pil og en liste under en tilbage-række.',
+      drawerSections: ['Post', 'Konto'],
+      drawerItems: ['Indbakke', 'Beskeder', 'Favoritter', 'Papirkurv', 'Profil'],
+      drawerBack: ['Hovedmenu'],
       tabs: 'Faneblade på en række: kun teksten, som under bjælken, eller primære med ikon og sekundære, med en streg under det åbne. Til at skubbe til siden eller i hele bredden.',
       /** The tabs' made-up views (Tabs.tsx). */
       views: ['Oversigt', 'Priser', 'Anmeldelser', 'Kontakt', 'Kort', 'Videoer'],
@@ -535,6 +570,8 @@ export const parts: Messages['parts'] = {
     selection: {
       title: 'Kontakter, valg og sideark',
       switch: 'Slår noget til eller fra, med sit navn foran: fra, til, med ikoner i knappen og grå, når den ikke kan ændres.',
+      settingRow:
+        'En indstilling på én linje: navnet og hvad den gør i starten, og det, der sætter den, i enden (en kontakt, en rullemenuknap).',
       radioButton: 'Ét af få valg i en gruppe under sit navn, evt. med en linje under: valgt og grå, når det ikke kan vælges.',
       slider:
         'Vælger et tal ved at trække: frit, i trin med prikker, fra midten, et interval med to knapper og med tallet over knappen, i fem størrelser, med ikon og lodret.',
@@ -582,13 +619,13 @@ export const parts: Messages['parts'] = {
       home: 'Forside',
       alone: 'Alene',
       contained: 'I beholder',
-      loading: 'Henter …',
-      uploading: 'Uploader',
+      loading: 'Henter…',
+      uploading: 'Uploader…',
       percent: (v) => `${Math.round(v * 100)} %`,
       indeterminate: 'Uden værdi',
       shapes: { flat: 'Flad', wavy: 'Bølget' },
       thick: 'Tyk',
-      sent: 'Beskeden er sendt.',
+      sent: 'Beskeden er sendt',
       booked: 'Din tid er booket. Du får en bekræftelse på e-mail om lidt.',
       undo: 'Fortryd',
       seeBooking: 'Se bookingen',
@@ -618,10 +655,10 @@ export const parts: Messages['parts'] = {
       sections: ['Start', 'Dig'],
       menu: 'Skift bredde',
       compose: 'Skriv',
-      searchLabel: 'Søg på siden',
+      searchLabel: 'Søg på hjemmesiden',
       back: 'Tilbage',
       clear: 'Ryd',
-      empty: 'Intet passer til søgningen.',
+      empty: 'Intet passer til søgningen',
       query: 'par',
       results: [
         { headline: 'Priser', supporting: 'Søgt for nylig' },

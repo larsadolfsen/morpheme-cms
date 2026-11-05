@@ -16,5 +16,5 @@ export const seo: Messages['seo'] = {
   kindFilter: 'Slags',
   allKinds: 'Sider og blogindlæg',
   noKeyword: 'Intet primært søgeord',
-  none: 'Ingen sider eller blogindlæg passer.',
+  none: 'Ingen sider eller blogindlæg passer',
 };

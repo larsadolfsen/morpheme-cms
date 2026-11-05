@@ -15,6 +15,7 @@
 // editor's logo and the site's name). With `onExpandedChange` the rail is expanded and collapsed by whoever draws it (the
 // editor) instead of by its script; a modal one without `scrim` has none (one that expands while the mouse is over it:
 // the editor's).
+// A destination without `href` is a button (the editor's sections, which open their list).
 // Where it stands (beside the content, in a row) is the component's own; how it looks is the theme's. Links are Link (on
 // the site; in the editor only drawn). An Astro component gives its elements the classes with navigationRailClass,
 // navigationRailClasses and navigationRailItemClass.
@@ -119,7 +120,7 @@ export function NavigationRailSection({ label, children }: { label: string; chil
   );
 }
 
-/** A destination: its icon (a Phosphor name, the theme's icon, or an icon made: IconRef) and its label, `selected` when
+/** A destination, a link (or, without `href`, a button): its icon (a Phosphor name, the theme's icon, or an icon made: IconRef) and its label, `selected` when
  * it is the open page, evt. a badge on the icon, and a text at its end while the rail is expanded. */
 export function NavigationRailItem({
   href,
@@ -130,25 +131,33 @@ export function NavigationRailItem({
   trailingSupporting,
   ...rest
 }: {
-  href: string;
+  href?: string;
   icon: IconRef;
   label: ReactNode;
   selected?: boolean;
   badge?: true | number;
   trailingSupporting?: ReactNode;
 } & Record<string, unknown>) {
-  return (
-    <Link href={href} className={navigationRailItemClass} aria-current={selected ? 'page' : undefined} {...rest}>
-      <span className="navigation-rail-indicator">
-        <span className="navigation-rail-icon">
-          <Glyph icon={icon} size={24} />
-          {badge !== undefined && <Badge count={badge === true ? undefined : badge} className="navigation-rail-badge" />}
-        </span>
-        <span className="navigation-rail-label">{label}</span>
-        {trailingSupporting != null && trailingSupporting !== '' && (
-          <span className="navigation-rail-trailing-supporting">{trailingSupporting}</span>
-        )}
+  const content = (
+    <span className="navigation-rail-indicator">
+      <span className="navigation-rail-icon">
+        <Glyph icon={icon} size={24} />
+        {badge !== undefined && <Badge count={badge === true ? undefined : badge} className="navigation-rail-badge" />}
       </span>
+      <span className="navigation-rail-label">{label}</span>
+      {trailingSupporting != null && trailingSupporting !== '' && (
+        <span className="navigation-rail-trailing-supporting">{trailingSupporting}</span>
+      )}
+    </span>
+  );
+  // Without `href` a button (the editor's: a section that opens its list in the expanded rail); `selected` is aria-current.
+  return href === undefined ? (
+    <button type="button" className={navigationRailItemClass} aria-current={selected ? 'true' : undefined} {...rest}>
+      {content}
+    </button>
+  ) : (
+    <Link href={href} className={navigationRailItemClass} aria-current={selected ? 'page' : undefined} {...rest}>
+      {content}
     </Link>
   );
 }

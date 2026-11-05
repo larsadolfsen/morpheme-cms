@@ -3,10 +3,13 @@
 // saved at once in its own commit. Off, the Worker asks GitHub for everything. It can only be turned on when Cloudflare
 // has the bucket (the Worker asks, /api/r2), else a deploy would fail; under the switch, why not, and, until the site is
 // built with the change, that it comes then. Above it, where the bucket is kept ("Placering": placed by Cloudflare, or
-// within the EU), changed only while it is off, also in its own commit.
+// within the EU, a MenuRow with the choice in a dropdown at the right), changed only while it is off, also in its own commit. Under it, the two build switches ("Builds":
+// fast content builds, paid build plan) in src/data/build.json (buildSettings.ts), each saved at once in its own commit. The paid
+// build plan can only be turned on when Cloudflare says the account has Workers Paid (the Worker asks, /api/plan); under it, why not.
 import { useEffect, useState } from 'react';
+import { ArrowSquareOut } from '@phosphor-icons/react';
 import Screen from './Screen';
-import { EmptyNote, FormField, GroupTitle, ProblemNote, SegmentedButton, SupportingText, SwitchRow } from './ui';
+import { EmptyNote, GroupTitle, LinkButton, MenuRow, ProblemNote, SupportingText, SwitchRow } from './ui';
 import { ConflictError, type RepoFile } from './github';
 import type { Env } from './App';
 import { savedText } from './deploy';
@@ -17,12 +20,16 @@ import {
   jurisdictionName,
   jurisdictionOf,
   r2CachingOn,
+  planStatus,
   r2Status,
   withJurisdiction,
   withR2Caching,
   type BucketState,
+  type PaidState,
 } from './r2Caching';
 import { config } from '@site/editor';
+import { buildSettingsOf, withBuildSetting, type BuildSetting } from './buildSettings';
+import { BUILD_SETTINGS_PATH } from '../lib/build-settings.mjs';
 import { siteT, t } from './i18n';
 
 export const ADVANCED_ROUTE = 'avanceret';
@@ -30,12 +37,21 @@ export const ADVANCED_ROUTE = 'avanceret';
 // "Placering" when Cloudflare places the bucket (no jurisdiction).
 const AUTO = 'auto';
 
+// Cloudflare's dashboard sends on to the account's Billing page.
+const BILLING_URL = 'https://dash.cloudflare.com/?to=/:account/billing';
+
 export default function Advanced({ env }: { env: Env }) {
   const [file, setFile] = useState<RepoFile | null>(null);
   const [status, setStatus] = useState<{ bound: boolean; bucket: BucketState } | null>(null);
+  // The build settings file: undefined while it loads, null when the site has none yet (the defaults apply).
+  const [build, setBuild] = useState<RepoFile | null | undefined>(undefined);
+  // What Cloudflare says of the account's plan: null while it is asked.
+  const [paid, setPaid] = useState<PaidState | null>(null);
+  const [buildProblem, setBuildProblem] = useState('');
   const [problem, setProblem] = useState('');
   const [saving, setSaving] = useState(false);
   useEffect(() => {
+    planStatus().then(setPaid);
     env
       .load([config.wrangler])
       .then(([found]) => {
@@ -44,6 +60,10 @@ export default function Advanced({ env }: { env: Env }) {
         ask(found.text);
       })
       .catch((e) => setProblem(t.advanced.notLoaded((e as Error).message)));
+    env
+      .load([BUILD_SETTINGS_PATH])
+      .then(([found]) => setBuild(found ?? null))
+      .catch((e) => setBuildProblem(t.advanced.buildSettingsNotLoaded((e as Error).message)));
   }, []);
 
   // What Cloudflare says of the bucket the settings name, where they say it is kept.
@@ -74,24 +94,62 @@ export default function Advanced({ env }: { env: Env }) {
     ...(jurisdiction && !(JURISDICTIONS as readonly string[]).includes(jurisdiction) ? [jurisdiction] : []),
   ];
 
-  async function save(text: string, message: string, change: string): Promise<boolean> {
-    if (!file) return false;
-    const path = file.path;
+  // Saves one file as its own commit (`oid` null: a new file); the file as saved, or null when it was not.
+  async function commitFile(path: string, oid: string | null, text: string, message: string, change: string): Promise<RepoFile | null> {
     setSaving(true);
     env.notify({ text: t.common.saving });
     try {
-      const oids = await env.commit(message, [{ path, content: text, oid: file.oid }], change);
+      const oids = await env.commit(message, [{ path, content: text, oid }], change);
       const saved = { path, oid: oids[path], text };
-      setFile(saved);
       env.onSaved(saved);
       env.notify({ text: savedText(change), kind: 'saved' });
-      return true;
+      return saved;
     } catch (e) {
       env.notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
-      return false;
+      return null;
     } finally {
       setSaving(false);
     }
+  }
+
+  async function save(text: string, message: string, change: string): Promise<boolean> {
+    if (!file) return false;
+    const saved = await commitFile(file.path, file.oid, text, message, change);
+    if (saved) setFile(saved);
+    return !!saved;
+  }
+
+  const settings = buildSettingsOf(build?.text);
+  const buildSwitches: { key: BuildSetting; label: string; hint: string; change: string; commit: (on: boolean) => string }[] = [
+    {
+      key: 'contentLane',
+      label: t.advanced.fastContentBuilds,
+      hint: t.advanced.fastContentBuildsHint,
+      change: t.app.changes.fastContentBuilds,
+      commit: siteT.advanced.fastContentBuildsCommit,
+    },
+    {
+      key: 'paidBuilds',
+      label: t.advanced.paidBuilds,
+      hint: t.advanced.paidBuildsHint,
+      change: t.app.changes.paidBuilds,
+      commit: siteT.advanced.paidBuildsCommit,
+    },
+  ];
+
+  // Paid builds are off until Cloudflare says the account has Workers Paid; on, they can always be turned off.
+  const paidLocked = (key: BuildSetting, on: boolean) => key === 'paidBuilds' && !on && paid !== 'yes';
+
+  async function turnBuild(key: BuildSetting, next: boolean, commit: (on: boolean) => string, change: string) {
+    if (build === undefined || (next && paidLocked(key, settings[key]))) return;
+    const saved = await commitFile(
+      BUILD_SETTINGS_PATH,
+      build?.oid ?? null,
+      withBuildSetting(build?.text, key, next),
+      commit(next),
+      t.app.changes[next ? 'turnedOn' : 'turnedOff'](change),
+    );
+    if (saved) setBuild(saved);
   }
 
   async function turn(next: boolean) {
@@ -124,17 +182,14 @@ export default function Advanced({ env }: { env: Env }) {
             <ProblemNote>{t.advanced.noLine}</ProblemNote>
           ) : (
             <>
-              <div className="mb-6">
-                <FormField label={t.advanced.place} hint={t.advanced.placeHint}>
-                  <SegmentedButton
-                    label={t.advanced.place}
-                    value={jurisdiction ?? AUTO}
-                    options={places.map((p) => ({ value: p, label: p === AUTO ? t.advanced.placeAuto : jurisdictionName(p) }))}
-                    disabled={saving || on}
-                    onChange={place}
-                  />
-                </FormField>
-              </div>
+              <MenuRow
+                label={t.advanced.place}
+                hint={t.advanced.placeHint}
+                value={jurisdiction ?? AUTO}
+                options={places.map((p) => ({ value: p, label: p === AUTO ? t.advanced.placeAuto : jurisdictionName(p) }))}
+                disabled={saving || on}
+                onChange={place}
+              />
               <SwitchRow
                 label={t.blockSettings.active}
                 texts={[t.library.on, t.library.off]}
@@ -143,6 +198,32 @@ export default function Advanced({ env }: { env: Env }) {
                 onChange={turn}
               />
               <SupportingText className="mt-2">{note}</SupportingText>
+            </>
+          )}
+        </div>
+      </section>
+      <section className="mb-8">
+        <GroupTitle>{t.advanced.builds}</GroupTitle>
+        <div className="px-4">
+          {buildProblem ? (
+            <ProblemNote>{buildProblem}</ProblemNote>
+          ) : (
+            <>
+              {buildSwitches.map(({ key, label, hint, change, commit }) => (
+                <SwitchRow
+                  key={key}
+                  label={label}
+                  hint={hint}
+                  texts={[t.library.on, t.library.off]}
+                  selected={settings[key]}
+                  disabled={saving || build === undefined || paidLocked(key, settings[key])}
+                  onChange={(next) => turnBuild(key, next, commit, change)}
+                />
+              ))}
+              {paid && !settings.paidBuilds && paid !== 'yes' && <SupportingText className="mt-2">{t.advanced.plan[paid]}</SupportingText>}
+              <LinkButton href={BILLING_URL} target="_blank" rel="noopener" kind="text" size="small" icon={ArrowSquareOut}>
+                {t.advanced.billing}
+              </LinkButton>
             </>
           )}
         </div>

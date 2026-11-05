@@ -1,7 +1,7 @@
 import type { Messages } from '../en-US';
 
 export const company: Messages['company'] = {
-  noChanges: 'Der er ingen ændringer at gemme.',
+  noChanges: 'Der er ingen ændringer at gemme',
   preview: 'Forhåndsvisning',
   brand: {
     notLoaded: (error) => `Kunne ikke hente logoet: ${error}`,
@@ -13,9 +13,9 @@ export const company: Messages['company'] = {
     icon: 'Ikon',
     newIcon: 'Vælg et nyt ikon',
     iconFromLogo: 'Opret ikonet ud fra logoet',
-    svgUnreadable: 'SVG-filen kunne ikke læses.',
+    svgUnreadable: 'SVG-filen kunne ikke læses',
     cannotOpen: 'Billedet kunne ikke åbnes. Brug et SVG-, PNG-, JPEG- eller WebP-billede.',
-    notReady: 'Billedet kunne ikke klargøres.',
+    notReady: 'Billedet kunne ikke klargøres',
   },
   commit: {
     edit: (part) => `Editor: ret ${part}`,

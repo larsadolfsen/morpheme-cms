@@ -1,4 +1,4 @@
-// "Standardblokke" on the start screen: the texts every copy of a block has, a screen for each block
+// "Blokskabeloner" in the menu: the texts every copy of a block has, a screen for each block
 // (CompanyForm.tsx). The blocks' own are in their folders (shared.ts in src/apps/<app>/blocks/<type>/, saved in
 // src/data/blocks.json), and the editor makes their screens itself (sharedParts in
 // packages/editor/src/site.ts). Here only what is the site's: "Book en tid", whose texts are the
@@ -6,7 +6,7 @@
 import { CalendarCheck } from '@phosphor-icons/react';
 import type { Part } from '../src/schema';
 
-const back = { href: '#blokke', label: 'Standardblokke' };
+const back = { href: '#blokke', label: 'Blokskabeloner' };
 
 export const blockParts: Part[] = (
   [

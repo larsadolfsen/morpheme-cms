@@ -30,14 +30,11 @@ export type StandardPage = {
 };
 
 export const standardPages: StandardPage[] = [
-  // The top ("Banner") stays first, and is the page's only "Banner".
   {
     key: 'front',
     label: 'Forside',
     the: 'Forsiden',
     at: '/',
-    template: { locked: ['hero'], max: { hero: 1 } },
-    needs: { type: 'hero', label: 'Banner' },
   },
   // The posts ("Blogindlæg"), once.
   {

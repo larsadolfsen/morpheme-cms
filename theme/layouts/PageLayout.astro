@@ -90,7 +90,7 @@ const side =
   questions={questions}
 >
   <article>
-    <Container as="header" class="pt-8 md:pt-14">
+    <Container as="header" class="pt-8 medium:pt-14">
       {parent && (
         <a href={parent.href} class="inline-flex items-center gap-1.5 type-body-medium text-muted hover:text-accent">
           <Icon name="arrow-left" size={16} />
@@ -102,14 +102,14 @@ const side =
       </h1>
     </Container>
 
-    <Container as="div" class:list={[wide ? 'mt-4' : 'mt-8 md:mt-12']}>
+    <Container as="div" class:list={[wide ? 'mt-4' : 'mt-8 medium:mt-12']}>
       <div {...(side ? { class: 'page-with-side' } : {})}>
         <div
           data-editor="text"
           class:list={[
             'prose',
             wide
-              ? 'max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:max-w-[52ch] [&>p:first-child]:type-body-large [&>p:first-child]:text-muted md:[&>p:first-child]:type-title-large'
+              ? 'max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:max-w-[52ch] [&>p:first-child]:type-body-large [&>p:first-child]:text-muted medium:[&>p:first-child]:type-title-large'
               : 'max-w-[66ch]',
           ]}
         >

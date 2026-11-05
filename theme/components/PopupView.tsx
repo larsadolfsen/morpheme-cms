@@ -27,12 +27,12 @@ export default function PopupView({ popup, Part, part }: { popup: PopupBoxView; 
           srcSet={popup.image.srcset}
           width={popup.image.width}
           height={popup.image.height}
-          sizes="(min-width: 480px) 448px, calc(100vw - 2rem)"
+          sizes="min(28rem, calc(100vw - 2rem))"
           alt=""
           className="block aspect-[3/2] w-full bg-tint object-cover"
         />
       )}
-      <div className="p-6 md:p-8">
+      <div className="p-6 medium:p-8">
         <h2 id={`popup-${popup.slug}`} className={popup.image ? 'type-headline-small' : 'pr-12 type-headline-small'}>
           {popup.heading}
         </h2>

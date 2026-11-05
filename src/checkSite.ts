@@ -7,6 +7,7 @@
 // The rules of a page's template (collections.ts) too: what may be there, how many, and what must.
 // The redirects (redirectData.ts): none sends on through another, and none in a loop. And the site's own rules
 // (siteProblems in its rules.ts: a button that opens a promotion not on its page).
+// The file records (src/data/files: the tags of files in Filer): each is valid, no tag is both chosen and removed, one per address.
 // And the site's texts the editor has no translation of (untranslated).
 import { check } from './check';
 import {
@@ -36,6 +37,7 @@ import { appFolder, SCREENSHOTS, shotFile, shotOf } from './store';
 import { appFolders } from './appFiles';
 import { colorPairs as shownPairs, sharedParts, translator, writtenApps, writtenBlockParts, writtenCollections } from './site';
 import { splitBlocks } from '../lib/blocks.mjs';
+import { isRecordPath, recordProblems } from './fileRecords.mjs';
 import { appTexts, DEFAULTS_LOCALE, locales, siteLocale, t, type Texts } from './i18n';
 import { flatten, readAll, REDIRECT_FILES, type AllRedirects } from './redirectData';
 
@@ -181,6 +183,17 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
   }
   // The site's own rules (a button that opens a promotion that is not on its page).
   problems.push(...siteProblems(files));
+  // The file records directly in the records folder: a line for each problem, and each one counts as checked.
+  for (const f of files) if (isRecordPath(f.path, config.fileRecords)) checked.add(f.path);
+  for (const p of recordProblems(files, config.fileRecords)) {
+    const text =
+      p.problem === 'shape'
+        ? t.check.recordShape
+        : p.problem === 'overlap'
+          ? t.check.recordOverlap(p.value!)
+          : t.check.recordDuplicate(p.value!);
+    problems.push(`${p.path}: ${text}`);
+  }
   return { problems, files: checked.size, blocks };
 }
 
@@ -232,7 +245,7 @@ export function untranslated(): Record<string, Record<string, string[]>> {
           'src/site/texts.ts': missing(l, site, (w) => {
             collections.forEach(w.collection);
             [...companyParts, ...partScreens.flatMap((s) => s.parts), ...appearance, ...seoParts, ...blockParts].forEach(w.part);
-            partScreens.forEach((s) => w.group({ title: s.label, ids: [] }));
+            partScreens.forEach((s) => w.group({ id: s.id, title: s.label, ids: [] }));
             groups.forEach(w.group);
             colorFields.forEach(w.color);
             colorPairs.forEach(w.pair);

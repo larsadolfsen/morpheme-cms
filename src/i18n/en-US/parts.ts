@@ -9,7 +9,7 @@ export const parts = {
     toolbarButton:
       'A tool in the text’s toolbar: a little smaller, so the bar fits on a phone. With an arrow it opens a menu (the kind of text, when the bar is too narrow).',
     fields:
-      'The theme’s fields with the name on their edge and an explanation below. A choice opens the sheet, or a page of its own with what each choice gives (the arrow points there).',
+      'The theme’s fields with the name on their edge and an explanation below. A choice opens a menu right under the field on a computer, or the sheet on a phone, or a page of its own with what each choice gives (the arrow points there).',
     formField: 'A field that says what is wrong with what was typed, and the number of characters out of the most allowed.',
     fieldGroup: 'Fields that belong together, in a frame with their name on it.',
     shownValue: 'What a field holds, shown without being edited here: with its icon, or gray when it is made elsewhere.',
@@ -27,15 +27,17 @@ export const parts = {
       'The search with the buttons beside it, always in the same order: sort, filter, date, Google, and menu or list. Sort is gray while the pages are shown as the menu.',
     choiceTile: 'One of many icons to tap, in a grid.',
     group:
-      'Rows in a frame under a small heading: the start screen and the lists. The icon looks the same everywhere: gray, and in the accent color for the open part in the sidebar. A small picture or a sample of one of the theme’s tokens can stand before the name instead. A number may stand at the right. A row can also do something, in the accent color; delete, in the middle; or only be shown, with no color under the mouse and perhaps gray.',
+      'Rows in a frame under a small heading: the start screen and the lists. The icon looks the same everywhere: gray, and in the accent color for the open part in the menu. A small picture or a sample of one of the theme’s values can stand before the name instead. A number may stand at the right. A row can also do something, in the accent color; delete, in the middle; or only be shown, with no color under the mouse and perhaps gray.',
     checkList:
       'Things that were checked: a score from 0 to 100 in a ring, a red triangle by what could be better (which folds out with how), and a green dot by what is fine.',
     scoreRing:
       'A score from 0 to 100 in a small ring at the start of a row, in the colors of the ring of checked things: green from 90, orange from 50, else red.',
+    menuRow:
+      'A setting in the same row as a switch: its name and what it does at the left, and at the right the chosen one in a small box with an arrow. It opens the choices under it (a sheet on a phone), the chosen one checked. Gray while the setting cannot be changed.',
     unfold:
       'At the right of a row: how many rows are under it, and the arrow that shows them. The rows under it are indented along a line.',
     sheet:
-      'The sheet from the bottom (a dialog on a computer) with choices or fields. An icon or a row, for example, Language, opens it with the choices, and + (NewChoice) with the kinds something new can be, for example, a pop-up. The choices can stand under small headings.',
+      'The sheet from the bottom (a dialog on a computer) with choices or fields. An icon or a row, for example, Language, opens it with the choices, and + opens it with the kinds something new can be, for example, a pop-up. The choices can stand under small headings.',
     preview:
       'The preview of a block in a dashed frame. It can be used as on the site, for example, folded out, but a link in it goes nowhere.',
     colorSwatches: 'A set of colors in small rounds side by side, for example, 4 of the website’s colors.',
@@ -50,9 +52,15 @@ export const parts = {
       'The sheet with a whole page in it (the preview), as tall as the screen. The page is in a frame, as wide as a phone or a computer, and nothing in it runs.',
     foldSection:
       'A section of a long form (a page, a blog post) that folds in and out by its heading. Only the first is open from the start.',
-    sharePreview: "A link to a page as it looks when it is shared: the picture, the site's domain, the title, and the description.",
+    sharePreview: "A link to a page as it looks when it is shared: the picture, the website's domain, the title, and the description.",
     formColumns:
       'A form on a wide screen: the text at the left, the status and the other fields on cards at the right. On a smaller screen below each other. The heading over the fields is always the same.',
+    mainDrawer:
+      'The editor’s menu: the website’s parts in sections, the open one marked. On a wide screen it stands beside the content, and the menu button at the start of the top bar shows and hides it; on a smaller screen it opens over the page and closes on a choice, a tap beside it, Escape or a swipe. Shown here opening over the page.',
+    editorFooter:
+      'The line at the bottom of every screen, under the content, with a link to the licenses of what the website and the editor are made with.',
+    sectionList:
+      'The sections of a long form as a list, with the one in view selected. On a large screen it is in a pane at the end of the form, shown and hidden by the button at the end of the top bar; on a smaller screen the button opens it in a side sheet, which closes when you choose a section.',
   },
   /** Over the parts: the search, and the groups to show one of (as Material 3 sorts its components). */
   filter: {
@@ -141,7 +149,7 @@ export const parts = {
       `The fields of the forms and settings, one of each type with the choices it can have. The fields are in ${file} and are built of the parts above. Nothing here is saved.`,
     use: {
       string:
-        'One line of text. It can have to be filled in, have at most a number of characters, have a text that is used when the field is empty, have to have a certain form, be an address, a number in pairs, a phone number, or words as chips (one or more), or have a link to where it is edited.',
+        'One line of text. It can be required, have a length limit, show a text while it is empty, need a certain form, hold an address, a number in pairs, a phone number, or words as chips, or link to where it is edited.',
       text: 'Text over several lines, with the same choices as one line.',
       markdown: 'Text with formatting, in the same editor as the pages.',
       number: 'A number.',
@@ -150,7 +158,7 @@ export const parts = {
       select:
         'One of several choices: in the sheet from the bottom, side by side, as icons, or only shown. A choice can have its own explanation, and a field can be there only with one of the choices.',
       relation:
-        'A page, a post, or a tag from the site’s lists. A page is picked with the page picker, the fixed pages too; several picked are chips.',
+        'A page, a post, or a tag from the website’s lists. A page is picked with the page picker, the fixed pages too; several picked are chips.',
       image: 'A picture from Files or a new one.',
       readonly: 'Shown, but not edited here.',
       object: 'A group of fields in a frame.',
@@ -164,7 +172,7 @@ export const parts = {
     heading: 'Heading',
     headingHint: 'At most about 60 characters.',
     underName: 'Text (under the name)',
-    underNameHint: 'If the field is empty, the site’s name is used.',
+    underNameHint: 'If the field is empty, the website’s name is used.',
     email: 'Email',
     emailForm: 'Write a whole email address',
     cvr: 'CVR number',
@@ -182,9 +190,9 @@ export const parts = {
     shown: 'Shown',
     hidden: 'Hidden',
     listText: 'Text (in the list)',
-    listTextHint: 'Only there with the placement In the list.',
-    publishedHint: 'The page is on the site.',
-    draftHint: 'The page isn’t on the site.',
+    listTextHint: 'Shown only with the placement In the list.',
+    publishedHint: 'The page is on the website.',
+    draftHint: 'The page isn’t on the website.',
     look: 'Look',
     kind: 'Kind',
     page: 'Page',
@@ -384,7 +392,7 @@ export const parts = {
     fieldSupporting: 'You only get an email when there’s news.',
     fieldError: 'Write an email address.',
     fieldPlaceholder: 'Your email',
-    fieldSearch: 'Search the site',
+    fieldSearch: 'Search the website',
     fieldClear: 'Clear',
     fieldPhone: 'Phone',
     fieldPrefix: '+45',
@@ -401,7 +409,7 @@ export const parts = {
     fieldReadOnly: 'Customer number',
     fieldReadOnlyValue: '10 482',
     checkboxLabel: 'Statistics',
-    checkboxSupporting: 'How the site is used.',
+    checkboxSupporting: 'How the website is used.',
     checkboxParent: 'All cookies',
     checkboxError: 'Check the box to continue.',
     /** The theme's chips (Chip), a group of their own under "UI components". */
@@ -427,10 +435,16 @@ export const parts = {
         'Cards or pictures in a row that are swiped sideways, with dots under them: all the same size, in several sizes, one large (from the start or in the middle) and one at a time.',
       dialogKinds: { basic: 'Basic', icon: 'With icon, list, and divider', container: 'Only the box', fullScreen: 'Full screen' },
       sheetKinds: {
-        modal: 'Modal',
+        modal: 'Modal, a dialog on a computer',
+        modalSideSheet: 'Modal, a side sheet on a computer',
+        modalSheet: 'Modal, stays a sheet on a computer',
         collapsed: 'Standard, collapsed',
         halfExpanded: 'Standard, half expanded',
         expanded: 'Standard, expanded',
+        fixed: 'Standard, fixed, no handle or headline',
+        resizeButton: 'Standard, resize button instead of the handle',
+        collapseButton: 'Standard, collapse button at full height',
+        wideSheet: 'Standard, stays a sheet on a computer, while the others become a side sheet there',
       },
       layouts: {
         uncontained: 'All the same size',
@@ -446,11 +460,28 @@ export const parts = {
       save: 'Save',
       page: 'The page behind the sheet can still be used.',
       dragHandle: 'Expand or collapse the sheet',
+      openSheet: 'Open the modal sheet',
+      openSideSheet: 'Open the modal sheet as a side sheet',
+      openWideSheet: 'Open the modal sheet with margins',
+      paragraphs: [
+        'On a phone the sheet opens at half the height of the screen.',
+        'Pull the handle, the heading or this text up to make it as high as the screen allows.',
+        'Once it is at full height, this text scrolls.',
+        'Swipe down from the top of this text, or pull the handle down, to close it.',
+        'A fast flick up or down goes straight to full height or closes it.',
+        'A short pull down and let go returns it to half height.',
+        'On a computer the sheet is a dialog, a side sheet or a sheet with margins, as its example says.',
+        'This text only makes the sheet long enough to need scrolling.',
+      ],
       picture: (n: number) => `Picture ${n}`,
       showPicture: (n: number) => `Show picture ${n}`,
       heading: 'Heading',
       text: 'A short text about what the box is about.',
       sheetText: 'A short text under the heading',
+      sheetPeek: 'A line that shows while the sheet is collapsed',
+      sheetLabel: 'Details',
+      resize: 'Expand or collapse the sheet',
+      collapse: 'Collapse the sheet',
       footer: 'A line at the bottom',
       close: 'Close',
       roleDescription: 'carousel',
@@ -462,7 +493,7 @@ export const parts = {
     navigation: {
       title: 'Navigation',
       topAppBar:
-        "The bar at the top of a page: only the surface with the site's own header, or the button at the start, the headline, and the buttons at the end, small, medium, or large, or with the search field. It gets another surface when the page scrolls under it.",
+        "The bar at the top of a page: only the surface with the website's own header, or the button at the start, the headline, and the buttons at the end, small, medium, or large, or with the search field. It gets another surface when the page scrolls under it.",
       stuck: 'When the page scrolls',
       /** The top app bar's kinds and what is in them (TopAppBar.tsx). */
       appBar: {
@@ -472,9 +503,9 @@ export const parts = {
         long: 'A long headline that may run over several lines',
         collapsed: 'collapsed',
         back: 'Back',
-        search: 'Search the site',
+        search: 'Search the website',
         clear: 'Clear',
-        empty: 'Nothing fits the search.',
+        empty: 'Nothing fits the search',
         favourite: 'Save',
         profile: 'Profile',
       },
@@ -502,7 +533,13 @@ export const parts = {
         error: 'Choose a treatment.',
         kinds: { outlined: 'Outlined', filled: 'Filled' },
       },
-      navigationDrawer: 'The menu that opens over the page on a phone: the pages, one with sub-pages unfolded, the open one marked.',
+      navigationDrawer:
+        'The menu that opens over the page on a phone: the pages, one with sub-pages unfolded, the open one marked. The standard one stands beside the page, with sections, icons and counts, and in two levels: sections with an arrow, and a list under a back row.',
+      /** The standard drawer's made-up sections and items (NavigationParts.tsx). */
+      drawerSections: ['Mail', 'Account'],
+      drawerItems: ['Inbox', 'Messages', 'Favorites', 'Trash', 'Profile'],
+      /** The back row of the drawer's second level (NavigationParts.tsx). */
+      drawerBack: ['Main menu'],
       tabs: 'Tabs in a row: only the text, as under the bar, or primary with an icon and secondary, with a line under the open one. To swipe sideways or across the whole width.',
       /** The tabs' made-up views (Tabs.tsx). */
       views: ['Overview', 'Prices', 'Reviews', 'Contact', 'Map', 'Videos'],
@@ -556,6 +593,8 @@ export const parts = {
     selection: {
       title: 'Switches, choices and side sheets',
       switch: 'Turns something on or off, with its name before it: off, on, with icons in the handle, and gray when it can’t be changed.',
+      settingRow:
+        'A setting on one line: its name and what it does at the start, and what sets it at the end (a switch, a dropdown button).',
       radioButton: 'One of a few choices in a group under its name, maybe with a line under it: chosen and gray when it can’t be chosen.',
       slider:
         'Chooses a number by dragging: freely, in steps with dots, from the middle, a range with 2 handles and with the number over the handle, in 5 sizes, with an icon and vertical.',
@@ -605,12 +644,12 @@ export const parts = {
       alone: 'Alone',
       contained: 'In a container',
       loading: 'Loading…',
-      uploading: 'Uploading',
+      uploading: 'Uploading…',
       percent: (v: number) => `${Math.round(v * 100)}%`,
       indeterminate: 'Without a value',
       shapes: { flat: 'Flat', wavy: 'Wavy' },
       thick: 'Thick',
-      sent: 'The message has been sent.',
+      sent: 'The message has been sent',
       booked: 'Your time is booked. You’ll get a confirmation by email shortly.',
       undo: 'Undo',
       seeBooking: 'See the booking',
@@ -640,10 +679,10 @@ export const parts = {
       sections: ['Start', 'You'],
       menu: 'Change width',
       compose: 'Write',
-      searchLabel: 'Search the site',
+      searchLabel: 'Search the website',
       back: 'Back',
       clear: 'Clear',
-      empty: 'Nothing fits the search.',
+      empty: 'Nothing fits the search',
       query: 'cou',
       results: [
         { headline: 'Prices', supporting: 'Searched recently' },

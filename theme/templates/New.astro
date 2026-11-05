@@ -25,8 +25,8 @@ const posts = (await getPosts({ unlisted: true })).filter((p) => stateOf(p.data)
   <PageHeader title={siteT.theme.newPages} intro={siteT.theme.newPagesIntro} />
 
   {rows.length > 0 && (
-    <Container as="section" class="mt-12 md:mt-16">
-      <ul class="rounded-panel border border-line px-5 md:px-7">
+    <Container as="section" class="mt-12 medium:mt-16">
+      <ul class="rounded-panel border border-line px-5 medium:px-7">
         {rows.map(({ page, current }, i) => (
           <li id={previewId(page.data.path)} class:list={['scroll-mt-24 py-5', i > 0 && 'border-t border-line']}>
             <p class="type-title-medium">{pageHeading(page)}</p>
@@ -50,10 +50,10 @@ const posts = (await getPosts({ unlisted: true })).filter((p) => stateOf(p.data)
   )}
 
   {posts.length > 0 && (
-    <Container as="section" class="mt-12 mb-20 md:mt-16 md:mb-28">
-      <h2 class="type-headline-small md:type-headline-medium">{siteT.theme.newPosts}</h2>
+    <Container as="section" class="mt-12 mb-20 medium:mt-16 medium:mb-28">
+      <h2 class="type-headline-small medium:type-headline-medium">{siteT.theme.newPosts}</h2>
       <p class="mt-2 max-w-[60ch] text-muted">{siteT.theme.newPostsIntro}</p>
-      <ul class="mt-5 rounded-panel border border-line px-5 md:px-7">
+      <ul class="mt-5 rounded-panel border border-line px-5 medium:px-7">
         {posts.map((p, i) => (
           <li class:list={['py-4', i > 0 && 'border-t border-line']}>
             <a href={postPath(p)} class="inline-flex items-center gap-1.5 font-medium hover:text-accent">

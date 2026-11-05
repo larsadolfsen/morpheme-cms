@@ -16,6 +16,6 @@ interface Props {
 const { type, props = {}, ...rest } = Astro.props;
 ---
 
-<Container class="block-place mt-20 md:mt-28" data-reveal {...rest}>
+<Container class="block-place mt-20 medium:mt-28" data-reveal {...rest}>
   <Block type={type} props={props} />
 </Container>

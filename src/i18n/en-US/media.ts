@@ -12,6 +12,8 @@ export const media = {
   all: 'All',
   kind: 'Type',
   allKinds: 'All types',
+  tagFilter: 'Tag',
+  allTags: 'All tags',
   /** The kinds of files in Filer: the filter, the buttons in the sheet, and (siteT) in the commits. */
   kinds: {
     picture: {
@@ -52,7 +54,7 @@ export const media = {
   add: 'Add a file',
   preparing: 'Preparing the picture…',
   notDeleted: (error: string) => `Couldn’t delete: ${error}`,
-  nameTaken: 'There’s already a file with that name.',
+  nameTaken: 'There’s already a file with that name',
   tooBig: (mb: number) => `The file is too big. It can be at most ${mb} MB.`,
   notAFile: 'The file can’t be used. Choose a picture, a PDF, a video, or a zip file.',
   name: 'Name',
@@ -63,11 +65,15 @@ export const media = {
   usedOn: 'Used on',
   siteDesign: "The website's design",
   noPages: 'No pages',
+  tags: 'Tags',
+  addTag: 'Add tag',
+  createTag: 'Create a tag',
   /** The commits, in the site's language (siteT); what: a kind's word ("billede", "PDF"). */
   commit: {
     add: (what: string, name: string) => `Editor: add ${what} "${name}"`,
     delete: (what: string, name: string) => `Editor: delete ${what} "${name}"`,
     rename: (what: string, from: string, to: string) => `Editor: rename ${what} "${from}" to "${to}"`,
+    tags: (what: string, name: string) => `Editor: change the tags of ${what} "${name}"`,
   },
   crop: {
     format: 'Format',

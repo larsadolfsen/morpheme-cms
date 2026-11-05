@@ -125,6 +125,9 @@ const STANDARD = {
   /** Which pages are the front page, the blog page and the 404 page: `{ "front": "<its address>", "blog": …, "notFound": … }`
    * ("Indstillinger" › "Udseende" › "Standardsider", defaults/standardPages.ts). */
   standardPages: 'src/data/standard-pages.json',
+  /** The folder of the file records, one `<id>.json` per file in Filer that has tags (`{ src, categories, removed }`,
+   * src/fileRecords.mjs): what a file is tagged with and which tags were removed from it. */
+  fileRecords: 'src/data/files',
 };
 
 /** @typedef {SiteOwn & SiteChoices & typeof STANDARD} SiteConfig */
