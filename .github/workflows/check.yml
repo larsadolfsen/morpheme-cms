@@ -1,6 +1,6 @@
-# The CMS's checks on each pull request into main, and that it has a changeset (.changeset/README.md), so main can
-# always be released. Free here: the repository is public. The checks that still run from morpheme-website's root are
-# added here as each comes to run from this repository's root.
+# The CMS's checks on each pull request into main (package.json's check, check:screens, check:demo and check:starter),
+# and that it has a changeset (.changeset/README.md), so main can always be released. Free here: the repository is
+# public. The job's name, check, is the status check that main's branch protection requires.
 name: Check
 
 on:
@@ -25,5 +25,13 @@ jobs:
       - name: The pull request has a changeset
         if: github.head_ref != 'changeset-release/main' # The Release PR turns the changesets into CHANGELOG.md.
         run: npx changeset status --since=origin/main
-      # The demo on the starter: its content checked by the editor's rules, built, and after-build (scripts/demo-build.mjs).
-      - run: npm run build
+      # Prettier, the unit tests, the package's types, the demo built (its content checked by the editor's rules) and
+      # each of its pages the same after a save in the editor.
+      - run: npm run check
+      # Every screen of the editor on the built demo, on a phone and on a computer.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run check:screens
+      # The demo built with the standard theme.
+      - run: npm run check:demo
+      # The starter as a new site with the package from npm pack: its own checks (with check:worker) and its build.
+      - run: npm run check:starter
