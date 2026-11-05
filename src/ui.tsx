@@ -2740,11 +2740,11 @@ function MainRail({ label, onOpen, children }: { label: string; onOpen: () => vo
 // menu button. The header cell starts at the drawer items' outer edge: the row has no start padding, and the header (the
 // account row, the back row) brings the items' inline padding itself, so its pill (editor.css, .editor-main-drawer-header)
 // has the shape of an item's and the avatar or arrow stands over the items' icons. The button is centred on the 1.5rem box
-// of the items' trailing arrows (a negative end margin from the button's own width). A divider (middle inset) stands under the row.
+// of the items' trailing arrows (a negative end margin from the button's own width). The row is the top bar's height (`--top-app-bar-height`), so the divider (middle inset) under it stands level with the top bar's line.
 function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header?: ReactNode }) {
   return (
     <>
-      <div className="editor-main-drawer-header mt-2 mb-3 flex items-center gap-1 p-(--navigation-drawer-item-padding,0_1rem) py-0 ps-0">
+      <div className="editor-main-drawer-header flex min-h-(--top-app-bar-height,4rem) items-center gap-1 p-(--navigation-drawer-item-padding,0_1rem) py-0 ps-0">
         <div className="min-w-0 flex-1">{header}</div>
         <MenuButton label={t.library.closeMenu} open onClick={onClick} className="-me-[calc((var(--icon-button-width)-1.5rem)/2)]" />
       </div>
