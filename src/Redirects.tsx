@@ -1,6 +1,6 @@
 // "Videresendelser" under Indhold (#seo/redirects): two rows with how many
 // each has, each opening a screen of its own.
-// "Alle videresendelser" (#seo/redirects/alle): every address of a page the site sends on elsewhere
+// "Alle videresendelser" (#seo/redirects/all): every address of a page the site sends on elsewhere
 // (redirectData.ts), by address, with where it sends to, and search. Tapping one opens a sheet where
 // where it sends to can be changed, or the redirect deleted; "+" adds a new one (in the editor's own,
 // src/data/redirects.json). Each save is one commit, and none sends on through another afterwards
@@ -66,7 +66,7 @@ type Editing = { from: string; to: string; isNew: boolean; missing?: Missing };
 export type Tab = 'redirects' | 'missing';
 
 // Where each list opens, under "Videresendelser".
-export const TAB_ROUTES: Record<Tab, string> = { redirects: 'seo/redirects/alle', missing: 'seo/redirects/ikke-fundet' };
+export const TAB_ROUTES: Record<Tab, string> = { redirects: 'seo/redirects/all', missing: 'seo/redirects/ikke-fundet' };
 /** Where "Videresendelser" opens, under "Søgemaskineoptimering". */
 export const REDIRECTS_ROUTE = 'seo/redirects';
 

@@ -14,7 +14,7 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   'tema/dele/editor': 'appearance/parts/editor',
   'virksomheden/bank': 'company/payment/bank',
   videresendelser: 'seo/redirects',
-  'videresendelser/alle': 'seo/redirects/alle',
+  'videresendelser/alle': 'seo/redirects/all',
   'videresendelser/ikke-fundet': 'seo/redirects/ikke-fundet',
   // The settings of the booking and newsletter apps were on a screen "Promovering"; they are on the apps' own pages now.
   promovering: 'apps',
@@ -69,6 +69,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   blokke: 'blocks',
   filer: 'files',
   'seo/videresendelser': 'seo/redirects',
+  'seo/videresendelser/alle': 'seo/redirects/all',
   'seo/vurdering': 'seo/rating',
   blokvalg: 'block-settings',
   avanceret: 'advanced',
