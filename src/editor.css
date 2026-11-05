@@ -329,7 +329,7 @@
 /* The main drawer's header row (MainDrawerMenuButton in ui.tsx): the account row is a pill, shaped and shaded as a drawer
    item is when pointed at. Its inline padding puts the avatar's centre over the items' icons (the avatar is wider than the
    24px icon: half the difference less than the items' padding). The avatar has a 1px border inside its size.
-   The row is as high as a drawer item (56px). */
+   The pill is as high as a drawer item (56px); the row around it is the top bar's height. */
 .editor-main-drawer-header {
   --list-item-padding-block: 0.375rem;
   --list-item-two-line-min-height: var(--navigation-drawer-item-height, 3.5rem);
