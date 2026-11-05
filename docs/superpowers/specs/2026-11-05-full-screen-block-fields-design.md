@@ -1,7 +1,8 @@
 # Full-screen block fields (design)
 
-> **Status:** approved by the owner on 5 November 2026. Plan:
-> [2026-11-05-full-screen-block-fields.md](../plans/2026-11-05-full-screen-block-fields.md).
+> **Status:** superseded on 5 November 2026 by
+> [2026-11-05-block-side-sheet-design.md](2026-11-05-block-side-sheet-design.md). The owner chose Material 3's side
+> sheet after the first build. Kept as the record of the first design.
 
 ## Problem
 
