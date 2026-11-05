@@ -3,6 +3,9 @@
 @import '@fontsource-variable/roboto';
 
 /*
+  Material is every theme's fallback: its rules that set more than custom properties sit in @layer fallback (declared last in
+  base.css), so a theme's own unlayered rules win over them, whatever the specificity. Custom properties stay unlayered.
+
   The standard theme's look, Material: the site in Material Design 3 (m3.material.io). Roboto and the M3 type scale (regular headlines,
   medium titles and labels), the M3 shapes (below), tonal surfaces instead of lines, the M3 elevation levels and its emphasized easing; buttons
   as wide as their label (filled and tonal) and lists in segments. The theme's own parts (the top app bar, the
@@ -971,134 +974,136 @@
   }
 }
 
-/* Long text: pictures with large corners. */
-.prose :where(img):not(:where(.not-prose img)),
-.picture-crop,
-.prose :where(iframe) {
-  border-radius: var(--md-shape-large);
-}
+@layer fallback {
+  /* Long text: pictures with large corners. */
+  .prose :where(img):not(:where(.not-prose img)),
+  .picture-crop,
+  .prose :where(iframe) {
+    border-radius: var(--md-shape-large);
+  }
 
-/* The mark before the name on a testimonial without a picture: an avatar, a circle in the highest surface container
+  /* The mark before the name on a testimonial without a picture: an avatar, a circle in the highest surface container
    (it stands on a container) with the name's first letter (data-initial, Testimonial.tsx), as Material's avatars
    without a picture, not the standard theme's dot. */
-.block-testimonial-mark {
-  display: grid;
-  width: 2.5rem;
-  height: 2.5rem;
-  place-items: center;
-  border-radius: var(--md-shape-full);
-  background: var(--md-surface-container-highest);
-  color: var(--ink);
-  font-size: var(--type-title-medium-size);
-  font-weight: var(--type-title-medium-weight);
-  letter-spacing: var(--type-title-medium-tracking);
-  line-height: 1;
-}
-.block-testimonial-mark::before {
-  content: attr(data-initial);
-}
+  .block-testimonial-mark {
+    display: grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    place-items: center;
+    border-radius: var(--md-shape-full);
+    background: var(--md-surface-container-highest);
+    color: var(--ink);
+    font-size: var(--type-title-medium-size);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
+    line-height: 1;
+  }
+  .block-testimonial-mark::before {
+    content: attr(data-initial);
+  }
 
-/* The Material theme's own parts (components/Header.astro, MobileMenu.tsx, Footer.astro). */
+  /* The Material theme's own parts (components/Header.astro, MobileMenu.tsx, Footer.astro). */
 
-/* The top app bar (its variables above, Header.astro): 64px high, above the cookie banner, so its menus are too. */
-/* The menu's items: a label in medium weight, a state layer, the open page in an active indicator (the secondary
+  /* The top app bar (its variables above, Header.astro): 64px high, above the cookie banner, so its menus are too. */
+  /* The menu's items: a label in medium weight, a state layer, the open page in an active indicator (the secondary
    container). 40px high, and 48px to touch. */
-.md-nav-item,
-.md-nav-toggle {
-  position: relative;
-}
-.md-nav-item::after {
-  content: '';
-  position: absolute;
-  inset: -0.25rem 0;
-}
-.md-nav-toggle::after {
-  content: '';
-  position: absolute;
-  inset: -0.25rem -0.125rem -0.25rem -0.5rem;
-}
-.md-nav-item {
-  display: inline-flex;
-  min-height: 2.5rem;
-  align-items: center;
-  gap: 0.25rem;
-  border-radius: var(--md-shape-full);
-  padding: 0 1rem;
-  white-space: nowrap;
-  color: var(--muted);
-  font-size: var(--type-label-large-size);
-  line-height: var(--type-label-large-line-height);
-  font-weight: var(--type-label-large-weight);
-  letter-spacing: var(--type-label-large-tracking);
-  transition:
-    background-color var(--motion-effects),
-    color var(--motion-effects);
-}
-.md-nav-item:hover {
-  background: var(--md-hover);
-  color: var(--ink);
-}
-.md-nav-item:focus-visible,
-.md-nav-item:active {
-  background: var(--md-pressed);
-  color: var(--ink);
-}
-/* An item with sub-pages: its label, then the button that opens them. */
-.md-nav-item-parent {
-  padding-right: 0.25rem;
-}
-.md-nav-toggle {
-  display: grid;
-  width: 2rem;
-  height: 2.5rem;
-  place-items: center;
-  border-radius: var(--md-shape-full);
-  color: var(--muted);
-  transition:
-    background-color var(--motion-effects),
-    color var(--motion-effects);
-}
-.md-nav-toggle:hover {
-  background: var(--md-hover);
-  color: var(--ink);
-}
-.md-nav-toggle:focus-visible,
-.md-nav-toggle:active {
-  background: var(--md-pressed);
-  color: var(--ink);
-}
-.md-nav-toggle > svg {
-  transition: transform var(--motion-spatial-fast);
-}
-.md-nav-toggle[aria-expanded='true'] > svg {
-  transform: rotate(180deg);
-}
-.md-nav-item[aria-current='page'],
-li:has(.menu-item[aria-current='page']) > .md-nav-item {
-  background: var(--tint);
-  color: var(--ink);
-}
-/* A menu (its variables above): a state layer with focus from the keyboard (the ripple when pressed), and the open page
+  .md-nav-item,
+  .md-nav-toggle {
+    position: relative;
+  }
+  .md-nav-item::after {
+    content: '';
+    position: absolute;
+    inset: -0.25rem 0;
+  }
+  .md-nav-toggle::after {
+    content: '';
+    position: absolute;
+    inset: -0.25rem -0.125rem -0.25rem -0.5rem;
+  }
+  .md-nav-item {
+    display: inline-flex;
+    min-height: 2.5rem;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: var(--md-shape-full);
+    padding: 0 1rem;
+    white-space: nowrap;
+    color: var(--muted);
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
+    transition:
+      background-color var(--motion-effects),
+      color var(--motion-effects);
+  }
+  .md-nav-item:hover {
+    background: var(--md-hover);
+    color: var(--ink);
+  }
+  .md-nav-item:focus-visible,
+  .md-nav-item:active {
+    background: var(--md-pressed);
+    color: var(--ink);
+  }
+  /* An item with sub-pages: its label, then the button that opens them. */
+  .md-nav-item-parent {
+    padding-right: 0.25rem;
+  }
+  .md-nav-toggle {
+    display: grid;
+    width: 2rem;
+    height: 2.5rem;
+    place-items: center;
+    border-radius: var(--md-shape-full);
+    color: var(--muted);
+    transition:
+      background-color var(--motion-effects),
+      color var(--motion-effects);
+  }
+  .md-nav-toggle:hover {
+    background: var(--md-hover);
+    color: var(--ink);
+  }
+  .md-nav-toggle:focus-visible,
+  .md-nav-toggle:active {
+    background: var(--md-pressed);
+    color: var(--ink);
+  }
+  .md-nav-toggle > svg {
+    transition: transform var(--motion-spatial-fast);
+  }
+  .md-nav-toggle[aria-expanded='true'] > svg {
+    transform: rotate(180deg);
+  }
+  .md-nav-item[aria-current='page'],
+  li:has(.menu-item[aria-current='page']) > .md-nav-item {
+    background: var(--tint);
+    color: var(--ink);
+  }
+  /* A menu (its variables above): a state layer with focus from the keyboard (the ripple when pressed), and the open page
    in the secondary container also when pointed at. */
-.menu-item:focus-visible {
-  background: var(--md-pressed);
-}
-.menu-item[aria-current='page']:hover {
-  background: var(--tint);
-}
+  .menu-item:focus-visible {
+    background: var(--md-pressed);
+  }
+  .menu-item[aria-current='page']:hover {
+    background: var(--tint);
+  }
 
-/* The extended FAB (its variables above, Header.astro): at the bottom right of the screen, with the ripple when pressed. It
+  /* The extended FAB (its variables above, Header.astro): at the bottom right of the screen, with the ripple when pressed. It
    shows only its icon while the page scrolls down (data-collapsed). */
-[data-fab] {
-  position: fixed;
-  right: max(1rem, env(safe-area-inset-right));
-  bottom: max(1rem, env(safe-area-inset-bottom));
-  z-index: 30;
-}
-@media (width >= theme(--breakpoint-medium)) {
   [data-fab] {
-    right: 1.5rem;
-    bottom: 1.5rem;
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 30;
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    [data-fab] {
+      right: 1.5rem;
+      bottom: 1.5rem;
+    }
   }
 }
 /* In the navigation drawer: at the top, in the secondary container, lowered (as in a Google app): M3's lowered FAB, at
@@ -1106,203 +1111,211 @@ li:has(.menu-item[aria-current='page']) > .md-nav-item {
 .navigation-drawer > .extended-fab {
   --fab-shadow: var(--elevation-1);
   --fab-hover-shadow: var(--elevation-2);
-  margin: 0.25rem 0 0.75rem 0.5rem;
-  align-self: flex-start;
 }
-/* On a phone with a bar at the bottom of the screen (a docked toolbar, components.css), the page's FAB is not shown; the
+@layer fallback {
+  .navigation-drawer > .extended-fab {
+    margin: 0.25rem 0 0.75rem 0.5rem;
+    align-self: flex-start;
+  }
+  /* On a phone with a bar at the bottom of the screen (a docked toolbar, components.css), the page's FAB is not shown; the
    bar's buttons are the common buttons, round and as everywhere else (only pressed a little squarer), the filled one to
    the right, after the outlined one or the text. */
-@media (width < theme(--breakpoint-medium)) {
-  body:has(.theme-action-bar) [data-fab] {
-    display: none;
+  @media (width < theme(--breakpoint-medium)) {
+    body:has(.theme-action-bar) [data-fab] {
+      display: none;
+    }
+  }
+  :is(.theme-action-bar, .theme-action-bar-drawn) > .button-filled {
+    order: 2;
+  }
+
+  /* The site's menu in the navigation drawer (its values are ui.css's, MobileMenu.tsx): its head. */
+  .md-drawer-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.25rem 0 1rem 1rem;
+  }
+  .md-drawer-name {
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
+  }
+  .md-drawer-role {
+    color: var(--muted);
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+  }
+  /* An item with sub-pages: its link and the caret in one row, the active indicator around both. */
+  .navigation-drawer-row {
+    border-radius: var(--md-shape-full);
+    transition: background-color var(--motion-effects);
+  }
+  .navigation-drawer-row > .navigation-drawer-item,
+  .navigation-drawer-row > .navigation-drawer-item:hover,
+  .navigation-drawer-row > .navigation-drawer-item:focus-visible,
+  .navigation-drawer-row > .navigation-drawer-item:active {
+    background: none;
+  }
+  .navigation-drawer-row:has(> .navigation-drawer-item:hover) {
+    background: var(--md-hover);
+  }
+  .navigation-drawer-row:has(> .navigation-drawer-item:focus-visible) {
+    background: var(--md-pressed);
+  }
+  .navigation-drawer-row[data-active] {
+    background: var(--secondary-container);
+  }
+  .navigation-drawer-row[data-active] > .navigation-drawer-item {
+    color: var(--on-secondary-container);
+  }
+  .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:hover) {
+    background: color-mix(in srgb, var(--on-secondary-container) 8%, var(--secondary-container));
+  }
+  .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:focus-visible) {
+    background: color-mix(in srgb, var(--on-secondary-container) 10%, var(--secondary-container));
+  }
+  .navigation-drawer-toggle {
+    margin-right: 0.25rem;
+    color: var(--muted);
+  }
+  .navigation-drawer-toggle:focus-visible {
+    background: var(--md-pressed);
+  }
+  /* Directly in the drawer ("Ring"), not in a row with a caret: as high as its content. */
+  .navigation-drawer > .navigation-drawer-item {
+    flex: none;
+  }
+  /* A sub-page: an item further in, its label in regular weight. */
+  .navigation-drawer-subitem {
+    min-height: 3.5rem;
+    gap: 0.75rem;
+    margin-left: 0;
+    border-left: 0;
+    border-radius: var(--md-shape-full);
+    padding: 0 1.5rem 0 2.25rem;
+    color: var(--muted);
+    transition: background-color var(--motion-effects);
+  }
+  .navigation-drawer-subitem:hover {
+    background: var(--md-hover);
+    color: var(--muted);
+  }
+  .navigation-drawer-subitem:focus-visible {
+    background: var(--md-pressed);
+  }
+  .navigation-drawer-subitem[data-active] {
+    background: var(--secondary-container);
+    color: var(--on-secondary-container);
+    font-weight: 400;
+  }
+
+  /* The footer: a surface container with extra-large corners at the top, a headline, lists with leading icons and a
+   state layer, and text buttons at the bottom. */
+  .md-footer {
+    margin-top: 6rem;
+    border-radius: var(--md-shape-extra-large) var(--md-shape-extra-large) var(--md-shape-none) var(--md-shape-none);
+    background: var(--md-surface-container);
+  }
+  .md-footer-name {
+    margin-top: 0.75rem;
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
+  }
+  .md-footer-text {
+    margin-top: 0.5rem;
+    max-width: 38ch;
+    color: var(--muted);
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+  }
+  .md-footer-heading,
+  .md-footer-column > p {
+    color: var(--ink);
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
+  }
+  .md-footer-list,
+  .md-footer-column > ul {
+    margin: 0.5rem -1rem 0;
+  }
+  .md-footer-item,
+  .md-footer-column > ul a {
+    display: flex;
+    min-height: 3rem;
+    align-items: center;
+    gap: 1rem;
+    border-radius: var(--md-shape-full);
+    padding: 0.5rem 1rem;
+    color: var(--muted);
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+    transition: background-color var(--motion-effects);
+  }
+  .md-footer-item:hover,
+  .md-footer-column > ul a:hover {
+    background: var(--md-hover);
+    color: var(--ink);
+  }
+  .md-footer-item:focus-visible,
+  .md-footer-item:active,
+  .md-footer-column > ul a:focus-visible,
+  .md-footer-column > ul a:active {
+    background: var(--md-pressed);
+    color: var(--ink);
+  }
+  .md-footer-column > ul > li {
+    margin-block: 0;
+  }
+  .md-footer-item > svg {
+    flex-shrink: 0;
+  }
+  .md-footer-column > a {
+    margin-top: 0.5rem;
+    font-weight: 500;
   }
 }
-:is(.theme-action-bar, .theme-action-bar-drawn) > .button-filled {
-  order: 2;
-}
-
-/* The site's menu in the navigation drawer (its values are ui.css's, MobileMenu.tsx): its head. */
-.md-drawer-head {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.25rem 0 1rem 1rem;
-}
-.md-drawer-name {
-  font-size: var(--type-title-medium-size);
-  line-height: var(--type-title-medium-line-height);
-  font-weight: var(--type-title-medium-weight);
-  letter-spacing: var(--type-title-medium-tracking);
-}
-.md-drawer-role {
-  color: var(--muted);
-  font-size: var(--type-body-medium-size);
-  line-height: var(--type-body-medium-line-height);
-  font-weight: var(--type-body-medium-weight);
-  letter-spacing: var(--type-body-medium-tracking);
-}
-/* An item with sub-pages: its link and the caret in one row, the active indicator around both. */
-.navigation-drawer-row {
-  border-radius: var(--md-shape-full);
-  transition: background-color var(--motion-effects);
-}
-.navigation-drawer-row > .navigation-drawer-item,
-.navigation-drawer-row > .navigation-drawer-item:hover,
-.navigation-drawer-row > .navigation-drawer-item:focus-visible,
-.navigation-drawer-row > .navigation-drawer-item:active {
-  background: none;
-}
-.navigation-drawer-row:has(> .navigation-drawer-item:hover) {
-  background: var(--md-hover);
-}
-.navigation-drawer-row:has(> .navigation-drawer-item:focus-visible) {
-  background: var(--md-pressed);
-}
-.navigation-drawer-row[data-active] {
-  background: var(--secondary-container);
-}
-.navigation-drawer-row[data-active] > .navigation-drawer-item {
-  color: var(--on-secondary-container);
-}
-.navigation-drawer-row[data-active]:has(> .navigation-drawer-item:hover) {
-  background: color-mix(in srgb, var(--on-secondary-container) 8%, var(--secondary-container));
-}
-.navigation-drawer-row[data-active]:has(> .navigation-drawer-item:focus-visible) {
-  background: color-mix(in srgb, var(--on-secondary-container) 10%, var(--secondary-container));
-}
-.navigation-drawer-toggle {
-  margin-right: 0.25rem;
-  color: var(--muted);
-}
-.navigation-drawer-toggle:focus-visible {
-  background: var(--md-pressed);
-}
-/* Directly in the drawer ("Ring"), not in a row with a caret: as high as its content. */
-.navigation-drawer > .navigation-drawer-item {
-  flex: none;
-}
-/* A sub-page: an item further in, its label in regular weight. */
-.navigation-drawer-subitem {
-  min-height: 3.5rem;
-  gap: 0.75rem;
-  margin-left: 0;
-  border-left: 0;
-  border-radius: var(--md-shape-full);
-  padding: 0 1.5rem 0 2.25rem;
-  color: var(--muted);
-  transition: background-color var(--motion-effects);
-}
-.navigation-drawer-subitem:hover {
-  background: var(--md-hover);
-  color: var(--muted);
-}
-.navigation-drawer-subitem:focus-visible {
-  background: var(--md-pressed);
-}
-.navigation-drawer-subitem[data-active] {
-  background: var(--secondary-container);
-  color: var(--on-secondary-container);
-  font-weight: 400;
-}
-
-/* The footer: a surface container with extra-large corners at the top, a headline, lists with leading icons and a
-   state layer, and text buttons at the bottom. */
-.md-footer {
-  margin-top: 6rem;
-  border-radius: var(--md-shape-extra-large) var(--md-shape-extra-large) var(--md-shape-none) var(--md-shape-none);
-  background: var(--md-surface-container);
-}
-.md-footer-name {
-  margin-top: 0.75rem;
-  font-size: var(--type-headline-small-size);
-  line-height: var(--type-headline-small-line-height);
-  font-weight: var(--type-headline-small-weight);
-  letter-spacing: var(--type-headline-small-tracking);
-}
-.md-footer-text {
-  margin-top: 0.5rem;
-  max-width: 38ch;
-  color: var(--muted);
-  font-size: var(--type-body-medium-size);
-  line-height: var(--type-body-medium-line-height);
-  font-weight: var(--type-body-medium-weight);
-  letter-spacing: var(--type-body-medium-tracking);
-}
-.md-footer-heading,
-.md-footer-column > p {
-  color: var(--ink);
-  font-size: var(--type-label-large-size);
-  line-height: var(--type-label-large-line-height);
-  font-weight: var(--type-label-large-weight);
-  letter-spacing: var(--type-label-large-tracking);
-}
-.md-footer-list,
-.md-footer-column > ul {
-  margin: 0.5rem -1rem 0;
-}
-.md-footer-item,
-.md-footer-column > ul a {
-  display: flex;
-  min-height: 3rem;
-  align-items: center;
-  gap: 1rem;
-  border-radius: var(--md-shape-full);
-  padding: 0.5rem 1rem;
-  color: var(--muted);
-  font-size: var(--type-body-medium-size);
-  line-height: var(--type-body-medium-line-height);
-  font-weight: var(--type-body-medium-weight);
-  letter-spacing: var(--type-body-medium-tracking);
-  transition: background-color var(--motion-effects);
-}
-.md-footer-item:hover,
-.md-footer-column > ul a:hover {
-  background: var(--md-hover);
-  color: var(--ink);
-}
-.md-footer-item:focus-visible,
-.md-footer-item:active,
-.md-footer-column > ul a:focus-visible,
-.md-footer-column > ul a:active {
-  background: var(--md-pressed);
-  color: var(--ink);
-}
-.md-footer-column > ul > li {
-  margin-block: 0;
-}
-.md-footer-item > svg {
-  flex-shrink: 0;
-}
-.md-footer-column > a {
-  margin-top: 0.5rem;
-  font-weight: 500;
-}
 .md-footer-bottom {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem 1rem;
-  border-top: 1px solid var(--line);
-  padding-top: 1rem;
-  color: var(--muted);
-  font-size: var(--type-body-medium-size);
-  line-height: var(--type-body-medium-line-height);
-  font-weight: var(--type-body-medium-weight);
-  letter-spacing: var(--type-body-medium-tracking);
   /* Its text buttons (the cookie settings, light or dark) with an 18px icon. */
   --button-icon-size: 1.125rem;
 }
-.md-footer-bottom > div {
-  margin-inline: -0.75rem;
-}
-/* Room under the footer's last line for the FAB, or for the bar at the bottom of the screen: in the footer instead of
-   under the page (components.css), so the footer reaches the bar. */
-@media (width < theme(--breakpoint-medium)) {
-  body:has(.theme-action-bar):has(.md-footer) {
-    padding-bottom: 0;
+@layer fallback {
+  .md-footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1rem;
+    color: var(--muted);
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
   }
-  body:has(.theme-action-bar, [data-fab]) .md-footer {
-    padding-bottom: 5rem;
+  .md-footer-bottom > div {
+    margin-inline: -0.75rem;
+  }
+  /* Room under the footer's last line for the FAB, or for the bar at the bottom of the screen: in the footer instead of
+   under the page (components.css), so the footer reaches the bar. */
+  @media (width < theme(--breakpoint-medium)) {
+    body:has(.theme-action-bar):has(.md-footer) {
+      padding-bottom: 0;
+    }
+    body:has(.theme-action-bar, [data-fab]) .md-footer {
+      padding-bottom: 5rem;
+    }
   }
 }

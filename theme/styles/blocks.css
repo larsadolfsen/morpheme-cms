@@ -1,4 +1,7 @@
 /*
+  Material is every theme's fallback: its rules that set more than custom properties sit in @layer fallback (declared last in
+  base.css), so a theme's own unlayered rules win over them, whatever the specificity. Custom properties stay unlayered.
+
   The look of the standard blocks (their fields: packages/editor/src/standard/; their markup: blocks/ in this theme), on
   the site and in the editor, in the standard theme. Every colour, shape and motion comes from a CSS variable, which a
   theme sets to its own design in its own CSS:
@@ -1714,182 +1717,184 @@
   }
 }
 
-/* "Video": the video before it is played (video/, packages/editor/lib/video.mjs); the video takes its
+@layer fallback {
+  /* "Video": the video before it is played (video/, packages/editor/lib/video.mjs); the video takes its
    place. Outside the layers, as it is a link in the text's style (.prose), whose link style it undoes. */
-.prose .video-facade {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  margin-block: 2em;
-  padding: 1.5rem;
-  border-radius: var(--block-radius);
-  background: var(--block-tint);
-  color: var(--block-text);
-  text-align: center;
-  text-decoration: none;
-}
-.prose .video-facade svg {
-  color: var(--block-accent);
-  transition: transform var(--motion-spatial);
-}
-.prose .video-facade:hover svg {
-  transform: scale(1.08);
-}
-/* At most two lines; a longer title ends with "…" (the whole title is still the link's name). */
-.video-facade-title {
-  display: -webkit-box;
-  max-width: 40ch;
-  overflow: hidden;
-  font-size: var(--type-title-medium-size);
-  line-height: var(--type-title-medium-line-height);
-  font-weight: var(--type-title-medium-weight);
-  letter-spacing: var(--type-title-medium-tracking);
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-}
-/* With a still from the video (packages/editor/scripts/video-thumbnails.mjs), as on YouTube: the still fills the
-   box, the white play button in the middle of the box (not of the space above the title), the title
-   at the bottom over a shade. */
-.prose .video-facade-still {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  align-items: flex-start;
-  justify-content: flex-end;
-  gap: 0.25rem;
-  padding: 1rem 1.25rem;
-  background: #000;
-  color: #fff;
-  text-align: left;
-}
-.prose .video-facade-still::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(to bottom, rgb(0 0 0 / 0.15) 40%, rgb(0 0 0 / 0.75));
-}
-.prose .video-facade-still .video-facade-image {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  object-fit: cover;
-}
-.prose .video-facade-still svg {
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  color: #fff;
-  filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.5));
-}
-.video-facade-still .video-facade-title {
-  font-size: var(--type-title-small-size);
-  line-height: var(--type-title-small-line-height);
-  font-weight: var(--type-title-small-weight);
-  letter-spacing: var(--type-title-small-tracking);
-  color: #fff;
-  text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
-}
-@media (width >= theme(--breakpoint-medium)) {
-  .prose .video-facade-still svg {
-    width: 4.5rem;
-    height: 4.5rem;
+  .prose .video-facade {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin-block: 2em;
+    padding: 1.5rem;
+    border-radius: var(--block-radius);
+    background: var(--block-tint);
+    color: var(--block-text);
+    text-align: center;
+    text-decoration: none;
   }
-  .video-facade-still .video-facade-title {
+  .prose .video-facade svg {
+    color: var(--block-accent);
+    transition: transform var(--motion-spatial);
+  }
+  .prose .video-facade:hover svg {
+    transform: scale(1.08);
+  }
+  /* At most two lines; a longer title ends with "…" (the whole title is still the link's name). */
+  .video-facade-title {
+    display: -webkit-box;
+    max-width: 40ch;
+    overflow: hidden;
     font-size: var(--type-title-medium-size);
     line-height: var(--type-title-medium-line-height);
     font-weight: var(--type-title-medium-weight);
     letter-spacing: var(--type-title-medium-tracking);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
-}
+  /* With a still from the video (packages/editor/scripts/video-thumbnails.mjs), as on YouTube: the still fills the
+   box, the white play button in the middle of the box (not of the space above the title), the title
+   at the bottom over a shade. */
+  .prose .video-facade-still {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    padding: 1rem 1.25rem;
+    background: #000;
+    color: #fff;
+    text-align: left;
+  }
+  .prose .video-facade-still::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.15) 40%, rgb(0 0 0 / 0.75));
+  }
+  .prose .video-facade-still .video-facade-image {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    object-fit: cover;
+  }
+  .prose .video-facade-still svg {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    color: #fff;
+    filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.5));
+  }
+  .video-facade-still .video-facade-title {
+    font-size: var(--type-title-small-size);
+    line-height: var(--type-title-small-line-height);
+    font-weight: var(--type-title-small-weight);
+    letter-spacing: var(--type-title-small-tracking);
+    color: #fff;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .prose .video-facade-still svg {
+      width: 4.5rem;
+      height: 4.5rem;
+    }
+    .video-facade-still .video-facade-title {
+      font-size: var(--type-title-medium-size);
+      line-height: var(--type-title-medium-line-height);
+      font-weight: var(--type-title-medium-weight);
+      letter-spacing: var(--type-title-medium-tracking);
+    }
+  }
 
-/* A block's head with a label above its heading or a subheading under it (BlockHead.tsx in blocks/, an <hgroup>; only a
+  /* A block's head with a label above its heading or a subheading under it (BlockHead.tsx in blocks/, an <hgroup>; only a
    heading is the text's own <h2>, without this): the label in small capitals, spaced out, in the accent; the
    subheading larger and quiet. Mostly in the text's style (.prose), so outside the layers, like the video above, whose
    margins it sets in place of the text's; a theme that places a block outside the text sets its own (.block-place in
    the standard theme). A label above a heading in a text has the same look. A theme gives it its own look outside the layers too (the standard theme: in the middle). */
-.block-head {
-  margin-block: 2.5em 1.25em;
-}
-.block-head:first-child {
-  margin-top: 0;
-}
-.block-head > h2,
-.block-head > .block-eyebrow,
-.block-head > .block-subheading {
-  margin-block: 0;
-}
-.block-head > * + h2,
-.block-head > * + .block-subheading {
-  margin-top: 0.75rem;
-}
-.block-head > .block-eyebrow + h2 {
-  margin-top: 0.5rem;
-}
-.block-head > .block-eyebrow,
-.prose .block-eyebrow {
-  font-size: var(--type-label-medium-size);
-  line-height: var(--type-label-medium-line-height);
-  font-weight: var(--type-label-medium-weight);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--block-accent);
-}
-.block-head > .block-subheading {
-  font-size: var(--type-title-large-size);
-  line-height: var(--type-title-large-line-height);
-  font-weight: var(--type-title-large-weight);
-  letter-spacing: var(--type-title-large-tracking);
-  color: var(--block-muted);
-}
+  .block-head {
+    margin-block: 2.5em 1.25em;
+  }
+  .block-head:first-child {
+    margin-top: 0;
+  }
+  .block-head > h2,
+  .block-head > .block-eyebrow,
+  .block-head > .block-subheading {
+    margin-block: 0;
+  }
+  .block-head > * + h2,
+  .block-head > * + .block-subheading {
+    margin-top: 0.75rem;
+  }
+  .block-head > .block-eyebrow + h2 {
+    margin-top: 0.5rem;
+  }
+  .block-head > .block-eyebrow,
+  .prose .block-eyebrow {
+    font-size: var(--type-label-medium-size);
+    line-height: var(--type-label-medium-line-height);
+    font-weight: var(--type-label-medium-weight);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--block-accent);
+  }
+  .block-head > .block-subheading {
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
+    color: var(--block-muted);
+  }
 
-/* A label above a heading in a text (packages/editor/lib/eyebrow.mjs): a block's label, with the heading's space above
+  /* A label above a heading in a text (packages/editor/lib/eyebrow.mjs): a block's label, with the heading's space above
    it and close to its heading. */
-.prose .block-eyebrow {
-  margin-block: 2em 0;
-}
-.prose .block-eyebrow + :is(h1, h2, h3) {
-  margin-top: 0.5rem;
-}
+  .prose .block-eyebrow {
+    margin-block: 2em 0;
+  }
+  .prose .block-eyebrow + :is(h1, h2, h3) {
+    margin-top: 0.5rem;
+  }
 
-/* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
+  /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
    editor): the accent, or the quiet text's, both readable on the background, the surfaces and the tint (the site's
    pairs of colours, checked under "Farver"). Bold, italic and a link in it have its colour. Outside the layers, as it
    is in the text's style (.prose), whose colours of bold text and links it goes over. On a picture behind a hero's
    text, where only the text's colour can be read, it is the text's. */
-.color-accent,
-.color-accent :is(strong, em, a) {
-  color: var(--block-accent);
-}
-.color-muted,
-.color-muted :is(strong, em, a) {
-  color: var(--block-muted);
-}
-.block-hero-behind :is(.color-accent, .color-muted),
-.block-hero-behind :is(.color-accent, .color-muted) :is(strong, em, a) {
-  color: inherit;
-}
+  .color-accent,
+  .color-accent :is(strong, em, a) {
+    color: var(--block-accent);
+  }
+  .color-muted,
+  .color-muted :is(strong, em, a) {
+    color: var(--block-muted);
+  }
+  .block-hero-behind :is(.color-accent, .color-muted),
+  .block-hero-behind :is(.color-accent, .color-muted) :is(strong, em, a) {
+    color: inherit;
+  }
 
-/* A word in the accent's or the quiet text's colour (above) on a section with the accent as its background would not
+  /* A word in the accent's or the quiet text's colour (above) on a section with the accent as its background would not
    be read: there it has the section's text colour. */
-.text-section-accent :is(.color-accent, .color-muted),
-.text-section-accent :is(.color-accent, .color-muted) :is(strong, em, a) {
-  color: inherit;
-}
+  .text-section-accent :is(.color-accent, .color-muted),
+  .text-section-accent :is(.color-accent, .color-muted) :is(strong, em, a) {
+    color: inherit;
+  }
 
-/* The first and last parts of a coloured section lose the prose margins that would add to the panel's padding. Outside
+  /* The first and last parts of a coloured section lose the prose margins that would add to the panel's padding. Outside
    the layers, as the prose style (Tailwind's typography) is in the utilities layer, which wins over components. */
-.text-section > :first-child {
-  margin-top: 0;
-}
-.text-section > :last-child {
-  margin-bottom: 0;
+  .text-section > :first-child {
+    margin-top: 0;
+  }
+  .text-section > :last-child {
+    margin-bottom: 0;
+  }
 }

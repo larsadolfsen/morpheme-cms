@@ -67,9 +67,19 @@ const CONTRACT_FILES = ['index.tsx', 'shared.ts', 'texts.ts', 'list.ts', 'fields
 // How a block looked before it was drawn from its view, once on the site and once in the editor: now View.tsx.
 const OLD_LOOK = ['Site.astro', 'draw.tsx'];
 
-// An import of the UI components (ui.css) or of the standard theme's CSS that has them (base.css, global.css); the
-// standard theme's own global.css imports ./base.css.
-const UI_IMPORT = /@import\s+['"](?:@morphemecms\/cms\/theme\/styles\/|\.\/)(?:ui|base|global)\.css['"]/;
+// The standard theme's own global.css imports ./base.css.
+const STANDARD_IMPORT = /@import\s+['"]\.\/base\.css['"]/;
+// Every other theme imports the standard theme's global.css, so Material is its fallback.
+const FALLBACK_IMPORT = /@import\s+['"]@morphemecms\/cms\/theme\/styles\/global\.css['"]/;
+
+/** What is wrong with a theme's styles/global.css import (`css` is the file's text): null when it is right. */
+export function importProblem(theme, css) {
+  if (theme === STANDARD_THEME)
+    return STANDARD_IMPORT.test(css) ? null : `${themeFolder(theme)}/styles/global.css: importerer ikke ./base.css.`;
+  return FALLBACK_IMPORT.test(css)
+    ? null
+    : `${themeFolder(theme)}/styles/global.css: importerer ikke standardtemaet, som er temaets fallback: @import '@morphemecms/cms/theme/styles/global.css' øverst.`;
+}
 
 const folders = (url) =>
   existsSync(url)
@@ -316,13 +326,13 @@ export function themeProblems(theme) {
   if (theme === STANDARD_THEME)
     for (const type of standard)
       if (!has(`${themeFolder(theme)}/blocks/${type}/View.tsx`)) problems.push(`${themeFolder(theme)}/blocks/${type}/View.tsx mangler.`);
-  // Every theme draws the UI components (styles/ui.css: the buttons and icon buttons): it imports them, itself or
-  // through the standard theme's base.css or global.css.
+  // Every theme builds on the standard theme. Another theme imports the standard theme's global.css, so a style it does
+  // not write is Material's; the standard theme's own imports ./base.css.
   const css = `${themeFolder(theme)}/styles/global.css`;
-  if (has(css) && !UI_IMPORT.test(readFileSync(new URL(css, root), 'utf8')))
-    problems.push(
-      `${css}: importerer ikke temaets UI-dele (knapperne): @import '@morphemecms/cms/theme/styles/ui.css', eller standardtemaets base.css eller global.css, der gør det.`,
-    );
+  if (has(css)) {
+    const problem = importProblem(theme, readFileSync(new URL(css, root), 'utf8'));
+    if (problem !== null) problems.push(problem);
+  }
   for (const type of folders(new URL(`${themeFolder(theme)}/blocks/`, root))) {
     const dir = `${themeFolder(theme)}/blocks/${type}`;
     if (!standard.has(type)) problems.push(`${dir}: et tema kan kun have udseendet af en standardblok, og "${type}" er ikke en.`);

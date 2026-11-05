@@ -1,4 +1,7 @@
 /*
+  Material is every theme's fallback: its rules that set more than custom properties sit in @layer fallback (declared last in
+  base.css), so a theme's own unlayered rules win over them, whatever the specificity. Custom properties stay unlayered.
+
   The theme's UI components, named as Material 3 names them (m3.material.io/components): what the blocks, the apps and
   the theme's own components (components/, layouts/) draw their controls with, through the parts in ../ui/ (Button.tsx,
   IconButton.tsx) or, in an Astro component, their classes (buttonClass, iconButtonClass). Only the names, the kinds,
@@ -5387,9 +5390,11 @@
     stroke-dashoffset: -99;
   }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .snackbar {
-    animation: snackbar-in var(--motion-spatial);
+@layer fallback {
+  @media (prefers-reduced-motion: no-preference) {
+    .snackbar {
+      animation: snackbar-in var(--motion-spatial);
+    }
   }
 }
 @keyframes snackbar-in {
@@ -5398,34 +5403,36 @@
     transform: translateY(0.5rem);
   }
 }
-/* Reduced motion: slowly, and a value at once. */
-@media (prefers-reduced-motion: reduce) {
-  .loading-indicator-shape {
-    animation: loading-indicator-turn 6s linear infinite;
-  }
-  .linear-progress-indicator-active,
-  .linear-progress-indicator-track,
-  .circular-progress-indicator-active,
-  .circular-progress-indicator-track,
-  .tooltip {
-    transition: none;
-  }
-  .linear-progress-indicator-indeterminate > .linear-progress-indicator-active,
-  .linear-progress-indicator-wavy.linear-progress-indicator-indeterminate .linear-progress-indicator-active,
-  .circular-progress-indicator-indeterminate > svg,
-  .circular-progress-indicator-indeterminate .circular-progress-indicator-active {
-    animation-duration: 6s;
-  }
-  .linear-progress-indicator-indeterminate > .linear-progress-indicator-active + .linear-progress-indicator-active,
-  .linear-progress-indicator-wavy.linear-progress-indicator-indeterminate
-    .linear-progress-indicator-active
-    + .linear-progress-indicator-active {
-    animation-delay: 3.3s;
-  }
-  /* A wavy one's wave stands still. */
-  .linear-progress-indicator-wavy:not(.linear-progress-indicator-indeterminate) .linear-progress-indicator-active,
-  .circular-progress-indicator-wavy:not(.circular-progress-indicator-indeterminate) .circular-progress-indicator-active {
-    animation: none;
+@layer fallback {
+  /* Reduced motion: slowly, and a value at once. */
+  @media (prefers-reduced-motion: reduce) {
+    .loading-indicator-shape {
+      animation: loading-indicator-turn 6s linear infinite;
+    }
+    .linear-progress-indicator-active,
+    .linear-progress-indicator-track,
+    .circular-progress-indicator-active,
+    .circular-progress-indicator-track,
+    .tooltip {
+      transition: none;
+    }
+    .linear-progress-indicator-indeterminate > .linear-progress-indicator-active,
+    .linear-progress-indicator-wavy.linear-progress-indicator-indeterminate .linear-progress-indicator-active,
+    .circular-progress-indicator-indeterminate > svg,
+    .circular-progress-indicator-indeterminate .circular-progress-indicator-active {
+      animation-duration: 6s;
+    }
+    .linear-progress-indicator-indeterminate > .linear-progress-indicator-active + .linear-progress-indicator-active,
+    .linear-progress-indicator-wavy.linear-progress-indicator-indeterminate
+      .linear-progress-indicator-active
+      + .linear-progress-indicator-active {
+      animation-delay: 3.3s;
+    }
+    /* A wavy one's wave stands still. */
+    .linear-progress-indicator-wavy:not(.linear-progress-indicator-indeterminate) .linear-progress-indicator-active,
+    .circular-progress-indicator-wavy:not(.circular-progress-indicator-indeterminate) .circular-progress-indicator-active {
+      animation: none;
+    }
   }
 }
 
@@ -6866,8 +6873,10 @@
     opacity: 0;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .ripple-wave {
-    animation: ripple-in 105ms linear;
+@layer fallback {
+  @media (prefers-reduced-motion: reduce) {
+    .ripple-wave {
+      animation: ripple-in 105ms linear;
+    }
   }
 }
