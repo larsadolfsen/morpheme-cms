@@ -2,7 +2,7 @@
 // to its permanent folder. Run: node --test src/legacyMove.test.mjs
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { appliedTo, legacyOf, mergeChanges, moveChanges } from './legacyMove.ts';
+import { appliedTo, installedHere, legacyOf, mergeChanges, moveChanges } from './legacyMove.ts';
 
 const PATHS = {
   appsFolder: 'src/apps',
@@ -125,4 +125,13 @@ test('a move with a release that adds a cookie changes each cookie-list file onc
   const kept = mergeChanges(moved, []);
   assert.equal(kept.filter((c) => c.path === old.path).length, 1);
   assert.equal(JSON.parse(find(kept, old.path).content).app, MOBILEPAY.id);
+});
+
+test('installedHere: counts a new id, or a legacy copy from the store, as installed', () => {
+  const entry = { id: 'app_ae0b5e17636668bc', legacy: 'mobilepay' };
+  assert.equal(installedHere(entry, ['app_ae0b5e17636668bc'], []), true);
+  assert.equal(installedHere(entry, ['mobilepay'], [{ id: 'mobilepay', store: {} }]), true);
+  assert.equal(installedHere(entry, ['mobilepay'], [{ id: 'mobilepay' }]), false);
+  assert.equal(installedHere(entry, [], [{ id: 'mobilepay', store: {} }]), false);
+  assert.equal(installedHere({ id: 'app_1' }, ['other'], [{ id: 'other', store: {} }]), false);
 });

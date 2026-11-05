@@ -50,6 +50,7 @@ import {
   appCategories,
   appChanges,
   appliedTo,
+  installedHere,
   legacyOf,
   mergeChanges,
   moveChanges,
@@ -68,7 +69,7 @@ import {
   type StoreAdd,
   type StoreRecord,
 } from './store';
-import { apps, siteBlocks } from './registry';
+import { apps, apps as siteApps, siteBlocks } from './registry';
 import { asWritten, backFrom, collections, companyParts, partScreens } from './site';
 import { byText, slugify, type Part } from './schema';
 import { headed, letterOf } from './Sheet';
@@ -495,11 +496,7 @@ function StoreScreen({ env, files, tab, again }: { env: Env; files: RepoFile[]; 
     allApps(catalog)
       .filter((a) => words.every((w) => a.words.includes(w)))
       .filter((a) => !category || a.category === category)
-      .filter(
-        (a) =>
-          !state ||
-          (installed.includes(a.id) || (!!a.legacy && !!legacyOf(a, apps) && installed.includes(a.legacy))) === (state === 'installed'),
-      )
+      .filter((a) => !state || installedHere(a, installed, siteApps) === (state === 'installed'))
       .sort((a, b) => order(a.label, b.label)),
     (a) => letterOf(a.label),
   );
