@@ -28,6 +28,17 @@ reason.
   the end. The main action is a text button: "Save" for a block that exists, "Insert" for a new block.
 - The bar with "Cancel" and "Save" at the bottom goes away for the "fields" step.
 
+## Amendment (owner, 5 November 2026, after the first build)
+
+These replace the header action and the side panel's look above and in the Design:
+
+- The main action is not in the header. The header has the close button (X) and the name of the block only.
+- Save follows the editor's pattern: the save bar (`src/SaveBar.tsx`, from `FormFrame.tsx`) at the bottom of the
+  fields, at every width. It shows when the fields have changed, with "Save changes". A new block shows it at once,
+  with "Insert".
+- From `large`, the fields are not a raised side sheet. They sit on the page background beside the page, like a split
+  screen, in the same card as the text editor (`src/EditorCard.tsx`, from `MarkdownEditor.tsx`).
+
 ## Design
 
 1. **The container.** Below `large`, the "fields" step uses the theme's full-screen dialog
