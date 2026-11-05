@@ -180,7 +180,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
             )}
             <FileView src={shown.src} name={fileName(shown.file.path)} />
             <p className="text-sm text-muted">{capital(t.history.deletedAt(when(shown.file.at), shown.file.by))}</p>
-            <Button wide disabled={busy} onClick={() => restore(shown.file, shown.bytes)}>
+            <Button disabled={busy} onClick={() => restore(shown.file, shown.bytes)}>
               {busy ? t.history.restoring : t.history.restore}
             </Button>
           </SheetBody>

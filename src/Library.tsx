@@ -473,7 +473,7 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
       </div>
       {of.id !== chosen && themeInstalled(of.id) && (
         <div className="mb-8">
-          <Button wide disabled={saving} onClick={use}>
+          <Button disabled={saving} onClick={use}>
             {t.library.useTheme}
           </Button>
         </div>

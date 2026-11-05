@@ -214,7 +214,6 @@ export default function FormFrame<T extends string>({
                 </Button>
               )}
               <Button
-                wide
                 disabled={saving}
                 onClick={() => {
                   askToNotify();

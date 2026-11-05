@@ -430,16 +430,16 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
                 onChange={(e) => setEditing({ ...editing, to: e.target.value })}
               />
             </div>
-            <Button type="submit" wide disabled={saving}>
+            <Button type="submit" disabled={saving}>
               {saving ? t.common.saving : m ? t.redirects.missing.sendOn : t.common.save}
             </Button>
             {m && (
-              <Button kind="outlined" wide icon={X} disabled={saving} onClick={() => drop(m.path)}>
+              <Button kind="outlined" icon={X} disabled={saving} onClick={() => drop(m.path)}>
                 {t.redirects.missing.forget}
               </Button>
             )}
             {!editing.isNew && (
-              <Button kind="outlined" wide icon={Trash} disabled={saving} onClick={() => remove(editing.from)}>
+              <Button kind="outlined" icon={Trash} disabled={saving} onClick={() => remove(editing.from)}>
                 {t.redirects.deleteRedirect}
               </Button>
             )}

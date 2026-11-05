@@ -863,7 +863,7 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
           />
           {!pending && (
             <div className="mb-8">
-              <Button wide disabled={saving} onClick={() => install(app)}>
+              <Button disabled={saving} onClick={() => install(app)}>
                 {t.apps.install}
               </Button>
             </div>
@@ -901,7 +901,6 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
           <Button
             kind="outlined"
 
-            wide
             disabled={saving}
             onClick={async () => {
               const label = app?.label ?? id;
@@ -1033,11 +1032,11 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
       {(!on || (update && app.store)) && (
         <div className="mb-8">
           {on ? (
-            <Button wide disabled={saving} onClick={() => store.update(update!, app.store!)}>
+            <Button disabled={saving} onClick={() => store.update(update!, app.store!)}>
               {t.apps.update(update!.version)}
             </Button>
           ) : (
-            <Button wide disabled={saving} onClick={() => install(true)}>
+            <Button disabled={saving} onClick={() => install(true)}>
               {t.apps.install}
             </Button>
           )}

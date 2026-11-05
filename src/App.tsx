@@ -661,13 +661,7 @@ function Editor() {
       <main className="mx-auto flex min-h-dvh max-w-sm flex-col items-center justify-center gap-5 px-6 pb-[env(safe-area-inset-bottom)] text-center">
         <img src="/editor/icon-192.png" alt="" className="size-20 rounded-[1.375rem] shadow-soft" />
         <h1 className="text-2xl font-semibold">{siteName}</h1>
-        {signedIn === null && !error ? (
-          <EmptyNote busy>{t.app.loading}</EmptyNote>
-        ) : (
-          <Button wide onClick={login}>
-            {t.app.logIn}
-          </Button>
-        )}
+        {signedIn === null && !error ? <EmptyNote busy>{t.app.loading}</EmptyNote> : <Button onClick={login}>{t.app.logIn}</Button>}
         {error && <ProblemNote>{error}</ProblemNote>}
       </main>
     );

@@ -166,7 +166,7 @@ export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: En
               <KindSwitch app={app} list={open.key} env={env} files={files} />
             )}
             {open.create && !offBlocks(files).includes(kindKey(open.key, app.id)) && (
-              <LinkButton href={open.create.href} wide onClick={() => dialog.current?.close()}>
+              <LinkButton href={open.create.href} onClick={() => dialog.current?.close()}>
                 {open.create.label}
               </LinkButton>
             )}
