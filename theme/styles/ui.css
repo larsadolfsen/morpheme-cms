@@ -2077,7 +2077,7 @@
     --list-item-min-height, --list-item-two-line-min-height, --list-item-three-line-min-height   by its lines
     --list-item-padding-block, --list-item-padding-inline, --list-item-gap
     --list-item-radius, --list-item-hover-radius, --list-item-pressed-radius (also focused), --list-item-selected-radius
-    --list-item-headline-size, --list-item-headline-weight   the headline of an item with two or three lines
+    --list-item-headline-size, --list-item-headline-weight   the headline of every item
     --list-item-headline-line-height, --list-item-headline-letter-spacing   the headline of every item
     --list-item-supporting-size, --list-item-supporting-line-height, --list-item-overline-size,
     --list-item-overline-line-height, --list-item-trailing-supporting-size   the other texts' size
@@ -2248,14 +2248,11 @@
     }
   }
   .list-item-headline {
+    font-size: var(--list-item-headline-size, var(--type-body-large-size));
+    font-weight: var(--list-item-headline-weight, var(--type-body-large-weight));
     line-height: var(--list-item-headline-line-height, var(--type-body-large-line-height));
     letter-spacing: var(--list-item-headline-letter-spacing, var(--type-body-large-tracking));
     overflow-wrap: anywhere;
-  }
-  :is(.list-item-two-line, .list-item-three-line, .list-item-container:has(> .list-item-content > .list-item-supporting))
-    .list-item-headline {
-    font-size: var(--list-item-headline-size, var(--type-body-large-size));
-    font-weight: var(--list-item-headline-weight, var(--type-body-large-weight));
   }
   .list-item-supporting {
     color: var(--list-item-supporting-text, var(--block-muted));
