@@ -159,7 +159,7 @@ const worksOf = (owner: LicenseOwner, file: LicensesFile) =>
 
 export default function Licenses() {
   const file = useLicenses();
-  const [query, setQuery] = useKept('licenses-soeg', '');
+  const [query, setQuery] = useKept('licenses-search', '');
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   const matches = (...texts: (string | null | undefined)[]) => {
     const all = texts.filter(Boolean).join(' ').toLowerCase();
