@@ -57,7 +57,7 @@ jobs:
     needs: release
     if: needs.release.outputs.staged != ''
     runs-on: ubuntu-latest
-    # Waits for the owner's approval: up to six hours, then re-run this job.
+    # Waits for the owner's approval: up to four hours, then re-run this job.
     timeout-minutes: 360
     env:
       V: ${{ needs.release.outputs.staged }}
@@ -86,7 +86,7 @@ jobs:
     concurrency:
       group: publish-next
       cancel-in-progress: true
-    # Waits for the owner's approval: up to six hours, then re-run this job.
+    # Waits for the owner's approval: up to an hour, then re-run this job.
     timeout-minutes: 360
     # At job level, so the steps' "if" can see whether it is set.
     env:
