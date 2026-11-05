@@ -27,7 +27,9 @@ export const MOVED = /** @type {Record<string, string>} */ ({
 });
 
 /** Danish address segment -> English segment, one entry per renamed route id. Old links keep working through it. */
-export const RENAMED = /** @type {Record<string, string>} */ ({});
+export const RENAMED = /** @type {Record<string, string>} */ ({
+  indstillinger: 'settings',
+});
 
 /**
  * The address a screen is at now: where it moved to (`more` first, then MOVED), else the same address with each

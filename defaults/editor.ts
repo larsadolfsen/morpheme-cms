@@ -115,7 +115,7 @@ export const icons: Record<string, Icon> = {
   // The sections of the main menu that are not also a part.
   indhold: Article,
   globalt: GlobeSimple,
-  indstillinger: GearSix,
+  settings: GearSix,
   blokke: SquaresFour,
   filer: FolderSimple,
   privatliv: ShieldCheck,
@@ -183,7 +183,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
     ids: ['temaer', 'ikonpakker', 'bevaegelse', 'sidekolonne', 'farver', 'logo', ...appearance.map((p) => p.id), 'dele'],
   },
   { id: 'privatliv', title: 'Privacy', ids: privacy.parts.map((p) => p.id) },
-  { id: 'indstillinger', title: 'Settings', ids: settingsIds },
+  { id: 'settings', title: 'Settings', ids: settingsIds },
 ];
 
 /** The settings of the whole site: the ids of the last section, "Settings", written once. */

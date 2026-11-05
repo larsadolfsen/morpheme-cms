@@ -74,7 +74,7 @@ try {
         const home = app.category && partScreens.find((s) => s.apps?.includes(app.category));
         const company = app.category && companyParts.find((p) => p.parts && p.apps?.includes(app.category));
         const at = home ? home.id : company ? `virksomheden/${company.id}` : `apps/${id}`;
-        shots[id].push({ name, editor: `${at}/${home || company ? id : 'indstillinger'}` });
+        shots[id].push({ name, editor: `${at}/${home || company ? id : 'settings'}` });
         Object.assign(settings[id], shot.values);
       } else shots[id].push({ name, editor: `apps/${id}`, at: `[data-app-page="${id}"]` });
     }

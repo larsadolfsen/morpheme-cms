@@ -2,7 +2,7 @@
 // with one from the store not yet built as "Installeres…"), each with who made it under its name and, from the store,
 // that it has a newer version, with search (by name, who made it and what it does), the order (A–Å, Å–A, kept in this
 // browser) and headings by the first letter, as the lists under "Indhold" have. "Indstillinger" › "Appstore"
-// (#indstillinger/appstore): all apps, those in the app store (store.ts) and the site's own, installed or not, with search (by name, what they
+// (#settings/appstore): all apps, those in the app store (store.ts) and the site's own, installed or not, with search (by name, what they
 // do, who made them and the words they are found by), the same order and a funnel by category. An app's page
 // (#apps/<app>) is the same for every app and without examples: its name, who made it, whether it is installed, its
 // version (from the store) and what it does, "Installer" (or "Opdater til …"); installed, it has two tabs: "Indstillinger"
@@ -456,9 +456,9 @@ export function DeveloperRow({ name }: { name: string }) {
   );
 }
 
-/** "Appstore" (#indstillinger/appstore, under "Indstillinger"): in a tab of its own each in the top app bar, all apps,
+/** "Appstore" (#settings/appstore, under "Indstillinger"): in a tab of its own each in the top app bar, all apps,
  * those in the app store and the site's own, each with what it does and whether it is installed, and all themes
- * (#indstillinger/appstore/temaer, ThemeStore.tsx), those in the store
+ * (#settings/appstore/temaer, ThemeStore.tsx), those in the store
  * and those installed, each with its version and who made it; each opening its page. With search (by name, what it
  * does, who made it and the words it is found by, in both languages), the order and the filters by category (apps)
  * and by whether it is installed, each picked one as a chip. */

@@ -4,7 +4,7 @@
 //   liste/<id>       the list of a part, e.g. liste/priser, and liste/<id>/<app> a tab an installed app adds to it
 //                    (AppDefinition.tabs): liste/cookies/cookiescanner
 //   lister           the short lists (the testimonials, the apps' lists)
-//   indstillinger/appstore   the app store, its apps, and indstillinger/appstore/temaer its themes (AppList.tsx StorePage); the
+//   settings/appstore   the app store, its apps, and settings/appstore/temaer its themes (AppList.tsx StorePage); the
 //                    other settings are screens of their own, in the drawer's last section (MainMenu.tsx)
 //   ny/<id>          a new entry, ny/<id>/<kind> one of a kind (a pop-up: standard, or an app's)
 //   virksomheden     the business, and virksomheden/<part> its parts: kontakt, betaling; and
@@ -39,8 +39,8 @@
 //                    is installed, the tabs of its page (AppList.tsx AppPage): Settings at apps/<app>, with its settings
 //                    form (also on the screen with its category, maaling/<app>, AppList.tsx settingsRoute), and
 //                    Information at apps/<app>/om (before an app's own screens, AppDefinition.screens)
-//   apps/<app>/indstillinger/<field>  the page of a field of its settings with its choices on a page of their own
-//                    (Field.page), over its Settings tab, which keeps what is in it: apps/content-colors/indstillinger/variant
+//   apps/<app>/settings/<field>  the page of a field of its settings with its choices on a page of their own
+//                    (Field.page), over its Settings tab, which keeps what is in it: apps/content-colors/settings/variant
 //   <form>/<field>   the page of a field of a part's form with its choices on a page of their own (Field.page), over the
 //                    form, which keeps what is in it (formAt)
 //   blokke           the blocks, and blokke/<block> the texts all its copies have (blockTexts.ts)
@@ -276,9 +276,9 @@ function routeOf(hash: string) {
   const route = movedRoute(screenOf(hash), STORE_MOVED);
   // An app's settings: on the screen with its category, when it has one ("Analytics", AppList.tsx settingsRoute), and so
   // the pages of their fields (Field.page) after them. Otherwise they are on the Settings tab of its page: apps/<id>
-  // (a field's page, apps/<id>/indstillinger/<field>, stays, drawn by the same page).
-  const app = apps.find((a) => route === `apps/${a.id}/indstillinger` || route.startsWith(`apps/${a.id}/indstillinger/`));
-  const rest = app ? route.slice(`apps/${app.id}/indstillinger`.length) : '';
+  // (a field's page, apps/<id>/settings/<field>, stays, drawn by the same page).
+  const app = apps.find((a) => route === `apps/${a.id}/settings` || route.startsWith(`apps/${a.id}/settings/`));
+  const rest = app ? route.slice(`apps/${app.id}/settings`.length) : '';
   const kindScreen = app && settingsHome(app) && settingsRoute(app);
   const moved = !app ? route : kindScreen ? `${kindScreen}${rest}` : rest ? route : `apps/${app.id}`;
   if (moved !== screenOf(hash)) history.replaceState(history.state, '', `#${moved}`);
@@ -761,7 +761,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route.startsWith(`${DEVELOPER_ROUTE}/`))
     return <DeveloperPage key={route} slug={route.slice(DEVELOPER_ROUTE.length + 1)} env={env} files={files} />;
   // An app in the site (its own, or one from the store while it is installed) has its page, with the tabs Settings
-  // (apps/<id>, and a settings field's page, apps/<id>/indstillinger/<field>) and Information (apps/<id>/om, matched
+  // (apps/<id>, and a settings field's page, apps/<id>/settings/<field>) and Information (apps/<id>/om, matched
   // before an app's own screens); one from the store that is not (or no longer) installed, its page in the store.
   const shownApp = route.startsWith('apps/') ? apps.find((a) => appRouteOf(route, a.id)) : undefined;
   const shown = shownApp && appRouteOf(route, shownApp.id);

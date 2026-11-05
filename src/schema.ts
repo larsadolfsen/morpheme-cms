@@ -76,7 +76,7 @@ export type Field = {
    * picked when it is made). */
   locked?: boolean;
   /** select: the choices on a page of their own under the form, at its address with the field's name after it
-   * (#apps/content-colors/indstillinger/variant), in place of the sheet, drawn by this with what each gives (a picture of
+   * (#apps/content-colors/settings/variant), in place of the sheet, drawn by this with what each gives (a picture of
    * it); the field links there. Only a field of a part's own form (CompanyForm.tsx: an app's settings), not one in a
    * group or a list; elsewhere the choices are in the sheet. */
   page?: ComponentType<FieldPageProps>;

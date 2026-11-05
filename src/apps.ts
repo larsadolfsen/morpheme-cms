@@ -158,7 +158,7 @@ export type AppDefinition = {
    * what it does ("nyhedsbrev"). The kind also says where its settings are: under "Indstillinger" on the site's screen
    * with it (PartScreen.apps in partScreens: "analytics" on "Analytics"), or on a part of "Virksomheden" with it
    * (Part.apps in companyParts: "payment" on "Betaling"), so they are where they are used and not on its page under
-   * "Apps", which only installs it; without such a screen, on a screen of their own (#apps/<id>/indstillinger). */
+   * "Apps", which only installs it; without such a screen, on a screen of their own (#apps/<id>/settings). */
   category?: AppCategory;
   keywords?: string[];
   /** The categories of cookies (lib/cookieCategories.mjs) of what it loads that sets cookies (a tag), with these
@@ -170,7 +170,7 @@ export type AppDefinition = {
    * editor's parts (ui.tsx), its texts with siteText. */
   page?: ComponentType<AppPageProps>;
   /** Screens of its own under its page while it is installed, by the last part of their address (#apps/<id>/<key>; not
-   * "indstillinger", the Settings tab's field pages, and not "om", the Information tab: the editor matches those
+   * "settings", the Settings tab's field pages, and not "om", the Information tab: the editor matches those
    * first, so a screen with either key is never shown), each linked to from its page. */
   screens?: Record<string, AppScreen>;
   /** Tabs it adds to the site's lists while it is installed, by the list's id, each at #liste/<list>/<app>. */

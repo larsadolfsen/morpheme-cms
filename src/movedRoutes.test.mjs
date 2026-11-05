@@ -35,3 +35,7 @@ test('a segment that is not renamed stays', () => {
 test('a moved address wins over a renamed segment', () => {
   assert.equal(movedRoute('tema', {}, { tema: 'x' }), 'udseende');
 });
+
+test('an old route to the app store opens it at its English route', () => {
+  assert.equal(movedRoute('indstillinger/appstore'), 'settings/appstore');
+});
