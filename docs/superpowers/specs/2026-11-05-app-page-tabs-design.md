@@ -30,9 +30,19 @@ The head (`AppHead`: icon, name, developer, status, version) and the Update butt
 - `#apps/<id>/indstillinger` redirects to `#apps/<id>`. The old links and the redirects `promovering/calendly` and
   `promovering/mailchimp` (`src/App.tsx`) then open the Settings tab.
 - A settings field with a page of its own (`#apps/<id>/indstillinger/<field>`, e.g. `content-colors` › `variant`)
-  keeps its route. Its back button goes to `#apps/<id>`.
-- `settingsRoute(app)` returns `apps/<id>` for an app without a kind screen.
-- `om` is a reserved key: an app's `screens` cannot use it (validation where `screens` keys are read).
+  keeps its route. The app page draws it, so the form keeps unsaved values across the field page. Its back button
+  goes to `#apps/<id>`.
+- `settingsRoute(app)` returns `apps/<id>` for an app without a kind screen. Apps with a kind screen keep their route.
+- `om` is a reserved key: `App.tsx` matches `apps/<id>/om` before an app's own screens, and the `screens` doc comment
+  in `src/apps.ts` says so.
+
+## Form behaviour
+
+- With a settings form, the Settings tab renders through `FormFrame` (its `tabs` prop): the Save bar shows when a
+  value changes, and leaving with unsaved changes asks first. A tab switch is a leave.
+- Without a settings form, both tabs render through `Screen` with its `tabs` prop.
+- The form body and the field page are shared with `CompanyForm.tsx`, not copied: they move to components of their
+  own, which both use.
 
 ## Code
 
@@ -42,23 +52,26 @@ The head (`AppHead`: icon, name, developer, status, version) and the Update butt
 - `AppContent` only wires the head, the tabs and the two bodies. The bottom sheet for an added item stays with
   the Settings tab.
 - The tabs use the `tabs` prop of `Screen` (`src/Screen.tsx`, `TabChoice`), as `StoreScreen` does.
-- A pure function in `lib/appTab.mjs` gives the tab of a route:
-  `appTabOf(route: string, id: string): 'settings' | 'information' | null`. `lib/appTab.test.mjs` tests it.
+- A pure function in `lib/appRoute.mjs` reads an app page route:
+  `appRouteOf(route: string, id: string): { tab: 'settings' | 'information'; page?: string } | null`.
+  `lib/appRoute.test.mjs` tests it.
 
 ## Tests
 
-- `appTabOf` has a `node --test` file with these cases:
+- `appRouteOf` has a `node --test` file with these cases:
 
 | Route | Id | Result |
 |---|---|---|
-| `apps/cms-version` | `cms-version` | `settings` |
-| `apps/cms-version/om` | `cms-version` | `information` |
-| `apps/cms-version/indstillinger` | `cms-version` | `settings` |
-| `apps/cms-version/indstillinger/variant` | `cms-version` | `null` (the field page) |
+| `apps/cms-version` | `cms-version` | `{ tab: 'settings' }` |
+| `apps/cms-version/om` | `cms-version` | `{ tab: 'information' }` |
+| `apps/cms-version/indstillinger` | `cms-version` | `{ tab: 'settings' }` |
+| `apps/cms-version/indstillinger/variant` | `cms-version` | `{ tab: 'settings', page: 'variant' }` |
+| `apps/cms-version/indstillinger/a/b` | `cms-version` | `null` |
 | `apps/cms-version/other` | `cms-version` | `null` (an app screen) |
 | `apps/calendly` | `cms-version` | `null` |
+| `apps/cms-version-2` | `cms-version` | `null` |
 
-- `npm run check:screens` opens both tabs of an installed app and the page of an app that is not installed, on a
-  phone and a computer.
+- This repo has no `check:screens` yet. The checks are `npx prettier --check .`, `node --test` over the
+  `*.test.mjs` files, and `npm run build`.
 - Check by hand on the branch's demo Preview: open an installed app, switch tabs, change a setting, open a field
-  page and go back.
+  page and go back with the value kept, leave with unsaved changes, and open an app that is not installed.
