@@ -17,6 +17,7 @@ import { chromium } from 'playwright';
 import { createServer } from 'vite';
 import { aliases, themePlugin } from '@morphemecms/cms/site/theme.mjs';
 import { appFoldersPlugin } from '@morphemecms/cms/lib/apps.mjs';
+import { appSelf } from '@morphemecms/cms/site/appSelf.mjs';
 import { binOf } from './bin.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
 
@@ -36,7 +37,7 @@ const vite = await createServer({
   configFile: false,
   logLevel: 'error',
   appType: 'custom',
-  plugins: [themePlugin(), appFoldersPlugin(ROOT)],
+  plugins: [themePlugin(), appFoldersPlugin(ROOT), appSelf()],
   resolve: { alias: aliases() },
   server: { middlewareMode: true, hmr: false, ws: false },
 });

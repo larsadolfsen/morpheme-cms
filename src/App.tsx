@@ -668,7 +668,7 @@ function Editor() {
         }
       >
         <>
-          <div className="editor-content min-w-0 flex-1">
+          <div className="editor-content relative min-w-0 flex-1">
             {files ? (
               <Page key={visit} route={route} files={files} env={env} user={user} builtAt={builtAt} onLogout={signOut} />
             ) : (

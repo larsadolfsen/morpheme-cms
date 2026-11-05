@@ -130,8 +130,8 @@ export const textColorSchema = $markSchema('textColor', () => ({
   },
 }));
 
-// The colour of a section (packages/editor/lib/section-marker.mjs): the marker line before an H2, or before the label above it
-// (eyebrow), is read into the H2's attribute `section` and written back before it. It must be read before remarkSiteBlocks
+// The colour of a section (packages/editor/lib/section-marker.mjs): the marker line before an H1 or H2, or before the label above it
+// (eyebrow), is read into the heading's attribute `section` and written back before it. It must be read before remarkSiteBlocks
 // sees it, so it is the first plugin of that kind in makeEditor. A marker with nothing to colour is dropped.
 const htmlOf = (node) => {
   const only = node?.type === 'paragraph' && node.children?.length === 1 ? node.children[0] : node;
@@ -143,12 +143,12 @@ const remarkSectionMarkers = $remark('remarkSectionMarkers', () => () => (tree) 
     const color = markerColor(htmlOf(child));
     if (color === null) return true;
     const next = isLabelLine(htmlOf(parts[i + 1])) ? parts[i + 2] : parts[i + 1];
-    if (next?.type === 'heading' && next.depth === 2) next.section = color;
+    if (next?.type === 'heading' && next.depth <= 2) next.section = color;
     return false;
   });
 });
 
-// The commonmark heading with the section colour as an attribute (only an H2 has one). Written back before the heading, or
+// The commonmark heading with the section colour as an attribute (only an H1 or H2 has one). Written back before the heading, or
 // before its label, which is already the last thing written (a line of HTML).
 /** @type {import('@milkdown/kit/utils').$NodeSchema<'heading'>} */
 export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => {
@@ -159,7 +159,7 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
     parseMarkdown: {
       match: base.parseMarkdown.match,
       runner: (state, node, type) => {
-        state.openNode(type, { level: node.depth, section: node.depth === 2 ? (node.section ?? null) : null });
+        state.openNode(type, { level: node.depth, section: node.depth <= 2 ? (node.section ?? null) : null });
         state.next(node.children);
         state.closeNode();
       },
@@ -168,8 +168,11 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
       match: base.toMarkdown.match,
       runner: (state, node) => {
         const { level, section } = node.attrs;
-        const written = state.top()?.children;
-        if (level === 2 && SECTION_COLORS.includes(section) && Array.isArray(written)) {
+        const top = state.top();
+        // The document has no children before its first node is written: a heading at the very top starts them.
+        if (top && !top.children) top.children = [];
+        const written = top?.children;
+        if (level <= 2 && SECTION_COLORS.includes(section) && Array.isArray(written)) {
           const last = written.at(-1);
           const at = last?.type === 'html' && isLabelLine(last.value) ? written.length - 1 : written.length;
           written.splice(at, 0, { type: 'html', value: sectionMarker(section) });

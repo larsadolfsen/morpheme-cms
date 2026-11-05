@@ -55,6 +55,9 @@ export type AppSettings = {
   /** Made-up settings over `values`, which its blocks and kinds are drawn with under "Dele" (exampleData in
    * examples.ts), where the site's own are never shown (MobilePay's number). */
   example?: Record<string, unknown>;
+  /** The value a save of these settings sets, said in the notice after it ("CMS-version set to 0.10.0"), asked with the
+   * saved values and the app's own addresses in the Worker (`api`); undefined, or a failure, says "CMS-version changed". */
+  changedTo?: (values: Record<string, unknown>, props: AppPageProps) => Promise<string | undefined>;
 };
 export const defineSettings = (settings: AppSettings) => settings;
 
@@ -248,9 +251,8 @@ export function kindsOffered(
 export const tabsOf = (list: string, apps: SiteApp[], installed: string[]) =>
   apps.flatMap((app) => (installed.includes(app.id) && app.tabs?.[list] ? [{ app, tab: app.tabs[list] }] : []));
 
-/** The id of an app from the path of a file in its folder ("/src/apps/mailchimp/index.ts": "mailchimp",
- * also ".../apps/mailchimp/popups/View.tsx"). */
-export const appIdOf = (path: string) => path.split('/apps/')[1].split('/')[0];
+// The id of an app from the path of a file in its folder (lib/appId.mjs, also read by the @app/self plugin).
+export { appIdOf } from '../lib/appId.mjs';
 
 /** The file of an app's settings (config.apps.settings/<id>.json). */
 export const settingsFile = (id: string) => `${config.apps.settings}/${id}.json`;

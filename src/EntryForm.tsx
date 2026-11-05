@@ -641,7 +641,7 @@ function Form({
               <>
                 <FoldSection {...sectionProps('content')}>
                   {collection.fields.filter((f) => TOP.includes(f.name) && !STATUS.includes(f.name)).map(field)}
-                  <div ref={textBox} className="scroll-mt-[calc(5rem+env(safe-area-inset-top))]">
+                  <div ref={textBox} className="scroll-mt-[calc(1rem+env(safe-area-inset-top))]">
                     <span className="mb-1 block font-medium">{t.forms.text}</span>
                     <MarkdownEditor
                       ref={text}

@@ -1913,14 +1913,12 @@
       display: none;
     }
     .bottom-sheet-standard[data-wide='side-sheet'] > .bottom-sheet-header {
-      min-height: 4.5rem;
-      padding: 1rem 0.75rem 0.5rem var(--side-sheet-padding, 1.5rem);
       border-bottom-color: transparent;
       cursor: auto;
       touch-action: auto;
     }
     .bottom-sheet-standard[data-wide='side-sheet'] > .bottom-sheet-content {
-      padding: 0 var(--side-sheet-padding, 1.5rem) var(--side-sheet-padding, 1.5rem);
+      padding: var(--side-sheet-content-top, 1rem) var(--side-sheet-padding, 1.5rem) var(--side-sheet-padding, 1.5rem);
     }
     .bottom-sheet-standard[data-wide='side-sheet'] > :is(.bottom-sheet-content, .bottom-sheet-footer) {
       display: revert;
@@ -1963,9 +1961,28 @@
       display: none;
     }
     .bottom-sheet-container:not(.bottom-sheet-standard)[data-wide='side-sheet'] > .bottom-sheet-header {
-      min-height: 4.5rem;
-      padding: 1rem 0.75rem 0.5rem var(--side-sheet-padding, 1.5rem);
       border-bottom-color: transparent;
+    }
+    /* Both side sheet looks: the header as .side-sheet-header's (its close icon at the standard size, 24 to the glyph from
+       the top and end edges, 12 from the headline), the headline in title large, and the actions row of M3's measures. */
+    .bottom-sheet-container[data-wide='side-sheet'] > .bottom-sheet-header {
+      --icon-button-size: 3rem;
+      --icon-button-icon-size: 1.5rem;
+      --side-sheet-icon-inset: calc((var(--icon-button-size) - var(--icon-button-icon-size)) / 2);
+      gap: 0;
+      padding-block: calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset)) 0;
+      padding-inline: var(--side-sheet-padding, 1.5rem) calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset));
+    }
+    .bottom-sheet-container[data-wide='side-sheet'] .bottom-sheet-headline {
+      font-size: var(--side-sheet-headline-size, var(--type-title-large-size));
+      font-weight: var(--side-sheet-headline-weight, var(--type-title-large-weight));
+      line-height: var(--type-title-large-line-height);
+      letter-spacing: var(--type-title-large-tracking);
+    }
+    .bottom-sheet-container[data-wide='side-sheet'] > .bottom-sheet-footer {
+      min-height: 4.5rem;
+      padding: 1rem var(--side-sheet-padding, 1.5rem) max(var(--side-sheet-padding, 1.5rem), env(safe-area-inset-bottom));
+      text-align: start;
     }
     .bottom-sheet:has(> [data-wide='sheet']) {
       width: calc(100% - 2 * var(--bottom-sheet-margin-wide, 3.5rem));
@@ -4281,6 +4298,12 @@
     --side-sheet-scrim   the shade over the page behind a modal one (else --theme-scrim-colour, as the dialog's)
     --side-sheet-padding, --side-sheet-headline-size, --side-sheet-headline-weight, --side-sheet-actions-line   the
       room inside it, the headline, and the line over the actions
+    --side-sheet-content-top   the room over the content (1rem: the first outlined field's label stands above its edge)
+  M3's measures (m3.material.io/components/side-sheets/specs), the same in the standard and the modal look and in the
+  bottom sheet's 'side-sheet' look: --side-sheet-padding (24) at the start and end; the close icon's glyph 24 from the top
+  and the end edge, 12 from the headline (its 48 button holds 12 round the glyph, so the header's top and end padding is
+  --side-sheet-padding less that, with no gap); the actions at least 72 high, 16 above and 24 below (not less than
+  the safe area), at the start. Headline and close icon in on-surface-variant (--muted).
 */
 @layer components {
   /* A setting's row (SettingRow.tsx): the name and the line under it, then what sets it, on one line; the switch's
@@ -4821,13 +4844,17 @@
     background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--elevation-1-surface)));
     box-shadow: var(--side-sheet-shadow, var(--elevation-1-rest-shadow));
   }
+  /* M3's measures run to the close icon's glyph, and its button holds the space round the glyph (--side-sheet-icon-inset),
+     so the header takes that off its top and end padding and has no gap: 24 from the top and the end edges to the glyph,
+     12 between the headline and the glyph. */
   .side-sheet-header {
+    --side-sheet-icon-inset: calc((var(--icon-button-size, 3rem) - var(--icon-button-icon-size, 1.5rem)) / 2);
     display: flex;
-    min-height: 4.5rem;
     flex-shrink: 0;
     align-items: center;
-    gap: 0.75rem;
-    padding: 1rem 0.75rem 0.5rem var(--side-sheet-padding, 1.5rem);
+    gap: 0;
+    padding-block: calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset)) 0;
+    padding-inline: var(--side-sheet-padding, 1.5rem) calc(var(--side-sheet-padding, 1.5rem) - var(--side-sheet-icon-inset));
   }
   .side-sheet-headline {
     flex: 1;
@@ -4842,15 +4869,18 @@
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: 0 var(--side-sheet-padding, 1.5rem) var(--side-sheet-padding, 1.5rem);
+    padding: var(--side-sheet-content-top, 1rem) var(--side-sheet-padding, 1.5rem) var(--side-sheet-padding, 1.5rem);
   }
+  /* M3's actions: at least 72 high, 16 above and 24 below (more where the screen has a safe area), at the start. */
   .side-sheet-actions {
     display: flex;
+    min-height: 4.5rem;
     flex-shrink: 0;
     flex-wrap: wrap;
+    justify-content: flex-start;
     gap: 0.5rem;
     border-top: 1px solid var(--side-sheet-actions-line, var(--block-line));
-    padding: 1rem var(--side-sheet-padding, 1.5rem) max(1rem, env(safe-area-inset-bottom));
+    padding: 1rem var(--side-sheet-padding, 1.5rem) max(var(--side-sheet-padding, 1.5rem), env(safe-area-inset-bottom));
   }
   /* A modal side sheet: in a <dialog> at the end of the screen, as high as it, over the scrim. */
   .side-sheet {

@@ -4,7 +4,7 @@
 // theme or the look of a block, is the standard theme's, styled by the theme in use's CSS. The site and the editor
 // reach the theme as @theme (themePlugin: the theme in use's file, else the standard theme's), and the site's own
 // parts (src/site/) as @site (aliases): for packages/editor/astro.mjs and packages/editor/scripts/check-content.mjs. Stops with what is
-// wrong, when the theme named is not installed. Also the virtual modules with all Phosphor's icons (allIconsModule) and with the theme's coverage of Material's parts
+// wrong, when the theme named is not installed or a folder in src/themes/ is a malformed store id (a store id is theme_ + 16 hex characters). Also the virtual modules with all Phosphor's icons (allIconsModule) and with the theme's coverage of Material's parts
 // (coverageModule, site/themeCoverageFiles.mjs).
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -16,6 +16,7 @@ import { MATERIAL_ALL, MATERIAL_SSR, materialModule, materialSsrModule } from '.
 import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS, THEME_PACKS_FOLDER, packInUse, packTheme, themePackId } from './iconPacks.mjs';
 import { MOTION_SCHEMES } from '@morphemecms/cms/lib/motion-schemes.mjs';
 import { templateProblems } from '@morphemecms/cms/lib/page-template.mjs';
+import { strayStoreId } from '@morphemecms/cms/lib/storeEntries.mjs';
 import { storeImportProblems } from './storeTheme.mjs';
 import { coverageModule } from './themeCoverageFiles.mjs';
 
@@ -52,13 +53,19 @@ export const THEME_FILES = [
   'editor/looks.mjs',
 ];
 
-/** The themes installed: the standard theme and the folders in src/themes/ with a theme.json. */
-export const installedThemes = () => [
-  STANDARD_THEME,
-  ...(existsSync(new URL('src/themes/', root)) ? readdirSync(new URL('src/themes/', root), { withFileTypes: true }) : [])
+/** The themes installed: the standard theme and the folders in src/themes/ with a theme.json. Stops on a folder that
+ * starts with `app_` or `theme_` but is not a store id of a theme. */
+export const installedThemes = () => {
+  const names = (existsSync(new URL('src/themes/', root)) ? readdirSync(new URL('src/themes/', root), { withFileTypes: true }) : [])
     .filter((e) => e.isDirectory() && existsSync(new URL(`src/themes/${e.name}/theme.json`, root)))
-    .map((e) => e.name),
-];
+    .map((e) => e.name);
+  const stray = names.find((name) => strayStoreId(name, 'theme'));
+  if (stray)
+    throw new Error(
+      `src/themes/${stray}: the folder name looks like a store id but is not one. A store theme id is theme_ and 16 lowercase hex characters; rename the folder.`,
+    );
+  return [STANDARD_THEME, ...names];
+};
 
 /** What every theme has itself. */
 export const OWN_FILES = ['theme.json', 'styles/global.css'];
@@ -455,7 +462,11 @@ export function siteFile(file) {
 /** The folder of the theme in use, under src/themes/. */
 export function activeTheme() {
   const { theme } = JSON.parse(readFileSync(new URL('src/data/theme.json', root), 'utf8'));
-  if (typeof theme !== 'string' || !/^[a-z0-9-]+$/.test(theme) || !existsSync(new URL(`${themeFolder(theme)}/theme.json`, root)))
+  if (
+    typeof theme !== 'string' ||
+    !/^([a-z0-9-]+|theme_[0-9a-f]{16})$/.test(theme) ||
+    !existsSync(new URL(`${themeFolder(theme)}/theme.json`, root))
+  )
     throw new Error(`src/data/theme.json: temaet ${JSON.stringify(theme)} er ikke installeret (src/themes/<tema>/theme.json).`);
   return theme;
 }

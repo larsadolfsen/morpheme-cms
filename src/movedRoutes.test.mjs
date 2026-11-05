@@ -137,3 +137,8 @@ test('the old theme routes open the screens under Appearance', () => {
   assert.equal(movedRoute('tema'), 'appearance');
   assert.equal(movedRoute('tema/dele/editor'), 'appearance/parts/editor');
 });
+
+test('the old booking and newsletter settings open the apps by their permanent ids', () => {
+  assert.equal(movedRoute('promovering/calendly'), 'apps/app_a030dfba69793996');
+  assert.equal(movedRoute('promovering/mailchimp'), 'apps/app_5c4b6ba067ef127f');
+});

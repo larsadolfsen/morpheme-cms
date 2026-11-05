@@ -18,8 +18,8 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   'videresendelser/ikke-fundet': 'seo/redirects/not-found',
   // The settings of the booking and newsletter apps were on a screen "Promovering"; they are on the apps' own pages now.
   promovering: 'apps',
-  'promovering/calendly': 'apps/calendly',
-  'promovering/mailchimp': 'apps/mailchimp',
+  'promovering/calendly': 'apps/app_a030dfba69793996',
+  'promovering/mailchimp': 'apps/app_5c4b6ba067ef127f',
   // The header's menus and settings were on a screen of their own under "Globalt"; they are under "Udseende" now.
   header: 'appearance/header',
   // The footer's form was the file's own screen; it is under "Udseende" now.
