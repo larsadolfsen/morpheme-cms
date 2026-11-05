@@ -11,7 +11,7 @@
 //                    company/betaling/<part> its own parts: mobilepay, bank
 //   <screen>         a screen with parts of the site's own (partScreens), and <screen>/<part> its parts:
 //                    privacy/cookiebanner, privacy/privatlivssider, or one of the editor's own screens (Part.opens):
-//                    privacy/samtykker the visitors' answers in the cookie banner (Consents.tsx); and the settings of the apps installed with
+//                    privacy/consents the visitors' answers in the cookie banner (Consents.tsx); and the settings of the apps installed with
 //                    its category: analytics/google-analytics
 //   files            the uploaded pictures, PDFs, videos and zip files (Media.tsx)
 //   seo              "Søgemaskineoptimering" (Library.tsx Seo): seo/redirects the redirects' two lists

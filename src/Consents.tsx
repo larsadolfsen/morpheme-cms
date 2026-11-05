@@ -1,4 +1,4 @@
-// "Samtykker" (#privacy/samtykker, Part.opens 'consents'): the visitors' answers in the cookie banner, as the site's
+// "Consents" (#privacy/consents, Part.opens 'consents'): the visitors' answers in the cookie banner, as the site's
 // Worker keeps them (consentData.ts, packages/editor/worker/consent.js), newest first, so the site can show that a visitor said yes. Over
 // the list the search by consent id (the one the banner shows the visitor under "Cookieindstillinger", asked of the
 // Worker, so older answers are found too) and the order (kept in this browser); in the top bar the download of all of
@@ -32,7 +32,7 @@ import { t } from './i18n';
 
 type Sort = 'newest' | 'oldest';
 const SORTS: Sort[] = ['newest', 'oldest'];
-const SORT_KEY = 'editor-sort-samtykker';
+const SORT_KEY = 'editor-sort-consents';
 
 // The yes and the no of an answer as one line, in the banner's order: "Ja: Statistik · Nej: Marketing".
 function summary(answer: ConsentAnswer) {
@@ -46,7 +46,7 @@ function summary(answer: ConsentAnswer) {
 }
 
 export default function Consents({ env, back }: { env: Env; back: { href: string; label: string } }) {
-  const [query, setQuery] = useKept('samtykker-soeg', '');
+  const [query, setQuery] = useKept('consents-search', '');
   const [sort, setSort] = useState<Sort>(() => {
     try {
       const saved = localStorage.getItem(SORT_KEY);

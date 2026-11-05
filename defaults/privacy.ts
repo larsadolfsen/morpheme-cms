@@ -77,6 +77,6 @@ export const privacy: PartScreen = {
       rows: true,
     },
     // The visitors' answers in the banner, kept by the Worker (packages/editor/worker/consent.js): the editor's own screen (Consents.tsx).
-    { id: 'samtykker', label: 'Consents', icon: ListChecks, opens: 'consents' },
+    { id: 'consents', label: 'Consents', icon: ListChecks, opens: 'consents' },
   ],
 };
