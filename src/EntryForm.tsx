@@ -4,7 +4,7 @@
 // gives the same page). A new address (Adresse) moves the page or post, with a redirect from the
 // old one (addresses.ts). The Filer files the page newly refers to get the page's tags in the same commit (autoTags.mjs).
 // An earlier version (Versions.tsx) is opened as changes that are not saved,
-// at the address the page or post has now.
+// at the address the page or post has now. Its preview draft says whether it is a post (post, for the lead).
 // The form's sections are listed in a pane (large and wider) or a side sheet (below): SectionList in ui.tsx.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
@@ -644,7 +644,9 @@ function Form({
         shell: isNew || (relaid && others.length) ? others : url,
         heading: h1?.heading ?? (changes('title', 'heading') ? String(values.heading || named().title) : undefined),
         headingHtml: h1?.html,
-        // A post's picture at the top (a page has its pictures in its text).
+        // A post has a picture field (a page has its pictures in its text); the preview splits only a post's lead.
+        post: collection.fields.some((f) => f.name === 'image'),
+        // A post's picture at the top.
         image:
           collection.fields.some((f) => f.name === 'image') && changes('image', 'imageAlt', 'imageDecorative')
             ? values.image
