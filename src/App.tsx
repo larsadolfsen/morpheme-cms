@@ -14,8 +14,8 @@
 //                    privacy/samtykker the visitors' answers in the cookie banner (Consents.tsx); and the settings of the apps installed with
 //                    its category: analytics/google-analytics
 //   files            the uploaded pictures, PDFs, videos and zip files (Media.tsx)
-//   seo              "Søgemaskineoptimering" (Library.tsx Seo): seo/videresendelser the redirects' two lists
-//                    (Redirects.tsx): seo/videresendelser/alle the redirects, and seo/videresendelser/ikke-fundet
+//   seo              "Søgemaskineoptimering" (Library.tsx Seo): seo/redirects the redirects' two lists
+//                    (Redirects.tsx): seo/redirects/alle the redirects, and seo/redirects/ikke-fundet
 //                    the addresses visitors came to that do not exist; seo/vurdering the SEO rating of every page and
 //                    post (SeoScores.tsx); and seo/<part> the site's own (seoParts)
 //   appearance         how the site looks (Library.tsx Theme): appearance/temaer the themes installed (Themes) and appearance/temaer/<theme>

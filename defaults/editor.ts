@@ -122,7 +122,7 @@ export const icons: Record<string, Icon> = {
   lists: ListChecks,
   footer: SquareHalfBottom,
   seo: MagnifyingGlass,
-  videresendelser: Signpost,
+  redirects: Signpost,
   appearance: PaintBrushBroad,
   blokvalg: ToggleRight,
   apps: PuzzlePiece,
@@ -172,7 +172,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
   {
     id: 'indhold',
     title: 'Content',
-    ids: ['pages', 'blog', 'lists', 'popups', 'tags', 'files', internalLinks.id, 'videresendelser'],
+    ids: ['pages', 'blog', 'lists', 'popups', 'tags', 'files', internalLinks.id, 'redirects'],
   },
   { id: 'globalt', title: 'Globals', ids: ['header', 'footer', 'company'] },
   { id: 'apps', title: 'Apps', ids: ['apps', 'appstore'] },

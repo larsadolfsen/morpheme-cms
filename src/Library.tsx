@@ -136,7 +136,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'blokvalg') return { label: parts.blockSettings, href: '#blokvalg', count: null };
   if (id === 'apps') return { label: parts.apps, href: '#apps', count: null };
   if (id === 'appstore') return { label: t.apps.find, href: `#${STORE_ROUTE}`, count: null };
-  if (id === 'videresendelser') return { label: parts.redirects, href: `#${REDIRECTS_ROUTE}`, count: null };
+  if (id === 'redirects') return { label: parts.redirects, href: `#${REDIRECTS_ROUTE}`, count: null };
   const seoPart = seoParts.find((p) => p.id === id);
   if (seoPart) return { label: seoPart.label, href: `#seo/${id}`, count: null };
   // The screens under "Udseende" (Theme): the ones the editor has, then the site's own (appearance).
@@ -528,11 +528,11 @@ export function PartsHome() {
   return <Parts title={t.common.parts.editorParts} route="appearance/dele" parts={parts} back={backToAppearance} />;
 }
 
-/** "Søgemaskineoptimering" (#seo), no longer in the menu: "Videresendelser" (Redirects.tsx, #seo/videresendelser) and then
+/** "Søgemaskineoptimering" (#seo), no longer in the menu: "Videresendelser" (Redirects.tsx, #seo/redirects) and then
  * the site's own parts (seoParts: "Interne links"), each on a screen of its own (CompanyForm.tsx). "SEO-vurdering"
  * (SeoScores.tsx, #seo/vurdering) is hidden: nothing links to it. */
 export function Seo() {
-  const parts: Part[] = [{ id: 'videresendelser', label: t.common.parts.redirects, icon: icons.videresendelser }, ...seoParts];
+  const parts: Part[] = [{ id: 'redirects', label: t.common.parts.redirects, icon: icons.redirects }, ...seoParts];
   return <Parts title={t.common.parts.seo} route="seo" parts={parts} back={backFrom('seo')} />;
 }
 

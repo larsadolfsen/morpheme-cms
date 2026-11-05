@@ -13,9 +13,9 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   'tema/dele': 'appearance/dele',
   'tema/dele/editor': 'appearance/dele/editor',
   'virksomheden/bank': 'company/betaling/bank',
-  videresendelser: 'seo/videresendelser',
-  'videresendelser/alle': 'seo/videresendelser/alle',
-  'videresendelser/ikke-fundet': 'seo/videresendelser/ikke-fundet',
+  videresendelser: 'seo/redirects',
+  'videresendelser/alle': 'seo/redirects/alle',
+  'videresendelser/ikke-fundet': 'seo/redirects/ikke-fundet',
   // The settings of the booking and newsletter apps were on a screen "Promovering"; they are on the apps' own pages now.
   promovering: 'apps',
   'promovering/calendly': 'apps/calendly',
@@ -39,6 +39,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   privatliv: 'privacy',
   lister: 'lists',
   liste: 'list',
+  videresendelser: 'redirects',
 });
 
 /**

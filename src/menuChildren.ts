@@ -24,7 +24,7 @@ export function childrenOf(id: string, files: RepoFile[]): MenuChild[] {
     const installed = installedApps(files);
     return apps.filter((a) => installed.includes(a.id)).map((a) => ({ id: a.id, label: a.label, href: `#apps/${a.id}` }));
   }
-  if (id === 'videresendelser') {
+  if (id === 'redirects') {
     return [
       { id: 'alle', label: t.redirects.all, href: `#${TAB_ROUTES.redirects}` },
       { id: 'ikke-fundet', label: t.redirects.missing.title, href: `#${TAB_ROUTES.missing}` },
