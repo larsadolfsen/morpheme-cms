@@ -928,12 +928,6 @@
     }
   }
 
-  /* The editor's drawing of the bar at the bottom of a phone's screen (components.css): without a frame, rounded. */
-  .theme-action-bar-drawn {
-    border: 0;
-    border-radius: var(--md-shape-medium);
-  }
-
   /* The carousel's page indicator (its variables above): the dots half seen through, the chosen one wholly. */
   .carousel-indicator-dot > span {
     opacity: 0.5;
@@ -1121,7 +1115,7 @@
       display: none;
     }
   }
-  :is(.theme-action-bar-row, .theme-action-bar-drawn) > .button-filled {
+  .theme-action-bar-row > .button-filled {
     order: 2;
   }
 

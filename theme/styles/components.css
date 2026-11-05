@@ -136,10 +136,10 @@
   }
   /* The sheet's room round what is in it is the row's (the toolbar's), which has no surface of its own (the sheet's shows),
      no line over it and no blur behind it. */
-  .bottom-sheet-standard.theme-action-bar {
+  .bottom-sheet-standard:is(.theme-action-bar, .theme-action-bar-drawn) {
     padding-bottom: 0;
   }
-  .bottom-sheet-standard.theme-action-bar > .bottom-sheet-content {
+  .bottom-sheet-standard:is(.theme-action-bar, .theme-action-bar-drawn) > .bottom-sheet-content {
     overflow: visible;
     padding: 0;
   }
@@ -153,13 +153,13 @@
      the whole width, when they cannot stand side by side; a text (a list row of two lines, the theme's List) in the room
      the button beside it leaves, without the row's own room round it, the button as wide as its text (under the text,
      the whole width, when they cannot stand side by side). */
-  :is(.theme-action-bar-row, .theme-action-bar-drawn) {
+  .theme-action-bar-row {
     flex-wrap: wrap;
   }
-  :is(.theme-action-bar-row, .theme-action-bar-drawn) > .button {
+  .theme-action-bar-row > .button {
     flex: 1 1 0;
   }
-  :is(.theme-action-bar-row, .theme-action-bar-drawn):has(> .theme-action-bar-text) > .button {
+  .theme-action-bar-row:has(> .theme-action-bar-text) > .button {
     flex: 1 0 auto;
   }
   .theme-action-bar-text {
@@ -170,12 +170,15 @@
     flex: 1000 1 0;
     min-width: 8rem;
   }
-  /* The editor's drawing of one (packages/editor/defaults/popup.tsx): in its place, as wide as a phone, in a frame. */
-  .theme-action-bar-drawn {
+  /* The editor's drawing of one (packages/editor/defaults/popup.tsx): the same sheet, in its place in the editor's frame
+     instead of fixed at the bottom of the screen, as wide as a phone, with the sheet's own corners and shadow. It is a
+     wide="sheet" there (the editor is wider than the medium width), the selector names data-wide to win over that. */
+  .bottom-sheet-standard.theme-action-bar-drawn[data-wide] {
+    position: static;
+    width: 100%;
     max-width: 24rem;
+    max-height: none;
     margin-inline: auto;
-    border: 1px solid var(--block-line);
-    border-radius: var(--block-radius);
   }
 }
 
