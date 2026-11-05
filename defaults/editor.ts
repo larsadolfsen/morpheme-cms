@@ -118,7 +118,7 @@ export const icons: Record<string, Icon> = {
   settings: GearSix,
   blocks: SquaresFour,
   files: FolderSimple,
-  privatliv: ShieldCheck,
+  privacy: ShieldCheck,
   lister: ListChecks,
   footer: SquareHalfBottom,
   seo: MagnifyingGlass,
@@ -163,7 +163,7 @@ export const appearance: Part[] = [
 // looks ("Appearance": the theme, the icon packs, the motion, the side column (SideColumn.tsx), the colors, the logo and icon, the standard pages
 // (appearance) and the editor's parts: Colors.tsx, BrandForm.tsx and Parts.tsx), the parts of "Privacy" (privacy.ts)
 // and the settings of the whole site ("Settings").
-// Each part is a collection (collections.ts), except those named above, "privatliv"'s (partScreens) and the editor's own
+// Each part is a collection (collections.ts), except those named above, "privacy"'s (partScreens) and the editor's own
 // "company" (companyParts), "blocks" (blockParts), id files (the pictures, PDFs, videos and zip files), "header", "lister"
 // and "blokvalg" (BlockSettings.tsx).
 const settingsIds = ['morpheme', 'avanceret'];
@@ -182,7 +182,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
     title: 'Appearance',
     ids: ['temaer', 'ikonpakker', 'bevaegelse', 'sidekolonne', 'farver', 'logo', ...appearance.map((p) => p.id), 'dele'],
   },
-  { id: 'privatliv', title: 'Privacy', ids: privacy.parts.map((p) => p.id) },
+  { id: 'privacy', title: 'Privacy', ids: privacy.parts.map((p) => p.id) },
   { id: 'settings', title: 'Settings', ids: settingsIds },
 ];
 

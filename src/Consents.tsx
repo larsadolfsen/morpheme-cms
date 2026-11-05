@@ -1,4 +1,4 @@
-// "Samtykker" (#privatliv/samtykker, Part.opens 'consents'): the visitors' answers in the cookie banner, as the site's
+// "Samtykker" (#privacy/samtykker, Part.opens 'consents'): the visitors' answers in the cookie banner, as the site's
 // Worker keeps them (consentData.ts, packages/editor/worker/consent.js), newest first, so the site can show that a visitor said yes. Over
 // the list the search by consent id (the one the banner shows the visitor under "Cookieindstillinger", asked of the
 // Worker, so older answers are found too) and the order (kept in this browser); in the top bar the download of all of

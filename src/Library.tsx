@@ -1336,7 +1336,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
       />
     );
   };
-  const privacyScreen = partScreens.find((s) => s.id === 'privatliv');
+  const privacyScreen = partScreens.find((s) => s.id === 'privacy');
   return (
     <Screen
       title={collection.label}
