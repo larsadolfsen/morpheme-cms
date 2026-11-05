@@ -6,6 +6,7 @@
 // the search, the order (A–Å, Å–A or by group, kept in this browser) and the funnel with the filter by group
 // (the standard blocks, each app's under its name), the one picked as a chip. Also the sheet of a section's
 // settings (its colour, SectionSettings.tsx), which goes the same way as a block's fields: Annuller, Gem, the question when closed changed.
+// On a large screen the fields and the section settings are in a side panel instead of the dialog (sheetPlacement.mjs, .editor-side-panel).
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { ArrowsDownUp, Image } from '@phosphor-icons/react';
 import {
@@ -24,6 +25,7 @@ import {
   ProblemNote,
   SheetList,
   SheetGroupTitle,
+  useAtLeast,
 } from './ui';
 import { htmlBlock, type BlockData, type BlockProps, type SiteBlock } from './blocks';
 import { clean, newValue, problemAt, savedValue } from './check';
@@ -38,6 +40,7 @@ import { t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 import { closeChanged } from './ask';
 import SectionSettings from './SectionSettings';
+import { inPanel } from './sheetPlacement.mjs';
 
 export type BlockAsk = {
   list: SiteBlock[];
@@ -115,6 +118,7 @@ export function useBlockDialog(
 ): [BlockAsk, ReactElement] {
   const blockOf = (type: string) => (type === IMAGE ? picture : type === HTML ? htmlBlock : list.find((b) => b.type === type));
   const dialog = useRef<HTMLDialogElement>(null);
+  const large = useAtLeast('large');
   const answer = useRef<(a: Answer) => void>(() => {});
   const [open, setOpen] = useState<Open | null>(null);
   const [values, setValues] = useState<BlockProps>({});
@@ -265,11 +269,19 @@ export function useBlockDialog(
           .map((g) => ({ key: g as string | null, items: found.filter((b) => groupOf(b) === g) }))
           .filter((g) => g.items.length > 0)
       : headed(found, (b) => letterOf(b.label));
+  const panel = inPanel(open?.step, large);
   const title = open?.step === 'section' ? t.text.sectionSettings : block ? block.label : t.blocks.insert;
+  // While the panel is open, the page makes room for it (editor.css: [data-side-panel]).
+  useEffect(() => {
+    if (!panel) return;
+    document.documentElement.setAttribute('data-side-panel', '');
+    return () => document.documentElement.removeAttribute('data-side-panel');
+  }, [panel]);
   const element = (
     <BottomSheet
       ref={dialog}
       aria-label={title}
+      panel={panel}
       // React passes on the close of a sheet inside it (the categories, a page): only its own counts.
       onClose={(e) => e.target === e.currentTarget && answer.current(null)}
       onCancel={(e) => {
@@ -277,7 +289,8 @@ export function useBlockDialog(
         e.preventDefault();
         void leave();
       }}
-      onClick={(e) => e.target === dialog.current && void leave()}
+      // A tap beside a dialog leaves it; beside the panel is the page, which is inert while it is open.
+      onClick={(e) => !panel && e.target === dialog.current && void leave()}
     >
       <SheetTitle title={title} onClose={() => void leave()} />
       {open?.step === 'choose' && (
