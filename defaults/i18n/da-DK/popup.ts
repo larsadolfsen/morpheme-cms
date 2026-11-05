@@ -2,8 +2,8 @@
 // showed them before the switch to English. Joined in defaults/i18n/da-DK/index.ts.
 export const popup: Record<string, string> = {
   'Book an appointment': 'Book en tid',
-  'Promotion': 'Promovering',
+  Promotion: 'Promovering',
   'Pop-up': 'Pop op-vindue',
   'Action bar': 'Handlingslinje',
-  'Call': 'Ring',
+  Call: 'Ring',
 };
