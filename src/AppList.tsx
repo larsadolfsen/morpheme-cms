@@ -94,10 +94,10 @@ export function settingsHome(app: SiteApp): { route: string; label: string } | u
   const screen = partScreens.find((s) => s.apps?.includes(kind));
   if (screen) return { route: screen.id, label: screen.label };
   const company = companyParts.find((p) => p.parts && p.apps?.includes(kind));
-  return company && { route: `virksomheden/${company.id}`, label: company.label };
+  return company && { route: `company/${company.id}`, label: company.label };
 }
 
-/** Where an app's settings are: on the screen with its kind (#analytics/google-analytics, #virksomheden/betaling/mobilepay),
+/** Where an app's settings are: on the screen with its kind (#analytics/google-analytics, #company/betaling/mobilepay),
  * else on the Settings tab of its page (#apps/<id>); null without settings. */
 export function settingsRoute(app: SiteApp): string | null {
   if (!app.settings) return null;

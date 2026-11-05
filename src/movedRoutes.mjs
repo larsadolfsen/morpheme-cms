@@ -12,7 +12,7 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   'tema/logo': 'appearance/logo',
   'tema/dele': 'appearance/dele',
   'tema/dele/editor': 'appearance/dele/editor',
-  'virksomheden/bank': 'virksomheden/betaling/bank',
+  'virksomheden/bank': 'company/betaling/bank',
   videresendelser: 'seo/videresendelser',
   'videresendelser/alle': 'seo/videresendelser/alle',
   'videresendelser/ikke-fundet': 'seo/videresendelser/ikke-fundet',
@@ -33,6 +33,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   maaling: 'analytics',
   kategorier: 'tags',
   mobilmenu: 'mobile-menu',
+  virksomheden: 'company',
 });
 
 /**

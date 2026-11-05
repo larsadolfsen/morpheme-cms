@@ -126,7 +126,7 @@ const countOf = (c: Collection, files: RepoFile[]): number =>
 // A part's name, where it opens, and how many entries it has (null for one file): for the main drawer (MainMenu.tsx).
 export function partOf(id: string, files: RepoFile[]): { label: string; href: string; count: number | null } {
   const { parts } = t.common;
-  if (id === 'virksomheden') return { label: parts.company, href: '#virksomheden', count: null };
+  if (id === 'company') return { label: parts.company, href: '#company', count: null };
   if (id === 'header') return { label: parts.header, href: '#appearance/header', count: null };
   if (id === 'footer') return { label: parts.footer, href: '#appearance/footer', count: null };
   if (id === 'lister') return { label: parts.lists, href: '#lister', count: listsShown(files).length };
@@ -201,12 +201,12 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
     return (
       <Parts
         title={part.label}
-        route={`virksomheden/${part.id}`}
+        route={`company/${part.id}`}
         parts={[...part.parts, ...appPartsIn(part, files)]}
-        back={{ href: '#virksomheden', label: t.common.parts.company }}
+        back={{ href: '#company', label: t.common.parts.company }}
       />
     );
-  return <Parts title={t.common.parts.company} route="virksomheden" parts={companyParts} />;
+  return <Parts title={t.common.parts.company} route="company" parts={companyParts} />;
 }
 
 // "Udseende": first "Temaer" (Themes), with the theme the site is built with at the end of its row (or, after a swap,

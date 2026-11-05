@@ -7,8 +7,8 @@
 //   settings/appstore   the app store, its apps, and settings/appstore/temaer its themes (AppList.tsx StorePage); the
 //                    other settings are screens of their own, in the drawer's last section (MainMenu.tsx)
 //   ny/<id>          a new entry, ny/<id>/<kind> one of a kind (a pop-up: standard, or an app's)
-//   virksomheden     the business, and virksomheden/<part> its parts: kontakt, betaling; and
-//                    virksomheden/betaling/<part> its own parts: mobilepay, bank
+//   company     the business, and company/<part> its parts: kontakt, betaling; and
+//                    company/betaling/<part> its own parts: mobilepay, bank
 //   <screen>         a screen with parts of the site's own (partScreens), and <screen>/<part> its parts:
 //                    privatliv/cookiebanner, privatliv/privatlivssider, or one of the editor's own screens (Part.opens):
 //                    privatliv/samtykker the visitors' answers in the cookie banner (Consents.tsx); and the settings of the apps installed with
@@ -689,9 +689,9 @@ function Editor() {
 /** The part whose form is at an address (CompanyForm.tsx): one of "Virksomheden"'s (or of its parts', with the settings of the apps of their kinds), "Søgemaskineoptimering"'s, "Udseende"'s, or one on a screen of parts with
  * the settings of the apps of its kinds ("Analytics"). */
 function partAt(route: string, files: RepoFile[]): Part | null {
-  // virksomheden/<part>, or virksomheden/<part>/<its part> (Part.parts).
+  // company/<part>, or company/<part>/<its part> (Part.parts).
   const [, companyId, ownId, ...more] = route.split('/');
-  const company = route.startsWith('virksomheden/') && !more.length && companyParts.find((p) => p.id === companyId);
+  const company = route.startsWith('company/') && !more.length && companyParts.find((p) => p.id === companyId);
   return (
     (company &&
       (ownId ? [...(company.parts ?? []), ...appPartsIn(company, files)].find((p) => p.id === ownId) : company.file && company)) ||
@@ -721,7 +721,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'konto') return <Account user={user} files={files} onLogout={onLogout} />;
   if (route === 'notifikationer') return <Notifications />;
   if (route === 'lister') return <Lists files={files} />;
-  if (route === 'virksomheden') return <Company files={files} />;
+  if (route === 'company') return <Company files={files} />;
   if (route === 'blokke') return <Blocks files={files} />;
   if (route === 'filer' || route.startsWith('filer/'))
     return <Media key={route} files={files} env={env} open={route === 'filer' ? undefined : '/' + route.slice('filer/'.length)} />;
@@ -784,9 +784,9 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route.startsWith('appearance/dele/liste/')) return <KindParts key={route} id={route.slice('appearance/dele/liste/'.length)} />;
   if (route === 'appearance/dele/vaerdier') return <Tokens />;
   if (route.startsWith('slettet/')) return <Deleted id={route.slice(8)} files={files} env={env} />;
-  // virksomheden/<part>, or virksomheden/<part>/<its part> (Part.parts).
+  // company/<part>, or company/<part>/<its part> (Part.parts).
   const [, companyId, ownId, ...more] = route.split('/');
-  const company = route.startsWith('virksomheden/') && !more.length && companyParts.find((p) => p.id === companyId);
+  const company = route.startsWith('company/') && !more.length && companyParts.find((p) => p.id === companyId);
   if (company && company.parts && !ownId) return <Company part={company} files={files} />;
   // A part's form, or the page of one of its fields (Field.page) with the form under it: the same form, so it keeps what
   // is in it while the editor goes between them (useFormPages, inForm).

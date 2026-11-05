@@ -166,7 +166,7 @@ export const writtenBlockParts: Part[] = [...site.blockParts, ...sharedParts, ..
 /** The parts of "Virksomheden"; one with parts of its own (Part.parts) has them going back to it. */
 export const companyParts = each(
   site.companyParts.map((p) =>
-    p.parts ? { ...p, parts: p.parts.map((s) => ({ ...s, back: { href: `#virksomheden/${p.id}`, label: p.label } })) } : p,
+    p.parts ? { ...p, parts: p.parts.map((s) => ({ ...s, back: { href: `#company/${p.id}`, label: p.label } })) } : p,
   ),
   local.part,
 );

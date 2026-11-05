@@ -7,7 +7,7 @@ import { AddressBook, Bank, CreditCard, ShareNetwork } from '@phosphor-icons/rea
 import type { Part } from '../src/schema';
 import { bankFields, contactFields, socialFields } from '@site/collections';
 
-/** The parts of "Business", in their order, at #virksomheden/<id> ("Payment"'s at #virksomheden/betaling/<id>). */
+/** The parts of "Business", in their order, at #company/<id> ("Payment"'s at #company/betaling/<id>). */
 export const companyParts: Part[] = [
   { id: 'kontakt', label: 'Contact', icon: AddressBook, file: 'src/data/contact.json', fields: contactFields },
   {

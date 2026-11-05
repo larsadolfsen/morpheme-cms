@@ -105,7 +105,7 @@ export default function CompanyForm({ part, env, files, at: route, page }: Props
       ) : (
         <FormFrame
           title={part.label}
-          back={part.back ?? { href: '#virksomheden', label: t.common.parts.company }}
+          back={part.back ?? { href: '#company', label: t.common.parts.company }}
           dirty={dirty}
           saving={saving}
           onSave={save}
