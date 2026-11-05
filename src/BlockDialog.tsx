@@ -47,6 +47,7 @@ import { snackbar } from '../lib/snackbar';
 import { closeChanged } from './ask';
 import SectionSettings from './SectionSettings';
 import { sheetLook } from './sheetPlacement.mjs';
+import { setPanelOpen } from './sidePanel';
 import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
 
 export type BlockAsk = {
@@ -224,6 +225,7 @@ export function useBlockDialog(
   useEffect(() => {
     if (look !== 'side-sheet') return;
     document.documentElement.setAttribute('data-side-panel', '');
+    setPanelOpen(true);
     const box = standard.current?.querySelector<HTMLElement>('[data-side-sheet-container]');
     if (box) {
       standardControls.current = siteStandardSideSheet(box, { beforeClose });
@@ -232,6 +234,7 @@ export function useBlockDialog(
     return () => {
       standardControls.current = null;
       document.documentElement.removeAttribute('data-side-panel');
+      setPanelOpen(false);
     };
   }, [look]);
 
