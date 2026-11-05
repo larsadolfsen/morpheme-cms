@@ -93,16 +93,16 @@ flowchart LR
 ## 4. Verifikations- og Testkommandoer
 
 Before changes are approved or published, verify the following from the root of this repository, on the demo
-(`npm run build` builds it in `.morpheme/demo/site/`). This repository has no `npm run check` script yet: run its
-parts (`npx prettier --check .`, `node --test` over the `*.test.mjs` files, `npm run build`).
+(`npm run build` builds it in `.morpheme/demo/site/`). CI (`.github/workflows/check.yml`) runs `check`,
+`check:screens`, `check:demo` and `check:starter` on every pull request; its job `check` must pass before a merge.
 
 | Kommando | Beskrivelse |
 | :--- | :--- |
-| `npm run check` | Prettier, typerne, `check:content` (editorens regler), `check:editor` (samme side efter en gem) og `check:worker`. |
+| `npm run check` | Prettier, the unit tests (`npm test`), the package's types (`check:types`), the demo built (`npm run build`, its content checked by the editor's rules) and `check:editor` on it (each page the same after a save). |
 | `npm run check:screens` | Efter `npm run build`: alle editorens skærme åbner uden fejl, på en telefon og en computer, og alle ikoner findes. |
-| `npm run check:themes` | Det samme med hvert af de andre temaer. |
-| `npm run check:starter` | Starteren virker som et site med pakken fra `npm pack`. |
-| `npx morpheme check:demo` | Demoen bygger med standardtemaet og følger editorens regler. |
+| `node ../../../bin/morpheme.mjs check:themes` (in `.morpheme/demo/site/`) | Det samme med hvert af de andre temaer. |
+| `npm run check:starter` | Starteren virker som et site med pakken fra `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. |
+| `npm run check:demo` | Demoen bygger med standardtemaet og følger editorens regler. |
 
 ### Worker rule: no pending I/O promise in module memory
 
