@@ -40,7 +40,7 @@
   },
   "scripts": {
     "build": "node scripts/demo-build.mjs",
-    "check": "npm run format:check && npm test && npm run check:types && npm run build && npm run check:editor",
+    "check": "npm run format:check && npm run check:language && npm test && npm run check:types && npm run build && npm run check:editor",
     "check:types": "tsc -p tsconfig.types.json --noEmit",
     "check:editor": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:editor",
     "check:screens": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:screens",

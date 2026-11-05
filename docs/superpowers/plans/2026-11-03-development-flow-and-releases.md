@@ -692,7 +692,7 @@ without the tests.
 | `check:editor`, `check:screens` | `bin/morpheme.mjs <command>` in `.morpheme/demo/site/` (after `npm run build`) |
 | `check:demo` | `bin/morpheme.mjs check:demo` (the demo with the standard theme) |
 | `check:starter` | `scripts/check-starter.mjs` (the starter with the packed package: its `check`, with the site's types and `check:worker`, and its build) |
-| `check` | `format:check`, `test`, `check:types`, `build`, `check:editor` |
+| `check` | `format:check`, `check:language` (from the English source plan), `test`, `check:types`, `build`, `check:editor` |
 
 `check:worker` runs only in `check:starter`: it archives the site's git `HEAD`, and `.morpheme/demo/site/` is no git
 repository. `check:themes` is not in CI (spec section 1 does not list it).
