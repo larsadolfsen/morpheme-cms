@@ -1,6 +1,7 @@
 // The header's site setting (src/data/header.json, optional): a button in place of the phone icon, and the side of the
-// header the mobile menu button sits on. Exposes headerOf (pure; missing or wrong data gives the defaults).
-// Used by site/site.ts; the Button type is src/standard/buttons/fields.ts.
+// header the mobile menu button sits on; and the main menu's items as the header draws them. Exposes headerOf (pure;
+// missing or wrong data gives the defaults) and sortedNav. Used by site/site.ts and the editor's preview of the header
+// (src/headerPreview.mjs); the Button type is src/standard/buttons/fields.ts.
 
 /** @typedef {import('../src/standard/buttons/fields').Button} Button */
 /** @typedef {{ button: Button | null, menuSide: 'start' | 'end' }} Header */
@@ -18,3 +19,17 @@ export function headerOf(raw) {
     menuSide: data.menuSide === 'end' ? 'end' : 'start',
   };
 }
+
+/** @typedef {{ label: string, href: string }} NavLink */
+/** @typedef {NavLink & { children?: NavLink[] }} NavItem */
+
+/**
+ * The main menu's items (menu.json) as the header draws them: the sub-items in alphabetical order (Danish: æ, ø, å last).
+ * @template {NavItem} T
+ * @param {T[]} items
+ * @returns {T[]}
+ */
+export const sortedNav = (items) =>
+  items.map((item) =>
+    item.children ? { ...item, children: [...item.children].sort((a, b) => a.label.localeCompare(b.label, 'da')) } : item,
+  );

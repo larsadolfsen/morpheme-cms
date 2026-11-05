@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
-import { headerOf } from './header.mjs';
+import { headerOf, sortedNav } from './header.mjs';
 
 test('no file', () => {
   assert.deepEqual(headerOf(undefined), { button: null, menuSide: 'start' });
@@ -28,4 +28,32 @@ test('wrong menu side', () => {
 test('wrong shapes', () => {
   assert.deepEqual(headerOf('x'), { button: null, menuSide: 'start' });
   assert.equal(headerOf({ button: 'x' }).button, null);
+});
+
+test('sortedNav sorts the sub-items A–Å and keeps the items in order', () => {
+  const items = [
+    { label: 'Om', href: '/om/' },
+    {
+      label: 'Behandlinger',
+      href: '/b/',
+      children: [
+        { label: 'Øre', href: '/b/oe/' },
+        { label: 'Arm', href: '/b/a/' },
+        { label: 'Zone', href: '/b/z/' },
+      ],
+    },
+  ];
+  const sorted = sortedNav(items);
+  assert.deepEqual(
+    sorted.map((i) => i.label),
+    ['Om', 'Behandlinger'],
+  );
+  assert.deepEqual(
+    sorted[1].children.map((c) => c.label),
+    ['Arm', 'Zone', 'Øre'],
+  );
+  assert.deepEqual(
+    items[1].children.map((c) => c.label),
+    ['Øre', 'Arm', 'Zone'],
+  );
 });

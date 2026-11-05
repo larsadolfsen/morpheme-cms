@@ -12,7 +12,7 @@ import blocks from '@data/blocks.json';
 import standardPages from '@data/standard-pages.json';
 import { config } from '@site/config';
 import { socialOf } from './social.mjs';
-import { headerOf } from './header.mjs';
+import { headerOf, sortedNav } from './header.mjs';
 import { sharedTexts, type SharedTexts } from '@morphemecms/cms/src/shared';
 import { standardShared } from '@morphemecms/cms/src/standard/sharedTexts';
 
@@ -71,13 +71,12 @@ export const site = {
 
 // Primary navigation (menu.json, "Hovedmenu"). Labels, URLs and sub-items started out as the old site's menu.
 export type NavItem = { label: string; href: string; children?: { label: string; href: string }[] };
-export const nav: NavItem[] = menu.items;
+// Sub-items in alphabetical order (Danish: æ, ø, å last), in both the desktop and the mobile menu.
+export const nav: NavItem[] = sortedNav(menu.items);
 /** Whether the header has the menu and its button ("Aktiveret" under "Hovedmenu"). */
 export const navShown = menu.enabled !== false;
 /** The links in the bar under the header on a phone (mobile-menu.json, "Mobilmenu"); none when it is turned off. */
 export const mobileNav: { label: string; href: string }[] = mobileMenu.enabled ? mobileMenu.items : [];
-// Sub-items in alphabetical order (Danish: æ, ø, å last), in both the desktop and the mobile menu.
-for (const item of nav) item.children?.sort((a, b) => a.label.localeCompare(b.label, 'da'));
 
 /** The texts every copy of a block has ("Blokke" in the editor), with {…} for what differs, by
  * the block's type: those written in its shared.ts, with the saved ones (blocks.json) over them. The
