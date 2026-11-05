@@ -5,9 +5,9 @@
 // old one (addresses.ts). The Filer files the page newly refers to get the page's tags in the same commit (autoTags.mjs).
 // An earlier version (Versions.tsx) is opened as changes that are not saved,
 // at the address the page or post has now. Its preview draft says whether it is a post (post, for the lead).
-// The form's sections are listed as "on this page" in a card at the end of the form (large and wider only): SectionList in ui.tsx.
+// The form's sections are listed as "on this page" in a card at the end of the form (large and wider only): SectionList in ui.tsx;
+// which are open and the one in view: formSections.ts.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { flushSync } from 'react-dom';
 import { slugify, slugOf, type Field, type MarkdownCollection } from './schema';
 import { config, frontLeads, headingLooks, sectionLooks, sharing, standardPages, standardPaths } from '@site/editor';
 import { asWritten, placeOf, standardPageAt } from './site';
@@ -24,7 +24,7 @@ import { useBlockDialog } from './BlockDialog';
 import { blockHtml } from '../lib/blocks.mjs';
 import { sectionBlocks } from './blocks';
 import { looksOf, pageH1 } from './sections.mjs';
-import { sectionInView, spyLine } from '../lib/section-in-view.mjs';
+import { useFormSections } from './formSections';
 import { publicPath, shownAt, useUploads } from './images';
 import { filerAddresses, useMediaPicker } from './Media';
 import { autoTagChanges, newlyUsed } from './autoTags.mjs';
@@ -116,9 +116,6 @@ function valuesOf(collection: MarkdownCollection, file: RepoFile): Record<string
     }),
   );
 }
-
-// Scrolling to a part of the form: smoothly, unless less motion is asked for.
-const scrolling = (): ScrollBehavior => (matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
@@ -225,64 +222,13 @@ function Form({
     ...(isNew ? [] : [{ id: 'versions', label: t.history.versions }]),
   ];
   const shows = (id: Section) => sections.some((s) => s.id === id);
-  // The section in view, marked in the sections list: while the page scrolls, the last one whose top is above a third of the
-  // screen (at the bottom of the page, the last one in view). A tap in the list marks its own and scrolls there; the
-  // mark stays meanwhile (`steering`, until the scroll ends).
-  const [section, setSection] = useState<Section>('content');
-  const boxes = useRef<Partial<Record<Section, HTMLElement | null>>>({});
-  const order = useRef<Section[]>([]);
-  order.current = sections.map((s) => s.id as Section);
-  const steering = useRef(0);
-  const spy = useRef(() => {});
-  const steer = (id: Section) => {
-    setSection(id);
-    steering.current = performance.now() + 1500;
-    addEventListener('scrollend', () => (steering.current = 0), { once: true });
-  };
-  // The sections that are open; at first only the text (and "Søgemaskiner" when it is opened at it, `opening`).
-  const [open, setOpen] = useState<ReadonlySet<Section>>(() => new Set(['content', ...(opening === 'seo' ? ['seo' as const] : [])]));
-  const unfold = (id: Section) => setOpen((was) => (was.has(id) ? was : new Set([...was, id])));
-  // A section opened by its heading is marked in the sections list; one folded, the one in view now (the page is shorter,
-  // without a scroll).
-  const toggle = (id: Section) => {
-    const opening = !open.has(id);
-    setOpen((was) => {
-      const next = new Set(was);
-      if (opening) next.add(id);
-      else next.delete(id);
-      return next;
-    });
-    if (opening) setSection(id);
-    else requestAnimationFrame(() => spy.current());
-  };
-  useEffect(() => {
-    let frame = 0;
-    spy.current = () => {
-      frame = 0;
-      if (performance.now() < steering.current) return;
-      const atBottom = innerHeight + scrollY >= document.documentElement.scrollHeight - 8;
-      const tops: Record<string, number | undefined> = {};
-      for (const id of order.current) tops[id] = boxes.current[id]?.getBoundingClientRect().top;
-      const here = sectionInView(order.current, tops, spyLine(innerHeight, atBottom));
-      if (here) setSection(here as Section);
-    };
-    const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(spy.current);
-    };
-    addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      removeEventListener('scroll', onScroll);
-      cancelAnimationFrame(frame);
-    };
-  }, []);
-  // Opens a section and scrolls to it (or to `box` in it: the text). It is opened at once (flushSync), so it is there to scroll to.
+  // The sections: which are open, at first only the text (and "Søgemaskiner" when it is opened at it, `opening`); the one in
+  // view, marked in the sections list; a tap there opens one and scrolls to it (formSections.ts).
+  const { section, steer, unfold, goTo, pick, sectionProps } = useFormSections<Section>(sections, [
+    'content',
+    ...(opening === 'seo' ? ['seo' as const] : []),
+  ]);
   const textBox = useRef<HTMLDivElement>(null);
-  const goTo = (id: Section, box?: HTMLElement | null) => {
-    if (!open.has(id)) flushSync(() => unfold(id));
-    steer(id);
-    requestAnimationFrame(() => (box ?? boxes.current[id])?.scrollIntoView({ block: 'start', behavior: scrolling() }));
-  };
-  const pick = (id: string) => goTo(id as Section);
   // Opened from "SEO-vurdering" (SeoScores.tsx): straight to "Søgemaskiner" (open from the start, `open`).
   useEffect(() => {
     if (opening !== 'seo') return;
@@ -294,13 +240,6 @@ function Form({
   useEffect(() => {
     if (wrongField.field) steer(sectionOf(wrongField.field.path));
   }, [wrongField.field?.at]);
-  // A section: where it is, for the sections list, its heading (its name in the list), and whether it is open.
-  const sectionProps = (id: Section) => ({
-    ref: (el: HTMLElement | null) => void (boxes.current[id] = el),
-    title: sections.find((s) => s.id === id)!.label,
-    open: open.has(id),
-    onToggle: () => toggle(id),
-  });
 
   // The SEO rating at the top of "Søgemaskiner" (seo.ts), again with every change of a field while that is open and near
   // the screen (`seoBox`, what is in the section, is hidden while it is folded); the same for the preview of a shared link
