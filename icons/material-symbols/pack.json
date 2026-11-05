@@ -18,11 +18,26 @@
         "arrows-in-line-horizontal",
         "arrows-out-line-horizontal",
         "binoculars",
+        "facebook-logo",
         "github-logo",
         "google-logo",
         "hard-drives",
+        "linkedin-logo",
+        "pinterest-logo",
         "scan",
         "swatches"
+      ]
+    },
+    {
+      "name": "Phosphor",
+      "author": "Phosphor Icons",
+      "license": "MIT",
+      "url": "https://phosphoricons.com",
+      "version": "2.1.1",
+      "source": "@phosphor-icons/core@2.1.1",
+      "licenseFile": "LICENSE-phosphor",
+      "icons": [
+        "x-logo"
       ]
     }
   ]

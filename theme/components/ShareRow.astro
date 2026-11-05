@@ -1,0 +1,48 @@
+---
+// The share buttons under a blog post: plain links to Facebook, X, LinkedIn and Pinterest, and a button that copies the
+// post's address (theme/ui/copyLink.script.ts). Props: the post's address, title and picture, and which buttons are on
+// (site.social.share). Draws nothing without buttons. Uses shareLinks (site/social.mjs), Icon and IconButton's classes.
+import { shareLinks, type ShareId } from '@morphemecms/cms/site/social.mjs';
+import Icon from '@theme/components/Icon.astro';
+import { iconButtonClass } from '@theme/ui/IconButton';
+import { siteT } from '@morphemecms/cms/src/i18n';
+
+interface Props {
+  url: string;
+  title: string;
+  picture?: string;
+  share: ShareId[];
+}
+const { url, title, picture, share } = Astro.props;
+
+const links = shareLinks({ url, title, picture }, share);
+const networks: Record<string, { name: string; icon: string }> = {
+  facebook: { name: 'Facebook', icon: 'facebook-logo' },
+  x: { name: 'X', icon: 'x-logo' },
+  linkedin: { name: 'LinkedIn', icon: 'linkedin-logo' },
+  pinterest: { name: 'Pinterest', icon: 'pinterest-logo' },
+};
+const buttonClass = iconButtonClass('standard');
+---
+
+{links.length > 0 && (
+  <div role="group" aria-label={siteT.theme.share} class="flex items-center gap-x-2">
+    {links.map(({ id, href }) =>
+      id === 'copy-link' ? (
+        <button
+          type="button"
+          class={buttonClass}
+          aria-label={siteT.theme.copyLink}
+          data-copy-link={url}
+          data-copied={siteT.theme.linkCopied}
+        >
+          <Icon name="link-simple" size={22} />
+        </button>
+      ) : (
+        <a href={href} class={buttonClass} aria-label={siteT.theme.shareOn(networks[id].name)} target="_blank" rel="noopener">
+          <Icon name={networks[id].icon} size={22} />
+        </a>
+      ),
+    )}
+  </div>
+)}

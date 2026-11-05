@@ -5,7 +5,7 @@
 // PACK_SOURCES, by the maps here: Phosphor's name → the set's icon, chosen for what it means where it is used (by its own
 // name in the set, else by what it shows: Phosphor's `browser`, a window with a bar at the top, is Material Symbols'
 // `web`). An icon a set has none of (a brand's logo; Lucide has none) is Pictogrammers' Material Design Icons'
-// (MATERIAL_DESIGN_ICONS), with its licence beside the pack's own. check:content stops at a pack without an icon the
+// (MATERIAL_DESIGN_ICONS; one neither has, Phosphor's filled icon: PHOSPHOR_FILL_ICONS), with its licence beside the pack's own. check:content stops at a pack without an icon the
 // site or the editor draws (themeProblems and iconPackProblems in packages/editor/site/theme.mjs).
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -80,16 +80,30 @@ export const MATERIAL_DESIGN_ICONS = {
     'arrows-in-line-horizontal': 'arrow-collapse-horizontal',
     'arrows-out-line-horizontal': 'arrow-expand-horizontal',
     binoculars: 'binoculars',
+    'facebook-logo': 'facebook',
     'github-logo': 'github',
     'google-logo': 'google',
+    'linkedin-logo': 'linkedin',
+    'pinterest-logo': 'pinterest',
     'hard-drives': 'harddisk',
     scan: 'scan-helper',
     swatches: 'palette-swatch',
   },
   lucide: {
+    'facebook-logo': 'facebook',
     'github-logo': 'github',
     'google-logo': 'google',
+    'linkedin-logo': 'linkedin',
+    'pinterest-logo': 'pinterest',
   },
+};
+
+/** For each system pack but Phosphor's: Phosphor's names of the icons that neither the pack's set nor Material Design Icons has
+ * (X's logo: Material Design Icons has only the old Twitter bird, which X's brand rules forbid), drawn from Phosphor's filled
+ * icon (`fill/<name>-fill.svg`). */
+export const PHOSPHOR_FILL_ICONS = {
+  'material-symbols': ['x-logo'],
+  lucide: ['x-logo'],
 };
 
 /** Phosphor's name → Material Symbols' (Outlined, weight 400; `-fill` the filled one), for every icon the site and the
@@ -473,11 +487,19 @@ export const PACK_MAPS = { 'material-symbols': MATERIAL_SYMBOLS, lucide: LUCIDE 
  * packs' maps name (an app's icon, which the CMS itself may not draw), sorted. */
 export const phosphorNames = (used) =>
   [
-    ...new Set([...used, ...Object.values(PACK_MAPS).flatMap(Object.keys), ...Object.values(MATERIAL_DESIGN_ICONS).flatMap(Object.keys)]),
+    ...new Set([
+      ...used,
+      ...Object.values(PACK_MAPS).flatMap(Object.keys),
+      ...Object.values(MATERIAL_DESIGN_ICONS).flatMap(Object.keys),
+      ...Object.values(PHOSPHOR_FILL_ICONS).flat(),
+    ]),
   ].sort();
 
 /** The names the system's pack has an icon by in its maps (its set's and Material Design Icons'); all for Phosphor's. */
-const mapped = (pack) => (PACK_MAPS[pack] ? [...Object.keys(PACK_MAPS[pack]), ...Object.keys(MATERIAL_DESIGN_ICONS[pack] ?? {})] : null);
+const mapped = (pack) =>
+  PACK_MAPS[pack]
+    ? [...Object.keys(PACK_MAPS[pack]), ...Object.keys(MATERIAL_DESIGN_ICONS[pack] ?? {}), ...(PHOSPHOR_FILL_ICONS[pack] ?? [])]
+    : null;
 
 /** Whether a name is one the site and the editor draw an icon by: Phosphor's (regular, and the filled ones as
  * `<name>-fill`). A pack's file and a theme's own icon have one of them. */
