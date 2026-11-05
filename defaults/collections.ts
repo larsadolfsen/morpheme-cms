@@ -12,6 +12,50 @@ import { fromContactBar } from '../lib/contactBar';
 import { config } from '@site/config';
 import { standardPaths } from '@site/standardPages';
 
+// The fields of one button of the action bar (the bottom bar on a phone, ActionBar.astro) and of the button in the header
+// ("Headerknap", src/data/header.json): its text, where it leads, and the promotion or page it leads to.
+const barButtonLabel: Field = {
+  name: 'label',
+  label: 'Knaptekst',
+  type: 'string',
+  max: 30,
+  hint: 'Hvis feltet er tomt, bruges standardteksten eller sidens navn.',
+};
+
+const barButtonTo: Field = {
+  name: 'to',
+  label: 'Fører til',
+  type: 'select',
+  required: true,
+  default: 'booking',
+  options: [
+    { label: 'Book en tid', value: 'booking' },
+    { label: 'Ring', value: 'phone' },
+    { label: 'Åbn promovering', value: 'promotion', onPage: 'promotions' },
+    { label: 'En side', value: 'page' },
+  ],
+};
+
+const barButtonOpen: Field = {
+  name: 'open',
+  label: 'Promovering',
+  type: 'relation',
+  to: 'promotions',
+  onPage: true,
+  required: true,
+  only: { field: 'to', is: ['promotion'] },
+};
+
+const barButtonHref: Field = {
+  name: 'href',
+  label: 'Side',
+  type: 'relation',
+  to: 'pages',
+  fixed: true,
+  required: true,
+  only: { field: 'to', is: ['page'] },
+};
+
 // The page Google should count as the original of a page or a post (rel=canonical); empty is itself.
 // Under "Søgemaskiner" with the Google texts (EntryForm.tsx).
 const canonical: Field = {
@@ -693,46 +737,10 @@ export const collections: Collection[] = [
             hint: 'Står under overskriften.',
             only: { field: 'type', is: ['text'] },
           },
-          {
-            name: 'label',
-            label: 'Knaptekst',
-            type: 'string',
-            max: 30,
-            hint: 'Hvis feltet er tomt, bruges standardteksten eller sidens navn.',
-            only: { field: 'type', is: ['button'] },
-          },
-          {
-            name: 'to',
-            label: 'Fører til',
-            type: 'select',
-            required: true,
-            default: 'booking',
-            only: { field: 'type', is: ['button'] },
-            options: [
-              { label: 'Book en tid', value: 'booking' },
-              { label: 'Ring', value: 'phone' },
-              { label: 'Åbn promovering', value: 'promotion', onPage: 'promotions' },
-              { label: 'En side', value: 'page' },
-            ],
-          },
-          {
-            name: 'open',
-            label: 'Promovering',
-            type: 'relation',
-            to: 'promotions',
-            onPage: true,
-            required: true,
-            only: { field: 'to', is: ['promotion'] },
-          },
-          {
-            name: 'href',
-            label: 'Side',
-            type: 'relation',
-            to: 'pages',
-            fixed: true,
-            required: true,
-            only: { field: 'to', is: ['page'] },
-          },
+          { ...barButtonLabel, only: { field: 'type', is: ['button'] } },
+          { ...barButtonTo, only: { field: 'type', is: ['button'] } },
+          barButtonOpen,
+          barButtonHref,
         ],
       },
     ],
@@ -843,6 +851,54 @@ export const collections: Collection[] = [
           summary: 'label',
           fields: [{ name: 'label', label: 'Tekst', type: 'string', required: true }, menuHref],
         },
+      },
+    ],
+  },
+  {
+    kind: 'files',
+    id: 'headerknap',
+    label: 'Headerknap',
+    singular: 'headerknap',
+    files: [
+      // src/data/header.json, optional (a site without it has no button and the menu button at the start), read by the header
+      // (Header.astro). The button is one of the action bar's (barButtonLabel …).
+      {
+        file: 'src/data/header.json',
+        label: 'Headeren',
+        view: '/',
+        optional: true,
+        fields: [
+          {
+            name: 'button',
+            label: 'Handlingsknap',
+            type: 'object',
+            fields: [
+              {
+                name: 'enabled',
+                label: 'Aktiveret',
+                type: 'boolean',
+                toggle: ['Til', 'Fra'],
+                default: false,
+                hint: 'Knappen står i headeren.',
+              },
+              barButtonLabel,
+              barButtonTo,
+              barButtonOpen,
+              barButtonHref,
+            ],
+          },
+          {
+            name: 'menuSide',
+            label: 'Menuknappens placering',
+            type: 'select',
+            segments: true,
+            default: 'start',
+            options: [
+              { label: 'Venstre', value: 'start' },
+              { label: 'Højre', value: 'end' },
+            ],
+          },
+        ],
       },
     ],
   },

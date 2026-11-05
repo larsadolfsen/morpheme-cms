@@ -292,6 +292,8 @@ export type DataFile = {
   root?: Field;
   /** A fixed page called by its label, not its H1 (the front page). */
   byLabel?: boolean;
+  /** The site may have no such file: its screen opens on an empty one, and the first save makes the file (the header). */
+  optional?: boolean;
 };
 
 /** A fixed page's name in the editor: its H1 (`heading`), as the page has it now; the front page
