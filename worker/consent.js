@@ -21,21 +21,21 @@ const LIMIT = 500;
 // A consent id: crypto.randomUUID() in the visitor's browser.
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-// The table, made the first time an isolate needs it (D1 has no migrations on deploy).
-let ready;
-const table = (db) =>
-  (ready ??= db
-    .batch([
-      db.prepare(
-        'CREATE TABLE IF NOT EXISTS consents (row INTEGER PRIMARY KEY, id TEXT NOT NULL, at TEXT NOT NULL, choices TEXT NOT NULL, version TEXT NOT NULL)',
-      ),
-      db.prepare('CREATE INDEX IF NOT EXISTS consents_id ON consents (id)'),
-      db.prepare('CREATE INDEX IF NOT EXISTS consents_at ON consents (at)'),
-    ])
-    .catch((e) => {
-      ready = undefined;
-      throw e;
-    }));
+// The table (D1 has no migrations on deploy). Each request makes it until one create has finished; only then does the
+// isolate remember it. A pending create is never shared: its I/O belongs to the request that started it, and if that
+// request is cancelled the promise never settles and every later request would wait for it.
+let ready = false;
+async function table(db) {
+  if (ready) return;
+  await db.batch([
+    db.prepare(
+      'CREATE TABLE IF NOT EXISTS consents (row INTEGER PRIMARY KEY, id TEXT NOT NULL, at TEXT NOT NULL, choices TEXT NOT NULL, version TEXT NOT NULL)',
+    ),
+    db.prepare('CREATE INDEX IF NOT EXISTS consents_id ON consents (id)'),
+    db.prepare('CREATE INDEX IF NOT EXISTS consents_at ON consents (at)'),
+  ]);
+  ready = true;
+}
 
 // The commit the site was built from (the banner the visitor answered), as the deployed build says it.
 let version;
