@@ -22,6 +22,7 @@
 //                    a theme's page, with the button that swaps to it (ThemePage), udseende/ikonpakker the icon packs (IconPacks),
 //                    udseende/bevaegelse how it moves (MotionSchemes), udseende/sidekolonne the block beside the pages' text (SideColumn),
 //                    udseende/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
+//                    udseende/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
 //                    udseende/farver the colours (Colors.tsx;
 //                    udseende/farver/reservefarver the site's own while an app changes the pages'), udseende/logo the logo
 //                    and icon (BrandForm.tsx), udseende/dele the parts (Library.tsx PartsHome): udseende/dele/editor the editor's, every
@@ -133,6 +134,7 @@ import Colors, { colorsOf, FALLBACK_ROUTE } from './Colors';
 import { applyColors, applyMotion } from './theme';
 import SideColumn from './SideColumn';
 import HeaderSettings from './HeaderSettings';
+import FooterSettings from './FooterSettings';
 import { apps, notOffered } from './registry';
 import {
   Account,
@@ -739,6 +741,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'udseende/bevaegelse') return <MotionSchemes env={env} files={files} />;
   if (route === 'udseende/sidekolonne') return <SideColumn env={env} files={files} />;
   if (route === 'udseende/header') return <HeaderSettings env={env} />;
+  if (route === 'udseende/footer') return <FooterSettings env={env} />;
   // A theme installed has its page; one from the store that is not (or not yet built), its page in the store.
   const themeShown = route.startsWith('udseende/temaer/') && themes.find((x) => x.id === route.slice(16));
   if (themeShown) return <ThemePage key={themeShown.id} of={themeShown} env={env} files={files} />;

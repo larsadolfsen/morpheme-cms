@@ -90,6 +90,7 @@ export const common: Messages['common'] = {
   parts: {
     company: 'Virksomheden',
     header: 'Header',
+    footer: 'Footer',
     lists: 'Lister',
     blocks: 'Blokskabeloner',
     media: 'Filer',

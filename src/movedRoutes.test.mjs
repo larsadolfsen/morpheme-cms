@@ -7,6 +7,10 @@ test('the old header screen opens Appearance › Header', () => {
   assert.equal(movedRoute('header'), 'udseende/header');
 });
 
+test('the old footer form opens Appearance › Footer', () => {
+  assert.equal(movedRoute('src/data/footer.json'), 'udseende/footer');
+});
+
 test('an address that has not moved stays', () => {
   assert.equal(movedRoute('udseende/header'), 'udseende/header');
   assert.equal(movedRoute('lister'), 'lister');

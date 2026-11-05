@@ -103,6 +103,7 @@ export const common = {
   parts: {
     company: 'Business',
     header: 'Header',
+    footer: 'Footer',
     lists: 'Lists',
     blocks: 'Block templates',
     media: 'Files',

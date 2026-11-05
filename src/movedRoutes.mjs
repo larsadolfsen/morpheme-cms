@@ -22,6 +22,8 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   'promovering/mailchimp': 'apps/mailchimp',
   // The header's menus and settings were on a screen of their own under "Globalt"; they are under "Udseende" now.
   header: 'udseende/header',
+  // The footer's form was the file's own screen; it is under "Udseende" now.
+  'src/data/footer.json': 'udseende/footer',
 });
 
 /**

@@ -290,9 +290,11 @@ function Form({
           back={
             header.includes(collection.id)
               ? { href: '#udseende/header', label: t.common.parts.header }
-              : collection.kind === 'files' && collection.files.length === 1
-                ? { href: '#', label: siteName }
-                : { href: `#liste/${collection.id}`, label: collection.label }
+              : collection.id === 'footer'
+                ? { href: '#udseende/footer', label: t.common.parts.footer }
+                : collection.kind === 'files' && collection.files.length === 1
+                  ? { href: '#', label: siteName }
+                  : { href: `#liste/${collection.id}`, label: collection.label }
           }
           status={fixed ? savedStatus({ savedAt, saving, deleting }) : undefined}
           view={view}

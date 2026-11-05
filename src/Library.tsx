@@ -127,6 +127,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   const { parts } = t.common;
   if (id === 'virksomheden') return { label: parts.company, href: '#virksomheden', count: null };
   if (id === 'header') return { label: parts.header, href: '#udseende/header', count: null };
+  if (id === 'footer') return { label: parts.footer, href: '#udseende/footer', count: null };
   if (id === 'lister') return { label: parts.lists, href: '#lister', count: listsShown(files).length };
   if (id === 'blokke') return { label: parts.blocks, href: '#blokke', count: blockParts.length };
   if (id === 'filer') return { label: parts.media, href: '#filer', count: mediaOf(files).length + filesOf(files).length };
@@ -211,7 +212,7 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
 // until the site is built with the new one, that one), "Ikonpakker" (IconPacks), with the pack chosen, "Bevægelse"
 // (MotionSchemes), with the scheme chosen, and "Sidekolonne" (SideColumn.tsx), with the block chosen; then how the
 // site looks, the colours (Colors.tsx), the logo and icon (BrandForm.tsx), the header with its menus and its preview
-// (HeaderSettings.tsx) and the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider", a
+// (HeaderSettings.tsx), the footer with its preview (FooterSettings.tsx) and the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider", a
 // screen of its own, CompanyForm.tsx, going back here), and how the editor and the blocks look, their parts ("Dele", PartsHome), each on a
 // screen of its own, with the icons the site gives them.
 // The blocks that can be put in are under "Blokke" ("Blokindstillinger", BlockSettings.tsx).
@@ -235,6 +236,7 @@ export function Theme({ files }: { files: RepoFile[] }) {
     { id: 'farver', label: t.common.parts.colors, icon: icons.farver, trailing: <ThemeColors files={files} /> },
     { id: 'logo', label: t.common.parts.brand, icon: icons.logo },
     { id: 'header', label: t.common.parts.header, icon: icons.header },
+    { id: 'footer', label: t.common.parts.footer, icon: icons.footer },
     ...appearance,
     { id: 'dele', label: t.common.parts.editorParts, icon: icons.dele },
   ];
