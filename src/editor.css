@@ -24,9 +24,10 @@
   --editor-section-gap: 2rem;
   --editor-section-rhythm: 0.625em;
 
-  /* A form's sections pane (SectionPane in ui.tsx): Material 3's 412dp pane against the window's end edge
-     (m3.material.io/foundations/layout/breakpoints/large-extra-large). */
-  --section-pane-width: 25.75rem;
+  /* A form's "on this page" area (SectionPane in ui.tsx) against the window's end edge: its width, the card in it
+     stands --section-pane-gap in from the end edge and from under the top bar. */
+  --section-pane-width: 16rem;
+  --section-pane-gap: 2rem;
 }
 
 /* In dark mode the score's number in the light colours, which are read on the dark. */
@@ -372,9 +373,73 @@
   }
 }
 
-/* The sections pane (FormColumns' `pane` in ui.tsx) stands against the window's end edge on large and wider: the content
-   keeps clear of it, so the form is centred to its left, and the save bar ends where the pane begins. */
+/* The type of the "on this page" card (SectionPane and SectionList in ui.tsx), from the theme's type roles: the small
+   caption, the form's name under it, and a section's name (the one in view in medium weight). */
+.section-pane-caption {
+  font-size: var(--type-label-small-size);
+  line-height: var(--type-label-small-line-height);
+  font-weight: var(--type-label-small-weight);
+  letter-spacing: var(--type-label-small-tracking);
+}
+.section-pane-title {
+  font-size: var(--type-headline-small-size);
+  line-height: var(--type-headline-small-line-height);
+  font-weight: var(--type-headline-small-weight);
+  letter-spacing: var(--type-headline-small-tracking);
+}
+.section-list-item {
+  font-size: var(--type-body-medium-size);
+  line-height: var(--type-body-medium-line-height);
+  font-weight: var(--type-body-medium-weight);
+  letter-spacing: var(--type-body-medium-tracking);
+}
+.section-list-item[aria-current='location'] {
+  font-weight: var(--type-label-medium-weight);
+}
+
+/* The content column (.editor-column: Screen.tsx's tabs row and its main) stands centred on the window, not in the space
+   beside the panels. --column-start and --column-end are the widths of the panels beside the content: the navigation
+   rail from medium, the standard drawer instead of it from expanded while it is open (:root[data-sidebar='open']; the
+   modal drawer below expanded is over the content, so the rail counts), and the "on this page" area at the end from large
+   (.editor-section-pane). The column keeps its width (--column-width, set by Screen.tsx) and moves off the middle only as
+   far as it must to stay clear of the panels: its start margin is the middle of the window less the start panel, but
+   not less than nothing and not more than the space left between the panels less the column. Only when that space is
+   smaller than the column does it get narrower. (Measured against the window's width, 100vw, scrollbar and all.) Below
+   medium nothing stands beside the content and the column is centred by auto margins. */
+:root {
+  --column-start: 0px;
+  --column-end: 0px;
+}
+.editor-column {
+  max-width: var(--column-width);
+  margin-inline: auto;
+}
+@media (width >= theme(--breakpoint-medium)) {
+  :root {
+    --column-start: var(--navigation-rail-width, 5.5rem);
+  }
+  .editor-column {
+    margin-inline-start: clamp(
+      0px,
+      (100vw - var(--column-width)) / 2 - var(--column-start),
+      100vw - var(--column-start) - var(--column-end) - var(--column-width)
+    );
+    margin-inline-end: auto;
+  }
+}
+@media (width >= theme(--breakpoint-expanded)) {
+  :root[data-sidebar='open'] {
+    --column-start: var(--navigation-drawer-width, 22.5rem);
+  }
+}
+
+/* The "on this page" area (FormColumns' `pane` in ui.tsx) stands against the window's end edge on large and wider: the
+   content keeps clear of it (its end padding; --column-end tells the column, so it stays centred on the window while
+   there is room), and the save bar ends where the area begins. */
 @media (width >= theme(--breakpoint-large)) {
+  :root:has(.editor-section-pane) {
+    --column-end: var(--section-pane-width);
+  }
   .editor-content:has(.editor-section-pane) {
     padding-inline-end: var(--section-pane-width);
   }

@@ -7,9 +7,6 @@
 import { useMemo, useRef, useState } from 'react';
 import {
   AppWindow,
-  Article,
-  Eye,
-  SlidersHorizontal,
   Gear,
   ArrowDown,
   ArrowsDownUp,
@@ -97,8 +94,6 @@ import {
   MenuRow,
   SectionList,
   SectionPane,
-  SectionSheet,
-  SectionsButton,
 } from './ui';
 import { FieldList, Fields, useWrongField, WrongField, type FieldContext } from './fields';
 import { newValue, problemAt } from './check';
@@ -146,12 +141,11 @@ export default function Parts({ env }: { env: Env }) {
   const [picture, setPicture] = useState(examplePicture);
   const [folded, setFolded] = useState<number | null>(0);
   const [sectionOpen, setSectionOpen] = useState<number | null>(0);
-  const [sectionsSheet, setSectionsSheet] = useState(false);
   const [sectionPicked, setSectionPicked] = useState('content');
   const sectionItems = [
-    { id: 'content', label: t.forms.sections.content, icon: Article },
-    { id: 'status', label: t.forms.sections.status, icon: Eye, badge: 2 },
-    { id: 'other', label: t.forms.otherFields, icon: SlidersHorizontal },
+    { id: 'content', label: t.forms.sections.content },
+    { id: 'status', label: t.forms.sections.status, badge: 2 },
+    { id: 'other', label: t.forms.otherFields },
   ];
   const [tags, setTags] = useState(['a', 'b']);
   const dialog = useRef<HTMLDialogElement>(null);
@@ -707,28 +701,12 @@ export default function Parts({ env }: { env: Env }) {
               </div>
             </Part>
 
-            <Part name="SectionList, SectionPane, SectionSheet, SectionsButton" use={use.sectionList}>
-              <div className="space-y-4">
-                <div className={row}>
-                  <SectionsButton label={t.forms.sections.title} open={sectionsSheet} onClick={() => setSectionsSheet(true)} />
-                </div>
-                <div className="max-w-sm">
-                  <SectionPane title={t.forms.sections.title} open>
-                    <SectionList title={t.forms.sections.title} items={sectionItems} value={sectionPicked} onChange={setSectionPicked} />
-                  </SectionPane>
-                </div>
+            <Part name="SectionList, SectionPane" use={use.sectionList}>
+              <div className="max-w-xs">
+                <SectionPane caption={t.forms.sections.title} title={examples.pages[0]}>
+                  <SectionList title={t.forms.sections.title} items={sectionItems} value={sectionPicked} onChange={setSectionPicked} />
+                </SectionPane>
               </div>
-              <SectionSheet title={t.forms.sections.title} open={sectionsSheet} onClose={() => setSectionsSheet(false)}>
-                <SectionList
-                  title={t.forms.sections.title}
-                  items={sectionItems}
-                  value={sectionPicked}
-                  onChange={(id) => {
-                    setSectionPicked(id);
-                    setSectionsSheet(false);
-                  }}
-                />
-              </SectionSheet>
             </Part>
 
             <Part name="SharePreview" use={use.sharePreview}>
