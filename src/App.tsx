@@ -12,7 +12,7 @@
 //   <screen>         a screen with parts of the site's own (partScreens), and <screen>/<part> its parts:
 //                    privatliv/cookiebanner, privatliv/privatlivssider, or one of the editor's own screens (Part.opens):
 //                    privatliv/samtykker the visitors' answers in the cookie banner (Consents.tsx); and the settings of the apps installed with
-//                    its category: maaling/google-analytics
+//                    its category: analytics/google-analytics
 //   filer            the uploaded pictures, PDFs, videos and zip files (Media.tsx)
 //   seo              "Søgemaskineoptimering" (Library.tsx Seo): seo/videresendelser the redirects' two lists
 //                    (Redirects.tsx): seo/videresendelser/alle the redirects, and seo/videresendelser/ikke-fundet
@@ -37,7 +37,7 @@
 //                    licenser/<id> one with its text (Licenses.tsx)
 //   apps             the apps that come with the site, apps/<app> one with its button to install it and, while it
 //                    is installed, the tabs of its page (AppList.tsx AppPage): Settings at apps/<app>, with its settings
-//                    form (also on the screen with its category, maaling/<app>, AppList.tsx settingsRoute), and
+//                    form (also on the screen with its category, analytics/<app>, AppList.tsx settingsRoute), and
 //                    Information at apps/<app>/om (before an app's own screens, AppDefinition.screens)
 //   apps/<app>/settings/<field>  the page of a field of its settings with its choices on a page of their own
 //                    (Field.page), over its Settings tab, which keeps what is in it: apps/content-colors/settings/variant

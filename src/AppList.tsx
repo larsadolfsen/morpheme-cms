@@ -97,7 +97,7 @@ export function settingsHome(app: SiteApp): { route: string; label: string } | u
   return company && { route: `virksomheden/${company.id}`, label: company.label };
 }
 
-/** Where an app's settings are: on the screen with its kind (#maaling/google-analytics, #virksomheden/betaling/mobilepay),
+/** Where an app's settings are: on the screen with its kind (#analytics/google-analytics, #virksomheden/betaling/mobilepay),
  * else on the Settings tab of its page (#apps/<id>); null without settings. */
 export function settingsRoute(app: SiteApp): string | null {
   if (!app.settings) return null;

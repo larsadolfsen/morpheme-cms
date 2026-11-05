@@ -30,6 +30,7 @@ export const MOVED = /** @type {Record<string, string>} */ ({
 export const RENAMED = /** @type {Record<string, string>} */ ({
   indstillinger: 'settings',
   udseende: 'appearance',
+  maaling: 'analytics',
 });
 
 /**

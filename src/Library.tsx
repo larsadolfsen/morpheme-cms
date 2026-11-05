@@ -537,7 +537,7 @@ export function Seo() {
 }
 
 // A screen with parts of the site's own (partScreens): "Privatliv"; and with the settings of the apps installed with its
-// category (PartScreen.apps): "Analytics" and "Promovering", each opening the app's form (#maaling/google-analytics).
+// category (PartScreen.apps): "Analytics" and "Promovering", each opening the app's form (#analytics/google-analytics).
 export function PartsScreen({ screen, files }: { screen: PartScreen; files: RepoFile[] }) {
   const parts = [...screen.parts, ...appPartsIn(screen, files)];
   return (
