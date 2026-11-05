@@ -1,0 +1,59 @@
+import { strict as assert } from 'node:assert';
+import { test } from 'node:test';
+import { headerOf, sortedNav } from './header.mjs';
+
+test('no file', () => {
+  assert.deepEqual(headerOf(undefined), { button: null, menuSide: 'start' });
+});
+
+test('button off', () => {
+  assert.equal(headerOf({ button: { enabled: false, to: 'booking' } }).button, null);
+});
+
+test('button on', () => {
+  assert.deepEqual(headerOf({ button: { enabled: true, to: 'booking', label: 'Book en tid' } }).button, {
+    to: 'booking',
+    label: 'Book en tid',
+  });
+});
+
+test('menu at the end', () => {
+  assert.equal(headerOf({ menuSide: 'end' }).menuSide, 'end');
+});
+
+test('wrong menu side', () => {
+  assert.equal(headerOf({ menuSide: 'middle' }).menuSide, 'start');
+});
+
+test('wrong shapes', () => {
+  assert.deepEqual(headerOf('x'), { button: null, menuSide: 'start' });
+  assert.equal(headerOf({ button: 'x' }).button, null);
+});
+
+test('sortedNav sorts the sub-items A–Å and keeps the items in order', () => {
+  const items = [
+    { label: 'Om', href: '/om/' },
+    {
+      label: 'Behandlinger',
+      href: '/b/',
+      children: [
+        { label: 'Øre', href: '/b/oe/' },
+        { label: 'Arm', href: '/b/a/' },
+        { label: 'Zone', href: '/b/z/' },
+      ],
+    },
+  ];
+  const sorted = sortedNav(items);
+  assert.deepEqual(
+    sorted.map((i) => i.label),
+    ['Om', 'Behandlinger'],
+  );
+  assert.deepEqual(
+    sorted[1].children.map((c) => c.label),
+    ['Arm', 'Zone', 'Øre'],
+  );
+  assert.deepEqual(
+    items[1].children.map((c) => c.label),
+    ['Øre', 'Arm', 'Zone'],
+  );
+});

@@ -3,8 +3,9 @@
 // top with it: its links on one line as scrollable tabs (m3.material.io/components/tabs), on a phone and a tablet (where
 // the menu is behind the menu button), to be swiped sideways when they do not fit, with the open page's chosen (its
 // label in its own colour) and scrolled into view: the theme's tabs (ui/Tabs.tsx, .tab in styles/ui.css). Not there when
-// it is turned off or has no links.
-import { tabsClass, tabClass } from '@theme/ui/Tabs';
+// it is turned off or has no links. data-editor marks it for the editor's preview of the header (its classes: headerParts.ts).
+import { tabClass } from '@theme/ui/Tabs';
+import { mobileNavClass, mobileNavListClass } from '@theme/components/headerParts';
 import { mobileNav } from '@morphemecms/cms/site/site';
 import { siteT } from '@morphemecms/cms/src/i18n';
 
@@ -13,8 +14,8 @@ const isActive = (href: string) => current === href || (href !== '/' && current.
 ---
 
 {mobileNav.length > 0 && (
-  <nav aria-label={siteT.theme.mobileMenu} data-mobile-nav class="large:hidden large:group-data-crowded/header:block">
-    <ul class:list={[tabsClass, 'relative mx-auto max-w-6xl px-1 medium:px-4']}>
+  <nav aria-label={siteT.theme.mobileMenu} data-mobile-nav data-editor="mobile-nav" class={mobileNavClass}>
+    <ul class={mobileNavListClass}>
       {mobileNav.map((item) => (
         <li>
           <a href={item.href} class={tabClass} aria-current={isActive(item.href) ? 'page' : undefined}>

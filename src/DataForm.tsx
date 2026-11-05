@@ -1,26 +1,19 @@
 // A JSON file: one entry of a folder (a price, a testimonial, a category) or a single file (a fixed
 // page, the menu). The files are written as JSON.stringify(data, null, 2) like the existing ones, with
 // the keys in their order, so a save only changes what was edited. An earlier version (Versions.tsx)
-// is opened as changes that are not saved.
+// is opened as changes that are not saved. Exposes DataForm (default). Its values from the file and back: dataFileValues.ts;
+// a menu's fields: DataFileFields.tsx.
 import { useMemo, useState } from 'react';
 import { Plus } from '@phosphor-icons/react';
-import {
-  entryData,
-  entryName,
-  slugify,
-  slugOf,
-  type Collection,
-  type DataFile,
-  type Field,
-  type FilesCollection,
-  type FolderCollection,
-} from './schema';
+import { entryName, slugify, slugOf, type DataFile, type FilesCollection, type FolderCollection } from './schema';
 import { config, header, keptBy, sharing, siteName, usesOf } from '@site/editor';
 import { apps, asWritten, collections } from './site';
 import { kindDraw } from './apps';
 import { ConflictError, type RepoFile } from './github';
-import { clean, newItem, newValue, problemAt, withDefaults } from './check';
-import { FieldInput, FieldList, Fields, MenuList, useWrongField, WrongField, type FieldContext } from './fields';
+import { clean, newItem, newValue, problemAt } from './check';
+import { FieldInput, FieldList, Fields, useWrongField, WrongField, type FieldContext } from './fields';
+import { DataFileFields } from './DataFileFields';
+import { dataOf, fieldsOf, listOnly, valuesOf } from './dataFileValues';
 import SectionsField from './SectionsField';
 import { notOffered, withPageBlocks } from './registry';
 import { shownAt, useUploads } from './images';
@@ -41,16 +34,6 @@ type Props = {
   env: Env;
   /** A new entry of this kind (FolderCollection.kinds), picked under "+". */
   kind?: string;
-};
-
-// A file that is only a list, without fields of its own beside it (a menu with "Aktiveret" is not).
-const listOnly = (dataFile?: DataFile) => !!dataFile?.root && !dataFile.fields.length;
-
-// A file's values in the form: its data (with the defaults of fields it has none for; an entry of a list as the list has
-// it now, entryData), or a list under the field's name.
-const valuesOf = (text: string, fields: Field[], dataFile: DataFile | undefined, collection: Collection, files: RepoFile[]) => {
-  if (listOnly(dataFile)) return { [dataFile!.root!.name]: JSON.parse(text) } as Record<string, unknown>;
-  return withDefaults(fields, collection.kind === 'folder' && !dataFile ? entryData(collection, text, files) : JSON.parse(text));
 };
 
 // The form starts again with an earlier version, or with the one saved now.
@@ -75,10 +58,7 @@ function Form({
   // installed are not offered under "Indsæt" (`off`), but drawn and checked where they are, as on a page.
   const off = useMemo(() => notOffered(env.files), [env.files]);
   const fields = useMemo(
-    () =>
-      withPageBlocks(
-        dataFile ? (dataFile.root ? [...dataFile.fields, dataFile.root] : dataFile.fields) : (collection as FolderCollection).fields,
-      ),
+    () => withPageBlocks(dataFile ? fieldsOf(dataFile) : (collection as FolderCollection).fields),
     [dataFile, collection],
   );
   const [base, setBase] = useState(file);
@@ -135,10 +115,9 @@ function Form({
 
   async function save() {
     if (wrongField.stop(problemAt(fields, values))) return;
-    let data: unknown = clean(fields, values);
+    let data = dataOf(fields, values, dataFile);
     // Looked through now that it is saved (FolderCollection.fresh).
     if (collection.kind === 'folder' && collection.fresh) delete (data as Record<string, unknown>)[collection.fresh.field];
-    if (listOnly(dataFile)) data = (data as Record<string, unknown>)[dataFile!.root!.name];
     let path = base.path;
     if (isNew) {
       const folder = collection as FolderCollection;
@@ -310,10 +289,12 @@ function Form({
           title={dataFile ? dataFile.label : isNew ? collection.create! : entryName(folder!, clean(fields, initial)) || kindLabel}
           back={
             header.includes(collection.id)
-              ? { href: '#header', label: t.common.parts.header }
-              : collection.kind === 'files' && collection.files.length === 1
-                ? { href: '#', label: siteName }
-                : { href: `#liste/${collection.id}`, label: collection.label }
+              ? { href: '#udseende/header', label: t.common.parts.header }
+              : collection.id === 'footer'
+                ? { href: '#udseende/footer', label: t.common.parts.footer }
+                : collection.kind === 'files' && collection.files.length === 1
+                  ? { href: '#', label: siteName }
+                  : { href: `#liste/${collection.id}`, label: collection.label }
           }
           status={fixed ? savedStatus({ savedAt, saving, deleting }) : undefined}
           view={view}
@@ -386,10 +367,7 @@ function Form({
             />
           ) : root ? (
             <div className="space-y-6">
-              {dataFile!.fields.length > 0 && (
-                <FieldList fields={dataFile!.fields} value={values} onChange={(v) => setValues(v as Record<string, unknown>)} />
-              )}
-              <MenuList field={root} value={items} onChange={setItems} />
+              <DataFileFields dataFile={dataFile!} value={values} onChange={setValues} />
             </div>
           ) : drawn ? (
             // On a wide computer screen the drawing in the wide column and the fields beside it at the

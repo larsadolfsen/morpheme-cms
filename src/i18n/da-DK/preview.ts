@@ -5,6 +5,8 @@ export const preview: Messages['preview'] = {
   title: 'Forhåndsvisning',
   size: 'Vinduesstørrelse',
   sizes: { compact: 'Kompakt', medium: 'Mellem', expanded: 'Udvidet', large: 'Stor', extraLarge: 'Ekstra stor' },
+  phone: 'Telefon',
+  computer: 'Computer',
   making: 'Henter forhåndsvisningen…',
   failed: (error) => `Kunne ikke oprette forhåndsvisningen: ${error}`,
   notHere: 'Den side kan ikke forhåndsvises',
