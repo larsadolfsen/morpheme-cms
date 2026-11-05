@@ -30,14 +30,21 @@ reason.
 
 ## Amendment (owner, 5 November 2026, after the first build)
 
-These replace the header action and the side panel's look above and in the Design:
+These replace the layout table, the header and the bar above and in the Design:
 
-- The main action is not in the header. The header has the close button (X) and the name of the block only.
-- Save follows the editor's pattern: the save bar (`src/SaveBar.tsx`, from `FormFrame.tsx`) at the bottom of the
-  fields, at every width. It shows when the fields have changed, with "Save changes". A new block shows it at once,
-  with "Insert".
-- From `large`, the fields are not a raised side sheet. They sit on the page background beside the page, like a split
-  screen, in the same card as the text editor (`src/EditorCard.tsx`, from `MarkdownEditor.tsx`).
+| Window width | The fields of a block | The section settings |
+|---|---|---|
+| Below 1200px (`large`) | Full screen, also from 600px | As before (sheet) |
+| 1200px and up | Split screen: a card beside the page | Split screen: a card beside the page |
+
+- Full screen: the name of the block at the start of the header, the close button (X) at the end. No action in the
+  header. A sticky Save at the bottom (the look of `src/SaveBar.tsx`, from `FormFrame.tsx`). It shows only when the
+  fields have changed. A new block shows "Insert" at once.
+- Split screen: the area keeps the page's normal background. The content sits in the text editor's card
+  (`src/EditorCard.tsx`, from `MarkdownEditor.tsx`). The header has the title only: no drag handle, no close button.
+  At the bottom: "Cancel" always, and "Save" ("Insert" for a new block) only when something has changed.
+- While the split screen is open, the page's own save bar is hidden.
+- The choice of a block does not change.
 
 ## Design
 
