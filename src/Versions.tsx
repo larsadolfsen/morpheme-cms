@@ -6,19 +6,7 @@
 // version, in a new commit, so nothing is lost and every version can always be found here again.
 import { Component, Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ClockCounterClockwise } from '@phosphor-icons/react';
-import {
-  Button,
-  EmptyNote,
-  IconButton,
-  listClass,
-  Notice,
-  LoadingIndicator,
-  BottomSheet,
-  SheetTitle,
-  SheetBody,
-  ProblemNote,
-  ListItem,
-} from './ui';
+import { Button, EmptyNote, IconButton, listClass, Notice, BottomSheet, SheetTitle, SheetBody, ProblemNote, ListItem } from './ui';
 import { mayLeave } from './FormFrame';
 import { when } from './when';
 import type { Env } from './App';
