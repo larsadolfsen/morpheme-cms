@@ -16,6 +16,8 @@ export const library = {
   notificationsNew: (count: number) => `Notifications, ${count} new`,
   noNotifications: 'No notifications',
   clearNotifications: 'Clear notifications',
+  /** The link in the top bar of the start screen: the site's home page, in a new tab. */
+  openWebsite: 'Open website',
   /** On "Konto" › "Notifikationer" (Library.tsx NotificationChoices, notificationData.ts). */
   /** The sliders on "Notifikationer": to "Konto", where they are turned on or off. */
   notificationChoices: 'Choose notifications',

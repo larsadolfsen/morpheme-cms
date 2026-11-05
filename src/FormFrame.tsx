@@ -32,7 +32,7 @@ type Props<T extends string> = {
   view?: string;
   /** More in the top bar, before the link to the site. */
   actions?: ReactNode;
-  /** The button at the end of the top bar, after the account. */
+  /** The button at the end of the top bar, after the notifications. */
   drawer?: ReactNode;
   /** The form's tabs, in the top bar (Screen). */
   tabs?: TabChoice<T>;
