@@ -44,7 +44,7 @@ function toNode(doc, key, value) {
   return node;
 }
 
-// A true/false field that is true when it is missing from the file (Field.missing, "Sidekolonne": `side`): booleanRead
+// A true/false field that is true when it is missing from the file (Field.missing): booleanRead
 // gives the form's value for what is in the file; booleanWrite what is written for the form's value (nothing, '', when
 // it is the missing one, so the key leaves the file).
 export const booleanRead = (value, missing) => (value === undefined ? missing === true : value === true);
