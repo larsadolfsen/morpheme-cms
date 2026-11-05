@@ -975,7 +975,7 @@ type View = 'liste' | 'menu';
 const seoKey = (c: Collection) => `editor-seo-${c.id}`;
 function savedSeo(c: Collection): boolean {
   try {
-    return localStorage.getItem(seoKey(c)) === 'vis';
+    return localStorage.getItem(seoKey(c)) === 'show';
   } catch {
     return false;
   }
@@ -1249,7 +1249,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   function pickSeo(next: boolean) {
     setSeo(next);
     try {
-      localStorage.setItem(seoKey(collection), next ? 'vis' : 'skjul');
+      localStorage.setItem(seoKey(collection), next ? 'show' : 'hide');
     } catch {}
   }
 
