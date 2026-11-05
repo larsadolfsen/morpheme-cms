@@ -3225,10 +3225,13 @@ export function BottomSheet({
 
 /** A web page in a frame, in a full BottomSheet (the preview of a page): `html` is the whole page, drawn as
  * wide as `width` (one of Material 3's window sizes) and made smaller to fit, scrolled in the frame. Nothing
- * in it runs (no scripts), and its links lead nowhere. */
-export function PageFrame({ html, width, title }: { html: string; width: number; title: string }) {
+ * in it runs (no scripts), and its links lead nowhere. With `part` (a selector: the header) only that part of the page is
+ * shown, as high as it is (measured when the page is in the frame), in the frame's own place: Appearance › Header. */
+export function PageFrame({ html, width, title, part }: { html: string; width: number; title: string; part?: string }) {
   const box = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
+  // Where the part is in the page (px of the page), once it is in the frame.
+  const [cut, setCut] = useState<{ top: number; height: number } | null>(null);
   useEffect(() => {
     const el = box.current;
     if (!el) return;
@@ -3237,15 +3240,30 @@ export function PageFrame({ html, width, title }: { html: string; width: number;
     return () => watch.disconnect();
   }, []);
   const scale = size.width ? Math.min(1, size.width / width) : 1;
+  const measure = (frame: HTMLIFrameElement) => {
+    const doc = frame.contentDocument;
+    const el = part && doc?.querySelector(part);
+    if (!doc || !el) return;
+    // Only the part is shown: the page does not scroll in its frame.
+    doc.documentElement.style.overflow = 'hidden';
+    const r = el.getBoundingClientRect();
+    setCut({ top: r.top, height: r.height });
+  };
+  const height = part ? (cut ? cut.top + cut.height : width) : size.height / scale;
   return (
-    <div ref={box} className="relative min-h-0 flex-1 overflow-hidden border-t border-line bg-line/40">
+    <div
+      ref={box}
+      className="relative min-h-0 flex-1 overflow-hidden border-t border-line bg-line/40"
+      style={part ? { height: (cut?.height ?? 0) * scale } : undefined}
+    >
       {size.width > 0 && (
         <iframe
           title={title}
           srcDoc={html}
           sandbox="allow-same-origin"
           className="absolute top-0 left-1/2 origin-top border-0 bg-white"
-          style={{ width, height: size.height / scale, transform: `translateX(-50%) scale(${scale})` }}
+          style={{ width, height, top: -(cut?.top ?? 0) * scale, transform: `translateX(-50%) scale(${scale})` }}
+          onLoad={part ? (e) => measure(e.currentTarget) : undefined}
         />
       )}
     </div>
