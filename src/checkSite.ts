@@ -38,6 +38,13 @@ import { appFolders } from './appFiles';
 import { colorPairs as shownPairs, sharedParts, translator, writtenApps, writtenBlockParts, writtenCollections } from './site';
 import { splitBlocks } from '../lib/blocks.mjs';
 import { splitMissing } from '../lib/translate.mjs';
+import { collections as standardCollections } from '../defaults/collections';
+import { companyParts as standardCompany } from '../defaults/company';
+import { blockParts as standardBlocks } from '../defaults/blockTexts';
+import { colorFields as standardColorFields, colorPairs as standardColorPairs } from '../defaults/colors';
+import { privacy as standardPrivacy } from '../defaults/privacy';
+import { internalLinks as standardInternalLinks } from '../defaults/internalLinks';
+import { appearance as standardAppearance, groups as standardGroups } from '../defaults/editor';
 import { isRecordPath, recordProblems } from './fileRecords.mjs';
 import { appTexts, DEFAULTS_LOCALE, locales, siteLocale, t, type Texts } from './i18n';
 import { flatten, readAll, REDIRECT_FILES, type AllRedirects } from './redirectData';
@@ -213,10 +220,48 @@ function chainsOf(all: AllRedirects, flat: AllRedirects): string[] {
   return lines;
 }
 
+type Definitions = {
+  collections: typeof collections;
+  parts: Part[];
+  screens: typeof partScreens;
+  groups: typeof groups;
+  colorFields: typeof colorFields;
+  colorPairs: typeof colorPairs;
+};
+
+/** The definitions the walk goes over: the site's (the standard parts, merged with the site's own) ... */
+const siteDefinitions: Definitions = {
+  collections,
+  parts: [...companyParts, ...partScreens.flatMap((s) => s.parts), ...appearance, ...seoParts, ...blockParts],
+  screens: partScreens,
+  groups,
+  colorFields,
+  colorPairs,
+};
+/** ... and the package's own standard parts, as defaults/ writes them, whatever the site overrides. */
+const standardDefinitions: Definitions = {
+  collections: standardCollections,
+  parts: [...standardCompany, ...standardPrivacy.parts, ...standardAppearance, standardInternalLinks, ...standardBlocks],
+  screens: [standardPrivacy],
+  groups: standardGroups,
+  colorFields: standardColorFields,
+  colorPairs: standardColorPairs,
+};
+
+/** Shows each text of the definitions to the translator `w`. */
+function walkDefinitions(w: ReturnType<typeof translator>, d: Definitions) {
+  d.collections.forEach(w.collection);
+  d.parts.forEach(w.part);
+  d.screens.forEach((s) => w.group({ id: s.id, title: s.label, ids: [] }));
+  d.groups.forEach(w.group);
+  d.colorFields.forEach(w.color);
+  d.colorPairs.forEach(w.pair);
+}
+
 /** The site's own texts with no translation, by the editor's other languages, by the file they belong
  * in: the site's in @site/texts, a block's in its texts.ts (or the site's, for what it takes from
  * the site). The editor shows them as they are written. Not the ones said in code (the messages in
- * rules.ts, the lines on the blocks' cards). A text in English (the standard parts' language) with no translation in a language
+ * rules.ts, the lines on the blocks' cards). A text of the package's standard parts with no translation in a language
  * (defaults/i18n/da-DK/ for da-DK, a blank value too) is under 'defaults/i18n/da-DK/index.ts': it stops `check:content`. */
 export function untranslated(): Record<string, Record<string, string[]>> {
   // The editor shows a site's definitions translated already on a site in another language than the standard parts', so a text
@@ -232,6 +277,15 @@ export function untranslated(): Record<string, Record<string, string[]>> {
   const inDanish = Object.fromEntries(converted.filter(([, danish]) => danish.trim()));
   for (const [text, danish] of Object.entries(inDanish)) original.set(danish, text);
   const writtenIn = (text: string) => (english.has(text) ? DEFAULTS_LOCALE : danish.has(text) ? 'da-DK' : siteLocale);
+  // The texts of the package's standard parts: the walk over defaults/'s own definitions, so one with no Danish entry is known too.
+  const standardSet = new Set<string>();
+  walkDefinitions(
+    translator((shown) => {
+      standardSet.add(original.get(shown) ?? shown);
+      return shown;
+    }),
+    standardDefinitions,
+  );
   const lacking = new Map<string, Set<string>>();
   const missing = (l: string, own: Record<string, string>, walk: (w: ReturnType<typeof translator>) => void) => {
     const found = new Set<string>();
@@ -242,8 +296,8 @@ export function untranslated(): Record<string, Record<string, string[]>> {
         return shown;
       }),
     );
-    // A text written in the standard parts' language (English) stops the check, the others (a Danish site's own, an app's) only warn.
-    const split = splitMissing(found, new Set([...found].filter((text) => writtenIn(text) === DEFAULTS_LOCALE)));
+    // A text of the package's standard parts stops the check, the others (the site's own, an app's) only warn.
+    const split = splitMissing(found, standardSet);
     split.standard.forEach((text) => lacking.set(l, (lacking.get(l) ?? new Set()).add(text)));
     return split.own;
   };
@@ -256,14 +310,7 @@ export function untranslated(): Record<string, Record<string, string[]>> {
           ...Object.fromEntries(Object.entries((texts as Texts)[l] ?? {}).filter(([, v]) => v.trim())),
         };
         const files: Record<string, string[]> = {
-          'src/site/texts.ts': missing(l, site, (w) => {
-            collections.forEach(w.collection);
-            [...companyParts, ...partScreens.flatMap((s) => s.parts), ...appearance, ...seoParts, ...blockParts].forEach(w.part);
-            partScreens.forEach((s) => w.group({ id: s.id, title: s.label, ids: [] }));
-            groups.forEach(w.group);
-            colorFields.forEach(w.color);
-            colorPairs.forEach(w.pair);
-          }),
+          'src/site/texts.ts': missing(l, site, (w) => walkDefinitions(w, siteDefinitions)),
         };
         // An app's block's own texts, and the fields of its shared texts (shared.ts), in its texts.ts.
         for (const block of siteBlocks.filter((b) => b.app))
