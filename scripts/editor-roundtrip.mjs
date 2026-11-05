@@ -5,12 +5,13 @@
 // sections as blocks (packages/editor/src/sections.mjs) and read back: the sections must be the same, a section
 // of text with the same heading and the same HTML. Every page is also read into sections as the front page (as the
 // site reads the page that is the front page without the editor, partsOfMarkdown in sections.mjs, packages/editor/site/home.ts):
-// they must be those the editor reads. A page whose template is changed and changed back has the same front matter (the default leaves no key). Run: npm run check:editor [files...]
+// they must be those the editor reads. A page whose template is changed and changed back has the same front matter (the default leaves no key; template-round-trip.mjs). Run: npm run check:editor [files...]
 // A built-in sample with section colours checks that the editor and the site give the front page's sections the same colours.
 // Milkdown needs a DOM; jsdom stands in for the browser.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { JSDOM } from 'jsdom';
+import { templateRoundTripProblem } from './template-round-trip.mjs';
 
 const dom = new JSDOM('<!doctype html><html><body></body></html>', { pretendToBeVisual: true });
 globalThis.window = dom.window;
@@ -141,6 +142,7 @@ const frontSections = async (body, parts) => [
 }
 
 for (const file of files) {
+  const isPage = file.replaceAll('\\', '/').includes('src/content/pages/');
   if (file.endsWith('.json')) {
     const { sections, intro } = JSON.parse(readFileSync(file, 'utf8'));
     const field = textOf[file];
@@ -161,20 +163,13 @@ for (const file of files) {
   }
   // The template (templateWritten): the theme's default leaves no key; another one is written; changing back gives the
   // front matter as it was (without the key).
-  if (file.includes('src/content/pages/')) {
-    const [fallback] = STANDARD_TEMPLATES;
-    const plain = writeFields(yaml, { template: '' });
-    const chosen = writeFields(plain, { template: templateWritten('sidebar-left', STANDARD_TEMPLATES) });
-    const back = writeFields(chosen, { template: templateWritten(fallback, STANDARD_TEMPLATES) });
-    if (
-      !/^template: sidebar-left$/m.test(chosen) ||
-      back !== plain ||
-      writeFields(plain, { template: templateWritten(fallback, STANDARD_TEMPLATES) }) !== plain
-    ) {
+  if (isPage) {
+    const problem = templateRoundTripProblem(yaml, { writeFields, templateWritten, templates: STANDARD_TEMPLATES });
+    if (problem) {
       failed++;
       console.log(`
 ✗ ${file}
-  Skabelonen skiftet og skiftet tilbage giver ikke det samme front matter`);
+  Skabelonen skiftet og skiftet tilbage giver ikke det samme front matter (${problem})`);
       continue;
     }
   }
@@ -182,12 +177,12 @@ for (const file of files) {
   // As in the editor: with the free lines between the blocks, written without them.
   // A page also has the first-heading rule: opening and saving it must not change it.
   const made = makeEditor(root, body).use(spacing);
-  const editor = await (file.includes('src/content/pages/') ? made.use(firstHeading) : made).create();
+  const editor = await (isPage ? made.use(firstHeading) : made).create();
   editor.action((ctx) => ctx.get(editorViewCtx).dispatch(ctx.get(editorViewCtx).state.tr));
   const saved = editor.action(markdownOf);
   const parts = editor.action(partsOf);
   await editor.destroy();
-  if (file.includes('src/content/pages/')) {
+  if (isPage) {
     const [editors, site] = [
       await comparable('', sectionsFromParts(parts, frontLeads)),
       await comparable('', sectionsFromParts(partsOfMarkdown(body), frontLeads)),
