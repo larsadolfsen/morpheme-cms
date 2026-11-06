@@ -72,7 +72,10 @@ test('the card shows until closed, and again after a newer save', () => {
 
 test('keeps only the entries with a string path and a finite number time', () => {
   const good = { path: 'a', at: 1 };
-  assert.deepEqual(validEdits([null, good, undefined, 7, 'x', { at: 2 }, { path: 'b', at: '3' }, { path: 'c', at: NaN }, { path: 4, at: 1 }]), [good]);
+  assert.deepEqual(
+    validEdits([null, good, undefined, 7, 'x', { at: 2 }, { path: 'b', at: '3' }, { path: 'c', at: NaN }, { path: 4, at: 1 }]),
+    [good],
+  );
   assert.deepEqual(validEdits('not a list'), []);
   assert.deepEqual(validEdits(null), []);
 });
