@@ -3,7 +3,7 @@
 // (notificationData.ts), newest first, each with when it came and, when it had one, a link to what it is about; an app's
 // with the app's icon. Opening it marks them seen; at the bottom one button clears them and another opens "Konto", where
 // each type is turned on or off. On a phone a long press selects one (ListItem `selectable`), and then a tap selects or
-// unselects the others; while some are selected the buttons delete them or unselect them. Closing unselects them. Its
+// unselects the others; while some are selected the buttons delete them or unselect them. Closing unselects them (when it has slid out, which keeps the list until then). Its
 // cross, Escape, a tap on the scrim, the phone's back gesture (only the sheet) and going to another address (a
 // notification's link) close it; Escape while some are selected only unselects them. Its open, close and
 // slide are the theme's (sideSheet(), sideSheetControl.ts). The old address #notifications opens it over the start screen
@@ -53,6 +53,7 @@ export default function Notifications() {
   const controls = useRef<ReturnType<typeof siteSideSheet> | null>(null);
   // The keys of those selected (notificationKey), kept to those still there.
   const [picked, setPicked] = useState<string[]>([]);
+  const [kept, setKept] = useState(false);
   const selected = picked.filter((k) => items.some((n) => notificationKey(n) === k));
   const pick = (key: string) => (on: boolean) => setPicked((p) => (on ? [...p, key] : p.filter((k) => k !== key)));
 
@@ -70,12 +71,22 @@ export default function Notifications() {
     };
   }, []);
 
+  // The list stays until the slide out has ended (`kept`), so the sheet does not slide out empty.
   useEffect(() => {
-    if (open) controls.current?.open();
-    else {
-      void controls.current?.close();
-      setPicked([]);
+    if (open) {
+      setKept(true);
+      controls.current?.open();
+      return;
     }
+    let reopened = false;
+    void controls.current?.close().then(() => {
+      if (reopened) return;
+      setKept(false);
+      setPicked([]);
+    });
+    return () => {
+      reopened = true;
+    };
   }, [open]);
 
   // The phone's back gesture closes the sheet only (useSheetBack).
@@ -138,7 +149,7 @@ export default function Notifications() {
           )
         }
       >
-        {open &&
+        {(open || kept) &&
           (items.length ? (
             <Group>
               {items.map((n) => {
