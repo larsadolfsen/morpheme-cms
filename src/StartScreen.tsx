@@ -18,9 +18,8 @@ import { loadSavedTimes, saved } from './savedTimes';
 import { changesSince, continueShown, latestEdits, nextRecent, unversioned, validEdits, versioned, type Versions } from './startView.mjs';
 import type { RepoFile } from './github';
 import type { Env } from './App';
-import { X } from '@phosphor-icons/react';
 import { SiteCard } from './themeUi';
-import { IconButton, ListItem, Notice, plainListClass } from './ui';
+import { CloseButton, ListItem, Notice, plainListClass } from './ui';
 import { INFO_KEY } from '../lib/appRoute.mjs';
 
 const EDITS = 'editor-recent-edits';
@@ -99,7 +98,7 @@ export function ContinueCard({ files, savedAt }: { files: RepoFile[]; savedAt: E
       <h2 id="continue-title" className="ps-4 pe-14 pb-2 font-medium">
         {t.library.continueTitle}
       </h2>
-      <IconButton icon={X} label={t.common.close} onClick={close} className="absolute end-1 top-1" />
+      <CloseButton onClick={close} />
       {rows.length ? (
         <ul className={plainListClass}>
           {rows.slice(0, SHOWN).map(({ edit, collection, file }) => (
