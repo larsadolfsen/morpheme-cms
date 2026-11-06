@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { motionSpring } from '@morphemecms/cms/lib/motion';
+import { trapTarget, visibleElements } from '@morphemecms/cms/lib/focusTrap.mjs';
 import IconButton from '@theme/ui/IconButton';
 import Button from '@theme/ui/Button';
 import type { ButtonView } from '@morphemecms/cms/src/standard/buttons/view';
@@ -93,15 +94,11 @@ export default function MobileMenu({
       if (e.key === 'Escape') setOpen(false);
       // Keep keyboard focus inside the drawer while it is open.
       if (e.key === 'Tab' && drawer.current) {
-        const focusable = drawer.current.querySelectorAll<HTMLElement>('a[href], button');
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
+        const focusable = visibleElements(drawer.current.querySelectorAll<HTMLElement>('a[href], button'));
+        const target = trapTarget(e.shiftKey, focusable.indexOf(document.activeElement as HTMLElement), focusable.length);
+        if (target !== null) {
           e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
+          focusable[target].focus();
         }
       }
     };
