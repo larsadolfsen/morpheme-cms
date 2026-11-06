@@ -1,12 +1,13 @@
 // Measures the text toolbar's line (MarkdownEditor.tsx): marks the tools past the first line and tells when the arrow is needed.
-// Exposes useToolbarLines (overflows, expanded, setExpanded). Depends on toolbarLines.mjs; measures on every render, and on resize.
+// Exposes useToolbarLines (overflows, expanded, setExpanded). Depends on toolbarLines.mjs; measures when `deps` change, and on resize.
 import { type RefObject, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { toolbarLines } from './toolbarLines.mjs';
 
 /** For the bar `bar` with its line of tools `line`: the tools past the first line get data-wrapped (and a line between
  * groups at a line break data-line-start or data-line-end). `overflows` is true when they do not all fit on one line;
- * `expanded` is the user's choice to show the second line. */
-export function useToolbarLines(bar: RefObject<HTMLElement | null>, line: RefObject<HTMLElement | null>) {
+ * `expanded` is the user's choice to show the second line. It measures when `deps` (what changes the tools or their
+ * widths) change, and on every resize of the bar, but not on every render. */
+export function useToolbarLines(bar: RefObject<HTMLElement | null>, line: RefObject<HTMLElement | null>, deps: readonly unknown[]) {
   const [overflows, setOverflows] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const measure = useRef(() => {});
@@ -36,7 +37,7 @@ export function useToolbarLines(bar: RefObject<HTMLElement | null>, line: RefObj
       el.toggleAttribute('data-line-end', result.marks[i].lineEnd);
     });
   };
-  useLayoutEffect(() => measure.current());
+  useLayoutEffect(() => measure.current(), deps);
   useEffect(() => {
     const watch = new ResizeObserver(() => measure.current());
     watch.observe(bar.current!);

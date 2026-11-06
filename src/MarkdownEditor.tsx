@@ -1189,7 +1189,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // data-line-start or data-line-end (not drawn).
   const line = useRef<HTMLDivElement>(null);
   const lineId = useId();
-  const { overflows, expanded, setExpanded } = useToolbarLines(toolbar, line);
+  const { overflows, expanded, setExpanded } = useToolbarLines(toolbar, line, [tools.map((item) => item.label).join('|'), narrow]);
   const open = overflows && expanded;
 
   const tool = ({ label, icon, action, on }: (typeof tools)[number]) => (
