@@ -208,7 +208,7 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
   return <Parts title={t.common.parts.company} route="company" parts={companyParts} />;
 }
 
-// "Udseende": first "Temastore" (the store's themes, ThemeStoreScreen in ThemeStore.tsx), then "Temaer" (Themes), with the theme the site is built with at the end of its row (or, after a swap,
+// Appearance: first "Theme store" (the store's themes, ThemeStoreScreen.tsx), then "Temaer" (Themes), with the theme the site is built with at the end of its row (or, after a swap,
 // until the site is built with the new one, that one), "Ikonpakker" (IconPacks), with the pack chosen, "Bevægelse"
 // (MotionSchemes), with the scheme chosen, and "Sidekolonne" (SideColumn.tsx), with the block chosen; then how the
 // site looks, the colours (Colors.tsx), the logo and icon (BrandForm.tsx), the header with its menus and its preview

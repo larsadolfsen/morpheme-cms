@@ -18,7 +18,7 @@
 //                    (Redirects.tsx): seo/redirects/all the redirects, and seo/redirects/not-found
 //                    the addresses visitors came to that do not exist; seo/rating the SEO rating of every page and
 //                    post (SeoScores.tsx); and seo/<part> the site's own (seoParts)
-//   appearance         how the site looks (Library.tsx Theme): appearance/theme-store the store's themes (ThemeStore.tsx ThemeStoreScreen), appearance/themes the themes installed (Themes) and appearance/themes/<theme>
+//   appearance         how the site looks (Library.tsx Theme): appearance/theme-store the store's themes (ThemeStoreScreen.tsx), appearance/themes the themes installed (Themes) and appearance/themes/<theme>
 //                    a theme's page, with the button that swaps to it (ThemePage), appearance/icon-packs the icon packs (IconPacks),
 //                    appearance/motion how it moves (MotionSchemes), appearance/side-column the block beside the pages' text (SideColumn),
 //                    appearance/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
@@ -99,7 +99,8 @@ import BlockSettings from './BlockSettings';
 import Advanced, { ADVANCED_ROUTE } from './Advanced';
 import CmsPage, { CMS_ROUTE } from './CmsPage';
 import Licenses, { LICENSES_ROUTE, LicensePage } from './Licenses';
-import { StoreThemePage, ThemeStoreScreen } from './ThemeStore';
+import { StoreThemePage } from './ThemeStore';
+import { ThemeStoreScreen } from './ThemeStoreScreen';
 import {
   AppPage,
   AppScreenPage,

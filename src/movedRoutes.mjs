@@ -24,7 +24,7 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   header: 'appearance/header',
   // The footer's form was the file's own screen; it is under "Udseende" now.
   'src/data/footer.json': 'appearance/footer',
-  // The store's themes were a tab of the app store; they are on a screen of their own under "Udseende" now.
+  // The store's themes were a tab of the app store; they are on a screen of their own under Appearance now.
   'settings/appstore/themes': 'appearance/theme-store',
 });
 

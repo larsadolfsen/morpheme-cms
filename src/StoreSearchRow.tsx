@@ -8,9 +8,9 @@ import { t } from './i18n';
 type Group = ComponentProps<typeof Filters>['groups'][number];
 export type StoreChip = { key: string; label: string; clear: () => void };
 
-/** The filter by whether it is installed, kept in this browser: its value, its group for the filter dialog and its chip. */
-export function useStateFilter() {
-  const [state, setState] = useKept<'' | 'installed' | 'notInstalled'>('store-status', '');
+/** The filter by whether it is installed, kept in this browser (under `prefix`): its value, its group for the filter dialog and its chip. */
+export function useStateFilter(prefix: string) {
+  const [state, setState] = useKept<'' | 'installed' | 'notInstalled'>(`${prefix}-status`, '');
   const group: Group = {
     title: t.apps.stateFilter,
     value: state,

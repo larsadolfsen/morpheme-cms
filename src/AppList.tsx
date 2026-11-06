@@ -3,7 +3,7 @@
 // that it has a newer version, with search (by name, who made it and what it does), the order (A–Å, Å–A, kept in this
 // browser) and headings by the first letter, as the lists under "Indhold" have. "Indstillinger" › "Appstore"
 // (#settings/appstore): all apps, those in the app store (store.ts) and the site's own, installed or not, with search (by name, what they
-// do, who made them and the words they are found by), the same order and a funnel by category (only apps: the themes are in "Temastore", ThemeStore.tsx; the search row and the
+// do, who made them and the words they are found by), the same order and a funnel by category (only apps: the themes are in "Theme store", ThemeStoreScreen.tsx; the search row and the
 // store notices both screens share are StoreSearchRow.tsx, StoreStatus.tsx and storeSort.tsx). An app's page
 // (#apps/<app>) is the same for every app and without examples: its name, who made it, whether it is installed, its
 // version (from the store) and what it does, "Installer" (or "Opdater til …"); installed, it has two tabs: "Indstillinger"
@@ -415,7 +415,7 @@ function StoreScreen({ env, files, again }: { env: Env; files: RepoFile[]; again
   const [query, setQuery] = useKept('store-search', '');
   const [sort, pickSort] = useSort();
   const [category, setCategory] = useKept<AppCategory | ''>('store-category', '');
-  const stateFilter = useStateFilter();
+  const stateFilter = useStateFilter('store');
 
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   const order = (a: string, b: string) => (sort === 'za' ? -1 : 1) * byText(a, b);

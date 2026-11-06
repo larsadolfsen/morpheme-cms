@@ -1,4 +1,4 @@
-// The themes in the app store (store.ts): "Temastore" (#appearance/theme-store, ThemeStoreScreen, first under "Udseende"), all themes, those
+// The themes in the app store (store.ts): "Theme store" (#appearance/theme-store, ThemeStoreScreen.tsx, first under Appearance), all themes, those
 // in the store and those installed, with the same search, order and status filter as the apps ("Appstore" only has apps); the page of one that
 // is not installed (#appearance/themes/<id>, StoreThemePage), drawn from the catalog as a theme's page (its picture,
 // name, version, who made it, "Installer", its pictures of a site in it, what it is and gives the site, and who made
@@ -11,13 +11,8 @@
 import { useEffect, useState } from 'react';
 import { Check, Smiley } from '@phosphor-icons/react';
 import Screen from './Screen';
-import { StoreFooter, StoreNotice, StoreRound, useStoreConnected, useStoreKey } from './StoreStatus';
-import { StoreSearchRow, useStateFilter } from './StoreSearchRow';
-import { useSort } from './storeSort';
-import { byText } from './schema';
-import { headed, letterOf } from './Sheet';
 import { busyFor } from './busyAction.mjs';
-import { Button, EmptyNote, Group, GroupTitle, ImageCarousel, SupportingText, ListItem, useKept } from './ui';
+import { Button, EmptyNote, Group, GroupTitle, ImageCarousel, SupportingText, ListItem } from './ui';
 import { ConflictError, type RepoFile } from './github';
 import type { Env } from './App';
 import { ask } from './ask';
@@ -259,59 +254,7 @@ export function allThemes(catalog: ShownTheme[] | null | 'failed') {
   ];
 }
 
-/** "Temastore" (#appearance/theme-store, first under "Udseende"): all themes, those in the store and those installed, each
- * with its version and who made it, opening its page. With search (by name, who made it and the words it is found by),
- * the order and the filter by whether it is installed, picked one as a chip. */
-export function ThemeStoreScreen({ env }: { env: Env }) {
-  return <StoreRound>{(again) => <ThemeStoreList env={env} again={again} />}</StoreRound>;
-}
-
-function ThemeStoreList({ env, again }: { env: Env; again: () => void }) {
-  const key = useStoreKey();
-  const catalog = useThemeCatalog(env);
-  const connected = useStoreConnected(env);
-  const [query, setQuery] = useKept('store-search', '');
-  const [sort, pickSort] = useSort();
-  const stateFilter = useStateFilter();
-
-  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
-  const groups = headed(
-    allThemes(catalog)
-      .filter((x) => words.every((w) => x.words.includes(w)))
-      .filter((x) => !stateFilter.state || themeInstalled(x.id) === (stateFilter.state === 'installed'))
-      .sort((a, b) => (sort === 'za' ? -1 : 1) * byText(a.name, b.name)),
-    (x) => letterOf(x.name),
-  );
-
-  return (
-    <Screen title={t.common.parts.themeStore} wide back={{ href: '#appearance', label: t.common.parts.appearance }}>
-      <StoreSearchRow
-        query={query}
-        onQuery={setQuery}
-        label={t.library.searchThemes}
-        sort={sort}
-        pickSort={pickSort}
-        groups={[stateFilter.group]}
-        chips={[stateFilter.chip]}
-      />
-      <StoreNotice connected={connected} read={catalog} mayChange={key?.mayChange ?? false} again={again} />
-      {catalog === null ? null : !groups.length ? (
-        <p className="mb-8 px-1 text-muted">{t.common.noMatch}</p>
-      ) : (
-        groups.map((g) => (
-          <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
-            {g.items.map((x) => (
-              <ThemeRow key={x.id} of={x} />
-            ))}
-          </Group>
-        ))
-      )}
-      <StoreFooter keyInfo={key} again={again} />
-    </Screen>
-  );
-}
-
-/** A theme's row in "Appstore" and on a developer's page: its picture, its name, its version and who made it, and
+/** A theme's row in "Theme store" and on a developer's page: its picture, its name, its version and who made it, and
  * whether it is installed, opening its page. */
 export function ThemeRow({ of }: { of: ReturnType<typeof allThemes>[number] }) {
   return (
