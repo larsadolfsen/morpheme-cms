@@ -9,6 +9,7 @@ import { useSort } from './storeSort';
 import { byText } from './schema';
 import { headed, letterOf } from './Sheet';
 import { allThemes, ThemeRow, themeInstalled, useThemeCatalog } from './ThemeStore';
+import { filterThemes } from './themeFilter.mjs';
 import { t } from './i18n';
 
 /** "Theme store" (#appearance/theme-store, first under Appearance): all themes, those in the store and those installed, each
@@ -26,12 +27,8 @@ function ThemeStoreList({ env, again }: { env: Env; again: () => void }) {
   const [sort, pickSort] = useSort();
   const stateFilter = useStateFilter('theme-store');
 
-  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   const groups = headed(
-    allThemes(catalog)
-      .filter((x) => words.every((w) => x.words.includes(w)))
-      .filter((x) => !stateFilter.state || themeInstalled(x.id) === (stateFilter.state === 'installed'))
-      .sort((a, b) => (sort === 'za' ? -1 : 1) * byText(a.name, b.name)),
+    filterThemes(allThemes(catalog), { query, state: stateFilter.state, sort, installed: themeInstalled, compare: byText }),
     (x) => letterOf(x.name),
   );
 
