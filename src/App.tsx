@@ -729,7 +729,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (!route) return <Start builtAt={builtAt} files={files} env={env} />;
   if (route === 'account') return <Account user={user} files={files} onLogout={onLogout} />;
   // The old address of the notifications, now a side sheet: the start screen, with the sheet over it (App).
-  if (route === 'notifications') return <Start builtAt={builtAt} />;
+  if (route === 'notifications') return <Start builtAt={builtAt} files={files} env={env} />;
   if (route === 'lists') return <Lists files={files} />;
   if (route === 'company') return <Company files={files} />;
   if (route === 'blocks') return <Blocks files={files} />;
