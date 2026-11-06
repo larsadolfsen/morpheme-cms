@@ -1,4 +1,5 @@
-// The text of a page or blog post: Milkdown (packages/editor/src/markdown.mjs) with a small toolbar.
+// The text of a page or blog post: Milkdown (packages/editor/src/markdown.mjs) with a small toolbar. When the tools do
+// not fit on one line, an arrow at its end shows the rest on a second row (useToolbarLines.ts).
 // The text is shown in the site's own style (the "prose" classes of the pages). On pages the site's
 // blocks (src/apps/<app>/blocks/) can be put in the text with a button; each is a card with the block as it looks
 // on the site, which opens a menu (hide on the site, move; below expanded also Ret, Fjern; from expanded a tap opens the
