@@ -93,6 +93,14 @@ export function clearNotifications() {
   set({ ...kept, items: [], seen: Date.now() });
 }
 
+/** A notification's key: when it came and its text. */
+export const notificationKey = (n: Notification) => `${n.at}-${n.text}`;
+
+/** Deletes those with these keys (the ones selected in Notifications.tsx). */
+export function removeNotifications(keys: string[]) {
+  set({ ...kept, items: kept.items.filter((n) => !keys.includes(notificationKey(n))) });
+}
+
 /** Turns a type on or off. */
 export function setOn(type: string, on: boolean) {
   choose({ ...choices, off: on ? choices.off.filter((t) => t !== type) : [...choices.off, type] });

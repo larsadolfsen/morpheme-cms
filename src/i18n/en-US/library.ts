@@ -16,6 +16,10 @@ export const library = {
   notificationsNew: (count: number) => `Notifications, ${count} new`,
   noNotifications: 'No notifications',
   clearNotifications: 'Clear notifications',
+  /** While some are selected (a long press on one, Notifications.tsx): the button that deletes them, and the one that
+   * unselects them. */
+  deleteSelected: (count: number) => `Delete ${count} selected`,
+  cancelSelection: 'Cancel',
   /** The link in the top bar of the start screen: the site's home page, in a new tab. */
   openWebsite: 'Open website',
   /** On "Konto" › "Notifikationer" (Library.tsx NotificationChoices, notificationData.ts). */
