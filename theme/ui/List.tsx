@@ -21,7 +21,7 @@
 // (a sheet it opens, a text it folds out). `selectable`: on a phone (a touch or a pen) a long press selects it, or unselects
 // it, through `onSelectedChange` (useLongPress, longPress.ts), the browser's own menu for a long press kept away; with
 // `selecting` (while some item of its list is selected) a tap does the same instead of following or pressing it. Its
-// `selected` is then that selection. How it looks is the theme's. `className` after the list's own classes (its
+// `selected` is then that selection, told to screen readers by aria-pressed (a button) or as a checkbox (a link, a div). How it looks is the theme's. `className` after the list's own classes (its
 // place in a block), and after an item's own on the item (its place on a screen). An Astro component without React gives its elements the same classes with listClasses and listItemClass.
 // What leads an item, its leading icon, trailing supporting text and trailing icon are parts of their own (ListItemLeading,
 // ListItemLeadingIcon, ListItemTrailingSupporting, ListItemTrailingIcon), so the editor's rows have the same; an icon is its name, as the site
@@ -276,17 +276,29 @@ export function ListItem({
   ]
     .filter(Boolean)
     .join(' ');
+  // While items are being selected, a tap toggles the item instead of following its link or pressing it: a button says
+  // so with aria-pressed, a link or a plain item is a checkbox (aria-selected is only for options and rows).
+  const picking = !!press && (!!selecting || !!selected);
+  const toggle = picking ? { role: 'checkbox', 'aria-checked': !!selected } : undefined;
   const item =
     href !== undefined && !control && !disabled ? (
-      <Link href={href} className={classes} aria-current={selected && !press ? 'true' : undefined} {...rest} {...press}>
+      <Link href={href} className={classes} aria-current={selected && !press ? 'true' : undefined} {...toggle} {...rest} {...press}>
         {content}
       </Link>
     ) : onClick && !control ? (
-      <button type="button" className={classes} disabled={disabled} onClick={onClick} {...rest} {...press}>
+      <button
+        type="button"
+        className={classes}
+        disabled={disabled}
+        onClick={onClick}
+        aria-pressed={picking ? !!selected : undefined}
+        {...rest}
+        {...press}
+      >
         {content}
       </button>
     ) : (
-      <div className={classes} aria-disabled={disabled && href !== undefined ? true : undefined} {...rest} {...press}>
+      <div className={classes} aria-disabled={disabled && href !== undefined ? true : undefined} {...toggle} {...rest} {...press}>
         {content}
       </div>
     );

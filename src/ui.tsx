@@ -1566,7 +1566,8 @@ export function ListItem({
   tone?: RowTone;
   className?: string;
 } & Record<string, unknown>) {
-  let icon = item.selectable && item.selected ? CheckCircle : shownIcon;
+  const ticked = !!item.selectable && !!item.selected;
+  let icon = ticked ? CheckCircle : shownIcon;
   let iconSelected = shownSelected;
   const Arrow = arrow === true ? CaretRight : arrow || null;
   // A LeadingIcon made beforehand (an app's icon in a list) is the item's leading icon.
@@ -1589,7 +1590,8 @@ export function ListItem({
       supporting={some(item.supporting)}
       trailing={some(item.trailing)}
       actions={some(item.actions)}
-      leadingIcon={Lead ? <Lead /> : (icon as ReactElement | undefined)}
+      // The tick of a selected item says nothing more than the item's own selected state.
+      leadingIcon={Lead ? <Lead aria-hidden={ticked ? true : undefined} /> : (icon as ReactElement | undefined)}
       leadingIconSelected={iconSelected}
       trailingSupporting={some(count)}
       trailingIcon={Arrow ? <Arrow /> : undefined}
