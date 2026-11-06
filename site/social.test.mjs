@@ -40,14 +40,17 @@ test('a file from before the list: its keys are read as links', () => {
 test('networkOf knows a network by its host', () => {
   const id = (url) => networkOf(url)?.id ?? null;
   assert.equal(id('https://www.facebook.com/acme'), 'facebook');
-  assert.equal(id('https://m.youtube.com/@acme'), 'youtube');
-  assert.equal(id('https://youtu.be/x'), 'youtube');
+  assert.equal(id('https://fb.me/acme'), 'facebook');
   assert.equal(id('https://twitter.com/acme'), 'x');
   assert.equal(id('https://X.com/acme'), 'x');
+  assert.equal(id('https://dk.linkedin.com/company/acme'), 'linkedin');
   assert.equal(id('https://pinterest.co.uk/acme'), 'pinterest');
-  assert.equal(id('https://mastodon.social/@acme'), 'mastodon');
-  assert.equal(id('https://bsky.app/profile/acme'), 'bluesky');
-  assert.equal(id('https://linktr.ee/acme'), 'linktree');
+  assert.equal(id('https://www.pinterest.dk/acme'), 'pinterest');
+});
+
+test('networkOf: a network a post cannot be shared on is not known (yet)', () => {
+  assert.equal(networkOf('https://www.instagram.com/acme'), null);
+  assert.equal(networkOf('https://www.youtube.com/@acme'), null);
 });
 
 test('networkOf: a host that only looks like one, or no address', () => {

@@ -5,36 +5,16 @@
 // Exposes NETWORKS, networkOf, upgradeSocial, socialOf, shareLinks, sameAsOf.
 
 /**
- * The networks known by their addresses, in no order of importance: the id, the name (a brand, the same in every
- * language) and the hosts (one ending in ".*" is that name with any ending: pinterest.dk, mastodon.social).
- * A host matches itself and any address under it (www.facebook.com, m.youtube.com).
+ * The networks known by their addresses: for now those a post can be shared on (SHARE_IDS). The id, the name (a brand, the
+ * same in every language) and the hosts (one ending in ".*" is that name with any ending: pinterest.dk). A host matches
+ * itself and any address under it (www.facebook.com, dk.linkedin.com). A link to any other site is a profile too, shown by
+ * its host.
  */
 export const NETWORKS = /** @type {const} */ ([
   { id: 'facebook', name: 'Facebook', hosts: ['facebook.com', 'fb.com', 'fb.me'] },
-  { id: 'instagram', name: 'Instagram', hosts: ['instagram.com', 'instagr.am'] },
-  { id: 'linkedin', name: 'LinkedIn', hosts: ['linkedin.com', 'lnkd.in'] },
   { id: 'x', name: 'X', hosts: ['x.com', 'twitter.com'] },
-  { id: 'youtube', name: 'YouTube', hosts: ['youtube.com', 'youtu.be'] },
-  { id: 'tiktok', name: 'TikTok', hosts: ['tiktok.com'] },
+  { id: 'linkedin', name: 'LinkedIn', hosts: ['linkedin.com', 'lnkd.in'] },
   { id: 'pinterest', name: 'Pinterest', hosts: ['pinterest.*', 'pin.it'] },
-  { id: 'threads', name: 'Threads', hosts: ['threads.net', 'threads.com'] },
-  { id: 'bluesky', name: 'Bluesky', hosts: ['bsky.app'] },
-  { id: 'mastodon', name: 'Mastodon', hosts: ['mastodon.*', 'mstdn.*'] },
-  { id: 'snapchat', name: 'Snapchat', hosts: ['snapchat.com'] },
-  { id: 'whatsapp', name: 'WhatsApp', hosts: ['wa.me', 'whatsapp.com'] },
-  { id: 'telegram', name: 'Telegram', hosts: ['t.me', 'telegram.me'] },
-  { id: 'discord', name: 'Discord', hosts: ['discord.gg', 'discord.com'] },
-  { id: 'twitch', name: 'Twitch', hosts: ['twitch.tv'] },
-  { id: 'github', name: 'GitHub', hosts: ['github.com'] },
-  { id: 'spotify', name: 'Spotify', hosts: ['spotify.com'] },
-  { id: 'soundcloud', name: 'SoundCloud', hosts: ['soundcloud.com'] },
-  { id: 'reddit', name: 'Reddit', hosts: ['reddit.com'] },
-  { id: 'tumblr', name: 'Tumblr', hosts: ['tumblr.com'] },
-  { id: 'behance', name: 'Behance', hosts: ['behance.net'] },
-  { id: 'dribbble', name: 'Dribbble', hosts: ['dribbble.com'] },
-  { id: 'medium', name: 'Medium', hosts: ['medium.com'] },
-  { id: 'patreon', name: 'Patreon', hosts: ['patreon.com'] },
-  { id: 'linktree', name: 'Linktree', hosts: ['linktr.ee'] },
 ]);
 
 /** The keys of a file from before the profiles were a list, one for each network, in the order they had. */

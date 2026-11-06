@@ -19,7 +19,7 @@ export const forms = {
     add: 'Add link',
     none: 'No links yet. Add one with the + button.',
     address: 'Address',
-    hint: 'Paste the address of a profile, like https://www.instagram.com/…',
+    hint: 'Paste the address of a profile, like https://www.facebook.com/…',
     found: (network: string) => `${network} profile`,
     addButton: 'Add',
     done: 'Done',

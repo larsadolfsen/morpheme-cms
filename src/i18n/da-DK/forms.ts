@@ -14,7 +14,7 @@ export const forms: Messages['forms'] = {
     add: 'Tilføj link',
     none: 'Ingen links endnu. Tilføj et med knappen +.',
     address: 'Adresse',
-    hint: 'Indsæt adressen på en profil, fx https://www.instagram.com/…',
+    hint: 'Indsæt adressen på en profil, fx https://www.facebook.com/…',
     found: (network) => `Profil på ${network}`,
     addButton: 'Tilføj',
     done: 'Færdig',

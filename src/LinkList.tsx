@@ -5,60 +5,20 @@
 // let in. What is changed here is saved with the form (CompanyForm.tsx). Exposes LinkList and networkIcons. Uses the
 // rows, the sheet and the FAB of ui.tsx and CreateFab.tsx.
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import {
-  ArrowDown,
-  ArrowUp,
-  Butterfly,
-  DiscordLogo,
-  FacebookLogo,
-  GithubLogo,
-  Globe,
-  InstagramLogo,
-  LinkedinLogo,
-  MastodonLogo,
-  PinterestLogo,
-  RedditLogo,
-  SnapchatLogo,
-  SoundcloudLogo,
-  SpotifyLogo,
-  TelegramLogo,
-  ThreadsLogo,
-  TiktokLogo,
-  Trash,
-  TwitchLogo,
-  WhatsappLogo,
-  XLogo,
-  YoutubeLogo,
-  type Icon,
-} from '@phosphor-icons/react';
+import { ArrowDown, ArrowUp, FacebookLogo, Globe, LinkedinLogo, PinterestLogo, Trash, XLogo, type Icon } from '@phosphor-icons/react';
 import { hostOf, networkOf, type NetworkId } from '../site/social.mjs';
 import { CreateFab } from './CreateFab';
 import type { Field } from './schema';
 import { BottomSheet, Button, EmptyNote, IconButton, Label, ListItem, listClass, SheetBody, SheetTitle, TextField } from './ui';
 import { t } from './i18n';
 
-/** The icon of the most used networks (NETWORKS in site/social.mjs); the others are named, with the globe. Each is in every
- * icon pack (MATERIAL_DESIGN_ICONS and PHOSPHOR_FILL_ICONS in site/icons.mjs). */
-export const networkIcons: Partial<Record<NetworkId, Icon>> = {
+/** The icon of each network known (NETWORKS in site/social.mjs), as the share buttons have them; any other link has the
+ * globe. */
+export const networkIcons: Record<NetworkId, Icon> = {
   facebook: FacebookLogo,
-  instagram: InstagramLogo,
-  linkedin: LinkedinLogo,
   x: XLogo,
-  youtube: YoutubeLogo,
-  tiktok: TiktokLogo,
+  linkedin: LinkedinLogo,
   pinterest: PinterestLogo,
-  threads: ThreadsLogo,
-  bluesky: Butterfly,
-  mastodon: MastodonLogo,
-  snapchat: SnapchatLogo,
-  whatsapp: WhatsappLogo,
-  telegram: TelegramLogo,
-  discord: DiscordLogo,
-  twitch: TwitchLogo,
-  github: GithubLogo,
-  spotify: SpotifyLogo,
-  soundcloud: SoundcloudLogo,
-  reddit: RedditLogo,
 };
 
 type Link = { url?: string } & Record<string, unknown>;
@@ -77,7 +37,7 @@ export function typedLink(typed: string): string {
 const nameOf = (url: string) => networkOf(url)?.name ?? (hostOf(url) || url);
 const iconOf = (url: string): Icon => {
   const network = networkOf(url);
-  return (network && networkIcons[network.id]) || Globe;
+  return network ? networkIcons[network.id] : Globe;
 };
 /** The address as it is shown under its name: without https:// and the slash at the end. */
 const shownAddress = (url: string) => url.replace(/^https:\/\//i, '').replace(/\/$/, '');
