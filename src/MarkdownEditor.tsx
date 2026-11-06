@@ -13,7 +13,6 @@ import {
   useEffect,
   useId,
   useImperativeHandle,
-  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -71,6 +70,7 @@ import SectionSettingsIcon from './SectionSettingsIcon';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel } from './sheetPlacement.mjs';
+import { useToolbarLines } from './useToolbarLines';
 import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
 import { describe, htmlBlock, type BlockProps } from './blocks';
@@ -1189,42 +1189,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // data-line-start or data-line-end (not drawn).
   const line = useRef<HTMLDivElement>(null);
   const lineId = useId();
-  const [overflows, setOverflows] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const measure = useRef(() => {});
-  measure.current = () => {
-    const bar = toolbar.current;
-    const row = line.current;
-    if (!bar || !row) return;
-    const items = ([...row.children] as HTMLElement[]).filter((el) => !el.hasAttribute('popover'));
-    const barStyle = getComputedStyle(bar);
-    const room = bar.clientWidth - parseFloat(barStyle.paddingLeft) - parseFloat(barStyle.paddingRight);
-    const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
-    const need = items.reduce(
-      (sum, el) => {
-        const style = getComputedStyle(el);
-        return sum + el.getBoundingClientRect().width + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
-      },
-      gap * Math.max(0, items.length - 1),
-    );
-    setOverflows(need > room + 0.5);
-    // By the middle of each, as the lines between the groups are shorter than the buttons.
-    const middles = items.map((el) => {
-      const box = el.getBoundingClientRect();
-      return box.top + box.height / 2;
-    });
-    items.forEach((el, i) => {
-      el.toggleAttribute('data-wrapped', middles[i] > middles[0] + 10);
-      el.toggleAttribute('data-line-start', i > 0 && middles[i] > middles[i - 1] + 10);
-      el.toggleAttribute('data-line-end', i < items.length - 1 && middles[i + 1] > middles[i] + 10);
-    });
-  };
-  useLayoutEffect(() => measure.current());
-  useEffect(() => {
-    const watch = new ResizeObserver(() => measure.current());
-    watch.observe(toolbar.current!);
-    return () => watch.disconnect();
-  }, []);
+  const { overflows, expanded, setExpanded } = useToolbarLines(toolbar, line);
   const open = overflows && expanded;
 
   const tool = ({ label, icon, action, on }: (typeof tools)[number]) => (
