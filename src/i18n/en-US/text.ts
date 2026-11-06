@@ -20,6 +20,9 @@ export const text = {
   /** The kinds of text as one button, when the toolbar is too short. */
   kind: 'Text style',
   kindIs: (kind: string) => `Text style: ${kind}`,
+  /** The button at the end of the toolbar when its tools do not fit on one line: the second line shown or hidden. */
+  moreTools: 'Show more tools',
+  fewerTools: 'Show fewer tools',
   /** The menu over a selection. */
   selection: 'Selected text',
   /** The colours a selection can have there (packages/editor/lib/text-colors.mjs), by the names under "Farver". */
@@ -43,5 +46,5 @@ export const text = {
   showOnPage: 'Show on the page',
   hideOnPage: 'Hide on the page',
   /** Shown in an empty line of the text, under the pointer or the cursor. */
-  typeHere: 'Start typing… Make your first heading count, because it becomes the H1 that readers and search engines see first.',
+  typeHere: 'Write text here…',
 };
