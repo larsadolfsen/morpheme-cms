@@ -43,5 +43,9 @@ export function useToolbarLines(bar: RefObject<HTMLElement | null>, line: RefObj
     watch.observe(bar.current!);
     return () => watch.disconnect();
   }, [bar]);
+  // With no arrow, the second line cannot be open: it starts closed when the arrow comes back.
+  useEffect(() => {
+    if (!overflows) setExpanded(false);
+  }, [overflows]);
   return { overflows, expanded, setExpanded };
 }
