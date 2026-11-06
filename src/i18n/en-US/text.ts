@@ -43,5 +43,5 @@ export const text = {
   showOnPage: 'Show on the page',
   hideOnPage: 'Hide on the page',
   /** Shown in an empty line of the text, under the pointer or the cursor. */
-  typeHere: 'Write text here …',
+  typeHere: 'Write text here…',
 };
