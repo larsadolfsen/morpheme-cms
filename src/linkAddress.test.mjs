@@ -44,6 +44,11 @@ test('problemOf: a link is not a duplicate of itself', () => {
   assert.equal(problemOf('https://a.dk/x', 1, urls, rules), 'twice');
 });
 
+test('problemOf: the same address in another case or with a slash is twice', () => {
+  const urls = ['https://www.facebook.com/acme'];
+  assert.equal(problemOf('https://WWW.FACEBOOK.com/acme/', null, urls, rules), 'twice');
+});
+
 test('nameOf and shownAddress', () => {
   assert.equal(nameOf('https://www.facebook.com/acme'), 'Facebook');
   assert.equal(nameOf('https://www.example.com/a'), 'example.com');

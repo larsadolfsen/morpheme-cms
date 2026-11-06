@@ -15,6 +15,7 @@ import { collections } from '@site/collections';
 import { config } from '@site/config';
 import { opensOf } from '@site/opens';
 import { differentPages, standardPages, standardPaths } from '@site/standardPages';
+import { twiceIn, upgradeSocial } from '../site/social.mjs';
 
 const fm = (file: RepoFile) => readFields(splitFrontmatter(file.text).yaml);
 // A page's address: `path`, or /<file name>/ for pages made in the editor.
@@ -226,7 +227,7 @@ function standardKept(data: Record<string, unknown>, files: RepoFile[]): Status 
 }
 
 /** What is wrong on the site by its own rules, a line for each, before it is built (checkSite.ts): a standard page that
- * is not a page on the site, or the same page twice, and a button that opens a promotion that is gone, turned off or not
+ * is not a page on the site, or the same page twice, a profile on social media twice, and a button that opens a promotion that is gone, turned off or not
  * shown on its page. */
 export function siteProblems(files: { path: string; text: string }[]): string[] {
   const problems: string[] = [];
@@ -240,6 +241,17 @@ export function siteProblems(files: { path: string; text: string }[]): string[] 
     }
     if (!differentPages(standardOf(files)))
       problems.push(`${config.standardPages}: ${siteText('The default pages must be different pages.')}`);
+  }
+  // A profile is on social media's list once (Business › Social media, social.json).
+  const social = files.find((f) => f.path === 'src/data/social.json');
+  if (social) {
+    try {
+      const profiles = upgradeSocial(JSON.parse(social.text) as Record<string, unknown>).profiles;
+      for (const url of twiceIn(Array.isArray(profiles) ? profiles : []))
+        problems.push(`${social.path}: ${siteText('The address {url} is in the list of profiles more than once.', { url })}`);
+    } catch {
+      // A file that is not JSON is found by the check of the files' own rules.
+    }
   }
   const promotions = files.filter((f) => f.path.startsWith('src/data/popups/') && f.path.endsWith('.json'));
   const slugs = new Set<string>();

@@ -2,7 +2,7 @@
 // links the owner adds ({ profiles: [{ url }] }), each one's network known by its address (networkOf), for the
 // structured data (sameAs); and the share buttons under a blog post, with their addresses. A file written before the
 // profiles were a list has a key for each of seven networks ("facebook": "https://…"): upgradeSocial makes it a list.
-// Exposes NETWORKS, networkOf, upgradeSocial, socialOf, shareLinks, sameAsOf.
+// Exposes NETWORKS, networkOf, addressKey, twiceIn, upgradeSocial, socialOf, shareLinks, sameAsOf.
 
 /**
  * The networks known by their addresses: for now those a post can be shared on (SHARE_IDS). The id, the name (a brand, the
@@ -37,6 +37,41 @@ export function hostOf(url) {
   }
 }
 
+/**
+ * An address as it is compared with another: the host in small letters, no slash at the end. Two addresses with the
+ * same key are the same address. One that is not an address has its own text (trimmed, without the slash) as its key.
+ * @param {string} url
+ */
+export function addressKey(url) {
+  const text = url.trim();
+  try {
+    const u = new URL(text);
+    return `${u.protocol}//${u.host}${u.pathname.replace(/\/+$/, '')}${u.search}${u.hash}`;
+  } catch {
+    return text.replace(/\/+$/, '');
+  }
+}
+
+/**
+ * The addresses a list of profiles has more than once (the second and later of each, as written); empty ones left out.
+ * @param {unknown[]} profiles
+ * @returns {string[]}
+ */
+export function twiceIn(profiles) {
+  const seen = new Set();
+  /** @type {string[]} */
+  const twice = [];
+  for (const item of profiles) {
+    const url =
+      item && typeof item === 'object' && typeof (/** @type {any} */ (item).url) === 'string' ? /** @type {any} */ (item).url.trim() : '';
+    if (!url) continue;
+    const key = addressKey(url);
+    if (seen.has(key)) twice.push(url);
+    else seen.add(key);
+  }
+  return twice;
+}
+
 /** @param {string} host @param {string} known */
 function hostIs(host, known) {
   if (known.endsWith('.*')) return new RegExp(`(^|\\.)${known.slice(0, -2)}\\.[a-z]{2,}(\\.[a-z]{2,})?$`).test(host);
@@ -57,7 +92,8 @@ export function networkOf(url) {
 /**
  * The file's data as it is written now: one from before the profiles were a list has its filled keys
  * ("facebook": "https://…") as links in the list, where the first of them was, in their order, after any the
- * list has; the other keys stay as and where they were. A file without those keys is given back as it is.
+ * list has; the other keys stay as and where they were. An address already in the list is not added again (nor is
+ * one twice in the keys). A file without those keys is given back as it is.
  * @param {Record<string, unknown>} data
  * @returns {Record<string, unknown>}
  */
@@ -67,11 +103,18 @@ export function upgradeSocial(data) {
   const old = OLD_KEYS.map((k) => data[k])
     .filter((v) => typeof v === 'string' && v.trim() !== '')
     .map((v) => ({ url: /** @type {string} */ (v).trim() }));
+  const seen = new Set(kept.map((p) => (p && typeof p.url === 'string' ? addressKey(p.url) : '')).filter(Boolean));
+  const added = old.filter((p) => {
+    const key = addressKey(p.url);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
   /** @type {Record<string, unknown>} */
   const out = {};
   for (const [key, value] of Object.entries(data)) {
     if (key === 'profiles' || OLD_KEYS.includes(key)) {
-      if (!('profiles' in out)) out.profiles = [...kept, ...old];
+      if (!('profiles' in out)) out.profiles = [...kept, ...added];
     } else out[key] = value;
   }
   return out;

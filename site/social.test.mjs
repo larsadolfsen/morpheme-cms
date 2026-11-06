@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
-import { socialOf, shareLinks, sameAsOf, networkOf, upgradeSocial } from './social.mjs';
+import { socialOf, shareLinks, sameAsOf, networkOf, upgradeSocial, addressKey, twiceIn } from './social.mjs';
 
 test('no file', () => {
   assert.deepEqual(socialOf(undefined), { profiles: [], share: ['facebook', 'x', 'linkedin', 'pinterest', 'copy-link'] });
@@ -133,4 +133,27 @@ test('sameAs keeps the order', () => {
     ]),
     ['https://f', 'https://x'],
   );
+});
+
+test('addressKey ignores the case of the host and a slash at the end', () => {
+  assert.equal(addressKey('https://WWW.Facebook.com/Acme/'), addressKey('https://www.facebook.com/Acme'));
+  assert.equal(addressKey('https://a.dk/'), addressKey('https://a.dk'));
+  assert.notEqual(addressKey('https://a.dk/Acme'), addressKey('https://a.dk/acme'));
+  assert.equal(addressKey(' nonsense/ '), 'nonsense');
+});
+
+test('upgradeSocial does not add an address the list has', () => {
+  const A = 'https://facebook.com/acme';
+  assert.deepEqual(upgradeSocial({ profiles: [{ url: A }], facebook: A }).profiles, [{ url: A }]);
+  assert.deepEqual(upgradeSocial({ profiles: [{ url: A }], facebook: 'https://FACEBOOK.com/acme/' }).profiles, [{ url: A }]);
+});
+
+test('upgradeSocial adds an address of the keys once', () => {
+  assert.deepEqual(upgradeSocial({ facebook: 'https://a.dk/x', x: 'https://a.dk/x/' }).profiles, [{ url: 'https://a.dk/x' }]);
+});
+
+test('twiceIn gives the addresses a list has more than once', () => {
+  assert.deepEqual(twiceIn([{ url: 'https://a.dk/x' }, { url: 'https://b.dk' }, { url: 'https://A.dk/x/' }]), ['https://A.dk/x/']);
+  assert.deepEqual(twiceIn([{ url: 'https://a.dk' }, { url: 'https://b.dk' }, { url: '' }, { url: '' }, {}]), []);
+  assert.deepEqual(twiceIn([]), []);
 });

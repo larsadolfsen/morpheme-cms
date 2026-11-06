@@ -1,7 +1,7 @@
 // The pure parts of the list of links (LinkList.tsx): an address as typed made one (typedLink), what is wrong with an
 // address (problemOf), the name and the shown form of a link (nameOf, shownAddress).
 // Exposes typedLink, problemOf, nameOf, shownAddress. Uses networkOf and hostOf of site/social.mjs.
-import { hostOf, networkOf } from '../site/social.mjs';
+import { addressKey, hostOf, networkOf } from '../site/social.mjs';
 
 // A real scheme: letters, then ":" not followed by a digit (mailto:, ftp:); "host:443/path" is a host with a port.
 const SCHEME = /^[a-z][a-z0-9+.-]*:(?!\d)/i;
@@ -31,7 +31,7 @@ export function typedLink(typed) {
 export function problemOf(url, index, urls, rules) {
   if (!url) return rules.noAddress;
   if (rules.pattern && !new RegExp(rules.pattern[0]).test(url)) return rules.pattern[1];
-  if (urls.some((u, i) => i !== index && String(u ?? '').trim() === url)) return rules.twice;
+  if (urls.some((u, i) => i !== index && addressKey(String(u ?? '')) === addressKey(url))) return rules.twice;
   return null;
 }
 

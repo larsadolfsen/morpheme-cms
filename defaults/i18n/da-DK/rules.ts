@@ -15,6 +15,7 @@ export const rules: Record<string, string> = {
   'Edit the action bar': 'Rediger handlingslinjen',
   'Edit the default buttons': 'Rediger standardknapperne',
   'The default pages must be different pages.': 'Standardsiderne skal være forskellige sider.',
+  'The address {url} is in the list of profiles more than once.': 'Adressen {url} er flere gange på listen over profiler.',
   'The page "{side}" does not have the block {blok}, which {hvad} must have. Put it in on the page first.':
     'Siden "{side}" har ikke blokken {blok}, som {hvad} skal have. Sæt den ind på siden først.',
   '{side} must be a published page.': '{side} skal være en side, der er udgivet.',
