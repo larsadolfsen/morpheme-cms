@@ -112,7 +112,7 @@ export const icons: Record<string, Icon> = {
   tags: Tag,
   popups: Megaphone,
   company: Buildings,
-  // The sections of the main menu that are not also a part.
+  // The sections of the main menu that are not also a part ("Business" is the part "company"'s icon).
   content: Article,
   global: GlobeSimple,
   settings: GearSix,
@@ -157,12 +157,13 @@ export const appearance: Part[] = [
 // The editor's menu: eight sections in a fixed order, shown in the order written here, never A–Z. "Dashboard" is a link to the
 // start screen (`href`) without a list; the others have a list of parts, each an id: the content the owner writes and
 // uploads ("Content": the pages, the blog, the short lists, the pop-ups, the tags, the files, "internal links" (seoParts)
-// and "redirects", Redirects.tsx), what is on every page ("Globals": the header with the menus, the footer and
-// "Business": name, contact and booking), the apps ("Apps": the apps that come with the site, src/apps/, AppList.tsx,
-// and "appstore"), the blocks ("Blocks": their shared texts, and "Block selection", which of them can be put in), how the site
-// looks ("Appearance": the theme, the icon packs, the motion, the side column (SideColumn.tsx), the colors, the logo and icon, the standard pages
-// (appearance) and the editor's parts: Colors.tsx, BrandForm.tsx and Parts.tsx), the parts of "Privacy" (privacy.ts)
-// and the settings of the whole site ("Settings").
+// and "redirects", Redirects.tsx), the blocks ("Blocks": their shared texts, and "Block selection", which of them can be
+// put in), the apps ("Apps": the apps that come with the site, src/apps/, AppList.tsx, and "appstore"), the business
+// ("Business", the section of the editor's part "company": its parts, name, contact and booking, are its rows; lib/menu.mjs),
+// how the site looks ("Appearance": the theme, the icon packs, the motion, the side column (SideColumn.tsx), the colors,
+// the logo and icon, the header with the menus and the footer (what is on every page), the standard pages (appearance)
+// and the editor's parts: Colors.tsx, BrandForm.tsx and Parts.tsx), the parts of "Privacy" (privacy.ts) and the settings
+// of the whole site ("Settings").
 // Each part is a collection (collections.ts), except those named above, "privacy"'s (partScreens) and the editor's own
 // "company" (companyParts), "blocks" (blockParts), id files (the pictures, PDFs, videos and zip files), "header", "lists"
 // and "block-settings" (BlockSettings.tsx).
@@ -174,13 +175,13 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
     title: 'Content',
     ids: ['pages', 'blog', 'lists', 'popups', 'tags', 'files', internalLinks.id, 'redirects'],
   },
-  { id: 'global', title: 'Globals', ids: ['header', 'footer', 'company'] },
-  { id: 'apps', title: 'Apps', ids: ['apps', 'appstore'] },
   { id: 'blocks', title: 'Blocks', ids: ['blocks', 'block-settings'] },
+  { id: 'apps', title: 'Apps', ids: ['apps', 'appstore'] },
+  { id: 'company', title: 'Business', ids: ['company'] },
   {
     id: 'appearance',
     title: 'Appearance',
-    ids: ['themes', 'icon-packs', 'motion', 'side-column', 'colors', 'logo', ...appearance.map((p) => p.id), 'parts'],
+    ids: ['themes', 'icon-packs', 'motion', 'side-column', 'colors', 'logo', 'header', 'footer', ...appearance.map((p) => p.id), 'parts'],
   },
   { id: 'privacy', title: 'Privacy', ids: privacy.parts.map((p) => p.id) },
   { id: 'settings', title: 'Settings', ids: settingsIds },

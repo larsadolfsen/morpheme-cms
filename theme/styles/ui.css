@@ -2743,9 +2743,9 @@
   navigationDrawerClass, navigationDrawerScrimClass): .navigation-drawer, the drawer, over .navigation-drawer-scrim;
   .navigation-drawer-standard, the standard one, beside the content (--navigation-drawer-standard-shadow, level 0);
   .navigation-drawer-dialog, a <dialog> it is in, at the start edge (its ::backdrop the scrim); .navigation-drawer-end,
-  one at the end edge (its corners towards the page, mirrored); .navigation-drawer-bleed, one that springs in: wider by
-  --navigation-drawer-bleed (32dp) at the edge it comes from, that strip off the screen, so a spring that overshoots
-  shows no gap at the edge; .navigation-drawer-item,
+  one at the end edge (its corners towards the page, mirrored); .navigation-drawer-bleed, one that springs in (on the
+  drawer, or on the <dialog> it is in): wider by --navigation-drawer-bleed (32dp) at the edge it comes from, that strip
+  off the screen, so a spring that overshoots shows no gap at the edge; .navigation-drawer-item,
   a page (a link, or a button: the editor's) ([data-active]: the open one, or the one holding it), its
   .navigation-drawer-icon (24dp, outlined; the filled .navigation-drawer-selected-icon in its place while
   [data-active]) and .navigation-drawer-label, and evt. .navigation-drawer-badge, the text at its end
@@ -3322,12 +3322,12 @@
   /* One that springs in: a strip as wide as --navigation-drawer-bleed beyond the screen's edge (a negative margin), the
      items as far in from the edge as before (the strip added to the padding), so the drawer still covers the edge
      while an overshooting spring carries it a little past its place. */
-  .navigation-drawer-bleed {
+  .navigation-drawer.navigation-drawer-bleed {
     width: calc(var(--navigation-drawer-width, min(22.5rem, calc(100vw - 3.5rem))) + var(--navigation-drawer-bleed, 2rem));
     margin-inline-start: calc(-1 * var(--navigation-drawer-bleed, 2rem));
     padding-inline-start: calc(var(--navigation-drawer-inset, 0.75rem) + var(--navigation-drawer-bleed, 2rem));
   }
-  .navigation-drawer-bleed.navigation-drawer-end {
+  .navigation-drawer.navigation-drawer-bleed.navigation-drawer-end {
     margin-inline: 0 calc(-1 * var(--navigation-drawer-bleed, 2rem));
     padding-inline: var(--navigation-drawer-inset, 0.75rem)
       calc(var(--navigation-drawer-inset, 0.75rem) + var(--navigation-drawer-bleed, 2rem));
@@ -3382,6 +3382,16 @@
   }
   .navigation-drawer-dialog > .navigation-drawer {
     height: 100%;
+  }
+  /* A <dialog> that springs in (navigationDrawerBleedClass on the dialog, the editor's): the dialog starts the strip
+     beyond the screen's edge and the drawer in it is that much wider, its items as far in as before (a modal dialog
+     clips what sticks out of it, so the strip is the dialog's own). */
+  .navigation-drawer-dialog.navigation-drawer-bleed {
+    inset-inline-start: calc(-1 * var(--navigation-drawer-bleed, 2rem));
+  }
+  .navigation-drawer-dialog.navigation-drawer-bleed > .navigation-drawer {
+    width: calc(var(--navigation-drawer-width, min(22.5rem, calc(100vw - 3.5rem))) + var(--navigation-drawer-bleed, 2rem));
+    padding-inline-start: calc(var(--navigation-drawer-inset, 0.75rem) + var(--navigation-drawer-bleed, 2rem));
   }
   .navigation-drawer-dialog::backdrop {
     background: var(--navigation-drawer-scrim, color-mix(in srgb, var(--theme-scrim-colour) 45%, transparent));

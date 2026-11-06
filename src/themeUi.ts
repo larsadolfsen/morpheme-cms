@@ -52,6 +52,7 @@ export {
   NavigationDrawerBack as SiteNavigationDrawerBack,
   focusNavigationDrawerItem as siteFocusNavigationDrawerItem,
   navigationDrawerDialogClass as siteNavigationDrawerDialogClass,
+  navigationDrawerBleedClass as siteNavigationDrawerBleedClass,
   navigationDrawerKeys as siteNavigationDrawerKeys,
   NavigationDrawerItem as SiteNavigationDrawerItem,
   NavigationDrawerRow as SiteNavigationDrawerRow,

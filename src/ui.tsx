@@ -86,6 +86,7 @@ import {
   SiteNavigationDrawerSection,
   SiteNavigationDrawerSubitem,
   SiteNavigationDrawerToggle,
+  siteNavigationDrawerBleedClass,
   siteNavigationDrawerDialogClass,
   siteFocusNavigationDrawerItem,
   SiteSegmentedButton,
@@ -2825,7 +2826,7 @@ function ModalMainDrawer({
     <dialog
       ref={dialog}
       aria-label={label}
-      className={`${siteNavigationDrawerDialogClass} editor-main-drawer`}
+      className={`${siteNavigationDrawerDialogClass} ${siteNavigationDrawerBleedClass} editor-main-drawer`}
       onClose={() => onOpenChange(false)}
       onCancel={(e) => {
         if (escaped.current) e.preventDefault();

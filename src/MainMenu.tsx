@@ -10,7 +10,7 @@ import { config, header } from '@site/editor';
 import { currentPlace, menuTree } from '../lib/menu.mjs';
 import { STORE_ROUTE } from './store';
 import { collectionOf } from './schema';
-import { apps, collections, groups, icons, lists, partScreens } from './site';
+import { apps, collections, companyParts, groups, icons, lists, partScreens } from './site';
 import { partOf } from './Library';
 import { AccountRow } from './AccountRow';
 import { childrenOf } from './menuChildren';
@@ -141,8 +141,12 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
           {section.items.map(({ id, label, href, count, children }) => {
             const here = place.section === section.id && place.item === id;
             const shownCount = files ? count : null;
-            // An app's row has the app's icon (an installed app is a row of Apps, lib/menu.mjs).
-            const icon = (section.id === 'apps' && apps.find((a) => a.id === id)?.icon) || icons[id];
+            // An app's row has the app's icon (an installed app is a row of Apps, lib/menu.mjs), a part of the business its
+            // own (a part is a row of Business).
+            const icon =
+              (section.id === 'apps' && apps.find((a) => a.id === id)?.icon) ||
+              (section.id === 'company' && companyParts.find((p) => p.id === id)?.icon) ||
+              icons[id];
             return children ? (
               <MainDrawerFold key={id} href={href} icon={icon} label={label} count={shownCount} selected={here && !place.child} open={here}>
                 {children.map((child) => (
