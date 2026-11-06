@@ -17,11 +17,12 @@ import { useId, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
-import { IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
+import { IconButton, IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
 import { up } from './nav';
 import EditorFooter from './EditorFooter';
 import { useMenuOpen } from './menuOpen';
 import { unseen, useNotifications } from './notificationData';
+import { openNotifications, useNotificationsOpen } from './notificationsOpen';
 import { SiteLogoLink } from './SiteLogoLink';
 import { useTopBarSlot } from './topBarSlot';
 
@@ -56,20 +57,20 @@ export function WebsiteLink() {
   return <IconLink href="/" target="_blank" rel="noopener" icon={ArrowSquareOut} label={t.library.openWebsite} />;
 }
 
-/** The bell in the top bar, before the link to the website: the notifications (#notifications, Notifications.tsx), with a dot
- * while some are not seen yet. */
-export function NotificationsLink({ className = '' }: { className?: string }) {
+/** The bell in the top bar, before the link to the website: opens the notifications in a side sheet (Notifications.tsx,
+ * notificationsOpen.ts), with a dot while some are not seen yet. */
+export function NotificationsButton({ className = '' }: { className?: string }) {
   const count = unseen(useNotifications());
-  const current = location.hash === '#notifications';
+  const open = useNotificationsOpen();
   return (
-    <IconLink
-      href="#notifications"
+    <IconButton
       icon={Bell}
       label={count ? t.library.notificationsNew(count) : t.library.notifications}
-      aria-current={current ? 'page' : undefined}
-      selected={current}
+      aria-haspopup="dialog"
+      aria-expanded={open}
       badge={count > 0}
       className={className}
+      onClick={openNotifications}
     />
   );
 }
@@ -145,7 +146,7 @@ export default function Screen<T extends string>({
           {pageActions && <div className="flex items-center gap-1 expanded:hidden">{pageActions}</div>}
           {actions}
         </div>
-        <NotificationsLink />
+        <NotificationsButton />
         {home && <WebsiteLink />}
         {drawer}
       </div>

@@ -174,6 +174,7 @@ import { appRouteOf } from '../lib/appRoute.mjs';
 import { movedRoute } from './movedRoutes.mjs';
 import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, syncDevice, told, waitOnServer } from './notificationData';
 import Notifications from './Notifications';
+import { openNotifications } from './notificationsOpen';
 import { EditorOwn, InEditor } from './standard/view';
 import './editor.css';
 
@@ -332,6 +333,10 @@ function Editor() {
     navigator.serviceWorker?.addEventListener('message', onMessage);
     return () => navigator.serviceWorker?.removeEventListener('message', onMessage);
   }, []);
+  // The notifications' old address (#notifications, a screen before they were a side sheet): opens the sheet.
+  useEffect(() => {
+    if (route === 'notifications') openNotifications();
+  }, [route]);
   // When the site was last updated (built on Cloudflare), for the start screen.
   const [builtAt, setBuiltAt] = useState<Date | null>(null);
   useEffect(() => keepCurrent((v) => v.builtAt && setBuiltAt(new Date(v.builtAt))), []);
@@ -683,6 +688,7 @@ function Editor() {
 
           <LinkAsk groups={linkGroups} />
           <Ask />
+          <Notifications />
         </>
       </TopBarLayout>
     </>
@@ -722,7 +728,8 @@ type PageProps = { route: string; files: RepoFile[]; env: Env; user: Viewer | nu
 function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (!route) return <Start builtAt={builtAt} files={files} env={env} />;
   if (route === 'account') return <Account user={user} files={files} onLogout={onLogout} />;
-  if (route === 'notifications') return <Notifications />;
+  // The old address of the notifications, now a side sheet: the start screen, with the sheet over it (App).
+  if (route === 'notifications') return <Start builtAt={builtAt} files={files} env={env} />;
   if (route === 'lists') return <Lists files={files} />;
   if (route === 'company') return <Company files={files} />;
   if (route === 'blocks') return <Blocks files={files} />;

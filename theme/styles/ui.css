@@ -2147,7 +2147,8 @@
   and what trails it (.list-item-trailing-supporting, .list-item-trailing: an icon, an arrow); .list-item-two-line or
   .list-item-three-line by its lines; .list-item-columns with its headline and supporting text side by side on a wide
   screen; .list-item-with-control with the theme's checkbox, radio button or switch in
-  .list-item-control before or after the text; .list-item-selected and .list-item-disabled. An item's corners change
+  .list-item-control before or after the text; .list-item-selectable for one a long press selects (List.tsx
+  `selectable`); .list-item-selected and .list-item-disabled. An item's corners change
   with its state (Material's shape morphing): pointed at (hover), pressed or focused, and selected. In a segmented list
   each <li> is the item's surface (also around what is beside its container in it: a button, fields folded out), the
   first and the last with the list's corners. A multi-action item (.list-item-multi-action): an item's container and
@@ -2527,6 +2528,13 @@
   }
   .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:active) {
     background: var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent));
+  }
+
+  /* An item a long press selects (List.tsx `selectable`): the press selects it, not its text, and opens no menu. */
+  .list-item-selectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
   /* Selected, and disabled. */
