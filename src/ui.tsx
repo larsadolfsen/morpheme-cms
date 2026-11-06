@@ -37,6 +37,7 @@ import {
   CaretRight,
   CaretUp,
   Check,
+  CheckCircle,
   Funnel,
   LockSimple,
   LockSimpleOpen,
@@ -1525,8 +1526,9 @@ const toneClass: Record<RowTone, string> = {
  * (`headline`) and what is under it (`supporting`; `truncate`: each on one line, cut off), how many at the right
  * (`count`), the arrow of a row that opens something (`arrow`, or another icon: what a tap does) or anything there
  * (`trailing`), the buttons beside it (`actions`: the arrows, Fjern, a switch) and what is in its <li> after it
- * (`children`: a sheet it opens, a text it folds out); `tone`: RowTone. The rest (aria-…, ref, style, onClick on a
- * link) on the row. */
+ * (`children`: a sheet it opens, a text it folds out); `tone`: RowTone. `selectable`: on a phone a long press selects it
+ * (`onSelectedChange`), and while its list is `selecting` a tap does; selected, a tick is its icon (the theme's
+ * ListItem). The rest (aria-…, ref, style, onClick on a link) on the row. */
 export function ListItem({
   icon: shownIcon,
   iconSelected: shownSelected,
@@ -1551,10 +1553,13 @@ export function ListItem({
   onClick?: () => void;
   disabled?: boolean;
   selected?: boolean;
+  selectable?: boolean;
+  selecting?: boolean;
+  onSelectedChange?: (selected: boolean) => void;
   tone?: RowTone;
   className?: string;
 } & Record<string, unknown>) {
-  let icon = shownIcon;
+  let icon = item.selectable && item.selected ? CheckCircle : shownIcon;
   let iconSelected = shownSelected;
   const Arrow = arrow === true ? CaretRight : arrow || null;
   // A LeadingIcon made beforehand (an app's icon in a list) is the item's leading icon.

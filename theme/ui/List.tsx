@@ -18,7 +18,10 @@
 // on one line, cut off (a name, an address); else they wrap. `columns`: on a wide screen its headline and supporting text
 // side by side, as columns of the list (an address and where it sends to), under each other on a phone. `actions`: secondary actions beside it (icon buttons, a
 // switch), a multi-action item (Material's) with the item its primary action; `children`: what is in its <li> after it
-// (a sheet it opens, a text it folds out). How it looks is the theme's. `className` after the list's own classes (its
+// (a sheet it opens, a text it folds out). `selectable`: on a phone (a touch or a pen) a long press selects it, or unselects
+// it, through `onSelectedChange` (useLongPress, longPress.ts), the browser's own menu for a long press kept away; with
+// `selecting` (while some item of its list is selected) a tap does the same instead of following or pressing it. Its
+// `selected` is then that selection. How it looks is the theme's. `className` after the list's own classes (its
 // place in a block), and after an item's own on the item (its place on a screen). An Astro component without React gives its elements the same classes with listClasses and listItemClass.
 // What leads an item, its leading icon, trailing supporting text and trailing icon are parts of their own (ListItemLeading,
 // ListItemLeadingIcon, ListItemTrailingSupporting, ListItemTrailingIcon), so the editor's rows have the same; an icon is its name, as the site
@@ -29,6 +32,7 @@ import { Link } from '@morphemecms/cms/src/standard/view';
 import Checkbox from '@theme/ui/Checkbox';
 import RadioButton from '@theme/ui/RadioButton';
 import Switch, { type SwitchIcons } from '@theme/ui/Switch';
+import { useLongPress } from '@theme/ui/longPress';
 
 /** A list's kinds and dividers, and its items' lines, as Material 3 names them. */
 export type ListKind = 'standard' | 'segmented';
@@ -136,6 +140,9 @@ export function ListItem({
   truncate,
   columns,
   actions,
+  selectable,
+  selecting,
+  onSelectedChange,
   className,
   children,
   ...rest
@@ -162,10 +169,16 @@ export function ListItem({
   truncate?: boolean;
   columns?: boolean;
   actions?: ReactNode;
+  /** A long press with a touch or a pen selects it (or unselects it): `onSelectedChange` with the opposite of `selected`. */
+  selectable?: boolean;
+  /** Some item of the list is selected: a tap selects or unselects it too, instead of what it does. */
+  selecting?: boolean;
+  onSelectedChange?: (selected: boolean) => void;
   className?: string;
   children?: ReactNode;
 } & Record<string, unknown>) {
   const id = useId();
+  const press = useLongPress(selectable && onSelectedChange ? () => onSelectedChange(!selected) : undefined, !!selecting);
   const shown = (v: ReactNode) => v != null && v !== '';
   const n: ListItemLines =
     lines ?? (overline != null && supporting !== undefined ? 3 : supporting !== undefined || overline != null ? 2 : 1);
@@ -254,20 +267,26 @@ export function ListItem({
       {tail}
     </>
   );
-  const classes = [listItemClass(n, { selected, disabled }), control && 'list-item-with-control', columns && 'list-item-columns', className]
+  const classes = [
+    listItemClass(n, { selected, disabled }),
+    control && 'list-item-with-control',
+    columns && 'list-item-columns',
+    press && 'list-item-selectable',
+    className,
+  ]
     .filter(Boolean)
     .join(' ');
   const item =
     href !== undefined && !control && !disabled ? (
-      <Link href={href} className={classes} aria-current={selected ? 'true' : undefined} {...rest}>
+      <Link href={href} className={classes} aria-current={selected && !press ? 'true' : undefined} {...rest} {...press}>
         {content}
       </Link>
     ) : onClick && !control ? (
-      <button type="button" className={classes} disabled={disabled} onClick={onClick} {...rest}>
+      <button type="button" className={classes} disabled={disabled} onClick={onClick} {...rest} {...press}>
         {content}
       </button>
     ) : (
-      <div className={classes} aria-disabled={disabled && href !== undefined ? true : undefined} {...rest}>
+      <div className={classes} aria-disabled={disabled && href !== undefined ? true : undefined} {...rest} {...press}>
         {content}
       </div>
     );
