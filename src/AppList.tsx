@@ -37,11 +37,6 @@ import { AnyIcon } from './icon';
 import {
   appCategories,
   appChanges,
-  appliedTo,
-  installedHere,
-  legacyOf,
-  mergeChanges,
-  moveChanges,
   appFolder,
   breaking,
   changedFiles,
@@ -56,7 +51,7 @@ import {
   type StoreAdd,
   type StoreRecord,
 } from './store';
-import { apps, apps as siteApps, siteBlocks } from './registry';
+import { apps, siteBlocks } from './registry';
 import { asWritten, backFrom, collections, companyParts, partScreens } from './site';
 import { byText, slugify, type Part } from './schema';
 import { headed, letterOf } from './Sheet';
@@ -215,7 +210,7 @@ const versionOf = (app: SiteApp) => updated.get(app.id) ?? app.store?.version ??
 
 /** The newer version of an app from the store, when the store has one. */
 const updateOf = (app: SiteApp, catalog: ShownApp[] | null | 'failed') => {
-  const found = app.store && Array.isArray(catalog) ? catalog.find((a) => a.id === app.id || a.legacy === app.id) : undefined;
+  const found = app.store && Array.isArray(catalog) ? catalog.find((a) => a.id === app.id) : undefined;
   return found && newer(found.version, versionOf(app)) ? found : undefined;
 };
 
@@ -423,7 +418,7 @@ function StoreScreen({ env, files, again }: { env: Env; files: RepoFile[]; again
     allApps(catalog)
       .filter((a) => words.every((w) => a.words.includes(w)))
       .filter((a) => !category || a.category === category)
-      .filter((a) => !stateFilter.state || installedHere(a, installed, siteApps) === (stateFilter.state === 'installed'))
+      .filter((a) => !stateFilter.state || installed.includes(a.id) === (stateFilter.state === 'installed'))
       .sort((a, b) => order(a.label, b.label)),
     (a) => letterOf(a.label),
   );
@@ -558,13 +553,11 @@ function useStoreActions(env: Env, files: RepoFile[]) {
     next: () => Promise<Parameters<typeof appChanges>[2]>,
     // Whether to go on, with the app's files in the site now (an update asks, when some were changed).
     go: (current: RepoFile[]) => Promise<boolean> = async () => true,
-    // The id the app is installed under, when it is a legacy copy that moves to `id` (moveChanges).
-    legacy: string | null = null,
   ): Promise<boolean> {
     setRunning({ id, action, asking: false });
     env.notify({ text: text.busy });
     try {
-      const [current, wanted] = await Promise.all([env.folder(appFolder(legacy ?? id)), next()]);
+      const [current, wanted] = await Promise.all([env.folder(appFolder(id)), next()]);
       if (!(await go(current))) {
         env.notify(null);
         return false;
@@ -572,11 +565,8 @@ function useStoreActions(env: Env, files: RepoFile[]) {
       // `go` cleared the message (and its dialog stopped the button being busy): saving goes on.
       setRunning({ id, action, asking: false });
       env.notify({ text: text.busy });
-      const moved = legacy && wanted ? moveChanges({ id }, legacy, wanted, current, files) : null;
-      // The cookie list as the move leaves it (the legacy id rewritten), then the new release's cookies on it: one set of changes.
-      const cookies = cookieChanges(id, wanted ? cookiesIn(wanted.files) : null, moved ? appliedTo(files, moved) : files);
-      const changes = moved ? mergeChanges(moved, cookies) : [...appChanges(id, current, wanted, installed, file), ...cookies];
-      await saveApp(env, text.commit, text.change, changes, file);
+      const cookies = cookieChanges(id, wanted ? cookiesIn(wanted.files) : null, files);
+      await saveApp(env, text.commit, text.change, [...appChanges(id, current, wanted, installed, file), ...cookies], file);
       env.notify({ text: text.done, kind: text.kind ?? 'saved' });
       return true;
     } catch (e) {
@@ -602,7 +592,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
         },
         async () => ({ files: await env.store.files(app), record: recordOf(app) }),
       ),
-    async update(app: ShownApp, record: StoreRecord, legacy: string | null = null) {
+    async update(app: ShownApp, record: StoreRecord) {
       const done = await change(
         app.id,
         'update',
@@ -622,10 +612,9 @@ function useStoreActions(env: Env, files: RepoFile[]) {
             record.version,
             app.version,
             notesSince(app.releaseNotes, record.version, app.version),
-            changedFiles(app.id, record, current, appFolder(legacy ?? app.id)),
+            changedFiles(app.id, record, current),
           );
         },
-        legacy,
       );
       if (done) updated.set(app.id, app.version);
       return done;
@@ -919,11 +908,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
       {(!on || (update && app.store)) && (
         <div className="mb-8">
           {on ? (
-            <Button
-              disabled={saving}
-              busy={store.busy(update!.id, 'update')}
-              onClick={() => store.update(update!, app.store!, legacyOf(update!, apps))}
-            >
+            <Button disabled={saving} busy={store.busy(app.id, 'update')} onClick={() => store.update(update!, app.store!)}>
               {t.apps.update(update!.version)}
             </Button>
           ) : (

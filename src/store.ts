@@ -30,7 +30,6 @@ import { APP_API, THEME_API } from '../lib/contracts.mjs';
 import { RECORD, STANDARD, isText, validApp, validTheme } from '../lib/storeEntries.mjs';
 import { timedFetch } from './storeFetch';
 import { folderChanges } from '../lib/folderChanges.mjs';
-import { moveChanges as moveItem, type SitePaths } from './legacyMove';
 
 // The contracts this editor runs (lib/contracts.mjs, also read by the site's Worker).
 export { APP_API, THEME_API };
@@ -113,9 +112,8 @@ export const SCREENSHOTS = 'screenshots';
 /** An app in the store's catalog. */
 export type StoreApp = {
   id: string;
-  /** Its readable name for addresses (`publisher/name`) and the id it had before its permanent one (`legacy`). */
+  /** Its readable name for addresses (`publisher/name`). */
   handle?: string;
-  legacy?: string;
   version: string;
   api: number;
   label: string;
@@ -151,7 +149,6 @@ export type StoreApp = {
 export type StoreTheme = {
   id: string;
   handle?: string;
-  legacy?: string;
   version: string;
   api: number;
   name: string;
@@ -453,31 +450,6 @@ export function recordIn(current: RepoFile[], root: string): StoreRecord | undef
     return undefined;
   }
 }
-
-/** Where the site keeps what names an app or a theme (docs/store-ids.md); the popups' folder is the collection's. */
-const sitePaths: SitePaths = {
-  appsFolder: config.apps.folder,
-  themesFolder: config.themes,
-  installed: config.apps.installed,
-  settings: config.apps.settings,
-  theme: config.theme,
-  icons: config.icons,
-  blockSettings: config.blockSettings,
-  popups: 'src/data/popups',
-  cookieList: config.cookieList,
-};
-
-/** The changes that update a store app or theme to its permanent folder: from its legacy folder (`legacy`, its files now
- * `current`) with every id in the site's files (`site`) rewritten, or, without `legacy`, as appChanges or themeChanges
- * do for the folder. In one commit (legacyMove.ts). */
-export const moveChanges = (
-  entry: { id: string },
-  legacy: string | null,
-  next: Parameters<typeof moveItem>[2],
-  current: RepoFile[],
-  site: RepoFile[],
-) => moveItem(entry, legacy, next, current, site, sitePaths);
-export { appliedTo, installedHere, legacyOf, mergeChanges } from './legacyMove';
 
 /** The files of an app installed from the store that were changed in the site since (in its folder, `current`, not
  * as its note says), by their paths in the folder: an update writes over them. */

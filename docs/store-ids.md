@@ -1,12 +1,12 @@
 # Where a site stores an item id
 
 This file lists where a site repo keeps an app or theme id, and which checks in this repo reject a permanent id.
-The legacy move in `src/store.ts` uses it to find every value to rewrite when an old id (for example `mailchimp`) becomes a permanent id (`app_` or `theme_` plus 16 lowercase hex characters).
+The editor does not move old ids. When a site changes an old id (for example `mailchimp`) to a permanent id (`app_` or `theme_` plus 16 lowercase hex characters), the owner renames every value in the table by hand.
 Paths are relative to the repo root. Line numbers were checked on branch `task/si-1.1-inventory`.
 
 ## Table 1: Stored values that name an item
 
-| File pattern in a site | Field | Example | Legacy move rewrites it? | Read by (file:line in this repo) |
+| File pattern in a site | Field | Example | Renamed by hand when a site moved? | Read by (file:line in this repo) |
 | --- | --- | --- | --- | --- |
 | `src/data/apps.json` | `installed` (array of ids) | `["mailchimp"]` becomes `["app_5c4b6ba067ef127f"]` | yes: the id in the list changes | `site/apps.ts:8`; `lib/apps.mjs:34`; `worker/index.js:55`; `site/siteCsp.mjs:28`; `defaults/sitedata.ts:112`; written by `src/store.ts:463` and `src/AppList.tsx:1024` |
 | `src/apps/<id>/` (folder) | folder name | `src/apps/mailchimp/` becomes `src/apps/app_5c4b6ba067ef127f/` | yes: the folder moves | `lib/apps.mjs:23-29`; `lib/apps.mjs:45`; `site/theme.mjs:533`; `site/siteCsp.mjs:17`; `site/appCookies.mjs:67`; `src/store.ts:192` (`appFolder`) |
