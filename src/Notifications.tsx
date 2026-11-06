@@ -4,7 +4,8 @@
 // with the app's icon. Opening it marks them seen; at the bottom one button clears them and another opens "Konto", where
 // each type is turned on or off. On a phone a long press selects one (ListItem `selectable`), and then a tap selects or
 // unselects the others; while some are selected the buttons delete them or unselect them. Closing unselects them. Its
-// cross, Escape, a tap on the scrim and going to another address (a notification's link) close it. Its open, close and
+// cross, Escape, a tap on the scrim, the phone's back gesture (only the sheet) and going to another address (a
+// notification's link) close it. Its open, close and
 // slide are the theme's (sideSheet(), sideSheetControl.ts). The old address #notifications opens it over the start screen
 // (App.tsx).
 import { useEffect, useId, useRef, useState } from 'react';
@@ -21,6 +22,7 @@ import {
   type Notification,
 } from './notificationData';
 import { closeNotifications, useNotificationsOpen } from './notificationsOpen';
+import { useSheetBack } from './useSheetBack';
 import { when } from './when';
 import { t } from './i18n';
 
@@ -76,7 +78,10 @@ export default function Notifications() {
     }
   }, [open]);
 
-  // Another address (a notification's link, "Vælg notifikationer", the phone's back gesture) closes it.
+  // The phone's back gesture closes the sheet only (useSheetBack).
+  useSheetBack(open, closeNotifications, 'notifications');
+
+  // Another address (a notification's link, "Vælg notifikationer") closes it.
   useEffect(() => {
     if (!open) return;
     window.addEventListener('hashchange', closeNotifications);
