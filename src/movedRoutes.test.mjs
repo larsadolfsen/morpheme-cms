@@ -11,6 +11,10 @@ test('the old footer form opens Appearance › Footer', () => {
   assert.equal(movedRoute('src/data/footer.json'), 'appearance/footer');
 });
 
+test('the old logo screen under Appearance opens Business › Logo and icon', () => {
+  assert.equal(movedRoute('appearance/logo'), 'company/logo');
+});
+
 test('the themes tab of the store opens the Theme store under Appearance', () => {
   assert.equal(movedRoute('settings/appstore/themes'), 'appearance/theme-store');
   assert.equal(movedRoute('settings/appstore'), 'settings/appstore');
@@ -72,7 +76,7 @@ test('every old route prefix opens the screen where it is now', () => {
     'udseende/dele/blokke': 'appearance/parts/blocks',
     'udseende/dele/vaerdier': 'appearance/parts/values',
     'udseende/standardsider': 'appearance/default-pages',
-    'udseende/logo': 'appearance/logo',
+    'udseende/logo': 'company/logo',
     maaling: 'analytics',
     'maaling/google-analytics': 'analytics/google-analytics',
     privatliv: 'privacy',

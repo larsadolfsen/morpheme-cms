@@ -9,6 +9,7 @@
 //   new/<id>         a new entry, new/<id>/<kind> one of a kind (a pop-up: standard, or an app's)
 //   company     the business, and company/<part> its parts: contact, payment; and
 //                    company/payment/<part> its own parts: mobilepay, bank
+//   company/logo    the logo and icon (BrandForm.tsx), the first part of the business (Library.tsx Company)
 //   <screen>         a screen with parts of the site's own (partScreens), and <screen>/<part> its parts:
 //                    privacy/cookie-banner, privacy/privacy-pages, or one of the editor's own screens (Part.opens):
 //                    privacy/consents the visitors' answers in the cookie banner (Consents.tsx); and the settings of the apps installed with
@@ -24,8 +25,8 @@
 //                    appearance/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
 //                    appearance/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
 //                    appearance/colors the colours (Colors.tsx;
-//                    appearance/colors/fallback-colors the site's own while an app changes the pages'), appearance/logo the logo
-//                    and icon (BrandForm.tsx), appearance/parts the parts (Library.tsx PartsHome): appearance/parts/editor the editor's, every
+//                    appearance/colors/fallback-colors the site's own while an app changes the pages'),
+//                    appearance/parts the parts (Library.tsx PartsHome): appearance/parts/editor the editor's, every
 //                    one in every state (Parts.tsx), appearance/parts/ui the theme's UI components, appearance/parts/blocks the
 //                    blocks, the standard ones and the apps', and appearance/parts/list/<list> each kind of a list of kinds
 //                    ("Promovering"), its own and the apps' (BlockParts.tsx), and appearance/parts/values the
@@ -761,7 +762,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   // The colours, or the site's own on a page of the same form while an app changes the pages' (FALLBACK_ROUTE).
   if (route === 'appearance/colors' || route === FALLBACK_ROUTE)
     return <Colors env={env} files={files} fallback={route === FALLBACK_ROUTE} />;
-  if (route === 'appearance/logo') return <BrandForm env={env} />;
+  if (route === 'company/logo') return <BrandForm env={env} />;
   if (route === 'block-settings') return <BlockSettings env={env} files={files} />;
   if (route === ADVANCED_ROUTE) return <Advanced env={env} />;
   if (route === CMS_ROUTE) return <CmsPage />;
