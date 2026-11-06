@@ -2403,7 +2403,8 @@
     outline: 3px solid var(--list-item-focus-indicator-color, var(--accent));
     outline-offset: -3px;
   }
-  .list-item-with-control :focus-visible {
+  .list-item-with-control :focus-visible,
+  .list-item-multi-action > :is(a, button:enabled).list-item-container:focus-visible {
     outline: none;
   }
   /* Pressed: a stronger state layer. */
