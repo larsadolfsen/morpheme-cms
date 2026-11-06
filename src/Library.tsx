@@ -233,9 +233,9 @@ export function Theme({ files }: { files: RepoFile[] }) {
   const chosen = themes.find((x) => x.id === chosenTheme(files)) ?? theme;
   const parts: Part[] = [
     { id: 'theme-store', label: t.common.parts.themeStore, icon: icons['theme-store'] },
-    { id: 'themes', label: t.common.parts.themes, icon: icons.themes, detail: chosen.name },
     { id: 'header', label: t.common.parts.header, icon: icons.header },
     { id: 'footer', label: t.common.parts.footer, icon: icons.footer },
+    { id: 'themes', label: t.common.parts.themes, icon: icons.themes, detail: chosen.name },
     {
       id: 'icon-packs',
       label: t.common.parts.iconPacks,
