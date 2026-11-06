@@ -8,8 +8,10 @@ export const library = {
   statusSeparator: ' · ',
   /** The start screen's FAB menu (StartFab.tsx), which makes a new page or blog post. */
   createNew: 'Create',
-  /** On the start screen (StartScreen.tsx): over the last three pages and blog posts edited in this browser. */
-  recentEdits: 'Recently edited',
+  /** On the start screen (StartScreen.tsx): the card with the last three pages and blog posts saved. */
+  continueTitle: 'Continue where you left off',
+  /** In that card before anything is saved. */
+  continueEmpty: 'The pages and posts you edit show up here.',
   /** Under each of them: its kind ("Page") and when it was saved ("today at 1:42 PM", when.ts). */
   recentEdit: (kind: string, when: string) => `${kind} · Edited ${when}`,
   /** At the top of the start screen: what was updated since the last visit in this browser, each a link to what's new. */

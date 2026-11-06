@@ -35,7 +35,7 @@ import { theme, themes, type ThemeInfo } from './themes';
 import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
 import { StartStatus } from './StartStatus';
-import { RecentEdits, UpdatesNotice } from './StartScreen';
+import { ContinueCard, UpdatesNotice } from './StartScreen';
 import {
   appearance,
   backFrom,
@@ -179,7 +179,7 @@ function PartRow({ id, label, href, count }: { id: string } & ReturnType<typeof 
 
 // The start screen: the site's name, the CMS version and when the site was last updated (built on Cloudflare, App.tsx), as StartStatus.tsx shows them, under it, and the FAB
 // menu for a new page or post (StartFab.tsx); each list has its own FAB for a new entry (ListFab.tsx). The parts of the site are in the main drawer (MainMenu.tsx); the rest is left empty for now.
-export function Start({ builtAt, files }: { builtAt: Date | null; files: RepoFile[] }) {
+export function Start({ builtAt, files, env }: { builtAt: Date | null; files: RepoFile[]; env: Env }) {
   return (
     <Screen
       title={siteName}
@@ -189,7 +189,7 @@ export function Start({ builtAt, files }: { builtAt: Date | null; files: RepoFil
       home
     >
       <UpdatesNotice files={files} />
-      <RecentEdits files={files} />
+      <ContinueCard files={files} savedAt={env.savedAt} />
       <StartFab />
     </Screen>
   );

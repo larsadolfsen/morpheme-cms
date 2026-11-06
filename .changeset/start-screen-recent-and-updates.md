@@ -1,5 +1,5 @@
 ---
-'@morphemecms/cms': minor
+"@morphemecms/cms": minor
 ---
 
-The start screen lists the last three pages and blog posts you edited, tells you what was updated since your last visit, and the licenses link sits in a footer at the bottom of every screen.
+The start screen has a "Continue where you left off" card with the last three pages and blog posts saved, a notice of what was updated since your last visit (each with a close button), and the licenses link sits in a footer at the bottom of every screen.

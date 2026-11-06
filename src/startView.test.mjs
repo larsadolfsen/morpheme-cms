@@ -5,7 +5,7 @@
  */
 import { test } from 'node:test';
 import * as assert from 'node:assert/strict';
-import { changesSince, KEPT, nextRecent } from './startView.mjs';
+import { changesSince, continueShown, KEPT, latestEdits, nextRecent } from './startView.mjs';
 
 const paths = (edits) => edits.map((e) => e.path);
 const edits = (...ps) => ps.map((path, i) => ({ path, at: i }));
@@ -45,4 +45,27 @@ test('finds the CMS and the apps with another version', () => {
 
 test('an app installed since the last visit is not an update', () => {
   assert.deepEqual(changesSince({ cms: '1.0.0', apps: {} }, { cms: '1.0.0', apps: { a: '1.0.0' } }), []);
+});
+
+test("merges this browser's edits with the site's history, newest first", () => {
+  const merged = latestEdits(
+    [
+      { path: 'a', at: 5 },
+      { path: 'b', at: 1 },
+    ],
+    { b: 9, c: 3 },
+  );
+  assert.deepEqual(merged, [
+    { path: 'b', at: 9 },
+    { path: 'a', at: 5 },
+    { path: 'c', at: 3 },
+  ]);
+  assert.deepEqual(latestEdits([], {}), []);
+});
+
+test('the card shows until closed, and again after a newer save', () => {
+  assert.equal(continueShown(null, undefined), true);
+  assert.equal(continueShown(10, 5), false);
+  assert.equal(continueShown(10, undefined), false);
+  assert.equal(continueShown(10, 11), true);
 });

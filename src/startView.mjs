@@ -1,7 +1,7 @@
 /**
  * What the editor's start screen (Library.tsx Start, StartScreen.tsx) shows besides its FAB: the pages and blog posts
  * edited last in this browser, and what was updated since the last visit (the CMS and the apps from the store).
- * Exposes `nextRecent` and `changesSince`. Depends on nothing; the browser's storage is StartScreen.tsx's.
+ * Exposes `nextRecent`, `latestEdits`, `continueShown` and `changesSince`. Depends on nothing; the browser's storage is StartScreen.tsx's.
  */
 
 /** How many paths are kept: more than shown, so a deleted page still leaves three. */
@@ -25,6 +25,30 @@ export function nextRecent(edits, saved, removed = [], at = Date.now()) {
   return [...[...new Set(saved)].map((path) => ({ path, at })), ...edits.filter((e) => !gone.has(e.path))]
     .filter((e) => !removed.includes(e.path))
     .slice(0, KEPT);
+}
+
+/**
+ * The pages and posts saved last, newest first: those saved in this browser (`edits`) and when each file was last
+ * saved on the site by anyone (`history`, from GitHub, by path), each path once at its latest time.
+ * @param {Edit[]} edits
+ * @param {Record<string, number>} history
+ * @returns {Edit[]}
+ */
+export function latestEdits(edits, history) {
+  const at = new Map(Object.entries(history));
+  for (const e of edits) at.set(e.path, Math.max(e.at, at.get(e.path) ?? 0));
+  return [...at].map(([path, time]) => ({ path, at: time })).sort((a, b) => b.at - a.at);
+}
+
+/**
+ * Whether "Continue where you left off" is shown: until it is closed (`closedAt`), and again once something is saved
+ * after that (`latestAt`, the newest edit's time).
+ * @param {number | null} closedAt
+ * @param {number | undefined} latestAt
+ * @returns {boolean}
+ */
+export function continueShown(closedAt, latestAt) {
+  return !closedAt || (latestAt ?? 0) > closedAt;
 }
 
 /**

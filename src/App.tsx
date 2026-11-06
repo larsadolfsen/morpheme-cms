@@ -720,7 +720,7 @@ function formAt(route: string, files: RepoFile[]): { part: Part; at: string; pag
 type PageProps = { route: string; files: RepoFile[]; env: Env; user: Viewer | null; builtAt: Date | null; onLogout: () => void };
 
 function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
-  if (!route) return <Start builtAt={builtAt} files={files} />;
+  if (!route) return <Start builtAt={builtAt} files={files} env={env} />;
   if (route === 'account') return <Account user={user} files={files} onLogout={onLogout} />;
   if (route === 'notifications') return <Notifications />;
   if (route === 'lists') return <Lists files={files} />;

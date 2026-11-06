@@ -1,8 +1,9 @@
 // What the start screen (Library.tsx Start) shows over its FAB: at the top a notice of what was updated since the last
-// visit in this browser (the CMS and the apps installed from the store), with a close button in its corner, and the last
-// three pages and blog posts edited here, each a row that opens its form. Kept in this browser: the versions seen
-// (closing the notice sees them) and the paths edited last (App.tsx onSaved, rememberEdit). Exposes rememberEdit,
-// UpdatesNotice and RecentEdits. The logic is startView.mjs's; the rows and the notice are ui.tsx's.
+// visit in this browser (the CMS and the apps installed from the store), and "Continue where you left off", a card with
+// the last three pages and blog posts saved, each a row that opens its form; each closes with the button in its top end
+// corner. Kept in this browser: the versions seen (closing the notice sees them), the paths saved last here (App.tsx
+// onSaved, rememberEdit) and when the card was closed. Exposes rememberEdit, UpdatesNotice and ContinueCard. The logic
+// is startView.mjs's; the rows, the card and the notice are the theme's (ui.tsx).
 import { useEffect, useState } from 'react';
 import { version } from '../package.json';
 import { locale, t } from './i18n';
@@ -13,13 +14,17 @@ import { installedApps } from './apps';
 import { collectionOf } from './schema';
 import { apps, collections, icons } from './site';
 import { when } from './when';
-import { changesSince, nextRecent, type Edit, type Versions } from './startView.mjs';
+import { changesSince, continueShown, latestEdits, nextRecent, type Edit, type Versions } from './startView.mjs';
 import type { RepoFile } from './github';
-import { GroupTitle, ListItem, Notice, plainListClass } from './ui';
+import type { Env } from './App';
+import { X } from '@phosphor-icons/react';
+import { SiteCard } from './themeUi';
+import { IconButton, ListItem, Notice, plainListClass } from './ui';
 import { INFO_KEY } from '../lib/appRoute.mjs';
 
 const EDITS = 'editor-recent-edits';
 const SEEN = 'editor-seen-versions';
+const CLOSED = 'editor-continue-closed';
 const SHOWN = 3;
 
 /** A list's singular as it starts a line: "side" as "Side". */
@@ -52,32 +57,63 @@ export function rememberEdit(path: string, removed: string[] = []) {
   keep(EDITS, nextRecent(Array.isArray(edits) ? edits : [], saved, removed));
 }
 
-/** The last three pages and blog posts edited in this browser that are still there, newest first, in the theme's
- * standard list: each with its list's icon, its title, and its kind and when it was saved. Nothing before the first. */
-export function RecentEdits({ files }: { files: RepoFile[] }) {
-  const [edits] = useState(() => read<Edit[]>(EDITS) ?? []);
-  const rows = (Array.isArray(edits) ? edits : []).flatMap((edit) => {
+/** "Continue where you left off": a card with the last three pages and blog posts saved, newest first, in the theme's
+ * standard list (its list's icon, its title, its kind and when it was saved), each opening its form. Those saved in this
+ * browser and, once GitHub has answered, those saved on the site by anyone (env.savedAt). The close button in its top
+ * end corner hides it until something is saved after that; with nothing saved yet it says where they will be. */
+export function ContinueCard({ files, savedAt }: { files: RepoFile[]; savedAt: Env['savedAt'] }) {
+  const [edits] = useState(() => {
+    const kept = read<Edit[]>(EDITS);
+    return Array.isArray(kept) ? kept : [];
+  });
+  const [closedAt, setClosedAt] = useState(() => read<number>(CLOSED));
+  const startFiles = files.filter((f) => startListOf(f.path));
+  // When each page and post was last saved on the site; null until GitHub has answered (or could not).
+  const [history, setHistory] = useState<Record<string, number> | null>(null);
+  useEffect(() => {
+    let live = true;
+    savedAt(startFiles.map((f) => f.path)).then(
+      (times) => live && setHistory(Object.fromEntries(Object.entries(times).map(([path, date]) => [path, date.getTime()]))),
+      () => live && setHistory({}),
+    );
+    return () => {
+      live = false;
+    };
+  }, [startFiles.map((f) => `${f.path}@${f.oid}`).join()]);
+  const rows = latestEdits(edits, history ?? {}).flatMap((edit) => {
     const collection = startListOf(edit.path);
     const file = collection && files.find((f) => f.path === edit.path);
     return collection && file ? [{ edit, collection, file }] : [];
   });
-  if (!rows.length) return null;
+  if (!continueShown(closedAt, rows[0]?.edit.at)) return null;
+  const close = () => {
+    const now = Date.now();
+    keep(CLOSED, now);
+    setClosedAt(now);
+  };
   return (
-    <section className="mb-8">
-      <GroupTitle>{t.library.recentEdits}</GroupTitle>
-      <ul className={plainListClass}>
-        {rows.slice(0, SHOWN).map(({ edit, collection, file }) => (
-          <ListItem
-            key={edit.path}
-            href={`#${edit.path}`}
-            icon={icons[collection.id]}
-            headline={nameOf(collection, file)}
-            supporting={t.library.recentEdit(capital(collection.singular ?? collection.label), when(new Date(edit.at)))}
-            truncate
-          />
-        ))}
-      </ul>
-    </section>
+    <SiteCard kind="outlined" as="section" aria-labelledby="continue-title" className="relative mb-8 [--card-padding:1rem_0_0.5rem]">
+      <h2 id="continue-title" className="ps-4 pe-14 pb-2 font-medium">
+        {t.library.continueTitle}
+      </h2>
+      <IconButton icon={X} label={t.common.close} onClick={close} className="absolute end-1 top-1" />
+      {rows.length ? (
+        <ul className={plainListClass}>
+          {rows.slice(0, SHOWN).map(({ edit, collection, file }) => (
+            <ListItem
+              key={edit.path}
+              href={`#${edit.path}`}
+              icon={icons[collection.id]}
+              headline={nameOf(collection, file)}
+              supporting={t.library.recentEdit(capital(collection.singular ?? collection.label), when(new Date(edit.at)))}
+              truncate
+            />
+          ))}
+        </ul>
+      ) : (
+        <p className="px-4 pb-2 text-sm text-muted">{history ? t.library.continueEmpty : t.app.loading}</p>
+      )}
+    </SiteCard>
   );
 }
 
