@@ -138,6 +138,8 @@ export function socialOf(raw) {
     const value = item && typeof item === 'object' ? item.url : undefined;
     if (typeof value === 'string' && value.trim() !== '') {
       const url = value.trim();
+      // Only https:// addresses: the form asks for one, and a file written by hand may have javascript: or the like.
+      if (!/^https:\/\//i.test(url)) continue;
       profiles.push({ id: networkOf(url)?.id ?? null, url });
     }
   }

@@ -166,3 +166,19 @@ test('networkOf knows Pinterest on its own domains only', () => {
     assert.equal(networkOf(`https://${host}/a`), null, host);
   }
 });
+
+test('socialOf keeps only https:// addresses', () => {
+  assert.deepEqual(
+    socialOf({
+      profiles: [
+        { url: 'javascript:alert(1)' },
+        { url: 'http://a.dk' },
+        { url: 'ftp://a.dk' },
+        { url: 'a.dk' },
+        { url: ' HTTPS://b.dk/x ' },
+      ],
+    }).profiles,
+    [{ id: null, url: 'HTTPS://b.dk/x' }],
+  );
+  assert.deepEqual(socialOf({ facebook: 'http://facebook.com/a' }).profiles, []);
+});
