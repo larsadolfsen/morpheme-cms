@@ -130,6 +130,7 @@ const countOf = (c: Collection, files: RepoFile[]): number =>
 export function partOf(id: string, files: RepoFile[]): { label: string; href: string; count: number | null } {
   const { parts } = t.common;
   if (id === 'company') return { label: parts.company, href: '#company', count: null };
+  if (id === 'logo') return { label: parts.brand, href: '#company/logo', count: null };
   if (id === 'header') return { label: parts.header, href: '#appearance/header', count: null };
   if (id === 'footer') return { label: parts.footer, href: '#appearance/footer', count: null };
   if (id === 'lists') return { label: parts.lists, href: '#lists', count: listsShown(files).length };
@@ -144,12 +145,12 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (seoPart) return { label: seoPart.label, href: `#seo/${id}`, count: null };
   // The screens under "Udseende" (Theme): the ones the editor has, then the site's own (appearance).
   const appearanceLabel = {
+    'theme-store': parts.themeStore,
     themes: parts.themes,
     'icon-packs': parts.iconPacks,
     motion: parts.motion,
     'side-column': parts.sideColumn,
     colors: parts.colors,
-    logo: parts.brand,
     parts: parts.editorParts,
   }[id];
   const appearancePart = appearanceLabel ?? appearance.find((p) => p.id === id)?.label;
@@ -198,7 +199,7 @@ export function Start({ builtAt, files, env }: { builtAt: Date | null; files: Re
   );
 }
 
-// "Virksomheden": its parts (CompanyForm.tsx), each on a screen of its own; or one of them with parts
+// "Virksomheden": its screen has "Logo og ikon" (BrandForm.tsx, #company/logo) first, then its parts (CompanyForm.tsx), each on a screen of its own; or one of them with parts
 // of its own ("Betaling"), and the settings of the apps installed of its kinds (Part.apps: MobilePay), going back to
 // "Virksomheden".
 export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
@@ -211,20 +212,29 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
         back={{ href: '#company', label: t.common.parts.company }}
       />
     );
-  return <Parts title={t.common.parts.company} route="company" parts={companyParts} />;
+  return (
+    <Parts
+      title={t.common.parts.company}
+      route="company"
+      parts={[{ id: 'logo', label: t.common.parts.brand, icon: icons.logo }, ...companyParts]}
+    />
+  );
 }
 
-// "Udseende": first "Temaer" (Themes), with the theme the site is built with at the end of its row (or, after a swap,
-// until the site is built with the new one, that one), "Ikonpakker" (IconPacks), with the pack chosen, "Bevægelse"
-// (MotionSchemes), with the scheme chosen, and "Sidekolonne" (SideColumn.tsx), with the block chosen; then how the
-// site looks, the colours (Colors.tsx), the logo and icon (BrandForm.tsx), the header with its menus and its preview
-// (HeaderSettings.tsx), the footer with its preview (FooterSettings.tsx) and the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider", a
+// Appearance: first "Theme store" (the store's themes, ThemeStoreScreen.tsx), then the header with its menus and its preview
+// (HeaderSettings.tsx) and the footer with its preview (FooterSettings.tsx), then "Temaer" (Themes), with the theme the site
+// is built with at the end of its row (or, after a swap, until the site is built with the new one, that one), "Ikonpakker"
+// (IconPacks), with the pack chosen, "Bevægelse" (MotionSchemes), with the scheme chosen, "Sidekolonne" (SideColumn.tsx),
+// with the block chosen, and the colours (Colors.tsx); then the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider", a
 // screen of its own, CompanyForm.tsx, going back here), and how the editor and the blocks look, their parts ("Dele", PartsHome), each on a
-// screen of its own, with the icons the site gives them.
+// screen of its own, with the icons the site gives them. The logo and icon (BrandForm.tsx) are under "Virksomheden" (Company).
 // The blocks that can be put in are under "Blokke" ("Blokindstillinger", BlockSettings.tsx).
 export function Theme({ files }: { files: RepoFile[] }) {
   const chosen = themes.find((x) => x.id === chosenTheme(files)) ?? theme;
   const parts: Part[] = [
+    { id: 'theme-store', label: t.common.parts.themeStore, icon: icons['theme-store'] },
+    { id: 'header', label: t.common.parts.header, icon: icons.header },
+    { id: 'footer', label: t.common.parts.footer, icon: icons.footer },
     { id: 'themes', label: t.common.parts.themes, icon: icons.themes, detail: chosen.name },
     {
       id: 'icon-packs',
@@ -240,9 +250,6 @@ export function Theme({ files }: { files: RepoFile[] }) {
       detail: sideChoicesOf(files).find((x) => x.type === sideSettingOf(files))?.label ?? t.library.sideNone,
     },
     { id: 'colors', label: t.common.parts.colors, icon: icons.colors, trailing: <ThemeColors files={files} /> },
-    { id: 'logo', label: t.common.parts.brand, icon: icons.logo },
-    { id: 'header', label: t.common.parts.header, icon: icons.header },
-    { id: 'footer', label: t.common.parts.footer, icon: icons.footer },
     ...appearance,
     { id: 'parts', label: t.common.parts.editorParts, icon: icons.parts },
   ];
@@ -259,7 +266,7 @@ function ThemeColors({ files }: { files: RepoFile[] }) {
   );
 }
 
-const backToAppearance = { href: '#appearance', label: t.common.parts.appearance };
+export const backToAppearance = { href: '#appearance', label: t.common.parts.appearance };
 const backToThemes = { href: '#appearance/themes', label: t.common.parts.themes };
 
 /** Under a theme's name: whether the site is built with it ("I brug") or is changing to it ("Skifter hertil"). */

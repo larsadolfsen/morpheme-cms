@@ -216,11 +216,14 @@
   --list-item-gap: 0.75rem;
   --list-item-radius: var(--md-shape-extra-small);
   --list-item-hover-radius: var(--md-shape-medium);
-  --list-item-pressed-radius: var(--md-shape-large);
-  --list-item-selected-radius: var(--md-shape-large-increased);
+  --list-item-pressed-radius: var(--md-shape-medium);
+  --list-item-selected-radius: var(--md-shape-medium);
   --list-item-icon-size: 1.25rem;
   --list-item-hover-surface: var(--md-hover);
   --list-item-pressed-surface: var(--md-pressed);
+  --list-item-hover-icon-color: var(--muted);
+  --list-item-focus-surface: var(--md-pressed);
+  --list-item-focus-indicator-color: var(--secondary);
   --list-item-hover-text: var(--ink);
   --list-item-hover-trailing-shift: 0;
   --list-item-selected-surface: var(--secondary-container);
@@ -229,11 +232,11 @@
   --list-item-leading-icon-selected-color: var(--accent);
   --list-item-disabled-opacity: 0.38;
   --list-segmented-gap: 0.125rem;
-  --list-segmented-radius: var(--md-shape-large);
+  --list-segmented-radius: var(--md-shape-medium);
   --list-segmented-inner-radius: var(--md-shape-extra-small);
   --list-segmented-hover-radius: var(--md-shape-medium);
-  --list-segmented-pressed-radius: var(--md-shape-large);
-  --list-segmented-selected-radius: var(--md-shape-large-increased);
+  --list-segmented-pressed-radius: var(--md-shape-medium);
+  --list-segmented-selected-radius: var(--md-shape-medium);
   --list-segmented-padding-inline: 1rem;
   --list-segmented-surface: var(--md-surface-container);
   --list-segmented-hover-surface: var(--md-hover);
@@ -1132,6 +1135,20 @@
     line-height: var(--type-title-medium-line-height);
     font-weight: var(--type-title-medium-weight);
     letter-spacing: var(--type-title-medium-tracking);
+  }
+  /* Its bottom: the header's call to action (header.json), the phone number and the button in one row sharing the
+     drawer's width, as in the header; when they do not fit side by side, the button over the number (wrap-reverse), each
+     as wide as the drawer. At the bottom of the drawer when its items leave room, else after them. */
+  .md-drawer-actions {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding: 1.5rem 0.25rem 0;
+  }
+  .md-drawer-actions .button {
+    flex: 1 1 auto;
+    white-space: nowrap;
   }
   .md-drawer-role {
     color: var(--muted);

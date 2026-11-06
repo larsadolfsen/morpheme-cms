@@ -13,7 +13,7 @@ import { config } from '@site/config';
 import { standardPaths } from '@site/standardPages';
 
 // The fields of one button of the action bar (the bottom bar on a phone, ActionBar.astro) and of the button in the header
-// ("Header button", src/data/header.json): its text, where it leads, and the promotion or page it leads to.
+// ("Call to action", src/data/header.json): its text, where it leads, and the promotion or page it leads to.
 const barButtonLabel: Field = {
   name: 'label',
   label: 'Button text',
@@ -846,22 +846,32 @@ export const collections: Collection[] = [
         optional: true,
         fields: [
           {
+            // The call to action: the button and the site's phone number (contact settings) as a text button before it, in
+            // the header and at the bottom of the navigation drawer (Header.astro, MobileMenu.tsx; site/header.mjs).
             name: 'button',
-            label: 'Action button',
+            label: 'Call to action',
             type: 'object',
             fields: [
               {
                 name: 'enabled',
-                label: 'Activated',
+                label: 'Button',
                 type: 'boolean',
                 toggle: ['On', 'Off'],
                 default: false,
-                hint: 'The button is in the header.',
+                hint: 'The button is in the header and at the bottom of the menu.',
               },
               barButtonLabel,
               barButtonTo,
               barButtonOpen,
               barButtonHref,
+              {
+                name: 'phone',
+                label: 'Phone number',
+                type: 'boolean',
+                toggle: ['On', 'Off'],
+                default: true,
+                hint: 'The phone number from the contact settings, before the button in the header and at the bottom of the menu.',
+              },
             ],
           },
           {

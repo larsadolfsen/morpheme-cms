@@ -37,6 +37,7 @@ import {
   CaretRight,
   CaretUp,
   Check,
+  CheckCircle,
   Funnel,
   LockSimple,
   LockSimpleOpen,
@@ -86,6 +87,7 @@ import {
   SiteNavigationDrawerSection,
   SiteNavigationDrawerSubitem,
   SiteNavigationDrawerToggle,
+  siteNavigationDrawerBleedClass,
   siteNavigationDrawerDialogClass,
   siteFocusNavigationDrawerItem,
   SiteSegmentedButton,
@@ -1550,8 +1552,9 @@ const toneClass: Record<RowTone, string> = {
  * (`headline`) and what is under it (`supporting`; `truncate`: each on one line, cut off), how many at the right
  * (`count`), the arrow of a row that opens something (`arrow`, or another icon: what a tap does) or anything there
  * (`trailing`), the buttons beside it (`actions`: the arrows, Fjern, a switch) and what is in its <li> after it
- * (`children`: a sheet it opens, a text it folds out); `tone`: RowTone. The rest (aria-…, ref, style, onClick on a
- * link) on the row. */
+ * (`children`: a sheet it opens, a text it folds out); `tone`: RowTone. `selectable`: on a phone a long press selects it
+ * (`onSelectedChange`), and while its list is `selecting` a tap does; selected, a tick is its icon (the theme's
+ * ListItem). The rest (aria-…, ref, style, onClick on a link) on the row. */
 export function ListItem({
   icon: shownIcon,
   iconSelected: shownSelected,
@@ -1576,10 +1579,14 @@ export function ListItem({
   onClick?: () => void;
   disabled?: boolean;
   selected?: boolean;
+  selectable?: boolean;
+  selecting?: boolean;
+  onSelectedChange?: (selected: boolean) => void;
   tone?: RowTone;
   className?: string;
 } & Record<string, unknown>) {
-  let icon = shownIcon;
+  const ticked = !!item.selectable && !!item.selected;
+  let icon = ticked ? CheckCircle : shownIcon;
   let iconSelected = shownSelected;
   const Arrow = arrow === true ? CaretRight : arrow || null;
   // A LeadingIcon made beforehand (an app's icon in a list) is the item's leading icon.
@@ -1602,7 +1609,8 @@ export function ListItem({
       supporting={some(item.supporting)}
       trailing={some(item.trailing)}
       actions={some(item.actions)}
-      leadingIcon={Lead ? <Lead /> : (icon as ReactElement | undefined)}
+      // The tick of a selected item says nothing more than the item's own selected state.
+      leadingIcon={Lead ? <Lead aria-hidden={ticked ? true : undefined} /> : (icon as ReactElement | undefined)}
       leadingIconSelected={iconSelected}
       trailingSupporting={some(count)}
       trailingIcon={Arrow ? <Arrow /> : undefined}
@@ -2850,7 +2858,7 @@ function ModalMainDrawer({
     <dialog
       ref={dialog}
       aria-label={label}
-      className={`${siteNavigationDrawerDialogClass} editor-main-drawer`}
+      className={`${siteNavigationDrawerDialogClass} ${siteNavigationDrawerBleedClass} editor-main-drawer`}
       onClose={() => onOpenChange(false)}
       onCancel={(e) => {
         if (escaped.current) e.preventDefault();

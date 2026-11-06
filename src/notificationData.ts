@@ -1,4 +1,4 @@
-// The notifications (#notifications, Notifications.tsx): what the editor and the apps have to say that is worth
+// The notifications (the side sheet Notifications.tsx): what the editor and the apps have to say that is worth
 // reading again, newest first, with when it came and the link it had. Each has a type: the editor's own (`site`: the
 // site is updated or not, `saved`: something is saved, deleted, restored or installed, `failed`: it could not be,
 // `updates`: an app from the store updated on its own, AppList.tsx autoUpdate), or
@@ -11,12 +11,13 @@
 // open but not on screen (another app or tab; notifyDevice), and, through the site's Worker (Web Push, packages/editor/worker/push.js),
 // when it is closed: this browser is signed up there with the types turned off and the editor's language (signUp), and
 // after a save the Worker tells it when the site has been built with it (waitOnServer); an app's part of the Worker
-// tells it the app's notifications. The bell in the top bar (Screen.tsx NotificationsLink) has a dot while some are not
+// tells it the app's notifications. The bell in the top bar (Screen.tsx NotificationsButton) has a dot while some are not
 // seen; opening the notifications marks them seen. Kept in this browser: the last 50, the choices and the ids of the
-// apps' notifications already told.
+// apps' notifications already told. The key of a notification and the deletion by keys are in notificationKeys.mjs (tested).
 import { useSyncExternalStore } from 'react';
 import { siteName } from '@site/editor';
 import { locale } from './i18n';
+import { notificationKey, withoutKeys } from './notificationKeys.mjs';
 
 export const EDITOR_TYPES = ['site', 'saved', 'failed', 'updates'] as const;
 export type EditorType = (typeof EDITOR_TYPES)[number];
@@ -91,6 +92,13 @@ export function markSeen() {
 
 export function clearNotifications() {
   set({ ...kept, items: [], seen: Date.now() });
+}
+
+export { notificationKey };
+
+/** Deletes those with these keys (the ones selected in Notifications.tsx). */
+export function removeNotifications(keys: string[]) {
+  set({ ...kept, items: withoutKeys(kept.items, keys) });
 }
 
 /** Turns a type on or off. */

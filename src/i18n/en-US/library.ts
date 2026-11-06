@@ -22,12 +22,16 @@ export const library = {
   updatedTo: (name: string, version: string) => `${name} is updated to ${version}`,
   githubAccount: (login: string) => `GitHub account: ${login}`,
   logOut: 'Log out',
-  /** The bell in the top bar and its screen (#notifications, Notifications.tsx): the messages shown at the bottom. */
+  /** The bell in the top bar and its side sheet (Notifications.tsx): the messages shown at the bottom. */
   notifications: 'Notifications',
   /** The bell's name while some are not seen yet. */
   notificationsNew: (count: number) => `Notifications, ${count} new`,
   noNotifications: 'No notifications',
   clearNotifications: 'Clear notifications',
+  /** While some are selected (a long press on one, Notifications.tsx): the button that deletes them, and the one that
+   * unselects them. */
+  deleteSelected: (count: number) => `Delete ${count} selected`,
+  cancelSelection: 'Cancel',
   /** The link in the top bar of the start screen: the site's home page, in a new tab. */
   openWebsite: 'Open website',
   /** On "Konto" › "Notifikationer" (Library.tsx NotificationChoices, notificationData.ts). */
