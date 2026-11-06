@@ -61,7 +61,7 @@ import { asWritten, backFrom, collections, companyParts, partScreens } from './s
 import { byText, slugify, type Part } from './schema';
 import { headed, letterOf } from './Sheet';
 import { config } from '@site/editor';
-import { allThemes, ThemeRow, themeInstalled, useThemeCatalog } from './ThemeStore';
+import { allThemes, ThemeRow, useThemeCatalog } from './ThemeStore';
 import { siteT, siteText, t } from './i18n';
 import { OwnerLicenses, StoreLicenseRows } from './Licenses';
 import { StoreFooter, StoreNotice, StoreRound, useStoreConnected, useStoreKey } from './StoreStatus';

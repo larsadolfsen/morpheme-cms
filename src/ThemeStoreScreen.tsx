@@ -9,6 +9,7 @@ import { useSort } from './storeSort';
 import { byText } from './schema';
 import { headed, letterOf } from './Sheet';
 import { allThemes, ThemeRow, themeInstalled, useThemeCatalog } from './ThemeStore';
+import { backToAppearance } from './Library';
 import { filterThemes } from './themeFilter.mjs';
 import { t } from './i18n';
 
@@ -33,7 +34,7 @@ function ThemeStoreList({ env, again }: { env: Env; again: () => void }) {
   );
 
   return (
-    <Screen title={t.common.parts.themeStore} wide back={{ href: '#appearance', label: t.common.parts.appearance }}>
+    <Screen title={t.common.parts.themeStore} wide back={backToAppearance}>
       <StoreSearchRow
         query={query}
         onQuery={setQuery}

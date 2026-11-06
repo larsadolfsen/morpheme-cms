@@ -254,7 +254,7 @@ function ThemeColors({ files }: { files: RepoFile[] }) {
   );
 }
 
-const backToAppearance = { href: '#appearance', label: t.common.parts.appearance };
+export const backToAppearance = { href: '#appearance', label: t.common.parts.appearance };
 const backToThemes = { href: '#appearance/themes', label: t.common.parts.themes };
 
 /** Under a theme's name: whether the site is built with it ("I brug") or is changing to it ("Skifter hertil"). */
