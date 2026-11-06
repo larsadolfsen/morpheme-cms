@@ -2,15 +2,16 @@
 // opens (Screen.tsx NotificationsButton, notificationsOpen.ts): the notifications of the editor and the apps
 // (notificationData.ts), newest first, each with when it came and, when it had one, a link to what it is about; an app's
 // with the app's icon. Opening it marks them seen; at the bottom one button clears them and another opens "Konto", where
-// each type is turned on or off. On a phone a long press selects one (ListItem `selectable`), and then a tap selects or
+// each type is turned on or off (NotificationActions.tsx). On a phone a long press selects one (ListItem `selectable`), and then a tap selects or
 // unselects the others; while some are selected the buttons delete them or unselect them. Closing unselects them (when it has slid out, which keeps the list until then). Its
 // cross, Escape, a tap on the scrim, the phone's back gesture (only the sheet) and going to another address (a
 // notification's link) close it; Escape while some are selected only unselects them. Its open, close and
 // slide are the theme's (sideSheet(), sideSheetControl.ts). The old address #notifications opens it over the start screen
 // (App.tsx).
 import { useEffect, useId, useRef, useState } from 'react';
-import { Info, SlidersHorizontal, Trash, WarningCircle, X } from '@phosphor-icons/react';
-import { Button, EmptyNote, Group, LinkButton, ListItem } from './ui';
+import { Info, WarningCircle } from '@phosphor-icons/react';
+import { EmptyNote, Group, ListItem } from './ui';
+import NotificationActions from './NotificationActions';
 import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass } from './themeUi';
 import { apps } from './registry';
 import {
@@ -121,32 +122,16 @@ export default function Notifications() {
         headlineId={id}
         closeLabel={t.common.close}
         actions={
-          selected.length ? (
-            <>
-              <Button
-                kind="text"
-                icon={Trash}
-                onClick={() => {
-                  removeNotifications(selected);
-                  setPicked([]);
-                }}
-              >
-                {t.library.deleteSelected(selected.length)}
-              </Button>
-              <Button kind="text" icon={X} onClick={() => setPicked([])}>
-                {t.library.cancelSelection}
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button kind="text" icon={Trash} disabled={!items.length} onClick={clearNotifications}>
-                {t.library.clearNotifications}
-              </Button>
-              <LinkButton kind="text" icon={SlidersHorizontal} href="#account">
-                {t.library.notificationChoices}
-              </LinkButton>
-            </>
-          )
+          <NotificationActions
+            selected={selected.length}
+            hasItems={items.length > 0}
+            onDelete={() => {
+              removeNotifications(selected);
+              setPicked([]);
+            }}
+            onUnselect={() => setPicked([])}
+            onClear={clearNotifications}
+          />
         }
       >
         {(open || kept) &&
