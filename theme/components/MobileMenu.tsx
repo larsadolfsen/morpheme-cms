@@ -16,9 +16,9 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { motionSpring } from '@morphemecms/cms/lib/motion';
 import { trapTarget, visibleElements } from '@morphemecms/cms/lib/focusTrap.mjs';
 import IconButton from '@theme/ui/IconButton';
-import Button from '@theme/ui/Button';
+import Buttons from '@theme/blocks/buttons/Buttons';
+import HeaderPhoneButton, { type HeaderPhone } from '@theme/components/HeaderPhoneButton';
 import type { ButtonView } from '@morphemecms/cms/src/standard/buttons/view';
-import type { HeaderPhone } from '@theme/components/HeaderCta';
 import {
   NavigationDrawerItem,
   NavigationDrawerRow,
@@ -225,38 +225,16 @@ export default function MobileMenu({
                         // On a phone it calls; from the medium window size up it leads to the contact page, when there is one.
                         <>
                           <span className={phone.page ? 'contents medium:hidden' : 'contents'}>
-                            <Button href={phone.href} kind="outlined" icon="phone" aria-label={phone.label}>
-                              {phone.number}
-                            </Button>
+                            <HeaderPhoneButton phone={phone} kind="outlined" />
                           </span>
                           {phone.page && (
                             <span className="hidden medium:contents">
-                              <Button href={phone.page} kind="outlined" icon="phone" onClick={() => setOpen(false)}>
-                                {phone.number}
-                              </Button>
+                              <HeaderPhoneButton phone={phone} kind="outlined" page onClick={() => setOpen(false)} />
                             </span>
                           )}
                         </>
                       )}
-                      {button && (
-                        <Button
-                          href={button.href}
-                          kind="filled"
-                          icon={
-                            button.icon && button.icon !== 'arrow-right'
-                              ? button.icon
-                              : button.open === 'booking'
-                                ? 'calendar-blank'
-                                : undefined
-                          }
-                          trailingIcon={button.icon === 'arrow-right' ? 'arrow-right' : undefined}
-                          data-open={button.open}
-                          aria-label={button.label}
-                          onClick={() => setOpen(false)}
-                        >
-                          {button.text}
-                        </Button>
-                      )}
+                      {button && <Buttons buttons={[button]} onClick={() => setOpen(false)} />}
                     </div>
                   )}
                 </motion.div>
