@@ -192,7 +192,7 @@ export const collections: Record<string, string> = {
   'header button': 'headerknap',
   'Header button': 'Headerknap',
   'The header': 'Headeren',
-  'Call to action': 'Call to action',
+  'Call to action': 'Opfordring til handling',
   'The button is in the header and at the bottom of the menu.': 'Knappen står i headeren og nederst i menuen.',
   'Phone number': 'Telefonnummer',
   'The phone number from the contact settings, before the button in the header and at the bottom of the menu.':
