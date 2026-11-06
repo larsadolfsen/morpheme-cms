@@ -2452,6 +2452,8 @@
     flex-shrink: 0;
     color: var(--list-item-trailing-text, var(--block-muted));
     font-size: var(--list-item-trailing-supporting-size, var(--type-label-small-size));
+    font-weight: var(--type-label-small-weight);
+    line-height: var(--type-label-small-line-height);
     letter-spacing: var(--type-label-small-tracking);
     font-variant-numeric: tabular-nums;
   }
