@@ -19,7 +19,8 @@ export function TopBarLayout({ above, aside, children }: { above?: ReactNode; as
       {above}
       <div className="flex">
         {aside}
-        <div className="min-w-0 flex-1">
+        {/* At least as high as the window, so a short screen's footer is at its bottom (Screen.tsx). */}
+        <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
           <div ref={setSlot} className="editor-top-bar-slot" />
           <Slot.Provider value={slot}>{slot && children}</Slot.Provider>
         </div>
