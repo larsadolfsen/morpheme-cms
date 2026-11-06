@@ -1,5 +1,5 @@
-// The themes in the app store (store.ts): their tab in "Appstore" (#settings/appstore/themes, StoreThemes), all themes, those
-// in the store and those installed, with the same search, order and status filter as the apps; the page of one that
+// The themes in the app store (store.ts): "Theme store" (#appearance/theme-store, ThemeStoreScreen.tsx, first under Appearance), all themes, those
+// in the store and those installed, with the same search, order and status filter as the apps ("Appstore" only has apps); the page of one that
 // is not installed (#appearance/themes/<id>, StoreThemePage), drawn from the catalog as a theme's page (its picture,
 // name, version, who made it, "Installer", its pictures of a site in it, what it is and gives the site, and who made
 // it); and on the page of one installed from the store (ThemePage in Library.tsx) "Opdater til …" and "Afinstaller"
@@ -237,7 +237,7 @@ export function allThemes(catalog: ShownTheme[] | null | 'failed') {
   ];
 }
 
-/** A theme's row in "Appstore" and on a developer's page: its picture, its name, its version and who made it, and
+/** A theme's row in "Theme store" and on a developer's page: its picture, its name, its version and who made it, and
  * whether it is installed, opening its page. */
 export function ThemeRow({ of }: { of: ReturnType<typeof allThemes>[number] }) {
   return (
@@ -279,7 +279,7 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
   const shotName = (key: string) => t.library.themeShots[key] ?? of?.name ?? '';
 
   return (
-    <Screen title={of?.name ?? t.common.parts.themes} wide back={{ href: `#${STORE_THEMES}`, label: t.apps.find }}>
+    <Screen title={of?.name ?? t.common.parts.themes} wide back={{ href: `#${STORE_THEMES}`, label: t.common.parts.themeStore }}>
       {of ? (
         <>
           <div className="mb-8 flex items-center gap-4 px-4">

@@ -4,7 +4,7 @@
 //   list/<id>       the list of a part, e.g. list/priser, and list/<id>/<app> a tab an installed app adds to it
 //                    (AppDefinition.tabs): list/cookies/cookiescanner
 //   lists           the short lists (the testimonials, the apps' lists)
-//   settings/appstore   the app store, its apps, and settings/appstore/themes its themes (AppList.tsx StorePage); the
+//   settings/appstore   the app store, its apps (AppList.tsx StorePage); the
 //                    other settings are screens of their own, in the drawer's last section (MainMenu.tsx)
 //   new/<id>         a new entry, new/<id>/<kind> one of a kind (a pop-up: standard, or an app's)
 //   company     the business, and company/<part> its parts: contact, payment; and
@@ -18,7 +18,7 @@
 //                    (Redirects.tsx): seo/redirects/all the redirects, and seo/redirects/not-found
 //                    the addresses visitors came to that do not exist; seo/rating the SEO rating of every page and
 //                    post (SeoScores.tsx); and seo/<part> the site's own (seoParts)
-//   appearance         how the site looks (Library.tsx Theme): appearance/themes the themes installed (Themes) and appearance/themes/<theme>
+//   appearance         how the site looks (Library.tsx Theme): appearance/theme-store the store's themes (ThemeStoreScreen.tsx), appearance/themes the themes installed (Themes) and appearance/themes/<theme>
 //                    a theme's page, with the button that swaps to it (ThemePage), appearance/icon-packs the icon packs (IconPacks),
 //                    appearance/motion how it moves (MotionSchemes), appearance/side-column the block beside the pages' text (SideColumn),
 //                    appearance/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
@@ -100,6 +100,7 @@ import Advanced, { ADVANCED_ROUTE } from './Advanced';
 import CmsPage, { CMS_ROUTE } from './CmsPage';
 import Licenses, { LICENSES_ROUTE, LicensePage } from './Licenses';
 import { StoreThemePage } from './ThemeStore';
+import { ThemeStoreScreen } from './ThemeStoreScreen';
 import {
   AppPage,
   AppScreenPage,
@@ -767,8 +768,8 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === LICENSES_ROUTE) return <Licenses />;
   if (route.startsWith(`${LICENSES_ROUTE}/`)) return <LicensePage key={route} id={route.slice(LICENSES_ROUTE.length + 1)} />;
   if (route === 'apps') return <Apps env={env} files={files} />;
-  if (route === STORE_ROUTE) return <StorePage env={env} files={files} tab="apps" />;
-  if (route === STORE_THEMES) return <StorePage env={env} files={files} tab="themes" />;
+  if (route === STORE_ROUTE) return <StorePage env={env} files={files} />;
+  if (route === STORE_THEMES) return <ThemeStoreScreen env={env} />;
   if (route.startsWith(`${DEVELOPER_ROUTE}/`))
     return <DeveloperPage key={route} slug={route.slice(DEVELOPER_ROUTE.length + 1)} env={env} files={files} />;
   // An app in the site (its own, or one from the store while it is installed) has its page, with the tabs Settings
