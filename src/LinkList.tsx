@@ -6,7 +6,8 @@
 // rows, the sheet and the FAB of ui.tsx and CreateFab.tsx.
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowDown, ArrowUp, FacebookLogo, Globe, LinkedinLogo, PinterestLogo, Trash, XLogo, type Icon } from '@phosphor-icons/react';
-import { hostOf, networkOf, type NetworkId } from '../site/social.mjs';
+import { networkOf, type NetworkId } from '../site/social.mjs';
+import { nameOf, problemOf, shownAddress, typedLink } from './linkAddress.mjs';
 import { CreateFab } from './CreateFab';
 import type { Field } from './schema';
 import { BottomSheet, Button, EmptyNote, IconButton, Label, ListItem, listClass, SheetBody, SheetTitle, TextField } from './ui';
@@ -23,25 +24,10 @@ export const networkIcons: Record<NetworkId, Icon> = {
 
 type Link = { url?: string } & Record<string, unknown>;
 
-/** An address as typed, as one: https:// before one without it (instagram.com/acme), and in place of http://. */
-export function typedLink(typed: string): string {
-  const text = typed.trim();
-  if (!text) return '';
-  if (/^https:\/\//i.test(text)) return text;
-  if (/^http:\/\//i.test(text)) return `https://${text.slice('http://'.length)}`;
-  if (/^[a-z][a-z0-9+.-]*:/i.test(text)) return text;
-  return `https://${text.replace(/^\/+/, '')}`;
-}
-
-/** A link's name: its network's, or its host for one not known (the address itself when it is not one). */
-const nameOf = (url: string) => networkOf(url)?.name ?? (hostOf(url) || url);
 const iconOf = (url: string): Icon => {
   const network = networkOf(url);
   return network ? networkIcons[network.id] : Globe;
 };
-/** The address as it is shown under its name: without https:// and the slash at the end. */
-const shownAddress = (url: string) => url.replace(/^https:\/\//i, '').replace(/\/$/, '');
-
 /** `hint`: what is under the list's name (hintOf in fields.tsx). `wrong`: the item whose address keeps the form from
  * being saved (WrongField), its number and when it was found, so its sheet opens again on the next try. */
 export function LinkList({
@@ -72,21 +58,22 @@ export function LinkList({
   useEffect(() => {
     if (!wrong || !value[wrong.index]) return;
     open(wrong.index);
-    setProblem(problemOf(String(value[wrong.index].url ?? '')) ?? '');
+    setProblem(problemWith(String(value[wrong.index].url ?? '')) ?? '');
   }, [wrong?.at]);
 
   // What is wrong with an address: none, not one, or one already in the list (but for the link itself).
-  function problemOf(url: string, index: number | null = null): string | null {
-    if (!url) return t.forms.links.noAddress;
-    if (address?.pattern && !new RegExp(address.pattern[0]).test(url)) return address.pattern[1];
-    if (value.some((l, i) => i !== index && String(l.url ?? '').trim() === url)) return t.forms.links.twice;
-    return null;
-  }
+  const problemWith = (url: string, index: number | null = null) =>
+    problemOf(
+      url,
+      index,
+      value.map((l) => l.url),
+      { pattern: address?.pattern, noAddress: t.forms.links.noAddress, twice: t.forms.links.twice },
+    );
 
   function done() {
     if (!editing) return;
     const url = typedLink(editing.typed);
-    const wrongWith = problemOf(url, editing.index);
+    const wrongWith = problemWith(url, editing.index);
     if (wrongWith) return setProblem(wrongWith);
     if (editing.index === null) onChange([...value, { url }]);
     else onChange(value.map((l, i) => (i === editing.index ? { ...l, url } : l)));
