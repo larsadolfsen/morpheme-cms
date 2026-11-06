@@ -96,6 +96,7 @@ export const common: Messages['common'] = {
     media: 'Filer',
     appearance: 'Udseende',
     themes: 'Temaer',
+    themeStore: 'Temastore',
     iconPacks: 'Ikonpakker',
     motion: 'Bevægelse',
     sideColumn: 'Sidekolonne',

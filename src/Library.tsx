@@ -145,6 +145,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (seoPart) return { label: seoPart.label, href: `#seo/${id}`, count: null };
   // The screens under "Udseende" (Theme): the ones the editor has, then the site's own (appearance).
   const appearanceLabel = {
+    'theme-store': parts.themeStore,
     themes: parts.themes,
     'icon-packs': parts.iconPacks,
     motion: parts.motion,
@@ -220,17 +221,18 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
   );
 }
 
-// "Udseende": first "Temaer" (Themes), with the theme the site is built with at the end of its row (or, after a swap,
-// until the site is built with the new one, that one), then the header with its menus and its preview (HeaderSettings.tsx)
-// and the footer with its preview (FooterSettings.tsx), then "Ikonpakker" (IconPacks), with the pack chosen, "Bevægelse"
-// (MotionSchemes), with the scheme chosen, "Sidekolonne" (SideColumn.tsx), with the block chosen, and the colours (Colors.tsx);
-// then the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider", a
+// Appearance: first "Theme store" (the store's themes, ThemeStoreScreen.tsx), then the header with its menus and its preview
+// (HeaderSettings.tsx) and the footer with its preview (FooterSettings.tsx), then "Temaer" (Themes), with the theme the site
+// is built with at the end of its row (or, after a swap, until the site is built with the new one, that one), "Ikonpakker"
+// (IconPacks), with the pack chosen, "Bevægelse" (MotionSchemes), with the scheme chosen, "Sidekolonne" (SideColumn.tsx),
+// with the block chosen, and the colours (Colors.tsx); then the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider", a
 // screen of its own, CompanyForm.tsx, going back here), and how the editor and the blocks look, their parts ("Dele", PartsHome), each on a
 // screen of its own, with the icons the site gives them. The logo and icon (BrandForm.tsx) are under "Virksomheden" (Company).
 // The blocks that can be put in are under "Blokke" ("Blokindstillinger", BlockSettings.tsx).
 export function Theme({ files }: { files: RepoFile[] }) {
   const chosen = themes.find((x) => x.id === chosenTheme(files)) ?? theme;
   const parts: Part[] = [
+    { id: 'theme-store', label: t.common.parts.themeStore, icon: icons['theme-store'] },
     { id: 'themes', label: t.common.parts.themes, icon: icons.themes, detail: chosen.name },
     { id: 'header', label: t.common.parts.header, icon: icons.header },
     { id: 'footer', label: t.common.parts.footer, icon: icons.footer },
@@ -264,7 +266,7 @@ function ThemeColors({ files }: { files: RepoFile[] }) {
   );
 }
 
-const backToAppearance = { href: '#appearance', label: t.common.parts.appearance };
+export const backToAppearance = { href: '#appearance', label: t.common.parts.appearance };
 const backToThemes = { href: '#appearance/themes', label: t.common.parts.themes };
 
 /** Under a theme's name: whether the site is built with it ("I brug") or is changing to it ("Skifter hertil"). */

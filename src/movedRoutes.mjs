@@ -27,6 +27,8 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   // "Logo and icon" was under "Udseende"; it is under the business now.
   'appearance/logo': 'company/logo',
   'udseende/logo': 'company/logo',
+  // The store's themes were a tab of the app store; they are on a screen of their own under Appearance now.
+  'settings/appstore/themes': 'appearance/theme-store',
 });
 
 /**
@@ -37,7 +39,7 @@ export const MOVED = /** @type {Record<string, string>} */ ({
  */
 export const RENAMED = /** @type {Record<string, string>} */ ({
   indstillinger: 'settings',
-  'indstillinger/appstore/temaer': 'settings/appstore/themes',
+  'indstillinger/appstore/temaer': 'appearance/theme-store',
   'apps/*/indstillinger': 'apps/*/settings',
   'apps/*/om': 'apps/*/about',
   'apps/udvikler': 'apps/developer',

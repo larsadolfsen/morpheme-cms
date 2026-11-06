@@ -3,8 +3,8 @@
 // standard parts: a site has them unless its src/site/ has a file of the same name (siteFile in site/theme.mjs), which
 // may take the standard one from @morphemecms/cms/defaults/<file> and add its own.
 //   collections   the parts of the site and their fields (collections.ts)
-//   groups, settings, lists, header, icons   the menu and the start screen
-//   appearance    the site's own parts under "Appearance", after the logo and icon ("Default pages")
+//   groups, settings, lists, header, icons   the menu and the start screen ("Appearance" starts with "Theme store", the store's themes)
+//   appearance    the site's own parts under "Appearance", after the colours ("Default pages")
 //   companyParts, blockParts   the screens under "Business" and "Blocks" (company.ts, blockTexts.ts)
 //   partScreens   parts of the start screen that are screens with parts of their own (privacy.ts)
 //   seoParts      the site's own parts under "Search engine optimization" (#seo/<id>), in the menu under "Content" (internalLinks.ts)
@@ -127,10 +127,11 @@ export const icons: Record<string, Icon> = {
   'block-settings': ToggleRight,
   apps: PuzzlePiece,
   appstore: Storefront,
+  'theme-store': Storefront,
   morpheme: Sparkle,
   advanced: Wrench,
   licenses: Certificate,
-  // The screens under "Appearance" (Library.tsx Theme).
+  // The screens under "Appearance" (Library.tsx Theme), the first the store's themes.
   themes: Swatches,
   colors: Palette,
   logo: Sticker,
@@ -140,7 +141,7 @@ export const icons: Record<string, Icon> = {
   parts: Shapes,
 };
 
-/** The site's own parts under "Appearance" (#appearance), after the logo and icon, each a screen of its own at #appearance/<id>:
+/** The site's own parts under "Appearance" (#appearance), after the colours, each a screen of its own at #appearance/<id>:
  * "Default pages", which pages are the front page, the blog page, the 404 page and the contact page, as a list
  * (standardPageFieldsOf in collections.ts; the privacy policy and the cookie policy are under "Privacy", privacy.ts). */
 export const appearance: Part[] = [
@@ -160,8 +161,8 @@ export const appearance: Part[] = [
 // and "redirects", Redirects.tsx), the blocks ("Blocks": their shared texts, and "Block selection", which of them can be
 // put in), the apps ("Apps": the apps that come with the site, src/apps/, AppList.tsx, and "appstore"), the business
 // ("Business": the logo and icon first (company/logo, BrandForm.tsx), then the section of the editor's part "company": its parts, name, contact and booking, are its rows; lib/menu.mjs),
-// how the site looks ("Appearance": the theme, the header with the menus and the footer (what is on every page), the icon packs,
-// the motion, the side column (SideColumn.tsx), the colors, the standard pages (appearance)
+// how the site looks ("Appearance": the theme store, the header with the menus and the footer (what is on every page), the theme,
+// the icon packs, the motion, the side column (SideColumn.tsx), the colors, the standard pages (appearance)
 // and the editor's parts: Colors.tsx, BrandForm.tsx and Parts.tsx), the parts of "Privacy" (privacy.ts) and the settings
 // of the whole site ("Settings").
 // Each part is a collection (collections.ts), except those named above, "privacy"'s (partScreens) and the editor's own
@@ -181,7 +182,18 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
   {
     id: 'appearance',
     title: 'Appearance',
-    ids: ['themes', 'header', 'footer', 'icon-packs', 'motion', 'side-column', 'colors', ...appearance.map((p) => p.id), 'parts'],
+    ids: [
+      'theme-store',
+      'header',
+      'footer',
+      'themes',
+      'icon-packs',
+      'motion',
+      'side-column',
+      'colors',
+      ...appearance.map((p) => p.id),
+      'parts',
+    ],
   },
   { id: 'privacy', title: 'Privacy', ids: privacy.parts.map((p) => p.id) },
   { id: 'settings', title: 'Settings', ids: settingsIds },
