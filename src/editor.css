@@ -689,6 +689,18 @@ html {
   box-shadow: var(--editor-menu-shadow);
 }
 
+/* Its tools on one line, and the rest on a second while it is open (the arrow at its end, MarkdownEditor.tsx). Closed,
+   the line is one button high and those past it are hidden (not clipped, so the focus ring of a tool is whole). */
+.editor-tools-closed {
+  max-height: 2.5rem;
+}
+
+.editor-tools-closed > [data-wrapped],
+.editor-tools-line > span[data-line-start],
+.editor-tools-line > span[data-line-end] {
+  visibility: hidden;
+}
+
 /* The icons over the selected text, on a phone at the bottom over the keyboard (selectionMenu in
    MarkdownEditor.tsx). */
 .editor-selection-menu {
