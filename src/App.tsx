@@ -4,11 +4,12 @@
 //   list/<id>       the list of a part, e.g. list/priser, and list/<id>/<app> a tab an installed app adds to it
 //                    (AppDefinition.tabs): list/cookies/cookiescanner
 //   lists           the short lists (the testimonials, the apps' lists)
-//   settings/appstore   the app store, its apps, and settings/appstore/themes its themes (AppList.tsx StorePage); the
+//   settings/appstore   the app store, its apps (AppList.tsx StorePage); the
 //                    other settings are screens of their own, in the drawer's last section (MainMenu.tsx)
 //   new/<id>         a new entry, new/<id>/<kind> one of a kind (a pop-up: standard, or an app's)
 //   company     the business, and company/<part> its parts: contact, payment; and
 //                    company/payment/<part> its own parts: mobilepay, bank
+//   company/logo    the logo and icon (BrandForm.tsx), the first part of the business (Library.tsx Company)
 //   <screen>         a screen with parts of the site's own (partScreens), and <screen>/<part> its parts:
 //                    privacy/cookie-banner, privacy/privacy-pages, or one of the editor's own screens (Part.opens):
 //                    privacy/consents the visitors' answers in the cookie banner (Consents.tsx); and the settings of the apps installed with
@@ -18,14 +19,14 @@
 //                    (Redirects.tsx): seo/redirects/all the redirects, and seo/redirects/not-found
 //                    the addresses visitors came to that do not exist; seo/rating the SEO rating of every page and
 //                    post (SeoScores.tsx); and seo/<part> the site's own (seoParts)
-//   appearance         how the site looks (Library.tsx Theme): appearance/themes the themes installed (Themes) and appearance/themes/<theme>
+//   appearance         how the site looks (Library.tsx Theme): appearance/theme-store the store's themes (ThemeStoreScreen.tsx), appearance/themes the themes installed (Themes) and appearance/themes/<theme>
 //                    a theme's page, with the button that swaps to it (ThemePage), appearance/icon-packs the icon packs (IconPacks),
 //                    appearance/motion how it moves (MotionSchemes), appearance/side-column the block beside the pages' text (SideColumn),
 //                    appearance/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
 //                    appearance/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
 //                    appearance/colors the colours (Colors.tsx;
-//                    appearance/colors/fallback-colors the site's own while an app changes the pages'), appearance/logo the logo
-//                    and icon (BrandForm.tsx), appearance/parts the parts (Library.tsx PartsHome): appearance/parts/editor the editor's, every
+//                    appearance/colors/fallback-colors the site's own while an app changes the pages'),
+//                    appearance/parts the parts (Library.tsx PartsHome): appearance/parts/editor the editor's, every
 //                    one in every state (Parts.tsx), appearance/parts/ui the theme's UI components, appearance/parts/blocks the
 //                    blocks, the standard ones and the apps', and appearance/parts/list/<list> each kind of a list of kinds
 //                    ("Promovering"), its own and the apps' (BlockParts.tsx), and appearance/parts/values the
@@ -100,6 +101,7 @@ import Advanced, { ADVANCED_ROUTE } from './Advanced';
 import CmsPage, { CMS_ROUTE } from './CmsPage';
 import Licenses, { LICENSES_ROUTE, LicensePage } from './Licenses';
 import { StoreThemePage } from './ThemeStore';
+import { ThemeStoreScreen } from './ThemeStoreScreen';
 import {
   AppPage,
   AppScreenPage,
@@ -780,15 +782,15 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   // The colours, or the site's own on a page of the same form while an app changes the pages' (FALLBACK_ROUTE).
   if (route === 'appearance/colors' || route === FALLBACK_ROUTE)
     return <Colors env={env} files={files} fallback={route === FALLBACK_ROUTE} />;
-  if (route === 'appearance/logo') return <BrandForm env={env} />;
+  if (route === 'company/logo') return <BrandForm env={env} />;
   if (route === 'block-settings') return <BlockSettings env={env} files={files} />;
   if (route === ADVANCED_ROUTE) return <Advanced env={env} />;
   if (route === CMS_ROUTE) return <CmsPage />;
   if (route === LICENSES_ROUTE) return <Licenses />;
   if (route.startsWith(`${LICENSES_ROUTE}/`)) return <LicensePage key={route} id={route.slice(LICENSES_ROUTE.length + 1)} />;
   if (route === 'apps') return <Apps env={env} files={files} />;
-  if (route === STORE_ROUTE) return <StorePage env={env} files={files} tab="apps" />;
-  if (route === STORE_THEMES) return <StorePage env={env} files={files} tab="themes" />;
+  if (route === STORE_ROUTE) return <StorePage env={env} files={files} />;
+  if (route === STORE_THEMES) return <ThemeStoreScreen env={env} />;
   if (route.startsWith(`${DEVELOPER_ROUTE}/`))
     return <DeveloperPage key={route} slug={route.slice(DEVELOPER_ROUTE.length + 1)} env={env} files={files} />;
   // An app in the site (its own, or one from the store while it is installed) has its page, with the tabs Settings

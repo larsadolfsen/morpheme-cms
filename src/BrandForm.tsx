@@ -1,4 +1,4 @@
-// "Udseende" › "Logo og ikon" (#appearance/logo): a new logo (the mark by the site's name) and a new icon (the browser
+// "Virksomheden" › "Logo og ikon" (#company/logo): a new logo (the mark by the site's name) and a new icon (the browser
 // tab, Google and the editor's app icon), made from a picture the owner picks (brand.ts), in the site's colours
 // ("Farver"). Both are saved together in one commit with "Gem ændringer".
 import { useEffect, useState } from 'react';
@@ -120,7 +120,7 @@ export default function BrandForm({ env }: { env: Env }) {
   return (
     <FormFrame
       title={t.common.parts.brand}
-      back={{ href: '#appearance', label: t.common.parts.appearance }}
+      back={{ href: '#company', label: t.common.parts.company }}
       dirty={dirty}
       saving={saving || drawing}
       onSave={save}
