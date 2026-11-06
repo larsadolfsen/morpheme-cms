@@ -1,7 +1,7 @@
 // The editor's preview of the header (HeaderSettings.tsx): what the header's settings in the form change (headerDraft),
 // and those changes put into the site's page (swapHeader), in the parts Header.astro and MobileNav.astro mark with
 // data-editor: the menu's items (header-nav), the menu button (header-menu) and its side, the bar of "Mobilmenu"
-// (mobile-nav) and the button's place (header-cta). Exposes headerDraft and swapHeader. Uses site/header.mjs; a DOM (the
+// (mobile-nav) and the call to action (header-cta: the phone number and the button). Exposes headerDraft and swapHeader. Uses site/header.mjs; a DOM (the
 // browser's, jsdom in the tests), no React: what the theme's components draw comes in as HTML.
 import { headerOf, sortedNav } from '../site/header.mjs';
 
@@ -16,8 +16,10 @@ import { headerOf, sortedNav } from '../site/header.mjs';
 
 /**
  * What the form changes in the header; undefined leaves it as it is on the site. `nav` null: the menu is off (no items,
- * no menu button); `mobileNav` empty: no bar; `button` null: the phone icon.
- * @typedef {{ nav?: NavItem[] | null, mobileNav?: NavLink[], menuSide?: 'start' | 'end', button?: Button | null }} HeaderDraft
+ * no menu button); `mobileNav` empty: no bar; `cta`: the call to action, when its button or phone number changed
+ * (`button` null: no button).
+ * @typedef {{ button: Button | null, phone: boolean }} HeaderCta
+ * @typedef {{ nav?: NavItem[] | null, mobileNav?: NavLink[], menuSide?: 'start' | 'end', cta?: HeaderCta }} HeaderDraft
  */
 
 // As site/site.ts reads the files: the menu's items unless it is off, the bar's links while it is on.
@@ -48,13 +50,13 @@ export function headerDraft(saved, now) {
   if (!same(mobileNav, mobileBefore)) draft.mobileNav = mobileNav;
   const [header, before] = [headerOf(now.header), headerOf(saved.header)];
   if (header.menuSide !== before.menuSide) draft.menuSide = header.menuSide;
-  if (!same(header.button, before.button)) draft.button = header.button;
+  if (!same(header.button, before.button) || header.phone !== before.phone) draft.cta = { button: header.button, phone: header.phone };
   return draft;
 }
 
 /**
- * How the theme draws what the page may not have: the menu button's classes on each side, the button's place as HTML
- * (when `button` changed; with data-editor="header-cta"), an empty bar of "Mobilmenu" with one tab (for a page without
+ * How the theme draws what the page may not have: the menu button's classes on each side, the call to action as HTML
+ * (when `cta` changed; with data-editor="header-cta"), an empty bar of "Mobilmenu" with one tab (for a page without
  * one), the name of an item's sub-pages button, and the page's address (for the open page's item).
  * @typedef {{ menuClass: Record<'start' | 'end', string>, cta?: string, mobileNav: string, subpagesOf: (label: string) => string, current: string }} HeaderTheme
  */
@@ -158,8 +160,8 @@ export function swapHeader(doc, draft, theme) {
     menu?.remove();
   } else if (draft.nav && nav) drawNav(nav, draft.nav, theme);
   if (draft.mobileNav) drawMobileNav(doc, draft.mobileNav, theme);
-  if (draft.button !== undefined && theme.cta !== undefined) part(doc, 'header-cta')?.replaceWith(fromHtml(doc, theme.cta));
-  // The menu button first in the header's row, or last (after the button's place).
+  if (draft.cta && theme.cta !== undefined) part(doc, 'header-cta')?.replaceWith(fromHtml(doc, theme.cta));
+  // The menu button first in the header's row, or last (after the call to action).
   if (draft.menuSide && menu?.isConnected && menu.parentElement) {
     menu.className = theme.menuClass[draft.menuSide];
     if (draft.menuSide === 'start') menu.parentElement.prepend(menu);

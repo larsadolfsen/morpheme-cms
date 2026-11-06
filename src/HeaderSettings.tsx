@@ -1,6 +1,6 @@
 // "Udseende" › "Header" (#appearance/header): what is in the header on every page, on one screen laid out as a page's form
 // (SettingsSections.tsx): a preview of the header as the form has it, on a phone and a computer (partPreview.tsx), over the
-// sections Main menu (menu.json), Mobile menu (mobile-menu.json), Action button and Menu button (header.json). "Gem
+// sections Main menu (menu.json), Mobile menu (mobile-menu.json), Call to action and Menu button (header.json). "Gem
 // ændringer" saves each changed file in its own commit (useDataFiles.ts). Exposes HeaderSettings (default). Uses
 // DataFileFields.tsx, fields.tsx, blocks.ts (BlockData), headerPreview.mjs and headerTheme.tsx.
 import { useMemo, type ReactNode } from 'react';
@@ -26,7 +26,7 @@ const parts: DataFilePart[] = Object.values(FILES).flatMap((id) => {
 });
 const at = (id: string) => parts.findIndex((p) => p.collection.id === id);
 
-// The sections, each with the file it is of: a menu is one; header.json's group (the action button) is one, and its other
+// The sections, each with the file it is of: a menu is one; header.json's group (the call to action) is one, and its other
 // fields (the menu button's side) are "Menu button".
 type Place = { id: string; label: string; file: number; field?: string };
 const places: Place[] = parts.flatMap(({ collection, dataFile }, file): Place[] => {
@@ -61,13 +61,13 @@ export default function HeaderSettings({ env }: { env: Env }) {
     layout.steer(id);
   });
   const context: FieldContext = { relations: env.relations, lists: env.lists, testimonials: env.testimonials, site: env.site };
-  // What the theme draws the header's button from (headerThemeOf): the same site data, as the block cards have it.
+  // What the theme draws the header's call to action from (headerThemeOf): the same site data, as the block cards have it.
   const data: BlockData = { lists: env.lists, testimonials: env.testimonials, relations: env.relations, site: env.site };
 
   // What the form changes, put into a copy of the site's front page each time it changes.
   const swap = useMemo(() => {
     const draft = headerDraft(shapeOf(form.initial), shapeOf(form.values));
-    return (doc: Document) => swapHeader(doc, draft, headerThemeOf(draft.button, data));
+    return (doc: Document) => swapHeader(doc, draft, headerThemeOf(draft.cta, data));
   }, [form.initial, form.values]);
 
   const fieldsOf = ({ file, field }: Place): ReactNode => {

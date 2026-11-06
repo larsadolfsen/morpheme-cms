@@ -11,6 +11,11 @@ test('the old footer form opens Appearance › Footer', () => {
   assert.equal(movedRoute('src/data/footer.json'), 'appearance/footer');
 });
 
+test('the themes tab of the store opens the Theme store under Appearance', () => {
+  assert.equal(movedRoute('settings/appstore/themes'), 'appearance/theme-store');
+  assert.equal(movedRoute('settings/appstore'), 'settings/appstore');
+});
+
 test('an address that has not moved stays', () => {
   assert.equal(movedRoute('appearance/header'), 'appearance/header');
   assert.equal(movedRoute('lists'), 'lists');
@@ -50,7 +55,7 @@ test('old prefixes are renamed, the data after them stays', () => {
 test('every old route prefix opens the screen where it is now', () => {
   const cases = {
     indstillinger: 'settings',
-    'indstillinger/appstore/temaer': 'settings/appstore/themes',
+    'indstillinger/appstore/temaer': 'appearance/theme-store',
     'apps/google-analytics/indstillinger': 'apps/google-analytics/settings',
     'apps/udvikler/acme': 'apps/developer/acme',
     'apps/cms-version/om': 'apps/cms-version/about',

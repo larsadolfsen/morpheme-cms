@@ -1,5 +1,5 @@
-// The themes in the app store (store.ts): their tab in "Appstore" (#settings/appstore/themes, StoreThemes), all themes, those
-// in the store and those installed, with the same search, order and status filter as the apps; the page of one that
+// The themes in the app store (store.ts): "Theme store" (#appearance/theme-store, ThemeStoreScreen.tsx, first under Appearance), all themes, those
+// in the store and those installed, with the same search, order and status filter as the apps ("Appstore" only has apps); the page of one that
 // is not installed (#appearance/themes/<id>, StoreThemePage), drawn from the catalog as a theme's page (its picture,
 // name, version, who made it, "Installer", its pictures of a site in it, what it is and gives the site, and who made
 // it); and on the page of one installed from the store (ThemePage in Library.tsx) "Opdater til …" and "Afinstaller"
@@ -21,8 +21,6 @@ import { iconPacks, packOfTheme } from './iconPacks';
 import { theme, themes, type ThemeInfo } from './themes';
 import {
   changedFiles,
-  legacyOf,
-  moveChanges,
   newer,
   notesSince,
   STANDARD_THEME,
@@ -65,12 +63,8 @@ export function useThemeCatalog(env: Env): ShownTheme[] | null | 'failed' {
 // version updated to, until the site's build has it (and the editor reloads with it, deploy.ts keepCurrent).
 const changed = new Map<string, string>();
 
-const themeHere = (id: string) => (changed.has(id) ? changed.get(id) !== 'uninstalled' : themes.some((x) => x.id === id));
-
-/** Whether a theme is in the site now: installed and not uninstalled since, or installed since; or, with its `legacy` id,
- * a copy under that old id from the store (legacyOf). */
-export const themeInstalled = (id: string, legacy?: string) =>
-  themeHere(id) || (!!legacy && legacyOf({ legacy }, themes) !== null && themeHere(legacy));
+/** Whether a theme is in the site now: installed and not uninstalled since, or installed since. */
+export const themeInstalled = (id: string) => (changed.has(id) ? changed.get(id) !== 'uninstalled' : themes.some((x) => x.id === id));
 
 /** A theme installed from the store that the site's build does not have yet. */
 export const themePending = (id: string) => changed.get(id) === 'installed' && !themes.some((x) => x.id === id);
@@ -80,7 +74,7 @@ const versionOf = (x: ThemeInfo) => (changed.has(x.id) && changed.get(x.id) !== 
 
 /** The newer version of a theme from the store, when the store has one. */
 export const themeUpdateOf = (x: ThemeInfo, catalog: ShownTheme[] | null | 'failed') => {
-  const found = x.store && Array.isArray(catalog) ? catalog.find((c) => c.id === x.id || c.legacy === x.id) : undefined;
+  const found = x.store && Array.isArray(catalog) ? catalog.find((c) => c.id === x.id) : undefined;
   return found && newer(found.version, versionOf(x)) ? found : undefined;
 };
 
@@ -130,13 +124,11 @@ function useThemeActions(env: Env) {
     text: { busy: string; done: string; commit: string; change: string },
     next: () => Promise<Parameters<typeof themeChanges>[2]>,
     go: (current: RepoFile[]) => Promise<boolean> = async () => true,
-    // The id the theme is installed under, when it is a legacy copy that moves to `id` (moveChanges).
-    legacy: string | null = null,
   ): Promise<boolean> {
     setRunning({ id, action, asking: false });
     env.notify({ text: text.busy });
     try {
-      const [current, wanted] = await Promise.all([env.folder(themeFolder(legacy ?? id)), next()]);
+      const [current, wanted] = await Promise.all([env.folder(themeFolder(id)), next()]);
       if (!(await go(current))) {
         env.notify(null);
         return false;
@@ -144,11 +136,7 @@ function useThemeActions(env: Env) {
       // `go` cleared the message (and its dialog stopped the button being busy): saving goes on.
       setRunning({ id, action, asking: false });
       env.notify({ text: text.busy });
-      await env.commit(
-        text.commit,
-        legacy && wanted ? moveChanges({ id }, legacy, wanted, current, env.files) : themeChanges(id, current, wanted),
-        text.change,
-      );
+      await env.commit(text.commit, themeChanges(id, current, wanted), text.change);
       env.notify({ text: text.done, kind: 'saved' });
       return true;
     } catch (e) {
@@ -177,7 +165,7 @@ function useThemeActions(env: Env) {
       if (done) changed.set(x.id, 'installed');
       return done;
     },
-    async update(x: ShownTheme, record: StoreRecord, legacy: string | null = null) {
+    async update(x: ShownTheme, record: StoreRecord) {
       const done = await change(
         x.id,
         'update',
@@ -202,15 +190,11 @@ function useThemeActions(env: Env) {
             record.version,
             x.version,
             notesSince(x.releaseNotes, record.version, x.version),
-            changedFiles(x.id, record, current, themeFolder(legacy ?? x.id)),
+            changedFiles(x.id, record, current, themeFolder(x.id)),
           );
         },
-        legacy,
       );
-      if (done && legacy) {
-        changed.set(x.id, 'installed');
-        changed.set(legacy, 'uninstalled');
-      } else if (done) changed.set(x.id, x.version);
+      if (done) changed.set(x.id, x.version);
       return done;
     },
     async uninstall(id: string, name: string) {
@@ -237,12 +221,11 @@ function useThemeActions(env: Env) {
 export function allThemes(catalog: ShownTheme[] | null | 'failed') {
   const store = Array.isArray(catalog) ? catalog : [];
   return [
-    ...store.map((x) => ({ id: x.id, legacy: x.legacy, name: x.name, author: x.author, version: x.version, icon: x.icon, words: x.words })),
+    ...store.map((x) => ({ id: x.id, name: x.name, author: x.author, version: x.version, icon: x.icon, words: x.words })),
     ...themes
-      .filter((x) => !store.some((s) => s.id === x.id || s.legacy === x.id))
+      .filter((x) => !store.some((s) => s.id === x.id))
       .map((x) => ({
         id: x.id,
-        legacy: undefined as string | undefined,
         name: x.name,
         author: x.author,
         version: x.version,
@@ -254,7 +237,7 @@ export function allThemes(catalog: ShownTheme[] | null | 'failed') {
   ];
 }
 
-/** A theme's row in "Appstore" and on a developer's page: its picture, its name, its version and who made it, and
+/** A theme's row in "Theme store" and on a developer's page: its picture, its name, its version and who made it, and
  * whether it is installed, opening its page. */
 export function ThemeRow({ of }: { of: ReturnType<typeof allThemes>[number] }) {
   return (
@@ -264,7 +247,7 @@ export function ThemeRow({ of }: { of: ReturnType<typeof allThemes>[number] }) {
       headline={of.name}
       supporting={t.library.themeByline(of.version, of.author)}
       truncate
-      count={themeInstalled(of.id, of.legacy) && (themePending(of.id) ? t.apps.pending : t.apps.installed)}
+      count={themeInstalled(of.id) && (themePending(of.id) ? t.apps.pending : t.apps.installed)}
       arrow
     />
   );
@@ -296,7 +279,7 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
   const shotName = (key: string) => t.library.themeShots[key] ?? of?.name ?? '';
 
   return (
-    <Screen title={of?.name ?? t.common.parts.themes} wide back={{ href: `#${STORE_THEMES}`, label: t.apps.find }}>
+    <Screen title={of?.name ?? t.common.parts.themes} wide back={{ href: `#${STORE_THEMES}`, label: t.common.parts.themeStore }}>
       {of ? (
         <>
           <div className="mb-8 flex items-center gap-4 px-4">
@@ -380,11 +363,7 @@ export function ThemeStoreButtons({ of, env, files, top }: { of: ThemeInfo; env:
   if (top)
     return update ? (
       <div className="mb-8">
-        <Button
-          disabled={actions.saving}
-          busy={actions.busy(update.id, 'update')}
-          onClick={() => actions.update(update, of.store!, legacyOf(update, themes))}
-        >
+        <Button disabled={actions.saving} busy={actions.busy(of.id, 'update')} onClick={() => actions.update(update, of.store!)}>
           {t.apps.update(update.version)}
         </Button>
       </div>

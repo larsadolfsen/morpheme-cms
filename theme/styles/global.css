@@ -1136,6 +1136,20 @@
     font-weight: var(--type-title-medium-weight);
     letter-spacing: var(--type-title-medium-tracking);
   }
+  /* Its bottom: the header's call to action (header.json), the phone number and the button in one row sharing the
+     drawer's width, as in the header; when they do not fit side by side, the button over the number (wrap-reverse), each
+     as wide as the drawer. At the bottom of the drawer when its items leave room, else after them. */
+  .md-drawer-actions {
+    display: flex;
+    flex-wrap: wrap-reverse;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding: 1.5rem 0.25rem 0;
+  }
+  .md-drawer-actions .button {
+    flex: 1 1 auto;
+    white-space: nowrap;
+  }
   .md-drawer-role {
     color: var(--muted);
     font-size: var(--type-body-medium-size);
