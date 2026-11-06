@@ -1,5 +1,31 @@
 # @morphemecms/cms
 
+## 0.13.0
+
+### Minor Changes
+
+- 1193da4: The standard parts and their ids are in English. Danish comes from `defaults/i18n/da-DK/`. A site that overrides a standard part by its old id must use the new id. Old editor links and bookmarks still open (they redirect to the new address). The filters and sorts that the editor saved in the browser reset once.
+- 10276ee: The header's "Call to action" can show the phone number (from Business › Contact; it calls on a phone and leads to the contact page on larger screens) as a text button before its button, and both share a row at the bottom of the menu; the menu opens from the side its button is on, and no drawer (site or editor) shows a gap at the screen's edge when its spring overshoots. In the editor, the back gesture goes from a section's list to the main menu, Header and Footer are under Appearance, and Business is a section of its own after Blocks and Apps.
+- 9ddc437: A list item can be selected with a long press on a phone (`selectable` on the theme's `ListItem`); in the editor's notifications this selects notifications to delete.
+- 32b4395: The bell in the editor's top bar opens the notifications in a side sheet over the screen you are on, instead of a screen of their own.
+- 774ab69: Social media profiles are a list of links added with the + button; a link to Facebook, X, LinkedIn or Pinterest gets its name and icon from the address, and the share buttons are under their own heading.
+- 82d64b7: The start screen has a "Continue where you left off" card with the last three pages and blog posts saved, a notice of what was updated since your last visit (each with a close button), and the licenses link sits in a footer at the bottom of every screen.
+- 03ad8a9: Move the theme store from the Appstore to its own screen, Theme store, first under Appearance.
+
+### Patch Changes
+
+- ccefd29: The licence checks know `@app/self` (app contract 3): an app that imports it no longer needs it in `thirdParty`, and
+  the site's licence list counts its virtual module as the site's own.
+- e9d6b34: The editor's notifications also show when the website updated Morpheme from npm, undid an update or got stuck.
+- a283bcc: The drawer's divider stands level with the top bar's line.
+- 6fa3043: The store no longer moves old store copies; all sites use permanent ids.
+- 9c24224: The text editor's empty-line hint says "Write text here…" again, on a line no taller than the hint.
+- 697a7dc: List items follow Material 3's focus layer, corners and hover colours.
+- 8fd74d0: Editor menu: Header and Footer come right after Themes under Appearance, and Logo and icon is under Business.
+- 3a6157b: New sites get a `.gitattributes` that keeps LF line endings on Windows.
+- 3961b6d: The text toolbar no longer scrolls sideways on a phone: the tools that do not fit are on a second row, shown with the arrow at its end.
+- 34f69c5: Open website, in the editor's top bar, opens the site in a new window instead of a new tab.
+
 ## 0.12.0
 
 ### Minor Changes
