@@ -213,12 +213,15 @@ export function IconLink({
 /** A tool in the text's toolbar (MarkdownEditor.tsx): the theme's icon button a little smaller (its --icon-button-size),
  * so the toolbar fits on a phone, and it keeps the cursor in the text while it is tapped. The only other size. With
  * `menu` it opens a Menu under it (the kinds of text, when the toolbar is too short): the theme's text button with the
- * icon and a small arrow after it. */
+ * icon and a small arrow after it. With `expanded` it shows or hides more of the toolbar (`controls`: the id of what it
+ * shows). */
 export function ToolbarButton({
   icon: Glyph,
   label,
   selected,
   menu,
+  expanded,
+  controls,
   onClick,
 }: {
   icon: Icon;
@@ -227,11 +230,16 @@ export function ToolbarButton({
   selected?: boolean;
   /** It opens a Menu: whether the menu is open. */
   menu?: boolean;
+  /** It shows or hides more of the toolbar: whether that is shown. */
+  expanded?: boolean;
+  controls?: string;
   onClick: (e: MouseEvent<HTMLButtonElement>) => void;
 }) {
   const tooltip = useTooltip(label);
   const own = {
     'aria-pressed': selected,
+    'aria-expanded': menu ?? expanded,
+    'aria-controls': controls,
     onMouseDown: (e: MouseEvent) => e.preventDefault(),
     onClick,
     ...tooltip.on,
@@ -248,7 +256,6 @@ export function ToolbarButton({
           trailingIcon={<CaretDown />}
           aria-label={label}
           aria-haspopup="menu"
-          aria-expanded={menu}
           {...own}
         >
           {null}

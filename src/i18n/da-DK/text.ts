@@ -18,6 +18,8 @@ export const text: Messages['text'] = {
   redo: 'Gentag',
   kind: 'Teksttype',
   kindIs: (kind) => `Teksttype: ${kind}`,
+  moreTools: 'Vis flere værktøjer',
+  fewerTools: 'Vis færre værktøjer',
   selection: 'Markeret tekst',
   color: 'Farve',
   colors: { accent: 'Accentfarve', muted: 'Stille tekst' },

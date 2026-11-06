@@ -11,7 +11,9 @@ import {
   Fragment as ReactFragment,
   type MouseEvent as ReactMouseEvent,
   useEffect,
+  useId,
   useImperativeHandle,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -41,6 +43,8 @@ import { lift } from '@milkdown/kit/prose/commands';
 import {
   ArrowUUpLeft,
   ArrowUUpRight,
+  CaretDown,
+  CaretUp,
   Image,
   LinkSimple,
   ListBullets,
@@ -1179,6 +1183,50 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     watch.observe(bar);
     return () => watch.disconnect();
   }, [tools.length, hasSettings]);
+  // When the tools do not fit on one line even so, the line keeps those that fit and a button at its end (an arrow) shows
+  // the rest on a second line, instead of the toolbar scrolling sideways. The tools past the first line are marked
+  // data-wrapped (hidden, out of reach of Tab, while it is closed), and a line between groups that starts or ends a line
+  // data-line-start or data-line-end (not drawn).
+  const line = useRef<HTMLDivElement>(null);
+  const lineId = useId();
+  const [overflows, setOverflows] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const measure = useRef(() => {});
+  measure.current = () => {
+    const bar = toolbar.current;
+    const row = line.current;
+    if (!bar || !row) return;
+    const items = ([...row.children] as HTMLElement[]).filter((el) => !el.hasAttribute('popover'));
+    const barStyle = getComputedStyle(bar);
+    const room = bar.clientWidth - parseFloat(barStyle.paddingLeft) - parseFloat(barStyle.paddingRight);
+    const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+    const need = items.reduce(
+      (sum, el) => {
+        const style = getComputedStyle(el);
+        return sum + el.getBoundingClientRect().width + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+      },
+      gap * Math.max(0, items.length - 1),
+    );
+    setOverflows(need > room + 0.5);
+    // By the middle of each, as the lines between the groups are shorter than the buttons.
+    const middles = items.map((el) => {
+      const box = el.getBoundingClientRect();
+      return box.top + box.height / 2;
+    });
+    items.forEach((el, i) => {
+      el.toggleAttribute('data-wrapped', middles[i] > middles[0] + 10);
+      el.toggleAttribute('data-line-start', i > 0 && middles[i] > middles[i - 1] + 10);
+      el.toggleAttribute('data-line-end', i < items.length - 1 && middles[i + 1] > middles[i] + 10);
+    });
+  };
+  useLayoutEffect(() => measure.current());
+  useEffect(() => {
+    const watch = new ResizeObserver(() => measure.current());
+    watch.observe(toolbar.current!);
+    return () => watch.disconnect();
+  }, []);
+  const open = overflows && expanded;
+
   const tool = ({ label, icon, action, on }: (typeof tools)[number]) => (
     <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} onClick={action} />
   );
@@ -1204,19 +1252,40 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   return (
     <div className="rounded-panel border border-line bg-surface">
       {/* A bar with round corners and room all round it, inside the text's box. Stays at the top while scrolling through the text, a little under the app's top bar (Screen.tsx,
-          4rem and its line); on a phone one row that scrolls sideways. The buttons are centred, but
-          start at the left edge when they do not fit (safe), so none is out of reach. */}
+          4rem and its line). The buttons are centred on one line; when they do not fit, the line starts at the left and
+          the arrow at its end shows the rest on a second line (measure above). */}
       <Toolbar
         ref={toolbar}
         label={t.text.tools}
-        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 m-2 justify-center-safe overflow-x-auto rounded-panel border border-line medium:flex-wrap"
+        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 m-2 items-start rounded-panel border border-line"
       >
-        {tools.map((tool) => (
-          <ReactFragment key={tool.label}>
-            {lineBefore(tool) && <span aria-hidden="true" className="mx-1 my-2 w-px shrink-0 self-stretch bg-line" />}
-            {button(tool)}
-          </ReactFragment>
-        ))}
+        <div
+          ref={line}
+          id={lineId}
+          className={[
+            'editor-tools-line flex min-w-0 flex-1 flex-wrap items-center gap-[0.125rem]',
+            overflows ? 'justify-start' : 'justify-center',
+            !open && 'editor-tools-closed',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        >
+          {tools.map((tool) => (
+            <ReactFragment key={tool.label}>
+              {lineBefore(tool) && <span aria-hidden="true" className="mx-1 my-2 w-px shrink-0 self-stretch bg-line" />}
+              {button(tool)}
+            </ReactFragment>
+          ))}
+        </div>
+        {overflows && (
+          <ToolbarButton
+            icon={open ? CaretUp : CaretDown}
+            label={open ? t.text.fewerTools : t.text.moreTools}
+            expanded={open}
+            controls={lineId}
+            onClick={() => setExpanded(!open)}
+          />
+        )}
       </Toolbar>
       {/* The site's colours (text-colors.mjs), each named in its colour, as it is in the text (its class), and "Ingen
           farve" in the text's own. */}
