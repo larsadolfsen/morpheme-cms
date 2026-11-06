@@ -20,6 +20,7 @@ import type { RepoFile } from './github';
 import type { Env } from './App';
 import { SiteCard } from './themeUi';
 import { CloseButton, ListItem, Notice, plainListClass } from './ui';
+import { appHref } from './AppList';
 import { INFO_KEY } from '../lib/appRoute.mjs';
 
 const EDITS = 'editor-recent-edits';
@@ -156,7 +157,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
           {changes.map((c) => {
             const app = c.id === 'cms' ? null : apps.find((a) => a.id === c.id);
             const name = app ? app.label : t.library.cmsName;
-            const href = app ? `#apps/${app.id}/${INFO_KEY}` : `#${CMS_ROUTE}`;
+            const href = app ? `${appHref(app)}/${INFO_KEY}` : `#${CMS_ROUTE}`;
             return (
               <li key={c.id}>
                 <a href={href} className="underline underline-offset-2 hover:text-accent">
