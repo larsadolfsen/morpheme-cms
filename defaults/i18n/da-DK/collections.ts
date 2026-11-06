@@ -192,8 +192,11 @@ export const collections: Record<string, string> = {
   'header button': 'headerknap',
   'Header button': 'Headerknap',
   'The header': 'Headeren',
-  'Action button': 'Handlingsknap',
-  'The button is in the header.': 'Knappen står i headeren.',
+  'Call to action': 'Call to action',
+  'The button is in the header and at the bottom of the menu.': 'Knappen står i headeren og nederst i menuen.',
+  'Phone number': 'Telefonnummer',
+  'The phone number from the contact settings, before the button in the header and at the bottom of the menu.':
+    'Telefonnummeret fra kontaktoplysningerne, før knappen i headeren og nederst i menuen.',
   'Menu button position': 'Menuknappens placering',
   Left: 'Venstre',
   Right: 'Højre',

@@ -1,5 +1,5 @@
 // A navigation drawer (m3.material.io/components/navigation-drawer, .navigation-drawer in ../styles/ui.css), at the
-// start edge: the site's pages in a panel over the page (components/MobileMenu.tsx, and a theme's own menu), over its
+// start edge (at the end edge with navigationDrawerEndClass; navigationDrawerBleedClass for one that springs in): the site's pages in a panel over the page (components/MobileMenu.tsx, and a theme's own menu), over its
 // scrim (navigationDrawerScrimClass). Its pages are items (NavigationDrawerItem, `active`: the open page or the one
 // holding it), an item with sub-pages is a row (NavigationDrawerRow) with the button that unfolds them after it
 // (NavigationDrawerToggle, `expanded`), and a sub-page a subitem (NavigationDrawerSubitem). Where it comes from, how it
@@ -30,6 +30,10 @@ export type NavigationDrawerVariant = 'modal' | 'standard';
 /** The drawer's class, and its scrim's. */
 export const navigationDrawerClass = 'navigation-drawer';
 export const navigationDrawerScrimClass = 'navigation-drawer-scrim';
+/** A modal drawer at the end edge of the screen (the right; the left in right-to-left languages): its corners mirrored. */
+export const navigationDrawerEndClass = 'navigation-drawer-end';
+/** A modal drawer that springs in: a strip of it off the screen at its edge, so an overshooting spring shows no gap. */
+export const navigationDrawerBleedClass = 'navigation-drawer-bleed';
 /** The class of a <dialog> the drawer is in: at the start of the screen, as high as it, over its scrim. */
 export const navigationDrawerDialogClass = 'navigation-drawer-dialog';
 

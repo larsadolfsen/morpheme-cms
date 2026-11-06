@@ -1,17 +1,23 @@
 // The menu in Material: the theme's modal navigation drawer (ui/NavigationDrawer.tsx, m3.material.io/components/navigation-drawer), opened by the
-// navigation icon first in the top app bar (Header.astro). It comes in from the left over a scrim, with the site's name,
-// "Book en tid" as an extended FAB (ui/Fab.tsx), the menu's items with the open page in an active indicator, and "Ring" under a
-// divider. Items with sub-pages unfold with the caret at the end of their row (inside the active indicator); the one
-// with the open page starts open.
+// navigation icon in the top app bar (Header.astro). It comes in over a scrim from the side its button is on (`side`:
+// the start, left, or the end, right; mirrored in right-to-left languages), with the site's name, the menu's items with
+// the open page in an active indicator, and at its bottom the header's call to action (header.json), each part when it
+// is on: the phone number and the button after it in one row, sharing the drawer's width (the button on top of the
+// number when they do not fit side by side). Items with sub-pages unfold
+// with the caret at the end of their row (inside the active indicator); the one with the open page starts open.
 // Rendered through a portal into <body>, so nothing on the page can clip it. It moves with the site's motion scheme
 // (motionSpring, @morphemecms/cms/lib/motion.ts: Material 3's springs, the expressive ones unless the owner chose
-// another under "Bevægelse"); with reduced motion it appears at once.
+// another under "Bevægelse"); with reduced motion it appears at once. A spring that overshoots carries the drawer a little
+// past its place, so it is wider than it looks by a strip off the screen at its edge (navigationDrawerBleedClass): no gap
+// opens at the edge while it settles.
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { motionSpring } from '@morphemecms/cms/lib/motion';
 import IconButton from '@theme/ui/IconButton';
-import { ExtendedFab } from '@theme/ui/Fab';
+import Button from '@theme/ui/Button';
+import type { ButtonView } from '@morphemecms/cms/src/standard/buttons/view';
+import type { HeaderPhone } from '@theme/components/HeaderCta';
 import {
   NavigationDrawerItem,
   NavigationDrawerRow,
@@ -19,7 +25,9 @@ import {
   NavigationDrawerSubitem,
   NavigationDrawerToggle,
   focusNavigationDrawerItem,
+  navigationDrawerBleedClass,
   navigationDrawerClass,
+  navigationDrawerEndClass,
   navigationDrawerKeys,
   navigationDrawerScrimClass,
 } from '@theme/ui/NavigationDrawer';
@@ -30,25 +38,22 @@ type Item = Link & { children?: Link[] };
 export default function MobileMenu({
   items,
   current,
-  bookingPath,
+  side = 'start',
+  button,
   phone,
-  phoneHref,
   name,
   role,
-  book,
-  call,
   texts,
 }: {
   items: Item[];
   current: string;
-  bookingPath: string;
-  phone: string;
-  phoneHref: string;
+  /** The side of the screen it opens from: its button's (header.json's menuSide). */
+  side?: 'start' | 'end';
+  /** The header's call to action (header.json), at the bottom: its button, and the phone number; each when it is on. */
+  button?: ButtonView;
+  phone?: HeaderPhone;
   name: string;
   role: string;
-  /** The site's own labels of "Book en tid" and "Ring". */
-  book: string;
-  call: string;
   /** Its texts in the site's language (Header.astro has them, so the editor's dictionaries stay out of the browser). */
   texts: { open: string; close: string; menu: string; drawer: string; subpages: string[] };
 }) {
@@ -66,12 +71,14 @@ export default function MobileMenu({
     fadeOut: motionSpring('effects', 'fast'),
   }));
 
-  // The edge it comes from is the start edge: it slides in from the left, and from the right in right-to-left languages.
-  const [away, setAway] = useState('-100%');
+  // The edge it comes from is its side's: the start edge slides it in from the left (from the right in right-to-left
+  // languages), the end edge from the right (the left).
+  const [away, setAway] = useState(side === 'end' ? '100%' : '-100%');
   useEffect(() => {
     setMounted(true);
-    setAway(getComputedStyle(document.documentElement).direction === 'rtl' ? '100%' : '-100%');
-  }, []);
+    const rtl = getComputedStyle(document.documentElement).direction === 'rtl';
+    setAway(rtl === (side === 'end') ? '-100%' : '100%');
+  }, [side]);
 
   useEffect(() => {
     if (!open) return;
@@ -144,7 +151,12 @@ export default function MobileMenu({
                   role="dialog"
                   aria-modal="true"
                   aria-label={texts.drawer}
-                  className={`${navigationDrawerClass} absolute inset-y-0 start-0`}
+                  className={[
+                    navigationDrawerClass,
+                    navigationDrawerBleedClass,
+                    side === 'end' ? `${navigationDrawerEndClass} end-0` : 'start-0',
+                    'absolute inset-y-0',
+                  ].join(' ')}
                   initial={reduce ? false : { x: away }}
                   animate={{ x: 0, transition: reduce ? { duration: 0 } : spring.enter }}
                   exit={reduce ? undefined : { x: away, transition: spring.leave }}
@@ -157,15 +169,6 @@ export default function MobileMenu({
                     </div>
                     <IconButton icon="x" label={texts.close} onClick={() => setOpen(false)} />
                   </div>
-
-                  <ExtendedFab
-                    href={bookingPath}
-                    icon="calendar-blank"
-                    label={book}
-                    kind="secondary-container"
-                    data-open="booking"
-                    onClick={() => setOpen(false)}
-                  />
 
                   <NavigationDrawerSection>
                     <nav aria-label={texts.menu}>
@@ -219,11 +222,34 @@ export default function MobileMenu({
                     </nav>
                   </NavigationDrawerSection>
 
-                  <NavigationDrawerSection>
-                    <NavigationDrawerItem href={phoneHref} icon="phone">
-                      {call} {phone}
-                    </NavigationDrawerItem>
-                  </NavigationDrawerSection>
+                  {(button || phone) && (
+                    <div className="md-drawer-actions">
+                      {phone && (
+                        <Button href={phone.href} kind="outlined" icon="phone" aria-label={phone.label}>
+                          {phone.number}
+                        </Button>
+                      )}
+                      {button && (
+                        <Button
+                          href={button.href}
+                          kind="filled"
+                          icon={
+                            button.icon && button.icon !== 'arrow-right'
+                              ? button.icon
+                              : button.open === 'booking'
+                                ? 'calendar-blank'
+                                : undefined
+                          }
+                          trailingIcon={button.icon === 'arrow-right' ? 'arrow-right' : undefined}
+                          data-open={button.open}
+                          aria-label={button.label}
+                          onClick={() => setOpen(false)}
+                        >
+                          {button.text}
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </motion.div>
               </div>
             )}

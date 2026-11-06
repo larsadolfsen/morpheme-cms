@@ -2742,7 +2742,10 @@
   Navigation drawer (NavigationDrawer, NavigationDrawerItem, NavigationDrawerToggle, NavigationDrawerSubitem,
   navigationDrawerClass, navigationDrawerScrimClass): .navigation-drawer, the drawer, over .navigation-drawer-scrim;
   .navigation-drawer-standard, the standard one, beside the content (--navigation-drawer-standard-shadow, level 0);
-  .navigation-drawer-dialog, a <dialog> it is in, at the start edge (its ::backdrop the scrim); .navigation-drawer-item,
+  .navigation-drawer-dialog, a <dialog> it is in, at the start edge (its ::backdrop the scrim); .navigation-drawer-end,
+  one at the end edge (its corners towards the page, mirrored); .navigation-drawer-bleed, one that springs in: wider by
+  --navigation-drawer-bleed (32dp) at the edge it comes from, that strip off the screen, so a spring that overshoots
+  shows no gap at the edge; .navigation-drawer-item,
   a page (a link, or a button: the editor's) ([data-active]: the open one, or the one holding it), its
   .navigation-drawer-icon (24dp, outlined; the filled .navigation-drawer-selected-icon in its place while
   [data-active]) and .navigation-drawer-label, and evt. .navigation-drawer-badge, the text at its end
@@ -3308,6 +3311,26 @@
   }
   .navigation-drawer:dir(rtl) {
     border-radius: var(--navigation-drawer-radius-rtl, 1rem 0 0 1rem);
+  }
+  /* At the end edge: its corners towards the page, as the start edge's in the other direction. */
+  .navigation-drawer-end {
+    border-radius: var(--navigation-drawer-radius-rtl, 1rem 0 0 1rem);
+  }
+  .navigation-drawer-end:dir(rtl) {
+    border-radius: var(--navigation-drawer-radius, 0 1rem 1rem 0);
+  }
+  /* One that springs in: a strip as wide as --navigation-drawer-bleed beyond the screen's edge (a negative margin), the
+     items as far in from the edge as before (the strip added to the padding), so the drawer still covers the edge
+     while an overshooting spring carries it a little past its place. */
+  .navigation-drawer-bleed {
+    width: calc(var(--navigation-drawer-width, min(22.5rem, calc(100vw - 3.5rem))) + var(--navigation-drawer-bleed, 2rem));
+    margin-inline-start: calc(-1 * var(--navigation-drawer-bleed, 2rem));
+    padding-inline-start: calc(var(--navigation-drawer-inset, 0.75rem) + var(--navigation-drawer-bleed, 2rem));
+  }
+  .navigation-drawer-bleed.navigation-drawer-end {
+    margin-inline: 0 calc(-1 * var(--navigation-drawer-bleed, 2rem));
+    padding-inline: var(--navigation-drawer-inset, 0.75rem)
+      calc(var(--navigation-drawer-inset, 0.75rem) + var(--navigation-drawer-bleed, 2rem));
   }
   /* Nothing in it is squeezed when its content is higher than the screen: the drawer scrolls instead. */
   .navigation-drawer > * {

@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import { headerOf, sortedNav } from './header.mjs';
 
 test('no file', () => {
-  assert.deepEqual(headerOf(undefined), { button: null, menuSide: 'start' });
+  assert.deepEqual(headerOf(undefined), { button: null, phone: true, menuSide: 'start' });
 });
 
 test('button off', () => {
@@ -17,6 +17,12 @@ test('button on', () => {
   });
 });
 
+test('phone number on by default, off when turned off', () => {
+  assert.equal(headerOf({ button: { enabled: true, to: 'booking' } }).phone, true);
+  assert.equal(headerOf({ button: { enabled: false, phone: false } }).phone, false);
+  assert.equal(headerOf({ button: { enabled: true, phone: false, to: 'booking' } }).button?.phone, undefined);
+});
+
 test('menu at the end', () => {
   assert.equal(headerOf({ menuSide: 'end' }).menuSide, 'end');
 });
@@ -26,7 +32,7 @@ test('wrong menu side', () => {
 });
 
 test('wrong shapes', () => {
-  assert.deepEqual(headerOf('x'), { button: null, menuSide: 'start' });
+  assert.deepEqual(headerOf('x'), { button: null, phone: true, menuSide: 'start' });
   assert.equal(headerOf({ button: 'x' }).button, null);
 });
 

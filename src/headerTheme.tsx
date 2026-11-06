@@ -1,34 +1,25 @@
 // How the theme draws the parts of the header that its settings put in, as HTML for the editor's preview of the header
-// (headerPreview.mjs HeaderTheme): the button or the phone icon in the button's place, an empty bar of "Mobilmenu", the
-// menu button's classes on each side. Exposes headerThemeOf. Uses the theme's Buttons, IconButton, Tabs and headerParts.ts.
-import Buttons from '@theme/blocks/buttons/Buttons';
-import IconButton from '@theme/ui/IconButton';
+// (headerPreview.mjs HeaderTheme): the call to action (the phone number and the button, HeaderCta.tsx), an empty bar of
+// "Mobilmenu", the menu button's classes on each side. Exposes headerThemeOf. Uses the theme's HeaderCta, Tabs and
+// headerParts.ts.
+import HeaderCta from '@theme/components/HeaderCta';
 import { tabClass } from '@theme/ui/Tabs';
-import { headerCtaClass, headerEdge, headerMenuClass, mobileNavClass, mobileNavListClass } from '@theme/components/headerParts';
+import { headerMenuClass, mobileNavClass, mobileNavListClass } from '@theme/components/headerParts';
 import { buttonsOf } from './standard/buttons/view';
-import type { Button } from './standard/buttons/fields';
 import type { BlockData } from './blocks';
 import { htmlOf } from './pagePreview';
 import { siteT } from './i18n';
-import type { HeaderTheme } from './headerPreview.mjs';
+import type { HeaderCta as Cta, HeaderTheme } from './headerPreview.mjs';
 
-// As Header.astro draws the button's place: the button (filled) from the medium window size up, else the phone icon.
-function ctaOf(button: Button | null, data: BlockData) {
-  if (button) {
-    return (
-      <div data-editor="header-cta" className={headerCtaClass}>
-        <Buttons buttons={buttonsOf([{ ...button, kind: 'filled' }], data)} />
-      </div>
-    );
-  }
-  const { phone } = data.site.contact;
+// As Header.astro draws the call to action: the button (filled) and the site's phone number, each when it is on.
+function ctaOf({ button, phone }: Cta, data: BlockData) {
+  const number = data.site.contact.phone;
   return (
-    <IconButton
-      href={`tel:${phone.replace(/\s/g, '')}`}
-      icon="phone"
-      label={`${data.site.labels.call} ${phone}`}
-      className={headerEdge.end}
-      data-editor="header-cta"
+    <HeaderCta
+      button={button ? buttonsOf([{ ...button, kind: 'filled' }], data)[0] : undefined}
+      phone={
+        phone && number ? { number, href: `tel:${number.replace(/\s/g, '')}`, label: `${data.site.labels.call} ${number}` } : undefined
+      }
     />
   );
 }
@@ -45,12 +36,12 @@ const mobileNavHtml = () =>
     </nav>,
   );
 
-/** The theme's parts for the preview; `button`: the header's button as the form has it (headerOf), when it changed. The
+/** The theme's parts for the preview; `cta`: the call to action as the form has it (headerOf), when it changed. The
  * HTML is drawn here, when the preview draws the page, not while the form is drawn. */
-export function headerThemeOf(button: Button | null | undefined, data: BlockData): HeaderTheme {
+export function headerThemeOf(cta: Cta | undefined, data: BlockData): HeaderTheme {
   return {
     menuClass: { start: headerMenuClass('start'), end: headerMenuClass('end') },
-    cta: button === undefined ? undefined : htmlOf(ctaOf(button, data)),
+    cta: cta === undefined ? undefined : htmlOf(ctaOf(cta, data)),
     mobileNav: mobileNavHtml(),
     subpagesOf: siteT.theme.subpagesOf,
     current: '/',
