@@ -20,6 +20,9 @@ export const text = {
   /** The kinds of text as one button, when the toolbar is too short. */
   kind: 'Text style',
   kindIs: (kind: string) => `Text style: ${kind}`,
+  /** The button at the end of the toolbar when its tools do not fit on one line: the second line shown or hidden. */
+  moreTools: 'Show more tools',
+  fewerTools: 'Show fewer tools',
   /** The menu over a selection. */
   selection: 'Selected text',
   /** The colours a selection can have there (packages/editor/lib/text-colors.mjs), by the names under "Farver". */
