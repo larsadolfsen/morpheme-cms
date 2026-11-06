@@ -161,7 +161,7 @@ import { Button, EmptyNote, ProblemNote, startRipples } from './ui';
 import { useMenuOpen } from './menuOpen';
 import { MainMenu } from './MainMenu';
 import { TopBarLayout } from './topBarSlot';
-import { rememberEdit } from './StartScreen';
+import { rememberEdit } from './startStorage';
 import { Ask, ask } from './ask';
 import { LinkAsk } from './LinkSheet';
 import { type ListRows, type Option, type TestimonialRow } from './fields';
@@ -556,7 +556,7 @@ function Editor() {
     taken: (address, redirects) => taken(address, relations, redirects),
     onSaved(file, more) {
       replace([file, ...(more?.files ?? [])], more?.removed);
-      // The start screen's last pages and posts edited (StartScreen.tsx).
+      // The start screen's last pages and posts edited (startStorage.ts).
       rememberEdit(file.path, more?.removed);
       // A new entry, or a post that got a new address: from now on it is edited as the file it
       // became. A form that saves another file than the one at its address (Virksomheden) stays where it is.

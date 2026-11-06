@@ -1,5 +1,5 @@
 // The account screen (who is signed in, AccountRow) and the start screen of the editor (its title, status and FAB, what was
-// updated since the last visit and the pages and posts edited last: StartScreen.tsx) and the
+// updated since the last visit and the pages and posts edited last: ContinueCard.tsx, UpdatesNotice.tsx) and the
 // list of each part: blog posts newest first, the rest by name, prices and testimonials in their order
 // on the site (with arrows to move them), and a search. Lists that are not in an order of their own can
 // be sorted another way (a list of kinds, by its kinds too); the choice is kept in this browser. Pages
@@ -36,7 +36,8 @@ import { theme, themes, type ThemeInfo } from './themes';
 import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
 import { StartStatus } from './StartStatus';
-import { ContinueCard, UpdatesNotice } from './StartScreen';
+import { ContinueCard } from './ContinueCard';
+import { UpdatesNotice } from './UpdatesNotice';
 import { loadSavedTimes, saved } from './savedTimes';
 import {
   appearance,
