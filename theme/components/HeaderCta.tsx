@@ -14,16 +14,8 @@ export default function HeaderCta({ button, phone }: { button?: ButtonView; phon
   if (!button && !phone) return <span data-editor="header-cta" hidden />;
   return (
     <div data-editor="header-cta" className={headerCtaClass}>
-      {phone && (
-        <span className="hidden medium:contents">
-          <HeaderPhoneButton phone={phone} kind="text" page />
-        </span>
-      )}
-      {button && (
-        <span className="hidden medium:contents">
-          <Buttons buttons={[button]} />
-        </span>
-      )}
+      {phone && <HeaderPhoneButton phone={phone} kind="text" page />}
+      {button && <Buttons buttons={[button]} />}
     </div>
   );
 }
