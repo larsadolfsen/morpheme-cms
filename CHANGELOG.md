@@ -1,5 +1,12 @@
 # @morphemecms/cms
 
+## 0.12.1
+
+### Patch Changes
+
+- 21a71a0: The licence checks know `@app/self` (app contract 3): an app that imports it no longer needs it in `thirdParty`, and
+  the site's licence list counts its virtual module as the site's own.
+
 ## 0.12.0
 
 ### Minor Changes
