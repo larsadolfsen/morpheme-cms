@@ -2,8 +2,9 @@
 // address (networkOf in site/social.mjs; for one not known its host and a globe), and the address under it; the arrows
 // at its end move it up and down. A tap opens the bottom sheet where its address is changed or the link removed, and
 // the FAB adds one in the same sheet. An address typed without https:// is given it; the same address twice is not
-// let in. What is changed here is saved with the form (CompanyForm.tsx). Exposes LinkList and networkIcons. Uses the
-// rows, the sheet and the FAB of ui.tsx and CreateFab.tsx.
+// let in. What is changed here is saved with the form (CompanyForm.tsx). Exposes LinkList (the list) and networkIcons
+// (the icon of each network known, by its id). Uses the rows, the sheet and the FAB of ui.tsx and CreateFab.tsx, the
+// arrows of MoveButtons.tsx, and the address logic of linkAddress.mjs.
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { FacebookLogo, Globe, LinkedinLogo, PinterestLogo, Trash, XLogo, type Icon } from '@phosphor-icons/react';
 import { networkOf, type NetworkId } from '../site/social.mjs';
