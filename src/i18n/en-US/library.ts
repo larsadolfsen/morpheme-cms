@@ -10,7 +10,7 @@ export const library = {
   createNew: 'Create',
   githubAccount: (login: string) => `GitHub account: ${login}`,
   logOut: 'Log out',
-  /** The bell in the top bar and its screen (#notifications, Notifications.tsx): the messages shown at the bottom. */
+  /** The bell in the top bar and its side sheet (Notifications.tsx): the messages shown at the bottom. */
   notifications: 'Notifications',
   /** The bell's name while some are not seen yet. */
   notificationsNew: (count: number) => `Notifications, ${count} new`,
