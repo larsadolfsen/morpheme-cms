@@ -176,6 +176,7 @@ import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, s
 import Notifications from './Notifications';
 import { openNotifications } from './notificationsOpen';
 import { EditorOwn, InEditor } from './standard/view';
+import { cmsNotice } from './cmsNotice.mjs';
 import './editor.css';
 
 // What the forms and lists need from the app.
@@ -647,6 +648,25 @@ function Editor() {
     const timer = setInterval(ask, 15 * 60_000);
     return () => clearInterval(timer);
   }, [signedIn, notifying]);
+
+  // The CMS's own update from npm (worker/cms-update.js): asked when the editor opens and every 15 minutes; its outcome
+  // comes once under "Notifikationer"; the Worker already sent it to the phone.
+  useEffect(() => {
+    if (!signedIn) return;
+    const ask = () =>
+      fetch('/api/cms', { cache: 'no-store' })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((status) => {
+          const n = cmsNotice(status?.update);
+          if (!n || told('updates', n.id) || !isOn('updates')) return;
+          const text = t.cms[n.key](n.version);
+          remember({ text, type: 'updates', error: n.error, link: { text: t.common.parts.morpheme, href: `#${CMS_ROUTE}` } }, false);
+        })
+        .catch(() => {});
+    ask();
+    const timer = setInterval(ask, 15 * 60_000);
+    return () => clearInterval(timer);
+  }, [signedIn]);
 
   // Signed out, or not yet known with nothing from this browser to show: the sign-in (while the Worker is asked, the
   // icon and the name alone).
