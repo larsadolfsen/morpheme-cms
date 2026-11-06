@@ -11,7 +11,9 @@ import { htmlOf } from './pagePreview';
 import { siteT } from './i18n';
 import type { HeaderCta as Cta, HeaderTheme } from './headerPreview.mjs';
 
-// As Header.astro draws the call to action: the button (filled) and the site's phone number, each when it is on.
+// As Header.astro draws the call to action: the button (filled) and the site's phone number, each when it is on. The
+// number's link is its tel: one at every size (the site's leads to the contact page on a computer): the preview's links
+// are only drawn.
 function ctaOf({ button, phone }: Cta, data: BlockData) {
   const number = data.site.contact.phone;
   return (

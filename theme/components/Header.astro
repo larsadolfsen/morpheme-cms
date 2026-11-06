@@ -29,8 +29,11 @@ const current = Astro.url.pathname;
 const isActive = (href: string) => current === href || (href !== '/' && current.startsWith(href));
 // The call to action (header.json): the header's button (none when it is off) and the phone number (when it is on).
 const button = header.button ? (await loadButtons([{ ...header.button, kind: 'filled' }]))[0] : undefined;
+// The phone number (Business › Contact): it calls on a phone, and leads to the contact page (Default pages) on a computer.
 const phone =
-  header.phone && site.phone ? { number: site.phone, href: site.phoneHref, label: `${site.labels.call} ${site.phone}` } : undefined;
+  header.phone && site.phone
+    ? { number: site.phone, href: site.phoneHref, label: `${site.labels.call} ${site.phone}`, page: site.contactPath || undefined }
+    : undefined;
 const menuEnd = header.menuSide === 'end';
 const menuProps = {
   items: nav,

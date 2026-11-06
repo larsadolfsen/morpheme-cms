@@ -1143,7 +1143,7 @@
     margin-top: auto;
     padding: 1.5rem 0.25rem 0;
   }
-  .md-drawer-actions > * {
+  .md-drawer-actions .button {
     flex: 1 1 auto;
     white-space: nowrap;
   }

@@ -2,8 +2,8 @@
 // navigation icon in the top app bar (Header.astro). It comes in over a scrim from the side its button is on (`side`:
 // the start, left, or the end, right; mirrored in right-to-left languages), with the site's name, the menu's items with
 // the open page in an active indicator, and at its bottom the header's call to action (header.json), each part when it
-// is on: the phone number and the button after it in one row, sharing the drawer's width (the button on top of the
-// number when they do not fit side by side). Items with sub-pages unfold
+// is on: the phone number (a tel: link on a phone, the contact page from the medium window size up) and the button after
+// it in one row, sharing the drawer's width (the button on top of the number when they do not fit side by side). Items with sub-pages unfold
 // with the caret at the end of their row (inside the active indicator); the one with the open page starts open.
 // Rendered through a portal into <body>, so nothing on the page can clip it. It moves with the site's motion scheme
 // (motionSpring, @morphemecms/cms/lib/motion.ts: Material 3's springs, the expressive ones unless the owner chose
@@ -225,9 +225,21 @@ export default function MobileMenu({
                   {(button || phone) && (
                     <div className="md-drawer-actions">
                       {phone && (
-                        <Button href={phone.href} kind="outlined" icon="phone" aria-label={phone.label}>
-                          {phone.number}
-                        </Button>
+                        // On a phone it calls; from the medium window size up it leads to the contact page, when there is one.
+                        <>
+                          <span className={phone.page ? 'contents medium:hidden' : 'contents'}>
+                            <Button href={phone.href} kind="outlined" icon="phone" aria-label={phone.label}>
+                              {phone.number}
+                            </Button>
+                          </span>
+                          {phone.page && (
+                            <span className="hidden medium:contents">
+                              <Button href={phone.page} kind="outlined" icon="phone" onClick={() => setOpen(false)}>
+                                {phone.number}
+                              </Button>
+                            </span>
+                          )}
+                        </>
                       )}
                       {button && (
                         <Button
