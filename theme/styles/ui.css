@@ -2163,7 +2163,9 @@
     --list-item-supporting-text, --list-item-trailing-text, --list-item-overline-text   their colours
     --list-item-hover-text, --list-item-hover-surface   an item that links or is a choice, pointed at
     --list-item-pressed-surface (else the hover surface), --list-item-focus-surface (else the pressed one),
-    --list-item-focus-indicator-color (the 3dp ring inside a focused item; else the accent), --list-item-hover-trailing-shift (what trails it moves
+    --list-item-focus-indicator-color (the 3dp ring inside a focused item; else the accent),
+    --list-item-hover-icon-color (the leading icon and what trails it, pointed at; else the item's text
+    colour for the leading icon, the hover text for what trails), --list-item-hover-trailing-shift (what trails it moves
     aside when pointed at; 0 for not)
     --list-item-selected-surface, --list-item-selected-text, --list-item-selected-weight, --list-item-disabled-opacity
     --list-item-leading-icon-color, --list-item-leading-icon-selected-color (ListItemLeadingIcon's `selected`)
@@ -2378,9 +2380,16 @@
   }
   :is(a, button:enabled).list-item-container:hover .list-item-trailing {
     transform: translateX(var(--list-item-hover-trailing-shift, 3px));
-    color: var(--list-item-hover-text, var(--block-accent));
+    color: var(--list-item-hover-icon-color, var(--list-item-hover-text, var(--block-accent)));
   }
   :is(a, button:enabled).list-item-container:hover .list-item-leading-icon {
+    color: var(--list-item-hover-icon-color, inherit);
+  }
+  /* A selected item keeps its colours when pointed at: its text and its icons. */
+  :is(a, button:enabled).list-item-container.list-item-selected:hover {
+    color: var(--list-item-selected-text, var(--block-accent));
+  }
+  :is(a, button:enabled).list-item-container.list-item-selected:hover :is(.list-item-leading-icon, .list-item-trailing) {
     color: inherit;
   }
   /* Focused (by the keyboard): M3's focus layer (--list-item-focus-surface, else the pressed one) and its focus
