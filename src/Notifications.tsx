@@ -5,7 +5,7 @@
 // each type is turned on or off. On a phone a long press selects one (ListItem `selectable`), and then a tap selects or
 // unselects the others; while some are selected the buttons delete them or unselect them. Closing unselects them. Its
 // cross, Escape, a tap on the scrim, the phone's back gesture (only the sheet) and going to another address (a
-// notification's link) close it. Its open, close and
+// notification's link) close it; Escape while some are selected only unselects them. Its open, close and
 // slide are the theme's (sideSheet(), sideSheetControl.ts). The old address #notifications opens it over the start screen
 // (App.tsx).
 import { useEffect, useId, useRef, useState } from 'react';
@@ -93,7 +93,17 @@ export default function Notifications() {
   }, [open, items]);
 
   return (
-    <dialog ref={dialog} className={siteSideSheetDialogClass} aria-labelledby={id}>
+    <dialog
+      ref={dialog}
+      className={siteSideSheetDialogClass}
+      aria-labelledby={id}
+      // Escape while some are selected only unselects them; the dialog's own close (cancel) does not follow.
+      onKeyDown={(e) => {
+        if (e.key !== 'Escape' || !selected.length) return;
+        e.preventDefault();
+        setPicked([]);
+      }}
+    >
       <SiteSideSheet
         kind="modal"
         headline={t.library.notifications}
