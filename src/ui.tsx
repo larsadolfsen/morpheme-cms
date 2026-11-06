@@ -802,14 +802,32 @@ export function SupportingText({ id, children, className = '' }: { id?: string; 
   );
 }
 
+/** The close button in the top end corner of a card that can be closed (a Notice, the start screen's "Continue" card): the
+ * card must be `relative`. */
+export function CloseButton({ onClick }: { onClick: () => void }) {
+  return <IconButton icon={X} label={t.common.close} onClick={onClick} className="absolute end-1 top-1" />;
+}
+
 /** A message at the top of a screen about what it shows (an earlier version of a page): the theme's filled card with a
- * title, a text, and what can be done about it (a small button). */
-export function Notice({ title, children, action }: { title: string; children: ReactNode; action?: ReactNode }) {
+ * title, a text, and what can be done about it (a small button). With `onClose` it can be closed: the close button in
+ * its top end corner (what was updated since the last visit, on the start screen). */
+export function Notice({
+  title,
+  children,
+  action,
+  onClose,
+}: {
+  title: string;
+  children: ReactNode;
+  action?: ReactNode;
+  onClose?: () => void;
+}) {
   return (
-    <SiteCard kind="filled" role="status" className="space-y-2">
+    <SiteCard kind="filled" role="status" className={onClose ? 'relative space-y-2 pe-14' : 'space-y-2'}>
       <p className="font-medium text-accent">{title}</p>
-      <p className="text-sm">{children}</p>
+      <div className="text-sm">{children}</div>
       {action}
+      {onClose && <CloseButton onClick={onClose} />}
     </SiteCard>
   );
 }
