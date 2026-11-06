@@ -17,6 +17,8 @@ export const library: Messages['library'] = {
   notificationsNew: (count) => `Notifikationer, ${count} nye`,
   noNotifications: 'Ingen notifikationer',
   clearNotifications: 'Ryd notifikationer',
+  deleteSelected: (count) => `Slet ${count} valgte`,
+  cancelSelection: 'Annuller',
   openWebsite: 'Åbn hjemmesiden',
   notificationChoices: 'Vælg notifikationer',
   onDevice: 'På telefonen',
