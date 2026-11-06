@@ -12,7 +12,7 @@
 // a form with its fields beside the text (`panel`). The column (editor.css .editor-column) stands centred on the window,
 // off-centre only as far as the panels beside it require.
 // Under the content of every screen is the editor's footer (EditorFooter.tsx).
-import { useId, type ReactNode } from 'react';
+import { useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
@@ -50,9 +50,18 @@ type Props<T extends string> = {
   children: ReactNode;
 };
 
-/** The website (the site's home page, "/") in a new tab: in the top bar of the start screen, after the bell. */
+/** The website (the site's home page, "/") in a new window, as large as the screen: in the top bar of the start screen,
+ * after the bell. A click with a modifier key or the middle button, or a browser that blocks the window, gets the link's
+ * own new tab instead. The new window does not know the editor (opener null, as rel="noopener"). */
 export function WebsiteLink() {
-  return <IconLink href="/" target="_blank" rel="noopener" icon={ArrowSquareOut} label={t.library.openWebsite} />;
+  const openWindow = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const site = window.open(e.currentTarget.href, '_blank', `popup,width=${screen.availWidth},height=${screen.availHeight}`);
+    if (!site) return;
+    site.opener = null;
+    e.preventDefault();
+  };
+  return <IconLink href="/" target="_blank" rel="noopener" onClick={openWindow} icon={ArrowSquareOut} label={t.library.openWebsite} />;
 }
 
 /** The bell in the top bar, before the link to the website: the notifications (#notifications, Notifications.tsx), with a dot
