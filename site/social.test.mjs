@@ -157,3 +157,12 @@ test('twiceIn gives the addresses a list has more than once', () => {
   assert.deepEqual(twiceIn([{ url: 'https://a.dk' }, { url: 'https://b.dk' }, { url: '' }, { url: '' }, {}]), []);
   assert.deepEqual(twiceIn([]), []);
 });
+
+test('networkOf knows Pinterest on its own domains only', () => {
+  for (const host of ['pinterest.com', 'pinterest.dk', 'www.pinterest.co.uk', 'dk.pinterest.com', 'pinterest.com.au']) {
+    assert.equal(networkOf(`https://${host}/a`)?.id, 'pinterest', host);
+  }
+  for (const host of ['pinterest.evil.com', 'pinterest.evil.co.uk', 'notpinterest.com', 'pinterest.com.evil.com', 'pinterest.dk.evil.io']) {
+    assert.equal(networkOf(`https://${host}/a`), null, host);
+  }
+});

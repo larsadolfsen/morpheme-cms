@@ -6,8 +6,9 @@
 
 /**
  * The networks known by their addresses: for now those a post can be shared on (SHARE_IDS). The id, the name (a brand, the
- * same in every language) and the hosts (one ending in ".*" is that name with any ending: pinterest.dk). A host matches
- * itself and any address under it (www.facebook.com, dk.linkedin.com). A link to any other site is a profile too, shown by
+ * same in every language) and the hosts (one ending in ".*" is that name with a country or com after it: pinterest.dk). A host matches
+ * itself and any address under it (www.facebook.com, dk.linkedin.com). A host ending in ".*" has com, a country or a second level and a
+ * country after its name (pinterest.dk, pinterest.co.uk), nothing else. A link to any other site is a profile too, shown by
  * its host.
  */
 export const NETWORKS = /** @type {const} */ ([
@@ -72,9 +73,13 @@ export function twiceIn(profiles) {
   return twice;
 }
 
+// What a host ending in ".*" has after its name: com, a country (dk), or a second level and a country (co.uk, com.au).
+// Not any word: pinterest.evil.com is not Pinterest.
+const ENDING = '(?:com|[a-z]{2}|(?:co|com)\\.[a-z]{2})';
+
 /** @param {string} host @param {string} known */
 function hostIs(host, known) {
-  if (known.endsWith('.*')) return new RegExp(`(^|\\.)${known.slice(0, -2)}\\.[a-z]{2,}(\\.[a-z]{2,})?$`).test(host);
+  if (known.endsWith('.*')) return new RegExp(`(^|\\.)${known.slice(0, -2)}\\.${ENDING}$`).test(host);
   return host === known || host.endsWith(`.${known}`);
 }
 
