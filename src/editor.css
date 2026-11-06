@@ -890,9 +890,7 @@ html {
 
 /* A text with blocks (a page, a fixed page's sections): the cards close together, with the free line
    between two of them to write in: thin, until the cursor is in it (editor-gap-here, MarkdownEditor.tsx)
-   or the pointer over it, when it opens up and says so. An open line is a one-cell grid: the hint (::before) and the
-   line break share the cell, so the line is as tall as the hint, however many lines it wraps to, and the cursor sits
-   at the start of the hint. */
+   or the pointer over it, when it opens up and says so. */
 .editor-spaced .site-block {
   margin-block: 0.25rem;
 }
@@ -913,36 +911,26 @@ html {
 }
 
 .editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child) {
-  display: grid;
   line-height: 1.5rem;
 }
 
 .editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child)::before {
   content: var(--editor-gap-text);
-  grid-area: 1 / 1;
+  position: absolute;
   color: var(--muted);
   pointer-events: none;
 }
 
-.editor-spaced .ProseMirror:focus > p.editor-gap-here > br:only-child {
-  grid-area: 1 / 1;
-}
-
 @media (hover: hover) {
   .editor-spaced .ProseMirror > p:has(> br:only-child):hover {
-    display: grid;
     line-height: 1.5rem;
   }
 
   .editor-spaced .ProseMirror > p:has(> br:only-child):hover::before {
     content: var(--editor-gap-text);
-    grid-area: 1 / 1;
+    position: absolute;
     color: var(--muted);
     pointer-events: none;
-  }
-
-  .editor-spaced .ProseMirror > p:hover > br:only-child {
-    grid-area: 1 / 1;
   }
 }
 

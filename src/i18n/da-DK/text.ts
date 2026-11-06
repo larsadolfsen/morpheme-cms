@@ -37,5 +37,5 @@ export const text: Messages['text'] = {
   hiddenOnPage: 'Skjult på siden',
   showOnPage: 'Vis på siden',
   hideOnPage: 'Skjul på siden',
-  typeHere: 'Begynd at skrive… Gør din første overskrift god, for den bliver den H1, som læsere og søgemaskiner ser først.',
+  typeHere: 'Skriv tekst her …',
 };
