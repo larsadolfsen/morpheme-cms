@@ -2162,7 +2162,8 @@
     --list-item-overline-line-height, --list-item-trailing-supporting-size   the other texts' size
     --list-item-supporting-text, --list-item-trailing-text, --list-item-overline-text   their colours
     --list-item-hover-text, --list-item-hover-surface   an item that links or is a choice, pointed at
-    --list-item-pressed-surface (else the hover surface), --list-item-hover-trailing-shift (what trails it moves
+    --list-item-pressed-surface (else the hover surface), --list-item-focus-surface (else the pressed one),
+    --list-item-focus-indicator-color (the 3dp ring inside a focused item; else the accent), --list-item-hover-trailing-shift (what trails it moves
     aside when pointed at; 0 for not)
     --list-item-selected-surface, --list-item-selected-text, --list-item-selected-weight, --list-item-disabled-opacity
     --list-item-leading-icon-color, --list-item-leading-icon-selected-color (ListItemLeadingIcon's `selected`)
@@ -2382,6 +2383,20 @@
   :is(a, button:enabled).list-item-container:hover .list-item-leading-icon {
     color: inherit;
   }
+  /* Focused (by the keyboard): M3's focus layer (--list-item-focus-surface, else the pressed one) and its focus
+     indicator: 3dp, inside the item. A choice's row has them while its control has the focus. */
+  :is(a, button:enabled).list-item-container:focus-visible {
+    background: var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)));
+  }
+  :is(a, button:enabled).list-item-container:focus-visible,
+  .list-item-with-control:not(.list-item-disabled):has(:focus-visible),
+  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:focus-visible) {
+    outline: 3px solid var(--list-item-focus-indicator-color, var(--accent));
+    outline-offset: -3px;
+  }
+  .list-item-with-control :focus-visible {
+    outline: none;
+  }
   /* Pressed: a stronger state layer. */
   :is(a, button:enabled).list-item-container:active,
   .list-item-with-control:not(.list-item-disabled):active {
@@ -2496,6 +2511,9 @@
     background: var(--list-item-hover-surface, transparent);
     color: var(--list-item-hover-text, var(--block-accent));
   }
+  .list-item-with-control:not(.list-item-disabled):has(:focus-visible) {
+    background: var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)));
+  }
 
   /* A multi-action item (Material's, List.tsx's listItemMultiActionClass): its primary action, an item's container (a
      link or a button), and its secondary actions (icon buttons, a switch) beside it, on one row that has the primary
@@ -2515,7 +2533,7 @@
     min-width: 0;
     border-radius: inherit;
   }
-  .list-item-multi-action > :is(a, button:enabled).list-item-container:is(:hover, :active) {
+  .list-item-multi-action > :is(a, button:enabled).list-item-container:is(:hover, :active, :focus-visible) {
     background: transparent;
   }
   .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:hover) {
@@ -2524,6 +2542,9 @@
   }
   .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:is(:active, :focus-visible)) {
     --list-item-shape: var(--list-item-pressed-radius, var(--list-item-hover-radius, var(--list-item-radius, 0)));
+  }
+  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:focus-visible) {
+    background: var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent)));
   }
   .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:active) {
     background: var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent));
@@ -2545,6 +2566,11 @@
   /* A selected item pointed at or pressed: the state layer over its surface. */
   :is(a, button:enabled).list-item-container.list-item-selected:hover {
     background: linear-gradient(var(--list-item-hover-surface, transparent) 0 0), var(--list-item-selected-surface, transparent);
+  }
+  :is(a, button:enabled).list-item-container.list-item-selected:focus-visible {
+    background:
+      linear-gradient(var(--list-item-focus-surface, var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent))) 0 0),
+      var(--list-item-selected-surface, transparent);
   }
   :is(a, button:enabled).list-item-container.list-item-selected:active {
     background:
@@ -2662,6 +2688,14 @@
     background: var(
       --list-segmented-pressed-surface,
       var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 5%, transparent))
+    );
+  }
+  .list-segmented > li > :is(a, button:enabled).list-item-container:focus-visible,
+  .list-segmented > li > .list-item-with-control:not(.list-item-disabled):has(:focus-visible),
+  .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:focus-visible) {
+    background: var(
+      --list-item-focus-surface,
+      var(--list-segmented-pressed-surface, var(--list-segmented-hover-surface, color-mix(in srgb, var(--block-text) 5%, transparent)))
     );
   }
   .list-segmented > li > .list-item-multi-action {

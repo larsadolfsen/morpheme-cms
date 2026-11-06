@@ -221,6 +221,8 @@
   --list-item-icon-size: 1.25rem;
   --list-item-hover-surface: var(--md-hover);
   --list-item-pressed-surface: var(--md-pressed);
+  --list-item-focus-surface: var(--md-pressed);
+  --list-item-focus-indicator-color: var(--secondary);
   --list-item-hover-text: var(--ink);
   --list-item-hover-trailing-shift: 0;
   --list-item-selected-surface: var(--secondary-container);
