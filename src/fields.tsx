@@ -2,8 +2,8 @@
 // (object) hold other fields, so the deep front page is the same code as a price. A list of blocks
 // (a fixed page's sections) is a list whose items each have a `type` that gives their fields; it is
 // edited as a text with the sections as cards in it (SectionsField.tsx).
-import { createContext, useContext, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
-import { ArrowDown, ArrowUp, CaretDown, PencilSimple, Plus, Trash } from '@phosphor-icons/react';
+import { createContext, Fragment, useContext, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import { CaretDown, PencilSimple, Plus, Trash } from '@phosphor-icons/react';
 import {
   ArrowLink,
   Button,
@@ -51,6 +51,9 @@ import SectionsField from './SectionsField';
 import { leaveTo } from './FormFrame';
 import { shownAt } from './images';
 import { addressOf } from './addresses';
+import { LinkList } from './LinkList';
+import { MoveButtons } from './MoveButtons';
+import { movedList } from './moveItem.mjs';
 import { clean, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, problemOf, type Around, type Problem } from './check';
 import { Icon } from './icon';
 import { t } from './i18n';
@@ -254,6 +257,7 @@ function FieldControl({ field, value, onChange }: Props) {
         </FieldGroup>
       );
     case 'list':
+      if (field.links) return <Links field={field} value={value} onChange={onChange} />;
       return <ListInput field={field} value={(value ?? []) as unknown[]} onChange={onChange} />;
     case 'blocks':
       return <SectionsField field={field} value={(value ?? []) as Item[]} onChange={onChange} />;
@@ -535,7 +539,15 @@ export function FieldList({
       {fields
         .filter((f) => inUse(f, fields, value, around))
         .map((f) => (
-          <FieldInput key={f.name} field={f} value={value[f.name]} onChange={(v) => onChange({ ...value, [f.name]: v })} />
+          <Fragment key={f.name}>
+            {/* A heading over it and those after it (Field.heading), in the form only. */}
+            {f.heading && (
+              <div className="pt-2">
+                <Label hint={f.heading.hint}>{f.heading.label}</Label>
+              </div>
+            )}
+            <FieldInput field={f} value={value[f.name]} onChange={(v) => onChange({ ...value, [f.name]: v })} />
+          </Fragment>
         ))}
     </AroundHere.Provider>
   );
@@ -673,6 +685,25 @@ const summaryOf = (field: Field, item: unknown) =>
     .map((name) => String((item as Item)?.[name] ?? '').trim())
     .find(Boolean) ?? '';
 
+// A list of links (Field.links: LinkList.tsx), with the link whose address keeps the form from being saved (WrongField).
+function Links({ field, value, onChange }: Props) {
+  const path = useContext(PathHere);
+  const wrong = useContext(WrongField);
+  const index = wrong?.path.startsWith(`${path}.`) ? Number(wrong.path.slice(path.length + 1).split('.')[0]) : NaN;
+  return (
+    <LinkList
+      field={field}
+      value={(value ?? []) as Record<string, unknown>[]}
+      onChange={(v) => {
+        if (Number.isInteger(index)) wrong?.clear();
+        onChange(v);
+      }}
+      hint={hintOf(field)}
+      wrong={Number.isInteger(index) ? { index, at: wrong!.at } : null}
+    />
+  );
+}
+
 // A list of items, each opened to its fields. `add={false}` leaves out "Tilføj …" below it, for a
 // list that is added to with "+" in the top bar: an item added at the end, here or there, is opened
 // and scrolled to. (The menu has its own, MenuList.)
@@ -706,9 +737,7 @@ export function ListInput({
     length.current = value.length;
   }, [value.length]);
   const move = (i: number, to: number) => {
-    const next = [...value];
-    [next[i], next[to]] = [next[to], next[i]];
-    onChange(next);
+    onChange(movedList(value, i, to));
     if (open === i) setOpen(to);
   };
   const remove = async (i: number) => {
@@ -736,8 +765,7 @@ export function ListInput({
             onToggle={() => setOpen(open === i ? null : i)}
             tools={
               <>
-                <IconButton icon={ArrowUp} label={t.common.moveUp} disabled={i === 0} onClick={() => move(i, i - 1)} />
-                <IconButton icon={ArrowDown} label={t.common.moveDown} disabled={i === value.length - 1} onClick={() => move(i, i + 1)} />
+                <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} />
                 <IconButton icon={Trash} label={t.common.remove} onClick={() => remove(i)} />
               </>
             }
@@ -845,9 +873,7 @@ export function MenuList({
     close();
   };
   const move = (i: number, to: number) => {
-    const next = [...value];
-    [next[i], next[to]] = [next[to], next[i]];
-    onChange(next);
+    onChange(movedList(value, i, to));
     if (open === i) setOpen(to);
     else if (open === to) setOpen(i);
   };
@@ -875,8 +901,7 @@ export function MenuList({
               actions={
                 <span className="flex shrink-0 pr-1.5">
                   <IconButton icon={PencilSimple} label={t.forms.editOne(nameOf(item))} onClick={() => edit(i)} />
-                  <IconButton icon={ArrowUp} label={t.common.moveUp} disabled={i === 0} onClick={() => move(i, i - 1)} />
-                  <IconButton icon={ArrowDown} label={t.common.moveDown} disabled={i === value.length - 1} onClick={() => move(i, i + 1)} />
+                  <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} />
                   {sub && (
                     <IconButton
                       icon={CaretDown}

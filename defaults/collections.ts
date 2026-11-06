@@ -218,59 +218,36 @@ export const contactFields: Field[] = [
   },
 ];
 
-// The social media (src/data/social.json, a part of its own under "Business", company.ts): the site's profiles, and
-// which share buttons a post shows. A switch that is not in the file is on (company.ts gives the form that default).
-// A profile address: empty, or one that begins with https://.
-const httpsAddress: [string, string] = ['^$|^https://\\S+$', 'Write an address that starts with https://'];
-
+// The social media (src/data/social.json, a part of its own under "Business", company.ts): the site's profiles, a list of
+// links added with the FAB, each one's network and icon known by its address (networkOf in site/social.mjs), and which
+// share buttons a post shows. A switch that is not in the file is on (company.ts gives the form that default).
 export const socialFields: Field[] = [
   {
-    name: 'facebook',
+    name: 'profiles',
+    label: 'Profiles',
+    type: 'list',
+    links: true,
+    hint: "The site's profiles on social media. Shown in Google's data about the business.",
+    summary: 'url',
+    fields: [
+      {
+        name: 'url',
+        label: 'Address',
+        type: 'string',
+        required: true,
+        pattern: ['^https://\\S+$', 'Write an address that starts with https://'],
+      },
+    ],
+  },
+  {
+    name: 'shareFacebook',
     label: 'Facebook',
-    type: 'string',
-    hint: "The address of the site's profile. Shown in Google's data about the business.",
-    pattern: httpsAddress,
+    type: 'boolean',
+    heading: { label: 'Share buttons', hint: 'The buttons at the top of each blog post.' },
   },
-  {
-    name: 'instagram',
-    label: 'Instagram',
-    type: 'string',
-    pattern: httpsAddress,
-  },
-  {
-    name: 'linkedin',
-    label: 'LinkedIn',
-    type: 'string',
-    pattern: httpsAddress,
-  },
-  {
-    name: 'x',
-    label: 'X',
-    type: 'string',
-    pattern: httpsAddress,
-  },
-  {
-    name: 'youtube',
-    label: 'YouTube',
-    type: 'string',
-    pattern: httpsAddress,
-  },
-  {
-    name: 'tiktok',
-    label: 'TikTok',
-    type: 'string',
-    pattern: httpsAddress,
-  },
-  {
-    name: 'pinterest',
-    label: 'Pinterest',
-    type: 'string',
-    pattern: httpsAddress,
-  },
-  { name: 'shareFacebook', label: 'Share on Facebook', type: 'boolean' },
-  { name: 'shareX', label: 'Share on X', type: 'boolean' },
-  { name: 'shareLinkedin', label: 'Share on LinkedIn', type: 'boolean' },
-  { name: 'sharePinterest', label: 'Share on Pinterest', type: 'boolean', hint: 'Shown only when the post has a picture.' },
+  { name: 'shareX', label: 'X', type: 'boolean' },
+  { name: 'shareLinkedin', label: 'LinkedIn', type: 'boolean' },
+  { name: 'sharePinterest', label: 'Pinterest', type: 'boolean', hint: 'Shown only when the post has a picture.' },
   { name: 'shareCopyLink', label: 'Copy link', type: 'boolean' },
 ];
 

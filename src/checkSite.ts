@@ -70,7 +70,8 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
     root?: string,
     defaults?: Record<string, unknown>,
     values?: Record<string, unknown>,
-    // An entry of a list as the list has it now (FolderCollection.upgrade: a contact bar is an action bar).
+    // An entry of a list as the list has it now (FolderCollection.upgrade: a contact bar is an action bar), or a part's
+    // file as its form has it now (Part.upgrade: social.json's profiles as a list).
     upgrade?: (value: Record<string, unknown>) => Record<string, unknown>,
   ) => {
     const file = byPath.get(path);
@@ -107,7 +108,7 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
     ...seoParts,
     ...writtenBlockParts,
   ] as Part[])
-    if (part.file && part.fields) data(part.file, part.fields, part.at, undefined, part.defaults);
+    if (part.file && part.fields) data(part.file, part.fields, part.at, undefined, part.defaults, undefined, part.upgrade);
   // The blocks turned off under "Blokindstillinger" (BlockSettings.tsx): a list of their types.
   data(config.blockSettings, [
     { name: 'off', label: t.app.blocksOff, type: 'list', field: { name: 'type', label: t.app.block, type: 'string' } },

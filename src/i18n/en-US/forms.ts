@@ -12,6 +12,21 @@ export const forms = {
    * to it looks (SharePreview in ui.tsx). */
   share: 'Social media',
   sharePreview: 'How a link to the page looks when it is shared',
+  /** A list of links (LinkList.tsx: social media's profiles): the FAB and the sheet's title for a new one, what the list
+   * says without one, the field's name and what is under it (`found`: the network known by the address), its buttons,
+   * and what is wrong. */
+  links: {
+    add: 'Add link',
+    none: 'No links yet. Add one with the + button.',
+    address: 'Address',
+    hint: 'Paste the address of a profile, like https://www.facebook.com/…',
+    found: (network: string) => `${network} profile`,
+    addButton: 'Add',
+    done: 'Done',
+    remove: 'Remove link',
+    noAddress: 'Write an address',
+    twice: 'The link is already in the list',
+  },
   /** The preview of the Google result at the top of "Søgemaskiner" (SearchPreview.tsx): the name of its tabs, the tabs and
    * what a screen reader says of the result. */
   searchPreview: {
