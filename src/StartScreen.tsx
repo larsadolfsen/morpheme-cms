@@ -14,7 +14,16 @@ import { installedApps } from './apps';
 import { collectionOf } from './schema';
 import { apps, collections, icons } from './site';
 import { when } from './when';
-import { changesSince, continueShown, latestEdits, nextRecent, type Edit, type Versions } from './startView.mjs';
+import {
+  changesSince,
+  continueShown,
+  latestEdits,
+  nextRecent,
+  unversioned,
+  validEdits,
+  versioned,
+  type Versions,
+} from './startView.mjs';
 import type { RepoFile } from './github';
 import type { Env } from './App';
 import { X } from '@phosphor-icons/react';
@@ -44,6 +53,9 @@ function keep(key: string, value: unknown) {
   } catch {}
 }
 
+/** The edits kept in this browser: only the usable ones, none when the stored data has another version. */
+const storedEdits = () => validEdits(unversioned(read(EDITS)));
+
 /** The lists edited from the start screen: pages and blog posts (START_FAB). */
 const startLists = collections.filter((c) => START_FAB.includes(c.id));
 const startListOf = (path: string) => collectionOf(startLists, path)?.collection;
@@ -53,8 +65,7 @@ const startListOf = (path: string) => collectionOf(startLists, path)?.collection
 export function rememberEdit(path: string, removed: string[] = []) {
   const saved = startListOf(path) ? [path] : [];
   if (!saved.length && !removed.length) return;
-  const edits = read<Edit[]>(EDITS);
-  keep(EDITS, nextRecent(Array.isArray(edits) ? edits : [], saved, removed));
+  keep(EDITS, versioned(nextRecent(storedEdits(), saved, removed)));
 }
 
 /** "Continue where you left off": a card with the last three pages and blog posts saved, newest first, in the theme's
@@ -62,10 +73,7 @@ export function rememberEdit(path: string, removed: string[] = []) {
  * browser and, once GitHub has answered, those saved on the site by anyone (env.savedAt). The close button in its top
  * end corner hides it until something is saved after that; with nothing saved yet it says where they will be. */
 export function ContinueCard({ files, savedAt }: { files: RepoFile[]; savedAt: Env['savedAt'] }) {
-  const [edits] = useState(() => {
-    const kept = read<Edit[]>(EDITS);
-    return Array.isArray(kept) ? kept : [];
-  });
+  const [edits] = useState(storedEdits);
   const [closedAt, setClosedAt] = useState(() => read<number>(CLOSED));
   const startFiles = files.filter((f) => startListOf(f.path));
   // When each page and post was last saved on the site; null until GitHub has answered (or could not).
@@ -117,6 +125,12 @@ export function ContinueCard({ files, savedAt }: { files: RepoFile[]; savedAt: E
   );
 }
 
+/** The versions seen at the last visit; null when there are none or the stored data is not usable. */
+function storedSeen(): Versions | null {
+  const seen = unversioned(read(SEEN)) as Versions | null;
+  return seen && typeof seen === 'object' ? seen : null;
+}
+
 /** The CMS's version and those of the apps installed from the store, as the editor is built with them now. */
 function versionsNow(files: RepoFile[]): Versions {
   const installed = installedApps(files);
@@ -131,14 +145,14 @@ function versionsNow(files: RepoFile[]): Versions {
  * visit with nothing new, only notes the versions. */
 export function UpdatesNotice({ files }: { files: RepoFile[] }) {
   const now = versionsNow(files);
-  const [changes, setChanges] = useState(() => changesSince(read<Versions>(SEEN), now));
+  const [changes, setChanges] = useState(() => changesSince(storedSeen(), now));
   // Nothing to tell: these are the versions seen (also an app installed since, which is no update).
   useEffect(() => {
-    if (!changes.length) keep(SEEN, now);
+    if (!changes.length) keep(SEEN, versioned(now));
   }, [changes.length, JSON.stringify(now)]);
   if (!changes.length) return null;
   const close = () => {
-    keep(SEEN, now);
+    keep(SEEN, versioned(now));
     setChanges([]);
   };
   return (
