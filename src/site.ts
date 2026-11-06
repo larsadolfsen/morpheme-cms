@@ -64,6 +64,7 @@ function build(say: (text: string) => string, link: boolean) {
       options: f.options?.map((o) => ({ ...o, label: say(o.label), hint: maybe(o.hint) })),
       add: maybe(f.add),
       singular: maybe(f.singular),
+      heading: f.heading && { label: say(f.heading.label), hint: maybe(f.heading.hint) },
       toggle: f.toggle && [say(f.toggle[0]), say(f.toggle[1])],
       fields: f.fields?.map(field),
       field: f.field && field(f.field),

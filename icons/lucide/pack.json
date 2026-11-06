@@ -15,11 +15,21 @@
       "source": "@mdi/svg@7.4.47",
       "licenseFile": "LICENSE-material-design-icons",
       "icons": [
+        "butterfly",
         "facebook-logo",
         "github-logo",
         "google-logo",
+        "instagram-logo",
         "linkedin-logo",
-        "pinterest-logo"
+        "mastodon-logo",
+        "pinterest-logo",
+        "reddit-logo",
+        "snapchat-logo",
+        "soundcloud-logo",
+        "spotify-logo",
+        "twitch-logo",
+        "whatsapp-logo",
+        "youtube-logo"
       ]
     },
     {
@@ -31,6 +41,10 @@
       "source": "@phosphor-icons/core@2.1.1",
       "licenseFile": "LICENSE-phosphor",
       "icons": [
+        "discord-logo",
+        "telegram-logo",
+        "threads-logo",
+        "tiktok-logo",
         "x-logo"
       ]
     }

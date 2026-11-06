@@ -18,14 +18,24 @@
         "arrows-in-line-horizontal",
         "arrows-out-line-horizontal",
         "binoculars",
+        "butterfly",
         "facebook-logo",
         "github-logo",
         "google-logo",
         "hard-drives",
+        "instagram-logo",
         "linkedin-logo",
+        "mastodon-logo",
         "pinterest-logo",
+        "reddit-logo",
         "scan",
-        "swatches"
+        "snapchat-logo",
+        "soundcloud-logo",
+        "spotify-logo",
+        "swatches",
+        "twitch-logo",
+        "whatsapp-logo",
+        "youtube-logo"
       ]
     },
     {
@@ -37,6 +47,10 @@
       "source": "@phosphor-icons/core@2.1.1",
       "licenseFile": "LICENSE-phosphor",
       "icons": [
+        "discord-logo",
+        "telegram-logo",
+        "threads-logo",
+        "tiktok-logo",
         "x-logo"
       ]
     }

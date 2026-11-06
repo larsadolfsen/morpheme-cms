@@ -10,6 +10,18 @@ export const forms: Messages['forms'] = {
   seo: 'Søgemaskiner',
   share: 'Sociale medier',
   sharePreview: 'Sådan ser et link til siden ud, når det deles',
+  links: {
+    add: 'Tilføj link',
+    none: 'Ingen links endnu. Tilføj et med knappen +.',
+    address: 'Adresse',
+    hint: 'Indsæt adressen på en profil, fx https://www.instagram.com/…',
+    found: (network) => `Profil på ${network}`,
+    addButton: 'Tilføj',
+    done: 'Færdig',
+    remove: 'Fjern link',
+    noAddress: 'Skriv en adresse',
+    twice: 'Linket er allerede på listen',
+  },
   searchPreview: {
     on: 'Google-resultat på',
     mobile: 'Mobil',

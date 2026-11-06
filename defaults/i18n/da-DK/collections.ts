@@ -51,12 +51,12 @@ export const collections: Record<string, string> = {
   'CVR number': 'CVR-nummer',
   'Shown at the bottom of every page.': 'Vises nederst på hver side.',
   'A CVR number has eight digits': 'Et CVR-nummer har otte cifre',
-  "The address of the site's profile. Shown in Google's data about the business.":
-    'Adressen på sitets profil. Vises i Googles data om virksomheden.',
-  'Share on Facebook': 'Del på Facebook',
-  'Share on X': 'Del på X',
-  'Share on LinkedIn': 'Del på LinkedIn',
-  'Share on Pinterest': 'Del på Pinterest',
+  Profiles: 'Profiler',
+  Address: 'Adresse',
+  "The site's profiles on social media. Shown in Google's data about the business.":
+    'Sitets profiler på sociale medier. Vises i Googles data om virksomheden.',
+  'Share buttons': 'Delingsknapper',
+  'The buttons at the top of each blog post.': 'Knapperne øverst i hvert blogindlæg.',
   'Shown only when the post has a picture.': 'Vises kun, når indlægget har et billede.',
   'Copy link': 'Kopiér link',
   'Reg. no.': 'Reg.nr.',

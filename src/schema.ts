@@ -97,6 +97,13 @@ export type Field = {
   fields?: Field[];
   /** list of single values */
   field?: Field;
+  /** A heading over the field and those after it, with what is under it (social media's share buttons): in the form,
+   * not in the file. */
+  heading?: { label: string; hint?: string };
+  /** list of objects with an address (`url`): its items as the rows of a list, each with its network's name and icon
+   * (networkOf in site/social.mjs; the address's host for one not known), opening a sheet where it is changed or
+   * removed; the FAB adds one (LinkList.tsx). Social media's profiles. */
+  links?: boolean;
   /** list: the field shown as the title of each item; of several, the first filled in (a button's text or a text). */
   summary?: string | string[];
   singular?: string;
@@ -364,6 +371,10 @@ export type Part = {
   fields?: Field[];
   /** The values before any are saved (a block's shared.ts). */
   defaults?: Record<string, unknown>;
+  /** The file's data as the form has it now, from a file written before the fields changed (social.json with a key
+   * for each network, now a list of links: upgradeSocial in site/social.mjs); read so by the form and the check, and
+   * saved so. */
+  upgrade?: (data: Record<string, unknown>) => Record<string, unknown>;
   /** A block drawn under the fields with them as they are now (its draw, src/apps/<app>/blocks/): its type, and props
    * for when no page has the block (the first one on a page is drawn). shared: always with `props`,
    * as a copy that has nothing of its own (the shared buttons). variants: drawn once for each, under its

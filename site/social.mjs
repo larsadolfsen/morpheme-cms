@@ -1,28 +1,116 @@
-// The site's social settings (src/data/social.json, Company > Social media in the editor): its profiles, for the structured
-// data (sameAs), and the share buttons under a blog post, with their addresses. Exposes socialOf, shareLinks, sameAsOf.
+// The site's social settings (src/data/social.json, Business › Social media in the editor): its profiles, a list of
+// links the owner adds ({ profiles: [{ url }] }), each one's network known by its address (networkOf), for the
+// structured data (sameAs); and the share buttons under a blog post, with their addresses. A file written before the
+// profiles were a list has a key for each of seven networks ("facebook": "https://…"): upgradeSocial makes it a list.
+// Exposes NETWORKS, networkOf, upgradeSocial, socialOf, shareLinks, sameAsOf.
 
-export const PROFILE_IDS = /** @type {const} */ (['facebook', 'instagram', 'linkedin', 'x', 'youtube', 'tiktok', 'pinterest']);
+/**
+ * The networks known by their addresses, in no order of importance: the id, the name (a brand, the same in every
+ * language) and the hosts (one ending in ".*" is that name with any ending: pinterest.dk, mastodon.social).
+ * A host matches itself and any address under it (www.facebook.com, m.youtube.com).
+ */
+export const NETWORKS = /** @type {const} */ ([
+  { id: 'facebook', name: 'Facebook', hosts: ['facebook.com', 'fb.com', 'fb.me'] },
+  { id: 'instagram', name: 'Instagram', hosts: ['instagram.com', 'instagr.am'] },
+  { id: 'linkedin', name: 'LinkedIn', hosts: ['linkedin.com', 'lnkd.in'] },
+  { id: 'x', name: 'X', hosts: ['x.com', 'twitter.com'] },
+  { id: 'youtube', name: 'YouTube', hosts: ['youtube.com', 'youtu.be'] },
+  { id: 'tiktok', name: 'TikTok', hosts: ['tiktok.com'] },
+  { id: 'pinterest', name: 'Pinterest', hosts: ['pinterest.*', 'pin.it'] },
+  { id: 'threads', name: 'Threads', hosts: ['threads.net', 'threads.com'] },
+  { id: 'bluesky', name: 'Bluesky', hosts: ['bsky.app'] },
+  { id: 'mastodon', name: 'Mastodon', hosts: ['mastodon.*', 'mstdn.*'] },
+  { id: 'snapchat', name: 'Snapchat', hosts: ['snapchat.com'] },
+  { id: 'whatsapp', name: 'WhatsApp', hosts: ['wa.me', 'whatsapp.com'] },
+  { id: 'telegram', name: 'Telegram', hosts: ['t.me', 'telegram.me'] },
+  { id: 'discord', name: 'Discord', hosts: ['discord.gg', 'discord.com'] },
+  { id: 'twitch', name: 'Twitch', hosts: ['twitch.tv'] },
+  { id: 'github', name: 'GitHub', hosts: ['github.com'] },
+  { id: 'spotify', name: 'Spotify', hosts: ['spotify.com'] },
+  { id: 'soundcloud', name: 'SoundCloud', hosts: ['soundcloud.com'] },
+  { id: 'reddit', name: 'Reddit', hosts: ['reddit.com'] },
+  { id: 'tumblr', name: 'Tumblr', hosts: ['tumblr.com'] },
+  { id: 'behance', name: 'Behance', hosts: ['behance.net'] },
+  { id: 'dribbble', name: 'Dribbble', hosts: ['dribbble.com'] },
+  { id: 'medium', name: 'Medium', hosts: ['medium.com'] },
+  { id: 'patreon', name: 'Patreon', hosts: ['patreon.com'] },
+  { id: 'linktree', name: 'Linktree', hosts: ['linktr.ee'] },
+]);
+
+/** The keys of a file from before the profiles were a list, one for each network, in the order they had. */
+const OLD_KEYS = ['facebook', 'instagram', 'linkedin', 'x', 'youtube', 'tiktok', 'pinterest'];
 export const SHARE_IDS = /** @type {const} */ (['facebook', 'x', 'linkedin', 'pinterest', 'copy-link']);
-/** @typedef {(typeof PROFILE_IDS)[number]} ProfileId */
+/** @typedef {(typeof NETWORKS)[number]['id']} NetworkId */
 /** @typedef {(typeof SHARE_IDS)[number]} ShareId */
-/** @typedef {{ profiles: { id: ProfileId, url: string }[], share: ShareId[] }} Social */
+/** @typedef {{ id: NetworkId | null, url: string }} Profile */
+/** @typedef {{ profiles: Profile[], share: ShareId[] }} Social */
+
+/**
+ * The host of an address, in small letters and without "www.": '' for one that is not an address.
+ * @param {string} url
+ */
+export function hostOf(url) {
+  try {
+    return new URL(url.trim()).hostname.toLowerCase().replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+}
+
+/** @param {string} host @param {string} known */
+function hostIs(host, known) {
+  if (known.endsWith('.*')) return new RegExp(`(^|\\.)${known.slice(0, -2)}\\.[a-z]{2,}(\\.[a-z]{2,})?$`).test(host);
+  return host === known || host.endsWith(`.${known}`);
+}
+
+/**
+ * The network an address is a profile on, by its host; null for one not known (or not an address).
+ * @param {string} url
+ * @returns {(typeof NETWORKS)[number] | null}
+ */
+export function networkOf(url) {
+  const host = hostOf(url);
+  if (!host) return null;
+  return NETWORKS.find((n) => n.hosts.some((h) => hostIs(host, h))) ?? null;
+}
+
+/**
+ * The file's data as it is written now: one from before the profiles were a list has its filled keys
+ * ("facebook": "https://…") as links in the list, where the first of them was, in their order, after any the
+ * list has; the other keys stay as and where they were. A file without those keys is given back as it is.
+ * @param {Record<string, unknown>} data
+ * @returns {Record<string, unknown>}
+ */
+export function upgradeSocial(data) {
+  if (!OLD_KEYS.some((k) => k in data)) return data;
+  const kept = Array.isArray(data.profiles) ? data.profiles : [];
+  const old = OLD_KEYS.map((k) => data[k])
+    .filter((v) => typeof v === 'string' && v.trim() !== '')
+    .map((v) => ({ url: /** @type {string} */ (v).trim() }));
+  /** @type {Record<string, unknown>} */
+  const out = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (key === 'profiles' || OLD_KEYS.includes(key)) {
+      if (!('profiles' in out)) out.profiles = [...kept, ...old];
+    } else out[key] = value;
+  }
+  return out;
+}
 
 /**
  * @param {Record<string, unknown> | undefined} raw
  * @returns {Social}
  */
 export function socialOf(raw) {
-  const data = raw || {};
+  const data = upgradeSocial(raw || {});
 
-  // Profiles
+  // Profiles: the filled links, in their order, each with its network (null: one not known).
   const profiles = [];
-  for (const id of PROFILE_IDS) {
-    const value = data[id];
-    if (typeof value === 'string') {
-      const trimmed = value.trim();
-      if (trimmed !== '') {
-        profiles.push({ id, url: trimmed });
-      }
+  for (const item of Array.isArray(data.profiles) ? data.profiles : []) {
+    const value = item && typeof item === 'object' ? item.url : undefined;
+    if (typeof value === 'string' && value.trim() !== '') {
+      const url = value.trim();
+      profiles.push({ id: networkOf(url)?.id ?? null, url });
     }
   }
 

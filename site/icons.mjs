@@ -72,7 +72,7 @@ export const PACK_SOURCES = {
 
 /** For each system pack but Phosphor's (whose names they are): Phosphor's name → Material Design Icons' (the package in
  * PACK_SOURCES), for an icon the site or the editor draws that its set has none of. Material Symbols: a brand's logo (the
- * account logged in at GitHub, the SEO choices' Google) and the
+ * account logged in at GitHub, the SEO choices' Google, the networks of social media's profiles, LinkList.tsx) and the
  * things it has nothing that shows (binoculars, a hard disk, swatches, a scan frame, the arrows that widen and narrow
  * the Hero). Lucide, which draws no brands: the logos. */
 export const MATERIAL_DESIGN_ICONS = {
@@ -80,30 +80,51 @@ export const MATERIAL_DESIGN_ICONS = {
     'arrows-in-line-horizontal': 'arrow-collapse-horizontal',
     'arrows-out-line-horizontal': 'arrow-expand-horizontal',
     binoculars: 'binoculars',
+    butterfly: 'butterfly-outline',
     'facebook-logo': 'facebook',
     'github-logo': 'github',
     'google-logo': 'google',
-    'linkedin-logo': 'linkedin',
-    'pinterest-logo': 'pinterest',
     'hard-drives': 'harddisk',
+    'instagram-logo': 'instagram',
+    'linkedin-logo': 'linkedin',
+    'mastodon-logo': 'mastodon',
+    'pinterest-logo': 'pinterest',
+    'reddit-logo': 'reddit',
     scan: 'scan-helper',
+    'snapchat-logo': 'snapchat',
+    'soundcloud-logo': 'soundcloud',
+    'spotify-logo': 'spotify',
     swatches: 'palette-swatch',
+    'twitch-logo': 'twitch',
+    'whatsapp-logo': 'whatsapp',
+    'youtube-logo': 'youtube',
   },
   lucide: {
+    butterfly: 'butterfly-outline',
     'facebook-logo': 'facebook',
     'github-logo': 'github',
     'google-logo': 'google',
+    'instagram-logo': 'instagram',
     'linkedin-logo': 'linkedin',
+    'mastodon-logo': 'mastodon',
     'pinterest-logo': 'pinterest',
+    'reddit-logo': 'reddit',
+    'snapchat-logo': 'snapchat',
+    'soundcloud-logo': 'soundcloud',
+    'spotify-logo': 'spotify',
+    'twitch-logo': 'twitch',
+    'whatsapp-logo': 'whatsapp',
+    'youtube-logo': 'youtube',
   },
 };
 
 /** For each system pack but Phosphor's: Phosphor's names of the icons that neither the pack's set nor Material Design Icons has
- * (X's logo: Material Design Icons has only the old Twitter bird, which X's brand rules forbid), drawn from Phosphor's filled
+ * (X's logo: Material Design Icons has only the old Twitter bird, which X's brand rules forbid; TikTok's, Telegram's,
+ * Discord's and Threads' logos, which it has none of), drawn from Phosphor's filled
  * icon (`fill/<name>-fill.svg`). */
 export const PHOSPHOR_FILL_ICONS = {
-  'material-symbols': ['x-logo'],
-  lucide: ['x-logo'],
+  'material-symbols': ['discord-logo', 'telegram-logo', 'threads-logo', 'tiktok-logo', 'x-logo'],
+  lucide: ['discord-logo', 'telegram-logo', 'threads-logo', 'tiktok-logo', 'x-logo'],
 };
 
 /** Phosphor's name → Material Symbols' (Outlined, weight 400; `-fill` the filled one), for every icon the site and the

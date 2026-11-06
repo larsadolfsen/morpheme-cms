@@ -37,8 +37,13 @@ export function usePartForm({ part, env, files }: Props) {
   // The file as it was loaded or last saved, and its fields as they are now.
   // A file that is not there yet (the first block with shared texts) is made by the first save.
   const [base, setBase] = useState(() => files.find((f) => f.path === path) ?? { path, oid: '', text: '{}\n' });
-  const valuesOf = (text: string) => {
+  // The file's data, as the form has it now when it was written before the fields changed (Part.upgrade).
+  const dataOf = (text: string) => {
     const data = JSON.parse(text) as Record<string, any>;
+    return part.upgrade ? (part.upgrade(data) as Record<string, any>) : data;
+  };
+  const valuesOf = (text: string) => {
+    const data = dataOf(text);
     const own = (at ? data[at] : data) ?? {};
     return Object.fromEntries(fields.map((f) => [f.name, own[f.name] ?? part.defaults?.[f.name] ?? '']));
   };
@@ -57,7 +62,7 @@ export function usePartForm({ part, env, files }: Props) {
   async function save() {
     if (wrongField.stop(problemAt(fields, values))) return;
     // The file with these fields changed, written like the others (DataForm.tsx).
-    const data = JSON.parse(base.text) as Record<string, any>;
+    const data = dataOf(base.text);
     // Written as the fields write them (a number in pairs …); an emptied field is taken out.
     // Kept in their place in the file.
     const target = at ? (data[at] ??= {}) : data;
