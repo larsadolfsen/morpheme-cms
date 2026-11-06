@@ -88,8 +88,16 @@ test('headerDraft: "Mobilmenu" turned off is an empty bar, turned on its links',
 
 test('headerDraft: the button and the menu button at the end', () => {
   const header = { button: { enabled: true, label: 'Book', to: 'booking' }, menuSide: 'end' };
-  assert.deepEqual(headerDraft(SAVED, withChange({ header })), { menuSide: 'end', button: { label: 'Book', to: 'booking' } });
-  assert.deepEqual(headerDraft(withChange({ header }), SAVED), { menuSide: 'start', button: null });
+  assert.deepEqual(headerDraft(SAVED, withChange({ header })), {
+    menuSide: 'end',
+    cta: { button: { label: 'Book', to: 'booking' }, phone: true },
+  });
+  assert.deepEqual(headerDraft(withChange({ header }), SAVED), { menuSide: 'start', cta: { button: null, phone: true } });
+});
+
+test('headerDraft: the phone number turned off', () => {
+  const header = { button: { enabled: false, phone: false } };
+  assert.deepEqual(headerDraft(SAVED, withChange({ header })), { cta: { button: null, phone: false } });
 });
 
 test('swapHeader: an empty draft leaves the page as it is', () => {
@@ -162,10 +170,10 @@ test('swapHeader: the bar of "Mobilmenu" drawn again, removed, and put in when t
   assert.equal(bar.querySelector('a').getAttribute('aria-current'), 'page');
 });
 
-test('swapHeader: the button in place of the phone icon', () => {
+test('swapHeader: the call to action with the button', () => {
   const doc = page();
   const cta = '<div data-editor="header-cta" class="cta"><a href="/booking/">Book</a></div>';
-  swapHeader(doc, { button: { label: 'Book', to: 'booking' } }, { ...THEME, cta });
+  swapHeader(doc, { cta: { button: { label: 'Book', to: 'booking' }, phone: false } }, { ...THEME, cta });
   assert.equal(part(doc, 'header-cta').className, 'cta');
   assert.equal(part(doc, 'header-cta').textContent, 'Book');
   assert.equal(doc.querySelectorAll('[data-editor="header-cta"]').length, 1);

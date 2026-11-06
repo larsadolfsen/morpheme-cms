@@ -2,19 +2,21 @@
 // sections; a section opens its list, under a back row, with the open screen marked and its fold-out folded out. Apps lists
 // Appstore and a row per app installed. From medium and wider the first level is also the collapsed navigation rail
 // (MainRailItem), whose sections open the drawer at their list. The drawer's header is the signed-in user (AccountRow), a link
-// to the account. Exposes MainMenu. The tree and the open place are lib/menu.mjs
+// to the account. In the modal drawer a section's list is a step in the history (levelStep.mjs): the phone's back gesture
+// goes from it to the first level. Exposes MainMenu. The tree and the open place are lib/menu.mjs
 // (menuTree, currentPlace); it only wires them to the drawer.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { config, header } from '@site/editor';
 import { currentPlace, menuTree } from '../lib/menu.mjs';
 import { STORE_ROUTE } from './store';
 import { collectionOf } from './schema';
-import { apps, collections, groups, icons, lists, partScreens } from './site';
+import { apps, collections, companyParts, groups, icons, lists, partScreens } from './site';
 import { partOf } from './Library';
 import { AccountRow } from './AccountRow';
 import { childrenOf } from './menuChildren';
 import { t } from './i18n';
 import { useMenuOpen } from './menuOpen';
+import { levelStep } from './levelStep.mjs';
 import {
   MainDrawer,
   MainDrawerBack,
@@ -25,6 +27,7 @@ import {
   MainDrawerSubitem,
   MainRailItem,
   MainRailSectionItem,
+  useMenuLayout,
 } from './ui';
 import type { RepoFile, Viewer } from './github';
 
@@ -76,6 +79,19 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     setShown(null);
     return true;
   }, []);
+  // A section's list in the modal drawer: the back gesture goes to the first level (levelStep.mjs), not to the screen before.
+  const modal = useMenuLayout().expanded !== 'standard';
+  const step = useRef<ReturnType<typeof levelStep> | null>(null);
+  useEffect(() => {
+    step.current = levelStep(window);
+    return () => step.current?.stop();
+  }, []);
+  useEffect(() => {
+    step.current?.set(modal && open && shown !== null, () => {
+      setFocus('top');
+      setShown(null);
+    });
+  }, [modal, open, shown]);
   // Every level stays in the page (the screen check finds the screens from the links); the ones not shown are `hidden`.
   const sections = tree.filter((entry) => entry.href === undefined);
   return (
@@ -125,8 +141,12 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
           {section.items.map(({ id, label, href, count, children }) => {
             const here = place.section === section.id && place.item === id;
             const shownCount = files ? count : null;
-            // An app's row has the app's icon (an installed app is a row of Apps, lib/menu.mjs).
-            const icon = (section.id === 'apps' && apps.find((a) => a.id === id)?.icon) || icons[id];
+            // An app's row has the app's icon (an installed app is a row of Apps, lib/menu.mjs), a part of the business its
+            // own (a part is a row of Business).
+            const icon =
+              (section.id === 'apps' && apps.find((a) => a.id === id)?.icon) ||
+              (section.id === 'company' && companyParts.find((p) => p.id === id)?.icon) ||
+              icons[id];
             return children ? (
               <MainDrawerFold key={id} href={href} icon={icon} label={label} count={shownCount} selected={here && !place.child} open={here}>
                 {children.map((child) => (

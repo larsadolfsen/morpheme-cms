@@ -1,4 +1,5 @@
-// The account screen (who is signed in, AccountRow) and the start screen of the editor (empty but for its title, status and FAB) and the
+// The account screen (who is signed in, AccountRow) and the start screen of the editor (its title, status and FAB, what was
+// updated since the last visit and the pages and posts edited last: ContinueCard.tsx, UpdatesNotice.tsx) and the
 // list of each part: blog posts newest first, the rest by name, prices and testimonials in their order
 // on the site (with arrows to move them), and a search. Lists that are not in an order of their own can
 // be sorted another way (a list of kinds, by its kinds too); the choice is kept in this browser. Pages
@@ -7,6 +8,7 @@
 // what was deleted (Deleted.tsx), as in "Filer". The tabs the apps installed add to a list (AppDefinition.tabs, Cookiescanner's
 // "Problemer" on "Cookies") are in its top app bar after the list's own, each at #list/<list>/<app>. "Use theme" and the move arrows show the
 // loading indicator while they run (only the pressed one).
+// When each page was last saved is kept in savedTimes.ts, shared with the start screen.
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   ArrowDown,
@@ -34,6 +36,9 @@ import { theme, themes, type ThemeInfo } from './themes';
 import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
 import { StartStatus } from './StartStatus';
+import { ContinueCard } from './ContinueCard';
+import { UpdatesNotice } from './UpdatesNotice';
+import { loadSavedTimes, saved } from './savedTimes';
 import {
   appearance,
   backFrom,
@@ -178,7 +183,7 @@ function PartRow({ id, label, href, count }: { id: string } & ReturnType<typeof 
 
 // The start screen: the site's name, the CMS version and when the site was last updated (built on Cloudflare, App.tsx), as StartStatus.tsx shows them, under it, and the FAB
 // menu for a new page or post (StartFab.tsx); each list has its own FAB for a new entry (ListFab.tsx). The parts of the site are in the main drawer (MainMenu.tsx); the rest is left empty for now.
-export function Start({ builtAt }: { builtAt: Date | null }) {
+export function Start({ builtAt, files, env }: { builtAt: Date | null; files: RepoFile[]; env: Env }) {
   return (
     <Screen
       title={siteName}
@@ -187,6 +192,8 @@ export function Start({ builtAt }: { builtAt: Date | null }) {
       // The link to the website in the top bar (Screen.tsx).
       home
     >
+      <UpdatesNotice files={files} />
+      <ContinueCard files={files} savedAt={env.savedAt} />
       <StartFab />
     </Screen>
   );
@@ -1000,10 +1007,6 @@ function savedOpen(c: Collection): Set<string> {
   }
 }
 
-// When each page was last saved, kept while the editor is open. Asked again for a page whose file has
-// changed since (another blob id), so a page just saved shows its new time.
-const saved = new Map<string, { oid: string; date: Date }>();
-
 // The ways a list can be sorted; by time only where the entries have one: blog posts by their date,
 // pages by when they were last saved; by their kind where they have kinds (Promovering).
 type Sort = 'newest' | 'oldest' | 'az' | 'za' | 'type';
@@ -1088,13 +1091,11 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   const [, setSavedLoaded] = useState(0);
   useEffect(() => {
     if (!pages) return;
-    const missing = items.flatMap((i) => (i.file && saved.get(i.file.path)?.oid !== i.file.oid ? [i.file] : []));
-    if (!missing.length) return;
-    env.savedAt(missing.map((f) => f.path)).then(
-      (times) => {
-        for (const f of missing) if (times[f.path]) saved.set(f.path, { oid: f.oid, date: times[f.path] });
-        setSavedLoaded((n) => n + 1);
-      },
+    loadSavedTimes(
+      env.savedAt,
+      items.flatMap((i) => (i.file ? [i.file] : [])),
+    ).then(
+      (asked) => asked && setSavedLoaded((n) => n + 1),
       () => {},
     );
   }, [items]);

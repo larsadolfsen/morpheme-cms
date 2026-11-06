@@ -2147,7 +2147,8 @@
   and what trails it (.list-item-trailing-supporting, .list-item-trailing: an icon, an arrow); .list-item-two-line or
   .list-item-three-line by its lines; .list-item-columns with its headline and supporting text side by side on a wide
   screen; .list-item-with-control with the theme's checkbox, radio button or switch in
-  .list-item-control before or after the text; .list-item-selected and .list-item-disabled. An item's corners change
+  .list-item-control before or after the text; .list-item-selectable for one a long press selects (List.tsx
+  `selectable`); .list-item-selected and .list-item-disabled. An item's corners change
   with its state (Material's shape morphing): pointed at (hover), pressed or focused, and selected. In a segmented list
   each <li> is the item's surface (also around what is beside its container in it: a button, fields folded out), the
   first and the last with the list's corners. A multi-action item (.list-item-multi-action): an item's container and
@@ -2529,6 +2530,13 @@
     background: var(--list-item-pressed-surface, var(--list-item-hover-surface, transparent));
   }
 
+  /* An item a long press selects (List.tsx `selectable`): the press selects it, not its text, and opens no menu. */
+  .list-item-selectable {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
   /* Selected, and disabled. */
   .list-item-selected {
     --list-item-shape: var(--list-item-selected-radius, var(--list-item-radius, 0));
@@ -2742,7 +2750,10 @@
   Navigation drawer (NavigationDrawer, NavigationDrawerItem, NavigationDrawerToggle, NavigationDrawerSubitem,
   navigationDrawerClass, navigationDrawerScrimClass): .navigation-drawer, the drawer, over .navigation-drawer-scrim;
   .navigation-drawer-standard, the standard one, beside the content (--navigation-drawer-standard-shadow, level 0);
-  .navigation-drawer-dialog, a <dialog> it is in, at the start edge (its ::backdrop the scrim); .navigation-drawer-item,
+  .navigation-drawer-dialog, a <dialog> it is in, at the start edge (its ::backdrop the scrim); .navigation-drawer-end,
+  one at the end edge (its corners towards the page, mirrored); .navigation-drawer-bleed, one that springs in (on the
+  drawer, or on the <dialog> it is in): wider by --navigation-drawer-bleed (32dp) at the edge it comes from, that strip
+  off the screen, so a spring that overshoots shows no gap at the edge; .navigation-drawer-item,
   a page (a link, or a button: the editor's) ([data-active]: the open one, or the one holding it), its
   .navigation-drawer-icon (24dp, outlined; the filled .navigation-drawer-selected-icon in its place while
   [data-active]) and .navigation-drawer-label, and evt. .navigation-drawer-badge, the text at its end
@@ -3292,22 +3303,60 @@
     }
   }
 
+  /* The drawer's defaults, each once: the others read them as the fallback of their --navigation-drawer-* variable. */
+  :root {
+    --navigation-drawer-width-default: min(22.5rem, calc(100vw - 3.5rem));
+    --navigation-drawer-bleed-default: 2rem;
+    --navigation-drawer-inset-default: 0.75rem;
+  }
   /* Navigation drawer, modal (m3.material.io/components/navigation-drawer): the pages in a panel over the page. */
   .navigation-drawer-scrim {
     background: var(--navigation-drawer-scrim, color-mix(in srgb, var(--theme-scrim-colour) 45%, transparent));
   }
   .navigation-drawer {
     display: flex;
-    width: var(--navigation-drawer-width, min(22.5rem, calc(100vw - 3.5rem)));
+    width: var(--navigation-drawer-width, var(--navigation-drawer-width-default));
     flex-direction: column;
     overflow-y: auto;
     border-radius: var(--navigation-drawer-radius, 0 1rem 1rem 0);
-    padding: var(--navigation-drawer-padding, 0.75rem var(--navigation-drawer-inset, 0.75rem) max(1rem, env(safe-area-inset-bottom)));
+    padding: var(
+      --navigation-drawer-padding,
+      0.75rem var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) max(1rem, env(safe-area-inset-bottom))
+    );
     background: var(--navigation-drawer-surface, var(--elevation-1-surface));
     box-shadow: var(--navigation-drawer-shadow, var(--elevation-1-rest-shadow));
   }
   .navigation-drawer:dir(rtl) {
     border-radius: var(--navigation-drawer-radius-rtl, 1rem 0 0 1rem);
+  }
+  /* At the end edge: its corners towards the page, as the start edge's in the other direction. */
+  .navigation-drawer-end {
+    border-radius: var(--navigation-drawer-radius-rtl, 1rem 0 0 1rem);
+  }
+  .navigation-drawer-end:dir(rtl) {
+    border-radius: var(--navigation-drawer-radius, 0 1rem 1rem 0);
+  }
+  /* One that springs in: a strip as wide as --navigation-drawer-bleed beyond the screen's edge (a negative margin), the
+     items as far in from the edge as before (the strip added to the padding), so the drawer still covers the edge
+     while an overshooting spring carries it a little past its place. */
+  .navigation-drawer.navigation-drawer-bleed {
+    width: calc(
+      var(--navigation-drawer-width, var(--navigation-drawer-width-default)) +
+        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+    );
+    margin-inline-start: calc(-1 * var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default)));
+    padding-inline-start: calc(
+      var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) +
+        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+    );
+  }
+  .navigation-drawer.navigation-drawer-bleed.navigation-drawer-end {
+    margin-inline: 0 calc(-1 * var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default)));
+    padding-inline: var(--navigation-drawer-inset, var(--navigation-drawer-inset-default))
+      calc(
+        var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) +
+          var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+      );
   }
   /* Nothing in it is squeezed when its content is higher than the screen: the drawer scrolls instead. */
   .navigation-drawer > * {
@@ -3360,6 +3409,22 @@
   .navigation-drawer-dialog > .navigation-drawer {
     height: 100%;
   }
+  /* A <dialog> that springs in (navigationDrawerBleedClass on the dialog, the editor's): the dialog starts the strip
+     beyond the screen's edge and the drawer in it is that much wider, its items as far in as before (a modal dialog
+     clips what sticks out of it, so the strip is the dialog's own). */
+  .navigation-drawer-dialog.navigation-drawer-bleed {
+    inset-inline-start: calc(-1 * var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default)));
+  }
+  .navigation-drawer-dialog.navigation-drawer-bleed > .navigation-drawer {
+    width: calc(
+      var(--navigation-drawer-width, var(--navigation-drawer-width-default)) +
+        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+    );
+    padding-inline-start: calc(
+      var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) +
+        var(--navigation-drawer-bleed, var(--navigation-drawer-bleed-default))
+    );
+  }
   .navigation-drawer-dialog::backdrop {
     background: var(--navigation-drawer-scrim, color-mix(in srgb, var(--theme-scrim-colour) 45%, transparent));
   }
@@ -3398,7 +3463,7 @@
   .navigation-drawer-section + .navigation-drawer-section > .navigation-drawer-section-divider {
     display: block;
     margin-block: var(--navigation-drawer-section-gap, 0.5rem);
-    margin-inline: calc(-1 * var(--navigation-drawer-inset, 0.75rem));
+    margin-inline: calc(-1 * var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)));
   }
   .navigation-drawer-section-label {
     display: flex;

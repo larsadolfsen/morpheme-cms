@@ -162,6 +162,7 @@ import { Button, EmptyNote, ProblemNote, startRipples } from './ui';
 import { useMenuOpen } from './menuOpen';
 import { MainMenu } from './MainMenu';
 import { TopBarLayout } from './topBarSlot';
+import { rememberEdit } from './startStorage';
 import { Ask, ask } from './ask';
 import { LinkAsk } from './LinkSheet';
 import { type ListRows, type Option, type TestimonialRow } from './fields';
@@ -174,6 +175,7 @@ import { appRouteOf } from '../lib/appRoute.mjs';
 import { movedRoute } from './movedRoutes.mjs';
 import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, syncDevice, told, waitOnServer } from './notificationData';
 import Notifications from './Notifications';
+import { openNotifications } from './notificationsOpen';
 import { EditorOwn, InEditor } from './standard/view';
 import './editor.css';
 
@@ -332,6 +334,10 @@ function Editor() {
     navigator.serviceWorker?.addEventListener('message', onMessage);
     return () => navigator.serviceWorker?.removeEventListener('message', onMessage);
   }, []);
+  // The notifications' old address (#notifications, a screen before they were a side sheet): opens the sheet.
+  useEffect(() => {
+    if (route === 'notifications') openNotifications();
+  }, [route]);
   // When the site was last updated (built on Cloudflare), for the start screen.
   const [builtAt, setBuiltAt] = useState<Date | null>(null);
   useEffect(() => keepCurrent((v) => v.builtAt && setBuiltAt(new Date(v.builtAt))), []);
@@ -556,6 +562,8 @@ function Editor() {
     taken: (address, redirects) => taken(address, relations, redirects),
     onSaved(file, more) {
       replace([file, ...(more?.files ?? [])], more?.removed);
+      // The start screen's last pages and posts edited (startStorage.ts).
+      rememberEdit(file.path, more?.removed);
       // A new entry, or a post that got a new address: from now on it is edited as the file it
       // became. A form that saves another file than the one at its address (Virksomheden) stays where it is.
       if (route.startsWith('new/') || more?.removed.includes(route)) {
@@ -669,7 +677,7 @@ function Editor() {
         }
       >
         <>
-          <div className="editor-content relative min-w-0 flex-1">
+          <div className="editor-content relative flex min-w-0 flex-1 flex-col">
             {files ? (
               <Page key={visit} route={route} files={files} env={env} user={user} builtAt={builtAt} onLogout={signOut} />
             ) : (
@@ -681,6 +689,7 @@ function Editor() {
 
           <LinkAsk groups={linkGroups} />
           <Ask />
+          <Notifications />
         </>
       </TopBarLayout>
     </>
@@ -718,9 +727,10 @@ function formAt(route: string, files: RepoFile[]): { part: Part; at: string; pag
 type PageProps = { route: string; files: RepoFile[]; env: Env; user: Viewer | null; builtAt: Date | null; onLogout: () => void };
 
 function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
-  if (!route) return <Start builtAt={builtAt} />;
+  if (!route) return <Start builtAt={builtAt} files={files} env={env} />;
   if (route === 'account') return <Account user={user} files={files} onLogout={onLogout} />;
-  if (route === 'notifications') return <Notifications />;
+  // The old address of the notifications, now a side sheet: the start screen, with the sheet over it (App).
+  if (route === 'notifications') return <Start builtAt={builtAt} files={files} env={env} />;
   if (route === 'lists') return <Lists files={files} />;
   if (route === 'company') return <Company files={files} />;
   if (route === 'blocks') return <Blocks files={files} />;
