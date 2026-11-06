@@ -11,6 +11,10 @@ test('the old footer form opens Appearance › Footer', () => {
   assert.equal(movedRoute('src/data/footer.json'), 'appearance/footer');
 });
 
+test('the old logo screen under Appearance opens Business › Logo and icon', () => {
+  assert.equal(movedRoute('appearance/logo'), 'company/logo');
+});
+
 test('an address that has not moved stays', () => {
   assert.equal(movedRoute('appearance/header'), 'appearance/header');
   assert.equal(movedRoute('lists'), 'lists');
@@ -67,7 +71,7 @@ test('every old route prefix opens the screen where it is now', () => {
     'udseende/dele/blokke': 'appearance/parts/blocks',
     'udseende/dele/vaerdier': 'appearance/parts/values',
     'udseende/standardsider': 'appearance/default-pages',
-    'udseende/logo': 'appearance/logo',
+    'udseende/logo': 'company/logo',
     maaling: 'analytics',
     'maaling/google-analytics': 'analytics/google-analytics',
     privatliv: 'privacy',

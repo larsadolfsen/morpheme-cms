@@ -4,12 +4,12 @@
 /** Where each moved screen is now, by its old address. */
 export const MOVED = /** @type {Record<string, string>} */ ({
   farver: 'appearance/colors',
-  'virksomheden/logo': 'appearance/logo',
+  'virksomheden/logo': 'company/logo',
   'tema/blokvalg': 'block-settings',
   dele: 'appearance/parts',
   tema: 'appearance',
   'tema/farver': 'appearance/colors',
-  'tema/logo': 'appearance/logo',
+  'tema/logo': 'company/logo',
   'tema/dele': 'appearance/parts',
   'tema/dele/editor': 'appearance/parts/editor',
   'virksomheden/bank': 'company/payment/bank',
@@ -24,6 +24,9 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   header: 'appearance/header',
   // The footer's form was the file's own screen; it is under "Udseende" now.
   'src/data/footer.json': 'appearance/footer',
+  // "Logo and icon" was under "Udseende"; it is under the business now.
+  'appearance/logo': 'company/logo',
+  'udseende/logo': 'company/logo',
 });
 
 /**
