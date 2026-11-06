@@ -112,6 +112,8 @@ export const common = {
     appearance: 'Appearance',
     /** The themes installed (#appearance/themes, Library.tsx Themes), the first row under "Udseende". */
     themes: 'Themes',
+    /** The store's themes, to install and update them (#appearance/theme-store, ThemeStoreScreen.tsx), the first row under Appearance. */
+    themeStore: 'Theme store',
     /** The icon packs installed, to choose the one the site draws its icons with (#appearance/icon-packs, IconPacks). */
     iconPacks: 'Icon packs',
     /** How the site moves, Material 3's motion schemes (#appearance/motion, MotionSchemes in Library.tsx). */

@@ -1,4 +1,5 @@
-// The account screen (who is signed in, AccountRow) and the start screen of the editor (empty but for its title, status and FAB) and the
+// The account screen (who is signed in, AccountRow) and the start screen of the editor (its title, status and FAB, what was
+// updated since the last visit and the pages and posts edited last: ContinueCard.tsx, UpdatesNotice.tsx) and the
 // list of each part: blog posts newest first, the rest by name, prices and testimonials in their order
 // on the site (with arrows to move them), and a search. Lists that are not in an order of their own can
 // be sorted another way (a list of kinds, by its kinds too); the choice is kept in this browser. Pages
@@ -7,6 +8,7 @@
 // what was deleted (Deleted.tsx), as in "Filer". The tabs the apps installed add to a list (AppDefinition.tabs, Cookiescanner's
 // "Problemer" on "Cookies") are in its top app bar after the list's own, each at #list/<list>/<app>. "Use theme" and the move arrows show the
 // loading indicator while they run (only the pressed one).
+// When each page was last saved is kept in savedTimes.ts, shared with the start screen.
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   ArrowDown,
@@ -34,6 +36,9 @@ import { theme, themes, type ThemeInfo } from './themes';
 import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
 import { StartStatus } from './StartStatus';
+import { ContinueCard } from './ContinueCard';
+import { UpdatesNotice } from './UpdatesNotice';
+import { loadSavedTimes, saved } from './savedTimes';
 import {
   appearance,
   backFrom,
@@ -125,6 +130,7 @@ const countOf = (c: Collection, files: RepoFile[]): number =>
 export function partOf(id: string, files: RepoFile[]): { label: string; href: string; count: number | null } {
   const { parts } = t.common;
   if (id === 'company') return { label: parts.company, href: '#company', count: null };
+  if (id === 'logo') return { label: parts.brand, href: '#company/logo', count: null };
   if (id === 'header') return { label: parts.header, href: '#appearance/header', count: null };
   if (id === 'footer') return { label: parts.footer, href: '#appearance/footer', count: null };
   if (id === 'lists') return { label: parts.lists, href: '#lists', count: listsShown(files).length };
@@ -139,12 +145,12 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (seoPart) return { label: seoPart.label, href: `#seo/${id}`, count: null };
   // The screens under "Udseende" (Theme): the ones the editor has, then the site's own (appearance).
   const appearanceLabel = {
+    'theme-store': parts.themeStore,
     themes: parts.themes,
     'icon-packs': parts.iconPacks,
     motion: parts.motion,
     'side-column': parts.sideColumn,
     colors: parts.colors,
-    logo: parts.brand,
     parts: parts.editorParts,
   }[id];
   const appearancePart = appearanceLabel ?? appearance.find((p) => p.id === id)?.label;
@@ -177,7 +183,7 @@ function PartRow({ id, label, href, count }: { id: string } & ReturnType<typeof 
 
 // The start screen: the site's name, the CMS version and when the site was last updated (built on Cloudflare, App.tsx), as StartStatus.tsx shows them, under it, and the FAB
 // menu for a new page or post (StartFab.tsx); each list has its own FAB for a new entry (ListFab.tsx). The parts of the site are in the main drawer (MainMenu.tsx); the rest is left empty for now.
-export function Start({ builtAt }: { builtAt: Date | null }) {
+export function Start({ builtAt, files, env }: { builtAt: Date | null; files: RepoFile[]; env: Env }) {
   return (
     <Screen
       title={siteName}
@@ -186,12 +192,14 @@ export function Start({ builtAt }: { builtAt: Date | null }) {
       // The link to the website in the top bar (Screen.tsx).
       home
     >
+      <UpdatesNotice files={files} />
+      <ContinueCard files={files} savedAt={env.savedAt} />
       <StartFab />
     </Screen>
   );
 }
 
-// "Virksomheden": its parts (CompanyForm.tsx), each on a screen of its own; or one of them with parts
+// "Virksomheden": its screen has "Logo og ikon" (BrandForm.tsx, #company/logo) first, then its parts (CompanyForm.tsx), each on a screen of its own; or one of them with parts
 // of its own ("Betaling"), and the settings of the apps installed of its kinds (Part.apps: MobilePay), going back to
 // "Virksomheden".
 export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
@@ -204,20 +212,29 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
         back={{ href: '#company', label: t.common.parts.company }}
       />
     );
-  return <Parts title={t.common.parts.company} route="company" parts={companyParts} />;
+  return (
+    <Parts
+      title={t.common.parts.company}
+      route="company"
+      parts={[{ id: 'logo', label: t.common.parts.brand, icon: icons.logo }, ...companyParts]}
+    />
+  );
 }
 
-// "Udseende": first "Temaer" (Themes), with the theme the site is built with at the end of its row (or, after a swap,
-// until the site is built with the new one, that one), "Ikonpakker" (IconPacks), with the pack chosen, "Bevægelse"
-// (MotionSchemes), with the scheme chosen, and "Sidekolonne" (SideColumn.tsx), with the block chosen; then how the
-// site looks, the colours (Colors.tsx), the logo and icon (BrandForm.tsx), the header with its menus and its preview
-// (HeaderSettings.tsx), the footer with its preview (FooterSettings.tsx) and the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider", a
+// Appearance: first "Theme store" (the store's themes, ThemeStoreScreen.tsx), then the header with its menus and its preview
+// (HeaderSettings.tsx) and the footer with its preview (FooterSettings.tsx), then "Temaer" (Themes), with the theme the site
+// is built with at the end of its row (or, after a swap, until the site is built with the new one, that one), "Ikonpakker"
+// (IconPacks), with the pack chosen, "Bevægelse" (MotionSchemes), with the scheme chosen, "Sidekolonne" (SideColumn.tsx),
+// with the block chosen, and the colours (Colors.tsx); then the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider", a
 // screen of its own, CompanyForm.tsx, going back here), and how the editor and the blocks look, their parts ("Dele", PartsHome), each on a
-// screen of its own, with the icons the site gives them.
+// screen of its own, with the icons the site gives them. The logo and icon (BrandForm.tsx) are under "Virksomheden" (Company).
 // The blocks that can be put in are under "Blokke" ("Blokindstillinger", BlockSettings.tsx).
 export function Theme({ files }: { files: RepoFile[] }) {
   const chosen = themes.find((x) => x.id === chosenTheme(files)) ?? theme;
   const parts: Part[] = [
+    { id: 'theme-store', label: t.common.parts.themeStore, icon: icons['theme-store'] },
+    { id: 'header', label: t.common.parts.header, icon: icons.header },
+    { id: 'footer', label: t.common.parts.footer, icon: icons.footer },
     { id: 'themes', label: t.common.parts.themes, icon: icons.themes, detail: chosen.name },
     {
       id: 'icon-packs',
@@ -233,9 +250,6 @@ export function Theme({ files }: { files: RepoFile[] }) {
       detail: sideChoicesOf(files).find((x) => x.type === sideSettingOf(files))?.label ?? t.library.sideNone,
     },
     { id: 'colors', label: t.common.parts.colors, icon: icons.colors, trailing: <ThemeColors files={files} /> },
-    { id: 'logo', label: t.common.parts.brand, icon: icons.logo },
-    { id: 'header', label: t.common.parts.header, icon: icons.header },
-    { id: 'footer', label: t.common.parts.footer, icon: icons.footer },
     ...appearance,
     { id: 'parts', label: t.common.parts.editorParts, icon: icons.parts },
   ];
@@ -252,7 +266,7 @@ function ThemeColors({ files }: { files: RepoFile[] }) {
   );
 }
 
-const backToAppearance = { href: '#appearance', label: t.common.parts.appearance };
+export const backToAppearance = { href: '#appearance', label: t.common.parts.appearance };
 const backToThemes = { href: '#appearance/themes', label: t.common.parts.themes };
 
 /** Under a theme's name: whether the site is built with it ("I brug") or is changing to it ("Skifter hertil"). */
@@ -998,10 +1012,6 @@ function savedOpen(c: Collection): Set<string> {
   }
 }
 
-// When each page was last saved, kept while the editor is open. Asked again for a page whose file has
-// changed since (another blob id), so a page just saved shows its new time.
-const saved = new Map<string, { oid: string; date: Date }>();
-
 // The ways a list can be sorted; by time only where the entries have one: blog posts by their date,
 // pages by when they were last saved; by their kind where they have kinds (Promovering).
 type Sort = 'newest' | 'oldest' | 'az' | 'za' | 'type';
@@ -1086,13 +1096,11 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   const [, setSavedLoaded] = useState(0);
   useEffect(() => {
     if (!pages) return;
-    const missing = items.flatMap((i) => (i.file && saved.get(i.file.path)?.oid !== i.file.oid ? [i.file] : []));
-    if (!missing.length) return;
-    env.savedAt(missing.map((f) => f.path)).then(
-      (times) => {
-        for (const f of missing) if (times[f.path]) saved.set(f.path, { oid: f.oid, date: times[f.path] });
-        setSavedLoaded((n) => n + 1);
-      },
+    loadSavedTimes(
+      env.savedAt,
+      items.flatMap((i) => (i.file ? [i.file] : [])),
+    ).then(
+      (asked) => asked && setSavedLoaded((n) => n + 1),
       () => {},
     );
   }, [items]);

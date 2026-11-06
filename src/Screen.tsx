@@ -11,16 +11,18 @@
 // before (nav.ts up). The content is as wide as a form reads well, or wider for lists and the grid of files (`wide`) and for
 // a form with its fields beside the text (`panel`). The column (editor.css .editor-column) stands centred on the window,
 // off-centre only as far as the panels beside it require.
-// Under the content of every screen is the editor's footer (EditorFooter.tsx).
-import { useId, type ReactNode } from 'react';
+// Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
+// is short (the screen fills the column under the bar, TopBarLayout).
+import { useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
-import { IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
+import { IconButton, IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
 import { up } from './nav';
 import EditorFooter from './EditorFooter';
 import { useMenuOpen } from './menuOpen';
 import { unseen, useNotifications } from './notificationData';
+import { openNotifications, useNotificationsOpen } from './notificationsOpen';
 import { SiteLogoLink } from './SiteLogoLink';
 import { useTopBarSlot } from './topBarSlot';
 
@@ -50,25 +52,34 @@ type Props<T extends string> = {
   children: ReactNode;
 };
 
-/** The website (the site's home page, "/") in a new tab: in the top bar of the start screen, after the bell. */
+/** The website (the site's home page, "/") in a new window, as large as the screen: in the top bar of the start screen,
+ * after the bell. A click with a modifier key or the middle button, or a browser that blocks the window, gets the link's
+ * own new tab instead. The new window does not know the editor (opener null, as rel="noopener"). */
 export function WebsiteLink() {
-  return <IconLink href="/" target="_blank" rel="noopener" icon={ArrowSquareOut} label={t.library.openWebsite} />;
+  const openWindow = (e: MouseEvent<HTMLAnchorElement>) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const site = window.open(e.currentTarget.href, '_blank', `popup,width=${screen.availWidth},height=${screen.availHeight}`);
+    if (!site) return;
+    site.opener = null;
+    e.preventDefault();
+  };
+  return <IconLink href="/" target="_blank" rel="noopener" onClick={openWindow} icon={ArrowSquareOut} label={t.library.openWebsite} />;
 }
 
-/** The bell in the top bar, before the link to the website: the notifications (#notifications, Notifications.tsx), with a dot
- * while some are not seen yet. */
-export function NotificationsLink({ className = '' }: { className?: string }) {
+/** The bell in the top bar, before the link to the website: opens the notifications in a side sheet (Notifications.tsx,
+ * notificationsOpen.ts), with a dot while some are not seen yet. */
+export function NotificationsButton({ className = '' }: { className?: string }) {
   const count = unseen(useNotifications());
-  const current = location.hash === '#notifications';
+  const open = useNotificationsOpen();
   return (
-    <IconLink
-      href="#notifications"
+    <IconButton
       icon={Bell}
       label={count ? t.library.notificationsNew(count) : t.library.notifications}
-      aria-current={current ? 'page' : undefined}
-      selected={current}
+      aria-haspopup="dialog"
+      aria-expanded={open}
       badge={count > 0}
       className={className}
+      onClick={openNotifications}
     />
   );
 }
@@ -144,7 +155,7 @@ export default function Screen<T extends string>({
           {pageActions && <div className="flex items-center gap-1 expanded:hidden">{pageActions}</div>}
           {actions}
         </div>
-        <NotificationsLink />
+        <NotificationsButton />
         {home && <WebsiteLink />}
         {drawer}
       </div>
@@ -158,37 +169,45 @@ export default function Screen<T extends string>({
     </TopAppBar>
   );
   return (
-    <div className="min-h-dvh">
+    <div className={`flex flex-col ${slot ? 'flex-1' : 'min-h-dvh'}`}>
       {slot ? createPortal(bar, slot) : bar}
-      <main className={`editor-screen px-4 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 ${width}`}>
-        {/* At expanded and wider: the way here, the title and the status, under the bar. */}
-        <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">
-          {crumbs.length > 0 && (
-            <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-muted">
-              {crumbs.map((c) => (
-                <span key={c.href} className="flex items-center gap-2">
-                  <a href={c.href} onClick={leave()} className="max-w-48 truncate hover:text-accent hover:underline">
-                    {c.label}
-                  </a>
-                  <CaretRight size={14} className="shrink-0" />
-                </span>
-              ))}
-            </nav>
-          )}
-          <h1 className="truncate font-medium">{title}</h1>
-          {status && <p className="shrink-0 text-sm text-muted">{status}</p>}
-          {/* The icons are taller than the text: the negative margin keeps the row's height. */}
-          {pageActions && <div className="-my-3 ml-auto flex shrink-0 items-center gap-1">{pageActions}</div>}
-        </div>
-        {tabs ? (
-          <TabPanel id={id} value={tabs.value}>
-            {children}
-          </TabPanel>
-        ) : (
-          children
-        )}
-        <EditorFooter />
-      </main>
+      {/* A row, so the column keeps its margins (editor.css .editor-column) and is as high as the rest of the window. */}
+      <div className="flex flex-1">
+        <main
+          className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 ${width}`}
+        >
+          {/* At expanded and wider: the way here, the title and the status, under the bar. */}
+          <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">
+            {crumbs.length > 0 && (
+              <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-muted">
+                {crumbs.map((c) => (
+                  <span key={c.href} className="flex items-center gap-2">
+                    <a href={c.href} onClick={leave()} className="max-w-48 truncate hover:text-accent hover:underline">
+                      {c.label}
+                    </a>
+                    <CaretRight size={14} className="shrink-0" />
+                  </span>
+                ))}
+              </nav>
+            )}
+            <h1 className="truncate font-medium">{title}</h1>
+            {status && <p className="shrink-0 text-sm text-muted">{status}</p>}
+            {/* The icons are taller than the text: the negative margin keeps the row's height. */}
+            {pageActions && <div className="-my-3 ml-auto flex shrink-0 items-center gap-1">{pageActions}</div>}
+          </div>
+          {/* The content flows as blocks; the footer goes to the bottom of a short screen. */}
+          <div className="min-w-0">
+            {tabs ? (
+              <TabPanel id={id} value={tabs.value}>
+                {children}
+              </TabPanel>
+            ) : (
+              children
+            )}
+          </div>
+          <EditorFooter />
+        </main>
+      </div>
     </div>
   );
 }

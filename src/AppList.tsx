@@ -3,7 +3,8 @@
 // that it has a newer version, with search (by name, who made it and what it does), the order (A–Å, Å–A, kept in this
 // browser) and headings by the first letter, as the lists under "Indhold" have. "Indstillinger" › "Appstore"
 // (#settings/appstore): all apps, those in the app store (store.ts) and the site's own, installed or not, with search (by name, what they
-// do, who made them and the words they are found by), the same order and a funnel by category. An app's page
+// do, who made them and the words they are found by), the same order and a funnel by category (only apps: the themes are in "Theme store", ThemeStoreScreen.tsx; the search row and the
+// store notices both screens share are StoreSearchRow.tsx, StoreStatus.tsx and storeSort.tsx). An app's page
 // (#apps/<app>) is the same for every app and without examples: its name, who made it, whether it is installed, its
 // version (from the store) and what it does, "Installer" (or "Opdater til …"); installed, it has two tabs: "Indstillinger"
 // (#apps/<app>: its settings form, saved with "Gem ændringer" in their file, config.apps.settings, also on the screen
@@ -23,22 +24,9 @@
 // use (one of its blocks on a page, an entry of its kind or in its list) cannot be uninstalled, as a block on a page
 // cannot be turned off; its page says where it is used, so uninstalling never changes the site.
 import { useEffect, useState, type ReactNode } from 'react';
-import { ArrowsDownUp, Gear, Info, PuzzlePiece, Swatches, UserCircle, type Icon } from '@phosphor-icons/react';
+import { Gear, Info, UserCircle, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
-import {
-  Button,
-  InputChip,
-  Choice,
-  EmptyNote,
-  Filters,
-  Group,
-  LeadingIcon,
-  SupportingText,
-  SearchRow,
-  useKept,
-  ListItem,
-  type TabChoice,
-} from './ui';
+import { Button, EmptyNote, Group, LeadingIcon, SupportingText, SearchRow, useKept, ListItem, type TabChoice } from './ui';
 import { pagesWith } from './BlockSettings';
 import { ConflictError, type Change, type RepoFile } from './github';
 import { cookieChanges, inCookieList } from './cookieList';
@@ -49,11 +37,6 @@ import { AnyIcon } from './icon';
 import {
   appCategories,
   appChanges,
-  appliedTo,
-  installedHere,
-  legacyOf,
-  mergeChanges,
-  moveChanges,
   appFolder,
   breaking,
   changedFiles,
@@ -62,24 +45,23 @@ import {
   DEVELOPER_ROUTE,
   newer,
   STORE_ROUTE,
-  STORE_THEMES,
   type AppCategory,
   type AppCookie,
   type ShownApp,
   type StoreAdd,
   type StoreRecord,
 } from './store';
-import { apps, apps as siteApps, siteBlocks } from './registry';
+import { apps, siteBlocks } from './registry';
 import { asWritten, backFrom, collections, companyParts, partScreens } from './site';
 import { byText, slugify, type Part } from './schema';
 import { headed, letterOf } from './Sheet';
 import { config } from '@site/editor';
-import { allThemes, ThemeRow, themeInstalled, useThemeCatalog } from './ThemeStore';
+import { allThemes, ThemeRow, useThemeCatalog } from './ThemeStore';
 import { siteT, siteText, t } from './i18n';
 import { OwnerLicenses, StoreLicenseRows } from './Licenses';
-import { StoreConnectNotice } from './StoreConnectNotice';
-import { StoreConnectedRow } from './StoreConnectedRow';
-import { connection, type StoreConnection } from './storeConnection';
+import { StoreFooter, StoreNotice, StoreRound, useStoreConnected, useStoreKey } from './StoreStatus';
+import { StoreSearchRow, useStateFilter } from './StoreSearchRow';
+import { sortChoice, useSort } from './storeSort';
 import { told } from './notificationData';
 import { kindAndName } from './deploy';
 import AppInfoTab from './AppInfoTab';
@@ -203,39 +185,6 @@ export function kindsOf(app: SiteApp) {
 
 const statusOf = (installed: boolean) => (installed ? t.apps.installed : t.apps.notInstalled);
 
-type Sort = 'az' | 'za';
-const SORTS: Sort[] = ['az', 'za'];
-// The order picked last time, in this browser (the same for the apps and the store).
-const SORT_KEY = 'editor-sort-apps';
-
-/** The order of a list of apps, A–Å or Å–A, kept in this browser. */
-function useSort(): [Sort, (next: Sort) => void] {
-  const [sort, setSort] = useState<Sort>(() => {
-    try {
-      const saved = localStorage.getItem(SORT_KEY);
-      if (SORTS.some((s) => s === saved)) return saved as Sort;
-    } catch {}
-    return 'az';
-  });
-  function pickSort(next: Sort) {
-    setSort(next);
-    try {
-      localStorage.setItem(SORT_KEY, next);
-    } catch {}
-  }
-  return [sort, pickSort];
-}
-
-const sortChoice = (sort: Sort, pickSort: (next: Sort) => void) => (
-  <Choice
-    title={t.library.sort}
-    icon={ArrowsDownUp}
-    value={sort}
-    options={SORTS.map((value) => ({ value, label: t.library.sorts[value] }))}
-    onChange={pickSort}
-  />
-);
-
 /** The store's catalog (store.ts) for a screen: null while it is read, 'failed' when it could not be; `skip`: not read
  * (the page of one of the site's own apps). */
 function useCatalog(env: Env, skip = false): ShownApp[] | null | 'failed' {
@@ -254,23 +203,6 @@ function useCatalog(env: Env, skip = false): ShownApp[] | null | 'failed' {
   return catalog;
 }
 
-/** Whether the site's Worker has a store key (store.ts storeConnected): null while it is not known; a catalog that could
- * not be read counts as connected (the list says it failed). */
-function useStoreConnected(env: Env): boolean | null {
-  const [connected, setConnected] = useState<boolean | null>(null);
-  useEffect(() => {
-    let on = true;
-    env.store.connected().then(
-      (yes) => on && setConnected(yes),
-      () => on && setConnected(true),
-    );
-    return () => {
-      on = false;
-    };
-  }, []);
-  return connected;
-}
-
 // The apps updated while the editor is open, by their id, to their version: their page and the list say so until the
 // site's build has it (and the editor reloads with it, deploy.ts keepCurrent).
 const updated = new Map<string, string>();
@@ -278,7 +210,7 @@ const versionOf = (app: SiteApp) => updated.get(app.id) ?? app.store?.version ??
 
 /** The newer version of an app from the store, when the store has one. */
 const updateOf = (app: SiteApp, catalog: ShownApp[] | null | 'failed') => {
-  const found = app.store && Array.isArray(catalog) ? catalog.find((a) => a.id === app.id || a.legacy === app.id) : undefined;
+  const found = app.store && Array.isArray(catalog) ? catalog.find((a) => a.id === app.id) : undefined;
   return found && newer(found.version, versionOf(app)) ? found : undefined;
 };
 
@@ -462,33 +394,23 @@ export function DeveloperRow({ name }: { name: string }) {
   );
 }
 
-/** "Appstore" (#settings/appstore, under "Indstillinger"): in a tab of its own each in the top app bar, all apps,
- * those in the app store and the site's own, each with what it does and whether it is installed, and all themes
- * (#settings/appstore/themes, ThemeStore.tsx), those in the store
- * and those installed, each with its version and who made it; each opening its page. With search (by name, what it
- * does, who made it and the words it is found by, in both languages), the order and the filters by category (apps)
- * and by whether it is installed, each picked one as a chip. */
-export function StorePage(props: { env: Env; files: RepoFile[]; tab: 'apps' | 'themes' }) {
-  // Connecting or disconnecting draws the screen again from the start, so the catalogs and the key are asked again.
-  const [round, setRound] = useState(0);
-  return <StoreScreen key={round} {...props} again={() => setRound((r) => r + 1)} />;
+/** "Appstore" (#settings/appstore, under "Indstillinger"): all apps, those in the app store and the site's own, each
+ * with what it does and whether it is installed, opening its page (the themes are in "Theme store", ThemeStore.tsx).
+ * With search (by name, what it does, who made it and the words it is found by, in both languages), the order and the
+ * filters by category and by whether it is installed, each picked one as a chip. */
+export function StorePage({ env, files }: { env: Env; files: RepoFile[] }) {
+  return <StoreRound>{(again) => <StoreScreen env={env} files={files} again={again} />}</StoreRound>;
 }
 
-function StoreScreen({ env, files, tab, again }: { env: Env; files: RepoFile[]; tab: 'apps' | 'themes'; again: () => void }) {
+function StoreScreen({ env, files, again }: { env: Env; files: RepoFile[]; again: () => void }) {
   const installed = installedApps(files);
-  const [key, setKey] = useState<StoreConnection | null>(null);
-  useEffect(() => {
-    connection().then(setKey, () => {});
-  }, []);
+  const key = useStoreKey();
   const catalog = useCatalog(env);
-  const themeCatalog = useThemeCatalog(env);
   const connected = useStoreConnected(env);
   const [query, setQuery] = useKept('store-search', '');
   const [sort, pickSort] = useSort();
   const [category, setCategory] = useKept<AppCategory | ''>('store-category', '');
-  const [state, setState] = useKept<'' | 'installed' | 'notInstalled'>('store-status', '');
-  const apps = tab === 'apps';
-  const read = apps ? catalog : themeCatalog;
+  const stateFilter = useStateFilter('store');
 
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   const order = (a: string, b: string) => (sort === 'za' ? -1 : 1) * byText(a, b);
@@ -496,92 +418,34 @@ function StoreScreen({ env, files, tab, again }: { env: Env; files: RepoFile[]; 
     allApps(catalog)
       .filter((a) => words.every((w) => a.words.includes(w)))
       .filter((a) => !category || a.category === category)
-      .filter((a) => !state || installedHere(a, installed, siteApps) === (state === 'installed'))
+      .filter((a) => !stateFilter.state || installed.includes(a.id) === (stateFilter.state === 'installed'))
       .sort((a, b) => order(a.label, b.label)),
     (a) => letterOf(a.label),
   );
-  const themeGroups = headed(
-    allThemes(themeCatalog)
-      .filter((x) => words.every((w) => x.words.includes(w)))
-      .filter((x) => !state || themeInstalled(x.id) === (state === 'installed'))
-      .sort((a, b) => order(a.name, b.name)),
-    (x) => letterOf(x.name),
-  );
-  const filters = [
-    ...(apps
-      ? [
-          {
-            title: t.apps.categoryFilter,
-            value: category,
-            options: [
-              { value: '', label: t.apps.allCategories },
-              ...appCategories.map((value) => ({ value, label: t.apps.categories[value] })),
-            ],
-            onChange: (v: string) => setCategory(v as AppCategory | ''),
-          },
-        ]
-      : []),
-    {
-      title: t.apps.stateFilter,
-      value: state,
-      options: [
-        { value: '', label: t.apps.allStates },
-        { value: 'installed', label: t.apps.installed },
-        { value: 'notInstalled', label: t.apps.notInstalled },
-      ],
-      onChange: (v: string) => setState(v as typeof state),
-    },
-  ];
-  // Each filter picked, as a chip that removes it.
-  const chips = [
-    apps && category && { key: 'category', label: t.apps.categories[category], clear: () => setCategory('') },
-    state && { key: 'state', label: t.apps[state], clear: () => setState('') },
-  ].filter((c) => !!c);
-  const empty = apps ? !appGroups.length : !themeGroups.length;
+  const categoryGroup = {
+    title: t.apps.categoryFilter,
+    value: category,
+    options: [{ value: '', label: t.apps.allCategories }, ...appCategories.map((value) => ({ value, label: t.apps.categories[value] }))],
+    onChange: (v: string) => setCategory(v as AppCategory | ''),
+  };
+  const categoryChip = category && { key: 'category', label: t.apps.categories[category], clear: () => setCategory('') };
 
   return (
-    <Screen
-      title={t.apps.find}
-      wide
-      back={backFrom('appstore')}
-      tabs={{
-        label: t.apps.find,
-        value: tab,
-        options: [
-          { value: 'apps', label: t.common.parts.apps, icon: PuzzlePiece },
-          { value: 'themes', label: t.common.parts.themes, icon: Swatches },
-        ],
-        onChange: (v) => (location.hash = v === 'apps' ? STORE_ROUTE : STORE_THEMES),
-      }}
-    >
-      <SearchRow
-        value={query}
-        onChange={setQuery}
-        label={apps ? t.apps.searchStore : t.library.searchThemes}
-        sort={sortChoice(sort, pickSort)}
-        filter={<Filters title={t.library.filter} selected={chips.length > 0} groups={filters} />}
-        className="mb-6"
+    <Screen title={t.apps.find} wide back={backFrom('appstore')}>
+      <StoreSearchRow
+        query={query}
+        onQuery={setQuery}
+        label={t.apps.searchStore}
+        sort={sort}
+        pickSort={pickSort}
+        groups={[categoryGroup, stateFilter.group]}
+        chips={[categoryChip, stateFilter.chip]}
       />
-      {chips.length > 0 && (
-        <div className="-mt-2 mb-6 flex flex-wrap gap-2">
-          {chips.map((c) => (
-            <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
-              {c.label}
-            </InputChip>
-          ))}
-        </div>
-      )}
       {/* The site's own are shown also when the store cannot be read. */}
-      {connected === false ? (
-        <StoreConnectNotice mayChange={key?.mayChange ?? false} onConnected={again} />
-      ) : read === null || connected === null ? (
-        <EmptyNote busy>{t.apps.loadingStore}</EmptyNote>
-      ) : read === 'failed' ? (
-        <EmptyNote>{t.apps.storeFailed}</EmptyNote>
-      ) : null}
-      {read === null ? null : empty ? (
+      <StoreNotice connected={connected} read={catalog} mayChange={key?.mayChange ?? false} again={again} />
+      {catalog === null ? null : !appGroups.length ? (
         <p className="mb-8 px-1 text-muted">{t.common.noMatch}</p>
-      ) : apps ? (
+      ) : (
         appGroups.map((g) => (
           <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
             {g.items.map((a) => (
@@ -589,16 +453,8 @@ function StoreScreen({ env, files, tab, again }: { env: Env; files: RepoFile[]; 
             ))}
           </Group>
         ))
-      ) : (
-        themeGroups.map((g) => (
-          <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
-            {g.items.map((x) => (
-              <ThemeRow key={x.id} of={x} />
-            ))}
-          </Group>
-        ))
       )}
-      {key?.connected && key.by === 'button' && key.mayChange && <StoreConnectedRow site={key.site} onDisconnected={again} />}
+      <StoreFooter keyInfo={key} again={again} />
     </Screen>
   );
 }
@@ -697,13 +553,11 @@ function useStoreActions(env: Env, files: RepoFile[]) {
     next: () => Promise<Parameters<typeof appChanges>[2]>,
     // Whether to go on, with the app's files in the site now (an update asks, when some were changed).
     go: (current: RepoFile[]) => Promise<boolean> = async () => true,
-    // The id the app is installed under, when it is a legacy copy that moves to `id` (moveChanges).
-    legacy: string | null = null,
   ): Promise<boolean> {
     setRunning({ id, action, asking: false });
     env.notify({ text: text.busy });
     try {
-      const [current, wanted] = await Promise.all([env.folder(appFolder(legacy ?? id)), next()]);
+      const [current, wanted] = await Promise.all([env.folder(appFolder(id)), next()]);
       if (!(await go(current))) {
         env.notify(null);
         return false;
@@ -711,11 +565,8 @@ function useStoreActions(env: Env, files: RepoFile[]) {
       // `go` cleared the message (and its dialog stopped the button being busy): saving goes on.
       setRunning({ id, action, asking: false });
       env.notify({ text: text.busy });
-      const moved = legacy && wanted ? moveChanges({ id }, legacy, wanted, current, files) : null;
-      // The cookie list as the move leaves it (the legacy id rewritten), then the new release's cookies on it: one set of changes.
-      const cookies = cookieChanges(id, wanted ? cookiesIn(wanted.files) : null, moved ? appliedTo(files, moved) : files);
-      const changes = moved ? mergeChanges(moved, cookies) : [...appChanges(id, current, wanted, installed, file), ...cookies];
-      await saveApp(env, text.commit, text.change, changes, file);
+      const cookies = cookieChanges(id, wanted ? cookiesIn(wanted.files) : null, files);
+      await saveApp(env, text.commit, text.change, [...appChanges(id, current, wanted, installed, file), ...cookies], file);
       env.notify({ text: text.done, kind: text.kind ?? 'saved' });
       return true;
     } catch (e) {
@@ -741,7 +592,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
         },
         async () => ({ files: await env.store.files(app), record: recordOf(app) }),
       ),
-    async update(app: ShownApp, record: StoreRecord, legacy: string | null = null) {
+    async update(app: ShownApp, record: StoreRecord) {
       const done = await change(
         app.id,
         'update',
@@ -761,10 +612,9 @@ function useStoreActions(env: Env, files: RepoFile[]) {
             record.version,
             app.version,
             notesSince(app.releaseNotes, record.version, app.version),
-            changedFiles(app.id, record, current, appFolder(legacy ?? app.id)),
+            changedFiles(app.id, record, current),
           );
         },
-        legacy,
       );
       if (done) updated.set(app.id, app.version);
       return done;
@@ -1058,11 +908,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
       {(!on || (update && app.store)) && (
         <div className="mb-8">
           {on ? (
-            <Button
-              disabled={saving}
-              busy={store.busy(update!.id, 'update')}
-              onClick={() => store.update(update!, app.store!, legacyOf(update!, apps))}
-            >
+            <Button disabled={saving} busy={store.busy(app.id, 'update')} onClick={() => store.update(update!, app.store!)}>
               {t.apps.update(update!.version)}
             </Button>
           ) : (

@@ -8,14 +8,30 @@ export const library = {
   statusSeparator: ' · ',
   /** The start screen's FAB menu (StartFab.tsx), which makes a new page or blog post. */
   createNew: 'Create',
+  /** On the start screen (ContinueCard.tsx): the card with the last three pages and blog posts saved. */
+  continueTitle: 'Continue where you left off',
+  /** In that card before anything is saved. */
+  continueEmpty: 'The pages and posts you edit show up here.',
+  /** Under each of them: its kind ("Page") and when it was saved ("today at 1:42 PM", when.ts). */
+  recentEdit: (kind: string, when: string) => `${kind} · Edited ${when}`,
+  /** At the top of the start screen: what was updated since the last visit in this browser, each a link to what's new. */
+  updatesTitle: 'Updated since your last visit',
+  /** The CMS's name in that notice. */
+  cmsName: 'Morpheme',
+  /** The CMS or an app with its new version. */
+  updatedTo: (name: string, version: string) => `${name} is updated to ${version}`,
   githubAccount: (login: string) => `GitHub account: ${login}`,
   logOut: 'Log out',
-  /** The bell in the top bar and its screen (#notifications, Notifications.tsx): the messages shown at the bottom. */
+  /** The bell in the top bar and its side sheet (Notifications.tsx): the messages shown at the bottom. */
   notifications: 'Notifications',
   /** The bell's name while some are not seen yet. */
   notificationsNew: (count: number) => `Notifications, ${count} new`,
   noNotifications: 'No notifications',
   clearNotifications: 'Clear notifications',
+  /** While some are selected (a long press on one, Notifications.tsx): the button that deletes them, and the one that
+   * unselects them. */
+  deleteSelected: (count: number) => `Delete ${count} selected`,
+  cancelSelection: 'Cancel',
   /** The link in the top bar of the start screen: the site's home page, in a new tab. */
   openWebsite: 'Open website',
   /** On "Konto" › "Notifikationer" (Library.tsx NotificationChoices, notificationData.ts). */
