@@ -2,12 +2,13 @@
 // gives the handlers for the element, or undefined without an action. A touch or a pen held still (no more than MOVE
 // pixels) for HOLD milliseconds runs `action`, with a short vibration where the phone has one; the click that follows
 // the press does nothing, and the browser's own menu for a long press (a link's) is not shown, nor is the item dragged
-// (ui.css .list-item-selectable keeps its text from being selected and iOS's menu away). A mouse is never a long
+// (ui.css .list-item-selectable keeps its text from being selected and iOS's menu away). The decisions are in
+// longPressRules.mjs (tested). A mouse is never a long
 // press. With `tapToo` (the list is selecting) a tap runs `action` too, instead of following the link or pressing the button.
 import { useEffect, useRef, type MouseEvent, type PointerEvent } from 'react';
+import { canPress, clickAfter, movedAway } from './longPressRules.mjs';
 
 const HOLD = 500;
-const MOVE = 10;
 
 export function useLongPress(action: (() => void) | undefined, tapToo = false) {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -29,7 +30,7 @@ export function useLongPress(action: (() => void) | undefined, tapToo = false) {
     draggable: false,
     onPointerDown: (e: PointerEvent) => {
       fired.current = false;
-      if (e.pointerType === 'mouse' || !e.isPrimary) return;
+      if (!canPress(e.pointerType, e.isPrimary)) return;
       start.current = { x: e.clientX, y: e.clientY };
       clearTimeout(timer.current);
       timer.current = setTimeout(() => {
@@ -40,7 +41,7 @@ export function useLongPress(action: (() => void) | undefined, tapToo = false) {
       }, HOLD);
     },
     onPointerMove: (e: PointerEvent) => {
-      if (start.current && Math.hypot(e.clientX - start.current.x, e.clientY - start.current.y) > MOVE) stop();
+      if (movedAway(start.current, e.clientX, e.clientY)) stop();
     },
     onPointerUp: stop,
     onPointerCancel: stop,
@@ -51,10 +52,11 @@ export function useLongPress(action: (() => void) | undefined, tapToo = false) {
     },
     // Before the item's own click: the click after a long press, and a tap while selecting, are the selection's.
     onClickCapture: (e: MouseEvent) => {
-      if (!fired.current && !tapToo) return;
+      const what = clickAfter(fired.current, tapToo);
+      if (what === 'pass') return;
       e.preventDefault();
       e.stopPropagation();
-      if (!fired.current) latest.current?.();
+      if (what === 'select') latest.current?.();
       fired.current = false;
     },
   };

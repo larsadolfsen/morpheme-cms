@@ -13,10 +13,11 @@
 // after a save the Worker tells it when the site has been built with it (waitOnServer); an app's part of the Worker
 // tells it the app's notifications. The bell in the top bar (Screen.tsx NotificationsButton) has a dot while some are not
 // seen; opening the notifications marks them seen. Kept in this browser: the last 50, the choices and the ids of the
-// apps' notifications already told.
+// apps' notifications already told. The key of a notification and the deletion by keys are in notificationKeys.mjs (tested).
 import { useSyncExternalStore } from 'react';
 import { siteName } from '@site/editor';
 import { locale } from './i18n';
+import { notificationKey, withoutKeys } from './notificationKeys.mjs';
 
 export const EDITOR_TYPES = ['site', 'saved', 'failed', 'updates'] as const;
 export type EditorType = (typeof EDITOR_TYPES)[number];
@@ -93,12 +94,11 @@ export function clearNotifications() {
   set({ ...kept, items: [], seen: Date.now() });
 }
 
-/** A notification's key: when it came and its text. */
-export const notificationKey = (n: Notification) => `${n.at}-${n.text}`;
+export { notificationKey };
 
 /** Deletes those with these keys (the ones selected in Notifications.tsx). */
 export function removeNotifications(keys: string[]) {
-  set({ ...kept, items: kept.items.filter((n) => !keys.includes(notificationKey(n))) });
+  set({ ...kept, items: withoutKeys(kept.items, keys) });
 }
 
 /** Turns a type on or off. */

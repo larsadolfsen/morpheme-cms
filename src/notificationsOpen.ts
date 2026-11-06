@@ -1,25 +1,12 @@
 // Whether the notifications' side sheet (Notifications.tsx) is open, for the sheet and the bell in the top bar that opens
 // it (Screen.tsx NotificationsButton). Not remembered. Exposes openNotifications, closeNotifications, useNotificationsOpen.
+// The value is an openFlag.mjs flag.
 import { useSyncExternalStore } from 'react';
+import { createFlag } from './openFlag.mjs';
 
-let open = false;
-const listeners = new Set<() => void>();
+const flag = createFlag();
 
-function set(next: boolean) {
-  if (open === next) return;
-  open = next;
-  listeners.forEach((l) => l());
-}
+export const openNotifications = () => flag.set(true);
+export const closeNotifications = () => flag.set(false);
 
-export const openNotifications = () => set(true);
-export const closeNotifications = () => set(false);
-
-export const useNotificationsOpen = () =>
-  useSyncExternalStore(
-    (changed) => {
-      listeners.add(changed);
-      return () => listeners.delete(changed);
-    },
-    () => open,
-    () => false,
-  );
+export const useNotificationsOpen = () => useSyncExternalStore(flag.subscribe, flag.get, () => false);
