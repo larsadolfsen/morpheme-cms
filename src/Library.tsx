@@ -1,4 +1,5 @@
-// The account screen (who is signed in, AccountRow) and the start screen of the editor (empty but for its title, status and FAB) and the
+// The account screen (who is signed in, AccountRow) and the start screen of the editor (its title, status and FAB, what was
+// updated since the last visit and the pages and posts edited last: StartScreen.tsx) and the
 // list of each part: blog posts newest first, the rest by name, prices and testimonials in their order
 // on the site (with arrows to move them), and a search. Lists that are not in an order of their own can
 // be sorted another way (a list of kinds, by its kinds too); the choice is kept in this browser. Pages
@@ -34,6 +35,7 @@ import { theme, themes, type ThemeInfo } from './themes';
 import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
 import { StartStatus } from './StartStatus';
+import { RecentEdits, UpdatesNotice } from './StartScreen';
 import {
   appearance,
   backFrom,
@@ -177,7 +179,7 @@ function PartRow({ id, label, href, count }: { id: string } & ReturnType<typeof 
 
 // The start screen: the site's name, the CMS version and when the site was last updated (built on Cloudflare, App.tsx), as StartStatus.tsx shows them, under it, and the FAB
 // menu for a new page or post (StartFab.tsx); each list has its own FAB for a new entry (ListFab.tsx). The parts of the site are in the main drawer (MainMenu.tsx); the rest is left empty for now.
-export function Start({ builtAt }: { builtAt: Date | null }) {
+export function Start({ builtAt, files }: { builtAt: Date | null; files: RepoFile[] }) {
   return (
     <Screen
       title={siteName}
@@ -186,6 +188,8 @@ export function Start({ builtAt }: { builtAt: Date | null }) {
       // The link to the website in the top bar (Screen.tsx).
       home
     >
+      <UpdatesNotice files={files} />
+      <RecentEdits files={files} />
       <StartFab />
     </Screen>
   );

@@ -11,7 +11,8 @@
 // before (nav.ts up). The content is as wide as a form reads well, or wider for lists and the grid of files (`wide`) and for
 // a form with its fields beside the text (`panel`). The column (editor.css .editor-column) stands centred on the window,
 // off-centre only as far as the panels beside it require.
-// Under the content of every screen is the editor's footer (EditorFooter.tsx).
+// Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
+// is short (the screen fills the column under the bar, TopBarLayout).
 import { useId, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
@@ -158,37 +159,45 @@ export default function Screen<T extends string>({
     </TopAppBar>
   );
   return (
-    <div className="min-h-dvh">
+    <div className={`flex flex-col ${slot ? 'flex-1' : 'min-h-dvh'}`}>
       {slot ? createPortal(bar, slot) : bar}
-      <main className={`editor-screen px-4 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 ${width}`}>
-        {/* At expanded and wider: the way here, the title and the status, under the bar. */}
-        <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">
-          {crumbs.length > 0 && (
-            <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-muted">
-              {crumbs.map((c) => (
-                <span key={c.href} className="flex items-center gap-2">
-                  <a href={c.href} onClick={leave()} className="max-w-48 truncate hover:text-accent hover:underline">
-                    {c.label}
-                  </a>
-                  <CaretRight size={14} className="shrink-0" />
-                </span>
-              ))}
-            </nav>
-          )}
-          <h1 className="truncate font-medium">{title}</h1>
-          {status && <p className="shrink-0 text-sm text-muted">{status}</p>}
-          {/* The icons are taller than the text: the negative margin keeps the row's height. */}
-          {pageActions && <div className="-my-3 ml-auto flex shrink-0 items-center gap-1">{pageActions}</div>}
-        </div>
-        {tabs ? (
-          <TabPanel id={id} value={tabs.value}>
-            {children}
-          </TabPanel>
-        ) : (
-          children
-        )}
-        <EditorFooter />
-      </main>
+      {/* A row, so the column keeps its margins (editor.css .editor-column) and is as high as the rest of the window. */}
+      <div className="flex flex-1">
+        <main
+          className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 ${width}`}
+        >
+          {/* At expanded and wider: the way here, the title and the status, under the bar. */}
+          <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">
+            {crumbs.length > 0 && (
+              <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-muted">
+                {crumbs.map((c) => (
+                  <span key={c.href} className="flex items-center gap-2">
+                    <a href={c.href} onClick={leave()} className="max-w-48 truncate hover:text-accent hover:underline">
+                      {c.label}
+                    </a>
+                    <CaretRight size={14} className="shrink-0" />
+                  </span>
+                ))}
+              </nav>
+            )}
+            <h1 className="truncate font-medium">{title}</h1>
+            {status && <p className="shrink-0 text-sm text-muted">{status}</p>}
+            {/* The icons are taller than the text: the negative margin keeps the row's height. */}
+            {pageActions && <div className="-my-3 ml-auto flex shrink-0 items-center gap-1">{pageActions}</div>}
+          </div>
+          {/* The content flows as blocks; the footer goes to the bottom of a short screen. */}
+          <div className="min-w-0">
+            {tabs ? (
+              <TabPanel id={id} value={tabs.value}>
+                {children}
+              </TabPanel>
+            ) : (
+              children
+            )}
+          </div>
+          <EditorFooter />
+        </main>
+      </div>
     </div>
   );
 }

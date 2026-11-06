@@ -8,6 +8,16 @@ export const library = {
   statusSeparator: ' · ',
   /** The start screen's FAB menu (StartFab.tsx), which makes a new page or blog post. */
   createNew: 'Create',
+  /** On the start screen (StartScreen.tsx): over the last three pages and blog posts edited in this browser. */
+  recentEdits: 'Recently edited',
+  /** Under each of them: its kind ("Page") and when it was saved ("today at 1:42 PM", when.ts). */
+  recentEdit: (kind: string, when: string) => `${kind} · Edited ${when}`,
+  /** At the top of the start screen: what was updated since the last visit in this browser, each a link to what's new. */
+  updatesTitle: 'Updated since your last visit',
+  /** The CMS's name in that notice. */
+  cmsName: 'Morpheme',
+  /** The CMS or an app with its new version. */
+  updatedTo: (name: string, version: string) => `${name} is updated to ${version}`,
   githubAccount: (login: string) => `GitHub account: ${login}`,
   logOut: 'Log out',
   /** The bell in the top bar and its screen (#notifications, Notifications.tsx): the messages shown at the bottom. */
