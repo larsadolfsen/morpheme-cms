@@ -38,6 +38,11 @@ test('a line between groups at a line start or end is marked', () => {
   assert.equal(result.marks[1].lineStart, false);
 });
 
+test('a wrapped item makes overflows true even when the widths fit the room', () => {
+  const result = toolbarLines([button(20), button(64)], 2, 500);
+  assert.equal(result.overflows, true);
+});
+
 test('an empty list has no marks and does not overflow', () => {
   assert.deepEqual(toolbarLines([], 2, 100), { overflows: false, marks: [] });
 });

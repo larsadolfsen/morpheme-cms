@@ -5,7 +5,7 @@
  * vertical middle of its box); `gap` is the space between them and `room` the width of the bar inside its padding.
  * Returns { overflows, marks }: marks has for each item { wrapped, lineStart, lineEnd }. A line between groups is
  * shorter than a button, so the lines are told apart by the middles. overflows is true when the items are wider
- * than the room. */
+ * than the room, or when any item is wrapped (the width of the bar can be a fraction that `room` does not have). */
 export function toolbarLines(items, gap, room) {
   const need = items.reduce((sum, item) => sum + item.width + item.margins, gap * Math.max(0, items.length - 1));
   const marks = items.map((item, i) => ({
@@ -13,5 +13,5 @@ export function toolbarLines(items, gap, room) {
     lineStart: i > 0 && item.middle > items[i - 1].middle + 10,
     lineEnd: i < items.length - 1 && items[i + 1].middle > item.middle + 10,
   }));
-  return { overflows: need > room + 0.5, marks };
+  return { overflows: need > room + 0.5 || marks.some((mark) => mark.wrapped), marks };
 }
