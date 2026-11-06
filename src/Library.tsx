@@ -8,6 +8,7 @@
 // what was deleted (Deleted.tsx), as in "Filer". The tabs the apps installed add to a list (AppDefinition.tabs, Cookiescanner's
 // "Problemer" on "Cookies") are in its top app bar after the list's own, each at #list/<list>/<app>. "Use theme" and the move arrows show the
 // loading indicator while they run (only the pressed one).
+// When each page was last saved is kept in savedTimes.ts, shared with the start screen.
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   ArrowDown,
@@ -36,6 +37,7 @@ import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
 import { StartStatus } from './StartStatus';
 import { ContinueCard, UpdatesNotice } from './StartScreen';
+import { loadSavedTimes, saved } from './savedTimes';
 import {
   appearance,
   backFrom,
@@ -1002,10 +1004,6 @@ function savedOpen(c: Collection): Set<string> {
   }
 }
 
-// When each page was last saved, kept while the editor is open. Asked again for a page whose file has
-// changed since (another blob id), so a page just saved shows its new time.
-const saved = new Map<string, { oid: string; date: Date }>();
-
 // The ways a list can be sorted; by time only where the entries have one: blog posts by their date,
 // pages by when they were last saved; by their kind where they have kinds (Promovering).
 type Sort = 'newest' | 'oldest' | 'az' | 'za' | 'type';
@@ -1090,13 +1088,11 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   const [, setSavedLoaded] = useState(0);
   useEffect(() => {
     if (!pages) return;
-    const missing = items.flatMap((i) => (i.file && saved.get(i.file.path)?.oid !== i.file.oid ? [i.file] : []));
-    if (!missing.length) return;
-    env.savedAt(missing.map((f) => f.path)).then(
-      (times) => {
-        for (const f of missing) if (times[f.path]) saved.set(f.path, { oid: f.oid, date: times[f.path] });
-        setSavedLoaded((n) => n + 1);
-      },
+    loadSavedTimes(
+      env.savedAt,
+      items.flatMap((i) => (i.file ? [i.file] : [])),
+    ).then(
+      (asked) => asked && setSavedLoaded((n) => n + 1),
       () => {},
     );
   }, [items]);

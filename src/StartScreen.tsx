@@ -14,16 +14,8 @@ import { installedApps } from './apps';
 import { collectionOf } from './schema';
 import { apps, collections, icons } from './site';
 import { when } from './when';
-import {
-  changesSince,
-  continueShown,
-  latestEdits,
-  nextRecent,
-  unversioned,
-  validEdits,
-  versioned,
-  type Versions,
-} from './startView.mjs';
+import { loadSavedTimes, saved } from './savedTimes';
+import { changesSince, continueShown, latestEdits, nextRecent, unversioned, validEdits, versioned, type Versions } from './startView.mjs';
 import type { RepoFile } from './github';
 import type { Env } from './App';
 import { X } from '@phosphor-icons/react';
@@ -76,13 +68,16 @@ export function ContinueCard({ files, savedAt }: { files: RepoFile[]; savedAt: E
   const [edits] = useState(storedEdits);
   const [closedAt, setClosedAt] = useState(() => read<number>(CLOSED));
   const startFiles = files.filter((f) => startListOf(f.path));
-  // When each page and post was last saved on the site; null until GitHub has answered (or could not).
+  // When each page and post was last saved on the site, from the cache the lists use (savedTimes.ts); null until GitHub
+  // has answered (or could not).
   const [history, setHistory] = useState<Record<string, number> | null>(null);
   useEffect(() => {
     let live = true;
-    savedAt(startFiles.map((f) => f.path)).then(
-      (times) => live && setHistory(Object.fromEntries(Object.entries(times).map(([path, date]) => [path, date.getTime()]))),
-      () => live && setHistory({}),
+    const fromCache = () =>
+      Object.fromEntries(startFiles.flatMap((f) => (saved.has(f.path) ? [[f.path, saved.get(f.path)!.date.getTime()]] : [])));
+    loadSavedTimes(savedAt, startFiles).then(
+      () => live && setHistory(fromCache()),
+      () => live && setHistory(fromCache()),
     );
     return () => {
       live = false;
