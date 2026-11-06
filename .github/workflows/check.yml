@@ -5,7 +5,7 @@ name: Check
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, release/0.12]
 
 permissions:
   contents: read
@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # changeset status compares with origin/main.
+          # changeset status compares with the pull request's base branch.
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -27,8 +27,8 @@ jobs:
       # The language check's and the text lookup's own tests.
       - run: node --test lib/danish.test.mjs lib/translate.test.mjs
       - name: The pull request has a changeset
-        if: github.head_ref != 'changeset-release/main' # The Release PR turns the changesets into CHANGELOG.md.
-        run: npx changeset status --since=origin/main
+        if: ${{ !startsWith(github.head_ref, 'changeset-release/') }} # The Release PR turns the changesets into CHANGELOG.md.
+        run: npx changeset status --since=origin/${{ github.base_ref }}
       # Prettier, the unit tests, the package's types, the demo built (its content checked by the editor's rules) and
       # each of its pages the same after a save in the editor.
       - run: npm run check
