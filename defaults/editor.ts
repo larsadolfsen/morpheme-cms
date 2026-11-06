@@ -3,7 +3,7 @@
 // standard parts: a site has them unless its src/site/ has a file of the same name (siteFile in site/theme.mjs), which
 // may take the standard one from @morphemecms/cms/defaults/<file> and add its own.
 //   collections   the parts of the site and their fields (collections.ts)
-//   groups, settings, lists, header, icons   the menu and the start screen
+//   groups, settings, lists, header, icons   the menu and the start screen ("Appearance" starts with "Theme store", the store's themes)
 //   appearance    the site's own parts under "Appearance", after the logo and icon ("Default pages")
 //   companyParts, blockParts   the screens under "Business" and "Blocks" (company.ts, blockTexts.ts)
 //   partScreens   parts of the start screen that are screens with parts of their own (privacy.ts)
@@ -127,10 +127,11 @@ export const icons: Record<string, Icon> = {
   'block-settings': ToggleRight,
   apps: PuzzlePiece,
   appstore: Storefront,
+  'theme-store': Storefront,
   morpheme: Sparkle,
   advanced: Wrench,
   licenses: Certificate,
-  // The screens under "Appearance" (Library.tsx Theme).
+  // The screens under "Appearance" (Library.tsx Theme), the first the store's themes.
   themes: Swatches,
   colors: Palette,
   logo: Sticker,
@@ -180,7 +181,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
   {
     id: 'appearance',
     title: 'Appearance',
-    ids: ['themes', 'icon-packs', 'motion', 'side-column', 'colors', 'logo', ...appearance.map((p) => p.id), 'parts'],
+    ids: ['theme-store', 'themes', 'icon-packs', 'motion', 'side-column', 'colors', 'logo', ...appearance.map((p) => p.id), 'parts'],
   },
   { id: 'privacy', title: 'Privacy', ids: privacy.parts.map((p) => p.id) },
   { id: 'settings', title: 'Settings', ids: settingsIds },

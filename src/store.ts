@@ -187,11 +187,11 @@ export type ShownApp = StoreApp & { written: string; words: string };
  * the store's commit there) and its files (store.json). */
 export type StoreRecord = { version: string; ref: string; files: StoreFile[] };
 
-/** The store's address in the editor, under "Indstillinger" (its apps; its themes at STORE_THEMES), its address
- * before (STORE_BEFORE, which opens it, App.tsx MOVED), and that of a developer's page (DEVELOPER_ROUTE/<slug>); no
- * app can have the ids of the last two. */
+/** The store's address in the editor, under "Indstillinger" (its apps), the address of its themes under "Udseende"
+ * (STORE_THEMES, "Theme store"), the apps' address before (STORE_BEFORE, which opens it, App.tsx STORE_MOVED), and that
+ * of a developer's page (DEVELOPER_ROUTE/<slug>); no app can have the ids of the last two. */
 export const STORE_ROUTE = 'settings/appstore';
-export const STORE_THEMES = 'settings/appstore/themes';
+export const STORE_THEMES = 'appearance/theme-store';
 export const STORE_BEFORE = 'apps/butik';
 export const DEVELOPER_ROUTE = 'apps/developer';
 
