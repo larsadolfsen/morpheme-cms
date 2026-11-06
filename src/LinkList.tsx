@@ -5,12 +5,14 @@
 // let in. What is changed here is saved with the form (CompanyForm.tsx). Exposes LinkList and networkIcons. Uses the
 // rows, the sheet and the FAB of ui.tsx and CreateFab.tsx.
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { ArrowDown, ArrowUp, FacebookLogo, Globe, LinkedinLogo, PinterestLogo, Trash, XLogo, type Icon } from '@phosphor-icons/react';
+import { FacebookLogo, Globe, LinkedinLogo, PinterestLogo, Trash, XLogo, type Icon } from '@phosphor-icons/react';
 import { networkOf, type NetworkId } from '../site/social.mjs';
 import { nameOf, problemOf, shownAddress, typedLink } from './linkAddress.mjs';
 import { CreateFab } from './CreateFab';
+import { MoveButtons } from './MoveButtons';
+import { movedList } from './moveItem.mjs';
 import type { Field } from './schema';
-import { BottomSheet, Button, EmptyNote, IconButton, Label, ListItem, listClass, SheetBody, SheetTitle, TextField } from './ui';
+import { BottomSheet, Button, EmptyNote, Label, ListItem, listClass, SheetBody, SheetTitle, TextField } from './ui';
 import { t } from './i18n';
 
 /** The icon of each network known (NETWORKS in site/social.mjs), as the share buttons have them; any other link has the
@@ -84,11 +86,7 @@ export function LinkList({
     onChange(value.filter((_, i) => i !== index));
     close();
   };
-  const move = (i: number, to: number) => {
-    const next = [...value];
-    [next[i], next[to]] = [next[to], next[i]];
-    onChange(next);
-  };
+  const move = (i: number, to: number) => onChange(movedList(value, i, to));
 
   const typed = editing ? typedLink(editing.typed) : '';
   const network = typed ? networkOf(typed) : null;
@@ -109,14 +107,8 @@ export function LinkList({
                 onClick={() => open(i)}
                 actions={
                   value.length > 1 && (
-                    <span className="flex shrink-0 pr-2">
-                      <IconButton icon={ArrowUp} label={t.common.moveUp} disabled={i === 0} onClick={() => move(i, i - 1)} />
-                      <IconButton
-                        icon={ArrowDown}
-                        label={t.common.moveDown}
-                        disabled={i === value.length - 1}
-                        onClick={() => move(i, i + 1)}
-                      />
+                    <span className="flex shrink-0 pr-1.5">
+                      <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} />
                     </span>
                   )
                 }

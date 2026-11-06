@@ -3,7 +3,7 @@
 // (a fixed page's sections) is a list whose items each have a `type` that gives their fields; it is
 // edited as a text with the sections as cards in it (SectionsField.tsx).
 import { createContext, Fragment, useContext, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
-import { ArrowDown, ArrowUp, CaretDown, PencilSimple, Plus, Trash } from '@phosphor-icons/react';
+import { CaretDown, PencilSimple, Plus, Trash } from '@phosphor-icons/react';
 import {
   ArrowLink,
   Button,
@@ -52,6 +52,8 @@ import { leaveTo } from './FormFrame';
 import { shownAt } from './images';
 import { addressOf } from './addresses';
 import { LinkList } from './LinkList';
+import { MoveButtons } from './MoveButtons';
+import { movedList } from './moveItem.mjs';
 import { clean, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, problemOf, type Around, type Problem } from './check';
 import { Icon } from './icon';
 import { t } from './i18n';
@@ -735,9 +737,7 @@ export function ListInput({
     length.current = value.length;
   }, [value.length]);
   const move = (i: number, to: number) => {
-    const next = [...value];
-    [next[i], next[to]] = [next[to], next[i]];
-    onChange(next);
+    onChange(movedList(value, i, to));
     if (open === i) setOpen(to);
   };
   const remove = async (i: number) => {
@@ -765,8 +765,7 @@ export function ListInput({
             onToggle={() => setOpen(open === i ? null : i)}
             tools={
               <>
-                <IconButton icon={ArrowUp} label={t.common.moveUp} disabled={i === 0} onClick={() => move(i, i - 1)} />
-                <IconButton icon={ArrowDown} label={t.common.moveDown} disabled={i === value.length - 1} onClick={() => move(i, i + 1)} />
+                <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} />
                 <IconButton icon={Trash} label={t.common.remove} onClick={() => remove(i)} />
               </>
             }
@@ -874,9 +873,7 @@ export function MenuList({
     close();
   };
   const move = (i: number, to: number) => {
-    const next = [...value];
-    [next[i], next[to]] = [next[to], next[i]];
-    onChange(next);
+    onChange(movedList(value, i, to));
     if (open === i) setOpen(to);
     else if (open === to) setOpen(i);
   };
@@ -904,8 +901,7 @@ export function MenuList({
               actions={
                 <span className="flex shrink-0 pr-1.5">
                   <IconButton icon={PencilSimple} label={t.forms.editOne(nameOf(item))} onClick={() => edit(i)} />
-                  <IconButton icon={ArrowUp} label={t.common.moveUp} disabled={i === 0} onClick={() => move(i, i - 1)} />
-                  <IconButton icon={ArrowDown} label={t.common.moveDown} disabled={i === value.length - 1} onClick={() => move(i, i + 1)} />
+                  <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} />
                   {sub && (
                     <IconButton
                       icon={CaretDown}
