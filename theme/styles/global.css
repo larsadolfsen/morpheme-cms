@@ -216,8 +216,8 @@
   --list-item-gap: 0.75rem;
   --list-item-radius: var(--md-shape-extra-small);
   --list-item-hover-radius: var(--md-shape-medium);
-  --list-item-pressed-radius: var(--md-shape-large);
-  --list-item-selected-radius: var(--md-shape-large-increased);
+  --list-item-pressed-radius: var(--md-shape-medium);
+  --list-item-selected-radius: var(--md-shape-medium);
   --list-item-icon-size: 1.25rem;
   --list-item-hover-surface: var(--md-hover);
   --list-item-pressed-surface: var(--md-pressed);
@@ -229,11 +229,11 @@
   --list-item-leading-icon-selected-color: var(--accent);
   --list-item-disabled-opacity: 0.38;
   --list-segmented-gap: 0.125rem;
-  --list-segmented-radius: var(--md-shape-large);
+  --list-segmented-radius: var(--md-shape-medium);
   --list-segmented-inner-radius: var(--md-shape-extra-small);
   --list-segmented-hover-radius: var(--md-shape-medium);
-  --list-segmented-pressed-radius: var(--md-shape-large);
-  --list-segmented-selected-radius: var(--md-shape-large-increased);
+  --list-segmented-pressed-radius: var(--md-shape-medium);
+  --list-segmented-selected-radius: var(--md-shape-medium);
   --list-segmented-padding-inline: 1rem;
   --list-segmented-surface: var(--md-surface-container);
   --list-segmented-hover-surface: var(--md-hover);
