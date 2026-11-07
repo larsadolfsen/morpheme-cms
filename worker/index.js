@@ -163,7 +163,7 @@ export default {
     if (url.pathname === '/api/store/connection') return handleConnection(request, env, ctx);
     if (url.pathname.startsWith('/api/store/')) return handleStore(request, env, ctx);
     if (/^\/api\/push(\/wait)?\/?$/.test(url.pathname)) return handlePush(request, env);
-    if (/^\/api\/cms(\/update)?\/?$/.test(url.pathname)) return handleCms(request, env, ctx);
+    if (/^\/api\/cms(\/update|\/note-image\/.*)?\/?$/.test(url.pathname)) return handleCms(request, env, ctx);
     const answer = appAnswer(request, url, env, ctx);
     if (answer) return answer;
     // The build's lists (what is Planlagt) and the apps' files (what the cookie scan visits) are the Worker's own.

@@ -150,3 +150,9 @@ test('pre-release running', () => {
   const view = cmsView(status, now);
   assert.equal(view.latest, null);
 });
+
+test('passes the installed notes on, or an empty list', () => {
+  const installed = [{ version: '0.1.1', text: 'Fixes', notes: { 'en-US': [] } }];
+  assert.deepEqual(cmsView(makeStatus({ installed }), now).installed, installed);
+  assert.deepEqual(cmsView(makeStatus({}), now).installed, []);
+});
