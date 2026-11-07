@@ -10,6 +10,13 @@ export const cms = {
   available: (v: string) => `Version ${v} is available`,
   whatsNew: 'What’s new',
   newInYourVersion: 'New in your version',
+  /** Over a version's notes on that page: "New in Morpheme Braies 0.14.3" (library.cmsEdition, else cmsVersion). */
+  newIn: (name: string) => `New in ${name}`,
+  /** The older minor lines under the running one's notes, each a row to its page (VersionLinePage.tsx). */
+  earlierVersions: 'Earlier versions',
+  versionCount: (count: number) => (count === 1 ? '1 version' : `${count} versions`),
+  /** A minor line's page (#morpheme/<line>) for a line the package has no notes for. */
+  lineNotFound: 'This version doesn’t exist',
   alsoInThisVersion: 'Also in this version',
   storeConnection: 'Store connection',
   major: 'A new major version isn’t installed by itself.',

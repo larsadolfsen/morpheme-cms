@@ -33,7 +33,8 @@
 //                    ("Promovering"), its own and the apps' (BlockParts.tsx), and developer/parts/values the
 //                    theme's design tokens, "Værdier" (Tokens.tsx)
 //   block-settings         the blocks that can be put in, "Blokindstillinger" (BlockSettings.tsx)
-//   morpheme         "Morpheme", under "Indstillinger": the CMS's version, a newer one and its notes, an update's progress (CmsPage.tsx)
+//   morpheme         "Morpheme", under "Indstillinger": the CMS's version, a newer one and its notes, an update's progress (CmsPage.tsx),
+//                    and morpheme/<line> an older minor line's notes, e.g. morpheme/0.13 (VersionLinePage.tsx)
 //   licenses         "Licenser", under "Indstillinger": the licences of what the site and the editor are made with, and
 //                    licenses/<id> one with its text (Licenses.tsx)
 //   status           "System status", from the footer: GitHub's and Cloudflare's status (ServiceStatus.tsx)
@@ -100,6 +101,7 @@ import BrandForm from './BrandForm';
 import BlockSettings from './BlockSettings';
 import Advanced, { CACHING_ROUTE } from './Advanced';
 import CmsPage, { CMS_ROUTE } from './CmsPage';
+import { VersionLinePage } from './VersionLinePage';
 import Licenses, { LICENSES_ROUTE, LicensePage } from './Licenses';
 import ServiceStatus, { STATUS_ROUTE } from './ServiceStatus';
 import { StoreThemePage } from './ThemeStore';
@@ -791,6 +793,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === DEV_MENU_ROUTE) return <Developer />;
   if (route === CACHING_ROUTE) return <Advanced env={env} />;
   if (route === CMS_ROUTE) return <CmsPage />;
+  if (route.startsWith(`${CMS_ROUTE}/`)) return <VersionLinePage key={route} line={route.slice(CMS_ROUTE.length + 1)} />;
   if (route === LICENSES_ROUTE) return <Licenses />;
   if (route === STATUS_ROUTE) return <ServiceStatus />;
   if (route.startsWith(`${LICENSES_ROUTE}/`)) return <LicensePage key={route} id={route.slice(LICENSES_ROUTE.length + 1)} />;

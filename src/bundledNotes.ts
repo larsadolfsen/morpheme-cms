@@ -1,16 +1,19 @@
-// The release notes of the minor line this package is in (x.y.0 up to its version): read at build time from the package's own release-notes/ files.
-// Exposes runningNotes (the entries the Morpheme page shows, newest first; empty when the line has none) and runningEdition
+// The release notes of every version up to this package's: read at build time from its own release-notes/ files and CHANGELOG.md.
+// Exposes runningNotes (the entries the Morpheme page shows, newest first, each with its date and its edition: every
+// version with notes, then the older ones from CHANGELOG.md; on a test version first the notes merged since the last
+// release) and runningEdition
 // (the edition this version belongs to: the place its photo is from, short and in full, and the photo; undefined when there is none)
-// and editionPhotos (each edition's photo by its version).
+// and editionPhotos (each edition's photo by its minor line).
 // Depends on lib/releaseNotes.mjs (bundledNotes) and package.json's version. The globs are relative, so they work here and in a site's node_modules.
-import { bundledNotes, editionOf } from '../lib/releaseNotes.mjs';
+import { bundledNotes, editionOf, minorOf } from '../lib/releaseNotes.mjs';
 import { version } from '../package.json';
-import type { ReleasedNotes } from '../lib/releaseNotes.mjs';
+import changelog from '../CHANGELOG.md?raw';
+import type { ReleasedNotes, ReleaseNote } from '../lib/releaseNotes.mjs';
 
 const files = import.meta.glob<ReleasedNotes>('../release-notes/i18n/*/*.json', { eager: true, import: 'default' });
+// The notes merged since the last release: a test version (npm tag next) shows them as its own.
+const pending = import.meta.glob<ReleaseNote>('../release-notes/i18n/*/pending/*.json', { eager: true, import: 'default' });
 const images = import.meta.glob<string>('../release-notes/i18n/*/*/*.webp', { eager: true, query: '?url', import: 'default' });
-
-export const runningNotes = bundledNotes(files, images, version);
 
 const editions = import.meta.glob<{ name?: string; place?: Record<string, string>; photo?: { by?: string } }>(
   '../release-notes/editions/*.json',
@@ -23,6 +26,11 @@ const editionImages = import.meta.glob<string>('../release-notes/editions/*.webp
 
 export const runningEdition = editionOf(editions, editionImages, version);
 
+export const runningNotes = bundledNotes(files, images, version, pending, changelog).map((entry) => ({
+  ...entry,
+  edition: editionOf(editions, editionImages, entry.version),
+}));
+
 /** Each edition's photo, whole, by its version: on its page under "Licenses" (LicensePage). */
 export const editionPhotos: Record<string, string> = Object.fromEntries(
   Object.entries(editionImages).map(([path, url]) => [
@@ -33,3 +41,6 @@ export const editionPhotos: Record<string, string> = Object.fromEntries(
     url,
   ]),
 );
+
+/** The minor line this package is in ("0.14"): its versions show on the Morpheme page, the older lines on pages of their own. */
+export const runningLine = minorOf(version);
