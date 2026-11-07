@@ -3,7 +3,7 @@
 // (the theme's styles/global.css); the script in the head of packages/editor/pages/editor/index.astro does the same
 // before the page is drawn, so it does not flash in the other colours. Its own key, so the site's
 // choice (`theme`) is not changed by the editor's.
-import { colorsCss, isColor, type Colors } from '../lib/colors';
+import { colorsCss, isColor, pageColor, type Colors } from '../lib/colors';
 import { motionCss, type MotionScheme } from '../lib/motion';
 
 export type Theme = 'light' | 'auto' | 'dark';
@@ -73,7 +73,7 @@ export function applyColors(colors: Colors) {
   const style = document.getElementById('site-colors');
   if (style && style.textContent !== css) style.textContent = css;
   for (const m of bars()) {
-    const bg = colors[isDark(m) ? 'dark' : 'light'].bg;
+    const bg = pageColor(colors[isDark(m) ? 'dark' : 'light']);
     if (isColor(bg)) m.dataset.color = bg;
   }
   applyTheme(savedTheme());
