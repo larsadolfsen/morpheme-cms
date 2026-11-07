@@ -1,10 +1,9 @@
-// What a store screen (apps or themes) shows around its list: StoreRound (draws it again after connecting), StoreNotice (connect, loading or failed note) and StoreFooter (the connected row).
-// Exposes StoreRound, useStoreKey, useStoreConnected, StoreNotice, StoreFooter; uses StoreConnectNotice, StoreConnectedRow, storeConnection.ts and env.store.connected.
+// What a store screen (apps or themes) shows around its list: StoreRound (draws it again after connecting), StoreNotice (connect, loading or failed note).
+// Exposes StoreRound, useStoreKey, useStoreConnected, StoreNotice; uses StoreConnectNotice, storeConnection.ts and env.store.connected.
 import { Fragment, useEffect, useState, type ReactNode } from 'react';
 import { EmptyNote } from './ui';
 import type { Env } from './App';
 import { StoreConnectNotice } from './StoreConnectNotice';
-import { StoreConnectedRow } from './StoreConnectedRow';
 import { connection, type StoreConnection } from './storeConnection';
 import { t } from './i18n';
 
@@ -57,11 +56,4 @@ export function StoreNotice({
   if (read === null || connected === null) return <EmptyNote busy>{t.apps.loadingStore}</EmptyNote>;
   if (read === 'failed') return <EmptyNote>{t.apps.storeFailed}</EmptyNote>;
   return null;
-}
-
-/** The row at the end of a store list that says the site is connected, with its button to disconnect. */
-export function StoreFooter({ keyInfo, again }: { keyInfo: StoreConnection | null; again: () => void }) {
-  return keyInfo?.connected && keyInfo.by === 'button' && keyInfo.mayChange ? (
-    <StoreConnectedRow site={keyInfo.site} onDisconnected={again} />
-  ) : null;
 }

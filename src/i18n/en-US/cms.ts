@@ -9,6 +9,7 @@ export const cms = {
   upToDate: 'Up to date',
   available: (v: string) => `Version ${v} is available`,
   whatsNew: 'What’s new',
+  storeConnection: 'Store connection',
   major: 'A new major version isn’t installed by itself.',
   skipped: (v: string) => `Version ${v} was undone because the website couldn’t be updated with it.`,
   /** Followed by the command, in a code block. */
