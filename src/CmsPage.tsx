@@ -11,7 +11,7 @@ import { Button, EmptyNote, Group, ListItem, ProblemNote } from './ui';
 import { backFrom } from './site';
 import { cmsView } from './cmsView.mjs';
 import { runningLine, runningNotes } from './bundledNotes';
-import { EarlierVersions } from './VersionLinePage';
+import { EarlierVersions, LineNav } from './VersionLinePage';
 import { minorOf } from '../lib/releaseNotes.mjs';
 import { snackbar } from '../lib/snackbar';
 import { t } from './i18n';
@@ -111,7 +111,12 @@ export default function CmsPage() {
       {!view && !problem && <EmptyNote busy>{t.app.loading}</EmptyNote>}
       {view && (
         <>
-          {yourLine.length > 0 && <ReleaseNotes title={t.cms.newInYourVersion} entries={yourLine} />}
+          {yourLine.length > 0 && (
+            <>
+              <ReleaseNotes title={t.cms.newInYourVersion} entries={yourLine} />
+              <LineNav line={runningLine} />
+            </>
+          )}
           <Group>
             <ListItem icon={Info} headline={t.cms.running(view.running)} supporting={view.latest ? undefined : t.cms.upToDate} />
             <ListItem icon={Clock} headline={view.checkedAt ? t.cms.checked(when(new Date(view.checkedAt))) : t.cms.notChecked} />
