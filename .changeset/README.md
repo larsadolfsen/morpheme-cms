@@ -10,21 +10,40 @@ when the owner says go, turns the files here into `CHANGELOG.md` and stages `lat
 the owner approves it with 2FA
 (`docs/superpowers/specs/2026-11-03-development-flow-and-releases-design.md`).
 
-## Release notes for owners (Why, How, What)
+## Release notes for owners
 
-A change a site owner sees also gets two note files under `release-notes/i18n/`, one per language, with the same
-`id` as this changeset's file name (without `.md`): `en-US/pending/<id>.json` and `da-DK/pending/<id>.json`. Each file
-has `id`, `title`, `why`, `how` and `what`. Developer-only changes get no note.
+A change a site owner sees gets a note in both languages, English (`en-US`) and Danish (`da-DK`). Developer-only changes
+get no note. The note's `id` is this changeset's file name without `.md`, for example `brave-cats-run`. A note has one
+of two kinds:
+
+- `card`: a main change. A screenshot, a title and 1–3 short sentences. The sentences start with why, then how, then
+  what. No labels.
+- `line`: a smaller change. One short sentence, shown in the list "Also in this version".
+
+Files, per language:
+
+- `release-notes/i18n/<locale>/pending/<id>.json`: the note. A card has `id`, `kind`, `title` and `text`. A line has
+  `id`, `kind` and `text`.
+- `release-notes/i18n/<locale>/pending/<id>.webp`: the screenshot. Only for a card.
+
+Screenshot: the editor at 375×812 CSS pixels, device scale factor 2, saved as WebP, at most 200 KB. Take one per
+language, with the editor in that language, showing the changed screen.
 
 Writing rule:
 
 - Friendly and direct: address the owner as "you", in present tense.
-- Order: Why, then How, then What. One or two short sentences for each part.
-- Write English first, then Danish in the `du` form, with the same meaning and natural Danish.
+- Write English first, then Danish in the informal form of "you", with the same meaning.
+- Keep it short. A card's text is 1–3 sentences. A line is one sentence.
 
-Example (English):
+Example card (English):
 
+> [screenshot of the start screen]
 > **Pick up where you left off**
-> Why: You shouldn't have to hunt through the menu for the page you were just working on.
-> How: Open the editor. Your last three pages and posts wait for you at the top. Tap one to jump straight back in.
-> What: The start screen has a new "Continue where you left off" card.
+> You shouldn't have to hunt for the page you were just working on. Your last three pages and posts now wait at the
+> top of the start screen. Tap one to jump straight back in.
+
+Example lines:
+
+> Also in this version
+> - Open website opens in a new window.
+> - The text toolbar no longer scrolls sideways on a phone.

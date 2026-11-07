@@ -46,7 +46,7 @@ I vores økosystem indgår to helt adskilte repositories, som **aldrig** må for
 - **`lib/`**: Fælles hjælpefunktioner delt mellem editor og site (blok-parsing `blocks.mjs`, billedbeskæring `crop.mjs`, status, datoer, video-håndtering mv.).
 - **`worker/`**: Sitets standard Cloudflare Worker (login/session, GitHub-commit proxy, R2 backup, redirects og planlagte opgaver).
 - **`bin/`**: CLI-værktøjet `morpheme` til billedbehandling, build-hooks og validering.
-- **`release-notes/`**: Owner-facing release notes (Why, How, What) in English and Danish. `i18n/<locale>/pending/<id>.json` is written by each pull request; `release:version` moves them to `i18n/<locale>/<version>.json`. Writing rule: `.changeset/README.md`.
+- **`release-notes/`**: Owner-facing release notes in English and Danish: cards (title, text and a screenshot per language) and lines. Each pull request writes `i18n/<locale>/pending/<id>.json` (and `<id>.webp` for a card); `release:version` moves them to `i18n/<locale>/<version>.json` and `i18n/<locale>/<version>/`. Writing rule: `.changeset/README.md`.
 
 ---
 
