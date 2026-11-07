@@ -1,7 +1,7 @@
 // "Morpheme" (#morpheme), under "Indstillinger": the CMS version the site runs, the notes of its minor line (from the
 // package itself, bundledNotes.ts), a newer one with its notes, why it is not taken by itself, and an update's progress, and the site's connection to the
 // Morpheme store (MorphemeConnection) as its last group. Exposes CMS_ROUTE and the page. Depends on cmsView.mjs, bundledNotes.ts,
-// ReleaseNotes (the notes as cards), MorphemeConnection and the Worker's /api/cms.
+// ReleaseNotes (the notes as an article), MorphemeConnection and the Worker's /api/cms.
 import { useCallback, useEffect, useState } from 'react';
 import { CheckCircle, Clock, Info, Sparkle, WarningCircle } from '@phosphor-icons/react';
 import Screen from './Screen';

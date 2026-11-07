@@ -42,8 +42,8 @@
     {
       "id": "quiet-lamps-wander",
       "kind": "card",
-      "title": "See what's new, with pictures",
-      "text": "Updates should feel like a friendly hello, not a developer log. Open the Morpheme page and you see each new thing with a picture and a few plain words. Everything that changed in your version is right there."
+      "title": "See what's new",
+      "text": "It can be hard to keep up with what's new in Morpheme. So after each update, you now get a short overview of the new features. You'll find it all in one place on the Morpheme page."
     }
   ]
 }

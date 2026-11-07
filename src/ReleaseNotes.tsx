@@ -1,9 +1,8 @@
-// A titled list of versions with their release notes on the Morpheme page (#morpheme): per version a small heading, its
-// cards (screenshot, title, text) in the editor's language (else English), then its other changes as a short list under
-// "Also in this version"; for a version without notes, one row with its text. Exposes ReleaseNotes and VersionNotes.
-// Depends on ReleaseNoteCard, ui.tsx, lib/releaseNotes.mjs (notesFor) and i18n.
-import { ReleaseNoteCard } from './ReleaseNoteCard';
-import { GroupTitle, Group, ListItem } from './ui';
+// The release notes on the Morpheme page (#morpheme), as an article: its title, then per version a small heading, its
+// cards in the editor's language (else English) as sections with a title and a text, and its other changes as a list
+// under "Also in this version"; for a version without notes, its text. No cards and no screenshots: the start screen's
+// update card (UpdatesNotice.tsx) shows the pictures. Exposes ReleaseNotes and VersionNotes. Depends on
+// lib/releaseNotes.mjs (notesFor) and i18n.
 import { locale, t } from './i18n';
 import { notesFor } from '../lib/releaseNotes.mjs';
 import type { ReleaseNote } from '../lib/releaseNotes.mjs';
@@ -13,40 +12,40 @@ export type VersionNotes = { version: string; text: string; notes?: Record<strin
 type Card = Extract<ReleaseNote, { kind: 'card' }>;
 
 function VersionEntry({ entry }: { entry: VersionNotes }) {
-  const notes = notesFor(entry.notes, locale);
-  if (!notes?.length) {
-    return (
-      <Group>
-        <ListItem headline={t.cms.running(entry.version)} supporting={entry.text} />
-      </Group>
-    );
-  }
+  const notes = notesFor(entry.notes, locale) ?? [];
   const cards = notes.filter((note): note is Card => note.kind === 'card');
   const lines = notes.filter((note) => note.kind === 'line');
   return (
-    <div className="mb-6 space-y-3">
-      <h3 className="px-4 text-sm font-medium text-muted">{t.cms.running(entry.version)}</h3>
+    <section className="space-y-5 border-t border-line pt-5 first-of-type:border-t-0 first-of-type:pt-0">
+      <h3 className="text-sm font-medium text-muted">{t.cms.running(entry.version)}</h3>
+      {!notes.length && entry.text && <p className="text-base">{entry.text}</p>}
       {cards.map((note) => (
-        <ReleaseNoteCard key={note.id} note={note} />
+        <div key={note.id} className="space-y-1">
+          <h4 className="text-lg font-medium">{note.title}</h4>
+          <p className="text-base">{note.text}</p>
+        </div>
       ))}
       {lines.length > 0 && (
-        <Group title={t.cms.alsoInThisVersion}>
-          {lines.map((note) => (
-            <ListItem key={note.id} headline={note.text} />
-          ))}
-        </Group>
+        <div className="space-y-2">
+          <h4 className="text-base font-medium">{t.cms.alsoInThisVersion}</h4>
+          <ul className="list-disc space-y-1 ps-5 text-base marker:text-accent">
+            {lines.map((note) => (
+              <li key={note.id}>{note.text}</li>
+            ))}
+          </ul>
+        </div>
       )}
-    </div>
+    </section>
   );
 }
 
 export function ReleaseNotes({ title, entries }: { title: string; entries: VersionNotes[] }) {
   return (
-    <section className="mb-8">
-      <GroupTitle>{title}</GroupTitle>
+    <article className="mb-8 max-w-prose space-y-5 px-4 not-first:mt-8">
+      <h2 className="text-2xl">{title}</h2>
       {entries.map((entry) => (
         <VersionEntry key={entry.version} entry={entry} />
       ))}
-    </section>
+    </article>
   );
 }
