@@ -44,7 +44,7 @@ import { byText } from './schema';
 import { exampleOf, type BlockData, type BlockProps, type SiteBlock } from './blocks';
 import { blocksIn } from '../lib/blocks.mjs';
 import { apps, offBlocks, preview, siteBlocks } from './registry';
-import { installedApps, kindDraw, kindKey, type SiteApp } from './apps';
+import { activeApps, kindDraw, kindKey, type SiteApp } from './apps';
 import { entriesOf, kindsOf } from './AppList';
 import { asWritten, collections } from './site';
 import { examplePicture, kindExample as newOfKind } from './examples';
@@ -299,7 +299,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
       />
     ),
   });
-  const installed = installedApps(files);
+  const installed = activeApps(files);
   // A group for each installed app, under its name, in alphabetical order: its blocks and its kinds.
   const fromApps = apps
     .filter((a) => installed.includes(a.id))

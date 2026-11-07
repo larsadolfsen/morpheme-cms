@@ -114,7 +114,7 @@ import {
   StoreAppPage,
   StorePage,
 } from './AppList';
-import { installedApps } from './apps';
+import { activeApps, installedApps } from './apps';
 import {
   DEVELOPER_ROUTE,
   readApp,
@@ -624,7 +624,7 @@ function Editor() {
 
   // What the installed apps have to say (AppNotifications in apps.ts): asked when the editor opens and every 15 minutes
   // while it is open; each comes once, at the bottom and under "Notifikationer", while its type is on (notificationData.ts).
-  const notifying = installedApps(files ?? [])
+  const notifying = activeApps(files ?? [])
     .filter((id) => apps.some((a) => a.id === id && a.notifications))
     .join();
   useEffect(() => {
@@ -807,8 +807,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   const [, screenApp, screenId, ...deeper] = route.split('/');
   const ownScreen =
     route.startsWith('apps/') && !deeper.length && apps.find((a) => a.id === screenApp && screenId && a.screens?.[screenId]);
-  if (ownScreen && installedApps(files).includes(ownScreen.id))
-    return <AppScreenPage key={route} app={ownScreen} id={screenId} env={env} />;
+  if (ownScreen && activeApps(files).includes(ownScreen.id)) return <AppScreenPage key={route} app={ownScreen} id={screenId} env={env} />;
   if (route === 'appearance/parts') return <PartsHome />;
   if (route === 'appearance/parts/editor') return <Parts env={env} />;
   if (route === 'appearance/parts/ui') return <ComponentParts />;
