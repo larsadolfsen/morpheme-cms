@@ -36,6 +36,7 @@
 //   morpheme         "Morpheme", under "Indstillinger": the CMS's version, a newer one and its notes, an update's progress (CmsPage.tsx)
 //   licenses         "Licenser", under "Indstillinger": the licences of what the site and the editor are made with, and
 //                    licenses/<id> one with its text (Licenses.tsx)
+//   status           "System status", from the footer: GitHub's and Cloudflare's status (ServiceStatus.tsx)
 //   apps             the apps that come with the site, apps/<app> one with its button to install it and, while it
 //                    is installed, the tabs of its page (AppList.tsx AppPage): Settings at apps/<app>, with its settings
 //                    form (also on the screen with its category, analytics/<app>, AppList.tsx settingsRoute), and
@@ -100,6 +101,7 @@ import BlockSettings from './BlockSettings';
 import Advanced, { ADVANCED_ROUTE } from './Advanced';
 import CmsPage, { CMS_ROUTE } from './CmsPage';
 import Licenses, { LICENSES_ROUTE, LicensePage } from './Licenses';
+import ServiceStatus, { STATUS_ROUTE } from './ServiceStatus';
 import { StoreThemePage } from './ThemeStore';
 import { ThemeStoreScreen } from './ThemeStoreScreen';
 import {
@@ -787,6 +789,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === ADVANCED_ROUTE) return <Advanced env={env} />;
   if (route === CMS_ROUTE) return <CmsPage />;
   if (route === LICENSES_ROUTE) return <Licenses />;
+  if (route === STATUS_ROUTE) return <ServiceStatus />;
   if (route.startsWith(`${LICENSES_ROUTE}/`)) return <LicensePage key={route} id={route.slice(LICENSES_ROUTE.length + 1)} />;
   if (route === 'apps') return <Apps env={env} files={files} />;
   if (route === STORE_ROUTE) return <StorePage env={env} files={files} />;
