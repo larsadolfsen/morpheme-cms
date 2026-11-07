@@ -1,5 +1,5 @@
 // "Dele" › "UI-komponenter" (BlockParts.tsx), the group "Communication": the theme's parts that tell the visitor something
-// (packages/editor/theme/ui/, through @site/editor) as the site draws them, with made-up texts: badges (a dot and a number,
+// (packages/editor/theme/ui/, through @site/editor) as the site draws them, with made-up texts: badges (a dot, the four status tones and a number,
 // on an icon, an icon button and a navigation drawer's item), the loading indicator with and without its container,
 // the progress indicators with a value and without (flat and wavy, and thick), snackbars (one line, two lines, with
 // an action, with a longer action, with a close button and with links) and tooltips (plain and rich, shown open). Only
@@ -62,6 +62,22 @@ export default function CommunicationParts() {
                 </SiteBadge>
                 <SiteBadge count={3}>
                   <SiteIconButton icon="envelope-simple" label={`${say.messages}, ${say.count(3)}`} />
+                </SiteBadge>
+              </div>
+            </Example>
+            <Example name={say.statusTones}>
+              <div className="flex gap-4">
+                <SiteBadge tone="ok" label={say.toneOk}>
+                  <Svg name="envelope-simple" size={24} />
+                </SiteBadge>
+                <SiteBadge tone="minor" label={say.toneMinor}>
+                  <Svg name="envelope-simple" size={24} />
+                </SiteBadge>
+                <SiteBadge tone="major" label={say.toneMajor}>
+                  <Svg name="envelope-simple" size={24} />
+                </SiteBadge>
+                <SiteBadge tone="unknown" label={say.toneUnknown}>
+                  <Svg name="envelope-simple" size={24} />
                 </SiteBadge>
               </div>
             </Example>
