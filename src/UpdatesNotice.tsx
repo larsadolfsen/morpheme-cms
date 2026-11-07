@@ -85,7 +85,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
               {t.common.close}
             </Button>
             {cms && (
-              <LinkButton kind="tonal" size="small" href={`#${CMS_ROUTE}`}>
+              <LinkButton kind="filled" size="small" href={`#${CMS_ROUTE}`}>
                 {t.library.readMore}
               </LinkButton>
             )}
