@@ -1,14 +1,13 @@
 // At the top of the start screen: what was updated since the last visit in this browser, as a card with Close, which
 // marks it seen, and Read more. For the CMS: the photo of its edition (release-notes/editions/, named after the place the
 // photo is from), 3:2 with rounded corners, above the text in the compact window class and from the medium class up to
-// the left of it, as high as the card, with an info button that credits its photographer (PhotoCredit); "Morpheme
-// <edition> <version>" (the headline), the place in full (the subhead), how many new things it brings (the supporting
+// the left of it, as high as the card; "Morpheme <edition> <version>" (the headline), the place in full (the subhead,
+// with an info button after it that credits the photographer, PhotoCredit), how many new things it brings (the supporting
 // text, bundledNotes.ts) and Read more to the Morpheme page with all of them; for each app installed from the store: a
 // row with its icon and new version, to its Information tab. Exposes UpdatesNotice. The logic is startView.mjs's
 // (changesSince) and releaseNotes.mjs's (notesSince, editionOf), the storage startStorage.ts's, the card, rows, buttons
 // and tooltip the theme's (themeUi.ts, ui.tsx).
 import { useEffect, useRef, useState } from 'react';
-import { Info } from '@phosphor-icons/react';
 import { version } from '../package.json';
 import { locale, t } from './i18n';
 import { installedApps } from './apps';
@@ -17,6 +16,7 @@ import { changesSince, versioned, type Versions } from './startView.mjs';
 import { keepStored, SEEN, storedSeen } from './startStorage';
 import type { RepoFile } from './github';
 import { SiteCard, SiteTooltip } from './themeUi';
+import { Svg } from './icon';
 import { Button, LinkButton, ListItem, plainListClass } from './ui';
 import { CMS_ROUTE } from './CmsPage';
 import { LICENSES_ROUTE } from './Licenses';
@@ -34,10 +34,10 @@ function versionsNow(files: RepoFile[]): Versions {
   };
 }
 
-/** The info button in the photo's top end corner (a filled icon), with a rich tooltip: who took the photo, on Unsplash,
- * and a link to its licence under "Licenses". It opens while the mouse is over the button or the tooltip, while focus is
- * in them, and on a tap (a second tap closes it); Escape closes it. Under the button, from its end and at most as wide as
- * the photo, so the card does not clip it. */
+/** The info button right after the place's name (the theme's info icon, which every icon pack has), with a rich
+ * tooltip: who took the photo, on Unsplash, and a link to its licence under "Licenses". It opens while the mouse is over
+ * the button or the tooltip, while focus is in them, and on a tap (a second tap closes it); Escape closes it. Under the
+ * button, from its end, at most 15rem wide, so it stays on a phone's screen. */
 function PhotoCredit({ by, version }: { by: string; version: string }) {
   const [open, setOpen] = useState(false);
   const leave = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -62,7 +62,7 @@ function PhotoCredit({ by, version }: { by: string; version: string }) {
   useEffect(() => () => clearTimeout(leave.current), []);
   return (
     <div
-      className="absolute end-1 top-1"
+      className="-my-3 inline-flex align-middle"
       onMouseEnter={show}
       onMouseLeave={hide}
       onFocus={show}
@@ -71,7 +71,7 @@ function PhotoCredit({ by, version }: { by: string; version: string }) {
       <SiteTooltip
         open={open}
         // Only `open` shows it: not the theme's fallback on hover and focus, which Escape could not close.
-        className="[&:not([data-tooltip-open])>.tooltip]:invisible [&:not([data-tooltip-open])>.tooltip]:opacity-0 [&>.tooltip]:start-auto [&>.tooltip]:end-0 [&>.tooltip]:top-[calc(100%+0.25rem)] [&>.tooltip]:bottom-auto [&>.tooltip]:max-w-60"
+        className="[&:not([data-tooltip-open])>.tooltip]:invisible [&:not([data-tooltip-open])>.tooltip]:opacity-0 [&>.tooltip]:start-auto [&>.tooltip]:end-0 [&>.tooltip]:top-[calc(100%-0.5rem)] [&>.tooltip]:bottom-auto [&>.tooltip]:max-w-60"
         supportingText={t.library.photoBy(by)}
         action={{ label: t.library.photoLicense, href: `#${LICENSES_ROUTE}/${encodeURIComponent(`editions/${version}`)}` }}
       >
@@ -80,9 +80,9 @@ function PhotoCredit({ by, version }: { by: string; version: string }) {
           aria-label={t.library.photoInfo}
           aria-expanded={open}
           onClick={() => (open && Date.now() - openedAt.current < 400 ? undefined : open ? setOpen(false) : show())}
-          className="grid size-12 place-items-center rounded-full text-white focus-visible:outline-2 focus-visible:outline-offset-[-4px]"
+          className="grid size-12 place-items-center rounded-full text-muted focus-visible:outline-2 focus-visible:outline-offset-[-8px]"
         >
-          <Info size={24} weight="fill" aria-hidden />
+          <Svg name="info" size={20} />
         </button>
       </SiteTooltip>
     </div>
@@ -116,18 +116,11 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       : t.library.cmsVersion(cms.version)
     : t.library.appsUpdated(updatedApps.length);
   return (
-    <SiteCard
-      kind="outlined"
-      as="section"
-      role="status"
-      aria-labelledby="updates-title"
-      className="mb-8 overflow-hidden [--card-padding:0]"
-    >
+    <SiteCard kind="outlined" as="section" role="status" aria-labelledby="updates-title" className="mb-8 [--card-padding:0]">
       <div className="grid medium:grid-cols-[auto_1fr]">
         {edition && (
           <div className="relative aspect-[3/2] w-full medium:h-full medium:w-auto">
             <img src={edition.image} alt="" className="absolute inset-0 size-full rounded-xl object-cover" />
-            {edition.by && <PhotoCredit by={edition.by} version={edition.version} />}
           </div>
         )}
         <div className="flex min-w-0 flex-col p-4">
@@ -137,7 +130,12 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
           >
             {title}
           </h2>
-          {place && <p className="mt-1 text-sm">{place}</p>}
+          {place && (
+            <p className="mt-1 text-sm">
+              {place}
+              {edition.by && <PhotoCredit by={edition.by} version={edition.version} />}
+            </p>
+          )}
           {news.length > 0 && <p className="mt-2 text-sm text-muted">{t.library.newThings(news.length)}</p>}
           <div className="mt-auto flex flex-wrap justify-end gap-2 pt-4">
             <Button kind="text" size="small" onClick={close}>
