@@ -37,3 +37,20 @@ export function searchCrumbs(domain, path) {
     .filter((part) => part !== '');
   return [`https://${domain}`, ...parts].join(SEPARATOR);
 }
+
+/**
+ * Splits `value` into parts so that each occurrence of `keyword` (case-insensitive, literal) is a bold part, as Google
+ * bolds the searched words in a description. The original case is kept. A blank keyword gives one plain part.
+ * @param {string} value
+ * @param {string} [keyword]
+ * @returns {{ text: string; bold: boolean }[]}
+ */
+export function boldParts(value, keyword) {
+  const word = text(keyword);
+  if (!word) return [{ text: value, bold: false }];
+  const pattern = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return value
+    .split(pattern)
+    .map((part, i) => ({ text: part, bold: i % 2 === 1 }))
+    .filter((part) => part.text !== '');
+}
