@@ -70,7 +70,7 @@ export const apps = {
   /** Over the blocks it adds, and the lists it brings ("Priser"); its kinds of the site's lists (a Mailchimp popup)
    * are under the list's name. */
   blocks: 'Blocks',
-  lists: 'Lists',
+  lists: 'Dynamic lists',
   /** The tabs of an installed app's page, in the top bar: its settings, and what it says about itself. */
   tabSettings: 'Settings',
   tabInfo: 'Information',

@@ -104,7 +104,7 @@ export const common = {
     company: 'Business',
     header: 'Header',
     footer: 'Footer',
-    lists: 'Lists',
+    lists: 'Dynamic lists',
     blocks: 'Block templates',
     media: 'Files',
     /** How the site looks (#appearance, Library.tsx Theme): the theme, the colours, the logo and icon, and the site's own
