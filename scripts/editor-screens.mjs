@@ -4,7 +4,7 @@
 // packages/editor/src/icon.tsx), there or on one of the built site's pages. An icon drawn from Material Symbols instead
 // of the icon pack (data-icon-fallback) is only listed, with where it is: it does not fail.
 // The screens are found as the editor's own links: from the start screen (the drawer's links are in the page also while it is
-// closed) and "Dele", #appearance/parts, "Temaer", #appearance/themes, "Søgemaskineoptimering", #seo, "Appstore", #settings/appstore, and "Apps", #apps, which the menu no longer links to), and
+// closed) and "Parts", #developer/parts, "Temaer", #appearance/themes, "Søgemaskineoptimering", #seo, "Appstore", #settings/appstore, and "Apps", #apps, which the menu no longer links to), and
 // from each screen it opens, two steps down. GitHub is answered from the files in this repository, so it needs no login
 // and changes nothing. It runs on the built site: npm run build && npm run check:screens (or on another
 // folder with a built site, its path after the command: packages/editor/scripts/check-themes.mjs).
@@ -68,10 +68,10 @@ for (const [width, height] of [
   });
   await openEditor(page, site);
 
-  // From the start screen (the drawer's links), and from "Dele", "Temaer", "Søgemaskineoptimering" and "Appstore"
+  // From the start screen (the drawer's links), and from "Parts", "Temaer", "Søgemaskineoptimering" and "Appstore"
   // (the apps' pages and their developers'), whose screens are a step further down than the others. "Apps" (the list of
   // the apps installed) has no row in the menu, so it is a start of its own.
-  const starts = ['', 'appearance/parts', 'appearance/themes', 'seo', 'settings/appstore', 'apps'];
+  const starts = ['', 'developer/parts', 'appearance/themes', 'seo', 'settings/appstore', 'apps'];
   const seen = new Set(starts);
   let next = starts;
   for (let depth = 0; depth <= 2 && next.length; depth++) {

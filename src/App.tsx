@@ -26,13 +26,13 @@
 //                    appearance/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
 //                    appearance/colors the colours (Colors.tsx;
 //                    appearance/colors/fallback-colors the site's own while an app changes the pages'),
-//                    appearance/parts the parts (Library.tsx PartsHome): appearance/parts/editor the editor's, every
-//                    one in every state (Parts.tsx), appearance/parts/ui the theme's UI components, appearance/parts/blocks the
-//                    blocks, the standard ones and the apps', and appearance/parts/list/<list> each kind of a list of kinds
-//                    ("Promovering"), its own and the apps' (BlockParts.tsx), and appearance/parts/values the
+//   developer          the developer screens (Library.tsx Developer), under "Settings": developer/caching the copy of the site's files in R2 and the build settings (Advanced.tsx), and
+//                    developer/parts the parts (Library.tsx PartsHome): developer/parts/editor the editor's, every
+//                    one in every state (Parts.tsx), developer/parts/ui the theme's UI components, developer/parts/blocks the
+//                    blocks, the standard ones and the apps', and developer/parts/list/<list> each kind of a list of kinds
+//                    ("Promovering"), its own and the apps' (BlockParts.tsx), and developer/parts/values the
 //                    theme's design tokens, "Værdier" (Tokens.tsx)
 //   block-settings         the blocks that can be put in, "Blokindstillinger" (BlockSettings.tsx)
-//   advanced        "Avanceret", under "Indstillinger": the copy of the site's files in R2 (Advanced.tsx)
 //   morpheme         "Morpheme", under "Indstillinger": the CMS's version, a newer one and its notes, an update's progress (CmsPage.tsx)
 //   licenses         "Licenser", under "Indstillinger": the licences of what the site and the editor are made with, and
 //                    licenses/<id> one with its text (Licenses.tsx)
@@ -97,7 +97,7 @@ import { BlocksParts, ComponentParts, KindParts } from './BlockParts';
 import Tokens from './Tokens';
 import BrandForm from './BrandForm';
 import BlockSettings from './BlockSettings';
-import Advanced, { ADVANCED_ROUTE } from './Advanced';
+import Advanced, { CACHING_ROUTE } from './Advanced';
 import CmsPage, { CMS_ROUTE } from './CmsPage';
 import Licenses, { LICENSES_ROUTE, LicensePage } from './Licenses';
 import { StoreThemePage } from './ThemeStore';
@@ -142,6 +142,8 @@ import {
   Account,
   Blocks,
   Company,
+  DEV_MENU_ROUTE,
+  Developer,
   List,
   Lists,
   PartsHome,
@@ -784,7 +786,8 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
     return <Colors env={env} files={files} fallback={route === FALLBACK_ROUTE} />;
   if (route === 'company/logo') return <BrandForm env={env} />;
   if (route === 'block-settings') return <BlockSettings env={env} files={files} />;
-  if (route === ADVANCED_ROUTE) return <Advanced env={env} />;
+  if (route === DEV_MENU_ROUTE) return <Developer />;
+  if (route === CACHING_ROUTE) return <Advanced env={env} />;
   if (route === CMS_ROUTE) return <CmsPage />;
   if (route === LICENSES_ROUTE) return <Licenses />;
   if (route.startsWith(`${LICENSES_ROUTE}/`)) return <LicensePage key={route} id={route.slice(LICENSES_ROUTE.length + 1)} />;
@@ -809,12 +812,12 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
     route.startsWith('apps/') && !deeper.length && apps.find((a) => a.id === screenApp && screenId && a.screens?.[screenId]);
   if (ownScreen && installedApps(files).includes(ownScreen.id))
     return <AppScreenPage key={route} app={ownScreen} id={screenId} env={env} />;
-  if (route === 'appearance/parts') return <PartsHome />;
-  if (route === 'appearance/parts/editor') return <Parts env={env} />;
-  if (route === 'appearance/parts/ui') return <ComponentParts />;
-  if (route === 'appearance/parts/blocks') return <BlocksParts />;
-  if (route.startsWith('appearance/parts/list/')) return <KindParts key={route} id={route.slice('appearance/parts/list/'.length)} />;
-  if (route === 'appearance/parts/values') return <Tokens />;
+  if (route === 'developer/parts') return <PartsHome />;
+  if (route === 'developer/parts/editor') return <Parts env={env} />;
+  if (route === 'developer/parts/ui') return <ComponentParts />;
+  if (route === 'developer/parts/blocks') return <BlocksParts />;
+  if (route.startsWith('developer/parts/list/')) return <KindParts key={route} id={route.slice('developer/parts/list/'.length)} />;
+  if (route === 'developer/parts/values') return <Tokens />;
   if (route.startsWith('deleted/')) return <Deleted id={route.slice('deleted/'.length)} files={files} env={env} />;
   // company/<part>, or company/<part>/<its part> (Part.parts).
   const [, companyId, ownId, ...more] = route.split('/');

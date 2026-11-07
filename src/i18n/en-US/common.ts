@@ -133,8 +133,10 @@ export const common = {
     account: 'Account',
     /** The last section of the main drawer, and the first part of the path to a setting (placeOf in site.ts). */
     settings: 'Settings',
-    /** Under Indstillinger: the faster editor (#advanced, Advanced.tsx). */
-    advanced: 'Advanced',
+    /** Under Settings: the developer screens, the parts and the caching (#developer, Library.tsx Developer). */
+    developer: 'Developer',
+    /** Under Developer: the faster editor and the build settings (#developer/caching, Advanced.tsx). */
+    caching: 'Caching and builds',
     /** Under Indstillinger: the licences of what the site and the editor are made with (#licenses, Licenses.tsx). */
     licenses: 'Licenses',
     /** Under Indstillinger: the CMS's version and its updates (#morpheme). */
