@@ -285,7 +285,7 @@ export type KindPart = {
 /** A list a standard block or an app brings ("Udtalelser", "Priser"), as the site's own, with its icon under "Lister". */
 export type OwnedList = FolderCollection & {
   icon: Icon;
-  /** Made-up rows, as the files have them, for the parts under "Dele" and an app's pictures for the store (examples.ts). */
+  /** Made-up rows, as the files have them, for the parts under "Parts" and an app's pictures for the store (examples.ts). */
   examples?: Record<string, unknown>[];
 };
 

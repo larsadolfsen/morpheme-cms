@@ -92,7 +92,7 @@ function example(
 }
 
 /** An app's kind of a list for its preview: drawn with the fields of its first entry (one that is on, if any), with
- * the entry's name, else with the example "Dele" draws it with (kindExample in examples.ts); in its first state
+ * the entry's name, else with the example "Parts" draws it with (kindExample in examples.ts); in its first state
  * (Mailchimp's before a signup). None when it has no drawing. */
 function kindExample(app: SiteApp, list: string, files: RepoFile[], data: BlockData): { node: ReactNode; on?: string } | null {
   const kind = app.kinds![list];

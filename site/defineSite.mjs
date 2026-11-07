@@ -54,7 +54,7 @@ const CHOICES = {
 
 /** The same on every site. */
 const STANDARD = {
-  /** The Worker's settings: the editor turns R2 caching on and off in them ("Indstillinger" › "Avanceret", src/r2Caching.ts). */
+  /** The Worker's settings: the editor turns R2 caching on and off in them (Settings › Developer › Caching and builds, src/r2Caching.ts). */
   wrangler: 'wrangler.jsonc',
   /** The folders the editor loads: the blog posts, the pages, the data files, the pictures and the PDFs, videos and zip
    * files (shown with the pictures in "Filer", at /filer/<name> on the site). */

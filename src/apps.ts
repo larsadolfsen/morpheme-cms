@@ -53,7 +53,7 @@ export type AppSettings = {
   fields: Field[];
   /** The settings before any are saved, in the site's language. */
   values: Record<string, unknown>;
-  /** Made-up settings over `values`, which its blocks and kinds are drawn with under "Dele" (exampleData in
+  /** Made-up settings over `values`, which its blocks and kinds are drawn with under "Parts" (exampleData in
    * examples.ts), where the site's own are never shown (MobilePay's number). */
   example?: Record<string, unknown>;
   /** The value a save of these settings sets, said in the notice after it ("CMS-version set to 0.10.0"), asked with the
@@ -83,7 +83,7 @@ export type AppKind = {
   opens?: Opens;
 };
 
-/** How an entry of an app's kind looks on the site, beside its form and under "Dele": its own drawing, or its part in the
+/** How an entry of an app's kind looks on the site, beside its form and under "Parts": its own drawing, or its part in the
  * list's own drawing (`collection`: the list it is a kind of). */
 export function kindDraw(kind: AppKind, collection?: { drawPart?: FolderCollection['drawPart'] }): AppKind['draw'] {
   if (kind.draw) return kind.draw;

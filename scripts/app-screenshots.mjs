@@ -1,7 +1,7 @@
 // Takes the pictures each app is shown with on its page and in the app store (AppAbout in
 // packages/editor/src/AppList.tsx): the few its index.ts picks to give an idea of it (`screenshots`, AppShot in
 // packages/editor/src/store.ts), as a theme's are, on a phone, in the standard theme with blue colours and with made-up
-// content only, never the site's: its blocks and kinds as "Udseende" › "Dele" › "Apps" draws them with the examples,
+// content only, never the site's: its blocks and kinds as "Developer" › "Parts" › "Apps" draws them with the examples,
 // its lists, its settings (with the made-up `values` of the picture) and its own page in the editor, into
 // src/apps/<app>/screenshots/<n>-<what>.jpg (shotFile). The site is built in a folder of its own with the theme and the
 // colours (src/data/theme.json and colors.json as they were after), and the editor has every app installed, with GitHub
@@ -30,8 +30,8 @@ const BLUE = { source: '#1a73e8', variant: 'tonalSpot', contrast: 'standard' };
 
 const ids = process.argv.length > 2 ? process.argv.slice(2) : readdirSync(APPS).filter((id) => existsSync(join(APPS, id, 'index.ts')));
 
-// The pictures each app picks, read as store-release.mjs does, in their order. `part`: its drawing under "Dele" ›
-// "Blokke" or the list's screen (`parts`: #appearance/parts/blocks, #appearance/parts/list/<list>) by the part's name; `editor`: a screen of the editor (`at`: from the top of what is
+// The pictures each app picks, read as store-release.mjs does, in their order. `part`: its drawing under "Parts" ›
+// "Blokke" or the list's screen (`parts`: #developer/parts/blocks, #developer/parts/list/<list>) by the part's name; `editor`: a screen of the editor (`at`: from the top of what is
 // there). And each app's settings as the pictures show them: those it starts with, and the made-up ones of its picture.
 const vite = await createServer({
   configFile: false,
@@ -136,7 +136,7 @@ try {
     for (const [i, shot] of shots[id].entries()) {
       const options = { path: join(folder, shot.name), type: 'jpeg', quality: 80 };
       if (shot.part) {
-        await go(`appearance/parts/${shot.parts}`);
+        await go(`developer/parts/${shot.parts}`);
         // Tall enough for the whole drawing, under the screen's top bar.
         await editor.setViewportSize({ width: phone.width, height: 1600 });
         const drawing = editor.locator(`section[data-part="${shot.part}"] > :last-child`).first();

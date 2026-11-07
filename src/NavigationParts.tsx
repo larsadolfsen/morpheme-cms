@@ -1,4 +1,4 @@
-// "Dele" › "UI-komponenter" (BlockParts.tsx), the group "Navigation": the theme's parts of the header (packages/editor/theme/ui/,
+// "Parts" › "UI-komponenter" (BlockParts.tsx), the group "Navigation": the theme's parts of the header (packages/editor/theme/ui/,
 // through @site/editor) as the site draws them, with made-up pages: the top app bar as the site's header has it (at the
 // top and once the page scrolls under it) and in its kinds (search, small, medium and large flexible, at the start and
 // in the middle, with a subtitle, a long headline and collapsed), a menu (the header's pages, and actions in both

@@ -31,9 +31,9 @@ test('the extra moves come first', () => {
 });
 
 test('only the old prefix of an address is renamed, the rest stays', () => {
-  const renamed = { indstillinger: 'settings', 'udseende/dele': 'appearance/parts', liste: 'list' };
+  const renamed = { indstillinger: 'settings', 'udseende/dele': 'developer/parts', liste: 'list' };
   assert.equal(movedRoute('indstillinger/appstore', {}, renamed), 'settings/appstore');
-  assert.equal(movedRoute('udseende/dele/liste/kontakt', {}, renamed), 'appearance/parts/liste/kontakt');
+  assert.equal(movedRoute('udseende/dele/liste/kontakt', {}, renamed), 'developer/parts/liste/kontakt');
 });
 
 test('a key segment * matches any one segment and keeps it', () => {
@@ -51,7 +51,7 @@ test('data inside an address is not renamed', () => {
 test('old prefixes are renamed, the data after them stays', () => {
   assert.equal(movedRoute('filer/filer/doc.pdf'), 'files/filer/doc.pdf');
   assert.equal(movedRoute('liste/temaer'), 'list/temaer');
-  assert.equal(movedRoute('udseende/dele/liste/kontakt'), 'appearance/parts/list/kontakt');
+  assert.equal(movedRoute('udseende/dele/liste/kontakt'), 'developer/parts/list/kontakt');
   assert.equal(movedRoute('indstillinger/appstore'), 'settings/appstore');
   assert.equal(movedRoute('udseende/farver'), 'appearance/colors');
 });
@@ -71,10 +71,13 @@ test('every old route prefix opens the screen where it is now', () => {
     'udseende/bevaegelse': 'appearance/motion',
     'udseende/sidekolonne': 'appearance/side-column',
     'udseende/farver/reservefarver': 'appearance/colors/fallback-colors',
-    'udseende/dele': 'appearance/parts',
-    'udseende/dele/editor': 'appearance/parts/editor',
-    'udseende/dele/blokke': 'appearance/parts/blocks',
-    'udseende/dele/vaerdier': 'appearance/parts/values',
+    'udseende/dele': 'developer/parts',
+    'udseende/dele/editor': 'developer/parts/editor',
+    'udseende/dele/blokke': 'developer/parts/blocks',
+    'udseende/dele/vaerdier': 'developer/parts/values',
+    'appearance/parts': 'developer/parts',
+    'appearance/parts/list/x': 'developer/parts/list/x',
+    advanced: 'developer/caching',
     'udseende/standardsider': 'appearance/default-pages',
     'udseende/logo': 'company/logo',
     maaling: 'analytics',
@@ -112,7 +115,7 @@ test('every old route prefix opens the screen where it is now', () => {
     'seo/interne-links': 'seo/internal-links',
     'seo/vurdering': 'seo/rating',
     blokvalg: 'block-settings',
-    avanceret: 'advanced',
+    avanceret: 'developer/caching',
     licenser: 'licenses',
     konto: 'account',
     notifikationer: 'notifications',
@@ -139,12 +142,12 @@ test('the old colours route opens the colours screen under Appearance', () => {
 });
 
 test('an old parts route keeps a list id and opens at its English route', () => {
-  assert.equal(movedRoute('udseende/dele/liste/kontakt'), 'appearance/parts/list/kontakt');
+  assert.equal(movedRoute('udseende/dele/liste/kontakt'), 'developer/parts/list/kontakt');
 });
 
 test('the old theme routes open the screens under Appearance', () => {
   assert.equal(movedRoute('tema'), 'appearance');
-  assert.equal(movedRoute('tema/dele/editor'), 'appearance/parts/editor');
+  assert.equal(movedRoute('tema/dele/editor'), 'developer/parts/editor');
 });
 
 test('the old booking and newsletter settings open the apps by their permanent ids', () => {

@@ -1,4 +1,4 @@
-// The parts of a screen that shows parts in every state ("Dele": Parts.tsx, BlockParts.tsx), with the search, the order and the filters of the editor's lists ("Standardblokke",
+// The parts of a screen that shows parts in every state ("Parts": Parts.tsx, BlockParts.tsx), with the search, the order and the filters of the editor's lists ("Standardblokke",
 // Library.tsx): a search in the parts' names and what they are for, the order (by group, A–Å or Å–A,
 // kept in this browser; A–Å under the first letter of the names) and the funnel with the filter by
 // group, the one picked as a chip that removes it. A screen can add the filter by style (how much of a part
