@@ -104,27 +104,43 @@ for (const [width, height] of [
   await page.close();
 }
 
-// "Appstore" in the three states of the site's key to the store (STORE_STATES): what each shows, and a picture of it in
+// "Appstore" and "Avanceret" in the three states of the site's key to the store (STORE_STATES): what each shows, and a picture of it in
 // SCREENS_DIR (the temporary folder's morpheme-screens by default).
 const shots = process.env.SCREENS_DIR || join(tmpdir(), 'morpheme-screens');
 mkdirSync(shots, { recursive: true });
 const keyStates = {
-  open: { shows: ['Hjemmesiden er ikke forbundet til Morpheme', 'Forbind til Morpheme'], hides: ['Afbryd forbindelsen til Morpheme'] },
-  readOnly: { shows: ['Hjemmesiden har ingen Appstore'], hides: ['Forbind til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
-  button: { shows: ['Forbundet til Morpheme', 'site_sample', 'Afbryd forbindelsen til Morpheme'], hides: ['Forbind til Morpheme'] },
+  open: {
+    appstore: {
+      shows: ['Hjemmesiden er ikke forbundet til Morpheme', 'Forbind til Morpheme'],
+      hides: ['Afbryd forbindelsen til Morpheme'],
+    },
+    advanced: { shows: ['Forbind til Morpheme'], hides: ['Afbryd forbindelsen til Morpheme'] },
+  },
+  readOnly: {
+    appstore: { shows: ['Hjemmesiden har ingen Appstore'], hides: ['Forbind til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
+    advanced: { shows: ['Hjemmesiden har ingen Appstore'], hides: ['Forbind til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
+  },
+  button: {
+    appstore: { shows: [], hides: ['Forbundet til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
+    advanced: { shows: ['Forbundet til Morpheme', 'site_sample', 'Afbryd forbindelsen til Morpheme'], hides: ['Forbind til Morpheme'] },
+  },
 };
-for (const [state, { shows, hides }] of Object.entries(keyStates)) {
+// The screens that show the key: where each is (its address after the "#", ADVANCED_ROUTE in Advanced.tsx for "Avanceret").
+const keyScreens = { appstore: 'settings/appstore', advanced: 'advanced' };
+for (const [state, checks] of Object.entries(keyStates)) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, locale: 'da-DK' });
   page.on('pageerror', (e) => problems.push(`Appstore (${state}): ${e.message}`));
   await openEditor(page, site, {}, state);
-  await page.evaluate(() => (location.hash = 'settings/appstore'));
-  await page.waitForTimeout(500);
-  const text = await page.evaluate(() => document.body.innerText);
-  for (const x of shows) if (!text.includes(x)) problems.push(`Appstore (${state}): "${x}" mangler`);
-  for (const x of hides) if (text.includes(x)) problems.push(`Appstore (${state}): "${x}" skal ikke vises`);
-  const file = join(shots, `appstore-${state}.png`);
-  await page.screenshot({ path: file });
-  console.log(`Appstore (${state}): ${file}`);
+  for (const [screen, { shows, hides }] of Object.entries(checks)) {
+    await page.evaluate((hash) => (location.hash = hash), keyScreens[screen]);
+    await page.waitForTimeout(500);
+    const text = await page.evaluate(() => document.body.innerText);
+    for (const x of shows) if (!text.includes(x)) problems.push(`${screen} (${state}): "${x}" mangler`);
+    for (const x of hides) if (text.includes(x)) problems.push(`${screen} (${state}): "${x}" skal ikke vises`);
+    const file = join(shots, `${screen}-${state}.png`);
+    await page.screenshot({ path: file });
+    console.log(`${screen} (${state}): ${file}`);
+  }
   await page.close();
 }
 

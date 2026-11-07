@@ -59,7 +59,7 @@ import { config } from '@site/editor';
 import { allThemes, ThemeRow, useThemeCatalog } from './ThemeStore';
 import { siteT, siteText, t } from './i18n';
 import { OwnerLicenses, StoreLicenseRows } from './Licenses';
-import { StoreFooter, StoreNotice, StoreRound, useStoreConnected, useStoreKey } from './StoreStatus';
+import { StoreNotice, StoreRound, useStoreConnected, useStoreKey } from './StoreStatus';
 import { StoreSearchRow, useStateFilter } from './StoreSearchRow';
 import { sortChoice, useSort } from './storeSort';
 import { told } from './notificationData';
@@ -454,7 +454,6 @@ function StoreScreen({ env, files, again }: { env: Env; files: RepoFile[]; again
           </Group>
         ))
       )}
-      <StoreFooter keyInfo={key} again={again} />
     </Screen>
   );
 }

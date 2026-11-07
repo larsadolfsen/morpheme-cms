@@ -3,7 +3,7 @@
 import Screen from './Screen';
 import { Group, useKept } from './ui';
 import type { Env } from './App';
-import { StoreFooter, StoreNotice, StoreRound, useStoreConnected, useStoreKey } from './StoreStatus';
+import { StoreNotice, StoreRound, useStoreConnected, useStoreKey } from './StoreStatus';
 import { StoreSearchRow, useStateFilter } from './StoreSearchRow';
 import { useSort } from './storeSort';
 import { byText } from './schema';
@@ -56,7 +56,6 @@ function ThemeStoreList({ env, again }: { env: Env; again: () => void }) {
           </Group>
         ))
       )}
-      <StoreFooter keyInfo={key} again={again} />
     </Screen>
   );
 }

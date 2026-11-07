@@ -1,10 +1,11 @@
-// The row at the bottom of "Appstore" that says the site is connected to Morpheme, with the button "Disconnect from Morpheme" (asks first).
-// Exposes StoreConnectedRow({ site, onDisconnected }); uses Group, ListItem, Button (ui.tsx), ask (ask.tsx), snackbar (lib/snackbar.ts) and disconnect (storeConnection.ts).
+// The row in "Avanceret" that says the site is connected to Morpheme, with the Morpheme logo and the button "Disconnect from Morpheme" (asks first).
+// Exposes StoreConnectedRow({ site, onDisconnected }); uses Group, ListItem, LeadingIcon, Button (ui.tsx), MorphemeLogo, ask (ask.tsx), snackbar (lib/snackbar.ts) and disconnect (storeConnection.ts).
 import { useState } from 'react';
 import { snackbar } from '../lib/snackbar';
 import { ask } from './ask';
 import { disconnect } from './storeConnection';
-import { Button, Group, ListItem } from './ui';
+import { Button, Group, LeadingIcon, ListItem } from './ui';
+import { MorphemeLogo } from './MorphemeLogo';
 import { t } from './i18n';
 
 export function StoreConnectedRow({ site, onDisconnected }: { site: string; onDisconnected: () => void }) {
@@ -23,6 +24,11 @@ export function StoreConnectedRow({ site, onDisconnected }: { site: string; onDi
   return (
     <Group>
       <ListItem
+        leading={
+          <LeadingIcon>
+            <MorphemeLogo />
+          </LeadingIcon>
+        }
         headline={t.apps.connected}
         supporting={site}
         actions={

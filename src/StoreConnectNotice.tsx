@@ -1,4 +1,4 @@
-// The box in "Appstore" for a site without a key to the store: the button "Connect to Morpheme", or a note for editors who may only read.
+// The box in "Avanceret" and above the store lists for a site without a key to the store: the button "Connect to Morpheme", or a note for editors who may only read.
 // Exposes StoreConnectNotice({ mayChange, onConnected }); uses Notice, Button, EmptyNote (ui.tsx), snackbar (lib/snackbar.ts) and connect (storeConnection.ts).
 import { useState } from 'react';
 import { snackbar } from '../lib/snackbar';

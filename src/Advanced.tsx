@@ -1,4 +1,4 @@
-// "Avanceret" (#advanced), under "Indstillinger": R2 caching, the copy of the site's files in Cloudflare R2 the Worker
+// "Avanceret" (#advanced), under "Indstillinger": the site's connection to Morpheme (MorphemeConnection.tsx), R2 caching, the copy of the site's files in Cloudflare R2 the Worker
 // answers the editor from (packages/editor/worker/files.js), turned on and off with "Aktiveret" in the Worker's settings (r2Caching.ts),
 // saved at once in its own commit. Off, the Worker asks GitHub for everything. It can only be turned on when Cloudflare
 // has the bucket (the Worker asks, /api/r2), else a deploy would fail; under the switch, why not, and, until the site is
@@ -30,6 +30,7 @@ import {
 import { config } from '@site/editor';
 import { buildSettingsOf, withBuildSetting, type BuildSetting } from './buildSettings';
 import { BUILD_SETTINGS_PATH } from '../lib/build-settings.mjs';
+import { MorphemeConnection } from './MorphemeConnection';
 import { siteT, t } from './i18n';
 
 export const ADVANCED_ROUTE = 'advanced';
@@ -171,6 +172,7 @@ export default function Advanced({ env }: { env: Env }) {
 
   return (
     <Screen title={t.common.parts.advanced} wide back={backFrom(ADVANCED_ROUTE)}>
+      <MorphemeConnection />
       <section className="mb-8">
         <GroupTitle>{t.advanced.r2Caching}</GroupTitle>
         <div className="px-4">
