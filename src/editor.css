@@ -8,6 +8,9 @@
   --editor-menu-surface: var(--surface-container-lowest);
   --editor-menu-shadow: var(--elevation-2);
 
+  /* The room a screen leaves for its FAB under the footer: Screen.tsx's padding and --editor-fab-clearance (below medium). */
+  --fab-room: 4.5rem;
+
   /* How a check went (CheckList: the SEO rating), as PageSpeed shows it: the mark before a check that is fine and one
      that can be done better, and the score's ring (from 90 good, from 50 average, else bad) with its number and the
      light circle in it; the same in every theme. */
@@ -424,7 +427,7 @@
    the window and can be scrolled up to show it above the FAB. */
 @media (width < theme(--breakpoint-medium)) {
   :root:has(.editor-screen[data-clearance='true']) {
-    --editor-fab-clearance: 4.5rem;
+    --editor-fab-clearance: var(--fab-room);
   }
 }
 
