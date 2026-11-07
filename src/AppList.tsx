@@ -1,6 +1,6 @@
 // "Indstillinger" › "Apps" (#apps): the apps installed (src/apps/, apps.ts: the site's own and those from the app store,
 // with one from the store not yet built as "Installeres…"), each with who made it under its name and, from the store,
-// that it has a newer version, with search (by name, who made it and what it does), the order (A–Å, Å–A, kept in this
+// that it has a newer version or is turned off (liveStatus, also in "Appstore"), with search (by name, who made it and what it does), the order (A–Å, Å–A, kept in this
 // browser) and headings by the first letter, as the lists under "Indhold" have. "Indstillinger" › "Appstore"
 // (#settings/appstore): all apps, those in the app store (store.ts) and the site's own, installed or not, with search (by name, what they
 // do, who made them and the words they are found by), the same order and a funnel by category (only apps: the themes are in "Theme store", ThemeStoreScreen.tsx; the search row and the
@@ -187,6 +187,10 @@ export function kindsOf(app: SiteApp) {
 
 const statusOf = (installed: boolean) => (installed ? t.apps.installed : t.apps.notInstalled);
 
+/** What an installed app's row and page head say instead of "Installed": "Deaktiveret" while it is turned off, else "Opdatering
+ * findes" when it has a newer version; undefined when neither. */
+const liveStatus = (off: boolean, update: boolean) => (off ? t.apps.deactivated : update ? t.apps.updateFound : undefined);
+
 /** The store's catalog (store.ts) for a screen: null while it is read, 'failed' when it could not be; `skip`: not read
  * (the page of one of the site's own apps). */
 function useCatalog(env: Env, skip = false): ShownApp[] | null | 'failed' {
@@ -221,6 +225,7 @@ const storeIcon = (name?: string) => <LeadingIcon>{name && <AnyIcon name={name} 
 
 export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
   const installed = installedApps(files);
+  const { off } = appsState(files);
   const catalog = useCatalog(env);
   const store = Array.isArray(catalog) ? catalog : [];
   const [query, setQuery] = useKept('apps-search', '');
@@ -238,7 +243,7 @@ export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
         publisher: a.publisher,
         hint: a.hint,
         icon: <LeadingIcon icon={a.icon} />,
-        status: updateOf(a, catalog) ? t.apps.updateFound : '',
+        status: liveStatus(off.includes(a.id), !!updateOf(a, catalog)) ?? '',
       })),
     ...installed
       .filter((id) => !apps.some((a) => a.id === id))
@@ -322,14 +327,14 @@ const developerHref = (name: string) => `#${DEVELOPER_ROUTE}/${slugify(name)}`;
 
 /** An app's row in "Appstore" and on a developer's page: its icon, its name, what it does, and whether it is installed,
  * opening its page. */
-function AppRow({ app, installed }: { app: ReturnType<typeof allApps>[number]; installed: boolean }) {
+function AppRow({ app, installed, off }: { app: ReturnType<typeof allApps>[number]; installed: boolean; off: boolean }) {
   return (
     <ListItem
       href={`#apps/${app.id}`}
       leading={app.glyph}
       headline={app.label}
       supporting={app.hint}
-      count={installed && t.apps.installed}
+      count={installed && (liveStatus(off, false) ?? t.apps.installed)}
       arrow
     />
   );
@@ -339,6 +344,7 @@ function AppRow({ app, installed }: { app: ReturnType<typeof allApps>[number]; i
  * own), each opening its page. */
 export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; files: RepoFile[] }) {
   const installed = installedApps(files);
+  const { off } = appsState(files);
   const catalog = useCatalog(env);
   const themeCatalog = useThemeCatalog(env);
   const theirs = allApps(catalog)
@@ -366,7 +372,7 @@ export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; fi
       {theirs.length > 0 && (
         <Group title={t.apps.developerApps}>
           {theirs.map((a) => (
-            <AppRow key={a.id} app={a} installed={installed.includes(a.id)} />
+            <AppRow key={a.id} app={a} installed={installed.includes(a.id)} off={off.includes(a.id)} />
           ))}
         </Group>
       )}
@@ -406,6 +412,7 @@ export function StorePage({ env, files }: { env: Env; files: RepoFile[] }) {
 
 function StoreScreen({ env, files, again }: { env: Env; files: RepoFile[]; again: () => void }) {
   const installed = installedApps(files);
+  const { off } = appsState(files);
   const key = useStoreKey();
   const catalog = useCatalog(env);
   const connected = useStoreConnected(env);
@@ -451,7 +458,7 @@ function StoreScreen({ env, files, again }: { env: Env; files: RepoFile[]; again
         appGroups.map((g) => (
           <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
             {g.items.map((a) => (
-              <AppRow key={a.id} app={a} installed={installed.includes(a.id)} />
+              <AppRow key={a.id} app={a} installed={installed.includes(a.id)} off={off.includes(a.id)} />
             ))}
           </Group>
         ))
@@ -920,7 +927,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
         icon={<LeadingIcon icon={app.icon} selected={on} />}
         label={app.label}
         publisher={app.publisher}
-        status={off ? t.apps.deactivated : on && update ? t.apps.updateFound : statusOf(on)}
+        status={(on && liveStatus(off, !!update)) || statusOf(on)}
         version={versionOf(app) || app.version}
         hint={app.hint}
       />
