@@ -51,10 +51,10 @@ Example lines:
 ## Editions
 
 Each release can be an edition named after a place: a nature photo from [Unsplash](https://unsplash.com) and the name of
-where it was taken. After an update, the start screen shows the photo, the name and the new version in a small card.
+where it was taken. After an update, the start screen shows the photo and "Morpheme <name> <version>" in a small card.
 
 - `release-notes/editions/<version>.json`: `name` (the place, as the card shows it), `place` (the full place) and
   `photo` (`by`, `source` and `license`).
-- `release-notes/editions/<version>.webp`: the photo, 1200 × 480 px, at most 200 KB.
+- `release-notes/editions/<version>.webp`: the photo, 16:9, 1280 × 720 px, at most 200 KB.
 
 A version shows the newest edition whose version is at most its own, so an edition lasts until the next one.

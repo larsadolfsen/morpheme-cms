@@ -1,6 +1,6 @@
 // At the top of the start screen: what was updated since the last visit in this browser, as a small card with a close
-// button that marks it seen. For the CMS: the photo of its edition (release-notes/editions/, named after the place the photo
-// is from), the edition's name, the new version and how many new things it brings (bundledNotes.ts), and a button to the
+// button that marks it seen. For the CMS: the photo of its edition (16:9, release-notes/editions/, named after the place
+// the photo is from), "Morpheme <edition> <version>" and how many new things it brings (bundledNotes.ts), and a button to the
 // Morpheme page with all of them; for each app installed from the store: a row with its icon and new version, to its
 // Information tab. Exposes UpdatesNotice. The logic is startView.mjs's (changesSince) and releaseNotes.mjs's (notesSince,
 // editionOf), the storage startStorage.ts's, the card, rows and buttons the theme's (themeUi.ts, ui.tsx).
@@ -50,24 +50,27 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
   });
   const news = cms ? notesSince(runningNotes, cms.from, locale) : [];
   const edition = cms && runningEdition;
-  const version = cms ? t.library.cmsVersion(cms.version) : t.library.appsUpdated(updatedApps.length);
-  const about = [edition ? version : null, news.length ? t.library.newThings(news.length) : null].filter(Boolean).join(' · ');
+  const title = cms
+    ? edition
+      ? t.library.cmsEdition(edition.name, cms.version)
+      : t.library.cmsVersion(cms.version)
+    : t.library.appsUpdated(updatedApps.length);
   return (
     <SiteCard
       kind="outlined"
       as="section"
       role="status"
       aria-labelledby="updates-title"
-      className="mb-8 overflow-hidden [--card-padding:0]"
+      className="mb-8 max-w-xl overflow-hidden [--card-padding:0]"
     >
-      {edition && <img src={edition.image} alt="" className="block aspect-[5/2] max-h-48 w-full object-cover object-[50%_85%]" />}
+      {edition && <img src={edition.image} alt="" className="block aspect-video w-full object-cover" />}
       <div className="relative p-4 pe-14">
         <CloseButton onClick={close} />
         <h2 id="updates-title" className="text-xs font-medium text-muted">
           {t.library.updatesTitle}
         </h2>
-        <p className="text-xl leading-tight [overflow-wrap:anywhere]">{edition ? edition.name : version}</p>
-        {about && <p className="mt-0.5 text-sm [overflow-wrap:anywhere] text-muted">{about}</p>}
+        <p className="text-xl leading-tight [overflow-wrap:anywhere]">{title}</p>
+        {news.length > 0 && <p className="mt-0.5 text-sm text-muted">{t.library.newThings(news.length)}</p>}
         {cms && (
           <LinkButton kind="tonal" size="small" href={`#${CMS_ROUTE}`} icon={ArrowRight} className="mt-3">
             {t.library.seeWhatsNew}
