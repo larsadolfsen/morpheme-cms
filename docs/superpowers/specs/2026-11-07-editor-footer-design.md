@@ -17,7 +17,7 @@ One centred, wrapping row of small text buttons (`LinkButton kind="text" size="s
 | 2 | System status | Driftsstatus | `#status` | in the editor |
 | 3 | Terms of use | Vilkår | none yet | hidden while the URL is `null` |
 | 4 | Report security issues | Rapportér sikkerhedsfejl | `https://github.com/larsadolfsen/morpheme-cms/security` | new tab |
-| 5 | Privacy policy | Privatlivspolitik | the Morpheme website's `/privacy-policy/` | new tab |
+| 5 | Privacy policy | Privatlivspolitik | `https://getmorpheme.com/privacy-policy/` | new tab |
 | 6 | Licenses | Licenser | `#licenses` (exists) | in the editor |
 
 Second line: `© 2026 Lars Adolfsen` (the holder in `LICENSE`). It is not translated.
@@ -131,6 +131,6 @@ in `morpheme-website`.
 - The endpoint pattern of `worker/plan-status.js` (`mayEdit`, `json`) and the fetch helper pattern of
   `planStatus()` in `src/r2Caching.ts`.
 
-## Open item
+## Website address
 
-- The public address of the Morpheme website (for the privacy policy link). The owner gives it before task E.
+The Morpheme website is `https://getmorpheme.com`. The privacy link is `https://getmorpheme.com/privacy-policy/`.

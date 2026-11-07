@@ -163,4 +163,4 @@ Acceptance check: `npm run check` and `npm run check:screens` pass. Screenshot t
 ## Hand checks
 
 - The owner switches on private vulnerability reporting: `morpheme-cms` → Settings → Security.
-- The owner gives the website address for the privacy link before task E.
+- Open `https://getmorpheme.com/privacy-policy/` and make sure the page exists.
