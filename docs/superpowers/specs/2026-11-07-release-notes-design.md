@@ -1,11 +1,13 @@
-# Release notes: Why, How, What
+# Release notes: cards with screenshots
 
-Date: 2026-11-07. Status: agreed with the owner in chat.
+Date: 2026-11-07. Status: agreed with the owner in chat. Revision 2: cards with a screenshot and a list of the other
+changes replace the labelled Why, How and What parts.
 
 ## Goal
 
-The editor tells a site owner what changed in each release. Each change has a friendly note: Why, How and What.
-The note is in the editor's language (English and Danish). `CHANGELOG.md` stays the developer log.
+The editor tells a site owner what changed in each release. A main change gets a card: a screenshot, a title and a
+short friendly paragraph. Each other change gets one short line in a list under the cards. All notes are in the
+editor's language (English and Danish). `CHANGELOG.md` stays the developer log.
 
 ## Problem now
 
@@ -19,15 +21,25 @@ The note is in the editor's language (English and Danish). `CHANGELOG.md` stays 
 |---|---|
 | Language | English and Danish. Each note has the two languages. |
 | Scope | Only changes that a site owner sees. Developer-only changes get no note. |
+| Main change | A card: screenshot, title, a paragraph of 1–3 sentences. No labels. |
+| Other change | One short line in the list "Also in this version". |
+| Screenshot | One per language, so the picture shows the editor in the reader's language. |
+| Image source | The site's own Worker. The editor makes no third-party request. |
 | 0.13.0 and older | No new notes. The page shows the old text for these versions. |
-| Tone | Friendly, "you", present tense, one or two short sentences per part. Order: Why, How, What. |
+| Tone | Friendly, "you", present tense. A card paragraph starts with why, then how, then what. |
 
-Example (English):
+Example card (English):
 
+> [screenshot of the start screen]
 > **Pick up where you left off**
-> Why: You shouldn't have to hunt through the menu for the page you were just working on.
-> How: Open the editor. Your last three pages and posts wait for you at the top. Tap one to jump straight back in.
-> What: The start screen has a new "Continue where you left off" card.
+> You shouldn't have to hunt for the page you were just working on. Your last three pages and posts now wait at the
+> top of the start screen. Tap one to jump straight back in.
+
+Example lines:
+
+> Also in this version
+> - Open website opens in a new window.
+> - The text toolbar no longer scrolls sideways on a phone.
 
 ## Data model
 
@@ -35,87 +47,92 @@ A note is one change in one language. The `id` connects the languages of one cha
 
 ```ts
 /** One change, in one language. */
-type ReleaseNote = {
-  id: string;    // the changeset's file name without .md, e.g. "brave-cats-run"; unique in the repo
-  title: string; // short headline
-  why: string;
-  how: string;
-  what: string;
-};
+type ReleaseNote =
+  | { id: string; kind: 'card'; title: string; text: string; image?: string } // image: URL, set by the Worker only
+  | { id: string; kind: 'line'; text: string };
 
 /** The notes of one released version, in one language. */
 type ReleasedNotes = { version: string; notes: ReleaseNote[] };
 ```
 
+- `id`: the changeset's file name without `.md`, e.g. `brave-cats-run`. Unique in the repo.
+- `image` is never in a JSON file. The screenshot is a file next to the note, found by its `id`.
+
 Files (Danish must be under an `i18n/da-DK/` path, else `check:language` fails):
 
 | Path | Content | Written by |
 |---|---|---|
-| `release-notes/i18n/en-US/pending/<id>.json` | one `ReleaseNote` | the pull request |
-| `release-notes/i18n/da-DK/pending/<id>.json` | one `ReleaseNote`, same `id` | the pull request |
-| `release-notes/i18n/<locale>/<version>.json` | one `ReleasedNotes` | `release:version` (moves the pending notes) |
+| `release-notes/i18n/<locale>/pending/<id>.json` | one `ReleaseNote` without `image` | the pull request |
+| `release-notes/i18n/<locale>/pending/<id>.webp` | the card's screenshot, only for `kind: 'card'` | the pull request |
+| `release-notes/i18n/<locale>/<version>.json` | one `ReleasedNotes` | `release:version` |
+| `release-notes/i18n/<locale>/<version>/<id>.webp` | the released screenshots | `release:version` |
 
-Rules:
+Rules (checked by `check:release-notes`):
 
-- A pending note in one locale has a twin with the same `id` in every other locale.
+- A pending note in one locale has a twin with the same `id` and the same `kind` in every other locale.
 - The `id` is the file name without `.json`.
-- All four text fields are not empty.
+- A card has a non-empty `title` and `text`, and a `.webp` screenshot of at most 200 KB.
+- A line has a non-empty `text` and no screenshot.
 - A released file is never changed after its release.
 
-KV, in the site's Worker (`PUSH`), extends the existing key:
+Screenshot: the editor at phone size, 375×812 CSS pixels, device scale factor 2, saved as WebP.
+
+KV, in the site's Worker (`PUSH`):
 
 | Key | Value |
 |---|---|
-| `cms:notes:<version>` | `{ version, text, notes?: { 'en-US': ReleaseNote[], 'da-DK': ReleaseNote[] } }` |
+| `cms:notes:<version>` | `{ version, text, notes?: { 'en-US': ReleaseNote[], 'da-DK': ReleaseNote[] } }` (no `image` stored) |
+| `cms:note-image:<version>:<locale>:<id>` | the WebP bytes |
 
 `text` stays: it is the fallback for versions without notes.
 
 ## Flow
 
-1. **Pull request.** The author adds the changeset (as now) and, for a change a site owner sees, the two note files.
-   `npm run check` runs `check:release-notes`: each pending note has its twin and no empty field.
-2. **Release.** `release:version` runs `changeset version`, then `scripts/release-notes.mjs`. The script moves all
-   pending notes of a locale into `release-notes/i18n/<locale>/<version>.json` (version from `package.json`). No
-   pending notes: no file. `package.json` `files` has `release-notes` so the notes ship on npm.
-3. **Site Worker.** `keepNotes` (`worker/cms-update.js`) reads `package/release-notes/i18n/<locale>/<v>.json` for
-   each version it keeps, with the existing `fileFromTar`. It adds them to `cms:notes:<v>` as `notes`.
-4. **Status.** `cmsStatus` also returns `installed`: the notes of the versions the last update brought. These are
-   the versions after `cms:update.from` up to and including the running version, when `cms:update.to` is the
-   running version and its state is `done`. Else: the notes of the running version only, when KV has them.
-5. **Editor.** The Morpheme page shows a group "New in your version" with `installed`, above the button. The
-   existing "What's new" group stays for coming versions. Each note with `notes` shows as a `ReleaseNoteCard` in
-   the editor's locale (fallback `en-US`). A version without `notes` shows its `text`, as now.
+1. **Pull request.** The author adds the changeset (as now). For a change a site owner sees, the author adds the note
+   files in both locales: a card with its screenshots, or a line. `npm run check` runs `check:release-notes`.
+2. **Release.** `release:version` runs `changeset version`, then `scripts/release-notes.mjs`. The script moves the
+   pending notes of a locale into `<version>.json`, and the screenshots into `<version>/`. `package.json` `files` has
+   `release-notes`, so the notes and screenshots ship on npm.
+3. **Site Worker.** `keepNotes` (`worker/cms-update.js`) reads each kept version's notes and screenshots from the
+   tarball with `fileFromTar`. It keeps the notes in `cms:notes:<v>` and each screenshot in `cms:note-image:...`.
+4. **Images.** `GET /api/cms/note-image/<version>/<locale>/<id>` returns the WebP from KV, with the same login check as
+   `/api/cms`, `Content-Type: image/webp` and a long cache time. No KV value: 404.
+5. **Status.** `cmsStatus` returns `notes` (versions to come) and `installed` (the versions the last update brought;
+   see `installedVersions`). The Worker sets `image` on each card to the URL of step 4.
+6. **Editor.** The Morpheme page shows a group "New in your version" with `installed`, above the button, and "What's
+   new" with the coming versions. Per version, in the editor's locale (fallback `en-US`): the cards first
+   (`ReleaseNoteCard`), then the lines under "Also in this version". A version without `notes` shows its `text`.
 
 ## Reused
 
-- `lib/changelog.mjs`: `gunzip`, `fileFromTar` (read files from the tarball).
-- `worker/cms-update.js`: `keepNotes`, `cmsStatus`, `cms:update` (`from`, `to`, `state`).
-- `src/CmsPage.tsx`: the page, `Group`, `ListItem` fallback.
-- `src/UpdateLink.tsx`: the link from the start screen's notice to `#morpheme` (no change).
-- `src/i18n`: `locale` for the language choice.
+- `lib/changelog.mjs`: `gunzip`, `fileFromTar`.
+- `worker/cms-update.js`: `keepNotes`, `cmsStatus`, `handleCms`, `cms:update`.
+- `src/CmsPage.tsx`, `src/ReleaseNotes.tsx`, `src/ReleaseNoteCard.tsx` (revision 1), `src/cmsView.mjs`.
+- `src/ui.tsx` and the theme's `SiteCard`.
 
-## New
+## New or changed
 
 | Path | What |
 |---|---|
-| `lib/releaseNotes.mjs` | pure: `problemsOf(pending)`, `released(pending, version)`, `notesFor(notes, locale)`, `installedVersions(update, running, kept)` |
-| `lib/releaseNotes.test.mjs` | unit tests |
-| `scripts/release-notes.mjs` | moves pending notes to the version file at release |
-| `scripts/check-release-notes.mjs` | fails on a missing twin or an empty field |
-| `src/ReleaseNoteCard.tsx` | one note: title, then Why, How, What |
-| `src/i18n/*/cms.ts` | texts: `newInYourVersion`, `why`, `how`, `what` |
+| `lib/releaseNotes.mjs` | pure: `problemsOf(pending)`, `released(pending, version)`, `notesFor(notes, locale)`, `installedVersions(...)`, `notesFromTar(tar, version)`, `imagePath(version, locale, id)` |
+| `scripts/release-notes-pending.mjs`, `scripts/release-notes.mjs` | read and move the screenshots too |
+| `worker/cms-update.js` | keep and serve the screenshots, set `image` |
+| `src/ReleaseNoteCard.tsx` | screenshot, title, paragraph |
+| `src/ReleaseNotes.tsx` | cards, then the lines |
+| `src/i18n/*/cms.ts` | remove `why`, `how`, `what`; add `alsoInThisVersion` |
 
 ## Tests
 
-- `problemsOf`: twin missing, id differs from file name, empty field, all good.
-- `released`: two notes become one `ReleasedNotes` per locale with the version; no notes gives nothing.
-- `notesFor`: the locale's notes; fallback to `en-US`; no `notes` gives `undefined`.
-- `installedVersions`: update done to running gives the range; update to another version gives only running;
-  no update gives only running; versions not in KV are left out.
-- `ReleaseNoteCard` and the page wiring are thin UI. Check them by hand: a screenshot of `#morpheme` in
-  `morpheme-staging` with seed notes in English and Danish.
+- `problemsOf`: twin missing, `kind` differs, id differs from file name, card without title, text or screenshot,
+  screenshot too big, line with a screenshot, all good.
+- `released`: notes and screenshot paths per locale with the version; no notes gives nothing.
+- `notesFromTar`: notes and screenshot bytes for both locales, one locale, none, bad JSON.
+- `notesFor`, `installedVersions`: as in revision 1.
+- The image route and the page wiring are thin. Check them by hand: screenshots of `#morpheme` in English and Danish
+  with a mocked `/api/cms`.
 
 ## Writing rule
 
-`.changeset/README.md` and the `release` skill get the rule: friendly, "you", present tense, Why then How then
-What, one or two short sentences each, English and Danish, only for changes a site owner sees.
+`.changeset/README.md` and the `release` skill get the rule. Friendly, "you", present tense. A card: a short title and
+1–3 sentences, starting with why, then how, then what, with no labels. A line: one short sentence. English and
+Danish. Only changes a site owner sees. A card's screenshot shows the change in the editor, per language.
