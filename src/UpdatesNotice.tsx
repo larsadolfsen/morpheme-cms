@@ -34,9 +34,10 @@ function versionsNow(files: RepoFile[]): Versions {
   };
 }
 
-/** The info button in the photo's bottom start corner, with a rich tooltip: who took the photo, on Unsplash, and a link
- * to its licence under "Licenses". It opens while the mouse is over the button or the tooltip, while focus is in them,
- * and on a tap (a second tap closes it); Escape closes it. Over the button, inside the photo, so the card does not clip it. */
+/** The info button in the photo's top end corner (a filled icon), with a rich tooltip: who took the photo, on Unsplash,
+ * and a link to its licence under "Licenses". It opens while the mouse is over the button or the tooltip, while focus is
+ * in them, and on a tap (a second tap closes it); Escape closes it. Under the button, from its end and at most as wide as
+ * the photo, so the card does not clip it. */
 function PhotoCredit({ by, version }: { by: string; version: string }) {
   const [open, setOpen] = useState(false);
   const leave = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -61,7 +62,7 @@ function PhotoCredit({ by, version }: { by: string; version: string }) {
   useEffect(() => () => clearTimeout(leave.current), []);
   return (
     <div
-      className="absolute start-1 bottom-1"
+      className="absolute end-1 top-1"
       onMouseEnter={show}
       onMouseLeave={hide}
       onFocus={show}
@@ -70,7 +71,7 @@ function PhotoCredit({ by, version }: { by: string; version: string }) {
       <SiteTooltip
         open={open}
         // Only `open` shows it: not the theme's fallback on hover and focus, which Escape could not close.
-        className="[&:not([data-tooltip-open])>.tooltip]:invisible [&:not([data-tooltip-open])>.tooltip]:opacity-0"
+        className="[&:not([data-tooltip-open])>.tooltip]:invisible [&:not([data-tooltip-open])>.tooltip]:opacity-0 [&>.tooltip]:start-auto [&>.tooltip]:end-0 [&>.tooltip]:top-[calc(100%+0.25rem)] [&>.tooltip]:bottom-auto [&>.tooltip]:max-w-60"
         supportingText={t.library.photoBy(by)}
         action={{ label: t.library.photoLicense, href: `#${LICENSES_ROUTE}/${encodeURIComponent(`editions/${version}`)}` }}
       >
@@ -79,11 +80,9 @@ function PhotoCredit({ by, version }: { by: string; version: string }) {
           aria-label={t.library.photoInfo}
           aria-expanded={open}
           onClick={() => (open && Date.now() - openedAt.current < 400 ? undefined : open ? setOpen(false) : show())}
-          className="grid size-12 place-items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-[-4px]"
+          className="grid size-12 place-items-center rounded-full text-white focus-visible:outline-2 focus-visible:outline-offset-[-4px]"
         >
-          <span className="grid size-8 place-items-center rounded-full bg-black/55 text-white">
-            <Info size={20} weight="bold" aria-hidden />
-          </span>
+          <Info size={24} weight="fill" aria-hidden />
         </button>
       </SiteTooltip>
     </div>
