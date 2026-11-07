@@ -419,6 +419,15 @@
   z-index: 30;
 }
 
+/* Below medium, while a screen leaves room for its FAB under the footer (Screen.tsx, data-clearance), the page is that room
+   taller than the window (the screen's padding less the bare one), so a short screen still has its footer at the bottom of
+   the window and can be scrolled up to show it above the FAB. */
+@media (width < theme(--breakpoint-medium)) {
+  :root:has(.editor-screen[data-clearance='true']) {
+    --editor-fab-clearance: 4.5rem;
+  }
+}
+
 /* A FAB whose action runs or cannot be used now (FabAction.busy, .disabled): dimmed, and nothing to press. */
 .editor-fab :is(.extended-fab, .fab):disabled {
   opacity: 0.38;
