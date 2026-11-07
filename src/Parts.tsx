@@ -1,4 +1,4 @@
-// "Udseende" › "Dele" › "Editor" (#appearance/parts/editor): the parts only the editor has (ui.tsx: the SEO rating, the
+// "Developer" › "Parts" › "Editor" (#developer/parts/editor): the parts only the editor has (ui.tsx: the SEO rating, the
 // colour field, the choices of pages and icons, the form's layout …) in every state, on one screen, to see and agree on
 // how the editor looks, and below them the form fields (fields.tsx), one of each type with the settings it can have.
 // The parts the theme has too (buttons, fields, switches, lists, sheets …) are the theme's, shown under "UI-komponenter"
@@ -155,7 +155,7 @@ export default function Parts({ env }: { env: Env }) {
   const page = useMemo(() => exampleData().relations.pages[1].value, []);
 
   return (
-    <Screen title={t.parts.screens.editor} back={{ href: '#appearance/parts', label: t.common.parts.editorParts }}>
+    <Screen title={t.parts.screens.editor} back={{ href: '#developer/parts', label: t.common.parts.editorParts }}>
       <div className="space-y-10">
         <p className="text-muted">{t.parts.intro('packages/editor/src/ui.tsx')}</p>
         <PartsShown groups={GROUPS} keep="parts">
@@ -199,7 +199,7 @@ export default function Parts({ env }: { env: Env }) {
                     { value: 'top', label: sample.top },
                     { value: 'list', label: sample.inList },
                   ]}
-                  href="#appearance/parts/editor"
+                  href="#developer/parts/editor"
                   onChange={setPlacement}
                 />
               </div>
@@ -273,7 +273,7 @@ export default function Parts({ env }: { env: Env }) {
                 max={3}
                 footer={(close) => (
                   <SheetLink
-                    href="#appearance/parts/editor"
+                    href="#developer/parts/editor"
                     onClick={(e) => {
                       e.preventDefault();
                       close();
@@ -393,10 +393,10 @@ export default function Parts({ env }: { env: Env }) {
                   { icon: FolderSimple, label: sample.media, count: 42 },
                   { icon: PencilSimple, label: sample.pages, count: 12 },
                 ].map((p) => (
-                  <ListItem key={p.label} href="#appearance/parts/editor" icon={p.icon} headline={p.label} count={p.count} arrow />
+                  <ListItem key={p.label} href="#developer/parts/editor" icon={p.icon} headline={p.label} count={p.count} arrow />
                 ))}
                 {/* With a text under its name: the icon beside the first two lines. */}
-                <ListItem href="#appearance/parts/editor" icon={Gear} headline={sample.cookieBanner} supporting={sample.cookieHint} arrow />
+                <ListItem href="#developer/parts/editor" icon={Gear} headline={sample.cookieBanner} supporting={sample.cookieHint} arrow />
                 {/* With a picture before its name (the picture a page's colours came from). */}
                 <ListItem
                   leading={<LeadingImage src={examplePicture} />}
@@ -409,7 +409,7 @@ export default function Parts({ env }: { env: Env }) {
                     />
                   }
                 />
-                {/* With a sample of one of the theme's tokens before its name ("Dele" › "Værdier"). */}
+                {/* With a sample of one of the theme's tokens before its name ("Parts" › "Værdier"). */}
                 <ListItem leading={<LeadingToken kind="shape" value="var(--radius)" />} headline={sample.corners} supporting="--radius" />
               </Group>
               <div className={row}>
@@ -459,7 +459,7 @@ export default function Parts({ env }: { env: Env }) {
             <Part name="UnfoldButton, subListClass" use={use.unfold}>
               <ul className={listClass}>
                 <ListItem
-                  href="#appearance/parts/editor"
+                  href="#developer/parts/editor"
                   headline={sample.pages}
                   actions={
                     <span className="shrink-0 pr-1.5">
@@ -477,7 +477,7 @@ export default function Parts({ env }: { env: Env }) {
                   <li className="pb-2">
                     <ul className={subListClass}>
                       {[1, 2, 3].map((n) => (
-                        <ListItem key={n} tone="sub" href="#appearance/parts/editor" headline={sample.subpage(n)} />
+                        <ListItem key={n} tone="sub" href="#developer/parts/editor" headline={sample.subpage(n)} />
                       ))}
                     </ul>
                   </li>

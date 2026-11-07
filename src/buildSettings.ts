@@ -1,4 +1,4 @@
-// The build settings the editor writes under "Indstillinger" › "Avanceret" (Advanced.tsx): src/data/build.json, read by
+// The build settings the editor writes under Settings › Developer › Caching and builds (Advanced.tsx): src/data/build.json, read by
 // the build (fast content lane) and by the editor's wait for a build. Exposes buildSettingsOf and withBuildSetting; the
 // defaults come from packages/editor/lib/build-settings.mjs.
 import { readBuildSettings } from '../lib/build-settings.mjs';

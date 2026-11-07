@@ -3,6 +3,8 @@ import type { Messages } from '../en-US';
 export const apps: Messages['apps'] = {
   installed: 'Installeret',
   notInstalled: 'Ikke installeret',
+  enabled: 'Aktiveret',
+  deactivated: 'Deaktiveret',
   publisher: (name) => `Udvikler: ${name}`,
   screenshots: 'Skærmbilleder',
   about: 'Om appen',
@@ -46,7 +48,7 @@ export const apps: Messages['apps'] = {
   notUsed: 'Bruges ingen steder',
   stuck: 'Appen bruges og kan ikke afinstalleres. Fjern den fra stederne ovenfor først.',
   blocks: 'Blokke',
-  lists: 'Lister',
+  lists: 'Dynamiske lister',
   tabSettings: 'Indstillinger',
   tabInfo: 'Information',
   tabs: 'Appens dele',
@@ -94,6 +96,8 @@ export const apps: Messages['apps'] = {
   commit: {
     install: (app) => `Editor: installer appen ${app}`,
     uninstall: (app) => `Editor: afinstaller appen ${app}`,
+    turnOn: (app) => `Editor: slå appen ${app} til`,
+    turnOff: (app) => `Editor: slå appen ${app} fra`,
     update: (app, version) => `Editor: opdater appen ${app} til ${version}`,
   },
 };

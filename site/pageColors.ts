@@ -1,5 +1,5 @@
 // The colours of one page, for the theme (Base.astro, which knows no app by name): the site's own (src/data/colors.json,
-// "Farver"), changed by the apps installed that change a page's colours (hooks/page-colors.ts, PageColorsHook in
+// "Farver"), changed by the active apps (installed, not turned off) that change a page's colours (hooks/page-colors.ts, PageColorsHook in
 // @morphemecms/cms/lib/hooks.ts), in the order of their ids, each given the colours the one before left. An app gets the
 // page's address, its pictures, its own settings, the colours' roles, and the pixels of a picture read small, so it
 // never reads the site's files itself; what it gives is kept only when it is the site's colours, by their names, and
@@ -12,7 +12,7 @@ import path from 'node:path';
 import sharp from 'sharp';
 import colors from '@data/colors.json';
 import { colorFields, colorPairs, colorRoles } from '@site/colors';
-import { installed, settingsOf } from './apps';
+import { active, settingsOf } from './apps';
 import { appIdOf, type AppDefinition } from '@morphemecms/cms/src/apps';
 import { colorProblems, lowContrast, MODES, type Colors } from '@morphemecms/cms/lib/colors';
 import { completeColors } from '@morphemecms/cms/lib/dynamic-colors';
@@ -31,7 +31,7 @@ const appFiles = import.meta.glob<{ default: AppDefinition }>('/src/apps/*/index
 const hookFiles = import.meta.glob<{ default: PageColorsHook }>('/src/apps/*/hooks/page-colors.ts', { eager: true });
 const hooks = Object.entries(hookFiles)
   .map(([file, { default: hook }]) => ({ id: appIdOf(file), hook }))
-  .filter(({ id }) => installed.includes(id))
+  .filter(({ id }) => active.includes(id))
   .sort((a, b) => a.id.localeCompare(b.id))
   .map(({ id, hook }) => ({
     id,

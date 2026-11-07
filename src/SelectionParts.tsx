@@ -1,4 +1,4 @@
-// "Dele" › "UI-komponenter" (BlockParts.tsx), the group "Kontakter, valg og sideark": the theme's switches, setting rows, radio buttons,
+// "Parts" › "UI-komponenter" (BlockParts.tsx), the group "Kontakter, valg og sideark": the theme's switches, setting rows, radio buttons,
 // sliders, dividers and side sheets (packages/editor/theme/ui/, through @site/editor) as the site draws them, in every
 // kind and state (the sliders also centered, in each size, with an icon and vertical), with made-up texts. The
 // switches, radio buttons and sliders can be tried (a slider's tracks and labels follow it here as on the site);

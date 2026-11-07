@@ -1,7 +1,8 @@
-// The Settings tab of an installed app's page, below its head and its settings form: what the app shows itself (`page`),
-// what it adds with its switches, its kinds of notifications with their switches, and "Afinstaller" with its text (it shows the loading indicator while it uninstalls).
+// The Settings tab of an installed app's page, below its head and its settings form: the "Aktiveret" switch, what the app
+// shows itself (`page`, not while it is off), what it adds with its switches, its kinds of notifications with their switches,
+// and "Afinstaller" with its text (it shows the loading indicator while it uninstalls).
 // Exposes AppSettingsTab (default). Depends on AppAdds.tsx, AppNotificationSwitches.tsx, ./ui and notificationData.ts.
-import { Button, SupportingText } from './ui';
+import { Button, SupportingText, SwitchRow } from './ui';
 import AppAdds from './AppAdds';
 import AppNotificationSwitches from './AppNotificationSwitches';
 import type { RepoFile } from './github';
@@ -10,12 +11,15 @@ import type { SiteApp } from './apps';
 import { appType } from './notificationData';
 import { siteText, t } from './i18n';
 
-/** `busy`: something is saving; `uninstalling`: this app is uninstalled now; `stuck`: the app is in use, so it cannot be uninstalled; `onUninstall`: "Afinstaller". */
+/** `busy`: something is saving; `enabled`: the app is not turned off, `onEnabled`: the switch "Aktiveret"; `uninstalling`: this app is
+ * uninstalled now; `stuck`: the app is in use, so it cannot be uninstalled; `onUninstall`: "Afinstaller". */
 export default function AppSettingsTab({
   app,
   env,
   files,
   busy,
+  enabled,
+  onEnabled,
   uninstalling,
   stuck,
   onUninstall,
@@ -24,6 +28,8 @@ export default function AppSettingsTab({
   env: Env;
   files: RepoFile[];
   busy: boolean;
+  enabled: boolean;
+  onEnabled: (on: boolean) => void;
   uninstalling: boolean;
   stuck: boolean;
   onUninstall: () => void;
@@ -34,8 +40,11 @@ export default function AppSettingsTab({
   }));
   return (
     <>
-      {/* What the app shows itself (its `page`), while it is installed. */}
-      {app.page && (
+      <div className="mb-8 px-4">
+        <SwitchRow label={t.apps.enabled} texts={[t.library.on, t.library.off]} selected={enabled} disabled={busy} onChange={onEnabled} />
+      </div>
+      {/* What the app shows itself (its `page`), while it is installed and not off. */}
+      {app.page && enabled && (
         <div data-app-page={app.id}>
           <app.page api={(path, init) => env.appApi(app.id, path, init)} />
         </div>

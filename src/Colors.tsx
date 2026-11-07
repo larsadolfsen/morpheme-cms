@@ -68,7 +68,7 @@ import { colorsInPicture, pickImage, shownAt } from './images';
 import { holdTheme, shownMode } from './theme';
 import { locale, siteT, t } from './i18n';
 import { colorFields, colorPairs, apps as siteApps } from './site';
-import { appSettings, installedApps, type SiteApp } from './apps';
+import { activeApps, appSettings, type SiteApp } from './apps';
 import { settingsRoute } from './AppList';
 import { splitPicture } from '../lib/crop.mjs';
 
@@ -116,7 +116,7 @@ export const FALLBACK_ROUTE = 'appearance/colors/fallback-colors';
 
 /** The apps installed that change the pages' colours (hooks/page-colors.ts). */
 const colorApps = (files: RepoFile[]) => {
-  const installed = installedApps(files);
+  const installed = activeApps(files);
   return siteApps.filter((a) => installed.includes(a.id) && a.needs.changes?.includes('page-colors'));
 };
 

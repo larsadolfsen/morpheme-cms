@@ -472,7 +472,7 @@ try {
   await run('r2-fejler', failing);
   await settle();
 
-  // R2 caching under "Indstillinger" › "Avanceret" (r2Caching.ts): the Worker's settings have the line and its bucket, and
+  // R2 caching under Settings › Developer › Caching and builds (r2Caching.ts): the Worker's settings have the line and its bucket, and
   // with it on or off they are settings wrangler reads, with the bucket bound as FILES or no bucket; on and off again,
   // they are as they were. And /api/r2 (packages/editor/worker/r2-status.js) says what Cloudflare says of the bucket, only to someone who
   // can save, so the switch is turned on only when Cloudflare has it.

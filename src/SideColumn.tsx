@@ -10,7 +10,7 @@ import { ChoiceRow, EmptyNote, Group } from './ui';
 import type { Env } from './App';
 import { kindAndName } from './deploy';
 import { ask } from './ask';
-import { installedApps } from './apps';
+import { activeApps } from './apps';
 import { siteBlocks } from './registry';
 import { locale, siteT, t } from './i18n';
 import { sideChoices } from '../lib/side-block.mjs';
@@ -38,7 +38,7 @@ export function sideSettingOf(files: { path: string; text: string }[]): string |
 
 /** The installed blocks that can be drawn beside a page's text, with their names in the editor's language. */
 export const sideChoicesOf = (files: { path: string; text: string }[]) =>
-  sideChoices(siteBlocks, sources, installedApps(files)) as { type: string; label: string }[];
+  sideChoices(siteBlocks, sources, activeApps(files)) as { type: string; label: string }[];
 
 /** "Sidekolonne": "Ingen" and each block that can be drawn beside the text, the one chosen ticked. A tap on another asks
  * first and then saves it (`{ "block": "<type>" }`, or `{ "block": null }`) at once, in its own commit, as an icon pack is. */

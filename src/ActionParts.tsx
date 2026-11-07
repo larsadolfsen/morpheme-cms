@@ -1,4 +1,4 @@
-// "Dele" › "UI-komponenter" (BlockParts.tsx), the group "Handlinger": the theme's buttons that do more than one thing
+// "Parts" › "UI-komponenter" (BlockParts.tsx), the group "Handlinger": the theme's buttons that do more than one thing
 // (packages/editor/theme/ui/, through @site/editor) as the site draws them: button groups in both kinds with toggles on
 // and off, in every size and in both shapes, segmented buttons with one and with several chosen, split buttons in their
 // kinds and sizes, closed and with the menu open, and FAB menus in their colour sets, from FABs of each size, closed

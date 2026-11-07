@@ -12,7 +12,7 @@
 // blocks/, each with its own View.tsx and viewOf.ts for view.ts (it would differ from View.tsx only in case); they
 // are offered once the app is installed. A theme has no blocks of its own, only the look of the standard ones.
 import type { ReactNode } from 'react';
-import { appIdOf, installedApps } from './apps';
+import { activeApps, appIdOf } from './apps';
 import { htmlBlock, type BlockData, type BlockDefinition, type BlockProps, type DrawBlock, type SiteBlock } from './blocks';
 import { check, templateProblems } from './check';
 import { slugOf, type Field, type Lead, type Template } from './schema';
@@ -82,7 +82,7 @@ export function offBlocks(files: { path: string; text: string }[]): string[] {
 /** The blocks not offered to put in, and that a new page does not start with: those turned off, and
  * those of the apps not installed (AppList.tsx). */
 export function notOffered(files: { path: string; text: string }[]): string[] {
-  const installed = installedApps(files);
+  const installed = activeApps(files);
   return [...offBlocks(files), ...siteBlocks.filter((b) => b.app && !installed.includes(b.app)).map((b) => b.type)];
 }
 

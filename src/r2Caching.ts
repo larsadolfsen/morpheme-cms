@@ -1,6 +1,6 @@
 // Also here: planStatus, whether the account has Workers Paid (/api/plan, packages/editor/worker/plan-status.js), asked for "Betalt bygning".
 // R2 caching: the Worker's copy of the site's files in R2 (packages/editor/worker/files.js), turned on and off under "Indstillinger" ›
-// "Avanceret" (Advanced.tsx). It is the line of its bucket (`"r2_buckets": …`, the binding FILES) in the Worker's settings
+// "Caching and builds" (Advanced.tsx). It is the line of its bucket (`"r2_buckets": …`, the binding FILES) in the Worker's settings
 // (config.wrangler): there when it is on, there as a comment ("// …") when it is off, so a deploy never asks for a bucket
 // Cloudflare does not have. Changed as text, so the file's comments stay. It can only be turned on when the Worker says
 // Cloudflare has the bucket (/api/r2, packages/editor/worker/r2-status.js). Where the bucket is kept ("Placering"): placed by Cloudflare,

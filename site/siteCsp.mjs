@@ -6,6 +6,7 @@
 // Read by the build (packages/editor/astro.mjs) and by npm run check:content (appCspProblems), so no TypeScript here.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
+import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 import { allows, sourcesProblems } from '../lib/csp.mjs';
 
 // The site's src/, from its root (the working directory).
@@ -22,10 +23,10 @@ const appSources = (app) => {
 const ALLOWED = new URL('data/csp.json', SRC);
 const allowedSources = () => (existsSync(ALLOWED) ? JSON.parse(readFileSync(ALLOWED, 'utf8')) : {});
 
-/** What the site's installed apps load from elsewhere, and the addresses allowed in the editor.
+/** What the site's active apps (installed, not turned off) load from elsewhere, and the addresses allowed in the editor.
  * @returns {import('../lib/csp.mjs').Sources[]} */
 export function siteSources() {
-  return [...(json('data/apps.json').installed ?? []).map(appSources), allowedSources()];
+  return [...activeOf(readAppsFile(readFileSync(new URL('data/apps.json', SRC), 'utf8'))).map(appSources), allowedSources()];
 }
 
 /** What is wrong with the addresses allowed in the editor (src/data/csp.json): not JSON, or not written as an app's
