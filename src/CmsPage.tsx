@@ -1,4 +1,4 @@
-// "Morpheme" (#morpheme), under "Indstillinger": the CMS version the site runs, the notes of that version (from the
+// "Morpheme" (#morpheme), under "Indstillinger": the CMS version the site runs, the notes of its minor line (from the
 // package itself, bundledNotes.ts), a newer one with its notes, why it is not taken by itself, and an update's progress, and the site's connection to the
 // Morpheme store (MorphemeConnection) as its last group. Exposes CMS_ROUTE and the page. Depends on cmsView.mjs, bundledNotes.ts,
 // ReleaseNotes (the notes as cards), MorphemeConnection and the Worker's /api/cms.
@@ -107,7 +107,7 @@ export default function CmsPage() {
       {!view && !problem && <EmptyNote busy>{t.app.loading}</EmptyNote>}
       {view && (
         <>
-          {runningNotes && <ReleaseNotes title={t.cms.newInYourVersion} entries={[runningNotes]} />}
+          {runningNotes.length > 0 && <ReleaseNotes title={t.cms.newInYourVersion} entries={runningNotes} />}
           <Group>
             <ListItem icon={Info} headline={t.cms.running(view.running)} supporting={view.latest ? undefined : t.cms.upToDate} />
             <ListItem icon={Clock} headline={view.checkedAt ? t.cms.checked(when(new Date(view.checkedAt))) : t.cms.notChecked} />

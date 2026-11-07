@@ -1,6 +1,6 @@
 // Release step: moves the pending release notes into release-notes/i18n/<locale>/<version>.json, their screenshots into
 // <version>/<id>.webp, the version from package.json,
-// and deletes the screenshot folders of older versions (the package carries only the running version's). Run by release:version after changeset version.
+// and deletes the screenshot folders of older minor lines (the package carries the running minor line's). Run by release:version after changeset version.
 // Usage: node scripts/release-notes.mjs [root]; exits 1 on a problem or an existing file.
 import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -37,7 +37,7 @@ for (const [locale, { file, images }] of Object.entries(result)) {
     rmSync(join(localeDir, 'pending', `${id}.json`));
   }
 }
-// The package carries only the running version's screenshots; the notes files stay.
+// The package carries the screenshots of the running minor line only; the notes files stay.
 const i18n = join(root, 'release-notes', 'i18n');
 for (const locale of readdirSync(i18n, { withFileTypes: true }).filter((e) => e.isDirectory())) {
   const dirs = readdirSync(join(i18n, locale.name), { withFileTypes: true }).filter((e) => e.isDirectory());
