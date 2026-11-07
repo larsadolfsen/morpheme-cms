@@ -22,11 +22,11 @@ export default function EditorFooter() {
   }, []);
 
   return (
-    <footer className="mt-auto pt-12">
+    <footer className="mt-auto pt-6">
       <SiteDivider />
-      <div className="pt-4">
+      <div className="pt-1">
         <FooterLinks state={state} />
-        <SupportingText className="pt-2 text-center">{COPYRIGHT}</SupportingText>
+        <SupportingText className="text-center">{COPYRIGHT}</SupportingText>
       </div>
     </footer>
   );
