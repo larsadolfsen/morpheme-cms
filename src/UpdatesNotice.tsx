@@ -109,7 +109,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       )}
       {cms && (
         <div className="px-4 pt-4 pb-4">
-          <LinkButton kind="elevated" href={`#${CMS_ROUTE}`} icon={ArrowRight}>
+          <LinkButton kind="tonal" href={`#${CMS_ROUTE}`} icon={ArrowRight}>
             {t.library.seeWhatsNew}
           </LinkButton>
         </div>
