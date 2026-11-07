@@ -3,7 +3,7 @@
 // Exposes RUNNING, checkForUpdate, startUpdate, watchUpdate, cmsStatus and handleCms (/api/cms, and GET /api/cms/note-image/<version>/<locale>/<id>,
 // behind the same login check). Needs GITHUB_PUBLISH_TOKEN and the KV binding PUSH. Keeps each new version's changelog text and release
 // notes (en-US, da-DK) as cms:notes:<version> and each card screenshot as cms:note-image:<version>:<locale>:<id>; cmsStatus returns
-// the notes to come and the installed ones, with the screenshot address on each card. Depends on github.js, session.js, push.js and lib/{lockfile,cms-version,changelog,releaseNotes}.mjs;
+// the notes to come, with the screenshot address on each card. Depends on github.js, session.js, push.js and lib/{lockfile,cms-version,changelog,releaseNotes}.mjs;
 // I/O is injected (`deps`).
 import { config } from '@site/config';
 import { cms as cmsEn } from '../src/i18n/en-US/cms';
@@ -11,7 +11,7 @@ import { cms as cmsDa } from '../src/i18n/da-DK/cms';
 import { addToLock, NeedsNpm } from '../lib/lockfile.mjs';
 import { compareVersions, managedVersion, nextVersion, PACKAGE, watchStep } from '../lib/cms-version.mjs';
 import { fileFromTar, gunzip, sectionsBetween } from '../lib/changelog.mjs';
-import { imageKey, installedVersions, notesFromTar, parseImagePath, withImageUrls } from '../lib/releaseNotes.mjs';
+import { imageKey, notesFromTar, parseImagePath, withImageUrls } from '../lib/releaseNotes.mjs';
 import pkg from '../package.json';
 import { GitHubError } from './files.js';
 import { commitFiles, readFiles } from './github.js';
@@ -211,8 +211,8 @@ export async function watchUpdate(env, deps = defaultDeps, now = Date.now()) {
 
 /**
  * What the page shows: the running version, the token, what npm said, the update, the skipped versions, the notes of the
- * versions still to come (`notes`) and those of the versions installed (`installed`, see installedVersions). Each entry is
- * `{ version, text, notes? }`; `notes` maps a locale to its release notes. Both lists stay empty when the running version is a pre-release.
+ * versions still to come (`notes`). Each entry is `{ version, text, notes? }`; `notes` maps a locale to its release notes. The list stays
+ * empty when the running version is a pre-release. The running version's own notes are not here: the editor reads them from the package (src/bundledNotes.ts).
  */
 export async function cmsStatus(env, running = RUNNING) {
   const kv = env.PUSH;
@@ -224,7 +224,6 @@ export async function cmsStatus(env, running = RUNNING) {
     update: null,
     skipped: [],
     notes: [],
-    installed: [],
   };
   const plain = /^\d+\.\d+\.\d+$/;
   if (!kv) return status;
@@ -241,8 +240,6 @@ export async function cmsStatus(env, running = RUNNING) {
   );
   wanted.sort((a, b) => compareVersions(b, a));
   status.notes = entries(await Promise.all(wanted.map((v) => kv.get(`cms:notes:${v}`, 'json'))));
-  const installed = installedVersions(status.update, running, kept);
-  status.installed = entries(await Promise.all(installed.map((v) => kv.get(`cms:notes:${v}`, 'json'))));
   return status;
 }
 
