@@ -810,8 +810,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   const [, screenApp, screenId, ...deeper] = route.split('/');
   const ownScreen =
     route.startsWith('apps/') && !deeper.length && apps.find((a) => a.id === screenApp && screenId && a.screens?.[screenId]);
-  if (ownScreen && activeApps(files).includes(ownScreen.id))
-    return <AppScreenPage key={route} app={ownScreen} id={screenId} env={env} />;
+  if (ownScreen && activeApps(files).includes(ownScreen.id)) return <AppScreenPage key={route} app={ownScreen} id={screenId} env={env} />;
   if (route === 'developer/parts') return <PartsHome />;
   if (route === 'developer/parts/editor') return <Parts env={env} />;
   if (route === 'developer/parts/ui') return <ComponentParts />;
