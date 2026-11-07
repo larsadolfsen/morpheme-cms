@@ -1,5 +1,12 @@
 # @morphemecms/cms
 
+## 0.14.1
+
+### Patch Changes
+
+- eea5442: On a phone, the back gesture in the open menu goes to the screen before and closes the menu, instead of going up one level in the menu.
+- ee45cf2: Show the release notes of the running version from the installed package, not from KV.
+
 ## 0.14.0
 
 ### Minor Changes
