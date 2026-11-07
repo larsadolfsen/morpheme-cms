@@ -1,6 +1,0 @@
-{
-  "id": "editor-footer",
-  "kind": "card",
-  "title": "Se om GitHub og Cloudflare virker",
-  "text": "Når noget ikke vil gemme eller udgive, vil du gerne vide, om problemet er din hjemmeside eller de tjenester, den kører på. Rul ned til bunden af editoren, og tryk på Driftsstatus. Den tjekker kun de tjenester, din hjemmeside bruger."
-}
