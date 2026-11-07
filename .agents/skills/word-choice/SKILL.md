@@ -5,5 +5,5 @@ description: >-
 ---
 
 The editor's texts follow the skill `site-editor-writing`.
-That skill comes with the package from `morpheme-website`'s `packages/editor/` (`.agents/skills/site-editor-writing/SKILL.md` there).
+That skill is in `larsadolfsen/morpheme-website`, at `.agents/skills/site-editor-writing/SKILL.md`; it also covers the release notes (`release-notes/`).
 This skill only points there.

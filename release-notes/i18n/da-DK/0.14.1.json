@@ -4,12 +4,12 @@
     {
       "id": "drawer-back-changes-screen",
       "kind": "line",
-      "text": "På en telefon fører et swipe tilbage med menuen åben dig nu til skærmen før og lukker menuen."
+      "text": "Swiper du tilbage på en telefon, mens menuen er åben, lukker menuen, og du kommer til skærmen før"
     },
     {
       "id": "notes-from-package",
       "kind": "line",
-      "text": "Noterne til din version vises nu lige efter en opdatering."
+      "text": "Noter som disse vises nu, lige når du har opdateret"
     }
   ]
 }
