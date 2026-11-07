@@ -1,0 +1,21 @@
+{
+  "version": "0.14.2",
+  "notes": [
+    {
+      "id": "footer-scrolls-above-fab",
+      "kind": "line",
+      "text": "På en telefon kan du nu rulle editorens bundlinje fri af plusknappen, også på korte skærme."
+    },
+    {
+      "id": "lists-follow-md3",
+      "kind": "line",
+      "text": "Lister i editoren viser nu lyse rækker på en tonet side, som i Material 3."
+    },
+    {
+      "id": "update-card-whats-new",
+      "kind": "card",
+      "title": "Nyhederne møder dig på startskærmen",
+      "text": "Efter en opdatering skal du ikke selv lede efter, hvad der er nyt. Øverst på startskærmen ser du nu den nye version og de vigtigste nyheder, med et billede af den største. Tryk på Se, hvad der er nyt for at se det hele."
+    }
+  ]
+}
