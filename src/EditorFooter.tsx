@@ -1,13 +1,10 @@
 // The editor's footer: at the bottom of every screen (Screen.tsx), under the content, or at the bottom of the window when
-// the content is short (the start screen): a divider, the links (FooterLinks.tsx: support, system status, legal, "Licenses")
-// and the copyright line. Exposes EditorFooter. Fetches the services' status once (statusReport.ts) for the dot; the safe
-// area at the bottom is Screen's main.
+// the content is short (the start screen): a divider and one row with the links and the copyright line (FooterLinks.tsx).
+// Exposes EditorFooter. Fetches the services' status (statusReport.ts, kept for a minute) for the dot.
 import { useEffect, useState } from 'react';
-import { SupportingText } from './ui';
 import { SiteDivider } from './themeUi';
 import FooterLinks from './FooterLinks';
 import { serviceStatus } from './statusReport';
-import { COPYRIGHT } from '../lib/footerLinks.mjs';
 import type { ServiceState } from '../lib/serviceStatus.mjs';
 
 export default function EditorFooter() {
@@ -26,7 +23,6 @@ export default function EditorFooter() {
       <SiteDivider />
       <div className="pt-1">
         <FooterLinks state={state} />
-        <SupportingText className="text-center">{COPYRIGHT}</SupportingText>
       </div>
     </footer>
   );
