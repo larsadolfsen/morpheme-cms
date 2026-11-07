@@ -41,17 +41,20 @@ editor CSP stays strict, and the Worker caches the feeds.
 Only the components that a Morpheme site uses count. The overall `status.indicator` of a feed does not count:
 Cloudflare often shows "major" for one data centre that has no effect on the site.
 
-| Provider | Component name | Component id | Why |
-|---|---|---|---|
-| GitHub | Git Operations | `8l4ygp009s5s` | the editor saves through commits |
-| GitHub | API Requests | `brv1bkgrwx7q` | the Worker reads and writes files through the API |
-| GitHub | Webhooks | `4230lsnqdsld` | a push starts the Cloudflare build |
-| Cloudflare | Workers | `57srcl8zcn7c` | the site and the editor run on the Worker |
-| Cloudflare | Workers Assets | `pg21w9xb991r` | the site's pages (`ASSETS`) |
-| Cloudflare | Workers Builds | `vcpsk0w6g86k` | publish builds the site |
-| Cloudflare | Workers KV | `tmh50tx2nprs` | `NOT_FOUND`, `PUSH` |
-| Cloudflare | D1 | `z0yd3sxqjqdm` | `CONSENT` |
-| Cloudflare | R2 | `hb7g5sq2zz0h` | files and R2 caching |
+| Provider | Component name | Component id | Why | Counts when |
+|---|---|---|---|---|
+| GitHub | Git Operations | `8l4ygp009s5s` | the editor saves through commits | always |
+| GitHub | API Requests | `brv1bkgrwx7q` | the Worker reads and writes files through the API | always |
+| GitHub | Webhooks | `4230lsnqdsld` | a push starts the Cloudflare build | always |
+| Cloudflare | Workers | `57srcl8zcn7c` | the site and the editor run on the Worker | always |
+| Cloudflare | Workers Assets | `pg21w9xb991r` | the site's pages (`ASSETS`) | always |
+| Cloudflare | Workers Builds | `vcpsk0w6g86k` | publish builds the site | always |
+| Cloudflare | Workers KV | `tmh50tx2nprs` | `NOT_FOUND`, `PUSH` | the Worker has `env.NOT_FOUND` or `env.PUSH` |
+| Cloudflare | D1 | `z0yd3sxqjqdm` | `CONSENT` | the Worker has `env.CONSENT` |
+| Cloudflare | R2 | `hb7g5sq2zz0h` | files and R2 caching | the Worker has `env.FILES` (optional: the starter has it commented out) |
+
+A component counts only when the site has the binding it needs (`needs` in `lib/serviceStatus.mjs`, `providersFor`). The Worker checks
+its `env`, and the report lists only the components that count, with no binding names.
 
 Ids come from the live feeds on 2026-11-07. Match components by id; ids stay when names change.
 
