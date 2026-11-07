@@ -2,9 +2,13 @@
 // or a number (`count`, more than `max` shown as "999+"), on what it is about (`children`: an icon or an icon button,
 // at its top end corner, .badge-anchor) or by itself after a label (a navigation drawer's item). The badge is only seen:
 // what it says is read by screen readers from `label` (e.g. "3 nye beskeder"), or, on an icon button, from the button's
-// own name, which should say it. How it looks is the theme's (--badge-*). An Astro component gives an element the same
-// classes with badgeClass.
+// own name, which should say it. How it looks is the theme's (--badge-*). `tone` (ok, minor, major, unknown) colours the
+// badge as a status (green, yellow, orange, grey; written as data-tone, --badge-ok etc.); without it the badge keeps the
+// error colour. An Astro component gives an element the same classes with badgeClass.
 import type { ReactNode } from 'react';
+
+/** A badge's status tone: how a status dot is coloured. */
+export type BadgeTone = 'ok' | 'minor' | 'major' | 'unknown';
 
 /** A badge's classes: the small dot, or the large one with a number. */
 export const badgeClass = (large: boolean) => `badge ${large ? 'badge-large' : 'badge-small'}`;
@@ -13,6 +17,7 @@ export default function Badge({
   count,
   max = 999,
   label,
+  tone,
   className,
   children,
   ...rest
@@ -20,12 +25,13 @@ export default function Badge({
   count?: number;
   max?: number;
   label?: string;
+  tone?: BadgeTone;
   className?: string;
   children?: ReactNode;
 } & Record<string, unknown>) {
   const large = count !== undefined;
   const badge = (
-    <span className={[badgeClass(large), className].filter(Boolean).join(' ')} aria-hidden="true" {...rest}>
+    <span className={[badgeClass(large), className].filter(Boolean).join(' ')} aria-hidden="true" data-tone={tone} {...rest}>
       {large && (count > max ? `${max}+` : count)}
     </span>
   );

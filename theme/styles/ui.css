@@ -5079,6 +5079,19 @@
     color: var(--badge-text, var(--block-on-accent));
     pointer-events: none;
   }
+  /* A status tone (Badge `tone`): the dot in the tone's colour instead of the error colour. */
+  .badge[data-tone='ok'] {
+    background: var(--badge-ok);
+  }
+  .badge[data-tone='minor'] {
+    background: var(--badge-minor);
+  }
+  .badge[data-tone='major'] {
+    background: var(--badge-major);
+  }
+  .badge[data-tone='unknown'] {
+    background: var(--badge-unknown);
+  }
   .badge-small {
     width: var(--badge-small-size, 0.375rem);
     height: var(--badge-small-size, 0.375rem);
