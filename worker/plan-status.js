@@ -1,4 +1,4 @@
-// Whether the Cloudflare account has Workers Paid, for "Indstillinger" › "Avanceret" › "Bygning" in the editor
+// Whether the Cloudflare account has Workers Paid, for Settings › Developer › Caching and builds › "Builds" in the editor
 // (packages/editor/src/Advanced.tsx): the switch "Betalt bygning" can only be turned on when Cloudflare says so.
 // Asked of Cloudflare's API with the Worker's own key, the same token as for R2 (the secret CLOUDFLARE_R2_TOKEN, and
 // CLOUDFLARE_ACCOUNT_ID); it also needs Account › Billing › Read (docs/editor.md, Opsætning).

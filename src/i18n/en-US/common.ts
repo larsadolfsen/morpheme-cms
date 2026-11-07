@@ -104,7 +104,7 @@ export const common = {
     company: 'Business',
     header: 'Header',
     footer: 'Footer',
-    lists: 'Lists',
+    lists: 'Dynamic lists',
     blocks: 'Block templates',
     media: 'Files',
     /** How the site looks (#appearance, Library.tsx Theme): the theme, the colours, the logo and icon, and the site's own
@@ -125,7 +125,7 @@ export const common = {
     blockSettings: 'Block settings',
     /** The apps that come with the site (AppList.tsx, #apps). */
     apps: 'Apps',
-    /** The parts the editor and the site are built of (#appearance/parts: Parts.tsx, BlockParts.tsx). */
+    /** The parts the editor and the site are built of (#developer/parts: Parts.tsx, BlockParts.tsx). */
     editorParts: 'Parts',
     /** Under Indstillinger: the redirects and the site's own parts (#seo, Library.tsx Seo). */
     seo: 'Search engine optimization',
@@ -133,8 +133,10 @@ export const common = {
     account: 'Account',
     /** The last section of the main drawer, and the first part of the path to a setting (placeOf in site.ts). */
     settings: 'Settings',
-    /** Under Indstillinger: the faster editor (#advanced, Advanced.tsx). */
-    advanced: 'Advanced',
+    /** Under Settings: the developer screens, the parts and the caching (#developer, Library.tsx Developer). */
+    developer: 'Developer',
+    /** Under Developer: the faster editor and the build settings (#developer/caching, Advanced.tsx). */
+    caching: 'Caching and builds',
     /** Under Indstillinger: the licences of what the site and the editor are made with (#licenses, Licenses.tsx). */
     licenses: 'Licenses',
     /** Under Indstillinger: the CMS's version and its updates (#morpheme). */

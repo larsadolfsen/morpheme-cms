@@ -252,6 +252,7 @@ function Form({
           siteName={sharing.name}
           title={result.title}
           description={result.description}
+          keyword={String(values.keyword ?? '')}
         />
       )}
       <FieldList fields={seoFields} value={values} onChange={(v) => setValues(v as Record<string, unknown>)} />

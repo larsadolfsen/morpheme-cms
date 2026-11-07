@@ -1,4 +1,4 @@
-// What "Dele" (#appearance/parts: Parts.tsx, BlockParts.tsx) shows the parts and blocks with: made-up pages, posts, tags,
+// What "Parts" (#developer/parts: Parts.tsx, BlockParts.tsx) shows the parts and blocks with: made-up pages, posts, tags,
 // testimonials, the lists' made-up rows (`examples` of a list), cookies and contact details in the editor's language,
 // the apps' made-up settings (AppSettings.example), and a plain picture, never what the site has, so the parts look the
 // same on every site.
@@ -76,7 +76,7 @@ export function exampleData(): BlockData {
 }
 
 /** An entry of a kind of a list of kinds (a pop-up, Mailchimp's) as an example: a new one of the kind, with the
- * defaults of the fields it has, the made-up name, heading and text, and the plain picture. "Dele" draws each kind
+ * defaults of the fields it has, the made-up name, heading and text, and the plain picture. "Parts" draws each kind
  * with it, and "Blokindstillinger" an app's kind no entry is made with. */
 export function kindExample(list: FolderCollection, kind: string): Record<string, unknown> {
   const name = list.kinds!;

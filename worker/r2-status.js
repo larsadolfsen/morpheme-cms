@@ -1,4 +1,4 @@
-// Whether R2 caching (packages/editor/worker/files.js, the binding FILES) can be turned on, for "Indstillinger" › "Avanceret" in the
+// Whether R2 caching (packages/editor/worker/files.js, the binding FILES) can be turned on, for Settings › Developer › Caching and builds in the
 // editor (packages/editor/src/Advanced.tsx): the switch writes the bucket into the Worker's settings (wrangler.jsonc),
 // and a deploy with a bucket Cloudflare does not have fails, so it can only be turned on when Cloudflare says the bucket
 // is there (R2 turned on for the account, and the bucket made). Asked of Cloudflare's API with the Worker's own key, a
