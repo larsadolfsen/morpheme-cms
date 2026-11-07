@@ -681,6 +681,7 @@ function Form({
                         title={result.title}
                         description={result.description}
                         date={post ? String(values.date ?? '') : undefined}
+                        keyword={String(values.keyword ?? '')}
                       />
                       {collection.fields.filter(inSection('seo')).map(field)}
                     </div>
