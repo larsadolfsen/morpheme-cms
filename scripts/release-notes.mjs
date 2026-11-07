@@ -17,7 +17,8 @@ if (problems.length > 0) {
   process.exit(1);
 }
 
-const result = released(pending, version);
+// The day it is released, for the Morpheme page ("New in …" with its date).
+const result = released(pending, version, new Date().toISOString().slice(0, 10));
 const targets = Object.keys(result).map((locale) => join(root, 'release-notes', 'i18n', locale, `${version}.json`));
 const existing = targets.filter((target) => existsSync(target));
 if (existing.length > 0) {

@@ -10,6 +10,8 @@ export const cms = {
   available: (v: string) => `Version ${v} is available`,
   whatsNew: 'What’s new',
   newInYourVersion: 'New in your version',
+  /** Over a version's notes on that page: "New in Morpheme Braies 0.14.3" (library.cmsEdition, else cmsVersion). */
+  newIn: (name: string) => `New in ${name}`,
   alsoInThisVersion: 'Also in this version',
   storeConnection: 'Store connection',
   major: 'A new major version isn’t installed by itself.',
