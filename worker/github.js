@@ -20,7 +20,7 @@ export async function readFiles(env, paths, ctx, token = env.GITHUB_PUBLISH_TOKE
   }
 }
 
-/** Saves the files (`{ path, text }`) in one commit on the branch, if its head is still `head`; returns the new commit's id. */
+/** Saves the files (`{ path, text }`, or `{ path, bytes }` for a picture) in one commit on the branch, if its head is still `head`; returns the new commit's id. */
 export async function commitFiles(env, head, headline, changes, ctx, token = env.GITHUB_PUBLISH_TOKEN) {
   const files = filesOf(env, token, ctx);
   try {
@@ -29,7 +29,7 @@ export async function commitFiles(env, head, headline, changes, ctx, token = env
       await files.save(
         at,
         headline,
-        changes.map((f) => ({ path: f.path, contents: toBase64(new TextEncoder().encode(f.text)) })),
+        changes.map((f) => ({ path: f.path, contents: toBase64(f.bytes ?? new TextEncoder().encode(f.text)) })),
       )
     ).commit;
   } finally {

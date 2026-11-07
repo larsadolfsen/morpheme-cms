@@ -14,7 +14,7 @@ const COMMANDS = {
   'ci-build': ['ci-build'],
   'check:content': ['check-content'],
   'check:editor': ['editor-roundtrip'],
-  'check:worker': ['check-worker', 'check-consent', 'check-cms-update', 'check-store', 'check-store-connection'],
+  'check:worker': ['check-worker', 'check-consent', 'check-cms-update', 'check-release-post', 'check-store', 'check-store-connection'],
   'check:screens': ['editor-screens'],
   'check:themes': ['check-themes'],
   'check:demo': ['check-demo'],

@@ -43,4 +43,8 @@ export const cms = {
   notifyStuck: (v: string) => `The website couldn’t be updated with Morpheme ${v}, and going back failed too. Fix the website by hand.`,
   commitUpdate: (v: string) => `Update Morpheme to ${v}`,
   commitUndo: (v: string) => `Undo the update of Morpheme to ${v}`,
+  /** On a site that posts the CMS's releases on its blog (worker/release-post.js): the commit with a version's post. */
+  commitReleasePost: (v: string) => `Post what’s new in Morpheme ${v}`,
+  /** At the end of that post: who took the edition's photo, and where (`unsplash`: a link to it on Unsplash). */
+  postPhoto: (place: string, by: string, unsplash: string) => `Photo of ${place} by ${by} on ${unsplash}`,
 };
