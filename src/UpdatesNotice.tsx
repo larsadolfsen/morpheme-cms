@@ -62,7 +62,7 @@ function PhotoCredit({ by, version }: { by: string; version: string }) {
   useEffect(() => () => clearTimeout(leave.current), []);
   return (
     <div
-      className="-my-3 inline-flex align-middle"
+      className="-my-3 -ms-2.5 inline-flex align-middle"
       onMouseEnter={show}
       onMouseLeave={hide}
       onFocus={show}
