@@ -15,6 +15,7 @@ second app of a one-app type shows a warning and deactivates the first app. No d
 | 2 | A type allows one active app only when two apps of that type collide in code or data (the same file, the same Worker route, the same data). All other types allow many active apps. |
 | 3 | The current types (`booking`, `newsletter`, `payment`, `analytics`, `content`, `design`) do not collide. They allow many active apps. |
 | 4 | A new type `redirects` allows one active app. Two redirect apps write the same redirect rules. |
+| 4a | A new type `links` allows one active app. Two internal-links apps link the same keywords twice and mix the link counts. The internal-links app (`2026-11-07-internal-links-app-design.md`) uses it. |
 | 5 | Activation is install or the Enabled switch (Danish label: Aktiveret). Both paths show the warning. |
 | 6 | The owner confirms the warning. The new app becomes active and the other app becomes deactivated, in one commit. |
 | 7 | Cancel changes nothing. |
@@ -38,7 +39,7 @@ second app of a one-app type shows a warning and deactivates the first app. No d
 
 | Export | Shape | Meaning |
 |---|---|---|
-| `ONE_APP_TYPES` | `readonly string[]` = `['redirects']` | The types that allow one active app. |
+| `ONE_APP_TYPES` | `readonly string[]` = `['redirects', 'links']` | The types that allow one active app. |
 | `rivalsOf(app, apps, active)` | `({ id, category? }, { id, category? }[], string[]) => string[]` | The ids of active apps (`active`) of the same one-app type as `app`, without `app.id`. Sorted. Empty when `app` has no category or a many-app type. |
 | `withRivalsOff(state, rivals)` | `(AppsState, string[]) => AppsState` | The state with each rival in `off` (`withOff` from `lib/appsFile.mjs`). |
 
@@ -56,7 +57,7 @@ second app of a one-app type shows a warning and deactivates the first app. No d
 
 ### Other changes
 
-- `src/store.ts`: `redirects` in `appCategories`.
+- `src/store.ts`: `redirects` and `links` in `appCategories`. Labels: en "Links", da "Links".
 - `src/i18n/en-US/apps.ts`, `src/i18n/da-DK/apps.ts`: the type label, the warning text, the button text. Present tense.
 - `docs/app-contract.md`: a section on app types with one active app. No `APP_API` change: the change adds a type and breaks no app.
 - A changeset (`.changeset/`), patch.
@@ -69,6 +70,6 @@ second app of a one-app type shows a warning and deactivates the first app. No d
 ## Out of scope
 
 - A redirects app. The core redirects (`src/data/redirects.json`, `Redirects.tsx`) stay as they are.
-- Sites that already have two active apps of a one-app type. No such site exists: no app has the type `redirects`.
+- Sites that already have two active apps of a one-app type. No such site exists: no app has the type `redirects` or `links` yet.
 - More than one type per app.
 - Hiding store filter types that have no apps.

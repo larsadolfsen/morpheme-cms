@@ -7,7 +7,7 @@ Session branch: `feat/one-app-types`. Each task works on its own branch and merg
 
 | # | Task | Worker | Branch | Files |
 |---|---|---|---|---|
-| `one-app-types/1` | Type `redirects` and its label | Ollama runner | `task/redirects-type` | `src/store.ts`, `src/i18n/en-US/apps.ts`, `src/i18n/da-DK/apps.ts` |
+| `one-app-types/1` | Types `redirects` and `links` and their labels | Ollama runner | `task/redirects-type` | `src/store.ts`, `src/i18n/en-US/apps.ts`, `src/i18n/da-DK/apps.ts` |
 | `one-app-types/2` | The rule: `lib/appTypes.mjs` | Ollama runner | `task/app-types-rule` | `lib/appTypes.mjs`, `lib/appTypes.test.mjs` |
 | `one-app-types/3` | The warning on install and on the Enabled switch | Sonnet agent | `task/app-types-warning` | `src/AppList.tsx`, `src/i18n/en-US/apps.ts`, `src/i18n/da-DK/apps.ts`, `.changeset/` |
 | `one-app-types/4` | The contract text | Haiku agent | `task/app-types-doc` | `docs/app-contract.md` |
@@ -15,11 +15,11 @@ Session branch: `feat/one-app-types`. Each task works on its own branch and merg
 Order: 1 and 2 first, in parallel. Then 3. Then 4.
 Task 3 goes to a Sonnet agent: it needs repo-rule judgement on `AppList.tsx`, the store install path and the dialog.
 
-## `one-app-types/1`: type `redirects` and its label
+## `one-app-types/1`: types `redirects` and `links` and their labels
 
-1. Add `'redirects'` to the end of `appCategories` in `src/store.ts`.
-2. Add `redirects: 'Redirects'` to `categories` in `src/i18n/en-US/apps.ts`.
-3. Add `redirects: 'Videresendelser'` to `categories` in `src/i18n/da-DK/apps.ts`.
+1. Add `'redirects'` and `'links'` to the end of `appCategories` in `src/store.ts`.
+2. Add `redirects: 'Redirects'` and `links: 'Links'` to `categories` in `src/i18n/en-US/apps.ts`.
+3. Add `redirects: 'Videresendelser'` and `links: 'Links'` to `categories` in `src/i18n/da-DK/apps.ts`.
 4. Change no other file.
 
 Acceptance:
@@ -36,7 +36,7 @@ Acceptance:
 Interface:
 
 ```ts
-export const ONE_APP_TYPES: readonly string[]; // ['redirects']
+export const ONE_APP_TYPES: readonly string[]; // ['redirects', 'links']
 
 /** The ids in `active` of apps (from `apps`) with the same category as `app`, when that category is in
  *  ONE_APP_TYPES. Without `app.id`. Sorted. Empty when `app` has no category or a many-app category. */
@@ -54,7 +54,7 @@ Test cases:
 
 | # | Call | Expect |
 |---|---|---|
-| 1 | `ONE_APP_TYPES` | `['redirects']` |
+| 1 | `ONE_APP_TYPES` | `['redirects', 'links']` |
 | 2 | `rivalsOf({ id: 'b', category: 'redirects' }, [{ id: 'a', category: 'redirects' }], ['a'])` | `['a']` |
 | 3 | same as 2, `active` = `[]` | `[]` |
 | 4 | `rivalsOf({ id: 'b', category: 'payment' }, [{ id: 'a', category: 'payment' }], ['a'])` | `[]` |
@@ -65,6 +65,7 @@ Test cases:
 | 9 | `withRivalsOff({ installed: ['a', 'b'], off: [] }, ['a'])` | `{ installed: ['a', 'b'], off: ['a'] }` |
 | 10 | `withRivalsOff({ installed: ['a', 'b'], off: ['a'] }, [])` | `{ installed: ['a', 'b'], off: ['a'] }` |
 | 11 | `withRivalsOff({ installed: ['b'], off: [] }, ['x'])` | `{ installed: ['b'], off: [] }` |
+| 12 | `rivalsOf({ id: 'b', category: 'links' }, [{ id: 'a', category: 'links' }], ['a'])` | `['a']` |
 
 Acceptance:
 
@@ -111,7 +112,7 @@ Acceptance:
 2. Write these points, each one sentence:
    - The `category` of an app is its type.
    - A type allows one active app when two apps of that type collide in code or data.
-   - `ONE_APP_TYPES` in `lib/appTypes.mjs` lists those types. Today: `redirects`.
+   - `ONE_APP_TYPES` in `lib/appTypes.mjs` lists those types. Today: `redirects` and `links`.
    - Activating an app of such a type deactivates the other app of that type after a warning.
    - The deactivated app keeps its folder, settings and data.
    - The other types allow many active apps.
