@@ -107,6 +107,7 @@ import {
   siteRipples,
 } from './themeUi';
 import { locale, t } from './i18n';
+import { useRegisterFab } from './fabPresence';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
 import { SvgFile } from './icon';
 import { countries, countryName, dialCodes, flagOf, regionOf } from './countries';
@@ -3911,6 +3912,7 @@ const fabProps = ({ href, onClick, busy, disabled }: FabAction) => ({
 export function FabMenu({ icon: Glyph, label, items }: { icon: Icon; label: string; items: FabAction[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const menu = items.length > 1;
+  useRegisterFab(items.length > 0);
   useEffect(() => {
     const root = ref.current?.querySelector<HTMLElement>('[data-fab-menu]');
     return root ? setUpFabMenu(root) : undefined;

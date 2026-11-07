@@ -6,7 +6,7 @@
 // do, who made them and the words they are found by), the same order and a funnel by category (only apps: the themes are in "Theme store", ThemeStoreScreen.tsx; the search row and the
 // store notices both screens share are StoreSearchRow.tsx, StoreStatus.tsx and storeSort.tsx). An app's page
 // (#apps/<app>) is the same for every app and without examples: its name, who made it, whether it is installed (or turned
-// off, with the switch "Aktiveret" first on the Settings tab), its
+// off, with the switch "Aktiveret" right below its description on the Settings tab, AppEnabledSwitch.tsx), its
 // version (from the store) and what it does, "Installer" (or "Opdater til …"); installed, it has two tabs: "Indstillinger"
 // (#apps/<app>: its settings form, saved with "Gem ændringer" in their file, config.apps.settings, also on the screen
 // under "Indstillinger" with its kind, "Analytics" or "Promovering"; AppFormPage.tsx; then what it shows itself, what it
@@ -61,7 +61,7 @@ import { config } from '@site/editor';
 import { allThemes, ThemeRow, useThemeCatalog } from './ThemeStore';
 import { siteT, siteText, t } from './i18n';
 import { OwnerLicenses, StoreLicenseRows } from './Licenses';
-import { StoreFooter, StoreNotice, StoreRound, useStoreConnected, useStoreKey } from './StoreStatus';
+import { StoreNotice, StoreRound, useStoreConnected, useStoreKey } from './StoreStatus';
 import { StoreSearchRow, useStateFilter } from './StoreSearchRow';
 import { sortChoice, useSort } from './storeSort';
 import { told } from './notificationData';
@@ -70,6 +70,7 @@ import AppInfoTab from './AppInfoTab';
 import AppAdds from './AppAdds';
 import AppFormPage from './AppFormPage';
 import AppSettingsTab from './AppSettingsTab';
+import AppEnabledSwitch from './AppEnabledSwitch';
 import { INFO_KEY } from '../lib/appRoute.mjs';
 import { busyFor } from './busyAction.mjs';
 
@@ -463,7 +464,6 @@ function StoreScreen({ env, files, again }: { env: Env; files: RepoFile[]; again
           </Group>
         ))
       )}
-      <StoreFooter keyInfo={key} again={again} />
     </Screen>
   );
 }
@@ -946,6 +946,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
       )}
       {on && tab === 'settings' ? (
         <>
+          <AppEnabledSwitch enabled={!off} busy={saving} onEnabled={turn} />
           {fields}
           <AppSettingsTab
             app={app}
@@ -953,7 +954,6 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
             files={files}
             busy={saving}
             enabled={!off}
-            onEnabled={turn}
             uninstalling={toggling === 'uninstall' || store.busy(app.id, 'uninstall')}
             stuck={stuck}
             onUninstall={() => install(false)}

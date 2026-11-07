@@ -23,6 +23,7 @@ npm view @morphemecms/cms dist-tags --json
 - No open Release PR: stop - "Nothing to release: no changes are waiting (no changesets merged since the last
   release)."
 - The Release PR's version: `version` in its `package.json` diff. Its notes: the lines it adds to `CHANGELOG.md`.
+- Owner-visible changes: the Release PR must contain `release-notes/i18n/*/<version>.json` for them, and for cards the screenshots in `release-notes/i18n/*/<version>/`; if it does not, say so in the question below.
 - Staging: the newest build of the Worker `morpheme-staging` (Cloudflare connector, read-only - list builds). Stop if it
   failed ("Staging's newest build failed: <link>; fix main first"). If it is older than the newest `next` publish, or
   none is found, say so in the question below instead of stopping.

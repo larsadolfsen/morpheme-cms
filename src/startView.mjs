@@ -90,19 +90,19 @@ export function continueShown(closedAt, latestAt) {
 
 /**
  * What has a version other than at the last visit: the CMS (`id` "cms") and each app installed then and now, with its
- * version now. Nothing at the first visit (`seen` null): there is nothing to compare with. An app installed since is
+ * version now and the one seen (`from`). Nothing at the first visit (`seen` null): there is nothing to compare with. An app installed since is
  * not an update.
  * @param {Versions | null} seen
  * @param {Versions} now
- * @returns {{ id: string, version: string }[]}
+ * @returns {{ id: string, version: string, from: string }[]}
  */
 export function changesSince(seen, now) {
   if (!seen) return [];
   const changed = [];
-  if (seen.cms && now.cms && seen.cms !== now.cms) changed.push({ id: 'cms', version: now.cms });
+  if (seen.cms && now.cms && seen.cms !== now.cms) changed.push({ id: 'cms', version: now.cms, from: seen.cms });
   for (const [id, version] of Object.entries(now.apps)) {
     const before = seen.apps?.[id];
-    if (before && version && before !== version) changed.push({ id, version });
+    if (before && version && before !== version) changed.push({ id, version, from: before });
   }
   return changed;
 }

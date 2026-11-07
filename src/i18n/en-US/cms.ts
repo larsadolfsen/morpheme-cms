@@ -1,5 +1,5 @@
-// "Morpheme" under "Indstillinger" (the CMS's update page, #morpheme): the running version, a new one and its notes,
-// and an update's progress; also the notifications and commit messages (worker/cms-update.js).
+// "Morpheme" under "Indstillinger" (the CMS's update page, #morpheme): the running version, the notes of the update just
+// installed, a new one and its notes, and an update's progress; also the notifications and commit messages (worker/cms-update.js).
 
 export const cms = {
   running: (v: string) => `Version ${v}`,
@@ -9,6 +9,9 @@ export const cms = {
   upToDate: 'Up to date',
   available: (v: string) => `Version ${v} is available`,
   whatsNew: 'What’s new',
+  newInYourVersion: 'New in your version',
+  alsoInThisVersion: 'Also in this version',
+  storeConnection: 'Store connection',
   major: 'A new major version isn’t installed by itself.',
   skipped: (v: string) => `Version ${v} was undone because the website couldn’t be updated with it.`,
   /** Followed by the command, in a code block. */

@@ -1,0 +1,15 @@
+{
+  "version": "0.14.1",
+  "notes": [
+    {
+      "id": "drawer-back-changes-screen",
+      "kind": "line",
+      "text": "On a phone, swiping back with the menu open now takes you to the screen before and closes the menu."
+    },
+    {
+      "id": "notes-from-package",
+      "kind": "line",
+      "text": "The notes for your version now show right after an update."
+    }
+  ]
+}

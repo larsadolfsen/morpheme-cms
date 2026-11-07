@@ -1,0 +1,49 @@
+{
+  "version": "0.14.0",
+  "notes": [
+    {
+      "id": "apps-turn-off",
+      "kind": "card",
+      "title": "Turn an app off without losing it",
+      "text": "Sometimes you want to pause an app without setting it up again later. Open the app under Apps and turn off Enabled, right below its description. Its settings stay, so you can turn it on again whenever you like."
+    },
+    {
+      "id": "developer-menu",
+      "kind": "line",
+      "text": "Advanced is now Developer under Settings, with Parts and Caching and builds; old links still work."
+    },
+    {
+      "id": "dynamic-lists-page",
+      "kind": "line",
+      "text": "Lists is now Dynamic lists, one menu row that opens a page with all your lists."
+    },
+    {
+      "id": "editor-footer",
+      "kind": "card",
+      "title": "See if GitHub and Cloudflare are working",
+      "text": "When something won't save or publish, you want to know if the problem is your site or the services it runs on. Scroll to the bottom of the editor and tap System status. It checks only the services your site uses."
+    },
+    {
+      "id": "editor-toolbar-dock",
+      "kind": "line",
+      "text": "On a phone, the text toolbar is slimmer and keeps an even gap to the edges."
+    },
+    {
+      "id": "google-preview-closer",
+      "kind": "card",
+      "title": "A Google preview that looks like Google",
+      "text": "You want to see how a page looks in Google before you publish it. Open a page or post and look at its Google preview. It now matches Google on a phone and a computer, with your main keyword in bold."
+    },
+    {
+      "id": "morpheme-connection-page",
+      "kind": "line",
+      "text": "Your Store connection now sits on the Morpheme page under Settings."
+    },
+    {
+      "id": "quiet-lamps-wander",
+      "kind": "card",
+      "title": "See what's new",
+      "text": "It can be hard to keep up with what's new in Morpheme. So after each update, you now get a short overview of the new features. You'll find it all in one place on the Morpheme page."
+    }
+  ]
+}

@@ -382,6 +382,12 @@
   --badge-radius: var(--md-shape-full);
   --badge-surface: var(--error);
   --badge-text: var(--on-error);
+  /* A badge's status tones (Badge `tone`): each at least 3:1 on the page and surface colours (WCAG 1.4.11). Yellow
+     and orange are darker here and brighter in dark mode (below). */
+  --badge-ok: #1e8e3e;
+  --badge-minor: #b06e00;
+  --badge-major: #c25e00;
+  --badge-unknown: var(--outline);
   --snackbar-surface: var(--inverse-surface);
   --snackbar-text: var(--inverse-on-surface);
   --snackbar-padding-block: 0.875rem;
@@ -506,10 +512,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --shadow: var(--elevation-1-rest-shadow);
+    --badge-minor: #f9ab00;
+    --badge-major: #e8710a;
   }
 }
 :root[data-theme='dark'] {
   --shadow: var(--elevation-1-rest-shadow);
+  --badge-minor: #f9ab00;
+  --badge-major: #e8710a;
 }
 
 @theme inline {

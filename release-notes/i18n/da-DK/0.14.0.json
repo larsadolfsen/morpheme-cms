@@ -1,0 +1,49 @@
+{
+  "version": "0.14.0",
+  "notes": [
+    {
+      "id": "apps-turn-off",
+      "kind": "card",
+      "title": "Slå en app fra uden at miste den",
+      "text": "Nogle gange vil du sætte en app på pause uden at skulle sætte den op igen bagefter. Åbn appen under Apps, og slå Aktiveret fra lige under beskrivelsen. Indstillingerne bliver liggende, så du kan slå den til igen, når du vil."
+    },
+    {
+      "id": "developer-menu",
+      "kind": "line",
+      "text": "Avanceret hedder nu Udvikler under Indstillinger, med Dele samt Caching og builds; gamle links virker stadig."
+    },
+    {
+      "id": "dynamic-lists-page",
+      "kind": "line",
+      "text": "Lister hedder nu Dynamiske lister, én række i menuen, der åbner en side med alle dine lister."
+    },
+    {
+      "id": "editor-footer",
+      "kind": "card",
+      "title": "Se om GitHub og Cloudflare virker",
+      "text": "Når noget ikke vil gemme eller udgive, vil du gerne vide, om problemet er din hjemmeside eller de tjenester, den kører på. Rul ned til bunden af editoren, og tryk på Driftsstatus. Den tjekker kun de tjenester, din hjemmeside bruger."
+    },
+    {
+      "id": "editor-toolbar-dock",
+      "kind": "line",
+      "text": "På en telefon er værktøjslinjen til tekst slankere og holder samme afstand til kanterne."
+    },
+    {
+      "id": "google-preview-closer",
+      "kind": "card",
+      "title": "En Google-forhåndsvisning, der ligner Google",
+      "text": "Du vil gerne se, hvordan en side ser ud på Google, før du udgiver den. Åbn en side eller et indlæg, og se Google-forhåndsvisningen. Den ligner nu Google på både telefon og computer, og dit vigtigste søgeord står med fed."
+    },
+    {
+      "id": "morpheme-connection-page",
+      "kind": "line",
+      "text": "Din Forbindelse til Appstore ligger nu på siden Morpheme under Indstillinger."
+    },
+    {
+      "id": "quiet-lamps-wander",
+      "kind": "card",
+      "title": "Se, hvad der er nyt",
+      "text": "Det kan være svært at følge med i, hvad der er nyt i Morpheme. Derfor får du nu et kort overblik over de nye funktioner efter hver opdatering. Du finder det hele samlet på siden Morpheme."
+    }
+  ]
+}

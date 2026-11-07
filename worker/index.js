@@ -21,6 +21,7 @@
 //   those older than two years deleted.
 // - whether R2 caching can be turned on in the editor: whether Cloudflare has its bucket (/api/r2, packages/editor/worker/r2-status.js).
 // - whether the account has Workers Paid, for the switch "Betalt bygning" in the editor (/api/plan, packages/editor/worker/plan-status.js).
+// - the status of GitHub and Cloudflare, for the editor's footer (/api/status, packages/editor/worker/service-status.js).
 // - the editor on its own address when EDITOR_HOST is set (packages/editor/worker/editor-host.js); noindex there too.
 // - each hour, the pages and posts that are Planlagt published once their time has come (scheduled, packages/editor/worker/publish.js).
 // - the editor's notifications on the phone, also when the editor is closed (/api/push, packages/editor/worker/push.js): each minute,
@@ -42,6 +43,7 @@ import { handleGitHub } from './editor-github.js';
 import { handleConnection } from './store-connection.js';
 import { handleStore } from './store.js';
 import { handlePlan } from './plan-status.js';
+import { handleStatus } from './service-status.js';
 import { handleR2 } from './r2-status.js';
 import { publishScheduled, SCHEDULED_LIST } from './publish.js';
 import { commitFiles, readFiles } from './github.js';
@@ -156,11 +158,12 @@ export default {
     if (url.pathname === '/api/consent') return handleConsent(request, env);
     if (url.pathname === '/api/r2') return handleR2(request, env);
     if (url.pathname === '/api/plan') return handlePlan(request, env);
+    if (url.pathname === '/api/status') return handleStatus(request, env);
     if (url.pathname.startsWith('/api/github/')) return handleGitHub(request, env, ctx);
     if (url.pathname === '/api/store/connection') return handleConnection(request, env, ctx);
     if (url.pathname.startsWith('/api/store/')) return handleStore(request, env, ctx);
     if (/^\/api\/push(\/wait)?\/?$/.test(url.pathname)) return handlePush(request, env);
-    if (/^\/api\/cms(\/update)?\/?$/.test(url.pathname)) return handleCms(request, env, ctx);
+    if (/^\/api\/cms(\/update|\/note-image\/.*)?\/?$/.test(url.pathname)) return handleCms(request, env, ctx);
     const answer = appAnswer(request, url, env, ctx);
     if (answer) return answer;
     // The build's lists (what is Planlagt) and the apps' files (what the cookie scan visits) are the Worker's own.

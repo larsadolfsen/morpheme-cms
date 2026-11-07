@@ -32,7 +32,7 @@
     "@material-symbols/svg-400": "0.48.2",
     "@material/material-color-utilities": "^0.3.0",
     "@milkdown/kit": "^7.22.3",
-    "@morphemecms/cms": "0.13.0",
+    "@morphemecms/cms": "0.14.1",
     "@phosphor-icons/core": "^2.1.1",
     "@phosphor-icons/react": "^2.1.10",
     "@tailwindcss/typography": "^0.5.20",
