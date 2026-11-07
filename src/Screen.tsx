@@ -174,7 +174,7 @@ export default function Screen<T extends string>({
       {/* A row, so the column keeps its margins (editor.css .editor-column) and is as high as the rest of the window. */}
       <div className="flex flex-1">
         <main
-          className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[calc(6rem+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 ${width}`}
+          className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[calc(4.5rem+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 medium:pb-4 ${width}`}
         >
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
           <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">

@@ -9,7 +9,7 @@ import type { ServiceState } from '../lib/serviceStatus.mjs';
 /** `state`: how the services are, as the dot after "System status" shows it. */
 export default function FooterLinks({ state }: { state: ServiceState }) {
   return (
-    <nav className="flex flex-wrap justify-center gap-x-2">
+    <nav className="flex flex-wrap justify-center gap-x-2 gap-y-0">
       {visibleLinks(FOOTER_LINKS).map(({ id, href }) => (
         <FooterLink key={id} href={href}>
           {id === 'licenses' ? t.common.parts.licenses : t.footer[id]}
