@@ -1,7 +1,6 @@
 {
   "id": "quiet-lamps-wander",
-  "title": "See what's new, in plain words",
-  "why": "Updates should feel like a friendly hello, not a developer log.",
-  "how": "Tap the update notice on your start screen to read about what you just got.",
-  "what": "Each change now has a short note that tells you why we made it, how to use it and what changed."
+  "kind": "card",
+  "title": "See what's new, with pictures",
+  "text": "Updates should feel like a friendly hello, not a developer log. Open the Morpheme page and you see each new thing with a picture and a few plain words. Everything that changed in your version is right there."
 }
