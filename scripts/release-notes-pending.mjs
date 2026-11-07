@@ -1,14 +1,15 @@
 // Reads the pending release notes of a repository (release-notes/i18n/<locale>/pending/<id>.json, and <id>.webp for a card)
 // into the Pending object of lib/releaseNotes.mjs, and resolves the repository root. Exposes readPending(root) and repoRoot(arg).
-// Depends on node:fs, node:path and node:url only; shared by release-notes.mjs and check-release-notes.mjs.
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+// Depends on node:fs, node:path, node:url and webpSize of lib/releaseNotes.mjs; shared by release-notes.mjs and check-release-notes.mjs.
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { webpSize } from '../lib/releaseNotes.mjs';
 
 /**
- * Reads every pending note of every locale, with the size of its screenshot.
+ * Reads every pending note of every locale, with the size of its screenshot in bytes and in pixels.
  * @param {string} root the repository root
- * @returns {Record<string, Record<string, { note: object, imageBytes: number | null }>>} locale -> id -> entry; {} when there are no folders
+ * @returns {Record<string, Record<string, { note: object, imageBytes: number | null, imageSize: { width: number, height: number } | null }>>} locale -> id -> entry; {} when there are no folders
  */
 export function readPending(root) {
   const i18n = join(root, 'release-notes', 'i18n');
@@ -24,9 +25,11 @@ export function readPending(root) {
     for (const file of files) {
       const id = file.slice(0, -'.json'.length);
       const image = join(dir, `${id}.webp`);
+      const bytes = existsSync(image) ? readFileSync(image) : null;
       pending[locale.name][id] = {
         note: JSON.parse(readFileSync(join(dir, file), 'utf8')),
-        imageBytes: existsSync(image) ? statSync(image).size : null,
+        imageBytes: bytes ? bytes.length : null,
+        imageSize: bytes ? webpSize(bytes) : null,
       };
     }
   }

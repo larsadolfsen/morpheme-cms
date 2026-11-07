@@ -26,8 +26,9 @@ Files, per language:
   `id`, `kind` and `text`.
 - `release-notes/i18n/<locale>/pending/<id>.webp`: the screenshot. Only for a card.
 
-Screenshot: the editor at 375×812 CSS pixels, device scale factor 2, saved as WebP, at most 200 KB. Take one per
-language, with the editor in that language, showing the changed screen.
+Screenshot: the editor 375 CSS pixels wide, at most 400 CSS pixels high, device scale factor 2, so 750 px wide and at
+most 800 px high. Crop it to the part that changed. Save it as WebP, at most 200 KB. Take one per language, with the
+editor in that language.
 
 Writing rule:
 
