@@ -1,5 +1,5 @@
 // Transforms CMS status into a view for the update page.
-// Exposes cmsView and DONE_SHOWN.
+// Exposes cmsView and DONE_SHOWN. `installed` passes the notes of the update just installed on as the Worker gives them.
 // Depends on cms-version for version comparison.
 
 import { compareVersions } from '../lib/cms-version.mjs';
@@ -77,5 +77,7 @@ export function cmsView(status, now = Date.now()) {
     problems.push('slow-undo');
   }
 
-  return { running, checkedAt, latest, notes, action, npmCommand, update, problems };
+  const installed = Array.isArray(status.installed) ? status.installed : [];
+
+  return { running, checkedAt, latest, notes, installed, action, npmCommand, update, problems };
 }
