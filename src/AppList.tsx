@@ -5,7 +5,8 @@
 // (#settings/appstore): all apps, those in the app store (store.ts) and the site's own, installed or not, with search (by name, what they
 // do, who made them and the words they are found by), the same order and a funnel by category (only apps: the themes are in "Theme store", ThemeStoreScreen.tsx; the search row and the
 // store notices both screens share are StoreSearchRow.tsx, StoreStatus.tsx and storeSort.tsx). An app's page
-// (#apps/<app>) is the same for every app and without examples: its name, who made it, whether it is installed, its
+// (#apps/<app>) is the same for every app and without examples: its name, who made it, whether it is installed (or turned
+// off, with the switch "Aktiveret" first on the Settings tab), its
 // version (from the store) and what it does, "Installer" (or "Opdater til …"); installed, it has two tabs: "Indstillinger"
 // (#apps/<app>: its settings form, saved with "Gem ændringer" in their file, config.apps.settings, also on the screen
 // under "Indstillinger" with its kind, "Analytics" or "Promovering"; AppFormPage.tsx; then what it shows itself, what it
@@ -33,7 +34,7 @@ import { cookieChanges, inCookieList } from './cookieList';
 import type { Env } from './App';
 import { ask, choose } from './ask';
 import { appsState, installedApps, settingsFile, type SiteApp } from './apps';
-import { appsFileText, withInstalled } from '../lib/appsFile.mjs';
+import { appsFileText, withInstalled, withOff } from '../lib/appsFile.mjs';
 import { AnyIcon } from './icon';
 import {
   appCategories,
@@ -854,7 +855,7 @@ export function AppScreenPage({ app, id, env }: { app: SiteApp; id: string; env:
  * not installed, with the pictures, what it needs, its cookies, who made it and where it is used). */
 function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; fields?: ReactNode }) {
   const notify = env.notify;
-  const [toggling, setToggling] = useState<'install' | 'uninstall' | null>(null);
+  const [toggling, setToggling] = useState<'install' | 'uninstall' | 'switch' | null>(null);
   const store = useStoreActions(env, files);
   const saving = !!toggling || store.saving;
   const catalog = useCatalog(env);
@@ -863,6 +864,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
   const inStore = Array.isArray(catalog) ? catalog.find((a) => a.id === app.id) : undefined;
   const installed = installedApps(files);
   const on = installed.includes(app.id);
+  const off = on && appsState(files).off.includes(app.id);
   // Where it is used: while it is, it cannot be uninstalled.
   const uses = on ? usesOf(app, files) : [];
   const stuck = uses.length > 0;
@@ -894,13 +896,31 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
     }
   }
 
+  // Turned on or off, saved at once in its own commit: the app stays installed with its folder, settings and version.
+  async function turn(enabled: boolean) {
+    const file = files.find((f) => f.path === config.apps.installed);
+    const text = appsFileText(withOff(appsState(files), app.id, !enabled));
+    if (text === file?.text) return;
+    setToggling('switch');
+    try {
+      const change = t.app.changes[enabled ? 'turnedOn' : 'turnedOff'](kindAndName(t.app.changes.app, app.label));
+      const content = { path: config.apps.installed, content: text, oid: file?.oid || null };
+      await saveApp(env, siteT.apps.commit[enabled ? 'turnOn' : 'turnOff'](asWritten(app).label), change, [content], file);
+      notify({ text: change, kind: 'saved' });
+    } catch (e) {
+      notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
+    } finally {
+      setToggling(null);
+    }
+  }
+
   return (
     <div>
       <AppHead
         icon={<LeadingIcon icon={app.icon} selected={on} />}
         label={app.label}
         publisher={app.publisher}
-        status={on && update ? t.apps.updateFound : statusOf(on)}
+        status={off ? t.apps.deactivated : on && update ? t.apps.updateFound : statusOf(on)}
         version={app.store && versionOf(app)}
         hint={app.hint}
       />
@@ -925,6 +945,8 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
             env={env}
             files={files}
             busy={saving}
+            enabled={!off}
+            onEnabled={turn}
             uninstalling={toggling === 'uninstall' || store.busy(app.id, 'uninstall')}
             stuck={stuck}
             onUninstall={() => install(false)}

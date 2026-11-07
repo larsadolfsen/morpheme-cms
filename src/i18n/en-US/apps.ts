@@ -5,6 +5,9 @@ import type { AppHook } from '../../../lib/hooks';
 export const apps = {
   installed: 'Installed',
   notInstalled: 'Not installed',
+  /** The switch at the top of an installed app's Settings tab, and its status under its name while it is off. */
+  enabled: 'Enabled',
+  deactivated: 'Deactivated',
   /** Under its name on its page: who made it. */
   publisher: (name: string) => `Developer: ${name}`,
   /** On its page: its pictures (each opening it whole), what it does more fully, what it needs of the site
@@ -140,6 +143,8 @@ export const apps = {
   commit: {
     install: (app: string) => `Editor: install the app ${app}`,
     uninstall: (app: string) => `Editor: uninstall the app ${app}`,
+    turnOn: (app: string) => `Editor: turn on the app ${app}`,
+    turnOff: (app: string) => `Editor: turn off the app ${app}`,
     update: (app: string, version: string) => `Editor: update the app ${app} to ${version}`,
   },
 };
