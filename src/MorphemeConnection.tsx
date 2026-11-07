@@ -24,7 +24,7 @@ function Connection({ again }: { again: () => void }) {
   return (
     <section className="mb-8">
       <GroupTitle>{t.advanced.morpheme}</GroupTitle>
-      {body}
+      <div className="px-4">{body}</div>
     </section>
   );
 }
