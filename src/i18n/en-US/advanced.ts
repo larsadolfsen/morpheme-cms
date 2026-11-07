@@ -1,7 +1,6 @@
 // "Caching and builds" under Developer (Advanced.tsx): the faster editor (a copy of the website's files in Cloudflare R2,
 // r2Caching.ts), and the switches for updating the website (buildSettings.ts).
 export const advanced = {
-  morpheme: 'Morpheme',
   r2Caching: 'Faster editor',
   r2CachingHint: "The editor loads the website's files faster and asks GitHub only for what has changed.",
   checking: 'Checking whether Cloudflare is ready…',

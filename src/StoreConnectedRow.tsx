@@ -1,4 +1,4 @@
-// The row in "Avanceret" that says the site is connected to Morpheme, with the Morpheme logo, and under it the button "Disconnect from Morpheme" (asks first).
+// The row on the Morpheme page (#morpheme) that says the site is connected to Morpheme, with the Morpheme logo, and under it the button "Disconnect from Morpheme" (asks first).
 // Exposes StoreConnectedRow({ site, onDisconnected }); uses ListItem, LeadingIcon, Button, plainListClass (ui.tsx), MorphemeLogo, ask (ask.tsx), snackbar (lib/snackbar.ts) and disconnect (storeConnection.ts).
 import { useState } from 'react';
 import { snackbar } from '../lib/snackbar';

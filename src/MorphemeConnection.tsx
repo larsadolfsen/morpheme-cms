@@ -1,4 +1,4 @@
-// The "Morpheme" group of "Avanceret": the site's connection to the Morpheme store, as the connected row (with the Morpheme logo) or the connect notice.
+// The "Store connection" group on the Morpheme page (#morpheme): the site's connection to the Morpheme store, as the connected row (with the Morpheme logo) or the connect notice.
 // Exposes MorphemeConnection(); uses StoreRound and useStoreKey (StoreStatus.tsx), StoreConnectedRow, StoreConnectNotice and GroupTitle (ui.tsx).
 import { GroupTitle } from './ui';
 import { StoreConnectedRow } from './StoreConnectedRow';
@@ -23,7 +23,7 @@ function Connection({ again }: { again: () => void }) {
   if (!body) return null;
   return (
     <section className="mb-8">
-      <GroupTitle>{t.advanced.morpheme}</GroupTitle>
+      <GroupTitle>{t.cms.storeConnection}</GroupTitle>
       <div className="px-4">{body}</div>
     </section>
   );

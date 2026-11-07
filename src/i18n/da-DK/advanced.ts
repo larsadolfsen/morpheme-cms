@@ -1,7 +1,6 @@
 import type { Messages } from '../en-US';
 
 export const advanced: Messages['advanced'] = {
-  morpheme: 'Morpheme',
   r2Caching: 'Hurtigere editor',
   r2CachingHint: 'Editoren henter hjemmesidens filer hurtigere og spørger kun GitHub om det, der er ændret.',
   checking: 'Tjekker, om Cloudflare er klar…',

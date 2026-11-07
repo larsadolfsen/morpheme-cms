@@ -104,7 +104,7 @@ for (const [width, height] of [
   await page.close();
 }
 
-// "Appstore" and "Avanceret" in the three states of the site's key to the store (STORE_STATES): what each shows, and a picture of it in
+// "Appstore" and "Morpheme" in the three states of the site's key to the store (STORE_STATES): what each shows, and a picture of it in
 // SCREENS_DIR (the temporary folder's morpheme-screens by default).
 const shots = process.env.SCREENS_DIR || join(tmpdir(), 'morpheme-screens');
 mkdirSync(shots, { recursive: true });
@@ -114,19 +114,19 @@ const keyStates = {
       shows: ['Hjemmesiden er ikke forbundet til Morpheme', 'Forbind til Morpheme'],
       hides: ['Afbryd forbindelsen til Morpheme'],
     },
-    advanced: { shows: ['Forbind til Morpheme'], hides: ['Afbryd forbindelsen til Morpheme'] },
+    morpheme: { shows: ['Forbind til Morpheme'], hides: ['Afbryd forbindelsen til Morpheme'] },
   },
   readOnly: {
     appstore: { shows: ['Hjemmesiden har ingen Appstore'], hides: ['Forbind til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
-    advanced: { shows: ['Hjemmesiden har ingen Appstore'], hides: ['Forbind til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
+    morpheme: { shows: ['Hjemmesiden har ingen Appstore'], hides: ['Forbind til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
   },
   button: {
     appstore: { shows: [], hides: ['Forbundet til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
-    advanced: { shows: ['Forbundet til Morpheme', 'site_sample', 'Afbryd forbindelsen til Morpheme'], hides: ['Forbind til Morpheme'] },
+    morpheme: { shows: ['Forbundet til Morpheme', 'site_sample', 'Afbryd forbindelsen til Morpheme'], hides: ['Forbind til Morpheme'] },
   },
 };
-// The screens that show the key: where each is (its address after the "#", ADVANCED_ROUTE in Advanced.tsx for "Avanceret").
-const keyScreens = { appstore: 'settings/appstore', advanced: 'advanced' };
+// The screens that show the key: where each is (its address after the "#", CMS_ROUTE in CmsPage.tsx for "Morpheme").
+const keyScreens = { appstore: 'settings/appstore', morpheme: 'morpheme' };
 for (const [state, checks] of Object.entries(keyStates)) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, locale: 'da-DK' });
   page.on('pageerror', (e) => problems.push(`Appstore (${state}): ${e.message}`));
