@@ -21,13 +21,20 @@
   --editor-status-bad-text: #cc0000;
   --editor-status-bad-surface: color-mix(in srgb, #ff4e42 10%, var(--surface));
 
-  /* A Google result (SearchPreview.tsx) in Google's own colours, light: its background, the title, the site's name, the
-     address and the text, and the date before the text. */
+  /* A Google result (SearchPreview.tsx) in Google's own colours, light: its background, the title (on a computer, and on a
+     phone), the site's name, the address and the text, the date before the text, and the 8 px band above and below a
+     phone's result. */
   --google-background: #fff;
   --google-title: #1a0dab;
+  --google-title-phone: #1558d6;
   --google-site: #202124;
   --google-text: #4d5156;
   --google-date: #70757a;
+  --google-separator: #ecedef;
+  /* The site's circle: its fill and ring and the letter in it, the same in light and dark. */
+  --google-icon-fill: #fff;
+  --google-icon-ring: #dadce0;
+  --google-icon-letter: #202124;
 
   /* The dotted frame round an H2 section of a page or blog post (sectionFrame.ts): its line, the space between the line and
      the text, the space above a section, and the space between two parts inside it (em: it scales with the part's text). */
@@ -52,9 +59,11 @@
   :where(:root:not([data-theme='light'])) {
     --google-background: #1f1f1f;
     --google-title: #99c3ff;
+    --google-title-phone: #99c3ff;
     --google-site: #dadce0;
     --google-text: #bfbfbf;
     --google-date: #9aa0a6;
+    --google-separator: #303134;
     --editor-status-good-text: var(--editor-status-good);
     --editor-status-average-text: var(--editor-status-average);
     --editor-status-bad-text: var(--editor-status-bad);
@@ -63,9 +72,11 @@
 :where(:root[data-theme='dark']) {
   --google-background: #1f1f1f;
   --google-title: #99c3ff;
+  --google-title-phone: #99c3ff;
   --google-site: #dadce0;
   --google-text: #bfbfbf;
   --google-date: #9aa0a6;
+  --google-separator: #303134;
   --editor-status-good-text: var(--editor-status-good);
   --editor-status-average-text: var(--editor-status-average);
   --editor-status-bad-text: var(--editor-status-bad);
