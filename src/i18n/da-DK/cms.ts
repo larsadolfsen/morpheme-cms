@@ -9,6 +9,7 @@ export const cms: Messages['cms'] = {
   whatsNew: 'Nyheder',
   newInYourVersion: 'Nyt i din version',
   newIn: (name) => `Nyt i ${name}`,
+  showOlder: 'Vis ældre versioner',
   alsoInThisVersion: 'Også i denne version',
   storeConnection: 'Forbindelse til Appstore',
   major: 'En ny hovedversion installeres ikke af sig selv.',
