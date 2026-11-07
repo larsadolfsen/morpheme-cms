@@ -78,7 +78,7 @@ Rules (checked by `check:release-notes`):
 - A card has a non-empty `title` and `text`, and a `.webp` screenshot of at most 200 KB, 750 pixels wide and at most
   800 pixels high.
 - A line has a non-empty `text` and no screenshot.
-- A released file is never changed after its release.
+- A released notes file never changes. An older version's screenshot folder is deleted at the next release.
 
 Screenshot: the editor at phone width (375 CSS pixels), device scale factor 2, cropped to the part that changed, at
 most 400 CSS pixels high. So the file is 750 pixels wide and at most 800 pixels high. Saved as WebP. The card shows
@@ -101,7 +101,8 @@ until the next self-update replaces the keys; nothing deletes it.
    files in both locales: a card with its screenshots, or a line. `npm run check` runs `check:release-notes`.
 2. **Release.** `release:version` runs `changeset version`, then `scripts/release-notes.mjs`. The script moves the
    pending notes of a locale into `<version>.json`, and the screenshots into `<version>/`. `package.json` `files` has
-   `release-notes`, so the notes and screenshots ship on npm.
+   `release-notes`, so the notes and screenshots ship on npm. The release step then deletes the screenshot folders of older
+   versions. The package carries only the running version's screenshots. The repository history keeps the old ones.
 3. **Site Worker.** During a self-update, `keepNotes` (`worker/cms-update.js`) reads the notes and screenshots of each
    version to come from the tarball with `fileFromTar`. It keeps the notes in `cms:notes:<v>` and each screenshot in
    `cms:note-image:...`.
