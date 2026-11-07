@@ -1,7 +1,8 @@
 # Release notes: cards with screenshots
 
 Date: 2026-11-07. Status: agreed with the owner in chat. Revision 2: cards with a screenshot and a list of the other
-changes replace the labelled Why, How and What parts.
+changes replace the labelled Why, How and What parts. Revision 3: the notes of the running minor line come from the installed
+package, not from KV.
 
 ## Goal
 
@@ -13,6 +14,8 @@ editor's language (English and Danish). `CHANGELOG.md` stays the developer log.
 
 - The "Morpheme is updated to 0.13.0" link opens the Morpheme page (`#morpheme`). That page shows notes only for
   versions newer than the running one. After an update, the notes of the new version do not show.
+- A site that got its version in another way than the Worker's update (for example a rebuild) has no `cms:notes:<v>`
+  key. The page then shows no notes for the running version.
 - The notes are the raw `CHANGELOG.md` section in one `ListItem`. They are for developers and only in English.
 
 ## Decisions
@@ -56,7 +59,8 @@ type ReleasedNotes = { version: string; notes: ReleaseNote[] };
 ```
 
 - `id`: the changeset's file name without `.md`, e.g. `brave-cats-run`. Unique in the repo.
-- `image` is never in a JSON file. The screenshot is a file next to the note, found by its `id`.
+- `image` is never in a JSON file. The screenshot is a file next to the note, found by its `id`. The Worker sets `image`
+  for the versions to come. `bundledNotes` sets `image` for the running minor line.
 
 Files (Danish must be under an `i18n/da-DK/` path, else `check:language` fails):
 
@@ -74,20 +78,22 @@ Rules (checked by `check:release-notes`):
 - A card has a non-empty `title` and `text`, and a `.webp` screenshot of at most 200 KB, 750 pixels wide and at most
   800 pixels high.
 - A line has a non-empty `text` and no screenshot.
-- A released file is never changed after its release.
+- A released notes file never changes. The screenshot folder of an older minor line is deleted at the next release.
 
 Screenshot: the editor at phone width (375 CSS pixels), device scale factor 2, cropped to the part that changed, at
 most 400 CSS pixels high. So the file is 750 pixels wide and at most 800 pixels high. Saved as WebP. The card shows
 the whole picture.
 
-KV, in the site's Worker (`PUSH`):
+KV, in the site's Worker (`PUSH`). KV holds only the versions still to come. The notes of the running minor line are in the
+installed package:
 
 | Key | Value |
 |---|---|
 | `cms:notes:<version>` | `{ version, text, notes?: { 'en-US': ReleaseNote[], 'da-DK': ReleaseNote[] } }` (no `image` stored) |
 | `cms:note-image:<version>:<locale>:<id>` | the WebP bytes |
 
-`text` stays: it is the fallback for versions without notes.
+`text` stays: it is the fallback for versions without notes. A KV entry of an installed version is not read. It stays
+until the next self-update replaces the keys; nothing deletes it.
 
 ## Flow
 
@@ -95,15 +101,20 @@ KV, in the site's Worker (`PUSH`):
    files in both locales: a card with its screenshots, or a line. `npm run check` runs `check:release-notes`.
 2. **Release.** `release:version` runs `changeset version`, then `scripts/release-notes.mjs`. The script moves the
    pending notes of a locale into `<version>.json`, and the screenshots into `<version>/`. `package.json` `files` has
-   `release-notes`, so the notes and screenshots ship on npm.
-3. **Site Worker.** `keepNotes` (`worker/cms-update.js`) reads each kept version's notes and screenshots from the
-   tarball with `fileFromTar`. It keeps the notes in `cms:notes:<v>` and each screenshot in `cms:note-image:...`.
+   `release-notes`, so the notes and screenshots ship on npm. The release step then deletes the screenshot folders of older
+   minor lines. The package carries the screenshots of the running minor line. The repository history keeps the old ones.
+3. **Site Worker.** During a self-update, `keepNotes` (`worker/cms-update.js`) reads the notes and screenshots of each
+   version to come from the tarball with `fileFromTar`. It keeps the notes in `cms:notes:<v>` and each screenshot in
+   `cms:note-image:...`.
 4. **Images.** `GET /api/cms/note-image/<version>/<locale>/<id>` returns the WebP from KV, with the same login check as
    `/api/cms`, `Content-Type: image/webp` and a long cache time. No KV value: 404.
-5. **Status.** `cmsStatus` returns `notes` (versions to come) and `installed` (the versions the last update brought;
-   see `installedVersions`). The Worker sets `image` on each card to the URL of step 4.
-6. **Editor.** The Morpheme page shows a group "New in your version" with `installed`, above the button, and "What's
-   new" with the coming versions. Per version, in the editor's locale (fallback `en-US`): the cards first
+5. **Status.** `cmsStatus` returns `notes` (versions to come). The Worker sets `image` on each card to the URL of
+   step 4. `cmsStatus` has no list of installed versions.
+6. **Editor.** At build time, `src/bundledNotes.ts` reads `release-notes/i18n/<locale>/<version>.json` and the
+   screenshots of the package with `import.meta.glob`, and `bundledNotes` makes `runningNotes`: one entry for every
+   released version from `x.y.0` up to the running version, newest first. Another minor line and a newer version are
+   left out. The Morpheme page shows a group "New in your version" with every entry of `runningNotes`, above the button, and "What's new" with the
+   coming versions (`status.notes`). Per version, in the editor's locale (fallback `en-US`): the cards first
    (`ReleaseNoteCard`), then the lines under "Also in this version". A version without `notes` shows its `text`.
 
 ## Reused
@@ -117,9 +128,10 @@ KV, in the site's Worker (`PUSH`):
 
 | Path | What |
 |---|---|
-| `lib/releaseNotes.mjs` | pure: `problemsOf(pending)`, `released(pending, version)`, `notesFor(notes, locale)`, `installedVersions(...)`, `notesFromTar(tar, version)`, `imagePath(version, locale, id)` |
+| `lib/releaseNotes.mjs` | pure: `problemsOf(pending)`, `released(pending, version)`, `notesFor(notes, locale)`, `bundledNotes(files, images, version)`, `notesFromTar(tar, version)`, `imagePath(version, locale, id)` |
 | `scripts/release-notes-pending.mjs`, `scripts/release-notes.mjs` | read and move the screenshots too |
-| `worker/cms-update.js` | keep and serve the screenshots, set `image` |
+| `src/bundledNotes.ts` | `runningNotes`: the notes and screenshots of the running minor line, read at build time |
+| `worker/cms-update.js` | keep and serve the screenshots of the versions to come, set `image` |
 | `src/ReleaseNoteCard.tsx` | screenshot, title, paragraph |
 | `src/ReleaseNotes.tsx` | cards, then the lines |
 | `src/i18n/*/cms.ts` | remove `why`, `how`, `what`; add `alsoInThisVersion` |
@@ -130,7 +142,10 @@ KV, in the site's Worker (`PUSH`):
   screenshot too big, line with a screenshot, all good.
 - `released`: notes and screenshot paths per locale with the version; no notes gives nothing.
 - `notesFromTar`: notes and screenshot bytes for both locales, one locale, none, bad JSON.
-- `notesFor`, `installedVersions`: as in revision 1.
+- `notesFor`: as in revision 1.
+- `bundledNotes`: two locales, one locale, the whole minor line newest first, another minor ignored, a newer version
+  ignored, an empty list without a file, a card with the
+  screenshot address, a card without a screenshot file, a line unchanged.
 - The image route and the page wiring are thin. Check them by hand: screenshots of `#morpheme` in English and Danish
   with a mocked `/api/cms`.
 
