@@ -14,12 +14,16 @@ export const library = {
   continueEmpty: 'The pages and posts you edit show up here.',
   /** Under each of them: its kind ("Page") and when it was saved ("today at 1:42 PM", when.ts). */
   recentEdit: (kind: string, when: string) => `${kind} · Edited ${when}`,
-  /** At the top of the start screen: what was updated since the last visit in this browser, each a link to what's new. */
+  /** At the top of the start screen (UpdatesNotice.tsx): the card with what was updated since the last visit in this
+   * browser. Its title, over the CMS's new version (cmsVersion) or, with only apps updated, how many. */
   updatesTitle: 'Updated since your last visit',
-  /** The CMS's name in that notice. */
-  cmsName: 'Morpheme',
-  /** The CMS or an app with its new version. */
-  updatedTo: (name: string, version: string) => `${name} is updated to ${version}`,
+  appsUpdated: (count: number) => (count === 1 ? '1 app updated' : `${count} apps updated`),
+  /** Under the CMS's new version: how many new things its release notes have since the version seen last. */
+  newThings: (count: number) => (count === 1 ? '1 new thing' : `${count} new things`),
+  /** The button to the Morpheme page, with all the release notes. */
+  seeWhatsNew: 'See what’s new',
+  /** Under an updated app's name. */
+  appUpdatedTo: (version: string) => `Updated to ${version}`,
   githubAccount: (login: string) => `GitHub account: ${login}`,
   logOut: 'Log out',
   /** The bell in the top bar and its side sheet (Notifications.tsx): the messages shown at the bottom. */
