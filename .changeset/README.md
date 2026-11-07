@@ -55,8 +55,8 @@ where it was taken. After an update, the start screen shows the photo and "Morph
 
 - `release-notes/editions/<version>.json`: `name` (the place, short, in the card's headline), `place` (the full place
   per locale, `en-US` and `da-DK`, the card's subhead) and `photo` (`by`, `source` and `license`).
-- `release-notes/editions/<version>.webp`: the photo, 1280 × 720 px, at most 200 KB. The card crops it from the
-  middle: 3:2 above the text on a phone, a 2:3 portrait beside it on larger screens.
+- `release-notes/editions/<version>.webp`: the photo, 1280 × 720 px, at most 200 KB. The card crops it to 3:2
+  from the middle: above the text on a phone, beside it on larger screens.
 
 A version shows the newest edition whose version is at most its own, so an edition keeps its photo and name until the
 next release adds a new one.

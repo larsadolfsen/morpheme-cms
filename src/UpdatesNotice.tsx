@@ -1,7 +1,7 @@
 // At the top of the start screen: what was updated since the last visit in this browser, as a card with Close, which
 // marks it seen, and Read more. For the CMS: the photo of its edition (release-notes/editions/, named after the place the
-// photo is from), with rounded corners: 3:2 above the text in the compact window class, a 2:3 portrait as high as the
-// card to the left of it from the medium class up; "Morpheme <edition> <version>" (the headline), the place in full (the
+// photo is from), 3:2 with rounded corners: above the text in the compact window class, and from the medium class up
+// to the left of it, as high as the card; "Morpheme <edition> <version>" (the headline), the place in full (the
 // subhead), how many new things it brings (the supporting text, bundledNotes.ts) and Read more to the Morpheme page with
 // all of them; for each app installed from the store: a row with its icon and new version, to its Information tab.
 // Exposes UpdatesNotice. The logic is startView.mjs's (changesSince) and releaseNotes.mjs's (notesSince, editionOf), the
@@ -67,7 +67,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
     >
       <div className="grid medium:grid-cols-[auto_1fr]">
         {edition && (
-          <div className="relative aspect-[3/2] w-full medium:aspect-[2/3] medium:h-full medium:w-auto">
+          <div className="relative aspect-[3/2] w-full medium:h-full medium:w-auto">
             <img src={edition.image} alt="" className="absolute inset-0 size-full rounded-xl object-cover" />
           </div>
         )}
