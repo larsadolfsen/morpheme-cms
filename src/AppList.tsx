@@ -32,7 +32,8 @@ import { ConflictError, type Change, type RepoFile } from './github';
 import { cookieChanges, inCookieList } from './cookieList';
 import type { Env } from './App';
 import { ask, choose } from './ask';
-import { installedApps, settingsFile, type SiteApp } from './apps';
+import { appsState, installedApps, settingsFile, type SiteApp } from './apps';
+import { appsFileText, withInstalled } from '../lib/appsFile.mjs';
 import { AnyIcon } from './icon';
 import {
   appCategories,
@@ -517,7 +518,7 @@ export async function autoUpdate(env: Env, files: RepoFile[]) {
       }
       if (changedFiles(app.id, record, current).length) continue;
       const wanted = { files: await env.store.files(next), record: recordOf(next) };
-      const changes = [...appChanges(app.id, current, wanted, installed, file), ...cookieChanges(app.id, cookiesIn(wanted.files), files)];
+      const changes = [...appChanges(app.id, current, wanted, file), ...cookieChanges(app.id, cookiesIn(wanted.files), files)];
       const change = t.app.changes.updated(kindAndName(t.app.changes.app, next.label), next.version);
       await saveApp(env, siteT.apps.commit.update(next.written, next.version), change, changes, file);
       updated.set(app.id, next.version);
@@ -542,7 +543,6 @@ function useStoreActions(env: Env, files: RepoFile[]) {
   // Which action runs, on which app; `asking` while a dialog waits for the user (busyAction.mjs shows only the pressed button).
   const [running, setRunning] = useState<{ id: string; action: StoreAction; asking: boolean } | null>(null);
   const saving = !!running;
-  const installed = installedApps(files);
   const file = files.find((f) => f.path === config.apps.installed);
 
   async function change(
@@ -566,7 +566,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
       setRunning({ id, action, asking: false });
       env.notify({ text: text.busy });
       const cookies = cookieChanges(id, wanted ? cookiesIn(wanted.files) : null, files);
-      await saveApp(env, text.commit, text.change, [...appChanges(id, current, wanted, installed, file), ...cookies], file);
+      await saveApp(env, text.commit, text.change, [...appChanges(id, current, wanted, file), ...cookies], file);
       env.notify({ text: text.done, kind: text.kind ?? 'saved' });
       return true;
     } catch (e) {
@@ -874,8 +874,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
     if (!yes && !(await ask(t.apps.askUninstall(app.label), t.apps.uninstall))) return;
     if (!yes && app.store) return store.uninstall(app.id, app.label, asWritten(app).label);
     const file = files.find((f) => f.path === config.apps.installed);
-    const next = installed.filter((id) => id !== app.id).concat(yes ? [app.id] : []);
-    const text = `${JSON.stringify({ installed: [...new Set(next)].sort() }, null, 2)}\n`;
+    const text = appsFileText(withInstalled(appsState(files), app.id, yes));
     if (text === file?.text) return;
     setToggling(yes ? 'install' : 'uninstall');
     notify({ text: yes ? t.apps.installing : t.apps.uninstalling });
