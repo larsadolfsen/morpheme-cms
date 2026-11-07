@@ -104,7 +104,7 @@ async function keepNotes(env, deps, current, latest) {
   const changelog = fileFromTar(tar, 'package/CHANGELOG.md');
   if (!changelog) return;
   for (const { version, text } of sectionsBetween(changelog, current, latest)) {
-    const notes = notesFromTar(tar, version);
+    const notes = notesFromTar(tar, version)?.notes;
     await putJson(env.PUSH, `cms:notes:${version}`, { version, text, ...(notes ? { notes } : {}) });
   }
 }

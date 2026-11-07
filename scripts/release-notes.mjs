@@ -1,8 +1,9 @@
-// Release step: moves the pending release notes into release-notes/i18n/<locale>/<version>.json, the version from package.json.
-// Run by release:version after changeset version. Usage: node scripts/release-notes.mjs [root]; exits 1 on a problem or an existing file.
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { problemsOf, released } from '../lib/releaseNotes.mjs';
+// Release step: moves the pending release notes into release-notes/i18n/<locale>/<version>.json, their screenshots into
+// <version>/<id>.webp, the version from package.json. Run by release:version after changeset version.
+// Usage: node scripts/release-notes.mjs [root]; exits 1 on a problem or an existing file.
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { imagePath, problemsOf, released } from '../lib/releaseNotes.mjs';
 import { readPending, repoRoot } from './release-notes-pending.mjs';
 
 const root = repoRoot(process.argv[2]);
@@ -23,10 +24,16 @@ if (existing.length > 0) {
   process.exit(1);
 }
 
-for (const [locale, data] of Object.entries(result)) {
-  writeFileSync(join(root, 'release-notes', 'i18n', locale, `${version}.json`), `${JSON.stringify(data, null, 2)}\n`);
+for (const [locale, { file, images }] of Object.entries(result)) {
+  const localeDir = join(root, 'release-notes', 'i18n', locale);
+  writeFileSync(join(localeDir, `${version}.json`), `${JSON.stringify(file, null, 2)}\n`);
+  for (const id of images) {
+    const target = join(root, imagePath(version, locale, id));
+    mkdirSync(dirname(target), { recursive: true });
+    renameSync(join(localeDir, 'pending', `${id}.webp`), target);
+  }
   for (const id of Object.keys(pending[locale])) {
-    rmSync(join(root, 'release-notes', 'i18n', locale, 'pending', `${id}.json`));
+    rmSync(join(localeDir, 'pending', `${id}.json`));
   }
 }
 console.log(`Release notes for ${version}: ${Object.keys(result).join(', ') || 'none'}.`);
