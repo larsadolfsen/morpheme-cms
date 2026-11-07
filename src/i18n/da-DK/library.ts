@@ -8,7 +8,6 @@ export const library: Messages['library'] = {
   continueTitle: 'Fortsæt, hvor du slap',
   continueEmpty: 'De sider og indlæg, du redigerer, vises her.',
   recentEdit: (kind, when) => `${kind} · Redigeret ${when}`,
-  updatesTitle: 'Opdatering',
   cmsEdition: (edition, version) => `Morpheme ${edition} ${version}`,
   appsUpdated: (count) => (count === 1 ? '1 app er opdateret' : `${count} apps er opdateret`),
   newThings: (count) => (count === 1 ? '1 nyhed' : `${count} nyheder`),

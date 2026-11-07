@@ -1,9 +1,11 @@
-// At the top of the start screen: what was updated since the last visit in this browser, as a small card (the photo
-// to the left of the text from the expanded width) with Close, which marks it seen, and Read more. For the CMS: the photo of its edition (16:9, release-notes/editions/, named after the place
-// the photo is from), "Morpheme <edition> <version>" and how many new things it brings (bundledNotes.ts), and Read more to the
-// Morpheme page with all of them; for each app installed from the store: a row with its icon and new version, to its
-// Information tab. Exposes UpdatesNotice. The logic is startView.mjs's (changesSince) and releaseNotes.mjs's (notesSince,
-// editionOf), the storage startStorage.ts's, the card, rows and buttons the theme's (themeUi.ts, ui.tsx).
+// At the top of the start screen: what was updated since the last visit in this browser, as a card with Close, which
+// marks it seen, and Read more. For the CMS: the photo of its edition (release-notes/editions/, named after the place the
+// photo is from), with rounded corners: 3:2 above the text in the compact window class, a 2:3 portrait as high as the
+// card to the left of it from the medium class up; "Morpheme <edition> <version>" (the headline), the place in full (the
+// subhead), how many new things it brings (the supporting text, bundledNotes.ts) and Read more to the Morpheme page with
+// all of them; for each app installed from the store: a row with its icon and new version, to its Information tab.
+// Exposes UpdatesNotice. The logic is startView.mjs's (changesSince) and releaseNotes.mjs's (notesSince, editionOf), the
+// storage startStorage.ts's, the card, rows and buttons the theme's (themeUi.ts, ui.tsx).
 import { useEffect, useState } from 'react';
 import { version } from '../package.json';
 import { locale, t } from './i18n';
@@ -49,6 +51,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
   });
   const news = cms ? notesSince(runningNotes, cms.from, locale) : [];
   const edition = cms && runningEdition;
+  const place = edition && (edition.place[locale] ?? edition.place['en-US']);
   const title = cms
     ? edition
       ? t.library.cmsEdition(edition.name, cms.version)
@@ -60,16 +63,23 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       as="section"
       role="status"
       aria-labelledby="updates-title"
-      className="mb-8 max-w-xl overflow-hidden [--card-padding:0] expanded:max-w-3xl"
+      className="mb-8 overflow-hidden [--card-padding:0]"
     >
-      <div className="expanded:flex">
-        {edition && <img src={edition.image} alt="" className="block aspect-video w-full object-cover expanded:w-80 expanded:shrink-0" />}
-        <div className="flex min-w-0 grow flex-col p-4">
-          <h2 id="updates-title" className="text-xs font-medium text-muted">
-            {t.library.updatesTitle}
+      <div className="grid medium:grid-cols-[auto_1fr]">
+        {edition && (
+          <div className="relative aspect-[3/2] w-full medium:aspect-[2/3] medium:h-full medium:w-auto">
+            <img src={edition.image} alt="" className="absolute inset-0 size-full rounded-xl object-cover" />
+          </div>
+        )}
+        <div className="flex min-w-0 flex-col p-4">
+          <h2
+            id="updates-title"
+            className="text-[length:var(--type-headline-small-size)] leading-[var(--type-headline-small-line-height)] [overflow-wrap:anywhere]"
+          >
+            {title}
           </h2>
-          <p className="text-xl leading-tight [overflow-wrap:anywhere]">{title}</p>
-          {news.length > 0 && <p className="mt-0.5 text-sm text-muted">{t.library.newThings(news.length)}</p>}
+          {place && <p className="mt-1 text-sm">{place}</p>}
+          {news.length > 0 && <p className="mt-2 text-sm text-muted">{t.library.newThings(news.length)}</p>}
           <div className="mt-auto flex flex-wrap justify-end gap-2 pt-4">
             <Button kind="text" size="small" onClick={close}>
               {t.common.close}

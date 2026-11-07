@@ -15,10 +15,8 @@ export const library = {
   /** Under each of them: its kind ("Page") and when it was saved ("today at 1:42 PM", when.ts). */
   recentEdit: (kind: string, when: string) => `${kind} · Edited ${when}`,
   /** At the top of the start screen (UpdatesNotice.tsx): the card with what was updated since the last visit in this
-   * browser. Its label, over the CMS's edition and new version (cmsEdition), its new version (cmsVersion) or, with only
-   * apps updated, how many. */
-  updatesTitle: 'Update',
-  /** The CMS's name, its edition (the place the edition's photo is from: "Braies") and its new version. */
+   * browser. Its headline: the CMS's name, its edition (the place the edition's photo is from: "Braies") and its new
+   * version; without an edition, cmsVersion; with only apps updated, how many (appsUpdated). */
   cmsEdition: (edition: string, version: string) => `Morpheme ${edition} ${version}`,
   appsUpdated: (count: number) => (count === 1 ? '1 app updated' : `${count} apps updated`),
   /** Under the CMS's new version: how many new things its release notes have since the version seen last. */
