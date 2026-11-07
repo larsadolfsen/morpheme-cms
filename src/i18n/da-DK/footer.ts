@@ -8,6 +8,7 @@ export const footer: Messages['footer'] = {
   security: 'Rapportér sikkerhedsfejl',
   privacy: 'Privatlivspolitik',
   openStatusPage: 'Åbn statusside',
+  loading: 'Tjekker status…',
   state: {
     ok: 'Alle systemer virker',
     minor: 'Nogle systemer er langsomme',

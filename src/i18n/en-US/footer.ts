@@ -6,6 +6,7 @@ export const footer = {
   security: 'Report security issues',
   privacy: 'Privacy policy',
   openStatusPage: 'Open status page',
+  loading: 'Checking the status…',
   state: {
     ok: 'All systems work',
     minor: 'Some systems are slow',
