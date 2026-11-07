@@ -1,6 +1,6 @@
 // Lets a screen know it shows a FAB: Screen (Screen.tsx) provides the context, FabMenu (ui.tsx) calls useRegisterFab while
 // it is drawn. Exposes FabPresenceContext, useCountFabs and useRegisterFab. Used to leave room under the footer for the FAB
-// only (useFooterClearance.ts).
+// only (Screen.tsx).
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 /** Called with +1 when a FAB appears on the screen and -1 when it goes. Absent outside a Screen. */

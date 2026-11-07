@@ -12,16 +12,17 @@
 // a form with its fields beside the text (`panel`). The column (editor.css .editor-column) stands centred on the window,
 // off-centre only as far as the panels beside it require.
 // Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
-// is short (the screen fills the column under the bar, TopBarLayout); under the footer is room for the floating action button
-// only while the screen has one (fabPresence.tsx) and the content pushes the footer below the window (useFooterClearance.ts).
-import { useId, useRef, type MouseEvent, type ReactNode } from 'react';
+// is short (the screen fills the column under the bar, TopBarLayout). Below medium, while the screen has a floating action
+// button (fabPresence.tsx), there is room for it under the footer (data-clearance): the page is that much taller than the
+// window (--editor-fab-clearance, editor.css), so a short screen still has its footer at the bottom of the window and can
+// be scrolled up to show it above the FAB.
+import { useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
 import { IconButton, IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
 import { up } from './nav';
 import EditorFooter from './EditorFooter';
-import useFooterClearance from './useFooterClearance';
 import { FabPresenceContext, useCountFabs } from './fabPresence';
 import { useMenuOpen } from './menuOpen';
 import { unseen, useNotifications } from './notificationData';
@@ -120,9 +121,7 @@ export default function Screen<T extends string>({
     else way();
   };
   const slot = useTopBarSlot();
-  const main = useRef<HTMLElement>(null);
   const fabs = useCountFabs();
-  useFooterClearance(main, fabs.count > 0);
   // The way here, without the start screen: the logo in the bar is the way there.
   const crumbs = back && back.href !== '#' ? [back] : [];
   const bar = (
@@ -175,12 +174,12 @@ export default function Screen<T extends string>({
     </TopAppBar>
   );
   return (
-    <div className={`flex flex-col ${slot ? 'flex-1' : 'min-h-dvh'}`}>
+    <div className={`flex flex-col ${slot ? 'flex-1' : 'min-h-[calc(100dvh+var(--editor-fab-clearance,0px))]'}`}>
       {slot ? createPortal(bar, slot) : bar}
       {/* A row, so the column keeps its margins (editor.css .editor-column) and is as high as the rest of the window. */}
       <div className="flex flex-1">
         <main
-          ref={main}
+          data-clearance={fabs.count > 0}
           className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[env(safe-area-inset-bottom)] data-[clearance=true]:pb-[calc(4.5rem+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 medium:pb-4 medium:data-[clearance=true]:pb-4 ${width}`}
         >
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
