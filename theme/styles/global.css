@@ -200,9 +200,9 @@
   --card-outlined-surface: var(--surface);
   --card-outlined-line: var(--line);
   /* Lists (M3 Expressive's list tokens): items 56, 72 and 88px high by their lines, 16px in from their sides, 10px over
-     and under their text and 12px between their elements, without lines between them; 20px icons; the headline in body
-     large, the supporting text in body medium, the overline and the trailing text in label small; a state layer in the
-     text's colour when pointed at (8%) and pressed (10%), nothing moving aside; disabled at 38%, a segmented item on a
+     and under their text and 12px between their elements, without lines between them; 20px icons; the headline (the label
+     text) in title medium (500), the supporting text in body medium, the overline and the trailing text in label small; a
+     state layer in the text's colour when pointed at (8%) and pressed (10%), nothing moving aside; disabled at 38%, a segmented item on a
      10% layer of the text's colour. Their corners extra-small, medium pointed at, large pressed and focused, large
      increased selected; a selected one in the secondary container. Segmented: each item on a surface container (a step
      up from the page, as Material's items on the surface over a container), 2px between them and the list's corners
@@ -228,7 +228,11 @@
   --list-item-hover-trailing-shift: 0;
   --list-item-selected-surface: var(--secondary-container);
   --list-item-selected-text: var(--on-secondary-container);
-  --list-item-selected-weight: 400;
+  --list-item-headline-size: var(--type-title-medium-size);
+  --list-item-headline-weight: var(--type-title-medium-weight);
+  --list-item-headline-line-height: var(--type-title-medium-line-height);
+  --list-item-headline-letter-spacing: var(--type-title-medium-tracking);
+  --list-item-selected-weight: var(--type-title-medium-weight);
   --list-item-leading-icon-selected-color: var(--accent);
   --list-item-disabled-opacity: 0.38;
   --list-segmented-gap: 0.125rem;
