@@ -1,6 +1,6 @@
-// "Morpheme" (#morpheme), under "Indstillinger": the CMS version the site runs, the notes of the update just installed,
-// a newer one with its notes, why it is not taken by itself, and an update's progress, and the site's connection to the
-// Morpheme store (MorphemeConnection) as its last group. Exposes CMS_ROUTE and the page. Depends on cmsView.mjs,
+// "Morpheme" (#morpheme), under "Indstillinger": the CMS version the site runs, the notes of that version (from the
+// package itself, bundledNotes.ts), a newer one with its notes, why it is not taken by itself, and an update's progress, and the site's connection to the
+// Morpheme store (MorphemeConnection) as its last group. Exposes CMS_ROUTE and the page. Depends on cmsView.mjs, bundledNotes.ts,
 // ReleaseNotes (the notes as cards), MorphemeConnection and the Worker's /api/cms.
 import { useCallback, useEffect, useState } from 'react';
 import { CheckCircle, Clock, Info, Sparkle, WarningCircle } from '@phosphor-icons/react';
@@ -10,6 +10,7 @@ import { ReleaseNotes, type VersionNotes } from './ReleaseNotes';
 import { Button, EmptyNote, Group, ListItem, ProblemNote } from './ui';
 import { backFrom } from './site';
 import { cmsView } from './cmsView.mjs';
+import { runningNotes } from './bundledNotes';
 import { snackbar } from '../lib/snackbar';
 import { t } from './i18n';
 import { when } from './when';
@@ -23,7 +24,6 @@ type View = {
   checkedAt: string | null;
   latest: string | null;
   notes: VersionNotes[];
-  installed: VersionNotes[];
   action: 'update' | 'try-again' | null;
   npmCommand: string | null;
   update: { state: UpdateState; to: string; at: string } | null;
@@ -107,7 +107,7 @@ export default function CmsPage() {
       {!view && !problem && <EmptyNote busy>{t.app.loading}</EmptyNote>}
       {view && (
         <>
-          {view.installed.length > 0 && <ReleaseNotes title={t.cms.newInYourVersion} entries={view.installed} />}
+          {runningNotes && <ReleaseNotes title={t.cms.newInYourVersion} entries={[runningNotes]} />}
           <Group>
             <ListItem icon={Info} headline={t.cms.running(view.running)} supporting={view.latest ? undefined : t.cms.upToDate} />
             <ListItem icon={Clock} headline={view.checkedAt ? t.cms.checked(when(new Date(view.checkedAt))) : t.cms.notChecked} />
