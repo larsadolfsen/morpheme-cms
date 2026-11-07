@@ -12,14 +12,16 @@
 // a form with its fields beside the text (`panel`). The column (editor.css .editor-column) stands centred on the window,
 // off-centre only as far as the panels beside it require.
 // Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
-// is short (the screen fills the column under the bar, TopBarLayout).
-import { useId, type MouseEvent, type ReactNode } from 'react';
+// is short (the screen fills the column under the bar, TopBarLayout); under the footer is room for the floating action button
+// only while the content pushes the footer below the window (useFooterClearance.ts).
+import { useId, useRef, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
 import { IconButton, IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuLayout, type TabChoice } from './ui';
 import { up } from './nav';
 import EditorFooter from './EditorFooter';
+import useFooterClearance from './useFooterClearance';
 import { useMenuOpen } from './menuOpen';
 import { unseen, useNotifications } from './notificationData';
 import { openNotifications, useNotificationsOpen } from './notificationsOpen';
@@ -117,6 +119,8 @@ export default function Screen<T extends string>({
     else way();
   };
   const slot = useTopBarSlot();
+  const main = useRef<HTMLElement>(null);
+  useFooterClearance(main);
   // The way here, without the start screen: the logo in the bar is the way there.
   const crumbs = back && back.href !== '#' ? [back] : [];
   const bar = (
@@ -174,7 +178,8 @@ export default function Screen<T extends string>({
       {/* A row, so the column keeps its margins (editor.css .editor-column) and is as high as the rest of the window. */}
       <div className="flex flex-1">
         <main
-          className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[calc(4.5rem+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 medium:pb-4 ${width}`}
+          ref={main}
+          className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[env(safe-area-inset-bottom)] data-[clearance=true]:pb-[calc(4.5rem+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 medium:pb-4 medium:data-[clearance=true]:pb-4 ${width}`}
         >
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
           <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">
