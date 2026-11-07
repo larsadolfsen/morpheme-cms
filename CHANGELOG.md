@@ -1,5 +1,23 @@
 # @morphemecms/cms
 
+## 0.14.0
+
+### Minor Changes
+
+- a70c310: Apps can be turned off without uninstalling them; the app page shows the app's version.
+- 26e7adc: The editor footer has links to support, system status, security reports, the privacy policy and the licenses, and a copyright line. System status shows whether GitHub and Cloudflare work for your site.
+- 4c30155: The Morpheme page shows a friendly note for each change: why, how and what.
+
+### Patch Changes
+
+- da37368: The Enabled switch on an app's page sits right below the app's description.
+- dd625db: Editor menu: Advanced is now Developer, with Parts and Caching and builds in it. Parts moved from Appearance; old links still work.
+- 5cd4149: Editor menu: "Lists" is now "Dynamic lists", one row that opens the page with all lists (no fold-out).
+- 1fe1daa: The text toolbar is no taller than its tools on a phone, and it stays as far from the top of the screen as from the sides while you scroll.
+- b47a580: Google preview looks more like Google: a flat result on a phone, no card on a computer, a ringed site icon, https:// in the address, the ⋮ menu, a larger phone title, and the primary keyword in bold in the description.
+- 006c78b: The connection to Morpheme moves from the store screens to the Morpheme page under Settings, with the Morpheme logo.
+- a4da24e: System status checks only the Cloudflare services your site uses, so a site without R2 or D1 is not marked down by them.
+
 ## 0.13.0
 
 ### Minor Changes

@@ -1,6 +1,0 @@
-{
-  "id": "editor-footer",
-  "kind": "card",
-  "title": "See if GitHub and Cloudflare are working",
-  "text": "When something won't save or publish, you want to know if the problem is your site or the services it runs on. Scroll to the bottom of the editor and tap System status. It checks only the services your site uses."
-}
