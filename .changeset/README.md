@@ -48,3 +48,13 @@ Example lines:
 > Also in this version
 > - Open website opens in a new window.
 > - The text toolbar no longer scrolls sideways on a phone.
+## Editions
+
+Each release can be an edition named after a place: a nature photo from [Unsplash](https://unsplash.com) and the name of
+where it was taken. After an update, the start screen shows the photo, the name and the new version in a small card.
+
+- `release-notes/editions/<version>.json`: `name` (the place, as the card shows it), `place` (the full place) and
+  `photo` (`by`, `source` and `license`).
+- `release-notes/editions/<version>.webp`: the photo, 1200 × 480 px, at most 200 KB.
+
+A version shows the newest edition whose version is at most its own, so an edition lasts until the next one.
