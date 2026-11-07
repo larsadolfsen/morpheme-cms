@@ -1,11 +1,13 @@
-// At the top of the start screen: what was updated since the last visit in this browser, as a card with a close button
-// that marks it seen, in the accent (the editor's blue). For the CMS: its new version large, how many new things it brings and the first of them from the
-// notes the package carries (bundledNotes.ts: the first with a screenshot large, then the titles and texts of the next),
-// and a button to the Morpheme page with all of them; for each app installed from the store: a row with its icon and new
-// version, to its Information tab. Exposes UpdatesNotice. The lead and the highlights are UpdateLead.tsx and UpdateHighlight.tsx. The logic is startView.mjs's (changesSince) and
-// releaseNotes.mjs's (notesSince), the storage startStorage.ts's, the card, rows and buttons the theme's (themeUi.ts, ui.tsx).
-import { useEffect, useState } from 'react';
-import { ArrowRight, Sparkle } from '@phosphor-icons/react';
+// At the top of the start screen: what was updated since the last visit in this browser, as a card with Close, which
+// marks it seen, and Read more. For the CMS: the photo of its edition (release-notes/editions/, named after the place the
+// photo is from), 3:2 with rounded corners, above the text in the compact window class and from the medium class up to
+// the left of it, as high as the card; "Morpheme <edition> <version>" (the headline), the place in full (the subhead,
+// with an info button after it that credits the photographer, PhotoCredit), how many new things it brings (the supporting
+// text, bundledNotes.ts) and Read more to the Morpheme page with all of them; for each app installed from the store: a
+// row with its icon and new version, to its Information tab. Exposes UpdatesNotice. The logic is startView.mjs's
+// (changesSince) and releaseNotes.mjs's (notesSince, editionOf), the storage startStorage.ts's, the card, rows, buttons
+// and tooltip the theme's (themeUi.ts, ui.tsx).
+import { useEffect, useRef, useState } from 'react';
 import { version } from '../package.json';
 import { locale, t } from './i18n';
 import { installedApps } from './apps';
@@ -13,19 +15,15 @@ import { apps } from './site';
 import { changesSince, versioned, type Versions } from './startView.mjs';
 import { keepStored, SEEN, storedSeen } from './startStorage';
 import type { RepoFile } from './github';
-import { SiteCard } from './themeUi';
-import { CloseButton, LinkButton, ListItem, plainListClass } from './ui';
+import { SiteCard, SiteTooltip } from './themeUi';
+import { Svg } from './icon';
+import { Button, LinkButton, ListItem, plainListClass } from './ui';
 import { CMS_ROUTE } from './CmsPage';
+import { LICENSES_ROUTE } from './Licenses';
 import { appHref } from './AppList';
-import { UpdateLead } from './UpdateLead';
-import { UpdateHighlight } from './UpdateHighlight';
-import { accentContainerClass } from './accentContainerClass';
-import { runningNotes } from './bundledNotes';
-import { notesSince, type ReleaseNote } from '../lib/releaseNotes.mjs';
+import { runningEdition, runningNotes } from './bundledNotes';
+import { notesSince } from '../lib/releaseNotes.mjs';
 import { INFO_KEY } from '../lib/appRoute.mjs';
-
-/** How many of the new things the card shows; the Morpheme page has them all. */
-const SHOWN = 3;
 
 /** The CMS's version and those of the apps installed from the store, as the editor is built with them now. */
 function versionsNow(files: RepoFile[]): Versions {
@@ -34,6 +32,61 @@ function versionsNow(files: RepoFile[]): Versions {
     cms: version,
     apps: Object.fromEntries(apps.filter((a) => a.store && installed.includes(a.id)).map((a) => [a.id, a.store!.version])),
   };
+}
+
+/** The info button right after the place's name (the theme's info icon, which every icon pack has), with a rich
+ * tooltip: who took the photo, on Unsplash, and a link to its licence under "Licenses". It opens while the mouse is over
+ * the button or the tooltip, while focus is in them, and on a tap (a second tap closes it); Escape closes it. Under the
+ * button, from its end, at most 15rem wide, so it stays on a phone's screen. */
+function PhotoCredit({ by, version }: { by: string; version: string }) {
+  const [open, setOpen] = useState(false);
+  const leave = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // When it opened: a tap focuses the button (which opens it) just before its click, which must not close it again.
+  const openedAt = useRef(0);
+  const show = () => {
+    clearTimeout(leave.current);
+    if (!open) openedAt.current = Date.now();
+    setOpen(true);
+  };
+  const hide = () => {
+    clearTimeout(leave.current);
+    leave.current = setTimeout(() => setOpen(false), 150);
+  };
+  // Escape closes it wherever the pointer and the focus are (WCAG 1.4.13).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
+  useEffect(() => () => clearTimeout(leave.current), []);
+  return (
+    <div
+      className="-my-3 -ms-2.5 inline-flex align-middle"
+      onMouseEnter={show}
+      onMouseLeave={hide}
+      onFocus={show}
+      onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && hide()}
+    >
+      <SiteTooltip
+        open={open}
+        // Only `open` shows it: not the theme's fallback on hover and focus, which Escape could not close.
+        className="[&:not([data-tooltip-open])>.tooltip]:invisible [&:not([data-tooltip-open])>.tooltip]:opacity-0 [&>.tooltip]:start-auto [&>.tooltip]:end-0 [&>.tooltip]:top-[calc(100%-0.5rem)] [&>.tooltip]:bottom-auto [&>.tooltip]:max-w-60"
+        supportingText={t.library.photoBy(by)}
+        action={{ label: t.library.photoLicense, href: `#${LICENSES_ROUTE}/${encodeURIComponent(`editions/${version}`)}` }}
+      >
+        <button
+          type="button"
+          aria-label={t.library.photoInfo}
+          aria-expanded={open}
+          onClick={() => (open && Date.now() - openedAt.current < 400 ? undefined : open ? setOpen(false) : show())}
+          className="grid size-12 place-items-center rounded-full text-muted focus-visible:outline-2 focus-visible:outline-offset-[-8px]"
+        >
+          <Svg name="info" size={20} />
+        </button>
+      </SiteTooltip>
+    </div>
+  );
 }
 
 /** The first visit, and a visit with nothing new, only notes the versions. */
@@ -55,48 +108,49 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
     return app ? [{ app, version: c.version }] : [];
   });
   const news = cms ? notesSince(runningNotes, cms.from, locale) : [];
-  const lead = news.find((note): note is Extract<ReleaseNote, { kind: 'card' }> => note.kind === 'card' && !!note.image);
-  const rest = news.filter((note) => note !== lead);
+  const edition = cms && runningEdition;
+  const place = edition && (edition.place[locale] ?? edition.place['en-US']);
+  const title = cms
+    ? edition
+      ? t.library.cmsEdition(edition.name, cms.version)
+      : t.library.cmsVersion(cms.version)
+    : t.library.appsUpdated(updatedApps.length);
   return (
-    <SiteCard
-      kind="filled"
-      as="section"
-      role="status"
-      aria-labelledby="updates-title"
-      className="relative mb-8 text-on-accent [--card-filled-surface:var(--accent)] [--card-padding:0] [--icon-button-standard-text:var(--on-accent)]"
-    >
-      <CloseButton onClick={close} />
-      <div className="flex items-center gap-4 p-4 pe-14">
-        <span className="grid size-12 shrink-0 place-items-center rounded-full bg-on-accent text-accent">
-          <Sparkle size={26} weight="fill" aria-hidden />
-        </span>
-        <div className="min-w-0">
-          <h2 id="updates-title" className="text-sm font-medium">
-            {t.library.updatesTitle}
+    <SiteCard kind="outlined" as="section" role="status" aria-labelledby="updates-title" className="mb-8 [--card-padding:0]">
+      <div className="grid medium:grid-cols-[auto_1fr]">
+        {edition && (
+          <div className="relative aspect-[3/2] w-full medium:h-full medium:w-auto">
+            <img src={edition.image} alt="" className="absolute inset-0 size-full rounded-xl object-cover" />
+          </div>
+        )}
+        <div className="flex min-w-0 flex-col p-4">
+          <h2
+            id="updates-title"
+            className="text-[length:var(--type-headline-small-size)] leading-[var(--type-headline-small-line-height)] [overflow-wrap:anywhere]"
+          >
+            {title}
           </h2>
-          <p className="text-2xl leading-tight">{cms ? t.library.cmsVersion(cms.version) : t.library.appsUpdated(updatedApps.length)}</p>
-          {news.length > 0 && <p className="text-sm opacity-85">{t.library.newThings(news.length)}</p>}
+          {place && (
+            <p className="mt-1 text-sm">
+              {place}
+              {edition.by && <PhotoCredit by={edition.by} version={edition.version} />}
+            </p>
+          )}
+          {news.length > 0 && <p className="mt-2 text-sm text-muted">{t.library.newThings(news.length)}</p>}
+          <div className="mt-auto flex flex-wrap justify-end gap-2 pt-4">
+            <Button kind="text" size="small" onClick={close}>
+              {t.common.close}
+            </Button>
+            {cms && (
+              <LinkButton kind="filled" size="small" href={`#${CMS_ROUTE}`}>
+                {t.library.readMore}
+              </LinkButton>
+            )}
+          </div>
         </div>
       </div>
-      {news.length > 0 && (
-        <div className="space-y-2 px-4">
-          {lead && <UpdateLead note={lead} />}
-          <ul className="space-y-2">
-            {rest.slice(0, lead ? SHOWN - 1 : SHOWN).map((note) => (
-              <UpdateHighlight key={note.id} note={note} />
-            ))}
-          </ul>
-        </div>
-      )}
-      {cms && (
-        <div className="px-4 pt-4 pb-4">
-          <LinkButton kind="tonal" href={`#${CMS_ROUTE}`} icon={ArrowRight}>
-            {t.library.seeWhatsNew}
-          </LinkButton>
-        </div>
-      )}
       {updatedApps.length > 0 && (
-        <ul className={`${plainListClass} mx-4 mb-4 overflow-hidden ${accentContainerClass}`}>
+        <ul className={`${plainListClass} border-t border-line`}>
           {updatedApps.map(({ app, version }) => (
             <ListItem
               key={app.id}

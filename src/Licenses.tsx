@@ -17,6 +17,7 @@ import { apps } from './registry';
 import { themes } from './themes';
 import { byText } from './schema';
 import { PACKAGE } from '../lib/cms-version.mjs';
+import { editionPhotos } from './bundledNotes';
 import { locale, t } from './i18n';
 import {
   CMS_NAME,
@@ -242,6 +243,8 @@ export function LicensePage({ id }: { id: string }) {
   const isCms = work?.id === PACKAGE;
   const name = isCms ? t.licenses.own(CMS_NAME) : (work?.name ?? (owner ? t.licenses.own(ownerName(owner)) : t.common.parts.licenses));
   const text = work?.text ?? owner?.text;
+  // An edition's photo (editions/<version>, editionWorks in lib/licenses.mjs): the whole photo, uncropped.
+  const photo = work?.id.startsWith('editions/') ? editionPhotos[work.id.slice('editions/'.length)] : undefined;
   const back = { href: `#${LICENSES_ROUTE}`, label: t.common.parts.licenses };
   return (
     <Screen title={name} wide back={back}>
@@ -258,6 +261,7 @@ export function LicensePage({ id }: { id: string }) {
               <OwnRow owner={(work ?? owner)!} name={isCms ? CMS_NAME : ownerName(owner!)} open={false} />
             )}
           </Group>
+          {photo && <img src={photo} alt={work!.name} className="mb-8 block h-auto w-full rounded-xl" />}
           <section className="mb-8">
             <GroupTitle>{t.licenses.text}</GroupTitle>
             {work?.standard && <SupportingText className="mb-3 px-4">{t.licenses.standardText(work.license)}</SupportingText>}

@@ -15,13 +15,19 @@ export const library = {
   /** Under each of them: its kind ("Page") and when it was saved ("today at 1:42 PM", when.ts). */
   recentEdit: (kind: string, when: string) => `${kind} · Edited ${when}`,
   /** At the top of the start screen (UpdatesNotice.tsx): the card with what was updated since the last visit in this
-   * browser. Its title, over the CMS's new version (cmsVersion) or, with only apps updated, how many. */
-  updatesTitle: 'Updated since your last visit',
+   * browser. Its headline: the CMS's name, its edition (the place the edition's photo is from: "Braies") and its new
+   * version; without an edition, cmsVersion; with only apps updated, how many (appsUpdated). */
+  cmsEdition: (edition: string, version: string) => `Morpheme ${edition} ${version}`,
   appsUpdated: (count: number) => (count === 1 ? '1 app updated' : `${count} apps updated`),
   /** Under the CMS's new version: how many new things its release notes have since the version seen last. */
   newThings: (count: number) => (count === 1 ? '1 new thing' : `${count} new things`),
   /** The button to the Morpheme page, with all the release notes. */
-  seeWhatsNew: 'See what’s new',
+  readMore: 'Read more',
+  /** The info button on the edition's photo in that card, and its tooltip: who took the photo, and a link to its
+   * licence under "Licenses". */
+  photoInfo: 'About the photo',
+  photoBy: (name: string) => `Photo by ${name} on Unsplash`,
+  photoLicense: 'See license',
   /** Under an updated app's name. */
   appUpdatedTo: (version: string) => `Updated to ${version}`,
   githubAccount: (login: string) => `GitHub account: ${login}`,

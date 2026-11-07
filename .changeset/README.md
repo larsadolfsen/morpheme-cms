@@ -52,3 +52,17 @@ Example lines:
 > Also in this version
 > - Open website opens in a new window
 > - On a phone, the text toolbar no longer scrolls sideways
+
+## Editions
+
+Each release can be an edition named after a place: a nature photo from [Unsplash](https://unsplash.com) and the name of
+where it was taken. After an update, the start screen shows the photo and "Morpheme <name> <version>" in a small card.
+
+- `release-notes/editions/<version>.json`: `name` (the place, short, in the card's headline), `place` (the full place
+  per locale, `en-US` and `da-DK`, the card's subhead) and `photo` (`by`, `source` and `license`).
+- `release-notes/editions/<version>.webp`: the whole photo, uncropped as on Unsplash, 1280 px wide, at most 200 KB.
+  Its page under Licenses shows all of it; the card crops it to 3:2 from the middle: above the text on a phone, beside it
+  on larger screens.
+
+A version shows the newest edition whose version is at most its own, so an edition keeps its photo and name until the
+next release adds a new one.
