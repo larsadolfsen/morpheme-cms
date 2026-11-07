@@ -12,10 +12,13 @@ const images = import.meta.glob<string>('../release-notes/i18n/*/*/*.webp', { ea
 
 export const runningNotes = bundledNotes(files, images, version);
 
-const editions = import.meta.glob<{ name?: string; place?: Record<string, string> }>('../release-notes/editions/*.json', {
-  eager: true,
-  import: 'default',
-});
+const editions = import.meta.glob<{ name?: string; place?: Record<string, string>; photo?: { by?: string } }>(
+  '../release-notes/editions/*.json',
+  {
+    eager: true,
+    import: 'default',
+  },
+);
 const editionImages = import.meta.glob<string>('../release-notes/editions/*.webp', { eager: true, query: '?url', import: 'default' });
 
 export const runningEdition = editionOf(editions, editionImages, version);

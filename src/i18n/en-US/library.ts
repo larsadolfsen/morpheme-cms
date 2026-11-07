@@ -23,6 +23,11 @@ export const library = {
   newThings: (count: number) => (count === 1 ? '1 new thing' : `${count} new things`),
   /** The button to the Morpheme page, with all the release notes. */
   readMore: 'Read more',
+  /** The info button on the edition's photo in that card, and its tooltip: who took the photo, and a link to its
+   * licence under "Licenses". */
+  photoInfo: 'About the photo',
+  photoBy: (name: string) => `Photo by ${name} on Unsplash`,
+  photoLicense: 'See license',
   /** Under an updated app's name. */
   appUpdatedTo: (version: string) => `Updated to ${version}`,
   githubAccount: (login: string) => `GitHub account: ${login}`,

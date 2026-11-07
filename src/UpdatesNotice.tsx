@@ -1,12 +1,14 @@
 // At the top of the start screen: what was updated since the last visit in this browser, as a card with Close, which
 // marks it seen, and Read more. For the CMS: the photo of its edition (release-notes/editions/, named after the place the
-// photo is from), 3:2 with rounded corners: above the text in the compact window class, and from the medium class up
-// to the left of it, as high as the card; "Morpheme <edition> <version>" (the headline), the place in full (the
-// subhead), how many new things it brings (the supporting text, bundledNotes.ts) and Read more to the Morpheme page with
-// all of them; for each app installed from the store: a row with its icon and new version, to its Information tab.
-// Exposes UpdatesNotice. The logic is startView.mjs's (changesSince) and releaseNotes.mjs's (notesSince, editionOf), the
-// storage startStorage.ts's, the card, rows and buttons the theme's (themeUi.ts, ui.tsx).
-import { useEffect, useState } from 'react';
+// photo is from), 3:2 with rounded corners, above the text in the compact window class and from the medium class up to
+// the left of it, as high as the card, with an info button that credits its photographer (PhotoCredit); "Morpheme
+// <edition> <version>" (the headline), the place in full (the subhead), how many new things it brings (the supporting
+// text, bundledNotes.ts) and Read more to the Morpheme page with all of them; for each app installed from the store: a
+// row with its icon and new version, to its Information tab. Exposes UpdatesNotice. The logic is startView.mjs's
+// (changesSince) and releaseNotes.mjs's (notesSince, editionOf), the storage startStorage.ts's, the card, rows, buttons
+// and tooltip the theme's (themeUi.ts, ui.tsx).
+import { useEffect, useRef, useState } from 'react';
+import { Info } from '@phosphor-icons/react';
 import { version } from '../package.json';
 import { locale, t } from './i18n';
 import { installedApps } from './apps';
@@ -14,9 +16,10 @@ import { apps } from './site';
 import { changesSince, versioned, type Versions } from './startView.mjs';
 import { keepStored, SEEN, storedSeen } from './startStorage';
 import type { RepoFile } from './github';
-import { SiteCard } from './themeUi';
+import { SiteCard, SiteTooltip } from './themeUi';
 import { Button, LinkButton, ListItem, plainListClass } from './ui';
 import { CMS_ROUTE } from './CmsPage';
+import { LICENSES_ROUTE } from './Licenses';
 import { appHref } from './AppList';
 import { runningEdition, runningNotes } from './bundledNotes';
 import { notesSince } from '../lib/releaseNotes.mjs';
@@ -29,6 +32,62 @@ function versionsNow(files: RepoFile[]): Versions {
     cms: version,
     apps: Object.fromEntries(apps.filter((a) => a.store && installed.includes(a.id)).map((a) => [a.id, a.store!.version])),
   };
+}
+
+/** The info button in the photo's bottom start corner, with a rich tooltip: who took the photo, on Unsplash, and a link
+ * to its licence under "Licenses". It opens while the mouse is over the button or the tooltip, while focus is in them,
+ * and on a tap (a second tap closes it); Escape closes it. Over the button, inside the photo, so the card does not clip it. */
+function PhotoCredit({ by, version }: { by: string; version: string }) {
+  const [open, setOpen] = useState(false);
+  const leave = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // When it opened: a tap focuses the button (which opens it) just before its click, which must not close it again.
+  const openedAt = useRef(0);
+  const show = () => {
+    clearTimeout(leave.current);
+    if (!open) openedAt.current = Date.now();
+    setOpen(true);
+  };
+  const hide = () => {
+    clearTimeout(leave.current);
+    leave.current = setTimeout(() => setOpen(false), 150);
+  };
+  // Escape closes it wherever the pointer and the focus are (WCAG 1.4.13).
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
+  useEffect(() => () => clearTimeout(leave.current), []);
+  return (
+    <div
+      className="absolute start-1 bottom-1"
+      onMouseEnter={show}
+      onMouseLeave={hide}
+      onFocus={show}
+      onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && hide()}
+    >
+      <SiteTooltip
+        open={open}
+        // Only `open` shows it: not the theme's fallback on hover and focus, which Escape could not close.
+        className="[&:not([data-tooltip-open])>.tooltip]:invisible [&:not([data-tooltip-open])>.tooltip]:opacity-0"
+        supportingText={t.library.photoBy(by)}
+        action={{ label: t.library.photoLicense, href: `#${LICENSES_ROUTE}/${encodeURIComponent(`editions/${version}`)}` }}
+      >
+        <button
+          type="button"
+          aria-label={t.library.photoInfo}
+          aria-expanded={open}
+          onClick={() => (open && Date.now() - openedAt.current < 400 ? undefined : open ? setOpen(false) : show())}
+          className="grid size-12 place-items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-[-4px]"
+        >
+          <span className="grid size-8 place-items-center rounded-full bg-black/55 text-white">
+            <Info size={20} weight="bold" aria-hidden />
+          </span>
+        </button>
+      </SiteTooltip>
+    </div>
+  );
 }
 
 /** The first visit, and a visit with nothing new, only notes the versions. */
@@ -69,6 +128,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
         {edition && (
           <div className="relative aspect-[3/2] w-full medium:h-full medium:w-auto">
             <img src={edition.image} alt="" className="absolute inset-0 size-full rounded-xl object-cover" />
+            {edition.by && <PhotoCredit by={edition.by} version={edition.version} />}
           </div>
         )}
         <div className="flex min-w-0 flex-col p-4">
