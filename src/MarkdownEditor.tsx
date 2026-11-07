@@ -1223,7 +1223,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       <Toolbar
         ref={toolbar}
         label={t.text.tools}
-        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 m-2 items-start rounded-panel border border-line"
+        className="editor-tools sticky top-[calc(env(safe-area-inset-top)+--spacing(2))] z-10 m-2 items-start rounded-panel border border-line pb-(--toolbar-docked-padding-block)"
       >
         <div
           ref={line}
