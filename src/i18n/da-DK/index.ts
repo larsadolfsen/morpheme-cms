@@ -12,6 +12,7 @@ import { common } from './common';
 import { company } from './company';
 import { consents } from './consents';
 import { forms } from './forms';
+import { footer } from './footer';
 import { history } from './history';
 import { keywords } from './keywords';
 import { licenses } from './licenses';
@@ -39,6 +40,7 @@ export const daDK: Messages = {
   colors,
   redirects,
   consents,
+  footer,
   seo,
   keywords,
   licenses,
