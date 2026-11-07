@@ -148,8 +148,9 @@ export type AppDefinition = {
   kinds?: Record<string, AppKind>;
   /** The lists it brings ("Priser"), under "Lister" while it is installed. */
   lists?: AppList[];
-  /** In the app store (store.ts): its version, X.Y.Z ("1.2.1"): X for a major release, Y for new features, Z for fixes
-   * or fitting a theme, the numbers after the one raised back to 0; without it, it is the site's own. X is raised only
+  /** Its version, shown on its page: in the app store (store.ts) the one released, and a site-local app can set one too.
+   * X.Y.Z ("1.2.1"): X for a major release, Y for new features, Z for fixes
+   * or fitting a theme, the numbers after the one raised back to 0; without one, the page shows none. X is raised only
    * when the app itself changes something a site that has it can break on (a block, field or setting gone or changed),
    * never for a new contract on its own: which editor it runs in is its `api` (APP_API), and fitting it to a new one is
    * Z (Y with new features), since a major release is not updated to on its own. */

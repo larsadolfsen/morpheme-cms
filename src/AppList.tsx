@@ -921,7 +921,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
         label={app.label}
         publisher={app.publisher}
         status={off ? t.apps.deactivated : on && update ? t.apps.updateFound : statusOf(on)}
-        version={app.store && versionOf(app)}
+        version={versionOf(app) || app.version}
         hint={app.hint}
       />
       {(!on || (update && app.store)) && (
@@ -967,7 +967,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
               id={`app/${app.id}`}
               name={app.label}
               author={app.publisher}
-              version={app.store && versionOf(app)}
+              version={versionOf(app) || app.version}
               declared={app}
             />
           }
