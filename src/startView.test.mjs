@@ -38,8 +38,8 @@ test('finds the CMS and the apps with another version', () => {
   const seen = { cms: '1.0.0', apps: { a: '1.0.0', b: '2.0.0' } };
   const now = { cms: '1.1.0', apps: { a: '1.0.0', b: '2.1.0' } };
   assert.deepEqual(changesSince(seen, now), [
-    { id: 'cms', version: '1.1.0' },
-    { id: 'b', version: '2.1.0' },
+    { id: 'cms', version: '1.1.0', from: '1.0.0' },
+    { id: 'b', version: '2.1.0', from: '2.0.0' },
   ]);
 });
 
@@ -107,8 +107,8 @@ test('stored data is read only with the current version', () => {
 
 test('a version that went down counts as a change (current behaviour)', () => {
   assert.deepEqual(changesSince({ cms: '1.1.0', apps: { a: '2.0.0' } }, { cms: '1.0.0', apps: { a: '1.0.0' } }), [
-    { id: 'cms', version: '1.0.0' },
-    { id: 'a', version: '1.0.0' },
+    { id: 'cms', version: '1.0.0', from: '1.1.0' },
+    { id: 'a', version: '1.0.0', from: '2.0.0' },
   ]);
 });
 
