@@ -2,7 +2,7 @@
 // that marks it seen, in the accent (the editor's blue). For the CMS: its new version large, how many new things it brings and the first of them from the
 // notes the package carries (bundledNotes.ts: the first with a screenshot large, then the titles and texts of the next),
 // and a button to the Morpheme page with all of them; for each app installed from the store: a row with its icon and new
-// version, to its Information tab. Exposes UpdatesNotice. The logic is startView.mjs's (changesSince) and
+// version, to its Information tab. Exposes UpdatesNotice. The lead and the highlights are UpdateLead.tsx and UpdateHighlight.tsx. The logic is startView.mjs's (changesSince) and
 // releaseNotes.mjs's (notesSince), the storage startStorage.ts's, the card, rows and buttons the theme's (themeUi.ts, ui.tsx).
 import { useEffect, useState } from 'react';
 import { ArrowRight, Sparkle } from '@phosphor-icons/react';
@@ -17,6 +17,9 @@ import { SiteCard } from './themeUi';
 import { CloseButton, LinkButton, ListItem, plainListClass } from './ui';
 import { CMS_ROUTE } from './CmsPage';
 import { appHref } from './AppList';
+import { UpdateLead } from './UpdateLead';
+import { UpdateHighlight } from './UpdateHighlight';
+import { accentContainerClass } from './accentContainerClass';
 import { runningNotes } from './bundledNotes';
 import { notesSince, type ReleaseNote } from '../lib/releaseNotes.mjs';
 import { INFO_KEY } from '../lib/appRoute.mjs';
@@ -31,28 +34,6 @@ function versionsNow(files: RepoFile[]): Versions {
     cms: version,
     apps: Object.fromEntries(apps.filter((a) => a.store && installed.includes(a.id)).map((a) => [a.id, a.store!.version])),
   };
-}
-
-/** The first new thing with a screenshot, large: the screenshot fills the top (its top part), its title under it. */
-function Lead({ note }: { note: Extract<ReleaseNote, { kind: 'card' }> }) {
-  return (
-    <div className="overflow-hidden rounded-xl bg-accent-container text-on-accent-container">
-      <img src={note.image} alt="" className="block h-44 w-full object-cover object-top" />
-      <p className="px-4 py-3 font-medium">{note.title}</p>
-    </div>
-  );
-}
-
-/** One more new thing: a sparkle and its title (a card) or its text (a line). */
-function Highlight({ note }: { note: ReleaseNote }) {
-  return (
-    <li className="flex items-center gap-3 rounded-xl bg-accent-container p-3 text-on-accent-container">
-      <span className="grid size-10 shrink-0 place-items-center rounded-full bg-accent text-on-accent">
-        <Sparkle size={20} weight="fill" aria-hidden />
-      </span>
-      <span className={note.kind === 'card' ? 'font-medium' : 'text-sm'}>{note.kind === 'card' ? note.title : note.text}</span>
-    </li>
-  );
 }
 
 /** The first visit, and a visit with nothing new, only notes the versions. */
@@ -99,10 +80,10 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       </div>
       {news.length > 0 && (
         <div className="space-y-2 px-4">
-          {lead && <Lead note={lead} />}
+          {lead && <UpdateLead note={lead} />}
           <ul className="space-y-2">
             {rest.slice(0, lead ? SHOWN - 1 : SHOWN).map((note) => (
-              <Highlight key={note.id} note={note} />
+              <UpdateHighlight key={note.id} note={note} />
             ))}
           </ul>
         </div>
@@ -115,7 +96,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
         </div>
       )}
       {updatedApps.length > 0 && (
-        <ul className={`${plainListClass} mx-4 mb-4 overflow-hidden rounded-xl bg-accent-container text-on-accent-container`}>
+        <ul className={`${plainListClass} mx-4 mb-4 overflow-hidden ${accentContainerClass}`}>
           {updatedApps.map(({ app, version }) => (
             <ListItem
               key={app.id}

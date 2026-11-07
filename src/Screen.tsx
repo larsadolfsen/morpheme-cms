@@ -14,7 +14,7 @@
 // Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
 // is short (the screen fills the column under the bar, TopBarLayout). Below medium, while the screen has a floating action
 // button (fabPresence.tsx), there is room for it under the footer (data-clearance): the page is that much taller than the
-// window (--editor-fab-clearance, editor.css), so a short screen still has its footer at the bottom of the window and can
+// window (--fab-room and --editor-fab-clearance, editor.css), so a short screen still has its footer at the bottom of the window and can
 // be scrolled up to show it above the FAB.
 import { useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
@@ -180,7 +180,7 @@ export default function Screen<T extends string>({
       <div className="flex flex-1">
         <main
           data-clearance={fabs.count > 0}
-          className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[env(safe-area-inset-bottom)] data-[clearance=true]:pb-[calc(4.5rem+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 medium:pb-4 medium:data-[clearance=true]:pb-4 ${width}`}
+          className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[env(safe-area-inset-bottom)] data-[clearance=true]:pb-[calc(var(--fab-room)+env(safe-area-inset-bottom))] medium:px-6 medium:pt-8 medium:pb-4 medium:data-[clearance=true]:pb-4 ${width}`}
         >
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
           <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">
