@@ -138,7 +138,7 @@ export const STORE_STATES = {
  * store (a key of STORE_STATES). */
 export async function openEditor(page, site, texts = {}, store = 'button') {
   let state = STORE_STATES[store];
-  // R2 caching under "Avanceret": Cloudflare has the bucket (packages/editor/worker/r2-status.js).
+  // R2 caching under "Caching and builds": Cloudflare has the bucket (packages/editor/worker/r2-status.js).
   await page.route(`${site}/api/r2?**`, (r) =>
     r.fulfill({ contentType: 'application/json', body: JSON.stringify({ bound: false, bucket: 'ready' }) }),
   );

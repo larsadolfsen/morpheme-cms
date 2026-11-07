@@ -185,7 +185,7 @@ try {
   tracked = execFileSync('git', ['ls-files'], { cwd: root, encoding: 'utf8' }).split('\n').filter(Boolean);
 } catch {}
 result.problems.push(...casingProblems(tracked));
-// The build settings the editor writes under "Avanceret": only boolean contentLane and paidBuilds; a missing file passes.
+// The build settings the editor writes under "Caching and builds": only boolean contentLane and paidBuilds; a missing file passes.
 result.problems.push(
   ...buildSettingsProblems(BUILD_SETTINGS_PATH, existsSync(BUILD_SETTINGS_PATH) ? readFileSync(BUILD_SETTINGS_PATH, 'utf8') : undefined),
 );

@@ -1,4 +1,4 @@
-// The check of the build settings file (src/data/build.json, Indstillinger › Avanceret): an object with only the
+// The check of the build settings file (src/data/build.json, Settings › Developer › Caching and builds): an object with only the
 // boolean keys contentLane and paidBuilds. Exposes buildSettingsProblems; used by check-content.mjs. No dependencies.
 
 const KEYS = ['contentLane', 'paidBuilds'];

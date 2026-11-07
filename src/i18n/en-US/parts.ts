@@ -1,4 +1,4 @@
-// "Dele" (#appearance/parts): the editor's parts (Parts.tsx), what each is for and the texts in the examples, and the standard
+// "Parts" (#developer/parts): the editor's parts (Parts.tsx), what each is for and the texts in the examples, and the standard
 // blocks and the apps' (BlockParts.tsx), all with the made-up site of examples.ts.
 export const parts = {
   intro: (file: string) =>
@@ -253,7 +253,7 @@ export const parts = {
     /** What a kind of entry an app adds (a pop-up) is drawn with. */
     entry: { name: 'An example', heading: 'A heading', text: 'A short text that tells a little more.' },
   },
-  /** "Dele" › "Værdier" (#appearance/parts/values, Tokens.tsx): the theme's design tokens, each with what it is used for. */
+  /** "Parts" › "Værdier" (#developer/parts/values, Tokens.tsx): the theme's design tokens, each with what it is used for. */
   tokens: {
     intro: 'The theme’s values for corners, shadows, typography, and colors, as the theme sets them.',
     groups: { shape: 'Corners', elevation: 'Shadows', type: 'Typography', color: 'Colors' },
@@ -355,7 +355,7 @@ export const parts = {
     /** A token the theme does not set, with the one it gets instead. */
     from: (token: string, value: string, from: string) => `${token}: ${value} (as ${from})`,
   },
-  /** "Dele" (#appearance/parts) and its screens: the editor's parts, the theme's UI components, the blocks (the standard
+  /** "Parts" (#developer/parts) and its screens: the editor's parts, the theme's UI components, the blocks (the standard
    * ones and the apps') and the lists of kinds ("Promotion"). */
   screens: {
     editor: 'Editor',
