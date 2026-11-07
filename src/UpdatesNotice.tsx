@@ -38,7 +38,7 @@ function versionsNow(files: RepoFile[]): Versions {
  * tooltip: who took the photo, on Unsplash, and a link to its licence under "Licenses". It opens while the mouse is over
  * the button or the tooltip, while focus is in them, and on a tap (a second tap closes it); Escape closes it. Under the
  * button, from its end, at most 15rem wide, so it stays on a phone's screen. */
-function PhotoCredit({ by, version }: { by: string; version: string }) {
+function PhotoCredit({ by, line }: { by: string; line: string }) {
   const [open, setOpen] = useState(false);
   const leave = useRef<ReturnType<typeof setTimeout>>(undefined);
   // When it opened: a tap focuses the button (which opens it) just before its click, which must not close it again.
@@ -73,7 +73,7 @@ function PhotoCredit({ by, version }: { by: string; version: string }) {
         // Only `open` shows it: not the theme's fallback on hover and focus, which Escape could not close.
         className="[&:not([data-tooltip-open])>.tooltip]:invisible [&:not([data-tooltip-open])>.tooltip]:opacity-0 [&>.tooltip]:start-auto [&>.tooltip]:end-0 [&>.tooltip]:top-[calc(100%-0.5rem)] [&>.tooltip]:bottom-auto [&>.tooltip]:max-w-60"
         supportingText={t.library.photoBy(by)}
-        action={{ label: t.library.photoLicense, href: `#${LICENSES_ROUTE}/${encodeURIComponent(`editions/${version}`)}` }}
+        action={{ label: t.library.photoLicense, href: `#${LICENSES_ROUTE}/${encodeURIComponent(`editions/${line}`)}` }}
       >
         <button
           type="button"
@@ -133,7 +133,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
           {place && (
             <p className="mt-1 text-sm">
               {place}
-              {edition.by && <PhotoCredit by={edition.by} version={edition.version} />}
+              {edition.by && <PhotoCredit by={edition.by} line={edition.line} />}
             </p>
           )}
           {news.length > 0 && <p className="mt-2 text-sm text-muted">{t.library.newThings(news.length)}</p>}

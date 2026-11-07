@@ -243,7 +243,7 @@ export function LicensePage({ id }: { id: string }) {
   const isCms = work?.id === PACKAGE;
   const name = isCms ? t.licenses.own(CMS_NAME) : (work?.name ?? (owner ? t.licenses.own(ownerName(owner)) : t.common.parts.licenses));
   const text = work?.text ?? owner?.text;
-  // An edition's photo (editions/<version>, editionWorks in lib/licenses.mjs): the whole photo, uncropped.
+  // An edition's photo (editions/<line>, editionWorks in lib/licenses.mjs): the whole photo, uncropped.
   const photo = work?.id.startsWith('editions/') ? editionPhotos[work.id.slice('editions/'.length)] : undefined;
   const back = { href: `#${LICENSES_ROUTE}`, label: t.common.parts.licenses };
   return (

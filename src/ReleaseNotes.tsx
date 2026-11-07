@@ -1,8 +1,9 @@
 // The release notes on the Morpheme page (#morpheme), as an article: its title, then per version a heading ("New in
-// Morpheme Braies 0.14.3"), the day it was released and its edition's photo, its cards in the editor's language (else
-// English) as sections with a title and a text, and its other changes as a list under "Also in this version"; for a
-// version without notes, its text. No screenshots: the start screen's update card (UpdatesNotice.tsx) shows them. Exposes ReleaseNotes and VersionNotes; it only composes
-// ReleaseNoteSection.tsx and ReleaseNoteLines.tsx. Depends on lib/releaseNotes.mjs (notesFor) and i18n.
+// Morpheme Braies 0.14.3"), the day it was released and, under a line's newest version, its edition's photo; its cards
+// in the editor's language (else English) as sections with a title and a text, and its other changes as a list under
+// "Also in this version"; for a version without notes, its text. No screenshots: the start screen's update card
+// (UpdatesNotice.tsx) shows them. Exposes ReleaseNotes and VersionNotes; it only composes ReleaseNoteSection.tsx and
+// ReleaseNoteLines.tsx. Depends on lib/releaseNotes.mjs (notesFor) and i18n.
 import { locale, t } from './i18n';
 import { notesFor } from '../lib/releaseNotes.mjs';
 import type { Edition, ReleaseNote } from '../lib/releaseNotes.mjs';
@@ -24,7 +25,7 @@ const dayOf = (date: string) =>
 
 type Card = Extract<ReleaseNote, { kind: 'card' }>;
 
-function VersionEntry({ entry }: { entry: VersionNotes }) {
+function VersionEntry({ entry, photo }: { entry: VersionNotes; photo: boolean }) {
   const notes = notesFor(entry.notes, locale) ?? [];
   const cards = notes.filter((note): note is Card => note.kind === 'card');
   const lines = notes.filter((note) => note.kind === 'line');
@@ -42,7 +43,7 @@ function VersionEntry({ entry }: { entry: VersionNotes }) {
             </p>
           )}
         </div>
-        {entry.edition && (
+        {photo && entry.edition && (
           <img
             src={entry.edition.image}
             alt={entry.edition.place[locale] ?? entry.edition.place['en-US'] ?? entry.edition.name}
@@ -63,8 +64,9 @@ export function ReleaseNotes({ title, entries }: { title?: string; entries: Vers
   return (
     <article className="mb-8 max-w-prose space-y-5 px-4 not-first:mt-8">
       {title && <h2 className="text-2xl">{title}</h2>}
-      {entries.map((entry) => (
-        <VersionEntry key={entry.version} entry={entry} />
+      {entries.map((entry, i) => (
+        // One photo per line: under its newest version's heading.
+        <VersionEntry key={entry.version} entry={entry} photo={entry.edition?.line !== entries[i - 1]?.edition?.line} />
       ))}
     </article>
   );

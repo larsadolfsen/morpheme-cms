@@ -3,7 +3,7 @@
 // version with notes, then the older ones from CHANGELOG.md; on a test version first the notes merged since the last
 // release) and runningEdition
 // (the edition this version belongs to: the place its photo is from, short and in full, and the photo; undefined when there is none)
-// and editionPhotos (each edition's photo by its version).
+// and editionPhotos (each edition's photo by its minor line).
 // Depends on lib/releaseNotes.mjs (bundledNotes) and package.json's version. The globs are relative, so they work here and in a site's node_modules.
 import { bundledNotes, editionOf, minorOf } from '../lib/releaseNotes.mjs';
 import { version } from '../package.json';
