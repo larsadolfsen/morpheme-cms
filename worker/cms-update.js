@@ -1,8 +1,9 @@
 // The Worker takes the CMS's new versions by itself: each hour it asks npm for the newest @morphemecms/cms, commits the new exact
 // version in package.json and package-lock.json, and each minute watches the commit's check run, undoing a version that did not build.
-// Exposes RUNNING, checkForUpdate, startUpdate, watchUpdate, cmsStatus and handleCms (/api/cms). Needs GITHUB_PUBLISH_TOKEN and the
-// KV binding PUSH. Keeps each new version's changelog text and release notes (en-US, da-DK) as cms:notes:<version>; cmsStatus returns
-// the notes to come and the installed ones. Depends on github.js, session.js, push.js and lib/{lockfile,cms-version,changelog,releaseNotes}.mjs;
+// Exposes RUNNING, checkForUpdate, startUpdate, watchUpdate, cmsStatus and handleCms (/api/cms, and GET /api/cms/note-image/<version>/<locale>/<id>,
+// behind the same login check). Needs GITHUB_PUBLISH_TOKEN and the KV binding PUSH. Keeps each new version's changelog text and release
+// notes (en-US, da-DK) as cms:notes:<version> and each card screenshot as cms:note-image:<version>:<locale>:<id>; cmsStatus returns
+// the notes to come and the installed ones, with the screenshot address on each card. Depends on github.js, session.js, push.js and lib/{lockfile,cms-version,changelog,releaseNotes}.mjs;
 // I/O is injected (`deps`).
 import { config } from '@site/config';
 import { cms as cmsEn } from '../src/i18n/en-US/cms';
@@ -10,7 +11,7 @@ import { cms as cmsDa } from '../src/i18n/da-DK/cms';
 import { addToLock, NeedsNpm } from '../lib/lockfile.mjs';
 import { compareVersions, managedVersion, nextVersion, PACKAGE, watchStep } from '../lib/cms-version.mjs';
 import { fileFromTar, gunzip, sectionsBetween } from '../lib/changelog.mjs';
-import { installedVersions, notesFromTar } from '../lib/releaseNotes.mjs';
+import { imageKey, installedVersions, notesFromTar, parseImagePath, withImageUrls } from '../lib/releaseNotes.mjs';
 import pkg from '../package.json';
 import { GitHubError } from './files.js';
 import { commitFiles, readFiles } from './github.js';
@@ -104,7 +105,9 @@ async function keepNotes(env, deps, current, latest) {
   const changelog = fileFromTar(tar, 'package/CHANGELOG.md');
   if (!changelog) return;
   for (const { version, text } of sectionsBetween(changelog, current, latest)) {
-    const notes = notesFromTar(tar, version)?.notes;
+    const kept = notesFromTar(tar, version);
+    const notes = kept?.notes;
+    for (const { locale, id, bytes } of kept?.images ?? []) await env.PUSH.put(imageKey(version, locale, id), bytes);
     await putJson(env.PUSH, `cms:notes:${version}`, { version, text, ...(notes ? { notes } : {}) });
   }
 }
@@ -230,7 +233,8 @@ export async function cmsStatus(env, running = RUNNING) {
   status.skipped = await versionsUnder(kv, 'cms:skip:');
   if (!plain.test(running)) return status;
   const kept = await versionsUnder(kv, 'cms:notes:');
-  const entries = (rows) => rows.filter(Boolean).map(({ version, text, notes }) => ({ version, text, notes }));
+  const entries = (rows) =>
+    rows.filter(Boolean).map(({ version, text, notes }) => ({ version, text, notes: withImageUrls(version, notes) }));
   const wanted = kept.filter(
     (v) =>
       plain.test(v) && compareVersions(v, running) === 1 && (!status.checked?.latest || compareVersions(v, status.checked.latest) <= 0),
@@ -242,8 +246,19 @@ export async function cmsStatus(env, running = RUNNING) {
   return status;
 }
 
-/** `GET /api/cms` (the status) and `POST /api/cms/update { version }`; null for other addresses. */
+/** `GET /api/cms/note-image/<version>/<locale>/<id>`: a kept screenshot, 404 for a bad address or a missing one. */
+async function noteImage(request, env, deps) {
+  if (request.method !== 'GET') return json({ error: 'method' }, 405);
+  if (!(await deps.mayEdit(request))) return json({ error: 'forbidden' }, 403);
+  const parts = parseImagePath(new URL(request.url).pathname);
+  const bytes = parts && env.PUSH ? await env.PUSH.get(imageKey(parts.version, parts.locale, parts.id), 'arrayBuffer') : null;
+  if (!bytes) return json({ error: 'not-found' }, 404);
+  return new Response(bytes, { headers: { 'content-type': 'image/webp', 'cache-control': 'private, max-age=31536000, immutable' } });
+}
+
+/** `GET /api/cms` (the status), `POST /api/cms/update { version }` and `GET /api/cms/note-image/...`; null for other addresses. */
 export async function handleCms(request, env, ctx, deps = defaultDeps) {
+  if (new URL(request.url).pathname.startsWith('/api/cms/note-image/')) return noteImage(request, env, deps);
   const match = /^\/api\/cms(\/update)?\/?$/.exec(new URL(request.url).pathname);
   if (!match) return null;
   const posting = !!match[1];
