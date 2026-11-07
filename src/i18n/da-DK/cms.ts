@@ -7,6 +7,7 @@ export const cms: Messages['cms'] = {
   upToDate: 'Opdateret',
   available: (v) => `Version ${v} er klar`,
   whatsNew: 'Nyheder',
+  storeConnection: 'Forbindelse til Appstore',
   major: 'En ny hovedversion installeres ikke af sig selv.',
   skipped: (v) => `Version ${v} blev fortrudt, fordi hjemmesiden ikke kunne opdateres med den.`,
   needsNpm: 'Opdatering kræver npm. Kør dette i hjemmesidens repo:',
