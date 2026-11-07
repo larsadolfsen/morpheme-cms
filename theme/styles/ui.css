@@ -4418,7 +4418,8 @@
 */
 @layer components {
   /* A setting's row (SettingRow.tsx): the name and the line under it, then what sets it, on one line; the switch's
-     and the editor's dropdown row both. */
+     and the editor's dropdown row both. The name in a list item's label type (--list-item-headline-*), so a row with a
+     switch reads as the list rows around it. */
   .setting-row {
     display: flex;
     align-items: center;
@@ -4430,7 +4431,10 @@
   }
   .setting-row-label {
     display: block;
+    font-size: var(--list-item-headline-size, var(--type-body-large-size));
+    line-height: var(--list-item-headline-line-height, var(--type-body-large-line-height));
     font-weight: var(--setting-row-label-weight, var(--switch-label-weight, 500));
+    letter-spacing: var(--list-item-headline-letter-spacing, var(--type-body-large-tracking));
   }
   .setting-row-supporting {
     display: block;
