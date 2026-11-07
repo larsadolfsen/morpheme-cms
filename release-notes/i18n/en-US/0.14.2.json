@@ -4,18 +4,18 @@
     {
       "id": "footer-scrolls-above-fab",
       "kind": "line",
-      "text": "On a phone, you can now scroll the editor's footer clear of the add button, also on short screens."
+      "text": "On a phone, the add button no longer hides the links at the bottom of the editor"
     },
     {
       "id": "lists-follow-md3",
       "kind": "line",
-      "text": "Lists in the editor now show light rows on a tinted page, as in Material 3."
+      "text": "Lists in the editor have larger text and stand out more from the page"
     },
     {
       "id": "update-card-whats-new",
       "kind": "card",
-      "title": "What's new meets you on the start screen",
-      "text": "After an update, you shouldn't have to look for what's new yourself. The top of the start screen now shows the new version and the main news, with a picture of the biggest one. Tap See what's new to see it all."
+      "title": "What’s new, right on your start screen",
+      "text": "After an update, the top of the start screen shows the new version and its main news. Tap See what’s new to read it all."
     }
   ]
 }
