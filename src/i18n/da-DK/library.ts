@@ -12,7 +12,7 @@ export const library: Messages['library'] = {
   cmsEdition: (edition, version) => `Morpheme ${edition} ${version}`,
   appsUpdated: (count) => (count === 1 ? '1 app er opdateret' : `${count} apps er opdateret`),
   newThings: (count) => (count === 1 ? '1 nyhed' : `${count} nyheder`),
-  seeWhatsNew: 'Se, hvad der er nyt',
+  readMore: 'Læs mere',
   appUpdatedTo: (version) => `Opdateret til ${version}`,
   githubAccount: (login) => `GitHub-konto: ${login}`,
   logOut: 'Log ud',

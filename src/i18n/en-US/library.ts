@@ -24,7 +24,7 @@ export const library = {
   /** Under the CMS's new version: how many new things its release notes have since the version seen last. */
   newThings: (count: number) => (count === 1 ? '1 new thing' : `${count} new things`),
   /** The button to the Morpheme page, with all the release notes. */
-  seeWhatsNew: 'See what’s new',
+  readMore: 'Read more',
   /** Under an updated app's name. */
   appUpdatedTo: (version: string) => `Updated to ${version}`,
   githubAccount: (login: string) => `GitHub account: ${login}`,

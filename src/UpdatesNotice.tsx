@@ -1,11 +1,10 @@
-// At the top of the start screen: what was updated since the last visit in this browser, as a small card with a close
-// button that marks it seen. For the CMS: the photo of its edition (16:9, release-notes/editions/, named after the place
-// the photo is from), "Morpheme <edition> <version>" and how many new things it brings (bundledNotes.ts), and a button to the
+// At the top of the start screen: what was updated since the last visit in this browser, as a small card (the photo
+// to the left of the text from the expanded width) with Close, which marks it seen, and Read more. For the CMS: the photo of its edition (16:9, release-notes/editions/, named after the place
+// the photo is from), "Morpheme <edition> <version>" and how many new things it brings (bundledNotes.ts), and Read more to the
 // Morpheme page with all of them; for each app installed from the store: a row with its icon and new version, to its
 // Information tab. Exposes UpdatesNotice. The logic is startView.mjs's (changesSince) and releaseNotes.mjs's (notesSince,
 // editionOf), the storage startStorage.ts's, the card, rows and buttons the theme's (themeUi.ts, ui.tsx).
 import { useEffect, useState } from 'react';
-import { ArrowRight } from '@phosphor-icons/react';
 import { version } from '../package.json';
 import { locale, t } from './i18n';
 import { installedApps } from './apps';
@@ -14,7 +13,7 @@ import { changesSince, versioned, type Versions } from './startView.mjs';
 import { keepStored, SEEN, storedSeen } from './startStorage';
 import type { RepoFile } from './github';
 import { SiteCard } from './themeUi';
-import { CloseButton, LinkButton, ListItem, plainListClass } from './ui';
+import { Button, LinkButton, ListItem, plainListClass } from './ui';
 import { CMS_ROUTE } from './CmsPage';
 import { appHref } from './AppList';
 import { runningEdition, runningNotes } from './bundledNotes';
@@ -61,21 +60,27 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       as="section"
       role="status"
       aria-labelledby="updates-title"
-      className="mb-8 max-w-xl overflow-hidden [--card-padding:0]"
+      className="mb-8 max-w-xl overflow-hidden [--card-padding:0] expanded:max-w-3xl"
     >
-      {edition && <img src={edition.image} alt="" className="block aspect-video w-full object-cover" />}
-      <div className="relative p-4 pe-14">
-        <CloseButton onClick={close} />
-        <h2 id="updates-title" className="text-xs font-medium text-muted">
-          {t.library.updatesTitle}
-        </h2>
-        <p className="text-xl leading-tight [overflow-wrap:anywhere]">{title}</p>
-        {news.length > 0 && <p className="mt-0.5 text-sm text-muted">{t.library.newThings(news.length)}</p>}
-        {cms && (
-          <LinkButton kind="tonal" size="small" href={`#${CMS_ROUTE}`} icon={ArrowRight} className="mt-3">
-            {t.library.seeWhatsNew}
-          </LinkButton>
-        )}
+      <div className="expanded:flex">
+        {edition && <img src={edition.image} alt="" className="block aspect-video w-full object-cover expanded:w-80 expanded:shrink-0" />}
+        <div className="flex min-w-0 grow flex-col p-4">
+          <h2 id="updates-title" className="text-xs font-medium text-muted">
+            {t.library.updatesTitle}
+          </h2>
+          <p className="text-xl leading-tight [overflow-wrap:anywhere]">{title}</p>
+          {news.length > 0 && <p className="mt-0.5 text-sm text-muted">{t.library.newThings(news.length)}</p>}
+          <div className="mt-auto flex flex-wrap justify-end gap-2 pt-4">
+            <Button kind="text" size="small" onClick={close}>
+              {t.common.close}
+            </Button>
+            {cms && (
+              <LinkButton kind="tonal" size="small" href={`#${CMS_ROUTE}`}>
+                {t.library.readMore}
+              </LinkButton>
+            )}
+          </div>
+        </div>
       </div>
       {updatedApps.length > 0 && (
         <ul className={`${plainListClass} border-t border-line`}>

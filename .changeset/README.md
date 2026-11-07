@@ -57,4 +57,5 @@ where it was taken. After an update, the start screen shows the photo and "Morph
   `photo` (`by`, `source` and `license`).
 - `release-notes/editions/<version>.webp`: the photo, 16:9, 1280 × 720 px, at most 200 KB.
 
-A version shows the newest edition whose version is at most its own, so an edition lasts until the next one.
+A version shows the newest edition whose version is at most its own, so an edition keeps its photo and name until the
+next release adds a new one.
