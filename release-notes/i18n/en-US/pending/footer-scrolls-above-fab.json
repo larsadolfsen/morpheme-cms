@@ -1,5 +1,5 @@
 {
   "id": "footer-scrolls-above-fab",
   "kind": "line",
-  "text": "On a phone, you can now scroll the editor's footer clear of the add button, also on short screens."
+  "text": "On a phone, the add button no longer hides the links at the bottom of the editor"
 }
