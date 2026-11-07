@@ -1,7 +1,7 @@
 // The second level of the main menu (MainMenu.tsx, lib/menu.mjs menuTree): the parts under Business,
-// the apps installed under Apps and the two lists under Redirects. Exposes childrenOf.
-// Uses site.ts (apps, companyParts), apps.ts (installedApps) and Redirects.tsx (TAB_ROUTES).
-import { installedApps } from './apps';
+// the active apps (installed, not turned off) under Apps and the two lists under Redirects. Exposes childrenOf.
+// Uses site.ts (apps, companyParts), apps.ts (activeApps) and Redirects.tsx (TAB_ROUTES).
+import { activeApps } from './apps';
 import { t } from './i18n';
 import { TAB_ROUTES } from './Redirects';
 import type { RepoFile } from './github';
@@ -13,7 +13,7 @@ export type MenuChild = { id: string; label: string; href: string };
 export function childrenOf(id: string, files: RepoFile[]): MenuChild[] {
   if (id === 'company') return companyParts.map((p) => ({ id: p.id, label: p.label, href: `#company/${p.id}` }));
   if (id === 'apps') {
-    const installed = installedApps(files);
+    const installed = activeApps(files);
     return apps.filter((a) => installed.includes(a.id)).map((a) => ({ id: a.id, label: a.label, href: `#apps/${a.id}` }));
   }
   if (id === 'redirects') {

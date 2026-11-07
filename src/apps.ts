@@ -32,7 +32,7 @@
 //   worker.js, build.mjs  its part of the site's Worker (/api/<app>/…, each hour) and a step after the site is built
 //                 (packages/editor/lib/apps.mjs);
 //   csp.json      what it loads from elsewhere on the site (packages/editor/lib/csp.mjs).
-// An app that is not installed is not offered in the editor: its blocks are not under "Indsæt" nor
+// An app that is not installed, or turned off ("off" in the file of apps), is not offered in the editor: its blocks are not under "Indsæt" nor
 // "Blokindstillinger", its kinds not under "+", its lists not under "Lister", its settings not on its page. What was made with it stays,
 // on the pages and on the site, and can still be edited. Installed, its blocks are under its name in "Blokindstillinger". The
 // apps installed are in the site's file of apps (config.apps.installed), each app's settings in a file of
@@ -46,6 +46,7 @@ import type { ConsentCategory } from '../lib/cookieCategories.mjs';
 import type { AppCategory, AppCookie, AppNeeds, AppShot, StoreRecord } from './store';
 import type { ThirdParty } from './licenseData';
 import { config } from '@site/config';
+import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 
 /** An app's settings, on its page once it is installed (#apps/<app>, AppList.tsx). */
 export type AppSettings = {
@@ -147,8 +148,9 @@ export type AppDefinition = {
   kinds?: Record<string, AppKind>;
   /** The lists it brings ("Priser"), under "Lister" while it is installed. */
   lists?: AppList[];
-  /** In the app store (store.ts): its version, X.Y.Z ("1.2.1"): X for a major release, Y for new features, Z for fixes
-   * or fitting a theme, the numbers after the one raised back to 0; without it, it is the site's own. X is raised only
+  /** Its version, shown on its page: in the app store (store.ts) the one released, and a site-local app can set one too.
+   * X.Y.Z ("1.2.1"): X for a major release, Y for new features, Z for fixes
+   * or fitting a theme, the numbers after the one raised back to 0; without one, the page shows none. X is raised only
    * when the app itself changes something a site that has it can break on (a block, field or setting gone or changed),
    * never for a new contract on its own: which editor it runs in is its `api` (APP_API), and fitting it to a new one is
    * Z (Y with new features), since a major release is not updated to on its own. */
@@ -257,15 +259,15 @@ export { appIdOf } from '../lib/appId.mjs';
 /** The file of an app's settings (config.apps.settings/<id>.json). */
 export const settingsFile = (id: string) => `${config.apps.settings}/${id}.json`;
 
-/** The apps installed, by their ids, from the site's file of apps. */
-export function installedApps(files: { path: string; text: string }[]): string[] {
-  try {
-    const installed = JSON.parse(files.find((f) => f.path === config.apps.installed)?.text ?? '{}').installed;
-    return Array.isArray(installed) ? installed.map(String) : [];
-  } catch {
-    return [];
-  }
-}
+/** The site's file of apps as the files have it now: the apps installed and those turned off. */
+export const appsState = (files: { path: string; text: string }[]) =>
+  readAppsFile(files.find((f) => f.path === config.apps.installed)?.text);
+
+/** The apps installed, by their ids, from the site's file of apps, also those turned off. */
+export const installedApps = (files: { path: string; text: string }[]): string[] => appsState(files).installed;
+
+/** The apps installed and not turned off, by their ids: those that run, offer their blocks and show their screens. */
+export const activeApps = (files: { path: string; text: string }[]): string[] => activeOf(appsState(files));
 
 /** Each app's settings as the files have them now, by its id, over those it starts with (`values`). */
 export function appSettings(

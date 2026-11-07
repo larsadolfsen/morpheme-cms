@@ -5,7 +5,7 @@
 // collection, a file, a part or a block as the site wrote it.
 import * as site from '@site/editor';
 import type { ColorPair } from '../lib/colors';
-import { appIdOf, installedApps, withKinds, type AppDefinition, type AppList, type SiteApp } from './apps';
+import { activeApps, appIdOf, withKinds, type AppDefinition, type AppList, type SiteApp } from './apps';
 import { appBlocks, appFiles, appFolders, appPictures, appShared, appStores } from './appFiles';
 import type { BlockDefinition, SiteBlock } from './blocks';
 import type { ListRows } from './fields';
@@ -345,7 +345,7 @@ export const lists = [...site.lists, ...ownedLists.map((l) => l.id)];
 /** The lists under "Lister" now: the site's, the standard blocks' and those of the apps installed, without the cookie
  * list, which is a row under "Privatliv" (privacy.ts). */
 export const listsShown = (files: { path: string; text: string }[]) => {
-  const installed = installedApps(files);
+  const installed = activeApps(files);
   return [...site.lists, ...[...standardLists, ...listsOf(writtenApps.filter((a) => installed.includes(a.id)))].map((l) => l.id)].filter(
     (id) => id !== site.config.lists.cookies,
   );

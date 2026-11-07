@@ -96,7 +96,7 @@ import { ask } from './ask';
 import { pagesWith } from './BlockSettings';
 import { filesOf, mediaOf } from './Media';
 import { restorable } from './Deleted';
-import { installedApps, kindsOffered, tabsOf } from './apps';
+import { activeApps, kindsOffered, tabsOf } from './apps';
 import { appPartsIn, DeveloperRow } from './AppList';
 import { kindLists } from './BlockParts';
 import {
@@ -766,7 +766,7 @@ export function Account({ user, files, onLogout }: { user: Viewer | null; files:
 // installed app that sends any, a switch for each of its types (`notifications` in its index.ts).
 function NotificationChoices({ files }: { files: RepoFile[] }) {
   const { off, device } = useNotificationChoices();
-  const installed = installedApps(files);
+  const installed = activeApps(files);
   const choice = (type: string, label: string) => (
     <SwitchRow
       key={type}
@@ -1056,9 +1056,9 @@ const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1
 
 export function List({ collection, tab, files, env }: { collection: Collection; tab?: string; files: RepoFile[]; env: Env }) {
   // The kinds a new entry can be: the list's own and those of the apps installed and not turned off (apps.ts).
-  const kinds = collection.kind === 'folder' ? kindsOffered(collection, apps, installedApps(files), offBlocks(files)) : [];
+  const kinds = collection.kind === 'folder' ? kindsOffered(collection, apps, activeApps(files), offBlocks(files)) : [];
   // The tabs the apps installed add to it, and the one open (none: the list's own).
-  const appTabs = tabsOf(collection.id, apps, installedApps(files));
+  const appTabs = tabsOf(collection.id, apps, activeApps(files));
   const appTab = appTabs.find((a) => a.app.id === tab);
   const [query, setQuery] = useKept(`${collection.id}-search`, '');
   // The move that runs (row and target row, null: none); only its arrow shows busy, all arrows stay disabled meanwhile.

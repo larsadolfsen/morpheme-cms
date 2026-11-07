@@ -29,6 +29,7 @@ import type { StoreLicenses } from './licenseData';
 import { APP_API, THEME_API } from '../lib/contracts.mjs';
 import { RECORD, STANDARD, isText, validApp, validTheme } from '../lib/storeEntries.mjs';
 import { timedFetch } from './storeFetch';
+import { appChanges as appChangesIn } from '../lib/appChanges.mjs';
 import { folderChanges } from '../lib/folderChanges.mjs';
 
 // The contracts this editor runs (lib/contracts.mjs, also read by the site's Worker).
@@ -425,20 +426,15 @@ export function themeChanges(
 }
 
 /** The changes that make an app's folder in the site (`current`, its files now) the store's version, with the note of
- * where it came from, or remove it (`next` null: uninstalling); and the site's file of apps with it among those
- * installed or not (`installed`: their ids now, `file`: the file). In one commit. */
+ * where it came from, or remove it (`next` null: uninstalling); and the site's file of apps (`file`) with it among those
+ * installed or not, an update keeping it turned off (lib/appChanges.mjs). In one commit. */
 export function appChanges(
   id: string,
   current: RepoFile[],
   next: { files: { path: string; content: string | Uint8Array }[]; record: StoreRecord } | null,
-  installed: string[],
   file: RepoFile | undefined,
 ): Change[] {
-  const changes = folderChanges(appFolder(id), current, next);
-  const ids = [...new Set(installed.filter((x) => x !== id).concat(next ? [id] : []))].sort();
-  const text = `${JSON.stringify({ installed: ids }, null, 2)}\n`;
-  if (text !== file?.text) changes.push({ path: config.apps.installed, content: text, oid: file?.oid || null });
-  return changes;
+  return appChangesIn(appFolder(id), config.apps.installed, id, current, next, file);
 }
 
 /** The note in an app's (or a theme's) folder of where it came from (store.json), from its files now (`current`). */

@@ -27,11 +27,12 @@
 //   whether the site has been built with a save, and an app's notifications (`notify` in its tools).
 // - the CMS's own updates (/api/cms, packages/editor/worker/cms-update.js): each hour, whether npm has a newer @morphemecms/cms to commit, and
 //   each minute, whether the update built, else it is undone.
-// - the apps' own parts (src/apps/<app>/worker.js, worker/apps.js), while they are installed: their addresses under
+// - the apps' own parts (src/apps/<app>/worker.js, worker/apps.js), while they are installed and not turned off: their addresses under
 //   /api/<app>/ and what they do each hour (scheduled), e.g. Cookiescanner's scan of the site's cookies, and their texts
 //   for their notifications. What the apps
 //   put in the build (dist/_apps/<app>/, packages/editor/lib/apps.mjs) is served to no one; the apps read it.
 import { apps, appTexts, appWorkers, moved, oldAddresses as map, standard } from '@site/worker';
+import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 import { handleOAuth } from './oauth.js';
 import { editorHost } from './editor-host.js';
 import { handleNotFound, isVisit, json, recordNotFound } from './not-found.js';
@@ -51,8 +52,10 @@ const STAGING = /\.workers\.dev$/i;
 // The cron in wrangler.jsonc that runs each minute.
 const EACH_MINUTE = '* * * * *';
 
-// The parts of the Worker of the apps installed (src/data/apps.json), by the app's id.
-const installed = Object.fromEntries(Object.entries(appWorkers).filter(([id]) => apps.installed?.includes(id)));
+// The parts of the Worker of the apps installed and not turned off (src/data/apps.json), by the app's id. One turned off
+// answers 404 at its addresses and has no `scheduled` run.
+const active = activeOf(readAppsFile(JSON.stringify(apps)));
+const installed = Object.fromEntries(Object.entries(appWorkers).filter(([id]) => active.includes(id)));
 // What an app is given, besides the request: whether its sender can save the site (signed in with GitHub), an answer
 // in JSON, the Worker's own saves to the repository (`github`, packages/editor/worker/github.js: `read` and `commit`, with the request's
 // `ctx`, so the cache in R2 is written after the answer has gone; given a request as the last argument, with its sender's
