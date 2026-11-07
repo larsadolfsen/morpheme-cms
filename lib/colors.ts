@@ -43,6 +43,10 @@ function declarations(set: ColorSet): string {
     .join('');
 }
 
+/** The colour of the editor's page in a mode: Surface Container, which Material 3's segmented lists stand on (editor.css),
+ * or the background when the colours have no such role. */
+export const pageColor = (set: ColorSet): string => set['surface-container'] ?? set.bg;
+
 /** The colours as CSS for a <style> in the <head>: light mode on :root; dark mode when the phone or
  * computer is set to it (unless light is picked, data-theme="light" on <html>) and when dark is picked.
  * Throws on anything that is not a colour, so a broken file never reaches a page. */

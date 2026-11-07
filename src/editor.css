@@ -483,6 +483,17 @@
   font-weight: var(--type-label-medium-weight);
 }
 
+/* Material 3 Expressive's segmented lists (m3.material.io/components/lists/specs, colour role 1): each item on Surface (the
+   theme's page colour, --bg) over a Surface Container, as Material's own examples and Android's settings show them. So
+   the editor's page, its top app bar and the label of an outlined field (--md-background) are that container, the top
+   app bar a step higher once the page scrolls under it, and the items on Surface. html:root, so it wins over the theme's
+   :root. */
+html:root {
+  --md-background: var(--surface-container, var(--bg));
+  --top-app-bar-stuck-surface: var(--surface-container-high, var(--elevation-3-surface));
+  --list-segmented-surface: var(--bg);
+}
+
 /* The content column (.editor-column: Screen.tsx's tabs row and its main) stands centred on the window, not in the space
    beside the panels. --column-start and --column-end are the widths of the panels beside the content: the navigation
    rail from medium, the standard drawer instead of it from expanded while it is open (:root[data-sidebar='open']; the
