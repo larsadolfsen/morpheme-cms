@@ -93,7 +93,7 @@ export default function Notifications() {
   // The phone's back gesture closes the sheet only (useSheetBack).
   useSheetBack(open, closeNotifications, 'notifications');
 
-  // Another address (a notification's link, "Vælg notifikationer") closes it.
+  // Another address (a notification's link, "Settings") closes it.
   useEffect(() => {
     if (!open) return;
     window.addEventListener('hashchange', closeNotifications);

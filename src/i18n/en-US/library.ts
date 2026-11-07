@@ -37,7 +37,8 @@ export const library = {
   /** The bell's name while some are not seen yet. */
   notificationsNew: (count: number) => `Notifications, ${count} new`,
   noNotifications: 'No notifications',
-  clearNotifications: 'Clear notifications',
+  /** The buttons at the bottom of the side sheet: one clears all, one opens "Konto" to choose the types. */
+  clearNotifications: 'Clear',
   /** While some are selected (a long press on one, Notifications.tsx): the button that deletes them, and the one that
    * unselects them. */
   deleteSelected: (count: number) => `Delete ${count} selected`,
@@ -46,7 +47,7 @@ export const library = {
   openWebsite: 'Open website',
   /** On "Konto" › "Notifikationer" (Library.tsx NotificationChoices, notificationData.ts). */
   /** The sliders on "Notifikationer": to "Konto", where they are turned on or off. */
-  notificationChoices: 'Choose notifications',
+  notificationChoices: 'Settings',
   onDevice: 'On the phone',
   onDeviceHint: 'Also when the editor is closed.',
   deviceBlocked: 'The phone or browser doesn’t allow notifications from the editor. Turn them on in its settings.',
