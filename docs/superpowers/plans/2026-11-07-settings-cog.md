@@ -78,7 +78,12 @@ Each task is one commit. Each task ends with `npm run check` passing.
 4. Back links and breadcrumbs.
    - Change `backFrom` and `placeOf` in `src/site.ts`.
    - Check `EntryForm.tsx`, `CmsPage.tsx`, `Licenses.tsx`, `Library.tsx` (`Developer`, Appearance, Privacy screens) use them.
-5. Screens check and changeset.
+5. Morpheme page as information, not a list (`src/CmsPage.tsx`).
+   - Show the version, "Checked", the update state, the problems and the release notes as text, not as `ListItem` rows in a `Group`.
+   - Keep list rows and buttons only for what reacts to a tap: "Update" and the store connection.
+   - Follow Material 3: read the m3.material.io pages for lists and for text before the change.
+   - Keep the texts and the order. Change only how they are drawn.
+6. Screens check and changeset.
    - Extend `scripts/editor-screens.mjs`. Add the changeset.
 
 ## Test cases
@@ -95,6 +100,7 @@ Each task is one commit. Each task ends with `npm run check` passing.
 | `placeOf` | `'morpheme'` | `'Settings'` |
 | screens | `#settings` at 390 px and at desktop width | five rows, A–Z; no page error |
 | screens | menu at desktop width | cog at the bottom of the rail and of the drawer |
+| screens | `#morpheme` | the version, problems and notes show; no list row without an action; "Update" and the store connection work |
 
 ## Checks by hand
 
