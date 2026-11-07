@@ -124,8 +124,9 @@ At skrive og tænke på engelsk først er en **overordnet og generel tilgang** p
    - Engelsk (`en-US`) er altid kildesproget for samtlige datamodeller, skemaer, felter, hints, blokke, API'er, kode-kommentarer, fejlbeskeder og teknisk dokumentation.
    - Alle andre sprog (herunder dansk `da-DK`) er lokaliserende oversættelser (`translations`) af den engelske referenceform.
 2. **Kommunikation og svarform:**
-   - I al AI-agent-kommunikation, tekniske rapporter og kodebesvarelser skrives der **altid på engelsk først**.
-   - Når der kommunikeres med en dansksproget bruger, følger et kort dansk resumé umiddelbart efter den engelske gennemgang.
+   - Agents write to the owner **in English only**: replies, reports, PR descriptions and commit messages. Never add a
+     Danish summary or any Danish text, even when the owner writes in Danish. The Danish texts the product needs (the
+     `da-DK` translations and release notes) are not affected.
 3. **i18n Fallback-arkitektur:**
    - Standarddelene er skrevet på engelsk; deres danske tekster ligger i `defaults/i18n/da-DK/` (samlet i `defaults/texts.ts`, standarden for `@site/texts`). Mangler en standardtekst sin danske, stopper `check:content`.
 
