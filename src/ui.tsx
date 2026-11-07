@@ -1,7 +1,7 @@
 // The editor's parts: every button, field, switch, chip and row a screen is made of, each with one
 // look, set here. A screen uses these and never writes the classes of a button or a field itself
 // (CLAUDE.md), so the editor looks the same everywhere and a change here changes it everywhere. They
-// are all shown, in every state, on the screen #appearance/parts (Parts.tsx). The screen itself, with its top bar,
+// are all shown, in every state, on the screen #developer/parts (Parts.tsx). The screen itself, with its top bar,
 // is Screen.tsx.
 import {
   useEffect,
@@ -3193,7 +3193,7 @@ export function LeadingImage({ src, alt = '' }: { src: string; alt?: string }) {
   return <img src={src} alt={alt} loading="lazy" className="size-10 rounded-(--block-radius-small) bg-tint object-cover" />;
 }
 
-/** What a design token is, for the sample of it before its row ("Dele" › "Værdier", Tokens.tsx). */
+/** What a design token is, for the sample of it before its row ("Parts" › "Værdier", Tokens.tsx). */
 export type TokenKind = 'shape' | 'elevation' | 'font' | 'color';
 
 /** A sample of one of the theme's design tokens before its name in a row, as a ListItem's `leading`, beside its first

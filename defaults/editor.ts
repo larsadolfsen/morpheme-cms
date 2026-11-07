@@ -129,7 +129,7 @@ export const icons: Record<string, Icon> = {
   appstore: Storefront,
   'theme-store': Storefront,
   morpheme: Sparkle,
-  advanced: Wrench,
+  developer: Wrench,
   licenses: Certificate,
   // The screens under "Appearance" (Library.tsx Theme), the first the store's themes.
   themes: Swatches,
@@ -168,7 +168,7 @@ export const appearance: Part[] = [
 // Each part is a collection (collections.ts), except those named above, "privacy"'s (partScreens) and the editor's own
 // "company" (companyParts), "blocks" (blockParts), id files (the pictures, PDFs, videos and zip files), "header", "lists"
 // and "block-settings" (BlockSettings.tsx).
-const settingsIds = ['morpheme', 'advanced'];
+const settingsIds = ['morpheme', 'developer'];
 export const groups: { id: string; title: string; href?: string; ids: string[] }[] = [
   { id: 'home', title: 'Dashboard', href: '#', ids: [] },
   {
@@ -182,18 +182,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
   {
     id: 'appearance',
     title: 'Appearance',
-    ids: [
-      'theme-store',
-      'header',
-      'footer',
-      'themes',
-      'icon-packs',
-      'motion',
-      'side-column',
-      'colors',
-      ...appearance.map((p) => p.id),
-      'parts',
-    ],
+    ids: ['theme-store', 'header', 'footer', 'themes', 'icon-packs', 'motion', 'side-column', 'colors', ...appearance.map((p) => p.id)],
   },
   { id: 'privacy', title: 'Privacy', ids: privacy.parts.map((p) => p.id) },
   { id: 'settings', title: 'Settings', ids: settingsIds },
