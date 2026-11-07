@@ -18,7 +18,7 @@ export default function ServiceStatus() {
   const [report, setReport] = useState<StatusReport | null>();
   useEffect(() => {
     let on = true;
-    serviceStatus().then((x) => on && setReport(x));
+    serviceStatus({ fresh: true }).then((x) => on && setReport(x));
     return () => {
       on = false;
     };
