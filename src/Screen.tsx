@@ -13,7 +13,7 @@
 // off-centre only as far as the panels beside it require.
 // Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
 // is short (the screen fills the column under the bar, TopBarLayout); under the footer is room for the floating action button
-// only while the content pushes the footer below the window (useFooterClearance.ts).
+// only while the screen has one (fabPresence.tsx) and the content pushes the footer below the window (useFooterClearance.ts).
 import { useId, useRef, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
@@ -22,6 +22,7 @@ import { IconButton, IconLink, MenuButton, TabPanel, TabRow, TopAppBar, useMenuL
 import { up } from './nav';
 import EditorFooter from './EditorFooter';
 import useFooterClearance from './useFooterClearance';
+import { FabPresenceContext, useCountFabs } from './fabPresence';
 import { useMenuOpen } from './menuOpen';
 import { unseen, useNotifications } from './notificationData';
 import { openNotifications, useNotificationsOpen } from './notificationsOpen';
@@ -120,7 +121,8 @@ export default function Screen<T extends string>({
   };
   const slot = useTopBarSlot();
   const main = useRef<HTMLElement>(null);
-  useFooterClearance(main);
+  const fabs = useCountFabs();
+  useFooterClearance(main, fabs.count > 0);
   // The way here, without the start screen: the logo in the bar is the way there.
   const crumbs = back && back.href !== '#' ? [back] : [];
   const bar = (
@@ -201,15 +203,17 @@ export default function Screen<T extends string>({
             {pageActions && <div className="-my-3 ml-auto flex shrink-0 items-center gap-1">{pageActions}</div>}
           </div>
           {/* The content flows as blocks; the footer goes to the bottom of a short screen. */}
-          <div className="min-w-0">
-            {tabs ? (
-              <TabPanel id={id} value={tabs.value}>
-                {children}
-              </TabPanel>
-            ) : (
-              children
-            )}
-          </div>
+          <FabPresenceContext.Provider value={fabs.report}>
+            <div className="min-w-0">
+              {tabs ? (
+                <TabPanel id={id} value={tabs.value}>
+                  {children}
+                </TabPanel>
+              ) : (
+                children
+              )}
+            </div>
+          </FabPresenceContext.Provider>
           <EditorFooter />
         </main>
       </div>

@@ -1,11 +1,11 @@
 // Gives a screen's <main> data-clearance="true" while its content pushes the footer below the window (so the floating action
-// button has room under it) and "false" while the footer sits at the bottom of the window. Exposes useFooterClearance. It
+// button, if the screen has one, has room under it) and "false" while the footer sits at the bottom of the window. Exposes useFooterClearance. It
 // measures the page with the clearance off, so the answer cannot flip back and forth; the decision is needsClearance in
 // lib/footerClearance.mjs. The attribute is set on the element, with no re-render.
 import { useLayoutEffect, type RefObject } from 'react';
 import { needsClearance } from '../lib/footerClearance.mjs';
 
-export default function useFooterClearance(ref: RefObject<HTMLElement | null>) {
+export default function useFooterClearance(ref: RefObject<HTMLElement | null>, hasFab: boolean) {
   useLayoutEffect(() => {
     const main = ref.current;
     if (!main) return;
@@ -13,7 +13,7 @@ export default function useFooterClearance(ref: RefObject<HTMLElement | null>) {
     const measure = () => {
       main.dataset.clearance = 'false';
       const root = document.documentElement;
-      main.dataset.clearance = String(needsClearance(document.body.offsetHeight, root.clientHeight));
+      main.dataset.clearance = String(needsClearance(document.body.offsetHeight, root.clientHeight, hasFab));
     };
     measure();
     const observer = new ResizeObserver(measure);
@@ -26,5 +26,5 @@ export default function useFooterClearance(ref: RefObject<HTMLElement | null>) {
       observer.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [ref]);
+  }, [ref, hasFab]);
 }
