@@ -1,6 +1,7 @@
-// A titled list of versions with their release notes on the Morpheme page (#morpheme): per version a small heading and its
-// notes as cards in the editor's language (else English), or, for a version without notes, one row with its text.
-// Exposes ReleaseNotes and VersionNotes. Depends on ReleaseNoteCard, ui.tsx, lib/releaseNotes.mjs (notesFor) and i18n.
+// A titled list of versions with their release notes on the Morpheme page (#morpheme): per version a small heading, its
+// cards (screenshot, title, text) in the editor's language (else English), then its other changes as a short list under
+// "Also in this version"; for a version without notes, one row with its text. Exposes ReleaseNotes and VersionNotes.
+// Depends on ReleaseNoteCard, ui.tsx, lib/releaseNotes.mjs (notesFor) and i18n.
 import { ReleaseNoteCard } from './ReleaseNoteCard';
 import { GroupTitle, Group, ListItem } from './ui';
 import { locale, t } from './i18n';
@@ -8,6 +9,8 @@ import { notesFor } from '../lib/releaseNotes.mjs';
 import type { ReleaseNote } from '../lib/releaseNotes.mjs';
 
 export type VersionNotes = { version: string; text: string; notes?: Record<string, ReleaseNote[]> };
+
+type Card = Extract<ReleaseNote, { kind: 'card' }>;
 
 function VersionEntry({ entry }: { entry: VersionNotes }) {
   const notes = notesFor(entry.notes, locale);
@@ -18,12 +21,21 @@ function VersionEntry({ entry }: { entry: VersionNotes }) {
       </Group>
     );
   }
+  const cards = notes.filter((note): note is Card => note.kind === 'card');
+  const lines = notes.filter((note) => note.kind === 'line');
   return (
     <div className="mb-6 space-y-3">
       <h3 className="px-4 text-sm font-medium text-muted">{t.cms.running(entry.version)}</h3>
-      {notes.map((note) => (
+      {cards.map((note) => (
         <ReleaseNoteCard key={note.id} note={note} />
       ))}
+      {lines.length > 0 && (
+        <Group title={t.cms.alsoInThisVersion}>
+          {lines.map((note) => (
+            <ListItem key={note.id} headline={note.text} />
+          ))}
+        </Group>
+      )}
     </div>
   );
 }
