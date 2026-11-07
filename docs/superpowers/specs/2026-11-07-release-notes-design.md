@@ -71,11 +71,14 @@ Rules (checked by `check:release-notes`):
 
 - A pending note in one locale has a twin with the same `id` and the same `kind` in every other locale.
 - The `id` is the file name without `.json`.
-- A card has a non-empty `title` and `text`, and a `.webp` screenshot of at most 200 KB.
+- A card has a non-empty `title` and `text`, and a `.webp` screenshot of at most 200 KB, 750 pixels wide and at most
+  800 pixels high.
 - A line has a non-empty `text` and no screenshot.
 - A released file is never changed after its release.
 
-Screenshot: the editor at phone size, 375×812 CSS pixels, device scale factor 2, saved as WebP.
+Screenshot: the editor at phone width (375 CSS pixels), device scale factor 2, cropped to the part that changed, at
+most 400 CSS pixels high. So the file is 750 pixels wide and at most 800 pixels high. Saved as WebP. The card shows
+the whole picture.
 
 KV, in the site's Worker (`PUSH`):
 
