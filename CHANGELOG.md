@@ -1,5 +1,14 @@
 # @morphemecms/cms
 
+## 0.14.2
+
+### Patch Changes
+
+- fc6864a: On a phone, the editor's footer starts at the bottom of a short screen, and you can scroll it up above the add button.
+- 13dbbca: Lists follow Material 3's list spec: the label text in body large (16/24, weight 400), also beside a switch, and the editor's rows on Surface over a page in Surface Container.
+- 5c21889: The editor of a test version (npm tag `next`, e.g. 0.14.2-next.0) loads again: the release notes it carries no longer compare a test version, which threw and left the page blank.
+- 3fbb65f: The start screen's update card shows the new version and its first news, and the Morpheme page shows the release notes as an article.
+
 ## 0.14.1
 
 ### Patch Changes
