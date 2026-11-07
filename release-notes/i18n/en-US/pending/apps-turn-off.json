@@ -1,0 +1,6 @@
+{
+  "id": "apps-turn-off",
+  "kind": "card",
+  "title": "Turn an app off without losing it",
+  "text": "Sometimes you want to pause an app without setting it up again later. Open the app under Apps and turn off Enabled, right below its description. Its settings stay, so you can turn it on again whenever you like."
+}
