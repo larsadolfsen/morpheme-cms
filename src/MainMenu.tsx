@@ -2,8 +2,8 @@
 // sections; a section opens its list, under a back row, with the open screen marked and its fold-out folded out. Apps lists
 // Appstore and a row per app installed. From medium and wider the first level is also the collapsed navigation rail
 // (MainRailItem), whose sections open the drawer at their list. The drawer's header is the signed-in user (AccountRow), a link
-// to the account. In the modal drawer a section's list is a step in the history (levelStep.mjs): the phone's back gesture
-// goes from it to the first level. Exposes MainMenu. The tree and the open place are lib/menu.mjs
+// to the account. The levels are not steps in the history: in the modal drawer the phone's back gesture goes to the screen
+// before, as everywhere else, and closes the drawer. Exposes MainMenu. The tree and the open place are lib/menu.mjs
 // (menuTree, currentPlace); it only wires them to the drawer.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { config, header } from '@site/editor';
@@ -16,7 +16,6 @@ import { AccountRow } from './AccountRow';
 import { childrenOf } from './menuChildren';
 import { t } from './i18n';
 import { useMenuOpen } from './menuOpen';
-import { levelStep } from './levelStep.mjs';
 import {
   MainDrawer,
   MainDrawerBack,
@@ -79,19 +78,15 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     setShown(null);
     return true;
   }, []);
-  // A section's list in the modal drawer: the back gesture goes to the first level (levelStep.mjs), not to the screen before.
+  // The modal drawer closes when the screen changes another way than by a link in it (the phone's back gesture), so the
+  // screen before is not left under it.
   const modal = useMenuLayout().expanded !== 'standard';
-  const step = useRef<ReturnType<typeof levelStep> | null>(null);
   useEffect(() => {
-    step.current = levelStep(window);
-    return () => step.current?.stop();
-  }, []);
-  useEffect(() => {
-    step.current?.set(modal && open && shown !== null, () => {
-      setFocus('top');
-      setShown(null);
-    });
-  }, [modal, open, shown]);
+    if (!modal || !open) return;
+    const close = () => setOpen(false);
+    window.addEventListener('hashchange', close);
+    return () => window.removeEventListener('hashchange', close);
+  }, [modal, open, setOpen]);
   // Every level stays in the page (the screen check finds the screens from the links); the ones not shown are `hidden`.
   const sections = tree.filter((entry) => entry.href === undefined);
   return (
