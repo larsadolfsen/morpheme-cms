@@ -1,12 +1,9 @@
 // The release notes on the Morpheme page (#morpheme), as an article: its title, then per version a heading ("New in
 // Morpheme Braies 0.14.3"), the day it was released and its edition's photo, its cards in the editor's language (else
 // English) as sections with a title and a text, and its other changes as a list under "Also in this version"; for a
-// version without notes, its text. The newest three, then "Show older versions" for the rest. No screenshots: the start
-// screen's update card (UpdatesNotice.tsx) shows them. Exposes ReleaseNotes and VersionNotes; it only composes
+// version without notes, its text. No screenshots: the start screen's update card (UpdatesNotice.tsx) shows them. Exposes ReleaseNotes and VersionNotes; it only composes
 // ReleaseNoteSection.tsx and ReleaseNoteLines.tsx. Depends on lib/releaseNotes.mjs (notesFor) and i18n.
-import { useState } from 'react';
 import { locale, t } from './i18n';
-import { Button } from './ui';
 import { notesFor } from '../lib/releaseNotes.mjs';
 import type { Edition, ReleaseNote } from '../lib/releaseNotes.mjs';
 import { ReleaseNoteSection } from './ReleaseNoteSection';
@@ -62,23 +59,13 @@ function VersionEntry({ entry }: { entry: VersionNotes }) {
   );
 }
 
-/** How many versions show before "Show older versions". */
-const SHOWN = 3;
-
-export function ReleaseNotes({ title, entries }: { title: string; entries: VersionNotes[] }) {
-  const [all, setAll] = useState(false);
-  const shown = all ? entries : entries.slice(0, SHOWN);
+export function ReleaseNotes({ title, entries }: { title?: string; entries: VersionNotes[] }) {
   return (
     <article className="mb-8 max-w-prose space-y-5 px-4 not-first:mt-8">
-      <h2 className="text-2xl">{title}</h2>
-      {shown.map((entry) => (
+      {title && <h2 className="text-2xl">{title}</h2>}
+      {entries.map((entry) => (
         <VersionEntry key={entry.version} entry={entry} />
       ))}
-      {!all && entries.length > SHOWN && (
-        <Button kind="text" onClick={() => setAll(true)}>
-          {t.cms.showOlder}
-        </Button>
-      )}
     </article>
   );
 }

@@ -10,7 +10,9 @@ import { ReleaseNotes, type VersionNotes } from './ReleaseNotes';
 import { Button, EmptyNote, Group, ListItem, ProblemNote } from './ui';
 import { backFrom } from './site';
 import { cmsView } from './cmsView.mjs';
-import { runningNotes } from './bundledNotes';
+import { runningLine, runningNotes } from './bundledNotes';
+import { EarlierVersions } from './VersionLinePage';
+import { minorOf } from '../lib/releaseNotes.mjs';
 import { snackbar } from '../lib/snackbar';
 import { t } from './i18n';
 import { when } from './when';
@@ -101,13 +103,15 @@ export default function CmsPage() {
   }
 
   const reason = view && reasonOf(view);
+  // The running minor line's versions; the older lines are on pages of their own (EarlierVersions).
+  const yourLine = runningNotes.filter((entry) => minorOf(entry.version) === runningLine);
   return (
     <Screen title={t.common.parts.morpheme} back={backFrom(CMS_ROUTE)}>
       {problem && <ProblemNote alert>{problem}</ProblemNote>}
       {!view && !problem && <EmptyNote busy>{t.app.loading}</EmptyNote>}
       {view && (
         <>
-          {runningNotes.length > 0 && <ReleaseNotes title={t.cms.newInYourVersion} entries={runningNotes} />}
+          {yourLine.length > 0 && <ReleaseNotes title={t.cms.newInYourVersion} entries={yourLine} />}
           <Group>
             <ListItem icon={Info} headline={t.cms.running(view.running)} supporting={view.latest ? undefined : t.cms.upToDate} />
             <ListItem icon={Clock} headline={view.checkedAt ? t.cms.checked(when(new Date(view.checkedAt))) : t.cms.notChecked} />
@@ -126,6 +130,7 @@ export default function CmsPage() {
           {view.notes.length > 0 && <ReleaseNotes title={t.cms.whatsNew} entries={view.notes} />}
         </>
       )}
+      {view && <EarlierVersions />}
       <MorphemeConnection />
     </Screen>
   );
