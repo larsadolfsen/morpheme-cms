@@ -17,6 +17,7 @@ import {
   FormField,
   type InField,
   IconButton,
+  ChoiceCards,
   IconPicker,
   ImagePick,
   Label,
@@ -328,6 +329,11 @@ function FieldControl({ field, value, onChange }: Props) {
         control = <SegmentedButton label={field.label} value={shown} options={offered} onChange={onChange} />;
         break;
       }
+      if (field.cards) {
+        // As segments: without a value, its default.
+        const shown = text || String(field.default ?? '');
+        return <ChoiceCards label={field.label} hint={hintOf(field, shown)} value={shown} options={offered} onChange={onChange} />;
+      }
       if (field.icons) {
         // The chosen icon, and all of them to tap (IconPicker).
         const choices = [...(field.required ? [] : [{ label: t.forms.noIcon, value: '' }]), ...field.options!];
@@ -361,6 +367,8 @@ function FieldControl({ field, value, onChange }: Props) {
             onChange={onChange}
           />
         );
+        // At the end of its line, as wide as its longest choice needs (the status over a page's title).
+        if (field.atEnd) control = <div className="ml-auto w-full max-w-64">{control}</div>;
       }
       break;
     }

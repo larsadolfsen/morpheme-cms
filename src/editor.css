@@ -717,6 +717,14 @@ html {
   color: var(--accent);
 }
 
+/* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the menu surface and shadow. The theme's
+   menu is on Surface Container with no shadow at rest, the colour of the editor's page (--md-background above), so it
+   would not stand out from it. */
+.editor-menu {
+  --menu-surface: var(--editor-menu-surface);
+  --menu-shadow: var(--editor-menu-shadow);
+}
+
 /* The text's toolbar (MarkdownEditor.tsx, Toolbar in ui.tsx): the menu surface and shadow. */
 .editor-tools {
   --toolbar-standard-surface: var(--editor-menu-surface);

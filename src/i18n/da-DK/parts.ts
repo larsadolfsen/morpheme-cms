@@ -152,7 +152,7 @@ export const parts: Messages['parts'] = {
       date: 'En dato, eller en dato og et klokkeslæt.',
       boolean: 'Ja eller nej: et flueben, eller en kontakt, der siger, hvad den er sat til.',
       select:
-        'Et af flere valg: i arket nedefra, side om side, som ikoner, eller kun vist. Et valg kan have sin egen forklaring, og et felt kan stå kun ved ét af valgene.',
+        'Et af flere valg: i arket nedefra, i en menu for enden af linjen, side om side, som kort med et ikon og et navn, som ikoner, eller kun vist. Et valg kan have sin egen forklaring, og et felt kan stå kun ved ét af valgene.',
       relation:
         'En side, et indlæg eller et tag fra hjemmesidens lister. En side vælges med sidevælgeren, også de faste sider; flere valg står som chips.',
       image: 'Et billede fra Filer eller et nyt.',
@@ -190,6 +190,8 @@ export const parts: Messages['parts'] = {
     publishedHint: 'Siden er på hjemmesiden.',
     draftHint: 'Siden er ikke på hjemmesiden.',
     look: 'Udseende',
+    layout: 'Layout',
+    layouts: { single: 'Én kolonne', wide: 'Bred', left: 'Sidepanel til venstre', right: 'Sidepanel til højre' },
     kind: 'Slags',
     page: 'Side',
     post: 'Indlæg',

@@ -7,6 +7,10 @@
 import { useMemo, useRef, useState } from 'react';
 import {
   AppWindow,
+  ArrowsHorizontal,
+  ColumnsPlusLeft,
+  ColumnsPlusRight,
+  File,
   Gear,
   ArrowDown,
   ArrowsDownUp,
@@ -838,7 +842,7 @@ function fieldTypes(): FieldType[] {
       ],
     },
     {
-      name: 'select · options, only, segments, icons, locked',
+      name: 'select · options, only, atEnd, segments, cards, icons, locked',
       use: f.use.select,
       fields: [
         {
@@ -857,6 +861,7 @@ function fieldTypes(): FieldType[] {
           label: sample.status,
           type: 'select',
           required: true,
+          atEnd: true,
           options: [
             { value: 'published', label: t.library.statusShown.published, hint: f.publishedHint },
             { value: 'draft', label: t.library.statusShown.draft, hint: f.draftHint },
@@ -871,6 +876,19 @@ function fieldTypes(): FieldType[] {
             { value: 'light', label: t.library.themes.light, icon: Sun },
             { value: 'auto', label: t.library.themes.auto, icon: CircleHalf },
             { value: 'dark', label: t.library.themes.dark, icon: Moon },
+          ],
+        },
+        {
+          name: 'layout',
+          label: f.layout,
+          type: 'select',
+          cards: true,
+          default: 'single',
+          options: [
+            { value: 'single', label: f.layouts.single, icon: File },
+            { value: 'full', label: f.layouts.wide, icon: ArrowsHorizontal },
+            { value: 'sidebar-left', label: f.layouts.left, icon: ColumnsPlusLeft },
+            { value: 'sidebar-right', label: f.layouts.right, icon: ColumnsPlusRight },
           ],
         },
         { name: 'icon', label: sample.icon, type: 'select', icons: true, options: iconOptions(t.blocks.icons) },

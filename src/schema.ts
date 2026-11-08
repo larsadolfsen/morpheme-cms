@@ -60,7 +60,7 @@ export type Field = {
    * it (a primary keyword); 'many', any number of them. */
   chips?: 'one' | 'many';
   /** select */
-  /** `icon`: shown before its name (only with `segments`). `hint`: shown under the label while it is
+  /** `icon`: shown before its name (only with `segments`; with `cards` over it). `hint`: shown under the label while it is
    * chosen, in place of the field's own (the status of a page: what each one means). `onPage`: offered only while
    * that relation has a choice on the page being edited (a button that opens a promotion); chosen, it is still shown. */
   options?: { label: string; value: string; icon?: Icon; hint?: string; onPage?: Relation }[];
@@ -73,6 +73,11 @@ export type Field = {
   /** select: the options side by side in a bar, the chosen one raised (SegmentedButton in ui.tsx), for two or
    * three short ones. */
   segments?: boolean;
+  /** select: the options as cards side by side, each with its icon over its name, the chosen one marked (ChoiceCards in
+   * ui.tsx): a page's template. */
+  cards?: boolean;
+  /** select: its menu field (Select), narrow, at the end of its line: the status of a page or post, over its title. */
+  atEnd?: boolean;
   /** select: shown as what is chosen, with its hint, and not changed here (the kind of an entry,
    * picked when it is made). */
   locked?: boolean;

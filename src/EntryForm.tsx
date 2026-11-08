@@ -58,8 +58,8 @@ import { kindAndName, savedText } from './deploy';
 import { siteT, siteText, t } from './i18n';
 import { firstPicture, SEO_FIELDS, seoInputOf, seoRating, SHARE_FIELDS, sharedAs, type SeoCheck } from './seo';
 
-// "Page settings" (a post's "Post settings"), the first section: a page's title (its name in the lists and the menu; its H1
-// is in its text), the status (Draft, Hidden, Published, Scheduled and the time for Scheduled) and the template (Field.offered).
+// "Page settings" (a post's "Post settings"), the first section: the status (Draft, Hidden, Published, Scheduled and the time
+// for Scheduled), a page's title (its name in the lists and the menu; its H1 is in its text) and the template (Field.offered).
 // A post's title is its H1, written above its text: at the top of "Content", as a heading of a collection that has one.
 const TOP = ['title', 'heading'];
 const STATUS = ['status', 'publishAt'];
@@ -89,10 +89,13 @@ let opening: Section | null = null;
 export const openAtSeo = () => {
   opening = 'seo';
 };
-// The fields of a section (the other fields are those of none of the others); in the settings the title first.
+// The fields of a section (the other fields are those of none of the others); in the settings the status first (at the
+// end of its line, Field.atEnd), with its time, then the title.
 const inSection = (collection: MarkdownCollection, id: Section) => (f: Field) => sectionOf(collection, f.name) === id;
+const FIRST = [...STATUS, 'title'];
+const rank = (f: Field) => (FIRST.includes(f.name) ? FIRST.indexOf(f.name) : FIRST.length);
 const fieldsIn = (collection: MarkdownCollection, id: Section) =>
-  collection.fields.filter(inSection(collection, id)).sort((a, b) => Number(b.name === 'title') - Number(a.name === 'title'));
+  collection.fields.filter(inSection(collection, id)).sort((a, b) => rank(a) - rank(b));
 
 // A new file: a blog post gets today's date; a page has the blocks its template
 // starts it with (Template.start), e.g. "Book en tid" at the end like the other pages, but not one that

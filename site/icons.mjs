@@ -121,7 +121,7 @@ export const MATERIAL_SYMBOLS = {
   'arrow-up': 'arrow_upward',
   'arrow-up-right': 'arrow_outward',
   'arrows-down-up': 'swap_vert',
-  'arrows-horizontal': 'width_full',
+  'arrows-horizontal': 'fit_page_width',
   article: 'article',
   bank: 'account_balance',
   bell: 'notifications',
