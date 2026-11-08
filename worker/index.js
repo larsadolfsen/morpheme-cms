@@ -28,6 +28,8 @@
 //   whether the site has been built with a save, and an app's notifications (`notify` in its tools).
 // - the CMS's own updates (/api/cms, packages/editor/worker/cms-update.js): each hour, whether npm has a newer @morphemecms/cms to commit, and
 //   each minute, whether the update built, else it is undone.
+// - on a site that posts the CMS's releases on its blog (`releasePosts` in its config), each minute, whether npm has a new release
+//   to post (packages/editor/worker/release-post.js).
 // - the apps' own parts (src/apps/<app>/worker.js, worker/apps.js), while they are installed and not turned off: their addresses under
 //   /api/<app>/ and what they do each hour (scheduled), e.g. Cookiescanner's scan of the site's cookies, and their texts
 //   for their notifications. What the apps
@@ -49,6 +51,7 @@ import { publishScheduled, SCHEDULED_LIST } from './publish.js';
 import { commitFiles, readFiles } from './github.js';
 import { handlePush, notifyAll, waitForBuilds } from './push.js';
 import { checkForUpdate, handleCms, watchUpdate } from './cms-update.js';
+import { postRelease } from './release-post.js';
 
 const STAGING = /\.workers\.dev$/i;
 // The cron in wrangler.jsonc that runs each minute.
@@ -189,10 +192,10 @@ export default {
     return staged;
   },
 
-  // The crons in wrangler.jsonc: each minute, whether the site has been built with a save (packages/editor/worker/push.js); each hour,
-  // the rest (also the answers in the consent log older than two years deleted).
+  // The crons in wrangler.jsonc: each minute, whether the site has been built with a save (packages/editor/worker/push.js), the CMS's
+  // update and a new release to post; each hour, the rest (also the answers in the consent log older than two years deleted).
   async scheduled(controller, env, ctx) {
-    if (controller.cron === EACH_MINUTE) return ctx.waitUntil(Promise.allSettled([waitForBuilds(env), watchUpdate(env)]));
+    if (controller.cron === EACH_MINUTE) return ctx.waitUntil(Promise.allSettled([waitForBuilds(env), watchUpdate(env), postRelease(env)]));
     ctx.waitUntil(
       Promise.all([
         publishScheduled(env),

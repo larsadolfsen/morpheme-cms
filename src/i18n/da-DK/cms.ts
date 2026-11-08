@@ -38,4 +38,6 @@ export const cms: Messages['cms'] = {
     `Hjemmesiden kunne ikke opdateres med Morpheme ${v}, og det mislykkedes også at gå tilbage. Ret hjemmesiden i hånden.`,
   commitUpdate: (v) => `Opdater Morpheme til ${v}`,
   commitUndo: (v) => `Fortryd opdateringen af Morpheme til ${v}`,
+  commitReleasePost: (v) => `Udgiv nyhederne i Morpheme ${v} på bloggen`,
+  postPhoto: (place, by, unsplash) => `Foto af ${place} taget af ${by} på ${unsplash}`,
 };

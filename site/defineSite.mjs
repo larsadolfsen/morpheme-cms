@@ -21,7 +21,8 @@
  * What a site can say of itself, else the standard: the owner's picture (beside a blog post, and shown when a page with
  * none of its own is shared), the booking page and the pages a booking ends on, the page about the owner, the block
  * drawn after every blog post, the word a page's title can end in, pictures that are the same though their names say
- * otherwise, the file of its redirects from old addresses, and the logo in the structured data.
+ * otherwise, the file of its redirects from old addresses, the logo in the structured data, and whether it posts the
+ * CMS's releases on its blog.
  * @typedef {object} SiteChoices
  * @property {{ src: string; alt: string } | null} picture The owner's picture, or none.
  * @property {{ path: string; thanks: string[] }} booking The booking page, where "Book en tid" goes when no booking sheet
@@ -38,6 +39,9 @@
  *   Videresendelser (src/redirectData.ts).
  * @property {string} logo The address of the site's logo in the structured data (the business's `logo`,
  *   site/schema.ts), a path on the site ("/logo.svg").
+ * @property {{ categories?: string[] } | null} releasePosts Whether each new version of the CMS on npm's `latest` gets a blog
+ *   post on the site, minutes after it is released, with its release notes in the site's language (worker/release-post.js),
+ *   tagged with `categories` (their ids). Morpheme's own site has it; null: no posts.
  */
 
 /** @type {SiteChoices} */
@@ -50,6 +54,7 @@ const CHOICES = {
   samePictures: {},
   siteRedirects: { rules: 'public/_redirects', map: 'src/data/old-addresses.json' },
   logo: '/logo.svg',
+  releasePosts: null,
 };
 
 /** The same on every site. */

@@ -82,4 +82,6 @@ and report.
 ## Phase 6 - Report
 
 Version, the release notes, and the links: `https://www.npmjs.com/package/@morphemecms/cms/v/X.Y.Z` and the GitHub
-release's URL. Sites get it at their editor's next update check.
+release's URL. Sites get it at their editor's next update check. If the version has release notes, getmorpheme.com's
+Worker posts them on its blog within a minute (`https://getmorpheme.com/morpheme-X-Y-Z/` once the site has built;
+`worker/release-post.js`).
