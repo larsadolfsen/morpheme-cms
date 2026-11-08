@@ -1,0 +1,5 @@
+{
+  "id": "surface-dim-bright",
+  "kind": "line",
+  "text": "Colors now has Surface (dim), Surface (default) and Surface (bright), and new colors put the background on Surface (bright)"
+}

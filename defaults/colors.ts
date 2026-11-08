@@ -11,6 +11,9 @@ import { dynamicColors, type ColorRoles } from '../lib/dynamic-colors';
 export const colorFields: { name: string; label: string; hint: string }[] = [
   { name: 'bg', label: 'Background', hint: 'Behind the whole page.' },
   { name: 'surface', label: 'Surfaces', hint: 'Cards, fields, and menus.' },
+  { name: 'surface-dim', label: 'Surface (dim)', hint: 'The darkest surface, in light and dark mode.' },
+  { name: 'surface-default', label: 'Surface (default)', hint: 'The standard surface, between the dim and the bright one.' },
+  { name: 'surface-bright', label: 'Surface (bright)', hint: 'The lightest surface, in light and dark mode.' },
   { name: 'surface-container-lowest', label: 'Surface (lowest)', hint: 'Surfaces with the least emphasis.' },
   { name: 'surface-container-low', label: 'Surface (low)', hint: 'Cards with a shadow, blocks, and sheets.' },
   { name: 'surface-container', label: 'Surface (medium)', hint: 'Menus and bars.' },
@@ -51,6 +54,12 @@ export const colorPairs: ColorPair[] = [
   { text: 'muted', on: 'bg', what: 'Muted text on the background' },
   { text: 'muted', on: 'surface', what: 'Muted text on surfaces' },
   { text: 'muted', on: 'tint', what: 'Muted text in light boxes' },
+  { text: 'ink', on: 'surface-dim', what: 'Text on the dim surface' },
+  { text: 'ink', on: 'surface-default', what: 'Text on the default surface' },
+  { text: 'ink', on: 'surface-bright', what: 'Text on the bright surface' },
+  { text: 'muted', on: 'surface-dim', what: 'Muted text on the dim surface' },
+  { text: 'muted', on: 'surface-default', what: 'Muted text on the default surface' },
+  { text: 'muted', on: 'surface-bright', what: 'Muted text on the bright surface' },
   { text: 'ink', on: 'surface-container-lowest', what: 'Text on the lowest surface' },
   { text: 'ink', on: 'surface-container-low', what: 'Text on the low surface' },
   { text: 'ink', on: 'surface-container', what: 'Text on the medium surface' },
@@ -80,14 +89,17 @@ export const colorPairs: ColorPair[] = [
   { text: 'inverse-primary', on: 'inverse-surface', what: 'Buttons on the inverse surface' },
 ];
 
-/** The Material color role of each color, for dynamic color: the page on Material's surface, cards a step
+/** The Material color role of each color, for dynamic color: the page on Material's surface bright, cards a step
  * lighter (white in light mode), the light boxes on a higher container, so text and links can be read on them at
- * every contrast level, Material's surface containers, inverse colors, outline and error colors as themselves (the
+ * every contrast level, Material's three surfaces (dim, default and bright), its surface containers, inverse colors, outline and error colors as themselves (the
  * theme's parts take them, as Material 3's do), buttons and links in the primary color, and the other colors of the scheme (Material 3's
  * containers, secondary and tertiary: the FABs and their menus) as their own roles. */
 export const colorRoles: ColorRoles = {
-  bg: 'surface',
+  bg: 'surfaceBright',
   surface: { light: 'surfaceContainerLowest', dark: 'surfaceContainerLow' },
+  'surface-dim': 'surfaceDim',
+  'surface-default': 'surface',
+  'surface-bright': 'surfaceBright',
   'surface-container-lowest': 'surfaceContainerLowest',
   'surface-container-low': 'surfaceContainerLow',
   'surface-container': 'surfaceContainer',
