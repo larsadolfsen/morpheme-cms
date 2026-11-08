@@ -332,7 +332,7 @@ function FieldControl({ field, value, onChange }: Props) {
       if (field.cards) {
         // As segments: without a value, its default.
         const shown = text || String(field.default ?? '');
-        return <ChoiceCards label={field.label} hint={hintOf(field, shown)} value={shown} options={offered} onChange={onChange} />;
+        return <ChoiceCards label={field.label} hint={hintOf(field)} value={shown} options={offered} onChange={onChange} />;
       }
       if (field.icons) {
         // The chosen icon, and all of them to tap (IconPicker).

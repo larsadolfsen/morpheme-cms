@@ -100,6 +100,7 @@ export const forms: Messages['forms'] = {
   nameNeedsLetters: 'Navnet skal have bogstaver eller tal.',
   fromTitle: 'Oprettes ud fra titlen, første gang du gemmer siden.',
   noIcon: 'Intet ikon',
+  chooseSideColumn: 'Vælg en blok til sidekolonnen',
   pickIcon: 'Vælg et ikon',
   noIconYet: 'Intet ikon endnu',
   changeIcon: 'Skift ikon',
