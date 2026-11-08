@@ -1165,16 +1165,18 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       : []),
   ];
 
-  // When the toolbar is too short for all its buttons, the kinds of text (H1, H2, H3, T, the bulleted and
-  // the numbered list and the quote) are one button: the one where the cursor is, with an arrow, and
-  // the others under it.
+  // When the toolbar is too short for all its buttons, the kinds of text are two buttons: the headings (H1, H2, H3) and the
+  // rest (T, the bulleted and the numbered list and the quote), so a heading and T both show from the start. Each shows
+  // the kind where the cursor is (else its first: the heading the text can have next, and T), with an arrow and the
+  // others of its group under it; a group of one (H1, while a page has none) is that button itself.
   const hasSettings = tools.some((item) => item.icon === SectionSettingsIcon);
   const kinds = tools.filter((t) => ['h1', 'h2', 'h3', 'text', 'bullet', 'ordered', 'quote'].includes(t.on ?? ''));
-  const kind = kinds.find((t) => active.includes(t.on!));
-  const shown = kind ?? kinds.find((t) => t.on === 'text')!;
+  const kindGroups = [kinds.filter((t) => /^h\d$/.test(t.on!)), kinds.filter((t) => !/^h\d$/.test(t.on!))].filter((g) => g.length);
+  const shownOf = (group: typeof kinds) => group.find((t) => active.includes(t.on!)) ?? group[0];
   const [narrow, setNarrow] = useState(false);
-  // The button that opened the menu with the kinds of text, while it is open.
-  const [kindsAt, setKindsAt] = useState<HTMLElement | null>(null);
+  // The button that opened a menu with kinds of text, and its group, while it is open.
+  const [kindsAt, setKindsAt] = useState<{ at: HTMLElement; group: number } | null>(null);
+  const kindsShown = kindsAt ? (kindGroups[kindsAt.group] ?? []) : [];
   useEffect(() => {
     const bar = toolbar.current!;
     // A button is 2.5rem, with 0.125rem between them and 0.375rem around them, and each of the lines
@@ -1200,20 +1202,24 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // The lines between the marks on the text, the kinds of text, "+" (or "Billede") and "Fortryd".
   const lineBefore = (item: (typeof tools)[number]) =>
     item === kinds[0] || item.icon === Plus || item.icon === Image || item.icon === ArrowUUpLeft || item.icon === SectionSettingsIcon;
-  // A button of the toolbar; when it is too short, the kinds of text are one button (at the first), with a menu.
-  const button = (item: (typeof tools)[number]) =>
-    !narrow || !kinds.includes(item) ? (
-      tool(item)
-    ) : item === kinds[0] ? (
-      // Not marked: it always shows the kind there is (the menu under it marks it).
+  // A button of the toolbar; when it is too short, each group of kinds of text is one button (at its first), with a menu.
+  const button = (item: (typeof tools)[number]) => {
+    if (!narrow || !kinds.includes(item)) return tool(item);
+    const group = kindGroups.findIndex((g) => g[0] === item);
+    if (group < 0) return null;
+    if (kindGroups[group].length === 1) return tool(item);
+    const shown = shownOf(kindGroups[group]);
+    // Not marked: it always shows a kind of its group (the menu under it marks the one there is).
+    return (
       <ToolbarButton
-        key="kinds"
+        key={`kinds-${group}`}
         icon={shown.icon}
         label={t.text.kindIs(shown.label)}
-        menu={!!kindsAt}
-        onClick={(e) => setKindsAt(kindsAt ? null : e.currentTarget)}
+        menu={kindsAt?.group === group}
+        onClick={(e) => setKindsAt(kindsAt?.group === group ? null : { at: e.currentTarget, group })}
       />
-    ) : null;
+    );
+  };
 
   return (
     <div className="rounded-panel border border-line bg-surface">
@@ -1265,8 +1271,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           <span className="text-ink">{t.text.noColor}</span>
         </MenuItem>
       </Menu>
-      <Menu anchor={kindsAt} label={t.text.kind} onClose={() => setKindsAt(null)}>
-        {kinds.map(({ label, icon, action, on }) => (
+      <Menu anchor={kindsAt?.at ?? null} label={t.text.kind} onClose={() => setKindsAt(null)}>
+        {kindsShown.map(({ label, icon, action, on }) => (
           <MenuItem key={label} icon={icon} selected={active.includes(on!)} onClick={action as () => void}>
             {label}
           </MenuItem>
