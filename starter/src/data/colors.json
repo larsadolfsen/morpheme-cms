@@ -2,6 +2,9 @@
   "light": {
     "bg": "#f9f9ff",
     "surface": "#ffffff",
+    "surface-dim": "#d9d9e0",
+    "surface-default": "#f9f9ff",
+    "surface-bright": "#f9f9ff",
     "surface-container-lowest": "#ffffff",
     "surface-container-low": "#f3f3fa",
     "surface-container": "#ededf4",
@@ -34,8 +37,11 @@
     "on-error-container": "#93000a"
   },
   "dark": {
-    "bg": "#111318",
+    "bg": "#37393e",
     "surface": "#1a1b20",
+    "surface-dim": "#111318",
+    "surface-default": "#111318",
+    "surface-bright": "#37393e",
     "surface-container-lowest": "#0c0e13",
     "surface-container-low": "#1a1b20",
     "surface-container": "#1e2025",

@@ -223,10 +223,14 @@ export function dynamicColors(dynamic: Dynamic, roles: ColorRoles): Colors {
 }
 
 // The colours a file of colours written before they were among the site's had in the theme, from the others (mixed in
-// sRGB, as the theme's CSS mixed them): the surface containers a step each towards the text from the surfaces tinted
+// sRGB, as the theme's CSS mixed them): Material's three surfaces the page's, the dim one a step towards the text in
+// light mode and the bright one a step towards it in dark mode (where the page is the darkest), the surface containers a step each towards the text from the surfaces tinted
 // with the light colour, the lowest the surfaces, the outline between the quiet text and the surfaces, the inverse
 // colours the text's on the page's with the light colour for its buttons, and the error colours the accent colours.
-const MIXED: Record<string, (set: ColorSet) => string | undefined> = {
+const MIXED: Record<string, (set: ColorSet, mode: Mode) => string | undefined> = {
+  'surface-dim': (c, mode) => (mode === 'light' ? mix(c.ink, 0.12, c.bg) : c.bg),
+  'surface-default': (c) => c.bg,
+  'surface-bright': (c, mode) => (mode === 'dark' ? mix(c.ink, 0.15, c.bg) : c.bg),
   'surface-container-lowest': (c) => c.surface,
   'surface-container-low': (c) => mix(c.ink, 0.03, mix(c.tint, 0.3, c.surface)),
   'surface-container': (c) => mix(c.ink, 0.05, mix(c.tint, 0.3, c.surface)),
@@ -265,7 +269,7 @@ export function completeColors(colors: Colors, roles: ColorRoles): Colors {
   const complete = (mode: Mode): ColorSet => {
     const set = colors[mode];
     if (!missing(set)) return set;
-    const from = (name: string) => (made ? made[mode][name] : MIXED[name]?.(set));
+    const from = (name: string) => (made ? made[mode][name] : MIXED[name]?.(set, mode));
     const added = Object.keys(roles)
       .filter((name) => !isColor(set[name]))
       .map((name) => [name, from(name)])

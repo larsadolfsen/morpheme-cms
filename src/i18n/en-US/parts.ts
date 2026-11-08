@@ -5,7 +5,7 @@ export const parts = {
     `The parts only the editor has, looking the way they do everywhere. The parts are in ${file}; change a part there and it changes everywhere. The buttons, fields, lists, sheets, and the other parts the theme has too are the theme’s and are under Theme. Light or dark is picked under Account.`,
   use: {
     emptyNote: 'What a list or a screen says when there is nothing in it, or while something is fetched: gray, in the middle.',
-    problemNote: 'What is wrong, in the accent color: why a sheet can’t be saved, or what couldn’t be read.',
+    problemNote: 'What is wrong, in the primary color: why a sheet can’t be saved, or what couldn’t be read.',
     toolbarButton:
       'A tool in the text’s toolbar: a little smaller, so the bar fits on a phone. With an arrow it opens a menu (the kind of text, when the bar is too narrow).',
     fields:
@@ -27,7 +27,7 @@ export const parts = {
       'The search with the buttons beside it, always in the same order: sort, filter, date, Google, and menu or list. Sort is gray while the pages are shown as the menu.',
     choiceTile: 'One of many icons to tap, in a grid.',
     group:
-      'Rows in a frame under a small heading: the start screen and the lists. The icon looks the same everywhere: gray, and in the accent color for the open part in the menu. A small picture or a sample of one of the theme’s values can stand before the name instead. A number may stand at the right. A row can also do something, in the accent color; delete, in the middle; or only be shown, with no color under the mouse and perhaps gray.',
+      'Rows in a frame under a small heading: the start screen and the lists. The icon looks the same everywhere: gray, and in the primary color for the open part in the menu. A small picture or a sample of one of the theme’s values can stand before the name instead. A number may stand at the right. A row can also do something, in the primary color; delete, in the middle; or only be shown, with no color under the mouse and perhaps gray.',
     checkList:
       'Things that were checked: a score from 0 to 100 in a ring, a red triangle by what could be better (which folds out with how), and a green dot by what is fine.',
     scoreRing:
@@ -45,7 +45,7 @@ export const parts = {
       'A few colors side by side, each on a tile with its name, its color code, a pen that opens the color sheet, and on the first a lock, for example, the generator’s 3 base colors.',
     colorWheel: 'A color wheel with the colors as dots: the big one is dragged, the others follow, and a locked one shows a lock.',
     choiceRow:
-      'One of several choices on a screen of its own, each in a row with what it gives, for example, a few of an icon pack’s icons, the chosen one in the accent color with a check mark.',
+      'One of several choices on a screen of its own, each in a row with what it gives, for example, a few of an icon pack’s icons, the chosen one in the primary color with a check mark.',
     colorsPreview:
       'A little page in a set of the website’s colors: heading, text, link, surface, box, the secondary and tertiary colors, and button, so you can see whether they can be read together.',
     fullScreenSheet:
@@ -60,7 +60,7 @@ export const parts = {
     editorFooter:
       'The line at the bottom of every screen, under the content, with a link to the licenses of what the website and the editor are made with.',
     sectionList:
-      'The sections of a long form as an "on this page" list on a card: plain text, the section in view in the accent color, and the form’s name over it. It stays in view at the end of the form on a large screen; on a smaller screen it is not shown.',
+      'The sections of a long form as an "on this page" list on a card: plain text, the section in view in the primary color, and the form’s name over it. It stays in view at the end of the form on a large screen; on a smaller screen it is not shown.',
   },
   /** Over the parts: the search, and the groups to show one of (as Material 3 sorts its components). */
   filter: {
@@ -89,7 +89,7 @@ export const parts = {
     address: 'URL',
     addressHint: 'For example, /about/.',
     sendsTo: 'Sends to the page "Second page."',
-    color: 'Accent color',
+    color: 'Primary',
     colorHint: 'Buttons, links, and icons.',
     phone: 'Phone',
     description: 'Short description',
@@ -575,12 +575,12 @@ export const parts = {
       subpages: ['Sub-page', 'The open sub-page'],
       book: 'Book a time',
       kinds: {
-        primary: 'Accent color',
-        secondary: 'Secondary color',
-        tertiary: 'Tertiary color',
-        'primary-container': 'Light accent color',
-        'secondary-container': 'Light secondary color',
-        'tertiary-container': 'Light tertiary color',
+        primary: 'Primary',
+        secondary: 'Secondary',
+        tertiary: 'Tertiary',
+        'primary-container': 'Primary container',
+        'secondary-container': 'Secondary container',
+        'tertiary-container': 'Tertiary container',
       },
       sizes: { fab: 'Regular', medium: 'Medium', large: 'Large' },
       extendedSizes: { small: 'Small', medium: 'Medium', large: 'Large' },
@@ -610,7 +610,7 @@ export const parts = {
       kinds: { filled: 'Filled', tonal: 'Tonal', elevated: 'Elevated', outlined: 'Outlined' },
       contact: 'Contact',
       close: 'Close',
-      fabKinds: { primary: 'Accent color', secondary: 'Secondary color', tertiary: 'Tertiary color' },
+      fabKinds: { primary: 'Primary', secondary: 'Secondary', tertiary: 'Tertiary' },
     },
     /** The theme's switches, radio buttons, sliders, dividers and side sheets (SelectionParts.tsx), and what is in the
      * examples. */

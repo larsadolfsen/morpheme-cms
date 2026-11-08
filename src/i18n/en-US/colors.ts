@@ -15,8 +15,8 @@ export const colors = {
     box: 'A light box',
     /** The boxes in the secondary and tertiary colors, which a harmony places; also the names of the
      * generator's base colors after the source color. */
-    secondary: 'Secondary color',
-    tertiary: 'Tertiary color',
+    secondary: 'Secondary',
+    tertiary: 'Tertiary',
     button: 'Book a time',
   },
   /** A pair that is too hard to read: what it is (the site's words), its contrast and the least it needs. */
@@ -71,7 +71,7 @@ export const colors = {
     own: "The website's colors",
     loading: "Loading the pages' colors…",
     missing: "The pages' colors can be seen in a few minutes",
-    /** The colors of a page in a row, read out (the accent color, the light color, the background and the text). */
+    /** The colors of a page in a row, read out (Primary, Tint, Background and On surface). */
     swatches: (mode: string) => `The colors in ${mode.toLowerCase()}`,
   },
   standard: 'Reset to default colors',
