@@ -143,8 +143,8 @@ export default function Parts({ env }: { env: Env }) {
   const [sectionOpen, setSectionOpen] = useState<number | null>(0);
   const [sectionPicked, setSectionPicked] = useState('content');
   const sectionItems = [
+    { id: 'settings', label: t.forms.sections.pageSettings, badge: 2 },
     { id: 'content', label: t.forms.sections.content },
-    { id: 'status', label: t.forms.sections.status, badge: 2 },
     { id: 'other', label: t.forms.otherFields },
   ];
   const [tags, setTags] = useState(['a', 'b']);

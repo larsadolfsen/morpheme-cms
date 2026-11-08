@@ -5,7 +5,7 @@ export const forms: Messages['forms'] = {
   deleteOne: (what) => `Slet ${what}`,
   addOne: (what) => `Tilføj ${what}`,
   text: 'Tekst',
-  sections: { title: 'Afsnit', content: 'Indhold', status: 'Status' },
+  sections: { title: 'Afsnit', content: 'Indhold', pageSettings: 'Sideindstillinger', postSettings: 'Indlægsindstillinger' },
   otherFields: 'Andre felter',
   seo: 'Søgemaskiner',
   share: 'Sociale medier',

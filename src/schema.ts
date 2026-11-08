@@ -66,7 +66,7 @@ export type Field = {
   options?: { label: string; value: string; icon?: Icon; hint?: string; onPage?: Relation }[];
   /** select: the options come from the theme in use. 'templates': a page's templates, the theme's "templates" (lib/page-template.mjs); the
    * field shows those of its options the theme offers (templateFieldOf in templateField.ts), its default is the theme's first, which
-   * is written as no key, and it is hidden while at most one is left. */
+   * is written as no key, and while only one is left it is shown as the page's, not changed (`locked`). */
   offered?: 'templates';
   /** select: the options are icons (their names, `icons`), shown as the icons to tap (fields.tsx). */
   icons?: boolean;

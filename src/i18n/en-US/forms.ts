@@ -4,8 +4,9 @@ export const forms = {
   deleteOne: (what: string) => `Delete ${what}`,
   addOne: (what: string) => `Add ${what}`,
   text: 'Text',
-  /** The sections of a page's or a post's form, in its navigation drawer (EntryForm.tsx): its name, the text and the status. */
-  sections: { title: 'Sections', content: 'Content', status: 'Status' },
+  /** The sections of a page's or a post's form, in its navigation drawer (EntryForm.tsx): its name, the text, and the
+   * first, with a page's title, status and template (a post's status). */
+  sections: { title: 'Sections', content: 'Content', pageSettings: 'Page settings', postSettings: 'Post settings' },
   otherFields: 'Other fields',
   seo: 'Search engines',
   /** The section after it: the picture, title and description when the page is shared, under a preview of how a link

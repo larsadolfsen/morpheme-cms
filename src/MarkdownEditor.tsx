@@ -61,6 +61,7 @@ import {
 } from '@phosphor-icons/react';
 import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
+import { h1TextOf, h1Written } from './titleH1.mjs';
 import { headingChoices } from '../lib/heading-levels.mjs';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
 import { SECTION_COLORS } from '../lib/section-marker.mjs';
@@ -107,8 +108,16 @@ import tagIcon from '@phosphor-icons/core/assets/regular/tag.svg?raw';
 // ProseMirror's own styles: keep its invisible helpers (around pictures, at the end of lines) out of the layout.
 import '@milkdown/kit/prose/view/style/prosemirror.css';
 
-// parts: the text in parts, for a fixed page's sections (partsOf in markdown.mjs).
-export type MarkdownHandle = { markdown: () => string | null; parts: () => ReturnType<typeof partsOf> | null };
+// parts: the text in parts, for a fixed page's sections (partsOf in markdown.mjs). h1: the text of the page's H1 (its first
+// heading, without marks), null without one, undefined before the editor is made; setH1: makes it say so (a new H1 at the
+// top without one), kept out of the text's undo, which takes back what was typed in the text (titleH1.mjs: the page's title
+// written into it, EntryForm.tsx).
+export type MarkdownHandle = {
+  markdown: () => string | null;
+  parts: () => ReturnType<typeof partsOf> | null;
+  h1: () => string | null | undefined;
+  setH1: (text: string) => void;
+};
 
 // addImage: asks for a picture (the gallery, Media.tsx); its address on the site. Its description is
 // asked in the sheet. Without it there is no picture button. blocks: asks which block to put in and its fields (BlockDialog);
@@ -124,6 +133,8 @@ type Props = {
   sheet?: BlockAsk;
   short?: boolean;
   h1?: boolean;
+  /** A page (`h1`): the text of its H1 changed (typed, pasted, undone), with what it was; null without one (titleH1.mjs). */
+  onH1?: (now: string | null, before: string | null) => void;
   /** How each part of the text looks on the site (looksOf in sections.mjs), shown so (editor.css). */
   looks?: (items: LookItem[]) => (string | null)[];
   /** The headings (H2) are the names of sections (a fixed page's, the front page's: sections.mjs), which the site
@@ -959,7 +970,7 @@ function blockCard(
 }
 
 export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
-  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, looks, sections, frame },
+  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, onH1, looks, sections, frame },
   ref,
 ) {
   const spaced = !!blocks;
@@ -969,6 +980,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const editor = useRef<Editor | null>(null);
   const changed = useRef(onChange);
   changed.current = onChange;
+  const h1Changed = useRef(onH1);
+  h1Changed.current = onH1;
   const sheeted = useRef(blocks ?? sheetProp);
   sheeted.current = blocks ?? sheetProp;
   const looked = useRef(looks);
@@ -1019,8 +1032,20 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           }),
         }),
     );
+    // On a page, a change of its H1's text is told too (onH1), with what it was.
     const onEdit = $prose(
-      () => new Plugin({ view: () => ({ update: (view, prev) => void (!loaded || view.state.doc.eq(prev.doc) || changed.current()) }) }),
+      () =>
+        new Plugin({
+          view: () => ({
+            update: (view, prev) => {
+              if (!loaded || view.state.doc.eq(prev.doc)) return;
+              changed.current();
+              if (!h1) return;
+              const [before, now] = [h1TextOf(prev.doc), h1TextOf(view.state.doc)];
+              if (now !== before) h1Changed.current?.(now, before);
+            },
+          }),
+        }),
     );
     const selecting = $prose((ctx) =>
       selectionMenu(
@@ -1095,6 +1120,13 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   useImperativeHandle(ref, () => ({
     markdown: () => editor.current?.action(markdownOf) ?? null,
     parts: () => editor.current?.action(partsOf) ?? null,
+    h1: () => editor.current?.action((ctx) => h1TextOf(ctx.get(editorViewCtx).state.doc)),
+    setH1: (text) =>
+      editor.current?.action((ctx) => {
+        const view = ctx.get(editorViewCtx);
+        const tr = h1Written(view.state, text);
+        if (tr) view.dispatch(tr.setMeta('addToHistory', false));
+      }),
   }));
 
   function run<T>(command: { key: CmdKey<T> }, payload?: T) {
