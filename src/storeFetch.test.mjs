@@ -20,9 +20,15 @@ test('passes the request on', async () => {
 });
 
 test('stops a request that hangs', { timeout: 1000 }, async () => {
+  // AbortSignal.timeout's timer does not keep Node running, so the hung request holds a timer of its own until the
+  // abort: else Node sees nothing left to wait for and ends the run, cancelling this test and the ones after it.
   const f = (url, init) =>
     new Promise((_, reject) => {
-      init.signal.addEventListener('abort', () => reject(new Error('aborted')));
+      const alive = setTimeout(() => {}, 10_000);
+      init.signal.addEventListener('abort', () => {
+        clearTimeout(alive);
+        reject(new Error('aborted'));
+      });
     });
   await assert.rejects(
     (async () => {

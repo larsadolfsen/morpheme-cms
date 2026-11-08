@@ -95,8 +95,8 @@ const status = (hidden: string): Field[] => [
     name: 'status',
     label: 'Status',
     type: 'select',
-    // A narrow menu field at the end of the line, over the title (EntryForm.tsx).
-    atEnd: true,
+    // A narrow menu field over the title (EntryForm.tsx).
+    narrow: true,
     options: [
       { value: 'draft', label: 'Draft', hint: 'Not shown on the website.' },
       { value: 'unlisted', label: 'Hidden', hint: hidden },

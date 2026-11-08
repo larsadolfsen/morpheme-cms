@@ -150,7 +150,6 @@ const removedDeclarations = [
   '--top-app-bar-stuck-shadow',
   '--navigation-rail-surface',
   '--navigation-drawer-surface',
-  '--menu-surface',
   '--tooltip-rich-surface',
   '--search-view-surface',
   '--switch-handle-shadow',
@@ -162,6 +161,13 @@ for (const name of removedDeclarations) {
     assert.equal(count(globalCss, `${name}:`), 0);
   });
 }
+
+// The menu is M3 Expressive's vertical menu in its standard colours: on the low surface container (level 1's colour), with
+// level 2's shadow, so it stands in front of the page (m3.material.io/components/menus/specs).
+test('global.css puts the menu on level 1 with the level 2 shadow', () => {
+  assert.equal(count(globalCss, '  --menu-surface: var(--elevation-1-surface);\n'), 1);
+  assert.equal(count(globalCss, '  --menu-shadow: var(--elevation-2);\n'), 1);
+});
 
 test('global.css keeps the extended FAB lines in the navigation drawer', () => {
   assert.equal(count(globalCss, '  --fab-shadow: var(--elevation-1);\n  --fab-hover-shadow: var(--elevation-2);\n'), 1);

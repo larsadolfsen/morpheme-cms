@@ -367,8 +367,8 @@ function FieldControl({ field, value, onChange }: Props) {
             onChange={onChange}
           />
         );
-        // At the end of its line, as wide as its longest choice needs (the status over a page's title).
-        if (field.atEnd) control = <div className="ml-auto w-full max-w-64">{control}</div>;
+        // Narrow, at the start of its line (the status over a page's title).
+        if (field.narrow) control = <div className="w-full max-w-64">{control}</div>;
       }
       break;
     }

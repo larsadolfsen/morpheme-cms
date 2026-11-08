@@ -76,8 +76,8 @@ export type Field = {
   /** select: the options as cards side by side, each with its icon over its name, the chosen one marked (ChoiceCards in
    * ui.tsx): a page's template. */
   cards?: boolean;
-  /** select: its menu field (Select), narrow, at the end of its line: the status of a page or post, over its title. */
-  atEnd?: boolean;
+  /** select: its menu field (Select), narrow, at the start of its line: the status of a page or post, over its title. */
+  narrow?: boolean;
   /** select: shown as what is chosen, with its hint, and not changed here (the kind of an entry,
    * picked when it is made). */
   locked?: boolean;

@@ -842,7 +842,7 @@ function fieldTypes(): FieldType[] {
       ],
     },
     {
-      name: 'select · options, only, atEnd, segments, cards, icons, locked',
+      name: 'select · options, only, narrow, segments, cards, icons, locked',
       use: f.use.select,
       fields: [
         {
@@ -861,7 +861,7 @@ function fieldTypes(): FieldType[] {
           label: sample.status,
           type: 'select',
           required: true,
-          atEnd: true,
+          narrow: true,
           options: [
             { value: 'published', label: t.library.statusShown.published, hint: f.publishedHint },
             { value: 'draft', label: t.library.statusShown.draft, hint: f.draftHint },

@@ -717,11 +717,9 @@ html {
   color: var(--accent);
 }
 
-/* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the menu surface and shadow. The theme's
-   menu is on Surface Container with no shadow at rest, the colour of the editor's page (--md-background above), so it
-   would not stand out from it. */
+/* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
+   shadow, so it stands in front of the editor's page also in a theme whose menu has the page's colour and no shadow. */
 .editor-menu {
-  --menu-surface: var(--editor-menu-surface);
   --menu-shadow: var(--editor-menu-shadow);
 }
 

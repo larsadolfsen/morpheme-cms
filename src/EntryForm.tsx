@@ -89,8 +89,8 @@ let opening: Section | null = null;
 export const openAtSeo = () => {
   opening = 'seo';
 };
-// The fields of a section (the other fields are those of none of the others); in the settings the status first (at the
-// end of its line, Field.atEnd), with its time, then the title.
+// The fields of a section (the other fields are those of none of the others); in the settings the status first (narrow,
+// Field.narrow), with its time, then the title.
 const inSection = (collection: MarkdownCollection, id: Section) => (f: Field) => sectionOf(collection, f.name) === id;
 const FIRST = [...STATUS, 'title'];
 const rank = (f: Field) => (FIRST.includes(f.name) ? FIRST.indexOf(f.name) : FIRST.length);

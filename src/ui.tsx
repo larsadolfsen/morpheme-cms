@@ -1532,7 +1532,8 @@ export function SegmentedButton<T extends string>({
   );
 }
 
-/** Two to four choices as the theme's outlined cards side by side, each with its icon over its name (a page's template): radio
+/** Up to four choices as the theme's outlined cards, four to a row on every screen, each with its icon over its name (a
+ * page's template): radio
  * buttons under their name (`label`, the legend) and `hint`, so the arrow keys move between them. The chosen one is on the
  * secondary container with an edge in the accent colour and a tick in its corner. */
 export function ChoiceCards<T extends string>({
@@ -1549,14 +1550,11 @@ export function ChoiceCards<T extends string>({
   onChange: (v: T) => void;
 }) {
   const name = useId();
-  // All on one line; four on a phone two by two.
-  const wide = useAtLeast('medium');
-  const columns = options.length === 4 && !wide ? 2 : options.length;
   return (
     <fieldset>
       <legend className="mb-1 font-medium">{label}</legend>
       {hint && <SupportingText className="mb-2">{hint}</SupportingText>}
-      <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
+      <div className="grid grid-cols-4 gap-2">
         {options.map(({ value: v, label: text, icon: Glyph }) => {
           const chosen = v === value;
           return (

@@ -2781,7 +2781,7 @@
     --menu-width, --menu-min-width, --menu-max-width, --menu-max-height, --menu-radius, --menu-surface, --menu-line,
     --menu-shadow (level 2), --menu-padding
     --menu-item-height, --menu-item-padding, --menu-item-radius, --menu-item-gap, --menu-item-font-size,
-    --menu-item-letter-spacing, --menu-item-text, --menu-item-icon-color, --menu-item-supporting-text,
+    --menu-item-weight, --menu-item-letter-spacing, --menu-item-text, --menu-item-icon-color, --menu-item-supporting-text,
     --menu-item-hover-surface, --menu-item-hover-text, --menu-item-pressed-surface, --menu-item-selected-surface,
     --menu-item-selected-text, --menu-item-selected-weight, --menu-item-disabled-opacity
     --menu-group-gap, --menu-group-inner-radius, --menu-group-label-text, --menu-divider, --menu-divider-margin
@@ -3009,6 +3009,7 @@
     padding: var(--menu-item-padding, 0.5rem 0.75rem);
     color: var(--menu-item-text, color-mix(in oklab, var(--block-text) 80%, transparent));
     font-size: var(--menu-item-font-size, var(--type-body-medium-size));
+    font-weight: var(--menu-item-weight, inherit);
     letter-spacing: var(--menu-item-letter-spacing, var(--type-body-medium-tracking));
     transition:
       background-color var(--motion-effects-fast),
@@ -3049,6 +3050,8 @@
     background: transparent;
     font: inherit;
     font-size: var(--menu-item-font-size, var(--type-body-medium-size));
+    font-weight: var(--menu-item-weight, inherit);
+    letter-spacing: var(--menu-item-letter-spacing, var(--type-body-medium-tracking));
     text-align: start;
     cursor: pointer;
   }
@@ -3323,6 +3326,7 @@
       padding: var(--menu-item-padding, 0.5rem 0.75rem);
       color: var(--menu-item-text, color-mix(in oklab, var(--block-text) 80%, transparent));
       font-size: var(--menu-item-font-size, var(--type-body-medium-size));
+      font-weight: var(--menu-item-weight, inherit);
       letter-spacing: var(--menu-item-letter-spacing, var(--type-body-medium-tracking));
       cursor: pointer;
       transition:
