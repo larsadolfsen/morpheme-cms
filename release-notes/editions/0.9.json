@@ -1,0 +1,12 @@
+{
+  "name": "El Capitan",
+  "place": {
+    "en-US": "El Capitan, Yosemite, California, USA",
+    "da-DK": "El Capitan, Yosemite, Californien, USA"
+  },
+  "photo": {
+    "by": "Annie Spratt",
+    "source": "https://unsplash.com/photos/a-large-mountain-towering-over-a-forest-filled-with-trees-Uyt8B2TfNYI",
+    "license": "https://unsplash.com/license"
+  }
+}
