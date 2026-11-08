@@ -259,6 +259,7 @@ export function ToolbarButton({
           trailingIcon={<CaretDown />}
           aria-label={label}
           aria-haspopup="menu"
+          style={toolbarMenuSize}
           {...own}
         >
           {null}
@@ -299,6 +300,9 @@ const closeToolbar = {
 
 // A tool's size in the text's toolbar.
 const toolbarSize = { '--icon-button-size': '2.5rem' } as CSSProperties;
+// A tool with a menu there: as high as the others, its icon where an icon button's is (0.625rem in from its start) and
+// the arrow close after it, not a text button's room round a label it does not have (as over the selection, editor.css).
+const toolbarMenuSize = { minHeight: '2.5rem', paddingInline: '0.625rem 0.375rem', gap: '0.125rem' } as CSSProperties;
 
 // ---------------------------------------------------------------------------------------------------
 // Tooltips
