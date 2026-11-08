@@ -1,5 +1,5 @@
 {
   "id": "surface-dim-bright",
   "kind": "line",
-  "text": "Farver har nu Flade (dæmpet), Flade (standard) og Flade (lys), og nye farver lægger baggrunden på Flade (lys)"
+  "text": "Farver bruger nu Material 3’s navne, fx Primær og På flade, og har Dæmpet flade, Flade og Lys flade, med baggrunden på Lys flade"
 }
