@@ -12,8 +12,8 @@
   navigation drawer, the FAB, the footer) are at the end.
 
   The colours are the site's (src/data/colors.json, "Farver" in the editor), used by name as in the standard theme
-  and mapped to the M3 roles: primary = --accent, on-primary = --on-accent, surface (the page) = --bg, the surface
-  containers = --surface-container-low, --surface-container, --surface-container-high and --surface-container-highest,
+  and mapped to the M3 roles: primary = --accent, on-primary = --on-accent, surface bright (the page) = --bg, the three
+  surfaces = --surface-dim, --surface-default and --surface-bright, the surface containers = --surface-container-low, --surface-container, --surface-container-high and --surface-container-highest,
   on-surface = --ink, on-surface-variant = --muted, outline = --outline, outline variant = --line, the inverse colours
   = --inverse-surface, --inverse-on-surface and --inverse-primary, and the error colours = --error, --on-error,
   --error-container and --on-error-container. They are M3's own
@@ -22,9 +22,13 @@
 */
 :root,
 .text-section-accent > * {
-  /* The surfaces and the outline, M3's roles as the site's colours ("Farver"): the page on the background, --surface
-     the lowest container, and the containers each a step towards the text's colour. */
+  /* The surfaces and the outline, M3's roles as the site's colours ("Farver"): the page on the background (M3's surface
+     bright), M3's three surfaces (dim, default and bright), --surface the lowest container, and the containers each a
+     step towards the text's colour. */
   --md-background: var(--bg);
+  --md-surface-dim: var(--surface-dim);
+  --md-surface: var(--surface-default);
+  --md-surface-bright: var(--surface-bright);
   --md-surface-container-lowest: var(--surface-container-lowest);
   --md-surface-container-low: var(--surface-container-low);
   --md-surface-container: var(--surface-container);
@@ -491,6 +495,9 @@
   --on-accent: var(--section-accent);
   --tint: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
   --surface: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
+  --surface-dim: color-mix(in srgb, var(--section-on-accent) 18%, transparent);
+  --surface-default: var(--section-accent);
+  --surface-bright: var(--section-accent);
   --surface-container-lowest: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
   --surface-container-low: color-mix(in srgb, var(--section-on-accent) 12%, transparent);
   --surface-container: color-mix(in srgb, var(--section-on-accent) 14%, transparent);

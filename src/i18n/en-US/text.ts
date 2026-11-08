@@ -27,12 +27,12 @@ export const text = {
   selection: 'Selected text',
   /** The colours a selection can have there (packages/editor/lib/text-colors.mjs), by the names under "Farver". */
   color: 'Color',
-  colors: { accent: 'Accent color', muted: 'Muted text' },
+  colors: { accent: 'Primary', muted: 'On surface variant' },
   noColor: 'No color',
   /** The button for the settings of a section (an H2 and what follows it), and its sheet's colour choices (packages/editor/lib/section-marker.mjs). */
   sectionSettings: 'Section settings',
   sectionColor: 'Section color',
-  sectionColors: { none: 'None', surface: 'Surface', tint: 'Tint', accent: 'Accent' },
+  sectionColors: { none: 'None', surface: 'Surface', tint: 'Tint', accent: 'Primary' },
   /** The sheet of a link (LinkSheet.tsx). */
   linkTo: 'The link goes to',
   linkPage: 'Page',

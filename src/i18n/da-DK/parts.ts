@@ -5,7 +5,7 @@ export const parts: Messages['parts'] = {
     `De dele, kun editoren har, med det udseende de har overalt. Delene står i ${file}; ændres en del dér, ændres den alle steder. Knapperne, felterne, listerne, arkene og de andre dele, temaet også har, er temaets og står under Tema. Lys eller mørk vælges under Konto.`,
   use: {
     emptyNote: 'Det, en liste eller en skærm siger, når der intet er i den, eller mens noget hentes: gråt, i midten.',
-    problemNote: 'Det, der er galt, i accentfarven: hvorfor et ark ikke kan gemmes, eller hvad der ikke kunne læses.',
+    problemNote: 'Det, der er galt, i den primære farve: hvorfor et ark ikke kan gemmes, eller hvad der ikke kunne læses.',
     toolbarButton:
       'Værktøj i tekstens værktøjslinje: lidt mindre, så linjen er der på en telefon. Med en pil åbner den en menu (teksttypen, når linjen er for smal).',
     fields:
@@ -27,7 +27,7 @@ export const parts: Messages['parts'] = {
       'Søgningen med knapperne ved siden af, altid i samme rækkefølge: sortér, filter, dato, Google og menu eller liste. Sortér er grå, mens siderne vises som menuen.',
     choiceTile: 'Et af mange ikoner at trykke på, i et gitter.',
     group:
-      'Rækker i en ramme under en lille overskrift: startskærmen og listerne. Ikonet er ens overalt: gråt, og i accentfarven for den åbne del i menuen. Foran navnet kan der i stedet stå et lille billede eller en prøve på en af temaets værdier. Til højre står evt. et antal. En række kan også gøre noget (i accentfarven), slette (i midten) eller kun vises (uden farve under musen, evt. grå).',
+      'Rækker i en ramme under en lille overskrift: startskærmen og listerne. Ikonet er ens overalt: gråt, og i den primære farve for den åbne del i menuen. Foran navnet kan der i stedet stå et lille billede eller en prøve på en af temaets værdier. Til højre står evt. et antal. En række kan også gøre noget (i den primære farve), slette (i midten) eller kun vises (uden farve under musen, evt. grå).',
     checkList:
       'Ting, der er tjekket: en score fra 0 til 100 i en ring, en rød trekant ved det, der kan forbedres (som folder sig ud med, hvordan), og en grøn prik ved det, der er i orden.',
     scoreRing:
@@ -45,7 +45,7 @@ export const parts: Messages['parts'] = {
       'Nogle farver side om side, hver på en flade med sit navn, sin farvekode, en blyant, der åbner farvearket, og på den første en lås (fx generatorens tre grundfarver).',
     colorWheel: 'Et farvehjul med farverne som prikker: den store trækkes, de andre følger med, og en låst har en lås.',
     choiceRow:
-      'Et af flere valg på en skærm for sig, hvert i en række med det, det giver (fx nogle af en ikonpakkes ikoner), det valgte i accentfarven med et flueben.',
+      'Et af flere valg på en skærm for sig, hvert i en række med det, det giver (fx nogle af en ikonpakkes ikoner), det valgte i den primære farve med et flueben.',
     colorsPreview:
       'En lille side i et sæt af hjemmesidens farver: overskrift, tekst, link, flade, boks, den sekundære og tertiære farve og knap, så man ser, om de kan læses sammen.',
     fullScreenSheet:
@@ -88,7 +88,7 @@ export const parts: Messages['parts'] = {
     address: 'Adresse',
     addressHint: 'Fx /om/.',
     sendsTo: 'Sender til siden "Anden side".',
-    color: 'Accentfarve',
+    color: 'Primær',
     colorHint: 'Knapper, links og ikoner.',
     phone: 'Telefon',
     description: 'Kort beskrivelse',
@@ -509,7 +509,7 @@ export const parts: Messages['parts'] = {
         favourite: 'Gem',
         profile: 'Profil',
       },
-      menu: 'Valg på en flade: siderne under et menupunkt i bjælken, eller handlinger med ikon, genvej, tekst under, flueben og undermenu, i grupper med luft eller en streg imellem, på fladen eller i accentfarven.',
+      menu: 'Valg på en flade: siderne under et menupunkt i bjælken, eller handlinger med ikon, genvej, tekst under, flueben og undermenu, i grupper med luft eller en streg imellem, på fladen eller i den primære farve.',
       dropdownMenu: 'En menu, en knap åbner: piletasterne flytter i den, Escape lukker den.',
       exposedDropdownMenu: 'Et felt, der viser det valgte af nogle få valg og åbner en menu med dem: med ramme eller fyldt.',
       menus: {
@@ -549,12 +549,12 @@ export const parts: Messages['parts'] = {
       subpages: ['Underside', 'Den åbne underside'],
       book: 'Book en tid',
       kinds: {
-        primary: 'Accentfarve',
-        secondary: 'Sekundær farve',
-        tertiary: 'Tertiær farve',
-        'primary-container': 'Lys accentfarve',
-        'secondary-container': 'Lys sekundær farve',
-        'tertiary-container': 'Lys tertiær farve',
+        primary: 'Primær',
+        secondary: 'Sekundær',
+        tertiary: 'Tertiær',
+        'primary-container': 'Primærcontainer',
+        'secondary-container': 'Sekundærcontainer',
+        'tertiary-container': 'Tertiærcontainer',
       },
       sizes: { fab: 'Almindelig', medium: 'Medium', large: 'Stor' },
       extendedSizes: { small: 'Lille', medium: 'Medium', large: 'Stor' },
@@ -585,7 +585,7 @@ export const parts: Messages['parts'] = {
       kinds: { filled: 'Fyldt', tonal: 'Tonet', elevated: 'Hævet', outlined: 'Med ramme' },
       contact: 'Kontakt',
       close: 'Luk',
-      fabKinds: { primary: 'Accentfarve', secondary: 'Sekundær farve', tertiary: 'Tertiær farve' },
+      fabKinds: { primary: 'Primær', secondary: 'Sekundær', tertiary: 'Tertiær' },
     },
     /** The theme's switches, radio buttons, sliders, dividers and side sheets (SelectionParts.tsx), and what is in the
      * examples. */
@@ -676,7 +676,7 @@ export const parts: Messages['parts'] = {
       openRail: 'Åbn navigation',
       search: 'Søgefeltet og det, det åbner: feltet med knappen tilbage og resultaterne, der passer til det skrevne.',
       toolbar:
-        'Handlinger på en række: i hele bredden nederst, som linjen nederst på en telefon, eller svævende, i fladen eller accentfarven, på tværs eller lodret, også med en knap ved siden af og foldet sammen til knappen.',
+        'Handlinger på en række: i hele bredden nederst, som linjen nederst på en telefon, eller svævende, i fladen eller den primære farve, på tværs eller lodret, også med en knap ved siden af og foldet sammen til knappen.',
       name: 'Navigation',
       destinations: ['Forside', 'Søg', 'Beskeder', 'Profil'],
       sections: ['Start', 'Dig'],
