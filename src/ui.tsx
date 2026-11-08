@@ -1532,6 +1532,52 @@ export function SegmentedButton<T extends string>({
   );
 }
 
+/** Up to four choices as the theme's outlined cards, four to a row on every screen, each with its icon over its name (a
+ * page's template): radio
+ * buttons under their name (`label`, the legend) and `hint`, so the arrow keys move between them. The chosen one is on the
+ * secondary container with an edge in the accent colour and a tick in its corner. */
+export function ChoiceCards<T extends string>({
+  label,
+  hint,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  hint?: ReactNode;
+  value: T;
+  options: { value: T; label: string; icon?: Icon }[];
+  onChange: (v: T) => void;
+}) {
+  const name = useId();
+  return (
+    <fieldset>
+      <legend className="mb-1 font-medium">{label}</legend>
+      {hint && <SupportingText className="mb-2">{hint}</SupportingText>}
+      <div className="grid grid-cols-4 gap-2">
+        {options.map(({ value: v, label: text, icon: Glyph }) => {
+          const chosen = v === value;
+          return (
+            <label
+              key={v}
+              className={`${siteCardClass('outlined')} relative flex cursor-pointer flex-col items-center gap-2 px-3 py-4 text-center text-sm font-medium transition-colors has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent ${
+                chosen
+                  ? 'text-on-secondary-container [--card-outlined-line:var(--color-accent)] [--card-outlined-surface:var(--color-secondary-container)]'
+                  : 'hover:[--card-outlined-surface:var(--color-tint)]'
+              }`}
+            >
+              <input type="radio" name={name} value={v} checked={chosen} onChange={() => onChange(v)} className="sr-only" />
+              {Glyph && <Glyph size={32} aria-hidden="true" />}
+              <span>{text}</span>
+              {chosen && <Check size={16} weight="bold" aria-hidden="true" className="absolute top-2 right-2 text-accent" />}
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
 // ---------------------------------------------------------------------------------------------------
 // Rows
 
@@ -1808,7 +1854,7 @@ export function Menu({
       ref={menu}
       role="menu"
       aria-label={label}
-      className="fixed z-30 focus:outline-none"
+      className="editor-menu fixed z-30 focus:outline-none"
       tabIndex={attached ? -1 : undefined}
       onClick={(e: MouseEvent) => {
         if (!(e.target as Element).closest('[role^="menuitem"]')) return;

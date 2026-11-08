@@ -156,7 +156,7 @@ export const parts = {
       date: 'A date, or a date and a time.',
       boolean: 'Yes or no: a checkbox, or a switch that says what it is set to.',
       select:
-        'One of several choices: in the sheet from the bottom, side by side, as icons, or only shown. A choice can have its own explanation, and a field can be there only with one of the choices.',
+        'One of several choices: in the sheet from the bottom, in a narrow menu, side by side, as cards with an icon and a name, as icons, or only shown. A choice can have its own explanation, and a field can be there only with one of the choices.',
       relation:
         'A page, a post, or a tag from the website’s lists. A page is picked with the page picker, the fixed pages too; several picked are chips.',
       image: 'A picture from Files or a new one.',
@@ -194,6 +194,8 @@ export const parts = {
     publishedHint: 'The page is on the website.',
     draftHint: 'The page isn’t on the website.',
     look: 'Look',
+    layout: 'Layout',
+    layouts: { single: 'One column', wide: 'Wide', left: 'Left side panel', right: 'Right side panel' },
     kind: 'Kind',
     page: 'Page',
     post: 'Post',

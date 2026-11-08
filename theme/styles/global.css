@@ -254,25 +254,33 @@
   --top-app-bar-surface: var(--md-background);
   --top-app-bar-line-width: 0;
   --top-app-bar-backdrop: none;
-  /* Menus: a surface container with small corners (its groups' inner corners extra-small), the second elevation, items 48px high, 112–280px wide, and
-     scrolling when higher than the screen; the open page in the secondary container. */
+  /* Menus: M3 Expressive's vertical menu in its standard colours (m3.material.io/components/menus/specs): on the low surface
+     container with large corners (its groups' inner corners extra-small) and the second elevation's shadow, so it stands
+     in front of the page; items 44px high with 16px at each side and the label in Label large, on corners of their
+     own inside the container (2px from its edge); the chosen one in the tertiary container. 112–280px wide, scrolling
+     when higher than the screen. */
+  --menu-surface: var(--elevation-1-surface);
+  --menu-shadow: var(--elevation-2);
   --menu-width: max-content;
   --menu-min-width: 7rem;
   --menu-max-width: 17.5rem;
   --menu-max-height: calc(100dvh - 5rem);
-  --menu-radius: var(--md-shape-small);
+  --menu-radius: var(--md-shape-large);
   --menu-group-inner-radius: var(--md-shape-extra-small);
   --menu-line: transparent;
-  --menu-padding: 0.5rem 0;
-  --menu-item-height: 3rem;
-  --menu-item-padding: 0 0.75rem 0 1rem;
-  --menu-item-radius: var(--md-shape-none);
+  --menu-padding: 0.125rem;
+  --menu-item-height: 2.75rem;
+  --menu-item-padding: 0 1rem;
+  --menu-item-radius: var(--md-shape-medium);
+  --menu-item-font-size: var(--type-label-large-size);
+  --menu-item-letter-spacing: var(--type-label-large-tracking);
+  --menu-item-weight: var(--type-label-large-weight);
   --menu-item-text: var(--ink);
   --menu-item-hover-surface: var(--md-hover);
   --menu-item-hover-text: var(--ink);
-  --menu-item-selected-surface: var(--tint);
-  --menu-item-selected-text: var(--ink);
-  --menu-item-selected-weight: 400;
+  --menu-item-selected-surface: var(--tertiary-container);
+  --menu-item-selected-text: var(--on-tertiary-container);
+  --menu-item-selected-weight: var(--type-label-large-weight);
   /* Navigation drawers: from the left, large corners towards the page, a low surface container, M3's scrim; items 56px
      high with a full active indicator in the secondary container, a label in medium weight. */
   --navigation-drawer-scrim: var(--md-scrim);

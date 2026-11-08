@@ -95,7 +95,8 @@ const status = (hidden: string): Field[] => [
     name: 'status',
     label: 'Status',
     type: 'select',
-    segments: true,
+    // A narrow menu field over the title (EntryForm.tsx).
+    narrow: true,
     options: [
       { value: 'draft', label: 'Draft', hint: 'Not shown on the website.' },
       { value: 'unlisted', label: 'Hidden', hint: hidden },
@@ -431,15 +432,15 @@ export const collections: Collection[] = [
         name: 'template',
         label: 'Template',
         type: 'select',
-        segments: true,
+        cards: true,
         layout: true,
         // The options the theme in use offers, the first of its list the default (templateFieldOf in src/templateField.ts).
         offered: 'templates',
         options: [
-          { label: 'Single column', value: 'single', icon: File },
-          { label: 'Full width', value: 'full', icon: ArrowsHorizontal },
-          { label: 'Sidebar left', value: 'sidebar-left', icon: ColumnsPlusLeft },
-          { label: 'Sidebar right', value: 'sidebar-right', icon: ColumnsPlusRight },
+          { label: 'One column', value: 'single', icon: File },
+          { label: 'Wide', value: 'full', icon: ArrowsHorizontal },
+          { label: 'Left side panel', value: 'sidebar-left', icon: ColumnsPlusLeft },
+          { label: 'Right side panel', value: 'sidebar-right', icon: ColumnsPlusRight },
         ],
         hint: 'The theme decides which templates there are.',
       },
