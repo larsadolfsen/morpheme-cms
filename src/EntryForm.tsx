@@ -24,6 +24,7 @@ import { useBlockDialog } from './BlockDialog';
 import { blockHtml } from '../lib/blocks.mjs';
 import { sectionBlocks } from './blocks';
 import { looksOf, pageH1 } from './sections.mjs';
+import { takeHint } from './firstHeadingHint.mjs';
 import { useFormSections } from './formSections';
 import { publicPath, shownAt, useUploads } from './images';
 import { filerAddresses, useMediaPicker } from './Media';
@@ -215,6 +216,14 @@ function Form({
 
   const set = (name: string, value: unknown) => setValues((v) => ({ ...v, [name]: value }));
   const notify = env.notify;
+  // A new page (whose text has its H1, firstHeading.mjs) tells that its first heading becomes the H1, the first few times one
+  // opens in this browser (firstHeadingHint.mjs). Once per form.
+  const hinted = useRef(false);
+  useEffect(() => {
+    if (hinted.current || !isNew || !collection.blocks) return;
+    hinted.current = true;
+    if (takeHint()) notify({ text: t.text.firstHeadingHint });
+  }, []);
   // A form that cannot be saved: why, as a message, and the field marked (useWrongField in fields.tsx), with its section
   // opened first (unfold, below).
   const wrongField = useWrongField(
