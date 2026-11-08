@@ -6,7 +6,8 @@
 // An earlier version (Versions.tsx) is opened as changes that are not saved,
 // at the address the page or post has now. Its preview draft says whether it is a post (post, for the lead).
 // The form's sections are listed as "on this page" in a card at the end of the form (large and wider only): SectionList in ui.tsx;
-// which are open and the one in view: formSections.ts.
+// which are open and the one in view: formSections.ts. A page's title and its H1 (the first heading of its text) are
+// written together while they are the same (titleH1.mjs).
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { slugify, slugOf, type Field, type MarkdownCollection } from './schema';
 import { config, frontLeads, headingLooks, sectionLooks, sharing, standardPages, standardPaths } from '@site/editor';
@@ -25,6 +26,7 @@ import { blockHtml } from '../lib/blocks.mjs';
 import { sectionBlocks } from './blocks';
 import { looksOf, pageH1 } from './sections.mjs';
 import { takeHint } from './firstHeadingHint.mjs';
+import { h1FromTitle, titleFromH1 } from './titleH1.mjs';
 import { useFormSections } from './formSections';
 import { publicPath, shownAt, useUploads } from './images';
 import { filerAddresses, useMediaPicker } from './Media';
@@ -37,7 +39,17 @@ import { asStandardTemplate, blockProblems, notOffered, siteBlocks } from './reg
 import { FieldInput, Fields, useWrongField, WrongField, type FieldContext } from './fields';
 import { SearchPreview } from './SearchPreview';
 import { searchedAs } from './googleResult.mjs';
-import { CheckList, FoldSection, FormColumns, type NavigationItem, SectionList, SectionPane, SharePreview, useInView } from './ui';
+import {
+  atLeastNow,
+  CheckList,
+  FoldSection,
+  FormColumns,
+  type NavigationItem,
+  SectionList,
+  SectionPane,
+  SharePreview,
+  useInView,
+} from './ui';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
 import { usePagePreview } from './pagePreview';
 import { savedOn, VersionList, VersionNotice, WithVersions, type ShownVersion } from './Versions';
@@ -46,32 +58,30 @@ import { kindAndName, savedText } from './deploy';
 import { siteT, siteText, t } from './i18n';
 import { firstPicture, SEO_FIELDS, seoInputOf, seoRating, SHARE_FIELDS, sharedAs, type SeoCheck } from './seo';
 
-// At the top: the status (Kladde, Skjult, Udgivet, Planlagt and the time for Planlagt), then the title.
-// On a wide computer screen the status is at the right above the other fields (FormColumns).
-const TOP = ['status', 'publishAt', 'title', 'heading'];
+// "Page settings" (a post's "Post settings"), the first section: a page's title (its name in the lists and the menu; its H1
+// is in its text), the status (Draft, Hidden, Published, Scheduled and the time for Scheduled) and the template (Field.offered).
+// A post's title is its H1, written above its text: at the top of "Content", as a heading of a collection that has one.
+const TOP = ['title', 'heading'];
 const STATUS = ['status', 'publishAt'];
 // Under their own headings at the bottom: the Google texts, the keywords and the canonical address; then the picture, title
 // and description when the page is shared.
 const SEO = SEO_FIELDS;
 const SHARE = SHARE_FIELDS;
 // The sections of the form, under each other on one page, each folding in and out under its heading (FoldSection in
-// ui.tsx): the text with the title and heading (open from the start), the status, the other fields, those for search
-// engines, those for social media, and the earlier versions (folded from the start, so the page is short; nothing is remembered till
-// the next time). Its list (an "on this page" card at the end of the form, on large and wider screens only) opens one and
-// scrolls to it, and marks the one in view. A field that keeps the form from being
-// saved has its section opened and is scrolled to (FieldInput in fields.tsx).
-type Section = 'content' | 'status' | 'other' | 'seo' | 'share' | 'versions';
-const sectionOf = (path: string): Section => {
+// ui.tsx): the settings (open from the start on a tablet or computer; folded on a phone, so the text is in reach), the
+// text (open from the start), the other fields, those for search engines, those for social media, and the earlier
+// versions (folded from the start, so the page is short; nothing is remembered till the next time). Its list (an "on
+// this page" card at the end of the form, on large and wider screens only) opens one and scrolls to it, and marks the
+// one in view. A field that keeps the form from being saved has its section opened and is scrolled to (FieldInput in
+// fields.tsx).
+type Section = 'settings' | 'content' | 'other' | 'seo' | 'share' | 'versions';
+const sectionOf = (collection: MarkdownCollection, path: string): Section => {
   const name = path.split('.')[0];
-  return STATUS.includes(name)
-    ? 'status'
-    : TOP.includes(name)
-      ? 'content'
-      : SEO.includes(name)
-        ? 'seo'
-        : SHARE.includes(name)
-          ? 'share'
-          : 'other';
+  const settings =
+    STATUS.includes(name) ||
+    (!!collection.blocks && name === 'title') ||
+    collection.fields.some((f) => f.name === name && f.offered === 'templates');
+  return settings ? 'settings' : TOP.includes(name) ? 'content' : SEO.includes(name) ? 'seo' : SHARE.includes(name) ? 'share' : 'other';
 };
 // The section the next page or post opened starts at: "Søgemaskiner" when it is opened from "SEO-vurdering"
 // (SeoScores.tsx), else the text.
@@ -79,8 +89,10 @@ let opening: Section | null = null;
 export const openAtSeo = () => {
   opening = 'seo';
 };
-// The fields of a section (the other fields are those of none of the others).
-const inSection = (id: Section) => (f: Field) => sectionOf(f.name) === id;
+// The fields of a section (the other fields are those of none of the others); in the settings the title first.
+const inSection = (collection: MarkdownCollection, id: Section) => (f: Field) => sectionOf(collection, f.name) === id;
+const fieldsIn = (collection: MarkdownCollection, id: Section) =>
+  collection.fields.filter(inSection(collection, id)).sort((a, b) => Number(b.name === 'title') - Number(a.name === 'title'));
 
 // A new file: a blog post gets today's date; a page has the blocks its template
 // starts it with (Template.start), e.g. "Book en tid" at the end like the other pages, but not one that
@@ -216,8 +228,28 @@ function Form({
 
   const set = (name: string, value: unknown) => setValues((v) => ({ ...v, [name]: value }));
   const notify = env.notify;
-  // A new page (whose text has its H1, firstHeading.mjs) tells that its first heading becomes the H1, the first few times one
-  // opens in this browser (firstHeadingHint.mjs). Once per form.
+  // A page's title and its H1 (the first heading of its text, firstHeading.mjs) are written together while they are the
+  // same or one of them is empty (titleH1.mjs): the title typed writes the H1 (a new one at the top of a text without), and
+  // the H1 typed, pasted or undone writes the title. A page whose title is not its H1 keeps both. `title`: the title now,
+  // also between a change and the next render, so the H1 written from it does not write it back.
+  const title = useRef(String(values.title ?? ''));
+  title.current = String(values.title ?? '');
+  const onTitle = (typed: string) => {
+    const before = title.current;
+    title.current = typed;
+    set('title', typed);
+    const h1 = collection.blocks ? text.current?.h1() : undefined;
+    const next = h1 === undefined ? null : h1FromTitle(before, h1, typed);
+    if (next != null) text.current?.setH1(next);
+  };
+  const onH1 = (now: string | null, before: string | null) => {
+    const next = titleFromH1(title.current, before, now);
+    if (next == null) return;
+    title.current = next;
+    set('title', next);
+  };
+  // A new page tells that its first heading becomes the H1 and the title, the first few times one opens in this browser
+  // (firstHeadingHint.mjs). Once per form.
   const hinted = useRef(false);
   useEffect(() => {
     if (hinted.current || !isNew || !collection.blocks) return;
@@ -228,26 +260,30 @@ function Form({
   // opened first (unfold, below).
   const wrongField = useWrongField(
     (text) => notify({ text, error: true }),
-    (path) => unfold(sectionOf(path)),
+    (path) => unfold(sectionOf(collection, path)),
   );
   // The form's name, in the top bar and over the sections list (the "on this page" card, on large and wider screens).
   const formTitle = isNew ? collection.create! : String(initial.title || collection.singular);
-  const has = (id: Section) => collection.fields.some(inSection(id));
+  const has = (id: Section) => collection.fields.some(inSection(collection, id));
+  const post = collection.id === 'blog';
   const sections: NavigationItem[] = [
+    ...(has('settings') ? [{ id: 'settings', label: post ? t.forms.sections.postSettings : t.forms.sections.pageSettings }] : []),
     { id: 'content', label: t.forms.sections.content },
-    ...(has('status') ? [{ id: 'status', label: t.forms.sections.status }] : []),
     ...(has('other') ? [{ id: 'other', label: t.forms.otherFields }] : []),
     ...(has('seo') ? [{ id: 'seo', label: t.forms.seo }] : []),
     ...(has('share') ? [{ id: 'share', label: t.forms.share }] : []),
     ...(isNew ? [] : [{ id: 'versions', label: t.history.versions }]),
   ];
   const shows = (id: Section) => sections.some((s) => s.id === id);
-  // The sections: which are open, at first only the text (and "Søgemaskiner" when it is opened at it, `opening`); the one in
-  // view, marked in the sections list; a tap there opens one and scrolls to it (formSections.ts).
-  const { section, steer, unfold, goTo, pick, sectionProps } = useFormSections<Section>(sections, [
+  // The sections: which are open, at first the text, and the settings above it from a tablet up (on a phone they start
+  // folded, so the text is in reach: its H1 writes the title), and "Search engines" when it is opened at it, `opening`;
+  // the one in view, marked in the sections list; a tap there opens one and scrolls to it (formSections.ts).
+  const [start] = useState<Section[]>(() => [
+    ...(atLeastNow('medium') ? ['settings' as const] : []),
     'content',
     ...(opening === 'seo' ? ['seo' as const] : []),
   ]);
+  const { section, steer, unfold, goTo, pick, sectionProps } = useFormSections<Section>(sections, start);
   const textBox = useRef<HTMLDivElement>(null);
   // Opened from "SEO-vurdering" (SeoScores.tsx): straight to "Søgemaskiner" (open from the start, `open`).
   useEffect(() => {
@@ -258,7 +294,7 @@ function Form({
   // The field marked as wrong is scrolled to by itself (FieldInput), its section opened (useWrongField) and marked in the
   // sections list.
   useEffect(() => {
-    if (wrongField.field) steer(sectionOf(wrongField.field.path));
+    if (wrongField.field) steer(sectionOf(collection, wrongField.field.path));
   }, [wrongField.field?.at]);
 
   // The SEO rating at the top of "Søgemaskiner" (seo.ts), again with every change of a field while that is open and near
@@ -267,7 +303,6 @@ function Form({
   // opened or comes near the screen, and while it is there a moment after the text was last changed: not on every
   // keystroke, nor while they are folded or out of view (then the rating keeps what it had; it is worked out once from
   // the start, so it does not move what is under it when it comes into view).
-  const post = collection.id === 'blog';
   const seoBox = useRef<HTMLDivElement>(null);
   const seoNear = useInView(seoBox, '200px');
   const shareBox = useRef<HTMLDivElement>(null);
@@ -618,13 +653,15 @@ function Form({
       set('date', String(v).slice(0, 10));
   };
   // The fields in use (Field.only).
-  // A field of the theme's templates (Field.offered) shows the options the theme offers, and not while only one is left.
+  // A field of the theme's templates (Field.offered) shows the options the theme offers, and while only one is left that
+  // one, not changed here (templateFieldOf). A page's title writes its H1 (onTitle).
   const field = (f: Field) => {
     if (!inUse(f, collection.fields, values)) return false;
     const shown = f.offered ? templateFieldOf(f, env.files) : f;
     if (!shown) return false;
     const value = f.offered ? shownTemplate(shown, values[f.name]) : values[f.name];
-    return <FieldInput key={f.name} field={shown} value={value} onChange={(v) => onChange(f, v)} />;
+    const change = f.name === 'title' ? (v: unknown) => onTitle(String(v ?? '')) : (v: unknown) => onChange(f, v);
+    return <FieldInput key={f.name} field={shown} value={value} onChange={change} />;
   };
 
   return (
@@ -648,8 +685,11 @@ function Form({
             sticky
             main={
               <>
+                {shows('settings') && (
+                  <FoldSection {...sectionProps('settings')}>{fieldsIn(collection, 'settings').map(field)}</FoldSection>
+                )}
                 <FoldSection {...sectionProps('content')}>
-                  {collection.fields.filter((f) => TOP.includes(f.name) && !STATUS.includes(f.name)).map(field)}
+                  {fieldsIn(collection, 'content').map(field)}
                   <div ref={textBox} className="scroll-mt-[calc(1rem+env(safe-area-inset-top))]">
                     <span className="mb-1 block font-medium">{t.forms.text}</span>
                     <MarkdownEditor
@@ -659,6 +699,7 @@ function Form({
                       addImage={pickImage}
                       blocks={collection.blocks ? blockAsk : undefined}
                       h1={!!collection.blocks}
+                      onH1={collection.blocks ? onH1 : undefined}
                       sheet={blockAsk}
                       looks={
                         front
@@ -671,14 +712,7 @@ function Form({
                     />
                   </div>
                 </FoldSection>
-                {shows('status') && (
-                  <FoldSection {...sectionProps('status')}>
-                    {collection.fields.filter((f) => STATUS.includes(f.name)).map(field)}
-                  </FoldSection>
-                )}
-                {shows('other') && (
-                  <FoldSection {...sectionProps('other')}>{collection.fields.filter(inSection('other')).map(field)}</FoldSection>
-                )}
+                {shows('other') && <FoldSection {...sectionProps('other')}>{fieldsIn(collection, 'other').map(field)}</FoldSection>}
                 {shows('seo') && (
                   <FoldSection {...sectionProps('seo')}>
                     <div ref={seoBox} className="space-y-6">
@@ -692,7 +726,7 @@ function Form({
                         date={post ? String(values.date ?? '') : undefined}
                         keyword={String(values.keyword ?? '')}
                       />
-                      {collection.fields.filter(inSection('seo')).map(field)}
+                      {fieldsIn(collection, 'seo').map(field)}
                     </div>
                   </FoldSection>
                 )}
@@ -705,7 +739,7 @@ function Form({
                         title={card.title}
                         description={card.description}
                       />
-                      {collection.fields.filter(inSection('share')).map(field)}
+                      {fieldsIn(collection, 'share').map(field)}
                     </div>
                   </FoldSection>
                 )}
