@@ -97,6 +97,10 @@ import linkIcon from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
 import h1Icon from '@phosphor-icons/core/assets/regular/text-h-one.svg?raw';
 import h2Icon from '@phosphor-icons/core/assets/regular/text-h-two.svg?raw';
 import h3Icon from '@phosphor-icons/core/assets/regular/text-h-three.svg?raw';
+import textIcon from '@phosphor-icons/core/assets/regular/text-t.svg?raw';
+import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
+import orderedIcon from '@phosphor-icons/core/assets/regular/list-numbers.svg?raw';
+import quoteIcon from '@phosphor-icons/core/assets/regular/quotes.svg?raw';
 import paletteIcon from '@phosphor-icons/core/assets/regular/palette.svg?raw';
 import caretDownIcon from '@phosphor-icons/core/assets/bold/caret-down-bold.svg?raw';
 import tagIcon from '@phosphor-icons/core/assets/regular/tag.svg?raw';
@@ -545,15 +549,23 @@ export function paint(view: EditorView, color: string | null) {
   view.focus();
 }
 
-// off: not there for the selection (the button is hidden). word: at a still cursor it acts on the word the cursor is
-// in, which is selected first.
-type Look = {
-  icon: string;
-  label: string;
-  on: (state: EditorView['state']) => boolean;
+// The two groups of kinds of text, each a button with a menu when there is little room: the headings, and T, the lists
+// and the quote.
+type KindGroup = 'headings' | 'text';
+
+// A button's icon (a raw svg) and its name.
+type Face = { icon: string; label: string };
+
+// shows: an icon and a name that follow the selection (a group of kinds of text shows the one there is). on: marked
+// when it applies (aria-pressed); without it the button is never marked. off: not there for the selection (the button is
+// hidden). word: at a still cursor it acts on the word the cursor is in, which is selected first. menu: it opens a menu,
+// so it has an arrow down after its icon.
+type Look = (Face | { shows: (state: EditorView['state']) => Face }) & {
+  on?: (state: EditorView['state']) => boolean;
   action: (button: HTMLElement) => void;
   off?: (state: EditorView['state']) => boolean;
   word?: boolean;
+  menu?: boolean;
 };
 
 // The levels of the top-level headings of a document, in order.
@@ -571,12 +583,21 @@ function inSectionHeading(state: EditorView['state']) {
 const inLabel = (state: EditorView['state']) => state.selection.$from.parent.type.name === 'eyebrow';
 
 // When a word or more is selected, or the cursor has stood still in a word (STILL_MS, stillCursor.mjs): a row of icons
-// over it, to make it bold, italic, a link, one of the site's colours (a menu under the button, opened by `colors`), the
-// page's headings (`h1`: only the levels headingChoices gives for the text), a heading or a subheading, a label above the heading; the ones that apply are marked. At a still
-// cursor, bold, italic, link and colour act on the whole word, the headings on the line; a move or a keypress hides the
-// row. On a phone, where the phone's own menu is over the selection and its handles under it, the row is at the bottom
-// of the screen, over the keyboard. sections: no colour in a heading (H1 or H2), the name of a section.
-function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button: HTMLElement) => void) {
+// over it, to make it bold, italic, a link, one of the site's colours (a menu under the button, opened by `colors`), a
+// kind of text and a label above the heading; the ones that apply are marked. The kinds of text are two buttons, as in
+// the toolbar when it is short: the headings (`h1`: a page's, only the levels headingChoices gives for the text) and the
+// rest (T, the lists and the quote). Each shows the kind there is (else its group's first) and opens a menu with its
+// group (`kinds`); a group of one (H1, while a page has none) is that heading's own button. At a still cursor, bold,
+// italic, link and colour act on the whole word, the kinds on the line; a move or a keypress hides the row. On a phone,
+// where the phone's own menu is over the selection and its handles under it, the row is at the bottom of the screen,
+// over the keyboard. sections: no colour in a heading (H1 or H2), the name of a section.
+function selectionMenu(
+  ctx: Ctx,
+  h1: boolean,
+  sections: boolean,
+  colors: (button: HTMLElement) => void,
+  kinds: (button: HTMLElement, group: KindGroup) => void,
+) {
   return new Plugin({
     view(view) {
       const menu = document.body.appendChild(document.createElement('div'));
@@ -589,6 +610,22 @@ function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button
       // On a page the Heading button also stands for the H1 (firstHeading.mjs).
       const heading = (state: EditorView['state'], level: number) =>
         activeOf(state).has(`h${level}`) || (h1 && level === 2 && activeOf(state).has('h1'));
+      // The heading levels offered: on a page only those headingChoices gives (H1 until the text has one, then H2 and
+      // H3); a blog post has H2 and H3.
+      const levels = (state: EditorView['state']) => (h1 ? headingChoices(levelsOf(state.doc)) : [2, 3]);
+      const headingFace = (level: number): Face => ({
+        icon: [h1Icon, h2Icon, h3Icon][level - 1],
+        label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
+      });
+      // The other kinds of text, in the toolbar's order, by their names in activeOf.
+      const textKinds = [
+        { name: 'text', icon: textIcon, label: t.text.paragraph },
+        { name: 'bullet', icon: bulletIcon, label: t.text.bulletList },
+        { name: 'ordered', icon: orderedIcon, label: t.text.orderedList },
+        { name: 'quote', icon: quoteIcon, label: t.text.quote },
+      ];
+      // A button with a group's menu shows the kind it is named after: "Text style: …".
+      const groupFace = ({ icon, label }: Face): Face => ({ icon, label: t.text.kindIs(label) });
       const looks: Look[] = [
         {
           icon: boldIcon,
@@ -621,15 +658,33 @@ function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button
           action: colors,
           off: (s) => inLabel(s) || (sections && inSectionHeading(s)),
           word: true,
+          menu: true,
         },
-        ...(h1 ? [1, 2, 3] : [2, 3]).map((level) => ({
-          icon: [h1Icon, h2Icon, h3Icon][level - 1],
-          label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
-          on: (s: EditorView['state']) => heading(s, level),
-          action: () => (heading(view.state, level) ? run(turnIntoTextCommand) : run(wrapInHeadingCommand, level)),
-          // On a page only the levels headingChoices gives are offered: H1 until the text has one, then H2 and H3.
-          off: h1 ? (s: EditorView['state']) => !headingChoices(levelsOf(s.doc)).includes(level) : undefined,
-        })),
+        // The only heading offered (H1, while a page has none): its own button, marked when it is one; again to make it
+        // text.
+        {
+          shows: (s) => headingFace(levels(s)[0]),
+          on: (s) => heading(s, levels(s)[0]),
+          action: () => {
+            const [level] = levels(view.state);
+            if (heading(view.state, level)) run(turnIntoTextCommand);
+            else run(wrapInHeadingCommand, level);
+          },
+          off: (s) => levels(s).length > 1,
+        },
+        // The headings offered, in a menu. Not marked: it always shows one of them (the menu marks the one there is).
+        {
+          shows: (s) => groupFace(headingFace(levels(s).find((level) => heading(s, level)) ?? levels(s)[0])),
+          action: (button) => kinds(button, 'headings'),
+          off: (s) => levels(s).length < 2,
+          menu: true,
+        },
+        // T, the lists and the quote, in a menu; not marked either.
+        {
+          shows: (s) => groupFace(textKinds.find(({ name }) => activeOf(s).has(name)) ?? textKinds[0]),
+          action: (button) => kinds(button, 'text'),
+          menu: true,
+        },
         // A label above the heading. Not on a fixed page's H1 or H2, whose headings are its sections (sections.mjs).
         {
           icon: tagIcon,
@@ -657,20 +712,27 @@ function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button
         const word = stillWord(state);
         return word ? state.apply(state.tr.setSelection(TextSelection.create(state.doc, word.from, word.to))) : state;
       };
-      const buttons = looks.map((look) => {
-        const b = menu.appendChild(document.createElement('button'));
-        b.type = 'button';
-        b.title = look.label;
-        b.setAttribute('aria-label', look.label);
-        b.innerHTML = look.icon.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
-        // A button that opens a menu (the colours) has a small arrow down after its icon (editor.css).
-        if (look.action === colors) {
-          b.setAttribute('aria-haspopup', 'menu');
+      const faceOf = (look: Look, state: EditorView['state']) => ('shows' in look ? look.shows(state) : look);
+      // Draws a button's icon and name when they are not what it shows already; a button that opens a menu (the colours,
+      // the kinds of text) has a small arrow down after its icon (editor.css).
+      const drawn = new Map<HTMLButtonElement, string>();
+      const draw = (b: HTMLButtonElement, look: Look, { icon, label }: Face) => {
+        b.title = label;
+        b.setAttribute('aria-label', label);
+        if (drawn.get(b) === icon) return;
+        drawn.set(b, icon);
+        b.innerHTML = icon.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
+        if (look.menu)
           b.insertAdjacentHTML(
             'beforeend',
             caretDownIcon.replace('<svg', '<svg width="12" height="12" fill="currentColor" aria-hidden="true" class="editor-menu-arrow"'),
           );
-        }
+      };
+      const buttons = looks.map((look) => {
+        const b = menu.appendChild(document.createElement('button'));
+        b.type = 'button';
+        if (look.menu) b.setAttribute('aria-haspopup', 'menu');
+        draw(b, look, faceOf(look, view.state));
         const act = () => {
           const word = look.word ? stillWord(view.state) : null;
           if (word) view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, word.from, word.to)));
@@ -706,7 +768,9 @@ function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button
         const state = asShown(view.state);
         looks.forEach((look, i) => {
           buttons[i].hidden = !!look.off?.(state);
-          buttons[i].setAttribute('aria-pressed', String(look.on(state)));
+          if (buttons[i].hidden) return;
+          if ('shows' in look) draw(buttons[i], look, look.shows(state));
+          if (look.on) buttons[i].setAttribute('aria-pressed', String(look.on(state)));
         });
         const { offsetWidth: width, offsetHeight: height } = menu;
         const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
@@ -919,6 +983,14 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     colorsAt?.setAttribute('aria-expanded', 'true');
     return () => colorsAt?.setAttribute('aria-expanded', 'false');
   }, [colorsAt]);
+  // The button that opened a menu with kinds of text, and its group, while it is open: in the toolbar, or over the
+  // selection (word), whose button says it is open as the colour button does.
+  const [kindsAt, setKindsAt] = useState<{ at: HTMLElement; group: KindGroup; word?: boolean } | null>(null);
+  useEffect(() => {
+    if (!kindsAt?.word) return;
+    kindsAt.at.setAttribute('aria-expanded', 'true');
+    return () => kindsAt.at.setAttribute('aria-expanded', 'false');
+  }, [kindsAt]);
   // The previews of the blocks, drawn again when what they show from elsewhere changes: the lists,
   // the testimonials, the rest of the site, the page's address or a fixed page's other fields.
   const cards = useRef(new Set<() => void>());
@@ -950,7 +1022,15 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     const onEdit = $prose(
       () => new Plugin({ view: () => ({ update: (view, prev) => void (!loaded || view.state.doc.eq(prev.doc) || changed.current()) }) }),
     );
-    const selecting = $prose((ctx) => selectionMenu(ctx, !!h1, !!sections, (button) => setColorsAt((open) => (open ? null : button))));
+    const selecting = $prose((ctx) =>
+      selectionMenu(
+        ctx,
+        !!h1,
+        !!sections,
+        (button) => setColorsAt((open) => (open ? null : button)),
+        (button, group) => setKindsAt((open) => (open?.at === button ? null : { at: button, group, word: true })),
+      ),
+    );
     const pictureView = $view(imageSchema.node, () => (node, view, getPos) => pictureCard(node, view, getPos, () => sheeted.current));
     const cardView = $view(
       siteBlockSchema.node,
@@ -1180,11 +1260,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const hasSettings = tools.some((item) => item.icon === SectionSettingsIcon);
   const kinds = tools.filter((t) => ['h1', 'h2', 'h3', 'text', 'bullet', 'ordered', 'quote'].includes(t.on ?? ''));
   const kindGroups = [kinds.filter((t) => /^h\d$/.test(t.on!)), kinds.filter((t) => !/^h\d$/.test(t.on!))].filter((g) => g.length);
+  const groupOf = (group: typeof kinds): KindGroup => (/^h\d$/.test(group[0].on!) ? 'headings' : 'text');
   const shownOf = (group: typeof kinds) => group.find((t) => active.includes(t.on!)) ?? group[0];
   const [narrow, setNarrow] = useState(false);
-  // The button that opened a menu with kinds of text, and its group, while it is open.
-  const [kindsAt, setKindsAt] = useState<{ at: HTMLElement; group: number } | null>(null);
-  const kindsShown = kindsAt ? (kindGroups[kindsAt.group] ?? []) : [];
+  const kindsShown = kindsAt ? (kindGroups.find((group) => groupOf(group) === kindsAt.group) ?? []) : [];
   useEffect(() => {
     const bar = toolbar.current!;
     // A button is 2.5rem, with 0.125rem between them and 0.375rem around them, and each of the lines
@@ -1213,18 +1292,20 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // A button of the toolbar; when it is too short, each group of kinds of text is one button (at its first), with a menu.
   const button = (item: (typeof tools)[number]) => {
     if (!narrow || !kinds.includes(item)) return tool(item);
-    const group = kindGroups.findIndex((g) => g[0] === item);
-    if (group < 0) return null;
-    if (kindGroups[group].length === 1) return tool(item);
-    const shown = shownOf(kindGroups[group]);
+    const members = kindGroups.find((g) => g[0] === item);
+    if (!members) return null;
+    if (members.length === 1) return tool(item);
+    const shown = shownOf(members);
+    const group = groupOf(members);
+    const opened = kindsAt?.group === group && !kindsAt.word;
     // Not marked: it always shows a kind of its group (the menu under it marks the one there is).
     return (
       <ToolbarButton
         key={`kinds-${group}`}
         icon={shown.icon}
         label={t.text.kindIs(shown.label)}
-        menu={kindsAt?.group === group}
-        onClick={(e) => setKindsAt(kindsAt?.group === group ? null : { at: e.currentTarget, group })}
+        menu={opened}
+        onClick={(e) => setKindsAt(opened ? null : { at: e.currentTarget, group })}
       />
     );
   };
