@@ -1,0 +1,12 @@
+{
+  "name": "Pokljuka",
+  "place": {
+    "en-US": "Pokljuka, Slovenia",
+    "da-DK": "Pokljuka, Slovenien"
+  },
+  "photo": {
+    "by": "Ales Krivec",
+    "source": "https://unsplash.com/photos/photo-of-snow-capped-mountain-surrounded-by-sea-of-clouds-x4Jc4HKEHKg",
+    "license": "https://unsplash.com/license"
+  }
+}

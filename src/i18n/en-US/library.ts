@@ -27,6 +27,8 @@ export const library = {
    * licence under "Licenses". */
   photoInfo: 'About the photo',
   photoBy: (name: string) => `Photo by ${name} on Unsplash`,
+  /** The same for a photo whose photographer isn't known. */
+  photoFromUnsplash: 'Photo from Unsplash',
   photoLicense: 'See license',
   /** Under an updated app's name. */
   appUpdatedTo: (version: string) => `Updated to ${version}`,
