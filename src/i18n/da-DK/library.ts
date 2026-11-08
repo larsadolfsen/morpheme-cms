@@ -14,6 +14,7 @@ export const library: Messages['library'] = {
   readMore: 'Læs mere',
   photoInfo: 'Om billedet',
   photoBy: (name) => `Foto af ${name} på Unsplash`,
+  photoFromUnsplash: 'Foto fra Unsplash',
   photoLicense: 'Se licens',
   appUpdatedTo: (version) => `Opdateret til ${version}`,
   githubAccount: (login) => `GitHub-konto: ${login}`,

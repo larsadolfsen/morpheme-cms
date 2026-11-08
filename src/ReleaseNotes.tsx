@@ -31,7 +31,7 @@ function VersionEntry({ entry, photo }: { entry: VersionNotes; photo: boolean })
   const lines = notes.filter((note) => note.kind === 'line');
   // A test version (0.14.3-next-…) is named as the version it leads to.
   const version = entry.version.split('-')[0];
-  const name = entry.edition ? t.library.cmsEdition(entry.edition.name, version) : t.library.cmsVersion(version);
+  const name = entry.edition?.name ? t.library.cmsEdition(entry.edition.name, version) : t.library.cmsVersion(version);
   return (
     <section className="space-y-5 border-t border-line pt-5 first-of-type:border-t-0 first-of-type:pt-0">
       <div className="space-y-3">

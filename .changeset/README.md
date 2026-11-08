@@ -66,4 +66,6 @@ shows it under the line's newest version.
   page under Licenses shows all of it; the card crops it to 3:2 from the middle: above the text on a phone, beside it
   on larger screens.
 
-A new minor line needs a new edition; a line without one shows no photo.
+A new minor line needs a new edition; a line without one shows no photo. An edition may leave out its `name`, `place`
+and `photo.by` when they aren't known: its heading is then "New in Morpheme <version>", and the photo is credited to
+Unsplash ("Photo from Unsplash", and "Unsplash" under Licenses).
