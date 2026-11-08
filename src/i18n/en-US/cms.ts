@@ -17,6 +17,8 @@ export const cms = {
   versionCount: (count: number) => (count === 1 ? '1 version' : `${count} versions`),
   /** A minor line's page (#morpheme/<line>) for a line the package has no notes for. */
   lineNotFound: 'This version doesn’t exist',
+  /** The arrows to the newer and the older line at the bottom of a line's notes (LineNav), for screen readers. */
+  otherVersions: 'Other versions',
   alsoInThisVersion: 'Also in this version',
   storeConnection: 'Store connection',
   major: 'A new major version isn’t installed by itself.',

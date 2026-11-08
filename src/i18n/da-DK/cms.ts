@@ -12,6 +12,7 @@ export const cms: Messages['cms'] = {
   earlierVersions: 'Tidligere versioner',
   versionCount: (count) => (count === 1 ? '1 version' : `${count} versioner`),
   lineNotFound: 'Versionen findes ikke',
+  otherVersions: 'Andre versioner',
   alsoInThisVersion: 'Også i denne version',
   storeConnection: 'Forbindelse til Appstore',
   major: 'En ny hovedversion installeres ikke af sig selv.',
