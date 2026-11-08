@@ -578,6 +578,14 @@
   .button-trailing-icon {
     display: none;
   }
+  /* Except on a button that opens a menu: the arrow down says so, and turns up while the menu is open. */
+  [aria-haspopup='menu'] > .button-trailing-icon {
+    display: inline-block;
+    transition: rotate var(--motion-spatial-fast);
+  }
+  [aria-haspopup='menu'][aria-expanded='true'] > .button-trailing-icon {
+    rotate: 180deg;
+  }
   /* The hero's buttons: small (40px) on a phone, so two fit side by side, medium (56px, a larger label) from a
      tablet. */
   @media (width >= theme(--breakpoint-medium)) {

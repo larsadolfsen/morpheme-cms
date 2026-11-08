@@ -770,6 +770,23 @@ html {
   color: var(--ink);
 }
 
+/* A button there that opens a menu (the colours): its icon with a small arrow down after it, a little wider. */
+.editor-selection-menu button[aria-haspopup='menu'] {
+  display: flex;
+  align-items: center;
+  width: auto;
+  gap: 0.125rem;
+  padding-inline: 0.5rem 0.375rem;
+}
+
+.editor-selection-menu .editor-menu-arrow {
+  transition: rotate var(--motion-spatial-fast);
+}
+
+.editor-selection-menu button[aria-expanded='true'] .editor-menu-arrow {
+  rotate: 180deg;
+}
+
 .editor-selection-menu button[aria-pressed='true'] {
   background: var(--tint);
   color: var(--accent);

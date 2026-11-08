@@ -98,6 +98,7 @@ import h1Icon from '@phosphor-icons/core/assets/regular/text-h-one.svg?raw';
 import h2Icon from '@phosphor-icons/core/assets/regular/text-h-two.svg?raw';
 import h3Icon from '@phosphor-icons/core/assets/regular/text-h-three.svg?raw';
 import paletteIcon from '@phosphor-icons/core/assets/regular/palette.svg?raw';
+import caretDownIcon from '@phosphor-icons/core/assets/bold/caret-down-bold.svg?raw';
 import tagIcon from '@phosphor-icons/core/assets/regular/tag.svg?raw';
 // ProseMirror's own styles: keep its invisible helpers (around pictures, at the end of lines) out of the layout.
 import '@milkdown/kit/prose/view/style/prosemirror.css';
@@ -662,7 +663,14 @@ function selectionMenu(ctx: Ctx, h1: boolean, sections: boolean, colors: (button
         b.title = look.label;
         b.setAttribute('aria-label', look.label);
         b.innerHTML = look.icon.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
-        if (look.action === colors) b.setAttribute('aria-haspopup', 'menu');
+        // A button that opens a menu (the colours) has a small arrow down after its icon (editor.css).
+        if (look.action === colors) {
+          b.setAttribute('aria-haspopup', 'menu');
+          b.insertAdjacentHTML(
+            'beforeend',
+            caretDownIcon.replace('<svg', '<svg width="12" height="12" fill="currentColor" aria-hidden="true" class="editor-menu-arrow"'),
+          );
+        }
         const act = () => {
           const word = look.word ? stillWord(view.state) : null;
           if (word) view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, word.from, word.to)));
