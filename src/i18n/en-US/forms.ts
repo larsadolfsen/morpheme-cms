@@ -129,6 +129,8 @@ export const forms = {
   /** The fields (fields.tsx). */
   fromTitle: 'Created from the title the first time you save the page.',
   noIcon: 'No icon',
+  /** Under a page's templates while the side-panel ones are greyed: the link to Appearance › Side column. */
+  chooseSideColumn: 'Choose a block for the side column',
   pickIcon: 'Choose an icon',
   noIconYet: 'No icon yet',
   changeIcon: 'Change icon',

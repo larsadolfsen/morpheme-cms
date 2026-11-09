@@ -62,8 +62,9 @@ export type Field = {
   /** select */
   /** `icon`: shown before its name (only with `segments`; with `cards` over it). `hint`: shown under the label while it is
    * chosen, in place of the field's own (the status of a page: what each one means). `onPage`: offered only while
-   * that relation has a choice on the page being edited (a button that opens a promotion); chosen, it is still shown. */
-  options?: { label: string; value: string; icon?: Icon; hint?: string; onPage?: Relation }[];
+   * that relation has a choice on the page being edited (a button that opens a promotion); chosen, it is still shown.
+   * `disabled`: shown, greyed, but not to choose (with `cards`: a side-panel template while no block is chosen for the side column). */
+  options?: { label: string; value: string; icon?: Icon; hint?: string; onPage?: Relation; disabled?: boolean }[];
   /** select: the options come from the theme in use. 'templates': a page's templates, the theme's "templates" (lib/page-template.mjs); the
    * field shows those of its options the theme offers (templateFieldOf in templateField.ts), its default is the theme's first, which
    * is written as no key, and while only one is left it is shown as the page's, not changed (`locked`). */
