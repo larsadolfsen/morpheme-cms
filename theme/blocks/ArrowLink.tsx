@@ -1,5 +1,5 @@
-// A link with an arrow after its text (.block-arrow-link in ../styles/blocks.css), last in a block or a panel: "Se alle
-// indlæg" under "Blogindlæg", and the apps' "Læs mere" (@theme/blocks/ArrowLink). A theme draws it its own way with its
+// A link with an arrow after its text (.block-arrow-link in ../styles/blocks.css), last in a block or a panel: "See all
+// posts" under "Blog posts", and the apps' "Read more" (@theme/blocks/ArrowLink). A theme draws it its own way with its
 // own blocks/ArrowLink.tsx, with the same props. `className`: the place's own, after the part's.
 import { Svg } from '@morphemecms/cms/src/icon';
 import { Link } from '@morphemecms/cms/src/standard/view';
