@@ -8,6 +8,8 @@
 // - redirects for pages and posts that got a new address in the editor (src/data/redirects.json,
 //   packages/editor/src/addresses.ts), followed to where they end, also after one of the redirects above or
 //   in public/_redirects, so a visitor is sent on once.
+// - the public addresses that got a new name (worker/movedAddresses.js, shipped with the CMS), to the new ones in one hop, also at
+//   the end of a chain.
 // - the own addresses of the pages that are the front page and the blog page (src/data/standard-pages.json) to / and
 //   /blog/, where they are shown, also at the end of a redirect.
 // - GitHub sign-in for the editor at /editor/ (/oauth/*, packages/editor/worker/oauth.js), kept in a cookie only the Worker reads
@@ -39,6 +41,7 @@
 import { apps, appTexts, appWorkers, moved, oldAddresses as map, standard } from '@site/worker';
 import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 import { handleOAuth } from './oauth.js';
+import { MOVED_PREFIXES, movedAddress } from './movedAddresses.js';
 import { editorHost } from './editor-host.js';
 import { handleNotFound, isVisit, json, recordNotFound } from './not-found.js';
 import { forgetOldConsents, handleConsent } from './consent.js';
@@ -101,24 +104,30 @@ const shownAt = (pages) => ({ [pages.front]: '/', [pages.blog]: '/blog/' });
 
 // Where an address ends after the editor's redirects (at most ten, against a loop; the editor checks
 // for them before it saves), and the front page's and the blog page's own addresses at / and /blog/.
-export function onward(target, redirects = moved, pages = standard) {
+export function onward(target, redirects = moved, pages = standard, prefixes = MOVED_PREFIXES) {
   let to = target;
   for (let i = 0; i < 10 && redirects[to.split('#')[0]]; i++) to = redirects[to.split('#')[0]];
-  const [path, hash] = to.split('#');
+  const [from, hash] = to.split('#');
+  // A chain that ends at an address that has a new name goes to the new one (`/blog/kategori/x/` to `/blog/tags/x/`).
+  const path = movedAddress(from, prefixes) ?? from;
   const at = shownAt(pages)[path];
-  return at ? `${at}${hash === undefined ? '' : `#${hash}`}` : to;
+  if (at) return `${at}${hash === undefined ? '' : `#${hash}`}`;
+  return path === from ? to : `${path}${hash === undefined ? '' : `#${hash}`}`;
 }
 
-export function redirectFor(url) {
+export function redirectFor(url, prefixes = MOVED_PREFIXES) {
   // WordPress answered these on the front page only: /?attachment_id=123, /?p=123, /?page_id=123.
   const id =
     url.pathname === '/' && (url.searchParams.get('attachment_id') ?? url.searchParams.get('p') ?? url.searchParams.get('page_id'));
-  if (id && map.ids[id]) return onward(map.ids[id]);
+  if (id && map.ids[id]) return onward(map.ids[id], moved, standard, prefixes);
   const path = decoded(url.pathname);
   const at = shownAt(standard)[path];
   if (at) return at;
   const target = moved[path] ?? map.paths[path];
-  return target && onward(target);
+  if (target) return onward(target, moved, standard, prefixes);
+  // After the exact maps: an address under a renamed prefix, 301 to the new one with the query string kept.
+  const renamed = movedAddress(url.pathname, prefixes);
+  return renamed && renamed + url.search;
 }
 
 // An address with a broken %-sign (/%E0%A4%A/) cannot be decoded; it is looked up as it is (and ends
