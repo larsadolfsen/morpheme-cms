@@ -41,7 +41,7 @@ export const allPostsCategory = (choice: { show?: string; categories?: string[];
 /** Where its "All posts" goes: that category, else the blog. */
 export const allPostsLink = (choice: { show?: string; categories?: string[]; link?: string }) => {
   const category = allPostsCategory(choice);
-  return category ? `/blog/kategori/${category}/` : '/blog/';
+  return category ? `/blog/tags/${category}/` : '/blog/';
 };
 
 export type SectionType = keyof Sections;

@@ -83,7 +83,7 @@ const related = (await getPosts())
     <PostHeader
       title={title}
       post={postViewOf(post)}
-      tags={onBlog.map((c) => ({ label: categoryName(c), href: `/blog/kategori/${c}/` }))}
+      tags={onBlog.map((c) => ({ label: categoryName(c), href: `/blog/tags/${c}/` }))}
       share={{ url: site.url + postPath(post), title, picture, share: site.social.share }}
     />
 

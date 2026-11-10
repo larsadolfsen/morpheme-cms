@@ -423,7 +423,7 @@ function PageColors({ env, files, apps, mode }: { env: Env; files: RepoFile[]; a
   const nameAt = (path: string) =>
     [...relations.fixed, ...relations.pages].find((o) => o.value === path)?.label ??
     relations.blog.find((o) => `/${o.value}/` === path)?.label ??
-    relations.categories.find((o) => `/blog/kategori/${o.value}/` === path)?.label ??
+    relations.categories.find((o) => `/blog/tags/${o.value}/` === path)?.label ??
     path;
   // An app's settings chosen in a list ("Contrast: Standard · Variant: Like the content").
   const chosen = (app: SiteApp) =>

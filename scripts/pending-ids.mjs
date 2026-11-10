@@ -7,17 +7,6 @@
 // List every current finding: node scripts/check-language.mjs --list-ids. Delete this file when the list is empty.
 // Skipped by the id and text rules itself (lib/danish.mjs isIdCheckSkipped): its entries are Danish on purpose.
 export const PENDING_IDS = [
-  // Row 12, batch C: the tag page /blog/kategori/<slug>/ (kategori in code, in the folder pages/blog/kategori/ and in links).
-  'astro.mjs:kategori',
-  'defaults/rules.ts:kategori',
-  'defaults/standard.ts:kategori',
-  'pages/blog/kategori/[category].astro:kategori',
-  'site/home.ts:kategori',
-  'site/seo.ts:kategori',
-  'src/Colors.tsx:kategori',
-  'src/DataForm.tsx:kategori',
-  'theme/components/BlogIndex.astro:kategori',
-  'theme/layouts/PostLayout.astro:kategori',
   // Row 13, batch E: the new-version pages /ny/<address>, the folder src/content/pages/ny/ and their files.
   'README.md:ny',
   'astro.mjs:ny',

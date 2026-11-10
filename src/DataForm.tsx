@@ -234,12 +234,12 @@ function Form({
   };
   // The link as shared.
   const card = () => sharedAs({ ...pageNow(), shareImage: String(values.shareImage ?? '') });
-  // The Google result (SearchPreview) at the page's address on the site: a fixed page's own, a tag's /blog/kategori/<file
+  // The Google result (SearchPreview) at the page's address on the site: a fixed page's own, a tag's /blog/tags/<file
   // name>/ (its name for one not saved yet).
   const resultPath = () => {
     if (fixed) return dataFile!.view;
     if (collection.kind !== 'folder') return '/';
-    return `/blog/kategori/${base.path ? slugOf(base.path, collection.folder) : slugify(String(values.name ?? ''))}/`;
+    return `/blog/tags/${base.path ? slugOf(base.path, collection.folder) : slugify(String(values.name ?? ''))}/`;
   };
   const result = seoFields.length > 0 && seoOpen ? searchedAs(pageNow()) : null;
   const seoSection = seoFields.length > 0 && (

@@ -72,7 +72,7 @@ const categoryNames = new Map(categories.map((c) => [c.slug, c.name]));
 export const categoryName = (slug: string) => categoryNames.get(slug) ?? slug.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());
 
 // The blog categories that actually have posts, most used first: the pills on the blog index and
-// the pages /blog/kategori/<slug>/.
+// the pages /blog/tags/<slug>/.
 export async function getCategories() {
   const posts = await getPosts();
   const counts = new Map<string, number>();

@@ -12,7 +12,7 @@ import { categories } from './categories';
 export type Seo = { title?: string; description?: string; image?: string; canonical?: string; noindex?: boolean };
 
 type Texts = { seoTitle?: string; seoDescription?: string; shareImage?: string; canonical?: string; noindex?: boolean };
-const pages: [string, Texts][] = categories.map((c): [string, Texts] => [`/blog/kategori/${c.slug}/`, c]);
+const pages: [string, Texts][] = categories.map((c): [string, Texts] => [`/blog/tags/${c.slug}/`, c]);
 
 export const seo: Record<string, Seo> = Object.fromEntries(
   pages.map(([path, t]) => [
