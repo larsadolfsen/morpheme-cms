@@ -77,6 +77,8 @@ export const apps: Messages['apps'] = {
     analytics: 'Måling',
     content: 'Indhold',
     design: 'Udseende',
+    redirects: 'Videresendelser',
+    links: 'Links',
   },
   version: (version) => `Version ${version}`,
   pending: 'Installeres…',
