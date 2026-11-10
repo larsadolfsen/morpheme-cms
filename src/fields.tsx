@@ -107,6 +107,8 @@ export type FieldContext = {
   pickImage?: () => Promise<string | null>;
   /** The address of a field's page of its own (Field.page), by its name, in a form that has them (CompanyForm.tsx). */
   pageOf?: (field: string) => string;
+  /** The file of a standard page by its key (Edit.page), if it is there (standardFile.mjs). */
+  standardFile?: (key: string) => string | undefined;
 };
 
 export const Fields = createContext<FieldContext | null>(null);
@@ -625,6 +627,7 @@ function MultiRelation({
   value: string[];
   onChange: (v: unknown) => void;
 }) {
+  const context = useContext(Fields);
   return (
     <MultiChoice
       label={field.label}
@@ -637,11 +640,11 @@ function MultiRelation({
         field.edit &&
         ((close) => (
           <SheetLink
-            href={`#${field.edit!.to}`}
+            href={`#${editTarget(field.edit!, context)}`}
             onClick={(e) => {
               e.preventDefault();
               close();
-              leaveTo(`#${field.edit!.to}`);
+              leaveTo(`#${editTarget(field.edit!, context)}`);
             }}
           >
             {field.edit!.text}
@@ -669,14 +672,18 @@ function hintOf(field: Field, value?: string): ReactNode {
   );
 }
 
+/** Where an Edit link goes: the file of its standard page (Edit.page) when it is there, else `to`. */
+export const editTarget = (edit: Edit, context: FieldContext | null) => (edit.page && context?.standardFile?.(edit.page)) || edit.to;
+
 // A link to another screen of the editor, which asks first while something is unsaved.
 export function EditLink({ edit }: { edit: Edit }) {
+  const to = editTarget(edit, useContext(Fields));
   return (
     <ArrowLink
-      href={`#${edit.to}`}
+      href={`#${to}`}
       onClick={(e) => {
         e.preventDefault();
-        leaveTo(`#${edit.to}`);
+        leaveTo(`#${to}`);
       }}
     >
       {edit.text}
