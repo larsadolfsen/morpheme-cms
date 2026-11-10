@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "heading": "Må vi bruge cookies?",
+  "text": "Vi bruger kun cookies, der ikke er nødvendige, hvis du siger ja. Du kan altid ændre dit valg nederst på siden.",
+  "more": "Læs mere",
+  "no": "Nej tak",
+  "yes": "Ja tak",
+  "choose": "Avanceret",
+  "save": "Gem valg",
+  "consentId": "Dit samtykke-id",
+  "necessary": "Nødvendige",
+  "necessaryText": "Får siden til at virke og husker dit valg. De kan ikke slås fra.",
+  "preferences": "Præferencer",
+  "preferencesText": "Husker dine indstillinger på siden.",
+  "statistics": "Statistik",
+  "statisticsText": "Viser, hvor mange der besøger siden, og hvad de læser.",
+  "marketing": "Marketing",
+  "marketingText": "Viser, om annoncer fører til et besøg.",
+  "targeting": "Målrettede annoncer",
+  "targetingText": "Bruger dit besøg til at vise dig annoncer andre steder."
+}

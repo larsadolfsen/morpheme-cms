@@ -1,0 +1,15 @@
+{
+  "text": "Her kommer en kort tekst om sitet.",
+  "contactHeading": "Kontakt",
+  "linksHeading": "Links",
+  "links": [
+    {
+      "label": "Kontakt",
+      "href": "/kontakt/"
+    },
+    {
+      "label": "Privatlivspolitik",
+      "href": "/privatlivspolitik/"
+    }
+  ]
+}
