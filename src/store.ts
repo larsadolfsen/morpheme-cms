@@ -31,6 +31,8 @@ import { RECORD, STANDARD, isText, validApp, validTheme } from '../lib/storeEntr
 import { categoryOf, type Category } from '../lib/storeCategories.mjs';
 import { timedFetch } from './storeFetch';
 import { appChanges as appChangesIn } from '../lib/appChanges.mjs';
+import { placesOf, type AppPlaces } from '../lib/appPlaces.mjs';
+import type { AppManifest } from '../lib/appManifest.mjs';
 import { folderChanges } from '../lib/folderChanges.mjs';
 
 // The contracts this editor runs (lib/contracts.mjs, also read by the site's Worker).
@@ -49,12 +51,22 @@ export type StoreAdd = { label: string; icon: string; hint?: string };
 /** What an app needs of the site, as its folder says (needsOf): its code on every page (slots/), what it loads from
  * other addresses and where its forms send to (its csp.json, by host), its own part of the site's Worker (worker.js),
  * a step when the site is built (build.mjs) and what it changes of what the site does itself (hooks/,
- * @morphemecms/cms/lib/hooks.ts; not in a catalog written before there were any). Shown on its page under "Permissions",
- * before it is installed. */
-export type AppNeeds = { pages: boolean; loads: string[]; sends: string[]; server: boolean; build: boolean; changes?: AppHook[] };
+ * @morphemecms/cms/lib/hooks.ts; not in a catalog written before there were any) and the access of each place of it
+ * (`places`, lib/appPlaces.mjs: sandboxed or full access; not in a catalog written before there were any). Shown on its
+ * page under "Permissions", before it is installed. */
+export type AppNeeds = {
+  pages: boolean;
+  loads: string[];
+  sends: string[];
+  server: boolean;
+  build: boolean;
+  changes?: AppHook[];
+  places?: AppPlaces;
+};
 
-/** What an app needs, from the paths of the files in its folder and its csp.json. */
-export function needsOf(files: string[], csp: Partial<Record<string, string[]>> = {}): AppNeeds {
+/** What an app needs, from the paths of the files in its folder, its csp.json (a contract 4 app's `csp` in its app.json) and
+ * its app.json (`manifest`; null for an app written to contract 2 or 3, which has none). */
+export function needsOf(files: string[], csp: Partial<Record<string, string[]>> = {}, manifest: AppManifest | null = null): AppNeeds {
   const hosts = (kinds: string[]) => [...new Set(kinds.flatMap((k) => csp[k] ?? []).map((a) => a.replace(/^https:\/\//, '')))].sort();
   return {
     pages: files.some((f) => f.startsWith('slots/')),
@@ -63,6 +75,7 @@ export function needsOf(files: string[], csp: Partial<Record<string, string[]>> 
     server: files.includes('worker.js'),
     build: files.includes('build.mjs'),
     changes: hooksOf(files).hooks,
+    places: placesOf(files, manifest),
   };
 }
 

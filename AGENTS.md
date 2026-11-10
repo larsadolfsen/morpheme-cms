@@ -46,6 +46,7 @@ Our ecosystem has two completely separate repositories, which must **never** be 
 - **`lib/`**: Shared helper functions used by both the editor and the site (block parsing `blocks.mjs`, image cropping `crop.mjs`, status, dates, video handling etc.).
   - The app sandbox (contract 4): `appHooks.mjs` (the hook places, `APP_HOOKS`), `appCookies.mjs` (the cookies an app sets with its settings), `appDefinition.mjs` (an app's definition from its `app.json`, `editor.ts` and `texts.json`), `appManifest.mjs` (reads and checks `app.json`), `appPlaces.mjs` (sandboxed, full or no access per app place), `appProblems.mjs` (the build's app problems, `dist/_apps/_problems.json`), `reads.mjs` (the site data an app's read scopes give it; test site in `fixtures/reads-site/`).
   - `worker/app-problems.js`: `GET /api/apps/problems`, the build's app problems for the editor.
+  - `src/AppPlaces.tsx` and `src/AppProblems.tsx`: an app's places and its problems from the last build, on its page.
   - `lib/sandbox/`: `bundle.mjs` (bundles an app's build entry with esbuild and an import allow-list; test apps in `fixtures/`), `runner.mjs` (the runner interface and the hook and after-build limits) and `quickjs.mjs` (runs a bundle in a QuickJS isolate, the security boundary).
 - **`worker/`**: The site's default Cloudflare Worker (login/session, GitHub commit proxy, R2 backup, redirects and scheduled tasks).
 - **`bin/`**: The `morpheme` CLI tool for image processing, build hooks and validation.
