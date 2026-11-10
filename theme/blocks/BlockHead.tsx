@@ -1,7 +1,7 @@
 // A block's head (its contract: @morphemecms/cms/src/standard/head.ts), over the standard blocks that start a section
-// ("Kort", "Punkter med ikon", "Liste", "Trin", "Udtalelser", "Spørgsmål og svar", "Blogindlæg", "Foldeliste"), in the text's
-// style (InProse). Only a heading: the heading itself, as the text has its headings. With a label above it ("Etiket")
-// or a subheading under it ("Underoverskrift"): the three together (.block-head in ../styles/blocks.css, an <hgroup>),
+// ("Cards", "Points with icon", "List", "Steps", "Testimonials", "Questions and answers", "Blog posts", "Expandable list"), in the text's
+// style (InProse). Only a heading: the heading itself, as the text has its headings. With a label above it ("Label")
+// or a subheading under it ("Subheading"): the three together (.block-head in ../styles/blocks.css, an <hgroup>),
 // each only when it is there. Nothing without any of them.
 import type { HeadView } from '@morphemecms/cms/src/standard/head';
 import { InProse } from '@morphemecms/cms/src/standard/view';

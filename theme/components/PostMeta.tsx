@@ -1,4 +1,4 @@
-// Date and reading time for a blog post, then its tags as links: "12. marts 2024 · 5 min. læsetid · News, Tips" in Danish
+// Date and reading time for a blog post, then its tags as links: "March 12, 2024 · 5 min read · News, Tips" in English
 // (posts.ts makes them). Props: post, optional tags and className. A theme may replace this file.
 import { Fragment } from 'react';
 import { Svg } from '@morphemecms/cms/src/icon';

@@ -13,6 +13,7 @@ import { rules } from './rules';
 import { sitedata } from './sitedata';
 import { standard } from './standard';
 import { standardPages } from './standardPages';
+import { themeUi } from './themeUi';
 
 export const defaultsDaDK: Record<string, string> = {
   ...blockTexts,
@@ -28,4 +29,5 @@ export const defaultsDaDK: Record<string, string> = {
   ...sitedata,
   ...standard,
   ...standardPages,
+  ...themeUi,
 };

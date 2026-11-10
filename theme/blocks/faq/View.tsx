@@ -1,4 +1,4 @@
-// "Spørgsmål og svar": its head in the text (BlockHead.tsx), then Accordion.tsx with the space of a block in the text.
+// "Questions and answers": its head in the text (BlockHead.tsx), then Accordion.tsx with the spacing of a block in the text.
 import BlockHead from '@theme/blocks/BlockHead';
 import Accordion from '@theme/blocks/faq/Accordion';
 import type { FaqView } from '@morphemecms/cms/src/standard/faq/view';

@@ -1,5 +1,5 @@
 // The menu in Material: the theme's modal navigation drawer (ui/NavigationDrawer.tsx, m3.material.io/components/navigation-drawer), opened by the
-// navigation icon in the top app bar (Header.astro). It comes in over a scrim from the side its button is on (`side`:
+// navigation icon in the top app bar (Header.astro). It comes in over a scrim from the edge its button is on (
 // the start, left, or the end, right; mirrored in right-to-left languages), with the site's name, the menu's items with
 // the open page in an active indicator, and at its bottom the header's call to action (header.json), each part when it
 // is on: the phone number (a tel: link on a phone, the contact page from the medium window size up) and the button after
@@ -7,7 +7,7 @@
 // with the caret at the end of their row (inside the active indicator); the one with the open page starts open.
 // Rendered through a portal into <body>, so nothing on the page can clip it. It moves with the site's motion scheme
 // (motionSpring, @morphemecms/cms/lib/motion.ts: Material 3's springs, the expressive ones unless the owner chose
-// another under "Bevægelse"); with reduced motion it appears at once. A spring that overshoots carries the drawer a little
+// another under "Motion"); with reduced motion it appears at once. A spring that overshoots carries the drawer a little
 // past its place, so it is wider than it looks by a strip off the screen at its edge (navigationDrawerBleedClass): no gap
 // opens at the edge while it settles.
 import { useEffect, useRef, useState } from 'react';
@@ -106,7 +106,7 @@ export default function MobileMenu({
     return () => {
       stopKeys?.();
       document.removeEventListener('keydown', onKey);
-      // Closed by "Book en tid": the booking sheet (a modal dialog) is open now and keeps the page
+      // Closed by "Book an appointment": the booking sheet (a modal dialog) is open now and keeps the page
       // still and the focus itself.
       if (document.querySelector('dialog[open]')) return;
       root.style.overflow = prevOverflow;

@@ -1,8 +1,7 @@
-// "Priskort": its head in the text (BlockHead.tsx), then the cards side by side where there is room (.block-plans in ../blocks.css,
-// as many columns as cards, two by two before there is room for four), on a phone under each other: each an outlined
-// card (Card.tsx in ../../ui/) with a label
-// when it is highlighted, its name, its price with what it is for, its text, what is included (../checklist/Checks.tsx)
-// and its button at the bottom (../buttons/Buttons.tsx).
+// "Price cards": its head in the text (BlockHead.tsx), then the cards side by side where there is room (.block-plans in
+// ../blocks.css, as many columns as cards, two by two until there is room for four), under each other on a phone: each
+// an outlined card (Card.tsx in ../../ui/) with a label when it is highlighted, its name, its price with what it is
+// for, its text, what is included (../checklist/Checks.tsx) and its button at the bottom (../buttons/Buttons.tsx).
 import BlockHead from '@theme/blocks/BlockHead';
 import Buttons from '@theme/blocks/buttons/Buttons';
 import Checks from '@theme/blocks/checklist/Checks';

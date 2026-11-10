@@ -1,5 +1,5 @@
 // The site's files in its repository on GitHub, for the editor (packages/editor/worker/editor-github.js) and the Worker's own saves
-// (packages/editor/worker/github.js), through a cache in R2 (the binding FILES in wrangler.jsonc). See docs/editor.md, Sådan gemmer den.
+// (packages/editor/worker/github.js), through a cache in R2 (the binding FILES in wrangler.jsonc). See docs/editor.md, how the editor saves.
 //
 // Git's objects never change, so the cache never has to be told that something changed: a file's content is kept under
 // its blob id and a folder under its tree id (its entries' names, ids and modes, and whether GitHub calls each file
@@ -358,7 +358,7 @@ export function filesOf(env, token, ctx) {
     const all = Promise.allSettled(pending).then(() => {
       if (count.github || count.read || count.written)
         console.log(
-          `Filer (${what}): ${count.github} til GitHub, ${count.read} læst og ${count.written} skrevet i R2${bucket ? '' : ' (ingen R2)'}`,
+          `Files (${what}): ${count.github} to GitHub, ${count.read} read and ${count.written} written to R2${bucket ? '' : ' (no R2)'}`,
         );
     });
     ctx?.waitUntil(all);

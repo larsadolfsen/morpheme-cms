@@ -1,4 +1,4 @@
-// "Læs om ..." with an arrow. Without href a span, for use inside a card that is itself a link; in the editor only drawn.
+// "Read about ..." with an arrow. Without href a span, for use inside a card that is itself a link; in the editor only drawn.
 // `label`: its text.
 import { Svg } from '@morphemecms/cms/src/icon';
 import { Link } from '@morphemecms/cms/src/standard/view';

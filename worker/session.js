@@ -1,11 +1,11 @@
 // The editor's GitHub sign-in, kept by the Worker: the token is in a cookie only the Worker can read (HttpOnly, on the
 // editor's own address, sent only with what the editor asks the Worker, /api/), never in the browser's storage, so no
-// script can take it away. Set by the sign-in (packages/editor/worker/oauth.js), cleared by "Log ud" (/api/github/logout,
+// script can take it away. Set by the sign-in (packages/editor/worker/oauth.js), cleared by "Log out" (/api/github/logout,
 // packages/editor/worker/editor-github.js) and on the old address (packages/editor/worker/editor-host.js). See docs/editor.md.
 import { config } from '@site/config';
 
 const COOKIE = 'editor_session';
-// Until "Log ud": as long as a browser keeps a cookie (400 days).
+// Until "Log out": as long as a browser keeps a cookie (400 days).
 const KEEP = 400 * 24 * 60 * 60;
 
 /** The header that keeps the token in the browser. */
@@ -52,7 +52,7 @@ export async function access(request, ask = fetch) {
 /** Whether the request comes from someone who can save the site (also an app's own addresses, /api/<app>/, given to it by packages/editor/worker/index.js). */
 export const mayEdit = async (request) => (await access(request))?.push === true;
 
-/** Forgets what GitHub said about a token (it was revoked at "Log ud"). */
+/** Forgets what GitHub said about a token (it was revoked at "Log out"). */
 export async function forget(token) {
   known.delete(await keyOf(token));
 }

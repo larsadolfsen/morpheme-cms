@@ -155,9 +155,9 @@ const post = (version) =>
   const entry = JSON.parse(w.files['package-lock.json']).packages[`node_modules/${PACKAGE}`];
   expect(
     entry.version === '0.1.1' && entry.resolved === manifestOf('0.1.1').dist.tarball && entry.integrity === 'sha512-0.1.1',
-    'låsen fik ikke 0.1.1s resolved og integrity',
+    'the lock did not get the resolved and integrity of 0.1.1',
   );
-  expect(w.files['package.json'].endsWith('}\n') && w.files['package-lock.json'].endsWith('}\n'), 'filerne endte ikke på en linjeskift');
+  expect(w.files['package.json'].endsWith('}\n') && w.files['package-lock.json'].endsWith('}\n'), 'the files did not end with a newline');
   const update = stored(w.kv, 'cms:update');
   expect(
     update?.state === 'waiting' && update.from === '0.1.0' && update.to === '0.1.1' && update.commit === 'c1',
@@ -179,18 +179,18 @@ const post = (version) =>
   expect(JSON.parse(w.files['package.json']).dependencies[PACKAGE] === '0.1.0', 'fortrydelsen skrev ikke 0.1.0 tilbage');
   expect(
     JSON.parse(w.files['package-lock.json']).packages[`node_modules/${PACKAGE}`].integrity === 'sha512-0.1.0',
-    'fortrydelsen skrev ikke 0.1.0 tilbage i låsen',
+    'the undo did not write 0.1.0 back into the lock',
   );
   expect(stored(w.kv, 'cms:skip:0.1.1')?.commit === 'c1', 'den fortrudte version blev ikke sprunget over');
   const undoing = stored(w.kv, 'cms:update');
   expect(undoing?.state === 'undoing' && undoing.undoCommit === 'c2', `cms:update var ${JSON.stringify(undoing)}`);
-  expect(w.notices.length === 0, 'der blev sendt en besked, før fortrydelsen var bygget');
+  expect(w.notices.length === 0, 'a notice was sent before the undo was built');
   await watchUpdate(w.env, w.deps, T0 + 3 * MINUTE);
-  expect(stored(w.kv, 'cms:update')?.state === 'undoing', 'fortrydelsen blev regnet for færdig uden et resultat');
+  expect(stored(w.kv, 'cms:update')?.state === 'undoing', 'the undo counted as finished without a result');
   w.checks.c2 = 'success';
   await watchUpdate(w.env, w.deps, T0 + 4 * MINUTE);
   expect(stored(w.kv, 'cms:update')?.state === 'undone', 'fortrydelsen blev ikke til undone');
-  expect(w.notices.length === 1 && w.notices[0].notice.error === true, 'undone gav ikke én besked med error');
+  expect(w.notices.length === 1 && w.notices[0].notice.error === true, 'undone did not give one notice with error');
   const notice = w.notices[0]?.notice;
   expect(notice?.type === 'updates' && notice.id === 'cms' && notice.text.includes('0.1.1'), 'beskeden havde ikke typen updates');
   expect(
@@ -213,8 +213,8 @@ const post = (version) =>
     JSON.stringify({ commit: 'c1', from: '0.0.0', to: RUNNING, at: new Date(T0).toISOString(), state: 'waiting' }),
   );
   await watchUpdate(w.env, w.deps, T0 + 5 * MINUTE);
-  expect(stored(w.kv, 'cms:update')?.state === 'done', 'en opdatering, der kører, blev ikke done');
-  expect(w.notices.length === 1 && !w.notices[0].notice.error, 'done gav ikke én besked uden error');
+  expect(stored(w.kv, 'cms:update')?.state === 'done', 'an update that was running did not become done');
+  expect(w.notices.length === 1 && !w.notices[0].notice.error, 'done did not give one notice without error');
   await watchUpdate(w.env, w.deps, T0 + 6 * MINUTE);
   expect(w.notices.length === 1, 'done blev meldt to gange');
 }
@@ -256,13 +256,13 @@ for (const error of [new GitHubError('Forbidden', 403), new GitHubError('Resourc
   expect(stored(w.kv, 'cms:update') === null, `cms:update blev gemt, selv om gemningen fejlede (${error.status})`);
   expect(
     stored(w.kv, 'cms:checked')?.problem?.kind === 'cannot-write',
-    `en nøgle uden skriverettighed gav ikke cannot-write (${error.status})`,
+    `a key without write access did not give cannot-write (${error.status})`,
   );
 }
 
 // 8. Without the token (or KV) nothing is asked and nothing is kept.
 for (const [what, patch] of [
-  ['uden nøgle', { GITHUB_PUBLISH_TOKEN: undefined }],
+  ['without a key', { GITHUB_PUBLISH_TOKEN: undefined }],
   ['uden KV', { PUSH: undefined }],
 ]) {
   const w = world();
@@ -284,10 +284,10 @@ for (const [what, patch] of [
   await watchUpdate(w.env, w.deps, T0 + 21 * MINUTE);
   expect(stored(w.kv, 'cms:update')?.state === 'undoing' && w.commits.length === 2, 'opdateringen blev ikke fortrudt efter 21 minutter');
   await watchUpdate(w.env, w.deps, T0 + 30 * MINUTE);
-  expect(stored(w.kv, 'cms:update')?.state === 'undoing', 'fortrydelsen blev regnet for færdig efter 9 minutter');
+  expect(stored(w.kv, 'cms:update')?.state === 'undoing', 'the undo counted as finished after 9 minutes');
   await watchUpdate(w.env, w.deps, T0 + 42 * MINUTE);
   expect(stored(w.kv, 'cms:update')?.state === 'undone' && w.notices.length === 1, 'fortrydelsen blev ikke undone efter 20 minutter');
-  expect(stored(w.kv, 'cms:checked')?.noChecks === true, 'noChecks blev væk');
+  expect(stored(w.kv, 'cms:checked')?.noChecks === true, 'noChecks got lost');
 }
 
 // 10. The undo cannot be committed: stuck, one notification, then nothing.
@@ -299,7 +299,7 @@ for (const [what, patch] of [
   w.commitFails = 1;
   await watchUpdate(w.env, w.deps, T0 + 2 * MINUTE);
   expect(stored(w.kv, 'cms:update')?.state === 'stuck', 'en fortrydelse, der ikke kunne gemmes, gav ikke stuck');
-  expect(w.notices.length === 1 && w.notices[0].notice.error === true, 'stuck gav ikke én besked med error');
+  expect(w.notices.length === 1 && w.notices[0].notice.error === true, 'stuck did not give one notice with error');
   const urls = w.urls.length;
   await watchUpdate(w.env, w.deps, T0 + 3 * MINUTE);
   expect(w.notices.length === 1 && w.urls.length === urls && w.commits.length === 1, 'minuttet efter stuck gjorde noget');
@@ -322,7 +322,7 @@ for (const [what, patch] of [
   await watchUpdate(w.env, w.deps, T0);
   expect(
     w.kv.reads === 1 && w.urls.length === 0 && w.kv.writes === 0,
-    `minuttet uden en opdatering læste ${w.kv.reads} gange og gjorde ${w.urls.length} kald`,
+    `the minute without an update read ${w.kv.reads} times and made ${w.urls.length} calls`,
   );
 }
 
@@ -358,25 +358,25 @@ for (const [what, patch] of [
   await s.kv.put('cms:skip:0.1.1', JSON.stringify({ version: '0.1.1', commit: 'x', at: new Date(T0).toISOString() }));
   await checkForUpdate(s.env, s.deps, T0);
   const again = await handleCms(post('0.1.1'), s.env, undefined, s.deps);
-  expect(again.status === 200 && (await again.json()).update?.state === 'waiting', 'Prøv igen gav ikke en ventende opdatering');
-  expect(stored(s.kv, 'cms:skip:0.1.1') === null && s.commits.length === 1, 'Prøv igen fjernede ikke spring-over-nøglen og committede');
+  expect(again.status === 200 && (await again.json()).update?.state === 'waiting', 'Try again did not give a waiting update');
+  expect(stored(s.kv, 'cms:skip:0.1.1') === null && s.commits.length === 1, 'Try again did not remove the skip key and commit');
 
   // A package that wants npm: 422.
   const n = world({ manifestExtra: { dependencies: { left: '1.0.0' } } });
   await checkForUpdate(n.env, n.deps, T0);
   expect(n.commits.length === 0 && stored(n.kv, 'cms:checked')?.problem?.kind === 'needs-npm', 'needs-npm blev ikke meldt af timetjekket');
   const npm = await handleCms(post('0.1.1'), n.env, undefined, n.deps);
-  expect(npm.status === 422 && (await npm.json()).error === 'needs-npm', 'en pakke, der kræver npm, gav ikke 422');
+  expect(npm.status === 422 && (await npm.json()).error === 'needs-npm', 'a package that needs npm did not give 422');
 
   // A token that cannot write: 502; no token: 503.
   const c = world();
   await checkForUpdate({ ...c.env, GITHUB_PUBLISH_TOKEN: undefined }, c.deps, T0);
   c.kv.map.set('cms:checked', JSON.stringify({ at: new Date(T0).toISOString(), latest: '0.1.1' }));
   c.failure = new GitHubError('Forbidden', 403);
-  expect((await handleCms(post('0.1.1'), c.env, undefined, c.deps)).status === 502, 'en nøgle, der ikke kan gemme, gav ikke 502');
+  expect((await handleCms(post('0.1.1'), c.env, undefined, c.deps)).status === 502, 'a key that cannot save did not give 502');
   expect(
     (await handleCms(post('0.1.1'), { ...c.env, GITHUB_PUBLISH_TOKEN: undefined }, undefined, c.deps)).status === 503,
-    'uden nøgle gav ikke 503',
+    'without a key did not give 503',
   );
   const direct = await startUpdate(world().env, '0.1.1', world().deps, T0).catch((e) => e);
   expect(direct?.to === '0.1.1' && direct.state === 'waiting', 'startUpdate gav ikke opdateringen');

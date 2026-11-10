@@ -3,7 +3,7 @@
 // its label, or beside it with `inline`, and the indicator under the label) or `secondary` (views within a part of the
 // page: the label, evt. with its icon beside it, and the indicator under the whole tab), each with the divider under the
 // row; without a kind only the label, the open one's in its own colour (components/MobileNav.astro, the bar of
-// "Mobilmenu"). The row is scrollable (the default: swiped sideways when the tabs do not fit) or fixed (`scrollable`
+// "Mobile menu"). The row is scrollable (the default: swiped sideways when the tabs do not fit) or fixed (`scrollable`
 // false: the tabs share the width). A tab (Tab) has its label (`children`), evt. its icon (`icon`, its name in the
 // theme's icons, or in the editor an icon already made: the tabs of a screen) and a badge (`badge`: true for a dot, else the number it shows; the theme's Badge). With `href` it is a
 // link to a page (Link: on the site; in the editor only drawn; the open one aria-current); without it, it is a tab of a

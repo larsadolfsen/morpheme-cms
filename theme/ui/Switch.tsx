@@ -3,7 +3,7 @@
 // click anywhere switches it; the switch is a native <input type="checkbox" role="switch">, so Space switches it and screen readers say
 // "on"/"off". `icons`: the theme's icons in the handle, 'both' (a check when it is on, a cross when it is off) or
 // 'selected' (only the check); none without it. `checked`: on from the start, or, with `onChange` (the editor), whether
-// it is on now; `disabled`: it cannot be changed. `states`: what it is on and off ("Til", "Fra"), shown before the
+// it is on now; `disabled`: it cannot be changed. `states`: what it is on and off ("On", "Off"), shown before the
 // track (.switch-state; the theme's addition to M3's switch). `hideLabel`: only screen readers say its name (a switch at
 // the end of a row that names it). Other attributes (`name`, `value`, data-…) go on the <input>, and `className` on the
 // label. An Astro component gives an element the same classes with switchClass.

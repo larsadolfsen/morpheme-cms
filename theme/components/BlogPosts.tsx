@@ -1,5 +1,5 @@
 // Posts with the newest large, the rest as a list (PostList.tsx); without any, a note and a link to all the posts: a
-// tag's page (BlogPosts.astro puts it in the page's width), and the standard block "Blogindlæg" with "Det nyeste stort"
+// tag's page (BlogPosts.astro puts it in the page's width), and the standard block "Blog posts" with "Newest large"
 // (blocks/posts/View.tsx), as on the blog page.
 import Img from '@theme/components/Img';
 import PostList from '@theme/components/PostList';

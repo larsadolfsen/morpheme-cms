@@ -1,4 +1,4 @@
-// The addresses visitors came to that do not exist (the site's 404 page), for "Videresendelser" in the
+// The addresses visitors came to that do not exist (the site's 404 page), for "Redirects" in the
 // editor (packages/editor/src/notFound.ts, Redirects.tsx), where the site's owner can send them on to a page.
 // Kept in Workers KV (the binding NOT_FOUND in wrangler.jsonc), one key per address: how many times,
 // when first and last, and where the visitor came from. No IP address, no cookie: nothing about the
@@ -43,8 +43,8 @@ export async function recordNotFound(request, url, env) {
   } catch {}
 }
 
-// The address as the editor's redirects have it: decoded (/æble/, not /%C3%A6ble/), and with the slash
-// at the end, for /kontakt is sent on by the redirect from /kontakt/ (packages/editor/worker/index.js withSlash).
+// The address as the editor's redirects have it: decoded (with the letters themselves, not %C3%A6-style escapes), and with the slash
+// at the end, for /contact is sent on by the redirect from /contact/ (packages/editor/worker/index.js withSlash).
 function addressOf(pathname) {
   let path = pathname;
   try {

@@ -1,8 +1,8 @@
 // Testimonials one after another with the whole text (.block-testimonial-list in ../blocks.css), in two columns where
-// there is room, so long and short texts sit well together: the standard block "Udtalelser" with `layout` 'list'. With
+// there is room, so long and short texts sit well together: the standard block "Testimonials" with `layout` 'list'. With
 // `filters`, filter chips (Chip) with their tags over them (.block-filters; with two tags or more): one shows only those with that
-// tag, "Alle" all of them again (on the site by script.ts; without JavaScript all are shown and the buttons are hidden;
-// in the editor only drawn, "Alle" chosen). Each has its anchor, so a short one elsewhere can link to it.
+// tag, "All" all of them again (on the site by script.ts; without JavaScript all are shown and the buttons are hidden;
+// in the editor only drawn, "All" chosen). Each has its anchor, so a short one elsewhere can link to it.
 import { siteT } from '@morphemecms/cms/src/i18n';
 import type { TestimonialTexts, TestimonialView } from '@morphemecms/cms/src/standard/testimonials/view';
 import { useOnSite } from '@morphemecms/cms/src/standard/view';

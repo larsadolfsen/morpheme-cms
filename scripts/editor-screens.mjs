@@ -4,7 +4,7 @@
 // packages/editor/src/icon.tsx), there or on one of the built site's pages. An icon drawn from Material Symbols instead
 // of the icon pack (data-icon-fallback) is only listed, with where it is: it does not fail.
 // The screens are found as the editor's own links: from the start screen (the drawer's links are in the page also while it is
-// closed) and "Parts", #developer/parts, "Temaer", #appearance/themes, "Søgemaskineoptimering", #seo, "Appstore", #settings/appstore, and "Apps", #apps, which the menu no longer links to), and
+// closed) and "Parts", #developer/parts, "Themes", #appearance/themes, "Search engine optimization", #seo, "Appstore", #settings/appstore, and "Apps", #apps, which the menu no longer links to), and
 // from each screen it opens, two steps down. GitHub is answered from the files in this repository, so it needs no login
 // and changes nothing. It runs on the built site: npm run build && npm run check:screens (or on another
 // folder with a built site, its path after the command: packages/editor/scripts/check-themes.mjs).
@@ -20,20 +20,25 @@ import { mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { openEditor, serveBuilt } from './built-site.mjs';
 
+// The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages.
+const { apps: da } = await import('../src/i18n/da-DK/apps.ts');
+const { app: daApp } = await import('../src/i18n/da-DK/app.ts');
+const { cms: daCms } = await import('../src/i18n/da-DK/cms.ts');
+
 const ROOT = `${process.cwd()}/`;
 const DIST = resolve(ROOT, process.argv[2] ?? 'dist');
 if (!existsSync(join(DIST, 'editor/index.html'))) {
-  console.error(`Der er intet bygget site i ${DIST}. Kør npm run build først.`);
+  console.error(`There is no built site in ${DIST}. Run npm run build first.`);
   process.exit(1);
 }
 
 const missingIcon = (name) =>
   name
-    ? `ikonet "${name}" findes ikke (et spørgsmålstegn i stedet): skriv det i packages/editor/src/icon.tsx`
-    : 'et ikon er ikke en SVG-fil (et spørgsmålstegn i stedet)';
+    ? `the icon "${name}" does not exist (a question mark instead): write it in packages/editor/src/icon.tsx`
+    : 'an icon is not an SVG file (a question mark instead)';
 
 const fallbackIcon = (name) =>
-  `ikonet "${name}" er fra Material Symbols (ikke i ikonpakken): giv det et ikon i hver pakkes kort, hvis det skal blive`;
+  `the icon "${name}" is from Material Symbols (not in the icon pack): give it an icon in each pack's map if it is to stay`;
 
 // The icons not found on the built site's pages: each one once, with the pages it is on.
 const problems = [];
@@ -50,7 +55,7 @@ for (const entry of readdirSync(DIST, { recursive: true, withFileTypes: true }))
 }
 for (const [name, pages] of missingOn) {
   const shown = [...pages].slice(0, 3).join(', ');
-  problems.push(`${shown}${pages.size > 3 ? ` og ${pages.size - 3} sider til` : ''}: ${missingIcon(name)}`);
+  problems.push(`${shown}${pages.size > 3 ? ` and ${pages.size - 3} more pages` : ''}: ${missingIcon(name)}`);
 }
 
 const { server, site } = await serveBuilt(DIST);
@@ -92,8 +97,9 @@ async function checkSettingsAndMenu(width, height) {
   const rows = await page.evaluate(settingsRows);
   const sorted = [...rows].sort((a, b) => a.text.localeCompare(b.text, 'da'));
   const names = rows.map((r) => `${r.text} (${r.href})`).join(', ');
-  if (rows.length !== 5) problems.push(`${label} #settings: ${rows.length} rækker i stedet for 5: ${names}`);
-  else if (rows.some((r, i) => r.href !== sorted[i].href)) problems.push(`${label} #settings: rækkerne er ikke A-Å efter navn: ${names}`);
+  if (rows.length !== 5) problems.push(`${label} #settings: ${rows.length} rows instead of 5: ${names}`);
+  else if (rows.some((r, i) => r.href !== sorted[i].href))
+    problems.push(`${label} #settings: the rows are not in alphabetical order by name: ${names}`);
   const hrefs = rows.map((r) => r.href).sort();
   if (
     hrefs.join() !==
@@ -109,7 +115,7 @@ async function checkSettingsAndMenu(width, height) {
   const drawerLinks = await page.evaluate(() =>
     [...document.querySelectorAll('.editor-main-drawer-panel nav a[href^="#"]')].map((a) => a.getAttribute('href')),
   );
-  for (const m of moved) if (drawerLinks.includes(`#${m}`)) problems.push(`${label} menu: menuen har et link til #${m}`);
+  for (const m of moved) if (drawerLinks.includes(`#${m}`)) problems.push(`${label} menu: the menu has a link to #${m}`);
 
   const drawer = '.editor-main-drawer-panel nav';
   if (width >= 1000) {
@@ -118,11 +124,13 @@ async function checkSettingsAndMenu(width, height) {
     const sections = items.filter((i) => i.tag === 'BUTTON').length;
     const links = items.filter((i) => i.tag === 'A').map((i) => i.href);
     if (sections !== 4 || links.join() !== '#,#settings')
-      problems.push(`${label} menu: første niveau har ${sections} sektioner og linkene ${links.join(', ')} (skal være 4 og #, #settings)`);
+      problems.push(
+        `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 4 and #, #settings)`,
+      );
     checkCog(label, 'menuen', items, height);
   } else {
     // The modal drawer: open it with the top bar's button.
-    await page.locator('header').getByRole('button', { name: 'Åbn menuen' }).first().click();
+    await page.locator('header').getByRole('button', { name: '\u00c5bn menuen' }).first().click();
     await page.waitForTimeout(600);
     checkCog(label, 'menuen', await page.evaluate(shownItems, `${drawer} .navigation-drawer-item`), height);
     await page.keyboard.press('Escape');
@@ -141,7 +149,7 @@ async function checkSettingsAndMenu(width, height) {
     ['settings/appstore', false],
   ]) {
     await go(hash);
-    if (((await current()) === 'page') !== marked) problems.push(`${label} #${hash}: tandhjulet ${marked ? 'skal' : 'må ikke'} være valgt`);
+    if (((await current()) === 'page') !== marked) problems.push(`${label} #${hash}: the cog ${marked ? 'must' : 'must not'} be selected`);
   }
 
   if (width >= 1000) {
@@ -155,8 +163,8 @@ async function checkSettingsAndMenu(width, height) {
         page.evaluate(() => document.querySelector('nav.editor-main-rail a[href="#settings"]')?.getAttribute('aria-current')),
       );
     if ((await railCurrent('appearance/colors')) !== 'page')
-      problems.push(`${label} skinnen #appearance/colors: tandhjulet skal være valgt`);
-    if ((await railCurrent('list/pages')) === 'page') problems.push(`${label} skinnen #list/pages: tandhjulet må ikke være valgt`);
+      problems.push(`${label} the rail #appearance/colors: the cog must be selected`);
+    if ((await railCurrent('list/pages')) === 'page') problems.push(`${label} the rail #list/pages: the cog must not be selected`);
     await page.screenshot({ path: join(shots, 'rail.png') });
   }
   await page.close();
@@ -165,11 +173,11 @@ async function checkSettingsAndMenu(width, height) {
 // The cog is the last of `items` (shown, from the top) and at the bottom of the screen.
 function checkCog(label, where, items, height) {
   const cog = items.find((i) => i.href === '#settings');
-  if (!cog) return problems.push(`${label} ${where}: tandhjulet (#settings) mangler eller er skjult`);
+  if (!cog) return problems.push(`${label} ${where}: the cog (#settings) is missing or hidden`);
   if (items.at(-1) !== cog || items.some((i) => i !== cog && i.bottom >= cog.bottom))
-    problems.push(`${label} ${where}: tandhjulet er ikke det nederste`);
+    problems.push(`${label} ${where}: the cog is not the bottom item`);
   if (cog.bottom < height * 0.8 || cog.bottom > height)
-    problems.push(`${label} ${where}: tandhjulet står ikke nederst på skærmen (${cog.bottom} af ${height})`);
+    problems.push(`${label} ${where}: the cog is not at the bottom of the screen (${cog.bottom} of ${height})`);
 }
 
 for (const [width, height] of [
@@ -185,7 +193,7 @@ for (const [width, height] of [
   });
   await openEditor(page, site);
 
-  // From the start screen (the drawer's links), and from "Parts", "Temaer", "Søgemaskineoptimering" and "Appstore"
+  // From the start screen (the drawer's links), and from "Parts", "Themes", "Search engine optimization" and "Appstore"
   // (the apps' pages and their developers'), whose screens are a step further down than the others. "Apps" (the list of
   // the apps installed) has no row in the menu, so it is a start of its own.
   const starts = ['', 'settings', 'developer/parts', 'appearance/themes', 'seo', 'settings/appstore', 'apps'];
@@ -207,9 +215,8 @@ for (const [width, height] of [
       }));
       for (const name of new Set(state.fallback)) fallbackAt(name, `${width}px #${hash}`);
       for (const name of new Set(state.missing)) problems.push(`${width}px #${hash}: ${missingIcon(name)}`);
-      if (state.empty) problems.push(`${width}px #${hash}: skærmen er tom`);
-      if (state.text.includes(`Der er ikke noget på adressen ${hash}.`))
-        problems.push(`${width}px #${hash}: der er ikke noget på adressen`);
+      if (state.empty) problems.push(`${width}px #${hash}: the screen is empty`);
+      if (state.text.includes(`${daApp.nothingAt(hash)}.`)) problems.push(`${width}px #${hash}: there is nothing at the address`);
       for (const link of state.links) {
         if (seen.has(link)) continue;
         seen.add(link);
@@ -227,52 +234,59 @@ for (const [width, height] of [
 const keyStates = {
   open: {
     appstore: {
-      shows: ['Hjemmesiden er ikke forbundet til Morpheme', 'Forbind til Morpheme'],
-      hides: ['Afbryd forbindelsen til Morpheme'],
+      shows: [da.connectTitle, da.connect],
+      hides: [da.disconnect],
     },
-    morpheme: { shows: ['Forbind til Morpheme'], hides: ['Afbryd forbindelsen til Morpheme'] },
+    morpheme: { shows: [da.connect], hides: [da.disconnect] },
   },
   readOnly: {
-    appstore: { shows: ['Hjemmesiden har ingen Appstore'], hides: ['Forbind til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
-    morpheme: { shows: ['Hjemmesiden har ingen Appstore'], hides: ['Forbind til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
+    appstore: { shows: [da.noStore], hides: [da.connect, da.disconnect] },
+    morpheme: { shows: [da.noStore], hides: [da.connect, da.disconnect] },
   },
   button: {
-    appstore: { shows: [], hides: ['Forbundet til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
-    morpheme: { shows: ['Forbundet til Morpheme', 'site_sample', 'Afbryd forbindelsen til Morpheme'], hides: ['Forbind til Morpheme'] },
+    appstore: { shows: [], hides: [da.connected, da.disconnect] },
+    morpheme: { shows: [da.connected, 'site_sample', da.disconnect], hides: [da.connect] },
   },
 };
 // The screens that show the key: where each is (its address after the "#", CMS_ROUTE in CmsPage.tsx for "Morpheme").
 const keyScreens = { appstore: 'settings/appstore', morpheme: 'morpheme' };
 // "Morpheme" in every state: the version, the problems and the notes are text (CMS_STATUS in built-site.mjs), every list row
 // has an action (a link or a button), and Update and the connection work. The one row without an action of its own is the
-// store connection's "Forbundet til Morpheme" (it shows the state; its button "Afbryd forbindelsen" is beside it, and the
+// store connection's "Connected to Morpheme" (it shows the state; its button "Disconnect" is beside it, and the
 // key states above check that it is there), so that row is left out.
 async function checkMorpheme(page, state) {
   const version = JSON.parse(readFileSync(`${import.meta.dirname}/../package.json`, 'utf8')).version;
   const text = await page.evaluate(() => document.querySelector('main').innerText);
-  for (const x of [`Version ${version}`, 'Version 99.0.0 er klar', 'Hjemmesiden har ingen GitHub-nøgle', 'A made-up note for the checks.'])
-    if (!text.includes(x)) problems.push(`morpheme (${state}): "${x}" mangler`);
-  const bare = await page.evaluate(() =>
-    [...document.querySelectorAll('main .list-item-container')]
-      .filter((row) => !row.matches('a[href], button') && !row.closest('li')?.querySelector('a[href], button'))
-      .filter((row) => !row.innerText.startsWith('Forbundet til Morpheme'))
-      .map((row) => row.innerText.trim().split('\n')[0]),
+  for (const x of [
+    `Version ${version}`,
+    'Version 99.0.0 er klar',
+    'Hjemmesiden har ingen GitHub-n\u00f8gle',
+    'A made-up note for the checks.',
+  ])
+    if (!text.includes(x)) problems.push(`morpheme (${state}): "${x}" is missing`);
+  const bare = await page.evaluate(
+    (connected) =>
+      [...document.querySelectorAll('main .list-item-container')]
+        .filter((row) => !row.matches('a[href], button') && !row.closest('li')?.querySelector('a[href], button'))
+        .filter((row) => !row.innerText.startsWith(connected))
+        .map((row) => row.innerText.trim().split('\n')[0]),
+    da.connected,
   );
-  if (bare.length) problems.push(`morpheme (${state}): rækker uden handling: ${bare.join(', ')}`);
+  if (bare.length) problems.push(`morpheme (${state}): rows without an action: ${bare.join(', ')}`);
 
   // Update: a POST to /api/cms/update (answered here, nothing is changed).
   await page.route('**/api/cms/update', (r) => r.fulfill({ contentType: 'application/json', body: '{}' }));
   const posted = page.waitForRequest((r) => r.url().endsWith('/api/cms/update') && r.method() === 'POST', { timeout: 3000 });
-  await page.getByRole('button', { name: 'Opdater', exact: true }).click();
-  await posted.catch(() => problems.push(`morpheme (${state}): Opdater sender ikke en POST til /api/cms/update`));
+  await page.getByRole('button', { name: daCms.update, exact: true }).click();
+  await posted.catch(() => problems.push(`morpheme (${state}): Update does not send a POST to /api/cms/update`));
   // The connection: Connect makes the site connected (the fake store flips on the POST).
   if (state === 'open') {
-    await page.getByRole('button', { name: 'Forbind til Morpheme', exact: true }).click();
+    await page.getByRole('button', { name: da.connect, exact: true }).click();
     await page
-      .getByText('Forbundet til Morpheme')
+      .getByText(da.connected)
       .first()
       .waitFor({ timeout: 3000 })
-      .catch(() => problems.push('morpheme (open): "Forbundet til Morpheme" kom ikke efter Forbind'));
+      .catch(() => problems.push('morpheme (open): "Connected to Morpheme" did not appear after Connect'));
   }
 }
 
@@ -284,8 +298,8 @@ for (const [state, checks] of Object.entries(keyStates)) {
     await page.evaluate((hash) => (location.hash = hash), keyScreens[screen]);
     await page.waitForTimeout(500);
     const text = await page.evaluate(() => document.body.innerText);
-    for (const x of shows) if (!text.includes(x)) problems.push(`${screen} (${state}): "${x}" mangler`);
-    for (const x of hides) if (text.includes(x)) problems.push(`${screen} (${state}): "${x}" skal ikke vises`);
+    for (const x of shows) if (!text.includes(x)) problems.push(`${screen} (${state}): "${x}" is missing`);
+    for (const x of hides) if (text.includes(x)) problems.push(`${screen} (${state}): "${x}" must not be shown`);
     const file = join(shots, `${screen}-${state}.png`);
     await page.screenshot({ path: file });
     console.log(`${screen} (${state}): ${file}`);
@@ -298,10 +312,10 @@ await browser.close();
 server.close();
 for (const [name, places] of fallbackOn) {
   const shown = [...places].slice(0, 3).join(', ');
-  console.log(`${shown}${places.size > 3 ? ` og ${places.size - 3} steder til` : ''}: ${fallbackIcon(name)}`);
+  console.log(`${shown}${places.size > 3 ? ` and ${places.size - 3} more places` : ''}: ${fallbackIcon(name)}`);
 }
 if (problems.length) {
-  console.error(`${problems.length} fejl i editoren eller på sitet:\n${[...new Set(problems)].join('\n')}`);
+  console.error(`${problems.length} errors in the editor or on the site:\n${[...new Set(problems)].join('\n')}`);
   process.exit(1);
 }
-console.log(`${opened.size} skærme i editoren åbner uden fejl, på en telefon og på en computer, og alle ikoner findes.`);
+console.log(`${opened.size} screens in the editor open without errors, on a phone and on a computer, and all icons exist.`);

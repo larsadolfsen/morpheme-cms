@@ -26,7 +26,7 @@
   --primary-fixed-dim, --on-primary-fixed and --on-primary-fixed-variant (and the same for secondary and tertiary);
   --surface-dim, --surface, --surface-bright and the five --surface-container… ones; --on-surface,
   --on-surface-variant, --outline and --outline-variant; --inverse-surface, --inverse-on-surface and --inverse-primary;
-  --scrim and --shadow. They are not here: they are data, src/data/colors.json, which the owner changes under "Farver" in the editor.
+  --scrim and --shadow. They are not here: they are data, src/data/colors.json, which the owner changes under "Colors" in the editor.
   Base.astro and the editor's page write them into <head> (colorsCss, packages/editor/lib/colors.ts), for
   light mode and dark mode as below; the editor checks them to WCAG AA before they are saved
   (colorPairs in @site/colors). Everything here uses them by name.
@@ -318,7 +318,7 @@
   /* Motion.
    [data-reveal]: sections fade up once when scrolled into view (packages/editor/theme/scripts/motion.ts).
    The top of a page stands still from the first paint; from another page of the site it fades in (components.css).
-   Off for visitors who prefer reduced motion, and with the calm motion scheme ("Bevægelse", data-motion-scheme). */
+   Off for visitors who prefer reduced motion, and with the calm motion scheme ("Motion", data-motion-scheme). */
   @media (prefers-reduced-motion: no-preference) {
     .js:not([data-motion-scheme='calm']) [data-reveal] {
       opacity: 0;

@@ -14,14 +14,14 @@ export function buildSettingsProblems(path, text) {
   try {
     json = JSON.parse(text);
   } catch (e) {
-    return [`${path}: er ikke gyldig JSON (${e.message})`];
+    return [`${path}: is not valid JSON (${e.message})`];
   }
-  if (typeof json !== 'object' || json === null || Array.isArray(json)) return [`${path}: skal være et objekt med ${KEYS.join(' og ')}`];
+  if (typeof json !== 'object' || json === null || Array.isArray(json)) return [`${path}: must be an object with ${KEYS.join(' and ')}`];
   return Object.entries(json).flatMap(([key, value]) =>
     !KEYS.includes(key)
-      ? [`${path}: kender ikke nøglen "${key}" (kun ${KEYS.join(' og ')})`]
+      ? [`${path}: does not know the key "${key}" (only ${KEYS.join(' and ')})`]
       : typeof value !== 'boolean'
-        ? [`${path}: "${key}" skal være true eller false`]
+        ? [`${path}: "${key}" must be true or false`]
         : [],
   );
 }

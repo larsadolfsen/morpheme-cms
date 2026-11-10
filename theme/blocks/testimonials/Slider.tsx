@@ -1,4 +1,4 @@
-// Testimonials to leaf through in a carousel (Carousel.tsx in ../../ui/): the standard block "Udtalelser", and a site's
+// Testimonials to leaf through in a carousel (Carousel.tsx in ../../ui/): the standard block "Testimonials", and a site's
 // own (this site's front page). One card with the next one peeking in at the edge, two on a tablet, three on a
 // computer, with the carousel's page indicator under them. With one testimonial it is just the card (Testimonial.tsx);
 // in the editor with none, a note. `label`: what it is called for screen readers; `short`: two lines each, with a link

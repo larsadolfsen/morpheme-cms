@@ -1,4 +1,4 @@
-// "Trin": its head in the text (BlockHead.tsx), and StepList.tsx with the space of a block in the text.
+// "Steps": its head in the text (BlockHead.tsx), and StepList.tsx with the space of a block in the text.
 import BlockHead from '@theme/blocks/BlockHead';
 import StepList from '@theme/blocks/steps/StepList';
 import type { StepsView } from '@morphemecms/cms/src/standard/steps/view';

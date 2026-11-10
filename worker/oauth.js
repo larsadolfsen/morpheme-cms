@@ -6,7 +6,12 @@
 // Needs the Worker secrets GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET from a GitHub App whose
 // callback URL is https://<hostname>/oauth/callback (installed on this repo only; see docs/editor.md).
 // Who may edit is decided by GitHub: only people with write access to the repository can save.
+import { config } from '@site/config';
+import { langOf, say } from './say.js';
 import { sessionCookie } from './session.js';
+
+// What the owner reads, in the site's language (config.locale).
+const t = (text, values) => say(config.locale, text, values);
 
 const STATE_COOKIE = 'cms_oauth_state';
 // The editor asks for "repo"; anything outside this list is dropped.
@@ -21,9 +26,9 @@ export async function handleOAuth(request, env) {
 
 function authorize(url, env) {
   if (!env.GITHUB_CLIENT_ID || !env.GITHUB_CLIENT_SECRET) {
-    return finish({ error: 'GitHub-login er ikke sat op endnu (mangler GITHUB_CLIENT_ID/SECRET).' });
+    return finish({ error: t('GitHub login is not set up yet (GITHUB_CLIENT_ID/SECRET are missing).') });
   }
-  if ((url.searchParams.get('provider') ?? 'github') !== 'github') return finish({ error: 'Ukendt login.' });
+  if ((url.searchParams.get('provider') ?? 'github') !== 'github') return finish({ error: t('Unknown login.') });
   const scope =
     (url.searchParams.get('scope') ?? '')
       .split(/[\s,]+/)
@@ -53,7 +58,7 @@ async function callback(request, url, env) {
   const cookie = request.headers.get('cookie') ?? '';
   const expected = cookie.match(new RegExp(`(?:^|;\\s*)${STATE_COOKIE}=([^;]+)`))?.[1];
   if (!code || !state || state !== expected) {
-    return finish({ error: 'Login mislykkedes (ugyldig eller udløbet forespørgsel). Prøv igen.' });
+    return finish({ error: `${t('Login failed (invalid or expired request).')} ${t('Try again.')}` });
   }
 
   const res = await fetch('https://github.com/login/oauth/access_token', {
@@ -68,7 +73,7 @@ async function callback(request, url, env) {
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok || !data.access_token) {
-    return finish({ error: `Login mislykkedes: ${data.error_description ?? data.error ?? res.status}` });
+    return finish({ error: t('Login failed: {reason}', { reason: data.error_description ?? data.error ?? res.status }) });
   }
   return finish({ token: data.access_token });
 }
@@ -78,9 +83,9 @@ async function callback(request, url, env) {
 // shows it with a way back.
 function finish({ token, error }) {
   const body = error
-    ? `<p>${escapeHtml(error)}</p><p><a href="/editor/">Tilbage til editoren</a></p>`
-    : `<p>Logger ind…</p><script>location.replace('/editor/');</script>`;
-  const html = `<!doctype html><html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Login</title></head>
+    ? `<p>${escapeHtml(error)}</p><p><a href="/editor/">${t('Back to the editor')}</a></p>`
+    : `<p>${t('Signing in…')}</p><script>location.replace('/editor/');</script>`;
+  const html = `<!doctype html><html lang="${langOf(config.locale)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Login</title></head>
 <body style="font-family: system-ui, sans-serif; padding: 2rem">${body}</body></html>`;
   const headers = new Headers({
     'content-type': 'text/html; charset=utf-8',
