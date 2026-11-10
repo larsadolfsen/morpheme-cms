@@ -1,6 +1,6 @@
 # Dashboard widgets: master plan
 
-Status: batches 1 and 2 done (data functions, Worker route, KV binding; widget contract, grid, Continue); batches 3-4 not started. Checked against the code on 2026-11-10.
+Status: batches 1-3 done (data functions, Worker route, KV binding; widget contract, grid, Continue; edit mode); batch 4 not started. Checked against the code on 2026-11-10.
 
 Design: `docs/superpowers/specs/2026-11-07-dashboard-widgets-design.md`. Read it first.
 
@@ -37,7 +37,7 @@ Widgets come from `src/widgets/` and from `AppDefinition.widgets`. Logic stays i
 |---|---|---|
 | 1 (done) | `2026-11-07-dashboard-widgets-batch-1.md` | `npm test` passes the new data tests; `check:worker` passes the Worker route checks |
 | 2 (done) | `2026-11-07-dashboard-widgets-batch-2.md` | The start screen is a grid with the Continue widget, loaded from the Worker |
-| 3 | `2026-11-07-dashboard-widgets-batch-3.md` | Edit mode: add, remove, reorder, settings; saved per person |
+| 3 (done) | `2026-11-07-dashboard-widgets-batch-3.md` | Edit mode: add, remove, reorder, settings; saved per person |
 | 4 | `2026-11-07-dashboard-widgets-batch-4.md` | Unfinished work, Blog rhythm and Site status on the dashboard |
 
 ## Constraints

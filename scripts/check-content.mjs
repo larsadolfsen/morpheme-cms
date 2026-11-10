@@ -27,6 +27,7 @@ import {
   themeProblems,
 } from '@morphemecms/cms/site/theme.mjs';
 import { appFoldersPlugin, appIds, appWorkersProblems } from '@morphemecms/cms/lib/apps.mjs';
+import { readManifest } from '@morphemecms/cms/lib/appManifest.mjs';
 import { appSelf } from '@morphemecms/cms/site/appSelf.mjs';
 import { caseCollisionProblems } from '@morphemecms/cms/lib/caseCollisions.mjs';
 import { codePackageProblems, declarationProblems, ownerId } from '@morphemecms/cms/lib/licenses.mjs';
@@ -94,8 +95,18 @@ try {
   enTexts = textProblems((await server.ssrLoadModule('@morphemecms/cms/src/i18n/en-US/index.ts')).enUS);
   if (existsSync('store/catalog.json')) catalog = JSON.parse(readFileSync('store/catalog.json', 'utf8'));
   for (const id of appIds(root)) {
-    const app = (await server.ssrLoadModule(`/src/apps/${id}/index.ts`)).default;
-    for (const x of app.thirdParty ?? []) if (x?.package) declared.add(x.package);
+    // A contract 4 app describes itself in app.json (no index.ts); an older app in its index.ts (defineApp).
+    const manifest = readManifest(join(root, 'src/apps', id));
+    const app =
+      manifest.manifest ??
+      (existsSync(join(root, 'src/apps', id, 'index.ts')) ? (await server.ssrLoadModule(`/src/apps/${id}/index.ts`)).default : null);
+    // An app.json with problems stops the check with them; there is nothing to read of it here.
+    for (const problem of manifest.problems) result.problems.push(`src/apps/${id}/app.json: ${problem}`);
+    if (!app) continue;
+    const where = manifest.manifest ? `src/apps/${id}/app.json` : `src/apps/${id}/index.ts`;
+    // The thirdParty of an index.ts is { package, kind } or { name, author, license, file, kind }; an app.json lists
+    // { name, license, url } (manifestProblems checks it), which declarationProblems cannot read, so it is not given to it.
+    if (!manifest.manifest) for (const x of app.thirdParty ?? []) if (x?.package) declared.add(x.package);
     if (app.version)
       releases.push(
         ...releaseProblems(catalog, {
@@ -104,20 +115,20 @@ try {
           folder: `src/apps/${id}`,
           version: app.version,
           notes: notesOf(app.releaseNotes),
-          where: `src/apps/${id}/index.ts`,
+          where,
         }),
       );
-    licenses.push(
-      ...declarationProblems({
-        license: app.license,
-        thirdParty: app.thirdParty,
-        folder: join(root, 'src/apps', id),
-        where: `src/apps/${id}/index.ts`,
-        what: `appen ${app.label}`,
-        owner: ownerId('app', id),
-        root,
-      }),
-    );
+    const found = declarationProblems({
+      license: app.license,
+      // [] for an app.json: only its licence is checked here; the problems about thirdParty are left out below.
+      thirdParty: manifest.manifest ? [] : app.thirdParty,
+      folder: join(root, 'src/apps', id),
+      where,
+      what: `appen ${app.label}`,
+      owner: ownerId('app', id),
+      root,
+    });
+    licenses.push(...(manifest.manifest ? found.filter((p) => !p.includes('thirdParty')) : found));
   }
 } finally {
   await server.close();

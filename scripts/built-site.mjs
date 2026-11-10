@@ -135,9 +135,21 @@ export const STORE_STATES = {
 
 /** Opens the editor (/editor/) of the site at `site` in `page`, signed in, with GitHub answered from the files on disk
  * (`texts`: some with other texts), and waits until it has loaded the site. `store`: the state of the site's key to the
- * store (a key of STORE_STATES). */
-export async function openEditor(page, site, texts = {}, store = 'button') {
+ * store (a key of STORE_STATES). `dashboard`: the fake /api/dashboard (the start screen's widgets): GET answers the last
+ * saved layout, or none (the default widgets); each PUT is recorded in `saved` (the bodies as sent), unless `fail` is
+ * 'no-storage': then it answers 503 {"error":"no-storage"}, as a Worker without the DASHBOARD binding. Change `fail`
+ * between steps of a check. */
+export async function openEditor(page, site, texts = {}, store = 'button', dashboard = { saved: [], fail: null }) {
   let state = STORE_STATES[store];
+  await page.route(`${site}/api/dashboard`, (r) => {
+    const answer = (status, body) => r.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
+    if (r.request().method() === 'PUT') {
+      if (dashboard.fail === 'no-storage') return answer(503, { error: 'no-storage' });
+      dashboard.saved.push(JSON.parse(r.request().postData() || 'null'));
+      return r.fulfill({ status: 204 });
+    }
+    return answer(200, { dashboard: dashboard.saved.at(-1) ?? null });
+  });
   // R2 caching under "Caching and builds": Cloudflare has the bucket (packages/editor/worker/r2-status.js).
   await page.route(`${site}/api/r2?**`, (r) =>
     r.fulfill({ contentType: 'application/json', body: JSON.stringify({ bound: false, bucket: 'ready' }) }),

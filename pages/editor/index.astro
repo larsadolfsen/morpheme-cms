@@ -20,9 +20,10 @@ import { editorVersion } from '@morphemecms/cms/site/editor-version.mjs';
 import { config } from '@site/config';
 // The site's colours (the theme's styles/global.css); the editor puts the ones it has loaded in their place, so
 // a change under "Colors" shows at once (packages/editor/src/theme.ts).
-// With those a file written before them does not have made (completeColors).
+// A file in the names from before Material 3's roles read as the roles (withMaterialNames), with those a file written before
+// them does not have made (completeColors).
 import colors from '@data/colors.json';
-import { colorsCss } from '@morphemecms/cms/lib/colors';
+import { colorsCss, withMaterialNames } from '@morphemecms/cms/lib/colors';
 import { completeColors } from '@morphemecms/cms/lib/dynamic-colors';
 import { colorRoles } from '@site/colors';
 // How the site moves, which the editor moves by too (packages/editor/lib/motion.ts); the editor puts a new choice under
@@ -31,7 +32,7 @@ import { motionCss } from '@morphemecms/cms/lib/motion';
 import { motionScheme } from '@morphemecms/cms/site/motion';
 import { pageColor } from '@morphemecms/cms/lib/colors';
 
-const shown = completeColors(colors, colorRoles);
+const shown = completeColors(withMaterialNames(colors), colorRoles);
 ---
 
 <!doctype html>
