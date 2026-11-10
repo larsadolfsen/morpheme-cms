@@ -73,7 +73,7 @@ for (const method of ['GET', 'POST', 'DELETE']) {
 {
   const w = world({ repoAccess: { pull: false, push: false } });
   const { res } = await call(w, 'GET', await envWith());
-  expect(res.status === 403, `uden læseret var svaret ${res.status}, ikke 403`);
+  expect(res.status === 403, `without read access the answer was ${res.status}, not 403`);
 }
 
 // Read-only: GET works, POST and DELETE are 403, and the store is not asked.
@@ -81,13 +81,13 @@ for (const method of ['GET', 'POST', 'DELETE']) {
   const w = world({ repoAccess: { pull: true, push: false } });
   const env = await envWith();
   const get = await call(w, 'GET', env);
-  expect(get.res.status === 200 && get.body.connected === false && get.body.mayChange === false, `GET med kun læseret gav ${get.text}`);
+  expect(get.res.status === 200 && get.body.connected === false && get.body.mayChange === false, `GET with read access only gave ${get.text}`);
   for (const method of ['POST', 'DELETE']) {
     const { res } = await call(w, method, env);
-    expect(res.status === 403, `${method} med kun læseret gav ${res.status}, ikke 403`);
+    expect(res.status === 403, `${method} with read access only gave ${res.status}, not 403`);
   }
-  expect(w.storeCalls.length === 0, 'med kun læseret blev butikken spurgt');
-  expect(rowsOf(env.CONSENT).length === 0, 'med kun læseret blev der gemt en række');
+  expect(w.storeCalls.length === 0, 'with read access only the store was asked');
+  expect(rowsOf(env.CONSENT).length === 0, 'with read access only a row was saved');
 }
 
 // Connect: the store gets the origin and owner/name; the row has the key; no answer has the key; a second connect is 409.
@@ -104,13 +104,13 @@ for (const method of ['GET', 'POST', 'DELETE']) {
       typeof body.since === 'string',
     `POST gav ${res.status} ${text}`,
   );
-  expect(!text.includes(KEY), 'svaret på POST indeholdt nøglen');
+  expect(!text.includes(KEY), 'the answer to POST contained the key');
   expect(w.storeCalls.length === 1 && w.storeCalls[0].method === 'POST', `butikken blev spurgt ${w.storeCalls.length} gange`);
   expect(w.storeCalls[0]?.url.endsWith('/store/connect'), `adressen var ${w.storeCalls[0]?.url}`);
   const sent = JSON.parse(w.storeCalls[0]?.body ?? '{}');
   expect(sent.address === 'https://site.example' && /^[^/]+\/[^/]+$/.test(sent.repo), `butikken fik ${w.storeCalls[0]?.body}`);
   const rows = rowsOf(env.CONSENT);
-  expect(rows.length === 1 && rows[0].site === SITE && rows[0].key === KEY, 'rækken har ikke nøglen');
+  expect(rows.length === 1 && rows[0].site === SITE && rows[0].key === KEY, 'the row does not have the key');
   const get = await call(w, 'GET', env);
   expect(get.body.by === 'button' && get.body.site === SITE && !get.text.includes(KEY), `GET efter POST gav ${get.text}`);
   const second = await call(w, 'POST', env);
@@ -127,13 +127,13 @@ for (const method of ['GET', 'POST', 'DELETE']) {
   const env = await envWith();
   const { res, body } = await call(world({ store: () => new Response('{}', { status: 429 }) }), 'POST', env);
   expect(res.status === 429 && body.error === 'busy', `butikkens 429 gav ${res.status}`);
-  expect(rowsOf(env.CONSENT).length === 0, 'butikkens 429 gav en række');
+  expect(rowsOf(env.CONSENT).length === 0, 'the store\'s 429 gave a row');
 }
 for (const [what, store] of [
   ['500', () => new Response(`secret ${KEY}`, { status: 500 })],
-  ['et svar uden nøgle', () => Response.json({ site: SITE }, { status: 201 })],
+  ['an answer without a key', () => Response.json({ site: SITE }, { status: 201 })],
   [
-    'en netværksfejl',
+    'a network error',
     () => {
       throw new Error(`no network, ${KEY}`);
     },
@@ -142,8 +142,8 @@ for (const [what, store] of [
   const env = await envWith();
   const { res, text, body } = await call(world({ store }), 'POST', env);
   expect(res.status === 502 && body.error === 'store failed', `butikkens ${what} gav ${res.status} ${text}`);
-  expect(!text.includes(KEY), `svaret på butikkens ${what} indeholdt nøglen`);
-  expect(rowsOf(env.CONSENT).length === 0, `butikkens ${what} gav en række`);
+  expect(!text.includes(KEY), `the answer to the store's ${what} contained the key`);
+  expect(rowsOf(env.CONSENT).length === 0, `the store's ${what} gave a row`);
 }
 
 // No database (a branch preview): GET says not connected, POST is 503.
@@ -161,10 +161,10 @@ for (const [what, store] of [
   const w = world();
   const env = await envWith([], { MORPHEME_STORE_KEY: HAND });
   const get = await call(w, 'GET', env);
-  expect(get.body.connected === true && get.body.by === 'hand' && !get.text.includes(HAND), `GET med nøgle i hånden gav ${get.text}`);
-  expect((await call(w, 'DELETE', env)).res.status === 409, 'DELETE med nøgle i hånden gav ikke 409');
-  expect((await call(w, 'POST', env)).res.status === 409, 'POST med nøgle i hånden gav ikke 409');
-  expect(w.storeCalls.length === 0, 'med nøgle i hånden blev butikken spurgt');
+  expect(get.body.connected === true && get.body.by === 'hand' && !get.text.includes(HAND), `GET with a key by hand gave ${get.text}`);
+  expect((await call(w, 'DELETE', env)).res.status === 409, 'DELETE with a key by hand did not give 409');
+  expect((await call(w, 'POST', env)).res.status === 409, 'POST with a key by hand did not give 409');
+  expect(w.storeCalls.length === 0, 'with a key by hand the store was asked');
 }
 
 // Disconnect: on the store's 200 or 401 the row goes (the bearer is the row's key); on 500 or a thrown fetch it stays.
@@ -176,9 +176,9 @@ for (const status of [200, 401]) {
     res.status === 200 && body.connected === false && body.mayChange === true,
     `DELETE med butikkens ${status} gav ${res.status} ${text}`,
   );
-  expect(rowsOf(env.CONSENT).length === 0, `DELETE med butikkens ${status} lod rækken stå`);
+  expect(rowsOf(env.CONSENT).length === 0, `DELETE with the store's ${status} left the row`);
   expect(w.storeCalls[0]?.method === 'DELETE' && w.storeCalls[0].url.endsWith('/store/connect'), 'DELETE spurgte ikke butikken rigtigt');
-  expect(w.storeCalls[0]?.headers.authorization === `Bearer ${KEY}`, 'DELETE brugte ikke rækkens nøgle som bearer');
+  expect(w.storeCalls[0]?.headers.authorization === `Bearer ${KEY}`, 'DELETE did not use the row\'s key as bearer');
 }
 for (const store of [
   () => new Response('{}', { status: 500 }),
@@ -189,14 +189,14 @@ for (const store of [
   const env = await envWith([[SITE, KEY]]);
   const { res, body } = await call(world({ store }), 'DELETE', env);
   expect(res.status === 502 && body.error === 'store failed', `DELETE med en fejl i butikken gav ${res.status}`);
-  expect(rowsOf(env.CONSENT).length === 1, 'DELETE med en fejl i butikken slettede rækken');
+  expect(rowsOf(env.CONSENT).length === 1, 'DELETE with an error in the store deleted the row');
 }
 // No key at all: DELETE is a quiet 200 and the store is not asked.
 {
   const w = world();
   const { res, body } = await call(w, 'DELETE', await envWith());
-  expect(res.status === 200 && body.connected === false, `DELETE uden nøgle gav ${res.status}`);
-  expect(w.storeCalls.length === 0, 'DELETE uden nøgle spurgte butikken');
+  expect(res.status === 200 && body.connected === false, `DELETE without a key gave ${res.status}`);
+  expect(w.storeCalls.length === 0, 'DELETE without a key asked the store');
 }
 
 // Other methods: 405.
@@ -210,12 +210,12 @@ expect((await call(world(), 'PUT', await envWith())).res.status === 405, 'PUT ga
   const row = await storeKey({ CONSENT: env.CONSENT });
   expect(
     row?.key === KEY && row.by === 'button' && row.site === SITE && typeof row.since === 'string',
-    `storeKey med en række gav ${JSON.stringify(row)}`,
+    `storeKey with a row gave ${JSON.stringify(row)}`,
   );
-  expect((await storeKey({ MORPHEME_STORE_KEY: HAND }))?.by === 'hand', 'storeKey uden CONSENT gav ikke nøglen i hånden');
+  expect((await storeKey({ MORPHEME_STORE_KEY: HAND }))?.by === 'hand', 'storeKey without CONSENT did not give the key by hand');
   expect((await storeKey({})) === null, 'storeKey uden noget gav ikke null');
   await forgetKey(env);
-  expect(rowsOf(env.CONSENT).length === 0, 'forgetKey slettede ikke rækken');
+  expect(rowsOf(env.CONSENT).length === 0, 'forgetKey did not delete the row');
   expect((await storeKey({ CONSENT: env.CONSENT })) === null, 'storeKey efter forgetKey gav ikke null');
 }
 
@@ -253,7 +253,7 @@ expect((await call(world(), 'PUT', await envWith())).res.status === 405, 'PUT ga
   const hung = planned(['hang']);
   void storeKey(hung).catch(() => {}); // the first request: its create never settles
   const later = await within(storeKey(hung));
-  expect(later === 'done', `et senere kald til storeKey blev ${later}, da det første kalds oprettelse hang`);
+  expect(later === 'done', `a later call to storeKey was ${later} when the first call's creation hung`);
   expect(hung.seen.creates === 2, `det senere kald oprettede tabellen ${hung.seen.creates - 1} gange, ikke 1`);
 
   const once = planned([]);
@@ -264,7 +264,7 @@ expect((await call(world(), 'PUT', await envWith())).res.status === 405, 'PUT ga
 
   const failed = planned(['fail']);
   expect((await within(storeKey(failed))) === 'failed', 'storeKey gav ikke fejlen fra en oprettelse, der fejlede');
-  expect((await within(storeKey(failed))) === 'done', 'storeKey prøvede ikke igen efter en oprettelse, der fejlede');
+  expect((await within(storeKey(failed))) === 'done', 'storeKey did not retry after a creation that failed');
   expect(failed.seen.creates === 2, `efter en fejl blev tabellen oprettet ${failed.seen.creates} gange, ikke 2`);
 }
 
@@ -272,4 +272,4 @@ if (problems.length) {
   console.error(problems.map((p) => `- ${p}`).join('\n'));
   process.exit(1);
 }
-console.log('Workerens nøgle fra Forbind til Morpheme er i orden.');
+console.log('The Worker\'s key from Connect to Morpheme is fine.');

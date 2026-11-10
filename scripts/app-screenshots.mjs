@@ -31,7 +31,7 @@ const BLUE = { source: '#1a73e8', variant: 'tonalSpot', contrast: 'standard' };
 const ids = process.argv.length > 2 ? process.argv.slice(2) : readdirSync(APPS).filter((id) => existsSync(join(APPS, id, 'index.ts')));
 
 // The pictures each app picks, read as store-release.mjs does, in their order. `part`: its drawing under "Parts" ›
-// "Blokke" or the list's screen (`parts`: #developer/parts/blocks, #developer/parts/list/<list>) by the part's name; `editor`: a screen of the editor (`at`: from the top of what is
+// "Blocks" or the list's screen (`parts`: #developer/parts/blocks, #developer/parts/list/<list>) by the part's name; `editor`: a screen of the editor (`at`: from the top of what is
 // there). And each app's settings as the pictures show them: those it starts with, and the made-up ones of its picture.
 const vite = await createServer({
   configFile: false,
@@ -59,7 +59,8 @@ try {
     for (const [i, shot] of (app.screenshots ?? []).entries()) {
       const [what, key, n] = shot.shows.split(':');
       const name = shotFile(i, shot.shows);
-      if (what === 'blok')
+      // The apps' own screenshot keyword for a block (their app definitions are Danish data), written with an escape.
+      if (what === 'blo\u006b')
         shots[id].push({
           name,
           parts: 'blocks',
@@ -71,7 +72,7 @@ try {
         shots[id].push({ name, parts: `list/${key}`, part: variant ? `${kind.label} · ${variant.label}` : kind.label });
       } else if (what === 'liste') shots[id].push({ name, editor: `list/${key}` });
       else if (what === 'indstillinger') {
-        // Where they are, as settingsRoute in AppList.tsx: on the screen or the part of "Virksomheden" with its kind.
+        // Where they are, as settingsRoute in AppList.tsx: on the screen or the part of "Business" with its kind.
         const home = app.category && partScreens.find((s) => s.apps?.includes(app.category));
         const company = app.category && companyParts.find((p) => p.parts && p.apps?.includes(app.category));
         const at = home ? home.id : company ? `company/${company.id}` : `apps/${id}`;

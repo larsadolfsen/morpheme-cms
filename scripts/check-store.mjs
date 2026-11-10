@@ -74,18 +74,18 @@ const call = async (w, path, env = { MORPHEME_STORE_KEY: KEY }, options) => {
 {
   const w = world({ repoAccess: { pull: false, push: false } });
   const { res } = await call(w, 'catalog');
-  expect(res.status === 403, `uden læseret var svaret ${res.status}, ikke 403`);
-  expect(w.storeCalls.length === 0, 'uden læseret blev butikken spurgt');
+  expect(res.status === 403, `without read access the answer was ${res.status}, not 403`);
+  expect(w.storeCalls.length === 0, 'without read access the store was asked');
 }
 
 // Without a key: the catalog says "not connected" and files are not found; the store is not asked.
 {
   const w = world();
   const catalog = await call(w, 'catalog', {});
-  expect(catalog.res.status === 200 && JSON.parse(catalog.text).connected === false, `uden nøgle var kataloget ${catalog.text}`);
+  expect(catalog.res.status === 200 && JSON.parse(catalog.text).connected === false, `without a key the catalog was ${catalog.text}`);
   const file = await call(w, `files/${OID}`, {});
-  expect(file.res.status === 404, `uden nøgle var en fil ${file.res.status}, ikke 404`);
-  expect(w.storeCalls.length === 0, 'uden nøgle blev butikken spurgt');
+  expect(file.res.status === 404, `without a key a file was ${file.res.status}, not 404`);
+  expect(w.storeCalls.length === 0, 'without a key the store was asked');
 }
 
 // With a key: one request to the catalog with the contract versions and the bearer, and the store's JSON back.
@@ -95,8 +95,8 @@ const call = async (w, path, env = { MORPHEME_STORE_KEY: KEY }, options) => {
   expect(res.status === 200 && JSON.parse(text).apps?.[0]?.id === 'x', `kataloget var ${res.status} ${text}`);
   expect(w.storeCalls.length === 1, `butikken blev spurgt ${w.storeCalls.length} gange, ikke 1`);
   expect(w.storeCalls[0]?.url === `${STORE_URL}/store/catalog?app=${APP_API}&theme=${THEME_API}`, `adressen var ${w.storeCalls[0]?.url}`);
-  expect(w.storeCalls[0]?.headers.authorization === `Bearer ${KEY}`, 'kataloget blev spurgt uden nøglen som bearer');
-  expect(!text.includes(KEY), 'kataloget indeholdt nøglen');
+  expect(w.storeCalls[0]?.headers.authorization === `Bearer ${KEY}`, 'the catalog was asked without the key as bearer');
+  expect(!text.includes(KEY), 'the catalog contained the key');
 }
 
 // MORPHEME_STORE_URL is used when set.
@@ -132,7 +132,7 @@ const call = async (w, path, env = { MORPHEME_STORE_KEY: KEY }, options) => {
   );
   expect(res.headers.get('content-type') === 'image/png', `content-type var ${res.headers.get('content-type')}`);
   expect(w.storeCalls[0]?.url === `${STORE_URL}/store/files/${OID}`, `filens adresse var ${w.storeCalls[0]?.url}`);
-  expect(w.storeCalls[0]?.headers.authorization === `Bearer ${KEY}`, 'filen blev spurgt uden nøglen som bearer');
+  expect(w.storeCalls[0]?.headers.authorization === `Bearer ${KEY}`, 'the file was asked without the key as bearer');
 }
 {
   const w = world({ store: () => new Response('no', { status: 404 }) });
@@ -151,10 +151,10 @@ for (const [status, error] of [
   for (const path of ['catalog', ...(status === 404 || status === 400 ? [] : [`files/${OID}`])]) {
     const w = world({ store: () => new Response(`secret ${KEY}`, { status }) });
     const { res, text } = await call(w, path);
-    expect(res.status === 502 && JSON.parse(text).error === error, `butikkens ${status} på ${path} gav ${res.status} ${text}`);
+    expect(res.status === 502 && JSON.parse(text).error === error, `the store's ${status} on ${path} gave ${res.status} ${text}`);
     expect(
       !text.includes(KEY) && ![...res.headers.values()].some((v) => v.includes(KEY)),
-      `svaret på butikkens ${status} indeholdt nøglen`,
+      `the answer to the store's ${status} contained the key`,
     );
   }
 }
@@ -165,8 +165,8 @@ for (const [status, error] of [
     },
   });
   const { res, text } = await call(w, 'catalog');
-  expect(res.status === 502 && JSON.parse(text).error === 'store failed', `en netværksfejl gav ${res.status} ${text}`);
-  expect(!text.includes(KEY), 'svaret på en netværksfejl indeholdt nøglen');
+  expect(res.status === 502 && JSON.parse(text).error === 'store failed', `a network error gave ${res.status} ${text}`);
+  expect(!text.includes(KEY), 'the answer to a network error contained the key');
 }
 
 // A key from the button: the store gets it as the bearer; when the store refuses it, the row goes, the catalog says
@@ -184,15 +184,15 @@ for (const status of [401, 403]) {
     const env = await envWithRow('isk_row');
     const { res, text } = await call(world({ store: () => new Response('no', { status }) }), path, env);
     const want = path === 'catalog' ? res.status === 200 && JSON.parse(text).connected === false : res.status === 404;
-    expect(want, `butikkens ${status} på ${path} med en nøgle fra knappen gav ${res.status} ${text}`);
-    expect(rowCount(env) === 0, `butikkens ${status} på ${path} lod nøglen fra knappen stå`);
+    expect(want, `the store's ${status} on ${path} with a key from the button gave ${res.status} ${text}`);
+    expect(rowCount(env) === 0, `the store's ${status} on ${path} left the key from the button`);
   }
 }
 {
   const env = { ...(await envWithRow('isk_row')), MORPHEME_STORE_KEY: KEY };
   const { res, text } = await call(world({ store: () => new Response('no', { status: 401 }) }), 'catalog', env);
-  expect(res.status === 502 && JSON.parse(text).error === 'store refused', `en nøgle i hånden, der blev afvist, gav ${res.status} ${text}`);
-  expect(rowCount(env) === 1, 'en nøgle i hånden, der blev afvist, slettede rækken');
+  expect(res.status === 502 && JSON.parse(text).error === 'store refused', `a key by hand that was refused gave ${res.status} ${text}`);
+  expect(rowCount(env) === 1, 'a key by hand that was refused deleted the row');
 }
 
 // Other methods and addresses.
@@ -207,4 +207,4 @@ if (problems.length) {
   console.error(problems.map((p) => `- ${p}`).join('\n'));
   process.exit(1);
 }
-console.log('Workerens spørgsmål til butikken er i orden.');
+console.log('The Worker\'s questions to the store are fine.');

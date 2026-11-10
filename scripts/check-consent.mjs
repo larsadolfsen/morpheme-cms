@@ -58,7 +58,7 @@ expect(
   'et svar fra en anden side blev taget imod',
 );
 expect((await sent({ id: 'not-an-id', choices: { statistics: true } })) === 400, 'et svar med et forkert id blev taget imod');
-expect((await sent({ id: ID, choices: { necessary: true } })) === 400, 'et svar om nødvendige cookies blev taget imod');
+expect((await sent({ id: ID, choices: { necessary: true } })) === 400, 'an answer about necessary cookies was accepted');
 expect((await sent({ id: ID, choices: { statistics: 'yes' } })) === 400, 'et svar, der ikke er ja eller nej, blev taget imod');
 expect((await sent({ id: ID, choices: {} })) === 400, 'et svar uden kategorier blev taget imod');
 const kept = store.db.prepare('SELECT * FROM consents ORDER BY row').all();
@@ -70,19 +70,19 @@ expect(
 );
 
 // Who reads them.
-expect((await handleConsent(editor('guest'), env)).status === 403, 'en, der ikke kan gemme sitet, kunne læse samtykkerne');
-expect((await handleConsent(editor('nobody'), env)).status === 403, 'en uden login kunne læse samtykkerne');
+expect((await handleConsent(editor('guest'), env)).status === 403, 'someone who cannot save the site could read the consents');
+expect((await handleConsent(editor('nobody'), env)).status === 403, 'someone without a login could read the consents');
 const listed = await (await handleConsent(editor('editor'), env)).json();
 expect(listed.total === 2 && listed.entries.length === 2, `listen havde ${listed.entries?.length} af ${listed.total} svar, ikke 2`);
 expect(listed.entries.find((e) => e.id === ID)?.choices.statistics === true, 'listen gav ikke svaret, som det blev givet');
 const found = await (await handleConsent(editor('editor', `?q=${ID.slice(0, 8)}`), env)).json();
-expect(found.entries.length === 1 && found.entries[0].id === ID, 'søgningen på et id fandt ikke kun det id');
+expect(found.entries.length === 1 && found.entries[0].id === ID, 'the search for an id did not find only that id');
 
 // As a file.
 const file = await handleConsent(editor('editor', '?format=csv'), env);
 const lines = (await file.text()).trim().split('\r\n');
 expect(file.headers.get('content-disposition')?.startsWith('attachment'), 'CSV-filen hentes ikke som en fil');
-expect(lines[0] === '"id","at","statistics","marketing","version"', `CSV-filens første linje er ${lines[0]}`);
+expect(lines[0] === '"id","at","statistics","marketing","version"', `the CSV file's first line is ${lines[0]}`);
 expect(lines.length === 3, `CSV-filen har ${lines.length - 1} svar, ikke 2`);
 
 // Deleted, when a visitor asks.
@@ -136,7 +136,7 @@ await forgetOldConsents(none);
   const hung = planned(['hang']);
   void answer(hangs, hung); // the first request: its create never settles
   const later = await answer(hangs, hung);
-  expect(later === 'done', `et senere svar blev ${later}, da det første kalds oprettelse hang`);
+  expect(later === 'done', `a later answer was ${later} when the first call's creation hung`);
   expect(hung.seen.creates === 2, `det senere svar oprettede tabellen ${hung.seen.creates - 1} gange, ikke 1`);
 
   const [once] = await workerModules('consent.js');
@@ -148,7 +148,7 @@ await forgetOldConsents(none);
   const [retries] = await workerModules('consent.js');
   const failed = planned(['fail']);
   expect((await answer(retries, failed)) === 'failed', 'et svar gav ikke fejlen fra en oprettelse, der fejlede');
-  expect((await answer(retries, failed)) === 'done', 'et svar prøvede ikke igen efter en oprettelse, der fejlede');
+  expect((await answer(retries, failed)) === 'done', 'an answer did not retry after a creation that failed');
   expect(failed.seen.creates === 2, `efter en fejl blev tabellen oprettet ${failed.seen.creates} gange, ikke 2`);
 }
 
@@ -156,4 +156,4 @@ if (problems.length) {
   console.error(`${problems.length} fejl i samtykkeloggen:\n${problems.join('\n')}`);
   process.exit(1);
 }
-console.log('Samtykkeloggen virker: svarene gemmes med sitets version, kun editoren kan læse, hente og slette dem, og gamle slettes.');
+console.log('The consent log works: answers are saved with the site\'s version, only the editor can read, download and delete them, and old ones are deleted.');
