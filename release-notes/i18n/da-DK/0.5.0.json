@@ -1,0 +1,16 @@
+{
+  "version": "0.5.0",
+  "notes": [
+    {
+      "id": "connect-to-store",
+      "kind": "card",
+      "title": "Forbind din hjemmeside til butikken",
+      "text": "Forbind din hjemmeside til Morpheme-butikken fra Appstore i editoren."
+    },
+    {
+      "id": "start-screen-version",
+      "kind": "line",
+      "text": "Startskærmen viser den installerede Morpheme-version før opdateringstidspunktet"
+    }
+  ]
+}

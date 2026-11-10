@@ -1,0 +1,68 @@
+{
+  "version": "0.13.0",
+  "notes": [
+    {
+      "id": "social-media-links",
+      "kind": "card",
+      "title": "Tilføj dine profiler på sociale medier",
+      "text": "Profiler på sociale medier er nu en liste med links. Tryk på +, og et link til Facebook, X, LinkedIn eller Pinterest får selv sit navn og sit ikon."
+    },
+    {
+      "id": "continue-where-left-off",
+      "kind": "card",
+      "title": "Fortsæt, hvor du slap",
+      "text": "Dine seneste 3 sider og blogindlæg ligger nu øverst på startskærmen. Tryk på et af dem for at komme lige tilbage."
+    },
+    {
+      "id": "notifications-side-sheet",
+      "kind": "card",
+      "title": "Læs notifikationer uden at forlade siden",
+      "text": "Klokken i den øverste bjælke åbner nu dine notifikationer ved siden af den skærm, du er på. På en telefon kan du trykke og holde på en notifikation for at vælge den og slette den."
+    },
+    {
+      "id": "old-links-still-open",
+      "kind": "line",
+      "text": "Gamle links og bogmærker til editoren åbner stadig, og standarddelene har nu engelske navne"
+    },
+    {
+      "id": "saved-filters-reset",
+      "kind": "line",
+      "text": "De filtre og sorteringer, du har gemt i editoren, nulstilles én gang"
+    },
+    {
+      "id": "header-phone-number",
+      "kind": "line",
+      "text": "Handlingsknappen i headeren kan vise dit telefonnummer som en tekstknap foran sin knap"
+    },
+    {
+      "id": "theme-store-screen",
+      "kind": "line",
+      "text": "Temastore ligger nu på sin egen skærm, først under Udseende"
+    },
+    {
+      "id": "menu-sections-moved",
+      "kind": "line",
+      "text": "Header og Footer ligger nu under Udseende, og Logo og ikon ligger under Virksomheden"
+    },
+    {
+      "id": "back-to-main-menu",
+      "kind": "line",
+      "text": "På en telefon fører et stryg tilbage fra en sektions liste til hovedmenuen"
+    },
+    {
+      "id": "update-notifications",
+      "kind": "line",
+      "text": "Notifikationer fortæller nu også, når din hjemmeside har opdateret Morpheme, fortrudt en opdatering eller er gået i stå"
+    },
+    {
+      "id": "open-website-window",
+      "kind": "line",
+      "text": "Åbn hjemmesiden åbner i et nyt vindue"
+    },
+    {
+      "id": "toolbar-no-sideways-scroll",
+      "kind": "line",
+      "text": "På en telefon ruller værktøjslinjen til tekst ikke længere til siden"
+    }
+  ]
+}

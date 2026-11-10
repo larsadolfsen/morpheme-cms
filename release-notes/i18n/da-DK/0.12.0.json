@@ -1,0 +1,42 @@
+{
+  "version": "0.12.0",
+  "notes": [
+    {
+      "id": "side-panel-tap-block",
+      "kind": "card",
+      "title": "Redigér en blok ved siden af siden",
+      "text": "På en tablet eller en computer åbner et tryk på en blok eller et billede dens indstillinger i et sidepanel. Fjern ligger i panelet."
+    },
+    {
+      "id": "floating-add-button",
+      "kind": "card",
+      "title": "Tilføj med en rund knap",
+      "text": "Knappen, der opretter noget nyt i lister, Filer og Videresendelser, er nu en rund knap, der svæver over siden. Har en liste flere slags, åbner den en menu med dem."
+    },
+    {
+      "id": "h1-section-color",
+      "kind": "line",
+      "text": "En H1 starter nu en sektion med sin egen farve, ligesom en H2"
+    },
+    {
+      "id": "side-panel-fits-screen",
+      "kind": "line",
+      "text": "Sidepanelet og menuen passer bedre til skærmen på en tablet"
+    },
+    {
+      "id": "white-text-menus",
+      "kind": "line",
+      "text": "Værktøjslinjen til tekst og menuerne over teksten er hvide med en skygge"
+    },
+    {
+      "id": "preview-end-of-title-row",
+      "kind": "line",
+      "text": "På en bred skærm står Forhåndsvisning og Se på hjemmesiden for enden af sidens titelrække"
+    },
+    {
+      "id": "installed-filter-old-apps",
+      "kind": "line",
+      "text": "Filteret Installeret i Appstore viser alle installerede apps"
+    }
+  ]
+}

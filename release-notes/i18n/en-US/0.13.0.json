@@ -1,0 +1,68 @@
+{
+  "version": "0.13.0",
+  "notes": [
+    {
+      "id": "social-media-links",
+      "kind": "card",
+      "title": "Add your social media profiles",
+      "text": "Social media profiles are now a list of links. Tap + to add one, and a link to Facebook, X, LinkedIn or Pinterest gets its name and icon on its own."
+    },
+    {
+      "id": "continue-where-left-off",
+      "kind": "card",
+      "title": "Pick up where you left off",
+      "text": "Your last 3 pages and blog posts now wait at the top of the start screen. Tap one to jump straight back in."
+    },
+    {
+      "id": "notifications-side-sheet",
+      "kind": "card",
+      "title": "Read notifications without leaving your page",
+      "text": "The bell in the top bar now opens your notifications beside the screen you’re on. On a phone, press and hold a notification to select it and delete it."
+    },
+    {
+      "id": "old-links-still-open",
+      "kind": "line",
+      "text": "Old editor links and bookmarks still open, and the standard parts now have English names"
+    },
+    {
+      "id": "saved-filters-reset",
+      "kind": "line",
+      "text": "The filters and sorts you saved in the editor reset once"
+    },
+    {
+      "id": "header-phone-number",
+      "kind": "line",
+      "text": "The header’s call to action can show your phone number as a text button before its button"
+    },
+    {
+      "id": "theme-store-screen",
+      "kind": "line",
+      "text": "Theme store is now its own screen, first under Appearance"
+    },
+    {
+      "id": "menu-sections-moved",
+      "kind": "line",
+      "text": "Header and Footer are now under Appearance, and Logo and icon is under Business"
+    },
+    {
+      "id": "back-to-main-menu",
+      "kind": "line",
+      "text": "On a phone, swiping back from a section’s list takes you to the main menu"
+    },
+    {
+      "id": "update-notifications",
+      "kind": "line",
+      "text": "Notifications also tell you when your website updated Morpheme, undid an update or got stuck"
+    },
+    {
+      "id": "open-website-window",
+      "kind": "line",
+      "text": "Open website opens in a new window"
+    },
+    {
+      "id": "toolbar-no-sideways-scroll",
+      "kind": "line",
+      "text": "On a phone, the text toolbar no longer scrolls sideways"
+    }
+  ]
+}

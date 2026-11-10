@@ -1,0 +1,42 @@
+{
+  "version": "0.12.0",
+  "notes": [
+    {
+      "id": "side-panel-tap-block",
+      "kind": "card",
+      "title": "Edit a block beside the page",
+      "text": "On a tablet or a computer, tap a block or a picture to open its settings in a side panel. You’ll find Remove in the panel."
+    },
+    {
+      "id": "floating-add-button",
+      "kind": "card",
+      "title": "Add with a round button",
+      "text": "The button that creates something new in lists, Files and Redirects is now a round button that floats above the page. If a list has several kinds, it opens a menu of them."
+    },
+    {
+      "id": "h1-section-color",
+      "kind": "line",
+      "text": "An H1 now starts a section with its own color, like an H2"
+    },
+    {
+      "id": "side-panel-fits-screen",
+      "kind": "line",
+      "text": "The side panel and the menu fit the screen better on a tablet"
+    },
+    {
+      "id": "white-text-menus",
+      "kind": "line",
+      "text": "The text toolbar and the menus over the text are white with a shadow"
+    },
+    {
+      "id": "preview-end-of-title-row",
+      "kind": "line",
+      "text": "On a wide screen, Preview and View on the website stand at the end of the page’s title row"
+    },
+    {
+      "id": "installed-filter-old-apps",
+      "kind": "line",
+      "text": "The Appstore’s Installed filter lists every installed app"
+    }
+  ]
+}

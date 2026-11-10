@@ -1,0 +1,32 @@
+{
+  "version": "0.10.0",
+  "notes": [
+    {
+      "id": "google-result-preview",
+      "kind": "card",
+      "title": "Se din side i Google",
+      "text": "Formularerne til sider og blogindlæg viser nu en forhåndsvisning af Google-resultatet på telefon og computer. Åbn en side eller et blogindlæg, og se under Søgemaskiner."
+    },
+    {
+      "id": "settings-in-side-sheet",
+      "kind": "card",
+      "title": "Redigér blokke i et sidepanel",
+      "text": "En bloks felter og sektionsindstillingerne åbner nu i et sidepanel. På en telefon dækker det siden, og på en tablet eller en computer står det ved siden af den."
+    },
+    {
+      "id": "bottom-sheet-actions",
+      "kind": "line",
+      "text": "Handlingsbjælken nederst på en telefon er nu et standardpanel i bunden"
+    },
+    {
+      "id": "empty-line-hint",
+      "kind": "line",
+      "text": "Hjælpeteksten på en tom linje i teksteditoren følger editorens sprog og siger, at den første overskrift er en H1"
+    },
+    {
+      "id": "heading-menu-h1-first",
+      "kind": "line",
+      "text": "På en side tilbyder overskriftsmenuerne kun H1, indtil teksten har en, og derefter H2 og H3"
+    }
+  ]
+}

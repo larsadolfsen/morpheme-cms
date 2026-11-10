@@ -1,0 +1,10 @@
+{
+  "version": "0.11.0",
+  "notes": [
+    {
+      "id": "save-notices-version",
+      "kind": "line",
+      "text": "Beskeder om gemte ændringer nævner versionen, når en app er installeret eller ændret"
+    }
+  ]
+}

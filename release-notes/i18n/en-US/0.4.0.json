@@ -1,0 +1,26 @@
+{
+  "version": "0.4.0",
+  "notes": [
+    {
+      "id": "morpheme-updates-itself",
+      "kind": "card",
+      "title": "Morpheme updates itself",
+      "text": "Your website now installs new updates of Morpheme within the hour, and undoes one if your site can’t be built. See Settings › Morpheme."
+    },
+    {
+      "id": "missing-storage-notice",
+      "kind": "line",
+      "text": "Settings › Morpheme tells you when your site is missing the storage it needs for updates"
+    },
+    {
+      "id": "keep-line-breaks",
+      "kind": "line",
+      "text": "Saving a page keeps its line breaks as they were"
+    },
+    {
+      "id": "new-sites-reach-store",
+      "kind": "line",
+      "text": "New sites can reach the Morpheme store on the same Cloudflare account"
+    }
+  ]
+}
