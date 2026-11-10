@@ -1,5 +1,5 @@
 // Checks that tracked files outside the language files hold no Danish text (a Danish letter, or a Danish dictionary value).
-// Run: npm run check:language, or node scripts/check-language.mjs; --all ignores PENDING.
+// Run: npm run check:language, or node scripts/check-language.mjs.
 // Depends on: lib/danish.mjs, Vite (loads the dictionaries), git (lists the files).
 import { execFileSync } from 'node:child_process';
 import { closeSync, existsSync, openSync, readFileSync, readSync } from 'node:fs';
@@ -7,12 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
 import { danishValuesOf, findDanish, isLanguagePath } from '../lib/danish.mjs';
 
-// Path prefixes not converted to English yet. Each batch of docs/superpowers/plans/2026-11-04-english-source.md
-// removes its own. The last batch deletes the list.
-const PENDING = ['astro.mjs', 'demo/', 'src/i18n/', 'starter/'];
-
 const root = fileURLToPath(new URL('..', import.meta.url));
-const all = process.argv.includes('--all');
 
 /** Whether the first 8000 bytes of a file hold a zero byte. @param {string} file */
 function isBinary(file) {
@@ -31,7 +26,6 @@ function isSkipped(path) {
   if (isLanguagePath(path)) return true;
   if (path === 'CHANGELOG.md' || path === 'package-lock.json') return true;
   if (path.startsWith('docs/superpowers/')) return true;
-  if (!all && PENDING.some((prefix) => path.startsWith(prefix))) return true;
   if (!existsSync(`${root}${path}`)) return true;
   return isBinary(`${root}${path}`);
 }
