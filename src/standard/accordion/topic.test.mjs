@@ -1,4 +1,4 @@
-// Tests the placeholder of the shared text of "Expandable list" (topic.mjs): both {topic} and the old {emne} are read, {topic} is written.
+// Tests the placeholder of the shared text of "Expandable list" (topic.mjs): both {topic} and the old one are read, {topic} is written. language-ok
 // Run: node --test src/standard/accordion/topic.test.mjs
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
@@ -49,4 +49,8 @@ test('only the exact placeholder is replaced, every time it occurs, and other va
   assert.equal(upgradeMore({ more: '{emnet}' }).more, '{emnet}'); // language-ok
   const same = { more: NEW };
   assert.equal(upgradeMore(same), same);
+});
+
+test('a name that holds a placeholder is not filled again', () => {
+  assert.equal(filledLink('Read more about {topic}', '{topic}'), 'Read more about {topic}');
 });
