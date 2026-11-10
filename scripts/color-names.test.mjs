@@ -81,6 +81,10 @@ const utility = new RegExp(`(?<![A-Za-z0-9_-])(?:${prefixes})-(?:${OLD.filter((n
 // A name built in code, so no scan of a line sees it whole: `--${name}`, `--elevation-${n}`.
 const built = /`--\$\{|`--elevation-|`--md-/;
 
+// The one module that holds the old names: LEGACY_NAMES and withMaterialNames, which read a site's colors.json in the old
+// names as the roles (lib/colors.ts). Everywhere else the old names stay gone.
+const LEGACY_MODULE = 'lib/colors.ts';
+
 const files = execSync('git ls-files theme src pages site lib defaults demo starter bin scripts', { cwd: ROOT, encoding: 'utf8' })
   .split('\n')
   .filter(
@@ -88,6 +92,7 @@ const files = execSync('git ls-files theme src pages site lib defaults demo star
       /\.(css|tsx?|mjs|astro)$/.test(f) &&
       !/\.test\.mjs$/.test(f) &&
       f !== 'scripts/color-names.test.mjs' &&
+      f !== LEGACY_MODULE &&
       !f.startsWith('src/i18n/') &&
       !f.startsWith('defaults/i18n/'),
   );

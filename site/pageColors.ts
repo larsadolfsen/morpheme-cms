@@ -16,7 +16,7 @@ import colors from '@data/colors.json';
 import { colorFields, colorPairs, colorRoles } from '@site/colors';
 import { active, settingsOf } from './apps';
 import { appIdOf, type AppDefinition } from '@morphemecms/cms/src/apps';
-import { colorProblems, lowContrast, MODES, type Colors } from '@morphemecms/cms/lib/colors';
+import { colorProblems, lowContrast, MODES, withMaterialNames, type Colors } from '@morphemecms/cms/lib/colors';
 import { completeColors } from '@morphemecms/cms/lib/dynamic-colors';
 import { pageColorsOutputProblems, type PageColorsHook } from '@morphemecms/cms/lib/hooks';
 import oldHooks from 'virtual:old-page-colors';
@@ -24,8 +24,9 @@ import { buildProblems } from '@morphemecms/cms/lib/appProblems.mjs';
 import { pageColorsHooks } from '@morphemecms/cms/lib/sandboxHooks.mjs';
 import { splitPicture } from '@morphemecms/cms/lib/crop.mjs';
 
-// With those a file written before them does not have made (completeColors).
-const site = completeColors(colors as Colors, colorRoles);
+// A file in the names from before Material 3's roles read as the roles (withMaterialNames), with those a file written before
+// them does not have made (completeColors).
+const site = completeColors(withMaterialNames(colors as Colors), colorRoles);
 const PUBLIC = path.resolve('public');
 const names = colorFields.map((f) => f.name);
 // Small is enough to find a picture's colours, and quick.
