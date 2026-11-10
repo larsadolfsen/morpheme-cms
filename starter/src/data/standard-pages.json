@@ -1,8 +1,8 @@
 {
-  "front": "/forside/",
-  "blog": "/blogside/",
-  "notFound": "/siden-findes-ikke/",
-  "contact": "/kontakt/",
-  "privacy": "/privatlivspolitik/",
-  "cookies": "/privatlivspolitik/"
+  "front": "/home/",
+  "blog": "/blog-page/",
+  "notFound": "/not-found/",
+  "contact": "/contact/",
+  "privacy": "/privacy-policy/",
+  "cookies": "/privacy-policy/"
 }

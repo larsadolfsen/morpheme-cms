@@ -17,7 +17,7 @@
   // "id", `wrangler deploy` creates them the first time.
   "kv_namespaces": [{ "binding": "NOT_FOUND" }, { "binding": "PUSH" }, { "binding": "DASHBOARD" }],
   // FILES: R2 caching, the copy of the site's files in R2 in front of GitHub. Turned on and off in the editor
-  // ("Indstillinger" › "Avanceret"), which comments this line in or out, and turns it on only when Cloudflare has the bucket.
+  // ("Settings" › "Developer" › "Caching and builds"), which comments this line in or out, and turns it on only when Cloudflare has the bucket.
   // "r2_buckets": [{ "binding": "FILES", "bucket_name": "morpheme-site-files", "jurisdiction": "eu" }],
   // CONSENT: the consent log, the visitors' answers in the cookie banner, in D1, created by `wrangler deploy` the first time.
   "d1_databases": [{ "binding": "CONSENT" }],

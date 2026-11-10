@@ -4,10 +4,10 @@
 import { defineSite } from '@morphemecms/cms/site/defineSite.mjs';
 
 export const config = defineSite({
-  name: 'Mit site',
-  description: 'Rediger indholdet på mit-site.dk.',
-  locale: 'da-DK',
-  domain: 'mit-site.dk',
-  siteDescription: 'Mit site.',
-  repo: { owner: 'mig', name: 'mit-site', branch: 'main' },
+  name: 'My site',
+  description: 'Edit the content of my-site.com.',
+  locale: 'en-US',
+  domain: 'my-site.com',
+  siteDescription: 'My site.',
+  repo: { owner: 'me', name: 'my-site', branch: 'main' },
 });
