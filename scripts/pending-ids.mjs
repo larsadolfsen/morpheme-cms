@@ -7,14 +7,8 @@
 // List every current finding: node scripts/check-language.mjs --list-ids. Delete this file when the list is empty.
 // Skipped by the id and text rules itself (lib/danish.mjs isIdCheckSkipped): its entries are Danish on purpose.
 export const PENDING_IDS = [
-  // Row 2, batch A1: the browser-storage prefix valg- (src/ui.tsx).
-  'src/ui.tsx:valg',
-  // Row 3, batch A1: the stored view value liste (src/Library.tsx).
-  'src/Library.tsx:liste',
   // Row 4, batch A2: the CSV file name samtykker-<date>.csv (worker/consent.js).
   'worker/consent.js:samtykker',
-  // Row 5, batch A1: the sample address navn@ (src/BlockParts.tsx).
-  'src/BlockParts.tsx:navn',
   // Row 6, batch A1: Danish page names in tests and comments (priser, kontakt, forside, filer); worker/say.test.mjs stays Danish on purpose and is not listed.
   'lib/locale.test.mjs:forside',
   'lib/menu.test.mjs:priser',
