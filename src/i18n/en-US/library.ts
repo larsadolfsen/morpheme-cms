@@ -38,6 +38,14 @@ export const library = {
   blogRhythmWriteFirst: 'Write your first post',
   /** In edit mode, when no post is due yet: "Your next post is due Dec 1, 2026". */
   blogRhythmNext: (date: string) => `Your next post is due ${date}`,
+  /** On the start screen (widgets/status.tsx): the card with when the site was last published and the CMS version. */
+  statusTitle: 'Site status',
+  statusWidgetLabel: 'Site status',
+  statusWidgetHint: 'Shows when the site was last published and the version of Morpheme.',
+  /** "Last published today at 1:42 PM". */
+  lastPublished: (when: string) => `Last published ${when}`,
+  /** When the time of the last build is not known. */
+  publishUnknown: 'Publish time unknown',
   /** Under each of them: its kind ("Page") and when it was saved ("today at 1:42 PM", when.ts). */
   recentEdit: (kind: string, when: string) => `${kind} · Edited ${when}`,
   /** At the top of the start screen (UpdatesNotice.tsx): the card with what was updated since the last visit in this
