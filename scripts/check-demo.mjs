@@ -15,9 +15,9 @@ try {
   run([fileURLToPath(new URL('check-content.mjs', import.meta.url))]);
   run([fileURLToPath(new URL('editor-roundtrip.mjs', import.meta.url))]);
   run([binOf('astro'), 'build', '--outDir', join(dir, 'dist')]);
-  console.log('\nDemoen virker med CMS’et.');
+  console.log('\nThe demo works with the CMS.');
 } catch {
-  console.error('\nDemoen virker ikke med CMS’et (se ovenfor).');
+  console.error('\nThe demo does not work with the CMS (see above).');
   process.exitCode = 1;
 } finally {
   rmSync(dir, { recursive: true, force: true });
