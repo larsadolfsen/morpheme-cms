@@ -15,33 +15,11 @@ import { datePickerField } from '@theme/ui/datePicker.script';
 import IconButton from '@theme/ui/IconButton';
 import TextField from '@theme/ui/TextField';
 import { dateOf, dayTyped } from '@theme/ui/dates';
+import { datePickerTextsIn } from '@theme/ui/pickerTexts';
 import type { DatePickerKind, DatePickerTexts } from '@theme/ui/DatePickerContainer';
 
 /** A date picker's fixed texts, in the language its dates are written in. */
-export const datePickerTexts = (): DatePickerTexts => ({
-  locale,
-  select: siteText('Vælg dato'),
-  selectRange: siteText('Vælg datoer'),
-  enter: siteText('Skriv dato'),
-  enterRange: siteText('Skriv datoer'),
-  date: siteText('Dato'),
-  start: siteText('Startdato'),
-  end: siteText('Slutdato'),
-  format: siteText('dd.mm.åååå'),
-  wrongFormat: siteText('Skriv datoen som dd.mm.åååå.'),
-  notAllowed: siteText('Datoen kan ikke vælges.'),
-  endBeforeStart: siteText('Slutdatoen er før startdatoen.'),
-  previousMonth: siteText('Forrige måned'),
-  nextMonth: siteText('Næste måned'),
-  previousYear: siteText('Forrige år'),
-  nextYear: siteText('Næste år'),
-  chooseMonth: siteText('Vælg måned'),
-  chooseYear: siteText('Vælg år'),
-  toInput: siteText('Skift til at skrive'),
-  toCalendar: siteText('Skift til kalenderen'),
-  cancel: siteText('Annuller'),
-  ok: siteText('OK'),
-});
+export const datePickerTexts = (): DatePickerTexts => datePickerTextsIn(siteText, locale);
 
 /** What a date picker's script is told by its field: the fixed texts and what can be picked. */
 export type DatePickerSettings = { texts: DatePickerTexts; kind: DatePickerKind; range: boolean; min: string; max: string };

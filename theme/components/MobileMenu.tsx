@@ -1,5 +1,5 @@
 // The menu in Material: the theme's modal navigation drawer (ui/NavigationDrawer.tsx, m3.material.io/components/navigation-drawer), opened by the
-// navigation icon in the top app bar (Header.astro). It comes in over a scrim from the side its button is on (`side`:
+// navigation icon in the top app bar (Header.astro). It comes in over a scrim from the edge its button is on (
 // the start, left, or the end, right; mirrored in right-to-left languages), with the site's name, the menu's items with
 // the open page in an active indicator, and at its bottom the header's call to action (header.json), each part when it
 // is on: the phone number (a tel: link on a phone, the contact page from the medium window size up) and the button after
