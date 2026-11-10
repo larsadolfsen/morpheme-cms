@@ -48,10 +48,10 @@ Worker: Sonnet agent (Worker and session rules).
 1. Add `handleDashboard(request, env, ask = fetch)` in `worker/dashboard.js`.
 2. Use `sessionToken` and `access` from `worker/session.js`. Answer `401` or `403` as the other routes do.
 3. Get the user id from GitHub `GET /user` with the token. Use the numeric `id`.
-4. `GET`: read `dashboard:<id>` from `env.DASHBOARD`. Answer `{ dashboard }` (null when there is none).
+4. `GET`: read `dashboard:<id>` from `env.NOT_FOUND` (2026-11-10: now NOT_FOUND, not DASHBOARD). Answer `{ dashboard }` (null when there is none).
 5. `PUT`: refuse a body over 16 KB with `413`. Refuse a body that `validDashboard` rejects with `400`. Else store it, answer `204`.
 6. Add the route line `/api/dashboard` in `worker/index.js`, next to the other `/api/` routes.
-7. Add `{ "binding": "DASHBOARD" }` to `kv_namespaces` in `starter/wrangler.jsonc` and in the demo's config.
+7. Add `{ "binding": "DASHBOARD" }` to `kv_namespaces` in `starter/wrangler.jsonc` and in the demo's config. (2026-11-10: now no new binding; the existing `NOT_FOUND` keeps the dashboards, and the demo binds it by id.)
 8. Add the file header. Update the route list in the `worker/index.js` header.
 
 Test cases (fake KV and fake `ask`):

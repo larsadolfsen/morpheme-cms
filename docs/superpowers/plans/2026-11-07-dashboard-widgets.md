@@ -18,9 +18,9 @@ Widgets come from `src/widgets/` and from `AppDefinition.widgets`. Logic stays i
 | Path | Batch | What |
 |---|---|---|
 | `src/dashboard.mjs`, `src/dashboard.test.mjs` | 1 | Pure functions for `StoredDashboard`: validate, default, add, remove, move, set settings, drop missing |
-| `worker/dashboard.js`, `scripts/check-dashboard.mjs` | 1 | `GET`/`PUT /api/dashboard`, KV `DASHBOARD`, GitHub user id |
+| `worker/dashboard.js`, `scripts/check-dashboard.mjs` | 1 | `GET`/`PUT /api/dashboard`, KV `NOT_FOUND` (2026-11-10: was `DASHBOARD`), GitHub user id |
 | `worker/index.js` | 1 | One route line |
-| `starter/wrangler.jsonc`, `demo` config | 1 | KV binding `DASHBOARD` |
+| `starter/wrangler.jsonc`, `demo` config | 1 | no new KV binding (2026-11-10: was `DASHBOARD`; now `NOT_FOUND`) |
 | `src/widgets.ts` | 2 | `WidgetDefinition`, `WidgetProps`, the registry of all widgets (CMS + installed apps) |
 | `src/apps.ts`, `lib/contracts.mjs`, `docs/app-contract.md` | 2 | `widgets` field; `APP_API` up; contract doc |
 | `src/store.ts`, `src/checkSite.ts` | 2 | Needs and checks know `widgets` |

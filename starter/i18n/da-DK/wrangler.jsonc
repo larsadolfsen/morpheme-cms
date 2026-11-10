@@ -12,10 +12,10 @@
   // Keep the variables added in the dashboard (Settings → Variables and secrets) on every deploy.
   "keep_vars": true,
   "observability": { "logs": { "enabled": true, "invocation_logs": true } },
-  // NOT_FOUND: the addresses visitors came to that do not exist, for the editor. PUSH: the devices that get the editor's
-  // notifications, and the saves they wait for. DASHBOARD: each person's dashboard on the editor's start screen. Without an
-  // "id", `wrangler deploy` creates them the first time.
-  "kv_namespaces": [{ "binding": "NOT_FOUND" }, { "binding": "PUSH" }, { "binding": "DASHBOARD" }],
+  // NOT_FOUND: the addresses visitors came to that do not exist, for the editor, and each person's dashboard on the editor's
+  // start screen (`dashboard:<id>`). PUSH: the devices that get the editor's notifications, and the saves they wait for; it
+  // has secrets, so nothing else goes in it. Without an "id", `wrangler deploy` creates them the first time.
+  "kv_namespaces": [{ "binding": "NOT_FOUND" }, { "binding": "PUSH" }],
   // FILES: R2 caching, the copy of the site's files in R2 in front of GitHub. Turned on and off in the editor
   // ("Indstillinger" › "Avanceret"), which comments this line in or out, and turns it on only when Cloudflare has the bucket.
   // "r2_buckets": [{ "binding": "FILES", "bucket_name": "morpheme-site-files", "jurisdiction": "eu" }],

@@ -1,6 +1,6 @@
 # Dashboard widgets, batch 2: contract and grid
 
-Status: done (PR against main, 2026-11-10). Differences from this plan: `APP_API` is not raised (`widgets` is an optional field; an app without it works as before); the component file is `src/DashboardGrid.tsx` (a `Dashboard.tsx` beside `dashboard.mjs` fails the build's case-insensitive name check); `cmsWidgets` lives in `src/cmsWidgets.ts` and `Start` gives the widgets their data through `src/startData.ts`; a Worker without the `DASHBOARD` binding (503 `no-storage`) shows the default dashboard.
+Status: done (PR against main, 2026-11-10). Differences from this plan: `APP_API` is not raised (`widgets` is an optional field; an app without it works as before); the component file is `src/DashboardGrid.tsx` (a `Dashboard.tsx` beside `dashboard.mjs` fails the build's case-insensitive name check); `cmsWidgets` lives in `src/cmsWidgets.ts` and `Start` gives the widgets their data through `src/startData.ts`; a Worker without the `NOT_FOUND` store (2026-11-10: was the `DASHBOARD` binding) (503 `no-storage`) shows the default dashboard.
 
 Master plan: `2026-11-07-dashboard-widgets.md`. Needs batch 1.
 
