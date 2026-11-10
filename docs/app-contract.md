@@ -12,6 +12,119 @@ The contract is the set of rules between the editor and an app. `APP_API` in `li
 - The deactivated app keeps its folder, settings and data.
 - The other types allow many active apps.
 
+## Contract 4: app.json and the build sandbox
+
+Contract 4 lets an app describe itself as data. Its build code runs in a sandbox. The app's id is the name of its folder
+under `src/apps/`. The id is not in `app.json`.
+
+### app.json
+
+One `app.json` sits in each app folder.
+
+| Key | Type | Required | Meaning |
+|---|---|---|---|
+| `api` | `4` | yes | The contract the app is written to. |
+| `label` | string | yes | The app's name, in English. |
+| `publisher` | string | yes | Who made the app. |
+| `license` | SPDX string | yes | The app's license. |
+| `thirdParty` | `{ name, license, url }[]` | no | Code or assets the app uses from others. |
+| `icon` | Phosphor icon name | yes | The icon, such as `"Palette"`. |
+| `hint` | string | yes | A short text the editor shows for the app. |
+| `description` | string | no | A longer text about the app. |
+| `category` | string | no | The app's category. |
+| `keywords` | string[] | no | Words that help find the app. |
+| `version` | semver string | yes | The app's version, such as `"1.0.0"`. |
+| `releaseNotes` | `Record<version, string>` | no | The release notes per version. |
+| `screenshots` | `{ file, label }[]` | no | Screenshots of the app. |
+| `settings` | `{ fields, values, example? }` | no | The settings fields and their values. |
+| `lists` | `OwnedList[]` | no | The lists the app owns. |
+| `kinds` | `Record<list, AppKind>` | no | The kinds of the lists, without `draw`. |
+| `cookies` | `AppCookieDecl[]` | no | The cookies the app sets. |
+| `csp` | `Record<directive, host[]>` | no | The hosts the app needs, per directive. |
+| `reads` | `ReadScope[]` | no | The site data the app may read. |
+| `hooks` | string[] | no | The hooks the app has, by file name. |
+| `afterBuild` | boolean | no | True when the app has `after-build.ts`. |
+
+Rules:
+
+- `hooks` lists exactly the files in `hooks/`.
+- `afterBuild` is true exactly when `after-build.ts` exists.
+- Each cookie's `when.setting` is a field in `settings.fields`. The form is `{ "setting": "<field name>" }`.
+- Unknown keys fail the check.
+
+### editor.ts and texts.json
+
+- `editor.ts` holds the app's code for the editor. It has full access.
+- `texts.json` holds the app's texts in the other languages, under the keys of today's `texts.ts`.
+
+### Places
+
+An app has four places. The editor gives each place one access level.
+
+| Place | `sandboxed` when | `full` when | `none` when |
+|---|---|---|---|
+| `build` | only `hooks/` and `after-build.ts` | `slots/`, `blocks/`, a folder of a kind, or `build.mjs` | no build code |
+| `editor` | not used yet | `editor.ts` | no `editor.ts` |
+| `worker` | not used yet | `worker.js` | no `worker.js` |
+| `pages` | not used yet | a `script.ts` or a slot script | no such file |
+
+- `sandboxed` code runs in the sandbox, with the limits below.
+- `full` code runs without the sandbox. The store gives `full` only to first-party publishers.
+- `none` means the place has no code.
+
+### Reads
+
+An app gets only the scopes it lists in `reads`.
+
+| Scope | Shape the app gets |
+|---|---|
+| `pages` | `{ address, title, blocks: string[] }[]` of the published pages and posts |
+| `pages.text` | the same, and `text` (Markdown) for each entry |
+| `cookies` | `{ banner: boolean, list: { name, provider, category, file }[] }` |
+| `apps` | `{ id, version, settings, cookies, csp }[]` of the active apps |
+| `csp.allowed` | `string[]`: the hosts the owner allowed |
+
+### Hooks
+
+A hook is a file `hooks/<place>.ts`. `page-colors` is the only hook today.
+
+- Input: the page's address, pictures, settings, roles and the colors so far.
+- Helpers: `pixels(picture)` and `readable(colors)`.
+- Output: `Colors` or `undefined`. The output is checked as today.
+
+### After-build
+
+`after-build.ts` runs once for each build.
+
+- Input: `{ settings, reads, build }`. `build` is `{ commit, committed }`, the commit and its ISO time.
+- Helper: `hash(text)` gives the SHA-256 of the text, in hex.
+- Output: `{ files }`. Each name in `files` matches `^[a-z0-9-]+\.json$`, and there are at most 20 files.
+- Core writes each file to `dist/_apps/<id>/<name>`. The Worker serves these files to no one.
+
+### Imports
+
+An app file imports from its own folder, from `@app/self`, and from these three core modules. Nothing else.
+
+- `@morphemecms/cms/lib/colors`
+- `@morphemecms/cms/lib/dynamic-colors`
+- `@morphemecms/cms/lib/hooks`
+
+### Limits
+
+| Run | Time | Memory | Output |
+|---|---|---|---|
+| hook | 1000 ms | 64 MB | 256 KB |
+| after-build | 30000 ms | 256 MB | 5120 KB |
+
+### Problems
+
+- A failed result is dropped. Core lists it in `dist/_apps/_problems.json`.
+- The route `GET /api/apps/problems` gives that list to the signed-in editor.
+- The app's page in the editor shows the app's problems from the last build.
+- The build never fails because of an app.
+
+Apps written to contract 2 or 3 build and run as before, and the editor shows each of their places as full access.
+
 ## Contract 3: `@app/self`
 
 Contract 3 adds one module. An app file can import the id of its own folder.

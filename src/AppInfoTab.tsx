@@ -20,12 +20,15 @@ import { t } from './i18n';
 import { categoryOf } from '../lib/cookieCategories.mjs';
 import type { AppCookie, AppNeeds } from './store';
 import { DeveloperRow } from './AppList';
+import AppPlaces from './AppPlaces';
+import AppProblems from './AppProblems';
 
 /** What every app's page says about it, from its folder or the store's catalog: its pictures (each opening it whole),
- * what it does more fully, what it needs of the site (needsOf), the cookies it sets (`consent`: the cookie banner asks
- * first), and who made it, with a row to their page. `children`: what stands between its description and what it
+ * what it does more fully, what it needs of the site (needsOf, with the access of each of its places, AppPlaces, and what the last
+ * build found wrong in it, AppProblems), the cookies it sets (`consent`: the cookie banner asks first), and who made it, with a row to their page. `children`: what stands between its description and what it
  * needs (its settings and what it adds). */
 export default function AppInfoTab({
+  id,
   pictures,
   description,
   news = [],
@@ -38,6 +41,8 @@ export default function AppInfoTab({
   uses,
   children,
 }: {
+  /** Its id, when it is installed: what the last build found wrong in it is shown above "Permissions". */
+  id?: string;
   pictures: { src: string; label: string }[];
   description?: string;
   news?: { version: string; text: string }[];
@@ -102,7 +107,13 @@ export default function AppInfoTab({
         </section>
       )}
       {children}
-      {needs && <Group title={t.apps.needs}>{needed.length ? needed : row(CheckCircle, t.apps.needsNothing)}</Group>}
+      {id && <AppProblems id={id} />}
+      {needs && (
+        <Group title={t.apps.needs}>
+          {needed.length || needs.places ? needed : row(CheckCircle, t.apps.needsNothing)}
+          {needs.places && <AppPlaces places={needs.places} />}
+        </Group>
+      )}
       <Group title={t.apps.notifications}>
         {notifies.length ? notifies.map((n) => row(Bell, n.label)) : row(Bell, t.apps.notifiesNone)}
       </Group>
