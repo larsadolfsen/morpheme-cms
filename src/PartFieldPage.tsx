@@ -38,7 +38,7 @@ export default function PartFieldPage({
       }}
       wide
     >
-      {field.hint && <p className="text-muted">{field.hint}</p>}
+      {field.hint && <p className="text-on-surface-variant">{field.hint}</p>}
       <Page
         field={field}
         value={String(values[field.name] ?? '')}

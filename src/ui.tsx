@@ -596,7 +596,7 @@ function drag(onMove: (x: number, y: number) => void) {
 }
 
 // A field to drag in (the colour sheet's shades and hues, the colour wheel), and the round thumb on it.
-const ring = 'touch-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none';
+const ring = 'touch-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none';
 const thumb =
   'pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white shadow-[0_0_0_1px_rgb(0_0_0/0.3),0_2px_6px_rgb(0_0_0/0.3)]';
 
@@ -693,7 +693,7 @@ function ColorSheet({
         </div>
         {!!swatches?.length && (
           <div>
-            <h3 className="mb-2 text-sm font-medium text-muted">{s.swatches}</h3>
+            <h3 className="mb-2 text-sm font-medium text-on-surface-variant">{s.swatches}</h3>
             <div role="group" aria-label={s.swatches} className="grid grid-cols-6 gap-2">
               {swatches.map((c) => (
                 <ChoiceTile key={c} selected={c === color} label={c} onClick={() => take(c)}>
@@ -757,7 +757,7 @@ export function ColorField({
         aria-haspopup="dialog"
         aria-label={t.common.pickColor(label)}
         title={t.common.pickColor(label)}
-        className={`size-11 shrink-0 rounded-full ${swatchEdge} transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:outline-none`}
+        className={`size-11 shrink-0 rounded-full ${swatchEdge} transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none`}
         style={{ background: value }}
         onClick={() => {
           setOpened((n) => n + 1);
@@ -794,7 +794,7 @@ export function Label({ htmlFor, children, hint }: { htmlFor?: string; children:
       ) : (
         <p className="mb-1 font-medium">{children}</p>
       )}
-      {hint && <span className="mb-2 block text-sm text-muted">{hint}</span>}
+      {hint && <span className="mb-2 block text-sm text-on-surface-variant">{hint}</span>}
     </>
   );
 }
@@ -802,7 +802,7 @@ export function Label({ htmlFor, children, hint }: { htmlFor?: string; children:
 /** Small muted text under a field or a part: what it does, what happens. */
 export function SupportingText({ id, children, className = '' }: { id?: string; children: ReactNode; className?: string }) {
   return (
-    <span id={id} className={`block text-sm text-muted ${className}`}>
+    <span id={id} className={`block text-sm text-on-surface-variant ${className}`}>
       {children}
     </span>
   );
@@ -830,7 +830,7 @@ export function Notice({
 }) {
   return (
     <SiteCard kind="filled" role="status" className={onClose ? 'relative space-y-2 pe-14' : 'space-y-2'}>
-      <p className="font-medium text-accent">{title}</p>
+      <p className="font-medium text-primary">{title}</p>
       <div className="text-sm">{children}</div>
       {action}
       {onClose && <CloseButton onClick={onClose} />}
@@ -945,12 +945,12 @@ export function FormField({
       </Label>
       {children}
       {problem && (
-        <p id={problem.id} className="mt-1 text-sm text-accent">
+        <p id={problem.id} className="mt-1 text-sm text-primary">
           {problem.text}.
         </p>
       )}
       {count && (
-        <p className={`mt-1 text-right text-xs ${count.length > count.max ? 'text-accent' : 'text-muted'}`}>
+        <p className={`mt-1 text-right text-xs ${count.length > count.max ? 'text-primary' : 'text-on-surface-variant'}`}>
           {count.length} / {count.max}
         </p>
       )}
@@ -999,7 +999,7 @@ export function FieldGroup({ label, hint, children }: { label: string; hint?: Re
  * was made), or `muted` (what is made elsewhere, as a page's address from its title). */
 export function ShownValue({ id, icon, muted, children }: { id?: string; icon?: Icon; muted?: boolean; children: ReactNode }) {
   return (
-    <p id={id} className={`flex items-center gap-3 ${muted ? 'text-muted' : ''}`}>
+    <p id={id} className={`flex items-center gap-3 ${muted ? 'text-on-surface-variant' : ''}`}>
       {icon && <LeadingIcon icon={icon} />}
       <span className="min-w-0 flex-1">{children}</span>
     </p>
@@ -1054,7 +1054,7 @@ export function IconPicker({
                 setOpen(false);
               }}
             >
-              {o.value ? icon(o.value, 24) : <X size={20} className="text-muted" />}
+              {o.value ? icon(o.value, 24) : <X size={20} className="text-on-surface-variant" />}
             </ChoiceTile>
           ))}
         </div>
@@ -1110,7 +1110,7 @@ export function FoldItem({
     <ListItem
       onClick={onToggle}
       aria-expanded={open}
-      leading={<CaretRight size={14} className={`shrink-0 text-muted transition-transform ${open ? 'rotate-90' : ''}`} />}
+      leading={<CaretRight size={14} className={`shrink-0 text-on-surface-variant transition-transform ${open ? 'rotate-90' : ''}`} />}
       headline={title}
       truncate
       actions={tools && <span className="flex shrink-0 pr-1.5">{tools}</span>}
@@ -1314,7 +1314,7 @@ export function MultiChoice({
 export function ArrowLink({
   href,
   onClick,
-  className = 'text-accent',
+  className = 'text-primary',
   children,
 }: {
   href: string;
@@ -1560,12 +1560,12 @@ export function ChoiceCards<T extends string>({
           return (
             <label
               key={v}
-              className={`${siteCardClass('outlined')} relative flex flex-col items-center gap-2 px-3 py-4 text-center text-sm font-medium transition-colors has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent ${
+              className={`${siteCardClass('outlined')} relative flex flex-col items-center gap-2 px-3 py-4 text-center text-sm font-medium transition-colors has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary ${
                 disabled
                   ? 'cursor-default opacity-50'
                   : chosen
                     ? 'cursor-pointer text-on-secondary-container [--card-outlined-line:var(--color-accent)] [--card-outlined-surface:var(--color-secondary-container)]'
-                    : 'cursor-pointer hover:[--card-outlined-surface:var(--color-tint)]'
+                    : 'cursor-pointer hover:[--card-outlined-surface:var(--color-surface-container-high)]'
               }`}
             >
               <input
@@ -1579,7 +1579,7 @@ export function ChoiceCards<T extends string>({
               />
               {Glyph && <Glyph size={32} aria-hidden="true" />}
               <span>{text}</span>
-              {chosen && <Check size={16} weight="bold" aria-hidden="true" className="absolute top-2 right-2 text-accent" />}
+              {chosen && <Check size={16} weight="bold" aria-hidden="true" className="absolute top-2 right-2 text-primary" />}
             </label>
           );
         })}
@@ -1593,7 +1593,7 @@ export function ChoiceCards<T extends string>({
 
 /** The classes of the rows under a row in a list (a submenu): the theme's list, indented along a line, the text a little
  * lighter. */
-export const subListClass = `${siteListClass} ml-5 border-l border-line`;
+export const subListClass = `${siteListClass} ml-5 border-l border-outline-variant`;
 
 /** What a row looks like besides the theme's list item: `accent`, a row that does something (Log ud), in the accent
  * colour; `delete`, the row that deletes what a screen shows, alone in a Group at the bottom, in the middle in the error
@@ -1601,10 +1601,10 @@ export const subListClass = `${siteListClass} ml-5 border-l border-line`;
  * little lighter. */
 export type RowTone = 'accent' | 'delete' | 'muted' | 'sub';
 const toneClass: Record<RowTone, string> = {
-  accent: 'text-accent',
+  accent: 'text-primary',
   delete: 'justify-center text-center font-medium text-(--error)',
-  muted: 'text-muted',
-  sub: 'text-ink/80',
+  muted: 'text-on-surface-variant',
+  sub: 'text-on-surface/80',
 };
 
 /** A row in a list (Group, listClass): the theme's list item (Material 3's ListItem), with the editor's icons. A link
@@ -1957,7 +1957,7 @@ export function SheetList({ div, children }: { div?: boolean; children: ReactNod
 
 /** The small heading over some of the choices in a sheet (Faste sider, Sider). */
 export function SheetGroupTitle({ children }: { children: ReactNode }) {
-  return <h3 className="px-3 pt-4 pb-1 text-sm font-medium text-muted">{children}</h3>;
+  return <h3 className="px-3 pt-4 pb-1 text-sm font-medium text-on-surface-variant">{children}</h3>;
 }
 
 /** A link at the bottom of a sheet, under its choices and the theme's divider, to make something new elsewhere (Opret
@@ -2026,7 +2026,7 @@ export function Preview({ children }: { children: ReactNode }) {
     <div
       role="region"
       aria-label={t.common.preview}
-      className="site-block-preview not-prose border-[1.5px] border-dashed border-line p-2"
+      className="site-block-preview not-prose border-[1.5px] border-dashed border-outline-variant p-2"
       onClickCapture={(e) => {
         if ((e.target as HTMLElement).closest('a[href]')) e.preventDefault();
       }}
@@ -2044,20 +2044,25 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
   const p = t.colors.preview;
   const vars = {
     ...Object.fromEntries(Object.entries(colors).map(([name, value]) => [`--${name}`, value])),
-    '--button-filled-surface': 'var(--accent)',
-    '--button-filled-hover': 'var(--accent-hover)',
-    '--button-filled-text': 'var(--on-accent)',
+    '--button-filled-surface': 'var(--primary)',
+    '--button-filled-hover': 'color-mix(in srgb, var(--on-primary) 8%, var(--primary))',
+    '--button-filled-text': 'var(--on-primary)',
   } as CSSProperties;
   return (
-    <div style={vars} aria-label={title} role="img" className="space-y-3 rounded-2xl border border-line bg-bg p-4 text-ink">
+    <div
+      style={vars}
+      aria-label={title}
+      role="img"
+      className="space-y-3 rounded-2xl border border-outline-variant bg-surface p-4 text-on-surface"
+    >
       <p className="text-lg font-medium tracking-tight">{p.heading}</p>
-      <p className="text-sm text-muted">{p.text}</p>
+      <p className="text-sm text-on-surface-variant">{p.text}</p>
       <p>
         <span className="link">{p.link}</span>
       </p>
-      <div className="space-y-2 rounded-xl border border-line bg-surface p-3">
+      <div className="space-y-2 rounded-xl border border-outline-variant bg-surface-container-lowest p-3">
         <p className="text-sm">{p.card}</p>
-        <p className="rounded-lg bg-tint px-3 py-2 text-sm font-medium text-accent">{p.box}</p>
+        <p className="rounded-lg bg-surface-container-high px-3 py-2 text-sm font-medium text-primary">{p.box}</p>
       </div>
       {/* The secondary and tertiary colours, which a harmony on the colour wheel places. */}
       <div className="grid grid-cols-2 gap-2 text-sm font-medium">
@@ -2074,7 +2079,7 @@ export function ColorSwatches({ colors, label }: { colors: string[]; label: stri
   return (
     <span role="img" aria-label={label} className="flex shrink-0 gap-1.5">
       {colors.map((color, i) => (
-        <span key={i} className="size-6 rounded-full border border-line" style={{ background: color }} />
+        <span key={i} className="size-6 rounded-full border border-outline-variant" style={{ background: color }} />
       ))}
     </span>
   );
@@ -2280,7 +2285,7 @@ export function ChoiceRow({
       trailing={
         <span className="flex items-center gap-3">
           {trailing}
-          <Check size={20} className={`shrink-0 ${selected ? 'text-accent' : 'invisible'}`} />
+          <Check size={20} className={`shrink-0 ${selected ? 'text-primary' : 'invisible'}`} />
         </span>
       }
     />
@@ -2300,7 +2305,7 @@ export const plainListClass = siteListClasses('standard');
 /** The small heading over a Group, and over what stands as one (the themes on Konto): in Material 3's title small, as
  * written (not in capitals, Material 2's subheader), muted as a group's heading in a sheet (SheetGroupTitle). */
 export function GroupTitle({ children }: { children: ReactNode }) {
-  return <h2 className="mb-2 px-4 text-sm font-medium tracking-[0.00625rem] text-muted">{children}</h2>;
+  return <h2 className="mb-2 px-4 text-sm font-medium tracking-[0.00625rem] text-on-surface-variant">{children}</h2>;
 }
 
 /** The theme's ripple on every part the editor draws that is pressed (its buttons, rows, chips …), as on the site:
@@ -2328,7 +2333,7 @@ const inText = {
 /** What a list or a screen says when it has nothing to show (Ingen …), or while it is fetched (`busy`,
  * with the LoadingIndicator: Henter…): grey, in the middle. `item`: as an item of a list. */
 export function EmptyNote({ item, busy, children }: { item?: boolean; busy?: boolean; children: ReactNode }) {
-  const className = 'px-4 py-6 text-center text-muted';
+  const className = 'px-4 py-6 text-center text-on-surface-variant';
   const text = busy ? <LoadingIndicator>{children}</LoadingIndicator> : children;
   return item ? <li className={className}>{text}</li> : <p className={className}>{text}</p>;
 }
@@ -2337,7 +2342,7 @@ export function EmptyNote({ item, busy, children }: { item?: boolean; busy?: boo
  * not be read. `alert`: read by screen readers as soon as it is shown. */
 export function ProblemNote({ alert, children }: { alert?: boolean; children: ReactNode }) {
   return (
-    <div role={alert ? 'alert' : undefined} className="text-sm break-words text-accent">
+    <div role={alert ? 'alert' : undefined} className="text-sm break-words text-primary">
       {children}
     </div>
   );
@@ -2369,21 +2374,25 @@ export function FoldSection({
 }) {
   const id = useId();
   return (
-    <section ref={ref} aria-labelledby={`${id}-title`} className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-line">
+    <section
+      ref={ref}
+      aria-labelledby={`${id}-title`}
+      className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-outline-variant"
+    >
       <h2>
         <button
           type="button"
           id={`${id}-title`}
           aria-expanded={open}
           aria-controls={`${id}-body`}
-          className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--block-radius-small) px-3 py-4 text-left text-xl font-semibold transition-colors hover:bg-tint focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
+          className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--block-radius-small) px-3 py-4 text-left text-xl font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           onClick={onToggle}
         >
           <span className="min-w-0 flex-1">{title}</span>
           <CaretDown
             size={20}
             aria-hidden="true"
-            className={`shrink-0 text-muted transition-transform motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
+            className={`shrink-0 text-on-surface-variant transition-transform motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
           />
         </button>
       </h2>
@@ -2518,9 +2527,9 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
         aria-expanded={shown}
         leading={mark(item.ok)}
         headline={text}
-        trailing={<CaretDown size={18} className={`shrink-0 text-muted transition-transform ${shown ? 'rotate-180' : ''}`} />}
+        trailing={<CaretDown size={18} className={`shrink-0 text-on-surface-variant transition-transform ${shown ? 'rotate-180' : ''}`} />}
       >
-        {shown && <p className="editor-reveal px-4 pb-3 pl-11 text-muted">{item.fix}</p>}
+        {shown && <p className="editor-reveal px-4 pb-3 pl-11 text-on-surface-variant">{item.fix}</p>}
       </ListItem>
     ) : (
       <ListItem key={item.text} leading={mark(item.ok)} headline={text} />
@@ -2569,13 +2578,13 @@ export function SharePreview({ image, domain, title, description }: { image: str
       <img
         src={image}
         alt=""
-        className={`aspect-[1.91/1] w-full bg-line/50 object-cover ${tall ? 'object-[50%_20%]' : ''}`}
+        className={`aspect-[1.91/1] w-full bg-outline-variant/50 object-cover ${tall ? 'object-[50%_20%]' : ''}`}
         onLoad={(e) => setTall(e.currentTarget.naturalHeight >= e.currentTarget.naturalWidth)}
       />
-      <figcaption className="space-y-0.5 border-t border-line px-4 py-3">
-        <span className="block truncate text-xs tracking-wide text-muted uppercase">{domain}</span>
+      <figcaption className="space-y-0.5 border-t border-outline-variant px-4 py-3">
+        <span className="block truncate text-xs tracking-wide text-on-surface-variant uppercase">{domain}</span>
         <span className="line-clamp-2 font-semibold">{title}</span>
-        <span className="line-clamp-2 text-sm text-muted">{description}</span>
+        <span className="line-clamp-2 text-sm text-on-surface-variant">{description}</span>
       </figcaption>
     </figure>
   );
@@ -2600,7 +2609,7 @@ export function ImageCarousel({ label, images }: { label: string; images: { src:
             <button
               type="button"
               aria-haspopup="dialog"
-              className="block aspect-[3/4] w-full overflow-hidden border border-line bg-surface"
+              className="block aspect-[3/4] w-full overflow-hidden border border-outline-variant bg-surface-container-lowest"
               onClick={() => {
                 setShown(x);
                 sheet.current?.showModal();
@@ -2620,7 +2629,7 @@ export function ImageCarousel({ label, images }: { label: string; images: { src:
         <SheetTitle title={shown?.label ?? ''} onClose={() => sheet.current?.close()} />
         {shown && (
           <SheetBody>
-            <img src={shown.src} alt={shown.label} className="mx-auto w-full max-w-sm border border-line" />
+            <img src={shown.src} alt={shown.label} className="mx-auto w-full max-w-sm border border-outline-variant" />
           </SheetBody>
         )}
       </BottomSheet>
@@ -2733,7 +2742,7 @@ export function SectionList({
               type="button"
               aria-current={id === value ? 'location' : undefined}
               onClick={() => onChange(id)}
-              className="section-list-item flex w-full items-center gap-2 rounded-(--block-radius-small) px-2 py-2 text-start text-muted transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none aria-[current=location]:text-accent"
+              className="section-list-item flex w-full items-center gap-2 rounded-(--block-radius-small) px-2 py-2 text-start text-on-surface-variant transition-colors hover:text-on-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none aria-[current=location]:text-primary"
             >
               <span className="min-w-0">{label}</span>
               {badge ? <SiteBadge count={badge === true ? undefined : badge} /> : null}
@@ -2752,8 +2761,8 @@ export function SectionList({
 export function SectionPane({ caption, title, children }: { caption: string; title: string; children: ReactNode }) {
   return (
     <div className={`${siteCardClass('outlined')} max-h-[calc(100dvh-2*var(--section-pane-gap))] overflow-y-auto`}>
-      <p className="section-pane-caption m-0 text-muted">{caption}</p>
-      <h2 className="section-pane-title m-0 mb-3 text-ink">{title}</h2>
+      <p className="section-pane-caption m-0 text-on-surface-variant">{caption}</p>
+      <h2 className="section-pane-title m-0 mb-3 text-on-surface">{title}</h2>
       {children}
     </div>
   );
@@ -2815,7 +2824,7 @@ export function MainDrawer({
 // menu button at the top, which opens the drawer. Never expanded itself: the drawer is what expands (MainDrawer).
 function MainRail({ label, onOpen, children }: { label: string; onOpen: () => void; children: ReactNode }) {
   return (
-    <aside className="editor-main-rail-frame sticky top-0 z-10 h-dvh shrink-0 self-start bg-(--navigation-rail-surface,var(--bg)) pt-[env(safe-area-inset-top)]">
+    <aside className="editor-main-rail-frame sticky top-0 z-10 h-dvh shrink-0 self-start bg-(--navigation-rail-surface,var(--surface)) pt-[env(safe-area-inset-top)]">
       <SiteNavigationRail
         label={label}
         menuLabel={t.library.openMenu}
@@ -3251,7 +3260,9 @@ export function LeadingIcon({ icon: Glyph, selected = false, children }: { icon?
  * corners of a field, beside its row's first two lines, as an icon; the picture a page's colours came from ("Farver" ›
  * "Sider"). `alt` empty when the row's text says what it is. */
 export function LeadingImage({ src, alt = '' }: { src: string; alt?: string }) {
-  return <img src={src} alt={alt} loading="lazy" className="size-10 rounded-(--block-radius-small) bg-tint object-cover" />;
+  return (
+    <img src={src} alt={alt} loading="lazy" className="size-10 rounded-(--block-radius-small) bg-surface-container-high object-cover" />
+  );
 }
 
 /** What a design token is, for the sample of it before its row ("Parts" › "Værdier", Tokens.tsx). */
@@ -3265,14 +3276,18 @@ export type TokenKind = 'shape' | 'elevation' | 'font' | 'color';
 export function LeadingToken({ kind, value, weight }: { kind: TokenKind; value: string; weight?: string }) {
   return (
     <span className="flex size-10 items-center justify-center" aria-hidden="true">
-      {kind === 'shape' && <span className="size-10 border-t-2 border-l-2 border-accent bg-tint" style={{ borderTopLeftRadius: value }} />}
-      {kind === 'elevation' && <span className="size-8 rounded-(--block-radius) bg-surface" style={{ boxShadow: value }} />}
+      {kind === 'shape' && (
+        <span className="size-10 border-t-2 border-l-2 border-primary bg-surface-container-high" style={{ borderTopLeftRadius: value }} />
+      )}
+      {kind === 'elevation' && (
+        <span className="size-8 rounded-(--block-radius) bg-surface-container-lowest" style={{ boxShadow: value }} />
+      )}
       {kind === 'font' && (
         <span className="text-2xl leading-none" style={{ fontFamily: value, fontWeight: weight }}>
           Aa
         </span>
       )}
-      {kind === 'color' && <span className="size-8 rounded-full border border-line" style={{ background: value }} />}
+      {kind === 'color' && <span className="size-8 rounded-full border border-outline-variant" style={{ background: value }} />}
     </span>
   );
 }
@@ -3360,7 +3375,7 @@ export function PageFrame({ html, width, title, part }: { html: string; width: n
   return (
     <div
       ref={box}
-      className="relative min-h-0 flex-1 overflow-hidden border-t border-line bg-line/40"
+      className="relative min-h-0 flex-1 overflow-hidden border-t border-outline-variant bg-outline-variant/40"
       style={part ? { height: (cut?.height ?? 0) * scale } : undefined}
     >
       {size.width > 0 && (
@@ -3561,7 +3576,7 @@ function ChoiceSheet<T extends string>({
               {o.detail ? (
                 <span className="flex gap-3">
                   <span className="min-w-0 flex-1">{o.label}</span>
-                  <span className="shrink-0 text-muted tabular-nums">{o.detail}</span>
+                  <span className="shrink-0 text-on-surface-variant tabular-nums">{o.detail}</span>
                 </span>
               ) : (
                 o.label
@@ -3662,8 +3677,13 @@ export function Filters({ title, selected, groups }: { title: string; selected?:
                       onClick={() => toggle(g.title)}
                     >
                       <span className="min-w-0 flex-1">{g.title}</span>
-                      <span className="min-w-0 truncate font-normal text-muted">{g.options.find((o) => o.value === g.value)?.label}</span>
-                      <CaretDown size={16} className={`shrink-0 text-muted transition-transform ${unfolded ? 'rotate-180' : ''}`} />
+                      <span className="min-w-0 truncate font-normal text-on-surface-variant">
+                        {g.options.find((o) => o.value === g.value)?.label}
+                      </span>
+                      <CaretDown
+                        size={16}
+                        className={`shrink-0 text-on-surface-variant transition-transform ${unfolded ? 'rotate-180' : ''}`}
+                      />
                     </button>
                   </h3>
                 )}
@@ -3873,7 +3893,7 @@ export function PickListItem({
       aria-haspopup="dialog"
       headline={title}
       trailing={
-        <span lang={lang} className="min-w-0 truncate text-muted">
+        <span lang={lang} className="min-w-0 truncate text-on-surface-variant">
           {chosen}
         </span>
       }
@@ -3941,7 +3961,7 @@ export function NewChoice<T extends string>({
                 <LeadingIcon icon={o.icon} />
                 <span className="min-w-0">
                   <span className="block font-medium">{o.label}</span>
-                  {o.hint && <span className="block text-sm text-muted">{o.hint}</span>}
+                  {o.hint && <span className="block text-sm text-on-surface-variant">{o.hint}</span>}
                 </span>
               </button>
             </li>

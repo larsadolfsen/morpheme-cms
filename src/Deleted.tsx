@@ -145,7 +145,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
 
   return (
     <Screen title={t.history.deletedOf(label)} wide back={back}>
-      <p className="mb-4 text-muted">{t.history.deletedNote}</p>
+      <p className="mb-4 text-on-surface-variant">{t.history.deletedNote}</p>
       {problem && <ProblemNote>{problem}</ProblemNote>}
       {!deleted && !problem && <EmptyNote busy>{t.history.loadingDeleted}</EmptyNote>}
       {deleted && (
@@ -178,12 +178,12 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
           <SheetBody>
             {ShownIcon && (
               <p className="flex items-center gap-3 font-medium">
-                <ShownIcon size={36} className="shrink-0 text-muted" />
+                <ShownIcon size={36} className="shrink-0 text-on-surface-variant" />
                 <span className="min-w-0 break-all">{fileName(shown.file.path)}</span>
               </p>
             )}
             <FileView src={shown.src} name={fileName(shown.file.path)} />
-            <p className="text-sm text-muted">{capital(t.history.deletedAt(when(shown.file.at), shown.file.by))}</p>
+            <p className="text-sm text-on-surface-variant">{capital(t.history.deletedAt(when(shown.file.at), shown.file.by))}</p>
             <Button busy={restoring} disabled={busy} onClick={() => restore(shown.file, shown.bytes)}>
               {t.history.restore}
             </Button>

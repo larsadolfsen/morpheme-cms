@@ -93,7 +93,7 @@ export default function AppInfoTab({
             <div key={n.version} className="mb-3 px-4 last:mb-0">
               <h3 className="font-medium">{t.apps.version(n.version)}</h3>
               {n.text.split(/\n\s*\n/).map((p) => (
-                <p key={p} className="text-muted">
+                <p key={p} className="text-on-surface-variant">
                   {p}
                 </p>
               ))}

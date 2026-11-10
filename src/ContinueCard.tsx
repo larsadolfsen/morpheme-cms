@@ -72,7 +72,7 @@ export function ContinueCard({ files, savedAt }: { files: RepoFile[]; savedAt: E
           ))}
         </ul>
       ) : (
-        <p className="px-4 pb-2 text-sm text-muted">{history ? t.library.continueEmpty : t.app.loading}</p>
+        <p className="px-4 pb-2 text-sm text-on-surface-variant">{history ? t.library.continueEmpty : t.app.loading}</p>
       )}
     </SiteCard>
   );

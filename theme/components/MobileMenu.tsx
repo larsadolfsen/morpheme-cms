@@ -159,7 +159,7 @@ export default function MobileMenu({
                   exit={reduce ? undefined : { x: away, transition: spring.leave }}
                 >
                   <div className="md-drawer-head">
-                    <span aria-hidden="true" className="logo-mark h-10 w-9 shrink-0 bg-accent" />
+                    <span aria-hidden="true" className="logo-mark h-10 w-9 shrink-0 bg-primary" />
                     <div className="min-w-0 flex-1 leading-tight">
                       <p className="md-drawer-name">{name}</p>
                       <p className="md-drawer-role">{role}</p>

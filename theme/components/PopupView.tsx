@@ -29,7 +29,7 @@ export default function PopupView({ popup, Part, part }: { popup: PopupBoxView; 
           height={popup.image.height}
           sizes="min(28rem, calc(100vw - 2rem))"
           alt=""
-          className="block aspect-[3/2] w-full bg-tint object-cover"
+          className="block aspect-[3/2] w-full bg-surface-container-high object-cover"
         />
       )}
       <div className="p-6 medium:p-8">
@@ -37,7 +37,7 @@ export default function PopupView({ popup, Part, part }: { popup: PopupBoxView; 
           {popup.heading}
         </h2>
         {popup.text.map((t, i) => (
-          <p key={i} className="mt-3 text-muted">
+          <p key={i} className="mt-3 text-on-surface-variant">
             {t}
           </p>
         ))}

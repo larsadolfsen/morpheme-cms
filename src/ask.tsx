@@ -86,7 +86,7 @@ export function Ask() {
               <section key={n.title}>
                 <h3 className="font-medium">{n.title}</h3>
                 {n.text.split(/\n\s*\n/).map((p, i) => (
-                  <p key={i} className="mt-1 text-muted">
+                  <p key={i} className="mt-1 text-on-surface-variant">
                     {p}
                   </p>
                 ))}

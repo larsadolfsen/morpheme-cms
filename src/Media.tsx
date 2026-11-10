@@ -158,8 +158,8 @@ function FileTile({ src }: { src: string }) {
   const Icon = fileIcons[fileKindOf(src)!];
   return (
     <span className="flex size-full flex-col items-center justify-center gap-2 p-2 text-center">
-      <Icon size={36} className="shrink-0 text-muted" />
-      <span className="line-clamp-2 text-xs break-all text-muted">{nameOfSrc(src)}</span>
+      <Icon size={36} className="shrink-0 text-on-surface-variant" />
+      <span className="line-clamp-2 text-xs break-all text-on-surface-variant">{nameOfSrc(src)}</span>
     </span>
   );
 }
@@ -176,7 +176,7 @@ function Grid({ srcs, picked, onPick }: { srcs: string[]; picked?: string | null
         <li key={src}>
           <button
             type="button"
-            className={`group block aspect-square w-full overflow-hidden rounded-lg bg-tint ${src === picked ? 'ring-2 ring-accent ring-offset-2 ring-offset-bg' : ''}`}
+            className={`group block aspect-square w-full overflow-hidden rounded-lg bg-surface-container-high ${src === picked ? 'ring-offset-bg ring-2 ring-primary ring-offset-2' : ''}`}
             aria-label={nameOfSrc(src)}
             aria-pressed={picked === undefined ? undefined : src === picked}
             onClick={() => onPick(src)}
@@ -347,7 +347,9 @@ function Gallery({
       )}
       {groups.map((g) => (
         <section key={g.key ?? 'all'} className="mt-4">
-          {g.key !== null && <h2 className="mb-2 text-sm font-medium text-muted">{sort === 'name' ? g.key : dateName(g.key)}</h2>}
+          {g.key !== null && (
+            <h2 className="mb-2 text-sm font-medium text-on-surface-variant">{sort === 'name' ? g.key : dateName(g.key)}</h2>
+          )}
           <Grid srcs={g.items} picked={picked} onPick={onPick} />
         </section>
       ))}
@@ -613,7 +615,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
                 autoComplete="off"
                 onChange={(e) => setName(e.target.value)}
               />
-              <span className="mr-1 text-muted">{endingOf(src)}</span>
+              <span className="mr-1 text-on-surface-variant">{endingOf(src)}</span>
               <IconButton
                 icon={X}
                 label={t.common.cancel}
@@ -633,7 +635,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
             </>
           ) : (
             <>
-              <span className="min-w-0 flex-1 break-words text-muted">{fileName(src)}</span>
+              <span className="min-w-0 flex-1 break-words text-on-surface-variant">{fileName(src)}</span>
               {code && !code.includes(src) && (
                 <IconButton icon={PencilSimple} label={t.media.kinds[kindOf(src)].rename} onClick={() => setEditing(true)} />
               )}
@@ -655,7 +657,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
             {code?.includes(src) && <ListItem tone="muted" headline={t.media.siteDesign} />}
           </ul>
         ) : (
-          <p className="text-muted">{t.media.noPages}</p>
+          <p className="text-on-surface-variant">{t.media.noPages}</p>
         )}
       </div>
       <MediaTags key={src} src={src} files={files} env={env} />

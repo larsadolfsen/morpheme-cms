@@ -286,8 +286,8 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
             <img src={of.icon} alt="" className="size-16 shrink-0 rounded-2xl" />
             <span className="min-w-0 flex-1">
               <span className="block truncate font-medium">{of.name}</span>
-              <span className="block truncate text-sm text-muted">{t.library.themeByline(of.version, of.author)}</span>
-              <span className="block text-sm text-muted">{pending ? t.apps.pending : t.apps.notInstalled}</span>
+              <span className="block truncate text-sm text-on-surface-variant">{t.library.themeByline(of.version, of.author)}</span>
+              <span className="block text-sm text-on-surface-variant">{pending ? t.apps.pending : t.apps.notInstalled}</span>
             </span>
           </div>
           {!pending && (

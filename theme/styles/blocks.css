@@ -6,7 +6,7 @@
   the site and in the editor, in the standard theme. Every colour, shape and motion comes from a CSS variable, which a
   theme sets to its own design in its own CSS:
 
-    :root { --block-accent: var(--accent); --block-radius: 1.5rem; }
+    :root { --block-accent: var(--primary); --block-radius: 1.5rem; }
 
   Without them, the blocks have a plain look of their own (the values below). Sizes and spacing are
   the blocks' own, in rem; their text has the site's font. Every theme imports this file into its CSS
@@ -117,7 +117,7 @@
   .text-section-tint {
     background: var(--block-tint);
   }
-  /* On the accent everything in the text is the text-on-accent colour (the prose colours are variables, .prose in base.css),
+  /* On the accent everything in the text is the text-on-primary colour (the prose colours are variables, .prose in base.css),
      links too: they are underlined by the prose style. The section's real colours are kept in private variables first
      (--section-…): the blocks in it get the variables swapped (below), and a variable cannot swap with another on the
      same element. */
@@ -141,8 +141,8 @@
     --tw-prose-captions: var(--section-on-accent);
     --tw-prose-code: var(--section-on-accent);
   }
-  /* The blocks in it read as an inverted theme on the accent: text, lines and the accent itself are the text-on-accent
-     colour, a surface is a veil of it, and what was text-on-accent (a filled button's label, a step number) is the
+  /* The blocks in it read as an inverted theme on the accent: text, lines and the accent itself are the text-on-primary
+     colour, a surface is a veil of it, and what was text-on-primary (a filled button's label, a step number) is the
      accent. Dark mode follows, as the variables do. */
   .text-section-accent > * {
     --block-text: var(--section-on-accent);

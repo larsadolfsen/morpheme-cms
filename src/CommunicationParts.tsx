@@ -30,7 +30,7 @@ const say = t.parts.screens.communication;
 const Example = ({ name, children }: { name: string; children: ReactNode }) => (
   <div className="flex flex-col items-start gap-2">
     {children}
-    <span className="text-sm text-muted">{name}</span>
+    <span className="text-sm text-on-surface-variant">{name}</span>
   </div>
 );
 

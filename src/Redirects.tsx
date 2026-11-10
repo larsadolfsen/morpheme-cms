@@ -280,7 +280,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
             : undefined
       }
     >
-      <p className="mb-4 text-muted">{tab === 'redirects' ? t.redirects.intro : t.redirects.missing.intro}</p>
+      <p className="mb-4 text-on-surface-variant">{tab === 'redirects' ? t.redirects.intro : t.redirects.missing.intro}</p>
       <SearchRow
         value={query}
         onChange={setQuery}

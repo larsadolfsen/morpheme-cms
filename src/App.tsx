@@ -697,7 +697,7 @@ function Editor() {
           files &&
           user &&
           !user.canSave && (
-            <p className="bg-accent px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] text-center text-sm text-on-accent">
+            <p className="bg-primary px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] text-center text-sm text-on-primary">
               {t.app.cannotSave(user.login)}
             </p>
           )

@@ -85,7 +85,7 @@ function usePageSheet({ value, groups, required, title, hint, onChange }: Sheet)
       <SheetList div>
         {!required && !q && !tools.filtered && (
           <Choice role="option" selected={!value} onClick={() => pick('')}>
-            <span className={value ? 'text-muted' : ''}>{t.forms.noPage}</span>
+            <span className={value ? 'text-on-surface-variant' : ''}>{t.forms.noPage}</span>
           </Choice>
         )}
         {found.map((g) => (

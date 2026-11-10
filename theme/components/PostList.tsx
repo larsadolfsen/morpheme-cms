@@ -35,7 +35,7 @@ export default function PostList({
         data-random-posts={random ? count : undefined}
       >
         {posts.map((post, i) => (
-          <li key={post.href || post.title} hidden={random && i >= count} className="border-t border-line">
+          <li key={post.href || post.title} hidden={random && i >= count} className="border-t border-outline-variant">
             <Link href={post.href} className="group grid grid-cols-[5.5rem_1fr] gap-4 py-5 medium:grid-cols-[8rem_1fr] medium:gap-5">
               {post.image ? (
                 <Img
@@ -45,12 +45,12 @@ export default function PostList({
                   sizes={`(min-width: ${BREAKPOINTS.medium}px) 128px, 88px`}
                 />
               ) : (
-                <span className="theme-post-picture aspect-square bg-tint" />
+                <span className="theme-post-picture aspect-square bg-surface-container-high" />
               )}
               <div>
                 <PostMeta post={post} />
-                <h3 className="mt-1 type-title-medium transition-colors group-hover:text-accent">{post.title}</h3>
-                {post.description && <p className="mt-1.5 line-clamp-2 type-body-medium text-muted">{post.description}</p>}
+                <h3 className="mt-1 type-title-medium transition-colors group-hover:text-primary">{post.title}</h3>
+                {post.description && <p className="mt-1.5 line-clamp-2 type-body-medium text-on-surface-variant">{post.description}</p>}
               </div>
             </Link>
           </li>

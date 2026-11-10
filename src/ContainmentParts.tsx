@@ -22,7 +22,7 @@ const numbers = [1, 2, 3, 4, 5, 6];
 function Shown({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="space-y-2">
-      <p className="text-sm text-muted">{label}</p>
+      <p className="text-sm text-on-surface-variant">{label}</p>
       {children}
     </div>
   );
@@ -64,7 +64,7 @@ function Dialogs() {
       <Shown label={say.dialogKinds.container}>
         <SiteDialog className="p-6">
           <p className="text-lg font-medium">{say.heading}</p>
-          <p className="mt-2 text-muted">{say.text}</p>
+          <p className="mt-2 text-on-surface-variant">{say.text}</p>
         </SiteDialog>
       </Shown>
       <Shown label={say.dialogKinds.fullScreen}>
@@ -94,15 +94,15 @@ function BottomSheets() {
   // The frame holds the sheet (contain: layout) and is as high as a phone screen to it (a size container).
   const frame = (label: string, sheet: ReactNode) => (
     <Shown label={label}>
-      <div className="[container-type:size] relative h-160 overflow-hidden rounded-xl border border-line [contain:layout]">
-        <p className="p-4 text-muted">{say.page}</p>
+      <div className="[container-type:size] relative h-160 overflow-hidden rounded-xl border border-outline-variant [contain:layout]">
+        <p className="p-4 text-on-surface-variant">{say.page}</p>
         {sheet}
       </div>
     </Shown>
   );
   const texts = (count: number) =>
     Array.from({ length: count }, (_, i) => (
-      <p key={i + 1} className="mb-3 text-muted">
+      <p key={i + 1} className="mb-3 text-on-surface-variant">
         {say.text}
       </p>
     ));
@@ -149,7 +149,7 @@ function BottomSheets() {
       {frame(
         say.sheetKinds.fixed,
         <SiteBottomSheet kind="standard" states={['expanded']} dragHandle={false} label={say.sheetLabel}>
-          <p className="text-muted">{say.text}</p>
+          <p className="text-on-surface-variant">{say.text}</p>
         </SiteBottomSheet>,
       )}
       {frame(

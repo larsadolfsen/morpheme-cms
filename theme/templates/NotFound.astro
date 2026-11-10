@@ -38,10 +38,10 @@ const spaceOf = (i: number) => (i === 0 ? 'mt-6 medium:mt-8' : space(i));
   <Container as="div" class="mt-8 medium:mt-12">
     <Card href="" id="suggestion" hidden className="group flex max-w-2xl items-center justify-between gap-6">
       <span>
-        <span class="type-body-medium block text-muted">{siteT.theme.didYouMean}</span>
-        <span id="suggestion-title" class="type-title-large mt-1 block group-hover:text-accent"></span>
+        <span class="type-body-medium block text-on-surface-variant">{siteT.theme.didYouMean}</span>
+        <span id="suggestion-title" class="type-title-large mt-1 block group-hover:text-primary"></span>
       </span>
-      <Icon name="arrow-right" size={22} class="shrink-0 text-accent transition-transform group-hover:translate-x-0.5" />
+      <Icon name="arrow-right" size={22} class="shrink-0 text-primary transition-transform group-hover:translate-x-0.5" />
     </Card>
   </Container>
 

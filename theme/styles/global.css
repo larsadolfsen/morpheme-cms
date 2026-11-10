@@ -11,23 +11,19 @@
   as wide as their label (filled and tonal) and lists in segments. The theme's own parts (the top app bar, the
   navigation drawer, the FAB, the footer) are at the end.
 
-  The colours are the site's (src/data/colors.json, "Farver" in the editor), used by name as in the standard theme
-  and mapped to the M3 roles: primary = --accent, on-primary = --on-accent, surface bright (the page) = --bg, the three
-  surfaces = --surface-dim, --surface-default and --surface-bright, the surface containers = --surface-container-low, --surface-container, --surface-container-high and --surface-container-highest,
-  on-surface = --ink, on-surface-variant = --muted, outline = --outline, outline variant = --line, the inverse colours
-  = --inverse-surface, --inverse-on-surface and --inverse-primary, and the error colours = --error, --on-error,
-  --error-container and --on-error-container. They are M3's own
-  when the colours are made from a source colour (dynamic colour), and every text on them keeps the contrast the editor
-  checks (colorPairs), in light and dark mode.
+  The colours are the site's (src/data/colors.json, "Colors" in the editor): Material 3's colour roles
+  (m3.material.io/styles/color/roles), each by its own name as a variable (--primary, --on-surface, --surface-container-high …),
+  and none else. The page is on --surface. They are M3's own when the colours are made from a source colour (dynamic
+  colour), and every text on them keeps the contrast the editor checks (colorPairs), in light and dark mode.
 */
 :root,
 .text-section-accent > * {
-  /* The surfaces and the outline, M3's roles as the site's colours ("Farver"): the page on the background (M3's surface
-     bright), M3's three surfaces (dim, default and bright), --surface the lowest container, and the containers each a
-     step towards the text's colour. */
-  --md-background: var(--bg);
+  /* The surfaces and the outline, M3's roles as the site's colours ("Colors"): the page on Surface (M3 has no separate
+     background role any more), then Surface dim and Surface bright, the five containers each a step towards the text's
+     colour. The parts take them through these aliases. */
+  --md-background: var(--surface);
   --md-surface-dim: var(--surface-dim);
-  --md-surface: var(--surface-default);
+  --md-surface: var(--surface);
   --md-surface-bright: var(--surface-bright);
   --md-surface-container-lowest: var(--surface-container-lowest);
   --md-surface-container-low: var(--surface-container-low);
@@ -36,9 +32,9 @@
   --md-surface-container-highest: var(--surface-container-highest);
   --md-outline: var(--outline);
   /* State layers: on-surface (or primary) over the element, 8% pointed at, 10% pressed. */
-  --md-hover: color-mix(in srgb, var(--ink) 8%, transparent);
-  --md-pressed: color-mix(in srgb, var(--ink) 10%, transparent);
-  --md-primary-hover: color-mix(in srgb, var(--accent) 8%, transparent);
+  --md-hover: color-mix(in srgb, var(--on-surface) 8%, transparent);
+  --md-pressed: color-mix(in srgb, var(--on-surface) 10%, transparent);
+  --md-primary-hover: color-mix(in srgb, var(--primary) 8%, transparent);
   /* M3's elevation levels (m3.material.io/styles/elevation, as material-web draws them: a key and an ambient shadow),
      the same in light and dark mode. Every part takes its M3 level from them by default (ui.css). */
   --elevation-0: 0 0 #0000;
@@ -77,7 +73,7 @@
   --md-shape-full: 9999px;
 
   --radius: var(--md-shape-medium);
-  --shadow: var(--elevation-1-rest-shadow);
+  --panel-shadow: var(--elevation-1-rest-shadow);
   /* The site's motion scheme's curve ("Bevægelse", @morphemecms/cms/lib/motion.ts). */
   --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
 
@@ -100,7 +96,7 @@
   --bottom-sheet-radius: var(--md-shape-extra-large);
   --bottom-sheet-line: transparent;
   --bottom-sheet-scrim: var(--md-scrim);
-  --bottom-sheet-handle: color-mix(in srgb, var(--muted) 40%, transparent);
+  --bottom-sheet-handle: color-mix(in srgb, var(--on-surface-variant) 40%, transparent);
   /* The carousel's page indicator: the dots in the outline, the chosen one a longer pill (in the primary colour). */
   --carousel-dot-colour: var(--md-outline);
   /* The carousel's items: extra-large corners, none on a full-screen one. */
@@ -118,9 +114,9 @@
   --chip-line: var(--md-outline);
   --chip-hover-line: var(--md-outline);
   --chip-hover-text: currentColor;
-  --chip-selected-surface: var(--tint);
-  --chip-selected-hover: color-mix(in srgb, var(--ink) 8%, var(--tint));
-  --chip-selected-text: var(--ink);
+  --chip-selected-surface: var(--surface-container-high);
+  --chip-selected-hover: color-mix(in srgb, var(--on-surface) 8%, var(--surface-container-high));
+  --chip-selected-text: var(--on-surface);
   --chip-selected-check: block;
   /* The page's headline: the M3 type scale (display small on a phone, display medium on a computer). */
   /* The front page: its headline closer to the first section under it. */
@@ -151,27 +147,27 @@
   --button-xsmall-padding: 1rem;
   --button-xsmall-gap: 0.5rem;
   --button-text-padding: 0.75rem;
-  --button-filled-hover: color-mix(in srgb, var(--on-accent) 8%, var(--accent));
-  --button-tonal-surface: var(--tint);
-  --button-tonal-text: var(--ink);
-  --button-tonal-hover: color-mix(in srgb, var(--ink) 8%, var(--tint));
-  --button-elevated-text: var(--accent);
+  --button-filled-hover: color-mix(in srgb, var(--on-primary) 8%, var(--primary));
+  --button-tonal-surface: var(--surface-container-high);
+  --button-tonal-text: var(--on-surface);
+  --button-tonal-hover: color-mix(in srgb, var(--on-surface) 8%, var(--surface-container-high));
+  --button-elevated-text: var(--primary);
   --button-outlined-surface: transparent;
-  --button-outlined-text: var(--accent);
+  --button-outlined-text: var(--primary);
   --button-outlined-line: var(--md-outline);
-  --button-outlined-hover-text: var(--accent);
+  --button-outlined-hover-text: var(--primary);
   --button-outlined-hover-line: var(--md-outline);
-  --button-text-text: var(--accent);
+  --button-text-text: var(--primary);
   --button-text-hover: var(--md-primary-hover);
   /* Icon buttons: 48 by 48 with a 24px icon; standard in on-surface-variant without a container, tonal in the
      secondary container (the cross on a pop-up, as it can stand on a picture). */
   --icon-button-size: 3rem;
   --icon-button-icon-size: 1.5rem;
-  --icon-button-standard-text: var(--muted);
-  --icon-button-tonal-surface: var(--tint);
-  --icon-button-tonal-text: var(--ink);
+  --icon-button-standard-text: var(--on-surface-variant);
+  --icon-button-tonal-surface: var(--surface-container-high);
+  --icon-button-tonal-text: var(--on-surface);
   --icon-button-outlined-surface: transparent;
-  --icon-button-outlined-text: var(--muted);
+  --icon-button-outlined-text: var(--on-surface-variant);
   --icon-button-outlined-line: var(--md-outline);
   /* Text fields: 56px, 4px corners, the content 16px from the edges; outlined with M3's outline, on-surface when
      pointed at and 2px in the primary colour while written in; filled in the highest container with an active
@@ -183,12 +179,12 @@
   --text-field-radius: var(--md-shape-extra-small);
   --text-field-outlined-surface: transparent;
   --text-field-outlined-line: var(--md-outline);
-  --text-field-outlined-hover-line: var(--ink);
-  --text-field-outlined-focus-line: var(--accent);
+  --text-field-outlined-hover-line: var(--on-surface);
+  --text-field-outlined-focus-line: var(--primary);
   --text-field-filled-surface: var(--md-surface-container-highest);
-  --text-field-filled-line: var(--muted);
-  --text-field-filled-hover-line: var(--ink);
-  --text-field-filled-focus-line: var(--accent);
+  --text-field-filled-line: var(--on-surface-variant);
+  --text-field-filled-hover-line: var(--on-surface);
+  --text-field-filled-focus-line: var(--primary);
   --text-field-label-surface: var(--md-background);
   --text-field-error: var(--error);
   --text-field-disabled-opacity: 0.38;
@@ -202,7 +198,7 @@
   --card-gap: 0.5rem;
   --card-filled-surface: var(--md-surface-container-highest);
   --card-outlined-surface: var(--surface);
-  --card-outlined-line: var(--line);
+  --card-outlined-line: var(--outline-variant);
   /* Lists (M3 Expressive's list tokens, m3.material.io/components/lists/specs): items 56, 72 and 88px high by their lines,
      16px in from their sides, 10px over and under their text and 12px between their elements, without lines between
      them; 20px icons; the label text in body large (16/24, 400, 0.5; a setting row's name too), the supporting text in
@@ -226,16 +222,16 @@
   --list-item-icon-size: 1.25rem;
   --list-item-hover-surface: var(--md-hover);
   --list-item-pressed-surface: var(--md-pressed);
-  --list-item-hover-icon-color: var(--muted);
+  --list-item-hover-icon-color: var(--on-surface-variant);
   --list-item-focus-surface: var(--md-pressed);
   --list-item-focus-indicator-color: var(--secondary);
-  --list-item-hover-text: var(--ink);
+  --list-item-hover-text: var(--on-surface);
   --list-item-hover-trailing-shift: 0;
   --list-item-selected-surface: var(--secondary-container);
   --list-item-selected-text: var(--on-secondary-container);
   --list-item-selected-weight: 400;
   --setting-row-label-weight: var(--type-body-large-weight);
-  --list-item-leading-icon-selected-color: var(--accent);
+  --list-item-leading-icon-selected-color: var(--primary);
   --list-item-disabled-opacity: 0.38;
   --list-segmented-gap: 0.125rem;
   --list-segmented-radius: var(--md-shape-medium);
@@ -247,7 +243,7 @@
   --list-segmented-surface: var(--md-surface-container);
   --list-segmented-hover-surface: var(--md-hover);
   --list-segmented-pressed-surface: var(--md-pressed);
-  --list-segmented-disabled-surface: color-mix(in srgb, var(--ink) 10%, transparent);
+  --list-segmented-disabled-surface: color-mix(in srgb, var(--on-surface) 10%, transparent);
 
   /* The header's parts (ui.css): the top app bar on the background, in a surface container once the page scrolls under
      it (M3 shows its second elevation there by that surface alone), without a line, a shadow or a blur. */
@@ -275,9 +271,9 @@
   --menu-item-font-size: var(--type-label-large-size);
   --menu-item-letter-spacing: var(--type-label-large-tracking);
   --menu-item-weight: var(--type-label-large-weight);
-  --menu-item-text: var(--ink);
+  --menu-item-text: var(--on-surface);
   --menu-item-hover-surface: var(--md-hover);
-  --menu-item-hover-text: var(--ink);
+  --menu-item-hover-text: var(--on-surface);
   --menu-item-selected-surface: var(--tertiary-container);
   --menu-item-selected-text: var(--on-tertiary-container);
   --menu-item-selected-weight: var(--type-label-large-weight);
@@ -289,20 +285,20 @@
   --navigation-drawer-toggle-hover: var(--md-hover);
   /* FABs: 56px high with large corners, the medium (80px) large increased, the large (96px) extra-large; the third
      elevation, the fourth when pointed at, a state layer. The secondary
-     container is the theme's (--tint, as everywhere here). */
+     container is the theme's (--surface-container-high, as everywhere here). */
   --fab-radius: var(--md-shape-large);
   --fab-medium-radius: var(--md-shape-large-increased);
   --fab-large-radius: var(--md-shape-extra-large);
-  --fab-primary-hover: color-mix(in srgb, var(--on-accent) 8%, var(--accent));
-  --fab-secondary-container-surface: var(--tint);
-  --fab-secondary-container-text: var(--ink);
-  --fab-secondary-container-hover: color-mix(in srgb, var(--ink) 8%, var(--tint));
+  --fab-primary-hover: color-mix(in srgb, var(--on-primary) 8%, var(--primary));
+  --fab-secondary-container-surface: var(--surface-container-high);
+  --fab-secondary-container-text: var(--on-surface);
+  --fab-secondary-container-hover: color-mix(in srgb, var(--on-surface) 8%, var(--surface-container-high));
   /* The buttons that do more than one thing (ui.css, "Actions"), as M3's. Button groups 12px apart, or connected 2px
      apart with small corners between them (extra-small for the extra-small buttons, large and large increased for the
      large and extra-large); a toggle off in a surface container in on-surface-variant, on in the primary colour, with
      medium corners in a standard group. Segmented buttons 40px high (the buttons' height) with the
      outline and no container, the chosen in the secondary container with its check. Split buttons 2px apart with
-     extra-small corners between them (small for the large, medium for the extra-large). A FAB menu's actions as pills in the secondary container (the theme's --tint, below) and its
+     extra-small corners between them (small for the large, medium for the extra-large). A FAB menu's actions as pills in the secondary container (the theme's --surface-container-high, below) and its
      FAB a circle while open. */
   --button-group-gap: 0.75rem;
   --button-group-connected-gap: 0.125rem;
@@ -312,17 +308,17 @@
   --button-group-xlarge-inner-radius: var(--md-shape-large-increased);
   --button-group-selected-radius: var(--md-shape-medium);
   --button-toggle-surface: var(--md-surface-container);
-  --button-toggle-text: var(--muted);
-  --button-toggle-hover: color-mix(in srgb, var(--muted) 8%, var(--md-surface-container));
-  --button-toggle-selected-surface: var(--accent);
-  --button-toggle-selected-text: var(--on-accent);
-  --button-toggle-selected-hover: color-mix(in srgb, var(--on-accent) 8%, var(--accent));
+  --button-toggle-text: var(--on-surface-variant);
+  --button-toggle-hover: color-mix(in srgb, var(--on-surface-variant) 8%, var(--md-surface-container));
+  --button-toggle-selected-surface: var(--primary);
+  --button-toggle-selected-text: var(--on-primary);
+  --button-toggle-selected-hover: color-mix(in srgb, var(--on-primary) 8%, var(--primary));
   --segmented-button-surface: transparent;
   --segmented-button-line: var(--md-outline);
   --segmented-button-padding: 0.75rem;
-  --segmented-button-selected-surface: var(--tint);
-  --segmented-button-selected-text: var(--ink);
-  --segmented-button-selected-hover: color-mix(in srgb, var(--ink) 8%, var(--tint));
+  --segmented-button-selected-surface: var(--surface-container-high);
+  --segmented-button-selected-text: var(--on-surface);
+  --segmented-button-selected-hover: color-mix(in srgb, var(--on-surface) 8%, var(--surface-container-high));
   --segmented-button-radius: var(--md-shape-full);
   --split-button-inner-radius: var(--md-shape-extra-small);
   --split-button-large-inner-radius: var(--md-shape-small);
@@ -342,9 +338,9 @@
   --switch-handle-checked-size: 1.5rem;
   --switch-handle-pressed-size: 1.75rem;
   --switch-handle-surface: var(--md-outline);
-  --switch-handle-checked-surface: var(--on-accent);
+  --switch-handle-checked-surface: var(--on-primary);
   --switch-icon-color: var(--md-surface-container-highest);
-  --switch-icon-checked-color: var(--accent);
+  --switch-icon-checked-color: var(--primary);
   --switch-disabled-opacity: 0.38;
   /* Radio buttons: 20px, the name after 16px (M3's 48px target around it), as the checkbox. */
   --radio-button-size: 1.25rem;
@@ -363,19 +359,19 @@
   --slider-xlarge-track-radius: var(--md-shape-extra-large);
   --slider-track-inner-radius: 0.125rem;
   --slider-track-gap: 0.5rem;
-  --slider-active-track: var(--accent);
-  --slider-inactive-track: var(--tint);
+  --slider-active-track: var(--primary);
+  --slider-inactive-track: var(--surface-container-high);
   --slider-handle-width: 0.25rem;
   --slider-handle-height: 2.75rem;
   --slider-handle-radius: var(--md-shape-full);
-  --slider-handle-surface: var(--accent);
+  --slider-handle-surface: var(--primary);
   --slider-handle-line-width: 0;
   --slider-handle-pressed-width: 0.125rem;
   --slider-handle-inset: 0.375rem;
-  --slider-stop-color: var(--accent);
-  --slider-stop-active-color: var(--tint);
-  --slider-value-surface: var(--ink);
-  --slider-value-text: var(--surface);
+  --slider-stop-color: var(--primary);
+  --slider-stop-active-color: var(--surface-container-high);
+  --slider-value-surface: var(--inverse-surface);
+  --slider-value-text: var(--inverse-on-surface);
   --slider-value-radius: var(--md-shape-full);
   --slider-value-room: 3rem;
   --slider-disabled-opacity: 0.38;
@@ -411,8 +407,8 @@
   --tooltip-plain-surface: var(--inverse-surface);
   --tooltip-plain-text: var(--inverse-on-surface);
   --tooltip-plain-radius: var(--md-shape-extra-small);
-  --tooltip-rich-text: var(--muted);
-  --tooltip-rich-subhead: var(--ink);
+  --tooltip-rich-text: var(--on-surface-variant);
+  --tooltip-rich-subhead: var(--on-surface);
   --tooltip-rich-radius: var(--md-shape-medium);
   --tooltip-rich-line: transparent;
   --linear-progress-indicator-height: 0.25rem;
@@ -424,12 +420,12 @@
   --navigation-bar-height: 4rem;
   --navigation-bar-surface: var(--md-surface-container);
   --navigation-bar-line: transparent;
-  --navigation-bar-item-text: var(--muted);
-  --navigation-bar-item-selected-text: var(--ink);
+  --navigation-bar-item-text: var(--on-surface-variant);
+  --navigation-bar-item-selected-text: var(--on-surface);
   --navigation-bar-indicator-width: 3.5rem;
   --navigation-bar-indicator-radius: var(--md-shape-full);
-  --navigation-bar-indicator-surface: var(--tint);
-  --navigation-bar-indicator-text: var(--ink);
+  --navigation-bar-indicator-surface: var(--surface-container-high);
+  --navigation-bar-indicator-text: var(--on-surface);
   --navigation-bar-indicator-hover: var(--md-hover);
   --navigation-bar-label-selected-weight: 500;
   /* The navigation rail: 96px collapsed and 220px wide, on the page's background without a line, the same indicator
@@ -438,11 +434,11 @@
   --navigation-rail-expanded-width: 13.75rem;
   --navigation-rail-padding: 1.5rem 0.5rem;
   --navigation-rail-line: transparent;
-  --navigation-rail-item-text: var(--muted);
-  --navigation-rail-item-selected-text: var(--ink);
+  --navigation-rail-item-text: var(--on-surface-variant);
+  --navigation-rail-item-selected-text: var(--on-surface);
   --navigation-rail-indicator-radius: var(--md-shape-full);
-  --navigation-rail-indicator-surface: var(--tint);
-  --navigation-rail-indicator-text: var(--ink);
+  --navigation-rail-indicator-surface: var(--surface-container-high);
+  --navigation-rail-indicator-text: var(--on-surface);
   --navigation-rail-indicator-hover: var(--md-hover);
   --navigation-rail-label-selected-weight: 500;
   /* Search: the bar 56px, full corners, in the high surface container with a state layer; the view in it too, docked
@@ -453,11 +449,11 @@
   --search-bar-gap: 1rem;
   --search-bar-surface: var(--md-surface-container-high);
   --search-bar-line: transparent;
-  --search-bar-hover: color-mix(in srgb, var(--ink) 8%, var(--md-surface-container-high));
-  --search-bar-placeholder: var(--muted);
+  --search-bar-hover: color-mix(in srgb, var(--on-surface) 8%, var(--md-surface-container-high));
+  --search-bar-placeholder: var(--on-surface-variant);
   --search-view-radius: var(--md-shape-extra-large);
   --search-view-line: transparent;
-  --search-view-divider: var(--line);
+  --search-view-divider: var(--outline-variant);
   --search-view-results-padding: 0.5rem 0;
   --search-view-option-surface: var(--md-hover);
   /* Toolbars (M3 Expressive): in a surface container, docked without a line or blur, floating with full corners and
@@ -474,17 +470,17 @@
      secondary container. */
   --date-picker-docked-radius: var(--md-shape-large);
   --date-picker-day-radius: var(--md-shape-full);
-  --date-picker-supporting-color: var(--muted);
-  --date-picker-menu-button-text: var(--muted);
+  --date-picker-supporting-color: var(--on-surface-variant);
+  --date-picker-menu-button-text: var(--on-surface-variant);
   --date-picker-day-hover: var(--md-hover);
-  --date-picker-range-surface: var(--tint);
+  --date-picker-range-surface: var(--surface-container-high);
   /* Time pickers: the boxes 96 × 80 with small corners and display-large numbers in the highest surface container, the
      one on the dial in the secondary container, and the 256px dial in the highest surface container. */
-  --time-picker-headline-color: var(--muted);
+  --time-picker-headline-color: var(--on-surface-variant);
   --time-picker-box-radius: var(--md-shape-small);
   --time-picker-box-surface: var(--md-surface-container-highest);
-  --time-picker-box-selected-surface: var(--tint);
-  --time-picker-box-selected-text: var(--ink);
+  --time-picker-box-selected-surface: var(--surface-container-high);
+  --time-picker-box-selected-text: var(--on-surface);
   --time-picker-dial-surface: var(--md-surface-container-highest);
 }
 
@@ -493,18 +489,14 @@
    declared again on them (the selector of its rule), so every part takes the swapped colours. The section's own
    colours are in --section-… (blocks.css). */
 .text-section-accent > * {
-  --ink: var(--section-on-accent);
-  --muted: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
-  --line: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
+  --on-surface: var(--section-on-accent);
+  --on-surface-variant: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
+  --outline-variant: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
   --outline: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
-  --bg: var(--section-accent);
-  --accent: var(--section-on-accent);
-  --accent-hover: color-mix(in srgb, var(--section-on-accent) 88%, var(--section-accent));
-  --on-accent: var(--section-accent);
-  --tint: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
-  --surface: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
+  --surface: var(--section-accent);
+  --primary: var(--section-on-accent);
+  --on-primary: var(--section-accent);
   --surface-dim: color-mix(in srgb, var(--section-on-accent) 18%, transparent);
-  --surface-default: var(--section-accent);
   --surface-bright: var(--section-accent);
   --surface-container-lowest: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
   --surface-container-low: color-mix(in srgb, var(--section-on-accent) 12%, transparent);
@@ -519,22 +511,22 @@
   --on-tertiary: var(--section-accent);
   --tertiary-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
   --on-tertiary-container: var(--section-on-accent);
-  --accent-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
-  --on-accent-container: var(--section-on-accent);
+  --primary-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
+  --on-primary-container: var(--section-on-accent);
   --block-shadow: none;
-  --shadow: none;
+  --panel-shadow: none;
 }
 
 /* The same elevation in dark mode (the standard theme's shadow there is another). */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --shadow: var(--elevation-1-rest-shadow);
+    --panel-shadow: var(--elevation-1-rest-shadow);
     --badge-minor: #f9ab00;
     --badge-major: #e8710a;
   }
 }
 :root[data-theme='dark'] {
-  --shadow: var(--elevation-1-rest-shadow);
+  --panel-shadow: var(--elevation-1-rest-shadow);
   --badge-minor: #f9ab00;
   --badge-major: #e8710a;
 }
@@ -548,7 +540,7 @@
     background: var(--md-background);
   }
   :focus-visible {
-    outline: 3px solid var(--accent);
+    outline: 3px solid var(--primary);
     outline-offset: 2px;
     border-radius: var(--md-shape-extra-small);
   }
@@ -578,7 +570,7 @@
     background: var(--md-primary-hover);
   }
   .button-text:focus-visible {
-    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
   }
   /* A text button reaches 48px for a finger, above and below it. */
   .button-text {
@@ -636,7 +628,7 @@
   }
   .block-arrow-link:active,
   .block-testimonial-more:active {
-    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
   }
   .block-testimonial-more {
     cursor: pointer;
@@ -652,14 +644,14 @@
     background: var(--md-hover);
   }
   .chip-elevated:hover {
-    background: color-mix(in srgb, var(--ink) 8%, var(--chip-elevated-surface, var(--block-surface)));
+    background: color-mix(in srgb, var(--on-surface) 8%, var(--chip-elevated-surface, var(--block-surface)));
   }
   .chip-filter:is([aria-pressed='true'], [aria-current='page']) {
     padding-left: 0.5rem;
   }
   .block-tag {
     border-radius: var(--md-shape-small);
-    background: var(--tint);
+    background: var(--surface-container-high);
   }
 
   /* Text fields (their variables above): the filled one's corners square at the bottom, along its active indicator,
@@ -668,15 +660,15 @@
     border-radius: var(--md-shape-extra-small) var(--md-shape-extra-small) var(--md-shape-none) var(--md-shape-none);
   }
   .text-field-filled .text-field-container:hover {
-    background: color-mix(in srgb, var(--ink) 8%, var(--md-surface-container-highest));
+    background: color-mix(in srgb, var(--on-surface) 8%, var(--md-surface-container-highest));
   }
   .text-field-filled .text-field-container:has(> .text-field-input:focus) {
-    box-shadow: inset 0 -2px 0 var(--accent);
+    box-shadow: inset 0 -2px 0 var(--primary);
   }
   .text-field-filled.text-field-error .text-field-container,
   .text-field-filled.text-field-error .text-field-container:hover,
   .text-field-filled.text-field-error .text-field-container:has(> .text-field-input:focus) {
-    box-shadow: inset 0 -2px 0 var(--text-field-error, var(--accent));
+    box-shadow: inset 0 -2px 0 var(--text-field-error, var(--primary));
   }
 
   /* An M3 checkbox: an 18px box with a 2px edge in on-surface-variant and 2px corners, filled in the primary colour
@@ -699,22 +691,22 @@
     appearance: none;
     width: 1.125rem;
     height: 1.125rem;
-    border: 2px solid var(--muted);
+    border: 2px solid var(--on-surface-variant);
     border-radius: 2px;
     transition:
       background-color var(--motion-effects),
       border-color var(--motion-effects);
   }
   .checkbox-input:checked {
-    border-color: var(--accent);
-    background: var(--accent);
+    border-color: var(--primary);
+    background: var(--primary);
   }
   .checkbox-input:checked + .checkbox-icon {
     display: block;
-    color: var(--on-accent);
+    color: var(--on-primary);
   }
   .checkbox-input:focus-visible {
-    outline: 3px solid var(--accent);
+    outline: 3px solid var(--primary);
     outline-offset: 2px;
   }
   .checkbox-box:has(.checkbox-input:disabled) {
@@ -742,10 +734,10 @@
   }
   .switch:hover .switch-input:enabled:not(:checked) + .switch-handle,
   .switch-input:enabled:active:not(:checked) + .switch-handle {
-    background: var(--muted);
+    background: var(--on-surface-variant);
   }
   .switch-input:focus-visible {
-    outline: 3px solid var(--accent);
+    outline: 3px solid var(--primary);
     outline-offset: 2px;
   }
 
@@ -766,16 +758,16 @@
   }
   .radio-button-input {
     appearance: none;
-    border: 2px solid var(--muted);
+    border: 2px solid var(--on-surface-variant);
     border-radius: var(--md-shape-full);
     transition: border-color var(--motion-effects);
   }
   .radio-button-input:checked {
-    border-color: var(--accent);
-    background: radial-gradient(circle closest-side, var(--accent) 62.5%, transparent calc(62.5% + 0.5px));
+    border-color: var(--primary);
+    background: radial-gradient(circle closest-side, var(--primary) 62.5%, transparent calc(62.5% + 0.5px));
   }
   .radio-button-input:focus-visible {
-    outline: 3px solid var(--accent);
+    outline: 3px solid var(--primary);
     outline-offset: 2px;
     border-radius: var(--md-shape-full);
   }
@@ -792,7 +784,7 @@
   /* An M3 side sheet's headline in on-surface-variant. */
   .side-sheet-headline,
   .bottom-sheet-container[data-wide='side-sheet'] .bottom-sheet-headline {
-    color: var(--muted);
+    color: var(--on-surface-variant);
   }
 
   /* Icon buttons (their variables above): a state layer when pointed at (the ripple when pressed), no shrinking. The
@@ -806,13 +798,13 @@
   .icon-button-standard:hover,
   .icon-button-outlined:hover {
     background: var(--md-hover);
-    color: var(--muted);
+    color: var(--on-surface-variant);
   }
   .icon-button-outlined:hover {
     box-shadow: inset 0 0 0 1px var(--md-outline);
   }
   .icon-button-tonal:hover {
-    background: color-mix(in srgb, var(--ink) 8%, var(--tint));
+    background: color-mix(in srgb, var(--on-surface) 8%, var(--surface-container-high));
   }
   /* On a snackbar (the inverse surface): the state layers in its colours. */
   .snackbar .button-text:focus-visible {
@@ -831,14 +823,14 @@
   .block-notice {
     border-left: 0;
     border-radius: var(--md-shape-medium);
-    background: var(--tint);
+    background: var(--surface-container-high);
     padding: 1rem 1.5rem;
   }
 
   /* "Trin": the numbers in the primary container. */
   .block-step-number {
-    background: var(--tint);
-    color: var(--accent);
+    background: var(--surface-container-high);
+    color: var(--primary);
   }
 
   /* "Spørgsmål og svar": a list in a filled card, a state layer on a row pointed at. */
@@ -888,7 +880,7 @@
   .block-hero-note > blockquote {
     border: 0;
     border-radius: var(--md-shape-large);
-    background: var(--tint);
+    background: var(--surface-container-high);
     padding: 1rem 1.25rem;
   }
 
@@ -949,7 +941,7 @@
     transition: background-color var(--motion-effects);
   }
   a.block-link-row:hover {
-    --card-outlined-surface: color-mix(in srgb, var(--ink) 8%, var(--md-surface-container-low));
+    --card-outlined-surface: color-mix(in srgb, var(--on-surface) 8%, var(--md-surface-container-low));
     --card-outlined-line: transparent;
   }
 
@@ -997,9 +989,9 @@
   }
   .fab-menu-list {
     --fab-radius: var(--md-shape-full);
-    --fab-primary-container-surface: var(--tint);
-    --fab-primary-container-text: var(--ink);
-    --fab-primary-container-hover: color-mix(in srgb, var(--ink) 8%, var(--tint));
+    --fab-primary-container-surface: var(--surface-container-high);
+    --fab-primary-container-text: var(--on-surface);
+    --fab-primary-container-hover: color-mix(in srgb, var(--on-surface) 8%, var(--surface-container-high));
   }
 }
 
@@ -1021,7 +1013,7 @@
     place-items: center;
     border-radius: var(--md-shape-full);
     background: var(--md-surface-container-highest);
-    color: var(--ink);
+    color: var(--on-surface);
     font-size: var(--type-title-medium-size);
     font-weight: var(--type-title-medium-weight);
     letter-spacing: var(--type-title-medium-tracking);
@@ -1058,7 +1050,7 @@
     border-radius: var(--md-shape-full);
     padding: 0 1rem;
     white-space: nowrap;
-    color: var(--muted);
+    color: var(--on-surface-variant);
     font-size: var(--type-label-large-size);
     line-height: var(--type-label-large-line-height);
     font-weight: var(--type-label-large-weight);
@@ -1069,12 +1061,12 @@
   }
   .md-nav-item:hover {
     background: var(--md-hover);
-    color: var(--ink);
+    color: var(--on-surface);
   }
   .md-nav-item:focus-visible,
   .md-nav-item:active {
     background: var(--md-pressed);
-    color: var(--ink);
+    color: var(--on-surface);
   }
   /* An item with sub-pages: its label, then the button that opens them. */
   .md-nav-item-parent {
@@ -1086,19 +1078,19 @@
     height: 2.5rem;
     place-items: center;
     border-radius: var(--md-shape-full);
-    color: var(--muted);
+    color: var(--on-surface-variant);
     transition:
       background-color var(--motion-effects),
       color var(--motion-effects);
   }
   .md-nav-toggle:hover {
     background: var(--md-hover);
-    color: var(--ink);
+    color: var(--on-surface);
   }
   .md-nav-toggle:focus-visible,
   .md-nav-toggle:active {
     background: var(--md-pressed);
-    color: var(--ink);
+    color: var(--on-surface);
   }
   .md-nav-toggle > svg {
     transition: transform var(--motion-spatial-fast);
@@ -1108,8 +1100,8 @@
   }
   .md-nav-item[aria-current='page'],
   li:has(.menu-item[aria-current='page']) > .md-nav-item {
-    background: var(--tint);
-    color: var(--ink);
+    background: var(--surface-container-high);
+    color: var(--on-surface);
   }
   /* A menu (its variables above): a state layer with focus from the keyboard (the ripple when pressed), and the open page
    in the secondary container also when pointed at. */
@@ -1117,7 +1109,7 @@
     background: var(--md-pressed);
   }
   .menu-item[aria-current='page']:hover {
-    background: var(--tint);
+    background: var(--surface-container-high);
   }
 
   /* The extended FAB (its variables above, Header.astro): at the bottom right of the screen, with the ripple when pressed. It
@@ -1186,7 +1178,7 @@
     white-space: nowrap;
   }
   .md-drawer-role {
-    color: var(--muted);
+    color: var(--on-surface-variant);
     font-size: var(--type-body-medium-size);
     line-height: var(--type-body-medium-line-height);
     font-weight: var(--type-body-medium-weight);
@@ -1223,7 +1215,7 @@
   }
   .navigation-drawer-toggle {
     margin-right: 0.25rem;
-    color: var(--muted);
+    color: var(--on-surface-variant);
   }
   .navigation-drawer-toggle:focus-visible {
     background: var(--md-pressed);
@@ -1240,12 +1232,12 @@
     border-left: 0;
     border-radius: var(--md-shape-full);
     padding: 0 1.5rem 0 2.25rem;
-    color: var(--muted);
+    color: var(--on-surface-variant);
     transition: background-color var(--motion-effects);
   }
   .navigation-drawer-subitem:hover {
     background: var(--md-hover);
-    color: var(--muted);
+    color: var(--on-surface-variant);
   }
   .navigation-drawer-subitem:focus-visible {
     background: var(--md-pressed);
@@ -1273,7 +1265,7 @@
   .md-footer-text {
     margin-top: 0.5rem;
     max-width: 38ch;
-    color: var(--muted);
+    color: var(--on-surface-variant);
     font-size: var(--type-body-medium-size);
     line-height: var(--type-body-medium-line-height);
     font-weight: var(--type-body-medium-weight);
@@ -1281,7 +1273,7 @@
   }
   .md-footer-heading,
   .md-footer-column > p {
-    color: var(--ink);
+    color: var(--on-surface);
     font-size: var(--type-label-large-size);
     line-height: var(--type-label-large-line-height);
     font-weight: var(--type-label-large-weight);
@@ -1299,7 +1291,7 @@
     gap: 1rem;
     border-radius: var(--md-shape-full);
     padding: 0.5rem 1rem;
-    color: var(--muted);
+    color: var(--on-surface-variant);
     font-size: var(--type-body-medium-size);
     line-height: var(--type-body-medium-line-height);
     font-weight: var(--type-body-medium-weight);
@@ -1309,14 +1301,14 @@
   .md-footer-item:hover,
   .md-footer-column > ul a:hover {
     background: var(--md-hover);
-    color: var(--ink);
+    color: var(--on-surface);
   }
   .md-footer-item:focus-visible,
   .md-footer-item:active,
   .md-footer-column > ul a:focus-visible,
   .md-footer-column > ul a:active {
     background: var(--md-pressed);
-    color: var(--ink);
+    color: var(--on-surface);
   }
   .md-footer-column > ul > li {
     margin-block: 0;
@@ -1340,9 +1332,9 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem 1rem;
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--outline-variant);
     padding-top: 1rem;
-    color: var(--muted);
+    color: var(--on-surface-variant);
     font-size: var(--type-body-medium-size);
     line-height: var(--type-body-medium-line-height);
     font-weight: var(--type-body-medium-weight);

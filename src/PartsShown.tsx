@@ -194,7 +194,7 @@ export function Part({ name, use, coverage, children }: { name: string; use?: st
   return (
     <section data-part={name} className="space-y-3" style={{ order: shown.order.get(name) }}>
       <div>
-        <h2 className="font-mono text-sm font-medium text-accent">{name}</h2>
+        <h2 className="font-mono text-sm font-medium text-primary">{name}</h2>
         {use && <SupportingText>{use}</SupportingText>}
         {covered && <CoverageBadge coverage={covered} />}
       </div>

@@ -113,7 +113,7 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
       status={found ? t.consents.count(found.total) : undefined}
       actions={found && <IconLink icon={DownloadSimple} label={t.consents.download} href={`${CONSENT_API}?format=csv`} download />}
     >
-      <p className="mb-4 text-muted">{t.consents.intro}</p>
+      <p className="mb-4 text-on-surface-variant">{t.consents.intro}</p>
       <SearchRow
         value={query}
         onChange={setQuery}

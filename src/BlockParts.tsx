@@ -387,17 +387,17 @@ function CardParts() {
             {cardKinds.map((k) => (
               <SiteCard key={k} kind={k}>
                 <p className="font-medium">{say.kinds[k]}</p>
-                <p className="mt-1 text-muted">{say.text}</p>
+                <p className="mt-1 text-on-surface-variant">{say.text}</p>
               </SiteCard>
             ))}
             <SiteCard href="">
               <p className="font-medium">{say.link}</p>
-              <p className="mt-1 text-muted">{say.text}</p>
+              <p className="mt-1 text-on-surface-variant">{say.text}</p>
             </SiteCard>
             {cardKinds.map((k) => (
               <SiteCard key={k} kind={k} dragged>
                 <p className="font-medium">{`${say.kinds[k]} · ${screens.dragged}`}</p>
-                <p className="mt-1 text-muted">{say.text}</p>
+                <p className="mt-1 text-on-surface-variant">{say.text}</p>
               </SiteCard>
             ))}
           </div>
@@ -540,7 +540,7 @@ export function ComponentParts() {
     <Screen title={screens.components} back={back}>
       <div className="space-y-10">
         <div className="space-y-3">
-          <p className="text-muted">{screens.componentsIntro}</p>
+          <p className="text-on-surface-variant">{screens.componentsIntro}</p>
           <CoverageSummary />
         </div>
         <PartsShown groups={groups} keep="parts-components" search={screens.search} none={screens.none} styleFilter>
@@ -595,7 +595,7 @@ export function BlocksParts() {
   return (
     <Screen title={screens.blocks} back={back}>
       <div className="space-y-10">
-        <p className="text-muted">{screens.blocksIntro}</p>
+        <p className="text-on-surface-variant">{screens.blocksIntro}</p>
         <PartsShown
           groups={blocks.map((b) => ({ id: b.type, title: b.label }))}
           keep="parts-blocks"
@@ -639,7 +639,7 @@ export function KindParts({ id }: { id: string }) {
   return (
     <Screen title={list.label} back={back}>
       <div className="space-y-10">
-        <p className="text-muted">{screens.kindsIntro(list.singular)}</p>
+        <p className="text-on-surface-variant">{screens.kindsIntro(list.singular)}</p>
         <PartsShown
           groups={kinds.map((k) => ({ id: k.id, title: k.label }))}
           keep={`parts-list-${list.id}`}

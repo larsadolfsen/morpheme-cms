@@ -118,7 +118,7 @@ export default function CropField({ src, format, crop, onChange }: Props) {
             tabIndex={0}
             role="group"
             aria-label={t.media.crop.frame}
-            className="relative mx-auto mt-4 cursor-grab touch-none overflow-hidden rounded-2xl bg-tint select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-accent active:cursor-grabbing"
+            className="relative mx-auto mt-4 cursor-grab touch-none overflow-hidden rounded-2xl bg-surface-container-high select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary active:cursor-grabbing"
             style={{ aspectRatio: ratio, width: `min(100%, calc(45dvh * ${ratio}))` }}
             onPointerDown={down}
             onPointerMove={move}

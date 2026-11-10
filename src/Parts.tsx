@@ -161,7 +161,7 @@ export default function Parts({ env }: { env: Env }) {
   return (
     <Screen title={t.parts.screens.editor} back={{ href: '#developer/parts', label: t.common.parts.editorParts }}>
       <div className="space-y-10">
-        <p className="text-muted">{t.parts.intro('packages/editor/src/ui.tsx')}</p>
+        <p className="text-on-surface-variant">{t.parts.intro('packages/editor/src/ui.tsx')}</p>
         <PartsShown groups={GROUPS} keep="parts">
           <PartGroup group="buttons">
             <Part name="ToolbarButton" use={use.toolbarButton}>
@@ -408,7 +408,12 @@ export default function Parts({ env }: { env: Env }) {
                   supporting="/"
                   trailing={
                     <ColorSwatches
-                      colors={[defaultColors.light.accent, defaultColors.light.tint, defaultColors.light.bg, defaultColors.light.ink]}
+                      colors={[
+                        defaultColors.light.primary,
+                        defaultColors.light['surface-container-high'],
+                        defaultColors.light.surface,
+                        defaultColors.light['on-surface'],
+                      ]}
                       label={t.colors.light}
                     />
                   }
@@ -727,7 +732,12 @@ export default function Parts({ env }: { env: Env }) {
 
             <Part name="ColorSwatches" use={use.colorSwatches}>
               <ColorSwatches
-                colors={[defaultColors.light.accent, defaultColors.light.tint, defaultColors.light.bg, defaultColors.light.ink]}
+                colors={[
+                  defaultColors.light.primary,
+                  defaultColors.light['surface-container-high'],
+                  defaultColors.light.surface,
+                  defaultColors.light['on-surface'],
+                ]}
                 label={t.colors.light}
               />
             </Part>
@@ -1032,7 +1042,7 @@ function FieldTypes({ env }: { env: Env }) {
     <Fields.Provider value={context}>
       <WrongField.Provider value={wrongField.field}>
         <PartGroup group="fieldTypes">
-          {intro && <p className="text-muted">{f.intro('packages/editor/src/fields.tsx')}</p>}
+          {intro && <p className="text-on-surface-variant">{f.intro('packages/editor/src/fields.tsx')}</p>}
           {types.map((type) => (
             <Part key={type.name} name={type.name} use={type.use}>
               <div className="space-y-5">

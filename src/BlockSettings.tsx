@@ -481,7 +481,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
         </div>
       )}
       {!found.length && !(sort === 'group' && inGroups.some((g) => g.empty)) ? (
-        <p className="mb-8 px-1 text-muted">{t.common.noMatch}</p>
+        <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
       ) : sort === 'group' ? (
         inGroups
           .filter((g) => g.rows.length || g.empty)
@@ -509,7 +509,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
           <SheetBody>
             <div className="flex items-start gap-3">
               <LeadingIcon icon={sheet.icon} />
-              <p className="pt-1.5 text-muted">{sheet.about}</p>
+              <p className="pt-1.5 text-on-surface-variant">{sheet.about}</p>
             </div>
             {sheet.looks}
             {sheet.toggle}
@@ -522,7 +522,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
                   ))}
                 </ul>
               ) : (
-                <p className="text-muted">{sheet.none}</p>
+                <p className="text-on-surface-variant">{sheet.none}</p>
               )}
             </div>
           </SheetBody>

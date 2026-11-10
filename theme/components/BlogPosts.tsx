@@ -13,7 +13,7 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
   const [featured, ...rest] = posts;
   if (!featured)
     return (
-      <div className="rounded-panel bg-tint p-8">
+      <div className="rounded-panel bg-surface-container-high p-8">
         <p className="type-title-medium">{siteT.theme.noPosts}</p>
         <Link href="/blog/" className="link mt-3 inline-block">
           {siteT.theme.seeAllPosts}
@@ -36,10 +36,10 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
         )}
         <div className="expanded:col-span-5">
           <PostMeta post={featured} />
-          <h2 className="mt-2 type-headline-medium transition-colors group-hover:text-accent medium:type-headline-large">
+          <h2 className="mt-2 type-headline-medium transition-colors group-hover:text-primary medium:type-headline-large">
             {featured.title}
           </h2>
-          <p className="mt-3 text-muted">{featured.description}</p>
+          <p className="mt-3 text-on-surface-variant">{featured.description}</p>
         </div>
       </Link>
       {rest.length > 0 && <PostList posts={rest} className="mt-12 medium:mt-16" />}

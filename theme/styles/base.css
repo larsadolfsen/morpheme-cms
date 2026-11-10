@@ -21,10 +21,12 @@
   in its CSS.
   Dark mode follows the system unless the visitor picks one (data-theme on <html>).
 
-  The colours (--bg, --surface, --tint, --ink, --muted, --line, --accent, --accent-hover, --on-accent, and Material 3's
-  other colours: --accent-container, --secondary, --secondary-container, --tertiary, --tertiary-container, each with its
-  --on-…)
-  are not here: they are data, src/data/colors.json, which the owner changes under "Farver" in the editor.
+  The colours are Material 3's colour roles by their own names (m3.material.io/styles/color/roles): --primary,
+  --secondary, --tertiary and --error, each with --on-…, --…-container and --on-…-container, and --primary-fixed,
+  --primary-fixed-dim, --on-primary-fixed and --on-primary-fixed-variant (and the same for secondary and tertiary);
+  --surface-dim, --surface, --surface-bright and the five --surface-container… ones; --on-surface,
+  --on-surface-variant, --outline and --outline-variant; --inverse-surface, --inverse-on-surface and --inverse-primary;
+  --scrim and --shadow. They are not here: they are data, src/data/colors.json, which the owner changes under "Farver" in the editor.
   Base.astro and the editor's page write them into <head> (colorsCss, packages/editor/lib/colors.ts), for
   light mode and dark mode as below; the editor checks them to WCAG AA before they are saved
   (colorPairs in @site/colors). Everything here uses them by name.
@@ -33,24 +35,24 @@
   --radius: 0.75rem;
   /* The corners of something smaller in or beside a panel: a picture in a list, a row in a menu, an icon's square. */
   --radius-small: 1rem;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px -12px rgb(0 0 0 / 0.18);
+  --panel-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px -12px rgb(0 0 0 / 0.18);
   /* The motion scheme's curve (blocks.css, lib/motion.ts). */
   --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
 
   /* The standard blocks (blocks.css) in this design; in dark mode too, as they
      follow the tokens above. */
-  --block-text: var(--ink);
-  --block-muted: var(--muted);
-  --block-accent: var(--accent);
-  --block-accent-hover: var(--accent-hover);
-  --block-on-accent: var(--on-accent);
-  --block-surface: var(--surface);
-  --block-tint: var(--tint);
-  --block-line: var(--line);
+  --block-text: var(--on-surface);
+  --block-muted: var(--on-surface-variant);
+  --block-accent: var(--primary);
+  --block-accent-hover: color-mix(in srgb, var(--on-primary) 8%, var(--primary));
+  --block-on-accent: var(--on-primary);
+  --block-surface: var(--surface-container-lowest);
+  --block-tint: var(--surface-container-high);
+  --block-line: var(--outline-variant);
   --block-radius: var(--radius);
   --block-radius-small: var(--radius-small);
   --block-control-radius: 9999px;
-  --block-shadow: var(--shadow);
+  --block-shadow: var(--panel-shadow);
   --block-ease: var(--ease);
   /* How far a carousel reaches out to the edges of a phone's screen (ui.css): Container.astro's gutter there (px-5). */
   --carousel-bleed: 1.25rem;
@@ -65,7 +67,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 20px 40px -24px rgb(0 0 0 / 0.7);
+    --panel-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 20px 40px -24px rgb(0 0 0 / 0.7);
   }
 }
 
@@ -78,7 +80,7 @@
 }
 
 :root[data-theme='dark'] {
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 20px 40px -24px rgb(0 0 0 / 0.7);
+  --panel-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 20px 40px -24px rgb(0 0 0 / 0.7);
 }
 
 @layer fallback {
@@ -89,17 +91,10 @@
 
 @theme inline {
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-tint: var(--tint);
-  --color-ink: var(--ink);
-  --color-muted: var(--muted);
-  --color-line: var(--line);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-on-accent: var(--on-accent);
-  --color-accent-container: var(--accent-container);
-  --color-on-accent-container: var(--on-accent-container);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary-container: var(--on-primary-container);
   --color-secondary: var(--secondary);
   --color-on-secondary: var(--on-secondary);
   --color-secondary-container: var(--secondary-container);
@@ -108,9 +103,42 @@
   --color-on-tertiary: var(--on-tertiary);
   --color-tertiary-container: var(--tertiary-container);
   --color-on-tertiary-container: var(--on-tertiary-container);
+  --color-error: var(--error);
+  --color-on-error: var(--on-error);
+  --color-error-container: var(--error-container);
+  --color-on-error-container: var(--on-error-container);
+  --color-primary-fixed: var(--primary-fixed);
+  --color-primary-fixed-dim: var(--primary-fixed-dim);
+  --color-on-primary-fixed: var(--on-primary-fixed);
+  --color-on-primary-fixed-variant: var(--on-primary-fixed-variant);
+  --color-secondary-fixed: var(--secondary-fixed);
+  --color-secondary-fixed-dim: var(--secondary-fixed-dim);
+  --color-on-secondary-fixed: var(--on-secondary-fixed);
+  --color-on-secondary-fixed-variant: var(--on-secondary-fixed-variant);
+  --color-tertiary-fixed: var(--tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--tertiary-fixed-dim);
+  --color-on-tertiary-fixed: var(--on-tertiary-fixed);
+  --color-on-tertiary-fixed-variant: var(--on-tertiary-fixed-variant);
+  --color-surface-dim: var(--surface-dim);
+  --color-surface: var(--surface);
+  --color-surface-bright: var(--surface-bright);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-inverse-on-surface: var(--inverse-on-surface);
+  --color-inverse-primary: var(--inverse-primary);
+  --color-scrim: var(--scrim);
+  --color-shadow: var(--shadow);
   --radius-panel: var(--radius);
   --radius-panel-small: var(--radius-small);
-  --shadow-soft: var(--shadow);
+  --shadow-soft: var(--panel-shadow);
   --ease-soft: var(--ease);
 }
 
@@ -133,8 +161,8 @@
     scroll-padding-top: 5.5rem;
   }
   body {
-    background: var(--bg);
-    color: var(--ink);
+    background: var(--surface);
+    color: var(--on-surface);
     font-family: var(--font-sans);
     font-size: var(--type-body-large-size);
     line-height: var(--type-body-large-line-height);
@@ -144,11 +172,11 @@
     text-rendering: optimizeLegibility;
   }
   ::selection {
-    background: var(--accent);
-    color: var(--on-accent);
+    background: var(--primary);
+    color: var(--on-primary);
   }
   :focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--primary);
     outline-offset: 3px;
     border-radius: 6px;
   }
@@ -170,7 +198,7 @@
 
 @layer components {
   .link {
-    color: var(--accent);
+    color: var(--primary);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
@@ -183,20 +211,20 @@
 
 /* Long-form text (migrated pages and blog posts). */
 .prose {
-  --tw-prose-body: var(--ink);
-  --tw-prose-headings: var(--ink);
-  --tw-prose-lead: var(--muted);
-  --tw-prose-links: var(--accent);
-  --tw-prose-bold: var(--ink);
-  --tw-prose-counters: var(--muted);
-  --tw-prose-bullets: var(--accent);
-  --tw-prose-hr: var(--line);
-  --tw-prose-quotes: var(--ink);
-  --tw-prose-quote-borders: var(--accent);
-  --tw-prose-captions: var(--muted);
-  --tw-prose-th-borders: var(--line);
-  --tw-prose-td-borders: var(--line);
-  --tw-prose-code: var(--ink);
+  --tw-prose-body: var(--on-surface);
+  --tw-prose-headings: var(--on-surface);
+  --tw-prose-lead: var(--on-surface-variant);
+  --tw-prose-links: var(--primary);
+  --tw-prose-bold: var(--on-surface);
+  --tw-prose-counters: var(--on-surface-variant);
+  --tw-prose-bullets: var(--primary);
+  --tw-prose-hr: var(--outline-variant);
+  --tw-prose-quotes: var(--on-surface);
+  --tw-prose-quote-borders: var(--primary);
+  --tw-prose-captions: var(--on-surface-variant);
+  --tw-prose-th-borders: var(--outline-variant);
+  --tw-prose-td-borders: var(--outline-variant);
+  --tw-prose-code: var(--on-surface);
 }
 @layer fallback {
   .prose {
@@ -239,7 +267,7 @@
   }
   /* Code in a line (cookie names in the privacy policy): on a tint, without the plugin's backticks. */
   .prose :where(:not(pre) > code):not(:where(.not-prose code)) {
-    background: var(--tint);
+    background: var(--surface-container-high);
     border-radius: 0.3em;
     padding: 0.1em 0.35em;
     font-weight: 500;
@@ -349,7 +377,7 @@
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 9999px;
-    background-color: var(--accent);
+    background-color: var(--primary);
   }
 
   /* Boxes side by side ("Links", an app's boxes): the site's panels (outlined cards, ui.css, without a shadow), with

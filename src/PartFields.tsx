@@ -64,7 +64,7 @@ export default function PartFields({
               <div className="space-y-6">
                 {shown.map((s) => (
                   <section key={s.label}>
-                    {s.label && <h3 className="mb-2 text-sm font-medium text-muted">{s.label}</h3>}
+                    {s.label && <h3 className="mb-2 text-sm font-medium text-on-surface-variant">{s.label}</h3>}
                     <Preview>{s.block}</Preview>
                   </section>
                 ))}

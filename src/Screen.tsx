@@ -142,7 +142,7 @@ export default function Screen<T extends string>({
             onClick={leave(() => up(back.href))}
             title={t.common.backTo(back.label)}
             aria-label={t.common.backTo(back.label)}
-            className="flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-tint expanded:hidden"
+            className="flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-surface-container-high expanded:hidden"
           >
             <ArrowLeft size={24} />
           </a>
@@ -150,7 +150,7 @@ export default function Screen<T extends string>({
         <div className="flex min-w-0 flex-1 flex-col pl-1 expanded:hidden">
           <h1 className="truncate text-xl leading-tight">{title}</h1>
           {status && (
-            <p data-subtitle className="truncate text-xs text-muted">
+            <p data-subtitle className="truncate text-xs text-on-surface-variant">
               {status}
             </p>
           )}
@@ -185,10 +185,10 @@ export default function Screen<T extends string>({
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
           <div className="mb-6 hidden min-w-0 items-center gap-x-2 expanded:flex">
             {crumbs.length > 0 && (
-              <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-muted">
+              <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-on-surface-variant">
                 {crumbs.map((c) => (
                   <span key={c.href} className="flex items-center gap-2">
-                    <a href={c.href} onClick={leave()} className="max-w-48 truncate hover:text-accent hover:underline">
+                    <a href={c.href} onClick={leave()} className="max-w-48 truncate hover:text-primary hover:underline">
                       {c.label}
                     </a>
                     <CaretRight size={14} className="shrink-0" />
@@ -197,7 +197,7 @@ export default function Screen<T extends string>({
               </nav>
             )}
             <h1 className="truncate font-medium">{title}</h1>
-            {status && <p className="shrink-0 text-sm text-muted">{status}</p>}
+            {status && <p className="shrink-0 text-sm text-on-surface-variant">{status}</p>}
             {/* The icons are taller than the text: the negative margin keeps the row's height. */}
             {pageActions && <div className="-my-3 ml-auto flex shrink-0 items-center gap-1">{pageActions}</div>}
           </div>

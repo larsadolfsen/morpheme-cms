@@ -4,13 +4,13 @@
 
   The theme's variables: what the standard theme's own components (components/, layouts/, templates/) read, so
   another theme changes them in its styles/global.css instead of with selectors on their markup (docs/editor.md,
-  "Temaets variabler"). The defaults give the standard theme's look, from the theme's own --radius, --shadow and colours.
+  "Temaets variabler"). The defaults give the standard theme's look, from the theme's own --radius, --panel-shadow and colours.
   The standard theme's base (base.css) imports this; a theme that writes all its CSS itself imports it too.
 */
 :root {
   /* The colour of the shade over the page behind a pop-up (the dialog's scrim, ui.css) and the navigation drawer
      (ui.css), seen through: the text's, in dark mode the page's. */
-  --theme-scrim-colour: var(--ink);
+  --theme-scrim-colour: var(--on-surface);
   /* The large picture at the top of a page or a blog post, and the newest post's on the blog. */
   --theme-picture-radius: var(--radius);
   /* How long one page fades into the next when a link is followed (below). */
@@ -32,7 +32,7 @@
   --theme-logo-tile: transparent;
   --theme-logo-tile-padding: 0;
   --theme-logo-tile-radius: 0;
-  --theme-logo-mark: var(--accent);
+  --theme-logo-mark: var(--primary);
   --theme-logo-mark-scale: 1;
   --theme-logo-name-weight: 500;
   --theme-logo-name-size: 1em;
@@ -56,12 +56,12 @@
    --navigation-drawer-scrim (ui.css) in its :root, and they hold in both modes. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --theme-scrim-colour: var(--bg);
+    --theme-scrim-colour: var(--surface);
   }
 }
 
 :root[data-theme='dark'] {
-  --theme-scrim-colour: var(--bg);
+  --theme-scrim-colour: var(--surface);
 }
 
 @layer components {

@@ -33,12 +33,12 @@ function VersionEntry({ entry, photo }: { entry: VersionNotes; photo: boolean })
   const version = entry.version.split('-')[0];
   const name = entry.edition?.name ? t.library.cmsEdition(entry.edition.name, version) : t.library.cmsVersion(version);
   return (
-    <section className="space-y-5 border-t border-line pt-5 first-of-type:border-t-0 first-of-type:pt-0">
+    <section className="space-y-5 border-t border-outline-variant pt-5 first-of-type:border-t-0 first-of-type:pt-0">
       <div className="space-y-3">
         <div>
           <h3 className="text-xl">{t.cms.newIn(name)}</h3>
           {entry.date && (
-            <p className="text-sm text-muted">
+            <p className="text-sm text-on-surface-variant">
               <time dateTime={entry.date}>{dayOf(entry.date)}</time>
             </p>
           )}

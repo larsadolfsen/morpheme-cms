@@ -295,7 +295,7 @@ export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
           </Group>
         ))
       ) : (
-        <p className="mb-8 px-1 text-muted">{t.common.noMatch}</p>
+        <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
       )}
     </Screen>
   );
@@ -362,7 +362,7 @@ export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; fi
           <LeadingIcon icon={UserCircle} />
           <span className="min-w-0 flex-1">
             <span className="block truncate font-medium">{name}</span>
-            <span className="block truncate text-sm text-muted">
+            <span className="block truncate text-sm text-on-surface-variant">
               {[theirs.length && t.apps.appCount(theirs.length), theirThemes.length && t.library.themeCount(theirThemes.length)]
                 .filter(Boolean)
                 .join(' · ')}
@@ -454,7 +454,7 @@ function StoreScreen({ env, files, again }: { env: Env; files: RepoFile[]; again
       {/* The site's own are shown also when the store cannot be read. */}
       <StoreNotice connected={connected} read={catalog} mayChange={key?.mayChange ?? false} again={again} />
       {catalog === null ? null : !appGroups.length ? (
-        <p className="mb-8 px-1 text-muted">{t.common.noMatch}</p>
+        <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
       ) : (
         appGroups.map((g) => (
           <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
@@ -689,12 +689,12 @@ function AppHead({
         {icon}
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium">{label}</span>
-          <span className="block truncate text-sm text-muted">{t.apps.publisher(publisher)}</span>
-          <span className="block truncate text-sm text-muted">{status}</span>
-          {version && <span className="block truncate text-sm text-muted">{t.apps.version(version)}</span>}
+          <span className="block truncate text-sm text-on-surface-variant">{t.apps.publisher(publisher)}</span>
+          <span className="block truncate text-sm text-on-surface-variant">{status}</span>
+          {version && <span className="block truncate text-sm text-on-surface-variant">{t.apps.version(version)}</span>}
         </span>
       </div>
-      <p className="mt-3 text-muted">{hint}</p>
+      <p className="mt-3 text-on-surface-variant">{hint}</p>
     </div>
   );
 }

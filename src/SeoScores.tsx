@@ -132,7 +132,7 @@ export default function SeoScores({ files, env }: { files: RepoFile[]; env: Env 
       back={{ href: '#seo', label: t.common.parts.seo }}
       status={average === null ? undefined : t.seo.average(average)}
     >
-      <p className="mb-4 text-muted">{t.seo.intro}</p>
+      <p className="mb-4 text-on-surface-variant">{t.seo.intro}</p>
       <SearchRow
         value={query}
         onChange={setQuery}
