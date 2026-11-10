@@ -7,7 +7,8 @@
 //                of an app before it), its pictures and the app's settings, it gives the page other colours, or none.
 //                The site runs it in packages/editor/site/pageColors.ts, which a theme calls for every page (Base.astro).
 // No React, browser or Node here: the editor, the build and the check before it use it.
-import type { Colors } from './colors';
+// ./colors.ts has its extension so Node's test runner can load this file.
+import { colorProblems, MODES, type Colors } from './colors.ts';
 import type { ColorRoles } from './dynamic-colors';
 import { APP_HOOKS } from './appHooks.mjs';
 
@@ -50,3 +51,21 @@ export type PageColorsPage = {
  * site's by its name; or undefined to leave them. Colours that are not the site's, or hard to read, are not used. */
 export type PageColorsHook = (page: PageColorsPage) => Colors | undefined | Promise<Colors | undefined>;
 export const definePageColors = (hook: PageColorsHook) => hook;
+
+const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
+
+/** What is wrong with the value a page-colors hook gave, a sentence for each, or [] when it is undefined (the page keeps
+ * its colours) or Colors: a light and a dark set, each with every colour of the site, by `names`, as a hex colour, and
+ * no other name. */
+export function pageColorsOutputProblems(value: unknown, names: string[]): string[] {
+  if (value === undefined) return [];
+  if (!isObject(value)) return ['The hook must give an object with the sets "light" and "dark", or undefined.'];
+  const problems: string[] = [];
+  for (const mode of MODES) {
+    const set = value[mode];
+    if (!isObject(set)) problems.push(`The set "${mode}" must be an object of colors.`);
+    else for (const name of Object.keys(set)) if (!names.includes(name)) problems.push(`"${mode}.${name}" is not a color of the site.`);
+  }
+  if (problems.length) return problems;
+  return colorProblems(value, names).map((line) => `The color ${line} is missing or is not a hex color like #a3345a.`);
+}
