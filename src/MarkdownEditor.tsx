@@ -754,7 +754,7 @@ function selectionMenu(
             acting = false;
           }
           update(view);
-          // Again when "Gem ændringer" has come after the first change.
+          // Again when "Save changes" has come after the first change.
           setTimeout(follow, 100);
         };
         // The selection stays: no focus taken with the mouse, and a tap does not end the selection
@@ -787,7 +787,7 @@ function selectionMenu(
         const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
         if (matchMedia('(pointer: coarse)').matches) {
           menu.style.left = `${screen.offsetLeft + (screen.width - width) / 2}px`;
-          // Over "Gem ændringer" when it is there (FormFrame.tsx).
+          // Over "Save changes" when it is there (FormFrame.tsx).
           const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
           menu.style.top = `${Math.min(screen.offsetTop + screen.height, save) - height - 12}px`;
           return;

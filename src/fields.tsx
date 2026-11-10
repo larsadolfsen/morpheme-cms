@@ -609,7 +609,7 @@ function MarkdownWithBlocks({ value, template, onChange }: { value: string; temp
 }
 
 // Several picked from a list (a post's categories, the posts on the front page): the picked ones as
-// pills like the filters in Filer, a tap on one takes it away, and a last pill ("Tilføj tag",
+// pills like the filters in Files, a tap on one takes it away, and a last pill ("Add tag",
 // Field.add) opens a sheet from the bottom with all the choices, where a tap picks one or takes it
 // away again (the sheet stays open, so more can be picked). With many choices it has a search; at
 // the bottom, the link to make a new one (Field.edit, "Opret et tag"). A picked value that is
@@ -712,7 +712,7 @@ function Links({ field, value, onChange }: Props) {
   );
 }
 
-// A list of items, each opened to its fields. `add={false}` leaves out "Tilføj …" below it, for a
+// A list of items, each opened to its fields. `add={false}` leaves out "Add …" below it, for a
 // list that is added to with "+" in the top bar: an item added at the end, here or there, is opened
 // and scrolled to. (The menu has its own, MenuList.)
 export function ListInput({
@@ -807,8 +807,8 @@ const capitalFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 // The menu (DataForm.tsx): the items as rows in a list like the editor's other lists (listClass,
 // ListItem), and the items under one (its list field, the submenu) indented along a line, shown with
 // the arrow at the right. An item's text and page are changed in a sheet from the bottom,
-// opened with a tap on it or the pencil, and saved with "Gem"; the sheet also removes it. A new item
-// (+ in the top bar, "Tilføj punkt" under a submenu, and under the menu with `add`) opens its sheet at once; "Annuller"
+// opened with a tap on it or the pencil, and saved with "Save"; the sheet also removes it. A new item
+// (+ in the top bar, "Add item" under a submenu, and under the menu with `add`) opens its sheet at once; "Cancel"
 // there takes it away again. The arrows move an item up and down.
 export function MenuList({
   field,
@@ -821,7 +821,7 @@ export function MenuList({
   value: unknown[];
   onChange: (v: unknown) => void;
   depth?: number;
-  /** "Tilføj …" under the list too, where the top bar has no "+" for it (two menus on one screen: Appearance › Header). */
+  /** "Add …" under the list too, where the top bar has no "+" for it (two menus on one screen: Appearance › Header). */
   add?: boolean;
 }) {
   const [open, setOpen] = useState<number | null>(null);
@@ -863,8 +863,8 @@ export function MenuList({
     if (editing?.fresh) onChange(value.filter((_, j) => j !== editing.i));
     close();
   };
-  // Closed (Annuller, the cross, a swipe down, Esc, a tap beside it) with the fields changed: the owner is
-  // asked whether to keep them ("Tilføj", "Gem"), leave them or stay.
+  // Closed (Cancel, the cross, a swipe down, Esc, a tap beside it) with the fields changed: the owner is
+  // asked whether to keep them ("Add", "Save"), leave them or stay.
   const leave = async () => {
     if (!editing || JSON.stringify(clean(own, editing.value)) === editing.was) return cancel();
     const choice = await closeChanged(editing.fresh ? t.forms.add : t.common.save);
@@ -885,7 +885,7 @@ export function MenuList({
     if (open === i) setOpen(to);
     else if (open === to) setOpen(i);
   };
-  // An item added at the end (+ in the top bar, or "Tilføj punkt") opens its sheet.
+  // An item added at the end (+ in the top bar, or "Add item") opens its sheet.
   useEffect(() => {
     if (value.length === length.current + 1) {
       edit(value.length - 1, true);
@@ -984,7 +984,7 @@ export function MenuList({
   );
 }
 
-// "Tilføj …" (an item to a list of the menu): under a submenu (`sub`, indented as its items), or under the menu.
+// "Add …" (an item to a list of the menu): under a submenu (`sub`, indented as its items), or under the menu.
 function AddItem({ field, sub = false, onClick }: { field: Field; sub?: boolean; onClick: () => void }) {
   return (
     <Button kind="text" size="small" icon={Plus} className={sub ? 'mt-1 ml-5' : 'mt-1'} onClick={onClick}>

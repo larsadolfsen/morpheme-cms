@@ -1,4 +1,4 @@
-// The app store ("Indstillinger" › "Appstore", #settings/appstore, AppList.tsx): the apps that are not in the site
+// The app store ("Settings" › "Appstore", #settings/appstore, AppList.tsx): the apps that are not in the site
 // and can be installed. The store is reached through the site's Worker (/api/store/catalog, /api/store/files/<oid>;
 // the Worker holds the site's key to it, and the editor never calls the store itself): each app of its catalog with
 // its id, its version and the version of the contract it is written to (APP_API), its name, who made it, its icon
@@ -14,7 +14,7 @@
 // The store has themes too (`themes` in the catalog): each with its id, its version and the version of the contract it
 // is written to (THEME_API), its name, who made it, its picture, what it is and gives the site, its pictures of a site
 // in it, and its folder file by file. Installing one copies its folder into the site's themes (config.themes/<id>/,
-// with its store.json), and it can then be chosen under "Udseende" › "Temaer"; updating and uninstalling are as for
+// with its store.json), and it can then be chosen under "Appearance" › "Themes"; updating and uninstalling are as for
 // an app (themeChanges), and the theme in use cannot be uninstalled.
 // The catalog is what is released: an app's or a theme's entry is written from its folder by `npm run store:release
 // -- <id>` (scripts/store-release.mjs) when the owner releases it, not by each merge (packages/editor/scripts/releases.mjs).
@@ -49,7 +49,7 @@ export type StoreAdd = { label: string; icon: string; hint?: string };
 /** What an app needs of the site, as its folder says (needsOf): its code on every page (slots/), what it loads from
  * other addresses and where its forms send to (its csp.json, by host), its own part of the site's Worker (worker.js),
  * a step when the site is built (build.mjs) and what it changes of what the site does itself (hooks/,
- * @morphemecms/cms/lib/hooks.ts; not in a catalog written before there were any). Shown on its page under "Rettigheder",
+ * @morphemecms/cms/lib/hooks.ts; not in a catalog written before there were any). Shown on its page under "Permissions",
  * before it is installed. */
 export type AppNeeds = { pages: boolean; loads: string[]; sends: string[]; server: boolean; build: boolean; changes?: AppHook[] };
 
@@ -172,7 +172,7 @@ export type StoreTheme = {
    * before they were). */
   licenses?: StoreLicenses;
   /** The icon packs it brings (its icon-packs/<id>/, with their pack.json: name, who made it, licence), installed with it
-   * and chosen under "Udseende" › "Ikonpakker". */
+   * and chosen under "Appearance" › "Icon packs". */
   iconPacks?: { id: string; name: string; author: string; license: string }[];
   files: StoreFile[];
 };
@@ -193,7 +193,7 @@ export type ShownApp = StoreApp & { written: string; words: string };
  * the store's commit there) and its files (store.json). */
 export type StoreRecord = { version: string; ref: string; files: StoreFile[] };
 
-/** The store's address in the editor, under "Indstillinger" (its apps), the address of its themes under Appearance
+/** The store's address in the editor, under "Settings" (its apps), the address of its themes under Appearance
  * (STORE_THEMES, "Theme store"), the apps' address before (STORE_BEFORE, which opens it, App.tsx STORE_MOVED), and that
  * of a developer's page (DEVELOPER_ROUTE/<slug>); no app can have the ids of the last two. */
 export const STORE_ROUTE = 'settings/appstore';

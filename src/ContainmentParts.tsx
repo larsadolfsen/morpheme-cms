@@ -1,4 +1,4 @@
-// "Parts" › "UI-komponenter" (BlockParts.tsx), the group "Dialoger, ark og karrusel": the theme's dialog, bottom sheet and
+// "Parts" › "UI-komponenter" (BlockParts.tsx), the group "Dialogs, sheets and carousel": the theme's dialog, bottom sheet and
 // carousel (packages/editor/theme/ui/, through @site/editor) as the site draws them, with made-up texts and the plain
 // picture: a basic dialog, one with an icon, a list and a divider, the container alone (a pop-up's box) and a
 // full-screen one; the modal bottom sheet, three times, one per wide (a button opens it in a real dialog: on a phone at

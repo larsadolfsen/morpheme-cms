@@ -7,7 +7,7 @@ import { JSDOM } from 'jsdom';
 import { headerDraft, swapHeader } from './headerPreview.mjs';
 
 // A page with the header as the site draws it: the menu button at the start, an item without and one with sub-items, the
-// phone icon, and the bar of "Mobilmenu".
+// phone icon, and the bar of "Mobile menu".
 const PAGE = `<!doctype html><html><body>
 <header data-editor="header"><div data-header-row>
   <div data-editor="header-menu" class="start-class"><button>Menu</button></div>
@@ -55,7 +55,7 @@ test('headerDraft: the menu turned off is no items and no menu button', () => {
   assert.deepEqual(headerDraft(SAVED, withChange({ menu: { ...SAVED.menu, enabled: false } })), { nav: null });
 });
 
-test('headerDraft: the menu items with their sub-items A–Å', () => {
+test('headerDraft: the menu items with their sub-items A–Z', () => {
   const items = [
     {
       label: 'Om',
@@ -78,7 +78,7 @@ test('headerDraft: the menu items with their sub-items A–Å', () => {
   ]);
 });
 
-test('headerDraft: "Mobilmenu" turned off is an empty bar, turned on its links', () => {
+test('headerDraft: "Mobile menu" turned off is an empty bar, turned on its links', () => {
   assert.deepEqual(headerDraft(SAVED, withChange({ mobileMenu: { ...SAVED.mobileMenu, enabled: false } })), { mobileNav: [] });
   const off = withChange({ mobileMenu: { enabled: false, items: [{ label: 'Kontakt', href: '/kontakt/' }] } });
   assert.deepEqual(headerDraft(off, withChange({ mobileMenu: { ...off.mobileMenu, enabled: true } })), {
@@ -147,7 +147,7 @@ test('swapHeader: the menu off removes its items and the menu button', () => {
   assert.equal(part(doc, 'header-menu'), null);
 });
 
-test('swapHeader: the bar of "Mobilmenu" drawn again, removed, and put in when the page has none', () => {
+test('swapHeader: the bar of "Mobile menu" drawn again, removed, and put in when the page has none', () => {
   const doc = page();
   swapHeader(
     doc,

@@ -1,6 +1,6 @@
 // The Settings tab of an installed app's page, below its head and its settings form: what the app shows itself (`page`,
-// not while it is off), what it adds with its switches, its kinds of notifications with their switches, and "Afinstaller"
-// with its text (it shows the loading indicator while it uninstalls). The "Aktiveret" switch is AppEnabledSwitch.tsx, in AppList.tsx.
+// not while it is off), what it adds with its switches, its kinds of notifications with their switches, and "Uninstall"
+// with its text (it shows the loading indicator while it uninstalls). The "Enabled" switch is AppEnabledSwitch.tsx, in AppList.tsx.
 // Exposes AppSettingsTab (default). Depends on AppAdds.tsx, AppNotificationSwitches.tsx, ./ui and notificationData.ts.
 import { Button, SupportingText } from './ui';
 import AppAdds from './AppAdds';
@@ -12,7 +12,7 @@ import { appType } from './notificationData';
 import { siteText, t } from './i18n';
 
 /** `busy`: something is saving; `enabled`: the app is not turned off (hides `app.page` while it is off); `uninstalling`: this app is
- * uninstalled now; `stuck`: the app is in use, so it cannot be uninstalled; `onUninstall`: "Afinstaller". */
+ * uninstalled now; `stuck`: the app is in use, so it cannot be uninstalled; `onUninstall`: "Uninstall". */
 export default function AppSettingsTab({
   app,
   env,

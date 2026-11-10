@@ -1,11 +1,11 @@
-// "Slettede …" behind the clock in the top bar of a list that can be deleted from (blog posts, tags,
-// promotions, prices, testimonials) and of "Filer": what was deleted from its folder in the last commits that changed it
+// "Deleted …" behind the clock in the top bar of a list that can be deleted from (blog posts, tags,
+// promotions, prices, testimonials) and of "Files": what was deleted from its folder in the last commits that changed it
 // (github.ts deletedFiles), newest first, with when and by whom. Tapping one asks, then brings it back
 // in one commit, under its old name: a page or post at its old address (not when another has it, or
 // the site sends it on, which it says, and where to), a price or testimonial last in the list. A
-// file from "Filer" is shown in a sheet first (FileView.tsx; a PDF, a video or a zip file with its icon
-// and name over it), with "Gendan" under it, and comes back with its record of tags (fileRecords.mjs) when it
-// was deleted together with it and no live record has its address. "Gendan" shows the loading indicator while it restores.
+// file from "Files" is shown in a sheet first (FileView.tsx; a PDF, a video or a zip file with its icon
+// and name over it), with "Restore" under it, and comes back with its record of tags (fileRecords.mjs) when it
+// was deleted together with it and no live record has its address. "Restore" shows the loading indicator while it restores.
 import { useEffect, useRef, useState } from 'react';
 import { ArrowCounterClockwise } from '@phosphor-icons/react';
 import Screen from './Screen';
@@ -24,20 +24,20 @@ import { kindAndName, nameOf, savedText } from './deploy';
 import { config, siteName } from '@site/editor';
 import { locale, siteT, t } from './i18n';
 
-/** The collections whose lists have "Slettede …" (the clock in the top bar): those that can be deleted from. */
+/** The collections whose lists have "Deleted …" (the clock in the top bar): those that can be deleted from. */
 export const restorable = (c: Collection) => c.kind !== 'files' && !!c.deletable;
 
 const MEDIA = config.folders.media;
-/** The folder of PDFs, videos and zip files, deleted from under "Filer" too. */
+/** The folder of PDFs, videos and zip files, deleted from under "Files" too. */
 const FILES: string | undefined = (config.folders as { files?: string }).files;
 
-// "i dag kl. 13.42" as "I dag kl. 13.42".
+// "today at 1:42 PM" as "Today at 1:42 PM".
 const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
 
 const fileName = (path: string) => path.split('/').pop() ?? path;
 
 export default function Deleted({ id, files, env }: { id: string; files: RepoFile[]; env: Env }) {
-  // The files from "Filer" (pictures, PDFs, videos, zip files), not a list's.
+  // The files from "Files" (pictures, PDFs, videos, zip files), not a list's.
   const pictures = id === 'files';
   const collection = pictures ? undefined : collections.find((c) => c.id === id && restorable(c));
   const folder = pictures ? MEDIA : collection && collection.kind !== 'files' ? collection.folder : '';
@@ -52,7 +52,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
 
   useEffect(() => {
     if (!folder) return;
-    // Under "Filer", the pictures' and the other files' together, newest first.
+    // Under "Files", the pictures' and the other files' together, newest first.
     const folders = pictures && FILES ? [folder, FILES] : [folder];
     Promise.all(folders.map((f) => env.deleted(f, { text: !pictures })))
       .then((all) => setDeleted(all.flat().sort((a, b) => +new Date(b.at) - +new Date(a.at))))
@@ -104,7 +104,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
         const { order: _, ...rest } = JSON.parse(file.text) as Record<string, unknown>;
         content = `${JSON.stringify({ order: env.nextOrder(collection!), ...rest }, null, 2)}\n`;
       }
-      // A file from "Filer" comes back with its record of tags: the one deleted in the same commit (same time).
+      // A file from "Files" comes back with its record of tags: the one deleted in the same commit (same time).
       const changes: { path: string; content: string | Uint8Array; oid: string | null }[] = [{ path: file.path, content, oid: null }];
       if (pictures) {
         const deletedRecords = await env.deleted(config.fileRecords, { text: true });

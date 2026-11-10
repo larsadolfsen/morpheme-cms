@@ -168,7 +168,7 @@ export async function loadFrom(repo: Repo, ref: string, paths: string[]): Promis
 }
 
 // A file's bytes by its blob id: a picture, which GraphQL gives no content for (renaming one in
-// Filer). Checked against the id, so a picture is never saved broken. `repo`: another repository than the site's
+// Files). Checked against the id, so a picture is never saved broken. `repo`: another repository than the site's
 // (a picture of an app in the store).
 export async function loadBytes(oid: string, address?: string, repo: Repo = REPO): Promise<Uint8Array> {
   // First from the site itself (the same file, no request to the Worker), when it has it unchanged.

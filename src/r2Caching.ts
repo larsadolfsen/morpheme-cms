@@ -1,9 +1,9 @@
-// Also here: planStatus, whether the account has Workers Paid (/api/plan, packages/editor/worker/plan-status.js), asked for "Betalt bygning".
-// R2 caching: the Worker's copy of the site's files in R2 (packages/editor/worker/files.js), turned on and off under "Indstillinger" ›
+// Also here: planStatus, whether the account has Workers Paid (/api/plan, packages/editor/worker/plan-status.js), asked for "Paid builds".
+// R2 caching: the Worker's copy of the site's files in R2 (packages/editor/worker/files.js), turned on and off under "Settings" ›
 // "Caching and builds" (Advanced.tsx). It is the line of its bucket (`"r2_buckets": …`, the binding FILES) in the Worker's settings
 // (config.wrangler): there when it is on, there as a comment ("// …") when it is off, so a deploy never asks for a bucket
 // Cloudflare does not have. Changed as text, so the file's comments stay. It can only be turned on when the Worker says
-// Cloudflare has the bucket (/api/r2, packages/editor/worker/r2-status.js). Where the bucket is kept ("Placering"): placed by Cloudflare,
+// Cloudflare has the bucket (/api/r2, packages/editor/worker/r2-status.js). Where the bucket is kept ("Location"): placed by Cloudflare,
 // or within a jurisdiction (`"jurisdiction": "eu"` in the line), where it is asked for: Cloudflare has no bucket of that
 // name outside it. It can only be changed while R2 caching is off, since it names another bucket.
 

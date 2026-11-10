@@ -31,7 +31,7 @@ export const ask = (text: string, yes: string) =>
 export const choose = (question: Omit<Question, 'resolve'>) =>
   new Promise<{ choice: string; text: string } | null>((resolve) => open({ ...question, resolve }));
 
-/** A sheet closed with changes: keep them ('keep', with the sheet's main button's text: Gem, Indsæt),
+/** A sheet closed with changes: keep them ('keep', with the sheet's main button's text: Save, Insert),
  * leave them ('discard'), or stay in the sheet (null, "Annuller"). */
 export const closeChanged = (keep: string) =>
   choose({

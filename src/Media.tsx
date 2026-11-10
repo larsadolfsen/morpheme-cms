@@ -4,7 +4,7 @@
 // the type (Billeder, PDF'er, Videoer, Zip-filer) and whether a page uses them (Gallery). A file that is
 // not a picture is a square with its icon and name. Tapping one opens a sheet from the bottom with the
 // file (FileView.tsx), its file name and where it is used, each a link to that page or post, or
-// "Slet billede" (…) when nothing uses it (also not the site's own code, /editor/code-images.json). Its
+// "Delete picture" (…) when nothing uses it (also not the site's own code, /editor/code-images.json). Its
 // name, under the title, can be changed with the pencil after it (not one the site's code uses),
 // saved with the tick: the file moves, the pages that use it get the new address in the same commit,
 // and the old address sends on to it (addresses.ts). The FAB uploads a new file, saved at once. The same

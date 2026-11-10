@@ -2,7 +2,7 @@
 // moves, addresses.ts), the rules (public/_redirects, "<from> <to> 301", one to a line) and the
 // Worker's map ({ paths, ids }, written with one space of indentation, e.g. by a migration);
 // their files are in config.ts. The Worker sends on by the editor's own first, then by its map, and
-// then the rules are read (packages/editor/worker/index.js); so does lookup here. "Videresendelser" under
+// then the rules are read (packages/editor/worker/index.js); so does lookup here. "Redirects" under
 // Indstillinger (Redirects.tsx) shows and changes them, and a page that takes the address of one
 // removes it (EntryForm.tsx). Every change ends with flatten: each redirect sends straight to where
 // it ends, never on through another (no chain, one redirect for the visitor and for Google).

@@ -15,7 +15,7 @@ import type { AppCookie } from './store';
 
 /** A cookie in the list, as its file has it; `app`: the app that added it; `new`: added by the app "Cookiescanner" and not
  * yet looked through (first in the list, marked, until it is saved: FolderCollection.fresh); `scanned`: added by it, kept
- * when saved (its tab "Problemer" says when the site no longer sets it). */
+ * when saved (its tab "Problems" says when the site no longer sets it). */
 export type CookieEntry = {
   name: string;
   provider: string;

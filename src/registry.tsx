@@ -68,7 +68,7 @@ export const siteBlocks: SiteBlock[] = [
   htmlBlock,
 ];
 
-/** The blocks turned off under "Blokindstillinger" (BlockSettings.tsx), and the apps' kinds of the site's lists
+/** The blocks turned off under "Block settings" (BlockSettings.tsx), and the apps' kinds of the site's lists
  * (kindKey, "popups/mailchimp"), from the site's file of block settings (config.blockSettings). */
 export function offBlocks(files: { path: string; text: string }[]): string[] {
   try {
@@ -88,7 +88,7 @@ export function notOffered(files: { path: string; text: string }[]): string[] {
 
 /** The fields with a fixed page's sections (`pageBlocks`) given every block a page can have after their own (not HTML):
  * the editor draws them and checks them by their own fields, as the site's build does (checkSite.ts), also one turned
- * off or of an app not installed, as on a page; those are only not offered under "Indsæt" (SectionsField's `off`). */
+ * off or of an app not installed, as on a page; those are only not offered under "Insert" (SectionsField's `off`). */
 export const withPageBlocks = (fields: Field[]): Field[] =>
   fields.map((f) =>
     f.type === 'blocks' && f.pageBlocks
@@ -106,7 +106,7 @@ export const withPageBlocks = (fields: Field[]): Field[] =>
  * the page's template: the editor says the first before it saves a page (EntryForm.tsx), and the
  * site's build says them all (checkSite.ts). A hidden block is not on the site, so it may be
  * unfinished. */
-/** The standard page a page is ("Indstillinger" › "Udseende" › "Standardsider", config.standardPages: the front page,
+/** The standard page a page is ("Settings" › "Appearance" › "Default pages", config.standardPages: the front page,
  * the blog page …), by the address there, or undefined. */
 export function standardPageOf(file: { path: string; text: string }, files: { path: string; text: string }[]): StandardPage | undefined {
   if (!config.standardPages || !file.path.startsWith(`${config.folders.pages}/`)) return undefined;
@@ -155,7 +155,7 @@ export function blockProblems(text: string, template?: Template, leads?: Record<
 }
 
 /** The block as it looks on the site, or null when there is no picture of it. On a fixed page its
- * sections (the theme's previews.tsx), or the block of the section's type (Book en tid); a section can
+ * sections (the theme's previews.tsx), or the block of the section's type (Book an appointment); a section can
  * draw a block by its type too (`block`, the prices on the prices page), so the theme never imports one. */
 export function preview(type: string, props: BlockProps, data: BlockData) {
   const file = data.page?.file;

@@ -1,4 +1,4 @@
-// One blog post or page: its fields and its text, and "Gem", which saves the file as a commit.
+// One blog post or page: its fields and its text, and "Save", which saves the file as a commit.
 // Only what was changed is written: untouched fields keep their exact text, and the body is only
 // rewritten by Milkdown when the text was edited (packages/editor/scripts/editor-roundtrip.mjs checks that this
 // gives the same page). A new address (Adresse) moves the page or post, with a redirect from the
@@ -83,7 +83,7 @@ const sectionOf = (collection: MarkdownCollection, path: string): Section => {
     collection.fields.some((f) => f.name === name && f.offered === 'templates');
   return settings ? 'settings' : TOP.includes(name) ? 'content' : SEO.includes(name) ? 'seo' : SHARE.includes(name) ? 'share' : 'other';
 };
-// The section the next page or post opened starts at: "Søgemaskiner" when it is opened from "SEO-vurdering"
+// The section the next page or post opened starts at: "Search engines" when it is opened from "SEO rating"
 // (SeoScores.tsx), else the text.
 let opening: Section | null = null;
 export const openAtSeo = () => {
@@ -98,8 +98,8 @@ const fieldsIn = (collection: MarkdownCollection, id: Section) =>
   collection.fields.filter(inSection(collection, id)).sort((a, b) => rank(a) - rank(b));
 
 // A new file: a blog post gets today's date; a page has the blocks its template
-// starts it with (Template.start), e.g. "Book en tid" at the end like the other pages, but not one that
-// is turned off (off, "Blokindstillinger").
+// starts it with (Template.start), e.g. "Book an appointment" at the end like the other pages, but not one that
+// is turned off (off, "Block settings").
 export const newMarkdown = (collection: MarkdownCollection, off: string[] = []): RepoFile => ({
   path: '',
   oid: '',
@@ -114,7 +114,7 @@ export const newMarkdown = (collection: MarkdownCollection, off: string[] = []):
 
 // The address of a saved page or post: a page's own `path`, or else /<file name>/ (packages/editor/site/content.ts).
 // '' for a new one.
-// Where the redirects are, as the menu has it: "Indhold" › "Videresendelser" › "Alle videresendelser".
+// Where the redirects are, as the menu has it: "Content" › "Redirects" › "All redirects".
 const redirectsPath = () => [placeOf('redirects'), t.common.parts.redirects, t.redirects.all].filter(Boolean).join(' › ');
 
 function addressNow(collection: MarkdownCollection, file: RepoFile, data: Record<string, unknown>) {
@@ -137,8 +137,8 @@ function valuesOf(collection: MarkdownCollection, file: RepoFile): Record<string
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
-// The values as they are saved: a field only in use with another's value (Field.only: "Tidspunkt" with
-// "Planlagt") is empty without it, so it leaves the file; a switch that is on when its key is missing (Field.missing)
+// The values as they are saved: a field only in use with another's value (Field.only: "Time" with
+// "Scheduled") is empty without it, so it leaves the file; a switch that is on when its key is missing (Field.missing)
 // leaves the file when it is on (booleanWrite); a field of the theme's templates (Field.offered) leaves it for the theme's
 // default, `offered` (templateWritten).
 const inForm = (fields: Field[], values: Record<string, unknown>, offered: string[]) =>
@@ -190,11 +190,11 @@ function Form({
   const url = String(initial.path);
   // Which of the site's blocks to put in the text, and their fields (pages only).
   // What can be put in: what the template allows, but not the blocks turned off under
-  // "Blokindstillinger", nor those of an app not installed (those already in the text stay, and are
+  // "Block settings", nor those of an app not installed (those already in the text stay, and are
   // checked by the template alone when saved).
   const off = useMemo(() => notOffered(env.files), [env.files]);
-  // A page chosen as a standard page ("Indstillinger" › "Udseende" › "Standardsider", packages/editor/defaults/standardPages.ts) has its
-  // rules too (the blog page has "Blogindlæg"). The front page is written as it looks: the heading, text and picture of a
+  // A page chosen as a standard page ("Settings" › "Appearance" › "Default pages", packages/editor/defaults/standardPages.ts) has its
+  // rules too (the blog page has "Blog posts"). The front page is written as it looks: the heading, text and picture of a
   // block as the text above its card (its lead), and its top ("Hero") first.
   const paths = standardPaths(env.files.find((f) => f.path === config.standardPages)?.text);
   const standard = url ? standardPages.find((p) => paths[p.key] === url) : undefined;
@@ -288,7 +288,7 @@ function Form({
   ]);
   const { section, steer, unfold, goTo, pick, sectionProps } = useFormSections<Section>(sections, start);
   const textBox = useRef<HTMLDivElement>(null);
-  // Opened from "SEO-vurdering" (SeoScores.tsx): straight to "Søgemaskiner" (open from the start, `open`).
+  // Opened from "SEO rating" (SeoScores.tsx): straight to "Search engines" (open from the start, `open`).
   useEffect(() => {
     if (opening !== 'seo') return;
     opening = null;
@@ -300,9 +300,9 @@ function Form({
     if (wrongField.field) steer(sectionOf(collection, wrongField.field.path));
   }, [wrongField.field?.at]);
 
-  // The SEO rating at the top of "Søgemaskiner" (seo.ts), again with every change of a field while that is open and near
+  // The SEO rating at the top of "Search engines" (seo.ts), again with every change of a field while that is open and near
   // the screen (`seoBox`, what is in the section, is hidden while it is folded); the same for the preview of a shared link
-  // at the top of "Sociale medier" (its first picture in the text). The text is read from the editor when one of them is
+  // at the top of "Social media" (its first picture in the text). The text is read from the editor when one of them is
   // opened or comes near the screen, and while it is there a moment after the text was last changed: not on every
   // keystroke, nor while they are folded or out of view (then the rating keeps what it had; it is worked out once from
   // the start, so it does not move what is under it when it comes into view).
@@ -333,7 +333,7 @@ function Form({
   );
   lastRating.current = rating;
   // The link as it is shared: as Base.astro writes it, from a page's H1 (pageH1) or a post's title, and its picture
-  // (a post's "Billede øverst", else the first in the text; a page has its pictures in its text, and the front page shows
+  // (a post's "Picture at the top", else the first in the text; a page has its pictures in its text, and the front page shows
   // the site's picture, as Home.astro).
   const shared = {
     title: (!post && pageH1(body).heading) || String(values.title ?? ''),
@@ -350,15 +350,15 @@ function Form({
     shareImage: String(values.shareImage ?? ''),
     image: front ? undefined : String(values.image ?? '') || firstPicture(body),
   });
-  // The Google result (SearchPreview), at the address the page or post has now: the one typed in "Adresse" or, for a new
-  // one without, /<title>/, as "Gem" works it out; the front page is at /.
+  // The Google result (SearchPreview), at the address the page or post has now: the one typed in "URL" or, for a new
+  // one without, /<title>/, as "Save" works it out; the front page is at /.
   const result = searchedAs(shared);
   const resultPath = front
     ? '/'
     : addressOf(String(values.path ?? ''), post ? 'post' : 'page') || (isNew ? `/${slugify(String(values.title ?? ''))}/` : url);
 
-  // A picture is kept in the browser until "Gem", which uploads it with the page. A file in Filer the page refers to
-  // now and did not in its last saved version (a picture, a PDF field, a link) gets the page's tags at "Gem" (autoTags.mjs).
+  // A picture is kept in the browser until "Save", which uploads it with the page. A file in Filer the page refers to
+  // now and did not in its last saved version (a picture, a PDF field, a link) gets the page's tags at "Save" (autoTags.mjs).
   const tagged = collection.fields.some((f) => f.name === 'categories' && f.type === 'relation' && f.to === 'categories');
   const pictures = useUploads(notify);
   const [pickImage, picker] = useMediaPicker(env.media, pictures);
@@ -373,7 +373,7 @@ function Form({
     page: collection.id === 'pages' && url ? url : undefined,
   };
 
-  // A new page or post without a title is called "Ny side 1", "Ny side 2" … (in the site's language,
+  // A new page or post without a title is called "New page 1", "New page 2" … (in the site's language,
   // the first that no page or post of its kind has as its title or file name).
   function untitled() {
     const own = env.files.filter((f) => f.path.startsWith(`${collection.folder}/`) && f.path.endsWith('.md'));
@@ -465,7 +465,7 @@ function Form({
       return notify({ text: t.forms.entry.fileExists(name), error: true });
 
     // A new file gets all its filled-in fields in the order of the form; an existing one only the changed. As saved:
-    // the values given (a new one without a title has its name, "Ny side 1", named()), not only those in the form.
+    // the values given (a new one without a title has its name, "New page 1", named()), not only those in the form.
     const saved = inForm(collection.fields, values, offered);
     const written = (isNew ? collection.fields.filter((f) => !same(saved[f.name], []) && f.type !== 'readonly') : changed).filter(
       (f) => f.name !== 'path',
@@ -602,7 +602,7 @@ function Form({
     }
   }
 
-  // "Forhåndsvis": the page or post with what is changed in the form; a new one, or one whose layout is changed in the
+  // "Preview": the page or post with what is changed in the form; a new one, or one whose layout is changed in the
   // form (a field with `layout`, the template), in the page of another one of its kind saved with that layout, with
   // all of the form put in it (pagePreview.tsx).
   const [openPreview, previewSheet] = usePagePreview();
@@ -768,6 +768,6 @@ function Form({
   );
 }
 
-// A page's text with a post's new file name in its blocks with blog posts ("Blogindlæg", `picked`).
+// A page's text with a post's new file name in its blocks with blog posts ("Blog posts", `picked`).
 const pickedRenamed = (text: string, was: string, name: string) =>
   text.replace(/^<div data-block="posts".*$/gm, (line) => line.replaceAll(`&quot;${was}&quot;`, `&quot;${name}&quot;`));

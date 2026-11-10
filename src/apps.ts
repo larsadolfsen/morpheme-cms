@@ -24,17 +24,17 @@
 //   page in index.ts  what it shows on its page under its settings (AppPage), drawn with the editor's parts (ui.tsx),
 //                 asking its own addresses in the Worker (`api`);
 //   screens in index.ts  screens of its own under its page (#apps/<app>/<screen>, AppScreenPage), drawn as its page,
-//                 which links to them (Cookiescanner's "Blokeret adresse");
+//                 which links to them (Cookiescanner's "Blocked address");
 //   tabs in index.ts  tabs it adds to the site's lists (#list/<list>/<app>, after the list's own tab in the top app
-//                 bar, Library.tsx List), drawn as its page (Cookiescanner's "Problemer" on "Cookies");
+//                 bar, Library.tsx List), drawn as its page (Cookiescanner's "Problems" on "Cookies");
 //   notifications in index.ts  the kinds of notifications it sends, each turned off under "Konto", and how it finds
 //                 them (`check`, with `api`; AppNotifications);
 //   worker.js, build.mjs  its part of the site's Worker (/api/<app>/…, each hour) and a step after the site is built
 //                 (packages/editor/lib/apps.mjs);
 //   csp.json      what it loads from elsewhere on the site (packages/editor/lib/csp.mjs).
-// An app that is not installed, or turned off ("off" in the file of apps), is not offered in the editor: its blocks are not under "Indsæt" nor
-// "Blokindstillinger", its kinds not under "+", its lists not under "Lister", its settings not on its page. What was made with it stays,
-// on the pages and on the site, and can still be edited. Installed, its blocks are under its name in "Blokindstillinger". The
+// An app that is not installed, or turned off ("off" in the file of apps), is not offered in the editor: its blocks are not under "Insert" nor
+// "Block settings", its kinds not under "+", its lists not under "Lists", its settings not on its page. What was made with it stays,
+// on the pages and on the site, and can still be edited. Installed, its blocks are under its name in "Block settings". The
 // apps installed are in the site's file of apps (config.apps.installed), each app's settings in a file of
 // its own in config.apps.settings. The site's build reads the settings, so settings.ts imports nothing
 // that needs a browser.
@@ -70,7 +70,7 @@ export const defineSettings = (settings: AppSettings) => settings;
  * themselves. `draw`: how one looks on the site, by the form of an entry of it (DataForm.tsx), once for each
  * of `variants` (its states, e.g. before and after a signup), under its name, with its props over the entry's; or
  * `part`, its part in the list's own drawing (FolderCollection.drawPart, kindDraw). `opens`: what a button can
- * open of one (a button's "Åbn promovering", the list's FolderCollection.opens), without it nothing. */
+ * open of one (a button's "Open promotion", the list's FolderCollection.opens), without it nothing. */
 export type AppKind = {
   label: string;
   hint?: string;

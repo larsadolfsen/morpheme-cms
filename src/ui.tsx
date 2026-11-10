@@ -128,8 +128,8 @@ import { menuLayout } from '../lib/menu-layout.mjs';
 // Buttons
 
 /** The theme's button (Material 3's buttons): filled, the one thing to do; tonal, an important step that is not the
- * main one; elevated, one on a coloured background; outlined, another choice beside it ("Annuller" too); text, a small
- * step on the side (Fjern, Tilføj). medium (the default): the width of its text on every screen (Gem ændringer); small: in a line of text or by a field (Skift billede, Tilføj tag). */
+ * main one; elevated, one on a coloured background; outlined, another choice beside it ("Cancel" too); text, a small
+ * step on the side (Remove, Add). medium (the default): the width of its text on every screen (Save changes); small: in a line of text or by a field (Change picture, Add tag). */
 export type { ButtonKind };
 export type ButtonSize = 'medium' | 'small';
 
@@ -191,7 +191,7 @@ export function IconButton({ icon: Glyph, label, ...rest }: IconButtonProps) {
   );
 }
 
-/** A link that looks like an IconButton (+ on a list, Se på sitet, the account). */
+/** A link that looks like an IconButton (+ on a list, View on the website, the account). */
 export function IconLink({
   icon: Glyph,
   label,
@@ -548,7 +548,7 @@ const percent = (n: number) => `${Math.round(n * 100)} %`;
 function ColorText({ id, value, label, onChange }: { id: string; value: string; label?: string; onChange: (value: string) => void }) {
   const [typed, setTyped] = useState(value);
   const [wrong, setWrong] = useState(false);
-  // A new colour from outside (the sheet, "Brug standardfarverne") replaces what was typed.
+  // A new colour from outside (the sheet, "Reset to default colors") replaces what was typed.
   useEffect(() => {
     if (colorOf(typed) !== value) setTyped(value);
     setWrong(false);
@@ -603,7 +603,7 @@ const thumb =
 /** What is in the sheet a colour is picked in (ColorField): a field with its shades (saturation across,
  * brightness up) and a bar with the hues, both to drag in or move with the arrow keys; what it was and
  * what it becomes side by side, with the colour as text; and the colours to pick from (`swatches`, the
- * site's). "Brug farven" takes it, "Brug og lås" (with `onLock`) takes it and locks it, "Annuller" and the cross
+ * site's). "Use color" takes it, "Use and lock" (with `onLock`) takes it and locks it, "Cancel" and the cross
  * leave it as it was. Made again each time the sheet opens, so it starts from the colour the field has. */
 function ColorSheet({
   id,
@@ -619,7 +619,7 @@ function ColorSheet({
   value: string;
   swatches?: string[];
   onChange: (value: string) => void;
-  /** "Brug og lås" as well: takes the colour and locks it (a base colour of the generator, ColorTiles). */
+  /** "Use and lock" as well: takes the colour and locks it (a base colour of the generator, ColorTiles). */
   onLock?: (value: string) => void;
   onClose: () => void;
 }) {
@@ -848,7 +848,7 @@ export function SearchBar({
 }: {
   value: string;
   onChange: (value: string) => void;
-  /** What is searched, for screen readers ("Søg i billederne"). */
+  /** What is searched, for screen readers ("Search the pictures"). */
   label: string;
   className?: string;
   inputRef?: Ref<HTMLInputElement>;
@@ -1131,8 +1131,8 @@ export type Pickable = { value: string; label: string; state?: PageState; inMenu
 type PickSort = 'newest' | 'oldest' | 'az' | 'za';
 type InMenu = '' | 'in' | 'out';
 
-/** The order and the filters of a sheet of choices (PagePicker, MultiChoice), as over the lists: the arrows with A–Å and
- * Å–A (and newest and oldest first, when the choices have a date: the posts first newest), kept in this browser by
+/** The order and the filters of a sheet of choices (PagePicker, MultiChoice), as over the lists: the arrows with A–Z and
+ * Z–A (and newest and oldest first, when the choices have a date: the posts first newest), kept in this browser by
  * `keep` (the list they come from); and the funnel with their status and whether the menu links to them, each only when
  * the choices differ in it, a filter picked as a chip that removes it. `sort` and `filter` go beside the search (SearchRow), `chips` under it,
  * and `arrange` orders and filters choices. */
@@ -1219,7 +1219,7 @@ export function usePickTools(all: Pickable[], keep: string) {
 }
 
 /** Several picked from a list (a post's tags): the picked ones as chips, a tap on one takes it away, and
- * a last button (`add`, "Tilføj tag") that opens a sheet with all the choices, where a tap picks one or
+ * a last button (`add`, "Add tag") that opens a sheet with all the choices, where a tap picks one or
  * takes it away again; the sheet stays open, so more can be picked. With many choices a search over
  * them, their order and filters (usePickTools); `max`: at most so many; `footer`: at the bottom of the sheet (SheetLink), given what closes it.
  * A picked value that is not among the choices is still shown, so it is not lost. */
@@ -1345,7 +1345,7 @@ export function Switch({
   selected: boolean;
   label: string;
   texts: [string, string];
-  /** It cannot be changed now (a block in use under "Blokindstillinger"). */
+  /** It cannot be changed now (a block in use under "Block settings"). */
   disabled?: boolean;
   onChange: (selected: boolean) => void;
 }) {
@@ -1458,7 +1458,7 @@ export function ChipField({
 }
 
 /** The theme's chip set: chips side by side in a group with its name (`label`), on as many lines as they need, or with
- * `scroll` on one line that scrolls sideways (the harmonies under "Farver" › "Generator"). */
+ * `scroll` on one line that scrolls sideways (the harmonies under "Colors" › "Generator"). */
 export function ChipSet({ label, scroll = false, children }: { label: string; scroll?: boolean; children: ReactNode }) {
   return (
     <SiteChipSet layout={scroll ? 'scroll' : 'wrap'} label={label}>
@@ -1983,7 +1983,7 @@ export function SheetLink({
   );
 }
 
-/** The bottom of a sheet with fields, under the theme's divider: "Annuller" and the main button on the right,
+/** The bottom of a sheet with fields, under the theme's divider: "Cancel" and the main button on the right,
  * something else (Slet) on the left. */
 export function SheetActions({
   onCancel,
@@ -1994,7 +1994,7 @@ export function SheetActions({
 }: {
   onCancel: () => void;
   onDone: () => void;
-  /** The main button's text (Gem, Indsæt). */
+  /** The main button's text (Save, Insert). */
   done: string;
   disabled?: boolean;
   start?: ReactNode;
@@ -2036,9 +2036,9 @@ export function Preview({ children }: { children: ReactNode }) {
   );
 }
 
-/** A little page in a set of the site's colours (by their names, as "Farver" has them), whatever mode the editor is in:
+/** A little page in a set of the site's colours (by their names, as "Colors" has them), whatever mode the editor is in:
  * a heading, text, a link, a surface with text, a tinted box, a box in each of the secondary and tertiary colours and a button, so it shows how readable they are together.
- * The colours are CSS variables on it, which the classes take, and the theme's filled button (ui.css) in them. "Farver"
+ * The colours are CSS variables on it, which the classes take, and the theme's filled button (ui.css) in them. "Colors"
  * (Colors.tsx) and the variants of a colour app. */
 export function ColorsPreview({ colors, title }: { colors: Record<string, string>; title: string }) {
   const p = t.colors.preview;
@@ -2085,7 +2085,7 @@ export function ColorSwatches({ colors, label }: { colors: string[]; label: stri
   );
 }
 
-/** A base colour in ColorTiles: the colour, its name, what its pen does (`onChange`, with `lock` when "Brug og lås"
+/** A base colour in ColorTiles: the colour, its name, what its pen does (`onChange`, with `lock` when "Use and lock"
  * took it; `disabled`: the pen is grey and cannot be used), and, for the one that can be locked, whether it is
  * (`locked`) and what its lock does (`onLock`). */
 export type ColorTile = {
@@ -2098,9 +2098,9 @@ export type ColorTile = {
 };
 
 /** A few colours side by side, each a tile filled with it, with its name and its colour as text in black or white,
- * whichever is easier to read on it (the generator's three base colours under "Farver"), and the theme's icon buttons
+ * whichever is easier to read on it (the generator's three base colours under "Colors"), and the theme's icon buttons
  * in the same colour: a pen that opens the colour sheet (ColorSheet, without colours to pick from), and on one that
- * can be locked a lock, on while it is locked, and "Brug og lås" in its sheet. `label` names them together. */
+ * can be locked a lock, on while it is locked, and "Use and lock" in its sheet. `label` names them together. */
 export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: string }) {
   const dialog = useRef<HTMLDialogElement>(null);
   // The tile whose sheet is open, and the times it was opened, so it starts again each time.
@@ -2178,7 +2178,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
   );
 }
 
-/** A colour wheel (the generator under "Farver"): every hue round the edge at its most colourful (`edge`, from the top
+/** A colour wheel (the generator under "Colors"): every hue round the edge at its most colourful (`edge`, from the top
  * clockwise), grey in the middle (`middle`), and dots on it (`dots`, x and y from -1 to 1 from the middle, y down), a
  * locked one with a lock in it. The first is the one chosen, to drag, tap or move with the arrow keys (round the wheel,
  * and out and in); the others follow it. `disabled`: it cannot be moved (the source colour is locked). `label` names it
@@ -2247,7 +2247,7 @@ export function ColorWheel({
 }
 
 /** A few icons side by side, each an SVG file as it is, read out together as `label` (an icon pack's, ChoiceRow on
- * "Ikonpakker"): in the row's colour, as its own icons. */
+ * "Icon packs"): in the row's colour, as its own icons. */
 export function IconSwatches({ icons, label }: { icons: string[]; label: string }) {
   return (
     <span role="img" aria-label={label} className="flex shrink-0 gap-2">
@@ -2258,7 +2258,7 @@ export function IconSwatches({ icons, label }: { icons: string[]; label: string 
   );
 }
 
-/** A row in a Group that is one of several choices on a screen of their own ("Ikonpakker"): the theme's list item
+/** A row in a Group that is one of several choices on a screen of their own ("Icon packs"): the theme's list item
  * (ListItem) as a button, its name (`headline`) and what is under it (`supporting`), what it gives at the right (`trailing`: IconSwatches,
  * ColorSwatches), and the chosen one marked as a choice in a sheet is (Option): aria-pressed, in the accent colour, with
  * a tick. */
@@ -2330,8 +2330,8 @@ const inText = {
   '--loading-indicator-colour': 'currentColor',
 } as CSSProperties;
 
-/** What a list or a screen says when it has nothing to show (Ingen …), or while it is fetched (`busy`,
- * with the LoadingIndicator: Henter…): grey, in the middle. `item`: as an item of a list. */
+/** What a list or a screen says when it has nothing to show (No …), or while it is fetched (`busy`,
+ * with the LoadingIndicator: Loading…): grey, in the middle. `item`: as an item of a list. */
 export function EmptyNote({ item, busy, children }: { item?: boolean; busy?: boolean; children: ReactNode }) {
   const className = 'px-4 py-6 text-center text-on-surface-variant';
   const text = busy ? <LoadingIndicator>{children}</LoadingIndicator> : children;
@@ -2718,9 +2718,9 @@ export function SideSheet({ title, onClose, children }: { title: string; onClose
 /** One entry of a SectionList: its id, its name and evt. the theme's Badge (how many are new there; or a dot). */
 export type NavigationItem = { id: string; label: string; badge?: number | boolean };
 
-/** The sections of a long form (a page's, a post's: Indhold, Status, Andre felter …) as an "on this page" list, as on
+/** The sections of a long form (a page's, a post's: Content, Status, Other fields …) as an "on this page" list, as on
  * m3.material.io: plain text, no icons and no surface; the one in view (`value`) in the accent colour and medium
- * weight (`aria-current="location"`). A tap calls `onChange` with its id (EntryForm scrolls to it). Evt. the theme's
+ * weight (`aria-current="location"`). A tap calls `onChange` with its id (EntryForm scrolls to it). Optionally the theme's
  * Badge after the name. `title` names the navigation. In a SectionPane. */
 export function SectionList({
   title,
@@ -3286,15 +3286,15 @@ export function LeadingIcon({ icon: Glyph, selected = false, children }: { icon?
 }
 
 /** A picture before a name in a row, as a ListItem's `leading` (Material's leading image): small and square, with the
- * corners of a field, beside its row's first two lines, as an icon; the picture a page's colours came from ("Farver" ›
- * "Sider"). `alt` empty when the row's text says what it is. */
+ * corners of a field, beside its row's first two lines, as an icon; the picture a page's colours came from ("Colors" ›
+ * "Pages"). `alt` empty when the row's text says what it is. */
 export function LeadingImage({ src, alt = '' }: { src: string; alt?: string }) {
   return (
     <img src={src} alt={alt} loading="lazy" className="size-10 rounded-(--block-radius-small) bg-surface-container-high object-cover" />
   );
 }
 
-/** What a design token is, for the sample of it before its row ("Parts" › "Værdier", Tokens.tsx). */
+/** What a design token is, for the sample of it before its row ("Parts" › "Values", Tokens.tsx). */
 export type TokenKind = 'shape' | 'elevation' | 'font' | 'color';
 
 /** A sample of one of the theme's design tokens before its name in a row, as a ListItem's `leading`, beside its first
@@ -3476,7 +3476,7 @@ export function SheetTitle({ title, onClose }: { title: string; onClose: () => v
   const glide = (sheet: HTMLDialogElement, to: number, small: number, big: number) => {
     const done = () => (to ? settle(sheet, to === big && big > small) : (onClose(), settle(sheet, false)));
     if (reduced()) return done();
-    // The site's spatial spring (motionTiming, "Bevægelse").
+    // The site's spatial spring (motionTiming, "Motion").
     const { duration, easing } = motionTiming('spatial');
     sheet.style.transition = `height ${duration}ms ${easing}, transform ${duration}ms ${easing}`;
     sheet.style.height = `${to || small}px`;
@@ -3898,7 +3898,7 @@ export function Select<T extends string>({
 }
 
 /** A row in a Group with its name and, at the right, what is chosen (muted, `empty` while nothing is), that opens a
- * sheet to choose in (`onClick`, with `children`: the sheet): ChoiceListItem, the pages of "Standardsider"
+ * sheet to choose in (`onClick`, with `children`: the sheet): ChoiceListItem, the pages of "Default pages"
  * (PageListItem in PagePicker.tsx). `ref`: the row, for marking it (WrongField). */
 export function PickListItem({
   title,
@@ -3958,7 +3958,7 @@ export function ChoiceListItem<T extends string>({
 }
 
 /** A new entry of more than one kind (a pop-up: Standard or Mailchimp): the "+" of a list's top bar,
- * which opens a sheet with the kinds, each with its icon, its name and what it is, as under "Indsæt";
+ * which opens a sheet with the kinds, each with its icon, its name and what it is, as under "Insert";
  * a choice closes it and goes on with that kind. */
 export function NewChoice<T extends string>({
   title,

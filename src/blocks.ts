@@ -61,7 +61,7 @@ export const defineBlock = (block: BlockDefinition) => block;
 
 // What the cards need besides the blocks: the lists' rows (an app's block shows its own list's) and the testimonials as they are now, the names of
 // the pages, posts … (for the fields that pick one), the rest of the site (for the previews,
-// previews.tsx), and the address of the page being edited (for "Dem om denne side"); on a fixed
+// previews.tsx), and the address of the page being edited (for "About this page"); on a fixed
 // page its file and its form's values as they are now.
 export type BlockData = {
   lists: ListRows;

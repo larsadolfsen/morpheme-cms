@@ -1,4 +1,4 @@
-// The order of a list of apps or themes (A–Å or Å–A, kept in this browser) and its picker.
+// The order of a list of apps or themes (A–Z or Z–A, kept in this browser) and its picker.
 // Exposes useSort(), sortChoice(sort, pickSort) and type Sort; uses Choice (ui.tsx) and t.library.
 import { useState } from 'react';
 import { ArrowsDownUp } from '@phosphor-icons/react';
@@ -10,7 +10,7 @@ const SORTS: Sort[] = ['az', 'za'];
 // The order picked last time, in this browser (the same for the apps and the store).
 const SORT_KEY = 'editor-sort-apps';
 
-/** The order of a list of apps, A–Å or Å–A, kept in this browser. */
+/** The order of a list of apps, A–Z or Z–A, kept in this browser. */
 export function useSort(): [Sort, (next: Sort) => void] {
   const [sort, setSort] = useState<Sort>(() => {
     try {

@@ -1,5 +1,5 @@
 // The site as the editor shows it: what src/site/ describes (the collections and their fields, the
-// menu's sections (groups), the screens under "Virksomheden" and "Blokke") with the site's texts in the
+// menu's sections (groups), the screens under "Business" and "Blocks") with the site's texts in the
 // editor's language (siteText, @site/texts). The editor takes these from here, not from
 // @site/editor. A commit says what was saved in the site's language: asWritten gives back a
 // collection, a file, a part or a block as the site wrote it.
@@ -116,14 +116,14 @@ function build(say: (text: string) => string, link: boolean) {
   return { block, collection, part, group, color, pair, app };
 }
 
-/** A colour under "Farver" (colorFields in @site/colors): its CSS variable without "--", its name and what it is for. */
+/** A colour under "Colors" (colorFields in @site/colors): its CSS variable without "--", its name and what it is for. */
 type ColorField = (typeof site.colorFields)[number];
 
 // A commit names a part in the site's language: the standard parts' English texts through inSiteLanguage, the site's own as written.
 const local = translator(siteText, inSiteLanguage);
 const each = <T>(all: T[], one: (x: T) => T) => (translatingSite ? all.map(one) : all);
 
-// The screens under "Blokke" of the blocks with shared texts (shared.ts in the block's folder), named and
+// The screens under "Blocks" of the blocks with shared texts (shared.ts in the block's folder), named and
 // drawn like the block: the apps' blocks' (src/apps/<app>/blocks/), as the site wrote them, and the standard blocks' (standard/), in the editor's language, where the site has
 // no block by the same name.
 type Folders<T> = Record<string, { default: T }>;
@@ -162,10 +162,10 @@ const standardParts = sharedPartsOf(
     return p;
   });
 
-/** The screens under "Blokke" as the site wrote them: its own (packages/editor/defaults/blockTexts.ts) and the blocks'. */
+/** The screens under "Blocks" as the site wrote them: its own (packages/editor/defaults/blockTexts.ts) and the blocks'. */
 export const writtenBlockParts: Part[] = [...site.blockParts, ...sharedParts, ...standardParts];
 
-/** The parts of "Virksomheden"; one with parts of its own (Part.parts) has them going back to it. */
+/** The parts of "Business"; one with parts of its own (Part.parts) has them going back to it. */
 export const companyParts = each(
   site.companyParts.map((p) =>
     p.parts ? { ...p, parts: p.parts.map((s) => ({ ...s, back: { href: `#company/${p.id}`, label: p.label } })) } : p,
@@ -181,36 +181,36 @@ export const partScreens = site.partScreens.map((s) => ({
     local.part,
   ),
 }));
-/** The site's own parts under "Udseende" (#appearance, Library.tsx Theme), after the logo and icon, each going back to it. */
+/** The site's own parts under "Appearance" (#appearance, Library.tsx Theme), after the logo and icon, each going back to it. */
 export const appearance = each(
   site.appearance.map((p) => ({ ...p, back: { href: '#appearance', label: t.common.parts.appearance } })),
   local.part,
 );
 /** Where a screen goes back to: "Settings" (#settings) for Appearance, Developer, Licenses, Morpheme and Privacy, else the
- * start screen. The menu's sections ("Indhold" …) are lists in the drawer, not screens, so Redirects and "Interne links"
- * under "Indhold" go there too. */
+ * start screen. The menu's sections ("Content" …) are lists in the drawer, not screens, so Redirects and "Internal links"
+ * under "Content" go there too. */
 export const backFrom = (id: string) => backTarget(id, site.settings, { settingsTitle: t.common.parts.settings, siteName: site.siteName });
 
-/** The site's own parts under "Søgemaskineoptimering" (#seo/<id>, in the menu under "Indhold"), each going back
+/** The site's own parts under "Search engine optimization" (#seo/<id>, in the menu under "Content"), each going back
  * to the start screen (backFrom). */
 export const seoParts = each(
   site.seoParts.map((p) => ({ ...p, back: backFrom(p.id) })),
   local.part,
 );
-/** The site's own first ("Book en tid"), then the blocks' by their names. */
+/** The site's own first ("Book an appointment"), then the blocks' by their names. */
 export const blockParts = [
   ...each(site.blockParts, local.part),
   ...[...each(sharedParts, local.part), ...standardParts].sort((a, b) => byText(a.label, b.label)),
 ];
 export const groups = each(site.groups, local.group);
-/** The colours under "Farver" (@site/colors), with their names and hints in the editor's language. */
+/** The colours under "Colors" (@site/colors), with their names and hints in the editor's language. */
 export const colorFields = each(site.colorFields, local.color);
 /** The pairs that must be readable (@site/colors), with what they are in the editor's language. */
 export const colorPairs = each(site.colorPairs, local.pair);
 /** The rows of the Settings screen (#settings), opened by the cog at the bottom of the drawer. */
 export const settings: string[] = site.settings;
 
-/** Where a part of the menu is, as the way there says it: the title of the section it is in ("Indhold › …"). */
+/** Where a part of the menu is, as the way there says it: the title of the section it is in ("Content › …"). */
 export const placeOf = (id: string): string | undefined => menuPlaceOf(id, groups, settings, t.common.parts.settings);
 
 /** Where a standard page (by its key, packages/editor/defaults/standardPages.ts) is chosen, as the way there from the start screen
@@ -263,11 +263,11 @@ function withPictures(app: SiteApp): SiteApp {
   return { ...app, pictures };
 }
 
-// Which app a block's screen under "Standardblokke" comes from, by its type: the app with a block of that type
-// (also the site's own, e.g. an app's booking block, "Book en tid").
+// Which app a block's screen under "Standard blocks" comes from, by its type: the app with a block of that type
+// (also the site's own, e.g. an app's booking block, "Book an appointment").
 const appOfType = new Map(appBlockPaths.map((p) => [blockTypeOf(p), appIdOf(p)]));
 const standardIds = new Set(standardParts.map((p) => p.id));
-/** "Standardblokke" in groups, as under "Blokindstillinger": the standard blocks (and the site's own, if no app has
+/** "Standard blocks" in groups, as under "Block settings": the standard blocks (and the site's own, if no app has
  * a block of their type), then each app's under its name; in each, by their names. */
 export const blockGroups: { title: string; parts: Part[] }[] = [
   { title: t.blockSettings.standard, parts: blockParts.filter((p) => standardIds.has(p.id) || !appOfType.has(p.id)) },
@@ -276,7 +276,7 @@ export const blockGroups: { title: string; parts: Part[] }[] = [
   .map((g) => ({ ...g, parts: [...g.parts].sort((a, b) => byText(a.label, b.label)) }))
   .filter((g) => g.parts.length > 0);
 
-// The lists the standard blocks bring (standard/<type>/list.ts: "Udtalelser"), on every site: in the editor's
+// The lists the standard blocks bring (standard/<type>/list.ts: "Testimonials"), on every site: in the editor's
 // language, and as the site writes them (siteT), for the commits.
 const standardLists = Object.values(
   import.meta.glob<{ default: (say: typeof t) => OwnedList }>('./standard/*/list.ts', { eager: true }),
@@ -301,7 +301,7 @@ export const collections = [...each(site.collections, local.collection), ...stan
   return merged;
 });
 
-// The lists under "Lister" besides the site's own: the standard blocks', always, and the apps'.
+// The lists under "Lists" besides the site's own: the standard blocks', always, and the apps'.
 const ownedLists = [...standardLists, ...listsOf(writtenApps)];
 
 /** The made-up rows of the lists the standard blocks and the apps bring (`examples`), by the list's id, as listRowsOf
@@ -330,7 +330,7 @@ export const listRowsOf = (files: { path: string; text: string }[]): ListRows =>
     ]),
   );
 
-/** The icon of each part on the start screen, in the sidebar and under "Lister", by its id: the site's, the
+/** The icon of each part on the start screen, in the sidebar and under "Lists", by its id: the site's, the
  * standard blocks' and the apps' lists', and those of the parts the menu lists (appearance, seoParts, partScreens). */
 export const icons = {
   ...site.icons,
@@ -341,11 +341,11 @@ export const icons = {
   ),
 };
 
-/** The short lists, under "Lister" (#lists): the site's, the standard blocks' and the apps', which go back there too. */
+/** The short lists, under "Lists" (#lists): the site's, the standard blocks' and the apps', which go back there too. */
 export const lists = [...site.lists, ...ownedLists.map((l) => l.id)];
 
-/** The lists under "Lister" now: the site's, the standard blocks' and those of the apps installed, without the cookie
- * list, which is a row under "Privatliv" (privacy.ts). */
+/** The lists under "Lists" now: the site's, the standard blocks' and those of the apps installed, without the cookie
+ * list, which is a row under "Privacy" (privacy.ts). */
 export const listsShown = (files: { path: string; text: string }[]) => {
   const installed = activeApps(files);
   return [...site.lists, ...[...standardLists, ...listsOf(writtenApps.filter((a) => installed.includes(a.id)))].map((l) => l.id)].filter(

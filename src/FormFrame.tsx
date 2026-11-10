@@ -1,9 +1,9 @@
 // What every form in the editor has around its fields: the top bar with the way back and a link to
-// the page on the site, "Slet" below the fields where entries can be deleted, and a bar at the bottom
-// of the screen with "Gem" (across the bar on a phone, at its end from medium), which is only there when something
-// has been changed. Messages are shown by the app (Env.notify); the first "Gem" asks whether the editor may also send notifications.
+// the page on the site, "Delete" below the fields where entries can be deleted, and a bar at the bottom
+// of the screen with "Save" (across the bar on a phone, at its end from medium), which is only there when something
+// has been changed. Messages are shown by the app (Env.notify); the first "Save" asks whether the editor may also send notifications.
 // Leaving with changes that are not saved asks first, to save them or not (in the editor's dialog;
-// closing or reloading the page asks in the browser's own). "Forhåndsvis" beside "Gem" and, as a page action (Screen.tsx `pageActions`:
+// closing or reloading the page asks in the browser's own). "Preview" beside "Save" and, as a page action (Screen.tsx `pageActions`:
 // the end of the title row from expanded, the top bar below it), shows the page with
 // what is in the form, before it is saved (pagePreview.tsx).
 import { useEffect, useRef, useState, type ReactNode } from 'react';
@@ -20,7 +20,7 @@ import { t } from './i18n';
 import type { Edit } from './schema';
 import type { EditorType } from './notificationData';
 
-// `kind`: what kind of notification it is (notificationData.ts: `site`, `saved`, `failed`), kept under "Notifikationer";
+// `kind`: what kind of notification it is (notificationData.ts: `site`, `saved`, `failed`), kept under "Notifications";
 // without it, it is only shown at the bottom (something going on, a form that cannot be saved).
 export type Status = { text: string; error?: boolean; edit?: Edit; kind?: EditorType } | null;
 
@@ -39,11 +39,11 @@ type Props<T extends string> = {
   tabs?: TabChoice<T>;
   dirty: boolean;
   saving: boolean;
-  // Deleting the entry: "Sletter" instead of "Gemmer".
+  // Deleting the entry: "Deleting" instead of "Saving".
   deleting?: boolean;
   /** Saves the form; true when it was saved (not when it said why not, or the owner chose not to). */
   onSave: () => Promise<unknown>;
-  /** "Forhåndsvis" beside "Gem" and in the top bar (pagePreview.tsx). */
+  /** "Preview" beside "Save" and in the top bar (pagePreview.tsx). */
   onPreview?: () => void;
   onDelete?: () => void;
   deleteLabel?: string;
@@ -89,15 +89,15 @@ export function savedStatus({
 // The open form's save (onSave, with the question about notifications), while something is unsaved.
 let saveOpen: (() => Promise<boolean>) | null = null;
 
-/** Asks, while something is unsaved ("Gem ændringerne?"), whether to save it first ("Gem", the main one) or leave
- * it ("Kassér"); Esc stays. True when the editor may go on: nothing unsaved, it was saved, or it is left. A save that fails or stops (a field not filled in, an address that is taken) stays. */
+/** Asks, while something is unsaved ("Save the changes?"), whether to save it first ("Save", the main one) or leave
+ * it ("Discard"); Esc stays. True when the editor may go on: nothing unsaved, it was saved, or it is left. A save that fails or stops (a field not filled in, an address that is taken) stays. */
 export async function mayLeave() {
   if (!hasUnsaved()) return true;
   const answer = await choose({
     title: t.app.unsavedTitle,
     text: t.app.unsaved,
     choices: [...(saveOpen ? [{ value: 'save', label: t.common.save }] : []), { value: 'discard', label: t.app.discard }],
-    // A choice to make: no "Annuller"; Esc stays on the screen (null), so nothing is lost.
+    // A choice to make: no "Cancel"; Esc stays on the screen (null), so nothing is lost.
     cancel: false,
   });
   if (!answer) return false;

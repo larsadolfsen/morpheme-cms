@@ -57,7 +57,7 @@ function Form({
   onVersion,
 }: Props & { version: ShownVersion | null; onVersion: (v: ShownVersion | null) => void }) {
   // A fixed page's sections with every block a page can have (`pageBlocks`); those turned off or of an app not
-  // installed are not offered under "Indsæt" (`off`), but drawn and checked where they are, as on a page.
+  // installed are not offered under "Insert" (`off`), but drawn and checked where they are, as on a page.
   const off = useMemo(() => notOffered(env.files), [env.files]);
   const fields = useMemo(
     () => withPageBlocks(dataFile ? fieldsOf(dataFile) : (collection as FolderCollection).fields),
@@ -94,7 +94,7 @@ function Form({
   const [deleting, setDeleting] = useState(false);
   const dirty = JSON.stringify(values) !== JSON.stringify(initial);
 
-  // A file is named by its label, as in its list (Forside, Menu …); a fixed page (`pages`) says when it was last saved.
+  // A file is named by its label, as in its list (Front page, Menu …); a fixed page (`pages`) says when it was last saved.
   const fixed = collection.kind === 'files' && !!collection.pages;
   // When a fixed page was last saved, in the top bar as on the pages.
   const [savedAt, setSavedAt] = useSavedAt(env, fixed ? base.path : '');
@@ -132,7 +132,7 @@ function Form({
         ?.options?.find((o) => o.value === kindNow)?.label;
       const slug = slugify(String((from && named[from]) || writtenKind || ''));
       if (!slug) return notify({ text: t.forms.nameNeedsLetters, error: true });
-      // With -2, -3 … when the name is taken (a second bar, named Handlingslinje like the first).
+      // With -2, -3 … when the name is taken (a second bar, named Action bar like the first).
       path = `${folder.folder}/${slug}.json`;
       for (let n = 2; env.files.some((f) => f.path === path); n++) path = `${folder.folder}/${slug}-${n}.json`;
       // A new entry comes last; `order` is the first key, as in the existing files.
@@ -184,7 +184,7 @@ function Form({
   // The fields for search engines (a fixed page's, a tag's) in their own section at the end, which folds in and out, with
   // the SEO rating first, as on a page (EntryForm.tsx): its H1 is its own field (the heading, a tag's name), and an empty
   // Google description is the introduction's (a tag's: a text with the number of its posts, Category.astro). Then the
-  // picture when it is shared under "Sociale medier", under a preview of the shared link, as on a page.
+  // picture when it is shared under "Social media", under a preview of the shared link, as on a page.
   const seoFields = others.filter((f) => SEO_FIELDS.includes(f.name));
   const shareFields = others.filter((f) => SHARE_FIELDS.includes(f.name));
   const rest = others.filter((f) => !seoFields.includes(f) && !shareFields.includes(f));
@@ -296,7 +296,7 @@ function Form({
       node: draw({ ...values, ...v.props }, { lists: env.lists, testimonials: env.testimonials, relations: env.relations, site: env.site }),
     }));
   // A file that is a list (the menus) is added to with the FAB, like the other lists; its own fields
-  // ("Aktiveret") stand above it.
+  // ("Activated") stand above it.
   const root = dataFile?.root;
   // Where the entry is used on the site (a tag: its posts, testimonials, promotions and blocks), each opening it.
   const uses = useMemo(() => (folder && !isNew ? usesOf(folder, env.files)(base) : []), [folder, isNew, env.files, base]);
@@ -380,7 +380,7 @@ function Form({
             </div>
           ) : drawn ? (
             // On a wide computer screen the drawing in the wide column and the fields beside it at the
-            // right (FormColumns, as under "Standardblokke"); narrower, the fields and then the drawing.
+            // right (FormColumns, as under "Standard blocks"); narrower, the fields and then the drawing.
             <FormColumns
               first={<FieldList fields={fields} value={values} onChange={(v) => setValues(v as Record<string, unknown>)} />}
               main={

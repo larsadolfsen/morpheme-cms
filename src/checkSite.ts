@@ -183,7 +183,7 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
     blocks += splitBlocks(f.text, null).filter((part) => 'type' in part).length;
     const collection = collections.find((c) => c.kind === 'markdown' && f.path.startsWith(`${c.folder}/`));
     const template = collection?.kind === 'markdown' ? collection.template : undefined;
-    // A standard page by its own rules too (the blog page has "Blogindlæg"), and the front page's leads read as the site reads
+    // A standard page by its own rules too (the blog page has "Blog posts"), and the front page's leads read as the site reads
     // them (packages/editor/site/home.ts).
     const standard = standardPageOf(f, files);
     const front = standard?.key === 'front';

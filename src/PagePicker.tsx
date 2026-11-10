@@ -29,7 +29,7 @@ type Sheet = {
   value: string;
   groups: Group[];
   required?: boolean;
-  /** The sheet's title and what is picked there, under it (a row's name and its field's hint); else "Vælg side". */
+  /** The sheet's title and what is picked there, under it (a row's name and its field's hint); else "Choose page". */
   title?: string;
   hint?: string;
   onChange: (value: string) => void;
