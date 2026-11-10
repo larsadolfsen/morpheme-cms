@@ -1,6 +1,6 @@
 # Batch 3: `site/` and `lib/` in English
 
-Status: not started (`site/` and `lib/` are still in `PENDING`). Checked against the code on 2026-11-10.
+Status: done on 2026-11-10 (branch `claude/english-source-batch-3-cy3xgl`). `site/` and `lib/` are out of `PENDING`; `--all` finds no Danish in them. The Danish strings in `appCookies.mjs` and `licenses.mjs` turned out to be `check:content` reports for developers, so they are English only, with no `siteT` or `src/i18n` keys. Left for batch 5: `worker/publish.js` still words its commit messages in Danish (`lib/scheduled.mjs` keeps the Danish kind names as escapes until then).
 
 Master plan: `2026-11-04-english-source.md` (read *Conversion rules*). Needs Batch 2 merged (the term table, the
 English ids). Repo `morpheme-cms`. Can run at the same time as batches 4 and 5.
