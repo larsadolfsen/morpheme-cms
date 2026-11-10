@@ -1,4 +1,4 @@
-// "Punkter med ikon": its head in the text (BlockHead.tsx), and PointList.tsx with the space of a block in the text.
+// "Points with icon": its head in the text (BlockHead.tsx), and PointList.tsx with the spacing of a block in the text.
 import BlockHead from '@theme/blocks/BlockHead';
 import PointList from '@theme/blocks/points/PointList';
 import type { PointsView } from '@morphemecms/cms/src/standard/points/view';
