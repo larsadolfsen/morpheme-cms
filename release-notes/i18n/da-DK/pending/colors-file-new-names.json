@@ -1,0 +1,5 @@
+{
+  "id": "colors-file-new-names",
+  "kind": "line",
+  "text": "Hvis din hjemmeside har sin egen farvefil (src/data/colors.json), så omdøb farverne til Material 3’s navne, for eksempel primary og on-surface, før du opdaterer, ellers stopper opdateringen"
+}

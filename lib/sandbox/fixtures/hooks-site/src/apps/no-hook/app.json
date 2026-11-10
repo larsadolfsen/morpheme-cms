@@ -1,0 +1,11 @@
+{
+  "api": 4,
+  "label": "Fixture",
+  "publisher": "Morpheme",
+  "license": "MIT",
+  "icon": "Palette",
+  "hint": "A test fixture.",
+  "version": "1.0.0",
+  "settings": { "fields": [{ "name": "tint", "label": "Tint", "type": "string" }], "values": { "tint": "#a3345a" } },
+  "hooks": []
+}
