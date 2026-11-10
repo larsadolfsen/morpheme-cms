@@ -2,6 +2,8 @@
 
 Status: done, differently from the plan. Commits ad36199 and 0b1c88e renamed everything directly and removed the old-name migration, so steps 1 and 4 (migration and aliases) were not built. Checked against the code on 2026-11-10.
 
+Later, on 2026-11-10: every shared variable got the prefix `--mo-` (`--mo-primary`, `--mo-on-surface` …); the names below are without it. `colors.json` keeps the unprefixed keys.
+
 ## Goal
 
 Every site color is named after its Material 3 color role (`md.sys.color.*` without the prefix): the CSS variable,

@@ -5,8 +5,8 @@
 
 :where(:root) {
   /* The menus and the toolbar of the text: Material 3's menu surface and shadow (elevation level 2). */
-  --editor-menu-surface: var(--surface-container-lowest);
-  --editor-menu-shadow: var(--elevation-2);
+  --editor-menu-surface: var(--mo-surface-container-lowest);
+  --editor-menu-shadow: var(--mo-elevation-2-shadow);
 
   /* The room a screen leaves for its FAB under the footer: Screen.tsx's padding and --editor-fab-clearance (below medium). */
   --fab-room: 4.5rem;
@@ -16,13 +16,13 @@
      light circle in it; the same in every theme. */
   --editor-status-good: #0cce6b;
   --editor-status-good-text: #008800;
-  --editor-status-good-surface: color-mix(in srgb, #0cce6b 10%, var(--surface-container-lowest));
+  --editor-status-good-surface: color-mix(in srgb, #0cce6b 10%, var(--mo-surface-container-lowest));
   --editor-status-average: #ffa400;
   --editor-status-average-text: #c33300;
-  --editor-status-average-surface: color-mix(in srgb, #ffa400 10%, var(--surface-container-lowest));
+  --editor-status-average-surface: color-mix(in srgb, #ffa400 10%, var(--mo-surface-container-lowest));
   --editor-status-bad: #ff4e42;
   --editor-status-bad-text: #cc0000;
-  --editor-status-bad-surface: color-mix(in srgb, #ff4e42 10%, var(--surface-container-lowest));
+  --editor-status-bad-surface: color-mix(in srgb, #ff4e42 10%, var(--mo-surface-container-lowest));
 
   /* A Google result (SearchPreview.tsx) in Google's own colours, light: its background, the title (on a computer, and on a
      phone), the site's name, the address and the text, the date before the text, and the 8 px band above and below a
@@ -164,11 +164,11 @@
   max-width: 100%;
   overflow-wrap: anywhere;
   border-radius: 0.5rem;
-  background: var(--surface-container-high);
+  background: var(--mo-surface-container-high);
   padding: 0 0.4em;
   font-family: ui-monospace, monospace;
   font-size: 0.8em;
-  color: var(--on-surface-variant);
+  color: var(--mo-on-surface-variant);
 }
 
 /* The bar with "Gem" (FormFrame.tsx) slides up when something has been changed; the messages
@@ -205,13 +205,13 @@
    when it has no box of its own (a picture, icons, a switcher). It stays until the next try or a change. */
 .editor-wrong .text-field-input {
   box-shadow:
-    inset 0 0 0 2px var(--primary),
-    0 0 0 3px color-mix(in srgb, var(--primary) 25%, transparent);
+    inset 0 0 0 2px var(--mo-primary),
+    0 0 0 3px color-mix(in srgb, var(--mo-primary) 25%, transparent);
 }
 
 .editor-wrong:not(:has(.text-field-input)) {
   border-radius: 1rem;
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--mo-primary);
   outline-offset: 6px;
 }
 
@@ -228,7 +228,7 @@
 @keyframes editor-flash {
   50% {
     box-shadow:
-      inset 0 0 0 1px var(--outline-variant),
+      inset 0 0 0 1px var(--mo-outline-variant),
       0 0 0 3px transparent;
   }
 }
@@ -387,7 +387,7 @@
 
 /* The rail (and the room above it for a phone's notch) in the open drawer's colour, so it does not change when the drawer opens. */
 .editor-main-rail-frame {
-  --navigation-rail-surface: var(--navigation-drawer-surface, var(--surface-container-low, var(--surface)));
+  --navigation-rail-surface: var(--navigation-drawer-surface, var(--mo-surface-container-low, var(--mo-surface)));
 }
 
 @keyframes editor-pop {
@@ -637,7 +637,7 @@ html {
   margin-inline: -0.625rem;
   position: relative;
   border-radius: 0;
-  border: 1.5px dashed color-mix(in srgb, var(--on-surface-variant) 45%, transparent);
+  border: 1.5px dashed color-mix(in srgb, var(--mo-on-surface-variant) 45%, transparent);
   padding: 0.5rem;
   text-align: left;
   cursor: pointer;
@@ -646,11 +646,11 @@ html {
 
 .editor-text .site-block-card:hover,
 .editor-text .site-block-card[aria-expanded='true'] {
-  border-color: var(--primary);
+  border-color: var(--mo-primary);
 }
 
 .editor-text .site-block-card:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--mo-primary);
   outline-offset: 2px;
   border-radius: 0;
 }
@@ -665,8 +665,8 @@ html {
   height: 2rem;
   place-items: center;
   border-radius: 9999px;
-  background: var(--on-surface);
-  color: var(--surface);
+  background: var(--mo-on-surface);
+  color: var(--mo-surface);
 }
 
 /* The block's menu: a row of icons on the top edge of the frame, in the middle. */
@@ -680,7 +680,7 @@ html {
   max-width: calc(100% - 0.5rem);
   align-items: center;
   gap: 0.125rem;
-  border: 1px solid var(--outline-variant);
+  border: 1px solid var(--mo-outline-variant);
   border-radius: 9999px;
   background: var(--editor-menu-surface);
   padding: 0.25rem;
@@ -699,11 +699,11 @@ html {
 .editor-text .site-block-menu button:hover,
 .editor-text .site-block-menu button:focus-visible {
   outline: none;
-  background: var(--surface-container-high);
+  background: var(--mo-surface-container-high);
 }
 
 .editor-text .site-block-menu .site-block-danger {
-  color: var(--primary);
+  color: var(--mo-primary);
 }
 
 /* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
@@ -737,7 +737,7 @@ html {
   z-index: 40;
   display: flex;
   gap: 0.125rem;
-  border: 1px solid var(--outline-variant);
+  border: 1px solid var(--mo-outline-variant);
   border-radius: 9999px;
   background: var(--editor-menu-surface);
   padding: 0.25rem;
@@ -755,14 +755,14 @@ html {
   height: 2.5rem;
   place-items: center;
   border-radius: 9999px;
-  color: var(--on-surface-variant);
+  color: var(--mo-on-surface-variant);
 }
 
 .editor-selection-menu button:hover,
 .editor-selection-menu button:focus-visible {
   outline: none;
-  background: var(--surface-container-high);
-  color: var(--on-surface);
+  background: var(--mo-surface-container-high);
+  color: var(--mo-on-surface);
 }
 
 /* A button there that opens a menu (the colours): its icon with a small arrow down after it, a little wider. */
@@ -783,8 +783,8 @@ html {
 }
 
 .editor-selection-menu button[aria-pressed='true'] {
-  background: var(--surface-container-high);
-  color: var(--primary);
+  background: var(--mo-surface-container-high);
+  color: var(--mo-primary);
 }
 
 /* Only drawn: the taps go to the card. */
@@ -812,7 +812,7 @@ html {
   flex-direction: column;
   gap: 0.15rem;
   padding: 0 0.25rem;
-  color: var(--on-surface-variant);
+  color: var(--mo-on-surface-variant);
   font-size: 0.875rem;
   line-height: 1.45;
 }
@@ -828,7 +828,7 @@ html {
 
 .editor-text .ProseMirror > h2[data-look] {
   margin-block: 2.5rem 0.75rem;
-  color: var(--on-surface);
+  color: var(--mo-on-surface);
   font-weight: 500;
   letter-spacing: -0.025em;
   line-height: 1.25;
@@ -855,14 +855,14 @@ html {
 .editor-text .ProseMirror > [data-look~='section-intro'],
 .editor-text .ProseMirror > [data-look~='page-intro'] {
   max-width: 52ch;
-  color: var(--on-surface-variant);
+  color: var(--mo-on-surface-variant);
   font-size: 1.125rem;
   line-height: 1.75rem;
 }
 
 .editor-text .ProseMirror > [data-look~='page-section-intro'] {
   max-width: 52ch;
-  color: var(--on-surface-variant);
+  color: var(--mo-on-surface-variant);
   font-size: 1.0625rem;
   line-height: 1.5;
 }
@@ -875,7 +875,7 @@ html {
 
 .editor-text .ProseMirror > [data-look~='about'][data-look~='rest'],
 .editor-text .ProseMirror > [data-look~='note'] {
-  color: var(--on-surface-variant);
+  color: var(--mo-on-surface-variant);
 }
 
 .editor-text .ProseMirror > [data-look~='note'] {
@@ -884,7 +884,7 @@ html {
 }
 
 .editor-text .ProseMirror > [data-look~='small-note'] {
-  color: var(--on-surface-variant);
+  color: var(--mo-on-surface-variant);
   font-size: 0.95rem;
   line-height: 1.5;
 }
@@ -898,7 +898,7 @@ html {
 
 .editor-text .ProseMirror > [data-look='hero-intro'] {
   max-width: 40ch;
-  color: var(--on-surface-variant);
+  color: var(--mo-on-surface-variant);
   font-size: 1.125rem;
   line-height: 1.625;
 }
@@ -963,7 +963,7 @@ html {
 .editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child)::before {
   content: var(--editor-gap-text);
   position: absolute;
-  color: var(--on-surface-variant);
+  color: var(--mo-on-surface-variant);
   pointer-events: none;
 }
 
@@ -975,7 +975,7 @@ html {
   .editor-spaced .ProseMirror > p:has(> br:only-child):hover::before {
     content: var(--editor-gap-text);
     position: absolute;
-    color: var(--on-surface-variant);
+    color: var(--mo-on-surface-variant);
     pointer-events: none;
   }
 }

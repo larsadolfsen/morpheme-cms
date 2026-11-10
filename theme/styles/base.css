@@ -21,12 +21,22 @@
   in its CSS.
   Dark mode follows the system unless the visitor picks one (data-theme on <html>).
 
-  The colours are Material 3's colour roles by their own names (m3.material.io/styles/color/roles): --primary,
-  --secondary, --tertiary and --error, each with --on-…, --…-container and --on-…-container, and --primary-fixed,
-  --primary-fixed-dim, --on-primary-fixed and --on-primary-fixed-variant (and the same for secondary and tertiary);
-  --surface-dim, --surface, --surface-bright and the five --surface-container… ones; --on-surface,
-  --on-surface-variant, --outline and --outline-variant; --inverse-surface, --inverse-on-surface and --inverse-primary;
-  --scrim and --shadow. They are not here: they are data, src/data/colors.json, which the owner changes under "Farver" in the editor.
+  The theme's variables have two owners, told apart by their prefix. --mo-… is the contract every theme shares: the base
+  reads it and a theme sets it, and none else invents its own (a theme sets --mo-shape-large, it does not add --mo-wide).
+  --<theme>-… (--venus-glass) is a theme's own and nothing outside the theme reads it. A name with no prefix is a part's
+  variable (--card-radius, --block-gutter) or the site's data, not the contract. What is in the contract:
+  - The colours are Material 3's colour roles by their own names after the prefix (m3.material.io/styles/color/roles):
+    --mo-primary, --mo-secondary, --mo-tertiary and --mo-error, each with --mo-on-…, --mo-…-container and
+    --mo-on-…-container, and --mo-primary-fixed, --mo-primary-fixed-dim, --mo-on-primary-fixed and
+    --mo-on-primary-fixed-variant (and the same for secondary and tertiary); --mo-surface-dim, --mo-surface,
+    --mo-surface-bright and the five --mo-surface-container… ones; --mo-on-surface, --mo-on-surface-variant,
+    --mo-outline and --mo-outline-variant; --mo-inverse-surface, --mo-inverse-on-surface and --mo-inverse-primary;
+    --mo-scrim and --mo-shadow. They are colours: a shadow is never --mo-shadow (that is --mo-elevation-N-shadow). In the
+    site's data (src/data/colors.json) the keys are the same names without the prefix.
+  - An elevation level, 0 to 5, is two things a theme sets one at a time: --mo-elevation-N-color (the surface colour at the
+    level, M3's way) and --mo-elevation-N-shadow (its shadow); --mo-elevation-N-rest-shadow is the shadow a part has at rest.
+  - The corner steps (--mo-shape-…), the state layers (--mo-hover, --mo-pressed, --mo-primary-hover) and --mo-scrim-overlay.
+  The colours are not here: they are data, src/data/colors.json, which the owner changes under "Farver" in the editor.
   Base.astro and the editor's page write them into <head> (colorsCss, packages/editor/lib/colors.ts), for
   light mode and dark mode as below; the editor checks them to WCAG AA before they are saved
   (colorPairs in @site/colors). Everything here uses them by name.
@@ -41,14 +51,14 @@
 
   /* The standard blocks (blocks.css) in this design; in dark mode too, as they
      follow the tokens above. */
-  --block-text: var(--on-surface);
-  --block-muted: var(--on-surface-variant);
-  --block-accent: var(--primary);
-  --block-accent-hover: color-mix(in srgb, var(--on-primary) 8%, var(--primary));
-  --block-on-accent: var(--on-primary);
-  --block-surface: var(--surface-container-lowest);
-  --block-tint: var(--surface-container-high);
-  --block-line: var(--outline-variant);
+  --block-text: var(--mo-on-surface);
+  --block-muted: var(--mo-on-surface-variant);
+  --block-accent: var(--mo-primary);
+  --block-accent-hover: color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary));
+  --block-on-accent: var(--mo-on-primary);
+  --block-surface: var(--mo-surface-container-lowest);
+  --block-tint: var(--mo-surface-container-high);
+  --block-line: var(--mo-outline-variant);
   --block-radius: var(--radius);
   --block-radius-small: var(--radius-small);
   --block-control-radius: 9999px;
@@ -91,51 +101,51 @@
 
 @theme inline {
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --color-primary: var(--primary);
-  --color-on-primary: var(--on-primary);
-  --color-primary-container: var(--primary-container);
-  --color-on-primary-container: var(--on-primary-container);
-  --color-secondary: var(--secondary);
-  --color-on-secondary: var(--on-secondary);
-  --color-secondary-container: var(--secondary-container);
-  --color-on-secondary-container: var(--on-secondary-container);
-  --color-tertiary: var(--tertiary);
-  --color-on-tertiary: var(--on-tertiary);
-  --color-tertiary-container: var(--tertiary-container);
-  --color-on-tertiary-container: var(--on-tertiary-container);
-  --color-error: var(--error);
-  --color-on-error: var(--on-error);
-  --color-error-container: var(--error-container);
-  --color-on-error-container: var(--on-error-container);
-  --color-primary-fixed: var(--primary-fixed);
-  --color-primary-fixed-dim: var(--primary-fixed-dim);
-  --color-on-primary-fixed: var(--on-primary-fixed);
-  --color-on-primary-fixed-variant: var(--on-primary-fixed-variant);
-  --color-secondary-fixed: var(--secondary-fixed);
-  --color-secondary-fixed-dim: var(--secondary-fixed-dim);
-  --color-on-secondary-fixed: var(--on-secondary-fixed);
-  --color-on-secondary-fixed-variant: var(--on-secondary-fixed-variant);
-  --color-tertiary-fixed: var(--tertiary-fixed);
-  --color-tertiary-fixed-dim: var(--tertiary-fixed-dim);
-  --color-on-tertiary-fixed: var(--on-tertiary-fixed);
-  --color-on-tertiary-fixed-variant: var(--on-tertiary-fixed-variant);
-  --color-surface-dim: var(--surface-dim);
-  --color-surface: var(--surface);
-  --color-surface-bright: var(--surface-bright);
-  --color-surface-container-lowest: var(--surface-container-lowest);
-  --color-surface-container-low: var(--surface-container-low);
-  --color-surface-container: var(--surface-container);
-  --color-surface-container-high: var(--surface-container-high);
-  --color-surface-container-highest: var(--surface-container-highest);
-  --color-on-surface: var(--on-surface);
-  --color-on-surface-variant: var(--on-surface-variant);
-  --color-outline: var(--outline);
-  --color-outline-variant: var(--outline-variant);
-  --color-inverse-surface: var(--inverse-surface);
-  --color-inverse-on-surface: var(--inverse-on-surface);
-  --color-inverse-primary: var(--inverse-primary);
-  --color-scrim: var(--scrim);
-  --color-shadow: var(--shadow);
+  --color-primary: var(--mo-primary);
+  --color-on-primary: var(--mo-on-primary);
+  --color-primary-container: var(--mo-primary-container);
+  --color-on-primary-container: var(--mo-on-primary-container);
+  --color-secondary: var(--mo-secondary);
+  --color-on-secondary: var(--mo-on-secondary);
+  --color-secondary-container: var(--mo-secondary-container);
+  --color-on-secondary-container: var(--mo-on-secondary-container);
+  --color-tertiary: var(--mo-tertiary);
+  --color-on-tertiary: var(--mo-on-tertiary);
+  --color-tertiary-container: var(--mo-tertiary-container);
+  --color-on-tertiary-container: var(--mo-on-tertiary-container);
+  --color-error: var(--mo-error);
+  --color-on-error: var(--mo-on-error);
+  --color-error-container: var(--mo-error-container);
+  --color-on-error-container: var(--mo-on-error-container);
+  --color-primary-fixed: var(--mo-primary-fixed);
+  --color-primary-fixed-dim: var(--mo-primary-fixed-dim);
+  --color-on-primary-fixed: var(--mo-on-primary-fixed);
+  --color-on-primary-fixed-variant: var(--mo-on-primary-fixed-variant);
+  --color-secondary-fixed: var(--mo-secondary-fixed);
+  --color-secondary-fixed-dim: var(--mo-secondary-fixed-dim);
+  --color-on-secondary-fixed: var(--mo-on-secondary-fixed);
+  --color-on-secondary-fixed-variant: var(--mo-on-secondary-fixed-variant);
+  --color-tertiary-fixed: var(--mo-tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--mo-tertiary-fixed-dim);
+  --color-on-tertiary-fixed: var(--mo-on-tertiary-fixed);
+  --color-on-tertiary-fixed-variant: var(--mo-on-tertiary-fixed-variant);
+  --color-surface-dim: var(--mo-surface-dim);
+  --color-surface: var(--mo-surface);
+  --color-surface-bright: var(--mo-surface-bright);
+  --color-surface-container-lowest: var(--mo-surface-container-lowest);
+  --color-surface-container-low: var(--mo-surface-container-low);
+  --color-surface-container: var(--mo-surface-container);
+  --color-surface-container-high: var(--mo-surface-container-high);
+  --color-surface-container-highest: var(--mo-surface-container-highest);
+  --color-on-surface: var(--mo-on-surface);
+  --color-on-surface-variant: var(--mo-on-surface-variant);
+  --color-outline: var(--mo-outline);
+  --color-outline-variant: var(--mo-outline-variant);
+  --color-inverse-surface: var(--mo-inverse-surface);
+  --color-inverse-on-surface: var(--mo-inverse-on-surface);
+  --color-inverse-primary: var(--mo-inverse-primary);
+  --color-scrim: var(--mo-scrim);
+  --color-shadow: var(--mo-shadow);
   --radius-panel: var(--radius);
   --radius-panel-small: var(--radius-small);
   --shadow-soft: var(--panel-shadow);
@@ -161,8 +171,8 @@
     scroll-padding-top: 5.5rem;
   }
   body {
-    background: var(--surface);
-    color: var(--on-surface);
+    background: var(--mo-surface);
+    color: var(--mo-on-surface);
     font-family: var(--font-sans);
     font-size: var(--type-body-large-size);
     line-height: var(--type-body-large-line-height);
@@ -172,11 +182,11 @@
     text-rendering: optimizeLegibility;
   }
   ::selection {
-    background: var(--primary);
-    color: var(--on-primary);
+    background: var(--mo-primary);
+    color: var(--mo-on-primary);
   }
   :focus-visible {
-    outline: 2px solid var(--primary);
+    outline: 2px solid var(--mo-primary);
     outline-offset: 3px;
     border-radius: 6px;
   }
@@ -198,7 +208,7 @@
 
 @layer components {
   .link {
-    color: var(--primary);
+    color: var(--mo-primary);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
@@ -211,20 +221,20 @@
 
 /* Long-form text (migrated pages and blog posts). */
 .prose {
-  --tw-prose-body: var(--on-surface);
-  --tw-prose-headings: var(--on-surface);
-  --tw-prose-lead: var(--on-surface-variant);
-  --tw-prose-links: var(--primary);
-  --tw-prose-bold: var(--on-surface);
-  --tw-prose-counters: var(--on-surface-variant);
-  --tw-prose-bullets: var(--primary);
-  --tw-prose-hr: var(--outline-variant);
-  --tw-prose-quotes: var(--on-surface);
-  --tw-prose-quote-borders: var(--primary);
-  --tw-prose-captions: var(--on-surface-variant);
-  --tw-prose-th-borders: var(--outline-variant);
-  --tw-prose-td-borders: var(--outline-variant);
-  --tw-prose-code: var(--on-surface);
+  --tw-prose-body: var(--mo-on-surface);
+  --tw-prose-headings: var(--mo-on-surface);
+  --tw-prose-lead: var(--mo-on-surface-variant);
+  --tw-prose-links: var(--mo-primary);
+  --tw-prose-bold: var(--mo-on-surface);
+  --tw-prose-counters: var(--mo-on-surface-variant);
+  --tw-prose-bullets: var(--mo-primary);
+  --tw-prose-hr: var(--mo-outline-variant);
+  --tw-prose-quotes: var(--mo-on-surface);
+  --tw-prose-quote-borders: var(--mo-primary);
+  --tw-prose-captions: var(--mo-on-surface-variant);
+  --tw-prose-th-borders: var(--mo-outline-variant);
+  --tw-prose-td-borders: var(--mo-outline-variant);
+  --tw-prose-code: var(--mo-on-surface);
 }
 @layer fallback {
   .prose {
@@ -267,7 +277,7 @@
   }
   /* Code in a line (cookie names in the privacy policy): on a tint, without the plugin's backticks. */
   .prose :where(:not(pre) > code):not(:where(.not-prose code)) {
-    background: var(--surface-container-high);
+    background: var(--mo-surface-container-high);
     border-radius: 0.3em;
     padding: 0.1em 0.35em;
     font-weight: 500;
@@ -377,7 +387,7 @@
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 9999px;
-    background-color: var(--primary);
+    background-color: var(--mo-primary);
   }
 
   /* Boxes side by side ("Links", an app's boxes): the site's panels (outlined cards, ui.css, without a shadow), with

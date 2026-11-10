@@ -395,7 +395,7 @@ export function useBlockDialog(
             </Button>
             {open.step === 'fields' && open.removable && !open.isNew && look === 'side-sheet' && (
               // After Save and Cancel in the start-aligned row, in the error colour (the theme's text button with its colour variable).
-              <Button kind="text" style={{ '--button-text-text': 'var(--error)' } as CSSProperties} onClick={() => done('remove')}>
+              <Button kind="text" style={{ '--button-text-text': 'var(--mo-error)' } as CSSProperties} onClick={() => done('remove')}>
                 {t.common.remove}
               </Button>
             )}
