@@ -264,11 +264,13 @@ async function checkMorpheme(page, state) {
     'A made-up note for the checks.',
   ])
     if (!text.includes(x)) problems.push(`morpheme (${state}): "${x}" is missing`);
-  const bare = await page.evaluate(() =>
-    [...document.querySelectorAll('main .list-item-container')]
-      .filter((row) => !row.matches('a[href], button') && !row.closest('li')?.querySelector('a[href], button'))
-      .filter((row) => !row.innerText.startsWith(da.connected))
-      .map((row) => row.innerText.trim().split('\n')[0]),
+  const bare = await page.evaluate(
+    (connected) =>
+      [...document.querySelectorAll('main .list-item-container')]
+        .filter((row) => !row.matches('a[href], button') && !row.closest('li')?.querySelector('a[href], button'))
+        .filter((row) => !row.innerText.startsWith(connected))
+        .map((row) => row.innerText.trim().split('\n')[0]),
+    da.connected,
   );
   if (bare.length) problems.push(`morpheme (${state}): rows without an action: ${bare.join(', ')}`);
 
