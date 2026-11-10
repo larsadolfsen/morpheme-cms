@@ -18,9 +18,9 @@ export const examplePicture = `data:image/svg+xml,${encodeURIComponent(
 const slug = (s: string) =>
   s
     .toLocaleLowerCase()
-    .replace(/æ/g, 'ae')
-    .replace(/ø/g, 'oe')
-    .replace(/å/g, 'aa')
+    .replace(/\u00e6/g, 'ae')
+    .replace(/\u00f8/g, 'oe')
+    .replace(/\u00e5/g, 'aa')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 

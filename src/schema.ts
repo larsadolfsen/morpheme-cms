@@ -356,9 +356,9 @@ export const byText = (a: string, b: string) => sortable(a).localeCompare(sortab
 export const slugify = (title: string) =>
   title
     .toLowerCase()
-    .replace(/æ/g, 'ae')
-    .replace(/ø/g, 'oe')
-    .replace(/å/g, 'aa')
+    .replace(/\u00e6/g, 'ae')
+    .replace(/\u00f8/g, 'oe')
+    .replace(/\u00e5/g, 'aa')
     .normalize('NFKD')
     .replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
