@@ -7,13 +7,6 @@
 // List every current finding: node scripts/check-language.mjs --list-ids. Delete this file when the list is empty.
 // Skipped by the id and text rules itself (lib/danish.mjs isIdCheckSkipped): its entries are Danish on purpose.
 export const PENDING_IDS = [
-  // Row 1, batch A1: siteText placeholders {navn} {side} {antal} {adresse} {hvad} {blok} in defaults/rules.ts (and its comment in site/fill.ts); rename together with defaults/i18n/da-DK/rules.ts.
-  'defaults/rules.ts:hvad',
-  'defaults/rules.ts:navn',
-  'defaults/rules.ts:blok',
-  'defaults/rules.ts:antal',
-  'defaults/rules.ts:adresse',
-  'site/fill.ts:antal',
   // Row 2, batch A1: the browser-storage prefix valg- (src/ui.tsx).
   'src/ui.tsx:valg',
   // Row 3, batch A1: the stored view value liste (src/Library.tsx).

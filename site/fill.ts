@@ -1,5 +1,5 @@
 // The shared texts of the blocks (src/data/blocks.json, "Blocks" in the editor) have
-// places like {antal} for what differs from block to block.
+// places like {count} for what differs from block to block.
 
 /** The text with each {name} replaced by its value; a name without a value stays as it is. */
 export const fill = (text: string, values: Record<string, string | number>) =>
