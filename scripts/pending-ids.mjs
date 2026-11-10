@@ -80,18 +80,6 @@ export const PENDING_IDS = [
   'theme/components/Footer.astro:vej',
   // Row 16, batch D: the privacy-policy file written in code (defaults/privacy.ts).
   'defaults/privacy.ts:privatlivspolitik',
-  // Row 17, batch F: the screenshot keywords blok:, slags:, liste:, indstillinger (src/store.ts, scripts/app-screenshots.mjs, the message in src/i18n/en-US/apps.ts).
-  'scripts/app-screenshots.mjs:slags',
-  'scripts/app-screenshots.mjs:liste',
-  'scripts/app-screenshots.mjs:indstillinger',
-  'src/i18n/en-US/apps.ts:blok',
-  'src/i18n/en-US/apps.ts:slags',
-  'src/i18n/en-US/apps.ts:liste',
-  'src/i18n/en-US/apps.ts:indstillinger',
-  'src/store.ts:blok',
-  'src/store.ts:slags',
-  'src/store.ts:liste',
-  'src/store.ts:indstillinger',
   // No spec row, batch: whoever touches the file. Comments (and one theme.json text) that name an old Danish screen or word in quotes.
   'demo/src/site/colors.ts:indstillinger',
   'demo/src/site/colors.ts:farver',

@@ -232,7 +232,9 @@ export function dynamicColors(dynamic: Dynamic, roles: ColorRoles): Colors {
 // sRGB, as the theme's CSS mixed them): Material's three surfaces the page's, the dim one a step towards the text in
 // light mode and the bright one a step towards it in dark mode (where the page is the darkest), the surface containers a step each towards the text from the surfaces,
 // the lowest the surfaces, the outline between the quiet text and the surfaces, the inverse
-// colours the text's on the page's with the light colour for its buttons and the error colours the primary colours.
+// colours the text's on the page's with the light colour for its buttons, the error colours the primary colours, the
+// fixed colours the containers (Material's are the same in both modes; these follow the mode they are made in), and the
+// scrim and the shadow black.
 const MIXED: Record<string, (set: ColorSet, mode: Mode) => string | undefined> = {
   'surface-dim': (c, mode) => (mode === 'light' ? mix(c['on-surface'], 0.12, c.surface) : c.surface),
   'surface-bright': (c, mode) => (mode === 'dark' ? mix(c['on-surface'], 0.15, c.surface) : c.surface),
@@ -249,6 +251,17 @@ const MIXED: Record<string, (set: ColorSet, mode: Mode) => string | undefined> =
   'on-error': (c) => c['on-primary'],
   'error-container': (c) => c['primary-container'],
   'on-error-container': (c) => c['on-primary-container'],
+  scrim: () => '#000000',
+  shadow: () => '#000000',
+  ...Object.fromEntries(
+    ['primary', 'secondary', 'tertiary'].flatMap((f) => [
+      [`${f}-fixed`, (c: ColorSet) => c[`${f}-container`]],
+      [`${f}-fixed-dim`, (c: ColorSet) => mix(c[`on-${f}-container`], 0.1, c[`${f}-container`])],
+      [`on-${f}-fixed`, (c: ColorSet) => c[`on-${f}-container`]],
+      // Not quieter than the text on the container, as that is the one pair known to be readable (Material's is a step quieter).
+      [`on-${f}-fixed-variant`, (c: ColorSet) => c[`on-${f}-container`]],
+    ]),
+  ),
 };
 
 /** `share` of colour `a` in colour `b`, in sRGB; undefined when one is not a colour. */

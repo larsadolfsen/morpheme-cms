@@ -14,7 +14,7 @@ import type { ListRows } from './fields';
 import { inSiteLanguage, siteT, siteText, t, translatingSite } from './i18n';
 import { byText, type Block, type Collection, type DataFile, type Edit, type Field, type OwnedList, type Part } from './schema';
 import { blockTypeOf, type SharedTexts } from './shared';
-import { appFolder, needsOf, SCREENSHOTS, shotFile } from './store';
+import { appFolder, needsOf, SCREENSHOTS, shotFiles } from './store';
 
 const written = new WeakMap<object, object>();
 
@@ -273,7 +273,9 @@ export const apps: SiteApp[] = writtenApps.map((a) => withPictures(localApp(a)))
 function withPictures(app: SiteApp): SiteApp {
   const folder = `/${appFolder(app.id)}/${SCREENSHOTS}/`;
   const pictures = (app.screenshots ?? []).flatMap((x, i) => {
-    const src = appPictures[folder + shotFile(i, x.shows)];
+    // The new file name first, then the old one (DEPRECATED_SHOT_WORDS) for an app whose pictures are not regenerated yet.
+    const file = shotFiles(i, x.shows).find((f) => appPictures[folder + f]);
+    const src = file && appPictures[folder + file];
     return src ? [{ src, label: x.label }] : [];
   });
   return { ...app, pictures };

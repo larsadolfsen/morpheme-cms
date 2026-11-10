@@ -25,7 +25,7 @@ import {
   seoParts,
   siteProblems,
 } from '@site/editor';
-import { colorProblems, lowContrast, MODES, oldColorNames } from '../lib/colors';
+import { colorProblems, lowContrast, MODES, withMaterialNames } from '../lib/colors';
 import { completeColors, dynamicProblems } from '../lib/dynamic-colors';
 import { APP_HOOKS, hooksOf } from '../lib/hooks';
 import { texts } from '@site/texts';
@@ -33,7 +33,7 @@ import { defaultsDaDK } from '../defaults/i18n/da-DK';
 import type { Part } from './schema';
 import { apps, asStandardTemplate, blockProblems, siteBlocks, standardPageOf, withPageBlocks } from './registry';
 import { installedApps, settingsFile } from './apps';
-import { appFolder, SCREENSHOTS, shotFile, shotOf } from './store';
+import { appFolder, SCREENSHOTS, shotFiles, shotOf } from './store';
 import { appFolders } from './appFiles';
 import { widgetsWithoutComponent } from './widgets';
 import { colorPairs as shownPairs, sharedParts, translator, writtenApps, writtenBlockParts, writtenCollections } from './site';
@@ -50,17 +50,6 @@ import { isRecordPath, recordProblems } from './fileRecords.mjs';
 import { appTexts, DEFAULTS_LOCALE, locales, siteLocale, t, type Texts } from './i18n';
 import { flatten, readAll, REDIRECT_FILES, type AllRedirects } from './redirectData';
 
-/** The old names of a file of colors with their new ones, per mode: 'light: bg → surface, accent-hover (delete it); dark: …'. */
-const oldNamesText = (old: ReturnType<typeof oldColorNames>) =>
-  MODES.filter((mode) => old.some((o) => o.mode === mode))
-    .map(
-      (mode) =>
-        `${mode}: ${old
-          .filter((o) => o.mode === mode)
-          .map((o) => (o.to === null ? t.colors.oldNameGone(o.from) : t.colors.oldNameTo(o.from, o.to)))
-          .join(', ')}`,
-    )
-    .join('; ');
 const ratio = (n: number) => n.toLocaleString(config.locale, { maximumFractionDigits: 1 });
 
 export type SiteFile = { path: string; text: string };
@@ -145,12 +134,13 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
   for (const app of writtenApps) {
     const blocks = siteBlocks.filter((b) => b.app === app.id).map((b) => b.type);
     const files = (appFolders[app.id]?.files ?? []).filter((f) => f.startsWith(`${SCREENSHOTS}/`));
-    const listed = (app.screenshots ?? []).map((x, i) => `${SCREENSHOTS}/${shotFile(i, x.shows)}`);
+    // A picture is in the new file name or, until the app's pictures are regenerated, the old one (lib/appShots.mjs).
+    const wanted = (app.screenshots ?? []).map((x, i) => shotFiles(i, x.shows).map((f) => `${SCREENSHOTS}/${f}`));
     for (const x of app.screenshots ?? [])
       if (!shotOf(x.shows, app, blocks)) problems.push(`${appFolder(app.id)}/index.ts: ${t.apps.unknownScreenshot(x.shows)}`);
-    for (const file of listed.filter((f) => !files.includes(f)))
-      problems.push(`${appFolder(app.id)}/index.ts: ${t.apps.noScreenshot(file)}`);
-    for (const file of files.filter((f) => !listed.includes(f)))
+    for (const names of wanted.filter((names) => !names.some((f) => files.includes(f))))
+      problems.push(`${appFolder(app.id)}/index.ts: ${t.apps.noScreenshot(names[0])}`);
+    for (const file of files.filter((f) => !wanted.some((names) => names.includes(f))))
       problems.push(`${appFolder(app.id)}/${file}: ${t.apps.unlistedScreenshot}`);
   }
 
@@ -160,15 +150,12 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
   if (colorsFile) {
     checked.add(colorsFile.path);
     try {
-      const colors = completeColors(JSON.parse(colorsFile.text), colorRoles);
+      const colors = completeColors(withMaterialNames(JSON.parse(colorsFile.text)), colorRoles);
       const bad = colorProblems(
         colors,
         colorFields.map((f) => f.name),
       );
-      // A file in the names from before Material 3's roles is one problem, not a line for each role it lacks.
-      const old = bad.length ? oldColorNames(JSON.parse(colorsFile.text)) : [];
-      if (old.length) problems.push(`${colorsFile.path}: ${t.colors.oldNames(oldNamesText(old))}`);
-      else for (const where of bad) problems.push(`${colorsFile.path}: ${t.colors.notAColorAt(where)}`);
+      for (const where of bad) problems.push(`${colorsFile.path}: ${t.colors.notAColorAt(where)}`);
       if (colors.dynamic !== undefined)
         for (const where of dynamicProblems(colors.dynamic)) problems.push(`${colorsFile.path}: ${t.colors.dynamic.wrongAt(where)}`);
       if (!bad.length)

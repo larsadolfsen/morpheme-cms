@@ -47,7 +47,7 @@ import {
 } from './ui';
 import type { Env } from './App';
 import { savedText } from './deploy';
-import { colorProblems, lowContrast, MODES, type Colors as ColorsData, type Mode } from '../lib/colors';
+import { colorProblems, lowContrast, MODES, withMaterialNames, type Colors as ColorsData, type Mode } from '../lib/colors';
 import {
   completeColors,
   CONTRASTS,
@@ -79,7 +79,7 @@ const names = colorFields.map((f) => f.name);
 export function colorsOf(files: RepoFile[]): ColorsData & { unreadable?: boolean } {
   const file = files.find((f) => f.path === config.colors);
   try {
-    const colors = completeColors(JSON.parse(file?.text ?? ''), colorRoles);
+    const colors = completeColors(withMaterialNames(JSON.parse(file?.text ?? '')), colorRoles);
     if (!colorProblems(colors, names).length && (colors.dynamic === undefined || !dynamicProblems(colors.dynamic).length)) return colors;
   } catch {}
   return { ...defaultColors, unreadable: true };

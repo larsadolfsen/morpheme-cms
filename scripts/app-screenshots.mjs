@@ -51,28 +51,28 @@ try {
   const { companyParts } = await load('@site/company');
   const { colorRoles } = await load('@site/colors');
   const { dynamicColors } = await load('@morphemecms/cms/lib/dynamic-colors.ts');
-  const { shotFile } = await load('@morphemecms/cms/src/store.ts');
+  const { canonicalShot, shotFile } = await load('@morphemecms/cms/lib/appShots.mjs');
   blue = { ...dynamicColors(BLUE, colorRoles), dynamic: BLUE };
   for (const id of ids) {
     const app = (await load(`/src/apps/${id}/index.ts`)).default;
     settings[id] = { ...app.settings?.values };
     shots[id] = [];
     for (const [i, shot] of (app.screenshots ?? []).entries()) {
-      const [what, key, n] = shot.shows.split(':');
+      // The old keywords still work for one release (DEPRECATED_SHOT_WORDS); the pictures are saved under the new names.
+      const [what, key, n] = canonicalShot(shot.shows).split(':');
       const name = shotFile(i, shot.shows);
-      // The apps' own screenshot keyword for a block (their app definitions are Danish data), written with an escape.
-      if (what === 'blo\u006b')
+      if (what === 'block')
         shots[id].push({
           name,
           parts: 'blocks',
           part: (await load(`/src/apps/${id}/blocks/${key}/index.tsx`)).default.label,
         });
-      else if (what === 'slags') {
+      else if (what === 'kind') {
         const kind = app.kinds[key];
         const variant = kind.variants?.[Number(n)];
         shots[id].push({ name, parts: `list/${key}`, part: variant ? `${kind.label} · ${variant.label}` : kind.label });
-      } else if (what === 'liste') shots[id].push({ name, editor: `list/${key}` });
-      else if (what === 'indstillinger') {
+      } else if (what === 'list') shots[id].push({ name, editor: `list/${key}` });
+      else if (what === 'settings') {
         // Where they are, as settingsRoute in AppList.tsx: on the screen or the part of "Business" with its kind.
         // An older id (`payment`) counts as its new one, in the app's category and in the screen's list.
         const kind = categoryOf(app.category).category;
