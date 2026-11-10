@@ -556,7 +556,10 @@ export async function autoUpdate(env: Env, files: RepoFile[]) {
 
 /** Asks before an app of a one-app type (redirects, links) is activated while another one is: says the ids of the
  * apps to turn off (none when nothing is asked), or null when the user cancels. */
-async function confirmRivals(app: { id: string; label: string; category?: string }, files: RepoFile[]): Promise<string[] | null> {
+async function confirmRivals(
+  app: { id: string; label: string; category?: string; subcategory?: string },
+  files: RepoFile[],
+): Promise<string[] | null> {
   const rivals = rivalsOf(app, apps, activeApps(files));
   if (!rivals.length) return [];
   const others = rivals.map((id) => apps.find((a) => a.id === id)?.label ?? id);
