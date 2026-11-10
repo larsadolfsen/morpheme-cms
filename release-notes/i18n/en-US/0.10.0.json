@@ -11,7 +11,7 @@
       "id": "settings-in-side-sheet",
       "kind": "card",
       "title": "Edit blocks in a side sheet",
-      "text": "A block’s fields and the section settings now open in a side sheet. On a phone it covers the page, and on a tablet or a computer it stands beside it."
+      "text": "On a phone, a block’s fields and the section settings now open in a side sheet over the page, and on a tablet they stand beside it."
     },
     {
       "id": "bottom-sheet-actions",
