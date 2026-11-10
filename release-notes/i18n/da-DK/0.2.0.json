@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "notes": [
+    {
+      "id": "install-from-store",
+      "kind": "card",
+      "title": "Installer temaer og apps fra butikken",
+      "text": "Du kan nu installere temaer og apps fra Morpheme-butikken. Forbind din hjemmeside til butikken for at komme i gang."
+    },
+    {
+      "id": "builds-on-windows",
+      "kind": "line",
+      "text": "Din hjemmeside kan bygges på Windows"
+    }
+  ]
+}

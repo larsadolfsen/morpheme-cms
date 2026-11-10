@@ -1,0 +1,10 @@
+{
+  "version": "0.7.0",
+  "notes": [
+    {
+      "id": "navigation-rail-menu",
+      "kind": "line",
+      "text": "The editor has a navigation rail and a main menu with two levels"
+    }
+  ]
+}

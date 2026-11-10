@@ -1,1 +1,5 @@
-{ "id": "short-notification-buttons", "kind": "line", "text": "The buttons under Notifications are now Clear and Settings" }
+{
+  "id": "short-notification-buttons",
+  "kind": "line",
+  "text": "The buttons under Notifications are now Clear and Settings"
+}

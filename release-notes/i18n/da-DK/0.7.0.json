@@ -1,0 +1,10 @@
+{
+  "version": "0.7.0",
+  "notes": [
+    {
+      "id": "navigation-rail-menu",
+      "kind": "line",
+      "text": "Editoren har en navigationssøjle og en hovedmenu med to niveauer"
+    }
+  ]
+}

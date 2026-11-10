@@ -1,0 +1,26 @@
+{
+  "version": "0.8.0",
+  "notes": [
+    {
+      "id": "richer-blog-post",
+      "kind": "card",
+      "title": "A richer blog post",
+      "text": "Blog posts now show the author’s role, tags and share buttons in the header, a lead paragraph and cards for related posts. Add your profiles under Business › Social media."
+    },
+    {
+      "id": "material-fallback",
+      "kind": "line",
+      "text": "Anything a theme doesn’t style now looks like Material"
+    },
+    {
+      "id": "on-this-page-card",
+      "kind": "line",
+      "text": "On a large screen, a page’s sections are listed on a card at the end of the form"
+    },
+    {
+      "id": "wide-buttons-phone-only",
+      "kind": "line",
+      "text": "Wide buttons fill the width only on a phone"
+    }
+  ]
+}

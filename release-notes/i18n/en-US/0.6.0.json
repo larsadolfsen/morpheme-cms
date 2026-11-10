@@ -1,0 +1,11 @@
+{
+  "version": "0.6.0",
+  "notes": [
+    {
+      "id": "front-page-banner",
+      "kind": "card",
+      "title": "Move or hide the Banner on your front page",
+      "text": "The front page no longer forces a Banner. It’s now an ordinary block you can move, hide or remove, and an app block can be the top of the front page instead."
+    }
+  ]
+}

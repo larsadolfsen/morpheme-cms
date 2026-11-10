@@ -1,0 +1,10 @@
+{
+  "version": "0.11.0",
+  "notes": [
+    {
+      "id": "save-notices-version",
+      "kind": "line",
+      "text": "Save notices say which version an app was installed or changed to"
+    }
+  ]
+}
