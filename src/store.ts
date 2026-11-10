@@ -96,39 +96,17 @@ export function needsOf(
 export type AppCookie = { name?: string; provider?: string; purpose: string; lasts?: string; category?: string; when?: string };
 
 /** A picture of an app in its store page, picked to give an idea of it (`screenshots` in its index.ts, as a theme's):
- * what it shows (`shows`: one of its blocks, `blok:<type>`; a variant of its kind of a list, `slags:<list>:<n>`, 0
- * without variants; one of its lists, `liste:<id>`; its settings, `indstillinger`, with made-up `values`, never the
- * site's own; its own page, `side`) and what it says under it (`label`, an app's text). Only made-up content, never the
+ * what it shows (`shows`: one of its blocks, `block:<type>`; a variant of its kind of a list, `kind:<list>:<n>`, 0
+ * without variants; one of its lists, `list:<id>`; its settings, `settings`, with made-up `values`, never the
+ * site's own; its own page, `page`; the old Danish words still work for one
+ * release, lib/appShots.mjs) and what it says under it (`label`, an app's text). Only made-up content, never the
  * site's (packages/editor/scripts/app-screenshots.mjs takes them with the examples). */
 export type AppShot = { shows: string; label: string; values?: Record<string, unknown> };
 
 /** A picture of an app as the catalog has it: its file in the app's screenshots/ and what it says under it. */
 export type AppScreenshot = { file: string; label: string };
 
-/** What an app adds, as a picture of it can show it (shotOf). */
-type Shown = {
-  kinds?: Record<string, { variants?: unknown[] }>;
-  lists?: { id: string }[];
-  settings?: unknown;
-  page?: unknown;
-};
-
-/** Whether a picture shows something the app has (AppShot.shows): one of its blocks (`blocks`: their types), a variant
- * of its kind of a list, one of its lists, its settings or its own page. */
-export function shotOf(shows: string, app: Shown, blocks: string[]): boolean {
-  const [what, key = '', n] = shows.split(':');
-  if (what === 'blok') return blocks.includes(key); // language-ok: a stored id of an app's screenshot
-  if (what === 'slags') {
-    const kind = app.kinds?.[key];
-    return !!kind && /^\d+$/.test(n ?? '') && Number(n) < Math.max(1, kind.variants?.length ?? 0);
-  }
-  if (what === 'liste') return !!app.lists?.some((l) => l.id === key);
-  if (what === 'indstillinger') return !!app.settings && !key;
-  return what === 'side' && !!app.page && !key; // language-ok: a stored id of an app's screenshot
-}
-
-/** The file of an app's picture in its screenshots/, by its place among them and what it shows. */
-export const shotFile = (i: number, shows: string) => `${i + 1}-${shows.replace(/:/g, '-')}.jpg`;
+export { shotOf, shotFile, shotFiles } from '../lib/appShots.mjs';
 
 /** The folder of an app's pictures. */
 export const SCREENSHOTS = 'screenshots';

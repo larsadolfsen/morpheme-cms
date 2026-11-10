@@ -38,7 +38,7 @@ export const apps: Messages['apps'] = {
   appCount: (n) => (n === 1 ? '1 app' : `${n} apps`),
   noDeveloper: 'Der er ingen apps fra den udvikler',
   unknownScreenshot: (shows) =>
-    `Billedet "${shows}" viser intet, appen har: blok:<type>, slags:<liste>:<variant>, liste:<id>, indstillinger eller side.`,
+    `Billedet "${shows}" viser intet, appen har: block:<type>, kind:<liste>:<variant>, list:<id>, settings eller page.`,
   noScreenshot: (file) => `${file} findes ikke. Tag billederne med npx morpheme app-screenshots.`,
   unlistedScreenshot: 'Billedet står ikke under screenshots i appens index.ts.',
   widgetNoComponent: (key) => `Widgetten "${key}" har ingen component.`,

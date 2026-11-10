@@ -57,7 +57,7 @@ export const apps = {
   /** In the check before the build: a picture in an app's index.ts that shows nothing it has (shotOf), one without
    * its file (screenshots/, packages/editor/scripts/app-screenshots.mjs), and a file there index.ts does not name. */
   unknownScreenshot: (shows: string) =>
-    `The picture "${shows}" shows nothing the app has: blok:<type>, slags:<list>:<variant>, liste:<id>, indstillinger or side.`,
+    `The picture "${shows}" shows nothing the app has: block:<type>, kind:<list>:<variant>, list:<id>, settings or page.`,
   noScreenshot: (file: string) => `${file} doesn’t exist. Take the pictures with npx morpheme app-screenshots.`,
   unlistedScreenshot: 'The picture isn’t under screenshots in the app’s index.ts.',
   /** In the check before the build: a widget in an app's index.ts (AppDefinition.widgets) that has no component. */

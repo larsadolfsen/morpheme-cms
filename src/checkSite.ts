@@ -33,7 +33,7 @@ import { defaultsDaDK } from '../defaults/i18n/da-DK';
 import type { Part } from './schema';
 import { apps, asStandardTemplate, blockProblems, siteBlocks, standardPageOf, withPageBlocks } from './registry';
 import { installedApps, settingsFile } from './apps';
-import { appFolder, SCREENSHOTS, shotFile, shotOf } from './store';
+import { appFolder, SCREENSHOTS, shotFiles, shotOf } from './store';
 import { appFolders } from './appFiles';
 import { widgetsWithoutComponent } from './widgets';
 import { colorPairs as shownPairs, sharedParts, translator, writtenApps, writtenBlockParts, writtenCollections } from './site';
@@ -134,12 +134,13 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
   for (const app of writtenApps) {
     const blocks = siteBlocks.filter((b) => b.app === app.id).map((b) => b.type);
     const files = (appFolders[app.id]?.files ?? []).filter((f) => f.startsWith(`${SCREENSHOTS}/`));
-    const listed = (app.screenshots ?? []).map((x, i) => `${SCREENSHOTS}/${shotFile(i, x.shows)}`);
+    // A picture is in the new file name or, until the app's pictures are regenerated, the old one (lib/appShots.mjs).
+    const wanted = (app.screenshots ?? []).map((x, i) => shotFiles(i, x.shows).map((f) => `${SCREENSHOTS}/${f}`));
     for (const x of app.screenshots ?? [])
       if (!shotOf(x.shows, app, blocks)) problems.push(`${appFolder(app.id)}/index.ts: ${t.apps.unknownScreenshot(x.shows)}`);
-    for (const file of listed.filter((f) => !files.includes(f)))
-      problems.push(`${appFolder(app.id)}/index.ts: ${t.apps.noScreenshot(file)}`);
-    for (const file of files.filter((f) => !listed.includes(f)))
+    for (const names of wanted.filter((names) => !names.some((f) => files.includes(f))))
+      problems.push(`${appFolder(app.id)}/index.ts: ${t.apps.noScreenshot(names[0])}`);
+    for (const file of files.filter((f) => !wanted.some((names) => names.includes(f))))
       problems.push(`${appFolder(app.id)}/${file}: ${t.apps.unlistedScreenshot}`);
   }
 
