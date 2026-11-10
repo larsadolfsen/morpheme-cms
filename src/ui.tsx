@@ -821,15 +821,18 @@ export function Notice({
   title,
   children,
   action,
+  role = 'status',
   onClose,
 }: {
   title: string;
   children: ReactNode;
   action?: ReactNode;
+  /** `alert` for what went wrong just now (a save that failed): screen readers say it at once. */
+  role?: 'status' | 'alert';
   onClose?: () => void;
 }) {
   return (
-    <SiteCard kind="filled" role="status" className={onClose ? 'relative space-y-2 pe-14' : 'space-y-2'}>
+    <SiteCard kind="filled" role={role} className={onClose ? 'relative space-y-2 pe-14' : 'space-y-2'}>
       <p className="font-medium text-primary">{title}</p>
       <div className="text-sm">{children}</div>
       {action}
@@ -1893,17 +1896,26 @@ function moveInMenu(e: KeyboardEvent<HTMLElement>) {
 export function MenuItem({
   icon: Glyph,
   selected,
+  disabled,
   onClick,
   children,
 }: {
   icon?: Icon;
   /** Undefined for a choice that does something, not one of some to choose between. */
   selected?: boolean;
+  /** It cannot be chosen now (Move up on the first card). */
+  disabled?: boolean;
   onClick: () => void;
   children: ReactNode;
 }) {
   return (
-    <SiteMenuItem icon={Glyph && <Glyph />} selected={selected} onMouseDown={(e: MouseEvent) => e.preventDefault()} onClick={onClick}>
+    <SiteMenuItem
+      icon={Glyph && <Glyph />}
+      selected={selected}
+      disabled={disabled}
+      onMouseDown={(e: MouseEvent) => e.preventDefault()}
+      onClick={onClick}
+    >
       {children}
     </SiteMenuItem>
   );

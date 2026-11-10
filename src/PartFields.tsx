@@ -26,7 +26,7 @@ export default function PartFields({
   part: Part;
   files: RepoFile[];
   env: Env;
-  form: ReturnType<typeof usePartForm>;
+  form: Pick<ReturnType<typeof usePartForm>, 'base' | 'values' | 'setValues'>;
 }) {
   const { base, values, setValues } = form;
   const { file: path, at, fields } = part as Required<Part>;
