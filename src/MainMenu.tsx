@@ -2,15 +2,17 @@
 // sections; a section opens its list, under a back row, with the open screen marked and its fold-out folded out. Apps lists
 // Appstore and a row per app installed. From medium and wider the first level is also the collapsed navigation rail
 // (MainRailItem), whose sections open the drawer at their list. The drawer's header is the signed-in user (AccountRow), a link
-// to the account. The levels are not steps in the history: in the modal drawer the phone's back gesture goes to the screen
+// to the account. The cog (Settings, #settings) is pinned at the bottom of the first level and of the rail; it is marked on
+// Settings and every screen under it. The levels are not steps in the history: in the modal drawer the phone's back gesture goes to the screen
 // before, as everywhere else, and closes the drawer. Exposes MainMenu. The tree and the open place are lib/menu.mjs
 // (menuTree, currentPlace); it only wires them to the drawer.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Gear } from '@phosphor-icons/react';
 import { config, header } from '@site/editor';
 import { currentPlace, menuTree } from '../lib/menu.mjs';
 import { STORE_ROUTE } from './store';
 import { collectionOf } from './schema';
-import { apps, collections, companyParts, groups, icons, lists, partScreens } from './site';
+import { apps, collections, companyParts, groups, icons, lists, partScreens, settings } from './site';
 import { partOf } from './Library';
 import { AccountRow } from './AccountRow';
 import { childrenOf } from './menuChildren';
@@ -50,6 +52,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     partScreens: partScreens.map((s) => s.id),
     cookies: config.lists.cookies,
     store: STORE_ROUTE,
+    settings,
   });
   // The section whose list is shown (null: the first level). It follows the route's section, and the drawer opening.
   const [shown, setShown] = useState<string | null>(place.section);
@@ -102,6 +105,12 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
           <MainDrawerBack label={t.library.back} name={t.common.backTo(t.library.mainMenu)} onClick={() => show(null)} />
         )
       }
+      footer={
+        shown === null ? (
+          <MainDrawerItem href="#settings" icon={Gear} label={t.common.parts.settings} selected={!!place.settings} />
+        ) : undefined
+      }
+      railFooter={<MainRailItem href="#settings" icon={Gear} label={t.common.parts.settings} selected={!!place.settings} />}
       rail={tree.map((entry) =>
         entry.href !== undefined ? (
           <MainRailItem key={entry.id} href={entry.href} icon={icons[entry.id]} label={entry.label} selected={route === ''} />
