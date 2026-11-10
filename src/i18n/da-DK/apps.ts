@@ -24,6 +24,7 @@ export const apps: Messages['apps'] = {
   placePages: 'Sider',
   access: { sandboxed: 'Afgrænset', full: 'Fuld adgang' },
   problemsTitle: 'Problemer ved sidste opbygning',
+  problemPages: (n) => `${n} sider`,
   problemLine: (where, message) => `${where}: ${message}`,
   problemPlaces: { hook: 'Ændring', 'after-build': 'Trin efter opbygningen', bundle: 'Kode', manifest: 'app.json' },
   notifications: 'Notifikationer',

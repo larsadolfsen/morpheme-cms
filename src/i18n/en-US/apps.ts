@@ -36,6 +36,8 @@ export const apps = {
   /** Above "Permissions" of an installed app: what the last build found wrong in it (the build's _problems.json), one line each:
    * what it is about (a change of the site by its name, or the place below) and what is wrong. */
   problemsTitle: 'Problems in the last build',
+  /** In a line of problems found on several pages: how many. */
+  problemPages: (n: number) => `${n} pages`,
   problemLine: (where: string, message: string) => `${where}: ${message}`,
   problemPlaces: { hook: 'Change', 'after-build': 'Step after the build', bundle: 'Code', manifest: 'app.json' },
   /** The kinds of notifications it sends (its `notifications`), each turned off under "Konto" › "Notifikationer". */
