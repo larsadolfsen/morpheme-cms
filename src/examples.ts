@@ -77,7 +77,7 @@ export function exampleData(): BlockData {
 
 /** An entry of a kind of a list of kinds (a pop-up, Mailchimp's) as an example: a new one of the kind, with the
  * defaults of the fields it has, the made-up name, heading and text, and the plain picture. "Parts" draws each kind
- * with it, and "Blokindstillinger" an app's kind no entry is made with. */
+ * with it, and "Block settings" an app's kind no entry is made with. */
 export function kindExample(list: FolderCollection, kind: string): Record<string, unknown> {
   const name = list.kinds!;
   const fields = list.fields.filter((f) => f.only?.field !== name || f.only.is.includes(kind));

@@ -90,7 +90,7 @@ export type Field = {
   /** relation: what is picked. Pages are stored by their path, the others by their file name. */
   to?: Relation;
   multiple?: boolean;
-  /** relation, multiple: the text of the pill that opens the sheet to pick one ("Tilføj tag"). */
+  /** relation, multiple: the text of the pill that opens the sheet to pick one ("Add tag"). */
   add?: string;
   /** relation to pages: the fixed pages can be picked too (the menu). */
   fixed?: boolean;
@@ -124,7 +124,7 @@ export type Field = {
   only?: { field: string; is: string[] };
   /** boolean: shown as a switch, with what it says when on and when off. */
   toggle?: [string, string];
-  /** Its value changes how the page is laid out (its template): "Forhåndsvis" shows a page whose value
+  /** Its value changes how the page is laid out (its template): "Preview" shows a page whose value
    * is changed in another page saved with the same value (EntryForm.tsx). */
   layout?: boolean;
   /** blocks: a list where each item has a `type`, one of these, which gives its fields. */
@@ -170,9 +170,9 @@ export type Template = {
 };
 
 /** What a button can open of an entry of a list shown on the pages (a promotion), offered by its kind: `label`, what
- * opens, in the site's language ("Pop op-vindue", "Bookingarket"), the choice named after it with the entry's name in
+ * opens, in the site's language ("Pop-up", "Booking sheet"), the choice named after it with the entry's name in
  * parentheses; `as`, a target of the buttons (`buttonTargets`) it stands for, which the button then does (the booking
- * bar opens the booking sheet, as "Book en tid" does), else the entry itself opens. */
+ * bar opens the booking sheet, as "Book an appointment" does), else the entry itself opens. */
 export type Opens = { label: string; as?: string };
 
 /** A place in the editor (a route, e.g. 'company/contact') and the text of the link to it. */
@@ -184,17 +184,17 @@ export type Block = {
   label: string;
   /** What the block is, where one is picked. */
   hint?: string;
-  /** Edited elsewhere: "Ret" goes there (without fields), or a link there over its fields. */
+  /** Edited elsewhere: "Edit" goes there (without fields), or a link there over its fields. */
   edit?: Edit;
   fields: Field[];
   /** Its own text and picture are written in the page's text, above its card (sections.mjs): */
   lead?: Lead;
 };
 
-/** heading: the field of the heading (an "Overskrift", H2); body: the field of the text under it, one
+/** heading: the field of the heading (a "Heading", H2); body: the field of the text under it, one
  * text (paragraphs) or, with `list`, one item per paragraph; image: a picture (`image`, `imageAlt`, `imageDecorative`)
  * above the heading, in place of the design's own; upTo: only the body's text before its first block of this type is
- * written above the card (the front page's "Banner": its "Knapper" block), the block and the text after it stay in the
+ * written above the card (the front page's "Banner": its "Buttons" block), the block and the text after it stay in the
  * field, which the card has too. */
 export type Lead = { heading?: string; body?: string; list?: boolean; image?: boolean; upTo?: string };
 
@@ -202,7 +202,7 @@ type Base = {
   id: string;
   label: string;
   singular: string;
-  /** The button for a new entry ("Nyt blogindlæg"); without it, no new entries are made here. */
+  /** The button for a new entry ("New blog post"); without it, no new entries are made here. */
   create?: string;
 };
 
@@ -236,7 +236,7 @@ export type FolderCollection = Base & {
   detail?: (data: Record<string, unknown>) => string;
   /** The fields the list can be filtered by (the funnel, Library.tsx List), each among the values its entries have:
    * a select by its options' names, another by the value itself (a cookie's provider); `all`: the choice that shows
-   * them all ("Alle udbydere"). */
+   * them all ("All providers"). */
   filters?: { field: string; all: string }[];
   /** The entries are shown on pages of the site: the field with their addresses, the field with the tags
    * whose posts they are on, and the field and value that say an entry is on every page. The list can
@@ -245,7 +245,7 @@ export type FolderCollection = Base & {
   /** What a button can open of an entry of one of the list's own kinds, by the kind, as AppKind.opens for an app's
    * kinds: a pop-up opens itself; a kind left out offers nothing (the action bar). */
   opens?: Record<string, Opens>;
-  /** The boolean field that turns an entry on and off (a promotion's "Slået til"/"Slået fra"): the list
+  /** The boolean field that turns an entry on and off (a promotion's "Turned on"/"Turned off"): the list
    * can then be filtered by it, the choices its `toggle` (Library.tsx List). */
   onOff?: string;
   /** The list's own fields one of its own kinds does not have, by the kind (a bar has no picture or
@@ -257,10 +257,10 @@ export type FolderCollection = Base & {
   /** How an entry of an app's kind with a part (AppKind.part) looks on the site: the list's own drawing (a pop-up's box)
    * with the app's part in it, the same as on the site (kindDraw in apps.ts). */
   drawPart?: (values: Record<string, any>, data: BlockData, part: KindPart) => ReactNode;
-  /** Entries something else added (the app "Cookiescanner" a cookie it found), not yet looked through: the field in the
+  /** Entries something else added (the app "Cookie scanner" a cookie it found), not yet looked through: the field in the
    * file that says so (`true`, not one of `fields`), the heading they are under at the top of the list (Library.tsx
-   * List), what each says in the accent colour in it and at the top of its form (`label`, by its data: "Ny", "Mangler
-   * formål"), what the form says of it (`notice`) and its button that takes the field away (`approve`). Saving the entry
+   * List), what each says in the accent colour in it and at the top of its form (`label`, by its data: "New", "No
+   * purpose"), what the form says of it (`notice`) and its button that takes the field away (`approve`). Saving the entry
    * takes it away too (DataForm.tsx). */
   fresh?: { field: string; heading: string; label: (data: Record<string, unknown>) => string; notice: string; approve: string };
   /** An entry as saved before the list changed (of a kind that is gone: a contact bar, now an action bar), as the list
@@ -288,7 +288,7 @@ export type KindPart = {
   viewOf: (values: Record<string, any>, data: BlockData) => unknown;
 };
 
-/** A list a standard block or an app brings ("Udtalelser", "Priser"), as the site's own, with its icon under "Lister". */
+/** A list a standard block or an app brings ("Testimonials", "Prices"), as the site's own, with its icon under "Lists". */
 export type OwnedList = FolderCollection & {
   icon: Icon;
   /** Made-up rows, as the files have them, for the parts under "Parts" and an app's pictures for the store (examples.ts). */
@@ -301,7 +301,7 @@ export type DataFile = {
   /** Where it is seen on the site. */
   view: string;
   fields: Field[];
-  /** The file is a list (the menus): this field holds it in the form. With `fields` ("Aktiveret"), the file holds
+  /** The file is a list (the menus): this field holds it in the form. With `fields` ("Activated"), the file holds
    * them and the list under this field's name, and the form shows them above the list. */
   root?: Field;
   /** A fixed page called by its label, not its H1 (the front page). */
@@ -347,12 +347,12 @@ export function collectionOf(collections: Collection[], path: string): { collect
 // A file's name in its folder, without .md or .json (and /index): a post's address, an entry's slug.
 export const slugOf = (path: string, folder: string) => path.slice(folder.length + 1).replace(/(\/index)?\.(md|json)$/, '');
 
-// Titles in alphabetical order, in the editor's language (Danish: æ, ø, å last), without the quotation marks and other signs
-// some begin with: “Livet med og efter bipolar lidelse” under L.
+// Titles in alphabetical order, in the editor's language (Danish: its three extra letters last), without the quotation marks and other signs
+// some begin with: “Living with and after bipolar disorder” under L.
 const sortable = (title: string) => title.replace(/^[^\p{L}\p{N}]+/u, '');
 export const byText = (a: string, b: string) => sortable(a).localeCompare(sortable(b), locale);
 
-// Addresses and file names from a title, spelled like the existing ones: æ -> ae, ø -> oe, å -> aa.
+// Addresses and file names from a title, spelled like the existing ones: the Danish letters for ae, oe and aa are written out as such.
 export const slugify = (title: string) =>
   title
     .toLowerCase()
@@ -364,14 +364,14 @@ export const slugify = (title: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 
-/** A screen of the site's own with parts (PartScreen), "Virksomheden" or "Blokke" (CompanyForm.tsx): a
+/** A screen of the site's own with parts (PartScreen), "Business" or "Blocks" (CompanyForm.tsx): a
  * part of one data file. */
 export type Part = {
   id: string;
   label: string;
   icon: Icon;
   /** The fields and the file they are in, at the top level or under `at`; without them, a part is only a
-   * row that opens its own screen (the ones under "Udseende", Library.tsx). */
+   * row that opens its own screen (the ones under "Appearance", Library.tsx). */
   file?: string;
   at?: string;
   fields?: Field[];
@@ -384,55 +384,55 @@ export type Part = {
   /** A block drawn under the fields with them as they are now (its draw, src/apps/<app>/blocks/): its type, and props
    * for when no page has the block (the first one on a page is drawn). shared: always with `props`,
    * as a copy that has nothing of its own (the shared buttons). variants: drawn once for each, under its
-   * name, always with `props` and the variant's over them (the designs of "Kort"). */
+   * name, always with `props` and the variant's over them (the designs of "Cards"). */
   preview?: {
     type: string;
     props?: Record<string, unknown>;
     shared?: boolean;
     variants?: PreviewVariant[];
   };
-  /** Where its row opens, when not its own screen under the one it is on (the front page under "Udseende"). */
+  /** Where its row opens, when not its own screen under the one it is on (the front page under "Appearance"). */
   href?: string;
-  /** At the end of its row, before the arrow: the theme in use, by "Temaer" under "Udseende". */
+  /** At the end of its row, before the arrow: the theme in use, by "Themes" under "Appearance". */
   detail?: string;
   /** At the end of its row, after `detail` and before the arrow: the site's primary, secondary and tertiary colours by
-   * "Farver" under "Udseende" (ColorSwatches). */
+   * "Colors" under "Appearance" (ColorSwatches). */
   trailing?: ReactNode;
-  /** Where its screen goes back to: "Virksomheden", or "Blokke" (blockTexts.ts, site.ts). */
+  /** Where its screen goes back to: "Business", or "Blocks" (blockTexts.ts, site.ts). */
   back?: { href: string; label: string };
   /** What the commit says was edited, in the site's language, when not its name in lower case (an
-   * app's settings, AppList.tsx: "indstillinger for Mailchimp"). */
+   * app's settings, AppList.tsx: "settings for Mailchimp"). */
   commit?: string;
   /** The value a save of its fields sets, said in the notice after it ("CMS-version set to 0.10.0"), asked with the saved
    * values and the app's own addresses in the Worker (`api`); undefined, or a failure, says "CMS-version changed"
    * (partChange.ts). An app's settings copy it from AppSettings.changedTo (AppList.tsx appSettingsPart). */
   changedTo?: (values: Record<string, unknown>, props: AppPageProps) => Promise<string | undefined>;
   /** Parts of its own, instead of fields: a row that opens a screen with them, each at
-   * #<screen>/<id>/<part> and going back to it ("Virksomheden" › "Betaling" with "Bank"). */
+   * #<screen>/<id>/<part> and going back to it ("Business" › "Payment" with "Bank"). */
   parts?: Part[];
   /** With `parts`: the settings of the apps installed of these categories (AppDefinition.category) come after them,
-   * each at #<screen>/<id>/<app> ("Betaling" with MobilePay; AppList.tsx appPartsIn). An older id (`payment`) is read as
+   * each at #<screen>/<id>/<app> ("Payment" with MobilePay; AppList.tsx appPartsIn). An older id (`payment`) is read as
    * its new one (categoryOf in lib/storeCategories.mjs). */
   apps?: AppCategory[];
   /** One of the editor's own lists, drawn under its fields: "keywords", every keyword of the pages, posts and fixed
-   * pages ("Interne links", Keywords.tsx). */
+   * pages ("Internal links", Keywords.tsx). */
   below?: 'keywords';
   /** One of the editor's own screens, instead of a form: "consents", the visitors' answers in the cookie banner
-   * ("Samtykker" under "Privatliv", Consents.tsx). */
+   * ("Consents" under "Privacy", Consents.tsx). */
   opens?: 'consents';
   /** Its fields, which pick a page (`relation`), as the rows of a list, each opening the sheet with the pages (FieldRows):
-   * "Standardsider" and "Privatlivssider". */
+   * "Default pages" and "Privacy pages". */
   rows?: boolean;
 };
 
 /** A part of the start screen that is a screen with parts, each a screen of its own at #<id>/<part>
- * (Library.tsx PartsScreen, CompanyForm.tsx): "Privatliv" with the cookie banner and the privacy pages. With `apps`, the
+ * (Library.tsx PartsScreen, CompanyForm.tsx): "Privacy" with the cookie banner and the privacy pages. With `apps`, the
  * settings of the apps installed of those categories (AppDefinition.category) come after its own parts, each at
  * #<id>/<app> ("Analytics" with Google Analytics; AppList.tsx appPartsIn). An older id in `apps` is read as its new one
  * (categoryOf in lib/storeCategories.mjs). */
 export type PartScreen = { id: string; label: string; parts: Part[]; apps?: AppCategory[] };
 
-/** One way a block's screen under "Blokke" draws it (Part.preview): its name and its own props. */
+/** One way a block's screen under "Blocks" draws it (Part.preview): its name and its own props. */
 export type PreviewVariant = { label: string; props: Record<string, unknown> };
 
 /** What a block on the site is given by RichText.astro (BlockSite.astro gives it to its load.ts): its props (as written in its line in the
