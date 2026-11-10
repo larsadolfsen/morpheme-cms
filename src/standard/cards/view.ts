@@ -1,4 +1,4 @@
-// What "Kort" shows (its view, drawn by the theme's View.tsx and LinkCards.tsx): its heading, its design ('image': a
+// What "Cards" shows (its view, drawn by the theme's View.tsx and LinkCards.tsx): its heading, its design ('image': a
 // picture at the top, 'text': nothing, else an icon), its background ('accent', else the theme's surface), the link's text (its shared text) and each card's icon or
 // picture, heading, text and page. In the editor: viewOf; on the site: load.ts, with the pictures' sizes.
 import { shownAt } from '../../images';

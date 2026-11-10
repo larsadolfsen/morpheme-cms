@@ -1,4 +1,4 @@
-// "Spørgsmål og svar" on the site (view.ts): the answers as Astro's Markdown makes them (markdownHtml), one open at a
+// "Questions and answers" on the site (view.ts): the answers as Astro's Markdown makes them (markdownHtml), one open at a
 // time in each list (its own group, by its place in the text).
 import { markdownHtml } from '../../../lib/inline';
 import type { Load } from '../view';

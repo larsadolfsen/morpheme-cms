@@ -1,9 +1,9 @@
-// The shared text of "Kort" ("Blokke"): the link on the cards, to begin with in the
+// The shared text of "Cards" ("Blocks"): the link on the cards, to begin with in the
 // site's language (siteT).
 import { siteT, t } from '../../i18n';
 import { defineShared } from '../../shared';
 
-/** The cards it is shown with where no page has it: its screen under "Blokke" and "Tilgængelige
+/** The cards it is shown with where no page has it: its screen under "Blocks" and "Available
  * blocks" (index.tsx). In the site's language, like the drawing. With a page, so the link's text,
  * which is edited there, is on them. */
 export const example = { items: siteT.blocks.cards.example.map((c) => ({ ...c, href: '/' })) };

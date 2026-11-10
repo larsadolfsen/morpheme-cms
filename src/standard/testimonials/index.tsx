@@ -1,6 +1,6 @@
-// "Udtalelser", a standard block: testimonials to leaf through or one after another with the whole text (`layout`
-// 'list'), with a heading: those with any of the block's tags (all without tags), those marked "Vis på forsiden", or
-// those picked. The testimonials are in the list the block brings ("Udtalelser", list.ts; the relation `testimonials`,
+// "Testimonials", a standard block: testimonials to leaf through or one after another with the whole text (`layout`
+// 'list'), with a heading: those with any of the block's tags (all without tags), those marked "Show on the front page", or
+// those picked. The testimonials are in the list the block brings ("Testimonials", list.ts; the relation `testimonials`,
 // and BlockData.testimonials). How it looks is the theme's (packages/editor/theme/blocks/testimonials/View.tsx; what it shows: view.ts, and load.ts on the site).
 import { Columns, Quotes, Rows } from '@phosphor-icons/react';
 import { config } from '@site/config';

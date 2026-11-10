@@ -1,5 +1,5 @@
-// "Cookies", the list the standard block "Cookieliste" brings: one file per cookie in the site's data (config.cookieList),
-// under "Lister" on every site, each with its name (`*` for the rest of it), who sets it, what for, how long it lasts
+// "Cookies", the list the standard block "Cookie list" brings: one file per cookie in the site's data (config.cookieList),
+// under "Lists" on every site, each with its name (`*` for the rest of it), who sets it, what for, how long it lasts
 // and its category (lib/cookieCategories.mjs: necessary, or one the visitor says yes to in the cookie banner). An app's cookies come and go with it, and the app "Cookiescanner"
 // adds those it finds (cookieList.ts). The site reads them for the block (StandardSite.cookies, the site's
 // packages/editor/site/cookieList.ts).

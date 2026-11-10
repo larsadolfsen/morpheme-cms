@@ -1,4 +1,4 @@
-// What "Liste" shows (its view, drawn by the theme's View.tsx and Rows.tsx): its heading, its design, and each row's
+// What "List" shows (its view, drawn by the theme's View.tsx and Rows.tsx): its heading, its design, and each row's
 // icon, heading, text and page. The same in the editor (viewOf) and on the site (load.ts): only its fields.
 import type { ViewOf } from '../view';
 import { headOf, type HeadView } from '../head';

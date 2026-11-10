@@ -1,7 +1,7 @@
-// "Foldeliste", a standard block: rows that fold out, one open at a time, each with a text (its own, or
-// the opening of the page it links to) and a link to its page with the shared text "Læs mere om {emne}"
+// "Expandable list", a standard block: rows that fold out, one open at a time, each with a text (its own, or
+// the opening of the page it links to) and a link to its page with the shared text "Read more about {emne}"
 // (shared.ts), and links to more pages under it (`more`, as pills); with a head (../head.ts). The same
-// rows as "Spørgsmål og svar". How it looks is the theme's
+// rows as "Questions and answers". How it looks is the theme's
 // (packages/editor/theme/blocks/accordion/View.tsx, with ../faq/Accordion.tsx and PageRow.tsx); what it shows: view.ts, and
 // load.ts on the site.
 import { Rows } from '@phosphor-icons/react';

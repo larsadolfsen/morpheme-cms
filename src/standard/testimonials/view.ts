@@ -1,9 +1,9 @@
-// What "Udtalelser" shows (its view, drawn by the theme's View.tsx, Slider.tsx, List.tsx and Testimonial.tsx): its
+// What "Testimonials" shows (its view, drawn by the theme's View.tsx, Slider.tsx, List.tsx and Testimonial.tsx): its
 // heading, its layout (to leaf through, or 'list': one after another with the whole text), its testimonials (each
 // one's name, picture, context, paragraphs, tags with their pages, and where its whole text is: `anchor` on the
 // testimonials page, `href` from elsewhere), what the slider is called for screen readers, the tags to filter by in a
-// list (`filters`), and its shared texts ("Læs mere", "Vis mindre"). In the editor: viewOf, with the testimonials of
-// the list "Udtalelser"; on the site: load.ts.
+// list (`filters`), and its shared texts ("Read more", "Show less"). In the editor: viewOf, with the testimonials of
+// the list "Testimonials"; on the site: load.ts.
 import type { BlockData } from '../../blocks';
 import type { TestimonialRow } from '../../fields';
 import { siteT } from '../../i18n';
@@ -35,7 +35,7 @@ export type TestimonialsView = HeadView & {
   texts: TestimonialTexts;
 };
 
-/** What the slider is called for screen readers: the block's heading, else "Udtalelser" in the site's language. */
+/** What the slider is called for screen readers: the block's heading, else "Testimonials" in the site's language. */
 export const labelOf = (props: Record<string, any>): string => props.heading?.trim() || siteT.blocks.testimonials.label;
 
 // A tag's name, as the list of tags has it.

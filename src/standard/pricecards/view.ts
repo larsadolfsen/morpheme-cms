@@ -1,7 +1,7 @@
-// What "Priskort" shows (its view, drawn by the theme's View.tsx): its heading, and each card's name, price, what the
+// What "Price cards" shows (its view, drawn by the theme's View.tsx): its heading, and each card's name, price, what the
 // price is for (`unit`), text, what is included, button, and whether it is highlighted, with its label. In the editor:
 // viewOf, with the buttons as the editor has them (buttonsOf); on the site: load.ts (loadButtons). A card without a
-// button has none, not the shared buttons of "Knapper".
+// button has none, not the shared buttons of "Buttons".
 import type { Button } from '../buttons/fields';
 import { buttonsOf, type ButtonView } from '../buttons/view';
 import { headOf, type HeadView } from '../head';

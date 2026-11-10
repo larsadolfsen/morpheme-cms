@@ -1,6 +1,6 @@
-// "Priskort", a standard block: a heading and one to four price cards side by side where there is room, each with a
+// "Price cards", a standard block: a heading and one to four price cards side by side where there is room, each with a
 // name, a price and what it is for (`unit`, after it), a short text, what is included (each line with a check, as
-// "Tjekliste") and a button at the bottom (as one of "Knapper", buttons/fields.ts); one can be highlighted, with a small
+// "Checklist") and a button at the bottom (as one of "Buttons", buttons/fields.ts); one can be highlighted, with a small
 // label over its name. The prices are written here (a site's own price list is an app's block). How it looks
 // is the theme's (packages/editor/theme/blocks/pricecards/View.tsx); what it shows: view.ts, and load.ts on the site.
 import { CurrencyCircleDollar } from '@phosphor-icons/react';
@@ -38,7 +38,7 @@ export default defineBlock({
           type: 'list',
           field: { name: 'feature', label: texts.text, type: 'string', required: true },
         },
-        // One button, as a "Knapper" block's; without one, none (not the shared buttons).
+        // One button, as a "Buttons" block's; without one, none (not the shared buttons).
         { ...buttonList, name: 'buttons', label: texts.button, singular: texts.buttonItem, maxItems: 1 },
         { name: 'featured', label: texts.featured, type: 'boolean', toggle: texts.featuredToggle },
         { name: 'badge', label: texts.badge, type: 'string', max: 20, hint: texts.badgeHint, only: { field: 'featured', is: ['true'] } },

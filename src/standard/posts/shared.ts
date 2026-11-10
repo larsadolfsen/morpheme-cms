@@ -1,4 +1,4 @@
-// The shared texts of "Blogindlæg" ("Blokke"): the link under the posts, with {tag} for the tag it goes
+// The shared texts of "Blog posts" ("Blocks"): the link under the posts, with {tag} for the tag it goes
 // to, to begin with in the site's language (siteT). Also where a site shows posts itself (this site's
 // front page).
 import { siteT, t } from '../../i18n';
@@ -12,8 +12,8 @@ export default defineShared({
   values: { all: siteT.blocks.posts.allText, allAbout: siteT.blocks.posts.allAboutText },
 });
 
-/** What its "Alle indlæg" says: "Alle indlæg om opskrifter" when it goes to a tag (by its name), else
- * "Alle indlæg". */
+/** What its "All posts" says: "All posts about recipes" when it goes to a tag (by its name), else
+ * "All posts". */
 export const allPostsText = (texts: Record<string, string>, tag?: string): string =>
   tag ? fill(texts.allAbout, { tag: tag.toLowerCase() }) : texts.all;
 

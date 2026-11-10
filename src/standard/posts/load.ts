@@ -1,5 +1,5 @@
-// "Blogindlæg" on the site (view.ts): the posts it shows (from the site, @site/standard), all of them or those it picks,
-// with "Alle indlæg" under those it picks (to a tag, "Alle indlæg om …", when it goes to one; its shared texts). Nothing
+// "Blog posts" on the site (view.ts): the posts it shows (from the site, @site/standard), all of them or those it picks,
+// with "All posts" under those it picks (to a tag, "All posts about …", when it goes to one; its shared texts). Nothing
 // when there are none, but where the newest of all would be large (the blog page): there the theme says there are none.
 import { standard } from '@site/standard';
 import { pictureOf } from '../load';

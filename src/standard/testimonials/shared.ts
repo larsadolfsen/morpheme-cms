@@ -1,4 +1,4 @@
-// The shared texts of "Udtalelser" ("Blokke"): the buttons that unfold a testimonial and fold it again,
+// The shared texts of "Testimonials" ("Blocks"): the buttons that unfold a testimonial and fold it again,
 // to begin with in the site's language (siteT). Also on a site's own testimonials (Testimonial.tsx).
 import { siteT, t } from '../../i18n';
 import { defineShared } from '../../shared';
