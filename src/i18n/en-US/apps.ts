@@ -112,14 +112,17 @@ export const apps = {
     email: 'Email',
     forms: 'Forms',
     languages: 'Languages',
-    links: 'Links',
     payments: 'Payments',
     privacy: 'Privacy',
-    redirects: 'Redirects',
     security: 'Security',
     seo: 'SEO',
     shop: 'Shop',
     social: 'Social',
+  },
+  /** The types of apps (subcategories of SEO) of which a site runs one active app (lib/appTypes.mjs). */
+  subcategories: {
+    links: 'Links',
+    redirects: 'Redirects',
   },
   /** Asked before an app of a type that allows one active app (redirects, links) is activated while another is. */
   oneOfType: (type: string, app: string, others: string) =>

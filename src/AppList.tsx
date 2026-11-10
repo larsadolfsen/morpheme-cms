@@ -560,7 +560,8 @@ async function confirmRivals(app: { id: string; label: string; category?: string
   const rivals = rivalsOf(app, apps, activeApps(files));
   if (!rivals.length) return [];
   const others = rivals.map((id) => apps.find((a) => a.id === id)?.label ?? id);
-  const yes = await ask(t.apps.oneOfType(t.apps.categories[app.category as AppCategory], app.label, others.join(', ')), t.apps.activate);
+  const type = categoryOf(app.category, app.subcategory).subcategory as keyof typeof t.apps.subcategories;
+  const yes = await ask(t.apps.oneOfType(t.apps.subcategories[type], app.label, others.join(', ')), t.apps.activate);
   return yes ? rivals : null;
 }
 

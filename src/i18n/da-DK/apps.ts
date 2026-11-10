@@ -78,14 +78,16 @@ export const apps: Messages['apps'] = {
     email: 'E-mail',
     forms: 'Formularer',
     languages: 'Sprog',
-    links: 'Links',
     payments: 'Betalinger',
     privacy: 'Privatliv',
-    redirects: 'Videresendelser',
     security: 'Sikkerhed',
     seo: 'SEO',
     shop: 'Webshop',
     social: 'Sociale medier',
+  },
+  subcategories: {
+    links: 'Links',
+    redirects: 'Videresendelser',
   },
   oneOfType: (type, app, others) =>
     `Kun én app af typen ${type} kan være aktiv. Når du aktiverer ${app}, deaktiveres ${others}. Dens indstillinger og data bliver, og du kan aktivere den igen.`,
