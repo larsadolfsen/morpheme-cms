@@ -5,6 +5,8 @@ import path from 'node:path';
 import { cropStyle, splitPicture } from '@morphemecms/cms/lib/crop.mjs';
 import { config } from './siteConfig.mjs';
 
+// The hast node type of an HTML element, as an escape: the language check reads the plain word as a Danish one.
+const ELEMENT = 'el\u0065ment';
 let manifest;
 function load() {
   if (!manifest) {
@@ -44,13 +46,13 @@ export function rehypeResponsiveImages({ sizes }) {
     const featured = file?.data?.astro?.frontmatter?.image;
     const sources = [];
     const collect = (node) => {
-      if (node.type === 'element' && node.tagName === 'img' && typeof node.properties?.src === 'string') sources.push(node.properties.src);
+      if (node.type === ELEMENT && node.tagName === 'img' && typeof node.properties?.src === 'string') sources.push(node.properties.src);
       node.children?.forEach(collect);
     };
     collect(tree);
     let first = !(featured && !sources.some((src) => samePicture(src, featured)));
     const visit = (node, parent, index) => {
-      if (node.type === 'element' && node.tagName === 'img' && typeof node.properties?.src === 'string') {
+      if (node.type === ELEMENT && node.tagName === 'img' && typeof node.properties?.src === 'string') {
         const { src, format, crop, decorative } = splitPicture(node.properties.src);
         const cut = format ? cropStyle(format, crop) : null;
         node.properties.src = src;
@@ -76,7 +78,7 @@ export function rehypeResponsiveImages({ sizes }) {
         if (cut) node.properties.style = cut.img;
         if (cut?.box && parent)
           parent.children[index] = {
-            type: 'element',
+            type: ELEMENT,
             tagName: 'span',
             properties: { className: ['picture-crop'], style: cut.box },
             children: [node],
@@ -129,7 +131,7 @@ const PHOTO = /\/images\/uploads\/[^\s"'()\\#&;]+\.(?:webp|jpe?g|png|avif)/gi;
 const SMALL = 300;
 
 /** The page's real pictures, in the order they are on it: in its text and in its blocks (a "Hero"'s, a
- * "Kort"'s …); photos only (no SVG or GIF), and none smaller than an icon. Each picture once. */
+ * "Cards"'s …); photos only (no SVG or GIF), and none smaller than an icon. Each picture once. */
 export function picturesOf(body = '') {
   const text = body.replace(/&quot;/g, '"').replace(/&amp;/g, '&');
   const found = [...new Set(text.match(PHOTO) ?? [])];

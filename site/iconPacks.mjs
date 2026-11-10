@@ -8,7 +8,7 @@
 // may bring its own in its folder, src/themes/<theme>/icon-packs/<pack>/, which come and go with the theme (the
 // Appstore installs, updates and uninstalls them with it, as its other files).
 //
-// Which one is used: the one chosen under "Indstillinger" › "Udseende" › "Ikonpakker" (src/data/icons.json,
+// Which one is used: the one chosen under "Settings" › "Appearance" › "Icon packs" (src/data/icons.json,
 // `{ "pack": "<id>" }`), else the theme in use's ("icons" in its theme.json: a system pack, or one of its own by its
 // folder), else the standard theme's (Material Symbols).
 

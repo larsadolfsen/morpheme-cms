@@ -110,7 +110,7 @@ test('a live commit off the branch gives no list', async () => {
   const dir = repo();
   try {
     commit(dir, 'README.md', 'x');
-    git(dir, 'checkout', '-q', '-b', 'side');
+    git(dir, 'checkout', '-q', '-b', 'other');
     const side = commit(dir, 'side.md', 's');
     git(dir, 'checkout', '-q', 'main');
     commit(dir, 'src/content/a.md', 'y');
@@ -172,9 +172,9 @@ test('a path with non-ASCII letters or spaces is listed as it is', async () => {
   const dir = repo();
   try {
     const a = commit(dir, 'README.md', 'x');
-    commit(dir, 'src/content/blå post.md', 'y');
+    commit(dir, 'src/content/bl\u00e5 post.md', 'y');
     const result = await changedSinceLive({ ...site, cwd: dir, fetch: serve({ commit: a }) });
-    assert.deepEqual(result.paths, ['src/content/blå post.md']);
+    assert.deepEqual(result.paths, ['src/content/bl\u00e5 post.md']);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

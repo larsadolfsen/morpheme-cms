@@ -4,7 +4,7 @@
 import { withoutColors } from '@morphemecms/cms/lib/text-colors.mjs';
 import { config } from '@site/config';
 
-// A title can end in a word for search engines after a dash (`titleEnd` in the site's config, " – København"): kept
+// A title can end in a word for search engines after a dash (`titleEnd` in the site's config, " – Copenhagen"): kept
 // in <title>, left out of the heading.
 const escaped = config.titleEnd.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const END = config.titleEnd ? new RegExp(`\\s+[–-]\\s+${escaped}$`) : null;

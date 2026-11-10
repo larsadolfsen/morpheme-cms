@@ -1,5 +1,5 @@
 // Name, title, phone, email, address and CVR number: contact.json; the profiles and share buttons: social.json (optional, an
-// older site has none); the texts of "Book en tid": booking.json (the calendar is the app Calendly's, morpheme-apps/apps/calendly/);
+// older site has none); the texts of "Book an appointment": booking.json (the calendar is the app Calendly's, morpheme-apps/apps/calendly/);
 // the menus: menu.json and mobile-menu.json; the shared texts of the other blocks: their shared.ts, with those saved in
 // blocks.json over them (`blockTexts`).
 // The site's owner edits them in the editor (/editor/); what the editor does not edit is the site's config
@@ -19,7 +19,7 @@ import { standardShared } from '@morphemecms/cms/src/standard/sharedTexts';
 // The number with its country code: +45 when it has none (a number in Denmark, saved without it), else
 // its own ("+46 70 12 34 56", picked in the editor).
 const phoneIntl = `${contact.phone.trim().startsWith('+') ? '+' : '+45'}${contact.phone.replace(/\D/g, '')}`;
-// The CVR number, when it is filled in ("Virksomheden" › "Kontakt").
+// The CVR number, when it is filled in ("Business" › "Contact").
 const { cvr = '' } = contact as typeof contact & { cvr?: string };
 
 // Optional file: an older site has no social.json, so it is read with a glob, not an import.
@@ -54,11 +54,11 @@ export const site = {
   aboutPath: config.aboutPath,
   /** The block after every blog post, by its type, or '' (config.ts). */
   postEnd: config.postEnd,
-  /** The page chosen as the contact page ("Indstillinger" › "Udseende" › "Standardsider", standard-pages.json). */
+  /** The page chosen as the contact page ("Settings" › "Appearance" › "Default pages", standard-pages.json). */
   contactPath: standardPages.contact,
-  /** The shared texts of "Book en tid" (an app's booking block). */
+  /** The shared texts of "Book an appointment" (an app's booking block). */
   booking: { heading: booking.heading, text: booking.text },
-  /** The labels of the buttons "Book en tid" and "Ring" (the number comes after). */
+  /** The labels of the buttons "Book an appointment" and "Call" (the number comes after). */
   labels: { book: booking.book, call: booking.call },
   /** The owner's picture (config.ts), or '' when the site has none. */
   portrait: config.picture?.src ?? '',
@@ -69,16 +69,16 @@ export const site = {
   logo: config.logo || '/logo.svg',
 };
 
-// Primary navigation (menu.json, "Hovedmenu"). Labels, URLs and sub-items started out as the old site's menu.
+// Primary navigation (menu.json, "Main menu"). Labels, URLs and sub-items started out as the old site's menu.
 export type NavItem = { label: string; href: string; children?: { label: string; href: string }[] };
-// Sub-items in alphabetical order (Danish: æ, ø, å last), in both the desktop and the mobile menu.
+// Sub-items in alphabetical order (Danish order: ae, oe and aa letters last), in both the desktop and the mobile menu.
 export const nav: NavItem[] = sortedNav(menu.items);
-/** Whether the header has the menu and its button ("Aktiveret" under "Hovedmenu"). */
+/** Whether the header has the menu and its button ("Activated" under "Main menu"). */
 export const navShown = menu.enabled !== false;
-/** The links in the bar under the header on a phone (mobile-menu.json, "Mobilmenu"); none when it is turned off. */
+/** The links in the bar under the header on a phone (mobile-menu.json, "Mobile menu"); none when it is turned off. */
 export const mobileNav: { label: string; href: string }[] = mobileMenu.enabled ? mobileMenu.items : [];
 
-/** The texts every copy of a block has ("Blokke" in the editor), with {…} for what differs, by
+/** The texts every copy of a block has ("Blocks" in the editor), with {…} for what differs, by
  * the block's type: those written in its shared.ts, with the saved ones (blocks.json) over them. The
  * standard blocks' first, so an app's block (src/apps/<app>/blocks/) by the same name has its own. */
 export const blockTexts = sharedTexts(

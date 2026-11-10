@@ -4,6 +4,7 @@
 // Only facts that are on the site; no ratings or reviews.
 import { site } from './site';
 import { sameAsOf } from './social.mjs';
+import { siteT } from '@morphemecms/cms/src/i18n';
 import { schema as facts } from '@site/schema';
 
 /** What a site says of itself in the structured data (@site/schema). */
@@ -34,7 +35,7 @@ export const ids = {
   website: `${origin}/#website`,
 };
 
-// Postcode and town from the address's second line ("1000 København", contact.json).
+// Postcode and town from the address's second line ("1000 Copenhagen", contact.json).
 const [, postalCode, town] = site.address.city.match(/^(\d{4})\s+(.+)$/) ?? [, undefined, site.address.city];
 
 // The business in full: on the front page and the contact page (Base.astro). Other pages only refer to it by @id
@@ -92,7 +93,7 @@ export const website = {
 
 export type Crumb = { name: string; href: string };
 
-/** A question with its answer as HTML (a "Spørgsmål og svar" block on the page). */
+/** A question with its answer as HTML (a "Questions and answers" block on the page). */
 export type Question = { question: string; answer: string };
 
 /** The page itself, with breadcrumbs when the page is not the front page, and as an FAQPage too when it
@@ -113,13 +114,13 @@ export function webPage({
   description?: string;
   image?: string;
   crumbs?: Crumb[];
-  /** The questions in the page's "Spørgsmål og svar" blocks, all of them in one FAQPage. */
+  /** The questions in the page's "Questions and answers" blocks, all of them in one FAQPage. */
   questions?: Question[];
 }) {
   const url = abs(path);
   const kind = path === facts.aboutPath ? 'AboutPage' : path === site.contactPath ? 'ContactPage' : 'WebPage';
   const type = questions.length ? [kind, 'FAQPage'] : kind;
-  const trail = path === '/' ? [] : [{ name: 'Forside', href: '/' }, ...crumbs, { name, href: path }];
+  const trail = path === '/' ? [] : [{ name: siteT.theme.frontPage, href: '/' }, ...crumbs, { name, href: path }];
   return [
     {
       '@type': type,

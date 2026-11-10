@@ -24,7 +24,7 @@ const blog = defineCollection({
     categories: z.array(z.string()).optional().default([]),
     image: z.string().optional(),
     imageAlt: z.string().optional(),
-    // "Dekorativt billede": `image` is drawn with alt="" (screen readers skip it), whatever `imageAlt` says.
+    // "Decorative picture": `image` is drawn with alt="" (screen readers skip it), whatever `imageAlt` says.
     imageDecorative: z.boolean().optional(),
     ...status,
     // Google title and description (the <title> and meta description). Empty: built from the title.
@@ -54,7 +54,7 @@ const pages = defineCollection({
     title: z.string(),
     path: z
       .string()
-      .regex(/^\/.*\/$/, 'path skal starte og slutte med /')
+      .regex(/^\/.*\/$/, 'path must start and end with /')
       .optional(),
     description: z.string().optional().default(''),
     // Tags chosen in the editor, not shown on the page.

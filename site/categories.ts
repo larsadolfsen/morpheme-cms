@@ -1,7 +1,7 @@
 // Tags (called categories in the code): one JSON file per tag in src/data/categories/, edited in the
 // editor (/editor/, "Tags"). The file name is the slug: the address /blog/kategori/<slug>/ and the
 // value stored in the `categories` of the blog posts and the testimonials. Only a blog category
-// (`blogCategory`, "Blogkategori" in the editor) is shown on the blog: a pill on the blog index and
+// (`blogCategory`, "Blog category" in the editor) is shown on the blog: a pill on the blog index and
 // on its posts, and its own page. The others only pick posts and testimonials.
 type CategoryData = { name: string; blogCategory?: boolean; seoTitle?: string; seoDescription?: string; shareImage?: string };
 

@@ -21,6 +21,6 @@ export function casingProblems(paths) {
     .filter(({ spellings }) => spellings.size > 1)
     .map(
       ({ folder, spellings }) =>
-        `${folder || '.'}/: ${[...spellings.values()].join(' og ')} har samme navn, når store og små bogstaver ses som ens (Windows og macOS gør det). Lad komponenten beholde sit navn, og giv filen ved siden af sin rolle i navnet, fx redirectData.ts (se CLAUDE.md).`,
+        `${folder || '.'}/: ${[...spellings.values()].join(' and ')} have the same name when upper and lower case are treated as equal (Windows and macOS do). Let the component keep its name, and give the file next to it its role in the name, e.g. redirectData.ts (see CLAUDE.md).`,
     );
 }
