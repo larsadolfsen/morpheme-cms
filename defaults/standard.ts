@@ -51,7 +51,7 @@ export const standard: StandardSite = {
     if (!page) return undefined;
     return openingText(((preview && all.get(PREVIEW + href.slice(1))) || page).body);
   },
-  // Its heading; a page built in code (such as /kontakt/) by its name in the menu.
+  // Its heading; a page built in code (such as /contact/) by its name in the menu.
   async pageName(href) {
     const page = (await byPath()).get(href);
     return page ? pageHeading(page) : (nav.flatMap((n) => [n, ...(n.children ?? [])]).find((n) => n.href === href)?.label ?? href);

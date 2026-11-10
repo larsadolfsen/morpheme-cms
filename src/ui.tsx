@@ -1142,7 +1142,7 @@ type InMenu = '' | 'in' | 'out';
 export function usePickTools(all: Pickable[], keep: string) {
   const dated = all.some((o) => o.date);
   const sorts: PickSort[] = dated ? ['newest', 'oldest', 'az', 'za'] : ['az', 'za'];
-  const sortKey = `editor-sort-valg-${keep}`;
+  const sortKey = `editor-sort-pick-${keep}`;
   const [savedSort, setSort] = useState<PickSort | null>(() => {
     try {
       return localStorage.getItem(sortKey) as PickSort | null;
@@ -1151,8 +1151,8 @@ export function usePickTools(all: Pickable[], keep: string) {
     }
   });
   const sort = savedSort && sorts.includes(savedSort) ? savedSort : sorts[0];
-  const [picked, setState] = useKept<PageState | ''>(`valg-${keep}-status`, '');
-  const [inMenu, setInMenu] = useKept<InMenu>(`valg-${keep}-menu`, '');
+  const [picked, setState] = useKept<PageState | ''>(`pick-${keep}-status`, '');
+  const [inMenu, setInMenu] = useKept<InMenu>(`pick-${keep}-menu`, '');
   // A filter only when the choices differ in it; the one picked is forgotten when it is no longer there to pick.
   const states = PAGE_STATES.filter((s) => all.some((o) => (o.state ?? 'published') === s));
   const state = states.length > 1 && states.includes(picked as PageState) ? picked : '';

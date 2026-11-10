@@ -52,8 +52,8 @@ test('isRoute accepts Danish letters in a slug', async () => {
 test("a commit names a scheduled file in the site's language", () => {
   const danish = (text) => say('da-DK', text);
   assert.equal(nameOf('src/content/blog/a/index.md'), 'blog post "a"');
-  assert.equal(nameOf('src/content/pages/om.md'), 'page "om"');
+  assert.equal(nameOf('src/content/pages/om.md'), 'page "om"'); // language-ok: the page name of a Danish site
   assert.equal(nameOf('src/content/blog/a/index.md', danish), 'blogindl\u00e6g "a"');
-  assert.equal(nameOf('src/content/pages/om.md', danish), 'side "om"');
+  assert.equal(nameOf('src/content/pages/om.md', danish), 'side "om"'); // language-ok
   assert.equal(nameOf('x/y.md', danish), 'file "x/y"');
 });

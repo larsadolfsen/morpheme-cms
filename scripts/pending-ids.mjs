@@ -7,43 +7,6 @@
 // List every current finding: node scripts/check-language.mjs --list-ids. Delete this file when the list is empty.
 // Skipped by the id and text rules itself (lib/danish.mjs isIdCheckSkipped): its entries are Danish on purpose.
 export const PENDING_IDS = [
-  // Row 1, batch A1: siteText placeholders {navn} {side} {antal} {adresse} {hvad} {blok} in defaults/rules.ts (and its comment in site/fill.ts); rename together with defaults/i18n/da-DK/rules.ts.
-  'defaults/rules.ts:hvad',
-  'defaults/rules.ts:navn',
-  'defaults/rules.ts:blok',
-  'defaults/rules.ts:antal',
-  'defaults/rules.ts:adresse',
-  'site/fill.ts:antal',
-  // Row 2, batch A1: the browser-storage prefix valg- (src/ui.tsx).
-  'src/ui.tsx:valg',
-  // Row 3, batch A1: the stored view value liste (src/Library.tsx).
-  'src/Library.tsx:liste',
-  // Row 5, batch A1: the sample address navn@ (src/BlockParts.tsx).
-  'src/BlockParts.tsx:navn',
-  // Row 6, batch A1: Danish page names in tests and comments (priser, kontakt, forside, filer); worker/say.test.mjs stays Danish on purpose and is not listed.
-  'lib/locale.test.mjs:forside',
-  'lib/menu.test.mjs:priser',
-  'lib/storeEntries.test.mjs:butik',
-  'lib/storeEntries.test.mjs:udvikler',
-  'site/schema.ts:priser',
-  'src/autoTags.test.mjs:filer',
-  'src/headerPreview.test.mjs:kontakt',
-  'src/tagUses.test.mjs:filer',
-  // Row 7, batch A1: stale ids in docs/store-ids.md.
-  'docs/store-ids.md:promovering',
-  'docs/store-ids.md:tema',
-  'docs/store-ids.md:butik',
-  'docs/store-ids.md:udvikler',
-  'docs/store-ids.md:udseende',
-  'docs/store-ids.md:temaer',
-  // Row 8, batch A1: the old store route apps/butik and apps/butik/temaer (STORE_BEFORE, STORE_MOVED); move into RENAMED in src/movedRoutes.mjs.
-  'src/App.tsx:temaer',
-  'src/store.ts:butik',
-  // Row 10, batch A1: the {emne} placeholder of the Expandable list text.
-  'src/i18n/en-US/blocks.ts:emne',
-  'src/standard/accordion/index.tsx:emne',
-  'src/standard/accordion/shared.ts:emne',
-  'src/standard/accordion/view.ts:emne',
   // Row 13, batch E: the new-version pages /ny/<address>, the folder src/content/pages/ny/ and their files.
   'README.md:ny',
   'astro.mjs:ny',

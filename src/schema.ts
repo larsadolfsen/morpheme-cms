@@ -387,6 +387,10 @@ export type Part = {
    * for each network, now a list of links: upgradeSocial in site/social.mjs); read so by the form and the check, and
    * saved so. */
   upgrade?: (data: Record<string, unknown>) => Record<string, unknown>;
+  /** The part's own values (at `at`) as the form has them now, from a value written before it was renamed (the shared text
+   * of "Expandable list" with its old placeholder, now {topic}: upgradeMore in standard/accordion/topic.mjs); the form shows them so and
+   * the next save writes them so. */
+  upgradeValues?: (values: Record<string, unknown>) => Record<string, unknown>;
   /** A block drawn under the fields with them as they are now (its draw, src/apps/<app>/blocks/): its type, and props
    * for when no page has the block (the first one on a page is drawn). shared: always with `props`,
    * as a copy that has nothing of its own (the shared buttons). variants: drawn once for each, under its

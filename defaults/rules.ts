@@ -107,7 +107,7 @@ export function relationsOf(files: RepoFile[]): Record<Relation, Option[]> {
         return [
           {
             value: slugOf(f.path, 'src/data/popups'),
-            label: siteText('{hvad} ({navn})', { hvad: siteText(opens.label), navn: name }),
+            label: siteText('{what} ({name})', { what: siteText(opens.label), name }),
             on: { everywhere: d.where === 'all', pages: d.where !== 'tags' && Array.isArray(d.pages) ? d.pages.map(String) : [] },
             ...(opens.as ? { as: opens.as } : { text: String(d.heading ?? '') }),
           },
@@ -185,8 +185,8 @@ const openerText = (at: Opener) =>
         'A button in the action bar opens the promotion, so it must be turned on and shown everywhere the bar is shown. Change the button first.',
       )
     : at.path
-      ? siteText('A button on the page "{side}" opens the promotion, so it must be on and shown there. Change the button first.', {
-          side: at.title,
+      ? siteText('A button on the page "{page}" opens the promotion, so it must be on and shown there. Change the button first.', {
+          page: at.title,
         })
       : siteText('The default buttons open the promotion, so it must be on and shown on every page. Change them first.');
 const openerEdit = (at: Opener) => ({
@@ -215,10 +215,10 @@ function standardKept(data: Record<string, unknown>, files: RepoFile[]): Status 
     const page = files.find((f) => isPage(f) && pagePath(f) === p.path);
     if (!p.needs || !page || blocksIn(page.text).some((b: { type: string }) => b.type === p.needs!.type)) continue;
     return {
-      text: siteText('The page "{side}" does not have the block {blok}, which {hvad} must have. Put it in on the page first.', {
-        side: String(fm(page).title),
-        blok: siteText(p.needs.label),
-        hvad: siteText(p.the).toLowerCase(),
+      text: siteText('The page "{page}" does not have the block {block}, which {what} must have. Put it in on the page first.', {
+        page: String(fm(page).title),
+        block: siteText(p.needs.label),
+        what: siteText(p.the).toLowerCase(),
       }),
       error: true,
       edit: { to: page.path, text: siteText('Edit the page') },
@@ -238,7 +238,7 @@ export function siteProblems(files: { path: string; text: string }[]): string[] 
     for (const p of standardPages) {
       const page = standardFile(files as RepoFile[], p.key);
       if (!page || ['draft', 'scheduled'].includes(String(fm(page).status ?? '')))
-        problems.push(`${config.standardPages}: ${siteText('{side} must be a published page.', { side: siteText(p.the) })}`);
+        problems.push(`${config.standardPages}: ${siteText('{page} must be a published page.', { page: siteText(p.the) })}`);
     }
     if (!differentPages(standardOf(files)))
       problems.push(`${config.standardPages}: ${siteText('The default pages must be different pages.')}`);
@@ -263,7 +263,7 @@ export function siteProblems(files: { path: string; text: string }[]): string[] 
       if (file && shownFor(json(file as RepoFile), at)) continue;
       problems.push(
         `${at.file.startsWith('blocks/') ? config.blockTexts : at.file}: ${
-          file ? openerText(at) : siteText('A button opens the promotion "{navn}", which does not exist.', { navn: slug })
+          file ? openerText(at) : siteText('A button opens the promotion "{name}", which does not exist.', { name: slug })
         }`,
       );
     }
@@ -293,7 +293,7 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
         text: at.bar
           ? siteText('A button in the action bar opens the promotion. Change the button first.')
           : at.path
-            ? siteText('A button on the page "{side}" opens the promotion. Change the button first.', { side: at.title })
+            ? siteText('A button on the page "{page}" opens the promotion. Change the button first.', { page: at.title })
             : siteText('The default buttons open the promotion. Change them first.'),
         error: true,
         edit: openerEdit(at),
@@ -310,7 +310,7 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
         text:
           posts.length === 1
             ? siteText('The tag is used on a blog post. Remove it from the post first.')
-            : siteText('The tag is used on {antal} blog posts. Remove it from them first.', { antal: posts.length }),
+            : siteText('The tag is used on {count} blog posts. Remove it from them first.', { count: posts.length }),
         error: true,
       };
     if (pages.length)
@@ -318,7 +318,7 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
         text:
           pages.length === 1
             ? siteText('The tag is used on a page. Remove it from the page first.')
-            : siteText('The tag is used on {antal} pages. Remove it from them first.', { antal: pages.length }),
+            : siteText('The tag is used on {count} pages. Remove it from them first.', { count: pages.length }),
         error: true,
         ...(pages.length === 1 ? { edit: { to: pages[0].path, text: siteText('Edit the page') } } : {}),
       };
@@ -327,7 +327,7 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
         text:
           quotes.length === 1
             ? siteText('The tag is used on a testimonial. Remove it from the testimonial first.')
-            : siteText('The tag is used on {antal} testimonials. Remove it from them first.', { antal: quotes.length }),
+            : siteText('The tag is used on {count} testimonials. Remove it from them first.', { count: quotes.length }),
         error: true,
       };
     if (records.length)
@@ -335,7 +335,7 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
         text:
           records.length === 1
             ? siteText('The tag is used on a file. Remove it from the file first.')
-            : siteText('The tag is used on {antal} files. Remove it from them first.', { antal: records.length }),
+            : siteText('The tag is used on {count} files. Remove it from them first.', { count: records.length }),
         error: true,
         ...(records.length === 1 ? { edit: { to: recordUse(records[0], config.fileRecords)!.path, text: siteText('Open the file') } } : {}),
       };
@@ -346,8 +346,8 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
     if (promotion) {
       const d = json(promotion);
       return {
-        text: siteText('The tag is used in the promotion "{navn}". Remove it from the promotion first.', {
-          navn: String(d.heading ?? d.name ?? ''),
+        text: siteText('The tag is used in the promotion "{name}". Remove it from the promotion first.', {
+          name: String(d.heading ?? d.name ?? ''),
         }),
         error: true,
         edit: { to: promotion.path, text: siteText('Edit the promotion') },
@@ -375,8 +375,8 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
     );
     if (page)
       return {
-        text: siteText('The post is picked in a block of blog posts on the page "{side}". Pick another one first.', {
-          side: String(fm(page).title),
+        text: siteText('The post is picked in a block of blog posts on the page "{page}". Pick another one first.', {
+          page: String(fm(page).title),
         }),
         error: true,
         edit: { to: page.path, text: siteText('Edit the page') },
@@ -391,9 +391,9 @@ export function usedBy(collection: Collection, file: RepoFile, files: RepoFile[]
       return {
         text: siteText(
           post
-            ? 'The tag is picked in a block in the blog post "{side}". Pick another one first.'
-            : 'The tag is picked in a block on the page "{side}". Pick another one first.',
-          { side: use.name },
+            ? 'The tag is picked in a block in the blog post "{page}". Pick another one first.'
+            : 'The tag is picked in a block on the page "{page}". Pick another one first.',
+          { page: use.name },
         ),
         error: true,
         edit: { to: use.path, text: siteText(post ? 'Edit the post' : 'Edit the page') },
@@ -452,12 +452,12 @@ export function whatIsAt(address: string, relations: Record<Relation, Option[]>)
   if (base === '/') return siteText('the front page');
   if (base === '/blog/') return siteText('the blog');
   const page = [...relations.fixed, ...relations.pages].find((o) => o.value === base);
-  if (page) return siteText('the page "{navn}" ({adresse})', { navn: page.label, adresse: address });
+  if (page) return siteText('the page "{name}" ({address})', { name: page.label, address });
   const post = relations.blog.find((o) => `/${o.value}/` === base);
-  if (post) return siteText('the blog post "{navn}" ({adresse})', { navn: post.label, adresse: address });
+  if (post) return siteText('the blog post "{name}" ({address})', { name: post.label, address });
   const tag = relations.categories.find((o) => `/blog/tags/${o.value}/` === base);
-  if (tag) return siteText('the tag "{navn}" on the blog ({adresse})', { navn: tag.label, adresse: address });
+  if (tag) return siteText('the tag "{name}" on the blog ({address})', { name: tag.label, address });
   if (base.startsWith(config.folders.media.replace(/^public/, '') + '/'))
-    return siteText('the picture {navn}', { navn: base.split('/').pop()! });
+    return siteText('the picture {name}', { name: base.split('/').pop()! });
   return address;
 }

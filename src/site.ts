@@ -133,7 +133,7 @@ function sharedPartsOf(blocks: Folders<BlockDefinition>, shared: Folders<SharedT
     const block = blocks[path.replace(/shared\.ts$/, 'index.tsx')]?.default;
     if (!block) return [];
     const type = blockTypeOf(path);
-    const { fields, values, preview } = m.default;
+    const { fields, values, preview, upgradeValues } = m.default;
     return [
       {
         id: type,
@@ -143,6 +143,7 @@ function sharedPartsOf(blocks: Folders<BlockDefinition>, shared: Folders<SharedT
         at: type,
         fields,
         defaults: values,
+        upgradeValues,
         preview: { type, ...preview },
         back: { href: '#blocks', label: t.common.parts.blocks },
       },

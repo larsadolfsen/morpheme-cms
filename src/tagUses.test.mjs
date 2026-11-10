@@ -125,7 +125,7 @@ test('taggedWith lists the file records with a tag in their categories', () => {
   assert.deepEqual(taggedWith([andromeda], 'seo', folders).records, []);
 });
 
-test('recordUse gives the Filer path and the file name of a file record', () => {
+test('recordUse gives the Files path and the file name of a file record', () => {
   assert.deepEqual(recordUse(andromeda, 'src/data/files'), {
     path: 'files/images/uploads/2026/10/andromeda.webp',
     name: 'andromeda.webp',
