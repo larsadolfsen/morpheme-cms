@@ -8,12 +8,19 @@ import { pathToFileURL } from 'node:url';
 
 // ---- input -----------------------------------------------------------------
 let d = {};
-try { d = JSON.parse(readFileSync(0, 'utf8') || '{}'); } catch { /* blank line on bad input */ }
+try {
+  d = JSON.parse(readFileSync(0, 'utf8') || '{}');
+} catch {
+  /* blank line on bad input */
+}
 const now = Math.floor(Date.now() / 1000);
 
 // ---- helpers ---------------------------------------------------------------
 const c = (code, s) => `\x1b[${code}m${s}\x1b[0m`;
-const GREEN = '38;5;77', YELLOW = '38;5;214', RED = '38;5;203', DIM = '2';
+const GREEN = '38;5;77',
+  YELLOW = '38;5;214',
+  RED = '38;5;203',
+  DIM = '2';
 const level = (pct) => (pct < 50 ? GREEN : pct < 80 ? YELLOW : RED);
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 const links = process.env.STATUSLINE_LINKS !== '0';
@@ -47,7 +54,10 @@ if (pc && pc.caching_observed !== false && coldCost >= 20000) {
 if (ctx) parts.push(ctx);
 
 // ---- plan usage: the window closest to its limit ---------------------------
-const WINDOWS = [['five_hour', 5 * 3600], ['seven_day', 7 * 86400]];
+const WINDOWS = [
+  ['five_hour', 5 * 3600],
+  ['seven_day', 7 * 86400],
+];
 let best = null;
 for (const [key, len] of WINDOWS) {
   const w = d.rate_limits?.[key];
@@ -60,7 +70,8 @@ if (best) {
     const left = Math.max(0, best.resets - now);
     const elapsedPct = ((best.len - left) / best.len) * 100;
     if (best.used > elapsedPct + 5) txt += '↑'; // usage is ahead of the clock
-    const h = Math.floor(left / 3600), m = Math.floor((left % 3600) / 60);
+    const h = Math.floor(left / 3600),
+      m = Math.floor((left % 3600) / 60);
     const reset = left >= 86400 ? `${Math.floor(left / 86400)}d ${h % 24}h` : `${h}:${String(m).padStart(2, '0')}`;
     parts.push(c(level(best.used), txt) + ' ' + reset);
   } else {
@@ -94,7 +105,9 @@ function findScratchpad() {
         if (existsSync(p) && readdirSync(p).length > 0) return p;
       }
     }
-  } catch { /* none found */ }
+  } catch {
+    /* none found */
+  }
   return null;
 }
 const pad = findScratchpad();
