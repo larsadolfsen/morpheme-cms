@@ -2,6 +2,16 @@
 
 The contract is the set of rules between the editor and an app. `APP_API` in `lib/contracts.mjs` holds its version. An app in the store says which version it is written to in its `api` field.
 
+## App types with one active app
+
+- The `category` of an app is its type.
+- A type allows one active app when two apps of that type collide in code or data.
+- `ONE_APP_TYPES` in `lib/appTypes.mjs` lists those types. Today: `redirects` and `links`.
+- When an owner activates an app of such a type, the editor shows a warning and deactivates the other app of that type.
+- Activate means install, or turn on the Enabled switch.
+- The deactivated app keeps its folder, settings and data.
+- The other types allow many active apps.
+
 ## Contract 3: `@app/self`
 
 Contract 3 adds one module. An app file can import the id of its own folder.

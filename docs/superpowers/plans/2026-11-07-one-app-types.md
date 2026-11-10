@@ -1,6 +1,6 @@
 # One active app per type (plan)
 
-Status: not started. Checked against the code on 2026-11-10.
+Status: partly done on 2026-11-10: tasks 1 to 4 are built (types, rule, warning, contract text); the manual check of task 3 (steps 2 to 7, a signed-in editor) is not done.
 
 Design: [2026-11-07-one-app-types-design.md](../specs/2026-11-07-one-app-types-design.md).
 Session branch: `feat/one-app-types`. Each task works on its own branch and merges into the session branch.

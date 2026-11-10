@@ -111,7 +111,14 @@ export const apps = {
     analytics: 'Analytics',
     content: 'Content',
     design: 'Appearance',
+    redirects: 'Redirects',
+    links: 'Links',
   },
+  /** Asked before an app of a type that allows one active app (redirects, links) is activated while another is. */
+  oneOfType: (type: string, app: string, others: string) =>
+    `Only one ${type} app can be active. Activating ${app} deactivates ${others}. Its settings and data stay, and you can activate it again.`,
+  /** The button of that question. */
+  activate: 'Activate',
   /** An app's version, under its name on its page. */
   version: (version: string) => `Version ${version}`,
   /** An app from the store in the site's file of apps, which the site's build does not have yet. */

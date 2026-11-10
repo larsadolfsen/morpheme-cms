@@ -77,7 +77,12 @@ export const apps: Messages['apps'] = {
     analytics: 'Måling',
     content: 'Indhold',
     design: 'Udseende',
+    redirects: 'Videresendelser',
+    links: 'Links',
   },
+  oneOfType: (type, app, others) =>
+    `Kun én app af typen ${type} kan være aktiv. Når du aktiverer ${app}, deaktiveres ${others}. Dens indstillinger og data bliver, og du kan aktivere den igen.`,
+  activate: 'Aktivér',
   version: (version) => `Version ${version}`,
   pending: 'Installeres…',
   pendingHint: 'Appen kan bruges om et par minutter.',
