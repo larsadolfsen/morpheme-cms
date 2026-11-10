@@ -16,8 +16,10 @@
   // Keep the variables added in the dashboard (Settings → Variables and secrets) on every deploy.
   "keep_vars": true,
   "observability": { "logs": { "enabled": true, "invocation_logs": true } },
-  // No KV, D1, R2 or crons: the Worker does without them (not-found.js, push.js, consent.js), so the demo creates nothing
-  // in the account, and its made-up repository gets no scheduled commits.
+  // DASHBOARD: each person's dashboard on the editor's start screen (dashboard.js), declared without an "id" as in the
+  // starter, so `wrangler deploy` creates it the first time. No other KV, D1, R2 or crons: the Worker does without them
+  // (not-found.js, push.js, consent.js), and the demo's made-up repository gets no scheduled commits.
+  "kv_namespaces": [{ "binding": "DASHBOARD" }],
   // Builds of other branches than main run `wrangler preview`, which needs this block.
   "previews": {},
   // Cloudflare's builds of other branches have no build command of their own, so wrangler builds the demo first.

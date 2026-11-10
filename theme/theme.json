@@ -4,6 +4,7 @@
   "author": "Lars Adolfsen",
   "icon": "/editor/icon-192.png",
   "license": "MIT",
+  "category": "appearance",
   "thirdParty": [],
   "icons": "material-symbols",
   "motion": "expressive",

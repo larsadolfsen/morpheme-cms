@@ -51,6 +51,7 @@ import {
   listsShown,
   partScreens,
   seoParts,
+  settings,
 } from './site';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { ConflictError, type RepoFile, type Viewer } from './github';
@@ -536,6 +537,16 @@ export function PartsHome() {
     { id: 'values', label: t.parts.screens.values, icon: Ruler },
   ];
   return <Parts title={t.common.parts.editorParts} route="developer/parts" parts={parts} back={backToDeveloper} />;
+}
+
+export const SETTINGS_ROUTE = 'settings';
+
+/** "Settings" (#settings), opened by the cog at the bottom of the main drawer and the rail (MainMenu.tsx): a row for each of
+ * `settings` (Appearance, Developer, Licenses, Morpheme, Privacy), A-Z by their names in the editor's language, each opening its
+ * own screen. Going back to the start screen. `settings` is matched exactly: settings/appstore is the app store. */
+export function SettingsScreen() {
+  const parts: Part[] = partsIn(settings, []).map((p) => ({ id: p.id, label: p.label, icon: icons[p.id], href: p.href }));
+  return <Parts title={t.common.parts.settings} route={SETTINGS_ROUTE} parts={parts} back={backFrom(SETTINGS_ROUTE)} />;
 }
 
 export const DEV_MENU_ROUTE = 'developer';

@@ -18,6 +18,7 @@ import { createServer } from 'vite';
 import { aliases, themePlugin } from '@morphemecms/cms/site/theme.mjs';
 import { appFoldersPlugin } from '@morphemecms/cms/lib/apps.mjs';
 import { appSelf } from '@morphemecms/cms/site/appSelf.mjs';
+import { categoryOf } from '@morphemecms/cms/lib/storeCategories.mjs';
 import { binOf } from './bin.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
 
@@ -73,8 +74,11 @@ try {
       } else if (what === 'liste') shots[id].push({ name, editor: `list/${key}` });
       else if (what === 'indstillinger') {
         // Where they are, as settingsRoute in AppList.tsx: on the screen or the part of "Business" with its kind.
-        const home = app.category && partScreens.find((s) => s.apps?.includes(app.category));
-        const company = app.category && companyParts.find((p) => p.parts && p.apps?.includes(app.category));
+        // An older id (`payment`) counts as its new one, in the app's category and in the screen's list.
+        const kind = categoryOf(app.category).category;
+        const inKind = (x) => x.apps?.some((k) => categoryOf(k).category === kind);
+        const home = kind && partScreens.find(inKind);
+        const company = kind && companyParts.find((p) => p.parts && inKind(p));
         const at = home ? home.id : company ? `company/${company.id}` : `apps/${id}`;
         shots[id].push({ name, editor: `${at}/${home || company ? id : 'settings'}` });
         Object.assign(settings[id], shot.values);

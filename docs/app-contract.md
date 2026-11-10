@@ -4,9 +4,9 @@ The contract is the set of rules between the editor and an app. `APP_API` in `li
 
 ## App types with one active app
 
-- The `category` of an app is its type.
+- The `subcategory` of an app is its type: `redirects` and `links`, both under the category `seo`. An app written before still has the category `redirects` or `links`; the editor reads that as the same subcategory of `seo` (`categoryOf` in `lib/storeCategories.mjs`).
 - A type allows one active app when two apps of that type collide in code or data.
-- `ONE_APP_TYPES` in `lib/appTypes.mjs` lists those types. Today: `redirects` and `links`.
+- `ONE_APP_TYPES` in `lib/appTypes.mjs` lists those types. Today: the subcategories `redirects` and `links` of `seo`.
 - When an owner activates an app of such a type, the editor shows a warning and deactivates the other app of that type.
 - Activate means install, or turn on the Enabled switch.
 - The deactivated app keeps its folder, settings and data.

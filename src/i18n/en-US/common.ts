@@ -131,7 +131,7 @@ export const common = {
     seo: 'Search engine optimization',
     redirects: 'Redirects',
     account: 'Account',
-    /** The last section of the main drawer, and the first part of the path to a setting (placeOf in site.ts). */
+    /** The screen the cog at the bottom of the main drawer opens (#settings), and the first part of the path to a setting (placeOf in site.ts). */
     settings: 'Settings',
     /** Under Settings: the developer screens, the parts and the caching (#developer, Library.tsx Developer). */
     developer: 'Developer',

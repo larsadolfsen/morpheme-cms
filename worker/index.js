@@ -17,6 +17,7 @@
 //   site's key (MORPHEME_STORE_KEY, or the one from "Connect to Morpheme", /api/store/connection, packages/editor/worker/store-connection.js, in D1)
 //   that never leaves the Worker.
 // - the addresses visitors came to that do not exist, for the editor (/api/not-found, packages/editor/worker/not-found.js).
+// - each person's dashboard on the start screen (/api/dashboard, worker/dashboard.js), kept in KV by their GitHub user id.
 // - the visitors' answers in the cookie banner, the consent log (/api/consent, packages/editor/worker/consent.js, in D1), and each hour
 //   those older than two years deleted.
 // - whether R2 caching can be turned on in the editor: whether Cloudflare has its bucket (/api/r2, packages/editor/worker/r2-status.js).
@@ -40,6 +41,7 @@ import { handleOAuth } from './oauth.js';
 import { editorHost } from './editor-host.js';
 import { handleNotFound, isVisit, json, recordNotFound } from './not-found.js';
 import { forgetOldConsents, handleConsent } from './consent.js';
+import { handleDashboard } from './dashboard.js';
 import { access, mayEdit } from './session.js';
 import { handleGitHub } from './editor-github.js';
 import { handleConnection } from './store-connection.js';
@@ -159,6 +161,7 @@ export default {
     const oauth = url.pathname.startsWith('/oauth/') ? await handleOAuth(request, env) : null;
     if (url.pathname === '/api/not-found') return handleNotFound(request, env);
     if (url.pathname === '/api/consent') return handleConsent(request, env);
+    if (url.pathname === '/api/dashboard') return handleDashboard(request, env);
     if (url.pathname === '/api/r2') return handleR2(request, env);
     if (url.pathname === '/api/plan') return handlePlan(request, env);
     if (url.pathname === '/api/status') return handleStatus(request, env);

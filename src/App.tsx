@@ -4,8 +4,9 @@
 //   list/<id>       the list of a part, e.g. list/priser, and list/<id>/<app> a tab an installed app adds to it
 //                    (AppDefinition.tabs): list/cookies/cookiescanner
 //   lists           the short lists (the testimonials, the apps' lists)
-//   settings/appstore   the app store, its apps (AppList.tsx StorePage); the
-//                    other settings are screens of their own, in the drawer's last section (MainMenu.tsx)
+//   settings         the Settings screen (Library.tsx SettingsScreen), opened by the cog at the bottom of the drawer (MainMenu.tsx);
+//                    its rows are screens of their own
+//   settings/appstore   the app store, its apps (AppList.tsx StorePage)
 //   new/<id>         a new entry, new/<id>/<kind> one of a kind (a pop-up: standard, or an app's)
 //   company     the business, and company/<part> its parts: contact, payment; and
 //                    company/payment/<part> its own parts: mobilepay, bank
@@ -147,6 +148,8 @@ import {
   Blocks,
   Company,
   DEV_MENU_ROUTE,
+  SETTINGS_ROUTE,
+  SettingsScreen,
   Developer,
   List,
   Lists,
@@ -790,6 +793,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
     return <Colors env={env} files={files} fallback={route === FALLBACK_ROUTE} />;
   if (route === 'company/logo') return <BrandForm env={env} />;
   if (route === 'block-settings') return <BlockSettings env={env} files={files} />;
+  if (route === SETTINGS_ROUTE) return <SettingsScreen />;
   if (route === DEV_MENU_ROUTE) return <Developer />;
   if (route === CACHING_ROUTE) return <Advanced env={env} />;
   if (route === CMS_ROUTE) return <CmsPage />;
