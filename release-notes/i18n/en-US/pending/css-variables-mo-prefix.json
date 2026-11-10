@@ -1,0 +1,5 @@
+{
+  "id": "css-variables-mo-prefix",
+  "kind": "line",
+  "text": "Custom styles that use the theme’s shape and elevation variables must switch to the new names, which start with --mo-"
+}

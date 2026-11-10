@@ -1,0 +1,5 @@
+{
+  "id": "colors-file-new-names",
+  "kind": "line",
+  "text": "If your website has its own colors file (src/data/colors.json), rename its colors to Material 3’s names, such as primary and on-surface, before you update, or the update stops"
+}
