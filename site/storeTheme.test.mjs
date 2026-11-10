@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import { storeImportProblems } from './storeTheme.mjs';
 
 const F = 'styles/global.css';
-const expected = (target) => `${F}: et tema i butikken må kun importere fra @morphemecms/cms og sine egne filer, ikke "${target}".`;
+const expected = (target) => `${F}: a theme in the store may only import from @morphemecms/cms and its own files, not "${target}".`;
 
 test('an import of the CMS is allowed', () => {
   const css = `@import '@morphemecms/cms/theme/styles/base.css';`;

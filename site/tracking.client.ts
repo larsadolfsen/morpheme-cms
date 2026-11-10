@@ -108,7 +108,7 @@ export function googleTag(id: string, config: Record<string, unknown> = {}) {
 }
 
 // The cookies of each category on the site's own address, to be removed after a no to it: those of the cookie list
-// ("Lister" › "Cookies", `*` for the rest of a name), and the others Google's tag may set (GA4: _ga, _ga_<id>, and
+// ("Lists" › "Cookies", `*` for the rest of a name), and the others Google's tag may set (GA4: _ga, _ga_<id>, and
 // _gid and _gat from older tags; Ads: _gcl_au and the other _gcl_ ones).
 const pattern = (name: string) => new RegExp(`^${name.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')}$`);
 const COOKIES: Record<ConsentCategory, RegExp[]> = {
@@ -187,7 +187,7 @@ function start(categories: ConsentCategory[], run: () => void) {
   if (!live) {
     if (!told)
       console.info(
-        `[tracking] Ikke på ${tracking.hosts[0]}: tags hentes ikke, og events logges kun her. Tilføj ?tracking=test for at sende dem.`,
+        `[tracking] Not on ${tracking.hosts[0]}: tags are not loaded, and events are only logged here. Add ?tracking=test to send them.`,
       );
     told = true;
     return;
