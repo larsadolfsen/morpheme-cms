@@ -410,8 +410,9 @@ export type Part = {
   /** Parts of its own, instead of fields: a row that opens a screen with them, each at
    * #<screen>/<id>/<part> and going back to it ("Virksomheden" › "Betaling" with "Bank"). */
   parts?: Part[];
-  /** With `parts`: the settings of the apps installed of these kinds (AppDefinition.category) come after them, each at
-   * #<screen>/<id>/<app> ("Betaling" with MobilePay; AppList.tsx appPartsIn). */
+  /** With `parts`: the settings of the apps installed of these categories (AppDefinition.category) come after them,
+   * each at #<screen>/<id>/<app> ("Betaling" with MobilePay; AppList.tsx appPartsIn). An older id (`payment`) is read as
+   * its new one (categoryOf in lib/storeCategories.mjs). */
   apps?: AppCategory[];
   /** One of the editor's own lists, drawn under its fields: "keywords", every keyword of the pages, posts and fixed
    * pages ("Interne links", Keywords.tsx). */
@@ -426,8 +427,9 @@ export type Part = {
 
 /** A part of the start screen that is a screen with parts, each a screen of its own at #<id>/<part>
  * (Library.tsx PartsScreen, CompanyForm.tsx): "Privatliv" with the cookie banner and the privacy pages. With `apps`, the
- * settings of the apps installed of those kinds (AppDefinition.category) come after its own parts, each at
- * #<id>/<app> ("Analytics" with Google Analytics; AppList.tsx appPartsIn). */
+ * settings of the apps installed of those categories (AppDefinition.category) come after its own parts, each at
+ * #<id>/<app> ("Analytics" with Google Analytics; AppList.tsx appPartsIn). An older id in `apps` is read as its new one
+ * (categoryOf in lib/storeCategories.mjs). */
 export type PartScreen = { id: string; label: string; parts: Part[]; apps?: AppCategory[] };
 
 /** One way a block's screen under "Blokke" draws it (Part.preview): its name and its own props. */

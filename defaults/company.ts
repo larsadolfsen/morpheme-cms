@@ -27,7 +27,7 @@ export const companyParts: Part[] = [
     id: 'payment',
     label: 'Payment',
     icon: CreditCard,
-    apps: ['payment'],
+    apps: ['payments'],
     parts: [{ id: 'bank', label: 'Bank', icon: Bank, file: 'src/data/payment.json', fields: bankFields }],
   },
 ];

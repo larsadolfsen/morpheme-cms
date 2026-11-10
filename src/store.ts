@@ -28,6 +28,7 @@ import { hooksOf, type AppHook } from '../lib/hooks';
 import type { StoreLicenses } from './licenseData';
 import { APP_API, THEME_API } from '../lib/contracts.mjs';
 import { RECORD, STANDARD, isText, validApp, validTheme } from '../lib/storeEntries.mjs';
+import { categoryOf, type Category } from '../lib/storeCategories.mjs';
 import { timedFetch } from './storeFetch';
 import { appChanges as appChangesIn } from '../lib/appChanges.mjs';
 import { folderChanges } from '../lib/folderChanges.mjs';
@@ -35,9 +36,9 @@ import { folderChanges } from '../lib/folderChanges.mjs';
 // The contracts this editor runs (lib/contracts.mjs, also read by the site's Worker).
 export { APP_API, THEME_API };
 
-/** The kinds of apps, a filter in the store (t.apps.categories). */
-export const appCategories = ['booking', 'newsletter', 'payment', 'analytics', 'content', 'design'] as const;
-export type AppCategory = (typeof appCategories)[number];
+/** The main category of an app, one of CATEGORIES in lib/storeCategories.mjs (the one list, a filter in the store:
+ * t.apps.categories; what belongs in each is in docs/store-categories.md). */
+export type AppCategory = Category;
 
 /** A file of an app in the store: its path in the app's folder and its git blob id. */
 export type StoreFile = { path: string; oid: string };
@@ -124,7 +125,10 @@ export type StoreApp = {
   description?: string;
   /** What is new in each version, by the version (AppDefinition.releaseNotes): before it is updated (notesSince). */
   releaseNotes?: Record<string, string>;
+  /** Its main category and its subcategory of it, as the catalog has them, read with categoryOf: an older id is mapped to
+   * its new one, one it does not know leaves them out, and the app stays in the catalog. */
   category?: AppCategory;
+  subcategory?: string;
   keywords?: string[];
   /** What it needs of the site; the cookies it sets, and whether it asks in the cookie banner first (AppDefinition
    * .cookies); its pictures. */
@@ -155,6 +159,10 @@ export type StoreTheme = {
   name: string;
   author: string;
   icon: string;
+  /** Its main category and its subcategory of it, as the catalog has them, read with categoryOf: an older id is mapped to
+   * its new one, one it does not know leaves them out, and the theme stays in the catalog. */
+  category?: Category;
+  subcategory?: string;
   description?: Record<string, string>;
   highlights?: Record<string, string[]>;
   /** What is new in each version, by the language and then the version, as its theme.json has it. */
@@ -244,8 +252,11 @@ export function catalogApps(text: string): ShownApp[] {
     const say = (s: string) => own?.[s] ?? s;
     const add = <A extends StoreAdd>(x: A): A => ({ ...x, label: say(x.label), ...(x.hint ? { hint: say(x.hint) } : {}) });
     const keywords = a.keywords ?? [];
+    // Lenient: an unknown or older category only leaves the app without one (categoryOf), never out of the catalog.
+    const { category, subcategory, ...rest } = a;
     return {
-      ...a,
+      ...rest,
+      ...categoryOf(category, subcategory),
       label: say(a.label),
       hint: say(a.hint),
       ...(a.description ? { description: say(a.description) } : {}),
@@ -283,8 +294,10 @@ export function catalogThemes(text: string): ShownTheme[] {
   return themes.filter(validStoreTheme).map((x) => {
     const description = inLocale(x.description);
     const highlights = inLocale(x.highlights) ?? [];
+    const { category, subcategory, ...rest } = x;
     return {
-      ...x,
+      ...rest,
+      ...categoryOf(category, subcategory),
       description: typeof description === 'string' ? description : undefined,
       highlights: Array.isArray(highlights) ? highlights.filter(isText) : [],
       releaseNotes: notesOf(inLocale(x.releaseNotes)),

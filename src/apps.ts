@@ -43,6 +43,7 @@ import type { ComponentType, ReactNode } from 'react';
 import type { BlockData } from './blocks';
 import type { Field, FolderCollection, KindPart, Opens, OwnedList, PreviewVariant } from './schema';
 import type { ConsentCategory } from '../lib/cookieCategories.mjs';
+import type { LegacyCategory } from '../lib/storeCategories.mjs';
 import type { AppCategory, AppCookie, AppNeeds, AppShot, StoreRecord } from './store';
 import type { ThirdParty } from './licenseData';
 import { config } from '@site/config';
@@ -159,12 +160,17 @@ export type AppDefinition = {
    * version after the first has one: the next after the one released, given once until it is released, with all that
    * is new since in its note (packages/editor/scripts/releases.mjs). */
   releaseNotes?: Record<string, string>;
-  /** In the app store: what kind of app it is (a filter in the store) and words it is found by, besides its name and
-   * what it does ("nyhedsbrev"). The kind also says where its settings are: under "Indstillinger" on the site's screen
-   * with it (PartScreen.apps in partScreens: "analytics" on "Analytics"), or on a part of "Virksomheden" with it
-   * (Part.apps in companyParts: "payment" on "Betaling"), so they are where they are used and not on its page under
-   * "Apps", which only installs it; without such a screen, on a screen of their own (#apps/<id>/settings). */
-  category?: AppCategory;
+  /** In the app store: its main category (a filter in the store) and words it is found by, besides its name and
+   * what it does ("nyhedsbrev"). The category also says where its settings are: under "Indstillinger" on the site's
+   * screen with it (PartScreen.apps in partScreens: "analytics" on "Analytics"), or on a part of "Virksomheden" with it
+   * (Part.apps in companyParts: "payments" on "Betaling"), so they are where they are used and not on its page under
+   * "Apps", which only installs it; without such a screen, on a screen of their own (#apps/<id>/settings).
+   * The old ids `newsletter`, `payment` and `design` are still accepted, as deprecated aliases of `email`,
+   * `payments` and `appearance` (categoryOf in lib/storeCategories.mjs). */
+  category?: AppCategory | LegacyCategory;
+  /** Its subcategory of `category`, if it has one (SUBCATEGORIES in lib/storeCategories.mjs lists them; none yet): one
+   * that is not listed for the category is left out. */
+  subcategory?: string;
   keywords?: string[];
   /** The categories of cookies (lib/cookieCategories.mjs) of what it loads that sets cookies (a tag), with these
    * settings (its saved ones over settings.ts); none when it loads nothing that does. The cookie banner asks about each
