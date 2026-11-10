@@ -4,6 +4,7 @@
 // installed; what was made with it (a pop-up, a block on a page) stays when it is uninstalled.
 import data from '@data/apps.json';
 import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
+import { appIdOf } from '../lib/appId.mjs';
 
 const state = readAppsFile(JSON.stringify(data));
 
@@ -20,8 +21,16 @@ const saved = Object.fromEntries(
   ),
 );
 
-/** An app's settings as saved in the editor, over those it starts with (its settings.ts `values`). */
-export const settingsOf = (id: string, values: Record<string, unknown> = {}): Record<string, any> => ({
-  ...values,
+// What a contract 4 app starts its settings with (its app.json, `settings.values`), by its id.
+const started = Object.fromEntries(
+  Object.entries(
+    import.meta.glob<{ settings?: { values?: Record<string, unknown> } }>('/src/apps/*/app.json', { eager: true, import: 'default' }),
+  ).map(([file, manifest]) => [appIdOf(file), manifest.settings?.values]),
+);
+
+/** An app's settings as saved in the editor, over those it starts with: `values` (its settings.ts), or without them those
+ * in its app.json (`settings.values`). */
+export const settingsOf = (id: string, values?: Record<string, unknown>): Record<string, any> => ({
+  ...(values ?? started[id]),
   ...saved[id],
 });

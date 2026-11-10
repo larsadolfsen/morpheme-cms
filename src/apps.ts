@@ -39,7 +39,7 @@
 // its own in config.apps.settings. The site's build reads the settings, so settings.ts imports nothing
 // that needs a browser.
 import type { Icon } from '@phosphor-icons/react';
-import type { ComponentType, ReactNode } from 'react';
+import { createElement, type ComponentType, type ReactNode } from 'react';
 import type { BlockData } from './blocks';
 import type { Field, FolderCollection, KindPart, Opens, OwnedList, PreviewVariant } from './schema';
 import type { ConsentCategory } from '../lib/cookieCategories.mjs';
@@ -48,6 +48,9 @@ import type { AppCategory, AppCookie, AppNeeds, AppShot, StoreRecord } from './s
 import type { ThirdParty } from './licenseData';
 import { config } from '@site/config';
 import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
+import { definitionOf, type AppDefinitionData } from '../lib/appDefinition.mjs';
+import type { AppManifest } from '../lib/appManifest.mjs';
+import { AnyIcon } from './icon';
 
 /** An app's settings, on its page once it is installed (#apps/<app>, AppList.tsx). */
 export type AppSettings = {
@@ -189,6 +192,45 @@ export type AppDefinition = {
   notifications?: AppNotifications;
 };
 export const defineApp = (app: AppDefinition) => app;
+
+/** The code parts of a contract 4 app's definition, in its editor.ts (the rest is its app.json): what only the editor runs. */
+export type AppDefinitionCode = Pick<AppDefinition, 'page' | 'screens' | 'tabs' | 'notifications'> & {
+  settings?: Pick<AppSettings, 'changedTo'>;
+  kinds?: Record<string, Pick<AppKind, 'draw'>>;
+};
+export const defineEditor = (editor: Partial<AppDefinitionCode>) => editor;
+
+// The icon of the name an app.json gives ("Palette", Phosphor's name for its component), drawn as the editor draws any icon
+// by its name (AnyIcon, in kebab case); a name nobody has is drawn as the question mark (MISSING), the default icon.
+const named = new Map<string, Icon>();
+/** A Phosphor icon by the name app.json gives it ("PaperPlaneTilt"), as a component the editor's rows take. */
+export function iconOf(name: string): Icon {
+  const found = named.get(name);
+  if (found) return found;
+  const file = (typeof name === 'string' ? name : '').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase() || 'question';
+  const icon = ((props: { size?: number | string }) =>
+    createElement(AnyIcon, { name: file, size: typeof props.size === 'number' ? props.size : 24 })) as unknown as Icon;
+  named.set(name, icon);
+  return icon;
+}
+
+/** The definition of a contract 4 app: its app.json with the code parts of its editor.ts and its texts.json (definitionOf),
+ * its icons, which app.json gives by name, as components. */
+export function appFromManifest(
+  manifest: AppManifest,
+  editor?: Partial<AppDefinitionCode>,
+  texts?: Record<string, unknown>,
+): AppDefinition {
+  const { icon, kinds, lists, texts: _texts, ...rest } = definitionOf(manifest, editor, texts) as AppDefinitionData;
+  return {
+    ...rest,
+    icon: iconOf(icon),
+    ...(kinds
+      ? { kinds: Object.fromEntries(Object.entries(kinds).map(([list, k]) => [list, { ...k, icon: iconOf(String(k.icon)) }])) }
+      : {}),
+    ...(lists ? { lists: lists.map((l) => ({ ...(l as object), icon: iconOf(String((l as { icon?: string }).icon)) })) } : {}),
+  } as unknown as AppDefinition;
+}
 
 /** An app with its id, the name of its folder (src/apps/<id>/), the types of the blocks it adds, what it needs of the
  * site (needsOf, from its folder), the addresses of its pictures with what each says under it, and where it came from when it was installed from the
