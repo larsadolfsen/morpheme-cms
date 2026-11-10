@@ -3,7 +3,7 @@
 // ContinueWidget. The logic is startView.mjs's, the storage startStorage.ts's, the times savedTimes.ts's (shared with the
 // lists), the files and savedAt come from startData.ts, and the card, rows and close button the theme's (ui.tsx).
 // Closed, it shows nothing, unless it is being edited: then it renders with its empty text.
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { locale, t } from '../i18n';
 import { nameOf } from '../deploy';
 import { icons } from '../site';
@@ -26,6 +26,8 @@ const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1
  * they will be. */
 export function ContinueWidget({ editing }: WidgetProps) {
   const { files, savedAt } = useStartData();
+  // The same widget may be placed twice, so the heading's id is made for each.
+  const titleId = useId();
   const [edits] = useState(storedEdits);
   const [closedAt, setClosedAt] = useState(() => readStored<number>(CLOSED));
   const startFiles = files.filter((f) => startListOf(f.path));
@@ -59,8 +61,8 @@ export function ContinueWidget({ editing }: WidgetProps) {
   };
   const shownRows = hidden ? [] : rows;
   return (
-    <SiteCard kind="outlined" as="section" aria-labelledby="continue-title" className="relative [--card-padding:1rem_0_0.5rem]">
-      <h2 id="continue-title" className="ps-4 pe-14 pb-2 font-medium">
+    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="relative [--card-padding:1rem_0_0.5rem]">
+      <h2 id={titleId} className="ps-4 pe-14 pb-2 font-medium">
         {t.library.continueTitle}
       </h2>
       <CloseButton onClick={close} />
