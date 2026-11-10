@@ -1,13 +1,13 @@
 // "Morpheme" (#morpheme), under "Indstillinger": the CMS version the site runs, the notes of its minor line (from the
-// package itself, bundledNotes.ts), a newer one with its notes, why it is not taken by itself, and an update's progress, and the site's connection to the
+// package itself, bundledNotes.ts), a newer one with its notes, why it is not taken by itself, and an update's progress (all as text; only the update button is a control), and the site's connection to the
 // Morpheme store (MorphemeConnection) as its last group. Exposes CMS_ROUTE and the page. Depends on cmsView.mjs, bundledNotes.ts,
 // ReleaseNotes (the notes as an article), MorphemeConnection and the Worker's /api/cms.
-import { useCallback, useEffect, useState } from 'react';
-import { CheckCircle, Clock, Info, Sparkle, WarningCircle } from '@phosphor-icons/react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { Sparkle, WarningCircle, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { MorphemeConnection } from './MorphemeConnection';
 import { ReleaseNotes, type VersionNotes } from './ReleaseNotes';
-import { Button, EmptyNote, Group, ListItem, ProblemNote } from './ui';
+import { Button, EmptyNote, ProblemNote } from './ui';
 import { backFrom } from './site';
 import { cmsView } from './cmsView.mjs';
 import { runningLine, runningNotes } from './bundledNotes';
@@ -52,16 +52,26 @@ async function readStatus(): Promise<Status> {
 const reasonOf = (view: View) =>
   view.action === 'update' ? t.cms.major : view.action === 'try-again' && view.latest ? t.cms.skipped(view.latest) : null;
 
-function UpdateRow({ update }: { update: NonNullable<View['update']> }) {
-  const text = t.cms[update.state](update.to);
+/** A line of the status text, with its icon only where the icon means something (a warning, an update). */
+function StatusLine({ icon: Glyph, tone, children }: { icon?: Icon; tone?: 'accent'; children: ReactNode }) {
+  return (
+    <p className={`flex items-start gap-2 ${tone ? 'text-primary' : ''}`}>
+      {Glyph && <Glyph aria-hidden size={20} className="shrink-0" />}
+      <span className="min-w-0 break-words">{children}</span>
+    </p>
+  );
+}
+
+/** What the update does now (waiting, done, undone, stuck) and when: text, there is nothing to tap. */
+function UpdateStatus({ update }: { update: NonNullable<View['update']> }) {
   const bad = update.state === 'undone' || update.state === 'stuck';
   return (
-    <ListItem
-      icon={bad ? WarningCircle : update.state === 'done' ? CheckCircle : Clock}
-      tone={bad ? 'accent' : undefined}
-      headline={text}
-      supporting={when(new Date(update.at))}
-    />
+    <div>
+      <StatusLine icon={bad ? WarningCircle : undefined} tone={bad ? 'accent' : undefined}>
+        {t.cms[update.state](update.to)}
+      </StatusLine>
+      <p className="text-sm text-on-surface-variant">{when(new Date(update.at))}</p>
+    </div>
   );
 }
 
@@ -117,16 +127,37 @@ export default function CmsPage() {
               <LineNav line={runningLine} />
             </>
           )}
-          <Group>
-            <ListItem icon={Info} headline={t.cms.running(view.running)} supporting={view.latest ? undefined : t.cms.upToDate} />
-            <ListItem icon={Clock} headline={view.checkedAt ? t.cms.checked(when(new Date(view.checkedAt))) : t.cms.notChecked} />
-            {view.update && <UpdateRow update={view.update} />}
-            {view.latest && <ListItem icon={Sparkle} tone="accent" headline={t.cms.available(view.latest)} supporting={reason} />}
-            {view.npmCommand && <ListItem headline={t.cms.needsNpm} supporting={<code>{view.npmCommand}</code>} />}
+          <section className="mb-6 max-w-prose space-y-3 px-4 text-base not-first:mt-8">
+            <div>
+              <p>{t.cms.running(view.running)}</p>
+              {!view.latest && <p className="text-sm text-on-surface-variant">{t.cms.upToDate}</p>}
+              <p className="text-sm text-on-surface-variant">
+                {view.checkedAt ? t.cms.checked(when(new Date(view.checkedAt))) : t.cms.notChecked}
+              </p>
+            </div>
+            {view.update && <UpdateStatus update={view.update} />}
+            {view.latest && (
+              <div>
+                <StatusLine icon={Sparkle} tone="accent">
+                  {t.cms.available(view.latest)}
+                </StatusLine>
+                {reason && <p className="text-sm text-on-surface-variant">{reason}</p>}
+              </div>
+            )}
+            {view.npmCommand && (
+              <div>
+                <p>{t.cms.needsNpm}</p>
+                <p className="text-sm text-on-surface-variant">
+                  <code>{view.npmCommand}</code>
+                </p>
+              </div>
+            )}
             {view.problems.map((kind) => (
-              <ListItem key={kind} icon={WarningCircle} tone="accent" headline={t.cms[kindText[kind]]} />
+              <StatusLine key={kind} icon={WarningCircle} tone="accent">
+                {t.cms[kindText[kind]]}
+              </StatusLine>
             ))}
-          </Group>
+          </section>
           {view.action && view.latest && (
             <Button kind="filled" disabled={busy} onClick={() => void update(view.latest!)}>
               {view.action === 'update' ? t.cms.update : t.cms.tryAgain}
