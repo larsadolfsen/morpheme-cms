@@ -21,7 +21,7 @@ const KV = {
 const calls = [];
 const ask = async (url, init) => {
   const token = init?.headers?.authorization?.replace('Bearer ', '');
-  calls.push(`${token} ${url}`);
+  calls.push(url);
   const users = { one: 101, two: 202, guest: 303, down: 404, odd: 'x' };
   if (url === 'https://api.github.com/user') {
     if (token === 'down') return new Response(null, { status: 500 });
@@ -113,7 +113,7 @@ const noStorage = await handleDashboard(
 );
 expect(noStorage.status === 503, 'a Worker without the binding DASHBOARD was not answered with 503');
 expect(
-  calls.every((c) => c.includes('api.github.com')),
+  calls.every((c) => new URL(c).host === 'api.github.com'),
   'something other than GitHub was asked',
 );
 
