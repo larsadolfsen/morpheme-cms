@@ -1,6 +1,6 @@
 # Dashboard widgets, batch 3: edit mode
 
-Status: in progress (PR against main, 2026-11-10). Checked against the code on 2026-11-10; see "Differences from the plan" and "Chosen patterns" below.
+Status: done (PR against main, 2026-11-10). Differences from the plan are listed below; the two-browser and second-person acceptance check is left for the owner (the signed-in editor cannot be reached from the build session). The Settings sheet is covered by unit tests only: no CMS widget has `settings` until batch 4 (Blog rhythm).
 
 Master plan: `2026-11-07-dashboard-widgets.md`. Needs batch 2.
 
@@ -11,6 +11,8 @@ Write the chosen patterns into this file. Do not invent a pattern.
 
 - The grid is `src/DashboardGrid.tsx` (component `Dashboard`), not `src/Dashboard.tsx` (batch 2 renamed it: a `Dashboard.tsx` beside `dashboard.mjs` fails the build's case-insensitive name check). The start screen is `Start` in `src/Library.tsx`.
 - `appSettingsPart(app)` takes a `SiteApp` and makes a part that saves to a file in the repo (`file`, `commit`, `back`). A widget's settings are not an app, so `WidgetSettings.tsx` builds a `Part` of the same shape with the widget's `settings.fields` and `settings.values` and no `file`, and draws it with `PartFields` and `PartFormProviders`. `usePartForm` commits to the repo, so it is not used: the settings keep their values in local state and `setSettings` writes them into the dashboard.
+- `src/dashboardMoves.mjs` (pure move and drop-target logic) and `src/widgetValues.mjs` (the settings form's values and the changed values) hold the pure parts; they are not named `dashboardEdit.mjs` or `widgetSettings.mjs` because the build's case-insensitive name check rejects them beside `DashboardEdit.tsx` and `WidgetSettings.tsx`.
+- `/api/dashboard` answers `503 no-storage` without a `DASHBOARD` binding: `saveDashboard` throws `DashboardSaveError` (`no-storage`), Done keeps edit mode and shows a `role="alert"` notice. `openEditor` in `scripts/built-site.mjs` fakes `/api/dashboard` (GET, PUT, and a failing PUT) so `check:screens` covers edit, remove, add, save and a failed save.
 - `src/dashboardStore.ts` only loads; batch 3 adds `saveDashboard` there.
 - The start screen's `Screen` takes the top bar buttons as `actions`, so edit state lives in `Start`, which owns the `Screen`.
 
