@@ -22,9 +22,10 @@ export function applyLocale(root, code) {
     throw new Error(`There is no i18n/${code}/ folder here. Available: ${available.length ? available.join(', ') : 'none'}.`);
   }
   const configFile = join(root, 'src/site/config.ts');
-  const config = existsSync(configFile) ? readFileSync(configFile, 'utf8') : '';
   const LOCALE = /(\blocale:\s*)(['"])[^'"]*\2/;
-  if (!LOCALE.test(config)) throw new Error(`Found no \`locale: '...'\` in src/site/config.ts, so it cannot be set to '${code}'.`);
+  const hasLocale = (text) => LOCALE.test(text);
+  if (!hasLocale(existsSync(configFile) ? readFileSync(configFile, 'utf8') : ''))
+    throw new Error(`Found no \`locale: '...'\` in src/site/config.ts, so it cannot be set to '${code}'.`);
 
   const files = readdirSync(i18n, { recursive: true, withFileTypes: true })
     .filter((e) => e.isFile())
@@ -41,7 +42,10 @@ export function applyLocale(root, code) {
     cpSync(join(root, from), join(root, to));
   }
   for (const path of remove) rmSync(join(root, path), { force: true });
-  writeFileSync(configFile, config.replace(LOCALE, `$1'${code}'`));
+  // Read after the layer is laid: the layer may bring its own src/site/config.ts.
+  const laid = existsSync(configFile) ? readFileSync(configFile, 'utf8') : '';
+  if (!hasLocale(laid)) throw new Error(`Found no \`locale: '...'\` in src/site/config.ts after laying i18n/${code}/.`);
+  writeFileSync(configFile, laid.replace(LOCALE, `$1'${code}'`));
   rmSync(i18n, { recursive: true, force: true });
   return { copied: copy.length, removed: remove.length };
 }
