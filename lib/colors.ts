@@ -32,6 +32,43 @@ export function colorProblems(value: unknown, names: string[]): string[] {
   });
 }
 
+/** The names a file of colors had before its colors were Material 3's color roles, in the order to change them (the cards' `surface` goes before `bg` takes its name), and the role each is now (null:
+ * Material has no such role, the file loses it). `bg` is the page, now Surface, and the cards' `surface` is now Surface
+ * container lowest; `surface-default` is the old name of the page, `tint` is Surface container high and `accent-hover` is
+ * drawn as a state layer. */
+const OLD_NAMES: [string, string | null][] = [
+  ['surface', 'surface-container-lowest'],
+  ['bg', 'surface'],
+  ['surface-default', null],
+  ['tint', 'surface-container-high'],
+  ['ink', 'on-surface'],
+  ['muted', 'on-surface-variant'],
+  ['line', 'outline-variant'],
+  ['accent', 'primary'],
+  ['accent-hover', null],
+  ['on-accent', 'on-primary'],
+  ['accent-container', 'primary-container'],
+  ['on-accent-container', 'on-primary-container'],
+];
+
+/** The old names a file of colors still has, with the new name of each (null: delete it; also when the file has the new
+ * one already), per mode, in the order of the mapping. `surface` is the old cards' color only beside `bg`. It reads the file
+ * as it is and changes nothing. */
+export function oldColorNames(value: unknown): { mode: Mode; from: string; to: string | null }[] {
+  const colors = (value && typeof value === 'object' ? value : {}) as Partial<Record<Mode, unknown>>;
+  return MODES.flatMap((mode) => {
+    const set = colors[mode];
+    if (!set || typeof set !== 'object' || Array.isArray(set)) return [];
+    const has = (name: string) => Object.hasOwn(set, name);
+    return OLD_NAMES.filter(([from]) => has(from) && (from !== 'surface' || has('bg'))).map(([from, to]) => ({
+      mode,
+      from,
+      // The new name is free once the old one has gone (`bg` becomes Surface when the cards' `surface` is renamed).
+      to: to !== null && has(to) && to !== 'surface' ? null : to,
+    }));
+  });
+}
+
 // One mode's colours as CSS declarations. Only names and values that cannot be anything but a colour,
 // since the CSS goes straight into the page.
 function declarations(set: ColorSet): string {
