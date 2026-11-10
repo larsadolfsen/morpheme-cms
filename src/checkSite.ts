@@ -25,7 +25,7 @@ import {
   seoParts,
   siteProblems,
 } from '@site/editor';
-import { colorProblems, lowContrast, MODES } from '../lib/colors';
+import { colorProblems, lowContrast, MODES, oldColorNames } from '../lib/colors';
 import { completeColors, dynamicProblems } from '../lib/dynamic-colors';
 import { APP_HOOKS, hooksOf } from '../lib/hooks';
 import { texts } from '@site/texts';
@@ -50,6 +50,17 @@ import { isRecordPath, recordProblems } from './fileRecords.mjs';
 import { appTexts, DEFAULTS_LOCALE, locales, siteLocale, t, type Texts } from './i18n';
 import { flatten, readAll, REDIRECT_FILES, type AllRedirects } from './redirectData';
 
+/** The old names of a file of colors with their new ones, per mode: 'light: bg → surface, accent-hover (delete it); dark: …'. */
+const oldNamesText = (old: ReturnType<typeof oldColorNames>) =>
+  MODES.filter((mode) => old.some((o) => o.mode === mode))
+    .map(
+      (mode) =>
+        `${mode}: ${old
+          .filter((o) => o.mode === mode)
+          .map((o) => (o.to === null ? t.colors.oldNameGone(o.from) : t.colors.oldNameTo(o.from, o.to)))
+          .join(', ')}`,
+    )
+    .join('; ');
 const ratio = (n: number) => n.toLocaleString(config.locale, { maximumFractionDigits: 1 });
 
 export type SiteFile = { path: string; text: string };
@@ -154,7 +165,10 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
         colors,
         colorFields.map((f) => f.name),
       );
-      for (const where of bad) problems.push(`${colorsFile.path}: ${t.colors.notAColorAt(where)}`);
+      // A file in the names from before Material 3's roles is one problem, not a line for each role it lacks.
+      const old = bad.length ? oldColorNames(JSON.parse(colorsFile.text)) : [];
+      if (old.length) problems.push(`${colorsFile.path}: ${t.colors.oldNames(oldNamesText(old))}`);
+      else for (const where of bad) problems.push(`${colorsFile.path}: ${t.colors.notAColorAt(where)}`);
       if (colors.dynamic !== undefined)
         for (const where of dynamicProblems(colors.dynamic)) problems.push(`${colorsFile.path}: ${t.colors.dynamic.wrongAt(where)}`);
       if (!bad.length)
