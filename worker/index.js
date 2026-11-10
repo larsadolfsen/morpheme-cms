@@ -126,8 +126,10 @@ export function redirectFor(url, prefixes = MOVED_PREFIXES) {
   const target = moved[path] ?? map.paths[path];
   if (target) return onward(target, moved, standard, prefixes);
   // After the exact maps: an address under a renamed prefix, 301 to the new one with the query string kept.
+  // An address without the trailing slash (/blog/kategori/x) gets it here, so it is one hop and not two.  // language-ok: an old public address
   const renamed = movedAddress(url.pathname, prefixes);
-  return renamed && renamed + url.search;
+  const slashed = renamed && !renamed.endsWith('/') && !/\.[a-z0-9]+$/i.test(renamed) ? `${renamed}/` : renamed;
+  return slashed && slashed + url.search;
 }
 
 // An address with a broken %-sign (/%E0%A4%A/) cannot be decoded; it is looked up as it is (and ends

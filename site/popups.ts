@@ -88,10 +88,10 @@ export const popups: Popup[] = Object.entries(files)
   }));
 
 /** The promotions of a page, by its address (with or without the / at the end): those on every page,
- * those picked for it, and, on a blog post or a tag's page (/blog/kategori/<tag>/), those of its tags. */
+ * those picked for it, and, on a blog post or a tag's page (/blog/tags/<tag>/), those of its tags. */
 export async function popupsAt(path: string) {
   const at = path.endsWith('/') ? path : `${path}/`;
-  const tag = at.match(/^\/blog\/kategori\/([^/]+)\/$/)?.[1];
+  const tag = at.match(/^\/blog\/tags\/([^/]+)\/$/)?.[1];
   const post = !tag && popups.some((p) => p.tags.length) ? (await getPosts({ unlisted: true })).find((p) => postPath(p) === at) : undefined;
   const tags = tag ? [tag] : (post?.data.categories ?? []);
   return popups.filter((p) => p.everywhere || p.pages.includes(at) || p.tags.some((t) => tags.includes(t)));

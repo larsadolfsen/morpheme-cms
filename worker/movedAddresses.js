@@ -3,12 +3,14 @@
 // A line is added here in the same pull request that renames the pages, never before: the Worker answers first.
 
 /**
- * Old address prefix (with both slashes) and its new prefix. Empty until the pages are renamed: `/blog/kategori/` and  // language-ok: an old public address
- * `/ny/` still serve pages, and a redirect from them would send visitors to a 404. The rename adds  // language-ok: an old public address
- * `['/blog/kategori/', '/blog/tags/']` and `['/ny/', '/new/']`.  // language-ok: an old public address
+ * Old address prefix (with both slashes) and its new prefix. A line is added in the pull request that renames the pages:
+ * `/blog/kategori/` became `/blog/tags/`. The `/ny/` to `/new/` line comes with its own rename.  // language-ok: an old public address
+ * scripts/retarget-links.mjs reads this list to rewrite a site's own links.
  * @type {[string, string][]}
  */
-export const MOVED_PREFIXES = [];
+export const MOVED_PREFIXES = [
+  ['/blog/kategori/', '/blog/tags/'], // language-ok: an old public address
+];
 
 /**
  * The new address of a path that starts with an old prefix, the rest of it kept (a nested slug, `?` and `#` parts); else

@@ -31,13 +31,7 @@ const categories = await getCategories();
         </li>
         {categories.map((c) => (
           <li class="shrink-0">
-            <Chip
-              kind="filter"
-              href={`/blog/kategori/${c.slug}/`}
-              label={c.name}
-              selected={activeCategory === c.slug}
-              className="shrink-0"
-            />
+            <Chip kind="filter" href={`/blog/tags/${c.slug}/`} label={c.name} selected={activeCategory === c.slug} className="shrink-0" />
           </li>
         ))}
       </ul>

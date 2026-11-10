@@ -82,12 +82,12 @@ export const standard: StandardSite = {
     list: testimonials,
     page: testimonialsPath,
     anchor: testimonialId,
-    // Only a tag with posts has a page (/blog/kategori/<slug>/).
+    // Only a tag with posts has a page (/blog/tags/<slug>/).
     async tag(slug) {
       tagPages ??= getCategories().then((all) => new Set(all.map((c) => c.slug)));
       return {
         name: categoryName(slug),
-        href: (await tagPages).has(slug) ? `/blog/kategori/${slug}/` : undefined,
+        href: (await tagPages).has(slug) ? `/blog/tags/${slug}/` : undefined,
       };
     },
   },

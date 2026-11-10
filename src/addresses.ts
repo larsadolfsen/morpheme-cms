@@ -6,6 +6,7 @@
 import { slugify } from './schema';
 import { config } from '@site/config';
 import { t } from './i18n';
+import { retargetLink } from '../lib/retarget.mjs';
 
 export const REDIRECTS = config.redirects;
 
@@ -69,7 +70,4 @@ export const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$
 /** A text with its links to an old address changed to the new one: in Markdown links, in HTML and in
  * the JSON of the data files and of the blocks (&quot;…&quot;), also with the site's domain before it,
  * and with a #part or ?query after it. Not an address that only starts with it (a page under it). */
-export function retarget(text: string, from: string, to: string): string {
-  const at = new RegExp(`(?<=["'(]|&quot;|${escape(config.domain)})${escape(from)}(?=["')#?\\s]|&quot;)`, 'g');
-  return text.replace(at, to);
-}
+export const retarget = (text: string, from: string, to: string): string => retargetLink(text, from, to, config.domain);

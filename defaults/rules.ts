@@ -455,7 +455,7 @@ export function whatIsAt(address: string, relations: Record<Relation, Option[]>)
   if (page) return siteText('the page "{name}" ({address})', { name: page.label, address });
   const post = relations.blog.find((o) => `/${o.value}/` === base);
   if (post) return siteText('the blog post "{name}" ({address})', { name: post.label, address });
-  const tag = relations.categories.find((o) => `/blog/kategori/${o.value}/` === base);
+  const tag = relations.categories.find((o) => `/blog/tags/${o.value}/` === base);
   if (tag) return siteText('the tag "{name}" on the blog ({address})', { name: tag.label, address });
   if (base.startsWith(config.folders.media.replace(/^public/, '') + '/'))
     return siteText('the picture {name}', { name: base.split('/').pop()! });
