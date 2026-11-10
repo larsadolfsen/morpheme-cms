@@ -23,7 +23,7 @@ export const UNLICENSED = 'UNLICENSED';
 /** Who brings a work: the editor, the site's own code, or an app or a theme (`app/<id>`, `theme/<id>`, LicenseOwner.id). */
 export type LicenseWhere = 'editor' | 'site' | `app/${string}` | `theme/${string}`;
 
-/** A third-party work as the build found it: its id (a package's name; `ikoner/<id>` for an icon set; `<owner>/<name>`
+/** A third-party work as the build found it: its id (a package's name; `icons/<id>` for an icon set; `<owner>/<name>`
  * for another work an app or a theme declares), its name, version, who made it, its licence's name and text (`standard`:
  * the licence's standard text, as the package has none of its own), what it is, who brings it (`where`, none for an
  * icon set or a work only an app or a theme not in use brings) and through which packages (`via`, when the site does not

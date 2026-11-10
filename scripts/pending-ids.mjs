@@ -18,8 +18,6 @@ export const PENDING_IDS = [
   'src/ui.tsx:valg',
   // Row 3, batch A1: the stored view value liste (src/Library.tsx).
   'src/Library.tsx:liste',
-  // Row 4, batch A2: the CSV file name samtykker-<date>.csv (worker/consent.js).
-  'worker/consent.js:samtykker',
   // Row 5, batch A1: the sample address navn@ (src/BlockParts.tsx).
   'src/BlockParts.tsx:navn',
   // Row 6, batch A1: Danish page names in tests and comments (priser, kontakt, forside, filer); worker/say.test.mjs stays Danish on purpose and is not listed.
@@ -41,9 +39,6 @@ export const PENDING_IDS = [
   // Row 8, batch A1: the old store route apps/butik and apps/butik/temaer (STORE_BEFORE, STORE_MOVED); move into RENAMED in src/movedRoutes.mjs.
   'src/App.tsx:temaer',
   'src/store.ts:butik',
-  // Row 9, batch A2: the licence work id ikoner/<pack id> and its editor address.
-  'lib/licenses.mjs:ikoner',
-  'src/licenseData.ts:ikoner',
   // Row 10, batch A1: the {emne} placeholder of the Expandable list text.
   'src/i18n/en-US/blocks.ts:emne',
   'src/standard/accordion/index.tsx:emne',

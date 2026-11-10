@@ -82,6 +82,10 @@ expect(found.entries.length === 1 && found.entries[0].id === ID, 'the search for
 const file = await handleConsent(editor('editor', '?format=csv'), env);
 const lines = (await file.text()).trim().split('\r\n');
 expect(file.headers.get('content-disposition')?.startsWith('attachment'), 'CSV-filen hentes ikke som en fil');
+expect(
+  /^attachment; filename="consents-\d{4}-\d{2}-\d{2}\.csv"$/.test(file.headers.get('content-disposition') ?? ''),
+  `the CSV file's name is ${file.headers.get('content-disposition')}`,
+);
 expect(lines[0] === '"id","at","statistics","marketing","version"', `the CSV file's first line is ${lines[0]}`);
 expect(lines.length === 3, `CSV-filen har ${lines.length - 1} svar, ikke 2`);
 
