@@ -1,6 +1,6 @@
 # Dashboard widgets: master plan
 
-Status: not started. Only the spec and the plans exist. Checked against the code on 2026-11-10.
+Status: batch 1 done (data functions, Worker route, KV binding); batches 2-4 not started. Checked against the code on 2026-11-10.
 
 Design: `docs/superpowers/specs/2026-11-07-dashboard-widgets-design.md`. Read it first.
 
@@ -18,7 +18,7 @@ Widgets come from `src/widgets/` and from `AppDefinition.widgets`. Logic stays i
 | Path | Batch | What |
 |---|---|---|
 | `src/dashboard.mjs`, `src/dashboard.test.mjs` | 1 | Pure functions for `StoredDashboard`: validate, default, add, remove, move, set settings, drop missing |
-| `worker/dashboard.js`, `worker/dashboard.test.mjs` | 1 | `GET`/`PUT /api/dashboard`, KV `DASHBOARD`, GitHub user id |
+| `worker/dashboard.js`, `scripts/check-dashboard.mjs` | 1 | `GET`/`PUT /api/dashboard`, KV `DASHBOARD`, GitHub user id |
 | `worker/index.js` | 1 | One route line |
 | `starter/wrangler.jsonc`, `demo` config | 1 | KV binding `DASHBOARD` |
 | `src/widgets.ts` | 2 | `WidgetDefinition`, `WidgetProps`, the registry of all widgets (CMS + installed apps) |
@@ -35,7 +35,7 @@ Widgets come from `src/widgets/` and from `AppDefinition.widgets`. Logic stays i
 
 | Batch | File | Visible result |
 |---|---|---|
-| 1 | `2026-11-07-dashboard-widgets-batch-1.md` | `npm test` passes the new data and Worker tests |
+| 1 (done) | `2026-11-07-dashboard-widgets-batch-1.md` | `npm test` passes the new data tests; `check:worker` passes the Worker route checks |
 | 2 | `2026-11-07-dashboard-widgets-batch-2.md` | The start screen is a grid with the Continue widget, loaded from the Worker |
 | 3 | `2026-11-07-dashboard-widgets-batch-3.md` | Edit mode: add, remove, reorder, settings; saved per person |
 | 4 | `2026-11-07-dashboard-widgets-batch-4.md` | Unfinished work, Blog rhythm and Site status on the dashboard |

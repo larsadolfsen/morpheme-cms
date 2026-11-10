@@ -1,6 +1,6 @@
 # Dashboard widgets, batch 1: data and storage
 
-Status: not started. Checked against the code on 2026-11-10.
+Status: done on 2026-11-10 (batch 1). The Worker checks live in `scripts/check-dashboard.mjs`, run by `check:worker`, not in `worker/dashboard.test.mjs`: `npm test` does not cover `worker/`, and the Worker modules need the `@site/config` alias.
 
 Master plan: `2026-11-07-dashboard-widgets.md`. Design: `../specs/2026-11-07-dashboard-widgets-design.md`.
 
@@ -42,7 +42,7 @@ Acceptance: `npm test` passes. `npx prettier --check src/dashboard.mjs src/dashb
 
 ## Task 1.2: Worker route and KV binding
 
-Files: `worker/dashboard.js`, `worker/dashboard.test.mjs`, `worker/index.js`, `starter/wrangler.jsonc`, the demo's Worker config.
+Files: `worker/dashboard.js`, `scripts/check-dashboard.mjs` (was `worker/dashboard.test.mjs`), `worker/index.js`, `starter/wrangler.jsonc`, the root `wrangler.jsonc` (the demo).
 Worker: Sonnet agent (Worker and session rules).
 
 1. Add `handleDashboard(request, env, ask = fetch)` in `worker/dashboard.js`.
