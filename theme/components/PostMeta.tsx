@@ -15,7 +15,7 @@ export default function PostMeta({
   className?: string;
 }) {
   return (
-    <p className={['flex flex-wrap items-center gap-x-2 type-body-medium text-muted', className].filter(Boolean).join(' ')}>
+    <p className={['flex flex-wrap items-center gap-x-2 type-body-medium text-on-surface-variant', className].filter(Boolean).join(' ')}>
       <time dateTime={post.date}>{post.dateText}</time>
       <span aria-hidden="true">·</span>
       <span className="inline-flex items-center gap-1">
@@ -29,7 +29,7 @@ export default function PostMeta({
             {tags.map((tag, i) => (
               <Fragment key={tag.href}>
                 {i > 0 && ', '}
-                <a href={tag.href} className="underline hover:text-accent">
+                <a href={tag.href} className="underline hover:text-primary">
                   {tag.label}
                 </a>
               </Fragment>

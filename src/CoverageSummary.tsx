@@ -8,5 +8,5 @@ export function CoverageSummary() {
   if (!themeCoverage) return null;
   const parts = Object.values(themeCoverage.parts);
   const own = parts.filter((p) => p.status === 'own').length;
-  return <p className="text-sm text-muted">{t.parts.screens.coverage.summary(themeCoverage.theme, own, parts.length)}</p>;
+  return <p className="text-sm text-on-surface-variant">{t.parts.screens.coverage.summary(themeCoverage.theme, own, parts.length)}</p>;
 }

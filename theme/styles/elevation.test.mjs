@@ -11,7 +11,7 @@ const count = (text, part) => text.split(part).length - 1;
 
 // The level tokens: the exact default declaration of each, once in ui.css.
 const tokens = {
-  '--elevation-0-surface': 'var(--bg)',
+  '--elevation-0-surface': 'var(--surface)',
   '--elevation-1-surface': 'var(--surface-container-low, var(--block-surface))',
   '--elevation-2-surface': 'var(--surface-container, var(--block-surface))',
   '--elevation-3-surface': 'var(--surface-container-high, var(--block-surface))',
@@ -58,7 +58,7 @@ for (const [part, line, times] of surfaces) {
 
 // Parts that keep their surface: the top app bar at rest, and the role parts.
 const unchanged = [
-  'background: var(--top-app-bar-surface, color-mix(in oklab, var(--bg) 85%, transparent));',
+  'background: var(--top-app-bar-surface, color-mix(in oklab, var(--surface) 85%, transparent));',
   'background: var(--search-bar-surface, var(--block-surface));',
   'background: var(--navigation-bar-surface, var(--block-surface));',
   'background: var(--card-filled-surface, var(--block-tint));',
@@ -74,7 +74,7 @@ for (const line of unchanged) {
 test('no part reads the old surface fallbacks', () => {
   assert.equal(count(uiCss, 'var(--menu-surface, var(--block-surface))'), 0);
   assert.equal(count(uiCss, 'var(--dialog-surface, var(--block-surface))'), 0);
-  assert.equal(count(uiCss, 'var(--navigation-drawer-surface, var(--surface-container-low, var(--bg)))'), 0);
+  assert.equal(count(uiCss, 'var(--navigation-drawer-surface, var(--surface-container-low, var(--surface)))'), 0);
   assert.equal(count(uiCss, 'var(--navigation-rail-surface, var(--block-surface))'), 0);
 });
 
@@ -130,7 +130,7 @@ const addedLines = [
   ['--fab-hover-shadow: var(--elevation-4);', 1],
   ['--block-shadow: var(--elevation-1-rest-shadow);', 1],
   // Light mode once, then the dark-mode media block and the dark theme attribute.
-  ['--shadow: var(--elevation-1-rest-shadow);', 3],
+  ['--panel-shadow: var(--elevation-1-rest-shadow);', 3],
 ];
 
 for (const [line, times] of addedLines) {

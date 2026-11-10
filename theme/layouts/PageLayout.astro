@@ -96,7 +96,7 @@ const side =
 const { intro, rest } = h1Color && !side ? introOf(sideText) : { intro: '', rest: sideText };
 const textClass = side
   ? 'prose max-w-[66ch]'
-  : 'prose max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:type-lead [&>p:first-child]:text-muted [&>p:first-child]:max-w-[52ch]';
+  : 'prose max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:type-lead [&>p:first-child]:text-on-surface-variant [&>p:first-child]:max-w-[52ch]';
 ---
 
 <Base

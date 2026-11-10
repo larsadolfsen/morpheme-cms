@@ -9,7 +9,7 @@ export default function FooterLink({ href, children }: { href: string; children:
   return (
     <a
       href={href}
-      className="inline-flex min-h-6 items-center gap-1 type-body-medium text-ink hover:underline focus-visible:underline"
+      className="inline-flex min-h-6 items-center gap-1 type-body-medium text-on-surface hover:underline focus-visible:underline"
       {...(isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
     >
       {children}

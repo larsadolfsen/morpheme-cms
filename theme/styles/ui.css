@@ -109,7 +109,7 @@
   --elevation-3: 0 2px 4px rgb(0 0 0 / 0.07), 0 12px 28px -10px rgb(0 0 0 / 0.22);
   --elevation-4: 0 2px 6px rgb(0 0 0 / 0.08), 0 16px 36px -12px rgb(0 0 0 / 0.26);
   --elevation-5: 0 4px 8px rgb(0 0 0 / 0.09), 0 20px 44px -12px rgb(0 0 0 / 0.3);
-  --elevation-0-surface: var(--bg);
+  --elevation-0-surface: var(--surface);
   --elevation-1-surface: var(--surface-container-low, var(--block-surface));
   --elevation-2-surface: var(--surface-container, var(--block-surface));
   --elevation-3-surface: var(--surface-container-high, var(--block-surface));
@@ -2401,7 +2401,7 @@
   :is(a, button:enabled).list-item-container:focus-visible,
   .list-item-with-control:not(.list-item-disabled):has(:focus-visible),
   .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:focus-visible) {
-    outline: 3px solid var(--list-item-focus-indicator-color, var(--accent));
+    outline: 3px solid var(--list-item-focus-indicator-color, var(--primary));
     outline-offset: -3px;
   }
   .list-item-with-control :focus-visible,
@@ -2476,8 +2476,8 @@
     height: var(--list-item-avatar-size, 2.5rem);
     place-items: center;
     border-radius: 9999px;
-    background: var(--list-item-avatar-surface, var(--accent-container));
-    color: var(--list-item-avatar-text, var(--on-accent-container));
+    background: var(--list-item-avatar-surface, var(--primary-container));
+    color: var(--list-item-avatar-text, var(--on-primary-container));
     font-weight: 500;
     line-height: 1;
     object-fit: cover;
@@ -2855,7 +2855,7 @@
   /* Top app bar (m3.material.io/components/top-app-bar). */
   .top-app-bar {
     border-bottom: var(--top-app-bar-line-width, 1px) solid var(--top-app-bar-line, transparent);
-    background: var(--top-app-bar-surface, color-mix(in oklab, var(--bg) 85%, transparent));
+    background: var(--top-app-bar-surface, color-mix(in oklab, var(--surface) 85%, transparent));
     backdrop-filter: var(--top-app-bar-backdrop, blur(16px));
     transition:
       background-color var(--motion-effects),
@@ -2863,7 +2863,7 @@
       box-shadow var(--motion-effects);
   }
   .top-app-bar[data-stuck] {
-    border-color: var(--top-app-bar-stuck-line, color-mix(in oklab, var(--line) 60%, transparent));
+    border-color: var(--top-app-bar-stuck-line, color-mix(in oklab, var(--outline-variant) 60%, transparent));
     background: var(--top-app-bar-stuck-surface, var(--elevation-2-surface));
     box-shadow: var(--top-app-bar-stuck-shadow, var(--elevation-2-rest-shadow));
   }
@@ -3877,16 +3877,16 @@
     background: var(--fab-tertiary-pressed, var(--fab-tertiary-hover, color-mix(in srgb, var(--on-tertiary) 8%, var(--tertiary))));
   }
   .fab-primary-container {
-    background: var(--fab-primary-container-surface, var(--accent-container));
-    color: var(--fab-primary-container-text, var(--on-accent-container));
+    background: var(--fab-primary-container-surface, var(--primary-container));
+    color: var(--fab-primary-container-text, var(--on-primary-container));
   }
   .fab-primary-container:hover {
-    background: var(--fab-primary-container-hover, color-mix(in srgb, var(--on-accent-container) 8%, var(--accent-container)));
+    background: var(--fab-primary-container-hover, color-mix(in srgb, var(--on-primary-container) 8%, var(--primary-container)));
   }
   .fab-primary-container:active {
     background: var(
       --fab-primary-container-pressed,
-      var(--fab-primary-container-hover, color-mix(in srgb, var(--on-accent-container) 8%, var(--accent-container)))
+      var(--fab-primary-container-hover, color-mix(in srgb, var(--on-primary-container) 8%, var(--primary-container)))
     );
   }
   .fab-secondary-container {
@@ -4418,7 +4418,7 @@
   bottom sheet's 'side-sheet' look: --side-sheet-padding (24) at the start and end; the close icon's glyph 24 from the top
   and the end edge, 12 from the headline (its 48 button holds 12 round the glyph, so the header's top and end padding is
   --side-sheet-padding less that, with no gap); the actions at least 72 high, 16 above and 24 below (not less than
-  the safe area), at the start. Headline and close icon in on-surface-variant (--muted).
+  the safe area), at the start. Headline and close icon in on-surface-variant (--on-surface-variant).
 */
 @layer components {
   /* A setting's row (SettingRow.tsx): the name and the line under it, then what sets it, on one line; the switch's
@@ -5485,7 +5485,7 @@
     border-radius: var(--tooltip-plain-radius, 0.5rem);
     background: var(--tooltip-plain-surface, var(--block-text));
     padding: var(--tooltip-plain-padding, 0.25rem 0.5rem);
-    color: var(--tooltip-plain-text, var(--bg));
+    color: var(--tooltip-plain-text, var(--surface));
     font-size: var(--tooltip-plain-font-size, var(--type-body-small-size));
     letter-spacing: var(--type-body-small-tracking);
     font-weight: var(--tooltip-plain-weight, var(--type-body-small-weight));
@@ -7019,8 +7019,8 @@
     background: color-mix(in srgb, var(--block-text) 8%, transparent);
   }
   .time-picker-period-button[aria-pressed='true'] {
-    background: var(--time-picker-period-selected-surface, var(--accent-container));
-    color: var(--time-picker-period-selected-text, var(--on-accent-container));
+    background: var(--time-picker-period-selected-surface, var(--primary-container));
+    color: var(--time-picker-period-selected-text, var(--on-primary-container));
   }
   .time-picker-period-button:focus-visible {
     outline: 2px solid var(--block-accent);

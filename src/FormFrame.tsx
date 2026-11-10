@@ -205,7 +205,7 @@ export default function FormFrame<T extends string>({
         </div>
       )}
       {(dirty || saving) && (
-        <div className="editor-save-bar fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
+        <div className="editor-save-bar fixed inset-x-0 bottom-0 z-20 border-t border-outline-variant bg-surface-container-lowest/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
           <div className="mx-auto max-w-3xl px-4 py-3 medium:px-6">
             {/* Preview beside Save, at the end of the bar, each as wide as its label. */}
             <div className="flex justify-end gap-2">

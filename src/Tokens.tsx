@@ -275,7 +275,7 @@ export default function Tokens() {
   const list = new Intl.ListFormat(locale, { type: 'conjunction' });
   return (
     <Screen title={t.parts.screens.values} back={back}>
-      <p className="mb-8 text-muted">{say.intro}</p>
+      <p className="mb-8 text-on-surface-variant">{say.intro}</p>
       <Group title={say.groups.shape}>
         {corners(style, rootSize).map((c) => (
           <ListItem

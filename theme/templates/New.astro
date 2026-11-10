@@ -26,23 +26,25 @@ const posts = (await getPosts({ unlisted: true })).filter((p) => stateOf(p.data)
 
   {rows.length > 0 && (
     <Container as="section" class="mt-12 medium:mt-16">
-      <ul class="rounded-panel border border-line px-5 medium:px-7">
+      <ul class="rounded-panel border border-outline-variant px-5 medium:px-7">
         {rows.map(({ page, current }, i) => (
-          <li id={previewId(page.data.path)} class:list={['scroll-mt-24 py-5', i > 0 && 'border-t border-line']}>
+          <li id={previewId(page.data.path)} class:list={['scroll-mt-24 py-5', i > 0 && 'border-t border-outline-variant']}>
             <p class="type-title-medium">{pageHeading(page)}</p>
             <p class="mt-1.5 flex flex-wrap gap-x-6 gap-y-1">
-              <a href={page.data.path} class="inline-flex items-center gap-1.5 text-accent hover:underline">
+              <a href={page.data.path} class="inline-flex items-center gap-1.5 text-primary hover:underline">
                 {siteT.theme.newVersion} <Icon name="arrow-right" size={16} />
               </a>
               {current ? (
-                <a href={current.data.path} class="inline-flex items-center gap-1.5 text-muted hover:text-accent">
+                <a href={current.data.path} class="inline-flex items-center gap-1.5 text-on-surface-variant hover:text-primary">
                   {siteT.theme.currentPage(displayTitle(current.data.title))}
                 </a>
               ) : (
-                <span class="text-muted">{siteT.theme.newPage}</span>
+                <span class="text-on-surface-variant">{siteT.theme.newPage}</span>
               )}
             </p>
-            {page.data.review && <p class="mt-2 max-w-[75ch] type-body-medium whitespace-pre-line text-muted">{page.data.review}</p>}
+            {page.data.review && (
+              <p class="mt-2 max-w-[75ch] type-body-medium whitespace-pre-line text-on-surface-variant">{page.data.review}</p>
+            )}
           </li>
         ))}
       </ul>
@@ -52,14 +54,14 @@ const posts = (await getPosts({ unlisted: true })).filter((p) => stateOf(p.data)
   {posts.length > 0 && (
     <Container as="section" class="mt-12 mb-20 medium:mt-16 medium:mb-28">
       <h2 class="type-headline-small medium:type-headline-medium">{siteT.theme.newPosts}</h2>
-      <p class="mt-2 max-w-[60ch] text-muted">{siteT.theme.newPostsIntro}</p>
-      <ul class="mt-5 rounded-panel border border-line px-5 medium:px-7">
+      <p class="mt-2 max-w-[60ch] text-on-surface-variant">{siteT.theme.newPostsIntro}</p>
+      <ul class="mt-5 rounded-panel border border-outline-variant px-5 medium:px-7">
         {posts.map((p, i) => (
-          <li class:list={['py-4', i > 0 && 'border-t border-line']}>
-            <a href={postPath(p)} class="inline-flex items-center gap-1.5 font-medium hover:text-accent">
+          <li class:list={['py-4', i > 0 && 'border-t border-outline-variant']}>
+            <a href={postPath(p)} class="inline-flex items-center gap-1.5 font-medium hover:text-primary">
               {displayTitle(p.data.title)} <Icon name="arrow-right" size={16} />
             </a>
-            {p.data.description && <p class="mt-1 max-w-[75ch] type-body-medium text-muted">{p.data.description}</p>}
+            {p.data.description && <p class="mt-1 max-w-[75ch] type-body-medium text-on-surface-variant">{p.data.description}</p>}
           </li>
         ))}
       </ul>

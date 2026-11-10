@@ -16,8 +16,10 @@ export const fileIcons: Record<FileKind, Icon> = { pdf: FilePdf, video: FileVide
 /** src: where the browser gets it (the site, or the bytes in this browser); name: its file name. */
 export function FileView({ src, name }: { src: string; name: string }) {
   const kind = kindOf(name);
-  if (kind === 'picture') return <img src={src} alt="" className="max-h-[45dvh] w-full rounded-xl bg-tint object-contain" />;
-  if (kind === 'video') return <video src={src} controls preload="metadata" className="max-h-[45dvh] w-full rounded-xl bg-tint" />;
+  if (kind === 'picture')
+    return <img src={src} alt="" className="max-h-[45dvh] w-full rounded-xl bg-surface-container-high object-contain" />;
+  if (kind === 'video')
+    return <video src={src} controls preload="metadata" className="max-h-[45dvh] w-full rounded-xl bg-surface-container-high" />;
   return kind === 'pdf' ? (
     <LinkButton href={src} target="_blank" rel="noopener" kind="outlined" icon={ArrowSquareOut}>
       {t.media.openPdf}

@@ -241,7 +241,7 @@ export function usePagePreview(): [(draft: () => PageDraft | null) => void, Reac
       {html ? (
         <PageFrame html={html} width={PREVIEW_WIDTH[size]} title={t.preview.title} />
       ) : (
-        <p className="px-5 text-muted">{problem || t.preview.making}</p>
+        <p className="px-5 text-on-surface-variant">{problem || t.preview.making}</p>
       )}
     </BottomSheet>
   );

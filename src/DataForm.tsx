@@ -389,7 +389,7 @@ function Form({
                   <div className="space-y-6">
                     {drawn.map((d) => (
                       <section key={d.label}>
-                        {d.label && <h3 className="mb-2 text-sm font-medium text-muted">{d.label}</h3>}
+                        {d.label && <h3 className="mb-2 text-sm font-medium text-on-surface-variant">{d.label}</h3>}
                         <Preview>{d.node}</Preview>
                       </section>
                     ))}

@@ -160,7 +160,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
   };
   // The generator's choice: the one the colours were made from, else where it starts (the accent colour in light mode,
   // the first harmony, Material's standard contrast). Choosing makes the colours from it.
-  const choiceOf = (c: ColorsData): Dynamic => c.dynamic ?? { source: c.light.accent, harmony: HARMONIES[0], contrast: 'standard' };
+  const choiceOf = (c: ColorsData): Dynamic => c.dynamic ?? { source: c.light.primary, harmony: HARMONIES[0], contrast: 'standard' };
   const choice = choiceOf(colors);
   const update = (change: (d: Dynamic) => Dynamic) => setColors((c) => ({ ...c, ...madeFrom(change(choiceOf(c))) }));
   const setDynamic = (change: Partial<Dynamic>) => update((d) => ({ ...d, ...change }));
@@ -349,7 +349,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
   function modeColors() {
     return (
       <>
-        <p className="text-muted">{changing.length ? t.colors.pages.fallbackIntro(appNames) : t.colors.intro}</p>
+        <p className="text-on-surface-variant">{changing.length ? t.colors.pages.fallbackIntro(appNames) : t.colors.intro}</p>
         {loaded.unreadable && file && <ProblemNote>{t.colors.unreadable}</ProblemNote>}
         {/* On a wide computer screen the colours in the wide column, and the preview beside them, in view
           while they are changed. */}
@@ -398,7 +398,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
 type BuiltPage = { path: string; light: Record<string, string>; dark: Record<string, string>; app?: string; picture?: string };
 
 // The colours shown of a page, by their names: the accent colour, the light colour, the background and the text.
-const SHOWN = ['accent', 'tint', 'bg', 'ink'];
+const SHOWN = ['primary', 'surface-container-high', 'surface', 'on-surface'];
 
 /** "Sider": the apps that change the pages' colours, each to its settings, and each page's colours as the site was last
  * built, those from a picture first. */
@@ -448,7 +448,7 @@ function PageColors({ env, files, apps, mode }: { env: Env; files: RepoFile[]; a
 
   return (
     <>
-      <p className="text-muted">{p.intro}</p>
+      <p className="text-on-surface-variant">{p.intro}</p>
       <Group title={p.apps}>
         {apps.map((app) => (
           <ListItem

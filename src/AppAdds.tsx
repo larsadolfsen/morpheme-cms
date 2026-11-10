@@ -158,7 +158,7 @@ export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: En
           <SheetBody>
             <div className="flex items-start gap-3">
               <LeadingIcon icon={open.icon} />
-              <p className="pt-1.5 text-muted">{open.hint ?? open.label}</p>
+              <p className="pt-1.5 text-on-surface-variant">{open.hint ?? open.label}</p>
             </div>
             {open.block ? (
               <BlockSwitch block={open.block} env={env} files={files} />
@@ -179,7 +179,7 @@ export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: En
                   ))}
                 </ul>
               ) : (
-                <p className="text-muted">{t.apps.notUsed}</p>
+                <p className="text-on-surface-variant">{t.apps.notUsed}</p>
               )}
             </div>
           </SheetBody>

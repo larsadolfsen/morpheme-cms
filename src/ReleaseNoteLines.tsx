@@ -8,7 +8,7 @@ export function ReleaseNoteLines({ lines }: { lines: ReleaseNote[] }) {
   return (
     <div className="space-y-2">
       <h4 className="text-base font-medium">{t.cms.alsoInThisVersion}</h4>
-      <ul className="list-disc space-y-1 ps-5 text-base marker:text-accent">
+      <ul className="list-disc space-y-1 ps-5 text-base marker:text-primary">
         {lines.map((note) => (
           <li key={note.id} className="[overflow-wrap:anywhere]">
             {note.text}

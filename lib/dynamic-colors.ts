@@ -130,8 +130,7 @@ export type ContentBased = { variant: Variant; contrast: Contrast };
 /** The variant Material uses for content-based colour: the one closest to the picture. */
 export const CONTENT_VARIANT: Variant = 'content';
 
-/** Material's colour roles a site's colour can take, and one Material has not: `primaryHover`, the primary
- * colour a little further from the text on it (a button under the mouse). */
+/** Material's colour roles (m3.material.io/styles/color/roles), which a site's colours are, each by its own name. */
 export type Role =
   | 'surface'
   | 'surfaceDim'
@@ -164,19 +163,26 @@ export type Role =
   | 'inverseSurface'
   | 'inverseOnSurface'
   | 'inversePrimary'
-  | 'primaryHover';
+  | 'primaryFixed'
+  | 'primaryFixedDim'
+  | 'onPrimaryFixed'
+  | 'onPrimaryFixedVariant'
+  | 'secondaryFixed'
+  | 'secondaryFixedDim'
+  | 'onSecondaryFixed'
+  | 'onSecondaryFixedVariant'
+  | 'tertiaryFixed'
+  | 'tertiaryFixedDim'
+  | 'onTertiaryFixed'
+  | 'onTertiaryFixedVariant'
+  | 'scrim'
+  | 'shadow';
 
 /** The role each of a site's colours takes, by its name; one role, or one in each mode. */
 export type ColorRoles = Record<string, Role | Record<Mode, Role>>;
 
-// How many tones a button under the mouse moves away from its text.
-const HOVER = 5;
-
 function roleColor(scheme: DynamicScheme, role: Role): string {
-  if (role !== 'primaryHover') return hexFromArgb(scheme[role]);
-  const primary = Hct.fromInt(scheme.primary);
-  const away = Hct.fromInt(scheme.onPrimary).tone > primary.tone ? -HOVER : HOVER;
-  return hexFromArgb(Hct.from(primary.hue, primary.chroma, Math.min(100, Math.max(0, primary.tone + away))).toInt());
+  return hexFromArgb(scheme[role]);
 }
 
 // Material's error colour, which a harmony turns a little towards the source colour (Blend.harmonize, as Material
@@ -224,26 +230,25 @@ export function dynamicColors(dynamic: Dynamic, roles: ColorRoles): Colors {
 
 // The colours a file of colours written before they were among the site's had in the theme, from the others (mixed in
 // sRGB, as the theme's CSS mixed them): Material's three surfaces the page's, the dim one a step towards the text in
-// light mode and the bright one a step towards it in dark mode (where the page is the darkest), the surface containers a step each towards the text from the surfaces tinted
-// with the light colour, the lowest the surfaces, the outline between the quiet text and the surfaces, the inverse
-// colours the text's on the page's with the light colour for its buttons, and the error colours the accent colours.
+// light mode and the bright one a step towards it in dark mode (where the page is the darkest), the surface containers a step each towards the text from the surfaces,
+// the lowest the surfaces, the outline between the quiet text and the surfaces, the inverse
+// colours the text's on the page's with the light colour for its buttons and the error colours the primary colours.
 const MIXED: Record<string, (set: ColorSet, mode: Mode) => string | undefined> = {
-  'surface-dim': (c, mode) => (mode === 'light' ? mix(c.ink, 0.12, c.bg) : c.bg),
-  'surface-default': (c) => c.bg,
-  'surface-bright': (c, mode) => (mode === 'dark' ? mix(c.ink, 0.15, c.bg) : c.bg),
+  'surface-dim': (c, mode) => (mode === 'light' ? mix(c['on-surface'], 0.12, c.surface) : c.surface),
+  'surface-bright': (c, mode) => (mode === 'dark' ? mix(c['on-surface'], 0.15, c.surface) : c.surface),
   'surface-container-lowest': (c) => c.surface,
-  'surface-container-low': (c) => mix(c.ink, 0.03, mix(c.tint, 0.3, c.surface)),
-  'surface-container': (c) => mix(c.ink, 0.05, mix(c.tint, 0.3, c.surface)),
-  'surface-container-high': (c) => mix(c.ink, 0.08, mix(c.tint, 0.3, c.surface)),
-  'surface-container-highest': (c) => mix(c.ink, 0.11, mix(c.tint, 0.3, c.surface)),
-  outline: (c) => mix(c.muted, 0.7, c.surface),
-  'inverse-surface': (c) => c.ink,
-  'inverse-on-surface': (c) => c.bg,
-  'inverse-primary': (c) => c.tint,
-  error: (c) => c.accent,
-  'on-error': (c) => c['on-accent'],
-  'error-container': (c) => c['accent-container'],
-  'on-error-container': (c) => c['on-accent-container'],
+  'surface-container-low': (c) => mix(c['on-surface'], 0.03, c.surface),
+  'surface-container': (c) => mix(c['on-surface'], 0.05, c.surface),
+  'surface-container-high': (c) => mix(c['on-surface'], 0.08, c.surface),
+  'surface-container-highest': (c) => mix(c['on-surface'], 0.11, c.surface),
+  outline: (c) => mix(c['on-surface-variant'], 0.7, c.surface),
+  'inverse-surface': (c) => c['on-surface'],
+  'inverse-on-surface': (c) => c.surface,
+  'inverse-primary': (c) => c['primary-container'],
+  error: (c) => c.primary,
+  'on-error': (c) => c['on-primary'],
+  'error-container': (c) => c['primary-container'],
+  'on-error-container': (c) => c['on-primary-container'],
 };
 
 /** `share` of colour `a` in colour `b`, in sRGB; undefined when one is not a colour. */

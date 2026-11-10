@@ -1343,14 +1343,14 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   };
 
   return (
-    <div className="rounded-panel border border-line bg-surface">
+    <div className="rounded-panel border border-outline-variant bg-surface-container-lowest">
       {/* A bar with round corners and room all round it, inside the text's box. Stays at the top while scrolling through the text, a little under the app's top bar (Screen.tsx,
           4rem and its line). The buttons are centred on one line; when they do not fit, the line starts at the left and
           the arrow at its end shows the rest on a second line (measure above). */}
       <Toolbar
         ref={toolbar}
         label={t.text.tools}
-        className="editor-tools sticky top-[calc(env(safe-area-inset-top)+--spacing(2))] z-10 m-2 items-start rounded-panel border border-line pb-(--toolbar-docked-padding-block)"
+        className="editor-tools sticky top-[calc(env(safe-area-inset-top)+--spacing(2))] z-10 m-2 items-start rounded-panel border border-outline-variant pb-(--toolbar-docked-padding-block)"
       >
         <div
           ref={line}
@@ -1365,7 +1365,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         >
           {tools.map((tool) => (
             <ReactFragment key={tool.label}>
-              {lineBefore(tool) && <span aria-hidden="true" className="mx-1 my-2 w-px shrink-0 self-stretch bg-line" />}
+              {lineBefore(tool) && <span aria-hidden="true" className="mx-1 my-2 w-px shrink-0 self-stretch bg-outline-variant" />}
               {button(tool)}
             </ReactFragment>
           ))}
@@ -1389,7 +1389,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           </MenuItem>
         ))}
         <MenuItem icon={TextAa} selected={!active.includes('textColor')} onClick={() => color(null)}>
-          <span className="text-ink">{t.text.noColor}</span>
+          <span className="text-on-surface">{t.text.noColor}</span>
         </MenuItem>
       </Menu>
       <Menu anchor={kindsAt?.at ?? null} label={t.text.kind} onClose={() => setKindsAt(null)}>

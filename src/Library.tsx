@@ -481,8 +481,8 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
         <img src={of.icon} alt="" className="size-16 shrink-0 rounded-2xl" />
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium">{of.name}</span>
-          <span className="block truncate text-sm text-muted">{t.library.themeByline(of.version, of.author)}</span>
-          {status && <span className="block text-sm text-muted">{status}</span>}
+          <span className="block truncate text-sm text-on-surface-variant">{t.library.themeByline(of.version, of.author)}</span>
+          {status && <span className="block text-sm text-on-surface-variant">{status}</span>}
         </span>
       </div>
       {of.id !== chosen && themeInstalled(of.id) && (
@@ -671,7 +671,7 @@ export function Blocks({ files }: { files: RepoFile[] }) {
         </div>
       )}
       {!inGroups.length ? (
-        <p className="mb-8 px-1 text-muted">{t.common.noMatch}</p>
+        <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
       ) : sort === 'group' ? (
         inGroups.map((g) => <PartGroup key={g.title} title={g.title} route="blocks" parts={g.parts} />)
       ) : (
@@ -1487,7 +1487,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
           </Group>
         ))
       ) : (
-        <p className="mb-8 px-1 text-muted">{t.common.noMatch}</p>
+        <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
       )}
       {/* A new entry: the list's FAB, or a FAB menu of its kinds when it has several (a pop-up: Standard or an app's, e.g. Mailchimp). */}
       <ListFab collection={collection} kinds={kinds} />
@@ -1507,7 +1507,7 @@ function Under({ item, address, children }: { item: Item; address?: boolean; chi
 }
 
 // A page's or post's status (Item.status) before its date or time.
-const Status = ({ item }: { item: Item }) => (item.status ? <span className="mr-2 font-medium text-accent">{item.status}</span> : null);
+const Status = ({ item }: { item: Item }) => (item.status ? <span className="mr-2 font-medium text-primary">{item.status}</span> : null);
 
 // The time a page was last saved, under its name (a space until it has come, so rows do not jump).
 function SavedTime({ item }: { item: Item }) {

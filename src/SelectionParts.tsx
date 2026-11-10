@@ -115,14 +115,14 @@ export default function SelectionParts() {
           <div className="space-y-6 py-4">
             {dividerKinds.map((k) => (
               <div key={k} className="space-y-2">
-                <p className="px-4 text-sm text-muted">{say.kinds[k]}</p>
+                <p className="px-4 text-sm text-on-surface-variant">{say.kinds[k]}</p>
                 <SiteDivider kind={k} />
               </div>
             ))}
             <div className="flex h-16 items-center gap-4 px-4">
-              <span className="text-sm text-muted">{say.kinds.vertical}</span>
+              <span className="text-sm text-on-surface-variant">{say.kinds.vertical}</span>
               <SiteDivider vertical />
-              <span className="text-sm text-muted">{say.kinds['middle-inset']}</span>
+              <span className="text-sm text-on-surface-variant">{say.kinds['middle-inset']}</span>
               <SiteDivider vertical kind="middle-inset" />
             </div>
           </div>
@@ -132,14 +132,14 @@ export default function SelectionParts() {
         <Preview>
           <div className="space-y-6">
             <div className="space-y-2">
-              <p className="px-2 text-sm text-muted">{say.sheetKinds.standard}</p>
+              <p className="px-2 text-sm text-on-surface-variant">{say.sheetKinds.standard}</p>
               <div className="flex h-80 overflow-hidden">
-                <p className="hidden min-w-0 flex-1 p-4 text-muted medium:block">{say.page}</p>
+                <p className="hidden min-w-0 flex-1 p-4 text-on-surface-variant medium:block">{say.page}</p>
                 {sheet('standard')}
               </div>
             </div>
             <div className="space-y-2">
-              <p className="px-2 text-sm text-muted">{say.sheetKinds.modal}</p>
+              <p className="px-2 text-sm text-on-surface-variant">{say.sheetKinds.modal}</p>
               <div className="ml-auto h-80 w-full max-w-sm">{sheet('modal')}</div>
             </div>
           </div>

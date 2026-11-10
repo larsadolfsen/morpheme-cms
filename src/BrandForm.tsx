@@ -127,12 +127,15 @@ export default function BrandForm({ env }: { env: Env }) {
     >
       <section>
         <h2 className="mb-1 font-medium">{t.company.brand.logo}</h2>
-        <p className="mb-3 text-sm text-muted">{t.company.brand.logoHint}</p>
+        <p className="mb-3 text-sm text-on-surface-variant">{t.company.brand.logoHint}</p>
         <div className="flex flex-wrap items-center gap-4">
-          <div data-logo-preview className="flex items-center gap-2.5 rounded-2xl border border-line bg-surface px-4 py-3">
+          <div
+            data-logo-preview
+            className="flex items-center gap-2.5 rounded-2xl border border-outline-variant bg-surface-container-lowest px-4 py-3"
+          >
             <span
               aria-hidden="true"
-              className="h-10 w-9 shrink-0 bg-accent [mask-size:contain] [mask-position:center] [mask-repeat:no-repeat]"
+              className="h-10 w-9 shrink-0 bg-primary [mask-size:contain] [mask-position:center] [mask-repeat:no-repeat]"
               style={mask}
             />
             <span className="font-medium tracking-tight">{siteName}</span>

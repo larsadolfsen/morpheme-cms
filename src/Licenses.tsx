@@ -212,7 +212,7 @@ export default function Licenses() {
               </Group>
             ))
           ) : (
-            <p className="mb-8 px-1 text-muted">{t.common.noMatch}</p>
+            <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
           )}
         </>
       )}
@@ -272,7 +272,7 @@ export function LicensePage({ id }: { id: string }) {
                 </p>
               ))
             ) : (
-              <p className="px-4 text-muted">{t.licenses.noText}</p>
+              <p className="px-4 text-on-surface-variant">{t.licenses.noText}</p>
             )}
           </section>
         </>

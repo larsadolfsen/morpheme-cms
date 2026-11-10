@@ -80,7 +80,7 @@ function PhotoCredit({ by, line }: { by: string | null; line: string }) {
           aria-label={t.library.photoInfo}
           aria-expanded={open}
           onClick={() => (open && Date.now() - openedAt.current < 400 ? undefined : open ? setOpen(false) : show())}
-          className="grid size-12 place-items-center rounded-full text-muted focus-visible:outline-2 focus-visible:outline-offset-[-8px]"
+          className="grid size-12 place-items-center rounded-full text-on-surface-variant focus-visible:outline-2 focus-visible:outline-offset-[-8px]"
         >
           <Svg name="info" size={20} />
         </button>
@@ -136,7 +136,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
               <PhotoCredit by={edition.by} line={edition.line} />
             </p>
           )}
-          {news.length > 0 && <p className="mt-2 text-sm text-muted">{t.library.newThings(news.length)}</p>}
+          {news.length > 0 && <p className="mt-2 text-sm text-on-surface-variant">{t.library.newThings(news.length)}</p>}
           <div className="mt-auto flex flex-wrap justify-end gap-2 pt-4">
             <Button kind="text" size="small" onClick={close}>
               {t.common.close}
@@ -150,7 +150,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
         </div>
       </div>
       {updatedApps.length > 0 && (
-        <ul className={`${plainListClass} border-t border-line`}>
+        <ul className={`${plainListClass} border-t border-outline-variant`}>
           {updatedApps.map(({ app, version }) => (
             <ListItem
               key={app.id}

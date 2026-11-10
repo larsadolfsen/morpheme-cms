@@ -111,7 +111,7 @@ function VersionRows({ list, onPick }: { list: ReturnType<typeof useVersionList>
     <>
       {problem && <ProblemNote>{problem}</ProblemNote>}
       {!versions && !problem && <EmptyNote busy>{t.history.loading}</EmptyNote>}
-      {versions && versions.length < 2 && !more && <p className="text-muted">{t.history.none}</p>}
+      {versions && versions.length < 2 && !more && <p className="text-on-surface-variant">{t.history.none}</p>}
       {versions && versions.length > 0 && (
         <ul className={listClass}>
           {versions.map((v, i) => (

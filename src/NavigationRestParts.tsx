@@ -106,7 +106,7 @@ export default function NavigationRestParts() {
               >
                 <Destinations rail />
               </SiteNavigationRail>
-              <p className="p-4 text-sm text-muted">{say.content}</p>
+              <p className="p-4 text-sm text-on-surface-variant">{say.content}</p>
             </div>
             <div className="space-y-4">
               <div className="flex">
@@ -121,14 +121,14 @@ export default function NavigationRestParts() {
                     aria-expanded="false"
                     data-navigation-rail-menu=""
                   />
-                  <p className="py-3 text-sm text-muted">{say.content}</p>
+                  <p className="py-3 text-sm text-on-surface-variant">{say.content}</p>
                 </div>
               </div>
               <div className="flex">
                 <SiteNavigationRail label={say.name} menuLabel={say.menu} expanded expandedBehavior="hide">
                   <Destinations rail />
                 </SiteNavigationRail>
-                <p className="p-4 text-sm text-muted">{say.content}</p>
+                <p className="p-4 text-sm text-on-surface-variant">{say.content}</p>
               </div>
             </div>
           </div>
