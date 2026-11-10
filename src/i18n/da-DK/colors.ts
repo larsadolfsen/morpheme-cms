@@ -18,6 +18,9 @@ export const colors: Messages['colors'] = {
   },
   tooLow: (what, ratio, min) => `For lav kontrast: ${what.charAt(0).toLowerCase()}${what.slice(1)} (${ratio}, mindst ${min}).`,
   notAColorAt: (where) => `Ikke en farve: ${where}`,
+  oldNames: (found) => `Farverne har navnene fra før Material 3. Omdøb dem som angivet, eller lav farverne igen under Farver. ${found}`,
+  oldNameTo: (from, to) => `${from} → ${to}`,
+  oldNameGone: (from) => `${from} (slet den)`,
   cannotSave: 'Nogle farver har for lav kontrast. Ret dem, der er markeret med rødt.',
   unreadable: 'Farverne kunne ikke læses. Standardfarverne vises.',
   dynamic: {
