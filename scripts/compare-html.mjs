@@ -14,7 +14,7 @@ import { join, relative, resolve } from 'node:path';
 const ROOT = `${process.cwd()}/`;
 const [before, after = 'dist'] = process.argv.slice(2).map((d) => resolve(ROOT, d));
 if (!before || !existsSync(before) || !existsSync(after)) {
-  console.error('Brug: npx morpheme compare-html <bygget site før> [bygget site efter, ellers dist]');
+  console.error('Usage: npx morpheme compare-html <built site before> [built site after, else dist]');
   process.exit(1);
 }
 
@@ -59,7 +59,7 @@ const now = pages(after);
 const problems = [];
 for (const page of now) {
   if (!was.has(page)) {
-    problems.push(`${page}: findes kun efter.`);
+    problems.push(`${page}: only exists after.`);
     continue;
   }
   was.delete(page);
@@ -69,13 +69,13 @@ for (const page of now) {
   let i = 0;
   while (a[i] === b[i]) i++;
   const around = (s) => s.slice(Math.max(0, i - 120), i + 200);
-  problems.push(`${page}:\n  før:   …${around(a)}…\n  efter: …${around(b)}…`);
+  problems.push(`${page}:\n  before: …${around(a)}…\n  after:  …${around(b)}…`);
 }
-for (const page of was) problems.push(`${page}: findes kun før.`);
+for (const page of was) problems.push(`${page}: only exists before.`);
 
 if (problems.length) {
-  console.error(`${problems.length} af ${now.length} sider er ikke de samme (${relative(ROOT, before)} og ${relative(ROOT, after)}):\n`);
+  console.error(`${problems.length} of ${now.length} pages are not the same (${relative(ROOT, before)} and ${relative(ROOT, after)}):\n`);
   console.error(problems.join('\n\n'));
   process.exit(1);
 }
-console.log(`De ${now.length} sider er de samme.`);
+console.log(`The ${now.length} pages are the same.`);

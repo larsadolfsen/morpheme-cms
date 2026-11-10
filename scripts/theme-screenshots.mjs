@@ -1,5 +1,5 @@
 // Takes the pictures of the site in each theme installed (src/themes/), shown on the theme's page in the editor
-// ("Udseende" › "Temaer" › the theme, ThemePage in packages/editor/src/Library.tsx): the CMS's demo site (demo/, never the
+// ("Appearance" › "Themes" › the theme, ThemePage in packages/editor/src/Library.tsx): the CMS's demo site (demo/, never the
 // site's own content) built with the theme (demo-site.mjs, in a folder of its own), opened on a phone, and the top of each
 // page in SHOTS taken, into the theme's screenshots/<n>-<key>.jpg (the standard theme's in this package's theme/, another's
 // in src/themes/<theme>/; packages/editor/src/themes.ts reads them; their names in the editor are t.library.themeShots[key]). Without
@@ -52,7 +52,7 @@ function serve(dir) {
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
 try {
   for (const theme of themes) {
-    console.log(`\nTemaet ${theme}:`);
+    console.log(`\nTheme ${theme}:`);
     const demo = demoSite(theme);
     const out = join(demo, 'dist');
     try {
@@ -78,7 +78,7 @@ try {
         await page.close();
       }
       server.close();
-      console.log(`${SHOTS.length} billeder i ${themeFolder(theme)}/screenshots/.`);
+      console.log(`${SHOTS.length} pictures in ${themeFolder(theme)}/screenshots/.`);
     } finally {
       rmSync(demo, { recursive: true, force: true });
     }

@@ -4,7 +4,7 @@
 // packages/editor/src/icon.tsx), there or on one of the built site's pages. An icon drawn from Material Symbols instead
 // of the icon pack (data-icon-fallback) is only listed, with where it is: it does not fail.
 // The screens are found as the editor's own links: from the start screen (the drawer's links are in the page also while it is
-// closed) and "Parts", #developer/parts, "Temaer", #appearance/themes, "Søgemaskineoptimering", #seo, "Appstore", #settings/appstore, and "Apps", #apps, which the menu no longer links to), and
+// closed) and "Parts", #developer/parts, "Themes", #appearance/themes, "Search engine optimization", #seo, "Appstore", #settings/appstore, and "Apps", #apps, which the menu no longer links to), and
 // from each screen it opens, two steps down. GitHub is answered from the files in this repository, so it needs no login
 // and changes nothing. It runs on the built site: npm run build && npm run check:screens (or on another
 // folder with a built site, its path after the command: packages/editor/scripts/check-themes.mjs).
@@ -15,20 +15,24 @@ import { mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { openEditor, serveBuilt } from './built-site.mjs';
 
+// The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages.
+const { apps: da } = await import('../src/i18n/da-DK/apps.ts');
+const { app: daApp } = await import('../src/i18n/da-DK/app.ts');
+
 const ROOT = `${process.cwd()}/`;
 const DIST = resolve(ROOT, process.argv[2] ?? 'dist');
 if (!existsSync(join(DIST, 'editor/index.html'))) {
-  console.error(`Der er intet bygget site i ${DIST}. Kør npm run build først.`);
+  console.error(`There is no built site in ${DIST}. Run npm run build first.`);
   process.exit(1);
 }
 
 const missingIcon = (name) =>
   name
-    ? `ikonet "${name}" findes ikke (et spørgsmålstegn i stedet): skriv det i packages/editor/src/icon.tsx`
-    : 'et ikon er ikke en SVG-fil (et spørgsmålstegn i stedet)';
+    ? `the icon "${name}" does not exist (a question mark instead): write it in packages/editor/src/icon.tsx`
+    : 'an icon is not an SVG file (a question mark instead)';
 
 const fallbackIcon = (name) =>
-  `ikonet "${name}" er fra Material Symbols (ikke i ikonpakken): giv det et ikon i hver pakkes kort, hvis det skal blive`;
+  `the icon "${name}" is from Material Symbols (not in the icon pack): give it an icon in each pack's map if it is to stay`;
 
 // The icons not found on the built site's pages: each one once, with the pages it is on.
 const problems = [];
@@ -45,7 +49,7 @@ for (const entry of readdirSync(DIST, { recursive: true, withFileTypes: true }))
 }
 for (const [name, pages] of missingOn) {
   const shown = [...pages].slice(0, 3).join(', ');
-  problems.push(`${shown}${pages.size > 3 ? ` og ${pages.size - 3} sider til` : ''}: ${missingIcon(name)}`);
+  problems.push(`${shown}${pages.size > 3 ? ` and ${pages.size - 3} more pages` : ''}: ${missingIcon(name)}`);
 }
 
 const { server, site } = await serveBuilt(DIST);
@@ -68,7 +72,7 @@ for (const [width, height] of [
   });
   await openEditor(page, site);
 
-  // From the start screen (the drawer's links), and from "Parts", "Temaer", "Søgemaskineoptimering" and "Appstore"
+  // From the start screen (the drawer's links), and from "Parts", "Themes", "Search engine optimization" and "Appstore"
   // (the apps' pages and their developers'), whose screens are a step further down than the others. "Apps" (the list of
   // the apps installed) has no row in the menu, so it is a start of its own.
   const starts = ['', 'developer/parts', 'appearance/themes', 'seo', 'settings/appstore', 'apps'];
@@ -90,9 +94,9 @@ for (const [width, height] of [
       }));
       for (const name of new Set(state.fallback)) fallbackAt(name, `${width}px #${hash}`);
       for (const name of new Set(state.missing)) problems.push(`${width}px #${hash}: ${missingIcon(name)}`);
-      if (state.empty) problems.push(`${width}px #${hash}: skærmen er tom`);
-      if (state.text.includes(`Der er ikke noget på adressen ${hash}.`))
-        problems.push(`${width}px #${hash}: der er ikke noget på adressen`);
+      if (state.empty) problems.push(`${width}px #${hash}: the screen is empty`);
+      if (state.text.includes(`${daApp.nothingAt(hash)}.`))
+        problems.push(`${width}px #${hash}: there is nothing at the address`);
       for (const link of state.links) {
         if (seen.has(link)) continue;
         seen.add(link);
@@ -111,18 +115,18 @@ mkdirSync(shots, { recursive: true });
 const keyStates = {
   open: {
     appstore: {
-      shows: ['Hjemmesiden er ikke forbundet til Morpheme', 'Forbind til Morpheme'],
-      hides: ['Afbryd forbindelsen til Morpheme'],
+      shows: [da.connectTitle, da.connect],
+      hides: [da.disconnect],
     },
-    morpheme: { shows: ['Forbind til Morpheme'], hides: ['Afbryd forbindelsen til Morpheme'] },
+    morpheme: { shows: [da.connect], hides: [da.disconnect] },
   },
   readOnly: {
-    appstore: { shows: ['Hjemmesiden har ingen Appstore'], hides: ['Forbind til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
-    morpheme: { shows: ['Hjemmesiden har ingen Appstore'], hides: ['Forbind til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
+    appstore: { shows: [da.noStore], hides: [da.connect, da.disconnect] },
+    morpheme: { shows: [da.noStore], hides: [da.connect, da.disconnect] },
   },
   button: {
-    appstore: { shows: [], hides: ['Forbundet til Morpheme', 'Afbryd forbindelsen til Morpheme'] },
-    morpheme: { shows: ['Forbundet til Morpheme', 'site_sample', 'Afbryd forbindelsen til Morpheme'], hides: ['Forbind til Morpheme'] },
+    appstore: { shows: [], hides: [da.connected, da.disconnect] },
+    morpheme: { shows: [da.connected, 'site_sample', da.disconnect], hides: [da.connect] },
   },
 };
 // The screens that show the key: where each is (its address after the "#", CMS_ROUTE in CmsPage.tsx for "Morpheme").
@@ -135,8 +139,8 @@ for (const [state, checks] of Object.entries(keyStates)) {
     await page.evaluate((hash) => (location.hash = hash), keyScreens[screen]);
     await page.waitForTimeout(500);
     const text = await page.evaluate(() => document.body.innerText);
-    for (const x of shows) if (!text.includes(x)) problems.push(`${screen} (${state}): "${x}" mangler`);
-    for (const x of hides) if (text.includes(x)) problems.push(`${screen} (${state}): "${x}" skal ikke vises`);
+    for (const x of shows) if (!text.includes(x)) problems.push(`${screen} (${state}): "${x}" is missing`);
+    for (const x of hides) if (text.includes(x)) problems.push(`${screen} (${state}): "${x}" must not be shown`);
     const file = join(shots, `${screen}-${state}.png`);
     await page.screenshot({ path: file });
     console.log(`${screen} (${state}): ${file}`);
@@ -148,10 +152,10 @@ await browser.close();
 server.close();
 for (const [name, places] of fallbackOn) {
   const shown = [...places].slice(0, 3).join(', ');
-  console.log(`${shown}${places.size > 3 ? ` og ${places.size - 3} steder til` : ''}: ${fallbackIcon(name)}`);
+  console.log(`${shown}${places.size > 3 ? ` and ${places.size - 3} more places` : ''}: ${fallbackIcon(name)}`);
 }
 if (problems.length) {
-  console.error(`${problems.length} fejl i editoren eller på sitet:\n${[...new Set(problems)].join('\n')}`);
+  console.error(`${problems.length} errors in the editor or on the site:\n${[...new Set(problems)].join('\n')}`);
   process.exit(1);
 }
-console.log(`${opened.size} skærme i editoren åbner uden fejl, på en telefon og på en computer, og alle ikoner findes.`);
+console.log(`${opened.size} screens in the editor open without errors, on a phone and on a computer, and all icons exist.`);

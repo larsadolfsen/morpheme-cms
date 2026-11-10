@@ -84,7 +84,7 @@ for (const [markdown, edit, expected] of [
   if (levels.join() === expected.join()) continue;
   failed++;
   console.log(
-    `\n✗ første overskrift er H1 (packages/editor/src/firstHeading.mjs)\n  tekst:  ${JSON.stringify(markdown)}${edit ? ' (ændret)' : ''}\n  vente:  ${expected}\n  fik:    ${levels}`,
+    `\n✗ the first heading is H1 (packages/editor/src/firstHeading.mjs)\n  text:     ${JSON.stringify(markdown)}${edit ? ' (changed)' : ''}\n  expected: ${expected}\n  got:      ${levels}`,
   );
 }
 
@@ -135,7 +135,7 @@ const frontSections = async (body, parts) => [
   await editor.destroy();
   if (editors !== site || !editors.includes('"sectionColor":"tint"') || !editors.includes('"sectionColor":"accent"')) {
     console.log(
-      `\n✗ en tekst med sektionsfarver giver ikke de samme sektioner i editoren og på sitet\n  editoren: ${editors}\n  sitet:    ${site}`,
+      `\n✗ a text with section colors gives different sections in the editor and on the site\n  editor: ${editors}\n  site:   ${site}`,
     );
     process.exit(1);
   }
@@ -152,13 +152,13 @@ for (const file of files) {
     ];
     if (before === after) continue;
     failed++;
-    console.log(`\n✗ ${file}\n  før:    ${before.slice(0, 300)}\n  efter:  ${after.slice(0, 300)}`);
+    console.log(`\n✗ ${file}\n  before: ${before.slice(0, 300)}\n  after:  ${after.slice(0, 300)}`);
     continue;
   }
   const { yaml, body } = splitFrontmatter(readFileSync(file, 'utf8'));
   if (writeFields(yaml, {}) !== yaml) {
     failed++;
-    console.log(`\n✗ ${file}\n  front matter skrives ikke tilbage uændret`);
+    console.log(`\n✗ ${file}\n  front matter is not written back unchanged`);
     continue;
   }
   // The template (templateWritten): the theme's default leaves no key; another one is written; changing back gives the
@@ -169,7 +169,7 @@ for (const file of files) {
       failed++;
       console.log(`
 ✗ ${file}
-  Skabelonen skiftet og skiftet tilbage giver ikke det samme front matter (${problem})`);
+  Changing the template and changing it back does not give the same front matter (${problem})`);
       continue;
     }
   }
@@ -191,7 +191,7 @@ for (const file of files) {
     if (editors !== site || editorColors !== siteColors) {
       failed++;
       const [shownEditor, shownSite] = editors !== site ? [editors, site] : [editorColors, siteColors];
-      console.log(`\n✗ ${file} som forside\n  editoren: ${shownEditor.slice(0, 300)}\n  sitet:    ${shownSite.slice(0, 300)}`);
+      console.log(`\n✗ ${file} as the front page\n  editor: ${shownEditor.slice(0, 300)}\n  site:   ${shownSite.slice(0, 300)}`);
       continue;
     }
   }
@@ -201,8 +201,8 @@ for (const file of files) {
   let i = 0;
   while (before[i] === after[i]) i++;
   console.log(
-    `\n✗ ${file}\n  før:    …${before.slice(Math.max(0, i - 80), i + 120)}\n  efter:  …${after.slice(Math.max(0, i - 80), i + 120)}`,
+    `\n✗ ${file}\n  before: …${before.slice(Math.max(0, i - 80), i + 120)}\n  after:  …${after.slice(Math.max(0, i - 80), i + 120)}`,
   );
 }
-console.log(`\n${files.length - failed} af ${files.length} filer giver samme side efter en gem i editoren.`);
+console.log(`\n${files.length - failed} of ${files.length} files give the same page after a save in the editor.`);
 process.exit(failed ? 1 : 0);

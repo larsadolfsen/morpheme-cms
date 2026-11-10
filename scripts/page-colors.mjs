@@ -1,4 +1,4 @@
-// After the build: each page's colours as it was built, in dist/editor/page-colors.json, for "Farver" › "Sider" in the
+// After the build: each page's colours as it was built, in dist/editor/page-colors.json, for "Colors" › "Pages" in the
 // editor (Colors.tsx), while an app changes the pages' colours (hooks/page-colors.ts):
 // { pages: [{ path, light: { bg, … }, dark: { … }, app?, picture? }] }, by address, read from the <style> Base.astro
 // writes them in (data-page-colors, colorsCss in packages/editor/lib/colors.ts: light mode on :root, dark mode on
