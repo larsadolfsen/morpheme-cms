@@ -73,7 +73,10 @@ expect(
 );
 const big = (text) => ({ version: 1, widgets: [{ id: 'a', widget: 'cms:status', settings: { text } }] });
 expect((await put('one', big('x'.repeat(17 * 1024)))).status === 413, 'a body of about 17 KB was not refused with 413');
-expect((await put('one', big('å'.repeat(9 * 1024)))).status === 413, 'a body of 18 KB in bytes, 9K characters, was not refused with 413');
+expect(
+  (await put('one', big('\u00e5'.repeat(9 * 1024)))).status === 413,
+  'a body of 18 KB in bytes, 9K characters, was not refused with 413',
+);
 expect(
   (await put('one', big('x'.repeat(100)), { 'content-length': '99999' })).status === 413,
   'a content-length over 16 KB was not refused with 413',

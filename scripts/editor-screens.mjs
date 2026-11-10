@@ -23,6 +23,7 @@ import { openEditor, serveBuilt } from './built-site.mjs';
 // The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages.
 const { apps: da } = await import('../src/i18n/da-DK/apps.ts');
 const { app: daApp } = await import('../src/i18n/da-DK/app.ts');
+const { cms: daCms } = await import('../src/i18n/da-DK/cms.ts');
 
 const ROOT = `${process.cwd()}/`;
 const DIST = resolve(ROOT, process.argv[2] ?? 'dist');
@@ -96,8 +97,9 @@ async function checkSettingsAndMenu(width, height) {
   const rows = await page.evaluate(settingsRows);
   const sorted = [...rows].sort((a, b) => a.text.localeCompare(b.text, 'da'));
   const names = rows.map((r) => `${r.text} (${r.href})`).join(', ');
-  if (rows.length !== 5) problems.push(`${label} #settings: ${rows.length} rækker i stedet for 5: ${names}`);
-  else if (rows.some((r, i) => r.href !== sorted[i].href)) problems.push(`${label} #settings: rækkerne er ikke A-Å efter navn: ${names}`);
+  if (rows.length !== 5) problems.push(`${label} #settings: ${rows.length} rows instead of 5: ${names}`);
+  else if (rows.some((r, i) => r.href !== sorted[i].href))
+    problems.push(`${label} #settings: the rows are not in alphabetical order by name: ${names}`);
   const hrefs = rows.map((r) => r.href).sort();
   if (
     hrefs.join() !==
@@ -113,7 +115,7 @@ async function checkSettingsAndMenu(width, height) {
   const drawerLinks = await page.evaluate(() =>
     [...document.querySelectorAll('.editor-main-drawer-panel nav a[href^="#"]')].map((a) => a.getAttribute('href')),
   );
-  for (const m of moved) if (drawerLinks.includes(`#${m}`)) problems.push(`${label} menu: menuen har et link til #${m}`);
+  for (const m of moved) if (drawerLinks.includes(`#${m}`)) problems.push(`${label} menu: the menu has a link to #${m}`);
 
   const drawer = '.editor-main-drawer-panel nav';
   if (width >= 1000) {
@@ -122,11 +124,13 @@ async function checkSettingsAndMenu(width, height) {
     const sections = items.filter((i) => i.tag === 'BUTTON').length;
     const links = items.filter((i) => i.tag === 'A').map((i) => i.href);
     if (sections !== 4 || links.join() !== '#,#settings')
-      problems.push(`${label} menu: første niveau har ${sections} sektioner og linkene ${links.join(', ')} (skal være 4 og #, #settings)`);
+      problems.push(
+        `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 4 and #, #settings)`,
+      );
     checkCog(label, 'menuen', items, height);
   } else {
     // The modal drawer: open it with the top bar's button.
-    await page.locator('header').getByRole('button', { name: 'Åbn menuen' }).first().click();
+    await page.locator('header').getByRole('button', { name: '\u00c5bn menuen' }).first().click();
     await page.waitForTimeout(600);
     checkCog(label, 'menuen', await page.evaluate(shownItems, `${drawer} .navigation-drawer-item`), height);
     await page.keyboard.press('Escape');
@@ -145,7 +149,7 @@ async function checkSettingsAndMenu(width, height) {
     ['settings/appstore', false],
   ]) {
     await go(hash);
-    if (((await current()) === 'page') !== marked) problems.push(`${label} #${hash}: tandhjulet ${marked ? 'skal' : 'må ikke'} være valgt`);
+    if (((await current()) === 'page') !== marked) problems.push(`${label} #${hash}: the cog ${marked ? 'must' : 'must not'} be selected`);
   }
 
   if (width >= 1000) {
@@ -159,8 +163,8 @@ async function checkSettingsAndMenu(width, height) {
         page.evaluate(() => document.querySelector('nav.editor-main-rail a[href="#settings"]')?.getAttribute('aria-current')),
       );
     if ((await railCurrent('appearance/colors')) !== 'page')
-      problems.push(`${label} skinnen #appearance/colors: tandhjulet skal være valgt`);
-    if ((await railCurrent('list/pages')) === 'page') problems.push(`${label} skinnen #list/pages: tandhjulet må ikke være valgt`);
+      problems.push(`${label} the rail #appearance/colors: the cog must be selected`);
+    if ((await railCurrent('list/pages')) === 'page') problems.push(`${label} the rail #list/pages: the cog must not be selected`);
     await page.screenshot({ path: join(shots, 'rail.png') });
   }
   await page.close();
@@ -169,11 +173,11 @@ async function checkSettingsAndMenu(width, height) {
 // The cog is the last of `items` (shown, from the top) and at the bottom of the screen.
 function checkCog(label, where, items, height) {
   const cog = items.find((i) => i.href === '#settings');
-  if (!cog) return problems.push(`${label} ${where}: tandhjulet (#settings) mangler eller er skjult`);
+  if (!cog) return problems.push(`${label} ${where}: the cog (#settings) is missing or hidden`);
   if (items.at(-1) !== cog || items.some((i) => i !== cog && i.bottom >= cog.bottom))
-    problems.push(`${label} ${where}: tandhjulet er ikke det nederste`);
+    problems.push(`${label} ${where}: the cog is not the bottom item`);
   if (cog.bottom < height * 0.8 || cog.bottom > height)
-    problems.push(`${label} ${where}: tandhjulet står ikke nederst på skærmen (${cog.bottom} af ${height})`);
+    problems.push(`${label} ${where}: the cog is not at the bottom of the screen (${cog.bottom} of ${height})`);
 }
 
 for (const [width, height] of [
@@ -248,34 +252,39 @@ const keyStates = {
 const keyScreens = { appstore: 'settings/appstore', morpheme: 'morpheme' };
 // "Morpheme" in every state: the version, the problems and the notes are text (CMS_STATUS in built-site.mjs), every list row
 // has an action (a link or a button), and Update and the connection work. The one row without an action of its own is the
-// store connection's "Forbundet til Morpheme" (it shows the state; its button "Afbryd forbindelsen" is beside it, and the
+// store connection's "Connected to Morpheme" (it shows the state; its button "Disconnect" is beside it, and the
 // key states above check that it is there), so that row is left out.
 async function checkMorpheme(page, state) {
   const version = JSON.parse(readFileSync(`${import.meta.dirname}/../package.json`, 'utf8')).version;
   const text = await page.evaluate(() => document.querySelector('main').innerText);
-  for (const x of [`Version ${version}`, 'Version 99.0.0 er klar', 'Hjemmesiden har ingen GitHub-nøgle', 'A made-up note for the checks.'])
-    if (!text.includes(x)) problems.push(`morpheme (${state}): "${x}" mangler`);
+  for (const x of [
+    `Version ${version}`,
+    'Version 99.0.0 er klar',
+    'Hjemmesiden har ingen GitHub-n\u00f8gle',
+    'A made-up note for the checks.',
+  ])
+    if (!text.includes(x)) problems.push(`morpheme (${state}): "${x}" is missing`);
   const bare = await page.evaluate(() =>
     [...document.querySelectorAll('main .list-item-container')]
       .filter((row) => !row.matches('a[href], button') && !row.closest('li')?.querySelector('a[href], button'))
-      .filter((row) => !row.innerText.startsWith('Forbundet til Morpheme'))
+      .filter((row) => !row.innerText.startsWith(da.connected))
       .map((row) => row.innerText.trim().split('\n')[0]),
   );
-  if (bare.length) problems.push(`morpheme (${state}): rækker uden handling: ${bare.join(', ')}`);
+  if (bare.length) problems.push(`morpheme (${state}): rows without an action: ${bare.join(', ')}`);
 
   // Update: a POST to /api/cms/update (answered here, nothing is changed).
   await page.route('**/api/cms/update', (r) => r.fulfill({ contentType: 'application/json', body: '{}' }));
   const posted = page.waitForRequest((r) => r.url().endsWith('/api/cms/update') && r.method() === 'POST', { timeout: 3000 });
-  await page.getByRole('button', { name: 'Opdater', exact: true }).click();
-  await posted.catch(() => problems.push(`morpheme (${state}): Opdater sender ikke en POST til /api/cms/update`));
+  await page.getByRole('button', { name: daCms.update, exact: true }).click();
+  await posted.catch(() => problems.push(`morpheme (${state}): Update does not send a POST to /api/cms/update`));
   // The connection: Connect makes the site connected (the fake store flips on the POST).
   if (state === 'open') {
-    await page.getByRole('button', { name: 'Forbind til Morpheme', exact: true }).click();
+    await page.getByRole('button', { name: da.connect, exact: true }).click();
     await page
-      .getByText('Forbundet til Morpheme')
+      .getByText(da.connected)
       .first()
       .waitFor({ timeout: 3000 })
-      .catch(() => problems.push('morpheme (open): "Forbundet til Morpheme" kom ikke efter Forbind'));
+      .catch(() => problems.push('morpheme (open): "Connected to Morpheme" did not appear after Connect'));
   }
 }
 
