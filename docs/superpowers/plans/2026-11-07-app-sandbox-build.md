@@ -1,6 +1,6 @@
 # App sandbox, part 1 (manifest and build sandbox) Implementation Plan
 
-Status: tasks 1–6 and 9 done (`lib/` and `worker/`, PR A); 7, 8 and 10–18 not started. Checked against the code on 2026-11-10.
+Status: tasks 1–12 done in this repository (PR A #209 merged; PR B #211 for 7 and 8; PR C for 10–12). Tasks 13–18 need a release and the other repositories. Checked against the code on 2026-11-10.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or
 > superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
