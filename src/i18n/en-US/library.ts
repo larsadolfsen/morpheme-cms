@@ -16,6 +16,13 @@ export const library = {
   continueWidgetHint: 'Shows the pages and posts you edited last.',
   /** In that card before anything is saved. */
   continueEmpty: 'The pages and posts you edit show up here.',
+  /** On the start screen (widgets/unfinished.tsx): the card with the drafts, hidden and scheduled pages and posts. */
+  unfinishedTitle: 'Unfinished',
+  /** In the list "Add widget" and on the card in edit mode. */
+  unfinishedWidgetLabel: 'Unfinished',
+  unfinishedWidgetHint: 'Lists the drafts, hidden and scheduled pages and posts.',
+  /** In the card, in edit mode, when no page or post is unfinished. */
+  unfinishedEmpty: 'Nothing is unfinished',
   /** Under each of them: its kind ("Page") and when it was saved ("today at 1:42 PM", when.ts). */
   recentEdit: (kind: string, when: string) => `${kind} · Edited ${when}`,
   /** At the top of the start screen (UpdatesNotice.tsx): the card with what was updated since the last visit in this
