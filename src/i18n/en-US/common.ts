@@ -16,7 +16,7 @@ export const common = {
   remove: 'Remove',
   delete: 'Delete',
   search: 'Search',
-  /** The label of a search in a list: "Søg i sider". */
+  /** The label of a search in a list: "Search pages". */
   searchIn: (what: string) => `Search ${what.toLowerCase()}`,
   moveUp: 'Move up',
   moveDown: 'Move down',
@@ -108,9 +108,9 @@ export const common = {
     blocks: 'Block templates',
     media: 'Files',
     /** How the site looks (#appearance, Library.tsx Theme): the theme, the colours, the logo and icon, and the site's own
-     * parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider"). */
+     * parts there (appearance in packages/editor/defaults/editor.ts: "Default pages"). */
     appearance: 'Appearance',
-    /** The themes installed (#appearance/themes, Library.tsx Themes), the first row under "Udseende". */
+    /** The themes installed (#appearance/themes, Library.tsx Themes), the first row under "Appearance". */
     themes: 'Themes',
     /** The store's themes, to install and update them (#appearance/theme-store, ThemeStoreScreen.tsx), the first row under Appearance. */
     themeStore: 'Theme store',
@@ -144,7 +144,7 @@ export const common = {
   },
   /** Right after a save, with what it changed (savedText in deploy.ts); the site is rebuilt in 1-2 minutes. */
   saved: (change: string) => `${change}. You’ll get a message when the website is updated.`,
-  /** "i dag kl. 13.42", "i går kl. 9.05", "1. okt. kl. 13.42" (when.ts). */
+  /** "today at 1.42 pm", "yesterday at 9.05 am", "Oct 1 at 1.42 pm" (when.ts). */
   today: 'today',
   yesterday: 'yesterday',
   at: (day: string, time: string) => `${day} at ${time}`,

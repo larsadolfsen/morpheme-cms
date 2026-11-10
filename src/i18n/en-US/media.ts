@@ -68,7 +68,7 @@ export const media = {
   tags: 'Tags',
   addTag: 'Add tag',
   createTag: 'Create a tag',
-  /** The commits, in the site's language (siteT); what: a kind's word ("billede", "PDF"). */
+  /** The commits, in the site's language (siteT); what: a kind's word ("picture", "PDF"). */
   commit: {
     add: (what: string, name: string) => `Editor: add ${what} "${name}"`,
     delete: (what: string, name: string) => `Editor: delete ${what} "${name}"`,

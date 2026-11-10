@@ -39,7 +39,7 @@ export const library = {
   /** The bell's name while some are not seen yet. */
   notificationsNew: (count: number) => `Notifications, ${count} new`,
   noNotifications: 'No notifications',
-  /** The buttons at the bottom of the side sheet: one clears all, one opens "Konto" to choose the types. */
+  /** The buttons at the bottom of the side sheet: one clears all, one opens "Account" to choose the types. */
   clearNotifications: 'Clear',
   /** While some are selected (a long press on one, Notifications.tsx): the button that deletes them, and the one that
    * unselects them. */
@@ -47,8 +47,8 @@ export const library = {
   cancelSelection: 'Cancel',
   /** The link in the top bar of the start screen: the site's home page, in a new tab. */
   openWebsite: 'Open website',
-  /** On "Konto" › "Notifikationer" (Library.tsx NotificationChoices, notificationData.ts). */
-  /** The sliders on "Notifikationer": to "Konto", where they are turned on or off. */
+  /** On "Account" › "Notifications" (Library.tsx NotificationChoices, notificationData.ts). */
+  /** The sliders on "Notifications": to "Account", where they are turned on or off. */
   notificationChoices: 'Settings',
   onDevice: 'On the phone',
   onDeviceHint: 'Also when the editor is closed.',
@@ -56,11 +56,11 @@ export const library = {
   notificationTypes: { site: 'Website updated', saved: 'Saved and deleted', failed: 'Couldn’t save', updates: 'Apps updated' },
   on: 'On',
   off: 'Off',
-  /** Under a theme's name under "Temaer" and on its page: its version and who made it. */
+  /** Under a theme's name under "Themes" and on its page: its version and who made it. */
   themeByline: (version: string, author: string) => `Version ${version} · ${author}`,
-  /** By the theme the website uses, under "Temaer" and on its page. */
+  /** By the theme the website uses, under "Themes" and on its page. */
   themeInUse: 'In use',
-  /** By the theme it is changed to, until the website is updated: under "Temaer", and on its page. */
+  /** By the theme it is changed to, until the website is updated: under "Themes", and on its page. */
   themeNext: 'Changing to it',
   themeChanging: (name: string) => `Changing to ${name} in a few minutes`,
   /** On a theme's page: the pictures of the site in it (packages/editor/scripts/theme-screenshots.mjs), each by what it shows. */
@@ -87,7 +87,7 @@ export const library = {
   /** The commit, in the site's language (siteT). */
   themeCommit: (name: string) => `Editor: change theme to ${name}`,
   /** A theme from the store (ThemeStore.tsx): installed, updated or uninstalled, asked before it is uninstalled, why
-   * one in use cannot be, and under "Afinstaller" when it can; a theme the store does not have; how many a developer
+   * one in use cannot be, and under "Uninstall" when it can; a theme the store does not have; how many a developer
    * has made; and the commits, in the site's language (siteT). */
   themeInstalled: (name: string) => `${name} is installed. You can choose it in a few minutes.`,
   themeUpdated: (name: string, version: string) => `${name} is updated to ${version}. The website uses it in a few minutes.`,
@@ -104,7 +104,7 @@ export const library = {
     uninstall: (name: string) => `Editor: uninstall the theme ${name}`,
     update: (name: string, version: string) => `Editor: update the theme ${name} to ${version}`,
   },
-  /** Under "Ikonpakker" (IconPacks in Library.tsx): under a pack's name who made it, its licence and, for one a theme
+  /** Under "Icon packs" (IconPacks in Library.tsx): under a pack's name who made it, its licence and, for one a theme
    * brings, the theme; a few of its icons, for screen readers; by the one the site is built with, and by the one chosen
    * until the site is built with it; asked before it is chosen, the question's button, what is said after it is saved,
    * and the commit, in the site's language (siteT). */
@@ -117,7 +117,7 @@ export const library = {
   changeIconPack: 'Change icon pack',
   iconPackSaved: (change: string) => `${change}. The website and the editor get the new icons in a few minutes.`,
   iconPackCommit: (name: string) => `Editor: change icon pack to ${name}`,
-  /** Under "Bevægelse" (MotionSchemes in Library.tsx): each motion scheme's name and how it moves (lib/motion.ts); by the
+  /** Under "Motion" (MotionSchemes in Library.tsx): each motion scheme's name and how it moves (lib/motion.ts); by the
    * theme's own; asked before one is chosen, the question's button, what is said after it is saved, and the commit, in
    * the site's language (siteT). */
   motionSchemes: { expressive: 'Expressive', standard: 'Standard', calm: 'Calm' },
@@ -135,7 +135,7 @@ export const library = {
   headerMenuButton: 'Menu button',
   /** Appearance › Footer (FooterSettings.tsx): the groups of the footer's fields. */
   footerSections: { text: 'Text', contact: 'Contact', links: 'Links' },
-  /** Under "Sidekolonne" (SideColumn.tsx): the choice of no block and what is under it, what is said when no block can be
+  /** Under "Side column" (SideColumn.tsx): the choice of no block and what is under it, what is said when no block can be
    * drawn there, asked before one is chosen, the question's button, what is said after it is saved, and the commit, in
    * the site's language (siteT). */
   sideNone: 'None',
@@ -182,7 +182,7 @@ export const library = {
     savedOldest: 'Least recently changed first',
     /** A list of kinds (Promovering), under a heading for each kind. */
     type: 'By type',
-    /** "Standardblokke" (#blocks), in the groups by where the blocks come from. */
+    /** "Standard blocks" (#blocks), in the groups by where the blocks come from. */
     group: 'By group',
   },
   /** The funnel over a list of what is shown on pages (Promovering), with its filters in one sheet. */
@@ -190,7 +190,7 @@ export const library = {
   /** The filter that shows only those on one page, and its first choice: those on all pages. */
   pageFilter: 'Page',
   allPages: 'All pages',
-  /** The first choice of a filter by what pages or posts pick, by the field's name: "Alle tags". */
+  /** The first choice of a filter by what pages or posts pick, by the field's name: "All tags". */
   allOf: (field: string) => `All ${field.toLocaleLowerCase('en')}`,
   /** Its headings, when there are both pages and tags to pick. */
   pagesGroup: 'Pages',
@@ -201,7 +201,7 @@ export const library = {
   /** The filter by whether an entry is turned on, and its first choice. */
   onOffFilter: 'Status',
   allOnOff: 'All',
-  /** The filters over "Standardblokke" (#blocks): by the group (where the block comes from) and by whether
+  /** The filters over "Standard blocks" (#blocks): by the group (where the block comes from) and by whether
    * the block is on a page, each with its first choice. */
   groupFilter: 'Group',
   allGroups: 'All groups',
