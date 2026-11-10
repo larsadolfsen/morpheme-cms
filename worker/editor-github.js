@@ -11,7 +11,7 @@
 //                                  refused (409) when a file was changed or created elsewhere since the editor loaded it
 //   POST /api/github/graphql       any other question to GitHub's GraphQL API (who is signed in, the history, the
 //                                  store): only questions, never a change
-//   POST /api/github/logout        "Log ud": the cookie goes, and GitHub forgets the token
+//   POST /api/github/logout        "Log out": the cookie goes, and GitHub forgets the token
 import { config } from '@site/config';
 import { access, forget, noSession, sessionToken } from './session.js';
 import { filesOf, GitHubError } from './files.js';
@@ -149,7 +149,7 @@ async function logout(request, env, ctx) {
   const token = sessionToken(request);
   if (token) {
     await forget(token);
-    // GitHub forgets the token too, so it is no good to anyone after "Log ud".
+    // GitHub forgets the token too, so it is no good to anyone after "Log out".
     if (env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET)
       ctx.waitUntil(
         fetch(`https://api.github.com/applications/${env.GITHUB_CLIENT_ID}/token`, {

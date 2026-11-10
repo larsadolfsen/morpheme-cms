@@ -9,10 +9,12 @@
 //     (PUBLIC_HOST, else EDITOR_HOST without "editor."), so no page of the site runs there.
 //   On any other address: the editor, the sign-in and /api/ go to EDITOR_HOST. The editor's page first
 //     removes what the editor kept on that address (the sign-in's cookie above all).
-//   A page the editor fetches as text for its preview ("Forhåndsvis", packages/editor/src/pagePreview.tsx,
+//   A page the editor fetches as text for its preview ("Preview", packages/editor/src/pagePreview.tsx,
 //     with the header X-Editor-Preview) is served on EDITOR_HOST too; the editor shows it without the
 //     site's scripts.
 
+import { config } from '@site/config';
+import { langOf, say } from './say.js';
 import { noSession } from './session.js';
 
 // The site's pages and feeds: no file ending, or one of these.
@@ -48,8 +50,8 @@ const redirect = (location, status) => new Response(null, { status, headers: { l
 // with what came after "#" (the open screen).
 function cleanUp(to) {
   const js = JSON.stringify(to).replace(/</g, '\\u003c');
-  const html = `<!doctype html><html lang="da"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Editoren er flyttet</title></head>
-<body style="font-family: system-ui, sans-serif; padding: 2rem"><p>Editoren er flyttet til <a href=${JSON.stringify(to)}>${to.replace(/^https:\/\//, '').replace(/[?#].*$/, '')}</a> …</p><script>
+  const html = `<!doctype html><html lang="${langOf(config.locale)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${say(config.locale, 'The editor has moved')}</title></head>
+<body style="font-family: system-ui, sans-serif; padding: 2rem"><p>${say(config.locale, 'The editor has moved to {address} …', { address: `<a href=${JSON.stringify(to)}>${to.replace(/^https:\/\//, '').replace(/[?#].*$/, '')}</a>` })}</p><script>
 (async () => {
   try {
     for (const key of Object.keys(localStorage)) if (key.startsWith('editor-')) localStorage.removeItem(key);

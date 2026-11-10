@@ -277,8 +277,8 @@ async function settle() {
 }
 
 const log = console.log;
-// The Worker's own lines (packages/editor/worker/files.js: "Filer (…): …") are left out.
-console.log = (...args) => String(args[0]).startsWith('Filer (') || log(...args);
+// The Worker's own lines (packages/editor/worker/files.js: "Files (…): …") are left out.
+console.log = (...args) => String(args[0]).startsWith('Files (') || log(...args);
 
 globalThis.localStorage = { removeItem() {}, getItem: () => null, setItem() {} };
 globalThis.fetch = async (input, init = {}) => {
@@ -348,8 +348,8 @@ async function opened(b, what) {
   const at = await b.head();
   const loaded = await b.loadFolders(config.folders, 3, at);
   for (const [key, folder] of Object.entries(config.folders))
-    expect(same(sorted(loaded.folders[key]), filesAt(at.commit, folder)), `${what}: ${folder} er ikke som i git`);
-  expect(loaded.commit === head(), `${what}: commit'et er ikke branchens`);
+    expect(same(sorted(loaded.folders[key]), filesAt(at.commit, folder)), `${what}: ${folder} is not as in git`);
+  expect(loaded.commit === head(), `${what}: the commit is not the branch's`);
   const partly = (r) =>
     [...r.matchAll(/b\d+: object\(oid: \\"([0-9a-f]+)/g)].every(([, oid]) => truncated.has(oid)) && /b0: object/.test(r);
   return { loaded, github: requests.slice(before).filter((r) => !partly(r)).length };
@@ -358,10 +358,10 @@ async function opened(b, what) {
 async function run(label, bucket) {
   env = bucket ? { FILES: bucket, GITHUB_PUBLISH_TOKEN: 'publish' } : { GITHUB_PUBLISH_TOKEN: 'publish' };
   const cached = bucket && bucket !== failing;
-  const first = await opened(await browser(), `${label}, første åbning`);
+  const first = await opened(await browser(), `${label}, first opening`);
   await settle();
-  const second = await opened(await browser(), `${label}, anden åbning`);
-  if (cached) expect(second.github === 1, `${label}: anden åbning spurgte GitHub ${second.github} gange (kun head)`);
+  const second = await opened(await browser(), `${label}, second opening`);
+  if (cached) expect(second.github === 1, `${label}: the second opening asked GitHub ${second.github} times (only the head)`);
   await settle();
 
   // A save: a changed post (a page, when the site has no posts yet), a new file in a new folder, another page deleted and
@@ -378,78 +378,81 @@ async function run(label, bucket) {
     { path: `${config.folders.media}/ny-${label}.webp`, content: picture, oid: null },
   ];
   const saved = await b.commit(`Editor: ret (${label})`, changes);
-  expect(saved.commit === head(), `${label}: gem gav ikke det nye commit`);
+  expect(saved.commit === head(), `${label}: the save did not give the new commit`);
   for (const c of changes)
     if (c.content !== null)
-      expect(saved.blobs[c.path] === out('rev-parse', `HEAD:${c.path}`), `${label}: blob-id'et for ${c.path} er forkert`);
+      expect(saved.blobs[c.path] === out('rev-parse', `HEAD:${c.path}`), `${label}: the blob id of ${c.path} is wrong`);
   await settle();
-  const after = await opened(await browser(), `${label}, åbning efter gem`);
-  if (cached) expect(after.github === 1, `${label}: åbning efter gem spurgte GitHub ${after.github} gange (kun head)`);
+  const after = await opened(await browser(), `${label}, opening after a save`);
+  if (cached) expect(after.github === 1, `${label}: the opening after a save asked GitHub ${after.github} times (only the head)`);
 
   // A file changed or created elsewhere is not overwritten.
   for (const [change, message] of [
-    [{ path: post.path, content: 'x', oid: post.oid }, 'ændret et andet sted'],
-    [{ path: changes[1].path, content: 'x', oid: null }, 'findes allerede'],
+    [{ path: post.path, content: 'x', oid: post.oid }, 'changed elsewhere'],
+    [{ path: changes[1].path, content: 'x', oid: null }, 'already exists'],
   ])
     try {
       await b.commit('Editor: konflikt', [change]);
-      problems.push(`${label}: gem overskrev en fil, der er ${message}`);
+      problems.push(`${label}: a save overwrote a file that is ${message}`);
     } catch (e) {
       expect(e instanceof b.ConflictError, `${label}: ${message} gav ${e.message}`);
     }
 
   // Versions: the saved one and the one before it.
   const { versions } = await b.versionsOf(post.path);
-  expect(versions[0]?.commit === saved.commit, `${label}: den nyeste version er ikke gemmet`);
-  expect((await b.versionText(versions[0], post.path)) === changes[0].content, `${label}: den nyeste versions tekst er forkert`);
-  expect((await b.versionText(versions[1], post.path)) === post.text, `${label}: den forrige versions tekst er forkert`);
-  expect((await b.versionText(versions[0], page.path)) === null, `${label}: en slettet fil har en tekst`);
+  expect(versions[0]?.commit === saved.commit, `${label}: the newest version is not the save`);
+  expect((await b.versionText(versions[0], post.path)) === changes[0].content, `${label}: the text of the newest version is wrong`);
+  expect((await b.versionText(versions[1], post.path)) === post.text, `${label}: the text of the previous version is wrong`);
+  expect((await b.versionText(versions[0], page.path)) === null, `${label}: a deleted file has a text`);
 
   // Deleted files: the page, with its text; restored, it is not.
   const deleted = await b.deletedFiles(config.folders.pages);
   const gone = deleted.find((d) => d.path === page.path);
-  expect(gone?.oid === page.oid && gone?.text === page.text && gone?.by === 'Anna', `${label}: den slettede side står ikke under Slettede`);
-  await b.commit(`Editor: gendan (${label})`, [{ path: page.path, content: page.text, oid: null }]);
+  expect(
+    gone?.oid === page.oid && gone?.text === page.text && gone?.by === 'Anna',
+    `${label}: the deleted page is not among the deleted files`,
+  );
+  await b.commit(`Editor: restore (${label})`, [{ path: page.path, content: page.text, oid: null }]);
   await settle();
   expect(
     !(await b.deletedFiles(config.folders.pages)).some((d) => d.path === page.path),
-    `${label}: en gendannet side står under Slettede`,
+    `${label}: a restored page is among the deleted files`,
   );
   const pictures = await b.deletedFiles(config.folders.media, { text: false });
-  expect(!pictures.length, `${label}: der er slettede billeder, som ikke er slettet`);
+  expect(!pictures.length, `${label}: there are deleted pictures that were not deleted`);
 
   // A picture's bytes, and a second time from R2.
   const oid = saved.blobs[changes[3].path];
-  expect(same([...(await b.loadBytes(oid))], [...picture]), `${label}: billedets bytes er forkerte`);
+  expect(same([...(await b.loadBytes(oid))], [...picture]), `${label}: the picture's bytes are wrong`);
   const old = files.media.find((f) => f.path.endsWith('.webp'));
   if (old) {
-    expect(same([...(await b.loadBytes(old.oid))], [...bytesOf(old.oid)]), `${label}: et billedes bytes er forkerte`);
+    expect(same([...(await b.loadBytes(old.oid))], [...bytesOf(old.oid)]), `${label}: a picture's bytes are wrong`);
     await settle();
     const before = asked;
     await (await browser()).loadBytes(old.oid);
-    if (cached) expect(asked === before, `${label}: billedet blev hentet fra GitHub igen`);
+    if (cached) expect(asked === before, `${label}: the picture was fetched from GitHub again`);
   }
   // Single files, and only questions through /graphql.
-  const [single] = await b.loadFiles([post.path, 'findes/ikke.md']);
-  expect(single?.text === changes[0].content && single.oid === saved.blobs[post.path], `${label}: loadFiles gav ikke filen`);
+  const [single] = await b.loadFiles([post.path, 'missing/none.md']);
+  expect(single?.text === changes[0].content && single.oid === saved.blobs[post.path], `${label}: loadFiles did not give the file`);
   try {
     await b.graphql('mutation { deleteRef(input: { refId: "x" }) { clientMutationId } }');
-    problems.push(`${label}: /api/github/graphql lod en ændring gå igennem`);
+    problems.push(`${label}: /api/github/graphql let a change through`);
   } catch {}
 
-  // The Worker's own saves (Udgiv planlagt, Cookiescanner).
-  const read = await readFiles(env, [post.path, 'findes/ikke.md'], ctx);
-  expect(read.head === head() && read.texts[0] === changes[0].content && read.texts[1] === undefined, `${label}: Workeren læste forkert`);
+  // The Worker's own saves (Publish scheduled, Cookiescanner).
+  const read = await readFiles(env, [post.path, 'missing/none.md'], ctx);
+  expect(read.head === head() && read.texts[0] === changes[0].content && read.texts[1] === undefined, `${label}: the Worker read wrongly`);
   await commitFiles(
     env,
     read.head,
-    `Udgiv planlagt (${label})`,
+    `Publish scheduled: ${label}`,
     [{ path: `${config.folders.data}/worker-${label}.json`, text: '{}\n' }],
     ctx,
   );
   await settle();
-  const own = await opened(await browser(), `${label}, åbning efter Workerens gem`);
-  if (cached) expect(own.github === 1, `${label}: åbning efter Workerens gem spurgte GitHub ${own.github} gange (kun head)`);
+  const own = await opened(await browser(), `${label}, opening after the Worker's save`);
+  if (cached) expect(own.github === 1, `${label}: the opening after the Worker's save asked GitHub ${own.github} times (only the head)`);
   await settle();
   return { first: first.github, second: second.github, after: after.github };
 }
@@ -461,15 +464,15 @@ async function run(label, bucket) {
     {},
     ctx,
   );
-  expect(res.status === 401, `en anden sides forespørgsel fik ${res.status}, ikke 401`);
+  expect(res.status === 401, `a request from another page got ${res.status}, not 401`);
 }
 
 const bucket = memoryBucket();
 let counts;
 try {
   counts = await run('r2', bucket);
-  await run('uden-r2', null);
-  await run('r2-fejler', failing);
+  await run('no-r2', null);
+  await run('r2-fails', failing);
   await settle();
 
   // R2 caching under Settings › Developer › Caching and builds (r2Caching.ts): the Worker's settings have the line and its bucket, and
@@ -480,23 +483,23 @@ try {
     const { experimental_readRawConfig } = await import('wrangler');
     const text = readFileSync(join(ROOT, config.wrangler), 'utf8');
     const was = r2CachingOn(text);
-    expect(was !== null, `${config.wrangler} har ingen linje til R2-caching`);
+    expect(was !== null, `${config.wrangler} has no line for R2 caching`);
     if (was !== null) {
-      // Where the bucket is kept ("Placering"): placed by Cloudflare or within the EU, each with R2 caching on and off.
+      // Where the bucket is kept ("Location"): placed by Cloudflare or within the EU, each with R2 caching on and off.
       for (const place of [null, 'eu']) {
         const placed = withJurisdiction(text, place);
-        expect(jurisdictionOf(placed) === place, `R2-cachingens bucket kan ikke holdes ${place ? `i ${place}` : 'uden jurisdiktion'}`);
-        expect(bucketOf(placed) === bucketOf(text), `R2-cachingens placering ændrede bucket'ens navn`);
+        expect(jurisdictionOf(placed) === place, `R2 caching's bucket cannot be kept ${place ? `in ${place}` : 'without a jurisdiction'}`);
+        expect(bucketOf(placed) === bucketOf(text), `R2 caching's location changed the bucket's name`);
         expect(
           withJurisdiction(placed, jurisdictionOf(text)) === text,
-          `R2-cachingens placering ${place ?? 'automatisk'} og tilbage giver ikke filen igen`,
+          `R2 caching's location ${place ?? 'automatic'} and back does not give the file again`,
         );
         for (const on of [true, false]) {
           const changed = withR2Caching(placed, on);
           const file = join(WORK, 'wrangler.jsonc');
           writeFileSync(file, changed);
           const buckets = experimental_readRawConfig({ config: file }).rawConfig.r2_buckets ?? [];
-          expect(r2CachingOn(changed) === on, `R2-caching kan ikke slås ${on ? 'til' : 'fra'}`);
+          expect(r2CachingOn(changed) === on, `R2 caching cannot be turned ${on ? 'on' : 'off'}`);
           expect(
             on
               ? buckets.length === 1 &&
@@ -504,11 +507,11 @@ try {
                   buckets[0].bucket_name === bucketOf(changed) &&
                   (buckets[0].jurisdiction ?? null) === place
               : !buckets.length,
-            `wrangler læser R2-caching forkert, når den er slået ${on ? 'til' : 'fra'} (${place ?? 'automatisk'})`,
+            `wrangler reads R2 caching wrongly when it is turned ${on ? 'on' : 'off'} (${place ?? 'automatic'})`,
           );
           expect(
             withR2Caching(withR2Caching(placed, on), was) === placed,
-            `R2-caching slået ${on ? 'til' : 'fra'} og tilbage giver ikke filen igen`,
+            `R2 caching turned ${on ? 'on' : 'off'} and back does not give the file again`,
           );
         }
       }
@@ -535,34 +538,34 @@ try {
       cloudflare = answer;
       r2Env = { FILES: {}, CLOUDFLARE_ACCOUNT_ID: 'account', CLOUDFLARE_R2_TOKEN: 'key' };
       const got = await ask();
-      expect(got.status === 200 && got.bucket === state && got.bound === true, `/api/r2 sagde ${got.bucket}, ikke ${state}`);
+      expect(got.status === 200 && got.bucket === state && got.bound === true, `/api/r2 said ${got.bucket}, not ${state}`);
     }
     // A bucket kept within a jurisdiction is found only there, and a jurisdiction R2 does not have is not asked for.
     cloudflare = answers.ready;
     cloudflareJurisdiction = jurisdictionOf(text) ? null : 'eu';
     const elsewhere = await ask();
-    expect(elsewhere.bucket === 'no-bucket', `/api/r2 fandt bucket'en uden for dens jurisdiktion (${elsewhere.bucket})`);
+    expect(elsewhere.bucket === 'no-bucket', `/api/r2 found the bucket outside its jurisdiction (${elsewhere.bucket})`);
     const unknown = await ask(undefined, query('mars'));
-    expect(unknown.status === 400, `/api/r2 spurgte om jurisdiktionen mars (${unknown.status}), ikke 400`);
+    expect(unknown.status === 400, `/api/r2 asked about the jurisdiction mars (${unknown.status}), not 400`);
     cloudflareJurisdiction = null;
     r2Env = {};
     const none = await ask();
-    expect(none.bucket === 'no-key' && none.bound === false, `/api/r2 uden Workerens nøgle sagde ${none.bucket}`);
+    expect(none.bucket === 'no-key' && none.bound === false, `/api/r2 without the Worker's key said ${none.bucket}`);
     const other = await ask({ cookie: 'editor_session=token', 'sec-fetch-site': 'same-site' });
-    expect(other.status === 403, `/api/r2 svarede en anden side med ${other.status}, ikke 403`);
+    expect(other.status === 403, `/api/r2 answered another page with ${other.status}, not 403`);
   }
 
   // /api/plan (packages/editor/worker/plan-status.js): whether the account has Workers Paid, for "Betalt bygning".
   {
     const plan = (id, state) => ({ rate_plan: { id }, ...(state === undefined ? {} : { state }) });
-    expect(paidFrom([plan('WORKERS_PAID', 'Paid')]) === true, 'paidFrom: WORKERS_PAID med store bogstaver er ikke betalt');
-    expect(paidFrom([plan('workers_paid')]) === true, 'paidFrom: workers_paid uden tilstand er ikke betalt');
-    expect(paidFrom([plan('workers_paid', 'trial')]) === true, 'paidFrom: en prøveperiode er ikke betalt');
-    expect(paidFrom([plan('workers_paid', 'Cancelled')]) === false, 'paidFrom: en opsagt plan er betalt');
-    expect(paidFrom([plan('cf_free', 'Paid'), plan('zone_pro', 'Paid')]) === false, 'paidFrom: en zoneplan er Workers Paid');
+    expect(paidFrom([plan('WORKERS_PAID', 'Paid')]) === true, 'paidFrom: WORKERS_PAID in capitals is not paid');
+    expect(paidFrom([plan('workers_paid')]) === true, 'paidFrom: workers_paid without a state is not paid');
+    expect(paidFrom([plan('workers_paid', 'trial')]) === true, 'paidFrom: a trial is not paid');
+    expect(paidFrom([plan('workers_paid', 'Cancelled')]) === false, 'paidFrom: a cancelled plan is paid');
+    expect(paidFrom([plan('cf_free', 'Paid'), plan('zone_pro', 'Paid')]) === false, 'paidFrom: a zone plan is Workers Paid');
     expect(
       paidFrom(undefined) === false && paidFrom({}) === false && paidFrom(null) === false,
-      'paidFrom: noget, der ikke er en liste, er betalt',
+      'paidFrom: something that is not a list is paid',
     );
     const signedIn = { cookie: 'editor_session=token', 'sec-fetch-site': 'same-origin' };
     const askPlan = (headers = signedIn, method = 'GET') =>
@@ -572,36 +575,36 @@ try {
       }));
     const keyed = { CLOUDFLARE_ACCOUNT_ID: 'account', CLOUDFLARE_R2_TOKEN: 'key' };
     r2Env = {};
-    expect((await askPlan()).paid === 'no-key', '/api/plan uden Workerens nøgle sagde ikke no-key');
+    expect((await askPlan()).paid === 'no-key', "/api/plan without the Worker's key did not say no-key");
     r2Env = keyed;
     subscriptions = [403, { success: false, errors: [{ code: 10000, message: 'Authentication error' }] }];
-    expect((await askPlan()).paid === 'refused', '/api/plan sagde ikke refused, da Cloudflare svarede 403');
+    expect((await askPlan()).paid === 'refused', '/api/plan did not say refused when Cloudflare answered 403');
     subscriptions = [500, { success: false, errors: [] }];
-    expect((await askPlan()).paid === 'failed', '/api/plan sagde ikke failed, da Cloudflare svarede 500');
+    expect((await askPlan()).paid === 'failed', '/api/plan did not say failed when Cloudflare answered 500');
     subscriptions = [200, { success: true, errors: [], result: [plan('WORKERS_PAID', 'Paid')] }];
-    expect((await askPlan()).paid === 'yes', '/api/plan sagde ikke yes med Workers Paid');
+    expect((await askPlan()).paid === 'yes', '/api/plan did not say yes with Workers Paid');
     subscriptions = [200, { success: true, errors: [], result: [plan('cf_free', 'Paid')] }];
-    expect((await askPlan()).paid === 'no', '/api/plan sagde ikke no uden Workers Paid');
+    expect((await askPlan()).paid === 'no', '/api/plan did not say no without Workers Paid');
     expect(
       (await askPlan({ cookie: 'editor_session=token', 'sec-fetch-site': 'same-site' })).status === 403,
-      '/api/plan svarede en anden side ikke med 403',
+      '/api/plan did not answer another page with 403',
     );
-    expect((await askPlan(signedIn, 'POST')).status === 405, '/api/plan svarede en POST ikke med 405');
+    expect((await askPlan(signedIn, 'POST')).status === 405, '/api/plan did not answer a POST with 405');
     r2Env = {};
   }
 
   // Everything in R2 is the repository's, gives its git id, and was written once.
   for (const [key, value] of bucket.objects) {
     const [o, r, kind, oid] = key.split('/');
-    expect(o === owner && r === name, `R2: ${key} er ikke sitets repo`);
-    if (kind === 'blob') expect((await blobId(value)) === oid, `R2: ${key} giver ikke sit blob-id`);
+    expect(o === owner && r === name, `R2: ${key} is not the site's repository`);
+    if (kind === 'blob') expect((await blobId(value)) === oid, `R2: ${key} does not give its blob id`);
     else if (kind === 'tree')
-      expect((await treeId(JSON.parse(new TextDecoder().decode(value)).entries)) === oid, `R2: ${key} giver ikke sit tree-id`);
-    else problems.push(`R2: ${key} er hverken blob eller tree`);
+      expect((await treeId(JSON.parse(new TextDecoder().decode(value)).entries)) === oid, `R2: ${key} does not give its tree id`);
+    else problems.push(`R2: ${key} is neither a blob nor a tree`);
   }
-  for (const [key, n] of bucket.puts) expect(n === 1, `R2: ${key} blev skrevet ${n} gange`);
+  for (const [key, n] of bucket.puts) expect(n === 1, `R2: ${key} was written ${n} times`);
   for (const oid of truncated)
-    expect(!bucket.objects.has(`${owner}/${name}/blob/${oid}`), `R2: en fil, GitHub kun gav en del af, blev gemt`);
+    expect(!bucket.objects.has(`${owner}/${name}/blob/${oid}`), `R2: a file that GitHub gave only a part of was kept`);
 
   // How long a wait for a build lasts (packages/editor/worker/push.js waitForBuilds, build-settings.mjs giveUpAfter): a wait of
   // 15 minutes is still waiting when version.json has no paidBuilds (free plan: 20 minutes), is given up with
@@ -642,8 +645,8 @@ try {
     ]) {
       const PUSH = kv([['wait:x', now - minutes * minute]]);
       await waitForBuilds({ PUSH, ASSETS: assets(paid) }, now);
-      const label = `et ventende gem på ${minutes} minutter, paidBuilds ${paid}`;
-      expect(PUSH.store.has('wait:x') === waiting, `${label}: ${waiting ? 'blev opgivet for tidligt' : 'blev ikke opgivet'}`);
+      const label = `a waiting save of ${minutes} minutes, paidBuilds ${paid}`;
+      expect(PUSH.store.has('wait:x') === waiting, `${label}: ${waiting ? 'was given up too early' : 'was not given up'}`);
     }
   }
 } finally {
@@ -652,10 +655,10 @@ try {
 }
 
 if (problems.length) {
-  console.error(`${problems.length} fejl i Workerens GitHub og cachen i R2:\n${problems.join('\n')}`);
+  console.error(`${problems.length} problems in the Worker's GitHub and the cache in R2:\n${problems.join('\n')}`);
   process.exit(1);
 }
 console.log(
-  `Workerens GitHub og cachen i R2 virker: første åbning ${counts.first} forespørgsler til GitHub, anden ${counts.second}, efter et gem ${counts.after}; ` +
-    `${bucket.objects.size} objekter i R2. Også uden R2 og med et R2, der fejler.`,
+  `The Worker's GitHub and the cache in R2 work: the first opening ${counts.first} requests to GitHub, the second ${counts.second}, after a save ${counts.after}; ` +
+    `${bucket.objects.size} objects in R2. Also without R2 and with an R2 that fails.`,
 );

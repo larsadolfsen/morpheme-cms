@@ -1,8 +1,8 @@
 // The visitors' answers in the cookie banner, so the site can show that a visitor said yes (GDPR article 7(1)): the
-// consent log, "Samtykker" under "Privatliv" in the editor (packages/editor/src/consentData.ts, Consents.tsx).
+// consent log, "Consents" under "Privacy" in the editor (packages/editor/src/consentData.ts, Consents.tsx).
 // Kept in Cloudflare D1 (the binding CONSENT in wrangler.jsonc), never in the repository: one row per answer, with the
 // random consent id the visitor's browser keeps (consentId in src/scripts/tracking.ts, shown in the banner under
-// "Cookieindstillinger"), when, the yes or no to each category the banner asked about, and the banner it was given in
+// "Cookie settings"), when, the yes or no to each category the banner asked about, and the banner it was given in
 // (the commit the site was built from, /editor/version.json). No IP address, no user agent: nothing more about the
 // visitor than the answer. An answer older than two years is deleted (forgetOldConsents, each hour); the banner asks
 // again after one. Without the binding (a preview of a branch) nothing is kept and the editor says so.

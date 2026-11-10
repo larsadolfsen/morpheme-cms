@@ -48,29 +48,29 @@ export function releaseProblems(catalog, item) {
   const { version, where, folder } = item;
   const released = entry.version;
   if (newer(released, version))
-    return [`${where}: version ${version} er lavere end ${released}, som er udgivet. En udgivet version sættes aldrig ned.`];
+    return [`${where}: version ${version} is lower than ${released}, which is released. A released version is never set back.`];
   if (!changedSince(folder, entry))
     return version === released
       ? []
-      : [`${where}: version ${version}, men intet i ${folder} er ændret, siden ${released} blev udgivet. Sæt den tilbage til ${released}.`];
+      : [`${where}: version ${version}, but nothing in ${folder} has changed since ${released} was released. Set it back to ${released}.`];
   const next = nextVersions(released);
   const problems = [];
   if (version === released)
     problems.push(
-      `${where}: ${folder} er ændret, siden ${released} blev udgivet, så den skal have den næste version, ${next.join(', ')} (efter, hvad ændringerne er), med en release note. Den udgives først, når ejeren beder om det.`,
+      `${where}: ${folder} has changed since ${released} was released, so it needs the next version, ${next.join(', ')} (by what the changes are), with a release note. It is released only when the owner asks for it.`,
     );
   else if (!next.includes(version))
     problems.push(
-      `${where}: version ${version} følger ikke ${released}, som er udgivet. Mellem to udgivelser får den den næste version én gang: ${next.join(', ')}, og det nye står i dens ene release note.`,
+      `${where}: version ${version} does not follow ${released}, which is released. Between two releases it gets the next version once: ${next.join(', ')}, and what is new goes in its one release note.`,
     );
   else
     for (const [language, notes] of item.notes)
-      if (!notes?.[version]) problems.push(`${where}: version ${version} har ingen release note${language ? ` på ${language}` : ''}.`);
+      if (!notes?.[version]) problems.push(`${where}: version ${version} has no release note${language ? ` in ${language}` : ''}.`);
   for (const [language, notes] of item.notes)
     for (const v of Object.keys(notes ?? {}))
       if (v !== version && newer(v, released))
         problems.push(
-          `${where}: release noten til ${v}${language ? ` (${language})` : ''} er til en version, der aldrig blev udgivet. Skriv det i noten til ${version}.`,
+          `${where}: the release note for ${v}${language ? ` (${language})` : ''} is for a version that was never released. Write it in the note for ${version}.`,
         );
   return problems;
 }

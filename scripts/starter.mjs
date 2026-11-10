@@ -20,10 +20,10 @@ const own = new Set([pkg.name, ...Object.keys(pkg.peerDependencies)]);
 const shipped = (file) => pkg.files.some((entry) => file === entry || file.startsWith(`${entry}/`));
 for (const [name, files] of importsIn(pkgDir)) {
   const file = files.map((f) => f.slice(pkgDir.length)).find((f) => shipped(f) && !/\.test\.\w+$/.test(f));
-  if (file && !own.has(name)) problems.push(`${file} henter ${name}, som ikke står i peerDependencies.`);
+  if (file && !own.has(name)) problems.push(`${file} imports ${name}, which is not in peerDependencies.`);
 }
 for (const [name, range] of Object.entries(pkg.peerDependencies))
-  if (pkg.devDependencies?.[name] !== range) problems.push(`${name} skal stå i devDependencies som i peerDependencies (${range}).`);
+  if (pkg.devDependencies?.[name] !== range) problems.push(`${name} must be in devDependencies as in peerDependencies (${range}).`);
 
 // A site needs every peer the commands and the build use, the optional ones too, except Playwright (only for the
 // checks in a browser, run where they are needed).
@@ -46,8 +46,8 @@ const now = (path) => {
 };
 
 if (check) {
-  if (now(file) !== written) problems.push('starter/package.json passer ikke til pakken. Kør node scripts/starter.mjs.');
-  if (now(workersFile) !== workers) problems.push('starter/worker/apps.js passer ikke. Kør node scripts/starter.mjs.');
+  if (now(file) !== written) problems.push('starter/package.json does not match the package. Run node scripts/starter.mjs.');
+  if (now(workersFile) !== workers) problems.push('starter/worker/apps.js does not match. Run node scripts/starter.mjs.');
 } else {
   writeFileSync(file, written);
   writeFileSync(workersFile, workers);
@@ -57,4 +57,4 @@ if (problems.length) {
   for (const p of problems) console.error(`✗ ${p}`);
   process.exit(1);
 }
-console.log(check ? 'Starteren passer til pakken.' : 'Starteren er skrevet.');
+console.log(check ? 'The starter matches the package.' : 'The starter is written.');

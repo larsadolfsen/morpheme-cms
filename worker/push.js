@@ -1,6 +1,6 @@
 // The editor's notifications on the phone or computer also when the editor is closed: Web Push from the Worker
-// (packages/editor/src/notificationData.ts, packages/editor/pages/editor/sw.js). A device where "På telefonen" is on under "Konto" ›
-// "Notifikationer" signs up here with the browser's push subscription, the types it has turned off and the editor's
+// (packages/editor/src/notificationData.ts, packages/editor/pages/editor/sw.js). A device where "On the phone" is on under "Account" ›
+// "Notifications" signs up here with the browser's push subscription, the types it has turned off and the editor's
 // language; the Worker sends to the browser's push service (Google's, Mozilla's, Apple's), which wakes the editor's
 // service worker, which shows it. Kept in Workers KV (the binding PUSH in wrangler.jsonc):
 //   vapid          the Worker's own key pair for the push services (VAPID, RFC 8292), made the first time it is needed;
@@ -9,7 +9,7 @@
 //   wait:<id>      the device's last save, until the site is built with it: the commit and the two texts to send
 //   waiting        until when there may be a wait (so the cron each minute asks KV once, and lists only then)
 // What is sent:
-// - "Hjemmesiden er opdateret med dine ændringer" (type `site`) to the device that saved, when the site has been built
+// - "The website is updated with your changes" (type `site`) to the device that saved, when the site has been built
 //   with the save (each minute, waitForBuilds: the cron in wrangler.jsonc), or that it was not, after ten minutes;
 //   the texts are the editor's, in its language. An editor on screen says it itself and takes the wait back.
 // - an app's notification from its part of the Worker (`notify` in the tools it is given, packages/editor/worker/index.js) to each
@@ -17,7 +17,7 @@
 // The payload is encrypted for the device (RFC 8291, aes128gcm); a device the push service no longer knows is removed.
 //   GET    /api/push        { key }: the Worker's public key, for the browser's subscription
 //   PUT    /api/push        { subscription, off, locale }: signs a device up, or updates its choices
-//   DELETE /api/push        { endpoint }: signs it off ("På telefonen" off, "Log ud")
+//   DELETE /api/push        { endpoint }: signs it off ("On the phone" off, "Log out")
 //   PUT    /api/push/wait   { endpoint, commit, text, failText, to? }: sends `text` when the site is built with `commit`
 //   DELETE /api/push/wait   { endpoint }: takes it back (the editor said it itself)
 // Only someone who can save the site (write access to the repository on GitHub) can use them. Without the binding (a
@@ -132,9 +132,9 @@ async function send(env, id, device, message) {
       body: await encrypt(JSON.stringify({ title: contact.name, ...message }), keys),
     });
     if (res.status === 404 || res.status === 410) await env.PUSH.delete(DEVICE + id);
-    else if (!res.ok) console.error(`Notifikationen kunne ikke sendes: ${res.status} ${(await res.text()).slice(0, 200)}`);
+    else if (!res.ok) console.error(`The notification could not be sent: ${res.status} ${(await res.text()).slice(0, 200)}`);
   } catch (e) {
-    console.error(`Notifikationen kunne ikke sendes: ${e?.message ?? e}`);
+    console.error(`The notification could not be sent: ${e?.message ?? e}`);
   }
 }
 
@@ -211,7 +211,8 @@ export async function waitForBuilds(env, now = Date.now()) {
 }
 
 const text = (value, max = 300) => (typeof value === 'string' ? value.slice(0, max) : '');
-const isRoute = (to) => typeof to === 'string' && /^[\w\-/æøåÆØÅ]{1,200}$/.test(to);
+// A route of the editor: a slug may hold the Danish letters (a-e, o-slash and a-ring, and their capitals), written as escapes.
+export const isRoute = (to) => typeof to === 'string' && /^[\w\-/\u00e6\u00f8\u00e5\u00c6\u00d8\u00c5]{1,200}$/.test(to);
 
 // The browsers' push services (Chrome's, Firefox's, Safari's, Edge's): the Worker sends to no other address.
 const PUSH_SERVICE =
