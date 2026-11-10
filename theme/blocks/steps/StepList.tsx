@@ -1,5 +1,5 @@
 // Numbered steps along a line, each with a heading and a text (.block-steps in ../blocks.css): the standard block
-// "Trin", and the site's own steps (this site's front page, home/Steps.astro). `className`: the site's own classes on
+// "Steps", and the site's own steps (this site's front page, home/Steps.astro). `className`: the site's own classes on
 // it, e.g. a margin.
 import type { Step } from '@morphemecms/cms/src/standard/steps/view';
 

@@ -1,16 +1,16 @@
 ---
-// The action bar at the bottom of a phone's screen ("Indhold" › "Promovering", the kind "Handlingslinje", stored as
+// The action bar at the bottom of a phone's screen ("Content" › "Promotion", the kind "Action bar", stored as
 // `bookingbar`, packages/editor/site/popups.ts): the first one that is on and shown on this page, with its one or two
 // items, each a button (the first filled, a second with a line) or a text: a list row of two lines, its heading over
 // its text (the theme's List and ListItem, .theme-action-bar-text: beside the button, in the room it leaves; one button alone takes the whole width, two share it, styles/components.css). Each button goes
-// where a button of "Knapper" can, and is drawn by the same component (Buttons.tsx, with `bar`): "Book en tid" opens
-// what books on the page (`data-open="booking"`: an app's booking sheet) or goes to the booking page, "Ring" calls, "Åbn
-// promovering" opens a pop-up or an app's booking sheet, and a page is a link. A standard bottom
+// where a button of "Buttons" can, and is drawn by the same component (Buttons.tsx, with `bar`): "Book an appointment" opens
+// what books on the page (`data-open="booking"`: an app's booking sheet) or goes to the booking page, "Call" calls, "Open
+// promotion" opens a pop-up or an app's booking sheet, and a page is a link. A standard bottom
 // sheet (ui/BottomSheet.tsx: fixed at the bottom, its surface, top corners and shadow, without handle, one state,
 // .theme-action-bar in styles/components.css) with the theme's docked toolbar in it (toolbarClass, ui/Toolbar.tsx, the
 // row .theme-action-bar-row, without a surface of its own) and its buttons (ui/Button.tsx); only the first bar on a page is
 // shown, and it moves away while the buttons at the top of the front page are on screen (data-action-bar, the script in Base.astro). Not on a page one of its buttons goes to (the booking
-// page for "Book en tid") or the thank-you page.
+// page for "Book an appointment") or the thank-you page.
 import Buttons from '@theme/blocks/buttons/Buttons';
 import BottomSheet from '@theme/ui/BottomSheet';
 import List, { ListItem } from '@theme/ui/List';

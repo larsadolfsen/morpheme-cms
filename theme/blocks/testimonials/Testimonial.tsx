@@ -1,9 +1,9 @@
 // One testimonial, word for word, on an outlined card (Card.tsx in ../../ui/, .block-testimonial in ../blocks.css): the
-// standard block "Udtalelser" (Slider.tsx, List.tsx), and a site's own testimonials (this site's front page). A long
-// text is cut after seven lines with a "Læs mere" button that unfolds it in place: on the site by script.ts (only with
+// standard block "Testimonials" (Slider.tsx, List.tsx), and a site's own testimonials (this site's front page). A long
+// text is cut after seven lines with a "Read more" button that unfolds it in place: on the site by script.ts (only with
 // JavaScript; without it the whole text is shown), in the editor here. `full` always shows everything, with the anchor the testimonials page has it by. Its
 // tags (none unless shown) are chips (Chip), each a link to the tag's page when it has one. `short` shows the first two lines and
-// links to the whole text on the testimonials page. "Læs mere" and "Vis mindre" are the block's shared texts. Before
+// links to the whole text on the testimonials page. "Read more" and "Show less" are the block's shared texts. Before
 // the name its picture, round, or without one the theme's mark, with the name's first letter as `data-initial` for a
 // theme that shows it (the standard theme's and Material's avatars; a theme with a logo as its mark leaves it out).
 import { useLayoutEffect, useRef, useState } from 'react';

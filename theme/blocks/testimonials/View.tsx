@@ -1,4 +1,4 @@
-// "Udtalelser": its head in the text (BlockHead.tsx), then its testimonials in Slider.tsx or (`layout` 'list') List.tsx, with the
+// "Testimonials": its head in the text (BlockHead.tsx), then its testimonials in Slider.tsx or (`layout` 'list') List.tsx, with the
 // space of a block in the text.
 import BlockHead from '@theme/blocks/BlockHead';
 import List from '@theme/blocks/testimonials/List';
