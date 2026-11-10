@@ -23,6 +23,8 @@
     "demo",
     "icons",
     "lib",
+    "!lib/fixtures",
+    "!lib/sandbox/fixtures",
     "pages",
     "release-notes",
     "scripts",
