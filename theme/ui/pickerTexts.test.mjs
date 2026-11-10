@@ -6,6 +6,7 @@ import { translate } from '../../lib/translate.mjs';
 import { themeUi } from '../../defaults/i18n/da-DK/themeUi.ts';
 import { readdirSync } from 'node:fs';
 import { datePickerTextsIn, timePickerTextsIn } from './pickerTexts.ts';
+import { expectDanish } from './fixtures/i18n/da-DK/pickerTexts.mjs';
 import { dayFromTyped, timeFromTyped } from './dates.ts';
 
 // The standard parts' Danish: every file of the folder (its index.ts imports them without extensions).
@@ -22,21 +23,7 @@ const danish = (text) => translate(defaultsDaDK, text);
 const english = (text) => text;
 
 test('a Danish site shows the Danish texts the pickers had', () => {
-  const d = datePickerTextsIn(danish, 'da-DK');
-  assert.equal(d.select, 'Vælg dato');
-  assert.equal(d.format, 'dd.mm.åååå');
-  assert.equal(d.wrongFormat, 'Skriv datoen som dd.mm.åååå.');
-  assert.equal(d.endBeforeStart, 'Slutdatoen er før startdatoen.');
-  assert.equal(d.toCalendar, 'Skift til kalenderen');
-  assert.equal(d.cancel, 'Annuller');
-  const t = timePickerTextsIn(danish, 'da-DK');
-  assert.equal(t.hour, 'Time');
-  assert.equal(t.format, 'tt.mm');
-  assert.equal(t.format12, 't.mm AM/PM');
-  assert.equal(t.wrong, 'Skriv et tidspunkt mellem 00.00 og 23.59.');
-  assert.equal(t.wrong12, 'Skriv et tidspunkt mellem 1.00 og 12.59.');
-  assert.equal(t.period, 'Før eller efter middag');
-  assert.equal(t.toDial, 'Skift til urskiven');
+  expectDanish(assert, datePickerTextsIn, timePickerTextsIn, danish);
 });
 
 test('every text of the pickers has its Danish', () => {

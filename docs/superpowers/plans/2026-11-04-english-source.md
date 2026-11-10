@@ -1,6 +1,6 @@
 # English source, Danish only in language files: master plan
 
-Status: partly done. Batches 1, 2 and 3 are done; batches 4 to 6 are not started (`PENDING` in `scripts/check-language.mjs` lists the folders they own). Checked against the code on 2026-11-10.
+Status: partly done. Batches 1, 2, 3 and 5 are done; batches 4 and 6 are not started (`PENDING` in `scripts/check-language.mjs` lists the folders they own). Checked against the code on 2026-11-10.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or
 > superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -33,7 +33,9 @@ the CMS, and `AGENTS.md` section 4 runs the checks from this repo's root.
 | 1 | Done (2026-11-05, branch `feat/english-source-batch-1`). `PENDING` has 13 prefixes. `danishValuesOf` also skips a value with no letter and a value that is an English text too (`src/i18n/en-US/`). `--all` ignores `PENDING`: on 2026-11-05 it found 2443 texts in 355 files. |
 | 2 | Done (PR #116). |
 | 3 | Done (2026-11-10, branch `claude/english-source-batch-3-cy3xgl`). `site/` and `lib/` are out of `PENDING`. |
-| 4–6 | Not started (batches 4 and 5 may run in other sessions). Each waits for its own go-ahead. |
+| 4 | Not started (`src/`; another session works in it). |
+| 5 | Done (2026-11-10, branch `claude/english-source-batch-5`). `theme/`, `worker/`, `pages/`, `scripts/` and the docs are out of `PENDING`. |
+| 6 | Not started. Waits for its own go-ahead. |
 
 ## Batches
 

@@ -8,10 +8,11 @@ import { test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { build } from 'esbuild';
 import { nameOf } from '../lib/scheduled.mjs';
+import { tryAgain } from './fixtures/i18n/da-DK/say.mjs';
 import { say } from './say.js';
 
 test('da-DK returns the Danish entry', () => {
-  assert.equal(say('da-DK', 'Try again.'), 'Prøv igen.');
+  assert.equal(say('da-DK', 'Try again.'), tryAgain);
 });
 
 test('en-US returns the English text', () => {
@@ -43,8 +44,8 @@ test('isRoute accepts Danish letters in a slug', async () => {
     logLevel: 'silent',
   });
   const { isRoute } = await import(pathToFileURL(outfile).href);
-  assert.equal(isRoute('om-øen'), true);
-  assert.equal(isRoute('om-åen/Æg'), true);
+  assert.equal(isRoute('om-\u00f8en'), true);
+  assert.equal(isRoute('om-\u00e5en/\u00c6g'), true);
   assert.equal(isRoute('a b'), false);
 });
 

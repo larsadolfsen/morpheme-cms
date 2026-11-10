@@ -95,8 +95,7 @@ for (const [width, height] of [
       for (const name of new Set(state.fallback)) fallbackAt(name, `${width}px #${hash}`);
       for (const name of new Set(state.missing)) problems.push(`${width}px #${hash}: ${missingIcon(name)}`);
       if (state.empty) problems.push(`${width}px #${hash}: the screen is empty`);
-      if (state.text.includes(`${daApp.nothingAt(hash)}.`))
-        problems.push(`${width}px #${hash}: there is nothing at the address`);
+      if (state.text.includes(`${daApp.nothingAt(hash)}.`)) problems.push(`${width}px #${hash}: there is nothing at the address`);
       for (const link of state.links) {
         if (seen.has(link)) continue;
         seen.add(link);

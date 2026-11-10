@@ -81,7 +81,10 @@ for (const method of ['GET', 'POST', 'DELETE']) {
   const w = world({ repoAccess: { pull: true, push: false } });
   const env = await envWith();
   const get = await call(w, 'GET', env);
-  expect(get.res.status === 200 && get.body.connected === false && get.body.mayChange === false, `GET with read access only gave ${get.text}`);
+  expect(
+    get.res.status === 200 && get.body.connected === false && get.body.mayChange === false,
+    `GET with read access only gave ${get.text}`,
+  );
   for (const method of ['POST', 'DELETE']) {
     const { res } = await call(w, method, env);
     expect(res.status === 403, `${method} with read access only gave ${res.status}, not 403`);
@@ -127,7 +130,7 @@ for (const method of ['GET', 'POST', 'DELETE']) {
   const env = await envWith();
   const { res, body } = await call(world({ store: () => new Response('{}', { status: 429 }) }), 'POST', env);
   expect(res.status === 429 && body.error === 'busy', `butikkens 429 gav ${res.status}`);
-  expect(rowsOf(env.CONSENT).length === 0, 'the store\'s 429 gave a row');
+  expect(rowsOf(env.CONSENT).length === 0, "the store's 429 gave a row");
 }
 for (const [what, store] of [
   ['500', () => new Response(`secret ${KEY}`, { status: 500 })],
@@ -178,7 +181,7 @@ for (const status of [200, 401]) {
   );
   expect(rowsOf(env.CONSENT).length === 0, `DELETE with the store's ${status} left the row`);
   expect(w.storeCalls[0]?.method === 'DELETE' && w.storeCalls[0].url.endsWith('/store/connect'), 'DELETE spurgte ikke butikken rigtigt');
-  expect(w.storeCalls[0]?.headers.authorization === `Bearer ${KEY}`, 'DELETE did not use the row\'s key as bearer');
+  expect(w.storeCalls[0]?.headers.authorization === `Bearer ${KEY}`, "DELETE did not use the row's key as bearer");
 }
 for (const store of [
   () => new Response('{}', { status: 500 }),
@@ -272,4 +275,4 @@ if (problems.length) {
   console.error(problems.map((p) => `- ${p}`).join('\n'));
   process.exit(1);
 }
-console.log('The Worker\'s key from Connect to Morpheme is fine.');
+console.log("The Worker's key from Connect to Morpheme is fine.");

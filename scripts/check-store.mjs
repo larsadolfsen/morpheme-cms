@@ -207,4 +207,4 @@ if (problems.length) {
   console.error(problems.map((p) => `- ${p}`).join('\n'));
   process.exit(1);
 }
-console.log('The Worker\'s questions to the store are fine.');
+console.log("The Worker's questions to the store are fine.");

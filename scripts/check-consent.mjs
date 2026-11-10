@@ -156,4 +156,6 @@ if (problems.length) {
   console.error(`${problems.length} fejl i samtykkeloggen:\n${problems.join('\n')}`);
   process.exit(1);
 }
-console.log('The consent log works: answers are saved with the site\'s version, only the editor can read, download and delete them, and old ones are deleted.');
+console.log(
+  "The consent log works: answers are saved with the site's version, only the editor can read, download and delete them, and old ones are deleted.",
+);
