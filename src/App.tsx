@@ -1,7 +1,7 @@
 // The editor at /editor/ (docs/editor.md): sign in with GitHub, pick a part of the site, edit and
 // save. The layout: the full-height navigation rail or drawer (MainMenu.tsx) with, beside it, the top bar (topBarSlot.tsx) over the screen. The address after # says what is open, so reloading keeps it:
 //   (empty)          the start page
-//   list/<id>       the list of a part, e.g. list/priser, and list/<id>/<app> a tab an installed app adds to it
+//   list/<id>       the list of a part, e.g. list/prices, and list/<id>/<app> a tab an installed app adds to it
 //                    (AppDefinition.tabs): list/cookies/cookiescanner
 //   lists           the short lists (the testimonials, the apps' lists)
 //   settings         the Settings screen (Library.tsx SettingsScreen), opened by the cog at the bottom of the drawer (MainMenu.tsx);

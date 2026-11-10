@@ -59,7 +59,7 @@ test('headerDraft: the menu items with their sub-items A–Z', () => {
   const items = [
     {
       label: 'About',
-      href: '/om/',
+      href: '/about/',
       children: [
         { label: 'Zone', href: '/z/' },
         { label: 'Arm', href: '/a/' },
@@ -69,7 +69,7 @@ test('headerDraft: the menu items with their sub-items A–Z', () => {
   assert.deepEqual(headerDraft(SAVED, withChange({ menu: { enabled: true, items } })).nav, [
     {
       label: 'About',
-      href: '/om/',
+      href: '/about/',
       children: [
         { label: 'Arm', href: '/a/' },
         { label: 'Zone', href: '/z/' },
@@ -80,9 +80,9 @@ test('headerDraft: the menu items with their sub-items A–Z', () => {
 
 test('headerDraft: "Mobile menu" turned off is an empty bar, turned on its links', () => {
   assert.deepEqual(headerDraft(SAVED, withChange({ mobileMenu: { ...SAVED.mobileMenu, enabled: false } })), { mobileNav: [] });
-  const off = withChange({ mobileMenu: { enabled: false, items: [{ label: 'Contact', href: '/kontakt/' }] } });
+  const off = withChange({ mobileMenu: { enabled: false, items: [{ label: 'Contact', href: '/contact/' }] } });
   assert.deepEqual(headerDraft(off, withChange({ mobileMenu: { ...off.mobileMenu, enabled: true } })), {
-    mobileNav: [{ label: 'Contact', href: '/kontakt/' }],
+    mobileNav: [{ label: 'Contact', href: '/contact/' }],
   });
 });
 
@@ -110,13 +110,13 @@ test('swapHeader: an empty draft leaves the page as it is', () => {
 test('swapHeader: the menu items drawn again, with and without sub-items', () => {
   const doc = page();
   const nav = [
-    { label: 'Contact', href: '/kontakt/' },
+    { label: 'Contact', href: '/contact/' },
     {
       label: 'About',
-      href: '/om/',
+      href: '/about/',
       children: [
-        { label: 'Hold', href: '/om/hold/' },
-        { label: 'Price', href: '/om/pris/' },
+        { label: 'Team', href: '/about/team/' },
+        { label: 'Price', href: '/about/price/' },
       ],
     },
     { label: 'Home', href: '/' },
@@ -124,18 +124,18 @@ test('swapHeader: the menu items drawn again, with and without sub-items', () =>
   swapHeader(doc, { nav }, THEME);
   const el = part(doc, 'header-nav');
   assert.deepEqual(labels(el), ['Contact', 'About', 'Home']);
-  const [kontakt, om, forside] = el.querySelectorAll(':scope > ul > li');
-  assert.equal(kontakt.querySelector('[data-nav-toggle]'), null);
-  assert.equal(kontakt.querySelector('a').hasAttribute('aria-current'), false);
-  assert.equal(forside.querySelector('a').getAttribute('aria-current'), 'page');
-  const toggle = om.querySelector('[data-nav-toggle]');
+  const [contact, about, home] = el.querySelectorAll(':scope > ul > li');
+  assert.equal(contact.querySelector('[data-nav-toggle]'), null);
+  assert.equal(contact.querySelector('a').hasAttribute('aria-current'), false);
+  assert.equal(home.querySelector('a').getAttribute('aria-current'), 'page');
+  const toggle = about.querySelector('[data-nav-toggle]');
   assert.equal(toggle.getAttribute('aria-controls'), 'menu-1');
   assert.equal(toggle.getAttribute('aria-label'), 'Pages under About');
   assert.deepEqual(
-    [...om.querySelectorAll('#menu-1 a')].map((a) => [a.textContent, a.getAttribute('href')]),
+    [...about.querySelectorAll('#menu-1 a')].map((a) => [a.textContent, a.getAttribute('href')]),
     [
-      ['Hold', '/om/hold/'],
-      ['Price', '/om/pris/'],
+      ['Team', '/about/team/'],
+      ['Price', '/about/price/'],
     ],
   );
 });

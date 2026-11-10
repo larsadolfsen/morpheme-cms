@@ -1,7 +1,7 @@
 // A field that picks a page to link to: it shows the page, and opens a list of the pages with a search,
 // as a sheet from the bottom on a phone and a dialog on a computer. The pages come in groups (the
 // fixed pages and the other pages, for the menu), each in the order picked last time in this browser, and can be
-// filtered by their status and by whether the menu links to them (usePickTools, as the sheets that pick several). A link to a part of a page (/kontakt/#find-vej) is shown as that page; a page that no longer
+// filtered by their status and by whether the menu links to them (usePickTools, as the sheets that pick several). A link to a part of a page (/contact/#find-vej) is shown as that page; a page that no longer
 // exists is shown with its address, so it is not lost silently. The same sheet opens from a row in a list (PageListItem:
 // the pages of "Default pages").
 import { useRef, useState, type Ref } from 'react';

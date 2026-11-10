@@ -9,15 +9,6 @@
 export const PENDING_IDS = [
   // Row 4, batch A2: the CSV file name samtykker-<date>.csv (worker/consent.js).
   'worker/consent.js:samtykker',
-  // Row 6, batch A1: Danish page names in tests and comments (priser, kontakt, forside, filer); worker/say.test.mjs stays Danish on purpose and is not listed.
-  'lib/locale.test.mjs:forside',
-  'lib/menu.test.mjs:priser',
-  'lib/storeEntries.test.mjs:butik',
-  'lib/storeEntries.test.mjs:udvikler',
-  'site/schema.ts:priser',
-  'src/autoTags.test.mjs:filer',
-  'src/headerPreview.test.mjs:kontakt',
-  'src/tagUses.test.mjs:filer',
   // Row 7, batch A1: stale ids in docs/store-ids.md.
   'docs/store-ids.md:promovering',
   'docs/store-ids.md:tema',

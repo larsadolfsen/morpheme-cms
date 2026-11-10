@@ -44,7 +44,7 @@ interface Props {
 const { page } = Astro.props;
 const all = await getPages();
 const parentEntry = parentPage(page, all);
-// The parent can also be a bespoke page (e.g. /kontakt/), which is not in the collection.
+// The parent can also be a bespoke page (e.g. /contact/), which is not in the collection.
 const parentPath = page.data.path.replace(/[^/]+\/$/, '');
 const parentNav = nav.find((n) => n.href === parentPath);
 const parent = parentEntry
