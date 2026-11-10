@@ -15,6 +15,8 @@ export type SharedTexts = {
   values: Record<string, unknown>;
   /** Its screen draws the block under the fields (Part.preview), with these props when no page has it. */
   preview?: { props?: Record<string, unknown>; shared?: boolean; variants?: PreviewVariant[] };
+  /** The saved values as the form has them, from a text written before a placeholder was renamed (Part.upgradeValues). */
+  upgradeValues?: (values: Record<string, unknown>) => Record<string, unknown>;
 };
 export const defineShared = (texts: SharedTexts) => texts;
 

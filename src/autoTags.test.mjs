@@ -6,7 +6,7 @@ import { recordText } from './fileRecords.mjs';
 const F = 'src/data/files';
 const A = '/images/uploads/2026/10/a.webp';
 const B = '/images/uploads/2026/10/b.webp';
-const P = '/filer/price-list.pdf';
+const P = '/files/price-list.pdf';
 const stored = (src, categories, removed, oid = 'o1', id = 'r1') => ({
   path: `${F}/${id}.json`,
   oid,

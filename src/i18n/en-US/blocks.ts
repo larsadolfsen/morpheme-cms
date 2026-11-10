@@ -135,8 +135,8 @@ export const blocks = {
     moreLabel: 'Button text',
     /** The shared text ("Blocks" › "Expandable list"), and what it starts as on a site in this language. */
     more: 'Link text',
-    moreHint: '{emne} is the heading of the row.',
-    moreText: 'Read more about {emne}',
+    moreHint: '{topic} is the heading of the row.',
+    moreText: 'Read more about {topic}',
     /** In the drawing, for a row without a text of its own (in the site's language). */
     opening: 'The beginning of the text on the page.',
     /** The rows it is shown with where no page has it (in the site's language). */

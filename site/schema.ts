@@ -18,7 +18,7 @@ export type SiteSchema = {
   /** What the business has besides its contact details (priceRange, currenciesAccepted, paymentAccepted …). */
   terms: Record<string, unknown>;
   areaServed: unknown[];
-  /** The @id of the business's offer catalog, as an address on the site ("/priser/#priser"), or null. */
+  /** The @id of the business's offer catalog, as an address on the site ("/prices/#prices"), or null. */
   offers: string | null;
   /** The person behind the business (name, title and contact details are the site's), or null. */
   person: Record<string, unknown> | null;

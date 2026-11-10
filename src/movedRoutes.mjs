@@ -1,5 +1,5 @@
 // The editor's screens that have moved or been renamed, by their old address after the "#": a link or a bookmark to one
-// opens it where it is now. Exposes MOVED, RENAMED and movedRoute (pure). Used by App.tsx (routeOf), which adds the app store's own.
+// opens it where it is now. Exposes MOVED, RENAMED and movedRoute (pure). Used by App.tsx (routeOf).
 
 /** Where each moved screen is now, by its old address. */
 export const MOVED = /** @type {Record<string, string>} */ ({
@@ -45,6 +45,9 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   'apps/*/indstillinger': 'apps/*/settings',
   'apps/*/om': 'apps/*/about',
   'apps/udvikler': 'apps/developer',
+  // The app store was at apps/butik (and its themes at apps/butik/temaer); the longest key wins, so the themes keep their own.
+  'apps/butik': 'settings/appstore',
+  'apps/butik/temaer': 'appearance/theme-store',
   udseende: 'appearance',
   'udseende/temaer': 'appearance/themes',
   'udseende/ikonpakker': 'appearance/icon-packs',

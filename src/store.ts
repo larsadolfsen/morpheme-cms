@@ -194,11 +194,10 @@ export type ShownApp = StoreApp & { written: string; words: string };
 export type StoreRecord = { version: string; ref: string; files: StoreFile[] };
 
 /** The store's address in the editor, under "Settings" (its apps), the address of its themes under Appearance
- * (STORE_THEMES, "Theme store"), the apps' address before (STORE_BEFORE, which opens it, App.tsx STORE_MOVED), and that
- * of a developer's page (DEVELOPER_ROUTE/<slug>); no app can have the ids of the last two. */
+ * (STORE_THEMES, "Theme store"), and that of a developer's page (DEVELOPER_ROUTE/<slug>); no app can have the id of the
+ * last one. The store's old address is in src/movedRoutes.mjs. */
 export const STORE_ROUTE = 'settings/appstore';
 export const STORE_THEMES = 'appearance/theme-store';
-export const STORE_BEFORE = 'apps/butik';
 export const DEVELOPER_ROUTE = 'apps/developer';
 
 /** An app's folder in the site, and the note in it of where it came from. */

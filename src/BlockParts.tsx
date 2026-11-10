@@ -305,7 +305,7 @@ function FieldParts() {
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" defaultValue={screens.fieldValue} />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" supporting={screens.fieldSupporting} />
-                <SiteTextField kind={kind} label={screens.fieldLabel} type="email" defaultValue="navn@" error={screens.fieldError} />
+                <SiteTextField kind={kind} label={screens.fieldLabel} type="email" defaultValue="name@" error={screens.fieldError} />
                 <SiteTextField kind={kind} label={screens.fieldLabel} hideLabel type="email" placeholder={screens.fieldPlaceholder} />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" disabled />
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" leadingIcon="envelope-simple" />
@@ -325,7 +325,7 @@ function FieldParts() {
                   kind={kind}
                   label={screens.fieldLabel}
                   type="email"
-                  defaultValue="navn@"
+                  defaultValue="name@"
                   error={screens.fieldError}
                   leadingIcon="envelope-simple"
                   errorIcon

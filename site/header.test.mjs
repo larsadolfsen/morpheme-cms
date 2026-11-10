@@ -38,7 +38,7 @@ test('wrong shapes', () => {
 
 test('sortedNav sorts the sub-items in Danish order and keeps the items in order', () => {
   const items = [
-    { label: 'Om', href: '/om/' },
+    { label: 'About', href: '/about/' },
     {
       label: 'Behandlinger',
       href: '/b/',
@@ -52,7 +52,7 @@ test('sortedNav sorts the sub-items in Danish order and keeps the items in order
   const sorted = sortedNav(items);
   assert.deepEqual(
     sorted.map((i) => i.label),
-    ['Om', 'Behandlinger'],
+    ['About', 'Behandlinger'],
   );
   assert.deepEqual(
     sorted[1].children.map((c) => c.label),

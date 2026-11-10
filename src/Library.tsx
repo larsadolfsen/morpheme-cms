@@ -56,6 +56,7 @@ import {
   settings,
 } from './site';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
+import { viewOfSaved } from './savedView.mjs';
 import { ConflictError, type RepoFile, type Viewer } from './github';
 import { AccountRow } from './AccountRow';
 import Screen from './Screen';
@@ -1011,7 +1012,7 @@ function menuOf(items: Item[], files: RepoFile[]): { menu: Branch[]; rest: Item[
 }
 
 // List or as the menu (pages), as picked last time in this browser.
-type View = 'liste' | 'menu';
+type View = 'list' | 'menu';
 // Whether the pages and posts show their SEO rating ("Show SEO rating"), as left last time in this browser.
 const seoKey = (c: Collection) => `editor-seo-${c.id}`;
 function savedSeo(c: Collection): boolean {
@@ -1025,9 +1026,9 @@ function savedSeo(c: Collection): boolean {
 const viewKey = (c: Collection) => `editor-view-${c.id}`;
 function savedView(c: Collection): View {
   try {
-    return localStorage.getItem(viewKey(c)) === 'menu' ? 'menu' : 'liste';
+    return viewOfSaved(localStorage.getItem(viewKey(c)));
   } catch {
-    return 'liste';
+    return 'list';
   }
 }
 
@@ -1458,7 +1459,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
                 label={view === 'menu' ? t.library.showAsList : t.library.showAsMenu}
                 aria-pressed={view === 'menu'}
 
-                onClick={() => pickView(view === 'menu' ? 'liste' : 'menu')}
+                onClick={() => pickView(view === 'menu' ? 'list' : 'menu')}
               />
             )
           }
