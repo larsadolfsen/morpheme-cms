@@ -9,20 +9,7 @@ import { danishValuesOf, findDanish, isLanguagePath } from '../lib/danish.mjs';
 
 // Path prefixes not converted to English yet. Each batch of docs/superpowers/plans/2026-11-04-english-source.md
 // removes its own. The last batch deletes the list.
-const PENDING = [
-  'AGENTS.md',
-  'README.md',
-  'astro.mjs',
-  'demo/',
-  'lib/',
-  'pages/',
-  'scripts/',
-  'site/',
-  'src/',
-  'starter/',
-  'theme/',
-  'worker/',
-];
+const PENDING = ['AGENTS.md', 'README.md', 'astro.mjs', 'demo/', 'pages/', 'scripts/', 'src/', 'starter/', 'theme/', 'worker/'];
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const all = process.argv.includes('--all');
