@@ -1,4 +1,4 @@
-// "Book en tid" button (`label`: booking.json, "Blokke" › "Book en tid" in the editor), filled (Button.tsx), in its
+// "Book an appointment" button (`label`: booking.json, "Blocks" › "Book an appointment" in the editor), filled (Button.tsx), in its
 // size (`size`, small in the header). It opens what books on the page (`data-open="booking"`: the booking sheet of an
 // app's promotion, src/apps/), or goes to the booking page (`href`). In the editor only drawn.
 import Button, { type ButtonSize } from '@theme/ui/Button';

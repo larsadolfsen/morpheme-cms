@@ -1,4 +1,4 @@
-// "Ring 12 34 56 78" button (`label`, its text before the number: booking.json, "Blokke" › "Book en tid"), outlined
+// "Call 12 34 56 78" button (`label`, its text before the number: booking.json, "Blocks" › "Book an appointment"), outlined
 // (Button.tsx). In the editor only drawn.
 import Button from '@theme/ui/Button';
 

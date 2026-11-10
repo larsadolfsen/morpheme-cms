@@ -7,7 +7,7 @@
 // with the caret at the end of their row (inside the active indicator); the one with the open page starts open.
 // Rendered through a portal into <body>, so nothing on the page can clip it. It moves with the site's motion scheme
 // (motionSpring, @morphemecms/cms/lib/motion.ts: Material 3's springs, the expressive ones unless the owner chose
-// another under "Bevægelse"); with reduced motion it appears at once. A spring that overshoots carries the drawer a little
+// another under "Motion"); with reduced motion it appears at once. A spring that overshoots carries the drawer a little
 // past its place, so it is wider than it looks by a strip off the screen at its edge (navigationDrawerBleedClass): no gap
 // opens at the edge while it settles.
 import { useEffect, useRef, useState } from 'react';
@@ -106,7 +106,7 @@ export default function MobileMenu({
     return () => {
       stopKeys?.();
       document.removeEventListener('keydown', onKey);
-      // Closed by "Book en tid": the booking sheet (a modal dialog) is open now and keeps the page
+      // Closed by "Book an appointment": the booking sheet (a modal dialog) is open now and keeps the page
       // still and the focus itself.
       if (document.querySelector('dialog[open]')) return;
       root.style.overflow = prevOverflow;
