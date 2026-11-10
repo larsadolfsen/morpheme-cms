@@ -1,4 +1,4 @@
-// "Farver" (Colors.tsx): the site's colors in light and dark mode.
+// "Colors" (Colors.tsx): the site's colors in light and dark mode.
 export const colors = {
   intro: "The website's colors in light and dark mode.",
   light: 'Light mode',
@@ -21,7 +21,7 @@ export const colors = {
   },
   /** A pair that is too hard to read: what it is (the site's words), its contrast and the least it needs. */
   tooLow: (what: string, ratio: string, min: string) => `Contrast too low: ${what} (${ratio}, at least ${min}).`,
-  /** checkSite.ts: a color in the file that is not one ('dark.accent: "rød"'). */
+  /** checkSite.ts: a color in the file that is not one ('dark.accent: "red"'). */
   notAColorAt: (where: string) => `Not a color: ${where}`,
   cannotSave: 'Some colors have too little contrast. Fix the ones marked in red.',
   unreadable: 'The colors couldn’t be read. The default colors are shown.',
@@ -52,7 +52,7 @@ export const colors = {
     contrasts: { standard: 'Standard', medium: 'Medium', high: 'High' },
     /** A color changed by hand while they are made from the source color. */
     turnedOff: 'The generator no longer makes the colors, so you can change them yourself',
-    /** checkSite.ts: a wrong value in the choice in the file ('dynamic.variant: "rød"'). */
+    /** checkSite.ts: a wrong value in the choice in the file ('dynamic.variant: "red"'). */
     wrongAt: (where: string) => `Wrong value: ${where}`,
   },
   /** Each page's colors as it was built, shown in the modes while an app changes the pages' colors (hooks/page-colors.ts). */

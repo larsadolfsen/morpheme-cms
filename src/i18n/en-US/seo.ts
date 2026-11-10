@@ -1,6 +1,6 @@
-// "SEO-vurdering" under "Søgemaskineoptimering" (SeoScores.tsx): the SEO rating of every page and blog post.
+// "SEO rating" under "Search engine optimization" (SeoScores.tsx): the SEO rating of every page and blog post.
 export const seo = {
-  /** Its row under "Søgemaskineoptimering" and its screen's title. */
+  /** Its row under "Search engine optimization" and its screen's title. */
   title: 'SEO rating',
   intro: 'The same rating as under Search engines on each page and blog post.',
   /** Under the title: the average of the scores. */

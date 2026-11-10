@@ -1,4 +1,4 @@
-// "Blokindstillinger" (BlockSettings.tsx).
+// "Block settings" (BlockSettings.tsx).
 export const blockSettings = {
   stillOn: (n: number) => `The block is used on ${n} ${n === 1 ? 'page' : 'pages'}. Remove it from there first.`,
   on: 'On',
@@ -17,7 +17,7 @@ export const blockSettings = {
   stuck: 'The block is used on pages and can’t be turned off',
   onHint: 'Shown under Insert.',
   offHint: 'Not shown under Insert.',
-  /** The switch of an app's kind of a list, and under it: the list's name, its button for a new one ("Ny promovering"),
+  /** The switch of an app's kind of a list, and under it: the list's name, its button for a new one ("New promotion"),
    * and its name for more ("promoveringer"). */
   active: 'Enabled',
   kindStuck: (more: string) => `The block is used in ${more} and can’t be turned off`,

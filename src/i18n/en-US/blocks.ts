@@ -133,7 +133,7 @@ export const blocks = {
     moreItems: 'More pages',
     moreItem: 'page',
     moreLabel: 'Button text',
-    /** The shared text ("Blokke" › "Foldeliste"), and what it starts as on a site in this language. */
+    /** The shared text ("Blocks" › "Expandable list"), and what it starts as on a site in this language. */
     more: 'Link text',
     moreHint: '{emne} is the heading of the row.',
     moreText: 'Read more about {emne}',
@@ -152,7 +152,7 @@ export const blocks = {
     sharedHint: 'Used when the block has no buttons of its own.',
     shared: 'Default buttons',
     text: 'Text',
-    /** The texts a button without its own has (the site's targets, e.g. "Book en tid", "Ring"). */
+    /** The texts a button without its own has (the site's targets, e.g. "Book an appointment", "Call"). */
     textHint: (targets: string[]) => `If empty, ${targets.map((t) => `"${t}"`).join(', ')} or the page title is used.`,
     to: 'Leads to',
     page: 'A page',
@@ -170,7 +170,7 @@ export const blocks = {
     label: 'Cookie list',
     hint: 'Shows the cookies the website sets.',
     edit: 'Edit cookies',
-    /** The list the block brings, "Cookies" under "Lister" (list.ts), and its fields. */
+    /** The list the block brings, "Cookies" under "Lists" (list.ts), and its fields. */
     entries: {
       label: 'Cookies',
       singular: 'cookie',
@@ -200,7 +200,7 @@ export const blocks = {
       freshNotice: 'Added to the list automatically. Review it and approve it.',
       approve: 'Approve',
     },
-    /** The shared texts ("Blokke" › "Cookieliste"), and what they start as on a site in this language. */
+    /** The shared texts ("Blocks" › "Cookie list"), and what they start as on a site in this language. */
     nameHead: 'Heading (name)',
     providerHead: 'Heading (provider)',
     purposeHead: 'Heading (purpose)',
@@ -242,7 +242,7 @@ export const blocks = {
     tags: 'Tags',
     addTag: 'Add tag',
     tagsHint: 'Without tags, all testimonials are shown.',
-    /** The list the block brings, "Udtalelser" under "Lister" (list.ts), and its fields. */
+    /** The list the block brings, "Testimonials" under "Lists" (list.ts), and its fields. */
     entries: {
       label: 'Testimonials',
       singular: 'testimonial',
@@ -255,7 +255,7 @@ export const blocks = {
       frontPage: 'Show on the front page',
     },
     items: 'Testimonials',
-    /** The shared texts ("Blokke" › "Udtalelser"), and what they start as on a site in this language. */
+    /** The shared texts ("Blocks" › "Testimonials"), and what they start as on a site in this language. */
     more: 'Button text (show more)',
     less: 'Button text (show less)',
     moreText: 'Read more',
@@ -302,7 +302,7 @@ export const blocks = {
     randomFrom: (n: number, from: string) => `${n} random ones from ${from}`,
     /** All with some tags (none: all posts), and how many posts that is. */
     allFrom: (tags: string, n: number) => `${tags || 'All posts'} · ${n} ${n === 1 ? 'post' : 'posts'}`,
-    /** The shared texts ("Blokke" › "Blogindlæg"), and what they start as on a site in this language. */
+    /** The shared texts ("Blocks" › "Blog posts"), and what they start as on a site in this language. */
     allLink: 'Link text (blog)',
     allAboutLink: 'Link text (tag)',
     allAboutHint: '{tag} is the name of the tag.',
@@ -332,7 +332,7 @@ export const blocks = {
     image: 'Picture',
     href: 'Page',
     hrefHint: 'Without a page, the card isn’t a link.',
-    /** The shared text ("Blokke" › "Kort"), and what it starts as on a site in this language. */
+    /** The shared text ("Blocks" › "Cards"), and what it starts as on a site in this language. */
     more: 'Link text',
     moreText: 'Read more',
     /** The cards it is shown with where no page has it (in the site's language). */
@@ -380,7 +380,7 @@ export const blocks = {
     title: 'Title',
     video: 'Video',
   },
-  /** "Tjekliste" (standard/checklist/). */
+  /** "Checklist" (standard/checklist/). */
   checklist: {
     label: 'Checklist',
     hint: 'Points with a check mark before them.',
@@ -390,7 +390,7 @@ export const blocks = {
     /** The points it is shown with where no page has it (in the site's language). */
     example: ['An answer within one working day', 'No commitment', 'Free access to the material', 'Help when you need it'],
   },
-  /** "Priskort" (standard/pricecards/). */
+  /** "Price cards" (standard/pricecards/). */
   pricecards: {
     label: 'Price cards',
     hint: 'Prices side by side with what is included.',

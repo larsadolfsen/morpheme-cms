@@ -28,7 +28,7 @@ export const forms = {
     noAddress: 'Write an address',
     twice: 'The link is already in the list',
   },
-  /** The preview of the Google result at the top of "Søgemaskiner" (SearchPreview.tsx): the name of its tabs, the tabs and
+  /** The preview of the Google result at the top of "Search engines" (SearchPreview.tsx): the name of its tabs, the tabs and
    * what a screen reader says of the result. */
   searchPreview: {
     on: 'Google result on',
@@ -38,7 +38,7 @@ export const forms = {
   },
   /** What a tag's page says about itself when it is shared without a Google description (the site's text, Category.astro). */
   tagShared: (n: number, name: string) => `${n} ${n === 1 ? 'post' : 'posts'} about ${name.toLowerCase()}.`,
-  /** The SEO rating at the top of "Søgemaskiner" (seo.ts): its heading and what each check says; `post`: a
+  /** The SEO rating at the top of "Search engines" (seo.ts): its heading and what each check says; `post`: a
    * blog post (its title is its H1), else a page; `n`: how many (headings, characters). */
   seoRating: {
     title: 'SEO rating',
@@ -50,7 +50,7 @@ export const forms = {
     noTitle: (post: boolean) => `There’s no Google title, so the ${post ? "post's" : "page's"} title is used`,
     longTitle: (n: number) => `The Google title has ${n} characters, so Google may cut it off after about 60`,
     goodTitle: (n: number) => `The Google title has a good length (${n} characters)`,
-    /** `short`: there is a "Kort beskrivelse", used instead. */
+    /** `short`: there is a "Short description", used instead. */
     noDescription: (short: boolean) =>
       `There’s no Google description, so ${short ? 'the short description' : "the website's general description"} is used`,
     noDescriptionFrom: (what: string) => `There’s no Google description, so ${what} is used`,
@@ -62,14 +62,14 @@ export const forms = {
     keywordInH1: (word: string, post: boolean, found: boolean) =>
       `The keyword "${word}" is ${found ? '' : 'not '}in the ${post ? 'title' : 'heading (H1)'}`,
     keywordInText: (word: string, found: boolean) => `The keyword "${word}" is ${found ? '' : 'not '}in the first paragraph`,
-    /** "Skjul for søgemaskiner (noindex)" is ticked. */
+    /** "Hide from search engines (noindex)" is ticked. */
     noindex: (post: boolean) => `The ${post ? 'post' : 'page'} is hidden from Google`,
     /** "Canonical URL" is a page the editor does not know. */
     noCanonical: 'The canonical URL (the page Google should list) points to a page that doesn’t exist',
     allAlt: 'All pictures have an alt text',
     noAlt: (n: number) => `${n} ${n === 1 ? 'picture has' : 'pictures have'} no alt text`,
     goodLinks: (n: number): string => (n === 1 ? 'The link has a descriptive text' : 'The links have descriptive text'),
-    /** The first link whose text is only "klik her", "læs mere" and the like. */
+    /** The first link whose text is only "click here", "read more" and the like. */
     vagueLink: (text: string) => `The link "${text}" doesn’t say where it leads`,
     /** How to do better, under a check that is not fine when it is folded out. */
     fixNoH1: 'Write the page’s heading at the top of the text, as a Heading.',
@@ -100,7 +100,7 @@ export const forms = {
     titleNeedsLetters: 'The title must have letters or digits.',
     /** Planlagt (scheduled), with a time that has passed. */
     scheduledPast: 'The time has already passed. Choose a later time, or choose Published.',
-    /** The page is a standard page ("Forside", "Blogside" …, chosen `where`: "Udseende › Standardsider")
+    /** The page is a standard page ("Front page", "Blog page" …, chosen `where`: "Udseende › Standardsider")
      * and was made Kladde or Planlagt. */
     standardPage: (label: string, where: string) =>
       `The page is chosen as ${label} under ${where} and must be published. Choose another page there first.`,

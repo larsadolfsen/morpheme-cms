@@ -1,4 +1,4 @@
-// "Virksomheden" and "Blokke" (CompanyForm.tsx), and "Udseende" › "Logo og ikon" (BrandForm.tsx, brand.ts).
+// "Business" and "Blocks" (CompanyForm.tsx), and "Appearance" › "Logo and icon" (BrandForm.tsx, brand.ts).
 export const company = {
   noChanges: 'There are no changes to save',
   preview: 'Preview',
