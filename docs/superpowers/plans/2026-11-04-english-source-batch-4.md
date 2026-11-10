@@ -1,5 +1,7 @@
 # Batch 4: `src/` in English
 
+Status: not started (`src/` is still in `PENDING`; Danish ids remain). Checked against the code on 2026-11-10.
+
 Master plan: `2026-11-04-english-source.md` (read *Conversion rules*). Needs Batch 2 merged (the term table, the
 English ids). Repo `morpheme-cms`. Can run at the same time as batches 3 and 5. `src/i18n/` is out of this batch.
 

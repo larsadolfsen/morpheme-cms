@@ -1,5 +1,7 @@
 # Batch 3: `site/` and `lib/` in English
 
+Status: not started (`site/` and `lib/` are still in `PENDING`). Checked against the code on 2026-11-10.
+
 Master plan: `2026-11-04-english-source.md` (read *Conversion rules*). Needs Batch 2 merged (the term table, the
 English ids). Repo `morpheme-cms`. Can run at the same time as batches 4 and 5.
 

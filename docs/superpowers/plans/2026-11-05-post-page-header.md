@@ -1,5 +1,7 @@
 # Post page header Implementation Plan
 
+Status: done. Checked against the code on 2026-11-10.
+
 > **For agentic workers:** In Interstellar the orchestrator never writes code. Each task names its worker (Ollama
 > runner or Sonnet agent). Steps use checkbox (`- [ ]`) syntax for tracking. The plan gives interfaces and test cases,
 > not code.

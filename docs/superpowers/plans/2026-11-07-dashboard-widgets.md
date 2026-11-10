@@ -1,5 +1,7 @@
 # Dashboard widgets: master plan
 
+Status: not started. Only the spec and the plans exist. Checked against the code on 2026-11-10.
+
 Design: `docs/superpowers/specs/2026-11-07-dashboard-widgets-design.md`. Read it first.
 
 ## Goal

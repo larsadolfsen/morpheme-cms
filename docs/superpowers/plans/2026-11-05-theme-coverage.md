@@ -1,5 +1,7 @@
 # Theme coverage marks: implementation plan
 
+Status: done. No changeset or CHANGELOG entry for it was found. Checked against the code on 2026-11-10.
+
 > **Status: done** on 5 November 2026. All six tasks are on `main` through the theme coverage PR. Not released (the
 > owner's step). Workers: Task 1 and Task 2 the Ollama runner; Task 3, Task 4 and Task 5 Sonnet agents (the local runner
 > crashed on Task 4); Task 6 and the licences fix (`lib/licenses.mjs`, `OWN_VIRTUAL`) the orchestrator. The Venus check

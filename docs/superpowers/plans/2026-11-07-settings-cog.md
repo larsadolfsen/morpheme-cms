@@ -1,6 +1,6 @@
 # Settings behind a cog: build plan
 
-Status: plan, not started. Agreed with the user on 2026-11-07.
+Status: not started. Agreed with the user on 2026-11-07. Checked against the code on 2026-11-10.
 
 ## Goal
 

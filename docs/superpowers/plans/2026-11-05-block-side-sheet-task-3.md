@@ -1,5 +1,7 @@
 # Task `block-side-sheet/3`: the side sheet behaviour in the theme
 
+Status: done. Checked against the code on 2026-11-10.
+
 Part of [2026-11-05-block-side-sheet.md](2026-11-05-block-side-sheet.md). Owner decision, 5 November 2026: themes can
 open both kinds of side sheet on the site. The editor uses the same code.
 

@@ -1,5 +1,7 @@
 # Full-screen block fields: implementation plan
 
+Status: superseded. Its task 3 was reverted (1d488fc) and the side sheet in `2026-11-05-block-side-sheet.md` replaced it. Do not build it. Checked against the code on 2026-11-10.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or
 > superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

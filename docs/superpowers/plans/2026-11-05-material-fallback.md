@@ -1,5 +1,7 @@
 # Material as every theme's fallback (plan)
 
+Status: done. Checked against the code on 2026-11-10.
+
 Design: [2026-11-05-material-fallback-design.md](../specs/2026-11-05-material-fallback-design.md).
 Session branch: `feat/material-fallback`. Each task works on its own branch and merges into the session branch.
 

@@ -1,5 +1,7 @@
 # English source: the term table
 
+Status: done. It is the term table that batch 2 used; batches 3 to 6 reuse it. Checked against the code on 2026-11-10.
+
 Danish UI label to English label, for the comments in Batches 3, 4 and 5 that name a label. The English is the editor's own wording, taken from `defaults/texts.ts` (`texts['en-US']`, source `texts`) and from `src/i18n/` where the Danish text has a key in `src/i18n/da-DK/` (source `i18n <key path>`).
 Where the two disagree, the row has the `texts` English and the note names the `i18n` one. Full sentences (hints, messages), example texts of the "Dele" screens and labels that are the same in both languages (`i18n` only) are not listed.
 

@@ -1,5 +1,7 @@
 # Batch 1: the language check and the translation lookup
 
+Status: done. Checked against the code on 2026-11-10.
+
 Master plan: `2026-11-04-english-source.md`. Needs the CMS move (see *Start condition* there). Repo `morpheme-cms`,
 paths from the repo's root. Tasks 1.1 and 1.2 are independent. Task 1.3 comes last.
 

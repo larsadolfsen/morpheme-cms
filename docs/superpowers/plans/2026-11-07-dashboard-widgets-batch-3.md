@@ -1,5 +1,7 @@
 # Dashboard widgets, batch 3: edit mode
 
+Status: not started. Checked against the code on 2026-11-10.
+
 Master plan: `2026-11-07-dashboard-widgets.md`. Needs batch 2.
 
 Before the tasks: read the Material 3 pages for cards, menus, lists and the top app bar on m3.material.io.

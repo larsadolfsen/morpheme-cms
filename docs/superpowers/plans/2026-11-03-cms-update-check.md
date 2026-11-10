@@ -1,5 +1,7 @@
 # The site updates the CMS by itself: master plan
 
+Status: done. The owner's round trip on `npm run dev` is not confirmed. Checked against the code on 2026-11-10.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or
 > superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 > In Interstellar the orchestrator never writes code: each task names its worker (Ollama runner, Sonnet agent).

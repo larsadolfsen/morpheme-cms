@@ -1,5 +1,7 @@
 # Plan: release notes
 
+Status: done. The editor parts are `ReleaseNotes.tsx`, `ReleaseNoteSection.tsx` and `ReleaseNoteLines.tsx`, not `ReleaseNoteCard.tsx`. Checked against the code on 2026-11-10.
+
 Revision 2 (cards with screenshots, list of other changes) is at the end. Tasks A–E are done; F–I change them.
 
 # Revision 1: Why, How, What

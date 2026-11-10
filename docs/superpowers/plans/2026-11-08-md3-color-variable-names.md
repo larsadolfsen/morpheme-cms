@@ -1,6 +1,6 @@
 # Material 3 names for the color variables: plan
 
-Status: plan, not started. Written on 2026-11-08 at the owner's request ("wait with the variable names but write a plan").
+Status: done, differently from the plan. Commits ad36199 and 0b1c88e renamed everything directly and removed the old-name migration, so steps 1 and 4 (migration and aliases) were not built. Checked against the code on 2026-11-10.
 
 ## Goal
 

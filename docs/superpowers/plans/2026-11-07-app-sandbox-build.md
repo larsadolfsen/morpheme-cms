@@ -1,5 +1,7 @@
 # App sandbox, part 1 (manifest and build sandbox) Implementation Plan
 
+Status: not started. Only the spec and this plan exist. Checked against the code on 2026-11-10.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or
 > superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

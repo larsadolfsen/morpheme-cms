@@ -1,5 +1,7 @@
 # Development flow and releases Implementation Plan
 
+Status: done in this repository. Branch protection, the `morpheme-staging` repository and `platform.md` live elsewhere and are not checked. Checked against the code on 2026-11-10.
+
 > **Status: done** on 5 November 2026 (in progress since 3 November 2026, run by the session *Website npm package
 > integration*).
 
