@@ -174,7 +174,7 @@ async function checkSettingsAndMenu(width, height) {
 }
 
 /** The start screen's edit mode: the top bar's "Edit dashboard" becomes "Done"; each card has its drag handle and its menu
- * (Move up and Move down, disabled on the only card; no Settings for a widget without settings; Remove); a removed card
+ * (Move up and Move down, Move up disabled on the first card; no Settings for a widget without settings; Remove); a removed card
  * is gone; Done saves once (PUT /api/dashboard) and leaves edit mode; and a save that fails (a Worker without storage)
  * keeps edit mode and the draft, with the error as an alert. The default dashboard has the four CMS widgets; in edit mode
  * all four are drawn (the ones that hide when they have nothing to say render then), so there are four cards. */
@@ -199,6 +199,7 @@ async function checkDashboardEdit(width, height) {
   await shown(edit, `the button "${daDashboard.edit}"`);
   // Not editing: the widgets that have something to say (Site status always does).
   await shown(page.getByRole('heading', { name: daLibrary.statusTitle, exact: true }), `the card "${daLibrary.statusTitle}"`);
+  await page.waitForTimeout(600);
   await page.screenshot({ path: join(shots, `dashboard-${width}.png`) });
   if (await done.count()) problems.push(`${label}: "${daDashboard.done}" is shown before the edit mode`);
   await edit.click();
@@ -215,6 +216,7 @@ async function checkDashboardEdit(width, height) {
   for (const key of ['unfinishedWidgetLabel', 'blogRhythmWidgetLabel', 'statusWidgetLabel'])
     if ((await page.getByRole('group', { name: daLibrary[key], exact: true }).count()) !== 1)
       problems.push(`${label}: no card named "${daLibrary[key]}" in the edit mode`);
+  await page.waitForTimeout(600);
   await page.screenshot({ path: join(shots, `edit-mode-${width}.png`) });
 
   // The menu of the first card (Continue): Move up (disabled on the first card), Move down, no Settings, Remove.
@@ -232,7 +234,10 @@ async function checkDashboardEdit(width, height) {
 
   // Remove, then Done: one PUT, a valid dashboard without the card, and the edit mode is left.
   await item(daDashboard.remove).click();
-  await shown(cards, 'the removed card', false);
+  await cards
+    .nth(3)
+    .waitFor({ state: 'detached', timeout: 5000 })
+    .catch(() => problems.push(`${label}: the removed card is still shown`));
   await done.click();
   await shown(edit, `the button "${daDashboard.edit}" after Done`);
   if (await done.count()) problems.push(`${label}: "${daDashboard.done}" is still shown after a saved dashboard`);
@@ -258,7 +263,10 @@ async function checkDashboardEdit(width, height) {
   else {
     await menuButton.first().click();
     await item(daDashboard.remove).click();
-    await shown(cards, 'the removed card (second visit)', false);
+    await cards
+      .nth(present - 1)
+      .waitFor({ state: 'detached', timeout: 5000 })
+      .catch(() => problems.push(`${label}: the removed card (second visit) is still shown`));
   }
   await done.click();
   const alert = page.getByRole('alert').filter({ hasText: daDashboard.notSavedNoStorage });
@@ -266,7 +274,7 @@ async function checkDashboardEdit(width, height) {
   if (!(await done.isVisible()) || !(await done.isEnabled()))
     problems.push(`${label}: "${daDashboard.done}" is gone or disabled after a failed save`);
   if (await edit.count()) problems.push(`${label}: the edit mode was left after a failed save`);
-  if (present && (await cards.count())) problems.push(`${label}: the draft was lost after a failed save`);
+  if (present && (await cards.count()) !== present - 1) problems.push(`${label}: the draft was lost after a failed save`);
   if (dashboard.saved.length) problems.push(`${label}: a failed save was recorded as saved`);
   await page.screenshot({ path: join(shots, `edit-mode-failed-${width}.png`) });
   await page.close();
@@ -304,6 +312,7 @@ async function checkDashboardEdit(width, height) {
   };
   try {
     await openRhythm();
+    await adding.waitForTimeout(600);
     await adding.screenshot({ path: join(shots, `blog-rhythm-settings-${width}.png`) });
     await rhythmSheet.getByRole('button', { name: daCommon.cancel, exact: true }).click();
     await rhythmSheet.waitFor({ state: 'hidden', timeout: 5000 });
