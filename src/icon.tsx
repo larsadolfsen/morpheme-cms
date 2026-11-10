@@ -125,7 +125,7 @@ export function AnyIcon({ name, size = 20 }: { name: string; size?: number }) {
 }
 
 /** An icon's SVG file drawn as it is, as Svg draws one, not the theme's in its place: an icon pack's own, to show what the
- * pack looks like (IconSwatches in ui.tsx, "Ikonpakker"). */
+ * pack looks like (IconSwatches in ui.tsx, "Icon packs"). */
 export function SvgFile({ file, size = 20 }: { file: string; size?: number }) {
   return <Drawn file={file} size={size} />;
 }
@@ -185,7 +185,7 @@ export function Glyph({ icon, size = 20, className }: { icon: IconRef; size?: nu
 /** The same as Svg (the editor's fields and the site's promotions draw their icons with it). */
 export const Icon = Svg;
 
-/** The icons to pick from on the standard blocks (a field with `icons`: Kort); this site's own
+/** The icons to pick from on the standard blocks (a field with `icons`: Cards); this site's own
  * fields have the same (`icons` in packages/editor/defaults/collections.ts). */
 export const iconNames = [
   'certificate',

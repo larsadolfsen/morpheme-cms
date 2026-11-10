@@ -1,9 +1,9 @@
-// "SEO-vurdering" under "Søgemaskineoptimering" (#seo/rating): every page and blog post with the score of its SEO
-// rating (seo.ts, the same as at the top of "Søgemaskiner" on it) in a ring at the start of its row, and its
-// primary keyword under its name, under "Sider" and "Blogindlæg", the lowest first. Over them, as over the lists, a
-// search by name and keyword, the order (lowest or highest first, A–Å or Å–A, kept in this browser) and the funnel with
+// "SEO rating" under "Search engine optimization" (#seo/rating): every page and blog post with the score of its SEO
+// rating (seo.ts, the same as at the top of "Search engines" on it) in a ring at the start of its row, and its
+// primary keyword under its name, under "Pages" and "Blog posts", the lowest first. Over them, as over the lists, a
+// search by name and keyword, the order (lowest or highest first, A–Z or Z–A, kept in this browser) and the funnel with
 // the filters by rating, by primary keyword and by kind, each picked one as a chip; under the title the average. A tap
-// on the ring opens the page or post at "Søgemaskiner" (openAtSeo), on the rest of the row at its top.
+// on the ring opens the page or post at "Search engines" (openAtSeo), on the rest of the row at its top.
 import { ArrowsDownUp } from '@phosphor-icons/react';
 import { useMemo, useState } from 'react';
 import Screen from './Screen';
@@ -17,7 +17,7 @@ import { collections } from './site';
 import { byText, type Collection, type MarkdownCollection } from './schema';
 import { t } from './i18n';
 
-/** Where it opens, under "Søgemaskineoptimering". */
+/** Where it opens, under "Search engine optimization". */
 export const SEO_SCORES_ROUTE = 'seo/rating';
 
 type Sort = 'low' | 'high' | 'az' | 'za';

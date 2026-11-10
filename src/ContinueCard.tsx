@@ -17,7 +17,7 @@ import { CloseButton, ListItem, plainListClass } from './ui';
 
 const SHOWN = 3;
 
-/** A list's singular as it starts a line: "side" as "Side". */
+/** A list's singular as it starts a line: "page" as "Page". */
 const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
 
 /** Those saved in this browser and, once GitHub has answered, those saved on the site by anyone (env.savedAt). The close

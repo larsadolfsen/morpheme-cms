@@ -1,7 +1,7 @@
 // The parts of a "Banner"'s text (its `text`, Markdown), as view.ts and load.ts show them, and a theme's own front
 // page (its home/Hero.astro): a heading at the very top ("## …") is its heading (an H2), the first picture in it,
-// wherever it is, its picture, its "Knapper" block its buttons, the text before that block the subtitle and the
-// introduction, and the text after it the text under the buttons. Without a "Knapper" block (or with a hidden one) it has
+// wherever it is, its picture, its "Buttons" block its buttons, the text before that block the subtitle and the
+// introduction, and the text after it the text under the buttons. Without a "Buttons" block (or with a hidden one) it has
 // no buttons, and all of its text is before them. No React here, so the site and the build can use it.
 import { cutAtBlock, parseBlock } from '../../../lib/blocks.mjs';
 import { splitPicture } from '../../../lib/crop.mjs';
@@ -14,7 +14,7 @@ export type HeroParts = {
   /** The picture: its own address (without a format, crop or decorative mark) and its description ('' when it is
    * decorative, crop.mjs). */
   picture?: { src: string; alt: string };
-  /** The props of its "Knapper" block (`items`: its own buttons, else the shared ones); none without one. */
+  /** The props of its "Buttons" block (`items`: its own buttons, else the shared ones); none without one. */
   buttons?: Record<string, unknown>;
   /** The text after the buttons (Markdown). */
   after: string;

@@ -1,4 +1,4 @@
-// "Liste", a standard block: rows under each other, each with a heading and, if it has them, an icon before it, a text
+// "List", a standard block: rows under each other, each with a heading and, if it has them, an icon before it, a text
 // under it and a page it links to: the theme's list, or each row on its own surface. How it looks is the theme's (packages/editor/theme/blocks/list/View.tsx; what it shows: view.ts, and load.ts on the site).
 import { ListBullets, Rows, SquaresFour } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';

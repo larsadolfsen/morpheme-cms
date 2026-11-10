@@ -11,7 +11,7 @@ import { offBlocks, siteBlocks } from './registry';
 import { t } from './i18n';
 import { entriesOf, kindsOf, listsOf } from './AppList';
 
-/** What an app adds but its lists, each on its page under "Blokke" or the name of its list ("Promovering") with a sheet: its blocks, and its kinds of the site's
+/** What an app adds but its lists, each on its page under "Blocks" or the name of its list ("Promotion") with a sheet: its blocks, and its kinds of the site's
  * lists (a Mailchimp popup), each with where it is used and its switch; a kind with a button to a new one. */
 function addsOf(app: SiteApp, files: RepoFile[]) {
   return [
@@ -38,7 +38,7 @@ function addsOf(app: SiteApp, files: RepoFile[]) {
 type Add = ReturnType<typeof addsOf>[number];
 
 /** The row of a block (or a kind of a list) an installed app adds: tapped, it opens its sheet; at its end the switch
- * that turns it on or off, as the one in the sheet ("Aktiveret"), saved at once. Used, it cannot be turned off, and
+ * that turns it on or off, as the one in the sheet ("Enabled"), saved at once. Used, it cannot be turned off, and
  * the switch says why. The only switch in a row (CLAUDE.md). */
 function SwitchedRow({
   app,
@@ -90,8 +90,8 @@ function SwitchedRow({
   );
 }
 
-/** What it adds: its blocks under "Blokke", the lists it brings under "Lister" (as on "Lister", each opening its
- * list), and its kinds under the name of the list they are added to ("Promovering"). `on`: it is installed. */
+/** What it adds: its blocks under "Blocks", the lists it brings under "Lists" (as on "Lists", each opening its
+ * list), and its kinds under the name of the list they are added to ("Promotion"). `on`: it is installed. */
 export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: Env; files: RepoFile[]; on: boolean }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [openKey, setOpenKey] = useState<string | null>(null);

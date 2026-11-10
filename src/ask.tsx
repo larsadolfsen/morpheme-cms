@@ -1,5 +1,5 @@
 // A question in the editor's own dialog instead of the browser's confirm(), whose buttons can only
-// say "Annuller" and "OK". ask() opens it and tells which button was tapped; choose() offers more
+// say "Cancel" and "OK". ask() opens it and tells which button was tapped; choose() offers more
 // than one answer, a text to write (a new address), and notes to read first (what an update brings);
 // <Ask /> is in App.tsx.
 import { useEffect, useRef, useState } from 'react';
@@ -16,23 +16,23 @@ type Question = {
   choices: Choice[];
   /** A text to write, as it is to begin with, and what it is. */
   input?: { label: string; value: string };
-  /** false: no "Annuller", only the choices (a message to read); Esc is still null. */
+  /** false: no "Cancel", only the choices (a message to read); Esc is still null. */
   cancel?: boolean;
   resolve: (answer: { choice: string; text: string } | null) => void;
 };
 
 let open: (q: Question) => void = () => {};
 
-// "Annuller" (or Esc) gives false, `yes` gives true.
+// "Cancel" (or Esc) gives false, `yes` gives true.
 export const ask = (text: string, yes: string) =>
   new Promise<boolean>((resolve) => open({ text, choices: [{ value: 'yes', label: yes }], resolve: (a) => resolve(!!a) }));
 
-/** The choice tapped (the first is the main one) and the text written; null for "Annuller". */
+/** The choice tapped (the first is the main one) and the text written; null for "Cancel". */
 export const choose = (question: Omit<Question, 'resolve'>) =>
   new Promise<{ choice: string; text: string } | null>((resolve) => open({ ...question, resolve }));
 
-/** A sheet closed with changes: keep them ('keep', with the sheet's main button's text: Gem, Indsæt),
- * leave them ('discard'), or stay in the sheet (null, "Annuller"). */
+/** A sheet closed with changes: keep them ('keep', with the sheet's main button's text: Save, Insert),
+ * leave them ('discard'), or stay in the sheet (null, "Cancel"). */
 export const closeChanged = (keep: string) =>
   choose({
     text: t.app.unsavedSheet,
@@ -63,9 +63,9 @@ export function Ask() {
 
   const choices = question?.choices ?? [];
   // More than one answer: one under the other, the main one first, as they would not fit in a row;
-  // one answer: "Annuller" before it in a row. The main one is filled, the others, and "Annuller",
+  // one answer: "Cancel" before it in a row. The main one is filled, the others, and "Cancel",
   // white with a frame, all alike. No button has the focus to begin with (the dialog has it), so none
-  // of them looks chosen; Esc is still "Annuller".
+  // of them looks chosen; Esc is still "Cancel".
   const many = choices.length > 1;
   useEffect(() => {
     if (question && !question.input) dialog.current?.focus();

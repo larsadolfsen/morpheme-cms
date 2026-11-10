@@ -1,4 +1,4 @@
-// "Licenser" (#licenses), under "Indstillinger": the third-party work the site and the editor are made with, as the
+// "Licenses" (#licenses), under "Settings": the third-party work the site and the editor are made with, as the
 // site was last built (/editor/licenses.json, licensesIntegration in packages/editor/lib/licenses.mjs), with a search by
 // name, who made it and the licence's name. First the icon packs (the system's, each with the sets it takes icons from
 // besides its own), then what the editor and the site's own code bring (the npm packages shipped in what is downloaded,
@@ -37,14 +37,14 @@ export const LICENSES_ROUTE = 'licenses';
 
 const KIND_ICONS: Record<LicenseKind, Icon> = { font: TextAa, icons: Shapes, library: Code, image: Image };
 
-/** A licence's name as it is shown: its SPDX name, or "Alle rettigheder forbeholdt". */
+/** A licence's name as it is shown: its SPDX name, or "All rights reserved". */
 export const licenseName = (license: string | null | undefined) => (license === UNLICENSED ? t.licenses.unlicensed : (license ?? ''));
 
 /** An app's or a theme's name in the editor's language, by its owner id. */
 const ownerName = (o: Pick<LicenseOwner, 'kind' | 'key' | 'name'>) =>
   (o.kind === 'app' ? apps.find((a) => a.id === o.key)?.label : themes.find((x) => x.id === o.key)?.name) ?? o.name;
 
-/** Who brings a work, as a sentence's end: "i editoren og på sitet", "i temaet Material". */
+/** Who brings a work, as a sentence's end: "in the editor and on the site", "in the theme Material". */
 function placesOf(where: LicenseWhere[], owners: LicenseOwner[]) {
   // The editor and the site first, then the themes and the apps.
   const rank = (w: LicenseWhere) => (w === 'editor' ? 0 : w === 'site' ? 1 : w.startsWith('theme/') ? 2 : 3);
@@ -60,7 +60,7 @@ function placesOf(where: LicenseWhere[], owners: LicenseOwner[]) {
   return new Intl.ListFormat(locale, { type: 'conjunction' }).format(named);
 }
 
-/** What a work is and where it is used: "Kode i editoren, gennem @milkdown/kit"; `places`: whether to say where. */
+/** What a work is and where it is used: "Code in the editor, through @milkdown/kit"; `places`: whether to say where. */
 function usageOf(work: LicensedWork, owners: LicenseOwner[], places: boolean) {
   const parts = [t.licenses.kinds[work.kind]];
   if (places && work.where.length) parts[0] += ` ${placesOf(work.where, owners)}`;
@@ -172,12 +172,12 @@ export default function Licenses() {
   const owners = file?.owners ?? [];
   // The system's icon packs (a theme's own are under it, `where` it).
   const packs = file ? sorted(file.works.filter((w) => w.kind === 'icons' && !w.where.some((x) => x.startsWith('theme/')))) : [];
-  // What the editor and the site bring: the CMS's own licence first, the rest A–Å.
+  // What the editor and the site bring: the CMS's own licence first, the rest A–Z.
   const { cms, rest: system } = splitCms(
     file ? sorted(file.works.filter((w) => w.kind !== 'icons' && w.where.some((x) => x === 'editor' || x === 'site'))) : [],
   );
   const ownCms = cms && (fits(cms) || matches(CMS_NAME)) ? cms : null;
-  // The themes the site is built with, then the apps installed, each A–Å.
+  // The themes the site is built with, then the apps installed, each A–Z.
   const inUse = owners
     .filter((o) => o.inUse)
     .sort((a, b) => (a.kind === b.kind ? byText(ownerName(a), ownerName(b)) : a.kind === 'theme' ? -1 : 1));
@@ -281,8 +281,8 @@ export function LicensePage({ id }: { id: string }) {
   );
 }
 
-/** An app's or a theme's licences on its page, under "Licenser": its own, then what it brings, as the site was last
- * built (opening each licence under "Licenser"), else as it declares them (`declared`: an app installed or a theme
+/** An app's or a theme's licences on its page, under "Licenses": its own, then what it brings, as the site was last
+ * built (opening each licence under "Licenses"), else as it declares them (`declared`: an app installed or a theme
  * since the site was built). */
 export function OwnerLicenses({
   id,

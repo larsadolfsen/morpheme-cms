@@ -1,6 +1,6 @@
-// What "Blogindlæg" shows (its view, drawn by the theme's View.tsx): its heading, its design (a list, or the newest
+// What "Blog posts" shows (its view, drawn by the theme's View.tsx): its heading, its design (a list, or the newest
 // large over the list), its posts (each one's page, title, description, picture, date and reading time), how many it
-// shows and whether they are picked at random on each visit (then all it picks from are there), and "Alle indlæg"
+// shows and whether they are picked at random on each visit (then all it picks from are there), and "All posts"
 // (where it goes and what it says; none when it shows all). In the editor (viewOf) the posts as the site picks them
 // (postsOf: random ones are the newest, and `note` says how many it picks from; of all, the first ones, and `more` says
 // how many more there are, so the card stays short); on the site: load.ts.

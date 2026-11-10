@@ -1,27 +1,27 @@
-// "Indstillinger" › "Apps" (#apps): the apps installed (src/apps/, apps.ts: the site's own and those from the app store,
-// with one from the store not yet built as "Installeres…"), each with who made it under its name and, from the store,
-// that it has a newer version or is turned off (liveStatus, also in "Appstore"), with search (by name, who made it and what it does), the order (A–Å, Å–A, kept in this
-// browser) and headings by the first letter, as the lists under "Indhold" have. "Indstillinger" › "Appstore"
+// "Settings" › "Apps" (#apps): the apps installed (src/apps/, apps.ts: the site's own and those from the app store,
+// with one from the store not yet built as "Installing…"), each with who made it under its name and, from the store,
+// that it has a newer version or is turned off (liveStatus, also in "Appstore"), with search (by name, who made it and what it does), the order (A–Z, Z–A, kept in this
+// browser) and headings by the first letter, as the lists under "Content" have. "Settings" › "Appstore"
 // (#settings/appstore): all apps, those in the app store (store.ts) and the site's own, installed or not, with search (by name, what they
 // do, who made them and the words they are found by), the same order and a funnel by category (only apps: the themes are in "Theme store", ThemeStoreScreen.tsx; the search row and the
 // store notices both screens share are StoreSearchRow.tsx, StoreStatus.tsx and storeSort.tsx). An app's page
 // (#apps/<app>) is the same for every app and without examples: its name, who made it, whether it is installed (or turned
-// off, with the switch "Aktiveret" right below its description on the Settings tab, AppEnabledSwitch.tsx), its
-// version (from the store) and what it does, "Installer" (or "Opdater til …"); installed, it has two tabs: "Indstillinger"
-// (#apps/<app>: its settings form, saved with "Gem ændringer" in their file, config.apps.settings, also on the screen
-// under "Indstillinger" with its kind, "Analytics" or "Promovering"; AppFormPage.tsx; then what it shows itself, what it
-// adds (AppAdds.tsx: its blocks, the lists it brings: "Priser", each opening its list, and its kinds of the site's lists:
+// off, with the switch "Enabled" right below its description on the Settings tab, AppEnabledSwitch.tsx), its
+// version (from the store) and what it does, "Install" (or "Update to …"); installed, it has two tabs: "Settings"
+// (#apps/<app>: its settings form, saved with "Save changes" in their file, config.apps.settings, also on the screen
+// under "Settings" with its kind, "Analytics" or "Promotion"; AppFormPage.tsx; then what it shows itself, what it
+// adds (AppAdds.tsx: its blocks, the lists it brings: "Prices", each opening its list, and its kinds of the site's lists:
 // a Mailchimp popup; each with its switch at the end of its row and opening a sheet with where it is used and the same
-// switch, as under "Blokindstillinger", and a kind's button to a new one, while it is on), its notifications with their
-// switches, and "Afinstaller", AppSettingsTab.tsx) and "Information" (#apps/<app>/about, AppInfoTab.tsx: its pictures, what
-// it does more fully ("Om appen"), what it needs of the site ("Rettigheder", needsOf in store.ts: its code on every page,
+// switch, as under "Block settings", and a kind's button to a new one, while it is on), its notifications with their
+// switches, and "Uninstall", AppSettingsTab.tsx) and "Information" (#apps/<app>/about, AppInfoTab.tsx: its pictures, what
+// it does more fully ("About the app"), what it needs of the site ("Permissions", needsOf in store.ts: its code on every page,
 // the addresses it loads from and sends forms to, its part of the Worker, a step in the build), the cookies it sets (and
 // whether the cookie banner asks first), who made it (a row to their page, #apps/developer/<name>, with all their apps),
 // and where it is used); one not installed has no tabs; installing, updating and uninstalling are each saved at once in its own commit,
-// as a block turned on or off under "Blokindstillinger". The button pressed shows the loading indicator while it runs (busyAction.mjs). One of the site's own is installed or uninstalled in the site's
+// as a block turned on or off under "Block settings". The button pressed shows the loading indicator while it runs (busyAction.mjs). One of the site's own is installed or uninstalled in the site's
 // file of apps; one from the store is copied into the site, or deleted from it, with it (appChanges in store.ts), and
 // its page before it is installed is drawn from the store's catalog (StoreAppPage). Installed, its blocks and kinds are
-// under "Blokindstillinger" (under its name), its blocks under "Indsæt" and its kinds under "+" of their list. An app in
+// under "Block settings" (under its name), its blocks under "Insert" and its kinds under "+" of their list. An app in
 // use (one of its blocks on a page, an entry of its kind or in its list) cannot be uninstalled, as a block on a page
 // cannot be turned off; its page says where it is used, so uninstalling never changes the site. Of the types
 // redirects and links only one app is active (lib/appTypes.mjs): installing or turning on another asks first, then
@@ -83,8 +83,8 @@ export const appHref = (app: SiteApp) => `#apps/${app.id}`;
  * id in its list (`payment`) counts as its new one (categoryOf), as it does in an app's own category. */
 export const inKinds = (screen: { apps?: AppCategory[] }, kind: AppCategory) => !!screen.apps?.some((k) => categoryOf(k).category === kind);
 
-/** The screen with an app's settings, by its kind, if any: one under "Indstillinger" ("Analytics", partScreens) or a
- * part of "Virksomheden" with parts ("Betaling", companyParts); its address and its name. */
+/** The screen with an app's settings, by its kind, if any: one under "Settings" ("Analytics", partScreens) or a
+ * part of "Business" with parts ("Payment", companyParts); its address and its name. */
 export function settingsHome(app: SiteApp): { route: string; label: string } | undefined {
   const kind = categoryOf(app.category).category;
   if (!kind) return undefined;
@@ -150,7 +150,7 @@ export function entriesOf(app: SiteApp, list: string, files: RepoFile[]): { href
     });
 }
 
-/** The lists an app brings ("Priser"), each with how many entries it has, opening it. */
+/** The lists an app brings ("Prices"), each with how many entries it has, opening it. */
 export const listsOf = (app: SiteApp, files: RepoFile[]) =>
   (app.lists ?? []).map((l) => ({
     key: l.id,
@@ -161,7 +161,7 @@ export const listsOf = (app: SiteApp, files: RepoFile[]) =>
   }));
 
 /** Where an app is in use: the pages and posts with one of its blocks (also a hidden one), the entries
- * of its kinds (a Mailchimp popup), by their title, and the lists it brings that have entries ("Priser"), each
+ * of its kinds (a Mailchimp popup), by their title, and the lists it brings that have entries ("Prices"), each
  * with the icon of what is used there (the first of its blocks on a page) and opening it. */
 export function usesOf(app: SiteApp, files: RepoFile[]): { href: string; title: string; icon: Icon }[] {
   const pages = new Map<string, { title: string; icon: Icon }>();
@@ -174,7 +174,7 @@ export function usesOf(app: SiteApp, files: RepoFile[]): { href: string; title: 
   return [...[...pages].map(([path, p]) => ({ href: `#${path}`, ...p })), ...entries, ...lists];
 }
 
-/** An app's kinds of the site's lists (a pop-up), each by its own name ("Mailchimp popup", "Calendly bookingark") and
+/** An app's kinds of the site's lists (a pop-up), each by its own name ("Mailchimp popup", "Calendly booking sheet") and
  * opening the list, with the list's id, its name for one and for more. */
 export function kindsOf(app: SiteApp) {
   return Object.entries(app.kinds ?? {}).flatMap(([list, kind]) => {
@@ -198,8 +198,8 @@ export function kindsOf(app: SiteApp) {
 
 const statusOf = (installed: boolean) => (installed ? t.apps.installed : t.apps.notInstalled);
 
-/** What an installed app's row and page head say instead of "Installed": "Deaktiveret" while it is turned off, else "Opdatering
- * findes" when it has a newer version; undefined when neither. */
+/** What an installed app's row and page head say instead of "Installed": "Disabled" while it is turned off, else "Update
+ * available" when it has a newer version; undefined when neither. */
 const liveStatus = (off: boolean, update: boolean) => (off ? t.apps.deactivated : update ? t.apps.updateFound : undefined);
 
 /** The store's catalog (store.ts) for a screen: null while it is read, 'failed' when it could not be; `skip`: not read
@@ -404,7 +404,7 @@ export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; fi
   );
 }
 
-/** Who made an app or a theme, under "Udvikler", as a row to their page with all they have made. */
+/** Who made an app or a theme, under "Developer", as a row to their page with all they have made. */
 export function DeveloperRow({ name }: { name: string }) {
   return (
     <Group title={t.apps.developer}>
@@ -413,7 +413,7 @@ export function DeveloperRow({ name }: { name: string }) {
   );
 }
 
-/** "Appstore" (#settings/appstore, under "Indstillinger"): all apps, those in the app store and the site's own, each
+/** "Appstore" (#settings/appstore, under "Settings"): all apps, those in the app store and the site's own, each
  * with what it does and whether it is installed, opening its page (the themes are in "Theme store", ThemeStore.tsx).
  * With search (by name, what it does, who made it and the words it is found by, in both languages), the order and the
  * filters by category and by whether it is installed, each picked one as a chip. */
@@ -511,7 +511,7 @@ let autoUpdated = false;
 
 /** Updates the apps installed from the store on their own, once while the editor is open (App.tsx): each with a newer
  * version in the store, in its own commit, with a message linking to its page, where what is new stands. One whose
- * files were changed in the site is left for "Opdater til …" on its page, which says they are written over. A version
+ * files were changed in the site is left for "Update to …" on its page, which says they are written over. A version
  * with a higher first number (breaking) is not updated to: a message says it is there, once for each such version. */
 export async function autoUpdate(env: Env, files: RepoFile[]) {
   if (autoUpdated) return;
@@ -582,7 +582,7 @@ function useStoreActions(env: Env, files: RepoFile[]) {
   async function change(
     id: string,
     action: StoreAction,
-    // `kind`: the notification it is when it is saved (an update is "Apps opdateret", as one on its own).
+    // `kind`: the notification it is when it is saved (an update is "Apps updated", as one on its own).
     text: { busy: string; done: string; commit: string; change: string; kind?: 'saved' | 'updates' },
     next: () => Promise<Parameters<typeof appChanges>[2]>,
     // Whether to go on, with the app's files in the site now (an update asks, when some were changed).
@@ -755,7 +755,7 @@ function useStorePictures(env: Env, app: ShownApp | undefined) {
 }
 
 /** The page of an app in the store that is not installed, or installed but not yet built (#apps/<app>), from the
- * catalog: as an app's page in the site, what it adds without switches, and "Installer" (or "Afinstaller"). */
+ * catalog: as an app's page in the site, what it adds without switches, and "Install" (or "Uninstall"). */
 export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: RepoFile[] }) {
   const catalog = useCatalog(env);
   const { saving, busy, install, uninstall } = useStoreActions(env, files);
@@ -764,7 +764,7 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
   const pictures = useStorePictures(env, app);
 
   const row = (a: StoreAdd, key: string) => <ListItem key={key} leading={storeIcon(a.icon)} headline={a.label} supporting={a.hint} />;
-  // Its kinds under the name of the list they are added to ("Promovering").
+  // Its kinds under the name of the list they are added to ("Promotion").
   const kinds = app?.adds.kinds ?? [];
   const listName = (list: string) => collections.find((c) => c.id === list)?.label ?? list;
 
@@ -854,7 +854,7 @@ const tabsOf = (app: SiteApp, tab: AppTab): TabChoice<AppTab> => ({
 });
 
 /** An app's page, the same for every app: it installs the app. Installed, it has the tabs Settings (its settings form,
- * what it adds, "Afinstaller") and Information; `page`: the field of its settings whose page is open (Field.page).
+ * what it adds, "Uninstall") and Information; `page`: the field of its settings whose page is open (Field.page).
  * One that is not installed has no tabs. */
 export function AppPage({ app, env, files, tab, page }: AppProps & { tab: AppTab; page?: string }) {
   // One that is not installed is found under "Appstore".
@@ -892,7 +892,7 @@ export function AppScreenPage({ app, id, env }: { app: SiteApp; id: string; env:
 }
 
 /** What every app's page has, in this order: its name, who made it, whether it is installed, its version (from the
- * store) and what it does; "Installer" (or, from the store, "Opdater" when it has a newer version); then, installed on
+ * store) and what it does; "Install" (or, from the store, "Update" when it has a newer version); then, installed on
  * the Settings tab, its settings form (`fields`) and what AppSettingsTab has, else what AppInfoTab has (what it adds,
  * not installed, with the pictures, what it needs, its cookies, who made it and where it is used). */
 function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; fields?: ReactNode }) {

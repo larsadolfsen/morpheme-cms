@@ -19,7 +19,7 @@ const part = (doc, name) => doc.querySelector(`[data-editor="${name}"]`);
 
 const SAVED = {
   text: 'Gammel tekst',
-  contactHeading: 'Kontakt',
+  contactHeading: 'Contact',
   linksHeading: 'Links',
   links: [
     { label: 'A', href: '/a/' },
@@ -32,7 +32,7 @@ test('footerDraft: nothing changed is an empty draft', () => {
 });
 
 test('footerDraft: only the texts that differ', () => {
-  assert.deepEqual(footerDraft(SAVED, { ...SAVED, text: 'Ny', linksHeading: 'Praktisk' }), { text: 'Ny', linksHeading: 'Praktisk' });
+  assert.deepEqual(footerDraft(SAVED, { ...SAVED, text: 'New', linksHeading: 'Useful' }), { text: 'New', linksHeading: 'Useful' });
 });
 
 test('footerDraft: the links with only label and href', () => {
@@ -54,10 +54,10 @@ test('swapFooter: an empty draft leaves the page as it is', () => {
 
 test('swapFooter: the text and the two headings are redrawn', () => {
   const doc = page();
-  swapFooter(doc, { text: 'Ny tekst', contactHeading: 'Ring', linksHeading: 'Praktisk' }, THEME);
-  assert.equal(part(doc, 'footer-text').textContent, 'Ny tekst');
-  assert.equal(part(doc, 'footer-contact-heading').textContent, 'Ring');
-  assert.equal(part(doc, 'footer-links-heading').textContent, 'Praktisk');
+  swapFooter(doc, { text: 'New text', contactHeading: 'Call', linksHeading: 'Useful' }, THEME);
+  assert.equal(part(doc, 'footer-text').textContent, 'New text');
+  assert.equal(part(doc, 'footer-contact-heading').textContent, 'Call');
+  assert.equal(part(doc, 'footer-links-heading').textContent, 'Useful');
 });
 
 test('swapFooter: the links are copies of the page own', () => {

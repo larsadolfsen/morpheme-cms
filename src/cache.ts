@@ -1,6 +1,6 @@
 // The site's files as the editor last loaded them, kept in this browser (IndexedDB), with the commit
 // they are from and who was logged in. The editor opens with them at once, and loads the files from
-// GitHub again only when the branch has a newer commit (App.tsx). Cleared on "Log ud".
+// GitHub again only when the branch has a newer commit (App.tsx). Cleared on "Log out".
 import type { RepoFile, Viewer } from './github';
 
 /** folders: which folders the files are from (App.tsx FOLDERS), so files kept by an editor that

@@ -1,6 +1,6 @@
-// "Kort", a standard block: a heading and cards with only text, or an icon or a picture at the top (`design`, for
+// "Cards", a standard block: a heading and cards with only text, or an icon or a picture at the top (`design`, for
 // all the cards), on the theme's surface or the accent (`background`, for all of them), a heading, a text and a link to another page, with the shared text of the link at the bottom
-// ("Blokke" › "Kort", shared.ts). How it looks is the theme's (packages/editor/theme/blocks/cards/View.tsx with
+// ("Blocks" › "Cards", shared.ts). How it looks is the theme's (packages/editor/theme/blocks/cards/View.tsx with
 // LinkCards.tsx); what it shows: view.ts, and load.ts on the site.
 import { Cards, Circle, Image as Picture, Shapes, Square, TextAa } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';

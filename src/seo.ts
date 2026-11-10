@@ -1,10 +1,11 @@
-// The SEO rating at the top of "Søgemaskiner" on a page and a blog post (EntryForm.tsx): a few
+// The SEO rating at the top of "Search engines" on a page and a blog post (EntryForm.tsx): a few
 // checks of the text and the Google fields, each fine or not, with what is fine or wrong in one sentence
 // (CheckList in ui.tsx), like the SEO audits of Google Lighthouse that can be judged from the page's own
 // content. It never keeps the form from being saved. Pure functions of the form's values and the Markdown
 // of its text, so they are easy to try on their own. What is used when a Google field is empty is what
-// Base.astro does: the title, else the "Kort beskrivelse", else the site's own.
-import { t } from './i18n';
+// Base.astro does: the title, else the "Short description", else the site's own.
+import { siteLocale, t } from './i18n';
+import { isVague, vagueLinksOf } from './vagueLink';
 import { decorativeOf } from '../lib/crop.mjs';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { searchedAs } from './googleResult.mjs';
@@ -17,16 +18,16 @@ export type SeoInput = {
   body: string;
   seoTitle?: string;
   seoDescription?: string;
-  /** "Kort beskrivelse", used when there is no Google description. */
+  /** "Short description", used when there is no Google description. */
   description?: string;
-  /** What is used instead of an empty Google description on a page without a "Kort beskrivelse" (a fixed page's
+  /** What is used instead of an empty Google description on a page without a "Short description" (a fixed page's
    * introduction), in a few words; without it, the site's own description. */
   descriptionFrom?: string;
-  /** The H1 of a page that has it in a field of its own (a fixed page: "Overskrift (H1)"), not in its text. */
+  /** The H1 of a page that has it in a field of its own (a fixed page: "Heading (H1)"), not in its text. */
   h1?: string;
-  /** "Primært søgeord". */
+  /** "Main keyword". */
   keyword?: string;
-  /** "Skjul for søgemaskiner (noindex)". */
+  /** "Hide from search engines (noindex)". */
   noindex?: boolean;
   /** "Canonical URL": the address of the page Google should count as the original. */
   canonical?: string;
@@ -38,7 +39,7 @@ export type SeoInput = {
 export type SeoCheck = { ok: boolean; text: string; fix?: string };
 
 /** The input of a page's or a post's rating from its fields (as in its form or its file) and its text: the same in its
- * form (EntryForm.tsx) and in the list of them all ("SEO-vurdering", SeoScores.tsx). */
+ * form (EntryForm.tsx) and in the list of them all ("SEO rating", SeoScores.tsx). */
 export function seoInputOf(values: Record<string, unknown>, body: string, post: boolean, relations: SeoInput['relations']): SeoInput {
   const text = (name: string) => String(values[name] ?? '');
   return {
@@ -56,25 +57,25 @@ export function seoInputOf(values: Record<string, unknown>, body: string, post: 
 }
 
 /** The rating of a page or a post as it is saved, from its file (front matter and text): the lists of them (SeoScores.tsx,
- * and the pages and posts with "Vis SEO-vurdering", Library.tsx). */
+ * and the pages and posts with "Show SEO rating", Library.tsx). */
 export function fileRating(text: string, post: boolean, relations: SeoInput['relations']): SeoCheck[] {
   const { yaml, body } = splitFrontmatter(text);
   return seoRating(seoInputOf(readFields(yaml), body, post, relations));
 }
 
-/** The fields under "Søgemaskiner", in every form that has them (EntryForm.tsx, DataForm.tsx): the Google texts, the
+/** The fields under "Search engines", in every form that has them (EntryForm.tsx, DataForm.tsx): the Google texts, the
  * keywords, the canonical address and noindex. */
 export const SEO_FIELDS = ['seoTitle', 'seoDescription', 'keyword', 'keywords', 'canonical', 'noindex'];
 
-/** The fields under "Sociale medier", after them: the picture, the title and the description when the page is shared
+/** The fields under "Social media", after them: the picture, the title and the description when the page is shared
  * (a fixed page and a tag have only the picture). */
 export const SHARE_FIELDS = ['shareImage', 'shareTitle', 'shareDescription'];
 
 /** What a page shows when a link to it is shared (Facebook, LinkedIn, a message), worked out as Base.astro writes its
  * og: tags: the title when shared, else the Google title, else the page's own with the site's name after it (the front
  * page's without; a page without a title: only the site's name, as `searchedAs` has it); the description when shared,
- * else the Google description, else the page's own (`description`: its "Kort beskrivelse", a fixed page's introduction), else the site's; the picture when shared, else the page's own
- * (`image`: "Billede øverst", else the first picture in the text), else the site's. */
+ * else the Google description, else the page's own (`description`: its "Short description", a fixed page's introduction), else the site's; the picture when shared, else the page's own
+ * (`image`: "Picture at the top", else the first picture in the text), else the site's. */
 export type ShareInput = {
   /** The page's own title as the site has it: a page's H1, a post's title, a fixed page's heading, a tag's name. */
   title: string;
@@ -203,7 +204,7 @@ const ALT = /\salt\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/i;
 const A = /(?<!\\)<a\b[^>]*>([\s\S]*?)<\/a\s*>/gi;
 
 /** The pictures in a text (`![…](…)`, and `<img>` in its HTML), each by its alternative text, as plain text (empty
- * when it has none), and whether it is decorative: marked so in its address ("Dekorativt billede", crop.mjs), or in
+ * when it has none), and whether it is decorative: marked so in its address ("Decorative picture", crop.mjs), or in
  * HTML with alt="". The blocks (`<div data-block=…>`) are not pictures of the text. */
 export function pictures(body: string): { alt: string; decorative: boolean }[] {
   return paragraphs(body).flatMap((p) => [
@@ -224,32 +225,9 @@ export function links(body: string): string[] {
   return paragraphs(body).flatMap((p) => [...[...p.matchAll(LINK)].map((m) => plain(m[1])), ...[...p.matchAll(A)].map((m) => plain(m[1]))]);
 }
 
-// Link texts that say nothing about where the link goes (Lighthouse's "Links do not have descriptive text").
-const VAGUE = new Set([
-  'her',
-  'klik her',
-  'tryk her',
-  'læs her',
-  'læs mere',
-  'se mere',
-  'mere',
-  'link',
-  'here',
-  'click here',
-  'read more',
-  'see more',
-  'learn more',
-  'more',
-]);
-
-/** Whether a link's text is only a vague phrase ("klik her", "Læs mere →"), whatever the case and punctuation. */
-export const vague = (text: string) =>
-  VAGUE.has(
-    text
-      .replace(/^[\s\p{P}\p{S}]+|[\s\p{P}\p{S}]+$/gu, '')
-      .replace(/\s+/g, ' ')
-      .toLocaleLowerCase(),
-  );
+// Link texts that say nothing about where the link goes (Lighthouse's "Links do not have descriptive text"): the list of the site's language.
+/** Whether a link's text is only a vague phrase ("click here", "Read more →"), whatever the case and punctuation. */
+export const vague = (text: string) => isVague(text, vagueLinksOf(siteLocale));
 
 /** An address as the editor keeps a page's: from / to /, without what is after # or ?. */
 const pathOf = (address: string) => {

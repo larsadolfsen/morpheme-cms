@@ -1,12 +1,12 @@
-// "Søgeord" under the fields of "Interne links" (Part.below, packages/editor/defaults/internalLinks.ts): every primary and secondary
-// keyword of the pages, the posts and the fixed pages with the fields for them ("Søgemaskiner"), each with the page it
+// "Keywords" under the fields of "Internal links" (Part.below, packages/editor/defaults/internalLinks.ts): every primary and secondary
+// keyword of the pages, the posts and the fixed pages with the fields for them ("Search engines"), each with the page it
 // links to, which of its keywords it is and, at the right, how many pages and posts link with it on the site as it was
 // last built (/editor/links.json, packages/editor/scripts/link-counts.mjs; one that another page has too, which wins, links from none).
 // Only those of the published ones, as the site links them (packages/editor/site/autolinks.mjs); a new version of a page (/ny/…)
-// gives its own to the page it is for. Over them, as over the lists, a search by word and page, the order (A–Å, the
-// default, under the first letter, Å–A, the most or the fewest links first; kept in this browser) and the funnel with
+// gives its own to the page it is for. Over them, as over the lists, a search by word and page, the order (A–Z, the
+// default, under the first letter, Z–A, the most or the fewest links first; kept in this browser) and the funnel with
 // the filters by kind of keyword, by links and by kind of page, each picked one as a chip. A row opens the page at
-// "Søgemaskiner" (openAtSeo).
+// "Search engines" (openAtSeo).
 import { ArrowsDownUp } from '@phosphor-icons/react';
 import { useEffect, useMemo, useState } from 'react';
 import { Choice, EmptyNote, Filters, FormHeading, Group, InputChip, listClass, SearchRow, useKept, ListItem } from './ui';

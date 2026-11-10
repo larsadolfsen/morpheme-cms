@@ -131,7 +131,7 @@ export async function prepareFile(file: File, taken: string[]): Promise<Upload> 
 // The address of an uploaded picture on the site.
 export const publicPath = (path: string) => path.replace(/^public/, '');
 
-// The pictures added in a form (a page, a fixed page), kept in the browser until "Gem", which saves
+// The pictures added in a form (a page, a fixed page), kept in the browser until "Save", which saves
 // them in the same commit. upload: pick one and make it ready; uploading: true while a chosen picture
 // is made ready (a button shows busy); added: those not saved yet, newest
 // first (offered in the gallery, MediaPicker.tsx); saving: the pictures a text uses.

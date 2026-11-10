@@ -1,6 +1,6 @@
 // How the theme draws the parts of the header that its settings put in, as HTML for the editor's preview of the header
 // (headerPreview.mjs HeaderTheme): the call to action (the phone number and the button, HeaderCta.tsx), an empty bar of
-// "Mobilmenu", the menu button's classes on each side. Exposes headerThemeOf. Uses the theme's HeaderCta, Tabs and
+// "Mobile menu", the menu button's classes on each side. Exposes headerThemeOf. Uses the theme's HeaderCta, Tabs and
 // headerParts.ts.
 import HeaderCta from '@theme/components/HeaderCta';
 import { tabClass } from '@theme/ui/Tabs';

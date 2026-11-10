@@ -1,7 +1,7 @@
 import { locale, t } from './i18n';
 
-// "i dag kl. 13.42", "i går kl. 9.05", "1. okt. kl. 13.42" or, another year, "1. okt. 2023 kl. 13.42";
-// in the editor's language. `short`: only the time today ("13.42").
+// "today at 1:42 PM", "yesterday at 9:05 AM", "Oct 1 at 1:42 PM" or, another year, "Oct 1, 2023 at 1:42 PM";
+// in the editor's language. `short`: only the time today ("1:42 PM").
 export function when(date: Date, { short = false } = {}) {
   const day = (d: Date) => d.toLocaleDateString('sv');
   const yesterday = new Date();
@@ -21,7 +21,7 @@ export function when(date: Date, { short = false } = {}) {
   return t.common.at(shown, time);
 }
 
-// "2023-10-01" as "1. okt. 2023" (in the editor's language); anything else as it is.
+// "2023-10-01" as "Oct 1, 2023" (in the editor's language); anything else as it is.
 export const shortDate = (iso: string) =>
   /^\d{4}-\d{2}-\d{2}$/.test(iso)
     ? new Date(`${iso}T12:00`).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })

@@ -1,4 +1,4 @@
-// The tags a file gets when it is newly used in a page or post (EntryForm.tsx, at "Gem"): every Filer file the saved page refers to and its last saved version did not gets the page's tags,
+// The tags a file gets when it is newly used in a page or post (EntryForm.tsx, at "Save"): every Files file the saved page refers to and its last saved version did not gets the page's tags,
 // except those removed from the file before (tagsFor), saved in the same commit as the page. Pure, so node --test can run it.
 
 import { inherit } from './fileTags.mjs';

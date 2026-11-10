@@ -1,11 +1,11 @@
-// "Parts" › "Værdier" (#developer/parts/values): the theme's design tokens, as the theme in use sets them, to see them in one
+// "Parts" › "Values" (#developer/parts/values): the theme's design tokens, as the theme in use sets them, to see them in one
 // place: the corners, one row for each size the theme uses (the theme's base, base.css and components.css, which every
 // theme has, and its UI parts', ui.css: each part's own variable, else the one ui.css gives it instead), named by
 // Material 3's corner radius scale where the size is one of its steps, with what has it under; the shadows, one row for
 // each of Material 3's elevation levels (ui.css, set by the theme to its own look) with what has it under (the theme's
 // panels and blocks and its UI parts at rest, hovered and dragged), and one for each shadow that is none of them; the
 // typography: the typeface and Material 3's type scale (ui.css), each step with its size, line height, weight and
-// tracking; and the site's colours (colorFields, "Farver") in the mode the editor is in. Each row has a sample drawn
+// tracking; and the site's colours (colorFields, "Colors") in the mode the editor is in. Each row has a sample drawn
 // with the value (LeadingToken), read from the page (getComputedStyle), so a theme's own values show without the editor
 // knowing them, and they follow light and dark mode. Nothing here is saved.
 import { useEffect, useState, type ReactNode } from 'react';

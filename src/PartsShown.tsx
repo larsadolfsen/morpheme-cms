@@ -1,6 +1,6 @@
-// The parts of a screen that shows parts in every state ("Parts": Parts.tsx, BlockParts.tsx), with the search, the order and the filters of the editor's lists ("Standardblokke",
-// Library.tsx): a search in the parts' names and what they are for, the order (by group, A–Å or Å–A,
-// kept in this browser; A–Å under the first letter of the names) and the funnel with the filter by
+// The parts of a screen that shows parts in every state ("Parts": Parts.tsx, BlockParts.tsx), with the search, the order and the filters of the editor's lists ("Standard blocks",
+// Library.tsx): a search in the parts' names and what they are for, the order (by group, A–Z or Z–A,
+// kept in this browser; A–Z under the first letter of the names) and the funnel with the filter by
 // group, the one picked as a chip that removes it. A screen can add the filter by style (how much of a part
 // the active theme styles itself, coverage.ts), and each part then carries its mark (CoverageBadge.tsx). The
 // search, the group and the style are kept while the editor is open.
@@ -42,8 +42,8 @@ export const useSearched = () => useContext(Shown).query.trim();
 /** Whether the parts stand in their groups (not by name). */
 export const useGrouped = () => useContext(Shown).sort === 'group';
 
-/** The search, the order and the filter over the parts (`children`, PartGroup), with "Ingen dele passer
- * til søgningen" (or `none`) when none is shown. `keep`: the key they are kept under; `search`: the search's name;
+/** The search, the order and the filter over the parts (`children`, PartGroup), with "No parts match
+ * the search" (or `none`) when none is shown. `keep`: the key they are kept under; `search`: the search's name;
  * `styleFilter`: adds the filter by style (own, partly, Material), when the theme in use has a coverage. */
 export function PartsShown({
   groups,
@@ -80,7 +80,7 @@ export function PartsShown({
       localStorage.setItem(sortKey, next);
     } catch {}
   }
-  // The names of the parts shown, seen after they are drawn: none means "Ingen dele …", and by name they
+  // The names of the parts shown, seen after they are drawn: none means "No parts match …", and by name they
   // are put in order under their first letters.
   const list = useRef<HTMLDivElement>(null);
   const [names, setNames] = useState<string[]>([]);

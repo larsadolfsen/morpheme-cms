@@ -4,9 +4,9 @@
 // on the site (with arrows to move them), and a search. Lists that are not in an order of their own can
 // be sorted another way (a list of kinds, by its kinds too); the choice is kept in this browser. Pages
 // and posts can be filtered by their status and by what they pick (a post's tags), a list of what is
-// shown on pages (Promovering) by a page, its kind and whether it is on, as "Filer" (Filters). In a list that can be deleted from, the clock in the top bar ("Slettede …") opens
-// what was deleted (Deleted.tsx), as in "Filer". The tabs the apps installed add to a list (AppDefinition.tabs, Cookiescanner's
-// "Problemer" on "Cookies") are in its top app bar after the list's own, each at #list/<list>/<app>. "Use theme" and the move arrows show the
+// shown on pages (Promovering) by a page, its kind and whether it is on, as "Files" (Filters). In a list that can be deleted from, the clock in the top bar ("Deleted …") opens
+// what was deleted (Deleted.tsx), as in "Files". The tabs the apps installed add to a list (AppDefinition.tabs, Cookiescanner's
+// "Problems" on "Cookies") are in its top app bar after the list's own, each at #list/<list>/<app>. "Use theme" and the move arrows show the
 // loading indicator while they run (only the pressed one).
 // When each page was last saved is kept in savedTimes.ts, shared with the start screen.
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
@@ -144,7 +144,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'redirects') return { label: parts.redirects, href: `#${REDIRECTS_ROUTE}`, count: null };
   const seoPart = seoParts.find((p) => p.id === id);
   if (seoPart) return { label: seoPart.label, href: `#seo/${id}`, count: null };
-  // The screens under "Udseende" (Theme): the ones the editor has, then the site's own (appearance).
+  // The screens under "Appearance" (Theme): the ones the editor has, then the site's own (appearance).
   const appearanceLabel = {
     'theme-store': parts.themeStore,
     themes: parts.themes,
@@ -155,7 +155,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   }[id];
   const appearancePart = appearanceLabel ?? appearance.find((p) => p.id === id)?.label;
   if (appearancePart) return { label: appearancePart, href: `#appearance/${id}`, count: null };
-  // The parts of a screen with parts ("Privatliv"): where each opens, or its screen's address with its id.
+  // The parts of a screen with parts ("Privacy"): where each opens, or its screen's address with its id.
   for (const screen of partScreens) {
     const own = screen.parts.find((p) => p.id === id);
     if (own) return { label: own.label, href: own.href ?? `#${screen.id}/${id}`, count: null };
@@ -170,7 +170,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   return { label: c.label, href: hrefOf(c), count: c.kind === 'files' && c.files.length === 1 ? null : countOf(c, files) };
 }
 
-/** The parts of a group on a screen with parts (Parts), A–Å by their names in the editor's language. */
+/** The parts of a group on a screen with parts (Parts), A–Z by their names in the editor's language. */
 export const partsIn = (ids: string[], files: RepoFile[]) =>
   ids.map((id) => ({ id, ...partOf(id, files) })).sort((a, b) => byText(a.label, b.label));
 
@@ -199,9 +199,9 @@ export function Start({ builtAt, files, env }: { builtAt: Date | null; files: Re
   );
 }
 
-// "Virksomheden": its screen has "Logo og ikon" (BrandForm.tsx, #company/logo) first, then its parts (CompanyForm.tsx), each on a screen of its own; or one of them with parts
-// of its own ("Betaling"), and the settings of the apps installed of its kinds (Part.apps: MobilePay), going back to
-// "Virksomheden".
+// "Business": its screen has "Logo and icon" (BrandForm.tsx, #company/logo) first, then its parts (CompanyForm.tsx), each on a screen of its own; or one of them with parts
+// of its own ("Payment"), and the settings of the apps installed of its kinds (Part.apps: MobilePay), going back to
+// "Business".
 export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
   if (part?.parts)
     return (
@@ -222,13 +222,13 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
 }
 
 // Appearance: first "Theme store" (the store's themes, ThemeStoreScreen.tsx), then the header with its menus and its preview
-// (HeaderSettings.tsx) and the footer with its preview (FooterSettings.tsx), then "Temaer" (Themes), with the theme the site
-// is built with at the end of its row (or, after a swap, until the site is built with the new one, that one), "Ikonpakker"
-// (IconPacks), with the pack chosen, "Bevægelse" (MotionSchemes), with the scheme chosen, "Sidekolonne" (SideColumn.tsx),
-// with the block chosen, and the colours (Colors.tsx); then the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Standardsider", a
+// (HeaderSettings.tsx) and the footer with its preview (FooterSettings.tsx), then "Themes" (Themes), with the theme the site
+// is built with at the end of its row (or, after a swap, until the site is built with the new one, that one), "Icon packs"
+// (IconPacks), with the pack chosen, "Motion" (MotionSchemes), with the scheme chosen, "Side column" (SideColumn.tsx),
+// with the block chosen, and the colours (Colors.tsx); then the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Default pages", a
 // screen of its own, CompanyForm.tsx, going back here), and how the editor and the blocks look, their parts ("Parts", PartsHome), each on a
-// screen of its own, with the icons the site gives them. The logo and icon (BrandForm.tsx) are under "Virksomheden" (Company).
-// The blocks that can be put in are under "Blokke" ("Blokindstillinger", BlockSettings.tsx).
+// screen of its own, with the icons the site gives them. The logo and icon (BrandForm.tsx) are under "Business" (Company).
+// The blocks that can be put in are under "Blocks" ("Block settings", BlockSettings.tsx).
 export function Theme({ files }: { files: RepoFile[] }) {
   const chosen = themes.find((x) => x.id === chosenTheme(files)) ?? theme;
   const parts: Part[] = [
@@ -255,7 +255,7 @@ export function Theme({ files }: { files: RepoFile[] }) {
   return <Parts title={t.common.parts.appearance} route="appearance" parts={parts} back={backFrom('appearance')} />;
 }
 
-/** By "Farver": the site's primary, secondary and tertiary colours (accent, secondary, tertiary) in the mode the editor
+/** By "Colors": the site's primary, secondary and tertiary colours (accent, secondary, tertiary) in the mode the editor
  * is shown in, as the site has them. */
 function ThemeColors({ files }: { files: RepoFile[] }) {
   const mode = shownMode();
@@ -268,15 +268,15 @@ function ThemeColors({ files }: { files: RepoFile[] }) {
 export const backToAppearance = { href: '#appearance', label: t.common.parts.appearance };
 const backToThemes = { href: '#appearance/themes', label: t.common.parts.themes };
 
-/** Under a theme's name: whether the site is built with it ("I brug") or is changing to it ("Skifter hertil"). */
+/** Under a theme's name: whether the site is built with it ("In use") or is changing to it ("Changing to it"). */
 function themeStatus(id: string, files: RepoFile[]): string | undefined {
   if (id === theme.id) return t.library.themeInUse;
   if (id === chosenTheme(files)) return t.library.themeNext;
 }
 
-/** "Temaer" (#appearance/themes): the themes installed (src/themes/, packages/editor/src/themes.ts; and one from the store the site's build
- * does not have yet, as "Installeres…"), by name, each with its picture, its version and who made it, and whether it is
- * in use or the store has a newer version, opening its page (ThemePage). More are in "Appstore", under "Indstillinger". */
+/** "Themes" (#appearance/themes): the themes installed (src/themes/, packages/editor/src/themes.ts; and one from the store the site's build
+ * does not have yet, as "Installing…"), by name, each with its picture, its version and who made it, and whether it is
+ * in use or the store has a newer version, opening its page (ThemePage). More are in "Appstore", under "Settings". */
 export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
   const catalog = useThemeCatalog(env);
   const store = Array.isArray(catalog) ? catalog : [];
@@ -309,10 +309,10 @@ export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
   );
 }
 
-/** "Ikonpakker" (#appearance/icon-packs): the icon packs installed (the system's own, packages/editor/icons/, and those the themes
+/** "Icon packs" (#appearance/icon-packs): the icon packs installed (the system's own, packages/editor/icons/, and those the themes
  * installed bring; iconPacks.ts), by name, each with who made it, its licence, the theme it came with and a few of its
- * icons as they are, the one chosen ticked (chosenPack), with "I brug" by the one the site and the editor are built with
- * and "Skifter hertil …" by the one chosen until they are. A tap on another asks first and then saves it in the site's
+ * icons as they are, the one chosen ticked (chosenPack), with "In use" by the one the site and the editor are built with
+ * and "Changing to it …" by the one chosen until they are. A tap on another asks first and then saves it in the site's
  * file (config.icons) at once, in its own commit, as a theme is; the site and the editor have its icons after the
  * next build (themePlugin in packages/editor/site/theme.mjs). */
 export function IconPacks({ env, files }: { env: Env; files: RepoFile[] }) {
@@ -378,8 +378,8 @@ export function motionOf(files: RepoFile[]): MotionScheme {
   return schemeInUse(scheme, theme.motion, themes.find((x) => x.id === STANDARD_THEME)?.motion);
 }
 
-/** "Bevægelse" (#appearance/motion): Material 3's motion schemes and our calm one (lib/motion.ts), each with how it
- * moves, the one in use ticked (motionOf) and "Temaets valg" by the theme's own. A tap on another asks first and then
+/** "Motion" (#appearance/motion): Material 3's motion schemes and our calm one (lib/motion.ts), each with how it
+ * moves, the one in use ticked (motionOf) and "The theme's choice" by the theme's own. A tap on another asks first and then
  * saves it in the site's file (config.motion) at once, in its own commit, as an icon pack is; the editor moves by it at
  * once (applyMotion, App.tsx), the site after it is built. */
 export function MotionSchemes({ env, files }: { env: Env; files: RepoFile[] }) {
@@ -436,13 +436,13 @@ export function MotionSchemes({ env, files }: { env: Env; files: RepoFile[] }) {
 }
 
 /** A theme's page (#appearance/themes/<id>), the same for every theme, made to show what it would make of the site, so
- * it can be chosen or not: its picture, name, version and who made it, and whether it is in use; "Brug temaet", for any
+ * it can be chosen or not: its picture, name, version and who made it, and whether it is in use; "Use the theme", for any
  * other than the one chosen, which asks first and then saves it in the site's file (config.theme) at once, in its own
  * commit, and the site is built with it; the pictures of the site in it (its screenshots/, packages/editor/scripts/theme-screenshots.mjs),
  * each opening a sheet with it whole (ImageCarousel); what it is (its description) and what it gives the site (its highlights), in the
  * editor's language, else the first it has; and what stays as it is. Every theme has every block (what it does not draw
  * itself, the standard theme does), so changing it never leaves a block without its drawing; who made it, a row to their
- * page; and, from the store, "Opdater til …" and "Afinstaller" (ThemeStoreButtons). */
+ * page; and, from the store, "Update to …" and "Uninstall" (ThemeStoreButtons). */
 export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: RepoFile[] }) {
   const [saving, setSaving] = useState(false);
   const chosen = chosenTheme(files);
@@ -527,7 +527,7 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
 
 /** "Parts" (#developer/parts): the parts the editor and the site are built of, each on a screen of its own: the editor's
  * (Parts.tsx), the theme's UI components, the blocks (the standard ones and the apps') and each list of kinds
- * ("Promovering", its own kinds and the apps'), as the theme shows them (BlockParts.tsx), and the theme's design tokens ("Værdier", Tokens.tsx). */
+ * ("Promotion", its own kinds and the apps'), as the theme shows them (BlockParts.tsx), and the theme's design tokens ("Values", Tokens.tsx). */
 export function PartsHome() {
   const parts: Part[] = [
     { id: 'editor', label: t.parts.screens.editor, icon: icons.parts },
@@ -553,7 +553,7 @@ export const DEV_MENU_ROUTE = 'developer';
 export const backToDeveloper = { href: `#${DEV_MENU_ROUTE}`, label: t.common.parts.developer };
 
 /** "Developer" (#developer), under "Settings": "Parts" (PartsHome, #developer/parts) and "Caching and builds"
- * (Advanced.tsx, #developer/caching), A–Å by their names. */
+ * (Advanced.tsx, #developer/caching), A–Z by their names. */
 export function Developer() {
   const parts: Part[] = [
     { id: 'parts', label: t.common.parts.editorParts, icon: icons.parts },
@@ -562,16 +562,16 @@ export function Developer() {
   return <Parts title={t.common.parts.developer} route={DEV_MENU_ROUTE} parts={parts} back={backFrom(DEV_MENU_ROUTE)} />;
 }
 
-/** "Søgemaskineoptimering" (#seo), no longer in the menu: "Videresendelser" (Redirects.tsx, #seo/redirects) and then
- * the site's own parts (seoParts: "Interne links"), each on a screen of its own (CompanyForm.tsx). "SEO-vurdering"
+/** "Search engine optimization" (#seo), no longer in the menu: "Redirects" (Redirects.tsx, #seo/redirects) and then
+ * the site's own parts (seoParts: "Internal links"), each on a screen of its own (CompanyForm.tsx). "SEO rating"
  * (SeoScores.tsx, #seo/rating) is hidden: nothing links to it. */
 export function Seo() {
   const parts: Part[] = [{ id: 'redirects', label: t.common.parts.redirects, icon: icons.redirects }, ...seoParts];
   return <Parts title={t.common.parts.seo} route="seo" parts={parts} back={backFrom('seo')} />;
 }
 
-// A screen with parts of the site's own (partScreens): "Privatliv"; and with the settings of the apps installed with its
-// category (PartScreen.apps): "Analytics" and "Promovering", each opening the app's form (#analytics/google-analytics).
+// A screen with parts of the site's own (partScreens): "Privacy"; and with the settings of the apps installed with its
+// category (PartScreen.apps): "Analytics" and "Promotion", each opening the app's form (#analytics/google-analytics).
 export function PartsScreen({ screen, files }: { screen: PartScreen; files: RepoFile[] }) {
   const parts = [...screen.parts, ...appPartsIn(screen, files)];
   return (
@@ -581,9 +581,9 @@ export function PartsScreen({ screen, files }: { screen: PartScreen; files: Repo
   );
 }
 
-// "Blokke": the blocks, each with the texts all its copies have (blockTexts.ts), in groups by where they come
+// "Blocks": the blocks, each with the texts all its copies have (blockTexts.ts), in groups by where they come
 // from: the standard blocks, the theme's and each app's under its name (blockGroups). Over them, as over the
-// lists, a search by name, the order (by group, A–Å or Å–A, kept in this browser; A–Å under the first letter)
+// lists, a search by name, the order (by group, A–Z or Z–A, kept in this browser; A–Z under the first letter)
 // and the funnel with the filters by group and by whether the block is on a page, each picked one as a chip.
 type BlockSort = 'group' | 'az' | 'za';
 const BLOCK_SORTS: BlockSort[] = ['group', 'az', 'za'];
@@ -621,7 +621,7 @@ export function Blocks({ files }: { files: RepoFile[] }) {
     .filter((g) => !shownGroup || g.title === shownGroup)
     .map((g) => ({ title: g.title, parts: g.parts.filter(fits) }))
     .filter((g) => g.parts.length > 0);
-  // A–Å or Å–A: all in one list, under the first letter of their names (headed, from HEADINGS_FROM).
+  // A–Z or Z–A: all in one list, under the first letter of their names (headed, from HEADINGS_FROM).
   const lettered =
     sort === 'group'
       ? []
@@ -733,8 +733,8 @@ function PartGroup({ title, route, parts }: { title?: string; route: string; par
   );
 }
 
-// A screen with parts of the site as rows, under one on the start screen: "Lister" (the short lists: the site's,
-// testimonials, and those of the apps installed, prices), A–Å as on the start screen.
+// A screen with parts of the site as rows, under one on the start screen: "Lists" (the short lists: the site's,
+// testimonials, and those of the apps installed, prices), A–Z as on the start screen.
 function PartsOf({ title, ids, files }: { title: string; ids: string[]; files: RepoFile[] }) {
   return (
     <Screen title={title} wide back={{ href: '#', label: siteName }}>
@@ -749,7 +749,7 @@ function PartsOf({ title, ids, files }: { title: string; ids: string[]; files: R
 
 export const Lists = ({ files }: { files: RepoFile[] }) => <PartsOf title={t.common.parts.lists} ids={listsShown(files)} files={files} />;
 
-// The account: who is logged in, light or dark, the language, and "Log ud".
+// The account: who is logged in, light or dark, the language, and "Log out".
 export function Account({ user, files, onLogout }: { user: Viewer | null; files: RepoFile[]; onLogout: () => void }) {
   return (
     // Titled with the name of the one logged in.
@@ -773,7 +773,7 @@ export function Account({ user, files, onLogout }: { user: Viewer | null; files:
   );
 }
 
-// "Notifikationer" (notificationData.ts): "På telefonen", a switch for each of the editor's types, and under the name of each
+// "Notifications" (notificationData.ts): "On the phone", a switch for each of the editor's types, and under the name of each
 // installed app that sends any, a switch for each of its types (`notifications` in its index.ts).
 function NotificationChoices({ files }: { files: RepoFile[] }) {
   const { off, device } = useNotificationChoices();
@@ -870,7 +870,7 @@ type Item = {
   detail: string;
   date?: string;
   /** Kladde, Skjult or Planlagt (statusOf), before its date; an entry not yet looked through, what it says
-   * (FolderCollection.fresh: "Ny"). */
+   * (FolderCollection.fresh: "New"). */
   status?: string;
   /** Added by something else and not yet looked through (FolderCollection.fresh): at the top of the list. */
   fresh?: boolean;
@@ -897,8 +897,8 @@ const STATES: State[] = ['published', 'draft', 'unlisted', 'scheduled'];
 const stateOf = (d: Record<string, unknown>): State =>
   d.status === 'draft' || d.status === 'unlisted' || d.status === 'scheduled' ? d.status : 'published';
 
-// What a page or post is when not simply published (`status`, packages/editor/lib/status.mjs): "Kladde", "Skjult" or
-// "Planlagt 1. nov. kl. 8.00".
+// What a page or post is when not simply published (`status`, packages/editor/lib/status.mjs): "Draft", "Hidden" or
+// "Scheduled Nov 1 at 8:00 AM".
 function statusOf(d: Record<string, unknown>): string | undefined {
   if (d.status === 'draft') return t.library.status.draft;
   if (d.status === 'unlisted') return t.library.status.unlisted;
@@ -947,7 +947,7 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
     );
   // The number the site has for each entry (the places that use a tag).
   const count = countsOf(collection, files);
-  // In a list of kinds, each entry says its kind beside its name (Pop op-vindue, Handlingslinje, Mailchimp).
+  // In a list of kinds, each entry says its kind beside its name (Pop op-vindue, Action bar, Mailchimp).
   const kinds = collection.fields.find((f) => f.name === collection.kinds)?.options ?? [];
   const kindLabel = (data: Record<string, unknown>) =>
     kinds.find((o) => o.value === (data[collection.kinds!] ?? kinds[0]?.value))?.label ?? '';
@@ -978,9 +978,9 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
   }));
 }
 
-// The pages as the menu on the site has them (src/data/menu.json, "Hovedmenu"): each item of the menu, by
+// The pages as the menu on the site has them (src/data/menu.json, "Main menu"): each item of the menu, by
 // the name it has there, with the page it goes to and the items under it; then the pages that are
-// not in the menu, A–Å. A link to a part of a page (/kontakt/#find-vej) is that page; an item whose
+// not in the menu, A–Z. A link to a part of a page (/kontakt/#find-vej) is that page; an item whose
 // page is gone is shown without a link.
 type Branch = { key: string; item: Item; children: Branch[] };
 type MenuEntry = { label: string; href: string; children?: MenuEntry[] };
@@ -1005,7 +1005,7 @@ function menuOf(items: Item[], files: RepoFile[]): { menu: Branch[]; rest: Item[
 
 // List or as the menu (pages), as picked last time in this browser.
 type View = 'liste' | 'menu';
-// Whether the pages and posts show their SEO rating ("Vis SEO-vurdering"), as left last time in this browser.
+// Whether the pages and posts show their SEO rating ("Show SEO rating"), as left last time in this browser.
 const seoKey = (c: Collection) => `editor-seo-${c.id}`;
 function savedSeo(c: Collection): boolean {
   try {
@@ -1062,7 +1062,7 @@ function savedSort(c: Collection, sorts: Sort[], first: Sort): Sort {
   return first;
 }
 
-// "i dag kl. 13.42" as "I dag kl. 13.42", alone on its line.
+// "today at 1:42 PM" as "Today at 1:42 PM", alone on its line.
 const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
 
 export function List({ collection, tab, files, env }: { collection: Collection; tab?: string; files: RepoFile[]; env: Env }) {
@@ -1085,7 +1085,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   // All again when the status picked is no longer there to pick (the last draft was published meanwhile).
   const state = states.length > 1 && states.includes(picked as State) ? picked : '';
   // Prices and testimonials are in their order on the site; the other lists of entries can be sorted.
-  // Blog posts newest first, pages A–Å, until another is picked.
+  // Blog posts newest first, pages A–Z, until another is picked.
   const sorts: Sort[] =
     collection.kind === 'files' || (collection.kind === 'folder' && collection.orderable) || items.length < 2
       ? []
@@ -1096,7 +1096,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
           : ['az', 'za'];
   const [sort, setSort] = useState(() => savedSort(collection, sorts, pages ? 'az' : sorts[0]));
   // Pages and posts: the Google icon by the order shows the score of each one's SEO rating at the start of its row
-  // (ScoreRing, the same as under "Søgemaskiner" and "SEO-vurdering"); a tap on the ring opens it there, on the rest of
+  // (ScoreRing, the same as under "Search engines" and "SEO rating"); a tap on the ring opens it there, on the rest of
   // the row at its top.
   const rated = isRated(collection);
   const [seo, setSeo] = useState(() => rated && savedSeo(collection));
@@ -1393,7 +1393,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
       }
       actions={
         <>
-          {/* What was deleted from the list, as in "Filer". */}
+          {/* What was deleted from the list, as in "Files". */}
           {restorable(collection) && (
             <IconButton
               icon={ClockCounterClockwise}
@@ -1543,7 +1543,7 @@ function TreeRows({
   depth: number;
   open: Set<string>;
   toggle: (href: string) => void;
-  /** With "Vis SEO-vurdering": the score of a page at the start of its row (a tap on it opens the page at its rating). */
+  /** With "Show SEO rating": the score of a page at the start of its row (a tap on it opens the page at its rating). */
   ring?: (item: Item) => ReactNode;
 }) {
   return (

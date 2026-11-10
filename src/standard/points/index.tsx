@@ -1,4 +1,4 @@
-// "Punkter med ikon", a standard block: points side by side where there is room, each with an icon in a circle, a
+// "Points with icon", a standard block: points side by side where there is room, each with an icon in a circle, a
 // heading, a text and, with a page, a link after the text. How it looks is the theme's
 // (packages/editor/theme/blocks/points/View.tsx; what it shows: view.ts, and load.ts on the site).
 import { SquaresFour } from '@phosphor-icons/react';

@@ -1,4 +1,4 @@
-// "Liste" on the site: only its fields (view.ts).
+// "List" on the site: only its fields (view.ts).
 import type { Load } from '../view';
 import { listOf, type ListView } from './view';
 

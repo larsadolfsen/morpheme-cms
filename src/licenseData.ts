@@ -1,4 +1,4 @@
-// The licences of the third-party work the site and the editor are made with ("Licenser" under "Indstillinger",
+// The licences of the third-party work the site and the editor are made with ("Licenses" under "Settings",
 // Licenses.tsx), as the build finds them (/editor/licenses.json, licensesIntegration in packages/editor/lib/licenses.mjs),
 // what an app (defineApp) and a theme (theme.json) declare (their own licence and the third-party work they bring), and
 // what the store's catalog has of them (scripts/store-release.mjs, storeLicenses). Also splits the CMS's own licence out

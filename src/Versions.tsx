@@ -1,8 +1,8 @@
-// "Tidligere versioner": the commits that changed a form's file (github.ts versionsOf), newest first, with when and by
+// "Earlier versions": the commits that changed a form's file (github.ts versionsOf), newest first, with when and by
 // whom, 20 at a time: the last section of a page's or a post's form (VersionList), and in the other forms a sheet
 // opened by the clock in the top bar (VersionsButton). The newest is the
 // version saved now. Tapping an earlier one opens it in the form as changes that are not saved yet
-// (EntryForm.tsx, DataForm.tsx, with a Notice at the top): "Gem ændringer" makes it the current
+// (EntryForm.tsx, DataForm.tsx, with a Notice at the top): "Save changes" makes it the current
 // version, in a new commit, so nothing is lost and every version can always be found here again.
 import { Component, Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ClockCounterClockwise } from '@phosphor-icons/react';
@@ -104,7 +104,7 @@ function useVersionList(env: Env, path: string, onPick: (v: ShownVersion) => voi
 }
 
 // The versions as rows, newest first: the one saved now first (it cannot be picked), each with when and by whom, and
-// "Vis ældre versioner" under them while there are more.
+// "Show older versions" under them while there are more.
 function VersionRows({ list, onPick }: { list: ReturnType<typeof useVersionList>; onPick: (v: Version) => void }) {
   const { versions, more, problem, loading, load } = list;
   return (

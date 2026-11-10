@@ -1,12 +1,12 @@
 // The themes in the app store (store.ts): "Theme store" (#appearance/theme-store, ThemeStoreScreen.tsx, first under Appearance), all themes, those
 // in the store and those installed, with the same search, order and status filter as the apps ("Appstore" only has apps); the page of one that
 // is not installed (#appearance/themes/<id>, StoreThemePage), drawn from the catalog as a theme's page (its picture,
-// name, version, who made it, "Installer", its pictures of a site in it, what it is and gives the site, and who made
-// it); and on the page of one installed from the store (ThemePage in Library.tsx) "Opdater til …" and "Afinstaller"
+// name, version, who made it, "Install", its pictures of a site in it, what it is and gives the site, and who made
+// it); and on the page of one installed from the store (ThemePage in Library.tsx) "Update to …" and "Uninstall"
 // (ThemeStoreButtons). Installing copies its folder into the site's themes (config.themes/<id>/, with its store.json),
 // updating copies the newer version over it and uninstalling deletes it, each saved at once in its own commit
 // (themeChanges), the button pressed showing the loading indicator while it runs; the site's next build has it, and
-// only then can it be chosen ("Brug temaet"). The theme in use, the one the site is changing to and the standard theme
+// only then can it be chosen ("Use the theme"). The theme in use, the one the site is changing to and the standard theme
 // cannot be uninstalled.
 import { useEffect, useState } from 'react';
 import { Check, Smiley } from '@phosphor-icons/react';
@@ -254,7 +254,7 @@ export function ThemeRow({ of }: { of: ReturnType<typeof allThemes>[number] }) {
 }
 
 /** The page of a theme in the store that is not installed, or installed but not yet built (#appearance/themes/<id>),
- * from the catalog: as a theme's page, with "Installer" (or "Afinstaller"). */
+ * from the catalog: as a theme's page, with "Install" (or "Uninstall"). */
 export function StoreThemePage({ id, env }: { id: string; env: Env }) {
   const catalog = useThemeCatalog(env);
   const actions = useThemeActions(env);
@@ -352,8 +352,8 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
   );
 }
 
-/** On the page of a theme installed from the store: "Opdater til …" (`top`: under its name), when the store has a newer
- * version; or "Afinstaller" (at the end), which cannot be pressed while it is in use. */
+/** On the page of a theme installed from the store: "Update to …" (`top`: under its name), when the store has a newer
+ * version; or "Uninstall" (at the end), which cannot be pressed while it is in use. */
 export function ThemeStoreButtons({ of, env, files, top }: { of: ThemeInfo; env: Env; files: RepoFile[]; top?: boolean }) {
   const catalog = useThemeCatalog(env);
   const actions = useThemeActions(env);

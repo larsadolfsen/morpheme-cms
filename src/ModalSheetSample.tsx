@@ -1,4 +1,4 @@
-// "Parts" › "UI-komponenter": the modal bottom sheet example (ContainmentParts.tsx). A button opens the theme's modal
+// "Parts" › "UI components": the modal bottom sheet example (ContainmentParts.tsx). A button opens the theme's modal
 // sheet in a real <dialog>, as the site does (bottomSheet() in bottomSheetControl.ts), so on a phone it opens at half
 // height (startAt), is pulled up to full height and pulled down to close. `wide` is what it becomes from the medium
 // breakpoint (BottomSheet's `wide`: a dialog, a side sheet or a sheet), `label` what the button says.

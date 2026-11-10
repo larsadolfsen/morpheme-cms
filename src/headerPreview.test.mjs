@@ -7,15 +7,15 @@ import { JSDOM } from 'jsdom';
 import { headerDraft, swapHeader } from './headerPreview.mjs';
 
 // A page with the header as the site draws it: the menu button at the start, an item without and one with sub-items, the
-// phone icon, and the bar of "Mobilmenu".
+// phone icon, and the bar of "Mobile menu".
 const PAGE = `<!doctype html><html><body>
 <header data-editor="header"><div data-header-row>
   <div data-editor="header-menu" class="start-class"><button>Menu</button></div>
   <a href="/" class="title">Logo</a>
   <nav data-editor="header-nav"><ul>
     <li data-nav-item><a href="/" class="md-nav-item" aria-current="page">Forside</a></li>
-    <li data-nav-item><a href="/b/" class="md-nav-item md-nav-item-parent">Behandlinger</a>
-      <button data-nav-toggle aria-controls="menu-1" aria-label="Sider under Behandlinger"></button>
+    <li data-nav-item><a href="/b/" class="md-nav-item md-nav-item-parent">Treatments</a>
+      <button data-nav-toggle aria-controls="menu-1" aria-label="Pages under Treatments"></button>
       <div id="menu-1"><ul><li><a href="/b/a/">Arm</a></li></ul></div></li>
   </ul></nav>
   <a data-editor="header-cta" href="tel:12345678" aria-label="Ring 12 34 56 78">phone</a>
@@ -26,7 +26,7 @@ const PAGE = `<!doctype html><html><body>
 const THEME = {
   menuClass: { start: 'start-class', end: 'end-class' },
   mobileNav: '<nav data-editor="mobile-nav" class="bar"><ul class="tabs"><li><a href="/" class="tab"></a></li></ul></nav>',
-  subpagesOf: (label) => `Sider under ${label}`,
+  subpagesOf: (label) => `Pages under ${label}`,
   current: '/',
 };
 
@@ -38,11 +38,11 @@ const SAVED = {
   menu: {
     enabled: true,
     items: [
-      { label: 'Forside', href: '/' },
-      { label: 'Behandlinger', href: '/b/', children: [{ label: 'Arm', href: '/b/a/' }] },
+      { label: 'Home', href: '/' },
+      { label: 'Treatments', href: '/b/', children: [{ label: 'Arm', href: '/b/a/' }] },
     ],
   },
-  mobileMenu: { enabled: true, items: [{ label: 'Forside', href: '/' }] },
+  mobileMenu: { enabled: true, items: [{ label: 'Home', href: '/' }] },
   header: { menuSide: 'start' },
 };
 const withChange = (change) => ({ ...SAVED, ...change });
@@ -55,10 +55,10 @@ test('headerDraft: the menu turned off is no items and no menu button', () => {
   assert.deepEqual(headerDraft(SAVED, withChange({ menu: { ...SAVED.menu, enabled: false } })), { nav: null });
 });
 
-test('headerDraft: the menu items with their sub-items A–Å', () => {
+test('headerDraft: the menu items with their sub-items A–Z', () => {
   const items = [
     {
-      label: 'Om',
+      label: 'About',
       href: '/om/',
       children: [
         { label: 'Zone', href: '/z/' },
@@ -68,7 +68,7 @@ test('headerDraft: the menu items with their sub-items A–Å', () => {
   ];
   assert.deepEqual(headerDraft(SAVED, withChange({ menu: { enabled: true, items } })).nav, [
     {
-      label: 'Om',
+      label: 'About',
       href: '/om/',
       children: [
         { label: 'Arm', href: '/a/' },
@@ -78,11 +78,11 @@ test('headerDraft: the menu items with their sub-items A–Å', () => {
   ]);
 });
 
-test('headerDraft: "Mobilmenu" turned off is an empty bar, turned on its links', () => {
+test('headerDraft: "Mobile menu" turned off is an empty bar, turned on its links', () => {
   assert.deepEqual(headerDraft(SAVED, withChange({ mobileMenu: { ...SAVED.mobileMenu, enabled: false } })), { mobileNav: [] });
-  const off = withChange({ mobileMenu: { enabled: false, items: [{ label: 'Kontakt', href: '/kontakt/' }] } });
+  const off = withChange({ mobileMenu: { enabled: false, items: [{ label: 'Contact', href: '/kontakt/' }] } });
   assert.deepEqual(headerDraft(off, withChange({ mobileMenu: { ...off.mobileMenu, enabled: true } })), {
-    mobileNav: [{ label: 'Kontakt', href: '/kontakt/' }],
+    mobileNav: [{ label: 'Contact', href: '/kontakt/' }],
   });
 });
 
@@ -110,32 +110,32 @@ test('swapHeader: an empty draft leaves the page as it is', () => {
 test('swapHeader: the menu items drawn again, with and without sub-items', () => {
   const doc = page();
   const nav = [
-    { label: 'Kontakt', href: '/kontakt/' },
+    { label: 'Contact', href: '/kontakt/' },
     {
-      label: 'Om',
+      label: 'About',
       href: '/om/',
       children: [
         { label: 'Hold', href: '/om/hold/' },
-        { label: 'Pris', href: '/om/pris/' },
+        { label: 'Price', href: '/om/pris/' },
       ],
     },
-    { label: 'Forside', href: '/' },
+    { label: 'Home', href: '/' },
   ];
   swapHeader(doc, { nav }, THEME);
   const el = part(doc, 'header-nav');
-  assert.deepEqual(labels(el), ['Kontakt', 'Om', 'Forside']);
+  assert.deepEqual(labels(el), ['Contact', 'About', 'Home']);
   const [kontakt, om, forside] = el.querySelectorAll(':scope > ul > li');
   assert.equal(kontakt.querySelector('[data-nav-toggle]'), null);
   assert.equal(kontakt.querySelector('a').hasAttribute('aria-current'), false);
   assert.equal(forside.querySelector('a').getAttribute('aria-current'), 'page');
   const toggle = om.querySelector('[data-nav-toggle]');
   assert.equal(toggle.getAttribute('aria-controls'), 'menu-1');
-  assert.equal(toggle.getAttribute('aria-label'), 'Sider under Om');
+  assert.equal(toggle.getAttribute('aria-label'), 'Pages under About');
   assert.deepEqual(
     [...om.querySelectorAll('#menu-1 a')].map((a) => [a.textContent, a.getAttribute('href')]),
     [
       ['Hold', '/om/hold/'],
-      ['Pris', '/om/pris/'],
+      ['Price', '/om/pris/'],
     ],
   );
 });
@@ -147,7 +147,7 @@ test('swapHeader: the menu off removes its items and the menu button', () => {
   assert.equal(part(doc, 'header-menu'), null);
 });
 
-test('swapHeader: the bar of "Mobilmenu" drawn again, removed, and put in when the page has none', () => {
+test('swapHeader: the bar of "Mobile menu" drawn again, removed, and put in when the page has none', () => {
   const doc = page();
   swapHeader(
     doc,

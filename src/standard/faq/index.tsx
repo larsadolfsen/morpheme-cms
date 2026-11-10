@@ -1,4 +1,4 @@
-// "Spørgsmål og svar", a standard block: questions that fold out with the answer, one open at a time in
+// "Questions and answers", a standard block: questions that fold out with the answer, one open at a time in
 // each list; the answers with bold, italic, links and lists. How it looks is the theme's
 // (packages/editor/theme/blocks/faq/View.tsx; what it shows: view.ts, and load.ts on the site).
 import { Question } from '@phosphor-icons/react';

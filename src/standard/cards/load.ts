@@ -1,4 +1,4 @@
-// "Kort" on the site (view.ts): the pictures' sizes come from the site (pictureOf).
+// "Cards" on the site (view.ts): the pictures' sizes come from the site (pictureOf).
 import { pictureOf } from '../load';
 import type { Load } from '../view';
 import { headOf } from '../head';

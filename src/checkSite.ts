@@ -2,8 +2,8 @@
 // (packages/editor/scripts/check-content.mjs): every block in the text of the pages and posts (src/apps/<app>/blocks/, an unknown
 // one too), and the data files with the fields the editor edits them with: the fixed pages with their
 // sections, the menu and the other single files, the lists (prices, testimonials, tags), the
-// screens under "Virksomheden" and "Blokke", the apps installed and their settings (src/apps/), and the
-// colours ("Farver": colours, readable together). A hidden block is not on the site, so it may be unfinished.
+// screens under "Business" and "Blocks", the apps installed and their settings (src/apps/), and the
+// colours ("Colors": colours, readable together). A hidden block is not on the site, so it may be unfinished.
 // The rules of a page's template (collections.ts) too: what may be there, how many, and what must.
 // The redirects (redirectData.ts): none sends on through another, and none in a loop. And the site's own rules
 // (siteProblems in its rules.ts: a button that opens a promotion not on its page).
@@ -109,7 +109,7 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
     ...writtenBlockParts,
   ] as Part[])
     if (part.file && part.fields) data(part.file, part.fields, part.at, undefined, part.defaults, undefined, part.upgrade);
-  // The blocks turned off under "Blokindstillinger" (BlockSettings.tsx): a list of their types.
+  // The blocks turned off under "Block settings" (BlockSettings.tsx): a list of their types.
   data(config.blockSettings, [
     { name: 'off', label: t.app.blocksOff, type: 'list', field: { name: 'type', label: t.app.block, type: 'string' } },
   ]);
@@ -139,7 +139,7 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
       problems.push(`${appFolder(app.id)}/${file}: ${t.apps.unlistedScreenshot}`);
   }
 
-  // The colours under "Farver" (Colors.tsx): every colour in both modes (those a file written before them does not have
+  // The colours under "Colors" (Colors.tsx): every colour in both modes (those a file written before them does not have
   // made, completeColors), readable together, the choice of dynamic colour they were made from, if they were.
   const colorsFile = byPath.get(config.colors);
   if (colorsFile) {
@@ -183,7 +183,7 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
     blocks += splitBlocks(f.text, null).filter((part) => 'type' in part).length;
     const collection = collections.find((c) => c.kind === 'markdown' && f.path.startsWith(`${c.folder}/`));
     const template = collection?.kind === 'markdown' ? collection.template : undefined;
-    // A standard page by its own rules too (the blog page has "Blogindlæg"), and the front page's leads read as the site reads
+    // A standard page by its own rules too (the blog page has "Blog posts"), and the front page's leads read as the site reads
     // them (packages/editor/site/home.ts).
     const standard = standardPageOf(f, files);
     const front = standard?.key === 'front';

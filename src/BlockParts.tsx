@@ -1,13 +1,13 @@
-// "Parts" › "UI-komponenter" (#developer/parts/ui), "Parts" › "Blokke" (#developer/parts/blocks) and "Parts" › a list of kinds
-// ("Promovering", #developer/parts/list/<id>): how the site looks, every part in every version, to see and agree on it.
-// "UI-komponenter" also has the active theme's coverage (summary, mark on each part, filter by style) and the site frame's parts.
-// "UI-komponenter" has the theme's UI components (its buttons and icon buttons, text fields and checkboxes …,
-// packages/editor/theme/ui/, through @site/editor) in every kind, size and state; "Blokke" every block, the standard
+// "Parts" › "UI components" (#developer/parts/ui), "Parts" › "Blocks" (#developer/parts/blocks) and "Parts" › a list of kinds
+// ("Promotion", #developer/parts/list/<id>): how the site looks, every part in every version, to see and agree on it.
+// "UI components" also has the active theme's coverage (summary, mark on each part, filter by style) and the site frame's parts.
+// "UI components" has the theme's UI components (its buttons and icon buttons, text fields and checkboxes …,
+// packages/editor/theme/ui/, through @site/editor) in every kind, size and state; "Blocks" every block, the standard
 // ones (packages/editor/src/standard/), which every theme styles, and then the apps', each in its own group; a list of
 // kinds each of its kinds as the site draws an entry of it, the list's own (the pop-up, the bars) and the apps' (a
 // pop-up, once for each of its states), the kind a group. A block's versions are the
-// options of its choices side by side (a field with `segments`: the designs of "Kort"), the first choice's all, each
-// other's but the one a new block has (its default, else the empty one: the backgrounds of "Kort", with the first's empty
+// options of its choices side by side (a field with `segments`: the designs of "Cards"), the first choice's all, each
+// other's but the one a new block has (its default, else the empty one: the backgrounds of "Cards", with the first's empty
 // option; the width of "Banner", as wide as the text). All of it is drawn with the
 // made-up site of examples.ts, never the site's own, with the search, the order and the filter of "Editor"
 // (PartsShown.tsx). Nothing here is saved.
@@ -520,7 +520,7 @@ function CardParts() {
   );
 }
 
-/** "Parts" › "UI-komponenter" (#developer/parts/ui): the theme's UI components in every kind, size and state. */
+/** "Parts" › "UI components" (#developer/parts/ui): the theme's UI components in every kind, size and state. */
 export function ComponentParts() {
   const groups = [
     { id: 'ui', title: screens.ui },
@@ -587,7 +587,7 @@ export function ComponentParts() {
   );
 }
 
-/** "Parts" › "Blokke" (#developer/parts/blocks): every block, the standard ones and then the apps', each a group of its
+/** "Parts" › "Blocks" (#developer/parts/blocks): every block, the standard ones and then the apps', each a group of its
  * own, in all its versions. */
 export function BlocksParts() {
   const data = useMemo(exampleData, []);
@@ -613,10 +613,10 @@ export function BlocksParts() {
   );
 }
 
-/** The lists of kinds ("Promovering"), each a screen of "Parts". */
+/** The lists of kinds ("Promotion"), each a screen of "Parts". */
 export const kindLists = () => collections.filter((c): c is FolderCollection => c.kind === 'folder' && !!c.kinds && !!c.fields?.length);
 
-/** "Parts" › a list of kinds ("Promovering", #developer/parts/list/<id>): each of its kinds as the site draws it, its own
+/** "Parts" › a list of kinds ("Promotion", #developer/parts/list/<id>): each of its kinds as the site draws it, its own
  * (FolderCollection.draws: the pop-up, the bars) and the apps' (AppKind: Mailchimp's signup, once for each of its
  * states), each a group of its own, as a new one of the kind with the made-up texts (kindExample). */
 export function KindParts({ id }: { id: string }) {

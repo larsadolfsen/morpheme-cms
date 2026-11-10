@@ -33,7 +33,7 @@ export function setTheme(theme: Theme) {
 const bars = () => Array.from(document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]'));
 const isDark = (m: HTMLMetaElement) => m.media.includes('dark');
 
-// A screen that shows one mode at a time (Farver) holds the editor in it while it is open, whatever is
+// A screen that shows one mode at a time (Colors) holds the editor in it while it is open, whatever is
 // picked on the account; null lets go again. A change of the site's colours meanwhile (applyColors)
 // keeps it.
 let held: 'light' | 'dark' | null = null;
@@ -60,7 +60,7 @@ export function applyTheme(chosen: Theme) {
   for (const m of all) m.content = (theme === 'auto' ? m.dataset.color : picked?.dataset.color) ?? m.content;
 }
 
-// The site's colours (colors.json, "Farver") as the editor has loaded them, in place of the ones its page
+// The site's colours (colors.json, "Colors") as the editor has loaded them, in place of the ones its page
 // was built with, so a change shows at once, before the site is built again: the CSS (colorsCss) in the
 // <style> of the page, and the top bar in the background's colour.
 export function applyColors(colors: Colors) {
@@ -79,7 +79,7 @@ export function applyColors(colors: Colors) {
   applyTheme(savedTheme());
 }
 
-// How the site moves ("Bevægelse") as the editor has loaded it, in place of the scheme its page was built with, so a new
+// How the site moves ("Motion") as the editor has loaded it, in place of the scheme its page was built with, so a new
 // choice shows at once, before the site is built again: its springs (motionCss) in the <style> of the page, and its name
 // on <html> for what animates in a script.
 export function applyMotion(scheme: MotionScheme) {

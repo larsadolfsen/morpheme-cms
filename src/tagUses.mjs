@@ -1,5 +1,5 @@
 // What on the site uses each tag: posts and pages by their front matter, testimonials, promotions on tagged posts,
-// file records (tags on files in Filer), and the "Blogindlæg"/"Udtalelser" blocks that pick a tag. Pure (no @site imports),
+// file records (tags on files in Files), and the "Blog posts"/"Testimonials" blocks that pick a tag. Pure (no @site imports),
 // so node --test can run it; defaults/rules.ts uses it for usedBy, usesOf and countsOf.
 import { blocksIn } from '../lib/blocks.mjs';
 import { isRecordPath, parseRecord } from './fileRecords.mjs';
@@ -36,14 +36,14 @@ const inFolder = (path, folder, ext) => path.startsWith(`${folder}/`) && path.en
 const recordOf = (f, folders) =>
   folders.fileRecords !== undefined && isRecordPath(f.path, folders.fileRecords) ? parseRecord(f.text) : null;
 
-/** The tags a promotion is shown on the posts of (Promovering, "Vises på": "Blogindlæg med tags").
+/** The tags a promotion is shown on the posts of (Promotion, "Shown on": "Blog posts with tags").
  * @param {Record<string, unknown>} d
  * @returns {string[]} */
 export function promotionTags(d) {
   return d.where === 'tags' && Array.isArray(d.tags) ? d.tags.map(String) : [];
 }
 
-/** The tags a block picks: a "Blogindlæg" or "Udtalelser" block's categories, and its link.
+/** The tags a block picks: a "Blog posts" or "Testimonials" block's categories, and its link.
  * @param {string} type
  * @param {Record<string, any>} props
  * @returns {unknown[]} */
@@ -87,7 +87,7 @@ export function tagUses(files, folders) {
 }
 
 /**
- * A file record's use of a tag: the Filer address the file record is for, as a path under files/.
+ * A file record's use of a tag: the Files address the file record is for, as a path under files/.
  * @param {TagFile} file
  * @param {string} folder the file records folder
  * @returns {{ path: string; name: string } | null}

@@ -1,23 +1,23 @@
-// "Udseende" › "Farver" (#appearance/colors): the site's colours, for light and dark mode, in the site's file of
+// "Appearance" › "Colors" (#appearance/colors): the site's colours, for light and dark mode, in the site's file of
 // colours (config.colors, packages/editor/lib/colors.ts). The first tab, "Generator", where the screen starts, or one
 // mode at a time, picked with the tabs after it, and the editor is shown in the mode while the screen is open
 // (theme.ts holdTheme). Each mode has a little page drawn in its colours, the pairs that are too hard to
 // read (colorPairs in @site/colors, WCAG AA) and a field for each colour (colorFields). Colours
-// that are hard to read together cannot be saved; "Gem" then shows the mode they are in. "Brug
-// standardfarverne" puts back the ones the site was designed with (defaultColors). The generator is dynamic colour for
+// that are hard to read together cannot be saved; "Save" then shows the mode they are in. "Reset to
+// default colors" puts back the ones the site was designed with (defaultColors). The generator is dynamic colour for
 // both modes at once, with its three base colours at the top (ColorTiles) and the little page in each mode under the
 // fields: it
 // makes all of them, in both modes, from one source colour, Material 3's way (dynamic colour,
 // lib/dynamic-colors.ts, each colour by its role, colorRoles): the source colour picked or taken from a
 // picture, or dragged on a colour wheel (ColorWheel), a colour harmony (HARMONIES: where the secondary and tertiary
 // colours are on the wheel from it) and a contrast level, kept in the file with the colours. Choosing one of them makes
-// the colours from them; changing a colour by hand turns it off. Material's other source of dynamic colour, each page's own picture, is an app ("Indholdsbaserede
-// farver", src/apps/content-colors/: pageColors in packages/editor/site/pageColors.ts). While an app installed changes the pages'
+// the colours from them; changing a colour by hand turns it off. Material's other source of dynamic colour, each page's own picture, is an app ("Content-based
+// colors", src/apps/content-colors/: pageColors in packages/editor/site/pageColors.ts). While an app installed changes the pages'
 // colours (hooks/page-colors.ts), each mode shows the pages' colours instead (PageColors), as the site was last built
 // (/editor/page-colors.json, packages/editor/scripts/page-colors.mjs): first a notice that the apps give them, with a button to the
-// site's own, which are only the fallback ("Reservefarver", #appearance/colors/fallback-colors, a page of the same form, so
+// site's own, which are only the fallback ("Fallback colors", #appearance/colors/fallback-colors, a page of the same form, so
 // what is unsaved stays), then the apps, each to its settings, the pages with colours from a picture (the picture, the
-// page and its colours in the mode open), and those with the site's own. Saved with "Gem ændringer" in one commit; the
+// page and its colours in the mode open), and those with the site's own. Saved with "Save changes" in one commit; the
 // editor shows the new colours at once (theme.ts applyColors), the site when it is built again.
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Moon, Palette, Sun } from '@phosphor-icons/react';
@@ -299,7 +299,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                   </Button>
                 </div>
               </FormField>
-              {/* Named by the harmony chosen, else (a file with a variant) "Harmoni". */}
+              {/* Named by the harmony chosen, else (a file with a variant) "Harmony". */}
               <FormField label={choice.harmony ? d.harmonies[choice.harmony] : d.harmony} hint={d.harmonyHint}>
                 <div className="space-y-4">
                   <ChipSet label={d.harmony} scroll>
@@ -400,7 +400,7 @@ type BuiltPage = { path: string; light: Record<string, string>; dark: Record<str
 // The colours shown of a page, by their names: the accent colour, the light colour, the background and the text.
 const SHOWN = ['primary', 'surface-container-high', 'surface', 'on-surface'];
 
-/** "Sider": the apps that change the pages' colours, each to its settings, and each page's colours as the site was last
+/** "Pages": the apps that change the pages' colours, each to its settings, and each page's colours as the site was last
  * built, those from a picture first. */
 function PageColors({ env, files, apps, mode }: { env: Env; files: RepoFile[]; apps: SiteApp[]; mode: Mode }) {
   const p = t.colors.pages;
@@ -425,7 +425,7 @@ function PageColors({ env, files, apps, mode }: { env: Env; files: RepoFile[]; a
     relations.blog.find((o) => `/${o.value}/` === path)?.label ??
     relations.categories.find((o) => `/blog/kategori/${o.value}/` === path)?.label ??
     path;
-  // An app's settings chosen in a list ("Kontrast: Standard · Variant: Som indholdet").
+  // An app's settings chosen in a list ("Contrast: Standard · Variant: Like the content").
   const chosen = (app: SiteApp) =>
     (app.settings?.fields ?? [])
       .flatMap((f) => {

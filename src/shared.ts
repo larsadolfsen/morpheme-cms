@@ -1,6 +1,6 @@
-// A block's shared texts: the ones every copy of it has ("Læs mere"), in shared.ts in its folder
+// A block's shared texts: the ones every copy of it has ("Read more"), in shared.ts in its folder
 // (src/apps/<app>/blocks/<type>/shared.ts), written in the site's language like the rest of the block. They come
-// with the block: its screen under "Blokke" is made of them (site.ts), and until the owner saves their own
+// with the block: its screen under "Blocks" is made of them (site.ts), and until the owner saves their own
 // (in config.blockTexts, under the block's type) the site uses those written here. Their names in the
 // editor's other languages are in the block's texts.ts, like its other texts. The site's build reads
 // them (packages/editor/site/site.ts), so they import nothing that needs a browser.
@@ -9,7 +9,7 @@
 import type { Field, PreviewVariant } from './schema';
 
 export type SharedTexts = {
-  /** The fields of its screen under "Blokke". */
+  /** The fields of its screen under "Blocks". */
   fields: Field[];
   /** The texts before any are saved. */
   values: Record<string, unknown>;
@@ -39,6 +39,6 @@ export const sharedIn = (site: unknown, type: string, values: Record<string, unk
   ...(site as { blocks?: Record<string, Record<string, unknown>> }).blocks?.[type],
 });
 
-/** A shared text with each {name} filled in ("Læs mere om {emne}"); a name without a value stays. */
+/** A shared text with each {name} filled in ("Read more about {topic}"); a name without a value stays. */
 export const fill = (text: string, values: Record<string, string | number>) =>
   text.replace(/\{(\w+)\}/g, (all, name: string) => (name in values ? String(values[name]) : all));

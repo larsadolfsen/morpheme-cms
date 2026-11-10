@@ -16,7 +16,7 @@
 //                    privacy/consents the visitors' answers in the cookie banner (Consents.tsx); and the settings of the apps installed with
 //                    its category: analytics/google-analytics
 //   files            the uploaded pictures, PDFs, videos and zip files (Media.tsx)
-//   seo              "Søgemaskineoptimering" (Library.tsx Seo): seo/redirects the redirects' two lists
+//   seo              "Search engine optimization" (Library.tsx Seo): seo/redirects the redirects' two lists
 //                    (Redirects.tsx): seo/redirects/all the redirects, and seo/redirects/not-found
 //                    the addresses visitors came to that do not exist; seo/rating the SEO rating of every page and
 //                    post (SeoScores.tsx); and seo/<part> the site's own (seoParts)
@@ -31,12 +31,12 @@
 //                    developer/parts the parts (Library.tsx PartsHome): developer/parts/editor the editor's, every
 //                    one in every state (Parts.tsx), developer/parts/ui the theme's UI components, developer/parts/blocks the
 //                    blocks, the standard ones and the apps', and developer/parts/list/<list> each kind of a list of kinds
-//                    ("Promovering"), its own and the apps' (BlockParts.tsx), and developer/parts/values the
-//                    theme's design tokens, "Værdier" (Tokens.tsx)
-//   block-settings         the blocks that can be put in, "Blokindstillinger" (BlockSettings.tsx)
-//   morpheme         "Morpheme", under "Indstillinger": the CMS's version, a newer one and its notes, an update's progress (CmsPage.tsx),
+//                    ("Promotion"), its own and the apps' (BlockParts.tsx), and developer/parts/values the
+//                    theme's design tokens, "Values" (Tokens.tsx)
+//   block-settings         the blocks that can be put in, "Block settings" (BlockSettings.tsx)
+//   morpheme         "Morpheme", under "Settings": the CMS's version, a newer one and its notes, an update's progress (CmsPage.tsx),
 //                    and morpheme/<line> an older minor line's notes, e.g. morpheme/0.13 (VersionLinePage.tsx)
-//   licenses         "Licenser", under "Indstillinger": the licences of what the site and the editor are made with, and
+//   licenses         "Licenses", under "Settings": the licences of what the site and the editor are made with, and
 //                    licenses/<id> one with its text (Licenses.tsx)
 //   status           "System status", from the footer: GitHub's and Cloudflare's status (ServiceStatus.tsx)
 //   apps             the apps that come with the site, apps/<app> one with its button to install it and, while it
@@ -250,7 +250,7 @@ export type Env = {
   reorder: (collection: Collection, files: RepoFile[]) => Promise<string>;
 };
 
-// The uploaded pictures only by their paths (no text), for "Filer" (Media.tsx).
+// The uploaded pictures only by their paths (no text), for "Files" (Media.tsx).
 const FOLDERS = config.folders;
 const FOLDERS_KEY = JSON.stringify(FOLDERS);
 
@@ -335,7 +335,7 @@ function Editor() {
   useEffect(registerWorker, []);
   useEffect(startRipples, []);
   // Signed up for the notifications on the phone from the site's Worker, also when the editor is closed, while
-  // "På telefonen" is on (notificationData.ts).
+  // "On the phone" is on (notificationData.ts).
   useEffect(() => {
     if (signedIn) syncDevice();
   }, [signedIn]);
@@ -460,12 +460,12 @@ function Editor() {
   const listRows = useMemo(() => listRowsOf(files ?? []), [files]);
   const testimonials = useMemo(() => testimonialsOf(files ?? []), [files]);
 
-  // The site's colours as loaded and saved ("Farver"), also before the site is built again with them.
+  // The site's colours as loaded and saved ("Colors"), also before the site is built again with them.
   const colorsFile = files?.find((f) => f.path === config.colors)?.text;
   useEffect(() => {
     if (colorsFile !== undefined) applyColors(colorsOf(files!));
   }, [colorsFile]);
-  // How the site moves ("Bevægelse") as loaded and saved, also before the site is built again with it.
+  // How the site moves ("Motion") as loaded and saved, also before the site is built again with it.
   const motionFile = files?.find((f) => f.path === config.motion)?.text;
   useEffect(() => {
     if (files) applyMotion(motionOf(files));
@@ -632,7 +632,7 @@ function Editor() {
   }, [signedIn, loaded]);
 
   // What the installed apps have to say (AppNotifications in apps.ts): asked when the editor opens and every 15 minutes
-  // while it is open; each comes once, at the bottom and under "Notifikationer", while its type is on (notificationData.ts).
+  // while it is open; each comes once, at the bottom and under "Notifications", while its type is on (notificationData.ts).
   const notifying = activeApps(files ?? [])
     .filter((id) => apps.some((a) => a.id === id && a.notifications))
     .join();
@@ -661,7 +661,7 @@ function Editor() {
   }, [signedIn, notifying]);
 
   // The CMS's own update from npm (worker/cms-update.js): asked when the editor opens and every 15 minutes; its outcome
-  // comes once under "Notifikationer"; the Worker already sent it to the phone.
+  // comes once under "Notifications"; the Worker already sent it to the phone.
   useEffect(() => {
     if (!signedIn) return;
     const ask = () =>
@@ -726,7 +726,7 @@ function Editor() {
   );
 }
 
-/** The part whose form is at an address (CompanyForm.tsx): one of "Virksomheden"'s (or of its parts', with the settings of the apps of their kinds), "Søgemaskineoptimering"'s, "Udseende"'s, or one on a screen of parts with
+/** The part whose form is at an address (CompanyForm.tsx): one of "Business"'s (or of its parts', with the settings of the apps of their kinds), "Search engine optimization"'s, "Appearance"'s, or one on a screen of parts with
  * the settings of the apps of its kinds ("Analytics"). */
 function partAt(route: string, files: RepoFile[]): Part | null {
   // company/<part>, or company/<part>/<its part> (Part.parts).
@@ -816,7 +816,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (shownApp || /^apps\/[^/]+$/.test(route)) {
     return <StoreAppPage key={route} id={route.split('/')[1]} env={env} files={files} />;
   }
-  // A screen of an app's own under its page, while it is installed (Cookiescanner's "Blokeret adresse").
+  // A screen of an app's own under its page, while it is installed (Cookiescanner's "Blocked address").
   const [, screenApp, screenId, ...deeper] = route.split('/');
   const ownScreen =
     route.startsWith('apps/') && !deeper.length && apps.find((a) => a.id === screenApp && screenId && a.screens?.[screenId]);

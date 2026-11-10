@@ -1,4 +1,4 @@
-// What "Trin" shows (its view, drawn by the theme's View.tsx and StepList.tsx): its heading, and each step's heading
+// What "Steps" shows (its view, drawn by the theme's View.tsx and StepList.tsx): its heading, and each step's heading
 // and text. The same in the editor (viewOf) and on the site (load.ts): only its fields.
 import type { ViewOf } from '../view';
 import { headOf, type HeadView } from '../head';
