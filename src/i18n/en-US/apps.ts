@@ -60,6 +60,10 @@ export const apps = {
   isUpdatedSoon: (app: string, version: string) => `${app} is updated to ${version}. The website uses it in a few minutes.`,
   /** Asked before uninstalling. */
   askUninstall: (app: string) => `Uninstall ${app}? What the app adds disappears from the editor.`,
+  /** Asked before activating an app of a type that allows one active app, while another of that type is active. */
+  oneOfType: (type: string, app: string, others: string) =>
+    `Only one ${type} app can be active. Activating ${app} deactivates ${others}. Its settings and data stay, and you can activate it again.`,
+  activate: 'Activate',
   /** The name of the switch in the row of one of its blocks (or kinds of a list), read by screen readers. */
   activeOf: (block: string) => `Enabled: ${block}`,
   /** Under "Afinstaller". */
