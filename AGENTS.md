@@ -45,6 +45,7 @@ Our ecosystem has two completely separate repositories, which must **never** be 
   - `pages/`: Astro pages and routing for the admin interface.
 - **`lib/`**: Shared helper functions used by both the editor and the site (block parsing `blocks.mjs`, image cropping `crop.mjs`, status, dates, video handling etc.).
   - The app sandbox (contract 4): `appHooks.mjs` (the hook places, `APP_HOOKS`), `appManifest.mjs` (reads and checks `app.json`), `appProblems.mjs` (the build's app problems, `dist/_apps/_problems.json`).
+  - `worker/app-problems.js`: `GET /api/apps/problems`, the build's app problems for the editor.
   - `lib/sandbox/`: `bundle.mjs` (bundles an app's build entry with esbuild and an import allow-list; test apps in `fixtures/`).
 - **`worker/`**: The site's default Cloudflare Worker (login/session, GitHub commit proxy, R2 backup, redirects and scheduled tasks).
 - **`bin/`**: The `morpheme` CLI tool for image processing, build hooks and validation.

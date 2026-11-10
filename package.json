@@ -48,7 +48,7 @@
     "check:screens": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:screens",
     "check:demo": "node bin/morpheme.mjs check:demo",
     "check:starter": "node scripts/check-starter.mjs",
-    "test": "node --test \"{lib,scripts,site,src,theme}/**/*.test.mjs\"",
+    "test": "node --test \"{lib,scripts,site,src,theme,worker}/**/*.test.mjs\"",
     "icons": "node scripts/icon-packs.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
