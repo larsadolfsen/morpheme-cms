@@ -36,7 +36,7 @@ import { folderChanges } from '../lib/folderChanges.mjs';
 export { APP_API, THEME_API };
 
 /** The kinds of apps, a filter in the store (t.apps.categories). */
-export const appCategories = ['booking', 'newsletter', 'payment', 'analytics', 'content', 'design'] as const;
+export const appCategories = ['booking', 'newsletter', 'payment', 'analytics', 'content', 'design', 'redirects', 'links'] as const;
 export type AppCategory = (typeof appCategories)[number];
 
 /** A file of an app in the store: its path in the app's folder and its git blob id. */

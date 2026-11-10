@@ -111,6 +111,8 @@ export const apps = {
     analytics: 'Analytics',
     content: 'Content',
     design: 'Appearance',
+    redirects: 'Redirects',
+    links: 'Links',
   },
   /** An app's version, under its name on its page. */
   version: (version: string) => `Version ${version}`,
