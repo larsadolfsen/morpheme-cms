@@ -35,7 +35,7 @@ One `app.json` sits in each app folder.
 | `keywords` | string[] | no | Words that help find the app. |
 | `version` | semver string | yes | The app's version, such as `"1.0.0"`. |
 | `releaseNotes` | `Record<version, string>` | no | The release notes per version. |
-| `screenshots` | `{ file, label }[]` | no | Screenshots of the app. |
+| `screenshots` | `{ shows, label, values? }[]` | no | Screenshots of the app; `shows` is a keyword, see "Screenshot keywords". |
 | `settings` | `{ fields, values, example? }` | no | The settings fields and their values. |
 | `lists` | `OwnedList[]` | no | The lists the app owns. |
 | `kinds` | `Record<list, AppKind>` | no | The kinds of the lists, without `draw`. |
@@ -56,6 +56,26 @@ Rules:
 
 - `editor.ts` holds the app's code for the editor. It has full access.
 - `texts.json` holds the app's texts in the other languages, under the keys of today's `texts.ts`.
+
+### Screenshot keywords
+
+Each entry of `screenshots` in an app's `index.ts` says what the picture shows with `shows`:
+
+| Keyword | Shows | Picture file |
+| :--- | :--- | :--- |
+| `block:<type>` | one of the app's blocks | `<n>-block-<type>.jpg` |
+| `kind:<list>:<n>` | variant `<n>` of the kind of one of its lists (`0` without variants) | `<n>-kind-<list>-<n>.jpg` |
+| `list:<id>` | one of its lists | `<n>-list-<id>.jpg` |
+| `settings` | its settings, with made-up `values` | `<n>-settings.jpg` |
+| `page` | its own page | `<n>-page.jpg` |
+
+The file `<n>` is the entry's place in the list, from 1. An unknown keyword is a build problem.
+
+The old keywords `blok:<type>`, `slags:<list>:<n>`, `liste:<id>`, `indstillinger` and `side` still work for one release <!-- language-ok: the deprecated words -->
+(`DEPRECATED_SHOT_WORDS` in `lib/appShots.mjs`): they give the same picture as the new ones. A picture is found under
+its new file name and, until the app's pictures are taken again with `npx morpheme app-screenshots`, under the old one
+(`1-blok-<type>.jpg`). Change the keywords in the app, take the pictures again and delete the old files. The old <!-- language-ok: the deprecated words -->
+keywords and file names are removed in the release after the apps are changed.
 
 ### Places
 
