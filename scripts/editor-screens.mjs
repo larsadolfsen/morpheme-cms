@@ -24,6 +24,8 @@ import { openEditor, serveBuilt } from './built-site.mjs';
 const { apps: da } = await import('../src/i18n/da-DK/apps.ts');
 const { app: daApp } = await import('../src/i18n/da-DK/app.ts');
 const { cms: daCms } = await import('../src/i18n/da-DK/cms.ts');
+const { dashboard: daDashboard } = await import('../src/i18n/da-DK/dashboard.ts');
+const { library: daLibrary } = await import('../src/i18n/da-DK/library.ts');
 
 const ROOT = `${process.cwd()}/`;
 const DIST = resolve(ROOT, process.argv[2] ?? 'dist');
@@ -170,6 +172,98 @@ async function checkSettingsAndMenu(width, height) {
   await page.close();
 }
 
+/** The start screen's edit mode: the top bar's "Edit dashboard" becomes "Done"; each card has its drag handle and its menu
+ * (Move up and Move down, disabled on the only card; no Settings for a widget without settings; Remove); a removed card
+ * is gone; Done saves once (PUT /api/dashboard) and leaves edit mode; and a save that fails (a Worker without storage)
+ * keeps edit mode and the draft, with the error as an alert. Only cms:continue exists as a widget so far, so the default
+ * dashboard shows one card. */
+async function checkDashboardEdit(width, height) {
+  const label = `${width}px dashboard`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  const dashboard = { saved: [], fail: null };
+  await openEditor(page, site, {}, 'button', dashboard);
+  await page.evaluate(() => (location.hash = ''));
+  const widget = daLibrary.continueWidgetLabel;
+  const edit = page.getByRole('button', { name: daDashboard.edit, exact: true });
+  const done = page.getByRole('button', { name: daDashboard.done, exact: true });
+  const cards = page.locator('[data-card]');
+  const menuButton = page.getByRole('button', { name: daDashboard.cardMenu(widget), exact: true });
+  const shown = (locator, name, wanted = true) =>
+    locator
+      .first()
+      .waitFor({ state: wanted ? 'visible' : 'hidden', timeout: 5000 })
+      .catch(() => problems.push(`${label}: ${name} ${wanted ? 'is missing' : 'is still shown'}`));
+
+  await shown(edit, `the button "${daDashboard.edit}"`);
+  if (await done.count()) problems.push(`${label}: "${daDashboard.done}" is shown before the edit mode`);
+  await edit.click();
+  await shown(done, `the button "${daDashboard.done}"`);
+  if (await edit.count()) problems.push(`${label}: "${daDashboard.edit}" is still shown in the edit mode`);
+  await shown(cards, 'a card in its frame');
+  const count = await cards.count();
+  if (count !== 1) problems.push(`${label}: ${count} cards in the edit mode instead of 1`);
+  for (const [name, button] of [
+    ['the menu button', menuButton],
+    ['the drag handle', page.getByRole('button', { name: daDashboard.dragCard(widget), exact: true })],
+  ])
+    if ((await button.count()) !== count) problems.push(`${label}: ${name} is not on every card`);
+  await page.screenshot({ path: join(shots, `edit-mode-${width}.png`) });
+
+  // The menu: Move up and Move down (disabled on the only card), no Settings, Remove.
+  await menuButton.first().click();
+  const item = (name) => page.getByRole('menuitem', { name, exact: true });
+  await shown(item(daDashboard.remove), `"${daDashboard.remove}" in the card's menu`);
+  for (const name of [daDashboard.moveUp, daDashboard.moveDown]) {
+    if (!(await item(name).count())) problems.push(`${label}: "${name}" is missing in the card's menu`);
+    else if (!(await item(name).first().isDisabled())) problems.push(`${label}: "${name}" is not disabled on the only card`);
+  }
+  if (await item(daDashboard.settings).count()) problems.push(`${label}: "${daDashboard.settings}" is shown for a widget without settings`);
+  if ((await menuButton.first().getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: the menu button has no aria-haspopup`);
+  await page.screenshot({ path: join(shots, `edit-mode-menu-${width}.png`) });
+
+  // Remove, then Done: one PUT, a valid dashboard without the card, and the edit mode is left.
+  await item(daDashboard.remove).click();
+  await shown(cards, 'the removed card', false);
+  await done.click();
+  await shown(edit, `the button "${daDashboard.edit}" after Done`);
+  if (await done.count()) problems.push(`${label}: "${daDashboard.done}" is still shown after a saved dashboard`);
+  if (dashboard.saved.length !== 1) problems.push(`${label}: ${dashboard.saved.length} saves after Done instead of 1`);
+  else {
+    const { version, widgets } = dashboard.saved[0];
+    if (version !== 1 || !Array.isArray(widgets)) problems.push(`${label}: the saved dashboard is not valid`);
+    else if (widgets.some((p) => p.widget === 'cms:continue'))
+      problems.push(`${label}: the removed widget is in the saved dashboard (${widgets.map((p) => p.widget).join(', ')})`);
+  }
+
+  // A save that fails: the alert, the edit mode and the draft stay.
+  dashboard.saved.length = 0;
+  await page.reload();
+  await page.waitForFunction(() => document.querySelectorAll('a[href^="#"]').length > 3, null, { timeout: 60_000 });
+  await page.evaluate(() => (location.hash = ''));
+  dashboard.fail = 'no-storage';
+  await shown(edit, `the button "${daDashboard.edit}" (second visit)`);
+  await edit.click();
+  await shown(done, `the button "${daDashboard.done}" (second visit)`);
+  const present = await cards.count();
+  if (!present) problems.push(`${label}: no card on the second visit`);
+  else {
+    await menuButton.first().click();
+    await item(daDashboard.remove).click();
+    await shown(cards, 'the removed card (second visit)', false);
+  }
+  await done.click();
+  const alert = page.getByRole('alert').filter({ hasText: daDashboard.notSavedNoStorage });
+  await shown(alert, `the alert "${daDashboard.notSavedNoStorage}"`);
+  if (!(await done.isVisible()) || !(await done.isEnabled()))
+    problems.push(`${label}: "${daDashboard.done}" is gone or disabled after a failed save`);
+  if (await edit.count()) problems.push(`${label}: the edit mode was left after a failed save`);
+  if (present && (await cards.count())) problems.push(`${label}: the draft was lost after a failed save`);
+  if (dashboard.saved.length) problems.push(`${label}: a failed save was recorded as saved`);
+  await page.screenshot({ path: join(shots, `edit-mode-failed-${width}.png`) });
+  await page.close();
+}
+
 // The cog is the last of `items` (shown, from the top) and at the bottom of the screen.
 function checkCog(label, where, items, height) {
   const cog = items.find((i) => i.href === '#settings');
@@ -227,6 +321,7 @@ for (const [width, height] of [
   }
   await page.close();
   await checkSettingsAndMenu(width, height);
+  await checkDashboardEdit(width, height);
 }
 
 // "Appstore" and "Morpheme" in the three states of the site's key to the store (STORE_STATES): what each shows, and a picture of it in

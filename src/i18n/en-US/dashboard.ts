@@ -1,6 +1,20 @@
-// The widgets on the start screen (DashboardGrid.tsx).
+// The widgets on the start screen (DashboardGrid.tsx) and their edit mode (DashboardEdit.tsx).
 export const dashboard = {
   loading: 'Loading the dashboard…',
   notLoaded: 'Couldn’t load the dashboard.',
   tryAgain: 'Try again',
+  edit: 'Edit dashboard',
+  done: 'Done',
+  dragCard: (widget: string) => `Drag ${widget} to reorder`,
+  cardMenu: (widget: string) => `Actions for ${widget}`,
+  moveUp: 'Move up',
+  moveDown: 'Move down',
+  settings: 'Settings',
+  remove: 'Remove',
+  moved: (position: number, total: number) => `Moved to position ${position} of ${total}`,
+  notSaved: 'Couldn’t save the dashboard.',
+  notSavedNoStorage: 'This site can’t save dashboards yet.',
+  notSavedInvalid: 'The layout isn’t valid. Remove the last change and try again.',
+  notSavedTooBig: 'The dashboard is too big. Remove a widget and try again.',
+  notSavedFailed: 'Check your connection, then select Done to try again.',
 };

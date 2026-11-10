@@ -37,6 +37,7 @@ import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
 import { StartStatus } from './StartStatus';
 import { Dashboard } from './DashboardGrid';
+import { DashboardAction, useDashboard } from './DashboardEdit';
 import { StartDataContext } from './startData';
 import { UpdatesNotice } from './UpdatesNotice';
 import { loadSavedTimes, saved } from './savedTimes';
@@ -185,19 +186,22 @@ function PartRow({ id, label, href, count }: { id: string } & ReturnType<typeof 
 // The start screen: the site's name, the CMS version and when the site was last updated (built on Cloudflare, App.tsx), as StartStatus.tsx shows them, under it, and the FAB
 // menu for a new page or post (StartFab.tsx); each list has its own FAB for a new entry (ListFab.tsx). The parts of the site are in the main drawer (MainMenu.tsx); the rest is left empty for now.
 export function Start({ builtAt, files, env }: { builtAt: Date | null; files: RepoFile[]; env: Env }) {
+  // The dashboard's edit state is here: the Screen's top bar has its action ("Edit dashboard", while editing "Done").
+  const dash = useDashboard(files);
   return (
     <Screen
       title={siteName}
       wide
       status={<StartStatus builtAt={builtAt} />}
+      actions={<DashboardAction dash={dash} />}
       // The link to the website in the top bar (Screen.tsx).
       home
     >
       <UpdatesNotice files={files} />
       <StartDataContext.Provider value={{ files, savedAt: env.savedAt }}>
-        <Dashboard files={files} env={env} />
+        <Dashboard dash={dash} env={env} />
       </StartDataContext.Provider>
-      <StartFab />
+      {!dash.editing && <StartFab />}
     </Screen>
   );
 }
