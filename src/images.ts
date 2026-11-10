@@ -3,13 +3,14 @@
 // makes the smaller sizes when the site is built. They go in public/images/uploads/<year>/<month>/
 // like imported pictures, and are saved in the same commit as the page that uses them (on
 // their own from Filer, Media.tsx). PDFs, videos and zip files, from Filer, are saved as they are, in
-// public/filer/ (prepareFile).
+// the site's files folder (prepareFile).
 import { useState } from 'react';
 import { slugify } from './schema';
 import { sourceColorsOf } from '../lib/dynamic-colors';
 import { config } from '@site/config';
 import type { Status } from './FormFrame';
 import { t } from './i18n';
+import { settings } from '../site/settings';
 
 const MAX = 2000;
 
@@ -113,12 +114,12 @@ export async function prepareImage(file: File): Promise<Upload> {
 /** The most a PDF, a video or a zip file may weigh, in MB: it goes to GitHub in one request with the commit. */
 export const FILE_MAX_MB = 10;
 
-/** A PDF, a video or a zip file as it is, in the site's folder of files (`config.folders.files`, /filer/ on
+/** A PDF, a video or a zip file as it is, in the site's folder of files (`settings.filesFolder`, /files/ on
  * the site), named by its own name as an address ("Stress guide.pdf" as stress-guide.pdf, the ending in
  * small letters), with -2, -3 … when the name is taken (`taken`: the paths there are). */
 export async function prepareFile(file: File, taken: string[]): Promise<Upload> {
   if (file.size > FILE_MAX_MB * 1024 * 1024) throw new Error(t.media.tooBig(FILE_MAX_MB));
-  const folder = config.folders.files;
+  const folder = settings.filesFolder;
   const stem = slugify(file.name.replace(/\.[^.]*$/, '')) || 'file';
   const ending = pickedEnding(file);
   let path = `${folder}/${stem}.${ending}`;

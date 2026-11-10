@@ -126,7 +126,7 @@ function csv(entries) {
   return new Response(`${lines.join('\r\n')}\r\n`, {
     headers: {
       'content-type': 'text/csv; charset=utf-8',
-      'content-disposition': `attachment; filename="samtykker-${new Date().toISOString().slice(0, 10)}.csv"`,
+      'content-disposition': `attachment; filename="consents-${new Date().toISOString().slice(0, 10)}.csv"`,
       'cache-control': 'no-store',
     },
   });

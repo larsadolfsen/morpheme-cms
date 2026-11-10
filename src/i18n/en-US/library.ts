@@ -16,6 +16,36 @@ export const library = {
   continueWidgetHint: 'Shows the pages and posts you edited last.',
   /** In that card before anything is saved. */
   continueEmpty: 'The pages and posts you edit show up here.',
+  /** On the start screen (widgets/unfinished.tsx): the card with the drafts, hidden and scheduled pages and posts. */
+  unfinishedTitle: 'Unfinished',
+  /** In the list "Add widget" and on the card in edit mode. */
+  unfinishedWidgetLabel: 'Unfinished',
+  unfinishedWidgetHint: 'Lists the drafts, hidden and scheduled pages and posts.',
+  /** In the card, in edit mode, when no page or post is unfinished. */
+  unfinishedEmpty: 'Nothing is unfinished',
+  /** On the start screen (widgets/blogRhythm.tsx): a reminder to write a blog post, shown when the next one is due. */
+  blogRhythmWidgetLabel: 'Blog rhythm',
+  blogRhythmWidgetHint: 'Reminds you to write a new blog post.',
+  /** The widget's setting: how often a post is due, and its choices. */
+  blogRhythmEvery: 'Post every',
+  blogRhythmEveryWeek: 'Week',
+  blogRhythmEveryTwoWeeks: 'Two weeks',
+  blogRhythmEveryMonth: 'Month',
+  /** "Your last post was 1 week ago", "Your last post was 3 weeks ago". */
+  blogRhythmLast: (weeks: number) => (weeks === 1 ? 'Your last post was 1 week ago' : `Your last post was ${weeks} weeks ago`),
+  blogRhythmNone: 'You haven’t published a post yet',
+  blogRhythmWriteNew: 'Write a new post',
+  blogRhythmWriteFirst: 'Write your first post',
+  /** In edit mode, when no post is due yet: "Your next post is due Dec 1, 2026". */
+  blogRhythmNext: (date: string) => `Your next post is due ${date}`,
+  /** On the start screen (widgets/status.tsx): the card with when the site was last published and the CMS version. */
+  statusTitle: 'Site status',
+  statusWidgetLabel: 'Site status',
+  statusWidgetHint: 'Shows when the site was last published and the version of Morpheme.',
+  /** "Last published today at 1:42 PM". */
+  lastPublished: (when: string) => `Last published ${when}`,
+  /** When the time of the last build is not known. */
+  publishUnknown: 'Publish time unknown',
   /** Under each of them: its kind ("Page") and when it was saved ("today at 1:42 PM", when.ts). */
   recentEdit: (kind: string, when: string) => `${kind} · Edited ${when}`,
   /** At the top of the start screen (UpdatesNotice.tsx): the card with what was updated since the last visit in this

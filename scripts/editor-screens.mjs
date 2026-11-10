@@ -25,6 +25,7 @@ const { apps: da } = await import('../src/i18n/da-DK/apps.ts');
 const { app: daApp } = await import('../src/i18n/da-DK/app.ts');
 const { cms: daCms } = await import('../src/i18n/da-DK/cms.ts');
 const { dashboard: daDashboard } = await import('../src/i18n/da-DK/dashboard.ts');
+const { common: daCommon } = await import('../src/i18n/da-DK/common.ts');
 const { library: daLibrary } = await import('../src/i18n/da-DK/library.ts');
 
 const ROOT = `${process.cwd()}/`;
@@ -173,10 +174,10 @@ async function checkSettingsAndMenu(width, height) {
 }
 
 /** The start screen's edit mode: the top bar's "Edit dashboard" becomes "Done"; each card has its drag handle and its menu
- * (Move up and Move down, disabled on the only card; no Settings for a widget without settings; Remove); a removed card
+ * (Move up and Move down, Move up disabled on the first card; no Settings for a widget without settings; Remove); a removed card
  * is gone; Done saves once (PUT /api/dashboard) and leaves edit mode; and a save that fails (a Worker without storage)
- * keeps edit mode and the draft, with the error as an alert. Only cms:continue exists as a widget so far, so the default
- * dashboard shows one card. */
+ * keeps edit mode and the draft, with the error as an alert. The default dashboard has the four CMS widgets; in edit mode
+ * all four are drawn (the ones that hide when they have nothing to say render then), so there are four cards. */
 async function checkDashboardEdit(width, height) {
   const label = `${width}px dashboard`;
   const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
@@ -196,27 +197,36 @@ async function checkDashboardEdit(width, height) {
       .catch(() => problems.push(`${label}: ${name} ${wanted ? 'is missing' : 'is still shown'}`));
 
   await shown(edit, `the button "${daDashboard.edit}"`);
+  // Not editing: the widgets that have something to say (Site status always does).
+  await shown(page.getByRole('heading', { name: daLibrary.statusTitle, exact: true }), `the card "${daLibrary.statusTitle}"`);
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: join(shots, `dashboard-${width}.png`) });
   if (await done.count()) problems.push(`${label}: "${daDashboard.done}" is shown before the edit mode`);
   await edit.click();
   await shown(done, `the button "${daDashboard.done}"`);
   if (await edit.count()) problems.push(`${label}: "${daDashboard.edit}" is still shown in the edit mode`);
   await shown(cards, 'a card in its frame');
   const count = await cards.count();
-  if (count !== 1) problems.push(`${label}: ${count} cards in the edit mode instead of 1`);
+  if (count !== 4) problems.push(`${label}: ${count} cards in the edit mode instead of 4`);
   for (const [name, button] of [
     ['the menu button', menuButton],
     ['the drag handle', page.getByRole('button', { name: daDashboard.dragCard(widget), exact: true })],
   ])
-    if ((await button.count()) !== count) problems.push(`${label}: ${name} is not on every card`);
+    if ((await button.count()) !== 1) problems.push(`${label}: ${name} is not on the Continue card`);
+  for (const key of ['unfinishedWidgetLabel', 'blogRhythmWidgetLabel', 'statusWidgetLabel'])
+    if ((await page.getByRole('group', { name: daLibrary[key], exact: true }).count()) !== 1)
+      problems.push(`${label}: no card named "${daLibrary[key]}" in the edit mode`);
+  await page.waitForTimeout(600);
   await page.screenshot({ path: join(shots, `edit-mode-${width}.png`) });
 
-  // The menu: Move up and Move down (disabled on the only card), no Settings, Remove.
+  // The menu of the first card (Continue): Move up (disabled on the first card), Move down, no Settings, Remove.
   await menuButton.first().click();
   const item = (name) => page.getByRole('menuitem', { name, exact: true });
   await shown(item(daDashboard.remove), `"${daDashboard.remove}" in the card's menu`);
   for (const name of [daDashboard.moveUp, daDashboard.moveDown]) {
     if (!(await item(name).count())) problems.push(`${label}: "${name}" is missing in the card's menu`);
-    else if (!(await item(name).first().isDisabled())) problems.push(`${label}: "${name}" is not disabled on the only card`);
+    else if ((await item(name).first().isDisabled()) !== (name === daDashboard.moveUp))
+      problems.push(`${label}: "${name}" is ${name === daDashboard.moveUp ? 'not disabled' : 'disabled'} on the first of four cards`);
   }
   if (await item(daDashboard.settings).count()) problems.push(`${label}: "${daDashboard.settings}" is shown for a widget without settings`);
   if ((await menuButton.first().getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: the menu button has no aria-haspopup`);
@@ -224,7 +234,10 @@ async function checkDashboardEdit(width, height) {
 
   // Remove, then Done: one PUT, a valid dashboard without the card, and the edit mode is left.
   await item(daDashboard.remove).click();
-  await shown(cards, 'the removed card', false);
+  await cards
+    .nth(3)
+    .waitFor({ state: 'detached', timeout: 5000 })
+    .catch(() => problems.push(`${label}: the removed card is still shown`));
   await done.click();
   await shown(edit, `the button "${daDashboard.edit}" after Done`);
   if (await done.count()) problems.push(`${label}: "${daDashboard.done}" is still shown after a saved dashboard`);
@@ -250,7 +263,10 @@ async function checkDashboardEdit(width, height) {
   else {
     await menuButton.first().click();
     await item(daDashboard.remove).click();
-    await shown(cards, 'the removed card (second visit)', false);
+    await cards
+      .nth(present - 1)
+      .waitFor({ state: 'detached', timeout: 5000 })
+      .catch(() => problems.push(`${label}: the removed card (second visit) is still shown`));
   }
   await done.click();
   const alert = page.getByRole('alert').filter({ hasText: daDashboard.notSavedNoStorage });
@@ -258,12 +274,12 @@ async function checkDashboardEdit(width, height) {
   if (!(await done.isVisible()) || !(await done.isEnabled()))
     problems.push(`${label}: "${daDashboard.done}" is gone or disabled after a failed save`);
   if (await edit.count()) problems.push(`${label}: the edit mode was left after a failed save`);
-  if (present && (await cards.count())) problems.push(`${label}: the draft was lost after a failed save`);
+  if (present && (await cards.count()) !== present - 1) problems.push(`${label}: the draft was lost after a failed save`);
   if (dashboard.saved.length) problems.push(`${label}: a failed save was recorded as saved`);
   await page.screenshot({ path: join(shots, `edit-mode-failed-${width}.png`) });
   await page.close();
 
-  // Add widget, on a fresh page (the default dashboard: the Continue card only). The sheet lists the Continue widget with its
+  // Add widget, on a fresh page (the default dashboard: the four CMS widgets). The sheet lists the Continue widget with its
   // hint; a tap on it closes the sheet and adds a second card; Done sends one PUT with two Continue placements, each with
   // its own id.
   const adding = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
@@ -284,6 +300,29 @@ async function checkDashboardEdit(width, height) {
     .first()
     .waitFor({ timeout: 5000 })
     .catch(() => problems.push(`${label}: the button "${daDashboard.addWidget}" is missing`));
+  // Blog rhythm's settings (the first CMS widget with settings): its menu has Settings, which opens the sheet with its
+  // field "Post every"; the sheet is closed with Cancel (nothing changes), opened again, "Week" is picked and saved. The
+  // draft keeps it, and Done below sends it with the placement.
+  const rhythm = daLibrary.blogRhythmWidgetLabel;
+  const rhythmSheet = adding.getByRole('dialog', { name: daDashboard.settingsOf(rhythm), exact: true });
+  const openRhythm = async () => {
+    await adding.getByRole('button', { name: daDashboard.cardMenu(rhythm), exact: true }).click();
+    await adding.getByRole('menuitem', { name: daDashboard.settings, exact: true }).click();
+    await rhythmSheet.waitFor({ state: 'visible', timeout: 5000 });
+  };
+  try {
+    await openRhythm();
+    await adding.waitForTimeout(600);
+    await adding.screenshot({ path: join(shots, `blog-rhythm-settings-${width}.png`) });
+    await rhythmSheet.getByRole('button', { name: daCommon.cancel, exact: true }).click();
+    await rhythmSheet.waitFor({ state: 'hidden', timeout: 5000 });
+    await openRhythm();
+    await rhythmSheet.getByText(daLibrary.blogRhythmEveryWeek, { exact: true }).first().click();
+    await rhythmSheet.getByRole('button', { name: daCommon.save, exact: true }).click();
+    await rhythmSheet.waitFor({ state: 'hidden', timeout: 5000 });
+  } catch (e) {
+    problems.push(`${label}: Blog rhythm's settings did not open and save through the sheet (${e.message.split('\n')[0]})`);
+  }
   await addButton.click();
   await sheet
     .waitFor({ state: 'visible', timeout: 5000 })
@@ -306,7 +345,7 @@ async function checkDashboardEdit(width, height) {
     problems.push(`${label}: ${await named.count()} cards named "${daLibrary.continueWidgetLabel}" instead of 2`);
   await adding.screenshot({ path: join(shots, `edit-mode-two-${width}.png`) });
 
-  // Done: one PUT, two Continue placements with different ids.
+  // Done: one PUT, two Continue placements with different ids, and Blog rhythm with the setting that was saved.
   await addDone.first().click();
   await adding
     .getByRole('button', { name: daDashboard.edit, exact: true })
@@ -319,6 +358,9 @@ async function checkDashboardEdit(width, height) {
     const ids = new Set(continues.map((p) => p.id));
     if (continues.length !== 2 || ids.size !== 2)
       problems.push(`${label}: the saved dashboard has ${continues.length} Continue placements with ${ids.size} ids instead of 2 and 2`);
+    const saved = (added.saved[0]?.widgets ?? []).find((p) => p.widget === 'cms:blog-rhythm');
+    if (saved?.settings?.every !== 'week')
+      problems.push(`${label}: Blog rhythm's saved settings are ${JSON.stringify(saved?.settings)} instead of {"every":"week"}`);
   }
   await adding.close();
 }

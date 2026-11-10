@@ -21,8 +21,10 @@
  * What a site can say of itself, else the standard: the owner's picture (beside a blog post, and shown when a page with
  * none of its own is shared), the booking page and the pages a booking ends on, the page about the owner, the block
  * drawn after every blog post, the word a page's title can end in, pictures that are the same though their names say
- * otherwise, the file of its redirects from old addresses, the logo in the structured data, and whether it posts the
- * CMS's releases on its blog.
+ * otherwise, the file of its redirects from old addresses, the logo in the structured data, whether it posts the
+ * CMS's releases on its blog, the folder of its files, the address of its testimonials page and the anchor of the
+ * directions on its contact page. A site that sets none of the last three and still has the old Danish names keeps them:
+ * they are found in its content when it is built (lib/siteSettings.mjs, `settings` in site/settings.ts).
  * @typedef {object} SiteChoices
  * @property {{ src: string; alt: string } | null} picture The owner's picture, or none.
  * @property {{ path: string; thanks: string[] }} booking The booking page, where "Book an appointment" goes when no booking sheet
@@ -42,9 +44,16 @@
  * @property {{ categories?: string[] } | null} releasePosts Whether each new version of the CMS on npm's `latest` gets a blog
  *   post on the site, minutes after it is released, with its release notes in the site's language (worker/release-post.js),
  *   tagged with `categories` (their ids). Morpheme's own site has it; null: no posts.
+ * @property {{ files: string }} folders The folders a site can set, in `folders` (the others are the same on every site):
+ *   `files`, the PDFs, videos and zip files shown with the pictures in "Files", "public/files" (at /files/<name> on the site).
+ * @property {string} testimonialsPath The address of the page that shows the testimonials, with a slash at both ends: "/testimonials/".
+ * @property {string} contactAnchor The anchor on the contact page that the footer's address links to (a heading "Directions"
+ *   is `directions`), without #: "directions".
+ * @property {string[]} pinned Which of `folders.files`, `testimonialsPath` and `contactAnchor` the site set itself (written by
+ *   defineSite, not by the site): a setting a site does not set is found in its content when it is built (lib/siteSettings.mjs).
  */
 
-/** @type {SiteChoices} */
+/** @type {Omit<SiteChoices, 'pinned'>} */
 const CHOICES = {
   picture: null,
   booking: { path: '', thanks: [] },
@@ -55,22 +64,22 @@ const CHOICES = {
   siteRedirects: { rules: 'public/_redirects', map: 'src/data/old-addresses.json' },
   logo: '/logo.svg',
   releasePosts: null,
+  folders: { files: 'public/files' },
+  testimonialsPath: '/testimonials/',
+  contactAnchor: 'directions',
 };
 
 /** The same on every site. */
 const STANDARD = {
   /** The Worker's settings: the editor turns R2 caching on and off in them (Settings › Developer › Caching and builds, src/r2Caching.ts). */
   wrangler: 'wrangler.jsonc',
-  /** The folders the editor loads: the blog posts, the pages, the data files, the pictures and the PDFs, videos and zip
-   * files (shown with the pictures in "Files", at /filer/<name> on the site). */
+  /** The folders the editor loads: the blog posts, the pages, the data files and the pictures. The folder of the PDFs, videos
+   * and zip files (`files`, shown with the pictures in "Files") is a setting of the site's own (CHOICES). */
   folders: {
     blog: 'src/content/blog',
     pages: 'src/content/pages',
     data: 'src/data',
     media: 'public/images/uploads',
-    // Site data, not wording: the folder and its address /filer/ keep these names on every site, whatever the editor's
-    // language (see the id table in docs/superpowers/specs/2026-11-04-english-source-design.md), so the name stays as it is.
-    files: 'public/filer',
   },
   /** The redirects the editor writes when a page or post moves (src/addresses.ts; worker/index.js reads it). */
   redirects: 'src/data/redirects.json',
@@ -104,8 +113,8 @@ const STANDARD = {
   colors: 'src/data/colors.json',
   /** The menu ("Main menu", its items under `items`), for "Show as menu" among the pages (src/Library.tsx). */
   menu: 'src/data/menu.json',
-  /** Addresses of the site that are not pages, which a new page or post cannot have. */
-  reserved: ['/editor/', '/admin/', '/oauth/', '/images/', '/filer/', '/ny/', '/404/'],
+  /** Addresses of the site that are not pages, which a new page or post cannot have (defineSite adds the files folder's own). */
+  reserved: ['/editor/', '/admin/', '/oauth/', '/images/', '/ny/', '/404/'],
   /** The lists the standard blocks use, by what they hold, and their ids (their addresses, #list/<id>): the
    * testimonials, the list the block "Testimonials" brings (src/standard/testimonials/list.ts), the tags, which a
    * testimonial's "Create a tag" makes a new one of, and the cookies, the list the block "Cookie list" brings. */
@@ -139,9 +148,20 @@ const STANDARD = {
 
 /** @typedef {SiteOwn & SiteChoices & typeof STANDARD} SiteConfig */
 
+/** The names of the settings a site can pin (SiteChoices.pinned). */
+const PINNABLE = ['folders.files', 'testimonialsPath', 'contactAnchor'];
+
 /**
- * A site's settings: what it says of itself (`own`), with the standard ones for the rest.
- * @param {SiteOwn & Partial<SiteChoices>} own
+ * A site's settings: what it says of itself (`own`), with the standard ones for the rest. `folders` is merged key by key, so
+ * `folders: { files: 'public/files' }` alone is valid. `pinned` lists the settings the site set itself.
+ * @param {SiteOwn & Partial<Omit<SiteChoices, 'folders' | 'pinned'>> & { folders?: Partial<SiteChoices['folders']> }} own
  * @returns {SiteConfig}
  */
-export const defineSite = (own) => ({ ...STANDARD, ...CHOICES, ...own });
+export const defineSite = (own) => {
+  const folders = { ...STANDARD.folders, ...CHOICES.folders, ...own.folders };
+  const pinned = PINNABLE.filter((name) => (name === 'folders.files' ? own.folders?.files : own[name]) !== undefined);
+  // The address the files folder has on the site, besides the old and the new standard one, which a page cannot have.
+  const files = `/${folders.files.replace(/^public\//, '')}/`;
+  const reserved = [...new Set([...STANDARD.reserved, files, '/filer/', '/files/'])]; // language-ok: the old files address is reserved too
+  return { ...STANDARD, ...CHOICES, ...own, folders, reserved, pinned };
+};

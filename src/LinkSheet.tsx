@@ -47,7 +47,7 @@ export function LinkAsk({ groups }: { groups: Group[] }) {
 
   const pages = useRef(groups);
   pages.current = groups;
-  // The page of an address, also with a part of it (/contact/#find-vej).
+  // The page of an address, also with a part of it (/contact/#directions).
   const pageOf = (href: string) => {
     const all = pages.current.flatMap((g) => g.options);
     return all.find((o) => o.value === href) ?? all.find((o) => o.value === href.replace(/#.*/, ''));

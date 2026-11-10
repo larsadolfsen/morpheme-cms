@@ -32,7 +32,7 @@ export const privacy: PartScreen = {
           type: 'boolean',
           toggle: ['On', 'Off'],
           hint: 'When the banner is off, there is no analytics or ads.',
-          edit: { to: 'src/content/pages/privatlivspolitik.md', text: 'Edit privacy policy' },
+          edit: { page: 'privacy', to: config.standardPages, text: 'Edit privacy policy' },
         },
         { name: 'heading', label: 'Heading', type: 'string', required: true },
         { name: 'text', label: 'Text', type: 'text', required: true },

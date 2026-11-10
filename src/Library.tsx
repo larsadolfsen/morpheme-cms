@@ -199,7 +199,7 @@ export function Start({ builtAt, files, env }: { builtAt: Date | null; files: Re
       home
     >
       <UpdatesNotice files={files} />
-      <StartDataContext.Provider value={{ files, savedAt: env.savedAt }}>
+      <StartDataContext.Provider value={{ files, savedAt: env.savedAt, builtAt }}>
         <Dashboard dash={dash} env={env} files={files} />
       </StartDataContext.Provider>
       {!dash.editing && <StartFab />}
@@ -988,7 +988,7 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
 
 // The pages as the menu on the site has them (src/data/menu.json, "Main menu"): each item of the menu, by
 // the name it has there, with the page it goes to and the items under it; then the pages that are
-// not in the menu, A–Z. A link to a part of a page (/contact/#find-vej) is that page; an item whose
+// not in the menu, A–Z. A link to a part of a page (/contact/#directions) is that page; an item whose
 // page is gone is shown without a link.
 type Branch = { key: string; item: Item; children: Branch[] };
 type MenuEntry = { label: string; href: string; children?: MenuEntry[] };

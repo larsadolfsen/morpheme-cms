@@ -5,7 +5,7 @@
 // reach the theme as @theme (themePlugin: the theme in use's file, else the standard theme's), and the site's own
 // parts (src/site/) as @site (aliases): for packages/editor/astro.mjs and packages/editor/scripts/check-content.mjs. Stops with what is
 // wrong, when the theme named is not installed or a folder in src/themes/ is a malformed store id (a store id is theme_ + 16 hex characters). Also the virtual modules with all Phosphor's icons (allIconsModule) and with the theme's coverage of Material's parts
-// (coverageModule, site/themeCoverageFiles.mjs).
+// (coverageModule, site/themeCoverageFiles.mjs) and with what the site's files tell the site settings (detectFacts).
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -19,6 +19,8 @@ import { templateProblems } from '@morphemecms/cms/lib/page-template.mjs';
 import { strayStoreId } from '@morphemecms/cms/lib/storeEntries.mjs';
 import { storeImportProblems } from './storeTheme.mjs';
 import { coverageModule } from './themeCoverageFiles.mjs';
+import { detectFacts } from '@morphemecms/cms/lib/siteFacts.mjs';
+import { reduceFacts } from '@morphemecms/cms/lib/siteSettings.mjs';
 
 /** The site's choice of icon pack, `{ "pack": "<id>" }` (config.icons in src/site/config.ts). */
 const ICONS_FILE = 'src/data/icons.json';
@@ -311,6 +313,8 @@ const fileIcon = (svg) => `export default ${JSON.stringify(themedSvg(svg))};`;
 export const ALL_ICONS = 'virtual:all-icons';
 /** The virtual module with the theme's coverage of Material's parts (coverageModule). */
 export const THEME_COVERAGE = 'virtual:theme-coverage';
+/** The virtual module with what the site's files tell the site settings (detectFacts, lib/siteFacts.mjs, reduced to what the settings read: reduceFacts; site/settings.ts). */
+export const SITE_FACTS = 'virtual:site-facts';
 
 /** The module code of all Phosphor's icons in `folder` (its `regular/` folder), by the keys `import.meta.glob` gave, the
  * theme's (`icons`, as themeIcons returns them) in place of Phosphor's own. The files are read one at a time: a glob
@@ -507,6 +511,7 @@ export function themePlugin() {
       if (source === PHOSPHOR_REACT) return own && importer !== REACT_ICONS ? REACT_ICONS : null;
       if (source === ALL_ICONS) return '\0' + ALL_ICONS;
       if (source === THEME_COVERAGE) return '\0' + THEME_COVERAGE;
+      if (source === SITE_FACTS) return '\0' + SITE_FACTS;
       if (source === MATERIAL_ALL) return MATERIAL_ALL_ID;
       if (source === MATERIAL_SSR) return MATERIAL_SSR_ID;
       const icon = source.match(PHOSPHOR_FILE)?.[1];
@@ -526,6 +531,7 @@ export function themePlugin() {
       if (id === MATERIAL_SSR_ID) return materialSsrModule(options?.ssr);
       if (id === REACT_ICONS) return reactIcons(icons);
       if (id === '\0' + THEME_COVERAGE) return coverageModule(activeTheme());
+      if (id === '\0' + SITE_FACTS) return `export default ${JSON.stringify(reduceFacts(detectFacts(process.cwd())))};`;
       if (id === '\0' + ALL_ICONS)
         return allIconsModule(fileURLToPath(new URL('node_modules/@phosphor-icons/core/assets/regular/', root)), icons);
       if (id.startsWith(FILE_ICON)) return fileIcon(icons[id.slice(FILE_ICON.length)]);

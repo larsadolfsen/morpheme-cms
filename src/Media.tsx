@@ -1,6 +1,6 @@
 // "Files" under "Content": the pictures uploaded to the site (public/images/uploads/<year>/<month>/,
-// imported or added in the editor, images.ts) and the PDFs, videos and zip files (public/filer/,
-// /filer/ on the site), newest first, with search, the order (newest, oldest, by name), a month or year,
+// imported or added in the editor, images.ts) and the PDFs, videos and zip files (the site's files folder, public/files/,
+// /files/ on the site), newest first, with search, the order (newest, oldest, by name), a month or year,
 // the type (Billeder, PDF'er, Videoer, Zip-filer) and whether a page uses them (Gallery). A file that is
 // not a picture is a square with its icon and name. Tapping one opens a sheet from the bottom with the
 // file (FileView.tsx), its file name and where it is used, each a link to that page or post, or
@@ -11,7 +11,7 @@
 // pictures (not the other files) are the gallery a picture is chosen from in the forms (useMediaPicker).
 // The buttons that run (add, rename, delete, upload new) show the loading indicator while they do.
 // The funnel in Filer also filters by a tag (fileTagFilter.mjs; only tags some file has).
-// The clock in the top bar, "Slettede filer", opens the files that were deleted (Deleted.tsx).
+// The clock in the top bar, "Deleted files", opens the files that were deleted (Deleted.tsx).
 import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { ArrowsDownUp, CalendarBlank, Check, ClockCounterClockwise, PencilSimple, Trash, UploadSimple, X } from '@phosphor-icons/react';
 import { moveRedirects, REDIRECTS } from './addresses';
@@ -53,11 +53,12 @@ import { deleteRecord, recordsIn, renameRecord } from './fileRecords.mjs';
 import { tagFilterOptions, tagIndex, withTag } from './fileTagFilter.mjs';
 import { kindAndName, savedText } from './deploy';
 import { locale, siteT, t } from './i18n';
+import { settings } from '../site/settings';
 
 export const MEDIA = config.folders.media;
 
-/** The folder of PDFs, videos and zip files (/filer/ on the site), when the site has one. */
-export const FILES: string | undefined = (config.folders as { files?: string }).files;
+/** The folder of PDFs, videos and zip files (/files/ on the site; the site's setting, found when it is built). */
+export const FILES: string = settings.filesFolder;
 
 /** The uploaded pictures among the files, newest first (by their folder, then name). */
 export const mediaOf = (files: RepoFile[]) =>

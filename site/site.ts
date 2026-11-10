@@ -11,6 +11,7 @@ import mobileMenu from '@data/mobile-menu.json';
 import blocks from '@data/blocks.json';
 import standardPages from '@data/standard-pages.json';
 import { config } from '@site/config';
+import { settings } from './settings';
 import { socialOf } from './social.mjs';
 import { headerOf, sortedNav } from './header.mjs';
 import { sharedTexts, type SharedTexts } from '@morphemecms/cms/src/shared';
@@ -56,6 +57,8 @@ export const site = {
   postEnd: config.postEnd,
   /** The page chosen as the contact page ("Settings" › "Appearance" › "Default pages", standard-pages.json). */
   contactPath: standardPages.contact,
+  /** The anchor on the contact page where the directions are (config.ts, found in the content when the site sets none). */
+  contactAnchor: settings.contactAnchor,
   /** The shared texts of "Book an appointment" (an app's booking block). */
   booking: { heading: booking.heading, text: booking.text },
   /** The labels of the buttons "Book an appointment" and "Call" (the number comes after). */

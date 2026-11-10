@@ -21,6 +21,8 @@ import { clean, problemAt } from './check';
 import { partValues } from './partValues.mjs';
 import { useWrongField, type FieldContext } from './fields';
 import type { Env } from './App';
+import { standardFileOf } from './standardFile.mjs';
+import { config } from '@site/config';
 import { lower, savedText } from './deploy';
 import { asWritten } from './site';
 import { keptBy } from '@site/editor';
@@ -56,6 +58,7 @@ export function usePartForm({ part, env, files }: Props) {
     lists: env.lists,
     testimonials: env.testimonials,
     site: env.site,
+    standardFile: (key) => standardFileOf(files, config.standardPages, config.folders.pages, key),
   };
 
   async function save() {

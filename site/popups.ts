@@ -32,7 +32,7 @@ type PopupData = {
   /** How far down the page, in % ("25" … "100"). */
   scroll?: string;
   /** Where its button goes: the booking sheet, the phone, a page (`href`), a PDF to download (`file`,
-   * /filer/<name>.pdf), or no button. */
+   * /files/<name>.pdf), or no button. */
   button?: 'booking' | 'phone' | 'page' | 'file' | 'none';
   /** The button's own text; empty, the target's or the page's name ("Download PDF" for a PDF). */
   label?: string;

@@ -7,14 +7,6 @@
 // List every current finding: node scripts/check-language.mjs --list-ids. Delete this file when the list is empty.
 // Skipped by the id and text rules itself (lib/danish.mjs isIdCheckSkipped): its entries are Danish on purpose.
 export const PENDING_IDS = [
-  // Row 4, batch A2: the CSV file name samtykker-<date>.csv (worker/consent.js).
-  'worker/consent.js:samtykker',
-  // Row 9, batch A2: the licence work id ikoner/<pack id> and its editor address.
-  'lib/licenses.mjs:ikoner',
-  'src/licenseData.ts:ikoner',
-  // Row 11, batch D: the Files folder public/filer and /filer/<name> (a site setting with an English default).
-  'site/defineSite.mjs:filer',
-  'src/Media.tsx:filer',
   // Row 12, batch C: the tag page /blog/kategori/<slug>/ (kategori in code, in the folder pages/blog/kategori/ and in links).
   'astro.mjs:kategori',
   'defaults/rules.ts:kategori',
@@ -37,24 +29,6 @@ export const PENDING_IDS = [
   'site/defineSite.mjs:ny',
   'site/noindex.mjs:ny',
   'src/Keywords.tsx:ny',
-  // Row 14, batch D: the testimonials page address /udtalelser/ (site/testimonials.ts).
-  'site/testimonials.ts:udtalelser',
-  // Row 15, batch D: the contact page anchor #find-vej (theme/components/Footer.astro).
-  'theme/components/Footer.astro:vej',
-  // Row 16, batch D: the privacy-policy file written in code (defaults/privacy.ts).
-  'defaults/privacy.ts:privatlivspolitik',
-  // Row 17, batch F: the screenshot keywords blok:, slags:, liste:, indstillinger (src/store.ts, scripts/app-screenshots.mjs, the message in src/i18n/en-US/apps.ts).
-  'scripts/app-screenshots.mjs:slags',
-  'scripts/app-screenshots.mjs:liste',
-  'scripts/app-screenshots.mjs:indstillinger',
-  'src/i18n/en-US/apps.ts:blok',
-  'src/i18n/en-US/apps.ts:slags',
-  'src/i18n/en-US/apps.ts:liste',
-  'src/i18n/en-US/apps.ts:indstillinger',
-  'src/store.ts:blok',
-  'src/store.ts:slags',
-  'src/store.ts:liste',
-  'src/store.ts:indstillinger',
   // No spec row, batch: whoever touches the file. Comments (and one theme.json text) that name an old Danish screen or word in quotes.
   'demo/src/site/colors.ts:indstillinger',
   'demo/src/site/colors.ts:farver',

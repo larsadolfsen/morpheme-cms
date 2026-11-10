@@ -94,6 +94,8 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   blokvalg: 'block-settings',
   avanceret: 'developer/caching',
   licenser: 'licenses',
+  // A licence page of an icon pack or set was `licenses/ikoner/<id>`.
+  'licenses/ikoner': 'licenses/icons',
   konto: 'account',
   notifikationer: 'notifications',
 });
