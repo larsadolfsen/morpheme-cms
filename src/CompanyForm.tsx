@@ -18,6 +18,7 @@ import { useFieldPages } from './useFieldPages';
 import { partChange } from './partChange';
 import type { Part } from './schema';
 import { clean, problemAt } from './check';
+import { partValues } from './partValues.mjs';
 import { useWrongField, type FieldContext } from './fields';
 import type { Env } from './App';
 import { lower, savedText } from './deploy';
@@ -43,9 +44,7 @@ export function usePartForm({ part, env, files }: Props) {
     return part.upgrade ? (part.upgrade(data) as Record<string, any>) : data;
   };
   const valuesOf = (text: string) => {
-    const data = dataOf(text);
-    const own = (at ? data[at] : data) ?? {};
-    return Object.fromEntries(fields.map((f) => [f.name, own[f.name] ?? part.defaults?.[f.name] ?? '']));
+    return partValues(dataOf(text), { at, names: fields.map((f) => f.name), defaults: part.defaults, upgradeValues: part.upgradeValues });
   };
   const [initial, setInitial] = useState(() => valuesOf(base.text));
   const [values, setValues] = useState(initial);

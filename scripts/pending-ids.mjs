@@ -12,11 +12,6 @@ export const PENDING_IDS = [
   // Row 9, batch A2: the licence work id ikoner/<pack id> and its editor address.
   'lib/licenses.mjs:ikoner',
   'src/licenseData.ts:ikoner',
-  // Row 10, batch A1: the {emne} placeholder of the Expandable list text.
-  'src/i18n/en-US/blocks.ts:emne',
-  'src/standard/accordion/index.tsx:emne',
-  'src/standard/accordion/shared.ts:emne',
-  'src/standard/accordion/view.ts:emne',
   // Row 11, batch D: the Files folder public/filer and /filer/<name> (a site setting with an English default).
   'site/defineSite.mjs:filer',
   'src/Media.tsx:filer',
