@@ -46,47 +46,6 @@ function declarations(set: ColorSet): string {
 /** The colour of the editor's page in a mode: Surface, as everywhere on the site (Material 3's page colour). */
 export const pageColor = (set: ColorSet): string => set.surface;
 
-/** The names a file of colours had before its colours were Material 3's colour roles, and the role each is now. `bg` is
- * Material's Surface (the page), and the cards' `surface` is Surface container lowest. `surface-default`, `tint` and
- * `accent-hover` are no colours of Material's: the first was Surface (see `bg`), the second Surface container high, and
- * the third is drawn as a state layer, so a file loses them. */
-const LEGACY_NAMES: Record<string, string | null> = {
-  bg: 'surface',
-  surface: 'surface-container-lowest',
-  'surface-default': null,
-  tint: null,
-  ink: 'on-surface',
-  muted: 'on-surface-variant',
-  line: 'outline-variant',
-  accent: 'primary',
-  'accent-hover': null,
-  'on-accent': 'on-primary',
-  'accent-container': 'primary-container',
-  'on-accent-container': 'on-primary-container',
-};
-
-const legacy = (set: ColorSet | undefined): boolean => !!set && Object.hasOwn(set, 'accent') && !Object.hasOwn(set, 'primary');
-
-/** A file of colours in Material 3's role names: one written with the old names (it has `accent`, not `primary`) has
- * each colour renamed, with the value it had, so the site looks as before. A file in the new names is returned as it is. */
-export function withMaterialNames(colors: Colors): Colors {
-  if (!MODES.some((mode) => legacy(colors[mode]))) return colors;
-  const renamed = (set: ColorSet | undefined): ColorSet => {
-    if (!set) return {} as ColorSet;
-    if (!legacy(set)) return set;
-    const out: ColorSet = {};
-    for (const [name, value] of Object.entries(set)) {
-      const to = Object.hasOwn(LEGACY_NAMES, name) ? LEGACY_NAMES[name] : name;
-      if (to === null) continue;
-      // The cards' colour only where the file has no Surface container lowest of its own.
-      if (name === 'surface' && Object.hasOwn(set, to)) continue;
-      out[to] = value;
-    }
-    return out;
-  };
-  return { ...colors, light: renamed(colors.light), dark: renamed(colors.dark) };
-}
-
 /** The colours as CSS for a <style> in the <head>: light mode on :root; dark mode when the phone or
  * computer is set to it (unless light is picked, data-theme="light" on <html>) and when dark is picked.
  * Throws on anything that is not a colour, so a broken file never reaches a page. */

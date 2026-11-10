@@ -35,7 +35,7 @@ import {
   hexFromArgb,
   sanitizeDegreesDouble,
 } from '@material/material-color-utilities';
-import { isColor, MODES, withMaterialNames, type ColorSet, type Colors, type Mode } from './colors';
+import { isColor, MODES, type ColorSet, type Colors, type Mode } from './colors';
 
 /** Material's scheme variants, in the order they are offered (the first is Material's default). */
 export const VARIANTS = [
@@ -232,9 +232,7 @@ export function dynamicColors(dynamic: Dynamic, roles: ColorRoles): Colors {
 // sRGB, as the theme's CSS mixed them): Material's three surfaces the page's, the dim one a step towards the text in
 // light mode and the bright one a step towards it in dark mode (where the page is the darkest), the surface containers a step each towards the text from the surfaces,
 // the lowest the surfaces, the outline between the quiet text and the surfaces, the inverse
-// colours the text's on the page's with the light colour for its buttons, the error colours the primary colours, the
-// fixed colours the containers (Material's are the same in both modes; these follow the mode they are made in), and the
-// scrim and the shadow black.
+// colours the text's on the page's with the light colour for its buttons and the error colours the primary colours.
 const MIXED: Record<string, (set: ColorSet, mode: Mode) => string | undefined> = {
   'surface-dim': (c, mode) => (mode === 'light' ? mix(c['on-surface'], 0.12, c.surface) : c.surface),
   'surface-bright': (c, mode) => (mode === 'dark' ? mix(c['on-surface'], 0.15, c.surface) : c.surface),
@@ -251,16 +249,6 @@ const MIXED: Record<string, (set: ColorSet, mode: Mode) => string | undefined> =
   'on-error': (c) => c['on-primary'],
   'error-container': (c) => c['primary-container'],
   'on-error-container': (c) => c['on-primary-container'],
-  scrim: () => '#000000',
-  shadow: () => '#000000',
-  ...Object.fromEntries(
-    ['primary', 'secondary', 'tertiary'].flatMap((f) => [
-      [`${f}-fixed`, (c: ColorSet) => c[`${f}-container`]],
-      [`${f}-fixed-dim`, (c: ColorSet) => mix(c[`on-${f}-container`], 0.1, c[`${f}-container`])],
-      [`on-${f}-fixed`, (c: ColorSet) => c[`on-${f}-container`]],
-      [`on-${f}-fixed-variant`, (c: ColorSet) => mix(c[`on-${f}-container`], 0.7, c[`${f}-container`])],
-    ]),
-  ),
 };
 
 /** `share` of colour `a` in colour `b`, in sRGB; undefined when one is not a colour. */
@@ -279,8 +267,7 @@ function mix(a: string | undefined, share: number, b: string | undefined): strin
 /** The colours of a file of colours with those of `roles` it does not have (one written before they were among the
  * site's): made from its choice of dynamic colour, when it has one, else as the theme mixed them from the others. What
  * cannot be made stays missing, for colorProblems to say. */
-export function completeColors(file: Colors, roles: ColorRoles): Colors {
-  const colors = withMaterialNames(file);
+export function completeColors(colors: Colors, roles: ColorRoles): Colors {
   const missing = (set: ColorSet | undefined) => !!set && Object.keys(roles).some((name) => !isColor(set[name]));
   if (!MODES.some((mode) => missing(colors[mode]))) return colors;
   const made = colors.dynamic !== undefined && !dynamicProblems(colors.dynamic).length ? dynamicColors(colors.dynamic, roles) : undefined;
