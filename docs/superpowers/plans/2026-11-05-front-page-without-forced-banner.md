@@ -1,5 +1,7 @@
 # The front page without a forced Banner — implementation plan
 
+Status: done. The proof on Sara's content and the `morpheme-website` docs live in other repositories. Checked against the code on 2026-11-10.
+
 > **For agentic workers:** the Interstellar orchestrator routes the tasks (`CLAUDE.md` in `Interstellar/`). Steps use
 > checkbox (`- [ ]`) syntax.
 

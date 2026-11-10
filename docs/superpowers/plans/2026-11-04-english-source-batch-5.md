@@ -1,5 +1,7 @@
 # Batch 5: `theme/`, `worker/`, `pages/`, `scripts/` and the docs in English
 
+Status: not started (`theme/`, `worker/`, `pages/`, `scripts/` and the docs are still in `PENDING`). Checked against the code on 2026-11-10.
+
 Master plan: `2026-11-04-english-source.md` (read *Conversion rules*). Needs Batch 2 merged (the term table, the
 English ids). Repo `morpheme-cms`. Can run at the same time as batches 3 and 4.
 

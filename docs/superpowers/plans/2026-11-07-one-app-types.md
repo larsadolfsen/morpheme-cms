@@ -1,5 +1,7 @@
 # One active app per type (plan)
 
+Status: not started. Checked against the code on 2026-11-10.
+
 Design: [2026-11-07-one-app-types-design.md](../specs/2026-11-07-one-app-types-design.md).
 Session branch: `feat/one-app-types`. Each task works on its own branch and merges into the session branch.
 

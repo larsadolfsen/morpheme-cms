@@ -1,5 +1,7 @@
 # Plan: editor footer with system status
 
+Status: done. The status fetch helper is `src/statusReport.ts`, not `src/serviceStatus.ts`. Checked against the code on 2026-11-10.
+
 Spec: `docs/superpowers/specs/2026-11-07-editor-footer-design.md`. Session branch: `feat/editor-footer`.
 
 ## Goal

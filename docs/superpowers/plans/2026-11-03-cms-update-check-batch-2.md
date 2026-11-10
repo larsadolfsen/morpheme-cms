@@ -1,5 +1,7 @@
 # Batch 2: the Worker
 
+Status: done. Checked against the code on 2026-11-10.
+
 Master plan: `2026-11-03-cms-update-check.md`. Needs Batch 1 merged (`lib/lockfile.mjs`, `lib/cms-version.mjs`,
 `lib/changelog.mjs`, `t.cms`). Repo `morpheme-website`, paths relative to `packages/editor/`. Task 2.1 first (one
 line), then 2.2.

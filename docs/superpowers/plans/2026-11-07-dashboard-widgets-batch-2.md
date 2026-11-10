@@ -1,5 +1,7 @@
 # Dashboard widgets, batch 2: contract and grid
 
+Status: not started. Checked against the code on 2026-11-10.
+
 Master plan: `2026-11-07-dashboard-widgets.md`. Needs batch 1.
 
 ## Task 2.1: widget contract

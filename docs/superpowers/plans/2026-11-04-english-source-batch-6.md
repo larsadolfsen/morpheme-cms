@@ -1,5 +1,7 @@
 # Batch 6: the starter in English, Danish as a language layer
 
+Status: not started (no `starter/i18n/`, `lib/locale.mjs` or `locale` command). Checked against the code on 2026-11-10.
+
 Master plan: `2026-11-04-english-source.md`. Needs batches 3, 4 and 5 merged. Repo `morpheme-cms`. This batch ends
 the project: `PENDING` is deleted.
 

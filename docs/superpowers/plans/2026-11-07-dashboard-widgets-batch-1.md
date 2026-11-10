@@ -1,5 +1,7 @@
 # Dashboard widgets, batch 1: data and storage
 
+Status: not started. Checked against the code on 2026-11-10.
+
 Master plan: `2026-11-07-dashboard-widgets.md`. Design: `../specs/2026-11-07-dashboard-widgets-design.md`.
 
 ## Task 1.1: dashboard data functions

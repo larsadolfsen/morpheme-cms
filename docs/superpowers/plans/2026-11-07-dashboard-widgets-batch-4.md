@@ -1,5 +1,7 @@
 # Dashboard widgets, batch 4: the first CMS widgets
 
+Status: not started. Checked against the code on 2026-11-10.
+
 Master plan: `2026-11-07-dashboard-widgets.md`. Needs batch 2. Batch 3 is not needed, but the settings of
 Blog rhythm are only editable after batch 3.
 

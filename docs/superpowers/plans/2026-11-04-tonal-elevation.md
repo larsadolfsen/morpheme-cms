@@ -1,5 +1,7 @@
 # Tonal elevation — plan
 
+Status: done in this repository. The Venus CSS in `morpheme-apps` and the `docs/editor.md` and skill updates live elsewhere and are not checked. Checked against the code on 2026-11-10.
+
 Spec: `docs/superpowers/specs/2026-11-04-tonal-elevation-design.md`. Read the spec before each task.
 
 ## Goal

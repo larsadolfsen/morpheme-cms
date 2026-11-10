@@ -1,5 +1,7 @@
 # Batch 1: the pure parts
 
+Status: done. Checked against the code on 2026-11-10.
+
 Master plan: `2026-11-03-cms-update-check.md` (its *Global constraints* and *Decisions* bind every task here).
 Repo: `morpheme-website`, folder `packages/editor/` (paths below are relative to it). The four tasks are independent:
 run them in parallel, each on its own branch from the newest `main`, each its own PR.

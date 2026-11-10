@@ -1,5 +1,7 @@
 # English source, Danish only in language files: master plan
 
+Status: partly done. Batches 1 and 2 are done; batches 3 to 6 are not started (`PENDING` in `scripts/check-language.mjs` still lists 12 prefixes). Checked against the code on 2026-11-10.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or
 > superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 > In Interstellar the orchestrator never writes code: each task names its worker (Ollama runner, Sonnet agent).

@@ -1,5 +1,7 @@
 # Plan: app Enabled switch and the app's version
 
+Status: done (PR #150 and PR #155). Checked against the code on 2026-11-10.
+
 Spec: `docs/superpowers/specs/2026-11-07-app-enabled-switch-design.md`. Session branch: `app-enabled-switch`.
 
 ## Goal

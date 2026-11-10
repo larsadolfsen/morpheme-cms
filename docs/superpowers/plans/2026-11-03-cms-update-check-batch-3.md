@@ -1,5 +1,7 @@
 # Batch 3: the page, the starter and the docs
 
+Status: done. The `docs/editor.md` and `platform.md` parts live in another repository. Checked against the code on 2026-11-10.
+
 Master plan: `2026-11-03-cms-update-check.md`. Needs Batch 2 merged (`GET /api/cms`, `POST /api/cms/update`, the
 `Status` shape). Repo `morpheme-website`, paths relative to `packages/editor/` unless they start with the repo's
 root. Tasks 3.1–3.3 are independent; 3.4 comes last.

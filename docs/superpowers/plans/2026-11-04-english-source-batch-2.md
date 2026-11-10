@@ -1,5 +1,7 @@
 # Batch 2: the standard parts in English, English ids
 
+Status: done (PR #116). Checked against the code on 2026-11-10.
+
 Master plan: `2026-11-04-english-source.md`. Needs Batch 1 merged (`check-language`, `translate`, `inSiteLanguage`).
 Repo `morpheme-cms`, paths from the repo's root. Do the tasks in order. Each commit must pass the batch check on its
 own, and the Danish editor must look the same after each commit.
