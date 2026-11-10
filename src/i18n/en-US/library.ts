@@ -8,8 +8,12 @@ export const library = {
   statusSeparator: ' · ',
   /** The start screen's FAB menu (StartFab.tsx), which makes a new page or blog post. */
   createNew: 'Create',
-  /** On the start screen (ContinueCard.tsx): the card with the last three pages and blog posts saved. */
+  /** On the start screen (widgets/continue.tsx): the card with the last three pages and blog posts saved. */
   continueTitle: 'Continue where you left off',
+  /** The widget's name in the list of widgets to add, and on its card in edit mode. */
+  continueWidgetLabel: 'Continue',
+  /** Its line in that list. */
+  continueWidgetHint: 'Shows the pages and posts you edited last.',
   /** In that card before anything is saved. */
   continueEmpty: 'The pages and posts you edit show up here.',
   /** Under each of them: its kind ("Page") and when it was saved ("today at 1:42 PM", when.ts). */

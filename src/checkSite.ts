@@ -35,6 +35,7 @@ import { apps, asStandardTemplate, blockProblems, siteBlocks, standardPageOf, wi
 import { installedApps, settingsFile } from './apps';
 import { appFolder, SCREENSHOTS, shotFile, shotOf } from './store';
 import { appFolders } from './appFiles';
+import { widgetsWithoutComponent } from './widgets';
 import { colorPairs as shownPairs, sharedParts, translator, writtenApps, writtenBlockParts, writtenCollections } from './site';
 import { splitBlocks } from '../lib/blocks.mjs';
 import { splitMissing } from '../lib/translate.mjs';
@@ -126,6 +127,9 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
   for (const app of writtenApps)
     for (const file of hooksOf(appFolders[app.id]?.files ?? []).unknown)
       problems.push(`${appFolder(app.id)}/${file}: ${t.apps.unknownHook(APP_HOOKS.map((h) => `hooks/${h}.ts`).join(', '))}`);
+  // Each widget of an app has a component (src/widgets.ts).
+  for (const { app, key } of widgetsWithoutComponent(writtenApps))
+    problems.push(`${appFolder(app)}/index.ts: ${t.apps.widgetNoComponent(key)}`);
   // Each picture of an app shows something it has (shotOf) and is in its screenshots/, and each file there is one of them.
   for (const app of writtenApps) {
     const blocks = siteBlocks.filter((b) => b.app === app.id).map((b) => b.type);

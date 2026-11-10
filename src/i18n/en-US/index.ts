@@ -11,6 +11,7 @@ import { colors } from './colors';
 import { common } from './common';
 import { company } from './company';
 import { consents } from './consents';
+import { dashboard } from './dashboard';
 import { forms } from './forms';
 import { footer } from './footer';
 import { history } from './history';
@@ -40,6 +41,7 @@ export const enUS = {
   colors,
   redirects,
   consents,
+  dashboard,
   footer,
   seo,
   keywords,
