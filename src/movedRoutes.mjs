@@ -18,15 +18,15 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   videresendelser: 'seo/redirects',
   'videresendelser/alle': 'seo/redirects/all',
   'videresendelser/ikke-fundet': 'seo/redirects/not-found',
-  // The settings of the booking and newsletter apps were on a screen "Promovering"; they are on the apps' own pages now.
+  // The settings of the booking and newsletter apps were on a screen "Promotion"; they are on the apps' own pages now.
   promovering: 'apps',
   'promovering/calendly': 'apps/app_a030dfba69793996',
   'promovering/mailchimp': 'apps/app_5c4b6ba067ef127f',
-  // The header's menus and settings were on a screen of their own under "Globalt"; they are under "Udseende" now.
+  // The header's menus and settings were on a screen of their own under "Globals"; they are under "Appearance" now.
   header: 'appearance/header',
-  // The footer's form was the file's own screen; it is under "Udseende" now.
+  // The footer's form was the file's own screen; it is under "Appearance" now.
   'src/data/footer.json': 'appearance/footer',
-  // "Logo and icon" was under "Udseende"; it is under the business now.
+  // "Logo and icon" was under "Appearance"; it is under the business now.
   'appearance/logo': 'company/logo',
   'udseende/logo': 'company/logo',
   // The store's themes were a tab of the app store; they are on a screen of their own under Appearance now.

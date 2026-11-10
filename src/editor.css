@@ -171,7 +171,7 @@
   color: var(--mo-on-surface-variant);
 }
 
-/* The bar with "Gem" (FormFrame.tsx) slides up when something has been changed; the messages
+/* The bar with "Save" (FormFrame.tsx) slides up when something has been changed; the messages
    (App.tsx) then go above it. */
 .editor-save-bar {
   animation: editor-rise var(--motion-spatial-fast);
@@ -250,7 +250,7 @@
 /* A little motion, so the editor feels like an app: a sheet slides up from the bottom (on a
    computer, where it is a dialog in the middle, it fades in and grows a little) and the page behind
    it darkens (a question, ask.tsx, comes up as the theme's dialog does); a new screen fades in; a message rises up; an item of a
-   list that is opened shows its fields softly; a picture in Filer fades in when it has loaded and
+   list that is opened shows its fields softly; a picture in Files fades in when it has loaded and
    grows a little under the mouse; a button's colours change softly (pressed, it ripples: the theme's .ripple). Only when
    the phone or computer does not ask for less motion. */
 @media (prefers-reduced-motion: no-preference) {
@@ -612,7 +612,7 @@ html {
   touch-action: manipulation;
 }
 
-/* A block of the site in the text (Book en tid, Udtalelser …; MarkdownEditor.tsx): the block as it
+/* A block of the site in the text (Book an appointment, Testimonials …; MarkdownEditor.tsx): the block as it
    looks on the site (src/apps/<app>/blocks/, previews.tsx) in a thin, dashed square frame, not text. Tapping it opens a row
    of icons on it with what can be done with it. The frame stands out a little to the sides, so the block
    lines up with the text. A picture in the text is a card like it (in its paragraph). */

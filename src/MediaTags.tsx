@@ -1,4 +1,4 @@
-// The tags of a file in Filer (Media.tsx): its tags as chips and "Tilføj tag", from the file's record (src/fileRecords.mjs).
+// The tags of a file in Files (Media.tsx): its tags as chips and "Add tag", from the file's record (src/fileRecords.mjs).
 // Each change is saved at once in its own commit, one save at a time; taps during a save go into the next.
 // Exposes MediaTags; uses MultiChoice and SheetLink (ui.tsx), setTags (fileTags.mjs), writeRecords (fileRecords.mjs).
 import { useRef, useState, type ReactElement } from 'react';

@@ -1,5 +1,5 @@
-// "Udseende" › "Sidekolonne" (#appearance/side-column): the block drawn in a column beside the text of the pages, chosen
-// among "Ingen" and the installed blocks that can be (`beside` in their load.ts), saved in the site's file (config.side)
+// "Appearance" › "Side column" (#appearance/side-column): the block drawn in a column beside the text of the pages, chosen
+// among "None" and the installed blocks that can be (`beside` in their load.ts), saved in the site's file (config.side)
 // in its own commit. Exposes SideColumn, sideSettingOf and sideChoicesOf (also used by the page form and by Library.tsx).
 // Uses ui.tsx (ChoiceRow, Group), registry.tsx (siteBlocks) and lib/side-block.mjs.
 import { useState } from 'react';
@@ -40,7 +40,7 @@ export function sideSettingOf(files: { path: string; text: string }[]): string |
 export const sideChoicesOf = (files: { path: string; text: string }[]) =>
   sideChoices(siteBlocks, sources, activeApps(files)) as { type: string; label: string }[];
 
-/** "Sidekolonne": "Ingen" and each block that can be drawn beside the text, the one chosen ticked. A tap on another asks
+/** "Side column": "None" and each block that can be drawn beside the text, the one chosen ticked. A tap on another asks
  * first and then saves it (`{ "block": "<type>" }`, or `{ "block": null }`) at once, in its own commit, as an icon pack is. */
 export default function SideColumn({ env, files }: { env: Env; files: RepoFile[] }) {
   const [saving, setSaving] = useState(false);

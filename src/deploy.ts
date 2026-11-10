@@ -2,7 +2,7 @@
 // made from to /editor/version.json (packages/editor/pages/editor/version.json.js), and the editor asks for that
 // until it is the saved commit or a later one. The message is a notification of the type `site` (notificationData.ts),
 // which also comes on the phone or computer when the editor is not on screen. It gives up after 20 minutes, or 10 with paidBuilds.
-// Each save says what it changed ("farver ændret", "side “Om” ændret", t.app.changes): right after it (savedText),
+// Each save says what it changed ("colors changed", "page “About” changed", t.app.changes): right after it (savedText),
 // and, with the other saves since, when the website has been updated with them (changesText, App.tsx save).
 import { graphql, REPO } from './github';
 import { giveUpAfter } from '../lib/build-settings.mjs';
@@ -22,7 +22,7 @@ export function nameOf(collection: Collection | undefined, file: { path: string;
   return fileName(file.path);
 }
 
-/** A kind or a label inside a sentence: "Side" as "side", but "SEO" as it is. */
+/** A kind or a label inside a sentence: "Page" as "page", but "SEO" as it is. */
 export const lower = (s: string) => (/^\p{Lu}\p{Lu}/u.test(s) ? s : s.charAt(0).toLocaleLowerCase(locale) + s.slice(1));
 const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
 

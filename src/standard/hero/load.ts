@@ -1,5 +1,5 @@
 // "Banner" on the site (view.ts): the parts of its text as Astro's Markdown makes them, its picture with the sizes the
-// site has made of it, and the buttons of its "Knapper" block (@site/standard).
+// site has made of it, and the buttons of its "Buttons" block (@site/standard).
 import { standard } from '@site/standard';
 import { markdownHtml } from '../../../lib/inline';
 import type { Button } from '../buttons/fields';

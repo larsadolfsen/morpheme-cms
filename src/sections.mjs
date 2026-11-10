@@ -1,6 +1,6 @@
 // The sections of a fixed page (packages/editor/site/sections.ts) as one text in the editor (Milkdown, like the
 // pages), and back. A section of text ("text": a heading and Markdown) is written as text: its heading
-// as an "Overskrift" (H2), then its text. Every other section is a block in the text, a card with the
+// as an "Heading" (H2), then its text. Every other section is a block in the text, a card with the
 // fields that are not text (blocks.ts), as is a text section that is hidden. Back from the editor,
 // each heading starts a section of text, and text before the first heading after a block is a
 // section without a heading.
@@ -8,7 +8,7 @@
 // What of a section is only text and pictures is written as text above its card (its `lead`,
 // collections.ts): a picture, its heading (H2) and its text; back from the editor, the last heading
 // before the card and the text after it, and a picture just before that heading, are the section's.
-// The front page's top (a "Banner", type "hero") is text too: its text (`text`, Markdown) up to its "Knapper" block
+// The front page's top (a "Banner", type "hero") is text too: its text (`text`, Markdown) up to its "Buttons" block
 // (the lead's `upTo`), with its heading, subtitle, introduction and picture, is the text at the very top, before its
 // card; the block and the text after it stay in the card's `text`, with the quote. On the other pages the text at the
 // very top, before the first heading or card, is the page's introduction.
@@ -32,7 +32,7 @@ const escape = (s) =>
 const unescape = (s) => s.replace(/\\([!-/:-@[-`{-~])/g, '$1');
 
 const PICTURE = /!\[((?:\\.|[^\]])*)\]\(([^)\s]+)\)/;
-// A section's picture (`image`, `imageAlt`, and `imageDecorative`: "Dekorativt billede", marked in its address as a
+// A section's picture (`image`, `imageAlt`, and `imageDecorative`: "Decorative picture", marked in its address as a
 // picture in the text is, crop.mjs) as a picture in the text, and back.
 const picture = (image, alt, decorative) => `![${String(alt ?? '').replace(/[[\]]/g, '\\$&')}](${decorated(image, decorative === true)})`;
 const pictureOf = (m) => {
@@ -88,7 +88,7 @@ export function introOf(parts) {
 }
 
 // The front page's top from the text before its card: that text, its heading and its picture in it (heroParts in
-// standard/hero/fields.ts finds them), then the card's own text (its "Knapper" block and the text after it).
+// standard/hero/fields.ts finds them), then the card's own text (its "Buttons" block and the text after it).
 function hero(lead, props) {
   const markdown = lead.map((p) => ('heading' in p ? `## ${p.heading}` : p.markdown)).join('\n\n');
   const section = { type: 'hero', text: '', ...props };

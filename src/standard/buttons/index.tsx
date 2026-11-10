@@ -1,6 +1,6 @@
-// "Knapper", a standard block: buttons in a row, each to a page or where the site's config says
+// "Buttons", a standard block: buttons in a row, each to a page or where the site's config says
 // (`buttonTargets`: here the booking sheet and the phone), with a text and an icon: its own, or the
-// shared ones ("Blokke" › "Knapper", shared.ts) while it has none. How it looks is the theme's
+// shared ones ("Blocks" › "Buttons", shared.ts) while it has none. How it looks is the theme's
 // (packages/editor/theme/blocks/buttons/View.tsx; what it shows: view.ts, and load.ts on the site).
 import { CursorClick } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';

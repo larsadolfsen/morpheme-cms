@@ -1,15 +1,15 @@
-// "Videresendelser" under Indhold (#seo/redirects): two rows with how many
+// "Redirects" under Content (#seo/redirects): two rows with how many
 // each has, each opening a screen of its own.
-// "Alle videresendelser" (#seo/redirects/all): every address of a page the site sends on elsewhere
+// "All redirects" (#seo/redirects/all): every address of a page the site sends on elsewhere
 // (redirectData.ts), by address, with where it sends to, and search. Tapping one opens a sheet where
 // where it sends to can be changed, or the redirect deleted; the FAB adds a new one (in the editor's own,
 // src/data/redirects.json). Each save is one commit, and none sends on through another afterwards
 // (flatten): a redirect to an address that is sent on goes straight to where that ends, and those
 // that went on through a deleted one go on to where it sent them.
-// "Ikke fundet" (#seo/redirects/not-found): the addresses visitors came to that do not exist (notFound.ts), most visits
+// "Not found" (#seo/redirects/not-found): the addresses visitors came to that do not exist (notFound.ts), most visits
 // first. Tapping one opens the same sheet, to send it on to a page (then it is off that list) or take
 // it off the list. One that has become a page or sends on since is not shown. Over each list, as over
-// the lists under "Indhold", the search, the order (kept in this browser; by address under the first
+// the lists under "Content", the search, the order (kept in this browser; by address under the first
 // letter) and, over the redirects, the funnel that shows only those to one page or post, picked as a
 // chip. The Save and Delete buttons show the loading indicator while their save runs (Forget does not).
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -65,9 +65,9 @@ type Editing = { from: string; to: string; isNew: boolean; missing?: Missing };
 
 export type Tab = 'redirects' | 'missing';
 
-// Where each list opens, under "Videresendelser".
+// Where each list opens, under "Redirects".
 export const TAB_ROUTES: Record<Tab, string> = { redirects: 'seo/redirects/all', missing: 'seo/redirects/not-found' };
-/** Where "Videresendelser" opens, under "Søgemaskineoptimering". */
+/** Where "Redirects" opens, under "Search engine optimization". */
 export const REDIRECTS_ROUTE = 'seo/redirects';
 
 // The orders of each list: the redirects by their address or by the page they send to, the addresses
@@ -87,7 +87,7 @@ function savedSort(tab: Tab): Sort {
 // An address without its slashes, for the order by address.
 const bare = (path: string) => path.replace(/^\/+|\/+$/g, '');
 
-// tab: the list that is open; without it, "Videresendelser" with the rows that open them.
+// tab: the list that is open; without it, "Redirects" with the rows that open them.
 export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
   const [files, setFiles] = useState<RepoFile[] | null>(null);
   const [problem, setProblem] = useState('');
@@ -103,7 +103,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
   const q = query.trim().toLowerCase();
   const name = (to: string) => whatIsAt(to, env.relations);
   // The pages and posts the redirects send to (not a picture or another site), by their names as in the
-  // lists, under "Sider" and "Blogindlæg": the funnel shows only those to one.
+  // lists, under "Pages" and "Blog posts": the funnel shows only those to one.
   const [page, setPage] = useState('');
   const pathOf = (to: string) => to.split('#')[0];
   const named = [

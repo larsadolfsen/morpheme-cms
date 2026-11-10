@@ -33,7 +33,7 @@ the CMS, and `AGENTS.md` section 4 runs the checks from this repo's root.
 | 1 | Done (2026-11-05, branch `feat/english-source-batch-1`). `PENDING` has 13 prefixes. `danishValuesOf` also skips a value with no letter and a value that is an English text too (`src/i18n/en-US/`). `--all` ignores `PENDING`: on 2026-11-05 it found 2443 texts in 355 files. |
 | 2 | Done (PR #116). |
 | 3 | Done (2026-11-10, branch `claude/english-source-batch-3-cy3xgl`). `site/` and `lib/` are out of `PENDING`. |
-| 4 | Not started (`src/`; another session works in it). |
+| 4 | Done (2026-11-10, branch `claude/english-source-batch-4`). `src/` is out of `PENDING` except `src/i18n/` (its English files still hold Danish comments). |
 | 5 | Done (2026-11-10, branch `claude/english-source-batch-5`). `theme/`, `worker/`, `pages/`, `scripts/` and the docs are out of `PENDING`. |
 | 6 | Not started. Waits for its own go-ahead. |
 

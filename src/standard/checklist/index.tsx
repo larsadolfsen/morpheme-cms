@@ -1,4 +1,4 @@
-// "Tjekliste", a standard block: a heading and points, each a short text with a check in a circle in the accent before
+// "Checklist", a standard block: a heading and points, each a short text with a check in a circle in the accent before
 // it; with many of them, in two columns where there is room. How it looks is the theme's
 // (packages/editor/theme/blocks/checklist/View.tsx with Checks.tsx); what it shows: view.ts, and load.ts on the site.
 import { ListChecks } from '@phosphor-icons/react';

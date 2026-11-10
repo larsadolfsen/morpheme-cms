@@ -6,21 +6,21 @@
 // (@site/config): where the buttons can go (`buttonTargets`).
 import type { CookieCategory } from '../../lib/cookieCategories.mjs';
 
-/** Where a button of "Knapper" can go besides a page, as the site's config names it (its label in the
- * site's language, e.g. "Book en tid"), and what to know about it in the hint of a button's text. `pick`: it
- * opens something picked among those shown on the page (a relation with Option.on, e.g. "Åbn promovering"), in a
+/** Where a button of "Buttons" can go besides a page, as the site's config names it (its label in the
+ * site's language, e.g. "Book an appointment"), and what to know about it in the hint of a button's text. `pick`: it
+ * opens something picked among those shown on the page (a relation with Option.on, e.g. "Open promotion"), in a
  * field named `pickLabel` (the button's `open`). */
 export type ButtonTargetName = { value: string; label: string; note?: string; pick?: string; pickLabel?: string };
 
-/** A button's text for where it goes, when it has none of its own (e.g. "Ring"), and what comes after
+/** A button's text for where it goes, when it has none of its own (e.g. "Call"), and what comes after
  * every text (e.g. the phone number). `open`: what the button opens on the page instead of going to its address
  * (its `data-open`, which a promotion on the page answers: "booking" the booking sheet, "promotion:<file name>" a
  * pop-up); without one there, the address is an ordinary link. */
 export type ButtonText = { text: string; after?: string; open?: string };
 
-/** Which posts a "Blogindlæg" block shows (its fields): those with any of `categories` (all when empty), with `show`
+/** Which posts a "Blog posts" block shows (its fields): those with any of `categories` (all when empty), with `show`
  * "all" all of them, else the newest `count` ('3' to '6') or with `order` "random" picked anew on each visit, or with
- * `show` "picked" those picked; and the tag "Alle indlæg" goes to (`link`). */
+ * `show` "picked" those picked; and the tag "All posts" goes to (`link`). */
 export type PostChoice = {
   show?: string;
   categories?: string[];
@@ -30,7 +30,7 @@ export type PostChoice = {
   link?: string;
 };
 
-/** A blog post as "Blogindlæg" shows it: its address, title, description, picture (its file), date (ISO)
+/** A blog post as "Blog posts" shows it: its address, title, description, picture (its file), date (ISO)
  * and reading time in minutes. */
 export type ListedPost = {
   href: string;
@@ -45,7 +45,7 @@ export type ListedPost = {
 /** What the editor's drawings of the standard blocks take from the site's data (BlockData.site). */
 export type StandardSiteData = {
   pages: { path: string; title: string }[];
-  /** The posts on the blog, newest first, by file name, with what "Blogindlæg" shows of them (reading time in minutes). */
+  /** The posts on the blog, newest first, by file name, with what "Blog posts" shows of them (reading time in minutes). */
   posts: {
     slug: string;
     title: string;
@@ -56,7 +56,7 @@ export type StandardSiteData = {
     minutes: number;
     categories: string[];
   }[];
-  /** The tags that are not on the blog (no page of their own): "Alle indlæg" does not go to them. */
+  /** The tags that are not on the blog (no page of their own): "All posts" does not go to them. */
   tagsOffBlog: string[];
   /** The texts of the buttons that go elsewhere than a page, by `buttonTargets` value. */
   buttons: Record<string, ButtonText>;
@@ -83,7 +83,7 @@ export type TestimonialItem = {
 
 export type StandardSite = {
   /** The blocks' shared texts (shared.ts, with those saved over them), by type: for a block that shows another's
-   * (Banner: the shared buttons, "Læs mere"). */
+   * (Banner: the shared buttons, "Read more"). */
   texts: Record<string, Record<string, any>>;
   /** The opening of a page's text, by its address (Accordion: a row without a text of its own);
    * undefined when there is no such page. `preview`: the page is a new version (/ny/), so the opening
@@ -98,7 +98,7 @@ export type StandardSite = {
   /** A button of a target that picks something (ButtonTargetName.pick): what it opens, by what is picked (a
    * promotion's file name), with its address without JavaScript and its text; undefined when there is no such. */
   picked(target: string, value: string): (ButtonText & { href: string }) | undefined;
-  /** The cookie list ("Cookies"), for "Cookieliste". */
+  /** The cookie list ("Cookies"), for "Cookie list". */
   cookies: CookieItem[];
   testimonials: {
     /** All of them, in their order. */
@@ -115,10 +115,10 @@ export type StandardSite = {
     choose(choice: PostChoice, count: number): Promise<{ posts: ListedPost[]; random: boolean }>;
     /** The posts on the blog with any of `categories` (all when empty), newest first. */
     list(categories: string[]): Promise<ListedPost[]>;
-    /** Where its "Alle indlæg" goes: a tag's page, with the tag's name, or the blog. */
+    /** Where its "All posts" goes: a tag's page, with the tag's name, or the blog. */
     all(choice: PostChoice): { href: string; tag?: string };
     /** A picture's sizes, for the browser to pick the one that fits (srcset, width and height). Also
-     * the pictures on "Kort" (LinkCards.tsx). */
+     * the pictures on "Cards" (LinkCards.tsx). */
     image(src: string): { srcset?: string; width?: number; height?: number };
   };
 };

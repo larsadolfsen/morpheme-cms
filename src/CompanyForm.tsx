@@ -1,6 +1,6 @@
-// "Virksomheden": the business, in parts (companyParts), each a screen of its own: its phone, e-mail
+// "Business": the business, in parts (companyParts), each a screen of its own: its phone, e-mail
 // and address (src/data/contact.json) and its bank details (src/data/payment.json), used
-// all over the site; and its logo and icon (BrandForm.tsx). A part is saved with "Gem ændringer"; the JSON file
+// all over the site; and its logo and icon (BrandForm.tsx). A part is saved with "Save changes"; the JSON file
 // keeps its keys in their order, so a save only changes what was edited. The same form has the other parts' fields (an
 // app's settings, AppList.tsx appSettingsPart). A field with its choices on a page of their own (Field.page: an app's
 // "Variant") has it at the form's address with its name after it (`at`, `page`, App.tsx): the form stays open under it
@@ -27,8 +27,8 @@ import { siteT, t } from './i18n';
 
 type Props = { part: Part; env: Env; files: RepoFile[] };
 
-/** A part's fields in its file, as a form: the values, whether they are changed, and its save ("Gem
- * ændringer"), which says what is wrong first (useWrongField); here and on an app's page (AppList.tsx). */
+/** A part's fields in its file, as a form: the values, whether they are changed, and its save ("Save
+ * changes"), which says what is wrong first (useWrongField); here and on an app's page (AppList.tsx). */
 export function usePartForm({ part, env, files }: Props) {
   const { file: path, at, fields } = part as Required<Part>;
   const notify = env.notify;

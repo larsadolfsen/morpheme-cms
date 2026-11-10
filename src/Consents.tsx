@@ -1,6 +1,6 @@
 // "Consents" (#privacy/consents, Part.opens 'consents'): the visitors' answers in the cookie banner, as the site's
 // Worker keeps them (consentData.ts, packages/editor/worker/consent.js), newest first, so the site can show that a visitor said yes. Over
-// the list the search by consent id (the one the banner shows the visitor under "Cookieindstillinger", asked of the
+// the list the search by consent id (the one the banner shows the visitor under "Cookie settings", asked of the
 // Worker, so older answers are found too) and the order (kept in this browser); in the top bar the download of all of
 // them as CSV. Tapping one opens a sheet with when, the banner's version and each yes or no, and the button that deletes
 // every answer with its id (when the visitor asks for it).
@@ -34,7 +34,7 @@ type Sort = 'newest' | 'oldest';
 const SORTS: Sort[] = ['newest', 'oldest'];
 const SORT_KEY = 'editor-sort-consents';
 
-// The yes and the no of an answer as one line, in the banner's order: "Ja: Statistik · Nej: Marketing".
+// The yes and the no of an answer as one line, in the banner's order: "Yes: Statistics · No: Marketing".
 function summary(answer: ConsentAnswer) {
   const names = t.blocks.cookies.entries.categories;
   const asked = CONSENT_CATEGORIES.filter((c) => c in answer.choices);

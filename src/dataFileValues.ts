@@ -5,10 +5,10 @@ import { entryData, type Collection, type DataFile, type Field } from './schema'
 import { clean, withDefaults } from './check';
 import type { RepoFile } from './github';
 
-/** A single file's fields: its own ("Aktiveret") and, when it is a list (the menus), the list's field after them. */
+/** A single file's fields: its own ("Activated") and, when it is a list (the menus), the list's field after them. */
 export const fieldsOf = (dataFile: DataFile): Field[] => (dataFile.root ? [...dataFile.fields, dataFile.root] : dataFile.fields);
 
-/** A file that is only a list, without fields of its own beside it (a menu with "Aktiveret" is not). */
+/** A file that is only a list, without fields of its own beside it (a menu with "Activated" is not). */
 export const listOnly = (dataFile?: DataFile) => !!dataFile?.root && !dataFile.fields.length;
 
 /** A file's values in the form: its data (with the defaults of fields it has none for; an entry of a list as the list has

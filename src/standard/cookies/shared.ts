@@ -1,4 +1,4 @@
-// The shared texts of "Cookieliste" ("Blokke"): the table's headings and the names of the categories, to begin with in
+// The shared texts of "Cookie list" ("Blocks"): the table's headings and the names of the categories, to begin with in
 // the site's language (siteT).
 import { COOKIE_CATEGORIES } from '../../../lib/cookieCategories.mjs';
 import { siteT, t } from '../../i18n';

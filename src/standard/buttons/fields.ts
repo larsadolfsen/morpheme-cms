@@ -1,4 +1,4 @@
-// The buttons of a "Knapper" block, and the shared ones (shared.ts): where each goes (a page, or where
+// The buttons of a "Buttons" block, and the shared ones (shared.ts): where each goes (a page, or where
 // the site's config says, `buttonTargets`, named in the site's language), its text, kind and icon. A target that
 // picks something (`pick`: a promotion to open) has a field for it, offering what is shown on the page being edited,
 // and is offered only while there is something to pick there.

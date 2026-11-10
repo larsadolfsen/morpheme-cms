@@ -1,4 +1,4 @@
-// "Forhåndsvis" (FormFrame.tsx): a page or a blog post as it looks on the site with what is in its form
+// "Preview" (FormFrame.tsx): a page or a blog post as it looks on the site with what is in its form
 // now, at once and without saving, in a sheet, at each of Material 3's window sizes
 // (lib/breakpoints.mjs).
 //

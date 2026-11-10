@@ -1,4 +1,4 @@
-// "Besked" on the site (view.ts): with `until` (Danish time) it is left out once that time has passed, and the script
+// "Notice" on the site (view.ts): with `until` (Danish time) it is left out once that time has passed, and the script
 // right after it (`after`) removes it in a browser where the time has come since the site was built
 // (../../../lib/notice.mjs).
 import { inlineHtml } from '../../../lib/inline';

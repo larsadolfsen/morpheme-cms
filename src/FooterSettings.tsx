@@ -1,6 +1,6 @@
-// "Udseende" › "Footer" (#appearance/footer): the footer's text under the name, its two headings and its links (footer.json),
+// "Appearance" › "Footer" (#appearance/footer): the footer's text under the name, its two headings and its links (footer.json),
 // on one screen laid out as a page's form (SettingsSections.tsx): a preview of the footer as the form has it, on a phone and
-// a computer (partPreview.tsx), over the sections Text, Contact and Links. "Gem ændringer" saves the file in its own
+// a computer (partPreview.tsx), over the sections Text, Contact and Links. "Save changes" saves the file in its own
 // commit (useDataFiles.ts). Exposes FooterSettings (default). Uses fields.tsx and footerPreview.mjs.
 import { useMemo } from 'react';
 import FormFrame from './FormFrame';

@@ -1,4 +1,4 @@
-// A page or blog post that gets a new address (Adresse under "Andre felter", EntryForm.tsx): the old
+// A page or blog post that gets a new address (URL under "Other fields", EntryForm.tsx): the old
 // address sends visitors on to the new one (301), from src/data/redirects.json, which the Worker reads
 // (packages/editor/worker/index.js) and follows to where it ends, so there is one redirect and no chain. The links to
 // the old address in the texts, the menu and the other files are changed to the new one in the same

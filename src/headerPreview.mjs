@@ -1,6 +1,6 @@
 // The editor's preview of the header (HeaderSettings.tsx): what the header's settings in the form change (headerDraft),
 // and those changes put into the site's page (swapHeader), in the parts Header.astro and MobileNav.astro mark with
-// data-editor: the menu's items (header-nav), the menu button (header-menu) and its side, the bar of "Mobilmenu"
+// data-editor: the menu's items (header-nav), the menu button (header-menu) and its side, the bar of "Mobile menu"
 // (mobile-nav) and the call to action (header-cta: the phone number and the button). Exposes headerDraft and swapHeader. Uses site/header.mjs; a DOM (the
 // browser's, jsdom in the tests), no React: what the theme's components draw comes in as HTML.
 import { headerOf, sortedNav } from '../site/header.mjs';
@@ -56,7 +56,7 @@ export function headerDraft(saved, now) {
 
 /**
  * How the theme draws what the page may not have: the menu button's classes on each side, the call to action as HTML
- * (when `cta` changed; with data-editor="header-cta"), an empty bar of "Mobilmenu" with one tab (for a page without
+ * (when `cta` changed; with data-editor="header-cta"), an empty bar of "Mobile menu" with one tab (for a page without
  * one), the name of an item's sub-pages button, and the page's address (for the open page's item).
  * @typedef {{ menuClass: Record<'start' | 'end', string>, cta?: string, mobileNav: string, subpagesOf: (label: string) => string, current: string }} HeaderTheme
  */
@@ -124,7 +124,7 @@ function drawNav(nav, items, theme) {
   list.replaceChildren(...drawn);
 }
 
-// The bar of "Mobilmenu": its links as its tabs, the first one's look; a page without the bar gets the theme's empty one at
+// The bar of "Mobile menu": its links as its tabs, the first one's look; a page without the bar gets the theme's empty one at
 // the end of the header, where MobileNav.astro is.
 /** @param {Document} doc @param {NavLink[]} links @param {HeaderTheme} theme */
 function drawMobileNav(doc, links, theme) {

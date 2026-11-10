@@ -10,7 +10,7 @@ import type { Load } from '../view';
 import { targets, type Button } from './fields';
 import { kindOf, type ButtonsView, type ButtonView } from './view';
 
-/** Buttons on the site: their own, else `shared` (the shared ones, "Blokke" › "Knapper"). */
+/** Buttons on the site: their own, else `shared` (the shared ones, "Blocks" › "Buttons"). */
 export async function loadButtons(items: Button[] | undefined, shared?: Button[], { bar = false } = {}): Promise<ButtonView[]> {
   const list = items?.length ? items : (shared ?? []);
   const buttons = await Promise.all(

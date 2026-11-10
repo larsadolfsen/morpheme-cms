@@ -1,6 +1,6 @@
-// "Virksomheden" › "Logo og ikon" (#company/logo): a new logo (the mark by the site's name) and a new icon (the browser
+// "Business" › "Logo and icon" (#company/logo): a new logo (the mark by the site's name) and a new icon (the browser
 // tab, Google and the editor's app icon), made from a picture the owner picks (brand.ts), in the site's colours
-// ("Farver"). Both are saved together in one commit with "Gem ændringer".
+// ("Colors"). Both are saved together in one commit with "Save changes".
 import { useEffect, useState } from 'react';
 import { ConflictError, type RepoFile } from './github';
 import FormFrame from './FormFrame';

@@ -1,4 +1,4 @@
-// The shared buttons of "Knapper" ("Blokke"): in a "Knapper" block that has none of its own, and where
+// The shared buttons of "Buttons" ("Blocks"): in a "Buttons" block that has none of its own, and where
 // a site shows them itself (this site's front page). None to begin with.
 import { t } from '../../i18n';
 import { defineShared } from '../../shared';

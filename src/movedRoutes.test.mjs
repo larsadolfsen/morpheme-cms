@@ -27,7 +27,7 @@ test('an address that has not moved stays', () => {
 
 test('the extra moves come first', () => {
   assert.equal(movedRoute('butik', { butik: 'settings/appstore' }), 'settings/appstore');
-  assert.equal(movedRoute('tema', { butik: 'x' }), 'appearance');
+  assert.equal(movedRoute('tema', { butik: 'x' }), 'appearance'); // language-ok: a legacy route id
 });
 
 test('only the old prefix of an address is renamed, the rest stays', () => {
@@ -130,7 +130,7 @@ test('a new address stays', () => {
 });
 
 test('a moved address wins over a renamed segment', () => {
-  assert.equal(movedRoute('tema', {}, { tema: 'x' }), 'appearance');
+  assert.equal(movedRoute('tema', {}, { tema: 'x' }), 'appearance'); // language-ok: a legacy route id
 });
 
 test('an old route to the app store opens it at its English route', () => {
@@ -138,7 +138,7 @@ test('an old route to the app store opens it at its English route', () => {
 });
 
 test('the old colours route opens the colours screen under Appearance', () => {
-  assert.equal(movedRoute('farver'), 'appearance/colors');
+  assert.equal(movedRoute('farver'), 'appearance/colors'); // language-ok: a legacy route id
 });
 
 test('an old parts route keeps a list id and opens at its English route', () => {
@@ -146,7 +146,7 @@ test('an old parts route keeps a list id and opens at its English route', () => 
 });
 
 test('the old theme routes open the screens under Appearance', () => {
-  assert.equal(movedRoute('tema'), 'appearance');
+  assert.equal(movedRoute('tema'), 'appearance'); // language-ok: a legacy route id
   assert.equal(movedRoute('tema/dele/editor'), 'developer/parts/editor');
 });
 

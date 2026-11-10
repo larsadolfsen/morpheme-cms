@@ -1,6 +1,6 @@
 // The site's themes, for the editor: the one the site and the editor are built with (src/data/theme.json;
-// packages/editor/site/theme.mjs), by "Temaer" on "Udseende", and those installed in src/themes/, each a folder with its
-// theme.json, shown under "Temaer" with a page each to swap to it from (Themes and ThemePage in Library.tsx). Only
+// packages/editor/site/theme.mjs), by "Themes" on "Appearance", and those installed in src/themes/, each a folder with its
+// theme.json, shown under "Themes" with a page each to swap to it from (Themes and ThemePage in Library.tsx). Only
 // their theme.json, the pictures of the site in them (screenshots/, packages/editor/scripts/theme-screenshots.mjs) and, for one installed
 // from the store (packages/editor/src/store.ts), where it came from (store.json) are read: their code is not loaded.
 import chosen from '@data/theme.json';
@@ -18,7 +18,7 @@ export type ThemeInfo = {
   /** Its picture, an address on the site. */
   icon: string;
   /** Its own licence ("UNLICENSED" when all rights are reserved) and the third-party work it brings (fonts, code,
-   * pictures), on its page and under "Licenser" (@morphemecms/cms/lib/licenses.mjs). */
+   * pictures), on its page and under "Licenses" (@morphemecms/cms/lib/licenses.mjs). */
   license: string;
   thirdParty: ThirdParty[];
   /** Its main category in the store ("category" in its theme.json: one of CATEGORIES in lib/storeCategories.mjs, for a

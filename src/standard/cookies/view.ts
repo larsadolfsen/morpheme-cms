@@ -1,6 +1,6 @@
-// What "Cookieliste" shows (its view, drawn by the theme's View.tsx): the cookies of the list "Cookies" (list.ts), by
+// What "Cookie list" shows (its view, drawn by the theme's View.tsx): the cookies of the list "Cookies" (list.ts), by
 // category (the necessary first, as the cookie banner has them), then by who sets them and then by name, and its shared
-// texts ("Blokke" › "Cookieliste"), with the categories' names. In the editor: viewOf, from the files as the editor
+// texts ("Blocks" › "Cookie list"), with the categories' names. In the editor: viewOf, from the files as the editor
 // has them (StandardSiteData.cookies); on the site: load.ts.
 import { COOKIE_CATEGORIES, type CookieCategory } from '../../../lib/cookieCategories.mjs';
 import { sharedIn } from '../../shared';

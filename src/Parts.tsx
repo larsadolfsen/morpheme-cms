@@ -1,7 +1,7 @@
 // "Developer" › "Parts" › "Editor" (#developer/parts/editor): the parts only the editor has (ui.tsx: the SEO rating, the
 // colour field, the choices of pages and icons, the form's layout …) in every state, on one screen, to see and agree on
 // how the editor looks, and below them the form fields (fields.tsx), one of each type with the settings it can have.
-// The parts the theme has too (buttons, fields, switches, lists, sheets …) are the theme's, shown under "UI-komponenter"
+// The parts the theme has too (buttons, fields, switches, lists, sheets …) are the theme's, shown under "UI components"
 // (BlockParts.tsx). A part is changed in ui.tsx, and so everywhere at once. All of it is
 // shown with the made-up site of examples.ts, never the site's own, and nothing here is saved.
 import { useMemo, useRef, useState } from 'react';
@@ -418,7 +418,7 @@ export default function Parts({ env }: { env: Env }) {
                     />
                   }
                 />
-                {/* With a sample of one of the theme's tokens before its name ("Parts" › "Værdier"). */}
+                {/* With a sample of one of the theme's tokens before its name ("Parts" › "Values"). */}
                 <ListItem leading={<LeadingToken kind="shape" value="var(--radius)" />} headline={sample.corners} supporting="--radius" />
               </Group>
               <div className={row}>
@@ -984,7 +984,7 @@ function fieldTypes(): FieldType[] {
   return types;
 }
 
-// The form fields, drawn as in every form, filled in to begin with. "Prøv at gemme" checks them as a
+// The form fields, drawn as in every form, filled in to begin with. "Try to save" checks them as a
 // form does (problemAt), and says what is wrong and marks the field (useWrongField).
 function FieldTypes({ env }: { env: Env }) {
   const f = t.parts.fields;

@@ -1,5 +1,5 @@
-// "Udtalelser" on the site (view.ts): all of them (`show: 'all'`), those with any of its tags (`show: 'categories'`,
-// all when it has none; the tags are then not on the cards, except in a list of all), those marked "Vis på forsiden"
+// "Testimonials" on the site (view.ts): all of them (`show: 'all'`), those with any of its tags (`show: 'categories'`,
+// all when it has none; the tags are then not on the cards, except in a list of all), those marked "Show on the front page"
 // ('front'), or those picked ('picked', by file name, in that order), from the site (@site/standard), with their tags'
 // pages, their pictures' sizes and where their whole text is.
 import { standard } from '@site/standard';

@@ -1,4 +1,4 @@
-// "Morpheme" (#morpheme), under "Indstillinger": the CMS version the site runs, the notes of its minor line (from the
+// "Morpheme" (#morpheme), under "Settings": the CMS version the site runs, the notes of its minor line (from the
 // package itself, bundledNotes.ts), a newer one with its notes, why it is not taken by itself, and an update's progress (all as text; only the update button is a control), and the site's connection to the
 // Morpheme store (MorphemeConnection) as its last group. Exposes CMS_ROUTE and the page. Depends on cmsView.mjs, bundledNotes.ts,
 // ReleaseNotes (the notes as an article), MorphemeConnection and the Worker's /api/cms.

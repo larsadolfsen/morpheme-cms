@@ -1,5 +1,5 @@
 // "Banner" (type "hero", as it was called before), a standard block: a text written as a page's (Markdown), in which a
-// picture and a "Knapper" block can be put with "+" (one of each): a heading at its top is its own heading (not the
+// picture and a "Buttons" block can be put with "+" (one of each): a heading at its top is its own heading (not the
 // page's H1), the first paragraph the subtitle, the others the introduction, and the text after the buttons is under
 // them, a quote ("> …") in it too (fields.ts); the picture beside the text or behind it (`placement`), across the whole
 // width of the window or as wide as the text (`width`); at the top of a page or anywhere in its text. At the top of the
@@ -16,7 +16,7 @@ export default defineBlock({
   icon: Sparkle,
   hint: t.blocks.hero.hint,
   fields: [
-    // A picture ('image', IMAGE in BlockDialog.tsx) and a "Knapper" block, at most one of each.
+    // A picture ('image', IMAGE in BlockDialog.tsx) and a "Buttons" block, at most one of each.
     {
       name: 'text',
       label: t.blocks.hero.text,

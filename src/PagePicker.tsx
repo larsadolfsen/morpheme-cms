@@ -3,7 +3,7 @@
 // fixed pages and the other pages, for the menu), each in the order picked last time in this browser, and can be
 // filtered by their status and by whether the menu links to them (usePickTools, as the sheets that pick several). A link to a part of a page (/kontakt/#find-vej) is shown as that page; a page that no longer
 // exists is shown with its address, so it is not lost silently. The same sheet opens from a row in a list (PageListItem:
-// the pages of "Standardsider").
+// the pages of "Default pages").
 import { useRef, useState, type Ref } from 'react';
 import { CaretRight } from '@phosphor-icons/react';
 import type { Option } from './fields';
@@ -29,7 +29,7 @@ type Sheet = {
   value: string;
   groups: Group[];
   required?: boolean;
-  /** The sheet's title and what is picked there, under it (a row's name and its field's hint); else "Vælg side". */
+  /** The sheet's title and what is picked there, under it (a row's name and its field's hint); else "Choose page". */
   title?: string;
   hint?: string;
   onChange: (value: string) => void;
@@ -125,7 +125,7 @@ export default function PagePicker({ id, inField, ...props }: Sheet & { id: stri
 }
 
 /** A row in a Group with its name (`title`) and the page picked, that opens the sheet with the pages, titled with its
- * name and its hint under it (PickListItem): the pages of "Standardsider". */
+ * name and its hint under it (PickListItem): the pages of "Default pages". */
 export function PageListItem({ ref, ...props }: Sheet & { title: string; ref?: Ref<HTMLButtonElement> }) {
   const { shown, show, sheet } = usePageSheet(props);
   return (

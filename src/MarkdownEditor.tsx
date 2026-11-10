@@ -285,7 +285,7 @@ const blocksOf = (doc: Node) => {
   return blocks;
 };
 
-// "Flyt op" and "Flyt ned" for the part at the top level at index i, where it can be moved: not past
+// "Move up" and "Move down" for the part at the top level at index i, where it can be moved: not past
 // the start or end, nor past a block the template locks (locked: their types). The menu stays open on
 // the moved card, so it can be moved again at once.
 const moves = (view: EditorView, i: number | null, locked: string[] = []): CardItem[] => {
@@ -754,7 +754,7 @@ function selectionMenu(
             acting = false;
           }
           update(view);
-          // Again when "Gem ændringer" has come after the first change.
+          // Again when "Save changes" has come after the first change.
           setTimeout(follow, 100);
         };
         // The selection stays: no focus taken with the mouse, and a tap does not end the selection
@@ -787,7 +787,7 @@ function selectionMenu(
         const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
         if (matchMedia('(pointer: coarse)').matches) {
           menu.style.left = `${screen.offsetLeft + (screen.width - width) / 2}px`;
-          // Over "Gem ændringer" when it is there (FormFrame.tsx).
+          // Over "Save changes" when it is there (FormFrame.tsx).
           const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
           menu.style.top = `${Math.min(screen.offsetTop + screen.height, save) - height - 12}px`;
           return;
@@ -1318,7 +1318,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} onClick={action} />
   );
 
-  // The lines between the marks on the text, the kinds of text, "+" (or "Billede") and "Fortryd".
+  // The lines between the marks on the text, the kinds of text, "+" (or "Picture") and "Undo".
   const lineBefore = (item: (typeof tools)[number]) =>
     item === kinds[0] || item.icon === Plus || item.icon === Image || item.icon === ArrowUUpLeft || item.icon === SectionSettingsIcon;
   // A button of the toolbar; when it is too short, each group of kinds of text is one button (at its first), with a menu.

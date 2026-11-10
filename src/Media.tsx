@@ -1,10 +1,10 @@
-// "Filer" under "Indhold": the pictures uploaded to the site (public/images/uploads/<year>/<month>/,
+// "Files" under "Content": the pictures uploaded to the site (public/images/uploads/<year>/<month>/,
 // imported or added in the editor, images.ts) and the PDFs, videos and zip files (public/filer/,
 // /filer/ on the site), newest first, with search, the order (newest, oldest, by name), a month or year,
 // the type (Billeder, PDF'er, Videoer, Zip-filer) and whether a page uses them (Gallery). A file that is
 // not a picture is a square with its icon and name. Tapping one opens a sheet from the bottom with the
 // file (FileView.tsx), its file name and where it is used, each a link to that page or post, or
-// "Slet billede" (…) when nothing uses it (also not the site's own code, /editor/code-images.json). Its
+// "Delete picture" (…) when nothing uses it (also not the site's own code, /editor/code-images.json). Its
 // name, under the title, can be changed with the pencil after it (not one the site's code uses),
 // saved with the tick: the file moves, the pages that use it get the new address in the same commit,
 // and the old address sends on to it (addresses.ts). The FAB uploads a new file, saved at once. The same
@@ -592,7 +592,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
     : [];
 
   // What is shown about a file: its name (changed with the pencil), the file, where it is used and
-  // "Slet". On a computer beside the grid (SideSheet), on a phone in the sheet.
+  // "Delete". On a computer beside the grid (SideSheet), on a phone in the sheet.
   const details = (src: string) => (
     <>
       <form

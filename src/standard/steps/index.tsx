@@ -1,4 +1,4 @@
-// "Trin", a standard block: numbered steps with a heading and a text along a line. How it looks is the theme's
+// "Steps", a standard block: numbered steps with a heading and a text along a line. How it looks is the theme's
 // (packages/editor/theme/blocks/steps/View.tsx; what it shows: view.ts, and load.ts on the site).
 import { ListNumbers } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';

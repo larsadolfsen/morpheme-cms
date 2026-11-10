@@ -1,7 +1,7 @@
-// "Udseende" › "Header" (#appearance/header): what is in the header on every page, on one screen laid out as a page's form
+// "Appearance" › "Header" (#appearance/header): what is in the header on every page, on one screen laid out as a page's form
 // (SettingsSections.tsx): a preview of the header as the form has it, on a phone and a computer (partPreview.tsx), over the
-// sections Main menu (menu.json), Mobile menu (mobile-menu.json), Call to action and Menu button (header.json). "Gem
-// ændringer" saves each changed file in its own commit (useDataFiles.ts). Exposes HeaderSettings (default). Uses
+// sections Main menu (menu.json), Mobile menu (mobile-menu.json), Call to action and Menu button (header.json). "Save
+// changes" saves each changed file in its own commit (useDataFiles.ts). Exposes HeaderSettings (default). Uses
 // DataFileFields.tsx, fields.tsx, blocks.ts (BlockData), headerPreview.mjs and headerTheme.tsx.
 import { useMemo, type ReactNode } from 'react';
 import FormFrame from './FormFrame';

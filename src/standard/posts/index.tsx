@@ -1,5 +1,5 @@
-// "Blogindlæg", a standard block: blog posts as a list, all of them (those with some tags, when it has any), 3–6 of
-// them (the newest or random ones with some tags) or those picked, with "Alle indlæg" under them but when it shows all; the newest large when its design is "Det nyeste stort".
+// "Blog posts", a standard block: blog posts as a list, all of them (those with some tags, when it has any), 3–6 of
+// them (the newest or random ones with some tags) or those picked, with "All posts" under them but when it shows all; the newest large when its design is "Newest large".
 // The posts are the site's (the relation `blog`, and BlockData.site.posts), their tags the relation `categories`. How it
 // looks is the theme's (packages/editor/theme/blocks/posts/View.tsx; what it shows: view.ts, and load.ts on the site).
 import { Article, Newspaper, Rows } from '@phosphor-icons/react';
@@ -11,9 +11,9 @@ import { headFields } from '../head';
 import type { PostChoice } from '../site';
 import shared, { allPostsText, postCount } from './shared';
 
-/** The posts a "Blogindlæg" block or a site's own section shows, as the site picks them: all (with `show` "all"), the
+/** The posts a "Blog posts" block or a site's own section shows, as the site picks them: all (with `show` "all"), the
  * newest `count`, or those picked. Random: the newest stand here (the site picks anew on each visit), and the note says
- * how many it picks from. `all`: what "Alle indlæg" says (to a tag when the posts are from one blog tag, or one is
+ * how many it picks from. `all`: what "All posts" says (to a tag when the posts are from one blog tag, or one is
  * picked); empty when it shows all. */
 export function postsOf(choice: PostChoice, data: BlockData) {
   const { show = 'categories', categories = [], order = 'newest', picked = [] } = choice;
@@ -34,8 +34,8 @@ export function postsOf(choice: PostChoice, data: BlockData) {
   };
 }
 
-// Which posts it shows, for its card: "Kommunikation · 12 indlæg", "De nyeste 3 fra Kommunikation", "Tilfældige 3
-// fra alle indlæg", or the titles of those picked.
+// Which posts it shows, for its card: "Communication · 12 posts", "The newest 3 from Communication", "Random 3
+// from all posts", or the titles of those picked.
 function postsLine(p: BlockProps, data: BlockData): string {
   const label = (to: Relation, v: string) => data.relations[to]?.find((o) => o.value === v)?.label ?? v;
   if (p.show === 'picked') return ((p.picked ?? []) as string[]).map((v) => label('blog', v)).join(' · ');

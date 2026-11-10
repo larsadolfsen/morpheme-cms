@@ -1,4 +1,4 @@
-// The site's icon packs, for the editor ("Indstillinger" › "Udseende" › "Ikonpakker", IconPacks in Library.tsx): the
+// The site's icon packs, for the editor ("Settings" › "Appearance" › "Icon packs", IconPacks in Library.tsx): the
 // system's own (packages/editor/icons/<pack>/: Material Symbols, Phosphor and Lucide) and those the themes installed bring
 // (src/themes/<theme>/icon-packs/<pack>/), each by its manifest (pack.json) with a few of its icons to show; and the one
 // the site and this editor are built with (packages/editor/site/iconPacks.mjs: the one chosen, src/data/icons.json, else the theme's,

@@ -18,9 +18,9 @@ export const examplePicture = `data:image/svg+xml,${encodeURIComponent(
 const slug = (s: string) =>
   s
     .toLocaleLowerCase()
-    .replace(/æ/g, 'ae')
-    .replace(/ø/g, 'oe')
-    .replace(/å/g, 'aa')
+    .replace(/\u00e6/g, 'ae')
+    .replace(/\u00f8/g, 'oe')
+    .replace(/\u00e5/g, 'aa')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 
@@ -77,7 +77,7 @@ export function exampleData(): BlockData {
 
 /** An entry of a kind of a list of kinds (a pop-up, Mailchimp's) as an example: a new one of the kind, with the
  * defaults of the fields it has, the made-up name, heading and text, and the plain picture. "Parts" draws each kind
- * with it, and "Blokindstillinger" an app's kind no entry is made with. */
+ * with it, and "Block settings" an app's kind no entry is made with. */
 export function kindExample(list: FolderCollection, kind: string): Record<string, unknown> {
   const name = list.kinds!;
   const fields = list.fields.filter((f) => f.only?.field !== name || f.only.is.includes(kind));

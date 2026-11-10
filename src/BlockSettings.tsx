@@ -1,18 +1,18 @@
-// "Blokke" › "Blokindstillinger" (#block-settings): the blocks that can be put in the text of a page, in
+// "Blocks" › "Block settings" (#block-settings): the blocks that can be put in the text of a page, in
 // groups, the editor's standard blocks (packages/editor/src/standard/) and those of each app installed under "Apps",
 // under the app's name (e.g. "Mailchimp",
 // src/apps/, AppList.tsx; an app not installed has none here), each with how many pages it is on at its right
-// (ListItem's count, as the counts on the editor's front page), or "Deaktiveret" when it is off. An app's group also has
-// its kinds of the site's lists (Mailchimp's pop-up), each with how many there are at its right (or "Deaktiveret"), as
+// (ListItem's count, as the counts on the editor's front page), or "Disabled" when it is off. An app's group also has
+// its kinds of the site's lists (Mailchimp's pop-up), each with how many there are at its right (or "Disabled"), as
 // a block; one with neither says so. Tapping a block opens a sheet from the bottom (a dialog on a computer), as a
-// picture in "Filer" does: what it is, a switch, and the pages it is on, each a link to it in the editor; a kind's the
+// picture in "Files" does: what it is, a switch, and the pages it is on, each a link to it in the editor; a kind's the
 // same, with the entries of it. The switch saves at once, in its own commit. A block that is off is not offered under
-// "Indsæt", and a new page does not start with it; a kind that is off not under "+" of its list. A block on a page (a
+// "Insert", and a new page does not start with it; a kind that is off not under "+" of its list. A block on a page (a
 // kind with entries) cannot be turned off: it is removed from the pages first, so turning a block off never changes the
 // site. Saved in the site's file of block settings (config.blockSettings) as the blocks (and kinds, kindKey) that are
 // off, so a new block is on until turned off. The sheet also shows how the block looks on the site (Preview): as on the
 // first page it is on (a kind: as its first entry), or with an example when it is on none. Over the
-// groups, as over the lists, a search by name, the order (by group, A–Å or Å–A, kept in this browser; A–Å
+// groups, as over the lists, a search by name, the order (by group, A–Z or Z–A, kept in this browser; A–Z
 // under the first letter) and the funnel with the filters by group, by on or off and by whether it is used,
 // each picked one as a chip.
 import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
@@ -52,7 +52,7 @@ import { headed, letterOf } from './Sheet';
 import { config, siteName } from '@site/editor';
 import { siteT, t } from './i18n';
 
-// In alphabetical order, as under "Indsæt" (BlockDialog.tsx).
+// In alphabetical order, as under "Insert" (BlockDialog.tsx).
 const blocks = [...siteBlocks].sort((a, b) => byText(a.label, b.label));
 
 // A block's name in the site's language, for the commit: a standard block's from the texts, the site's
@@ -60,7 +60,7 @@ const blocks = [...siteBlocks].sort((a, b) => byText(a.label, b.label));
 const siteLabel = (b: SiteBlock) =>
   (b.standard ? (siteT.blocks as Record<string, { label?: string }>)[b.type]?.label : undefined) ?? asWritten(b).label;
 
-// HTML on a line of its own (the block "HTML-kode", markdown.mjs): an embedded video, a calendar, a table.
+// HTML on a line of its own (the block "HTML code", markdown.mjs): an embedded video, a calendar, a table.
 const HTML_LINE = /^<(?!div data-block)(iframe|table|div|figure|script|section|details|video|audio|form|style|center|blockquote)\b/m;
 
 /** The pages and posts a block is on (any copy, also a hidden one), by their title. */
@@ -112,7 +112,7 @@ function kindExample(app: SiteApp, list: string, files: RepoFile[], data: BlockD
   return { node: draw({ ...props, ...kind.variants?.[0]?.props }, data), on: copy?.on };
 }
 
-/** "Sådan ser den ud": the block in a Preview, with where its fields come from under it (`note`, by whether it
+/** "How it looks": the block in a Preview, with where its fields come from under it (`note`, by whether it
  * draws nothing). Should it draw nothing with its example, no empty frame, only that. */
 function Looks({ children, note }: { children: ReactNode; note: (blank: boolean) => string }) {
   const box = useRef<HTMLDivElement>(null);
@@ -226,14 +226,14 @@ export function kindSwitchTexts(app: SiteApp, list: string, count: number): Swit
   };
 }
 
-/** "Aktiveret": the switch of a block, here and in the sheet on its app's page (AppList.tsx). On a page, it
+/** "Activated": the switch of a block, here and in the sheet on its app's page (AppList.tsx). On a page, it
  * cannot be turned off. */
 export function BlockSwitch({ block, env, files }: { block: SiteBlock; env: Env; files: RepoFile[] }) {
   const count = useMemo(() => pagesWith(block.type, files).length, [block.type, files]);
   return <OnOffSwitch id={block.type} count={count} texts={blockSwitchTexts(block, count)} env={env} files={files} />;
 }
 
-/** "Aktiveret": the switch of an app's kind of a list (`list`, its id), here and in the sheet on the app's
+/** "Activated": the switch of an app's kind of a list (`list`, its id), here and in the sheet on the app's
  * page (AppList.tsx); off, it is not under "+" of the list. With entries, it cannot be turned off. */
 export function KindSwitch({ app, list, env, files }: { app: SiteApp; list: string; env: Env; files: RepoFile[] }) {
   const count = useMemo(() => entriesOf(app, list, files).length, [app, list, files]);
@@ -357,7 +357,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
   const narrowed = words.length > 0 || !!shownGroup || !!shownOnOff || !!shownUse;
   const inGroups = groups.map((g) => ({ title: g.title, rows: g.rows.filter(fits), empty: !g.rows.length && !narrowed }));
   const found = inGroups.flatMap((g) => g.rows);
-  // A–Å or Å–A: all in one list, under the first letter of their names (headed, from HEADINGS_FROM).
+  // A–Z or Z–A: all in one list, under the first letter of their names (headed, from HEADINGS_FROM).
   const lettered =
     sort === 'group'
       ? []

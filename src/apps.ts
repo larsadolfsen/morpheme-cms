@@ -1,5 +1,5 @@
 // An app: more for the site, as a folder of its own in src/apps/<app>/ (registry.tsx finds them), installed
-// under "Indstillinger" › "Apps" (AppList.tsx): the site's own come with it in its code; those from the app store
+// under "Settings" › "Apps" (AppList.tsx): the site's own come with it in its code; those from the app store
 // (store.ts) are copied into it when they are installed, with a note of where they came from (store.json):
 //   index.ts      what the editor knows about it (defineApp): its name, who made it, its icon, what it does (in a
 //                 sentence, and more fully), the cookies it sets and its settings (settings.ts in the folder, with
@@ -9,7 +9,7 @@
 //   texts.ts      its texts in the editor's other languages, as a block's;
 //   blocks/<type>/  the blocks it adds, each a folder like a standard block's (index.tsx, viewOf.ts, load.ts,
 //                 View.tsx, texts.ts, evt. shared.ts and script.ts);
-//   lists in index.ts  the lists it brings (`lists`, a FolderCollection each, with its icon): under "Lister" while
+//   lists in index.ts  the lists it brings (`lists`, a FolderCollection each, with its icon): under "Lists" while
 //                 it is installed, and on its page; the entries are files in the site's data (src/data/), so
 //                 they stay, as the rest of the content, when it is uninstalled;
 //   <list>/       a kind of entry it adds to one of the site's lists (`kinds` in index.ts), e.g. popups/: a
@@ -24,17 +24,17 @@
 //   page in index.ts  what it shows on its page under its settings (AppPage), drawn with the editor's parts (ui.tsx),
 //                 asking its own addresses in the Worker (`api`);
 //   screens in index.ts  screens of its own under its page (#apps/<app>/<screen>, AppScreenPage), drawn as its page,
-//                 which links to them (Cookiescanner's "Blokeret adresse");
+//                 which links to them (Cookiescanner's "Blocked address");
 //   tabs in index.ts  tabs it adds to the site's lists (#list/<list>/<app>, after the list's own tab in the top app
-//                 bar, Library.tsx List), drawn as its page (Cookiescanner's "Problemer" on "Cookies");
-//   notifications in index.ts  the kinds of notifications it sends, each turned off under "Konto", and how it finds
+//                 bar, Library.tsx List), drawn as its page (Cookiescanner's "Problems" on "Cookies");
+//   notifications in index.ts  the kinds of notifications it sends, each turned off under "Account", and how it finds
 //                 them (`check`, with `api`; AppNotifications);
 //   worker.js, build.mjs  its part of the site's Worker (/api/<app>/…, each hour) and a step after the site is built
 //                 (packages/editor/lib/apps.mjs);
 //   csp.json      what it loads from elsewhere on the site (packages/editor/lib/csp.mjs).
-// An app that is not installed, or turned off ("off" in the file of apps), is not offered in the editor: its blocks are not under "Indsæt" nor
-// "Blokindstillinger", its kinds not under "+", its lists not under "Lister", its settings not on its page. What was made with it stays,
-// on the pages and on the site, and can still be edited. Installed, its blocks are under its name in "Blokindstillinger". The
+// An app that is not installed, or turned off ("off" in the file of apps), is not offered in the editor: its blocks are not under "Insert" nor
+// "Block settings", its kinds not under "+", its lists not under "Lists", its settings not on its page. What was made with it stays,
+// on the pages and on the site, and can still be edited. Installed, its blocks are under its name in "Block settings". The
 // apps installed are in the site's file of apps (config.apps.installed), each app's settings in a file of
 // its own in config.apps.settings. The site's build reads the settings, so settings.ts imports nothing
 // that needs a browser.
@@ -70,7 +70,7 @@ export const defineSettings = (settings: AppSettings) => settings;
  * themselves. `draw`: how one looks on the site, by the form of an entry of it (DataForm.tsx), once for each
  * of `variants` (its states, e.g. before and after a signup), under its name, with its props over the entry's; or
  * `part`, its part in the list's own drawing (FolderCollection.drawPart, kindDraw). `opens`: what a button can
- * open of one (a button's "Åbn promovering", the list's FolderCollection.opens), without it nothing. */
+ * open of one (a button's "Open promotion", the list's FolderCollection.opens), without it nothing. */
 export type AppKind = {
   label: string;
   hint?: string;
@@ -106,8 +106,8 @@ export type AppScreen = { title: string; page: ComponentType<AppPageProps> };
  * the editor's parts and given the same `api`. */
 export type AppTab = { label: string; icon: Icon; page: ComponentType<AppPageProps> };
 
-/** The notifications an app sends ("Notifikationer", notificationData.ts). `types`: each kind it sends, by its id, with its
- * name (in the site's language, shown with siteText), under "Konto" › "Notifikationer", where each can be turned off; it
+/** The notifications an app sends ("Notifications", notificationData.ts). `types`: each kind it sends, by its id, with its
+ * name (in the site's language, shown with siteText), under "Account" › "Notifications", where each can be turned off; it
  * sends no other. `check`: what it has to say now, asked with its `api` when the editor opens and every 15 minutes while
  * it is open; each comes once (by its `id`). */
 export type AppNotifications = {
@@ -119,7 +119,7 @@ export type AppNotifications = {
  * the text of the link to it (`link`, in the site's language; without it, the app's name). */
 export type AppNotification = { type: string; id: string; text: string; error?: boolean; to?: string; link?: string };
 
-/** A list an app brings, as the site's own lists (packages/editor/defaults/collections.ts), with its icon under "Lister". */
+/** A list an app brings, as the site's own lists (packages/editor/defaults/collections.ts), with its icon under "Lists". */
 export type AppList = OwnedList;
 
 export type AppDefinition = {
@@ -127,16 +127,16 @@ export type AppDefinition = {
   /** Who made it, under its name on its page. */
   publisher: string;
   /** Its own licence: an SPDX expression ("MIT", with its text in LICENSE in its folder), or "UNLICENSED" when all
-   * rights are reserved. Under "Licenser" and on its page, also in the store. */
+   * rights are reserved. Under "Licenses" and on its page, also in the store. */
   license: string;
   /** The third-party work it brings (fonts, icons, code, pictures), each with its licence (ThirdParty): every package
    * its code imports that is not the editor's (npm run check:content says which are missing), or a work with its
-   * licence file in its folder; [] when it brings none. Under "Licenser" and on its page, also in the store. */
+   * licence file in its folder; [] when it brings none. Under "Licenses" and on its page, also in the store. */
   thirdParty: ThirdParty[];
   icon: Icon;
   /** What it does, in a short sentence, on its page and in the list of apps. */
   hint: string;
-  /** What it does and how, more fully, on its page under "Om appen": a paragraph for each blank line. */
+  /** What it does and how, more fully, on its page under "About the app": a paragraph for each blank line. */
   description?: string;
   /** The pictures it is shown with on its page (as a theme's), a few picked to give an idea of it, each with what it
    * shows and what it says under it (AppShot); taken by packages/editor/scripts/app-screenshots.mjs with made-up content only. */
@@ -147,7 +147,7 @@ export type AppDefinition = {
   settings?: AppSettings;
   /** The kinds it adds to the site's lists, by the list's id (a FolderCollection with `kinds`). */
   kinds?: Record<string, AppKind>;
-  /** The lists it brings ("Priser"), under "Lister" while it is installed. */
+  /** The lists it brings ("Prices"), under "Lists" while it is installed. */
   lists?: AppList[];
   /** Its version, shown on its page: in the app store (store.ts) the one released, and a site-local app can set one too.
    * X.Y.Z ("1.2.1"): X for a major release, Y for new features, Z for fixes
@@ -161,9 +161,9 @@ export type AppDefinition = {
    * is new since in its note (packages/editor/scripts/releases.mjs). */
   releaseNotes?: Record<string, string>;
   /** In the app store: its main category (a filter in the store) and words it is found by, besides its name and
-   * what it does ("nyhedsbrev"). The category also says where its settings are: under "Indstillinger" on the site's
-   * screen with it (PartScreen.apps in partScreens: "analytics" on "Analytics"), or on a part of "Virksomheden" with it
-   * (Part.apps in companyParts: "payments" on "Betaling"), so they are where they are used and not on its page under
+   * what it does ("newsletter"). The category also says where its settings are: under "Settings" on the site's
+   * screen with it (PartScreen.apps in partScreens: "analytics" on "Analytics"), or on a part of "Business" with it
+   * (Part.apps in companyParts: "payments" on "Payment"), so they are where they are used and not on its page under
    * "Apps", which only installs it; without such a screen, on a screen of their own (#apps/<id>/settings).
    * The old ids `newsletter`, `payment` and `design` are still accepted, as deprecated aliases of `email`,
    * `payments` and `appearance` (categoryOf in lib/storeCategories.mjs). */
@@ -237,12 +237,12 @@ export function withKinds<C extends { id: string; kind: string; fields?: Field[]
   };
 }
 
-/** An app's kind of a list as it is turned off under "Blokindstillinger", among the blocks turned off ("popups/mailchimp",
+/** An app's kind of a list as it is turned off under "Block settings", among the blocks turned off ("popups/mailchimp",
  * as its address under "+", #new/popups/mailchimp). */
 export const kindKey = (list: string, app: string) => `${list}/${app}`;
 
 /** The kinds a new entry of a list can be, under its "+": its own, and those of the apps installed and not turned off
- * under "Blokindstillinger" (`off`, offBlocks). */
+ * under "Block settings" (`off`, offBlocks). */
 export function kindsOffered(
   collection: { id: string; fields?: Field[]; kinds?: string },
   apps: SiteApp[],

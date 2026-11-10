@@ -1,4 +1,4 @@
-// "Parts" › "UI-komponenter" (BlockParts.tsx), the group "Communication": the theme's parts that tell the visitor something
+// "Parts" › "UI components" (BlockParts.tsx), the group "Communication": the theme's parts that tell the visitor something
 // (packages/editor/theme/ui/, through @site/editor) as the site draws them, with made-up texts: badges (a dot, the four status tones and a number,
 // on an icon, an icon button and a navigation drawer's item), the loading indicator with and without its container,
 // the progress indicators with a value and without (flat and wavy, and thick), snackbars (one line, two lines, with

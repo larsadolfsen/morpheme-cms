@@ -1,4 +1,4 @@
-// "Priskort" on the site (view.ts): each card's button as a "Knapper" block's (loadButtons, which knows the site's pages
+// "Price cards" on the site (view.ts): each card's button as a "Buttons" block's (loadButtons, which knows the site's pages
 // and targets), and none without one.
 import { loadButtons } from '../buttons/load';
 import { headOf } from '../head';

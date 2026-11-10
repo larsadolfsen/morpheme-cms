@@ -4,8 +4,8 @@ import { GroupTitle, SwitchRow } from './ui';
 import { t } from './i18n';
 import { setOn, useNotificationChoices } from './notificationData';
 
-/** The app's kinds of notifications under "Notifikationer", each with its switch, the same as under "Konto" ›
- * "Notifikationer". */
+/** The app's kinds of notifications under "Notifications", each with its switch, the same as under "Account" ›
+ * "Notifications". */
 export default function AppNotificationSwitches({ notifies }: { notifies: { label: string; type?: string }[] }) {
   const { off } = useNotificationChoices();
   return (

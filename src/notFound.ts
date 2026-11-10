@@ -1,5 +1,5 @@
 // The addresses visitors came to that do not exist, as the site's Worker keeps them (packages/editor/worker/not-found.js,
-// /api/not-found on the editor's own address), for "Ikke fundet" under "Videresendelser" (Redirects.tsx).
+// /api/not-found on the editor's own address), for "Not found" under "Redirects" (Redirects.tsx).
 // Asked with the GitHub sign-in (the Worker's cookie, sent with the request): the Worker lets only someone who can save
 // the site see them.
 

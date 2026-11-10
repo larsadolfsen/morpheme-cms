@@ -12,13 +12,13 @@ import shared from './shared';
  * outlined or text) and its icon (the arrow goes after the text, the others before it). */
 export type ButtonView = { href: string; text: string; label?: string; open?: string; kind: ButtonKind; icon?: string };
 
-/** "Knapper": its buttons. */
+/** "Buttons": its buttons. */
 export type ButtonsView = { buttons: ButtonView[] };
 
 /** A button's kind: its own, else filled. */
 export const kindOf = (b: Button): ButtonKind => buttonKinds.find((k) => k === b.kind) ?? 'filled';
 
-/** Buttons in the editor: their own, else the shared ones ("Blokke" › "Knapper"). */
+/** Buttons in the editor: their own, else the shared ones ("Blocks" › "Buttons"). */
 export const buttonsOf = (items: Button[] | undefined, data: BlockData): ButtonView[] =>
   (items?.length ? items : ((sharedIn(data.site, 'buttons', shared.values).items ?? []) as Button[])).map((b) => ({
     href: b.href ?? '',

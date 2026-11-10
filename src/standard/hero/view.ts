@@ -1,7 +1,7 @@
 // What "Banner" shows (its view, drawn by the theme's View.tsx), from the parts of its text (heroParts in fields.ts):
 // its heading (an H2; the page's H1 is the page's), the text before its buttons as HTML (the first paragraph the
 // subtitle, the others the introduction), its picture (beside the text, or behind it), whether it goes across the whole
-// width of the window, the buttons of its "Knapper" block (its own, else the shared ones, "Blokke" › "Knapper"; none
+// width of the window, the buttons of its "Buttons" block (its own, else the shared ones, "Blocks" › "Buttons"; none
 // without the block), and the text after them, with a quote written in it. In the editor: viewOf; on the site: load.ts.
 import { markdownNow } from '../../../lib/markdown';
 import { shownAt } from '../../images';
@@ -18,7 +18,7 @@ export type HeroView = {
   behind?: boolean;
   /** Across the whole width of the window (`width` 'full'), not only the text's. */
   full?: boolean;
-  /** The buttons of its "Knapper" block; none without one. */
+  /** The buttons of its "Buttons" block; none without one. */
   buttons?: ButtonView[];
   /** The text after the buttons, as HTML: its paragraphs and a quote ("> …"). */
   note?: string;

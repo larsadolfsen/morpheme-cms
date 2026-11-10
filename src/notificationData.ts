@@ -3,11 +3,11 @@
 // site is updated or not, `saved`: something is saved, deleted, restored or installed, `failed`: it could not be,
 // `updates`: an app from the store updated on its own, AppList.tsx autoUpdate), or
 // an app's, which it declares (`notifications` in its index.ts, AppNotifications in apps.ts) as `<app>/<type>`. A
-// message about something going on ("Gemmer…") or about a form that cannot be saved has no type and is only shown at
+// message about something going on ("Saving…") or about a form that cannot be saved has no type and is only shown at
 // the bottom.
-// Each type can be turned off under "Konto" › "Notifikationer" (Library.tsx Account): then it is not kept here or sent
+// Each type can be turned off under "Account" › "Notifications" (Library.tsx Account): then it is not kept here or sent
 // to the phone (the editor's own are still shown at the bottom, as the answer to what was done; an app's not at all).
-// There too "På telefonen": when it is on, a notification comes on the phone or computer as well while the editor is
+// There too "On the phone": when it is on, a notification comes on the phone or computer as well while the editor is
 // open but not on screen (another app or tab; notifyDevice), and, through the site's Worker (Web Push, packages/editor/worker/push.js),
 // when it is closed: this browser is signed up there with the types turned off and the editor's language (signUp), and
 // after a save the Worker tells it when the site has been built with it (waitOnServer); an app's part of the Worker
@@ -33,7 +33,7 @@ export type Notification = {
   link?: { text: string; href: string };
 };
 type Kept = { items: Notification[]; seen: number; told: string[] };
-/** `off`: the types turned off; `device`: "På telefonen" (not chosen yet: on when the browser allows it). */
+/** `off`: the types turned off; `device`: "On the phone" (not chosen yet: on when the browser allows it). */
 type Choices = { off: string[]; device?: boolean };
 
 const KEY = 'editor-notifications';
@@ -110,7 +110,7 @@ export function setOn(type: string, on: boolean) {
 const allowed = () => typeof Notification !== 'undefined' && Notification.permission === 'granted';
 const deviceOn = () => choices.device ?? allowed();
 
-/** Turns "På telefonen" on or off; on asks the browser first. False when the browser does not allow it. */
+/** Turns "On the phone" on or off; on asks the browser first. False when the browser does not allow it. */
 export async function setDevice(on: boolean): Promise<boolean> {
   if (on && typeof Notification === 'undefined') return false;
   if (on && Notification.permission === 'default') await Notification.requestPermission().catch(() => {});
@@ -171,7 +171,7 @@ async function signUp() {
   signedUp = signed.ok ? subscription.endpoint : null;
 }
 
-/** Signs this browser off at the Worker ("På telefonen" off, "Log ud": before the sign-in goes), and from the push
+/** Signs this browser off at the Worker ("On the phone" off, "Log out": before the sign-in goes), and from the push
  * service. */
 export async function signOff() {
   signedUp = null;
@@ -181,7 +181,7 @@ export async function signOff() {
   await subscription.unsubscribe().catch(() => {});
 }
 
-/** When the editor opens: signs up again while "På telefonen" is on (the Worker may have a new key, or have forgotten
+/** When the editor opens: signs up again while "On the phone" is on (the Worker may have a new key, or have forgotten
  * a browser not seen for half a year), else signs off. */
 export function syncDevice() {
   (deviceOn() && allowed() ? signUp() : signOff()).catch(() => {});
@@ -200,15 +200,15 @@ export function stopServerWait() {
   if (signedUp) api(`${PUSH}/wait`, 'DELETE', { endpoint: signedUp }).catch(() => {});
 }
 
-// Asks whether the editor may show notifications on the phone, once, while "På telefonen" is not chosen yet.
-// Browsers only ask after a tap, so this is called from "Gem".
+// Asks whether the editor may show notifications on the phone, once, while "On the phone" is not chosen yet.
+// Browsers only ask after a tap, so this is called from "Save".
 export function askToNotify() {
   if (choices.device === undefined && typeof Notification !== 'undefined' && Notification.permission === 'default')
     setDevice(true).catch(() => {});
 }
 
 // The message as a notification on the phone or computer (through the service worker, packages/editor/pages/editor/sw.js), when
-// "På telefonen" is on and the editor is not on screen.
+// "On the phone" is on and the editor is not on screen.
 async function notifyDevice(text: string) {
   if (document.visibilityState === 'visible' || !deviceOn() || !allowed()) return;
   const options = { body: text, icon: '/editor/icon-192.png', tag: 'site' };
@@ -221,7 +221,7 @@ async function notifyDevice(text: string) {
 
 export const useNotifications = () => useSyncExternalStore(subscribe, () => kept);
 
-/** The choices: the types turned off and whether "På telefonen" is on. */
+/** The choices: the types turned off and whether "On the phone" is on. */
 export const useNotificationChoices = () => {
   const now = useSyncExternalStore(subscribe, () => choices);
   return { off: now.off, device: now.device ?? allowed() };

@@ -1,4 +1,4 @@
-// "Cookieliste" on the site (view.ts): the cookies of the list "Cookies" from the site (@site/standard) and the shared
+// "Cookie list" on the site (view.ts): the cookies of the list "Cookies" from the site (@site/standard) and the shared
 // texts, with those saved over them.
 import { standard } from '@site/standard';
 import type { Load } from '../view';

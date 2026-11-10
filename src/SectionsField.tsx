@@ -1,6 +1,6 @@
 // The sections of a fixed page (a list of blocks, collections.ts) as one text in the editor, like a
-// page: the sections are cards in the text (Ret, Skjul/Vis, arrows, Fjern), the text between them is
-// the owner's own, each heading a section of its own, and "Indsæt blok" puts a section back in.
+// page: the sections are cards in the text (Edit, Hide/Show, arrows, Remove), the text between them is
+// the owner's own, each heading a section of its own, and "Insert block" puts a section back in.
 // Read and written by sections.mjs; the file keeps its list of sections, so the site is unchanged.
 // With the field's `intro`, the page's introduction is the text at the top (DataForm.tsx).
 import { useContext, useMemo, useRef } from 'react';
@@ -19,7 +19,7 @@ type Props = {
   intro?: string;
   /** The fixed page: its file and the values of its other fields, for the previews of the sections. */
   page?: { file: string; values: Record<string, unknown> };
-  /** The blocks not offered under "Indsæt" (turned off, or of an app not installed); those already here stay. */
+  /** The blocks not offered under "Insert" (turned off, or of an app not installed); those already here stay. */
   off?: string[];
   onChange: (value: unknown, intro?: string) => void;
 };
@@ -29,7 +29,7 @@ export default function SectionsField({ field, value, intro, page, off = [], onC
   const leads = useMemo(() => leadsOfField(field), [field]);
   const list = useMemo(() => sectionBlocks(field.blocks!, leads), [field, leads]);
   const context = useContext(Fields)!;
-  // What "Indsæt" offers: as EntryForm.tsx, the template's blocks without those not offered.
+  // What "Insert" offers: as EntryForm.tsx, the template's blocks without those not offered.
   const insertable = useMemo(
     () =>
       off.length

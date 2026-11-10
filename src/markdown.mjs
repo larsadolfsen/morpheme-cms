@@ -208,7 +208,7 @@ export function makeEditor(root, markdown) {
 }
 
 // The text in parts, for a fixed page's sections (sections.mjs): each block, each heading at the top
-// level ("Overskrift", H2), and the Markdown of the text between them. Empty paragraphs (the lines
+// level ("Heading", H2), and the Markdown of the text between them. Empty paragraphs (the lines
 // kept free between two blocks to write in), empty headings (left when one is deleted) and the page's H1
 // (no section's) are left out.
 // An H2's colour (its `section`) is the part's `color`.

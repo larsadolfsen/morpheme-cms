@@ -42,15 +42,15 @@ export default function AppInfoTab({
   description?: string;
   news?: { version: string; text: string }[];
   needs?: AppNeeds;
-  /** The kinds of notifications it sends (AppNotifications), under "Notifikationer": their names. Their switches are
+  /** The kinds of notifications it sends (AppNotifications), under "Notifications": their names. Their switches are
    * on the Settings tab (AppNotificationSwitches). */
   notifies?: { label: string }[];
   cookies: AppCookie[];
   consent: boolean;
   publisher: string;
-  /** Its licences, under "Licenser" (OwnerLicenses, or StoreLicenseRows from the catalog). */
+  /** Its licences, under "Licenses" (OwnerLicenses, or StoreLicenseRows from the catalog). */
   licenses?: ReactNode;
-  /** Where it is used ("Bruges på"), last. */
+  /** Where it is used ("Used on"), last. */
   uses?: { href: string; title: string; icon: Icon }[];
   children?: ReactNode;
 }) {
