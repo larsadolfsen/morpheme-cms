@@ -1,7 +1,8 @@
 # English ids and routes: design
 
-> **Status:** design, written 10 November 2026 against `main` at `253fdfa`. Not agreed yet: the open questions at the end
-> are the owner's. No code changes in this document's pull request.
+> **Status:** agreed by the owner on 10 November 2026 (all recommendations of the open questions), written against `main`
+> at `253fdfa`. Batch B (the language check) is built; the other batches are open. Its leftover findings are the entries of
+> `scripts/pending-ids.mjs`, grouped by the rows and batches below.
 
 ## Goal
 
