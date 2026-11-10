@@ -1,0 +1,29 @@
+{
+  "api": 4,
+  "label": "Widget",
+  "publisher": "Example",
+  "license": "MIT",
+  "icon": "widgets",
+  "hint": "A widget for tests.",
+  "version": "1.2.3",
+  "settings": {
+    "fields": [
+      { "name": "mode", "type": "text" },
+      { "name": "trackingId", "type": "text" }
+    ],
+    "values": { "mode": "light", "size": 3 }
+  },
+  "cookies": [
+    { "name": "widget_mode", "provider": "This site", "purpose": "Remembers the mode.", "duration": "1 year", "category": "preferences" },
+    {
+      "name": "_wid",
+      "provider": "Widget",
+      "purpose": "Measures use.",
+      "duration": "1 day",
+      "category": "statistics",
+      "when": { "setting": "trackingId" }
+    }
+  ],
+  "csp": { "script": ["https://widget.example.com"] },
+  "reads": ["pages"]
+}

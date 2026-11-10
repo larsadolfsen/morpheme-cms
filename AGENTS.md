@@ -44,7 +44,7 @@ Our ecosystem has two completely separate repositories, which must **never** be 
   - `src/`: React-based editor UI, screens, fields, state management (`store.ts`), live preview (`pagePreview.tsx`) and block registry (`blocks.ts`).
   - `pages/`: Astro pages and routing for the admin interface.
 - **`lib/`**: Shared helper functions used by both the editor and the site (block parsing `blocks.mjs`, image cropping `crop.mjs`, status, dates, video handling etc.).
-  - The app sandbox (contract 4): `appHooks.mjs` (the hook places, `APP_HOOKS`), `appManifest.mjs` (reads and checks `app.json`), `appPlaces.mjs` (sandboxed, full or no access per app place), `appProblems.mjs` (the build's app problems, `dist/_apps/_problems.json`).
+  - The app sandbox (contract 4): `appHooks.mjs` (the hook places, `APP_HOOKS`), `appManifest.mjs` (reads and checks `app.json`), `appPlaces.mjs` (sandboxed, full or no access per app place), `appProblems.mjs` (the build's app problems, `dist/_apps/_problems.json`), `reads.mjs` (the site data an app's read scopes give it; test site in `fixtures/reads-site/`).
   - `worker/app-problems.js`: `GET /api/apps/problems`, the build's app problems for the editor.
   - `lib/sandbox/`: `bundle.mjs` (bundles an app's build entry with esbuild and an import allow-list; test apps in `fixtures/`).
 - **`worker/`**: The site's default Cloudflare Worker (login/session, GitHub commit proxy, R2 backup, redirects and scheduled tasks).
