@@ -128,7 +128,6 @@ import {
   storeConnected,
   readThemes,
   readThemeScreenshots,
-  STORE_BEFORE,
   STORE_ROUTE,
   STORE_THEMES,
   type ShownApp,
@@ -279,15 +278,9 @@ function taken(address: string, relations: Record<Relation, Option[]>, redirects
   return { text: t.app.addressRedirects(address, name), redirect: { end, name, via } };
 }
 
-// The app store's screens that have moved (movedRoutes.mjs has the others).
-const STORE_MOVED: Record<string, string> = {
-  [STORE_BEFORE]: STORE_ROUTE,
-  [`${STORE_BEFORE}/temaer`]: STORE_THEMES,
-};
-
 // The editor's address after the "#" (nav.ts screenOf).
 function routeOf(hash: string) {
-  const route = movedRoute(screenOf(hash), STORE_MOVED);
+  const route = movedRoute(screenOf(hash));
   // An app's settings: on the screen with its category, when it has one ("Analytics", AppList.tsx settingsRoute), and so
   // the pages of their fields (Field.page) after them. Otherwise they are on the Settings tab of its page: apps/<id>
   // (a field's page, apps/<id>/settings/<field>, stays, drawn by the same page).

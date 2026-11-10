@@ -9,9 +9,6 @@
 export const PENDING_IDS = [
   // Row 4, batch A2: the CSV file name samtykker-<date>.csv (worker/consent.js).
   'worker/consent.js:samtykker',
-  // Row 8, batch A1: the old store route apps/butik and apps/butik/temaer (STORE_BEFORE, STORE_MOVED); move into RENAMED in src/movedRoutes.mjs.
-  'src/App.tsx:temaer',
-  'src/store.ts:butik',
   // Row 9, batch A2: the licence work id ikoner/<pack id> and its editor address.
   'lib/licenses.mjs:ikoner',
   'src/licenseData.ts:ikoner',
