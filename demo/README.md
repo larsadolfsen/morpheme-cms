@@ -1,26 +1,26 @@
-# Morphemes demo
+# Morpheme's demo
 
-Et opdigtet site om Morpheme selv, på amerikansk engelsk (`locale: 'en-US'`), som temaernes billeder tages af
-(`scripts/theme-screenshots.mjs`), så et tema aldrig vises med et rigtigt sites indhold. Det er starteren (`starter/`)
-med denne mappe lagt ovenpå (`scripts/demo-site.mjs`), så her står kun det, der er anderledes: sider og blogindlæg
-(`src/content/`, starterens egne sider kommer ikke med), de datafiler, demoen ændrer (`src/data/`), `src/site/config.ts`
-og `colors.ts`, og logoet, ikonerne og billederne (`public/`). Kontaktoplysningerne er opdigtede, og udtalelserne på
-*Blocks* er mærket som eksempler.
+A made-up site about Morpheme itself, in American English (`locale: 'en-US'`), which the themes' pictures are taken of
+(`scripts/theme-screenshots.mjs`), so a theme is never shown with a real site's content. It is the starter (`starter/`)
+with this folder laid on top (`scripts/demo-site.mjs`), so only what is different is here: pages and blog posts
+(`src/content/`, the starter's own pages do not come along), the data files the demo changes (`src/data/`), `src/site/config.ts`
+and `colors.ts`, and the logo, the icons and the pictures (`public/`). The contact details are made up, and the testimonials on
+*Blocks* are marked as examples.
 
-`npx morpheme check:demo` bygger demoen med standardtemaet og tjekker den. Se *Temaer › Demoen* i `docs/editor.md`.
+`npx morpheme check:demo` builds the demo with the default theme and checks it. See *Themes › The demo* in `docs/editor.md`.
 
-## Billeder
+## Pictures
 
-Billederne `editor-*.webp` i `public/images/uploads/2026/10/` er skærmbilleder af editoren med demoens eget indhold, sat
-på en baggrund i demoens farver. Fotografierne er fra [Unsplash](https://unsplash.com) under
-[Unsplash-licensen](https://unsplash.com/license), gjort mindre og gemt som WebP:
+The pictures `editor-*.webp` in `public/images/uploads/2026/10/` are screenshots of the editor with the demo's own content, put
+on a background in the demo's colors. The photographs are from [Unsplash](https://unsplash.com) under the
+[Unsplash license](https://unsplash.com/license), made smaller and saved as WebP:
 
-| Fil | Billedet hos Unsplash |
+| File | The picture at Unsplash |
 | --- | --- |
 | `saturn.webp` | https://images.unsplash.com/photo-1614732414444-096e5f1122d5 |
 | `earth-from-space.webp` | https://images.unsplash.com/photo-1446776811953-b23d57bd21aa |
 | `moon.webp` | https://images.unsplash.com/photo-1446941611757-91d2c3bd3d45 |
 | `andromeda.webp` | https://images.unsplash.com/photo-1543722530-d2c3201371e7 |
 
-Logoet (`public/logo.svg`, og `public/favicon.svg` med ikonerne, `npx morpheme editor-icons` skrev dem) er tegnet til
-demoen. Farverne er Material 3's skema af en rolig blå, `#425E92` (*tonal spot*).
+The logo (`public/logo.svg`, and `public/favicon.svg` with the icons, which `npx morpheme editor-icons` wrote) is drawn for
+the demo. The colors are Material 3's scheme of a calm blue, `#425E92` (*tonal spot*).
