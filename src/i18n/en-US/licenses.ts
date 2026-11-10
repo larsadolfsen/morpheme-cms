@@ -1,4 +1,4 @@
-// "Licenser" under "Indstillinger" (Licenses.tsx): the third-party work the site and the editor are made with, and the
+// "Licenses" under "Settings" (Licenses.tsx): the third-party work the site and the editor are made with, and the
 // licenses on an app's and a theme's page.
 import type { LicenseKind } from '../../licenseData';
 

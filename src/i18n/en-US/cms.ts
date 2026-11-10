@@ -1,4 +1,4 @@
-// "Morpheme" under "Indstillinger" (the CMS's update page, #morpheme): the running version, the notes of the update just
+// "Morpheme" under "Settings" (the CMS's update page, #morpheme): the running version, the notes of the update just
 // installed, a new one and its notes, and an update's progress; also the notifications and commit messages (worker/cms-update.js).
 
 export const cms = {

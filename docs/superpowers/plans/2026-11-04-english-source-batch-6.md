@@ -1,6 +1,6 @@
 # Batch 6: the starter in English, Danish as a language layer
 
-Status: not started (no `starter/i18n/`, `lib/locale.mjs` or `locale` command). Checked against the code on 2026-11-10.
+Status: done (2026-11-10, branch `claude/english-source-batch-6`). `PENDING` is deleted; `src/i18n/en-US/` and `astro.mjs` comments were converted as part of it. The docs live in `starter/README.md` (section "Start a Danish site"), since `docs/editor.md` does not exist. The language layer lives in `starter/i18n/da-DK/`. The round trip (`morpheme locale da-DK` gives the old Danish starter) is verified.
 
 Master plan: `2026-11-04-english-source.md`. Needs batches 3, 4 and 5 merged. Repo `morpheme-cms`. This batch ends
 the project: `PENDING` is deleted.
@@ -68,8 +68,8 @@ the project: `PENDING` is deleted.
 starts: `npx morpheme locale da-DK`), `.changeset/<name>.md` (`minor`: "The starter is English;
 `npx morpheme locale da-DK` makes it Danish.")
 
-- [ ] Delete `PENDING`. Run `npm run check:language`. Make sure that it exits with 0.
-- [ ] Run the batch check.
-- [ ] Commit: `Check every file for Danish outside the language files`.
+- [x] Delete `PENDING`. Run `npm run check:language`. Make sure that it exits with 0.
+- [x] Run the batch check.
+- [x] Commit: `Check every file for Danish outside the language files`.
 - [ ] Open the PR. Merge it when the checks pass.
 - [ ] Do the master plan's *After the last batch* steps.

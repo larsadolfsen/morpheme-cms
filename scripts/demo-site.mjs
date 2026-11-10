@@ -24,11 +24,16 @@ export function demoSite(theme = STANDARD_THEME, root = process.cwd()) {
   const cache = join(root, '.morpheme/demo');
   mkdirSync(cache, { recursive: true });
   const dir = mkdtempSync(join(cache, `${theme}-`));
-  // The starter's site without its pages (the demo has its own, at other addresses), then the demo over it.
+  // The starter's site without its pages (the demo has its own, at other addresses) and without its language layers
+  // (i18n/: the demo is English), then the demo over it.
   const content = join(STARTER, 'src/content');
+  const layers = join(STARTER, 'i18n');
   cpSync(STARTER, dir, {
     recursive: true,
-    filter: (from) => !(from + sep).startsWith(content + sep) && !relative(STARTER, from).startsWith('node_modules'),
+    filter: (from) =>
+      !(from + sep).startsWith(content + sep) &&
+      !(from + sep).startsWith(layers + sep) &&
+      !relative(STARTER, from).startsWith('node_modules'),
   });
   cpSync(DEMO, dir, { recursive: true });
   if (theme !== STANDARD_THEME) cpSync(join(root, themeFolder(theme)), join(dir, 'src/themes', theme), { recursive: true });

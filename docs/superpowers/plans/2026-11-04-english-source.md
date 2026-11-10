@@ -1,6 +1,6 @@
 # English source, Danish only in language files: master plan
 
-Status: partly done. Batches 1, 2, 3 and 5 are done; batches 4 and 6 are not started (`PENDING` in `scripts/check-language.mjs` lists the folders they own). Checked against the code on 2026-11-10.
+Status: done in this repository (2026-11-10). Batches 1 to 6 are done and `PENDING` is deleted; the *After the last batch* steps are for the owner/PM (other repositories). Checked against the code on 2026-11-10.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or
 > superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
@@ -35,7 +35,7 @@ the CMS, and `AGENTS.md` section 4 runs the checks from this repo's root.
 | 3 | Done (2026-11-10, branch `claude/english-source-batch-3-cy3xgl`). `site/` and `lib/` are out of `PENDING`. |
 | 4 | Done (2026-11-10, branch `claude/english-source-batch-4`). `src/` is out of `PENDING` except `src/i18n/` (its English files still hold Danish comments). |
 | 5 | Done (2026-11-10, branch `claude/english-source-batch-5`). `theme/`, `worker/`, `pages/`, `scripts/` and the docs are out of `PENDING`. |
-| 6 | Not started. Waits for its own go-ahead. |
+| 6 | Done (2026-11-10, branch `claude/english-source-batch-6`). The starter is English, Danish is the layer `starter/i18n/da-DK/` (`npx morpheme locale da-DK`), and `PENDING` is deleted. |
 
 ## Batches
 
@@ -110,6 +110,8 @@ node scripts/check-language.mjs
 A batch is done when all checks pass and `check-language` passes with the batch's paths gone from `PENDING`.
 
 ## After the last batch
+
+Both steps concern other repositories: they are for the owner/PM to do, not for a session in `morpheme-cms`.
 
 - [ ] Write a register row for the same rule in `morpheme-apps`, `morpheme-website` and `morpheme-appstore`.
 - [ ] Write a follow-up task for Sara's site: rename the ids in its `src/site/` after the release.
