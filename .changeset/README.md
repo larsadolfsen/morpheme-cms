@@ -27,6 +27,11 @@ A version can have any number of paragraphs and lines: one paragraph for each ma
 one. A note says only what is new in its own version. It never explains a feature from an earlier version again. Several
 changes to the same screen or feature are one note.
 
+Only a released version has notes. A note is written as pending in its pull request, while the change is on the `next`
+tag. The Release pull request moves everything pending into the file of the version it releases, so the changes of
+several merges, and of every test version since the last release, end up in that one released version. A test version
+has no notes file of its own: the Morpheme page shows the pending notes under the version it leads to.
+
 Files, per language:
 
 - `release-notes/i18n/<locale>/pending/<id>.json`: the note. A `card` has `id`, `kind`, `title` and `text`. A line has
