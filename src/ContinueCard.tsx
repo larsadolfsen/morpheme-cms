@@ -53,7 +53,7 @@ export function ContinueCard({ files, savedAt }: { files: RepoFile[]; savedAt: E
     setClosedAt(now);
   };
   return (
-    <SiteCard kind="elevated" as="section" aria-labelledby="continue-title" className="relative mb-8 [--card-padding:1rem_0_0.5rem]">
+    <SiteCard kind="outlined" as="section" aria-labelledby="continue-title" className="relative mb-8 [--card-padding:1rem_0_0.5rem]">
       <h2 id="continue-title" className="ps-4 pe-14 pb-2 font-medium">
         {t.library.continueTitle}
       </h2>

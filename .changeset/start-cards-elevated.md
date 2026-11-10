@@ -2,4 +2,4 @@
 '@morphemecms/cms': patch
 ---
 
-The cards on the start screen are now elevated cards.
+The new-edition card on the start screen is now an elevated card.
