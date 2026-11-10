@@ -12,38 +12,38 @@ import { MOVED_PREFIXES, movedAddress } from './movedAddresses.js';
 
 // The two renames the table gets when the pages are renamed (the table itself is empty until then).
 const PREFIXES = [
-  ['/blog/kategori/', '/blog/tags/'],
-  ['/ny/', '/new/'],
+  ['/blog/kategori/', '/blog/tags/'], // language-ok: an old public address
+  ['/ny/', '/new/'], // language-ok: an old public address
 ];
 
 describe('movedAddress', () => {
   test('a path under an old prefix gets the new prefix', () => {
-    assert.equal(movedAddress('/blog/kategori/news/', PREFIXES), '/blog/tags/news/');
-    assert.equal(movedAddress('/ny/about/', PREFIXES), '/new/about/');
+    assert.equal(movedAddress('/blog/kategori/news/', PREFIXES), '/blog/tags/news/'); // language-ok: an old public address
+    assert.equal(movedAddress('/ny/about/', PREFIXES), '/new/about/'); // language-ok: an old public address
   });
   test('the overview itself moves', () => {
-    assert.equal(movedAddress('/blog/kategori/', PREFIXES), '/blog/tags/');
-    assert.equal(movedAddress('/ny/', PREFIXES), '/new/');
+    assert.equal(movedAddress('/blog/kategori/', PREFIXES), '/blog/tags/'); // language-ok: an old public address
+    assert.equal(movedAddress('/ny/', PREFIXES), '/new/'); // language-ok: an old public address
   });
   test('a nested slug and a ? and # part are kept', () => {
-    assert.equal(movedAddress('/ny/a/b/', PREFIXES), '/new/a/b/');
-    assert.equal(movedAddress('/blog/kategori/x/?page=2#top', PREFIXES), '/blog/tags/x/?page=2#top');
+    assert.equal(movedAddress('/ny/a/b/', PREFIXES), '/new/a/b/'); // language-ok: an old public address
+    assert.equal(movedAddress('/blog/kategori/x/?page=2#top', PREFIXES), '/blog/tags/x/?page=2#top'); // language-ok: an old public address
   });
   test('no match leaves it alone', () => {
-    for (const path of ['/', '/blog/', '/blog/tags/x/', '/new/x/', '/nyheder/', '/blog/kategorier/x/', '/blog/kategori'])
-      assert.equal(movedAddress(path, PREFIXES), undefined, path);
+    const paths = ['/', '/blog/', '/blog/tags/x/', '/new/x/', '/nyheder/', '/blog/kategorier/x/', '/blog/kategori']; // language-ok: old public addresses
+    for (const path of paths) assert.equal(movedAddress(path, PREFIXES), undefined, path);
   });
   test('a path that only contains the word in the middle is not moved', () => {
-    assert.equal(movedAddress('/om/ny/', PREFIXES), undefined);
-    assert.equal(movedAddress('/blog/a/blog/kategori/x/', PREFIXES), undefined);
-    assert.equal(movedAddress('/pages/ny/', PREFIXES), undefined);
+    assert.equal(movedAddress('/om/ny/', PREFIXES), undefined); // language-ok: an old public address
+    assert.equal(movedAddress('/blog/a/blog/kategori/x/', PREFIXES), undefined); // language-ok: an old public address
+    assert.equal(movedAddress('/pages/ny/', PREFIXES), undefined); // language-ok: an old public address
   });
   test('a new address is never moved again, so there is no loop', () => {
     for (const [, now] of PREFIXES) assert.equal(movedAddress(`${now}x/`, PREFIXES), undefined);
   });
   test('the table is empty until the pages are renamed, so no visitor is sent to a 404', () => {
     assert.deepEqual(MOVED_PREFIXES, []);
-    assert.equal(movedAddress('/blog/kategori/x/'), undefined);
+    assert.equal(movedAddress('/blog/kategori/x/'), undefined); // language-ok: an old public address
   });
 });
 
@@ -57,8 +57,8 @@ describe('onward and redirectFor with the table', () => {
       join(dir, 'worker.js'),
       `export const apps = [], appTexts = {}, appWorkers = {}, contact = {};
        export const standard = { front: '/home/', blog: '/journal/' };
-       export const moved = { '/old/': '/blog/kategori/x/', '/old-two/': '/old/', '/old-hash/': '/ny/a/#part', '/old-front/': '/home/' };
-       export const oldAddresses = { ids: { 7: '/blog/kategori/seven/' }, paths: { '/wp/': '/ny/wp/' } };`,
+       export const moved = { '/old/': '/blog/kategori/x/', '/old-two/': '/old/', '/old-hash/': '/ny/a/#part', '/old-front/': '/home/' };  // language-ok: an old public address
+       export const oldAddresses = { ids: { 7: '/blog/kategori/seven/' }, paths: { '/wp/': '/ny/wp/' } };`, // language-ok: an old public address
     );
     const outfile = join(dir, 'index.mjs');
     await build({
@@ -84,9 +84,9 @@ describe('onward and redirectFor with the table', () => {
   const to = (path) => redirectFor(new URL(`https://site.test${path}`), PREFIXES);
 
   test('an address under an old prefix goes to the new one, with the query string kept', () => {
-    assert.equal(to('/blog/kategori/news/'), '/blog/tags/news/');
-    assert.equal(to('/blog/kategori/news/?page=2'), '/blog/tags/news/?page=2');
-    assert.equal(to('/ny/a/b/'), '/new/a/b/');
+    assert.equal(to('/blog/kategori/news/'), '/blog/tags/news/'); // language-ok: an old public address
+    assert.equal(to('/blog/kategori/news/?page=2'), '/blog/tags/news/?page=2'); // language-ok: an old public address
+    assert.equal(to('/ny/a/b/'), '/new/a/b/'); // language-ok: an old public address
   });
   test('the exact maps win, and a chain ends at the new address in one hop', () => {
     assert.equal(to('/old/'), '/blog/tags/x/');
@@ -103,19 +103,19 @@ describe('onward and redirectFor with the table', () => {
   test('an address with no match has no redirect', () => {
     assert.equal(to('/contact/'), undefined);
     assert.equal(to('/blog/tags/x/'), undefined);
-    assert.equal(to('/about/ny/'), undefined);
+    assert.equal(to('/about/ny/'), undefined); // language-ok: an old public address
   });
   test('onward moves the end of a chain, keeps # and leaves other addresses', () => {
-    assert.equal(onward('/blog/kategori/x/', {}, undefined, PREFIXES), '/blog/tags/x/');
-    assert.equal(onward('/blog/kategori/x/#top', {}, undefined, PREFIXES), '/blog/tags/x/#top');
-    assert.equal(onward('/a/', { '/a/': '/b/', '/b/': '/ny/c/' }, undefined, PREFIXES), '/new/c/');
+    assert.equal(onward('/blog/kategori/x/', {}, undefined, PREFIXES), '/blog/tags/x/'); // language-ok: an old public address
+    assert.equal(onward('/blog/kategori/x/#top', {}, undefined, PREFIXES), '/blog/tags/x/#top'); // language-ok: an old public address
+    assert.equal(onward('/a/', { '/a/': '/b/', '/b/': '/ny/c/' }, undefined, PREFIXES), '/new/c/'); // language-ok: an old public address
     assert.equal(onward('/about/', {}, undefined, PREFIXES), '/about/');
   });
   test('without the table nothing is redirected', () => {
-    assert.equal(redirectFor(new URL('https://site.test/blog/kategori/x/')), undefined);
-    assert.equal(onward('/blog/kategori/x/', {}), '/blog/kategori/x/');
+    assert.equal(redirectFor(new URL('https://site.test/blog/kategori/x/')), undefined); // language-ok: an old public address
+    assert.equal(onward('/blog/kategori/x/', {}), '/blog/kategori/x/'); // language-ok: an old public address
   });
   test('an address without the trailing slash goes through the same lookup', () => {
-    assert.equal(to('/blog/kategori/x/'), '/blog/tags/x/');
+    assert.equal(to('/blog/kategori/x/'), '/blog/tags/x/'); // language-ok: an old public address
   });
 });

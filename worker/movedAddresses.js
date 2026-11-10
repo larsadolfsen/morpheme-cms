@@ -3,9 +3,9 @@
 // A line is added here in the same pull request that renames the pages, never before: the Worker answers first.
 
 /**
- * Old address prefix (with both slashes) and its new prefix. Empty until the pages are renamed: `/blog/kategori/` and
- * `/ny/` still serve pages, and a redirect from them would send visitors to a 404. The rename adds
- * `['/blog/kategori/', '/blog/tags/']` and `['/ny/', '/new/']`.
+ * Old address prefix (with both slashes) and its new prefix. Empty until the pages are renamed: `/blog/kategori/` and  // language-ok: an old public address
+ * `/ny/` still serve pages, and a redirect from them would send visitors to a 404. The rename adds  // language-ok: an old public address
+ * `['/blog/kategori/', '/blog/tags/']` and `['/ny/', '/new/']`.  // language-ok: an old public address
  * @type {[string, string][]}
  */
 export const MOVED_PREFIXES = [];

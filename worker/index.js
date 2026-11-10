@@ -108,7 +108,7 @@ export function onward(target, redirects = moved, pages = standard, prefixes = M
   let to = target;
   for (let i = 0; i < 10 && redirects[to.split('#')[0]]; i++) to = redirects[to.split('#')[0]];
   const [from, hash] = to.split('#');
-  // A chain that ends at an address that has a new name goes to the new one (`/blog/kategori/x/` to `/blog/tags/x/`).
+  // A chain that ends at an address that has a new name goes to the new one (`/blog/kategori/x/` to `/blog/tags/x/`).  // language-ok: an old public address
   const path = movedAddress(from, prefixes) ?? from;
   const at = shownAt(pages)[path];
   if (at) return `${at}${hash === undefined ? '' : `#${hash}`}`;
