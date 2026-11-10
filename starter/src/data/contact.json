@@ -1,8 +1,8 @@
 {
-  "name": "Mit site",
-  "role": "Ejer",
+  "name": "My site",
+  "role": "Owner",
   "phone": "12 34 56 78",
-  "email": "mail@mit-site.dk",
-  "street": "Vejnavn 1",
-  "city": "1234 By"
+  "email": "mail@my-site.com",
+  "street": "Street 1",
+  "city": "1234 City"
 }

@@ -6,6 +6,8 @@ export const library: Messages['library'] = {
   statusSeparator: ' · ',
   createNew: 'Opret',
   continueTitle: 'Fortsæt, hvor du slap',
+  continueWidgetLabel: 'Fortsæt',
+  continueWidgetHint: 'Viser de sider og indlæg, du redigerede sidst.',
   continueEmpty: 'De sider og indlæg, du redigerer, vises her.',
   recentEdit: (kind, when) => `${kind} · Redigeret ${when}`,
   cmsEdition: (edition, version) => `Morpheme ${edition} ${version}`,

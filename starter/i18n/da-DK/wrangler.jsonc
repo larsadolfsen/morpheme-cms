@@ -1,0 +1,41 @@
+// The site on Cloudflare: the build (npm run build) writes the static site to ./dist, and `wrangler deploy` uploads it as
+// static assets, with the CMS's Worker (@morphemecms/cms/worker/index.js) in front: the editor's login and its way to
+// GitHub, the redirects, the consent log, the notifications and the scheduled pages.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "morpheme-site",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"], // public fetch: the store is on this account
+  "main": "node_modules/@morphemecms/cms/worker/index.js",
+  // What the Worker has from this site: its settings and src/site/worker.js (its redirects, apps and contact).
+  "alias": { "@site/config": "./src/site/config.ts", "@site/worker": "./src/site/worker.js" },
+  // Keep the variables added in the dashboard (Settings → Variables and secrets) on every deploy.
+  "keep_vars": true,
+  "observability": { "logs": { "enabled": true, "invocation_logs": true } },
+  // NOT_FOUND: the addresses visitors came to that do not exist, for the editor. PUSH: the devices that get the editor's
+  // notifications, and the saves they wait for. DASHBOARD: each person's dashboard on the editor's start screen. Without an
+  // "id", `wrangler deploy` creates them the first time.
+  "kv_namespaces": [{ "binding": "NOT_FOUND" }, { "binding": "PUSH" }, { "binding": "DASHBOARD" }],
+  // FILES: R2 caching, the copy of the site's files in R2 in front of GitHub. Turned on and off in the editor
+  // ("Indstillinger" › "Avanceret"), which comments this line in or out, and turns it on only when Cloudflare has the bucket.
+  // "r2_buckets": [{ "binding": "FILES", "bucket_name": "morpheme-site-files", "jurisdiction": "eu" }],
+  // CONSENT: the consent log, the visitors' answers in the cookie banner, in D1, created by `wrangler deploy` the first time.
+  "d1_databases": [{ "binding": "CONSENT" }],
+  // Builds of other branches than main run `wrangler preview`, which needs this block.
+  "previews": {},
+  // morpheme ci-build runs the checks first (all of them, or just the editor's when only content changed since the live
+  // commit), so a branch that fails them is neither built nor deployed.
+  "build": {
+    "command": "npx morpheme ci-build",
+  },
+  // Each hour, the pages and posts that are Planlagt are published once their time has come, and the apps do theirs. Each
+  // minute, whether the site has been built with a save, for the notification on the phone.
+  "triggers": { "crons": ["7 * * * *", "* * * * *"] },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "html_handling": "force-trailing-slash",
+    "run_worker_first": true,
+  },
+}

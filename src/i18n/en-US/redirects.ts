@@ -1,4 +1,4 @@
-// "Videresendelser" (Redirects.tsx, redirectData.ts).
+// "Redirects" (Redirects.tsx, redirectData.ts).
 export const redirects = {
   notLoaded: (error: string) => `Couldn’t load the redirects: ${error}`,
   noFrom: 'Type the address that should redirect.',
@@ -15,7 +15,7 @@ export const redirects = {
     `${from} redirects to ${to}, which itself redirects to ${end}. Send it straight to ${end}.`,
   chainRule: (line: string, flat: string) => `The rule "${line}" redirects through another. Write it as "${flat}".`,
   count: (n: number) => `${n} ${n === 1 ? 'address' : 'addresses'}`,
-  /** The row under "Videresendelser" with all the redirects, and its screen's title. */
+  /** The row under "Redirects" with all the redirects, and its screen's title. */
   all: 'All redirects',
   new: 'New redirect',
   intro: 'Addresses that send visitors on to another page.',
@@ -36,9 +36,9 @@ export const redirects = {
   /** Where it sends to; `noPage`: an address of the site no page in the editor has. */
   sendsTo: (name: string, noPage: boolean) => `Goes to ${name}${noPage ? ', which isn’t a page in the editor' : ''}.`,
   deleteRedirect: 'Delete redirect',
-  /** "Ikke fundet": the addresses visitors came to that do not exist (notFound.ts). */
+  /** "Not found": the addresses visitors came to that do not exist (notFound.ts). */
   missing: {
-    /** Its row under "Videresendelser" and its screen's title. */
+    /** Its row under "Redirects" and its screen's title. */
     title: 'Not found',
     intro: 'Addresses visitors tried to open that don’t exist.',
     searchLabel: 'Search the addresses',

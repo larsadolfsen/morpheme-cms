@@ -1,4 +1,4 @@
-// "Forhåndsvis" beside "Gem ændringer" and in the top bar (FormFrame.tsx): the page with what is in the
+// "Preview" beside "Save changes" and in the top bar (FormFrame.tsx): the page with what is in the
 // form now, in a sheet (pagePreview.tsx).
 export const preview = {
   /** The button, the icon in the top bar, and the sheet. */

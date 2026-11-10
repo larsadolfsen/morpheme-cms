@@ -49,12 +49,22 @@ export type StoreAdd = { label: string; icon: string; hint?: string };
 /** What an app needs of the site, as its folder says (needsOf): its code on every page (slots/), what it loads from
  * other addresses and where its forms send to (its csp.json, by host), its own part of the site's Worker (worker.js),
  * a step when the site is built (build.mjs) and what it changes of what the site does itself (hooks/,
- * @morphemecms/cms/lib/hooks.ts; not in a catalog written before there were any). Shown on its page under "Permissions",
+ * @morphemecms/cms/lib/hooks.ts; not in a catalog written before there were any) and whether it adds widgets to the
+ * start screen (AppDefinition.widgets; not in a catalog written before there were any). Shown on its page under "Permissions",
  * before it is installed. */
-export type AppNeeds = { pages: boolean; loads: string[]; sends: string[]; server: boolean; build: boolean; changes?: AppHook[] };
+export type AppNeeds = {
+  pages: boolean;
+  loads: string[];
+  sends: string[];
+  server: boolean;
+  build: boolean;
+  changes?: AppHook[];
+  widgets?: boolean;
+};
 
-/** What an app needs, from the paths of the files in its folder and its csp.json. */
-export function needsOf(files: string[], csp: Partial<Record<string, string[]>> = {}): AppNeeds {
+/** What an app needs, from the paths of the files in its folder, its csp.json and whether its index.ts has widgets
+ * (they are code in it, not a file). */
+export function needsOf(files: string[], csp: Partial<Record<string, string[]>> = {}, widgets = false): AppNeeds {
   const hosts = (kinds: string[]) => [...new Set(kinds.flatMap((k) => csp[k] ?? []).map((a) => a.replace(/^https:\/\//, '')))].sort();
   return {
     pages: files.some((f) => f.startsWith('slots/')),
@@ -63,6 +73,7 @@ export function needsOf(files: string[], csp: Partial<Record<string, string[]>> 
     server: files.includes('worker.js'),
     build: files.includes('build.mjs'),
     changes: hooksOf(files).hooks,
+    widgets,
   };
 }
 

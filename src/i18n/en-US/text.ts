@@ -25,7 +25,7 @@ export const text = {
   fewerTools: 'Show fewer tools',
   /** The menu over a selection. */
   selection: 'Selected text',
-  /** The colours a selection can have there (packages/editor/lib/text-colors.mjs), by the names under "Farver". */
+  /** The colours a selection can have there (packages/editor/lib/text-colors.mjs), by the names under "Colors". */
   color: 'Color',
   colors: { accent: 'Primary', muted: 'On surface variant' },
   noColor: 'No color',

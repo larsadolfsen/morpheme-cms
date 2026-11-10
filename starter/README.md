@@ -1,20 +1,20 @@
-# Et site med Morpheme CMS
+# A site with Morpheme CMS
 
-Hjemmesiden er bygget med [Astro](https://astro.build), kører på [Cloudflare](https://www.cloudflare.com) og rettes i
-editoren på `/editor/`: sider, indlæg, billeder og indstillinger. Hvert gem er ét commit i dette repo, og Cloudflare
-bygger og udgiver sitet af sig selv bagefter.
+The website is built with [Astro](https://astro.build), runs on [Cloudflare](https://www.cloudflare.com) and is edited
+in the editor at `/editor/`: pages, posts, pictures and settings. Every save is one commit in this repository, and
+Cloudflare builds and publishes the site by itself afterwards.
 
-Editoren, standardtemaet *Material* og sitets Worker er pakken [`@morphemecms/cms`](https://www.npmjs.com/package/@morphemecms/cms)
-(MIT). Det, der er sitets eget, står her:
+The editor, the standard theme *Material* and the site's Worker are the package [`@morphemecms/cms`](https://www.npmjs.com/package/@morphemecms/cms)
+(MIT). What belongs to the site itself is here:
 
-- `src/site/config.ts`: sitets navn, domæne, sprog og GitHub-repo; resten er pakkens standard (`defineSite`).
-- `src/site/worker.js`: det, Workeren har fra sitet.
-- Hemmeligheden `GITHUB_PUBLISH_TOKEN` (`npx wrangler secret put GITHUB_PUBLISH_TOKEN`) lader Workeren skrive til sitets GitHub-repo, også når den opdaterer CMS'et. Tokenet skal have **Contents: Read and write** og **Checks: Read**.
-- Hemmeligheden `MORPHEME_STORE_KEY` (`npx wrangler secret put MORPHEME_STORE_KEY`) forbinder sitet til Morpheme-butikken; uden den har *Appstore* kun sitets egne apps og temaer.
-- `src/content/`: siderne og indlæggene, `src/data/`: sitets indstillinger, `public/`: billeder, logo og ikoner.
-- `src/themes/` og `src/apps/`: temaer og apps fra appbutikken, når der er installeret nogen.
+- `src/site/config.ts`: the site's name, domain, language and GitHub repository; the rest is the package's standard (`defineSite`).
+- `src/site/worker.js`: what the Worker gets from the site.
+- The secret `GITHUB_PUBLISH_TOKEN` (`npx wrangler secret put GITHUB_PUBLISH_TOKEN`) lets the Worker write to the site's GitHub repository, also when it updates the CMS. The token needs **Contents: Read and write** and **Checks: Read**.
+- The secret `MORPHEME_STORE_KEY` (`npx wrangler secret put MORPHEME_STORE_KEY`) connects the site to the Morpheme store; without it, the *Appstore* only has the site's own apps and themes.
+- `src/content/`: the pages and posts, `src/data/`: the site's settings, `public/`: pictures, logo and icons.
+- `src/themes/` and `src/apps/`: themes and apps from the app store, when any are installed.
 
-## Udvikling
+## Development
 
 ```bash
 npm install
@@ -24,6 +24,11 @@ npm install
 npm run dev
 ```
 
-`npm run check` kører tjekkene (formatering, typer, indholdet efter editorens regler, editoren og Workeren), før hver
-push. Cloudflare bygger med `npx morpheme ci-build`: alle tjekkene, eller kun editorens egne, når kun indhold er ændret
-siden det live site; og `npm run build` bygger sitet i `dist/`.
+`npm run check` runs the checks (formatting, types, the content by the editor's rules, the editor and the Worker) before
+every push. Cloudflare builds with `npx morpheme ci-build`: all the checks, or only the editor's own when only content has
+changed since the live site; and `npm run build` builds the site in `dist/`.
+
+## Start a Danish site
+
+`npx morpheme locale da-DK` lays the Danish language layer over the starter (once, in a new site). It sets `locale` to
+`da-DK`, replaces the English pages and texts with the Danish ones and deletes the `i18n/` folder.

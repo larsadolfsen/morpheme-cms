@@ -56,7 +56,7 @@ export const app = {
   busy: { saving: 'Saving', deleting: 'Deleting' },
   lastSaved: (when: string) => `Last changed ${when}`,
   notSavedYet: 'Not saved yet',
-  /** Leaving a form with changes that are not saved (mayLeave, FormFrame.tsx): "Gem", "Kassér" or "Annuller". */
+  /** Leaving a form with changes that are not saved (mayLeave, FormFrame.tsx): "Save", "Discard" or "Cancel". */
   unsavedTitle: 'Save the changes?',
   unsaved: 'You have changes that aren’t saved',
   discard: 'Discard',
