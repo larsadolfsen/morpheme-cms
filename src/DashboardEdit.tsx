@@ -13,7 +13,7 @@ import { activeApps } from './apps';
 import { allWidgets, type WidgetDefinition } from './widgets';
 import { cmsWidgets } from './cmsWidgets';
 import { DashboardSaveError, loadDashboard, placementsOf, saveDashboard } from './dashboardStore';
-import { addWidget, removeWidget, withoutMissing } from './dashboard.mjs';
+import { addWidget, removeWidget, setSettings as setPlacementSettings, withoutMissing } from './dashboard.mjs';
 import type { Placement, StoredDashboard } from './dashboard.mjs';
 import { cardAt, moveBy, moveOnto } from './dashboardMoves.mjs';
 import type { RepoFile } from './github';
@@ -104,6 +104,11 @@ export function useDashboard(files: RepoFile[]) {
     moveOnto(id: string, ontoId: string) {
       const moved = draft && moveOnto(draft, shownIds, id, ontoId);
       if (moved) change(moved.dashboard, id, moved);
+    },
+    /** Sets the placement's settings in the draft (they are saved with Done) and focuses its menu button. */
+    setSettings(id: string, settings: Record<string, unknown>) {
+      if (!draft) return;
+      change(setPlacementSettings(draft, id, settings), id);
     },
     remove(id: string) {
       if (!draft) return;

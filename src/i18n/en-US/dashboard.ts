@@ -13,6 +13,7 @@ export const dashboard = {
   moveDown: 'Move down',
   settings: 'Settings',
   remove: 'Remove',
+  settingsOf: (widget: string) => `Settings for ${widget}`,
   moved: (position: number, total: number) => `Moved to position ${position} of ${total}`,
   notSaved: 'Couldn’t save the dashboard.',
   notSavedNoStorage: 'This site can’t save dashboards yet.',

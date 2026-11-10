@@ -15,6 +15,7 @@ export const dashboard: Messages['dashboard'] = {
   moveDown: 'Flyt ned',
   settings: 'Indstillinger',
   remove: 'Fjern',
+  settingsOf: (widget) => `Indstillinger for ${widget}`,
   moved: (position, total) => `Flyttet til plads ${position} af ${total}`,
   notSaved: 'Kunne ikke gemme dashboardet.',
   notSavedNoStorage: 'Dette website kan ikke gemme dashboards endnu.',

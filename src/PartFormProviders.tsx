@@ -10,7 +10,7 @@ export default function PartFormProviders({
   pageOf,
   children,
 }: {
-  form: ReturnType<typeof usePartForm>;
+  form: Pick<ReturnType<typeof usePartForm>, 'context' | 'wrongField'>;
   pageOf?: (name: string) => string;
   children: ReactNode;
 }) {

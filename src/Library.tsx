@@ -199,7 +199,7 @@ export function Start({ builtAt, files, env }: { builtAt: Date | null; files: Re
     >
       <UpdatesNotice files={files} />
       <StartDataContext.Provider value={{ files, savedAt: env.savedAt }}>
-        <Dashboard dash={dash} env={env} />
+        <Dashboard dash={dash} env={env} files={files} />
       </StartDataContext.Provider>
       {!dash.editing && <StartFab />}
     </Screen>
