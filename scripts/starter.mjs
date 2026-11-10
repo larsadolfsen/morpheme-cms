@@ -15,9 +15,12 @@ const pkg = JSON.parse(readFileSync(`${pkgDir}package.json`, 'utf8'));
 const check = process.argv.includes('--check');
 const problems = [];
 
-// The package's code (what `files` ships, without its tests), by the packages it imports.
+// The package's code (what `files` ships, without its tests and what `!` leaves out), by the packages it imports.
 const own = new Set([pkg.name, ...Object.keys(pkg.peerDependencies)]);
-const shipped = (file) => pkg.files.some((entry) => file === entry || file.startsWith(`${entry}/`));
+const under = (file, entry) => file === entry || file.startsWith(`${entry}/`);
+const shipped = (file) =>
+  pkg.files.some((entry) => !entry.startsWith('!') && under(file, entry)) &&
+  !pkg.files.some((entry) => entry.startsWith('!') && under(file, entry.slice(1)));
 for (const [name, files] of importsIn(pkgDir)) {
   const file = files.map((f) => f.slice(pkgDir.length)).find((f) => shipped(f) && !/\.test\.\w+$/.test(f));
   if (file && !own.has(name)) problems.push(`${file} imports ${name}, which is not in peerDependencies.`);

@@ -1,0 +1,9 @@
+{
+  "api": 4,
+  "label": "Sleeper",
+  "publisher": "Example",
+  "license": "MIT",
+  "icon": "bedtime",
+  "hint": "Turned off in the fixture.",
+  "version": "0.0.1"
+}

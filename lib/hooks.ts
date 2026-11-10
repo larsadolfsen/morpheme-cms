@@ -9,9 +9,10 @@
 // No React, browser or Node here: the editor, the build and the check before it use it.
 import type { Colors } from './colors';
 import type { ColorRoles } from './dynamic-colors';
+import { APP_HOOKS } from './appHooks.mjs';
 
 /** The places an app may change the site, by the name of their file in its hooks/ (without .ts). */
-export const APP_HOOKS = ['page-colors'] as const;
+export { APP_HOOKS };
 export type AppHook = (typeof APP_HOOKS)[number];
 
 /** The places an app changes, from the paths of the files in its folder (hooks/page-colors.ts: 'page-colors'), and
