@@ -39,9 +39,6 @@ export const PENDING_IDS = [
   // Row 8, batch A1: the old store route apps/butik and apps/butik/temaer (STORE_BEFORE, STORE_MOVED); move into RENAMED in src/movedRoutes.mjs.
   'src/App.tsx:temaer',
   'src/store.ts:butik',
-  // Row 9, batch A2: the licence work id ikoner/<pack id> and its editor address.
-  'lib/licenses.mjs:ikoner',
-  'src/licenseData.ts:ikoner',
   // Row 10, batch A1: the {emne} placeholder of the Expandable list text.
   'src/i18n/en-US/blocks.ts:emne',
   'src/standard/accordion/index.tsx:emne',
