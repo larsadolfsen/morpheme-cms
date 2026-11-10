@@ -6,10 +6,11 @@
 //   page-colors  the colours of a page (PageColorsHook): given the page's colours so far (the site's, "Colors", or those
 //                of an app before it), its pictures and the app's settings, it gives the page other colours, or none.
 //                The site runs it in packages/editor/site/pageColors.ts, which a theme calls for every page (Base.astro).
+//                Its helper contentColors makes the colours from a picture (the engine runs in the build, lib/contentColors.ts).
 // No React, browser or Node here: the editor, the build and the check before it use it.
 // ./colors.ts has its extension so Node's test runner can load this file.
 import { colorProblems, MODES, type Colors } from './colors.ts';
-import type { ColorRoles } from './dynamic-colors';
+import type { ColorRoles, ContentBased } from './dynamic-colors';
 import { APP_HOOKS } from './appHooks.mjs';
 
 /** The places an app may change the site, by the name of their file in its hooks/ (without .ts). */
@@ -45,6 +46,12 @@ export type PageColorsPage = {
   pixels: (picture: string) => Promise<Uint8ClampedArray | undefined>;
   /** Whether the text in colours can be read on its background in both modes, as the site requires (WCAG AA). */
   readable: (colors: Colors) => boolean;
+  /** The colours of the site made from one of the page's pictures, by Material's content-based colour (the engine,
+   * lib/contentColors.ts, runs in the site's build, not in the hook): its source colour, then the scheme of the
+   * variant and contrast in `choice`, each of the site's colours by its role, in both modes. undefined for a picture
+   * that is not one of the page's, cannot be read, has no colour (a grey one), a `choice` that is not a variant and a
+   * contrast, or colours that are hard to read. Quick for a photograph too, and made once for each picture and choice. */
+  contentColors: (picture: string, choice: ContentBased) => Promise<Colors | undefined>;
 };
 
 /** An app's hook for a page's colours (hooks/page-colors.ts): other colours for the page, in both modes, each of the
