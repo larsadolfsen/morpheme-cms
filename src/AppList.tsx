@@ -1006,6 +1006,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
         </>
       ) : (
         <AppInfoTab
+          id={app.id}
           pictures={app.pictures}
           description={app.description}
           news={app.store ? newsOf(inStore?.releaseNotes ?? app.releaseNotes, update?.version ?? versionOf(app)) : []}

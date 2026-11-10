@@ -6,8 +6,9 @@
 import * as site from '@site/editor';
 import type { ColorPair } from '../lib/colors';
 import { backTarget, placeOf as menuPlaceOf } from '../lib/menu.mjs';
-import { activeApps, appIdOf, withKinds, type AppDefinition, type AppList, type SiteApp } from './apps';
-import { appBlocks, appFiles, appFolders, appPictures, appShared, appStores } from './appFiles';
+import { activeApps, appFromManifest, appIdOf, withKinds, type AppDefinition, type AppList, type SiteApp } from './apps';
+import { appBlocks, appEditors, appFiles, appFolders, appManifests, appPictures, appShared, appStores, appTextFiles } from './appFiles';
+import type { AppManifest } from '../lib/appManifest.mjs';
 import type { BlockDefinition, SiteBlock } from './blocks';
 import type { ListRows } from './fields';
 import { inSiteLanguage, siteT, siteText, t, translatingSite } from './i18n';
@@ -235,16 +236,31 @@ export const localApp = <A extends AppDefinition>(a: A): A => (translatingSite ?
 // (from its folder), its pictures and, from the app store, where it came from (its store.json), by their names: as the
 // site wrote them, and in the editor's language.
 const appBlockPaths = Object.keys(appBlocks);
+// An app with an app.json (contract 4) is made from it, its editor.ts and its texts.json; one with only an index.ts (contract 2 or 3)
+// from that, as before.
+const inFolder = <T>(files: Record<string, T>, id: string) => Object.entries(files).find(([path]) => appIdOf(path) === id)?.[1];
+const fromManifests: [string, AppDefinition, AppManifest][] = Object.entries(appManifests).map(([path, manifest]) => {
+  const id = appIdOf(path);
+  const editor = inFolder(appEditors, id)?.default;
+  return [id, appFromManifest(manifest, editor, inFolder(appTextFiles, id)), manifest];
+});
+const fromIndexes: [string, AppDefinition, null][] = Object.entries(appFiles)
+  .map(([path, m]): [string, AppDefinition, null] => [appIdOf(path), m.default, null])
+  .filter(([id]) => !fromManifests.some(([own]) => own === id));
 /** The apps as the site wrote them (the commits, the check before the build). */
-export const writtenApps: SiteApp[] = Object.entries(appFiles)
-  .map(([path, m]) => {
-    const id = appIdOf(path);
+export const writtenApps: SiteApp[] = [...fromManifests, ...fromIndexes]
+  .map(([id, definition, manifest]) => {
     const store = Object.entries(appStores).find(([p]) => appIdOf(p) === id)?.[1].default;
     return {
-      ...m.default,
+      ...definition,
       id,
       blocks: appBlockPaths.filter((p) => appIdOf(p) === id).map((p) => p.split('/').at(-2)!),
-      needs: needsOf(appFolders[id]?.files ?? [], appFolders[id]?.csp, Object.keys(m.default.widgets ?? {}).length > 0),
+      needs: needsOf(
+        appFolders[id]?.files ?? [],
+        manifest ? manifest.csp : appFolders[id]?.csp,
+        Object.keys(definition.widgets ?? {}).length > 0,
+        manifest,
+      ),
       pictures: [],
       ...(store ? { store } : {}),
     };
