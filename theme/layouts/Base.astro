@@ -8,11 +8,11 @@ import ActionBar from '@theme/components/ActionBar.astro';
 import AppSlot from '@theme/components/AppSlot.astro';
 // The theme's own font files, loaded before the CSS asks for them (FontPreload.astro).
 import FontPreload from '@theme/components/FontPreload.astro';
-// The site's colours, which the owner changes under "Farver" in the editor (the theme's styles/global.css uses them),
+// The site's colours, which the owner changes under "Colors" in the editor (the theme's styles/global.css uses them),
 // as the apps installed change them for the page (packages/editor/site/pageColors.ts: an app's hooks/page-colors.ts).
 import { pageColors } from '@morphemecms/cms/site/pageColors';
 import { colorsCss } from '@morphemecms/cms/lib/colors';
-// How the site moves (Material 3's motion schemes), which the owner chooses under "Bevægelse" in the editor: its springs
+// How the site moves (Material 3's motion schemes), which the owner chooses under "Motion" in the editor: its springs
 // as the CSS variables every transition takes, and its name on <html> for the scripts (packages/editor/lib/motion.ts).
 import { motionCss } from '@morphemecms/cms/lib/motion';
 import { motionScheme } from '@morphemecms/cms/site/motion';
@@ -68,12 +68,12 @@ const noindex = Astro.props.noindex || entry?.noindex || isNoindex(Astro.url.pat
 const fullTitle =
   Astro.props.seoTitle || entry?.title || (!title ? site.name : Astro.url.pathname === '/' ? title : `${title} | ${site.name}`);
 const description = Astro.props.seoDescription || entry?.description || Astro.props.description || site.description;
-// When the page is shared: its own title and description for that ("Titel ved deling", "Beskrivelse ved deling"), else
+// When the page is shared: its own title and description for that ("Title when shared", "Description when shared"), else
 // the Google ones.
 const ogTitle = Astro.props.shareTitle || fullTitle;
 const ogDescription = Astro.props.shareDescription || description;
 const canonical = new URL(Astro.props.canonical || entry?.canonical || Astro.url.pathname, Astro.site);
-// The picture when the page is shared: the one chosen for that ("Billede ved deling" on the page or in
+// The picture when the page is shared: the one chosen for that ("Picture when shared" on the page or in
 // packages/editor/site/seo.ts), else the page's own, else the site's portrait; none when the site has none either.
 const chosen = Astro.props.shareImage || entry?.image;
 const shared = chosen || image || site.portrait;
@@ -83,14 +83,14 @@ const ogImage = og && new URL(og.src, Astro.site);
 const ogAlt = chosen ? undefined : image ? Astro.props.imageAlt : site.portraitAlt;
 const current = Astro.url.pathname;
 // The page's colours: the site's, as the apps installed change them for it, given its pictures, in order, then the one
-// it is shared with ("Billede ved deling"); with the app that changed them and the picture they came from, kept on their
-// <style> for "Farver" › "Sider" in the editor (packages/editor/scripts/page-colors.mjs).
+// it is shared with ("Picture when shared"); with the app that changed them and the picture they came from, kept on their
+// <style> for "Colors" › "Pages" in the editor (packages/editor/scripts/page-colors.mjs).
 const {
   colors,
   app: colorsApp,
   picture: colorsPicture,
 } = await pageColors({ path: Astro.url.pathname, pictures: [...(Astro.props.pictures ?? []), chosen] });
-// The cookie banner (and "Cookieindstillinger"): when it is on and there is something to ask about (packages/editor/site/consent.ts).
+// The cookie banner (and "Cookie settings"): when it is on and there is something to ask about (packages/editor/site/consent.ts).
 const banner = cookieBanner;
 
 // Structured data (packages/editor/site/schema.ts): the business, the person behind it, the website, this page and what the page adds.
@@ -177,7 +177,7 @@ const jsonLd = {
     </main>
 
     {banner && <CookieConsent />}
-    {/* The pop-ups for this page ("Promovering" in the editor). */}
+    {/* The pop-ups for this page ("Promotion" in the editor). */}
     <Popup />
 
     {

@@ -74,7 +74,7 @@
 
   --radius: var(--md-shape-medium);
   --panel-shadow: var(--elevation-1-rest-shadow);
-  /* The site's motion scheme's curve ("Bevægelse", @morphemecms/cms/lib/motion.ts). */
+  /* The site's motion scheme's curve ("Motion", @morphemecms/cms/lib/motion.ts). */
   --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
 
   --block-surface: var(--md-surface-container-low);
@@ -608,7 +608,7 @@
       border-radius: var(--md-shape-large);
     }
   }
-  /* A link with an arrow on its own ("Læs mere", "Alle indlæg"), and "Læs mere" on a testimonial: text buttons, a
+  /* A link with an arrow on its own ("Read more", "All posts"), and "Read more" on a testimonial: text buttons, a
      label in the primary colour with a state layer, the label in line with the text beside it. */
   .block-arrow-link,
   .block-testimonial-more {
@@ -819,7 +819,7 @@
     --icon-button-icon-size: 1.375rem;
   }
 
-  /* "Besked": a filled card in the secondary container. */
+  /* "Notice": a filled card in the secondary container. */
   .block-notice {
     border-left: 0;
     border-radius: var(--md-shape-medium);
@@ -827,13 +827,13 @@
     padding: 1rem 1.5rem;
   }
 
-  /* "Trin": the numbers in the primary container. */
+  /* "Steps": the numbers in the primary container. */
   .block-step-number {
     background: var(--surface-container-high);
     color: var(--primary);
   }
 
-  /* "Spørgsmål og svar": a list in a filled card, a state layer on a row pointed at. */
+  /* "Questions and answers": a list in a filled card, a state layer on a row pointed at. */
   .block-accordion {
     display: grid;
     gap: 2px;
@@ -884,7 +884,7 @@
     padding: 1rem 1.25rem;
   }
 
-  /* "Kort": filled cards, as Material 3's (their outlined cards on the highest container, with no edge and
+  /* "Cards": filled cards, as Material 3's (their outlined cards on the highest container, with no edge and
      no shadow at rest, and the first elevation when pointed at), with the card's state layer (ui.css) when pointed at or
      focused. */
   .block-card {
@@ -1220,7 +1220,7 @@
   .navigation-drawer-toggle:focus-visible {
     background: var(--md-pressed);
   }
-  /* Directly in the drawer ("Ring"), not in a row with a caret: as high as its content. */
+  /* Directly in the drawer ("Call"), not in a row with a caret: as high as its content. */
   .navigation-drawer > .navigation-drawer-item {
     flex: none;
   }

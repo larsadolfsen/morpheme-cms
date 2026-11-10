@@ -6,7 +6,7 @@
 // Width: with a column beside it the text is 66ch wide, blocks and all; without one (single, full) the text column is the
 // container's width, its blocks (not-prose) span it, and its other parts (paragraphs, headings) keep 66ch. Its first
 // paragraph is the lead (type-lead, ui.css: the --type-lead-* tokens), muted and 52ch wide.
-// data-editor marks what the editor's preview fills in with what is in its form ("Forhåndsvis",
+// data-editor marks what the editor's preview fills in with what is in its form ("Preview",
 // packages/editor/src/pagePreview.tsx): the heading, the text, and the booking prompt at the end.
 // A page whose H1 has a section colour (the marker before it, lib/section-marker.mjs) draws the heading and the text up to the
 // first H2 in one panel (data-editor="h1-section", sectionClass); with a column beside the text the panel holds the heading only.
@@ -60,7 +60,7 @@ const headingHtml = pageHeadingHtml(page);
 // The picture when the page is shared: the first in its text (a page's pictures are all in its text).
 const picture = firstPicture(page.body);
 // The text with its blocks (RichText.astro). A block at the very end of it whose type goes across the page (endBlock,
-// e.g. "Book en tid", as on most pages) is shown across the page below the text and the column next to it; not when
+// e.g. "Book an appointment", as on most pages) is shown across the page below the text and the column next to it; not when
 // it is hidden (RichText.astro leaves hidden blocks out).
 // Without the H1 at the top of the text (the page's heading, drawn above).
 const text = await Astro.slots.render('default');
@@ -68,7 +68,7 @@ const html = withoutH1(text);
 // The colour of the H1's section (the marker before the H1): the heading and the text up to the first H2 are one panel.
 const h1Color = h1SectionColor(text);
 const end = endBlock(html);
-// The questions in the text's "Spørgsmål og svar" blocks (not the hidden ones), for the structured data
+// The questions in the text's "Questions and answers" blocks (not the hidden ones), for the structured data
 // (an FAQPage, packages/editor/site/schema.ts); the answers as HTML, as on the page (the block's load.ts).
 const questions = await Promise.all(
   splitBlocks(html, ['faq'])

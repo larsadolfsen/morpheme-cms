@@ -183,7 +183,7 @@
 }
 
 @layer components {
-  /* With the bar of "Mobilmenu" under the header (MobileNav.astro), a link to a part of a page stops below both. */
+  /* With the bar of "Mobile menu" under the header (MobileNav.astro), a link to a part of a page stops below both. */
   @media (width < theme(--breakpoint-large)) {
     html:has([data-mobile-nav]) {
       scroll-padding-top: 9.25rem;
