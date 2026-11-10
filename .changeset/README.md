@@ -23,7 +23,8 @@ of two kinds:
 - `line`: a smaller change, such as a tweak to something the owner already uses, or a fix. One short sentence with no
   period, shown in the list "Also in this version".
 
-A note says only what is new in its own version. It never explains a feature from an earlier version again. Several
+A version can have any number of paragraphs and lines: one paragraph for each main change, and a line for each smaller
+one. A note says only what is new in its own version. It never explains a feature from an earlier version again. Several
 changes to the same screen or feature are one note.
 
 Files, per language:
