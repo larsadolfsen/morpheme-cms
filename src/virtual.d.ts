@@ -14,6 +14,12 @@ declare module 'virtual:app-folders' {
   export default folders;
 }
 
+// A loader for the page-colors hook of each app that has no app.json (oldPageColorsModule in lib/apps.mjs).
+declare module 'virtual:old-page-colors' {
+  const loaders: Record<string, () => Promise<{ default: unknown }>>;
+  export default loaders;
+}
+
 // All Phosphor's icons (regular) as text, by their file (allIconsModule in site/theme.mjs).
 declare module 'virtual:all-icons' {
   export const allIcons: Record<string, string>;
