@@ -1,4 +1,4 @@
-// "Søgeord" under "Interne links" (Keywords.tsx): the keywords of the pages, posts and fixed pages.
+// "Keywords" under "Internal links" (Keywords.tsx): the keywords of the pages, posts and fixed pages.
 export const keywords = {
   title: 'Keywords',
   searchLabel: 'Search the keywords',

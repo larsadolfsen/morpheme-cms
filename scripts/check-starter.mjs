@@ -46,4 +46,4 @@ if (process.argv.includes('--screens')) {
   npmRun(site, 'install', '--no-save', `playwright@${playwright}`);
   npmRun(site, 'run', 'check:screens');
 }
-console.log(`Starteren virker som et site med pakken fra npm pack (${site}).`);
+console.log(`The starter works as a site with the package from npm pack (${site}).`);

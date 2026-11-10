@@ -41,6 +41,7 @@ export const apps: Messages['apps'] = {
     `Billedet "${shows}" viser intet, appen har: blok:<type>, slags:<liste>:<variant>, liste:<id>, indstillinger eller side.`,
   noScreenshot: (file) => `${file} findes ikke. Tag billederne med npx morpheme app-screenshots.`,
   unlistedScreenshot: 'Billedet står ikke under screenshots i appens index.ts.',
+  widgetNoComponent: (key) => `Widgetten "${key}" har ingen component.`,
   install: 'Installer',
   uninstall: 'Afinstaller',
   installing: 'Installerer…',

@@ -255,7 +255,12 @@ export const writtenApps: SiteApp[] = [...fromManifests, ...fromIndexes]
       ...definition,
       id,
       blocks: appBlockPaths.filter((p) => appIdOf(p) === id).map((p) => p.split('/').at(-2)!),
-      needs: needsOf(appFolders[id]?.files ?? [], manifest ? manifest.csp : appFolders[id]?.csp, manifest),
+      needs: needsOf(
+        appFolders[id]?.files ?? [],
+        manifest ? manifest.csp : appFolders[id]?.csp,
+        Object.keys(definition.widgets ?? {}).length > 0,
+        manifest,
+      ),
       pictures: [],
       ...(store ? { store } : {}),
     };

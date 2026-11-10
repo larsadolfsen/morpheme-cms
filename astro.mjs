@@ -147,7 +147,7 @@ export async function siteConfig() {
       appBuilds(ROOT),
       // The licences of the third-party work in what is downloaded (the browser's bundle, the pages' styles and fonts), of
       // the icon sets the system offers (packages/editor/site/icons.mjs), and of the apps and the themes with what they bring, in
-      // dist/editor/licenses.json for "Licenser" under "Indstillinger" (packages/editor/lib/licenses.mjs).
+      // dist/editor/licenses.json for "Licenses" under "Settings" (packages/editor/lib/licenses.mjs).
       licensesIntegration({
         root: ROOT,
         iconPacks: iconPackLicenses,

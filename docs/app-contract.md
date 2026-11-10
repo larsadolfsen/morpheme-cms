@@ -143,3 +143,24 @@ self.id; // 'app_a030dfba69793996'
 ## Contract 2
 
 Apps written to contract 2 build and run as before. Contract 3 only adds `@app/self`.
+
+## Widgets
+
+An app may add widgets to the editor's start screen. `widgets` is an optional field of the app (`AppDefinition` in `src/apps.ts`). It does not change the contract number: `APP_API` stays as it is, and an app without `widgets` works as before.
+
+- A widget answers one question about the site in a card. Each person places, orders and sets up their own widgets.
+- The key in `widgets` is the part after the app id. The full id of a widget is `<appId>:<key>`, such as `booking:today`.
+- A widget is a `WidgetDefinition` (`src/widgets.ts`): `label`, `hint`, `icon`, an optional `settings` (made with `defineSettings`, per placed widget) and a `component`.
+- The `component` is required. The check before the build fails with `src/apps/<app>/index.ts: The widget "<key>" has no component.`
+- The component is given `WidgetProps`: `api` (asks the app's own addresses in the site's Worker, as an app page does), `settings` (the values of the placed widget) and `editing` (true while the person arranges the start screen; the widget then renders, never null).
+- A widget with nothing to say may render nothing when `editing` is false.
+- A widget shows only while its app is installed.
+
+```ts
+export default defineApp({
+  // …
+  widgets: {
+    today: { label: 'Bookings today', hint: 'Who comes today', icon: CalendarCheck, component: Today },
+  },
+});
+```

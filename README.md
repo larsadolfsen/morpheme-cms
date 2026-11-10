@@ -10,7 +10,7 @@ gives it its settings (`src/site/`, over the standard ones in `defaults/`), its 
 apps (`src/apps/`).
 
 A new site starts from the starter (`starter/`, also in the npm package, since the demo is built from it): a site with only its own settings, the
-standard pages and the standard theme, ready for Cloudflare.
+standard pages and the standard theme, ready for Cloudflare. The starter is English; run `npx morpheme locale da-DK` once in a new site to make it Danish (see `starter/README.md`).
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/larsadolfsen/morpheme-cms/tree/main/starter)
 

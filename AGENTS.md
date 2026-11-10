@@ -41,7 +41,7 @@ Our ecosystem has two completely separate repositories, which must **never** be 
 - **`demo/`**: The CMS's demo, a made-up site laid over the starter, which the CMS is developed and checked with and which the themes' pictures are taken of (`npx morpheme check:demo`). `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in `.morpheme/demo/site/` with a copy of the package as npm would pack it, and `wrangler.jsonc` puts it on the Worker `morpheme-demo`. Each branch gets its own Preview of the demo (Cloudflare's Worker Previews, `npx wrangler preview`), and Cloudflare writes its address on the branch's pull request; login and save do not work there. Agents never send the owner a Preview link for a change to the editor (the owner can't sign in there to see it); only for a change visible on the site.
 - **`starter/`**: What a new site starts with (the *Deploy to Cloudflare* button).
 - **`src/` and `pages/`**: The CMS editor itself and the admin interface.
-  - `src/`: React-based editor UI, screens, fields, state management (`store.ts`), live preview (`pagePreview.tsx`) and block registry (`blocks.ts`).
+  - `src/`: React-based editor UI, screens, fields, state management (`store.ts`), live preview (`pagePreview.tsx`), block registry (`blocks.ts`) and the start screen's widgets (`widgets.ts`, `cmsWidgets.ts`, `widgets/`), shown in a grid by `DashboardGrid.tsx` from the person's saved layout (`dashboardStore.ts`).
   - `pages/`: Astro pages and routing for the admin interface.
 - **`lib/`**: Shared helper functions used by both the editor and the site (block parsing `blocks.mjs`, image cropping `crop.mjs`, status, dates, video handling etc.).
   - The app sandbox (contract 4): `appHooks.mjs` (the hook places, `APP_HOOKS`), `appCookies.mjs` (the cookies an app sets with its settings), `appDefinition.mjs` (an app's definition from its `app.json`, `editor.ts` and `texts.json`), `appManifest.mjs` (reads and checks `app.json`), `appPlaces.mjs` (sandboxed, full or no access per app place), `appProblemLines.mjs` (an app's build problems as lines for its page), `appProblems.mjs` (the build's app problems, `dist/_apps/_problems.json`), `reads.mjs` (the site data an app's read scopes give it; test site in `fixtures/reads-site/`).
@@ -104,7 +104,7 @@ Before changes are approved or published, verify the following from the root of 
 | Command | Description |
 | :--- | :--- |
 | `npm run check` | Prettier, `check:language`, the unit tests (`npm test`), the package's types (`check:types`), the demo built (`npm run build`, its content checked by the editor's rules) and `check:editor` on it (each page the same after a save). |
-| `npm run check:language` | No Danish text outside the language files (i18n/da-DK/); PENDING in scripts/check-language.mjs lists the parts not converted yet. |
+| `npm run check:language` | No Danish text outside the language files (i18n/da-DK/). |
 | `npm run check:screens` | After `npm run build`: all of the editor's screens open without errors, on a phone and a computer, and all icons exist. |
 | `node ../../../bin/morpheme.mjs check:themes` (in `.morpheme/demo/site/`) | The same with each of the other themes. |
 | `npm run check:starter` | The starter works as a site with the package from `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. |

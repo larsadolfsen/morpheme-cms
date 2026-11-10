@@ -19,7 +19,7 @@ export const history = {
   shownText: 'Tap Save changes to restore it',
   cannotShow: 'The version can’t be shown. You’re seeing the current one.',
   showCurrent: 'Show the current version',
-  /** What was deleted from a list ("Slettede blogindlæg"), and what it says under each. */
+  /** What was deleted from a list ("Deleted blog posts"), and what it says under each. */
   deletedOf: (label: string) => `Deleted ${label.charAt(0).toLowerCase()}${label.slice(1)}`,
   deletedNote: 'Deleted items can be restored.',
   /** What was deleted from Filer: "Slettede filer". */
