@@ -116,7 +116,13 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       : t.library.cmsVersion(cms.version)
     : t.library.appsUpdated(updatedApps.length);
   return (
-    <SiteCard kind="elevated" as="section" role="status" aria-labelledby="updates-title" className="mb-8 [--card-padding:0]">
+    <SiteCard
+      kind="elevated"
+      as="section"
+      role="status"
+      aria-labelledby="updates-title"
+      className="mb-8 [--card-elevated-shadow:var(--elevation-1)] [--card-padding:0]"
+    >
       <div className="grid medium:grid-cols-[auto_1fr]">
         {edition && (
           <div className="relative aspect-[3/2] w-full medium:h-full medium:w-auto">
