@@ -244,7 +244,7 @@ export const writtenApps: SiteApp[] = Object.entries(appFiles)
       ...m.default,
       id,
       blocks: appBlockPaths.filter((p) => appIdOf(p) === id).map((p) => p.split('/').at(-2)!),
-      needs: needsOf(appFolders[id]?.files ?? [], appFolders[id]?.csp),
+      needs: needsOf(appFolders[id]?.files ?? [], appFolders[id]?.csp, Object.keys(m.default.widgets ?? {}).length > 0),
       pictures: [],
       ...(store ? { store } : {}),
     };

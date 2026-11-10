@@ -46,6 +46,7 @@ import type { ConsentCategory } from '../lib/cookieCategories.mjs';
 import type { LegacyCategory } from '../lib/storeCategories.mjs';
 import type { AppCategory, AppCookie, AppNeeds, AppShot, StoreRecord } from './store';
 import type { ThirdParty } from './licenseData';
+import type { WidgetDefinition } from './widgets';
 import { config } from '@site/config';
 import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 
@@ -186,6 +187,9 @@ export type AppDefinition = {
   screens?: Record<string, AppScreen>;
   /** Tabs it adds to the site's lists while it is installed, by the list's id, each at #list/<list>/<app>. */
   tabs?: Record<string, AppTab>;
+  /** Widgets it adds to the start screen while it is installed, by their key: the full id of a widget is
+   * "<appId>:<key>" ("booking:today"), and each must have a `component` (the check before the build says which has not). */
+  widgets?: Record<string, WidgetDefinition>;
   notifications?: AppNotifications;
 };
 export const defineApp = (app: AppDefinition) => app;

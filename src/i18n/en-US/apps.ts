@@ -47,6 +47,8 @@ export const apps = {
     `The picture "${shows}" shows nothing the app has: blok:<type>, slags:<list>:<variant>, liste:<id>, indstillinger or side.`,
   noScreenshot: (file: string) => `${file} doesn’t exist. Take the pictures with npx morpheme app-screenshots.`,
   unlistedScreenshot: 'The picture isn’t under screenshots in the app’s index.ts.',
+  /** In the check before the build: a widget in an app's index.ts (AppDefinition.widgets) that has no component. */
+  widgetNoComponent: (key: string) => `The widget "${key}" has no component.`,
   install: 'Install',
   uninstall: 'Uninstall',
   installing: 'Installing…',
