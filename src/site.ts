@@ -5,6 +5,7 @@
 // collection, a file, a part or a block as the site wrote it.
 import * as site from '@site/editor';
 import type { ColorPair } from '../lib/colors';
+import { backTarget, placeOf as menuPlaceOf } from '../lib/menu.mjs';
 import { activeApps, appIdOf, withKinds, type AppDefinition, type AppList, type SiteApp } from './apps';
 import { appBlocks, appFiles, appFolders, appPictures, appShared, appStores } from './appFiles';
 import type { BlockDefinition, SiteBlock } from './blocks';
@@ -185,9 +186,10 @@ export const appearance = each(
   site.appearance.map((p) => ({ ...p, back: { href: '#appearance', label: t.common.parts.appearance } })),
   local.part,
 );
-/** Where a screen goes back to: the start screen. The menu's sections ("Indhold" …) are lists in the drawer, not screens,
- * so Redirects and "Interne links" under "Indhold" go there too. */
-export const backFrom = (_id: string) => ({ href: '#', label: site.siteName });
+/** Where a screen goes back to: "Settings" (#settings) for Appearance, Developer, Licenses, Morpheme and Privacy, else the
+ * start screen. The menu's sections ("Indhold" …) are lists in the drawer, not screens, so Redirects and "Interne links"
+ * under "Indhold" go there too. */
+export const backFrom = (id: string) => backTarget(id, site.settings, { settingsTitle: t.common.parts.settings, siteName: site.siteName });
 
 /** The site's own parts under "Søgemaskineoptimering" (#seo/<id>, in the menu under "Indhold"), each going back
  * to the start screen (backFrom). */
@@ -209,8 +211,7 @@ export const colorPairs = each(site.colorPairs, local.pair);
 export const settings: string[] = site.settings;
 
 /** Where a part of the menu is, as the way there says it: the title of the section it is in ("Indhold › …"). */
-export const placeOf = (id: string): string | undefined =>
-  settings.includes(id) ? t.common.parts.settings : groups.find((g) => g.ids.includes(id))?.title;
+export const placeOf = (id: string): string | undefined => menuPlaceOf(id, groups, settings, t.common.parts.settings);
 
 /** Where a standard page (by its key, packages/editor/defaults/standardPages.ts) is chosen, as the way there from the start screen
  * ("Settings › Appearance › Default pages"): the part with its field in the file of the standard pages. */
