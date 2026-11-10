@@ -18,8 +18,6 @@ export const PENDING_IDS = [
   'src/ui.tsx:valg',
   // Row 3, batch A1: the stored view value liste (src/Library.tsx).
   'src/Library.tsx:liste',
-  // Row 4, batch A2: the CSV file name samtykker-<date>.csv (worker/consent.js).
-  'worker/consent.js:samtykker',
   // Row 5, batch A1: the sample address navn@ (src/BlockParts.tsx).
   'src/BlockParts.tsx:navn',
   // Row 6, batch A1: Danish page names in tests and comments (priser, kontakt, forside, filer); worker/say.test.mjs stays Danish on purpose and is not listed.
