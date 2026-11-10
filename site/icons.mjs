@@ -523,10 +523,10 @@ export const isIconName = (name) =>
 export function svgProblems(file, svg) {
   const clean = cleanSvg(svg);
   if (!clean || svg.match(/<svg\b/gi).length > 1 || !clean.viewBox)
-    return [`${file}: et ikon er ét <svg> med en viewBox og intet før eller efter.`];
+    return [`${file}: an icon is one <svg> with a viewBox and nothing before or after it.`];
   if (clean.removed.length)
     return [
-      `${file}: ${clean.removed.join(', ')} tegner ikke og bliver ikke vist. Et ikon har kun tegning: ingen scripts, stil, hændelser (on…) eller noget, der hentes udefra.`,
+      `${file}: ${clean.removed.join(', ')} doesn't draw and isn't shown. An icon holds only drawing: no scripts, styles, event handlers (on…) or anything fetched from outside.`,
     ];
   return [];
 }
@@ -586,41 +586,44 @@ export function packProblems(id, used = usedIcons()) {
   }
   for (const key of ['name', 'author', 'license'])
     if (!isText(manifest[key]))
-      problems.push(`${dir}/${ICON_PACK_FILE}: "${key}" mangler (ikonpakkens navn, hvem der har lavet den, og dens licens).`);
-  if (!has(`${dir}/${ICON_PACK_LICENSE}`)) problems.push(`${dir}/${ICON_PACK_LICENSE} mangler: ikonpakkens licens.`);
+      problems.push(`${dir}/${ICON_PACK_FILE}: "${key}" is missing (the icon pack's name, who made it, and its license).`);
+  if (!has(`${dir}/${ICON_PACK_LICENSE}`)) problems.push(`${dir}/${ICON_PACK_LICENSE} is missing: the icon pack's license.`);
   const licences = new Set([ICON_PACK_LICENSE]);
   if (manifest.includes !== undefined && !Array.isArray(manifest.includes))
-    problems.push(`${dir}/${ICON_PACK_FILE}: "includes" er en liste med de sæt, pakken har ikoner fra ud over sit eget.`);
+    problems.push(`${dir}/${ICON_PACK_FILE}: "includes" is a list of the sets the pack has icons from besides its own.`);
   for (const x of Array.isArray(manifest.includes) ? manifest.includes : []) {
     const named = isText(x?.name) ? x.name : '?';
     if (!['name', 'author', 'license', 'licenseFile'].every((k) => isText(x?.[k])) || !Array.isArray(x.icons) || !x.icons.every(isText))
-      problems.push(`${dir}/${ICON_PACK_FILE}: "includes" (${named}) skal have "name", "author", "license", "licenseFile" og "icons".`);
+      problems.push(`${dir}/${ICON_PACK_FILE}: "includes" (${named}) must have "name", "author", "license", "licenseFile" and "icons".`);
     else if (!/^LICENSE-[a-z0-9-]+$/.test(x.licenseFile) || !has(`${dir}/${x.licenseFile}`))
-      problems.push(`${dir}/${x.licenseFile ?? ICON_PACK_LICENSE}: licensen for ${named} mangler (LICENSE-<sæt> i pakkens mappe).`);
+      problems.push(
+        `${dir}/${x.licenseFile ?? ICON_PACK_LICENSE}: the license for ${named} is missing (LICENSE-<set> in the pack's folder).`,
+      );
     else licences.add(x.licenseFile);
     for (const name of Array.isArray(x?.icons) ? x.icons : [])
-      if (!has(`${dir}/${name}.svg`)) problems.push(`${dir}/${ICON_PACK_FILE}: "includes" (${named}) nævner ${name}, som pakken ikke har.`);
+      if (!has(`${dir}/${name}.svg`))
+        problems.push(`${dir}/${ICON_PACK_FILE}: "includes" (${named}) names ${name}, which the pack does not have.`);
   }
   const files = has(dir) ? readdirSync(new URL(`${dir}/`, root), { withFileTypes: true }) : [];
   for (const entry of files) {
     const file = `${dir}/${entry.name}`;
     if (entry.name === ICON_PACK_FILE || licences.has(entry.name)) continue;
     if (!entry.isFile() || !entry.name.endsWith('.svg')) {
-      problems.push(`${file}: en ikonpakke har kun ${ICON_PACK_FILE}, sine licenser og ikoner (${dir}/<navn>.svg).`);
+      problems.push(`${file}: an icon pack has only ${ICON_PACK_FILE}, its licenses and icons (${dir}/<name>.svg).`);
       continue;
     }
     const name = entry.name.slice(0, -'.svg'.length);
     if (!isIconName(name))
-      problems.push(`${file}: sitet tegner intet ikon, der hedder "${name}". Et ikon hedder som i Phosphor (fx map-pin, play-fill).`);
+      problems.push(`${file}: the site draws no icon named "${name}". An icon is named as in Phosphor (e.g. map-pin, play-fill).`);
     problems.push(...svgProblems(file, readFileSync(new URL(file, root), 'utf8')));
   }
   const missing = [...used].sort().filter((name) => !has(`${dir}/${name}.svg`));
   if (missing.length)
     problems.push(
-      `Ikonpakken ${isText(manifest.name) ? manifest.name : id} (${dir}/) har intet ikon for ${missing.join(', ')}: ${
+      `The icon pack ${isText(manifest.name) ? manifest.name : id} (${dir}/) has no icon for ${missing.join(', ')}: ${
         SYSTEM_PACKS.includes(id)
-          ? 'skriv det, der passer, i packages/editor/site/icons.mjs, og kør npm run icons.'
-          : 'giv den et ikon ved hvert navn.'
+          ? 'write the one that fits in packages/editor/site/icons.mjs, and run npm run icons.'
+          : 'give it an icon for each name.'
       }`,
     );
   return [...problems, ...(SYSTEM_PACKS.includes(id) ? systemPackProblems(id, used) : [])];
@@ -636,36 +639,36 @@ function systemPackProblems(id, used) {
   const names = mapped(id);
   if (!packsWrittenHere) {
     const unnamed = names ? [...used].sort().filter((name) => !names.includes(name)) : [];
-    return unnamed.length ? [`${PACK_SOURCES[id].name} har intet ikon for ${unnamed.join(', ')}.`] : [];
+    return unnamed.length ? [`${PACK_SOURCES[id].name} has no icon for ${unnamed.join(', ')}.`] : [];
   }
   if (names) {
     const map = id === 'material-symbols' ? 'MATERIAL_SYMBOLS' : 'LUCIDE';
     const unnamed = [...used].sort().filter((name) => !names.includes(name));
     if (unnamed.length)
       problems.push(
-        `${PACK_SOURCES[id].name} har intet ikon for ${unnamed.join(', ')}: skriv det, der passer, i ${map} i packages/editor/site/icons.mjs (et, ${PACK_SOURCES[id].name} intet har af, i MATERIAL_DESIGN_ICONS), og kør npm run icons.`,
+        `${PACK_SOURCES[id].name} has no icon for ${unnamed.join(', ')}: write the one that fits in ${map} in packages/editor/site/icons.mjs (for an icon that ${PACK_SOURCES[id].name} has none of, in MATERIAL_DESIGN_ICONS), and run npm run icons.`,
       );
   } else {
     const version = JSON.parse(readFileSync(new URL('node_modules/@phosphor-icons/core/package.json', root), 'utf8')).version;
     if (`@phosphor-icons/core@${version}` !== PACK_SOURCES.phosphor.package)
       problems.push(
-        `@phosphor-icons/core er ${version}, men ikonpakken Phosphor er skrevet fra ${PACK_SOURCES.phosphor.package}: ret versionen i PACK_SOURCES i packages/editor/site/icons.mjs, og kør npm run icons.`,
+        `@phosphor-icons/core is ${version}, but the Phosphor icon pack was written from ${PACK_SOURCES.phosphor.package}: fix the version in PACK_SOURCES in packages/editor/site/icons.mjs, and run npm run icons.`,
       );
   }
   if (names) {
     const unused = names.filter((name) => !used.has(name)).sort();
     if (unused.length)
       problems.push(
-        `packages/editor/site/icons.mjs: ${PACK_SOURCES[id].name}s kort har ${unused.join(', ')}, som sitet og editoren ikke tegner: tag dem ud, og kør npm run icons.`,
+        `packages/editor/site/icons.mjs: the ${PACK_SOURCES[id].name} map has ${unused.join(', ')}, which the site and the editor do not draw: remove them, and run npm run icons.`,
       );
   }
   const written = Object.keys(packIcons(id));
   const wanted = names ?? phosphorNames(used);
   const unwritten = wanted.filter((name) => !written.includes(name)).sort();
   const stray = written.filter((name) => !wanted.includes(name)).sort();
-  if (unwritten.length) problems.push(`${dir}/ mangler ${unwritten.join(', ')}: kør npm run icons.`);
+  if (unwritten.length) problems.push(`${dir}/ is missing ${unwritten.join(', ')}: run npm run icons.`);
   if (stray.length)
-    problems.push(`${dir}/: ${stray.join(', ')} bruges ikke (eller står ikke i packages/editor/site/icons.mjs): kør npm run icons.`);
+    problems.push(`${dir}/: ${stray.join(', ')} are not used (or are not in packages/editor/site/icons.mjs): run npm run icons.`);
   return problems;
 }
 

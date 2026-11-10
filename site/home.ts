@@ -1,4 +1,4 @@
-// The front page: the page chosen under "Indstillinger" › "Udseende" › "Standardsider" (src/data/standard-pages.json,
+// The front page: the page chosen under "Settings" › "Appearance" › "Default pages" (src/data/standard-pages.json,
 // packages/editor/defaults/standardPages.ts), read
 // into sections for the theme's templates/Home.astro: each block a section of its own (its type says how it looks,
 // e.g. a theme's components/home/), with the text above it that is its own (its lead), and the rest of the text
@@ -15,30 +15,30 @@ type Link = { label: string; href: string };
 
 type Sections = {
   // The standard block "Banner" (type "hero"; text: Markdown, with its heading, the subtitle and the introduction, its
-  // picture, its "Knapper" block and the text under it: heroParts in packages/editor/src/standard/hero/fields.ts).
+  // picture, its "Buttons" block and the text under it: heroParts in packages/editor/src/standard/hero/fields.ts).
   hero: { text: string; placement?: string; width?: string };
-  // The standard block "Foldeliste" with a heading and an introduction.
+  // The standard block "Expandable list" with a heading and an introduction.
   accordion: { heading: string; intro: string; items: (Link & { text?: string; more?: Link[] })[] };
-  // The standard block "Udtalelser" (show 'front': the front page's).
+  // The standard block "Testimonials" (show 'front': the front page's).
   testimonials: { heading: string; show?: string };
-  // The standard block "Kort" with a heading (design: '' an icon, 'image' a picture, 'text' neither).
+  // The standard block "Cards" with a heading (design: '' an icon, 'image' a picture, 'text' neither).
   cards: { heading: string; design?: string; items: { icon?: string; image?: string; title: string; text: string; href?: string }[] };
   steps: { heading: string; items: { title: string; text: string }[] };
   // show "categories" (the default): `count` posts (3 when not set, postCount in the standard block
-  // Blogindlæg's shared.ts) in any of `categories` (all posts when empty),
+  // Blog posts' shared.ts) in any of `categories` (all posts when empty),
   // the newest or (order "random") picked anew on each visit; "picked": the posts in `picked`.
   posts: { heading: string } & PostChoice;
   text: { heading?: string; body: string };
 };
 
-/** The category its "Alle indlæg" goes to: the one picked for the link (`link`), else the one its
+/** The category its "All posts" goes to: the one picked for the link (`link`), else the one its
  * posts are from when they are from exactly one; null for the whole blog, also when that tag is not a
  * blog category (it has no page). */
 export const allPostsCategory = (choice: { show?: string; categories?: string[]; link?: string }) => {
   const slug = choice.link || (choice.show !== 'picked' && choice.categories?.length === 1 ? choice.categories[0] : null);
   return slug && isBlogCategory(slug) ? slug : null;
 };
-/** Where its "Alle indlæg" goes: that category, else the blog. */
+/** Where its "All posts" goes: that category, else the blog. */
 export const allPostsLink = (choice: { show?: string; categories?: string[]; link?: string }) => {
   const category = allPostsCategory(choice);
   return category ? `/blog/kategori/${category}/` : '/blog/';
@@ -56,7 +56,7 @@ export type FrontPage = { page: Page; heading: string; headingHtml?: string; sec
 
 export async function frontPage(): Promise<FrontPage> {
   const page = (await getPages({ previews: false })).find((p) => p.data.path === frontPath);
-  if (!page) throw new Error(`src/data/standard-pages.json: forsiden, ${frontPath}, findes ikke, eller den er en kladde.`);
+  if (!page) throw new Error(`src/data/standard-pages.json: the front page, ${frontPath}, does not exist, or it is a draft.`);
   const sections = sectionsFromParts(partsOfMarkdown(page.body ?? ''), frontLeads, { colors: true }) as HomeSection[];
   const h1 = pageH1(page.body);
   return { page, heading: h1.heading || page.data.title, headingHtml: h1.html, sections: sections.filter((s) => !s.hidden) };

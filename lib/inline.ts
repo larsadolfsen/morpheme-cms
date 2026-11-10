@@ -13,7 +13,7 @@ export async function inlineHtml(markdown: string): Promise<string> {
   return inlineOf((await (await processor).render(markdown)).code.trim());
 }
 
-/** A longer text the site's owner writes in the editor (an answer in "Spørgsmål og svar") as HTML: paragraphs,
+/** A longer text the site's owner writes in the editor (an answer in "Questions and answers") as HTML: paragraphs,
  * lists, bold, italic and links. */
 export async function markdownHtml(markdown: string): Promise<string> {
   processor ??= createMarkdownProcessor({ rehypePlugins: [rehypeEmphasize] });

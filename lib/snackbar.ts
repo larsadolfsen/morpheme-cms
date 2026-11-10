@@ -3,14 +3,14 @@
 // it moved up. Their look and place are the theme's Snackbar (.snackbar-stack and .snackbar in
 // packages/editor/theme/styles/ui.css). The editor's are drawn here, a text and links; the site's are drawn by
 // the theme's part (packages/editor/theme/ui/Snackbar.tsx, with its action and close button) and shown with
-// `element` (ui/snackbar.script.ts).
+// the element the message carries (ui/snackbar.script.ts).
 //
 // A message goes away by itself after a few seconds (an error after a little longer; not while the
 // mouse or a finger is on it or a link in it has focus), when it is tapped, or when it is swiped left
 // or right: it follows the finger (or the mouse) sideways and fades; let go far enough (a third of its
 // width) or fast enough, and it slides out to that side, else it slides back. Up and down still
 // scroll the page. A swipe that started on a link does not also follow it.
-// One about something going on ("Gemmer…") stays until the next message replaces it; snackbar(null) only
+// One about something going on ("Saving…") stays until the next message replaces it; snackbar(null) only
 // takes that one away.
 import arrow from '@phosphor-icons/core/assets/regular/arrow-right.svg?raw';
 

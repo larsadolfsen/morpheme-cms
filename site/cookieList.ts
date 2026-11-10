@@ -1,6 +1,6 @@
 // The site's cookie list: one JSON file per cookie in src/data/cookie-list/ (config.cookieList), edited in the editor
-// ("Lister" › "Cookies"), with those of the apps installed and those the app "Cookiescanner" finds (see
-// packages/editor/src/cookieList.ts). The standard block "Cookieliste" shows them (StandardSite.cookies).
+// ("Lists" › "Cookies"), with those of the apps installed and those the app "Cookiescanner" finds (see
+// packages/editor/src/cookieList.ts). The standard block "Cookie list" shows them (StandardSite.cookies).
 import { categoryOf } from '@morphemecms/cms/lib/cookieCategories.mjs';
 import type { CookieItem } from '@morphemecms/cms/src/standard/site';
 

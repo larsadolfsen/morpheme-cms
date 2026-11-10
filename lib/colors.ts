@@ -6,7 +6,7 @@
 // of the "harmony", as one written before the harmonies has). (When each page takes
 // its colours from its picture, content-based colour, that is an app's: packages/editor/site/pageColors.ts.)
 // The site writes them into the <head> of its pages (colorsCss), so its CSS, Tailwind and the blocks
-// take them from there; the editor shows and changes them under "Farver" (Colors.tsx) and checks that
+// take them from there; the editor shows and changes them under "Colors" (Colors.tsx) and checks that
 // text can be read on its background (contrast). No React or browser here: the build uses it too.
 
 import type { Dynamic } from './dynamic-colors';
@@ -22,7 +22,7 @@ const NAME = /^[a-z][a-z0-9-]*$/;
 /** Whether a value is a colour as the file has it: # and six hex digits. */
 export const isColor = (value: unknown): value is string => typeof value === 'string' && HEX.test(value);
 
-/** What is wrong with the content of a file of colours, a line for each ('dark.accent: "rød"'), or []:
+/** What is wrong with the content of a file of colours, a line for each ('dark.accent: "red"'), or []:
  * a mode or one of `names` missing, or a value that is not a colour. */
 export function colorProblems(value: unknown, names: string[]): string[] {
   const colors = (value ?? {}) as Partial<Record<Mode, unknown>>;
@@ -75,7 +75,7 @@ export function contrast(a: string, b: string): number {
 }
 
 /** A pair of colours that must be readable: `text` on `on`, at least `min` (4.5 when left out), and
- * what it is in the site's words ("Teksten på knapperne"). */
+ * what it is in the site's words ("Text on buttons"). */
 export type ColorPair = { text: string; on: string; what: string; min?: number };
 
 /** The pairs in a mode that are too hard to read, with their contrast. */

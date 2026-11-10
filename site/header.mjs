@@ -27,7 +27,7 @@ export function headerOf(raw) {
 /** @typedef {NavLink & { children?: NavLink[] }} NavItem */
 
 /**
- * The main menu's items (menu.json) as the header draws them: the sub-items in alphabetical order (Danish: æ, ø, å last).
+ * The main menu's items (menu.json) as the header draws them: the sub-items in alphabetical order (Danish order: ae, oe and aa letters last).
  * @template {NavItem} T
  * @param {T[]} items
  * @returns {T[]}

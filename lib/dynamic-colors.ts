@@ -1,10 +1,10 @@
 // Dynamic colour (Material 3, https://m3.material.io/styles/color/system/how-the-system-works): all the
 // site's colours, in light and dark mode, made from one source colour. The source colour gives tonal
 // palettes in HCT (Material's colour space), a scheme variant picks how much colour each palette has, and
-// the contrast level how far apart the tones of text and its background are. The generator ("Farver" › "Generator")
+// the contrast level how far apart the tones of text and its background are. The generator ("Colors" › "Generator")
 // uses a colour harmony instead of a variant: the source colour's hue and chroma give the primary palette, and the
 // harmony puts the secondary and tertiary palettes round the colour wheel from it (HARMONIES), as on a colour wheel. Each of the site's colours
-// takes the tone of a Material colour role ("Farver": colorRoles in @site/colors), so text stays
+// takes the tone of a Material colour role ("Colors": colorRoles in @site/colors), so text stays
 // readable in both modes. The site's file of colours keeps the choice ("dynamic") beside the colours it
 // gave, so the site itself never needs this: only the editor makes them (Colors.tsx).
 // Content-based colour (https://m3.material.io/styles/color/dynamic/content-based-source) is the other
@@ -284,7 +284,7 @@ export function completeColors(colors: Colors, roles: ColorRoles): Colors {
   return { ...colors, light: complete('light'), dark: complete('dark') };
 }
 
-/** What is wrong with a choice of dynamic colour, a line for each ('dynamic.variant: "rød"'), or []: the one in a file
+/** What is wrong with a choice of dynamic colour, a line for each ('dynamic.variant: "red"'), or []: the one in a file
  * of colours (`dynamic`), or one for content-based colour (`contentBased`, which has no source colour). */
 export function dynamicProblems(value: unknown, key: 'dynamic' | 'contentBased' = 'dynamic'): string[] {
   const d = (value ?? {}) as Record<string, unknown>;
@@ -334,7 +334,7 @@ export function sourceColorsOf(bytes: Uint8ClampedArray): string[] {
     .map(hexFromArgb);
 }
 
-// The colour wheel ("Farver" › "Generator", ColorWheel in the editor): each hue at its angle, clockwise from the top,
+// The colour wheel ("Colors" › "Generator", ColorWheel in the editor): each hue at its angle, clockwise from the top,
 // and its chroma as the distance from the middle, as a share of the most chroma the hue can have in sRGB, so the
 // edge is every hue at its most colourful and the middle grey.
 

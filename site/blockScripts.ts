@@ -1,5 +1,5 @@
 // What the blocks do in a browser on the site: script.ts in a theme's blocks/<type>/ (the rows that fold out, the
-// testimonials' "Læs mere" …; the theme in use's, else the standard theme's, as their look, sites.ts), what the theme's
+// testimonials' "Read more" …; the theme in use's, else the standard theme's, as their look, sites.ts), what the theme's
 // UI components do (ui/<name>.script.ts: a carousel's page indicator, by `ui/<name>`), in an app's
 // block (src/apps/<app>/blocks/<type>/), and in an app's part of a list's entries (src/apps/<app>/<list>/: Mailchimp's
 // signup in a pop-up). Each is a function that finds its blocks on the page and does nothing without them; the theme's

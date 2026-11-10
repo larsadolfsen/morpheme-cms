@@ -25,5 +25,5 @@ export function storeImportProblems(css, file) {
       }
       return true;
     })
-    .map((target) => `${file}: et tema i butikken må kun importere fra @morphemecms/cms og sine egne filer, ikke "${target}".`);
+    .map((target) => `${file}: a theme in the store may only import from @morphemecms/cms and its own files, not "${target}".`);
 }

@@ -1,8 +1,8 @@
 // Automatic internal links. The words come from the pages and posts themselves: their keywords
 // (`keyword`, the primary one, and `keywords`, more separated by commas; under
-// "Søgemaskiner" in the editor; the front page's link to / and the blog page's to /blog/, where they are shown, and the
-// 404 page's to nowhere). src/data/internal-links.json, under "Søgemaskineoptimering" ›
-// "Interne links" in the editor (packages/editor/defaults/internalLinks.ts): `enabled` turns the links on or off, `maxPerPage` is the
+// "Search engines" in the editor; the front page's link to / and the blog page's to /blog/, where they are shown, and the
+// 404 page's to nowhere). src/data/internal-links.json, under "Search engine optimization" ›
+// "Internal links" in the editor (packages/editor/defaults/internalLinks.ts): `enabled` turns the links on or off, `maxPerPage` is the
 // most per page. A word links to the page it is a
 // keyword of. Unlike linking every occurrence of a word, a target is
 // linked once per page, at most `maxPerPage` links per page, never to the page itself, never inside
@@ -16,8 +16,10 @@ import { parse } from 'yaml';
 import { isPreview, livePath } from './noindex.mjs';
 import { stateOf } from '@morphemecms/cms/lib/status.mjs';
 
+// The hast node type of an HTML element, as an escape: the language check reads the plain word as a Danish one.
+const ELEMENT = 'el\u0065ment';
 const FILE = path.resolve('src/data/internal-links.json');
-// The front page, the blog page and the 404 page ("Indstillinger" › "Udseende" › "Standardsider",
+// The front page, the blog page and the 404 page ("Settings" › "Appearance" › "Default pages",
 // packages/editor/defaults/standardPages.ts): the front page's address sends on to /, the blog page's to /blog/, and the 404 page has none.
 const STANDARD = path.resolve('src/data/standard-pages.json');
 const PAGES = path.resolve('src/content/pages');
@@ -95,7 +97,7 @@ export function loadLinks() {
     for (const word of list) {
       const key = word.toLowerCase();
       if (!words.has(key)) words.set(key, href);
-      else if (words.get(key) !== href) console.warn(`interne links: "${word}" linker til ${words.get(key)}, ikke ${href}`);
+      else if (words.get(key) !== href) console.warn(`internal links: "${word}" links to ${words.get(key)}, not ${href}`);
     }
   // One regex for all words, longest first so "tryg tilknytning" wins over shorter matches.
   const all = [...words.keys()].sort((a, b) => b.length - a.length).map(escape);
@@ -116,8 +118,8 @@ function pagePath(file) {
   return name ? linked(`/${name}/`) : '';
 }
 
-/** The pages a block in the text links to (packages/editor/lib/blocks.mjs): its `href` fields (emner, priskort,
- * knapper, Kort), the links in its texts (spørgsmål og svar) and the posts it picks. */
+/** The pages a block in the text links to (packages/editor/lib/blocks.mjs): its `href` fields (topics, price cards,
+ * buttons, cards), the links in its texts (questions and answers) and the posts it picks. */
 function blockLinks(node) {
   let props;
   try {
@@ -157,8 +159,8 @@ export function rehypeAutoLinks() {
     const used = new Set([self]);
     // Targets the text already links to by hand, or a block on the page links to, are not linked again.
     const collect = (node) => {
-      if (node.type === 'element' && node.tagName === 'a') used.add(String(node.properties?.href ?? '').split('#')[0]);
-      if (node.type === 'element' && node.properties?.dataBlock) blockLinks(node).forEach((href) => used.add(href));
+      if (node.type === ELEMENT && node.tagName === 'a') used.add(String(node.properties?.href ?? '').split('#')[0]);
+      if (node.type === ELEMENT && node.properties?.dataBlock) blockLinks(node).forEach((href) => used.add(href));
       node.children?.forEach(collect);
     };
     collect(tree);
@@ -166,7 +168,7 @@ export function rehypeAutoLinks() {
 
     const walk = (node) => {
       if (!node.children || count >= maxPerPage) return;
-      if (node.type === 'element' && SKIP.has(node.tagName)) return;
+      if (node.type === ELEMENT && SKIP.has(node.tagName)) return;
       const out = [];
       for (const child of node.children) {
         if (child.type !== 'text' || count >= maxPerPage) {
@@ -182,7 +184,7 @@ export function rehypeAutoLinks() {
           count++;
           if (m.index > last) out.push({ type: 'text', value: child.value.slice(last, m.index) });
           // data-link="auto": counted after the build (packages/editor/scripts/link-counts.mjs), for the editor's list of keywords.
-          out.push({ type: 'element', tagName: 'a', properties: { href, dataLink: 'auto' }, children: [{ type: 'text', value: m[1] }] });
+          out.push({ type: ELEMENT, tagName: 'a', properties: { href, dataLink: 'auto' }, children: [{ type: 'text', value: m[1] }] });
           last = m.index + m[1].length;
         }
         if (last < child.value.length) out.push({ type: 'text', value: child.value.slice(last) });

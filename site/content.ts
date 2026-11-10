@@ -28,14 +28,14 @@ const stateHere = (data: { status?: string; publishAt?: string }) => {
 const shown = (state: ReturnType<typeof stateOf>, unlisted: boolean) => state === 'published' || (unlisted && state === 'unlisted');
 
 // The posts on the blog and in every list of posts; with `unlisted`, also those that only open on
-// their address (Skjult; the pages of the posts are made for those too). A draft is not on the site.
+// their address (Hidden; the pages of the posts are made for those too). A draft is not on the site.
 export async function getPosts({ unlisted = false } = {}) {
   return (await getCollection('blog', ({ data }) => shown(stateHere(data), unlisted))).sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
   );
 }
 
-/** Which posts a "Blogindlæg" block or the front page's section shows (packages/editor/site/home.ts): those in
+/** Which posts a "Blog posts" block or the front page's section shows (packages/editor/site/home.ts): those in
  * any of `categories` (all when empty), the newest `count`, or with `order` "random" all of them,
  * to show `count` of at random on the page (the theme's PostList.tsx); or with `show` "picked" those picked. */
 export async function postsFor(
@@ -49,18 +49,18 @@ export async function postsFor(
   return { posts: random ? pool : pool.slice(0, count), random };
 }
 export type PostChoice = {
-  /** "all": all of them, which "Blogindlæg" lists itself (StandardSite.posts.list), not by this. */
+  /** "all": all of them, which "Blog posts" lists itself (StandardSite.posts.list), not by this. */
   show?: 'all' | 'categories' | 'picked';
   categories?: string[];
-  /** How many, '3' to '6' (postCount in the standard block Blogindlæg's shared.ts). */
+  /** How many, '3' to '6' (postCount in the standard block Blog posts' shared.ts). */
   count?: string;
   order?: 'newest' | 'random';
   picked?: string[];
-  /** The category "Alle indlæg" goes to (allPostsCategory in packages/editor/site/home.ts). */
+  /** The category "All posts" goes to (allPostsCategory in packages/editor/site/home.ts). */
   link?: string;
 };
 
-// The pages on the site, also the hidden ones (Skjult; with `unlisted: false` not those) and, like the
+// The pages on the site, also the hidden ones (Hidden; with `unlisted: false` not those) and, like the
 // posts, the drafts on the editor's preview; with `previews: false`, not the new versions of pages under /ny/.
 export async function getPages({ previews = true, unlisted = true } = {}): Promise<Page[]> {
   const pages = await getCollection('pages', ({ data }) => shown(stateHere(data), unlisted));
@@ -97,9 +97,9 @@ export const pageHeadingHtml = (page: Page): string | undefined => pageH1(page.b
 export const testimonialId = (t: { name: string }) =>
   t.name
     .toLowerCase()
-    .replace(/æ/g, 'ae')
-    .replace(/ø/g, 'oe')
-    .replace(/å/g, 'aa')
+    .replace(/\u00e6/g, 'ae')
+    .replace(/\u00f8/g, 'oe')
+    .replace(/\u00e5/g, 'aa')
     .normalize('NFD')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');

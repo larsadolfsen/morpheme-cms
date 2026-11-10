@@ -11,13 +11,13 @@ const CODE = /\.(css|astro|tsx|ts|js|mjs)$/;
 const RULES = [
   [
     /\(\s*(min|max)-width\s*:\s*\d|\(\s*width\s*(>=|<=|>|<)\s*\d|\d[\w.]*\s*(<=|<)\s*width\b/,
-    'en bredde i en medieforespørgsel (@media, matchMedia, useMedia, sizes); brug theme(--breakpoint-medium), -expanded, -large eller -extra-large i CSS og atLeast() fra lib/breakpoints.mjs i scripts',
+    'a width in a media query (@media, matchMedia, useMedia, sizes); use theme(--breakpoint-medium), -expanded, -large or -extra-large in CSS and atLeast() from lib/breakpoints.mjs in scripts',
   ],
   [
     /(^|[\s"'`{:])(min|max)-\[/,
-    'et brudpunkt skrevet som en vilkårlig variant (min eller max med en bredde i klammer); brug medium:, expanded:, large: eller extra-large:',
+    'a breakpoint written as an arbitrary variant (min or max with a width in brackets); use medium:, expanded:, large: or extra-large:',
   ],
-  [/(^|[\s"'`{])(max-)?(sm|md|lg|xl|2xl):[\w[-]/, 'Tailwinds gamle brudpunkt; brug medium:, expanded:, large: eller extra-large:'],
+  [/(^|[\s"'`{])(max-)?(sm|md|lg|xl|2xl):[\w[-]/, "Tailwind's old breakpoints; use medium:, expanded:, large: or extra-large:"],
 ];
 
 function files(dir) {
@@ -46,7 +46,7 @@ export function breakpointProblems(root = process.cwd()) {
     readFileSync(file, 'utf8')
       .split('\n')
       .forEach((line, i) => {
-        for (const what of lineProblems(line)) problems.push(`${relative(root, file)}:${i + 1}: ${what} (Material 3's brudpunkter).`);
+        for (const what of lineProblems(line)) problems.push(`${relative(root, file)}:${i + 1}: ${what} (Material 3's breakpoints).`);
       });
   return problems;
 }

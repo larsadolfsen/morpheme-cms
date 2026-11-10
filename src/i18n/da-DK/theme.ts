@@ -20,6 +20,7 @@ export const theme: Messages['theme'] = {
   seeAllPosts: 'Se alle indlæg',
   seeAll: 'Se alle',
   blog: 'Blog',
+  frontPage: 'Forside',
   relatedPosts: 'Relaterede indlæg',
   share: 'Del',
   shareOn: (network: string) => `Del på ${network}`,
