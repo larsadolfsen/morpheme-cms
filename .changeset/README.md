@@ -16,15 +16,21 @@ A change a site owner sees gets a note in both languages, English (`en-US`) and 
 get no note. The note's `id` is this changeset's file name without `.md`, for example `brave-cats-run`. A note has one
 of two kinds:
 
-- `card`: a main change. A screenshot, a title and 1–3 short sentences: what the owner gets first, then where to find
-  it. No labels.
-- `line`: a smaller change. One short sentence with no period, shown in the list "Also in this version".
+- `card` (a *paragraph* on the Morpheme page's "New in" page): a main change, one an owner would go looking for, such as
+  a new screen, a new feature or a new way to do something. A title and 1–3 short sentences: what the owner gets first,
+  then where to find it. No labels. The screenshot shows only on the start screen's update card; the "New in" page shows
+  the title and the text.
+- `line`: a smaller change, such as a tweak to something the owner already uses, or a fix. One short sentence with no
+  period, shown in the list "Also in this version".
+
+A note says only what is new in its own version. It never explains a feature from an earlier version again. Several
+changes to the same screen or feature are one note.
 
 Files, per language:
 
-- `release-notes/i18n/<locale>/pending/<id>.json`: the note. A card has `id`, `kind`, `title` and `text`. A line has
+- `release-notes/i18n/<locale>/pending/<id>.json`: the note. A `card` has `id`, `kind`, `title` and `text`. A line has
   `id`, `kind` and `text`.
-- `release-notes/i18n/<locale>/pending/<id>.webp`: the screenshot. Only for a card.
+- `release-notes/i18n/<locale>/pending/<id>.webp`: the screenshot. Only for a `card`.
 
 Screenshot: the editor 375 CSS pixels wide, at most 400 CSS pixels high, device scale factor 2, so 750 px wide and at
 most 800 px high. Crop it to the part that changed. Save it as WebP, at most 200 KB. Take one per language, with the
@@ -41,7 +47,7 @@ Writing rule: the skill `site-editor-writing` (in `larsadolfsen/morpheme-website
   (*Aktiveret*, *Indstillinger*, *hjemmesiden*).
 - Keep it short. A card's text is 1–3 sentences. A line is one sentence.
 
-Example card (English):
+Example paragraph (`card`, English):
 
 > [screenshot of the start screen]
 > **Pick up where you left off**

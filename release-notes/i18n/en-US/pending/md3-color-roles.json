@@ -1,5 +1,5 @@
 {
   "id": "md3-color-roles",
   "kind": "line",
-  "text": "Colors now follow Material 3’s color roles, with new Scrim and Shadow colors"
+  "text": "Colors now follow Material 3’s names and roles, with new Surface dim, Surface bright, Scrim and Shadow colors"
 }
