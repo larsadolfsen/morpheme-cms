@@ -9,13 +9,6 @@
 export const PENDING_IDS = [
   // Row 4, batch A2: the CSV file name samtykker-<date>.csv (worker/consent.js).
   'worker/consent.js:samtykker',
-  // Row 7, batch A1: stale ids in docs/store-ids.md.
-  'docs/store-ids.md:promovering',
-  'docs/store-ids.md:tema',
-  'docs/store-ids.md:butik',
-  'docs/store-ids.md:udvikler',
-  'docs/store-ids.md:udseende',
-  'docs/store-ids.md:temaer',
   // Row 8, batch A1: the old store route apps/butik and apps/butik/temaer (STORE_BEFORE, STORE_MOVED); move into RENAMED in src/movedRoutes.mjs.
   'src/App.tsx:temaer',
   'src/store.ts:butik',
