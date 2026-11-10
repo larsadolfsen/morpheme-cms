@@ -18,6 +18,7 @@ import { active, settingsOf } from './apps';
 import { appIdOf, type AppDefinition } from '@morphemecms/cms/src/apps';
 import { colorProblems, lowContrast, MODES, withMaterialNames, type Colors } from '@morphemecms/cms/lib/colors';
 import { completeColors } from '@morphemecms/cms/lib/dynamic-colors';
+import { contentColorsEngine } from '@morphemecms/cms/lib/contentColors';
 import { pageColorsOutputProblems, type PageColorsHook } from '@morphemecms/cms/lib/hooks';
 import oldHooks from 'virtual:old-page-colors';
 import { buildProblems } from '@morphemecms/cms/lib/appProblems.mjs';
@@ -63,6 +64,9 @@ function pixels(address: string): Promise<Uint8ClampedArray | undefined> {
 }
 
 const readable = (c: Colors) => MODES.every((mode) => !lowContrast(c[mode], colorPairs).length);
+
+// Content-based colour runs here, not in an app's hook (lib/contentColors.ts): one engine for a build.
+const engine = contentColorsEngine({ pixels, roles: colorRoles, readable });
 
 // An app's colours that cannot be used are said once a build, by the app.
 const said = new Set<string>();
@@ -118,17 +122,36 @@ export async function pageColors(page: { path: string; pictures: (string | undef
       last = picture;
       return pixels(picture);
     };
+    const onRead = (picture: string) => {
+      last = picture;
+    };
     try {
       if (sandboxed) {
-        // Only data goes in; the helpers are the only way out. A failed run is a problem, kept in the build's list.
+        // Only data goes in; the helpers are the only way out, and they read only the page's own pictures. A failed run
+        // is a problem, kept in the build's list.
         const input = { path: page.path, colors: found.colors, pictures, settings, roles: colorRoles };
-        made = (await sandbox.run(id, page.path, input, { pixels: reading, readable })) as Colors | undefined;
+        const own = new Set(pictures);
+        const helpers = {
+          pixels: (picture: string) => (own.has(picture) ? reading(picture) : undefined),
+          readable,
+          contentColors: engine.forPage(pictures, onRead),
+        };
+        made = (await sandbox.run(id, page.path, input, helpers)) as Colors | undefined;
         if (made) {
           found = { colors: { light: pick(made.light), dark: pick(made.dark) }, app: id, picture: last };
         }
         continue;
       }
-      made = await hook!({ path: page.path, colors: found.colors, pictures, settings, roles: colorRoles, pixels: reading, readable });
+      made = await hook!({
+        path: page.path,
+        colors: found.colors,
+        pictures,
+        settings,
+        roles: colorRoles,
+        pixels: reading,
+        readable,
+        contentColors: engine.forPage(pictures, onRead),
+      });
     } catch (e) {
       say(id, `error (${(e as Error).message})`);
       continue;
