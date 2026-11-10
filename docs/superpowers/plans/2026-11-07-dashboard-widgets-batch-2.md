@@ -1,6 +1,6 @@
 # Dashboard widgets, batch 2: contract and grid
 
-Status: not started. Checked against the code on 2026-11-10.
+Status: done (PR against main, 2026-11-10). Differences from this plan: `APP_API` is not raised (`widgets` is an optional field; an app without it works as before); the component file is `src/DashboardGrid.tsx` (a `Dashboard.tsx` beside `dashboard.mjs` fails the build's case-insensitive name check); `cmsWidgets` lives in `src/cmsWidgets.ts` and `Start` gives the widgets their data through `src/startData.ts`; a Worker without the `DASHBOARD` binding (503 `no-storage`) shows the default dashboard.
 
 Master plan: `2026-11-07-dashboard-widgets.md`. Needs batch 1.
 
@@ -28,7 +28,7 @@ Test cases:
 Files: `src/widgets/continue.tsx`, `src/ContinueCard.tsx`. Worker: Haiku agent.
 
 1. Make `cms:continue` from `ContinueCard`. Keep its behaviour. Use `WidgetProps`.
-2. Delete `src/ContinueCard.tsx` when nothing imports it. Update the CLAUDE.md map and inventory.
+2. Delete `src/ContinueCard.tsx` when nothing imports it. Update the file map in AGENTS.md.
 
 ## Task 2.3: grid on the start screen
 

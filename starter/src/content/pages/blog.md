@@ -1,6 +1,6 @@
 ---
 title: "Blog"
-path: "/blogside/"
+path: "/blog-page/"
 ---
 
 # Blog

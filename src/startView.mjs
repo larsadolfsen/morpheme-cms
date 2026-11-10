@@ -1,5 +1,5 @@
 /**
- * What the editor's start screen (Library.tsx Start, ContinueCard.tsx, UpdatesNotice.tsx) shows besides its FAB: the pages and blog posts
+ * What the editor's start screen (Library.tsx Start, widgets/continue.tsx, UpdatesNotice.tsx) shows besides its FAB: the pages and blog posts
  * edited last in this browser, and what was updated since the last visit (the CMS and the apps from the store).
  * Exposes `STORE_VERSION`, `versioned`, `unversioned`, `validEdits`, `nextRecent`, `latestEdits`, `continueShown` and `changesSince`.
  * Depends on nothing; the browser's storage is startStorage.ts's.

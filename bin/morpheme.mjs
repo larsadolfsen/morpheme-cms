@@ -31,6 +31,8 @@ const COMMANDS = {
   'app-screenshots': ['app-screenshots'],
   'theme-screenshots': ['theme-screenshots'],
   'editor-icons': ['editor-icons'],
+  /** In a new site, once: lays i18n/<code>/ over the site, sets its locale and deletes i18n/. */
+  locale: ['locale'],
 };
 
 // Node warns that node:sqlite is experimental, which the consent log's check uses as D1.

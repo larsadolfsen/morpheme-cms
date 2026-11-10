@@ -1,6 +1,6 @@
 // The editor's language: its own texts (the buttons, the messages, the lines on the cards) and how it
 // writes dates, numbers and sorts, in one language, by its code with the country (BCP 47: da-DK,
-// en-US), used as it is with Intl. The language is the one picked on "Konto", else the browser's (the
+// en-US), used as it is with Intl. The language is the one picked on "Account", else the browser's (the
 // same code, else the same language: en-GB is en-US), else the site's (config.locale). Picked once when
 // the editor opens; a new choice reloads it (setLocale). Away from a browser (the check before the
 // build, checkSite.ts) it is the site's.
@@ -52,7 +52,7 @@ export const siteLocale: Locale = matchLocale([config.locale]) ?? 'da-DK';
 const KEY = 'editor-locale';
 const inBrowser = typeof window !== 'undefined' && typeof navigator !== 'undefined';
 
-/** The language picked on "Konto" in this browser, or 'auto' (the browser's, else the site's). */
+/** The language picked on "Account" in this browser, or 'auto' (the browser's, else the site's). */
 export function savedLocale(): Locale | 'auto' {
   try {
     return matchLocale([localStorage.getItem(KEY)]) ?? 'auto';

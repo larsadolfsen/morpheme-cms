@@ -1,5 +1,5 @@
 // When each file was last saved on the site, kept while the editor is open and shared by the lists (Library.tsx) and the
-// start screen's "Continue" card (ContinueCard.tsx). Exposes `saved` (by path) and `loadSavedTimes`.
+// start screen's "Continue" widget (widgets/continue.tsx). Exposes `saved` (by path) and `loadSavedTimes`.
 // Depends on Env['savedAt'] (GitHub's history) and RepoFile.
 import type { RepoFile } from './github';
 import type { Env } from './App';

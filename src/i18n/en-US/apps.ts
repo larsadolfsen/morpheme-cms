@@ -27,7 +27,7 @@ export const apps = {
   /** In the check before the website is updated: a file in an app's hooks/ that is no place an app may change the site. */
   unknownHook: (places: string) => `The file is no place an app can change the website: ${places}.`,
   needsNothing: 'None',
-  /** The kinds of notifications it sends (its `notifications`), each turned off under "Konto" › "Notifikationer". */
+  /** The kinds of notifications it sends (its `notifications`), each turned off under "Account" › "Notifications". */
   notifications: 'Notifications',
   notifiesNone: 'Sends no notifications',
   cookies: 'Cookies',
@@ -47,6 +47,8 @@ export const apps = {
     `The picture "${shows}" shows nothing the app has: blok:<type>, slags:<list>:<variant>, liste:<id>, indstillinger or side.`,
   noScreenshot: (file: string) => `${file} doesn’t exist. Take the pictures with npx morpheme app-screenshots.`,
   unlistedScreenshot: 'The picture isn’t under screenshots in the app’s index.ts.',
+  /** In the check before the build: a widget in an app's index.ts (AppDefinition.widgets) that has no component. */
+  widgetNoComponent: (key: string) => `The widget "${key}" has no component.`,
   install: 'Install',
   uninstall: 'Uninstall',
   installing: 'Installing…',
@@ -62,13 +64,13 @@ export const apps = {
   askUninstall: (app: string) => `Uninstall ${app}? What the app adds disappears from the editor.`,
   /** The name of the switch in the row of one of its blocks (or kinds of a list), read by screen readers. */
   activeOf: (block: string) => `Enabled: ${block}`,
-  /** Under "Afinstaller". */
+  /** Under "Uninstall". */
   uninstallHint: 'Can be uninstalled, as nothing on the website uses the app.',
   /** Over the pages and entries that use it (its blocks, its kind of pop-up). */
   used: 'Used on',
   /** In the sheet of something it adds, when it is used nowhere. */
   notUsed: 'Not used anywhere',
-  /** Under "Afinstaller", which cannot be pressed, while it is used. */
+  /** Under "Uninstall", which cannot be pressed, while it is used. */
   stuck: 'The app is in use and can’t be uninstalled. Remove it from the places above first.',
   /** Over the blocks it adds, and the lists it brings ("Priser"); its kinds of the site's lists (a Mailchimp popup)
    * are under the list's name. */
