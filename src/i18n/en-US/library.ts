@@ -23,6 +23,21 @@ export const library = {
   unfinishedWidgetHint: 'Lists the drafts, hidden and scheduled pages and posts.',
   /** In the card, in edit mode, when no page or post is unfinished. */
   unfinishedEmpty: 'Nothing is unfinished',
+  /** On the start screen (widgets/blogRhythm.tsx): a reminder to write a blog post, shown when the next one is due. */
+  blogRhythmWidgetLabel: 'Blog rhythm',
+  blogRhythmWidgetHint: 'Reminds you to write a new blog post.',
+  /** The widget's setting: how often a post is due, and its choices. */
+  blogRhythmEvery: 'Post every',
+  blogRhythmEveryWeek: 'Week',
+  blogRhythmEveryTwoWeeks: 'Two weeks',
+  blogRhythmEveryMonth: 'Month',
+  /** "Your last post was 1 week ago", "Your last post was 3 weeks ago". */
+  blogRhythmLast: (weeks: number) => (weeks === 1 ? 'Your last post was 1 week ago' : `Your last post was ${weeks} weeks ago`),
+  blogRhythmNone: 'You haven’t published a post yet',
+  blogRhythmWriteNew: 'Write a new post',
+  blogRhythmWriteFirst: 'Write your first post',
+  /** In edit mode, when no post is due yet: "Your next post is due Dec 1, 2026". */
+  blogRhythmNext: (date: string) => `Your next post is due ${date}`,
   /** Under each of them: its kind ("Page") and when it was saved ("today at 1:42 PM", when.ts). */
   recentEdit: (kind: string, when: string) => `${kind} · Edited ${when}`,
   /** At the top of the start screen (UpdatesNotice.tsx): the card with what was updated since the last visit in this
