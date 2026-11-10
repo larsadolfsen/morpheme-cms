@@ -2,7 +2,7 @@
 // starter in a folder of its own, which then must pass its checks (npm run check) and build (npm run build); with
 // --screens, also every screen of the editor (check:screens, with Playwright at this repository's version). It takes a
 // few minutes and needs npm's registry. Run: node packages/editor/scripts/check-starter.mjs [--screens]
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { cpSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
@@ -41,9 +41,17 @@ run(site, 'git', ['add', '-A']);
 run(site, 'git', ['-c', 'user.name=starter', '-c', 'user.email=starter@example.com', 'commit', '-q', '-m', 'Starter']);
 npmRun(site, 'run', 'check');
 npmRun(site, 'run', 'build');
-if (process.argv.includes('--screens')) {
-  const playwright = createRequire(join(pkgDir, 'package.json'))('playwright/package.json').version;
-  npmRun(site, 'install', '--no-save', `playwright@${playwright}`);
-  npmRun(site, 'run', 'check:screens');
+const playwright = createRequire(join(pkgDir, 'package.json'))('playwright/package.json').version;
+npmRun(site, 'install', '--no-save', `playwright@${playwright}`, ...(process.argv.includes('--screens') ? [] : ['--ignore-scripts']));
+// The scripts the package ships run from node_modules, where Node cannot run TypeScript: the screens check loads its
+// texts, then stops at the folder it is given having no built site (no browser needed). Any other stop is a failure.
+const probe = spawnSync(process.execPath, ['node_modules/@morphemecms/cms/bin/morpheme.mjs', 'check:screens', join(dir, 'no-such-dist')], {
+  cwd: site,
+  encoding: 'utf8',
+});
+if (!`${probe.stdout}${probe.stderr}`.includes('There is no built site')) {
+  console.error(probe.stdout, probe.stderr);
+  throw new Error('check:screens does not start from the installed package (see above).');
 }
+if (process.argv.includes('--screens')) npmRun(site, 'run', 'check:screens');
 console.log(`The starter works as a site with the package from npm pack (${site}).`);

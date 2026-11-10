@@ -18,15 +18,28 @@ import { join, relative, resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
+import { build } from 'esbuild';
 import { openEditor, serveBuilt } from './built-site.mjs';
 
-// The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages.
-const { apps: da } = await import('../src/i18n/da-DK/apps.ts');
-const { app: daApp } = await import('../src/i18n/da-DK/app.ts');
-const { cms: daCms } = await import('../src/i18n/da-DK/cms.ts');
-const { dashboard: daDashboard } = await import('../src/i18n/da-DK/dashboard.ts');
-const { common: daCommon } = await import('../src/i18n/da-DK/common.ts');
-const { library: daLibrary } = await import('../src/i18n/da-DK/library.ts');
+// The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages. They are
+// TypeScript, which Node does not run in node_modules (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING), so esbuild bundles
+// them to plain JavaScript first, as the editor's own build does, and the result is imported from memory.
+const i18nDir = fileURLToPath(new URL('../src/i18n/da-DK/', import.meta.url));
+const bundled = await build({
+  stdin: {
+    contents: ['apps', 'app', 'cms', 'dashboard', 'common', 'library'].map((name) => `export { ${name} } from './${name}.ts';`).join('\n'),
+    resolveDir: i18nDir,
+    loader: 'ts',
+  },
+  bundle: true,
+  format: 'esm',
+  platform: 'neutral',
+  write: false,
+  logLevel: 'silent',
+});
+const texts = await import(`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`);
+const { apps: da, app: daApp, cms: daCms, dashboard: daDashboard, common: daCommon, library: daLibrary } = texts;
 
 const ROOT = `${process.cwd()}/`;
 const DIST = resolve(ROOT, process.argv[2] ?? 'dist');
