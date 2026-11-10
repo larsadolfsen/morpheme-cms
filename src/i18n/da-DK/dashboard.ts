@@ -7,6 +7,8 @@ export const dashboard: Messages['dashboard'] = {
   tryAgain: 'Prøv igen',
   edit: 'Rediger dashboard',
   done: 'Færdig',
+  addWidget: 'Tilføj widget',
+  cmsWidgets: 'Indbygget',
   dragCard: (widget) => `Træk ${widget} for at ændre rækkefølgen`,
   cardMenu: (widget) => `Handlinger for ${widget}`,
   moveUp: 'Flyt op',

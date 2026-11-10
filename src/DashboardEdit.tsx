@@ -13,7 +13,7 @@ import { activeApps } from './apps';
 import { allWidgets, type WidgetDefinition } from './widgets';
 import { cmsWidgets } from './cmsWidgets';
 import { DashboardSaveError, loadDashboard, placementsOf, saveDashboard } from './dashboardStore';
-import { removeWidget, withoutMissing } from './dashboard.mjs';
+import { addWidget, removeWidget, withoutMissing } from './dashboard.mjs';
 import type { Placement, StoredDashboard } from './dashboard.mjs';
 import { cardAt, moveBy, moveOnto } from './dashboardMoves.mjs';
 import type { RepoFile } from './github';
@@ -90,6 +90,12 @@ export function useDashboard(files: RepoFile[]) {
       } finally {
         setSaving(false);
       }
+    },
+    /** Adds a placement of `widget` at the end of the draft (a widget may be placed again) and focuses its menu button. */
+    add(widget: string) {
+      if (!draft) return;
+      const next = addWidget(draft, widget, () => crypto.randomUUID());
+      change(next, next.widgets.at(-1)!.id);
     },
     moveBy(id: string, delta: number) {
       const moved = draft && moveBy(draft, shownIds, id, delta);

@@ -262,6 +262,65 @@ async function checkDashboardEdit(width, height) {
   if (dashboard.saved.length) problems.push(`${label}: a failed save was recorded as saved`);
   await page.screenshot({ path: join(shots, `edit-mode-failed-${width}.png`) });
   await page.close();
+
+  // Add widget, on a fresh page (the default dashboard: the Continue card only). The sheet lists the Continue widget with its
+  // hint; a tap on it closes the sheet and adds a second card; Done sends one PUT with two Continue placements, each with
+  // its own id.
+  const adding = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
+  adding.on('pageerror', (e) => problems.push(`${label} (add widget): ${e.message}`));
+  const added = { saved: [], fail: null };
+  await openEditor(adding, site, {}, 'button', added);
+  await adding.evaluate(() => (location.hash = ''));
+  const addButton = adding.getByRole('button', { name: daDashboard.addWidget, exact: true });
+  const sheet = adding.getByRole('dialog', { name: daDashboard.addWidget, exact: true });
+  const addCards = adding.locator('[data-card]');
+  const addDone = adding.getByRole('button', { name: daDashboard.done, exact: true });
+  await adding.getByRole('button', { name: daDashboard.edit, exact: true }).click();
+  await addDone
+    .first()
+    .waitFor({ timeout: 5000 })
+    .catch(() => problems.push(`${label}: no edit mode for "${daDashboard.addWidget}"`));
+  await addButton
+    .first()
+    .waitFor({ timeout: 5000 })
+    .catch(() => problems.push(`${label}: the button "${daDashboard.addWidget}" is missing`));
+  await addButton.click();
+  await sheet
+    .waitFor({ state: 'visible', timeout: 5000 })
+    .catch(() => problems.push(`${label}: the sheet "${daDashboard.addWidget}" did not open`));
+  const row = sheet.locator('li', { hasText: daLibrary.continueWidgetHint });
+  if ((await row.count()) !== 1) problems.push(`${label}: ${await row.count()} rows with the hint of the Continue widget instead of 1`);
+  else if (!(await row.first().innerText()).includes(daLibrary.continueWidgetLabel))
+    problems.push(`${label}: the row of the Continue widget has no label "${daLibrary.continueWidgetLabel}"`);
+  await adding.screenshot({ path: join(shots, `add-widget-${width}.png`) });
+
+  // The tap on the row: the sheet closes, a second card is shown, both named by the widget's label.
+  await row.first().click();
+  await sheet.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => problems.push(`${label}: the sheet is still open after a pick`));
+  await addCards
+    .nth(1)
+    .waitFor({ timeout: 5000 })
+    .catch(() => problems.push(`${label}: no second card after the pick`));
+  const named = adding.getByRole('group', { name: daLibrary.continueWidgetLabel, exact: true });
+  if ((await named.count()) !== 2)
+    problems.push(`${label}: ${await named.count()} cards named "${daLibrary.continueWidgetLabel}" instead of 2`);
+  await adding.screenshot({ path: join(shots, `edit-mode-two-${width}.png`) });
+
+  // Done: one PUT, two Continue placements with different ids.
+  await addDone.first().click();
+  await adding
+    .getByRole('button', { name: daDashboard.edit, exact: true })
+    .first()
+    .waitFor({ timeout: 5000 })
+    .catch(() => {});
+  if (added.saved.length !== 1) problems.push(`${label}: ${added.saved.length} saves after Done (add widget) instead of 1`);
+  else {
+    const continues = (added.saved[0]?.widgets ?? []).filter((p) => p.widget === 'cms:continue');
+    const ids = new Set(continues.map((p) => p.id));
+    if (continues.length !== 2 || ids.size !== 2)
+      problems.push(`${label}: the saved dashboard has ${continues.length} Continue placements with ${ids.size} ids instead of 2 and 2`);
+  }
+  await adding.close();
 }
 
 // The cog is the last of `items` (shown, from the top) and at the bottom of the screen.

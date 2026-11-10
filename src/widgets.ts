@@ -47,3 +47,23 @@ export function allWidgets(
 /** The widgets of apps that have no `component`, each with its app and key (a widget from an app written without types). */
 export const widgetsWithoutComponent = (apps: Pick<SiteApp, 'id' | 'widgets'>[]): { app: string; key: string }[] =>
   apps.flatMap((app) => Object.entries(app.widgets ?? {}).flatMap(([key, widget]) => (widget.component ? [] : [{ app: app.id, key }])));
+
+/** The widgets of one source (the CMS, or an app): its name, and the widgets in the order they are in `allWidgets`. */
+export type WidgetGroup = { source: string; label: string; items: { id: string; definition: WidgetDefinition }[] };
+
+/** The widgets of `widgets` grouped by their source (the part of the id before the first ':'): the CMS's group first, then
+ * one group per app in the order the apps first appear in the map. The items keep the map's order; a source without
+ * widgets has no group. `labelOf` gives a group's name by its source. */
+export function widgetGroups(widgets: Map<string, WidgetDefinition>, labelOf: (source: string) => string): WidgetGroup[] {
+  const bySource = new Map<string, WidgetGroup['items']>();
+  for (const [id, definition] of widgets) {
+    const source = id.slice(0, id.indexOf(':'));
+    bySource.set(source, [...(bySource.get(source) ?? []), { id, definition }]);
+  }
+  const sources = [...bySource.keys()];
+  return [...sources.filter((s) => s === 'cms'), ...sources.filter((s) => s !== 'cms')].map((source) => ({
+    source,
+    label: labelOf(source),
+    items: bySource.get(source)!,
+  }));
+}

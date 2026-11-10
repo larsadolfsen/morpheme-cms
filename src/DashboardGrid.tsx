@@ -2,19 +2,30 @@
 // (dashboardStore.ts, through useDashboard in DashboardEdit.tsx, which Start in Library.tsx owns) and each placement whose
 // widget exists is drawn with its own card. One column on a compact screen, two from medium, three from expanded; a card is
 // as tall as its content. Shows a loading state and, when the dashboard can't be loaded, a message with a button to try
-// again. In edit mode every card is drawn with `editing` in a frame with its controls (EditableCards), and a failed save is
-// a Notice over the grid.
-import { t } from './i18n';
+// again. In edit mode every card is drawn with `editing` in a frame with its controls (EditableCards), a failed save is
+// a Notice over the grid, and "Add widget" above the cards opens the list of widgets to place (AddWidget). The button is off
+// when the dashboard has MAX_WIDGETS placements, the most the Worker keeps.
+import { useState } from 'react';
+import { Plus } from '@phosphor-icons/react';
+import { siteText, t } from './i18n';
+import { apps } from './site';
+import { MAX_WIDGETS } from './dashboard.mjs';
 import type { Placement } from './dashboard.mjs';
 import type { Env } from './App';
 import { EditableCards, saveErrorText, type DashboardEditing } from './DashboardEdit';
-import type { WidgetDefinition } from './widgets';
+import { AddWidget } from './AddWidget';
+import { widgetGroups, type WidgetDefinition } from './widgets';
 import { Button, LoadingIndicator, Notice } from './ui';
+
+/** A group's name in the list: the CMS's, or the app's label (the site's text). */
+const groupLabel = (source: string) =>
+  source === 'cms' ? t.dashboard.cmsWidgets : siteText(apps.find((app) => app.id === source)?.label ?? source);
 
 /** The CMS's widgets have no app API, so theirs rejects; an app's widget gets the app's own, as its pages do. */
 const noApi = () => Promise.reject(new Error('The CMS widgets have no app API'));
 
 export function Dashboard({ dash, env }: { dash: DashboardEditing; env: Pick<Env, 'appApi'> }) {
+  const [adding, setAdding] = useState(false);
   const draw = ({ id, widget, settings }: Placement, definition: WidgetDefinition) => {
     const source = widget.slice(0, widget.indexOf(':'));
     const Widget = definition.component;
@@ -57,7 +68,15 @@ export function Dashboard({ dash, env }: { dash: DashboardEditing; env: Pick<Env
         </Notice>
       )}
       {dash.editing ? (
-        <EditableCards dash={dash} draw={draw} />
+        <>
+          <div>
+            <Button kind="tonal" icon={Plus} disabled={(dash.draft?.widgets.length ?? 0) >= MAX_WIDGETS} onClick={() => setAdding(true)}>
+              {t.dashboard.addWidget}
+            </Button>
+          </div>
+          <AddWidget open={adding} groups={widgetGroups(dash.widgets, groupLabel)} onPick={dash.add} onClose={() => setAdding(false)} />
+          <EditableCards dash={dash} draw={draw} />
+        </>
       ) : (
         <div className="grid items-start gap-4 medium:grid-cols-2 expanded:grid-cols-3">
           {dash.shown.map(({ placement, definition }) => draw(placement, definition))}

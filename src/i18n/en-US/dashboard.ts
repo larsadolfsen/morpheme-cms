@@ -5,6 +5,8 @@ export const dashboard = {
   tryAgain: 'Try again',
   edit: 'Edit dashboard',
   done: 'Done',
+  addWidget: 'Add widget',
+  cmsWidgets: 'Built in',
   dragCard: (widget: string) => `Drag ${widget} to reorder`,
   cardMenu: (widget: string) => `Actions for ${widget}`,
   moveUp: 'Move up',
