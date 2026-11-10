@@ -1,5 +1,5 @@
 {
   "id": "surface-dim-bright",
   "kind": "line",
-  "text": "Colors now uses Material 3’s names, like Primary and On surface, and has Surface dim, Surface and Surface bright, with the background on Surface bright"
+  "text": "Colors now uses Material 3’s names, like Primary and On surface"
 }
