@@ -10,7 +10,7 @@ import { config, header } from '@site/editor';
 import { currentPlace, menuTree } from '../lib/menu.mjs';
 import { STORE_ROUTE } from './store';
 import { collectionOf } from './schema';
-import { apps, collections, companyParts, groups, icons, lists, partScreens } from './site';
+import { apps, collections, companyParts, groups, icons, lists, partScreens, settings } from './site';
 import { partOf } from './Library';
 import { AccountRow } from './AccountRow';
 import { childrenOf } from './menuChildren';
@@ -50,6 +50,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     partScreens: partScreens.map((s) => s.id),
     cookies: config.lists.cookies,
     store: STORE_ROUTE,
+    settings,
   });
   // The section whose list is shown (null: the first level). It follows the route's section, and the drawer opening.
   const [shown, setShown] = useState<string | null>(place.section);

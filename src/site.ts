@@ -205,14 +205,15 @@ export const groups = each(site.groups, local.group);
 export const colorFields = each(site.colorFields, local.color);
 /** The pairs that must be readable (@site/colors), with what they are in the editor's language. */
 export const colorPairs = each(site.colorPairs, local.pair);
-/** The settings of the whole site, the drawer's last section. */
+/** The rows of the Settings screen (#settings), opened by the cog at the bottom of the drawer. */
 export const settings: string[] = site.settings;
 
 /** Where a part of the menu is, as the way there says it: the title of the section it is in ("Indhold › …"). */
-export const placeOf = (id: string): string | undefined => groups.find((g) => g.ids.includes(id))?.title;
+export const placeOf = (id: string): string | undefined =>
+  settings.includes(id) ? t.common.parts.settings : groups.find((g) => g.ids.includes(id))?.title;
 
 /** Where a standard page (by its key, packages/editor/defaults/standardPages.ts) is chosen, as the way there from the start screen
- * ("Udseende › Standardsider"): the part with its field in the file of the standard pages. */
+ * ("Settings › Appearance › Default pages"): the part with its field in the file of the standard pages. */
 export function standardPageAt(key: string): string {
   const chosenIn = (p: Part) => p.file === site.config.standardPages && !!p.fields?.some((f) => f.name === key);
   const screen = [{ id: 'appearance', label: t.common.parts.appearance, parts: appearance }, ...partScreens].find((s) =>
