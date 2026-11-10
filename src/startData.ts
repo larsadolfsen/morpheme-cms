@@ -1,11 +1,11 @@
 // What the start screen's widgets get from the start screen (Library.tsx Start), which a widget's props do not carry: the
-// repository's files and the times pages were saved (Env['savedAt']). Exposes `StartDataContext`, which Start provides,
+// repository's files, the times pages were saved (Env['savedAt']) and when the site was last built. Exposes `StartDataContext`, which Start provides,
 // and `useStartData`, which a widget reads.
 import { createContext, useContext } from 'react';
 import type { Env } from './App';
 import type { RepoFile } from './github';
 
-export type StartData = { files: RepoFile[]; savedAt: Env['savedAt'] };
+export type StartData = { files: RepoFile[]; savedAt: Env['savedAt']; builtAt: Date | null };
 
 export const StartDataContext = createContext<StartData | null>(null);
 
