@@ -94,9 +94,10 @@ const hooksOfApps = () =>
           sandboxed: false,
         })),
     );
-    return [...old, ...sandbox.apps.map((app) => ({ ...app, settings: app.settings as Record<string, any>, sandboxed: true }))].sort(
-      (a, b) => a.id.localeCompare(b.id),
-    );
+    return [
+      ...old,
+      ...sandbox.apps.map((app) => ({ ...app, hook: undefined, settings: app.settings as Record<string, any>, sandboxed: true })),
+    ].sort((a, b) => a.id.localeCompare(b.id));
   })());
 
 /** The page's colours, and where they came from when an app changed them: the app (its id) and the picture they were
