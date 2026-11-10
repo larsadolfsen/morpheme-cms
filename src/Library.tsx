@@ -1,5 +1,5 @@
 // The account screen (who is signed in, AccountRow) and the start screen of the editor (its title, status and FAB, what was
-// updated since the last visit and the pages and posts edited last: widgets/continue.tsx, UpdatesNotice.tsx) and the
+// updated since the last visit, UpdatesNotice.tsx, and the person's widgets in a grid, DashboardGrid.tsx) and the
 // list of each part: blog posts newest first, the rest by name, prices and testimonials in their order
 // on the site (with arrows to move them), and a search. Lists that are not in an order of their own can
 // be sorted another way (a list of kinds, by its kinds too); the choice is kept in this browser. Pages
@@ -36,7 +36,7 @@ import { theme, themes, type ThemeInfo } from './themes';
 import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
 import { StartStatus } from './StartStatus';
-import { ContinueWidget } from './widgets/continue';
+import { Dashboard } from './DashboardGrid';
 import { StartDataContext } from './startData';
 import { UpdatesNotice } from './UpdatesNotice';
 import { loadSavedTimes, saved } from './savedTimes';
@@ -195,8 +195,7 @@ export function Start({ builtAt, files, env }: { builtAt: Date | null; files: Re
     >
       <UpdatesNotice files={files} />
       <StartDataContext.Provider value={{ files, savedAt: env.savedAt }}>
-        {/* The CMS's widget, not an app's: it has no app API, so its `api` rejects (a widget of an app gets the app's). */}
-        <ContinueWidget api={() => Promise.reject(new Error('The CMS widgets have no app API'))} settings={{}} editing={false} />
+        <Dashboard files={files} env={env} />
       </StartDataContext.Provider>
       <StartFab />
     </Screen>
