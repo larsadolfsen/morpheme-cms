@@ -5,11 +5,11 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { isVague, vagueLinksOf } from './vagueLink.ts';
 
-const readMore = 'læs mere'; // Danish "read more"
+const readMore = 'l\u00e6s mere'; // Danish "read more"
 
 test('a Danish site flags the Danish "read more" as vague', () => {
   assert.equal(isVague(readMore, vagueLinksOf('da-DK')), true);
-  assert.equal(isVague('  Læs mere → ', vagueLinksOf('da-DK')), true);
+  assert.equal(isVague('  L\u00e6s mere → ', vagueLinksOf('da-DK')), true);
 });
 
 test('an English site flags "read more" as vague', () => {
@@ -39,12 +39,12 @@ const helper = (file, start) => {
   return new Function(`return ${body};`)();
 };
 
-test('the slug of "Søren Æblegaard" in examples.ts is the same as before', () => {
+test('the slug of "S\u00f8ren \u00c6blegaard" in examples.ts is the same as before', () => {
   const slug = helper('./examples.ts', 'const slug = (s: string)');
-  assert.equal(slug('Søren Æblegaard'), 'soeren-aeblegaard');
+  assert.equal(slug('S\u00f8ren \u00c6blegaard'), 'soeren-aeblegaard');
 });
 
-test('the slug of "Søren Æblegaard" in schema.ts is the same as before', () => {
+test('the slug of "S\u00f8ren \u00c6blegaard" in schema.ts is the same as before', () => {
   const slugify = helper('./schema.ts', 'export const slugify = (title: string)');
-  assert.equal(slugify('Søren Æblegaard'), 'soeren-aeblegaard');
+  assert.equal(slugify('S\u00f8ren \u00c6blegaard'), 'soeren-aeblegaard');
 });

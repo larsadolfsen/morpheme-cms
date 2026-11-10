@@ -1,6 +1,6 @@
 # Batch 4: `src/` in English
 
-Status: not started (`src/` is still in `PENDING`; Danish ids remain). Checked against the code on 2026-11-10.
+Status: done on 2026-11-10 (branch `claude/english-source-batch-4`). `src/` is out of `PENDING` except `src/i18n/`, whose English files still hold Danish comments and labels (outside this batch). Danish ids such as `side`, `blok` and `tema` stay; the lines that keep them carry the marker `language-ok`, which `check:language` skips.
 
 Master plan: `2026-11-04-english-source.md` (read *Conversion rules*). Needs Batch 2 merged (the term table, the
 English ids). Repo `morpheme-cms`. Can run at the same time as batches 3 and 5. `src/i18n/` is out of this batch.
