@@ -10,7 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { build } from 'esbuild';
 import { MOVED_PREFIXES, movedAddress } from './movedAddresses.js';
 
-// The two renames the table gets when the pages are renamed (the table itself is empty until then).
+// The two renames the table will have when /ny/ is renamed too (the shipped table has the first line today).
 const PREFIXES = [
   ['/blog/kategori/', '/blog/tags/'], // language-ok: an old public address
   ['/ny/', '/new/'], // language-ok: an old public address
@@ -41,9 +41,10 @@ describe('movedAddress', () => {
   test('a new address is never moved again, so there is no loop', () => {
     for (const [, now] of PREFIXES) assert.equal(movedAddress(`${now}x/`, PREFIXES), undefined);
   });
-  test('the table is empty until the pages are renamed, so no visitor is sent to a 404', () => {
-    assert.deepEqual(MOVED_PREFIXES, []);
-    assert.equal(movedAddress('/blog/kategori/x/'), undefined); // language-ok: an old public address
+  test('the shipped table sends the old tag pages to the new ones, and /ny/ stays until its pages are renamed', () => {
+    assert.deepEqual(MOVED_PREFIXES, [['/blog/kategori/', '/blog/tags/']]); // language-ok: an old public address
+    assert.equal(movedAddress('/blog/kategori/x/'), '/blog/tags/x/'); // language-ok: an old public address
+    assert.equal(movedAddress('/ny/x/'), undefined); // language-ok: an old public address
   });
 });
 
@@ -111,11 +112,15 @@ describe('onward and redirectFor with the table', () => {
     assert.equal(onward('/a/', { '/a/': '/b/', '/b/': '/ny/c/' }, undefined, PREFIXES), '/new/c/'); // language-ok: an old public address
     assert.equal(onward('/about/', {}, undefined, PREFIXES), '/about/');
   });
-  test('without the table nothing is redirected', () => {
-    assert.equal(redirectFor(new URL('https://site.test/blog/kategori/x/')), undefined); // language-ok: an old public address
-    assert.equal(onward('/blog/kategori/x/', {}), '/blog/kategori/x/'); // language-ok: an old public address
+  test('with an empty table nothing is redirected', () => {
+    assert.equal(redirectFor(new URL('https://site.test/blog/kategori/x/'), []), undefined); // language-ok: an old public address
+    assert.equal(onward('/blog/kategori/x/', {}, undefined, []), '/blog/kategori/x/'); // language-ok: an old public address
   });
-  test('an address without the trailing slash goes through the same lookup', () => {
-    assert.equal(to('/blog/kategori/x/'), '/blog/tags/x/'); // language-ok: an old public address
+  test('the shipped table is the default', () => {
+    assert.equal(redirectFor(new URL('https://site.test/blog/kategori/x/?a=1')), '/blog/tags/x/?a=1'); // language-ok: an old public address
+  });
+  test('an address without the trailing slash is one hop to the new address with it', () => {
+    assert.equal(to('/blog/kategori/x'), '/blog/tags/x/'); // language-ok: an old public address
+    assert.equal(to('/blog/kategori/x?a=1'), '/blog/tags/x/?a=1'); // language-ok: an old public address
   });
 });
