@@ -20,6 +20,7 @@ export const theme = {
   seeAllPosts: 'See all posts',
   seeAll: 'See all',
   blog: 'Blog',
+  frontPage: 'Front page',
   relatedPosts: 'Related posts',
   share: 'Share',
   shareOn: (network: string) => `Share on ${network}`,

@@ -35,7 +35,7 @@ export function allowedCspProblems() {
   try {
     return sourcesProblems(allowedSources(), 'src/data/csp.json');
   } catch {
-    return ['src/data/csp.json: er ikke JSON.'];
+    return ['src/data/csp.json: is not JSON.'];
   }
 }
 
@@ -60,7 +60,7 @@ export function appCspProblems() {
       try {
         sources = appSources(app);
       } catch {
-        return [`${dir}/csp.json: er ikke JSON.`];
+        return [`${dir}/csp.json: is not JSON.`];
       }
       const problems = sourcesProblems(sources, `${dir}/csp.json`);
       if (problems.length) return problems;
@@ -70,7 +70,7 @@ export function appCspProblems() {
           for (const line of readFileSync(new URL(`${app}/${file}`, apps), 'utf8').split('\n'))
             if (LOADS.test(line)) for (const [url] of line.matchAll(ADDRESS)) if (!allows(sources, url)) missing.add(new URL(url).origin);
       return [...missing].map(
-        (origin) => `${dir}: henter fra ${origin}, men csp.json har det ikke, så sidernes Content-Security-Policy stopper det.`,
+        (origin) => `${dir}: loads from ${origin}, but csp.json does not list it, so the pages\' Content-Security-Policy blocks it.`,
       );
     });
 }

@@ -1,5 +1,5 @@
 // The site's promotions: one JSON file per promotion in src/data/popups/, edited in the editor (/editor/,
-// "Indhold" › "Promovering"), of a kind: the pop-up, or one an app adds (Mailchimp's pop-up, the bar at
+// "Content" › "Promotion"), of a kind: the pop-up, or one an app adds (Mailchimp's pop-up, the bar at
 // the bottom of a phone's screen). Each is shown on every page (`where`: "all") or on those picked for
 // it (`pages`, their addresses), or on the blog posts with one of its tags and those tags' pages (`where`:
 // "tags", `tags`). A pop-up opens `delay` seconds after the page opens, `scroll` % down it

@@ -1,5 +1,5 @@
 // The site's client testimonials: one JSON file per testimonial in src/data/testimonials/, edited in the
-// editor (/editor/, "Udtalelser"). Each has its picture (optional), its tags (`categories`, the same tags as the blog posts,
+// editor (/editor/, "Testimonials"). Each has its picture (optional), its tags (`categories`, the same tags as the blog posts,
 // src/data/categories/) and whether it is shown on the front page. `order` is the order on the
 // testimonials page and the front page (set with the arrows in the editor).
 type TestimonialData = {

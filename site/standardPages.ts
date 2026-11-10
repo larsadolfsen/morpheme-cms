@@ -1,9 +1,9 @@
-// The blog page, the 404 page and the cookie policy: the pages chosen under "Indstillinger" › "Udseende" › "Standardsider"
+// The blog page, the 404 page and the cookie policy: the pages chosen under "Settings" › "Appearance" › "Default pages"
 // (src/data/standard-pages.json, packages/editor/defaults/standardPages.ts), read for the theme's templates/Blog.astro (at /blog/) and
 // templates/NotFound.astro (the page for an address that does not exist): the page, its heading (the H1 at the top of
 // its text, else its title), its introduction (the first paragraph of the text before its first heading or block) and the
 // rest, shown, as sections: text ("text": a heading and Markdown) and each block by its type, with its fields; and where
-// the cookie banner's "Læs mere" goes (cookiesHref).
+// the cookie banner's "Read more" goes (cookiesHref).
 import { slug } from 'github-slugger';
 import paths from '@data/standard-pages.json';
 import { getPages, type Page } from './content';
@@ -26,7 +26,7 @@ export type StandardPageView = { page: Page; heading: string; intro?: string; se
 
 async function read(key: 'blog' | 'notFound'): Promise<StandardPageView> {
   const page = (await getPages({ previews: false })).find((p) => p.data.path === standardPaths[key]);
-  if (!page) throw new Error(`src/data/standard-pages.json: siden ${standardPaths[key]} findes ikke, eller den er en kladde.`);
+  if (!page) throw new Error(`src/data/standard-pages.json: the page ${standardPaths[key]} doesn't exist, or it is a draft.`);
   const sections = (sectionsFromParts(partsOfMarkdown(page.body ?? '')) as PageSection[]).filter((s) => !s.hidden);
   // The introduction: the first paragraph of a text without a heading at the top; the rest of that text stays a section.
   let intro: string | undefined;
@@ -48,7 +48,7 @@ export const notFoundPage = () => read('notFound');
 /** The addresses the standard pages are shown at, by their own: the front page's at /, the blog page's at /blog/. */
 export const shownAt = (path: string) => (path === standardPaths.front ? '/' : path === standardPaths.blog ? '/blog/' : path);
 
-/** Where the cookie banner's "Læs mere" goes: the cookie policy, and when it is the privacy policy, its first heading about
+/** Where the cookie banner's "Read more" goes: the cookie policy, and when it is the privacy policy, its first heading about
  * cookies (its id, as Astro gives it: github-slugger), if it has one. */
 export async function cookiesHref(): Promise<string> {
   const path = standardPaths.cookies;

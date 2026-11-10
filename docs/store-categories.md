@@ -2,7 +2,7 @@
 
 Every app and theme in the Appstore has one main category (`category`) and, optionally, a subcategory of it
 (`subcategory`). The list of ids is `CATEGORIES` in `lib/storeCategories.mjs`; the editor's names are in
-`src/i18n/*/apps.ts` (`categories`). The Appstore's category filter lists the 13 main categories.
+`src/i18n/*/apps.ts` (`categories`). The Appstore's category filter lists the 15 main categories.
 
 ## The main categories
 
@@ -15,14 +15,20 @@ Every app and theme in the Appstore has one main category (`category`) and, opti
 | `email`      | Email       | Newsletters, subscribers, automated messages                                                               |
 | `forms`      | Forms       | Contact forms, surveys, submissions                                                                        |
 | `languages`  | Languages   | Translation, language switching                                                                            |
+| `links`      | Links       | Apps of the type `links`; only one can be active (see Rules)                                                    |
 | `payments`   | Payments    | Cards, MobilePay, invoices, donations                                                                      |
 | `privacy`    | Privacy     | Cookie consent, GDPR, accessibility                                                                        |
+| `redirects`  | Redirects   | Apps that send visitors from old addresses to new ones; only one can be active (see Rules)                     |
 | `security`   | Security    | Spam protection, bot checks, access control                                                                |
 | `seo`        | SEO         | Sitemap, schema, meta tags                                                                                 |
 | `shop`       | Shop        | Products, cart, checkout, orders                                                                           |
 | `social`     | Social      | Feeds, sharing, embeds                                                                                     |
 
 ## Rules
+
+- `links` and `redirects` are also app types of which a site runs only one active app (`ONE_APP_TYPES` in
+  `lib/appTypes.mjs`, `docs/app-contract.md`), so they must stay valid ids. Where they belong in the final taxonomy
+  (for example `redirects` as a subcategory of `seo`) is still to be decided.
 
 - Apps are atomic: one app, one function. There are no all-in-one apps; an app that does two things is two apps.
 - An item has one main category and an optional subcategory of it. A subcategory belongs to exactly one main category.

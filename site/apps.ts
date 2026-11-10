@@ -1,5 +1,5 @@
 // The apps on the site (src/apps/<app>/, packages/editor/src/apps.ts): which are installed (and which of them are
-// turned off) under "Indstillinger" › "Apps" in the editor (apps.json), and each app's settings (apps/<app>.json), as the
+// turned off) under "Settings" › "Apps" in the editor (apps.json), and each app's settings (apps/<app>.json), as the
 // site's build reads them. What an app puts on every page (AppSlot.astro) is there only while it is
 // installed; what was made with it (a pop-up, a block on a page) stays when it is uninstalled.
 import data from '@data/apps.json';

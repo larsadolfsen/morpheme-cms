@@ -1,4 +1,4 @@
-// The shared texts of the blocks (src/data/blocks.json, "Blokke" in the editor) have
+// The shared texts of the blocks (src/data/blocks.json, "Blocks" in the editor) have
 // places like {antal} for what differs from block to block.
 
 /** The text with each {name} replaced by its value; a name without a value stays as it is. */

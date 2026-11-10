@@ -11,9 +11,9 @@ test('button off', () => {
 });
 
 test('button on', () => {
-  assert.deepEqual(headerOf({ button: { enabled: true, to: 'booking', label: 'Book en tid' } }).button, {
+  assert.deepEqual(headerOf({ button: { enabled: true, to: 'booking', label: 'Book an appointment' } }).button, {
     to: 'booking',
-    label: 'Book en tid',
+    label: 'Book an appointment',
   });
 });
 
@@ -36,14 +36,14 @@ test('wrong shapes', () => {
   assert.equal(headerOf({ button: 'x' }).button, null);
 });
 
-test('sortedNav sorts the sub-items A–Å and keeps the items in order', () => {
+test('sortedNav sorts the sub-items in Danish order and keeps the items in order', () => {
   const items = [
     { label: 'Om', href: '/om/' },
     {
       label: 'Behandlinger',
       href: '/b/',
       children: [
-        { label: 'Øre', href: '/b/oe/' },
+        { label: '\u00d8re', href: '/b/oe/' },
         { label: 'Arm', href: '/b/a/' },
         { label: 'Zone', href: '/b/z/' },
       ],
@@ -56,10 +56,10 @@ test('sortedNav sorts the sub-items A–Å and keeps the items in order', () => 
   );
   assert.deepEqual(
     sorted[1].children.map((c) => c.label),
-    ['Arm', 'Zone', 'Øre'],
+    ['Arm', 'Zone', '\u00d8re'],
   );
   assert.deepEqual(
     items[1].children.map((c) => c.label),
-    ['Øre', 'Arm', 'Zone'],
+    ['\u00d8re', 'Arm', 'Zone'],
   );
 });

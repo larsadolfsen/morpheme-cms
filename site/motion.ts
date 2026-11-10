@@ -1,5 +1,5 @@
 // The motion scheme the site and the editor are built with (packages/editor/lib/motion.ts: schemeInUse): the one chosen
-// under "Udseende" › "Bevægelse" (src/data/motion.json, `{ "scheme": "<scheme>" }`), else the theme in use's ("motion" in
+// under "Appearance" › "Motion" (src/data/motion.json, `{ "scheme": "<scheme>" }`), else the theme in use's ("motion" in
 // its theme.json), else the standard theme's. Base.astro and the editor's page write it into the <head> (motionCss, and
 // data-motion-scheme on <html>); the editor shows a new choice at once (applyMotion in packages/editor/src/theme.ts).
 import { schemeInUse } from '../lib/motion';

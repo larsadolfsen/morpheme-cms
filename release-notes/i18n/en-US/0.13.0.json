@@ -42,7 +42,7 @@
     {
       "id": "menu-sections-moved",
       "kind": "line",
-      "text": "Header and Footer are now under Appearance, and Logo and icon is under Business"
+      "text": "Header and Footer now come right after Themes under Appearance, and Business has its own section with Logo and icon"
     },
     {
       "id": "back-to-main-menu",

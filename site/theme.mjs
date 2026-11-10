@@ -85,10 +85,10 @@ const FALLBACK_IMPORT = /@import\s+['"]@morphemecms\/cms\/theme\/styles\/global\
 /** What is wrong with a theme's styles/global.css import (`css` is the file's text): null when it is right. */
 export function importProblem(theme, css) {
   if (theme === STANDARD_THEME)
-    return STANDARD_IMPORT.test(css) ? null : `${themeFolder(theme)}/styles/global.css: importerer ikke ./base.css.`;
+    return STANDARD_IMPORT.test(css) ? null : `${themeFolder(theme)}/styles/global.css: doesn't import ./base.css.`;
   return FALLBACK_IMPORT.test(css)
     ? null
-    : `${themeFolder(theme)}/styles/global.css: importerer ikke standardtemaet, som er temaets fallback: @import '@morphemecms/cms/theme/styles/global.css' øverst.`;
+    : `${themeFolder(theme)}/styles/global.css: doesn't import the standard theme, which is the theme's fallback: put @import '@morphemecms/cms/theme/styles/global.css' at the top.`;
 }
 
 const folders = (url) =>
@@ -113,11 +113,11 @@ function iconProblems(theme) {
     const file = `${dir}/${entry.name}`;
     const name = entry.name.replace(/\.svg$/, '');
     if (!entry.isFile() || !entry.name.endsWith('.svg')) {
-      problems.push(`${file}: et temas ikon er en SVG-fil, ${dir}/<navn>.svg.`);
+      problems.push(`${file}: a theme's icon is an SVG file, ${dir}/<name>.svg.`);
       continue;
     }
     if (!isIconName(name))
-      problems.push(`${file}: sitet tegner intet ikon, der hedder "${name}". Et ikon hedder som i Phosphor (fx map-pin, play-fill).`);
+      problems.push(`${file}: the site draws no icon named "${name}". An icon is named as in Phosphor (e.g. map-pin, play-fill).`);
     problems.push(...svgProblems(file, readFileSync(new URL(file, root), 'utf8')));
   }
   return problems;
@@ -131,7 +131,7 @@ const ownPacks = (theme) =>
     has(`${themeFolder(theme)}/${THEME_PACKS_FOLDER}/${p}/${ICON_PACK_FILE}`),
   );
 
-/** The choice of icon pack made under "Indstillinger" › "Udseende" › "Ikonpakker" (src/data/icons.json, `{ "pack": "<id>"
+/** The choice of icon pack made under "Settings" › "Appearance" › "Icon packs" (src/data/icons.json, `{ "pack": "<id>"
  * }`), or undefined while none is made (then the theme's is used). */
 export function chosenPack() {
   const file = new URL(ICONS_FILE, root);
@@ -150,13 +150,13 @@ export function iconPack(theme = activeTheme()) {
   if (!installed.includes(id))
     throw new Error(
       chosen === id
-        ? `${ICONS_FILE}: ikonpakken ${JSON.stringify(id)} er ikke installeret (${packFolder(id)}/${ICON_PACK_FILE}).`
-        : `${themeFolder(theme)}/theme.json: "icons" er ikonpakken ${JSON.stringify(id)}, som ikke er installeret.`,
+        ? `${ICONS_FILE}: the icon pack ${JSON.stringify(id)} isn't installed (${packFolder(id)}/${ICON_PACK_FILE}).`
+        : `${themeFolder(theme)}/theme.json: "icons" is the icon pack ${JSON.stringify(id)}, which isn't installed.`,
     );
   return id;
 }
 
-/** The icon packs there are with their licences, from their manifests, for "Licenser" under "Indstillinger" (IconPack
+/** The icon packs there are with their licences, from their manifests, for "Licenses" under "Settings" (IconPack
  * in @morphemecms/cms/lib/licenses.mjs, licensesIntegration in packages/editor/astro.mjs): each pack's id, name, version, who made it,
  * its licence's name and file (LICENSE in its folder), the theme it came with, whether the site draws with it, and each
  * set it takes icons from besides its own (`includes`, with its `licenseFile`). packProblems checks the manifests. */
@@ -212,7 +212,7 @@ export function themeIcon(name, theme = activeTheme()) {
 /** The site's choice of motion scheme, `{ "scheme": "<scheme>" }` (config.motion in src/site/config.ts). */
 const MOTION_FILE = 'src/data/motion.json';
 
-/** What is wrong with the choice of motion scheme made under "Udseende" › "Bevægelse" (src/data/motion.json): one that
+/** What is wrong with the choice of motion scheme made under "Appearance" › "Motion" (src/data/motion.json): one that
  * is not a scheme (lib/motion.ts). */
 export function motionProblems() {
   const file = new URL(MOTION_FILE, root);
@@ -220,7 +220,7 @@ export function motionProblems() {
   try {
     const { scheme } = JSON.parse(readFileSync(file, 'utf8'));
     if (MOTION_SCHEMES.includes(scheme)) return [];
-    return [`${MOTION_FILE}: bevægelsen ${JSON.stringify(scheme ?? null)} findes ikke. Vælg en under Udseende › Bevægelse.`];
+    return [`${MOTION_FILE}: the motion scheme ${JSON.stringify(scheme ?? null)} doesn't exist. Choose one under Appearance › Motion.`];
   } catch (e) {
     return [`${MOTION_FILE}: ${e.message}`];
   }
@@ -233,11 +233,13 @@ export function iconPackProblems() {
   const installed = installedPacks();
   const problems = SYSTEM_PACKS.filter((id) => installed.includes(id)).flatMap((id) => packProblems(id, used));
   for (const id of SYSTEM_PACKS)
-    if (!installed.includes(id)) problems.push(`${packFolder(id)}/${ICON_PACK_FILE} mangler: kør npm run icons.`);
+    if (!installed.includes(id)) problems.push(`${packFolder(id)}/${ICON_PACK_FILE} is missing: run npm run icons.`);
   try {
     const chosen = chosenPack();
     if (chosen !== undefined && (typeof chosen !== 'string' || !installed.includes(chosen)))
-      problems.push(`${ICONS_FILE}: ikonpakken ${JSON.stringify(chosen)} er ikke installeret. Vælg en anden under Udseende › Ikonpakker.`);
+      problems.push(
+        `${ICONS_FILE}: the icon pack ${JSON.stringify(chosen)} isn't installed. Choose another under Appearance › Icon packs.`,
+      );
   } catch (e) {
     problems.push(`${ICONS_FILE}: ${e.message}`);
   }
@@ -333,11 +335,11 @@ export function allIconsModule(folder, icons) {
  * (iconProblems). */
 export function themeProblems(theme) {
   const needed = theme === STANDARD_THEME ? THEME_FILES : OWN_FILES;
-  const problems = needed.filter((f) => !has(`${themeFolder(theme)}/${f}`)).map((f) => `${themeFolder(theme)}/${f} mangler.`);
+  const problems = needed.filter((f) => !has(`${themeFolder(theme)}/${f}`)).map((f) => `${themeFolder(theme)}/${f} is missing.`);
   const standard = new Set(standardTypes());
   if (theme === STANDARD_THEME)
     for (const type of standard)
-      if (!has(`${themeFolder(theme)}/blocks/${type}/View.tsx`)) problems.push(`${themeFolder(theme)}/blocks/${type}/View.tsx mangler.`);
+      if (!has(`${themeFolder(theme)}/blocks/${type}/View.tsx`)) problems.push(`${themeFolder(theme)}/blocks/${type}/View.tsx is missing.`);
   // Every theme builds on the standard theme. Another theme imports the standard theme's global.css, so a style it does
   // not write is Material's; the standard theme's own imports ./base.css.
   const css = `${themeFolder(theme)}/styles/global.css`;
@@ -347,13 +349,13 @@ export function themeProblems(theme) {
   }
   for (const type of folders(new URL(`${themeFolder(theme)}/blocks/`, root))) {
     const dir = `${themeFolder(theme)}/blocks/${type}`;
-    if (!standard.has(type)) problems.push(`${dir}: et tema kan kun have udseendet af en standardblok, og "${type}" er ikke en.`);
+    if (!standard.has(type)) problems.push(`${dir}: a theme can only have the look of a standard block, and "${type}" is not one.`);
     for (const f of CONTRACT_FILES)
-      if (has(`${dir}/${f}`)) problems.push(`${dir}/${f}: en bloks kontrakt hører til editoren eller en app, ikke temaet.`);
+      if (has(`${dir}/${f}`)) problems.push(`${dir}/${f}: a block's contract belongs to the editor or an app, not to the theme.`);
     // Without a View.tsx of its own, the standard theme's draws the block, and each file replaces one of its parts
     // (faq/Accordion.tsx), which it imports as @theme/…; else nothing would use it. The standard theme draws them all.
     if (theme === STANDARD_THEME || has(`${dir}/View.tsx`)) {
-      if (!has(`${dir}/View.tsx`)) problems.push(`${dir}/View.tsx mangler: den tegner blokken på sitet og i editoren.`);
+      if (!has(`${dir}/View.tsx`)) problems.push(`${dir}/View.tsx is missing: it draws the block on the site and in the editor.`);
     } else
       for (const entry of readdirSync(new URL(dir, root), { withFileTypes: true }))
         if (
@@ -362,31 +364,31 @@ export function themeProblems(theme) {
           !has(`${themeFolder(STANDARD_THEME)}/blocks/${type}/${entry.name}`)
         )
           problems.push(
-            `${dir}/${entry.name}: standardtemaet har ingen del med det navn, så intet bruger den. Giv den samme navn som den del, den erstatter, eller tegn blokken med en View.tsx.`,
+            `${dir}/${entry.name}: the standard theme has no part with that name, so nothing uses it. Give it the same name as the part it replaces, or draw the block with a View.tsx.`,
           );
     for (const f of OLD_LOOK)
-      if (has(`${dir}/${f}`)) problems.push(`${dir}/${f}: blokken tegnes af View.tsx, både på sitet og i editoren.`);
+      if (has(`${dir}/${f}`)) problems.push(`${dir}/${f}: the block is drawn by View.tsx, both on the site and in the editor.`);
   }
   try {
     const manifest = JSON.parse(readFileSync(new URL(`${themeFolder(theme)}/theme.json`, root), 'utf8'));
     for (const key of ['name', 'version', 'author', 'icon'])
-      if (typeof manifest[key] !== 'string' || !manifest[key]) problems.push(`${themeFolder(theme)}/theme.json: "${key}" mangler.`);
+      if (typeof manifest[key] !== 'string' || !manifest[key]) problems.push(`${themeFolder(theme)}/theme.json: "${key}" is missing.`);
     const { description, highlights, releaseNotes } = manifest;
     const byLanguage = (x, ok) => x && typeof x === 'object' && !Array.isArray(x) && Object.values(x).length && Object.values(x).every(ok);
     if (description !== undefined && !byLanguage(description, (x) => typeof x === 'string' && x))
-      problems.push(`${themeFolder(theme)}/theme.json: "description" skal være teksten på hvert sprog, fx { "da-DK": "…" }.`);
+      problems.push(`${themeFolder(theme)}/theme.json: "description" must be the text in each language, e.g. { "da-DK": "…" }.`);
     if (
       highlights !== undefined &&
       !byLanguage(highlights, (x) => Array.isArray(x) && x.length && x.every((y) => typeof y === 'string' && y))
     )
-      problems.push(`${themeFolder(theme)}/theme.json: "highlights" skal være punkterne på hvert sprog, fx { "da-DK": ["…"] }.`);
+      problems.push(`${themeFolder(theme)}/theme.json: "highlights" must be the points in each language, e.g. { "da-DK": ["…"] }.`);
     if (releaseNotes !== undefined && !byLanguage(releaseNotes, (x) => byLanguage(x, (y) => typeof y === 'string' && y)))
       problems.push(
-        `${themeFolder(theme)}/theme.json: "releaseNotes" skal være det nye i hver version på hvert sprog, fx { "da-DK": { "1.1.0": "…" } }.`,
+        `${themeFolder(theme)}/theme.json: "releaseNotes" must be what is new in each version in each language, e.g. { "da-DK": { "1.1.0": "…" } }.`,
       );
     if ('store' in manifest && (manifest.store !== true || theme === STANDARD_THEME))
       problems.push(
-        `${themeFolder(theme)}/theme.json: "store" kan kun være true (temaet står i Appstore, npm run store:release), og standardtemaet har det ikke.`,
+        `${themeFolder(theme)}/theme.json: "store" can only be true (the theme is in the Appstore, npm run store:release), and the standard theme does not have it.`,
       );
     // A theme from the store is copied in as its folder only: its CSS imports nothing from outside it but the CMS.
     if (manifest.store === true) {
@@ -405,23 +407,23 @@ export function themeProblems(theme) {
       !(SYSTEM_PACKS.includes(manifest.icons) || (theme !== STANDARD_THEME && own.includes(manifest.icons)))
     )
       problems.push(
-        `${themeFolder(theme)}/theme.json: "icons" er den ikonpakke, temaet bruger, når ingen er valgt: ${[...SYSTEM_PACKS, ...own].map((p) => `"${p}"`).join(', ')}.`,
+        `${themeFolder(theme)}/theme.json: "icons" is the icon pack the theme uses when none is chosen: ${[...SYSTEM_PACKS, ...own].map((p) => `"${p}"`).join(', ')}.`,
       );
     // How it moves while the owner has chosen none (lib/motion.ts); without it, the standard theme's.
     if (manifest.motion !== undefined && !MOTION_SCHEMES.includes(manifest.motion))
       problems.push(
-        `${themeFolder(theme)}/theme.json: "motion" er den bevægelse, temaet bruger, når ingen er valgt: ${MOTION_SCHEMES.map((s) => `"${s}"`).join(', ')}.`,
+        `${themeFolder(theme)}/theme.json: "motion" is the motion scheme the theme uses when none is chosen: ${MOTION_SCHEMES.map((s) => `"${s}"`).join(', ')}.`,
       );
     // The page templates it offers (lib/page-template.mjs); without the key, the standard theme's list.
     for (const p of templateProblems(manifest.templates)) problems.push(`${themeFolder(theme)}/theme.json: ${p}`);
-    // Its own licence and the licences of what it brings (fonts, code, pictures), for "Licenser" and the store.
+    // Its own licence and the licences of what it brings (fonts, code, pictures), for "Licenses" and the store.
     problems.push(
       ...declarationProblems({
         license: manifest.license,
         thirdParty: manifest.thirdParty,
         folder: fileURLToPath(new URL(`${themeFolder(theme)}/`, root)),
         where: `${themeFolder(theme)}/theme.json`,
-        what: `temaet ${manifest.name || theme}`,
+        what: `the theme ${manifest.name || theme}`,
         owner: ownerId('theme', theme),
         root: fileURLToPath(root),
       }),
@@ -434,15 +436,15 @@ export function themeProblems(theme) {
   for (const p of packs)
     if (SYSTEM_PACKS.includes(p))
       problems.push(
-        `${themeFolder(theme)}/${THEME_PACKS_FOLDER}/${p}: en ikonpakke i et tema hedder ikke som systemets (${SYSTEM_PACKS.join(', ')}).`,
+        `${themeFolder(theme)}/${THEME_PACKS_FOLDER}/${p}: an icon pack in a theme is not named like the system's (${SYSTEM_PACKS.join(', ')}).`,
       );
   if (theme === STANDARD_THEME && packs.length)
-    problems.push(`${themeFolder(theme)}/${THEME_PACKS_FOLDER}: standardtemaets ikonpakker er systemets, i CMS'ets icons/.`);
+    problems.push(`${themeFolder(theme)}/${THEME_PACKS_FOLDER}: the standard theme's icon packs are the system's, in the CMS's icons/.`);
   for (const entry of has(`${themeFolder(theme)}/${THEME_PACKS_FOLDER}`)
     ? readdirSync(new URL(`${themeFolder(theme)}/${THEME_PACKS_FOLDER}/`, root))
     : [])
     if (!packs.includes(entry))
-      problems.push(`${themeFolder(theme)}/${THEME_PACKS_FOLDER}/${entry}: en ikonpakke er en mappe med sin ${ICON_PACK_FILE}.`);
+      problems.push(`${themeFolder(theme)}/${THEME_PACKS_FOLDER}/${entry}: an icon pack is a folder with its ${ICON_PACK_FILE}.`);
   const used = usedIcons();
   return [...problems, ...iconProblems(theme), ...packs.flatMap((p) => packProblems(themePackId(theme, p), used))];
 }
@@ -467,7 +469,7 @@ export function activeTheme() {
     !/^([a-z0-9-]+|theme_[0-9a-f]{16})$/.test(theme) ||
     !existsSync(new URL(`${themeFolder(theme)}/theme.json`, root))
   )
-    throw new Error(`src/data/theme.json: temaet ${JSON.stringify(theme)} er ikke installeret (src/themes/<tema>/theme.json).`);
+    throw new Error(`src/data/theme.json: the theme ${JSON.stringify(theme)} isn't installed (src/themes/<theme>/theme.json).`);
   return theme;
 }
 
@@ -539,13 +541,13 @@ export function blockProblems() {
   const problems = [];
   for (const type of standardTypes())
     for (const f of ['view.ts', 'load.ts'])
-      if (!existsSync(new URL(`src/standard/${type}/${f}`, pkg))) problems.push(`packages/editor/src/standard/${type}/${f} mangler.`);
+      if (!existsSync(new URL(`src/standard/${type}/${f}`, pkg))) problems.push(`packages/editor/src/standard/${type}/${f} is missing.`);
   for (const app of folders(new URL('src/apps/', root)))
     for (const type of folders(new URL(`src/apps/${app}/blocks/`, root))) {
       const dir = `src/apps/${app}/blocks/${type}`;
-      for (const f of ['index.tsx', 'viewOf.ts', 'load.ts', 'View.tsx']) if (!has(`${dir}/${f}`)) problems.push(`${dir}/${f} mangler.`);
+      for (const f of ['index.tsx', 'viewOf.ts', 'load.ts', 'View.tsx']) if (!has(`${dir}/${f}`)) problems.push(`${dir}/${f} is missing.`);
       for (const f of OLD_LOOK)
-        if (has(`${dir}/${f}`)) problems.push(`${dir}/${f}: blokken tegnes af View.tsx, både på sitet og i editoren.`);
+        if (has(`${dir}/${f}`)) problems.push(`${dir}/${f}: the block is drawn by View.tsx, both on the site and in the editor.`);
     }
   return problems;
 }

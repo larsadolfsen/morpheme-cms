@@ -23,7 +23,9 @@
 // its page before it is installed is drawn from the store's catalog (StoreAppPage). Installed, its blocks and kinds are
 // under "Blokindstillinger" (under its name), its blocks under "Indsæt" and its kinds under "+" of their list. An app in
 // use (one of its blocks on a page, an entry of its kind or in its list) cannot be uninstalled, as a block on a page
-// cannot be turned off; its page says where it is used, so uninstalling never changes the site.
+// cannot be turned off; its page says where it is used, so uninstalling never changes the site. Of the types
+// redirects and links only one app is active (lib/appTypes.mjs): installing or turning on another asks first, then
+// turns the active one off (it stays installed, with its settings and data), in the same commit.
 import { useEffect, useState, type ReactNode } from 'react';
 import { Gear, Info, UserCircle, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
@@ -33,8 +35,9 @@ import { ConflictError, type Change, type RepoFile } from './github';
 import { cookieChanges, inCookieList } from './cookieList';
 import type { Env } from './App';
 import { ask, choose } from './ask';
-import { appsState, installedApps, settingsFile, type SiteApp } from './apps';
-import { appsFileText, withInstalled, withOff } from '../lib/appsFile.mjs';
+import { appsState, activeApps, installedApps, settingsFile, type SiteApp } from './apps';
+import { appsFileText, readAppsFile, withInstalled, withOff } from '../lib/appsFile.mjs';
+import { rivalsOf, withRivalsOff } from '../lib/appTypes.mjs';
 import { CATEGORIES, categoryOf } from '../lib/storeCategories.mjs';
 import { AnyIcon } from './icon';
 import {
@@ -551,6 +554,16 @@ export async function autoUpdate(env: Env, files: RepoFile[]) {
   }
 }
 
+/** Asks before an app of a one-app type (redirects, links) is activated while another one is: says the ids of the
+ * apps to turn off (none when nothing is asked), or null when the user cancels. */
+async function confirmRivals(app: { id: string; label: string; category?: string }, files: RepoFile[]): Promise<string[] | null> {
+  const rivals = rivalsOf(app, apps, activeApps(files));
+  if (!rivals.length) return [];
+  const others = rivals.map((id) => apps.find((a) => a.id === id)?.label ?? id);
+  const yes = await ask(t.apps.oneOfType(t.apps.categories[app.category as AppCategory], app.label, others.join(', ')), t.apps.activate);
+  return yes ? rivals : null;
+}
+
 type StoreAction = 'install' | 'update' | 'uninstall';
 
 /** Installing, updating and uninstalling an app from the store, each saved at once in its own commit: its folder
@@ -570,6 +583,8 @@ function useStoreActions(env: Env, files: RepoFile[]) {
     next: () => Promise<Parameters<typeof appChanges>[2]>,
     // Whether to go on, with the app's files in the site now (an update asks, when some were changed).
     go: (current: RepoFile[]) => Promise<boolean> = async () => true,
+    // The apps of the same one-app type to turn off, in the same commit.
+    rivals: string[] = [],
   ): Promise<boolean> {
     setRunning({ id, action, asking: false });
     env.notify({ text: text.busy });
@@ -582,8 +597,10 @@ function useStoreActions(env: Env, files: RepoFile[]) {
       // `go` cleared the message (and its dialog stopped the button being busy): saving goes on.
       setRunning({ id, action, asking: false });
       env.notify({ text: text.busy });
+      // The file of apps with the rivals already off, for the text only: same oid, and `file` is what is saved over.
+      const withRivals = file && rivals.length ? { ...file, text: appsFileText(withRivalsOff(readAppsFile(file.text), rivals)) } : file;
       const cookies = cookieChanges(id, wanted ? cookiesIn(wanted.files) : null, files);
-      await saveApp(env, text.commit, text.change, [...appChanges(id, current, wanted, file), ...cookies], file);
+      await saveApp(env, text.commit, text.change, [...appChanges(id, current, wanted, withRivals), ...cookies], file);
       env.notify({ text: text.done, kind: text.kind ?? 'saved' });
       return true;
     } catch (e) {
@@ -597,8 +614,10 @@ function useStoreActions(env: Env, files: RepoFile[]) {
   return {
     saving,
     busy: (id: string, action: StoreAction) => busyFor(running, id, action),
-    install: (app: ShownApp) =>
-      change(
+    async install(app: ShownApp) {
+      const rivals = await confirmRivals(app, files);
+      if (!rivals) return false;
+      return change(
         app.id,
         'install',
         {
@@ -608,7 +627,10 @@ function useStoreActions(env: Env, files: RepoFile[]) {
           change: t.app.changes.installed(kindAndName(t.app.changes.app, app.label), app.version),
         },
         async () => ({ files: await env.store.files(app), record: recordOf(app) }),
-      ),
+        undefined,
+        rivals,
+      );
+    },
     async update(app: ShownApp, record: StoreRecord) {
       const done = await change(
         app.id,
@@ -892,8 +914,13 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
     if (!yes && !(await ask(t.apps.askUninstall(app.label), t.apps.uninstall))) return;
     if (!yes && app.store) return store.uninstall(app.id, app.label, asWritten(app).label);
     const file = files.find((f) => f.path === config.apps.installed);
-    const text = appsFileText(withInstalled(appsState(files), app.id, yes));
+    let text = appsFileText(withInstalled(appsState(files), app.id, yes));
     if (text === file?.text) return;
+    if (yes) {
+      const rivals = await confirmRivals(app, files);
+      if (!rivals) return;
+      text = appsFileText(withRivalsOff(withInstalled(appsState(files), app.id, true), rivals));
+    }
     setToggling(yes ? 'install' : 'uninstall');
     notify({ text: yes ? t.apps.installing : t.apps.uninstalling });
     try {
@@ -915,8 +942,13 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
   // Turned on or off, saved at once in its own commit: the app stays installed with its folder, settings and version.
   async function turn(enabled: boolean) {
     const file = files.find((f) => f.path === config.apps.installed);
-    const text = appsFileText(withOff(appsState(files), app.id, !enabled));
+    let text = appsFileText(withOff(appsState(files), app.id, !enabled));
     if (text === file?.text) return;
+    if (enabled) {
+      const rivals = await confirmRivals(app, files);
+      if (!rivals) return;
+      text = appsFileText(withRivalsOff(withOff(appsState(files), app.id, false), rivals));
+    }
     setToggling('switch');
     try {
       const change = t.app.changes[enabled ? 'turnedOn' : 'turnedOff'](kindAndName(t.app.changes.app, app.label));

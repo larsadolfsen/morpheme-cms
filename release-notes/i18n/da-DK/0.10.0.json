@@ -11,7 +11,7 @@
       "id": "settings-in-side-sheet",
       "kind": "card",
       "title": "Redigér blokke i et sidepanel",
-      "text": "En bloks felter og sektionsindstillingerne åbner nu i et sidepanel. På en telefon dækker det siden, og på en tablet eller en computer står det ved siden af den."
+      "text": "På en telefon åbner en bloks felter og sektionsindstillingerne nu i et sidepanel over siden, og på en tablet står de ved siden af den."
     },
     {
       "id": "bottom-sheet-actions",

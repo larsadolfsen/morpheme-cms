@@ -1,7 +1,7 @@
 // What the cookie banner asks about: the categories of cookies (@morphemecms/cms/lib/cookieCategories.mjs) of what the
 // active apps (installed, not turned off) load with their settings (`cookies` in their index.ts: Google Analytics statistics, Google Ads
 // marketing, Google Tag Manager both), each a yes or no of its own; and whether the site has the banner (and
-// "Cookieindstillinger" in the footer) at all: when it is switched on ("Privatliv" › "Cookiebanner",
+// "Cookie settings" in the footer) at all: when it is switched on ("Privacy" › "Cookie banner",
 // src/data/cookies.json) and there is something to ask about. For the theme (Base.astro, Footer.astro,
 // CookieConsent.astro), which knows no app by name.
 import type { AppDefinition } from '../src/apps';

@@ -2,8 +2,8 @@
 // a list, its code on every page): each a file in the app's folder, hooks/<place>.ts, whose default export the site's
 // build runs, while the app is installed, for every page. The site gives it what it needs to know and the tools it may
 // use, and keeps what it gives back only when it is right; an app reaches nothing of the site but that. Before an app
-// is installed, its page says what it changes ("Rettigheder", needsOf in src/store.ts, from the files in hooks/).
-//   page-colors  the colours of a page (PageColorsHook): given the page's colours so far (the site's, "Farver", or those
+// is installed, its page says what it changes ("Permissions", needsOf in src/store.ts, from the files in hooks/).
+//   page-colors  the colours of a page (PageColorsHook): given the page's colours so far (the site's, "Colors", or those
 //                of an app before it), its pictures and the app's settings, it gives the page other colours, or none.
 //                The site runs it in packages/editor/site/pageColors.ts, which a theme calls for every page (Base.astro).
 // No React, browser or Node here: the editor, the build and the check before it use it.

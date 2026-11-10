@@ -1,7 +1,7 @@
 // How the site moves: Material 3's motion schemes (m3.material.io/styles/motion/overview/how-it-works), springs that
 // say how something moves (spatial: a sheet that slides in, a button that changes shape) and how something changes
 // (effects: a colour, something that fades), each fast, default or slow. A scheme is the owner's choice under
-// "Udseende" › "Bevægelse" (config.motion, e.g. src/data/motion.json: `{ "scheme": "expressive" }`), else the theme's
+// "Appearance" › "Motion" (config.motion, e.g. src/data/motion.json: `{ "scheme": "expressive" }`), else the theme's
 // ("motion" in its theme.json), else the standard theme's (schemeInUse):
 //   expressive  Material 3 Expressive's: what moves overshoots a little and settles, as on a phone
 //   standard    Material 3's standard: what moves glides into place
