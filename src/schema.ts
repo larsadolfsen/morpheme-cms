@@ -176,7 +176,13 @@ export type Template = {
 export type Opens = { label: string; as?: string };
 
 /** A place in the editor (a route, e.g. 'company/contact') and the text of the link to it. */
-export type Edit = { to: string; text: string };
+export type Edit = {
+  to: string;
+  text: string;
+  /** A standard page's key (`privacy`, standardPages.ts): the link goes to that page's file, found by the address in "Default
+   * pages" (standardFile.mjs); `to` is where it goes when the page is not found. */
+  page?: string;
+};
 
 // A kind of item in a list of blocks (a fixed page's sections; in the editor cards in its text, SectionsField.tsx).
 export type Block = {

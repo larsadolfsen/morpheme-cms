@@ -44,9 +44,6 @@ export const PENDING_IDS = [
   'src/standard/accordion/index.tsx:emne',
   'src/standard/accordion/shared.ts:emne',
   'src/standard/accordion/view.ts:emne',
-  // Row 11, batch D: the Files folder public/filer and /filer/<name> (a site setting with an English default).
-  'site/defineSite.mjs:filer',
-  'src/Media.tsx:filer',
   // Row 12, batch C: the tag page /blog/kategori/<slug>/ (kategori in code, in the folder pages/blog/kategori/ and in links).
   'astro.mjs:kategori',
   'defaults/rules.ts:kategori',
@@ -69,12 +66,6 @@ export const PENDING_IDS = [
   'site/defineSite.mjs:ny',
   'site/noindex.mjs:ny',
   'src/Keywords.tsx:ny',
-  // Row 14, batch D: the testimonials page address /udtalelser/ (site/testimonials.ts).
-  'site/testimonials.ts:udtalelser',
-  // Row 15, batch D: the contact page anchor #find-vej (theme/components/Footer.astro).
-  'theme/components/Footer.astro:vej',
-  // Row 16, batch D: the privacy-policy file written in code (defaults/privacy.ts).
-  'defaults/privacy.ts:privatlivspolitik',
   // No spec row, batch: whoever touches the file. Comments (and one theme.json text) that name an old Danish screen or word in quotes.
   'demo/src/site/colors.ts:indstillinger',
   'demo/src/site/colors.ts:farver',

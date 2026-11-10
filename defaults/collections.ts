@@ -651,7 +651,7 @@ export const collections: Collection[] = [
         hint: 'If empty, the default text is used.',
         only: { field: 'button', is: ['booking', 'phone', 'page', 'file'] },
       },
-      // A PDF from "Files" (public/filer/), by its address (/filer/<name>.pdf).
+      // A PDF from "Files" (the site's files folder), by its address (/files/<name>.pdf).
       {
         name: 'file',
         label: 'PDF',
