@@ -1,0 +1,8 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/statusline.mjs\"",
+    "padding": 2,
+    "refreshInterval": 5
+  }
+}
