@@ -121,7 +121,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       as="section"
       role="status"
       aria-labelledby="updates-title"
-      className="mb-8 [--card-elevated-shadow:var(--elevation-1)] [--card-padding:0]"
+      className="mb-8 [--card-elevated-shadow:var(--mo-elevation-1-shadow)] [--card-padding:0]"
     >
       <div className="grid medium:grid-cols-[auto_1fr]">
         {edition && (

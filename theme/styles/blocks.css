@@ -6,7 +6,7 @@
   the site and in the editor, in the standard theme. Every colour, shape and motion comes from a CSS variable, which a
   theme sets to its own design in its own CSS:
 
-    :root { --block-accent: var(--primary); --block-radius: 1.5rem; }
+    :root { --block-accent: var(--mo-primary); --block-radius: 1.5rem; }
 
   Without them, the blocks have a plain look of their own (the values below). Sizes and spacing are
   the blocks' own, in rem; their text has the site's font. Every theme imports this file into its CSS

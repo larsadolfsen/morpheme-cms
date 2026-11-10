@@ -81,13 +81,13 @@
   (--card-elevated-shadow, --menu-shadow …), so a theme can still give one part another shadow. A theme sets the levels
   to its own look, in light and dark mode, and they are its shadows everywhere; the ones here are a plain, neutral look
   of their own.
-    --elevation-0 … --elevation-5                   the level's shadow; level 0 is no shadow (0 0 #0000, so it can
+    --mo-elevation-0-shadow … --mo-elevation-5-shadow                   the level's shadow; level 0 is no shadow (0 0 #0000, so it can
                                                      stand in a list of shadows)
-    --elevation-0-surface … --elevation-5-surface   the level's colour (the site's surface-container colours)
-    --elevation-1-rest-shadow … -5-rest-shadow      the shadow a part shows at rest on that level; a theme turns resting
-                                                     shadows off here and keeps the lift, which reads --elevation-N
-  At rest (the shadow reads --elevation-N-rest-shadow), pointed at (hover), pressed and dragged (the lift reads
-  --elevation-N), by Material 3; with focus a part is as at rest:
+    --mo-elevation-0-color … --mo-elevation-5-color   the level's colour (the site's surface-container colours)
+    --mo-elevation-1-rest-shadow … -5-rest-shadow      the shadow a part shows at rest on that level; a theme turns resting
+                                                     shadows off here and keeps the lift, which reads --mo-elevation-N-shadow
+  At rest (the shadow reads --mo-elevation-N-rest-shadow), pointed at (hover), pressed and dragged (the lift reads
+  --mo-elevation-N-shadow), by Material 3; with focus a part is as at rest:
     level 0  filled, tonal and outlined buttons, icon buttons, filled and outlined cards, chips (not elevated), a
              standard side sheet, a full-screen dialog on a phone, the top app bar, the navigation bar and rail, the
              search bar, a plain tooltip
@@ -103,39 +103,39 @@
   Pressed, a part is as at rest: only pointing at it lifts it. Disabled, a button has no shadow.
 */
 :where(:root) {
-  --elevation-0: 0 0 #0000;
-  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 12px -6px rgb(0 0 0 / 0.14);
-  --elevation-2: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 20px -8px rgb(0 0 0 / 0.18);
-  --elevation-3: 0 2px 4px rgb(0 0 0 / 0.07), 0 12px 28px -10px rgb(0 0 0 / 0.22);
-  --elevation-4: 0 2px 6px rgb(0 0 0 / 0.08), 0 16px 36px -12px rgb(0 0 0 / 0.26);
-  --elevation-5: 0 4px 8px rgb(0 0 0 / 0.09), 0 20px 44px -12px rgb(0 0 0 / 0.3);
-  --elevation-0-surface: var(--surface);
-  --elevation-1-surface: var(--surface-container-low, var(--block-surface));
-  --elevation-2-surface: var(--surface-container, var(--block-surface));
-  --elevation-3-surface: var(--surface-container-high, var(--block-surface));
-  --elevation-4-surface: var(--surface-container-highest, var(--block-surface));
-  --elevation-5-surface: var(--surface-container-highest, var(--block-surface));
-  --elevation-1-rest-shadow: var(--elevation-1);
-  --elevation-2-rest-shadow: var(--elevation-2);
-  --elevation-3-rest-shadow: var(--elevation-3);
-  --elevation-4-rest-shadow: var(--elevation-4);
-  --elevation-5-rest-shadow: var(--elevation-5);
+  --mo-elevation-0-shadow: 0 0 #0000;
+  --mo-elevation-1-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 12px -6px rgb(0 0 0 / 0.14);
+  --mo-elevation-2-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 20px -8px rgb(0 0 0 / 0.18);
+  --mo-elevation-3-shadow: 0 2px 4px rgb(0 0 0 / 0.07), 0 12px 28px -10px rgb(0 0 0 / 0.22);
+  --mo-elevation-4-shadow: 0 2px 6px rgb(0 0 0 / 0.08), 0 16px 36px -12px rgb(0 0 0 / 0.26);
+  --mo-elevation-5-shadow: 0 4px 8px rgb(0 0 0 / 0.09), 0 20px 44px -12px rgb(0 0 0 / 0.3);
+  --mo-elevation-0-color: var(--mo-surface);
+  --mo-elevation-1-color: var(--mo-surface-container-low, var(--block-surface));
+  --mo-elevation-2-color: var(--mo-surface-container, var(--block-surface));
+  --mo-elevation-3-color: var(--mo-surface-container-high, var(--block-surface));
+  --mo-elevation-4-color: var(--mo-surface-container-highest, var(--block-surface));
+  --mo-elevation-5-color: var(--mo-surface-container-highest, var(--block-surface));
+  --mo-elevation-1-rest-shadow: var(--mo-elevation-1-shadow);
+  --mo-elevation-2-rest-shadow: var(--mo-elevation-2-shadow);
+  --mo-elevation-3-rest-shadow: var(--mo-elevation-3-shadow);
+  --mo-elevation-4-rest-shadow: var(--mo-elevation-4-shadow);
+  --mo-elevation-5-rest-shadow: var(--mo-elevation-5-shadow);
 }
 @media (prefers-color-scheme: dark) {
   :where(:root:not([data-theme='light'])) {
-    --elevation-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px -6px rgb(0 0 0 / 0.5);
-    --elevation-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 20px -8px rgb(0 0 0 / 0.55);
-    --elevation-3: 0 2px 4px rgb(0 0 0 / 0.32), 0 12px 28px -10px rgb(0 0 0 / 0.6);
-    --elevation-4: 0 2px 6px rgb(0 0 0 / 0.34), 0 16px 36px -12px rgb(0 0 0 / 0.65);
-    --elevation-5: 0 4px 8px rgb(0 0 0 / 0.36), 0 20px 44px -12px rgb(0 0 0 / 0.7);
+    --mo-elevation-1-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px -6px rgb(0 0 0 / 0.5);
+    --mo-elevation-2-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 20px -8px rgb(0 0 0 / 0.55);
+    --mo-elevation-3-shadow: 0 2px 4px rgb(0 0 0 / 0.32), 0 12px 28px -10px rgb(0 0 0 / 0.6);
+    --mo-elevation-4-shadow: 0 2px 6px rgb(0 0 0 / 0.34), 0 16px 36px -12px rgb(0 0 0 / 0.65);
+    --mo-elevation-5-shadow: 0 4px 8px rgb(0 0 0 / 0.36), 0 20px 44px -12px rgb(0 0 0 / 0.7);
   }
 }
 :where(:root[data-theme='dark']) {
-  --elevation-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px -6px rgb(0 0 0 / 0.5);
-  --elevation-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 20px -8px rgb(0 0 0 / 0.55);
-  --elevation-3: 0 2px 4px rgb(0 0 0 / 0.32), 0 12px 28px -10px rgb(0 0 0 / 0.6);
-  --elevation-4: 0 2px 6px rgb(0 0 0 / 0.34), 0 16px 36px -12px rgb(0 0 0 / 0.65);
-  --elevation-5: 0 4px 8px rgb(0 0 0 / 0.36), 0 20px 44px -12px rgb(0 0 0 / 0.7);
+  --mo-elevation-1-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px -6px rgb(0 0 0 / 0.5);
+  --mo-elevation-2-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 20px -8px rgb(0 0 0 / 0.55);
+  --mo-elevation-3-shadow: 0 2px 4px rgb(0 0 0 / 0.32), 0 12px 28px -10px rgb(0 0 0 / 0.6);
+  --mo-elevation-4-shadow: 0 2px 6px rgb(0 0 0 / 0.34), 0 16px 36px -12px rgb(0 0 0 / 0.65);
+  --mo-elevation-5-shadow: 0 4px 8px rgb(0 0 0 / 0.36), 0 20px 44px -12px rgb(0 0 0 / 0.7);
 }
 
 /* ---- Typography ----
@@ -465,40 +465,40 @@
   .button-filled {
     background: var(--button-filled-surface, var(--block-accent));
     color: var(--button-filled-text, var(--block-on-accent));
-    box-shadow: var(--button-filled-shadow, var(--elevation-0));
+    box-shadow: var(--button-filled-shadow, var(--mo-elevation-0-shadow));
   }
   .button-filled:hover {
     background: var(--button-filled-hover, var(--block-accent-hover));
-    box-shadow: var(--button-filled-hover-shadow, var(--button-filled-shadow, var(--elevation-1)));
+    box-shadow: var(--button-filled-hover-shadow, var(--button-filled-shadow, var(--mo-elevation-1-shadow)));
   }
   /* Tonal: an important step that is not the main one, on the tint. */
   .button-tonal {
     background: var(--button-tonal-surface, var(--block-tint));
     color: var(--button-tonal-text, var(--block-text));
-    box-shadow: var(--button-tonal-shadow, var(--elevation-0));
+    box-shadow: var(--button-tonal-shadow, var(--mo-elevation-0-shadow));
   }
   .button-tonal:hover {
     background: var(--button-tonal-hover, color-mix(in srgb, var(--block-text) 8%, var(--block-tint)));
-    box-shadow: var(--button-tonal-hover-shadow, var(--button-tonal-shadow, var(--elevation-1)));
+    box-shadow: var(--button-tonal-hover-shadow, var(--button-tonal-shadow, var(--mo-elevation-1-shadow)));
   }
   /* Elevated: on a surface with its shadow, where the page behind it has a colour. */
   .button-elevated {
-    background: var(--button-elevated-surface, var(--elevation-1-surface));
+    background: var(--button-elevated-surface, var(--mo-elevation-1-color));
     color: var(--button-elevated-text, var(--block-accent));
-    box-shadow: var(--button-elevated-shadow, var(--elevation-1-rest-shadow));
+    box-shadow: var(--button-elevated-shadow, var(--mo-elevation-1-rest-shadow));
   }
   .button-elevated:hover {
-    box-shadow: var(--button-elevated-hover-shadow, var(--button-elevated-shadow, var(--elevation-2)));
+    box-shadow: var(--button-elevated-hover-shadow, var(--button-elevated-shadow, var(--mo-elevation-2-shadow)));
   }
   /* Pressed: back at rest (M3: only pointing at it lifts it). */
   .button-filled:active {
-    box-shadow: var(--button-filled-shadow, var(--elevation-0));
+    box-shadow: var(--button-filled-shadow, var(--mo-elevation-0-shadow));
   }
   .button-tonal:active {
-    box-shadow: var(--button-tonal-shadow, var(--elevation-0));
+    box-shadow: var(--button-tonal-shadow, var(--mo-elevation-0-shadow));
   }
   .button-elevated:active {
-    box-shadow: var(--button-elevated-shadow, var(--elevation-1-rest-shadow));
+    box-shadow: var(--button-elevated-shadow, var(--mo-elevation-1-rest-shadow));
   }
   /* Outlined: another choice beside the main one, with a thin edge. */
   .button-outlined {
@@ -525,33 +525,33 @@
   .button-filled[aria-pressed='false'] {
     background: var(--button-toggle-surface, var(--block-tint));
     color: var(--button-toggle-text, var(--block-text));
-    box-shadow: var(--elevation-0);
+    box-shadow: var(--mo-elevation-0-shadow);
   }
   .button-filled[aria-pressed='false']:hover {
     background: var(--button-toggle-hover, color-mix(in srgb, var(--block-text) 8%, var(--block-tint)));
-    box-shadow: var(--elevation-1);
+    box-shadow: var(--mo-elevation-1-shadow);
   }
   .button-filled[aria-pressed='false']:active {
-    box-shadow: var(--elevation-0);
+    box-shadow: var(--mo-elevation-0-shadow);
   }
   .button-filled[aria-pressed='true'] {
     background: var(--button-toggle-selected-surface, var(--block-accent));
     color: var(--button-toggle-selected-text, var(--block-on-accent));
-    box-shadow: var(--button-toggle-selected-shadow, var(--elevation-0));
+    box-shadow: var(--button-toggle-selected-shadow, var(--mo-elevation-0-shadow));
   }
   .button-filled[aria-pressed='true']:hover {
     background: var(--button-toggle-selected-hover, var(--block-accent-hover));
-    box-shadow: var(--button-toggle-selected-hover-shadow, var(--button-toggle-selected-shadow, var(--elevation-1)));
+    box-shadow: var(--button-toggle-selected-hover-shadow, var(--button-toggle-selected-shadow, var(--mo-elevation-1-shadow)));
   }
   .button-filled[aria-pressed='true']:active {
-    box-shadow: var(--button-toggle-selected-shadow, var(--elevation-0));
+    box-shadow: var(--button-toggle-selected-shadow, var(--mo-elevation-0-shadow));
   }
   .button-tonal[aria-pressed='true'] {
-    background: var(--button-tonal-selected-surface, var(--secondary));
-    color: var(--button-tonal-selected-text, var(--on-secondary));
+    background: var(--button-tonal-selected-surface, var(--mo-secondary));
+    color: var(--button-tonal-selected-text, var(--mo-on-secondary));
   }
   .button-tonal[aria-pressed='true']:hover {
-    background: var(--button-tonal-selected-hover, color-mix(in srgb, var(--on-secondary) 10%, var(--secondary)));
+    background: var(--button-tonal-selected-hover, color-mix(in srgb, var(--mo-on-secondary) 10%, var(--mo-secondary)));
   }
   .button-elevated[aria-pressed='true'] {
     background: var(--button-elevated-selected-surface, var(--block-accent));
@@ -578,7 +578,7 @@
   }
   /* Disabled: on the page, without a shadow (M3's level 0), also when pointed at. */
   .button:is(.button-filled, .button-tonal, .button-elevated):disabled {
-    box-shadow: var(--elevation-0);
+    box-shadow: var(--mo-elevation-0-shadow);
   }
 
   /* Icon buttons (m3.material.io/components/icon-buttons): only an icon (its name is read), round or square. */
@@ -737,11 +737,11 @@
     );
   }
   .icon-button-tonal[aria-pressed='true'] {
-    background: var(--icon-button-tonal-selected-surface, var(--secondary-container));
-    color: var(--icon-button-tonal-selected-text, var(--on-secondary-container));
+    background: var(--icon-button-tonal-selected-surface, var(--mo-secondary-container));
+    color: var(--icon-button-tonal-selected-text, var(--mo-on-secondary-container));
   }
   .icon-button-tonal[aria-pressed='true']:hover {
-    background: color-mix(in srgb, currentColor 8%, var(--icon-button-tonal-selected-surface, var(--secondary-container)));
+    background: color-mix(in srgb, currentColor 8%, var(--icon-button-tonal-selected-surface, var(--mo-secondary-container)));
   }
   .icon-button-outlined[aria-pressed='true'] {
     background: var(--icon-button-outlined-selected-surface, var(--block-text));
@@ -1256,28 +1256,28 @@
   }
   /* A chosen filter chip is lifted to level 1 when pointed at, and is on the page again while pressed (M3). */
   .chip-filter:is([aria-pressed='true'], [aria-current='page']):hover {
-    box-shadow: var(--chip-selected-hover-shadow, var(--elevation-1));
+    box-shadow: var(--chip-selected-hover-shadow, var(--mo-elevation-1-shadow));
   }
   .chip-filter:is([aria-pressed='true'], [aria-current='page']):active {
-    box-shadow: var(--elevation-0);
+    box-shadow: var(--mo-elevation-0-shadow);
   }
 
   /* Elevated: on a surface with a shadow instead of the edge, where it stands on a picture or a colour; also chosen.
      Level 1, level 2 when pointed at, and as at rest while pressed (M3). */
   .chip-elevated {
-    background: var(--chip-elevated-surface, var(--elevation-1-surface));
+    background: var(--chip-elevated-surface, var(--mo-elevation-1-color));
   }
   .chip-elevated,
   .chip.chip-elevated:is([aria-pressed='true'], [aria-current='page']) {
-    box-shadow: var(--chip-elevated-shadow, var(--elevation-1-rest-shadow));
+    box-shadow: var(--chip-elevated-shadow, var(--mo-elevation-1-rest-shadow));
   }
   .chip-elevated:hover,
   .chip.chip-elevated:is([aria-pressed='true'], [aria-current='page']):hover {
-    box-shadow: var(--chip-elevated-hover-shadow, var(--chip-elevated-shadow, var(--elevation-2)));
+    box-shadow: var(--chip-elevated-hover-shadow, var(--chip-elevated-shadow, var(--mo-elevation-2-shadow)));
   }
   .chip-elevated:active,
   .chip.chip-elevated:is([aria-pressed='true'], [aria-current='page']):active {
-    box-shadow: var(--chip-elevated-shadow, var(--elevation-1-rest-shadow));
+    box-shadow: var(--chip-elevated-shadow, var(--mo-elevation-1-rest-shadow));
   }
 
   /* A person's picture before the label (an input chip): round, nearer the start. */
@@ -1328,11 +1328,11 @@
   .chip-dragged:hover {
     box-shadow:
       inset 0 0 0 1px var(--chip-line, var(--block-line)),
-      var(--chip-dragged-shadow, var(--elevation-4));
+      var(--chip-dragged-shadow, var(--mo-elevation-4-shadow));
     cursor: grabbing;
   }
   .chip.chip-elevated.chip-dragged {
-    box-shadow: var(--chip-dragged-shadow, var(--elevation-4));
+    box-shadow: var(--chip-dragged-shadow, var(--mo-elevation-4-shadow));
   }
 
   /* Disabled: seen through, without its shadow, and not to be used. */
@@ -1462,10 +1462,10 @@
   /* A dialog's container. */
   .dialog {
     border-radius: var(--dialog-radius, var(--block-radius));
-    background: var(--dialog-surface, var(--elevation-3-surface));
+    background: var(--dialog-surface, var(--mo-elevation-3-color));
     box-shadow:
       0 0 0 1px var(--dialog-line, var(--block-line)),
-      var(--dialog-shadow, var(--elevation-3-rest-shadow));
+      var(--dialog-shadow, var(--mo-elevation-3-rest-shadow));
   }
   /* A modal dialog: in the middle of the screen over the scrim, coming up a little as it opens. */
   .dialog-modal {
@@ -1670,8 +1670,8 @@
     height: 100%;
     overflow: hidden;
     border-radius: var(--bottom-sheet-radius, var(--block-radius)) var(--bottom-sheet-radius, var(--block-radius)) 0 0;
-    background: var(--bottom-sheet-surface, var(--elevation-1-surface));
-    box-shadow: var(--bottom-sheet-shadow, var(--elevation-1-rest-shadow));
+    background: var(--bottom-sheet-surface, var(--mo-elevation-1-color));
+    box-shadow: var(--bottom-sheet-shadow, var(--mo-elevation-1-rest-shadow));
     padding-bottom: env(safe-area-inset-bottom);
   }
   .bottom-sheet-drag-handle {
@@ -1772,7 +1772,7 @@
     overflow-y: auto;
     margin: 0;
     padding: 1.25rem;
-    background: var(--bottom-sheet-surface, var(--elevation-1-surface));
+    background: var(--bottom-sheet-surface, var(--mo-elevation-1-color));
     color: var(--block-muted);
     text-align: center;
   }
@@ -1804,7 +1804,7 @@
     /* A modal one only: a standard one stays at the bottom. */
     .bottom-sheet-container:where(:not(.bottom-sheet-standard, [data-wide='side-sheet'], [data-wide='sheet'])) {
       border-radius: var(--bottom-sheet-radius, var(--block-radius));
-      box-shadow: var(--bottom-sheet-shadow-large, var(--elevation-3-rest-shadow));
+      box-shadow: var(--bottom-sheet-shadow-large, var(--mo-elevation-3-rest-shadow));
       padding-bottom: 0;
     }
     :where(.bottom-sheet-container:not(.bottom-sheet-standard, [data-wide='side-sheet'], [data-wide='sheet'])) > .bottom-sheet-drag-handle {
@@ -1903,7 +1903,7 @@
       padding-bottom: 0;
       border-radius: 0;
       border-inline-start: 1px solid var(--side-sheet-line, var(--block-line));
-      background: var(--side-sheet-surface, var(--elevation-0-surface));
+      background: var(--side-sheet-surface, var(--mo-elevation-0-color));
       box-shadow: none;
     }
     .bottom-sheet-standard[data-wide='side-sheet'] > .bottom-sheet-drag-handle,
@@ -1953,8 +1953,8 @@
       border-radius: 0;
       border-start-start-radius: var(--side-sheet-radius, var(--block-radius));
       border-end-start-radius: var(--side-sheet-radius, var(--block-radius));
-      background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--elevation-1-surface)));
-      box-shadow: var(--side-sheet-shadow, var(--elevation-1-rest-shadow));
+      background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--mo-elevation-1-color)));
+      box-shadow: var(--side-sheet-shadow, var(--mo-elevation-1-rest-shadow));
       padding-bottom: 0;
     }
     .bottom-sheet-container:not(.bottom-sheet-standard)[data-wide='side-sheet'] > .bottom-sheet-drag-handle {
@@ -2217,39 +2217,39 @@
     opacity: var(--card-focus-layer, 0.1);
   }
   .card-elevated {
-    --card-shadow: var(--card-elevated-shadow, var(--elevation-1-rest-shadow));
+    --card-shadow: var(--card-elevated-shadow, var(--mo-elevation-1-rest-shadow));
   }
   .card-filled {
-    --card-shadow: var(--card-filled-shadow, var(--elevation-0));
+    --card-shadow: var(--card-filled-shadow, var(--mo-elevation-0-shadow));
   }
   .card-outlined {
-    --card-shadow: var(--card-outlined-shadow, var(--elevation-0));
+    --card-shadow: var(--card-outlined-shadow, var(--mo-elevation-0-shadow));
   }
   @media (hover: hover) {
     a.card-elevated:hover:not(:active, .card-dragged) {
-      --card-shadow: var(--card-elevated-hover-shadow, var(--card-elevated-shadow, var(--elevation-2)));
+      --card-shadow: var(--card-elevated-hover-shadow, var(--card-elevated-shadow, var(--mo-elevation-2-shadow)));
     }
     a.card-filled:hover:not(:active, .card-dragged) {
-      --card-shadow: var(--card-filled-hover-shadow, var(--card-filled-shadow, var(--elevation-1)));
+      --card-shadow: var(--card-filled-hover-shadow, var(--card-filled-shadow, var(--mo-elevation-1-shadow)));
     }
     a.card-outlined:hover:not(:active, .card-dragged) {
-      --card-shadow: var(--card-outlined-hover-shadow, var(--card-outlined-shadow, var(--elevation-1)));
+      --card-shadow: var(--card-outlined-hover-shadow, var(--card-outlined-shadow, var(--mo-elevation-1-shadow)));
     }
   }
   .card-elevated.card-dragged {
-    --card-shadow: var(--card-elevated-dragged-shadow, var(--elevation-4));
+    --card-shadow: var(--card-elevated-dragged-shadow, var(--mo-elevation-4-shadow));
   }
   .card-filled.card-dragged {
-    --card-shadow: var(--card-filled-dragged-shadow, var(--elevation-3));
+    --card-shadow: var(--card-filled-dragged-shadow, var(--mo-elevation-3-shadow));
   }
   .card-outlined.card-dragged {
-    --card-shadow: var(--card-outlined-dragged-shadow, var(--elevation-3));
+    --card-shadow: var(--card-outlined-dragged-shadow, var(--mo-elevation-3-shadow));
   }
   .card-dragged {
     cursor: grabbing;
   }
   .card-elevated {
-    background: var(--card-elevated-surface, var(--elevation-1-surface));
+    background: var(--card-elevated-surface, var(--mo-elevation-1-color));
     box-shadow:
       inset 0 0 0 1px var(--card-elevated-line, transparent),
       var(--card-shadow);
@@ -2261,7 +2261,7 @@
       var(--card-shadow);
   }
   .card-outlined {
-    background: var(--card-outlined-surface, var(--elevation-0-surface));
+    background: var(--card-outlined-surface, var(--mo-elevation-0-color));
     box-shadow:
       inset 0 0 0 1px var(--card-outlined-line, var(--block-line)),
       var(--card-shadow);
@@ -2401,7 +2401,7 @@
   :is(a, button:enabled).list-item-container:focus-visible,
   .list-item-with-control:not(.list-item-disabled):has(:focus-visible),
   .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:focus-visible) {
-    outline: 3px solid var(--list-item-focus-indicator-color, var(--primary));
+    outline: 3px solid var(--list-item-focus-indicator-color, var(--mo-primary));
     outline-offset: -3px;
   }
   .list-item-with-control :focus-visible,
@@ -2476,8 +2476,8 @@
     height: var(--list-item-avatar-size, 2.5rem);
     place-items: center;
     border-radius: 9999px;
-    background: var(--list-item-avatar-surface, var(--primary-container));
-    color: var(--list-item-avatar-text, var(--on-primary-container));
+    background: var(--list-item-avatar-surface, var(--mo-primary-container));
+    color: var(--list-item-avatar-text, var(--mo-on-primary-container));
     font-weight: 500;
     line-height: 1;
     object-fit: cover;
@@ -2683,8 +2683,8 @@
   /* (A :has() cannot be in another one: the checked choice in it as a descendant.) */
   .list-segmented > li:has(> .list-item-selected, > .list-item-with-control :checked) {
     --list-item-shape: var(--list-segmented-selected-radius, var(--list-segmented-radius, var(--block-radius-small)));
-    background: var(--list-segmented-selected-surface, var(--secondary-container));
-    color: var(--list-segmented-selected-text, var(--on-secondary-container));
+    background: var(--list-segmented-selected-surface, var(--mo-secondary-container));
+    color: var(--list-segmented-selected-text, var(--mo-on-secondary-container));
   }
   /* The first and the last item with the list's corners outside, whatever their state. */
   .list-segmented > li:first-child {
@@ -2855,7 +2855,7 @@
   /* Top app bar (m3.material.io/components/top-app-bar). */
   .top-app-bar {
     border-bottom: var(--top-app-bar-line-width, 1px) solid var(--top-app-bar-line, transparent);
-    background: var(--top-app-bar-surface, color-mix(in oklab, var(--surface) 85%, transparent));
+    background: var(--top-app-bar-surface, color-mix(in oklab, var(--mo-surface) 85%, transparent));
     backdrop-filter: var(--top-app-bar-backdrop, blur(16px));
     transition:
       background-color var(--motion-effects),
@@ -2863,9 +2863,9 @@
       box-shadow var(--motion-effects);
   }
   .top-app-bar[data-stuck] {
-    border-color: var(--top-app-bar-stuck-line, color-mix(in oklab, var(--outline-variant) 60%, transparent));
-    background: var(--top-app-bar-stuck-surface, var(--elevation-2-surface));
-    box-shadow: var(--top-app-bar-stuck-shadow, var(--elevation-2-rest-shadow));
+    border-color: var(--top-app-bar-stuck-line, color-mix(in oklab, var(--mo-outline-variant) 60%, transparent));
+    background: var(--top-app-bar-stuck-surface, var(--mo-elevation-2-color));
+    box-shadow: var(--top-app-bar-stuck-shadow, var(--mo-elevation-2-rest-shadow));
   }
   /* With a kind: the leading button, the headline (or the search bar) and the trailing elements in a row, and what else
      is in it under them. */
@@ -2994,11 +2994,11 @@
     max-height: var(--menu-max-height, none);
     overflow-y: auto;
     border-radius: var(--menu-radius, var(--block-radius-small));
-    background: var(--menu-surface, var(--elevation-2-surface));
+    background: var(--menu-surface, var(--mo-elevation-2-color));
     padding: var(--menu-padding, 0.5rem);
     box-shadow:
       0 0 0 1px var(--menu-line, var(--block-line)),
-      var(--menu-shadow, var(--elevation-2-rest-shadow));
+      var(--menu-shadow, var(--mo-elevation-2-rest-shadow));
   }
   .menu-item {
     display: flex;
@@ -3136,11 +3136,11 @@
   }
   .menu:has(> .menu-group):not(.menu-groups-divider) > .menu-group {
     border-radius: var(--menu-group-inner-radius, var(--menu-radius, var(--block-radius-small)));
-    background: var(--menu-surface, var(--elevation-2-surface));
+    background: var(--menu-surface, var(--mo-elevation-2-color));
     padding: var(--menu-padding, 0.5rem);
     box-shadow:
       0 0 0 1px var(--menu-line, var(--block-line)),
-      var(--menu-shadow, var(--elevation-2-rest-shadow));
+      var(--menu-shadow, var(--mo-elevation-2-rest-shadow));
   }
   .menu:has(> .menu-group):not(.menu-groups-divider) > .menu-group:first-child {
     border-start-start-radius: var(--menu-radius, var(--block-radius-small));
@@ -3313,11 +3313,11 @@
       margin-block: var(--dropdown-menu-gap, 0.25rem);
       border: 0;
       border-radius: var(--menu-radius, var(--block-radius-small));
-      background: var(--menu-surface, var(--elevation-2-surface));
+      background: var(--menu-surface, var(--mo-elevation-2-color));
       padding: var(--menu-padding, 0.5rem);
       box-shadow:
         0 0 0 1px var(--menu-line, var(--block-line)),
-        var(--menu-shadow, var(--elevation-2-rest-shadow));
+        var(--menu-shadow, var(--mo-elevation-2-rest-shadow));
       color: var(--block-text);
     }
     .exposed-dropdown-menu-option {
@@ -3373,8 +3373,8 @@
       --navigation-drawer-padding,
       0.75rem var(--navigation-drawer-inset, var(--navigation-drawer-inset-default)) max(1rem, env(safe-area-inset-bottom))
     );
-    background: var(--navigation-drawer-surface, var(--elevation-1-surface));
-    box-shadow: var(--navigation-drawer-shadow, var(--elevation-1-rest-shadow));
+    background: var(--navigation-drawer-surface, var(--mo-elevation-1-color));
+    box-shadow: var(--navigation-drawer-shadow, var(--mo-elevation-1-rest-shadow));
   }
   .navigation-drawer:dir(rtl) {
     border-radius: var(--navigation-drawer-radius-rtl, 1rem 0 0 1rem);
@@ -3416,7 +3416,7 @@
   .navigation-drawer-standard {
     height: 100%;
     flex-shrink: 0;
-    box-shadow: var(--navigation-drawer-standard-shadow, var(--elevation-0, none));
+    box-shadow: var(--navigation-drawer-standard-shadow, var(--mo-elevation-0-shadow, none));
   }
   .navigation-drawer-item {
     display: flex;
@@ -3490,16 +3490,16 @@
     outline-offset: -2px;
   }
   .navigation-drawer-item[data-active] {
-    background: var(--navigation-drawer-item-active-surface, var(--secondary-container));
-    color: var(--navigation-drawer-item-active-text, var(--on-secondary-container));
+    background: var(--navigation-drawer-item-active-surface, var(--mo-secondary-container));
+    color: var(--navigation-drawer-item-active-text, var(--mo-on-secondary-container));
     font-weight: var(--navigation-drawer-item-active-weight, 700);
   }
   .navigation-drawer-item[data-active]:hover {
-    background: color-mix(in srgb, currentColor 8%, var(--navigation-drawer-item-active-surface, var(--secondary-container)));
+    background: color-mix(in srgb, currentColor 8%, var(--navigation-drawer-item-active-surface, var(--mo-secondary-container)));
   }
   .navigation-drawer-item[data-active]:focus-visible,
   .navigation-drawer-item[data-active]:active {
-    background: color-mix(in srgb, currentColor 10%, var(--navigation-drawer-item-active-surface, var(--secondary-container)));
+    background: color-mix(in srgb, currentColor 10%, var(--navigation-drawer-item-active-surface, var(--mo-secondary-container)));
   }
   /* Sections: a label (title small, 56dp high) over the items; the divider is in every section and shown only in one that
      follows another, edge to edge (it takes the drawer's inset back). */
@@ -3559,7 +3559,7 @@
     font-variant-numeric: tabular-nums;
   }
   .navigation-drawer-item[data-active] > .navigation-drawer-badge {
-    color: var(--navigation-drawer-item-active-text, var(--on-secondary-container));
+    color: var(--navigation-drawer-item-active-text, var(--mo-on-secondary-container));
   }
   /* The trailing icon at the end of an item (an arrow to the list it opens); the back row has the item's look. */
   .navigation-drawer-trailing {
@@ -3790,7 +3790,7 @@
     justify-content: center;
     border-radius: var(--fab-radius, var(--block-radius-small));
     padding: 0 var(--fab-padding, 1rem);
-    box-shadow: var(--fab-shadow, var(--elevation-3-rest-shadow));
+    box-shadow: var(--fab-shadow, var(--mo-elevation-3-rest-shadow));
     transition:
       box-shadow var(--motion-effects),
       background-color var(--motion-effects),
@@ -3807,11 +3807,11 @@
   }
   .fab:hover,
   .extended-fab:hover {
-    box-shadow: var(--fab-hover-shadow, var(--fab-shadow, var(--elevation-4)));
+    box-shadow: var(--fab-hover-shadow, var(--fab-shadow, var(--mo-elevation-4-shadow)));
   }
   .fab:active,
   .extended-fab:active {
-    box-shadow: var(--fab-shadow, var(--elevation-3-rest-shadow));
+    box-shadow: var(--fab-shadow, var(--mo-elevation-3-rest-shadow));
   }
   /* The medium and the large size (M3 Expressive): taller, with rounder corners and a larger icon, the theme's corners
      scaled as Material's are (16, 20 and 28px). */
@@ -3857,62 +3857,68 @@
     background: var(--fab-primary-pressed, var(--fab-primary-hover, var(--block-accent-hover)));
   }
   .fab-secondary {
-    background: var(--fab-secondary-surface, var(--secondary));
-    color: var(--fab-secondary-text, var(--on-secondary));
+    background: var(--fab-secondary-surface, var(--mo-secondary));
+    color: var(--fab-secondary-text, var(--mo-on-secondary));
   }
   .fab-secondary:hover {
-    background: var(--fab-secondary-hover, color-mix(in srgb, var(--on-secondary) 8%, var(--secondary)));
+    background: var(--fab-secondary-hover, color-mix(in srgb, var(--mo-on-secondary) 8%, var(--mo-secondary)));
   }
   .fab-secondary:active {
-    background: var(--fab-secondary-pressed, var(--fab-secondary-hover, color-mix(in srgb, var(--on-secondary) 8%, var(--secondary))));
+    background: var(
+      --fab-secondary-pressed,
+      var(--fab-secondary-hover, color-mix(in srgb, var(--mo-on-secondary) 8%, var(--mo-secondary)))
+    );
   }
   .fab-tertiary {
-    background: var(--fab-tertiary-surface, var(--tertiary));
-    color: var(--fab-tertiary-text, var(--on-tertiary));
+    background: var(--fab-tertiary-surface, var(--mo-tertiary));
+    color: var(--fab-tertiary-text, var(--mo-on-tertiary));
   }
   .fab-tertiary:hover {
-    background: var(--fab-tertiary-hover, color-mix(in srgb, var(--on-tertiary) 8%, var(--tertiary)));
+    background: var(--fab-tertiary-hover, color-mix(in srgb, var(--mo-on-tertiary) 8%, var(--mo-tertiary)));
   }
   .fab-tertiary:active {
-    background: var(--fab-tertiary-pressed, var(--fab-tertiary-hover, color-mix(in srgb, var(--on-tertiary) 8%, var(--tertiary))));
+    background: var(--fab-tertiary-pressed, var(--fab-tertiary-hover, color-mix(in srgb, var(--mo-on-tertiary) 8%, var(--mo-tertiary))));
   }
   .fab-primary-container {
-    background: var(--fab-primary-container-surface, var(--primary-container));
-    color: var(--fab-primary-container-text, var(--on-primary-container));
+    background: var(--fab-primary-container-surface, var(--mo-primary-container));
+    color: var(--fab-primary-container-text, var(--mo-on-primary-container));
   }
   .fab-primary-container:hover {
-    background: var(--fab-primary-container-hover, color-mix(in srgb, var(--on-primary-container) 8%, var(--primary-container)));
+    background: var(--fab-primary-container-hover, color-mix(in srgb, var(--mo-on-primary-container) 8%, var(--mo-primary-container)));
   }
   .fab-primary-container:active {
     background: var(
       --fab-primary-container-pressed,
-      var(--fab-primary-container-hover, color-mix(in srgb, var(--on-primary-container) 8%, var(--primary-container)))
+      var(--fab-primary-container-hover, color-mix(in srgb, var(--mo-on-primary-container) 8%, var(--mo-primary-container)))
     );
   }
   .fab-secondary-container {
-    background: var(--fab-secondary-container-surface, var(--secondary-container));
-    color: var(--fab-secondary-container-text, var(--on-secondary-container));
+    background: var(--fab-secondary-container-surface, var(--mo-secondary-container));
+    color: var(--fab-secondary-container-text, var(--mo-on-secondary-container));
   }
   .fab-secondary-container:hover {
-    background: var(--fab-secondary-container-hover, color-mix(in srgb, var(--on-secondary-container) 8%, var(--secondary-container)));
+    background: var(
+      --fab-secondary-container-hover,
+      color-mix(in srgb, var(--mo-on-secondary-container) 8%, var(--mo-secondary-container))
+    );
   }
   .fab-secondary-container:active {
     background: var(
       --fab-secondary-container-pressed,
-      var(--fab-secondary-container-hover, color-mix(in srgb, var(--on-secondary-container) 8%, var(--secondary-container)))
+      var(--fab-secondary-container-hover, color-mix(in srgb, var(--mo-on-secondary-container) 8%, var(--mo-secondary-container)))
     );
   }
   .fab-tertiary-container {
-    background: var(--fab-tertiary-container-surface, var(--tertiary-container));
-    color: var(--fab-tertiary-container-text, var(--on-tertiary-container));
+    background: var(--fab-tertiary-container-surface, var(--mo-tertiary-container));
+    color: var(--fab-tertiary-container-text, var(--mo-on-tertiary-container));
   }
   .fab-tertiary-container:hover {
-    background: var(--fab-tertiary-container-hover, color-mix(in srgb, var(--on-tertiary-container) 8%, var(--tertiary-container)));
+    background: var(--fab-tertiary-container-hover, color-mix(in srgb, var(--mo-on-tertiary-container) 8%, var(--mo-tertiary-container)));
   }
   .fab-tertiary-container:active {
     background: var(
       --fab-tertiary-container-pressed,
-      var(--fab-tertiary-container-hover, color-mix(in srgb, var(--on-tertiary-container) 8%, var(--tertiary-container)))
+      var(--fab-tertiary-container-hover, color-mix(in srgb, var(--mo-on-tertiary-container) 8%, var(--mo-tertiary-container)))
     );
   }
 
@@ -4291,24 +4297,27 @@
     background: var(--fab-primary-pressed, var(--fab-primary-hover, var(--block-accent-hover)));
   }
   .fab-menu-secondary > .fab-menu-button[aria-expanded='true'] {
-    background: var(--fab-secondary-surface, var(--secondary));
-    color: var(--fab-secondary-text, var(--on-secondary));
+    background: var(--fab-secondary-surface, var(--mo-secondary));
+    color: var(--fab-secondary-text, var(--mo-on-secondary));
   }
   .fab-menu-secondary > .fab-menu-button[aria-expanded='true']:hover {
-    background: var(--fab-secondary-hover, color-mix(in srgb, var(--on-secondary) 8%, var(--secondary)));
+    background: var(--fab-secondary-hover, color-mix(in srgb, var(--mo-on-secondary) 8%, var(--mo-secondary)));
   }
   .fab-menu-secondary > .fab-menu-button[aria-expanded='true']:active {
-    background: var(--fab-secondary-pressed, var(--fab-secondary-hover, color-mix(in srgb, var(--on-secondary) 8%, var(--secondary))));
+    background: var(
+      --fab-secondary-pressed,
+      var(--fab-secondary-hover, color-mix(in srgb, var(--mo-on-secondary) 8%, var(--mo-secondary)))
+    );
   }
   .fab-menu-tertiary > .fab-menu-button[aria-expanded='true'] {
-    background: var(--fab-tertiary-surface, var(--tertiary));
-    color: var(--fab-tertiary-text, var(--on-tertiary));
+    background: var(--fab-tertiary-surface, var(--mo-tertiary));
+    color: var(--fab-tertiary-text, var(--mo-on-tertiary));
   }
   .fab-menu-tertiary > .fab-menu-button[aria-expanded='true']:hover {
-    background: var(--fab-tertiary-hover, color-mix(in srgb, var(--on-tertiary) 8%, var(--tertiary)));
+    background: var(--fab-tertiary-hover, color-mix(in srgb, var(--mo-on-tertiary) 8%, var(--mo-tertiary)));
   }
   .fab-menu-tertiary > .fab-menu-button[aria-expanded='true']:active {
-    background: var(--fab-tertiary-pressed, var(--fab-tertiary-hover, color-mix(in srgb, var(--on-tertiary) 8%, var(--tertiary))));
+    background: var(--fab-tertiary-pressed, var(--fab-tertiary-hover, color-mix(in srgb, var(--mo-on-tertiary) 8%, var(--mo-tertiary))));
   }
   @media (prefers-reduced-motion: reduce) {
     .fab-menu-button {
@@ -4418,7 +4427,7 @@
   bottom sheet's 'side-sheet' look: --side-sheet-padding (24) at the start and end; the close icon's glyph 24 from the top
   and the end edge, 12 from the headline (its 48 button holds 12 round the glyph, so the header's top and end padding is
   --side-sheet-padding less that, with no gap); the actions at least 72 high, 16 above and 24 below (not less than
-  the safe area), at the start. Headline and close icon in on-surface-variant (--on-surface-variant).
+  the safe area), at the start. Headline and close icon in on-surface-variant (--mo-on-surface-variant).
 */
 @layer components {
   /* A setting's row (SettingRow.tsx): the name and the line under it, then what sets it, on one line; the switch's
@@ -4502,7 +4511,7 @@
     place-items: center;
     border-radius: 9999px;
     background: var(--switch-handle-surface, var(--block-surface));
-    box-shadow: var(--switch-handle-shadow, var(--elevation-1-rest-shadow));
+    box-shadow: var(--switch-handle-shadow, var(--mo-elevation-1-rest-shadow));
     color: var(--switch-icon-color, var(--block-muted));
     pointer-events: none;
     translate: -50% -50%;
@@ -4809,7 +4818,7 @@
     border: var(--slider-handle-line-width, 0.1875rem) solid var(--slider-handle-line, var(--block-surface));
     border-radius: var(--slider-handle-radius, 9999px);
     background: var(--slider-handle-surface, var(--block-accent));
-    box-shadow: var(--slider-handle-shadow, var(--elevation-1-rest-shadow));
+    box-shadow: var(--slider-handle-shadow, var(--mo-elevation-1-rest-shadow));
     pointer-events: auto;
     cursor: grab;
   }
@@ -4820,7 +4829,7 @@
     border: var(--slider-handle-line-width, 0.1875rem) solid var(--slider-handle-line, var(--block-surface));
     border-radius: var(--slider-handle-radius, 9999px);
     background: var(--slider-handle-surface, var(--block-accent));
-    box-shadow: var(--slider-handle-shadow, var(--elevation-1-rest-shadow));
+    box-shadow: var(--slider-handle-shadow, var(--mo-elevation-1-rest-shadow));
     pointer-events: auto;
     cursor: grab;
   }
@@ -4946,7 +4955,7 @@
     flex-direction: column;
     flex-shrink: 0;
     overflow: hidden;
-    background: var(--side-sheet-surface, var(--elevation-0-surface));
+    background: var(--side-sheet-surface, var(--mo-elevation-0-color));
     color: var(--block-text);
   }
   .side-sheet-container[hidden] {
@@ -4960,8 +4969,8 @@
     height: 100%;
     border-start-start-radius: var(--side-sheet-radius, var(--block-radius));
     border-end-start-radius: var(--side-sheet-radius, var(--block-radius));
-    background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--elevation-1-surface)));
-    box-shadow: var(--side-sheet-shadow, var(--elevation-1-rest-shadow));
+    background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--mo-elevation-1-color)));
+    box-shadow: var(--side-sheet-shadow, var(--mo-elevation-1-rest-shadow));
   }
   /* M3's measures run to the close icon's glyph, and its button holds the space round the glyph (--side-sheet-icon-inset),
      so the header takes that off its top and end padding and has no gap: 24 from the top and the end edges to the glyph,
@@ -5401,7 +5410,7 @@
     font-size: var(--snackbar-font-size, var(--type-body-medium-size));
     letter-spacing: var(--type-body-medium-tracking);
     line-height: var(--snackbar-line-height, var(--type-body-medium-line-height));
-    box-shadow: var(--snackbar-shadow, var(--elevation-3-rest-shadow));
+    box-shadow: var(--snackbar-shadow, var(--mo-elevation-3-rest-shadow));
     -webkit-backdrop-filter: var(--snackbar-backdrop, blur(8px));
     backdrop-filter: var(--snackbar-backdrop, blur(8px));
     -webkit-user-select: none;
@@ -5485,7 +5494,7 @@
     border-radius: var(--tooltip-plain-radius, 0.5rem);
     background: var(--tooltip-plain-surface, var(--block-text));
     padding: var(--tooltip-plain-padding, 0.25rem 0.5rem);
-    color: var(--tooltip-plain-text, var(--surface));
+    color: var(--tooltip-plain-text, var(--mo-surface));
     font-size: var(--tooltip-plain-font-size, var(--type-body-small-size));
     letter-spacing: var(--type-body-small-tracking);
     font-weight: var(--tooltip-plain-weight, var(--type-body-small-weight));
@@ -5500,7 +5509,7 @@
     gap: 0.25rem;
     translate: var(--tooltip-shift, 0px) 0;
     border-radius: var(--tooltip-rich-radius, var(--block-radius-small));
-    background: var(--tooltip-rich-surface, var(--elevation-2-surface));
+    background: var(--tooltip-rich-surface, var(--mo-elevation-2-color));
     padding: var(--tooltip-rich-padding, 0.75rem 1rem);
     color: var(--tooltip-rich-text, var(--block-muted));
     font-size: var(--type-body-medium-size);
@@ -5509,7 +5518,7 @@
     letter-spacing: var(--type-body-medium-tracking);
     box-shadow:
       0 0 0 1px var(--tooltip-rich-line, var(--block-line)),
-      var(--tooltip-rich-shadow, var(--elevation-2-rest-shadow));
+      var(--tooltip-rich-shadow, var(--mo-elevation-2-rest-shadow));
   }
   .tooltip-subhead {
     color: var(--tooltip-rich-subhead, var(--block-text));
@@ -5778,7 +5787,7 @@
     background: var(--navigation-bar-surface, var(--block-surface));
     box-shadow:
       inset 0 1px 0 var(--navigation-bar-line, var(--block-line)),
-      var(--navigation-bar-shadow, var(--elevation-0));
+      var(--navigation-bar-shadow, var(--mo-elevation-0-shadow));
   }
   .navigation-bar-item {
     display: flex;
@@ -5985,7 +5994,7 @@
     overflow: hidden;
     border-radius: var(--navigation-rail-radius, 0);
     padding: var(--navigation-rail-padding, 1rem 0.75rem);
-    background: var(--navigation-rail-surface, var(--elevation-0-surface));
+    background: var(--navigation-rail-surface, var(--mo-elevation-0-color));
     box-shadow: inset -1px 0 0 var(--navigation-rail-line, var(--block-line));
     transition:
       width var(--motion-spatial),
@@ -6006,8 +6015,8 @@
     margin-inline-end: calc(var(--navigation-rail-width, 5.5rem) - var(--navigation-rail-expanded-width, 16rem));
     border-start-end-radius: var(--navigation-rail-modal-radius, var(--block-radius));
     border-end-end-radius: var(--navigation-rail-modal-radius, var(--block-radius));
-    background: var(--navigation-rail-modal-surface, var(--elevation-2-surface));
-    box-shadow: var(--navigation-rail-modal-shadow, var(--elevation-2-rest-shadow));
+    background: var(--navigation-rail-modal-surface, var(--mo-elevation-2-color));
+    box-shadow: var(--navigation-rail-modal-shadow, var(--mo-elevation-2-rest-shadow));
   }
   .navigation-rail-scrim {
     position: fixed;
@@ -6196,7 +6205,7 @@
     color: var(--search-bar-text, var(--block-text));
     box-shadow:
       inset 0 0 0 1px var(--search-bar-line, var(--block-line)),
-      var(--search-bar-shadow, var(--elevation-0));
+      var(--search-bar-shadow, var(--mo-elevation-0-shadow));
     transition: background-color var(--motion-effects);
   }
   .search-bar:has(> .search-bar-field:hover) {
@@ -6261,7 +6270,7 @@
   .search-bar:has(.search-bar-input:focus-visible) {
     box-shadow:
       inset 0 0 0 2px var(--block-accent),
-      var(--search-bar-shadow, var(--elevation-0));
+      var(--search-bar-shadow, var(--mo-elevation-0-shadow));
   }
   /* The view: over the whole screen on a phone; docked from the medium width, where the bar is (search.script.ts sets where), and
      as the editor draws it. */
@@ -6275,7 +6284,7 @@
     overflow: hidden;
     border: 0;
     padding: 0;
-    background: var(--search-view-surface, var(--elevation-3-surface));
+    background: var(--search-view-surface, var(--mo-elevation-3-color));
     color: var(--block-text);
   }
   .search-view[open] {
@@ -6294,7 +6303,7 @@
     border-radius: var(--search-view-radius, var(--block-radius));
     box-shadow:
       0 0 0 1px var(--search-view-line, var(--block-line)),
-      var(--search-view-shadow, var(--elevation-3-rest-shadow));
+      var(--search-view-shadow, var(--mo-elevation-3-rest-shadow));
   }
   .search-view-docked {
     inset: var(--search-view-top) auto auto var(--search-view-left);
@@ -6380,7 +6389,7 @@
     padding: var(--toolbar-floating-padding, 0.5rem);
     box-shadow:
       0 0 0 1px var(--toolbar-floating-line, var(--block-line)),
-      var(--toolbar-floating-shadow, var(--elevation-3-rest-shadow));
+      var(--toolbar-floating-shadow, var(--mo-elevation-3-rest-shadow));
   }
   .toolbar-vertical {
     flex-direction: column;
@@ -6568,7 +6577,7 @@
     border-radius: var(--date-picker-docked-radius, var(--dialog-radius, var(--block-radius)));
     box-shadow:
       0 0 0 1px var(--dialog-line, var(--block-line)),
-      var(--date-picker-docked-shadow, var(--dialog-shadow, var(--elevation-3-rest-shadow)));
+      var(--date-picker-docked-shadow, var(--dialog-shadow, var(--mo-elevation-3-rest-shadow)));
   }
   .date-picker-header {
     padding: 1rem 0.75rem 0.75rem 1.5rem;
@@ -6785,7 +6794,7 @@
 
   /* The input mode: the theme's text fields, on the dialog's surface (behind an outlined field's name too). */
   .date-picker-input {
-    --text-field-label-surface: var(--dialog-surface, var(--elevation-3-surface));
+    --text-field-label-surface: var(--dialog-surface, var(--mo-elevation-3-color));
     display: grid;
     gap: 1rem;
     padding: 1.25rem 0.75rem 0.5rem;
@@ -7019,8 +7028,8 @@
     background: color-mix(in srgb, var(--block-text) 8%, transparent);
   }
   .time-picker-period-button[aria-pressed='true'] {
-    background: var(--time-picker-period-selected-surface, var(--primary-container));
-    color: var(--time-picker-period-selected-text, var(--on-primary-container));
+    background: var(--time-picker-period-selected-surface, var(--mo-primary-container));
+    color: var(--time-picker-period-selected-text, var(--mo-on-primary-container));
   }
   .time-picker-period-button:focus-visible {
     outline: 2px solid var(--block-accent);

@@ -10,7 +10,7 @@
 :root {
   /* The colour of the shade over the page behind a pop-up (the dialog's scrim, ui.css) and the navigation drawer
      (ui.css), seen through: the text's, in dark mode the page's. */
-  --theme-scrim-colour: var(--on-surface);
+  --theme-scrim-colour: var(--mo-on-surface);
   /* The large picture at the top of a page or a blog post, and the newest post's on the blog. */
   --theme-picture-radius: var(--radius);
   /* How long one page fades into the next when a link is followed (below). */
@@ -32,7 +32,7 @@
   --theme-logo-tile: transparent;
   --theme-logo-tile-padding: 0;
   --theme-logo-tile-radius: 0;
-  --theme-logo-mark: var(--primary);
+  --theme-logo-mark: var(--mo-primary);
   --theme-logo-mark-scale: 1;
   --theme-logo-name-weight: 500;
   --theme-logo-name-size: 1em;
@@ -56,12 +56,12 @@
    --navigation-drawer-scrim (ui.css) in its :root, and they hold in both modes. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --theme-scrim-colour: var(--surface);
+    --theme-scrim-colour: var(--mo-surface);
   }
 }
 
 :root[data-theme='dark'] {
-  --theme-scrim-colour: var(--surface);
+  --theme-scrim-colour: var(--mo-surface);
 }
 
 @layer components {

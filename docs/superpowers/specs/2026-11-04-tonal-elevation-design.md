@@ -2,6 +2,8 @@
 
 Date: 2026-11-04. Status: designed. Plan: `docs/superpowers/plans/2026-11-04-tonal-elevation.md`.
 
+Note, 2026-11-10: the tokens below are now `--mo-elevation-N-color` (was `--elevation-N-surface`), `--mo-elevation-N-shadow` (was `--elevation-N`) and `--mo-elevation-N-rest-shadow`, and the colours they read have the prefix `--mo-` (`--mo-surface-container-low`).
+
 ## Goal
 
 Each elevation level gives a part a colour and a shadow. The base follows Material 3. The Material theme shows

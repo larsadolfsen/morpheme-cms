@@ -1602,7 +1602,7 @@ export const subListClass = `${siteListClass} ml-5 border-l border-outline-varia
 export type RowTone = 'accent' | 'delete' | 'muted' | 'sub';
 const toneClass: Record<RowTone, string> = {
   accent: 'text-primary',
-  delete: 'justify-center text-center font-medium text-(--error)',
+  delete: 'justify-center text-center font-medium text-(--mo-error)',
   muted: 'text-on-surface-variant',
   sub: 'text-on-surface/80',
 };
@@ -2043,10 +2043,10 @@ export function Preview({ children }: { children: ReactNode }) {
 export function ColorsPreview({ colors, title }: { colors: Record<string, string>; title: string }) {
   const p = t.colors.preview;
   const vars = {
-    ...Object.fromEntries(Object.entries(colors).map(([name, value]) => [`--${name}`, value])),
-    '--button-filled-surface': 'var(--primary)',
-    '--button-filled-hover': 'color-mix(in srgb, var(--on-primary) 8%, var(--primary))',
-    '--button-filled-text': 'var(--on-primary)',
+    ...Object.fromEntries(Object.entries(colors).map(([name, value]) => [`--mo-${name}`, value])),
+    '--button-filled-surface': 'var(--mo-primary)',
+    '--button-filled-hover': 'color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary))',
+    '--button-filled-text': 'var(--mo-on-primary)',
   } as CSSProperties;
   return (
     <div
@@ -2833,7 +2833,7 @@ export function MainDrawer({
 // `footer` is the bottom slot: the destinations' box grows to fill the rail, and the slot (the last child in it) is pushed to its end.
 function MainRail({ label, onOpen, footer, children }: { label: string; onOpen: () => void; footer?: ReactNode; children: ReactNode }) {
   return (
-    <aside className="editor-main-rail-frame sticky top-0 z-10 h-dvh shrink-0 self-start bg-(--navigation-rail-surface,var(--surface)) pt-[env(safe-area-inset-top)]">
+    <aside className="editor-main-rail-frame sticky top-0 z-10 h-dvh shrink-0 self-start bg-(--navigation-rail-surface,var(--mo-surface)) pt-[env(safe-area-inset-top)]">
       <SiteNavigationRail
         label={label}
         menuLabel={t.library.openMenu}

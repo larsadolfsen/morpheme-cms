@@ -19,7 +19,7 @@ const attribute = (attributes, name) => {
   return value && value.replaceAll('&amp;', '&').replaceAll('&quot;', '"').replaceAll('&#39;', "'");
 };
 const declarations = (css) =>
-  Object.fromEntries([...(css ?? '').matchAll(/--([a-z][a-z0-9-]*):(#[0-9a-f]{6});/gi)].map(([, name, value]) => [name, value]));
+  Object.fromEntries([...(css ?? '').matchAll(/--mo-([a-z][a-z0-9-]*):(#[0-9a-f]{6});/gi)].map(([, name, value]) => [name, value]));
 
 const pages = [];
 for (const file of readdirSync(DIST, { recursive: true, encoding: 'utf8' }).filter((f) => f.endsWith('index.html'))) {
