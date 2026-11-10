@@ -2,6 +2,8 @@
 
 Status: design agreed with the owner on 2026-11-07. No code yet.
 
+> 2026-11-10: dashboards are kept in the existing `NOT_FOUND` namespace under `dashboard:<id>`; no `DASHBOARD` binding.
+
 ## Goal
 
 The editor's start screen becomes a dashboard of widgets. Each widget answers one question about the site.
@@ -30,7 +32,7 @@ Rejected: a file per person in the site repo (every change is a commit and a bui
 | `appSettingsPart` (`src/AppList.tsx`), `PartFields` (`src/PartFields.tsx`) | The settings form of a placed widget |
 | `ContinueCard` (`src/ContinueCard.tsx`) | Becomes the widget `cms:continue` |
 | `access`, `sessionToken` (`worker/session.js`) | Sign-in and repo access for the new Worker route |
-| KV bindings in `starter/wrangler.jsonc` | Pattern for the new binding `DASHBOARD` |
+| KV bindings in `starter/wrangler.jsonc` | The existing `NOT_FOUND` binding also keeps the dashboards (no new binding) |
 | `needsOf` (`src/store.ts`), `src/checkSite.ts` | Store and site checks learn the new field |
 | `APP_API` (`lib/contracts.mjs`), `docs/app-contract.md` | The contract version goes up; the contract doc describes widgets |
 | Status in the lists (`src/Library.tsx`: draft, unlisted, scheduled, `publishAt`) | Unfinished work and Blog rhythm read the same fields |
@@ -66,7 +68,7 @@ The full widget id is `<source>:<key>`. `source` is `cms` or the app id. App ids
 
 ### Stored dashboard (data)
 
-KV binding `DASHBOARD`, key `dashboard:<githubUserId>`. The GitHub user id is the numeric id, which survives login renames.
+KV binding `NOT_FOUND` (shared with the 404 counts, which use `404:` keys), key `dashboard:<githubUserId>`, no expiry. The GitHub user id is the numeric id, which survives login renames.
 
 ```ts
 type StoredDashboard = {

@@ -3,6 +3,8 @@
 // Kept in Workers KV (the binding NOT_FOUND in wrangler.jsonc), one key per address: how many times,
 // when first and last, and where the visitor came from. No IP address, no cookie: nothing about the
 // visitor, so it needs no consent. An address not seen for 90 days drops out by itself.
+// The namespace also holds `dashboard:<id>` entries (people's dashboards, dashboard.js): never list or purge the whole
+// namespace; only the `404:` keys are ours.
 // Without the binding (a preview of a branch) nothing is kept and the editor says so.
 //   GET    /api/not-found  the addresses, most visits first
 //   DELETE /api/not-found  { paths: [...] } takes them off the list (sent on, or not worth it)

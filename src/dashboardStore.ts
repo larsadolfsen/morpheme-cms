@@ -5,8 +5,8 @@ import { defaultDashboard, validDashboard } from './dashboard.mjs';
 import type { StoredDashboard, Placement } from './dashboard.mjs';
 import type { WidgetDefinition } from './widgets';
 
-/** The dashboard to show: the stored one, or the default when none is stored. A Worker without the DASHBOARD binding
- * (503 'no-storage', a site that has not got it yet) also gives the default: nothing can be saved there, so every visit
+/** The dashboard to show: the stored one, or the default when none is stored. A Worker without the NOT_FOUND store
+ * (503 'no-storage', such as a preview of a branch) also gives the default: nothing can be saved there, so every visit
  * starts from it. Any other failure throws. `ask` and `newId` are the browser's fetch and crypto.randomUUID by default. */
 export async function loadDashboard(
   ask: typeof fetch = (input, init) => fetch(input, init),
@@ -36,7 +36,7 @@ export function placementsOf(
   });
 }
 
-/** Why a save failed: `no-storage` (the site's Worker has no DASHBOARD binding yet), `invalid` (the Worker does not accept the
+/** Why a save failed: `no-storage` (the site's Worker has no NOT_FOUND store, as in a preview of a branch), `invalid` (the Worker does not accept the
  * layout), `too-big`, or `failed` (anything else, a network error too, with `status` 0). */
 export class DashboardSaveError extends Error {
   kind: 'no-storage' | 'invalid' | 'too-big' | 'failed';

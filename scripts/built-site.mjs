@@ -137,7 +137,7 @@ export const STORE_STATES = {
  * (`texts`: some with other texts), and waits until it has loaded the site. `store`: the state of the site's key to the
  * store (a key of STORE_STATES). `dashboard`: the fake /api/dashboard (the start screen's widgets): GET answers the last
  * saved layout, or none (the default widgets); each PUT is recorded in `saved` (the bodies as sent), unless `fail` is
- * 'no-storage': then it answers 503 {"error":"no-storage"}, as a Worker without the DASHBOARD binding. Change `fail`
+ * 'no-storage': then it answers 503 {"error":"no-storage"}, as a Worker without the NOT_FOUND store. Change `fail`
  * between steps of a check. */
 export async function openEditor(page, site, texts = {}, store = 'button', dashboard = { saved: [], fail: null }) {
   let state = STORE_STATES[store];

@@ -9,7 +9,7 @@ const [{ handleDashboard }] = await workerModules('dashboard.js');
 const problems = [];
 const expect = (ok, what) => ok || problems.push(what);
 
-/** KV, as much of it as the Worker uses, in a Map. */
+/** KV, as much of it as the Worker uses, in a Map: the NOT_FOUND namespace, which also keeps the 404 counts. */
 const kv = new Map();
 const KV = {
   get: async (key, type) => (kv.has(key) ? (type === 'json' ? JSON.parse(kv.get(key)) : kv.get(key)) : null),
@@ -39,7 +39,7 @@ const call = (token, init = {}, headers = {}) =>
       ...init,
       headers: { ...(token && { cookie: `editor_session=${token}` }), 'sec-fetch-site': 'same-origin', ...headers },
     }),
-    { DASHBOARD: KV },
+    { NOT_FOUND: KV },
     ask,
   );
 const put = (token, body, headers) => call(token, { method: 'PUT', body: typeof body === 'string' ? body : JSON.stringify(body) }, headers);
@@ -114,7 +114,7 @@ const noStorage = await handleDashboard(
   {},
   ask,
 );
-expect(noStorage.status === 503, 'a Worker without the binding DASHBOARD was not answered with 503');
+expect(noStorage.status === 503, 'a Worker without the NOT_FOUND store was not answered with 503');
 expect(
   calls.every((c) => new URL(c).host === 'api.github.com'),
   'something other than GitHub was asked',
