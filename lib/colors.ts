@@ -32,41 +32,56 @@ export function colorProblems(value: unknown, names: string[]): string[] {
   });
 }
 
-/** The names a file of colors had before its colors were Material 3's color roles, in the order to change them (the cards' `surface` goes before `bg` takes its name), and the role each is now (null:
- * Material has no such role, the file loses it). `bg` is the page, now Surface, and the cards' `surface` is now Surface
- * container lowest; `surface-default` is the old name of the page, `tint` is Surface container high and `accent-hover` is
- * drawn as a state layer. */
-const OLD_NAMES: [string, string | null][] = [
-  ['surface', 'surface-container-lowest'],
-  ['bg', 'surface'],
-  ['surface-default', null],
-  ['tint', 'surface-container-high'],
-  ['ink', 'on-surface'],
-  ['muted', 'on-surface-variant'],
-  ['line', 'outline-variant'],
-  ['accent', 'primary'],
-  ['accent-hover', null],
-  ['on-accent', 'on-primary'],
-  ['accent-container', 'primary-container'],
-  ['on-accent-container', 'on-primary-container'],
-];
+/** The names a file of colors had before its colors were Material 3's color roles, and the role each is now (null:
+ * Material has no such role, so a file loses it). The one place that knows the old names; every reader of a file of
+ * colors goes through `withMaterialNames`. The page (`bg`) is Material's Surface and the old cards' `surface` is Surface
+ * container lowest (the theme's cards read it), so a site keeps the page and the cards it had. `tint` was Surface
+ * container high already (its role under Colors). `surface-default` was the old name of Surface, which `bg` takes;
+ * `accent-hover` is no Material color, as Material draws a hover as a state layer. */
+export const LEGACY_NAMES: Record<string, string | null> = {
+  bg: 'surface',
+  surface: 'surface-container-lowest',
+  'surface-default': null,
+  tint: 'surface-container-high',
+  ink: 'on-surface',
+  muted: 'on-surface-variant',
+  line: 'outline-variant',
+  accent: 'primary',
+  'accent-hover': null,
+  'on-accent': 'on-primary',
+  'accent-container': 'primary-container',
+  'on-accent-container': 'on-primary-container',
+};
 
-/** The old names a file of colors still has, with the new name of each (null: delete it; also when the file has the new
- * one already), per mode, in the order of the mapping. `surface` is the old cards' color only beside `bg`. It reads the file
- * as it is and changes nothing. */
-export function oldColorNames(value: unknown): { mode: Mode; from: string; to: string | null }[] {
-  const colors = (value && typeof value === 'object' ? value : {}) as Partial<Record<Mode, unknown>>;
-  return MODES.flatMap((mode) => {
-    const set = colors[mode];
-    if (!set || typeof set !== 'object' || Array.isArray(set)) return [];
-    const has = (name: string) => Object.hasOwn(set, name);
-    return OLD_NAMES.filter(([from]) => has(from) && (from !== 'surface' || has('bg'))).map(([from, to]) => ({
-      mode,
-      from,
-      // The new name is free once the old one has gone (`bg` becomes Surface when the cards' `surface` is renamed).
-      to: to !== null && has(to) && to !== 'surface' ? null : to,
-    }));
-  });
+const isSet = (set: unknown): set is ColorSet => !!set && typeof set === 'object' && !Array.isArray(set);
+
+// A mode is in the old names when it has a key only the old names have. `surface` is no mark: Material has it too.
+const legacy = (set: unknown): boolean =>
+  isSet(set) && Object.keys(LEGACY_NAMES).some((name) => name !== 'surface' && Object.hasOwn(set, name));
+
+function renamed(set: ColorSet): ColorSet {
+  // Beside a `bg` the file's `surface` is the old cards' color; without one it is Material's Surface already.
+  const cards = Object.hasOwn(set, 'bg');
+  const out: ColorSet = {};
+  for (const [name, value] of Object.entries(set)) {
+    const to = name === 'surface' ? (cards ? LEGACY_NAMES.surface : name) : Object.hasOwn(LEGACY_NAMES, name) ? LEGACY_NAMES[name] : name;
+    if (to === null) continue;
+    // A new name the file has already is kept; the old name only fills where the new one is missing (`bg`'s Surface is
+    // free when the old cards' `surface` goes).
+    if (to !== name && Object.hasOwn(set, to) && !(to === 'surface' && cards)) continue;
+    out[to] = value;
+  }
+  return out;
+}
+
+/** A file of colors read as Material 3's roles: a mode written with the old names (it has `accent`, `ink`, `bg` …) has each
+ * color renamed, with the value it had (LEGACY_NAMES); one written with the new names is as it is, and the file itself
+ * is returned when no mode has an old name. A file half in each keeps its new names and takes an old one only where the
+ * new one is missing; old colors with no role are dropped. It changes nothing in the file it is given, and what it
+ * returns it returns as it is, so it is safe to call wherever a file is read, before `completeColors`. */
+export function withMaterialNames(colors: Colors): Colors {
+  if (!MODES.some((mode) => legacy(colors?.[mode]))) return colors;
+  return { ...colors, ...Object.fromEntries(MODES.filter((mode) => legacy(colors[mode])).map((mode) => [mode, renamed(colors[mode])])) };
 }
 
 // One mode's colours as CSS declarations. Only names and values that cannot be anything but a colour,
