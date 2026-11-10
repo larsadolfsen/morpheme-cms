@@ -4,7 +4,8 @@
 // out; the site that is out stays as it is; among it every theme (themeProblems, with the icon packs it brings) and
 // the system's icon packs and the choice of one (iconPackProblems), and so an icon the site or the editor draws that a
 // pack has none for, and the choice of motion scheme (motionProblems), and names in a folder that differ only in case
-// (casingProblems). Says too which of the site's texts the
+// (casingProblems), and the site settings (settingProblems: a value the site set that has the wrong shape stops; a
+// setting found in the old content, or a likely mistake, is only said, never a stop). Says too which of the site's texts the
 // editor has no translation of (@site/texts, a block's texts.ts); that does not stop the build, but a standard part's text with no Danish (defaults/i18n/da-DK/) does. The editor's
 // code is TypeScript and TSX, so it is loaded with Vite, as the site's own build does. Exits early, without checking, when
 // MORPHEME_CONTENT_CHECKED names the commit being built (morpheme ci-build already ran it; already-checked.mjs).
@@ -12,7 +13,8 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { config } from '../site/siteConfig.mjs';
+import { config, settings } from '../site/siteConfig.mjs';
+import { settingProblems } from '../lib/siteSettings.mjs';
 import { createServer } from 'vite';
 import {
   aliases,
@@ -190,6 +192,12 @@ result.problems.push(...casingProblems(tracked));
 result.problems.push(
   ...buildSettingsProblems(BUILD_SETTINGS_PATH, existsSync(BUILD_SETTINGS_PATH) ? readFileSync(BUILD_SETTINGS_PATH, 'utf8') : undefined),
 );
+
+// The site settings: a setting found in the content (the standard is another) is said once, never a stop.
+const found = settingProblems(config, settings, files);
+for (const { from, note } of settings.report) if (from === 'detected') console.log(note);
+for (const warning of found.warnings) console.warn(`Warning: ${warning}`);
+result.problems.push(...found.problems);
 
 if (result.problems.length) {
   console.error(`\nThe content does not follow the editor's rules (${result.problems.length}):\n`);

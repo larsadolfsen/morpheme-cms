@@ -39,3 +39,10 @@ declare module '@app/self' {
   const self: { readonly id: string };
   export default self;
 }
+
+// What the site's files tell the site settings: the files folders there are, the pages' addresses, the contact page's
+// text (detectFacts in lib/siteFacts.mjs, read when the site is built; site/settings.ts).
+declare module 'virtual:site-facts' {
+  const facts: { dirs: string[]; pageAddresses: string[]; contactText: string };
+  export default facts;
+}

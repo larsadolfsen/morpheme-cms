@@ -2,6 +2,8 @@
 // editor (/editor/, "Testimonials"). Each has its picture (optional), its tags (`categories`, the same tags as the blog posts,
 // src/data/categories/) and whether it is shown on the front page. `order` is the order on the
 // testimonials page and the front page (set with the arrows in the editor).
+import { settings } from './settings';
+
 type TestimonialData = {
   name: string;
   image?: string;
@@ -45,4 +47,5 @@ export const testimonials: Testimonial[] = Object.entries(files)
     frontPage: t.frontPage,
   }));
 
-export const testimonialsPath = '/udtalelser/';
+/** The address of the testimonials page (the site's setting, found when it is built). */
+export const testimonialsPath = settings.testimonialsPath;

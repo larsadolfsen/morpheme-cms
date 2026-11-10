@@ -16,6 +16,7 @@ import { config } from '@site/config';
 import { opensOf } from '@site/opens';
 import { differentPages, standardPages, standardPaths } from '@site/standardPages';
 import { twiceIn, upgradeSocial } from '../site/social.mjs';
+import { settings } from '../site/settings';
 
 const fm = (file: RepoFile) => readFields(splitFrontmatter(file.text).yaml);
 // A page's address: `path`, or /<file name>/ for pages made in the editor.
@@ -113,8 +114,8 @@ export function relationsOf(files: RepoFile[]): Record<Relation, Option[]> {
         ];
       })
       .sort(byLabel),
-    // The PDFs in "Files", by their address on the site (/filer/<name>.pdf), named by their file name.
-    files: inFolder(config.folders.files, '.pdf')
+    // The PDFs in "Files", by their address on the site (/files/<name>.pdf), named by their file name.
+    files: inFolder(settings.filesFolder, '.pdf')
       .map((f) => ({ value: f.path.replace(/^public/, ''), label: f.path.split('/').pop()! }))
       .sort(byLabel),
   };

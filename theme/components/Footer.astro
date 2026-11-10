@@ -17,7 +17,7 @@ const banner = cookieBanner;
 const contactLinks = [
   { href: site.phoneHref, icon: 'phone', lines: [site.phone] },
   { href: `mailto:${site.email}`, icon: 'envelope-simple', lines: [site.email] },
-  { href: `${site.contactPath}#find-vej`, icon: 'map-pin', lines: [site.address.street, site.address.city] },
+  { href: `${site.contactPath}#${site.contactAnchor}`, icon: 'map-pin', lines: [site.address.street, site.address.city] },
 ];
 ---
 
