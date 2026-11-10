@@ -44,7 +44,7 @@ Our ecosystem has two completely separate repositories, which must **never** be 
   - `src/`: React-based editor UI, screens, fields, state management (`store.ts`), live preview (`pagePreview.tsx`) and block registry (`blocks.ts`).
   - `pages/`: Astro pages and routing for the admin interface.
 - **`lib/`**: Shared helper functions used by both the editor and the site (block parsing `blocks.mjs`, image cropping `crop.mjs`, status, dates, video handling etc.).
-  - The app sandbox (contract 4): `appProblems.mjs` (the build's app problems, `dist/_apps/_problems.json`).
+  - The app sandbox (contract 4): `appHooks.mjs` (the hook places, `APP_HOOKS`), `appManifest.mjs` (reads and checks `app.json`), `appProblems.mjs` (the build's app problems, `dist/_apps/_problems.json`).
 - **`worker/`**: The site's default Cloudflare Worker (login/session, GitHub commit proxy, R2 backup, redirects and scheduled tasks).
 - **`bin/`**: The `morpheme` CLI tool for image processing, build hooks and validation.
 - **`release-notes/`**: Owner-facing release notes in English and Danish: cards (title, text and a screenshot per language) and lines. Each pull request writes `i18n/<locale>/pending/<id>.json` (and `<id>.webp` for a card); `release:version` moves them to `i18n/<locale>/<version>.json` and `i18n/<locale>/<version>/`. Writing rule: `.changeset/README.md`.
