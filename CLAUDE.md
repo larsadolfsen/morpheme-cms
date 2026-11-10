@@ -24,6 +24,11 @@ One session is the owner's project manager (PM). It is responsible for merging p
 nothing being left behind. The owner has handed it these decisions, so it does not ask the owner for permission to do
 work that is already assigned.
 
+**There is always a PM.** The owner always has a PM session running that handles merges; it is never left without one.
+Every other session opens its pull request, gets its `check` job green, reports the link and head sha to the PM and
+leaves the merge to it. A session never merges its own pull request, and never asks the owner to merge one. If a pull
+request waits and no PM seems to be running, the session tells the owner so, and the owner starts a new PM.
+
 **Merging.** The PM makes every merge decision, in this repository and in `morpheme-staging`. It squash-merges a pull
 request when all of this holds, one pull request at a time:
 
