@@ -38,9 +38,9 @@ import { ask, choose } from './ask';
 import { appsState, activeApps, installedApps, settingsFile, type SiteApp } from './apps';
 import { appsFileText, readAppsFile, withInstalled, withOff } from '../lib/appsFile.mjs';
 import { rivalsOf, withRivalsOff } from '../lib/appTypes.mjs';
+import { CATEGORIES, categoryOf } from '../lib/storeCategories.mjs';
 import { AnyIcon } from './icon';
 import {
-  appCategories,
   appChanges,
   appFolder,
   breaking,
@@ -79,14 +79,18 @@ import { busyFor } from './busyAction.mjs';
 
 export const appHref = (app: SiteApp) => `#apps/${app.id}`;
 
+/** Whether a screen (PartScreen.apps, or Part.apps of a part with parts) has the settings of apps of a category; an older
+ * id in its list (`payment`) counts as its new one (categoryOf), as it does in an app's own category. */
+export const inKinds = (screen: { apps?: AppCategory[] }, kind: AppCategory) => !!screen.apps?.some((k) => categoryOf(k).category === kind);
+
 /** The screen with an app's settings, by its kind, if any: one under "Indstillinger" ("Analytics", partScreens) or a
  * part of "Virksomheden" with parts ("Betaling", companyParts); its address and its name. */
 export function settingsHome(app: SiteApp): { route: string; label: string } | undefined {
-  const kind = app.category;
+  const kind = categoryOf(app.category).category;
   if (!kind) return undefined;
-  const screen = partScreens.find((s) => s.apps?.includes(kind));
+  const screen = partScreens.find((s) => inKinds(s, kind));
   if (screen) return { route: screen.id, label: screen.label };
-  const company = companyParts.find((p) => p.parts && p.apps?.includes(kind));
+  const company = companyParts.find((p) => p.parts && inKinds(p, kind));
   return company && { route: `company/${company.id}`, label: company.label };
 }
 
@@ -122,7 +126,10 @@ export function appPartsIn(screen: { apps?: AppCategory[] }, files: RepoFile[]):
   if (!screen.apps) return [];
   const installed = installedApps(files);
   return apps
-    .filter((a) => !!a.category && screen.apps!.includes(a.category) && installed.includes(a.id))
+    .filter((a) => {
+      const kind = categoryOf(a.category).category;
+      return !!kind && inKinds(screen, kind) && installed.includes(a.id);
+    })
     .flatMap((a) => appSettingsPart(a) ?? [])
     .sort((a, b) => byText(a.label, b.label));
 }
@@ -319,7 +326,7 @@ function allApps(catalog: ShownApp[] | null | 'failed') {
         label: a.label,
         hint: a.hint,
         publisher: a.publisher,
-        category: a.category,
+        category: categoryOf(a.category).category,
         words: [a.label, a.hint, a.publisher, ...(a.keywords ?? [])].join(' ').toLowerCase(),
         glyph: <LeadingIcon icon={a.icon} />,
       })),
@@ -422,7 +429,9 @@ function StoreScreen({ env, files, again }: { env: Env; files: RepoFile[]; again
   const connected = useStoreConnected(env);
   const [query, setQuery] = useKept('store-search', '');
   const [sort, pickSort] = useSort();
-  const [category, setCategory] = useKept<AppCategory | ''>('store-category', '');
+  const [kept, setCategory] = useKept<AppCategory | ''>('store-category', '');
+  // A category kept from before the categories were these (`payment`) is read as its new one; one that is gone is none.
+  const category = categoryOf(kept).category ?? '';
   const stateFilter = useStateFilter('store');
 
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
@@ -438,7 +447,7 @@ function StoreScreen({ env, files, again }: { env: Env; files: RepoFile[]; again
   const categoryGroup = {
     title: t.apps.categoryFilter,
     value: category,
-    options: [{ value: '', label: t.apps.allCategories }, ...appCategories.map((value) => ({ value, label: t.apps.categories[value] }))],
+    options: [{ value: '', label: t.apps.allCategories }, ...CATEGORIES.map((value) => ({ value, label: t.apps.categories[value] }))],
     onChange: (v: string) => setCategory(v as AppCategory | ''),
   };
   const categoryChip = category && { key: 'category', label: t.apps.categories[category], clear: () => setCategory('') };
@@ -547,11 +556,15 @@ export async function autoUpdate(env: Env, files: RepoFile[]) {
 
 /** Asks before an app of a one-app type (redirects, links) is activated while another one is: says the ids of the
  * apps to turn off (none when nothing is asked), or null when the user cancels. */
-async function confirmRivals(app: { id: string; label: string; category?: string }, files: RepoFile[]): Promise<string[] | null> {
+async function confirmRivals(
+  app: { id: string; label: string; category?: string; subcategory?: string },
+  files: RepoFile[],
+): Promise<string[] | null> {
   const rivals = rivalsOf(app, apps, activeApps(files));
   if (!rivals.length) return [];
   const others = rivals.map((id) => apps.find((a) => a.id === id)?.label ?? id);
-  const yes = await ask(t.apps.oneOfType(t.apps.categories[app.category as AppCategory], app.label, others.join(', ')), t.apps.activate);
+  const type = categoryOf(app.category, app.subcategory).subcategory as keyof typeof t.apps.subcategories;
+  const yes = await ask(t.apps.oneOfType(t.apps.subcategories[type], app.label, others.join(', ')), t.apps.activate);
   return yes ? rivals : null;
 }
 

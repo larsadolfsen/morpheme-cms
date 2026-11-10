@@ -98,21 +98,31 @@ export const apps = {
   storeBroken: (app: string) => `${app} couldn’t be loaded correctly from the Appstore`,
   /** At an address of an app the store does not have. */
   notInStore: 'The app isn’t in the Appstore',
-  /** The filters over the store (by category, and whether it is installed), each with its first choice, and the kinds
-   * of apps (store.ts appCategories). */
+  /** The filters over the store (by category, and whether it is installed), each with its first choice, and the main
+   * categories of apps (CATEGORIES in lib/storeCategories.mjs). */
   categoryFilter: 'Category',
   allCategories: 'All categories',
   stateFilter: 'Status',
   allStates: 'All',
   categories: {
-    booking: 'Booking',
-    newsletter: 'Newsletter',
-    payment: 'Payment',
     analytics: 'Analytics',
-    content: 'Content',
-    design: 'Appearance',
-    redirects: 'Redirects',
+    appearance: 'Appearance',
+    booking: 'Booking',
+    connectors: 'Connectors',
+    email: 'Email',
+    forms: 'Forms',
+    languages: 'Languages',
+    payments: 'Payments',
+    privacy: 'Privacy',
+    security: 'Security',
+    seo: 'SEO',
+    shop: 'Shop',
+    social: 'Social',
+  },
+  /** The types of apps (subcategories of SEO) of which a site runs one active app (lib/appTypes.mjs). */
+  subcategories: {
     links: 'Links',
+    redirects: 'Redirects',
   },
   /** Asked before an app of a type that allows one active app (redirects, links) is activated while another is. */
   oneOfType: (type: string, app: string, others: string) =>

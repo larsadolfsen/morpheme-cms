@@ -2777,7 +2777,11 @@ export function SectionPane({ caption, title, children }: { caption: string; tit
  * scrim, closing on a choice, the scrim, Escape or a swipe toward its edge, with focus on the first item when it opens
  * (lib/menu-layout.mjs). `variant` forces one of them, without the rail (the parts page does).
  * It has two levels when its children do (`MainDrawerSectionItem`, `MainDrawerBack`): `onEscape` is called for Escape and
- * answers true when it used the key (went back to the first level), so the modal drawer stays open; false lets it close. */
+ * answers true when it used the key (went back to the first level), so the modal drawer stays open; false lets it close.
+ * `footer` (a `MainDrawerItem`) is pinned at the bottom of the drawer, under the levels, after a divider, inside the <nav>
+ * and the drawer's panel, so it is in the arrow keys' list; the slot draws what it is given, so the caller passes it only
+ * while the level it belongs to is shown (the first level). `railFooter` (a `MainRailItem`) is the same in the collapsed
+ * rail, pinned at the bottom of it; it is drawn only where `rail` is. */
 export function MainDrawer({
   label,
   open,
@@ -2786,6 +2790,8 @@ export function MainDrawer({
   variant,
   rail,
   header,
+  footer,
+  railFooter,
   children,
 }: {
   label: string;
@@ -2795,6 +2801,8 @@ export function MainDrawer({
   variant?: 'modal' | 'standard';
   rail?: ReactNode;
   header?: ReactNode;
+  footer?: ReactNode;
+  railFooter?: ReactNode;
   children: ReactNode;
 }) {
   const layout = useMenuLayout();
@@ -2803,16 +2811,16 @@ export function MainDrawer({
   return (
     <>
       {railShown && (
-        <MainRail label={label} onOpen={() => onOpenChange(true)}>
+        <MainRail label={label} onOpen={() => onOpenChange(true)} footer={railFooter}>
           {rail}
         </MainRail>
       )}
       {shown === 'standard' ? (
-        <StandardMainDrawer label={label} open={open} onOpenChange={onOpenChange} onEscape={onEscape} header={header}>
+        <StandardMainDrawer label={label} open={open} onOpenChange={onOpenChange} onEscape={onEscape} header={header} footer={footer}>
           {children}
         </StandardMainDrawer>
       ) : (
-        <ModalMainDrawer label={label} open={open} onOpenChange={onOpenChange} onEscape={onEscape} header={header}>
+        <ModalMainDrawer label={label} open={open} onOpenChange={onOpenChange} onEscape={onEscape} header={header} footer={footer}>
           {children}
         </ModalMainDrawer>
       )}
@@ -2822,7 +2830,8 @@ export function MainDrawer({
 
 // The collapsed navigation rail (the theme's): sticky, the full height of the window with room for a phone's notch, with its
 // menu button at the top, which opens the drawer. Never expanded itself: the drawer is what expands (MainDrawer).
-function MainRail({ label, onOpen, children }: { label: string; onOpen: () => void; children: ReactNode }) {
+// `footer` is the bottom slot: the destinations' box grows to fill the rail, and the slot (the last child in it) is pushed to its end.
+function MainRail({ label, onOpen, footer, children }: { label: string; onOpen: () => void; footer?: ReactNode; children: ReactNode }) {
   return (
     <aside className="editor-main-rail-frame sticky top-0 z-10 h-dvh shrink-0 self-start bg-(--navigation-rail-surface,var(--mo-surface)) pt-[env(safe-area-inset-top)]">
       <SiteNavigationRail
@@ -2830,9 +2839,10 @@ function MainRail({ label, onOpen, children }: { label: string; onOpen: () => vo
         menuLabel={t.library.openMenu}
         expanded={false}
         onExpandedChange={onOpen}
-        className="editor-main-rail h-full"
+        className="editor-main-rail h-full [&_.navigation-rail-items]:flex-1"
       >
         {children}
+        {footer && <div className="mt-auto">{footer}</div>}
       </SiteNavigationRail>
     </aside>
   );
@@ -2856,9 +2866,20 @@ function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header
   );
 }
 
-// What is inside either drawer: the sections in a <nav>.
-function MainDrawerBody({ label, children }: { label: string; children: ReactNode }) {
-  return <nav aria-label={label}>{children}</nav>;
+// What is inside either drawer: the sections in a <nav>, a column the height of the panel, so `footer` (after the levels, under
+// the theme's divider) is pushed to the bottom.
+function MainDrawerBody({ label, footer, children }: { label: string; footer?: ReactNode; children: ReactNode }) {
+  return (
+    <nav aria-label={label} className="flex flex-1 flex-col">
+      <div>{children}</div>
+      {footer && (
+        <div className="mt-auto">
+          <SiteDivider kind="middle-inset" className="my-4" />
+          {footer}
+        </div>
+      )}
+    </nav>
+  );
 }
 
 // The standard drawer: beside the content, sticky, the full height of the window (room at the top for a phone's notch), with
@@ -2869,6 +2890,7 @@ function StandardMainDrawer({
   onOpenChange,
   onEscape,
   header,
+  footer,
   children,
 }: {
   label: string;
@@ -2876,6 +2898,7 @@ function StandardMainDrawer({
   onOpenChange: (open: boolean) => void;
   onEscape?: () => boolean;
   header?: ReactNode;
+  footer?: ReactNode;
   children: ReactNode;
 }) {
   if (!open) return null;
@@ -2889,7 +2912,9 @@ function StandardMainDrawer({
         }}
       >
         <MainDrawerMenuButton onClick={() => onOpenChange(false)} header={header} />
-        <MainDrawerBody label={label}>{children}</MainDrawerBody>
+        <MainDrawerBody label={label} footer={footer}>
+          {children}
+        </MainDrawerBody>
       </SiteNavigationDrawer>
     </aside>
   );
@@ -2903,6 +2928,7 @@ function ModalMainDrawer({
   onOpenChange,
   onEscape,
   header,
+  footer,
   children,
 }: {
   label: string;
@@ -2910,6 +2936,7 @@ function ModalMainDrawer({
   onOpenChange: (open: boolean) => void;
   onEscape?: () => boolean;
   header?: ReactNode;
+  footer?: ReactNode;
   children: ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -2947,7 +2974,7 @@ function ModalMainDrawer({
     >
       <SiteNavigationDrawer
         variant="modal"
-        className="editor-main-drawer-panel pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
+        className="editor-main-drawer-panel pt-[env(safe-area-inset-top)]"
         onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
           escaped.current = false;
           if (e.key === 'Escape' && onEscape?.()) {
@@ -2957,13 +2984,15 @@ function ModalMainDrawer({
         }}
       >
         <MainDrawerMenuButton onClick={() => onOpenChange(false)} header={header} />
-        <MainDrawerBody label={label}>{children}</MainDrawerBody>
+        <MainDrawerBody label={label} footer={footer}>
+          {children}
+        </MainDrawerBody>
       </SiteNavigationDrawer>
     </dialog>
   );
 }
 
-/** A destination in the main navigation rail: Home, a link; its icon (filled while `selected`) over its name. */
+/** A destination in the main navigation rail: Home, a link (also what goes in `railFooter`, the rail's bottom slot); its icon (filled while `selected`) over its name. */
 export function MainRailItem({ href, icon: Glyph, label, selected }: { href: string; icon: Icon; label: string; selected?: boolean }) {
   return <SiteNavigationRailItem href={href} icon={<Glyph weight={selected ? 'fill' : 'regular'} />} label={label} selected={selected} />;
 }

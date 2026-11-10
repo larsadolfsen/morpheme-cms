@@ -6,6 +6,7 @@
 import chosen from '@data/theme.json';
 import { STANDARD_THEME, type StoreRecord } from './store';
 import type { ThirdParty } from './licenseData';
+import type { Category } from '../lib/storeCategories.mjs';
 
 export type ThemeInfo = {
   /** Its folder in src/themes/, as saved in src/data/theme.json. */
@@ -20,6 +21,10 @@ export type ThemeInfo = {
    * pictures), on its page and under "Licenser" (@morphemecms/cms/lib/licenses.mjs). */
   license: string;
   thirdParty: ThirdParty[];
+  /** Its main category in the store ("category" in its theme.json: one of CATEGORIES in lib/storeCategories.mjs, for a
+   * theme `appearance`) and its subcategory of it ("subcategory": one SUBCATEGORIES lists for it; none yet). */
+  category?: Category;
+  subcategory?: string;
   /** The icon pack it uses while none is chosen ("icons" in its theme.json: a system pack, or one of its own by its
    * folder; packOfTheme in icons.ts gives its id). */
   icons?: string;
@@ -79,6 +84,8 @@ export const themes: ThemeInfo[] = Object.entries(manifests)
     icon: m.icon,
     license: m.license,
     thirdParty: m.thirdParty,
+    ...(m.category ? { category: m.category } : {}),
+    ...(m.subcategory ? { subcategory: m.subcategory } : {}),
     ...(m.icons ? { icons: m.icons } : {}),
     ...(m.motion ? { motion: m.motion } : {}),
     ...(m.templates ? { templates: m.templates } : {}),
