@@ -23,6 +23,12 @@ export const colors = {
   tooLow: (what: string, ratio: string, min: string) => `Contrast too low: ${what} (${ratio}, at least ${min}).`,
   /** checkSite.ts: a color in the file that is not one ('dark.accent: "rød"'). */
   notAColorAt: (where: string) => `Not a color: ${where}`,
+  /** checkSite.ts: a file of colors in the names from before Material 3's roles, once: `found` lists the names to change. */
+  oldNames: (found: string) =>
+    `The colors have the names from before Material 3. Rename them as listed, or make the colors again on the Colors screen. ${found}`,
+  /** One old name and its new one ('ink → on-surface'), or an old name to delete ('accent-hover'). */
+  oldNameTo: (from: string, to: string) => `${from} → ${to}`,
+  oldNameGone: (from: string) => `${from} (delete it)`,
   cannotSave: 'Some colors have too little contrast. Fix the ones marked in red.',
   unreadable: 'The colors couldn’t be read. The default colors are shown.',
   /** Dynamic color (Material 3): all the colors made from one source color. */
