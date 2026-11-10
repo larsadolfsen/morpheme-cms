@@ -16,10 +16,11 @@
   // Keep the variables added in the dashboard (Settings → Variables and secrets) on every deploy.
   "keep_vars": true,
   "observability": { "logs": { "enabled": true, "invocation_logs": true } },
-  // DASHBOARD: each person's dashboard on the editor's start screen (dashboard.js), declared without an "id" as in the
-  // starter, so `wrangler deploy` creates it the first time. No other KV, D1, R2 or crons: the Worker does without them
-  // (not-found.js, push.js, consent.js), and the demo's made-up repository gets no scheduled commits.
-  "kv_namespaces": [{ "binding": "DASHBOARD" }],
+  // DASHBOARD: each person's dashboard on the editor's start screen (dashboard.js). The starter declares it without an
+  // "id", so `wrangler deploy` creates it the first time; the demo's first deploy did (morpheme-demo-dashboard), and the
+  // deploys after it failed on Cloudflare, so the demo binds that namespace by its id. No other KV, D1, R2 or crons: the
+  // Worker does without them (not-found.js, push.js, consent.js), and the demo's made-up repository gets no scheduled commits.
+  "kv_namespaces": [{ "binding": "DASHBOARD", "id": "a944a708b0c1494d87f93d0f4e07e106" }],
   // Builds of other branches than main run `wrangler preview`, which needs this block.
   "previews": {},
   // Cloudflare's builds of other branches have no build command of their own, so wrangler builds the demo first.
