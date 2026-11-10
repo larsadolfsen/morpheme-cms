@@ -726,7 +726,7 @@ function Editor() {
   );
 }
 
-/** The part whose form is at an address (CompanyForm.tsx): one of "Virksomheden"'s (or of its parts', with the settings of the apps of their kinds), "Søgemaskineoptimering"'s, "Udseende"'s, or one on a screen of parts with
+/** The part whose form is at an address (CompanyForm.tsx): one of "Business"'s (or of its parts', with the settings of the apps of their kinds), "Search engine optimization"'s, "Appearance"'s, or one on a screen of parts with
  * the settings of the apps of its kinds ("Analytics"). */
 function partAt(route: string, files: RepoFile[]): Part | null {
   // company/<part>, or company/<part>/<its part> (Part.parts).
@@ -816,7 +816,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (shownApp || /^apps\/[^/]+$/.test(route)) {
     return <StoreAppPage key={route} id={route.split('/')[1]} env={env} files={files} />;
   }
-  // A screen of an app's own under its page, while it is installed (Cookiescanner's "Blokeret adresse").
+  // A screen of an app's own under its page, while it is installed (Cookiescanner's "Blocked address").
   const [, screenApp, screenId, ...deeper] = route.split('/');
   const ownScreen =
     route.startsWith('apps/') && !deeper.length && apps.find((a) => a.id === screenApp && screenId && a.screens?.[screenId]);

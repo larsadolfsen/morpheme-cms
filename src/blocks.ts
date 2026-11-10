@@ -38,7 +38,7 @@ export type SiteBlock = {
   /** Drawn in its sheet above the fields, as it is with them now (BlockDialog.tsx): the buttons,
    * which are the shared ones until it has its own. */
   preview?: boolean;
-  /** Its fields filled in as an example, for its preview under "Blokindstillinger" when it is on no
+  /** Its fields filled in as an example, for its preview under "Block settings" when it is on no
    * page (BlockSettings.tsx). Without it, exampleOf fills them in from their names. */
   example?: BlockProps;
   /** Before its name where it is picked (BlockDialog.tsx). */
@@ -73,7 +73,7 @@ export type BlockData = {
   page?: { file: string; values: Record<string, unknown> };
 };
 
-// Fields filled in as an example from what they are: a text with its name ("Overskrift"), a choice
+// Fields filled in as an example from what they are: a text with its name ("Heading"), a choice
 // with its default or first option, a page or post with the first ones there are, a list with three
 // items; a date or a picture stays empty.
 function exampleFields(fields: Field[], data: BlockData): BlockProps {

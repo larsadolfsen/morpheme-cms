@@ -95,14 +95,14 @@ type Shown = {
  * of its kind of a list, one of its lists, its settings or its own page. */
 export function shotOf(shows: string, app: Shown, blocks: string[]): boolean {
   const [what, key = '', n] = shows.split(':');
-  if (what === 'blok') return blocks.includes(key);
+  if (what === 'blok') return blocks.includes(key); // language-ok: a stored id of an app's screenshot
   if (what === 'slags') {
     const kind = app.kinds?.[key];
     return !!kind && /^\d+$/.test(n ?? '') && Number(n) < Math.max(1, kind.variants?.length ?? 0);
   }
   if (what === 'liste') return !!app.lists?.some((l) => l.id === key);
   if (what === 'indstillinger') return !!app.settings && !key;
-  return what === 'side' && !!app.page && !key;
+  return what === 'side' && !!app.page && !key; // language-ok: a stored id of an app's screenshot
 }
 
 /** The file of an app's picture in its screenshots/, by its place among them and what it shows. */

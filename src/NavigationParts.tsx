@@ -1,4 +1,4 @@
-// "Parts" › "UI-komponenter" (BlockParts.tsx), the group "Navigation": the theme's parts of the header (packages/editor/theme/ui/,
+// "Parts" › "UI components" (BlockParts.tsx), the group "Navigation": the theme's parts of the header (packages/editor/theme/ui/,
 // through @site/editor) as the site draws them, with made-up pages: the top app bar as the site's header has it (at the
 // top and once the page scrolls under it) and in its kinds (search, small, medium and large flexible, at the start and
 // in the middle, with a subtitle, a long headline and collapsed), a menu (the header's pages, and actions in both
@@ -6,7 +6,7 @@
 // line, and a submenu drawn open), a dropdown menu closed and drawn open, the exposed dropdown menu in both kinds in
 // every state, the navigation drawer with an item's sub-pages unfolded, and the standard one with sections, icons and counts,
 // in two levels (items with a trailing arrow, and the back row over a list), the tabs (only the text, as the bar of
-// "Mobilmenu", and primary and secondary, fixed and scrollable, with icons over and beside their labels, badges, and a
+// "Mobile menu", and primary and secondary, fixed and scrollable, with icons over and beside their labels, badges, and a
 // tab list with a tab that cannot be chosen), and the FABs and extended FABs in their colours and sizes, an extended
 // FAB also collapsed. Only drawn: the links lead nowhere, and nothing opens.
 import { Fragment } from 'react';

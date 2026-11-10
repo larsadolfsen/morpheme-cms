@@ -22,7 +22,7 @@ export function nameOf(collection: Collection | undefined, file: { path: string;
   return fileName(file.path);
 }
 
-/** A kind or a label inside a sentence: "Side" as "side", but "SEO" as it is. */
+/** A kind or a label inside a sentence: "Page" as "page", but "SEO" as it is. */
 export const lower = (s: string) => (/^\p{Lu}\p{Lu}/u.test(s) ? s : s.charAt(0).toLocaleLowerCase(locale) + s.slice(1));
 const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
 

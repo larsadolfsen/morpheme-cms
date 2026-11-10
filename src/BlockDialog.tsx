@@ -1,14 +1,14 @@
 // The dialog for the site's blocks in the text (src/apps/<app>/blocks/): which block to put in where the cursor is,
-// and its fields, for a new block and when "Ret" is tapped on one in the text. A sheet from the bottom
+// and its fields, for a new block and when "Edit" is tapped on one in the text. A sheet from the bottom
 // on a phone, a dialog on a computer, like the page picker. The fields are the editor's own (fields.tsx),
 // so it must be inside the form's Fields.Provider. list: the blocks of this text (the site's blocks on a
-// page, the sections on a fixed page). Over the blocks to choose from, as under "Standardblokke" (Library.tsx):
-// the search, the order (A–Å, Å–A or by group, kept in this browser) and the funnel with the filter by group
+// page, the sections on a fixed page). Over the blocks to choose from, as under "Standard blocks" (Library.tsx):
+// the search, the order (A–Z, Z–A or by group, kept in this browser) and the funnel with the filter by group
 // (the standard blocks, each app's under its name), the one picked as a chip. Also the sheet of a section's
-// settings (its colour, SectionSettings.tsx), which goes the same way as a block's fields: Annuller, Gem, the question when closed changed.
+// settings (its colour, SectionSettings.tsx), which goes the same way as a block's fields: Cancel, Save, the question when closed changed.
 // The fields and the section settings are in the theme's side sheet (sheetPlacement.mjs): a standard one beside the page from
 // expanded (not modal: the page stays usable, .editor-side-sheet in editor.css), a modal one over the page below it
-// (fields only; the section settings are a sheet from the bottom there). Both end with Gem (Indsæt) and Annuller.
+// (fields only; the section settings are a sheet from the bottom there). Both end with Save (Insert) and Cancel.
 // Their open, close, focus and Escape are the theme's (sideSheet() and standardSideSheet(), sideSheetControl.ts); leave() is their beforeClose.
 // Another block tapped while one is open closes the open one first (the question when changed). In the standard side sheet a
 // card already in the text also has "Remove" after Cancel in the actions (the answer 'remove'). Exposes useBlockDialog, IMAGE.
@@ -60,7 +60,7 @@ export type BlockAsk = {
    * than once, unless the template says how many (have: the types in the text now, one for each, IMAGE for a picture).
    * image: a picture is offered first, and chosen as the type IMAGE. */
   choose: (offer?: { image?: boolean; have?: string[] }) => Promise<{ type: string; props: BlockProps } | null>;
-  /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Indsæt"). removable: the
+  /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Insert"). removable: the
    * card may be removed, so the side panel has "Remove"; 'remove' when it is tapped (never when removable is not true). */
   edit: (type: string, props: BlockProps, isNew?: boolean, removable?: boolean) => Promise<BlockProps | 'remove' | null>;
   /** The settings of the section the cursor is in (now its colour; null: none); the new ones, or null when cancelled. */
@@ -304,7 +304,7 @@ export function useBlockDialog(
   }
 
   // Closed (Annuller, the cross, a swipe down, Esc, a tap beside it) with the fields changed: the owner is
-  // asked whether to keep them ("Indsæt", "Gem"), leave them or stay.
+  // asked whether to keep them ("Insert", "Save"), leave them or stay.
   // true when it has closed (not when the owner stays in it, or a field keeps it from being saved).
   async function leave(): Promise<boolean> {
     const finish = (a: Answer) => {
@@ -365,7 +365,7 @@ export function useBlockDialog(
   const found = offered
     .filter((b) => plain(`${b.label} ${b.hint ?? ''}`).includes(q) && (!shownGroup || groupOf(b) === shownGroup))
     .sort((a, b) => (shownSort === 'za' ? -1 : 1) * byText(a.label, b.label));
-  // Under the group's name, or A–Å or Å–A under the first letter of their names (headed, from HEADINGS_FROM).
+  // Under the group's name, or A–Z or Z–A under the first letter of their names (headed, from HEADINGS_FROM).
   const headings =
     shownSort === 'group'
       ? groupNames
@@ -375,7 +375,7 @@ export function useBlockDialog(
       : headed(found, (b) => letterOf(b.label));
   const title = open?.step === 'section' ? t.text.sectionSettings : block ? block.label : t.blocks.insert;
   const sectionSettings = <SectionSettings color={String(values.color ?? '')} onChange={(color) => setValues({ color })} />;
-  // A side sheet (the same markup, standard or modal): the block's fields or the section settings, with Gem (Indsæt) and Annuller.
+  // A side sheet (the same markup, standard or modal): the block's fields or the section settings, with Save (Insert) and Cancel.
   const sideSheetOf = (kind: 'standard' | 'modal') =>
     open &&
     (open.step === 'section' || block) && (

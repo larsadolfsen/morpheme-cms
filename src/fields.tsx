@@ -191,7 +191,7 @@ function pageGroups(field: Field, context: FieldContext, options = context.relat
 }
 
 /** Fields that pick a page (`relation` to pages) as the rows of a list (Group), each with its name and the page picked,
- * that open the sheet with the pages, titled with its name and its hint under it (PageListItem): "Standardsider"
+ * that open the sheet with the pages, titled with its name and its hint under it (PageListItem): "Default pages"
  * (Part.rows). Marked as the other fields are (WrongField). */
 export function FieldRows({
   fields,
@@ -350,7 +350,7 @@ function FieldControl({ field, value, onChange }: Props) {
         break;
       }
       {
-        // Not chosen ("Ingen"), unless a choice is itself the empty value (the price card's "Book en tid").
+        // Not chosen ("None"), unless a choice is itself the empty value (the price card's "Book an appointment").
         const none = !field.required && !offered.some((o) => o.value === '');
         const options = none ? [{ value: '', label: t.forms.noChoice }, ...offered] : offered;
         inside = true;
@@ -577,7 +577,7 @@ function MarkdownField({ value, onChange }: { value: string; onChange: (v: unkno
   );
 }
 
-// The same with the blocks its template allows (Field.template: a "Banner"'s picture and "Knapper"), put in with "+"
+// The same with the blocks its template allows (Field.template: a "Banner"'s picture and "Buttons"), put in with "+"
 // as in a page's text, in the sheet of the blocks (BlockDialog.tsx) over the sheet or form the field is in. A picture
 // only when the template has 'image', without a format or crop of its own.
 function MarkdownWithBlocks({ value, template, onChange }: { value: string; template: Template; onChange: (v: unknown) => void }) {
@@ -612,7 +612,7 @@ function MarkdownWithBlocks({ value, template, onChange }: { value: string; temp
 // pills like the filters in Files, a tap on one takes it away, and a last pill ("Add tag",
 // Field.add) opens a sheet from the bottom with all the choices, where a tap picks one or takes it
 // away again (the sheet stays open, so more can be picked). With many choices it has a search; at
-// the bottom, the link to make a new one (Field.edit, "Opret et tag"). A picked value that is
+// the bottom, the link to make a new one (Field.edit, "Create a tag"). A picked value that is
 // not among the choices (a removed category) is still shown, so it is not lost.
 function MultiRelation({
   field,

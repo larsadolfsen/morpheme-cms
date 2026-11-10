@@ -959,7 +959,7 @@ export function FormField({
 }
 
 /** Yes or no with a tick, its name after it and what it does under the name. Something that is turned
- * on and off (Vis/Skjul) is a SwitchRow instead. */
+ * on and off (Show/Hide) is a SwitchRow instead. */
 export function Checkbox({
   label,
   hint,
@@ -1063,7 +1063,7 @@ export function IconPicker({
   );
 }
 
-/** A picture: a small one of it (`src`), the button that picks one, from Filer or a new one, or another,
+/** A picture: a small one of it (`src`), the button that picks one, from Files or a new one, or another,
  * and with `onRemove` (when it may be left out) the button that takes it away. */
 export function ImagePick({ id, src, onPick, onRemove }: { id?: string; src?: string; onPick: () => void; onRemove?: () => void }) {
   return (
@@ -1092,7 +1092,7 @@ export function FoldList({ ref, children }: { ref?: Ref<HTMLUListElement>; child
 }
 
 /** An item of a FoldList: its title, which folds it out and in, the buttons at its right (`tools`: the
- * arrows, Fjern), and its fields while it is open. */
+ * arrows, Remove), and its fields while it is open. */
 export function FoldItem({
   title,
   open,
@@ -1334,7 +1334,7 @@ export function ArrowLink({
 // Switches
 
 /** The theme's switch (Material 3's) on its own, at the end of a row that names it (a block's row on its app's page,
- * AppList.tsx): its name (`label`) only for screen readers, what it is (`texts`: Til, Fra) before it. */
+ * AppList.tsx): its name (`label`) only for screen readers, what it is (`texts`: On, Off) before it. */
 export function Switch({
   selected,
   label,
@@ -1362,7 +1362,7 @@ export function Switch({
 }
 
 /** The theme's switch with its name before it, on one line: the only way the editor shows one, with what it does under
- * the name (`hint`) and what it is (`texts`: Til, Fra) before the switch. Never in a frame or a card: no border,
+ * the name (`hint`) and what it is (`texts`: On, Off) before the switch. Never in a frame or a card: no border,
  * background or ring around the name and the switch (CLAUDE.md). The only switch without it: at the end of a block's
  * row on its app's page (Switch, AppList.tsx). */
 export function SwitchRow({ label, hint, selected, texts, disabled, onChange }: Parameters<typeof Switch>[0] & { hint?: ReactNode }) {
@@ -1500,7 +1500,7 @@ export function ChoiceTile({
   );
 }
 
-/** The theme's segmented button: two or three choices of a setting side by side (Konto › Udseende), each with its name
+/** The theme's segmented button: two or three choices of a setting side by side (Account › Appearance), each with its name
  * and an icon, the chosen one marked. */
 export function SegmentedButton<T extends string>({
   label,
@@ -1595,7 +1595,7 @@ export function ChoiceCards<T extends string>({
  * lighter. */
 export const subListClass = `${siteListClass} ml-5 border-l border-outline-variant`;
 
-/** What a row looks like besides the theme's list item: `accent`, a row that does something (Log ud), in the accent
+/** What a row looks like besides the theme's list item: `accent`, a row that does something (Log out), in the accent
  * colour; `delete`, the row that deletes what a screen shows, alone in a Group at the bottom, in the middle in the error
  * colour; `muted`, grey (what cannot be opened: a page that is gone); `sub`, a row under a row (a submenu), its text a
  * little lighter. */
@@ -1612,7 +1612,7 @@ const toneClass: Record<RowTone, string> = {
  * in the selected colour, the open one) or anything there (`leading`: LeadingImage, LeadingToken), its name
  * (`headline`) and what is under it (`supporting`; `truncate`: each on one line, cut off), how many at the right
  * (`count`), the arrow of a row that opens something (`arrow`, or another icon: what a tap does) or anything there
- * (`trailing`), the buttons beside it (`actions`: the arrows, Fjern, a switch) and what is in its <li> after it
+ * (`trailing`), the buttons beside it (`actions`: the arrows, Remove, a switch) and what is in its <li> after it
  * (`children`: a sheet it opens, a text it folds out); `tone`: RowTone. `selectable`: on a phone a long press selects it
  * (`onSelectedChange`), and while its list is `selecting` a tap does; selected, a tick is its icon (the theme's
  * ListItem). The rest (aria-…, ref, style, onClick on a link) on the row. */
@@ -1955,13 +1955,13 @@ export function SheetList({ div, children }: { div?: boolean; children: ReactNod
   return div ? <div className={className}>{children}</div> : <ul className={className}>{children}</ul>;
 }
 
-/** The small heading over some of the choices in a sheet (Faste sider, Sider). */
+/** The small heading over some of the choices in a sheet (Fixed pages, Pages). */
 export function SheetGroupTitle({ children }: { children: ReactNode }) {
   return <h3 className="px-3 pt-4 pb-1 text-sm font-medium text-on-surface-variant">{children}</h3>;
 }
 
-/** A link at the bottom of a sheet, under its choices and the theme's divider, to make something new elsewhere (Opret
- * et tag): the theme's text button with a +. */
+/** A link at the bottom of a sheet, under its choices and the theme's divider, to make something new elsewhere (Create
+ * a tag): the theme's text button with a +. */
 export function SheetLink({
   href,
   onClick,
@@ -1984,7 +1984,7 @@ export function SheetLink({
 }
 
 /** The bottom of a sheet with fields, under the theme's divider: "Cancel" and the main button on the right,
- * something else (Slet) on the left. */
+ * something else (Delete) on the left. */
 export function SheetActions({
   onCancel,
   onDone,
@@ -2302,7 +2302,7 @@ export const listClass = siteListClasses('segmented');
 /** The classes of a list without surfaces (the theme's standard list): a row or two that stand on the page, AccountRow. */
 export const plainListClass = siteListClasses('standard');
 
-/** The small heading over a Group, and over what stands as one (the themes on Konto): in Material 3's title small, as
+/** The small heading over a Group, and over what stands as one (the themes on Account): in Material 3's title small, as
  * written (not in capitals, Material 2's subheader), muted as a group's heading in a sheet (SheetGroupTitle). */
 export function GroupTitle({ children }: { children: ReactNode }) {
   return <h2 className="mb-2 px-4 text-sm font-medium tracking-[0.00625rem] text-on-surface-variant">{children}</h2>;
@@ -2312,7 +2312,7 @@ export function GroupTitle({ children }: { children: ReactNode }) {
  * started once, when the editor opens. */
 export const startRipples = siteRipples;
 
-/** Something on its way that takes a moment (Gemmer, Henter versionerne): the theme's loading indicator (Material 3's),
+/** Something on its way that takes a moment (Saving, Loading the versions): the theme's loading indicator (Material 3's),
  * as big as the text, before what it is. */
 export function LoadingIndicator({ children }: { children: ReactNode }) {
   return (
@@ -2348,7 +2348,7 @@ export function ProblemNote({ alert, children }: { alert?: boolean; children: Re
   );
 }
 
-/** A heading over fields in a form (Andre felter, SEO); `first` at the top of a column, without the space
+/** A heading over fields in a form (Other fields, SEO); `first` at the top of a column, without the space
  * above it on a wide screen. */
 export function FormHeading({ first, children }: { first?: boolean; children: ReactNode }) {
   return <h2 className={`pt-4 text-xl font-semibold ${first ? 'large:pt-0' : ''}`}>{children}</h2>;
@@ -2697,7 +2697,7 @@ export function useKept<T>(key: string | null, first: T): [T, (value: T) => void
   return [value, set];
 }
 
-/** On a computer: what is picked in a screen's list or grid (a file in Filer), in the theme's side sheet at the right
+/** On a computer: what is picked in a screen's list or grid (a file in Files), in the theme's side sheet at the right
  * of it, with its title and a cross that closes it; it stays in view while the screen scrolls. On a
  * phone the same is in a sheet (useAtLeast). */
 export function SideSheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
@@ -2715,7 +2715,7 @@ export function SideSheet({ title, onClose, children }: { title: string; onClose
   );
 }
 
-/** One entry of a SectionList: its id, its name and evt. the theme's Badge (how many are new there; or a dot). */
+/** One entry of a SectionList: its id, its name and optionally the theme's Badge (how many are new there; or a dot). */
 export type NavigationItem = { id: string; label: string; badge?: number | boolean };
 
 /** The sections of a long form (a page's, a post's: Content, Status, Other fields …) as an "on this page" list, as on
@@ -2756,7 +2756,7 @@ export function SectionList({
 
 /** The "on this page" card at the end of a long form on large and wider screens: the theme's outlined card, as tall as
  * its content (it scrolls inside only when that is taller than the window), with the small `caption`
- * (Afsnit), the form's `title` under it and the form's SectionList (`children`). It stays in view while the form
+ * (Sections), the form's `title` under it and the form's SectionList (`children`). It stays in view while the form
  * scrolls. Its place is FormColumns' `pane`, against the window's end edge; below large it is not drawn. */
 export function SectionPane({ caption, title, children }: { caption: string; title: string; children: ReactNode }) {
   return (
@@ -3232,9 +3232,9 @@ export function TabPanel({ id, value, className = '', children }: { id: string; 
 }
 
 /** A form in two columns on a wide computer screen (large): `main` in the wide one, and at the right
- * `first` (the status, or the fields beside a preview) and `side` (the other fields), each on a card,
+ * first (the status, or the fields beside a preview) and side (the other fields), each on a card,
  * or without one (`cards` false: a preview that is its own card). `sticky`: the right column stays in
- * view while the form scrolls (alone, it spans both rows, so it has the whole height to stay in). Narrower, one column as on a phone: `first`, `main`, then `side`. */
+ * view while the form scrolls (alone, it spans both rows, so it has the whole height to stay in). Narrower, one column as on a phone: first, `main`, then side. */
 export function FormColumns({
   first,
   main,
@@ -3250,7 +3250,7 @@ export function FormColumns({
   sticky?: boolean;
   /** A SectionPane, on large and wider screens against the window's end edge under the top bar (--section-pane-width
    * wide, in an absolute strip along the content that its card sticks in while the form scrolls; editor.css lets the content column keep clear of it); below large nothing.
-   * Instead of `first` and `side`. */
+   * Instead of first and side. */
   pane?: ReactNode;
 }) {
   // On a wide computer screen (large) each of the right column's parts on the theme's outlined card.
@@ -3454,7 +3454,7 @@ export function SheetTitle({ title, onClose }: { title: string; onClose: () => v
     sheet.style.removeProperty('transition');
     setTall(big);
   };
-  // Small again when it closes (the cross, Fortryd, Esc), so it opens small next time.
+  // Small again when it closes (the cross, Undo, Esc), so it opens small next time.
   useEffect(() => {
     const sheet = sheetOf();
     if (!sheet) return;

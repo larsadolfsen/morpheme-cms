@@ -1,5 +1,5 @@
 // The buttons at the bottom of the notifications' side sheet (Notifications.tsx): while some are selected, one deletes
-// them and one unselects them; else one clears all and one opens "Konto" to choose the types. Exposes NotificationActions.
+// them and one unselects them; else one clears all and one opens "Account" to choose the types. Exposes NotificationActions.
 // Uses Button and LinkButton (ui.tsx) and the texts in t.library.
 import { SlidersHorizontal, Trash, X } from '@phosphor-icons/react';
 import { Button, LinkButton } from './ui';

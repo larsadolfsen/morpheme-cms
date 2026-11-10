@@ -1,4 +1,4 @@
-// "Filer" under "Indhold": the pictures uploaded to the site (public/images/uploads/<year>/<month>/,
+// "Files" under "Content": the pictures uploaded to the site (public/images/uploads/<year>/<month>/,
 // imported or added in the editor, images.ts) and the PDFs, videos and zip files (public/filer/,
 // /filer/ on the site), newest first, with search, the order (newest, oldest, by name), a month or year,
 // the type (Billeder, PDF'er, Videoer, Zip-filer) and whether a page uses them (Gallery). A file that is
@@ -592,7 +592,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
     : [];
 
   // What is shown about a file: its name (changed with the pencil), the file, where it is used and
-  // "Slet". On a computer beside the grid (SideSheet), on a phone in the sheet.
+  // "Delete". On a computer beside the grid (SideSheet), on a phone in the sheet.
   const details = (src: string) => (
     <>
       <form

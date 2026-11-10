@@ -1,4 +1,4 @@
-// The site's cookie list, "Cookies" under "Lister" (the list the standard block "Cookieliste" brings,
+// The site's cookie list, "Cookies" under "Lists" (the list the standard block "Cookie list" brings,
 // standard/cookies/list.ts): a file per cookie in config.cookieList, each with its name (`*` for the rest of it), who
 // sets it, what for, how long it lasts and its category (necessary, or one the visitor says yes to in the cookie banner,
 // lib/cookieCategories.mjs). An app's cookies (its

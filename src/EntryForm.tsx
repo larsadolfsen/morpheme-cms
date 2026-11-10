@@ -2,7 +2,7 @@
 // Only what was changed is written: untouched fields keep their exact text, and the body is only
 // rewritten by Milkdown when the text was edited (packages/editor/scripts/editor-roundtrip.mjs checks that this
 // gives the same page). A new address (Adresse) moves the page or post, with a redirect from the
-// old one (addresses.ts). The Filer files the page newly refers to get the page's tags in the same commit (autoTags.mjs).
+// old one (addresses.ts). The files in "Files" the page newly refers to get the page's tags in the same commit (autoTags.mjs).
 // An earlier version (Versions.tsx) is opened as changes that are not saved,
 // at the address the page or post has now. Its preview draft says whether it is a post (post, for the lead).
 // The form's sections are listed as "on this page" in a card at the end of the form (large and wider only): SectionList in ui.tsx;
@@ -357,7 +357,7 @@ function Form({
     ? '/'
     : addressOf(String(values.path ?? ''), post ? 'post' : 'page') || (isNew ? `/${slugify(String(values.title ?? ''))}/` : url);
 
-  // A picture is kept in the browser until "Save", which uploads it with the page. A file in Filer the page refers to
+  // A picture is kept in the browser until "Save", which uploads it with the page. A file in "Files" the page refers to
   // now and did not in its last saved version (a picture, a PDF field, a link) gets the page's tags at "Save" (autoTags.mjs).
   const tagged = collection.fields.some((f) => f.name === 'categories' && f.type === 'relation' && f.to === 'categories');
   const pictures = useUploads(notify);
@@ -522,7 +522,7 @@ function Form({
     // Pictures that were added and are still used.
     const used = pictures.usedIn(next);
     const removed = base.path && path !== base.path ? [base.path] : [];
-    // The page's tags to the Filer files it newly refers to (the text as last saved against the text now), in the same commit.
+    // The page's tags to the files in "Files" it newly refers to (the text as last saved against the text now), in the same commit.
     const recordChanges = tagged
       ? autoTagChanges(
           recordsIn(env.files, config.fileRecords),

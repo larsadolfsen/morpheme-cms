@@ -16,7 +16,7 @@ try {
   localStorage.removeItem(OLD_TOKEN_KEY);
 } catch {}
 
-// "Log ud": the Worker removes the cookie, and GitHub forgets the token.
+// "Log out": the Worker removes the cookie, and GitHub forgets the token.
 export async function logout() {
   await fetch('/api/github/logout', { method: 'POST' }).catch(() => {});
 }

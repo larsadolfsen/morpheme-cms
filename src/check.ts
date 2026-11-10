@@ -67,7 +67,7 @@ function ofItsKind(f: Field, v: unknown): boolean {
 export const newItem = (field: Field) => (field.field ? '' : newValue(field.fields!));
 
 /** A saved value with the defaults of the fields it has no value for (a field added after it was
- * saved, the pop-up's "Rullet ned"), after its own values. */
+ * saved, the pop-up's "Scrolled down"), after its own values. */
 export const withDefaults = (fields: Field[], value: Record<string, unknown>): Record<string, unknown> => ({
   ...value,
   ...Object.fromEntries(fields.filter((f) => f.default !== undefined && value?.[f.name] === undefined).map((f) => [f.name, f.default])),
