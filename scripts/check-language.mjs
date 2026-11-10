@@ -1,11 +1,23 @@
-// Checks that tracked files outside the language files hold no Danish text (a Danish letter, or a Danish dictionary value).
-// Run: npm run check:language, or node scripts/check-language.mjs.
-// Depends on: lib/danish.mjs, Vite (loads the dictionaries), git (lists the files).
+// Checks that tracked files outside the language files hold no Danish text (a Danish letter, or a Danish dictionary value)
+// and no Danish id (a word of lib/danishIds.mjs in a quoted string, a {placeholder} or a path), and, in scripts/, lib/ and
+// worker/, no Danish text without a Danish letter (two stop words in a quoted string). Known findings are in scripts/pending-ids.mjs.
+// Run: npm run check:language, or node scripts/check-language.mjs; `--list-ids` prints every id and text finding as a `path:token` line and exits.
+// Depends on: lib/danish.mjs, lib/danishIds.mjs, scripts/pending-ids.mjs, Vite (loads the dictionaries), git (lists the files).
 import { execFileSync } from 'node:child_process';
 import { closeSync, existsSync, openSync, readFileSync, readSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
-import { danishValuesOf, findDanish, isLanguagePath } from '../lib/danish.mjs';
+import {
+  danishValuesOf,
+  findDanish,
+  findDanishIds,
+  findDanishPathIds,
+  findDanishTexts,
+  isIdCheckSkipped,
+  isLanguagePath,
+  matchPending,
+} from '../lib/danish.mjs';
+import { PENDING_IDS } from './pending-ids.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 
@@ -77,8 +89,40 @@ for (const path of paths) {
   report(path, findDanish(readFileSync(`${root}${path}`, 'utf8'), danishValues));
 }
 
+// Danish ids (paths, quoted words, {placeholders}) and Danish text without a Danish letter (scripts/, lib/, worker/).
+/** @type {{ path: string, token: string, line: number }[]} */
+const idFindings = [];
+const maxTextToken = 60;
+for (const path of paths) {
+  if (isIdCheckSkipped(path)) continue;
+  for (const token of findDanishPathIds(path)) idFindings.push({ path, token, line: 0 });
+  const text = readFileSync(`${root}${path}`, 'utf8');
+  for (const { line, match } of findDanishIds(text)) idFindings.push({ path, token: match, line });
+  if (/^(scripts|lib|worker)\//.test(path)) {
+    for (const { line, match } of findDanishTexts(text)) {
+      idFindings.push({ path, token: `text:${match.replace(/\s+/g, ' ').slice(0, maxTextToken)}`, line });
+    }
+  }
+}
+
+if (process.argv.includes('--list-ids')) {
+  for (const key of new Set(idFindings.map((f) => `${f.path}:${f.token}`))) console.log(key);
+  process.exit(0);
+}
+
+const { fresh, stale } = matchPending(idFindings, PENDING_IDS);
+for (const { path, token, line } of fresh) {
+  console.log(`${path}:${line}  ${token.startsWith('text:') ? 'Danish text' : 'Danish id'}: ${token.replace(/^text:/, '')}`);
+  count++;
+  filesWithMatches.add(path);
+}
+for (const entry of stale) {
+  console.log(`scripts/pending-ids.mjs  stale entry, remove it: ${entry}`);
+  count++;
+}
+
 if (count > 0) {
-  console.log(`${count} Danish texts in ${filesWithMatches.size} files outside the language files.`);
+  console.log(`${count} Danish texts in ${filesWithMatches.size} files outside the language files, or stale PENDING_IDS entries.`);
   process.exitCode = 1;
 } else {
   console.log('No Danish outside the language files.');
