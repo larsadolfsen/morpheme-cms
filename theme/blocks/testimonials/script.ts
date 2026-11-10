@@ -1,4 +1,4 @@
-// What testimonials do on the site (Testimonial.tsx, List.tsx): "Læs mere" shown only on texts that are actually cut;
+// What testimonials do on the site (Testimonial.tsx, List.tsx): "Read more" shown only on texts that are actually cut;
 // a list's buttons with the tags. (The carousel's page indicator, Slider.tsx, is the carousel's: ui/carousel.script.ts.)
 // Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts).
 export default function testimonials() {
@@ -6,7 +6,7 @@ export default function testimonials() {
   filters();
 }
 
-// "Læs mere" only on texts that are actually cut; it unfolds the text, "Vis mindre" folds it again.
+// "Read more" only on texts that are actually cut; it unfolds the text, "Show less" folds it again.
 function more() {
   const setup = () =>
     document.querySelectorAll<HTMLElement>('[data-testimonial]').forEach((card) => {
@@ -34,7 +34,7 @@ function more() {
 }
 
 function filters() {
-  // The buttons with the tags: one shows only the testimonials with its tag, "Alle" (no tag) all of them.
+  // The filter buttons with the tags: one shows only the testimonials with its tag, "All" (no tag) all of them.
   document.querySelectorAll<HTMLElement>('[data-testimonial-filter]').forEach((box) => {
     const filters = box.querySelector<HTMLElement>('[data-filters]');
     if (!filters) return;

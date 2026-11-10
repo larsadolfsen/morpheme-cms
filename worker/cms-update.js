@@ -64,7 +64,7 @@ async function readSite(env, deps) {
 /** The files with `version` of the package in them, as changes for one commit. */
 async function filesFor(env, deps, site, version) {
   const manifest = await getJson(deps, `${NPM}/${NPM_NAME}/${version}`);
-  if (!site.lock) throw new NeedsNpm('package-lock.json mangler.');
+  if (!site.lock) throw new NeedsNpm('package-lock.json is missing.');
   const out = addToLock(site.packageJson, site.lock, manifest);
   return [
     { path: PACKAGE_JSON, text: written(out.packageJson, site.texts[0]) },

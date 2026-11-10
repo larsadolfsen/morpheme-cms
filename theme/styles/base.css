@@ -36,7 +36,7 @@
   - An elevation level, 0 to 5, is two things a theme sets one at a time: --mo-elevation-N-color (the surface colour at the
     level, M3's way) and --mo-elevation-N-shadow (its shadow); --mo-elevation-N-rest-shadow is the shadow a part has at rest.
   - The corner steps (--mo-shape-…), the state layers (--mo-hover, --mo-pressed, --mo-primary-hover) and --mo-scrim-overlay.
-  The colours are not here: they are data, src/data/colors.json, which the owner changes under "Farver" in the editor.
+  The colours are not here: they are data, src/data/colors.json, which the owner changes under "Colors" in the editor.
   Base.astro and the editor's page write them into <head> (colorsCss, packages/editor/lib/colors.ts), for
   light mode and dark mode as below; the editor checks them to WCAG AA before they are saved
   (colorPairs in @site/colors). Everything here uses them by name.
@@ -328,7 +328,7 @@
   /* Motion.
    [data-reveal]: sections fade up once when scrolled into view (packages/editor/theme/scripts/motion.ts).
    The top of a page stands still from the first paint; from another page of the site it fades in (components.css).
-   Off for visitors who prefer reduced motion, and with the calm motion scheme ("Bevægelse", data-motion-scheme). */
+   Off for visitors who prefer reduced motion, and with the calm motion scheme ("Motion", data-motion-scheme). */
   @media (prefers-reduced-motion: no-preference) {
     .js:not([data-motion-scheme='calm']) [data-reveal] {
       opacity: 0;

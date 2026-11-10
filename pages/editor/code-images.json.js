@@ -1,5 +1,5 @@
 // /editor/code-images.json: the uploaded pictures (/images/uploads/…) the site's own code uses (src/: its themes, apps
-// and config, e.g. the portrait in src/site/config.ts), not in the texts the editor has. "Filer" counts them as in use
+// and config, e.g. the portrait in src/site/config.ts), not in the texts the editor has. "Files" counts them as in use
 // and does not offer to delete them (packages/editor/src/Media.tsx).
 import fs from 'node:fs';
 import path from 'node:path';

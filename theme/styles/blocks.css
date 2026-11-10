@@ -39,7 +39,7 @@
                        of the text to the window's edges, and where its content starts again (the standard theme's
                        Container.astro: 72rem, 1.25rem and 2rem from the medium width)
 
-  How things move is the site's motion scheme (Material 3's, chosen under "Udseende" › "Bevægelse"; lib/motion.ts), which
+  How things move is the site's motion scheme (Material 3's, chosen under "Appearance" › "Motion"; lib/motion.ts), which
   Base.astro writes into the <head> as springs, each its duration and curve, for `transition` and `animation`:
     --motion-spatial-fast, --motion-spatial, --motion-spatial-slow   something that moves, grows or changes shape
     --motion-effects-fast, --motion-effects, --motion-effects-slow   a colour, a shadow, something that fades
@@ -50,7 +50,7 @@
   standard curve.
 
   A site sets the class `js` on <html> as early as it can (this site: Base.astro): then a long
-  testimonial is cut with "Læs mere" from the start; without it, the whole text is shown.
+  testimonial is cut with "Read more" from the start; without it, the whole text is shown.
   The mark before the name on a testimonial (.block-testimonial-mark) is the site's own: it is not shown
   until the site gives it a look (the standard theme: an avatar with the name's first letter, its data-initial; another:
   its logo).
@@ -159,7 +159,7 @@
     --block-hero-on-shade: var(--section-surface);
   }
 
-  /* "Besked": a short notice in a box with the accent along its left edge (notice/). */
+  /* "Notice": a short notice in a box with the accent along its left edge (notice/). */
   .block-notice {
     border-left: 4px solid var(--block-accent);
     border-radius: var(--block-radius);
@@ -171,7 +171,7 @@
     letter-spacing: var(--type-body-large-tracking);
   }
 
-  /* "Trin": numbered steps along a line (steps/StepList.tsx). */
+  /* "Steps": numbered steps along a line (steps/StepList.tsx). */
   .block-steps {
     position: relative;
     max-width: 48rem;
@@ -226,7 +226,7 @@
     color: var(--block-muted);
   }
 
-  /* "Spørgsmål og svar": rows that fold out, one open at a time (faq/Accordion.tsx). */
+  /* "Questions and answers": rows that fold out, one open at a time (faq/Accordion.tsx). */
   .block-accordion {
     max-width: 48rem;
     border-radius: var(--block-radius);
@@ -480,7 +480,7 @@
     }
   }
 
-  /* "Knapper": buttons in a row, on a phone under each other in the full width (buttons/). The buttons are the
+  /* "Buttons": buttons in a row, on a phone under each other in the full width (buttons/). The buttons are the
      theme's (.button in ui.css), each of the kind it was given. */
   .block-buttons {
     display: flex;
@@ -524,7 +524,7 @@
   .block-hero-note a:hover {
     text-decoration-thickness: 2px;
   }
-  /* A link on its own line with an arrow after it ("Alle indlæg →"). */
+  /* A link on its own line with an arrow after it ("All posts →"). */
   .block-arrow-link {
     display: inline-flex;
     align-items: center;
@@ -534,7 +534,7 @@
     text-decoration: none;
   }
 
-  /* "Blogindlæg": its posts as the blog shows them (the theme's PostList.tsx and BlogPosts.tsx), "Alle indlæg" under
+  /* "Blog posts": its posts as the blog shows them (the theme's PostList.tsx and BlogPosts.tsx), "All posts" under
      them. */
   .block-posts-in-text.block-in-text {
     margin-block: 2.5rem;
@@ -575,13 +575,13 @@
     color: var(--block-muted);
   }
 
-  /* "Udtalelser": testimonials to leaf through (testimonials/Slider.tsx, a carousel: ui.css). */
+  /* "Testimonials": testimonials to leaf through (testimonials/Slider.tsx, a carousel: ui.css). */
   .carousel.block-in-text,
   .block-testimonials.block-in-text,
   .block-testimonial.block-in-text {
     margin-block: 2.5rem;
   }
-  /* "Udtalelser" one after another (testimonials/List.tsx): two columns where there is room. */
+  /* "Testimonials" one after another (testimonials/List.tsx): two columns where there is room. */
   .block-testimonial-list {
     columns: 2 18rem;
     column-gap: var(--card-gap, 0.5rem);
@@ -590,7 +590,7 @@
     break-inside: avoid;
     margin-bottom: var(--card-gap, 0.5rem);
   }
-  /* Filter chips (the theme's Chip, ui.css) that filter what is under them ("Udtalelser" under hinanden). */
+  /* Filter chips (the theme's Chip, ui.css) that filter what is under them ("Testimonials" one under another). */
   .block-filters {
     display: flex;
     flex-wrap: wrap;
@@ -601,7 +601,7 @@
     display: none;
   }
   /* One testimonial (testimonials/Testimonial.tsx), an outlined card (.card in ui.css): a big quotation mark, its tags,
-     the text (cut after seven lines with "Læs mere", or two with a link to the whole text) and the name. */
+     the text (cut after seven lines with "Read more", or two with a link to the whole text) and the name. */
   .block-testimonial {
     display: flex;
     width: 100%;
@@ -740,7 +740,7 @@
     gap: 0.5rem;
   }
 
-  /* "Kort": outlined cards (.card in ui.css) that link to other pages, with an icon, a picture or nothing at the top,
+  /* "Cards": outlined cards (.card in ui.css) that link to other pages, with an icon, a picture or nothing at the top,
      two side by side from small screens (cards/LinkCards.tsx). */
   .block-cards {
     display: grid;
@@ -810,7 +810,7 @@
   .block-card-arrow {
     transition: translate var(--motion-spatial);
   }
-  /* The cards on the accent ("Kort", `background`): the whole card in it, its text and icon in the colour that is read
+  /* The cards on the accent ("Cards", `background`): the whole card in it, its text and icon in the colour that is read
      on it. */
   .block-cards-accent .block-card {
     --card-outlined-surface: var(--block-accent);
@@ -882,7 +882,7 @@
   .block-panel > .list {
     margin-top: 1rem;
   }
-  /* "Punkter med ikon": a list without dividers (.list in ui.css, points/PointList.tsx), its items side by side where
+  /* "Points with icon": a list without dividers (.list in ui.css, points/PointList.tsx), its items side by side where
      there is room for 16rem each. Nothing in it is tapped, so its icons start where the text around it does. */
   .block-points {
     --list-item-padding-inline: 0;
@@ -1154,7 +1154,7 @@
   }
 
   /* A table: quiet headings over rows with a thin line between them, the first column (each row's name) a little
-     heavier; wider than the screen, it scrolls sideways ("Cookieliste"). */
+     heavier; wider than the screen, it scrolls sideways ("Cookie list"). */
   .block-table {
     overflow-x: auto;
   }
@@ -1558,9 +1558,9 @@
       padding-inline: 2rem;
     }
   }
-  /* ---- "Tjekliste" and "Priskort" ---- */
+  /* ---- "Checklist" and "Price cards" ---- */
 
-  /* "Tjekliste" (checklist/Checks.tsx), and what is included on a price card: a list without dividers (.list in
+  /* "Checklist" (checklist/Checks.tsx), and what is included on a price card: a list without dividers (.list in
      ui.css), a check before each line; with six or more (not on a card), two columns where there is room for 16rem
      each, never more. Nothing in it is tapped, so it is spaced as a bulleted or numbered list in the text (half a
      line between its lines, not the height of a list item one taps), and its checks start where the text around it
@@ -1579,7 +1579,7 @@
     column-gap: 2rem;
   }
 
-  /* "Priskort" (pricecards/View.tsx): the cards side by side, as many columns as there are cards where the block has
+  /* "Price cards" (pricecards/View.tsx): the cards side by side, as many columns as there are cards where the block has
      room for them (it is a container: two from 34rem, three from 40rem, four from 56rem; four two by two before that),
      else under each other. Each card an outlined card (.card in ui.css): its name, its price large with what it is for
      beside it, its text, what is included under a line (.block-checklist) and its button at the bottom in the card's
@@ -1683,7 +1683,7 @@
     line-height: 1.25;
   }
 
-  /* ---- end of "Tjekliste" and "Priskort" ---- */
+  /* ---- end of "Checklist" and "Price cards" ---- */
 
   /* Opening and closing glide where the browser can animate ::details-content (else the script in
      Accordion.tsx does it); none with reduced motion. */
@@ -1862,7 +1862,7 @@
 
   /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
    editor): the accent, or the quiet text's, both readable on the background, the surfaces and the tint (the site's
-   pairs of colours, checked under "Farver"). Bold, italic and a link in it have its colour. Outside the layers, as it
+   pairs of colours, checked under "Colors"). Bold, italic and a link in it have its colour. Outside the layers, as it
    is in the text's style (.prose), whose colours of bold text and links it goes over. On a picture behind a hero's
    text, where only the text's colour can be read, it is the text's. */
   .color-accent,

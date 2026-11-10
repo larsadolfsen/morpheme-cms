@@ -82,7 +82,7 @@ const tools = (app, ctx) => ({
 /** The sign-in of a request from someone who can save the site, for a save they asked for; else it fails. */
 async function signedIn(request) {
   const signIn = await access(request);
-  if (!signIn?.push) throw new Error('Kun en, der kan gemme hjemmesiden, kan gemme.');
+  if (!signIn?.push) throw new Error('Only someone who can save the site can save.');
   return signIn.token;
 }
 

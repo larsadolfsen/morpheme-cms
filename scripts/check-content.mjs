@@ -76,7 +76,7 @@ const server = await createServer({
   server: { middlewareMode: true, hmr: false, ws: false },
 });
 let result, missing, enTexts;
-// The licences ("Licenser" under "Indstillinger", @morphemecms/cms/lib/licenses.mjs): each app's own and those of the
+// The licences ("Licenses" under "Settings", @morphemecms/cms/lib/licenses.mjs): each app's own and those of the
 // third-party work it brings (its defineApp), installed or not, as each theme's (themeProblems), with the packages they
 // declare, which they give what a package lacks for.
 const licenses = [];
@@ -127,12 +127,13 @@ for (const [locale, files] of Object.entries(missing)) {
     if (file.startsWith('defaults/i18n/')) {
       result.problems.push(
         ...texts.map(
-          (text) => `${file}: standardteksten ${JSON.stringify(text)} mangler på ${locale}. Skriv den i defaults/i18n/${locale}/.`,
+          (text) =>
+            `${file}: the standard text ${JSON.stringify(text)} has no ${locale} translation. Write it in defaults/i18n/${locale}/.`,
         ),
       );
       continue;
     }
-    console.warn(`\nEditoren viser ${texts.length} af sitets tekster uoversat på ${locale}. Skriv dem i ${file}:\n`);
+    console.warn(`\nThe editor shows ${texts.length} of the site's texts untranslated in ${locale}. Write them in ${file}:\n`);
     for (const text of texts) console.warn(`  ${JSON.stringify(text)}`);
   }
 }
@@ -140,7 +141,7 @@ for (const [locale, files] of Object.entries(missing)) {
 // The editor's English texts follow Material 3's rules for writing (text-problems.mjs).
 result.problems.push(...enTexts);
 // Every theme installed has what a theme must have (the standard theme all of it), so the owner can swap to any of them
-// on "Udseende".
+// on "Appearance".
 result.problems.push(...installedThemes().flatMap(themeProblems), ...iconPackProblems(), ...motionProblems());
 // Every block is drawn from its view, on the site and in the editor alike.
 result.problems.push(...blockProblems());
@@ -157,7 +158,7 @@ result.problems.push(...appWorkersProblems(root));
 result.problems.push(...caseCollisionProblems(root, [own, 'src']));
 // Every app and theme says what its licence is and what it brings (the icon packs say theirs, themeProblems), and
 // every package the site's and the editor's code imports, and those they depend on, has a licence the editor can show
-// under "Licenser" (more than the build ships, which stops on its own when something it ships has none).
+// under "Licenses" (more than the build ships, which stops on its own when something it ships has none).
 for (const theme of installedThemes())
   for (const x of JSON.parse(readFileSync(`${themeFolder(theme)}/theme.json`, 'utf8')).thirdParty ?? [])
     if (x?.package) declared.add(x.package);
@@ -191,9 +192,9 @@ result.problems.push(
 );
 
 if (result.problems.length) {
-  console.error(`\nIndholdet følger ikke editorens regler (${result.problems.length}):\n`);
+  console.error(`\nThe content does not follow the editor's rules (${result.problems.length}):\n`);
   for (const line of result.problems) console.error(`  ${line}`);
-  console.error('\nRet filerne (eller blokkens felter i src/apps/<app>/blocks/), så bygges sitet igen.\n');
+  console.error("\nFix the files (or the block's fields in src/apps/<app>/blocks/), then build the site again.\n");
   process.exit(1);
 }
-console.log(`${result.files} filer og ${result.blocks} blokke følger editorens regler.`);
+console.log(`${result.files} files and ${result.blocks} blocks follow the editor's rules.`);

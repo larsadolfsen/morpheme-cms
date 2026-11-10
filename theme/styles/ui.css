@@ -8,7 +8,7 @@
   the parts and the states are Material's; how they look is the theme's. What is here is the standard look, made from
   the blocks' variables (--block-*, blocks.css), so it follows every theme's colours, corners and motion. Every
   transition and animation takes one of the site's motion scheme's springs (--motion-spatial-…, --motion-effects-…:
-  blocks.css, lib/motion.ts), which the owner chooses under "Bevægelse": what moves, grows or changes shape the spatial
+  blocks.css, lib/motion.ts), which the owner chooses under "Motion": what moves, grows or changes shape the spatial
   ones (fast for what answers a press), a colour, a shadow or a fade the effects ones.
 
   A theme changes it with the variables below, in :root in its styles/global.css, and with rules on the classes in
@@ -321,7 +321,7 @@
 }
 
 @layer components {
-  /* Buttons (m3.material.io/components/buttons): a label, an icon before it and evt. one after it (the arrow). */
+  /* Buttons (m3.material.io/components/buttons): a label, an icon before it and optionally one after it (the arrow). */
   .button {
     --button-box: var(--button-height, 3rem);
     --button-inline: var(--button-padding, 1.6rem);
@@ -1178,7 +1178,7 @@
   Chips (Chip.tsx, chipClass; m3.material.io/components/chips): .chip with its kind, .chip-assist (a link to something
   related: a post's tag), .chip-filter (one of a few that choose what is shown, the chosen one with aria-pressed="true" on
   a button or aria-current on a link, and a check before its label, .chip-check), .chip-input or .chip-suggestion (each
-  evt. chosen with aria-pressed="true"); an icon before the label, or a person's picture (.chip-avatar), and
+  optionally chosen with aria-pressed="true"); an icon before the label, or a person's picture (.chip-avatar), and
   .chip-trailing-icon after it. .chip-elevated: with a shadow instead of the edge (assist, filter and suggestion chips);
   .chip-dragged: while it is dragged; disabled (:disabled, or aria-disabled="true" on what is not a button): seen
   through and not to be used. .chip-removable: an input chip as a <span> with its own button (.chip-action) and the one
@@ -1383,11 +1383,11 @@
   Dialogs (Dialog.tsx, dialogClass, dialogClassOf, dialogModalClass, dialogFullScreenModalClass, and dialog() in
   dialogControl.ts for what a modal one does in a browser; m3.material.io/components/dialogs): .dialog is the container (a
   pop-up's box, the cookie question), and .dialog-modal the <dialog> it is shown in over the page, in the middle with
-  the scrim behind it (a pop-up, Popup.astro). With its parts it is Material's basic dialog, .dialog-basic: evt. its
+  the scrim behind it (a pop-up, Popup.astro). With its parts it is Material's basic dialog, .dialog-basic: optionally its
   icon (.dialog-icon, centred over the headline with .dialog-with-icon), .dialog-headline, .dialog-supporting-text,
-  .dialog-content (what else it shows, scrolling), evt. .dialog-divider and .dialog-actions at its end. A full-screen
+  .dialog-content (what else it shows, scrolling), optionally .dialog-divider and .dialog-actions at its end. A full-screen
   dialog, .dialog-full-screen in .dialog-modal-full-screen: over the whole screen on a phone, with .dialog-header (the
-  close button, the headline and .dialog-header-actions), evt. .dialog-divider, and .dialog-content; from the medium width a
+  close button, the headline and .dialog-header-actions), optionally .dialog-divider, and .dialog-content; from the medium width a
   dialog in the middle of the screen with the same header.
     --dialog-radius, --dialog-surface, --dialog-shadow, --dialog-line   the container's corners, surface, shadow
                      (level 3; none for a full-screen one on a phone), edge
@@ -2772,7 +2772,7 @@
   with its items, .menu-vibrant in the accent; .menu-item, a link or a <button>, with .menu-item-leading (.menu-item-icon,
   and .menu-item-check, the tick of an item that is on), .menu-item-text (.menu-item-label, .menu-item-supporting),
   .menu-item-trailing-supporting and .menu-item-trailing-icon; the chosen one with aria-current, or aria-checked (in a
-  WAI-ARIA menu) or aria-pressed (elsewhere); :disabled or aria-disabled. Groups: .menu-group (evt. .menu-group-label
+  WAI-ARIA menu) or aria-pressed (elsewhere); :disabled or aria-disabled. Groups: .menu-group (optionally .menu-group-label
   over its .menu-group-items), each on its own surface with a gap between them, or with .menu-groups-divider on the
   menu one surface with a line between them; .menu-divider, a line between items (the theme's .divider). A submenu:
   .menu-item-submenu, its item (aria-expanded) and the .menu-submenu it opens beside it. A dropdown menu:
@@ -2802,7 +2802,7 @@
   off the screen, so a spring that overshoots shows no gap at the edge; .navigation-drawer-item,
   a page (a link, or a button: the editor's) ([data-active]: the open one, or the one holding it), its
   .navigation-drawer-icon (24dp, outlined; the filled .navigation-drawer-selected-icon in its place while
-  [data-active]) and .navigation-drawer-label, and evt. .navigation-drawer-badge, the text at its end
+  [data-active]) and .navigation-drawer-label, and optionally .navigation-drawer-badge, the text at its end
   (--navigation-drawer-badge-text, on surface variant; on secondary container on the active item);
   .navigation-drawer-trailing, an icon at the end of an item (an arrow to a list); .navigation-drawer-back, the back row
   (an item with an arrow before its label);
@@ -2822,8 +2822,8 @@
     --navigation-drawer-subitem-indent, -line, -padding, -font-size, -text, -active-text
   Tabs (Tabs, Tab, tabsClass, tabsClasses, tabClass, tabs.script.ts): .tabs, a row of tabs to swipe sideways, or sharing
   its width (.tabs-fixed); .tab, a link or a role="tab" button, the open one with aria-current or aria-selected, and in it
-  .tab-content with evt. .tab-icon and .tab-label (and .tab-badge, the theme's Badge, on the icon or after the label).
-  Without a kind only the label, the open one's in its own colour (the bar of "Mobilmenu"); with one, the divider under
+  .tab-content with optionally .tab-icon and .tab-label (and .tab-badge, the theme's Badge, on the icon or after the label).
+  Without a kind only the label, the open one's in its own colour (the bar of "Mobile menu"); with one, the divider under
   the row and the indicator under the open tab: .tabs-primary (each icon over its label, beside it with .tabs-inline; the
   indicator under the label) or .tabs-secondary (the icon beside the label; the indicator under the whole tab). In a top
   app bar (the editor's screens) the bar's line (--top-app-bar-line) is the divider.
@@ -3984,7 +3984,7 @@
   Toggles' colours are the buttons' (--button-toggle-*, --button-<kind>-selected-*, --icon-button-…-selected-*).
   Segmented button (SegmentedButton, segmentedButtonClass, segmentedButtonSegmentClass): .segmented-button, the frame
   (the whole width on a phone, as wide as its choices from the medium width), with a .segmented-button-segment for each (the chosen with aria-pressed="true"), in it .segmented-button-check (shown
-  on the chosen), evt. .segmented-button-icon (hidden on the chosen, the check in its place) and
+  on the chosen), optionally .segmented-button-icon (hidden on the chosen, the check in its place) and
   .segmented-button-label.
     --segmented-button-height, -padding, -gap, -radius, -font-size, -icon-size   (the button's where it has none)
     --segmented-button-surface, -text, -line, -hover
@@ -4356,7 +4356,7 @@
   .setting-row-supporting) and after it what sets it.
     --setting-row-gap, --setting-row-label-weight, --setting-row-supporting-color   the room before what sets it, the name
       and the line under it (else the switch's --switch-label-weight and --switch-supporting-color)
-  Switches (Switch.tsx, switchClass; m3.material.io/components/switch): .switch, a setting row, a <label>, evt. what it is on or off (.switch-state), and after them the track
+  Switches (Switch.tsx, switchClass; m3.material.io/components/switch): .switch, a setting row, a <label>, optionally what it is on or off (.switch-state), and after them the track
   (.switch-track: the <input role="switch">,
   .switch-input, drawn as the track with appearance: none, and its handle, .switch-handle, with the theme's icons,
   .switch-icon-on and .switch-icon-off, when it has them: .switch-icons).
@@ -5069,7 +5069,7 @@
     ring, with the round ends: 0 for none), -thick-thickness, -thick-size, -wavy-size, -wavy-thick-size
   Snackbars (Snackbar, snackbarClass; m3.material.io/components/snackbar): .snackbar-stack holds them at the bottom of
   the screen, the newest lowest (@morphemecms/cms/lib/snackbar.ts, which draws the editor's messages and shows the site's);
-  .snackbar with .snackbar-supporting-text, its links (.snackbar-link, with an arrow) and evt. .snackbar-actions (the
+  .snackbar with .snackbar-supporting-text, its links (.snackbar-link, with an arrow) and optionally .snackbar-actions (the
   action, a text button, .snackbar-action, and the close button, a standard icon button, .snackbar-close), under the
   text with .snackbar-longer-action. The buttons on it get the snackbar's colours.
     --snackbar-surface, --snackbar-text, --snackbar-radius, --snackbar-shadow, --snackbar-backdrop (the blur behind it)
@@ -5079,7 +5079,7 @@
   Tooltips (Tooltip, tooltipClass; m3.material.io/components/tooltips): .tooltip-anchor ([data-tooltip], shown with
   [data-tooltip-open] by ../ui/tooltip.script.ts, under its anchor with [data-tooltip-below]) with what it is about and
   its .tooltip, .tooltip-plain (a short label, in the middle over it) or .tooltip-rich (.tooltip-subhead,
-  .tooltip-supporting-text and evt. .tooltip-actions with a text button, .tooltip-action; from its anchor's start).
+  .tooltip-supporting-text and optionally .tooltip-actions with a text button, .tooltip-action; from its anchor's start).
     --tooltip-gap (between it and its anchor)
     --tooltip-plain-surface, -text, -radius, -padding, -font-size, -weight, -max-width
     --tooltip-rich-surface, -text, -subhead, -subhead-weight, -radius, -padding, -line, -shadow, -max-width
@@ -5500,7 +5500,7 @@
     font-weight: var(--tooltip-plain-weight, var(--type-body-small-weight));
     line-height: var(--type-body-small-line-height);
   }
-  /* Rich: a subhead, a text and evt. an action on a surface, from the anchor's start. */
+  /* Rich: a subhead, a text and optionally an action on a surface, from the anchor's start. */
   .tooltip-rich {
     left: 0;
     display: flex;
@@ -5736,10 +5736,10 @@
     --navigation-bar-horizontal-label-font-size   horizontal items
   Navigation rail (NavigationRail, NavigationRailItem, navigationRailClasses, navigationRail.script.ts;
   m3.material.io/components/navigation-rail): .navigation-rail (a <nav>), collapsed or expanded ([data-expanded]), with
-  .navigation-rail-header (its menu button, .navigation-rail-menu, which expands and collapses it, and evt. its FAB, an
+  .navigation-rail-header (its menu button, .navigation-rail-menu, which expands and collapses it, and optionally its FAB, an
   extended FAB with only its icon while the rail is collapsed) and .navigation-rail-items; each .navigation-rail-item
   (the open one with aria-current) with .navigation-rail-indicator (the pill: behind the icon, .navigation-rail-icon with
-  evt. .navigation-rail-badge, while collapsed, and behind the icon and .navigation-rail-label when expanded). The
+  optionally .navigation-rail-badge, while collapsed, and behind the icon and .navigation-rail-label when expanded). The
   expanded rail's modality: standard (beside the content, which makes room for it) or .navigation-rail-modal (over the
   content, which keeps its place, with its shadow and corners, over .navigation-rail-scrim just before it); its
   behaviour: back into the collapsed rail, or .navigation-rail-hide, nothing while it is collapsed.

@@ -1,5 +1,5 @@
 ---
-// 404 (the standard theme's): the page chosen as the 404 page under "Indstillinger" › "Udseende" › "Standardsider"
+// 404 (the standard theme's): the page chosen as the 404 page under "Settings" › "Appearance" › "Default pages"
 // (packages/editor/site/standardPages.ts), which the owner edits as a page in the editor. Its heading and introduction, then the
 // page the visitor most likely meant (matched on the words in the address, in the browser; an outlined card,
 // ui/Card.tsx), and below that its sections: a text and any block by its type (PageBlock.astro).
@@ -68,7 +68,7 @@ const spaceOf = (i: number) => (i === 0 ? 'mt-6 medium:mt-8' : space(i));
     const words = (s: string) =>
       decoded(s)
         .toLowerCase()
-        .split(/[^a-z0-9æøå]+/)
+        .split(/[^a-z0-9\u00e6\u00f8\u00e5]+/)
         .filter((w) => w.length > 2 && !/^\d+$/.test(w));
 
     function distance(a: string, b: string) {

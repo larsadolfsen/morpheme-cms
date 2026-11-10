@@ -1,6 +1,6 @@
 // Lines with a check before each, a list without dividers (List.tsx in ../../ui/, .block-checklist in ../blocks.css):
-// the standard block "Tjekliste", in two columns where there is room when it has six or more, and what is included on
-// a card of "Priskort" (../pricecards/View.tsx). `className`: the classes of where it is (the space of a block in the
+// the standard block "Checklist", in two columns where there is room when it has six or more, and what is included on
+// a card of "Price cards" (../pricecards/View.tsx). `className`: the classes of where it is (the space of a block in the
 // text, a card's).
 import List, { ListItem } from '@theme/ui/List';
 

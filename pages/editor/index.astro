@@ -7,7 +7,7 @@
 // itself (safe-area padding). interactive-widget=resizes-content: on Android the page gets shorter when
 // the keyboard opens, so the top bar and the text toolbar stay in view while typing. maximum-scale=1
 // (and touch-action in editor.css): no zooming in by a pinch or a double tap, which in Chrome on
-// Android pushes the bar with "Gem ændringer" out of sight below the screen.
+// Android pushes the bar with "Save changes" out of sight below the screen.
 // The manifest has no colours on purpose: Chrome on Android paints the installed app's navigation bar
 // (the strip at the bottom of the screen) in them, and one colour cannot fit both light and dark mode.
 // Without them the bar follows the phone's own light or dark mode; the top bar follows the
@@ -19,14 +19,14 @@ import App from '@morphemecms/cms/src/App.tsx';
 import { editorVersion } from '@morphemecms/cms/site/editor-version.mjs';
 import { config } from '@site/config';
 // The site's colours (the theme's styles/global.css); the editor puts the ones it has loaded in their place, so
-// a change under "Farver" shows at once (packages/editor/src/theme.ts).
+// a change under "Colors" shows at once (packages/editor/src/theme.ts).
 // With those a file written before them does not have made (completeColors).
 import colors from '@data/colors.json';
 import { colorsCss } from '@morphemecms/cms/lib/colors';
 import { completeColors } from '@morphemecms/cms/lib/dynamic-colors';
 import { colorRoles } from '@site/colors';
 // How the site moves, which the editor moves by too (packages/editor/lib/motion.ts); the editor puts a new choice under
-// "Bevægelse" in its place at once (packages/editor/src/theme.ts).
+// "Motion" in its place at once (packages/editor/src/theme.ts).
 import { motionCss } from '@morphemecms/cms/lib/motion';
 import { motionScheme } from '@morphemecms/cms/site/motion';
 import { pageColor } from '@morphemecms/cms/lib/colors';
@@ -57,7 +57,7 @@ const shown = completeColors(colors, colorRoles);
     <meta name="theme-color" content={pageColor(shown.dark)} data-color={pageColor(shown.dark)} media="(prefers-color-scheme: dark)" />
     <style id="site-colors" is:inline set:html={colorsCss(shown)}></style>
     <style id="site-motion" is:inline set:html={motionCss(motionScheme)}></style>
-    <!-- Light or dark as picked on "Konto" (packages/editor/src/theme.ts), before the page is drawn. The
+    <!-- Light or dark as picked on "Account" (packages/editor/src/theme.ts), before the page is drawn. The
          language (lang) is the site's until the editor has picked its own (packages/editor/src/i18n/). -->
     <script is:inline>
       try {

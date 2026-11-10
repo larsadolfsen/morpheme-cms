@@ -38,7 +38,7 @@ function fetched(spec) {
   const cache = `node_modules/.cache/${spec.replace(/[/@]/g, '_')}`;
   const pkg = `${cache}/node_modules/${spec.replace(/@[^@]*$/, '')}/`;
   if (!existsSync(`${pkg}package.json`)) {
-    console.log(`Henter ${spec} til ${cache} …`);
+    console.log(`Fetching ${spec} into ${cache} …`);
     mkdirSync(cache, { recursive: true });
     // npm is npm.cmd on Windows, which execFileSync cannot start without a shell: npm's own script with Node, when npm
     // runs this.
@@ -59,7 +59,7 @@ const phosphorPkg = 'node_modules/@phosphor-icons/core/';
 const phosphorVersion = JSON.parse(readFileSync(`${phosphorPkg}package.json`, 'utf8')).version;
 if (`@phosphor-icons/core@${phosphorVersion}` !== PACK_SOURCES.phosphor.package) {
   console.error(
-    `@phosphor-icons/core er ${phosphorVersion}, ikke ${PACK_SOURCES.phosphor.package}: ret versionen i PACK_SOURCES (packages/editor/site/icons.mjs), eller installer den.`,
+    `@phosphor-icons/core is ${phosphorVersion}, not ${PACK_SOURCES.phosphor.package}: fix the version in PACK_SOURCES (packages/editor/site/icons.mjs), or install it.`,
   );
   process.exit(1);
 }
@@ -78,7 +78,7 @@ function bare(file, wrap = (inner) => inner) {
   const svg = readFileSync(file, 'utf8').replace(/<!--[\s\S]*?-->/g, '');
   const viewBox = svg.match(/\bviewBox="([^"]*)"/)?.[1];
   const inner = svg.match(/^\s*<svg\b[^>]*>([\s\S]*)<\/svg>\s*$/)?.[1];
-  if (!viewBox || !inner) throw new Error(`${file} er ikke ét <svg> med en viewBox.`);
+  if (!viewBox || !inner) throw new Error(`${file} is not one <svg> with a viewBox.`);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${wrap(inner)}</svg>\n`;
 }
 // Lucide's lines, in the text's colour as lines (its own <svg> has the stroke); `-fill` filled in.
@@ -113,11 +113,11 @@ for (const id of SYSTEM_PACKS) {
   const missing = used.filter((name) => !names.includes(name));
   if (missing.length)
     problems.push(
-      `${PACK_SOURCES[id].name} har intet ikon for ${missing.join(', ')} i packages/editor/site/icons.mjs: skriv det, der passer (et, sættet intet har af, i MATERIAL_DESIGN_ICONS).`,
+      `${PACK_SOURCES[id].name} has no icon for ${missing.join(', ')} in packages/editor/site/icons.mjs: write the one that fits (one the set has none of, in MATERIAL_DESIGN_ICONS).`,
     );
   for (const { name, icon, file } of sources)
-    if (file && !existsSync(file)) problems.push(`${PACK_SOURCES[id].name} har intet "${icon}" (for ${name}).`);
-  if (id === 'phosphor') for (const name of phosphorNames(used)) if (!phosphorFile(name)) problems.push(`Phosphor har intet "${name}".`);
+    if (file && !existsSync(file)) problems.push(`${PACK_SOURCES[id].name} has no "${icon}" (for ${name}).`);
+  if (id === 'phosphor') for (const name of phosphorNames(used)) if (!phosphorFile(name)) problems.push(`Phosphor has no "${name}".`);
 }
 if (problems.length) {
   for (const p of problems) console.error(p);
@@ -184,6 +184,6 @@ for (const id of SYSTEM_PACKS) {
 `,
     );
   console.log(
-    `${readdirSync(dir).filter((f) => f.endsWith('.svg')).length} ikoner fra ${spec}${mdi.length ? ` og ${PACK_SOURCES[MDI].package}` : ''} i ${dir}.`,
+    `${readdirSync(dir).filter((f) => f.endsWith('.svg')).length} icons from ${spec}${mdi.length ? ` and ${PACK_SOURCES[MDI].package}` : ''} in ${dir}.`,
   );
 }

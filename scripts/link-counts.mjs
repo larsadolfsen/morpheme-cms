@@ -1,5 +1,5 @@
 // After the build: how many pages and posts each keyword links from (packages/editor/site/autolinks.mjs gives its links
-// data-link="auto"), in dist/editor/links.json, for "Søgeord" under "Interne links" in the editor (Keywords.tsx):
+// data-link="auto"), in dist/editor/links.json, for "Keywords" under "Internal links" in the editor (Keywords.tsx):
 // { words: { "<word in lower case>": { href, pages } } }, counted in the built pages, without the new versions under
 // /ny/ and the editor. A keyword without links is not in it.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';

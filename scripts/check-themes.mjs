@@ -56,4 +56,4 @@ if (failed.length) {
   process.exit(1);
 }
 if (!others.length) console.log('Der er ingen andre temaer installeret i src/themes/.');
-else console.log(`\n${others.length === 1 ? 'Temaet' : 'Temaerne'} ${others.join(', ')} virker også som sitets tema.`);
+else console.log(`\n${others.length === 1 ? 'Temaet' : 'Temaerne'} ${others.join(', ')} also work as the site's theme.`);

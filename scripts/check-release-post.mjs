@@ -173,12 +173,12 @@ const kept = (w) => JSON.parse(w.kv.map.get('cms:release-post') ?? 'null');
   const w = world({ locale: 'da-DK' });
   await postRelease(w.env, w.deps, T0);
   expect(
-    w.commits[0]?.headline === 'Udgiv nyhederne i Morpheme 0.14.2 på bloggen',
+    w.commits[0]?.headline === 'Udgiv nyhederne i Morpheme 0.14.2 p\u00e5 bloggen',
     `the Danish commit message was "${w.commits[0]?.headline}"`,
   );
   const text = w.files[POST] ?? '';
   expect(
-    text.includes('title: "Nyt i Morpheme Braies 0.14.2"') && text.includes('## Også i denne version'),
+    text.includes('title: "Nyt i Morpheme Braies 0.14.2"') && text.includes('## Ogs\u00e5 i denne version'),
     'the Danish post was not in Danish',
   );
   expect(text.includes('## Pick up where you left off'), 'the Danish post had not the English notes');

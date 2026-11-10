@@ -2,7 +2,7 @@
 // Blog post template. A narrow reading column, the site's owner as author. Order: PostHeader (back link, title, author,
 // byline with tags, share row), the lead (the text's first paragraph), the featured picture, the rest of the text, the
 // end block, RelatedPosts. Without a lead the picture comes before the text.
-// data-editor marks what the editor's preview fills in with what is in its form ("Forhåndsvis",
+// data-editor marks what the editor's preview fills in with what is in its form ("Preview",
 // packages/editor/src/pagePreview.tsx): the heading, the lead, the picture and the text. The text goes through RichText (blocks={false}: a post draws no blocks, but its coloured sections are panels).
 import { splitLead } from '@morphemecms/cms/lib/lead.mjs';
 import { firstImage, heroImage, picturesOf } from '@morphemecms/cms/site/images.mjs';

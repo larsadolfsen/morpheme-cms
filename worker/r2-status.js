@@ -2,7 +2,7 @@
 // editor (packages/editor/src/Advanced.tsx): the switch writes the bucket into the Worker's settings (wrangler.jsonc),
 // and a deploy with a bucket Cloudflare does not have fails, so it can only be turned on when Cloudflare says the bucket
 // is there (R2 turned on for the account, and the bucket made). Asked of Cloudflare's API with the Worker's own key, a
-// token that may only read R2 (the secret CLOUDFLARE_R2_TOKEN, and CLOUDFLARE_ACCOUNT_ID; docs/editor.md, Opsætning). The same
+// token that may only read R2 (the secret CLOUDFLARE_R2_TOKEN, and CLOUDFLARE_ACCOUNT_ID; docs/editor.md, Setup). The same
 // token also tells whether the account has Workers Paid (packages/editor/worker/plan-status.js), so it needs Billing: Read too.
 //   GET /api/r2?bucket=<name>[&jurisdiction=<eu|fedramp>]  { bound, bucket }: whether this Worker has FILES now (the site is built with it), and the
 //     bucket at Cloudflare: "ready" (there), "no-bucket", "no-r2" (R2 not turned on), "no-key" (the Worker has no key),

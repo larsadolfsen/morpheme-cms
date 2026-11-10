@@ -13,6 +13,6 @@ export const headerMenuClass = (side: 'start' | 'end') => `${headerEdge[side]} l
  * medium window size up (on a phone they are in the navigation drawer). */
 export const headerCtaClass = 'ml-1 hidden shrink-0 items-center gap-2 medium:flex';
 
-/** The bar of "Mobilmenu" under the header, where the menu's items are not, and its row of tabs. */
+/** The bar of "Mobile menu" under the header, where the menu's items are not, and its row of tabs. */
 export const mobileNavClass = 'large:hidden large:group-data-crowded/header:block';
 export const mobileNavListClass = `${tabsClass} relative mx-auto max-w-6xl px-1 medium:px-4`;

@@ -16,28 +16,12 @@ import { siteText, locale } from '@morphemecms/cms/src/i18n';
 import { timePickerField } from '@theme/ui/timePicker.script';
 import IconButton from '@theme/ui/IconButton';
 import TextField from '@theme/ui/TextField';
-import { dayPeriods, timeOf, timeTyped } from '@theme/ui/dates';
+import { timePickerTextsIn } from '@theme/ui/pickerTexts';
+import { timeOf, timeTyped } from '@theme/ui/dates';
 import type { TimePickerFormat, TimePickerOrientation, TimePickerTexts } from '@theme/ui/TimePickerContainer';
 
 /** A time picker's fixed texts, in the language its times are written in (AM and PM the language's own). */
-export const timePickerTexts = (): TimePickerTexts => ({
-  locale,
-  select: siteText('Vælg tidspunkt'),
-  enter: siteText('Skriv tidspunkt'),
-  hour: siteText('Time'),
-  minute: siteText('Minut'),
-  format: siteText('tt.mm'),
-  wrong: siteText('Skriv et tidspunkt mellem 00.00 og 23.59.'),
-  format12: siteText('t.mm AM/PM'),
-  wrong12: siteText('Skriv et tidspunkt mellem 1.00 og 12.59.'),
-  period: siteText('Før eller efter middag'),
-  am: dayPeriods(locale)[0],
-  pm: dayPeriods(locale)[1],
-  toInput: siteText('Skift til at skrive'),
-  toDial: siteText('Skift til urskiven'),
-  cancel: siteText('Annuller'),
-  ok: siteText('OK'),
-});
+export const timePickerTexts = (): TimePickerTexts => timePickerTextsIn(siteText, locale);
 
 export default function TimePicker({
   label,

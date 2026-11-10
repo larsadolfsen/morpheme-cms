@@ -1,5 +1,5 @@
 // List of posts: one column on mobile, two on desktop. Thumbnail, date and reading time, title, description. The posts
-// after the newest (BlogPosts.tsx), and the posts of the standard block "Blogindlæg" (blocks/posts/View.tsx). `random`: the list has all the posts it can take from, and on the site a script right after
+// after the newest (BlogPosts.tsx), and the posts of the standard block "Blog posts" (blocks/posts/View.tsx). `random`: the list has all the posts it can take from, and on the site a script right after
 // it shows `count` of them on each visit, before the list is drawn (without JavaScript: the first, the newest).
 import Img from '@theme/components/Img';
 import PostMeta from '@theme/components/PostMeta';

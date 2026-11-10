@@ -1,7 +1,7 @@
 // What a tab list (Tabs.tsx with `label`, a role="tablist" of <button role="tab">) does on the site: a tab shows its
 // panel (aria-controls, the panel's id) and hides the others' (hidden), and is the open one (aria-selected); the row is
 // one stop for Tab, and the arrow keys, Home and End move to another tab and open it (WAI-ARIA's tabs pattern), which
-// is scrolled into view when the row is scrollable. Tabs that are links (the bar of "Mobilmenu") lead to their pages and
+// is scrolled into view when the row is scrollable. Tabs that are links (the bar of "Mobile menu") lead to their pages and
 // are left alone. Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts); without a tab list it
 // does nothing.
 export default function tabs() {

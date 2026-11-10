@@ -1,110 +1,110 @@
-# AGENTS.md – Arkitektonisk Ramme & Samarbejdsmodel
+# AGENTS.md – Architecture Framework & Collaboration Model
 
-Dette dokument definerer den overordnede arkitektur, afgrænsning, roller og workflows for alle AI-agenter, der arbejder i dette repository.
+This document defines the overall architecture, scope, roles and workflows for all AI agents that work in this repository.
 
 ---
 
-## 1. Kontekst, Formål og Afgrænsning
+## 1. Context, Purpose and Scope
 
-I vores økosystem indgår to helt adskilte repositories, som **aldrig** må forveksles:
+Our ecosystem has two completely separate repositories, which must **never** be confused:
 
-1. **`morpheme-appstore` (Butikken / Distributionsserveren):**
+1. **`morpheme-appstore` (the store / the distribution server):**
    - Cloudflare Worker-repository (`larsadolfsen/morpheme-appstore`).
-   - Fungerer som et privat npm-registry med Cloudflare D1 (metadata, tokens, nøgler) og Cloudflare KV (tarballs).
-   - Ansvarlig for pakke-distribution og licenser.
-   - Indeholder **ingen** CMS-logik, Astro-koder eller tema-implementeringer.
+   - Works as a private npm registry with Cloudflare D1 (metadata, tokens, keys) and Cloudflare KV (tarballs).
+   - Responsible for package distribution and licenses.
+   - Contains **no** CMS logic, Astro code or theme implementations.
 
-2. **`morpheme-cms` (Dette repository – Selve CMS-produktet `@morphemecms/cms`):**
-   - Selve Astro-editoren, CMS-kernen og det officielle standardtema.
-   - Indeholder editoren (`src/`, `pages/`), fælles biblioteker (`lib/`), sitets Cloudflare Worker (`worker/`), standardtemaet (`theme/`), starteren (`starter/`) og demoen (`demo/`).
-   - Udgives på npmjs.com som en offentlig pakke (`.github/workflows/publish.yml`): hver merge til `main` lægger en
-     testversion klar under npm-tagget `next` til `morpheme-staging`; pull requesten *Release @morphemecms/cms*, som
-     Changesets holder åben, flettes, når ejeren skriver `/release` (`.claude/skills/release/SKILL.md`), og lægger `latest` klar. En version er først på npm, når
-     ejeren har godkendt den på npmjs.com med 2FA (*staged publishing*); en agent godkender aldrig. Flet aldrig
-     Release-PR'en uden ejerens ja.
+2. **`morpheme-cms` (this repository – the CMS product itself, `@morphemecms/cms`):**
+   - The Astro editor itself, the CMS core and the official default theme.
+   - Contains the editor (`src/`, `pages/`), shared libraries (`lib/`), the site's Cloudflare Worker (`worker/`), the default theme (`theme/`), the starter (`starter/`) and the demo (`demo/`).
+   - Published on npmjs.com as a public package (`.github/workflows/publish.yml`): every merge to `main` stages a
+     test version under the npm tag `next` for `morpheme-staging`; the pull request *Release @morphemecms/cms*, which
+     Changesets keeps open, is merged when the owner writes `/release` (`.claude/skills/release/SKILL.md`), and stages `latest`. A version is only on npm when
+     the owner has approved it on npmjs.com with 2FA (*staged publishing*); an agent never approves. Never merge
+     the Release PR without the owner's yes.
    - This repository is the only source of the CMS (since 2026-11-05). `larsadolfsen/morpheme-website` installs `@morphemecms/cms` from npm and has no `packages/editor/`; its check fails if that folder comes back. Every change to the editor, the theme *Material*, the Worker, the starter or the demo is a pull request here.
 
 > [!IMPORTANT]
-> Dette repository er **ikke** butikken eller Cloudflare npm-registryet. Al udvikling her vedrører CMS-editoren, Astro-integrationen, standardtemaet Material Design 3 (*Material*) og de tilhørende blokke og komponenter.
+> This repository is **not** the store or the Cloudflare npm registry. All development here concerns the CMS editor, the Astro integration, the default theme Material Design 3 (*Material*) and the related blocks and components.
 >
-> **Fælles tema-princip (Frontend & Backend):**
-> Både sitets frontend og administrations-editoren (`/editor/`) anvender og deler **nøjagtig det samme tema** (`theme/styles/global.css`, MD3-tokens, typografi og UI-komponenter). Editoren har intet separat font- eller stilsystem: alt arver direkte fra temaets tokens, overflader og skrifter.
+> **Shared theme principle (frontend & backend):**
+> Both the site's frontend and the admin editor (`/editor/`) use and share **exactly the same theme** (`theme/styles/global.css`, MD3 tokens, typography and UI components). The editor has no separate font or style system: everything inherits directly from the theme's tokens, surfaces and fonts.
 
 ---
 
-## 2. Nøglemapper & Struktur
+## 2. Key Folders & Structure
 
-- **`theme/`**: Det officielle standardtema (**Material Design 3 / *Material***).
-  - `theme/styles/`: MD3 design tokens (3-tier: `md.ref.*`, `md.sys.*`, `md.comp.*`), typografi (Roboto / Roboto Flex), elevation og color scales.
-  - `theme/ui/`: M3 UI-komponenter (Buttons, Cards, Chips, Dialogs, Top App Bar, Navigation Bar/Rail/Drawer mv.).
-  - `theme/blocks/`: Standardblokke og deres visuelle udtryk (`View.tsx`, CSS).
-- **`demo/`**: CMS'ets demo, et opdigtet site lagt oven på starteren, som CMS'et udvikles og tjekkes med, og som temaernes billeder tages af (`npx morpheme check:demo`). `npm run build` (`scripts/demo-build.mjs`, ikke i pakken) bygger den i `.morpheme/demo/site/` med en kopi af pakken, som npm ville pakke den, og `wrangler.jsonc` lægger den på Workeren `morpheme-demo`. Hver branch får sin egen Preview af demoen (Cloudflares Worker Previews, `npx wrangler preview`), og Cloudflare skriver dens adresse på branchens pull request; login og gem virker ikke dér. Agents never send the owner a Preview link for a change to the editor (the owner can't sign in there to see it); only for a change visible on the site.
-- **`starter/`**: Det, et nyt site begynder med (knappen *Deploy to Cloudflare*).
-- **`src/` og `pages/`**: Selve CMS-editoren og administrationsfladen.
-  - `src/`: React-baseret editor UI, skærme, felter, state management (`store.ts`), live preview (`pagePreview.tsx`) og blok-registry (`blocks.ts`).
-  - `pages/`: Astro-sider og routing til administrationsfladen.
-- **`lib/`**: Fælles hjælpefunktioner delt mellem editor og site (blok-parsing `blocks.mjs`, billedbeskæring `crop.mjs`, status, datoer, video-håndtering mv.).
-- **`worker/`**: Sitets standard Cloudflare Worker (login/session, GitHub-commit proxy, R2 backup, redirects og planlagte opgaver).
-- **`bin/`**: CLI-værktøjet `morpheme` til billedbehandling, build-hooks og validering.
+- **`theme/`**: The official default theme (**Material Design 3 / *Material***).
+  - `theme/styles/`: MD3 design tokens (3-tier: `md.ref.*`, `md.sys.*`, `md.comp.*`), typography (Roboto / Roboto Flex), elevation and color scales.
+  - `theme/ui/`: M3 UI components (Buttons, Cards, Chips, Dialogs, Top App Bar, Navigation Bar/Rail/Drawer etc.).
+  - `theme/blocks/`: Default blocks and their visual look (`View.tsx`, CSS).
+- **`demo/`**: The CMS's demo, a made-up site laid over the starter, which the CMS is developed and checked with and which the themes' pictures are taken of (`npx morpheme check:demo`). `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in `.morpheme/demo/site/` with a copy of the package as npm would pack it, and `wrangler.jsonc` puts it on the Worker `morpheme-demo`. Each branch gets its own Preview of the demo (Cloudflare's Worker Previews, `npx wrangler preview`), and Cloudflare writes its address on the branch's pull request; login and save do not work there. Agents never send the owner a Preview link for a change to the editor (the owner can't sign in there to see it); only for a change visible on the site.
+- **`starter/`**: What a new site starts with (the *Deploy to Cloudflare* button).
+- **`src/` and `pages/`**: The CMS editor itself and the admin interface.
+  - `src/`: React-based editor UI, screens, fields, state management (`store.ts`), live preview (`pagePreview.tsx`) and block registry (`blocks.ts`).
+  - `pages/`: Astro pages and routing for the admin interface.
+- **`lib/`**: Shared helper functions used by both the editor and the site (block parsing `blocks.mjs`, image cropping `crop.mjs`, status, dates, video handling etc.).
+- **`worker/`**: The site's default Cloudflare Worker (login/session, GitHub commit proxy, R2 backup, redirects and scheduled tasks).
+- **`bin/`**: The `morpheme` CLI tool for image processing, build hooks and validation.
 - **`release-notes/`**: Owner-facing release notes in English and Danish: cards (title, text and a screenshot per language) and lines. Each pull request writes `i18n/<locale>/pending/<id>.json` (and `<id>.webp` for a card); `release:version` moves them to `i18n/<locale>/<version>.json` and `i18n/<locale>/<version>/`. Writing rule: `.changeset/README.md`.
 
 ---
 
-## 3. Roller og Samarbejdsfordeling
+## 3. Roles and Division of Work
 
-Al udvikling i dette repo styres af én orkestrator, der uddelegerer:
+All development in this repo is run by one orchestrator, who delegates:
 
 ```mermaid
 flowchart LR
-    A["Orkestrator<br/>(Claude Code lokalt på pc'en)"] -->|"1. Delopgaver, der kræver repoets regler"| S["Claude-subagenter"]
-    A -->|"1. Veldefineret, mekanisk kode"| D["Developer<br/>(Ollama på samme pc)"]
-    S -->|"2. Resultater"| A
-    D -->|"2. Kode"| A
-    A -->|"3. Gennemgang, test & integration"| R["morpheme-cms codebase"]
+    A["Orchestrator<br/>(Claude Code locally on the PC)"] -->|"1. Subtasks that need the repo's rules"| S["Claude subagents"]
+    A -->|"1. Well-defined, mechanical code"| D["Developer<br/>(Ollama on the same PC)"]
+    S -->|"2. Results"| A
+    D -->|"2. Code"| A
+    A -->|"3. Review, test & integration"| R["morpheme-cms codebase"]
 ```
 
-### 1. Orkestrator (Claude Code lokalt på pc'en)
-- **Hvor:** repoets mappe på ejerens pc, på ejerens abonnement; `/rc` for at følge med fra telefonen.
-- **Ansvar:** Systemarkitektur, snitfladedesign, modulkontrakter, sikkerhed, kvalitetssikring, overblik, nedbrydning og uddelegering af opgaver.
-- **Opgaver:**
-  - Fastlægger API'er, komponent-props og types.
-  - Specificerer opgaver klart til subagenterne og Developer.
-  - Validerer al modtaget kode mod projektets standarder, WCAG AA, A11y og MD3-regler.
-  - Integrerer og committer færdigtestede ændringer.
+### 1. Orchestrator (Claude Code locally on the PC)
+- **Where:** the repo's folder on the owner's PC, on the owner's subscription; `/rc` to follow along from the phone.
+- **Responsibility:** System architecture, interface design, module contracts, security, quality assurance, overview, breaking down tasks and delegating them.
+- **Tasks:**
+  - Sets the APIs, component props and types.
+  - Specifies tasks clearly for the subagents and the Developer.
+  - Validates all received code against the project's standards, WCAG AA, A11y and MD3 rules.
+  - Integrates and commits fully tested changes.
 
-### 2. Claude-subagenter
-- **Ansvar:** Afgrænsede eller parallelle opgaver fra orkestratoren (søgning, gennemgang, mindre ændringer); førstevalget, når opgaven kræver at kende repoets regler.
+### 2. Claude subagents
+- **Responsibility:** Bounded or parallel tasks from the orchestrator (search, review, smaller changes); the first choice when the task requires knowing the repo's rules.
 
-### 3. Developer (Ollama på samme pc)
-- **Ansvar:** Veldefinerede, mekaniske opgaver med en præcis specifikation (boilerplate, tests, oversættelser, omskrivninger).
-- **Model og adgang:** `qwen3.8:27b` gennem Ollamas API på `http://127.0.0.1:11434`.
-- **Instruks:** Skal altid modtage veldefinerede krav og snitflader fra orkestratoren, som gennemgår koden og kører tjekkene, før den committes.
+### 3. Developer (Ollama on the same PC)
+- **Responsibility:** Well-defined, mechanical tasks with a precise specification (boilerplate, tests, translations, rewrites).
+- **Model and access:** `qwen3.8:27b` through Ollama's API at `http://127.0.0.1:11434`.
+- **Instruction:** Must always receive well-defined requirements and interfaces from the orchestrator, who reviews the code and runs the checks before it is committed.
 
-### 4. Claude i skyen (claude.ai/code)
-- **Hvornår:** Når pc'en er slukket, eller til en opgave, der skal køre for sig i en ren container. Den når ikke Ollama og lader subagenter skrive koden.
+### 4. Claude in the cloud (claude.ai/code)
+- **When:** When the PC is off, or for a task that should run on its own in a clean container. It cannot reach Ollama and lets subagents write the code.
 
-### Samarbejdsflow
-1. **Orkestratoren** designer snitflader, definerer datamodeller og bryder opgaven ned i konkrete trin.
-2. **Subagenterne og Developer (Ollama)** udfører delopgaverne og genererer kode.
-3. **Orkestratoren** gennemgår, tester (se nedenfor), sender fejl tilbage til den, der skrev koden, og integrerer den.
-4. **Hver pull request har en changeset** (`npx changeset`, eller `npx changeset --empty`, når intet, et site får, ændres): patch, minor eller major og én linjes release note på engelsk. Se `.changeset/README.md`.
+### Collaboration flow
+1. **The orchestrator** designs interfaces, defines data models and breaks the task down into concrete steps.
+2. **The subagents and the Developer (Ollama)** carry out the subtasks and generate code.
+3. **The orchestrator** reviews, tests (see below), sends errors back to whoever wrote the code, and integrates it.
+4. **Every pull request has a changeset** (`npx changeset`, or `npx changeset --empty` when nothing a site receives changes): patch, minor or major and a one-line release note in English. See `.changeset/README.md`.
 
 ---
 
-## 4. Verifikations- og Testkommandoer
+## 4. Verification and Test Commands
 
 Before changes are approved or published, verify the following from the root of this repository, on the demo
 (`npm run build` builds it in `.morpheme/demo/site/`). CI (`.github/workflows/check.yml`) runs `check`,
 `check:screens`, `check:demo` and `check:starter` on every pull request; its job `check` must pass before a merge.
 
-| Kommando | Beskrivelse |
+| Command | Description |
 | :--- | :--- |
 | `npm run check` | Prettier, `check:language`, the unit tests (`npm test`), the package's types (`check:types`), the demo built (`npm run build`, its content checked by the editor's rules) and `check:editor` on it (each page the same after a save). |
 | `npm run check:language` | No Danish text outside the language files (i18n/da-DK/); PENDING in scripts/check-language.mjs lists the parts not converted yet. |
-| `npm run check:screens` | Efter `npm run build`: alle editorens skærme åbner uden fejl, på en telefon og en computer, og alle ikoner findes. |
-| `node ../../../bin/morpheme.mjs check:themes` (in `.morpheme/demo/site/`) | Det samme med hvert af de andre temaer. |
-| `npm run check:starter` | Starteren virker som et site med pakken fra `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. |
-| `npm run check:demo` | Demoen bygger med standardtemaet og følger editorens regler. |
+| `npm run check:screens` | After `npm run build`: all of the editor's screens open without errors, on a phone and a computer, and all icons exist. |
+| `node ../../../bin/morpheme.mjs check:themes` (in `.morpheme/demo/site/`) | The same with each of the other themes. |
+| `npm run check:starter` | The starter works as a site with the package from `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. |
+| `npm run check:demo` | The demo builds with the default theme and follows the editor's rules. |
 
 ### Worker rule: no pending I/O promise in module memory
 
@@ -116,31 +116,31 @@ carries the comment `// pending-ok` with the reason.
 
 ---
 
-## 5. Generel Tilgang: English First
+## 5. General Approach: English First
 
-At skrive og tænke på engelsk først er en **overordnet og generel tilgang** på tværs af hele projektet, arkitekturen og samarbejdsmodellen:
+Writing and thinking in English first is an **overall, general approach** across the whole project, the architecture and the collaboration model:
 
-1. **Universelt kildesprog (Source of Truth):**
-   - Engelsk (`en-US`) er altid kildesproget for samtlige datamodeller, skemaer, felter, hints, blokke, API'er, kode-kommentarer, fejlbeskeder og teknisk dokumentation.
-   - Alle andre sprog (herunder dansk `da-DK`) er lokaliserende oversættelser (`translations`) af den engelske referenceform.
-2. **Kommunikation og svarform:**
+1. **Universal source language (Source of Truth):**
+   - English (`en-US`) is always the source language for all data models, schemas, fields, hints, blocks, APIs, code comments, error messages and technical documentation.
+   - All other languages (including Danish `da-DK`) are localizing translations (`translations`) of the English reference form.
+2. **Communication and reply format:**
    - Agents write to the owner **in English only**: replies, reports, PR descriptions and commit messages. Never add a
      Danish summary or any Danish text, even when the owner writes in Danish. The Danish texts the product needs (the
      `da-DK` translations and release notes) are not affected.
-3. **i18n Fallback-arkitektur:**
-   - Standarddelene er skrevet på engelsk; deres danske tekster ligger i `defaults/i18n/da-DK/` (samlet i `defaults/texts.ts`, standarden for `@site/texts`). Mangler en standardtekst sin danske, stopper `check:content`.
+3. **i18n fallback architecture:**
+   - The default parts are written in English; their Danish texts are in `defaults/i18n/da-DK/` (collected in `defaults/texts.ts`, the default for `@site/texts`). If a default text lacks its Danish version, `check:content` stops.
 
 ---
 
 ## 6. Material Design 3: Global Writing & Word Choice
 
-Al tekstformulering i UI-komponenter, knapper og felter følger de specifikke retningslinjer for **Content Design: Global Writing & Word Choice** (jf. `https://m3.material.io/foundations/content-design/global-writing/word-choice` og skillen `.agents/skills/word-choice/SKILL.md`).
+All wording in UI components, buttons and fields follows the specific guidelines for **Content Design: Global Writing & Word Choice** (cf. `https://m3.material.io/foundations/content-design/global-writing/word-choice` and the skill `.agents/skills/word-choice/SKILL.md`).
 
-- **Korte, præcise sætninger i aktiv form** (Active Voice).
-- **Universelle termer:** Ingen lokale forkortelser eller uforklarede nationale begreber.
-- **M3 Kanonisk Terminologi:**
-  - Toggles og tilstande: `Enabled` / `Disabled` (dansk: `Aktiveret` / `Deaktiveret`), `On` / `Off` (`Til` / `Fra`).
-  - Dokumentstatus: `Draft`, `Published`, `Scheduled`, `Hidden`.
-  - Handlingsknapper: Aktive verber uden fyldord (`Add tag`, `Edit page`, `Save`).
+- **Short, precise sentences in the active form** (Active Voice).
+- **Universal terms:** No local abbreviations or unexplained national concepts.
+- **M3 canonical terminology:**
+  - Toggles and states: `Enabled` / `Disabled`, `On` / `Off` (their Danish labels are in the `da-DK` language files).
+  - Document status: `Draft`, `Published`, `Scheduled`, `Hidden`.
+  - Action buttons: Active verbs without filler words (`Add tag`, `Edit page`, `Save`).
 
 

@@ -17,10 +17,10 @@ export type Contact = BlockData['site']['contact'];
 export const Texts = createContext<Pick<SiteData, 'labels' | 'blocks'> | null>(null);
 export const useTexts = () => useContext(Texts)!;
 
-// The phone, e-mail and address, as saved under "Virksomheden".
+// The phone, e-mail and address, as saved under "Business".
 export const contactOf = (data: BlockData): Contact => data.site.contact;
 
-// Markdown as plain paragraphs, for a text that is not edited here (a hidden section, Om mig).
+// Markdown as plain paragraphs, for a text that is not edited here (a hidden section, About me).
 export const plainParagraphs = (markdown: string) =>
   markdown
     .split(/\n\s*\n/)
@@ -48,7 +48,7 @@ export const Text = ({ heading, body }: { heading?: string; body: string }) => (
 export type Preview = (props: Props, data: BlockData, block: DrawBlock) => ReactNode;
 
 // What every standard page draws its own way: a text (only on a page with sections in their own fields). A section of
-// a block's type is drawn by that block, and the prices by the block "Priser" (`block`, as the site's Block.astro).
+// a block's type is drawn by that block, and the prices by the block "Prices" (`block`, as the site's Block.astro).
 export const everyFixedPage: Record<string, Preview> = {
   text: (props) => <Text heading={props.heading} body={String(props.body ?? '')} />,
 };

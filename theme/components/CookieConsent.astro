@@ -1,14 +1,14 @@
 ---
 // Cookie banner: asks about each category of cookies the apps' tags set (consentCategories in packages/editor/site/consent.ts:
 // preferences, statistics, marketing, targeting), so a yes to one is not a yes to another, before those tags are loaded
-// (afterConsent in src/scripts/tracking.ts). "Ja tak" says yes to all of them and "Nej tak" no, equally easy; "Avanceret"
-// shows each category with what it is for and a box to tick (the theme's Checkbox), and "Gem valg" saves what is
-// ticked. The necessary cookies are shown too, always on. "Cookieindstillinger" in the footer opens it again, with the
+// (afterConsent in src/scripts/tracking.ts). "Yes, thanks" says yes to all of them and "No, thanks" no, equally easy; "Advanced"
+// shows each category with what it is for and a box to tick (the theme's Checkbox), and "Save choices" saves what is
+// ticked. The necessary cookies are shown too, always on. "Cookie settings" in the footer opens it again, with the
 // categories, the visitor's answer and the id of their answers in the consent log (packages/editor/worker/consent.js), and so does
-// ?cookiebanner in the address (the editor's "Se på hjemmesiden"). It asks again when it
+// ?cookiebanner in the address (the editor's "View on the website"). It asks again when it
 // asks about a category the visitor has not answered.
-// The texts are in src/data/cookies.json, which the owner edits in the editor ("Indstillinger" › "Privatliv" ›
-// "Cookiebanner"); "Læs mere" goes to the cookie policy ("Standardsider", cookiesHref in packages/editor/site/standardPages.ts).
+// The texts are in src/data/cookies.json, which the owner edits in the editor ("Settings" › "Privacy" ›
+// "Cookie banner"); "Read more" goes to the cookie policy ("Default pages", cookiesHref in packages/editor/site/standardPages.ts).
 // Its `enabled` is read by Base.astro: switched off, neither the banner nor this script (and so no
 // Google tag) is on the site.
 import type { CookieCategory } from '@morphemecms/cms/lib/cookieCategories.mjs';

@@ -1,4 +1,4 @@
-// "Cookieliste": the cookies as a table, a row each with who sets it first and then its name, which scrolls sideways on
+// "Cookie list": the cookies as a table, a row each with who sets it first and then its name, which scrolls sideways on
 // a narrow screen. Built of the standard blocks' part .block-table.
 import type { CookiesView } from '@morphemecms/cms/src/standard/cookies/view';
 import { useInText } from '@morphemecms/cms/src/standard/view';
