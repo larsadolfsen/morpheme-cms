@@ -95,7 +95,7 @@ export const library = {
   /** By the theme the website uses, under "Themes" and on its page. */
   themeInUse: 'In use',
   /** By the theme it is changed to, until the website is updated: under "Themes", and on its page. */
-  themeNext: 'Changing to it',
+  themeNext: 'Changing to this theme',
   themeChanging: (name: string) => `Changing to ${name} in a few minutes`,
   /** On a theme's page: the pictures of the site in it (packages/editor/scripts/theme-screenshots.mjs), each by what it shows. */
   themeLooks: 'What your website looks like',

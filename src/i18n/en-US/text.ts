@@ -6,7 +6,7 @@ export const text = {
   italic: 'Italic',
   link: 'Link',
   /** The page's own heading, at the top of its text (a page's, not a blog post's). */
-  pageHeading: 'Heading (H1)',
+  pageHeading: 'Main heading',
   heading: 'Heading',
   subheading: 'Subheading',
   paragraph: 'Normal text',

@@ -14,7 +14,7 @@ export const blocks = {
     hint: 'Choose a picture from Files, or upload a new one.',
     src: 'Picture',
     alt: 'Alt text',
-    altHint: 'For screen readers and search engines.',
+    altHint: 'Describe the picture in a few words, for people who can’t see it.',
     /** A picture that is only decoration: drawn with alt="", without an alternative text. */
     decorative: 'Decorative picture',
     decorativeHint: 'Screen readers skip the picture.',
