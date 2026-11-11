@@ -1,6 +1,5 @@
 {
   "id": "drafts-publish-buttons",
-  "kind": "card",
-  "title": "Publish when you’re ready",
-  "text": "Changes to a page or post now wait until you publish them, and a new one stays a draft. Open one and choose Publish, Publish changes, Unpublish or Discard changes."
+  "kind": "line",
+  "text": "Changes to a published page or post wait until you choose Publish changes, and a draft has Publish"
 }

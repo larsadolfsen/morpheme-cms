@@ -1,6 +1,5 @@
 {
   "id": "drafts-schedule",
-  "kind": "card",
-  "title": "Vælg, hvornår en side går live",
-  "text": "Du kan nu planlægge en kladde eller ændringerne til en udgivet side til en dato og et tidspunkt. Åbn en side, og vælg Planlæg nederst i formularen. Sider, der var planlagt før, flytter over af sig selv."
+  "kind": "line",
+  "text": "Du kan planlægge en kladde eller ændringerne til en udgivet side til en dato og et tidspunkt med Planlæg nederst i formularen"
 }

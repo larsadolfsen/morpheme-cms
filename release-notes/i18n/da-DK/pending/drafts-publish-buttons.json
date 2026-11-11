@@ -1,6 +1,5 @@
 {
   "id": "drafts-publish-buttons",
-  "kind": "card",
-  "title": "Udgiv, når du er klar",
-  "text": "Ændringer i en side eller et indlæg venter, til du udgiver dem, og en ny side eller et nyt indlæg er en kladde, indtil du udgiver den. Åbn en og vælg Udgiv, Udgiv ændringer, Fjern fra hjemmesiden eller Kassér ændringer."
+  "kind": "line",
+  "text": "Ændringer i en udgivet side eller et udgivet indlæg venter, til du vælger Udgiv ændringer, og en kladde har Udgiv"
 }
