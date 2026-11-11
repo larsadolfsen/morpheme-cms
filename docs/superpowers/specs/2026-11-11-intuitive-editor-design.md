@@ -502,7 +502,7 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
 2. **Autosave, a status and Publish (owner, 11 November):** there is no `Save` button. The editor saves the owner's work
    as they type into a draft version and shows its state (`Saving…`, `Saved`, or `Not saved` with a retry). `Publish`
    makes the page available on the site, and a page that is published shows `Unpublish` instead, which removes it from the
-   site. A published page that has changes waiting shows `Unpublished changes`. Today `Save` writes straight to the site,
+   site. The site always shows the last published version, and autosave never changes it. Three states (owner, 11 November): **Draft** (not on the site; `Publish` puts it live); **Published with nothing waiting** (live, `Saved`, the button is `Unpublish`); **Published with changes waiting** (the site still shows the old version, the page is marked `Unpublished changes`, the button reads `Publish changes`, which replaces the live version with the draft, and `Unpublish` moves into a menu). Today `Save` writes straight to the site,
    so this changes how saving works: the draft version needs a place to live (to be found, since the site's content is
    committed to GitHub), and the build runs only on `Publish` and `Unpublish`. Open: where the draft is kept, and
    whether the owner can discard the waiting changes.
