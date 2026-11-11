@@ -1,0 +1,6 @@
+{
+  "id": "assistants-read-site",
+  "kind": "card",
+  "title": "Let an assistant read your website",
+  "text": "Claude and other assistants can now read your pages, posts and app settings, but can’t change anything. Open Settings, then Assistants, to copy the address and see who is connected."
+}

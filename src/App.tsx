@@ -7,6 +7,7 @@
 //   settings         the Settings screen (Library.tsx SettingsScreen), opened by the cog at the bottom of the drawer (MainMenu.tsx);
 //                    its rows are screens of their own
 //   settings/appstore   the app store, its apps (AppList.tsx StorePage)
+//   assistants       the assistants connected to the site, with Connect (the address) and Disconnect (Assistants.tsx), under Settings
 //   new/<id>         a new entry, new/<id>/<kind> one of a kind (a pop-up: standard, or an app's)
 //   company     the business, and company/<part> its parts: contact, payment; and
 //                    company/payment/<part> its own parts: mobilepay, bank
@@ -103,6 +104,7 @@ import BlockSettings from './BlockSettings';
 import Advanced, { CACHING_ROUTE } from './Advanced';
 import CmsPage, { CMS_ROUTE } from './CmsPage';
 import { VersionLinePage } from './VersionLinePage';
+import Assistants, { ASSISTANTS_ROUTE } from './Assistants';
 import Licenses, { LICENSES_ROUTE, LicensePage } from './Licenses';
 import ServiceStatus, { STATUS_ROUTE } from './ServiceStatus';
 import { StoreThemePage } from './ThemeStore';
@@ -791,6 +793,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === CACHING_ROUTE) return <Advanced env={env} />;
   if (route === CMS_ROUTE) return <CmsPage />;
   if (route.startsWith(`${CMS_ROUTE}/`)) return <VersionLinePage key={route} line={route.slice(CMS_ROUTE.length + 1)} />;
+  if (route === ASSISTANTS_ROUTE) return <Assistants />;
   if (route === LICENSES_ROUTE) return <Licenses />;
   if (route === STATUS_ROUTE) return <ServiceStatus />;
   if (route.startsWith(`${LICENSES_ROUTE}/`)) return <LicensePage key={route} id={route.slice(LICENSES_ROUTE.length + 1)} />;

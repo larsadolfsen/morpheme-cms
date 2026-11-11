@@ -8,6 +8,7 @@
 // Who may edit is decided by GitHub: only people with write access to the repository can save.
 import { config } from '@site/config';
 import { langOf, say } from './say.js';
+import { handleMcpCallback, STATE_PREFIX } from './mcp-oauth.js';
 import { sessionCookie } from './session.js';
 
 // What the owner reads, in the site's language (config.locale).
@@ -55,6 +56,8 @@ function authorize(url, env) {
 async function callback(request, url, env) {
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
+  // An assistant's sign-in (worker/mcp-oauth.js) comes back here too: GitHub has one callback address.
+  if (state?.startsWith(STATE_PREFIX)) return handleMcpCallback(request, url, env);
   const cookie = request.headers.get('cookie') ?? '';
   const expected = cookie.match(new RegExp(`(?:^|;\\s*)${STATE_COOKIE}=([^;]+)`))?.[1];
   if (!code || !state || state !== expected) {

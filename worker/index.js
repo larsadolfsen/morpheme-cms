@@ -26,6 +26,9 @@
 // - whether R2 caching can be turned on in the editor: whether Cloudflare has its bucket (/api/r2, packages/editor/worker/r2-status.js).
 // - whether the account has Workers Paid, for the switch "Betalt bygning" in the editor (/api/plan, packages/editor/worker/plan-status.js).
 // - the status of GitHub and Cloudflare, for the editor's footer (/api/status, packages/editor/worker/service-status.js).
+// - the site's MCP server for assistants such as Claude, read-only (/mcp, worker/mcp.js), their OAuth sign-in with GitHub as the
+//   identity (/oauth/mcp/*, /.well-known/oauth-*, worker/mcp-oauth.js, kept in D1, worker/mcp-store.js) and the list of the
+//   connected assistants for the editor (/api/mcp/connections, worker/mcp-connections.js).
 // - the editor on its own address when EDITOR_HOST is set (packages/editor/worker/editor-host.js); noindex there too.
 // - each hour, the pages and posts that are Planlagt published once their time has come (scheduled, packages/editor/worker/publish.js).
 // - the editor's notifications on the phone, also when the editor is closed (/api/push, packages/editor/worker/push.js): each minute,
@@ -43,6 +46,9 @@ import * as siteWorker from '@site/worker';
 import { apps, appTexts, appWorkers, moved, oldAddresses as map, standard } from '@site/worker';
 import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 import { handleOAuth } from './oauth.js';
+import { handleMcpOAuth } from './mcp-oauth.js';
+import { handleMcp } from './mcp.js';
+import { handleMcpConnections } from './mcp-connections.js';
 import { MOVED_PREFIXES, movedAddress } from './movedAddresses.js';
 import { editorHost } from './editor-host.js';
 import { handleNotFound, isVisit, json, recordNotFound } from './not-found.js';
@@ -179,7 +185,12 @@ export default {
     const elsewhere = editorHost(url, env, request);
     if (elsewhere) return elsewhere;
     // Sign-in for /editor/ first: /oauth/auth has no trailing slash and must not be redirected.
-    const oauth = url.pathname.startsWith('/oauth/') ? await handleOAuth(request, env) : null;
+    const oauth = url.pathname.startsWith('/oauth/') ? ((await handleMcpOAuth(request, env)) ?? (await handleOAuth(request, env))) : null;
+    // The assistants' MCP server and the discovery of its sign-in.
+    if (url.pathname === '/mcp') return handleMcp(request, env, ctx);
+    if (url.pathname.startsWith('/.well-known/oauth-'))
+      return (await handleMcpOAuth(request, env)) ?? new Response('Not found', { status: 404 });
+    if (/^\/api\/mcp\/connections(\/[\w-]+)?$/.test(url.pathname)) return handleMcpConnections(request, env);
     if (url.pathname === '/api/not-found') return handleNotFound(request, env);
     if (url.pathname === '/api/consent') return handleConsent(request, env);
     if (url.pathname === '/api/dashboard') return handleDashboard(request, env);

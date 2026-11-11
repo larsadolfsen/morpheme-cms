@@ -11,6 +11,7 @@ The editor, the standard theme *Material* and the site's Worker are the package 
 - `src/site/worker.js`: what the Worker gets from the site.
 - The secret `GITHUB_PUBLISH_TOKEN` (`npx wrangler secret put GITHUB_PUBLISH_TOKEN`) lets the Worker write to the site's GitHub repository, also when it updates the CMS. The token needs **Contents: Read and write** and **Checks: Read**.
 - The secret `MORPHEME_STORE_KEY` (`npx wrangler secret put MORPHEME_STORE_KEY`) connects the site to the Morpheme store; without it, the *Appstore* only has the site's own apps and themes.
+- The secret `MCP_VAULT_KEY` (`npx wrangler secret put MCP_VAULT_KEY`, any long random text) turns on *Assistants* under *Settings*: an assistant such as Claude can then connect to the site's address `/mcp` and read the site. The Worker keeps the connecting person's GitHub token, sealed with this secret, in the same D1 database as the consent log.
 - `src/content/`: the pages and posts, `src/data/`: the site's settings, `public/`: pictures, logo and icons.
 - `src/themes/` and `src/apps/`: themes and apps from the app store, when any are installed.
 

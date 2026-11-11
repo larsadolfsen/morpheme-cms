@@ -29,11 +29,10 @@ export function sessionToken(request) {
 const known = new Map();
 const keyOf = async (token) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token)))].join('.');
 
-/** What the request's sign-in may do in the site's repository: read it and save to it (`push`), as GitHub says; null
- * without a sign-in or when GitHub no longer knows it. `ask`: fetch for GitHub (packages/editor/worker/files.js counts its requests). */
-export async function access(request, ask = fetch) {
-  const token = sessionToken(request);
-  if (!token) return null;
+/** What a GitHub token may do in the site's repository: read it and save to it (`push`), as GitHub says; null when GitHub no
+ * longer knows the token. `ask`: fetch for GitHub (packages/editor/worker/files.js counts its requests). Used for the editor's
+ * sign-in (`access`) and for an assistant's connection (worker/mcp.js). */
+export async function accessOf(token, ask = fetch) {
   const id = await keyOf(token);
   const was = known.get(id);
   if (was && was.until > Date.now()) return { token, read: was.read, push: was.push };
@@ -47,6 +46,12 @@ export async function access(request, ask = fetch) {
   const may = { read: permissions.pull === true, push: permissions.push === true };
   known.set(id, { ...may, until: Date.now() + 10 * 60_000 });
   return { token, ...may };
+}
+
+/** What the request's sign-in may do in the site's repository (`accessOf`); null without a sign-in. */
+export async function access(request, ask = fetch) {
+  const token = sessionToken(request);
+  return token ? accessOf(token, ask) : null;
 }
 
 /** Whether the request comes from someone who can save the site (also an app's own addresses, /api/<app>/, given to it by packages/editor/worker/index.js). */

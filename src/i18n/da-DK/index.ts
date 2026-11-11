@@ -3,6 +3,7 @@ import type { Messages } from '../en-US';
 import { advanced } from './advanced';
 import { app } from './app';
 import { apps } from './apps';
+import { assistants } from './assistants';
 import { blocks } from './blocks';
 import { blockSettings } from './blockSettings';
 import { check } from './check';
@@ -46,6 +47,7 @@ export const daDK: Messages = {
   seo,
   keywords,
   licenses,
+  assistants,
   cms,
   parts,
   history,

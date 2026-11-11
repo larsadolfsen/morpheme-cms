@@ -137,6 +137,8 @@ export const common = {
     developer: 'Developer',
     /** Under Developer: the faster editor and the build settings (#developer/caching, Advanced.tsx). */
     caching: 'Caching and builds',
+    /** Under Indstillinger: the assistants connected to the site (#assistants, Assistants.tsx). */
+    assistants: 'Assistants',
     /** Under Indstillinger: the licences of what the site and the editor are made with (#licenses, Licenses.tsx). */
     licenses: 'Licenses',
     /** Under Indstillinger: the CMS's version and its updates (#morpheme). */

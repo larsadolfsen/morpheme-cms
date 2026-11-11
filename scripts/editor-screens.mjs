@@ -96,10 +96,10 @@ const shownItems = (selector) =>
     .map((e) => ({ href: e.getAttribute('href'), text: e.innerText.trim(), tag: e.tagName, ...e.getBoundingClientRect().toJSON() }))
     .filter((e) => e.width > 0 && e.height > 0);
 
-/** Settings lists the five screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
+/** Settings lists the six screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
-  const moved = ['appearance', 'privacy', 'developer', 'licenses', 'morpheme'];
+  const moved = ['appearance', 'assistants', 'privacy', 'developer', 'licenses', 'morpheme'];
   const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
   page.on('pageerror', (e) => problems.push(`${label} menu: ${e.message}`));
   await openEditor(page, site);
@@ -108,12 +108,12 @@ async function checkSettingsAndMenu(width, height) {
     await page.waitForTimeout(250);
   };
 
-  // Settings: five rows, A-Z by the names the editor shows.
+  // Settings: six rows, A-Z by the names the editor shows.
   await go('settings');
   const rows = await page.evaluate(settingsRows);
   const sorted = [...rows].sort((a, b) => a.text.localeCompare(b.text, 'da'));
   const names = rows.map((r) => `${r.text} (${r.href})`).join(', ');
-  if (rows.length !== 5) problems.push(`${label} #settings: ${rows.length} rows instead of 5: ${names}`);
+  if (rows.length !== 6) problems.push(`${label} #settings: ${rows.length} rows instead of 6: ${names}`);
   else if (rows.some((r, i) => r.href !== sorted[i].href))
     problems.push(`${label} #settings: the rows are not in alphabetical order by name: ${names}`);
   const hrefs = rows.map((r) => r.href).sort();
