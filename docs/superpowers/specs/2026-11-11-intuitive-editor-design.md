@@ -438,10 +438,18 @@ The table is a proposal by field name from `src/standard/*`; the exceptions belo
 | Banner (hero) | none: it becomes a section setting | | no block (owner, 11 November, below) |
 | Expandable list | none: it becomes a Segmented list | | no block (owner, 11 November, below) |
 | Price cards | name, price, unit, text, the included list | featured, badge, button targets | yes, cards with a nested list of rows (the included items) and card buttons |
+| Table (new) | the cells, with the next row and next column shown empty | header row | yes, a new block (owner, 11 November, below) |
 | Testimonials | none: filled from the site's content | layout, which ones | always dynamic (exception 4) |
 | Blog posts | none: a dynamic Card | which posts, how many, order | the dynamic Card (finding 17) |
 | Cookies | none: filled from the site's data | category | not typed in place |
 | Links, Points with icon | folded into List (decisions 8 and 9) | | |
+
+**A table is a new block (owner, 11 November).** Only a few owners need one, and the text menu is already crowded, so it is
+a block in `Insert`, not a text style. The cells are typed in place; the next row and the next column are always shown
+empty and faded (decision 14); the context-aware menu in a cell offers `Add row`, `Add column`, `Delete row` and `Delete
+column`; the panel has a header-row setting. The theme draws it and keeps it readable on a narrow screen (it scrolls
+sideways). The site's Markdown renderer already supports tables (`remark-gfm`); whether the editor can create and edit
+one is checked when it is built. A table filled from the owner's lists could come later as a dynamic table.
 
 **Exceptions:**
 
