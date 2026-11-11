@@ -435,7 +435,7 @@ The table is a proposal by field name from `src/standard/*`; the exceptions belo
 | Buttons | each button's label | target, kind, icon | yes, buttons are the rows |
 | Notice | the text, in its box | colour, `until` date | yes, one text field |
 | Video | the title | the video address | yes, the player is drawn, empty shows an empty frame |
-| Banner (hero) | the text, over the picture | picture, placement, width | yes (exception 2) |
+| Banner (hero) | none: it becomes a section setting | | no block (owner, 11 November, below) |
 | Expandable list | rows (heading, text) and the closing link | each row's page | yes, rows (exception 3) |
 | Price cards | name, price, unit, text, the included list | featured, badge, button targets | yes, cards with a nested list of rows (the included items) and card buttons |
 | Testimonials | none: filled from the site's content | layout, which ones | always dynamic (exception 4) |
@@ -449,8 +449,12 @@ The table is a proposal by field name from `src/standard/*`; the exceptions belo
    The text toolbar gets a `Check list` style next to the bullet and numbered lists, and the Checklist block leaves
    `Insert`. A migration turns each existing Checklist block into a check list in the text, so no page changes look.
    **Steps stays its own block**, with its numbered rows (1, 2, 3 …), each with a title and a text.
-2. **Banner** puts text over a picture, so the text must stay readable whatever the picture is. In place, the owner types
-   on the drawn banner; the theme keeps the text readable (a scrim), as it does on the site today. Proposed: as in the table.
+2. **Banner (settled, owner, 11 November):** the Banner block goes away. A banner is already an H2 heading, a picture,
+   text and a `Buttons` block in one text (`src/standard/hero/fields.ts`), which is what a section is. A section gets the
+   banner's settings in its panel (bottom sheet on a phone), next to the colour it has today: a background picture and
+   the width of the background. The owner types the heading and text in the section as normal text, and adds a Buttons
+   block inside it for buttons. A migration turns each Banner block into a section with those settings, so no page
+   changes look. The text stays readable over a picture because the theme decides it, as on the site today.
 3. **Expandable list** rows have a page link that the three list blocks do not cover (finding 13). Proposed: it keeps
    its page link on each row, and the FAQ list takes a link too.
 4. **Testimonials** and **Cookies** have no typed content, so they have nothing to edit in place: the block is a drawn
