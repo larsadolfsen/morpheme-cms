@@ -49,9 +49,13 @@ a release note (`release-notes` skill, English and `da-DK`). Data model and Work
      one commit, once), and publishes one that is due as before; the editor does the same for a page it schedules again. The
      `Scheduled` option and the `Time` field are gone from the collections; the lists show a draft with a waiting time as Scheduled.
      `Schedule` is a row for now; a split button beside `Publish` is a later polish.
-   - **4c, the version switch:** the `Live` / `Scheduled` switch as the named slot `versionSwitch` (`AppDefinition.slots`, with its
-     props `entry`, `versions`, the four functions and `editing`; the core draws it when no app registers one), the `Hide from
-     search engines` setting up in the SEO section, and `CLAUDE.md` section 6.
+   - **4c-1, small things** (built): the dismissible hint "Skip builds for waiting versions" in Settings › Developer › Caching and
+     builds (spike S1b: the lane is the default, the watch path an optional speed-up; shown once a waiting version exists, closed
+     for good in this browser), `CLAUDE.md` section 6 (`Draft`, `Published`; `Schedule` is a date). `Hide from search engines` is
+     already the label and sits in the SEO section (batch 1).
+   - **4c-2, the version switch:** the `Live` / `Scheduled` switch (editing the live page or the waiting version) as the named slot
+     `versionSwitch` (`AppDefinition.slots`, props `entry`, `versions`, the four functions, `editing`); the core draws it when no
+     app registers one; `@morphemecms/cms/lib/versions` joins the imports an app may use.
 
 Each pull request must pass `npm run check`, `check:screens`, `check:demo` and `check:themes`.
 
