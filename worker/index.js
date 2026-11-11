@@ -23,6 +23,7 @@
 // - the visitors' answers in the cookie banner, the consent log (/api/consent, packages/editor/worker/consent.js, in D1), and each hour
 //   those older than two years deleted.
 // - the app problems of the last build, for the app's page in the editor (/api/apps/problems, worker/app-problems.js).
+// - the editor's autosaved drafts in R2 when `Faster editor` is on, moved to git as the waiting version (/api/autosave, packages/editor/worker/autosave.js).
 // - whether R2 caching can be turned on in the editor: whether Cloudflare has its bucket (/api/r2, packages/editor/worker/r2-status.js).
 // - whether the account has Workers Paid, for the switch "Betalt bygning" in the editor (/api/plan, packages/editor/worker/plan-status.js).
 // - the status of GitHub and Cloudflare, for the editor's footer (/api/status, packages/editor/worker/service-status.js).
@@ -64,6 +65,7 @@ import { handlePlan } from './plan-status.js';
 import { handleStatus } from './service-status.js';
 import { handleR2 } from './r2-status.js';
 import { publishScheduled, SCHEDULED_LIST } from './publish.js';
+import { handleAutosave, sweepAutosaves } from './autosave.js';
 import { commitFiles, readFiles } from './github.js';
 import { handlePush, notifyAll, waitForBuilds } from './push.js';
 import { checkForUpdate, handleCms, watchUpdate } from './cms-update.js';
@@ -195,6 +197,7 @@ export default {
     if (url.pathname === '/api/consent') return handleConsent(request, env);
     if (url.pathname === '/api/dashboard') return handleDashboard(request, env);
     if (url.pathname === '/api/apps/problems') return handleAppProblems(request, env, mayEdit);
+    if (url.pathname === '/api/autosave' || url.pathname === '/api/autosave/flush') return handleAutosave(request, env, ctx);
     if (url.pathname === '/api/r2') return handleR2(request, env);
     if (url.pathname === '/api/plan') return handlePlan(request, env);
     if (url.pathname === '/api/status') return handleStatus(request, env);
@@ -236,6 +239,7 @@ export default {
     ctx.waitUntil(
       Promise.all([
         publishScheduled(env),
+        sweepAutosaves(env, Date.now(), ctx).catch((e) => console.error(`Autosaves could not be swept: ${e.message}`)),
         checkForUpdate(env),
         forgetOldConsents(env),
         forgetUninstalled(env, appMcp),
