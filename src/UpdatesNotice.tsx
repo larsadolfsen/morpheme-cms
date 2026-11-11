@@ -1,4 +1,5 @@
-// At the top of the start screen: what was updated since the last visit in this browser, as a card with Close, which
+// At the top of the start screen: what was updated since the last visit in this browser (at the first visit in a browser,
+// the CMS's version), as a card with Close, which
 // marks it seen, and Read more. For the CMS: the photo of its edition (release-notes/editions/, named after the place the
 // photo is from), 3:2 with rounded corners, above the text in the compact window class and from the medium class up to
 // the left of it, as high as the card; "Morpheme <edition> <version>" (the headline), the place in full (the subhead,
@@ -89,7 +90,7 @@ function PhotoCredit({ by, line }: { by: string | null; line: string }) {
   );
 }
 
-/** The first visit, and a visit with nothing new, only notes the versions. */
+/** A visit with nothing new only notes the versions. */
 export function UpdatesNotice({ files }: { files: RepoFile[] }) {
   const now = versionsNow(files);
   const [changes, setChanges] = useState(() => changesSince(storedSeen(), now));
