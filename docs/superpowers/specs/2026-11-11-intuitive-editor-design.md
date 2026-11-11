@@ -25,6 +25,10 @@ repeated as a question below.
    across the full width at each H2; the colour choice stays in `Section settings`, behind the divider's button.
 5. **The editor opens with H1 selected.** A new page opens with the cursor in the H1 line, empty, ready to type the title
    (today `firstHeadingHint` explains it after the fact). It replaces the first-run text hint of finding 6.
+   **The title and the H1 follow each other (owner, 11 November):** on a regular page the title is the H1, and the title is
+   pre-filled from the H1 as it is today. The title field is hidden from the start; if the owner types in it, the H1 is
+   pre-filled with that text, but only while the document is empty, so typing a title never overwrites text that is already
+   there.
 
 6. **Edit blocks inline; the panel holds settings only.** A block is drawn as the site shows it and its text is typed in place (a list row's top and bottom line). Settings (icon, picture, link) are in the side panel on desktop, open all the time while the cursor is in the block, and on a phone in a bottom sheet opened with the `Edit` button in the same menu as the text tools. Clicking out returns the block to its live look; an unset icon takes no space. There is no `+` under the rows: the floating menu has `Add above` and `Add below` for the active row.
    This replaces `2026-11-05-block-side-sheet-design.md` for block fields. _(Scope read as block fields only; short pickers such
@@ -535,8 +539,10 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    changes with this.
 6. **Only group the similar blocks in the picker, or also merge them into fewer blocks (`Rows`, `Questions`)?** Recommended:
    group first (batch H), look at it, then decide on the merge (batch I). The merge is larger and changes every theme.
-7. **Draw the page head (title, top picture, date, tags) in the text, and an optional frame with the site's header and footer?**
-   Recommended: yes to the head (step 1) now, and the frame (step 3) after the owner has seen step 1.
+7. **The page head is drawn in the text (settled for the head, owner, 11 November).** A page and a blog post look as
+   close to the site as they can in the editor: the title, the top picture, the date and the tags are drawn in the text as
+   the site shows them (step 1). Open: the optional frame with the site's header and footer (step 3), which is decided
+   after the owner has seen step 1.
 8. **Decision 4 (dotted line instead of a box) against decision 7 (more like the site):** keep the colour box for a coloured
    section as the site draws it, and use the dotted line only to mark where a section starts (sections with no colour, and
    as a boundary marker above each)? Recommended: yes. Alternative: dotted line only, and the colour shown on the site only.
