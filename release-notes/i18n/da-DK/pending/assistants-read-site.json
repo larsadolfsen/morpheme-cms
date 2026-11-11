@@ -2,5 +2,5 @@
   "id": "assistants-read-site",
   "kind": "card",
   "title": "Lad en assistent læse din hjemmeside",
-  "text": "Claude og andre assistenter kan nu læse dine sider, indlæg og appindstillinger, men kan ikke ændre noget. Åbn Indstillinger og derefter Assistenter for at kopiere adressen og se, hvem der er forbundet."
+  "text": "Claude og andre assistenter kan nu læse din hjemmesides oplysninger, sider, indlæg og apps med deres indstillinger, men kan ikke ændre noget. Åbn Indstillinger og derefter Assistenter, kopiér adressen ind i din assistent, log ind med GitHub, og tryk på Tillad. Afbryd fjerner en assistent igen."
 }
