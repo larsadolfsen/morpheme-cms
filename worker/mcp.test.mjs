@@ -649,6 +649,7 @@ test('/mcp: initialize, tools/list and the five read tools; the site is read wit
     await rpc(env, tokens.access_token, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-11-25' } })
   ).json();
   assert.equal(init.result.protocolVersion, '2025-11-25');
+  assert.match(init.result.instructions, /list_content/);
   const list = await (await rpc(env, tokens.access_token, { jsonrpc: '2.0', id: 2, method: 'tools/list' })).json();
   assert.deepEqual(
     list.result.tools.map((t) => t.name),
@@ -659,6 +660,12 @@ test('/mcp: initialize, tools/list and the five read tools; the site is read wit
   assert.equal(info.structuredContent.pages, 1);
   const content = await call(env, tokens.access_token, 'list_content', { kind: 'post' });
   assert.equal(content.structuredContent.items[0].title, 'First');
+  // Claude.ai reads only the text, so it must hold every item's title and address.
+  for (const item of content.structuredContent.items) {
+    assert.ok(content.content[0].text.includes(JSON.stringify(item.title)));
+    assert.ok(content.content[0].text.includes(JSON.stringify(item.address)));
+  }
+  assert.deepEqual(JSON.parse(info.content[0].text), info.structuredContent);
   const page = await call(env, tokens.access_token, 'read_content', { address: '/about/' });
   assert.match(page.structuredContent.body, /Hello/);
   assert.equal((await call(env, tokens.access_token, 'list_apps')).structuredContent.apps[0].id, 'calendly');

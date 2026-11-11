@@ -133,7 +133,7 @@ export async function handleMcp(request, env, ctx, { ask = fetch, site, limit = 
         clearTimeout(timer);
       }
     };
-    const reply = await handleMessage(message, { tools: tools.tools, call });
+    const reply = await handleMessage(message, { tools: tools.tools, instructions: tools.instructions, call });
     return reply ? answer(reply) : withCors(new Response(null, { status: 202 }));
   } finally {
     await files.finish?.();
