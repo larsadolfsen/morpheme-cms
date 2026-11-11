@@ -243,7 +243,7 @@ const inFolder = <T>(files: Record<string, T>, id: string) => Object.entries(fil
 const fromManifests: [string, AppDefinition, AppManifest][] = Object.entries(appManifests).map(([path, manifest]) => {
   const id = appIdOf(path);
   const editor = inFolder(appEditors, id)?.default;
-  return [id, appFromManifest(manifest, editor, inFolder(appTextFiles, id)), manifest];
+  return [id, appFromManifest(manifest, editor, inFolder(appTextFiles, id), id), manifest];
 });
 const fromIndexes: [string, AppDefinition, null][] = Object.entries(appFiles)
   .map(([path, m]): [string, AppDefinition, null] => [appIdOf(path), m.default, null])

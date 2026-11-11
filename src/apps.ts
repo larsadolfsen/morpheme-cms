@@ -127,6 +127,8 @@ export type AppNotification = { type: string; id: string; text: string; error?: 
 export type AppList = OwnedList;
 
 export type AppDefinition = {
+  /** A connector's MCP server (`mcp` in app.json, contract 5): its page shows "Connects to <host>" and Connect (AppConnection.tsx). */
+  mcp?: { server: string; auth: 'oauth' | 'token' | 'none'; tools: string[] };
   label: string;
   /** Who made it, under its name on its page. */
   publisher: string;
@@ -218,16 +220,31 @@ export function iconOf(name: string): Icon {
   return icon;
 }
 
+/** A field with `options: { from: { tool, label, value } }` (contract 5) is filled from the tool of the app's MCP server: its
+ * options are the ones the Worker answers (fields.tsx, ToolSelect), so the field keeps none of its own. */
+function fieldsFromTools(fields: unknown[], app: string | undefined): unknown[] {
+  if (!app) return fields;
+  return fields.map((f) => {
+    const field = f as { options?: { from?: { tool: string; label: string; value: string } } };
+    const from = field.options && !Array.isArray(field.options) ? field.options.from : undefined;
+    if (!from) return f;
+    const { options: _options, ...rest } = field;
+    return { ...rest, options: [], optionsFrom: { app, ...from } };
+  });
+}
+
 /** The definition of a contract 4 app: its app.json with the code parts of its editor.ts and its texts.json (definitionOf),
  * its icons, which app.json gives by name, as components. */
 export function appFromManifest(
   manifest: AppManifest,
   editor?: Partial<AppDefinitionCode>,
   texts?: Record<string, unknown>,
+  id?: string,
 ): AppDefinition {
-  const { icon, kinds, lists, texts: _texts, ...rest } = definitionOf(manifest, editor, texts) as AppDefinitionData;
+  const { icon, kinds, lists, settings, texts: _texts, ...rest } = definitionOf(manifest, editor, texts) as AppDefinitionData;
   return {
     ...rest,
+    ...(settings ? { settings: { ...settings, fields: fieldsFromTools(settings.fields, manifest.mcp && id) } } : {}),
     icon: iconOf(icon),
     ...(kinds
       ? { kinds: Object.fromEntries(Object.entries(kinds).map(([list, k]) => [list, { ...k, icon: iconOf(String(k.icon)) }])) }

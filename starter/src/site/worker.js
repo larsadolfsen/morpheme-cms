@@ -6,7 +6,7 @@ import contact from '../data/contact.json';
 import moved from '../data/redirects.json';
 import standard from '../data/standard-pages.json';
 
-export { appTexts, appWorkers } from '../../worker/apps.js';
+export { appMcp, appTexts, appWorkers } from '../../worker/apps.js';
 /** The apps installed (`installed`), the site's contact details (its name on the phone's notifications), the pages and
  * posts that moved in the editor, and the pages that are the front page and the blog page. */
 export { apps, contact, moved, standard };

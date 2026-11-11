@@ -662,8 +662,8 @@ function useStoreActions(env: Env, files: RepoFile[]) {
       if (done) updated.set(app.id, app.version);
       return done;
     },
-    uninstall: (id: string, label: string, written: string) =>
-      change(
+    uninstall: async (id: string, label: string, written: string) => {
+      const done = await change(
         id,
         'uninstall',
         {
@@ -673,7 +673,11 @@ function useStoreActions(env: Env, files: RepoFile[]) {
           change: t.app.changes.uninstalled(kindAndName(t.app.changes.app, label)),
         },
         async () => null,
-      ),
+      );
+      // A connector's credentials go with it (worker/mcp-client.js); an app without a connection answers 404, which is fine.
+      if (done) void fetch(`/api/mcp-client/${id}`, { method: 'DELETE' }).catch(() => undefined);
+      return done;
+    },
   };
 }
 
