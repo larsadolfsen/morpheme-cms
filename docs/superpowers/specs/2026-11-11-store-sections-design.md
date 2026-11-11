@@ -2,7 +2,8 @@
 
 > **Status:** draft of 11 November 2026, written against `main` at `57b7591` (`@morphemecms/cms` 0.14.2). The owner chose
 > the three sections; the rest is proposed. It answers open question 5 of `2026-11-11-mcp-design.md` and replaces the
-> category `connectors` in `docs/store-categories.md`. Nothing here is built.
+> category `connectors` in `docs/store-categories.md`. Nothing here is built, and **development starts in 0.16**, not before
+> (the owner's decision of 11 November 2026): the plan is written when 0.16 begins.
 
 ## Goal
 
@@ -92,8 +93,8 @@ kind of app, not a topic, so it moves out of the categories and becomes a sectio
 Each is its own pull request. The plan splits them further.
 
 1. **The rule.** `lib/storeCategories.mjs`, its tests, `docs/store-categories.md`, `docs/app-contract.md` (the `role` row).
-2. **The editor.** The three sections, the role filter, the labels, the texts in both languages, a changeset (`minor`
-   while `main` is at `0.14.x`, else `patch`; see `CLAUDE.md`) and a release note.
+2. **The editor.** The three sections, the role filter, the labels, the texts in both languages, a changeset (its level is
+   set by the owner when 0.16 begins; see `CLAUDE.md`) and a release note.
 3. **The store and the apps.** `role` in the catalog, `app-entry.mjs`, and the apps' `1.1.0` releases.
 
 Batch 1 and 2 need contract 5 to exist for `role` to be an `app.json` key; until then the editor reads `role` from the

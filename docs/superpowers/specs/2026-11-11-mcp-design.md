@@ -1,7 +1,9 @@
 # MCP: Claude works on the site, and connectors reach other services
 
 > **Status:** draft of 11 November 2026, written against `main` at `57b7591` (`@morphemecms/cms` 0.14.2). Nothing here is
-> built. The decisions marked **Owner** under "Open questions" need the owner's answer before the plan is written.
+> built, and **development starts in 0.16**, not before (the owner's decision of 11 November 2026). Until then this spec is
+> only for deciding: the plan is written when 0.16 begins, and the decisions marked **Owner** under "Open questions" need
+> the owner's answer before that.
 
 ## Goal
 
@@ -193,9 +195,9 @@ Tests per batch: the unit tests of `lib/` and `worker/` (`npm test`), a Worker t
 check with a fake GitHub, the rule in `scripts/pending-shared.test.mjs`, and a fixture MCP server for batch 3 and 4.
 `npm run check` passes before each pull request.
 
-Changesets: these are new features for the owner, so `minor`, which `main` allows while it is at `0.14.x` and the change
-lands in `0.15.0`. After `0.15.0` is released only `patch` or an empty changeset is allowed (`CLAUDE.md`), so if the batches
-are not merged before then, the owner decides how to ship them. This spec's own pull request changes only docs and has an empty
+Changesets: these are new features for the owner, but the batches are built in 0.16, and `CLAUDE.md` today allows only
+`patch` or an empty changeset once `0.15.0` is released. The owner sets the changeset levels for 0.16 when it begins and
+updates that rule then; this spec does not choose them. This spec's own pull request changes only docs and has an empty
 changeset.
 
 ## Open questions
