@@ -52,10 +52,11 @@ repeated as a question below.
     Not a database builder (owner, 11 November): the owner picks a few fixed fields, for example an icon and two text
     fields, adds items to the list, and a list block on a page shows some of them, for example 3 or 4, chosen by the tags
     set on the items. _(Owner confirmed: tag filter and fixed fields.)_
-13. **One Card block with four predefined designs; Price cards and Testimonials stay special** (owner, 11 November).
+13. **One Card block with three predefined designs; Price cards and Testimonials stay special** (owner, 11 November).
     Card has the same fields as a list row plus a few card fields, shows only the fields that have content, and has one
-    setting, `Design`: Outlined, Filled, Elevated or Accent. Every theme styles all four, so every card works in every
-    theme, and the theme decides how each looks (finding 17).
+    setting, `Design`: Outlined, Elevated or Filled (owner, 11 November: Accent is merged into Filled). On a Filled card
+    the owner chooses the background colour. Every theme styles all three, so every card works in every theme, and the
+    theme decides how each looks (finding 17).
     The top of every card is one `Media` field (Icon, Image or Video); the first card sets it for the others.
 14. **The next list row or card is always shown, empty and ready to edit** (owner, 11 November), for lists and cards. It
     sits after the last item, drawn faded; clicking it starts a new item. It does not replace `Add above` and `Add below`,
@@ -374,14 +375,20 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
 - **Fields (owner, 11 November):** Icon or picture or video (one `Media` field), Title, Subhead, Body text, Link, Buttons,
   Badge, Date and Tags. Only fields with content show, as in a list row. **Price and Quote are not card fields:** Price
   cards and Testimonials stay their own blocks.
-- **Design:** one setting, `Design`, with four predefined designs, the same in every theme: **Outlined** (a border), **Filled** (a tonal colour), **Elevated** (raised) and **Accent** (Material's
-  `primary-container` colours). Accent replaces today's accent background, so existing sites keep their look. `Inverted`
-  (the inverse surface colours) was left out; it can be added later as a fifth design that every theme then styles. The old `Design` (Text, Icon, Image) and `Background`
-  settings go away, and so does a layout choice: all cards are vertical for now, and horizontal can be added later.
+- **Design:** one setting, `Design`, with three predefined designs, the same in every theme: **Outlined** (a border),
+  **Elevated** (raised) and **Filled** (a coloured surface). **Accent is merged into Filled (owner, 11 November):** on a
+  Filled card the owner selects the background colour, so today's accent background becomes a Filled card with the
+  accent colour. `Inverted` (the inverse surface colours) was left out; it can be added later as a colour of Filled. The
+  old `Design` (Text, Icon, Image) and `Background` settings go away, and so does a layout choice: all cards are
+  vertical for now, and horizontal can be added later.
+- **Filled card colours:** the owner picks from named colours of the theme (for example Surface, Primary, Secondary and
+  Tertiary containers in Material), chosen from the colour roles every theme has, so a Filled card works in every theme
+  and the text on it stays readable. Open: which colours, and whether it is the page's colour picker or a short list
+  (to decide with the owner).
 - **Every card works in every theme (owner, 11 November, our philosophy):** the set of designs is fixed and every theme
   must style all of them, so a card never lacks a design when the theme changes and no fallback is needed. The theme
-  decides how each design looks: its colours, borders, shadow, corner radius and button widths. Accent on
-  `primary-container` is right for Material; another theme draws Accent in its own way. The theme's styling is applied to
+  decides how each design looks: its colours, borders, shadow, corner radius and button widths. A colour such as
+  Primary container is right for Material; another theme draws the same named colour in its own way. The theme's styling is applied to
   the card, never stored in it. A theme that leaves a design unstyled fails `check:themes`.
 - **Media field:** the top of a card is one `Media` field, with the choice Icon, Image or Video, like the icon field of a
   list. The first card's choice sets the type for every card in the block, so they stay aligned; there is no block setting
@@ -399,7 +406,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   card`, and the owner picks which list field fills which part of the card. The field set of a card list is the one above.
   The blog post card becomes a dynamic Card; Blog posts need no special card.
 - **Migration:** Cards with Design Image, Icon and Text become Card with a Media field of Image or Icon, or none;
-  Background accent becomes Design Accent, otherwise Outlined. No page changes look.
+  Background accent becomes Design Filled with the accent colour, otherwise Outlined. No page changes look.
 - **Whole card as a link (owner, 11 November):** a card with a Link is clickable as a whole, also when it has buttons.
   A link inside a link is not valid HTML, so the card is built with a stretched link: the title is the link and its
   area is stretched over the whole card, and the buttons sit above it and keep their own targets. The card has one
@@ -427,7 +434,7 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 | J | **Inline block editing:** fields fold out in the text, no sheet for block fields, one open at a time (14) | `MarkdownEditor`, `BlockDialog`, `sheetPlacement.mjs`, `editor.css` | no | none |
 | K | **WYSIWYG page:** the page head drawn in place (step 1), then the frame toggle (step 3) (15) | `EntryForm`, `MarkdownEditor`, `titleH1.mjs`, `Screen`, theme `editor/previews.tsx` | no | Q7 |
 | L | **Lists from lists:** `Rows from` on the three list blocks, tags filter, then `New list` with the fixed field set (16) | `standard/list*`, `Library` (`Lists`), `site.ts`, `lib/` (list definitions), build | **yes**: `Dynamic lists`, app lists | none |
-| M | **Card block:** one Card with four designs and a `Media` field, the next empty card, migration of Cards, dynamic cards after L (17) | `standard/cards`, `theme/blocks/cards/*`, every theme, `BlockDialog` | no | none |
+| M | **Card block:** one Card with three designs (Filled with a colour) and a `Media` field, the next empty card, migration of Cards, dynamic cards after L (17) | `standard/cards`, `theme/blocks/cards/*`, every theme, `BlockDialog` | no | none |
 | F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
 
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
