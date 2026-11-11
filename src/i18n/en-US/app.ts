@@ -5,6 +5,10 @@ export const app = {
   cannotSave: (login: string) => `The account ${login} doesn’t have access to save. Log in with another GitHub account under Account.`,
   notFound: 'Not found',
   nothingAt: (route: string) => `There’s nothing at the address ${route}`,
+  /** The chip in the top bar: from Save until the website is rebuilt, then when it is, or when it failed. */
+  building: 'Updating the website…',
+  live: 'Live',
+  buildFailed: 'Not updated',
   /** After a save, when the website has been updated with it (or not); `changes`: what the saves since the last update
    * changed, as a list (changesText in deploy.ts). */
   siteUpdated: (changes: string) => `The website has been updated: ${changes}.`,

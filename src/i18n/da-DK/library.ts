@@ -61,7 +61,7 @@ export const library: Messages['library'] = {
   off: 'Fra',
   themeByline: (version, author) => `Version ${version} · ${author}`,
   themeInUse: 'I brug',
-  themeNext: 'Skifter hertil',
+  themeNext: 'Skifter til dette tema',
   themeChanging: (name) => `Skifter til ${name} om et par minutter`,
   themeLooks: 'Sådan ser din hjemmeside ud',
   themeShots: {

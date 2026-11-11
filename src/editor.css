@@ -107,54 +107,12 @@
   margin-block: 0;
 }
 
-/* The dotted frame round an H2 section (data-section-part, sectionFrame.ts): one line made of the parts' own borders. The space
-   between two parts is padding, not margin, so the line is never broken; the space above a section is outside its line. */
-.editor-text .ProseMirror > [data-section-part] {
-  margin-block: 0;
-  border-inline: var(--editor-section-frame);
-  padding-inline: var(--editor-section-pad);
-  padding-block: var(--editor-section-rhythm);
-}
-
-.editor-text .ProseMirror > :is(h2, h3)[data-section-part] {
-  padding-block-start: calc(var(--editor-section-rhythm) * 2);
-}
-
-/* A list keeps its own indent inside the frame, so its bullets and numbers stand clear of the line. */
-.editor-text .ProseMirror > :is(ul, ol)[data-section-part] {
-  padding-inline-start: calc(var(--editor-section-pad) + 1.625em);
-}
-
-.editor-text .ProseMirror > :is([data-section-part='start'], [data-section-part='only']) {
+/* The dotted line at the start of an H2 section (data-section-part='start', sectionFrame.ts): a divider across the text, not a
+   box. The section's colour is chosen in Section settings and drawn on the site only. */
+.editor-text .ProseMirror > [data-section-part='start'] {
   margin-block-start: var(--editor-section-gap);
   border-block-start: var(--editor-section-frame);
   padding-block-start: var(--editor-section-pad);
-}
-
-.editor-text .ProseMirror > :is([data-section-part='end'], [data-section-part='only']) {
-  border-block-end: var(--editor-section-frame);
-  padding-block-end: var(--editor-section-pad);
-}
-
-/* The colour of an H2 section (data-section-color, sectionFrame.ts): the theme's own colours, as the site draws the panel (wave 4).
-   On the accent the text takes the colour made for it, through the prose variables, so headings, bold and links stay readable. */
-.editor-text .ProseMirror > [data-section-color='surface'] {
-  background: var(--block-surface);
-}
-
-.editor-text .ProseMirror > [data-section-color='tint'] {
-  background: var(--block-tint);
-}
-
-.editor-text .ProseMirror > [data-section-color='accent'] {
-  --tw-prose-body: var(--block-on-accent);
-  --tw-prose-headings: var(--block-on-accent);
-  --tw-prose-bold: var(--block-on-accent);
-  --tw-prose-links: var(--block-on-accent);
-  --tw-prose-bullets: var(--block-on-accent);
-  --tw-prose-counters: var(--block-on-accent);
-  background: var(--block-accent);
-  color: var(--block-on-accent);
 }
 
 /* HTML in a line of text is kept as it is but cannot be edited here (on a line of its own it is a
@@ -981,7 +939,9 @@ html {
 }
 
 /* A page with no text and no block yet: one line says what to do (the Insert button is in the toolbar). */
-.editor-spaced .ProseMirror > p:only-child:has(> br:only-child)::before {
+/* A page that opens on its H1 has the heading first, so the empty line after it counts too. */
+.editor-spaced .ProseMirror > p:only-child:has(> br:only-child)::before,
+.editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child:has(> br:only-child)::before {
   content: var(--editor-empty-text);
   position: absolute;
   color: var(--mo-on-surface-variant);
