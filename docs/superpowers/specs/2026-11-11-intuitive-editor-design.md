@@ -163,7 +163,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   least interesting fields first.
 - **Fix:** per decision 3, drop `headFields` from the nine blocks. The block is drawn after the H2 and the text above it
   (`BlockHead.tsx` is then not needed in the theme); the label above the heading becomes the `Label` style. The rows keep
-  their own title and text, since a row is data, not page text (Q6). A migration moves each existing `eyebrow`, `heading` and
+  their own title and text, since a row is data, not page text (owner, 11 November: only the blocks' heads go). A migration moves each existing `eyebrow`, `heading` and
   `intro` into the text above the block, so no page loses content; `check:editor` must show each page the same.
 
 ### 11. Text styles: Body large, Label, and the dotted section line
@@ -201,7 +201,7 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 | C | **First run:** start card, status sentence, empty-page hint, browser-permission sentence (3, 6 hint, 8) | `Library`, `DashboardGrid`, `widgets/`, `EntryForm`, `notificationData` | no | none |
 | D | **Build feedback:** the `Updating…` chip until live (8) | top bar, `deploy.ts` | no | none |
 | E | **Menu and Settings regroup:** Appearance into the menu, Developer under Advanced, Logo and icon moved (5, 4, 9) | `MainMenu`, `defaults/editor.ts`, Settings | **yes**: Appstore, Settings › Assistants | Q3, Q4 |
-| G | **Text and blocks:** `Body large` and `Label` styles, dotted H2 line, editor opens on H1, blocks lose their head fields with a migration, sheet buttons (10, 11, 12) | `MarkdownEditor`, `BlockDialog`, `standard/*`, `theme/blocks/*`, `lib/section-marker.mjs` | no | Q6 |
+| G | **Text and blocks:** `Body large` and `Label` styles, dotted H2 line, editor opens on H1, blocks lose their head fields with a migration, sheet buttons (10, 11, 12) | `MarkdownEditor`, `BlockDialog`, `standard/*`, `theme/blocks/*`, `lib/section-marker.mjs` | no none |
 | F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
 
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
@@ -218,6 +218,3 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    have been opened and checked; the Danish names change with them.
 5. **Rename the status `Hidden` to `Unlisted`?** Recommended: yes (the words `Hidden on the page` and `Hide from search engines`
    then mean something else). Changes the stored `unlisted` label only, not the value in files.
-6. **Do the rows inside blocks (a list row's heading and text, a point's heading and text) stay as fields?** Recommended:
-   yes: a row is data, and removing them would turn each row into text with a block marker. Alternative: remove them too, and
-   a row becomes an H3 with text under it.
