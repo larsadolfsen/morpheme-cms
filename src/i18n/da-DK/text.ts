@@ -38,5 +38,6 @@ export const text: Messages['text'] = {
   showOnPage: 'Vis på siden',
   hideOnPage: 'Skjul på siden',
   typeHere: 'Skriv tekst her …',
+  emptyHint: 'Skriv tekst, eller tryk på Indsæt for at tilføje en blok.',
   firstHeadingHint: 'Din første overskrift bliver sidens H1 og titel.',
 };
