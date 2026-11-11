@@ -113,9 +113,11 @@ const STORE_CATALOG = {
 
 /** What the Worker's GET /api/cms answers (worker/cms-update.js cmsStatus), made up so "Morpheme" (#morpheme) opens with
  * a new major version and its notes, an undone update, and two problems (no token, no check runs to read). The other
- * states (up to date, waiting, skipped, needs npm) are covered by src/cmsView.test.mjs. */
-const CMS_STATUS = {
-  running: JSON.parse(readFileSync(`${import.meta.dirname}/../package.json`, 'utf8')).version,
+ * states (up to date, waiting, skipped, needs npm) are covered by src/cmsView.test.mjs. `running` is a fixed plain
+ * version, never the installed package's: a pre-release (next) build has a version compareVersions refuses, which hides
+ * the Update button. */
+export const CMS_STATUS = {
+  running: '0.0.9',
   token: false,
   kv: true,
   checked: { at: '2026-11-03T08:00:00.000Z', latest: '99.0.0', problem: { kind: 'major' }, noChecks: true },

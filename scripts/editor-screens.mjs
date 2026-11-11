@@ -20,7 +20,7 @@ import { mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
-import { openEditor, serveBuilt } from './built-site.mjs';
+import { CMS_STATUS, openEditor, serveBuilt } from './built-site.mjs';
 
 // The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages. They are
 // TypeScript, which Node does not run in node_modules (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING), so esbuild bundles
@@ -464,10 +464,9 @@ const keyScreens = { appstore: 'settings/appstore', morpheme: 'morpheme' };
 // store connection's "Connected to Morpheme" (it shows the state; its button "Disconnect" is beside it, and the
 // key states above check that it is there), so that row is left out.
 async function checkMorpheme(page, state) {
-  const version = JSON.parse(readFileSync(`${import.meta.dirname}/../package.json`, 'utf8')).version;
   const text = await page.evaluate(() => document.querySelector('main').innerText);
   for (const x of [
-    `Version ${version}`,
+    `Version ${CMS_STATUS.running}`,
     'Version 99.0.0 er klar',
     'Hjemmesiden har ingen GitHub-n\u00f8gle',
     'A made-up note for the checks.',
