@@ -560,3 +560,40 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    the theme decides how each looks. In the editor the dotted line at each H2 always shows. In the full-screen Preview
    (finding 15) the dotted lines show only on hover, so the page looks like the site the rest of the time (owner, 11
    November: hiding them is only for the full-screen Preview). Existing `Tint` sections migrate to Surface (owner, 11 November).
+
+## Spike S2: can the editor create and edit a table? (11 November)
+
+**Answer: yes, with little code, but Milkdown's table cannot be the Table block.** A prototype in jsdom (not shipped) used the
+editor's own setup (`makeEditor`, `src/markdown.mjs`) and the site's pipeline (`@astrojs/markdown-remark`, which uses
+`remark-gfm`).
+
+- **The editor already loads tables.** `makeEditor` uses `@milkdown/kit/preset/gfm`, so GFM tables parse into
+  ProseMirror table nodes today. Nothing in `src/MarkdownEditor.tsx` offers them: no toolbar button, no table CSS in
+  `src/editor.css`. An imported table is edited as plain cells with `Tab` between them, and nothing else.
+- **Round trip works.** Eight cases (plain, left/centre/right alignment, bold, link, code and italic in cells, an
+  escaped `\|`, empty cells, `<br>`, a table after a block, a table before text) all render to the same HTML on the
+  site before and after the editor. The Markdown text is re-padded (the pipes line up, `| --- |` becomes `| - |`), so the
+  first save of an imported table changes its lines but not its look. `check:editor` compares HTML, so it passes.
+- **Commands exist.** The preset has `insertTableCommand` (rows, columns), `addRowBefore/After`, `addColBefore/After`,
+  `deleteSelectedCells` (a whole row or column when selected), `selectRow/Col/Table`, `moveRow/Col`, `setAlign`,
+  `goToNextTableCell` and `exitTable`. All ran in the prototype and wrote correct Markdown. A new table starts left-aligned (`:-`
+  in the delimiter row); that should be reset to no alignment.
+- **Limits of GFM.** (1) The first row is always the header: a table with `Header row` off cannot be written (an empty
+  header row would show as an empty `<thead>`), which breaks the decision that the panel has a header-row setting.
+  (2) Cells are inline only: no lists, no line breaks except `<br>`, no merged cells. (3) A table as the last node leaves
+  no line to write on afterwards (`exitTable` helps; the `spacing` plugin only covers blocks). (4) The site has no
+  style for a plain table in `.prose` (only `.block-table`, used by the cookie list), so a GFM table is unstyled and
+  does not scroll on a phone today.
+
+**Recommendation.** Build the Table as a block with its own props (`{ header: boolean, rows: string[][] }`, written like
+every block as one line of HTML, `lib/blocks.mjs`) and the row editor of decision 14, not as Milkdown's table node. It is the
+only way to keep `Header row` as a setting, it matches the owner's decision that the table is a block in `Insert`, and the
+theme can draw it with the existing `.block-table` rules (scroll sideways). Cells are plain text (no marks or links) in
+the first version. Keep the GFM path as it is: tables an owner imports stay readable and editable, and get `.prose table`
+styling in the theme (about the same CSS as `.block-table`). Do not add a table button to the text toolbar.
+
+**Size.** Batch 10 stays **M**. Roughly: a `table` field type with a grid editor and the faded next row and column, plus
+`Add row`, `Add column`, `Delete row`, `Delete column` (the largest part, 300 to 500 lines and its tests); `standard/table` (view, load, fields);
+`theme/blocks/table/View.tsx` and CSS for each theme; en-US and `da-DK` texts. No migration. The cheaper alternative, **S**
+(150 to 250 lines): a toolbar group in `MarkdownEditor.tsx` for the preset's commands, an `Insert table` entry and `.prose
+table` CSS, accepting that the header row is always on and cells hold inline Markdown. Choose it only if the owner drops `Header row`.
