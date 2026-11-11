@@ -243,6 +243,7 @@ test('discovery: the protected resource and the authorization server, with CORS'
   const server = await (await oauth.handleMcpOAuth(new Request(`${ORIGIN}/.well-known/oauth-authorization-server`), fresh(), ask)).json();
   assert.equal(server.registration_endpoint, `${ORIGIN}/oauth/mcp/register`);
   assert.deepEqual(server.code_challenge_methods_supported, ['S256']);
+  assert.equal(server.authorization_response_iss_parameter_supported, true);
   const preflight = await oauth.handleMcpOAuth(new Request(`${ORIGIN}/oauth/mcp/token`, { method: 'OPTIONS' }), fresh(), ask);
   assert.equal(preflight.status, 204);
   assert.match(preflight.headers.get('access-control-allow-headers'), /authorization/i);
@@ -362,6 +363,8 @@ test('the consent page names the assistant and the person, and says it only read
   assert.match(html, /can.t change anything/i);
   assert.equal(back.headers.get('x-frame-options'), 'DENY');
   assert.match(back.headers.get('content-security-policy'), /frame-ancestors 'none'/);
+  // The redirect a POST answers with is checked against form-action: it must allow the assistant's own origin.
+  assert.match(back.headers.get('content-security-policy'), /form-action 'self' https:\/\/assistant\.example(;|$)/);
   assert.equal(back.headers.get('cache-control'), 'no-store');
   assert.match(back.headers.get('set-cookie'), /mcp_consent=/);
 });
