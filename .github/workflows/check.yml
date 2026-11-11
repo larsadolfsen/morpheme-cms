@@ -1,5 +1,5 @@
 # The CMS's checks on each pull request into main (package.json's check, check:screens, check:demo and check:starter),
-# and that it has a changeset (AGENTS.md, section 7), so main can always be released. Free here: the repository is
+# and that it has a changeset (CLAUDE.md), so main can always be released. Free here: the repository is
 # public. The job's name, check, is the status check that main's branch protection requires.
 name: Check
 
