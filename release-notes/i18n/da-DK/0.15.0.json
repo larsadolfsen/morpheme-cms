@@ -4,8 +4,9 @@
   "notes": [
     {
       "id": "app-contract-4",
-      "kind": "line",
-      "text": "En apps side viser, hvor den kører, og hvad der gik galt ved den seneste opdatering"
+      "kind": "card",
+      "title": "Tilføj apps uden at sætte hjemmesiden på spil",
+      "text": "Hver app kører nu afgrænset og læser kun de data, den har bedt om. Åbn en app, og se under Rettigheder, hvor den kører, og hvor meget adgang den har."
     },
     {
       "id": "css-variables-mo-prefix",
