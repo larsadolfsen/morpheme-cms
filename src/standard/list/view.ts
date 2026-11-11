@@ -3,6 +3,8 @@
 // own has the page's title (the pages' links of "Links" are rows like that), and one whose page is missing is left out. In the
 // editor: viewOf, from the site's pages; on the site: load.ts.
 import type { ViewOf } from '../view';
+import { editorRows } from '../rows/view';
+import { withRows } from '../rows/rows.mjs';
 import { headOf, type HeadView } from '../head';
 
 export type ListRow = { icon?: string; title: string; text?: string; href?: string; heading?: boolean };
@@ -23,5 +25,5 @@ export const listOf = (props: Record<string, any>, titleOf: (href: string) => st
 
 export const viewOf: ViewOf<ListView> = (props, data) => {
   const byPath = new Map(data.site.pages.map((p) => [p.path, p.title]));
-  return listOf(props, (href) => byPath.get(href));
+  return listOf(withRows(props, editorRows(props, data)), (href) => byPath.get(href));
 };

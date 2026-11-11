@@ -11,6 +11,7 @@ import { appBlocks, appEditors, appFiles, appFolders, appManifests, appPictures,
 import type { AppManifest } from '../lib/appManifest.mjs';
 import type { BlockDefinition, SiteBlock } from './blocks';
 import type { ListRows } from './fields';
+import { setRowLists } from './standard/rows/lists';
 import { inSiteLanguage, siteT, siteText, t, translatingSite } from './i18n';
 import { byText, type Block, type Collection, type DataFile, type Edit, type Field, type OwnedList, type Part } from './schema';
 import { blockTypeOf, type SharedTexts } from './shared';
@@ -322,6 +323,7 @@ export const collections = [...each(site.collections, local.collection), ...stan
 
 // The lists under "Lists" besides the site's own: the standard blocks', always, and the apps'.
 const ownedLists = [...standardLists, ...listsOf(writtenApps)];
+setRowLists(ownedLists);
 
 /** The made-up rows of the lists the standard blocks and the apps bring (`examples`), by the list's id, as listRowsOf
  * gives them: what the made-up site (examples.ts) has in them. */

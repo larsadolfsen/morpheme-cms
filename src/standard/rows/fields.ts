@@ -5,6 +5,7 @@ import { t } from '../../i18n';
 import type { BlockData, BlockProps } from '../../blocks';
 import type { Field } from '../../schema';
 import { sourceOf } from './rows.mjs';
+import { editorRows } from './view';
 
 /** Shown only while the block reads a list. */
 const dynamic: Field['only'] = { field: 'from', is: [''], not: true };
@@ -35,5 +36,5 @@ export const fromLine = (props: BlockProps, data: BlockData): string[] => {
   const source = sourceOf(props.from);
   if (!source) return [];
   const name = data.relations.rowSources?.find((o) => o.value === source)?.label ?? source;
-  return [t.blocks.rows.from_line(name)];
+  return [t.blocks.rows.from_line(name), ...(editorRows(props, data)?.rows.length ? [] : [t.blocks.rows.empty])];
 };
