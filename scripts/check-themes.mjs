@@ -5,12 +5,12 @@
 // src/data/theme.json is the theme being checked while it runs, and as it was after. The theme in use too builds once with
 // a test block beside the text of the pages (check-side.mjs), as each of the others does after its screens.
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { activeTheme, installedThemes } from '@morphemecms/cms/site/theme.mjs';
 import { binOf } from './bin.mjs';
+import { buildOutDir } from './build-out.mjs';
 import { checkSide } from './check-side.mjs';
 
 const ROOT = `${process.cwd()}/`;
@@ -35,7 +35,7 @@ try {
   for (const theme of others) {
     console.log(`\nTemaet ${theme}:`);
     writeFileSync(file, `${JSON.stringify({ theme }, null, 2)}\n`);
-    const out = mkdtempSync(join(tmpdir(), `theme-${theme}-`));
+    const out = buildOutDir(ROOT, `theme-${theme}`);
     try {
       run(process.execPath, [fileURLToPath(new URL('check-content.mjs', import.meta.url))]);
       run(process.execPath, [binOf('astro'), 'build', '--outDir', out]);

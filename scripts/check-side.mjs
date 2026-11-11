@@ -5,13 +5,13 @@
 // the column and the first paragraph is the lead). Exposes checkSide(root), expectedFor and columnOf; used by check-themes.mjs. Removes what it
 // put in the site, and the side.json it wrote, however it ends.
 import { execFileSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hasSidebar, templateOf, templatesOf } from '@morphemecms/cms/lib/page-template.mjs';
 import { activeTheme, themeFolder } from '@morphemecms/cms/site/theme.mjs';
 import { binOf } from './bin.mjs';
+import { buildOutDir } from './build-out.mjs';
 import { leadProblem, textClasses, widthProblem } from './side-width.mjs';
 
 const fixtures = fileURLToPath(new URL('fixtures/side/', import.meta.url));
@@ -54,7 +54,7 @@ function offeredBy(root) {
 export function checkSide(root) {
   const put = [BLOCK, 'src/data/side.json', ...PAGES.map(([p]) => `src/content/pages/${p}.md`)].map((f) => join(root, f));
   if (put.some(existsSync)) throw new Error('Remove the side-fixture files from src/ first (scripts/check-side.mjs puts them there).');
-  const out = mkdtempSync(join(tmpdir(), 'side-'));
+  const out = buildOutDir(root, 'column');
   try {
     const offered = offeredBy(root);
     mkdirSync(join(root, BLOCK), { recursive: true });
