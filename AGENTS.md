@@ -41,13 +41,10 @@ Our ecosystem has two completely separate repositories, which must **never** be 
 - **`demo/`**: The CMS's demo, a made-up site laid over the starter, which the CMS is developed and checked with and which the themes' pictures are taken of (`npx morpheme check:demo`). `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in `.morpheme/demo/site/` with a copy of the package as npm would pack it, and `wrangler.jsonc` puts it on the Worker `morpheme-demo`. Each branch gets its own Preview of the demo (Cloudflare's Worker Previews, `npx wrangler preview`), and Cloudflare writes its address on the branch's pull request; login and save do not work there. Agents never send the owner a Preview link for a change to the editor (the owner can't sign in there to see it); only for a change visible on the site.
 - **`starter/`**: What a new site starts with (the *Deploy to Cloudflare* button).
 - **`src/` and `pages/`**: The CMS editor itself and the admin interface.
-  - `src/`: React-based editor UI, screens, fields, state management (`store.ts`), live preview (`pagePreview.tsx`), block registry (`blocks.ts`) and the start screen's widgets (`widgets.ts`, `cmsWidgets.ts`, `widgets/`), shown in a grid by `DashboardGrid.tsx` from the person's saved layout (`dashboardStore.ts`) and edited in place (`DashboardEdit.tsx`, `AddWidget.tsx`, `WidgetSettings.tsx`; the pure parts are `dashboardMoves.mjs` and `widgetValues.mjs`).
+  - `src/`: React-based editor UI, screens, fields, state management (`store.ts`), live preview (`pagePreview.tsx`), block registry (`blocks.ts`) and the start screen's widgets and dashboard (`DashboardGrid.tsx`, `DashboardEdit.tsx`, `widgets/`).
   - `pages/`: Astro pages and routing for the admin interface.
 - **`lib/`**: Shared helper functions used by both the editor and the site (block parsing `blocks.mjs`, image cropping `crop.mjs`, status, dates, video handling etc.).
-  - The app sandbox (contract 4): `appHooks.mjs` (the hook places, `APP_HOOKS`), `appCookies.mjs` (the cookies an app sets with its settings), `appDefinition.mjs` (an app's definition from its `app.json`, `editor.ts` and `texts.json`), `appManifest.mjs` (reads and checks `app.json`), `appPlaces.mjs` (sandboxed, full or no access per app place), `appProblemLines.mjs` (an app's build problems as lines for its page), `appProblems.mjs` (the build's app problems, `dist/_apps/_problems.json`), `reads.mjs` (the site data an app's read scopes give it; test site in `fixtures/reads-site/`), `afterBuild.mjs` (a contract 4 app's after-build step in the sandbox, its files in `dist/_apps/<app>/`), `sandboxHooks.mjs` (runs contract 4 apps' page-colors hook in the sandbox; `apps.mjs` serves the older apps' hooks as `virtual:old-page-colors`), `contentColors.ts` (the content-based color engine on the host, the page-colors hook's helper `contentColors`: a picture's source color and the page's colors, so the hook never runs the engine in its sandbox).
-  - `worker/app-problems.js`: `GET /api/apps/problems`, the build's app problems for the editor.
-  - `src/AppPlaces.tsx` and `src/AppProblems.tsx`: an app's places and its problems from the last build, on its page.
-  - `lib/sandbox/`: `bundle.mjs` (bundles an app's build entry with esbuild and an import allow-list; test apps in `fixtures/`), `runner.mjs` (the runner interface and the hook and after-build limits) and `quickjs.mjs` (runs a bundle in a QuickJS isolate, the security boundary).
+  - The app sandbox (contract 4): `app*.mjs`, `reads.mjs`, `afterBuild.mjs`, `sandboxHooks.mjs`, `contentColors.ts` and `lib/sandbox/` (the QuickJS runner is the security boundary); an app's places and build problems show on its page (`src/AppPlaces.tsx`, `src/AppProblems.tsx`, `worker/app-problems.js`).
 - **`worker/`**: The site's default Cloudflare Worker (login/session, GitHub commit proxy, R2 backup, redirects and scheduled tasks).
 - **`bin/`**: The `morpheme` CLI tool for image processing, build hooks and validation.
 - **`release-notes/`**: Owner-facing release notes in English and Danish: cards (title, text and a screenshot per language) and lines. Each pull request writes `i18n/<locale>/pending/<id>.json` (and `<id>.webp` for a card); `release:version` moves them to `i18n/<locale>/<version>.json` and `i18n/<locale>/<version>/`. Writing rule: `CLAUDE.md`, "Changesets and release notes".
@@ -56,42 +53,7 @@ Our ecosystem has two completely separate repositories, which must **never** be 
 
 ## 3. Roles and Division of Work
 
-All development in this repo is run by one orchestrator, who delegates:
-
-```mermaid
-flowchart LR
-    A["Orchestrator<br/>(Claude Code locally on the PC)"] -->|"1. Subtasks that need the repo's rules"| S["Claude subagents"]
-    A -->|"1. Well-defined, mechanical code"| D["Developer<br/>(Ollama on the same PC)"]
-    S -->|"2. Results"| A
-    D -->|"2. Code"| A
-    A -->|"3. Review, test & integration"| R["morpheme-cms codebase"]
-```
-
-### 1. Orchestrator (Claude Code locally on the PC)
-- **Where:** the repo's folder on the owner's PC, on the owner's subscription; `/rc` to follow along from the phone.
-- **Responsibility:** System architecture, interface design, module contracts, security, quality assurance, overview, breaking down tasks and delegating them.
-- **Tasks:**
-  - Sets the APIs, component props and types.
-  - Specifies tasks clearly for the subagents and the Developer.
-  - Validates all received code against the project's standards, WCAG AA, A11y and MD3 rules.
-  - Integrates and commits fully tested changes.
-
-### 2. Claude subagents
-- **Responsibility:** Bounded or parallel tasks from the orchestrator (search, review, smaller changes); the first choice when the task requires knowing the repo's rules.
-
-### 3. Developer (Ollama on the same PC)
-- **Responsibility:** Well-defined, mechanical tasks with a precise specification (boilerplate, tests, translations, rewrites).
-- **Model and access:** `qwen3.8:27b` through Ollama's API at `http://127.0.0.1:11434`.
-- **Instruction:** Must always receive well-defined requirements and interfaces from the orchestrator, who reviews the code and runs the checks before it is committed.
-
-### 4. Claude in the cloud (claude.ai/code)
-- **When:** When the PC is off, or for a task that should run on its own in a clean container. It cannot reach Ollama and lets subagents write the code.
-
-### Collaboration flow
-1. **The orchestrator** designs interfaces, defines data models and breaks the task down into concrete steps.
-2. **The subagents and the Developer (Ollama)** carry out the subtasks and generate code.
-3. **The orchestrator** reviews, tests (see below), sends errors back to whoever wrote the code, and integrates it.
-4. **Every pull request has a changeset** (`npx changeset`, or `npx changeset --empty` when nothing a site receives changes): patch, minor or major and a one-line release note in English. See `CLAUDE.md`, "Changesets and release notes".
+An orchestrator breaks a task down, delegates it to Claude subagents (the first choice when the task needs the repo's rules) or, for mechanical code with a precise specification, to the Developer (Ollama, `qwen3.8:27b` at `http://127.0.0.1:11434`, local only), then reviews, tests and integrates. Claude in the cloud (claude.ai/code) runs when the PC is off and uses subagents for code. Every pull request has a changeset: see `CLAUDE.md`, "Changesets and release notes".
 
 ---
 
