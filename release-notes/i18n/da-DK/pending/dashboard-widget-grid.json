@@ -1,5 +1,6 @@
 {
   "id": "dashboard-widget-grid",
-  "kind": "line",
-  "text": "Startskærmen viser sine kort i et gitter: Fortsæt, Ufærdigt, Blogrytme og Hjemmesidens status"
+  "kind": "card",
+  "title": "Indret din startskærm",
+  "text": "Startskærmen viser nu widgets i et gitter: Fortsæt, Ufærdigt, Blogrytme og Hjemmesidens status. Tryk på Rediger dashboard for at tilføje, fjerne og flytte dem."
 }

@@ -1,5 +1,6 @@
 {
   "id": "md3-color-roles",
-  "kind": "line",
-  "text": "Farver følger nu Material 3’s navne og roller, med de nye farver Dæmpet flade, Lys flade, Slør og Skygge"
+  "kind": "card",
+  "title": "Nye farvenavne",
+  "text": "Farverne følger nu Material 3’s navne, med nye Dæmpet flade, Lys flade, Slør og Skygge. Dine gamle farver virker stadig: åbn Farver og gem for at skifte dem over."
 }

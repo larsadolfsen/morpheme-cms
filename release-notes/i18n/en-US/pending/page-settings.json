@@ -1,5 +1,6 @@
 {
   "id": "page-settings",
-  "kind": "line",
-  "text": "Open a page and find its title, status and template in Page settings at the top, with the template on cards"
+  "kind": "card",
+  "title": "Page settings at the top",
+  "text": "A page’s title, status and template now sit together in Page settings. Open a page and tap Page settings to pick the template on cards."
 }
