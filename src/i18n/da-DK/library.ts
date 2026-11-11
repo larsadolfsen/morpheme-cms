@@ -4,8 +4,6 @@ export const library: Messages['library'] = {
   siteUpdated: (when) => `Opdateret ${when}`,
   cmsVersion: (version) => `Morpheme ${version}`,
   statusSeparator: ' · ',
-  siteLive: 'Din hjemmeside er live',
-  siteUpdating: 'Opdaterer …',
   firstRunTitle: 'Kom i gang',
   firstRunPage: 'Skriv en side',
   firstRunPost: 'Skriv et indlæg',

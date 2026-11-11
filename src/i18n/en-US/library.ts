@@ -6,9 +6,6 @@ export const library = {
   cmsVersion: (version: string) => `Morpheme ${version}`,
   /** Between the CMS version and the update time in the start screen's status. */
   statusSeparator: ' · ',
-  /** The start screen's sentence under the title (FirstRun.tsx StartSentence). */
-  siteLive: 'Your website is live',
-  siteUpdating: 'Updating…',
   /** The card for a site with no page or post yet (FirstRun.tsx), and its rows. */
   firstRunTitle: 'Get started',
   firstRunPage: 'Write a page',

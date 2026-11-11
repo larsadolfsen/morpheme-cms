@@ -36,7 +36,7 @@ import { theme, themes, type ThemeInfo } from './themes';
 import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
 import { StartStatus } from './StartStatus';
-import { FirstRunCard, StartSentence } from './FirstRun';
+import { FirstRunCard } from './FirstRun';
 import { Dashboard } from './DashboardGrid';
 import { DashboardAction, useDashboard } from './DashboardEdit';
 import { StartDataContext } from './startData';
@@ -201,7 +201,6 @@ export function Start({ builtAt, files, env }: { builtAt: Date | null; files: Re
       home
     >
       <UpdatesNotice files={files} />
-      <StartSentence />
       <FirstRunCard files={files} />
       <StartDataContext.Provider value={{ files, savedAt: env.savedAt, builtAt }}>
         <Dashboard dash={dash} env={env} files={files} />

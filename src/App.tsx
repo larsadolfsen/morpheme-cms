@@ -92,7 +92,6 @@ import EntryForm, { newMarkdown } from './EntryForm';
 import DataForm from './DataForm';
 import CompanyForm from './CompanyForm';
 import Media, { mediaOf } from './Media';
-import { setUpdating } from './siteState';
 import Redirects, { REDIRECTS_ROUTE, TAB_ROUTES } from './Redirects';
 import Consents from './Consents';
 import SeoScores, { SEO_SCORES_ROUTE } from './SeoScores';
@@ -503,14 +502,12 @@ function Editor() {
     // One message for all saves: a later save is on the site together with or after the ones before. It says what
     // each of them changed (each once).
     stopWaiting.current?.();
-    setUpdating(true);
     if (!waitingFor.current.includes(change)) waitingFor.current.push(change);
     const what = changesText(waitingFor.current);
     // The Worker says it on the phone too, also when the editor is closed by then (notificationData.ts).
     const onServer = waitOnServer(saved.commit, t.app.siteUpdated(what), t.app.siteNotUpdated(what));
     stopWaiting.current = waitForSite(saved.commit, async (online) => {
       waitingFor.current = [];
-      setUpdating(false);
       const text = online ? t.app.siteUpdated(what) : t.app.siteNotUpdated(what);
       // On screen the editor says it, and the Worker does not; else only the Worker sends it to the phone.
       const byServer = document.visibilityState !== 'visible' && (await onServer);
@@ -522,7 +519,6 @@ function Editor() {
 
   function signOut() {
     stopWaiting.current?.();
-    setUpdating(false);
     waitingFor.current = [];
     // No notifications on this phone for someone signed out: signed off at the Worker while the sign-in is still there.
     void signOff()
