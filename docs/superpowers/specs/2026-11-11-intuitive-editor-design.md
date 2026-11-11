@@ -49,7 +49,9 @@ repeated as a question below.
     rows, and show them in its list style (finding 16).
 12. **The owner can create new lists.** A new list has fields the owner picks: an icon, a title, a body text (and, as the
     owner's example, tags). The list blocks pull on these. Which entries show on which page is decided by tags.
-    _(Read as: filter by tags; the order is a separate choice, see question 9.)_
+    Not a database builder (owner, 11 November): the owner picks a few fixed fields, for example an icon and two text
+    fields, adds items to the list, and a list block on a page shows some of them, for example 3 or 4, chosen by the tags
+    set on the items. _(Owner confirmed: tag filter and fixed fields.)_
 
 ## What was looked at
 
@@ -311,7 +313,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
 - **Design, part A, a list block can use a list:** each of List, Segmented list and FAQ list gets a choice `Rows from`: `Typed
   here` (today) or one of the site's lists. With a list chosen, the block maps the list's fields to the row: icon to the icon,
   title to the heading, body text to the text, a link to the arrow. `Which rows`: all, those with chosen tags, or selected by
-  hand (the same choices as `Which testimonials`). The same list can be shown on many pages with different tags; one place
+  hand (the same choices as `Which testimonials`), and `How many` (all, or a number such as 3 or 4, in the list's order). The same list can be shown on many pages with different tags; one place
   to edit the text.
 - **Design, part B, the owner creates lists:** `Dynamic lists` gets `New list`. The owner names it and chooses its fields from
   a fixed set, each optional: `Icon`, `Title` (always), `Body text`, `Picture`, `Link`, `Tags`. The entries are files
@@ -346,7 +348,7 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 | I | **Merge the row blocks:** step 2 of finding 13, with a migration (13) | `standard/*`, `theme/blocks/*`, every theme | no | Q6 |
 | J | **Inline block editing:** fields fold out in the text, no sheet for block fields, one open at a time (14) | `MarkdownEditor`, `BlockDialog`, `sheetPlacement.mjs`, `editor.css` | no | none |
 | K | **WYSIWYG page:** the page head drawn in place (step 1), then the frame toggle (step 3) (15) | `EntryForm`, `MarkdownEditor`, `titleH1.mjs`, `Screen`, theme `editor/previews.tsx` | no | Q7 |
-| L | **Lists from lists:** `Rows from` on the three list blocks, tags filter, then `New list` with the fixed field set (16) | `standard/list*`, `Library` (`Lists`), `site.ts`, `lib/` (list definitions), build | **yes**: `Dynamic lists`, app lists | Q9, Q10 |
+| L | **Lists from lists:** `Rows from` on the three list blocks, tags filter, then `New list` with the fixed field set (16) | `standard/list*`, `Library` (`Lists`), `site.ts`, `lib/` (list definitions), build | **yes**: `Dynamic lists`, app lists | none |
 | F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
 
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
@@ -370,7 +372,3 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
 8. **Decision 4 (dotted line instead of a box) against decision 7 (more like the site):** keep the colour box for a coloured
    section as the site draws it, and use the dotted line only to mark where a section starts (sections with no colour, and
    as a boundary marker above each)? Recommended: yes. Alternative: dotted line only, and the colour shown on the site only.
-9. **"Sortable by tags": filter by tags (which entries show on a page), and is the order also by tag, or by hand and newest?**
-   Recommended: filter by tags, and the order by hand (drag in the list), as testimonials and prices do today.
-10. **May the owner-made list only use the fixed fields (icon, title, body text, picture, link, tags)?** Recommended: yes.
-    Free field types would turn this into a database builder; the fixed set covers rows, FAQ and the examples given.
