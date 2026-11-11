@@ -53,6 +53,7 @@ import { leaveTo } from './FormFrame';
 import { shownAt } from './images';
 import { addressOf } from './addresses';
 import { LinkList } from './LinkList';
+import { ToolSelect } from './ToolSelect';
 import { MoveButtons } from './MoveButtons';
 import { movedList } from './moveItem.mjs';
 import { clean, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, problemOf, type Around, type Problem } from './check';
@@ -311,6 +312,11 @@ function FieldControl({ field, value, onChange }: Props) {
       );
       break;
     case 'select': {
+      // Filled from a tool of the app's MCP server (Field.optionsFrom).
+      if (field.optionsFrom)
+        return (
+          <ToolSelect field={{ ...field, optionsFrom: field.optionsFrom }} id={id} inField={inField} value={text} onChange={onChange} />
+        );
       // An option that needs a choice on the page (Field.options' onPage) only while there is one, or it is chosen.
       const offered = field.options!.filter(
         (o) => !o.onPage || o.value === text || onThePage(context.relations[o.onPage] ?? [], context.page).length > 0,

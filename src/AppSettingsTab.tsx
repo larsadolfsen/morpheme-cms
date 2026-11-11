@@ -4,6 +4,7 @@
 // Exposes AppSettingsTab (default). Depends on AppAdds.tsx, AppNotificationSwitches.tsx, ./ui and notificationData.ts.
 import { Button, SupportingText } from './ui';
 import AppAdds from './AppAdds';
+import AppConnection from './AppConnection';
 import AppNotificationSwitches from './AppNotificationSwitches';
 import type { RepoFile } from './github';
 import type { Env } from './App';
@@ -44,6 +45,8 @@ export default function AppSettingsTab({
           <app.page api={(path, init) => env.appApi(app.id, path, init)} />
         </div>
       )}
+      {/* A connector's connection to its service (its `mcp`): Connect, Connected, Needs sign-in. */}
+      {app.mcp && enabled && <AppConnection app={app} />}
       <AppAdds app={app} env={env} files={files} on />
       {notifies.length > 0 && <AppNotificationSwitches notifies={notifies} />}
       {/* As wide as the fields and the rows above. */}

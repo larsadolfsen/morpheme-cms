@@ -4,3 +4,6 @@
 export const appWorkers = {};
 
 export const appTexts = {};
+
+// The MCP server of each connector (`mcp` in its app.json), for worker/mcp-client.js.
+export const appMcp = {};

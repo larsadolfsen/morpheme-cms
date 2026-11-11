@@ -65,6 +65,9 @@ export type Field = {
    * that relation has a choice on the page being edited (a button that opens a promotion); chosen, it is still shown.
    * `disabled`: shown, greyed, but not to choose (with `cards`: a side-panel template while no block is chosen for the side column). */
   options?: { label: string; value: string; icon?: Icon; hint?: string; onPage?: Relation; disabled?: boolean }[];
+  /** select: the options come from a tool of the app's MCP server (`options.from` in app.json): `app`, the tool, and the keys of an item
+   * that give each option's label and value. The field loads them through the Worker (fields.tsx, ToolSelect). */
+  optionsFrom?: { app: string; tool: string; label: string; value: string };
   /** select: the options come from the theme in use. 'templates': a page's templates, the theme's "templates" (lib/page-template.mjs); the
    * field shows those of its options the theme offers (templateFieldOf in templateField.ts), its default is the theme's first, which
    * is written as no key, and while only one is left it is shown as the page's, not changed (`locked`). */

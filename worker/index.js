@@ -37,10 +37,12 @@
 //   each minute, whether the update built, else it is undone.
 // - on a site that posts the CMS's releases on its blog (`releasePosts` in its config), each minute, whether npm has a new release
 //   to post (packages/editor/worker/release-post.js).
+// - a connector's MCP connection (/api/mcp-client/<app>, worker/mcp-client.js): its credentials in D1, its tools called by the Worker.
 // - the apps' own parts (src/apps/<app>/worker.js, worker/apps.js), while they are installed and not turned off: their addresses under
 //   /api/<app>/ and what they do each hour (scheduled), e.g. Cookiescanner's scan of the site's cookies, and their texts
 //   for their notifications. What the apps
 //   put in the build (dist/_apps/<app>/, packages/editor/lib/apps.mjs) is served to no one; the apps read it.
+import * as siteWorker from '@site/worker';
 import { apps, appTexts, appWorkers, moved, oldAddresses as map, standard } from '@site/worker';
 import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 import { handleOAuth } from './oauth.js';
@@ -57,6 +59,7 @@ import { access, mayEdit } from './session.js';
 import { handleGitHub } from './editor-github.js';
 import { handleConnection } from './store-connection.js';
 import { handleStore } from './store.js';
+import { callTool, forgetUninstalled, handleMcpClient } from './mcp-client.js';
 import { handlePlan } from './plan-status.js';
 import { handleStatus } from './service-status.js';
 import { handleR2 } from './r2-status.js';
@@ -74,6 +77,9 @@ const EACH_MINUTE = '* * * * *';
 // answers 404 at its addresses and has no `scheduled` run.
 const active = activeOf(readAppsFile(JSON.stringify(apps)));
 const installed = Object.fromEntries(Object.entries(appWorkers).filter(([id]) => active.includes(id)));
+// The MCP servers of the connectors installed and not turned off (`mcp` in app.json, written to worker/apps.js), by the app's id. Read
+// by name from the namespace, so a site whose src/site/worker.js is older than this still builds (it has none).
+const appMcp = Object.fromEntries(Object.entries(siteWorker.appMcp ?? {}).filter(([id]) => active.includes(id)));
 // What an app is given, besides the request: whether its sender can save the site (signed in with GitHub), an answer
 // in JSON, the Worker's own saves to the repository (`github`, packages/editor/worker/github.js: `read` and `commit`, with the request's
 // `ctx`, so the cache in R2 is written after the answer has gone; given a request as the last argument, with its sender's
@@ -87,6 +93,8 @@ const tools = (app, ctx) => ({
     read: async (env, paths, as) => readFiles(env, paths, ctx, as && (await signedIn(as))),
     commit: async (env, head, headline, files, as) => commitFiles(env, head, headline, files, ctx, as && (await signedIn(as))),
   },
+  // A listed tool of the app's own MCP server (its `mcp` in app.json), called with the credentials the owner connected; kept in D1, never given to the app.
+  mcp: { call: (env, tool, args) => callTool(env, app, appMcp[app], tool, args) },
   notify: (env, n) => notifyAll(env, { ...n, type: `${app}/${n.type}` }, appTexts[app]),
 });
 
@@ -193,6 +201,7 @@ export default {
     if (url.pathname.startsWith('/api/github/')) return handleGitHub(request, env, ctx);
     if (url.pathname === '/api/store/connection') return handleConnection(request, env, ctx);
     if (url.pathname.startsWith('/api/store/')) return handleStore(request, env, ctx);
+    if (url.pathname.startsWith('/api/mcp-client/')) return handleMcpClient(request, env, { mcp: appMcp, access });
     if (/^\/api\/push(\/wait)?\/?$/.test(url.pathname)) return handlePush(request, env);
     if (/^\/api\/cms(\/update|\/note-image\/.*)?\/?$/.test(url.pathname)) return handleCms(request, env, ctx);
     const answer = appAnswer(request, url, env, ctx);
@@ -229,6 +238,7 @@ export default {
         publishScheduled(env),
         checkForUpdate(env),
         forgetOldConsents(env),
+        forgetUninstalled(env, appMcp),
         ...Object.entries(installed).map(([id, app]) => app.scheduled?.(env, ctx, tools(id, ctx))),
       ]),
     );

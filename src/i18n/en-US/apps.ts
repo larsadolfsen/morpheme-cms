@@ -109,6 +109,20 @@ export const apps = {
   disconnect: 'Disconnect from Morpheme',
   disconnectAsk: 'Disconnect the website from Morpheme? Installed apps and themes stay.',
   connectBusy: 'Many websites are connecting right now. Try again in an hour.',
+  /** On a connector's page (AppConnection.tsx): the service it connects to (its MCP server), what it uses, and the connection's state. */
+  mcpConnectsTo: (host: string) => `Connects to ${host}`,
+  mcpUses: (tools: string) => `Uses: ${tools}`,
+  mcpConnect: 'Connect',
+  mcpConnected: 'Connected',
+  mcpDisconnect: 'Disconnect',
+  mcpNeedsSignIn: 'Needs sign-in',
+  mcpToken: 'Token',
+  mcpTokenHint: 'Paste the token from the service. It is kept on the server and never shown again.',
+  mcpDisconnectAsk: (host: string) => `Disconnect from ${host}? The app stops using the service until you connect again.`,
+  mcpFailed: 'Could not connect. Check the details and try again.',
+  /** A settings field filled from the service: while it loads, and when it cannot. */
+  mcpLoading: 'Loading…',
+  mcpNotLoaded: (host: string) => `Could not load the choices from ${host}. Connect on the app’s page.`,
   /** An app's files did not come from the store as its catalog says. */
   storeBroken: (app: string) => `${app} couldn’t be loaded correctly from the Appstore`,
   /** At an address of an app the store does not have. */
