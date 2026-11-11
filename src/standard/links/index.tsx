@@ -9,6 +9,8 @@ type Group = { title?: string; href?: string; paths?: string[] };
 
 export default defineBlock({
   group: 'rows',
+  // Links are a List now (lib/blocks.mjs); this block stays for a text that has one without its groups.
+  former: true,
   label: t.blocks.links.label,
   icon: LinkSimple,
   hint: t.blocks.links.hint,

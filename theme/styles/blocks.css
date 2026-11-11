@@ -322,6 +322,18 @@
     letter-spacing: var(--type-title-medium-tracking);
     transition: color var(--motion-effects);
   }
+  /* A row of "List" that is a small heading of the rows after it (list/Rows.tsx). */
+  .block-list-heading {
+    padding: 1rem 1rem 0.5rem;
+    color: var(--block-muted);
+    font-size: var(--type-title-small-size);
+    line-height: var(--type-title-small-line-height);
+    font-weight: var(--type-title-small-weight);
+    letter-spacing: var(--type-title-small-tracking);
+  }
+  .block-list-heading:first-child {
+    padding-top: 0;
+  }
   .block-accordion-title {
     flex: 1;
   }

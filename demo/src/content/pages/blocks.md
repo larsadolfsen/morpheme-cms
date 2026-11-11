@@ -90,7 +90,7 @@ A message that stands out, and can disappear on its own on a date you set.
 
 Pages grouped by topic.
 
-<div data-block="links" data-props="{&quot;groups&quot;:[{&quot;title&quot;:&quot;Product&quot;,&quot;href&quot;:&quot;/about/&quot;,&quot;paths&quot;:[&quot;/about/&quot;,&quot;/blocks/&quot;,&quot;/app-store/&quot;]},{&quot;title&quot;:&quot;Getting started&quot;,&quot;href&quot;:&quot;/get-started/&quot;,&quot;paths&quot;:[&quot;/get-started/&quot;,&quot;/contact/&quot;]}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Product&quot;,&quot;heading&quot;:true,&quot;href&quot;:&quot;/about/&quot;},{&quot;href&quot;:&quot;/about/&quot;},{&quot;href&quot;:&quot;/blocks/&quot;},{&quot;href&quot;:&quot;/app-store/&quot;},{&quot;title&quot;:&quot;Getting started&quot;,&quot;heading&quot;:true,&quot;href&quot;:&quot;/get-started/&quot;},{&quot;href&quot;:&quot;/get-started/&quot;},{&quot;href&quot;:&quot;/contact/&quot;}]}"></div>
 
 ## Posts
 
