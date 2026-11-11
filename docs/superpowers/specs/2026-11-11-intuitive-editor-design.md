@@ -405,7 +405,10 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   A link inside a link is not valid HTML, so the card is built with a stretched link: the title is the link and its
   area is stretched over the whole card, and the buttons sit above it and keep their own targets. The card has one
   accessible link name (the title), and the buttons are separate controls. The editor only draws this.
-- **Not decided:** how many buttons fit before the card looks crowded.
+- **Button count and width (owner, 11 November):** buttons follow the same pattern as rows and cards (decision 14): the
+  next button is always shown, empty and faded, and clicking it adds one. There is no fixed maximum. A Material button
+  keeps its own width (its text and padding) and the buttons wrap onto the next line when they do not fit; another theme
+  may decide otherwise, for example equal-width buttons.
 
 ## Batches
 
