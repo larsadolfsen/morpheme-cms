@@ -550,7 +550,9 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    `large`, `extraLarge`, `lib/breakpoints.mjs`) with their widths, the owner picks one or drags the edge of the page to
    any width, and the current width shows as a number with the size's name. The page's height follows the width: it is
    the height a window of that size usually has (for example a phone's for `compact`) and the page scrolls inside it, not
-   the page's full length. Open: the heights to use for each size.
+   the page's full length. The breakpoints are the ones the site uses (owner, 11 November), read from the
+   site and its theme (today Material 3's, which `lib/breakpoints.mjs` and the theme's CSS agree on), not a fixed list in the
+   editor, so a theme with other breakpoints shows its own. Open: the heights to use for each size.
 8. **Decision 4 (dotted line instead of a box) against decision 7 (more like the site):** keep the colour box for a coloured
    section as the site draws it, and use the dotted line only to mark where a section starts (sections with no colour, and
    as a boundary marker above each)? Recommended: yes. Alternative: dotted line only, and the colour shown on the site only.
