@@ -1,6 +1,6 @@
 # Menu and Settings regroup: plan (batch 17)
 
-Status: **plan only, nothing built, the owner has decided nothing yet.** Source: batch 17 and open questions 3 and 4 of
+Status: **plan only, nothing built. Revised 11 November after the owner's answers to the five questions (section 8 lists the answers and the new questions).** Source: batch 17 and open questions 3 and 4 of
 `2026-11-11-intuitive-editor-design.md`. Written against `0.19` at `13ff472` (0.16 is released). Screens were opened on the
 demo build (`npm run build`, then the built editor in Chromium) at 375 px and 1280 px; the shots are in
 `menu-regroup-screens/` (webp, `*-m` phone, `*-d` computer).
@@ -67,8 +67,7 @@ Where each name shows up today (all read from `src/i18n/en-US|da-DK/common.ts` u
 
 Findings from the screens:
 
-1. **Phone, Settings** (`settings-m`): six rows, no hint of what is inside; Appearance is the biggest and the one
-   an owner looks for ("how my site looks") but it is behind the cog.
+1. **Phone, Settings** (`settings-m`): six rows, no hint of what is inside; Appearance is the biggest, behind the cog (the owner keeps it there).
 2. **Business** (`company-m`, `company-logo-m`): Logo and icon is a picture upload, not a fact about the company; it is
    the only row there that is about looks.
 3. **Blocks** (`menu-blocks-m`, `blocks-m`): the section `Blocks` has the row `Block templates` (the texts every copy of a
@@ -81,114 +80,116 @@ Findings from the screens:
 6. **Developer** (`developer-m`): two rows; `Caching and builds` holds `Faster editor` and the build switches, which an
    owner with R2 meets, so it is not purely developer work.
 
-## 3. Proposed structure
+## 3. Proposed structure (after the owner's answers)
 
-One rule for the menu: *what the site says* (Content, Business), *how it looks* (Appearance), *what it can do* (Blocks,
-Apps). Settings is what is left: the account's tools, not the site's.
+The owner's decisions: Appearance stays on the Settings page; the main-menu section `Blocks` becomes `Globals`, holding
+Header, Footer and Block templates; `Block settings` moves to Settings; Logo and icon moves into Appearance (the plan's
+own alternative, flip-able: see Q1 below). No other renames.
 
 ```
 Main menu
 ├─ Dashboard
-├─ Content          Pages, Blog posts, Dynamic lists, Promotion, Tags, Pictures and files, Internal links, Redirects ▾
-├─ Business         Contact, Social media, Payment
-├─ Appearance  NEW  Theme store, Header, Footer, Logo and icon, Themes, Icon packs, Motion, Side column, Colors, Default pages
-├─ Blocks           Block texts, Block settings
-└─ Apps             Appstore, installed apps
-Settings (cog)      Assistants, Developer, Licenses, Morpheme, Privacy      (five rows, A–Z)
+├─ Content      Pages, Blog posts, Dynamic lists, Promotion, Tags, Files, Internal links, Redirects ▾
+├─ Business     Contact, Social media, Payment                       (Logo and icon leaves)
+├─ Globals      Header, Footer, Block templates                      (was Blocks; Header and Footer come from Appearance)
+└─ Apps         Appstore, installed apps
+Settings (cog)  Appearance, Assistants, Block settings, Developer, Licenses, Morpheme, Privacy     (seven rows, A–Z)
+  └─ Appearance Theme store, Logo and icon, Themes, Icon packs, Motion, Side column, Colors, Default pages   (Header, Footer leave)
 ```
 
-How it is built (the same way `Business` and `Apps` already are):
+How it is built:
 
-- `groups` gets `{ id: 'appearance', title: 'Appearance', ids: ['appearance'] }` after `company`; `HOISTED` in `lib/menu.mjs`
-  gets `'appearance'` so the screen's rows are the section's rows. `childrenOf('appearance')` returns the same list as
-  `Theme()` (one source, so the menu and the screen cannot drift).
-- `settings` loses `'appearance'`. The route `#appearance` and every `#appearance/*` stay.
-- `Logo and icon` is the row `logo` of `Theme()` (after Footer, so header, footer and logo, the site's identity, sit
-  together). Business loses its `logo` row.
-- The back link of every `#appearance/*` screen changes from `Settings` to `Appearance` (already so for the children;
-  `#appearance` itself goes back to the start screen, like `#company`).
-- The cog is no longer marked on `#appearance/*`; the section is.
-- The rail (collapsed navigation) gets one more destination: five sections plus Dashboard and the cog. Check that the
-  phone drawer's first level and the rail still fit at 375 × 667.
-- Developer, Assistants, Licenses, Morpheme, Privacy: unchanged.
+- `groups`: the section `{ id: 'blocks', title: 'Blocks', ids: ['blocks', 'block-settings'] }` becomes
+  `{ id: 'global', title: 'Globals', ids: ['header', 'footer', 'blocks'] }`. The section id changes from `blocks` to
+  `global` because `blocks` is also the id of the part `Block templates` (route `#blocks`); the icon `global` (a globe)
+  already exists in `defaults/editor.ts`. `partOf` already knows `header` and `footer`.
+- `settings` becomes `['appearance', 'assistants', 'block-settings', 'developer', 'licenses', 'morpheme', 'privacy']`
+  (sorted by name in the editor's language when drawn). `Block settings` keeps its id and route.
+- `Theme()` loses the `header` and `footer` rows and gains `logo` (second, after Theme store). `Company()` loses its `logo` row; Business's `ids` lose `logo`.
+- **Routes of Header, Footer, Block settings stay** (`#appearance/header`, `#appearance/footer`, `#block-settings`). The
+  menu's highlight finds an item by its link (`currentPlace` rule 3, longest href wins) before it looks at the route's
+  first word, so a header screen at `#appearance/header` still marks Globals, not the cog. The `id === 'header'` special
+  case in `currentPlace` (cog open for the header) must go.
+- The back link of Header and Footer changes from Appearance to the start screen (as `#company` does), and `Block
+  settings` goes back to Settings (`backFrom` already does that for any id in `settings`).
+- The rail still has the same number of destinations (the section is renamed, not added): nothing new to fit. Settings
+  has seven rows instead of six.
 
 ## 4. Proposed renames
 
-Every rename keeps the ids, the routes and the `common.parts.*` keys (only the values change), so no code outside the
-i18n files and the three strings below needs to move. Danish is changed in the same pull request (`check:content` and
-`check:language` stop otherwise).
+Ids, routes and `common.parts.*` keys stay; only the section's title changes (and where the rows are).
 
 | # | Old en-US | New en-US | Old da-DK | New da-DK | Why | M3 word-choice check |
 | :-: | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 | `Block templates` | `Block texts` | `Blokskabeloner` | `Bloktekster` | The screen holds the texts every copy of a block has; "template" is a page template elsewhere in the editor (`forms.ts`) and is developer language. | Short, concrete noun phrase, says what the owner edits. Pairs with `Block settings`. Passes. |
-| 2 | `Files` | `Pictures and files` (alternative: `Media`) | `Filer` | `Billeder og filer` (alt. `Medier`) | The screen is mostly pictures, and every picker says "picture"; `Files` hides that. Matches finding 7 of the spec. | Plain nouns, universal. "Pictures and files" is the clearer of the two for a non-technical owner; `Media` is shorter but a term of the trade. Both pass; `and` is allowed in a label that names two things. |
-| 3 | `Dynamic lists` | **no change** (alternative: `Lists`) | `Dynamiske lister` | no change (alt. `Lister`) | The owner chose it in 0.14, one release ago; batch 16 uses `Dynamic` in block names, so renaming twice would churn the menu, notes and blocks. Revisit when batch 16 lands. | `Dynamic` is a developer word, but it is the owner's; `Lists` alone clashes with Pages and Blog posts (also lists) and with the List blocks. Keep until the owner decides (Q2). |
-| 4 | `Business` | **no change** | `Virksomheden` | `Virksomhed` | English is fine: short, universal. In Danish only, the definite form `Virksomheden` is the odd one out among the labels (`Indhold`, `Blokke`, `Udseende`); the indefinite matches. | Danish only: labels are indefinite nouns. Passes after the change. |
-| 5 | `Appearance` / `Developer` / `Logo and icon` | no change | `Udseende` / `Udvikler` / `Logo og ikon` | no change | They only move. | — |
+| 1 | `Blocks` (section) | `Globals` | `Blokke` | `Globale dele` (alternative `På alle sider`) | The section now holds what is shared by every page: the header, the footer and the block templates. `Blocks` no longer says that. | **Weak.** `Globals` is a programmer's word; the guide asks for universal words an owner already knows. It was the owner's own word before 0.13 and is short, so it stays as the owner decided. Plainer, if the owner wants one: `On every page` (da `På alle sider`) or `Shared` (da `Fælles`). Danish `Globale dele` keeps the owner's word and adds a plain noun (`dele`, the same word Developer › Parts uses). |
+| 2 | `Block templates`, `Files`, `Dynamic lists`, `Business`, `Virksomheden`, `Appearance`, `Developer`, `Logo and icon` | no change | no change | no change | Owner's decision. | `Block templates` keeps "templates" (a template builder comes here later). |
 
-Not proposed: renaming `Caching and builds` (not part of this batch), and renaming `CVR number` (the spec's finding 4 already
-covers it in its own batch).
-
-Only one text needs a new sentence: `colors.ts` already says "under Appearance › Logo and icon" (true again, keep) and
-`common.ts` comments that say "under Business" (code comments only).
+Withdrawn from the first draft: `Block texts`, `Pictures and files`, `Virksomhed`.
 
 ## 5. Routes that change, and old links
 
 | Old | New | How the old one keeps working |
 | :--- | :--- | :--- |
 | `#company/logo` | `#appearance/logo` | `MOVED['company/logo'] = 'appearance/logo'` in `src/movedRoutes.mjs`. |
-| `#appearance/logo` (0.12 to 0.13, now `company/logo`) | `#appearance/logo` | Remove the entry `'appearance/logo': 'company/logo'`, or the two entries would send a link round in a circle. |
+| `#appearance/logo` (0.12 to 0.13, now mapped to `company/logo`) | `#appearance/logo` | Delete the entry `'appearance/logo': 'company/logo'`, or the two entries would send a link round in a circle. |
 | `#virksomheden/logo`, `#tema/logo`, `#udseende/logo` (older, Danish) | `#appearance/logo` | Retarget each `MOVED` value from `company/logo` to `appearance/logo` (`movedRoute` is one step, so every old key must point at the final address). |
 
-Everything else keeps its address: `#appearance`, `#appearance/*`, `#developer/*`, `#files`, `#lists`, `#blocks`,
-`#block-settings`, `#company`, `#company/<part>`, `#settings`, `#settings/appstore`. The renames change labels, not routes
-(the routes are ids, English already, and no release note or doc links to them by label). I do **not** recommend
-renaming `#files` to `#media` or `#blocks` to `#block-texts`: it buys nothing and every site's bookmarks and the
-`list`/`deleted/files` addresses would need entries.
+No other route changes: `#appearance/header`, `#appearance/footer`, `#block-settings`, `#blocks`, `#blocks/<id>`,
+`#appearance`, `#developer/*`, `#files`, `#lists`, `#company/*`, `#settings`, `#settings/appstore` all stay. The old
+entries `header` → `appearance/header` and `src/data/footer.json` → `appearance/footer` stay valid, and nothing points
+at another key, so there is no loop. Option for later (Q3): move Header and Footer to `#global/header` and
+`#global/footer`, with `MOVED` entries for the two current addresses and all the older ones retargeted at the final
+address; not needed for the menu to work and not recommended now.
 
-`worker/movedAddresses.js` and `lib/previewAddress.mjs` are not touched: no public site address changes, so no Worker
-redirect and no `scripts/retarget-links.mjs` entry. A test pair is added to `src/movedRoutes.test.mjs` for each moved key
-(and one that no key points at another key).
-
-Sites that copy `defaults/editor.ts` into `src/site/editor.ts` keep the old `groups` and `settings`: they would show
-Appearance in the cog and, if they also list `appearance` in `groups`, twice. See the risk list.
+`worker/movedAddresses.js`, `lib/previewAddress.mjs` and `scripts/retarget-links.mjs` are not touched: no public site
+address changes (as `/ny/` → `/new/` in 0.15 did, which these three handled). Tests: `src/movedRoutes.test.mjs` gets a
+pair for each moved key and a check that no value is also a key.
 
 ## 6. Files that change (when built)
 
-- `defaults/editor.ts`: `groups` (Appearance section, Business `ids`), `settings`, the comments; `icons` (reuse `appearance`).
-- `lib/menu.mjs`: `HOISTED`, `currentPlace` (the `header` special case goes: Header is a row of a section now), `backTarget`; `lib/menu.test.mjs`.
-- `src/menuChildren.ts`: `childrenOf('appearance')`; `src/MainMenu.tsx`: the icons, the section row.
-- `src/Library.tsx`: `Theme()` (the `logo` row), `Company()` (no logo row), `partOf` (`logo`), `Theme` back link, the comments at 214 and 242.
-- `src/site.ts`: `appearance` back links; `standardPageAt` and `placeOf` wording ("Appearance › Default pages", no "Settings ›"); `backFrom` comment.
-- `src/App.tsx`: `route === 'company/logo'` → `appearance/logo`, the header comment's routes.
-- `src/BrandForm.tsx`: back link to Appearance and the comment.
+- `defaults/editor.ts`: `groups` (Globals section, Business `ids`), `settings` (add `block-settings`), the comments at the top and at `groups`.
+- `lib/menu.mjs`: remove the `id === 'header'` special case in `currentPlace`; `lib/menu.test.mjs` (fixtures with `blocks`, `header`, the cog test list).
+- `src/MainMenu.tsx`: nothing but the section id's icon (`global`, already in `icons`).
+- `src/Library.tsx`: `Theme()` (no `header`, `footer`; a `logo` row), `Company()` (no logo row), `partOf` (`logo` stays, `block-settings` is in Settings now), the comments at 214 and 242; the Settings screen has seven rows.
+- `src/HeaderSettings.tsx`, `src/FooterSettings.tsx`, `src/DataForm.tsx` (313 to 315): back links, from Appearance to the start screen.
+- `src/BlockSettings.tsx`: back link to Settings; `src/site.ts` 148 (`Block templates` back link: to the start screen, unchanged unless the menu gives the section a screen).
+- `src/site.ts`: `placeOf` and `standardPageAt` (Default pages stays under `Settings › Appearance`); the `backFrom` comment.
+- `src/App.tsx`: `company/logo` → `appearance/logo`, the header comment's routes.
+- `src/BrandForm.tsx`: back link and comment.
 - `src/movedRoutes.mjs`, `src/movedRoutes.test.mjs`.
-- `src/i18n/en-US/common.ts`, `src/i18n/da-DK/common.ts` (`blocks`, `media`), `src/i18n/*/parts.ts` (`media`), `defaults/blockTexts.ts` and `defaults/i18n/da-DK/blockTexts.ts` (`Block templates` key and back link), `defaults/i18n/da-DK/editor.ts` (`Business`).
-- Release note: one card, `release-notes/i18n/{en-US,da-DK}/pending/menu-regroup.json` (Appearance is in the menu; Logo and icon moved; the renamed rows), written with the `release-notes` skill. Not now.
-- `scripts/editor-screens.mjs`: Settings lists five rows (not six), the drawer's first level has five sections, the cog is marked on Settings' screens only, `#appearance/*` marks Appearance.
-- `docs/superpowers/plans/2026-11-07-settings-cog.md`: add a note that Appearance left the cog.
-- A changeset (`minor`: it moves what an owner sees; into `0.19` that is allowed) and the release note above.
+- `defaults/i18n/da-DK/editor.ts` (`Blocks` key becomes `Globals`); `defaults/editor.ts` title.
+- `src/i18n/en-US/colors.ts` (the hint "under Appearance › Logo and icon" is true again) and the `forms.ts` link text to Side column (unchanged).
+- `scripts/editor-screens.mjs`: Settings lists seven rows (A–Z by the Danish names), the drawer's first level is Dashboard, Content, Business, Globals, Apps, `#appearance/header` marks Globals and not the cog, `#block-settings` marks the cog.
+- Release note: one card in `release-notes/i18n/{en-US,da-DK}/pending/` (Logo and icon now under Appearance, Header and Footer under Globals, Block settings under Settings), written with the `release-notes` skill. Not now.
+- `docs/superpowers/plans/2026-11-07-settings-cog.md`: a note that Block settings joined the cog.
+- A changeset (`minor`, allowed into `0.19`).
 
-Not changed: `worker/*`, `lib/previewAddress.mjs`, themes, blocks, apps.
+Not changed: `worker/*`, themes, blocks, apps.
 
 ## 7. Risks
 
-1. **Sites with their own `src/site/editor.ts`.** `groups` and `settings` are a site's own files when it has them; an old copy still lists `appearance` in `settings`. `currentPlace` must give the section when both lists name it, and `check:site-types` must still pass for such a site. Test with a fixture.
-2. **Redirect loop** between `appearance/logo` and `company/logo` if the old entry is left (section 5).
-3. **Rail and drawer space**: a sixth destination on a phone; check 375 × 667 (the screen check runs at 375 and 1280).
-4. **One list, two places**: if `Theme()` and `childrenOf('appearance')` are not one source, a new Appearance row (an app's place, a theme's) shows in one and not the other. `AppPlaces` and `appPartsIn` rows must be checked.
-5. **Search and "the way there" strings** (`placeOf`) say "Settings › Appearance › …": they must say "Appearance › …" or owners look under the cog.
-6. **Release notes and docs** of 0.13 and 0.14 name the old places; notes are history and stay, but the new note must say where things are now.
-7. **`Developer` has two meanings** (Settings › Developer, and an app's `Developer: name` row). Left alone; no search shows both today.
-8. **Danish**: `Bloktekster`, `Billeder og filer` and `Virksomhed` are all new and need the owner's eye (Danish wording the owner knows better than the plan does).
-9. **Overlap with batches 15 and 16** (`Hide on the page`, `Files`/`Pictures` in picker texts; `Dynamic lists`, app lists) and with 0.16 Assistants: the regroup should be one pull request merged between them, or the row names change twice.
+1. **Sites with their own `src/site/editor.ts`.** `groups` and `settings` are a site's own when it has them: an old copy keeps `Blocks` with `block-settings` and Header and Footer in Appearance, while the editor code expects the new split. The screens must still open (`partOf` knows every id; the section id `blocks` must not crash), and `check:site-types` must pass on such a site. Test with a fixture that has the old `groups`.
+2. **"The way there" strings.** `placeOf('header')` becomes `Globals` (no "Settings ›"), so any text built from it reads `Globals › Header`; `standardPageAt` stays `Settings › Appearance › Default pages`. Search for each `placeOf(` caller (`EntryForm.tsx` 145 uses `redirectsPath`, not affected) and for hard-coded "Appearance › Header" in en-US and da-DK texts.
+3. **Redirect loop** between `appearance/logo` and `company/logo` if the old entry is left (section 5).
+4. **Menu highlight**: `Globals` must stay marked on `#appearance/header`, `#appearance/footer`, `#list/menu`, `#list/mobile-menu` and `#blocks/<id>`; the cog must not. The existing tests assume the header is "in Settings" and must change.
+5. **Drawer and rail fit**: the number of destinations is unchanged, but check the longer Danish name `Globale dele` in the rail's label at 375 px.
+6. **Settings grows to seven rows**, with `Block settings` among account-like rows (Licenses, Morpheme); it reads as a developer or owner setting, so it goes by the A–Z rule only.
+7. **Release notes and docs** of 0.13 and 0.14 name the old places; notes are history and stay.
+8. **Danish**: `Globale dele` is new and needs the owner's eye.
+9. **Overlap with batches 15 and 16** (the block flow, `Block settings` wording, lists): one pull request, merged between them.
 
-## 8. Questions for the owner
+## 8. The owner's answers, and new questions
 
-1. **Appearance into the main menu, between Business and Blocks, with Logo and icon moved there (Q3).** Recommended: yes, as in section 3. The cog keeps five rows. Alternative: leave the menu and only move Logo and icon into Appearance.
-2. **`Dynamic lists`: keep it, or `Lists`?** Recommended: keep until batch 16 is built; you chose it in 0.14 and the blocks will carry the word.
-3. **Developer.** It is already a Settings row since 0.14 (there is no `Advanced`). Recommended: leave it. Alternative: hide it behind one collapsed row on Settings if you want the cog cleaner for owners; that costs one more tap for you.
-4. **`Files`: `Pictures and files`, or `Media`?** Recommended: `Pictures and files` (da `Billeder og filer`). `Media` is shorter.
-5. **`Block templates` → `Block texts`, and `Virksomheden` → `Virksomhed` in Danish.** Recommended: yes to both; `Business` stays.
+Answers (relayed by the PM on 11 November): 1. Appearance stays in Settings, no new section (Logo and icon moves there; the
+owner did not say otherwise). 2. `Dynamic lists` stays. 3. Developer stays. 4. `Files` stays. 5. No renames of `Block
+templates` or `Virksomheden`; instead the section `Blocks` becomes `Globals` (Header, Footer, Block templates) and `Block
+settings` moves to Settings.
 
-On a yes to 1, 4 and 5 the build is one medium pull request (one session), with the release note, merged after batch 16 part A.
+New questions, each with a recommendation:
+
+1. **Logo and icon into Appearance, or leave it in Business?** This is an assumption, easy to flip. Recommended: Appearance (it is looks; Business keeps Contact, Social media and Payment). Flip: leave it in Business and change nothing for it (no route change, five files fewer).
+2. **The name `Globals`.** It is the owner's word but a programmer's word for an owner. Recommended: `Globals` in English as decided, and Danish `Globale dele`. Alternative: `On every page` (da `På alle sider`).
+3. **Move the routes of Header and Footer to `#global/…`?** Recommended: no, keep `#appearance/header` and `#appearance/footer` (no old link breaks; the menu highlights by link). Tidy later in a separate change if wanted.
+4. **Where does `Block settings` go in Settings?** Recommended: in the A–Z list, between Assistants and Developer. Alternative: under Developer (it is a switchboard for which blocks exist), which leaves Settings at six rows.
+
+On answers to these, the build is one small to medium pull request (one session), with the release note.
