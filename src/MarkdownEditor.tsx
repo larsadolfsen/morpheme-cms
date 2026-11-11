@@ -1005,7 +1005,9 @@ function blockCard(
   // Typed in place: the floating toolbar (inlineBar.ts) has the row actions, and its last button opens the block's own menu below.
   let handle = card;
   if (inline) {
-    const itemFields = (block?.fields.find((f) => f.name === 'items')?.fields ?? []).filter((f) => f.name === 'icon' || f.name === 'href');
+    const itemFields = (block?.fields.find((f) => f.name === 'items')?.fields ?? []).filter(
+      (f) => f.name === 'icon' || f.name === 'href' || f.name === 'heading',
+    );
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
     const rowActions = (): BarAction[] => {
@@ -1040,10 +1042,16 @@ function blockCard(
       return {
         headline: t.blocks.list.rowSettings,
         fields: itemFields,
-        value: { icon: row.icon ?? '', href: row.href ?? '' },
+        value: { icon: row.icon ?? '', href: row.href ?? '', heading: row.heading === true },
         onChange: (v: BlockProps) => {
           let items = rows();
           for (const key of ['icon', 'href'] as const) items = setField(items, i, key, String(v[key] ?? ''));
+          // The row as a small heading of the rows after it, or not.
+          items = items.map((r, j) => {
+            if (j !== i) return r;
+            const { heading: _, ...rest } = r;
+            return v.heading === true ? { ...rest, heading: true } : rest;
+          });
           setItems(items);
         },
       };
