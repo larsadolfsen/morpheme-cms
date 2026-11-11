@@ -50,6 +50,12 @@ export default defineBlock({
         { label: t.blocks.segmented.showAll, value: 'all', icon: SquaresFour },
       ],
     },
+    {
+      name: 'maxRows',
+      label: t.blocks.segmented.maxRows,
+      type: 'number',
+      hint: t.blocks.segmented.maxRowsHint,
+    },
     { name: 'button', label: t.blocks.segmented.button, type: 'string', max: 30, hint: t.blocks.segmented.buttonHint },
     { name: 'buttonHref', label: t.blocks.segmented.buttonHref, type: 'relation', to: 'pages' },
   ],
