@@ -104,9 +104,9 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   menu. `Scheduled` has a required `Time` field with the hint `Published at most an hour after.`, which reads as a bug,
   not as the build's delay. CLAUDE.md section 6 lists `Draft`, `Published`, `Scheduled`, `Hidden` as the canonical
   states, so the words are right; the explanation is what is missing.
-- **Fix:** keep the four words. Show the chosen status's hint under the field. Rename the hint of Hidden to `Not listed.
-  Anyone with the link can open it.` and of Time to `The website updates within an hour of this time.` Add the
-  state to the Unfinished card's rows (already there) and to every list row (a badge for Draft, Hidden, Scheduled).
+- **Fix (superseded by question 5):** there are two statuses, `Published` and `Draft`. `Scheduled` becomes a date on
+  `Publish`, and `Hidden` becomes the SEO setting `Hide from search engines`. Show the state on every list row (a badge for
+  Draft), and the text of the date's hint is `The website updates within an hour of this time.`
 
 ### 3. The start screen shows four cards that are empty or quiet on a new site
 
@@ -424,6 +424,58 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   keeps its own width (its text and padding) and the buttons wrap onto the next line when they do not fit; another theme
   may decide otherwise, for example equal-width buttons.
 
+### 18. Every block follows the same pattern
+
+The owner asked (11 November) for the blocks to be standardised on the list and card pattern without going through each
+one. The pattern: the block is drawn as the site shows it; its text is typed in place; what is empty shows only on the
+active row, card or button; the next one is always shown empty and faded; the menu is context aware (finding 14); and
+settings sit in the side panel on desktop and the bottom sheet on a phone. A block loses its own head fields (decision 3).
+The table is a proposal by field name from `src/standard/*`; the exceptions below it are for the owner.
+
+| Block | Typed in place | Settings in the panel | Follows the pattern |
+| ----- | -------------- | --------------------- | ------------------- |
+| List, Segmented list, FAQ list, Card | rows or cards (title, text, answer) | media, link, buttons, design | yes, finding 14 and 17 |
+| Steps | rows (title, text), numbered 1, 2, 3 … | none | yes, rows; its own block (owner, 11 November) |
+| Checklist | none: it becomes a `Check list` style in the text toolbar | | no block (owner, 11 November, below) |
+| Buttons | each button's label | target, kind, icon | yes, buttons are the rows |
+| Notice | the text, in its box | colour, `until` date | yes, one text field |
+| Video | the title | the video address | yes, the player is drawn, empty shows an empty frame |
+| Banner (hero) | none: it becomes a section setting | | no block (owner, 11 November, below) |
+| Expandable list | none: it becomes a Segmented list | | no block (owner, 11 November, below) |
+| Price cards | name, price, unit, text, the included list | featured, badge, button targets | yes, cards with a nested list of rows (the included items) and card buttons |
+| Table (new) | the cells, with the next row and next column shown empty | header row | yes, a new block (owner, 11 November, below) |
+| Testimonials | none: filled from the site's content | layout, which ones | always dynamic (exception 4) |
+| Blog posts | none: a dynamic Card | which posts, how many, order | the dynamic Card (finding 17) |
+| Cookies | none: filled from the site's data | category | not typed in place |
+| Links, Points with icon | folded into List (decisions 8 and 9) | | |
+
+**A table is a new block (owner, 11 November).** Only a few owners need one, and the text menu is already crowded, so it is
+a block in `Insert`, not a text style. The cells are typed in place; the next row and the next column are always shown
+empty and faded (decision 14); the context-aware menu in a cell offers `Add row`, `Add column`, `Delete row` and `Delete
+column`; the panel has a header-row setting, on by default (the first row of a new table is a header row, owner, 11 November). The theme draws it and keeps it readable on a narrow screen (it scrolls
+sideways). The site's Markdown renderer already supports tables (`remark-gfm`); whether the editor can create and edit
+one is checked when it is built. A table filled from the owner's lists could come later as a dynamic table.
+
+**Exceptions:**
+
+1. **Checklist (settled, owner, 11 November):** it is single lines with a check mark, so it is a list style, not a block.
+   The text toolbar gets a `Check list` style next to the bullet and numbered lists, and the Checklist block leaves
+   `Insert`. A migration turns each existing Checklist block into a check list in the text, so no page changes look.
+   **Steps stays its own block**, with its numbered rows (1, 2, 3 …), each with a title and a text.
+2. **Banner (settled, owner, 11 November):** the Banner block goes away. A banner is already an H2 heading, a picture,
+   text and a `Buttons` block in one text (`src/standard/hero/fields.ts`), which is what a section is. A section gets the
+   banner's settings in its panel (bottom sheet on a phone), next to the colour it has today: a background picture and
+   the width of the background. The owner types the heading and text in the section as normal text, and adds a Buttons
+   block inside it for buttons. A section is the regular editor, so any block can go in it (owner, 11 November). A migration turns each Banner block into a section with those settings, so no page
+   changes look. The text stays readable over a picture because the theme decides it, as on the site today.
+3. **Expandable list (settled, owner, 11 November):** an Expandable list is a Segmented list, so the block goes away.
+   Each row's page link is the row's Link, and the closing link is the Segmented list's optional text button
+   (decision 10). A migration turns each Expandable list into a Segmented list. The rows of a Segmented list are closed by default and expand
+   to show their text (owner, 11 November). The panel has a setting for it, for example `Only one open`, which closes the
+   open row when another is opened. While editing, the active row is shown open so its text can be typed. The FAQ list has the same setting (owner, 11 November).
+4. **Testimonials and Cookies (settled, owner, 11 November):** they have no typed content, so they have nothing to edit in place: the block is a drawn
+   preview with settings in the panel, and `Edit testimonials` opens their own list, as `Edit list` does for a dynamic list.
+
 ## Batches
 
 Each is one pull request into `main` (or `0.16` where marked), with a release note (`release-notes` skill) and, until
@@ -450,15 +502,37 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
 
 ## Open questions for the owner
 
-1. **New pages and posts start as Draft?** Recommended: yes (nothing goes live by accident); the form then needs `Publish`
-   as an obvious step. Alternative: stay Published.
-2. **Button labels follow the status (`Save and publish` / `Save draft`)?** Recommended: yes. Alternative: keep `Save`, show
-   the status only beside it.
+1. **New pages and posts start as Draft (settled, owner, 11 November: yes).** Nothing goes live by accident; the form
+   then needs `Publish` as an obvious step (question 2).
+2. **Autosave, a status and Publish (owner, 11 November):** there is no `Save` button. The editor saves the owner's work
+   as they type into a draft version and shows its state (`Saving…`, `Saved`, or `Not saved` with a retry). `Publish`
+   makes the page available on the site, and a page that is published shows `Unpublish` instead, which removes it from the
+   site. The site always shows the last published version, and autosave never changes it. Three states (owner, 11 November): **Draft** (not on the site; `Publish` puts it live); **Published with nothing waiting** (live, `Saved`, the button is `Unpublish`); **Published with changes waiting** (the site still shows the old version, the page is marked `Unpublished changes`, the button reads `Publish changes`, which replaces the live version with the draft, and `Unpublish` moves into a menu). Today `Save` writes straight to the site,
+   so this changes how saving works: the draft version needs a place to live (to be found, since the site's content is
+   committed to GitHub), and the build runs only on `Publish` and `Unpublish`. The owner can discard all waiting changes and go back
+   to the live version (`Discard changes`, with a confirmation; owner, 11 November). **Choosing when the new version goes live (owner, 11 November):** on a published page with changes waiting, `Publish changes`
+   has a second choice, `Schedule`, where the owner picks a date and time. The waiting version goes live then, and until
+   then the site shows the old one; the page is marked `Scheduled changes` with the date. The same choice is on a Draft
+   page, which is today's `Scheduled` status. **Two versions in the core, more in an app (owner, 11 November):** a page has a live version and one waiting version,
+   and a `Live` / `Scheduled` switch edits either one, so a mistake on the live page can be fixed without touching the
+   waiting version (the two can be completely different, for example a new campaign front page, so there is no automatic
+   merge). Several versions of one page and a calendar of what goes live when are left to an app later. **So that an app
+   can be added without a rewrite:** (1) the draft store holds versions as a list, each with an id, a state and an
+   optional publish time, and the core uses at most two; (2) `Publish`, `Schedule`, `Unpublish` and `Discard` are
+   functions the editor calls, so an app can call the same ones; (3) the scheduled publish is run by the site's Worker on
+   its schedule, not by the browser, so it works when nobody is signed in; (4) the version switch is a place an app can
+   extend (apps already have places, `src/AppPlaces.tsx`). Whether apps can add versions to a page is checked when the app
+   is planned. Open: where the draft is kept.
 3. **Regroup the menu (Appearance out of Settings) in 0.17?** Recommended: yes, after 0.16, in one pass. Alternative: leave the menu.
 4. **May we rename `Dynamic lists`, `Block templates`, `Files` (and `Business`)?** Recommended: yes, but only when the screens
    have been opened and checked; the Danish names change with them.
-5. **Rename the status `Hidden` to `Unlisted`?** Recommended: yes (the words `Hidden on the page` and `Hide from search engines`
-   then mean something else). Changes the stored `unlisted` label only, not the value in files.
+5. **Only two statuses: `Published` and `Draft` (settled, owner, 11 November; replaces the rename to `Unlisted`).** A draft is
+   not reachable on the site. `Unpublish` turns a page back into a draft. A page that should not be found by Google
+   stays published and gets a setting in its SEO section (`Hide from search engines`). `Scheduled` is no longer a
+   status: it is a date on `Publish` (finding 1 and question 2), so a page is still a draft or published until then.
+   The stored `unlisted` value is migrated: a page with it stays published, with the SEO setting turned on, so no page
+   changes. `CLAUDE.md` section 6 lists `Draft`, `Published`, `Scheduled`, `Hidden` as the status words, so that line
+   changes with this.
 6. **Only group the similar blocks in the picker, or also merge them into fewer blocks (`Rows`, `Questions`)?** Recommended:
    group first (batch H), look at it, then decide on the merge (batch I). The merge is larger and changes every theme.
 7. **Draw the page head (title, top picture, date, tags) in the text, and an optional frame with the site's header and footer?**
