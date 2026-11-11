@@ -19,7 +19,7 @@ type Props = StandardPageView;
 const { heading, intro, sections } = Astro.props;
 // The front page is at / and the blog page at /blog/ (their own addresses send on there); the 404 page is not a page to go to.
 const own = [standardPaths.front, standardPaths.blog, standardPaths.notFound];
-const pages = (await getPages({ previews: false, unlisted: false })).filter((p) => !own.includes(p.data.path));
+const pages = (await getPages({ previews: false })).filter((p) => !own.includes(p.data.path));
 const posts = await getPosts();
 // Every page and post the suggestion can point to: [path, title].
 const index: [string, string][] = [

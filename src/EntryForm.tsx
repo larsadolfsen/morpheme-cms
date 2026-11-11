@@ -52,13 +52,14 @@ import {
 } from './ui';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
 import { usePagePreview } from './pagePreview';
+import { migrateStatus } from '../lib/status.mjs';
 import { savedOn, VersionList, VersionNotice, WithVersions, type ShownVersion } from './Versions';
 import type { Env } from './App';
 import { kindAndName, savedText } from './deploy';
 import { siteT, siteText, t } from './i18n';
 import { firstPicture, SEO_FIELDS, seoInputOf, seoRating, SHARE_FIELDS, sharedAs, type SeoCheck } from './seo';
 
-// "Page settings" (a post's "Post settings"), the first section: the status (Draft, Hidden, Published, Scheduled and the time
+// "Page settings" (a post's "Post settings"), the first section: the status (Draft, Published, Scheduled and the time
 // for Scheduled), a page's title (its name in the lists and the menu; its H1 is in its text) and the template (Field.offered).
 // A post's title is its H1, written above its text: at the top of "Content", as a heading of a collection that has one.
 const TOP = ['title', 'heading'];
@@ -123,7 +124,8 @@ function addressNow(collection: MarkdownCollection, file: RepoFile, data: Record
 }
 
 function valuesOf(collection: MarkdownCollection, file: RepoFile): Record<string, unknown> {
-  const data = readFields(splitFrontmatter(file.text).yaml);
+  // A stored `unlisted` is read as published with `noindex` (lib/status.mjs); the next save writes that.
+  const data = migrateStatus(readFields(splitFrontmatter(file.text).yaml));
   return Object.fromEntries(
     collection.fields.map((f) => {
       const v = data[f.name];

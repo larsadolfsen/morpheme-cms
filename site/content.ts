@@ -25,13 +25,9 @@ const stateHere = (data: { status?: string; publishAt?: string }) => {
   const state = stateOf(data);
   return state === 'draft' && import.meta.env.DEV ? 'published' : state;
 };
-// Whether a page or post in that state is built: a published one, and with `unlisted` a hidden one.
-const shown = (state: ReturnType<typeof stateOf>, unlisted: boolean) => state === 'published' || (unlisted && state === 'unlisted');
-
-// The posts on the blog and in every list of posts; with `unlisted`, also those that only open on
-// their address (Hidden; the pages of the posts are made for those too). A draft is not on the site.
-export async function getPosts({ unlisted = false } = {}) {
-  return (await getCollection('blog', ({ data }) => shown(stateHere(data), unlisted))).sort(
+// The posts on the blog and in every list of posts. A draft is not on the site.
+export async function getPosts() {
+  return (await getCollection('blog', ({ data }) => stateHere(data) === 'published')).sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
   );
 }
@@ -61,10 +57,10 @@ export type PostChoice = {
   link?: string;
 };
 
-// The pages on the site, also the hidden ones (Hidden; with `unlisted: false` not those) and, like the
-// posts, the drafts on the editor's preview; with `previews: false`, not the new versions of pages under /new/.
-export async function getPages({ previews = true, unlisted = true } = {}): Promise<Page[]> {
-  const pages = await getCollection('pages', ({ data }) => shown(stateHere(data), unlisted));
+// The pages on the site and, like the posts, the drafts on the editor's preview; with `previews: false`, not the
+// new versions of pages under /new/.
+export async function getPages({ previews = true } = {}): Promise<Page[]> {
+  const pages = await getCollection('pages', ({ data }) => stateHere(data) === 'published');
   // A page still under the old address /ny/ (its folder or its path) is read at the new one, /new/ (lib/previewAddress.mjs).
   for (const page of pages) page.data.path = renamedPreview(page.data.path ?? `/${page.id}/`);
   return (previews ? pages : pages.filter((p) => !isPreview(p.data.path!))) as Page[];

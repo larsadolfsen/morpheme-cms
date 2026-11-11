@@ -41,10 +41,10 @@ a release note (`release-notes` skill, English and `da-DK`). Data model and Work
 
 Each pull request must pass `npm run check`, `check:screens`, `check:demo` and `check:themes`.
 
-## Owner decision needed (sent to the PM)
+## Owner decision (settled, 11 November)
 
-Today `unlisted` also keeps a page or post **off the blog, off every list and out of the sitemap**, not only out of Google.
-"Published + `Hide from search engines`" only sets `noindex` and so would put a formerly hidden post on the blog list. The
-spec says "no page changes". Which is meant: (a) accept that migrated posts appear on the blog, or (b) the SEO setting also
-keeps the page out of the site's own lists (which would also hide pages that have `noindex` today). Nothing of the
-`unlisted` migration is built until the PM answers; pull request 1 starts with the parts that do not depend on it.
+`unlisted` is removed with its behaviour. A stored `unlisted` is read as `published` plus the SEO setting `Hide from search engines`
+(stored `noindex: true`), and nothing more: no rule keeps `noindex` entries out of the site's own lists, the blog, the sitemap
+or what apps read. A migrated hidden post therefore now shows on the blog and in lists. Pull request 1 removes the
+`unlisted`-only paths and keeps only the migration of stored values (read as above; the editor writes the migrated form
+on the next save).

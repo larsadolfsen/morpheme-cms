@@ -34,7 +34,7 @@ test('entriesOf reads title, status, publishAt and date of each markdown file in
   ]);
 });
 
-test('entriesOf uses the path as the title when there is none, and gives draft and unlisted as they are', () => {
+test('entriesOf uses the path as the title when there is none, gives draft as it is and reads a stored unlisted as published', () => {
   const entries = entriesOf(
     [
       file('src/content/pages/a.md', 'status: draft'),
@@ -47,7 +47,7 @@ test('entriesOf uses the path as the title when there is none, and gives draft a
     entries.map((e) => [e.title, e.status]),
     [
       ['src/content/pages/a.md', 'draft'],
-      ['src/content/pages/b.md', 'unlisted'],
+      ['src/content/pages/b.md', 'published'],
       ['src/content/pages/c.md', 'published'],
     ],
   );

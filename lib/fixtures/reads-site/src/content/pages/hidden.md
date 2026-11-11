@@ -1,6 +1,6 @@
 ---
 title: "Hidden page"
-status: unlisted
+noindex: true
 ---
 
-Only by address.
+Hidden from search engines only.

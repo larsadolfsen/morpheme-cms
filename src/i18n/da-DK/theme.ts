@@ -37,8 +37,6 @@ export const theme: Messages['theme'] = {
   newVersion: 'Ny version',
   newPage: 'Ny side, som ikke findes endnu',
   currentPage: (title) => `Nuværende: ${title}`,
-  newPosts: 'Nye blogindlæg',
-  newPostsIntro: 'Skjulte, indtil du godkender dem. De står ikke på bloggen, og Google ser dem ikke.',
   reviewNotice: 'Ny version til gennemsyn. Google ser den ikke.',
   seeCurrentPage: 'Se den nuværende side',
   seeChanges: 'Se, hvad der er ændret',

@@ -41,12 +41,11 @@ test('nextDue falls back to a month for an unknown rhythm', () => {
   assert.equal(day(nextDue('2026-11-01', 'daily')), '2026-12-01');
 });
 
-test('lastPostOf is null with only drafts, future scheduled posts, unlisted posts and pages', () => {
+test('lastPostOf is null with only drafts, future scheduled posts and pages', () => {
   const entries = [
     post('2026-11-01', 'draft'),
     post('2026-11-02', 'scheduled', '2026-12-01T08:00'),
     post('2026-11-03', 'scheduled', 'bad'),
-    post('2026-11-04', 'unlisted'),
     post('2026-11-05', 'published', undefined, 'pages'),
   ];
   assert.equal(lastPostOf(entries, NOW), null);
@@ -58,7 +57,6 @@ test('lastPostOf is the newest published post, a scheduled one counting once its
     post('2026-10-01', 'published'),
     post('2026-11-02', 'scheduled', '2026-11-03T08:00'),
     post('2026-10-20', 'published'),
-    post('2026-11-09', 'unlisted'),
     post('2026-11-09', 'draft'),
   ];
   assert.equal(lastPostOf(entries, NOW), '2026-11-02');

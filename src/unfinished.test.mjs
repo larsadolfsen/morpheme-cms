@@ -32,9 +32,8 @@ test('unfinishedOf lists a scheduled entry with a bad publishAt without a date',
   );
 });
 
-test('unfinishedOf puts scheduled by date first, then undated scheduled, drafts and unlisted', () => {
+test('unfinishedOf puts scheduled by date first, then undated scheduled, then drafts', () => {
   const rows = unfinishedOf([
-    entry('u', 'unlisted'),
     entry('d2', 'draft'),
     entry('bad', 'scheduled', 'x'),
     entry('late', 'scheduled', '2026-12-24T08:00'),
@@ -44,7 +43,7 @@ test('unfinishedOf puts scheduled by date first, then undated scheduled, drafts 
   ]);
   assert.deepEqual(
     rows.map((r) => r.title),
-    ['early', 'late', 'bad', 'd1', 'd2', 'u'],
+    ['early', 'late', 'bad', 'd1', 'd2'],
   );
   assert.equal(typeof rows[0].at, 'number');
   assert.equal(rows[3].at, null);

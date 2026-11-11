@@ -88,9 +88,9 @@ const topImageText: Field[] = [
   { name: 'imageAlt', label: 'Alt text', type: 'string', only: { field: 'imageDecorative', is: ['', 'false'] } },
 ];
 
-// "Status" at the top of a page or post (EntryForm.tsx): Draft, Hidden, Published or Scheduled, and for
+// "Status" at the top of a page or post (EntryForm.tsx): Draft, Published or Scheduled, and for
 // Scheduled when (packages/editor/lib/status.mjs). Published is no `status` in the file. A post's date follows the time.
-const status = (hidden: string): Field[] => [
+const status = (): Field[] => [
   {
     name: 'status',
     label: 'Status',
@@ -99,7 +99,6 @@ const status = (hidden: string): Field[] => [
     narrow: true,
     options: [
       { value: 'draft', label: 'Draft', hint: 'Not shown on the website.' },
-      { value: 'unlisted', label: 'Hidden', hint: hidden },
       { value: '', label: 'Published', hint: 'Shown on the website.' },
       { value: 'scheduled', label: 'Scheduled', hint: 'Shown on the website from the time below.' },
     ],
@@ -383,7 +382,7 @@ export const collections: Collection[] = [
     folder: 'src/content/blog',
     deletable: true,
     fields: [
-      ...status('Not shown on the blog or in Google, but can be opened at its address.'),
+      ...status(),
       { name: 'title', label: 'Title', type: 'string', required: true },
       { name: 'date', label: 'Date', type: 'date', required: true },
       { name: 'path', label: 'URL', type: 'string', address: 'post' },
@@ -414,7 +413,7 @@ export const collections: Collection[] = [
     singular: 'page',
     folder: 'src/content/pages',
     fields: [
-      ...status('Not shown in Google, but can be opened at its address.'),
+      ...status(),
       { name: 'title', label: 'Title', type: 'string', required: true },
       { name: 'path', label: 'URL', type: 'string', address: 'page' },
       { name: 'description', label: 'Short description', type: 'text' },
