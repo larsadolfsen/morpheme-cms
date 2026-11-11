@@ -233,9 +233,9 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   2. **Build on the base (owner decision 8).** The list block has the two M3 types, Standard and Segmented, and starts as
      Standard. The other designs are either variants of it or separate blocks; which is open (question 6). Older text:
   Owner decision 9 settles the shape: three ready-made blocks, List, Segmented list and FAQ list. **Steps is a special block (owner,
-  11 November) and stays as it is, not folded into List.** **Not covered by the three
-  yet:** Links (groups of pages
-  under a heading, lost unless a row can be a small heading), and the Expandable list's page link. Cards, Price cards,
+  11 November) and stays as it is, not folded into List.** **Links fold into List (owner,
+  11 November):** a row with a link gets the arrow; the group headings of today's Links block are lost unless a row can be
+  a small heading (to decide when it is built). **Not covered yet:** the Expandable list's page link. Cards, Price cards,
   Testimonials and Blog posts stay as they are. Older text:
   3. **Merge the rows (model change, owner's call).** One block `Rows` with a `Design` choice: Cards, List, Points, Steps,
      Checklist, Links; and one `Questions` block with a `Display` choice (open, or expanding). A migration maps each
