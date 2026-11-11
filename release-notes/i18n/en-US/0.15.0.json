@@ -4,8 +4,9 @@
   "notes": [
     {
       "id": "app-contract-4",
-      "kind": "line",
-      "text": "An app’s page shows where it runs and what went wrong in the last update"
+      "kind": "card",
+      "title": "Apps run in a sandbox",
+      "text": "When your site is updated, each app now runs in a sandbox and only reads the site data it asks for. Open an app and look under Permissions to see where it runs and how much access it has. If something goes wrong, the app’s page says what."
     },
     {
       "id": "css-variables-mo-prefix",
