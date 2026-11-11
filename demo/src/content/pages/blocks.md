@@ -28,7 +28,7 @@ Group related ideas with an icon, a photo or just text, each linking to a page i
 
 Short points with an icon, for what you offer or how to find you.
 
-<div data-block="points" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Publishes on its own at the time you pick.&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Stays in the editor until you publish it.&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address but stays off Google.&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Publishes on its own at the time you pick.&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Stays in the editor until you publish it.&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address but stays off Google.&quot;}]}"></div>
 
 ## Steps
 
@@ -40,7 +40,10 @@ A numbered sequence, for a process or a plan.
 
 Quick points with a check mark.
 
-<div data-block="checklist" data-props="{&quot;items&quot;:[&quot;Works on every phone&quot;,&quot;Light and dark mode&quot;,&quot;Photos sized for every screen&quot;,&quot;No tracking before consent&quot;]}"></div>
+- [x] Works on every phone
+- [x] Light and dark mode
+- [x] Photos sized for every screen
+- [x] No tracking before consent
 
 ## List
 

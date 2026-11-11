@@ -12,6 +12,7 @@ import { EMPHASIZE } from '../lib/rehype-emphasize.mjs';
 import { eyebrowText } from '../lib/eyebrow.mjs';
 import { bodyLargeText } from '../lib/body-large.mjs';
 import { remarkBannerSections } from '../lib/remark-banner-section.mjs';
+import { remarkChecklists } from '../lib/remark-checklist.mjs';
 import { bodyLargeSchema } from './bodyLarge.mjs';
 import { eyebrowKeeper, eyebrowKeymap, eyebrowSchema } from './eyebrow.mjs';
 
@@ -227,6 +228,8 @@ export function makeEditor(root, markdown) {
       .use(headingWithSection)
       // A Banner alone in its section is read as the section it has become, so the next save writes the section.
       .use($remark('remarkBannerSections', () => remarkBannerSections))
+      // A Checklist is read as the check list it has become, so the next save writes the list.
+      .use($remark('remarkChecklists', () => remarkChecklists))
       .use(remarkSectionMarkers)
       .use(remarkSiteBlocks)
       .use(siteBlockSchema)

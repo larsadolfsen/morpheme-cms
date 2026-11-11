@@ -12,3 +12,7 @@
 
 Step 4b: `after-schedule-dialog.png` (the `Schedule` dialog), `after-scheduled.png` (`Scheduled · <time>` under the title) and
 `after-scheduled-bottom.png` (`Schedule`, `Cancel schedule`, `Unpublish` and `Discard changes` at the end of the form).
+
+Step 4c-2: `after-switch-changes.png` (a page with changes waiting: the `Live` / `Changes` switch at the top, the changes being edited) and
+`after-switch-live.png` (the live page being edited: `Editing the live version`, no `Publish changes`). Before, there was no switch: the
+form always showed the waiting changes, and the live page could not be edited while they waited.

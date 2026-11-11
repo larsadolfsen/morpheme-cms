@@ -11,12 +11,14 @@ import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import { rehypeEmphasize } from './rehype-emphasize.mjs';
 import { remarkBannerSections } from './remark-banner-section.mjs';
+import { remarkChecklists } from './remark-checklist.mjs';
 
 /** The pipeline, also for a whole page's text (pagePreview.tsx). */
 export const processor = unified()
   .use(remarkParse)
   .use(remarkGfm)
   .use(remarkBannerSections)
+  .use(remarkChecklists)
   .use(remarkSmartypants)
   .use(remarkRehype, { allowDangerousHtml: true })
   .use(rehypeRaw)
