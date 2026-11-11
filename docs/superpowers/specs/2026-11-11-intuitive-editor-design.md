@@ -536,7 +536,10 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    The draft in R2 is written to git when the owner leaves the page or has been idle for several
    minutes (owner, 11 November, not on every pause), so an editing session makes only a few commits and git still holds
    the draft. The idle time is set when it is built. Each such commit starts a site build, though the finished site does
-   not change; whether the drafts folder is kept out of Cloudflare's build watch paths to avoid that is open.
+   not change; `morpheme ci-build` (`scripts/ci-build.mjs`) gets a third lane (owner, 11 November): when only draft files changed
+   since the live commit, it stops at once without building, so a draft commit costs seconds, not a build. It ships with
+   the CMS, so every site has it, and no Cloudflare key is needed. To check when it is built: what the deploy step does
+   when the build command exits early.
 3. **Regroup the menu (Appearance out of Settings) in 0.17?** Recommended: yes, after 0.16, in one pass. Alternative: leave the menu.
 4. **May we rename `Dynamic lists`, `Block templates`, `Files` (and `Business`)?** Recommended: yes, but only when the screens
    have been opened and checked; the Danish names change with them.
