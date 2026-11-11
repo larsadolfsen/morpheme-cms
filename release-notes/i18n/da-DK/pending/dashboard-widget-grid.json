@@ -1,6 +1,6 @@
 {
   "id": "dashboard-widget-grid",
   "kind": "card",
-  "title": "En startskærm, du selv indretter",
-  "text": "Startskærmen er nu et gitter af widgets: Fortsæt, Ufærdigt, Blogrytme og Hjemmesidens status. Vælg Rediger dashboard for at tilføje, fjerne og flytte dem, og apps kan tilføje deres egne."
+  "title": "Indret din startskærm",
+  "text": "Startskærmen viser nu widgets i et gitter: Fortsæt, Ufærdigt, Blogrytme og Hjemmesidens status. Tryk på Rediger dashboard for at tilføje, fjerne og flytte dem."
 }

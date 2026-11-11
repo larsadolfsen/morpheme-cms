@@ -1,6 +1,6 @@
 {
   "id": "page-settings",
   "kind": "card",
-  "title": "Sideindstillinger samlet ét sted",
-  "text": "En sides titel, status og skabelon ligger nu i Sideindstillinger øverst på siden. Skabelonen vælger du på kort."
+  "title": "Sideindstillinger øverst",
+  "text": "En sides titel, status og skabelon ligger nu samlet i Sideindstillinger. Åbn en side og tryk på Sideindstillinger for at vælge skabelonen på kort."
 }

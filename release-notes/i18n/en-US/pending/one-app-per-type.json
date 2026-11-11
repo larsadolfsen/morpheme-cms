@@ -1,5 +1,5 @@
 {
   "id": "one-app-per-type",
   "kind": "line",
-  "text": "Only one Redirects app and one Links app can be on at a time: turning on a second one asks first, then switches the first one off and keeps its settings"
+  "text": "Only one Redirects app and one Links app can be on at a time, and a second one asks first"
 }

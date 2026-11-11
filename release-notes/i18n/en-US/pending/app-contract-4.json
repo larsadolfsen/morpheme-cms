@@ -1,5 +1,5 @@
 {
   "id": "app-contract-4",
   "kind": "line",
-  "text": "Apps describe themselves and run in a protected space, and an app’s page shows where it runs and what went wrong in the last update"
+  "text": "An app’s page shows where it runs and what went wrong in the last update"
 }

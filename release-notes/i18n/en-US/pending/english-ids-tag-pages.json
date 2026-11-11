@@ -1,0 +1,5 @@
+{
+  "id": "english-ids-tag-pages",
+  "kind": "line",
+  "text": "A tag’s page on your blog is now at /blog/tags/<tag>/, and links to the old address keep working"
+}

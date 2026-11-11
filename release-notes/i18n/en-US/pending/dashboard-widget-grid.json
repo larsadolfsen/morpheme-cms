@@ -1,6 +1,6 @@
 {
   "id": "dashboard-widget-grid",
   "kind": "card",
-  "title": "A start screen you arrange yourself",
-  "text": "The start screen is now a grid of widgets: Continue, Unfinished, Blog rhythm and Site status. Select Edit dashboard to add, remove and reorder them, and apps can add their own."
+  "title": "Arrange your start screen",
+  "text": "The start screen now shows widgets in a grid: Continue, Unfinished, Blog rhythm and Site status. Tap Edit dashboard to add, remove and reorder them."
 }

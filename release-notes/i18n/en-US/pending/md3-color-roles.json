@@ -1,6 +1,6 @@
 {
   "id": "md3-color-roles",
   "kind": "card",
-  "title": "Colors with Material 3’s names",
-  "text": "Colors now follow Material 3’s names, with new Surface dim, Surface bright, Scrim and Shadow colors. A website that still has the old names keeps its colors, and they’re saved with the new names the next time you save under Colors."
+  "title": "New color names",
+  "text": "Colors now use Material 3’s names, with new Surface dim, Surface bright, Scrim and Shadow. Your old colors keep working: open Colors and save to switch them over."
 }
