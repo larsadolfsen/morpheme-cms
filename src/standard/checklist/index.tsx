@@ -7,6 +7,7 @@ import { siteT, t } from '../../i18n';
 import { headFields } from '../head';
 
 export default defineBlock({
+  group: 'rows',
   label: t.blocks.checklist.label,
   icon: ListChecks,
   hint: t.blocks.checklist.hint,

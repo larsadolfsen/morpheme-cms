@@ -322,6 +322,20 @@
     letter-spacing: var(--type-title-medium-tracking);
     transition: color var(--motion-effects);
   }
+  .block-accordion-title {
+    flex: 1;
+  }
+  .block-accordion-lead {
+    flex-shrink: 0;
+    color: var(--block-muted);
+  }
+  .block-accordion-link {
+    margin-top: 0.75rem;
+  }
+  /* The text button under the last row of "Segmented list" and "FAQ list" (ListButton.tsx). */
+  .block-list-button {
+    margin-top: 0.5rem;
+  }
   summary.block-accordion-label {
     cursor: pointer;
     list-style: none;

@@ -33,7 +33,7 @@ import {
   SheetGroupTitle,
   useAtLeast,
 } from './ui';
-import { htmlBlock, type BlockData, type BlockProps, type SiteBlock } from './blocks';
+import { blockGroups, htmlBlock, type BlockData, type BlockProps, type SiteBlock } from './blocks';
 import { clean, newValue, problemAt, savedValue } from './check';
 import { EditLink, FieldList, useWrongField, WrongField } from './fields';
 import { HTML } from './markdown.mjs';
@@ -130,7 +130,9 @@ const INSERT_SORTS: InsertSort[] = ['az', 'za', 'group'];
 const INSERT_SORT_KEY = 'editor-sort-insert';
 
 // A block's group: the app's name for an app's block, otherwise the standard blocks (also the picture and HTML).
-const groupOf = (b: SiteBlock) => (b.app ? (apps.find((a) => a.id === b.app)?.label ?? b.app) : t.blockSettings.standard);
+// The standard blocks are in groups by what they do (`group`), the same in `Insert`'s headings and its filter.
+const groupOf = (b: SiteBlock) => (b.app ? (apps.find((a) => a.id === b.app)?.label ?? b.app) : t.blockSettings.groups[b.group ?? 'other']);
+const standardGroups: string[] = blockGroups.map((g) => t.blockSettings.groups[g]);
 
 /** crop: a picture can be cut to a format (not in a "Banner"'s text, whose picture the theme lays out). */
 export function useBlockDialog(
@@ -174,7 +176,7 @@ export function useBlockDialog(
       const saved = localStorage.getItem(INSERT_SORT_KEY);
       if (INSERT_SORTS.some((s) => s === saved)) return saved as InsertSort;
     } catch {}
-    return 'az';
+    return 'group';
   });
   const [group, setGroup] = useState('');
   const search = useRef<HTMLInputElement>(null);
@@ -367,9 +369,8 @@ export function useBlockDialog(
       : [];
   // The groups among them: the standard blocks first, then the apps' by their names. With only one there is
   // nothing to filter or order by.
-  const groupNames = [...new Set(offered.map(groupOf))].sort(
-    (a, b) => Number(b === t.blockSettings.standard) - Number(a === t.blockSettings.standard) || byText(a, b),
-  );
+  const rank = (g: string) => (standardGroups.includes(g) ? standardGroups.indexOf(g) : standardGroups.length);
+  const groupNames = [...new Set(offered.map(groupOf))].sort((a, b) => rank(a) - rank(b) || byText(a, b));
   const grouped = groupNames.length > 1;
   const shownGroup = grouped && groupNames.includes(group) ? group : '';
   const shownSort = sort === 'group' && !grouped ? 'az' : sort;

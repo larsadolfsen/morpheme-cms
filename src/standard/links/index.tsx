@@ -8,6 +8,7 @@ import { siteT, t } from '../../i18n';
 type Group = { title?: string; href?: string; paths?: string[] };
 
 export default defineBlock({
+  group: 'rows',
   label: t.blocks.links.label,
   icon: LinkSimple,
   hint: t.blocks.links.hint,
