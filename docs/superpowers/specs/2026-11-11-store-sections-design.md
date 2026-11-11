@@ -159,6 +159,7 @@ catalog entry only. The plan orders this with the MCP batch that introduces cont
      `ctx.exports` loopback from inside the CMS's Worker; cold-start and CPU cost per request; that the feature leaves
      beta. Miniflare is not a hardened sandbox, so local `wrangler dev` proves nothing about the boundary. Nothing was
      deployed to test these.
+   - _Prototype done on 11 November 2026: all four checks passed_, see `2026-11-11-plugin-worker-isolation.md`.
    - _Recommendation: needs a prototype, then use it._ The documented design is the right boundary: no network, only
      scoped bindings, capped CPU. Before the plan relies on it, one prototype on a throwaway Worker (not the live
      account's sites) must show a plugin `worker.js` loaded with `globalOutbound: null` fails on `fetch`, can use a

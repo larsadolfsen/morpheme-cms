@@ -92,3 +92,24 @@ test('entriesOf: a draft page with a waiting version that has a time is Schedule
     ],
   );
 });
+
+test('entriesOf: a published page with a waiting version carries it, with its time when it has one', () => {
+  const entries = entriesOf(
+    [
+      file('src/content/pages/a.md', 'title: A'),
+      file('src/content/pages/b.md', 'title: B'),
+      file('src/content/pages/c.md', 'title: C'),
+      file('src/drafts/pages/a.md', 'title: A2'),
+      file('src/drafts/pages/b.md', 'publishAt: "2026-12-02T08:00"'),
+    ],
+    collections,
+  );
+  assert.deepEqual(
+    entries.map((e) => [e.path, e.status, e.waiting]),
+    [
+      ['src/content/pages/a.md', 'published', {}],
+      ['src/content/pages/b.md', 'published', { publishAt: '2026-12-02T08:00' }],
+      ['src/content/pages/c.md', 'published', undefined],
+    ],
+  );
+});

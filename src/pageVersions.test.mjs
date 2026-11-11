@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { publish, schedule } from '../lib/versions.mjs';
-import { commitChanges, pageOf, versionsFor } from './pageVersions.mjs';
+import { commitChanges, pageOf, versionsFor, waitingOf } from './pageVersions.mjs';
 
 const file = (path, text = '---\ntitle: "T"\n---\n', oid = `oid-${path}`) => ({ path, oid, text });
 const PAGE = file('src/content/pages/about.md');
@@ -41,4 +41,20 @@ test('commitChanges gives the page file with its blob id, a new file with none, 
   assert.equal(created.length, 1);
   assert.equal(created[0].oid, null);
   assert.deepEqual(commitChanges([{ path: 'src/drafts/pages/none.md', text: null }], files), []);
+});
+
+test('waitingOf: the pages with a waiting version, with the earliest time', () => {
+  const timed = (t) => `---\ntitle: "x"\npublishAt: "${t}"\n---\n`;
+  const some = [
+    PAGE,
+    file('src/content/pages/b.md'),
+    file('src/content/pages/c.md'),
+    file('src/drafts/pages/about.md', timed('2026-12-05T08:00')),
+    file('src/drafts/pages/about/campaign.md', timed('2026-12-01T08:00')),
+    file('src/drafts/pages/b.md'),
+  ];
+  const found = waitingOf(some);
+  assert.deepEqual(found.get(PAGE.path), { publishAt: '2026-12-01T08:00' });
+  assert.deepEqual(found.get('src/content/pages/b.md'), {});
+  assert.equal(found.has('src/content/pages/c.md'), false);
 });
