@@ -407,10 +407,11 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   The blog post card becomes a dynamic Card; Blog posts need no special card.
 - **Migration:** Cards with Design Image, Icon and Text become Card with a Media field of Image or Icon, or none;
   Background accent becomes Design Filled with the accent colour, otherwise Outlined. No page changes look.
-- **Whole card as a link (owner, 11 November):** a card with a Link is clickable as a whole, also when it has buttons.
-  A link inside a link is not valid HTML, so the card is built with a stretched link: the title is the link and its
-  area is stretched over the whole card, and the buttons sit above it and keep their own targets. The card has one
-  accessible link name (the title), and the buttons are separate controls. The editor only draws this.
+- **Whole card as a link, or buttons, not both (owner, 11 November):** the whole card can be a link, but if a card is a
+  link, buttons cannot be added to it (and a card with buttons cannot be a link). This avoids a link inside a link, which
+  is not valid HTML. In the editor, setting a Link hides the buttons, and adding a button hides the Link, each with a
+  short hint saying why. A card that has both today asks which to keep when it is migrated. The accessible name of a
+  linked card is its title.
 - **Button count and width (owner, 11 November):** buttons follow the same pattern as rows and cards (decision 14): the
   next button is always shown, empty and faded, and clicking it adds one. There is no fixed maximum. A Material button
   keeps its own width (its text and padding) and the buttons wrap onto the next line when they do not fit; another theme
