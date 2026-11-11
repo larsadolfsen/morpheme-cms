@@ -25,7 +25,6 @@ import { useBlockDialog } from './BlockDialog';
 import { blockHtml } from '../lib/blocks.mjs';
 import { sectionBlocks } from './blocks';
 import { looksOf, pageH1 } from './sections.mjs';
-import { takeHint } from './firstHeadingHint.mjs';
 import { h1FromTitle, titleFromH1 } from './titleH1.mjs';
 import { useFormSections } from './formSections';
 import { publicPath, shownAt, useUploads } from './images';
@@ -244,7 +243,8 @@ function Form({
     title.current = typed;
     set('title', typed);
     const h1 = collection.blocks ? text.current?.h1() : undefined;
-    const next = h1 === undefined ? null : h1FromTitle(before, h1, typed);
+    // Only while the text has nothing but its H1 and blocks: a title typed never writes over text that is there.
+    const next = h1 === undefined || !text.current?.bare() ? null : h1FromTitle(before, h1, typed);
     if (next != null) text.current?.setH1(next);
   };
   const onH1 = (now: string | null, before: string | null) => {
@@ -253,14 +253,6 @@ function Form({
     title.current = next;
     set('title', next);
   };
-  // A new page tells that its first heading becomes the H1 and the title, the first few times one opens in this browser
-  // (firstHeadingHint.mjs). Once per form.
-  const hinted = useRef(false);
-  useEffect(() => {
-    if (hinted.current || !isNew || !collection.blocks) return;
-    hinted.current = true;
-    if (takeHint()) notify({ text: t.text.firstHeadingHint });
-  }, []);
   // A form that cannot be saved: why, as a message, and the field marked (useWrongField in fields.tsx), with its section
   // opened first (unfold, below).
   const wrongField = useWrongField(
@@ -662,6 +654,8 @@ function Form({
   // one, not changed here (templateFieldOf). A page's title writes its H1 (onTitle).
   const field = (f: Field) => {
     if (!inUse(f, collection.fields, values)) return false;
+    // A new page has no title field: its H1 is its title, typed in the text (the field comes with the saved page).
+    if (f.name === 'title' && collection.blocks && isNew) return false;
     const shown = f.offered ? templateFieldOf(f, env.files) : f;
     if (!shown) return false;
     const value = f.offered ? shownTemplate(shown, values[f.name]) : values[f.name];
@@ -704,6 +698,7 @@ function Form({
                       addImage={pickImage}
                       blocks={collection.blocks ? blockAsk : undefined}
                       h1={!!collection.blocks}
+                      startOnH1={isNew}
                       onH1={collection.blocks ? onH1 : undefined}
                       sheet={blockAsk}
                       looks={

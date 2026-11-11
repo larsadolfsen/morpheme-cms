@@ -6,10 +6,13 @@ export const text = {
   italic: 'Italic',
   link: 'Link',
   /** The page's own heading, at the top of its text (a page's, not a blog post's). */
-  pageHeading: 'Heading (H1)',
+  pageHeading: 'Main heading',
   heading: 'Heading',
   subheading: 'Subheading',
   paragraph: 'Normal text',
+  bodyLarge: 'Body large',
+  label: 'Label',
+  checkList: 'Check list',
   bulletList: 'Bulleted list',
   orderedList: 'Numbered list',
   quote: 'Quote',
@@ -49,5 +52,4 @@ export const text = {
   typeHere: 'Write text here…',
   /** A message when a new page opens (its first few times, EntryForm.tsx): its first heading is the page's H1 (firstHeading.mjs),
    * and its title while the two are the same (titleH1.mjs). */
-  firstHeadingHint: 'Your first heading becomes the page’s H1 and title.',
 };

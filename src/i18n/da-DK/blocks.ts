@@ -12,7 +12,7 @@ export const blocks: Messages['blocks'] = {
     hint: 'Vælg et billede fra Filer, eller upload et nyt.',
     src: 'Billede',
     alt: 'Alternativ tekst',
-    altHint: 'Til skærmlæsere og søgemaskiner.',
+    altHint: 'Beskriv billedet med få ord, til dem der ikke kan se det.',
     decorative: 'Dekorativt billede',
     decorativeHint: 'Skærmlæsere springer billedet over.',
     decorativeToggle: ['Til', 'Fra'] as [string, string],
