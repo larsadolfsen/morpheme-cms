@@ -68,6 +68,11 @@ merged into the later line's branch, never the other way. A line's branch is mer
 the line is ready and the owner has said go; that merge makes the Release PR of the line, and the owner releases as
 usual (Phase 4 and 5). Only `main` has a Release PR.
 
+Each line's PM handles its own line, up to its release (Phase 4 and 5, with the owner's yes). The PM of the earlier line
+never merges a pull request of the later line (into its branch, or the branch into `main`) and never plans its release;
+the later line's PM does. Nothing of the later line is merged into `main` until the earlier line is released. The
+owner still releases every version.
+
 ## Reports
 
 Short, English only (`CLAUDE.md`), and only what the owner has to do or decide. A pull request the owner has to act on is always assigned to them, and the report gives its link.
