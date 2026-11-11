@@ -9,8 +9,8 @@
 // and changes nothing. It runs on the built site: npm run build && npm run check:screens (or on another
 // folder with a built site, its path after the command: packages/editor/scripts/check-themes.mjs).
 // It also checks the menu and Settings (#settings, the cog at the bottom of the menu): Settings lists exactly Appearance,
-// Developer, Licenses, Morpheme and Privacy, A-Z by their names; the drawer's first level has only the four sections, the
-// start screen and the cog, which is the last item at the bottom of the drawer and of the collapsed rail (and on a phone,
+// Developer, Licenses, Morpheme and Privacy, A-Z by their names; the drawer's first level has the three sections, the
+// start screen, the rows under the "Apps" label (Store, Connectors, Plugins and Themes, each with an icon) and the cog, which is the last item at the bottom of the drawer and of the collapsed rail (and on a phone,
 // of the modal drawer) and is marked on Settings' screens only; and "Morpheme" (#morpheme) shows its status as text, has
 // an action on every list row, and its Update button and its connection to the store work.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -168,10 +168,20 @@ async function checkSettingsAndMenu(width, height) {
     const items = await page.evaluate(shownItems, `${drawer} .navigation-drawer-item`);
     const sections = items.filter((i) => i.tag === 'BUTTON').length;
     const links = items.filter((i) => i.tag === 'A').map((i) => i.href);
-    if (sections !== 4 || links.join() !== '#,#settings')
+    const apps = ['#', ...['', '/connectors', '/plugins', '/themes'].map((x) => `#settings/appstore${x}`), '#settings'];
+    if (sections !== 3 || links.join() !== apps.join())
       problems.push(
-        `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 4 and #, #settings)`,
+        `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 3 and ${apps.join(', ')})`,
       );
+    // Each row under "Apps" has an icon.
+    const noIcon = await page.evaluate(
+      (d) =>
+        [...document.querySelectorAll(`${d} a[href^="#settings/appstore"]`)]
+          .filter((a) => !a.querySelector('.navigation-drawer-icon svg'))
+          .map((a) => a.getAttribute('href')),
+      drawer,
+    );
+    if (noIcon.length) problems.push(`${label} menu: no icon on ${noIcon.join(', ')}`);
     checkCog(label, 'menuen', items, height);
   } else {
     // The modal drawer: open it with the top bar's button.
