@@ -23,8 +23,8 @@ key to the store. Neither runs in a visitor's browser.
   Google Ads and Google Tag Manager stay as they are.
 - No change to the contract 4 sandbox. Hooks and `after-build.ts` still have no network.
 - No release, tag or version step. Only the owner releases `@morphemecms/cms`.
-- No decision on the store's categories. The store only has to carry the `mcp` field (part B); whether Connectors is a
-  kind or a topic is a separate decision.
+- No change to the store's sections or categories. They are in `2026-11-11-store-sections-design.md`; this spec only needs
+  the store to carry the `mcp` field (part B).
 - No assistant inside the editor. Part A is for assistants outside it; an assistant in the editor would be a part B client.
 
 ## Decisions
@@ -137,6 +137,8 @@ Rules, checked by `appManifest.mjs` like the other fields:
 - `auth: "token"` needs a setting field of the same name in `settings.fields`, marked secret, so the editor has a place to
   take the token and the check can see it is not written to `values`.
 - An app with `mcp` and no `tools` is a problem, not an empty list.
+- Only a connector may declare `mcp`: the app's `role` is `connector` (`2026-11-11-store-sections-design.md`). A plugin that
+  declares it is a problem.
 
 `APP_API` becomes 5. Apps written to contract 4 keep working; the editor reads both. The plan decides how long contract 4 stays accepted.
 
@@ -208,8 +210,8 @@ changeset.
 3. **Owner: publishing.** Default off per connection, as decision 4. The alternative is no publishing by an assistant at all.
 4. **Owner: the contract.** A new `mcp` field means contract 5 (decision 7). The alternative is to relax "unknown keys fail" for
    one named optional key, which is smaller but weakens a rule the store relies on. Recommendation: contract 5.
-5. **Owner: the store's categories and kinds.** Not decided here; see the discussion of kinds and topics. The `mcp` field
-   works with either.
+5. **The store's sections.** Decided by the owner: Themes, Connectors and Plugins, in `2026-11-11-store-sections-design.md`.
+   `mcp` belongs to connectors, and both specs share contract 5.
 6. **Draft of a published page.** Whether the editor already holds a draft beside a published page (see "Tools"). Found by
    reading `lib/status.mjs` and the editor's save path in batch 2; if there is none, writes to published pages are left out
    until there is.
