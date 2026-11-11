@@ -1,5 +1,12 @@
 # @morphemecms/cms
 
+## 0.15.1
+
+### Patch Changes
+
+- d14a612: `check:content` no longer reports an app's own Danish texts as missing standard texts when the app translates them to English words the standard parts also use
+- b4f8345: The start screen's update card also shows at the first visit in a browser, so a site that jumps over versions still shows what it updated to.
+
 ## 0.15.0
 
 ### Minor Changes
