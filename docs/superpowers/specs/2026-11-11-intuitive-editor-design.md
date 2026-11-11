@@ -499,8 +499,9 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
 
 1. **New pages and posts start as Draft (settled, owner, 11 November: yes).** Nothing goes live by accident; the form
    then needs `Publish` as an obvious step (question 2).
-2. **Button labels follow the status (`Save and publish` / `Save draft`)?** Recommended: yes. Alternative: keep `Save`, show
-   the status only beside it.
+2. **Save and Publish are two buttons (owner, 11 November, direction):** `Save` saves the changes. `Publish` makes the page
+   available on the site. A page that is published shows `Unpublish` instead of `Publish`, which removes it from the
+   site. Open: whether `Save` on a published page puts the change live at once.
 3. **Regroup the menu (Appearance out of Settings) in 0.17?** Recommended: yes, after 0.16, in one pass. Alternative: leave the menu.
 4. **May we rename `Dynamic lists`, `Block templates`, `Files` (and `Business`)?** Recommended: yes, but only when the screens
    have been opened and checked; the Danish names change with them.
