@@ -180,27 +180,29 @@ service has a remote MCP server and whose settings today need an id the owner co
 
 ### Finding (2026-11-11)
 
-Researched without contacting any vendor and without accounts. The research session could read only github.com; the
-vendors' own sites (`mailchimp.com`, `developer.calendly.com`, `developers.google.com`) did not resolve there, so only
-the Google READMEs are **verified**. Everything else comes from web search summaries of third-party pages and is
-**unverified** until someone reads the vendor page.
+Read from the vendors' own documentation on 2026-11-11, with no vendor contacted and no account made. **Verified** means
+the vendor's page (or, for Google, its GitHub README) says it, at the link. **Unverified** means it was not read from a
+vendor page: `mandrillapp.com` and `developers.google.com` could not be reached.
 
 | App | Official remote MCP server? | URL, transport, auth | Tools (names) |
 | :-- | :-- | :-- | :-- |
-| Calendly | Probably yes, unverified. Vendor page to read: <https://developer.calendly.com/calendly-mcp-server> | `https://mcp.calendly.com`, streamable HTTP, OAuth with dynamic client registration. Unverified. | Unverified. Vendor page to read: <https://developer.calendly.com/docs/mcp/supported-tools> |
-| Mailchimp | Unclear, unverified. Reports say the only official ones are Mandrill (transactional) and a docs-search server; a Marketing API one is said to be community-built, and one directory lists `https://ai-inc.mailchimp.com/claude/mcp/v2`. Vendor page to read: <https://mailchimp.com/developer/marketing/build/ai-tools/mcp-server> | Mandrill: `https://mandrillapp.com/mcp`, API key (unverified). Marketing: unverified. | Unverified |
-| Google Analytics | Server from Google's org, but self-hosted only. No Google-hosted URL. Verified: <https://github.com/googleanalytics/google-analytics-mcp> | Local `stdio` via `pipx`; or self-hosted `--transport http`, with a built-in OAuth 2.1 server (dynamic client registrations kept in memory) or Google OAuth through an agent framework. The README does not say "streamable HTTP". | `get_account_summaries`, `get_property_details`, `list_google_ads_links`, `list_property_annotations`, `list_key_events`, `run_report`, `run_funnel_report`, `run_conversions_report`, `get_custom_dimensions_and_metrics`, `run_realtime_report`; with `--allow-write`: `create_property_annotation`, `create_custom_dimension`, `create_key_event` |
+| Calendly | **Yes, hosted by Calendly**, self-hosting not supported. Verified: <https://developer.calendly.com/calendly-mcp-server> | `https://mcp.calendly.com`. Auth: OAuth 2.1 code flow with PKCE (S256) and dynamic client registration (RFC 7591); scopes `mcp:scheduling:read` and `mcp:scheduling:write`; no static client ids and no personal access tokens. Verified, same page. The page does not name the transport (streamable HTTP or SSE): unverified. | 38, verified: <https://developer.calendly.com/docs/mcp/supported-tools>. Reads include `event_types-list_event_types`, `event_types-get_event_type`, `event_types-list_event_type_available_times`, `meetings-list_events`, `meetings-get_event`, `meetings-list_event_invitees`, `availability-list_user_availability_schedules`, `availability-list_user_busy_times`, `users-get_current_user`, `organizations-get_organization`, `organizations-list_organization_memberships`, `locations-list_user_meeting_locations`; writes include `event_types-create_event_type`, `event_types-update_event_type`, `meetings-create_invitee`, `meetings-cancel_event`, `scheduling_links-create_single_use_scheduling_link`, `shares-create_share`, `organizations-create_organization_invitation`; also routing forms (Teams plan), Notetaker (plan), `list_calendly_skills`, `load_calendly_skill` |
+| Mailchimp (Marketing) | **No server for an account.** Its only MCP server searches the documentation: "This searches documentation, not your Mailchimp account." Verified: <https://mailchimp.com/developer/marketing/build/ai-tools/mcp-server> | `https://mailchimp.com/developer/_mcp/server`, `http` transport, no credential. Verified, same page. | The page names no tools; it is a docs search. |
+| Mailchimp Transactional (Mandrill) | Unverified: `mandrillapp.com` was not reachable. | Unverified | Unverified |
+| Google Analytics | Server in Google's `googleanalytics` GitHub org, but self-hosted only; no Google-hosted URL. Verified: <https://github.com/googleanalytics/google-analytics-mcp> | Local `stdio` via `pipx`; or self-hosted `--transport http`, with a built-in OAuth 2.1 server (dynamic client registrations kept in memory) or Google OAuth through an agent framework. The README does not say "streamable HTTP". | `get_account_summaries`, `get_property_details`, `list_google_ads_links`, `list_property_annotations`, `list_key_events`, `run_report`, `run_funnel_report`, `run_conversions_report`, `get_custom_dimensions_and_metrics`, `run_realtime_report`; with `--allow-write`: `create_property_annotation`, `create_custom_dimension`, `create_key_event` |
 | Google Ads | Same: self-hosted only. Verified: <https://github.com/googleads/google-ads-mcp> | Local `stdio`; or self-hosted `streamable-http` with FastMCP's OAuth proxy and your own OAuth client id and secret. | `search`, `get_resource_metadata`, `list_accessible_customers`, `create_asset`, `upload_video_asset`, `manage_labels`, `manage_label_associations` |
-| Google Tag Manager | None found from Google. Only community servers. Google's own docs not read, so "none" is unconfirmed. | n/a | n/a |
+| Google Tag Manager | None found from Google. Only community servers. Google's own docs were not reachable, so "none" is unconfirmed. | n/a | n/a |
 
 The Google READMEs do not say "official". Neither Google server is a hosted service a site owner can connect to: each owner
 would have to run it, which does not fit a connector.
 
-**Recommendation.** Calendly is the best pilot connector, if its page confirms a hosted `https://mcp.calendly.com` with
-OAuth and dynamic client registration: it is the only candidate that looks hosted, needs no self-hosting, and a Calendly
-setting that today takes a pasted id (an event type or a scheduling link) is the part B case. Before batch 4 starts, someone
-who can reach the vendor sites reads the three vendor pages above and fills in the Calendly tools. Mailchimp is the fallback
-only if a hosted Marketing API server is confirmed, since its `lists` (audience ids) are the textbook case. The Google
+**Recommendation.** Calendly is the pilot connector for part B. It is the only candidate with a vendor-hosted server for
+the owner's own account, and its tools fill the fields that today take a pasted id: `event_types-list_event_types` for an
+event type, `users-get_current_user` for the user. Two things the design must allow, both from Calendly's page: the sign-in
+is OAuth with dynamic client registration only (the Worker registers itself as a client; there is no pasted key), and the
+scopes are `read` and `write`, and the page says MCP needs both for full access, so a Calendly connection can write, and the "Allow publishing" switch does not cover
+it. Still to check when batch 4 starts: the transport, which the page does not name. Mailchimp is not a candidate: the
+Marketing API has no MCP server for an account, so `lists` cannot be filled from a tool. Mandrill is unconfirmed. The Google
 servers and Tag Manager are not candidates.
 
 ## Batches
