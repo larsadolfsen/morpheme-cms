@@ -21,4 +21,11 @@ When you tap Save, the editor first checks the page. If something’s missing, i
 
 Every save is listed under Earlier versions, and deleted photos can be restored from Deleted files.
 
-<div data-block="checklist" data-props="{&quot;eyebrow&quot;:&quot;Fast and safe&quot;,&quot;heading&quot;:&quot;Built in, not bolted on&quot;,&quot;items&quot;:[&quot;Photos are resized for every screen&quot;,&quot;Every page has a Content Security Policy, so only its own scripts run&quot;,&quot;Your sign-in is a cookie only your site’s server can read&quot;,&quot;No tracking or ad cookies before a visitor says yes&quot;]}"></div>
+Fast and safe
+
+**Built in, not bolted on**
+
+- [x] Photos are resized for every screen
+- [x] Every page has a Content Security Policy, so only its own scripts run
+- [x] Your sign-in is a cookie only your site’s server can read
+- [x] No tracking or ad cookies before a visitor says yes

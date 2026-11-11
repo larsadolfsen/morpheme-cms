@@ -19,6 +19,7 @@ import { linksDigest, rehypeAutoLinks } from './site/autolinks.mjs';
 import { rehypeVideo } from './lib/video.mjs';
 import { rehypeEmphasize } from './lib/rehype-emphasize.mjs';
 import { remarkBannerSections } from './lib/remark-banner-section.mjs';
+import { remarkChecklists } from './lib/remark-checklist.mjs';
 import { csp, joined } from './lib/csp.mjs';
 import { appBuilds, appFoldersPlugin } from './lib/apps.mjs';
 import { appSelf } from './site/appSelf.mjs';
@@ -111,7 +112,8 @@ export async function siteConfig() {
       // The prose column is at most ~720px wide.
       processor: unified({
         // A Banner block that stands alone in its section is read as the section it has become (lib/remark-banner-section.mjs).
-        remarkPlugins: [remarkBannerSections],
+        // A Checklist block is read as the check list it has become (lib/remark-checklist.mjs).
+        remarkPlugins: [remarkBannerSections, remarkChecklists],
         rehypePlugins: [
           // HTML written in the Markdown (tables, iframes, links) as elements before the plugins below,
           // so they see it too (Astro would parse it only after them).

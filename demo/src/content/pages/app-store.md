@@ -24,6 +24,14 @@ The store has themes on its own tab. A theme only changes the look: fonts, shape
 
 <div data-block="buttons" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;Read about themes&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/switch-themes-without-losing-anything/&quot;,&quot;kind&quot;:&quot;tonal&quot;,&quot;icon&quot;:&quot;arrow-right&quot;}]}"></div>
 
-<div data-block="checklist" data-props="{&quot;eyebrow&quot;:&quot;Built in&quot;,&quot;heading&quot;:&quot;Safe to try&quot;,&quot;items&quot;:[&quot;Every install, update and removal can be undone&quot;,&quot;An app only loads from the addresses it declares&quot;,&quot;Its cookies are added to your cookie list automatically&quot;,&quot;No tracking or ad cookies before a visitor says yes&quot;,&quot;Release notes for every version&quot;]}"></div>
+Built in
+
+**Safe to try**
+
+- [x] Every install, update and removal can be undone
+- [x] An app only loads from the addresses it declares
+- [x] Its cookies are added to your cookie list automatically
+- [x] No tracking or ad cookies before a visitor says yes
+- [x] Release notes for every version
 
 <div data-block="faq" data-props="{&quot;eyebrow&quot;:&quot;FAQ&quot;,&quot;heading&quot;:&quot;Questions, answered&quot;,&quot;items&quot;:[{&quot;question&quot;:&quot;What happens to my pages if I remove an app?&quot;,&quot;answer&quot;:&quot;If a page uses one of the app’s blocks, the editor shows you where, so you can take it out first. Everything else stays as it is.&quot;},{&quot;question&quot;:&quot;Do apps update on their own?&quot;,&quot;answer&quot;:&quot;Fixes and new features do. A bigger change that could affect your site waits until you tap Update.&quot;},{&quot;question&quot;:&quot;Can I have an app made just for my site?&quot;,&quot;answer&quot;:&quot;Yes. An app is a folder of blocks, settings and lists. [Get in touch](/contact/).&quot;}]}"></div>
