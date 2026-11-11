@@ -30,8 +30,9 @@ test('keeps at most KEPT paths', () => {
   assert.ok(!next.includes(`p${KEPT - 1}`));
 });
 
-test('shows nothing at the first visit', () => {
-  assert.deepEqual(changesSince(null, { cms: '1.0.0', apps: { a: '1.0.0' } }), []);
+test('the first visit shows the CMS as updated, with no version seen, and no app', () => {
+  assert.deepEqual(changesSince(null, { cms: '1.0.0', apps: { a: '1.0.0' } }), [{ id: 'cms', version: '1.0.0', from: '' }]);
+  assert.deepEqual(changesSince(null, { cms: '', apps: { a: '1.0.0' } }), []);
 });
 
 test('finds the CMS and the apps with another version', () => {
