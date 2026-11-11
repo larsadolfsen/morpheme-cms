@@ -173,7 +173,7 @@ export const parts: Messages['parts'] = {
     emailForm: 'Skriv en hel e-mailadresse',
     keyword: 'Primært søgeord',
     keywords: 'Sekundære søgeord',
-    cvr: 'CVR-nummer',
+    cvr: 'Virksomhedsnummer (CVR)',
     linkText: 'Linktekst',
     editColors: 'Rediger farverne',
     descriptionHint: 'Højst ca. 160 tegn.',
