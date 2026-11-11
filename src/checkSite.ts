@@ -38,7 +38,7 @@ import { appFolders } from './appFiles';
 import { widgetsWithoutComponent } from './widgets';
 import { colorPairs as shownPairs, sharedParts, translator, writtenApps, writtenBlockParts, writtenCollections } from './site';
 import { splitBlocks } from '../lib/blocks.mjs';
-import { splitMissing } from '../lib/translate.mjs';
+import { englishOf, splitMissing } from '../lib/translate.mjs';
 import { collections as standardCollections } from '../defaults/collections';
 import { companyParts as standardCompany } from '../defaults/company';
 import { blockParts as standardBlocks } from '../defaults/blockTexts';
@@ -282,12 +282,13 @@ export function untranslated(): Record<string, Record<string, string[]>> {
   const english = new Set(converted.map(([text]) => text));
   const inDanish = Object.fromEntries(converted.filter(([, danish]) => danish.trim()));
   for (const [text, danish] of Object.entries(inDanish)) original.set(danish, text);
+  const standardOriginal = englishOf(inDanish);
   const writtenIn = (text: string) => (english.has(text) ? DEFAULTS_LOCALE : danish.has(text) ? 'da-DK' : siteLocale);
   // The texts of the package's standard parts: the walk over defaults/'s own definitions, so one with no Danish entry is known too.
   const standardSet = new Set<string>();
   walkDefinitions(
     translator((shown) => {
-      standardSet.add(original.get(shown) ?? shown);
+      standardSet.add(standardOriginal.get(shown) ?? shown);
       return shown;
     }),
     standardDefinitions,
