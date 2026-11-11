@@ -32,9 +32,8 @@ test('unfinishedOf lists a scheduled entry with a bad publishAt without a date',
   );
 });
 
-test('unfinishedOf puts scheduled by date first, then undated scheduled, drafts and unlisted', () => {
+test('unfinishedOf puts scheduled by date first, then undated scheduled, then drafts', () => {
   const rows = unfinishedOf([
-    entry('u', 'unlisted'),
     entry('d2', 'draft'),
     entry('bad', 'scheduled', 'x'),
     entry('late', 'scheduled', '2026-12-24T08:00'),
@@ -44,9 +43,24 @@ test('unfinishedOf puts scheduled by date first, then undated scheduled, drafts 
   ]);
   assert.deepEqual(
     rows.map((r) => r.title),
-    ['early', 'late', 'bad', 'd1', 'd2', 'u'],
+    ['early', 'late', 'bad', 'd1', 'd2'],
   );
   assert.equal(typeof rows[0].at, 'number');
   assert.equal(rows[3].at, null);
   assert.deepEqual(Object.keys(rows[0]).sort(), ['at', 'collection', 'path', 'status', 'title']);
+});
+
+test('unfinishedOf lists a published page with changes waiting after the drafts, the dated ones first', () => {
+  const waiting = (title, publishAt) => ({ ...entry(title, 'published'), waiting: { publishAt } });
+  const rows = unfinishedOf([waiting('w2'), waiting('w1', '2026-12-01T08:00'), entry('d', 'draft'), entry('p', 'published')]);
+  assert.deepEqual(
+    rows.map((r) => [r.title, r.status]),
+    [
+      ['d', 'draft'],
+      ['w1', 'waiting'],
+      ['w2', 'waiting'],
+    ],
+  );
+  assert.equal(typeof rows[1].at, 'number');
+  assert.equal(rows[2].at, null);
 });

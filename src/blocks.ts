@@ -19,11 +19,17 @@ export type BlockProps = Record<string, unknown>;
  * (preview() in registry.tsx); null when no block has the type. */
 export type DrawBlock = (type: string, props: BlockProps) => ReactNode;
 
+/** The heading of a standard block in `Insert` (BlockDialog.tsx), by what it does; without one, `other`. */
+export type BlockGroup = 'rows' | 'questions' | 'content' | 'prices' | 'banner' | 'other';
+export const blockGroups: BlockGroup[] = ['rows', 'questions', 'content', 'prices', 'banner', 'other'];
+
 export type SiteBlock = {
   type: string;
   label: string;
   /** What it is, where one is picked (only where the name is not enough). */
   hint?: string;
+  /** Its heading among the standard blocks in `Insert`. */
+  group?: BlockGroup;
   /** Edited elsewhere (Block.edit). */
   edit?: Edit;
   fields: Field[];
@@ -31,6 +37,9 @@ export type SiteBlock = {
   detail?: (props: BlockProps, data: BlockData) => string[];
   /** Not offered among the blocks to put in: a fixed page's own text, which is written in the text. */
   written?: boolean;
+  /** Has become something else (the Banner is a section now, lib/remark-banner-section.mjs): still read, drawn and edited where a text
+   * has one, but not offered among the blocks to put in. */
+  former?: boolean;
   /** Its heading and text are written in the text above it (sections.mjs); a new one gets a heading. */
   lead?: Lead;
   /** Cannot be hidden on the site (its line in the file has no props to say so: HTML). */

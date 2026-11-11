@@ -3,7 +3,7 @@
 // than one answer, a text to write (a new address), and notes to read first (what an update brings);
 // <Ask /> is in App.tsx.
 import { useEffect, useRef, useState } from 'react';
-import { Button, Dialog, TextField } from './ui';
+import { Button, DateTimeField, Dialog, TextField } from './ui';
 import { t } from './i18n';
 
 type Choice = { value: string; label: string };
@@ -14,8 +14,8 @@ type Question = {
   /** Empty: only the notes. */
   text: string;
   choices: Choice[];
-  /** A text to write, as it is to begin with, and what it is. */
-  input?: { label: string; value: string };
+  /** A text to write, as it is to begin with, and what it is; `type: 'datetime'`: a date and a time ("2026-03-01T12:00") to pick. */
+  input?: { label: string; value: string; type?: 'datetime' };
   /** false: no "Cancel", only the choices (a message to read); Esc is still null. */
   cancel?: boolean;
   resolve: (answer: { choice: string; text: string } | null) => void;
@@ -97,7 +97,11 @@ export function Ask() {
         {question?.text && <p className={question.notes?.length ? 'mt-4' : ''}>{question.text}</p>}
         {question?.input && (
           <div className="mt-4">
-            <TextField id="ask-input" label={question.input.label} autoFocus value={text} onChange={(e) => setText(e.target.value)} />
+            {question.input.type === 'datetime' ? (
+              <DateTimeField id="ask-input" label={question.input.label} value={text} onChange={setText} />
+            ) : (
+              <TextField id="ask-input" label={question.input.label} autoFocus value={text} onChange={(e) => setText(e.target.value)} />
+            )}
           </div>
         )}
         <div className={`mt-6 flex gap-2 ${many ? 'flex-col' : 'justify-end'}`}>

@@ -1124,8 +1124,8 @@ export function FoldItem({
 }
 
 /** The statuses of a page or post (`status`, packages/editor/lib/status.mjs), in the order of the choices over a list. */
-export type PageState = 'published' | 'draft' | 'unlisted' | 'scheduled';
-const PAGE_STATES: PageState[] = ['published', 'draft', 'unlisted', 'scheduled'];
+export type PageState = 'published' | 'draft' | 'scheduled';
+const PAGE_STATES: PageState[] = ['published', 'draft', 'scheduled'];
 
 /** A choice in a sheet that can be sorted and filtered (usePickTools): a page or post may have its status, whether the
  * menu links to it and its date. */

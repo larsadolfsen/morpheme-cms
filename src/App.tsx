@@ -173,6 +173,7 @@ import { Button, EmptyNote, ProblemNote, startRipples } from './ui';
 import { useMenuOpen } from './menuOpen';
 import { MainMenu } from './MainMenu';
 import { TopBarLayout } from './topBarSlot';
+import { setBuildState } from './buildState';
 import { rememberEdit } from './startStorage';
 import { Ask, ask } from './ask';
 import { LinkAsk } from './LinkSheet';
@@ -207,8 +208,9 @@ export type Env = {
   /** Shows a message at the bottom of the screen; null hides it. */
   notify: (status: Status) => void;
   /** Saves files as one commit (github.ts) and later tells when the site has the change. `change`: what it changed, in
-   * the editor's language (t.app.changes, deploy.ts), for that message. Returns the new blob ids. */
-  commit: (message: string, changes: Change[], change: string) => Promise<Record<string, string>>;
+   * the editor's language (t.app.changes, deploy.ts), for that message. `onSite: false`: nothing on the site changes (a
+   * waiting version in src/drafts/), so it does not wait for the site. Returns the new blob ids. */
+  commit: (message: string, changes: Change[], change: string, onSite?: boolean) => Promise<Record<string, string>>;
   /** When some files were last saved (github.ts); a new file is left out. */
   savedAt: (paths: string[]) => Promise<Record<string, Date>>;
   /** The commits that changed a file, and its text in one of them (github.ts; Versions.tsx). */
@@ -497,17 +499,20 @@ function Editor() {
     );
   }
 
-  async function save(message: string, changes: Change[], change: string) {
+  async function save(message: string, changes: Change[], change: string, onSite = true) {
     const saved = await commit(message, changes);
+    if (!onSite) return saved.blobs;
     // One message for all saves: a later save is on the site together with or after the ones before. It says what
     // each of them changed (each once).
     stopWaiting.current?.();
     if (!waitingFor.current.includes(change)) waitingFor.current.push(change);
     const what = changesText(waitingFor.current);
     // The Worker says it on the phone too, also when the editor is closed by then (notificationData.ts).
+    setBuildState('updating');
     const onServer = waitOnServer(saved.commit, t.app.siteUpdated(what), t.app.siteNotUpdated(what));
     stopWaiting.current = waitForSite(saved.commit, async (online) => {
       waitingFor.current = [];
+      setBuildState(online ? 'live' : 'failed');
       const text = online ? t.app.siteUpdated(what) : t.app.siteNotUpdated(what);
       // On screen the editor says it, and the Worker does not; else only the Worker sends it to the phone.
       const byServer = document.visibilityState !== 'visible' && (await onServer);
@@ -519,6 +524,7 @@ function Editor() {
 
   function signOut() {
     stopWaiting.current?.();
+    setBuildState('idle');
     waitingFor.current = [];
     // No notifications on this phone for someone signed out: signed off at the Worker while the sign-in is still there.
     void signOff()

@@ -4,7 +4,7 @@
 // be the same text. The fixed pages (src/data/*.json with sections) are loaded as their text with the
 // sections as blocks (packages/editor/src/sections.mjs) and read back: the sections must be the same, a section
 // of text with the same heading and the same HTML. Every page is also read into sections as the front page (as the
-// site reads the page that is the front page without the editor, partsOfMarkdown in sections.mjs, packages/editor/site/home.ts):
+// site reads the page that is the front page without the editor, partsOfMarkdown in sections.mjs, after migrateFrontBanner in lib/front-banner.mjs, packages/editor/site/home.ts):
 // they must be those the editor reads. A page whose template is changed and changed back has the same front matter (the default leaves no key; template-round-trip.mjs). Run: npm run check:editor [files...]
 // A built-in sample with section colours checks that the editor and the site give the front page's sections the same colours.
 // Milkdown needs a DOM; jsdom stands in for the browser.
@@ -34,6 +34,7 @@ const { editorViewCtx } = await import('@milkdown/kit/core');
 const { createMarkdownProcessor } = await import('@astrojs/markdown-remark');
 const { makeEditor, markdownOf, partsOf, spacing } = await import('@morphemecms/cms/src/markdown.mjs');
 const { introOf, partsOfMarkdown, sectionsFromParts, sectionsToMarkdown } = await import('@morphemecms/cms/src/sections.mjs');
+const { migrateFrontBanner } = await import('@morphemecms/cms/lib/front-banner.mjs');
 const { withSiteModules } = await import('../site/siteModules.mjs');
 // The field of the sections of each fixed page (@site/collections): the sections whose text is written
 // above their card (their lead), and the page's introduction above them (intro).
@@ -59,7 +60,9 @@ const fixed = readdirSync('src/data')
   .map((f) => join('src/data', f));
 const files = process.argv.length > 2 ? process.argv.slice(2) : [...walk('src/content/blog'), ...walk('src/content/pages'), ...fixed];
 
-const processor = await createMarkdownProcessor();
+// The site's own Markdown steps (astro.mjs), so a Banner made a section reads the same before and after a save.
+const { remarkBannerSections } = await import('@morphemecms/cms/lib/remark-banner-section.mjs');
+const processor = await createMarkdownProcessor({ remarkPlugins: [remarkBannerSections] });
 const render = async (md) => (await processor.render(md)).code.replace(/\s+/g, ' ').trim();
 
 let failed = 0;
@@ -127,15 +130,35 @@ const colorSample = [
 ].join('\n\n');
 const frontSections = async (body, parts) => [
   await comparable('', sectionsFromParts(parts, frontLeads, { colors: true })),
-  await comparable('', sectionsFromParts(partsOfMarkdown(body), frontLeads, { colors: true })),
+  await comparable('', sectionsFromParts(partsOfMarkdown(migrateFrontBanner(body)), frontLeads, { colors: true })),
 ];
 {
   const editor = await makeEditor(document.createElement('div'), colorSample).use(spacing).create();
   const [editors, site] = await frontSections(colorSample, editor.action(partsOf));
   await editor.destroy();
-  if (editors !== site || !editors.includes('"sectionColor":"tint"') || !editors.includes('"sectionColor":"accent"')) {
+  if (editors !== site || !editors.includes('"sectionColor":"surface"') || !editors.includes('"sectionColor":"primary"')) {
     console.log(
       `\n✗ a text with section colors gives different sections in the editor and on the site\n  editor: ${editors}\n  site:   ${site}`,
+    );
+    process.exit(1);
+  }
+}
+
+// The same for the H1's section (a marker before the page's H1 with a picture and a width): the editor and the site give the same top.
+{
+  const topSample = [
+    '<div data-section="" data-picture="/images/a.jpg" data-alt="A field" data-width="full"></div>',
+    '# Sample',
+    'Intro.',
+    blockHtml('buttons', {}),
+    blockHtml('steps', {}),
+  ].join('\n\n');
+  const editor = await makeEditor(document.createElement('div'), topSample).use(spacing).create();
+  const [editors, site] = await frontSections(topSample, editor.action(partsOf));
+  await editor.destroy();
+  if (editors !== site || !editors.includes('"type":"top"') || !editors.includes('"width":"full"')) {
+    console.log(
+      `\n✗ the settings of the H1's section give different sections in the editor and on the site\n  editor: ${editors}\n  site:   ${site}`,
     );
     process.exit(1);
   }
@@ -185,7 +208,7 @@ for (const file of files) {
   if (isPage) {
     const [editors, site] = [
       await comparable('', sectionsFromParts(parts, frontLeads)),
-      await comparable('', sectionsFromParts(partsOfMarkdown(body), frontLeads)),
+      await comparable('', sectionsFromParts(partsOfMarkdown(migrateFrontBanner(body)), frontLeads)),
     ];
     const [editorColors, siteColors] = await frontSections(body, parts);
     if (editors !== site || editorColors !== siteColors) {

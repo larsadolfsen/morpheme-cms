@@ -26,7 +26,7 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { parseBlock, splitBlocks } from '../lib/blocks.mjs';
 import { introOf, sectionClass, sectionsOf } from '../lib/text-sections.mjs';
-import { h1SectionColor, withoutH1 } from '../lib/without-h1.mjs';
+import { h1Section, withoutH1 } from '../lib/without-h1.mjs';
 import { BREAKPOINTS, breakpointOf, type Breakpoint } from '../lib/breakpoints.mjs';
 import { processor } from '../lib/markdown';
 import { splitPicture } from '../lib/crop.mjs';
@@ -149,7 +149,7 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
     // A page's H1 at the top of its text is drawn in its own place above (draft.heading), as on the site; the colour of its
     // section (the marker before it) puts the heading and the text up to the first H2 in one panel (setH1Panel).
     const whole = isPostPage(draft) ? '' : await markdownHtml(draft.body);
-    const h1Color = h1SectionColor(whole);
+    const h1Settings = h1Section(whole);
     let html = isPostPage(draft) ? await markdownHtml(pageH1(draft.body).rest) : withoutH1(whole);
     // A block that ends the text, where the layout puts it.
     const end = doc.querySelector('[data-editor="end"]');
@@ -175,6 +175,7 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
       }
       leadBox.innerHTML = lead;
     }
+    const attr = (v: string) => v.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
     const types = siteBlocks.map((b) => b.type);
     const runs = (part: string) =>
       sectionsOf(part)
@@ -182,12 +183,16 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
           const inner = splitBlocks(run.html, types)
             .map((p) => ('html' in p ? p.html : blockHtml(p.type, p.props, draft.data)))
             .join('');
-          return run.color ? `<section class="${sectionClass(run.color)}">${inner}</section>` : inner;
+          if (run.color === null) return inner;
+          const picture = run.picture
+            ? `<img class="text-section-image" src="${attr(shownAt(run.picture))}" alt="${attr(run.alt ?? '')}">`
+            : '';
+          return `<section class="${sectionClass(run.color, run)}">${picture}${inner}</section>`;
         })
         .join('');
     // With a column beside the text the panel holds the heading only, as on the site.
-    const { intro, rest: below } = h1Color && !text.closest('[data-side]') ? introOf(rest) : { intro: '', rest };
-    setH1Panel(doc, h1Color, runs(intro));
+    const { intro, rest: below } = h1Settings && !text.closest('[data-side]') ? introOf(rest) : { intro: '', rest };
+    setH1Panel(doc, h1Settings, runs(intro), h1Settings?.picture ? shownAt(h1Settings.picture) : undefined);
     text.innerHTML = runs(below);
   }
   return documentHtml(doc);

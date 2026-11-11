@@ -2,7 +2,8 @@
 // the CMS's version), as a card with Close, which
 // marks it seen, and Read more. For the CMS: the photo of its edition (release-notes/editions/, named after the place the
 // photo is from), 3:2 with rounded corners, above the text in the compact window class and from the medium class up to
-// the left of it, as high as the card; "Morpheme <edition> <version>" (the headline), the place in full (the subhead,
+// the left of it in a column 10-14rem wide, as high as the card (cropped with object-cover, never taller than the card, so a
+// tall photo stays inside it); "Morpheme <edition> <version>" (the headline), the place in full (the subhead,
 // with an info button after it that credits the photographer, PhotoCredit), how many new things it brings (the supporting
 // text, bundledNotes.ts) and Read more to the Morpheme page with all of them; for each app installed from the store: a
 // row with its icon and new version, to its Information tab. Exposes UpdatesNotice. The logic is startView.mjs's
@@ -124,9 +125,9 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       aria-labelledby="updates-title"
       className="mb-8 [--card-elevated-shadow:var(--mo-elevation-1-shadow)] [--card-padding:0]"
     >
-      <div className="grid medium:grid-cols-[auto_1fr]">
+      <div className="grid overflow-hidden rounded-[inherit] medium:grid-cols-[minmax(10rem,14rem)_1fr]">
         {edition && (
-          <div className="relative aspect-[3/2] w-full medium:h-full medium:w-auto">
+          <div className="relative aspect-[3/2] w-full overflow-hidden medium:aspect-auto medium:min-h-36">
             <img src={edition.image} alt="" className="absolute inset-0 size-full rounded-xl object-cover" />
           </div>
         )}

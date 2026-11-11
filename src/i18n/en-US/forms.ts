@@ -42,11 +42,11 @@ export const forms = {
    * blog post (its title is its H1), else a page; `n`: how many (headings, characters). */
   seoRating: {
     title: 'SEO rating',
-    noH1: 'The text has no heading (H1)',
-    oneH1: 'The text has one heading (H1)',
-    manyH1: (n: number) => `The text has ${n} headings (H1), but should have only one`,
-    h1First: 'The heading (H1) is at the top of the text',
-    h1NotFirst: 'The heading (H1) isn’t at the top of the text',
+    noH1: 'The text has no main heading',
+    oneH1: 'The text has one main heading',
+    manyH1: (n: number) => `The text has ${n} main headings, but should have only one`,
+    h1First: 'The main heading is at the top of the text',
+    h1NotFirst: 'The main heading isn’t at the top of the text',
     noTitle: (post: boolean) => `There’s no Google title, so the ${post ? "post's" : "page's"} title is used`,
     longTitle: (n: number) => `The Google title has ${n} characters, so Google may cut it off after about 60`,
     goodTitle: (n: number) => `The Google title has a good length (${n} characters)`,
@@ -60,12 +60,12 @@ export const forms = {
     longDescription: (n: number) => `The Google description is long (${n} characters), so Google may cut it off`,
     goodDescription: (n: number) => `The Google description has a good length (${n} characters)`,
     keywordInH1: (word: string, post: boolean, found: boolean) =>
-      `The keyword "${word}" is ${found ? '' : 'not '}in the ${post ? 'title' : 'heading (H1)'}`,
+      `The keyword "${word}" is ${found ? '' : 'not '}in the ${post ? 'title' : 'main heading'}`,
     keywordInText: (word: string, found: boolean) => `The keyword "${word}" is ${found ? '' : 'not '}in the first paragraph`,
     /** "Hide from search engines (noindex)" is ticked. */
     noindex: (post: boolean) => `The ${post ? 'post' : 'page'} is hidden from Google`,
     /** "Canonical URL" is a page the editor does not know. */
-    noCanonical: 'The canonical URL (the page Google should list) points to a page that doesn’t exist',
+    noCanonical: 'The original page (the page Google should list) points to a page that doesn’t exist',
     allAlt: 'All pictures have an alt text',
     noAlt: (n: number) => `${n} ${n === 1 ? 'picture has' : 'pictures have'} no alt text`,
     goodLinks: (n: number): string => (n === 1 ? 'The link has a descriptive text' : 'The links have descriptive text'),
@@ -74,20 +74,93 @@ export const forms = {
     /** How to do better, under a check that is not fine when it is folded out. */
     fixNoH1: 'Write the page’s heading at the top of the text, as a Heading.',
     fixManyH1: 'Make the others Heading or Subheading.',
-    fixH1First: 'Move the heading (H1) up, so it comes first in the text.',
+    fixH1First: 'Move the main heading up, so it comes first in the text.',
     fixTitle: 'Write a Google title of at most about 60 characters.',
     fixDescription: 'Write a Google description of about 140–155 characters.',
-    fixKeywordInH1: (post: boolean) => `Use the keyword in the ${post ? 'title' : 'heading (H1)'}.`,
+    fixKeywordInH1: (post: boolean) => `Use the keyword in the ${post ? 'title' : 'main heading'}.`,
     fixKeywordInText: 'Use the keyword in the first paragraph.',
-    fixNoindex: (post: boolean) => `Uncheck Hide from search engines (noindex) if the ${post ? 'post' : 'page'} should be found.`,
+    fixNoindex: (post: boolean) => `Uncheck Hide from search engines if the ${post ? 'post' : 'page'} should be found.`,
     fixCanonical: 'Choose a page that exists, or choose No page.',
-    fixAlt: 'Tap each picture, choose Edit, and write an alt text.',
+    fixAlt: 'Tap each picture, choose Edit, and describe it in the Alt text field.',
     fixLink: 'Write what the link leads to, for example, "See the prices."',
   },
   /** Over the places that use an entry (a tag), DataForm.tsx. */
   usedOn: 'Used on',
   address: 'URL',
   writeAddress: 'Write the address with letters or digits.',
+  /** A page or post that is published in steps (EntryForm.tsx): a draft, the live version and changes waiting. `post`: a blog post, else a page. */
+  versions: {
+    publish: 'Publish',
+    publishChanges: 'Publish changes',
+    /** The switch at the top of a page with changes waiting (VersionSwitch.tsx). */
+    switchLabel: 'Version to edit',
+    /** The notice under the switch (VersionSwitch.tsx WaitingNotice). */
+    noticeLiveTitle: 'Changes are waiting',
+    noticeLive:
+      'You are editing the live version. What you save here goes on the website at once, and the waiting changes stay as they are.',
+    noticeWaitingTitle: 'The website shows the published version',
+    noticeWaiting: 'These changes are not on the website yet. Choose Publish changes to put them there.',
+    noticeScheduled: (when: string) => `These changes go on the website ${when}. Until then the website shows the published version.`,
+    /** Before Publish changes, when the live version was changed after the waiting changes were saved. */
+    overwriteTitle: 'Replace the live version?',
+    overwriteText: (post: boolean) =>
+      `The ${post ? 'post' : 'page'} on the website was changed after these changes were saved. Publishing replaces it with these changes.`,
+    live: 'Live',
+    scheduled: 'Scheduled',
+    changes: 'Changes',
+    switchTitle: 'Switch version?',
+    switchText: 'What you haven’t saved is lost.',
+    switchAction: 'Switch',
+    editingLive: 'Editing the live version',
+    schedule: 'Schedule',
+    cancelSchedule: 'Cancel schedule',
+    scheduleTitle: 'Choose when it goes live',
+    scheduleText: (post: boolean) =>
+      `The ${post ? 'post' : 'page'} goes on the website at this time, and until then the website shows the version it has. The website updates within an hour of the time.`,
+    scheduleTime: 'Date',
+    scheduleNeedsFuture: 'Choose a date and time that has not passed.',
+    scheduleWithAddress: 'Save the new address first, then schedule.',
+    /** The line under the title, and the message after scheduling; `when`: "Nov 20 at 8:00 AM". */
+    scheduledLine: (when: string) => `Scheduled · ${when}`,
+    savedScheduled: (when: string) => `Scheduled. It goes on the website ${when}.`,
+    scheduledCancelled: (what: string) => `Schedule for ${what} cancelled`,
+    unpublish: 'Unpublish',
+    discardChanges: 'Discard changes',
+    /** The top bar's line under the title. */
+    draftLine: 'Draft',
+    waitingLine: 'Unpublished changes',
+    publishedLine: (when: string) => `Published · Changed ${when}`,
+    /** The line under the title while changes to a published page are not saved yet (autosave, with Faster editor on). */
+    autosave: {
+      saving: 'Saving…',
+      saved: 'Saved',
+      notSaved: 'Not saved',
+      /** After opening a page that had changes the editor kept for you. */
+      restored: 'Your unsaved changes are back',
+    },
+    /** After saving changes to a published page: the website keeps the version it has. */
+    savedWaiting: 'Changes saved. The website shows the published version until you publish.',
+    unpublishTitle: (post: boolean) => `Unpublish this ${post ? 'post' : 'page'}?`,
+    unpublishText: (post: boolean) =>
+      `The ${post ? 'post' : 'page'} leaves the website and becomes a draft. Changes that wait to be published stay.`,
+    discardTitle: 'Discard the changes?',
+    discardText: (post: boolean) => `The ${post ? 'post' : 'page'} goes back to the version on the website. You can’t undo this.`,
+    addressWaiting: 'Publish or discard the changes before you change the address.',
+    standardPage: 'This page is chosen as a standard page, so it must stay published.',
+    /** Names of what changed, for the message after a save (`what`: the page or post). */
+    published: (what: string) => `${what} published`,
+    unpublished: (what: string) => `${what} unpublished`,
+    discarded: (what: string) => `Changes to ${what} discarded`,
+    /** The commits. */
+    commit: {
+      saveChanges: (singular: string, what: string) => `Editor: save changes to ${singular} ${what}`,
+      schedule: (singular: string, what: string, at: string) => `Editor: schedule ${singular} ${what} for ${at}`,
+      cancelSchedule: (singular: string, what: string) => `Editor: cancel the schedule of ${singular} ${what}`,
+      publish: (singular: string, what: string) => `Editor: publish ${singular} ${what}`,
+      unpublish: (singular: string, what: string) => `Editor: unpublish ${singular} ${what}`,
+      discard: (singular: string, what: string) => `Editor: discard changes to ${singular} ${what}`,
+    },
+  },
   /** The commits; `what` is a name or a file name in quotation marks. */
   commit: {
     create: (create: string, what: string) => `Editor: ${create.toLowerCase()} ${what}`,

@@ -14,7 +14,12 @@ Most website changes are small and urgent: new opening hours, a photo from this 
 
 The editor lives at /editor/ on your site. Open it on your phone, add it to your home screen, and it opens full screen with its own icon, just like an app.
 
-<div data-block="checklist" data-props="{&quot;heading&quot;:&quot;Designed for small screens&quot;,&quot;items&quot;:[&quot;Lists you can search, sort and filter&quot;,&quot;Sheets that slide up when you pick something&quot;,&quot;Photos straight from your camera&quot;,&quot;A notification when your change is live&quot;]}"></div>
+**Designed for small screens**
+
+- [x] Lists you can search, sort and filter
+- [x] Sheets that slide up when you pick something
+- [x] Photos straight from your camera
+- [x] A notification when your change is live
 
 ## Just as good on a laptop
 

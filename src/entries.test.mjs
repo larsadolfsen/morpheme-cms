@@ -34,7 +34,7 @@ test('entriesOf reads title, status, publishAt and date of each markdown file in
   ]);
 });
 
-test('entriesOf uses the path as the title when there is none, and gives draft and unlisted as they are', () => {
+test('entriesOf uses the path as the title when there is none, gives draft as it is and reads a stored unlisted as published', () => {
   const entries = entriesOf(
     [
       file('src/content/pages/a.md', 'status: draft'),
@@ -47,7 +47,7 @@ test('entriesOf uses the path as the title when there is none, and gives draft a
     entries.map((e) => [e.title, e.status]),
     [
       ['src/content/pages/a.md', 'draft'],
-      ['src/content/pages/b.md', 'unlisted'],
+      ['src/content/pages/b.md', 'published'],
       ['src/content/pages/c.md', 'published'],
     ],
   );
@@ -72,4 +72,44 @@ test('entriesOf skips files outside the folders and files that are not markdown'
 test('entriesOf keeps a date written as text', () => {
   const [entry] = entriesOf([file('src/content/blog/p.md', 'title: P\ndate: "2026-05-04"')], collections);
   assert.equal(entry.date, '2026-05-04');
+});
+
+test('entriesOf: a draft page with a waiting version that has a time is Scheduled, a published one stays published', () => {
+  const entries = entriesOf(
+    [
+      file('src/content/pages/a.md', 'status: draft'),
+      file('src/content/pages/b.md', 'title: B'),
+      file('src/drafts/pages/a.md', 'publishAt: "2026-12-01T08:00"'),
+      file('src/drafts/pages/b.md', 'publishAt: "2026-12-02T08:00"'),
+    ],
+    collections,
+  );
+  assert.deepEqual(
+    entries.map((e) => [e.path, e.status, e.publishAt]),
+    [
+      ['src/content/pages/a.md', 'scheduled', '2026-12-01T08:00'],
+      ['src/content/pages/b.md', 'published', undefined],
+    ],
+  );
+});
+
+test('entriesOf: a published page with a waiting version carries it, with its time when it has one', () => {
+  const entries = entriesOf(
+    [
+      file('src/content/pages/a.md', 'title: A'),
+      file('src/content/pages/b.md', 'title: B'),
+      file('src/content/pages/c.md', 'title: C'),
+      file('src/drafts/pages/a.md', 'title: A2'),
+      file('src/drafts/pages/b.md', 'publishAt: "2026-12-02T08:00"'),
+    ],
+    collections,
+  );
+  assert.deepEqual(
+    entries.map((e) => [e.path, e.status, e.waiting]),
+    [
+      ['src/content/pages/a.md', 'published', {}],
+      ['src/content/pages/b.md', 'published', { publishAt: '2026-12-02T08:00' }],
+      ['src/content/pages/c.md', 'published', undefined],
+    ],
+  );
 });

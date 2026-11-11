@@ -37,8 +37,6 @@ export const theme = {
   newVersion: 'New version',
   newPage: 'New page that doesn’t exist yet',
   currentPage: (title: string) => `Current: ${title}`,
-  newPosts: 'New blog posts',
-  newPostsIntro: 'Hidden until you approve them. They aren’t on the blog, and Google doesn’t see them.',
   reviewNotice: 'New version for review. Google doesn’t see it.',
   seeCurrentPage: 'See the current page',
   seeChanges: 'See what has changed',

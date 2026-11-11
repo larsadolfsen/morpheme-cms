@@ -6,6 +6,11 @@ export const library = {
   cmsVersion: (version: string) => `Morpheme ${version}`,
   /** Between the CMS version and the update time in the start screen's status. */
   statusSeparator: ' · ',
+  /** The card for a site with no page or post yet (FirstRun.tsx), and its rows. */
+  firstRunTitle: 'Get started',
+  firstRunPage: 'Write a page',
+  firstRunPost: 'Write a blog post',
+  firstRunPicture: 'Add a picture',
   /** The start screen's FAB menu (StartFab.tsx), which makes a new page or blog post. */
   createNew: 'Create',
   /** On the start screen (widgets/continue.tsx): the card with the last three pages and blog posts saved. */
@@ -95,7 +100,7 @@ export const library = {
   /** By the theme the website uses, under "Themes" and on its page. */
   themeInUse: 'In use',
   /** By the theme it is changed to, until the website is updated: under "Themes", and on its page. */
-  themeNext: 'Changing to it',
+  themeNext: 'Changing to this theme',
   themeChanging: (name: string) => `Changing to ${name} in a few minutes`,
   /** On a theme's page: the pictures of the site in it (packages/editor/scripts/theme-screenshots.mjs), each by what it shows. */
   themeLooks: 'What your website looks like',
@@ -196,15 +201,17 @@ export const library = {
   orderNotSaved: (error: string) => `Couldn’t save the order: ${error}`,
   status: {
     draft: 'Draft',
-    unlisted: 'Hidden',
     scheduled: 'Scheduled',
     /** "Planlagt 1. nov. kl. 8.00" (`when`, when.ts). */
     scheduledAt: (when: string) => `Scheduled ${when}`,
+    /** A published page or post with changes waiting (src/drafts/), without and with a time they go live. */
+    unpublishedChanges: 'Unpublished changes',
+    scheduledChanges: (when: string) => `Scheduled changes ${when}`,
   },
   /** The filter over the pages and posts that shows only those with one status. */
   statusFilter: 'Status',
   /** Its choices: all, and each status there is. */
-  statusShown: { all: 'All', published: 'Published', draft: 'Draft', unlisted: 'Hidden', scheduled: 'Scheduled' },
+  statusShown: { all: 'All', published: 'Published', draft: 'Draft', scheduled: 'Scheduled' },
   sort: 'Sort',
   sorts: {
     newest: 'Newest first',

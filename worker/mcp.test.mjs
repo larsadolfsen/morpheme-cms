@@ -89,6 +89,8 @@ async function ask(url, init = {}) {
     return new Response(null, { status: 204 });
   }
   if (url.startsWith(META)) {
+    // workerd only knows redirect "follow" and "manual"; "error" throws there.
+    if (init.redirect === 'error') throw new TypeError('Invalid redirect value, must be one of "follow" or "manual"');
     const doc = METADATA[url.slice(META.length)];
     return doc === undefined
       ? new Response(null, { status: 404 })
@@ -241,6 +243,7 @@ test('discovery: the protected resource and the authorization server, with CORS'
   const server = await (await oauth.handleMcpOAuth(new Request(`${ORIGIN}/.well-known/oauth-authorization-server`), fresh(), ask)).json();
   assert.equal(server.registration_endpoint, `${ORIGIN}/oauth/mcp/register`);
   assert.deepEqual(server.code_challenge_methods_supported, ['S256']);
+  assert.equal(server.authorization_response_iss_parameter_supported, true);
   const preflight = await oauth.handleMcpOAuth(new Request(`${ORIGIN}/oauth/mcp/token`, { method: 'OPTIONS' }), fresh(), ask);
   assert.equal(preflight.status, 204);
   assert.match(preflight.headers.get('access-control-allow-headers'), /authorization/i);
@@ -360,6 +363,8 @@ test('the consent page names the assistant and the person, and says it only read
   assert.match(html, /can.t change anything/i);
   assert.equal(back.headers.get('x-frame-options'), 'DENY');
   assert.match(back.headers.get('content-security-policy'), /frame-ancestors 'none'/);
+  // The redirect a POST answers with is checked against form-action: it must allow the assistant's own origin.
+  assert.match(back.headers.get('content-security-policy'), /form-action 'self' https:\/\/assistant\.example(;|$)/);
   assert.equal(back.headers.get('cache-control'), 'no-store');
   assert.match(back.headers.get('set-cookie'), /mcp_consent=/);
 });
@@ -412,14 +417,33 @@ test('Allow needs the same browser and the same address: no cookie, another cook
   assert.equal((await allow({}, id)).status, 403);
   assert.equal((await allow({ cookie: 'mcp_consent=other' }, id)).status, 403);
   assert.equal((await allow({ cookie: `mcp_consent=${id}`, 'sec-fetch-site': 'cross-site' }, id)).status, 403);
+  assert.equal(
+    (await allow({ cookie: `mcp_consent=${id}`, 'sec-fetch-site': 'cross-site', origin: 'https://evil.example' }, id)).status,
+    403,
+  );
   assert.equal((await oauth.handleMcpOAuth(new Request(`${ORIGIN}/oauth/mcp/consent`), env, ask)).status, 405);
   assert.ok(jar);
+  // An in-app browser may send same-site or no Sec-Fetch-Site: the matching Origin is enough.
+  const ok = await allow({ cookie: `mcp_consent=${id}`, 'sec-fetch-site': 'same-site', origin: ORIGIN }, id);
+  assert.equal(ok.status, 303);
+  // A second submit of the same decision (double tap, replay) is harmless: no error page.
+  const again = await allow({ cookie: `mcp_consent=${id}`, origin: ORIGIN }, id);
+  assert.equal(again.status, 200);
+  assert.doesNotMatch(await again.text(), /can.t be finished/);
+  const noCookie = await allow({}, id);
+  assert.equal(noCookie.status, 200);
+});
+
+test('the consent cookie is Lax, so it survives the redirect chain from GitHub', async () => {
+  const env = fresh();
+  const { back } = await connect(env);
+  assert.match(back.headers.get('set-cookie'), /mcp_consent=[^;]+;.*SameSite=Lax/i);
 });
 
 test('Allow keeps the connection, seals the GitHub token and gives a code once', async () => {
   const env = fresh();
   const { end } = await connect(env);
-  assert.equal(end.status, 302);
+  assert.equal(end.status, 303);
   const to = new URL(end.headers.get('location'));
   assert.equal(to.origin + to.pathname, REDIRECT);
   assert.equal(to.searchParams.get('state'), 'xyz');
@@ -625,6 +649,7 @@ test('/mcp: initialize, tools/list and the five read tools; the site is read wit
     await rpc(env, tokens.access_token, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-11-25' } })
   ).json();
   assert.equal(init.result.protocolVersion, '2025-11-25');
+  assert.match(init.result.instructions, /list_content/);
   const list = await (await rpc(env, tokens.access_token, { jsonrpc: '2.0', id: 2, method: 'tools/list' })).json();
   assert.deepEqual(
     list.result.tools.map((t) => t.name),
@@ -635,6 +660,12 @@ test('/mcp: initialize, tools/list and the five read tools; the site is read wit
   assert.equal(info.structuredContent.pages, 1);
   const content = await call(env, tokens.access_token, 'list_content', { kind: 'post' });
   assert.equal(content.structuredContent.items[0].title, 'First');
+  // Claude.ai reads only the text, so it must hold every item's title and address.
+  for (const item of content.structuredContent.items) {
+    assert.ok(content.content[0].text.includes(JSON.stringify(item.title)));
+    assert.ok(content.content[0].text.includes(JSON.stringify(item.address)));
+  }
+  assert.deepEqual(JSON.parse(info.content[0].text), info.structuredContent);
   const page = await call(env, tokens.access_token, 'read_content', { address: '/about/' });
   assert.match(page.structuredContent.body, /Hello/);
   assert.equal((await call(env, tokens.access_token, 'list_apps')).structuredContent.apps[0].id, 'calendly');

@@ -28,7 +28,7 @@ Group related ideas with an icon, a photo or just text, each linking to a page i
 
 Short points with an icon, for what you offer or how to find you.
 
-<div data-block="points" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Publishes on its own at the time you pick.&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Stays in the editor until you publish it.&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address but stays off Google.&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Publishes on its own at the time you pick.&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Stays in the editor until you publish it.&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address but stays off Google.&quot;}]}"></div>
 
 ## Steps
 
@@ -40,15 +40,28 @@ A numbered sequence, for a process or a plan.
 
 Quick points with a check mark.
 
-<div data-block="checklist" data-props="{&quot;items&quot;:[&quot;Works on every phone&quot;,&quot;Light and dark mode&quot;,&quot;Photos sized for every screen&quot;,&quot;No tracking before consent&quot;]}"></div>
+- [x] Works on every phone
+- [x] Light and dark mode
+- [x] Photos sized for every screen
+- [x] No tracking before consent
 
 ## List
 
-Rows under each other, as your theme draws a list, or each on its own surface.
+Rows under each other, as your theme draws a list.
 
 <div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;book-open&quot;,&quot;title&quot;:&quot;Blocks&quot;,&quot;text&quot;:&quot;Every block a page can be built from.&quot;,&quot;href&quot;:&quot;/blocks/&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;App store&quot;,&quot;text&quot;:&quot;Apps and themes you install with one tap.&quot;,&quot;href&quot;:&quot;/app-store/&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;About&quot;,&quot;text&quot;:&quot;What the editor is built on.&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>
 
-<div data-block="list" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Monday to Friday&quot;,&quot;text&quot;:&quot;9 am to 5 pm&quot;},{&quot;icon&quot;:&quot;coffee&quot;,&quot;title&quot;:&quot;Saturday&quot;,&quot;text&quot;:&quot;10 am to 2 pm&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Sunday&quot;,&quot;text&quot;:&quot;Closed&quot;}]}"></div>
+<div data-block="segmented" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Monday to Friday&quot;,&quot;text&quot;:&quot;9 am to 5 pm&quot;},{&quot;icon&quot;:&quot;coffee&quot;,&quot;title&quot;:&quot;Saturday&quot;,&quot;text&quot;:&quot;10 am to 2 pm&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Sunday&quot;,&quot;text&quot;:&quot;Closed&quot;}],&quot;show&quot;:&quot;all&quot;}"></div>
+
+## Segmented list
+
+Rows that fold out with a text and a link, with a text button under the last row. A row with a page and no text shows the beginning of the page. With `Max rows`, only the first rows show and a text button shows the rest.
+
+<div data-block="segmented" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Blocks&quot;,&quot;text&quot;:&quot;Every block a page can be built from.&quot;,&quot;href&quot;:&quot;/blocks/&quot;},{&quot;title&quot;:&quot;About&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>
+
+<div data-block="segmented" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Question 1&quot;,&quot;text&quot;:&quot;A short answer for question 1.&quot;},{&quot;title&quot;:&quot;Question 2&quot;,&quot;text&quot;:&quot;A short answer for question 2.&quot;},{&quot;title&quot;:&quot;Question 3&quot;,&quot;text&quot;:&quot;A short answer for question 3.&quot;},{&quot;title&quot;:&quot;Question 4&quot;,&quot;text&quot;:&quot;A short answer for question 4.&quot;},{&quot;title&quot;:&quot;Question 5&quot;,&quot;text&quot;:&quot;A short answer for question 5.&quot;},{&quot;title&quot;:&quot;Question 6&quot;,&quot;text&quot;:&quot;A short answer for question 6.&quot;},{&quot;title&quot;:&quot;Question 7&quot;,&quot;text&quot;:&quot;A short answer for question 7.&quot;},{&quot;title&quot;:&quot;Question 8&quot;,&quot;text&quot;:&quot;A short answer for question 8.&quot;}],&quot;maxRows&quot;:5,&quot;only&quot;:true,&quot;button&quot;:&quot;See all&quot;,&quot;buttonHref&quot;:&quot;/about/&quot;}"></div>
+
+<div data-block="segmented" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Opening hours&quot;,&quot;text&quot;:&quot;Monday to Friday, 9 am to 5 pm.\n\nSaturday, 10 am to 2 pm.&quot;},{&quot;icon&quot;:&quot;map-pin&quot;,&quot;title&quot;:&quot;Where to find us&quot;,&quot;text&quot;:&quot;Ground floor, next to the station.&quot;,&quot;href&quot;:&quot;/about/&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Good to know&quot;,&quot;text&quot;:&quot;Bring your booking number.&quot;}],&quot;only&quot;:true,&quot;button&quot;:&quot;See all&quot;,&quot;buttonHref&quot;:&quot;/about/&quot;}"></div>
 
 ## Accordion
 
@@ -84,7 +97,7 @@ A message that stands out, and can disappear on its own on a date you set.
 
 Pages grouped by topic.
 
-<div data-block="links" data-props="{&quot;groups&quot;:[{&quot;title&quot;:&quot;Product&quot;,&quot;href&quot;:&quot;/about/&quot;,&quot;paths&quot;:[&quot;/about/&quot;,&quot;/blocks/&quot;,&quot;/app-store/&quot;]},{&quot;title&quot;:&quot;Getting started&quot;,&quot;href&quot;:&quot;/get-started/&quot;,&quot;paths&quot;:[&quot;/get-started/&quot;,&quot;/contact/&quot;]}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Product&quot;,&quot;heading&quot;:true,&quot;href&quot;:&quot;/about/&quot;},{&quot;href&quot;:&quot;/about/&quot;},{&quot;href&quot;:&quot;/blocks/&quot;},{&quot;href&quot;:&quot;/app-store/&quot;},{&quot;title&quot;:&quot;Getting started&quot;,&quot;heading&quot;:true,&quot;href&quot;:&quot;/get-started/&quot;},{&quot;href&quot;:&quot;/get-started/&quot;},{&quot;href&quot;:&quot;/contact/&quot;}]}"></div>
 
 ## Posts
 
