@@ -65,6 +65,10 @@ request when all of this holds, one pull request at a time:
 The `0.17` branch collects the 0.17 work; its PM merges into it, and `main` is merged into it after each release
 (never the other way). Only `main` has a Release PR and builds `next` and `latest`.
 
+The `0.18` branch collects the 0.18 work (spec `docs/superpowers/specs/2026-11-11-intuitive-editor-design.md`); into it `minor` is
+allowed, never `major`, so it stays below `1.0.0`. `0.17` is merged into `0.18` after each merge into `0.17` until 0.17 is
+released, then `main` is merged into it after each release. Only `main` has a Release PR.
+
 A pull request that conflicts, has no `check` job or has the wrong changeset is not merged. The PM asks the session
 that owns it to merge `main` into the branch (never a rebase, amend or force-push on someone else's branch) or to fix
 the changeset, and merges when it is right. It never merges the Release PR.
