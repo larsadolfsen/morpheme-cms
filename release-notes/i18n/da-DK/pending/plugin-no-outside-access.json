@@ -1,0 +1,5 @@
+{
+  "id": "plugin-no-outside-access",
+  "kind": "line",
+  "text": "Til app-udviklere: opbygningen afviser nu en udvidelse, der angiver en vært i csp eller bruger fetch, WebSocket eller import af en URL"
+}
