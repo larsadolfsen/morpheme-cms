@@ -98,9 +98,9 @@ const status = (hidden: string): Field[] => [
     // A narrow menu field over the title (EntryForm.tsx).
     narrow: true,
     options: [
-      { value: 'draft', label: 'Draft', hint: 'Not shown on the website.' },
+      { value: 'draft', label: 'Draft', hint: 'Not on the website yet. Not even at its address.' },
       { value: 'unlisted', label: 'Hidden', hint: hidden },
-      { value: '', label: 'Published', hint: 'Shown on the website.' },
+      { value: '', label: 'Published', hint: 'On the website for everyone.' },
       { value: 'scheduled', label: 'Scheduled', hint: 'Shown on the website from the time below.' },
     ],
   },
