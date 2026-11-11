@@ -9,8 +9,7 @@ demo build (`npm run build`, then the built editor in Chromium) at 375 px and 12
 
 - **"Developer under Advanced" is already out of date.** `Advanced` was renamed to `Developer` in 0.14 (`movedRoutes.mjs`:
   `advanced` → `developer/caching`). Today `Developer` is a row of Settings with two rows: `Caching and builds` and `Parts`.
-  There is no `Advanced` row to put it under. The plan therefore **leaves Developer where it is** (Q3 asks if it should go
-  further).
+  There is no `Advanced` row to put it under. The owner has since decided to split it: see section 3.
 - **Appearance** is a row of Settings today (the cog), with nine rows of its own. It is not in the main menu.
 - **Logo and icon** is the first row of `Business`, but `colors.ts` already tells the owner "Edit the logo and icon under
   Appearance › Logo and icon" (stale since 0.13; the move makes it true again).
@@ -84,7 +83,7 @@ Findings from the screens:
 
 The owner's decisions: Appearance stays on the Settings page; the main-menu section `Blocks` becomes `Globals` (Header,
 Footer, Block templates); `Block settings` moves to Settings; `Licenses` leaves Settings (the footer has it); `Colors`
-moves to Business (the company's brand colours); `Side column` moves to Globals with Header and Footer; Logo and icon stays in Business. No other renames. **Logo and icon stays in Business, next to Colors (brand
+moves to Business (the company's brand colours); `Side column` moves to Globals with Header and Footer; Logo and icon stays in Business; `Developer` is split into two Settings rows, `Caching and builds` and `Components`. No other renames. **Logo and icon stays in Business, next to Colors (brand
 together; the owner's decision, which matches this plan's recommendation).** That reverses the first draft's assumption
 and needs no route change for it.
 
@@ -95,7 +94,7 @@ Main menu
 ├─ Business     Logo and icon, Colors, Contact, Social media, Payment        (Colors comes from Appearance)
 ├─ Globals      Header, Footer, Side column, Block templates                 (was Blocks; Header, Footer and Side column come from Appearance)
 └─ Apps         Appstore, installed apps
-Settings (cog)  Appearance, Assistants, Block settings, Developer, Morpheme, Privacy     (six rows, A–Z; Licenses leaves)
+Settings (cog)  Appearance, Assistants, Block settings, Caching and builds, Components, Morpheme, Privacy     (seven rows, A–Z; Licenses and Developer leave)
   └─ Appearance Theme store, Themes, Icon packs, Motion, Default pages                 (Header, Footer, Side column, Colors leave)
 ```
 
@@ -110,8 +109,14 @@ How it is built:
   `{ id: 'global', title: 'Globals', ids: ['header', 'footer', 'side-column', 'blocks'] }`. The id changes from `blocks` to `global`
   because `blocks` is also the id of the part `Block templates` (route `#blocks`); the icon `global` already exists.
   Business becomes `ids: ['logo', 'colors', 'company']` (`company` stays hoisted, its parts come after).
-- `settings` becomes `['appearance', 'assistants', 'block-settings', 'developer', 'morpheme', 'privacy']`: `block-settings`
-  joins, `licenses` leaves. `Block settings` keeps its id and route.
+- `settings` becomes `['appearance', 'assistants', 'block-settings', 'caching', 'components', 'morpheme', 'privacy']`:
+  `block-settings`, `caching` and `components` join; `licenses` and `developer` leave. `Block settings` keeps its id and route.
+- **`Developer` is split** (owner's decision): the `Developer` row and its screen (`Developer()`, `DEV_MENU_ROUTE`,
+  `backToDeveloper`) go; `Caching and builds` (`Advanced.tsx`) and `Components` become rows of Settings. **`Components` is
+  the current `Parts` row** (`PartsHome`, `common.parts.editorParts`, da `Dele`), renamed; its screens (`Editor`, `UI
+  components`, `Blocks`, the lists of kinds, `Values`) stay as they are. `partOf` maps `caching` → `#developer/caching`
+  and `components` → `#developer/parts`. The other `Developer` (an app's maker, `apps.ts` `developer`, `#apps/developer/<name>`,
+  `DeveloperRow`) is a different thing and stays.
 - `Licenses` leaves the Settings page: the footer on every screen already links to it (`FOOTER_LINKS`, `lib/footerLinks.mjs`:
   `licenses` → `#licenses`). `#licenses`, `#licenses/<id>` and the screen stay, and so do the edition photos' credits
   (`#licenses/editions/<line>`, linked from `UpdatesNotice.tsx`). It must not stay in `settings`.
@@ -127,7 +132,7 @@ How it is built:
 - **Colors moves** from `#appearance/colors` to `#company/colors` (and its fallback page `…/fallback-colors`), see section 5.
 - Back links: Header, Footer and Side column go to the start screen (as `#company` does), Block settings to Settings
   (`backFrom`), Colors to Business.
-- The rail has the same number of destinations (one renamed section). Settings has six rows, as today (one in, one out).
+- The rail has the same number of destinations (one renamed section). Settings has seven rows (today six: Licenses and Developer out; Block settings, Caching and builds and Components in).
 
 ## 4. Proposed renames
 
@@ -136,7 +141,8 @@ Ids, routes and `common.parts.*` keys stay; only the section's title changes.
 | # | Old en-US | New en-US | Old da-DK | New da-DK | Why | M3 word-choice check |
 | :-: | :--- | :--- | :--- | :--- | :--- | :--- |
 | 1 | `Blocks` (section) | `Globals` | `Blokke` | `Globale dele` (alternative `På alle sider`) | The section holds what is shared by every page: the header, the footer and the block templates. `Blocks` no longer says that. | **Weak.** `Globals` is a programmer's word; the guide asks for universal words an owner knows. It was the owner's own word before 0.13 and is short, so it stays as decided. Plainer: `On every page` (da `På alle sider`) or `Shared` (da `Fælles`). Danish `Globale dele` keeps the owner's word and adds a plain noun (`dele`, as in Developer › Parts). |
-| 2 | `Block templates`, `Files`, `Dynamic lists`, `Business`, `Virksomheden`, `Appearance`, `Developer`, `Logo and icon`, `Colors` | no change | no change | no change | Owner's decision. | `Block templates` keeps "templates" (a template builder comes here later). |
+| 2 | `Parts` (Settings row, `common.parts.editorParts`) | `Components` | `Dele` | `Komponenter` | Owner's decision, with `Developer` gone it is a Settings row of its own. | **Mixed.** `Components` is Material 3's own word for buttons, fields and lists, so it is the right word for the theme's parts; but it is a designer's word, not an owner's, and the screen's first child is already `UI components` (da `UI-komponenter`), so the owner reads "Components › UI components". `Parts` was plain but vague. Recommended: `Components` (da `Komponenter`) and rename the child to `Theme components` (da `Temaets komponenter`), or drop "UI". Passes M3 for short, active, no filler; fails "universal" slightly. |
+| 3 | `Block templates`, `Files`, `Dynamic lists`, `Business`, `Virksomheden`, `Appearance`, `Caching and builds`, `Logo and icon`, `Colors` | no change | no change | no change | Owner's decision. | `Block templates` keeps "templates" (a template builder comes here later). |
 
 Withdrawn from the first draft: `Block texts`, `Pictures and files`, `Virksomhed`.
 
@@ -145,15 +151,18 @@ Withdrawn from the first draft: `Block texts`, `Pictures and files`, `Virksomhed
 | Old | New | How the old one keeps working |
 | :--- | :--- | :--- |
 | `#appearance/colors` | `#company/colors` | New `RENAMED` key `'appearance/colors': 'company/colors'`: the rest of the address is kept, so `#appearance/colors/fallback-colors` goes to `#company/colors/fallback-colors` by the same line. |
+| `#developer` (the Developer screen, gone) | `#settings` | `MOVED['developer'] = 'settings'` (an old link opens Settings). No key points back at `developer`, so no loop. |
 | `#appearance/side-column` | `#global/side-column` | New `RENAMED` key `'appearance/side-column': 'global/side-column'`. |
 | `#appearance/header`, `#appearance/footer` (if Q3 is yes) | `#global/header`, `#global/footer` | New `RENAMED` keys `'appearance/header'`, `'appearance/footer'`. |
 | `#header`, `#src/data/footer.json` (`MOVED` values now `appearance/header`, `appearance/footer`), and `#udseende/sidekolonne` (`RENAMED`, now `appearance/side-column`) | `#global/header`, `#global/footer`, `#global/side-column` | Retarget each value to the final address (`movedRoute` is one step). |
 | `#farver`, `#tema/farver`, `#udseende/farver` (older, Danish; `MOVED`/`RENAMED` today point at `appearance/colors`) | `#company/colors` | Retarget each value to `company/colors`. `movedRoute` is one step, it never follows a value into another key, so every old key must point at the final address. |
 | `#udseende/farver/reservefarver` (`RENAMED`, now `appearance/colors/fallback-colors`) | `#company/colors/fallback-colors` | Retarget the value. |
 
+`#developer/caching` and `#developer/parts/*` keep their addresses (Q4): they are ids, no menu shows them, and about thirty places and the screen check use them. The old Danish keys that end there (`avanceret`, `advanced`, `dele`, `tema/dele…`, `udseende/dele…`, `appearance/parts`) stay valid unchanged.
+
 No other route changes: `#company/logo` stays (the first draft's move of Logo and icon is dropped, so there are no logo
 entries and no loop with `appearance/logo`), and `#block-settings`, `#blocks`, `#blocks/<id>`, `#appearance`,
-`#developer/*`, `#files`, `#lists`, `#licenses`, `#settings` and `#settings/appstore` all stay. Loop check: after the
+`#files`, `#lists`, `#licenses`, `#settings` and `#settings/appstore` all stay. Loop check: after the
 change `company/colors`, `global/header`, `global/footer` and `global/side-column` are no key of `MOVED` or `RENAMED`,
 and no value is also a key (a test asserts it). If Q3 is no, only the Side column and Colors lines apply.
 
@@ -164,17 +173,20 @@ address changes (as `/ny/` → `/new/` in 0.15 did, which these three handled).
 
 - `defaults/editor.ts`: `groups` (Globals section; Business `ids` with `colors`), `settings` (add `block-settings`, remove `licenses`), the comments at the top and at `groups`.
 - `lib/menu.mjs`: remove the `id === 'header'` special case in `currentPlace`; `lib/menu.test.mjs` (fixtures with `blocks`, `header`, `settings` with `licenses`, the cog test's `appearance/colors`, `appearance/header`, `appearance/footer`).
-- `src/Library.tsx`: `Theme()` (no `header`, `footer`, `side-column`, `colors`, no `ThemeColors` row; the Side column detail line moves with it), `Company()` (`colors` row with the swatches, second), `partOf` (`colors` → `#company/colors`, `header`, `footer`, `side-column` → `#global/…`, removed from the Appearance label map; `block-settings` is a Settings row), the comments at 152, 214 and 242; the Settings screen has six rows (Licenses out, Block settings in).
+- `src/Library.tsx`: remove `Developer()`, `DEV_MENU_ROUTE`, `backToDeveloper` and the `developer` branch in `partOf`; add `caching` and `components` to `partOf`; `PartsHome` goes back to Settings (`backFrom('components')`); the row icons (`icons.developer` is `Wrench`, used by `caching`; `parts` for `components`). `Theme()` (no `header`, `footer`, `side-column`, `colors`, no `ThemeColors` row; the Side column detail line moves with it), `Company()` (`colors` row with the swatches, second), `partOf` (`colors` → `#company/colors`, `header`, `footer`, `side-column` → `#global/…`, removed from the Appearance label map; `block-settings` is a Settings row), the comments at 152, 214 and 242; the Settings screen has six rows (Licenses out, Block settings in).
 - `src/Colors.tsx`: `FALLBACK_ROUTE` = `company/colors/fallback-colors`, the route in `useFormPages`, the back links (to `#company`, label Business), the header comment.
 - `src/App.tsx`: `appearance/colors` → `company/colors` (two places), `appearance/side-column`, `appearance/header` and `appearance/footer` → `global/…`, and the header comment's routes.
 - `src/Parts.tsx` (176 and 828): the two links to `appearance/colors` (`editColors`).
+- `src/Advanced.tsx` (back link and import, comment), `src/Parts.tsx` (162 and the header comment), `src/BlockParts.tsx` (55 and its comments), `src/Tokens.tsx` (18): back links and comments; the label `t.common.parts.editorParts` now reads `Components`. `src/App.tsx`: remove the `DEV_MENU_ROUTE` line (798).
+- `src/i18n/en-US/common.ts` and `da-DK/common.ts`: `editorParts` value (`Components`, `Komponenter`), remove `developer` (`Developer`, `Udvikler`) and fix its comments (`caching`: "Under Settings"); `src/i18n/*/parts.ts` comments.
+- `lib/menu.mjs`: `PARENTS` has `developer`, so `currentPart('developer/caching')` gives `developer`, which is no longer in `settings` and the cog would not be marked: map `developer/caching` to `caching` and `developer/parts…` to `components` there (and drop `developer` from `PARENTS`); `lib/menu.test.mjs`.
 - `src/HeaderSettings.tsx`, `src/FooterSettings.tsx`, `src/SideColumn.tsx`, `src/DataForm.tsx` (313 to 315), `src/Library.tsx` (1397): their route and back links, from Appearance to the start screen.
 - `src/templateField.ts` (33: `edit: { to: 'appearance/side-column' }`) and `src/i18n/en-US/forms.ts` (197: "the link to Appearance › Side column", also its da-DK line): the link goes to `global/side-column`; the comment in `templateField.ts` (17) and `lib/side-block.mjs` (47) say "Appearance › Side column": now "Globals › Side column".
 - `src/BlockSettings.tsx`: back link to Settings. `src/site.ts`: the `backFrom` comment; `placeOf` and `standardPageAt` unchanged (Default pages stays under `Settings › Appearance`).
 - `src/movedRoutes.mjs` and `src/movedRoutes.test.mjs`: the new key, the retargeted values, the loop test.
 - `defaults/i18n/da-DK/editor.ts`: the key `Blocks` becomes `Globals`, with `Globale dele`.
 - `src/i18n/en-US/colors.ts` (hint at line 79, "Edit the logo and icon under Appearance › Logo and icon", stale today, and wrong after the change): "Edit the logo and icon under Business › Logo and icon." and its da-DK line.
-- `scripts/editor-screens.mjs`: Settings lists six rows with `block-settings` and without `licenses` (the "moved" list, line 130); the drawer's first level is Dashboard, Content, Business, Globals, Apps; `#global/header` and `#global/side-column` mark Globals and not the cog; `#company/colors` marks Business; `#licenses` opens and marks no cog; the rail check at line 211 (`#appearance/colors`, "the cog must be selected") now expects Business.
+- `scripts/editor-screens.mjs`: Settings lists seven rows with `block-settings`, `caching` and `components` and without `licenses` and `developer` (the "moved" list, line 131: `developer` out, `caching` and `components` in); the drawer's first level is Dashboard, Content, Business, Globals, Apps; `#global/header` and `#global/side-column` mark Globals and not the cog; `#company/colors` marks Business; `#licenses` opens and marks no cog; `developer/caching` (line 190) and `developer/parts` (line 436) keep opening and mark the cog; the rail check at line 211 (`#appearance/colors`, "the cog must be selected") now expects Business.
 - `docs/superpowers/plans/2026-11-07-settings-cog.md`: a note on what left and joined the cog.
 - Release note: one card in `release-notes/i18n/{en-US,da-DK}/pending/` (Colors under Business, Header and Footer under Globals, Block settings under Settings, Licenses in the footer), written with the `release-notes` skill. Not now.
 - A changeset (`minor`, allowed into `0.19`).
@@ -183,11 +195,13 @@ Not changed: `worker/*`, themes, blocks, apps, `lib/footerLinks.mjs`.
 
 ## 7. Risks
 
-1. **Sites with their own `src/site/editor.ts`.** `groups` and `settings` are a site's own when it has them: an old copy keeps `Blocks`, Header, Footer and Side column in Appearance, `licenses` in `settings` and no `colors` in Business. The screens must still open (`partOf` knows every id; an unknown section id must not crash), `check:site-types` must pass, and Colors, Side column, Header and Footer must be reachable from somewhere (Appearance's own list no longer has it): decide whether `Theme()` keeps a Colors row for a site whose `groups` lack it. Test with a fixture that has the old `groups`.
+1. **Sites with their own `src/site/editor.ts`.** `groups` and `settings` are a site's own when it has them: an old copy keeps `Blocks`, Header, Footer and Side column in Appearance, `licenses` and `developer` in `settings` and no `colors` in Business (an unknown `developer` row has no screen: keep a redirect row or `partOf` for it for one release). The screens must still open (`partOf` knows every id; an unknown section id must not crash), `check:site-types` must pass, and Colors, Side column, Header and Footer must be reachable from somewhere (Appearance's own list no longer has it): decide whether `Theme()` keeps a Colors row for a site whose `groups` lack it. Test with a fixture that has the old `groups`.
 2. **Colors and its apps.** An app that changes the pages' colours (`content-colors`) sends the owner to the fallback page and the form pages are tracked by route (`useFormPages` in `Colors.tsx`): the old route string left in one place makes the fallback page lose its unsaved changes. Grep for both routes; test the fallback flow.
 3. **"The way there" strings and hints** that say Appearance: `colors.ts` line 79 (above); the text in `Parts.tsx` and `forms.ts` that links to Colors or Side column ; the 0.13 and 0.14 notes name old places (history, stay). `placeOf('header')`, `placeOf('side-column')` give `Globals`, so any string built from them reads `Globals › Header`.
 4. **Menu highlight**: Globals stays marked on `#global/header`, `#global/footer`, `#global/side-column`, `#list/menu`, `#list/mobile-menu`, `#blocks/<id>`; Business on `#company/colors` and `#company/colors/fallback-colors`; the cog on neither. The existing tests assume the header is "in Settings" and Colors "in the cog" and must change.
 5. **Business on a phone is now five rows** and the Danish rail label `Globale dele` is longer: check 375 px.
+6a. **The cog's mark for `#developer/*`.** `currentPart` finds `developer` by prefix; if it is not remapped (section 6) the cog is unmarked on Caching and builds and every Components screen.
+6b. **`Components` twice**: Settings › Components › UI components (see the rename table).
 6. **Licenses has one door.** The footer link is the only way in: it must stay in `FOOTER_LINKS` (`href` not `null`) and show on every screen (`Screen.tsx` says it does). Edition photo credits stay one tap from the update notice. The cog is no longer marked on `#licenses` (right: the footer opened it).
 7. **Colors is the theme's own look** (Material roles, the generator, dynamic colours from a picture); under Business it can read as "my brand colours" only. The screen's text must not say "theme". Check `colors.ts` for it.
 8. **`Block settings` in Settings** reads as an owner or developer setting among Morpheme and Privacy; A–Z rule only.
@@ -198,16 +212,18 @@ Not changed: `worker/*`, themes, blocks, apps, `lib/footerLinks.mjs`.
 ## 8. The owner's decisions, and new questions
 
 Decisions (relayed by the PM on 11 November): 1. Appearance stays in Settings, no new section. 2. `Dynamic lists` stays. 3.
-Developer stays. 4. `Files` stays. 5. No renames of `Block templates` or `Virksomheden`; instead the section `Blocks`
+Developer stays (later replaced by 10). 4. `Files` stays. 5. No renames of `Block templates` or `Virksomheden`; instead the section `Blocks`
 becomes `Globals` (Header, Footer, Block templates) and `Block settings` moves to Settings. 6. `Licenses` leaves Settings
-(the footer has it); `Privacy` stays. 7. `Colors` moves to Business. 8. Logo and icon stays in Business. 9. `Side column` moves to Globals.
+(the footer has it); `Privacy` stays. 7. `Colors` moves to Business. 8. Logo and icon stays in Business. 9. `Side column` moves to Globals. 10. `Developer` is split: Settings gets `Caching and builds` and `Components` (the current `Parts`).
 
 New questions, each with a recommendation:
 
 1. **Side column in Globals, Appearance with five rows.** Done as decided. Check: a template picker's greyed-out hint ("Choose a side column") then links to Globals › Side column.
 2. **The name `Globals`.** It is the owner's word but a programmer's word for an owner. Recommended: `Globals` as decided, Danish `Globale dele`. Alternative: `On every page` (da `På alle sider`).
+3a. **`Components`.** Assumption confirmed in the plan: it is the current `Parts` row. Recommended: `Components`, da `Komponenter`, and the first child `UI components` renamed `Theme components` (da `Temaets komponenter`). Alternative: keep `Parts` (da `Dele`).
+3b. **Routes of the split `Developer`.** Recommended: keep `#developer/caching` and `#developer/parts/*` as they are (about thirty references, no old link breaks), and send `#developer` to Settings. Alternative: move them to `#caching` and `#components/*` with `RENAMED` keys and every older value retargeted (`dele`, `tema/dele`, `udseende/dele`, `appearance/parts`, `avanceret`, `advanced`).
 3. **Header and Footer to `#global/…` with Side column?** Recommended: yes, all three, so Globals has one address prefix (Side column and Colors move by decision). Alternative: Header and Footer keep `#appearance/…` (two fewer redirect lines, but a Globals screen at an Appearance address).
-4. **Where does `Block settings` go in Settings?** Recommended: in the A–Z list, between Assistants and Developer. Alternative: under Developer, which leaves Settings at five rows.
+4. **Where does `Block settings` go in Settings?** Recommended: in the A–Z list, between Assistants and Caching and builds. Alternative: under Developer, which leaves Settings at five rows.
 5. **A site whose own `groups` has no `colors`:** keep a `Colors` row in Appearance for it (recommended, hidden when the site's `groups` has it in Business), or let the old file break? Recommended: keep the row for such sites for one release.
 
 On answers to these, the build is one medium pull request (one session), with the release note.
