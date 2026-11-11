@@ -10,6 +10,8 @@ import { COLOR_CLOSE, TEXT_COLORS, colorClass, colorOpen, colorOpened } from '..
 import { SECTION_COLORS, isLabelLine, markerColor, sectionMarker } from '../lib/section-marker.mjs';
 import { EMPHASIZE } from '../lib/rehype-emphasize.mjs';
 import { eyebrowText } from '../lib/eyebrow.mjs';
+import { bodyLargeText } from '../lib/body-large.mjs';
+import { bodyLargeSchema } from './bodyLarge.mjs';
 import { eyebrowKeeper, eyebrowKeymap, eyebrowSchema } from './eyebrow.mjs';
 
 // Write Markdown the way imported files are written: "-   " bullets and
@@ -31,6 +33,9 @@ const remarkSiteBlocks = $remark('remarkSiteBlocks', () => () => (tree) => {
     // A label right before a heading (lib/eyebrow.mjs) is the node eyebrow (eyebrow.mjs), not a block.
     const label = tree.children[i + 1]?.type === 'heading' ? eyebrowText(String(only.value)) : null;
     if (label !== null) return { type: 'eyebrow', value: label };
+    // An intro paragraph (lib/body-large.mjs) is the node bodyLarge.
+    const large = bodyLargeText(String(only.value));
+    if (large !== null) return { type: 'bodyLarge', value: large };
     const block = parseBlock(String(only.value), null);
     return block
       ? { type: 'siteBlock', blockType: block.type, props: block.props }
@@ -202,6 +207,7 @@ export function makeEditor(root, markdown) {
     .use(siteBlockSchema)
     .use(remarkTextColors)
     .use(textColorSchema)
+    .use(bodyLargeSchema)
     .use(eyebrowSchema)
     .use(eyebrowKeeper)
     .use(eyebrowKeymap);
@@ -268,7 +274,10 @@ export function markdownOf(ctx) {
   const kept = [];
   doc.forEach((node) => {
     // Nor an empty label (added, then left without a text).
-    const empty = node.content.size === 0 && (node.type.name === 'paragraph' || node.type.name === 'eyebrow');
+    // Nor an empty H1 (a new page opens with one to type the title in).
+    const empty =
+      node.content.size === 0 &&
+      (['paragraph', 'eyebrow', 'bodyLarge'].includes(node.type.name) || (node.type.name === 'heading' && node.attrs.level === 1));
     if (!empty) kept.push(node);
   });
   return ctx.get(serializerCtx)(doc.type.create(null, kept));

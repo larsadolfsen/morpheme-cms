@@ -1860,6 +1860,31 @@
     margin-top: 0.5rem;
   }
 
+  /* An intro paragraph in a text (lib/body-large.mjs, "Body large" in the editor): Material 3's body-large role, in the
+   quiet colour of a subheading. */
+  .prose .body-large {
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
+  }
+
+  /* A check list in a text (`- [ ]`, "Check list" in the editor): the box in place of the bullet. */
+  .prose ul.contains-task-list {
+    list-style: none;
+    padding-inline-start: 0;
+  }
+  .prose li.task-list-item {
+    display: flex;
+    gap: 0.75em;
+    align-items: baseline;
+  }
+  .prose li.task-list-item > input[type='checkbox'] {
+    flex: none;
+    accent-color: var(--block-accent);
+    margin: 0;
+  }
+
   /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
    editor): the accent, or the quiet text's, both readable on the background, the surfaces and the tint (the site's
    pairs of colours, checked under "Colors"). Bold, italic and a link in it have its colour. Outside the layers, as it

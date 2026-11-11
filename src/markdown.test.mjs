@@ -86,3 +86,20 @@ test('an unknown colour stays the HTML it is', async () => {
   assert.equal(saved, text);
   assert.deepEqual(nodes, ['siteBlock', 'heading']);
 });
+
+test('an intro paragraph (Body large) comes back as it was', async () => {
+  const text = '# Title\n\n<p class="body-large">Welcome to us</p>\n\nText\n';
+  const { saved, nodes } = await through(text);
+  assert.equal(saved, text);
+  assert.deepEqual(nodes, ['heading', 'bodyLarge', 'paragraph']);
+});
+
+test('a check list comes back as it was', async () => {
+  const { saved } = await through('- [ ] Bring a coat\n- [x] Book a table\n');
+  assert.match(saved, /\[ \] Bring a coat\n.*\[x\] Book a table/);
+  assert.equal((await through(saved)).saved, saved);
+});
+
+test('an empty H1 is not written', async () => {
+  assert.equal((await through('# \n\nText\n')).saved, 'Text\n');
+});
