@@ -64,7 +64,7 @@ import {
   unpublish as unpublishPage,
 } from '../lib/versions.mjs';
 import { commitChanges } from './pageVersions.mjs';
-import VersionSwitch from './VersionSwitch';
+import VersionSwitch, { WaitingNotice } from './VersionSwitch';
 import { activeApps, versionSwitchOf } from './apps';
 import { usePagePreview } from './pagePreview';
 import { migrateStatus } from '../lib/status.mjs';
@@ -710,7 +710,29 @@ function Form({
     }
   }
   // `Publish` and `Publish changes`: what is unsaved goes with it.
-  const publishNow = () => save(undefined, named(), 'publish');
+  async function publishNow() {
+    // The live version changed after the waiting changes were saved: publishing replaces it, so the owner is asked first.
+    if (waiting && livePublished && (await liveChangedAfter())) {
+      const answer = await choose({
+        title: t.forms.versions.overwriteTitle,
+        text: t.forms.versions.overwriteText(post),
+        choices: [{ value: 'publish', label: t.forms.versions.publishChanges }],
+      });
+      if (!answer) return;
+    }
+    return save(undefined, named(), 'publish');
+  }
+  // Whether the page file was saved after the waiting version (when each was last saved; not known: no).
+  async function liveChangedAfter() {
+    if (!waiting) return false;
+    try {
+      const at = await env.savedAt([live.path, waiting.path]);
+      const [l, w] = [at[live.path], at[waiting.path]];
+      return !!l && !!w && l > w;
+    } catch {
+      return false;
+    }
+  }
   // `Unpublish`: the page file becomes a draft; changes that wait stay.
   async function unpublishNow() {
     if (standard) return notify({ text: t.forms.versions.standardPage, error: true });
@@ -914,17 +936,20 @@ function Form({
         >
           {version && <VersionNotice version={version} onCurrent={() => onVersion(null)} />}
           {waiting && !isNew && (
-            <Switch
-              entry={{ path: live.path, collection: collection.id, title: String(initial.title ?? ''), post }}
-              versions={versionsOf({ path: live.path, text: live.text, drafts: { waiting: waiting.text } })}
-              editing={editsLive ? 'live' : 'waiting'}
-              busy={saving || deleting}
-              onEdit={(id) => void switchTo(id)}
-              publish={() => publishNow()}
-              schedule={(at) => (at === null ? cancelSchedule() : save(undefined, named(), 'schedule', at))}
-              unpublish={unpublishNow}
-              discard={() => discardNow()}
-            />
+            <>
+              <Switch
+                entry={{ path: live.path, collection: collection.id, title: String(initial.title ?? ''), post }}
+                versions={versionsOf({ path: live.path, text: live.text, drafts: { waiting: waiting.text } })}
+                editing={editsLive ? 'live' : 'waiting'}
+                busy={saving || deleting}
+                onEdit={(id) => void switchTo(id)}
+                publish={() => publishNow()}
+                schedule={(at) => (at === null ? cancelSchedule() : save(undefined, named(), 'schedule', at))}
+                unpublish={unpublishNow}
+                discard={() => discardNow()}
+              />
+              <WaitingNotice editsLive={editsLive} when={scheduledAt ? timeText(scheduledAt) : undefined} />
+            </>
           )}
           <FormColumns
             sticky
