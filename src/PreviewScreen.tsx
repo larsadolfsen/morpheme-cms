@@ -9,7 +9,7 @@ import { HEIGHT, MAX_WIDTH, MIN_WIDTH, SIZES, siteBreakpoints, sizeAt, widthOf }
 import { SegmentedButton } from './ui';
 import { t } from './i18n';
 
-// The handle's width, px, on each side of the page.
+// The handle's width, px, on each edge of the page.
 const HANDLE = 20;
 
 export function PreviewScreen({ html, title }: { html: string; title: string }) {
@@ -32,15 +32,15 @@ export function PreviewScreen({ html, title }: { html: string; title: string }) 
   const scale = room.width ? Math.min(1, (room.width - 2 * HANDLE) / width, room.height / height) : 1;
   const limit = (w: number) => Math.round(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, w)));
 
-  // The page is centred, so an edge moved by dx makes it 2 × dx wider; `side` is -1 for the start edge.
+  // The page is centred, so an edge moved by dx makes it 2 × dx wider; `edge` is -1 for the start edge.
   const start = (e: PointerEvent<HTMLElement>) => {
     drag.current = { x: e.clientX, width };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
-  const move = (e: PointerEvent<HTMLElement>, side: 1 | -1) => {
+  const move = (e: PointerEvent<HTMLElement>, edge: 1 | -1) => {
     if (!drag.current) return;
     const dir = getComputedStyle(e.currentTarget).direction === 'rtl' ? -1 : 1;
-    setWidth(limit(drag.current.width + (2 * dir * side * (e.clientX - drag.current.x)) / scale));
+    setWidth(limit(drag.current.width + (2 * dir * edge * (e.clientX - drag.current.x)) / scale));
   };
   const key = (e: KeyboardEvent) => {
     const step = e.shiftKey ? 100 : 10;
@@ -56,7 +56,7 @@ export function PreviewScreen({ html, title }: { html: string; title: string }) 
     e.preventDefault();
     setWidth(limit(to));
   };
-  const handle = (side: 1 | -1) => (
+  const handle = (edge: 1 | -1) => (
     <div
       role="slider"
       tabIndex={0}
@@ -68,7 +68,7 @@ export function PreviewScreen({ html, title }: { html: string; title: string }) 
       aria-valuetext={t.preview.current(width, t.preview.sizes[size])}
       onKeyDown={key}
       onPointerDown={start}
-      onPointerMove={(e) => move(e, side)}
+      onPointerMove={(e) => move(e, edge)}
       onPointerUp={() => (drag.current = null)}
       onPointerCancel={() => (drag.current = null)}
       className="group flex shrink-0 cursor-ew-resize touch-none items-center justify-center outline-none"
