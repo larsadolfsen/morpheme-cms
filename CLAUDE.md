@@ -3,6 +3,11 @@
 Read `AGENTS.md` first. It describes this repository, the roles and the checks. This file holds the rules that apply to
 every Claude session here, whatever the task.
 
+## README files are for humans
+
+A `README.md` is written for people. No agent reads one for rules, and no rule lives in one: the rules for agents are in
+`CLAUDE.md` and `AGENTS.md`.
+
 ## Reports to the owner are short
 
 Write to the owner short and concise: a brief résumé of what changed and what the owner has to do or decide, in a few
