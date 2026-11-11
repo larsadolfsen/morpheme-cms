@@ -2,5 +2,5 @@
   "id": "drafts-schedule",
   "kind": "card",
   "title": "Choose when a page goes live",
-  "text": "You can now schedule a draft, or the changes to a published page, for a date and time. The website keeps its version until then. Scheduled pages from before move over by themselves."
+  "text": "You can now schedule a draft, or the changes to a published page, for a date and time. Open a page and choose Schedule at the end of the form. Pages that were scheduled before move over by themselves."
 }
