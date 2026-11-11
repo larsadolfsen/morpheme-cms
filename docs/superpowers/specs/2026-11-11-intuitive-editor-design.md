@@ -460,7 +460,7 @@ The table is a proposal by field name from `src/standard/*`; the exceptions belo
    (decision 10). A migration turns each Expandable list into a Segmented list. The rows of a Segmented list are closed by default and expand
    to show their text (owner, 11 November). The panel has a setting for it, for example `Only one open`, which closes the
    open row when another is opened. While editing, the active row is shown open so its text can be typed. The FAQ list has the same setting (owner, 11 November).
-4. **Testimonials** and **Cookies** have no typed content, so they have nothing to edit in place: the block is a drawn
+4. **Testimonials and Cookies (settled, owner, 11 November):** they have no typed content, so they have nothing to edit in place: the block is a drawn
    preview with settings in the panel, and `Edit testimonials` opens their own list, as `Edit list` does for a dynamic list.
 
 ## Batches
