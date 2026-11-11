@@ -184,7 +184,7 @@ export const groups: { id: string; title: string; href?: string; flat?: boolean;
   },
   { id: 'company', title: 'Business', ids: ['logo', 'company'] },
   { id: 'blocks', title: 'Blocks', ids: ['blocks', 'block-settings'] },
-  { id: 'apps', title: 'Apps', flat: true, ids: ['appstore', 'store-plugins', 'store-connectors', 'store-themes', 'apps'] },
+  { id: 'apps', title: 'Apps', flat: true, ids: ['appstore', 'store-connectors', 'store-plugins', 'store-themes', 'apps'] },
 ];
 
 /** The rows of the Settings screen (#settings), A–Z by their names there: how the site looks ("Appearance": the theme store,

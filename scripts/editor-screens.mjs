@@ -10,7 +10,7 @@
 // folder with a built site, its path after the command: packages/editor/scripts/check-themes.mjs).
 // It also checks the menu and Settings (#settings, the cog at the bottom of the menu): Settings lists exactly Appearance,
 // Developer, Licenses, Morpheme and Privacy, A-Z by their names; the drawer's first level has the three sections, the
-// start screen, the rows under the "Apps" label (Store, Plugins, Connectors and Themes, each with an icon) and the cog, which is the last item at the bottom of the drawer and of the collapsed rail (and on a phone,
+// start screen, the rows under the "Apps" label (Store, Connectors, Plugins and Themes, each with an icon) and the cog, which is the last item at the bottom of the drawer and of the collapsed rail (and on a phone,
 // of the modal drawer) and is marked on Settings' screens only; and "Morpheme" (#morpheme) shows its status as text, has
 // an action on every list row, and its Update button and its connection to the store work.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -168,7 +168,7 @@ async function checkSettingsAndMenu(width, height) {
     const items = await page.evaluate(shownItems, `${drawer} .navigation-drawer-item`);
     const sections = items.filter((i) => i.tag === 'BUTTON').length;
     const links = items.filter((i) => i.tag === 'A').map((i) => i.href);
-    const apps = ['#', ...['', '/plugins', '/connectors', '/themes'].map((x) => `#settings/appstore${x}`), '#settings'];
+    const apps = ['#', ...['', '/connectors', '/plugins', '/themes'].map((x) => `#settings/appstore${x}`), '#settings'];
     if (sections !== 3 || links.join() !== apps.join())
       problems.push(
         `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 3 and ${apps.join(', ')})`,
