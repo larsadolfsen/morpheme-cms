@@ -436,7 +436,7 @@ The table is a proposal by field name from `src/standard/*`; the exceptions belo
 | Notice | the text, in its box | colour, `until` date | yes, one text field |
 | Video | the title | the video address | yes, the player is drawn, empty shows an empty frame |
 | Banner (hero) | none: it becomes a section setting | | no block (owner, 11 November, below) |
-| Expandable list | rows (heading, text) and the closing link | each row's page | yes, rows (exception 3) |
+| Expandable list | none: it becomes a Segmented list | | no block (owner, 11 November, below) |
 | Price cards | name, price, unit, text, the included list | featured, badge, button targets | yes, cards with a nested list of rows (the included items) and card buttons |
 | Testimonials | none: filled from the site's content | layout, which ones | always dynamic (exception 4) |
 | Blog posts | none: a dynamic Card | which posts, how many, order | the dynamic Card (finding 17) |
@@ -455,8 +455,10 @@ The table is a proposal by field name from `src/standard/*`; the exceptions belo
    the width of the background. The owner types the heading and text in the section as normal text, and adds a Buttons
    block inside it for buttons. A section is the regular editor, so any block can go in it (owner, 11 November). A migration turns each Banner block into a section with those settings, so no page
    changes look. The text stays readable over a picture because the theme decides it, as on the site today.
-3. **Expandable list** rows have a page link that the three list blocks do not cover (finding 13). Proposed: it keeps
-   its page link on each row, and the FAQ list takes a link too.
+3. **Expandable list (settled, owner, 11 November):** an Expandable list is a Segmented list, so the block goes away.
+   Each row's page link is the row's Link, and the closing link is the Segmented list's optional text button
+   (decision 10). A migration turns each Expandable list into a Segmented list. Open: whether the rows of a Segmented
+   list expand to show their text.
 4. **Testimonials** and **Cookies** have no typed content, so they have nothing to edit in place: the block is a drawn
    preview with settings in the panel, and `Edit testimonials` opens their own list, as `Edit list` does for a dynamic list.
 
