@@ -7,6 +7,7 @@ import { defineBlock } from '../../blocks';
 import { iconOptions } from '../../icon';
 import { t } from '../../i18n';
 import { headFields } from '../head';
+import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
 
 type Row = { title?: string };
 
@@ -14,11 +15,14 @@ export default defineBlock({
   group: 'rows',
   label: t.blocks.segmented.label,
   icon: SquaresFour,
+  nameOf: (p) => nameWith(t.blocks.segmented.label, p),
   hint: t.blocks.segmented.hint,
   fields: [
     ...headFields,
+    ...rowsFromFields,
     {
       name: 'items',
+      only: typed,
       label: t.blocks.segmented.items,
       singular: t.blocks.segmented.item,
       type: 'list',
@@ -60,5 +64,5 @@ export default defineBlock({
       { icon: 'map-pin', title: t.blocks.segmented.exampleTitle, text: t.blocks.segmented.exampleText },
     ],
   },
-  detail: (p) => [((p.items ?? []) as Row[]).map((r) => r.title ?? '').join(' · ')],
+  detail: (p, data) => (p.from ? [...fromLine(p, data)] : [((p.items ?? []) as Row[]).map((r) => r.title ?? '').join(' · ')]),
 });

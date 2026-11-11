@@ -869,7 +869,7 @@ function blockCard(
   const card = dom.appendChild(document.createElement('button'));
   card.type = 'button';
   card.className = 'site-block-card';
-  const name = block?.label ?? node.attrs.type;
+  const name = block?.nameOf?.(node.attrs.props) ?? block?.label ?? node.attrs.type;
   card.setAttribute('aria-label', name);
   if (hidden) {
     // An eye struck through in the corner (for screen readers it says so in the description).

@@ -177,6 +177,7 @@ import { setBuildState } from './buildState';
 import { rememberEdit } from './startStorage';
 import { Ask, ask } from './ask';
 import { LinkAsk } from './LinkSheet';
+import { rowSources } from './standard/rows/view';
 import { type ListRows, type Option, type TestimonialRow } from './fields';
 import { endOf, entriesOf, lookup, readAll } from './redirectData';
 import { inForm, leaveTo, type Status } from './FormFrame';
@@ -443,7 +444,10 @@ function Editor() {
     if (files && user && commitOf.current) writeCache({ commit: commitOf.current, files, user, folders: FOLDERS_KEY });
   }, [files, user]);
 
-  const relations = useMemo(() => relationsOf(files ?? []), [files]);
+  const relations = useMemo<Record<Relation, Option[]>>(
+    () => ({ ...relationsOf(files ?? []), rowSources: rowSources(t.blocks.rows) }),
+    [files],
+  );
   // What a link in the text can go to (LinkSheet.tsx): the fixed pages (not those that are also a
   // page), the other pages and the posts, by their addresses.
   const linkGroups = useMemo(() => {

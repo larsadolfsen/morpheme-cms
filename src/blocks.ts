@@ -35,6 +35,8 @@ export type SiteBlock = {
   fields: Field[];
   /** What the card in the text says about it, in lines, when not its fields (describe). */
   detail?: (props: BlockProps, data: BlockData) => string[];
+  /** Its name in the editor for these fields, when it is not `label` ("Dynamic list": a list block that reads a list). */
+  nameOf?: (props: BlockProps) => string;
   /** Not offered among the blocks to put in: a fixed page's own text, which is written in the text. */
   written?: boolean;
   /** Has become something else (the Banner is a section now, lib/remark-banner-section.mjs): still read, drawn and edited where a text
