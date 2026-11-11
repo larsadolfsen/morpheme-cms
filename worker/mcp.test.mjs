@@ -649,6 +649,7 @@ test('/mcp: initialize, tools/list and the five read tools; the site is read wit
     await rpc(env, tokens.access_token, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-11-25' } })
   ).json();
   assert.equal(init.result.protocolVersion, '2025-11-25');
+  assert.match(init.result.instructions, /list_content/);
   const list = await (await rpc(env, tokens.access_token, { jsonrpc: '2.0', id: 2, method: 'tools/list' })).json();
   assert.deepEqual(
     list.result.tools.map((t) => t.name),
