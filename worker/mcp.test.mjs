@@ -414,7 +414,10 @@ test('Allow needs the same browser and the same address: no cookie, another cook
   assert.equal((await allow({}, id)).status, 403);
   assert.equal((await allow({ cookie: 'mcp_consent=other' }, id)).status, 403);
   assert.equal((await allow({ cookie: `mcp_consent=${id}`, 'sec-fetch-site': 'cross-site' }, id)).status, 403);
-  assert.equal((await allow({ cookie: `mcp_consent=${id}`, 'sec-fetch-site': 'cross-site', origin: 'https://evil.example' }, id)).status, 403);
+  assert.equal(
+    (await allow({ cookie: `mcp_consent=${id}`, 'sec-fetch-site': 'cross-site', origin: 'https://evil.example' }, id)).status,
+    403,
+  );
   assert.equal((await oauth.handleMcpOAuth(new Request(`${ORIGIN}/oauth/mcp/consent`), env, ask)).status, 405);
   assert.ok(jar);
   // An in-app browser may send same-site or no Sec-Fetch-Site: the matching Origin is enough.
