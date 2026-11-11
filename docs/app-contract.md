@@ -129,6 +129,8 @@ An app file imports from its own folder, from `@app/self`, and from these three 
 - `@morphemecms/cms/lib/dynamic-colors`
 - `@morphemecms/cms/lib/hooks`
 
+The version functions (`publish`, `schedule`, `unpublish`, `discard` and `saveDraft`, with a version id) are in `@morphemecms/cms/lib/versions.mjs`. An app's `editor.ts` and Worker part have full access and import them like any module; a hook or after-build step may not, as it is not one of the three above.
+
 ### Limits
 
 | Run | Time | Memory | Output |
@@ -191,6 +193,21 @@ self.id; // 'app_a030dfba69793996'
 ## Contract 2
 
 Apps written to contract 2 build and run as before. Contract 3 only adds `@app/self`.
+
+## Slots
+
+An app may draw a part of the editor's own screens in place of the core's. `slots` is an optional field of the app (`AppDefinition` in `src/apps.ts`, or in `editor.ts`). It does not change the contract number, and an app without `slots` works as before. A slot is a `full` editor place, like `tabs`, so for first-party apps.
+
+- `versionSwitch`: the switch at the top of a page or post that has changes waiting, which the core draws as `Live` and `Scheduled` (`src/VersionSwitch.tsx`). The first installed app that has it is drawn instead. With none, the core's is drawn.
+- The component is given `VersionSwitchProps` (`src/VersionSwitch.tsx`): `entry` (`path`, `collection`, `title`, `post`), `versions` (the page file `live` first, then each waiting version: `id`, `state` and `publishAt`), `editing` (the id being edited), `busy`, `onEdit(id)`, and the four functions `publish(id?)`, `schedule(at | null, id?)`, `unpublish()` and `discard(id?)`.
+- The core keeps at most two versions, `live` and `waiting`. The functions take any version id (a plain slug); a file for another id is `src/drafts/<collection>/<page>/<id>.md` (`lib/versions.mjs`).
+
+```ts
+export default defineApp({
+  // …
+  slots: { versionSwitch: VersionList },
+});
+```
 
 ## Widgets
 

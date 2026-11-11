@@ -92,6 +92,15 @@ export const forms = {
   versions: {
     publish: 'Publish',
     publishChanges: 'Publish changes',
+    /** The switch at the top of a page with changes waiting (VersionSwitch.tsx). */
+    switchLabel: 'Version to edit',
+    live: 'Live',
+    scheduled: 'Scheduled',
+    changes: 'Changes',
+    switchTitle: 'Switch version?',
+    switchText: 'What you haven’t saved is lost.',
+    switchAction: 'Switch',
+    editingLive: 'Editing the live version',
     schedule: 'Schedule',
     cancelSchedule: 'Cancel schedule',
     scheduleTitle: 'Choose when it goes live',
