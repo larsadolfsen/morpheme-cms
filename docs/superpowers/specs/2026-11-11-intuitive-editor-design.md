@@ -539,8 +539,10 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    changes with this.
 6. **Only group the similar blocks in the picker, or also merge them into fewer blocks (`Rows`, `Questions`)?** Recommended:
    group first (batch H), look at it, then decide on the merge (batch I). The merge is larger and changes every theme.
-7. **Draw the page head (title, top picture, date, tags) in the text, and an optional frame with the site's header and footer?**
-   Recommended: yes to the head (step 1) now, and the frame (step 3) after the owner has seen step 1.
+7. **The page head is drawn in the text (settled for the head, owner, 11 November).** A page and a blog post look as
+   close to the site as they can in the editor: the title, the top picture, the date and the tags are drawn in the text as
+   the site shows them (step 1). Open: the optional frame with the site's header and footer (step 3), which is decided
+   after the owner has seen step 1.
 8. **Decision 4 (dotted line instead of a box) against decision 7 (more like the site):** keep the colour box for a coloured
    section as the site draws it, and use the dotted line only to mark where a section starts (sections with no colour, and
    as a boundary marker above each)? Recommended: yes. Alternative: dotted line only, and the colour shown on the site only.
