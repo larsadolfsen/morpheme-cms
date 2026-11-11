@@ -21,12 +21,14 @@ function pictureStrip(src: string, alt: string): HTMLElement {
   strip.contentEditable = 'false';
   // Only an address the marker's validator accepts is drawn (lib/section-marker.mjs): a path on the site or an https address.
   if (!isSafePicture(src)) return strip;
-  // The address drawn is checked again here, right before it is set: a path on the site, an https address, or the browser's own
-  // blob address of a picture made in this visit (shownAt), never a script or data address.
-  const shown = shownAt(src);
-  if (!/^(https:\/\/|\/(?!\/)|blob:)/.test(shown) || /["'<>`\\\s]/.test(shown)) return strip;
+  // The address drawn is rebuilt and checked again here, right before it is set: a path on the site, an https address, or the
+  // browser's own blob address of a picture made in this visit (shownAt), never a script or data address.
+  const url = new URL(shownAt(src), location.origin);
   const img = document.createElement('img');
-  img.src = shown;
+  if (url.origin === location.origin && url.pathname.startsWith('/') && !url.pathname.startsWith('//')) img.src = url.pathname + url.search;
+  else if (url.protocol === 'https:' && url.href.startsWith('https://')) img.src = url.href;
+  else if (url.protocol === 'blob:' && url.href.startsWith('blob:')) img.src = url.href;
+  else return strip;
   img.setAttribute('alt', alt);
   img.draggable = false;
   strip.append(img);
