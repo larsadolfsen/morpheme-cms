@@ -104,9 +104,9 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   menu. `Scheduled` has a required `Time` field with the hint `Published at most an hour after.`, which reads as a bug,
   not as the build's delay. CLAUDE.md section 6 lists `Draft`, `Published`, `Scheduled`, `Hidden` as the canonical
   states, so the words are right; the explanation is what is missing.
-- **Fix:** keep the four words. Show the chosen status's hint under the field. Rename the hint of Hidden to `Not listed.
-  Anyone with the link can open it.` and of Time to `The website updates within an hour of this time.` Add the
-  state to the Unfinished card's rows (already there) and to every list row (a badge for Draft, Hidden, Scheduled).
+- **Fix (superseded by question 5):** there are two statuses, `Published` and `Draft`. `Scheduled` becomes a date on
+  `Publish`, and `Hidden` becomes the SEO setting `Hide from search engines`. Show the state on every list row (a badge for
+  Draft), and the text of the date's hint is `The website updates within an hour of this time.`
 
 ### 3. The start screen shows four cards that are empty or quiet on a new site
 
@@ -521,9 +521,13 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
 3. **Regroup the menu (Appearance out of Settings) in 0.17?** Recommended: yes, after 0.16, in one pass. Alternative: leave the menu.
 4. **May we rename `Dynamic lists`, `Block templates`, `Files` (and `Business`)?** Recommended: yes, but only when the screens
    have been opened and checked; the Danish names change with them.
-5. **The status `Hidden` is renamed `Unlisted` (settled, owner, 11 November).** The words `Hidden on the page` and `Hide from
-   search engines` then mean something else. It changes the stored `unlisted` label only, not the value in files.
-   `CLAUDE.md` section 6 lists `Hidden` among the document status words, so that line is changed with the rename.
+5. **Only two statuses: `Published` and `Draft` (settled, owner, 11 November; replaces the rename to `Unlisted`).** A draft is
+   not reachable on the site. `Unpublish` turns a page back into a draft. A page that should not be found by Google
+   stays published and gets a setting in its SEO section (`Hide from search engines`). `Scheduled` is no longer a
+   status: it is a date on `Publish` (finding 1 and question 2), so a page is still a draft or published until then.
+   The stored `unlisted` value is migrated: a page with it stays published, with the SEO setting turned on, so no page
+   changes. `CLAUDE.md` section 6 lists `Draft`, `Published`, `Scheduled`, `Hidden` as the status words, so that line
+   changes with this.
 6. **Only group the similar blocks in the picker, or also merge them into fewer blocks (`Rows`, `Questions`)?** Recommended:
    group first (batch H), look at it, then decide on the merge (batch I). The merge is larger and changes every theme.
 7. **Draw the page head (title, top picture, date, tags) in the text, and an optional frame with the site's header and footer?**
