@@ -530,7 +530,11 @@ These are questions that change the plan, each a short read-only investigation o
 5. **After 0.16:** batch 16 (its part A first) and batch 17, which wait for the Appstore and Assistants rows.
 6. **Every batch** that changes what a theme draws (5 to 11) must pass `check:themes` and `check:demo`, and each migration is shown to the owner before it is merged.
 
-Open for the owner: which batches go together into 0.17 and which wait for 0.18. A suggestion: 1 to 4, 7, 8 and 12 to 14 in 0.17 (words, text, lists, sections and drafts), and 5, 6, 9, 10, 11 and 15 after the owner has seen the pilot.
+**The split (settled, owner, 11 November):** 0.17 has batches 1 to 4, 7, 8 and 12 to 14 (words, first run, build
+feedback, text styles and the title, the list blocks, section settings, drafts and Publish, autosave, and the live and
+scheduled versions). Batches 5, 6, 9, 10, 11 and 15 (the in-place pilot and its roll-out, the Card, the Table, the page
+head with the full-screen Preview, and the picture flow) wait for 0.18, after the owner has seen the pilot. Batches 16
+and 17 come after 0.16.
 
 ## Open questions for the owner
 
