@@ -1,0 +1,5 @@
+{
+  "id": "drafts-skip-builds-hint",
+  "kind": "line",
+  "text": "Caching og builds forklarer, hvordan du springer buildet over for ændringer, der venter på at blive udgivet"
+}
