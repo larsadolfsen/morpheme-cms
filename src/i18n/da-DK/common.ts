@@ -112,6 +112,7 @@ export const common: Messages['common'] = {
     settings: 'Indstillinger',
     developer: 'Udvikler',
     caching: 'Caching og builds',
+    assistants: 'Assistenter',
     licenses: 'Licenser',
     morpheme: 'Morpheme',
   },

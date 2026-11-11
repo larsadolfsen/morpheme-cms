@@ -68,6 +68,8 @@ describe('onward and redirectFor with the table', () => {
       format: 'esm',
       platform: 'node',
       outfile,
+      // The package `yaml` (the assistants' tools read front matter) is CommonJS for Node; a require makes it run here.
+      banner: { js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);" },
       alias: { '@site/config': join(dir, 'config.js'), '@site/worker': join(dir, 'worker.js') },
       plugins: [
         {

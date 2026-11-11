@@ -11,6 +11,7 @@ Editoren, standardtemaet *Material* og sitets Worker er pakken [`@morphemecms/cm
 - `src/site/worker.js`: det, Workeren har fra sitet.
 - Hemmeligheden `GITHUB_PUBLISH_TOKEN` (`npx wrangler secret put GITHUB_PUBLISH_TOKEN`) lader Workeren skrive til sitets GitHub-repo, også når den opdaterer CMS'et. Tokenet skal have **Contents: Read and write** og **Checks: Read**.
 - Hemmeligheden `MORPHEME_STORE_KEY` (`npx wrangler secret put MORPHEME_STORE_KEY`) forbinder sitet til Morpheme-butikken; uden den har *Appstore* kun sitets egne apps og temaer.
+- Hemmeligheden `MCP_VAULT_KEY` (`npx wrangler secret put MCP_VAULT_KEY`, en lang tilfældig tekst) slår *Assistenter* til under *Indstillinger*: en assistent som Claude kan så forbinde til sitets adresse `/mcp` og læse sitet. Workeren gemmer den forbindende persons GitHub-token, forseglet med denne hemmelighed, i samme D1-database som samtykkelogget.
 - `src/content/`: siderne og indlæggene, `src/data/`: sitets indstillinger, `public/`: billeder, logo og ikoner.
 - `src/themes/` og `src/apps/`: temaer og apps fra appbutikken, når der er installeret nogen.
 

@@ -26,6 +26,7 @@ import {
   Browser,
   Buildings,
   Certificate,
+  Chats,
   DeviceMobile,
   FileText,
   House,
@@ -132,6 +133,7 @@ export const icons: Record<string, Icon> = {
   morpheme: Sparkle,
   developer: Wrench,
   licenses: Certificate,
+  assistants: Chats,
   // The screens under "Appearance" (Library.tsx Theme), the first the store's themes.
   themes: Swatches,
   colors: Palette,
@@ -184,7 +186,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
  * the header with the menus and the footer, the theme, the icon packs, the motion, the side column, the colors, the
  * standard pages (appearance) and the editor's parts: Colors.tsx, BrandForm.tsx and Parts.tsx), the developer screens,
  * the licenses, the CMS ("Morpheme") and "Privacy" (privacy.ts). Not in `groups`: the cog opens them. */
-export const settings: string[] = ['appearance', 'developer', 'licenses', 'morpheme', 'privacy'];
+export const settings: string[] = ['appearance', 'assistants', 'developer', 'licenses', 'morpheme', 'privacy'];
 
 /** The site's own short lists, on a screen of their own under "Lists" (#lists), with those the standard blocks
  * bring ("Testimonials") and the apps (their lists.ts). */

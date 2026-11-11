@@ -8,11 +8,16 @@ import { mayEdit } from './session.js';
 import { PROVIDERS, providersFor, reportFrom } from '../lib/serviceStatus.mjs';
 import { feedOf } from '../lib/serviceFeed.mjs';
 
-export async function handleStatus(request, env) {
-  if (!(await mayEdit(request))) return json({ error: 'forbidden' }, 403);
-  if (request.method !== 'GET') return json({ error: 'method' }, 405);
+/** The StatusReport of GitHub and Cloudflare, for the parts the site has bound (also what the assistants' `site_info` says). */
+export async function statusReport(env) {
   const [github, cloudflare] = await Promise.all(PROVIDERS.map((provider) => feedOf(provider.feed)));
   const names = new Set(PROVIDERS.flatMap((p) => p.components.flatMap((c) => c.needs ?? [])));
   const bound = [...names].filter((name) => env[name] != null);
-  return json(reportFrom({ github, cloudflare }, providersFor(bound)));
+  return reportFrom({ github, cloudflare }, providersFor(bound));
+}
+
+export async function handleStatus(request, env) {
+  if (!(await mayEdit(request))) return json({ error: 'forbidden' }, 403);
+  if (request.method !== 'GET') return json({ error: 'method' }, 405);
+  return json(await statusReport(env));
 }
