@@ -63,6 +63,11 @@ request when all of this holds, one pull request at a time:
 The `0.16` branch collects the 0.16 work; its PM merges into it, and `main` is merged into it after each 0.15.x release
 (never the other way). Only `main` has a Release PR and builds `next` and `latest`.
 
+The PM merges in every repository of the project (`morpheme-cms`, `morpheme-appstore`, `morpheme-apps`,
+`morpheme-staging`), also pull requests that may deploy a live Cloudflare Worker, and never asks the owner to merge or
+for permission to merge; only a release stays with the owner. Once a session's work is merged, the PM archives it, after
+checking it has no open question for the owner and no unmerged branch.
+
 A pull request that conflicts, has no `check` job or has the wrong changeset is not merged. The PM asks the session
 that owns it to merge `main` into the branch (never a rebase, amend or force-push on someone else's branch) or to fix
 the changeset, and merges when it is right. It never merges the Release PR.

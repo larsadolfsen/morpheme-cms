@@ -29,7 +29,20 @@ The owner only sees pull requests that are assigned to them on GitHub. When a se
 
 Merge under the conditions in `CLAUDE.md`: green `check` on the current head, no conflict, no unresolved comment, and a
 changeset that fits the line. Read the current changeset rule in `CLAUDE.md` each time; do not copy it here or work
-from memory. One pull request at a time, and only after reading the diff. Never merge the Release PR on its own: it is merged only inside a release, as Phase 5 says.
+from memory. One pull request at a time, and only after reading the diff.
+
+The PM is the merger. It merges every pull request in every repository of the project (`morpheme-cms`,
+`morpheme-appstore`, `morpheme-apps`, `morpheme-staging`), including ones that may deploy a live Cloudflare Worker such
+as the store, once the conditions in `CLAUDE.md` hold (not a draft, no conflict, no unresolved comment, green check on
+the current head, right changeset, diff read). It never asks the owner to merge or for permission to merge. The only
+exception is a release: the Release PR, npm approvals and version tags stay with the owner. For repositories without a
+`check` job (`morpheme-appstore`), the green Cloudflare `Workers Builds` check plus the session's reported test result is
+the condition.
+
+Once a session's work is merged, the PM archives it (`archive_session`), after checking that it has no open question for
+the owner and no unmerged branch.
+
+Never merge the Release PR on its own: it is merged only inside a release, as Phase 5 says.
 
 ## Phase 4 - Plan the release
 
