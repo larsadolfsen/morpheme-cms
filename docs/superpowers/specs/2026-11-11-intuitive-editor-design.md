@@ -430,8 +430,8 @@ The table is a proposal by field name from `src/standard/*`; the exceptions belo
 | Block | Typed in place | Settings in the panel | Follows the pattern |
 | ----- | -------------- | --------------------- | ------------------- |
 | List, Segmented list, FAQ list, Card | rows or cards (title, text, answer) | media, link, buttons, design | yes, finding 14 and 17 |
-| Steps | rows (title, text), numbered | none | yes, rows |
-| Checklist | rows (one line, a check mark) | none | yes, rows (exception 1) |
+| Steps | rows (title, text), numbered 1, 2, 3 … | none | yes, rows; its own block (owner, 11 November) |
+| Checklist | none: it becomes a `Check list` style in the text toolbar | | no block (owner, 11 November, below) |
 | Buttons | each button's label | target, kind, icon | yes, buttons are the rows |
 | Notice | the text, in its box | colour, `until` date | yes, one text field |
 | Video | the title | the video address | yes, the player is drawn, empty shows an empty frame |
@@ -443,10 +443,12 @@ The table is a proposal by field name from `src/standard/*`; the exceptions belo
 | Cookies | none: filled from the site's data | category | not typed in place |
 | Links, Points with icon | folded into List (decisions 8 and 9) | | |
 
-**Exceptions to settle with the owner:**
+**Exceptions:**
 
-1. **Checklist** is a list of single lines with a check mark. It could stay its own block, or be a List whose rows have no
-   body text and a check as the leading icon (one block fewer). Proposed: fold it into List.
+1. **Checklist (settled, owner, 11 November):** it is single lines with a check mark, so it is a list style, not a block.
+   The text toolbar gets a `Check list` style next to the bullet and numbered lists, and the Checklist block leaves
+   `Insert`. A migration turns each existing Checklist block into a check list in the text, so no page changes look.
+   **Steps stays its own block**, with its numbered rows (1, 2, 3 …), each with a title and a text.
 2. **Banner** puts text over a picture, so the text must stay readable whatever the picture is. In place, the owner types
    on the drawn banner; the theme keeps the text readable (a scrim), as it does on the site today. Proposed: as in the table.
 3. **Expandable list** rows have a page link that the three list blocks do not cover (finding 13). Proposed: it keeps
