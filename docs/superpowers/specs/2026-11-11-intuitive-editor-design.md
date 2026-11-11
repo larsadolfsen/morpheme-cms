@@ -16,8 +16,7 @@ repeated as a question below.
 
 1. **Keep the current format: text and blocks.** The page stays one text with blocks in it. No new editor model.
 2. **Add "Body large" and "Label" to the text styles.** Read as: two new entries in the text-style menu `T`
-   (`text.kind`, `text.paragraph` … in `MarkdownEditor.tsx`), next to Heading, Subheading and Normal text. _(Guess: `T` is that
-   menu; `Label` is the small-capitals line that blocks call `eyebrow` today.)_
+   (`text.kind`, `text.paragraph` … in `MarkdownEditor.tsx`), next to Heading, Subheading and Normal text. _(Confirmed by the owner: `T` is that menu; `Label` is the small line above a heading, which blocks call `eyebrow` today.)_
 3. **Remove all regular headings and text from blocks.** Read as: a block keeps only what is its own (rows, pictures,
    buttons, links), and the heading, subheading, label and intro text come from the text around it, in the text styles
    of decision 2. See finding 10.
@@ -202,7 +201,7 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 | C | **First run:** start card, status sentence, empty-page hint, browser-permission sentence (3, 6 hint, 8) | `Library`, `DashboardGrid`, `widgets/`, `EntryForm`, `notificationData` | no | none |
 | D | **Build feedback:** the `Updating…` chip until live (8) | top bar, `deploy.ts` | no | none |
 | E | **Menu and Settings regroup:** Appearance into the menu, Developer under Advanced, Logo and icon moved (5, 4, 9) | `MainMenu`, `defaults/editor.ts`, Settings | **yes**: Appstore, Settings › Assistants | Q3, Q4 |
-| G | **Text and blocks:** `Body large` and `Label` styles, dotted H2 line, editor opens on H1, blocks lose their head fields with a migration, sheet buttons (10, 11, 12) | `MarkdownEditor`, `BlockDialog`, `standard/*`, `theme/blocks/*`, `lib/section-marker.mjs` | no | Q6, Q7 |
+| G | **Text and blocks:** `Body large` and `Label` styles, dotted H2 line, editor opens on H1, blocks lose their head fields with a migration, sheet buttons (10, 11, 12) | `MarkdownEditor`, `BlockDialog`, `standard/*`, `theme/blocks/*`, `lib/section-marker.mjs` | no | Q6 |
 | F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
 
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
@@ -222,5 +221,3 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
 6. **Do the rows inside blocks (a list row's heading and text, a point's heading and text) stay as fields?** Recommended:
    yes: a row is data, and removing them would turn each row into text with a block marker. Alternative: remove them too, and
    a row becomes an H3 with text under it.
-7. **Is `T` the text-style menu, and is `Label` the small line above a heading?** Recommended: yes to both, as read in
-   decision 2. If not, say what `T` is and the spec changes.
