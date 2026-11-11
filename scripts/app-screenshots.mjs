@@ -10,8 +10,7 @@
 // take, by their folders: … calendly mailchimp). Then, for an app from the app store, raise its version, commit and run
 // npm run store:release.
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
 import { createServer } from 'vite';
@@ -20,6 +19,7 @@ import { appFoldersPlugin } from '@morphemecms/cms/lib/apps.mjs';
 import { appSelf } from '@morphemecms/cms/site/appSelf.mjs';
 import { categoryOf } from '@morphemecms/cms/lib/storeCategories.mjs';
 import { binOf } from './bin.mjs';
+import { buildOutDir } from './build-out.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
 
 const ROOT = `${process.cwd()}/`;
@@ -108,7 +108,7 @@ const SCAN = {
 };
 
 const before = { theme: readFileSync(THEME, 'utf8'), colors: readFileSync(COLORS, 'utf8') };
-const out = mkdtempSync(join(tmpdir(), 'app-screenshots-'));
+const out = buildOutDir(ROOT, 'app-screenshots');
 let browser;
 try {
   writeFileSync(THEME, `${JSON.stringify({ theme: 'saturn' }, null, 2)}\n`);
