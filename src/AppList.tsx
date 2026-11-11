@@ -38,7 +38,8 @@ import { ask, choose } from './ask';
 import { appsState, activeApps, installedApps, settingsFile, type SiteApp } from './apps';
 import { appsFileText, readAppsFile, withInstalled, withOff } from '../lib/appsFile.mjs';
 import { rivalsOf, withRivalsOff } from '../lib/appTypes.mjs';
-import { CATEGORIES, categoryOf } from '../lib/storeCategories.mjs';
+import { CATEGORIES, categoryOf, roleOf, type Role } from '../lib/storeCategories.mjs';
+import { filterByRole, serviceOf } from './sectionChoice.mjs';
 import { AnyIcon } from './icon';
 import {
   appChanges,
@@ -52,6 +53,7 @@ import {
   STORE_ROUTE,
   type AppCategory,
   type AppCookie,
+  type AppNeeds,
   type ShownApp,
   type StoreAdd,
   type StoreRecord,
@@ -65,6 +67,7 @@ import { allThemes, ThemeRow, useThemeCatalog } from './ThemeStore';
 import { siteT, siteText, t } from './i18n';
 import { OwnerLicenses, StoreLicenseRows } from './Licenses';
 import { StoreNotice, StoreRound, useStoreConnected, useStoreKey } from './StoreStatus';
+import StoreSections from './StoreSections';
 import { StoreSearchRow, useStateFilter } from './StoreSearchRow';
 import { sortChoice, useSort } from './storeSort';
 import { told } from './notificationData';
@@ -253,6 +256,7 @@ export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
         label: a.label,
         publisher: a.publisher,
         hint: a.hint,
+        role: roleOf(store.find((x) => x.id === a.id) ?? {}),
         icon: <LeadingIcon icon={a.icon} />,
         status: liveStatus(off.includes(a.id), !!updateOf(a, catalog)) ?? '',
       })),
@@ -265,6 +269,7 @@ export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
           label: found?.label ?? id,
           publisher: found?.publisher ?? '',
           hint: found?.hint ?? '',
+          role: roleOf(found ?? {}),
           icon: storeIcon(found?.icon),
           status: t.apps.pending,
         };
@@ -297,7 +302,7 @@ export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
                 href={`#apps/${a.id}`}
                 leading={a.icon}
                 headline={a.label}
-                supporting={a.publisher}
+                supporting={[a.publisher, t.apps.roles[a.role]].filter(Boolean).join(' · ')}
                 count={a.status}
                 arrow
               />
@@ -327,10 +332,19 @@ function allApps(catalog: ShownApp[] | null | 'failed') {
         hint: a.hint,
         publisher: a.publisher,
         category: categoryOf(a.category).category,
+        role: undefined,
+        needs: undefined,
         words: [a.label, a.hint, a.publisher, ...(a.keywords ?? [])].join(' ').toLowerCase(),
         glyph: <LeadingIcon icon={a.icon} />,
       })),
   ];
+}
+
+/** What an app's page says about its role under Permissions: the service a connector connects to, or no outside access for
+ * a plugin; null for an app the catalog does not have (nothing is known of its role). */
+function connectsOf(app: { role?: unknown; category?: unknown; service?: unknown; needs?: AppNeeds }) {
+  if (!('needs' in app) || !app.needs) return null;
+  return roleOf(app) === 'connector' ? { connector: true, service: serviceOf(app) } : { connector: false, service: '' };
 }
 
 /** The address of a developer's page, by their name. */
@@ -339,12 +353,15 @@ const developerHref = (name: string) => `#${DEVELOPER_ROUTE}/${slugify(name)}`;
 /** An app's row in "Appstore" and on a developer's page: its icon, its name, what it does, and whether it is installed,
  * opening its page. */
 function AppRow({ app, installed, off }: { app: ReturnType<typeof allApps>[number]; installed: boolean; off: boolean }) {
+  // A connector says which service it connects to.
+  const service = roleOf(app) === 'connector' ? serviceOf(app) : '';
+  const connects = service ? t.apps.connectsTo(service) : '';
   return (
     <ListItem
       href={`#apps/${app.id}`}
       leading={app.glyph}
       headline={app.label}
-      supporting={app.hint}
+      supporting={connects ? `${app.hint} · ${connects}` : app.hint}
       count={installed && (liveStatus(off, false) ?? t.apps.installed)}
       arrow
     />
@@ -418,10 +435,28 @@ export function DeveloperRow({ name }: { name: string }) {
  * With search (by name, what it does, who made it and the words it is found by, in both languages), the order and the
  * filters by category and by whether it is installed, each picked one as a chip. */
 export function StorePage({ env, files }: { env: Env; files: RepoFile[] }) {
-  return <StoreRound>{(again) => <StoreScreen env={env} files={files} again={again} />}</StoreRound>;
+  return <StoreSections env={env} files={files} />;
 }
 
-function StoreScreen({ env, files, again }: { env: Env; files: RepoFile[]; again: () => void }) {
+/** The list of one section of the Appstore (Connectors or Plugins): the apps of that role, with the switch of sections
+ * (`header`) above the search. */
+export function RoleStore({ env, files, role, header }: { env: Env; files: RepoFile[]; role: Role; header: ReactNode }) {
+  return <StoreRound>{(again) => <StoreScreen env={env} files={files} again={again} role={role} header={header} />}</StoreRound>;
+}
+
+function StoreScreen({
+  env,
+  files,
+  again,
+  role,
+  header,
+}: {
+  env: Env;
+  files: RepoFile[];
+  again: () => void;
+  role: Role;
+  header: ReactNode;
+}) {
   const installed = installedApps(files);
   const { off } = appsState(files);
   const key = useStoreKey();
@@ -437,7 +472,7 @@ function StoreScreen({ env, files, again }: { env: Env; files: RepoFile[]; again
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   const order = (a: string, b: string) => (sort === 'za' ? -1 : 1) * byText(a, b);
   const appGroups = headed(
-    allApps(catalog)
+    filterByRole(allApps(catalog), role)
       .filter((a) => words.every((w) => a.words.includes(w)))
       .filter((a) => !category || a.category === category)
       .filter((a) => !stateFilter.state || installed.includes(a.id) === (stateFilter.state === 'installed'))
@@ -454,6 +489,7 @@ function StoreScreen({ env, files, again }: { env: Env; files: RepoFile[]; again
 
   return (
     <Screen title={t.apps.find} wide back={backFrom('appstore')}>
+      {header}
       <StoreSearchRow
         query={query}
         onQuery={setQuery}
@@ -792,6 +828,7 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
             description={app.description}
             news={newsOf(app.releaseNotes, app.version)}
             needs={app.needs}
+            connects={connectsOf(app)}
             notifies={app.notifies?.map((label) => ({ label }))}
             cookies={app.cookies ?? []}
             consent={!!app.consent}
@@ -1011,6 +1048,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
           description={app.description}
           news={app.store ? newsOf(inStore?.releaseNotes ?? app.releaseNotes, update?.version ?? versionOf(app)) : []}
           needs={app.needs}
+          connects={connectsOf(inStore ?? {})}
           notifies={Object.values(app.notifications?.types ?? {}).map((label) => ({ label: siteText(label) }))}
           cookies={app.cookieList ?? []}
           consent={!!app.cookies}

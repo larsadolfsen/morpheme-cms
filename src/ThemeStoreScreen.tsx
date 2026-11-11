@@ -1,5 +1,6 @@
 // "Theme store" (#appearance/theme-store, first under Appearance): the store's themes and those installed, with search, order and filter.
 // Exposes ThemeStoreScreen; uses ThemeStore.tsx (allThemes, ThemeRow, useThemeCatalog), StoreSearchRow, StoreStatus and storeSort.
+import type { ReactNode } from 'react';
 import Screen from './Screen';
 import { Group, useKept } from './ui';
 import type { Env } from './App';
@@ -16,11 +17,11 @@ import { t } from './i18n';
 /** "Theme store" (#appearance/theme-store, first under Appearance): all themes, those in the store and those installed, each
  * with its version and who made it, opening its page. With search (by name, who made it and the words it is found by),
  * the order and the filter by whether it is installed, picked one as a chip. */
-export function ThemeStoreScreen({ env }: { env: Env }) {
-  return <StoreRound>{(again) => <ThemeStoreList env={env} again={again} />}</StoreRound>;
+export function ThemeStoreScreen({ env, header }: { env: Env; header?: ReactNode }) {
+  return <StoreRound>{(again) => <ThemeStoreList env={env} again={again} header={header} />}</StoreRound>;
 }
 
-function ThemeStoreList({ env, again }: { env: Env; again: () => void }) {
+function ThemeStoreList({ env, again, header }: { env: Env; again: () => void; header?: ReactNode }) {
   const key = useStoreKey();
   const catalog = useThemeCatalog(env);
   const connected = useStoreConnected(env);
@@ -35,6 +36,7 @@ function ThemeStoreList({ env, again }: { env: Env; again: () => void }) {
 
   return (
     <Screen title={t.common.parts.themeStore} wide back={backToAppearance}>
+      {header}
       <StoreSearchRow
         query={query}
         onQuery={setQuery}

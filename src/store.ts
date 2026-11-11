@@ -28,7 +28,7 @@ import { hooksOf, type AppHook } from '../lib/hooks';
 import type { StoreLicenses } from './licenseData';
 import { APP_API, APP_APIS, THEME_API } from '../lib/contracts.mjs';
 import { RECORD, STANDARD, isText, validApp, validTheme } from '../lib/storeEntries.mjs';
-import { categoryOf, type Category } from '../lib/storeCategories.mjs';
+import { categoryOf, type Category, type Role } from '../lib/storeCategories.mjs';
 import { timedFetch } from './storeFetch';
 import { appChanges as appChangesIn } from '../lib/appChanges.mjs';
 import { placesOf, type AppPlaces } from '../lib/appPlaces.mjs';
@@ -64,6 +64,8 @@ export type AppNeeds = {
   changes?: AppHook[];
   widgets?: boolean;
   places?: AppPlaces;
+  /** The kinds of the site's data it reads (`reads` of its app.json), shown with its hosts. */
+  reads?: string[];
 };
 
 /** What an app needs, from the paths of the files in its folder, its csp.json (a contract 4 app's `csp` in its app.json),
@@ -85,6 +87,7 @@ export function needsOf(
     changes: hooksOf(files).hooks,
     widgets,
     places: placesOf(files, manifest),
+    ...(manifest?.reads?.length ? { reads: [...manifest.reads] } : {}),
   };
 }
 
@@ -129,6 +132,10 @@ export type StoreApp = {
    * its new one, one it does not know leaves them out, and the app stays in the catalog. */
   category?: AppCategory;
   subcategory?: string;
+  /** Connector or plugin, as the catalog has it (read with roleOf: none is a plugin), and the service a connector
+   * connects to (when the entry names it; else its hosts, serviceOf). */
+  role?: Role;
+  service?: string;
   keywords?: string[];
   /** What it needs of the site; the cookies it sets, and whether it asks in the cookie banner first (AppDefinition
    * .cookies); its pictures. */

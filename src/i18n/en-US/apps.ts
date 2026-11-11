@@ -115,6 +115,22 @@ export const apps = {
   notInStore: 'The app isn’t in the Appstore',
   /** The filters over the store (by category, and whether it is installed), each with its first choice, and the main
    * categories of apps (CATEGORIES in lib/storeCategories.mjs). */
+  /** The Appstore's three sections (switch at its top) and the role label of an app (roleOf in lib/storeCategories.mjs). */
+  sectionsLabel: 'Section of the Appstore',
+  sections: { themes: 'Themes', connectors: 'Connectors', plugins: 'Plugins' },
+  roles: { connector: 'Connector', plugin: 'Plugin' },
+  /** A connector's card and page: the outside service it connects to; a plugin has none. */
+  connectsTo: (service: string) => `Connects to ${service}`,
+  otherService: 'an outside service',
+  noOutsideAccess: 'No outside access',
+  needsReads: 'Reads from the website',
+  readScopes: {
+    pages: 'Pages',
+    'pages.text': 'Page texts',
+    cookies: 'Cookies',
+    apps: 'Installed apps',
+    'csp.allowed': 'Allowed addresses',
+  } as Record<string, string>,
   categoryFilter: 'Category',
   allCategories: 'All categories',
   stateFilter: 'Status',
