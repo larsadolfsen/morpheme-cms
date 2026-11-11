@@ -276,10 +276,9 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   2. The side panel turns into the dynamic settings; on a phone the bottom sheet opens with them.
   3. The owner chooses which dynamic list the data is pulled from.
   4. In the dynamic settings the owner can choose a tag to filter by (and `How many`).
-  5. The owner clicks a field in a row (top line, bottom line, icon or picture, link). A dropdown opens with the fields of the chosen list, and the owner picks which one is shown there.
+  5. The owner clicks a field in a row (top line, bottom line, icon or picture, link). A submenu opens on desktop, and a bottom sheet on a phone, with the fields of the chosen list, and the owner picks which one is shown there.
   6. The block updates live on every change, so it always shows how it will look on the page.
-  There is no list screen. The dynamic list's own items and fields are edited on the page, in the block: the owner types in a row, and the text is saved to that item of the dynamic list. `Add above`, `Add below`, `Move up`, `Move down` and delete work on the list's items. A new list is made from the dynamic settings when choosing the list.
-  Proposed details, to confirm: an item edited here changes on every page that shows the list, and the settings say so; a new item gets the tag the block filters by; the fields of a list (Icon, Title, Body text, Picture, Link, Tags) are the ones the owner has put in the rows.
+  The content of a dynamic list (its items and their fields) is edited only on the dynamic list's own page, never in the block. In the block the owner chooses which list, which tag and which field is shown where; the rows are not typed in place, so the row actions (`Add above`, `Add below`, `Move up`, `Move down`) do not apply to a dynamic block. `Edit list` on the block opens the list's page. How a dynamic list is created and what its own page looks like is not decided yet.
 - **Design rules (UX and Material Design 3):**
   1. A list pulled from a dynamic list shows its state on the block (`From Services · tag home · 3 items`) with `Edit list`, because its rows cannot be edited in place.
   2. A block pulled from a dynamic list takes the word `Dynamic` in its name: `List` becomes `Dynamic list`, `Cards` becomes `Dynamic cards`. The picker has no separate dynamic entries and stays short; the dynamic icon in the floating menu is how an empty block becomes dynamic.
