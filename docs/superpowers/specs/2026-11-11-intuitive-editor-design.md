@@ -41,7 +41,7 @@ repeated as a question below.
    a row with a link gets an arrow by itself), **Segmented list**, and **FAQ list** (rows that expand). The owner picks
    one; there is no version to choose afterwards. This replaces the idea of one `Rows` block with a design choice.
 10. **A segmented list can end with an optional text button** (for example `See all` or `Book a time`), under the last row.
-    _(Read as: segmented list first. Recommended: the same option on List and FAQ list, so the three behave alike.)_
+    _(Owner, 11 November: yes for the Segmented list and the FAQ list. Read as: not on the plain List.)_
     The page in the owner's screenshot is an expanding list in one rounded card with dividers and chevrons, with a text
     button wanted under it.
 
