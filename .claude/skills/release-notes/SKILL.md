@@ -14,17 +14,23 @@ can do, with a verb first (*Pause an app without losing its settings*, *See your
 says what is new (*You can now …*, *… now looks like …*), then where to find it (*Open the app under Apps …*). Lines are
 short and name the change plainly. Those cards have no screenshot.
 
-**A change that cannot be seen** (a safeguard, how something runs, a rule the owner does not see) can still be a main
-change and a selling point. It gets its own paragraph (`card`) that says what the owner is now protected from or free
-to do, and where the owner can see the proof if there is one; it is not left as a line. In a released version's file it
-has no screenshot, as the cards of 0.14.0 have none; a note that is still pending needs one (`npm run check:release-notes`), so ask the owner before writing such a note as pending.
+**Paragraphs (`card`) are for two kinds of change:** a change the owner sees (a new screen, a new feature, a new way to
+do something), and a **selling point for choosing Morpheme over other ways to run a site, such as WordPress**: safer,
+faster, cheaper to run or easier to keep, even when the owner cannot see it. Apps running in a sandbox is one, because
+it is a main reason to choose Morpheme and shows nowhere. Every such change gets its own paragraph, never a line. A
+paragraph for a selling point says what the owner is now protected from or free to do, in the owner's words, and where
+the owner can see the proof if there is one; it names the benefit, not the other product.
+
+A paragraph for a change that cannot be seen has no screenshot in a released version's file, as the cards of 0.14.0 have
+none. A note that is still pending needs one (`npm run check:release-notes`), so ask the owner before writing such a
+note as pending.
 
 A change a site owner sees gets a note in both languages, English (`en-US`) and Danish (`da-DK`). Developer-only changes
 get no note. The note's `id` is this changeset's file name without `.md`, for example `brave-cats-run`. A note has one
 of two kinds:
 
 - `card` (a *paragraph* on the Morpheme page's "New in" page): a main change, one an owner would go looking for, such as
-  a new screen, a new feature or a new way to do something. A title and 1–3 short sentences: what the owner gets first,
+  a new screen, a new feature or a new way to do something, or a selling point (see above). A title and 1–3 short sentences: what the owner gets first,
   then where to find it. No labels. The screenshot shows only on the start screen's update card; the "New in" page shows
   the title and the text.
 - `line`: a smaller change, such as a tweak to something the owner already uses, or a fix. One short sentence with no
