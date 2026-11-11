@@ -94,7 +94,16 @@ What part B (the form and the status) needs:
 6. Open question for the owner: a flush commits to `main` as a `src/drafts/` change, which takes `ci-build`'s content lane. If idle flushes are
    too many commits, raise `IDLE_MS` in `src/autosave.mjs` (the client) rather than flushing more often.
 
-### Autosave, part B (the form)
+## Batch 14, the warnings (built after step 4c-2)
+
+A notice under the switch on a page with changes waiting (while `Live` is edited: what is saved goes on the website at once and the
+waiting changes stay; while they are edited: the website shows the published version, or when they go live); the mark `Unpublished changes`
+(`Scheduled changes <time>` with a time) on the rows of the lists and the Unfinished widget for a published page with changes waiting (a
+draft with a waiting time is Scheduled); and a question before `Publish changes` when the page file was saved after the waiting version
+(`env.savedAt`: when each was last saved; unknown means no question). The check is an approximation: saving the waiting changes again
+after a live edit clears it, though they may not contain that edit.
+
+## Autosave, part B (the form)
 
 Done in `EntryForm.tsx` with `src/useAutosave.ts`: the autosave belongs to the waiting version of a published page (or a draft that has one);
 not the live page being edited, a new page, an earlier version or a changed address. The line under the title says `Saving…`, `Saved` or

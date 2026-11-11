@@ -1,7 +1,7 @@
 // A page or post and its waiting versions as the editor holds them: the page file and the files in src/drafts/ among the
 // editor's loaded files (`files`, `{ path, oid, text }`), and the changes the functions of lib/versions.mjs give as the editor's own
 // (`{ path, content, oid }`, `content: null` to delete a file), for `env.commit`. Exposes `pageOf` and `commitChanges`. Depends on lib/versions.mjs.
-import { DRAFTS, pageOf as pageOfDraft, versionsOf } from '../lib/versions.mjs';
+import { DRAFTS, pageOf as pageOfDraft, timeOf, versionsOf } from '../lib/versions.mjs';
 
 /** @typedef {{ path: string; oid: string; text: string }} RepoFile */
 /** @typedef {{ path: string; content: string | Uint8Array | null; oid: string | null }} Change */
@@ -33,4 +33,22 @@ export function commitChanges(changes, files) {
     if (c.text === null) return there ? [{ path: c.path, content: null, oid: there.oid }] : [];
     return [{ path: c.path, content: c.text, oid: there?.oid || null }];
   });
+}
+
+/** The pages and posts that have a waiting version, by their page file: `{ publishAt }`, the earliest time among their waiting versions,
+ * if any has one. For the lists' marks (`Unpublished changes`, `Scheduled`).
+ * @param {RepoFile[]} files @returns {Map<string, { publishAt?: string }>} */
+export function waitingOf(files) {
+  const pages = files.filter((f) => f.path.endsWith('.md') && !f.path.startsWith(`${DRAFTS}/`)).map((f) => f.path);
+  /** @type {Map<string, { publishAt?: string }>} */
+  const found = new Map();
+  for (const f of files) {
+    const at = f.path.startsWith(`${DRAFTS}/`) && f.path.endsWith('.md') ? pageOfDraft(f.path, pages) : null;
+    if (!at || !pages.includes(at.path)) continue;
+    const time = timeOf(f.text);
+    const before = found.get(at.path);
+    const earliest = time && (!before?.publishAt || time < before.publishAt) ? time : before?.publishAt;
+    found.set(at.path, earliest ? { publishAt: earliest } : {});
+  }
+  return found;
 }

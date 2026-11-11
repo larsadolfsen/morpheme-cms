@@ -94,6 +94,17 @@ export const forms = {
     publishChanges: 'Publish changes',
     /** The switch at the top of a page with changes waiting (VersionSwitch.tsx). */
     switchLabel: 'Version to edit',
+    /** The notice under the switch (VersionSwitch.tsx WaitingNotice). */
+    noticeLiveTitle: 'Changes are waiting',
+    noticeLive:
+      'You are editing the live version. What you save here goes on the website at once, and the waiting changes stay as they are.',
+    noticeWaitingTitle: 'The website shows the published version',
+    noticeWaiting: 'These changes are not on the website yet. Choose Publish changes to put them there.',
+    noticeScheduled: (when: string) => `These changes go on the website ${when}. Until then the website shows the published version.`,
+    /** Before Publish changes, when the live version was changed after the waiting changes were saved. */
+    overwriteTitle: 'Replace the live version?',
+    overwriteText: (post: boolean) =>
+      `The ${post ? 'post' : 'page'} on the website was changed after these changes were saved. Publishing replaces it with these changes.`,
     live: 'Live',
     scheduled: 'Scheduled',
     changes: 'Changes',
