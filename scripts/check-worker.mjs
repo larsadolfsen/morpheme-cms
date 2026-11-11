@@ -231,11 +231,12 @@ async function github(url, init) {
 // ---------------------------------------------------------------------------------------------------
 // The Worker, with R2 in memory (or none, or one that fails), and the editor's github.ts in a "browser" whose
 // requests to /api/github/ go to it, signed in.
-const [{ handleGitHub }, { readFiles, commitFiles }, { handleR2 }, { handlePlan, paidFrom }] = await workerModules(
+const [{ handleGitHub }, { readFiles, commitFiles }, { handleR2 }, { handlePlan, paidFrom }, { publishScheduled }] = await workerModules(
   'editor-github.js',
   'github.js',
   'r2-status.js',
   'plan-status.js',
+  'publish.js',
 );
 
 function memoryBucket() {
@@ -450,6 +451,27 @@ async function run(label, bucket) {
     [{ path: `${config.folders.data}/worker-${label}.json`, text: '{}\n' }],
     ctx,
   );
+  // A waiting version whose time has come replaces its page and its file goes (publish.js, lib/versions.mjs); one that is not due stays.
+  if (post.path.startsWith('src/content/')) {
+    const waiting = `src/drafts/${post.path.slice('src/content/'.length)}`;
+    const text = `---\ntitle: "Waiting (${label})"\npublishAt: "2020-01-01T08:00"\n---\n\nWaiting.\n`;
+    await commitFiles(env, (await readFiles(env, [], ctx)).head, `Editor: draft (${label})`, [{ path: waiting, text }], ctx);
+    await settle();
+    const names = await publishScheduled(env, Date.now(), ctx);
+    await settle();
+    const after = await readFiles(env, [post.path, waiting], ctx);
+    expect(names.length === 1, `${label}: the Worker published ${names.length} pages from a due waiting version, not 1`);
+    expect(
+      after.texts[0] === `---\ntitle: "Waiting (${label})"\n---\n\nWaiting.\n`,
+      `${label}: the waiting version did not replace its page`,
+    );
+    expect(after.texts[1] === undefined, `${label}: the file of a published waiting version is still there`);
+    const later = `---\ntitle: "Later (${label})"\npublishAt: "2999-01-01T08:00"\n---\n`;
+    await commitFiles(env, after.head, `Editor: draft later (${label})`, [{ path: waiting, text: later }], ctx);
+    await settle();
+    expect((await publishScheduled(env, Date.now(), ctx)).length === 0, `${label}: the Worker published a version that is not due`);
+    await commitFiles(env, (await readFiles(env, [], ctx)).head, `Editor: discard (${label})`, [{ path: waiting, text: null }], ctx);
+  }
   await settle();
   const own = await opened(await browser(), `${label}, opening after the Worker's save`);
   if (cached) expect(own.github === 1, `${label}: the opening after the Worker's save asked GitHub ${own.github} times (only the head)`);
