@@ -1,0 +1,6 @@
+{
+  "id": "three-store-sections",
+  "kind": "card",
+  "title": "Find themes, connectors and plugins in the Appstore",
+  "text": "The Appstore now has three sections: Themes, Connectors and Plugins. A connector says which service it connects to, and a plugin has no outside access. Open Appstore under Settings and pick a section at the top."
+}

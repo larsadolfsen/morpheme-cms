@@ -256,7 +256,7 @@ export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
         label: a.label,
         publisher: a.publisher,
         hint: a.hint,
-        role: roleOf(store.find((x) => x.id === a.id) ?? {}),
+        role: roleOf(store.find((x) => x.id === a.id) ?? {}) ?? 'plugin',
         icon: <LeadingIcon icon={a.icon} />,
         status: liveStatus(off.includes(a.id), !!updateOf(a, catalog)) ?? '',
       })),
@@ -269,7 +269,7 @@ export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
           label: found?.label ?? id,
           publisher: found?.publisher ?? '',
           hint: found?.hint ?? '',
-          role: roleOf(found ?? {}),
+          role: roleOf(found ?? {}) ?? 'plugin',
           icon: storeIcon(found?.icon),
           status: t.apps.pending,
         };
