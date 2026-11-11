@@ -1,5 +1,6 @@
 {
   "id": "list-blocks-three",
-  "kind": "line",
-  "text": "Lists: a new Segmented list that folds out, a text button and Only one open on the FAQ list, and blocks grouped by what they do in Insert"
+  "kind": "card",
+  "title": "Fold out rows in a Segmented list",
+  "text": "The new Segmented list folds each row out to show its text and link, with a text button under the last row. The FAQ list gets the same button, and both can keep only one row open. Insert now groups the blocks by what they do."
 }
