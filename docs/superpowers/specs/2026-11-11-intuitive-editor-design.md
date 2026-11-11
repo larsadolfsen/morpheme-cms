@@ -496,7 +496,7 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 | H | **Group similar blocks:** step 1 of finding 13, headings in the `Insert` picker and sharper hints (13) | `BlockDialog`, `blocks.ts` texts, `da-DK` | no | none |
 | I | **Merge the row blocks:** step 2 of finding 13, with a migration (13) | `standard/*`, `theme/blocks/*`, every theme | no | Q6 |
 | J | **Inline block editing:** fields fold out in the text, no sheet for block fields, one open at a time (14) | `MarkdownEditor`, `BlockDialog`, `sheetPlacement.mjs`, `editor.css` | no | none |
-| K | **WYSIWYG page:** the page head drawn in place (step 1), then the frame toggle (step 3) (15) | `EntryForm`, `MarkdownEditor`, `titleH1.mjs`, `Screen`, theme `editor/previews.tsx` | no | Q7 |
+| K | **WYSIWYG page:** the page head drawn in place (step 1); the frame (step 3) is dropped (15) | `EntryForm`, `MarkdownEditor`, `titleH1.mjs`, `Screen`, theme `editor/previews.tsx` | no | Q7 |
 | L | **Lists from lists:** `Rows from` on the three list blocks, tags filter, then `New list` with the fixed field set (16) | `standard/list*`, `Library` (`Lists`), `site.ts`, `lib/` (list definitions), build | **yes**: `Dynamic lists`, app lists | none |
 | M | **Card block:** one Card with three designs (Filled with a colour) and a `Media` field, the next empty card, migration of Cards, dynamic cards after L (17) | `standard/cards`, `theme/blocks/cards/*`, every theme, `BlockDialog` | no | none |
 | F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
@@ -541,8 +541,9 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    group first (batch H), look at it, then decide on the merge (batch I). The merge is larger and changes every theme.
 7. **The page head is drawn in the text (settled for the head, owner, 11 November).** A page and a blog post look as
    close to the site as they can in the editor: the title, the top picture, the date and the tags are drawn in the text as
-   the site shows them (step 1). Open: the optional frame with the site's header and footer (step 3), which is decided
-   after the owner has seen step 1.
+   the site shows them (step 1). **The optional frame with the site's header and footer (step 3) is dropped (owner,
+   11 November):** `Preview` already shows the page with the site's own header, footer and layout at each window size, so a
+   frame in the editor would only repeat it. `Preview` stays as it is.
 8. **Decision 4 (dotted line instead of a box) against decision 7 (more like the site):** keep the colour box for a coloured
    section as the site draws it, and use the dotted line only to mark where a section starts (sections with no colour, and
    as a boundary marker above each)? Recommended: yes. Alternative: dotted line only, and the colour shown on the site only.
