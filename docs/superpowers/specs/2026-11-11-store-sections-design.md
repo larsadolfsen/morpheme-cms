@@ -31,6 +31,12 @@ kind of app, not a topic, so it moves out of the categories and becomes a sectio
 | 6   | An entry that has no `role` is read as a plugin, as an unknown category is read leniently today (`categoryOf`). An entry with the old category `connectors` is read as a connector with no category.                                   |
 | 7   | Only a connector may declare `mcp` (`2026-11-11-mcp-design.md`, part B). A plugin that declares it fails the check.                                                                                                                    |
 | 8   | `role` is a field of `app.json`, like `category`. Contract 4 fails on unknown keys, so the field belongs to contract 5, the same contract as `mcp`. The editor reads both contracts.                                                    |
+| 9   | **A plugin has no outside access.** Its `csp` lists no host and it declares no `mcp`. The build and the store refuse a plugin that does. Only a connector may list hosts. |
+| 10  | The site's Content Security Policy is built from the active apps' `csp`. A plugin adds nothing to it, so the browser refuses any request or load a plugin makes to another host, even if its code tries. |
+| 11  | A plugin's build code (hooks, `after-build.ts`) already runs in the sandbox with no network. A plugin's `worker.js` is a `full` place, which the CMS cannot sandbox, so the build refuses outside calls in it (a scan) and the plan looks at running it in an isolate with no outbound access (open question 4). |
+| 12  | A link the visitor follows is not access (MobilePay's link opens an app). A request or a load made by the page or the Worker is. This is the same test as decision 3. |
+| 13  | The rules apply to an app that says `role: 'plugin'` (contract 5). An app with no role is shown as a plugin by decision 6 but keeps its `csp` until it declares a role, so the five connectors keep working until their `1.1.0`. |
+| 14  | A connector that asks for `reads` and lists hosts is the one way site data can leave the site. The store and the install dialog show the reads and the hosts together. |
 
 ## What the owner sees
 
@@ -63,6 +69,16 @@ kind of app, not a topic, so it moves out of the categories and becomes a sectio
 - `docs/store-categories.md`: the row `connectors` is removed and a section "Sections" says decisions 1 to 4 and 6.
 - `docs/app-contract.md`: `role` in the `app.json` table, as contract 5 (with `mcp`, which comes in with the MCP spec).
 
+### Keeping plugins inside the CMS
+
+| Where                                                            | What it enforces                                                                                                                                                      |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lib/appManifest.mjs` (the build)                                | A plugin with a host in `csp`, or with `mcp`, is a build problem (decision 9). A connector with `mcp` or `csp` is fine.                                               |
+| `problemOf` in `morpheme-appstore/src/registry.js`               | The same check when a version is released, so a plugin with hosts never reaches the catalog.                                                                          |
+| The code that builds the site's policy from the apps' `csp`      | Nothing to change: a plugin lists no hosts, so it adds none (decision 10). The plan finds this code and adds a test with a plugin that tries to load a script.        |
+| `lib/sandbox/bundle.mjs`                                         | For a plugin's `worker.js` and its other `full` code: refuses `fetch`, `WebSocket`, `XMLHttpRequest`, `connect` and a dynamic `import()` of a URL. A scan stops mistakes, not a determined author, which is why the store gives `full` only to first-party publishers (`docs/app-contract.md`, Places). |
+| The install dialog and the app page                              | A plugin says **No outside access** (Danish: Ingen adgang udefra). A connector lists its hosts, and its `reads` beside them (decision 14).                             |
+
 ### The store (`morpheme-appstore`)
 
 - The catalog entry carries `role` as it carries `category`. The plan checks whether `problemOf` in `src/registry.js` refuses
@@ -92,7 +108,8 @@ kind of app, not a topic, so it moves out of the categories and becomes a sectio
 
 Each is its own pull request. The plan splits them further.
 
-1. **The rule.** `lib/storeCategories.mjs`, its tests, `docs/store-categories.md`, `docs/app-contract.md` (the `role` row).
+1. **The rule.** `lib/storeCategories.mjs`, its tests, `docs/store-categories.md`, `docs/app-contract.md` (the `role` row),
+   and the checks that keep a plugin inside the CMS (`appManifest.mjs`, the scan in `bundle.mjs`) with their tests.
 2. **The editor.** The three sections, the role filter, the labels, the texts in both languages, a changeset (its level is
    set by the owner when 0.16 begins; see `CLAUDE.md`) and a release note.
 3. **The store and the apps.** `role` in the catalog, `app-entry.mjs`, and the apps' `1.1.0` releases.
@@ -108,4 +125,8 @@ catalog entry only. The plan orders this with the MCP batch that introduces cont
    "Apps" (Danish: Apps). Say if the sections should use other words.
 3. **The field's name.** `role` avoids two words that already mean something: `kind` (the store's app or theme, and the
    `kinds` of an app's lists) and `type` (the one-app types, `lib/appTypes.mjs`).
-4. **Grouping installed apps.** Whether Settings › Apps should also be grouped by section is left for a later change.
+4. **Owner: a plugin's Worker code.** The scan in decision 11 only stops mistakes. A real boundary needs the Worker to run
+   plugin code in an isolate with no outbound access. Cloudflare's dynamic Workers (Worker Loader) are the candidate; I
+   understand they can run code with outbound calls blocked, but this is not verified. The plan checks it first. Until then
+   only first-party plugins have a `worker.js`, as today.
+5. **Grouping installed apps.** Whether Settings › Apps should also be grouped by section is left for a later change.
