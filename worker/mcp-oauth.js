@@ -52,7 +52,7 @@ const escapeHtml = (s) =>
   String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 /** A page of the sign-in (for a person, never for the assistant): no framing, no caching, no scripts. */
-function page(title, body, status = 200, cookies = []) {
+function page(title, body, status = 200, cookies = [], formAction = "'self'") {
   const html = `<!doctype html><html lang="${langOf(config.locale)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${escapeHtml(title)}</title>
 <style>body{font-family:system-ui,sans-serif;max-width:32rem;margin:0 auto;padding:2rem 1rem;line-height:1.5}h1{font-size:1.5rem}form{display:flex;gap:.75rem;margin-top:1.5rem}button{font:inherit;padding:.6rem 1.25rem;border-radius:2rem;border:1px solid #888;background:#fff;cursor:pointer}button.allow{background:#1a56db;border-color:#1a56db;color:#fff}</style></head>
 <body><h1>${escapeHtml(title)}</h1>${body}</body></html>`;
@@ -60,7 +60,7 @@ function page(title, body, status = 200, cookies = []) {
     'content-type': 'text/html; charset=utf-8',
     'cache-control': 'no-store',
     'x-frame-options': 'DENY',
-    'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'",
+    'content-security-policy': `default-src 'none'; style-src 'unsafe-inline'; form-action ${formAction}; frame-ancestors 'none'`,
     'referrer-policy': 'no-referrer',
   });
   for (const c of cookies) headers.append('set-cookie', c);
@@ -69,15 +69,18 @@ function page(title, body, status = 200, cookies = []) {
 const problemPage = (text, status = 400, cookies = []) =>
   page(t('This sign-in can’t be finished'), `<p>${escapeHtml(text)}</p>`, status, cookies);
 
+/** One line per step of the sign-in in Workers Logs: what happened, never a token, code, secret or address with a query. */
+const trace = (step, outcome, extra = {}) => console.log(`mcp-oauth ${step}: ${outcome}`, JSON.stringify(extra));
+
 const cookieOf = (request, name) => request.headers.get('cookie')?.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`))?.[1];
 const cookie = (name, value, path, maxAge, sameSite) =>
   `${name}=${value}; Path=${path}; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=${sameSite}`;
 
 /** The assistant's own address, with a result in its query: its redirect address is checked on registration and again on each request. */
-function back(redirectUri, params) {
+function back(redirectUri, params, status = 302) {
   const to = new URL(redirectUri);
   for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== null) to.searchParams.set(k, v);
-  return new Response(null, { status: 302, headers: { location: to.href, 'cache-control': 'no-store' } });
+  return new Response(null, { status, headers: { location: to.href, 'cache-control': 'no-store' } });
 }
 
 /** Has GitHub forget a token (this one only): the person did not Allow, cannot save the site, or disconnected. Never throws. */
@@ -133,7 +136,7 @@ async function clientOf(db, id, ask) {
   if (!isMetadataClientId(id)) return db.client(id);
   try {
     const res = await ask(id, {
-      redirect: 'error',
+      redirect: 'manual', // workerd has no 'error'; a redirect answer is not ok, so it is refused
       headers: { accept: 'application/json', 'user-agent': 'morpheme-cms' },
       signal: AbortSignal.timeout(METADATA_TIMEOUT_MS),
     });
@@ -152,6 +155,7 @@ async function clientOf(db, id, ask) {
 async function register(request, env) {
   const body = await request.json().catch(() => null);
   const made = clientFromRegistration(body);
+  trace('register', made.problem ?? 'ok', { method: body?.token_endpoint_auth_method, grants: body?.grant_types });
   if (made.problem) return oauthError('invalid_client_metadata', made.problem);
   const id = await (await store(env)).addClient(made.name, made.redirectUris);
   return answer(
@@ -173,6 +177,10 @@ async function authorize(url, env, ask) {
   const db = await store(env);
   const client = await clientOf(db, q.get('client_id'), ask);
   const redirectUri = q.get('redirect_uri');
+  trace('authorize', client ? (client.redirectUris.includes(redirectUri) ? 'ok' : 'redirect_uri not registered') : 'client unknown', {
+    resource: q.get('resource'),
+    method: q.get('code_challenge_method'),
+  });
   // Until the assistant and its redirect address are known to be one it registered, an error goes to the person, not to an address.
   if (!client || !redirectUri || redirectProblem(redirectUri) || !client.redirectUris.includes(redirectUri))
     return problemPage(t('This assistant isn’t known here, or its return address doesn’t match. Connect it again from the assistant.'));
@@ -253,31 +261,46 @@ export async function handleMcpCallback(request, url, env, ask = fetch) {
 <p>${escapeHtml(t('It can read your pages and posts and the settings of your apps. It can’t change anything.'))}</p>
 <form method="post" action="/oauth/mcp/consent"><input type="hidden" name="pending" value="${escapeHtml(id)}">
 <button class="allow" name="decision" value="allow">${escapeHtml(t('Allow'))}</button><button name="decision" value="deny">${escapeHtml(t('Cancel'))}</button></form>`;
-  return page(t('Connect {assistant}?', { assistant: client?.name ?? 'Assistant' }), body, 200, [
-    ...clear,
-    cookie(CONSENT_COOKIE, id, '/oauth/mcp/', 600, 'Strict'),
-  ]);
+  trace('callback', 'consent page shown', { client: client?.name, login: user.login });
+  // Browsers also check form-action on the redirect a POST answers with: without the assistant's own origin the redirect back to it is blocked.
+  return page(
+    t('Connect {assistant}?', { assistant: client?.name ?? 'Assistant' }),
+    body,
+    200,
+    [...clear, cookie(CONSENT_COOKIE, id, '/oauth/mcp/', 600, 'Lax')],
+    `'self' ${new URL(pending.redirectUri).origin}`,
+  );
 }
 
 /** Allow or Cancel, from the consent page: the same browser (its cookie) and the site's own page. */
 async function consent(request, url, env, ask) {
   const site = request.headers.get('sec-fetch-site');
   const origin = request.headers.get('origin');
-  if (site ? site !== 'same-origin' : origin !== url.origin) return problemPage(t('This must be done on the consent page.'), 403);
+  // Same-origin by the browser's own header, or by a matching Origin (some in-app browsers send another or no Sec-Fetch-Site).
+  if (site !== 'same-origin' && origin !== url.origin) return problemPage(t('This must be done from the consent page of this site.'), 403);
   const form = await request.formData().catch(() => null);
   const id = form?.get('pending');
-  if (typeof id !== 'string' || !id || id !== cookieOf(request, CONSENT_COOKIE))
-    return problemPage(t('This must be done on the consent page.'), 403);
+  if (typeof id !== 'string' || !id) return problemPage(t('The consent page sent no request to answer.'), 403);
   const db = await store(env);
   const pending = await db.pending(id);
+  // Already answered (a double tap or a replayed request): nothing left to decide, and no error to show.
+  if (!pending) {
+    trace('consent', 'already answered');
+    return page(t('Already answered'), `<p>${escapeHtml(t('You can close this page and go back to the assistant.'))}</p>`, 200, [
+      cookie(CONSENT_COOKIE, '', '/oauth/mcp/', 0, 'Lax'),
+    ]);
+  }
+  if (id !== cookieOf(request, CONSENT_COOKIE))
+    return problemPage(t('This browser did not keep the sign-in. Connect it again from the assistant.'), 403);
   const client = pending && (await db.client(pending.clientId));
   if (!pending?.userId || !pending.token || !client)
     return problemPage(`${t('Login failed (invalid or expired request).')} ${t('Connect it again from the assistant.')}`, 400);
-  const clear = [cookie(CONSENT_COOKIE, '', '/oauth/mcp/', 0, 'Strict')];
+  const clear = [cookie(CONSENT_COOKIE, '', '/oauth/mcp/', 0, 'Lax')];
   await db.dropPending(id);
   if (form.get('decision') !== 'allow') {
+    trace('consent', 'denied');
     await revokeGitHubToken(env, pending.token, ask);
-    const res = back(pending.redirectUri, { error: 'access_denied', state: pending.state ?? undefined });
+    const res = back(pending.redirectUri, { error: 'access_denied', state: pending.state ?? undefined }, 303);
     for (const c of clear) res.headers.append('set-cookie', c);
     return res;
   }
@@ -289,7 +312,8 @@ async function consent(request, url, env, ask) {
     challenge: pending.challenge,
   });
   await db.keepGitHubToken(pending.userId, pending.token);
-  const res = back(pending.redirectUri, { code: made.code, state: pending.state ?? undefined, iss: url.origin });
+  trace('consent', 'allowed, redirecting with a code', { client: client.name, host: new URL(pending.redirectUri).host });
+  const res = back(pending.redirectUri, { code: made.code, state: pending.state ?? undefined, iss: url.origin }, 303);
   for (const c of clear) res.headers.append('set-cookie', c);
   return res;
 }
@@ -315,20 +339,33 @@ async function token(request, url, env) {
   if (grant === 'authorization_code') {
     // The code is used up by being looked at, so a wrong try cannot be tried again.
     const found = await db.takeCode(body.code);
-    if (
-      !found ||
-      found.clientId !== body.client_id ||
-      found.redirectUri !== body.redirect_uri ||
-      !(await pkceMatches(body.code_verifier, found.challenge))
-    )
-      return oauthError('invalid_grant', 'The code is wrong, used or expired.');
+    const why = !found
+      ? 'code unknown, used or expired'
+      : found.clientId !== body.client_id
+        ? 'client_id differs'
+        : found.redirectUri !== body.redirect_uri
+          ? 'redirect_uri differs'
+          : !(await pkceMatches(body.code_verifier, found.challenge))
+            ? 'code_verifier does not match'
+            : null;
+    trace('token', why ?? 'code accepted', {
+      type: type.split(';')[0],
+      hasClientId: !!body.client_id,
+      basicAuth: request.headers.has('authorization'),
+    });
+    if (why) return oauthError('invalid_grant', 'The code is wrong, used or expired.');
     return issue(found.connectionId);
   }
   if (grant === 'refresh_token') {
     const connection = await db.byToken('refresh', body.refresh_token);
+    trace(
+      'token',
+      connection ? (connection.clientId === body.client_id ? 'refresh accepted' : 'refresh: client_id differs') : 'refresh unknown',
+    );
     if (!connection || connection.clientId !== body.client_id)
       return oauthError('invalid_grant', 'The refresh token is wrong, used or expired.');
     return issue(connection.id, body.refresh_token);
   }
+  trace('token', 'unsupported grant_type', { grant });
   return oauthError('unsupported_grant_type', 'Use authorization_code or refresh_token.');
 }
