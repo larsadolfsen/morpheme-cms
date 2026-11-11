@@ -9,15 +9,16 @@ import { config } from '@site/config';
 import { commitFiles, readFiles, readFolder } from './github.js';
 import { say } from './say.js';
 import { isDue, nameOf, published, scheduleOf } from '../lib/scheduled.mjs';
-import { DRAFTS, due, isWaitingDue, pageOf, publish } from '../lib/versions.mjs';
+import { DRAFTS, draftPath, due, isWaitingDue, migrateScheduled, pageOf, publish } from '../lib/versions.mjs';
 
 /** The address of the build's list; on the site it gives nothing (packages/editor/worker/index.js). */
 export const SCHEDULED_LIST = '/_scheduled.json';
 
 /** Publishes what is due: a waiting version whose time has come (`publishAt` in its file in src/drafts/, lib/versions.mjs) replaces its
- * page, and a page with the stored status Scheduled (an older site) is made Published. One commit for both. Gives the names. */
+ * page, and a page with the stored status Scheduled (an older site) is made Published; one whose time has not come is moved to a
+ * waiting version with its time, so the status goes (lib/versions.mjs `migrateScheduled`). One commit for all. Gives the names published. */
 export async function publishScheduled(env, now = Date.now(), ctx) {
-  const list = (await listOf(env)).filter((e) => isDue(e.publishAt, now));
+  const list = await listOf(env);
   // Asked of GitHub every hour: a draft saved with a time starts no build (src/drafts/ is not built), so the build's list cannot have it.
   const waiting = await dueVersions(env, now, ctx);
   if (!list.length && !waiting.changes.length) return [];
@@ -28,26 +29,36 @@ export async function publishScheduled(env, now = Date.now(), ctx) {
   let head = waiting.head;
   const changes = [...waiting.changes];
   const names = [...waiting.names];
+  let moved = 0;
   if (list.length) {
-    // The files as they are now (one may have been published or changed since the build).
+    // The files as they are now (one may have been published or changed since the build), and a waiting version that is already there.
     const read = await readFiles(
       env,
-      list.map((e) => e.path),
+      list.flatMap((e) => [e.path, draftPath(e.path)]),
       ctx,
     );
     head ??= read.head;
     for (const [i, e] of list.entries()) {
-      const file = scheduleOf(read.texts[i] ?? '');
-      if (file.status !== 'scheduled' || !isDue(file.publishAt, now) || changes.some((c) => c.path === e.path)) continue;
-      changes.push({ path: e.path, text: published(read.texts[i]) });
-      names.push(e.path);
+      const text = read.texts[2 * i] ?? '';
+      const file = scheduleOf(text);
+      if (file.status !== 'scheduled' || changes.some((c) => c.path === e.path)) continue;
+      if (isDue(file.publishAt, now)) {
+        changes.push({ path: e.path, text: published(text) });
+        names.push(e.path);
+      } else if (typeof read.texts[2 * i + 1] !== 'string') {
+        changes.push(...migrateScheduled({ path: e.path, text }));
+        moved++;
+      }
     }
   }
   if (!changes.length) return [];
   const said = names.map((path) => nameOf(path, (text) => say(config.locale, text)));
   // The older head: if the branch has moved since, the commit is refused and the next hour tries again.
-  await commitFiles(env, head, say(config.locale, 'Publish scheduled: {names}', { names: said.join(', ') }), changes, ctx);
-  console.log(`Published: ${said.join(', ')}`);
+  const message = said.length
+    ? say(config.locale, 'Publish scheduled: {names}', { names: said.join(', ') })
+    : say(config.locale, 'Move {count} scheduled to waiting versions', { count: moved });
+  await commitFiles(env, head, message, changes, ctx);
+  console.log(said.length ? `Published: ${said.join(', ')}` : `Moved ${moved} scheduled to waiting versions`);
   return said;
 }
 

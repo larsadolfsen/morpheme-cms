@@ -36,6 +36,7 @@ export const daDK = {
   'The editor has moved to {address} …': 'Editoren er flyttet til {address} …',
   // The commit of the scheduled pages and posts (worker/publish.js, lib/scheduled.mjs).
   'Publish scheduled: {names}': 'Udgiv planlagt: {names}',
+  'Move {count} scheduled to waiting versions': 'Flyt {count} planlagte til ventende versioner',
   'blog post': 'blogindlæg',
   page: 'side',
 };

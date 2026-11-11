@@ -32,7 +32,7 @@ import { filerAddresses, useMediaPicker } from './Media';
 import { autoTagChanges, newlyUsed } from './autoTags.mjs';
 import { recordsIn } from './fileRecords.mjs';
 import { inUse, problemAt } from './check';
-import { isOver } from '../lib/notice.mjs';
+import { isOver, untilTime } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
 import { asStandardTemplate, blockProblems, notOffered, siteBlocks } from './registry';
 import { FieldInput, Fields, useWrongField, WrongField, type FieldContext } from './fields';
@@ -54,6 +54,9 @@ import {
   clean,
   discard as discardWaiting,
   saveDraft,
+  migrateScheduled,
+  schedule,
+  timeOf,
   draftPath,
   published as isPublished,
   publish as publishPage,
@@ -403,17 +406,10 @@ function Form({
   const named = () => (isNew && !String(values.title ?? '').trim() ? { ...values, title: untitled() } : values);
 
   // `other`: an address chosen in the dialog for a taken one (below), saved instead of the one typed.
-  // `intent` 'publish': also puts it on the website (a draft is published, waiting changes replace the live version).
-  async function save(other?: string, values = named(), intent: 'save' | 'publish' = 'save') {
+  // `intent` 'publish': also puts it on the website (a draft is published, waiting changes replace the live version);
+  // 'schedule': keeps it as a waiting version that goes live at `at` (Danish time, "2026-11-20T08:00").
+  async function save(other?: string, values = named(), intent: 'save' | 'publish' | 'schedule' = 'save', at = '') {
     if (wrongField.stop(problemAt(collection.fields, values))) return;
-    // Planlagt, at a time chosen now: one still to come.
-    if (
-      asSaved.status === 'scheduled' &&
-      changed.some((f) => f.name === 'status' || f.name === 'publishAt') &&
-      isOver(String(asSaved.publishAt)) &&
-      wrongField.stop({ text: t.forms.entry.scheduledPast, path: 'publishAt' })
-    )
-      return;
     // A standard page is on the site: it cannot be a draft or wait for its time.
     if (
       standard &&
@@ -428,6 +424,7 @@ function Form({
     const typed = addressOf(other ?? String(values.path ?? ''), post ? 'post' : 'page');
     const address = typed || (isNew ? `/${slug}/` : url);
     const moved = !isNew && address !== url;
+    if (moved && intent === 'schedule') return notify({ text: t.forms.versions.scheduleWithAddress, error: true });
     // A new address takes its redirect at once, so it cannot wait with the changes: they are published or discarded first.
     if (moved && waiting) return notify({ text: t.forms.versions.addressWaiting, error: true });
     const name = post || isNew ? address.split('/').at(-2)! : slugOf(base.path, collection.folder);
@@ -534,10 +531,15 @@ function Form({
         if (changedText !== f.text) others.push({ ...f, text: changedText });
       }
     }
-    // A published page's `Save` keeps the changes as a waiting version; `Publish`, and a draft's `Save`, write the page file.
-    const viaDraft = !isNew && livePublished && !moved && intent === 'save' && !version;
-    // Writing the page file from the waiting version (the page is a draft, or published now) takes its file away.
-    const foldWaiting = !!waiting && !viaDraft && (intent === 'publish' || !livePublished);
+    // A published page's `Save`, and `Schedule`, keep the changes as a waiting version (so does `Save` on a draft that has one);
+    // `Publish`, and a draft's `Save`, write the page file.
+    const scheduling = intent === 'schedule';
+    const viaDraft = scheduling || (!isNew && !moved && !version && intent === 'save' && (livePublished || !!waiting));
+    // Writing the page file from the waiting version (published now) takes its file away.
+    const foldWaiting = !!waiting && !viaDraft && intent === 'publish';
+    // A page on the stored status Scheduled (an older site) becomes a draft when it is scheduled again.
+    const legacy = scheduling && !isNew ? migrateScheduled({ path: live.path, text: live.text })[0] : undefined;
+    const legacyText = legacy ? (legacy.text ?? '') : undefined;
     if (intent === 'publish') next = clean(next);
     if (intent === 'save' && next === base.text && !moved && !redirectChanges.length) {
       setBodyChanged(false);
@@ -558,13 +560,20 @@ function Form({
         )
       : [];
     // The waiting version: the text of the form without `status`, with the time it already has.
-    const waitingPath = isNew ? '' : draftPath(live.path);
-    const waitingText = viaDraft
-      ? (saveDraft({ path: live.path, text: live.text, drafts: waiting ? { waiting: waiting.text } : {} }, next)[0].text ?? '')
-      : '';
+    const waitingPath = viaDraft ? draftPath(isNew ? path : live.path) : '';
+    const asDraft = (text: string) =>
+      saveDraft({ path: isNew ? path : live.path, text, drafts: waiting ? { waiting: waiting.text } : {} }, next)[0].text ?? '';
+    const draftText = viaDraft ? asDraft(isNew ? next : live.text) : '';
+    const waitingText =
+      viaDraft && scheduling
+        ? (schedule({ path: isNew ? path : live.path, text: next, drafts: { waiting: draftText } }, at)[0].text ?? '')
+        : draftText;
     const changes: Change[] = viaDraft
       ? [
           { path: waitingPath, content: waitingText, oid: waiting?.oid || null },
+          // A new page is made, as a draft, with its waiting version; one on the stored Scheduled becomes a draft.
+          ...(isNew ? [{ path, content: next, oid: null }] : []),
+          ...(legacyText !== undefined ? [{ path: live.path, content: legacyText, oid: live.oid || null }] : []),
           ...used.map((u) => ({ path: u.path, content: u.bytes, oid: null })),
         ]
       : [
@@ -580,15 +589,17 @@ function Form({
     const singular = asWritten(collection).singular;
     const message = moved
       ? siteT.forms.commit.move(asWritten(collection).singular, url, address)
-      : viaDraft
-        ? siteT.forms.versions.commit.saveChanges(singular, what)
-        : intent === 'publish'
-          ? siteT.forms.versions.commit.publish(singular, what)
-          : isNew
-            ? siteT.forms.commit.create(asWritten(collection).create!, what)
-            : version
-              ? siteT.history.commit.restoreVersion(`${asWritten(collection).singular} ${what}`, savedOn(version))
-              : siteT.forms.commit.editOne(asWritten(collection).singular, what);
+      : scheduling
+        ? siteT.forms.versions.commit.schedule(singular, what, at.replace('T', ' '))
+        : viaDraft
+          ? siteT.forms.versions.commit.saveChanges(singular, what)
+          : intent === 'publish'
+            ? siteT.forms.versions.commit.publish(singular, what)
+            : isNew
+              ? siteT.forms.commit.create(asWritten(collection).create!, what)
+              : version
+                ? siteT.history.commit.restoreVersion(`${asWritten(collection).singular} ${what}`, savedOn(version))
+                : siteT.forms.commit.editOne(asWritten(collection).singular, what);
     const entry = kindAndName(collection.singular, String(values.title ?? '').trim() || name);
     const change = moved
       ? t.app.changes.moved(entry, address)
@@ -602,18 +613,25 @@ function Form({
     setSaving(true);
     notify({ text: t.common.saving });
     try {
-      const oids = await env.commit(message, changes, change, !viaDraft);
+      // A waiting version changes nothing on the website, so it is not waited for; a new page file is made too.
+      const oids = await env.commit(message, changes, change, !viaDraft || isNew || legacyText !== undefined);
       if (viaDraft) {
         // Kept as a waiting version: the page file, and so the website, is as it was.
         const draft = { path: waitingPath, oid: oids[waitingPath], text: waitingText };
+        const kept = isNew
+          ? { path, oid: oids[path], text: next }
+          : legacyText !== undefined
+            ? { ...live, oid: oids[live.path], text: legacyText }
+            : live;
         pictures.markSaved(used);
+        setLive(kept);
         setWaiting(draft);
-        setBase({ ...live, text: waitingText });
-        setValues(valuesOf(collection, { ...live, text: waitingText }));
+        setBase({ ...kept, text: waitingText });
+        setValues(valuesOf(collection, { ...kept, text: waitingText }));
         setBodyChanged(false);
         setSavedAt(new Date());
-        env.onSaved(live, { files: [draft], removed: [] });
-        notify({ text: t.forms.versions.savedWaiting });
+        env.onSaved(kept, { files: [draft], removed: [] });
+        notify({ text: scheduling ? t.forms.versions.savedScheduled(timeText(at)) : t.forms.versions.savedWaiting });
         return true;
       }
       const saved = { path, oid: oids[path], text: next };
@@ -729,16 +747,50 @@ function Form({
       env.onSaved(live, { files: [], removed: [waiting.path] });
     });
   }
+  // When the waiting version goes live, if it has a time.
+  const scheduledAt = waiting ? timeOf(waiting.text) : undefined;
+  // `Schedule`: a date and a time to pick; what is unsaved is saved as the waiting version with it.
+  async function scheduleNow() {
+    const answer = await choose({
+      title: t.forms.versions.scheduleTitle,
+      text: t.forms.versions.scheduleText(post),
+      input: { label: t.forms.versions.scheduleTime, value: scheduledAt ?? '', type: 'datetime' },
+      choices: [{ value: 'schedule', label: t.forms.versions.schedule }],
+    });
+    if (!answer) return;
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(answer.text) || isOver(answer.text))
+      return notify({ text: t.forms.versions.scheduleNeedsFuture, error: true });
+    return save(undefined, named(), 'schedule', answer.text);
+  }
+  // `Cancel schedule`: the waiting version stays, without its time.
+  async function cancelSchedule() {
+    if (!waiting) return;
+    const { what, entry, singular } = nameForMessages();
+    const changes = commitChanges(schedule({ path: live.path, text: live.text, drafts: { waiting: waiting.text } }, null), [live, waiting]);
+    await act(
+      siteT.forms.versions.commit.cancelSchedule(singular, what),
+      changes,
+      t.forms.versions.scheduledCancelled(entry),
+      false,
+      (oids) => {
+        const draft = { path: waiting.path, oid: oids[waiting.path], text: String(changes[0].content) };
+        setWaiting(draft);
+        env.onSaved(live, { files: [draft], removed: [] });
+      },
+    );
+  }
+  const scheduleRows = [
+    { label: t.forms.versions.schedule, onClick: scheduleNow },
+    ...(scheduledAt ? [{ label: t.forms.versions.cancelSchedule, onClick: cancelSchedule }] : []),
+  ];
+  const discardRow = waiting ? [{ label: t.forms.versions.discardChanges, onClick: discardNow }] : [];
   const publishBar =
     state === 'draft'
-      ? { label: t.forms.versions.publish, onPublish: publishNow }
+      ? { label: t.forms.versions.publish, onPublish: publishNow, actions: [...scheduleRows, ...discardRow] }
       : {
           ...(state === 'waiting' || dirty ? { label: t.forms.versions.publishChanges } : {}),
           onPublish: publishNow,
-          actions: [
-            ...(dirty ? [] : [{ label: t.forms.versions.unpublish, onClick: unpublishNow }]),
-            ...(waiting ? [{ label: t.forms.versions.discardChanges, onClick: discardNow }] : []),
-          ],
+          actions: [...scheduleRows, ...(dirty ? [] : [{ label: t.forms.versions.unpublish, onClick: unpublishNow }]), ...discardRow],
         };
 
   // "Preview": the page or post with what is changed in the form; a new one, or one whose layout is changed in the
@@ -816,7 +868,7 @@ function Form({
         <FormFrame
           title={formTitle}
           back={{ href: `#list/${collection.id}`, label: collection.label }}
-          status={versionStatus({ state, savedAt, saving, deleting, isNew })}
+          status={versionStatus({ state, scheduledAt, savedAt, saving, deleting, isNew })}
           publish={publishBar}
           view={isNew ? undefined : url}
           dirty={dirty}
@@ -914,21 +966,28 @@ function Form({
   );
 }
 
+// A time as the owner reads it ("Nov 20 at 8:00 AM"), from the Danish time the file has.
+const timeText = (local: string) => when(new Date(untilTime(local) ?? 0));
+
 // The top bar's line under the title: what the page is on the website, and when it was last changed.
 function versionStatus({
   state,
+  scheduledAt,
   savedAt,
   saving,
   deleting,
   isNew,
 }: {
   state: 'draft' | 'published' | 'waiting';
+  /** When the waiting version goes live ("2026-11-20T08:00"), if it has a time. */
+  scheduledAt?: string;
   savedAt?: Date | null;
   saving: boolean;
   deleting?: boolean;
   isNew?: boolean;
 }) {
   if (deleting || saving || isNew) return savedStatus({ savedAt, saving, deleting, isNew });
+  if (scheduledAt && untilTime(scheduledAt) !== null) return t.forms.versions.scheduledLine(timeText(scheduledAt));
   if (state === 'draft') return t.forms.versions.draftLine;
   if (state === 'waiting') return t.forms.versions.waitingLine;
   return savedAt ? t.forms.versions.publishedLine(when(savedAt)) : undefined;

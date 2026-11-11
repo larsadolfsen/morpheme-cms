@@ -88,8 +88,9 @@ const topImageText: Field[] = [
   { name: 'imageAlt', label: 'Alt text', type: 'string', only: { field: 'imageDecorative', is: ['', 'false'] } },
 ];
 
-// "Status" at the top of a page or post (EntryForm.tsx): Draft, Published or Scheduled, and for
-// Scheduled when (packages/editor/lib/status.mjs). Published is no `status` in the file. A post's date follows the time.
+// "Status" of a page or post: Draft, or Published (no `status` in the file). The editor does not show it as a field: `Publish`,
+// `Unpublish` and the line under the title say it (EntryForm.tsx). When a page goes live at a time is a waiting version's
+// `publishAt` (packages/editor/lib/versions.mjs). A stored `scheduled` (an older site) is moved there by the Worker.
 const status = (): Field[] => [
   {
     name: 'status',
@@ -100,16 +101,7 @@ const status = (): Field[] => [
     options: [
       { value: 'draft', label: 'Draft', hint: 'Not on the website yet. Not even at its address.' },
       { value: '', label: 'Published', hint: 'On the website for everyone.' },
-      { value: 'scheduled', label: 'Scheduled', hint: 'Shown on the website from the time below.' },
     ],
-  },
-  {
-    name: 'publishAt',
-    label: 'Time',
-    type: 'datetime',
-    required: true,
-    only: { field: 'status', is: ['scheduled'] },
-    hint: 'Published at most an hour after.',
   },
 ];
 
