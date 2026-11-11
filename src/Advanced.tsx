@@ -195,7 +195,7 @@ export default function Advanced({ env }: { env: Env }) {
     <Screen title={t.common.parts.caching} wide back={backToDeveloper}>
       <section className="mb-8">
         <GroupTitle>{t.advanced.r2Caching}</GroupTitle>
-        <div className="px-4">
+        <div className="setting-list px-4">
           {problem ? (
             <ProblemNote>{problem}</ProblemNote>
           ) : !file ? (
@@ -214,12 +214,12 @@ export default function Advanced({ env }: { env: Env }) {
               />
               <SwitchRow
                 label={t.blockSettings.active}
+                hint={note}
                 texts={[t.library.on, t.library.off]}
                 selected={on}
                 disabled={saving || (!on && !ready)}
                 onChange={turn}
               />
-              <SupportingText className="mt-2">{note}</SupportingText>
             </>
           )}
         </div>
@@ -233,7 +233,7 @@ export default function Advanced({ env }: { env: Env }) {
             </Notice>
           </div>
         )}
-        <div className="px-4">
+        <div className="setting-list px-4">
           {buildProblem ? (
             <ProblemNote>{buildProblem}</ProblemNote>
           ) : (
@@ -250,7 +250,15 @@ export default function Advanced({ env }: { env: Env }) {
                 />
               ))}
               {paid && !settings.paidBuilds && paid !== 'yes' && <SupportingText className="mt-2">{t.advanced.plan[paid]}</SupportingText>}
-              <LinkButton href={BILLING_URL} target="_blank" rel="noopener" kind="text" size="small" icon={ArrowSquareOut}>
+              <LinkButton
+                href={BILLING_URL}
+                target="_blank"
+                rel="noopener"
+                kind="text"
+                size="small"
+                icon={ArrowSquareOut}
+                className="setting-list-action"
+              >
                 {t.advanced.billing}
               </LinkButton>
             </>
