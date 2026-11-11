@@ -27,10 +27,10 @@ import { sectionBlocks } from './blocks';
 import { looksOf, pageH1 } from './sections.mjs';
 import { h1FromTitle, titleFromH1 } from './titleH1.mjs';
 import { useFormSections } from './formSections';
-import { publicPath, shownAt, useUploads } from './images';
+import { creditedIn, publicPath, shownAt, useUploads } from './images';
 import { filerAddresses, useMediaPicker } from './Media';
 import { autoTagChanges, newlyUsed } from './autoTags.mjs';
-import { recordsIn } from './fileRecords.mjs';
+import { creditChanges, recordsIn } from './fileRecords.mjs';
 import { inUse, problemAt } from './check';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
@@ -398,7 +398,7 @@ function Form({
   // now and did not in its last saved version (a picture, a PDF field, a link) gets the page's tags at "Save" (autoTags.mjs).
   const tagged = collection.fields.some((f) => f.name === 'categories' && f.type === 'relation' && f.to === 'categories');
   const pictures = useUploads(notify);
-  const [pickImage, picker] = useMediaPicker(env.media, pictures);
+  const [pickImage, picker] = useMediaPicker(env.media, pictures, env.files);
 
   const fields: FieldContext = {
     relations: env.relations,
@@ -567,7 +567,7 @@ function Form({
     const used = pictures.usedIn(next);
     const removed = base.path && path !== base.path ? [base.path] : [];
     // The page's tags to the files in "Files" it newly refers to (the text as last saved against the text now), in the same commit.
-    const recordChanges = tagged
+    const autoRecordChanges = tagged
       ? autoTagChanges(
           recordsIn(env.files, config.fileRecords),
           config.fileRecords,
@@ -577,6 +577,8 @@ function Form({
           Array.isArray(saved.categories) ? (saved.categories as string[]) : [],
         )
       : [];
+    // The credit of a picture from an app's source of pictures goes in its record, in the same commit as the picture.
+    const recordChanges = creditChanges(autoRecordChanges, recordsIn(env.files, config.fileRecords), config.fileRecords, creditedIn(used));
     // The waiting version: the text of the form without `status`, with the time it already has.
     const waitingPath = viaDraft ? draftPath(isNew ? path : live.path) : '';
     const asDraft = (text: string) =>

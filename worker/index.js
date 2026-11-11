@@ -44,6 +44,7 @@
 //   for their notifications. What the apps
 //   put in the build (dist/_apps/<app>/, packages/editor/lib/apps.mjs) is served to no one; the apps read it.
 import * as siteWorker from '@site/worker';
+import { config } from '@site/config';
 import { apps, appTexts, appWorkers, moved, oldAddresses as map, standard } from '@site/worker';
 import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 import { handleOAuth } from './oauth.js';
@@ -61,6 +62,7 @@ import { handleGitHub } from './editor-github.js';
 import { handleConnection } from './store-connection.js';
 import { handleStore } from './store.js';
 import { callTool, forgetUninstalled, handleMcpClient } from './mcp-client.js';
+import { forgetProviderKeys, handleMediaProviders } from './media-providers.js';
 import { handlePlan } from './plan-status.js';
 import { handleStatus } from './service-status.js';
 import { handleR2 } from './r2-status.js';
@@ -82,6 +84,8 @@ const installed = Object.fromEntries(Object.entries(appWorkers).filter(([id]) =>
 // The MCP servers of the connectors installed and not turned off (`mcp` in app.json, written to worker/apps.js), by the app's id. Read
 // by name from the namespace, so a site whose src/site/worker.js is older than this still builds (it has none).
 const appMcp = Object.fromEntries(Object.entries(siteWorker.appMcp ?? {}).filter(([id]) => active.includes(id)));
+// The media providers of the apps installed and not turned off (`mediaProviders` in app.json), with the hosts each lists, by the app's id.
+const appMedia = Object.fromEntries(Object.entries(siteWorker.appMedia ?? {}).filter(([id]) => active.includes(id)));
 // What an app is given, besides the request: whether its sender can save the site (signed in with GitHub), an answer
 // in JSON, the Worker's own saves to the repository (`github`, packages/editor/worker/github.js: `read` and `commit`, with the request's
 // `ctx`, so the cache in R2 is written after the answer has gone; given a request as the last argument, with its sender's
@@ -205,6 +209,8 @@ export default {
     if (url.pathname === '/api/store/connection') return handleConnection(request, env, ctx);
     if (url.pathname.startsWith('/api/store/')) return handleStore(request, env, ctx);
     if (url.pathname.startsWith('/api/mcp-client/')) return handleMcpClient(request, env, { mcp: appMcp, access });
+    if (url.pathname === '/api/media-providers' || url.pathname.startsWith('/api/media-providers/'))
+      return handleMediaProviders(request, env, { media: appMedia, access, site: config.name });
     if (/^\/api\/push(\/wait)?\/?$/.test(url.pathname)) return handlePush(request, env);
     if (/^\/api\/cms(\/update|\/note-image\/.*)?\/?$/.test(url.pathname)) return handleCms(request, env, ctx);
     const answer = appAnswer(request, url, env, ctx);
@@ -243,6 +249,7 @@ export default {
         checkForUpdate(env),
         forgetOldConsents(env),
         forgetUninstalled(env, appMcp),
+        forgetProviderKeys(env, appMedia),
         ...Object.entries(installed).map(([id, app]) => app.scheduled?.(env, ctx, tools(id, ctx))),
       ]),
     );

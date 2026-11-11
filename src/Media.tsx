@@ -36,6 +36,8 @@ import {
   SideSheet,
   useAtLeast,
   EmptyNote,
+  FilterChip,
+  Notice,
   SheetBody,
   ListItem,
   type Pickable,
@@ -44,11 +46,14 @@ import type { Env } from './App';
 import type { RepoFile } from './github';
 import { fixedName, slugify } from './schema';
 import { config, siteName } from '@site/editor';
-import { collections } from './site';
+import { apps, collections } from './site';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { fileKindOf, pickedKindOf, pickImage, prepareFile, prepareImage, publicPath, showMoved, shownAt, type Uploads } from './images';
 import { fileIcons, FileView, KINDS, kindOf, type Kind } from './FileView';
 import MediaTags from './MediaTags';
+import MediaProviderPicker from './MediaProviderPicker';
+import { providerFile, trackProviderDownload, type MediaItem } from './mediaProviders';
+import { activeApps, mediaProvidersOf } from './apps';
 import { deleteRecord, recordsIn, renameRecord } from './fileRecords.mjs';
 import { tagFilterOptions, tagIndex, withTag } from './fileTagFilter.mjs';
 import { kindAndName, savedText } from './deploy';
@@ -360,11 +365,18 @@ function Gallery({
 }
 
 /** Asks for a picture from the gallery, or a new one (kept with the form's pictures, images.ts, and
- * saved with it); its address on the site, or null. The sheet goes on top of a block's sheet. */
-export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Promise<string | null>, ReactElement] {
+ * saved with it); its address on the site, or null. The sheet goes on top of a block's sheet. With `files` (the site's files),
+ * each source of pictures an installed app adds (a media provider) is a tab beside the site's own pictures; a picture from it
+ * is kept with its credit, which is saved with the picture. */
+export function useMediaPicker(media: RepoFile[], pictures: Uploads, files: RepoFile[] = []): [() => Promise<string | null>, ReactElement] {
   const dialog = useRef<HTMLDialogElement>(null);
   const answer = useRef<(src: string | null) => void>(() => {});
   const srcs = [...new Set([...pictures.added, ...mediaOf(media)].map((f) => publicPath(f.path)))];
+  const providers = mediaProvidersOf(apps, activeApps(files));
+  const [source, setSource] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+  const provider = providers.find((p) => `${p.app}/${p.id}` === source);
 
   const done = (src: string | null) => {
     answer.current(src);
@@ -374,8 +386,24 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Pro
   const ask = () =>
     new Promise<string | null>((resolve) => {
       answer.current = resolve;
+      setProblem(null);
       dialog.current?.showModal();
     });
+
+  async function pickFrom(item: MediaItem) {
+    if (!provider) return;
+    setAdding(true);
+    setProblem(null);
+    try {
+      const upload = await pictures.addFile(await providerFile(provider, item), { ...item.credit, source: provider.label });
+      trackProviderDownload(provider, item);
+      done(publicPath(upload.path));
+    } catch (e) {
+      setProblem((e as Error).message === 'picture' ? t.media.providers.failed : (e as Error).message);
+    } finally {
+      setAdding(false);
+    }
+  }
 
   const element = (
     <BottomSheet
@@ -386,19 +414,44 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads): [() => Pro
     >
       <SheetTitle title={t.media.pick} onClose={() => done(null)} />
       <SheetBody>
-        <Button
-          kind="outlined"
-
-          icon={UploadSimple}
-          busy={pictures.uploading}
-          onClick={async () => {
-            const added = await pictures.upload();
-            if (added) done(publicPath(added.path));
-          }}
-        >
-          {t.media.uploadNew}
-        </Button>
-        <Gallery srcs={srcs} onPick={done} />
+        {providers.length ? (
+          <div className="flex flex-wrap gap-2" role="group" aria-label={t.media.pick}>
+            <FilterChip selected={!provider} onClick={() => setSource(null)}>
+              {t.media.providers.own}
+            </FilterChip>
+            {providers.map((p) => (
+              <FilterChip key={`${p.app}/${p.id}`} selected={provider === p} onClick={() => setSource(`${p.app}/${p.id}`)}>
+                {p.label}
+              </FilterChip>
+            ))}
+          </div>
+        ) : null}
+        {provider ? (
+          <>
+            {problem ? <Notice role="alert">{problem}</Notice> : null}
+            <MediaProviderPicker
+              key={`${provider.app}/${provider.id}`}
+              provider={provider}
+              busy={adding || pictures.uploading}
+              onPick={(item) => void pickFrom(item)}
+            />
+          </>
+        ) : (
+          <>
+            <Button
+              kind="outlined"
+              icon={UploadSimple}
+              busy={pictures.uploading}
+              onClick={async () => {
+                const added = await pictures.upload();
+                if (added) done(publicPath(added.path));
+              }}
+            >
+              {t.media.uploadNew}
+            </Button>
+            <Gallery srcs={srcs} onPick={done} />
+          </>
+        )}
       </SheetBody>
     </BottomSheet>
   );
