@@ -795,13 +795,7 @@ function NotificationChoices({ files }: { files: RepoFile[] }) {
   const { off, device } = useNotificationChoices();
   const installed = activeApps(files);
   const choice = (type: string, label: string) => (
-    <SwitchRow
-      key={type}
-      label={label}
-      texts={[t.library.on, t.library.off]}
-      selected={!off.includes(type)}
-      onChange={(on) => setOn(type, on)}
-    />
+    <SwitchRow key={type} label={label} selected={!off.includes(type)} onChange={(on) => setOn(type, on)} />
   );
   return (
     <>
@@ -811,7 +805,6 @@ function NotificationChoices({ files }: { files: RepoFile[] }) {
           <SwitchRow
             label={t.library.onDevice}
             hint={t.library.onDeviceHint}
-            texts={[t.library.on, t.library.off]}
             selected={device}
             onChange={async (on) => {
               if (!(await setDevice(on))) snackbar({ text: t.library.deviceBlocked, error: true });

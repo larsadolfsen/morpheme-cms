@@ -1,8 +1,6 @@
 // "Block settings" (BlockSettings.tsx).
 export const blockSettings = {
   stillOn: (n: number) => `The block is used on ${n} ${n === 1 ? 'page' : 'pages'}. Remove it from there first.`,
-  on: 'On',
-  off: 'Off',
   /** At the right of a block's row, and the filter, when it is off (its switch: active, off). */
   inactive: 'Disabled',
   standard: 'Standard blocks',
