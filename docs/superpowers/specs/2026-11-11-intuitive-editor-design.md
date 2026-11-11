@@ -554,6 +554,8 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    site and its theme (today Material 3's, which `lib/breakpoints.mjs` and the theme's CSS agree on), not a fixed list in the
    editor, so a theme with other breakpoints shows its own. The heights are a phone's for `compact`, a tablet's for `medium` and `expanded`, and a laptop's for `large` and
    `extraLarge` (owner, 11 November); the exact numbers are set when it is built.
-8. **Decision 4 (dotted line instead of a box) against decision 7 (more like the site):** keep the colour box for a coloured
-   section as the site draws it, and use the dotted line only to mark where a section starts (sections with no colour, and
-   as a boundary marker above each)? Recommended: yes. Alternative: dotted line only, and the colour shown on the site only.
+8. **A coloured section keeps its colour box; the dotted line marks where a section starts (settled, owner, 11 November).**
+   A coloured section is drawn as the site draws it, as a box. The colours are the same choices as a Filled card
+   (finding 17): Surface, Primary, Secondary and Tertiary (today's list is None, Surface, Tint and Primary), or none, and
+   the theme decides how each looks. The dotted line at each H2 shows only on hover, so the text looks like the site
+   the rest of the time. Open: whether `Tint` is migrated to Surface or Secondary.
