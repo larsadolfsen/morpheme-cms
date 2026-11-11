@@ -29,6 +29,10 @@ export const advanced = {
     failed: 'Cloudflare didn’t answer whether the account has Workers Paid. Try again later.',
   },
   billing: 'Open billing at Cloudflare',
+  /** Once, after a change was saved as a waiting version (src/drafts/): the steps in Cloudflare that skip the build it starts. */
+  skipDraftBuildsTitle: 'Skip builds for waiting versions',
+  skipDraftBuilds:
+    'Saving changes that wait to be published builds the website with only the editor’s checks. To skip that build, open the website’s build settings in Cloudflare, choose Build watch paths, and under Exclude paths add src/drafts/**. Only you can change this in Cloudflare.',
   buildSettingsNotLoaded: (error: string) => `The settings for updating the website couldn’t be loaded: ${error}`,
   place: 'Location',
   placeHint: 'Can only be changed while Faster editor is off.',

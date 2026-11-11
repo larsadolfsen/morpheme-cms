@@ -52,7 +52,9 @@ Rows under each other, as your theme draws a list.
 
 ## Segmented list
 
-Rows that fold out with a text and a link, with a text button under the last row.
+Rows that fold out with a text and a link, with a text button under the last row. A row with a page and no text shows the beginning of the page.
+
+<div data-block="segmented" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Blocks&quot;,&quot;text&quot;:&quot;Every block a page can be built from.&quot;,&quot;href&quot;:&quot;/blocks/&quot;},{&quot;title&quot;:&quot;About&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>
 
 <div data-block="segmented" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Opening hours&quot;,&quot;text&quot;:&quot;Monday to Friday, 9 am to 5 pm.\n\nSaturday, 10 am to 2 pm.&quot;},{&quot;icon&quot;:&quot;map-pin&quot;,&quot;title&quot;:&quot;Where to find us&quot;,&quot;text&quot;:&quot;Ground floor, next to the station.&quot;,&quot;href&quot;:&quot;/about/&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Good to know&quot;,&quot;text&quot;:&quot;Bring your booking number.&quot;}],&quot;only&quot;:true,&quot;button&quot;:&quot;See all&quot;,&quot;buttonHref&quot;:&quot;/about/&quot;}"></div>
 

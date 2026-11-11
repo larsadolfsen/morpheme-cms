@@ -25,6 +25,9 @@ export const advanced: Messages['advanced'] = {
     failed: 'Cloudflare svarede ikke på, om kontoen har Workers Paid. Prøv igen senere.',
   },
   billing: 'Åbn betaling hos Cloudflare',
+  skipDraftBuildsTitle: 'Spring over opbygning for ventende versioner',
+  skipDraftBuilds:
+    'Når du gemmer ændringer, der venter på at blive udgivet, bygges hjemmesiden kun med editorens kontroller. For at springe den opbygning over skal du åbne hjemmesidens byggeindstillinger i Cloudflare, vælge Build watch paths og under Exclude paths tilføje src/drafts/**. Kun du kan ændre det i Cloudflare.',
   buildSettingsNotLoaded: (error) => `Indstillingerne for opdatering af hjemmesiden kunne ikke hentes: ${error}`,
   place: 'Placering',
   placeHint: 'Kan kun skiftes, når Hurtigere editor er slået fra.',
