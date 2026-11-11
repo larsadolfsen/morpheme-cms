@@ -25,7 +25,14 @@ export default defineBlock({
       required: true,
       fields: [
         { name: 'icon', label: t.blocks.list.icon, type: 'select', icons: true, options: iconOptions(t.blocks.icons) },
-        { name: 'title', label: t.blocks.list.title, type: 'string', required: true },
+        { name: 'title', label: t.blocks.list.title, type: 'string', hint: t.blocks.list.titleHint },
+        {
+          name: 'heading',
+          label: t.blocks.list.rowHeading,
+          type: 'boolean',
+          toggle: t.blocks.list.rowHeadingToggle,
+          hint: t.blocks.list.rowHeadingHint,
+        },
         { name: 'text', label: t.blocks.list.text, type: 'text' },
         { name: 'href', label: t.blocks.list.href, type: 'relation', to: 'pages', hint: t.blocks.list.hrefHint },
       ],
