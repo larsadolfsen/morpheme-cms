@@ -29,6 +29,15 @@ Every other session opens its pull request, gets its `check` job green, reports 
 leaves the merge to it. A session never merges its own pull request, and never asks the owner to merge one. If a pull
 request waits and no PM seems to be running, the session tells the owner so, and the owner starts a new PM.
 
+**When no PM is running, the orchestrator merges.** The orchestrator is the session that started the other sessions
+for the owner (the owner's "To do list" session). While no PM session is active, it may merge the pull requests of the
+sessions it started, under the conditions in **Merging** below, and only after it has read the diff. A PM session is
+active when one exists that is not archived, also when it is idle: an idle PM gets a short message from the orchestrator
+first, and the orchestrator merges nothing while the PM can still pick the pull request up. When a PM starts, it
+takes over every pull request that is waiting, and the orchestrator stops merging. The orchestrator never merges the
+Release PR, and the rules in **Only the owner releases a new version** apply to it as to every session. The sessions it
+started still never merge their own pull requests.
+
 **Merging.** The PM makes every merge decision, in this repository and in `morpheme-staging`. It squash-merges a pull
 request when all of this holds, one pull request at a time:
 
