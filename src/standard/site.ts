@@ -81,7 +81,13 @@ export type TestimonialItem = {
   frontPage: boolean;
 };
 
+/** A row a list block gets from a list ("Rows from"): as a typed row, with the tags the item has (for the tag filter). */
+export type SourceItem = { title: string; text?: string; icon?: string; href?: string; tags: string[] };
+
 export type StandardSite = {
+  /** The items of a list a list block reads ("Rows from"), by the source's id (`posts`, `testimonials`, or the id of a list that
+   * declares `asRows`) and the page the list has of its own (where "Show all" goes), if it has one. Empty when there is no such list. */
+  source(id: string): Promise<{ items: SourceItem[]; page?: string }>;
   /** The blocks' shared texts (shared.ts, with those saved over them), by type: for a block that shows another's
    * (Banner: the shared buttons, "Read more"). */
   texts: Record<string, Record<string, any>>;

@@ -64,7 +64,7 @@ Unit: `rowOf` (empty title, missing link, tags, count `0`/text/empty), the tag f
 `maxRows` together, a block without `from` unchanged. Then `npm run check`, `check:screens`, `check:demo`,
 `check:themes` on every theme, and `check:starter`. A changeset (minor) and one release-note card in part 4.
 
-## Open for the owner (sent to the PM)
+## Decisions taken meanwhile (PM, owner away; each is one line to flip)
 
-- Is `Show all` on the plain List wanted after all? (Decision 10 says no; this plan follows it.)
-- Should a dynamic block with no matching items show nothing, or a short empty note? Plan: nothing on the site, a faded note in the editor.
+- The plain List has no `Show all` (decision 10).
+- A dynamic block with no matching items shows nothing on the site, and a short note in the editor saying why.
