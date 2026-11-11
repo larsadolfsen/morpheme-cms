@@ -25,19 +25,21 @@ a release note (`release-notes` skill, English and `da-DK`). Data model and Work
 
 ## Pull requests
 
-1. **Data model and migration** (no UI). `lib/status.mjs` (two states, legacy values still read), `lib/versions.mjs`
-   (version list, draft path, `publish`, `schedule`, `unpublish`, `discard` as pure text and path functions),
-   migration of `unlisted` and `scheduled` front matter, `site/content.ts` and `defaults/rules.ts` read the new model, build
-   skips `src/drafts/`, tests.
-2. **Worker.** Commit a draft file, `Publish changes`, `Unpublish`, `Discard`, `Schedule` as Worker endpoints over
-   `worker/github.js`; the hourly job publishes due waiting versions (replaces the `scheduled` status scan);
-   `ci-build` fallback lane for a drafts-only diff; the starter's watch-path note.
-3. **Editor store.** `store.ts` and `EntryForm.tsx` hold a draft and a live version; `Save` writes the draft; new entries start
-   as Draft; no new visuals except what the store needs.
-4. **Editor UI.** Save bar and top bar states (`Draft`, `Published`, `Unpublished changes`, `Scheduled changes`),
-   `Publish`, `Publish changes`, `Unpublish`, `Discard changes` with its confirmation, the `Schedule` picker, the
-   `Hide from search engines` setting in the SEO section; `CLAUDE.md` section 6 status words; release note with
-   before and after screenshots, and the migration shown, for the owner.
+1. **Plan and the `unlisted` removal** (PR #290, merged): `lib/status.mjs` (`hiddenFromSearch`, `migrateStatus`).
+2. **Versions and the Worker** (no UI). The editor already commits through `/api/github/commit` (several files, deletes
+   included), so Save, Publish changes, Unpublish, Discard and Schedule need no Worker endpoint: they are the pure functions
+   of `lib/versions.mjs` (spike S4: each takes a version id, default `waiting`; the draft path comes from the id), and the
+   editor commits their changes. The Worker's part is the hourly publish (`worker/publish.js`): it looks in `src/drafts/` for
+   due `publishAt` across the whole version list, one commit with the pages still on the stored status `scheduled`. A drafts-only
+   diff takes `ci-build`'s content lane (`src/drafts/` joins `CONTENT_PATHS`), with no early exit. `check:worker` covers it.
+3. **Editor store.** `store.ts` and `EntryForm.tsx` hold a live and a waiting version; `Save` writes the draft file; new pages
+   and posts start as Draft; a stored `scheduled` is migrated to a waiting version with its time; the `scheduled` status
+   option goes.
+4. **Editor UI.** Save bar and top bar states (`Draft`, `Published`, `Unpublished changes`, `Scheduled changes`), `Publish`,
+   `Publish changes`, `Unpublish`, `Discard changes` with its confirmation, the `Schedule` picker, the `Live` / `Scheduled`
+   switch as the named slot `versionSwitch` (`AppDefinition.slots`, with its props: `entry`, `versions`, the four functions
+   and `editing`; the core draws it when no app registers one), the `Hide from search engines` setting up in the SEO section,
+   `CLAUDE.md` section 6, and the release note card with before and after screenshots and the migration shown to the owner.
 
 Each pull request must pass `npm run check`, `check:screens`, `check:demo` and `check:themes`.
 
