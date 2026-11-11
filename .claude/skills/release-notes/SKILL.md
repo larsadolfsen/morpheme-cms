@@ -1,6 +1,6 @@
 ---
 name: release-notes
-description: Use when a change is something a site owner sees, and so needs a release note, or when a release note, an edition or the notes of a version are written or fixed - "release note", "New in", "card", "paragraph", "line", "edition", "udgivelsesnote". Holds the rules for the notes in both languages, their files, screenshots and writing.
+description: Use when a change is something a site owner sees, and so needs a release note, or when a release note, an edition or the notes of a version are written or fixed - "release note", "New in", "card", "paragraph", "line", "edition", "udgivelsesnote". Holds the rules for the notes in both languages, their files and writing.
 ---
 
 # Release notes for @morphemecms/cms
@@ -9,10 +9,10 @@ Announce "Using release-notes". Every pull request into `main` has a changeset (
 notes"); this skill is how its release note is written. Read it whenever a change is something a site owner sees, and
 before writing or changing any note or edition.
 
-**Style: look at the notes of 0.14.0** (`release-notes/i18n/en-US/0.14.0.json`). A paragraph's title says what the owner
+**Style: we write release notes like 0.14.0** (`release-notes/i18n/en-US/0.14.0.json`). A paragraph's title says what the owner
 can do, with a verb first (*Pause an app without losing its settings*, *See your page as Google shows it*). Its text
 says what is new (*You can now …*, *… now looks like …*), then where to find it (*Open the app under Apps …*). Lines are
-short and name the change plainly. Those cards have no screenshot.
+short and name the change plainly. Notes have no screenshots: the cards of 0.14.0 have none.
 
 **Paragraphs (`card`) are for two kinds of change:** a change the owner sees (a new screen, a new feature, a new way to
 do something), and a **selling point for choosing Morpheme over other ways to run a site, such as WordPress**: safer,
@@ -21,18 +21,13 @@ it is a main reason to choose Morpheme and shows nowhere. Every such change gets
 paragraph for a selling point says what the owner is now protected from or free to do, in the owner's words, and where
 the owner can see the proof if there is one; it names the benefit, not the other product.
 
-A paragraph for a change that cannot be seen has no screenshot in a released version's file, as the cards of 0.14.0 have
-none. A note that is still pending needs one (`npm run check:release-notes`), so ask the owner before writing such a
-note as pending.
-
 A change a site owner sees, and every selling point, gets a note in both languages, English (`en-US`) and Danish (`da-DK`). Developer-only changes
 get no note. The note's `id` is this changeset's file name without `.md`, for example `brave-cats-run`. A note has one
 of two kinds:
 
 - `card` (a *paragraph* on the Morpheme page's "New in" page): a main change, one an owner would go looking for, such as
   a new screen, a new feature or a new way to do something, or a selling point (see above). A title and 1–3 short sentences: what the owner gets first,
-  then where to find it. No labels. The screenshot shows only on the start screen's update card; the "New in" page shows
-  the title and the text.
+  then where to find it. No labels, no screenshot.
 - `line`: a smaller change, such as a tweak to something the owner already uses, or a fix. One short sentence with no
   period, shown in the list "Also in this version".
 
@@ -49,11 +44,8 @@ Files, per language:
 
 - `release-notes/i18n/<locale>/pending/<id>.json`: the note. A `card` has `id`, `kind`, `title` and `text`. A line has
   `id`, `kind` and `text`.
-- `release-notes/i18n/<locale>/pending/<id>.webp`: the screenshot. Only for a `card`.
 
-Screenshot: the editor 375 CSS pixels wide, at most 400 CSS pixels high, device scale factor 2, so 750 px wide and at
-most 800 px high. Crop it to the part that changed. Save it as WebP, at most 200 KB. Take one per language, with the
-editor in that language.
+A note has no screenshot. `npm run check:release-notes` reports a leftover `<id>.webp` next to a pending note: delete it.
 
 Writing rule: the skill `site-editor-writing` (in `larsadolfsen/morpheme-website`,
 `.agents/skills/site-editor-writing/SKILL.md`), the same as for the editor's own texts. In short:
@@ -68,7 +60,6 @@ Writing rule: the skill `site-editor-writing` (in `larsadolfsen/morpheme-website
 
 Example paragraph (`card`, English):
 
-> [screenshot of the start screen]
 > **Pick up where you left off**
 > Your last 3 pages and blog posts now wait at the top of the start screen. Tap one to jump straight back in.
 
