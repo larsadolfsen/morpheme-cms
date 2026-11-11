@@ -1,38 +1,14 @@
 // Tests for worker/mcp-client.js with a fake D1 and a fixture MCP server (a fake fetch). No Cloudflare, no network.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { d1 } from './fixtures/d1.mjs';
+import { store } from './mcp-store.js';
 import { callTool, forgetUninstalled, handleMcpClient, MAX_BYTES, optionsOf, seal } from './mcp-client.js';
 
-// A D1 as far as this module uses it: tables as Maps, statements by their first words.
-function fakeDb() {
-  const connections = new Map();
-  const pending = new Map();
-  const run = (sql, args) => {
-    if (/^CREATE/.test(sql)) return {};
-    if (/^INSERT OR REPLACE INTO mcp_connections/.test(sql))
-      return void connections.set(args[0], { app: args[0], secret: args[1], state: args[2] });
-    if (/^INSERT INTO mcp_pending/.test(sql))
-      return void pending.set(args[0], { state: args[0], app: args[1], secret: args[2], at: args[3] });
-    if (/^SELECT secret, state FROM mcp_connections/.test(sql)) return connections.get(args[0]) ?? null;
-    if (/^SELECT app FROM mcp_connections/.test(sql)) return { results: [...connections.values()] };
-    if (/^SELECT app, secret, at FROM mcp_pending/.test(sql)) return pending.get(args[0]) ?? null;
-    if (/^DELETE FROM mcp_connections/.test(sql)) return void connections.delete(args[0]);
-    if (/^DELETE FROM mcp_pending WHERE state/.test(sql)) return void pending.delete(args[0]);
-    if (/^DELETE FROM mcp_pending WHERE app/.test(sql))
-      return void [...pending].forEach(([k, v]) => v.app === args[0] && pending.delete(k));
-    if (/^DELETE FROM mcp_pending WHERE at/.test(sql)) return void [...pending].forEach(([k, v]) => v.at < args[0] && pending.delete(k));
-    throw new Error(`unknown sql ${sql}`);
-  };
-  const statement = (sql, args = []) => ({
-    bind: (...a) => statement(sql, a),
-    run: async () => run(sql, args),
-    first: async () => run(sql, args),
-    all: async () => run(sql, args),
-    sql,
-    args,
-  });
-  return { connections, pending, prepare: (sql) => statement(sql), batch: async (list) => list.forEach((s) => run(s.sql, s.args)) };
-}
+// A real SQLite in memory, as the Worker's other tests (worker/fixtures/d1.mjs): it also catches a clash with the tables of worker/mcp-store.js.
+const fakeDb = d1;
+
+const rows = (e) => e.CONSENT.db.prepare('SELECT * FROM mcp_app_connections').all();
 
 const decl = { server: 'https://mcp.example.com/mcp', auth: 'token', tools: ['lists', 'subscribe'] };
 const lists = [
@@ -82,7 +58,7 @@ test('a field lists the items of a tool, and the browser sees no credential', as
     { label: 'Newsletter', value: 'a1' },
     { label: 'Offers', value: 'b2' },
   ]);
-  const text = JSON.stringify([...e.CONSENT.connections.values()]);
+  const text = JSON.stringify(rows(e));
   assert.ok(!text.includes('secret-token-123'), 'encrypted at rest');
   const state = await (await handleMcpClient(req('news'), e, deps(ask))).text();
   assert.ok(!state.includes('secret-token-123'));
@@ -131,7 +107,8 @@ test('a call over 10 seconds is an error', async () => {
 test('a refresh that fails marks Needs sign-in', async () => {
   const e = env();
   const oauth = { server: decl.server, auth: 'oauth', tools: ['lists'] };
-  await e.CONSENT.prepare('INSERT OR REPLACE INTO mcp_connections (app, secret, state, connected) VALUES (?, ?, ?, ?)')
+  await handleMcpClient(req('news'), e, deps(fixture(), { news: oauth })); // makes the tables
+  await e.CONSENT.prepare('INSERT OR REPLACE INTO mcp_app_connections (app, secret, state, connected) VALUES (?, ?, ?, ?)')
     .bind(
       'news',
       await seal(e, {
@@ -155,7 +132,8 @@ test('a refresh that fails marks Needs sign-in', async () => {
 test('a refresh that works keeps the new token', async () => {
   const e = env();
   const oauth = { server: decl.server, auth: 'oauth', tools: ['lists'] };
-  await e.CONSENT.prepare('INSERT OR REPLACE INTO mcp_connections (app, secret, state, connected) VALUES (?, ?, ?, ?)')
+  await handleMcpClient(req('news'), e, deps(fixture(), { news: oauth })); // makes the tables
+  await e.CONSENT.prepare('INSERT OR REPLACE INTO mcp_app_connections (app, secret, state, connected) VALUES (?, ?, ?, ?)')
     .bind(
       'news',
       await seal(e, {
@@ -182,13 +160,13 @@ test('disconnect and uninstall delete the credentials', async () => {
   const e = env();
   const ask = fixture();
   await connect(e, ask);
-  assert.equal(e.CONSENT.connections.size, 1);
+  assert.equal(rows(e).length, 1);
   const res = await handleMcpClient(req('news', { method: 'DELETE' }), e, deps(ask));
   assert.equal((await res.json()).connected, false);
-  assert.equal(e.CONSENT.connections.size, 0);
+  assert.equal(rows(e).length, 0);
   await connect(e, ask);
   await forgetUninstalled(e, { other: decl });
-  assert.equal(e.CONSENT.connections.size, 0);
+  assert.equal(rows(e).length, 0);
 });
 
 test('signed out and read-only senders cannot connect', async () => {
@@ -212,7 +190,7 @@ test('without MCP_VAULT_KEY nothing is kept', async () => {
   const e = env({ MCP_VAULT_KEY: undefined });
   const res = await connect(e, fixture());
   assert.equal(res.status, 503);
-  assert.equal(e.CONSENT.connections.size, 0);
+  assert.equal(rows(e).length, 0);
 });
 
 test('oauth: sign-in starts at the service, the callback keeps tokens encrypted and ends back at the app', async () => {
@@ -242,7 +220,7 @@ test('oauth: sign-in starts at the service, the callback keeps tokens encrypted 
   const done = await handleMcpClient(req(`callback?code=abc&state=${to.searchParams.get('state')}`), e, deps(ask, { news: oauth }));
   assert.equal(done.status, 302);
   assert.equal(done.headers.get('location'), 'https://site.test/editor/#apps/news');
-  const kept = JSON.stringify([...e.CONSENT.connections.values()]);
+  const kept = JSON.stringify(rows(e));
   assert.ok(!kept.includes('access-xyz') && !kept.includes('refresh-xyz'));
   assert.equal((await (await handleMcpClient(req('news'), e, deps(ask, { news: oauth }))).json()).connected, true);
   assert.equal((await handleMcpClient(req('callback?code=abc&state=nope'), e, deps(ask, { news: oauth }))).status, 400);
@@ -252,4 +230,18 @@ test('optionsOf takes a list or the first list in an object', () => {
   assert.deepEqual(optionsOf([{ i: 1, n: 'x' }], 'n', 'i'), [{ label: 'x', value: '1' }]);
   assert.deepEqual(optionsOf({ ok: true, items: [{ i: 1, n: 'x' }, { n: 'no id' }] }, 'n', 'i'), [{ label: 'x', value: '1' }]);
   assert.throws(() => optionsOf({ ok: true }, 'n', 'i'), /no list/);
+});
+
+test("its tables live beside the assistants' tables (worker/mcp-store.js) in one database, with one vault key", async () => {
+  const e = env();
+  const mine = store(e);
+  await (await mine).keepGitHubToken('1', 'gh-token');
+  await connect(e, fixture());
+  const names = e.CONSENT.db
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table'")
+    .all()
+    .map((r) => r.name);
+  assert.ok(names.includes('mcp_vault') && names.includes('mcp_connections') && names.includes('mcp_app_connections'));
+  assert.equal(await (await mine).gitHubToken('1'), 'gh-token');
+  assert.equal((await handleMcpClient(req('news'), e, deps(fixture()))).status, 200);
 });

@@ -15,6 +15,8 @@
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
 
+import { open as openText, seal as sealText } from '../lib/vault.mjs';
+
 export const TIMEOUT_MS = 10_000;
 export const MAX_BYTES = 256 * 1024;
 const PROTOCOL = '2025-11-25';
@@ -28,36 +30,31 @@ async function tables(db) {
   if (ready.has(db)) return;
   await db.batch([
     db.prepare(
-      'CREATE TABLE IF NOT EXISTS mcp_connections (app TEXT PRIMARY KEY, secret TEXT NOT NULL, state TEXT NOT NULL, connected TEXT NOT NULL)',
+      'CREATE TABLE IF NOT EXISTS mcp_app_connections (app TEXT PRIMARY KEY, secret TEXT NOT NULL, state TEXT NOT NULL, connected TEXT NOT NULL)',
     ),
     db.prepare(
-      'CREATE TABLE IF NOT EXISTS mcp_pending (state TEXT PRIMARY KEY, app TEXT NOT NULL, secret TEXT NOT NULL, at INTEGER NOT NULL)',
+      'CREATE TABLE IF NOT EXISTS mcp_app_pending (state TEXT PRIMARY KEY, app TEXT NOT NULL, secret TEXT NOT NULL, at INTEGER NOT NULL)',
     ),
   ]);
   ready.add(db);
 }
 
-const b64 = (bytes) => btoa(String.fromCharCode(...new Uint8Array(bytes)));
-const unb64 = (text) => Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
-const b64url = (bytes) => b64(bytes).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const b64url = (bytes) =>
+  btoa(String.fromCharCode(...new Uint8Array(bytes)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 
-async function vaultKey(env) {
-  if (!env.MCP_VAULT_KEY) throw new McpError('no vault key', 503);
-  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(env.MCP_VAULT_KEY)));
-  return crypto.subtle.importKey('raw', hash, 'AES-GCM', false, ['encrypt', 'decrypt']);
-}
-/** Encrypts a value (JSON) with MCP_VAULT_KEY: iv.ciphertext, in base64. */
+/** Seals a value (JSON) with MCP_VAULT_KEY, the vault the assistants' sign-in uses too (lib/vault.mjs). */
 export async function seal(env, value) {
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await vaultKey(env), new TextEncoder().encode(JSON.stringify(value)));
-  return `${b64(iv)}.${b64(data)}`;
+  if (!env.MCP_VAULT_KEY) throw new McpError('no vault key', 503);
+  return sealText(env.MCP_VAULT_KEY, JSON.stringify(value));
 }
 /** The value of a sealed text, or null when it cannot be opened (another key). */
 export async function open(env, text) {
+  const plain = await openText(env.MCP_VAULT_KEY, text);
   try {
-    const [iv, data] = text.split('.');
-    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(iv) }, await vaultKey(env), unb64(data));
-    return JSON.parse(new TextDecoder().decode(plain));
+    return plain === null ? null : JSON.parse(plain);
   } catch {
     return null;
   }
@@ -73,12 +70,12 @@ export class McpError extends Error {
 
 async function secretOf(env, app) {
   await tables(env.CONSENT);
-  const row = await env.CONSENT.prepare('SELECT secret, state FROM mcp_connections WHERE app = ?').bind(app).first();
+  const row = (await env.CONSENT.prepare('SELECT secret, state FROM mcp_app_connections WHERE app = ?').bind(app).all()).results[0];
   return row ? { state: row.state, secret: row.state === 'ok' ? await open(env, row.secret) : null } : null;
 }
 async function keep(env, app, secret, state = 'ok') {
   await tables(env.CONSENT);
-  await env.CONSENT.prepare('INSERT OR REPLACE INTO mcp_connections (app, secret, state, connected) VALUES (?, ?, ?, ?)')
+  await env.CONSENT.prepare('INSERT OR REPLACE INTO mcp_app_connections (app, secret, state, connected) VALUES (?, ?, ?, ?)')
     .bind(app, await seal(env, secret), state, new Date().toISOString())
     .run();
 }
@@ -87,17 +84,17 @@ export async function forgetApp(env, app) {
   if (!env.CONSENT) return;
   await tables(env.CONSENT);
   await env.CONSENT.batch([
-    env.CONSENT.prepare('DELETE FROM mcp_connections WHERE app = ?').bind(app),
-    env.CONSENT.prepare('DELETE FROM mcp_pending WHERE app = ?').bind(app),
+    env.CONSENT.prepare('DELETE FROM mcp_app_connections WHERE app = ?').bind(app),
+    env.CONSENT.prepare('DELETE FROM mcp_app_pending WHERE app = ?').bind(app),
   ]);
 }
 /** Deletes the credentials of every app that is not installed with an `mcp` any more (an uninstall done in the repository). */
 export async function forgetUninstalled(env, declared) {
   if (!env.CONSENT) return;
   await tables(env.CONSENT);
-  const { results } = await env.CONSENT.prepare('SELECT app FROM mcp_connections').all();
+  const { results } = await env.CONSENT.prepare('SELECT app FROM mcp_app_connections').all();
   for (const { app } of results) if (!declared[app]) await forgetApp(env, app);
-  await env.CONSENT.prepare('DELETE FROM mcp_pending WHERE at < ?')
+  await env.CONSENT.prepare('DELETE FROM mcp_app_pending WHERE at < ?')
     .bind(Date.now() - PENDING_MS)
     .run();
 }
@@ -387,7 +384,7 @@ async function connect(request, env, app, decl, ask) {
   const challenge = b64url(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
   const state = b64url(crypto.getRandomValues(new Uint8Array(24)));
   await tables(env.CONSENT);
-  await env.CONSENT.prepare('INSERT INTO mcp_pending (state, app, secret, at) VALUES (?, ?, ?, ?)')
+  await env.CONSENT.prepare('INSERT INTO mcp_app_pending (state, app, secret, at) VALUES (?, ?, ?, ?)')
     .bind(
       state,
       app,
@@ -418,9 +415,11 @@ async function callback(request, url, env, deps, ask) {
   const back = (app) => new Response(null, { status: 302, headers: { location: `${url.origin}/editor/#apps/${app}` } });
   const state = url.searchParams.get('state') ?? '';
   await tables(env.CONSENT);
-  const row = state ? await env.CONSENT.prepare('SELECT app, secret, at FROM mcp_pending WHERE state = ?').bind(state).first() : null;
+  const row = state
+    ? (await env.CONSENT.prepare('SELECT app, secret, at FROM mcp_app_pending WHERE state = ?').bind(state).all()).results[0]
+    : null;
   if (!row) return json({ error: 'unknown state' }, 400);
-  await env.CONSENT.prepare('DELETE FROM mcp_pending WHERE state = ?').bind(state).run();
+  await env.CONSENT.prepare('DELETE FROM mcp_app_pending WHERE state = ?').bind(state).run();
   const decl = deps.mcp[row.app];
   const pending = await open(env, row.secret);
   const code = url.searchParams.get('code');
