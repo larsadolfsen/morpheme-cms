@@ -19,7 +19,7 @@
 import { blockHtml, cutAtBlock, parseBlock } from '../lib/blocks.mjs';
 import { decorated, decorativeOf } from '../lib/crop.mjs';
 import { coloredHtml, withoutColors } from '../lib/text-colors.mjs';
-import { MARKER_TAG, isLabelLine, markerColor } from '../lib/section-marker.mjs';
+import { MARKER_TAG, isLabelLine, parseMarker } from '../lib/section-marker.mjs';
 
 // Text that is plain in the file (a heading, a picture's description); in Markdown every sign that
 // could mean something is escaped, and back from Markdown the escapes go again. The page's
@@ -154,12 +154,50 @@ function withColors(parts) {
 }
 
 /** The sections for the parts of the text (partsOf in markdown.mjs); leads as for sectionsToMarkdown. `colors`: the front
- * page: each section also has the colour of its H2 as `sectionColor` (the top, the "Banner", has none). */
+ * page: each section also has the colour of its H2 as `sectionColor` (the top, the "Banner", has none), and an H1 with section settings
+ * is a section `top` of its own: its `settings` (colour, picture, description and width, as parseMarker gives them) and its `items`
+ * (text as `{ markdown }`, the Buttons block as `{ block }`) up to the next heading or other block. */
 export function sectionsFromParts(parts, leads = {}, options = {}) {
+  // The H1's section (a marker before the H1: a part `top`): the front page draws the heading, the text and the Buttons block up to the
+  // next heading or block together in one panel, the way a page does (`top` section). Without `colors` the part is not used.
+  const top = parts.findIndex((p) => p.top);
+  if (!options.colors)
+    return top >= 0
+      ? sectionsFromParts(
+          parts.filter((p) => !p.top),
+          leads,
+          options,
+        )
+      : sectionsFromPartsOf(parts, leads, options);
+  // The group after the H1: the text and the Buttons block up to the next heading or other block.
+  const group = (from) => {
+    let end = from;
+    while (end < parts.length && !('heading' in parts[end]) && !(parts[end].block && parts[end].block.type !== 'buttons')) end++;
+    return end;
+  };
+  // Without settings the group is made only by a Buttons block in it, at the very top (the top Banner migrated, lib/front-banner.mjs):
+  // the text and the buttons stay together under the heading, as the Banner kept them. `inner`: not at the top.
+  const start = top >= 0 ? top + 1 : 0;
+  const end = group(start);
+  if (top >= 0 || (!options.inner && parts.slice(start, end).some((p) => p.block))) {
+    const items = parts.slice(start, end).map((p) => (p.block ? { block: p.block } : { markdown: p.markdown }));
+    return [
+      ...(top >= 0 ? sectionsFromParts(parts.slice(0, top), leads, { ...options, inner: true }) : []),
+      { type: 'top', settings: top >= 0 ? parts[top].top : { color: '' }, items },
+      ...sectionsFromParts(parts.slice(end), leads, { ...options, inner: true }),
+    ];
+  }
+  return sectionsFromPartsOf(parts, leads, options);
+}
+
+function sectionsFromPartsOf(parts, leads, options) {
   const all = options.colors ? withColors(parts) : parts;
   const first = all.findIndex((p) => p.block);
   if (first >= 0 && all[first].block.type === 'hero' && leads.hero)
-    return [hero(parts.slice(0, first), all[first].block.props), ...sectionsFromParts(parts.slice(first + 1), leads, options)];
+    return [
+      hero(parts.slice(0, first), all[first].block.props),
+      ...sectionsFromParts(parts.slice(first + 1), leads, { ...options, inner: true }),
+    ];
   const sections = [];
   // The text since the last card, for the next card (its lead) or as sections of text.
   let run = [];
@@ -289,6 +327,18 @@ export function pageH1(markdown) {
 // A section's colour marker on its own line (lib/section-marker.mjs); any colour name, so an unknown one is dropped too.
 const MARKER_LINE = new RegExp(`^ {0,3}${MARKER_TAG}[ \\t]*$`);
 
+/** The settings of an H1's section as a part `top` holds them: the marker's (parseMarker), or the editor's heading attributes
+ * (`section`, `sectionPicture`, `sectionAlt`, `sectionWidth`); null when there are none.
+ * @param {{ color?: string | null, picture?: string | null, alt?: string | null, width?: string | null } | null} found */
+export const topOf = (found) => {
+  if (!found || (!found.color && !found.picture && !found.width)) return null;
+  return {
+    color: found.color || '',
+    ...(found.picture ? { picture: found.picture, ...(found.alt ? { alt: found.alt } : {}) } : {}),
+    ...(found.width === 'full' ? { width: 'full' } : {}),
+  };
+};
+
 /** The parts of a page's Markdown as the editor reads them (partsOf in markdown.mjs), without the editor: each block,
  * each heading at the top level (H2), and the Markdown between them; for the site, which reads the front page into
  * sections (packages/editor/site/home.ts). The page's H1 ("# …") is no section's and is left out. `npm run check:editor` checks
@@ -297,8 +347,11 @@ export function partsOfMarkdown(markdown) {
   const parts = [];
   let run = [];
   let fence = null;
-  // The colour of a marker line, kept for the H2 it stands before (blank lines and a label line may come between).
+  // The colour of a marker line, kept for the H2 it stands before (blank lines and a label line may come between), and its settings
+  // for the H1 (the first one: the page's).
   let pending = null;
+  let settings = null;
+  let h1Seen = false;
   const flush = () => {
     const text = run.join('\n').trim();
     if (text) parts.push({ markdown: text });
@@ -314,24 +367,32 @@ export function partsOfMarkdown(markdown) {
     if (mark) {
       fence = mark;
       pending = null;
+      settings = null;
       run.push(line);
       continue;
     }
     // The marker is never text: it is the colour of the H2 after it, or dropped (unknown colour, or no H2 after it).
     if (MARKER_LINE.test(line)) {
-      pending = markerColor(line);
+      settings = parseMarker(line);
+      pending = settings?.color || null;
       continue;
     }
     const block = parseBlock(line);
     if (block) {
       flush();
       pending = null;
+      settings = null;
       parts.push({ block });
       continue;
     }
     if (h1Line.test(line)) {
       flush();
+      // A marker before the page's H1 is the settings of its section: a part `top`.
+      const top = topOf(settings);
+      if (top && !h1Seen) parts.push({ top });
+      h1Seen = true;
       pending = null;
+      settings = null;
       continue;
     }
     const heading = line.match(atx(2));
@@ -339,9 +400,13 @@ export function partsOfMarkdown(markdown) {
       flush();
       parts.push({ heading: plainHeading(heading[1] ?? ''), ...(pending ? { color: pending } : {}) });
       pending = null;
+      settings = null;
       continue;
     }
-    if (line.trim() && !isLabelLine(line)) pending = null;
+    if (line.trim() && !isLabelLine(line)) {
+      pending = null;
+      settings = null;
+    }
     run.push(line);
   }
   flush();

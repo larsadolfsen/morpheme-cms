@@ -1267,17 +1267,17 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     editor.current?.action((ctx) => paint(ctx.get(editorViewCtx), name));
   }
 
-  // The sheet with the settings of the section the cursor is in (its colour, and an H2's picture and width), then those set.
+  // The sheet with the settings of the section the cursor is in (its colour, picture and width), then those set.
   async function sectionSettings() {
     let current: ReturnType<typeof sectionHeading> = null;
     editor.current?.action((ctx) => void (current = sectionHeading(ctx.get(editorViewCtx).state)));
     const at = current as ReturnType<typeof sectionHeading>;
     if (!at) return;
-    const answered = await (blocks ?? sheetProp)?.section(at, { picture: at.level === 2 });
+    const answered = await (blocks ?? sheetProp)?.section(at, { picture: true });
     if (!answered) return;
     editor.current?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
-      setSection(view, at.level === 2 ? answered : { color: answered.color });
+      setSection(view, answered);
       view.focus();
     });
   }
