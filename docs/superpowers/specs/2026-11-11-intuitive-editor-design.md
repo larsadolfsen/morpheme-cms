@@ -508,7 +508,16 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    to the live version (`Discard changes`, with a confirmation; owner, 11 November). **Choosing when the new version goes live (owner, 11 November):** on a published page with changes waiting, `Publish changes`
    has a second choice, `Schedule`, where the owner picks a date and time. The waiting version goes live then, and until
    then the site shows the old one; the page is marked `Scheduled changes` with the date. The same choice is on a Draft
-   page, which is today's `Scheduled` status. Open: where the draft is kept.
+   page, which is today's `Scheduled` status. **Two versions in the core, more in an app (owner, 11 November):** a page has a live version and one waiting version,
+   and a `Live` / `Scheduled` switch edits either one, so a mistake on the live page can be fixed without touching the
+   waiting version (the two can be completely different, for example a new campaign front page, so there is no automatic
+   merge). Several versions of one page and a calendar of what goes live when are left to an app later. **So that an app
+   can be added without a rewrite:** (1) the draft store holds versions as a list, each with an id, a state and an
+   optional publish time, and the core uses at most two; (2) `Publish`, `Schedule`, `Unpublish` and `Discard` are
+   functions the editor calls, so an app can call the same ones; (3) the scheduled publish is run by the site's Worker on
+   its schedule, not by the browser, so it works when nobody is signed in; (4) the version switch is a place an app can
+   extend (apps already have places, `src/AppPlaces.tsx`). Whether apps can add versions to a page is checked when the app
+   is planned. Open: where the draft is kept.
 3. **Regroup the menu (Appearance out of Settings) in 0.17?** Recommended: yes, after 0.16, in one pass. Alternative: leave the menu.
 4. **May we rename `Dynamic lists`, `Block templates`, `Files` (and `Business`)?** Recommended: yes, but only when the screens
    have been opened and checked; the Danish names change with them.
