@@ -528,8 +528,9 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    extend (apps already have places, `src/AppPlaces.tsx`). Whether apps can add versions to a page is checked when the app
    is planned. **Where the draft is kept (owner, 11 November):** autosave and the draft version work only when the setting `Faster
    editor` is on (`Settings › Caching and builds`, the R2 cache, `worker/files.js`). The Worker keeps the drafts in R2, one entry per page and version, so
-   autosave makes no commit and no build, and `Publish` commits the draft to `main`. There are no browser-only drafts. Open: what
-   the editor does when `Faster editor` is off.
+   autosave makes no commit and no build, and `Publish` commits the draft to `main`. There are no browser-only drafts. Without `Faster editor` there
+   is no autosave and no waiting version (owner, 11 November): the editor keeps today's `Save`, which writes the page
+   to the site. Drafts as files in git, with the build told to ignore them, were considered and not chosen.
 3. **Regroup the menu (Appearance out of Settings) in 0.17?** Recommended: yes, after 0.16, in one pass. Alternative: leave the menu.
 4. **May we rename `Dynamic lists`, `Block templates`, `Files` (and `Business`)?** Recommended: yes, but only when the screens
    have been opened and checked; the Danish names change with them.
