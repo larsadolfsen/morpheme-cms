@@ -60,12 +60,14 @@ import {
   schedule,
   timeOf,
   draftPath,
+  isDraftPage,
   published as isPublished,
   publish as publishPage,
   unpublish as unpublishPage,
 } from '../lib/versions.mjs';
 import { commitChanges } from './pageVersions.mjs';
 import { isPagePath } from '../lib/autosave.mjs';
+import { entryName, untouched } from '../lib/entryNames.mjs';
 import { loadAutosave, restorable } from './autosave.mjs';
 import { useAutosave, type AutosaveState } from './useAutosave';
 import VersionSwitch, { WaitingNotice } from './VersionSwitch';
@@ -355,17 +357,55 @@ function Form({
     if (textNear && bodyChanged) readBody();
   }, [textNear]);
   useEffect(() => () => clearTimeout(reading.current), []);
-  // Autosave (src/useAutosave.ts): a published page's changes, kept by the Worker while they are written (Faster editor) and moved to
-  // git as the waiting version when the form is left. Not the live page being edited, a new page, an earlier version or a new address.
+  // Autosave (src/useAutosave.ts): what is written is kept by the Worker (Faster editor) and moved to git when the form is left or idle: a
+  // published page's changes as its waiting version, a draft page as the page file itself (it has no live version to protect, and stays a
+  // draft whatever the text says), and a NEW page or post, which has no file yet, as a draft page file made then (`create`), named
+  // `New page` until the H1 (a post's title) says another, and renamed with it (`to`). Not the live page being edited, an earlier version
+  // or a new address. With Faster editor off the Worker says so and nothing is kept until `Save`, as before.
   const typedAddress = addressOf(String(values.path ?? ''), post ? 'post' : 'page');
+  // The key of a new entry's autosave: a file name that never exists, so two new pages in two tabs do not overwrite each other.
+  const [placeholder] = useState(() => `${collection.folder}/new-entry-${Math.random().toString(36).slice(2, 10)}.md`);
+  // A draft made by autosave from a new entry in this form: until the address is written by hand, its name follows the H1.
+  const [followsH1, setFollowsH1] = useState(false);
+  const ownNames = useMemo(
+    () =>
+      new Set(
+        env.files
+          .filter((f) => f.path.startsWith(`${collection.folder}/`) && f.path.endsWith('.md'))
+          .map((f) => slugOf(f.path, collection.folder))
+          .filter((name) => !name.includes('/')),
+      ),
+    [env.files, collection],
+  );
+  const fileName = live.path ? slugOf(live.path, collection.folder) : '';
+  // What the entry is called now (a new one, or a draft that follows the H1): the title, the file name, and whether the name is by hand.
+  const target = entryName({
+    create: collection.create ?? collection.singular,
+    title: String(values.title ?? ''),
+    typed: typedAddress && (isNew || typedAddress !== url) ? (typedAddress.split('/').at(-2) ?? '') : '',
+    taken: (name) => name !== fileName && ownNames.has(name),
+    slugify,
+  });
+  const targetPath = `${collection.folder}/${target.name}.md`;
   const autosaves =
-    !isNew && !version && !editsLive && (livePublished || !!waiting) && isPagePath(live.path) && (!typedAddress || typedAddress === url);
+    !version &&
+    (isNew
+      ? isPagePath(placeholder)
+      : !editsLive &&
+        (livePublished || !!waiting || isDraftPage(live.text)) &&
+        isPagePath(live.path) &&
+        (!typedAddress || typedAddress === url));
   // The text of the version as `Save` writes it, or null when it cannot be saved now.
   function autosaveText(): string | null {
-    if (problemAt(collection.fields, values)) return null;
-    const saved = inForm(collection.fields, values, offered);
-    const written = changed.filter((f) => f.name !== 'path');
-    const yaml = writeFields(parts.yaml, Object.fromEntries(written.map((f) => [f.name, saved[f.name]])));
+    const given = isNew ? { ...values, title: target.title } : values;
+    if (problemAt(collection.fields, given)) return null;
+    const saved = inForm(collection.fields, given, offered);
+    const written = (isNew ? collection.fields.filter((f) => !same(saved[f.name], []) && f.type !== 'readonly') : changed).filter(
+      (f) => f.name !== 'path',
+    );
+    // A new page whose address was written by hand, and is not its file name, has it as its own `path` (as `Save` writes it).
+    const own = isNew && !post && target.byHand && typedAddress !== `/${target.name}/` ? { path: typedAddress } : {};
+    const yaml = writeFields(isNew ? '' : parts.yaml, { ...Object.fromEntries(written.map((f) => [f.name, saved[f.name]])), ...own });
     const markdown = bodyChanged ? text.current?.markdown() : null;
     const body = markdown == null ? parts.body : `\n${markdown.trim()}\n`;
     if (blockProblems(body, template, front ? frontLeads : undefined)[0]) return null;
@@ -373,19 +413,71 @@ function Form({
     // A picture added is kept in the browser until `Save` uploads it, so a text with one cannot be kept elsewhere yet.
     return pictures.usedIn(next).length ? null : next;
   }
-  // Git got the waiting version from the autosave: its file, as it is now, so the next `Save` does not clash with it.
-  async function takeWaiting() {
+  // A new page nobody wrote in (or written in and erased again) is as the form opened it: nothing is kept and no file is made.
+  const isUntouched = () =>
+    untouched({
+      changed: changed.filter((f) => f.name !== 'title' || String(values.title ?? '').trim() !== '').map((f) => f.name),
+      bodyChanged,
+      bare: text.current?.bare() ?? true,
+      h1: text.current?.h1() ?? null,
+      markdown: text.current?.markdown() ?? '',
+      start: parts.body,
+    });
+  // The file the Worker made or moved, or the waiting version it made: taken as it is now, so the next `Save` does not clash with it.
+  async function takeFlushed(wrote?: string) {
     try {
+      if (isNew || (wrote && wrote !== live.path)) {
+        const [file] = await env.load([wrote ?? live.path]);
+        if (!file?.text) return;
+        const was = live.path;
+        const oldUrl = url;
+        const taken = { ...file, path: file.path };
+        // A new entry got the title it was written with (`New page`), as the file has it.
+        const titled = isNew && !String(values.title ?? '').trim() ? target.title : null;
+        if (titled) title.current = titled;
+        setLive(taken);
+        setBase((b) => ({ ...b, path: taken.path, oid: taken.oid }));
+        if (isNew) setFollowsH1(!target.byHand);
+        // The address in the form follows the file (a page's is its file name, until another is written).
+        setValues((v) => ({
+          ...v,
+          ...(titled && !String(v.title ?? '').trim() ? { title: titled } : {}),
+          path: String(v.path ?? '') === oldUrl || !v.path ? addressNow(collection, taken, {}) : v.path,
+        }));
+        env.onSaved(taken, { files: [], removed: was ? [was] : [] });
+        autosave.touch();
+        return;
+      }
+      if (isDraftPage(live.text) && !waiting) {
+        const [file] = await env.load([live.path]);
+        if (!file?.text) return;
+        setLive(file);
+        env.onSaved(file, { files: [], removed: [] });
+        return;
+      }
       const [file] = await env.load([draftPath(live.path)]);
       if (!file?.text) return;
       setWaiting(file);
       env.onSaved(live, { files: [file], removed: [] });
     } catch {}
   }
-  const autosave = useAutosave({ on: autosaves, path: live.path, dirty, text: autosaveText, flushed: takeWaiting });
+  const autosave = useAutosave({
+    on: autosaves,
+    path: isNew ? placeholder : live.path,
+    dirty,
+    text: autosaveText,
+    flushed: takeFlushed,
+    make: () =>
+      isNew
+        ? { create: true, to: targetPath }
+        : followsH1 && !livePublished && !waiting && !target.byHand && targetPath !== live.path
+          ? { to: targetPath }
+          : {},
+    skip: () => isNew && isUntouched(),
+  });
   // A page opened with changes the Worker kept (the tab was closed, or the editor reloaded): put back, unless git's version is newer.
   useEffect(() => {
-    if (!autosaves) return;
+    if (!autosaves || isNew) return;
     const start = eraNow.current;
     let alive = true;
     void (async () => {
@@ -468,18 +560,8 @@ function Form({
     page: collection.id === 'pages' && url ? url : undefined,
   };
 
-  // A new page or post without a title is called "New page 1", "New page 2" … (in the site's language,
-  // the first that no page or post of its kind has as its title or file name).
-  function untitled() {
-    const own = env.files.filter((f) => f.path.startsWith(`${collection.folder}/`) && f.path.endsWith('.md'));
-    const titles = new Set(own.map((f) => String(readFields(splitFrontmatter(f.text).yaml).title ?? '')));
-    const names = new Set(own.map((f) => slugOf(f.path, collection.folder).split('/').at(-1)));
-    for (let n = 1; ; n++) {
-      const title = `${asWritten(collection).create} ${n}`;
-      if (!titles.has(title) && !names.has(slugify(title))) return title;
-    }
-  }
-  const named = () => (isNew && !String(values.title ?? '').trim() ? { ...values, title: untitled() } : values);
+  // A new page or post without a title is called "New page", "New page 2" … (in the editor's language, `target`, above).
+  const named = () => (isNew && !String(values.title ?? '').trim() ? { ...values, title: target.title } : values);
 
   // `other`: an address chosen in the dialog for a taken one (below), saved instead of the one typed.
   // `intent` 'publish': also puts it on the website (a draft is published, waiting changes replace the live version);
@@ -497,24 +579,36 @@ function Form({
     if (isNew && !slug) return notify({ text: t.forms.entry.titleNeedsLetters, error: true });
     // The address: the one typed, or for a new one /<title>/. A post's is its file name; a page's
     // is its file name too when new, and its own `path` when that is another.
-    const typed = addressOf(other ?? String(values.path ?? ''), post ? 'post' : 'page');
+    // A draft made by autosave whose name follows the H1 and has not caught up yet moves to its name now, with no redirect (it was never
+    // on the site), and the file moves with it.
+    const renaming =
+      followsH1 &&
+      !isNew &&
+      !livePublished &&
+      !waiting &&
+      !version &&
+      !target.byHand &&
+      intent !== 'schedule' &&
+      other === undefined &&
+      targetPath !== live.path;
+    const typed = addressOf(other ?? (renaming ? `/${target.name}/` : String(values.path ?? '')), post ? 'post' : 'page');
     const address = typed || (isNew ? `/${slug}/` : url);
     const moved = !isNew && address !== url;
     if (moved && intent === 'schedule') return notify({ text: t.forms.versions.scheduleWithAddress, error: true });
     // A new address takes its redirect at once, so it cannot wait with the changes: they are published or discarded first.
     if (moved && waiting) return notify({ text: t.forms.versions.addressWaiting, error: true });
-    const name = post || isNew ? address.split('/').at(-2)! : slugOf(base.path, collection.folder);
-    const path = isNew || (post && moved) ? `${collection.folder}/${name}.md` : base.path;
+    const name = post || isNew || renaming ? address.split('/').at(-2)! : slugOf(base.path, collection.folder);
+    const path = isNew || renaming || (post && moved) ? `${collection.folder}/${name}.md` : base.path;
     // A new page or post, or a new address: not where another page is, or an address the site sends on
     // elsewhere (the files of the redirects as they are now, redirectData.ts).
     let loaded: RepoFile[] = [];
-    if (isNew || moved)
+    if (isNew || (moved && !renaming))
       try {
         loaded = await env.load(REDIRECT_FILES);
       } catch (e) {
         return notify({ text: t.forms.entry.redirectsNotLoaded((e as Error).message), error: true });
       }
-    const reason = isNew || moved ? env.taken(address, loaded) : null;
+    const reason = isNew || (moved && !renaming) ? env.taken(address, loaded) : null;
     // An address the site sends on elsewhere: the owner is told where to, and chooses to remove the redirect
     // (saved with the page) or another address.
     const freeing = !!reason?.redirect;
@@ -562,7 +656,7 @@ function Form({
     const written = (isNew ? collection.fields.filter((f) => !same(saved[f.name], []) && f.type !== 'readonly') : changed).filter(
       (f) => f.name !== 'path',
     );
-    const own = !post && (moved || (isNew && address !== `/${name}/`)) ? { path: address } : {};
+    const own = !post && ((moved && !renaming) || (isNew && address !== `/${name}/`)) ? { path: address } : {};
     const yaml = writeFields(isNew ? '' : parts.yaml, { ...Object.fromEntries(written.map((f) => [f.name, saved[f.name]])), ...own });
     const markdown = bodyChanged ? text.current?.markdown() : null;
     if (isNew && !markdown?.trim()) {
@@ -582,7 +676,7 @@ function Form({
     // first go straight to where it sent them), the old address sends on to the new one, the new
     // address is the page's (the editor's own redirect from it goes), and none sends on through another.
     let redirectChanges: Change[] = [];
-    if (isNew || moved) {
+    if (isNew || (moved && !renaming)) {
       let all = readAll(loaded);
       if (freeing) {
         const flat = flatten(all);
@@ -712,6 +806,7 @@ function Form({
       }
       const saved = { path, oid: oids[path], text: next };
       setLive(saved);
+      if (intent === 'publish') setFollowsH1(false);
       if (foldWaiting) setWaiting(null);
       pictures.markSaved(used);
       setBase(saved);
@@ -736,7 +831,7 @@ function Form({
       if (version) onVersion(null);
       // A new address: the owner is told, in a dialog that stays until it is closed, that the old one now
       // sends on to it, and where the redirects are.
-      if (moved) {
+      if (moved && !renaming) {
         void choose({
           title: t.forms.entry.movedTitle,
           text: t.forms.entry.movedText(address, url, post, redirectsPath()),
@@ -1140,9 +1235,10 @@ function versionStatus({
   /** Changes to a page that can wait are not saved yet: how autosave is doing (useAutosave.ts). */
   autosave?: AutosaveState;
 }) {
-  if (deleting || saving || isNew) return savedStatus({ savedAt, saving, deleting, isNew });
+  if (deleting || saving) return savedStatus({ savedAt, saving, deleting, isNew });
   if (autosave === 'saving') return <LoadingIndicator>{t.forms.versions.autosave.saving}</LoadingIndicator>;
   if (autosave) return t.forms.versions.autosave[autosave];
+  if (isNew) return savedStatus({ savedAt, saving, deleting, isNew });
   if (editsLive) return t.forms.versions.editingLive;
   if (scheduledAt && untilTime(scheduledAt) !== null) return t.forms.versions.scheduledLine(timeText(scheduledAt));
   if (state === 'draft') return t.forms.versions.draftLine;

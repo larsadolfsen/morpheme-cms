@@ -16,6 +16,8 @@ export function useAutosave({
   dirty,
   text,
   flushed,
+  make,
+  skip,
 }: {
   /** The version being edited can be autosaved (a published page's changes, not the live page or a new page). */
   on: boolean;
@@ -23,27 +25,39 @@ export function useAutosave({
   path: string;
   dirty: boolean;
   text: () => string | null;
-  /** Git got the text as the waiting version: the form takes its file. */
-  flushed: () => void;
+  /** Git got the text (as the waiting version, as a draft page file, or as the new page file `wrote`): the form takes its file. */
+  flushed: (wrote?: string) => void;
+  /** A new page or post (`create`; `path` a placeholder that never exists) or a draft to move after its H1 (`to`): the page file it is to be. */
+  make?: () => { create?: boolean; to?: string };
+  /** The form is as it was opened (a new page nobody wrote in): nothing is kept, and nothing is left behind. */
+  skip?: () => boolean;
 }) {
-  const latest = useRef({ on, path, dirty, text, flushed });
-  latest.current = { on, path, dirty, text, flushed };
+  const latest = useRef({ on, path, dirty, text, flushed, make, skip });
+  latest.current = { on, path, dirty, text, flushed, make, skip };
   const client = useRef<ReturnType<typeof autosaveClient>>(null);
-  client.current ??= autosaveClient(undefined, { onFlushed: () => latest.current.flushed() });
+  client.current ??= autosaveClient(undefined, {
+    onFlushed: (done: { path: string; wrote?: string }) => {
+      // The Worker made a page file or moved the draft: the autosave of the file it was is done with.
+      if (done.wrote && done.wrote !== done.path) client.current!.forget(done.path);
+      latest.current.flushed(done.wrote);
+    },
+  });
   const [state, setState] = useState<AutosaveState>('saved');
   const [blocked, setBlocked] = useState(false);
   // A change was made and its text is not read yet: it is not saved.
   const [reading, setReading] = useState(false);
   const timer = useRef(0);
-  // Whether the Worker may have something for this page that the form has not thrown away.
+  // Whether the Worker may have something for this page that the form has not thrown away, and under which file (a new page's is a
+  // placeholder, and `path` is the page file once the Worker has made it).
   const kept = useRef(false);
+  const keptAt = useRef('');
 
   const forgetIt = () => {
     clearTimeout(timer.current);
     if (!kept.current) return;
     kept.current = false;
-    client.current!.forget(latest.current.path);
-    void deleteAutosave(latest.current.path);
+    client.current!.forget(keptAt.current);
+    void deleteAutosave(keptAt.current);
   };
 
   useEffect(() => {
@@ -78,11 +92,14 @@ export function useAutosave({
     timer.current = window.setTimeout(() => {
       setReading(false);
       const now = latest.current;
+      // Written in and erased again: a new page is as the form opened it, so what was kept goes and no file is made.
+      if (now.on && now.dirty && now.skip?.()) return forgetIt();
       const written = now.on && now.dirty ? now.text() : null;
       setBlocked(written === null && now.dirty);
       if (written === null) return;
       kept.current = true;
-      client.current!.autosave(now.path, written);
+      keptAt.current = now.path;
+      client.current!.autosave(now.path, written, 'waiting', now.make?.());
     }, READ_MS);
   }
 

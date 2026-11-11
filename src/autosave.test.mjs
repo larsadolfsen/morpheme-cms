@@ -283,3 +283,56 @@ test('loadAutosave and deleteAutosave ask the Worker, and restorable compares wi
   assert.equal(restorable(stored, 'old', new Date(999)), true);
   assert.equal(restorable(stored, 'old', new Date(1000)), false);
 });
+
+test('a new page is sent with `create` and the file it is to be, and the flush tells where the file was made', async () => {
+  const c = clock();
+  const calls = [];
+  const flushed = [];
+  const send = async (call) => (
+    calls.push(call),
+    call.action === 'flush' ? { ok: true, committed: true, path: 'src/content/pages/about-2.md' } : { ok: true }
+  );
+  const a = createAutosave({ send, ...c, debounce: 100, idle: 10_000, onFlushed: (done) => flushed.push(done) });
+  const key = 'src/content/pages/new-entry-ab12.md';
+  a.autosave(key, 'one', 'waiting', { create: true, to: 'src/content/pages/about.md' });
+  // The H1 changed before anything was sent: the newest name goes.
+  a.autosave(key, 'two', 'waiting', { create: true, to: 'src/content/pages/about-us.md' });
+  await c.tick(100);
+  assert.deepEqual(calls, [{ action: 'put', path: key, id: 'waiting', text: 'two', create: true, to: 'src/content/pages/about-us.md' }]);
+  await a.flush(key);
+  assert.deepEqual(calls[1], {
+    action: 'flush',
+    path: key,
+    id: 'waiting',
+    create: true,
+    to: 'src/content/pages/about-us.md',
+    leaving: false,
+  });
+  assert.deepEqual(flushed, [{ path: key, id: 'waiting', wrote: 'src/content/pages/about-2.md' }]);
+});
+
+test('the client sends create and to, and reads the path of the file the Worker wrote', async () => {
+  const log = [];
+  const fetcher = async (url, init) => (
+    log.push([url, JSON.parse(init.body)]),
+    { ok: true, status: 200, json: async () => ({ committed: true, path: 'src/content/pages/x-2.md' }) }
+  );
+  const c = clock();
+  const done = [];
+  const a = autosaveClient(fetcher, { ...c, debounce: 10, onFlushed: (d) => done.push(d) });
+  const key = 'src/content/pages/new-entry-1.md';
+  a.autosave(key, 't', 'waiting', { create: true, to: 'src/content/pages/x.md' });
+  await c.tick(10);
+  await a.flush(key);
+  assert.deepEqual(log[0][1], { path: key, id: 'waiting', text: 't', create: true, to: 'src/content/pages/x.md' });
+  assert.deepEqual(log[1][1], { path: key, id: 'waiting', create: true, to: 'src/content/pages/x.md' });
+  assert.equal(done[0].wrote, 'src/content/pages/x-2.md');
+});
+
+test('an entry changed back to a plain autosave drops create and to', async () => {
+  const { a, c, calls } = make();
+  a.autosave('src/content/pages/a.md', 'one', 'waiting', { to: 'src/content/pages/b.md' });
+  a.autosave('src/content/pages/a.md', 'two');
+  await c.tick(100);
+  assert.deepEqual(calls, [{ action: 'put', path: 'src/content/pages/a.md', id: 'waiting', text: 'two' }]);
+});
