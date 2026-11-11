@@ -32,9 +32,11 @@ a release note (`release-notes` skill, English and `da-DK`). Data model and Work
    editor commits their changes. The Worker's part is the hourly publish (`worker/publish.js`): it looks in `src/drafts/` for
    due `publishAt` across the whole version list, one commit with the pages still on the stored status `scheduled`. A drafts-only
    diff takes `ci-build`'s content lane (`src/drafts/` joins `CONTENT_PATHS`), with no early exit. `check:worker` covers it.
-3. **Editor store.** `store.ts` and `EntryForm.tsx` hold a live and a waiting version; `Save` writes the draft file; new pages
-   and posts start as Draft; a stored `scheduled` is migrated to a waiting version with its time; the `scheduled` status
-   option goes.
+3. **Editor store** (no new buttons). The editor loads `src/drafts/` (`folders.drafts`) and `src/pageVersions.mjs` gives a page's
+   versions and turns the changes of `lib/versions.mjs` into the editor's own (`{ path, content, oid }`, deletes with the blob
+   id). New pages and posts start as Draft (`status: "draft"` in the new file). `Save` still writes the page file: switching a
+   published page's `Save` to the waiting version needs `Publish changes` on screen, so that switch is made in step 4 with the
+   buttons. A stored `scheduled` is migrated in step 4 too, with the Schedule picker that replaces its status.
 4. **Editor UI.** Save bar and top bar states (`Draft`, `Published`, `Unpublished changes`, `Scheduled changes`), `Publish`,
    `Publish changes`, `Unpublish`, `Discard changes` with its confirmation, the `Schedule` picker, the `Live` / `Scheduled`
    switch as the named slot `versionSwitch` (`AppDefinition.slots`, with its props: `entry`, `versions`, the four functions

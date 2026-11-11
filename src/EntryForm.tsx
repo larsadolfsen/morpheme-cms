@@ -97,7 +97,7 @@ const rank = (f: Field) => (FIRST.includes(f.name) ? FIRST.indexOf(f.name) : FIR
 const fieldsIn = (collection: MarkdownCollection, id: Section) =>
   collection.fields.filter(inSection(collection, id)).sort((a, b) => rank(a) - rank(b));
 
-// A new file: a blog post gets today's date; a page has the blocks its template
+// A new file starts as a Draft (nothing goes live by accident); a blog post gets today's date; a page has the blocks its template
 // starts it with (Template.start), e.g. "Book an appointment" at the end like the other pages, but not one that
 // is turned off (off, "Block settings").
 export const newMarkdown = (collection: MarkdownCollection, off: string[] = []): RepoFile => ({
@@ -105,8 +105,8 @@ export const newMarkdown = (collection: MarkdownCollection, off: string[] = []):
   oid: '',
   text:
     collection.id === 'blog'
-      ? `---\ndate: ${new Date().toLocaleDateString('sv')}\n---\n`
-      : `---\n---\n${(collection.template?.start ?? [])
+      ? `---\ndate: ${new Date().toLocaleDateString('sv')}\nstatus: "draft"\n---\n`
+      : `---\nstatus: "draft"\n---\n${(collection.template?.start ?? [])
           .filter((type) => !off.includes(type))
           .map((type) => `\n${blockHtml(type)}\n`)
           .join('')}`,
