@@ -31,6 +31,9 @@ export type SiteBlock = {
   detail?: (props: BlockProps, data: BlockData) => string[];
   /** Not offered among the blocks to put in: a fixed page's own text, which is written in the text. */
   written?: boolean;
+  /** Has become something else (the Banner is a section now, lib/remark-banner-section.mjs): still read, drawn and edited where a text
+   * has one, but not offered among the blocks to put in. */
+  former?: boolean;
   /** Its heading and text are written in the text above it (sections.mjs); a new one gets a heading. */
   lead?: Lead;
   /** Cannot be hidden on the site (its line in the file has no props to say so: HTML). */

@@ -133,7 +133,7 @@ const frontSections = async (body, parts) => [
   const editor = await makeEditor(document.createElement('div'), colorSample).use(spacing).create();
   const [editors, site] = await frontSections(colorSample, editor.action(partsOf));
   await editor.destroy();
-  if (editors !== site || !editors.includes('"sectionColor":"tint"') || !editors.includes('"sectionColor":"accent"')) {
+  if (editors !== site || !editors.includes('"sectionColor":"surface"') || !editors.includes('"sectionColor":"primary"')) {
     console.log(
       `\n✗ a text with section colors gives different sections in the editor and on the site\n  editor: ${editors}\n  site:   ${site}`,
     );

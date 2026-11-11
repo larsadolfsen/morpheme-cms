@@ -56,6 +56,12 @@
   --block-accent: var(--mo-primary);
   --block-accent-hover: color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary));
   --block-on-accent: var(--mo-on-primary);
+  --block-primary: var(--mo-primary);
+  --block-on-primary: var(--mo-on-primary);
+  --block-secondary: var(--mo-secondary);
+  --block-on-secondary: var(--mo-on-secondary);
+  --block-tertiary: var(--mo-tertiary);
+  --block-on-tertiary: var(--mo-on-tertiary);
   --block-surface: var(--mo-surface-container-lowest);
   --block-tint: var(--mo-surface-container-high);
   --block-line: var(--mo-outline-variant);
