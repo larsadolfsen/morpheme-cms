@@ -264,6 +264,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   form and is saved with the page's `Save`, and `Undo` in the text toolbar undoes it. A new block is added where the cursor is
   from `Insert` (the picker, still a sheet) and arrives open with its required fields marked.
 - **Owner's final shape (11 November):** supersedes the fold-out below. Text is typed in the drawn block; the side panel (desktop, always open while the block is active) or the bottom sheet (phone, `Edit` button in the text menu) holds only settings. The panel must keep the page's single save model (no `Save` or `Cancel` of its own).
+- **Selected list:** a new list is added selected. A selected list always shows all of its fields, also the empty ones (icon or picture slot, top line, bottom line, link), so the owner sees what can be filled in. When the owner clicks out, empty fields disappear and the list shows its live look.
 - **Rows:** a row is a nested fold-out inside the open block (heading, text, icon, page), with drag handles or Move up and down,
   and `Add row` at the end. This is where finding 13's single row model pays off: one row editor for all designs.
 - **Preview:** the card shows the block as the site draws it (`Preview`) above or beside its fields, so the owner sees the
