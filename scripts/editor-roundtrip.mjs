@@ -59,7 +59,11 @@ const fixed = readdirSync('src/data')
   .map((f) => join('src/data', f));
 const files = process.argv.length > 2 ? process.argv.slice(2) : [...walk('src/content/blog'), ...walk('src/content/pages'), ...fixed];
 
-const processor = await createMarkdownProcessor();
+// As the site's pipeline has it (astro.mjs): the blocks that have become text are read as the text they have become.
+const { remarkBannerSections } = await import('../lib/remark-banner-section.mjs');
+const { remarkChecklists } = await import('../lib/remark-checklist.mjs');
+const { remarkListHeads } = await import('../lib/remark-list-head.mjs');
+const processor = await createMarkdownProcessor({ remarkPlugins: [remarkBannerSections, remarkChecklists, remarkListHeads] });
 const render = async (md) => (await processor.render(md)).code.replace(/\s+/g, ' ').trim();
 
 let failed = 0;
