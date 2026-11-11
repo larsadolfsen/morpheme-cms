@@ -545,7 +545,12 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    11 November):** `Preview` already shows the page with the site's own header, footer and layout at each window size, so a
    frame in the editor would only repeat it. `Preview` stays, with one change (owner, 11 November): it opens full screen, hiding
    everything else in the editor, with a close button (a Material 3 full-screen dialog), instead of in a sheet beside the
-   page. The window sizes stay.
+   page. **The sizes (owner, 11 November):** the full-screen Preview shows the breakpoints like the device toolbar of
+   Chrome's developer tools: a bar across the top marks Material 3's five window sizes (`compact`, `medium`, `expanded`,
+   `large`, `extraLarge`, `lib/breakpoints.mjs`) with their widths, the owner picks one or drags the edge of the page to
+   any width, and the current width shows as a number with the size's name. The page's height follows the width: it is
+   the height a window of that size usually has (for example a phone's for `compact`) and the page scrolls inside it, not
+   the page's full length. Open: the heights to use for each size.
 8. **Decision 4 (dotted line instead of a box) against decision 7 (more like the site):** keep the colour box for a coloured
    section as the site draws it, and use the dotted line only to mark where a section starts (sections with no colour, and
    as a boundary marker above each)? Recommended: yes. Alternative: dotted line only, and the colour shown on the site only.
