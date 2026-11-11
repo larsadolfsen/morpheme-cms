@@ -457,8 +457,9 @@ The table is a proposal by field name from `src/standard/*`; the exceptions belo
    changes look. The text stays readable over a picture because the theme decides it, as on the site today.
 3. **Expandable list (settled, owner, 11 November):** an Expandable list is a Segmented list, so the block goes away.
    Each row's page link is the row's Link, and the closing link is the Segmented list's optional text button
-   (decision 10). A migration turns each Expandable list into a Segmented list. Open: whether the rows of a Segmented
-   list expand to show their text.
+   (decision 10). A migration turns each Expandable list into a Segmented list. The rows of a Segmented list are closed by default and expand
+   to show their text (owner, 11 November). The panel has a setting for it, for example `Only one open`, which closes the
+   open row when another is opened. While editing, the active row is shown open so its text can be typed.
 4. **Testimonials** and **Cookies** have no typed content, so they have nothing to edit in place: the block is a drawn
    preview with settings in the panel, and `Edit testimonials` opens their own list, as `Edit list` does for a dynamic list.
 
