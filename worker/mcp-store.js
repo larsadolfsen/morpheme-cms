@@ -86,6 +86,16 @@ export async function store(env, now = Date.now) {
       );
       return id;
     },
+    /** Keeps (or refreshes) an assistant that identifies itself by a metadata document address: its id is that address. */
+    async saveMetadataClient(id, name, redirectUris) {
+      await run(
+        'INSERT INTO mcp_clients (id, name, redirect_uris, created) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET name = excluded.name, redirect_uris = excluded.redirect_uris, created = excluded.created',
+        id,
+        name,
+        JSON.stringify(redirectUris),
+        iso(),
+      );
+    },
     async client(id) {
       const row = typeof id === 'string' ? await one('SELECT id, name, redirect_uris FROM mcp_clients WHERE id = ?', id) : null;
       return row && { id: row.id, name: row.name, redirectUris: JSON.parse(row.redirect_uris) };

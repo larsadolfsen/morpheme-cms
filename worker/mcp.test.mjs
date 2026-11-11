@@ -67,6 +67,14 @@ const github = {
   signedOut: new Set(),
   asked: 0,
 };
+// Client ID Metadata Documents: https://client.example/<name> answers with METADATA[<name>].
+const META = 'https://client.example/';
+const METADATA = {
+  'good.json': { client_id: `${META}good.json`, client_name: 'Meta Claude', redirect_uris: [REDIRECT], token_endpoint_auth_method: 'none' },
+  'wrongid.json': { client_id: `${META}other.json`, client_name: 'Liar', redirect_uris: [REDIRECT] },
+  'secret.json': { client_id: `${META}secret.json`, redirect_uris: [REDIRECT], token_endpoint_auth_method: 'client_secret_basic' },
+  'badredirect.json': { client_id: `${META}badredirect.json`, redirect_uris: ['http://evil.example/cb'] },
+};
 const loginOf = (token) => token.replace(/^gho_/, '').split('-')[0];
 async function ask(url, init = {}) {
   url = String(url);
@@ -79,6 +87,12 @@ async function ask(url, init = {}) {
   if (url.startsWith('https://api.github.com/applications/') && init.method === 'DELETE') {
     github.revoked.push(JSON.parse(init.body).access_token);
     return new Response(null, { status: 204 });
+  }
+  if (url.startsWith(META)) {
+    const doc = METADATA[url.slice(META.length)];
+    return doc === undefined
+      ? new Response(null, { status: 404 })
+      : new Response(JSON.stringify(doc), { headers: { 'content-type': 'application/json' } });
   }
   if (!token || github.signedOut.has(token)) return new Response(null, { status: 401 });
   const user = USERS[loginOf(token)];
@@ -500,17 +514,117 @@ test('/mcp: no token or a bad one is 401 with the address of the resource metada
     assert.equal(res.status, 401);
     assert.match(
       res.headers.get('www-authenticate'),
-      new RegExp(`Bearer resource_metadata="${ORIGIN}/.well-known/oauth-protected-resource"`),
+      new RegExp(`Bearer resource_metadata="${ORIGIN}/.well-known/oauth-protected-resource", scope="read"`),
     );
   }
+});
+
+test('/mcp: version negotiation answers 2025-06-18 and 2025-03-26 clients, and offers the newest to an unknown one', async () => {
+  const { env, tokens } = await signedIn();
+  for (const [asked, answered] of [
+    ['2025-06-18', '2025-06-18'],
+    ['2025-03-26', '2025-03-26'],
+    ['2099-01-01', '2025-11-25'],
+  ]) {
+    const init = await (
+      await rpc(env, tokens.access_token, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: asked } })
+    ).json();
+    assert.equal(init.result.protocolVersion, answered);
+  }
+});
+
+test('/mcp: the MCP-Protocol-Version header: none is 2025-03-26, a known one is answered, an unknown one is 400', async () => {
+  const { env, tokens } = await signedIn();
+  const ping = { jsonrpc: '2.0', id: 1, method: 'ping' };
+  for (const v of [undefined, '2025-03-26', '2025-06-18', '2025-11-25']) {
+    const res = await rpc(env, tokens.access_token, ping, v ? { 'mcp-protocol-version': v } : {});
+    assert.equal(res.status, 200, String(v));
+  }
+  const bad = await rpc(env, tokens.access_token, ping, { 'mcp-protocol-version': '2024-11-05' });
+  assert.equal(bad.status, 400);
+  assert.match((await bad.json()).error.message, /2025-11-25/);
+});
+
+test('/mcp: an origin that is not https or this computer is 403; none, https and loopback pass', async () => {
+  const { env, tokens } = await signedIn();
+  const ping = { jsonrpc: '2.0', id: 1, method: 'ping' };
+  for (const origin of ['http://evil.example', 'null', 'not an origin']) {
+    assert.equal((await rpc(env, tokens.access_token, ping, { origin })).status, 403, origin);
+  }
+  for (const origin of ['https://claude.ai', 'http://localhost:3000', 'http://127.0.0.1:8080']) {
+    assert.equal((await rpc(env, tokens.access_token, ping, { origin })).status, 200, origin);
+  }
+});
+
+test('Client ID Metadata Documents: the metadata says so; a good document connects, a bad one never reaches a redirect', async () => {
+  const server = await (await oauth.handleMcpOAuth(new Request(`${ORIGIN}/.well-known/oauth-authorization-server`), fresh(), ask)).json();
+  assert.equal(server.client_id_metadata_document_supported, true);
+  const env = fresh();
+  const id = `${META}good.json`;
+  const start = await oauth.handleMcpOAuth(new Request(authorizeUrl(id)), env, ask);
+  assert.equal(start.status, 302);
+  assert.equal(new URL(start.headers.get('location')).origin, 'https://github.com');
+  // The connection is the document's: its name, and the code is for its client_id.
+  const jar = cookies(start);
+  const state = new URL(start.headers.get('location')).searchParams.get('state');
+  const back = await oauth.handleMcpCallback(
+    new Request(`${ORIGIN}/oauth/callback?code=lars&state=${state}`, { headers: { cookie: cookieHeader(jar) } }),
+    new URL(`${ORIGIN}/oauth/callback?code=lars&state=${state}`),
+    env,
+    ask,
+  );
+  Object.assign(jar, cookies(back));
+  const html = await back.text();
+  assert.match(html, /Meta Claude/);
+  const pending = /name="pending" value="([^"]+)"/.exec(html)[1];
+  const end = await oauth.handleMcpOAuth(
+    form('/oauth/mcp/consent', { pending, decision: 'allow' }, { cookie: cookieHeader(jar) }),
+    env,
+    ask,
+  );
+  const tokenRes = await oauth.handleMcpOAuth(
+    form('/oauth/mcp/token', {
+      grant_type: 'authorization_code',
+      code: codeOf(end),
+      redirect_uri: REDIRECT,
+      client_id: id,
+      code_verifier: VERIFIER,
+    }),
+    env,
+    ask,
+  );
+  assert.equal(tokenRes.status, 200);
+  for (const name of ['wrongid.json', 'secret.json', 'badredirect.json', 'missing.json']) {
+    const res = await oauth.handleMcpOAuth(new Request(authorizeUrl(`${META}${name}`)), fresh(), ask);
+    assert.equal(res.status, 400, name);
+    assert.match(res.headers.get('content-type'), /html/);
+  }
+});
+
+test('token: a resource that is not this MCP endpoint is invalid_target', async () => {
+  const env = fresh();
+  const { client, end } = await connect(env);
+  const res = await oauth.handleMcpOAuth(
+    form('/oauth/mcp/token', {
+      grant_type: 'authorization_code',
+      code: codeOf(end),
+      redirect_uri: REDIRECT,
+      client_id: client.client_id,
+      code_verifier: VERIFIER,
+      resource: 'https://other.example/mcp',
+    }),
+    env,
+    ask,
+  );
+  assert.equal((await res.json()).error, 'invalid_target');
 });
 
 test('/mcp: initialize, tools/list and the five read tools; the site is read with the person’s own GitHub token', async () => {
   const { env, tokens } = await signedIn();
   const init = await (
-    await rpc(env, tokens.access_token, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18' } })
+    await rpc(env, tokens.access_token, { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-11-25' } })
   ).json();
-  assert.equal(init.result.protocolVersion, '2025-06-18');
+  assert.equal(init.result.protocolVersion, '2025-11-25');
   const list = await (await rpc(env, tokens.access_token, { jsonrpc: '2.0', id: 2, method: 'tools/list' })).json();
   assert.deepEqual(
     list.result.tools.map((t) => t.name),

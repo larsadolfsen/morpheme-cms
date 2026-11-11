@@ -3,6 +3,8 @@
 //   GET  /.well-known/oauth-protected-resource[/mcp]   where the MCP endpoint's authorization server is (RFC 9728)
 //   GET  /.well-known/oauth-authorization-server       the endpoints below (RFC 8414)
 //   POST /oauth/mcp/register   an assistant registers itself: a name and redirect addresses (RFC 7591), no secret
+//   An assistant may instead use the address of its client metadata document as its client_id (MCP 2025-11-25, Client ID
+//   Metadata Documents): the Worker fetches it (https only, no redirects, small, a few seconds) and checks it as a registration.
 //   GET  /oauth/mcp/authorize  checks the request, sends the person to GitHub (worker/oauth.js's /oauth/callback comes back, see
 //                              handleMcpCallback), which ends on the consent page: Allow or Cancel
 //   POST /oauth/mcp/consent    Allow or Cancel, from the consent page only; sends the assistant back with a code
@@ -13,7 +15,9 @@
 import { config } from '@site/config';
 import {
   authorizationServerMetadata,
+  clientFromMetadataDocument,
   clientFromRegistration,
+  isMetadataClientId,
   pkceMatches,
   protectedResourceMetadata,
   redirectProblem,
@@ -116,9 +120,33 @@ export async function handleMcpOAuth(request, env, ask = fetch) {
   const want = route === 'authorize' ? 'GET' : 'POST';
   if (request.method !== want) return answer({ error: 'method' }, 405);
   if (route === 'register') return register(request, env);
-  if (route === 'authorize') return authorize(url, env);
+  if (route === 'authorize') return authorize(url, env, ask);
   if (route === 'consent') return consent(request, url, env, ask);
   return token(request, url, env);
+}
+
+const METADATA_MAX_BYTES = 8 * 1024;
+const METADATA_TIMEOUT_MS = 5000;
+
+/** The assistant a client_id names: one that registered, or one whose metadata document is at the address the client_id is. */
+async function clientOf(db, id, ask) {
+  if (!isMetadataClientId(id)) return db.client(id);
+  try {
+    const res = await ask(id, {
+      redirect: 'error',
+      headers: { accept: 'application/json', 'user-agent': 'morpheme-cms' },
+      signal: AbortSignal.timeout(METADATA_TIMEOUT_MS),
+    });
+    if (!res.ok) return null;
+    const text = await res.text();
+    if (text.length > METADATA_MAX_BYTES) return null;
+    const made = clientFromMetadataDocument(id, JSON.parse(text));
+    if (made.problem) return null;
+    await db.saveMetadataClient(id, made.name, made.redirectUris);
+    return { id, name: made.name, redirectUris: made.redirectUris };
+  } catch {
+    return null;
+  }
 }
 
 async function register(request, env) {
@@ -140,10 +168,10 @@ async function register(request, env) {
   );
 }
 
-async function authorize(url, env) {
+async function authorize(url, env, ask) {
   const q = url.searchParams;
   const db = await store(env);
-  const client = await db.client(q.get('client_id'));
+  const client = await clientOf(db, q.get('client_id'), ask);
   const redirectUri = q.get('redirect_uri');
   // Until the assistant and its redirect address are known to be one it registered, an error goes to the person, not to an address.
   if (!client || !redirectUri || redirectProblem(redirectUri) || !client.redirectUris.includes(redirectUri))
@@ -272,6 +300,7 @@ async function token(request, url, env) {
     ? await request.json().catch(() => ({}))
     : Object.fromEntries((await request.formData().catch(() => new FormData())).entries());
   const grant = body.grant_type;
+  if (body.resource && body.resource !== `${url.origin}/mcp`) return oauthError('invalid_target', `The resource is ${url.origin}/mcp.`);
   const db = await store(env);
   const issue = async (connectionId, replacing) => {
     const made = await db.issue(connectionId, replacing);

@@ -8,7 +8,7 @@
 // Exposes handleMcp. Depends on lib/mcpProtocol.mjs, lib/mcpTools.mjs, worker/mcp-store.js, worker/session.js, worker/files.js,
 // worker/service-status.js and @site/config.
 import { config } from '@site/config';
-import { handleMessage } from '../lib/mcpProtocol.mjs';
+import { DEFAULT_PROTOCOL_VERSION, PROTOCOL_VERSIONS, handleMessage } from '../lib/mcpProtocol.mjs';
 import { createTools } from '../lib/mcpTools.mjs';
 import { filesOf } from './files.js';
 import { ready, store } from './mcp-store.js';
@@ -31,12 +31,23 @@ const withCors = (res) => {
   for (const [k, v] of Object.entries(CORS)) res.headers.set(k, v);
   return res;
 };
+/** Origin check (MCP 2025-11-25, Streamable HTTP): a request from a browser page must come from an https page or this computer; any other origin gets 403. */
+function originProblem(request) {
+  const origin = request.headers.get('origin');
+  if (origin === null) return false;
+  try {
+    const { protocol, hostname } = new URL(origin);
+    return !(protocol === 'https:' || (protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(hostname)));
+  } catch {
+    return true;
+  }
+}
 const answer = (data, status = 200) => withCors(json(data, status));
 const rpcError = (code, message, status = 400) => answer({ jsonrpc: '2.0', id: null, error: { code, message } }, status);
 
 function unauthorized(url, description) {
   const res = answer({ error: 'invalid_token', error_description: description }, 401);
-  res.headers.set('www-authenticate', `Bearer resource_metadata="${url.origin}/.well-known/oauth-protected-resource"`);
+  res.headers.set('www-authenticate', `Bearer resource_metadata="${url.origin}/.well-known/oauth-protected-resource", scope="read"`);
   return res;
 }
 
@@ -65,6 +76,7 @@ function siteOf(env, token, ctx) {
 export async function handleMcp(request, env, ctx, { ask = fetch, site, limit = CALLS_PER_MINUTE, timeoutMs = TOOL_TIMEOUT_MS } = {}) {
   const url = new URL(request.url);
   if (request.method === 'OPTIONS') return withCors(new Response(null, { status: 204 }));
+  if (originProblem(request)) return answer({ error: 'forbidden', error_description: 'This origin is not allowed.' }, 403);
   if (!ready(env)) return answer({ error: 'Assistants are not set up on this site yet.' }, 503);
   if (request.method !== 'POST') {
     const res = answer({ error: 'method' }, 405);
@@ -81,6 +93,10 @@ export async function handleMcp(request, env, ctx, { ask = fetch, site, limit = 
   const may = await accessOf(github, ask);
   if (!may) return unauthorized(url, 'GitHub no longer knows this connection. Connect again.');
   if (!may.push) return answer({ error: 'forbidden', error_description: 'This person can no longer save the site.' }, 403);
+  // After the sign-in: a request that names a revision this server does not answer is refused; none means the spec's fallback.
+  const version = request.headers.get('mcp-protocol-version') ?? DEFAULT_PROTOCOL_VERSION;
+  if (!PROTOCOL_VERSIONS.includes(version))
+    return rpcError(-32600, `Unsupported MCP-Protocol-Version. Use one of: ${PROTOCOL_VERSIONS.join(', ')}.`);
   const length = Number(request.headers.get('content-length') ?? 0);
   if (length > MAX_BODY) return answer({ error: 'too large' }, 413);
   const text = await request.text();
