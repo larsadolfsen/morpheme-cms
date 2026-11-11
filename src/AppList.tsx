@@ -68,6 +68,7 @@ import { siteT, siteText, t } from './i18n';
 import { OwnerLicenses, StoreLicenseRows } from './Licenses';
 import { StoreNotice, StoreRound, useStoreConnected, useStoreKey } from './StoreStatus';
 import StoreSections from './StoreSections';
+import type { Section } from './sectionChoice.mjs';
 import { StoreSearchRow, useStateFilter } from './StoreSearchRow';
 import { sortChoice, useSort } from './storeSort';
 import { told } from './notificationData';
@@ -435,8 +436,8 @@ export function DeveloperRow({ name }: { name: string }) {
  * with what it does and whether it is installed, opening its page (the themes are in "Theme store", ThemeStore.tsx).
  * With search (by name, what it does, who made it and the words it is found by, in both languages), the order and the
  * filters by category and by whether it is installed, each picked one as a chip. */
-export function StorePage({ env, files }: { env: Env; files: RepoFile[] }) {
-  return <StoreSections env={env} files={files} />;
+export function StorePage({ env, files, section }: { env: Env; files: RepoFile[]; section?: Section }) {
+  return <StoreSections env={env} files={files} section={section} />;
 }
 
 /** The list of one section of the Appstore (Connectors or Plugins): the apps of that role, with the switch of sections

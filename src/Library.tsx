@@ -145,7 +145,11 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'appearance') return { label: parts.appearance, href: '#appearance', count: null };
   if (id === 'block-settings') return { label: parts.blockSettings, href: '#block-settings', count: null };
   if (id === 'apps') return { label: parts.apps, href: '#apps', count: null };
-  if (id === 'appstore') return { label: t.apps.find, href: `#${STORE_ROUTE}`, count: null };
+  if (id === 'appstore') return { label: t.apps.store, href: `#${STORE_ROUTE}`, count: null };
+  if (id.startsWith('store-')) {
+    const section = id.slice('store-'.length) as keyof typeof t.apps.sections;
+    return { label: t.apps.sections[section], href: `#${STORE_ROUTE}/${section}`, count: null };
+  }
   if (id === 'redirects') return { label: parts.redirects, href: `#${REDIRECTS_ROUTE}`, count: null };
   const seoPart = seoParts.find((p) => p.id === id);
   if (seoPart) return { label: seoPart.label, href: `#seo/${id}`, count: null };

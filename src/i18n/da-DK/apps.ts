@@ -63,6 +63,7 @@ export const apps: Messages['apps'] = {
   tabInfo: 'Information',
   tabs: 'Appens dele',
   find: 'Appstore',
+  store: 'Butik',
   searchStore: 'Søg efter apps',
   loadingStore: 'Henter apps…',
   storeFailed: 'Kan ikke nå butikken. Prøv igen om 10 minutter.',

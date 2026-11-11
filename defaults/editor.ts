@@ -43,6 +43,7 @@ import {
   Palette,
   PuzzlePiece,
   Shapes,
+  ShareNetwork,
   ShieldCheck,
   SidebarSimple,
   Signpost,
@@ -129,6 +130,9 @@ export const icons: Record<string, Icon> = {
   'block-settings': ToggleRight,
   apps: PuzzlePiece,
   appstore: Storefront,
+  'store-plugins': PuzzlePiece,
+  'store-connectors': ShareNetwork,
+  'store-themes': Palette,
   'theme-store': Storefront,
   morpheme: Sparkle,
   developer: Wrench,
@@ -170,7 +174,8 @@ export const appearance: Part[] = [
 // Each part is a collection (collections.ts), except those named above, "privacy"'s (partScreens) and the editor's own
 // "company" (companyParts), "blocks" (blockParts), id files (the pictures, PDFs, videos and zip files), "header", "lists"
 // and "block-settings" (BlockSettings.tsx).
-export const groups: { id: string; title: string; href?: string; ids: string[] }[] = [
+// `flat` (Apps) has no list of its own: its rows stand under its label on the first level, with the apps installed after them.
+export const groups: { id: string; title: string; href?: string; flat?: boolean; ids: string[] }[] = [
   { id: 'home', title: 'Dashboard', href: '#', ids: [] },
   {
     id: 'content',
@@ -179,7 +184,7 @@ export const groups: { id: string; title: string; href?: string; ids: string[] }
   },
   { id: 'company', title: 'Business', ids: ['logo', 'company'] },
   { id: 'blocks', title: 'Blocks', ids: ['blocks', 'block-settings'] },
-  { id: 'apps', title: 'Apps', ids: ['apps', 'appstore'] },
+  { id: 'apps', title: 'Apps', flat: true, ids: ['appstore', 'store-plugins', 'store-connectors', 'store-themes', 'apps'] },
 ];
 
 /** The rows of the Settings screen (#settings), A–Z by their names there: how the site looks ("Appearance": the theme store,
