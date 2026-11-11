@@ -496,7 +496,7 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 | H | **Group similar blocks:** step 1 of finding 13, headings in the `Insert` picker and sharper hints (13) | `BlockDialog`, `blocks.ts` texts, `da-DK` | no | none |
 | I | **Merge the row blocks:** step 2 of finding 13, with a migration (13) | `standard/*`, `theme/blocks/*`, every theme | no | Q6 |
 | J | **Inline block editing:** fields fold out in the text, no sheet for block fields, one open at a time (14) | `MarkdownEditor`, `BlockDialog`, `sheetPlacement.mjs`, `editor.css` | no | none |
-| K | **WYSIWYG page:** the page head drawn in place (step 1), then the frame toggle (step 3) (15) | `EntryForm`, `MarkdownEditor`, `titleH1.mjs`, `Screen`, theme `editor/previews.tsx` | no | Q7 |
+| K | **WYSIWYG page:** the page head drawn in place (step 1); the frame (step 3) is dropped (15) | `EntryForm`, `MarkdownEditor`, `titleH1.mjs`, `Screen`, theme `editor/previews.tsx` | no | Q7 |
 | L | **Lists from lists:** `Rows from` on the three list blocks, tags filter, then `New list` with the fixed field set (16) | `standard/list*`, `Library` (`Lists`), `site.ts`, `lib/` (list definitions), build | **yes**: `Dynamic lists`, app lists | none |
 | M | **Card block:** one Card with three designs (Filled with a colour) and a `Media` field, the next empty card, migration of Cards, dynamic cards after L (17) | `standard/cards`, `theme/blocks/cards/*`, every theme, `BlockDialog` | no | none |
 | F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
@@ -541,8 +541,22 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    group first (batch H), look at it, then decide on the merge (batch I). The merge is larger and changes every theme.
 7. **The page head is drawn in the text (settled for the head, owner, 11 November).** A page and a blog post look as
    close to the site as they can in the editor: the title, the top picture, the date and the tags are drawn in the text as
-   the site shows them (step 1). Open: the optional frame with the site's header and footer (step 3), which is decided
-   after the owner has seen step 1.
-8. **Decision 4 (dotted line instead of a box) against decision 7 (more like the site):** keep the colour box for a coloured
-   section as the site draws it, and use the dotted line only to mark where a section starts (sections with no colour, and
-   as a boundary marker above each)? Recommended: yes. Alternative: dotted line only, and the colour shown on the site only.
+   the site shows them (step 1). **The optional frame with the site's header and footer (step 3) is dropped (owner,
+   11 November):** `Preview` already shows the page with the site's own header, footer and layout at each window size, so a
+   frame in the editor would only repeat it. `Preview` stays, with one change (owner, 11 November): it opens full screen, hiding
+   everything else in the editor, with a close button (a Material 3 full-screen dialog), instead of in a sheet beside the
+   page. **The sizes (owner, 11 November):** the full-screen Preview shows the breakpoints like the device toolbar of
+   Chrome's developer tools: a bar across the top marks Material 3's five window sizes (`compact`, `medium`, `expanded`,
+   `large`, `extraLarge`, `lib/breakpoints.mjs`) with their widths, the owner picks one or drags the edge of the page to
+   any width, and the current width shows as a number with the size's name. The page's height follows the width: it is
+   the height a window of that size usually has (for example a phone's for `compact`) and the page scrolls inside it, not
+   the page's full length. The breakpoints are the ones the site uses (owner, 11 November), read from the
+   site and its theme (today Material 3's, which `lib/breakpoints.mjs` and the theme's CSS agree on), not a fixed list in the
+   editor, so a theme with other breakpoints shows its own. The heights are a phone's for `compact`, a tablet's for `medium` and `expanded`, and a laptop's for `large` and
+   `extraLarge` (owner, 11 November); the exact numbers are set when it is built.
+8. **A coloured section keeps its colour box; the dotted line marks where a section starts (settled, owner, 11 November).**
+   A coloured section is drawn as the site draws it, as a box. The colours are the same choices as a Filled card
+   (finding 17): Surface, Primary, Secondary and Tertiary (today's list is None, Surface, Tint and Primary), or none, and
+   the theme decides how each looks. In the editor the dotted line at each H2 always shows. In the full-screen Preview
+   (finding 15) the dotted lines show only on hover, so the page looks like the site the rest of the time (owner, 11
+   November: hiding them is only for the full-screen Preview). Existing `Tint` sections migrate to Surface (owner, 11 November).
