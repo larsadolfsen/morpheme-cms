@@ -15,9 +15,17 @@ import { ListItem, plainListClass } from '../ui';
 
 const lists = collections.flatMap((c) => (c.kind === 'markdown' ? [{ id: c.id, folder: c.folder }] : []));
 
-/** "Draft" or "Scheduled Nov 1 at 8:00 AM" (without the time when publishAt is not usable). */
+/** "Draft", "Unpublished changes" or "Scheduled Nov 1 at 8:00 AM" (without the time when publishAt is not usable). */
 const statusText = (status: string, at: number | null) =>
-  status === 'draft' ? t.library.status.draft : at === null ? t.library.status.scheduled : t.library.status.scheduledAt(when(new Date(at)));
+  status === 'draft'
+    ? t.library.status.draft
+    : status === 'waiting'
+      ? at === null
+        ? t.library.status.unpublishedChanges
+        : t.library.status.scheduledChanges(when(new Date(at)))
+      : at === null
+        ? t.library.status.scheduled
+        : t.library.status.scheduledAt(when(new Date(at)));
 
 export function UnfinishedWidget({ editing }: WidgetProps) {
   const { files } = useStartData();
