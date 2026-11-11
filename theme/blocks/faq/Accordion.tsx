@@ -4,25 +4,31 @@
 // editor, without one, its own) keeps only one row open at a time in each list (browsers without support allow
 // several). Closed text is still in the HTML for search engines, and the browser's find-in-page opens the row it
 // finds. Opening and closing glide: in CSS where the browser can animate ::details-content, otherwise by script.ts;
-// the text fades in as it opens. Reduced motion: no animation.
+// the text fades in as it opens. Reduced motion: no animation. `several`: any number of rows can be open at once. A row of
+// "Segmented list" can have an icon before its heading and a page after its text.
 import { useId } from 'react';
+import ArrowLink from '@theme/blocks/ArrowLink';
 import PageRow from '@theme/blocks/accordion/PageRow';
 import { Svg } from '@morphemecms/cms/src/icon';
 import type { AccordionRow } from '@morphemecms/cms/src/standard/faq/view';
 
-export default function Accordion({ rows, group }: { rows: AccordionRow[]; group?: string }) {
+export default function Accordion({ rows, group, several }: { rows: AccordionRow[]; group?: string; several?: boolean }) {
   const own = useId();
   return (
     <div className="block-accordion">
       {rows.map((row, i) => (
-        <details key={i} name={group ?? own} className="block-accordion-row">
+        <details key={i} name={several ? undefined : (group ?? own)} className="block-accordion-row">
           <summary className="block-accordion-label">
-            {row.label}
+            {'icon' in row && row.icon && <Svg name={row.icon} size={24} className="block-accordion-lead" />}
+            <span className="block-accordion-title">{row.label}</span>
             <Svg name="caret-down" size={20} className="block-accordion-icon" />
           </summary>
           <div className="block-accordion-body">
             {'html' in row ? (
-              <div className="block-accordion-answer" dangerouslySetInnerHTML={{ __html: row.html }} />
+              <>
+                {row.html && <div className="block-accordion-answer" dangerouslySetInnerHTML={{ __html: row.html }} />}
+                {row.href && row.link && <ArrowLink href={row.href} label={row.link} className="block-accordion-link" />}
+              </>
             ) : (
               <PageRow {...row.page} />
             )}

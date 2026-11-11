@@ -38,6 +38,7 @@ export const daDK = {
   'Publish scheduled: {names}': 'Udgiv planlagt: {names}',
   // The commit of an autosaved draft that was saved to git (worker/autosave.js). {name} is the page file's path.
   'Draft: {name}': 'Kladde: {name}',
+  'Move {count} scheduled to waiting versions': 'Flyt {count} planlagte til ventende versioner',
   'blog post': 'blogindlæg',
   page: 'side',
 };

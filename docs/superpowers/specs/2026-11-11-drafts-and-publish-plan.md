@@ -43,8 +43,12 @@ a release note (`release-notes` skill, English and `da-DK`). Data model and Work
      status line under the title (`Draft`, `Unpublished changes`, `Published · Changed …`); the `Status` menu is gone from Page
      settings; a new address cannot be set while changes wait. Before and after screenshots in `2026-11-11-drafts-screens/`. A
      stored `scheduled` still reads as a draft that `Publish` publishes at once, until 4b.
-   - **4b, Schedule:** the `Schedule` picker on `Publish` and `Publish changes`, `Scheduled changes` with the date, the migration
-     of a stored `scheduled` (a waiting version with its time), and the `Scheduled` status goes.
+   - **4b, Schedule** (built): the `Schedule` row (and `Cancel schedule`) opens a date and time dialog; the changes, and a new page,
+     are saved as a waiting version with `publishAt`, and the line under the title says `Scheduled · <time>`. The Worker moves a
+     page on the stored `scheduled` status that is not due to a draft with a waiting version that has its time (`migrateScheduled`,
+     one commit, once), and publishes one that is due as before; the editor does the same for a page it schedules again. The
+     `Scheduled` option and the `Time` field are gone from the collections; the lists show a draft with a waiting time as Scheduled.
+     `Schedule` is a row for now; a split button beside `Publish` is a later polish.
    - **4c, the version switch:** the `Live` / `Scheduled` switch as the named slot `versionSwitch` (`AppDefinition.slots`, with its
      props `entry`, `versions`, the four functions and `editing`; the core draws it when no app registers one), the `Hide from
      search engines` setting up in the SEO section, and `CLAUDE.md` section 6.

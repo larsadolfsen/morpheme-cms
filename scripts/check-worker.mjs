@@ -479,6 +479,29 @@ async function run(label, bucket) {
     await settle();
     expect((await publishScheduled(env, Date.now(), ctx)).length === 0, `${label}: the Worker published a version that is not due`);
     await commitFiles(env, (await readFiles(env, [], ctx)).head, `Editor: discard (${label})`, [{ path: waiting, text: null }], ctx);
+    // A page on the stored status Scheduled, with a time still to come, becomes a draft with a waiting version that has the time.
+    const old = `---\ntitle: "Old (${label})"\nstatus: "scheduled"\npublishAt: "2999-01-01T08:00"\n---\n\nOld.\n`;
+    await commitFiles(env, (await readFiles(env, [], ctx)).head, `Editor: old scheduled (${label})`, [{ path: post.path, text: old }], ctx);
+    await settle();
+    const legacy = {
+      ...env,
+      ASSETS: { fetch: async () => new Response(JSON.stringify([{ path: post.path, publishAt: '2999-01-01T08:00' }])) },
+    };
+    expect(
+      (await publishScheduled(legacy, Date.now(), ctx)).length === 0,
+      `${label}: the Worker published a Scheduled page that is not due`,
+    );
+    await settle();
+    const moved = await readFiles(env, [post.path, waiting], ctx);
+    expect(
+      /status: "draft"/.test(moved.texts[0] ?? '') && !/publishAt/.test(moved.texts[0] ?? ''),
+      `${label}: a Scheduled page did not become a draft`,
+    );
+    expect(
+      /publishAt: "2999-01-01T08:00"/.test(moved.texts[1] ?? '') && !/status/.test(moved.texts[1] ?? ''),
+      `${label}: its time did not move to a waiting version`,
+    );
+    await commitFiles(env, moved.head, `Editor: discard (${label})`, [{ path: waiting, text: null }], ctx);
   }
 
   // An autosaved draft (autosave.js, lib/autosave.mjs): kept in R2 and read back, listed, deleted, moved to git as the waiting version in the

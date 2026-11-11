@@ -44,11 +44,17 @@ Quick points with a check mark.
 
 ## List
 
-Rows under each other, as your theme draws a list, or each on its own surface.
+Rows under each other, as your theme draws a list.
 
 <div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;book-open&quot;,&quot;title&quot;:&quot;Blocks&quot;,&quot;text&quot;:&quot;Every block a page can be built from.&quot;,&quot;href&quot;:&quot;/blocks/&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;App store&quot;,&quot;text&quot;:&quot;Apps and themes you install with one tap.&quot;,&quot;href&quot;:&quot;/app-store/&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;About&quot;,&quot;text&quot;:&quot;What the editor is built on.&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>
 
-<div data-block="list" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Monday to Friday&quot;,&quot;text&quot;:&quot;9 am to 5 pm&quot;},{&quot;icon&quot;:&quot;coffee&quot;,&quot;title&quot;:&quot;Saturday&quot;,&quot;text&quot;:&quot;10 am to 2 pm&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Sunday&quot;,&quot;text&quot;:&quot;Closed&quot;}]}"></div>
+<div data-block="segmented" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Monday to Friday&quot;,&quot;text&quot;:&quot;9 am to 5 pm&quot;},{&quot;icon&quot;:&quot;coffee&quot;,&quot;title&quot;:&quot;Saturday&quot;,&quot;text&quot;:&quot;10 am to 2 pm&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Sunday&quot;,&quot;text&quot;:&quot;Closed&quot;}],&quot;show&quot;:&quot;all&quot;}"></div>
+
+## Segmented list
+
+Rows that fold out with a text and a link, with a text button under the last row.
+
+<div data-block="segmented" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Opening hours&quot;,&quot;text&quot;:&quot;Monday to Friday, 9 am to 5 pm.\n\nSaturday, 10 am to 2 pm.&quot;},{&quot;icon&quot;:&quot;map-pin&quot;,&quot;title&quot;:&quot;Where to find us&quot;,&quot;text&quot;:&quot;Ground floor, next to the station.&quot;,&quot;href&quot;:&quot;/about/&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Good to know&quot;,&quot;text&quot;:&quot;Bring your booking number.&quot;}],&quot;only&quot;:true,&quot;button&quot;:&quot;See all&quot;,&quot;buttonHref&quot;:&quot;/about/&quot;}"></div>
 
 ## Accordion
 

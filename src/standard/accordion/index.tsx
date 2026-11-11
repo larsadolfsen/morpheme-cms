@@ -11,6 +11,7 @@ import { headFields } from '../head';
 import { example } from './shared';
 
 export default defineBlock({
+  group: 'questions',
   label: t.blocks.accordion.label,
   icon: Rows,
   hint: t.blocks.accordion.hint,
