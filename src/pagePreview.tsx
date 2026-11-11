@@ -175,6 +175,7 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
       }
       leadBox.innerHTML = lead;
     }
+    const attr = (v: string) => v.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
     const types = siteBlocks.map((b) => b.type);
     const runs = (part: string) =>
       sectionsOf(part)
@@ -182,7 +183,11 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
           const inner = splitBlocks(run.html, types)
             .map((p) => ('html' in p ? p.html : blockHtml(p.type, p.props, draft.data)))
             .join('');
-          return run.color ? `<section class="${sectionClass(run.color)}">${inner}</section>` : inner;
+          if (run.color === null) return inner;
+          const picture = run.picture
+            ? `<img class="text-section-image" src="${attr(shownAt(run.picture))}" alt="${attr(run.alt ?? '')}">`
+            : '';
+          return `<section class="${sectionClass(run.color, run)}">${picture}${inner}</section>`;
         })
         .join('');
     // With a column beside the text the panel holds the heading only, as on the site.

@@ -66,8 +66,7 @@ import { firstHeading, topHeadings } from './firstHeading.mjs';
 import { h1Of, h1TextOf, h1Written } from './titleH1.mjs';
 import { headingChoices } from '../lib/heading-levels.mjs';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
-import { SECTION_COLORS } from '../lib/section-marker.mjs';
-import { sectionHeading, setSectionColor } from './sectionState.mjs';
+import { sectionHeading, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
 import { IMAGE, type BlockAsk } from './BlockDialog';
 import SectionSettingsIcon from './SectionSettingsIcon';
@@ -1268,14 +1267,17 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     editor.current?.action((ctx) => paint(ctx.get(editorViewCtx), name));
   }
 
-  // The sheet with the settings of the section the cursor is in (its colour), then the colour set.
+  // The sheet with the settings of the section the cursor is in (its colour, and an H2's picture and width), then those set.
   async function sectionSettings() {
-    const current = SECTION_COLORS.find((name) => active.includes(`section-${name}`)) ?? null;
-    const answered = await (blocks ?? sheetProp)?.section(current);
+    let current: ReturnType<typeof sectionHeading> = null;
+    editor.current?.action((ctx) => void (current = sectionHeading(ctx.get(editorViewCtx).state)));
+    const at = current as ReturnType<typeof sectionHeading>;
+    if (!at) return;
+    const answered = await (blocks ?? sheetProp)?.section(at, { picture: at.level === 2 });
     if (!answered) return;
     editor.current?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
-      setSectionColor(view, answered.color);
+      setSection(view, at.level === 2 ? answered : { color: answered.color });
       view.focus();
     });
   }
