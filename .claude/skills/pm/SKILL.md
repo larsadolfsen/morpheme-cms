@@ -53,6 +53,14 @@ as usual, and only the newest run on the current head counts.
   the version is staged, then verifies `latest`, the tag and the GitHub release (Phase 5 of the `release` skill).
 - **After.** The PM starts any follow-up that needed the new version (for example the sites that waited for it).
 
+## Two version lines at the same time
+
+When two lines run together (for example `0.15.x` on `main` and `0.16` on the branch `0.16`), each line has its own PM
+and its own branch, and each PM merges only into its own branch. After each release of the earlier line, `main` is
+merged into the later line's branch, never the other way. A line's branch is merged into `main` only when its PM says
+the line is ready and the owner has said go; that merge makes the Release PR of the line, and the owner releases as
+usual (Phase 4 and 5). Only `main` has a Release PR.
+
 ## Reports
 
 Short, English only (`CLAUDE.md`), and only what the owner has to do or decide.
