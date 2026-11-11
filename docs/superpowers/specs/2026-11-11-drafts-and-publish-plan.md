@@ -46,5 +46,5 @@ Each pull request must pass `npm run check`, `check:screens`, `check:demo` and `
 Today `unlisted` also keeps a page or post **off the blog, off every list and out of the sitemap**, not only out of Google.
 "Published + `Hide from search engines`" only sets `noindex` and so would put a formerly hidden post on the blog list. The
 spec says "no page changes". Which is meant: (a) accept that migrated posts appear on the blog, or (b) the SEO setting also
-keeps the page out of the site's own lists. This plan builds (b) (the setting `noindex` hides the entry from lists and the
-sitemap, as `unlisted` did), because (a) makes a hidden post public. The PM confirms or reverses it before pull request 1 merges.
+keeps the page out of the site's own lists (which would also hide pages that have `noindex` today). Nothing of the
+`unlisted` migration is built until the PM answers; pull request 1 starts with the parts that do not depend on it.
