@@ -81,13 +81,18 @@ export const navShown = menu.enabled !== false;
 /** The links in the bar under the header on a phone (mobile-menu.json, "Mobile menu"); none when it is turned off. */
 export const mobileNav: { label: string; href: string }[] = mobileMenu.enabled ? mobileMenu.items : [];
 
+// "Segmented list" has the link text of the "Expandable list" it replaces ("Blocks" › "Expandable list"), so a text a site saved there still shows.
+const withSegmented = (texts: Record<string, Record<string, any>>) => ({ ...texts, segmented: texts.accordion });
+
 /** The texts every copy of a block has ("Blocks" in the editor), with {…} for what differs, by
  * the block's type: those written in its shared.ts, with the saved ones (blocks.json) over them. The
  * standard blocks' first, so an app's block (src/apps/<app>/blocks/) by the same name has its own. */
-export const blockTexts = sharedTexts(
-  {
-    ...standardShared,
-    ...import.meta.glob<SharedTexts>('/src/apps/*/blocks/*/shared.ts', { eager: true, import: 'default' }),
-  },
-  blocks,
+export const blockTexts = withSegmented(
+  sharedTexts(
+    {
+      ...standardShared,
+      ...import.meta.glob<SharedTexts>('/src/apps/*/blocks/*/shared.ts', { eager: true, import: 'default' }),
+    },
+    blocks,
+  ),
 );
