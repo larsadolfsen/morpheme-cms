@@ -2,9 +2,9 @@
 // date. Takes plain files, so the start screen's widgets and app pages can use it with any list of files. Exposes
 // `entriesOf`. Depends on frontmatter.mjs.
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
-import { DRAFTS, pageOf, timeOf } from '../lib/versions.mjs';
+import { waitingOf } from './pageVersions.mjs';
 
-/** @typedef {{ path: string; collection: string; title: string; status: 'published' | 'draft' | 'scheduled'; publishAt: string | undefined; date: string | undefined }} Entry */
+/** @typedef {{ path: string; collection: string; title: string; status: 'published' | 'draft' | 'scheduled'; publishAt: string | undefined; date: string | undefined; waiting?: { publishAt?: string } }} Entry */
 
 /** What `status` in the front matter says a page or post is, as the lists show it (Library.tsx).
  * @param {unknown} status
@@ -36,12 +36,13 @@ export function entriesOf(files, collections) {
       },
     ];
   });
-  const pages = entries.map((e) => e.path);
-  for (const file of files) {
-    const at = file.path.startsWith(`${DRAFTS}/`) ? pageOf(file.path, pages) : null;
-    const time = at && timeOf(file.text);
-    const entry = time ? entries.find((e) => e.path === at.path) : undefined;
-    if (entry && entry.status === 'draft') Object.assign(entry, { status: 'scheduled', publishAt: time });
+  // Waiting versions (src/drafts/): a draft with a waiting time is Scheduled; a published page with changes waiting says so.
+  const waiting = waitingOf(files);
+  for (const entry of entries) {
+    const w = waiting.get(entry.path);
+    if (!w) continue;
+    if (entry.status === 'draft' && w.publishAt) Object.assign(entry, { status: 'scheduled', publishAt: w.publishAt });
+    else if (entry.status === 'published') entry.waiting = w.publishAt ? { publishAt: w.publishAt } : {};
   }
   return entries;
 }

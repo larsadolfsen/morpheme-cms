@@ -140,6 +140,8 @@ export const library: Messages['library'] = {
     draft: 'Kladde',
     scheduled: 'Planlagt',
     scheduledAt: (when) => `Planlagt ${when}`,
+    unpublishedChanges: 'Ikke udgivne ændringer',
+    scheduledChanges: (when) => `Planlagte ændringer ${when}`,
   },
   statusFilter: 'Status',
   statusShown: { all: 'Alle', published: 'Udgivet', draft: 'Kladde', scheduled: 'Planlagt' },

@@ -1,6 +1,0 @@
-{
-  "id": "connectors-connect-services",
-  "kind": "card",
-  "title": "Forbind en app til sin tjeneste, og vælg fra dens lister",
-  "text": "En forbindelse kan nu logge ind på sin tjeneste, for eksempel Calendly, og udfylde en indstilling fra tjenestens egen liste, så du ikke længere kopierer et id i hånden. Før du installerer den, viser dens side adressen, den forbinder til, og hvad den bruger. Åbn Appstore under Indstillinger, og vælg Forbindelser."
-}
