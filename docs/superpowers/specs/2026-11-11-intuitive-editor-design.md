@@ -401,9 +401,11 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   The blog post card becomes a dynamic Card; Blog posts need no special card.
 - **Migration:** Cards with Design Image, Icon and Text become Card with a Media field of Image or Icon, or none;
   Background accent becomes Design Accent, otherwise Outlined. No page changes look.
-- **Not decided:** whether a card's Link makes the whole card clickable when it also has buttons (a link inside a link is
-  not allowed in HTML, so a card with buttons probably has no whole-card link); how many buttons fit before the card
-  looks crowded.
+- **Whole card as a link (owner, 11 November):** a card with a Link is clickable as a whole, also when it has buttons.
+  A link inside a link is not valid HTML, so the card is built with a stretched link: the title is the link and its
+  area is stretched over the whole card, and the buttons sit above it and keep their own targets. The card has one
+  accessible link name (the title), and the buttons are separate controls. The editor only draws this.
+- **Not decided:** how many buttons fit before the card looks crowded.
 
 ## Batches
 
