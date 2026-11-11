@@ -1,0 +1,6 @@
+{
+  "id": "connectors-connect-services",
+  "kind": "card",
+  "title": "Connect an app to its service and pick from its lists",
+  "text": "A connector can now sign in to its service, such as Calendly, and fill a setting from the service’s own list, so you no longer copy an id by hand. Before you install it, its page shows the address it connects to and what it uses. Open Appstore under Settings and choose Connectors."
+}

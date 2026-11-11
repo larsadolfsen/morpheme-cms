@@ -136,6 +136,9 @@ export type StoreApp = {
    * connects to (when the entry names it; else its hosts, serviceOf). */
   role?: Role;
   service?: string;
+  /** A connector's MCP server, as its entry in the catalog carries it (`mcp` of its app.json): shown before install as
+   * its host and the tools it uses (AppInfoTab). */
+  mcp?: { server: string; auth?: string; tools?: string[] };
   keywords?: string[];
   /** What it needs of the site; the cookies it sets, and whether it asks in the cookie banner first (AppDefinition
    * .cookies); its pictures. */

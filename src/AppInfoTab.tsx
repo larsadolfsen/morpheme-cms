@@ -51,7 +51,7 @@ export default function AppInfoTab({
   needs?: AppNeeds;
   /** A connector: the service it connects to (empty when its entry names none), shown with its hosts and what it reads; a
    * plugin: empty, and it says it has no outside access. Null when its role is not known. */
-  connects?: { service: string; connector: boolean } | null;
+  connects?: { service: string; connector: boolean; mcp?: { host: string; tools: string[] } } | null;
   /** The kinds of notifications it sends (AppNotifications), under "Notifications": their names. Their switches are
    * on the Settings tab (AppNotificationSwitches). */
   notifies?: { label: string }[];
@@ -68,6 +68,12 @@ export default function AppInfoTab({
   const needed = needs
     ? [
         connects?.connector && row(Globe, t.apps.connectsTo(connects.service || t.apps.otherService)),
+        connects?.mcp &&
+          row(
+            Globe,
+            t.apps.mcpConnectsTo(connects.mcp.host),
+            connects.mcp.tools.length ? t.apps.mcpUses(connects.mcp.tools.join(', ')) : undefined,
+          ),
         connects && !connects.connector && !needs.loads.length && !needs.sends.length && row(ShieldCheck, t.apps.noOutsideAccess),
         needs.pages && row(Code, t.apps.needsPages),
         needs.loads.length > 0 && row(Globe, t.apps.needsLoads, needs.loads.join(', ')),
