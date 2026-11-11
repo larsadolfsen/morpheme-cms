@@ -26,7 +26,7 @@ repeated as a question below.
 5. **The editor opens with H1 selected.** A new page opens with the cursor in the H1 line, empty, ready to type the title
    (today `firstHeadingHint` explains it after the fact). It replaces the first-run text hint of finding 6.
 
-6. **Edit blocks inline, not in a bottom sheet or side sheet.** A block's fields open where the block sits in the text.
+6. **Edit blocks inline; the panel holds settings only.** A block is drawn as the site shows it and its text is typed in place (a list row's top and bottom line). Settings (icon, picture, link) are in the side panel on desktop, open all the time while the cursor is in the block, and on a phone in a bottom sheet opened with the `Edit` button in the same menu as the text tools. Clicking out returns the block to its live look; an unset icon takes no space. A `+` under the last row adds a row.
    This replaces `2026-11-05-block-side-sheet-design.md` for block fields. _(Scope read as block fields only; short pickers such
    as page, link and colour stay sheets until the owner says otherwise.)_
 
@@ -263,6 +263,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   time; opening another folds the first. There is no `Save`, `Cancel` or `Insert` of its own: a change is part of the page's
   form and is saved with the page's `Save`, and `Undo` in the text toolbar undoes it. A new block is added where the cursor is
   from `Insert` (the picker, still a sheet) and arrives open with its required fields marked.
+- **Owner's final shape (11 November):** supersedes the fold-out below. Text is typed in the drawn block; the side panel (desktop, always open while the block is active) or the bottom sheet (phone, `Edit` button in the text menu) holds only settings. The panel must keep the page's single save model (no `Save` or `Cancel` of its own).
 - **Rows:** a row is a nested fold-out inside the open block (heading, text, icon, page), with drag handles or Move up and down,
   and `Add row` at the end. This is where finding 13's single row model pays off: one row editor for all designs.
 - **Preview:** the card shows the block as the site draws it (`Preview`) above or beside its fields, so the owner sees the
