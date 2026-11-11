@@ -3,7 +3,7 @@
 // { pages: [{ path, light: { bg, … }, dark: { … }, app?, picture? }] }, by address, read from the <style> Base.astro
 // writes them in (data-page-colors, colorsCss in packages/editor/lib/colors.ts: light mode on :root, dark mode on
 // :root[data-theme='dark']), with the app that changed them and the picture they came from (data-app, data-picture;
-// packages/editor/site/pageColors.ts), without them for a page with the site's own. Without the new versions under /ny/ and the editor.
+// packages/editor/site/pageColors.ts), without them for a page with the site's own. Without the new versions under /new/ and the editor.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { isPreview } from '@morphemecms/cms/site/noindex.mjs';

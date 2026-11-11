@@ -76,7 +76,7 @@ export const shownPicture = (src: string): Picture => ({ src: shownAt(src) });
 export type ViewOf<V> = (props: Record<string, any>, data: BlockData) => V | null;
 
 /** Where a block stands on the site, for its load.ts: its shared texts (shared.ts, with those saved over them), its
- * place among the parts of the text, the page's address, whether the page is a new version (/ny/), and, for a block
+ * place among the parts of the text, the page's address, whether the page is a new version (/new/), and, for a block
  * drawn beside the page's text (`beside`), the text as HTML. */
 export type LoadContext = { texts: Record<string, any>; index: number; path?: string; preview?: boolean; html?: string };
 

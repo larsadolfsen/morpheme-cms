@@ -41,10 +41,10 @@ describe('movedAddress', () => {
   test('a new address is never moved again, so there is no loop', () => {
     for (const [, now] of PREFIXES) assert.equal(movedAddress(`${now}x/`, PREFIXES), undefined);
   });
-  test('the shipped table sends the old tag pages to the new ones, and /ny/ stays until its pages are renamed', () => {
-    assert.deepEqual(MOVED_PREFIXES, [['/blog/kategori/', '/blog/tags/']]); // language-ok: an old public address
+  test('the shipped table sends the old tag pages and the old new-version pages to the new ones', () => {
+    assert.deepEqual(MOVED_PREFIXES, PREFIXES);
     assert.equal(movedAddress('/blog/kategori/x/'), '/blog/tags/x/'); // language-ok: an old public address
-    assert.equal(movedAddress('/ny/x/'), undefined); // language-ok: an old public address
+    assert.equal(movedAddress('/ny/x/'), '/new/x/'); // language-ok: an old public address
   });
 });
 

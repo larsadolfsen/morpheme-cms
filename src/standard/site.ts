@@ -86,7 +86,7 @@ export type StandardSite = {
    * (Banner: the shared buttons, "Read more"). */
   texts: Record<string, Record<string, any>>;
   /** The opening of a page's text, by its address (Accordion: a row without a text of its own);
-   * undefined when there is no such page. `preview`: the page is a new version (/ny/), so the opening
+   * undefined when there is no such page. `preview`: the page is a new version (/new/), so the opening
    * of the new version of the page, when there is one. */
   pageOpening(href: string, preview?: boolean): Promise<string | undefined>;
   /** A page's name on a button without a text of its own, by its address. */

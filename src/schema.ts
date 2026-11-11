@@ -447,7 +447,7 @@ export type PreviewVariant = { label: string; props: Record<string, unknown> };
 
 /** What a block on the site is given by RichText.astro (BlockSite.astro gives it to its load.ts): its props (as written in its line in the
  * text), its place among the parts of the text, the page's address, whether the page is a new
- * version of a page (/ny/), and its shared texts (shared.ts, with those saved over them). */
+ * version of a page (/new/), and its shared texts (shared.ts, with those saved over them). */
 export type SiteProps<P = Record<string, any>> = {
   props: P;
   index: number;

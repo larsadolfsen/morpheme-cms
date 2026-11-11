@@ -16,7 +16,7 @@ export async function getStaticPaths() {
     seen.set(slug, source);
   };
   // The addresses of the pages in packages/editor/pages/ and of the editor, so a page cannot take them.
-  for (const slug of ['blog', 'editor', 'ny', '404']) claim(slug, `packages/editor/pages/${slug}`);
+  for (const slug of ['blog', 'editor', 'new', '404']) claim(slug, `packages/editor/pages/${slug}`);
 
   // The front page is at / (index.astro) and the blog page at /blog/ (blog/index.astro); their own addresses send on there
   // (packages/editor/worker/index.js). The 404 page is the page for an address that does not exist (404.astro), so not at its own.

@@ -34,7 +34,7 @@ const PAGES = {
   '/404': '404.astro',
   '/blog': 'blog/index.astro',
   '/blog/tags/[category]': 'blog/tags/[category].astro',
-  '/ny': 'ny.astro',
+  '/new': 'new.astro',
   '/rss.xml': 'rss.xml.js',
   '/robots.txt': 'robots.txt.js',
   '/_headers': 'headers.js',

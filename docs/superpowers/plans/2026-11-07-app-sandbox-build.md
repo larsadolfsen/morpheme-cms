@@ -282,7 +282,7 @@ type SiteReads = { pages?: { address: string; title: string; blocks: string[]; t
 export function readsFor(scopes: ReadScope[], root: string): Promise<SiteReads>; // only the keys asked for
 ```
 
-- Pages: published pages and posts in `src/content/`. Leave out drafts and `/ny/…` versions.
+- Pages: published pages and posts in `src/content/`. Leave out drafts and `/new/…` versions.
 - `blocks`: the block types the page uses, in order, without duplicates.
 - `apps`: active apps only (`activeApps`, `lib/appsFile.mjs`). Contract 2 and 3 apps give `cookies` from `cookies.json` and `csp` from `csp.json`.
 

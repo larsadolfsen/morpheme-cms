@@ -6,6 +6,7 @@ import type { RepoFile } from '../src/github';
 import type { Option, PageState, TestimonialRow } from '../src/fields';
 import type { Status } from '../src/FormFrame';
 import { blocksIn } from '../lib/blocks.mjs';
+import { inPreview } from '../lib/previewAddress.mjs';
 import { readFields, splitFrontmatter } from '../src/frontmatter.mjs';
 import { siteText } from '../src/i18n';
 import { promotionTags, recordUse, tagUses, taggedWith } from '../src/tagUses.mjs';
@@ -67,9 +68,9 @@ export function relationsOf(files: RepoFile[]): Record<Relation, Option[]> {
     // Pages are stored by their address: `path`, or /<file name>/ for pages made in the editor.
     pages: inFolder(config.folders.pages, '.md').map(page).sort(byLabel),
     // The pages that can be a standard page ("Settings" › "Appearance" › "Default pages"): those on the site, not a
-    // draft, one waiting for its time or a new version of a page (/ny/).
+    // draft, one waiting for its time or a new version of a page (/new/).
     standardPages: inFolder(config.folders.pages, '.md')
-      .filter((f) => !['draft', 'scheduled'].includes(String(fm(f).status ?? '')) && !pagePath(f).startsWith('/ny/'))
+      .filter((f) => !['draft', 'scheduled'].includes(String(fm(f).status ?? '')) && !inPreview(pagePath(f)))
       .map(page)
       .sort(byLabel),
     // The front page (/) and the blog (/blog/), whichever pages they are, the blog by its page's title.

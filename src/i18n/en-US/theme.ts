@@ -1,5 +1,5 @@
 // The standard theme's own texts on the site (packages/editor/theme/: the header, the menu, the footer, the blog and its
-// posts, the pop-ups, the 404 page and the new versions under /ny/), in the site's language (siteT), as the blocks'
+// posts, the pop-ups, the 404 page and the new versions under /new/), in the site's language (siteT), as the blocks'
 // drawings are. What the owner writes (the menu, the buttons' texts, the footer) is the site's, not these.
 export const theme = {
   skipToContent: 'Skip to content',

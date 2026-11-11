@@ -126,7 +126,7 @@ export const collections: Record<string, string> = {
   'Right side panel': 'Sidepanel til højre',
   'The theme decides which templates there are.': 'Temaet bestemmer, hvilke skabeloner der findes.',
   'For review': 'Til gennemsyn',
-  'Only shown on pages under /ny/.': 'Vises kun på sider under /ny/.',
+  'Only shown on pages under /new/.': 'Vises kun på sider under /new/.',
   'New tag': 'Nyt tag',
   'Blog category': 'Blogkategori',
   Show: 'Vis',
