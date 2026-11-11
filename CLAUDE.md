@@ -72,7 +72,7 @@ waiting to merge, sessions that went quiet without a pull request (it starts a f
 first prompt when a session stays stuck), release notes and changesets a merged change still lacks, follow-ups the
 sessions report, branches that are fully merged, and open questions for the owner. It archives a session once its work
 is merged. It tells the owner only what the owner has to do or decide, such as approving a `next` build on npmjs.com,
-and which version to approve, because every merge to `main` stages a new `next` build that only the owner approves.
+and which version to approve, because every merge to `main` stages a new `next` build that only the owner approves. A pull request the owner has to see is assigned to the owner; the owner does not see the rest.
 
 **Cloudflare builds.** The PM also keeps an eye out for failed Cloudflare builds: the `Workers Builds: …` check on every
 pull request and on `main` (the demo, `morpheme-demo`), and the builds of `morpheme-staging` and of the sites that

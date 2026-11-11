@@ -23,6 +23,8 @@ The PM never codes. No edits to source, tests, docs or `CLAUDE.md` in its own se
 goes to a new session (`create_session`) with the whole task in its first prompt. Every session the PM starts has a
 title that starts with the version, for example `0.16 plan: MCP and Appstore sections`.
 
+The owner only sees pull requests that are assigned to them on GitHub. When a session the PM started opens a pull request, or the PM takes over one that needs the owner to see, approve or decide something, the PM assigns it to the repository owner `larsadolfsen` (`update_pull_request`, `issue_write` assignees or the GitHub API) and keeps it assigned until it is merged.
+
 ## Phase 3 - Merge
 
 Merge under the conditions in `CLAUDE.md`: green `check` on the current head, no conflict, no unresolved comment, and a
@@ -63,4 +65,4 @@ usual (Phase 4 and 5). Only `main` has a Release PR.
 
 ## Reports
 
-Short, English only (`CLAUDE.md`), and only what the owner has to do or decide.
+Short, English only (`CLAUDE.md`), and only what the owner has to do or decide. A pull request the owner has to act on is always assigned to them, and the report gives its link.
