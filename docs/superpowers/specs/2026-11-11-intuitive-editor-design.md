@@ -161,6 +161,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   `blocks.steps`: `title: 'Heading'`, `text: 'Text'`). So an owner meets `Heading` as an H2 in the text, as a block's
   head and as a row's heading, three places with three meanings, and the block sheet (`BlockDialog.tsx`) opens with the
   least interesting fields first.
+- **Why (owner):** a block's heading can be written like any text, so putting it in the block only adds complexity.
 - **Fix:** per decision 3, drop `headFields` from the nine blocks. The block is drawn after the H2 and the text above it
   (`BlockHead.tsx` is then not needed in the theme); the label above the heading becomes the `Label` style. The rows keep
   their own title and text, since a row is data, not page text (owner, 11 November: only the blocks' heads go). A migration moves each existing `eyebrow`, `heading` and
