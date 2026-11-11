@@ -18,6 +18,9 @@ import { accessOf } from './session.js';
 
 /** The most a request may be, in bytes. */
 export const MAX_BODY = 64 * 1024;
+/** The most calls a connection may make in a minute, and the longest a tool may take, in milliseconds. */
+export const CALLS_PER_MINUTE = 60;
+export const TOOL_TIMEOUT_MS = 20_000;
 const CORS = {
   'access-control-allow-origin': '*',
   'access-control-allow-headers': 'authorization, content-type, mcp-protocol-version, mcp-session-id',
@@ -56,9 +59,10 @@ function siteOf(env, token, ctx) {
 
 /**
  * @param {Request} request @param {Record<string, any>} env @param {ExecutionContext | undefined} ctx
- * @param {{ ask?: typeof fetch, site?: (token: string) => object }} [deps] `ask`: fetch for GitHub; `site`: the files, for tests
+ * @param {{ ask?: typeof fetch, site?: (token: string) => object, limit?: number, timeoutMs?: number }} [deps] `ask`: fetch for GitHub;
+ * `site`: the files, `limit` (calls a minute) and `timeoutMs` (a tool's time): for tests
  */
-export async function handleMcp(request, env, ctx, { ask = fetch, site } = {}) {
+export async function handleMcp(request, env, ctx, { ask = fetch, site, limit = CALLS_PER_MINUTE, timeoutMs = TOOL_TIMEOUT_MS } = {}) {
   const url = new URL(request.url);
   if (request.method === 'OPTIONS') return withCors(new Response(null, { status: 204 }));
   if (!ready(env)) return answer({ error: 'Assistants are not set up on this site yet.' }, 503);
@@ -87,10 +91,33 @@ export async function handleMcp(request, env, ctx, { ask = fetch, site } = {}) {
   } catch {
     return rpcError(-32700, 'Parse error');
   }
+  const rate = await db.hit(connection.id, limit);
+  if (!rate.ok) {
+    const text = `Too many calls. Try again in ${rate.retryAfter} seconds.`;
+    const res =
+      message?.method === 'tools/call' && message.id !== undefined
+        ? answer({ jsonrpc: '2.0', id: message.id, result: { content: [{ type: 'text', text }], isError: true } })
+        : answer({ error: 'rate limit', error_description: text }, 429);
+    res.headers.set('retry-after', String(rate.retryAfter));
+    return res;
+  }
   await db.touch(connection);
   const files = site ? site(github) : siteOf(env, github, ctx);
   try {
-    const reply = await handleMessage(message, createTools(files));
+    const tools = createTools(files);
+    // A tool that takes too long is a tool error that says so, not a call that hangs.
+    const call = async (name, args) => {
+      let timer;
+      const late = new Promise((resolve) => {
+        timer = setTimeout(() => resolve({ error: 'The tool took too long. Try again in a minute, or ask for less.' }), timeoutMs);
+      });
+      try {
+        return await Promise.race([tools.call(name, args), late]);
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+    const reply = await handleMessage(message, { tools: tools.tools, call });
     return reply ? answer(reply) : withCors(new Response(null, { status: 202 }));
   } finally {
     await files.finish?.();

@@ -4,6 +4,7 @@
 //   mcp_codes        an authorization code, once (five minutes); only its hash
 //   mcp_connections  one assistant connected by one person: who, which assistant, since when, last used
 //   mcp_tokens       the access (one hour) and refresh (thirty days) tokens of a connection; only their hashes
+//   mcp_rate         the calls of a connection in the current minute, for the rate limit
 //   mcp_vault        the GitHub token the Worker reads the site with for a person, sealed with MCP_VAULT_KEY (lib/vault.mjs)
 // No token is kept as it is given out, and the GitHub token is no use without the Worker's secret. Exposes `ready`, `store` (one
 // object with a function for each thing the other files do) and the lifetimes. Depends on lib/mcpOAuth.mjs and lib/vault.mjs.
@@ -39,6 +40,9 @@ async function tables(db) {
       'CREATE TABLE IF NOT EXISTS mcp_tokens (hash TEXT PRIMARY KEY, kind TEXT NOT NULL, connection_id TEXT NOT NULL, expires INTEGER NOT NULL)',
     ),
     db.prepare('CREATE INDEX IF NOT EXISTS mcp_tokens_connection ON mcp_tokens (connection_id)'),
+    db.prepare(
+      'CREATE TABLE IF NOT EXISTS mcp_rate (connection_id TEXT NOT NULL, minute INTEGER NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (connection_id, minute))',
+    ),
     db.prepare('CREATE TABLE IF NOT EXISTS mcp_vault (user_id TEXT PRIMARY KEY, sealed TEXT NOT NULL, updated TEXT NOT NULL)'),
   ]);
   made.add(db);
@@ -232,6 +236,18 @@ export async function store(env, now = Date.now) {
         }
       );
     },
+    /** Counts a call of a connection in this minute: `{ ok, retryAfter }`, `retryAfter` in seconds when it is over `limit`. */
+    async hit(connectionId, limit) {
+      const minute = Math.floor(now() / 60_000);
+      await run('DELETE FROM mcp_rate WHERE minute < ?', minute - 5);
+      await run(
+        'INSERT INTO mcp_rate (connection_id, minute, n) VALUES (?, ?, 1) ON CONFLICT (connection_id, minute) DO UPDATE SET n = n + 1',
+        connectionId,
+        minute,
+      );
+      const { n } = await one('SELECT n FROM mcp_rate WHERE connection_id = ? AND minute = ?', connectionId, minute);
+      return n <= limit ? { ok: true } : { ok: false, retryAfter: Math.max(1, (minute + 1) * 60 - Math.floor(now() / 1000)) };
+    },
     /** Notes that a connection was used, at most once a minute. */
     async touch(connection) {
       if (connection.lastUsed && now() - Date.parse(connection.lastUsed) < TOUCH_MS) return;
@@ -251,6 +267,7 @@ export async function store(env, now = Date.now) {
       if (!row) return null;
       await run('DELETE FROM mcp_tokens WHERE connection_id = ?', id);
       await run('DELETE FROM mcp_codes WHERE connection_id = ?', id);
+      await run('DELETE FROM mcp_rate WHERE connection_id = ?', id);
       await run('DELETE FROM mcp_connections WHERE id = ?', id);
       const others = await one('SELECT COUNT(*) AS n FROM mcp_connections WHERE user_id = ?', row.user_id);
       if (others.n > 0) return null;

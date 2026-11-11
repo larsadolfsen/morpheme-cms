@@ -589,6 +589,56 @@ test('/mcp: every call asks GitHub whether the person may still save the site', 
   github.signedOut.delete('gho_gone');
 });
 
+test('/mcp: over the rate limit a tool call is a tool error that says when to retry', async () => {
+  const { env, tokens } = await signedIn();
+  const send = (message, deps) =>
+    mcp.handleMcp(
+      new Request(`${ORIGIN}/mcp`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${tokens.access_token}` },
+        body: JSON.stringify(message),
+      }),
+      env,
+      undefined,
+      { ask, site, ...deps },
+    );
+  const tool = { jsonrpc: '2.0', id: 7, method: 'tools/call', params: { name: 'site_info', arguments: {} } };
+  assert.equal((await send(tool, { limit: 2 })).status, 200);
+  assert.equal((await send(tool, { limit: 2 })).status, 200);
+  const over = await send(tool, { limit: 2 });
+  assert.equal(over.status, 200);
+  const body = await over.json();
+  assert.equal(body.id, 7);
+  assert.equal(body.result.isError, true);
+  assert.match(body.result.content[0].text, /Try again in \d+ seconds/);
+  assert.ok(Number(over.headers.get('retry-after')) >= 1);
+  const other = await send({ jsonrpc: '2.0', id: 8, method: 'ping' }, { limit: 2 });
+  assert.equal(other.status, 429);
+  assert.ok(Number(other.headers.get('retry-after')) >= 1);
+  // The next minute starts again.
+  env.CONSENT.db.prepare('UPDATE mcp_rate SET minute = minute - 1').run();
+  assert.equal((await send(tool, { limit: 2 })).status, 200);
+  assert.equal((await (await send(tool, { limit: 2 })).json()).result?.isError, undefined);
+});
+
+test('/mcp: a tool that takes too long is a tool error', async () => {
+  const { env, tokens } = await signedIn();
+  const slow = () => ({ ...site('gho_lars'), texts: () => new Promise(() => {}) });
+  const res = await mcp.handleMcp(
+    new Request(`${ORIGIN}/mcp`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${tokens.access_token}` },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'list_content', arguments: {} } }),
+    }),
+    env,
+    undefined,
+    { ask, site: slow, timeoutMs: 20 },
+  );
+  const body = await res.json();
+  assert.equal(body.result.isError, true);
+  assert.match(body.result.content[0].text, /took too long/);
+});
+
 test('/mcp: a vault that cannot be opened (the secret changed) is a 401, not a failure', async () => {
   const { env, tokens } = await signedIn();
   const res = await rpc({ ...env, MCP_VAULT_KEY: 'changed' }, tokens.access_token, { jsonrpc: '2.0', id: 1, method: 'ping' });
