@@ -30,6 +30,9 @@ repeated as a question below.
    This replaces `2026-11-05-block-side-sheet-design.md` for block fields. _(Scope read as block fields only; short pickers such
    as page, link and colour stay sheets until the owner says otherwise.)_
 
+7. **More WYSIWYG than today.** What the owner types is drawn as the site draws it, as far as it can be. See finding 15, and
+   question 6 for how it fits decision 4.
+
 ## What was looked at
 
 - **Code and texts:** `src/i18n/en-US/` (`common`, `app`, `library`, `forms`, `parts`, `media`, `text`, `blocks`,
@@ -244,6 +247,34 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
 - **Not changed:** the pickers (page, link, colour, country code), Preview, Earlier versions, Notifications and widget
   settings keep their sheets. Whether they follow is a later decision.
 
+### 15. How close the editor is to the site, and what is missing
+
+- **Evidence, what is already drawn as the site draws it:** a block is a card with the block as the site draws it
+  (`MarkdownEditor.tsx`, "A block in the text as a card"); a section's colour is a box in the text (`editor.css`
+  `[data-section-color]`, with readable prose colours); heading and text looks follow the theme (`looks`, `sectionLooks`,
+  `headingLooks`); the editor uses the theme's fonts and tokens (the shared theme principle in `CLAUDE.md`).
+- **Evidence, what is not:**
+  - A page's **title, status, template, tags, short description, top picture** and a post's **date** are fields in a form
+    section (`forms.sections`: `Content`, `Page settings`/`Post settings`, `STATUS`/`FIRST` in `EntryForm.tsx`), not on the
+    page. The page's title and its H1 are kept together (`titleH1.mjs`), but are two things on two places for a page.
+  - The **page frame** (header, menu, footer, the side column and the page's width by template) is not around the text;
+    `Preview` shows it in a separate sheet at chosen window sizes (`preview.ts`, `pagePreview.tsx`).
+  - **Fields of blocks** are a form beside the card (today a sheet, decision 6 inline), so what is typed and what is drawn are two views.
+  - Decision 4 draws an H2 as a dotted line in the editor, which is less like the site than the coloured box is today.
+- **Fix, in three steps:**
+  1. **The top of the page is the page.** The editor's top area draws the page's head the way the theme does: the H1 (the
+     title), the top picture (tap to change), and for a post its date and tags as chips. `Status` stays in the top bar.
+     `Page settings` keeps the rest (address, template, Google, share).
+  2. **Inline block editing with the block drawn above its fields** (finding 14): the owner edits fields right beneath the
+     block as it looks, and where the block's text is plain (a row's heading and text) it is edited on the drawn block itself,
+     not in a field.
+  3. **The page frame around the text, switched on or off.** A `Show the website around the text` toggle in the top bar
+     draws the header and footer in place, and the page's width and side column. It is off on a phone. It replaces the use of
+     `Preview` for layout, which stays for the real page.
+- **Cost:** step 1 changes the first thing every owner sees in the form and touches the `title`/H1 link; step 3 draws the
+  site's header and footer inside the editor, which the theme's `editor/previews.tsx` already does for the header and footer
+  screens. The demo and every theme must show the same page (`check:themes`, `check:demo`).
+
 ## Batches
 
 Each is one pull request into `main` (or `0.16` where marked), with a release note (`release-notes` skill) and, until
@@ -260,10 +291,11 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 | H | **Group similar blocks:** step 1 of finding 13, headings in the `Insert` picker and sharper hints (13) | `BlockDialog`, `blocks.ts` texts, `da-DK` | no | none |
 | I | **Merge the row blocks:** step 2 of finding 13, with a migration (13) | `standard/*`, `theme/blocks/*`, every theme | no | Q6 |
 | J | **Inline block editing:** fields fold out in the text, no sheet for block fields, one open at a time (14) | `MarkdownEditor`, `BlockDialog`, `sheetPlacement.mjs`, `editor.css` | no | none |
+| K | **WYSIWYG page:** the page head drawn in place (step 1), then the frame toggle (step 3) (15) | `EntryForm`, `MarkdownEditor`, `titleH1.mjs`, `Screen`, theme `editor/previews.tsx` | no | Q7 |
 | F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
 
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
-or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. J replaces the sheet buttons of G (finding 12): build G without them and J after G and I, because it uses the single row editor. H can go with B and C (no decision). I only after G, since both change the same block files and the same migration, and after the owner has seen H. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
+or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. J replaces the sheet buttons of G (finding 12): build G without them and J after G and I, because it uses the single row editor. K step 1 goes with G (the H1 start, the same top of the text); step 3 last. H can go with B and C (no decision). I only after G, since both change the same block files and the same migration, and after the owner has seen H. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
 
 ## Open questions for the owner
 
@@ -278,3 +310,8 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    then mean something else). Changes the stored `unlisted` label only, not the value in files.
 6. **Only group the similar blocks in the picker, or also merge them into fewer blocks (`Rows`, `Questions`)?** Recommended:
    group first (batch H), look at it, then decide on the merge (batch I). The merge is larger and changes every theme.
+7. **Draw the page head (title, top picture, date, tags) in the text, and an optional frame with the site's header and footer?**
+   Recommended: yes to the head (step 1) now, and the frame (step 3) after the owner has seen step 1.
+8. **Decision 4 (dotted line instead of a box) against decision 7 (more like the site):** keep the colour box for a coloured
+   section as the site draws it, and use the dotted line only to mark where a section starts (sections with no colour, and
+   as a boundary marker above each)? Recommended: yes. Alternative: dotted line only, and the colour shown on the site only.
