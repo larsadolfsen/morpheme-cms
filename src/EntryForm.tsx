@@ -27,6 +27,7 @@ import { sectionBlocks } from './blocks';
 import { looksOf, pageH1 } from './sections.mjs';
 import { h1FromTitle, titleFromH1 } from './titleH1.mjs';
 import { useFormSections } from './formSections';
+import { sectionsWithFields } from './formSectionList.mjs';
 import { publicPath, shownAt, useUploads } from './images';
 import { filerAddresses, useMediaPicker } from './Media';
 import { autoTagChanges, newlyUsed } from './autoTags.mjs';
@@ -302,7 +303,15 @@ function Form({
   );
   // The form's name, in the top bar and over the sections list (the "on this page" card, on large and wider screens).
   const formTitle = isNew ? collection.create! : String(initial.title || collection.singular);
-  const has = (id: Section) => collection.fields.some(inSection(collection, id));
+  // Whether the form draws a field at all (field(), below): a section with none is not offered, in no list.
+  const fieldShown = (f: Field) =>
+    f.name !== 'status' &&
+    f.name !== 'publishAt' &&
+    inUse(f, collection.fields, values) &&
+    !(f.name === 'title' && collection.blocks && isNew) &&
+    !(f.offered && !templateFieldOf(f, env.files));
+  const withFields = sectionsWithFields(collection.fields, (name) => sectionOf(collection, name), fieldShown);
+  const has = (id: Section) => withFields.has(id);
   const post = collection.id === 'blog';
   const sections: NavigationItem[] = [
     ...(has('settings') ? [{ id: 'settings', label: post ? t.forms.sections.postSettings : t.forms.sections.pageSettings }] : []),
