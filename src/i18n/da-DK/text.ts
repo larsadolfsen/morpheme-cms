@@ -5,7 +5,7 @@ export const text: Messages['text'] = {
   bold: 'Fed',
   italic: 'Kursiv',
   link: 'Link',
-  pageHeading: 'Overskrift (H1)',
+  pageHeading: 'Hovedoverskrift',
   heading: 'Overskrift',
   subheading: 'Underoverskrift',
   paragraph: 'Almindelig tekst',
