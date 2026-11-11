@@ -22,7 +22,6 @@
 // A post's text starts with its lead, a paragraph drawn larger and before the picture (data-editor="lead",
 // theme/layouts/PostLayout.astro; lib/lead.mjs). The preview splits the text the same way, for a post only (postLead.mjs).
 import { useRef, useState, type ReactNode } from 'react';
-import { X } from '@phosphor-icons/react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { parseBlock, splitBlocks } from '../lib/blocks.mjs';
@@ -37,7 +36,6 @@ import { shownAt } from './images';
 import { pageH1 } from './sections.mjs';
 import { setH1Panel } from './pageH1Panel.mjs';
 import type { BlockData } from './blocks';
-import { IconButton } from './ui';
 import { PreviewScreen } from './PreviewScreen';
 import { t } from './i18n';
 
@@ -233,15 +231,7 @@ export function usePagePreview(): [(draft: () => PageDraft | null) => void, Reac
   const close = () => dialog.current?.close();
   const screen = (
     <dialog ref={dialog} className="editor-preview-screen" aria-label={t.preview.title} onClose={() => run.current++}>
-      <div className="flex shrink-0 items-center gap-1 px-1 py-1">
-        <IconButton icon={X} label={t.common.close} onClick={close} />
-        <h2 className="text-title-large ms-2 text-on-surface">{t.preview.title}</h2>
-      </div>
-      {html ? (
-        <PreviewScreen html={html} title={t.preview.title} />
-      ) : (
-        <p className="px-5 text-on-surface-variant">{problem || t.preview.making}</p>
-      )}
+      <PreviewScreen html={html} message={problem || t.preview.making} title={t.preview.title} onClose={close} />
     </dialog>
   );
   return [open, screen];
