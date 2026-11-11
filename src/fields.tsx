@@ -2,7 +2,7 @@
 // (object) hold other fields, so the deep front page is the same code as a price. A list of blocks
 // (a fixed page's sections) is a list whose items each have a `type` that gives their fields; it is
 // edited as a text with the sections as cards in it (SectionsField.tsx).
-import { createContext, Fragment, useContext, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createContext, Fragment, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { CaretDown, PencilSimple, Plus, Trash } from '@phosphor-icons/react';
 import {
   ArrowLink,
@@ -178,6 +178,79 @@ export function FieldInput(props: Props) {
         <FieldControl {...props} onChange={onChange} />
       </div>
     </PathHere.Provider>
+  );
+}
+
+/** A post's title drawn in the text as the site draws it (.theme-title: the display role, as PostHeader.astro), written in place
+ * and not in a field with its name on its edge. It grows with what is typed; Enter does not make a line. Marked as the other
+ * fields are when it keeps the form from being saved (WrongField). */
+export function HeadTitle(props: Props) {
+  const { box, onChange } = useMarked<HTMLDivElement>(props);
+  const area = useRef<HTMLTextAreaElement>(null);
+  const text = props.value == null ? '' : String(props.value);
+  useLayoutEffect(() => {
+    const el = area.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [text]);
+  return (
+    <div ref={box}>
+      <textarea
+        ref={area}
+        rows={1}
+        value={text}
+        aria-label={props.field.label}
+        placeholder={props.field.label}
+        className="theme-title block w-full resize-none overflow-hidden bg-transparent text-on-surface outline-none placeholder:text-on-surface-variant/60"
+        onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+        onChange={(e) => onChange(e.target.value.replace(/\s*\n\s*/g, ' '))}
+      />
+    </div>
+  );
+}
+
+/** A post's top picture drawn in the text as the site draws it (PostLayout.astro: wide, rounded by the theme's picture radius,
+ * 16:9 from the medium width): a tap on it changes it, and Remove (a picture that is not required) takes it away. Without a
+ * picture, one box to tap. */
+export function HeadPicture(props: Props) {
+  const { box, onChange } = useMarked<HTMLDivElement>(props);
+  const context = useContext(Fields)!;
+  const { field } = props;
+  const text = props.value == null ? '' : String(props.value);
+  const pick = async () => {
+    const src = await context.pickImage?.();
+    if (src) onChange(src);
+  };
+  return (
+    <div ref={box} className="relative">
+      <button
+        type="button"
+        onClick={pick}
+        aria-label={text ? t.forms.changeImage : t.forms.pickImage}
+        className="relative block aspect-[16/10] w-full overflow-hidden rounded-(--theme-picture-radius) bg-surface-container medium:aspect-[16/9]"
+      >
+        {text ? (
+          <img src={shownAt(text)} alt="" className="size-full object-cover" />
+        ) : (
+          <span className="flex size-full items-center justify-center rounded-(--theme-picture-radius) text-on-surface-variant outline-2 -outline-offset-2 outline-outline-variant outline-dashed">
+            {t.forms.pickImage}
+          </span>
+        )}
+      </button>
+      {text && (
+        <div className="absolute end-2 top-2 flex gap-2">
+          <Button kind="tonal" size="small" onClick={pick}>
+            {t.forms.changeImage}
+          </Button>
+          {!field.required && (
+            <Button kind="tonal" size="small" onClick={() => onChange('')}>
+              {t.common.remove}
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
