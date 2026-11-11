@@ -1,0 +1,5 @@
+{
+  "id": "plugin-no-outside-access",
+  "kind": "line",
+  "text": "A plugin can no longer list outside hosts or call outside services, and the build stops it if it tries"
+}

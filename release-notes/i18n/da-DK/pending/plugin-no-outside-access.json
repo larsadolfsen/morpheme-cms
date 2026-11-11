@@ -1,0 +1,5 @@
+{
+  "id": "plugin-no-outside-access",
+  "kind": "line",
+  "text": "En udvidelse kan ikke længere angive eksterne værter eller kalde eksterne tjenester, og opbygningen stopper den, hvis den prøver"
+}

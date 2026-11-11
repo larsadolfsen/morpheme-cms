@@ -1,0 +1,5 @@
+{
+  "id": "app-contract-5",
+  "kind": "line",
+  "text": "Apps kan nu angive en rolle, forbindelse eller udvidelse, og en MCP-server i app.json (kontrakt 5), og apps lavet til kontrakt 4 virker stadig"
+}
