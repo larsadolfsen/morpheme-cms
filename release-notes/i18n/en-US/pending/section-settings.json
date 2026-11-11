@@ -1,0 +1,5 @@
+{
+  "id": "section-settings",
+  "kind": "line",
+  "text": "Sections can be Surface, Primary, Secondary or Tertiary, and have a background picture and a width, so a Banner is now a section"
+}

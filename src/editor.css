@@ -107,12 +107,88 @@
   margin-block: 0;
 }
 
-/* The dotted line at the start of an H2 section (data-section-part='start', sectionFrame.ts): a divider across the text, not a
-   box. The section's colour is chosen in Section settings and drawn on the site only. */
+/* The dotted line at the start of an H2 section (data-section-part='start', sectionFrame.ts): a divider across the text. The line
+   marks where a section starts; it is not the section's box. */
 .editor-text .ProseMirror > [data-section-part='start'] {
   margin-block-start: var(--editor-section-gap);
   border-block-start: var(--editor-section-frame);
   padding-block-start: var(--editor-section-pad);
+}
+
+/* The box of a section with a colour, as the site draws it (data-section-box, data-section-color, sectionFrame.ts): one box made of
+   the parts' own backgrounds. The space between two parts is padding, not margin, so the box has no gaps. */
+.editor-text .ProseMirror > [data-section-box] {
+  margin-block: 0;
+  padding-inline: var(--editor-section-pad);
+  padding-block: var(--editor-section-rhythm);
+}
+
+.editor-text .ProseMirror > :is(ul, ol)[data-section-box] {
+  padding-inline-start: calc(var(--editor-section-pad) + 1.625em);
+}
+
+.editor-text .ProseMirror > :is([data-section-box='start'], [data-section-box='only']) {
+  border-start-start-radius: var(--block-radius);
+  border-start-end-radius: var(--block-radius);
+  padding-block-start: var(--editor-section-pad);
+}
+
+.editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) {
+  border-end-start-radius: var(--block-radius);
+  border-end-end-radius: var(--block-radius);
+  padding-block-end: var(--editor-section-pad);
+}
+
+/* The colours are the theme's own (blocks.css). On a colour with its own text colour, the prose colours take it, so headings, bold
+   and links stay readable. */
+.editor-text .ProseMirror > [data-section-color='surface'] {
+  background: var(--block-surface);
+}
+
+.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary']) {
+  --tw-prose-body: var(--section-on);
+  --tw-prose-headings: var(--section-on);
+  --tw-prose-bold: var(--section-on);
+  --tw-prose-links: var(--section-on);
+  --tw-prose-bullets: var(--section-on);
+  --tw-prose-counters: var(--section-on);
+  background: var(--section-fill);
+  color: var(--section-on);
+}
+
+.editor-text .ProseMirror > [data-section-color='primary'] {
+  --section-fill: var(--block-primary);
+  --section-on: var(--block-on-primary);
+}
+
+.editor-text .ProseMirror > [data-section-color='secondary'] {
+  --section-fill: var(--block-secondary);
+  --section-on: var(--block-on-secondary);
+}
+
+.editor-text .ProseMirror > [data-section-color='tertiary'] {
+  --section-fill: var(--block-tertiary);
+  --section-on: var(--block-on-tertiary);
+}
+
+/* The picture behind a section (the widget before its first part): a strip at the top of the section. */
+.editor-text .editor-section-picture {
+  margin-block: var(--editor-section-gap) 0;
+  height: 9rem;
+  overflow: hidden;
+  border-start-start-radius: var(--block-radius);
+  border-start-end-radius: var(--block-radius);
+}
+
+.editor-text .editor-section-picture > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.editor-text .editor-section-picture + [data-section-part='start'] {
+  margin-block-start: 0;
 }
 
 /* HTML in a line of text is kept as it is but cannot be edited here (on a line of its own it is a

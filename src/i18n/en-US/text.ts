@@ -35,7 +35,14 @@ export const text = {
   /** The button for the settings of a section (an H2 and what follows it), and its sheet's colour choices (packages/editor/lib/section-marker.mjs). */
   sectionSettings: 'Section settings',
   sectionColor: 'Section color',
-  sectionColors: { none: 'None', surface: 'Surface', tint: 'Tint', accent: 'Primary' },
+  sectionColors: { none: 'None', surface: 'Surface', primary: 'Primary', secondary: 'Secondary', tertiary: 'Tertiary' },
+  /** A section's background picture and its width, in the same sheet. */
+  sectionPicture: 'Background picture',
+  sectionPictureAlt: 'Picture description',
+  sectionPictureAltHint: 'Leave it empty for a picture that is only decoration.',
+  sectionWidth: 'Width',
+  sectionWidthFull: 'Full width',
+  sectionWidthText: 'Like the text',
   /** The sheet of a link (LinkSheet.tsx). */
   linkTo: 'The link goes to',
   linkPage: 'Page',

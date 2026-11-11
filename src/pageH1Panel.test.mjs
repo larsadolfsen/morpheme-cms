@@ -12,8 +12,8 @@ const PLAIN = '<h1 data-editor="heading">Title</h1>';
 
 test('the header and the intro go in a panel of the colour', () => {
   const doc = PAGE(PLAIN);
-  setH1Panel(doc, 'tint', '<p>Intro</p>');
-  const panel = doc.querySelector('header > section.text-section.text-section-tint[data-editor="h1-section"]');
+  setH1Panel(doc, 'surface', '<p>Intro</p>');
+  const panel = doc.querySelector('header > section.text-section.text-section-surface[data-editor="h1-section"]');
   assert.ok(panel);
   assert.equal(panel.querySelector('h1').textContent, 'Title');
   const intro = panel.querySelector('[data-editor="intro"]');
@@ -23,14 +23,14 @@ test('the header and the intro go in a panel of the colour', () => {
 
 test('without an intro the panel holds the header only', () => {
   const doc = PAGE(PLAIN);
-  setH1Panel(doc, 'accent', '  ');
+  setH1Panel(doc, 'primary', '  ');
   assert.ok(doc.querySelector('[data-editor="h1-section"] h1'));
   assert.equal(doc.querySelector('[data-editor="intro"]'), null);
 });
 
 test('no colour takes a panel away and keeps the header', () => {
   const doc = PAGE(
-    `<section data-editor="h1-section" class="text-section text-section-tint">${PLAIN}<div data-editor="intro">a</div></section>`,
+    `<section data-editor="h1-section" class="text-section text-section-surface">${PLAIN}<div data-editor="intro">a</div></section>`,
   );
   setH1Panel(doc, null, '');
   assert.equal(doc.querySelector('[data-editor="h1-section"]'), null);
@@ -40,17 +40,17 @@ test('no colour takes a panel away and keeps the header', () => {
 
 test('another colour replaces the panel of the site', () => {
   const doc = PAGE(
-    `<section data-editor="h1-section" class="text-section text-section-tint">${PLAIN}<div data-editor="intro">a</div></section>`,
+    `<section data-editor="h1-section" class="text-section text-section-surface">${PLAIN}<div data-editor="intro">a</div></section>`,
   );
-  setH1Panel(doc, 'surface', '<p>b</p>');
+  setH1Panel(doc, 'primary', '<p>b</p>');
   assert.equal(doc.querySelectorAll('[data-editor="h1-section"]').length, 1);
-  assert.ok(doc.querySelector('.text-section-surface'));
-  assert.equal(doc.querySelector('.text-section-tint'), null);
+  assert.ok(doc.querySelector('.text-section-primary'));
+  assert.equal(doc.querySelector('.text-section-surface'), null);
   assert.equal(doc.querySelector('[data-editor="intro"]').innerHTML, '<p>b</p>');
 });
 
 test('a page without a header is left as it is', () => {
   const doc = new JSDOM('<body><div data-editor="text">x</div></body>').window.document;
-  setH1Panel(doc, 'tint', '<p>a</p>');
+  setH1Panel(doc, 'surface', '<p>a</p>');
   assert.equal(doc.querySelector('section'), null);
 });

@@ -19,7 +19,7 @@
 import { blockHtml, cutAtBlock, parseBlock } from '../lib/blocks.mjs';
 import { decorated, decorativeOf } from '../lib/crop.mjs';
 import { coloredHtml, withoutColors } from '../lib/text-colors.mjs';
-import { SECTION_COLORS, isLabelLine } from '../lib/section-marker.mjs';
+import { MARKER_TAG, isLabelLine, markerColor } from '../lib/section-marker.mjs';
 
 // Text that is plain in the file (a heading, a picture's description); in Markdown every sign that
 // could mean something is escaped, and back from Markdown the escapes go again. The page's
@@ -287,7 +287,7 @@ export function pageH1(markdown) {
 }
 
 // A section's colour marker on its own line (lib/section-marker.mjs); any colour name, so an unknown one is dropped too.
-const MARKER_LINE = /^ {0,3}<div data-section="([^"]*)"><\/div>[ \t]*$/;
+const MARKER_LINE = new RegExp(`^ {0,3}${MARKER_TAG}[ \\t]*$`);
 
 /** The parts of a page's Markdown as the editor reads them (partsOf in markdown.mjs), without the editor: each block,
  * each heading at the top level (H2), and the Markdown between them; for the site, which reads the front page into
@@ -318,9 +318,8 @@ export function partsOfMarkdown(markdown) {
       continue;
     }
     // The marker is never text: it is the colour of the H2 after it, or dropped (unknown colour, or no H2 after it).
-    const marker = line.match(MARKER_LINE);
-    if (marker) {
-      pending = SECTION_COLORS.includes(marker[1]) ? marker[1] : null;
+    if (MARKER_LINE.test(line)) {
+      pending = markerColor(line);
       continue;
     }
     const block = parseBlock(line);

@@ -1,19 +1,29 @@
-// The dotted line at the start of each H2 section of a page or blog post: sets data-section-part=start and
-// data-section-color (the heading's section colour) on the first top-level node of an H2 section, which editor.css draws as a dotted line. Exposes
-// sectionFrame (a Milkdown plugin). Uses lib/section-ranges.mjs and src/sectionState.mjs.
+// What the editor draws of an H1 or H2 section of a page or blog post: the dotted line at the start of each H2 section
+// (data-section-part=start), and, for a section with a colour, a box round all its parts as the site draws it
+// (data-section-box=start|middle|end|only and data-section-color on each top-level node), and the picture behind it (a picture
+// strip at its top, data-section-width when it goes across the whole window). editor.css draws them. Exposes sectionFrame (a
+// Milkdown plugin). Uses lib/section-ranges.mjs, src/sectionState.mjs and src/images.ts.
 import { $prose } from '@milkdown/kit/utils';
 import type { Node } from '@milkdown/kit/prose/model';
 import { Plugin } from '@milkdown/kit/prose/state';
 import { Decoration, DecorationSet } from '@milkdown/kit/prose/view';
-import { partKind, sectionRanges } from '../lib/section-ranges.mjs';
-import { sectionColorOf } from './sectionState.mjs';
+import { partKind, sectionPart, sectionRanges } from '../lib/section-ranges.mjs';
+import { shownAt } from './images';
+import { sectionOf } from './sectionState.mjs';
 
 type Range = { from: number; to: number };
 
-// The attributes of the part at `index` in a section: its place in the frame, and the section's colour (its H2's `section`).
-function sectionAttrs(nodes: Node[], range: Range): Record<string, string> {
-  const color = sectionColorOf(nodes, range);
-  return { 'data-section-part': 'start', ...(color ? { 'data-section-color': color } : {}) };
+// The picture behind a section, as a strip at the top of its box (not editable text).
+function pictureStrip(src: string, alt: string): HTMLElement {
+  const strip = document.createElement('div');
+  strip.className = 'editor-section-picture';
+  strip.contentEditable = 'false';
+  const img = document.createElement('img');
+  img.src = shownAt(src);
+  img.alt = alt;
+  img.draggable = false;
+  strip.append(img);
+  return strip;
 }
 
 /** The decorations of a document's sections. */
@@ -22,15 +32,31 @@ function sectionDecorations(doc: Node): Decoration[] {
   doc.forEach((node, pos) => void parts.push({ node, pos }));
   const nodes = parts.map(({ node }) => node);
   const ranges: Range[] = sectionRanges(nodes.map((node) => ({ kind: partKind(node.type.name, node.attrs.level) })));
-  // Only an H2 section has a line (an H1 starts the page, a label before the heading is part of its section).
-  const isH2 = (range: Range) => {
+  return ranges.flatMap((range) => {
     const first = nodes[range.from];
     const heading = first.type.name === 'eyebrow' ? nodes[range.from + 1] : first;
-    return heading?.type.name === 'heading' && heading.attrs.level === 2;
-  };
-  return ranges.filter(isH2).map((range) => {
-    const { node, pos } = parts[range.from];
-    return Decoration.node(pos, pos + node.nodeSize, sectionAttrs(nodes, range));
+    const isH2 = heading?.type.name === 'heading' && heading.attrs.level === 2;
+    const { color, picture, alt, width } = sectionOf(nodes, range);
+    const boxed = !!color || !!picture;
+    const out: Decoration[] = [];
+    parts.slice(range.from, range.to + 1).forEach(({ node, pos }, i) => {
+      const index = range.from + i;
+      const attrs: Record<string, string> = {};
+      // Only an H2 section has a line (an H1 starts the page, a label before the heading is part of its section).
+      if (isH2 && index === range.from) attrs['data-section-part'] = 'start';
+      if (boxed) {
+        attrs['data-section-box'] = sectionPart(index, range);
+        if (color) attrs['data-section-color'] = color;
+        if (width === 'full') attrs['data-section-width'] = 'full';
+        if (picture) attrs['data-section-picture'] = '';
+      }
+      if (Object.keys(attrs).length) out.push(Decoration.node(pos, pos + node.nodeSize, attrs));
+    });
+    if (picture)
+      out.push(
+        Decoration.widget(parts[range.from].pos, () => pictureStrip(picture, alt ?? ''), { side: -1, key: `picture:${picture}:${alt}` }),
+      );
+    return out;
   });
 }
 
