@@ -15,7 +15,7 @@ export default function AppEnabledSwitch({
 }) {
   return (
     <div className="mb-8 px-4">
-      <SwitchRow label={t.apps.enabled} texts={[t.library.on, t.library.off]} selected={enabled} disabled={busy} onChange={onEnabled} />
+      <SwitchRow label={t.apps.enabled} selected={enabled} disabled={busy} onChange={onEnabled} />
     </div>
   );
 }

@@ -212,13 +212,7 @@ export default function Advanced({ env }: { env: Env }) {
                 disabled={saving || on}
                 onChange={place}
               />
-              <SwitchRow
-                label={t.blockSettings.active}
-                texts={[t.library.on, t.library.off]}
-                selected={on}
-                disabled={saving || (!on && !ready)}
-                onChange={turn}
-              />
+              <SwitchRow label={t.blockSettings.active} selected={on} disabled={saving || (!on && !ready)} onChange={turn} />
               <SupportingText className="mt-2">{note}</SupportingText>
             </>
           )}
@@ -243,7 +237,6 @@ export default function Advanced({ env }: { env: Env }) {
                   key={key}
                   label={label}
                   hint={hint}
-                  texts={[t.library.on, t.library.off]}
                   selected={settings[key]}
                   disabled={saving || build === undefined || paidLocked(key, settings[key])}
                   onChange={(next) => turnBuild(key, next, commit, change)}

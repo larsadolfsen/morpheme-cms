@@ -4356,7 +4356,7 @@
   .setting-row-supporting) and after it what sets it.
     --setting-row-gap, --setting-row-label-weight, --setting-row-supporting-color   the room before what sets it, the name
       and the line under it (else the switch's --switch-label-weight and --switch-supporting-color)
-  Switches (Switch.tsx, switchClass; m3.material.io/components/switch): .switch, a setting row, a <label>, optionally what it is on or off (.switch-state), and after them the track
+  Switches (Switch.tsx, switchClass; m3.material.io/components/switch): .switch, a setting row, a <label>, and after the name the track
   (.switch-track: the <input role="switch">,
   .switch-input, drawn as the track with appearance: none, and its handle, .switch-handle, with the theme's icons,
   .switch-icon-on and .switch-icon-off, when it has them: .switch-icons).
@@ -4368,7 +4368,6 @@
     --switch-handle-surface, --switch-handle-checked-surface, --switch-handle-shadow   the handle off and on
     --switch-icon-size, --switch-icon-color, --switch-icon-checked-color   the icons in the handle, off and on
     --switch-label-weight, --switch-supporting-color   the name and the line under it
-    --switch-state-color, --switch-state-checked-color   what it is (Til, Fra), off and on
     --switch-disabled-opacity   a switch that cannot be changed
   Radio buttons (RadioButton.tsx, radioButtonClass, radioGroupClass; m3.material.io/components/radio-button): as the
   checkbox, .radio-button, a <label> with the button (.radio-button-box: the <input>, .radio-button-input, the
@@ -4464,17 +4463,6 @@
   }
   .switch:has(.switch-input:disabled) {
     cursor: default;
-  }
-  /* What it is, on or off (Til, Fra), before the track: in the accent while it is on. */
-  .switch-state {
-    color: var(--switch-state-color, var(--block-muted));
-    font-size: var(--type-body-medium-size);
-    line-height: var(--type-body-medium-line-height);
-    font-weight: var(--type-body-medium-weight);
-    letter-spacing: var(--type-body-medium-tracking);
-  }
-  .switch:has(.switch-input:checked) > .switch-state {
-    color: var(--switch-state-checked-color, var(--block-accent));
   }
   .switch-track {
     position: relative;
