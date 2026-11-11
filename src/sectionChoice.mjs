@@ -1,5 +1,5 @@
 // The Appstore's three sections (Themes, Connectors, Plugins): which apps each lists and which one opens first (pure).
-// Exposes SECTIONS, filterByRole(list, role), readSection(storage), saveSection(storage, section), serviceOf(app); used by StoreSections.tsx and AppList.tsx.
+// Exposes SECTIONS, filterByRole(list, role), readSection(storage), saveSection(storage, section), serviceOf(app), mcpOf(mcp); used by StoreSections.tsx and AppList.tsx.
 import { roleOf } from '../lib/storeCategories.mjs';
 
 /** The sections, in the order of the switch. */
@@ -57,4 +57,23 @@ export function serviceOf(app) {
   if (typeof app.service === 'string' && app.service.trim()) return app.service.trim();
   const hosts = [...new Set([...(app.needs?.loads ?? []), ...(app.needs?.sends ?? [])])];
   return hosts.slice(0, 2).join(', ');
+}
+
+/**
+ * A connector's MCP server from its catalog entry: its host and the tools it uses, or undefined when the entry has none
+ * (or its address is not a URL). Shown before install, as the hosts and what it reads are.
+ * @param {unknown} mcp
+ * @returns {{ host: string, tools: string[] } | undefined}
+ */
+export function mcpOf(mcp) {
+  const server = /** @type {{ server?: unknown } | null | undefined} */ (mcp)?.server;
+  if (typeof server !== 'string') return undefined;
+  let host;
+  try {
+    host = new URL(server).host;
+  } catch {
+    return undefined;
+  }
+  const tools = /** @type {{ tools?: unknown }} */ (mcp).tools;
+  return { host, tools: Array.isArray(tools) ? tools.filter((x) => typeof x === 'string') : [] };
 }

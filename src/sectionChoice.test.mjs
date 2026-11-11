@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { filterByRole, readSection, saveSection, serviceOf, SECTIONS } from './sectionChoice.mjs';
+import { filterByRole, readSection, saveSection, mcpOf, serviceOf, SECTIONS } from './sectionChoice.mjs';
 
 const catalog = [
   { id: 'a', role: 'connector' },
@@ -53,4 +53,15 @@ test("serviceOf: the entry's service, else its hosts", () => {
   assert.equal(serviceOf({ service: ' Calendly ' }), 'Calendly');
   assert.equal(serviceOf({ needs: { loads: ['assets.calendly.com'], sends: [] } }), 'assets.calendly.com');
   assert.equal(serviceOf({}), '');
+});
+
+test('mcpOf: the host and tools of a connector entry, nothing for a missing or broken one', () => {
+  assert.deepEqual(mcpOf({ server: 'https://mcp.calendly.com', auth: 'oauth', tools: ['event_types-list_event_types'] }), {
+    host: 'mcp.calendly.com',
+    tools: ['event_types-list_event_types'],
+  });
+  assert.deepEqual(mcpOf({ server: 'https://mcp.example.com/mcp' }), { host: 'mcp.example.com', tools: [] });
+  assert.equal(mcpOf(undefined), undefined);
+  assert.equal(mcpOf({ server: 'not a url' }), undefined);
+  assert.equal(mcpOf({ tools: ['a'] }), undefined);
 });

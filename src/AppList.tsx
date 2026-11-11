@@ -39,7 +39,7 @@ import { appsState, activeApps, installedApps, settingsFile, type SiteApp } from
 import { appsFileText, readAppsFile, withInstalled, withOff } from '../lib/appsFile.mjs';
 import { rivalsOf, withRivalsOff } from '../lib/appTypes.mjs';
 import { CATEGORIES, categoryOf, roleOf, type Role } from '../lib/storeCategories.mjs';
-import { filterByRole, serviceOf } from './sectionChoice.mjs';
+import { filterByRole, mcpOf, serviceOf } from './sectionChoice.mjs';
 import { AnyIcon } from './icon';
 import {
   appChanges,
@@ -342,9 +342,10 @@ function allApps(catalog: ShownApp[] | null | 'failed') {
 
 /** What an app's page says about its role under Permissions: the service a connector connects to, or no outside access for
  * a plugin; null for an app the catalog does not have (nothing is known of its role). */
-function connectsOf(app: { role?: unknown; category?: unknown; service?: unknown; needs?: AppNeeds }) {
+function connectsOf(app: { role?: unknown; category?: unknown; service?: unknown; needs?: AppNeeds; mcp?: unknown }) {
   if (!('needs' in app) || !app.needs) return null;
-  return roleOf(app) === 'connector' ? { connector: true, service: serviceOf(app) } : { connector: false, service: '' };
+  if (roleOf(app) !== 'connector') return { connector: false, service: '' };
+  return { connector: true, service: serviceOf(app), mcp: mcpOf(app.mcp) };
 }
 
 /** The address of a developer's page, by their name. */
