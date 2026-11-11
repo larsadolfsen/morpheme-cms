@@ -106,6 +106,7 @@ export const forms: Messages['forms'] = {
     draftLine: 'Kladde',
     waitingLine: 'Ikke udgivne ændringer',
     publishedLine: (when) => `Udgivet · Ændret ${when}`,
+    autosave: { saving: 'Gemmer…', saved: 'Gemt', notSaved: 'Ikke gemt', restored: 'Dine ugemte ændringer er tilbage' },
     savedWaiting: 'Ændringerne er gemt. Hjemmesiden viser den udgivne version, indtil du udgiver.',
     unpublishTitle: (post) => `Fjern ${post ? 'indlægget' : 'siden'} fra hjemmesiden?`,
     unpublishText: (post) =>

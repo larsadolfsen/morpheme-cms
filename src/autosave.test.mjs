@@ -1,7 +1,7 @@
 // Tests for src/autosave.mjs with fake timers and a fake Worker. Run: node --test src/autosave.test.mjs
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { autosaveClient, createAutosave, watchLeaving } from './autosave.mjs';
+import { autosaveClient, createAutosave, deleteAutosave, loadAutosave, restorable, watchLeaving } from './autosave.mjs';
 
 // A clock the test moves: timers run in order of their time.
 function clock() {
@@ -187,7 +187,7 @@ test('the client talks to /api/autosave and understands off, moved and a gone pa
   await c.tick(10);
   await a.flush('src/content/a.md', 'waiting', { leaving: true });
   assert.deepEqual(log[0].slice(0, 3), ['/api/autosave', 'PUT', { path: 'src/content/a.md', id: 'waiting', text: 'x' }]);
-  assert.deepEqual(log[1], ['/api/autosave/flush', 'POST', { path: 'src/content/a.md', id: 'waiting', text: 'x' }, true]);
+  assert.deepEqual(log[1], ['/api/autosave/flush', 'POST', { path: 'src/content/a.md', id: 'waiting' }, true]);
   status = 409;
   body = { error: 'moved' };
   a.autosave('src/content/a.md', 'y');
@@ -220,4 +220,66 @@ test('watchLeaving calls leave when the page is hidden or left, and can stop', (
   assert.equal(left, 2);
   stop();
   assert.deepEqual(Object.keys(events), []);
+});
+
+test('leaving flushes a text the Worker already has, without sending it again', async () => {
+  const { a, c, calls } = make();
+  a.autosave('src/content/a.md', 'x');
+  await c.tick(100);
+  assert.equal(a.state(), 'saved');
+  await a.leave();
+  assert.deepEqual(
+    calls.map((x) => [x.action, x.text]),
+    [
+      ['put', 'x'],
+      ['flush', undefined],
+    ],
+  );
+  await a.leave();
+  assert.equal(calls.length, 2);
+});
+
+test('onFlushed is called when git got a new version, not on leaving', async () => {
+  const c = clock();
+  const flushed = [];
+  const a = createAutosave({
+    send: async () => ({ ok: true, committed: true }),
+    ...c,
+    debounce: 100,
+    idle: 1000,
+    onFlushed: (d) => flushed.push(d),
+  });
+  a.autosave('src/content/a.md', 'x');
+  await c.tick(100);
+  await c.tick(1000);
+  assert.deepEqual(flushed, [{ path: 'src/content/a.md', id: 'waiting' }]);
+  a.autosave('src/content/a.md', 'y');
+  await a.leave();
+  assert.equal(flushed.length, 1);
+});
+
+test('loadAutosave and deleteAutosave ask the Worker, and restorable compares with git', async () => {
+  const log = [];
+  const fetcher = async (url, init = {}) => (
+    log.push([url, init.method ?? 'GET']),
+    { ok: true, json: async () => ({ text: 't', savedAt: 5 }) }
+  );
+  assert.deepEqual(await loadAutosave('src/content/a.md', 'waiting', fetcher), { text: 't', savedAt: 5 });
+  await deleteAutosave('src/content/a.md', 'waiting', fetcher);
+  assert.deepEqual(log, [
+    ['/api/autosave?path=src%2Fcontent%2Fa.md&id=waiting', 'GET'],
+    ['/api/autosave?path=src%2Fcontent%2Fa.md&id=waiting', 'DELETE'],
+  ]);
+  assert.equal(await loadAutosave('p', 'waiting', async () => ({ ok: false })), null);
+  assert.equal(
+    await loadAutosave('p', 'waiting', async () => {
+      throw new Error('x');
+    }),
+    null,
+  );
+  const stored = { text: 'new', savedAt: 1000 };
+  assert.equal(restorable(stored, 'new', null), false);
+  assert.equal(restorable(stored, 'old', null), true);
+  assert.equal(restorable(stored, 'old', new Date(999)), true);
+  assert.equal(restorable(stored, 'old', new Date(1000)), false);
 });
