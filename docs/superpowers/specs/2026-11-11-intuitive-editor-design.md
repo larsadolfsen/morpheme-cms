@@ -480,6 +480,31 @@ one is checked when it is built. A table filled from the owner's lists could com
 4. **Testimonials and Cookies (settled, owner, 11 November):** they have no typed content, so they have nothing to edit in place: the block is a drawn
    preview with settings in the panel, and `Edit testimonials` opens their own list, as `Edit list` does for a dynamic list.
 
+### 19. Spike S3: today's editor on a 375 px phone (11 November)
+
+Checked on the built demo (`Blocks` page) with Playwright at 375 × 760 (touch, mobile) and at 1280 × 900. Pictures: `editor-phone-check/`. No console errors, no horizontal scroll. The soft keyboard is not simulated, so the keyboard questions of decision 14 stay open for a device check.
+
+![Page editor](editor-phone-check/phone-1-page-editor.webp) ![Text selected](editor-phone-check/phone-2-text-selected.webp) ![Block menu](editor-phone-check/phone-3-block-menu.webp) ![Block sheet](editor-phone-check/phone-4-block-sheet.webp) ![Insert](editor-phone-check/phone-5-insert.webp) ![Desktop panel](editor-phone-check/desktop-block-panel.webp)
+
+**What works:** the page is readable and blocks are drawn as the site shows them. Insert is a real bottom sheet (full width, search, A-Z, drag handle). Text and floating-menu buttons do not overflow.
+
+**Cramped, hidden, too small or broken:**
+
+1. **A block's settings are not a bottom sheet today.** Below `expanded`, `sheetLook('fields')` is a *modal side sheet*: 319 px of 375 px, full height, with a 56 px strip of dimmed page left. The page behind is not usable and the open block is not visible. Only Insert and section settings are bottom sheets.
+2. **Two text toolbars at once.** A fixed bar (two rows when open: `B I link H2 T` and `+ undo redo`, 85 px tall) sits at the top, and a second floating bar (`B I link colour H2 T`) appears under a selection. Bold, Italic and Link are on screen twice; the open top bar takes 85 px of the 760 px height.
+3. **Touch targets under 48 dp.** Bold, Italic, Link, Insert, Undo, Redo, Section settings, Show more tools and Close: 40 × 40. The style menus: 54 × 40 and 48 × 40. Colour: 48 × 40. The block menu (`Edit`, `Hide on the page`, `Move up`, `Move down`, `Remove`): 40 × 40 each, 8 px apart. In the sheet: `Edit default texts` link 133 × 20, the Design and Background segmented buttons 38 px high, `Save` and `Cancel` 40 px high, the Insert rows 44 px.
+4. **The block menu covers the block.** Tapping a block shows a pill above it that hides the block's first line (the `List` text in the picture). On a phone the settings need a second tap on `Edit`; on desktop a tap opens the panel at once, with its own `Save` and `Cancel`, which decision 6 removes.
+5. **Long sheets.** The `Cards` sheet needs about four screens of scrolling: three text fields first, then Design, Background and the cards, with `Save` and `Cancel` pinned at the bottom. A row's `Move up`, `Move down` and delete icons are in the sheet beside a name cut short (`App st…`).
+6. **Selection toolbar and pill hang over the text.** The floating bar sits at the bottom of the viewport when the selection is near the top, which is where the soft keyboard will be.
+
+**Recommendation for the in-place pattern on a phone (batches 5 and 6):**
+
+- Keep typing in the drawn block. Do not fold the rows out under the block on a phone; the rows are 301 px wide and the fold-out would be taller than the screen.
+- Use **one** floating toolbar, docked above the keyboard (visual viewport), not a bar at the top and a second under the selection. It is context aware as decided: text tools in text, block actions on a block, with `Text`, `Row` and `Edit` as folded menus. Every button is 48 × 48 dp (the pill may keep a 40 dp icon with a 48 dp target) and at most five fit in 375 px, which is why the folding is needed.
+- Settings open in a **modal bottom sheet that can sit at half height** (as the Insert sheet does), so the open block stays visible above it. Replace the modal side sheet below `expanded`; this is a change to `sheetPlacement.mjs`, which decision 14 said would stay, and it is cheap because `Insert` already has the component. Keep `Make the sheet taller` for long blocks.
+- The sheet holds settings only (icon, picture, link, design, dynamic list), so it is one screen, with no `Save` and `Cancel` of its own (decision 6).
+- Scroll the open block to just above the sheet or toolbar when either opens. This and the keyboard need a device check before batch 5 is closed.
+
 ## Batches
 
 Each is one pull request into `main` (or `0.16` where marked), with a release note (`release-notes` skill) and, until
