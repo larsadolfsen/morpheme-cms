@@ -271,6 +271,14 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   and `Add row` at the end. This is where finding 13's single row model pays off: one row editor for all designs.
 - **Preview:** the card shows the block as the site draws it (`Preview`) above or beside its fields, so the owner sees the
   change while typing. Beside only when the text column is wide enough; below it above.
+- **Dynamic list on a page (owner's flow, 11 November):**
+  1. The owner adds a list and presses the dynamic icon in the floating menu.
+  2. The side panel turns into the dynamic settings; on a phone the bottom sheet opens with them.
+  3. The owner chooses which dynamic list the data is pulled from.
+  4. The owner clicks a field in a row (top line, bottom line, icon or picture, link). A dropdown opens with the fields of the chosen list, and the owner picks which one is shown there.
+  5. In the dynamic settings the owner can choose a tag to filter by (and `How many`).
+  6. The block updates live on every change, so it always shows how it will look on the page.
+  There is no list screen in this flow. How a dynamic list itself is created and edited is not decided yet.
 - **Design rules (UX and Material Design 3):**
   1. A list pulled from a dynamic list shows its state on the block (`From Services · tag home · 3 items`) with `Edit list`, because its rows cannot be edited in place.
   2. A block pulled from a dynamic list takes the word `Dynamic` in its name: `List` becomes `Dynamic list`, `Cards` becomes `Dynamic cards`. The picker has no separate dynamic entries and stays short; the dynamic icon in the floating menu is how an empty block becomes dynamic.
