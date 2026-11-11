@@ -8,6 +8,8 @@ import { headFields } from '../head';
 
 export default defineBlock({
   group: 'rows',
+  // The Checklist is a check list in the text now (lib/remark-checklist.mjs); this block stays for a hidden one and for one without points.
+  former: true,
   label: t.blocks.checklist.label,
   icon: ListChecks,
   hint: t.blocks.checklist.hint,

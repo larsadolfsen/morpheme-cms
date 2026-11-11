@@ -40,7 +40,10 @@ A numbered sequence, for a process or a plan.
 
 Quick points with a check mark.
 
-<div data-block="checklist" data-props="{&quot;items&quot;:[&quot;Works on every phone&quot;,&quot;Light and dark mode&quot;,&quot;Photos sized for every screen&quot;,&quot;No tracking before consent&quot;]}"></div>
+- [x] Works on every phone
+- [x] Light and dark mode
+- [x] Photos sized for every screen
+- [x] No tracking before consent
 
 ## List
 
