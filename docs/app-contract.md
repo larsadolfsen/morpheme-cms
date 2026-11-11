@@ -23,7 +23,7 @@ One `app.json` sits in each app folder.
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
-| `api` | `4` | yes | The contract the app is written to. |
+| `api` | `4` or `5` | yes | The contract the app is written to. |
 | `label` | string | yes | The app's name, in English. |
 | `publisher` | string | yes | Who made the app. |
 | `license` | SPDX string | yes | The app's license. |
@@ -144,6 +144,34 @@ An app file imports from its own folder, from `@app/self`, and from these three 
 - The build never fails because of an app.
 
 Apps written to contract 2 or 3 build and run as before, and the editor shows each of their places as full access.
+
+## Contract 5: `role` and `mcp`
+
+Contract 5 is contract 4 with two more optional keys in `app.json`. Everything else is as in contract 4: the same files,
+places, hooks and sandbox. The editor reads contracts 4 and 5 (`APP_APIS` in `lib/contracts.mjs`); `APP_API` is 5.
+
+| Key | Type | Required | Meaning |
+|---|---|---|---|
+| `role` | `"connector"` or `"plugin"` | no | What the app is. A connector sends data to, or loads code from, an outside service. A plugin has no outside access. No role is read as a plugin, but the app keeps its `csp`. |
+| `mcp` | `{ server, auth, tools }` | no | The MCP server a connector calls. `server` is an https address, `auth` is `"oauth"`, `"token"` or `"none"`, `tools` lists the tools the app may call. |
+
+Rules:
+
+- Contract 4 fails on `role` and `mcp` as unknown keys. They belong to contract 5 only.
+- `mcp.server` is https, with a host that is a name: no port, no user info, no IP address.
+- `mcp.tools` is required and not empty. Each name matches `^[a-z0-9_-]+$` and is listed once.
+- `mcp.auth: "token"` needs a settings field named `token` with `"secret": true`.
+- Only `role: "connector"` may declare `mcp`.
+- An app with `role: "plugin"` lists no host in `csp` (only keywords such as `'self'` and schemes such as `data:`). The build refuses it otherwise.
+- A plugin's `worker.js` and its other code outside the sandbox (`build.mjs`, `slots/`, `blocks/`, `script.ts`) may not use `fetch`, `WebSocket`, `XMLHttpRequest`, `connect` or `import()` of a URL. `npm run check:content` refuses it (`fullCodeProblems` in `lib/sandbox/bundle.mjs`). This scan stops mistakes, not a determined author, which is why `full` places are for first-party publishers only.
+- The site's Content Security Policy is built from the active apps' `csp`. A plugin lists no host, so it adds none, and the browser refuses any load a plugin tries from another host.
+
+### How long contract 4 stays accepted
+
+Contract 4 stays accepted for as long as the store has an app written to it, and at least through the whole 0.x series. It is
+removed only in a release that says so in its changeset, never before `1.0.0`, and never while a connector or plugin the
+owner installed still needs it. Apps move to contract 5 with their next version (`1.1.0`): a version is for ever, so a
+published contract 4 app is not rewritten.
 
 ## Contract 3: `@app/self`
 

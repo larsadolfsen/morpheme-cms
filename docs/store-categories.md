@@ -2,7 +2,7 @@
 
 Every app and theme in the Appstore has one main category (`category`) and, optionally, a subcategory of it
 (`subcategory`). The list of ids is `CATEGORIES` in `lib/storeCategories.mjs`; the editor's names are in
-`src/i18n/*/apps.ts` (`categories`). The Appstore's category filter lists the 13 main categories.
+`src/i18n/*/apps.ts` (`categories`). The Appstore's category filter lists the 12 main categories.
 
 ## The main categories
 
@@ -11,7 +11,6 @@ Every app and theme in the Appstore has one main category (`category`) and, opti
 | `analytics`  | Analytics   | Visits, behavior, conversions                                                                              |
 | `appearance` | Appearance  | Themes, widgets, animations, styling add-ons                                                               |
 | `booking`    | Booking     | Appointments, reservations, calendars                                                                      |
-| `connectors` | Connectors  | Apps that link the site to another system (webhooks, automation, CRM, accounting) and have no better home |
 | `email`      | Email       | Newsletters, subscribers, automated messages                                                               |
 | `forms`      | Forms       | Contact forms, surveys, submissions                                                                        |
 | `languages`  | Languages   | Translation, language switching                                                                            |
@@ -21,6 +20,16 @@ Every app and theme in the Appstore has one main category (`category`) and, opti
 | `seo`        | SEO         | Sitemap, schema, meta tags, redirects, links                                                               |
 | `shop`       | Shop        | Products, cart, checkout, orders                                                                           |
 | `social`     | Social      | Feeds, sharing, embeds                                                                                     |
+
+## Sections
+
+An app is a connector or a plugin (the field `role`, contract 5; `ROLES` and `roleOf` in `lib/storeCategories.mjs`). A theme has no role.
+
+- A connector sends data to, or loads code from, the outside service it is for. A plugin has no outside access. A link the visitor follows is not access.
+- An app does one thing: an app that is a plugin and also needs a service is two apps.
+- The topic categories apply to themes, connectors and plugins alike. The old category `connectors` is read as the role `connector` with no category.
+- An entry with no `role`, or an unknown one, is read as a plugin. A role-less app keeps its `csp` until it declares a role.
+- A plugin lists no host in `csp` and declares no `mcp`; the build refuses it otherwise.
 
 ## Rules
 
