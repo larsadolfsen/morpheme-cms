@@ -37,11 +37,17 @@ a release note (`release-notes` skill, English and `da-DK`). Data model and Work
    id). New pages and posts start as Draft (`status: "draft"` in the new file). `Save` still writes the page file: switching a
    published page's `Save` to the waiting version needs `Publish changes` on screen, so that switch is made in step 4 with the
    buttons. A stored `scheduled` is migrated in step 4 too, with the Schedule picker that replaces its status.
-4. **Editor UI.** Save bar and top bar states (`Draft`, `Published`, `Unpublished changes`, `Scheduled changes`), `Publish`,
-   `Publish changes`, `Unpublish`, `Discard changes` with its confirmation, the `Schedule` picker, the `Live` / `Scheduled`
-   switch as the named slot `versionSwitch` (`AppDefinition.slots`, with its props: `entry`, `versions`, the four functions
-   and `editing`; the core draws it when no app registers one), the `Hide from search engines` setting up in the SEO section,
-   `CLAUDE.md` section 6, and the release note card with before and after screenshots and the migration shown to the owner.
+4. **Editor UI**, in three pull requests:
+   - **4a, the buttons and states** (this one): `Save` on a published page keeps a waiting version (`src/drafts/`, no build, no wait
+     for the site); `Publish` on a draft; `Publish changes`, `Unpublish` and `Discard changes` (with their confirmations); the
+     status line under the title (`Draft`, `Unpublished changes`, `Published · Changed …`); the `Status` menu is gone from Page
+     settings; a new address cannot be set while changes wait. Before and after screenshots in `2026-11-11-drafts-screens/`. A
+     stored `scheduled` still reads as a draft that `Publish` publishes at once, until 4b.
+   - **4b, Schedule:** the `Schedule` picker on `Publish` and `Publish changes`, `Scheduled changes` with the date, the migration
+     of a stored `scheduled` (a waiting version with its time), and the `Scheduled` status goes.
+   - **4c, the version switch:** the `Live` / `Scheduled` switch as the named slot `versionSwitch` (`AppDefinition.slots`, with its
+     props `entry`, `versions`, the four functions and `editing`; the core draws it when no app registers one), the `Hide from
+     search engines` setting up in the SEO section, and `CLAUDE.md` section 6.
 
 Each pull request must pass `npm run check`, `check:screens`, `check:demo` and `check:themes`.
 
