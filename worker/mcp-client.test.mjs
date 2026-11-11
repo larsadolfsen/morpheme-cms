@@ -146,7 +146,7 @@ test('a refresh that fails marks Needs sign-in', async () => {
       'now',
     )
     .run();
-  const ask = async (url) => (url.startsWith('https://auth.example.com') ? new Response('{}', { status: 400 }) : fixture()(url));
+  const ask = async (url) => (new URL(url).host === 'auth.example.com' ? new Response('{}', { status: 400 }) : fixture()(url));
   await assert.rejects(callTool(e, 'news', oauth, 'lists', {}, ask), /needs sign-in/);
   const state = await (await handleMcpClient(req('news'), e, deps(ask, { news: oauth }))).json();
   assert.deepEqual([state.connected, state.needsSignIn], [false, true]);
@@ -173,7 +173,7 @@ test('a refresh that works keeps the new token', async () => {
   const seen = [];
   const mcp = fixture({ seen });
   const ask = async (url, init) =>
-    url.startsWith('https://auth.example.com') ? new Response(JSON.stringify({ access_token: 'new', expires_in: 3600 })) : mcp(url, init);
+    new URL(url).host === 'auth.example.com' ? new Response(JSON.stringify({ access_token: 'new', expires_in: 3600 })) : mcp(url, init);
   await callTool(e, 'news', oauth, 'lists', {}, ask);
   assert.equal(seen[0].auth, 'Bearer new');
 });
