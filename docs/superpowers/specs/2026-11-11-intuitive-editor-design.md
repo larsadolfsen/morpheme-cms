@@ -559,4 +559,4 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    (finding 17): Surface, Primary, Secondary and Tertiary (today's list is None, Surface, Tint and Primary), or none, and
    the theme decides how each looks. In the editor the dotted line at each H2 always shows. In the full-screen Preview
    (finding 15) the dotted lines show only on hover, so the page looks like the site the rest of the time (owner, 11
-   November: hiding them is only for the full-screen Preview). Open: whether `Tint` is migrated to Surface or Secondary.
+   November: hiding them is only for the full-screen Preview). Existing `Tint` sections migrate to Surface (owner, 11 November).
