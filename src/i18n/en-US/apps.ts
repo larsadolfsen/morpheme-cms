@@ -123,7 +123,6 @@ export const apps = {
     analytics: 'Analytics',
     appearance: 'Appearance',
     booking: 'Booking',
-    connectors: 'Connectors',
     email: 'Email',
     forms: 'Forms',
     languages: 'Languages',

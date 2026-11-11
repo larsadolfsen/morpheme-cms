@@ -84,7 +84,6 @@ export const apps: Messages['apps'] = {
     analytics: 'Måling',
     appearance: 'Udseende',
     booking: 'Booking',
-    connectors: 'Forbindelser',
     email: 'E-mail',
     forms: 'Formularer',
     languages: 'Sprog',

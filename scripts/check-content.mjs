@@ -105,6 +105,11 @@ try {
     // An app.json with problems stops the check with them; there is nothing to read of it here.
     for (const problem of manifest.problems) result.problems.push(`src/apps/${id}/app.json: ${problem}`);
     if (!app) continue;
+    // A plugin has no outside access: its worker.js and other code outside the sandbox may not call out.
+    if (manifest.manifest?.role === 'plugin') {
+      const { fullCodeProblems } = await import('@morphemecms/cms/lib/sandbox/bundle.mjs');
+      for (const problem of await fullCodeProblems(join(root, 'src/apps', id))) result.problems.push(`src/apps/${id}: ${problem}`);
+    }
     const where = manifest.manifest ? `src/apps/${id}/app.json` : `src/apps/${id}/index.ts`;
     // The thirdParty of an index.ts is { package, kind } or { name, author, license, file, kind }; an app.json lists
     // { name, license, url } (manifestProblems checks it), which declarationProblems cannot read, so it is not given to it.
