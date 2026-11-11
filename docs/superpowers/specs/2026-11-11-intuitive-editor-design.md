@@ -33,6 +33,10 @@ repeated as a question below.
 7. **More WYSIWYG than today.** What the owner types is drawn as the site draws it, as far as it can be. See finding 15, and
    question 6 for how it fits decision 4.
 
+8. **Lists are based on Material 3's two list types: Standard and Segmented.** The base list block has exactly these two
+   designs (`theme/ui/List.tsx` already has both, `ListKind`). Other row blocks (Cards, Points, Steps and the rest) are
+   decided against this base in finding 13. _(Read from the owner's "MD3 has two types, this is our base".)_
+
 ## What was looked at
 
 - **Code and texts:** `src/i18n/en-US/` (`common`, `app`, `library`, `forms`, `parts`, `media`, `text`, `blocks`,
@@ -218,7 +222,9 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
      Expandable list), `From your content` (Testimonials, Blog posts), `Prices`, `Banner and buttons` (Banner, Buttons,
      Notice, Video), `Other`. Each block keeps its picture and hint; hints say how it differs from its neighbours
      (`Numbered`, `With a check mark`, `With a picture`). Apps keep their own groups.
-  2. **Merge the rows (model change, owner's call).** One block `Rows` with a `Design` choice: Cards, List, Points, Steps,
+  2. **Build on the base (owner decision 8).** The list block has the two M3 types, Standard and Segmented, and starts as
+     Standard. The other designs are either variants of it or separate blocks; which is open (question 6). Older text:
+  3. **Merge the rows (model change, owner's call).** One block `Rows` with a `Design` choice: Cards, List, Points, Steps,
      Checklist, Links; and one `Questions` block with a `Display` choice (open, or expanding). A migration maps each
      existing block to its design, so no page changes look or content. Fewer blocks to choose from, one set of row fields to
      learn and one block sheet. The cost: a theme draws each design today (`theme/blocks/*`), so the merge touches every theme
