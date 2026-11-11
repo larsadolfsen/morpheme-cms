@@ -52,6 +52,13 @@ repeated as a question below.
     Not a database builder (owner, 11 November): the owner picks a few fixed fields, for example an icon and two text
     fields, adds items to the list, and a list block on a page shows some of them, for example 3 or 4, chosen by the tags
     set on the items. _(Owner confirmed: tag filter and fixed fields.)_
+13. **One Card block with four predefined designs; Price cards and Testimonials stay special** (owner, 11 November).
+    Card has the same fields as a list row plus a few card fields, shows only the fields that have content, and has one
+    setting, `Design`: Outlined, Filled, Elevated and Accent. A theme may change what each design looks like (finding 17).
+    The top of every card is one `Media` field (Icon, Image or Video); the first card sets it for the others.
+14. **The next list row or card is always shown, empty and ready to edit** (owner, 11 November), for lists and cards. It
+    sits after the last item, drawn faded; clicking it starts a new item. It does not replace `Add above` and `Add below`,
+    which stay in the floating menu so an item can be added in the middle.
 
 ## What was looked at
 
@@ -243,8 +250,9 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   Owner decision 9 settles the shape: three ready-made blocks, List, Segmented list and FAQ list. **Steps is a special block (owner,
   11 November) and stays as it is, not folded into List.** **Links fold into List (owner,
   11 November):** a row with a link gets the arrow; the group headings of today's Links block are lost unless a row can be
-  a small heading (to decide when it is built). **Not covered yet:** the Expandable list's page link. Cards, Price cards,
-  Testimonials and Blog posts stay as they are. Older text:
+  a small heading (to decide when it is built). **Not covered yet:** the Expandable list's page link. Cards fold into
+  the Card block (finding 17); Price cards and Testimonials stay special (owner, 11 November); Blog posts become a dynamic
+  Card. Older text:
   3. **Merge the rows (model change, owner's call).** One block `Rows` with a `Design` choice: Cards, List, Points, Steps,
      Checklist, Links; and one `Questions` block with a `Display` choice (open, or expanding). A migration maps each
      existing block to its design, so no page changes look or content. Fewer blocks to choose from, one set of row fields to
@@ -265,6 +273,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   from `Insert` (the picker, still a sheet) and arrives open with its required fields marked.
 - **Owner's final shape (11 November):** supersedes the fold-out below. Text is typed in the drawn block; the side panel (desktop, always open while the block is active) or the bottom sheet (phone, `Edit` button in the text menu) holds only settings. The panel must keep the page's single save model (no `Save` or `Cancel` of its own).
 - **Active row:** a new list is added selected, with its first row active. Only the active row shows its empty fields (icon or picture slot, top line, bottom line, link), so the owner sees what can be filled in. The other rows show their live look. When the owner clicks out, empty fields disappear.
+- **Next row (owner, 11 November, decision 14):** after the last row the list always shows one more row, empty and faded, ready to edit. Clicking it makes it the active row and a new empty one appears after it. It is not saved, and not shown on the site, until it has content, and it is not the `+` under the rows that decision 6 removed: it is the next row itself. `Add above` and `Add below` stay in the floating menu (below) for adding in the middle.
 - **Menu for a selected list:** while a list is selected, the floating menu shows `Add above` and `Add below` (and on a phone `Edit`). They add an empty row next to the active row, which becomes active. There is no `+` under the rows. Rows are sorted with `Move up` and `Move down` in the same menu, and on desktop also with a drag handle on the active row's left edge. On a phone the four row actions (`Add above`, `Add below`, `Move up`, `Move down`) sit under one `Row` menu beside `Edit`. `Add above`, `Add below`, `Move up` and `Move down` show only when the active row has content. While the list has no content, the menu shows a dynamic icon instead, which opens the panel on the dynamic settings (`Rows from`, tag filter, `How many`). Once a row has content the icon is gone: a list is typed by hand or pulled from a dynamic list, never both. A dynamic list drops the row actions and shows `Edit list` and a way back to typing rows by hand.
 - **One pattern for all blocks:** the list is the first case, not the exception. Every block is drawn as the site shows it, its text is typed in place, the floating text menu shows that block's actions while it is selected (a list: `Add above`, `Add below`, `Edit` on a phone), and its settings sit in the side panel on desktop or the bottom sheet on a phone. This replaces today's block cards and sheets. Open: whether the menu swaps its text tools for the block's actions or adds them.
 - **Rows:** a row is a nested fold-out inside the open block (heading, text, icon, page), with drag handles or Move up and down,
@@ -354,6 +363,40 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   files, so the entries must be there when the block is drawn, as testimonials are). The block's preview in the editor needs the
   entries, as `siteOf` in `sitedata.ts` gives them for the others. Needs a design of the `New list` screen before a plan.
 
+### 17. Cards
+
+- **Evidence:** Cards (`standard/cards`, `theme/blocks/cards/LinkCards.tsx`) is outlined link cards with a `Design` (Text,
+  Icon, Image) and a `Background` (surface or accent); Price cards, Testimonials (a slider) and the blog post card
+  (`theme/components/PostCard.tsx`) are separate. The theme's surface kinds are Material's three: Outlined, Filled and
+  Elevated (`theme/ui/Card.tsx`). M3 has no card types beyond these surfaces; link, price and quote cards are our content
+  layouts. _(From general knowledge of Material 3, not checked on m3.material.io.)_
+- **Fields (owner, 11 November):** Icon or picture or video (one `Media` field), Title, Subhead, Body text, Link, Button,
+  Badge, Date and Tags. Only fields with content show, as in a list row. **Price and Quote are not card fields:** Price
+  cards and Testimonials stay their own blocks.
+- **Design:** one setting, `Design`, with four predefined designs: **Outlined** (a border), **Filled** (a tonal colour),
+  **Elevated** (raised) and **Accent** (Material's `primary-container` colours). Accent replaces today's accent
+  background, so existing sites keep their look. `Inverted` (the inverse surface colours) was left out; it can be added
+  later as one more value. The old `Design` (Text, Icon, Image) and `Background` settings go away, and so does a layout
+  choice: all cards are vertical for now, and horizontal can be added later.
+- **Themes decide the colours:** the four designs are names; a theme chooses what each looks like, and a design may be
+  drawn differently or replaced where the colours do not suit the theme. Accent on `primary-container` is right for
+  Material, and may not be the right choice for another theme. A theme that changes it must still pass `check:themes`.
+- **Media field:** the top of a card is one `Media` field, with the choice Icon, Image or Video, like the icon field of a
+  list. The first card's choice sets the type for every card in the block, so they stay aligned; there is no block setting
+  for it. It shows only if it has content. A card without media in a block that has it keeps or loses the space (to decide
+  when it is built).
+- **Editing:** the same pattern as lists (finding 14): a new Card block is added selected, with three empty cards and the
+  first one active; only the active card shows its empty fields; the next card is always shown empty and faded (decision
+  14); the floating menu has `Add above`, `Add below`, `Move up` and `Move down`; settings sit in the side panel on
+  desktop and in the bottom sheet on a phone. `Design` is in the panel.
+- **Dynamic cards:** as dynamic lists (finding 16): a Card block takes its cards from a dynamic list, is named `Dynamic
+  card`, and the owner picks which list field fills which part of the card. The field set of a card list is the one above.
+  The blog post card becomes a dynamic Card; Blog posts need no special card.
+- **Migration:** Cards with Design Image, Icon and Text become Card with a Media field of Image or Icon, or none;
+  Background accent becomes Design Accent, otherwise Outlined. No page changes look.
+- **Not decided:** whether a card's Link makes the whole card clickable and the Button is a separate action (today only the
+  whole card is a link); how a card without media looks in a block that has media.
+
 ## Batches
 
 Each is one pull request into `main` (or `0.16` where marked), with a release note (`release-notes` skill) and, until
@@ -372,6 +415,7 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 | J | **Inline block editing:** fields fold out in the text, no sheet for block fields, one open at a time (14) | `MarkdownEditor`, `BlockDialog`, `sheetPlacement.mjs`, `editor.css` | no | none |
 | K | **WYSIWYG page:** the page head drawn in place (step 1), then the frame toggle (step 3) (15) | `EntryForm`, `MarkdownEditor`, `titleH1.mjs`, `Screen`, theme `editor/previews.tsx` | no | Q7 |
 | L | **Lists from lists:** `Rows from` on the three list blocks, tags filter, then `New list` with the fixed field set (16) | `standard/list*`, `Library` (`Lists`), `site.ts`, `lib/` (list definitions), build | **yes**: `Dynamic lists`, app lists | none |
+| M | **Card block:** one Card with four designs and a `Media` field, the next empty card, migration of Cards, dynamic cards after L (17) | `standard/cards`, `theme/blocks/cards/*`, every theme, `BlockDialog` | no | none |
 | F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
 
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
