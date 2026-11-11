@@ -703,6 +703,92 @@ html {
   color: var(--mo-surface);
 }
 
+/* A block typed in place (InlineList.tsx, MarkdownEditor.tsx): the block as the site draws it, its text as fields. The frame is the
+   block itself, not a button; it shows the focus ring while a row is being typed in, and the menu sits on a handle at its corner. */
+.editor-text .site-block-inline {
+  cursor: text;
+}
+
+.editor-text .site-block-inline .site-block-preview {
+  pointer-events: auto;
+}
+
+.editor-text .site-block-inline:focus-within {
+  border-color: var(--mo-primary);
+}
+
+.editor-text .site-block-handle {
+  position: absolute;
+  z-index: 2;
+  top: -1.25rem;
+  right: 0.5rem;
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 9999px;
+  background: var(--editor-menu-surface);
+  box-shadow: var(--editor-menu-shadow);
+}
+
+.editor-text .site-block-handle:hover,
+.editor-text .site-block-handle:focus-visible,
+.editor-text .site-block-handle[aria-expanded='true'] {
+  background: var(--mo-surface-container-high);
+}
+
+/* A field typed in a row: no frame of its own, the text of the row as the site draws it, and the height of its text. */
+.editor-text .inline-list-field {
+  display: block;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  resize: none;
+  overflow: hidden;
+  field-sizing: content;
+  user-select: text;
+}
+
+.editor-text .inline-list-field:focus {
+  outline: none;
+}
+
+.editor-text .inline-list-field::placeholder {
+  color: var(--mo-on-surface-variant);
+  opacity: 0.7;
+}
+
+/* The row being typed in is marked with the state layer; the next empty row after the last is faded. */
+.editor-text .inline-list-row-active {
+  background: color-mix(in srgb, var(--mo-primary) 8%, transparent);
+}
+
+.editor-text .inline-list-row-next:not(.inline-list-row-active) {
+  opacity: 0.55;
+}
+
+.editor-text .inline-list-slot {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 9999px;
+  color: var(--mo-on-surface-variant);
+}
+
+.editor-text .inline-list-slot:hover,
+.editor-text .inline-list-slot:focus-visible {
+  background: var(--mo-surface-container-high);
+  outline: none;
+}
+
 /* The block's menu: a row of icons on the top edge of the frame, in the middle. */
 .editor-text .site-block-menu {
   position: absolute;

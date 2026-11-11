@@ -13,6 +13,7 @@ export default defineBlock({
   label: t.blocks.list.label,
   icon: ListBullets,
   hint: t.blocks.list.hint,
+  inline: true,
   fields: [
     {
       name: 'items',

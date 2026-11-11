@@ -304,6 +304,8 @@ export function useBlockDialog(
   function pick(type: string) {
     const fields = blockOf(type)!.fields;
     if (!fields.length) return done({ type, props: {} });
+    // A block typed in place goes in at once, with its first row active (MarkdownEditor.tsx): no sheet.
+    if (blockOf(type)?.inline) return done({ type, props: newValue(fields) });
     shown.current = asWritten(type, newValue(fields));
     setValues(newValue(fields));
     show({ step: 'fields', type, isNew: true });

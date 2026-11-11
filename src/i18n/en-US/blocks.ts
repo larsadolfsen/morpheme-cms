@@ -112,6 +112,10 @@ export const blocks = {
     hrefHint: 'If empty, the row isn’t a link.',
     exampleTitle: 'Heading',
     exampleText: 'A short text about the row.',
+    /** The next empty row after the last one, which a tap starts. */
+    newRow: 'New row',
+    /** A row of the list typed in place: its place, for screen readers (row 2 of 4). */
+    rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
   },
   points: {
     label: 'Points with icon',
