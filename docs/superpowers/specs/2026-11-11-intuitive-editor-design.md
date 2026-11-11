@@ -45,6 +45,12 @@ repeated as a question below.
     The page in the owner's screenshot is an expanding list in one rounded card with dividers and chevrons, with a text
     button wanted under it.
 
+11. **Lists can show the content of dynamic lists.** A list block can take its rows from a dynamic list instead of typed
+    rows, and show them in its list style (finding 16).
+12. **The owner can create new lists.** A new list has fields the owner picks: an icon, a title, a body text (and, as the
+    owner's example, tags). The list blocks pull on these. Which entries show on which page is decided by tags.
+    _(Read as: filter by tags; the order is a separate choice, see question 9.)_
+
 ## What was looked at
 
 - **Code and texts:** `src/i18n/en-US/` (`common`, `app`, `library`, `forms`, `parts`, `media`, `text`, `blocks`,
@@ -294,6 +300,35 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   site's header and footer inside the editor, which the theme's `editor/previews.tsx` already does for the header and footer
   screens. The demo and every theme must show the same page (`check:themes`, `check:demo`).
 
+### 16. Lists that pull from dynamic lists, and lists the owner creates
+
+- **Evidence, today:** the `Dynamic lists` screen (`#lists`) lists what `listsShown` in `src/site.ts` returns: the site's own
+  (`site.lists`, empty by default in `defaults/editor.ts`), the standard blocks' (`standardLists`: Testimonials, prices) and the
+  apps' (`listsOf`, from an app's `lists.ts`). All three are **defined in code**, with their fields. An owner cannot make
+  a list. `Tags` (`src/data/categories`, `collections.ts`) already exist and pages, posts and testimonials point to them
+  (`relation` with `to: 'categories'`); Testimonials already has `Which testimonials` (All, Buttons with tags, With tags, Marked
+  "Show on the front page", Selected). So filtering by tag exists for one block; the list blocks of finding 13 have only typed rows.
+- **Design, part A, a list block can use a list:** each of List, Segmented list and FAQ list gets a choice `Rows from`: `Typed
+  here` (today) or one of the site's lists. With a list chosen, the block maps the list's fields to the row: icon to the icon,
+  title to the heading, body text to the text, a link to the arrow. `Which rows`: all, those with chosen tags, or selected by
+  hand (the same choices as `Which testimonials`). The same list can be shown on many pages with different tags; one place
+  to edit the text.
+- **Design, part B, the owner creates lists:** `Dynamic lists` gets `New list`. The owner names it and chooses its fields from
+  a fixed set, each optional: `Icon`, `Title` (always), `Body text`, `Picture`, `Link`, `Tags`. The entries are files
+  like the other lists' (`src/data/<list>/<slug>.json`); the list's definition is a small file beside them, read by the editor and the build. This
+  is **new**: today a list's fields live in code, so the editor must learn collections whose fields come from a file.
+  A list the owner made cannot have a field the fixed set lacks (no free field types), so check:content and the build stay
+  simple. Deleting a list asks first, and refuses while a block uses it (as `blockSettings.stillOn` does).
+- **Tags:** the lists use the same `Tags` as pages and posts, with the same `Create a tag` shortcut, so one tag can mean
+  the same on a page, a post and a list entry. Pages show a list's entries by tag; the tag is the owner's way to say "this
+  entry belongs on this page".
+- **Touches 0.16:** the `Dynamic lists` screen and the app lists (`lists.ts`, contract 4 and 5) are in the same files as
+  0.16's store sections (roles). App lists stay as they are and appear in `Rows from` like the owner's. Build after 0.16.
+- **Cost and risk:** this is the largest change of the spec: a new kind of stored definition, a screen to make lists, a data
+  migration path (none needed for existing lists), and block rendering that reads entries at build time (the site is built from
+  files, so the entries must be there when the block is drawn, as testimonials are). The block's preview in the editor needs the
+  entries, as `siteOf` in `sitedata.ts` gives them for the others. Needs a design of the `New list` screen before a plan.
+
 ## Batches
 
 Each is one pull request into `main` (or `0.16` where marked), with a release note (`release-notes` skill) and, until
@@ -311,10 +346,11 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 | I | **Merge the row blocks:** step 2 of finding 13, with a migration (13) | `standard/*`, `theme/blocks/*`, every theme | no | Q6 |
 | J | **Inline block editing:** fields fold out in the text, no sheet for block fields, one open at a time (14) | `MarkdownEditor`, `BlockDialog`, `sheetPlacement.mjs`, `editor.css` | no | none |
 | K | **WYSIWYG page:** the page head drawn in place (step 1), then the frame toggle (step 3) (15) | `EntryForm`, `MarkdownEditor`, `titleH1.mjs`, `Screen`, theme `editor/previews.tsx` | no | Q7 |
+| L | **Lists from lists:** `Rows from` on the three list blocks, tags filter, then `New list` with the fixed field set (16) | `standard/list*`, `Library` (`Lists`), `site.ts`, `lib/` (list definitions), build | **yes**: `Dynamic lists`, app lists | Q9, Q10 |
 | F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
 
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
-or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. J replaces the sheet buttons of G (finding 12): build G without them and J after G and I, because it uses the single row editor. K step 1 goes with G (the H1 start, the same top of the text); step 3 last. H can go with B and C (no decision). I only after G, since both change the same block files and the same migration, and after the owner has seen H. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
+or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. J replaces the sheet buttons of G (finding 12): build G without them and J after G and I, because it uses the single row editor. K step 1 goes with G (the H1 start, the same top of the text); step 3 last. L after 0.16 and after the list blocks of H and I exist; split part A (a block reads an existing list) from part B (`New list`), A first. H can go with B and C (no decision). I only after G, since both change the same block files and the same migration, and after the owner has seen H. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
 
 ## Open questions for the owner
 
@@ -334,3 +370,7 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
 8. **Decision 4 (dotted line instead of a box) against decision 7 (more like the site):** keep the colour box for a coloured
    section as the site draws it, and use the dotted line only to mark where a section starts (sections with no colour, and
    as a boundary marker above each)? Recommended: yes. Alternative: dotted line only, and the colour shown on the site only.
+9. **"Sortable by tags": filter by tags (which entries show on a page), and is the order also by tag, or by hand and newest?**
+   Recommended: filter by tags, and the order by hand (drag in the list), as testimonials and prices do today.
+10. **May the owner-made list only use the fixed fields (icon, title, body text, picture, link, tags)?** Recommended: yes.
+    Free field types would turn this into a database builder; the fixed set covers rows, FAQ and the examples given.
