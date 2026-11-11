@@ -453,7 +453,7 @@ The table is a proposal by field name from `src/standard/*`; the exceptions belo
    text and a `Buttons` block in one text (`src/standard/hero/fields.ts`), which is what a section is. A section gets the
    banner's settings in its panel (bottom sheet on a phone), next to the colour it has today: a background picture and
    the width of the background. The owner types the heading and text in the section as normal text, and adds a Buttons
-   block inside it for buttons. A migration turns each Banner block into a section with those settings, so no page
+   block inside it for buttons. A section is the regular editor, so any block can go in it (owner, 11 November). A migration turns each Banner block into a section with those settings, so no page
    changes look. The text stays readable over a picture because the theme decides it, as on the site today.
 3. **Expandable list** rows have a page link that the three list blocks do not cover (finding 13). Proposed: it keeps
    its page link on each row, and the FAQ list takes a link too.
