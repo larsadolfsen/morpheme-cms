@@ -521,8 +521,9 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
 3. **Regroup the menu (Appearance out of Settings) in 0.17?** Recommended: yes, after 0.16, in one pass. Alternative: leave the menu.
 4. **May we rename `Dynamic lists`, `Block templates`, `Files` (and `Business`)?** Recommended: yes, but only when the screens
    have been opened and checked; the Danish names change with them.
-5. **Rename the status `Hidden` to `Unlisted`?** Recommended: yes (the words `Hidden on the page` and `Hide from search engines`
-   then mean something else). Changes the stored `unlisted` label only, not the value in files.
+5. **The status `Hidden` is renamed `Unlisted` (settled, owner, 11 November).** The words `Hidden on the page` and `Hide from
+   search engines` then mean something else. It changes the stored `unlisted` label only, not the value in files.
+   `CLAUDE.md` section 6 lists `Hidden` among the document status words, so that line is changed with the rename.
 6. **Only group the similar blocks in the picker, or also merge them into fewer blocks (`Rows`, `Questions`)?** Recommended:
    group first (batch H), look at it, then decide on the merge (batch I). The merge is larger and changes every theme.
 7. **Draw the page head (title, top picture, date, tags) in the text, and an optional frame with the site's header and footer?**
