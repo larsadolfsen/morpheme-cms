@@ -26,7 +26,7 @@ repeated as a question below.
 5. **The editor opens with H1 selected.** A new page opens with the cursor in the H1 line, empty, ready to type the title
    (today `firstHeadingHint` explains it after the fact). It replaces the first-run text hint of finding 6.
 
-6. **Edit blocks inline, not in a bottom sheet or side sheet.** A block's fields open where the block sits in the text.
+6. **Edit blocks inline; the panel holds settings only.** A block is drawn as the site shows it and its text is typed in place (a list row's top and bottom line). Settings (icon, picture, link) are in the side panel on desktop, open all the time while the cursor is in the block, and on a phone in a bottom sheet opened with the `Edit` button in the same menu as the text tools. Clicking out returns the block to its live look; an unset icon takes no space. There is no `+` under the rows: the floating menu has `Add above` and `Add below` for the active row.
    This replaces `2026-11-05-block-side-sheet-design.md` for block fields. _(Scope read as block fields only; short pickers such
    as page, link and colour stay sheets until the owner says otherwise.)_
 
@@ -36,6 +36,22 @@ repeated as a question below.
 8. **Lists are based on Material 3's two list types: Standard and Segmented.** The base list block has exactly these two
    designs (`theme/ui/List.tsx` already has both, `ListKind`). Other row blocks (Cards, Points, Steps and the rest) are
    decided against this base in finding 13. _(Read from the owner's "MD3 has two types, this is our base".)_
+
+9. **Three list blocks in `Insert`, ready-made and built on the base:** **List** (an optional icon or picture on the left;
+   a row with a link gets an arrow by itself), **Segmented list**, and **FAQ list** (rows that expand). The owner picks
+   one; there is no version to choose afterwards. This replaces the idea of one `Rows` block with a design choice.
+10. **A segmented list can end with an optional text button** (for example `See all` or `Book a time`), under the last row.
+    _(Owner, 11 November: yes for the Segmented list and the FAQ list. Read as: not on the plain List.)_
+    The page in the owner's screenshot is an expanding list in one rounded card with dividers and chevrons, with a text
+    button wanted under it.
+
+11. **Lists can show the content of dynamic lists.** A list block can take its rows from a dynamic list instead of typed
+    rows, and show them in its list style (finding 16).
+12. **The owner can create new lists.** A new list has fields the owner picks: an icon, a title, a body text (and, as the
+    owner's example, tags). The list blocks pull on these. Which entries show on which page is decided by tags.
+    Not a database builder (owner, 11 November): the owner picks a few fixed fields, for example an icon and two text
+    fields, adds items to the list, and a list block on a page shows some of them, for example 3 or 4, chosen by the tags
+    set on the items. _(Owner confirmed: tag filter and fixed fields.)_
 
 ## What was looked at
 
@@ -224,6 +240,11 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
      (`Numbered`, `With a check mark`, `With a picture`). Apps keep their own groups.
   2. **Build on the base (owner decision 8).** The list block has the two M3 types, Standard and Segmented, and starts as
      Standard. The other designs are either variants of it or separate blocks; which is open (question 6). Older text:
+  Owner decision 9 settles the shape: three ready-made blocks, List, Segmented list and FAQ list. **Steps is a special block (owner,
+  11 November) and stays as it is, not folded into List.** **Links fold into List (owner,
+  11 November):** a row with a link gets the arrow; the group headings of today's Links block are lost unless a row can be
+  a small heading (to decide when it is built). **Not covered yet:** the Expandable list's page link. Cards, Price cards,
+  Testimonials and Blog posts stay as they are. Older text:
   3. **Merge the rows (model change, owner's call).** One block `Rows` with a `Design` choice: Cards, List, Points, Steps,
      Checklist, Links; and one `Questions` block with a `Display` choice (open, or expanding). A migration maps each
      existing block to its design, so no page changes look or content. Fewer blocks to choose from, one set of row fields to
@@ -242,10 +263,33 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   time; opening another folds the first. There is no `Save`, `Cancel` or `Insert` of its own: a change is part of the page's
   form and is saved with the page's `Save`, and `Undo` in the text toolbar undoes it. A new block is added where the cursor is
   from `Insert` (the picker, still a sheet) and arrives open with its required fields marked.
+- **Owner's final shape (11 November):** supersedes the fold-out below. Text is typed in the drawn block; the side panel (desktop, always open while the block is active) or the bottom sheet (phone, `Edit` button in the text menu) holds only settings. The panel must keep the page's single save model (no `Save` or `Cancel` of its own).
+- **Active row:** a new list is added selected, with its first row active. Only the active row shows its empty fields (icon or picture slot, top line, bottom line, link), so the owner sees what can be filled in. The other rows show their live look. When the owner clicks out, empty fields disappear.
+- **Menu for a selected list:** while a list is selected, the floating menu shows `Add above` and `Add below` (and on a phone `Edit`). They add an empty row next to the active row, which becomes active. There is no `+` under the rows. Rows are sorted with `Move up` and `Move down` in the same menu, and on desktop also with a drag handle on the active row's left edge. On a phone the four row actions (`Add above`, `Add below`, `Move up`, `Move down`) sit under one `Row` menu beside `Edit`. `Add above`, `Add below`, `Move up` and `Move down` show only when the active row has content. While the list has no content, the menu shows a dynamic icon instead, which opens the panel on the dynamic settings (`Rows from`, tag filter, `How many`). Once a row has content the icon is gone: a list is typed by hand or pulled from a dynamic list, never both. A dynamic list drops the row actions and shows `Edit list` and a way back to typing rows by hand.
+- **One pattern for all blocks:** the list is the first case, not the exception. Every block is drawn as the site shows it, its text is typed in place, the floating text menu shows that block's actions while it is selected (a list: `Add above`, `Add below`, `Edit` on a phone), and its settings sit in the side panel on desktop or the bottom sheet on a phone. This replaces today's block cards and sheets. Open: whether the menu swaps its text tools for the block's actions or adds them.
 - **Rows:** a row is a nested fold-out inside the open block (heading, text, icon, page), with drag handles or Move up and down,
   and `Add row` at the end. This is where finding 13's single row model pays off: one row editor for all designs.
 - **Preview:** the card shows the block as the site draws it (`Preview`) above or beside its fields, so the owner sees the
   change while typing. Beside only when the text column is wide enough; below it above.
+- **Dynamic list on a page (owner's flow, 11 November):**
+  1. The owner adds a list and presses the dynamic icon in the floating menu.
+  2. The side panel turns into the dynamic settings; on a phone the bottom sheet opens with them.
+  3. The owner chooses which dynamic list the data is pulled from.
+  4. In the dynamic settings the owner can choose a tag to filter by (and `How many`).
+  5. The owner clicks a field in a row (top line, bottom line, icon or picture, link). A submenu opens on desktop, and a bottom sheet on a phone, with the fields of the chosen list, and the owner picks which one is shown there.
+  6. The block updates live on every change, so it always shows how it will look on the page.
+  The content of a dynamic list (its items and their fields) is edited only on the dynamic list's own page, never in the block. In the block the owner chooses which list, which tag and which field is shown where; the rows are not typed in place, so the row actions (`Add above`, `Add below`, `Move up`, `Move down`) do not apply to a dynamic block. `Edit list` on the block opens the list's page. A dynamic block has an option `Show all`. When the list has more matching items than `How many`, a text button under the last row (for example `Show all`) shows the rest.
+  **The dynamic list's own page:** under `Lists` in the menu the owner presses `New list` and names it, and picks its fields from Icon, Title, Body text, Picture, Link and Tags. The owner adds items, each with the chosen fields and its tags. Items are added, sorted and deleted on this page, and an item edited here changes on every page that shows the list. Removing a field keeps its data until the owner confirms.
+- **Design rules (UX and Material Design 3):**
+  1. A list pulled from a dynamic list shows its state on the block (`From Services · tag home · 3 items`) with `Edit list`, because its rows cannot be edited in place.
+  2. A block pulled from a dynamic list takes the word `Dynamic` in its name: `List` becomes `Dynamic list`, `Cards` becomes `Dynamic cards`. The picker has no separate dynamic entries and stays short; the dynamic icon in the floating menu is how an empty block becomes dynamic.
+  3. The dynamic icon is a shortcut. The panel always shows `Rows from`, and switching to dynamic drops typed rows, so it asks first or offers `Undo`.
+  4. Icon buttons have a tooltip and an accessible label (M3 icon button). Touch targets are 48 dp or larger, and the floating menu (M3 floating toolbar) never overflows above the keyboard: the row actions fold into one `Row` menu on a phone.
+  5. `Enter` in the bottom line adds a row below.
+  6. The layout stays stable when the active row changes: fixed line heights, and the empty slots appear with a short transition.
+  7. Only a completely empty row is dropped when the list is deselected (an icon or a link counts as content), and `Undo` brings it back.
+  8. Below `medium` the settings use the modal bottom sheet and from `medium` the standard side sheet, as today. A selected row and the focused item use M3 state layers and the focus ring.
+  9. A row follows the M3 list item: leading icon or picture, headline (top line), supporting text (bottom line), trailing arrow when the row has a link. The pill and the panel are reachable by keyboard, and the active row is announced to screen readers. `Move up` and `Move down` are the keyboard alternative to the drag handle.
 - **Cost and risk:** the editor loses the page-stays-usable side panel and gains long fold-outs for blocks with many rows. The
   fields are the editor's own (`fields.tsx`) and need no change; `BlockDialog.tsx`'s picker, section settings and
   `sheetPlacement.mjs` stay for their own steps. Needs a check on a phone at 375 px (keyboard, scroll to the open block) which
@@ -281,6 +325,35 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   site's header and footer inside the editor, which the theme's `editor/previews.tsx` already does for the header and footer
   screens. The demo and every theme must show the same page (`check:themes`, `check:demo`).
 
+### 16. Lists that pull from dynamic lists, and lists the owner creates
+
+- **Evidence, today:** the `Dynamic lists` screen (`#lists`) lists what `listsShown` in `src/site.ts` returns: the site's own
+  (`site.lists`, empty by default in `defaults/editor.ts`), the standard blocks' (`standardLists`: Testimonials, prices) and the
+  apps' (`listsOf`, from an app's `lists.ts`). All three are **defined in code**, with their fields. An owner cannot make
+  a list. `Tags` (`src/data/categories`, `collections.ts`) already exist and pages, posts and testimonials point to them
+  (`relation` with `to: 'categories'`); Testimonials already has `Which testimonials` (All, Buttons with tags, With tags, Marked
+  "Show on the front page", Selected). So filtering by tag exists for one block; the list blocks of finding 13 have only typed rows.
+- **Design, part A, a list block can use a list:** each of List, Segmented list and FAQ list gets a choice `Rows from`: `Typed
+  here` (today) or one of the site's lists. With a list chosen, the block maps the list's fields to the row: icon to the icon,
+  title to the heading, body text to the text, a link to the arrow. `Which rows`: all, those with chosen tags, or selected by
+  hand (the same choices as `Which testimonials`), and `How many` (all, or a number such as 3 or 4, in the list's order). The same list can be shown on many pages with different tags; one place
+  to edit the text.
+- **Design, part B, the owner creates lists:** `Dynamic lists` gets `New list`. The owner names it and chooses its fields from
+  a fixed set, each optional: `Icon`, `Title` (always), `Body text`, `Picture`, `Link`, `Tags`. The entries are files
+  like the other lists' (`src/data/<list>/<slug>.json`); the list's definition is a small file beside them, read by the editor and the build. This
+  is **new**: today a list's fields live in code, so the editor must learn collections whose fields come from a file.
+  A list the owner made cannot have a field the fixed set lacks (no free field types), so check:content and the build stay
+  simple. Deleting a list asks first, and refuses while a block uses it (as `blockSettings.stillOn` does).
+- **Tags:** the lists use the same `Tags` as pages and posts, with the same `Create a tag` shortcut, so one tag can mean
+  the same on a page, a post and a list entry. Pages show a list's entries by tag; the tag is the owner's way to say "this
+  entry belongs on this page".
+- **Touches 0.16:** the `Dynamic lists` screen and the app lists (`lists.ts`, contract 4 and 5) are in the same files as
+  0.16's store sections (roles). App lists stay as they are and appear in `Rows from` like the owner's. Build after 0.16.
+- **Cost and risk:** this is the largest change of the spec: a new kind of stored definition, a screen to make lists, a data
+  migration path (none needed for existing lists), and block rendering that reads entries at build time (the site is built from
+  files, so the entries must be there when the block is drawn, as testimonials are). The block's preview in the editor needs the
+  entries, as `siteOf` in `sitedata.ts` gives them for the others. Needs a design of the `New list` screen before a plan.
+
 ## Batches
 
 Each is one pull request into `main` (or `0.16` where marked), with a release note (`release-notes` skill) and, until
@@ -298,10 +371,11 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 | I | **Merge the row blocks:** step 2 of finding 13, with a migration (13) | `standard/*`, `theme/blocks/*`, every theme | no | Q6 |
 | J | **Inline block editing:** fields fold out in the text, no sheet for block fields, one open at a time (14) | `MarkdownEditor`, `BlockDialog`, `sheetPlacement.mjs`, `editor.css` | no | none |
 | K | **WYSIWYG page:** the page head drawn in place (step 1), then the frame toggle (step 3) (15) | `EntryForm`, `MarkdownEditor`, `titleH1.mjs`, `Screen`, theme `editor/previews.tsx` | no | Q7 |
+| L | **Lists from lists:** `Rows from` on the three list blocks, tags filter, then `New list` with the fixed field set (16) | `standard/list*`, `Library` (`Lists`), `site.ts`, `lib/` (list definitions), build | **yes**: `Dynamic lists`, app lists | none |
 | F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
 
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
-or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. J replaces the sheet buttons of G (finding 12): build G without them and J after G and I, because it uses the single row editor. K step 1 goes with G (the H1 start, the same top of the text); step 3 last. H can go with B and C (no decision). I only after G, since both change the same block files and the same migration, and after the owner has seen H. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
+or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. J replaces the sheet buttons of G (finding 12): build G without them and J after G and I, because it uses the single row editor. K step 1 goes with G (the H1 start, the same top of the text); step 3 last. L after 0.16 and after the list blocks of H and I exist; split part A (a block reads an existing list) from part B (`New list`), A first. H can go with B and C (no decision). I only after G, since both change the same block files and the same migration, and after the owner has seen H. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
 
 ## Open questions for the owner
 
