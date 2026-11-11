@@ -9,7 +9,8 @@
 import { useEffect, useState } from 'react';
 import { ArrowSquareOut } from '@phosphor-icons/react';
 import Screen from './Screen';
-import { EmptyNote, GroupTitle, LinkButton, MenuRow, ProblemNote, SupportingText, SwitchRow } from './ui';
+import { EmptyNote, GroupTitle, LinkButton, MenuRow, Notice, ProblemNote, SupportingText, SwitchRow } from './ui';
+import { DRAFTS } from '../lib/versions.mjs';
 import { ConflictError, type RepoFile } from './github';
 import type { Env } from './App';
 import { savedText } from './deploy';
@@ -34,6 +35,16 @@ import { siteT, t } from './i18n';
 
 export const CACHING_ROUTE = 'developer/caching';
 
+// The hint about skipping the build of a waiting version is closed for good in this browser.
+const HINT_KEY = 'editor-hint-skip-draft-builds';
+const hintClosed = () => {
+  try {
+    return localStorage.getItem(HINT_KEY) === 'closed';
+  } catch {
+    return false;
+  }
+};
+
 // "Location" when Cloudflare places the bucket (no jurisdiction).
 const AUTO = 'auto';
 
@@ -50,6 +61,17 @@ export default function Advanced({ env }: { env: Env }) {
   const [buildProblem, setBuildProblem] = useState('');
   const [problem, setProblem] = useState('');
   const [saving, setSaving] = useState(false);
+  // Shown once a change has been saved as a waiting version, until it is closed: the editor cannot tell whether the path is excluded.
+  const [hintOpen, setHintOpen] = useState(() => !hintClosed());
+  const closeHint = () => {
+    setHintOpen(false);
+    try {
+      localStorage.setItem(HINT_KEY, 'closed');
+    } catch {
+      // The hint comes back next time; nothing is lost.
+    }
+  };
+  const hasWaiting = env.files.some((f) => f.path.startsWith(`${DRAFTS}/`));
   useEffect(() => {
     planStatus().then(setPaid);
     env
@@ -204,6 +226,13 @@ export default function Advanced({ env }: { env: Env }) {
       </section>
       <section className="mb-8">
         <GroupTitle>{t.advanced.builds}</GroupTitle>
+        {hintOpen && hasWaiting && (
+          <div className="mb-4 px-4">
+            <Notice title={t.advanced.skipDraftBuildsTitle} onClose={closeHint}>
+              {t.advanced.skipDraftBuilds}
+            </Notice>
+          </div>
+        )}
         <div className="px-4">
           {buildProblem ? (
             <ProblemNote>{buildProblem}</ProblemNote>

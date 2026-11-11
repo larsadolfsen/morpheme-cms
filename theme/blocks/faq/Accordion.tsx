@@ -7,9 +7,9 @@
 // the text fades in as it opens. Reduced motion: no animation. `several`: any number of rows can be open at once. A row of
 // "Segmented list" can have an icon before its heading and a page after its text.
 import { useId } from 'react';
-import ArrowLink from '@theme/blocks/ArrowLink';
 import PageRow from '@theme/blocks/accordion/PageRow';
 import { Svg } from '@morphemecms/cms/src/icon';
+import { Link } from '@morphemecms/cms/src/standard/view';
 import type { AccordionRow } from '@morphemecms/cms/src/standard/faq/view';
 
 export default function Accordion({ rows, group, several }: { rows: AccordionRow[]; group?: string; several?: boolean }) {
@@ -27,7 +27,14 @@ export default function Accordion({ rows, group, several }: { rows: AccordionRow
             {'html' in row ? (
               <>
                 {row.html && <div className="block-accordion-answer" dangerouslySetInnerHTML={{ __html: row.html }} />}
-                {row.href && row.link && <ArrowLink href={row.href} label={row.link} className="block-accordion-link" />}
+                {row.href && row.link && (
+                  <div className="block-row-links">
+                    <Link href={row.href} className="block-link block-row-link">
+                      {row.link}
+                      <Svg name="arrow-right" size={18} />
+                    </Link>
+                  </div>
+                )}
               </>
             ) : (
               <PageRow {...row.page} />

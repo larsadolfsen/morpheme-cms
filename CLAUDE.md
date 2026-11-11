@@ -197,5 +197,5 @@ All wording in UI components, buttons and fields follows the specific guidelines
 - **Universal terms:** No local abbreviations or unexplained national concepts.
 - **M3 canonical terminology:**
   - Toggles and states: `Enabled` / `Disabled`, `On` / `Off` (their Danish labels are in the `da-DK` language files).
-  - Document status: `Draft`, `Published`, `Scheduled`, `Hidden`.
+  - Document status: `Draft`, `Published`. A page is scheduled with a date on `Publish` (`Schedule`); `Hidden` is the SEO setting `Hide from search engines`.
   - Action buttons: Active verbs without filler words (`Add tag`, `Edit page`, `Save`).

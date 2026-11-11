@@ -341,9 +341,6 @@
     flex-shrink: 0;
     color: var(--block-muted);
   }
-  .block-accordion-link {
-    margin-top: 0.75rem;
-  }
   /* The text button under the last row of "Segmented list" and "FAQ list" (ListButton.tsx). */
   .block-list-button {
     margin-top: 0.5rem;
