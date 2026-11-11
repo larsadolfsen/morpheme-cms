@@ -57,6 +57,6 @@ export const text = {
   hideOnPage: 'Hide on the page',
   /** Shown in an empty line of the text, under the pointer or the cursor. */
   typeHere: 'Write text here…',
-  /** A message when a new page opens (its first few times, EntryForm.tsx): its first heading is the page's H1 (firstHeading.mjs),
-   * and its title while the two are the same (titleH1.mjs). */
+  /** On an empty page, under the text (editor.css, --editor-empty-text). */
+  emptyHint: 'Type text, or tap Insert to add a block.',
 };

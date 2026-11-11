@@ -1494,7 +1494,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       <div
         ref={root}
         className={`editor-text prose max-w-none px-5 py-4 medium:px-8 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
-        style={{ '--editor-gap-text': JSON.stringify(t.text.typeHere) } as CSSProperties}
+        style={
+          { '--editor-gap-text': JSON.stringify(t.text.typeHere), '--editor-empty-text': JSON.stringify(t.text.emptyHint) } as CSSProperties
+        }
       />
     </div>
   );

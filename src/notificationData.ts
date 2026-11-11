@@ -16,7 +16,8 @@
 // apps' notifications already told. The key of a notification and the deletion by keys are in notificationKeys.mjs (tested).
 import { useSyncExternalStore } from 'react';
 import { siteName } from '@site/editor';
-import { locale } from './i18n';
+import { locale, t } from './i18n';
+import { ask } from './ask';
 import { notificationKey, withoutKeys } from './notificationKeys.mjs';
 
 export const EDITOR_TYPES = ['site', 'saved', 'failed', 'updates'] as const;
@@ -202,9 +203,19 @@ export function stopServerWait() {
 
 // Asks whether the editor may show notifications on the phone, once, while "On the phone" is not chosen yet.
 // Browsers only ask after a tap, so this is called from "Save".
-export function askToNotify() {
-  if (choices.device === undefined && typeof Notification !== 'undefined' && Notification.permission === 'default')
-    setDevice(true).catch(() => {});
+// The editor's own sentence comes first (ask.tsx), so the browser's prompt is not the first thing said; "Not now" is kept as
+// "Off", so it is not asked again (Account › Notifications turns it on).
+let asking = false;
+export async function askToNotify() {
+  if (asking || choices.device !== undefined || typeof Notification === 'undefined' || Notification.permission !== 'default') return;
+  asking = true;
+  try {
+    if (await ask(t.app.askNotify, t.app.askNotifyYes)) await setDevice(true);
+    else choose({ ...choices, device: false });
+  } catch {
+  } finally {
+    asking = false;
+  }
 }
 
 // The message as a notification on the phone or computer (through the service worker, packages/editor/pages/editor/sw.js), when

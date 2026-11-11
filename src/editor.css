@@ -1014,6 +1014,28 @@ html {
   }
 }
 
+/* A page with no text and no block yet: one line says what to do (the Insert button is in the toolbar). */
+/* A page that opens on its H1 has the heading first, so the empty line after it counts too. */
+.editor-spaced .ProseMirror > p:only-child:has(> br:only-child)::before,
+.editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child:has(> br:only-child)::before {
+  content: var(--editor-empty-text);
+  position: absolute;
+  color: var(--mo-on-surface-variant);
+  pointer-events: none;
+}
+
+/* A page that has only its H1 (the editor adds no empty line after it): the hint sits under the heading. */
+.editor-spaced .ProseMirror > h1:only-child::after {
+  content: var(--editor-empty-text);
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 400;
+  color: var(--mo-on-surface-variant);
+  pointer-events: none;
+}
+
 /* While a sheet or a dialog is open (shown modally, showModal), the page under it does not scroll (only the sheet does).
    Not a <dialog> drawn open in the page, like the search view on "Dele › Tema" (NavigationRestParts.tsx). */
 html:has(dialog:modal) {
