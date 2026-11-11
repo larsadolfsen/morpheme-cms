@@ -381,10 +381,10 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   accent colour. `Inverted` (the inverse surface colours) was left out; it can be added later as a colour of Filled. The
   old `Design` (Text, Icon, Image) and `Background` settings go away, and so does a layout choice: all cards are
   vertical for now, and horizontal can be added later.
-- **Filled card colours:** the owner picks from named colours of the theme (for example Surface, Primary, Secondary and
-  Tertiary containers in Material), chosen from the colour roles every theme has, so a Filled card works in every theme
-  and the text on it stays readable. Open: which colours, and whether it is the page's colour picker or a short list
-  (to decide with the owner).
+- **Filled card colours (owner, 11 November):** a short list of the theme's named colours (for example Surface, Primary,
+  Secondary and Tertiary containers in Material), chosen from the colour roles every theme has, so a Filled card works
+  in every theme and the text on it stays readable. To begin with it is only this short list; the page's full colour
+  picker can be added later. The exact colours in the list are the theme's to name, and are set when it is built.
 - **Every card works in every theme (owner, 11 November, our philosophy):** the set of designs is fixed and every theme
   must style all of them, so a card never lacks a design when the theme changes and no fallback is needed. The theme
   decides how each design looks: its colours, borders, shadow, corner radius and button widths. A colour such as
