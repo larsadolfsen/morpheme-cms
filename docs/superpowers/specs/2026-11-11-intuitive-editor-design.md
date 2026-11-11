@@ -533,7 +533,9 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    draft as it is today (`status: draft`). **Autosave is added when `Faster editor` is on** (`Settings › Caching and builds`,
    the R2 cache, `worker/files.js`): the Worker keeps the draft current in R2 as the owner types, with no commit and no
    build. Without `Faster editor` there is no autosave, and the status shows `Not saved` until the owner presses `Save`.
-   Open: when the draft in R2 is written to git (when the owner pauses, leaves the page, or presses `Save`).
+   The draft in R2 is written to git when the owner pauses typing (owner, 11 November; the length of
+   the pause is set when it is built, for example half a minute). Each such commit starts a site build, though the finished
+   site does not change; whether the drafts folder is kept out of Cloudflare's build watch paths to avoid that is open.
 3. **Regroup the menu (Appearance out of Settings) in 0.17?** Recommended: yes, after 0.16, in one pass. Alternative: leave the menu.
 4. **May we rename `Dynamic lists`, `Block templates`, `Files` (and `Business`)?** Recommended: yes, but only when the screens
    have been opened and checked; the Danish names change with them.
