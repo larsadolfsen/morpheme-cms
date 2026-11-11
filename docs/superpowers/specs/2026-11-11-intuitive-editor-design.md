@@ -54,8 +54,8 @@ repeated as a question below.
     set on the items. _(Owner confirmed: tag filter and fixed fields.)_
 13. **One Card block with four predefined designs; Price cards and Testimonials stay special** (owner, 11 November).
     Card has the same fields as a list row plus a few card fields, shows only the fields that have content, and has one
-    setting, `Design`. The theme decides which designs there are and how each looks; Material has Outlined, Filled,
-    Elevated and Accent (finding 17).
+    setting, `Design`: Outlined, Filled, Elevated or Accent. Every theme styles all four, so every card works in every
+    theme, and the theme decides how each looks (finding 17).
     The top of every card is one `Media` field (Icon, Image or Video); the first card sets it for the others.
 14. **The next list row or card is always shown, empty and ready to edit** (owner, 11 November), for lists and cards. It
     sits after the last item, drawn faded; clicking it starts a new item. It does not replace `Add above` and `Add below`,
@@ -374,16 +374,15 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
 - **Fields (owner, 11 November):** Icon or picture or video (one `Media` field), Title, Subhead, Body text, Link, Buttons,
   Badge, Date and Tags. Only fields with content show, as in a list row. **Price and Quote are not card fields:** Price
   cards and Testimonials stay their own blocks.
-- **Design:** one setting, `Design`, whose choices come from the theme. **Material** has four predefined designs:
-  **Outlined** (a border), **Filled** (a tonal colour), **Elevated** (raised) and **Accent** (Material's
+- **Design:** one setting, `Design`, with four predefined designs, the same in every theme: **Outlined** (a border), **Filled** (a tonal colour), **Elevated** (raised) and **Accent** (Material's
   `primary-container` colours). Accent replaces today's accent background, so existing sites keep their look. `Inverted`
-  (the inverse surface colours) was left out; a theme can add it. The old `Design` (Text, Icon, Image) and `Background`
+  (the inverse surface colours) was left out; it can be added later as a fifth design that every theme then styles. The old `Design` (Text, Icon, Image) and `Background`
   settings go away, and so does a layout choice: all cards are vertical for now, and horizontal can be added later.
-- **The theme decides the designs (owner, 11 November):** the theme decides both how a card looks and which designs the
-  owner can choose from, so the list may have more or fewer than four and other names. Accent on `primary-container` is
-  right for Material and may not be right for another theme. The editor reads the list from the theme, like other theme
-  choices, and a theme that changes it must still pass `check:themes`. Open: which design a card gets when a page's
-  design is not in the theme it is switched to (the first design, or the closest by kind).
+- **Every card works in every theme (owner, 11 November, our philosophy):** the set of designs is fixed and every theme
+  must style all of them, so a card never lacks a design when the theme changes and no fallback is needed. The theme
+  decides how each design looks: its colours, borders, shadow, corner radius and button widths. Accent on
+  `primary-container` is right for Material; another theme draws Accent in its own way. The theme's styling is applied to
+  the card, never stored in it. A theme that leaves a design unstyled fails `check:themes`.
 - **Media field:** the top of a card is one `Media` field, with the choice Icon, Image or Video, like the icon field of a
   list. The first card's choice sets the type for every card in the block, so they stay aligned; there is no block setting
   for it. It shows only if it has content. There is no placeholder on the site (owner, 11 November): a card without media in a
