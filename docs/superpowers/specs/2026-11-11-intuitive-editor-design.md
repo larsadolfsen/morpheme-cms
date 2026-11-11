@@ -26,6 +26,10 @@ repeated as a question below.
 5. **The editor opens with H1 selected.** A new page opens with the cursor in the H1 line, empty, ready to type the title
    (today `firstHeadingHint` explains it after the fact). It replaces the first-run text hint of finding 6.
 
+6. **Edit blocks inline, not in a bottom sheet or side sheet.** A block's fields open where the block sits in the text.
+   This replaces `2026-11-05-block-side-sheet-design.md` for block fields. _(Scope read as block fields only; short pickers such
+   as page, link and colour stay sheets until the owner says otherwise.)_
+
 ## What was looked at
 
 - **Code and texts:** `src/i18n/en-US/` (`common`, `app`, `library`, `forms`, `parts`, `media`, `text`, `blocks`,
@@ -184,7 +188,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   closed changed asks `Do you want to keep them?` (`app.unsavedSheet`).
 - **Likely hesitation:** `Save` in the sheet is not `Save` of the page: the sheet's button keeps the change in the form, the
   page's button writes to the site, both are called Save. The card's `Edit` is one tap more than tapping the card.
-- **Fix:** the sheet's confirm button reads `Done` (an edited block) or `Add block` (a new one), and the page's stays `Save`.
+- **Fix:** superseded by finding 14 (inline editing), which removes the sheet for block fields. If it is not built, the fallback is: the sheet's confirm button reads `Done` (an edited block) or `Add block` (a new one), and the page's stays `Save`.
   The whole card opens the sheet (keep `Edit` as the accessible name). With decision 3 most blocks have only their rows, so
   the sheet is shorter and can open at its full height on a phone.
   The picker's `Insert` list keeps its search, order and group filter (`BlockDialog.tsx`), but shows a one-line hint and a
@@ -217,6 +221,29 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
      learn and one block sheet. The cost: a theme draws each design today (`theme/blocks/*`), so the merge touches every theme
      and the demo, and `check:themes` must pass.
 
+### 14. Edit a block inline
+
+- **Evidence:** block fields open in a modal side sheet below `medium` and a standard side sheet from it
+  (`sheetPlacement.mjs`, `BlockDialog.tsx`); the page is narrowed beside it (`[data-side-panel]`, `.editor-side-sheet` in
+  `editor.css`). The sheet has its own `Save`/`Insert`/`Cancel`/`Remove` and its own unsaved question (`app.unsavedSheet`),
+  a second save model beside the page's (finding 12). The owner chose the side sheet on 5 November
+  (`2026-11-05-block-side-sheet-design.md`) after full-screen fields, and on 11 November chose inline editing.
+- **Design:** tapping a block's card folds its fields out under the card, in the text, with the card's own header (name of the
+  block, Remove, Hide on the page, Move up/down) above and the rest of the text pushed down. Only one block is open at a
+  time; opening another folds the first. There is no `Save`, `Cancel` or `Insert` of its own: a change is part of the page's
+  form and is saved with the page's `Save`, and `Undo` in the text toolbar undoes it. A new block is added where the cursor is
+  from `Insert` (the picker, still a sheet) and arrives open with its required fields marked.
+- **Rows:** a row is a nested fold-out inside the open block (heading, text, icon, page), with drag handles or Move up and down,
+  and `Add row` at the end. This is where finding 13's single row model pays off: one row editor for all designs.
+- **Preview:** the card shows the block as the site draws it (`Preview`) above or beside its fields, so the owner sees the
+  change while typing. Beside only when the text column is wide enough; below it above.
+- **Cost and risk:** the editor loses the page-stays-usable side panel and gains long fold-outs for blocks with many rows. The
+  fields are the editor's own (`fields.tsx`) and need no change; `BlockDialog.tsx`'s picker, section settings and
+  `sheetPlacement.mjs` stay for their own steps. Needs a check on a phone at 375 px (keyboard, scroll to the open block) which
+  this spec could not make.
+- **Not changed:** the pickers (page, link, colour, country code), Preview, Earlier versions, Notifications and widget
+  settings keep their sheets. Whether they follow is a later decision.
+
 ## Batches
 
 Each is one pull request into `main` (or `0.16` where marked), with a release note (`release-notes` skill) and, until
@@ -232,10 +259,11 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 | G | **Text and blocks:** `Body large` and `Label` styles, dotted H2 line, editor opens on H1, blocks lose their head fields with a migration, sheet buttons (10, 11, 12) | `MarkdownEditor`, `BlockDialog`, `standard/*`, `theme/blocks/*`, `lib/section-marker.mjs` | no | none |
 | H | **Group similar blocks:** step 1 of finding 13, headings in the `Insert` picker and sharper hints (13) | `BlockDialog`, `blocks.ts` texts, `da-DK` | no | none |
 | I | **Merge the row blocks:** step 2 of finding 13, with a migration (13) | `standard/*`, `theme/blocks/*`, every theme | no | Q6 |
+| J | **Inline block editing:** fields fold out in the text, no sheet for block fields, one open at a time (14) | `MarkdownEditor`, `BlockDialog`, `sheetPlacement.mjs`, `editor.css` | no | none |
 | F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
 
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
-or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. H can go with B and C (no decision). I only after G, since both change the same block files and the same migration, and after the owner has seen H. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
+or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. J replaces the sheet buttons of G (finding 12): build G without them and J after G and I, because it uses the single row editor. H can go with B and C (no decision). I only after G, since both change the same block files and the same migration, and after the owner has seen H. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
 
 ## Open questions for the owner
 
