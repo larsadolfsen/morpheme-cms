@@ -1,5 +1,5 @@
 {
   "id": "css-variables-mo-prefix",
   "kind": "line",
-  "text": "Egne typografier, der bruger temaets farver, former og højder, skal skifte til de nye navne, som starter med --mo-"
+  "text": "En hjemmesides egen CSS, der bruger temaets farver, former og højder, skal skifte til de nye variabelnavne, som starter med --mo-"
 }
