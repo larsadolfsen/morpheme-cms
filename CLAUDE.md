@@ -35,6 +35,8 @@ One session is the owner's project manager (PM). It is responsible for merging p
 nothing being left behind. The owner has handed it these decisions, so it does not ask the owner for permission to do
 work that is already assigned.
 
+A session becomes the PM with the `pm` skill (`/pm <version>`, `.claude/skills/pm/SKILL.md`), and the PM never codes: every change goes to a new session.
+
 **There is always a PM.** The owner always has a PM session running that handles merges; it is never left without one.
 Every other session opens its pull request, gets its `check` job green, reports the link and head sha to the PM and
 leaves the merge to it. A session never merges its own pull request, and never asks the owner to merge one. If a pull
