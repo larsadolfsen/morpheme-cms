@@ -419,6 +419,41 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   keeps its own width (its text and padding) and the buttons wrap onto the next line when they do not fit; another theme
   may decide otherwise, for example equal-width buttons.
 
+### 18. Every block follows the same pattern
+
+The owner asked (11 November) for the blocks to be standardised on the list and card pattern without going through each
+one. The pattern: the block is drawn as the site shows it; its text is typed in place; what is empty shows only on the
+active row, card or button; the next one is always shown empty and faded; the menu is context aware (finding 14); and
+settings sit in the side panel on desktop and the bottom sheet on a phone. A block loses its own head fields (decision 3).
+The table is a proposal by field name from `src/standard/*`; the exceptions below it are for the owner.
+
+| Block | Typed in place | Settings in the panel | Follows the pattern |
+| ----- | -------------- | --------------------- | ------------------- |
+| List, Segmented list, FAQ list, Card | rows or cards (title, text, answer) | media, link, buttons, design | yes, finding 14 and 17 |
+| Steps | rows (title, text), numbered | none | yes, rows |
+| Checklist | rows (one line, a check mark) | none | yes, rows (exception 1) |
+| Buttons | each button's label | target, kind, icon | yes, buttons are the rows |
+| Notice | the text, in its box | colour, `until` date | yes, one text field |
+| Video | the title | the video address | yes, the player is drawn, empty shows an empty frame |
+| Banner (hero) | the text, over the picture | picture, placement, width | yes (exception 2) |
+| Expandable list | rows (heading, text) and the closing link | each row's page | yes, rows (exception 3) |
+| Price cards | name, price, unit, text, the included list | featured, badge, button targets | yes, cards with a nested list of rows (the included items) and card buttons |
+| Testimonials | none: filled from the site's content | layout, which ones | always dynamic (exception 4) |
+| Blog posts | none: a dynamic Card | which posts, how many, order | the dynamic Card (finding 17) |
+| Cookies | none: filled from the site's data | category | not typed in place |
+| Links, Points with icon | folded into List (decisions 8 and 9) | | |
+
+**Exceptions to settle with the owner:**
+
+1. **Checklist** is a list of single lines with a check mark. It could stay its own block, or be a List whose rows have no
+   body text and a check as the leading icon (one block fewer). Proposed: fold it into List.
+2. **Banner** puts text over a picture, so the text must stay readable whatever the picture is. In place, the owner types
+   on the drawn banner; the theme keeps the text readable (a scrim), as it does on the site today. Proposed: as in the table.
+3. **Expandable list** rows have a page link that the three list blocks do not cover (finding 13). Proposed: it keeps
+   its page link on each row, and the FAQ list takes a link too.
+4. **Testimonials** and **Cookies** have no typed content, so they have nothing to edit in place: the block is a drawn
+   preview with settings in the panel, and `Edit testimonials` opens their own list, as `Edit list` does for a dynamic list.
+
 ## Batches
 
 Each is one pull request into `main` (or `0.16` where marked), with a release note (`release-notes` skill) and, until
