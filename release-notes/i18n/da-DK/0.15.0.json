@@ -5,8 +5,8 @@
     {
       "id": "app-contract-4",
       "kind": "card",
-      "title": "Apps kører afgrænset",
-      "text": "Når hjemmesiden opdateres, kører hver app nu afgrænset og læser kun de data, den har bedt om. Åbn en app, og se under Rettigheder, hvor den kører, og hvor meget adgang den har. Går noget galt, skriver appens side, hvad der skete."
+      "title": "Tilføj apps uden at sætte hjemmesiden på spil",
+      "text": "Hver app kører nu afgrænset og læser kun de data, den har bedt om. Åbn en app, og se under Rettigheder, hvor den kører, og hvor meget adgang den har."
     },
     {
       "id": "css-variables-mo-prefix",
