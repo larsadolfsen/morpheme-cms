@@ -1,6 +1,6 @@
 # AGENTS.md – Architecture Framework & Collaboration Model
 
-This document defines the overall architecture, scope, roles and workflows for all AI agents that work in this repository.
+This document defines the overall architecture, scope, roles and workflows for all AI agents that work in this repository. The rules every session follows are in `CLAUDE.md`; this file refers to it.
 
 ---
 

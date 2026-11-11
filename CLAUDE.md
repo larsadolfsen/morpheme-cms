@@ -6,7 +6,7 @@ every Claude session here, whatever the task.
 ## README files are for humans
 
 A `README.md` is written for people. No agent reads one for rules, and no rule lives in one: the rules for agents are in
-`CLAUDE.md` and `AGENTS.md`.
+`CLAUDE.md`, and `AGENTS.md` refers to it.
 
 ## Reports to the owner are short
 
