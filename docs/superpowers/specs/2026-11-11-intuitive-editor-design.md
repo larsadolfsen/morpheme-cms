@@ -271,6 +271,15 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   and `Add row` at the end. This is where finding 13's single row model pays off: one row editor for all designs.
 - **Preview:** the card shows the block as the site draws it (`Preview`) above or beside its fields, so the owner sees the
   change while typing. Beside only when the text column is wide enough; below it above.
+- **Design rules (UX and Material Design 3):**
+  1. A list pulled from a dynamic list shows its state on the block (`From Services · tag home · 3 items`) with `Edit list`, because its rows cannot be edited in place.
+  2. The dynamic icon is a shortcut. The panel always shows `Rows from`, and switching to dynamic drops typed rows, so it asks first or offers `Undo`.
+  3. Icon buttons have a tooltip and an accessible label (M3 icon button). Touch targets are 48 dp or larger, and the floating menu (M3 floating toolbar) never overflows above the keyboard: the row actions fold into one `Row` menu on a phone.
+  4. `Enter` in the bottom line adds a row below.
+  5. The layout stays stable when the active row changes: fixed line heights, and the empty slots appear with a short transition.
+  6. Only a completely empty row is dropped when the list is deselected (an icon or a link counts as content), and `Undo` brings it back.
+  7. Below `medium` the settings use the modal bottom sheet and from `medium` the standard side sheet, as today. A selected row and the focused item use M3 state layers and the focus ring.
+  8. A row follows the M3 list item: leading icon or picture, headline (top line), supporting text (bottom line), trailing arrow when the row has a link. The pill and the panel are reachable by keyboard, and the active row is announced to screen readers. `Move up` and `Move down` are the keyboard alternative to the drag handle.
 - **Cost and risk:** the editor loses the page-stays-usable side panel and gains long fold-outs for blocks with many rows. The
   fields are the editor's own (`fields.tsx`) and need no change; `BlockDialog.tsx`'s picker, section settings and
   `sheetPlacement.mjs` stay for their own steps. Needs a check on a phone at 375 px (keyboard, scroll to the open block) which
