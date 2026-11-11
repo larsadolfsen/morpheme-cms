@@ -414,8 +414,18 @@ test('Allow needs the same browser and the same address: no cookie, another cook
   assert.equal((await allow({}, id)).status, 403);
   assert.equal((await allow({ cookie: 'mcp_consent=other' }, id)).status, 403);
   assert.equal((await allow({ cookie: `mcp_consent=${id}`, 'sec-fetch-site': 'cross-site' }, id)).status, 403);
+  assert.equal((await allow({ cookie: `mcp_consent=${id}`, 'sec-fetch-site': 'cross-site', origin: 'https://evil.example' }, id)).status, 403);
   assert.equal((await oauth.handleMcpOAuth(new Request(`${ORIGIN}/oauth/mcp/consent`), env, ask)).status, 405);
   assert.ok(jar);
+  // An in-app browser may send same-site or no Sec-Fetch-Site: the matching Origin is enough.
+  const ok = await allow({ cookie: `mcp_consent=${id}`, 'sec-fetch-site': 'same-site', origin: ORIGIN }, id);
+  assert.equal(ok.status, 302);
+});
+
+test('the consent cookie is Lax, so it survives the redirect chain from GitHub', async () => {
+  const env = fresh();
+  const { back } = await connect(env);
+  assert.match(back.headers.get('set-cookie'), /mcp_consent=[^;]+;.*SameSite=Lax/i);
 });
 
 test('Allow keeps the connection, seals the GitHub token and gives a code once', async () => {

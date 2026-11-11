@@ -255,7 +255,7 @@ export async function handleMcpCallback(request, url, env, ask = fetch) {
 <button class="allow" name="decision" value="allow">${escapeHtml(t('Allow'))}</button><button name="decision" value="deny">${escapeHtml(t('Cancel'))}</button></form>`;
   return page(t('Connect {assistant}?', { assistant: client?.name ?? 'Assistant' }), body, 200, [
     ...clear,
-    cookie(CONSENT_COOKIE, id, '/oauth/mcp/', 600, 'Strict'),
+    cookie(CONSENT_COOKIE, id, '/oauth/mcp/', 600, 'Lax'),
   ]);
 }
 
@@ -263,17 +263,19 @@ export async function handleMcpCallback(request, url, env, ask = fetch) {
 async function consent(request, url, env, ask) {
   const site = request.headers.get('sec-fetch-site');
   const origin = request.headers.get('origin');
-  if (site ? site !== 'same-origin' : origin !== url.origin) return problemPage(t('This must be done on the consent page.'), 403);
+  // Same-origin by the browser's own header, or by a matching Origin (some in-app browsers send another or no Sec-Fetch-Site).
+  if (site !== 'same-origin' && origin !== url.origin) return problemPage(t('This must be done from the consent page of this site.'), 403);
   const form = await request.formData().catch(() => null);
   const id = form?.get('pending');
-  if (typeof id !== 'string' || !id || id !== cookieOf(request, CONSENT_COOKIE))
-    return problemPage(t('This must be done on the consent page.'), 403);
+  if (typeof id !== 'string' || !id) return problemPage(t('The consent page sent no request to answer.'), 403);
+  if (id !== cookieOf(request, CONSENT_COOKIE))
+    return problemPage(t('This browser did not keep the sign-in. Connect it again from the assistant.'), 403);
   const db = await store(env);
   const pending = await db.pending(id);
   const client = pending && (await db.client(pending.clientId));
   if (!pending?.userId || !pending.token || !client)
     return problemPage(`${t('Login failed (invalid or expired request).')} ${t('Connect it again from the assistant.')}`, 400);
-  const clear = [cookie(CONSENT_COOKIE, '', '/oauth/mcp/', 0, 'Strict')];
+  const clear = [cookie(CONSENT_COOKIE, '', '/oauth/mcp/', 0, 'Lax')];
   await db.dropPending(id);
   if (form.get('decision') !== 'allow') {
     await revokeGitHubToken(env, pending.token, ask);
