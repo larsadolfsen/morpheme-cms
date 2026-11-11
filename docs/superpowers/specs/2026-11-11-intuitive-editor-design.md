@@ -574,6 +574,47 @@ exit is one that still leaves a valid `dist/`, which means building anyway and s
 fallback rule (a diff that holds only that folder counts as content). Open: whether the Deploy to Cloudflare button can
 preset watch paths; if not, test the fallback's build time on `morpheme-staging`.
 
+## Spike S1b: can a site get the drafts watch path without a manual step? (follow-up to S1, decides batch 12's fallback)
+
+**Answer: not through the starter, and only through a new owner step through the API. Plan on the fallback, and keep the dashboard line as an optional speed-up.** Read in the Cloudflare docs on 11 November 2026; nothing was called live.
+
+1. **Preset by the button or the starter: no.** The Deploy to Cloudflare button clones the repository, provisions bindings and
+   connects Workers Builds, but its docs list no build setting that the repository can preset; the only `package.json`
+   hook is `cloudflare.bindings` (descriptions for secrets). Watch paths live in the build trigger (`path_includes`,
+   `path_excludes`), not in `wrangler.jsonc`, and the Workers Builds docs say it does not honor the `build` block there.
+   So `starter/wrangler.jsonc` and `package.json` cannot carry them.
+2. **API: yes, but not from the site as it is.** `PATCH /accounts/{account_id}/builds/workers/{worker_tag}` takes
+   `production_settings.path_excludes` (send only the changed field). It needs a **user-scoped** API token with *Workers
+   Builds Configuration: Edit* (and *Workers Scripts: Read* to find the `worker_tag`); account-scoped tokens are
+   refused. The build's own token and the site's `CLOUDFLARE_R2_TOKEN` (R2 and Billing read, `worker/r2-status.js`) do
+   not have it, and a user token is broader than anything the Worker holds today. The editor's Connect flow is GitHub
+   only. Wrangler has no command for it. Setting it from the editor would mean a second owner-made secret, which is
+   the same manual step in another place, with more risk.
+3. **Fallback, cheapest first.**
+   - **Lane (already in S1 and `lib/build-lane.mjs`).** `src/drafts/` is in `CONTENT_PATHS`, so a drafts-only save takes
+     the content lane: editor checks, then the normal build and deploy. No code change, correct, but every autosave
+     costs a build and, as the docs say, only the newest queued build runs, so bursts collapse. An early `exit 0` stays
+     off the table (S1: the deploy still runs against a missing `dist/`).
+   - **Drafts on an unbuilt branch** (for example `drafts`): a push to a branch other than production runs the Preview
+     command (`wrangler preview`) when Previews are on, and starter sets `"previews": {}`, so it still builds; it would
+     need Previews off per site (dashboard again) or a branch the build never sees. It also splits history and
+     makes Publish a cross-branch merge. Not recommended.
+   - **R2 for sites with Faster editor** (`FILES`): no git commit, no build, instant. Only some sites have R2, so drafts
+     would live in two places and need their own copy and backup rules. Good as a later extra, not as the default.
+
+**Recommendation.**
+
+- Ship batch 12 with the lane as the default: drafts in `src/drafts/`, no `ci-build` change, no new secret.
+  Trade-off: a build per draft save for a site without the watch path.
+- Keep the one README line (*Build watch paths* › *Exclude paths* › `src/drafts/**`) as an optional speed-up and
+  have the editor show it once, in **Settings** › **Developer** › **Caching and builds**, when a draft save has built
+  the site: "Skip builds for waiting versions" with the steps. The editor cannot tell whether the path is set, so
+  show it with a dismiss.
+- Starter: no change except the README line. Editor: that hint and the Danish text. Do not ask for a Cloudflare user
+  token.
+- Check on `morpheme-staging`: time a drafts-only push through the content lane (expected: checks plus build, like any
+  content save), then set the watch path and confirm no build starts.
+
 ## Spike S4: can an app add versions to a page? (decides the later versions app, not 0.17)
 
 **Answer: not with contract 4 or 5 as they are, but the later app is possible and needs only one new editor place, an
