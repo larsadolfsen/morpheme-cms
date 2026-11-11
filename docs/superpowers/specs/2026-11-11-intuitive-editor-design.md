@@ -504,6 +504,51 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
 or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. J replaces the sheet buttons of G (finding 12): build G without them and J after G and I, because it uses the single row editor. K step 1 goes with G (the H1 start, the same top of the text); step 3 last. L after 0.16 and after the list blocks of H and I exist; split part A (a block reads an existing list) from part B (`New list`), A first. H can go with B and C (no decision). I only after G, since both change the same block files and the same migration, and after the owner has seen H. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
 
+## Spike S1: the deploy step when `ci-build` ends early (decides drafts, finding 1 and question 2)
+
+**Question.** Drafts live in git and must not rebuild the site on every autosave. What does Cloudflare do when `ci-build`
+(`scripts/ci-build.mjs`) exits 0 early, or non-zero?
+
+**What the repo does today.** A site's `wrangler.jsonc` has `build.command: "npx morpheme ci-build"`
+(`starter/wrangler.jsonc`). `ci-build` picks the content or full lane, runs the checks, then always `npm run build`. It
+exits non-zero on the first failed step and has no early exit with status 0. `lib/build-lane.mjs` treats an empty diff
+as the full lane and any file outside `src/content/`, `src/data/` and `public/images/uploads/` as code.
+
+**What Cloudflare documents** (Workers Builds docs, read 11 November 2026):
+
+- A build runs the build command and then the deploy command (default `npx wrangler deploy`; other branches run the
+  Preview command, default `npx wrangler preview`). The build's result is the exit code of these commands.
+- Pages states the rule for exit codes outright: any non-zero code marks the build failed, and 0 marks it successful.
+  The Workers Builds pages do not repeat it, but their troubleshooting page lists failed builds only as errors of the
+  commands. The live site keeps serving its last deployment when a build fails (the check run is red).
+- Workers Builds has **Build watch paths** (include and exclude paths, in the dashboard). A push whose changed files are
+  all excluded starts no build and gets no check run or commit status.
+- Cloudflare skips a queued build when a newer build of the same trigger is queued (24 July 2026).
+- The docs say nothing about a build command that exits 0 without producing output.
+
+**Not in the docs, from the repo (not tested on Cloudflare).** An early `exit 0` does not skip the deploy command.
+`wrangler deploy` then runs against a fresh checkout. `dist/` is not committed, so the `assets.directory` is missing and
+the deploy most likely fails, so the build shows red. Exiting early is therefore not a third lane. The only safe early
+exit is one that still leaves a valid `dist/`, which means building anyway and saves nothing.
+
+**Recommendation.**
+
+1. Keep drafts in a folder of its own (for example `src/drafts/`) outside `CONTENT_PATHS` and outside everything the site
+   builds from, so that a draft save changes no site file.
+2. Exclude that folder with **Build watch paths** in the site's build settings. A draft save then starts no build, shows
+   no red check and costs no build minutes. This is the third lane, and Cloudflare does it before `ci-build` starts.
+3. Keep `ci-build` unchanged: no early exit. As a fallback for a site without the watch path, a drafts-only diff takes the
+   existing content lane (checks and build, no deploy difference), which is correct but slow.
+4. Publish and Unpublish move or copy the file into the content folders, which starts the normal build.
+5. Check first on `morpheme-staging`: set the watch path, push a change to the draft folder only, and confirm no build
+   or check run starts; then push one to `src/content/` and confirm a build. Only the owner changes the dashboard, so
+   the starter needs a line in its README (written for people) that tells the owner to add the path, or the Deploy button
+   flow must set it. If it cannot be preset, the fallback in point 3 is what a new site gets.
+
+**Effect on batch 12.** Draft storage must live under the watch-path folder, and the `ci-build` change shrinks to the
+fallback rule (a diff that holds only that folder counts as content). Open: whether the Deploy to Cloudflare button can
+preset watch paths; if not, test the fallback's build time on `morpheme-staging`.
+
 ## Open questions for the owner
 
 1. **New pages and posts start as Draft (settled, owner, 11 November: yes).** Nothing goes live by accident; the form
