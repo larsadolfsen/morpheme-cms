@@ -9,6 +9,9 @@ export const text: Messages['text'] = {
   heading: 'Overskrift',
   subheading: 'Underoverskrift',
   paragraph: 'Almindelig tekst',
+  bodyLarge: 'Stor brødtekst',
+  label: 'Label',
+  checkList: 'Tjekliste',
   bulletList: 'Punktliste',
   orderedList: 'Nummereret liste',
   quote: 'Citat',
@@ -38,5 +41,4 @@ export const text: Messages['text'] = {
   showOnPage: 'Vis på siden',
   hideOnPage: 'Skjul på siden',
   typeHere: 'Skriv tekst her …',
-  firstHeadingHint: 'Din første overskrift bliver sidens H1 og titel.',
 };
