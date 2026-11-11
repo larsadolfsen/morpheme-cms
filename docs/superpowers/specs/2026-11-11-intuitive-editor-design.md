@@ -505,7 +505,10 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    site. The site always shows the last published version, and autosave never changes it. Three states (owner, 11 November): **Draft** (not on the site; `Publish` puts it live); **Published with nothing waiting** (live, `Saved`, the button is `Unpublish`); **Published with changes waiting** (the site still shows the old version, the page is marked `Unpublished changes`, the button reads `Publish changes`, which replaces the live version with the draft, and `Unpublish` moves into a menu). Today `Save` writes straight to the site,
    so this changes how saving works: the draft version needs a place to live (to be found, since the site's content is
    committed to GitHub), and the build runs only on `Publish` and `Unpublish`. The owner can discard all waiting changes and go back
-   to the live version (`Discard changes`, with a confirmation; owner, 11 November). Open: where the draft is kept.
+   to the live version (`Discard changes`, with a confirmation; owner, 11 November). **Choosing when the new version goes live (owner, 11 November):** on a published page with changes waiting, `Publish changes`
+   has a second choice, `Schedule`, where the owner picks a date and time. The waiting version goes live then, and until
+   then the site shows the old one; the page is marked `Scheduled changes` with the date. The same choice is on a Draft
+   page, which is today's `Scheduled` status. Open: where the draft is kept.
 3. **Regroup the menu (Appearance out of Settings) in 0.17?** Recommended: yes, after 0.16, in one pass. Alternative: leave the menu.
 4. **May we rename `Dynamic lists`, `Block templates`, `Files` (and `Business`)?** Recommended: yes, but only when the screens
    have been opened and checked; the Danish names change with them.
