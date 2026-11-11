@@ -58,9 +58,9 @@ request when all of this holds, one pull request at a time:
 - its `check` job (`morpheme-staging`: its `Workers Builds` check) has finished green on the current head;
 - its changeset keeps `@morphemecms/cms` below `1.0.0`, as the owner decided: never `major`. The rule depends on the
   base branch. Into `main`: only `patch` or an empty changeset until `0.15.1` is released, so the Release PR stays
-  `0.15.1` (after that the owner decides again). Into `0.16`: `minor` is allowed (MCP and the Appstore's sections).
+  `0.15.1` (after that the owner decides again). Into `0.17`: `minor` is allowed (the editor spec's work), never `major`, so it stays below `1.0.0`.
 
-The `0.16` branch collects the 0.16 work; its PM merges into it, and `main` is merged into it after each 0.15.x release
+The `0.17` branch collects the 0.17 work; its PM merges into it, and `main` is merged into it after each release
 (never the other way). Only `main` has a Release PR and builds `next` and `latest`.
 
 A pull request that conflicts, has no `check` job or has the wrong changeset is not merged. The PM asks the session
