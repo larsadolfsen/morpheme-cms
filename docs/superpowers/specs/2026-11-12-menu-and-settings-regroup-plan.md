@@ -84,30 +84,30 @@ Findings from the screens:
 
 The owner's decisions: Appearance stays on the Settings page; the main-menu section `Blocks` becomes `Globals` (Header,
 Footer, Block templates); `Block settings` moves to Settings; `Licenses` leaves Settings (the footer has it); `Colors`
-moves to Business (the company's brand colours). No other renames. **Recommendation that follows from the last
-decision: Logo and icon stays in Business, next to Colors (brand together), and does not move to Appearance.** That
-reverses the first draft's assumption and removes the one route change it needed.
+moves to Business (the company's brand colours); `Side column` moves to Globals with Header and Footer; Logo and icon stays in Business. No other renames. **Logo and icon stays in Business, next to Colors (brand
+together; the owner's decision, which matches this plan's recommendation).** That reverses the first draft's assumption
+and needs no route change for it.
 
 ```
 Main menu
 ├─ Dashboard
 ├─ Content      Pages, Blog posts, Dynamic lists, Promotion, Tags, Files, Internal links, Redirects ▾
 ├─ Business     Logo and icon, Colors, Contact, Social media, Payment        (Colors comes from Appearance)
-├─ Globals      Header, Footer, Block templates                              (was Blocks; Header and Footer come from Appearance)
+├─ Globals      Header, Footer, Side column, Block templates                 (was Blocks; Header, Footer and Side column come from Appearance)
 └─ Apps         Appstore, installed apps
 Settings (cog)  Appearance, Assistants, Block settings, Developer, Morpheme, Privacy     (six rows, A–Z; Licenses leaves)
-  └─ Appearance Theme store, Themes, Icon packs, Motion, Side column, Default pages     (Header, Footer, Colors leave)
+  └─ Appearance Theme store, Themes, Icon packs, Motion, Default pages                 (Header, Footer, Side column, Colors leave)
 ```
 
-Why Logo and icon beside Colors: they are the brand (the mark, the icon and the colours an owner picks to match them);
+Why Logo and icon stays beside Colors: they are the brand (the mark, the icon and the colours an owner picks to match them);
 `colors.ts` already sends the owner from the colours to the logo ("Edit the logo and icon under …"), and an owner who
-changes one changes the other. Appearance then holds how the site is built (themes, icons, motion, side column, the
-standard pages). The alternative, Logo and icon in Appearance and Colors in Business, splits the brand over two places.
+changes one changes the other. Appearance then holds how the site is built (themes, icons, motion, the standard pages);
+Globals holds what every page shares (header, footer, side column, block templates).
 
 How it is built:
 
 - `groups`: the section `{ id: 'blocks', title: 'Blocks', ids: ['blocks', 'block-settings'] }` becomes
-  `{ id: 'global', title: 'Globals', ids: ['header', 'footer', 'blocks'] }`. The id changes from `blocks` to `global`
+  `{ id: 'global', title: 'Globals', ids: ['header', 'footer', 'side-column', 'blocks'] }`. The id changes from `blocks` to `global`
   because `blocks` is also the id of the part `Block templates` (route `#blocks`); the icon `global` already exists.
   Business becomes `ids: ['logo', 'colors', 'company']` (`company` stays hoisted, its parts come after).
 - `settings` becomes `['appearance', 'assistants', 'block-settings', 'developer', 'morpheme', 'privacy']`: `block-settings`
@@ -117,14 +117,16 @@ How it is built:
   (`#licenses/editions/<line>`, linked from `UpdatesNotice.tsx`). It must not stay in `settings`.
 - `Privacy` stays: the footer's `Privacy policy` is Morpheme's own policy (external, getmorpheme.com); the Settings row is the
   site's own cookie banner, privacy pages and consents (`#privacy/*`). Different screens.
-- `Theme()` (Appearance) loses the `header`, `footer` and `colors` rows (and the colour swatches that trail the Colors
+- `Theme()` (Appearance) loses the `header`, `footer`, `side-column` and `colors` rows (and the colour swatches that trail the Colors
   row, `ThemeColors`); `Company()` gets `colors` second, with the swatches. `partOf` maps `colors` to `#company/colors`.
-- **Routes of Header, Footer and Block settings stay.** The menu finds an item by its link (`currentPlace` rule 3,
-  longest href wins) before it looks at a route's first word, so `#appearance/header` still marks Globals and not the
-  cog. The `id === 'header'` special case in `currentPlace` must go.
+- **Routes.** `Block settings` (`#block-settings`) and `Block templates` (`#blocks`) keep their routes. `Side column` moves
+  (owner's decision) to `#global/side-column`; recommended: Header and Footer move with it, to `#global/header` and
+  `#global/footer`, so the three screens of Globals share one prefix and `appearance/*` holds only Appearance's own
+  screens (Q3). The menu finds an item by its link (`currentPlace` rule 3, longest href wins), so the highlight does
+  not depend on the prefix; the `id === 'header'` special case in `currentPlace` must go either way.
 - **Colors moves** from `#appearance/colors` to `#company/colors` (and its fallback page `…/fallback-colors`), see section 5.
-- Back links: Header and Footer go to the start screen (as `#company` does), Block settings to Settings (`backFrom`),
-  Colors to Business.
+- Back links: Header, Footer and Side column go to the start screen (as `#company` does), Block settings to Settings
+  (`backFrom`), Colors to Business.
 - The rail has the same number of destinations (one renamed section). Settings has six rows, as today (one in, one out).
 
 ## 4. Proposed renames
@@ -143,16 +145,17 @@ Withdrawn from the first draft: `Block texts`, `Pictures and files`, `Virksomhed
 | Old | New | How the old one keeps working |
 | :--- | :--- | :--- |
 | `#appearance/colors` | `#company/colors` | New `RENAMED` key `'appearance/colors': 'company/colors'`: the rest of the address is kept, so `#appearance/colors/fallback-colors` goes to `#company/colors/fallback-colors` by the same line. |
+| `#appearance/side-column` | `#global/side-column` | New `RENAMED` key `'appearance/side-column': 'global/side-column'`. |
+| `#appearance/header`, `#appearance/footer` (if Q3 is yes) | `#global/header`, `#global/footer` | New `RENAMED` keys `'appearance/header'`, `'appearance/footer'`. |
+| `#header`, `#src/data/footer.json` (`MOVED` values now `appearance/header`, `appearance/footer`), and `#udseende/sidekolonne` (`RENAMED`, now `appearance/side-column`) | `#global/header`, `#global/footer`, `#global/side-column` | Retarget each value to the final address (`movedRoute` is one step). |
 | `#farver`, `#tema/farver`, `#udseende/farver` (older, Danish; `MOVED`/`RENAMED` today point at `appearance/colors`) | `#company/colors` | Retarget each value to `company/colors`. `movedRoute` is one step, it never follows a value into another key, so every old key must point at the final address. |
 | `#udseende/farver/reservefarver` (`RENAMED`, now `appearance/colors/fallback-colors`) | `#company/colors/fallback-colors` | Retarget the value. |
 
-No other route changes: `#company/logo` stays (the first draft's move to Appearance is dropped, so its `MOVED` entries
-and the loop with `appearance/logo` are not needed), and `#appearance/header`, `#appearance/footer`, `#block-settings`,
-`#blocks`, `#blocks/<id>`, `#appearance`, `#developer/*`, `#files`, `#lists`, `#licenses`, `#settings` and
-`#settings/appstore` all stay. The old entries `header` → `appearance/header` and `src/data/footer.json` →
-`appearance/footer` stay valid. Loop check: after the change `company/colors` is no key of `MOVED` or `RENAMED`, and no
-value is also a key (a test asserts it). Option for later (Q3): move Header and Footer to `#global/…`; not needed and not
-recommended now.
+No other route changes: `#company/logo` stays (the first draft's move of Logo and icon is dropped, so there are no logo
+entries and no loop with `appearance/logo`), and `#block-settings`, `#blocks`, `#blocks/<id>`, `#appearance`,
+`#developer/*`, `#files`, `#lists`, `#licenses`, `#settings` and `#settings/appstore` all stay. Loop check: after the
+change `company/colors`, `global/header`, `global/footer` and `global/side-column` are no key of `MOVED` or `RENAMED`,
+and no value is also a key (a test asserts it). If Q3 is no, only the Side column and Colors lines apply.
 
 `worker/movedAddresses.js`, `lib/previewAddress.mjs` and `scripts/retarget-links.mjs` are not touched: no public site
 address changes (as `/ny/` → `/new/` in 0.15 did, which these three handled).
@@ -160,17 +163,18 @@ address changes (as `/ny/` → `/new/` in 0.15 did, which these three handled).
 ## 6. Files that change (when built)
 
 - `defaults/editor.ts`: `groups` (Globals section; Business `ids` with `colors`), `settings` (add `block-settings`, remove `licenses`), the comments at the top and at `groups`.
-- `lib/menu.mjs`: remove the `id === 'header'` special case in `currentPlace`; `lib/menu.test.mjs` (fixtures with `blocks`, `header`, `settings` with `licenses`, the cog test's `appearance/colors` and `appearance/header`).
-- `src/Library.tsx`: `Theme()` (no `header`, `footer`, `colors`, no `ThemeColors` row), `Company()` (`colors` row with the swatches, second), `partOf` (`colors` → `#company/colors`, removed from the Appearance label map; `block-settings` is a Settings row), the comments at 152, 214 and 242; the Settings screen has six rows (Licenses out, Block settings in).
+- `lib/menu.mjs`: remove the `id === 'header'` special case in `currentPlace`; `lib/menu.test.mjs` (fixtures with `blocks`, `header`, `settings` with `licenses`, the cog test's `appearance/colors`, `appearance/header`, `appearance/footer`).
+- `src/Library.tsx`: `Theme()` (no `header`, `footer`, `side-column`, `colors`, no `ThemeColors` row; the Side column detail line moves with it), `Company()` (`colors` row with the swatches, second), `partOf` (`colors` → `#company/colors`, `header`, `footer`, `side-column` → `#global/…`, removed from the Appearance label map; `block-settings` is a Settings row), the comments at 152, 214 and 242; the Settings screen has six rows (Licenses out, Block settings in).
 - `src/Colors.tsx`: `FALLBACK_ROUTE` = `company/colors/fallback-colors`, the route in `useFormPages`, the back links (to `#company`, label Business), the header comment.
-- `src/App.tsx`: `appearance/colors` → `company/colors` (two places) and the header comment's routes.
+- `src/App.tsx`: `appearance/colors` → `company/colors` (two places), `appearance/side-column`, `appearance/header` and `appearance/footer` → `global/…`, and the header comment's routes.
 - `src/Parts.tsx` (176 and 828): the two links to `appearance/colors` (`editColors`).
-- `src/HeaderSettings.tsx`, `src/FooterSettings.tsx`, `src/DataForm.tsx` (313 to 315): back links from Appearance to the start screen.
+- `src/HeaderSettings.tsx`, `src/FooterSettings.tsx`, `src/SideColumn.tsx`, `src/DataForm.tsx` (313 to 315), `src/Library.tsx` (1397): their route and back links, from Appearance to the start screen.
+- `src/templateField.ts` (33: `edit: { to: 'appearance/side-column' }`) and `src/i18n/en-US/forms.ts` (197: "the link to Appearance › Side column", also its da-DK line): the link goes to `global/side-column`; the comment in `templateField.ts` (17) and `lib/side-block.mjs` (47) say "Appearance › Side column": now "Globals › Side column".
 - `src/BlockSettings.tsx`: back link to Settings. `src/site.ts`: the `backFrom` comment; `placeOf` and `standardPageAt` unchanged (Default pages stays under `Settings › Appearance`).
 - `src/movedRoutes.mjs` and `src/movedRoutes.test.mjs`: the new key, the retargeted values, the loop test.
 - `defaults/i18n/da-DK/editor.ts`: the key `Blocks` becomes `Globals`, with `Globale dele`.
 - `src/i18n/en-US/colors.ts` (hint at line 79, "Edit the logo and icon under Appearance › Logo and icon", stale today, and wrong after the change): "Edit the logo and icon under Business › Logo and icon." and its da-DK line.
-- `scripts/editor-screens.mjs`: Settings lists six rows with `block-settings` and without `licenses` (the "moved" list, line 130); the drawer's first level is Dashboard, Content, Business, Globals, Apps; `#appearance/header` marks Globals and not the cog; `#company/colors` marks Business; `#licenses` opens and marks no cog; the rail check at line 211 (`#appearance/colors`, "the cog must be selected") now expects Business.
+- `scripts/editor-screens.mjs`: Settings lists six rows with `block-settings` and without `licenses` (the "moved" list, line 130); the drawer's first level is Dashboard, Content, Business, Globals, Apps; `#global/header` and `#global/side-column` mark Globals and not the cog; `#company/colors` marks Business; `#licenses` opens and marks no cog; the rail check at line 211 (`#appearance/colors`, "the cog must be selected") now expects Business.
 - `docs/superpowers/plans/2026-11-07-settings-cog.md`: a note on what left and joined the cog.
 - Release note: one card in `release-notes/i18n/{en-US,da-DK}/pending/` (Colors under Business, Header and Footer under Globals, Block settings under Settings, Licenses in the footer), written with the `release-notes` skill. Not now.
 - A changeset (`minor`, allowed into `0.19`).
@@ -179,10 +183,10 @@ Not changed: `worker/*`, themes, blocks, apps, `lib/footerLinks.mjs`.
 
 ## 7. Risks
 
-1. **Sites with their own `src/site/editor.ts`.** `groups` and `settings` are a site's own when it has them: an old copy keeps `Blocks`, Header and Footer in Appearance, `licenses` in `settings` and no `colors` in Business. The screens must still open (`partOf` knows every id; an unknown section id must not crash), `check:site-types` must pass, and Colors must be reachable from somewhere (Appearance's own list no longer has it): decide whether `Theme()` keeps a Colors row for a site whose `groups` lack it. Test with a fixture that has the old `groups`.
+1. **Sites with their own `src/site/editor.ts`.** `groups` and `settings` are a site's own when it has them: an old copy keeps `Blocks`, Header, Footer and Side column in Appearance, `licenses` in `settings` and no `colors` in Business. The screens must still open (`partOf` knows every id; an unknown section id must not crash), `check:site-types` must pass, and Colors, Side column, Header and Footer must be reachable from somewhere (Appearance's own list no longer has it): decide whether `Theme()` keeps a Colors row for a site whose `groups` lack it. Test with a fixture that has the old `groups`.
 2. **Colors and its apps.** An app that changes the pages' colours (`content-colors`) sends the owner to the fallback page and the form pages are tracked by route (`useFormPages` in `Colors.tsx`): the old route string left in one place makes the fallback page lose its unsaved changes. Grep for both routes; test the fallback flow.
-3. **"The way there" strings and hints** that say Appearance: `colors.ts` line 79 (above); the text in `Parts.tsx` and `forms.ts` that links to Colors or Side column (the Side column link stays in Appearance); the 0.13 and 0.14 notes name old places (history, stay). `placeOf('header')` gives `Globals`, so any string built from it reads `Globals › Header`.
-4. **Menu highlight**: Globals stays marked on `#appearance/header`, `#appearance/footer`, `#list/menu`, `#list/mobile-menu`, `#blocks/<id>`; Business on `#company/colors` and `#company/colors/fallback-colors`; the cog on neither. The existing tests assume the header is "in Settings" and Colors "in the cog" and must change.
+3. **"The way there" strings and hints** that say Appearance: `colors.ts` line 79 (above); the text in `Parts.tsx` and `forms.ts` that links to Colors or Side column ; the 0.13 and 0.14 notes name old places (history, stay). `placeOf('header')`, `placeOf('side-column')` give `Globals`, so any string built from them reads `Globals › Header`.
+4. **Menu highlight**: Globals stays marked on `#global/header`, `#global/footer`, `#global/side-column`, `#list/menu`, `#list/mobile-menu`, `#blocks/<id>`; Business on `#company/colors` and `#company/colors/fallback-colors`; the cog on neither. The existing tests assume the header is "in Settings" and Colors "in the cog" and must change.
 5. **Business on a phone is now five rows** and the Danish rail label `Globale dele` is longer: check 375 px.
 6. **Licenses has one door.** The footer link is the only way in: it must stay in `FOOTER_LINKS` (`href` not `null`) and show on every screen (`Screen.tsx` says it does). Edition photo credits stay one tap from the update notice. The cog is no longer marked on `#licenses` (right: the footer opened it).
 7. **Colors is the theme's own look** (Material roles, the generator, dynamic colours from a picture); under Business it can read as "my brand colours" only. The screen's text must not say "theme". Check `colors.ts` for it.
@@ -196,13 +200,13 @@ Not changed: `worker/*`, themes, blocks, apps, `lib/footerLinks.mjs`.
 Decisions (relayed by the PM on 11 November): 1. Appearance stays in Settings, no new section. 2. `Dynamic lists` stays. 3.
 Developer stays. 4. `Files` stays. 5. No renames of `Block templates` or `Virksomheden`; instead the section `Blocks`
 becomes `Globals` (Header, Footer, Block templates) and `Block settings` moves to Settings. 6. `Licenses` leaves Settings
-(the footer has it); `Privacy` stays. 7. `Colors` moves to Business.
+(the footer has it); `Privacy` stays. 7. `Colors` moves to Business. 8. Logo and icon stays in Business. 9. `Side column` moves to Globals.
 
 New questions, each with a recommendation:
 
-1. **Logo and icon: Business next to Colors, or Appearance?** Recommended: Business, next to Colors (brand together; no route change for it). The first draft assumed Appearance; that assumption is dropped.
+1. **Side column in Globals, Appearance with five rows.** Done as decided. Check: a template picker's greyed-out hint ("Choose a side column") then links to Globals › Side column.
 2. **The name `Globals`.** It is the owner's word but a programmer's word for an owner. Recommended: `Globals` as decided, Danish `Globale dele`. Alternative: `On every page` (da `På alle sider`).
-3. **Move the routes of Header and Footer to `#global/…`?** Recommended: no, keep `#appearance/header` and `#appearance/footer` (no old link breaks; the menu highlights by link). Colors does move because the owner asked for the route to follow it; say if Header and Footer should too.
+3. **Header and Footer to `#global/…` with Side column?** Recommended: yes, all three, so Globals has one address prefix (Side column and Colors move by decision). Alternative: Header and Footer keep `#appearance/…` (two fewer redirect lines, but a Globals screen at an Appearance address).
 4. **Where does `Block settings` go in Settings?** Recommended: in the A–Z list, between Assistants and Developer. Alternative: under Developer, which leaves Settings at five rows.
 5. **A site whose own `groups` has no `colors`:** keep a `Colors` row in Appearance for it (recommended, hidden when the site's `groups` has it in Business), or let the old file break? Recommended: keep the row for such sites for one release.
 
