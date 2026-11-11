@@ -60,6 +60,9 @@ export const app = {
   unsavedTitle: 'Save the changes?',
   unsaved: 'You have changes that aren’t saved',
   discard: 'Discard',
+  /** Before the browser asks to show notifications (askToNotify, notificationData.ts), and its button. */
+  askNotify: 'Get a message when your changes are live?',
+  askNotifyYes: 'Yes, tell me',
   /** A sheet closed with changes (closeChanged, ask.tsx). */
   unsavedSheet: 'You have changes that aren’t saved. Do you want to keep them?',
   viewOnSite: 'View on the website',

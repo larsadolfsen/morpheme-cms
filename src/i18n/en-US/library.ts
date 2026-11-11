@@ -6,6 +6,14 @@ export const library = {
   cmsVersion: (version: string) => `Morpheme ${version}`,
   /** Between the CMS version and the update time in the start screen's status. */
   statusSeparator: ' · ',
+  /** The start screen's sentence under the title (FirstRun.tsx StartSentence). */
+  siteLive: 'Your website is live',
+  siteUpdating: 'Updating…',
+  /** The card for a site with no page or post yet (FirstRun.tsx), and its rows. */
+  firstRunTitle: 'Get started',
+  firstRunPage: 'Write a page',
+  firstRunPost: 'Write a blog post',
+  firstRunPicture: 'Add a picture',
   /** The start screen's FAB menu (StartFab.tsx), which makes a new page or blog post. */
   createNew: 'Create',
   /** On the start screen (widgets/continue.tsx): the card with the last three pages and blog posts saved. */
