@@ -73,3 +73,22 @@ test('entriesOf keeps a date written as text', () => {
   const [entry] = entriesOf([file('src/content/blog/p.md', 'title: P\ndate: "2026-05-04"')], collections);
   assert.equal(entry.date, '2026-05-04');
 });
+
+test('entriesOf: a draft page with a waiting version that has a time is Scheduled, a published one stays published', () => {
+  const entries = entriesOf(
+    [
+      file('src/content/pages/a.md', 'status: draft'),
+      file('src/content/pages/b.md', 'title: B'),
+      file('src/drafts/pages/a.md', 'publishAt: "2026-12-01T08:00"'),
+      file('src/drafts/pages/b.md', 'publishAt: "2026-12-02T08:00"'),
+    ],
+    collections,
+  );
+  assert.deepEqual(
+    entries.map((e) => [e.path, e.status, e.publishAt]),
+    [
+      ['src/content/pages/a.md', 'scheduled', '2026-12-01T08:00'],
+      ['src/content/pages/b.md', 'published', undefined],
+    ],
+  );
+});

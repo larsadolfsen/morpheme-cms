@@ -9,3 +9,6 @@
 - `after-draft.png`: a draft page: the line under the title says `Draft` and the bar has `Publish`.
 - `after-waiting.png`, `after-waiting-bottom.png`: a published page with a waiting version: `Unpublished changes` under the title,
   `Publish changes`, and `Unpublish` and `Discard changes` at the end of the form.
+
+Step 4b: `after-schedule-dialog.png` (the `Schedule` dialog), `after-scheduled.png` (`Scheduled · <time>` under the title) and
+`after-scheduled-bottom.png` (`Schedule`, `Cancel schedule`, `Unpublish` and `Discard changes` at the end of the form).

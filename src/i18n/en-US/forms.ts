@@ -92,6 +92,18 @@ export const forms = {
   versions: {
     publish: 'Publish',
     publishChanges: 'Publish changes',
+    schedule: 'Schedule',
+    cancelSchedule: 'Cancel schedule',
+    scheduleTitle: 'Choose when it goes live',
+    scheduleText: (post: boolean) =>
+      `The ${post ? 'post' : 'page'} goes on the website at this time, and until then the website shows the version it has. The website updates within an hour of the time.`,
+    scheduleTime: 'Date',
+    scheduleNeedsFuture: 'Choose a date and time that has not passed.',
+    scheduleWithAddress: 'Save the new address first, then schedule.',
+    /** The line under the title, and the message after scheduling; `when`: "Nov 20 at 8:00 AM". */
+    scheduledLine: (when: string) => `Scheduled · ${when}`,
+    savedScheduled: (when: string) => `Scheduled. It goes on the website ${when}.`,
+    scheduledCancelled: (what: string) => `Schedule for ${what} cancelled`,
     unpublish: 'Unpublish',
     discardChanges: 'Discard changes',
     /** The top bar's line under the title. */
@@ -114,6 +126,8 @@ export const forms = {
     /** The commits. */
     commit: {
       saveChanges: (singular: string, what: string) => `Editor: save changes to ${singular} ${what}`,
+      schedule: (singular: string, what: string, at: string) => `Editor: schedule ${singular} ${what} for ${at}`,
+      cancelSchedule: (singular: string, what: string) => `Editor: cancel the schedule of ${singular} ${what}`,
       publish: (singular: string, what: string) => `Editor: publish ${singular} ${what}`,
       unpublish: (singular: string, what: string) => `Editor: unpublish ${singular} ${what}`,
       discard: (singular: string, what: string) => `Editor: discard changes to ${singular} ${what}`,

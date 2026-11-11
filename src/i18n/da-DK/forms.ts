@@ -73,6 +73,17 @@ export const forms: Messages['forms'] = {
   versions: {
     publish: 'Udgiv',
     publishChanges: 'Udgiv ændringer',
+    schedule: 'Planlæg',
+    cancelSchedule: 'Annullér planlægning',
+    scheduleTitle: 'Vælg, hvornår det går live',
+    scheduleText: (post) =>
+      `${post ? 'Indlægget' : 'Siden'} kommer på hjemmesiden på dette tidspunkt, og indtil da viser hjemmesiden den version, den har. Hjemmesiden opdateres inden for en time efter tidspunktet.`,
+    scheduleTime: 'Dato',
+    scheduleNeedsFuture: 'Vælg en dato og et tidspunkt, der ikke er passeret.',
+    scheduleWithAddress: 'Gem den nye adresse først, og planlæg derefter.',
+    scheduledLine: (when) => `Planlagt · ${when}`,
+    savedScheduled: (when) => `Planlagt. Det kommer på hjemmesiden ${when}.`,
+    scheduledCancelled: (what) => `Planlægningen af ${what} annulleret`,
     unpublish: 'Fjern fra hjemmesiden',
     discardChanges: 'Kassér ændringer',
     draftLine: 'Kladde',
@@ -91,6 +102,8 @@ export const forms: Messages['forms'] = {
     discarded: (what) => `Ændringer i ${what} kasseret`,
     commit: {
       saveChanges: (singular, what) => `Editor: gem ændringer i ${singular} ${what}`,
+      schedule: (singular, what, at) => `Editor: planlæg ${singular} ${what} til ${at}`,
+      cancelSchedule: (singular, what) => `Editor: annullér planlægningen af ${singular} ${what}`,
       publish: (singular, what) => `Editor: udgiv ${singular} ${what}`,
       unpublish: (singular, what) => `Editor: fjern ${singular} ${what} fra hjemmesiden`,
       discard: (singular, what) => `Editor: kassér ændringer i ${singular} ${what}`,

@@ -1,5 +1,5 @@
 {
   "id": "drafts-hidden-status",
   "kind": "line",
-  "text": "Pages and posts are now Published or Draft, and a page that was Hidden stays published with Hide from search engines turned on, so it now also shows on the blog and in lists"
+  "text": "The Hidden status is gone: hidden pages and posts are now published with Hide from search engines on, so they also show on the blog"
 }
