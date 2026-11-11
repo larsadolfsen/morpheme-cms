@@ -74,10 +74,10 @@ const cookie = (name, value, path, maxAge, sameSite) =>
   `${name}=${value}; Path=${path}; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=${sameSite}`;
 
 /** The assistant's own address, with a result in its query: its redirect address is checked on registration and again on each request. */
-function back(redirectUri, params) {
+function back(redirectUri, params, status = 302) {
   const to = new URL(redirectUri);
   for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== null) to.searchParams.set(k, v);
-  return new Response(null, { status: 302, headers: { location: to.href, 'cache-control': 'no-store' } });
+  return new Response(null, { status, headers: { location: to.href, 'cache-control': 'no-store' } });
 }
 
 /** Has GitHub forget a token (this one only): the person did not Allow, cannot save the site, or disconnected. Never throws. */
@@ -268,10 +268,15 @@ async function consent(request, url, env, ask) {
   const form = await request.formData().catch(() => null);
   const id = form?.get('pending');
   if (typeof id !== 'string' || !id) return problemPage(t('The consent page sent no request to answer.'), 403);
-  if (id !== cookieOf(request, CONSENT_COOKIE))
-    return problemPage(t('This browser did not keep the sign-in. Connect it again from the assistant.'), 403);
   const db = await store(env);
   const pending = await db.pending(id);
+  // Already answered (a double tap or a replayed request): nothing left to decide, and no error to show.
+  if (!pending)
+    return page(t('Already answered'), `<p>${escapeHtml(t('You can close this page and go back to the assistant.'))}</p>`, 200, [
+      cookie(CONSENT_COOKIE, '', '/oauth/mcp/', 0, 'Lax'),
+    ]);
+  if (id !== cookieOf(request, CONSENT_COOKIE))
+    return problemPage(t('This browser did not keep the sign-in. Connect it again from the assistant.'), 403);
   const client = pending && (await db.client(pending.clientId));
   if (!pending?.userId || !pending.token || !client)
     return problemPage(`${t('Login failed (invalid or expired request).')} ${t('Connect it again from the assistant.')}`, 400);
@@ -279,7 +284,7 @@ async function consent(request, url, env, ask) {
   await db.dropPending(id);
   if (form.get('decision') !== 'allow') {
     await revokeGitHubToken(env, pending.token, ask);
-    const res = back(pending.redirectUri, { error: 'access_denied', state: pending.state ?? undefined });
+    const res = back(pending.redirectUri, { error: 'access_denied', state: pending.state ?? undefined }, 303);
     for (const c of clear) res.headers.append('set-cookie', c);
     return res;
   }
@@ -291,7 +296,7 @@ async function consent(request, url, env, ask) {
     challenge: pending.challenge,
   });
   await db.keepGitHubToken(pending.userId, pending.token);
-  const res = back(pending.redirectUri, { code: made.code, state: pending.state ?? undefined, iss: url.origin });
+  const res = back(pending.redirectUri, { code: made.code, state: pending.state ?? undefined, iss: url.origin }, 303);
   for (const c of clear) res.headers.append('set-cookie', c);
   return res;
 }
