@@ -499,9 +499,13 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
 
 1. **New pages and posts start as Draft (settled, owner, 11 November: yes).** Nothing goes live by accident; the form
    then needs `Publish` as an obvious step (question 2).
-2. **Save and Publish are two buttons (owner, 11 November, direction):** `Save` saves the changes. `Publish` makes the page
-   available on the site. A page that is published shows `Unpublish` instead of `Publish`, which removes it from the
-   site. Open: whether `Save` on a published page puts the change live at once.
+2. **Autosave, a status and Publish (owner, 11 November):** there is no `Save` button. The editor saves the owner's work
+   as they type into a draft version and shows its state (`Saving…`, `Saved`, or `Not saved` with a retry). `Publish`
+   makes the page available on the site, and a page that is published shows `Unpublish` instead, which removes it from the
+   site. A published page that has changes waiting shows `Unpublished changes`. Today `Save` writes straight to the site,
+   so this changes how saving works: the draft version needs a place to live (to be found, since the site's content is
+   committed to GitHub), and the build runs only on `Publish` and `Unpublish`. Open: where the draft is kept, and
+   whether the owner can discard the waiting changes.
 3. **Regroup the menu (Appearance out of Settings) in 0.17?** Recommended: yes, after 0.16, in one pass. Alternative: leave the menu.
 4. **May we rename `Dynamic lists`, `Block templates`, `Files` (and `Business`)?** Recommended: yes, but only when the screens
    have been opened and checked; the Danish names change with them.
