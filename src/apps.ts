@@ -47,6 +47,7 @@ import type { LegacyCategory } from '../lib/storeCategories.mjs';
 import type { AppCategory, AppCookie, AppNeeds, AppShot, StoreRecord } from './store';
 import type { ThirdParty } from './licenseData';
 import type { WidgetDefinition } from './widgets';
+import type { VersionSwitchProps } from './VersionSwitch';
 import { config } from '@site/config';
 import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 import { definitionOf, type AppDefinitionData } from '../lib/appDefinition.mjs';
@@ -195,12 +196,16 @@ export type AppDefinition = {
   /** Widgets it adds to the start screen while it is installed, by their key: the full id of a widget is
    * "<appId>:<key>" ("booking:today"), and each must have a `component` (the check before the build says which has not). */
   widgets?: Record<string, WidgetDefinition>;
+  /** Places an app adds inside the editor's own screens while it is installed, by their name. `versionSwitch`: the switch at
+   * the top of a page or post that has changes waiting, with its versions, in place of the core's `Live` / `Scheduled`
+   * (VersionSwitch.tsx). It is a `full` editor place, like `tabs`, so for first-party apps; with none, the core's is drawn. */
+  slots?: { versionSwitch?: ComponentType<VersionSwitchProps> };
   notifications?: AppNotifications;
 };
 export const defineApp = (app: AppDefinition) => app;
 
 /** The code parts of a contract 4 app's definition, in its editor.ts (the rest is its app.json): what only the editor runs. */
-export type AppDefinitionCode = Pick<AppDefinition, 'page' | 'screens' | 'tabs' | 'notifications'> & {
+export type AppDefinitionCode = Pick<AppDefinition, 'page' | 'screens' | 'tabs' | 'slots' | 'notifications'> & {
   settings?: Pick<AppSettings, 'changedTo'>;
   kinds?: Record<string, Pick<AppKind, 'draw'>>;
 };
@@ -317,6 +322,10 @@ export function kindsOffered(
     (o) => !apps.some((a) => a.id === o.value) || (installed.includes(o.value) && !off.includes(kindKey(collection.id, o.value))),
   );
 }
+
+/** The component of the slot `versionSwitch` of the first app installed that has one, or undefined: the core's switch is drawn then. */
+export const versionSwitchOf = (apps: SiteApp[], installed: string[]) =>
+  apps.find((app) => installed.includes(app.id) && app.slots?.versionSwitch)?.slots?.versionSwitch;
 
 /** The tabs the apps installed add to a list (AppDefinition.tabs), each with its app, in the order of the apps. */
 export const tabsOf = (list: string, apps: SiteApp[], installed: string[]) =>

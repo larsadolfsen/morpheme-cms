@@ -53,9 +53,12 @@ a release note (`release-notes` skill, English and `da-DK`). Data model and Work
      builds (spike S1b: the lane is the default, the watch path an optional speed-up; shown once a waiting version exists, closed
      for good in this browser), `CLAUDE.md` section 6 (`Draft`, `Published`; `Schedule` is a date). `Hide from search engines` is
      already the label and sits in the SEO section (batch 1).
-   - **4c-2, the version switch:** the `Live` / `Scheduled` switch (editing the live page or the waiting version) as the named slot
-     `versionSwitch` (`AppDefinition.slots`, props `entry`, `versions`, the four functions, `editing`); the core draws it when no
-     app registers one; `@morphemecms/cms/lib/versions` joins the imports an app may use.
+   - **4c-2, the version switch** (built): a page with changes waiting has a switch at the top, `Live` and `Scheduled` (`Changes`
+     without a time), to edit either one. Editing `Live` saves the page file at once (a mistake on the live page); `Publish changes`
+     and `Schedule` are only there while the waiting changes are edited. It is the named slot `versionSwitch` (`AppDefinition.slots`,
+     `VersionSwitchProps`): an installed app's component is drawn in place of the core's. `@morphemecms/cms/lib/versions.mjs` is
+     documented as the import of an app's `editor.ts` and Worker part; the sandbox's allow-list (`ALLOWED_CORE`) is not widened, as a
+     hook never needs it and it is the security boundary.
 
 Each pull request must pass `npm run check`, `check:screens`, `check:demo` and `check:themes`.
 
@@ -90,3 +93,12 @@ What part B (the form and the status) needs:
 5. Do not touch `versionSwitch` or the Schedule buttons; the autosaved text is a waiting version's text, so `schedule`/`publish` still read git.
 6. Open question for the owner: a flush commits to `main` as a `src/drafts/` change, which takes `ci-build`'s content lane. If idle flushes are
    too many commits, raise `IDLE_MS` in `src/autosave.mjs` (the client) rather than flushing more often.
+
+## Batch 14, the warnings (built after step 4c-2)
+
+A notice under the switch on a page with changes waiting (while `Live` is edited: what is saved goes on the website at once and the
+waiting changes stay; while they are edited: the website shows the published version, or when they go live); the mark `Unpublished changes`
+(`Scheduled changes <time>` with a time) on the rows of the lists and the Unfinished widget for a published page with changes waiting (a
+draft with a waiting time is Scheduled); and a question before `Publish changes` when the page file was saved after the waiting version
+(`env.savedAt`: when each was last saved; unknown means no question). The check is an approximation: saving the waiting changes again
+after a live edit clears it, though they may not contain that edit.

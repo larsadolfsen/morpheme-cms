@@ -10,7 +10,7 @@ seoTitle: "Write now, publish later | Morpheme"
 
 Every post and page has a status at the top of the editor.
 
-<div data-block="points" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Only visible in the editor.&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address, but stays off Google.&quot;},{&quot;icon&quot;:&quot;certificate&quot;,&quot;title&quot;:&quot;Published&quot;,&quot;text&quot;:&quot;Live on your site.&quot;},{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Goes live on its own at the time you choose.&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Only visible in the editor.&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address, but stays off Google.&quot;},{&quot;icon&quot;:&quot;certificate&quot;,&quot;title&quot;:&quot;Published&quot;,&quot;text&quot;:&quot;Live on your site.&quot;},{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Goes live on its own at the time you choose.&quot;}]}"></div>
 
 ## It happens without you
 
