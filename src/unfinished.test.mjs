@@ -49,3 +49,18 @@ test('unfinishedOf puts scheduled by date first, then undated scheduled, then dr
   assert.equal(rows[3].at, null);
   assert.deepEqual(Object.keys(rows[0]).sort(), ['at', 'collection', 'path', 'status', 'title']);
 });
+
+test('unfinishedOf lists a published page with changes waiting after the drafts, the dated ones first', () => {
+  const waiting = (title, publishAt) => ({ ...entry(title, 'published'), waiting: { publishAt } });
+  const rows = unfinishedOf([waiting('w2'), waiting('w1', '2026-12-01T08:00'), entry('d', 'draft'), entry('p', 'published')]);
+  assert.deepEqual(
+    rows.map((r) => [r.title, r.status]),
+    [
+      ['d', 'draft'],
+      ['w1', 'waiting'],
+      ['w2', 'waiting'],
+    ],
+  );
+  assert.equal(typeof rows[1].at, 'number');
+  assert.equal(rows[2].at, null);
+});

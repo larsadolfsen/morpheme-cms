@@ -204,6 +204,9 @@ export const library = {
     scheduled: 'Scheduled',
     /** "Planlagt 1. nov. kl. 8.00" (`when`, when.ts). */
     scheduledAt: (when: string) => `Scheduled ${when}`,
+    /** A published page or post with changes waiting (src/drafts/), without and with a time they go live. */
+    unpublishedChanges: 'Unpublished changes',
+    scheduledChanges: (when: string) => `Scheduled changes ${when}`,
   },
   /** The filter over the pages and posts that shows only those with one status. */
   statusFilter: 'Status',

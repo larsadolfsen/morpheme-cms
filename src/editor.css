@@ -1170,3 +1170,20 @@ html:has(dialog:modal) {
 dialog {
   overscroll-behavior: contain;
 }
+
+/* The first heading of a page's text is its title, drawn as the site draws it (.theme-title in the theme's components.css, and
+   PageHeading.astro's width): the display role, by the theme's variables, not the weight of a heading in the middle of the text. */
+.editor-text .ProseMirror > h1:first-child {
+  max-width: 22ch;
+  font-size: var(--theme-title-size);
+  line-height: var(--theme-title-leading);
+  font-weight: var(--type-display-small-weight);
+  letter-spacing: var(--type-display-small-tracking);
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .editor-text .ProseMirror > h1:first-child {
+    font-size: var(--theme-title-size-large);
+    font-weight: var(--type-display-medium-weight);
+    letter-spacing: var(--type-display-medium-tracking);
+  }
+}

@@ -28,7 +28,7 @@ Group related ideas with an icon, a photo or just text, each linking to a page i
 
 Short points with an icon, for what you offer or how to find you.
 
-<div data-block="points" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Publishes on its own at the time you pick.&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Stays in the editor until you publish it.&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address but stays off Google.&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Publishes on its own at the time you pick.&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Stays in the editor until you publish it.&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address but stays off Google.&quot;}]}"></div>
 
 ## Steps
 
@@ -95,7 +95,7 @@ A message that stands out, and can disappear on its own on a date you set.
 
 Pages grouped by topic.
 
-<div data-block="links" data-props="{&quot;groups&quot;:[{&quot;title&quot;:&quot;Product&quot;,&quot;href&quot;:&quot;/about/&quot;,&quot;paths&quot;:[&quot;/about/&quot;,&quot;/blocks/&quot;,&quot;/app-store/&quot;]},{&quot;title&quot;:&quot;Getting started&quot;,&quot;href&quot;:&quot;/get-started/&quot;,&quot;paths&quot;:[&quot;/get-started/&quot;,&quot;/contact/&quot;]}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Product&quot;,&quot;heading&quot;:true,&quot;href&quot;:&quot;/about/&quot;},{&quot;href&quot;:&quot;/about/&quot;},{&quot;href&quot;:&quot;/blocks/&quot;},{&quot;href&quot;:&quot;/app-store/&quot;},{&quot;title&quot;:&quot;Getting started&quot;,&quot;heading&quot;:true,&quot;href&quot;:&quot;/get-started/&quot;},{&quot;href&quot;:&quot;/get-started/&quot;},{&quot;href&quot;:&quot;/contact/&quot;}]}"></div>
 
 ## Posts
 
