@@ -3,7 +3,7 @@
 // same address (the site's third-party scripts, Google after consent, Calendly) could ask the Worker in the
 // editor's name, and read what the editor keeps in the browser. See docs/editor.md.
 // Without EDITOR_HOST (a variable on the Worker) the editor is at /editor/ on every address, as before.
-//   On EDITOR_HOST: the editor (/editor/), the sign-in (/oauth/), what the editor asks the Worker
+//   On EDITOR_HOST: the editor (/editor/), the sign-in (/oauth/), the assistants' MCP address (/mcp, /.well-known/oauth-*), what the editor asks the Worker
 //     (/api/, packages/editor/worker/not-found.js) and files (scripts, styles, images)
 //     are served; the address alone opens the editor; any other page goes to the public site
 //     (PUBLIC_HOST, else EDITOR_HOST without "editor."), so no page of the site runs there.
@@ -28,7 +28,10 @@ export function editorHost(url, env, request) {
     url.pathname.startsWith('/editor/') ||
     url.pathname === '/editor' ||
     url.pathname.startsWith('/oauth/') ||
-    url.pathname.startsWith('/api/');
+    url.pathname.startsWith('/api/') ||
+    // The site's MCP server for assistants (worker/mcp.js) and the discovery of its sign-in (worker/mcp-oauth.js).
+    url.pathname === '/mcp' ||
+    url.pathname.startsWith('/.well-known/oauth-');
 
   if (url.hostname === editor) {
     if (url.pathname === '/' && !url.search) return redirect(`https://${editor}/editor/`, 302);
@@ -40,7 +43,8 @@ export function editorHost(url, env, request) {
   if (!own) return undefined;
   const to = `https://${editor}${url.pathname}${url.search}`;
   if (url.pathname === '/editor/' || url.pathname === '/editor') return cleanUp(to);
-  return redirect(to, 301);
+  // 308 keeps a POST (an assistant's call) a POST.
+  return redirect(to, request?.method && request.method !== 'GET' && request.method !== 'HEAD' ? 308 : 301);
 }
 
 const redirect = (location, status) => new Response(null, { status, headers: { location, 'cache-control': 'no-store' } });

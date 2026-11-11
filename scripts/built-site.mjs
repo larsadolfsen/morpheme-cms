@@ -135,6 +135,23 @@ export const STORE_STATES = {
   readOnly: { connected: false, mayChange: false },
 };
 
+/** The assistants connected to the site (/api/mcp/connections, worker/mcp-connections.js), made up: one assistant, last used
+ * a while ago. A DELETE (Disconnect) leaves none, as the Worker would. */
+export const ASSISTANTS = {
+  ready: true,
+  address: 'https://editor.example/mcp',
+  mayChange: true,
+  connections: [
+    {
+      id: 'sample-connection',
+      name: 'Claude',
+      login: 'anna-jensen',
+      created: '2026-11-09T08:00:00.000Z',
+      lastUsed: '2026-11-11T09:30:00.000Z',
+    },
+  ],
+};
+
 /** Opens the editor (/editor/) of the site at `site` in `page`, signed in, with GitHub answered from the files on disk
  * (`texts`: some with other texts), and waits until it has loaded the site. `store`: the state of the site's key to the
  * store (a key of STORE_STATES). `dashboard`: the fake /api/dashboard (the start screen's widgets): GET answers the last
@@ -156,6 +173,11 @@ export async function openEditor(page, site, texts = {}, store = 'button', dashb
   await page.route(`${site}/api/r2?**`, (r) =>
     r.fulfill({ contentType: 'application/json', body: JSON.stringify({ bound: false, bucket: 'ready' }) }),
   );
+  let assistants = ASSISTANTS;
+  await page.route(`${site}/api/mcp/connections**`, (r) => {
+    if (r.request().method() === 'DELETE') assistants = { ...ASSISTANTS, connections: [] };
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify(assistants) });
+  });
   await page.route(`${site}/api/cms`, (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify(CMS_STATUS) }));
   await page.route(`${site}/api/store/**`, (r) => {
     const path = new URL(r.request().url()).pathname;
