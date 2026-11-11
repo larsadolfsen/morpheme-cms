@@ -89,6 +89,8 @@ async function ask(url, init = {}) {
     return new Response(null, { status: 204 });
   }
   if (url.startsWith(META)) {
+    // workerd only knows redirect "follow" and "manual"; "error" throws there.
+    if (init.redirect === 'error') throw new TypeError('Invalid redirect value, must be one of "follow" or "manual"');
     const doc = METADATA[url.slice(META.length)];
     return doc === undefined
       ? new Response(null, { status: 404 })

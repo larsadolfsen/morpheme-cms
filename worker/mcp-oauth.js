@@ -133,7 +133,7 @@ async function clientOf(db, id, ask) {
   if (!isMetadataClientId(id)) return db.client(id);
   try {
     const res = await ask(id, {
-      redirect: 'error',
+      redirect: 'manual', // workerd has no 'error'; a redirect answer is not ok, so it is refused
       headers: { accept: 'application/json', 'user-agent': 'morpheme-cms' },
       signal: AbortSignal.timeout(METADATA_TIMEOUT_MS),
     });
