@@ -1,4 +1,4 @@
-# The CMS's checks on each pull request into main or into the 0.16 integration branch (package.json's check,
+# The CMS's checks on each pull request into main or into the 0.17 integration branch (package.json's check,
 # check:screens, check:demo and check:starter), and that it has a changeset (CLAUDE.md), so each branch can always be
 # released. The changeset is compared with the pull request's own base branch. Free here: the repository is public.
 # The job's name, check, is the status check that main's branch protection requires.
@@ -6,7 +6,7 @@ name: Check
 
 on:
   pull_request:
-    branches: [main, '0.16']
+    branches: [main, '0.17']
 
 permissions:
   contents: read
