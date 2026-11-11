@@ -54,8 +54,9 @@ request when all of this holds, one pull request at a time:
 
 - the pull request is not a draft, has no merge conflict and no unresolved review comment;
 - its `check` job (`morpheme-staging`: its `Workers Builds` check) has finished green on the current head;
-- its changeset keeps `@morphemecms/cms` at `0.15.x`, as the owner decided: never `major`; `minor` only while `main`
-  is still at `0.14.x`, so it lands in `0.15.0`; after `0.15.0` is released only `patch` or an empty changeset.
+- its changeset keeps `@morphemecms/cms` below `1.0.0`, as the owner decided: never `major`. Until `0.15.1` is
+  released only `patch` or an empty changeset, so the Release PR stays `0.15.1`; after that `minor` is allowed, and it
+  lands in `0.16.0` (MCP and the Appstore's sections).
 
 A pull request that conflicts, has no `check` job or has the wrong changeset is not merged. The PM asks the session
 that owns it to merge `main` into the branch (never a rebase, amend or force-push on someone else's branch) or to fix
