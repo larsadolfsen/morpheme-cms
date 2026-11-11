@@ -11,7 +11,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { slugify, slugOf, type Field, type MarkdownCollection } from './schema';
 import { config, frontLeads, headingLooks, sectionLooks, sharing, standardPages, standardPaths } from '@site/editor';
-import { asWritten, placeOf, standardPageAt } from './site';
+import { apps, asWritten, placeOf, standardPageAt } from './site';
 import { ConflictError, type Change, type RepoFile } from './github';
 import { addressOf, moveRedirects, REDIRECTS, retarget } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES, setRedirect } from './redirectData';
@@ -35,7 +35,7 @@ import { inUse, problemAt } from './check';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
 import { asStandardTemplate, blockProblems, notOffered, siteBlocks } from './registry';
-import { FieldInput, Fields, useWrongField, WrongField, type FieldContext } from './fields';
+import { FieldInput, Fields, HeadPicture, HeadTitle, useWrongField, WrongField, type FieldContext } from './fields';
 import { SearchPreview } from './SearchPreview';
 import { searchedAs } from './googleResult.mjs';
 import {
@@ -55,6 +55,7 @@ import {
   discard as discardWaiting,
   saveDraft,
   migrateScheduled,
+  versionsOf,
   schedule,
   timeOf,
   draftPath,
@@ -63,6 +64,8 @@ import {
   unpublish as unpublishPage,
 } from '../lib/versions.mjs';
 import { commitChanges } from './pageVersions.mjs';
+import VersionSwitch, { WaitingNotice } from './VersionSwitch';
+import { activeApps, versionSwitchOf } from './apps';
 import { usePagePreview } from './pagePreview';
 import { migrateStatus } from '../lib/status.mjs';
 import { when } from './when';
@@ -76,6 +79,8 @@ import { firstPicture, SEO_FIELDS, seoInputOf, seoRating, SHARE_FIELDS, sharedAs
 // for Scheduled), a page's title (its name in the lists and the menu; its H1 is in its text) and the template (Field.offered).
 // A post's title is its H1, written above its text: at the top of "Content", as a heading of a collection that has one.
 const TOP = ['title', 'heading'];
+// A blog post's head, drawn in the text as the site draws it (PostHead): the title, the top picture and its text, the date and the tags.
+const POST_HEAD = ['title', 'image', 'imageDecorative', 'imageAlt', 'date', 'categories'];
 const STATUS = ['status', 'publishAt'];
 // Under their own headings at the bottom: the Google texts, the keywords and the canonical address; then the picture, title
 // and description when the page is shared.
@@ -95,7 +100,15 @@ const sectionOf = (collection: MarkdownCollection, path: string): Section => {
     STATUS.includes(name) ||
     (!!collection.blocks && name === 'title') ||
     collection.fields.some((f) => f.name === name && f.offered === 'templates');
-  return settings ? 'settings' : TOP.includes(name) ? 'content' : SEO.includes(name) ? 'seo' : SHARE.includes(name) ? 'share' : 'other';
+  return settings
+    ? 'settings'
+    : TOP.includes(name) || (collection.id === 'blog' && POST_HEAD.includes(name))
+      ? 'content'
+      : SEO.includes(name)
+        ? 'seo'
+        : SHARE.includes(name)
+          ? 'share'
+          : 'other';
 };
 // The section the next page or post opened starts at: "Search engines" when it is opened from "SEO rating"
 // (SeoScores.tsx), else the text.
@@ -199,6 +212,11 @@ function Form({
   // Where the page or post is: a draft (or new), published, or published with changes waiting.
   const livePublished = !!live.path && isPublished(live.text);
   const state = !livePublished ? 'draft' : waiting ? 'waiting' : 'published';
+  // The switch between the live page and the waiting changes: an installed app's (slot `versionSwitch`), else the core's.
+  const Switch = versionSwitchOf(apps, activeApps(env.files)) ?? VersionSwitch;
+  // Which version the form edits while changes wait: they (`waiting`), or the live page (`live`, to fix a mistake on it).
+  const [editing, setEditing] = useState<'waiting' | 'live'>('waiting');
+  const editsLive = editing === 'live' && !!waiting;
   // Starts again after changes were discarded: the text editor takes the text of the version it goes back to.
   const [era, setEra] = useState(0);
   const parts = useMemo(() => splitFrontmatter(base.text), [base]);
@@ -534,7 +552,7 @@ function Form({
     // A published page's `Save`, and `Schedule`, keep the changes as a waiting version (so does `Save` on a draft that has one);
     // `Publish`, and a draft's `Save`, write the page file.
     const scheduling = intent === 'schedule';
-    const viaDraft = scheduling || (!isNew && !moved && !version && intent === 'save' && (livePublished || !!waiting));
+    const viaDraft = scheduling || (!isNew && !moved && !version && !editsLive && intent === 'save' && (livePublished || !!waiting));
     // Writing the page file from the waiting version (published now) takes its file away.
     const foldWaiting = !!waiting && !viaDraft && intent === 'publish';
     // A page on the stored status Scheduled (an older site) becomes a draft when it is scheduled again.
@@ -702,7 +720,29 @@ function Form({
     }
   }
   // `Publish` and `Publish changes`: what is unsaved goes with it.
-  const publishNow = () => save(undefined, named(), 'publish');
+  async function publishNow() {
+    // The live version changed after the waiting changes were saved: publishing replaces it, so the owner is asked first.
+    if (waiting && livePublished && (await liveChangedAfter())) {
+      const answer = await choose({
+        title: t.forms.versions.overwriteTitle,
+        text: t.forms.versions.overwriteText(post),
+        choices: [{ value: 'publish', label: t.forms.versions.publishChanges }],
+      });
+      if (!answer) return;
+    }
+    return save(undefined, named(), 'publish');
+  }
+  // Whether the page file was saved after the waiting version (when each was last saved; not known: no).
+  async function liveChangedAfter() {
+    if (!waiting) return false;
+    try {
+      const at = await env.savedAt([live.path, waiting.path]);
+      const [l, w] = [at[live.path], at[waiting.path]];
+      return !!l && !!w && l > w;
+    } catch {
+      return false;
+    }
+  }
   // `Unpublish`: the page file becomes a draft; changes that wait stay.
   async function unpublishNow() {
     if (standard) return notify({ text: t.forms.versions.standardPage, error: true });
@@ -739,6 +779,7 @@ function Form({
     const changes = commitChanges(discardWaiting({ path: live.path, text: live.text, drafts: { waiting: waiting.text } }), [live, waiting]);
     await act(siteT.forms.versions.commit.discard(singular, what), changes, t.forms.versions.discarded(entry), false, () => {
       setWaiting(null);
+      setEditing('waiting');
       setBase(live);
       setValues(valuesOf(collection, live));
       setBodyChanged(false);
@@ -746,6 +787,26 @@ function Form({
       setEra((n) => n + 1);
       env.onSaved(live, { files: [], removed: [waiting.path] });
     });
+  }
+  // The switch: edits the live page or the waiting changes; what is unsaved is asked about first.
+  async function switchTo(id: string) {
+    const to = id === 'live' ? 'live' : 'waiting';
+    if (!waiting || to === (editsLive ? 'live' : 'waiting')) return;
+    if (dirty) {
+      const answer = await choose({
+        title: t.forms.versions.switchTitle,
+        text: t.forms.versions.switchText,
+        choices: [{ value: 'switch', label: t.forms.versions.switchAction }],
+      });
+      if (!answer) return;
+    }
+    const shownFile = to === 'live' ? live : { ...live, text: waiting.text };
+    setEditing(to);
+    setBase(shownFile);
+    setValues(valuesOf(collection, shownFile));
+    setBodyChanged(false);
+    setBody(splitFrontmatter(shownFile.text).body);
+    setEra((n) => n + 1);
   }
   // When the waiting version goes live, if it has a time.
   const scheduledAt = waiting ? timeOf(waiting.text) : undefined;
@@ -784,8 +845,12 @@ function Form({
     ...(scheduledAt ? [{ label: t.forms.versions.cancelSchedule, onClick: cancelSchedule }] : []),
   ];
   const discardRow = waiting ? [{ label: t.forms.versions.discardChanges, onClick: discardNow }] : [];
-  const publishBar =
-    state === 'draft'
+  const publishBar = editsLive
+    ? {
+        onPublish: publishNow,
+        actions: [...(dirty ? [] : [{ label: t.forms.versions.unpublish, onClick: unpublishNow }]), ...discardRow],
+      }
+    : state === 'draft'
       ? { label: t.forms.versions.publish, onPublish: publishNow, actions: [...scheduleRows, ...discardRow] }
       : {
           ...(state === 'waiting' || dirty ? { label: t.forms.versions.publishChanges } : {}),
@@ -862,13 +927,37 @@ function Form({
     return <FieldInput key={f.name} field={shown} value={value} onChange={change} />;
   };
 
+  // A blog post's head in the text, in the order of the site's PostHeader: the title, the author, the picture at the top (tap to
+  // change) with its text, then a row of facts, the date and the tags.
+  const headField = (name: string) => collection.fields.find((f) => f.name === name);
+  const titleField = headField('title');
+  const author = env.site.contact;
+  const postHead = post && titleField && (
+    <header className="mb-6 space-y-5" data-post-head>
+      <HeadTitle field={titleField} value={values.title} onChange={(v) => onTitle(String(v ?? ''))} />
+      {author.name && (
+        <p className="leading-snug">
+          <span className="block font-medium">{author.name}</span>
+          {author.role && <span className="block text-on-surface-variant">{author.role}</span>}
+        </p>
+      )}
+      <div className="space-y-4">
+        {headField('image') && <HeadPicture field={headField('image')!} value={values.image} onChange={(v) => set('image', v)} />}
+        {['imageDecorative', 'imageAlt'].map((n) => headField(n) && field(headField(n)!))}
+      </div>
+      <div className="flex flex-wrap items-start gap-x-6 gap-y-4 border-t border-outline-variant pt-4 *:min-w-48 *:flex-1">
+        {['date', 'categories'].map((n) => headField(n) && field(headField(n)!))}
+      </div>
+    </header>
+  );
+
   return (
     <Fields.Provider value={fields}>
       <WrongField.Provider value={wrongField.field}>
         <FormFrame
           title={formTitle}
           back={{ href: `#list/${collection.id}`, label: collection.label }}
-          status={versionStatus({ state, scheduledAt, savedAt, saving, deleting, isNew })}
+          status={versionStatus({ state, editsLive, scheduledAt, savedAt, saving, deleting, isNew })}
           publish={publishBar}
           view={isNew ? undefined : url}
           dirty={dirty}
@@ -880,6 +969,22 @@ function Form({
           deleteLabel={t.forms.deleteOne(collection.singular)}
         >
           {version && <VersionNotice version={version} onCurrent={() => onVersion(null)} />}
+          {waiting && !isNew && (
+            <>
+              <Switch
+                entry={{ path: live.path, collection: collection.id, title: String(initial.title ?? ''), post }}
+                versions={versionsOf({ path: live.path, text: live.text, drafts: { waiting: waiting.text } })}
+                editing={editsLive ? 'live' : 'waiting'}
+                busy={saving || deleting}
+                onEdit={(id) => void switchTo(id)}
+                publish={() => publishNow()}
+                schedule={(at) => (at === null ? cancelSchedule() : save(undefined, named(), 'schedule', at))}
+                unpublish={unpublishNow}
+                discard={() => discardNow()}
+              />
+              <WaitingNotice editsLive={editsLive} when={scheduledAt ? timeText(scheduledAt) : undefined} />
+            </>
+          )}
           <FormColumns
             sticky
             main={
@@ -888,7 +993,7 @@ function Form({
                   <FoldSection {...sectionProps('settings')}>{fieldsIn(collection, 'settings').map(field)}</FoldSection>
                 )}
                 <FoldSection {...sectionProps('content')}>
-                  {fieldsIn(collection, 'content').map(field)}
+                  {post ? postHead : fieldsIn(collection, 'content').map(field)}
                   <div ref={textBox} className="scroll-mt-[calc(1rem+env(safe-area-inset-top))]">
                     <span className="mb-1 block font-medium">{t.forms.text}</span>
                     <MarkdownEditor
@@ -972,6 +1077,7 @@ const timeText = (local: string) => when(new Date(untilTime(local) ?? 0));
 // The top bar's line under the title: what the page is on the website, and when it was last changed.
 function versionStatus({
   state,
+  editsLive,
   scheduledAt,
   savedAt,
   saving,
@@ -979,6 +1085,8 @@ function versionStatus({
   isNew,
 }: {
   state: 'draft' | 'published' | 'waiting';
+  /** The live page is being edited while changes wait. */
+  editsLive?: boolean;
   /** When the waiting version goes live ("2026-11-20T08:00"), if it has a time. */
   scheduledAt?: string;
   savedAt?: Date | null;
@@ -987,6 +1095,7 @@ function versionStatus({
   isNew?: boolean;
 }) {
   if (deleting || saving || isNew) return savedStatus({ savedAt, saving, deleting, isNew });
+  if (editsLive) return t.forms.versions.editingLive;
   if (scheduledAt && untilTime(scheduledAt) !== null) return t.forms.versions.scheduledLine(timeText(scheduledAt));
   if (state === 'draft') return t.forms.versions.draftLine;
   if (state === 'waiting') return t.forms.versions.waitingLine;

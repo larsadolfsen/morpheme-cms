@@ -1,12 +1,25 @@
-// What "List" shows (its view, drawn by the theme's View.tsx and Rows.tsx): each row's icon, heading, text and page. The same in
-// the editor (viewOf) and on the site (load.ts): only its fields. (The label, heading and intro it had are the text's own now.)
+// What "List" shows (its view, drawn by the theme's View.tsx and Rows.tsx): each row's icon, heading, text and page; a row can be a small
+// heading of the rows after it (`heading`). A row with a page and no heading of its own has the page's title (the pages' links of "Links" are
+// rows like that), and one whose page is missing is left out. In the editor: viewOf, from the site's pages; on the site: load.ts. (The label,
+// heading and intro the block had are the text's own now, lib/remark-list-head.mjs.)
 import type { ViewOf } from '../view';
 
-export type ListRow = { icon?: string; title: string; text?: string; href?: string };
+export type ListRow = { icon?: string; title: string; text?: string; href?: string; heading?: boolean };
 export type ListView = { items: ListRow[] };
 
-export const listOf = (props: Record<string, any>): ListView => ({
-  items: props.items ?? [],
+/** A row as its fields write it: without a heading of its own when it has a page. */
+export type ListRowProps = Partial<ListRow>;
+
+/** The view from the block's fields; `titleOf`: a page's title by its address, undefined when there is no such page. */
+export const listOf = (props: Record<string, any>, titleOf: (href: string) => string | undefined): ListView => ({
+  items: ((props.items ?? []) as ListRowProps[]).flatMap((row) => {
+    const title = row.title?.trim() || (row.href ? titleOf(row.href) : undefined);
+    if (!title) return [];
+    return [{ ...row, title }];
+  }),
 });
 
-export const viewOf: ViewOf<ListView> = listOf;
+export const viewOf: ViewOf<ListView> = (props, data) => {
+  const byPath = new Map(data.site.pages.map((p) => [p.path, p.title]));
+  return listOf(props, (href) => byPath.get(href));
+};

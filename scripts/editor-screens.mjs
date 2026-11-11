@@ -96,6 +96,35 @@ const shownItems = (selector) =>
     .map((e) => ({ href: e.getAttribute('href'), text: e.innerText.trim(), tag: e.tagName, ...e.getBoundingClientRect().toJSON() }))
     .filter((e) => e.width > 0 && e.height > 0);
 
+/** The "New in" card on the start screen, with the tall portrait photo of the 0.16 edition (1280x2272) in place of its own: the photo and the card stay inside the card's own box and above the widgets, never painted over them (375, 690 and 1280 px). */
+async function checkUpdatesCard(width, height) {
+  const label = `${width}px`;
+  const tall = readFileSync(resolve(ROOT, '../../../release-notes/editions/0.16.webp'));
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
+  page.on('pageerror', (e) => problems.push(`${label} start: ${e.message}`));
+  await page.route('**/_astro/*.webp', (r) => r.fulfill({ body: tall, contentType: 'image/webp' }));
+  await openEditor(page, site);
+  await page.waitForSelector('#updates-title');
+  await page.waitForTimeout(500);
+  const box = await page.evaluate(() => {
+    const card = document.querySelector('#updates-title').closest('section');
+    const r = (e) => e && e.getBoundingClientRect().toJSON();
+    const cells = [...document.querySelectorAll('main .grid.items-start > *')].map(r);
+    return {
+      card: r(card),
+      img: r(card.querySelector('img')),
+      buttons: [...card.querySelectorAll('.mt-auto a, .mt-auto button')].map(r),
+      cells,
+    };
+  });
+  const inside = (b) =>
+    b.top >= box.card.top - 1 && b.bottom <= box.card.bottom + 1 && b.left >= box.card.left - 1 && b.right <= box.card.right + 1;
+  if (box.img && !inside(box.img)) problems.push(`${label} start: the edition photo is painted outside its card`);
+  if (box.buttons.some((b) => !inside(b))) problems.push(`${label} start: a button of the "New in" card is outside the card`);
+  if (box.cells.some((c) => c.top < box.card.bottom - 1)) problems.push(`${label} start: the "New in" card overlaps the widgets under it`);
+  await page.close();
+}
+
 /** Settings lists the six screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
@@ -521,6 +550,13 @@ for (const [state, checks] of Object.entries(keyStates)) {
   }
   await page.close();
 }
+
+for (const [width, height] of [
+  [375, 800],
+  [690, 860],
+  [1280, 900],
+])
+  await checkUpdatesCard(width, height);
 
 await browser.close();
 server.close();
