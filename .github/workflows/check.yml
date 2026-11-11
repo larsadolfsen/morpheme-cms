@@ -34,7 +34,8 @@ jobs:
       # each of its pages the same after a save in the editor.
       - run: npm run check
       # Every screen of the editor on the built demo, on a phone and on a computer.
-      - run: npx playwright install --with-deps chromium
+      # If apt is down, the runner's own libraries are used and only the browser is downloaded.
+      - run: npx playwright install --with-deps chromium || npx playwright install chromium
       - run: npm run check:screens
       # The demo built with the standard theme.
       - run: npm run check:demo

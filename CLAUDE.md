@@ -51,7 +51,9 @@ takes over every pull request that is waiting, and the orchestrator stops mergin
 Release PR, and the rules in **Only the owner releases a new version** apply to it as to every session. The sessions it
 started still never merge their own pull requests.
 
-**Merging.** The PM makes every merge decision, in this repository and in `morpheme-staging`. It squash-merges a pull
+**Merging.** The PM makes every merge decision, in this repository and in `morpheme-staging`, `morpheme-appstore` and
+`morpheme-apps`, also where a merge may deploy something live (the store). The owner does not merge and is not asked to:
+the PM merges everything except releases (the Release PR, npm approvals and version tags). It squash-merges a pull
 request when all of this holds, one pull request at a time:
 
 - the pull request is not a draft, has no merge conflict and no unresolved review comment;
@@ -71,7 +73,7 @@ the changeset, and merges when it is right. It never merges the Release PR.
 waiting to merge, sessions that went quiet without a pull request (it starts a fresh session with the whole task in its
 first prompt when a session stays stuck), release notes and changesets a merged change still lacks, follow-ups the
 sessions report, branches that are fully merged, and open questions for the owner. It archives a session once its work
-is merged. It tells the owner only what the owner has to do or decide, such as approving a `next` build on npmjs.com,
+is merged (after checking it has no open question for the owner and no unmerged branch). It tells the owner only what the owner has to do or decide, such as approving a `next` build on npmjs.com,
 and which version to approve, because every merge to `main` stages a new `next` build that only the owner approves. A pull request the owner has to see is assigned to the owner; the owner does not see the rest.
 
 **Cloudflare builds.** The PM also keeps an eye out for failed Cloudflare builds: the `Workers Builds: …` check on every
