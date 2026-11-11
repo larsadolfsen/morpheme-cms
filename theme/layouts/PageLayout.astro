@@ -76,9 +76,9 @@ const questions = await Promise.all(
     .filter((q) => q.question?.trim() && q.answer?.trim())
     .map(async (q) => ({ question: q.question!.trim(), answer: await markdownHtml(q.answer!) })),
 );
-// A new version of a page (/ny/…, packages/editor/site/noindex.mjs): a message at the bottom when the page opens
+// A new version of a page (/new/…, packages/editor/site/noindex.mjs): a message at the bottom when the page opens
 // (the theme's Snackbar, shown by ui/snackbar.script.ts with time to read the links) links to the current
-// page and to the page's row on /ny/, where what the owner should look at stands; its blocks see it as the
+// page and to the page's row on /new/, where what the owner should look at stands; its blocks see it as the
 // current page.
 const preview = isPreview(path);
 const current = livePath(path);

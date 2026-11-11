@@ -2,7 +2,7 @@
 // keyword of the pages, the posts and the fixed pages with the fields for them ("Search engines"), each with the page it
 // links to, which of its keywords it is and, at the right, how many pages and posts link with it on the site as it was
 // last built (/editor/links.json, packages/editor/scripts/link-counts.mjs; one that another page has too, which wins, links from none).
-// Only those of the published ones, as the site links them (packages/editor/site/autolinks.mjs); a new version of a page (/ny/…)
+// Only those of the published ones, as the site links them (packages/editor/site/autolinks.mjs); a new version of a page (/new/…)
 // gives its own to the page it is for. Over them, as over the lists, a search by word and page, the order (A–Z, the
 // default, under the first letter, Z–A, the most or the fewest links first; kept in this browser) and the funnel with
 // the filters by kind of keyword, by links and by kind of page, each picked one as a chip. A row opens the page at
@@ -12,6 +12,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Choice, EmptyNote, Filters, FormHeading, Group, InputChip, listClass, SearchRow, useKept, ListItem } from './ui';
 import type { RepoFile } from './github';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
+import { inPreview } from '../lib/previewAddress.mjs';
 import { openAtSeo } from './EntryForm';
 import { headed, letterOf } from './Sheet';
 import { collections } from './site';
@@ -65,7 +66,7 @@ function keywordsOf(files: RepoFile[]): Keyword[] {
           const draft = d.status && d.status !== 'published';
           const address = String(d.path || `/${f.path.slice(c.folder.length + 1).replace(/(\/index)?\.md$/, '')}/`);
           const at = shownAt(address);
-          if (draft || address.startsWith('/ny/') || at === null) return [];
+          if (draft || inPreview(address) || at === null) return [];
           return wordsOf(d, {
             title: String(d.title ?? f.path),
             href: `#${f.path}`,

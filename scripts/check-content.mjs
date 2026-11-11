@@ -38,6 +38,8 @@ import { buildSettingsProblems } from './build-settings-problems.mjs';
 import { textProblems } from './text-problems.mjs';
 import { notesOf, releaseProblems } from './releases.mjs';
 import { alreadyChecked } from './already-checked.mjs';
+import { oldPreviewWarnings } from '../lib/previewAddress.mjs';
+import { readFields, splitFrontmatter } from '../src/frontmatter.mjs';
 
 // morpheme ci-build has run this check for the commit being built.
 // Git is asked only then; no repository or no commit yet means "not checked".
@@ -203,6 +205,18 @@ result.problems.push(...casingProblems(tracked));
 result.problems.push(
   ...buildSettingsProblems(BUILD_SETTINGS_PATH, existsSync(BUILD_SETTINGS_PATH) ? readFileSync(BUILD_SETTINGS_PATH, 'utf8') : undefined),
 );
+
+// A new version of a page still at the old place (src/content/pages/ny/, or a path under /ny/) is read at /new/ for this
+// release: said, never a stop, so a site that is fine today still builds.
+for (const warning of oldPreviewWarnings(
+  files
+    .filter((f) => f.path.startsWith('src/content/pages/') && f.path.endsWith('.md'))
+    .map((f) => ({
+      file: f.path.slice('src/content/pages/'.length),
+      path: readFields(splitFrontmatter(f.text).yaml).path,
+    })),
+))
+  console.warn(`Warning: ${warning}`);
 
 // The site settings: a setting found in the content (the standard is another) is said once, never a stop.
 const found = settingProblems(config, settings, files);

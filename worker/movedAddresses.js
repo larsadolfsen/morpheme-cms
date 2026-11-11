@@ -4,12 +4,13 @@
 
 /**
  * Old address prefix (with both slashes) and its new prefix. A line is added in the pull request that renames the pages:
- * `/blog/kategori/` became `/blog/tags/`. The `/ny/` to `/new/` line comes with its own rename.  // language-ok: an old public address
+ * `/blog/kategori/` became `/blog/tags/`, and `/ny/` became `/new/`.  // language-ok: an old public address
  * scripts/retarget-links.mjs reads this list to rewrite a site's own links.
  * @type {[string, string][]}
  */
 export const MOVED_PREFIXES = [
   ['/blog/kategori/', '/blog/tags/'], // language-ok: an old public address
+  ['/ny/', '/new/'], // language-ok: an old public address
 ];
 
 /**

@@ -4,6 +4,7 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 import { categories, isBlogCategory } from './categories';
 import { displayTitle } from './text';
 import { isPreview } from './noindex.mjs';
+import { renamedPreview } from '../lib/previewAddress.mjs';
 import { stateOf } from '@morphemecms/cms/lib/status.mjs';
 import { pageH1 } from '@morphemecms/cms/src/sections.mjs';
 import { h1SectionColor, withoutH1 } from '@morphemecms/cms/lib/without-h1.mjs';
@@ -61,10 +62,11 @@ export type PostChoice = {
 };
 
 // The pages on the site, also the hidden ones (Hidden; with `unlisted: false` not those) and, like the
-// posts, the drafts on the editor's preview; with `previews: false`, not the new versions of pages under /ny/.
+// posts, the drafts on the editor's preview; with `previews: false`, not the new versions of pages under /new/.
 export async function getPages({ previews = true, unlisted = true } = {}): Promise<Page[]> {
   const pages = await getCollection('pages', ({ data }) => shown(stateHere(data), unlisted));
-  for (const page of pages) page.data.path ??= `/${page.id}/`;
+  // A page still under the old address /ny/ (its folder or its path) is read at the new one, /new/ (lib/previewAddress.mjs).
+  for (const page of pages) page.data.path = renamedPreview(page.data.path ?? `/${page.id}/`);
   return (previews ? pages : pages.filter((p) => !isPreview(p.data.path!))) as Page[];
 }
 

@@ -44,7 +44,7 @@ const byPath = () => (pages ??= getPages().then((all) => new Map(all.map((p) => 
 
 export const standard: StandardSite = {
   texts: blockTexts,
-  // A new version of a page (/ny/…) shows the openings of the new versions of the pages it links to.
+  // A new version of a page (/new/…) shows the openings of the new versions of the pages it links to.
   async pageOpening(href, preview) {
     const all = await byPath();
     const page = all.get(href);

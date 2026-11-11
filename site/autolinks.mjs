@@ -54,7 +54,7 @@ const files = (dir) =>
 const frontmatter = (file) => parse(fs.readFileSync(file, 'utf8').match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '') ?? {};
 
 /** The keywords of the pages and posts: [{ href, primary, secondary }]. A page's address is its
- * `path`, or else its file name (getPages() in packages/editor/site/content.ts); a new version of a page (/ny/…)
+ * `path`, or else its file name (getPages() in packages/editor/site/content.ts); a new version of a page (/new/…)
  * gives its keywords to the page it is for, when that page exists. Only published ones are linked to
  * (packages/editor/lib/status.mjs). */
 function keywordRules() {
@@ -110,7 +110,7 @@ export function loadLinks() {
 const SKIP = new Set(['aside', 'a', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'code', 'pre', 'button', 'figcaption', 'dl']);
 
 /** The URL of the page being rendered: front matter `path` (pages) or /<file name>/ (posts). A new
- * version of a page (/ny/…) counts as the page it is for, so it links as it will once it replaces it. */
+ * version of a page (/new/…) counts as the page it is for, so it links as it will once it replaces it. */
 function pagePath(file) {
   const fm = file.data?.astro?.frontmatter;
   if (fm?.path) return linked(livePath(fm.path));

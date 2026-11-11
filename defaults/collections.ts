@@ -448,7 +448,7 @@ export const collections: Collection[] = [
         name: 'review',
         label: 'For review',
         type: 'text',
-        hint: 'Only shown on pages under /ny/.',
+        hint: 'Only shown on pages under /new/.',
       },
       ...seo,
       ...shareTexts,

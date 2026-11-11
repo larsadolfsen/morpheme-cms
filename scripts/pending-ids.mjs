@@ -7,17 +7,6 @@
 // List every current finding: node scripts/check-language.mjs --list-ids. Delete this file when the list is empty.
 // Skipped by the id and text rules itself (lib/danish.mjs isIdCheckSkipped): its entries are Danish on purpose.
 export const PENDING_IDS = [
-  // Row 13, batch E: the new-version pages /ny/<address>, the folder src/content/pages/ny/ and their files.
-  'README.md:ny',
-  'astro.mjs:ny',
-  'defaults/rules.ts:ny',
-  'lib/fixtures/reads-site/src/content/pages/ny/about.md:ny',
-  'lib/reads.mjs:ny',
-  'lib/reads.test.mjs:ny',
-  'pages/ny.astro:ny',
-  'site/defineSite.mjs:ny',
-  'site/noindex.mjs:ny',
-  'src/Keywords.tsx:ny',
   // No spec row, batch: whoever touches the file. Comments (and one theme.json text) that name an old Danish screen or word in quotes.
   'demo/src/site/colors.ts:indstillinger',
   'demo/src/site/colors.ts:farver',

@@ -79,8 +79,8 @@ const pages = defineCollection({
     noindex: z.boolean().optional().default(false),
     // The page's template, one the theme offers (lib/page-template.mjs; PageLayout.astro). Left out: the theme's first.
     template: z.enum(PAGE_TEMPLATES as [string, ...string[]]).optional(),
-    // A new version of a page (/ny/…): what the owner should look at or answer before it replaces the
-    // current page. Shown at the top of the new version and on /ny/.
+    // A new version of a page (/new/…): what the owner should look at or answer before it replaces the
+    // current page. Shown at the top of the new version and on /new/.
     review: z.string().optional(),
     updated: z.coerce.date().optional(),
   }),

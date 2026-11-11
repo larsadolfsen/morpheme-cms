@@ -14,6 +14,7 @@ const TABLE = [
   [OLD, '/blog/tags/'],
   ['/ny/', '/new/'], // language-ok: an old public address
 ];
+// The same two lines, as the Worker ships them: the helper needs no list of its own.
 
 describe('retargetPrefix', () => {
   test('Markdown, HTML, JSON and the site domain, with the rest of the address kept', () => {
@@ -47,7 +48,25 @@ describe('retargetSite', () => {
 
   test('reads the domain from the site config', () => assert.equal(domainOf(site), 'site.test'));
 
-  test("the table is the Worker's own list", () => assert.ok(MOVED_PREFIXES.some(([from]) => from === OLD)));
+  test("the table is the Worker's own list, /ny/ to /new/ in it", () => assert.deepEqual(MOVED_PREFIXES, TABLE));
+
+  test('with the shipped table, /ny/ links become /new/ links and a second run finds nothing', () => {
+    const root = mkdtempSync(join(tmpdir(), 'retarget-ny-'));
+    mkdirSync(join(root, 'src/content/pages'), { recursive: true });
+    mkdirSync(join(root, 'src/data'), { recursive: true });
+    writeFileSync(
+      join(root, 'src/content/pages/a.md'),
+      'Compare [it](/ny/about/#top), [more](/ny/) and [other](/company/ny/) and [kept](/new/x/).\n',
+    ); // language-ok: an old public address
+    writeFileSync(join(root, 'src/data/menu.json'), JSON.stringify({ items: [{ href: '/ny/about/' }] })); // language-ok: an old public address
+    assert.equal(retargetSite(root, { prefixes: MOVED_PREFIXES.filter(([from]) => from === '/ny/') }).length, 2); // language-ok: an old public address
+    assert.equal(
+      readFileSync(join(root, 'src/content/pages/a.md'), 'utf8'),
+      'Compare [it](/new/about/#top), [more](/new/) and [other](/company/ny/) and [kept](/new/x/).\n', // language-ok: an old public address
+    );
+    assert.match(readFileSync(join(root, 'src/data/menu.json'), 'utf8'), /"\/new\/about\/"/);
+    assert.deepEqual(retargetSite(root), []);
+  });
 
   test('a dry run changes nothing', () => {
     const found = retargetSite(site, { prefixes: TABLE, write: false });
