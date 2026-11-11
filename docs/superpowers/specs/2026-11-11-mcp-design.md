@@ -224,6 +224,67 @@ Changesets: these are new features for the owner, but the batches are built in 0
 updates that rule then; this spec does not choose them. This spec's own pull request changes only docs and has an empty
 changeset.
 
+## MCP revisions
+
+The owner decided (2026-11-11): the read-only server (batch 1) speaks **2025-11-25** now and **2026-07-28** later.
+Research date 2026-11-11. V = verified from a primary source (link), U = unverified.
+
+### What clients support for remote servers
+
+| Client                           | 2025-11-25 | 2026-07-28                                            | Status |
+| -------------------------------- | ---------- | ----------------------------------------------------- | ------ |
+| Claude Code                      | U (likely) | Yes, on its "v2 runtime" (MCP SDK 2.0); asks servers first, others get v1 behaviour. Default runtime: U | V: [docs](https://code.claude.com/docs/en/mcp), "MCP client runtimes" (first 100k characters read) |
+| Claude apps (claude.ai, Desktop) | U          | U (no revision named in the connector docs)           | U: [docs](https://claude.com/docs/connectors/custom/remote-mcp.md) |
+| ChatGPT (developer mode)         | U          | U (no revision named)                                 | U: [docs](https://developers.openai.com/api/docs/guides/developer-mode), page not read |
+| Cursor                           | Yes (opens with `initialize`) | No; reply "No timeline at the moment!" | Forum report only, not a changelog: [thread](https://forum.cursor.com/t/mcp-client-cannot-connect-to-modern-only-2026-07-28-streamable-http-servers-legacy-initialize-rejected/172536) |
+| VS Code (Copilot)                | U          | U (no primary source)                                 | U |
+| MCP TypeScript SDK 1.x (1.32.2)  | Yes (also 2025-06-18, 2025-03-26, 2024-11-05) | No | V: npm tarball `SUPPORTED_PROTOCOL_VERSIONS` |
+| MCP TypeScript SDK 2.x (2.4.0)   | Yes (`LATEST_PROTOCOL_VERSION`) | Per release notes yes, though the constant lists no 2026-07-28; how is U | V/U: [releases](https://github.com/modelcontextprotocol/typescript-sdk/releases) |
+
+The spec's own announcement says the TypeScript, Python, Go and C# SDKs speak 2026-07-28:
+[blog](https://blog.modelcontextprotocol.io/posts/2026-07-28/) (V, but only as read by a summarising tool). Only Claude
+Code has a first-party document confirming use of 2026-07-28 against remote servers. Third-party compatibility pages
+(Zuplo) contradict themselves and are not used.
+
+### What one `/mcp` endpoint must do to serve both
+
+All V, from the [2026-07-28 changelog](https://modelcontextprotocol.io/specification/2026-07-28/changelog), the
+[Streamable HTTP page](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http.md) and
+the [versioning page](https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning.md). The spec calls this a
+"dual-era" server, and allows serving both eras on the same endpoint.
+
+- **Choose the era per request, not per connection.** A legacy client opens with `initialize` and may send `Mcp-Session-Id`.
+  A modern client sends, on every POST, an `MCP-Protocol-Version` header and `params._meta` with
+  `io.modelcontextprotocol/protocolVersion` and `.../clientCapabilities` (no handshake, no session).
+- **Legacy path (2025-11-25):** `initialize` / `notifications/initialized`, optional session id, as today. A legacy client has no
+  fall-forward, so a modern-only server fails it: the legacy path must stay.
+- **Modern path:** implement `server/discover` (MUST); reject a missing `_meta` field with `-32602` (HTTP 400); header and
+  `_meta` mismatch is `-32020`; an unsupported version is `-32022` with `data.supported`; add `resultType` to every result,
+  `ttlMs` and `cacheScope` to list/read results, and `Mcp-Method`/`Mcp-Name` headers are expected on requests. Return
+  resource-not-found as `-32602`, not `-32002`.
+- **No server-initiated requests** on the modern path (sampling, elicitation and roots are gone; they use `input_required`).
+  Our read-only tools need none. The legacy path need not use them either.
+- Modern clients try a modern request first and, on a 400 without a recognised modern error body, fall back to `initialize`
+  (cached per origin), so the 400 body on a failed modern request must be the spec's error shape.
+- **Authorization:** 2026-07-28 moves OAuth towards Client ID Metadata Documents (DCR deprecated) and clients must validate
+  `iss` (RFC 9207). Our Worker already is the authorization server, so keep DCR for legacy clients and add `iss` to the
+  authorization response and a metadata-document client lookup in the later batch. The authorization pages were not read in
+  full (U).
+
+### Recommendation
+
+1. **Batch 1 builds 2025-11-25 only**, but with the dispatch in one place: a function that reads the request and returns
+   `legacy` or `modern`, and tools that return plain data, so the result shape is added by the transport layer. A modern
+   request gets the spec's `-32022` error with `supported: ["2025-11-25"]` (valid per spec, and lets dual-era clients fall back).
+2. **Build the 2026-07-28 batch when** (a) Claude apps or ChatGPT document support (today only Claude Code does, behind its
+   v2 runtime, and Cursor does not), or (b) the owner wants Claude Code on 2026-07-28 sooner. Until then it gives sites nothing:
+   every client that supports it also still speaks 2025-11-25, which we keep.
+3. **How:** a separate batch after batch 1 that adds `server/discover`, the modern headers and `_meta`, the result fields and
+   the authorization changes above on the same `/mcp` route, with Worker tests for one legacy and one modern client against
+   both, and a test that a legacy client still works. It needs no change to the tools. Check the TypeScript SDK 2.x for how
+   it binds a modern revision before hand-writing it; the Worker is a plain `fetch` handler, so decide then whether to use it.
+4. Recheck the table (the U rows) before starting that batch.
+
 ## Open questions
 
 1. **Owner: the sign-in.** The spec proposes OAuth with the Worker as authorization server and GitHub as the identity. The
@@ -241,5 +302,5 @@ changeset.
 6. **Draft of a published page.** Whether the editor already holds a draft beside a published page (see "Tools"). Found by
    reading `lib/status.mjs` and the editor's save path in batch 2; if there is none, writes to published pages are left out
    until there is.
-7. **MCP revisions.** The authorization part of the protocol has changed between revisions. The plan names the revision
-   built against and the Worker tests a client of that revision.
+7. **MCP revisions.** Decided: 2025-11-25 now, 2026-07-28 later. See "MCP revisions" for the clients, the dual-era rules and
+   when to build the second batch. The plan still names the authorization revision built against.
