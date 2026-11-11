@@ -190,6 +190,33 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   The picker's `Insert` list keeps its search, order and group filter (`BlockDialog.tsx`), but shows a one-line hint and a
   small picture per block, which `Preview` (`ui.tsx`) already draws.
 
+### 13. Many blocks are the same list in a different design
+
+- **Evidence:** the standard blocks in `Insert` are Banner, Buttons, Cards, Checklist, Expandable list, Links, List,
+  Notice, Points with icon, Price cards, Questions and answers, Steps, Testimonials, Video, Blog posts and Cookies
+  (`src/standard/`, `blocks.ts` texts). Seven of them are rows of the same few fields:
+  - **Cards, List, Points with icon, Steps, Links, Checklist:** each is a list of rows with a `Heading` and a `Text`
+    (Checklist: only `Text`), most with an `Icon` and an optional `Page` link. Their hints are near-synonyms
+    (`Cards with links to other pages`, `Rows under each other with a heading and a text`, `Points with an icon, a heading,
+    and a text`, `Numbered steps with heading and text`, `Points with a check mark before them`). Cards even has a
+    `Design` (Text, Icon, Picture) and List a `Design` (Standard, Segmented), so a design choice already exists inside two of them.
+  - **Questions and answers, Expandable list:** both are rows that expand; one has `Question`/`Answer`, the other `Heading`/`Text`/`Page`.
+  - **Testimonials, Blog posts:** both are lists filled from the site's content (tags, selected, all).
+- **Likely hesitation:** the picker is one flat A–Z list (`BlockDialog.tsx`: order A–Z, Z–A or by group, where "group" means
+  the standard blocks or an app), so an owner who wants "a few boxes with an icon" must open Cards, Points with icon and List
+  to see which fits.
+- **Fix, in two steps:**
+  1. **Group in the picker (no model change).** Under `Insert`, standard blocks get headings by what they do:
+     `Rows and cards` (Cards, List, Points with icon, Steps, Checklist, Links), `Questions` (Questions and answers,
+     Expandable list), `From your content` (Testimonials, Blog posts), `Prices`, `Banner and buttons` (Banner, Buttons,
+     Notice, Video), `Other`. Each block keeps its picture and hint; hints say how it differs from its neighbours
+     (`Numbered`, `With a check mark`, `With a picture`). Apps keep their own groups.
+  2. **Merge the rows (model change, owner's call).** One block `Rows` with a `Design` choice: Cards, List, Points, Steps,
+     Checklist, Links; and one `Questions` block with a `Display` choice (open, or expanding). A migration maps each
+     existing block to its design, so no page changes look or content. Fewer blocks to choose from, one set of row fields to
+     learn and one block sheet. The cost: a theme draws each design today (`theme/blocks/*`), so the merge touches every theme
+     and the demo, and `check:themes` must pass.
+
 ## Batches
 
 Each is one pull request into `main` (or `0.16` where marked), with a release note (`release-notes` skill) and, until
@@ -203,10 +230,12 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 | D | **Build feedback:** the `Updating…` chip until live (8) | top bar, `deploy.ts` | no | none |
 | E | **Menu and Settings regroup:** Appearance into the menu, Developer under Advanced, Logo and icon moved (5, 4, 9) | `MainMenu`, `defaults/editor.ts`, Settings | **yes**: Appstore, Settings › Assistants | Q3, Q4 |
 | G | **Text and blocks:** `Body large` and `Label` styles, dotted H2 line, editor opens on H1, blocks lose their head fields with a migration, sheet buttons (10, 11, 12) | `MarkdownEditor`, `BlockDialog`, `standard/*`, `theme/blocks/*`, `lib/section-marker.mjs` | no | none |
+| H | **Group similar blocks:** step 1 of finding 13, headings in the `Insert` picker and sharper hints (13) | `BlockDialog`, `blocks.ts` texts, `da-DK` | no | none |
+| I | **Merge the row blocks:** step 2 of finding 13, with a migration (13) | `standard/*`, `theme/blocks/*`, every theme | no | Q6 |
 | F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
 
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
-or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
+or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. H can go with B and C (no decision). I only after G, since both change the same block files and the same migration, and after the owner has seen H. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
 
 ## Open questions for the owner
 
@@ -219,3 +248,5 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    have been opened and checked; the Danish names change with them.
 5. **Rename the status `Hidden` to `Unlisted`?** Recommended: yes (the words `Hidden on the page` and `Hide from search engines`
    then mean something else). Changes the stored `unlisted` label only, not the value in files.
+6. **Only group the similar blocks in the picker, or also merge them into fewer blocks (`Rows`, `Questions`)?** Recommended:
+   group first (batch H), look at it, then decide on the merge (batch I). The merge is larger and changes every theme.
