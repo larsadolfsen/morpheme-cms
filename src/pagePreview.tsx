@@ -1,6 +1,6 @@
 // "Preview" (FormFrame.tsx): a page or a blog post as it looks on the site with what is in its form
-// now, at once and without saving, in a sheet, at each of Material 3's window sizes
-// (lib/breakpoints.mjs).
+// now, at once and without saving, full screen (a Material 3 full-screen dialog, hiding the rest of the editor), at each
+// of the site's window sizes or any width (PreviewScreen.tsx).
 //
 // The page as it is on the site gives everything around what the form changes: the header, the footer,
 // the layout and the site's CSS. The site's layouts mark what the form changes (data-editor): the
@@ -22,12 +22,13 @@
 // A post's text starts with its lead, a paragraph drawn larger and before the picture (data-editor="lead",
 // theme/layouts/PostLayout.astro; lib/lead.mjs). The preview splits the text the same way, for a post only (postLead.mjs).
 import { useRef, useState, type ReactNode } from 'react';
+import { X } from '@phosphor-icons/react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { parseBlock, splitBlocks } from '../lib/blocks.mjs';
 import { introOf, sectionClass, sectionsOf } from '../lib/text-sections.mjs';
 import { h1SectionColor, withoutH1 } from '../lib/without-h1.mjs';
-import { BREAKPOINTS, breakpointOf, type Breakpoint } from '../lib/breakpoints.mjs';
+import { BREAKPOINTS, type Breakpoint } from '../lib/breakpoints.mjs';
 import { processor } from '../lib/markdown';
 import { splitPicture } from '../lib/crop.mjs';
 import { isPostPage, leadFill } from './postLead.mjs';
@@ -36,7 +37,8 @@ import { shownAt } from './images';
 import { pageH1 } from './sections.mjs';
 import { setH1Panel } from './pageH1Panel.mjs';
 import type { BlockData } from './blocks';
-import { PageFrame, BottomSheet, SegmentedButton, SheetTitle } from './ui';
+import { IconButton } from './ui';
+import { PreviewScreen } from './PreviewScreen';
 import { t } from './i18n';
 
 /** What a form puts in the page: undefined leaves it as it is on the site. */
@@ -198,18 +200,21 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
   return documentHtml(doc);
 }
 
-// The sizes the page is shown at: Material 3's breakpoints.
-const SIZES: Breakpoint[] = ['compact', 'medium', 'expanded', 'large', 'extraLarge'];
-/** The width of the page at each size: the narrowest window it has, so its tightest layout is seen; compact at a common
- * phone's. Also the preview of a part (partPreview.tsx). */
+/** The width of the page at each size in a part's preview (partPreview.tsx): the narrowest window the size has, so its
+ * tightest layout is seen; compact at a common phone's. */
 export const PREVIEW_WIDTH: Record<Breakpoint, number> = { ...BREAKPOINTS, compact: 390 };
 
-/** The sheet with the preview, and how to open it with a draft (made when it opens). */
+// In the full-screen Preview the site's section lines (the dotted line at the start of an H2 section and round a coloured one) show
+// only under the pointer, so the page looks as the site does the rest of the time.
+const HOVER_LINES = `<style data-editor-preview>
+[data-editor="text"] :is(h2, section):hover { outline: 2px dotted color-mix(in srgb, currentColor 40%, transparent); outline-offset: 0.5rem; }
+</style>`;
+
+/** The full-screen Preview (a Material 3 full-screen dialog), and how to open it with a draft (made when it opens). */
 export function usePagePreview(): [(draft: () => PageDraft | null) => void, ReactNode] {
   const dialog = useRef<HTMLDialogElement>(null);
   const [html, setHtml] = useState<string | null>(null);
   const [problem, setProblem] = useState('');
-  const [size, setSize] = useState<Breakpoint>(() => breakpointOf(innerWidth));
   const run = useRef(0);
 
   function open(make: () => PageDraft | null) {
@@ -220,35 +225,24 @@ export function usePagePreview(): [(draft: () => PageDraft | null) => void, Reac
     setProblem('');
     dialog.current?.showModal();
     pageDocument(draft).then(
-      (page) => n === run.current && setHtml(page),
+      (page) => n === run.current && setHtml(page.replace('</head>', `${HOVER_LINES}</head>`)),
       (e) => n === run.current && setProblem(t.preview.failed((e as Error).message)),
     );
   }
 
   const close = () => dialog.current?.close();
-  const sheet = (
-    <BottomSheet
-      full
-      ref={dialog}
-      aria-label={t.preview.title}
-      onClick={(e) => e.target === dialog.current && close()}
-      onClose={() => run.current++}
-    >
-      <SheetTitle title={t.preview.title} onClose={close} />
-      <div className="px-5 pb-3">
-        <SegmentedButton
-          label={t.preview.size}
-          value={size}
-          options={SIZES.map((s) => ({ value: s, label: t.preview.sizes[s] }))}
-          onChange={setSize}
-        />
+  const screen = (
+    <dialog ref={dialog} className="editor-preview-screen" aria-label={t.preview.title} onClose={() => run.current++}>
+      <div className="flex shrink-0 items-center gap-1 px-1 py-1">
+        <IconButton icon={X} label={t.common.close} onClick={close} />
+        <h2 className="text-title-large ms-2 text-on-surface">{t.preview.title}</h2>
       </div>
       {html ? (
-        <PageFrame html={html} width={PREVIEW_WIDTH[size]} title={t.preview.title} />
+        <PreviewScreen html={html} title={t.preview.title} />
       ) : (
         <p className="px-5 text-on-surface-variant">{problem || t.preview.making}</p>
       )}
-    </BottomSheet>
+    </dialog>
   );
-  return [open, sheet];
+  return [open, screen];
 }

@@ -159,8 +159,9 @@
 }
 
 /* Material 3's breakpoints (m3.material.io/foundations/layout/breakpoints): Tailwind's medium:, expanded:, large: and
-   extra-large: (and max-…:), and theme(--breakpoint-…) in a @media; the same as lib/breakpoints.mjs for scripts. */
-@theme {
+   extra-large: (and max-…:), and theme(--breakpoint-…) in a @media; the same as lib/breakpoints.mjs for scripts. `static`
+   puts them on :root of every page, so the editor's Preview reads the breakpoints the site has (previewBreakpoints.ts). */
+@theme static {
   --breakpoint-*: initial;
   --breakpoint-medium: 37.5rem;
   --breakpoint-expanded: 52.5rem;

@@ -1045,3 +1045,22 @@ html:has(dialog:modal) {
 dialog {
   overscroll-behavior: contain;
 }
+
+/* The full-screen Preview (pagePreview.tsx): a <dialog> over the whole screen on every width, hiding the rest of the editor, with
+   its close button at the top (Material 3's full-screen dialog). */
+.editor-preview-screen {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--mo-surface);
+  color: var(--mo-on-surface);
+}
+.editor-preview-screen[open] {
+  display: flex;
+  flex-direction: column;
+}
