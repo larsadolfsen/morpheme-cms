@@ -37,6 +37,14 @@ repeated as a question below.
    designs (`theme/ui/List.tsx` already has both, `ListKind`). Other row blocks (Cards, Points, Steps and the rest) are
    decided against this base in finding 13. _(Read from the owner's "MD3 has two types, this is our base".)_
 
+9. **Three list blocks in `Insert`, ready-made and built on the base:** **List** (an optional icon or picture on the left;
+   a row with a link gets an arrow by itself), **Segmented list**, and **FAQ list** (rows that expand). The owner picks
+   one; there is no version to choose afterwards. This replaces the idea of one `Rows` block with a design choice.
+10. **A segmented list can end with an optional text button** (for example `See all` or `Book a time`), under the last row.
+    _(Read as: segmented list first. Recommended: the same option on List and FAQ list, so the three behave alike.)_
+    The page in the owner's screenshot is an expanding list in one rounded card with dividers and chevrons, with a text
+    button wanted under it.
+
 ## What was looked at
 
 - **Code and texts:** `src/i18n/en-US/` (`common`, `app`, `library`, `forms`, `parts`, `media`, `text`, `blocks`,
@@ -224,6 +232,10 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
      (`Numbered`, `With a check mark`, `With a picture`). Apps keep their own groups.
   2. **Build on the base (owner decision 8).** The list block has the two M3 types, Standard and Segmented, and starts as
      Standard. The other designs are either variants of it or separate blocks; which is open (question 6). Older text:
+  Owner decision 9 settles the shape: three ready-made blocks, List, Segmented list and FAQ list. **Not covered by them
+  yet:** Steps (needs a number on the left, proposed as a third choice next to icon and picture), Links (groups of pages
+  under a heading, lost unless a row can be a small heading), and the Expandable list's page link. Cards, Price cards,
+  Testimonials and Blog posts stay as they are. Older text:
   3. **Merge the rows (model change, owner's call).** One block `Rows` with a `Design` choice: Cards, List, Points, Steps,
      Checklist, Links; and one `Questions` block with a `Display` choice (open, or expanding). A migration maps each
      existing block to its design, so no page changes look or content. Fewer blocks to choose from, one set of row fields to
