@@ -1,0 +1,111 @@
+{
+  "version": "0.15.0",
+  "date": "2026-11-11",
+  "notes": [
+    {
+      "id": "app-contract-4",
+      "kind": "line",
+      "text": "En apps side viser, hvor den kører, og hvad der gik galt ved den seneste opdatering"
+    },
+    {
+      "id": "css-variables-mo-prefix",
+      "kind": "line",
+      "text": "En hjemmesides egen CSS, der bruger temaets farver, former og højder, skal skifte til de nye variabelnavne, som starter med --mo-"
+    },
+    {
+      "id": "dashboard-app-widgets",
+      "kind": "line",
+      "text": "Apps kan tilføje deres egne widgets til startskærmen"
+    },
+    {
+      "id": "dashboard-widget-grid",
+      "kind": "card",
+      "title": "Indret din startskærm",
+      "text": "Startskærmen viser nu widgets i et gitter: Fortsæt, Ufærdigt, Blogrytme og Hjemmesidens status. Tryk på Rediger dashboard for at tilføje, fjerne og flytte dem."
+    },
+    {
+      "id": "edition-photo-card",
+      "kind": "card",
+      "title": "Hver opdatering har sit eget sted",
+      "text": "Hver opdatering har nu et foto og navnet på det sted, den er opkaldt efter, som Passo Giau. Du finder dem på startskærmen og på siden Morpheme."
+    },
+    {
+      "id": "english-ids-code",
+      "kind": "line",
+      "text": "Den sortering og de filtre, du sidst valgte, når du vælger sider eller elementer, starter forfra én gang"
+    },
+    {
+      "id": "english-ids-consents-csv",
+      "kind": "line",
+      "text": "Den hentede samtykkelog hedder nu consents-<dato>.csv"
+    },
+    {
+      "id": "english-ids-new-pages",
+      "kind": "line",
+      "text": "De nye versioner af dine sider ligger nu på /new/, og gamle links virker stadig"
+    },
+    {
+      "id": "english-ids-tag-pages",
+      "kind": "line",
+      "text": "Et tags side på din blog ligger nu på /blog/tags/<tag>/, og links til den gamle adresse virker stadig"
+    },
+    {
+      "id": "heading-and-text-buttons",
+      "kind": "line",
+      "text": "Værktøjslinjen til tekst og menuen over markeret tekst har de samme overskrifts- og tekstknapper"
+    },
+    {
+      "id": "md3-color-roles",
+      "kind": "card",
+      "title": "Nye farvenavne",
+      "text": "Farverne følger nu Material 3’s navne, med nye Dæmpet flade, Lys flade, Slør og Skygge. Dine gamle farver virker stadig: åbn Farver og gem for at skifte dem over."
+    },
+    {
+      "id": "older-line-editions",
+      "kind": "line",
+      "text": "Version 0.2 til 0.13 har nu noter og et foto på siden Morpheme"
+    },
+    {
+      "id": "one-app-per-type",
+      "kind": "line",
+      "text": "Kun én Videresendelser-app og én Links-app kan være aktive ad gangen, og en ny spørger først"
+    },
+    {
+      "id": "page-settings",
+      "kind": "card",
+      "title": "Sideindstillinger øverst",
+      "text": "En sides titel, status og skabelon ligger nu samlet i Sideindstillinger. Åbn en side og tryk på Sideindstillinger for at vælge skabelonen på kort."
+    },
+    {
+      "id": "release-blog-posts",
+      "kind": "line",
+      "text": "En hjemmeside kan selv lægge hver ny Morpheme-version på sin blog"
+    },
+    {
+      "id": "selector-parser-peer-both",
+      "kind": "line",
+      "text": "Din hjemmeside opdaterer til denne version med knappen Opdater, uden en ekstra npm-kommando"
+    },
+    {
+      "id": "settings-cog",
+      "kind": "card",
+      "title": "Indstillinger bag tandhjulet",
+      "text": "Udseende, Udvikler, Licenser, Morpheme og Privatliv ligger nu under Indstillinger. Tryk på tandhjulet nederst i menuen."
+    },
+    {
+      "id": "short-notification-buttons",
+      "kind": "line",
+      "text": "Knapperne under Notifikationer hedder nu Ryd og Indstillinger"
+    },
+    {
+      "id": "store-categories",
+      "kind": "line",
+      "text": "Appstore har 13 kategorier at filtrere på"
+    },
+    {
+      "id": "version-heading-date-photo",
+      "kind": "line",
+      "text": "Hver version på siden Morpheme viser sin dato og sit foto"
+    }
+  ]
+}

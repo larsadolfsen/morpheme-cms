@@ -1,6 +1,6 @@
 {
   "name": "@morphemecms/cms",
-  "version": "0.14.2",
+  "version": "0.15.0",
   "description": "Morpheme CMS: the editor for a site built with Astro, its screens, its blocks and the rules a site gives it. See README.md.",
   "license": "MIT",
   "author": "Lars Adolfsen",
