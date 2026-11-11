@@ -485,9 +485,15 @@ async function checkMorpheme(page, state) {
 
   // Update: a POST to /api/cms/update (answered here, nothing is changed).
   await page.route('**/api/cms/update', (r) => r.fulfill({ contentType: 'application/json', body: '{}' }));
-  const posted = page.waitForRequest((r) => r.url().endsWith('/api/cms/update') && r.method() === 'POST', { timeout: 3000 });
+  // The catch is attached at once: a rejection while the click is still running must not crash Node.
+  const posted = page
+    .waitForRequest((r) => r.url().endsWith('/api/cms/update') && r.method() === 'POST', { timeout: 10000 })
+    .then(
+      () => true,
+      () => false,
+    );
   await page.getByRole('button', { name: daCms.update, exact: true }).click();
-  await posted.catch(() => problems.push(`morpheme (${state}): Update does not send a POST to /api/cms/update`));
+  if (!(await posted)) problems.push(`morpheme (${state}): Update does not send a POST to /api/cms/update`);
   // The connection: Connect makes the site connected (the fake store flips on the POST).
   if (state === 'open') {
     await page.getByRole('button', { name: da.connect, exact: true }).click();
