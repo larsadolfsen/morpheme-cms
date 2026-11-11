@@ -20,7 +20,24 @@ export async function readFiles(env, paths, ctx, token = env.GITHUB_PUBLISH_TOKE
   }
 }
 
-/** Saves the files (`{ path, text }`, or `{ path, bytes }` for a picture) in one commit on the branch, if its head is still `head`; returns the new commit's id. */
+/** The text files in a folder at the branch's head, `depth` levels of folders down: the head and `{ path, text }` for each (none when the folder is not there). */
+export async function readFolder(env, folder, depth, ctx, token = env.GITHUB_PUBLISH_TOKEN) {
+  const files = filesOf(env, token, ctx);
+  try {
+    const at = await files.head();
+    const [list] = await files.filesIn(at.tree, [folder], depth);
+    const wanted = list.filter((f) => !f.binary);
+    const texts = await files.texts(wanted.map((f) => f.oid));
+    return {
+      head: at.commit,
+      files: wanted.flatMap((f) => (typeof texts.get(f.oid) === 'string' ? [{ path: f.path, text: texts.get(f.oid) }] : [])),
+    };
+  } finally {
+    await files.finish('Worker reads');
+  }
+}
+
+/** Saves the files (`{ path, text }`, `{ path, text: null }` to delete one, or `{ path, bytes }` for a picture) in one commit on the branch, if its head is still `head`; returns the new commit's id. */
 export async function commitFiles(env, head, headline, changes, ctx, token = env.GITHUB_PUBLISH_TOKEN) {
   const files = filesOf(env, token, ctx);
   try {
@@ -29,7 +46,7 @@ export async function commitFiles(env, head, headline, changes, ctx, token = env
       await files.save(
         at,
         headline,
-        changes.map((f) => ({ path: f.path, contents: toBase64(f.bytes ?? new TextEncoder().encode(f.text)) })),
+        changes.map((f) => ({ path: f.path, contents: f.text === null ? null : toBase64(f.bytes ?? new TextEncoder().encode(f.text)) })),
       )
     ).commit;
   } finally {

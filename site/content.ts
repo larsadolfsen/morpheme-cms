@@ -1,5 +1,5 @@
 // The site's content collections (pages and blog posts): their status, paths, headings, and a page's text without its H1.
-// Exposes getPages, getPosts, pageHeading, pageHeadingHtml, withoutH1 and h1SectionColor. Depends on astro:content and lib/.
+// Exposes getPages, getPosts, pageHeading, pageHeadingHtml, withoutH1, h1Section and h1SectionColor. Depends on astro:content and lib/.
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { categories, isBlogCategory } from './categories';
 import { displayTitle } from './text';
@@ -7,12 +7,12 @@ import { isPreview } from './noindex.mjs';
 import { renamedPreview } from '../lib/previewAddress.mjs';
 import { stateOf } from '@morphemecms/cms/lib/status.mjs';
 import { pageH1 } from '@morphemecms/cms/src/sections.mjs';
-import { h1SectionColor, withoutH1 } from '@morphemecms/cms/lib/without-h1.mjs';
+import { h1Section, h1SectionColor, withoutH1 } from '@morphemecms/cms/lib/without-h1.mjs';
 
 // From text.ts, which the editor uses too (it has no content collections).
 export { displayTitle, openingText } from './text';
-// withoutH1 and h1SectionColor: a page's text without its H1 (and its marker), and the colour of the H1's section (PageLayout.astro).
-export { h1SectionColor, stateOf, withoutH1 };
+// withoutH1 and h1SectionColor: a page's text without its H1 (and its marker), and the settings of the H1's section (PageLayout.astro).
+export { h1Section, h1SectionColor, stateOf, withoutH1 };
 
 export type Post = CollectionEntry<'blog'>;
 // Every page has a path: its own, or /<file name>/ for pages created in the editor.
@@ -25,13 +25,9 @@ const stateHere = (data: { status?: string; publishAt?: string }) => {
   const state = stateOf(data);
   return state === 'draft' && import.meta.env.DEV ? 'published' : state;
 };
-// Whether a page or post in that state is built: a published one, and with `unlisted` a hidden one.
-const shown = (state: ReturnType<typeof stateOf>, unlisted: boolean) => state === 'published' || (unlisted && state === 'unlisted');
-
-// The posts on the blog and in every list of posts; with `unlisted`, also those that only open on
-// their address (Hidden; the pages of the posts are made for those too). A draft is not on the site.
-export async function getPosts({ unlisted = false } = {}) {
-  return (await getCollection('blog', ({ data }) => shown(stateHere(data), unlisted))).sort(
+// The posts on the blog and in every list of posts. A draft is not on the site.
+export async function getPosts() {
+  return (await getCollection('blog', ({ data }) => stateHere(data) === 'published')).sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
   );
 }
@@ -61,10 +57,10 @@ export type PostChoice = {
   link?: string;
 };
 
-// The pages on the site, also the hidden ones (Hidden; with `unlisted: false` not those) and, like the
-// posts, the drafts on the editor's preview; with `previews: false`, not the new versions of pages under /new/.
-export async function getPages({ previews = true, unlisted = true } = {}): Promise<Page[]> {
-  const pages = await getCollection('pages', ({ data }) => shown(stateHere(data), unlisted));
+// The pages on the site and, like the posts, the drafts on the editor's preview; with `previews: false`, not the
+// new versions of pages under /new/.
+export async function getPages({ previews = true } = {}): Promise<Page[]> {
+  const pages = await getCollection('pages', ({ data }) => stateHere(data) === 'published');
   // A page still under the old address /ny/ (its folder or its path) is read at the new one, /new/ (lib/previewAddress.mjs).
   for (const page of pages) page.data.path = renamedPreview(page.data.path ?? `/${page.id}/`);
   return (previews ? pages : pages.filter((p) => !isPreview(p.data.path!))) as Page[];

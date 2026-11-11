@@ -46,6 +46,7 @@ function postsLine(p: BlockProps, data: BlockData): string {
 }
 
 export default defineBlock({
+  group: 'content',
   label: t.blocks.posts.label,
   icon: Newspaper,
   hint: t.blocks.posts.hint,

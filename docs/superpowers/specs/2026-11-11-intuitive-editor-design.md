@@ -480,6 +480,31 @@ one is checked when it is built. A table filled from the owner's lists could com
 4. **Testimonials and Cookies (settled, owner, 11 November):** they have no typed content, so they have nothing to edit in place: the block is a drawn
    preview with settings in the panel, and `Edit testimonials` opens their own list, as `Edit list` does for a dynamic list.
 
+### 19. Spike S3: today's editor on a 375 px phone (11 November)
+
+Checked on the built demo (`Blocks` page) with Playwright at 375 × 760 (touch, mobile) and at 1280 × 900. Pictures: `editor-phone-check/`. No console errors, no horizontal scroll. The soft keyboard is not simulated, so the keyboard questions of decision 14 stay open for a device check.
+
+![Page editor](editor-phone-check/phone-1-page-editor.webp) ![Text selected](editor-phone-check/phone-2-text-selected.webp) ![Block menu](editor-phone-check/phone-3-block-menu.webp) ![Block sheet](editor-phone-check/phone-4-block-sheet.webp) ![Insert](editor-phone-check/phone-5-insert.webp) ![Desktop panel](editor-phone-check/desktop-block-panel.webp)
+
+**What works:** the page is readable and blocks are drawn as the site shows them. Insert is a real bottom sheet (full width, search, A-Z, drag handle). Text and floating-menu buttons do not overflow.
+
+**Cramped, hidden, too small or broken:**
+
+1. **A block's settings are not a bottom sheet today.** Below `expanded`, `sheetLook('fields')` is a *modal side sheet*: 319 px of 375 px, full height, with a 56 px strip of dimmed page left. The page behind is not usable and the open block is not visible. Only Insert and section settings are bottom sheets.
+2. **Two text toolbars at once.** A fixed bar (two rows when open: `B I link H2 T` and `+ undo redo`, 85 px tall) sits at the top, and a second floating bar (`B I link colour H2 T`) appears under a selection. Bold, Italic and Link are on screen twice; the open top bar takes 85 px of the 760 px height.
+3. **Touch targets under 48 dp.** Bold, Italic, Link, Insert, Undo, Redo, Section settings, Show more tools and Close: 40 × 40. The style menus: 54 × 40 and 48 × 40. Colour: 48 × 40. The block menu (`Edit`, `Hide on the page`, `Move up`, `Move down`, `Remove`): 40 × 40 each, 8 px apart. In the sheet: `Edit default texts` link 133 × 20, the Design and Background segmented buttons 38 px high, `Save` and `Cancel` 40 px high, the Insert rows 44 px.
+4. **The block menu covers the block.** Tapping a block shows a pill above it that hides the block's first line (the `List` text in the picture). On a phone the settings need a second tap on `Edit`; on desktop a tap opens the panel at once, with its own `Save` and `Cancel`, which decision 6 removes.
+5. **Long sheets.** The `Cards` sheet needs about four screens of scrolling: three text fields first, then Design, Background and the cards, with `Save` and `Cancel` pinned at the bottom. A row's `Move up`, `Move down` and delete icons are in the sheet beside a name cut short (`App st…`).
+6. **Selection toolbar and pill hang over the text.** The floating bar sits at the bottom of the viewport when the selection is near the top, which is where the soft keyboard will be.
+
+**Recommendation for the in-place pattern on a phone (batches 5 and 6):**
+
+- Keep typing in the drawn block. Do not fold the rows out under the block on a phone; the rows are 301 px wide and the fold-out would be taller than the screen.
+- Use **one** floating toolbar, docked above the keyboard (visual viewport), not a bar at the top and a second under the selection. It is context aware as decided: text tools in text, block actions on a block, with `Text`, `Row` and `Edit` as folded menus. Every button is 48 × 48 dp (the pill may keep a 40 dp icon with a 48 dp target) and at most five fit in 375 px, which is why the folding is needed.
+- Settings open in a **modal bottom sheet that can sit at half height** (as the Insert sheet does), so the open block stays visible above it. Replace the modal side sheet below `expanded`; this is a change to `sheetPlacement.mjs`, which decision 14 said would stay, and it is cheap because `Insert` already has the component. Keep `Make the sheet taller` for long blocks.
+- The sheet holds settings only (icon, picture, link, design, dynamic list), so it is one screen, with no `Save` and `Cancel` of its own (decision 6).
+- Scroll the open block to just above the sheet or toolbar when either opens. This and the keyboard need a device check before batch 5 is closed.
+
 ## Batches
 
 Each is one pull request into `main` (or `0.16` where marked), with a release note (`release-notes` skill) and, until
@@ -503,6 +528,150 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
 or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. J replaces the sheet buttons of G (finding 12): build G without them and J after G and I, because it uses the single row editor. K step 1 goes with G (the H1 start, the same top of the text); step 3 last. L after 0.16 and after the list blocks of H and I exist; split part A (a block reads an existing list) from part B (`New list`), A first. H can go with B and C (no decision). I only after G, since both change the same block files and the same migration, and after the owner has seen H. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
+
+## Spike S1: the deploy step when `ci-build` ends early (decides drafts, finding 1 and question 2)
+
+**Question.** Drafts live in git and must not rebuild the site on every autosave. What does Cloudflare do when `ci-build`
+(`scripts/ci-build.mjs`) exits 0 early, or non-zero?
+
+**What the repo does today.** A site's `wrangler.jsonc` has `build.command: "npx morpheme ci-build"`
+(`starter/wrangler.jsonc`). `ci-build` picks the content or full lane, runs the checks, then always `npm run build`. It
+exits non-zero on the first failed step and has no early exit with status 0. `lib/build-lane.mjs` treats an empty diff
+as the full lane and any file outside `src/content/`, `src/data/` and `public/images/uploads/` as code.
+
+**What Cloudflare documents** (Workers Builds docs, read 11 November 2026):
+
+- A build runs the build command and then the deploy command (default `npx wrangler deploy`; other branches run the
+  Preview command, default `npx wrangler preview`). The build's result is the exit code of these commands.
+- Pages states the rule for exit codes outright: any non-zero code marks the build failed, and 0 marks it successful.
+  The Workers Builds pages do not repeat it, but their troubleshooting page lists failed builds only as errors of the
+  commands. The live site keeps serving its last deployment when a build fails (the check run is red).
+- Workers Builds has **Build watch paths** (include and exclude paths, in the dashboard). A push whose changed files are
+  all excluded starts no build and gets no check run or commit status.
+- Cloudflare skips a queued build when a newer build of the same trigger is queued (24 July 2026).
+- The docs say nothing about a build command that exits 0 without producing output.
+
+**Not in the docs, from the repo (not tested on Cloudflare).** An early `exit 0` does not skip the deploy command.
+`wrangler deploy` then runs against a fresh checkout. `dist/` is not committed, so the `assets.directory` is missing and
+the deploy most likely fails, so the build shows red. Exiting early is therefore not a third lane. The only safe early
+exit is one that still leaves a valid `dist/`, which means building anyway and saves nothing.
+
+**Recommendation.**
+
+1. Keep drafts in a folder of its own (for example `src/drafts/`) outside `CONTENT_PATHS` and outside everything the site
+   builds from, so that a draft save changes no site file.
+2. Exclude that folder with **Build watch paths** in the site's build settings. A draft save then starts no build, shows
+   no red check and costs no build minutes. This is the third lane, and Cloudflare does it before `ci-build` starts.
+3. Keep `ci-build` unchanged: no early exit. As a fallback for a site without the watch path, a drafts-only diff takes the
+   existing content lane (checks and build, no deploy difference), which is correct but slow.
+4. Publish and Unpublish move or copy the file into the content folders, which starts the normal build.
+5. Check first on `morpheme-staging`: set the watch path, push a change to the draft folder only, and confirm no build
+   or check run starts; then push one to `src/content/` and confirm a build. Only the owner changes the dashboard, so
+   the starter needs a line in its README (written for people) that tells the owner to add the path, or the Deploy button
+   flow must set it. If it cannot be preset, the fallback in point 3 is what a new site gets.
+
+**Effect on batch 12.** Draft storage must live under the watch-path folder, and the `ci-build` change shrinks to the
+fallback rule (a diff that holds only that folder counts as content). Open: whether the Deploy to Cloudflare button can
+preset watch paths; if not, test the fallback's build time on `morpheme-staging`.
+
+## Spike S1b: can a site get the drafts watch path without a manual step? (follow-up to S1, decides batch 12's fallback)
+
+**Answer: not through the starter, and only through a new owner step through the API. Plan on the fallback, and keep the dashboard line as an optional speed-up.** Read in the Cloudflare docs on 11 November 2026; nothing was called live.
+
+1. **Preset by the button or the starter: no.** The Deploy to Cloudflare button clones the repository, provisions bindings and
+   connects Workers Builds, but its docs list no build setting that the repository can preset; the only `package.json`
+   hook is `cloudflare.bindings` (descriptions for secrets). Watch paths live in the build trigger (`path_includes`,
+   `path_excludes`), not in `wrangler.jsonc`, and the Workers Builds docs say it does not honor the `build` block there.
+   So `starter/wrangler.jsonc` and `package.json` cannot carry them.
+2. **API: yes, but not from the site as it is.** `PATCH /accounts/{account_id}/builds/workers/{worker_tag}` takes
+   `production_settings.path_excludes` (send only the changed field). It needs a **user-scoped** API token with *Workers
+   Builds Configuration: Edit* (and *Workers Scripts: Read* to find the `worker_tag`); account-scoped tokens are
+   refused. The build's own token and the site's `CLOUDFLARE_R2_TOKEN` (R2 and Billing read, `worker/r2-status.js`) do
+   not have it, and a user token is broader than anything the Worker holds today. The editor's Connect flow is GitHub
+   only. Wrangler has no command for it. Setting it from the editor would mean a second owner-made secret, which is
+   the same manual step in another place, with more risk.
+3. **Fallback, cheapest first.**
+   - **Lane (already in S1 and `lib/build-lane.mjs`).** `src/drafts/` is in `CONTENT_PATHS`, so a drafts-only save takes
+     the content lane: editor checks, then the normal build and deploy. No code change, correct, but every autosave
+     costs a build and, as the docs say, only the newest queued build runs, so bursts collapse. An early `exit 0` stays
+     off the table (S1: the deploy still runs against a missing `dist/`).
+   - **Drafts on an unbuilt branch** (for example `drafts`): a push to a branch other than production runs the Preview
+     command (`wrangler preview`) when Previews are on, and starter sets `"previews": {}`, so it still builds; it would
+     need Previews off per site (dashboard again) or a branch the build never sees. It also splits history and
+     makes Publish a cross-branch merge. Not recommended.
+   - **R2 for sites with Faster editor** (`FILES`): no git commit, no build, instant. Only some sites have R2, so drafts
+     would live in two places and need their own copy and backup rules. Good as a later extra, not as the default.
+
+**Recommendation.**
+
+- Ship batch 12 with the lane as the default: drafts in `src/drafts/`, no `ci-build` change, no new secret.
+  Trade-off: a build per draft save for a site without the watch path.
+- Keep the one README line (*Build watch paths* › *Exclude paths* › `src/drafts/**`) as an optional speed-up and
+  have the editor show it once, in **Settings** › **Developer** › **Caching and builds**, when a draft save has built
+  the site: "Skip builds for waiting versions" with the steps. The editor cannot tell whether the path is set, so
+  show it with a dismiss.
+- Starter: no change except the README line. Editor: that hint and the Danish text. Do not ask for a Cloudflare user
+  token.
+- Check on `morpheme-staging`: time a drafts-only push through the content lane (expected: checks plus build, like any
+  content save), then set the watch path and confirm no build starts.
+
+## Spike S4: can an app add versions to a page? (decides the later versions app, not 0.17)
+
+**Answer: not with contract 4 or 5 as they are, but the later app is possible and needs only one new editor place, an
+optional extra hook, and what batch 12 already plans.** It decides the later versions app, not 0.17.
+
+**What an app can do today.** Contract 5 is contract 4 plus `role` and `mcp`, so it adds no place or hook
+(`docs/app-contract.md`). An app has four places (`lib/appPlaces.mjs`): `build` (sandboxed `hooks/` and `after-build.ts`),
+`editor` (`editor.ts`, `index.ts`), `worker` (`worker.js`) and `pages`. Only the build runs in the QuickJS sandbox
+(`lib/sandbox/`); `editor`, `worker` and `pages` are `full` access, so first-party publishers only. The one hook is
+`page-colors` (`lib/appHooks.mjs`, a closed list). In the editor an app may add a page, screens, a tab to a list
+(`AppDefinition.tabs`), start-screen widgets and notifications (`src/apps.ts`), but nothing inside a page's form or its
+top bar, and nothing at save time. Its Worker part gets `tools.github.read` and `tools.github.commit` (in the signed-in
+person's name when a request is passed) and a `scheduled` run each hour (`worker/index.js`). Its `reads` give published
+pages only, not drafts (`lib/reads.mjs`).
+
+**What a versions app needs.**
+
+1. *An editor place in the page form: the version switch.* The app contributes a component (the list of versions, `New
+   version`, `Compare`, a calendar) to a named slot of the form's top bar. No such slot exists; `tabs` and `widgets` are
+   other screens. This is the only new place, and it is a `full` editor place like `tabs`, so the app is first-party.
+2. *Core functions it calls, not its own copies* (`lib/versions.mjs`, batch 12): `publish`, `schedule`, `unpublish`,
+   `discard`. They are pure text and path functions, so the app's editor and Worker parts import them through the app's
+   allowed imports (`@morphemecms/cms/lib/versions` would join the three core modules in "Imports").
+3. *Worker: its own hourly run (`scheduled`) that publishes due versions.* Batch 12 puts that in `worker/publish.js`, which
+   handles the two core versions. The app's run must publish a version of its own list the same way, with
+   `tools.github.commit`; it needs no new tool.
+4. *Reading drafts.* Drafts live in `src/drafts/` and are outside every build and every `reads` scope. An app that lists
+   waiting versions reads them with `tools.github.read` in its Worker part; no new `reads` scope is needed, and a
+   sandboxed hook never sees a draft.
+
+**What contract 4 and 5 allow, and what they do not.** Allowed: all of 2 (as a plain import), 3 and 4, and a tab or a page
+for a calendar of what goes live when. Not allowed: a place in the page form (1). A sandboxed hook cannot do it: hooks are
+build-time, run for published pages only, return data, and cannot draw UI. So the version switch can never be a
+sandboxed place; it is a `full` editor place or part of the core.
+
+**Add to the core now (batch 12), so the app needs no rewrite:**
+
+- The version list as a list from the start (`id`, `state`, optional `publishAt`; the core uses at most two) and a
+  draft path derived from the version `id`, not fixed to one file: `src/drafts/<collection>/<slug>.md` for the waiting
+  version, `src/drafts/<collection>/<slug>/<id>.md` free for more. Keep the id a plain slug, not an index.
+- `publish`, `schedule`, `unpublish` and `discard` in `lib/versions.mjs` take a version id, default `waiting`; the editor and
+  the Worker call them with it, so the app can pass any id.
+- The Worker's hourly publish walks the whole version list for due `publishAt`, not just the single waiting version.
+- The version switch is one component with a named slot in the form's top bar (`versionSwitch`), drawn by the core with its
+  two entries; the editor reads a registered app component for that slot if one exists, else the core's.
+  Register slots by name in `AppDefinition` (for example `slots?: { versionSwitch?: ComponentType<VersionSwitchProps> }`)
+  so contract 4 and 5 need no change (as `widgets` did, "Widgets" in the contract). Only the slot and its props
+  (`entry`, `versions`, the four functions, `editing`) are decided now; the app comes later.
+
+**Stays out of 0.17:** more than two versions in the core's UI, the calendar, comparing versions, merging, a new
+contract number, a new hook, a new `reads` scope, and sandboxing the version switch. Revisit a `versions` hook (a
+sandboxed check before `publish`, for example "needs review") only if an app wants to block a publish; it would join
+`APP_HOOKS` and would be a contract 6 question.
+
+**Recommendation.** Do the four bullets above in batch 12, as small changes (an id argument, a slot name, a loop over the
+list). Plan the versions app as a first-party app with a `full` editor place and a Worker `scheduled` run; no new
+contract is needed, only a `slots` field in `AppDefinition`.
 
 ## Open questions for the owner
 
@@ -560,3 +729,40 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    the theme decides how each looks. In the editor the dotted line at each H2 always shows. In the full-screen Preview
    (finding 15) the dotted lines show only on hover, so the page looks like the site the rest of the time (owner, 11
    November: hiding them is only for the full-screen Preview). Existing `Tint` sections migrate to Surface (owner, 11 November).
+
+## Spike S2: can the editor create and edit a table? (11 November)
+
+**Answer: yes, with little code, but Milkdown's table cannot be the Table block.** A prototype in jsdom (not shipped) used the
+editor's own setup (`makeEditor`, `src/markdown.mjs`) and the site's pipeline (`@astrojs/markdown-remark`, which uses
+`remark-gfm`).
+
+- **The editor already loads tables.** `makeEditor` uses `@milkdown/kit/preset/gfm`, so GFM tables parse into
+  ProseMirror table nodes today. Nothing in `src/MarkdownEditor.tsx` offers them: no toolbar button, no table CSS in
+  `src/editor.css`. An imported table is edited as plain cells with `Tab` between them, and nothing else.
+- **Round trip works.** Eight cases (plain, left/centre/right alignment, bold, link, code and italic in cells, an
+  escaped `\|`, empty cells, `<br>`, a table after a block, a table before text) all render to the same HTML on the
+  site before and after the editor. The Markdown text is re-padded (the pipes line up, `| --- |` becomes `| - |`), so the
+  first save of an imported table changes its lines but not its look. `check:editor` compares HTML, so it passes.
+- **Commands exist.** The preset has `insertTableCommand` (rows, columns), `addRowBefore/After`, `addColBefore/After`,
+  `deleteSelectedCells` (a whole row or column when selected), `selectRow/Col/Table`, `moveRow/Col`, `setAlign`,
+  `goToNextTableCell` and `exitTable`. All ran in the prototype and wrote correct Markdown. A new table starts left-aligned (`:-`
+  in the delimiter row); that should be reset to no alignment.
+- **Limits of GFM.** (1) The first row is always the header: a table with `Header row` off cannot be written (an empty
+  header row would show as an empty `<thead>`), which breaks the decision that the panel has a header-row setting.
+  (2) Cells are inline only: no lists, no line breaks except `<br>`, no merged cells. (3) A table as the last node leaves
+  no line to write on afterwards (`exitTable` helps; the `spacing` plugin only covers blocks). (4) The site has no
+  style for a plain table in `.prose` (only `.block-table`, used by the cookie list), so a GFM table is unstyled and
+  does not scroll on a phone today.
+
+**Recommendation.** Build the Table as a block with its own props (`{ header: boolean, rows: string[][] }`, written like
+every block as one line of HTML, `lib/blocks.mjs`) and the row editor of decision 14, not as Milkdown's table node. It is the
+only way to keep `Header row` as a setting, it matches the owner's decision that the table is a block in `Insert`, and the
+theme can draw it with the existing `.block-table` rules (scroll sideways). Cells are plain text (no marks or links) in
+the first version. Keep the GFM path as it is: tables an owner imports stay readable and editable, and get `.prose table`
+styling in the theme (about the same CSS as `.block-table`). Do not add a table button to the text toolbar.
+
+**Size.** Batch 10 stays **M**. Roughly: a `table` field type with a grid editor and the faded next row and column, plus
+`Add row`, `Add column`, `Delete row`, `Delete column` (the largest part, 300 to 500 lines and its tests); `standard/table` (view, load, fields);
+`theme/blocks/table/View.tsx` and CSS for each theme; en-US and `da-DK` texts. No migration. The cheaper alternative, **S**
+(150 to 250 lines): a toolbar group in `MarkdownEditor.tsx` for the preset's commands, an `Insert table` entry and `.prose
+table` CSS, accepting that the header row is always on and cells hold inline Markdown. Choose it only if the owner drops `Header row`.

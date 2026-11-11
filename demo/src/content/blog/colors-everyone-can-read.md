@@ -14,6 +14,10 @@ Under Appearance › Colors you set your site’s colors. Choose each one yourse
 
 The editor builds your palette the way Material 3 does: background, surfaces, text, an accent and two supporting colors, each with a light and a dark version. Your site switches to dark mode automatically when your visitor’s phone does.
 
-<div data-block="checklist" data-props="{&quot;heading&quot;:&quot;Readable, guaranteed&quot;,&quot;items&quot;:[&quot;Text on the background and on cards&quot;,&quot;Links and buttons in your accent color&quot;,&quot;Labels on every button&quot;]}"></div>
+**Readable, guaranteed**
+
+- [x] Text on the background and on cards
+- [x] Links and buttons in your accent color
+- [x] Labels on every button
 
 Before it saves, the editor checks the contrast against WCAG AA. If a color is too faint, it’s marked in red, and you can raise the contrast with one setting.

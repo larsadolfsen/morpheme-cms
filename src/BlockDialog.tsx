@@ -33,7 +33,7 @@ import {
   SheetGroupTitle,
   useAtLeast,
 } from './ui';
-import { htmlBlock, type BlockData, type BlockProps, type SiteBlock } from './blocks';
+import { blockGroups, htmlBlock, type BlockData, type BlockProps, type SiteBlock } from './blocks';
 import { clean, newValue, problemAt, savedValue } from './check';
 import { EditLink, FieldList, useWrongField, WrongField } from './fields';
 import { HTML } from './markdown.mjs';
@@ -45,7 +45,7 @@ import CropField, { type Cut } from './Crop';
 import { t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 import { closeChanged } from './ask';
-import SectionSettings from './SectionSettings';
+import SectionSettings, { type SectionValues } from './SectionSettings';
 import { sheetLook } from './sheetPlacement.mjs';
 import { setPanelOpen } from './sidePanel';
 import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
@@ -63,14 +63,25 @@ export type BlockAsk = {
   /** New props for a block in the text; null when cancelled. isNew: one about to be put in ("Insert"). removable: the
    * card may be removed, so the side panel has "Remove"; 'remove' when it is tapped (never when removable is not true). */
   edit: (type: string, props: BlockProps, isNew?: boolean, removable?: boolean) => Promise<BlockProps | 'remove' | null>;
-  /** The settings of the section the cursor is in (now its colour; null: none); the new ones, or null when cancelled. */
-  section: (color: string | null) => Promise<{ color: string | null } | null>;
+  /** The settings of the section the cursor is in (its colour, null: none, and an H2's picture, its description and width); the new
+   * ones, or null when cancelled. picture: the section can have a picture and a width (an H2's). */
+  section: (current: SectionSettingsOf, options?: { picture?: boolean }) => Promise<SectionSettingsOf | null>;
 };
+
+/** A section's settings in the text: null for what it has not. */
+export type SectionSettingsOf = { color: string | null; picture?: string | null; alt?: string | null; width?: string | null };
 
 type Open =
   | { step: 'choose'; image?: boolean; have?: string[] }
   | { step: 'fields'; type: string; isNew: boolean; removable?: boolean }
-  | { step: 'section' };
+  | { step: 'section'; picture: boolean };
+
+const sectionValues = (v: BlockProps): SectionValues => ({
+  color: String(v.color ?? ''),
+  picture: String(v.picture ?? ''),
+  alt: String(v.alt ?? ''),
+  width: String(v.width ?? ''),
+});
 
 /** The type a section's settings are answered with (not a block's). */
 const SECTION = 'section';
@@ -119,7 +130,9 @@ const INSERT_SORTS: InsertSort[] = ['az', 'za', 'group'];
 const INSERT_SORT_KEY = 'editor-sort-insert';
 
 // A block's group: the app's name for an app's block, otherwise the standard blocks (also the picture and HTML).
-const groupOf = (b: SiteBlock) => (b.app ? (apps.find((a) => a.id === b.app)?.label ?? b.app) : t.blockSettings.standard);
+// The standard blocks are in groups by what they do (`group`), the same in `Insert`'s headings and its filter.
+const groupOf = (b: SiteBlock) => (b.app ? (apps.find((a) => a.id === b.app)?.label ?? b.app) : t.blockSettings.groups[b.group ?? 'other']);
+const standardGroups: string[] = blockGroups.map((g) => t.blockSettings.groups[g]);
 
 /** crop: a picture can be cut to a format (not in a "Banner"'s text, whose picture the theme lays out). */
 export function useBlockDialog(
@@ -163,7 +176,7 @@ export function useBlockDialog(
       const saved = localStorage.getItem(INSERT_SORT_KEY);
       if (INSERT_SORTS.some((s) => s === saved)) return saved as InsertSort;
     } catch {}
-    return 'az';
+    return 'group';
   });
   const [group, setGroup] = useState('');
   const search = useRef<HTMLInputElement>(null);
@@ -183,7 +196,7 @@ export function useBlockDialog(
       show(first);
       setValues(props);
       if (first.step === 'fields') shown.current = asWritten(first.type, props);
-      if (first.step === 'section') shown.current = JSON.stringify(props.color ?? '');
+      if (first.step === 'section') shown.current = JSON.stringify(sectionValues(props));
       setProblem('');
       wrongField.stop(null);
       setQuery('');
@@ -266,10 +279,11 @@ export function useBlockDialog(
       const answered = await ask({ step: 'choose', image: offer?.image, have: offer?.have });
       return answered === 'remove' ? null : answered;
     },
-    section: async (color) => {
-      const answered = await ask({ step: 'section' }, { color: color ?? '' });
+    section: async (current, options) => {
+      const answered = await ask({ step: 'section', picture: !!options?.picture }, sectionValues(current as BlockProps));
       if (!answered || answered === 'remove') return null;
-      return { color: answered.props.color ? String(answered.props.color) : null };
+      const v = sectionValues(answered.props);
+      return { color: v.color || null, picture: v.picture || null, alt: v.alt || null, width: v.width || null };
     },
     edit: async (type, props, isNew = false, removable = false) => {
       const fields = blockOf(type)?.fields ?? [];
@@ -312,7 +326,7 @@ export function useBlockDialog(
       return true;
     };
     if (open?.step === 'section') {
-      if (JSON.stringify(values.color ?? '') === shown.current) return finish(null);
+      if (JSON.stringify(sectionValues(values)) === shown.current) return finish(null);
       const choice = await closeChanged(t.common.save);
       if (choice === 'keep') return (saveSection(), true);
       return choice === 'discard' && finish(null);
@@ -327,7 +341,7 @@ export function useBlockDialog(
   latest.current = { leave };
 
   function saveSection() {
-    done({ type: SECTION, props: { color: values.color ?? '' } });
+    done({ type: SECTION, props: sectionValues(values) });
   }
 
   function pickSort(next: InsertSort) {
@@ -349,15 +363,14 @@ export function useBlockDialog(
   };
   const offered =
     open?.step === 'choose'
-      ? [...(open.image && room(picture) ? [picture] : []), ...list.filter((b) => !b.written && room(b))].sort((a, b) =>
+      ? [...(open.image && room(picture) ? [picture] : []), ...list.filter((b) => !b.written && !b.former && room(b))].sort((a, b) =>
           byText(a.label, b.label),
         )
       : [];
   // The groups among them: the standard blocks first, then the apps' by their names. With only one there is
   // nothing to filter or order by.
-  const groupNames = [...new Set(offered.map(groupOf))].sort(
-    (a, b) => Number(b === t.blockSettings.standard) - Number(a === t.blockSettings.standard) || byText(a, b),
-  );
+  const rank = (g: string) => (standardGroups.includes(g) ? standardGroups.indexOf(g) : standardGroups.length);
+  const groupNames = [...new Set(offered.map(groupOf))].sort((a, b) => rank(a) - rank(b) || byText(a, b));
   const grouped = groupNames.length > 1;
   const shownGroup = grouped && groupNames.includes(group) ? group : '';
   const shownSort = sort === 'group' && !grouped ? 'az' : sort;
@@ -374,7 +387,13 @@ export function useBlockDialog(
           .filter((g) => g.items.length > 0)
       : headed(found, (b) => letterOf(b.label));
   const title = open?.step === 'section' ? t.text.sectionSettings : block ? block.label : t.blocks.insert;
-  const sectionSettings = <SectionSettings color={String(values.color ?? '')} onChange={(color) => setValues({ color })} />;
+  const sectionSettings = (
+    <SectionSettings
+      values={sectionValues(values)}
+      picture={open?.step === 'section' && open.picture}
+      onChange={(next) => setValues({ ...next })}
+    />
+  );
   // A side sheet (the same markup, standard or modal): the block's fields or the section settings, with Save (Insert) and Cancel.
   const sideSheetOf = (kind: 'standard' | 'modal') =>
     open &&

@@ -40,7 +40,7 @@ const byLabel = (a: Option, b: Option) => byText(a.label, b.label);
 // A page's or post's status (packages/editor/lib/status.mjs), for the filter of the sheet it is picked in (usePickTools).
 const stateOf = (f: RepoFile): PageState => {
   const s = fm(f).status;
-  return s === 'draft' || s === 'unlisted' || s === 'scheduled' ? s : 'published';
+  return s === 'draft' || s === 'scheduled' ? s : 'published';
 };
 // The addresses the menu (config.menu) links to, at every level, without a part of a page (#…).
 type MenuEntry = { href: string; children?: MenuEntry[] };

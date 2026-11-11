@@ -8,6 +8,7 @@ import { t } from '../../i18n';
 import { buttonList } from './fields';
 
 export default defineBlock({
+  group: 'banner',
   label: t.blocks.buttons.label,
   icon: CursorClick,
   hint: t.blocks.buttons.hint,

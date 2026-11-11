@@ -1,4 +1,4 @@
-// "Banner" (type "hero", as it was called before), a standard block: a text written as a page's (Markdown), in which a
+// "Banner" (type "hero", as it was called before), a standard block no longer offered (`former`: it is a section now): a text written as a page's (Markdown), in which a
 // picture and a "Buttons" block can be put with "+" (one of each): a heading at its top is its own heading (not the
 // page's H1), the first paragraph the subtitle, the others the introduction, and the text after the buttons is under
 // them, a quote ("> …") in it too (fields.ts); the picture beside the text or behind it (`placement`), across the whole
@@ -12,7 +12,11 @@ import { t } from '../../i18n';
 import { heroParts } from './fields';
 
 export default defineBlock({
+  group: 'banner',
   label: t.blocks.hero.label,
+  // The Banner is a section now (a heading with a picture behind it and a width, in its settings): one alone in its section is read as
+  // that (lib/remark-banner-section.mjs); this block stays for the front page's top and for a Banner with more after it.
+  former: true,
   icon: Sparkle,
   hint: t.blocks.hero.hint,
   fields: [

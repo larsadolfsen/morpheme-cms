@@ -10,6 +10,9 @@ import { headFields } from '../head';
 type Point = { icon?: string; title?: string; text?: string; more?: string; href?: string };
 
 export default defineBlock({
+  group: 'rows',
+  // Points with icon are a List now (lib/blocks.mjs); this block stays for a text that has one without its points.
+  former: true,
   label: t.blocks.points.label,
   icon: SquaresFour,
   hint: t.blocks.points.hint,

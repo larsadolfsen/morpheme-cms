@@ -18,6 +18,8 @@
                        a card's icon and link
     --block-accent-hover  the accent of a filled button pointed at (ui.css)
     --block-on-accent  text on the accent (the step numbers, a filled button)
+    --block-primary, --block-secondary, --block-tertiary  the colours of a section (with --block-on-… for the text on them;
+                       the theme's own primary, secondary and tertiary colours)
     --block-surface    a raised surface (the rows that fold out, the cards)
     --block-tint       a light background (a notice, a video before it is played)
     --block-line       lines between rows and along the steps, the edge of a card
@@ -27,7 +29,7 @@
     --block-control-radius  the corners of a button and a tag (a pill when large)
     --block-shadow     the shadow of a raised panel
     --block-section-padding, --block-section-margin  the space inside, and above and below, a coloured section of a text
-                       (.text-section: a panel the width of the text column, on --block-surface, --block-tint or --block-accent; on the accent
+                       (.text-section: a panel the width of the text column, on --block-surface, --block-primary, --block-secondary or --block-tertiary; on those colours
                        the blocks in it get inverted variables: text, accent and line on-accent, surface and tint a veil of it)
     --block-ease       the easing of motion (else the motion scheme's, --motion-ease)
     --block-ease-quick the easing of a quick change of state (a colour, an arrow that turns or moves; else the motion
@@ -61,6 +63,12 @@
   --block-accent: #0969da;
   --block-accent-hover: #0550ae;
   --block-on-accent: #ffffff;
+  --block-primary: var(--block-accent);
+  --block-on-primary: var(--block-on-accent);
+  --block-secondary: #565f71;
+  --block-on-secondary: #ffffff;
+  --block-tertiary: #6f5676;
+  --block-on-tertiary: #ffffff;
   --block-surface: #ffffff;
   --block-tint: #f2f4f7;
   --block-line: #d8dee4;
@@ -103,8 +111,10 @@
     margin-block: 2rem;
   }
 
-  /* A coloured section of a page's or post's text (lib/text-sections.mjs, RichText.astro): a panel the width of the text
-     column, from its heading to the next (its first and last parts' margins: at the end of the file). */
+  /* A section of a page's or post's text with a colour, a picture or the whole width of the window (lib/text-sections.mjs,
+     RichText.astro): a panel the width of the text column, from its heading to the next (its first and last parts' margins: at
+     the end of the file). The colours are Surface and the theme's Primary, Secondary and Tertiary (--block-primary and the
+     like, with their text colours --block-on-primary …). A section from before Tint is Surface, and Accent is Primary. */
   .text-section {
     margin-block: var(--block-section-margin);
     border-radius: var(--block-radius);
@@ -114,16 +124,79 @@
     background: var(--block-surface);
     box-shadow: var(--block-shadow);
   }
-  .text-section-tint {
-    background: var(--block-tint);
+  /* A picture behind the section (<img class="text-section-image"> first in it, RichText.astro): it fills the panel, darkened
+     from below with the section's colour (Surface: --block-surface; none: --block-hero-shade, the text's colour unless the theme
+     sets it) so the text on it can be read. Without a colour the text is --block-hero-on-shade, the surface's. */
+  .text-section-picture {
+    --section-fill: var(--block-hero-shade, var(--block-text));
+    --section-on-fill: var(--block-hero-on-shade, var(--block-surface));
+    --section-shade: var(--section-fill);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--section-fill);
+    box-shadow: none;
   }
-  /* On the accent everything in the text is the text-on-primary colour (the prose colours are variables, .prose in base.css),
-     links too: they are underlined by the prose style. The section's real colours are kept in private variables first
+  .text-section-picture.text-section-surface {
+    --section-shade: var(--block-surface);
+  }
+  .text-section-picture::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--section-shade) 85%, transparent),
+      color-mix(in srgb, var(--section-shade) 55%, transparent) 70%,
+      color-mix(in srgb, var(--section-shade) 40%, transparent)
+    );
+  }
+  .text-section-image {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    object-fit: cover;
+    border-radius: 0;
+  }
+  .text-section-primary {
+    --section-fill: var(--block-primary);
+    --section-on-fill: var(--block-on-primary);
+  }
+  .text-section-secondary {
+    --section-fill: var(--block-secondary);
+    --section-on-fill: var(--block-on-secondary);
+  }
+  .text-section-tertiary {
+    --section-fill: var(--block-tertiary);
+    --section-on-fill: var(--block-on-tertiary);
+  }
+  /* Across the whole width of the window (`width` full): without corners; it reaches out of the text to the window's edges, from
+     where the text starts at the left of the page's container (--block-page-width, --block-gutter), and its content starts there
+     again and ends at the container's right edge. The page is clipped at the window's edges while it has one (100vw is a
+     scrollbar wider). */
+  .text-section-full {
+    --section-inset: calc(max(0px, (100vw - var(--block-page-width)) / 2) + var(--block-gutter));
+    width: 100vw;
+    /* min-width wins over a max-width: a page's text column limits what is in it to a readable width with a utility. */
+    min-width: 100vw;
+    margin-left: calc(-1 * var(--section-inset));
+    border-radius: 0;
+    padding-inline: var(--section-inset);
+  }
+  body:has(.text-section-full) {
+    overflow-x: clip;
+  }
+  /* On a colour with its own text colour (and on a picture without Surface) everything in the text is that colour, links
+     too: they are underlined by the prose style. The section's real colours are kept in private variables first
      (--section-…): the blocks in it get the variables swapped (below), and a variable cannot swap with another on the
      same element. */
-  .text-section-accent {
-    --section-accent: var(--block-accent);
-    --section-on-accent: var(--block-on-accent);
+  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) {
+    --section-accent: var(--section-fill);
+    --section-on-accent: var(--section-on-fill);
     --section-text: var(--block-text);
     --section-surface: var(--block-surface);
     background: var(--section-accent);
@@ -144,7 +217,7 @@
   /* The blocks in it read as an inverted theme on the accent: text, lines and the accent itself are the text-on-primary
      colour, a surface is a veil of it, and what was text-on-primary (a filled button's label, a step number) is the
      accent. Dark mode follows, as the variables do. */
-  .text-section-accent > * {
+  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > * {
     --block-text: var(--section-on-accent);
     --block-muted: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
     --block-accent: var(--section-on-accent);
@@ -248,6 +321,41 @@
     font-weight: var(--type-title-medium-weight);
     letter-spacing: var(--type-title-medium-tracking);
     transition: color var(--motion-effects);
+  }
+  /* A row of "List" that is a small heading of the rows after it (list/Rows.tsx). */
+  .block-list-heading {
+    padding: 1rem 1rem 0.5rem;
+    color: var(--block-muted);
+    font-size: var(--type-title-small-size);
+    line-height: var(--type-title-small-line-height);
+    font-weight: var(--type-title-small-weight);
+    letter-spacing: var(--type-title-small-tracking);
+  }
+  .block-list-heading:first-child {
+    padding-top: 0;
+  }
+  .block-accordion-title {
+    flex: 1;
+  }
+  .block-accordion-lead {
+    flex-shrink: 0;
+    color: var(--block-muted);
+  }
+  /* The text button under the last row of "Segmented list" and "FAQ list" (ListButton.tsx). */
+  .block-list-button {
+    margin-top: 0.5rem;
+  }
+  /* `Max rows` of "Segmented list" (MoreRows.tsx, segmented/more.ts): without script all rows show and the button is hidden; with
+     script (data-cut) the rows after the first ones are hidden until the button shows them. The last row left has no line under it. */
+  .block-more:not([data-cut]) > .block-more-button {
+    display: none;
+  }
+  .block-more[data-cut] [data-extra],
+  .block-more[data-cut] li:has(> [data-extra]) {
+    display: none;
+  }
+  .block-more[data-cut] .block-accordion > [data-edge] {
+    border-bottom: 0;
   }
   summary.block-accordion-label {
     cursor: pointer;
@@ -1860,6 +1968,31 @@
     margin-top: 0.5rem;
   }
 
+  /* An intro paragraph in a text (lib/body-large.mjs, "Body large" in the editor): Material 3's body-large role, in the
+   quiet colour of a subheading. */
+  .prose .body-large {
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
+  }
+
+  /* A check list in a text (`- [ ]`, "Check list" in the editor): the box in place of the bullet. */
+  .prose ul.contains-task-list {
+    list-style: none;
+    padding-inline-start: 0;
+  }
+  .prose li.task-list-item {
+    display: flex;
+    gap: 0.75em;
+    align-items: baseline;
+  }
+  .prose li.task-list-item > input[type='checkbox'] {
+    flex: none;
+    accent-color: var(--block-accent);
+    margin: 0;
+  }
+
   /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
    editor): the accent, or the quiet text's, both readable on the background, the surfaces and the tint (the site's
    pairs of colours, checked under "Colors"). Bold, italic and a link in it have its colour. Outside the layers, as it
@@ -1880,8 +2013,11 @@
 
   /* A word in the accent's or the quiet text's colour (above) on a section with the accent as its background would not
    be read: there it has the section's text colour. */
-  .text-section-accent :is(.color-accent, .color-muted),
-  .text-section-accent :is(.color-accent, .color-muted) :is(strong, em, a) {
+  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface))
+    :is(.color-accent, .color-muted),
+  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface))
+    :is(.color-accent, .color-muted)
+    :is(strong, em, a) {
     color: inherit;
   }
 

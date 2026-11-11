@@ -6,6 +6,15 @@ export const blockSettings = {
   /** At the right of a block's row, and the filter, when it is off (its switch: active, off). */
   inactive: 'Disabled',
   standard: 'Standard blocks',
+  /** The headings of the standard blocks in `Insert` (BlockDialog.tsx), by what the blocks do. */
+  groups: {
+    rows: 'Rows and cards',
+    questions: 'Questions',
+    content: 'From your content',
+    prices: 'Prices',
+    banner: 'Banner and buttons',
+    other: 'Other',
+  },
   /** In the group of an installed app with neither blocks nor kinds. */
   noBlocks: 'The app has no blocks',
   isStandard: 'A standard block.',

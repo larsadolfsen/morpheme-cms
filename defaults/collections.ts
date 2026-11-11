@@ -60,7 +60,7 @@ const barButtonHref: Field = {
 // Under "Search engines" with the Google texts (EntryForm.tsx).
 const canonical: Field = {
   name: 'canonical',
-  label: 'Canonical URL',
+  label: 'Original page',
   type: 'relation',
   to: 'pages',
   fixed: true,
@@ -70,7 +70,7 @@ const canonical: Field = {
 // Not for search engines: noindex, and not in the sitemap. Under "Search engines" too.
 const noindex: Field = {
   name: 'noindex',
-  label: 'Hide from search engines (noindex)',
+  label: 'Hide from search engines',
   type: 'boolean',
   hint: 'The page is not shown in Google.',
 };
@@ -88,9 +88,10 @@ const topImageText: Field[] = [
   { name: 'imageAlt', label: 'Alt text', type: 'string', only: { field: 'imageDecorative', is: ['', 'false'] } },
 ];
 
-// "Status" at the top of a page or post (EntryForm.tsx): Draft, Hidden, Published or Scheduled, and for
-// Scheduled when (packages/editor/lib/status.mjs). Published is no `status` in the file. A post's date follows the time.
-const status = (hidden: string): Field[] => [
+// "Status" of a page or post: Draft, or Published (no `status` in the file). The editor does not show it as a field: `Publish`,
+// `Unpublish` and the line under the title say it (EntryForm.tsx). When a page goes live at a time is a waiting version's
+// `publishAt` (packages/editor/lib/versions.mjs). A stored `scheduled` (an older site) is moved there by the Worker.
+const status = (): Field[] => [
   {
     name: 'status',
     label: 'Status',
@@ -98,19 +99,9 @@ const status = (hidden: string): Field[] => [
     // A narrow menu field over the title (EntryForm.tsx).
     narrow: true,
     options: [
-      { value: 'draft', label: 'Draft', hint: 'Not shown on the website.' },
-      { value: 'unlisted', label: 'Hidden', hint: hidden },
-      { value: '', label: 'Published', hint: 'Shown on the website.' },
-      { value: 'scheduled', label: 'Scheduled', hint: 'Shown on the website from the time below.' },
+      { value: 'draft', label: 'Draft', hint: 'Not on the website yet. Not even at its address.' },
+      { value: '', label: 'Published', hint: 'On the website for everyone.' },
     ],
-  },
-  {
-    name: 'publishAt',
-    label: 'Time',
-    type: 'datetime',
-    required: true,
-    only: { field: 'status', is: ['scheduled'] },
-    hint: 'Published at most an hour after.',
   },
 ];
 
@@ -212,10 +203,10 @@ export const contactFields: Field[] = [
   { name: 'city', label: 'Postcode and town', type: 'string', required: true },
   {
     name: 'cvr',
-    label: 'CVR number',
+    label: 'Company registration number',
     type: 'string',
-    hint: 'Shown at the bottom of every page.',
-    pattern: ['^\\d{8}$', 'A CVR number has eight digits'],
+    hint: 'Shown at the bottom of every page. In Denmark, this is the CVR number.',
+    pattern: ['^\\d{8}$', 'A Danish company registration number has eight digits'],
   },
 ];
 
@@ -383,7 +374,7 @@ export const collections: Collection[] = [
     folder: 'src/content/blog',
     deletable: true,
     fields: [
-      ...status('Not shown on the blog or in Google, but can be opened at its address.'),
+      ...status(),
       { name: 'title', label: 'Title', type: 'string', required: true },
       { name: 'date', label: 'Date', type: 'date', required: true },
       { name: 'path', label: 'URL', type: 'string', address: 'post' },
@@ -414,7 +405,7 @@ export const collections: Collection[] = [
     singular: 'page',
     folder: 'src/content/pages',
     fields: [
-      ...status('Not shown in Google, but can be opened at its address.'),
+      ...status(),
       { name: 'title', label: 'Title', type: 'string', required: true },
       { name: 'path', label: 'URL', type: 'string', address: 'page' },
       { name: 'description', label: 'Short description', type: 'text' },

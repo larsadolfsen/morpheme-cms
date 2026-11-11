@@ -24,6 +24,16 @@ import type { EditorType } from './notificationData';
 // without it, it is only shown at the bottom (something going on, a form that cannot be saved).
 export type Status = { text: string; error?: boolean; edit?: Edit; kind?: EditorType } | null;
 
+/** What a page or post can do with its waiting version (EntryForm.tsx, lib/versions.mjs). */
+export type Publish = {
+  /** The main action's label (`Publish`, `Publish changes`), or none when there is nothing to publish. */
+  label?: string;
+  /** Publishes; saves what is unsaved first. True when it was published. */
+  onPublish: () => Promise<unknown>;
+  /** The other actions, as rows above "Delete". */
+  actions?: { label: string; onClick: () => void }[];
+};
+
 type Props<T extends string> = {
   title: string;
   /** The way back; leaving asks first while something is unsaved, unless it has a `guard` of its own (a field's page
@@ -47,6 +57,9 @@ type Props<T extends string> = {
   onPreview?: () => void;
   onDelete?: () => void;
   deleteLabel?: string;
+  /** A page or post that is published in steps: `Publish` (a draft) or `Publish changes` (changes waiting) at the end of the bar, shown
+   * also when nothing is unsaved, and its other actions (`Unpublish`, `Discard changes`) above "Delete". */
+  publish?: Publish;
   /** The fields beside the text on a wide computer screen (FormColumns in ui.tsx). */
   panel?: boolean;
   /** A list (the menu): as wide as the other lists on a computer. */
@@ -146,6 +159,7 @@ export default function FormFrame<T extends string>({
   onPreview,
   onDelete,
   deleteLabel,
+  publish,
   panel,
   wide,
   children,
@@ -187,43 +201,69 @@ export default function FormFrame<T extends string>({
       }
     >
       <div className="space-y-6">{children}</div>
-      {onDelete && (
+      {(onDelete || publish?.actions?.length) && (
         <div className="mt-12">
           <Group>
-            <ListItem
-              tone="delete"
-              disabled={saving}
-              onClick={onDelete}
-              headline={
-                <span className="inline-flex items-center gap-3">
-                  <Trash size={18} />
-                  {deleting ? <LoadingIndicator>{t.app.busy.deleting}</LoadingIndicator> : (deleteLabel ?? t.common.delete)}
-                </span>
-              }
-            />
+            {publish?.actions?.map((a) => (
+              <ListItem key={a.label} disabled={saving} onClick={a.onClick} headline={a.label} />
+            ))}
+            {onDelete && (
+              <ListItem
+                tone="delete"
+                disabled={saving}
+                onClick={onDelete}
+                headline={
+                  <span className="inline-flex items-center gap-3">
+                    <Trash size={18} />
+                    {deleting ? <LoadingIndicator>{t.app.busy.deleting}</LoadingIndicator> : (deleteLabel ?? t.common.delete)}
+                  </span>
+                }
+              />
+            )}
           </Group>
         </div>
       )}
-      {(dirty || saving) && (
+      {(dirty || saving || publish?.label) && (
         <div className="editor-save-bar fixed inset-x-0 bottom-0 z-20 border-t border-outline-variant bg-surface-container-lowest/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
           <div className="mx-auto max-w-3xl px-4 py-3 medium:px-6">
             {/* Preview beside Save, at the end of the bar, each as wide as its label. */}
             <div className="flex justify-end gap-2">
               {onPreview && (
-                <Button kind="outlined" icon={Binoculars} aria-haspopup="dialog" onClick={onPreview}>
+                <Button
+                  kind="outlined"
+                  icon={Binoculars}
+                  aria-haspopup="dialog"
+                  onClick={onPreview}
+                  // With two more buttons there is no room for it on a phone: the top bar has it too.
+                  className={publish?.label ? 'max-medium:hidden' : undefined}
+                >
                   {t.preview.button}
                 </Button>
               )}
-              <Button
-                disabled={saving}
-                busy={saving && !deleting}
-                onClick={() => {
-                  askToNotify();
-                  void onSave();
-                }}
-              >
-                {t.common.saveChanges}
-              </Button>
+              {(dirty || saving) && (
+                <Button
+                  kind={publish?.label ? 'tonal' : 'filled'}
+                  disabled={saving}
+                  busy={saving && !deleting}
+                  onClick={() => {
+                    askToNotify();
+                    void onSave();
+                  }}
+                >
+                  {t.common.saveChanges}
+                </Button>
+              )}
+              {publish?.label && (
+                <Button
+                  disabled={saving}
+                  onClick={() => {
+                    askToNotify();
+                    void publish.onPublish();
+                  }}
+                >
+                  {publish.label}
+                </Button>
+              )}
             </div>
           </div>
         </div>
