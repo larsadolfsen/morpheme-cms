@@ -25,6 +25,10 @@ release without the owner's explicit yes in the conversation. That means:
 Merging an ordinary pull request only stages a test version under the npm tag `next`, and the owner decides about that
 version too. An agent that thinks a release is due says so to the owner and waits.
 
+**The `release` skill (`.claude/skills/release/SKILL.md`) is what we use whenever we release a version.** When the owner
+says `/release` (or asks to release, publish to `latest` or ship a version), the session loads that skill and follows
+its phases in order, including its check that sites can still update themselves; it never releases any other way.
+
 ## The project manager merges, and nothing is left behind
 
 One session is the owner's project manager (PM). It is responsible for merging pull requests, and it is responsible for
