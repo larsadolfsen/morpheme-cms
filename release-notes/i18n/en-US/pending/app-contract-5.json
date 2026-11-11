@@ -1,0 +1,5 @@
+{
+  "id": "app-contract-5",
+  "kind": "line",
+  "text": "Apps can now declare a role, connector or plugin, and an MCP server in app.json (contract 5), and apps made for contract 4 keep working"
+}
