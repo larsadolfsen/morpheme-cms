@@ -1,13 +1,11 @@
-// What "List" shows (its view, drawn by the theme's View.tsx and Rows.tsx): its heading, and each row's
-// icon, heading, text and page. The same in the editor (viewOf) and on the site (load.ts): only its fields.
+// What "List" shows (its view, drawn by the theme's View.tsx and Rows.tsx): each row's icon, heading, text and page. The same in
+// the editor (viewOf) and on the site (load.ts): only its fields. (The label, heading and intro it had are the text's own now.)
 import type { ViewOf } from '../view';
-import { headOf, type HeadView } from '../head';
 
 export type ListRow = { icon?: string; title: string; text?: string; href?: string };
-export type ListView = HeadView & { items: ListRow[] };
+export type ListView = { items: ListRow[] };
 
 export const listOf = (props: Record<string, any>): ListView => ({
-  ...headOf(props),
   items: props.items ?? [],
 });
 
