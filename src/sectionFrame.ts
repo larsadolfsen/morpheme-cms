@@ -7,7 +7,7 @@ import { $prose } from '@milkdown/kit/utils';
 import type { Node } from '@milkdown/kit/prose/model';
 import { Plugin } from '@milkdown/kit/prose/state';
 import { Decoration, DecorationSet } from '@milkdown/kit/prose/view';
-import { isSafePicture } from '../lib/section-marker.mjs';
+import { isSafePicture, rebuiltAddress } from '../lib/section-marker.mjs';
 import { partKind, sectionPart, sectionRanges } from '../lib/section-ranges.mjs';
 import { shownAt } from './images';
 import { sectionOf } from './sectionState.mjs';
@@ -25,10 +25,13 @@ function pictureStrip(src: string, alt: string): HTMLElement {
   // browser's own blob address of a picture made in this visit (shownAt), never a script or data address.
   const url = new URL(shownAt(src), location.origin);
   const img = document.createElement('img');
-  if (url.origin === location.origin && url.pathname.startsWith('/') && !url.pathname.startsWith('//')) img.src = url.pathname + url.search;
-  else if (url.protocol === 'https:' && url.href.startsWith('https://')) img.src = url.href;
-  else if (url.protocol === 'blob:' && url.href.startsWith('blob:')) img.src = url.href;
-  else return strip;
+  let address: string | null = null;
+  if (url.origin === location.origin && url.pathname.startsWith('/') && !url.pathname.startsWith('//')) address = url.pathname + url.search;
+  else if (url.protocol === 'https:' || url.protocol === 'blob:') address = url.href;
+  // Written again from the allowed characters only (lib/section-marker.mjs), so nothing of the original string is assigned.
+  const drawn = address === null ? null : rebuiltAddress(address);
+  if (drawn === null) return strip;
+  img.src = drawn;
   img.setAttribute('alt', alt);
   img.draggable = false;
   strip.append(img);
