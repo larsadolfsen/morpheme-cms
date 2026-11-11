@@ -504,6 +504,66 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
 or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. J replaces the sheet buttons of G (finding 12): build G without them and J after G and I, because it uses the single row editor. K step 1 goes with G (the H1 start, the same top of the text); step 3 last. L after 0.16 and after the list blocks of H and I exist; split part A (a block reads an existing list) from part B (`New list`), A first. H can go with B and C (no decision). I only after G, since both change the same block files and the same migration, and after the owner has seen H. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
 
+## Spike findings
+
+### S4: can an app add versions to a page? (11 November)
+
+**Answer: not with contract 4 or 5 as they are, but the later app is possible and needs only one new editor place, an
+optional extra hook, and what batch 12 already plans.** It decides the later versions app, not 0.17.
+
+**What an app can do today.** Contract 5 is contract 4 plus `role` and `mcp`, so it adds no place or hook
+(`docs/app-contract.md`). An app has four places (`lib/appPlaces.mjs`): `build` (sandboxed `hooks/` and `after-build.ts`),
+`editor` (`editor.ts`, `index.ts`), `worker` (`worker.js`) and `pages`. Only the build runs in the QuickJS sandbox
+(`lib/sandbox/`); `editor`, `worker` and `pages` are `full` access, so first-party publishers only. The one hook is
+`page-colors` (`lib/appHooks.mjs`, a closed list). In the editor an app may add a page, screens, a tab to a list
+(`AppDefinition.tabs`), start-screen widgets and notifications (`src/apps.ts`), but nothing inside a page's form or its
+top bar, and nothing at save time. Its Worker part gets `tools.github.read` and `tools.github.commit` (in the signed-in
+person's name when a request is passed) and a `scheduled` run each hour (`worker/index.js`). Its `reads` give published
+pages only, not drafts (`lib/reads.mjs`).
+
+**What a versions app needs.**
+
+1. *An editor place in the page form: the version switch.* The app contributes a component (the list of versions, `New
+   version`, `Compare`, a calendar) to a named slot of the form's top bar. No such slot exists; `tabs` and `widgets` are
+   other screens. This is the only new place, and it is a `full` editor place like `tabs`, so the app is first-party.
+2. *Core functions it calls, not its own copies* (`lib/versions.mjs`, batch 12): `publish`, `schedule`, `unpublish`,
+   `discard`. They are pure text and path functions, so the app's editor and Worker parts import them through the app's
+   allowed imports (`@morphemecms/cms/lib/versions` would join the three core modules in "Imports").
+3. *Worker: its own hourly run (`scheduled`) that publishes due versions.* Batch 12 puts that in `worker/publish.js`, which
+   handles the two core versions. The app's run must publish a version of its own list the same way, with
+   `tools.github.commit`; it needs no new tool.
+4. *Reading drafts.* Drafts live in `src/drafts/` and are outside every build and every `reads` scope. An app that lists
+   waiting versions reads them with `tools.github.read` in its Worker part; no new `reads` scope is needed, and a
+   sandboxed hook never sees a draft.
+
+**What contract 4 and 5 allow, and what they do not.** Allowed: all of 2 (as a plain import), 3 and 4, and a tab or a page
+for a calendar of what goes live when. Not allowed: a place in the page form (1). A sandboxed hook cannot do it: hooks are
+build-time, run for published pages only, return data, and cannot draw UI. So the version switch can never be a
+sandboxed place; it is a `full` editor place or part of the core.
+
+**Add to the core now (batch 12), so the app needs no rewrite:**
+
+- The version list as a list from the start (`id`, `state`, optional `publishAt`; the core uses at most two) and a
+  draft path derived from the version `id`, not fixed to one file: `src/drafts/<collection>/<slug>.md` for the waiting
+  version, `src/drafts/<collection>/<slug>/<id>.md` free for more. Keep the id a plain slug, not an index.
+- `publish`, `schedule`, `unpublish` and `discard` in `lib/versions.mjs` take a version id, default `waiting`; the editor and
+  the Worker call them with it, so the app can pass any id.
+- The Worker's hourly publish walks the whole version list for due `publishAt`, not just the single waiting version.
+- The version switch is one component with a named slot in the form's top bar (`versionSwitch`), drawn by the core with its
+  two entries; the editor reads a registered app component for that slot if one exists, else the core's.
+  Register slots by name in `AppDefinition` (for example `slots?: { versionSwitch?: ComponentType<VersionSwitchProps> }`)
+  so contract 4 and 5 need no change (as `widgets` did, "Widgets" in the contract). Only the slot and its props
+  (`entry`, `versions`, the four functions, `editing`) are decided now; the app comes later.
+
+**Stays out of 0.17:** more than two versions in the core's UI, the calendar, comparing versions, merging, a new
+contract number, a new hook, a new `reads` scope, and sandboxing the version switch. Revisit a `versions` hook (a
+sandboxed check before `publish`, for example "needs review") only if an app wants to block a publish; it would join
+`APP_HOOKS` and would be a contract 6 question.
+
+**Recommendation.** Do the four bullets above in batch 12, as small changes (an id argument, a slot name, a loop over the
+list). Plan the versions app as a first-party app with a `full` editor place and a Worker `scheduled` run; no new
+contract is needed, only a `slots` field in `AppDefinition`.
+
 ## Open questions for the owner
 
 1. **New pages and posts start as Draft (settled, owner, 11 November: yes).** Nothing goes live by accident; the form
