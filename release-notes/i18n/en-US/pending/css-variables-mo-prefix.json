@@ -1,5 +1,0 @@
-{
-  "id": "css-variables-mo-prefix",
-  "kind": "line",
-  "text": "A site’s own CSS that uses the theme’s color, shape and elevation variables must switch to the new variable names, which start with --mo-"
-}

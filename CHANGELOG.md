@@ -1,5 +1,68 @@
 # @morphemecms/cms
 
+## 0.15.0
+
+### Minor Changes
+
+- 5812ce6: Apps can describe themselves in app.json, and their build code runs in a sandbox: an app's page shows where it runs and what went wrong in the last build
+- 238db17: Add three widgets to the start screen: Unfinished, Blog rhythm (with a setting for how often a post is due) and Site status
+- 5dfcf00: Edit the start screen's dashboard: add, remove, reorder and set up widgets, saved per person in the site's Worker
+- bb054b2: Show the start screen as a grid of widgets, loaded from the dashboard each person keeps in the site's Worker, and let apps add widgets
+- 6185aa8: The editor's own code-only names are English: the placeholders of the standard messages, three browser-storage keys, the old app store address and the "Expandable list" text's placeholder (now `{topic}`; a text saved with the old one still works). The sort and filter you last used in the page and item pickers are reset once.
+- 27551e3: The consent log's download is named `consents-<date>.csv`, and an icon pack's licence page is at `licenses/icons/<id>`
+  (the old editor address still opens it)
+- 2bf473f: Rename the new versions of pages from /ny/ to /new/ (route `/new/`, folder `src/content/pages/new/`); the Worker sends the old address on with a 301, query string and #part kept, a page file still under `ny/` is read at its new address with a warning from `check:content`, and scripts/retarget-links.mjs rewrites a site's own links to it
+- cdc850e: Move a tag's page on the blog to /blog/tags/<tag>/; the Worker sends the old address on with a 301, query string kept, and scripts/retarget-links.mjs rewrites a site's own links to it
+- 6c3feca: An app's screenshot keywords are now English: `block:<type>`, `kind:<list>:<n>`, `list:<id>`, `settings` and `page`; the old words still work for one release
+- 78d75f8: Make the files folder, the testimonials page address and the contact page anchor site settings with English defaults (public/files, /testimonials/, directions); a site that sets none and still has the old Danish names keeps them
+- 0a83c9d: The starter is English; `npx morpheme locale da-DK` makes it Danish.
+- ad36199: The site's colors are now exactly Material 3's color roles, each named as Material names it (`primary`, `on-surface`, `surface-container-high`, plus the fixed roles, `scrim` and `shadow`), and the editor's page is on Surface like the site. A site's `colors.json` in the old names is read as the new roles and written in the new names on the next save in the editor; a theme or custom CSS must use the new names (`--bg`, `--surface` as the cards, `--tint`, `--ink`, `--muted`, `--line`, `--accent*` and `--accent-hover` are gone).
+- b1d832c: The theme's shared CSS variables now start with `--mo-`: the color roles (`--mo-primary`, `--mo-on-surface`, …), the corner steps and state layers (`--md-shape-medium` is `--mo-shape-medium`), and each elevation level has a color and a shadow (`--mo-elevation-2-color`, `--mo-elevation-2-shadow`, replacing `--elevation-2-surface` and `--elevation-2`). A theme or custom CSS that sets or reads the old names must use the new ones; `colors.json` keeps its keys.
+- b7a12ac: A page's title, status and template are now under Page settings at the top of the form, and the page's title and its H1 stay the same as you type either one.
+- c2b6345: A page-colors hook gets a new helper, `contentColors(picture, choice)`: the site's build makes the colors from one of the page's pictures (Material's content-based color), so an app's hook no longer runs the color engine in its sandbox, where a photograph took longer than the hook's 1000 ms. A sandboxed hook's `pixels` helper now reads only the page's own pictures.
+- e532535: The Appstore's category filter now lists 13 categories, from Analytics to Social, and apps and themes can have a subcategory.
+- d010fc7: Colors now uses Material 3's names (Primary, On surface, Surface container …) and has Material's three surfaces, Surface dim, Surface and Surface bright; new colors put the page's background on Surface bright.
+
+### Patch Changes
+
+- 8b0c170: Run the page colours hook and the after-build step of apps with an app.json in the build sandbox, and list what goes wrong instead of failing the build
+- b135aba: Add the parts of the app sandbox: app.json checks, sandboxed app code in QuickJS, and the build's app problems for the editor
+- 4611e41: Dashboards are kept in the site's existing NOT_FOUND store, so every site can save one without a new binding.
+- b985413: The theme checks build into a folder inside the project, so they also work when the system temp folder is on another drive
+- ed6e436: The release notes on the Morpheme page and the start screen are rewritten in plainer words, in English and Danish.
+- 8bc97f9: A site's `colors.json` in the names from before Material 3's roles (`bg`, `ink`, `accent` …) is read as the new roles, on the editor's Colors screen, in the build and in the content check, and the editor writes the new names on the next save. A theme or custom CSS still has to use the new variable names.
+- 12918dd: The release note for the edition photo says only what is new in this version: the photo and the place, not how the start screen card works.
+- aa478c9: After an update, the start screen shows a small card with the edition's photo and name instead of the large list of news.
+- 8e8c49a: Write the comments and build messages in `site/` and `lib/` in English.
+- 75f6672: On a phone, the text toolbar shows a heading button and a text button side by side, a new page tells you its first heading becomes the H1, and every button that opens a menu has an arrow down.
+- 1f2e59f: The new-edition card on the start screen has the shadow of Material 3's elevated card.
+- b33b12d: The earlier versions 0.2 to 0.13 each have an edition with its own nature photo on the Morpheme page.
+- d69e244: Three older release notes (0.10.0, 0.10.1 and 0.13.0) no longer repeat what an earlier version had already introduced.
+- 44dd171: The Morpheme page shows friendly release notes in English and Danish for versions 0.2.0 to 0.13.0, instead of their developer changelog.
+- 64f0cd4: Activating an app of a type that allows one active app now deactivates the other app of that type, after a warning.
+- 4952516: Version 0.15 is the Passo Giau edition, with a photo of the Dolomites by Sarmat Batagov.
+- 5e8ff10: Write the editor's source comments in English and pick the vague link texts by the site's language
+- b6c141c: Write the theme, the Worker, the check scripts and the docs in English, with Danish by locale for what the Worker says
+- 368b14f: `quickjs-emscripten` is a new required peer dependency, so a site that updates the package must run `npm install` to get it.
+- 2d1326e: The Worker gets the route /api/dashboard, which keeps each person's start screen dashboard in its NOT_FOUND store.
+- 416efe5: A site with `releasePosts` in its config posts each new release of the CMS on its blog, minutes after it is released: the release notes in the site's language, their screenshots and the edition's photo, in one commit by the site's Worker.
+- 9be773f: The release notes for this version are shorter: overlapping lines are merged into one each.
+- 5dcede5: check:themes and check:screens now also work with a pre-release (next) build of the CMS installed.
+- fe128aa: A site that is still on postcss-selector-parser 6 can update to 0.15 with the Update button: the peer dependency now accepts both 6 and 7.
+- ac64be2: Appearance, Developer, Licenses, Morpheme and Privacy are now under Settings, opened by the cog at the bottom of the menu
+- bd67cb4: The checks the package ships (`check:themes` and the like) now run from an installed copy
+- 8b7e313: The buttons under Notifications are now Clear and Settings.
+- 9d3b080: The new-edition card on the start screen is now an elevated card.
+- 15a1d93: A page's or post's status is a narrow menu above the title, and a page's template is chosen on cards with an icon and a name, four to a row: One column, Wide, Left side panel and Right side panel. Menus follow Material 3's vertical menu: the low surface container with large corners and a shadow, 44px items, and the chosen one in the tertiary container.
+- edbfd39: `morpheme check:themes` reports a missing Update request on the Morpheme page as a normal problem line instead of crashing, and waits longer for it on a slow computer.
+- 36af66d: A page's template is always chosen on cards: the side-panel ones are greyed, with a link to choose a block for the side column, while no block is chosen there.
+- 01b49c2: The heading and text-style buttons in the text toolbar on a phone sit close together, like the other tools.
+- 0ce669d: Updates the packages a site installs with the CMS to their latest versions, including jsdom 31, postcss-selector-parser 7 and TypeScript 7 for the starter.
+- b1e7393: The Morpheme page names each version after its edition, with its date and photo, and a test version shows the changes merged since the last release.
+- 8506bf6: Arrows at the bottom of the Morpheme page and each earlier version's page lead to the newer and the older version.
+- 748944e: A site can keep jsdom 29 or move to jsdom 31: the optional peer dependency now accepts both.
+- 93f0b45: The menu over selected text has the same heading and text buttons as the toolbar when it's short, each with an arrow that opens a menu of its kinds of text.
+
 ## 0.14.2
 
 ### Patch Changes

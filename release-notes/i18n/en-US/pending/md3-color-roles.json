@@ -1,6 +1,0 @@
-{
-  "id": "md3-color-roles",
-  "kind": "card",
-  "title": "New color names",
-  "text": "Colors now use Material 3’s names, with new Surface dim, Surface bright, Scrim and Shadow. Your old colors keep working: open Colors and save to switch them over."
-}
