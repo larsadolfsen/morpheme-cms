@@ -13,6 +13,7 @@ import { eyebrowText } from '../lib/eyebrow.mjs';
 import { bodyLargeText } from '../lib/body-large.mjs';
 import { remarkBannerSections } from '../lib/remark-banner-section.mjs';
 import { remarkChecklists } from '../lib/remark-checklist.mjs';
+import { topOf } from './sections.mjs';
 import { bodyLargeSchema } from './bodyLarge.mjs';
 import { eyebrowKeeper, eyebrowKeymap, eyebrowSchema } from './eyebrow.mjs';
 
@@ -138,8 +139,8 @@ export const textColorSchema = $markSchema('textColor', () => ({
 }));
 
 // The settings of a section (lib/section-marker.mjs): the marker line before an H1 or H2, or before the label above it
-// (eyebrow), is read into the heading's attributes `section` (the colour), and for an H2 `sectionPicture`, `sectionAlt` and
-// `sectionWidth`, and written back before it. It must be read before remarkSiteBlocks
+// (eyebrow), is read into the heading's attributes `section` (the colour), `sectionPicture`, `sectionAlt` and `sectionWidth`, and
+// written back before it. It must be read before remarkSiteBlocks
 // sees it, so it is the first plugin of that kind in makeEditor. A marker with nothing to colour is dropped.
 const htmlOf = (node) => {
   const only = node?.type === 'paragraph' && node.children?.length === 1 ? node.children[0] : node;
@@ -153,13 +154,13 @@ const remarkSectionMarkers = $remark('remarkSectionMarkers', () => () => (tree) 
     const next = isLabelLine(htmlOf(parts[i + 1])) ? parts[i + 2] : parts[i + 1];
     if (next?.type === 'heading' && next.depth <= 2) {
       next.section = marker.color || null;
-      if (next.depth === 2) Object.assign(next, { sectionPicture: marker.picture, sectionAlt: marker.alt, sectionWidth: marker.width });
+      Object.assign(next, { sectionPicture: marker.picture, sectionAlt: marker.alt, sectionWidth: marker.width });
     }
     return false;
   });
 });
 
-// The commonmark heading with the section colour as an attribute (only an H1 or H2 has one). Written back before the heading, or
+// The commonmark heading with the section settings as attributes (only an H1 or H2 has them). Written back before the heading, or
 // before its label, which is already the last thing written (a line of HTML).
 /** @type {import('@milkdown/kit/utils').$NodeSchema<'heading'>} */
 export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => {
@@ -176,13 +177,13 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
     parseMarkdown: {
       match: base.parseMarkdown.match,
       runner: (state, node, type) => {
-        const h2 = node.depth === 2;
+        const top = node.depth <= 2;
         state.openNode(type, {
           level: node.depth,
-          section: node.depth <= 2 ? (node.section ?? null) : null,
-          sectionPicture: h2 ? (node.sectionPicture ?? null) : null,
-          sectionAlt: h2 ? (node.sectionAlt ?? null) : null,
-          sectionWidth: h2 ? (node.sectionWidth ?? null) : null,
+          section: top ? (node.section ?? null) : null,
+          sectionPicture: top ? (node.sectionPicture ?? null) : null,
+          sectionAlt: top ? (node.sectionAlt ?? null) : null,
+          sectionWidth: top ? (node.sectionWidth ?? null) : null,
         });
         state.next(node.children);
         state.closeNode();
@@ -196,10 +197,7 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
         // The document has no children before its first node is written: a heading at the very top starts them.
         if (top && !top.children) top.children = [];
         const written = top?.children;
-        const marker =
-          level <= 2
-            ? markerHtml({ color: section, ...(level === 2 ? { picture: sectionPicture, alt: sectionAlt, width: sectionWidth } : {}) })
-            : '';
+        const marker = level <= 2 ? markerHtml({ color: section, picture: sectionPicture, alt: sectionAlt, width: sectionWidth }) : '';
         if (marker && Array.isArray(written)) {
           const last = written.at(-1);
           const at = last?.type === 'html' && isLabelLine(last.value) ? written.length - 1 : written.length;
@@ -252,6 +250,7 @@ export function partsOf(ctx) {
   const serialize = ctx.get(serializerCtx);
   const parts = [];
   let run = [];
+  let h1Seen = false;
   const flush = () => {
     const markdown = run.length ? serialize(doc.type.create(null, run)).trim() : '';
     if (markdown) parts.push({ markdown });
@@ -267,6 +266,11 @@ export function partsOf(ctx) {
       parts.push({ heading: node.textContent.trim(), ...(node.attrs.section ? { color: node.attrs.section } : {}) });
     } else if (node.type.name === 'heading' && node.attrs.level === 1) {
       flush();
+      // The settings of the page's H1 section (a marker before it): a part `top`, as partsOfMarkdown has them.
+      const { section, sectionPicture, sectionAlt, sectionWidth } = node.attrs;
+      const top = topOf({ color: section, picture: sectionPicture, alt: sectionAlt, width: sectionWidth });
+      if (top && !h1Seen) parts.push({ top });
+      h1Seen = true;
     } else if (!((node.type.name === 'paragraph' || node.type.name === 'heading') && !node.textContent.trim() && !node.childCount))
       run.push(node);
   });

@@ -24,7 +24,7 @@ const WIDTH: Field = {
   ],
 };
 
-/** picture: whether the section can have a picture and a width (an H2's; an H1's has only its colour). */
+/** picture: whether the section can have a picture and a width (any H1's or H2's). */
 export default function SectionSettings({
   values,
   picture,
