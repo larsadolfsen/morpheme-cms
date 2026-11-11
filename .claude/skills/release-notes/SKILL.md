@@ -25,7 +25,7 @@ A paragraph for a change that cannot be seen has no screenshot in a released ver
 none. A note that is still pending needs one (`npm run check:release-notes`), so ask the owner before writing such a
 note as pending.
 
-A change a site owner sees gets a note in both languages, English (`en-US`) and Danish (`da-DK`). Developer-only changes
+A change a site owner sees, and every selling point, gets a note in both languages, English (`en-US`) and Danish (`da-DK`). Developer-only changes
 get no note. The note's `id` is this changeset's file name without `.md`, for example `brave-cats-run`. A note has one
 of two kinds:
 
