@@ -7,6 +7,7 @@ import { $prose } from '@milkdown/kit/utils';
 import type { Node } from '@milkdown/kit/prose/model';
 import { Plugin } from '@milkdown/kit/prose/state';
 import { Decoration, DecorationSet } from '@milkdown/kit/prose/view';
+import { isSafePicture } from '../lib/section-marker.mjs';
 import { partKind, sectionPart, sectionRanges } from '../lib/section-ranges.mjs';
 import { shownAt } from './images';
 import { sectionOf } from './sectionState.mjs';
@@ -18,9 +19,11 @@ function pictureStrip(src: string, alt: string): HTMLElement {
   const strip = document.createElement('div');
   strip.className = 'editor-section-picture';
   strip.contentEditable = 'false';
+  // Only an address the marker's validator accepts is drawn (lib/section-marker.mjs): a path on the site or an https address.
+  if (!isSafePicture(src)) return strip;
   const img = document.createElement('img');
-  img.src = shownAt(src);
-  img.alt = alt;
+  img.setAttribute('src', shownAt(src));
+  img.setAttribute('alt', alt);
   img.draggable = false;
   strip.append(img);
   return strip;
