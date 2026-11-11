@@ -391,7 +391,11 @@ function Form({
     void (async () => {
       const stored = await loadAutosave(live.path);
       if (!stored || !alive) return;
-      const at = (await env.savedAt([waiting?.path ?? live.path]).catch(() => ({})))[waiting?.path ?? live.path];
+      const gitPath = waiting?.path ?? live.path;
+      const at = await env.savedAt([gitPath]).then(
+        (times) => times[gitPath],
+        () => undefined,
+      );
       if (!alive || eraNow.current !== start || !restorable(stored, base.text, at)) return;
       const file = { ...base, text: stored.text };
       setValues({ ...valuesOf(collection, file), path: initial.path });
