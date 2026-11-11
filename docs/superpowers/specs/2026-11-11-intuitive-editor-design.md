@@ -9,6 +9,24 @@
 A new site owner can make a page, write a post, add a picture, publish and schedule without help, and always knows what
 state their work is in.
 
+## Owner decisions on text and headings (11 November 2026)
+
+The owner's comments, in their words, with how this spec reads them. Where the reading is a guess it is marked and
+repeated as a question below.
+
+1. **Keep the current format: text and blocks.** The page stays one text with blocks in it. No new editor model.
+2. **Add "Body large" and "Label" to the text styles.** Read as: two new entries in the text-style menu `T`
+   (`text.kind`, `text.paragraph` … in `MarkdownEditor.tsx`), next to Heading, Subheading and Normal text. _(Guess: `T` is that
+   menu; `Label` is the small-capitals line that blocks call `eyebrow` today.)_
+3. **Remove all regular headings and text from blocks.** Read as: a block keeps only what is its own (rows, pictures,
+   buttons, links), and the heading, subheading, label and intro text come from the text around it, in the text styles
+   of decision 2. See finding 10.
+4. **An H2 section is a dotted line across the editor, not a box.** Today an H2 with its text is a coloured section with
+   `Section settings` (colour: None, Surface, Tint, Primary; `text.sectionColors`). The editor shows a dotted divider
+   across the full width at each H2; the colour choice stays in `Section settings`, behind the divider's button.
+5. **The editor opens with H1 selected.** A new page opens with the cursor in the H1 line, empty, ready to type the title
+   (today `firstHeadingHint` explains it after the fact). It replaces the first-run text hint of finding 6.
+
 ## What was looked at
 
 - **Code and texts:** `src/i18n/en-US/` (`common`, `app`, `library`, `forms`, `parts`, `media`, `text`, `blocks`,
@@ -102,7 +120,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   A block's card has `Hide on the page` / `Hidden on the page` (`text.hideOnPage`) — a fifth meaning of "hidden", unrelated
   to the status `Hidden`. The side sheet (`2026-11-05-block-side-sheet-design.md`) saves with the page, but its own close
   asks `You have changes that aren’t saved. Do you want to keep them?` (`app.unsavedSheet`), which reads as "saved to the site".
-- **Fix:** an empty page shows a one-line hint under the text: `Type text, or tap Insert to add a block.` (the hint is
+- **Fix:** once the owner's decision 5 (the editor opens on H1) is built, an empty page still shows a one-line hint under the text: `Type text, or tap Insert to add a block.` (the hint is
   `firstHeadingHint` today and goes away after a few opens). Rename the card action to `Don’t show on the page` or, better,
   keep `Hide` and rename the status `Hidden` to `Unlisted` in one pass (Q5). Sheet close: `Keep your changes in the page?` with
   `Keep` / `Discard`.
@@ -136,6 +154,42 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
 - **Fix:** `Changing to this theme`; sort Settings by use, not A–Z; show the installed count on `Apps`.
   **Touches 0.16:** Settings › Assistants, the three Appstore sections.
 
+### 10. Blocks repeat the text editor's own tools
+
+- **Evidence:** nine standard blocks (Cards, Points with icon, Steps, Testimonials, Questions and answers, Blog posts,
+  Expandable list, Price cards, Checklist) start with the same `headFields` (`src/standard/head.ts`): `Label`
+  (`eyebrow`, max 30), `Heading`, `Subheading`. Their rows have again `Heading` and `Text` (`blocks.list`, `blocks.points`,
+  `blocks.steps`: `title: 'Heading'`, `text: 'Text'`). So an owner meets `Heading` as an H2 in the text, as a block's
+  head and as a row's heading, three places with three meanings, and the block sheet (`BlockDialog.tsx`) opens with the
+  least interesting fields first.
+- **Fix:** per decision 3, drop `headFields` from the nine blocks. The block is drawn after the H2 and the text above it
+  (`BlockHead.tsx` is then not needed in the theme); the label above the heading becomes the `Label` style. The rows keep
+  their own title and text, since a row is data, not page text (Q6). A migration moves each existing `eyebrow`, `heading` and
+  `intro` into the text above the block, so no page loses content; `check:editor` must show each page the same.
+
+### 11. Text styles: Body large, Label, and the dotted section line
+
+- **Evidence:** the toolbar has `Heading (H1)` (pages only), `Heading`, `Subheading`, `Normal text`, lists and quote
+  (`text.ts`). A section is an H2 and what follows (`sectionSettings`); its colour is a box on the site and in the editor.
+- **Fix:** decisions 2 and 4. `Body large` is Material 3's body-large role for an intro paragraph; `Label` the
+  label-large role. Both are text styles stored in the markdown (the format of `text-colors.mjs` and `section-marker.mjs`
+  shows how), and the theme draws them from its tokens, as the shared-theme principle in `CLAUDE.md` requires. In the editor an
+  H2 starts with a dotted line across the text column, the colour box is shown only on the site.
+
+### 12. Block cards in the text
+
+- **Evidence:** a block is a card in the text with `Edit` (`text.ts`), `Hide on the page` / `Hidden on the page`; its fields
+  open in the side sheet from expanded and a modal sheet below (`BlockDialog.tsx`, `2026-11-05-block-side-sheet-design.md`),
+  ending with `Save` (`Insert` for a new block) and `Cancel`, plus `Remove` for a card already in the text. A sheet that is
+  closed changed asks `Do you want to keep them?` (`app.unsavedSheet`).
+- **Likely hesitation:** `Save` in the sheet is not `Save` of the page: the sheet's button keeps the change in the form, the
+  page's button writes to the site, both are called Save. The card's `Edit` is one tap more than tapping the card.
+- **Fix:** the sheet's confirm button reads `Done` (an edited block) or `Add block` (a new one), and the page's stays `Save`.
+  The whole card opens the sheet (keep `Edit` as the accessible name). With decision 3 most blocks have only their rows, so
+  the sheet is shorter and can open at its full height on a phone.
+  The picker's `Insert` list keeps its search, order and group filter (`BlockDialog.tsx`), but shows a one-line hint and a
+  small picture per block, which `Preview` (`ui.tsx`) already draws.
+
 ## Batches
 
 Each is one pull request into `main` (or `0.16` where marked), with a release note (`release-notes` skill) and, until
@@ -148,10 +202,11 @@ Each is one pull request into `main` (or `0.16` where marked), with a release no
 | C | **First run:** start card, status sentence, empty-page hint, browser-permission sentence (3, 6 hint, 8) | `Library`, `DashboardGrid`, `widgets/`, `EntryForm`, `notificationData` | no | none |
 | D | **Build feedback:** the `Updating…` chip until live (8) | top bar, `deploy.ts` | no | none |
 | E | **Menu and Settings regroup:** Appearance into the menu, Developer under Advanced, Logo and icon moved (5, 4, 9) | `MainMenu`, `defaults/editor.ts`, Settings | **yes**: Appstore, Settings › Assistants | Q3, Q4 |
+| G | **Text and blocks:** `Body large` and `Label` styles, dotted H2 line, editor opens on H1, blocks lose their head fields with a migration, sheet buttons (10, 11, 12) | `MarkdownEditor`, `BlockDialog`, `standard/*`, `theme/blocks/*`, `lib/section-marker.mjs` | no | Q6, Q7 |
 | F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
 
 Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
-or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled.
+or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
 
 ## Open questions for the owner
 
@@ -164,3 +219,8 @@ or after it, never before the Appstore and Assistants rows exist. F after A, so 
    have been opened and checked; the Danish names change with them.
 5. **Rename the status `Hidden` to `Unlisted`?** Recommended: yes (the words `Hidden on the page` and `Hide from search engines`
    then mean something else). Changes the stored `unlisted` label only, not the value in files.
+6. **Do the rows inside blocks (a list row's heading and text, a point's heading and text) stay as fields?** Recommended:
+   yes: a row is data, and removing them would turn each row into text with a block marker. Alternative: remove them too, and
+   a row becomes an H3 with text under it.
+7. **Is `T` the text-style menu, and is `Label` the small line above a heading?** Recommended: yes to both, as read in
+   decision 2. If not, say what `T` is and the spec changes.
