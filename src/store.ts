@@ -26,7 +26,7 @@ import { blobId } from '../lib/git.mjs';
 import { locale, t } from './i18n';
 import { hooksOf, type AppHook } from '../lib/hooks';
 import type { StoreLicenses } from './licenseData';
-import { APP_API, THEME_API } from '../lib/contracts.mjs';
+import { APP_API, APP_APIS, THEME_API } from '../lib/contracts.mjs';
 import { RECORD, STANDARD, isText, validApp, validTheme } from '../lib/storeEntries.mjs';
 import { categoryOf, type Category } from '../lib/storeCategories.mjs';
 import { timedFetch } from './storeFetch';
@@ -234,7 +234,7 @@ const notesOf = (x: unknown) =>
     ? Object.fromEntries(Object.entries(x).filter((e): e is [string, string] => isText(e[1])))
     : undefined;
 
-const validStoreApp = (a: any): a is StoreApp => validApp(a, APP_API);
+const validStoreApp = (a: any): a is StoreApp => validApp(a, APP_APIS);
 const validStoreTheme = (x: any): x is StoreTheme => validTheme(x, THEME_API);
 
 /** The apps in a catalog (catalog.json, as text) the editor can install, with their texts in its language. */
