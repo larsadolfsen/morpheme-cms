@@ -93,3 +93,13 @@ What part B (the form and the status) needs:
 5. Do not touch `versionSwitch` or the Schedule buttons; the autosaved text is a waiting version's text, so `schedule`/`publish` still read git.
 6. Open question for the owner: a flush commits to `main` as a `src/drafts/` change, which takes `ci-build`'s content lane. If idle flushes are
    too many commits, raise `IDLE_MS` in `src/autosave.mjs` (the client) rather than flushing more often.
+
+### Autosave, part B (the form)
+
+Done in `EntryForm.tsx` with `src/useAutosave.ts`: the autosave belongs to the waiting version of a published page (or a draft that has one);
+not the live page being edited, a new page, an earlier version or a changed address. The line under the title says `Saving…`, `Saved` or
+`Not saved` while changes are unsaved (with Faster editor off the Worker says 409 and it stays `Not saved` until `Save`). A page opens with
+the kept changes put back when they are newer than git's file (`restorable`). `Save`, `Publish`, `Discard` and the version switch end with
+nothing unsaved, which deletes the autosave; `Discard` in the "Save the changes?" question deletes it when the form closes. When an idle
+flush gives git a new waiting version, the form loads that file (`takeWaiting`) so its blob id is current. A text that cannot be saved yet
+(a field that is wrong, a picture not uploaded yet) shows `Not saved`.
