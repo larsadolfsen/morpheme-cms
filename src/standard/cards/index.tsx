@@ -10,6 +10,7 @@ import { headFields } from '../head';
 import { example } from './shared';
 
 export default defineBlock({
+  group: 'rows',
   label: t.blocks.cards.label,
   icon: Cards,
   hint: t.blocks.cards.hint,

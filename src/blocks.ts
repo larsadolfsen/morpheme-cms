@@ -19,11 +19,17 @@ export type BlockProps = Record<string, unknown>;
  * (preview() in registry.tsx); null when no block has the type. */
 export type DrawBlock = (type: string, props: BlockProps) => ReactNode;
 
+/** The heading of a standard block in `Insert` (BlockDialog.tsx), by what it does; without one, `other`. */
+export type BlockGroup = 'rows' | 'questions' | 'content' | 'prices' | 'banner' | 'other';
+export const blockGroups: BlockGroup[] = ['rows', 'questions', 'content', 'prices', 'banner', 'other'];
+
 export type SiteBlock = {
   type: string;
   label: string;
   /** What it is, where one is picked (only where the name is not enough). */
   hint?: string;
+  /** Its heading among the standard blocks in `Insert`. */
+  group?: BlockGroup;
   /** Edited elsewhere (Block.edit). */
   edit?: Edit;
   fields: Field[];

@@ -10,6 +10,7 @@ import { headFields } from '../head';
 type Point = { icon?: string; title?: string; text?: string; more?: string; href?: string };
 
 export default defineBlock({
+  group: 'rows',
   label: t.blocks.points.label,
   icon: SquaresFour,
   hint: t.blocks.points.hint,

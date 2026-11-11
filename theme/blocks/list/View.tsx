@@ -8,7 +8,7 @@ export default function ListBlock({ view }: { view: ListView }) {
   return (
     <>
       <BlockHead view={view} />
-      <Rows items={view.items} design={view.design} className={useInText() || undefined} />
+      <Rows items={view.items} className={useInText() || undefined} />
     </>
   );
 }

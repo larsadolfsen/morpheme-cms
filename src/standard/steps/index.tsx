@@ -6,6 +6,7 @@ import { t } from '../../i18n';
 import { headFields } from '../head';
 
 export default defineBlock({
+  group: 'rows',
   label: t.blocks.steps.label,
   icon: ListNumbers,
   hint: t.blocks.steps.hint,
