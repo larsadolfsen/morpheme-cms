@@ -1,4 +1,4 @@
-# The CMS's checks on each pull request into main or into the 0.16 integration branch (package.json's check,
+# The CMS's checks on each pull request into main or into the 0.17 integration branch (package.json's check,
 # check:screens, check:demo and check:starter), and that it has a changeset (CLAUDE.md), so each branch can always be
 # released. The changeset is compared with the pull request's own base branch. Free here: the repository is public.
 # The job's name, check, is the status check that main's branch protection requires.
@@ -6,7 +6,7 @@ name: Check
 
 on:
   pull_request:
-    branches: [main, '0.16']
+    branches: [main, '0.17']
 
 permissions:
   contents: read
@@ -34,7 +34,8 @@ jobs:
       # each of its pages the same after a save in the editor.
       - run: npm run check
       # Every screen of the editor on the built demo, on a phone and on a computer.
-      - run: npx playwright install --with-deps chromium
+      # If apt is down, the runner's own libraries are used and only the browser is downloaded.
+      - run: npx playwright install --with-deps chromium || npx playwright install chromium
       - run: npm run check:screens
       # The demo built with the standard theme.
       - run: npm run check:demo
