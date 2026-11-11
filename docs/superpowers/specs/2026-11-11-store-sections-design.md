@@ -129,4 +129,40 @@ catalog entry only. The plan orders this with the MCP batch that introduces cont
    plugin code in an isolate with no outbound access. Cloudflare's dynamic Workers (Worker Loader) are the candidate; I
    understand they can run code with outbound calls blocked, but this is not verified. The plan checks it first. Until then
    only first-party plugins have a `worker.js`, as today.
+
+   **Checked on 11 November 2026 against Cloudflare's documentation** (Dynamic Workers, open beta since March 2026):
+   - _Verified._ `env.LOADER.load()` or `get(id, callback)` runs code given as strings, and `globalOutbound: null` cuts
+     it off from the network: `fetch()` and `connect()` throw
+     ([egress control](https://developers.cloudflare.com/dynamic-workers/usage/egress-control/),
+     [API reference](https://developers.cloudflare.com/dynamic-workers/api-reference/)). Left out, the default is the
+     parent's full access, so the host must always set it.
+   - _Verified._ The plugin gets only the bindings the host passes in `env`: custom `WorkerEntrypoint` stubs that the
+     host scopes with `props` (for example a KV or D1 view with a per-plugin key prefix), no raw secrets
+     ([bindings](https://developers.cloudflare.com/dynamic-workers/usage/bindings/)). This fits a plugin's `reads`.
+   - _Verified._ CPU time and subrequests can be capped per invocation with `limits: { cpuMs, subRequests }`
+     ([limits](https://developers.cloudflare.com/dynamic-workers/usage/limits/)). At most 4 distinct dynamic Workers
+     can be in flight per request
+     ([platform limits](https://developers.cloudflare.com/dynamic-workers/platform/limits/)).
+   - _Verified._ Modules are JavaScript, Python or Wasm, with no build step: a plugin's `worker.js` must be bundled
+     first (as `lib/sandbox/bundle.mjs` does). `compatibilityDate` is set per loaded Worker.
+   - _Verified._ Requires the **Workers Paid plan**. Requests and CPU are billed at Workers Standard rates, plus
+     $0.002 per unique dynamic Worker (code and id) per day beyond 1,000 a month
+     ([pricing](https://developers.cloudflare.com/dynamic-workers/pricing/)). A plugin's code and id are fixed per
+     version, so this is small.
+   - _Verified._ The host Worker needs a `worker_loaders` binding in its wrangler config
+     ([getting started](https://developers.cloudflare.com/dynamic-workers/getting-started/)). `starter/wrangler.jsonc`
+     and `wrangler.jsonc` have none today; the starter's `compatibility_date` (`2026-09-01`) is later than the date the
+     examples need, so nothing there blocks it.
+   - _Not verified._ That a site on the Workers **Free** plan can use it (the docs say Paid only, so a site without
+     Paid cannot run plugin Worker code); whether `worker.js` as `worker/index.js` runs it (the `@site/worker` alias,
+     `global_fetch_strictly_public` and the `worker/*.js` rule on pending I/O promises) behaves as in the docs; the
+     `ctx.exports` loopback from inside the CMS's Worker; cold-start and CPU cost per request; that the feature leaves
+     beta. Miniflare is not a hardened sandbox, so local `wrangler dev` proves nothing about the boundary. Nothing was
+     deployed to test these.
+   - _Recommendation: needs a prototype, then use it._ The documented design is the right boundary: no network, only
+     scoped bindings, capped CPU. Before the plan relies on it, one prototype on a throwaway Worker (not the live
+     account's sites) must show a plugin `worker.js` loaded with `globalOutbound: null` fails on `fetch`, can use a
+     scoped binding, and works from `worker/index.js` with the starter's flags. Until then only first-party plugins have
+     a `worker.js`. The plan should also decide what a site on the Free plan gets (no plugin Worker code, shown in the
+     install dialog).
 5. **Grouping installed apps.** Whether Settings › Apps should also be grouped by section is left for a later change.
