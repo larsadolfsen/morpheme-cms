@@ -3,6 +3,11 @@
 Read `AGENTS.md` first. It describes this repository, the roles and the checks. This file holds the rules that apply to
 every Claude session here, whatever the task.
 
+## Reports to the owner are short
+
+Write to the owner short and concise: a brief résumé of what changed and what the owner has to do or decide, in a few
+lines, English only. No long explanations, tables or lists of every step. The owner asks when more is wanted.
+
 ## Only the owner releases a new version
 
 **Only the owner releases a new version of `@morphemecms/cms`.** No agent releases, and no agent takes a step towards a
