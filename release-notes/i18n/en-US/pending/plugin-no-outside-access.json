@@ -1,0 +1,5 @@
+{
+  "id": "plugin-no-outside-access",
+  "kind": "line",
+  "text": "For app builders: the build now refuses a plugin that lists a host in csp or uses fetch, WebSocket or import of a URL"
+}
