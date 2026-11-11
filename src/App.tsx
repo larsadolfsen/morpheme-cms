@@ -208,8 +208,9 @@ export type Env = {
   /** Shows a message at the bottom of the screen; null hides it. */
   notify: (status: Status) => void;
   /** Saves files as one commit (github.ts) and later tells when the site has the change. `change`: what it changed, in
-   * the editor's language (t.app.changes, deploy.ts), for that message. Returns the new blob ids. */
-  commit: (message: string, changes: Change[], change: string) => Promise<Record<string, string>>;
+   * the editor's language (t.app.changes, deploy.ts), for that message. `onSite: false`: nothing on the site changes (a
+   * waiting version in src/drafts/), so it does not wait for the site. Returns the new blob ids. */
+  commit: (message: string, changes: Change[], change: string, onSite?: boolean) => Promise<Record<string, string>>;
   /** When some files were last saved (github.ts); a new file is left out. */
   savedAt: (paths: string[]) => Promise<Record<string, Date>>;
   /** The commits that changed a file, and its text in one of them (github.ts; Versions.tsx). */
@@ -498,8 +499,9 @@ function Editor() {
     );
   }
 
-  async function save(message: string, changes: Change[], change: string) {
+  async function save(message: string, changes: Change[], change: string, onSite = true) {
     const saved = await commit(message, changes);
+    if (!onSite) return saved.blobs;
     // One message for all saves: a later save is on the site together with or after the ones before. It says what
     // each of them changed (each once).
     stopWaiting.current?.();

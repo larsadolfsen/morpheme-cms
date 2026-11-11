@@ -50,8 +50,19 @@ import {
   useInView,
 } from './ui';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
+import {
+  clean,
+  discard as discardWaiting,
+  saveDraft,
+  draftPath,
+  published as isPublished,
+  publish as publishPage,
+  unpublish as unpublishPage,
+} from '../lib/versions.mjs';
+import { commitChanges } from './pageVersions.mjs';
 import { usePagePreview } from './pagePreview';
 import { migrateStatus } from '../lib/status.mjs';
+import { when } from './when';
 import { savedOn, VersionList, VersionNotice, WithVersions, type ShownVersion } from './Versions';
 import type { Env } from './App';
 import { kindAndName, savedText } from './deploy';
@@ -174,8 +185,19 @@ function Form({
   version,
   onVersion,
 }: Props & { version: ShownVersion | null; onVersion: (v: ShownVersion | null) => void }) {
+  // The page file as last loaded or saved (the live version, or a draft's), and its waiting version in src/drafts/ if it has one
+  // (lib/versions.mjs). The form edits the waiting version when there is one.
+  const [live, setLive] = useState(file);
+  const [waiting, setWaiting] = useState<RepoFile | null>(() =>
+    file.path ? (env.files.find((f) => f.path === draftPath(file.path)) ?? null) : null,
+  );
   // The file as last loaded or saved; what the form compares with and writes on top of.
-  const [base, setBase] = useState(file);
+  const [base, setBase] = useState<RepoFile>(() => (waiting ? { ...file, text: waiting.text } : file));
+  // Where the page or post is: a draft (or new), published, or published with changes waiting.
+  const livePublished = !!live.path && isPublished(live.text);
+  const state = !livePublished ? 'draft' : waiting ? 'waiting' : 'published';
+  // Starts again after changes were discarded: the text editor takes the text of the version it goes back to.
+  const [era, setEra] = useState(0);
   const parts = useMemo(() => splitFrontmatter(base.text), [base]);
   const initial = useMemo(() => valuesOf(collection, base), [collection, base]);
   // An earlier version: its fields and text, at the address there is now.
@@ -222,7 +244,7 @@ function Form({
   // When the file was last saved, shown in the top bar.
   const [savedAt, setSavedAt] = useSavedAt(env, file.path);
 
-  const isNew = !base.path;
+  const isNew = !live.path;
   // The templates the theme chosen offers, for the field `offered: 'templates'.
   const offered = useMemo(() => offeredTemplatesOf(env.files), [env.files]);
   const asSaved = useMemo(() => inForm(collection.fields, values, offered), [collection, values, offered]);
@@ -381,7 +403,8 @@ function Form({
   const named = () => (isNew && !String(values.title ?? '').trim() ? { ...values, title: untitled() } : values);
 
   // `other`: an address chosen in the dialog for a taken one (below), saved instead of the one typed.
-  async function save(other?: string, values = named()) {
+  // `intent` 'publish': also puts it on the website (a draft is published, waiting changes replace the live version).
+  async function save(other?: string, values = named(), intent: 'save' | 'publish' = 'save') {
     if (wrongField.stop(problemAt(collection.fields, values))) return;
     // Planlagt, at a time chosen now: one still to come.
     if (
@@ -405,6 +428,8 @@ function Form({
     const typed = addressOf(other ?? String(values.path ?? ''), post ? 'post' : 'page');
     const address = typed || (isNew ? `/${slug}/` : url);
     const moved = !isNew && address !== url;
+    // A new address takes its redirect at once, so it cannot wait with the changes: they are published or discarded first.
+    if (moved && waiting) return notify({ text: t.forms.versions.addressWaiting, error: true });
     const name = post || isNew ? address.split('/').at(-2)! : slugOf(base.path, collection.folder);
     const path = isNew || (post && moved) ? `${collection.folder}/${name}.md` : base.path;
     // A new page or post, or a new address: not where another page is, or an address the site sends on
@@ -509,7 +534,12 @@ function Form({
         if (changedText !== f.text) others.push({ ...f, text: changedText });
       }
     }
-    if (next === base.text && !moved && !redirectChanges.length) {
+    // A published page's `Save` keeps the changes as a waiting version; `Publish`, and a draft's `Save`, write the page file.
+    const viaDraft = !isNew && livePublished && !moved && intent === 'save' && !version;
+    // Writing the page file from the waiting version (the page is a draft, or published now) takes its file away.
+    const foldWaiting = !!waiting && !viaDraft && (intent === 'publish' || !livePublished);
+    if (intent === 'publish') next = clean(next);
+    if (intent === 'save' && next === base.text && !moved && !redirectChanges.length) {
       setBodyChanged(false);
       return notify({ text: t.forms.nothingToSave });
     }
@@ -521,39 +551,74 @@ function Form({
       ? autoTagChanges(
           recordsIn(env.files, config.fileRecords),
           config.fileRecords,
-          newlyUsed(isNew ? '' : base.text, next, [...new Set([...filerAddresses(env.files), ...used.map((u) => publicPath(u.path))])]),
+          newlyUsed(isNew ? '' : intent === 'publish' ? live.text : base.text, next, [
+            ...new Set([...filerAddresses(env.files), ...used.map((u) => publicPath(u.path))]),
+          ]),
           Array.isArray(saved.categories) ? (saved.categories as string[]) : [],
         )
       : [];
-    const changes: Change[] = [
-      { path, content: next, oid: path === base.path ? base.oid || null : null },
-      ...removed.map((p) => ({ path: p, content: null, oid: base.oid })),
-      ...others.map((f) => ({ path: f.path, content: f.text, oid: f.oid })),
-      ...redirectChanges,
-      ...used.map((u) => ({ path: u.path, content: u.bytes, oid: null })),
-      ...recordChanges,
-    ];
+    // The waiting version: the text of the form without `status`, with the time it already has.
+    const waitingPath = isNew ? '' : draftPath(live.path);
+    const waitingText = viaDraft
+      ? (saveDraft({ path: live.path, text: live.text, drafts: waiting ? { waiting: waiting.text } : {} }, next)[0].text ?? '')
+      : '';
+    const changes: Change[] = viaDraft
+      ? [
+          { path: waitingPath, content: waitingText, oid: waiting?.oid || null },
+          ...used.map((u) => ({ path: u.path, content: u.bytes, oid: null })),
+        ]
+      : [
+          { path, content: next, oid: path === base.path ? live.oid || null : null },
+          ...removed.map((p) => ({ path: p, content: null, oid: live.oid })),
+          ...(foldWaiting && waiting ? [{ path: waiting.path, content: null, oid: waiting.oid }] : []),
+          ...others.map((f) => ({ path: f.path, content: f.text, oid: f.oid })),
+          ...redirectChanges,
+          ...used.map((u) => ({ path: u.path, content: u.bytes, oid: null })),
+          ...recordChanges,
+        ];
     const what = `"${slugOf(path, collection.folder)}"`;
+    const singular = asWritten(collection).singular;
     const message = moved
       ? siteT.forms.commit.move(asWritten(collection).singular, url, address)
-      : isNew
-        ? siteT.forms.commit.create(asWritten(collection).create!, what)
-        : version
-          ? siteT.history.commit.restoreVersion(`${asWritten(collection).singular} ${what}`, savedOn(version))
-          : siteT.forms.commit.editOne(asWritten(collection).singular, what);
+      : viaDraft
+        ? siteT.forms.versions.commit.saveChanges(singular, what)
+        : intent === 'publish'
+          ? siteT.forms.versions.commit.publish(singular, what)
+          : isNew
+            ? siteT.forms.commit.create(asWritten(collection).create!, what)
+            : version
+              ? siteT.history.commit.restoreVersion(`${asWritten(collection).singular} ${what}`, savedOn(version))
+              : siteT.forms.commit.editOne(asWritten(collection).singular, what);
     const entry = kindAndName(collection.singular, String(values.title ?? '').trim() || name);
     const change = moved
       ? t.app.changes.moved(entry, address)
-      : isNew
-        ? t.app.changes.created(entry)
-        : version
-          ? t.app.changes.restored(entry)
-          : t.app.changes.edited(entry);
+      : intent === 'publish'
+        ? t.forms.versions.published(entry)
+        : isNew
+          ? t.app.changes.created(entry)
+          : version
+            ? t.app.changes.restored(entry)
+            : t.app.changes.edited(entry);
     setSaving(true);
     notify({ text: t.common.saving });
     try {
-      const oids = await env.commit(message, changes, change);
+      const oids = await env.commit(message, changes, change, !viaDraft);
+      if (viaDraft) {
+        // Kept as a waiting version: the page file, and so the website, is as it was.
+        const draft = { path: waitingPath, oid: oids[waitingPath], text: waitingText };
+        pictures.markSaved(used);
+        setWaiting(draft);
+        setBase({ ...live, text: waitingText });
+        setValues(valuesOf(collection, { ...live, text: waitingText }));
+        setBodyChanged(false);
+        setSavedAt(new Date());
+        env.onSaved(live, { files: [draft], removed: [] });
+        notify({ text: t.forms.versions.savedWaiting });
+        return true;
+      }
       const saved = { path, oid: oids[path], text: next };
+      setLive(saved);
+      if (foldWaiting) setWaiting(null);
       pictures.markSaved(used);
       setBase(saved);
       setValues(valuesOf(collection, saved));
@@ -570,7 +635,7 @@ function Form({
             .filter((c) => typeof c.content === 'string')
             .map((c) => ({ path: c.path, oid: oids[c.path], text: String(c.content) })),
         ],
-        removed,
+        removed: [...removed, ...(foldWaiting && waiting ? [waiting.path] : [])],
       });
       notify({ text: savedText(change), kind: 'saved' });
       // The version is now the one saved: the form as usual again.
@@ -595,6 +660,86 @@ function Form({
       setSaving(false);
     }
   }
+
+  // What the page or post is called in messages and commits.
+  const nameForMessages = () => {
+    const what = `"${slugOf(live.path, collection.folder)}"`;
+    const entry = kindAndName(collection.singular, String(initial.title ?? '').trim() || slugOf(live.path, collection.folder));
+    return { what, entry, singular: asWritten(collection).singular };
+  };
+  // Saves the files of an action that is not a save of the form (`Unpublish`, `Discard changes`) and keeps what the form holds in step.
+  async function act(message: string, changes: Change[], change: string, onSite: boolean, done: (oids: Record<string, string>) => void) {
+    setSaving(true);
+    notify({ text: t.common.saving });
+    try {
+      const oids = await env.commit(message, changes, change, onSite);
+      done(oids);
+      setSavedAt(new Date());
+      notify({ text: onSite ? savedText(change) : change, ...(onSite ? { kind: 'saved' as const } : {}) });
+      return true;
+    } catch (e) {
+      notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
+    } finally {
+      setSaving(false);
+    }
+  }
+  // `Publish` and `Publish changes`: what is unsaved goes with it.
+  const publishNow = () => save(undefined, named(), 'publish');
+  // `Unpublish`: the page file becomes a draft; changes that wait stay.
+  async function unpublishNow() {
+    if (standard) return notify({ text: t.forms.versions.standardPage, error: true });
+    const answer = await choose({
+      title: t.forms.versions.unpublishTitle(post),
+      text: t.forms.versions.unpublishText(post),
+      choices: [{ value: 'unpublish', label: t.forms.versions.unpublish }],
+    });
+    if (!answer) return;
+    const { what, entry, singular } = nameForMessages();
+    const changes = commitChanges(unpublishPage({ path: live.path, text: live.text, drafts: waiting ? { waiting: waiting.text } : {} }), [
+      live,
+    ]);
+    await act(siteT.forms.versions.commit.unpublish(singular, what), changes, t.forms.versions.unpublished(entry), true, (oids) => {
+      const saved = { path: live.path, oid: oids[live.path], text: String(changes[0].content) };
+      setLive(saved);
+      if (!waiting) {
+        setBase(saved);
+        setValues(valuesOf(collection, saved));
+      }
+      env.onSaved(saved, { files: [], removed: [] });
+    });
+  }
+  // `Discard changes`: the waiting version goes, and the form is the page on the website again.
+  async function discardNow() {
+    if (!waiting) return;
+    const answer = await choose({
+      title: t.forms.versions.discardTitle,
+      text: t.forms.versions.discardText(post),
+      choices: [{ value: 'discard', label: t.forms.versions.discardChanges }],
+    });
+    if (!answer) return;
+    const { what, entry, singular } = nameForMessages();
+    const changes = commitChanges(discardWaiting({ path: live.path, text: live.text, drafts: { waiting: waiting.text } }), [live, waiting]);
+    await act(siteT.forms.versions.commit.discard(singular, what), changes, t.forms.versions.discarded(entry), false, () => {
+      setWaiting(null);
+      setBase(live);
+      setValues(valuesOf(collection, live));
+      setBodyChanged(false);
+      setBody(splitFrontmatter(live.text).body);
+      setEra((n) => n + 1);
+      env.onSaved(live, { files: [], removed: [waiting.path] });
+    });
+  }
+  const publishBar =
+    state === 'draft'
+      ? { label: t.forms.versions.publish, onPublish: publishNow }
+      : {
+          ...(state === 'waiting' || dirty ? { label: t.forms.versions.publishChanges } : {}),
+          onPublish: publishNow,
+          actions: [
+            ...(dirty ? [] : [{ label: t.forms.versions.unpublish, onClick: unpublishNow }]),
+            ...(waiting ? [{ label: t.forms.versions.discardChanges, onClick: discardNow }] : []),
+          ],
+        };
 
   // "Preview": the page or post with what is changed in the form; a new one, or one whose layout is changed in the
   // form (a field with `layout`, the template), in the page of another one of its kind saved with that layout, with
@@ -653,6 +798,8 @@ function Form({
   // A field of the theme's templates (Field.offered) shows the options the theme offers, and while only one is left that
   // one, not changed here (templateFieldOf). A page's title writes its H1 (onTitle).
   const field = (f: Field) => {
+    // Draft or published is no field: `Publish`, `Unpublish` and the status line say it (a stored `scheduled` is migrated with `Schedule`).
+    if (f.name === 'status' || f.name === 'publishAt') return false;
     if (!inUse(f, collection.fields, values)) return false;
     // A new page has no title field: its H1 is its title, typed in the text (the field comes with the saved page).
     if (f.name === 'title' && collection.blocks && isNew) return false;
@@ -669,14 +816,15 @@ function Form({
         <FormFrame
           title={formTitle}
           back={{ href: `#list/${collection.id}`, label: collection.label }}
-          status={savedStatus({ savedAt, saving, deleting, isNew })}
+          status={versionStatus({ state, savedAt, saving, deleting, isNew })}
+          publish={publishBar}
           view={isNew ? undefined : url}
           dirty={dirty}
           saving={saving || deleting}
           deleting={deleting}
           onSave={() => save()}
           onPreview={showPreview}
-          onDelete={collection.deletable && !isNew ? () => env.remove(collection, base, setDeleting) : undefined}
+          onDelete={collection.deletable && !isNew ? () => env.remove(collection, live, setDeleting) : undefined}
           deleteLabel={t.forms.deleteOne(collection.singular)}
         >
           {version && <VersionNotice version={version} onCurrent={() => onVersion(null)} />}
@@ -692,6 +840,7 @@ function Form({
                   <div ref={textBox} className="scroll-mt-[calc(1rem+env(safe-area-inset-top))]">
                     <span className="mb-1 block font-medium">{t.forms.text}</span>
                     <MarkdownEditor
+                      key={era}
                       ref={text}
                       value={shown?.body ?? parts.body}
                       onChange={onText}
@@ -763,6 +912,26 @@ function Form({
       </WrongField.Provider>
     </Fields.Provider>
   );
+}
+
+// The top bar's line under the title: what the page is on the website, and when it was last changed.
+function versionStatus({
+  state,
+  savedAt,
+  saving,
+  deleting,
+  isNew,
+}: {
+  state: 'draft' | 'published' | 'waiting';
+  savedAt?: Date | null;
+  saving: boolean;
+  deleting?: boolean;
+  isNew?: boolean;
+}) {
+  if (deleting || saving || isNew) return savedStatus({ savedAt, saving, deleting, isNew });
+  if (state === 'draft') return t.forms.versions.draftLine;
+  if (state === 'waiting') return t.forms.versions.waitingLine;
+  return savedAt ? t.forms.versions.publishedLine(when(savedAt)) : undefined;
 }
 
 // A page's text with a post's new file name in its blocks with blog posts ("Blog posts", `picked`).

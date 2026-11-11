@@ -88,6 +88,37 @@ export const forms = {
   usedOn: 'Used on',
   address: 'URL',
   writeAddress: 'Write the address with letters or digits.',
+  /** A page or post that is published in steps (EntryForm.tsx): a draft, the live version and changes waiting. `post`: a blog post, else a page. */
+  versions: {
+    publish: 'Publish',
+    publishChanges: 'Publish changes',
+    unpublish: 'Unpublish',
+    discardChanges: 'Discard changes',
+    /** The top bar's line under the title. */
+    draftLine: 'Draft',
+    waitingLine: 'Unpublished changes',
+    publishedLine: (when: string) => `Published · Changed ${when}`,
+    /** After saving changes to a published page: the website keeps the version it has. */
+    savedWaiting: 'Changes saved. The website shows the published version until you publish.',
+    unpublishTitle: (post: boolean) => `Unpublish this ${post ? 'post' : 'page'}?`,
+    unpublishText: (post: boolean) =>
+      `The ${post ? 'post' : 'page'} leaves the website and becomes a draft. Changes that wait to be published stay.`,
+    discardTitle: 'Discard the changes?',
+    discardText: (post: boolean) => `The ${post ? 'post' : 'page'} goes back to the version on the website. You can’t undo this.`,
+    addressWaiting: 'Publish or discard the changes before you change the address.',
+    standardPage: 'This page is chosen as a standard page, so it must stay published.',
+    /** Names of what changed, for the message after a save (`what`: the page or post). */
+    published: (what: string) => `${what} published`,
+    unpublished: (what: string) => `${what} unpublished`,
+    discarded: (what: string) => `Changes to ${what} discarded`,
+    /** The commits. */
+    commit: {
+      saveChanges: (singular: string, what: string) => `Editor: save changes to ${singular} ${what}`,
+      publish: (singular: string, what: string) => `Editor: publish ${singular} ${what}`,
+      unpublish: (singular: string, what: string) => `Editor: unpublish ${singular} ${what}`,
+      discard: (singular: string, what: string) => `Editor: discard changes to ${singular} ${what}`,
+    },
+  },
   /** The commits; `what` is a name or a file name in quotation marks. */
   commit: {
     create: (create: string, what: string) => `Editor: ${create.toLowerCase()} ${what}`,
