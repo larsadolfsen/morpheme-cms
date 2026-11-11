@@ -381,10 +381,12 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   accent colour. `Inverted` (the inverse surface colours) was left out; it can be added later as a colour of Filled. The
   old `Design` (Text, Icon, Image) and `Background` settings go away, and so does a layout choice: all cards are
   vertical for now, and horizontal can be added later.
-- **Filled card colours (owner, 11 November):** a short list of the theme's named colours (for example Surface, Primary,
-  Secondary and Tertiary containers in Material), chosen from the colour roles every theme has, so a Filled card works
-  in every theme and the text on it stays readable. To begin with it is only this short list; the page's full colour
-  picker can be added later. The exact colours in the list are the theme's to name, and are set when it is built.
+- **Filled card colours (owner, 11 November):** a small, fixed selection that we choose, not all the colours of the
+  theme. Proposed: **Surface** (the default, a quiet tonal surface), **Primary**, **Secondary** and **Tertiary**
+  (Material's `surface-container`, `primary-container`, `secondary-container` and `tertiary-container`). Every theme
+  styles the same four names with its own colours, so a Filled card works in every theme and its text stays readable.
+  The page's full colour picker is not offered; it could be added later. The final list is confirmed by the owner when it
+  is built.
 - **Every card works in every theme (owner, 11 November, our philosophy):** the set of designs is fixed and every theme
   must style all of them, so a card never lacks a design when the theme changes and no fallback is needed. The theme
   decides how each design looks: its colours, borders, shadow, corner radius and button widths. A colour such as
@@ -392,9 +394,9 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   the card, never stored in it. A theme that leaves a design unstyled fails `check:themes`.
 - **Media field:** the top of a card is one `Media` field, with the choice Icon, Image or Video, like the icon field of a
   list. The first card's choice sets the type for every card in the block, so they stay aligned; there is no block setting
-  for it. It shows only if it has content. There is no placeholder on the site (owner, 11 November): a card without media in a
-  block that has it shows no empty picture. In the editor only the active card shows its empty media slot. Whether the
-  card then keeps blank space at the top or shrinks is decided when it is built, with a check on the demo.
+  for it. It shows only if it has content. A card without media does not show the media (owner, 11
+  November): no placeholder, no empty picture and no blank space, so the card is simply shorter. In the editor only the
+  active card shows its empty media slot.
 - **Buttons (owner, 11 November):** a card can have buttons at the bottom, none, one or several. Each is a text button or
   a real button (the kinds the Buttons block has: filled, tonal, elevated, outlined and text), with its text and where it
   goes, so the card reuses the Buttons block's button field and its targets (`standard/buttons/fields.ts`).
