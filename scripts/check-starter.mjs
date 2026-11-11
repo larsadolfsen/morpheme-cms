@@ -3,7 +3,7 @@
 // --screens, also every screen of the editor (check:screens, with Playwright at this repository's version). It takes a
 // few minutes and needs npm's registry. Run: node packages/editor/scripts/check-starter.mjs [--screens]
 import { execFileSync, spawnSync } from 'node:child_process';
-import { cpSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -27,6 +27,12 @@ run(pkgDir, process.execPath, ['scripts/starter.mjs', '--check']);
 const dir = mkdtempSync(join(tmpdir(), 'morpheme-starter-'));
 npmRun(pkgDir, 'pack', '--pack-destination', dir);
 const tarball = readdirSync(dir).find((f) => f.endsWith('.tgz'));
+// A site from the previous release's starter must take this package with `npm install`, as the Update button's path
+// does (an ERESOLVE here is "Updating needs npm"): resolve only, nothing is downloaded or installed.
+const previous = join(dir, 'previous');
+mkdirSync(previous);
+cpSync(join(pkgDir, 'scripts', 'fixtures', 'starter-0.14.2.package.json'), join(previous, 'package.json'));
+npmRun(previous, 'install', '--package-lock-only', '--ignore-scripts', join(dir, tarball));
 const site = join(dir, 'site');
 cpSync(join(pkgDir, 'starter'), site, { recursive: true });
 const file = join(site, 'package.json');
