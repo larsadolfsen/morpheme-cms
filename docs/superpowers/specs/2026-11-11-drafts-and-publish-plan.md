@@ -58,3 +58,27 @@ Each pull request must pass `npm run check`, `check:screens`, `check:demo` and `
 or what apps read. A migrated hidden post therefore now shows on the blog and in lists. Pull request 1 removes the
 `unlisted`-only paths and keeps only the migration of stored values (read as above; the editor writes the migrated form
 on the next save).
+
+## Autosave, part A (Worker and client logic, batch 13)
+
+Done without a screen: `worker/autosave.js` (`/api/autosave`, `/api/autosave/flush`, the hourly `sweepAutosaves`), `lib/autosave.mjs`
+(key, limits, sweep rule) and `src/autosave.mjs` (`createAutosave`, `autosaveClient`, `watchLeaving`). It only works with `Faster editor` on
+(the `FILES` binding); without it every call answers 409 `off` and the client state is `notSaved`.
+
+- R2 key `<owner>/<repo>/autosave/<page file>/<version id>`, value `{ text, savedAt }`, at most 1 MiB (413 above). Signed-in with push access only.
+- Moved to git (`saveDraft`, the person's own commit `Draft: <page>`) on `POST /api/autosave/flush`; the autosave is deleted. The hourly job moves
+  what has been idle for a day (Worker token) and deletes what is 30 days old and could not move.
+- Client: `autosave(path, text, id?)` sends after 1.5 s without a change, flushes after 5 minutes idle and on `leave()`, retries 1, 2, 4, 8, 16 s,
+  then `notSaved` until `retry()` or the next change. `leave()` sends the unsent text with the flush in one request (`keepalive`).
+
+What part B (the form and the status) needs:
+
+1. Create one `autosaveClient()` per editor, call `autosave(entry.path, text, versionId)` on every change of a version, and
+   `watchLeaving(client)` once. Show `client.subscribe` as `Saving…` / `Saved` / `Not saved` (new i18n keys in `en-US` and `da-DK`).
+2. Only when `Faster editor` is on (`r2CachingOn`); with it off, do not call `autosave` and show `Not saved` until `Save`.
+3. Call `client.forget(path, id)` and `DELETE /api/autosave?path=…&id=…` after `Save`, `Publish`, `Discard` (they commit the same text or drop it).
+4. On opening a page, `GET /api/autosave?path=…&id=…`: when it exists and is newer than the waiting version in git, load it as the draft
+   (`savedAt` against the commit time), and say so. `GET /api/autosave` lists all of them (a banner on the start screen).
+5. Do not touch `versionSwitch` or the Schedule buttons; the autosaved text is a waiting version's text, so `schedule`/`publish` still read git.
+6. Open question for the owner: a flush commits to `main` as a `src/drafts/` change, which takes `ci-build`'s content lane. If idle flushes are
+   too many commits, raise `IDLE_MS` in `src/autosave.mjs` (the client) rather than flushing more often.

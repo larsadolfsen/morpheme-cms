@@ -36,6 +36,8 @@ export const daDK = {
   'The editor has moved to {address} …': 'Editoren er flyttet til {address} …',
   // The commit of the scheduled pages and posts (worker/publish.js, lib/scheduled.mjs).
   'Publish scheduled: {names}': 'Udgiv planlagt: {names}',
+  // The commit of an autosaved draft that was saved to git (worker/autosave.js). {name} is the page file's path.
+  'Draft: {name}': 'Kladde: {name}',
   'blog post': 'blogindlæg',
   page: 'side',
 };
