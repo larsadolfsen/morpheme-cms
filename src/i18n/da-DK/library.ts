@@ -134,12 +134,11 @@ export const library: Messages['library'] = {
   orderNotSaved: (error) => `Kunne ikke gemme rækkefølgen: ${error}`,
   status: {
     draft: 'Kladde',
-    unlisted: 'Skjult',
     scheduled: 'Planlagt',
     scheduledAt: (when) => `Planlagt ${when}`,
   },
   statusFilter: 'Status',
-  statusShown: { all: 'Alle', published: 'Udgivet', draft: 'Kladde', unlisted: 'Skjult', scheduled: 'Planlagt' },
+  statusShown: { all: 'Alle', published: 'Udgivet', draft: 'Kladde', scheduled: 'Planlagt' },
   sort: 'Sortér',
   sorts: {
     newest: 'Nyeste først',

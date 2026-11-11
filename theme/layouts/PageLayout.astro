@@ -15,16 +15,8 @@ import PageHeading from '@theme/components/PageHeading.astro';
 import EndBlock from '@theme/components/EndBlock.astro';
 import Block from '@morphemecms/cms/src/standard/Block.astro';
 import { blockLoads, endBlock, sideBlock } from '@morphemecms/cms/src/standard/views';
-import {
-  getPages,
-  h1SectionColor,
-  pageHeading,
-  pageHeadingHtml,
-  parentPage,
-  stateOf,
-  withoutH1,
-  type Page,
-} from '@morphemecms/cms/site/content';
+import { getPages, h1SectionColor, pageHeading, pageHeadingHtml, parentPage, withoutH1, type Page } from '@morphemecms/cms/site/content';
+import { hiddenFromSearch } from '@morphemecms/cms/lib/status.mjs';
 import { blockTexts, nav } from '@morphemecms/cms/site/site';
 import { firstPicture, picturesOf } from '@morphemecms/cms/site/images.mjs';
 import { splitBlocks } from '@morphemecms/cms/lib/blocks.mjs';
@@ -105,7 +97,7 @@ const textClass = side
   seoTitle={page.data.seoTitle}
   seoDescription={page.data.seoDescription}
   canonical={page.data.canonical}
-  noindex={stateOf(page.data) === 'unlisted' || page.data.noindex}
+  noindex={hiddenFromSearch(page.data)}
   image={picture?.src}
   imageAlt={picture?.alt}
   pictures={picturesOf(page.body)}

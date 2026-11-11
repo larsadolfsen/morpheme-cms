@@ -901,16 +901,14 @@ type Item = {
 };
 
 // The statuses of a page or post (`status`, packages/editor/lib/status.mjs), in the order of the choices over the list.
-type State = 'published' | 'draft' | 'unlisted' | 'scheduled';
-const STATES: State[] = ['published', 'draft', 'unlisted', 'scheduled'];
-const stateOf = (d: Record<string, unknown>): State =>
-  d.status === 'draft' || d.status === 'unlisted' || d.status === 'scheduled' ? d.status : 'published';
+type State = 'published' | 'draft' | 'scheduled';
+const STATES: State[] = ['published', 'draft', 'scheduled'];
+const stateOf = (d: Record<string, unknown>): State => (d.status === 'draft' || d.status === 'scheduled' ? d.status : 'published');
 
-// What a page or post is when not simply published (`status`, packages/editor/lib/status.mjs): "Draft", "Hidden" or
+// What a page or post is when not simply published (`status`, packages/editor/lib/status.mjs): "Draft" or
 // "Scheduled Nov 1 at 8:00 AM".
 function statusOf(d: Record<string, unknown>): string | undefined {
   if (d.status === 'draft') return t.library.status.draft;
-  if (d.status === 'unlisted') return t.library.status.unlisted;
   if (d.status !== 'scheduled') return undefined;
   const at = untilTime(String(d.publishAt ?? ''));
   return at === null ? t.library.status.scheduled : t.library.status.scheduledAt(when(new Date(at)));

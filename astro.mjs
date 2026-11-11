@@ -65,7 +65,7 @@ const themesBuilt = () => [...new Set([activeTheme(), STANDARD_THEME])];
 const frontMatter = (file) => fs.readFileSync(file, 'utf8').match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '';
 
 // Pages and posts that name another page as the original (`canonical`), are not for search engines
-// (`noindex: true`) or only open on their address (Skjult, `status: "unlisted"`, packages/editor/lib/status.mjs):
+// (`noindex: true`) or a stored `status: "unlisted"` (migrated to `noindex`, packages/editor/lib/status.mjs):
 // not in the sitemap. Drafts are not built, so not in it either.
 /** @param {string} fm @param {string} name */
 const field = (fm, name) => fm.match(new RegExp(`^${name}: *"?(.*?)"?\\s*$`, 'm'))?.[1] ?? '';
