@@ -1,5 +1,5 @@
 {
   "id": "english-ids-new-pages",
   "kind": "line",
-  "text": "The new versions of your pages are now at /new/<address>, and links to the old address keep working"
+  "text": "New versions of your pages are now at /new/ and a tag’s page on your blog at /blog/tags/, the old addresses keep working, and the downloaded consent log is named consents-<date>.csv"
 }

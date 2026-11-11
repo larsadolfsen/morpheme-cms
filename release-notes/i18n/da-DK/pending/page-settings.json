@@ -1,5 +1,6 @@
 {
   "id": "page-settings",
-  "kind": "line",
-  "text": "Åbn en side, og find dens titel, status og skabelon i Sideindstillinger øverst, med skabelonen på kort"
+  "kind": "card",
+  "title": "Sideindstillinger samlet ét sted",
+  "text": "En sides titel, status og skabelon ligger nu i Sideindstillinger øverst på siden. Skabelonen vælger du på kort."
 }
