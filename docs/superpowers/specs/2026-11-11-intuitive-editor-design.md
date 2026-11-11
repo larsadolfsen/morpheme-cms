@@ -371,7 +371,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   (`theme/components/PostCard.tsx`) are separate. The theme's surface kinds are Material's three: Outlined, Filled and
   Elevated (`theme/ui/Card.tsx`). M3 has no card types beyond these surfaces; link, price and quote cards are our content
   layouts. _(From general knowledge of Material 3, not checked on m3.material.io.)_
-- **Fields (owner, 11 November):** Icon or picture or video (one `Media` field), Title, Subhead, Body text, Link, Button,
+- **Fields (owner, 11 November):** Icon or picture or video (one `Media` field), Title, Subhead, Body text, Link, Buttons,
   Badge, Date and Tags. Only fields with content show, as in a list row. **Price and Quote are not card fields:** Price
   cards and Testimonials stay their own blocks.
 - **Design:** one setting, `Design`, whose choices come from the theme. **Material** has four predefined designs:
@@ -386,8 +386,12 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   design is not in the theme it is switched to (the first design, or the closest by kind).
 - **Media field:** the top of a card is one `Media` field, with the choice Icon, Image or Video, like the icon field of a
   list. The first card's choice sets the type for every card in the block, so they stay aligned; there is no block setting
-  for it. It shows only if it has content. A card without media in a block that has it keeps or loses the space (to decide
-  when it is built).
+  for it. It shows only if it has content. There is no placeholder on the site (owner, 11 November): a card without media in a
+  block that has it shows no empty picture. In the editor only the active card shows its empty media slot. Whether the
+  card then keeps blank space at the top or shrinks is decided when it is built, with a check on the demo.
+- **Buttons (owner, 11 November):** a card can have buttons at the bottom, none, one or several. Each is a text button or
+  a real button (the kinds the Buttons block has: filled, tonal, elevated, outlined and text), with its text and where it
+  goes, so the card reuses the Buttons block's button field and its targets (`standard/buttons/fields.ts`).
 - **Editing:** the same pattern as lists (finding 14): a new Card block is added selected, with three empty cards and the
   first one active; only the active card shows its empty fields; the next card is always shown empty and faded (decision
   14); the floating menu has `Add above`, `Add below`, `Move up` and `Move down`; settings sit in the side panel on
@@ -397,8 +401,9 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   The blog post card becomes a dynamic Card; Blog posts need no special card.
 - **Migration:** Cards with Design Image, Icon and Text become Card with a Media field of Image or Icon, or none;
   Background accent becomes Design Accent, otherwise Outlined. No page changes look.
-- **Not decided:** whether a card's Link makes the whole card clickable and the Button is a separate action (today only the
-  whole card is a link); how a card without media looks in a block that has media.
+- **Not decided:** whether a card's Link makes the whole card clickable when it also has buttons (a link inside a link is
+  not allowed in HTML, so a card with buttons probably has no whole-card link); how many buttons fit before the card
+  looks crowded.
 
 ## Batches
 
