@@ -447,7 +447,7 @@ The table is a proposal by field name from `src/standard/*`; the exceptions belo
 **A table is a new block (owner, 11 November).** Only a few owners need one, and the text menu is already crowded, so it is
 a block in `Insert`, not a text style. The cells are typed in place; the next row and the next column are always shown
 empty and faded (decision 14); the context-aware menu in a cell offers `Add row`, `Add column`, `Delete row` and `Delete
-column`; the panel has a header-row setting. The theme draws it and keeps it readable on a narrow screen (it scrolls
+column`; the panel has a header-row setting, on by default (the first row of a new table is a header row, owner, 11 November). The theme draws it and keeps it readable on a narrow screen (it scrolls
 sideways). The site's Markdown renderer already supports tables (`remark-gfm`); whether the editor can create and edit
 one is checked when it is built. A table filled from the owner's lists could come later as a dynamic table.
 
