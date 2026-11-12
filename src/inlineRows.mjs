@@ -16,7 +16,7 @@ const has = (v) =>
         ? Object.values(v).some(has)
         : v === true;
 
-/** A row with nothing in it (no icon, link, heading or text: an icon or a link counts as content; any field with text does). @param {Row | undefined} row */
+/** A row with nothing in it (no icon, link, heading or text: an icon or a link counts as content; any field with text does, and a list with something in it, a card's buttons). @param {Row | undefined} row */
 export const isEmptyRow = (row) => !row || !Object.values(row).some(has);
 
 /** The rows without the completely empty ones. @param {Row[]} rows */

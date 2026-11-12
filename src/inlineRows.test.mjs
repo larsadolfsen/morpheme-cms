@@ -6,6 +6,8 @@ import { addAt, isEmptyRow, linesFromPaste, moveBy, removeAt, setField, withoutE
 test('a row is empty only with no icon, link, heading and text', () => {
   assert.equal(isEmptyRow({ title: '' }), true);
   assert.equal(isEmptyRow({ title: '  ', text: '' }), true);
+  assert.equal(isEmptyRow({ title: '', buttons: [] }), true);
+  assert.equal(isEmptyRow({ title: '', buttons: [{ label: 'Go' }] }), false);
   assert.equal(isEmptyRow(undefined), true);
   assert.equal(isEmptyRow({ title: '', icon: 'clock' }), false);
   assert.equal(isEmptyRow({ title: '', href: '/a/' }), false);

@@ -92,6 +92,8 @@ export type InlineSpec = {
   link?: string;
   /** Instead of `icon`: the fields the media slot opens (a card's media: its kind, icon, image and video), in the item's sheet. */
   media?: string[];
+  /** The block's own fields that the first item's media sheet has too, above the item's (a card's one media choice for every card). */
+  blockMedia?: string[];
   /** Instead of `link`: the fields the link slot opens (a card's page and buttons). */
   settings?: string[];
   /** The most items it can have (a price list has four): no Add above, Add below or Add item past it. */

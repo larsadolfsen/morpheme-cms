@@ -880,10 +880,10 @@
     padding: 1rem 1.25rem;
   }
 
-  /* "Cards": Material 3's three (outlined, filled, elevated: the card's `kind`, ui.css); the filled one on the highest container, with
-     the card's state layer (ui.css) when pointed at or focused. */
+  /* "Cards": Material 3's three (outlined, filled, elevated: the card's `design`, ui.css); the filled one on the surface container (or the
+     primary, secondary or tertiary container: blocks.css), with the card's state layer (ui.css) when pointed at or focused. */
   .block-card {
-    --card-filled-surface: var(--mo-surface-container-highest);
+    --card-filled-surface: var(--mo-surface-container);
   }
   .block-card-picture {
     border-radius: var(--card-radius) var(--card-radius) var(--mo-shape-none) var(--mo-shape-none);
