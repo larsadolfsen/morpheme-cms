@@ -1,6 +1,6 @@
 // The form's autosave (src/autosave.mjs, the Worker's /api/autosave): the page's waiting version is sent to the Worker a moment after each
 // change and moved to git when the person leaves or has been idle. `text` gives the text of the version as the form would save it, or null
-// when it cannot be saved now (a field that is wrong, a picture not uploaded yet): the state is then `notSaved`. Only with Faster editor on:
+// when it cannot be saved now (a field that is wrong, a picture not uploaded yet): the state is then `notSaved`. Only with R2 caching on:
 // without it the Worker says so (409) and the state is `notSaved` until `Save`.
 import { useEffect, useRef, useState } from 'react';
 import { autosaveClient, deleteAutosave, watchLeaving } from './autosave.mjs';

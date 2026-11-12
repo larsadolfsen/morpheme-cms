@@ -366,11 +366,11 @@ function Form({
     if (textNear && bodyChanged) readBody();
   }, [textNear]);
   useEffect(() => () => clearTimeout(reading.current), []);
-  // Autosave (src/useAutosave.ts): what is written is kept by the Worker (Faster editor) and moved to git when the form is left or idle: a
+  // Autosave (src/useAutosave.ts): what is written is kept by the Worker (R2 caching) and moved to git when the form is left or idle: a
   // published page's changes as its waiting version, a draft page as the page file itself (it has no live version to protect, and stays a
   // draft whatever the text says), and a NEW page or post, which has no file yet, as a draft page file made then (`create`), named
   // `New page` until the H1 (a post's title) says another, and renamed with it (`to`). Not the live page being edited, an earlier version
-  // or a new address. With Faster editor off the Worker says so and nothing is kept until `Save`, as before.
+  // or a new address. With R2 caching off the Worker says so and nothing is kept until `Save`, as before.
   const typedAddress = addressOf(String(values.path ?? ''), post ? 'post' : 'page');
   // The key of a new entry's autosave: a file name that never exists, so two new pages in two tabs do not overwrite each other.
   const [placeholder] = useState(() => `${collection.folder}/new-entry-${Math.random().toString(36).slice(2, 10)}.md`);

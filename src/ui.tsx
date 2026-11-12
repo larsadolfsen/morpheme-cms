@@ -22,6 +22,7 @@ import {
   type FormEvent,
   type MouseEvent,
   type PointerEvent,
+  Fragment,
   isValidElement,
   type ReactElement,
   type ReactNode,
@@ -64,7 +65,6 @@ import {
   SiteMenu,
   SiteMenuItem,
   sitePlaceMenu,
-  siteMenuItemClass,
   SiteCarousel,
   SiteCheckbox,
   SiteChip,
@@ -1301,11 +1301,9 @@ export function MultiChoice({
           {shown.map((o) => {
             const picked = value.includes(o.value);
             return (
-              <li key={o.value}>
-                <Option selected={picked} disabled={!picked && full} onClick={() => toggle(o.value)}>
-                  {o.label}
-                </Option>
-              </li>
+              <Option key={o.value} selected={picked} disabled={!picked && full} onClick={() => toggle(o.value)}>
+                {o.label}
+              </Option>
             );
           })}
           {!shown.length && <EmptyNote item>{t.forms.noneFound}</EmptyNote>}
@@ -1718,37 +1716,41 @@ export function UnfoldButton({
   );
 }
 
-/** The classes of a choice in a sheet's list (Option), for one with more in it (an icon, a hint): the theme's menu
- * item (Material 3's), the chosen one marked by its aria-pressed, aria-selected or aria-checked. */
-export const optionClass = () => `${siteMenuItemClass} group disabled:opacity-50`;
-
-/** A choice in a sheet's list (the theme's menu item): the chosen one marked, with a tick. */
+/** A choice in a sheet's list: the theme's list item (an <li>, so put it in a list), the chosen one marked, with a tick.
+ * A sheet's rows are always list items (src/sheetRows.test.mjs): `icon` and `supporting` for one with more in it. */
 export function Option({
   selected = false,
   disabled,
   onClick,
   children,
   role,
+  icon,
+  supporting,
+  lang,
 }: {
   selected?: boolean;
   disabled?: boolean;
   onClick: () => void;
   children: ReactNode;
   role?: string;
+  icon?: Icon;
+  supporting?: ReactNode;
+  lang?: string;
 }) {
   return (
-    <button
-      type="button"
+    <ListItem
       role={role}
+      lang={lang}
       aria-pressed={role ? undefined : selected}
       aria-selected={role === 'option' ? selected : undefined}
+      icon={icon}
+      headline={children}
+      supporting={supporting}
+      selected={selected}
       disabled={disabled}
-      className={optionClass()}
+      trailing={selected && <Check size={20} aria-hidden />}
       onClick={onClick}
-    >
-      <span className="min-w-0 flex-1">{children}</span>
-      {selected && <Check size={20} className="shrink-0" />}
-    </button>
+    />
   );
 }
 
@@ -3607,9 +3609,14 @@ function ChoiceSheet<T extends string>({
       <SheetList>
         {!shown.length && <EmptyNote item>{t.common.noMatch}</EmptyNote>}
         {shown.map((o, i) => (
-          <li key={o.value} lang={o.lang}>
-            {o.group && o.group !== shown[i - 1]?.group && <SheetGroupTitle>{o.group}</SheetGroupTitle>}
+          <Fragment key={o.value}>
+            {o.group && o.group !== shown[i - 1]?.group && (
+              <li>
+                <SheetGroupTitle>{o.group}</SheetGroupTitle>
+              </li>
+            )}
             <Option
+              lang={o.lang}
               selected={o.value === value}
               onClick={() => {
                 onChange(o.value);
@@ -3625,7 +3632,7 @@ function ChoiceSheet<T extends string>({
                 o.label
               )}
             </Option>
-          </li>
+          </Fragment>
         ))}
       </SheetList>
     </BottomSheet>
@@ -3712,33 +3719,29 @@ export function Filters({ title, selected, groups }: { title: string; selected?:
                 {lone ? (
                   <SheetGroupTitle>{g.title}</SheetGroupTitle>
                 ) : (
-                  <h3>
-                    <button
-                      type="button"
+                  <ul>
+                    <ListItem
                       aria-expanded={unfolded}
-                      className={`${optionClass()} font-medium`}
+                      headline={g.title}
+                      trailingSupporting={g.options.find((o) => o.value === g.value)?.label}
+                      arrow={unfolded ? CaretUp : CaretDown}
                       onClick={() => toggle(g.title)}
-                    >
-                      <span className="min-w-0 flex-1">{g.title}</span>
-                      <span className="min-w-0 truncate font-normal text-on-surface-variant">
-                        {g.options.find((o) => o.value === g.value)?.label}
-                      </span>
-                      <CaretDown
-                        size={16}
-                        className={`shrink-0 text-on-surface-variant transition-transform ${unfolded ? 'rotate-180' : ''}`}
-                      />
-                    </button>
-                  </h3>
+                    />
+                  </ul>
                 )}
                 {unfolded && (
                   <ul className={lone ? '' : 'pl-3'}>
                     {g.options.map((o, i) => (
-                      <li key={o.value} lang={o.lang}>
-                        {o.group && o.group !== g.options[i - 1]?.group && <SheetGroupTitle>{o.group}</SheetGroupTitle>}
-                        <Option selected={o.value === g.value} onClick={() => g.onChange(o.value)}>
+                      <Fragment key={o.value}>
+                        {o.group && o.group !== g.options[i - 1]?.group && (
+                          <li>
+                            <SheetGroupTitle>{o.group}</SheetGroupTitle>
+                          </li>
+                        )}
+                        <Option lang={o.lang} selected={o.value === g.value} onClick={() => g.onChange(o.value)}>
                           {o.label}
                         </Option>
-                      </li>
+                      </Fragment>
                     ))}
                   </ul>
                 )}
