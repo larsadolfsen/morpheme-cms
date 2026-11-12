@@ -55,7 +55,7 @@ const missingIcon = (name) =>
     : 'an icon is not an SVG file (a question mark instead)';
 
 const fallbackIcon = (name) =>
-  `the icon "${name}" is from Material Symbols (not in the icon pack): give it an icon in each pack's map if it is to stay`;
+  `the icon "${name}" is from the whole of Material Symbols or Phosphor (not in the icon pack): give it an icon in each pack's map if it is to stay`;
 
 // The icons not found on the built site's pages: each one once, with the pages it is on.
 const problems = [];
