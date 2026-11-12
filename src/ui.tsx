@@ -2708,6 +2708,11 @@ export function useInView(box: RefObject<Element | null>, margin = '0px') {
 // What is searched for and picked over each list, while the editor is open (useKept).
 const kept = new Map<string, unknown>();
 
+/** Sets a screen's kept search or filter from elsewhere, before the screen opens (the start screen's "Show all"). */
+export function keep(key: string, value: unknown) {
+  kept.set(key, value);
+}
+
 /** A screen's search or filter (the search over the pages, a status picked), kept while the editor is
  * open, so it is the same again on coming back to the screen (from a page opened in the list). Under
  * its own key for each screen and each of its searches and filters; without a key, not kept. */

@@ -1048,8 +1048,16 @@ html {
 }
 
 .editor-selection-menu[hidden],
-.editor-selection-menu button[hidden] {
+.editor-selection-menu button[hidden],
+.editor-selection-group[hidden] {
   display: none;
+}
+
+/* A group of buttons stays whole on its row (balanceRows in MarkdownEditor.tsx sets the menu's width). */
+.editor-selection-group {
+  display: flex;
+  flex: none;
+  gap: 0.125rem;
 }
 
 .editor-selection-menu button {
