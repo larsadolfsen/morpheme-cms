@@ -36,6 +36,7 @@ export const apps: Messages['apps'] = {
   developer: 'Udvikler',
   developerApps: 'Apps',
   appCount: (n) => (n === 1 ? '1 app' : `${n} apps`),
+  noneInstalled: (what: string) => `Ingen ${what.toLowerCase()} er installeret endnu. Find nogle i Butik.`,
   noDeveloper: 'Der er ingen apps fra den udvikler',
   unknownScreenshot: (shows) =>
     `Billedet "${shows}" viser intet, appen har: block:<type>, kind:<liste>:<variant>, list:<id>, settings eller page.`,

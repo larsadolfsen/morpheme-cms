@@ -135,7 +135,7 @@ export const common = {
     settings: 'Settings',
     /** Under Settings: the developer screens, the parts and the caching (#developer, Library.tsx Developer). */
     developer: 'Developer',
-    /** Under Developer: the faster editor and the build settings (#developer/caching, Advanced.tsx). */
+    /** Under Developer: R2 caching and the build settings (#developer/caching, Advanced.tsx). */
     caching: 'Caching and builds',
     /** Under Indstillinger: the assistants connected to the site (#assistants, Assistants.tsx). */
     assistants: 'Assistants',

@@ -5,8 +5,8 @@
     {
       "id": "app-contract-4",
       "kind": "paragraph",
-      "title": "Add apps without risking your site",
-      "text": "Every app now runs in a sandbox and only reads the site data it asks for. Open an app and look under Permissions to see where it runs and how much access it has."
+      "title": "App sandbox",
+      "text": "An app can’t harm your site. Every app runs in a sandbox and reads only the site data it asks for. Open an app and look under Permissions to see where it runs and how much access it has."
     },
     {
       "id": "css-variables-mo-prefix",
@@ -21,14 +21,14 @@
     {
       "id": "dashboard-widget-grid",
       "kind": "paragraph",
-      "title": "Arrange your start screen",
-      "text": "The start screen now shows widgets in a grid: Continue, Unfinished, Blog rhythm and Site status. Tap Edit dashboard to add, remove and reorder them."
+      "title": "Start screen widgets",
+      "text": "Your start screen shows what matters to you. Widgets sit in a grid: Continue, Unfinished, Blog rhythm and Site status. Tap Edit dashboard to add, remove and reorder them."
     },
     {
-      "id": "edition-photo-card",
+      "id": "edition-photo-place",
       "kind": "paragraph",
-      "title": "Each update has its own place",
-      "text": "Every update now comes with a photo and the name of the place it’s named after, like Passo Giau. You’ll find them on the start screen and on the Morpheme page."
+      "title": "Editions",
+      "text": "Each update is easy to recognize. It comes with a photo and the name of the place it’s named after, like Passo Giau. You’ll find them on the start screen and on the Morpheme page."
     },
     {
       "id": "english-ids-code",
@@ -58,8 +58,8 @@
     {
       "id": "md3-color-roles",
       "kind": "paragraph",
-      "title": "New color names",
-      "text": "Colors now use Material 3’s names, with new Surface dim, Surface bright, Scrim and Shadow. Your old colors keep working: open Colors and save to switch them over."
+      "title": "Color names",
+      "text": "Colors use Material 3’s own names. Open Colors and save to switch your old ones over; they keep working until you do. New are Surface dim, Surface bright, Scrim and Shadow."
     },
     {
       "id": "older-line-editions",
@@ -74,8 +74,8 @@
     {
       "id": "page-settings",
       "kind": "paragraph",
-      "title": "Page settings at the top",
-      "text": "A page’s title, status and template now sit together in Page settings. Open a page and tap Page settings to pick the template on cards."
+      "title": "Page settings",
+      "text": "A page’s basics sit in one place. Open a page and tap Page settings to set its title, status and template, and pick the template on cards."
     },
     {
       "id": "release-blog-posts",
@@ -90,8 +90,8 @@
     {
       "id": "settings-cog",
       "kind": "paragraph",
-      "title": "Settings behind the cog",
-      "text": "Appearance, Developer, Licenses, Morpheme and Privacy are now under Settings. Tap the cog at the bottom of the menu."
+      "title": "Settings cog",
+      "text": "The menu stays short. Tap the cog at the bottom of the menu to open Settings, with Appearance, Developer, Licenses, Morpheme and Privacy."
     },
     {
       "id": "short-notification-buttons",

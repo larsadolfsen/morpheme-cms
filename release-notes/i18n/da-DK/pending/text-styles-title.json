@@ -1,6 +1,6 @@
 {
   "id": "text-styles-title",
   "kind": "paragraph",
-  "title": "Giv din tekst flere stilarter",
-  "text": "Du kan nu vælge Stor brødtekst, Label og Tjekliste i tekststilene. En ny side åbner klar til titlen."
+  "title": "Tekststilarter",
+  "text": "Brødtekst har én størrelse, og intet markerer en opgave. I menuen med tekststilene vælger du Stor brødtekst eller Label, og teksten får den stil på siden."
 }

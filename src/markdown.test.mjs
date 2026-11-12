@@ -60,7 +60,7 @@ test('an H1 with a picture behind it and the whole width comes back byte for byt
 });
 
 test('the marker comes before a label above the H1', async () => {
-  const text = marked('primary', '<p class="block-eyebrow">Welcome</p>\n\n# About\n\nText\n');
+  const text = marked('primary', '<p class="label-medium">Welcome</p>\n\n# About\n\nText\n');
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
   assert.ok(nodes.includes('heading:primary'));
@@ -72,7 +72,7 @@ test('a text without markers is written as before', async () => {
 });
 
 test('the marker comes before a label above the H2', async () => {
-  const text = marked('surface', '<p class="block-eyebrow">Step by step</p>\n\n## Hours\n\nText\n');
+  const text = marked('surface', '<p class="label-medium">Step by step</p>\n\n## Hours\n\nText\n');
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
   assert.ok(nodes.includes('heading:surface'));
@@ -100,9 +100,29 @@ test('an intro paragraph (Body large) comes back as it was', async () => {
   assert.deepEqual(nodes, ['heading', 'bodyLarge', 'paragraph']);
 });
 
+test('Body medium and Body small paragraphs come back as they were', async () => {
+  const text = '# Title\n\n<p class="body-medium">Quiet text</p>\n\n<p class="body-small">Opening hours may change</p>\n\nText\n';
+  const { saved, nodes } = await through(text);
+  assert.equal(saved, text);
+  assert.deepEqual(nodes, ['heading', 'bodyMedium', 'bodySmall', 'paragraph']);
+});
+
 test('a check list comes back as it was', async () => {
   const { saved } = await through('- [ ] Bring a coat\n- [x] Book a table\n');
   assert.match(saved, /\[ \] Bring a coat\n.*\[x\] Book a table/);
+  assert.equal((await through(saved)).saved, saved);
+});
+
+test('a check list item checked in the editor is saved as checked', async () => {
+  const editor = await makeEditor(document.createElement('div'), '- [ ] Bring a coat\n- [ ] Book a table\n').create();
+  editor.action((ctx) => {
+    const view = ctx.get(editorViewCtx);
+    const item = view.state.doc.firstChild.child(0);
+    view.dispatch(view.state.tr.setNodeMarkup(2 - 1, undefined, { ...item.attrs, checked: true }));
+  });
+  const saved = editor.action(markdownOf);
+  await editor.destroy();
+  assert.match(saved, /\[x\] Bring a coat\n.*\[ \] Book a table/);
   assert.equal((await through(saved)).saved, saved);
 });
 

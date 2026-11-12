@@ -9,9 +9,9 @@ Announce "Using release-notes". Every pull request into `main` has a changeset (
 notes"); this skill is how its release note is written. Read it whenever a change is something a site owner sees, and
 before writing or changing any note or edition.
 
-**Style: we write release notes like 0.14.0** (`release-notes/i18n/en-US/0.14.0.json`). A paragraph's title says what the owner
-can do, with a verb first (*Pause an app without losing its settings*, *See your page as Google shows it*). Its text
-says what is new (*You can now …*, *… now looks like …*), then where to find it (*Open the app under Apps …*). Lines are
+**Style: we write release notes like 0.14.0** (`release-notes/i18n/en-US/0.14.0.json`). A paragraph's title says what has
+changed, as a short name of the thing (*Sections*, *Text styles*, *Insert sheet*). Its text
+follows *why, how, what* (see "Writing a paragraph" below). Lines are
 short and name the change plainly. Notes have no screenshots: the paragraphs of 0.14.0 have none.
 
 A version's notes have exactly two sections: **New in <version>**, the paragraphs, and **Also in this version**, the lines.
@@ -29,8 +29,7 @@ get no note. The note's `id` is this changeset's file name without `.md`, for ex
 of two kinds:
 
 - `paragraph` (under "New in <version>" on the Morpheme page): every change to how the editor or the site looks, a new
-  screen, feature or way to do something, and every selling point (see above). A title and 1–3 short sentences: what the owner gets first,
-  then where to find it. No labels, no screenshot.
+  screen, feature or way to do something, and every selling point (see above). A title (the name of the thing) and 2–3 short sentences: why, how, what. No labels, no screenshot.
 - `line`: every other change, such as a small tweak that changes neither how the editor or the site looks nor what Morpheme
   has over other ways to run a site, or a fix. One short sentence with no
   period, shown in the list "Also in this version".
@@ -60,12 +59,9 @@ Writing rule: the skill `site-editor-writing` (in `larsadolfsen/morpheme-website
 - Sentence case, contractions with `’`, no *we*, no em dash, no `!`.
 - Write English first, then Danish written as a Danish app says it, not word for word, with the editor's fixed words
   (*Aktiveret*, *Indstillinger*, *hjemmesiden*).
-- Keep it short. A paragraph's text is 1–3 sentences. A line is one sentence.
+- Keep it short. A paragraph's text is 2–3 sentences, about 45 words at most. A line is one sentence.
 
-Example paragraph (`paragraph`, English):
-
-> **Pick up where you left off**
-> Your last 3 pages and blog posts now wait at the top of the start screen. Tap one to jump straight back in.
+Example paragraph: see *Before / After* in "Writing a paragraph: why, how, what" below.
 
 Example lines:
 
@@ -73,17 +69,57 @@ Example lines:
 > - Open website opens in a new window
 > - On a phone, the text toolbar no longer scrolls sideways
 
+## Writing a paragraph: why, how, what
+
+Every `paragraph` follows **why, how, what**, in this order, in 2–3 sentences and **at most about 45 words per language**
+(the title does not count). Read the changeset and the code of the change first, so each part is true, not guessed.
+
+1. **Why** (one sentence, first): the problem the owner has, or the gain the owner gets, in the owner's words. Not
+   *You can now …*, and not what the owner wants (*You want to …*): name the gain (*Long lists no longer push the
+   page down.*).
+2. **How** (what the owner does): where to find it and what to press, with the exact UI words from the language files in
+   `src/i18n/` (`Insert`, `Max rows`, `Show more`), never an internal name.
+3. **What** (what is in it, and what stays as it was): the choices it has, or that earlier pages and settings are
+   unchanged. Leave it out only when the why and how already say it.
+
+Rules: active voice, present tense, *you*; concrete (a screen, a button, a number), no filler (*now*, *new*, *also*,
+*easier*) unless it carries meaning. **One subject per paragraph**: a second feature, a second screen or a second block is
+its own note, a paragraph or a `line`. **The title says WHAT has changed**: a short name of the
+thing, two or three words, as the editor calls it (*Sections*, *Text styles*, *Insert sheet*), never a sentence about the
+benefit (*Pick from sheets that match your lists*) and never a verb phrase. The gain belongs in the text, as the why. Two
+notes of one version do not share a title.
+
+A selling point (see above) follows the same order: the why is what the owner is protected from or free to do, the how is
+where the proof is, the what is what stays the owner's.
+
+Before (bad: a sentence as the title, no why, three subjects):
+
+> **Fold out rows in a Segmented list**
+> The new Segmented list folds each row out to show its text and link. You can keep only one row open, or show just the
+> first rows with a Show more button for the rest. The FAQ list gets the same button, and Insert now groups the blocks by
+> what they do.
+
+After (a name as the title, then why, how, what; the other subjects are their own notes):
+
+> **Segmented list**
+> A long list no longer fills the page. Add a Segmented list, set Max rows, and visitors open each row to read its text and
+> link, and press Show more for the rest. Turn on Only one open to close the last row when the next one opens.
+
+Danish: the title is the Danish name of the same thing (*Segmenteret liste*), and the text has the same three parts in the same order, written as a Danish app says it (not word for word), with the editor's
+Danish words from `src/i18n/da-DK/`, and the same length cap. Keep `id` and
+`kind` the same in both languages.
+
 ## Editions
 
 Each minor line is an edition named after a place: one free nature photo from [Unsplash](https://unsplash.com) (never
 Unsplash+) and the name of where it was taken, for every version of the line (0.14.0, 0.14.1, … and its test versions).
-After an update, the start screen shows the photo and "Morpheme <name> <version>" in a small card; the Morpheme page
+After an update, the start screen shows the photo and "Morpheme <name> <version>" in a small message; the Morpheme page
 shows it under the line's newest version.
 
-- `release-notes/editions/<line>.json` (e.g. `0.14.json`): `name` (the place, short, in the update card's headline), `place`
-  (the full place per locale, `en-US` and `da-DK`, the update card's subhead) and `photo` (`by`, `source` and `license`).
+- `release-notes/editions/<line>.json` (e.g. `0.14.json`): `name` (the place, short, in the update message’s headline), `place`
+  (the full place per locale, `en-US` and `da-DK`, the update message’s subhead) and `photo` (`by`, `source` and `license`).
 - `release-notes/editions/<line>.webp`: the whole photo, uncropped as on Unsplash, 1280 px wide, at most 200 KB. Its
-  page under Licenses shows all of it; the card crops it to 3:2 from the middle: above the text on a phone, beside it
+  page under Licenses shows all of it; the update message crops it to 3:2 from the middle: above the text on a phone, beside it
   on larger screens.
 
 A new minor line needs a new edition; a line without one shows no photo. An edition may leave out its `name`, `place`

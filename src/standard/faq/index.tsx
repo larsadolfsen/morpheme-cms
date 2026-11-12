@@ -7,7 +7,7 @@ import { t } from '../../i18n';
 import { headFields } from '../head';
 
 export default defineBlock({
-  group: 'questions',
+  group: 'lists',
   label: t.blocks.faq.label,
   icon: Question,
   hint: t.blocks.faq.hint,

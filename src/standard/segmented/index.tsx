@@ -11,7 +11,7 @@ import { headFields } from '../head';
 type Row = { title?: string };
 
 export default defineBlock({
-  group: 'rows',
+  group: 'lists',
   label: t.blocks.segmented.label,
   icon: SquaresFour,
   hint: t.blocks.segmented.hint,

@@ -152,69 +152,87 @@
     title      the headings of a card, a panel, a row or a sheet; medium and small also names and emphasized labels
     body       the text: large the text of pages and blocks, medium and small what is smaller beside it
     label      what is on a control (a button, a chip, a tab, a tag), a badge and a small heading over others
-  Bold or a link inside a text keeps the text's role, with its own weight. The typeface is --font-sans.
+  The font of every style is --type-<role>-<size>-font (Roboto, --font-sans); a label also has a prominent weight, --type-label-<size>-prominent-weight (700), as Material 3 lists it. Bold or a link inside a text keeps the text's role, with its own weight. The typeface is --font-sans.
 */
 :where(:root) {
   --type-display-large-size: 3.5625rem;
   --type-display-large-line-height: 4rem;
   --type-display-large-weight: 400;
   --type-display-large-tracking: -0.015625rem;
+  --type-display-large-font: var(--font-sans);
   --type-display-medium-size: 2.8125rem;
   --type-display-medium-line-height: 3.25rem;
   --type-display-medium-weight: 400;
   --type-display-medium-tracking: 0;
+  --type-display-medium-font: var(--font-sans);
   --type-display-small-size: 2.25rem;
   --type-display-small-line-height: 2.75rem;
   --type-display-small-weight: 400;
   --type-display-small-tracking: 0;
+  --type-display-small-font: var(--font-sans);
   --type-headline-large-size: 2rem;
   --type-headline-large-line-height: 2.5rem;
   --type-headline-large-weight: 400;
   --type-headline-large-tracking: 0;
+  --type-headline-large-font: var(--font-sans);
   --type-headline-medium-size: 1.75rem;
   --type-headline-medium-line-height: 2.25rem;
   --type-headline-medium-weight: 400;
   --type-headline-medium-tracking: 0;
+  --type-headline-medium-font: var(--font-sans);
   --type-headline-small-size: 1.5rem;
   --type-headline-small-line-height: 2rem;
   --type-headline-small-weight: 400;
   --type-headline-small-tracking: 0;
+  --type-headline-small-font: var(--font-sans);
   --type-title-large-size: 1.375rem;
   --type-title-large-line-height: 1.75rem;
   --type-title-large-weight: 400;
   --type-title-large-tracking: 0;
+  --type-title-large-font: var(--font-sans);
   --type-title-medium-size: 1rem;
   --type-title-medium-line-height: 1.5rem;
   --type-title-medium-weight: 500;
   --type-title-medium-tracking: 0.009375rem;
+  --type-title-medium-font: var(--font-sans);
   --type-title-small-size: 0.875rem;
   --type-title-small-line-height: 1.25rem;
   --type-title-small-weight: 500;
   --type-title-small-tracking: 0.00625rem;
+  --type-title-small-font: var(--font-sans);
   --type-body-large-size: 1rem;
   --type-body-large-line-height: 1.5rem;
   --type-body-large-weight: 400;
   --type-body-large-tracking: 0.03125rem;
+  --type-body-large-font: var(--font-sans);
   --type-body-medium-size: 0.875rem;
   --type-body-medium-line-height: 1.25rem;
   --type-body-medium-weight: 400;
   --type-body-medium-tracking: 0.015625rem;
+  --type-body-medium-font: var(--font-sans);
   --type-body-small-size: 0.75rem;
   --type-body-small-line-height: 1rem;
   --type-body-small-weight: 400;
   --type-body-small-tracking: 0.025rem;
+  --type-body-small-font: var(--font-sans);
   --type-label-large-size: 0.875rem;
   --type-label-large-line-height: 1.25rem;
   --type-label-large-weight: 500;
   --type-label-large-tracking: 0.00625rem;
+  --type-label-large-font: var(--font-sans);
+  --type-label-large-prominent-weight: 700;
   --type-label-medium-size: 0.75rem;
   --type-label-medium-line-height: 1rem;
   --type-label-medium-weight: 500;
   --type-label-medium-tracking: 0.03125rem;
+  --type-label-medium-font: var(--font-sans);
+  --type-label-medium-prominent-weight: 700;
   --type-label-small-size: 0.6875rem;
   --type-label-small-line-height: 1rem;
   --type-label-small-weight: 500;
   --type-label-small-tracking: 0.03125rem;
+  --type-label-small-font: var(--font-sans);
+  --type-label-small-prominent-weight: 700;
   /* The lead (an intro paragraph: type-lead, a blog post's first paragraph, a single page's first paragraph). Each is the
      title large's; a theme sets these four to change every lead. */
   --type-lead-size: var(--type-title-large-size);
@@ -1421,7 +1439,7 @@
     --bottom-sheet-shadow, --bottom-sheet-shadow-large   its shadow on a phone (and a standard one's; level 1), and as
                      a dialog from the medium width (level 3)
     --bottom-sheet-scrim   the shade over the page behind a modal one
-    --bottom-sheet-handle   the drag handle's colour
+    --bottom-sheet-handle, --bottom-sheet-handle-focus   the drag handle's colour, and while it has the focus
     --bottom-sheet-max-width, --bottom-sheet-top-gap   how wide a standard one is at most, and how far from the top it
                      stays when it is expanded
     --bottom-sheet-margin-wide   a standard one with wide="sheet" (from the medium width) stays this far from the
@@ -1694,6 +1712,14 @@
     border-radius: 9999px;
     background: var(--bottom-sheet-handle, var(--block-line));
   }
+  /* The handle shows its focus by a darker bar, as M3's does: a focus ring is cut off by the sheet's rounded top and
+     would show as a coloured line between the handle and the headline. */
+  .bottom-sheet-drag-handle:focus-visible {
+    outline: none;
+  }
+  .bottom-sheet-drag-handle:focus-visible::before {
+    background: var(--bottom-sheet-handle-focus, var(--block-text));
+  }
   .bottom-sheet-header {
     display: flex;
     flex-shrink: 0;
@@ -1846,9 +1872,6 @@
     background: none;
     color: inherit;
     font: inherit;
-  }
-  .bottom-sheet-standard > .bottom-sheet-drag-handle:focus-visible {
-    outline-offset: -0.25rem;
   }
   .bottom-sheet-standard > .bottom-sheet-header {
     cursor: grab;

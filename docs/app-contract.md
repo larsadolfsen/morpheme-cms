@@ -154,7 +154,7 @@ places, hooks and sandbox. The editor reads contracts 4 and 5 (`APP_APIS` in `li
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
-| `role` | `"connector"` or `"plugin"` | no | What the app is. A connector sends data to, or loads code from, an outside service. A plugin has no outside access. No role is read as a plugin, but the app keeps its `csp`. |
+| `role` | `"connector"` or `"plugin"` | no | What the app is. A connector sends data to, or loads code from, an outside service. A plugin has no outside access. With no role, the editor reads an app with an `mcp` server or any host in its `csp` as a connector, and any other as a plugin. |
 | `mcp` | `{ server, auth, tools }` | no | The MCP server a connector calls. `server` is an https address, `auth` is `"oauth"`, `"token"` or `"none"`, `tools` lists the tools the app may call. |
 
 Rules:

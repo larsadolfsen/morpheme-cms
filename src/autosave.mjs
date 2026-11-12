@@ -3,7 +3,7 @@
 // person leaves the page or the editor has been idle for a long time. The state is `saving`, `saved` or `notSaved`:
 //   saving    a change is waiting for its turn or on its way to the Worker
 //   saved     the Worker has the newest text (or git has it, after a flush)
-//   notSaved  it could not be sent after the retries, or `Faster editor` is off (409 `off`): nothing is kept until `Save`
+//   notSaved  it could not be sent after the retries, or `R2 caching` is off (409 `off`): nothing is kept until `Save`
 // A failed send is tried again after 1, 2, 4, 8 and 16 seconds (`retries`), and again on the next change or `retry()`.
 // `createAutosave` takes what it needs from outside (`send`, `timers`, `now`), so it runs in a test; `autosaveClient` is the one the
 // editor uses (fetch, the browser's timers). Exposes createAutosave, autosaveClient, watchLeaving, STATES. No dependencies.
@@ -215,7 +215,7 @@ export function autosaveClient(fetcher = (...args) => fetch(...args), options = 
     });
     if (res.status === 409) {
       const said = await res.json().catch(() => ({}));
-      // `off`: `Faster editor` is off. `moved`: the branch moved while flushing; the autosave is still in R2 and the next flush works.
+      // `off`: `R2 caching` is off. `moved`: the branch moved while flushing; the autosave is still in R2 and the next flush works.
       return { ok: false, off: said.error === 'off' };
     }
     // 404 `page` on a flush: the page file is gone and the Worker has thrown the autosave away: nothing more to keep.
