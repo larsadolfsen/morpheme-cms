@@ -871,10 +871,9 @@ html {
   --menu-shadow: var(--editor-menu-shadow);
 }
 
-/* The text's toolbar (MarkdownEditor.tsx, Toolbar in ui.tsx): the menu surface and shadow. */
+/* The text's toolbar (MarkdownEditor.tsx, Toolbar in ui.tsx): the box's top edge, in the box's own surface. */
 .editor-tools {
   --toolbar-standard-surface: var(--editor-menu-surface);
-  box-shadow: var(--editor-menu-shadow);
 }
 
 /* Its tools on one line, and the rest on a second while it is open (the arrow at its end, MarkdownEditor.tsx). Closed,

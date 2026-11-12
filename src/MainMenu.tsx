@@ -24,6 +24,7 @@ import {
   MainDrawerFold,
   MainDrawerItem,
   MainDrawerLevel,
+  MainDrawerSection,
   MainDrawerSectionItem,
   MainDrawerSubitem,
   MainRailItem,
@@ -31,6 +32,12 @@ import {
   useMenuLayout,
 } from './ui';
 import type { RepoFile, Viewer } from './github';
+
+// The icon of a row: an app's own, a part of the business its own, else the menu's icon for the id.
+const iconOf = (section: string, id: string) =>
+  (section === 'apps' && apps.find((a) => a.id === id)?.icon) ||
+  (section === 'company' && companyParts.find((p) => p.id === id)?.icon) ||
+  icons[id];
 
 export function MainMenu({ route, files, user }: { route: string; files: RepoFile[] | null; user: Viewer | null }) {
   const { open, setOpen } = useMenuOpen();
@@ -55,17 +62,20 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     settings,
   });
   // The section whose list is shown (null: the first level). It follows the route's section, and the drawer opening.
-  const [shown, setShown] = useState<string | null>(place.section);
+  // A flat section (Apps) has no list of its own: its rows stand under its label on the first level.
+  const flat = groups.filter((g) => g.flat).map((g) => g.id);
+  const sectionOf = place.section && !flat.includes(place.section) ? place.section : null;
+  const [shown, setShown] = useState<string | null>(sectionOf);
   const [focus, setFocus] = useState<'list' | 'top' | undefined>();
   const shownRef = useRef(shown);
   shownRef.current = shown;
   // The section a click in the rail asked for: the drawer opens at its list instead of at the route's section.
   const asked = useRef<string | null>(null);
   useEffect(() => {
-    setShown(asked.current ?? place.section);
+    setShown(asked.current ?? sectionOf);
     setFocus(asked.current ? 'list' : undefined);
     asked.current = null;
-  }, [place.section, open]);
+  }, [sectionOf, open]);
   const openAt = (section: string) => {
     asked.current = section;
     setOpen(true);
@@ -91,7 +101,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     return () => window.removeEventListener('hashchange', close);
   }, [modal, open, setOpen]);
   // Every level stays in the page (the screen check finds the screens from the links); the ones not shown are `hidden`.
-  const sections = tree.filter((entry) => entry.href === undefined);
+  const sections = tree.filter((entry) => entry.href === undefined && !flat.includes(entry.id));
   return (
     <MainDrawer
       label={t.library.navigation}
@@ -111,8 +121,20 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
         ) : undefined
       }
       railFooter={<MainRailItem href="#settings" icon={Gear} label={t.common.parts.settings} selected={!!place.settings} />}
-      rail={tree.map((entry) =>
-        entry.href !== undefined ? (
+      rail={tree.flatMap((entry) =>
+        flat.includes(entry.id) ? (
+          entry.items
+            .filter((item) => !apps.some((a) => a.id === item.id))
+            .map((item) => (
+              <MainRailItem
+                key={item.id}
+                href={item.href}
+                icon={iconOf(entry.id, item.id)}
+                label={item.label}
+                selected={place.section === entry.id && place.item === item.id}
+              />
+            ))
+        ) : entry.href !== undefined ? (
           <MainRailItem key={entry.id} href={entry.href} icon={icons[entry.id]} label={entry.label} selected={route === ''} />
         ) : (
           <MainRailSectionItem
@@ -126,19 +148,38 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
       )}
     >
       <MainDrawerLevel shown={shown === null} focus={focus}>
-        {tree.map((entry) =>
-          entry.href !== undefined ? (
-            <MainDrawerItem key={entry.id} href={entry.href} icon={icons[entry.id]} label={entry.label} selected={route === ''} />
-          ) : (
-            <MainDrawerSectionItem
-              key={entry.id}
-              icon={icons[entry.id]}
-              label={entry.label}
-              selected={place.section === entry.id}
-              onClick={() => show(entry.id)}
-            />
-          ),
-        )}
+        <MainDrawerSection>
+          {tree
+            .filter((entry) => !flat.includes(entry.id))
+            .map((entry) =>
+              entry.href !== undefined ? (
+                <MainDrawerItem key={entry.id} href={entry.href} icon={icons[entry.id]} label={entry.label} selected={route === ''} />
+              ) : (
+                <MainDrawerSectionItem
+                  key={entry.id}
+                  icon={icons[entry.id]}
+                  label={entry.label}
+                  selected={place.section === entry.id}
+                  onClick={() => show(entry.id)}
+                />
+              ),
+            )}
+        </MainDrawerSection>
+        {tree
+          .filter((entry) => flat.includes(entry.id))
+          .map((entry) => (
+            <MainDrawerSection key={entry.id} label={entry.label}>
+              {entry.items.map((item) => (
+                <MainDrawerItem
+                  key={item.id}
+                  href={item.href}
+                  icon={iconOf(entry.id, item.id)}
+                  label={item.label}
+                  selected={place.section === entry.id && place.item === item.id}
+                />
+              ))}
+            </MainDrawerSection>
+          ))}
       </MainDrawerLevel>
       {sections.map((section) => (
         <MainDrawerLevel key={section.id} shown={shown === section.id} focus={focus}>
@@ -147,10 +188,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
             const shownCount = files ? count : null;
             // An app's row has the app's icon (an installed app is a row of Apps, lib/menu.mjs), a part of the business its
             // own (a part is a row of Business).
-            const icon =
-              (section.id === 'apps' && apps.find((a) => a.id === id)?.icon) ||
-              (section.id === 'company' && companyParts.find((p) => p.id === id)?.icon) ||
-              icons[id];
+            const icon = iconOf(section.id, id);
             return children ? (
               <MainDrawerFold key={id} href={href} icon={icon} label={label} count={shownCount} selected={here && !place.child} open={here}>
                 {children.map((child) => (

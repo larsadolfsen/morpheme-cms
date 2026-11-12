@@ -1410,17 +1410,17 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     editor.current?.action((ctx) => paint(ctx.get(editorViewCtx), name));
   }
 
-  // The sheet with the settings of the section the cursor is in (its colour, and an H2's picture and width), then those set.
+  // The sheet with the settings of the section the cursor is in (its colour, picture and width), then those set.
   async function sectionSettings() {
     let current: ReturnType<typeof sectionHeading> = null;
     editor.current?.action((ctx) => void (current = sectionHeading(ctx.get(editorViewCtx).state)));
     const at = current as ReturnType<typeof sectionHeading>;
     if (!at) return;
-    const answered = await (blocks ?? sheetProp)?.section(at, { picture: at.level === 2 });
+    const answered = await (blocks ?? sheetProp)?.section(at, { picture: true });
     if (!answered) return;
     editor.current?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
-      setSection(view, at.level === 2 ? answered : { color: answered.color });
+      setSection(view, answered);
       view.focus();
     });
   }
@@ -1578,13 +1578,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
 
   return (
     <div className="rounded-panel border border-outline-variant bg-surface-container-lowest">
-      {/* A bar with round corners and room all round it, inside the text's box. Stays at the top while scrolling through the text, a little under the app's top bar (Screen.tsx,
-          4rem and its line). The buttons are centred on one line; when they do not fit, the line starts at the left and
+      {/* The top edge of the text's box: the whole width, a line under it, no shadow. Stays at the top of the screen while scrolling through the text (under the safe area, as the top bar scrolls away). The buttons are centred on one line; when they do not fit, the line starts at the left and
           the arrow at its end shows the rest on a second line (measure above). */}
       <Toolbar
         ref={toolbar}
         label={t.text.tools}
-        className="editor-tools sticky top-[calc(env(safe-area-inset-top)+--spacing(2))] z-10 m-2 items-start rounded-panel border border-outline-variant pb-(--toolbar-docked-padding-block)"
+        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 items-start rounded-t-panel border-b border-outline-variant pb-(--toolbar-docked-padding-block)"
       >
         <div
           ref={line}

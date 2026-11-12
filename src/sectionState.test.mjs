@@ -101,11 +101,11 @@ test('without a picture the description is gone, and the colour stays', () => {
   assert.equal(attrs.sectionAlt, null);
   assert.equal(attrs.section, 'surface');
 });
-test('an H1 has a colour only', () => {
+test('an H1 has a colour, a picture and a width like an H2', () => {
   const view = viewAt(17);
   setSection(view, { color: 'tertiary', picture: '/a.jpg', width: 'full' });
   const attrs = view.state.doc.child(3).attrs;
   assert.equal(attrs.section, 'tertiary');
-  assert.equal(attrs.sectionPicture, null);
-  assert.equal(attrs.sectionWidth, null);
+  assert.equal(attrs.sectionPicture, '/a.jpg');
+  assert.equal(attrs.sectionWidth, 'full');
 });

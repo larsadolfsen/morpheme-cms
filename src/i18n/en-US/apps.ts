@@ -96,6 +96,8 @@ export const apps = {
   tabs: 'Sections of the app',
   /** The app store: the button to it over the list of apps, its title, and its search. */
   find: 'Appstore',
+  /** The first row under "Apps" in the menu: the whole store. */
+  store: 'Store',
   searchStore: 'Search for apps',
   loadingStore: 'Loading apps…',
   storeFailed: 'Can’t reach the store. Try again in 10 minutes.',

@@ -1,9 +1,9 @@
 // The section settings in the editor's document (the *Section settings* button, MarkdownEditor.tsx; the frame, sectionFrame.ts): the
-// top-level H1 or H2 the cursor is in (sectionHeading), setting its colour, and for an H2 its picture and width (setSection), and the
+// top-level H1 or H2 the cursor is in (sectionHeading), setting its colour, picture and width (setSection), and the
 // settings of a section (sectionSettingsOf). Only ProseMirror's state; depends on lib/section-marker.mjs. No Milkdown, no browser.
 import { colorOf } from '../lib/section-marker.mjs';
 
-/** The settings a heading has: its colour (null: none), and for an H2 the picture behind its section, the picture's description and
+/** The settings a heading has: its colour (null: none), the picture behind its section, the picture's description and
  * whether it goes across the whole window ('full').
  * @param {{ attrs: Record<string, any> }} heading
  * @returns {{ color: string | null, picture: string | null, alt: string | null, width: string | null }} */
@@ -23,7 +23,7 @@ export function sectionHeading(state) {
   return { pos: $from.before(1), level: node.attrs.level, ...sectionSettingsOf(node) };
 }
 
-/** Gives the H1 or H2 the cursor is in these settings: `color` (null or '' none, else one of the theme's), and for an H2 `picture`,
+/** Gives the H1 or H2 the cursor is in these settings: `color` (null or '' none, else one of the theme's), `picture`,
  * `alt` and `width` ('full'); a setting left out stays. False when it is not in one, or the colour is not one of the theme's.
  * @param {{ state: import('@milkdown/kit/prose/state').EditorState, dispatch: (tr: import('@milkdown/kit/prose/state').Transaction) => void }} view
  * @param {{ color?: string | null, picture?: string | null, alt?: string | null, width?: string | null }} settings */
@@ -35,13 +35,11 @@ export function setSection(view, settings) {
   const heading = view.state.doc.nodeAt(at.pos);
   const attrs = { ...heading.attrs };
   if ('color' in settings) attrs.section = color;
-  if (at.level === 2) {
-    if ('picture' in settings) attrs.sectionPicture = settings.picture || null;
-    // The description and the width belong to a picture: without one they are cleared, so nothing is left unseen in the file.
-    if ('alt' in settings) attrs.sectionAlt = settings.alt || null;
-    if ('width' in settings) attrs.sectionWidth = settings.width === 'full' ? 'full' : null;
-    if (!attrs.sectionPicture) attrs.sectionAlt = null;
-  }
+  if ('picture' in settings) attrs.sectionPicture = settings.picture || null;
+  // The description and the width belong to a picture: without one they are cleared, so nothing is left unseen in the file.
+  if ('alt' in settings) attrs.sectionAlt = settings.alt || null;
+  if ('width' in settings) attrs.sectionWidth = settings.width === 'full' ? 'full' : null;
+  if (!attrs.sectionPicture) attrs.sectionAlt = null;
   if (JSON.stringify(attrs) !== JSON.stringify(heading.attrs)) view.dispatch(view.state.tr.setNodeMarkup(at.pos, undefined, attrs));
   return true;
 }

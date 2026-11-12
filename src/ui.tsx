@@ -1337,17 +1337,16 @@ export function ArrowLink({
 // Switches
 
 /** The theme's switch (Material 3's) on its own, at the end of a row that names it (a block's row on its app's page,
- * AppList.tsx): its name (`label`) only for screen readers, what it is (`texts`: On, Off) before it. */
+ * AppList.tsx): its name (`label`) only for screen readers; its state shows in the track and the icon in its handle
+ * (a check when it is on, a cross when it is off), with no On/Off text beside it (Material 3). */
 export function Switch({
   selected,
   label,
-  texts,
   disabled,
   onChange,
 }: {
   selected: boolean;
   label: string;
-  texts: [string, string];
   /** It cannot be changed now (a block in use under "Block settings"). */
   disabled?: boolean;
   onChange: (selected: boolean) => void;
@@ -1356,8 +1355,8 @@ export function Switch({
     <SiteSwitch
       label={label}
       hideLabel
+      icons="both"
       checked={selected}
-      states={texts}
       disabled={disabled}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.checked)}
     />
@@ -1365,16 +1364,16 @@ export function Switch({
 }
 
 /** The theme's switch with its name before it, on one line: the only way the editor shows one, with what it does under
- * the name (`hint`) and what it is (`texts`: On, Off) before the switch. Never in a frame or a card: no border,
+ * the name (`hint`); the switch shows its state with the icon in its handle, no On/Off text. Never in a frame or a card: no border,
  * background or ring around the name and the switch (CLAUDE.md). The only switch without it: at the end of a block's
  * row on its app's page (Switch, AppList.tsx). */
-export function SwitchRow({ label, hint, selected, texts, disabled, onChange }: Parameters<typeof Switch>[0] & { hint?: ReactNode }) {
+export function SwitchRow({ label, hint, selected, disabled, onChange }: Parameters<typeof Switch>[0] & { hint?: ReactNode }) {
   return (
     <SiteSwitch
       label={label}
       supporting={hint}
+      icons="both"
       checked={selected}
-      states={texts}
       disabled={disabled}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.checked)}
     />
