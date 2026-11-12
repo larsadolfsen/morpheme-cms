@@ -202,7 +202,7 @@ async function checkTextSheet(width = 360) {
   await page.waitForTimeout(500);
   const keyboard = await read();
   if (keyboard.r.bottom > Math.min(keyboard.save, keyboard.vh) + 1) problems.push(`${width}px text menu: it is under the keyboard`);
-  // More opens the sheet from the bottom with the colours, the text styles, the lists and the alignment.
+  // More opens the sheet from the bottom with the text styles, the lists, the alignment and last the colours.
   await page.setViewportSize({ width, height: 740 });
   await page.waitForTimeout(300);
   await page.click('.editor-selection-menu button[aria-label="More"]');
@@ -210,6 +210,8 @@ async function checkTextSheet(width = 360) {
   const sheetText = await page.evaluate(() => document.querySelector('dialog[open][aria-label="More"]')?.textContent ?? '');
   for (const word of ['Color', 'Text style', 'List'])
     if (!sheetText.includes(word)) problems.push(`${width}px text menu: the More sheet lacks "${word}"`);
+  if (sheetText.indexOf('Color') < sheetText.indexOf('Text style'))
+    problems.push(`${width}px text menu: Color is not last in the More sheet`);
   if (!sheetText) problems.push(`${width}px text menu: More does not open its sheet`);
   await page.keyboard.press('Escape');
   if (width !== 360) return void (await page.close());
