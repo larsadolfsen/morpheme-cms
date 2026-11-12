@@ -4,7 +4,7 @@
 // list has no row there is one, empty and faded: typing in it starts the first row; while it is active and has rows, a text button
 // below the last row (`Add list row`) adds one. The parts, the keys and what is kept are the shared ones of InlineItems.tsx and
 // src/inlineRows.mjs; this is the List's markup on them. Depends on the theme's List (themeUi.ts).
-import { LinkSimple, Plus } from '@phosphor-icons/react';
+import { ImageSquare, LinkSimple, Plus, Tag } from '@phosphor-icons/react';
 import type { MouseEvent } from 'react';
 import { Glyph } from './icon';
 import { t } from './i18n';
@@ -12,7 +12,7 @@ import { SiteButton, SiteList, SiteListItem } from './themeUi';
 import InlineItems, { InlineSlot, type Change, type Focus, type Item } from './InlineItems';
 
 export type { Change, Focus };
-export type Row = { icon?: string; title?: string; text?: string; href?: string; heading?: boolean };
+export type Row = { icon?: string; title?: string; text?: string; href?: string; heading?: boolean; image?: string; tags?: string[] };
 
 export default function InlineList({
   items,
@@ -22,6 +22,8 @@ export default function InlineList({
   onSettings,
   onIcon,
   show = {},
+  onImage,
+  onTags,
 }: {
   items: Row[];
   /** The row being edited; null while the list is not. */
@@ -34,7 +36,10 @@ export default function InlineList({
   /** The icon slot of a row is tapped: its icon picker. */
   onIcon: (row: number) => void;
   /** A list the owner made has the fields it chose: `false` leaves a row's icon, text or link out (a List block has all three). */
-  show?: { icon?: boolean; text?: boolean; href?: boolean };
+  show?: { icon?: boolean; text?: boolean; href?: boolean; image?: boolean; tags?: boolean };
+  /** A list the owner made can have an image and tags: their slots on the active row, which open them (not part of a List block). */
+  onImage?: (row: number) => void;
+  onTags?: (row: number) => void;
 }) {
   const [withIcon, withText, withHref] = [show.icon !== false, show.text !== false, show.href !== false];
   // While one row is active every row has its two lines, so the list does not change height when another is made active; else, as the site.
@@ -67,7 +72,27 @@ export default function InlineList({
             }
             leadingIcon={here || !withIcon ? undefined : r.icon || undefined}
             headline={field('title', t.blocks.list.title, next ? t.blocks.list.newRow : t.blocks.list.title)}
-            supporting={twoLines ? field('text', t.blocks.list.text, t.blocks.list.text) : undefined}
+            supporting={
+              twoLines || (here && (show.image || show.tags)) ? (
+                <>
+                  {twoLines && field('text', t.blocks.list.text, t.blocks.list.text)}
+                  {here && (show.image || show.tags) && (
+                    <span className="inline-card-slots">
+                      {show.image && (
+                        <InlineSlot label={t.ownList.image} onClick={() => onImage?.(i)}>
+                          {r.image ? <ImageSquare size={24} weight="fill" /> : <ImageSquare size={24} />}
+                        </InlineSlot>
+                      )}
+                      {show.tags && (
+                        <InlineSlot label={t.ownList.tags} onClick={() => onTags?.(i)}>
+                          {(r.tags as string[] | undefined)?.length ? <Tag size={24} weight="fill" /> : <Tag size={24} />}
+                        </InlineSlot>
+                      )}
+                    </span>
+                  )}
+                </>
+              ) : undefined
+            }
             trailing={
               here && withHref ? (
                 <InlineSlot label={t.blocks.list.href} onClick={() => onSettings(i)}>
