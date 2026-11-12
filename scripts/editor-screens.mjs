@@ -361,6 +361,7 @@ async function checkPreviewDraft(width) {
 /** A List typed in the text: while a row is active and the list has rows, the text button "Add list row" is under the last row and adds one, the faded empty row is not there, the active row has a dotted line, and Add above and Add below are icon buttons; when the cursor leaves, the button is gone. */
 const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
+  { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row' },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
 ];
 

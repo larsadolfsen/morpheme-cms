@@ -83,6 +83,16 @@ export const blocks = {
     more: 'Read more about {topic}',
     exampleTitle: 'Heading',
     exampleText: 'A short text about the row.',
+    /** The floating toolbar of a Segmented list typed in place. */
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    row: 'Row',
+    rowSettings: 'Row settings',
+    link: 'Link',
+    addRow: 'Add row',
+    newRow: 'New row',
+    /** A row typed in place: its place, for screen readers (row 2 of 4). */
+    rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
   },
   notice: {
     label: 'Notice',
