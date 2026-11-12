@@ -17,6 +17,7 @@ import { addressOf, moveRedirects, REDIRECTS, retarget } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES, setRedirect } from './redirectData';
 import { TAB_ROUTES } from './Redirects';
 import { choose } from './ask';
+import { freeTitle } from '../lib/freeTitle.mjs';
 import { offeredTemplatesOf, shownTemplate, templateFieldOf } from './templateField';
 import { templateOf, templateWritten } from '../lib/page-template.mjs';
 import { booleanRead, booleanWrite, readFields, splitFrontmatter, writeFields } from './frontmatter.mjs';
@@ -572,10 +573,53 @@ function Form({
   // A new page or post without a title is called "New page", "New page 2" … (in the editor's language, `target`, above).
   const named = () => (isNew && !String(values.title ?? '').trim() ? { ...values, title: target.title } : values);
 
+  // A new page or post whose title another file has: a dialog with the next free title (freeTitle.mjs), which the owner
+  // may change; a title that is taken too is answered with the next free one. null: "Cancel". `also`: a title the
+  // server says is taken, which this browser did not know.
+  async function otherTitle(title: string, loaded: RepoFile[], also?: string) {
+    const used = (candidate: string) => {
+      const free = slugify(candidate);
+      return (
+        candidate === also ||
+        !!env.taken(`/${free}/`, loaded) ||
+        env.files.some((f) => f.path.startsWith(`${collection.folder}/`) && slugOf(f.path, collection.folder) === free)
+      );
+    };
+    let proposal = freeTitle(title, used);
+    let text = t.forms.entry.titleTakenText(post);
+    for (;;) {
+      const answer = await choose({
+        title: t.forms.entry.titleTakenTitle,
+        text,
+        input: { label: t.forms.entry.titleLabel, value: proposal },
+        choices: [{ value: 'save', label: t.common.save }],
+      });
+      if (!answer) return null;
+      const chosen = answer.text.trim();
+      if (!slugify(chosen)) text = t.forms.entry.titleNeedsLetters;
+      else if (!used(chosen)) return chosen;
+      else {
+        proposal = freeTitle(chosen, used);
+        text = t.forms.entry.titleStillTaken;
+      }
+    }
+  }
+
+  // The title the owner chose in that dialog, written to the form (and a page's H1), and the save made again with it.
+  function saveTitled(
+    chosen: string,
+    values: Record<string, unknown>,
+    intent: 'save' | 'publish' | 'schedule',
+    at: string,
+  ): Promise<unknown> {
+    onTitle(chosen);
+    return save(undefined, { ...values, title: chosen }, intent, at);
+  }
+
   // `other`: an address chosen in the dialog for a taken one (below), saved instead of the one typed.
   // `intent` 'publish': also puts it on the website (a draft is published, waiting changes replace the live version);
   // 'schedule': keeps it as a waiting version that goes live at `at` (Danish time, "2026-11-20T08:00").
-  async function save(other?: string, values = named(), intent: 'save' | 'publish' | 'schedule' = 'save', at = '') {
+  async function save(other?: string, values = named(), intent: 'save' | 'publish' | 'schedule' = 'save', at = ''): Promise<unknown> {
     if (wrongField.stop(problemAt(collection.fields, values))) return;
     // A standard page is on the site: it cannot be a draft or wait for its time.
     if (
@@ -645,6 +689,9 @@ function Form({
         set('path', chosen);
         return save(chosen);
       }
+    } else if (reason && isNew && !typed) {
+      const chosen = await otherTitle(String(values.title), loaded);
+      return chosen ? saveTitled(chosen, values, intent, at) : undefined;
     } else if (reason)
       return notify({
         text: t.forms.entry.taken(reason.text, !!typed, post),
@@ -656,8 +703,13 @@ function Form({
       env.files.some(
         (f) => f.path !== base.path && slugOf(f.path, collection.folder) === name && f.path.startsWith(`${collection.folder}/`),
       )
-    )
+    ) {
+      if (isNew && !typed) {
+        const chosen = await otherTitle(String(values.title), loaded);
+        return chosen ? saveTitled(chosen, values, intent, at) : undefined;
+      }
       return notify({ text: t.forms.entry.fileExists(name), error: true });
+    }
 
     // A new file gets all its filled-in fields in the order of the form; an existing one only the changed. As saved:
     // the values given (a new one without a title has its name, "New page 1", named()), not only those in the form.
@@ -853,6 +905,15 @@ function Form({
       }
       return true;
     } catch (e) {
+      // The server has a file with that name that this browser did not know: the same dialog as for a title it knows.
+      if (e instanceof ConflictError && e.exists && isNew && !typed) {
+        const chosen = await otherTitle(String(values.title), loaded, String(values.title));
+        if (chosen) {
+          setSaving(false);
+          return saveTitled(chosen, values, intent, at);
+        }
+        return;
+      }
       notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
     } finally {
       setSaving(false);
