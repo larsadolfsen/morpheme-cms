@@ -549,7 +549,7 @@ async function editLink(view: EditorView) {
 }
 
 /** What applies where the cursor is, or to all of the selection: 'strong', 'emphasis', 'link',
- * 'h2', 'h3', 'large' (a paragraph, not in a list or quote), 'medium', 'small', 'bullet', 'ordered' and 'quote'; with a colour
+ * 'h2', 'h3', 'large', 'medium' (a paragraph, not in a list or quote), 'small', 'bullet', 'ordered' and 'quote'; with a colour
  * (text-colors.mjs) 'textColor' and the colour's class ('color-accent'). For the toolbar and the selection's menu,
  * 'section' and 'section-<colour>' in a top-level H1 or H2 (sectionState.mjs), which mark them. */
 export function activeOf(state: EditorView['state']): Set<string> {
@@ -565,7 +565,7 @@ export function activeOf(state: EditorView['state']): Set<string> {
   const ancestors = Array.from({ length: $from.depth }, (_, i) => $from.node(i + 1).type.name);
   if ($from.parent.type.name === 'heading') on.add(`h${$from.parent.attrs.level}`);
   if (labelledHeading(state)) on.add('labelable');
-  // Body large is the plain paragraph (and the older intro paragraph, which draws the same).
+  // Body medium is the plain paragraph (and a paragraph stored as body-medium, which draws the same).
   if (['bodyLarge', 'bodyMedium', 'bodySmall'].includes($from.parent.type.name))
     on.add({ bodyLarge: 'large', bodyMedium: 'medium', bodySmall: 'small' }[$from.parent.type.name as 'bodyLarge']);
   if ($from.parent.type.name === 'eyebrow') on.add('label');
@@ -573,7 +573,7 @@ export function activeOf(state: EditorView['state']): Set<string> {
   if (ancestors.includes('ordered_list')) on.add('ordered');
   if (ancestors.includes('blockquote')) on.add('quote');
   if ($from.parent.type.name === 'paragraph' && !on.has('bullet') && !on.has('check') && !on.has('ordered') && !on.has('quote'))
-    on.add('large');
+    on.add('medium');
   const section = sectionHeading(state);
   if (section) {
     on.add('section');
@@ -1206,14 +1206,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           view.dispatch(view.state.tr.setMeta('addToHistory', false));
           view.dispatch(view.state.tr.setSelection(Selection.atStart(view.state.doc)).setMeta('addToHistory', false));
         });
-      // A new text (nothing written yet) starts as Body medium, Material 3's body-medium, the default for new text; a stored
-      // plain paragraph stays Body large, as the site draws it (kept out of undo; markdownOf leaves it out while it is empty).
-      created.action((ctx) => {
-        const view = ctx.get(editorViewCtx);
-        const { doc, schema } = view.state;
-        if (doc.childCount === 1 && doc.firstChild?.type.name === 'paragraph' && doc.firstChild.content.size === 0)
-          view.dispatch(view.state.tr.setNodeMarkup(0, schema.nodes.bodyMedium).setMeta('addToHistory', false));
-      });
       // A new page: the cursor at the start, in plain text, never an H1.
       if (startFocused)
         created.action((ctx) => {
@@ -1256,7 +1248,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     editor.current?.action(callCommand(command.key, payload));
   }
 
-  // Makes the text where the cursor is a heading ('h1', 'h2', 'h3'), a paragraph ('large'), a list
+  // Makes the text where the cursor is a heading ('h1', 'h2', 'h3'), a paragraph ('medium'), a list
   // ('bullet', 'ordered') or a quote ('quote'), whatever it is now: a list becomes the other kind of
   // list, and the text of a list or a quote comes out of it to be something else.
   function setKind(kind: string) {
@@ -1278,23 +1270,23 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         toggleLabel(view);
         return view.focus();
       }
-      // The text styles that are a block of their own (Body medium and Body small): a paragraph or a heading made into it,
-      // or back. Body large is the plain paragraph.
+      // The text styles that are a block of their own (Body large and Body small): a paragraph or a heading made into it,
+      // or back. Body medium is the plain paragraph.
       const ownBlocks = ['bodyLarge', 'bodyMedium', 'bodySmall', 'eyebrow'];
-      if (kind === 'medium' || kind === 'small') {
+      if (kind === 'large' || kind === 'small') {
         outOfLists();
         outOfQuotes();
         if (is('h1') || is('h2') || is('h3')) callCommand(turnIntoTextCommand.key)(ctx);
         const { $from } = view.state.selection;
         if ($from.parent.type.name !== 'heading') {
-          view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes[kind === 'small' ? 'bodySmall' : 'bodyMedium']));
+          view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes[kind === 'small' ? 'bodySmall' : 'bodyLarge']));
         }
         return view.focus();
       }
       if (ownBlocks.includes(view.state.selection.$from.parent.type.name)) {
         const { $from } = view.state.selection;
         view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes.paragraph));
-        if (kind === 'large') return view.focus();
+        if (kind === 'medium') return view.focus();
       }
       // The items of the bulleted list the cursor is in get a box (checked false) or lose it (null): a check list.
       const mark = (checked: boolean | null) => {
@@ -1352,7 +1344,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       }
       outOfLists();
       outOfQuotes();
-      if (kind === 'large') callCommand(turnIntoTextCommand.key)(ctx);
+      if (kind === 'medium') callCommand(turnIntoTextCommand.key)(ctx);
       else callCommand(wrapInHeadingCommand.key, Number(kind.slice(1)))(ctx);
       view.focus();
     });
@@ -1500,7 +1492,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     kinds.filter(isList),
   ].filter((g) => g.length);
   const groupOf = (group: typeof kinds): KindGroup => (/^h\d$/.test(group[0].on!) ? 'headings' : isList(group[0]) ? 'list' : 'text');
-  const shownOf = (group: typeof kinds) => group.find((t) => active.includes(t.on!)) ?? group.find((t) => t.on === 'large') ?? group[0];
+  const shownOf = (group: typeof kinds) => group.find((t) => active.includes(t.on!)) ?? group.find((t) => t.on === 'medium') ?? group[0];
   const [narrow, setNarrow] = useState(false);
   const kindsShown = kindsAt ? (kindGroups.find((group) => groupOf(group) === kindsAt.group) ?? []) : [];
   useEffect(() => {

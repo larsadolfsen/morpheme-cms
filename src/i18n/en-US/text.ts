@@ -9,7 +9,7 @@ export const text = {
   pageHeading: 'Main heading',
   heading: 'Heading',
   subheading: 'Subheading',
-  /** The text styles are Material 3's body scale; Body large is the plain paragraph. */
+  /** The text styles are Material 3's body scale; Body medium is the plain paragraph. */
   bodyLarge: 'Body large',
   bodyMedium: 'Body medium',
   bodySmall: 'Body small',
