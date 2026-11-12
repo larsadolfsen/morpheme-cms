@@ -20,3 +20,11 @@ export function listKindOf(active, focused) {
   const on = new Set(active);
   return LIST_KINDS.find((name) => on.has(name)) ?? 'generic';
 }
+
+// The heading button: the level the cursor is in (h1, h2, h3) while a heading is on, else 'generic' (its general H icon), in text, a
+// list, a quote, or outside the text. Only an active style shows its own icon.
+export function headingKindOf(active, focused) {
+  if (!focused) return 'generic';
+  const on = new Set(active);
+  return HEADINGS.find((name) => on.has(name)) ?? 'generic';
+}

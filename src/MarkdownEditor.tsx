@@ -62,8 +62,9 @@ import {
   TextHOne,
   TextHTwo,
   TextItalic,
+  TextT,
 } from '@phosphor-icons/react';
-import { LIST_KINDS, STYLE_KINDS, listKindOf, styleKindOf } from './styleKind.mjs';
+import { LIST_KINDS, STYLE_KINDS, headingKindOf, listKindOf, styleKindOf } from './styleKind.mjs';
 import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
 import { h1Of, h1TextOf, h1Written } from './titleH1.mjs';
@@ -111,6 +112,7 @@ import textMediumIcon from './icons/text-t-medium.svg?raw';
 import textSmallIcon from './icons/text-t-small.svg?raw';
 import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
 import textHIcon from '@phosphor-icons/core/assets/regular/text-h.svg?raw';
+import textTIcon from '@phosphor-icons/core/assets/regular/text-t.svg?raw';
 import listIcon from '@phosphor-icons/core/assets/regular/list-dashes.svg?raw';
 import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
 import orderedIcon from '@phosphor-icons/core/assets/regular/list-numbers.svg?raw';
@@ -227,6 +229,31 @@ const gapHere = $prose(
           empty && $from.depth === 1 && isGap($from.parent)
             ? DecorationSet.create(doc, [Decoration.node($from.before(), $from.after(), { class: 'editor-gap-here' })])
             : null,
+      },
+    }),
+);
+
+// A page with only its H1 shows the hint under it (editor.css, h1::after): a tap on that line adds the empty paragraph
+// and puts the cursor in it, with the keyboard open. (With an empty paragraph after the H1 the tap is on the paragraph.)
+const hintTap = $prose(
+  () =>
+    new Plugin({
+      props: {
+        handleDOMEvents: {
+          click: (view, event) => {
+            const { doc, schema } = view.state;
+            const h1 = view.dom.firstElementChild;
+            if (doc.childCount !== 1 || doc.child(0).type.name !== 'heading' || event.target !== h1 || !h1) return false;
+            const range = document.createRange();
+            range.selectNodeContents(h1);
+            if ((event as MouseEvent).clientY <= range.getBoundingClientRect().bottom) return false;
+            const tr = view.state.tr.insert(doc.content.size, schema.nodes.paragraph.create());
+            view.dispatch(tr.setSelection(Selection.near(tr.doc.resolve(tr.doc.content.size - 1), -1)).scrollIntoView());
+            view.focus();
+            event.preventDefault();
+            return true;
+          },
+        },
       },
     }),
 );
@@ -631,9 +658,10 @@ const KIND_ICONS = {
   check: { raw: checkIcon, node: ListChecks },
   ordered: { raw: orderedIcon, node: ListNumbers },
 };
-// The icons of the two buttons outside any text style or list: the general text icon and the general list icon.
+// The icons of the three buttons when their style is not on: the general text (T), heading (H) and list icons.
 const GENERIC_ICONS = {
-  text: { raw: textHIcon, node: TextH },
+  text: { raw: textTIcon, node: TextT },
+  heading: { raw: textHIcon, node: TextH },
   list: { raw: listIcon, node: ListDashes },
 };
 
@@ -767,7 +795,13 @@ function selectionMenu(
         },
         // The headings offered, in a menu. Not marked: it always shows one of them (the menu marks the one there is).
         {
-          shows: (s) => groupFace(headingFace(levels(s).find((level) => heading(s, level)) ?? levels(s)[0])),
+          // The general H icon unless the cursor is in a heading (styleKind.mjs).
+          shows: (s) => {
+            const level = levels(s).find((l) => heading(s, l));
+            return headingKindOf(activeOf(s), view.hasFocus()) === 'generic' && level === undefined
+              ? { icon: GENERIC_ICONS.heading.raw, label: t.text.heading }
+              : groupFace(headingFace(level ?? levels(s)[0]));
+          },
           action: (button) => kinds(button, 'headings'),
           off: (s) => levels(s).length < 2,
           menu: true,
@@ -1345,6 +1379,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(looking)
       .use(sectionFrame(framed))
       .use(gapHere)
+      .use(hintTap)
       .use(checkToggle)
       .use(history)
       .use(clipboard);
@@ -1710,10 +1745,16 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     if (members.length === 1) return tool(item);
     const group = groupOf(members);
     const generic =
-      (group === 'text' && styleKindOf(active, inText) === 'generic') || (group === 'list' && listKindOf(active, inText) === 'generic');
+      (group === 'headings' && headingKindOf(active, inText) === 'generic') ||
+      (group === 'text' && styleKindOf(active, inText) === 'generic') ||
+      (group === 'list' && listKindOf(active, inText) === 'generic');
     const shown = shownOf(members);
     const [genericIcon, genericLabel, labelIs] =
-      group === 'list' ? [GENERIC_ICONS.list.node, t.text.list, t.text.listIs] : [GENERIC_ICONS.text.node, t.text.kind, t.text.kindIs];
+      group === 'list'
+        ? [GENERIC_ICONS.list.node, t.text.list, t.text.listIs]
+        : group === 'headings'
+          ? [GENERIC_ICONS.heading.node, t.text.heading, t.text.kindIs]
+          : [GENERIC_ICONS.text.node, t.text.kind, t.text.kindIs];
     const opened = kindsAt?.group === group && !kindsAt.word;
     // Not marked: it always shows a kind of its group (the menu under it marks the one there is).
     return (
