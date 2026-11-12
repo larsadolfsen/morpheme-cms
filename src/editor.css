@@ -171,24 +171,87 @@
   --section-on: var(--block-on-tertiary);
 }
 
-/* The picture behind a section (the widget before its first part): a strip at the top of the section. */
+/* The picture behind a section (the widget before its first part, placed over the section's parts by sectionFrame.ts): it fills
+   the section's box behind the text, darkened from below as on the site (blocks.css, .text-section-picture), and the text on it is
+   the theme's colour for text on a picture. */
+.editor-text .ProseMirror {
+  position: relative;
+}
+
 .editor-text .editor-section-picture {
-  margin-block: var(--editor-section-gap) 0;
-  height: 9rem;
+  --section-shade: var(--block-hero-shade, var(--block-text));
+  position: absolute;
+  z-index: 0;
+  margin: 0;
   overflow: hidden;
-  border-start-start-radius: var(--block-radius);
-  border-start-end-radius: var(--block-radius);
+  pointer-events: none;
+  background: var(--section-shade);
+  border-radius: var(--block-radius);
+}
+
+.editor-text .editor-section-picture[data-color='surface'] {
+  --section-shade: var(--block-surface);
+}
+
+.editor-text .editor-section-picture[data-color='primary'] {
+  --section-shade: var(--block-primary);
+}
+
+.editor-text .editor-section-picture[data-color='secondary'] {
+  --section-shade: var(--block-secondary);
+}
+
+.editor-text .editor-section-picture[data-color='tertiary'] {
+  --section-shade: var(--block-tertiary);
+}
+
+.editor-text .editor-section-picture[data-width='full'] {
+  border-radius: 0;
 }
 
 .editor-text .editor-section-picture > img {
+  margin: 0;
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.editor-text .editor-section-picture + [data-section-part='start'] {
-  margin-block-start: 0;
+.editor-text .editor-section-picture::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--section-shade) 85%, transparent),
+    color-mix(in srgb, var(--section-shade) 55%, transparent) 70%,
+    color-mix(in srgb, var(--section-shade) 40%, transparent)
+  );
+}
+
+.editor-text .ProseMirror > [data-section-picture] {
+  position: relative;
+  z-index: 1;
+}
+
+.editor-text .ProseMirror > [data-section-picture] {
+  background: transparent;
+}
+
+.editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) {
+  --tw-prose-body: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-headings: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-bold: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-links: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-bullets: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-counters: var(--block-hero-on-shade, var(--block-surface));
+  color: var(--block-hero-on-shade, var(--block-surface));
+}
+
+.editor-text .ProseMirror > [data-section-picture][data-section-width='full'] {
+  border-radius: 0;
 }
 
 /* HTML in a line of text is kept as it is but cannot be edited here (on a line of its own it is a
