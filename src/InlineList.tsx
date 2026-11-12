@@ -93,18 +93,6 @@ export default function InlineList({
         {rows.map((r, i) => {
           const next = i === items.length;
           const here = i === active;
-          // A row that is a small heading of the rows after it (the site draws its title only): its title is typed, nothing else.
-          if (r.heading)
-            return (
-              <li
-                key={i}
-                data-row={i}
-                aria-current={here ? 'true' : undefined}
-                className={['block-list-heading inline-list-row', here && 'inline-list-row-active'].filter(Boolean).join(' ')}
-              >
-                {field(i, 'title', r.title ?? '', t.blocks.list.title, t.blocks.list.title)}
-              </li>
-            );
           return (
             <SiteListItem
               key={i}
