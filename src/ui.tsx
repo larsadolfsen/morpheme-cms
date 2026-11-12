@@ -1021,6 +1021,7 @@ export function IconPicker({
   value,
   options,
   icon,
+  startOpen = false,
   onChange,
 }: {
   id?: string;
@@ -1028,9 +1029,11 @@ export function IconPicker({
   value: string;
   options: { value: string; label: string }[];
   icon: (value: string, size: number) => ReactElement;
+  /** The grid is open from the start (and stays open after a pick). */
+  startOpen?: boolean;
   onChange: (value: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(startOpen);
   const own = useId();
   const grid = `${id ?? own}-icons`;
   const chosen = options.find((o) => o.value === value);
@@ -1057,7 +1060,7 @@ export function IconPicker({
               label={o.label}
               onClick={() => {
                 onChange(o.value);
-                setOpen(false);
+                if (!startOpen) setOpen(false);
               }}
             >
               {o.value ? icon(o.value, 24) : <X size={20} className="text-on-surface-variant" />}

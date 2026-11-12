@@ -7,12 +7,13 @@ import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?ra
 import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
 import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.svg?raw';
 import gearIcon from '@phosphor-icons/core/assets/regular/gear.svg?raw';
+import linkIcon from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
 import plusIcon from '@phosphor-icons/core/assets/regular/plus.svg?raw';
 import caretDownIcon from '@phosphor-icons/core/assets/bold/caret-down-bold.svg?raw';
 
-export type BarAction = { label: string; kind: 'above' | 'below' | 'up' | 'down'; action: () => void };
+export type BarAction = { label: string; kind: 'above' | 'below' | 'up' | 'down' | 'link'; action: () => void };
 
-const icons = { above: plusIcon, below: plusIcon, up: arrowUpIcon, down: arrowDownIcon };
+const icons = { above: plusIcon, below: plusIcon, up: arrowUpIcon, down: arrowDownIcon, link: linkIcon };
 const svg = (s: string, size = 24) => s.replace('<svg', `<svg width="${size}" height="${size}" fill="currentColor" aria-hidden="true"`);
 
 export function inlineBar(opts: {

@@ -26,6 +26,7 @@ export default function InlineList({
   focus,
   onChange,
   onSettings,
+  onIcon,
 }: {
   items: Row[];
   /** The row being edited; null while the list is not. */
@@ -33,8 +34,10 @@ export default function InlineList({
   /** The field to put the cursor in, once (a new object asks again). */
   focus: Focus | null;
   onChange: (change: Change) => void;
-  /** The icon or the link of a row is asked for (its slot is tapped). */
+  /** The link of a row is asked for (its slot is tapped). */
   onSettings: (row: number) => void;
+  /** The icon slot of a row is tapped: its icon picker. */
+  onIcon: (row: number) => void;
 }) {
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -120,7 +123,7 @@ export default function InlineList({
                     className="inline-list-slot"
                     aria-label={t.blocks.list.icon}
                     title={t.blocks.list.icon}
-                    onClick={() => onSettings(i)}
+                    onClick={() => onIcon(i)}
                   >
                     {r.icon ? <Glyph icon={r.icon} size={24} /> : <Plus size={24} />}
                   </button>

@@ -424,6 +424,7 @@ function FieldControl({ field, value, onChange }: Props) {
             label={field.label}
             value={text}
             options={choices}
+            startOpen={field.iconsOpen}
             icon={(name, size) => <Icon name={name} size={size} />}
             onChange={onChange}
           />
