@@ -166,6 +166,15 @@ async function checkTextSheet() {
   const keyboard = await read();
   if (Math.abs(keyboard.r.bottom - keyboard.save) > 1 || keyboard.r.height !== first.r.height)
     problems.push('360px text sheet: it does not follow the keyboard at its own size');
+  // The top toolbar's tools rest in one colour (the kind menus too), and a menu button is never in the accent.
+  const colours = await page.evaluate(() => [
+    ...new Set(
+      [...document.querySelectorAll('.editor-tools button:not([aria-pressed="true"])')]
+        .filter((b) => b.querySelector('svg'))
+        .map((b) => getComputedStyle(b).color),
+    ),
+  ]);
+  if (colours.length > 1) problems.push(`360px text toolbar: its tools rest in ${colours.length} colours (${colours.join(', ')})`);
   await page.close();
 }
 
