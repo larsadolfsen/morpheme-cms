@@ -1926,7 +1926,7 @@
     margin-top: 0;
   }
   .block-head > h2,
-  .block-head > .block-eyebrow,
+  .block-head > .label-medium,
   .block-head > .block-subheading {
     margin-block: 0;
   }
@@ -1934,16 +1934,15 @@
   .block-head > * + .block-subheading {
     margin-top: 0.75rem;
   }
-  .block-head > .block-eyebrow + h2 {
+  .block-head > .label-medium + h2 {
     margin-top: 0.5rem;
   }
-  .block-head > .block-eyebrow,
-  .prose .block-eyebrow {
+  .block-head > .label-medium,
+  .prose .label-medium {
     font-size: var(--type-label-medium-size);
     line-height: var(--type-label-medium-line-height);
     font-weight: var(--type-label-medium-weight);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    letter-spacing: var(--type-label-medium-tracking);
     color: var(--block-accent);
   }
   .block-head > .block-subheading {
@@ -1956,15 +1955,15 @@
 
   /* A label above a heading in a text (packages/editor/lib/eyebrow.mjs): a block's label, with the heading's space above
    it and close to its heading. */
-  .prose .block-eyebrow {
+  .prose .label-medium {
     margin-block: 2em 0;
   }
-  .prose .block-eyebrow + :is(h1, h2, h3) {
+  .prose .label-medium + :is(h1, h2, h3) {
     margin-top: 0.5rem;
   }
 
-  /* The text styles of a text: "Body large" is the plain paragraph (and an older intro paragraph, lib/body-large.mjs);
-   "Body medium" and "Body small" (lib/body-size.mjs) are Material 3's body-medium and body-small roles. */
+  /* The text styles of a text: "Body medium" is the plain paragraph (and a paragraph stored as body-medium);
+   "Body large" (lib/body-large.mjs) and "Body small" (lib/body-size.mjs) are Material 3's body-large and body-small roles. */
   .prose .body-large {
     font-size: var(--type-body-large-size);
     line-height: var(--type-body-large-line-height);

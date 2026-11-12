@@ -30,7 +30,7 @@ export const blocks: Messages['blocks'] = {
   heading: 'Overskrift',
   headingHint: 'Valgfri.',
   eyebrow: 'Etiket',
-  eyebrowHint: 'Står med små bogstaver over overskriften.',
+  eyebrowHint: 'Står i etiketstilen over overskriften.',
   subheading: 'Underoverskrift',
   subheadingHint: 'Står under overskriften.',
   faq: {
