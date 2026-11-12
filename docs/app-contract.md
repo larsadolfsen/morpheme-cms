@@ -249,6 +249,8 @@ An app's block opts in with two things: `inline` in its `index.tsx` and an `Inli
 - A block with `inline` and no `Inline.tsx` keeps its card that opens the sheet, and a new one is made in the sheet (`BlockDialog.tsx`), so it can always be filled in. A block without `inline` is not affected.
 - An app's view is never looked up by the block's type in the editor's own list, so an app that names its block `list` or `cards` does not get the standard block's drawing.
 
+The demo has a working example: the app `demo/src/apps/inline-example/` and its block `tickets` (`index.tsx` with `inline`, `Inline.tsx`, `View.tsx`, `viewOf.ts`, `load.ts`). `check:screens` opens it on a phone (375 px) and a computer (1280 px) and types in it.
+
 This opens nothing to the sandbox. A block is a `full` place that runs in the editor, as `View.tsx` does; hooks and after-build steps still import only the three modules of *Imports*, and the sandbox that runs them (QuickJS) is unchanged. It is not a change of contract: no key and no file an app has today changes meaning, so `APP_API` stays 5 and apps written to contract 4 or 5 work as before. (`APP_API` rises only when an app written to the one before stops working.)
 
 ### The definition
