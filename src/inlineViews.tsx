@@ -4,6 +4,7 @@ import type { ComponentType } from 'react';
 import InlineList from './InlineList';
 import type { BlockData, BlockProps } from './blocks';
 import InlineCards from './InlineCards';
+import InlineSegmented from './InlineSegmented';
 import InlineButtons from './InlineButtons';
 import InlineFaq from './InlineFaq';
 import type { Change, Focus, Item } from './InlineItems';
@@ -27,6 +28,7 @@ export type InlineViewProps = {
 export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
   list: InlineList as ComponentType<InlineViewProps>,
   cards: InlineCards,
+  segmented: InlineSegmented,
   buttons: InlineButtons,
   faq: InlineFaq,
 };
