@@ -1,7 +1,8 @@
 // The tags of one file in Filer and how they change: its own tags and the tags removed from it.
 // A page's tags reach the file only when it is inserted (tagsFor). Pure; used by fileRecords.mjs and MediaTags.tsx.
 /**
- * @typedef {{ src: string; categories: string[]; removed: string[] }} FileRecord
+ * @typedef {{ name: string; url: string; source: string }} FileCredit Who a picture is credited to: the photographer, their page and the source it came from (an app's media provider).
+ * @typedef {{ src: string; categories: string[]; removed: string[]; credit?: FileCredit }} FileRecord
  */
 
 /** @param {unknown[]} list */
@@ -44,6 +45,7 @@ export function addTag(record, src, tag) {
     src,
     categories: categories.includes(tag) ? [...categories] : [...categories, tag],
     removed: (record?.removed ?? []).filter((t) => t !== tag),
+    ...creditOf(record),
   };
 }
 
@@ -60,6 +62,7 @@ export function removeTag(record, src, tag) {
     src,
     categories: (record?.categories ?? []).filter((t) => t !== tag),
     removed: removed.includes(tag) ? [...removed] : [...removed, tag],
+    ...creditOf(record),
   };
 }
 
@@ -76,7 +79,7 @@ export function setTags(record, src, next) {
     if (!next.includes(tag)) current = removeTag(current, src, tag);
   }
   for (const tag of next) current = addTag(current, src, tag);
-  return { src, categories: unique(next), removed: [...current.removed] };
+  return { src, categories: unique(next), removed: [...current.removed], ...creditOf(record) };
 }
 
 /**
@@ -87,14 +90,28 @@ export function setTags(record, src, next) {
  * @returns {FileRecord}
  */
 export function inherit(record, src, pageTags) {
-  return { src, categories: tagsFor(record, pageTags), removed: [...(record?.removed ?? [])] };
+  return { src, categories: tagsFor(record, pageTags), removed: [...(record?.removed ?? [])], ...creditOf(record) };
+}
+
+/** The credit of a record as a spreadable part, so a change to the tags keeps it. @param {FileRecord | undefined} record */
+const creditOf = (record) => (record?.credit ? { credit: { ...record.credit } } : {});
+
+/**
+ * The record with a credit: who made the picture, as the source gave it.
+ * @param {FileRecord | undefined} record
+ * @param {string} src
+ * @param {FileCredit} credit
+ * @returns {FileRecord}
+ */
+export function withCredit(record, src, credit) {
+  return { ...(record ?? emptyRecord(src)), src, credit: { name: credit.name, url: credit.url, source: credit.source } };
 }
 
 /**
- * True when the record holds no tags and no removed tags.
+ * True when the record holds no tags, no removed tags and no credit.
  * @param {FileRecord} record
  * @returns {boolean}
  */
 export function isEmpty(record) {
-  return record.categories.length === 0 && record.removed.length === 0;
+  return record.categories.length === 0 && record.removed.length === 0 && !record.credit;
 }

@@ -1,5 +1,6 @@
 {
   "id": "build-chip",
-  "kind": "line",
-  "text": "Efter en gemning viser en markering i topbjælken, når hjemmesiden opdateres, og når den er live"
+  "kind": "paragraph",
+  "title": "Hjemmesidens status",
+  "text": "Besøgende ser en gemt ændring først, når hjemmesiden er opdateret. Efter du har gemt, viser en markering i topbjælken Opdaterer hjemmesiden… og derefter Live. Du skal ikke sætte noget op."
 }

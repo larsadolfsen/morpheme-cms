@@ -5,6 +5,10 @@ import { siteT } from '../../i18n';
 import { sharedIn } from '../../shared';
 import { filledLink } from '../accordion/topic.mjs';
 import accordion from '../accordion/shared';
+import segmentedShared from './shared';
+import { maxRowsOf } from './maxRows.mjs';
+
+export { cutAt, maxRowsOf } from './maxRows.mjs';
 import type { ViewOf } from '../view';
 import { editorRows } from '../rows/view';
 import { withRows } from '../rows/rows.mjs';
@@ -23,6 +27,10 @@ export type SegmentedView = HeadView & {
   items: ListRow[];
   rows: FoldRow[];
   button?: { label: string; href?: string };
+  /** `Max rows`: how many rows show before the button; empty or not a whole number of at least 1: all rows (cutAt). */
+  max?: number;
+  /** The text of the button that shows the rest of the rows (shared text, "Blocks" › "Segmented list"). */
+  showMore: string;
 };
 
 const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -39,7 +47,11 @@ export const paragraphs = (text: string) =>
 const linkFor = (more: string, title: string) => filledLink(more, title.toLowerCase());
 
 /** The view from the block's fields, without what only the site can know (its group). */
-export const segmentedOf = (props: Record<string, any>, more: string = accordion.values.more as string): SegmentedView => {
+export const segmentedOf = (
+  props: Record<string, any>,
+  more: string = accordion.values.more as string,
+  showMore: string = segmentedShared.values.showMore as string,
+): SegmentedView => {
   const items = (props.items ?? []) as ListRow[];
   const label = typeof props.button === 'string' ? props.button.trim() : '';
   return {
@@ -55,12 +67,18 @@ export const segmentedOf = (props: Record<string, any>, more: string = accordion
       link: r.href ? linkFor(more, r.title) : undefined,
     })),
     button: label ? { label, href: props.buttonHref || undefined } : undefined,
+    max: maxRowsOf(props.maxRows),
+    showMore,
   };
 };
 
 /** In the editor a row with a page and no text of its own says it shows the beginning of the page's text. */
 export const viewOf: ViewOf<SegmentedView> = (props, data) => {
-  const view = segmentedOf(withRows(props, editorRows(props, data)), sharedIn(data.site, 'accordion', accordion.values).more);
+  const view = segmentedOf(
+    withRows(props, editorRows(props, data)),
+    sharedIn(data.site, 'accordion', accordion.values).more,
+    sharedIn(data.site, 'segmented', segmentedShared.values).showMore,
+  );
   if (view.all) return view;
   return { ...view, rows: view.rows.map((r) => (!r.html && r.href ? { ...r, html: `<p>${siteT.blocks.accordion.opening}</p>` } : r)) };
 };

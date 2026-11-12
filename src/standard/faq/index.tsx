@@ -8,7 +8,7 @@ import { headFields } from '../head';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
 
 export default defineBlock({
-  group: 'questions',
+  group: 'lists',
   label: t.blocks.faq.label,
   icon: Question,
   nameOf: (p) => nameWith(t.blocks.faq.label, p),

@@ -3,13 +3,13 @@
   "notes": [
     {
       "id": "google-result-preview",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Se din side i Google",
       "text": "Formularerne til sider og blogindlæg viser nu en forhåndsvisning af Google-resultatet på telefon og computer. Åbn en side eller et blogindlæg, og se under Søgemaskiner."
     },
     {
       "id": "settings-in-side-sheet",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Redigér blokke i et sidepanel",
       "text": "På en telefon åbner en bloks felter og sektionsindstillingerne nu i et sidepanel over siden, og på en tablet står de ved siden af den."
     },

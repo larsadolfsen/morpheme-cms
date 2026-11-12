@@ -12,6 +12,7 @@ import rehypeStringify from 'rehype-stringify';
 import { rehypeEmphasize } from './rehype-emphasize.mjs';
 import { remarkBannerSections } from './remark-banner-section.mjs';
 import { remarkChecklists } from './remark-checklist.mjs';
+import { remarkListHeads } from './remark-list-head.mjs';
 
 /** The pipeline, also for a whole page's text (pagePreview.tsx). */
 export const processor = unified()
@@ -19,6 +20,7 @@ export const processor = unified()
   .use(remarkGfm)
   .use(remarkBannerSections)
   .use(remarkChecklists)
+  .use(remarkListHeads)
   .use(remarkSmartypants)
   .use(remarkRehype, { allowDangerousHtml: true })
   .use(rehypeRaw)

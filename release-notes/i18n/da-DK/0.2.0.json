@@ -3,7 +3,7 @@
   "notes": [
     {
       "id": "install-from-store",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Installer temaer og apps fra butikken",
       "text": "Du kan nu installere temaer og apps fra Morpheme-butikken. Forbind din hjemmeside til butikken for at komme i gang."
     },

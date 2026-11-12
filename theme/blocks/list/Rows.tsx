@@ -7,7 +7,18 @@ import List, { ListItem } from '@theme/ui/List';
 import { Link } from '@morphemecms/cms/src/standard/view';
 import type { ListRow } from '@morphemecms/cms/src/standard/list/view';
 
-export default function Rows({ items, segmented, className }: { items: ListRow[]; segmented?: boolean; className?: string }) {
+export default function Rows({
+  items,
+  segmented,
+  className,
+  cut,
+}: {
+  items: ListRow[];
+  segmented?: boolean;
+  className?: string;
+  /** `Max rows` of "Segmented list": the rows from this one on are extra (MoreRows.tsx). */
+  cut?: number;
+}) {
   const withText = items.some((r) => r.text);
   return (
     <List kind={segmented ? 'segmented' : 'standard'} className={className ? `block-list ${className}` : 'block-list'}>
@@ -24,6 +35,7 @@ export default function Rows({ items, segmented, className }: { items: ListRow[]
             headline={r.title}
             supporting={withText ? (r.text ?? '') : undefined}
             trailingIcon={r.href ? 'caret-right' : undefined}
+            {...(cut !== undefined && i >= cut ? { 'data-extra': '' } : {})}
           />
         ),
       )}

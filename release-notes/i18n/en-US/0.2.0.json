@@ -3,7 +3,7 @@
   "notes": [
     {
       "id": "install-from-store",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Install themes and apps from the store",
       "text": "You can now install themes and apps from the Morpheme store. Connect your website to the store to get started."
     },

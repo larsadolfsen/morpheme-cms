@@ -2,17 +2,16 @@ import type { Messages } from '../en-US';
 
 export const blockSettings: Messages['blockSettings'] = {
   stillOn: (n) => `Blokken bruges på ${n} ${n === 1 ? 'side' : 'sider'}. Fjern den derfra først.`,
-  on: 'Til',
-  off: 'Fra',
   inactive: 'Deaktiveret',
   standard: 'Standardblokke',
   groups: {
-    rows: 'Rækker og kort',
-    questions: 'Spørgsmål',
+    cards: 'Kort',
+    lists: 'Lister',
+    banners: 'Bannere',
+    buttons: 'Knapper',
+    media: 'Medier',
     content: 'Fra dit indhold',
-    prices: 'Priskort',
-    banner: 'Banner og knapper',
-    other: 'Andet',
+    developer: 'Udvikler',
   },
   noBlocks: 'Appen har ingen blokke',
   isStandard: 'En standardblok.',

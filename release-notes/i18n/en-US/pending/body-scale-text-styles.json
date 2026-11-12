@@ -1,0 +1,6 @@
+{
+  "id": "body-scale-text-styles",
+  "kind": "paragraph",
+  "title": "Text sizes",
+  "text": "Text sizes now match the type scale your theme is built on, so notes and fine print look right beside body text. Choose Body large, Body medium or Body small in the text style menu. A new page starts as Body medium text, not a heading."
+}

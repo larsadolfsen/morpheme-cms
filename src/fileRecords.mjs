@@ -1,7 +1,7 @@
 // The file records (src/data/files/<id>.json): which tags a file in Filer has and which were removed from it, one record per file address.
 // Reads them from the editor's files, gives the changes (as env.commit takes them) a save, rename or delete makes, checks them, and finds the record of a deleted file. Pure, so node --test can run it.
 // Uses fileTags.mjs (isEmpty).
-import { isEmpty } from './fileTags.mjs';
+import { emptyRecord, isEmpty, withCredit } from './fileTags.mjs';
 
 /**
  * @typedef {import('./fileTags.mjs').FileRecord} FileRecord
@@ -32,7 +32,17 @@ export function parseRecord(text) {
   const categories = data.categories === undefined ? [] : data.categories;
   const removed = data.removed === undefined ? [] : data.removed;
   if (!isStringArray(categories) || !isStringArray(removed)) return null;
-  return { src: data.src, categories: [...categories], removed: [...removed] };
+  if (data.credit === undefined) return { src: data.src, categories: [...categories], removed: [...removed] };
+  const c = data.credit;
+  const https = (v) => {
+    try {
+      return new URL(v).protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+  if (!c || typeof c !== 'object' || typeof c.name !== 'string' || !c.name || typeof c.source !== 'string' || !https(c.url)) return null;
+  return { src: data.src, categories: [...categories], removed: [...removed], credit: { name: c.name, url: c.url, source: c.source } };
 }
 
 /**
@@ -145,7 +155,8 @@ export function newRecordId(taken, random = Math.random) {
  * @returns {string}
  */
 export function recordText(record) {
-  return `${JSON.stringify({ src: record.src, categories: record.categories, removed: record.removed }, null, 2)}\n`;
+  const { src, categories, removed, credit } = record;
+  return `${JSON.stringify(credit ? { src, categories, removed, credit } : { src, categories, removed }, null, 2)}\n`;
 }
 
 /** @param {string} path */
@@ -180,6 +191,30 @@ export function writeRecords(records, folder, updates, random = Math.random) {
     }
   }
   return changes;
+}
+
+/**
+ * Adds the credit of pictures to the changes of their records: into the change that already makes the record (the page's tags
+ * reach a new picture's record in the same save), else as a change of its own.
+ * @param {RecordChange[]} changes
+ * @param {StoredRecord[]} records
+ * @param {string} folder
+ * @param {{ src: string; credit: import('./fileTags.mjs').FileCredit }[]} credited
+ * @param {() => number} [random]
+ * @returns {RecordChange[]}
+ */
+export function creditChanges(changes, records, folder, credited, random = Math.random) {
+  const out = [...changes];
+  for (const { src, credit } of credited) {
+    const at = out.findIndex((c) => typeof c.content === 'string' && parseRecord(c.content)?.src === src);
+    if (at >= 0) {
+      const made = parseRecord(/** @type {string} */ (out[at].content));
+      out[at] = { ...out[at], content: recordText(withCredit(made ?? emptyRecord(src), src, credit)) };
+      continue;
+    }
+    out.push(...writeRecords(records, folder, [{ src, next: withCredit(recordFor(records, src)?.record, src, credit) }], random));
+  }
+  return out;
 }
 
 /**
