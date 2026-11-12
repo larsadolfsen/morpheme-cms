@@ -1,0 +1,6 @@
+{
+  "id": "switch-state-layers",
+  "kind": "paragraph",
+  "title": "See which switch you’re pressing",
+  "text": "Switches now show a soft glow around the handle when you focus or press them, and the icon on a switch that’s on has a clearer color. It’s easier to tell what you’re about to change in Settings."
+}
