@@ -1502,13 +1502,13 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   };
 
   return (
-    <div className="rounded-panel border border-outline-variant bg-surface-container-lowest">
-      {/* The top edge of the text's box: the whole width, a line under it, no shadow. Stays at the top of the screen while scrolling through the text (under the safe area, as the top bar scrolls away). The buttons are centred on one line; when they do not fit, the line starts at the left and
+    <div className="rounded-panel bg-surface-container-lowest">
+      {/* The top edge of the text's box: it draws its own border and rounded corners, so the box's side lines start under it and never run past it when it sticks; no shadow. Stays at the top of the screen while scrolling through the text (under the safe area, as the top bar scrolls away). The buttons are centred on one line; when they do not fit, the line starts at the left and
           the arrow at its end shows the rest on a second line (measure above). */}
       <Toolbar
         ref={toolbar}
         label={t.text.tools}
-        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 -mt-px items-start rounded-t-panel border-y border-outline-variant pb-(--toolbar-docked-padding-block)"
+        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 items-start rounded-t-panel border border-outline-variant pb-(--toolbar-docked-padding-block)"
       >
         <div
           ref={line}
@@ -1562,7 +1562,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       </Menu>
       <div
         ref={root}
-        className={`editor-text prose max-w-none px-5 py-4 medium:px-8 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
+        className={`editor-text prose max-w-none rounded-b-panel border-x border-b border-outline-variant px-5 py-4 medium:px-8 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
         style={
           { '--editor-gap-text': JSON.stringify(t.text.typeHere), '--editor-empty-text': JSON.stringify(t.text.emptyHint) } as CSSProperties
         }
