@@ -956,6 +956,52 @@ async function checkFullWidthSection() {
   }
 }
 
+/** A tap below the last section, or between two sections, puts the cursor on a free line there (an empty paragraph that is not saved unless typed in), and typing adds text after the section, not in a heading (375 px with touch, and a computer). */
+async function checkTapBelowSection(width, touch) {
+  const label = `${width}px tap below a section`;
+  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  for (const line of ['# Title', '## One', 'First', '## Two', 'Second']) {
+    await page.keyboard.type(line);
+    await page.keyboard.press('Enter');
+  }
+  await page.keyboard.press('Backspace');
+  const parts = () =>
+    page.evaluate(() =>
+      [...document.querySelector('.ProseMirror').children]
+        .filter((c) => !c.classList.contains('editor-section-picture'))
+        .map((c) => ({ tag: c.tagName, text: c.textContent, ...c.getBoundingClientRect().toJSON() })),
+    );
+  const tapAt = async (y) => {
+    const pm = await page.evaluate(() => document.querySelector('.ProseMirror').getBoundingClientRect().toJSON());
+    const x = pm.left + pm.width / 2;
+    if (touch) await page.touchscreen.tap(x, y);
+    else await page.mouse.click(x, y);
+  };
+  const lines = async () => (await parts()).map((p) => `${p.tag}:${p.text}`).join(' | ');
+  await page.evaluate(() => document.querySelector('.ProseMirror').scrollIntoView({ block: 'center' }));
+  // Between the sections: the white between "First" and the heading "Two".
+  let all = await parts();
+  const first = all.findIndex((p) => p.text === 'First');
+  await tapAt((all[first].bottom + all[first + 1].top) / 2);
+  await page.keyboard.type('Between');
+  let got = await lines();
+  if (got !== 'H1:Title | H2:One | P:First | P:Between | H2:Two | P:Second')
+    problems.push(`${label}: typing between two sections gave ${got}`);
+  // Below the last section.
+  all = await parts();
+  await tapAt(all.at(-1).bottom + 8);
+  await page.keyboard.type('After');
+  got = await lines();
+  if (got !== 'H1:Title | H2:One | P:First | P:Between | H2:Two | P:Second | P:After')
+    problems.push(`${label}: typing below the last section gave ${got}`);
+  await page.close();
+}
+
 /** A page's accordion rows (FoldSection): between its divider lines the title has the same space above and below it (within 1px, measured on the pixels of the first capital, not the line box), the arrow is centred on the title, and the row stays 48px tall or more (360, 375, 390, 414 px and a computer). */
 async function checkFoldRows(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US', deviceScaleFactor: 2 });
@@ -1571,6 +1617,8 @@ for (const [width, height] of [
   await checkIconSearch(width, height);
 await checkHints();
 await checkFullWidthSection();
+await checkTapBelowSection(375, true);
+await checkTapBelowSection(1280, false);
 for (const [width, height] of [
   [360, 740],
   [375, 800],

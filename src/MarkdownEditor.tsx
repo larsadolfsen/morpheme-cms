@@ -268,6 +268,46 @@ const hintTap = $prose(
     }),
 );
 
+// A tap in the white below a section's last part, or between two sections (the text's own padding, no node there), puts the cursor in a
+// free line there: the empty paragraph that is already after the part, or a new one that exists only in the editor (markdownOf leaves
+// an empty paragraph out of the saved text, so nothing is written unless something is typed in it).
+const tapBelow = $prose(
+  () =>
+    new Plugin({
+      props: {
+        handleDOMEvents: {
+          click: (view, event) => {
+            if (event.target !== view.dom) return false;
+            const { doc, schema } = view.state;
+            const y = (event as MouseEvent).clientY;
+            const sections = (node: Node) => node.type.name === 'heading' && node.attrs.level <= 2;
+            let hit: { node: Node; pos: number; next: Node | null } | null = null;
+            doc.forEach((node, pos, i) => {
+              const dom = view.nodeDOM(pos);
+              if (dom instanceof HTMLElement && dom.getBoundingClientRect().bottom <= y) hit = { node, pos, next: doc.maybeChild(i + 1) };
+            });
+            const at = hit as { node: Node; pos: number; next: Node | null } | null;
+            if (!at) return false;
+            let h2 = false;
+            doc.forEach((node) => void (h2 ||= node.type.name === 'heading' && node.attrs.level === 2));
+            // The end of the text (when it has sections), or the end of a section: the next part is the heading that starts another.
+            if (at.next ? !sections(at.next) : !h2) return false;
+            let tr = view.state.tr;
+            let free = at.pos + 1;
+            if (!isGap(at.node)) {
+              free = at.pos + at.node.nodeSize + 1;
+              tr = tr.insert(at.pos + at.node.nodeSize, schema.nodes.paragraph.create()).setMeta('addToHistory', false);
+            }
+            view.dispatch(tr.setSelection(Selection.near(tr.doc.resolve(free), -1)).scrollIntoView());
+            view.focus();
+            event.preventDefault();
+            return true;
+          },
+        },
+      },
+    }),
+);
+
 // A tap on the box of a check list item (its ::before, in the padding left of the text; editor.css) checks or unchecks it.
 const checkToggle = $prose(
   () =>
@@ -1582,6 +1622,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(sectionFrame(framed))
       .use(gapHere)
       .use(hintTap)
+      .use(tapBelow)
       .use(checkToggle)
       .use(history)
       .use(clipboard);

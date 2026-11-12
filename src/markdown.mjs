@@ -356,7 +356,7 @@ export function partsOf(ctx) {
   return parts;
 }
 
-// Keeps a free line (an empty paragraph) between two blocks and before and after them, so there is
+// Keeps a free line (an empty paragraph) between two blocks, before and after them and between a block and the next section's heading, so there is
 // always a place to write a text between them. Not part of undo. Used by the editor (MarkdownEditor.tsx)
 // and the check, which writes the text back with the free lines in it.
 /** @type {import('@milkdown/kit/utils').$Prose} */
@@ -368,6 +368,8 @@ export const spacing = $prose(
         let before = null;
         state.doc.forEach((node, at) => {
           if (node.type.name === 'siteBlock' && (!before || before.type.name === 'siteBlock')) gaps.push(at);
+          // A block that ends a section has a free line after it, before the heading of the next.
+          else if (before?.type.name === 'siteBlock' && node.type.name === 'heading' && node.attrs.level <= 2) gaps.push(at);
           before = node;
         });
         if (state.doc.lastChild?.type.name === 'siteBlock') gaps.push(state.doc.content.size);
