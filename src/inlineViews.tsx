@@ -20,6 +20,8 @@ export type InlineViewProps = {
   onSettings: (item: number) => void;
   /** The icon (or image) slot of an item is tapped: its picker. */
   onIcon: (item: number) => void;
+  /** Changes the block's own props (a card's media kind). */
+  onProps: (patch: BlockProps) => void;
 };
 
 export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {

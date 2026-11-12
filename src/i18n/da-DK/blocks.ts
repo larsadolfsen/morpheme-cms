@@ -361,7 +361,7 @@ export const blocks: Messages['blocks'] = {
     video: 'Videolink',
     buttons: 'Knapper',
     button: 'knap',
-    newButton: 'Ny knap',
+    addButton: 'Tilføj knap',
     buttonsHint: 'Et kort med knapper har intet link.',
     items: 'Kort',
     item: 'kort',

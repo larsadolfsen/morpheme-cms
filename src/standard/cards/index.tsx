@@ -1,11 +1,11 @@
-// "Cards", a standard block: a heading and cards. The media at the top is one choice for the whole block (`media`: an icon, a picture or a
+// "Cards", a standard block: a heading and cards. The media at the top is one choice for the whole block (`media`: an icon, an image or a
 // video, or none; the first card sets it), so the cards stay aligned. Each card has a headline, a subhead under it, a text and, as Material 3
 // has it, either one link (a card with a page is one primary action: the whole card, and no buttons) or buttons (the action area, with no
 // fixed maximum). The cards' design (`design`: outlined, filled or elevated) and, for filled, its colour (`color`: Material's container
 // roles) are for all of them; the shared text of the link at the bottom ("Blocks" › "Cards", shared.ts). How it looks is the theme's
 // (packages/editor/theme/blocks/cards/View.tsx with LinkCards.tsx); what it shows: view.ts, and load.ts on the site. Cards from before
 // (`design` text, icon or image, `background`, `kind`, a `media` on each card) are read as these (FORMER in lib/blocks.mjs).
-import { Cards, Circle, Image as Picture, Prohibit, Shapes, Square, VideoCamera } from '@phosphor-icons/react';
+import { Cards, Circle, Image as ImageIcon, Prohibit, Shapes, Square, VideoCamera } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { iconOptions } from '../../icon';
 import { t } from '../../i18n';
@@ -75,7 +75,7 @@ export default defineBlock({
       options: [
         { label: t.blocks.cards.mediaNone, value: 'none', icon: Prohibit },
         { label: t.blocks.cards.mediaIcon, value: 'icon', icon: Shapes },
-        { label: t.blocks.cards.mediaImage, value: 'image', icon: Picture },
+        { label: t.blocks.cards.mediaImage, value: 'image', icon: ImageIcon },
         { label: t.blocks.cards.mediaVideo, value: 'video', icon: VideoCamera },
       ],
     },

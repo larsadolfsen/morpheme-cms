@@ -386,6 +386,19 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, start
   if (faded !== start) problems.push(`${label}: a new block starts with ${faded} empty, faded items, not ${start}`);
   if ((await page.locator('.inline-list-row-active').count()) !== 1) problems.push(`${label}: not exactly one active item at the start`);
   if (name === 'cards') {
+    // The media area is there while the card is active: one button for each kind (icon, image, video); the link is the bar's, not a slot in the card; the action area has the next button, empty and faded.
+    const slots = await page
+      .locator('.inline-list-row-active .inline-list-slot')
+      .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')));
+    if (slots.join() !== 'Icon,Image,Video')
+      problems.push(`${label}: the active card's media buttons are "${slots}", not "Icon,Image,Video"`);
+    if (await page.locator('.inline-list-row-active [aria-label="Link"]').count())
+      problems.push(`${label}: the card has a link slot (the link is in the toolbar)`);
+    const next = await page.locator('.inline-list-row-active .block-card-actions .inline-card-next-button').allTextContents();
+    if (next.join() !== 'Add button')
+      problems.push(`${label}: the active card's action area has "${next}", not the text button "Add button"`);
+    if (width >= 1000 && !(await page.locator('.site-block-toolbar button[aria-label="Link"]').count()))
+      problems.push(`${label}: the toolbar has no Link while the card is still empty`);
     // The header line of a card is a headline and ONE optional subhead, both typed in place; no badge, date or tags.
     const fields = await page.evaluate(() =>
       [...document.querySelectorAll('.inline-list-row-active [data-field]')].map((f) => f.dataset.field),
@@ -432,6 +445,26 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, start
   await page.waitForTimeout(300);
   if ((await page.locator('[data-add-row]').count()) > 0)
     problems.push(`${label}: the button "${add}" stays after the cursor left the block`);
+  if (name === 'cards') {
+    // A media that is set is changed by a tap on it: an icon is picked from the Icon button, then the icon itself opens the picker and no media button is left.
+    await page.locator('.inline-list-row [data-field="title"]').first().click();
+    await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Icon"]').click();
+    const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
+    await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Icon button did not open the icon picker`));
+    await picker.getByRole('button').nth(1).click();
+    await page.waitForTimeout(400);
+    // The sheet over a phone's screen is closed to get back to the card.
+    await page
+      .locator('dialog[open] button[aria-label="Close"]')
+      .click({ timeout: 2000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+    await page.locator('.inline-list-row [data-field="title"]').first().click();
+    if ((await page.locator('.inline-list-row-active .inline-card-media').count()) !== 1)
+      problems.push(`${label}: a card with an icon does not show the icon as a button`);
+    if (await page.locator('.inline-list-row-active .inline-card-slots').count())
+      problems.push(`${label}: the media buttons show although the card has its icon`);
+  }
   await page.close();
 }
 

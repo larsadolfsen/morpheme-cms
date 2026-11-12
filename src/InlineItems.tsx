@@ -49,9 +49,20 @@ export function InlineField({
 }
 
 /** A button in the active item that picks what is not typed: an icon or an image (its picker), or a link (the item's settings). */
-export function InlineSlot({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
+export function InlineSlot({
+  label,
+  onClick,
+  pressed,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  /** One of several kinds, and the one that is chosen. */
+  pressed?: boolean;
+  children: ReactNode;
+}) {
   return (
-    <button type="button" className="inline-list-slot" aria-label={label} title={label} onClick={onClick}>
+    <button type="button" className="inline-list-slot" aria-label={label} aria-pressed={pressed} title={label} onClick={onClick}>
       {children}
     </button>
   );

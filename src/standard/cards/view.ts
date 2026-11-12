@@ -1,7 +1,7 @@
 // What "Cards" shows (its view, drawn by the theme's View.tsx and LinkCards.tsx): its heading, its design (`design`: 'filled' or
 // 'elevated', else outlined) and, for filled, its colour (`color`: primary, secondary or tertiary container, else the surface container),
-// the link's text (its shared text), the one media of all its cards (an icon, a picture, a video or none) and each card's headline, subhead,
-// text and either its page (the whole card is the link) or its buttons. In the editor: viewOf; on the site: load.ts, with the pictures' sizes, the videos' stills and the buttons' targets.
+// the link's text (its shared text), the one media of all its cards (an icon, an image, a video or none) and each card's headline, subhead,
+// text and either its page (the whole card is the link) or its buttons. In the editor: viewOf; on the site: load.ts, with the images' sizes, the videos' stills and the buttons' targets.
 import type { BlockData } from '../../blocks';
 import { shownAt } from '../../images';
 import { sharedIn } from '../../shared';
@@ -43,7 +43,7 @@ export type LinkCardProps = {
 
 const MEDIA: CardMedia[] = ['none', 'icon', 'image', 'video'];
 
-/** The cards, with their pictures as `picture` gives them, their videos as `video` and their buttons as `buttons` (the site's are asked for). */
+/** The cards, with their images as `picture` gives them, their videos as `video` and their buttons as `buttons` (the site's are asked for). */
 export const cardsOf = (
   items: LinkCardProps[],
   blockMedia: unknown,
