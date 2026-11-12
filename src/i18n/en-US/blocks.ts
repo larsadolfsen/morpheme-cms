@@ -192,6 +192,12 @@ export const blocks = {
     exampleTitle: 'Heading',
     exampleText: 'A short text about the point.',
   },
+  table: {
+    label: 'Table',
+    hint: 'Rows and columns of text.',
+    header: 'Header row',
+    headerToggle: ['On', 'Off'] as [string, string],
+  },
   steps: {
     label: 'Steps',
     hint: 'Numbered steps.',
@@ -257,6 +263,16 @@ export const blocks = {
     iconHint: 'The arrow is shown after the text, the other icons before it.',
     arrow: 'Arrow',
     calendar: 'Calendar',
+    /** The floating toolbar of Buttons typed in place. */
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    settingsAction: 'Settings',
+    button: 'Button',
+    buttonSettings: 'Button settings',
+    addButton: 'Add button',
+    newButton: 'New button',
+    /** A button typed in place: its place, for screen readers (button 2 of 4). */
+    buttonOf: (n: number, total: number) => `Button ${n} of ${total}`,
   },
   cookies: {
     label: 'Cookie list',

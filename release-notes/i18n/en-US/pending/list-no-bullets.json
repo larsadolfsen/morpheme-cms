@@ -1,0 +1,5 @@
+{
+  "id": "list-no-bullets",
+  "kind": "line",
+  "text": "List rows no longer show a bullet dot in the Preview"
+}

@@ -101,7 +101,7 @@ const shownItems = (selector) =>
 /** The "New in" card on the start screen, with the tall portrait photo of the 0.16 edition (1280x2272) in place of its own: the photo and the card stay inside the card's own box and above the widgets, never painted over them (375, 690 and 1280 px). */
 async function checkUpdatesCard(width, height) {
   const label = `${width}px`;
-  const tall = readFileSync(resolve(ROOT, '../../../release-notes/editions/0.16.webp'));
+  const tall = readFileSync(fileURLToPath(new URL('../release-notes/editions/0.16.webp', import.meta.url)));
   const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
   page.on('pageerror', (e) => problems.push(`${label} start: ${e.message}`));
   await page.route('**/_astro/*.webp', (r) => r.fulfill({ body: tall, contentType: 'image/webp' }));
@@ -300,6 +300,39 @@ async function checkEmptyHint() {
   await page.close();
 }
 
+/** The rows of a List, Segmented list and FAQ are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
+async function checkListMarkers(width) {
+  const path = 'src/content/pages/about.md';
+  if (!existsSync(join(ROOT, path))) return;
+  const markers = () =>
+    [...document.querySelectorAll('ul.list')].flatMap((ul) =>
+      [ul, ...ul.children].flatMap((el) => {
+        const s = getComputedStyle(el);
+        const m = getComputedStyle(el, '::marker');
+        const bad = [];
+        if (s.listStyleType !== 'none') bad.push(`list-style-type ${s.listStyleType}`);
+        if (el !== ul && s.display === 'list-item' && m.content !== 'normal' && m.content !== 'none' && m.content !== '""')
+          bad.push(`marker ${m.content}`);
+        if (el === ul && parseFloat(s.paddingInlineStart) !== 0) bad.push(`indent ${s.paddingInlineStart}`);
+        return bad.map((b) => `${el.tagName.toLowerCase()}.${[...el.classList].slice(0, 2).join('.')}: ${b}`);
+      }),
+    );
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`List markers: ${e.message}`));
+  await openEditor(page, site);
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('ul.list', { timeout: 30_000 });
+  const inEditor = await page.evaluate(markers);
+  if (inEditor.length) problems.push(`${width}px editor: a List row has a list marker (${[...new Set(inEditor)].join('; ')})`);
+  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const frame = page.frames().find((f) => f !== page.mainFrame());
+  await frame.waitForSelector('ul.block-list', { timeout: 30_000 });
+  const inPreview = await frame.evaluate(markers);
+  if (inPreview.length) problems.push(`${width}px Preview: a List row has a list marker (${[...new Set(inPreview)].join('; ')})`);
+  await page.close();
+}
+
 /** The Preview (the binoculars) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
 async function checkPreviewSection() {
   const path = 'src/content/pages/about.md';
@@ -363,6 +396,7 @@ const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
   { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button' },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
+  { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
   { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
 ];
 
@@ -1297,6 +1331,7 @@ for (const [width, height] of [
   await checkFoldRows(width, height);
 await checkToolbarBox();
 await checkPreviewSection();
+for (const w of [375, 1280]) await checkListMarkers(w);
 for (const w of [360, 375, 390, 414]) await checkPreviewDraft(w);
 
 await browser.close();
