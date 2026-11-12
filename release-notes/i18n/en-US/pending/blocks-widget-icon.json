@@ -1,5 +1,5 @@
 {
   "id": "blocks-widget-icon",
   "kind": "line",
-  "text": "Insert in the text toolbar and the floating text menu shows a widgets icon instead of a plus"
+  "text": "Insert in the text toolbar shows a widgets icon instead of a plus, and the floating text menu no longer has Insert"
 }

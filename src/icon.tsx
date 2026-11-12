@@ -220,7 +220,7 @@ export function Glyph({ icon, size = 20, className }: { icon: IconRef; size?: nu
     : null;
 }
 
-/** Material's "widgets" (four squares, one turned): the sign for "insert a block" (the text's toolbar, its floating menu). Phosphor has
+/** Material's "widgets" (four squares, one turned): the sign for "insert a block" (the text's toolbar). Phosphor has
  * no such icon, so it is Material's file itself, bundled (not the lazy set), and shaped as a Phosphor icon so a ToolbarButton takes it. */
 export const WidgetsIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
   const parts = svgParts(widgetsFile);
@@ -237,8 +237,6 @@ export const WidgetsIcon = (({ size = 20, className }: { size?: number | string;
     />
   );
 }) as unknown as PhosphorIcon;
-/** The same file as text, for the text's floating menu, which draws raw SVG. */
-export const widgetsRaw = widgetsFile;
 
 /** The same as Svg (the editor's fields and the site's promotions draw their icons with it). */
 export const Icon = Svg;

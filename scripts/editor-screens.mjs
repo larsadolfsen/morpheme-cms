@@ -178,10 +178,10 @@ async function checkTextSheet(width = 360) {
       problems.push(`${width}px text menu: not by the text at the ${name}`);
     if (
       !now.names.some((n) => n.endsWith('heading') || n.endsWith('Heading')) ||
-      !now.names.includes('Insert') ||
+      now.names.includes('Insert') ||
       now.names.at(-1) !== 'More'
     )
-      problems.push(`${width}px text menu: Heading, Insert (+) and More (three dots, last) are not all there at the ${name}`);
+      problems.push(`${width}px text menu: Heading and More (three dots, last) are not all there, or Insert is at the ${name}`);
   }
   // Bold, Italic and Link come first, every button is 48 dp, nothing scrolls, and each row is centred (a second row when they do not fit).
   if (first.names.slice(0, 3).join() !== 'Bold,Italic,Link')

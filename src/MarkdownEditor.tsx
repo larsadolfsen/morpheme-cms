@@ -98,7 +98,7 @@ import { stillTimer } from '../lib/still-timer.mjs';
 import { STILL_MS, wordRange } from './stillCursor.mjs';
 import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { WidgetsIcon, widgetsRaw } from './icon';
+import { WidgetsIcon } from './icon';
 import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -753,7 +753,7 @@ type Look = (Face | { shows: (state: EditorView['state']) => Face }) & {
   off?: (state: EditorView['state']) => boolean;
   // Not there (the marks in a block with none).
   dim?: (state: EditorView['state']) => boolean;
-  // Shown but not usable now ("+" where the text has nothing to insert).
+  // Shown but not usable now.
   disabled?: (state: EditorView['state']) => boolean;
   word?: boolean;
   menu?: boolean;
@@ -776,18 +776,12 @@ const inLabel = (state: EditorView['state']) =>
 
 // When a word or more is selected, or the cursor has stood still in a word (STILL_MS, stillCursor.mjs): one row of icons
 // over it, never two: bold, italic, link, the headings (H, a menu with the levels headingChoices gives for the text; a
-// page's H1 alone is that heading's own button), "+" (always there: the blocks or a picture; greyed where there is nothing to insert) and "More" (three dots), which
+// page's H1 alone is that heading's own button) and "More" (three dots), which
 // opens a sheet from the bottom with the rest: the colours, the text styles, the lists and the alignment. At a still
 // cursor, bold, italic and link act on the whole word, the headings on the line; a move or a keypress hides the row. On a
 // phone, where the phone's own menu is over the selection and its handles under it, the row is at the bottom of the
 // screen, over the keyboard.
-function selectionMenu(
-  ctx: Ctx,
-  h1: boolean,
-  kinds: (button: HTMLElement, group: KindGroup) => void,
-  insert: () => (() => void) | null,
-  more: () => void,
-) {
+function selectionMenu(ctx: Ctx, h1: boolean, kinds: (button: HTMLElement, group: KindGroup) => void, more: () => void) {
   return new Plugin({
     view(view) {
       const menu = document.body.appendChild(document.createElement('div'));
@@ -858,8 +852,6 @@ function selectionMenu(
           off: (s) => levels(s).length < 2,
           menu: true,
         },
-        // The blocks (the same sheet as the toolbar's Insert), where the text has blocks.
-        { icon: widgetsRaw, label: t.text.insert, action: () => insert()?.(), disabled: () => !insert() },
         // The rest, in a sheet from the bottom.
         { icon: dotsIcon, label: t.text.more, action: () => more() },
       ];
@@ -1332,7 +1324,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const moreSheet = useRef<HTMLDialogElement>(null);
   const [noColor, setNoColor] = useState(false);
   const moreRef = useRef(() => {});
-  const insertRef = useRef<(() => void) | null>(null);
   // The button that opened a menu with kinds of text, and its group, while it is open: in the toolbar, or over the
   // selection (word), whose button says it is open as the colour button does.
   const [kindsAt, setKindsAt] = useState<{ at: HTMLElement; group: KindGroup; word?: boolean } | null>(null);
@@ -1405,7 +1396,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         ctx,
         !!h1,
         (button, group) => setKindsAt((open) => (open?.at === button ? null : { at: button, group, word: true })),
-        () => insertRef.current,
         () => moreRef.current(),
       ),
     );
@@ -1703,9 +1693,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
-  // "+" in the selection menu: the blocks, or a picture where the text has only pictures (a blog post); else nothing.
-  insertRef.current = blocks ? () => void block() : addImage ? () => void image() : null;
-
   const all: {
     label: string;
     icon: typeof TextB;
@@ -1752,7 +1739,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   ];
 
   // The tools in their order (toolbarOrder.mjs): Section settings last on the first line, and what may go under the arrow at the
-  // end, Undo and Redo first, then the link, so "+" stays on the first line. The arrangement is tried from the widest:
+  // end, Undo and Redo first, then the link, so Insert stays on the first line. The arrangement is tried from the widest:
   // 'all' on one line, 'mid' with Section settings before Undo and Redo, 'priority' with the link behind it too, 'bare' with Italic and the lists as well (the last to go).
   const [arrangement, setArrangement] = useState<'all' | 'mid' | 'priority' | 'bare'>('all');
   const tools = arrangeTools(all, arrangement);
