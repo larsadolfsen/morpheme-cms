@@ -22,10 +22,12 @@ export const library = {
   /** In that card before anything is saved. */
   continueEmpty: 'The pages and posts you edit show up here.',
   /** On the start screen (widgets/unfinished.tsx): the card with the drafts, hidden and scheduled pages and posts. */
-  unfinishedTitle: 'Unfinished',
+  unfinishedTitle: 'Drafts',
   /** In the list "Add widget" and on the card in edit mode. */
-  unfinishedWidgetLabel: 'Unfinished',
+  unfinishedWidgetLabel: 'Drafts',
   unfinishedWidgetHint: 'Lists the drafts, hidden and scheduled pages and posts.',
+  /** The text button at the bottom of the card when there are more drafts than it shows; opens the full list. */
+  unfinishedShowAll: 'Show all',
   /** In the card, in edit mode, when no page or post is unfinished. */
   unfinishedEmpty: 'Nothing is unfinished',
   /** On the start screen (widgets/blogRhythm.tsx): a reminder to write a blog post, shown when the next one is due. */
@@ -213,7 +215,7 @@ export const library = {
   /** The filter over the pages and posts that shows only those with one status. */
   statusFilter: 'Status',
   /** Its choices: all, and each status there is. */
-  statusShown: { all: 'All', published: 'Published', draft: 'Draft', scheduled: 'Scheduled' },
+  statusShown: { unfinished: 'Drafts', all: 'All', published: 'Published', draft: 'Draft', scheduled: 'Scheduled' },
   sort: 'Sort',
   sorts: {
     newest: 'Newest first',

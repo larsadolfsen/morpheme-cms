@@ -894,6 +894,8 @@ type Item = {
   fresh?: boolean;
   /** Which of them, or published: what the choices over the list show. */
   state?: State;
+  /** Pages and posts: a draft, a scheduled one, or a published one with changes waiting (the start screen's Drafts card). */
+  unfinished?: boolean;
   file?: RepoFile;
   path?: string;
   count?: number | null;
@@ -951,6 +953,7 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
           date,
           status: statusOf(d, waiting.get(file.path)),
           state: stateOf(d, waiting.get(file.path)),
+          unfinished: stateOf(d, waiting.get(file.path)) !== 'published' || !!waiting.get(file.path),
           file,
           path,
           picks: Object.fromEntries(
@@ -1110,10 +1113,12 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   // Pages and posts: their address in a column on a computer, and a filter that shows only those with
   // one status (when they do not all have the same).
   const markdown = collection.kind === 'markdown';
-  const [picked, setState] = useKept<State | ''>(`${collection.id}-status`, '');
+  const [picked, setState] = useKept<State | 'unfinished' | ''>(`${collection.id}-status`, '');
   const states = markdown ? STATES.filter((s) => items.some((i) => i.state === s)) : [];
   // All again when the status picked is no longer there to pick (the last draft was published meanwhile).
-  const state = states.length > 1 && states.includes(picked as State) ? picked : '';
+  const hasUnfinished = markdown && items.some((i) => i.unfinished) && items.some((i) => !i.unfinished);
+  const state =
+    picked === 'unfinished' ? (hasUnfinished ? picked : '') : states.length > 1 && states.includes(picked as State) ? picked : '';
   // Prices and testimonials are in their order on the site; the other lists of entries can be sorted.
   // Blog posts newest first, pages A–Z, until another is picked.
   const sorts: Sort[] =
@@ -1212,11 +1217,15 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   const bothOnOff = items.some((i) => i.on) && items.some((i) => i.on === false);
   const shownOnOff = onOffLabels && bothOnOff ? onOff : '';
   const filters = [
-    states.length > 1 && {
+    (states.length > 1 || hasUnfinished) && {
       title: t.library.statusFilter,
       value: state,
-      options: [{ value: '', label: t.library.statusShown.all }, ...states.map((s) => ({ value: s, label: t.library.statusShown[s] }))],
-      onChange: (v: string) => setState(v as State | ''),
+      options: [
+        { value: '', label: t.library.statusShown.all },
+        ...(hasUnfinished ? [{ value: 'unfinished', label: t.library.statusShown.unfinished }] : []),
+        ...states.map((s) => ({ value: s, label: t.library.statusShown[s] })),
+      ],
+      onChange: (v: string) => setState(v as State | 'unfinished' | ''),
     },
     ...pickFilters.map((p) => ({
       title: p.field.label,
@@ -1272,7 +1281,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
     (i) =>
       // With the line under it, when the list has one of its own (FolderCollection.detail).
       `${i.title}${collection.kind === 'folder' && collection.detail ? ` ${i.detail}` : ''}`.toLowerCase().includes(q) &&
-      (!state || i.state === state) &&
+      (!state || (state === 'unfinished' ? !!i.unfinished : i.state === state)) &&
       pickFilters.every((p) => !p.value || !!i.picks?.[p.field.name]?.includes(p.value)) &&
       (!page ||
         !!i.shownOn?.everywhere ||
