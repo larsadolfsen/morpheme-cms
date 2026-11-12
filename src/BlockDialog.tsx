@@ -48,6 +48,7 @@ import SectionSettings, { type SectionValues } from './SectionSettings';
 import { sheetLook } from './sheetPlacement.mjs';
 import { setPanelOpen } from './sidePanel';
 import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass, siteStandardSideSheet } from './themeUi';
+import { typedInPlace } from './typedInPlace.mjs';
 
 export type BlockAsk = {
   list: SiteBlock[];
@@ -338,8 +339,8 @@ export function useBlockDialog(
   function pick(type: string) {
     const fields = blockOf(type)!.fields;
     if (!fields.length) return done({ type, props: {} });
-    // A block typed in place goes in at once, with its first row active (MarkdownEditor.tsx): no sheet.
-    if (blockOf(type)?.inline) return done({ type, props: newValue(fields) });
+    // A block typed in place goes in at once, with its first row active (MarkdownEditor.tsx): no sheet. One with `inline` but no view to draw it (an app's block without Inline.tsx) has its sheet.
+    if (typedInPlace(blockOf(type))) return done({ type, props: newValue(fields) });
     shown.current = asWritten(type, newValue(fields));
     setValues(newValue(fields));
     show({ step: 'fields', type, isNew: true });

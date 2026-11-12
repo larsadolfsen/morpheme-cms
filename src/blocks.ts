@@ -3,7 +3,8 @@
 // looks (draw). The blocks are each a folder, the standard ones in packages/editor/src/standard/ and the site's
 // own in src/apps/<app>/blocks/ (registry.tsx finds them); the sections of a fixed page are blocks in its text too
 // (sectionBlocks, sections.mjs), drawn by the theme's editor/previews.tsx.
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
+import type { InlineViewProps } from './inlineViews';
 import type { Block, Edit, Field, Lead, Relation } from './schema';
 import type { ListRows, Option, TestimonialRow } from './fields';
 import type { SiteData } from '@site/editor';
@@ -61,6 +62,9 @@ export type SiteBlock = {
   /** How it looks on the site, with what is in it now (the card in the text, its sheet): its View.tsx given the view
    * its view.ts (an app's: viewOf.ts) makes (registry.tsx). Without it, the card has the lines of describe. */
   draw?: (props: Record<string, any>, data: BlockData) => ReactNode;
+  /** What draws the block typed in place (its `inline`, InlineSpec): a standard block's is in inlineViews.tsx, an app's is the `Inline.tsx` in
+   * its block's folder (appInlines, registry.tsx). Without it the block keeps its sheet, whatever `inline` says (typedInPlace.mjs). */
+  inlineView?: ComponentType<InlineViewProps>;
   /** Gone from the site by itself (a notice whose time is over): its card is greyed, like a hidden one. */
   over?: (props: BlockProps) => boolean;
   /** One of the editor's standard blocks (packages/editor/src/standard/), not the site's own (src/apps/<app>/blocks/). */
