@@ -1,4 +1,4 @@
-// The switch at the top of a page or post that has changes waiting (src/drafts/, lib/versions.mjs): `Live` and `Scheduled` (or `Changes`
+// The switch at the top of a page or post that has changes waiting (src/drafts/, lib/versions.mjs): `Live` and `Scheduled` (or `Draft`
 // when they have no time), to edit either one, so a mistake on the live page can be fixed without touching the waiting changes. It is
 // the named slot `versionSwitch` of an app (AppDefinition.slots): the form draws the one of the first app installed that has it, else this one.
 import type { Version } from '../lib/versions.mjs';
@@ -39,7 +39,7 @@ export default function VersionSwitch({ versions, editing, busy, onEdit }: Versi
       disabled={busy}
       options={[
         { value: 'live', label: t.forms.versions.live },
-        { value: waiting.id, label: waiting.publishAt ? t.forms.versions.scheduled : t.forms.versions.changes },
+        { value: waiting.id, label: waiting.publishAt ? t.forms.versions.scheduled : t.forms.versions.draft },
       ]}
       onChange={onEdit}
     />
