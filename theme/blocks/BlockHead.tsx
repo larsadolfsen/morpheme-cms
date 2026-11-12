@@ -17,7 +17,7 @@ export default function BlockHead({ view }: { view: HeadView }) {
   return (
     <InProse>
       <hgroup className="block-head">
-        {eyebrow && <p className="block-eyebrow">{eyebrow}</p>}
+        {eyebrow && <p className="label-medium">{eyebrow}</p>}
         {heading && <h2>{heading}</h2>}
         {subheading && <p className="block-subheading">{subheading}</p>}
       </hgroup>

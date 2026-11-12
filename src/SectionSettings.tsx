@@ -24,7 +24,7 @@ const WIDTH: Field = {
   ],
 };
 
-/** picture: whether the section can have a picture and a width (an H2's; an H1's has only its colour). */
+/** picture: whether the section can have a picture and a width (any H1's or H2's). */
 export default function SectionSettings({
   values,
   picture,
@@ -37,7 +37,7 @@ export default function SectionSettings({
   const { color } = values;
   return (
     <div className="space-y-5">
-      <div role="group" aria-label={t.text.sectionColor}>
+      <ul role="group" aria-label={t.text.sectionColor}>
         <Option selected={!color} onClick={() => onChange({ ...values, color: '' })}>
           {t.text.sectionColors.none}
         </Option>
@@ -46,7 +46,7 @@ export default function SectionSettings({
             {t.text.sectionColors[name as keyof typeof t.text.sectionColors]}
           </Option>
         ))}
-      </div>
+      </ul>
       {picture && (
         <FieldList
           fields={values.picture ? [PICTURE, ALT, WIDTH] : [PICTURE, WIDTH]}

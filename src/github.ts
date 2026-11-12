@@ -29,7 +29,10 @@ export function login() {
 
 export class AuthError extends Error {}
 
-export class ConflictError extends Error {}
+export class ConflictError extends Error {
+  /** A file with that name is already there (not: it was changed elsewhere). */
+  exists = false;
+}
 
 // A question to the Worker's /api/github/<path>, and its answer in JSON.
 async function api<T>(path: string, body?: unknown): Promise<T> {
@@ -39,7 +42,11 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
   });
   if (res.status === 401) throw new AuthError(t.app.loggedOut);
   const json = await res.json().catch(() => ({}));
-  if (res.status === 409) throw new ConflictError(json.conflict === 'exists' ? t.app.fileExists : t.app.changedElsewhere);
+  if (res.status === 409) {
+    const conflict = new ConflictError(json.conflict === 'exists' ? t.app.fileExists : t.app.changedElsewhere);
+    conflict.exists = json.conflict === 'exists';
+    throw conflict;
+  }
   if (!res.ok) throw new Error(json.error ?? t.app.githubAnswered(json.status ?? res.status));
   return json;
 }

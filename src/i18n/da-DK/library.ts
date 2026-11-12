@@ -57,8 +57,6 @@ export const library: Messages['library'] = {
   onDeviceHint: 'Også når editoren er lukket.',
   deviceBlocked: 'Telefonen eller browseren tillader ikke notifikationer fra editoren. Slå dem til i dens indstillinger.',
   notificationTypes: { site: 'Hjemmesiden opdateret', saved: 'Gemt og slettet', failed: 'Kunne ikke gemme', updates: 'Apps opdateret' },
-  on: 'Til',
-  off: 'Fra',
   themeByline: (version, author) => `Version ${version} · ${author}`,
   themeInUse: 'I brug',
   themeNext: 'Skifter til dette tema',

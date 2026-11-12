@@ -200,6 +200,9 @@ export type AppDefinition = {
    * the top of a page or post that has changes waiting, with its versions, in place of the core's `Live` / `Scheduled`
    * (VersionSwitch.tsx). It is a `full` editor place, like `tabs`, so for first-party apps; with none, the core's is drawn. */
   slots?: { versionSwitch?: ComponentType<VersionSwitchProps> };
+  /** Sources of pictures it adds to the editor's picture picker while it is installed (`mediaProviders` in app.json, contract 5):
+   * only the label and icon are here; the request is the Worker's (worker/media-providers.js, lib/mediaProviders.mjs). */
+  mediaProviders?: { id: string; label: string; icon: Icon }[];
   notifications?: AppNotifications;
 };
 export const defineApp = (app: AppDefinition) => app;
@@ -246,9 +249,18 @@ export function appFromManifest(
   texts?: Record<string, unknown>,
   id?: string,
 ): AppDefinition {
-  const { icon, kinds, lists, settings, texts: _texts, ...rest } = definitionOf(manifest, editor, texts) as AppDefinitionData;
+  const {
+    icon,
+    kinds,
+    lists,
+    settings,
+    mediaProviders,
+    texts: _texts,
+    ...rest
+  } = definitionOf(manifest, editor, texts) as AppDefinitionData;
   return {
     ...rest,
+    ...(mediaProviders ? { mediaProviders: mediaProviders.map((p) => ({ ...p, icon: iconOf(p.icon) })) } : {}),
     ...(settings ? { settings: { ...settings, fields: fieldsFromTools(settings.fields, manifest.mcp && id) } } : {}),
     icon: iconOf(icon),
     ...(kinds
@@ -326,6 +338,10 @@ export function kindsOffered(
 /** The component of the slot `versionSwitch` of the first app installed that has one, or undefined: the core's switch is drawn then. */
 export const versionSwitchOf = (apps: SiteApp[], installed: string[]) =>
   apps.find((app) => installed.includes(app.id) && app.slots?.versionSwitch)?.slots?.versionSwitch;
+
+/** The media providers of the apps installed (AppDefinition.mediaProviders), each with its app, in the order of the apps. */
+export const mediaProvidersOf = (apps: SiteApp[], installed: string[]) =>
+  apps.flatMap((app) => (installed.includes(app.id) ? (app.mediaProviders ?? []).map((provider) => ({ app: app.id, ...provider })) : []));
 
 /** The tabs the apps installed add to a list (AppDefinition.tabs), each with its app, in the order of the apps. */
 export const tabsOf = (list: string, apps: SiteApp[], installed: string[]) =>

@@ -324,7 +324,7 @@ function FieldControl({ field, value, onChange }: Props) {
     case 'boolean':
       if (field.toggle) {
         const on = value === true;
-        return <SwitchRow label={field.label} hint={hintOf(field)} selected={on} texts={field.toggle} onChange={onChange} />;
+        return <SwitchRow label={field.label} hint={hintOf(field)} selected={on} onChange={onChange} />;
       }
       return <Checkbox label={field.label} hint={hintOf(field)} checked={value === true} onChange={onChange} />;
     case 'object':

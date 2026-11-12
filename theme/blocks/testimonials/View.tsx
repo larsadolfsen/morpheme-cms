@@ -12,7 +12,7 @@ export default function Testimonials({ view }: { view: TestimonialsView }) {
     <>
       <BlockHead view={view} />
       {view.layout === 'list' ? (
-        <List testimonials={view.testimonials} texts={view.texts} filters={view.filters} className={inText} />
+        <List testimonials={view.testimonials} filters={view.filters} className={inText} />
       ) : (
         <Slider testimonials={view.testimonials} texts={view.texts} label={view.label} className={inText} />
       )}

@@ -8,7 +8,7 @@ import { siteT, t } from '../../i18n';
 type Group = { title?: string; href?: string; paths?: string[] };
 
 export default defineBlock({
-  group: 'rows',
+  group: 'lists',
   // Links are a List now (lib/blocks.mjs); this block stays for a text that has one without its groups.
   former: true,
   label: t.blocks.links.label,
