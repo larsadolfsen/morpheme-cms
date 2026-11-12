@@ -1,11 +1,10 @@
-// "List", a standard block: rows under each other, each with a heading and, if it has them, an icon before it, a text
+// "List", a standard block (no head of its own: its label, heading and intro are the text's, lib/remark-list-head.mjs): rows under each other, each with a heading and, if it has them, an icon before it, a text
 // under it and a page it links to (the whole row is the link, with an arrow after it): the theme's list. A list with each row on
 // its own surface is "Segmented list" now (../segmented/, and FORMER in lib/blocks.mjs). How it looks is the theme's (packages/editor/theme/blocks/list/View.tsx; what it shows: view.ts, and load.ts on the site).
 import { ListBullets } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { iconOptions } from '../../icon';
 import { t } from '../../i18n';
-import { headFields } from '../head';
 
 type Row = { title?: string };
 
@@ -14,8 +13,8 @@ export default defineBlock({
   label: t.blocks.list.label,
   icon: ListBullets,
   hint: t.blocks.list.hint,
+  inline: true,
   fields: [
-    ...headFields,
     {
       name: 'items',
       label: t.blocks.list.items,

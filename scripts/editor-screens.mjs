@@ -125,10 +125,10 @@ async function checkUpdatesCard(width, height) {
   await page.close();
 }
 
-/** On a phone the text's floating row is a docked bottom sheet: the same size and the same place (just over "Save changes", or over the keyboard) at every cursor, with all of the Text style, List and heading buttons in it. */
+/** On a phone the text's row floats by the selected text (never a docked sheet): inside the visible screen (above the keyboard and "Save changes"), Bold, Italic and Link first, 48 dp buttons centred in their rows (a second row when they do not fit), and it follows the line the cursor is on. */
 async function checkTextSheet(width = 360) {
   const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
-  page.on('pageerror', (e) => problems.push(`${width}px text sheet: ${e.message}`));
+  page.on('pageerror', (e) => problems.push(`${width}px text menu: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#new/pages'));
   await page.waitForSelector('.ProseMirror');
@@ -139,6 +139,7 @@ async function checkTextSheet(width = 360) {
       const m = document.querySelector('.editor-selection-menu');
       const r = m.getBoundingClientRect();
       const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? visualViewport.height;
+      const sel = getSelection().getRangeAt(0).getBoundingClientRect();
       const names = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getAttribute('aria-label'));
       const buttons = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getBoundingClientRect().toJSON());
       return {
@@ -146,47 +147,51 @@ async function checkTextSheet(width = 360) {
         sheet: m.classList.contains('editor-selection-sheet'),
         r: r.toJSON(),
         save,
+        sel: sel.toJSON(),
         names,
         buttons,
         scrolls: m.scrollWidth > m.clientWidth,
+        vh: visualViewport.height,
       };
     });
   await page.waitForTimeout(1200);
   const first = await read();
   await page.keyboard.type(' and more');
   await page.keyboard.press('Enter');
+  for (let i = 0; i < 4; i++) await page.keyboard.press('Enter');
   await page.keyboard.type('Next');
   await page.waitForTimeout(1200);
   const second = await read();
   for (const [name, now] of [
     ['first line', first],
-    ['second line', second],
+    ['later line', second],
   ]) {
-    if (!now.shown || !now.sheet) problems.push(`${width}px text sheet: no docked sheet at the ${name}`);
-    else if (Math.abs(now.r.bottom - now.save) > 1 || now.r.width < width - 1)
-      problems.push(`${width}px text sheet: not docked over Save changes at the ${name}`);
+    if (!now.shown) problems.push(`${width}px text menu: not shown at the ${name}`);
+    else if (now.sheet || now.r.width > width - 1) problems.push(`${width}px text menu: a docked sheet at the ${name}, not a floating row`);
+    else if (now.r.left < 0 || now.r.right > width || now.r.bottom > Math.min(now.save, now.vh) + 1)
+      problems.push(`${width}px text menu: outside the visible screen at the ${name}`);
+    else if (Math.min(Math.abs(now.r.bottom - now.sel.top), Math.abs(now.r.top - now.sel.bottom)) > 40)
+      problems.push(`${width}px text menu: not by the text at the ${name}`);
     if (!now.names.some((n) => n.startsWith('Text style')) || !now.names.includes('List'))
-      problems.push(`${width}px text sheet: the Text style or List button is missing at the ${name}`);
+      problems.push(`${width}px text menu: the Text style or List button is missing at the ${name}`);
   }
-  // Every button shows at 48 dp, Bold, Italic and Link come first, nothing scrolls, and each row is centred (a second row when they do not fit).
+  // Bold, Italic and Link come first, every button is 48 dp, nothing scrolls, and each row is centred (a second row when they do not fit).
   if (first.names.slice(0, 3).join() !== 'Bold,Italic,Link')
-    problems.push(`${width}px text sheet: Bold, Italic and Link are not the first three buttons`);
+    problems.push(`${width}px text menu: Bold, Italic and Link are not the first three buttons`);
   if (first.scrolls || first.buttons.some((b) => b.left < first.r.left - 1 || b.right > first.r.right + 1))
-    problems.push(`${width}px text sheet: a button is outside the sheet or the sheet scrolls`);
-  if (first.buttons.some((b) => b.width < 47.5 || b.height < 47.5)) problems.push(`${width}px text sheet: a button is smaller than 48 dp`);
+    problems.push(`${width}px text menu: a button is outside the menu or the menu scrolls`);
+  if (first.buttons.some((b) => b.width < 47.5 || b.height < 47.5)) problems.push(`${width}px text menu: a button is smaller than 48 dp`);
   const rows = Object.values(Object.groupBy(first.buttons, (b) => Math.round(b.top)));
   for (const row of rows) {
     const left = Math.min(...row.map((b) => b.left)) - first.r.left;
     const right = first.r.right - Math.max(...row.map((b) => b.right));
-    if (Math.abs(left - right) > 2) problems.push(`${width}px text sheet: a row of buttons is not centred (${left} left, ${right} right)`);
+    if (Math.abs(left - right) > 2) problems.push(`${width}px text menu: a row of buttons is not centred (${left} left, ${right} right)`);
   }
-  if (first.r.height !== second.r.height || first.r.top !== second.r.top)
-    problems.push(`${width}px text sheet: the sheet moved or changed size with the cursor`);
+  if (first.r.top === second.r.top) problems.push(`${width}px text menu: it did not follow the cursor to another line`);
   await page.setViewportSize({ width, height: 420 });
   await page.waitForTimeout(500);
   const keyboard = await read();
-  if (Math.abs(keyboard.r.bottom - keyboard.save) > 1 || keyboard.r.height !== first.r.height)
-    problems.push(`${width}px text sheet: it does not follow the keyboard at its own size`);
+  if (keyboard.r.bottom > Math.min(keyboard.save, keyboard.vh) + 1) problems.push(`${width}px text menu: it is under the keyboard`);
   if (width !== 360) return void (await page.close());
   // The top toolbar's tools rest in one colour (the kind menus too), and a menu button is never in the accent.
   const colours = await page.evaluate(() => [
@@ -270,6 +275,28 @@ async function checkEmptyHint() {
   if (got.h1 !== 'From us to you' || got.rest.join() !== 'P:Hej')
     problems.push(`360px empty hint: expected the heading and P:Hej, got ${got.h1} ${got.rest}`);
   if (got.hint) problems.push('360px empty hint: the hint still shows');
+  await page.close();
+}
+
+/** The Preview (the binoculars) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
+async function checkPreviewSection() {
+  const path = 'src/content/pages/about.md';
+  if (!existsSync(join(ROOT, path))) return;
+  const text = readFileSync(join(ROOT, path), 'utf8').replace(/(\n)(## [^\n]+)/, '$1<div data-section="tertiary"></div>\n\n$2');
+  const page = await browser.newPage({ viewport: { width: 390, height: 800 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`Preview section: ${e.message}`));
+  await openEditor(page, site, { [path]: text });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
+  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const frame = page.frames().find((f) => f !== page.mainFrame());
+  await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
+  const got = await frame.evaluate(() => {
+    const section = document.querySelector('section.text-section-tertiary');
+    return section ? getComputedStyle(section).backgroundColor : null;
+  });
+  if (!got || got === 'rgba(0, 0, 0, 0)') problems.push(`Preview section: a section with a background has none in the Preview (${got})`);
   await page.close();
 }
 
@@ -878,6 +905,7 @@ await checkEmptyHint();
 await checkHints();
 await checkFullWidthSection();
 await checkToolbarBox();
+await checkPreviewSection();
 
 await browser.close();
 server.close();

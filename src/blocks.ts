@@ -43,6 +43,9 @@ export type SiteBlock = {
   former?: boolean;
   /** Its heading and text are written in the text above it (sections.mjs); a new one gets a heading. */
   lead?: Lead;
+  /** Typed in place in the text (InlineList.tsx, MarkdownEditor.tsx): its card is the block drawn with its text as fields, not a picture
+   * of it; a new one goes in at once, without a sheet. Only the List so far (batch 5). */
+  inline?: boolean;
   /** Cannot be hidden on the site (its line in the file has no props to say so: HTML). */
   shown?: boolean;
   /** Drawn in its sheet above the fields, as it is with them now (BlockDialog.tsx): the buttons,

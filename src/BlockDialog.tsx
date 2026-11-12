@@ -36,7 +36,7 @@ import { blockGroups, htmlBlock, type BlockData, type BlockProps, type SiteBlock
 import { clean, newValue, problemAt, savedValue } from './check';
 import { EditLink, FieldList, useWrongField, WrongField } from './fields';
 import { HTML } from './markdown.mjs';
-import { byText, type Template } from './schema';
+import { byText, type Field, type Template } from './schema';
 import { preview, siteBlocks } from './registry';
 import { apps } from './site';
 import { headed, letterOf } from './Sheet';
@@ -65,7 +65,14 @@ export type BlockAsk = {
   /** The settings of the section the cursor is in (its colour, null: none, and an H2's picture, its description and width); the new
    * ones, or null when cancelled. picture: the section can have a picture and a width (an H2's). */
   section: (current: SectionSettingsOf, options?: { picture?: boolean }) => Promise<SectionSettingsOf | null>;
+  /** The settings of a row of a block typed in place (a List's icon and link; `inline` in blocks.ts): in the side panel from expanded, kept
+   * open and updated while a row is active, and a bottom sheet below it. Live: each change is told to `onChange` at once, with no Save and no
+   * Cancel of its own. Not shown while another sheet is open. null closes it. `open` false: only update the settings if they are open already. */
+  row: (spec: RowSpec | null, open?: boolean) => void;
 };
+
+/** The settings of the active row of a block typed in place: what the panel or sheet shows and where its changes go. */
+export type RowSpec = { headline: string; fields: Field[]; value: BlockProps; onChange: (value: BlockProps) => void };
 
 /** A section's settings in the text: null for what it has not. */
 export type SectionSettingsOf = { color: string | null; picture?: string | null; alt?: string | null; width?: string | null };
@@ -73,7 +80,8 @@ export type SectionSettingsOf = { color: string | null; picture?: string | null;
 type Open =
   | { step: 'choose'; image?: boolean; have?: string[] }
   | { step: 'fields'; type: string; isNew: boolean; removable?: boolean }
-  | { step: 'section'; picture: boolean };
+  | { step: 'section'; picture: boolean }
+  | { step: 'row' };
 
 const sectionValues = (v: BlockProps): SectionValues => ({
   color: String(v.color ?? ''),
@@ -151,6 +159,8 @@ export function useBlockDialog(
   const headingId = useId();
   const expanded = useAtLeast('expanded');
   const answer = useRef<(a: Answer) => void>(() => {});
+  // The row settings shown now (the `row` step).
+  const rowSpec = useRef<RowSpec | null>(null);
   const [open, setOpen] = useState<Open | null>(null);
   // What is open now (set at once, where `open` follows a render later), the look it has, when the last one has closed
   // (a new one waits for it), and what had the focus before (back to it from a standard side sheet).
@@ -241,8 +251,11 @@ export function useBlockDialog(
     setPanelOpen(true);
     const box = standard.current?.querySelector<HTMLElement>('[data-side-sheet-container]');
     if (box) {
+      // The settings of a row are beside the row being typed in: the cursor stays where it is.
+      const typing = openNow.current?.step === 'row' ? document.activeElement : null;
       standardControls.current = siteStandardSideSheet(box, { beforeClose });
       standardControls.current.open(trigger.current ?? undefined);
+      if (typing instanceof HTMLElement && typing !== document.body) typing.focus({ preventScroll: true });
     }
     return () => {
       standardControls.current = null;
@@ -285,6 +298,20 @@ export function useBlockDialog(
       const v = sectionValues(answered.props);
       return { color: v.color || null, picture: v.picture || null, alt: v.alt || null, width: v.width || null };
     },
+    row: (spec, show_ = true) => {
+      if (!spec) {
+        if (openNow.current?.step === 'row') done(null);
+        return;
+      }
+      if (openNow.current && openNow.current.step !== 'row') return;
+      if (!openNow.current && !show_) return;
+      rowSpec.current = spec;
+      if (!openNow.current) {
+        trigger.current = null;
+        show({ step: 'row' });
+      }
+      setValues(spec.value);
+    },
     edit: async (type, props, isNew = false, removable = false) => {
       const fields = blockOf(type)?.fields ?? [];
       // A block on the page with what a field it has no value for means; a new one with the defaults.
@@ -304,6 +331,8 @@ export function useBlockDialog(
   function pick(type: string) {
     const fields = blockOf(type)!.fields;
     if (!fields.length) return done({ type, props: {} });
+    // A block typed in place goes in at once, with its first row active (MarkdownEditor.tsx): no sheet.
+    if (blockOf(type)?.inline) return done({ type, props: newValue(fields) });
     shown.current = asWritten(type, newValue(fields));
     setValues(newValue(fields));
     show({ step: 'fields', type, isNew: true });
@@ -325,6 +354,8 @@ export function useBlockDialog(
       done(a);
       return true;
     };
+    // A row's settings are live: closing them leaves nothing to keep or discard.
+    if (open?.step === 'row') return finish(null);
     if (open?.step === 'section') {
       if (JSON.stringify(sectionValues(values)) === shown.current) return finish(null);
       const choice = await closeChanged(t.common.save);
@@ -386,7 +417,24 @@ export function useBlockDialog(
           .map((g) => ({ key: g as string | null, items: found.filter((b) => groupOf(b) === g) }))
           .filter((g) => g.items.length > 0)
       : headed(found, (b) => letterOf(b.label));
-  const title = open?.step === 'section' ? t.text.sectionSettings : block ? block.label : t.blocks.insert;
+  const title =
+    open?.step === 'row'
+      ? (rowSpec.current?.headline ?? '')
+      : open?.step === 'section'
+        ? t.text.sectionSettings
+        : block
+          ? block.label
+          : t.blocks.insert;
+  const rowFields = open?.step === 'row' && rowSpec.current && (
+    <FieldList
+      fields={rowSpec.current.fields}
+      value={values}
+      onChange={(v) => {
+        setValues(v as BlockProps);
+        rowSpec.current?.onChange(v as BlockProps);
+      }}
+    />
+  );
   const sectionSettings = (
     <SectionSettings
       values={sectionValues(values)}
@@ -397,7 +445,7 @@ export function useBlockDialog(
   // A side sheet (the same markup, standard or modal): the block's fields or the section settings, with Save (Insert) and Cancel.
   const sideSheetOf = (kind: 'standard' | 'modal') =>
     open &&
-    (open.step === 'section' || block) && (
+    (open.step === 'section' || open.step === 'row' || block) && (
       <SiteSideSheet
         kind={kind}
         headline={open.step === 'fields' && open.isNew ? t.blocks.insert : title}
@@ -405,24 +453,28 @@ export function useBlockDialog(
         closeLabel={t.common.close}
         className={kind === 'standard' ? 'editor-side-sheet' : undefined}
         actions={
-          <>
-            <Button onClick={() => (open.step === 'fields' ? save(open.type) : saveSection())}>
-              {open.step === 'fields' && open.isNew ? t.blocks.insert : t.common.save}
-            </Button>
-            <Button kind="outlined" onClick={() => void leave()}>
-              {t.common.cancel}
-            </Button>
-            {open.step === 'fields' && open.removable && !open.isNew && look === 'side-sheet' && (
-              // After Save and Cancel in the start-aligned row, in the error colour (the theme's text button with its colour variable).
-              <Button kind="text" style={{ '--button-text-text': 'var(--mo-error)' } as CSSProperties} onClick={() => done('remove')}>
-                {t.common.remove}
+          open.step === 'row' ? undefined : (
+            <>
+              <Button onClick={() => (open.step === 'fields' ? save(open.type) : saveSection())}>
+                {open.step === 'fields' && open.isNew ? t.blocks.insert : t.common.save}
               </Button>
-            )}
-          </>
+              <Button kind="outlined" onClick={() => void leave()}>
+                {t.common.cancel}
+              </Button>
+              {open.step === 'fields' && open.removable && !open.isNew && look === 'side-sheet' && (
+                // After Save and Cancel in the start-aligned row, in the error colour (the theme's text button with its colour variable).
+                <Button kind="text" style={{ '--button-text-text': 'var(--mo-error)' } as CSSProperties} onClick={() => done('remove')}>
+                  {t.common.remove}
+                </Button>
+              )}
+            </>
+          )
         }
       >
         <div className="space-y-5">
-          {open.step === 'section' ? (
+          {open.step === 'row' ? (
+            rowFields
+          ) : open.step === 'section' ? (
             sectionSettings
           ) : (
             <>
@@ -533,6 +585,7 @@ export function useBlockDialog(
             </SheetList>
           </>
         )}
+        {look === 'sheet' && open?.step === 'row' && <SheetBody>{rowFields}</SheetBody>}
         {look === 'sheet' && open?.step === 'section' && (
           <>
             <SheetBody>{sectionSettings}</SheetBody>
