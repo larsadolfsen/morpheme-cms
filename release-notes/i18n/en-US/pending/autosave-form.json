@@ -1,6 +1,6 @@
 {
   "id": "autosave-form",
   "kind": "paragraph",
-  "title": "Keep your writing if the tab closes",
+  "title": "Autosave",
   "text": "Closing the tab or losing your connection no longer loses what you wrote. With R2 caching on, the editor saves a page, post or draft as you type and restores it when you return. The line under the title shows Saving…, Saved or Not saved."
 }
