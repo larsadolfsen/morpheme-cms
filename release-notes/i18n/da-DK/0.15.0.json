@@ -4,7 +4,7 @@
   "notes": [
     {
       "id": "app-contract-4",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Tilføj apps uden at sætte hjemmesiden på spil",
       "text": "Hver app kører nu afgrænset og læser kun de data, den har bedt om. Åbn en app, og se under Rettigheder, hvor den kører, og hvor meget adgang den har."
     },
@@ -20,13 +20,13 @@
     },
     {
       "id": "dashboard-widget-grid",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Indret din startskærm",
       "text": "Startskærmen viser nu widgets i et gitter: Fortsæt, Ufærdigt, Blogrytme og Hjemmesidens status. Tryk på Rediger dashboard for at tilføje, fjerne og flytte dem."
     },
     {
       "id": "edition-photo-card",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Hver opdatering har sit eget sted",
       "text": "Hver opdatering har nu et foto og navnet på det sted, den er opkaldt efter, som Passo Giau. Du finder dem på startskærmen og på siden Morpheme."
     },
@@ -57,7 +57,7 @@
     },
     {
       "id": "md3-color-roles",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Nye farvenavne",
       "text": "Farverne følger nu Material 3’s navne, med nye Dæmpet flade, Lys flade, Slør og Skygge. Dine gamle farver virker stadig: åbn Farver og gem for at skifte dem over."
     },
@@ -73,7 +73,7 @@
     },
     {
       "id": "page-settings",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Sideindstillinger øverst",
       "text": "En sides titel, status og skabelon ligger nu samlet i Sideindstillinger. Åbn en side og tryk på Sideindstillinger for at vælge skabelonen på kort."
     },
@@ -89,7 +89,7 @@
     },
     {
       "id": "settings-cog",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Indstillinger bag tandhjulet",
       "text": "Udseende, Udvikler, Licenser, Morpheme og Privatliv ligger nu under Indstillinger. Tryk på tandhjulet nederst i menuen."
     },

@@ -14,7 +14,7 @@
     },
     {
       "id": "update-card-whats-new",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "What’s new, right on your start screen",
       "text": "After an update, the top of the start screen shows the new version and its main news. Tap See what’s new to read it all."
     }

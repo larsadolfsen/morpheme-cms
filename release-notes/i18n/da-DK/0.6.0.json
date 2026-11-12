@@ -3,7 +3,7 @@
   "notes": [
     {
       "id": "front-page-banner",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Flyt eller skjul banneret på forsiden",
       "text": "Forsiden tvinger ikke længere et banner. Det er nu en almindelig blok, du kan flytte, skjule eller fjerne, og en app-blok kan i stedet være toppen af forsiden."
     }
