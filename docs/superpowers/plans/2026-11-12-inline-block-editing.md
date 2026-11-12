@@ -22,6 +22,14 @@ Not yet checked there: `check:demo`, `check:starter`, and a look at the typed ca
 - A card with a page is one link and has no buttons. A card without a page may have buttons.
 - The old Colored background becomes Filled in the primary color.
 
+## Cards: a carousel setting for mobile (owner, 2026-11-12)
+
+A card setting (block level, in Edit next to Type and Color) that shows the cards as a carousel on a phone instead of stacked. The theme
+already has a carousel (`theme/ui/Carousel.tsx`, `carouselLayout.ts`). Before building, read the Material 3 carousel pages
+(m3.material.io/components/carousel) with the Playwright script, not from memory: which layouts M3 has (multi-browse, uncontained, hero),
+item sizes, and the rule for cards in a carousel. Open: which layout the phone uses, and whether it is also offered on larger screens.
+Own pull request after #413; it changes what a site shows, so it needs a release note line and the `check:screens` phone pass.
+
 ## Order of the rest
 
 1. Points with icon, Steps, Checklist (one pull request, the shape of the List).
