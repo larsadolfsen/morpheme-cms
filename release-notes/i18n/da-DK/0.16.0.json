@@ -10,14 +10,14 @@
     {
       "id": "assistants-read-site",
       "kind": "paragraph",
-      "title": "Lad en assistent læse din hjemmeside",
-      "text": "Claude og andre assistenter kan nu læse din hjemmesides oplysninger, sider, indlæg og apps med deres indstillinger, men kan ikke ændre noget. Åbn Indstillinger og derefter Assistenter, kopiér adressen ind i din assistent, log ind med GitHub, og tryk på Tillad. Afbryd fjerner en assistent igen."
+      "title": "Assistenter",
+      "text": "En assistent som Claude kan læse din hjemmeside, men ikke ændre noget. Åbn Indstillinger og derefter Assistenter, kopiér adressen ind i din assistent, log ind med GitHub, og tryk på Tillad. Afbryd fjerner den igen."
     },
     {
       "id": "connectors-connect-services",
       "kind": "paragraph",
-      "title": "Forbind en app til sin tjeneste, og vælg fra dens lister",
-      "text": "En forbindelse kan nu logge ind på sin tjeneste, for eksempel Calendly, og udfylde en indstilling fra tjenestens egen liste, så du ikke længere kopierer et id i hånden. Før du installerer den, viser dens side adressen, den forbinder til, og hvad den bruger. Åbn Appstore under Indstillinger, og vælg Forbindelser."
+      "title": "Forbindelser",
+      "text": "Du kopierer ikke længere et id i hånden. En forbindelse logger ind på sin tjeneste, for eksempel Calendly, og udfylder en indstilling fra tjenestens egen liste. Åbn Appstore under Indstillinger, og vælg Forbindelser; hver side viser, hvor den forbinder til."
     },
     {
       "id": "plugin-no-outside-access",
@@ -27,8 +27,8 @@
     {
       "id": "three-store-sections",
       "kind": "paragraph",
-      "title": "Find temaer, forbindelser og udvidelser i Appstore",
-      "text": "Appstore har nu tre afsnit: Temaer, Forbindelser og Udvidelser. En forbindelse viser, hvilken tjeneste den forbinder til, og en udvidelse har ingen adgang udefra. Åbn Appstore under Indstillinger, og vælg et afsnit øverst."
+      "title": "Appstore-afsnit",
+      "text": "Temaer, forbindelser og udvidelser er lette at skelne. Åbn Appstore under Indstillinger, og vælg Temaer, Forbindelser eller Udvidelser øverst. En forbindelse nævner sin tjeneste, og en udvidelse har ingen adgang udefra."
     }
   ]
 }

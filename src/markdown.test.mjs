@@ -60,7 +60,7 @@ test('an H1 with a picture behind it and the whole width comes back byte for byt
 });
 
 test('the marker comes before a label above the H1', async () => {
-  const text = marked('primary', '<p class="block-eyebrow">Welcome</p>\n\n# About\n\nText\n');
+  const text = marked('primary', '<p class="label-medium">Welcome</p>\n\n# About\n\nText\n');
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
   assert.ok(nodes.includes('heading:primary'));
@@ -72,7 +72,7 @@ test('a text without markers is written as before', async () => {
 });
 
 test('the marker comes before a label above the H2', async () => {
-  const text = marked('surface', '<p class="block-eyebrow">Step by step</p>\n\n## Hours\n\nText\n');
+  const text = marked('surface', '<p class="label-medium">Step by step</p>\n\n## Hours\n\nText\n');
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
   assert.ok(nodes.includes('heading:surface'));
