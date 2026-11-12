@@ -61,9 +61,11 @@ const fixed = readdirSync('src/data')
   .map((f) => join('src/data', f));
 const files = process.argv.length > 2 ? process.argv.slice(2) : [...walk('src/content/blog'), ...walk('src/content/pages'), ...fixed];
 
-// The site's own Markdown steps (astro.mjs), so a Banner made a section reads the same before and after a save.
+// The site's own Markdown steps (astro.mjs), so a block that has become text reads the same before and after a save.
 const { remarkBannerSections } = await import('@morphemecms/cms/lib/remark-banner-section.mjs');
-const processor = await createMarkdownProcessor({ remarkPlugins: [remarkBannerSections] });
+const { remarkChecklists } = await import('@morphemecms/cms/lib/remark-checklist.mjs');
+const { remarkListHeads } = await import('@morphemecms/cms/lib/remark-list-head.mjs');
+const processor = await createMarkdownProcessor({ remarkPlugins: [remarkBannerSections, remarkChecklists, remarkListHeads] });
 const render = async (md) => (await processor.render(md)).code.replace(/\s+/g, ' ').trim();
 
 let failed = 0;

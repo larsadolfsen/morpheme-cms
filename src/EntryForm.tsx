@@ -29,15 +29,15 @@ import { looksOf, pageH1 } from './sections.mjs';
 import { h1FromTitle, titleFromH1 } from './titleH1.mjs';
 import { useFormSections } from './formSections';
 import { sectionsWithFields } from './formSectionList.mjs';
-import { publicPath, shownAt, useUploads } from './images';
+import { creditedIn, publicPath, shownAt, useUploads } from './images';
 import { filerAddresses, useMediaPicker } from './Media';
 import { autoTagChanges, newlyUsed } from './autoTags.mjs';
-import { recordsIn } from './fileRecords.mjs';
+import { creditChanges, recordsIn } from './fileRecords.mjs';
 import { inUse, problemAt } from './check';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
 import { asStandardTemplate, blockProblems, notOffered, siteBlocks } from './registry';
-import { FieldInput, Fields, useWrongField, WrongField, type FieldContext } from './fields';
+import { FieldInput, Fields, HeadPicture, HeadTitle, useWrongField, WrongField, type FieldContext } from './fields';
 import { SearchPreview } from './SearchPreview';
 import { searchedAs } from './googleResult.mjs';
 import {
@@ -87,6 +87,8 @@ import { firstPicture, SEO_FIELDS, seoInputOf, seoRating, SHARE_FIELDS, sharedAs
 // for Scheduled), a page's title (its name in the lists and the menu; its H1 is in its text) and the template (Field.offered).
 // A post's title is its H1, written above its text: at the top of "Content", as a heading of a collection that has one.
 const TOP = ['title', 'heading'];
+// A blog post's head, drawn in the text as the site draws it (PostHead): the title, the top picture and its text, the date and the tags.
+const POST_HEAD = ['title', 'image', 'imageDecorative', 'imageAlt', 'date', 'categories'];
 const STATUS = ['status', 'publishAt'];
 // Under their own headings at the bottom: the Google texts, the keywords and the canonical address; then the picture, title
 // and description when the page is shared.
@@ -106,7 +108,15 @@ const sectionOf = (collection: MarkdownCollection, path: string): Section => {
     STATUS.includes(name) ||
     (!!collection.blocks && name === 'title') ||
     collection.fields.some((f) => f.name === name && f.offered === 'templates');
-  return settings ? 'settings' : TOP.includes(name) ? 'content' : SEO.includes(name) ? 'seo' : SHARE.includes(name) ? 'share' : 'other';
+  return settings
+    ? 'settings'
+    : TOP.includes(name) || (collection.id === 'blog' && POST_HEAD.includes(name))
+      ? 'content'
+      : SEO.includes(name)
+        ? 'seo'
+        : SHARE.includes(name)
+          ? 'share'
+          : 'other';
 };
 // The section the next page or post opened starts at: "Search engines" when it is opened from "SEO rating"
 // (SeoScores.tsx), else the text.
@@ -558,7 +568,7 @@ function Form({
   // now and did not in its last saved version (a picture, a PDF field, a link) gets the page's tags at "Save" (autoTags.mjs).
   const tagged = collection.fields.some((f) => f.name === 'categories' && f.type === 'relation' && f.to === 'categories');
   const pictures = useUploads(notify);
-  const [pickImage, picker] = useMediaPicker(env.media, pictures);
+  const [pickImage, picker] = useMediaPicker(env.media, pictures, env.files);
 
   const fields: FieldContext = {
     relations: env.relations,
@@ -780,7 +790,7 @@ function Form({
     const used = pictures.usedIn(next);
     const removed = base.path && path !== base.path ? [base.path] : [];
     // The page's tags to the files in "Files" it newly refers to (the text as last saved against the text now), in the same commit.
-    const recordChanges = tagged
+    const autoRecordChanges = tagged
       ? autoTagChanges(
           recordsIn(env.files, config.fileRecords),
           config.fileRecords,
@@ -790,6 +800,8 @@ function Form({
           Array.isArray(saved.categories) ? (saved.categories as string[]) : [],
         )
       : [];
+    // The credit of a picture from an app's source of pictures goes in its record, in the same commit as the picture.
+    const recordChanges = creditChanges(autoRecordChanges, recordsIn(env.files, config.fileRecords), config.fileRecords, creditedIn(used));
     // The waiting version: the text of the form without `status`, with the time it already has.
     const waitingPath = viaDraft ? draftPath(isNew ? path : live.path) : '';
     const asDraft = (text: string) =>
@@ -1150,6 +1162,30 @@ function Form({
     return <FieldInput key={f.name} field={shown} value={value} onChange={change} />;
   };
 
+  // A blog post's head in the text, in the order of the site's PostHeader: the title, the author, the picture at the top (tap to
+  // change) with its text, then a row of facts, the date and the tags.
+  const headField = (name: string) => collection.fields.find((f) => f.name === name);
+  const titleField = headField('title');
+  const author = env.site.contact;
+  const postHead = post && titleField && (
+    <header className="mb-6 space-y-5" data-post-head>
+      <HeadTitle field={titleField} value={values.title} onChange={(v) => onTitle(String(v ?? ''))} />
+      {author.name && (
+        <p className="leading-snug">
+          <span className="block font-medium">{author.name}</span>
+          {author.role && <span className="block text-on-surface-variant">{author.role}</span>}
+        </p>
+      )}
+      <div className="space-y-4">
+        {headField('image') && <HeadPicture field={headField('image')!} value={values.image} onChange={(v) => set('image', v)} />}
+        {['imageDecorative', 'imageAlt'].map((n) => headField(n) && field(headField(n)!))}
+      </div>
+      <div className="flex flex-wrap items-start gap-x-6 gap-y-4 border-t border-outline-variant pt-4 *:min-w-48 *:flex-1">
+        {['date', 'categories'].map((n) => headField(n) && field(headField(n)!))}
+      </div>
+    </header>
+  );
+
   return (
     <Fields.Provider value={fields}>
       <WrongField.Provider value={wrongField.field}>
@@ -1207,7 +1243,7 @@ function Form({
                   <FoldSection {...sectionProps('settings')}>{fieldsIn(collection, 'settings').map(field)}</FoldSection>
                 )}
                 <FoldSection {...sectionProps('content')}>
-                  {fieldsIn(collection, 'content').map(field)}
+                  {post ? postHead : fieldsIn(collection, 'content').map(field)}
                   <div ref={textBox} className="scroll-mt-[calc(1rem+env(safe-area-inset-top))]">
                     <span className="mb-1 block font-medium">{t.forms.text}</span>
                     <MarkdownEditor
