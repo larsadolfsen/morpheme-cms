@@ -359,8 +359,14 @@ async function checkPreviewDraft(width) {
 }
 
 /** A List typed in the text: while a row is active and the list has rows, the text button "Add list row" is under the last row and adds one, the faded empty row is not there, the active row has a dotted line, and Add above and Add below are icon buttons; when the cursor leaves, the button is gone. */
-async function checkInlineList(width, height) {
-  const label = `${width}px inline list`;
+const inlineBlocks = [
+  { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
+  { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
+];
+
+/** `surface`: the item is a card with a container of its own, so it has a background colour. */
+async function checkInlineBlock(width, height, { name, hint, add, surface }) {
+  const label = `${width}px inline ${name}`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
@@ -374,7 +380,7 @@ async function checkInlineList(width, height) {
   if (!(await page.locator('[aria-label="Insert"]:visible').count()))
     await page.locator('[aria-label="Show more tools"]:visible').first().tap();
   await page.locator('[aria-label="Insert"]:visible').first().tap();
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: hint }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
   await page.waitForTimeout(300);
@@ -391,21 +397,21 @@ async function checkInlineList(width, height) {
       })),
     }));
   const one = await state();
-  if (one.next) problems.push(`${label}: the faded empty row shows although the list has a row`);
-  if (one.add.join() !== 'Add list row')
-    problems.push(`${label}: expected the button "Add list row" under an active list, got "${one.add}"`);
+  if (one.next) problems.push(`${label}: the faded empty item shows although the block has an item`);
+  if (one.add.join() !== add) problems.push(`${label}: expected the button "${add}" under an active block, got "${one.add}"`);
   if (one.outline !== 'dotted') problems.push(`${label}: the active row has outline ${one.outline}, not dotted`);
-  if (one.background !== 'rgba(0, 0, 0, 0)') problems.push(`${label}: the active row has a background colour (${one.background})`);
+  if (!surface && one.background !== 'rgba(0, 0, 0, 0)')
+    problems.push(`${label}: the active row has a background colour (${one.background})`);
   for (const name of ['Add above', 'Add below'])
     if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
   await page.click('[data-add-row]');
   await page.waitForTimeout(300);
   const two = await state();
-  if (two.rows !== 2) problems.push(`${label}: "Add list row" left ${two.rows} rows, not 2`);
+  if (two.rows !== 2) problems.push(`${label}: "${add}" left ${two.rows} items, not 2`);
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   if ((await page.locator('[data-add-row]').count()) > 0)
-    problems.push(`${label}: the button "Add list row" stays after the cursor left the list`);
+    problems.push(`${label}: the button "${add}" stays after the cursor left the block`);
   await page.close();
 }
 
@@ -1247,7 +1253,7 @@ for (const [width, height] of [
 ])
   await checkDraftsCard(width, height);
 await checkEmptyHint();
-await checkInlineList(375, 740);
+for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
 for (const [width, height] of [
   [360, 740],
   [375, 740],

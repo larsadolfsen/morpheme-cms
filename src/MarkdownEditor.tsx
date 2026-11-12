@@ -84,7 +84,9 @@ import { useToolbarLines } from './useToolbarLines';
 import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
 import { describe, htmlBlock, type BlockProps } from './blocks';
-import InlineList, { RowsFromList, type Change, type Focus, type Row } from './InlineList';
+import { RowsFromList } from './InlineList';
+import { inlineViews } from './inlineViews';
+import type { Change, Focus, Item as Row } from './InlineItems';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
 import { editorRows } from './standard/rows/view';
 import { fromLine } from './standard/rows/fields';
@@ -1020,7 +1022,9 @@ function blockCard(
   // A block gone from the site by itself (a notice whose time is over) is greyed like a hidden one.
   const over = !!block?.over?.(node.attrs.props);
   // A block typed in place (InlineList.tsx): its card is not a button to tap but the block itself, with its menu on a handle.
-  const inline = !!block?.inline && node.attrs.type !== HTML;
+  const inline = !!block?.inline && !!inlineViews[node.attrs.type] && node.attrs.type !== HTML;
+  const spec = block?.inline;
+  const Inline = inlineViews[node.attrs.type];
   const dom = document.createElement('div');
   dom.className = hidden || over ? 'site-block site-block-hidden' : 'site-block';
   dom.contentEditable = 'false';
@@ -1054,10 +1058,13 @@ function blockCard(
     syncRow(true);
   };
   let stopAway = () => {};
-  const rows = () => (node.attrs.props.items as Row[] | undefined) ?? [];
+  const rows = () => (node.attrs.props[spec?.item ?? 'items'] as Row[] | undefined) ?? [];
   const setItems = (items: Row[]) => {
     const here = at();
-    if (here) view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props: { ...node.attrs.props, items } }));
+    if (here)
+      view.dispatch(
+        view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props: { ...node.attrs.props, [spec?.item ?? 'items']: items } }),
+      );
   };
   const change = (c: Change) => {
     if ('active' in c) active = c.active ?? null;
@@ -1086,8 +1093,10 @@ function blockCard(
       }
       flushSync(() =>
         root.render(
-          <InlineList
-            items={(node.attrs.props.items as Row[] | undefined) ?? []}
+          <Inline
+            items={rows()}
+            props={node.attrs.props}
+            data={ask.data}
             active={active}
             focus={focus}
             onChange={change}
@@ -1122,7 +1131,7 @@ function blockCard(
     let tries = 0;
     const start = () => {
       if (document.querySelector('dialog[open]') && tries++ < 30) return void setTimeout(start, 50);
-      change({ active: 0, focus: { row: 0, field: 'title' } });
+      change({ active: 0, focus: { row: 0, field: spec!.fields[0] } });
     };
     setTimeout(start);
   }
@@ -1179,21 +1188,27 @@ function blockCard(
   let handle = card;
   if (inline) {
     const rowFieldsOf = (names: string[]) =>
-      (block?.fields.find((f) => f.name === 'items')?.fields ?? []).filter((f) => names.includes(f.name));
+      (block?.fields.find((f) => f.name === spec!.item)?.fields ?? []).filter((f) => names.includes(f.name));
     // The settings (link and small heading) and the icon picker, which the row's icon slot opens.
-    const itemFields = rowFieldsOf(['href']);
-    const iconFields = rowFieldsOf(['icon']).map((f) => ({ ...f, iconsOpen: true }));
+    const itemNames = spec!.settings ?? (spec!.link ? [spec!.link] : []);
+    const slotNames = spec!.media ?? (spec!.icon ? [spec!.icon] : []);
+    const itemFields = rowFieldsOf(itemNames);
+    // The icon slot of a List opens the icon picker; a card's media slot has the media fields (its kind and what it shows).
+    const iconFields = rowFieldsOf(slotNames).map((f) => (spec!.media ? f : { ...f, iconsOpen: true }));
+    const valueOf = (row: Row, names: string[]) => Object.fromEntries(names.map((n) => [n, row[n] ?? rowFieldsOf([n])[0]?.default ?? '']));
+    const setFields = (list: Row[], i: number, names: string[], v: BlockProps) =>
+      names.reduce((items, n) => setField(items, i, n, String(v[n] ?? ''), spec!.fields[0]), list);
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
     const rowActions = (): BarAction[] => {
       const list = rows();
       if (active === null || active >= list.length || isEmptyRow(list[active])) return [];
       const i = active;
-      const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: 'title' } });
+      const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
-        { kind: 'link', label: t.blocks.list.link, action: settings },
-        { kind: 'above', label: t.blocks.list.addAbove, action: () => go(addAt(list, i), i) },
-        { kind: 'below', label: t.blocks.list.addBelow, action: () => go(addAt(list, i + 1), i + 1) },
+        { kind: 'link', label: spec!.texts.link, action: settings },
+        { kind: 'above', label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
+        { kind: 'below', label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
         ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
         ...(i < list.length - 1 ? [{ kind: 'down' as const, label: t.common.moveDown, action: () => go(moveBy(list, i, 1), i + 1) }] : []),
       ];
@@ -1204,7 +1219,7 @@ function blockCard(
       rowActions,
       edit: settings,
       compact,
-      labels: { row: t.blocks.list.row, edit: t.common.edit },
+      labels: { row: spec!.texts.row, edit: t.common.edit },
     });
     handle = bar.block;
     // The settings of the active row (its icon and link), live: from expanded in the side panel while a row is active, below it in a bottom
@@ -1217,23 +1232,21 @@ function blockCard(
       const row = rows()[i] ?? {};
       if (iconOf === i)
         return {
-          headline: t.blocks.list.icon,
+          headline: spec!.texts.icon,
           fields: iconFields,
-          value: { icon: row.icon ?? '' },
-          closes: true,
+          value: valueOf(row, slotNames),
+          // The icon picker closes when an icon is picked; the media fields stay open for the next choice.
+          closes: !spec!.media,
           onChange: (v: BlockProps) => {
-            iconOf = null;
-            setItems(setField(rows(), i, 'icon', String(v.icon ?? '')));
+            if (!spec!.media) iconOf = null;
+            setItems(setFields(rows(), i, slotNames, v));
           },
         };
       return {
-        headline: t.blocks.list.rowSettings,
+        headline: spec!.texts.settings,
         fields: itemFields,
-        value: { href: row.href ?? '' },
-        onChange: (v: BlockProps) => {
-          const items = setField(rows(), i, 'href', String(v.href ?? ''));
-          setItems(items);
-        },
+        value: valueOf(row, itemNames),
+        onChange: (v: BlockProps) => setItems(setFields(rows(), i, itemNames, v)),
       };
     };
     // Leaving the block (a tap or the focus elsewhere, but not in its toolbar, its menu or its settings): the row being edited is done,
@@ -1269,7 +1282,7 @@ function blockCard(
       const { rules, locked, stays } = keeps();
       return [
         block?.fields.length
-          ? !inline && !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
+          ? (!inline || spec?.blockSettings) && !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
           : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
         block?.shown || (stays && hidden === false)
           ? undefined
