@@ -395,13 +395,14 @@ async function checkPreviewDraft(width) {
 const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
   { name: 'steps', hint: 'Numbered steps.', add: 'Add step', noEdit: true },
+  { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button' },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
   { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
 ];
 
 /** `surface`: the item is a card with a container of its own, so it has a background colour. */
-async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, field = 'title', open }) {
+async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowButtons, field = 'title', open }) {
   const label = `${width}px inline ${name}`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
@@ -445,6 +446,20 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   if (noEdit)
     for (const name of ['Link', 'Edit'])
       if (one.bar.some((b) => b.label === name)) problems.push(`${label}: the toolbar has "${name}" although the block has no settings`);
+  // A row's buttons: under the active row's text the text button `rowButtons` adds a button whose text is typed there.
+  if (rowButtons) {
+    const adds = await page.locator('[data-add-button]').allTextContents();
+    if (adds.map((s) => s.trim()).join() !== rowButtons)
+      problems.push(`${label}: expected the button "${rowButtons}" in the active row, got "${adds}"`);
+    await page.click('[data-add-button]');
+    await page.keyboard.type('More');
+    await page.waitForTimeout(300);
+    const typed = await page
+      .locator('.inline-segmented-button textarea')
+      .inputValue()
+      .catch(() => null);
+    if (typed !== 'More') problems.push(`${label}: the text typed in a row's new button is "${typed}", not "More"`);
+  }
   await page.click('[data-add-row]');
   await page.waitForTimeout(300);
   const two = await state();
