@@ -1271,8 +1271,12 @@ function blockCard(
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
         ...(itemNames.length ? [{ kind: 'link' as const, label: spec!.texts.link ?? '', action: settings }] : []),
-        { kind: 'above', label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
-        { kind: 'below', label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
+        ...(spec!.max === undefined || list.length < spec!.max
+          ? [
+              { kind: 'above' as const, label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
+              { kind: 'below' as const, label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
+            ]
+          : []),
         ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
         ...(i < list.length - 1 ? [{ kind: 'down' as const, label: t.common.moveDown, action: () => go(moveBy(list, i, 1), i + 1) }] : []),
       ];
