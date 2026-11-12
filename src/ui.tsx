@@ -1087,9 +1087,11 @@ export function IconPicker({
       <div className="flex items-center gap-3">
         {value && <LeadingIcon>{icon(value, 24)}</LeadingIcon>}
         <span className="min-w-0 flex-1 truncate">{chosen ? chosen.label : value ? iconLabel(value) : t.forms.noIconYet}</span>
-        <Button kind="outlined" size="small" aria-expanded={open} aria-controls={grid} onClick={() => setOpen(!open)}>
-          {open ? t.forms.hideIcons : value ? t.forms.changeIcon : t.forms.pickIcon}
-        </Button>
+        {!open && (
+          <Button kind="outlined" size="small" aria-expanded={open} aria-controls={grid} onClick={() => setOpen(true)}>
+            {value ? t.forms.changeIcon : t.forms.pickIcon}
+          </Button>
+        )}
       </div>
       {open && (
         <div id={grid} className="editor-reveal mt-3">

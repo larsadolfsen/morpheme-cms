@@ -189,7 +189,6 @@ export const forms: Messages['forms'] = {
   pickIcon: 'Vælg et ikon',
   noIconYet: 'Intet ikon endnu',
   changeIcon: 'Skift ikon',
-  hideIcons: 'Skjul ikonerne',
   fixedPages: 'Standardsider',
   pages: 'Sider',
   choose: 'Vælg …',

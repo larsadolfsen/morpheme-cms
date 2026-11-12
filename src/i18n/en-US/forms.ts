@@ -237,7 +237,6 @@ export const forms = {
   pickIcon: 'Choose an icon',
   noIconYet: 'No icon yet',
   changeIcon: 'Change icon',
-  hideIcons: 'Hide the icons',
   fixedPages: 'Default pages',
   pages: 'Pages',
   choose: 'Choose…',
