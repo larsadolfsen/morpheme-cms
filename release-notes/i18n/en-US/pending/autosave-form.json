@@ -1,6 +1,6 @@
 {
   "id": "autosave-form",
   "kind": "paragraph",
-  "title": "Keep your changes while you write",
-  "text": "With Faster editor on, the editor now saves your changes as you type, also in a new page or post and in a draft. Closing the tab or losing your connection no longer loses them. The line under the title shows Saving…, Saved or Not saved."
+  "title": "Keep your writing if the tab closes",
+  "text": "Closing the tab or losing your connection no longer loses what you wrote. With Faster editor on, the editor saves a page, post or draft as you type and restores it when you return. The line under the title shows Saving…, Saved or Not saved."
 }
