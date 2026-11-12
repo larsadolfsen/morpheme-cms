@@ -29,7 +29,6 @@ import { unseen, useNotifications } from './notificationData';
 import { openNotifications, useNotificationsOpen } from './notificationsOpen';
 import { SiteLogoLink } from './SiteLogoLink';
 import { useTopBarSlot } from './topBarSlot';
-import { BuildChip } from './BuildChip';
 
 // `label` is the screen back goes to, named by the back arrow and the breadcrumbs. `guard` takes every
 // way out of the screen (back, the breadcrumbs and the logo) and goes it, after warning about changes
@@ -161,7 +160,6 @@ export default function Screen<T extends string>({
           {pageActions && <div className="flex items-center gap-1 expanded:hidden">{pageActions}</div>}
           {actions}
         </div>
-        <BuildChip />
         <NotificationsButton />
         {home && <WebsiteLink />}
         {drawer}

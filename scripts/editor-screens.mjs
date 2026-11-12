@@ -628,6 +628,21 @@ for (const [width, height] of [
         missing: [...document.querySelectorAll('[data-icon-missing]')].map((e) => e.getAttribute('data-icon-missing')),
         fallback: [...document.querySelectorAll('[data-icon-fallback]')].map((e) => e.getAttribute('data-icon-fallback')),
       }));
+      // No sheet from the bottom starts taller than --bottom-sheet-start-max-height (half the screen, Material 3), on a phone.
+      if (width < 600) {
+        const tooTall = await page.evaluate(() => {
+          const cap = innerHeight / 2 + 1;
+          const bad = [];
+          for (const d of document.querySelectorAll('dialog.editor-sheet.bottom-sheet:not(.editor-side-panel)')) {
+            if (d.open) continue;
+            d.showModal();
+            if (d.offsetHeight > cap) bad.push(`${d.getAttribute('aria-label') ?? d.className} (${Math.round(d.offsetHeight)}px)`);
+            d.close();
+          }
+          return bad;
+        });
+        for (const name of tooTall) problems.push(`${width}px #${hash}: the sheet ${name} starts taller than half the screen`);
+      }
       for (const name of new Set(state.fallback)) fallbackAt(name, `${width}px #${hash}`);
       for (const name of new Set(state.missing)) problems.push(`${width}px #${hash}: ${missingIcon(name)}`);
       if (state.empty) problems.push(`${width}px #${hash}: the screen is empty`);

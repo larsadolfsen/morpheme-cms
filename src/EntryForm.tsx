@@ -926,7 +926,7 @@ function Form({
     const entry = kindAndName(collection.singular, String(initial.title ?? '').trim() || slugOf(live.path, collection.folder));
     return { what, entry, singular: asWritten(collection).singular };
   };
-  // Saves the files of an action that is not a save of the form (`Unpublish`, `Discard changes`) and keeps what the form holds in step.
+  // Saves the files of an action that is not a save of the form (`Unpublish`, `Discard draft`) and keeps what the form holds in step.
   async function act(message: string, changes: Change[], change: string, onSite: boolean, done: (oids: Record<string, string>) => void) {
     setSaving(true);
     notify({ text: t.common.saving });
@@ -989,13 +989,13 @@ function Form({
       env.onSaved(saved, { files: [], removed: [] });
     });
   }
-  // `Discard changes`: the waiting version goes, and the form is the page on the website again.
+  // `Discard draft`: the waiting version goes, and the form is the page on the website again.
   async function discardNow() {
     if (!waiting) return;
     const answer = await choose({
       title: t.forms.versions.discardTitle,
-      text: t.forms.versions.discardText(post),
-      choices: [{ value: 'discard', label: t.forms.versions.discardChanges }],
+      text: t.forms.versions.discardText(nameForMessages().entry),
+      choices: [{ value: 'discard', label: t.forms.versions.discardDraft }],
     });
     if (!answer) return;
     const { what, entry, singular } = nameForMessages();
@@ -1067,7 +1067,7 @@ function Form({
     { label: t.forms.versions.schedule, onClick: scheduleNow },
     ...(scheduledAt ? [{ label: t.forms.versions.cancelSchedule, onClick: cancelSchedule }] : []),
   ];
-  const discardRow = waiting ? [{ label: t.forms.versions.discardChanges, onClick: discardNow }] : [];
+  const discardRow = waiting ? [{ label: t.forms.versions.discardDraft, onClick: discardNow }] : [];
   const publishBar = editsLive
     ? {
         onPublish: publishNow,
@@ -1143,7 +1143,7 @@ function Form({
     if (!inUse(f, collection.fields, values)) return false;
     // A new page has no title field: its H1 is its title, typed in the text (the field comes with the saved page).
     if (f.name === 'title' && collection.blocks && isNew) return false;
-    const shown = f.offered ? templateFieldOf(f, env.files) : f;
+    const shown = f.offered ? templateFieldOf(f, env.files, values[f.name]) : f;
     if (!shown) return false;
     const value = f.offered ? shownTemplate(shown, values[f.name]) : values[f.name];
     const change = f.name === 'title' ? (v: unknown) => onTitle(String(v ?? '')) : (v: unknown) => onChange(f, v);
@@ -1190,7 +1190,12 @@ function Form({
                 unpublish={unpublishNow}
                 discard={() => discardNow()}
               />
-              <WaitingNotice editsLive={editsLive} when={scheduledAt ? timeText(scheduledAt) : undefined} />
+              <WaitingNotice
+                editsLive={editsLive}
+                when={scheduledAt ? timeText(scheduledAt) : undefined}
+                busy={saving || deleting}
+                onDiscard={() => void discardNow()}
+              />
             </>
           )}
           <FormColumns

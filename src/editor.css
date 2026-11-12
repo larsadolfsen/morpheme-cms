@@ -361,11 +361,16 @@
   }
 }
 
-/* A sheet that is dragged up by its top on a phone (SheetTitle in ui.tsx) is as tall as the screen,
-   below the clock, or as tall as what is in it, if that is less. */
+/* A sheet that is dragged up by its top on a phone (SheetTitle in ui.tsx) is as tall as the screen allows
+   (--bottom-sheet-top-gap from the top, and below the clock), or as tall as what is in it, if that is less. A sheet
+   starts at --bottom-sheet-start-max-height at most (ui.css). */
 @media (width < theme(--breakpoint-medium)) {
   .editor-sheet[data-tall] {
-    max-height: calc(100dvh - env(safe-area-inset-top));
+    --editor-sheet-tall: calc(100dvh - max(var(--bottom-sheet-top-gap, 4.5rem), env(safe-area-inset-top)));
+    max-height: var(--editor-sheet-tall);
+  }
+  .editor-sheet.bottom-sheet-full[data-tall] {
+    height: var(--editor-sheet-tall);
   }
 }
 

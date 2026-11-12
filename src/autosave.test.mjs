@@ -258,6 +258,37 @@ test('onFlushed is called when git got a new version, not on leaving', async () 
   assert.equal(flushed.length, 1);
 });
 
+test('what git got while the page was left is told to the form when the person is back, once', async () => {
+  const flushed = [];
+  const a = createAutosave({
+    send: async () => ({ ok: true, committed: true, path: 'src/content/b.md' }),
+    ...clock(),
+    onFlushed: (d) => flushed.push(d),
+  });
+  a.autosave('src/content/a.md', 'x');
+  await a.leave();
+  assert.deepEqual(flushed, []);
+  a.resume();
+  a.resume();
+  assert.deepEqual(flushed, [{ path: 'src/content/a.md', id: 'waiting', wrote: 'src/content/b.md' }]);
+});
+
+test('watchLeaving resumes the autosave when the page is shown again', () => {
+  const events = {};
+  const target = {
+    document: { visibilityState: 'hidden', addEventListener: (n, f) => (events[n] = f), removeEventListener: (n) => delete events[n] },
+    addEventListener: (n, f) => (events[n] = f),
+    removeEventListener: (n) => delete events[n],
+  };
+  const log = [];
+  watchLeaving({ leave: () => log.push('leave'), resume: () => log.push('resume') }, target);
+  events.visibilitychange();
+  target.document.visibilityState = 'visible';
+  events.visibilitychange();
+  events.pageshow();
+  assert.deepEqual(log, ['leave', 'resume', 'resume']);
+});
+
 test('loadAutosave and deleteAutosave ask the Worker, and restorable compares with git', async () => {
   const log = [];
   const fetcher = async (url, init = {}) => (
