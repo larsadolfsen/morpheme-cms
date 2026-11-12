@@ -53,6 +53,12 @@ test('a coloured H1 comes back byte for byte', async () => {
   assert.deepEqual(nodes, ['heading:surface', 'paragraph']);
 });
 
+test('an H1 with a picture behind it and the whole width comes back byte for byte', async () => {
+  const text = '<div data-section="" data-picture="/images/a.jpg" data-alt="A field" data-width="full"></div>\n\n# About\n\nText\n';
+  const { saved } = await through(text);
+  assert.equal(saved, text);
+});
+
 test('the marker comes before a label above the H1', async () => {
   const text = marked('primary', '<p class="block-eyebrow">Welcome</p>\n\n# About\n\nText\n');
   const { saved, nodes } = await through(text);

@@ -130,6 +130,14 @@ export const forms = {
     draftLine: 'Draft',
     waitingLine: 'Unpublished changes',
     publishedLine: (when: string) => `Published · Changed ${when}`,
+    /** The line under the title while changes to a published page are not saved yet (autosave, with Faster editor on). */
+    autosave: {
+      saving: 'Saving…',
+      saved: 'Saved',
+      notSaved: 'Not saved',
+      /** After opening a page that had changes the editor kept for you. */
+      restored: 'Your unsaved changes are back',
+    },
     /** After saving changes to a published page: the website keeps the version it has. */
     savedWaiting: 'Changes saved. The website shows the published version until you publish.',
     unpublishTitle: (post: boolean) => `Unpublish this ${post ? 'post' : 'page'}?`,
