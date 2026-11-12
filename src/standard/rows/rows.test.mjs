@@ -1,7 +1,7 @@
 // Tests "Rows from" of the list blocks (rows.mjs). Run: node --test src/standard/rows/rows.test.mjs
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { inlineRowsOf, chosenFrom, howManyOf, itemOfEntry, rowOf, rowsFromItems, sourceOf } from './rows.mjs';
+import { inlineRowsOf, chosenFrom, howManyOf, itemOfEntry, mapOf, rowOf, rowsFromItems, sourceOf } from './rows.mjs';
 
 test('no source means typed rows', () => {
   assert.equal(sourceOf(undefined), undefined);
@@ -44,8 +44,9 @@ test('a row has a trimmed title; without one the item is left out', () => {
 });
 
 test('an entry of a list that says its fields becomes an item', () => {
-  const item = itemOfEntry({ name: 'N', body: 'B', cats: ['x'], page: '/p/' }, { title: 'name', text: 'body', href: 'page', tags: 'cats' });
-  assert.deepEqual(item, { title: 'N', text: 'B', icon: undefined, href: '/p/', tags: ['x'] });
+  const entry = { name: 'N', body: 'B', cats: ['x'], page: '/p/' };
+  const item = itemOfEntry(entry, { title: 'name', text: 'body', href: 'page', tags: 'cats' });
+  assert.deepEqual(item, { entry, title: 'N', text: 'B', icon: undefined, href: '/p/', tags: ['x'] });
   assert.deepEqual(itemOfEntry({ name: 'N' }, { title: 'name' }).tags, []);
 });
 
@@ -79,4 +80,22 @@ test('the inline editor reads the list for a dynamic block and types for a block
   );
   assert.equal(inlineRowsOf({ from: 'posts', tags: ['z'] }, items)?.empty, true);
   assert.equal(inlineRowsOf({ from: 'posts' }, items)?.rows.length, 3);
+});
+test("a block's `map` picks the field of the list for each part; no or broken map reads as the list's own", () => {
+  const asRows = { title: 'name', text: 'about', icon: 'icon', href: 'page', tags: 'tags' };
+  const entry = { name: 'Haircut', about: 'Wash and cut', alt: 'Cut', price: '300 kr', icon: 'scissors', page: '/cut/', tags: ['home'] };
+  const items = [itemOfEntry(entry, asRows)];
+  const first = (/** @type {unknown} */ map) => rowsFromItems(items, { map })[0];
+  assert.deepEqual(first(undefined), { title: 'Haircut', text: 'Wash and cut', icon: 'scissors', href: '/cut/' });
+  assert.deepEqual(first('x'), first(undefined));
+  assert.deepEqual(first({}), first(undefined));
+  assert.deepEqual(first({ text: 'price', title: 5 }), { title: 'Haircut', text: '300 kr', icon: 'scissors', href: '/cut/' });
+  assert.equal(first({ icon: '', href: '' })?.icon, undefined);
+  assert.equal(first({ title: '' })?.title, 'Haircut');
+  assert.equal(first({ title: 'missing' }), undefined);
+  assert.deepEqual(mapOf({ title: ' alt ', other: 'x' }), { title: 'alt' });
+  // Items without an entry (posts, testimonials) stay as they are; tags still filter by the list's own.
+  assert.equal(rowsFromItems([{ title: 'Post', tags: ['x'] }], { map: { title: 'alt' } })[0].title, 'Post');
+  assert.equal(rowsFromItems(items, { map: { title: 'alt' }, tags: ['home'] })[0].title, 'Cut');
+  assert.equal(rowsFromItems(items, { map: { title: 'alt' }, tags: ['nope'] }).length, 0);
 });

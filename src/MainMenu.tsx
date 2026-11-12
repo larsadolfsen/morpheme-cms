@@ -12,7 +12,7 @@ import { config, header } from '@site/editor';
 import { currentPlace, menuTree } from '../lib/menu.mjs';
 import { STORE_ROUTE } from './store';
 import { collectionOf } from './schema';
-import { collections, companyParts, groups, icons, lists, partScreens, settings } from './site';
+import { collectionsFor, companyParts, groups, icons, lists, partScreens, settings } from './site';
 import { partOf } from './Library';
 import { AccountRow } from './AccountRow';
 import { childrenOf } from './menuChildren';
@@ -48,7 +48,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     [files],
   );
   // A file being edited (a page, a post) is open under its list; the same call as wave 3's in App.tsx.
-  const collection = collectionOf(collections, route)?.collection;
+  const collection = collectionOf(collectionsFor(files ?? []), route)?.collection;
   const place = currentPlace(route, tree, {
     open: collection?.id,
     lists,

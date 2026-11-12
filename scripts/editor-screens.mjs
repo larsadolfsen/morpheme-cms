@@ -178,10 +178,10 @@ async function checkTextSheet(width = 360) {
       problems.push(`${width}px text menu: not by the text at the ${name}`);
     if (
       !now.names.some((n) => n.endsWith('heading') || n.endsWith('Heading')) ||
-      !now.names.includes('Insert') ||
+      now.names.includes('Insert') ||
       now.names.at(-1) !== 'More'
     )
-      problems.push(`${width}px text menu: Heading, Insert (+) and More (three dots, last) are not all there at the ${name}`);
+      problems.push(`${width}px text menu: Heading and More (three dots, last) are not all there, or Insert is at the ${name}`);
   }
   // Bold, Italic and Link come first, every button is 48 dp, nothing scrolls, and each row is centred (a second row when they do not fit).
   if (first.names.slice(0, 3).join() !== 'Bold,Italic,Link')
@@ -363,10 +363,12 @@ const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
   { name: 'steps', hint: 'Numbered steps.', add: 'Add step', noEdit: true },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
+  { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
+  { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
 ];
 
 /** `surface`: the item is a card with a container of its own, so it has a background colour. */
-async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit }) {
+async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, field = 'title', open }) {
   const label = `${width}px inline ${name}`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
@@ -383,7 +385,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     await page.locator('[aria-label="Show more tools"]:visible').first().click();
   await page.locator('[aria-label="Insert"]:visible').first().click();
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
-  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`);
   await page.keyboard.type('First');
   await page.waitForTimeout(300);
   const state = () =>
@@ -414,6 +416,14 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   await page.waitForTimeout(300);
   const two = await state();
   if (two.rows !== 2) problems.push(`${label}: "${add}" left ${two.rows} items, not 2`);
+  if (open) {
+    // A folding block: only the active item is open (its answer typed in the panel), the others closed, and a typed item has no Link.
+    const opened = await page.evaluate(() => [...document.querySelectorAll('.inline-list-row[data-row]')].map((d) => d.open));
+    if (opened.join() !== 'false,true') problems.push(`${label}: expected only the active item open, got ${opened}`);
+    if (!(await page.locator('.inline-list-row-active [data-field="answer"]').count()))
+      problems.push(`${label}: no answer field in the open item`);
+    if ((await state()).bar.some((b) => b.label === 'Link')) problems.push(`${label}: the toolbar has a Link button`);
+  }
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   if ((await page.locator('[data-add-row]').count()) > 0)
