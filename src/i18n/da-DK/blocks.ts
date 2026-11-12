@@ -44,6 +44,13 @@ export const blocks: Messages['blocks'] = {
     button: 'Knaptekst',
     buttonHint: 'En tekstknap under det sidste spørgsmål. Hvis feltet er tomt, er der ingen knap.',
     buttonHref: 'Knapside',
+    addQuestion: 'Tilføj spørgsmål',
+    newQuestion: 'Nyt spørgsmål',
+    questionOf: (n: number, total: number) => `Spørgsmål ${n} af ${total}`,
+    addAbove: 'Tilføj over',
+    addBelow: 'Tilføj under',
+    questionMenu: 'Spørgsmål',
+    questionSettings: 'Spørgsmålsindstillinger',
   },
   segmented: {
     label: 'Segmenteret liste',
