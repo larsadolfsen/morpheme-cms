@@ -14,7 +14,10 @@ can do, with a verb first (*Pause an app without losing its settings*, *See your
 says what is new (*You can now …*, *… now looks like …*), then where to find it (*Open the app under Apps …*). Lines are
 short and name the change plainly. Notes have no screenshots: the paragraphs of 0.14.0 have none.
 
-**Paragraphs (`paragraph`) are for two kinds of change, never a line:** a change the owner sees (a new screen, a new feature, a new way to
+A version's notes have exactly two sections: **New in <version>**, the paragraphs, and **Also in this version**, the lines.
+The UI says these two names on the Morpheme page and in the release post; keep to them.
+
+**Paragraphs (`paragraph`) are for two kinds of change, never a line:** every change the owner sees, in how the editor or the site looks or works (a new screen, a new feature, a new way to
 do something), and a **selling point for choosing Morpheme over other ways to run a site, such as WordPress**: safer,
 faster, cheaper to run or easier to keep, even when the owner cannot see it. Apps running in a sandbox is one, because
 it is a main reason to choose Morpheme and shows nowhere. Every such change gets its own paragraph, never a line. A
@@ -25,10 +28,11 @@ A change a site owner sees, and every selling point, gets a note in both languag
 get no note. The note's `id` is this changeset's file name without `.md`, for example `brave-cats-run`. A note has one
 of two kinds:
 
-- `paragraph` (on the Morpheme page's "New in" page): a main change, one an owner would go looking for, such as
-  a new screen, a new feature or a new way to do something, or a selling point (see above). A title and 1–3 short sentences: what the owner gets first,
+- `paragraph` (under "New in <version>" on the Morpheme page): every change to how the editor or the site looks, a new
+  screen, feature or way to do something, and every selling point (see above). A title and 1–3 short sentences: what the owner gets first,
   then where to find it. No labels, no screenshot.
-- `line`: a smaller change, such as a tweak to something the owner already uses, or a fix. One short sentence with no
+- `line`: every other change, such as a small tweak that changes neither how the editor or the site looks nor what Morpheme
+  has over other ways to run a site, or a fix. One short sentence with no
   period, shown in the list "Also in this version".
 
 A version can have any number of paragraphs and lines: one paragraph for each main change, and a line for each smaller

@@ -97,6 +97,7 @@ the owner approves it with 2FA
 
 ### Release notes for owners
 
+A version's notes have exactly two sections: *New in <version>* (the paragraphs) and *Also in this version* (the lines).
 A change a site owner sees gets a release note in English and Danish, written like the notes of 0.14.0: short
 paragraphs (a title with a verb first, 1–3 sentences) and one-line entries, and no screenshots. **Everything that changes how the editor looks, how the site looks, or gives an edge over WordPress
 (safer, faster, cheaper to run, easier to keep) gets its own paragraph, never a line**; small tweaks and fixes are lines.
