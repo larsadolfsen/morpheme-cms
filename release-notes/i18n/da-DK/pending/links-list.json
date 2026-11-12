@@ -1,6 +1,6 @@
 {
   "id": "links-list",
   "kind": "paragraph",
-  "title": "Brug én liste til links og punkter",
-  "text": "Links og Punkter med ikon er nu én liste med de samme ikoner, overskrifter, tekster og sider. En række kan også være en lille overskrift. Udfoldelige lister er nu segmenterede lister."
+  "title": "Brug én liste i stedet for links og punkter",
+  "text": "Links og Punkter med ikon gjorde det samme som to blokke. Brug Liste i stedet: hver række har et ikon, en overskrift, en tekst og en side, og en række kan være en lille overskrift. Dine eksisterende links og punkter åbner som en liste med det samme indhold."
 }
