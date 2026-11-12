@@ -9,6 +9,8 @@ import type { AppDefinition, AppDefinitionCode } from './apps';
 import type { AppManifest } from '../lib/appManifest.mjs';
 import type { BlockDefinition } from './blocks';
 import type { SharedTexts } from './shared';
+import type { ComponentType } from 'react';
+import type { InlineViewProps } from './inlineViews';
 import type { View, ViewOf } from './standard/view';
 import type { StoreRecord } from './store';
 
@@ -34,3 +36,6 @@ export const appShared = import.meta.glob<{ default: SharedTexts }>('/src/apps/*
 /** The apps' blocks drawn from their view: their drawing (View.tsx) and what makes their view in the editor (viewOf.ts). */
 export const appViews = import.meta.glob<{ default: View<any> }>('/src/apps/*/blocks/*/View.tsx', { eager: true });
 export const appViewOfs = import.meta.glob<{ viewOf: ViewOf<any> }>('/src/apps/*/blocks/*/viewOf.ts', { eager: true });
+/** The apps' blocks typed in place (`inline` in their index.tsx): what draws them (Inline.tsx, built on the shared parts of
+ * `@morphemecms/cms/src/inline`). A block without one keeps its sheet. */
+export const appInlines = import.meta.glob<{ default: ComponentType<InlineViewProps> }>('/src/apps/*/blocks/*/Inline.tsx', { eager: true });

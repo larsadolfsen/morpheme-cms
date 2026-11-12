@@ -21,7 +21,8 @@ import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { partsOfMarkdown, sectionsFromParts } from './sections.mjs';
 import { blockViews } from './standard/themeBlocks';
 import { InEditor, type View, type ViewOf } from './standard/view';
-import { appBlocks, appViewOfs, appViews } from './appFiles';
+import { appBlocks, appInlines, appViewOfs, appViews } from './appFiles';
+import { inlineViews } from './inlineViews';
 import { blocksIn, splitBlocks } from '../lib/blocks.mjs';
 import { t } from './i18n';
 import { localSiteBlock } from './site';
@@ -54,6 +55,7 @@ export const siteBlocks: SiteBlock[] = [
   ...Object.entries(standard).map(([path, m]) => ({
     ...m.default,
     draw: drawn(blockViews[typeOf(path)], views[beside(path, 'view.ts')]?.viewOf),
+    inlineView: inlineViews[typeOf(path)],
     type: typeOf(path),
     standard: true,
   })),
@@ -61,6 +63,8 @@ export const siteBlocks: SiteBlock[] = [
     localSiteBlock({
       ...m.default,
       draw: drawn(appViews[beside(path, 'View.tsx')]?.default, appViewOfs[beside(path, 'viewOf.ts')]?.viewOf),
+      // An app's own: never a standard block's, whatever the app calls its block.
+      inlineView: appInlines[beside(path, 'Inline.tsx')]?.default,
       type: typeOf(path),
       app: appIdOf(path),
     }),

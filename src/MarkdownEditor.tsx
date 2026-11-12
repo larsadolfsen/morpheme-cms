@@ -84,7 +84,7 @@ import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
 import { describe, htmlBlock, type BlockProps } from './blocks';
 import { RowsFromList } from './InlineList';
-import { inlineViews } from './inlineViews';
+import { typedInPlace } from './typedInPlace.mjs';
 import type { Change, Focus, Item as Row } from './InlineItems';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
 import { editorRows } from './standard/rows/view';
@@ -1013,9 +1013,9 @@ function blockCard(
   // A block gone from the site by itself (a notice whose time is over) is greyed like a hidden one.
   const over = !!block?.over?.(node.attrs.props);
   // A block typed in place (InlineList.tsx): its card is not a button to tap but the block itself, with its menu on a handle.
-  const inline = !!block?.inline && !!inlineViews[node.attrs.type] && node.attrs.type !== HTML;
+  const inline = typedInPlace(block) && node.attrs.type !== HTML;
   const spec = block?.inline;
-  const Inline = inlineViews[node.attrs.type];
+  const Inline = block?.inlineView!; // drawn only when `inline` (typedInPlace: it has a view)
   const dom = document.createElement('div');
   dom.className = hidden || over ? 'site-block site-block-hidden' : 'site-block';
   dom.contentEditable = 'false';
@@ -1682,7 +1682,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const view = ctx.get(editorViewCtx);
       const { state } = view;
       const node = siteBlockSchema.type(ctx).create({ type: chosen.type, props: chosen.props });
-      if (blocks!.list.find((b) => b.type === chosen.type)?.inline) fresh.add(chosen.props);
+      if (typedInPlace(blocks!.list.find((b) => b.type === chosen.type))) fresh.add(chosen.props);
       let tr = state.tr;
       // Where the new block ends, when the cursor must be moved past it (-1: it is in text already).
       let end = -1;
