@@ -78,7 +78,8 @@ import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
 import { describe, htmlBlock, type BlockProps } from './blocks';
 import InlineList, { type Change, type Focus, type Row } from './InlineList';
-import { withoutEmpty } from './inlineRows.mjs';
+import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
+import { inlineBar, type BarAction } from './inlineBar';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
@@ -94,7 +95,6 @@ import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
 import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
 import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
-import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.svg?raw';
 import trashIcon from '@phosphor-icons/core/assets/regular/trash.svg?raw';
 import boldIcon from '@phosphor-icons/core/assets/regular/text-b.svg?raw';
 import italicIcon from '@phosphor-icons/core/assets/regular/text-italic.svg?raw';
@@ -896,6 +896,11 @@ function blockCard(
   // Typed in place: which row is active (null: none, the block shows its live look), and the field to put the cursor in.
   let active: number | null = null;
   let focus: Focus | null = null;
+  // Its floating toolbar (made below, with the block's menu).
+  let bar: ReturnType<typeof inlineBar> | null = null;
+  let syncRow: (open: boolean) => void = () => {};
+  let stopAway = () => {};
+  const rows = () => (node.attrs.props.items as Row[] | undefined) ?? [];
   const setItems = (items: Row[]) => {
     const here = at();
     if (here) view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props: { ...node.attrs.props, items } }));
@@ -918,10 +923,12 @@ function blockCard(
             active={active}
             focus={focus}
             onChange={change}
-            onSettings={() => void edit()}
+            onSettings={() => syncRow(true)}
           />,
         ),
       );
+      syncRow(false);
+      bar?.refresh(active !== null);
       return;
     }
     const lines = block ? describe(block, node.attrs.props, ask.data) : [];
@@ -995,27 +1002,81 @@ function blockCard(
   // only edited, and the last shown one of a block the page must have cannot be hidden or removed.
   // From expanded the block's fields are in the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
   const inPanelNow = () => !inline && editsInPanel(atLeastNow('expanded'), !!block?.fields.length);
-  // Typed in place: the menu is opened with a handle at the block's corner (the block itself is for typing).
+  // Typed in place: the floating toolbar (inlineBar.ts) has the row actions, and its last button opens the block's own menu below.
   let handle = card;
   if (inline) {
-    handle = dom.appendChild(document.createElement('button'));
-    (handle as HTMLButtonElement).type = 'button';
-    handle.className = 'site-block-handle';
-    handle.title = name;
-    handle.setAttribute('aria-label', name);
-    handle.innerHTML = dotsIcon.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
-    // Leaving the block (not for its own handle or menu): the row being edited is done, a row with nothing in it is dropped.
-    dom.addEventListener('focusout', () =>
-      setTimeout(() => {
-        if (dom.contains(document.activeElement) || active === null) return;
-        active = null;
-        focus = null;
-        const rows = (node.attrs.props.items as Row[] | undefined) ?? [];
-        const kept = withoutEmpty(rows);
-        if (kept !== rows) setItems(kept);
-        else draw();
-      }),
+    const itemFields = (block?.fields.find((f) => f.name === 'items')?.fields ?? []).filter(
+      (f) => f.name === 'icon' || f.name === 'href' || f.name === 'heading',
     );
+    const compact = () => !atLeastNow('expanded');
+    // The active row has something in it (the row actions are for a row, not for the empty one being started).
+    const rowActions = (): BarAction[] => {
+      const list = rows();
+      if (active === null || active >= list.length || isEmptyRow(list[active])) return [];
+      const i = active;
+      const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: 'title' } });
+      return [
+        { kind: 'above', label: t.blocks.list.addAbove, action: () => go(addAt(list, i), i) },
+        { kind: 'below', label: t.blocks.list.addBelow, action: () => go(addAt(list, i + 1), i + 1) },
+        ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
+        ...(i < list.length - 1 ? [{ kind: 'down' as const, label: t.common.moveDown, action: () => go(moveBy(list, i, 1), i + 1) }] : []),
+      ];
+    };
+    bar = inlineBar({
+      name,
+      dom,
+      rowActions,
+      edit: () => syncRow(true),
+      compact,
+      labels: { row: t.blocks.list.row, edit: t.common.edit },
+    });
+    handle = bar.block;
+    // The settings of the active row (its icon and link), live: from expanded in the side panel while a row is active, below it in a bottom
+    // sheet that Edit opens (`open`: a row's slot or Edit; else only an open sheet is updated).
+    syncRow = (open) => {
+      const sheet = asker();
+      if (sheet && active !== null) sheet.row(specOf(active), open || !compact());
+    };
+    const specOf = (i: number) => {
+      const row = rows()[i] ?? {};
+      return {
+        headline: t.blocks.list.rowSettings,
+        fields: itemFields,
+        value: { icon: row.icon ?? '', href: row.href ?? '', heading: row.heading === true },
+        onChange: (v: BlockProps) => {
+          let items = rows();
+          for (const key of ['icon', 'href'] as const) items = setField(items, i, key, String(v[key] ?? ''));
+          // The row as a small heading of the rows after it, or not.
+          items = items.map((r, j) => {
+            if (j !== i) return r;
+            const { heading: _, ...rest } = r;
+            return v.heading === true ? { ...rest, heading: true } : rest;
+          });
+          setItems(items);
+        },
+      };
+    };
+    // Leaving the block (a tap or the focus elsewhere, but not in its toolbar, its menu or its settings): the row being edited is done,
+    // its settings close, and a row with nothing in it is dropped.
+    const inside = (target: EventTarget | null) =>
+      target instanceof Element &&
+      (dom.contains(target) || bar!.el.contains(target) || !!target.closest('.editor-side-sheet, dialog[open]'));
+    const away = (e: Event) => {
+      if (active === null || inside(e.target)) return;
+      active = null;
+      focus = null;
+      asker()?.row(null);
+      const list = rows();
+      const kept = withoutEmpty(list);
+      if (kept !== list) setItems(kept);
+      else draw();
+    };
+    document.addEventListener('pointerdown', away, true);
+    document.addEventListener('focusin', away, true);
+    stopAway = () => {
+      document.removeEventListener('pointerdown', away, true);
+      document.removeEventListener('focusin', away, true);
+    };
   }
   const close = cardMenu(
     view,
@@ -1027,7 +1088,7 @@ function blockCard(
       const { rules, locked, stays } = keeps();
       return [
         block?.fields.length
-          ? !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
+          ? !inline && !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
           : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
         block?.shown || (stays && hidden === false)
           ? undefined
@@ -1053,6 +1114,9 @@ function blockCard(
     ignoreMutation: () => true,
     destroy: () => {
       close();
+      stopAway();
+      bar?.destroy();
+      if (inline) asker()?.row(null);
       cards.delete(draw);
       // Not while React may be drawing (the editor goes with its form).
       queueMicrotask(() => root.unmount());

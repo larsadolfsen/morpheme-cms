@@ -121,6 +121,11 @@ export const blocks = {
     exampleTitle: 'Heading',
     exampleText: 'A short text about the row.',
     /** The next empty row after the last one, which a tap starts. */
+    /** The floating toolbar of a List typed in place. */
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    row: 'Row',
+    rowSettings: 'Row settings',
     newRow: 'New row',
     /** A row of the list typed in place: its place, for screen readers (row 2 of 4). */
     rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
