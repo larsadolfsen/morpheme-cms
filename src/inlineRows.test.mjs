@@ -27,6 +27,14 @@ test('a field is set, and left out when emptied (the title stays)', () => {
   assert.deepEqual(rows, [{ title: 'A', text: 'x' }]);
 });
 
+test('a list in a row (its buttons) is kept while it has an entry, and left out when emptied', () => {
+  const buttons = [{ label: 'More', href: '/a/' }];
+  const rows = setField([{ title: 'A' }], 0, 'buttons', buttons);
+  assert.deepEqual(rows, [{ title: 'A', buttons }]);
+  assert.deepEqual(setField(rows, 0, 'buttons', []), [{ title: 'A' }]);
+  assert.equal(isEmptyRow({ title: '', buttons }), false);
+});
+
 test('typing in the next empty row (past the last) makes it a row', () => {
   assert.deepEqual(setField([{ title: 'A' }], 1, 'title', 'B'), [{ title: 'A' }, { title: 'B' }]);
   assert.deepEqual(setField([], 0, 'text', 'x'), [{ title: '', text: 'x' }]);

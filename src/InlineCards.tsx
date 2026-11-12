@@ -11,7 +11,7 @@ import { Image as ImageIcon, Shapes, VideoCamera } from '@phosphor-icons/react';
 import { Svg } from './icon';
 import { t } from './i18n';
 import { SiteButton, SiteCard } from './themeUi';
-import InlineItems, { InlineSlot } from './InlineItems';
+import InlineItems, { InlineField, InlineSlot, type Item } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
 import { sharedIn } from './shared';
 import shared from './standard/cards/shared';
@@ -34,6 +34,50 @@ export default function InlineCards({ items, props, data, active, focus, onChang
     { kind: 'video', label: t.blocks.cards.mediaVideo, Icon: VideoCamera },
   ] as const;
   const more = String(sharedIn(data.site, 'cards', shared.values).more);
+  // The active card's action area: each button's text is typed on the button itself (its target is in the card's sheet, the bar's Link), and the
+  // next button is always there, empty and faded (`Add button`; no fixed maximum). Backspace in an empty one drops it, Enter adds the next.
+  const buttonsOf = (i: number, row: Item) => {
+    const list = (Array.isArray(row.buttons) ? row.buttons : []) as { label?: string }[];
+    const set = (buttons: object[], focus?: number) =>
+      onChange({
+        items: items.map((r, j) => (j === i ? (buttons.length ? { ...r, buttons } : (({ buttons: _, ...rest }) => rest)(r)) : r)),
+        active: i,
+        focus: focus === undefined ? null : { row: i, field: `button-${focus}` },
+      });
+    const made = () => ({ label: '', to: 'page', kind: 'filled' });
+    return (
+      <span className="block-card-actions inline-card-buttons">
+        {list.map((b, n) => (
+          <span key={n} className="inline-card-button">
+            <InlineField
+              name={`button-${n}`}
+              value={b.label ?? ''}
+              label={t.blocks.cards.buttonText}
+              placeholder={t.blocks.cards.buttonText}
+              onType={(v) => set(list.map((x, m) => (m === n ? { ...x, label: v } : x)))}
+              onFocus={() => {}}
+              onKeys={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+                  e.preventDefault();
+                  if (b.label?.trim()) set([...list.slice(0, n + 1), made(), ...list.slice(n + 1)], n + 1);
+                }
+                if (e.key === 'Backspace' && !b.label) {
+                  e.preventDefault();
+                  set(
+                    list.filter((_, m) => m !== n),
+                    Math.max(0, n - 1),
+                  );
+                }
+              }}
+            />
+          </span>
+        ))}
+        <SiteButton kind="text" data-add-button="" className="inline-card-next-button" onClick={() => set([...list, made()], list.length)}>
+          {t.blocks.cards.addButton}
+        </SiteButton>
+      </span>
+    );
+  };
   return (
     <InlineItems
       items={items}
@@ -90,15 +134,10 @@ export default function InlineCards({ items, props, data, active, focus, onChang
               <span className="block-card-subhead">{field('subhead', t.blocks.cards.subhead, t.blocks.cards.subhead)}</span>
               <span className="block-card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
               {card?.href && <span className="block-card-more">{more}</span>}
-              {!card?.href && (here || (card?.buttons.length ?? 0) > 0) && (
+              {!card?.href && here && buttonsOf(i, item)}
+              {!card?.href && !here && (card?.buttons.length ?? 0) > 0 && (
                 <span className="block-card-actions">
-                  {card && card.buttons.length > 0 && <Buttons buttons={card.buttons} />}
-                  {/* The next button, empty and faded: a tap opens the card's sheet, where it is made (no fixed maximum). */}
-                  {here && (
-                    <SiteButton kind="text" className="inline-card-next-button" onClick={() => onSettings(i)}>
-                      {t.blocks.cards.addButton}
-                    </SiteButton>
-                  )}
+                  <Buttons buttons={card!.buttons} />
                 </span>
               )}
             </SiteCard>

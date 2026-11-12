@@ -52,7 +52,6 @@ import {
   ListBullets,
   ListChecks,
   ListNumbers,
-  Plus,
   Quotes,
   Tag,
   TextAa,
@@ -89,7 +88,8 @@ import { inlineViews } from './inlineViews';
 import type { Change, Focus, Item as Row } from './InlineItems';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
 import { editorRows } from './standard/rows/view';
-import { fromLine } from './standard/rows/fields';
+import { fromLine, listPageOf } from './standard/rows/fields';
+import { sourceOf } from './standard/rows/rows.mjs';
 import { inlineBar, type BarAction } from './inlineBar';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
@@ -101,6 +101,7 @@ import { stillTimer } from '../lib/still-timer.mjs';
 import { STILL_MS, wordRange } from './stillCursor.mjs';
 import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
+import { WidgetsIcon } from './icon';
 import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -125,7 +126,6 @@ import alignRightIcon from '@phosphor-icons/core/assets/regular/text-align-right
 import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
 import orderedIcon from '@phosphor-icons/core/assets/regular/list-numbers.svg?raw';
 import quoteIcon from '@phosphor-icons/core/assets/regular/quotes.svg?raw';
-import plusIcon from '@phosphor-icons/core/assets/regular/plus.svg?raw';
 import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.svg?raw';
 import caretDownIcon from '@phosphor-icons/core/assets/bold/caret-down-bold.svg?raw';
 import checkIcon from '@phosphor-icons/core/assets/regular/list-checks.svg?raw';
@@ -756,7 +756,7 @@ type Look = (Face | { shows: (state: EditorView['state']) => Face }) & {
   off?: (state: EditorView['state']) => boolean;
   // Not there (the marks in a block with none).
   dim?: (state: EditorView['state']) => boolean;
-  // Shown but not usable now ("+" where the text has nothing to insert).
+  // Shown but not usable now.
   disabled?: (state: EditorView['state']) => boolean;
   word?: boolean;
   menu?: boolean;
@@ -779,18 +779,12 @@ const inLabel = (state: EditorView['state']) =>
 
 // When a word or more is selected, or the cursor has stood still in a word (STILL_MS, stillCursor.mjs): one row of icons
 // over it, never two: bold, italic, link, the headings (H, a menu with the levels headingChoices gives for the text; a
-// page's H1 alone is that heading's own button), "+" (always there: the blocks or a picture; greyed where there is nothing to insert) and "More" (three dots), which
+// page's H1 alone is that heading's own button) and "More" (three dots), which
 // opens a sheet from the bottom with the rest: the colours, the text styles, the lists and the alignment. At a still
 // cursor, bold, italic and link act on the whole word, the headings on the line; a move or a keypress hides the row. On a
 // phone, where the phone's own menu is over the selection and its handles under it, the row is at the bottom of the
 // screen, over the keyboard.
-function selectionMenu(
-  ctx: Ctx,
-  h1: boolean,
-  kinds: (button: HTMLElement, group: KindGroup) => void,
-  insert: () => (() => void) | null,
-  more: () => void,
-) {
+function selectionMenu(ctx: Ctx, h1: boolean, kinds: (button: HTMLElement, group: KindGroup) => void, more: () => void) {
   return new Plugin({
     view(view) {
       const menu = document.body.appendChild(document.createElement('div'));
@@ -861,8 +855,6 @@ function selectionMenu(
           off: (s) => levels(s).length < 2,
           menu: true,
         },
-        // The blocks (the same sheet as the toolbar's "+"), where the text has blocks.
-        { icon: plusIcon, label: t.text.insert, action: () => insert()?.(), disabled: () => !insert() },
         // The rest, in a sheet from the bottom.
         { icon: dotsIcon, label: t.text.more, action: () => more() },
       ];
@@ -1055,9 +1047,17 @@ function blockCard(
   let iconOf: number | null = null;
   const settings = () => {
     iconOf = null;
+    dynOpen = false;
     syncRow(true);
   };
+  // A block that can read a list ("Rows from"): the dynamic block is selected (its floating toolbar shows) and its dynamic settings are in
+  // the panel or sheet (`dynOpen`); `dropped`: its typed rows were just set aside by switching to a list, and Undo brings them back.
+  let dynSelected = false;
+  let dynOpen = false;
+  let dropped = false;
   let stopAway = () => {};
+  let syncDynamic: () => void = () => {};
+  let undoDynamic: () => void = () => {};
   const rows = () => (node.attrs.props[spec?.item ?? 'items'] as Row[] | undefined) ?? [];
   const setItems = (items: Row[]) => {
     const here = at();
@@ -1068,6 +1068,7 @@ function blockCard(
   };
   const change = (c: Change) => {
     if ('active' in c) active = c.active ?? null;
+    if (active !== null) dynOpen = false;
     if ('focus' in c) focus = c.focus ?? null;
     if (c.items) setItems(c.items);
     else draw();
@@ -1085,12 +1086,20 @@ function blockCard(
         focus = null;
         flushSync(() =>
           root.render(
-            <RowsFromList rows={dynamic.rows} line={fromLine(node.attrs.props, ask.data)[0] ?? ''} empty={dynamic.rows.length === 0} />,
+            <RowsFromList
+              undo={dropped ? { note: t.blocks.rows.typedHidden, label: t.text.undo, run: undoDynamic } : undefined}
+              rows={dynamic.rows}
+              line={fromLine(node.attrs.props, ask.data)[0] ?? ''}
+              empty={dynamic.rows.length === 0}
+              editList={listPageOf(node.attrs.props) ? () => (location.hash = listPageOf(node.attrs.props)!) : undefined}
+            />,
           ),
         );
-        bar?.refresh(false);
+        syncDynamic();
+        bar?.refresh(dynSelected);
         return;
       }
+      dropped = false;
       flushSync(() =>
         root.render(
           <Inline
@@ -1117,7 +1126,7 @@ function blockCard(
         ),
       );
       syncRow(false);
-      bar?.refresh(active !== null);
+      bar?.refresh(active !== null || dynSelected);
       return;
     }
     const lines = block ? describe(block, node.attrs.props, ask.data) : [];
@@ -1218,16 +1227,8 @@ function blockCard(
         }),
       ),
     });
-    // A list (a card's buttons) is kept as it is, and left out of the item when it has none.
     const setFields = (list: Row[], i: number, names: string[], v: BlockProps) =>
-      names.reduce((items, n) => {
-        const value = v[n];
-        if (!Array.isArray(value)) return setField(items, i, n, String(value ?? ''), spec!.fields[0]);
-        const next = items.slice();
-        const { [n]: _, ...rest } = next[i] ?? { [spec!.fields[0]]: '' };
-        next[Math.min(i, next.length)] = value.length ? { ...rest, [n]: value } : rest;
-        return next;
-      }, list);
+      names.reduce((items, n) => setField(items, i, n, Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]), list);
     // The block's props with its own media choice changed (from the first card's sheet) and the items changed, in one step.
     const setBlockAndItems = (items: Row[], v: BlockProps) => {
       const here = at();
@@ -1241,33 +1242,98 @@ function blockCard(
     const rowActions = (): BarAction[] => {
       const list = rows();
       // A card's link is the bar's Link, also while the card is still empty (its sheet has the page and the buttons).
-      if (active !== null && spec!.settings && (active >= list.length || isEmptyRow(list[active])))
+      if (!isDynamic() && active !== null && spec!.settings && (active >= list.length || isEmptyRow(list[active])))
         return [{ kind: 'link', label: spec!.texts.link, action: settings }];
-      if (active === null || active >= list.length || isEmptyRow(list[active])) return [];
+      if (isDynamic() || active === null || active >= list.length || isEmptyRow(list[active])) return [];
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
-        { kind: 'link', label: spec!.texts.link, action: settings },
+        ...(itemNames.length ? [{ kind: 'link' as const, label: spec!.texts.link, action: settings }] : []),
         { kind: 'above', label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
         { kind: 'below', label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
         ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
         ...(i < list.length - 1 ? [{ kind: 'down' as const, label: t.common.moveDown, action: () => go(moveBy(list, i, 1), i + 1) }] : []),
       ];
     };
+    // The dynamic settings: where the rows come from (the block's `Rows from`, tags and How many, its own fields), live in the panel or sheet.
+    // Only a block with `Rows from` has them. Switching to a list sets the typed rows aside (they stay in the file) and offers Undo.
+    const dynamicNames = ['from', 'tags', 'howMany', 'button'];
+    const dynamicFields = (block?.fields ?? []).filter((f) => dynamicNames.includes(f.name));
+    const canDynamic = dynamicFields.some((f) => f.name === 'from');
+    const isDynamic = () => !!sourceOf(node.attrs.props.from);
+    const setProps = (props: BlockProps) => {
+      const here = at();
+      if (here) view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props }));
+    };
+    const dynamicSpec = () => {
+      const props = node.attrs.props;
+      return {
+        headline: block?.nameOf?.(props) ?? block?.label ?? node.attrs.type,
+        fields: dynamicFields,
+        value: Object.fromEntries(dynamicFields.map((f) => [f.name, props[f.name] ?? (f.multiple ? [] : '')])),
+        onChange: (v: BlockProps) => {
+          const now_ = node.attrs.props;
+          const was = sourceOf(now_.from);
+          const next = { ...now_ };
+          for (const f of dynamicFields) {
+            const value = v[f.name];
+            if (value === undefined || value === '' || (Array.isArray(value) && !value.length)) delete next[f.name];
+            else next[f.name] = value;
+          }
+          const now = sourceOf(next.from);
+          // Another list has other tags and other fields: the tags and the choice of fields start over.
+          if (was !== now) {
+            delete next.tags;
+            delete next.map;
+          }
+          dropped = !was && !!now && rows().some((r) => !isEmptyRow(r));
+          if (!now) dropped = false;
+          setProps(next);
+        },
+      };
+    };
+    // Updates the panel when it shows these settings (not another block's row).
+    syncDynamic = () => {
+      if (dynOpen) asker()?.row(dynamicSpec(), false);
+    };
+    const openDynamic = () => {
+      iconOf = null;
+      active = null;
+      focus = null;
+      dynSelected = true;
+      dynOpen = true;
+      asker()?.row(dynamicSpec(), true);
+      draw();
+    };
+    undoDynamic = () => {
+      dropped = false;
+      const { from: _from, tags: _tags, howMany: _howMany, map: _map, ...rest } = node.attrs.props;
+      setProps(rest);
+      syncDynamic();
+    };
+    if (canDynamic)
+      dom.addEventListener('pointerdown', () => {
+        if (!isDynamic() || dynSelected) return;
+        dynSelected = true;
+        draw();
+      });
     bar = inlineBar({
       name,
       dom,
       rowActions,
-      edit: settings,
+      // A block that reads a list has the dynamic settings behind the gear; a block with nothing to set on an item (the FAQ list) has the
+      // block's own settings.
+      edit: () => (isDynamic() ? openDynamic() : itemNames.length || slotNames.length ? settings() : void edit()),
       compact,
       labels: { row: spec!.texts.row, edit: t.common.edit },
+      dynamic: canDynamic ? { label: t.blocks.rows.dynamicTip, on: isDynamic, action: openDynamic } : undefined,
     });
     handle = bar.block;
     // The settings of the active row (its icon and link), live: from expanded in the side panel while a row is active, below it in a bottom
     // sheet that Edit opens (`open`: a row's slot or Edit; else only an open sheet is updated).
     syncRow = (open) => {
       const sheet = asker();
-      if (sheet && active !== null) sheet.row(specOf(active), open || !compact());
+      if (sheet && active !== null && !dynOpen && (itemNames.length || slotNames.length)) sheet.row(specOf(active), open || !compact());
     };
     const specOf = (i: number) => {
       const row = rows()[i] ?? {};
@@ -1297,10 +1363,12 @@ function blockCard(
       target instanceof Element &&
       (dom.contains(target) || bar!.el.contains(target) || !!target.closest('.editor-side-sheet, dialog[open]'));
     const away = (e: Event) => {
-      if (active === null || inside(e.target)) return;
+      if ((active === null && !dynSelected) || inside(e.target)) return;
       active = null;
       iconOf = null;
       focus = null;
+      dynSelected = false;
+      dynOpen = false;
       asker()?.row(null);
       const list = rows();
       const kept = withoutEmpty(list);
@@ -1388,7 +1456,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const moreSheet = useRef<HTMLDialogElement>(null);
   const [noColor, setNoColor] = useState(false);
   const moreRef = useRef(() => {});
-  const insertRef = useRef<(() => void) | null>(null);
   // The button that opened a menu with kinds of text, and its group, while it is open: in the toolbar, or over the
   // selection (word), whose button says it is open as the colour button does.
   const [kindsAt, setKindsAt] = useState<{ at: HTMLElement; group: KindGroup; word?: boolean } | null>(null);
@@ -1461,7 +1528,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         ctx,
         !!h1,
         (button, group) => setKindsAt((open) => (open?.at === button ? null : { at: button, group, word: true })),
-        () => insertRef.current,
         () => moreRef.current(),
       ),
     );
@@ -1759,9 +1825,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
-  // "+" in the selection menu: the blocks, or a picture where the text has only pictures (a blog post); else nothing.
-  insertRef.current = blocks ? () => void block() : addImage ? () => void image() : null;
-
   const all: {
     label: string;
     icon: typeof TextB;
@@ -1796,10 +1859,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.orderedList, icon: KIND_ICONS.ordered.node, action: () => setKind('ordered'), on: 'ordered', role: 'list' },
     // The alignment of the paragraph or smaller heading, a menu (the icon follows the block's).
     { label: t.text.alignmentIs(alignLabel(alignIn(active))), icon: ALIGN_FACES[alignIn(active)].node, action: () => {}, role: 'align' },
-    // A picture and the blocks are put in with "+" (a sheet with them all); without blocks (a blog
+    // A picture and the blocks are put in with Insert (a sheet with them all); without blocks (a blog
     // post) a picture has its own button.
     ...(blocks
-      ? [{ label: t.text.insert, icon: Plus, action: block }]
+      ? [{ label: t.text.insert, icon: WidgetsIcon, action: block }]
       : addImage
         ? [{ label: t.text.image, icon: Image, action: image }]
         : []),
@@ -1808,7 +1871,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   ];
 
   // The tools in their order (toolbarOrder.mjs): Section settings last on the first line, and what may go under the arrow at the
-  // end, Undo and Redo first, then the link, so "+" stays on the first line. The arrangement is tried from the widest:
+  // end, Undo and Redo first, then the link, so Insert stays on the first line. The arrangement is tried from the widest:
   // 'all' on one line, 'mid' with Section settings before Undo and Redo, 'priority' with the link behind it too, 'bare' with Italic and the lists as well (the last to go).
   const [arrangement, setArrangement] = useState<'all' | 'mid' | 'priority' | 'bare'>('all');
   const tools = arrangeTools(all, arrangement);
@@ -1886,9 +1949,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} large={large} onClick={action} />
     );
 
-  // The lines between the marks on the text, the kinds of text, "+" (or "Picture") and "Undo".
+  // The lines between the marks on the text, the kinds of text, Insert (or "Picture") and "Undo".
   const lineBefore = (item: (typeof tools)[number]) =>
-    item.role === 'settings' || item === kinds[0] || item.icon === Plus || item.icon === Image || item.icon === ArrowUUpLeft;
+    item.role === 'settings' || item === kinds[0] || item.icon === WidgetsIcon || item.icon === Image || item.icon === ArrowUUpLeft;
   // A button of the toolbar; when it is too short, each group of kinds of text is one button (at its first), with a menu.
   const button = (item: (typeof tools)[number]) => {
     if (!narrow || !kinds.includes(item)) return tool(item);

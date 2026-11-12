@@ -1281,14 +1281,14 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* A table: quiet headings over rows with a thin line between them, the first column (each row's name) a little
-     heavier; wider than the screen, it scrolls sideways ("Cookie list"). */
+  /* A table (.block-table, the base of every table block): a box that scrolls sideways when the table is wider than the screen,
+     with the cells' text in the body scale and a thin line (outline variant) under each row. Each block adds its own look:
+     .block-table-cookies ("Cookie list": quiet headings, the first column heavier) and .block-table-grid ("Table"). */
   .block-table {
     overflow-x: auto;
   }
   .block-table table {
     width: 100%;
-    min-width: 40rem;
     border-collapse: collapse;
     font-size: var(--type-body-medium-size);
     line-height: var(--type-body-medium-line-height);
@@ -1296,27 +1296,72 @@
     letter-spacing: var(--type-body-medium-tracking);
   }
   .block-table :is(th, td) {
-    padding: 0.625rem 1rem 0.625rem 0;
     border-bottom: 1px solid var(--block-line);
     text-align: left;
     vertical-align: top;
   }
-  .block-table thead th {
+
+  /* "Cookie list": quiet headings over rows, the first column (each row's name) a little heavier. */
+  .block-table-cookies table {
+    min-width: 40rem;
+  }
+  .block-table-cookies :is(th, td) {
+    padding: 0.625rem 1rem 0.625rem 0;
+  }
+  .block-table-cookies thead th {
     font-size: var(--type-label-large-size);
     line-height: var(--type-label-large-line-height);
     font-weight: var(--type-label-large-weight);
     letter-spacing: var(--type-label-large-tracking);
     color: var(--block-muted);
   }
-  .block-table tbody th {
+  .block-table-cookies tbody th {
     font-weight: 500;
     white-space: nowrap;
   }
-  .block-table td:not(:nth-child(3)) {
+  .block-table-cookies td:not(:nth-child(3)) {
     white-space: nowrap;
   }
-  .block-table td:nth-child(3) {
+  .block-table-cookies td:nth-child(3) {
     min-width: 14rem;
+  }
+
+  /* "Table": Material 3 has no table component, so the dimensions are Material 2's data table (m2.material.io/components/data-tables:
+     rows 52 dp and the header row 56 dp, 16 dp of space at the sides of a cell, a header name in a medium weight, a 1 dp outline,
+     no elevation, a row's background on hover) and everything else is Material 3's: the body and label type scales, the surface container
+     (header), the outline variant (container and dividers), the small shape and the theme's hover state layer. The box is a region the
+     keyboard can scroll (a focus ring in the accent); a table with many columns scrolls instead of crushing them. */
+  .block-table-grid {
+    border: 1px solid var(--block-line);
+    border-radius: var(--block-radius-small);
+    color: var(--block-text);
+  }
+  .block-table-grid:focus-visible {
+    outline: 3px solid var(--block-accent);
+    outline-offset: 2px;
+  }
+  .block-table-grid :is(th, td) {
+    min-width: 6rem;
+    height: 3.25rem;
+    padding: 0.5rem 1rem;
+    vertical-align: middle;
+    font-weight: inherit;
+  }
+  .block-table-grid thead th {
+    height: 3.5rem;
+    background: var(--block-tint);
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
+  }
+  .block-table-grid tr:last-child :is(th, td) {
+    border-bottom: 0;
+  }
+  @media (hover: hover) {
+    .block-table-grid tbody tr:hover {
+      background: var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent));
+    }
   }
 
   /* A badge: a small word over a number in a light square ("Spar / 10%"), and a text beside one. */

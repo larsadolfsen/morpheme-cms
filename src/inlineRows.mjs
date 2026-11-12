@@ -6,7 +6,7 @@
 
 /** @typedef {Record<string, unknown>} Row */
 
-const has = (v) => (typeof v === 'string' && v.trim() !== '') || (Array.isArray(v) && v.length > 0);
+const has = (v) => (typeof v === 'string' ? v.trim() !== '' : Array.isArray(v) && v.length > 0);
 
 /** A row with nothing in it (no icon, link, heading or text: an icon or a link counts as content; any field with text does, and a list with something in it, a card's buttons). @param {Row | undefined} row */
 export const isEmptyRow = (row) => !row || !Object.values(row).some(has);
@@ -16,8 +16,9 @@ export const withoutEmpty = (rows) => (rows.some(isEmptyRow) ? rows.filter((r) =
 
 /** The rows with one field of a row set (a row at the end, past the last, is the next empty one: it becomes a row). A field that is
  * emptied is left out of the row, but the title stays as typed.
- * @param {Row[]} rows @param {number} i @param {string} field @param {string} value @param {string} [first] the field that stays as typed */
+ * @param {Row[]} rows @param {number} i @param {string} field @param {unknown} value @param {string} [first] the field that stays as typed */
 export function setField(rows, i, field, value, first = 'title') {
+  // `value` is a text, or a list (a row's buttons) that is kept while it has an entry.
   const next = rows.slice();
   const row = { ...(next[i] ?? { [first]: '' }), [field]: value };
   if (field !== first && !has(value)) delete row[field];

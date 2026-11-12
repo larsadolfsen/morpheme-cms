@@ -7,7 +7,7 @@
 import { LinkSimple, Plus } from '@phosphor-icons/react';
 import { Glyph } from './icon';
 import { t } from './i18n';
-import { SiteList, SiteListItem } from './themeUi';
+import { SiteButton, SiteList, SiteListItem } from './themeUi';
 import InlineItems, { InlineSlot, type Change, type Focus, type Item } from './InlineItems';
 
 export type { Change, Focus };
@@ -80,10 +80,36 @@ export default function InlineList({
 
 /** A List that reads a list ("Rows from"): its rows as the site draws them, not typed here (they come from the list; Edit has the list, tags and
  * How many). `rows` are the rows the list gives with the filter applied; `line` says which list; `empty` that nothing matches. */
-export function RowsFromList({ rows, line, empty }: { rows: Row[]; line: string; empty: boolean }) {
+export function RowsFromList({
+  rows,
+  line,
+  empty,
+  editList,
+  undo,
+}: {
+  rows: Row[];
+  line: string;
+  empty: boolean;
+  editList?: () => void;
+  /** The typed rows were set aside by switching to a list: what it says, and Undo. */
+  undo?: { note: string; label: string; run: () => void };
+}) {
   return (
     <div className="inline-list-host">
       <p className="inline-list-from">{empty ? `${line}. ${t.blocks.rows.empty}` : line}</p>
+      {undo && (
+        <p className="inline-list-from">
+          {undo.note}{' '}
+          <SiteButton kind="text" className="inline-list-edit" onClick={undo.run}>
+            {undo.label}
+          </SiteButton>
+        </p>
+      )}
+      {editList && (
+        <SiteButton kind="text" className="inline-list-edit" onClick={editList}>
+          {t.blocks.rows.editList}
+        </SiteButton>
+      )}
       <SiteList className="block-list inline-list">
         {rows.map((r, i) => (
           <SiteListItem

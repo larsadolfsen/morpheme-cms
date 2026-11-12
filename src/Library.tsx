@@ -51,6 +51,7 @@ import {
   blockGroups,
   blockParts,
   collections,
+  collectionsFor,
   companyParts,
   groups,
   icons,
@@ -97,6 +98,7 @@ import type { Env } from './App';
 import { kindAndName, savedText } from './deploy';
 import { togglePath } from './bulkDelete.mjs';
 import { shortDate, when } from './when';
+import { isEntryPath } from '../lib/ownList.mjs';
 import { untilTime } from '../lib/notice.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
 import { browserLocale, locale, localeName, locales, savedLocale, setLocale, siteLocale, siteT, siteText, t, type Locale } from './i18n';
@@ -135,7 +137,9 @@ import { sideChoicesOf, sideSettingOf } from './SideColumn';
 export const hrefOf = (c: Collection) => (c.kind === 'files' && c.files.length === 1 ? `#${c.files[0].file}` : `#list/${c.id}`);
 
 const countOf = (c: Collection, files: RepoFile[]): number =>
-  c.kind === 'files' ? c.files.length : files.filter((f) => f.path.startsWith(`${c.folder}/`)).length;
+  c.kind === 'files'
+    ? c.files.length
+    : files.filter((f) => f.path.startsWith(`${c.folder}/`) && (c.kind !== 'folder' || isEntryPath(f.path))).length;
 
 // A part's name, where it opens, and how many entries it has (null for one file): for the main drawer (MainMenu.tsx).
 export function partOf(id: string, files: RepoFile[]): { label: string; href: string; count: number | null } {
@@ -189,7 +193,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   const screen = partScreens.find((s) => s.id === id);
   if (screen) return { label: screen.label, href: `#${id}`, count: null };
   if (id === 'seo') return { label: parts.seo, href: '#seo', count: null };
-  const c = collections.find((x) => x.id === id)!;
+  const c = collectionsFor(files).find((x) => x.id === id)!;
   return { label: c.label, href: hrefOf(c), count: c.kind === 'files' && c.files.length === 1 ? null : countOf(c, files) };
 }
 
@@ -201,7 +205,7 @@ export { LeadingIcon };
 
 // A part of the site as a row: its icon, its name and how many entries it has.
 function PartRow({ id, label, href, count }: { id: string } & ReturnType<typeof partOf>) {
-  return <ListItem href={href} icon={icons[id]} headline={label} count={count} arrow />;
+  return <ListItem href={href} icon={icons[id] ?? ListChecks} headline={label} count={count} arrow />;
 }
 
 // The start screen: the site's name, the CMS version and when the site was last updated (built on Cloudflare, App.tsx), as StartStatus.tsx shows them, under it, and the FAB
@@ -940,7 +944,7 @@ function statusOf(d: Record<string, unknown>, w?: Waiting): string | undefined {
 
 function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
   if (collection.kind === 'files') return collection.files.map((f) => ({ href: `#${f.file}`, title: f.label, detail: f.view }));
-  const own = files.filter((f) => f.path.startsWith(`${collection.folder}/`));
+  const own = files.filter((f) => f.path.startsWith(`${collection.folder}/`) && (collection.kind !== 'folder' || isEntryPath(f.path)));
   if (collection.kind === 'markdown') {
     const waiting = waitingOf(files);
     const items: Item[] = own

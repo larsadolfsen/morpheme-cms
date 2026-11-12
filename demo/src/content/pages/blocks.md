@@ -49,6 +49,12 @@ Quick points with a check mark.
 - [x] Photos sized for every screen
 - [x] No tracking before consent
 
+## Table
+
+Rows and columns of text, with a header row on top. On a narrow screen the table scrolls sideways.
+
+<div data-block="table" data-props="{&quot;header&quot;:true,&quot;rows&quot;:[[&quot;Plan&quot;,&quot;Pages&quot;,&quot;Support&quot;],[&quot;Free&quot;,&quot;10&quot;,&quot;Community&quot;],[&quot;Standard&quot;,&quot;100&quot;,&quot;Email&quot;],[&quot;Plus&quot;,&quot;Unlimited&quot;,&quot;Phone and email&quot;]]}"></div>
+
 ## List
 
 Rows under each other, as your theme draws a list.
@@ -71,7 +77,7 @@ Rows that fold out with a text and a link, with a text button under the last row
 
 Topics that unfold with a short summary and a link to the full page.
 
-<div data-block="accordion" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;Blocks&quot;,&quot;href&quot;:&quot;/blocks/&quot;,&quot;text&quot;:&quot;Every block a page can be built from.&quot;},{&quot;label&quot;:&quot;App store&quot;,&quot;href&quot;:&quot;/app-store/&quot;,&quot;text&quot;:&quot;Apps and themes you install with one tap.&quot;,&quot;more&quot;:[{&quot;label&quot;:&quot;Get started&quot;,&quot;href&quot;:&quot;/get-started/&quot;}]},{&quot;label&quot;:&quot;Morpheme&quot;,&quot;href&quot;:&quot;/about/&quot;,&quot;text&quot;:&quot;What the editor is built on.&quot;}]}"></div>
+<div data-block="segmented" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Blocks&quot;,&quot;text&quot;:&quot;Every block a page can be built from.&quot;,&quot;href&quot;:&quot;/blocks/&quot;},{&quot;title&quot;:&quot;App store&quot;,&quot;text&quot;:&quot;Apps and themes you install with one tap.&quot;,&quot;href&quot;:&quot;/app-store/&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Get started&quot;,&quot;href&quot;:&quot;/get-started/&quot;}]},{&quot;title&quot;:&quot;Morpheme&quot;,&quot;text&quot;:&quot;What the editor is built on.&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>
 
 ## Questions and answers
 
