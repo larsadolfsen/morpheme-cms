@@ -16,7 +16,7 @@
 //                    privacy/cookie-banner, privacy/privacy-pages, or one of the editor's own screens (Part.opens):
 //                    privacy/consents the visitors' answers in the cookie banner (Consents.tsx); and the settings of the apps installed with
 //                    its category: analytics/google-analytics
-//   files            the uploaded pictures, PDFs, videos and zip files (Media.tsx)
+//   files            the uploaded images, PDFs, videos and zip files (Media.tsx)
 //   seo              "Search engine optimization" (Library.tsx Seo): seo/redirects the redirects' two lists
 //                    (Redirects.tsx): seo/redirects/all the redirects, and seo/redirects/not-found
 //                    the addresses visitors came to that do not exist; seo/rating the SEO rating of every page and
@@ -219,7 +219,7 @@ export type Env = {
   testimonials: TestimonialRow[];
   /** The rest of the site, for the previews of the blocks (sitedata.ts). */
   site: SiteData;
-  /** The pictures uploaded to the site (Media.tsx), for the gallery a picture is chosen from. */
+  /** The images uploaded to the site (Media.tsx), for the gallery an image is chosen from. */
   media: RepoFile[];
   /** All the files the editor has, for what links to a page that moves (addresses.ts). */
   files: RepoFile[];
@@ -243,7 +243,7 @@ export type Env = {
   load: (paths: string[]) => Promise<RepoFile[]>;
   /** All the files in a folder of the site, at any depth (an app's, to install, update or uninstall it). */
   folder: (path: string) => Promise<RepoFile[]>;
-  /** The app store (store.ts): its apps and its themes, an app's or a theme's files from it, and their pictures (as
+  /** The app store (store.ts): its apps and its themes, an app's or a theme's files from it, and their images (as
    * addresses in this browser). */
   store: {
     connected: () => Promise<boolean>;
@@ -253,7 +253,7 @@ export type Env = {
     screenshots: (app: StoreApp) => Promise<{ src: string; label: string }[]>;
     themeScreenshots: (theme: Pick<StoreTheme, 'screenshots' | 'files'>) => Promise<{ key: string; src: string }[]>;
   };
-  /** A picture's bytes by its blob id (github.ts loadBytes). */
+  /** An image's bytes by its blob id (github.ts loadBytes). */
   bytes: (oid: string, address?: string) => Promise<Uint8Array>;
   /** The addresses visitors came to that do not exist (notFound.ts; null: the site does not keep
    * them), and taking some off that list. */
@@ -273,7 +273,7 @@ export type Env = {
   reorder: (collection: Collection, files: RepoFile[]) => Promise<string>;
 };
 
-// The uploaded pictures only by their paths (no text), for "Files" (Media.tsx).
+// The uploaded images only by their paths (no text), for "Files" (Media.tsx).
 const FOLDERS = config.folders;
 const FOLDERS_KEY = JSON.stringify(FOLDERS);
 

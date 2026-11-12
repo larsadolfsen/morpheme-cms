@@ -702,7 +702,7 @@
   .icon-button-filled:hover {
     background: var(--icon-button-filled-hover, var(--block-accent-hover));
   }
-  /* Tonal: on the tint, also where it stands on a picture (the cross on a pop-up). */
+  /* Tonal: on the tint, also where it stands on an image (the cross on a pop-up). */
   .icon-button-tonal {
     background: var(--icon-button-tonal-surface, var(--block-tint));
     color: var(--icon-button-tonal-text, var(--block-text));
@@ -1196,7 +1196,7 @@
   Chips (Chip.tsx, chipClass; m3.material.io/components/chips): .chip with its kind, .chip-assist (a link to something
   related: a post's tag), .chip-filter (one of a few that choose what is shown, the chosen one with aria-pressed="true" on
   a button or aria-current on a link, and a check before its label, .chip-check), .chip-input or .chip-suggestion (each
-  optionally chosen with aria-pressed="true"); an icon before the label, or a person's picture (.chip-avatar), and
+  optionally chosen with aria-pressed="true"); an icon before the label, or a person's image (.chip-avatar), and
   .chip-trailing-icon after it. .chip-elevated: with a shadow instead of the edge (assist, filter and suggestion chips);
   .chip-dragged: while it is dragged; disabled (:disabled, or aria-disabled="true" on what is not a button): seen
   through and not to be used. .chip-removable: an input chip as a <span> with its own button (.chip-action) and the one
@@ -1210,7 +1210,7 @@
                      pointed at (level 2; a theme that sets only the one at rest keeps it); pressed, as at rest
     --chip-dragged-shadow   the shadow that lifts a dragged chip (level 4)
     --chip-disabled-opacity   how much of a disabled chip is seen
-    --chip-avatar-size, --chip-avatar-padding   a person's picture, and the room before it
+    --chip-avatar-size, --chip-avatar-padding   a person's image, and the room before it
   The label's weight and line height are the text's; a theme sets them with a rule on .chip.
 */
 @layer components {
@@ -1280,7 +1280,7 @@
     box-shadow: var(--mo-elevation-0-shadow);
   }
 
-  /* Elevated: on a surface with a shadow instead of the edge, where it stands on a picture or a colour; also chosen.
+  /* Elevated: on a surface with a shadow instead of the edge, where it stands on an image or a colour; also chosen.
      Level 1, level 2 when pointed at, and as at rest while pressed (M3). */
   .chip-elevated {
     background: var(--chip-elevated-surface, var(--mo-elevation-1-color));
@@ -1298,7 +1298,7 @@
     box-shadow: var(--chip-elevated-shadow, var(--mo-elevation-1-rest-shadow));
   }
 
-  /* A person's picture before the label (an input chip): round, nearer the start. */
+  /* A person's image before the label (an input chip): round, nearer the start. */
   .chip-avatar {
     flex-shrink: 0;
     width: var(--chip-avatar-size, 1.5rem);
@@ -1468,7 +1468,7 @@
     --carousel-height, --carousel-full-screen-height   how high a contained carousel is, and a full-screen one
     --carousel-large-item-width   how wide multi-browse's large items are, as near as they fit (in px or rem)
     --carousel-small-item-min-width, --carousel-small-item-max-width   a small item's narrowest and widest (px or rem)
-    --carousel-item-radius, --carousel-item-surface   a contained item's corners, and what is behind its picture
+    --carousel-item-radius, --carousel-item-surface   a contained item's corners, and what is behind its image
     --carousel-full-screen-radius   a full-screen one's items' corners on a phone
     --carousel-dot-size, --carousel-dot-colour, --carousel-dot-selected-width, --carousel-dot-selected-colour
 */
@@ -2118,7 +2118,7 @@
     background: var(--carousel-item-surface, var(--block-tint));
     clip-path: inset(0 var(--carousel-mask-inset, 0px) round var(--carousel-item-radius, var(--block-radius)));
   }
-  .carousel-item-mask > :is(img, picture, video) {
+  .carousel-item-mask > :is(img, image, video) {
     display: block;
     width: 100%;
     height: 100%;
@@ -2152,7 +2152,7 @@
   Cards (Card.tsx, cardClass; m3.material.io/components/cards): the surface a block or an app's block is, .card with its
   kind, .card-elevated (on the surface with its shadow), .card-filled (on the tint) or .card-outlined (on the surface
   with a thin edge); a card that is a link is an <a class="card …">, the whole card the link, lifted and tinted when pointed at or focused;
-  .card-dragged while it is dragged to another place. What is on it (its icon, heading, text, picture) is the block's
+  .card-dragged while it is dragged to another place. What is on it (its icon, heading, text, image) is the block's
   own (block-…).
     --card-radius, --card-padding   its corners and the room inside it (16px, as Material 3's)
     --card-gap                      the room between cards (8px; the grid or list of cards sets it as its gap)
@@ -2331,7 +2331,7 @@
   }
   /* Room enough over and under its two lines for its height, so they and what stands beside them are in the middle
      of an item whose text has no more lines, and at the same place in one whose text runs over more (not with a
-     picture, higher than the lines). */
+     image, higher than the lines). */
   :is(.list-item-two-line, .list-item-container:not(.list-item-three-line):has(> .list-item-content > .list-item-supporting)):not(
     :has(> :is(.list-item-leading-image, .list-item-leading-video))
   ) {
@@ -2360,7 +2360,7 @@
       calc(var(--list-item-headline-line-height, 1lh) + var(--list-item-supporting-line-height, 1lh))
     );
   }
-  /* A picture higher than the lines stands in the middle of the item. */
+  /* An image higher than the lines stands in the middle of the item. */
   :is(.list-item-leading-image, .list-item-leading-video) {
     max-height: none;
   }
@@ -2490,7 +2490,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* What leads it, Material's kinds: an icon, an avatar (a letter, or a picture), an image or a video's thumbnail. The
+  /* What leads it, Material's kinds: an icon, an avatar (a letter, or an image), an image or a video's thumbnail. The
      icons that lead and trail an item as large as --list-item-icon-size. */
   .list-item-leading-icon {
     color: var(--list-item-leading-icon-color, var(--block-muted));
@@ -2797,7 +2797,7 @@
     --top-app-bar-small-headline-font-size, --top-app-bar-small-subtitle-font-size   in the bar (small, collapsed)
     --top-app-bar-medium-headline-font-size, --top-app-bar-medium-subtitle-font-size, --top-app-bar-medium-padding-bottom
     --top-app-bar-large-headline-font-size, --top-app-bar-large-subtitle-font-size, --top-app-bar-large-padding-bottom
-    --top-app-bar-avatar-size   a picture among the trailing elements
+    --top-app-bar-avatar-size   an image among the trailing elements
   Menu (Menu, MenuItem, MenuGroup, MenuDivider, DropdownMenu, menuClass, menuClasses, menuItemClass): .menu, a surface
   with its items, .menu-vibrant in the accent; .menu-item, a link or a <button>, with .menu-item-leading (.menu-item-icon,
   and .menu-item-check, the tick of an item that is on), .menu-item-text (.menu-item-label, .menu-item-supporting),

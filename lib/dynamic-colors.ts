@@ -8,7 +8,7 @@
 // readable in both modes. The site's file of colours keeps the choice ("dynamic") beside the colours it
 // gave, so the site itself never needs this: only the editor makes them (Colors.tsx).
 // Content-based colour (https://m3.material.io/styles/color/dynamic/content-based-source) is the other
-// source Material has: every page takes its colours from its own picture, made the same way when
+// source Material has: every page takes its colours from its own image, made the same way when
 // the site is built (packages/editor/site/pageColors.ts), while an app says so (the app "Indholdsbaserede farver", with the choice
 // in its settings), or a theme asks for it.
 // No React or browser here: the check before the build uses it too.
@@ -124,10 +124,10 @@ export type Dynamic = {
   sourceLocked?: boolean;
 };
 
-/** The choice for content-based colour, as an app gives it (AppDefinition.pageColors): the source colour is the picture's. */
+/** The choice for content-based colour, as an app gives it (AppDefinition.pageColors): the source colour is the image's. */
 export type ContentBased = { variant: Variant; contrast: Contrast };
 
-/** The variant Material uses for content-based colour: the one closest to the picture. */
+/** The variant Material uses for content-based colour: the one closest to the image. */
 export const CONTENT_VARIANT: Variant = 'content';
 
 /** Material's colour roles (m3.material.io/styles/color/roles), which a site's colours are, each by its own name. */
@@ -314,7 +314,7 @@ export function dynamicProblems(value: unknown, key: 'dynamic' | 'contentBased' 
   ];
 }
 
-// Material's quantizer in JavaScript (QuantizerWsmeans) starts its clusters from Math.random, so the same picture could
+// Material's quantizer in JavaScript (QuantizerWsmeans) starts its clusters from Math.random, so the same image could
 // give other colours each time it is read (and each build other colours for a page); seeded as Material's Java and Dart
 // versions are (0x42688), it gives the same. The quantizer runs at once, so nothing else gets the seeded numbers.
 function seeded<T>(run: () => T): T {
@@ -334,9 +334,9 @@ function seeded<T>(run: () => T): T {
   }
 }
 
-/** The colours in a picture that are best as a source colour, best first (at most four): a picture's pixels
+/** The colours in an image that are best as a source colour, best first (at most four): an image's pixels
  * as RGBA bytes (a canvas's ImageData, or sharp's raw output with an alpha channel). Material's own way:
- * quantized, then scored. Only the picture's own: none for one without colour enough (a grey one), where
+ * quantized, then scored. Only the image's own: none for one without colour enough (a grey one), where
  * Material's score would give its fallback colour (Google blue). */
 export function sourceColorsOf(bytes: Uint8ClampedArray): string[] {
   const pixels: number[] = [];

@@ -7,7 +7,7 @@ import * as site from '@site/editor';
 import type { ColorPair } from '../lib/colors';
 import { backTarget, placeOf as menuPlaceOf } from '../lib/menu.mjs';
 import { activeApps, appFromManifest, appIdOf, withKinds, type AppDefinition, type AppList, type SiteApp } from './apps';
-import { appBlocks, appEditors, appFiles, appFolders, appManifests, appPictures, appShared, appStores, appTextFiles } from './appFiles';
+import { appBlocks, appEditors, appFiles, appFolders, appManifests, appImages, appShared, appStores, appTextFiles } from './appFiles';
 import type { AppManifest } from '../lib/appManifest.mjs';
 import type { BlockDefinition, SiteBlock } from './blocks';
 import type { ListRows } from './fields';
@@ -237,7 +237,7 @@ export const localSiteBlock = (b: SiteBlock): SiteBlock => (translatingSite ? lo
 export const localApp = <A extends AppDefinition>(a: A): A => (translatingSite ? local.app(a) : a);
 
 // The apps in the site (src/apps/<app>/index.ts, apps.ts), each with the blocks it adds (its blocks/), what it needs
-// (from its folder), its pictures and, from the app store, where it came from (its store.json), by their names: as the
+// (from its folder), its images and, from the app store, where it came from (its store.json), by their names: as the
 // site wrote them, and in the editor's language.
 const appBlockPaths = Object.keys(appBlocks);
 // An app with an app.json (contract 4) is made from it, its editor.ts and its texts.json; one with only an index.ts (contract 2 or 3)
@@ -265,24 +265,24 @@ export const writtenApps: SiteApp[] = [...fromManifests, ...fromIndexes]
         Object.keys(definition.widgets ?? {}).length > 0,
         manifest,
       ),
-      pictures: [],
+      images: [],
       ...(store ? { store } : {}),
     };
   })
-  .map((a) => withPictures(a))
+  .map((a) => withImages(a))
   .sort((a, b) => byText(a.label, b.label));
-export const apps: SiteApp[] = writtenApps.map((a) => withPictures(localApp(a))).sort((a, b) => byText(a.label, b.label));
+export const apps: SiteApp[] = writtenApps.map((a) => withImages(localApp(a))).sort((a, b) => byText(a.label, b.label));
 
-/** An app with the addresses of its pictures (its `screenshots`, in their order), each with what it says under it. */
-function withPictures(app: SiteApp): SiteApp {
+/** An app with the addresses of its images (its `screenshots`, in their order), each with what it says under it. */
+function withImages(app: SiteApp): SiteApp {
   const folder = `/${appFolder(app.id)}/${SCREENSHOTS}/`;
-  const pictures = (app.screenshots ?? []).flatMap((x, i) => {
-    // The new file name first, then the old one (DEPRECATED_SHOT_WORDS) for an app whose pictures are not regenerated yet.
-    const file = shotFiles(i, x.shows).find((f) => appPictures[folder + f]);
-    const src = file && appPictures[folder + file];
+  const images = (app.screenshots ?? []).flatMap((x, i) => {
+    // The new file name first, then the old one (DEPRECATED_SHOT_WORDS) for an app whose images are not regenerated yet.
+    const file = shotFiles(i, x.shows).find((f) => appImages[folder + f]);
+    const src = file && appImages[folder + file];
     return src ? [{ src, label: x.label }] : [];
   });
-  return { ...app, pictures };
+  return { ...app, images };
 }
 
 // Which app a block's screen under "Standard blocks" comes from, by its type: the app with a block of that type

@@ -63,7 +63,7 @@ export const site = {
   booking: { heading: booking.heading, text: booking.text },
   /** The labels of the buttons "Book an appointment" and "Call" (the number comes after). */
   labels: { book: booking.book, call: booking.call },
-  /** The owner's picture (config.ts), or '' when the site has none. */
+  /** The owner's image (config.ts), or '' when the site has none. */
   portrait: config.picture?.src ?? '',
   portraitAlt: config.picture?.alt ?? '',
   /** Profiles and share buttons (Company › Social media, social.json); all buttons on without the file. */

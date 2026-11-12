@@ -92,7 +92,7 @@ test('a search without a key answers 409; with one it calls the host with the ke
   assert.equal(seen[0].init.redirect, 'manual');
 });
 
-test('a picture or a tracking call to a host the app did not list is refused and nothing is fetched', async () => {
+test('an image or a tracking call to a host the app did not list is refused and nothing is fetched', async () => {
   const e = env();
   await call(e, '/api/media-providers/gallery/photos/key', { method: 'PUT', body: JSON.stringify({ key: 'K' }) });
   const ask = async () => assert.fail('must not fetch');
@@ -112,7 +112,7 @@ test('a picture or a tracking call to a host the app did not list is refused and
   assert.equal(track.status, 400);
 });
 
-test('the key goes to the API host on a tracking call and never to a picture host', async () => {
+test('the key goes to the API host on a tracking call and never to an image host', async () => {
   const e = env();
   await call(e, '/api/media-providers/gallery/photos/key', { method: 'PUT', body: JSON.stringify({ key: 'K' }) });
   const seen = [];
@@ -133,7 +133,7 @@ test('the key goes to the API host on a tracking call and never to a picture hos
   assert.deepEqual(seen[1].headers, {});
 });
 
-test('a picture must be an image and is returned as it is', async () => {
+test('an image must be an image and is returned as it is', async () => {
   const e = env();
   await call(e, '/api/media-providers/gallery/photos/key', { method: 'PUT', body: JSON.stringify({ key: 'K' }) });
   const url = encodeURIComponent('https://img.example.com/a.jpg');

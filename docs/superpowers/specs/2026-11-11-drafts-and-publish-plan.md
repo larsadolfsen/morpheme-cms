@@ -111,4 +111,4 @@ not the live page being edited, a new page, an earlier version or a changed addr
 the kept changes put back when they are newer than git's file (`restorable`). `Save`, `Publish`, `Discard` and the version switch end with
 nothing unsaved, which deletes the autosave; `Discard` in the "Save the changes?" question deletes it when the form closes. When an idle
 flush gives git a new waiting version, the form loads that file (`takeWaiting`) so its blob id is current. A text that cannot be saved yet
-(a field that is wrong, a picture not uploaded yet) shows `Not saved`.
+(a field that is wrong, an image not uploaded yet) shows `Not saved`.

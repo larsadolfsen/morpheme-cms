@@ -1,7 +1,7 @@
-// How a picture in the text is cut (packages/editor/lib/crop.mjs), in its sheet (BlockDialog.tsx): its format
-// (Original, or one of FORMATS), and the part of the picture that is shown in it, moved by dragging
-// the picture (or with the arrow keys) and made larger with the slider. A new format, or another
-// picture, starts with the largest part in the middle.
+// How an image in the text is cut (packages/editor/lib/crop.mjs), in its sheet (BlockDialog.tsx): its format
+// (Original, or one of FORMATS), and the part of the image that is shown in it, moved by dragging
+// the image (or with the arrow keys) and made larger with the slider. A new format, or another
+// image, starts with the largest part in the middle.
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import { FORMATS, middleCrop, ratioOf } from '../lib/crop.mjs';
 import { shownAt } from './images';
@@ -14,18 +14,18 @@ type Props = {
   src: string;
   format: string;
   crop: Cut;
-  /** The new format and crop; a function of them as they are then, as the picture loads later. */
+  /** The new format and crop; a function of them as they are then, as the image loads later. */
   onChange: (next: (was: { format: string; crop: Cut }) => { format: string; crop: Cut }) => void;
 };
 
 const MAX_ZOOM = 4;
 const clamp = (n: number, low: number, high: number) => Math.min(high, Math.max(low, n));
 
-// The crop moved (in percent of the picture) and kept inside it.
+// The crop moved (in percent of the image) and kept inside it.
 const moved = ([x, y, w, h]: number[], dx: number, dy: number) => [clamp(x + dx, 0, 100 - w), clamp(y + dy, 0, 100 - h), w, h];
 
 export default function CropField({ src, format, crop, onChange }: Props) {
-  // Width divided by height of the picture, once it is loaded (of the picture it was loaded for).
+  // Width divided by height of the image, once it is loaded (of the image it was loaded for).
   const [size, setSize] = useState({ src: '', aspect: 0 });
   const aspect = size.src === src ? size.aspect : 0;
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function CropField({ src, format, crop, onChange }: Props) {
     };
   }, [src]);
 
-  // Another picture: the part in the middle of it.
+  // Another image: the part in the middle of it.
   const first = useRef(src);
   useEffect(() => {
     if (src === first.current) return;
@@ -60,7 +60,7 @@ export default function CropField({ src, format, crop, onChange }: Props) {
     onChange((was) => ({ ...was, crop: moved([x + w / 2 - nw / 2, y + h / 2 - nh / 2, nw, nh], 0, 0) }));
   }
 
-  // Dragging the picture: the part shown follows the finger (or the mouse).
+  // Dragging the image: the part shown follows the finger (or the mouse).
   const frame = useRef<HTMLDivElement>(null);
   const drag = useRef<{ id: number; x: number; y: number; crop: number[] } | null>(null);
   function down(e: PointerEvent) {

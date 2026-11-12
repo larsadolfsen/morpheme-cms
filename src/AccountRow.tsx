@@ -1,4 +1,4 @@
-// The signed-in user as a list row: their GitHub picture in a round avatar (their initials until it loads or when it fails),
+// The signed-in user as a list row: their GitHub image in a round avatar (their initials until it loads or when it fails),
 // their name and a line under it. Exposes AccountRow. Uses ListItem (ui.tsx) and lib/account.mjs; the main drawer's header
 // (MainMenu.tsx) and the account screen (Library.tsx) show it.
 import { useEffect, useState } from 'react';
@@ -11,7 +11,7 @@ export function AccountRow({ user, supporting, href }: { user: Viewer; supportin
   const initials = initialsOf(user.name, user.login);
   const src = avatarOf(user.login, 80);
   const [loaded, setLoaded] = useState(false);
-  // The picture is loaded beforehand; the initials stand in until it is there and for good when it fails.
+  // The image is loaded beforehand; the initials stand in until it is there and for good when it fails.
   useEffect(() => {
     setLoaded(false);
     const image = new Image();

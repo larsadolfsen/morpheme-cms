@@ -80,7 +80,7 @@ const { server, site } = await serveBuilt(DIST);
 
 // CHROMIUM_PATH: another Chromium than Playwright's own (one installed for another version of Playwright).
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
-// SCREENS_DIR (the temporary folder's morpheme-screens by default): where the pictures go.
+// SCREENS_DIR (the temporary folder's morpheme-screens by default): where the images go.
 const shots = process.env.SCREENS_DIR || join(tmpdir(), 'morpheme-screens');
 mkdirSync(shots, { recursive: true });
 // The screens opened (each on both).
@@ -394,9 +394,9 @@ async function checkPreviewDraft(width) {
 /** A List typed in the text: while a row is active and the list has rows, the text button "Add list row" is under the last row and adds one, the faded empty row is not there, the active row has a dotted line, and Add above and Add below are icon buttons; when the cursor leaves, the button is gone. */
 const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
+  { name: 'steps', hint: 'Numbered steps.', add: 'Add step', noEdit: true },
   { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button' },
-  // `desktop: false`: not checked on a computer yet (Cards fails there with "t.map is not a function", found by this pass; its own fix).
-  { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, desktop: false },
+  { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
   { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
@@ -404,11 +404,9 @@ const inlineBlocks = [
 ];
 
 /** `surface`: the item is a card with a container of its own, so it has a background colour. */
-async function checkInlineBlock(width, height, { name, hint, add, surface, rowButtons, field = 'title', open }) {
+async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowButtons, field = 'title', open }) {
   const label = `${width}px inline ${name}`;
-  // On a phone a touch, on a computer a mouse.
   const phone = width < 600;
-  const press = (locator) => (phone ? locator.tap() : locator.click());
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
@@ -420,8 +418,8 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, rowBu
   await page.waitForTimeout(300);
   // The tools that do not fit are under "Show more tools".
   if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await press(page.locator('[aria-label="Show more tools"]:visible').first());
-  await press(page.locator('[aria-label="Insert"]:visible').first());
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
   try {
     await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
@@ -451,6 +449,10 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, rowBu
     problems.push(`${label}: the active row has a background colour (${one.background})`);
   for (const name of ['Add above', 'Add below'])
     if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
+  // A block with no settings (Steps): no Link action and no Edit button, a step has nothing to set.
+  if (noEdit)
+    for (const name of ['Link', 'Edit'])
+      if (one.bar.some((b) => b.label === name)) problems.push(`${label}: the toolbar has "${name}" although the block has no settings`);
   // A row's buttons: under the active row's text the text button `rowButtons` adds a button whose text is typed there.
   if (rowButtons) {
     const adds = await page.locator('[data-add-button]').allTextContents();
@@ -482,6 +484,119 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, rowBu
   if ((await page.locator('[data-add-row]').count()) > 0)
     problems.push(`${label}: the button "${add}" stays after the cursor left the block`);
   await page.close();
+}
+
+/** Steps typed in the text: Enter in the heading goes to the text, Enter in the text adds the next step, Backspace in an empty heading removes the step, moving a step renumbers, pasted lines make one step each (not when the paste has headings), a heading without text is kept, and the saved form is `items: [{ title, text }]`. */
+async function checkSteps(width, height) {
+  const label = `${width}px steps`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await page.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
+  await page.waitForSelector('.inline-steps .inline-list-row-active [data-field="title"]');
+  const steps = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll('.inline-steps .block-step[data-row]:not(.inline-list-row-next)')].map((li) => ({
+        number: li.querySelector('.block-step-number').textContent,
+        title: li.querySelector('[data-field="title"]').value,
+        text: li.querySelector('[data-field="text"]').value,
+      })),
+    );
+  const faded = () => page.locator('.inline-steps .inline-list-row-next').count();
+  if ((await faded()) !== 1) problems.push(`${label}: a new Steps block does not start with one faded, empty step`);
+  const number = await page.locator('.inline-steps .block-step-number').first().textContent();
+  if (number !== '1') problems.push(`${label}: the first step is numbered ${number}`);
+  await page.keyboard.type('Order');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Choose it');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Pay');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Get it');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Ship');
+  await page.waitForTimeout(200);
+  let now = await steps();
+  if (
+    JSON.stringify(now.map((s) => [s.title, s.text])) !==
+    JSON.stringify([
+      ['Order', 'Choose it'],
+      ['Pay', 'Get it'],
+      ['Ship', ''],
+    ])
+  )
+    problems.push(`${label}: Enter did not go heading, text, next step: ${JSON.stringify(now)}`);
+  // Enter in the heading goes to the text and Enter in an empty text adds nothing (a heading without text is kept as it is); in the text
+  // with something in it Enter adds a step, and Backspace in its empty heading removes it again.
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Soon');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(100);
+  if ((await steps()).length !== 4) problems.push(`${label}: Enter in the text did not add a step`);
+  await page.keyboard.press('Backspace');
+  await page.waitForTimeout(200);
+  now = await steps();
+  if (now.length !== 3 || now[2].title !== 'Ship')
+    problems.push(`${label}: Backspace in an empty heading did not remove the step: ${JSON.stringify(now)}`);
+  // Moving a step renumbers.
+  await page.locator('.inline-steps [data-row="0"] [data-field="title"]').click();
+  await page.waitForTimeout(200);
+  const down = page.locator('.site-block-toolbar button[aria-label="Move down"]');
+  if (phone) await page.locator('.site-block-toolbar button[aria-label="Step"]').click();
+  await down.first().click();
+  await page.waitForTimeout(200);
+  now = await steps();
+  if (now[1]?.title !== 'Order' || now.map((s) => s.number).join() !== '1,2,3')
+    problems.push(`${label}: Move down did not move and renumber the step: ${JSON.stringify(now)}`);
+  await page.close();
+  // Pasting lines into an empty Steps block makes a step of each; headings among them leave the paste as it is.
+  for (const [html, plain, expected] of [
+    ['<p>Order</p><p>Pay</p><p>Get it</p>', 'Order\nPay\nGet it', 3],
+    ['<h2>Order</h2><p>Pay</p>', 'Order\nPay', 0],
+  ]) {
+    const p2 = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+    p2.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(p2, site);
+    await p2.evaluate(() => (location.hash = '#new/pages'));
+    await p2.waitForSelector('.ProseMirror');
+    await p2.click('.ProseMirror');
+    await p2.keyboard.type('Hello');
+    await p2.keyboard.press('Enter');
+    await p2.waitForTimeout(300);
+    if (!(await p2.locator('[aria-label="Insert"]:visible').count()))
+      await p2.locator('[aria-label="Show more tools"]:visible').first().click();
+    await p2.locator('[aria-label="Insert"]:visible').first().click();
+    await p2.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
+    await p2.waitForSelector('.inline-steps .inline-list-row-active [data-field="title"]');
+    const taken = await p2.evaluate(
+      ([html, plain]) => {
+        const data = new DataTransfer();
+        data.setData('text/plain', plain);
+        data.setData('text/html', html);
+        // true when a step took the paste over (preventDefault), false when it is left to the browser as it is.
+        return !document
+          .querySelector('.inline-steps [data-field="title"]')
+          .dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+      },
+      [html, plain],
+    );
+    if (taken !== expected > 0)
+      problems.push(`${label}: the paste ${html} was ${taken ? 'taken over' : 'left as it is'}, not the other way`);
+    await p2.waitForTimeout(300);
+    const made = await p2.locator('.inline-steps .block-step[data-row]:not(.inline-list-row-next)').count();
+    if (made !== expected) problems.push(`${label}: pasting ${html} made ${made} steps, not ${expected}`);
+    await p2.close();
+  }
 }
 
 /** The dynamic List (the owner's flow): the dynamic icon in the floating toolbar opens the dynamic settings (a bottom sheet on a phone, the side panel on a computer) with `Rows from`; picking a list turns the block into a "Dynamic list" with its state line, `Edit list` and an `Undo` that brings the typed rows back; the toolbar then has no row actions and stays inside the screen. */
@@ -783,7 +898,7 @@ async function checkToolbarBox() {
     });
     const pixel = async (x, y) => {
       const png = await page.screenshot({ clip: { x, y, width: 1, height: 1 }, scale: 'css' });
-      // The first pixel of the picture: the IDAT chunks hold the zlib data, a filter byte and then the colour (whatever the filter, the first pixel of the first row is as written).
+      // The first pixel of the image: the IDAT chunks hold the zlib data, a filter byte and then the colour (whatever the filter, the first pixel of the first row is as written).
       const chunks = [];
       for (let at = 8; at < png.length; at += 12 + png.readUInt32BE(at))
         if (png.toString('latin1', at + 4, at + 8) === 'IDAT') chunks.push(png.subarray(at + 8, at + 8 + png.readUInt32BE(at)));
@@ -846,6 +961,52 @@ async function checkFullWidthSection() {
       );
     await page.close();
   }
+}
+
+/** A tap below the last section, or between two sections, puts the cursor on a free line there (an empty paragraph that is not saved unless typed in), and typing adds text after the section, not in a heading (375 px with touch, and a computer). */
+async function checkTapBelowSection(width, touch) {
+  const label = `${width}px tap below a section`;
+  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  for (const line of ['# Title', '## One', 'First', '## Two', 'Second']) {
+    await page.keyboard.type(line);
+    await page.keyboard.press('Enter');
+  }
+  await page.keyboard.press('Backspace');
+  const parts = () =>
+    page.evaluate(() =>
+      [...document.querySelector('.ProseMirror').children]
+        .filter((c) => !c.classList.contains('editor-section-picture'))
+        .map((c) => ({ tag: c.tagName, text: c.textContent, ...c.getBoundingClientRect().toJSON() })),
+    );
+  const tapAt = async (y) => {
+    const pm = await page.evaluate(() => document.querySelector('.ProseMirror').getBoundingClientRect().toJSON());
+    const x = pm.left + pm.width / 2;
+    if (touch) await page.touchscreen.tap(x, y);
+    else await page.mouse.click(x, y);
+  };
+  const lines = async () => (await parts()).map((p) => `${p.tag}:${p.text}`).join(' | ');
+  await page.evaluate(() => document.querySelector('.ProseMirror').scrollIntoView({ block: 'center' }));
+  // Between the sections: the white between "First" and the heading "Two".
+  let all = await parts();
+  const first = all.findIndex((p) => p.text === 'First');
+  await tapAt((all[first].bottom + all[first + 1].top) / 2);
+  await page.keyboard.type('Between');
+  let got = await lines();
+  if (got !== 'H1:Title | H2:One | P:First | P:Between | H2:Two | P:Second')
+    problems.push(`${label}: typing between two sections gave ${got}`);
+  // Below the last section.
+  all = await parts();
+  await tapAt(all.at(-1).bottom + 8);
+  await page.keyboard.type('After');
+  got = await lines();
+  if (got !== 'H1:Title | H2:One | P:First | P:Between | H2:Two | P:Second | P:After')
+    problems.push(`${label}: typing below the last section gave ${got}`);
+  await page.close();
 }
 
 /** A page's accordion rows (FoldSection): between its divider lines the title has the same space above and below it (within 1px, measured on the pixels of the first capital, not the line box), the arrow is centred on the title, and the row stays 48px tall or more (360, 375, 390, 414 px and a computer). */
@@ -1343,7 +1504,7 @@ async function checkDraftsCard(width, height) {
   await few.close();
 }
 
-// "Appstore" and "Morpheme" in the three states of the site's key to the store (STORE_STATES): what each shows, and a picture of it in
+// "Appstore" and "Morpheme" in the three states of the site's key to the store (STORE_STATES): what each shows, and an image of it in
 // SCREENS_DIR.
 const keyStates = {
   open: {
@@ -1443,7 +1604,13 @@ for (const [width, height] of [
   await checkDraftsCard(width, height);
 await checkEmptyHint();
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
-for (const block of inlineBlocks) if (block.desktop !== false) await checkInlineBlock(1280, 900, block);
+// (Cards on a computer fails when inserted, `t.map is not a function`: not part of the Steps change.)
+for (const block of inlineBlocks.filter((b) => b.name !== 'cards')) await checkInlineBlock(1280, 900, block);
+for (const [width, height] of [
+  [375, 740],
+  [1280, 900],
+])
+  await checkSteps(width, height);
 await checkDynamicList(375, 740);
 await checkDynamicList(1280, 900);
 await checkOwnList(375, 740);
@@ -1457,6 +1624,8 @@ for (const [width, height] of [
   await checkIconSearch(width, height);
 await checkHints();
 await checkFullWidthSection();
+await checkTapBelowSection(375, true);
+await checkTapBelowSection(1280, false);
 for (const [width, height] of [
   [360, 740],
   [375, 800],

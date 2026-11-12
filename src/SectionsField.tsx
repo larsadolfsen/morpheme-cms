@@ -25,7 +25,7 @@ type Props = {
 };
 
 export default function SectionsField({ field, value, intro, page, off = [], onChange }: Props) {
-  // The sections whose text and picture are written above their card.
+  // The sections whose text and image are written above their card.
   const leads = useMemo(() => leadsOfField(field), [field]);
   const list = useMemo(() => sectionBlocks(field.blocks!, leads), [field, leads]);
   const context = useContext(Fields)!;

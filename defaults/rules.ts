@@ -459,6 +459,6 @@ export function whatIsAt(address: string, relations: Record<Relation, Option[]>)
   const tag = relations.categories.find((o) => `/blog/tags/${o.value}/` === base);
   if (tag) return siteText('the tag "{name}" on the blog ({address})', { name: tag.label, address });
   if (base.startsWith(config.folders.media.replace(/^public/, '') + '/'))
-    return siteText('the picture {name}', { name: base.split('/').pop()! });
+    return siteText('the image {name}', { name: base.split('/').pop()! });
   return address;
 }

@@ -43,7 +43,7 @@
 */
 :root {
   --radius: 0.75rem;
-  /* The corners of something smaller in or beside a panel: a picture in a list, a row in a menu, an icon's square. */
+  /* The corners of something smaller in or beside a panel: an image in a list, a row in a menu, an icon's square. */
   --radius-small: 1rem;
   --panel-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px -12px rgb(0 0 0 / 0.18);
   /* The motion scheme's curve (blocks.css, lib/motion.ts). */
@@ -258,8 +258,8 @@
     font-weight: var(--type-lead-weight);
     letter-spacing: var(--type-lead-tracking);
   }
-  /* The text right after the lead (no picture between): the space the prose puts between paragraphs (1.25em), not the
-   larger space of a text under a picture. Unlayered on purpose: it must beat the mt-10 / medium:mt-14 utilities (a layer). */
+  /* The text right after the lead (no image between): the space the prose puts between paragraphs (1.25em), not the
+   larger space of a text under an image. Unlayered on purpose: it must beat the mt-10 / medium:mt-14 utilities (a layer). */
   .prose.post-lead + .prose {
     margin-top: 1.25em;
   }
@@ -299,14 +299,14 @@
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
   }
-  /* Pictures in the text; not those in a block of the site in it (not-prose, RichText.astro). */
+  /* Images in the text; not those in a block of the site in it (not-prose, RichText.astro). */
   .prose :where(img):not(:where(.not-prose img)) {
     border-radius: var(--radius);
     width: 100%;
     height: auto;
   }
-  /* A picture in the text cut to a format in the editor (packages/editor/lib/crop.mjs): the box is the format, the
-   picture in it as large and as far moved as the part chosen. */
+  /* An image in the text cut to a format in the editor (packages/editor/lib/crop.mjs): the box is the format, the
+   image in it as large and as far moved as the part chosen. */
   .picture-crop {
     display: block;
     position: relative;

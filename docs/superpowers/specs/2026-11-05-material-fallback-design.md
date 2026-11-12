@@ -8,7 +8,7 @@
 A theme imports `@morphemecms/cms/theme/styles/base.css` and overrides variables. Venus does this. But the styles of
 the parts every theme inherits live only in Material's `theme/styles/global.css`: the top app bar's menu items
 (`.md-nav-item`, `.md-nav-toggle`), the menu's focus, the extended FAB (`[data-fab]`), the navigation drawer
-(`.md-drawer-*`, `.navigation-drawer-*`), the footer (`.md-footer*`), the testimonial mark and the corners of pictures
+(`.md-drawer-*`, `.navigation-drawer-*`), the footer (`.md-footer*`), the testimonial mark and the corners of images
 in long text. A theme without its own `Header.astro` and `Footer.astro` gets Material's components without their
 styles. Venus is broken that way today.
 

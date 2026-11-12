@@ -1,4 +1,4 @@
-// "Banner", beside its picture or over it (view.behind: the picture fills the block behind the text), or without one
+// "Banner", beside its image or over it (view.behind: the image fills the block behind the text), or without one
 // (block-hero-plain), across the whole width of the window or as wide as the text (view.full, block-hero-full: on the
 // site it reaches out of the text to the window's edges, with its content at the page's width; in the editor it is as
 // wide as where it is drawn, blocks.css): its own heading (an H2; the H1 belongs to the page), the subtitle and the
@@ -12,7 +12,7 @@ import { useInText } from '@morphemecms/cms/src/standard/view';
 
 export default function Hero({ view }: { view: HeroView }) {
   const { image } = view;
-  // The widths the picture is shown in: behind the text the whole block's width, beside it a part of it.
+  // The widths the image is shown in: behind the text the whole block's width, beside it a part of it.
   const sizes = view.behind ? (view.full ? '100vw' : 'min(72rem, 100vw)') : `(min-width: ${BREAKPOINTS.expanded}px) 40vw, 100vw`;
   return (
     <div

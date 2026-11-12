@@ -75,15 +75,15 @@ const noindex: Field = {
   hint: 'The page is not shown in Google.',
 };
 
-// The text of the picture at the top of a post (a page has its pictures in its text): "Decorative picture" (drawn with alt="", screen readers skip
+// The text of the image at the top of a post (a page has its images in its text): "Decorative image" (drawn with alt="", screen readers skip
 // it), else its alt text.
 const topImageText: Field[] = [
   {
     name: 'imageDecorative',
-    label: 'Decorative picture',
+    label: 'Decorative image',
     type: 'boolean',
     toggle: ['On', 'Off'],
-    hint: 'Screen readers skip the picture.',
+    hint: 'Screen readers skip the image.',
   },
   { name: 'imageAlt', label: 'Alt text', type: 'string', only: { field: 'imageDecorative', is: ['', 'false'] } },
 ];
@@ -105,7 +105,7 @@ const status = (): Field[] => [
   },
 ];
 
-// The Google texts, and the picture when the page is shared, which the editor shows under "Social media" (SHARE_FIELDS
+// The Google texts, and the image when the page is shared, which the editor shows under "Social media" (SHARE_FIELDS
 // in packages/editor/src/seo.ts).
 const seo: Field[] = [
   {
@@ -125,14 +125,14 @@ const seo: Field[] = [
   // og:image (Base.astro), cut to 1200 × 630 by packages/editor/scripts/responsive-images.mjs.
   {
     name: 'shareImage',
-    label: 'Picture when shared',
+    label: 'Image when shared',
     type: 'image',
     hint: 'Shown when the page is shared, e.g. on Facebook.',
   },
 ];
 
 // The title and description when a page or post is shared (og:title, og:description in Base.astro), under "Social
-// media" with the picture.
+// media" with the image.
 const shareTexts: Field[] = [
   {
     name: 'shareTitle',
@@ -239,7 +239,7 @@ export const socialFields: Field[] = [
   },
   { name: 'shareX', label: 'X', type: 'boolean' },
   { name: 'shareLinkedin', label: 'LinkedIn', type: 'boolean' },
-  { name: 'sharePinterest', label: 'Pinterest', type: 'boolean', hint: 'Shown only when the post has a picture.' },
+  { name: 'sharePinterest', label: 'Pinterest', type: 'boolean', hint: 'Shown only when the post has an image.' },
   { name: 'shareCopyLink', label: 'Copy link', type: 'boolean' },
 ];
 
@@ -388,7 +388,7 @@ export const collections: Collection[] = [
         add: 'Add tag',
         edit: { to: 'new/tags', text: 'Create a tag' },
       },
-      { name: 'image', label: 'Picture at the top', type: 'image' },
+      { name: 'image', label: 'Image at the top', type: 'image' },
       ...topImageText,
       ...seo,
       ...shareTexts,
@@ -517,7 +517,7 @@ export const collections: Collection[] = [
         // Without one (those made before there were kinds), it is the standard one.
         default: 'standard',
         options: [
-          { label: 'Pop-up', value: 'standard', icon: AppWindow, hint: 'With a picture, text and a button.' },
+          { label: 'Pop-up', value: 'standard', icon: AppWindow, hint: 'With an image, text and a button.' },
           {
             label: 'Action bar',
             value: 'bookingbar',
@@ -533,8 +533,8 @@ export const collections: Collection[] = [
         toggle: ['On', 'Off'],
         default: true,
       },
-      // At the top of the box, to its edges in 3:2, as on the cards with a picture ("Cards").
-      { name: 'image', label: 'Picture', type: 'image', hint: 'Shown at the top, cropped to 3:2.' },
+      // At the top of the box, to its edges in 3:2, as on the cards with an image ("Cards").
+      { name: 'image', label: 'Image', type: 'image', hint: 'Shown at the top, cropped to 3:2.' },
       { name: 'heading', label: 'Heading', type: 'string', required: true, max: 80 },
       { name: 'text', label: 'Text', type: 'text' },
       // Where it is shown, for every kind: on every page, on those picked (without `where`, from

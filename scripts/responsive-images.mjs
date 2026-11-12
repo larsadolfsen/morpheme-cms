@@ -7,7 +7,7 @@
 // original dimensions in src/data/image-manifest.json. Templates (packages/editor/theme/components/Img.astro)
 // and Markdown content (rehype plugin in packages/editor/astro.mjs) use the manifest to add
 // srcset/sizes and width/height, so phones download a size that fits their screen.
-// It also writes a 1200 × 630 JPEG of each to public/images/_s/: the picture shown when a page is shared
+// It also writes a 1200 × 630 JPEG of each to public/images/_s/: the image shown when a page is shared
 // on Facebook, LinkedIn, in a text message and the like (og:image, `shareImage` in packages/editor/site/images.mjs).
 // JPEG, because not every one of them shows webp, and cut to their wide format around what matters most.
 // Generated files are git-ignored and rebuilt only when missing or older than the source.
@@ -41,7 +41,7 @@ async function isFresh(out, srcMtime) {
   }
 }
 
-// The share picture: a square or upright picture keeps its upper part (20 % down, like the portrait on
+// The share image: a square or upright image keeps its upper part (20 % down, like the portrait on
 // the site, so a face stays in it), a wide one what sharp finds matters most.
 function shareCut(file, width, height) {
   if (width / height >= 1.5) return sharp(file).resize({ ...SHARE, fit: 'cover', position: 'attention' });

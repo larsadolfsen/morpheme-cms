@@ -249,17 +249,17 @@ export function clean(fields: Field[], value: Record<string, unknown>, around?: 
   return out;
 }
 
-// A picture in Markdown (MarkdownEditor.tsx puts them in).
-const PICTURES = /!\[(?:\\.|[^\]])*\]\([^)\s]+/g;
+// An image in Markdown (MarkdownEditor.tsx puts them in).
+const IMAGES = /!\[(?:\\.|[^\]])*\]\([^)\s]+/g;
 
-// A block's name by its type: a standard block's (the editor's texts), a picture's, else its type.
+// A block's name by its type: a standard block's (the editor's texts), an image's, else its type.
 const nameOf = (type: string) =>
   type === 'image' ? t.blocks.picture.label : ((t.blocks as unknown as Record<string, { label?: string }>)[type]?.label ?? type);
 
-/** What is wrong with the blocks and pictures in the text of a markdown field by its template (Field.template): one
- * that cannot be there, and too many of a type ('image': the pictures). */
+/** What is wrong with the blocks and images in the text of a markdown field by its template (Field.template): one
+ * that cannot be there, and too many of a type ('image': the images). */
 export function textProblems(template: Template, markdown: string): string[] {
-  const types = [...blocksIn(markdown).map((b) => b.type), ...[...markdown.matchAll(PICTURES)].map(() => 'image')];
+  const types = [...blocksIn(markdown).map((b) => b.type), ...[...markdown.matchAll(IMAGES)].map(() => 'image')];
   const problems: string[] = [];
   for (const type of new Set(types)) {
     if (template.blocks && !template.blocks.includes(type)) problems.push(t.check.cannotBeInText(nameOf(type)));

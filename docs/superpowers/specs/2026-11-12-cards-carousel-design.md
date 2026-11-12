@@ -120,7 +120,7 @@ needs. New for the cards:
 ## The saved prop and migration
 
 - `phone: 'carousel'` on the block's props. Absent (and `''`) is stacked. A select with an empty first value, as `kind` is, so a
-  later `hero` for picture-only cards is a new value, not a new field.
+  later `hero` for image-only cards is a new value, not a new field.
 - **No migration.** Existing cards have no `phone`, and read as stacked; saved back they stay without it. `FORMER.cards` is not
   touched. No new `check:content` rule beyond the field's own options.
 - The site's `load.ts` and the editor's `view.ts` carry `phone` into `CardsView`.
@@ -159,7 +159,7 @@ The owner's condition is that the carousel follows M3, so only these two remain;
 2. **`Show all` in place, or a page?** Recommend in place (deviation 1): no new route, no extra build output, works with the
    editor's Preview and the demo. A dedicated page would follow M3 to the letter and is a larger build.
 3. **One markup or two?** Recommend one: the `Carousel` markup drawn for the cards and turned into the grid by CSS at `medium`,
-   not two lists with one hidden. It keeps one copy of the text and pictures for search and screen readers; the cost is that a
+   not two lists with one hidden. It keeps one copy of the text and images for search and screen readers; the cost is that a
    screen reader on a computer still hears "carousel". Alternative: draw both and hide one with `display: none` (cleaner
    announcements, double markup).
 
