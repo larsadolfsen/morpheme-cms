@@ -89,7 +89,10 @@ function placeBackdrops(view: EditorView) {
     if (!first || !last || !('getBoundingClientRect' in last)) return;
     const a = first.getBoundingClientRect();
     const b = last.getBoundingClientRect();
-    const box = backdropBox(a, b, hostRect, { full: strip.dataset.width === 'full', windowWidth: document.documentElement.clientWidth });
+    const box = backdropBox(a, b, hostRect, {
+      full: strip.dataset.width === 'full',
+      bleed: parseFloat(getComputedStyle(host.parentElement ?? host).paddingLeft) || 0,
+    });
     Object.assign(strip.style, { top: `${box.top}px`, left: `${box.left}px`, width: `${box.width}px`, height: `${box.height}px` });
   });
 }

@@ -132,6 +132,17 @@
   margin-block: 0;
 }
 
+/* The text field's own padding (MarkdownEditor.tsx: px-5 py-4, medium:px-8); a section of the whole width reaches out of it. */
+.editor-text {
+  --editor-pad-x: 1.25rem;
+  --editor-pad-y: 1rem;
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .editor-text {
+    --editor-pad-x: 2rem;
+  }
+}
+
 /* The dotted line at the start of an H2 section (data-section-part='start', sectionFrame.ts): a divider across the text. The line
    marks where a section starts; it is not the section's box. */
 .editor-text .ProseMirror > [data-section-part='start'] {
@@ -162,6 +173,28 @@
   border-end-start-radius: var(--block-radius);
   border-end-end-radius: var(--block-radius);
   padding-block-end: var(--editor-section-pad);
+}
+
+/* A section of the whole width (`width` full) reaches the text field's edges: no margin or corners at the sides, and none above the
+   first section or below the last. Its text stays where the other text is. */
+.editor-text .ProseMirror > [data-section-box][data-section-width='full'] {
+  margin-inline: calc(-1 * var(--editor-pad-x));
+  padding-inline: calc(var(--editor-pad-x) + var(--editor-section-pad));
+  border-radius: 0;
+}
+.editor-text .ProseMirror > :is(ul, ol)[data-section-box][data-section-width='full'] {
+  padding-inline-start: calc(var(--editor-pad-x) + var(--editor-section-pad) + 1.625em);
+}
+/* flow-root: the first section's negative margin stays on the section, it does not collapse into the text's own. */
+.editor-text .ProseMirror {
+  display: flow-root;
+}
+.editor-text .ProseMirror > [data-section-box][data-section-width='full']:first-child,
+.editor-text .ProseMirror > [data-section-width='full'][data-section-part='start']:first-child {
+  margin-block-start: calc(-1 * var(--editor-pad-y));
+}
+.editor-text .ProseMirror > [data-section-box][data-section-width='full']:last-child {
+  margin-block-end: calc(-1 * var(--editor-pad-y));
 }
 
 /* The colours are the theme's own (blocks.css). On a colour with its own text colour, the prose colours take it, so headings, bold
