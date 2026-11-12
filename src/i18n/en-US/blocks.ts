@@ -150,6 +150,10 @@ export const blocks = {
       ].join(' · '),
     dynamicTip: 'Fill from a list',
     typedHidden: 'Your typed rows are kept, not shown.',
+    /** The parts of a row a dynamic block can fill with a field of its list. */
+    parts: { title: 'Top line', text: 'Bottom line', icon: 'Icon', href: 'Link' },
+    noField: 'None',
+    fieldShown: 'Field shown',
     editList: 'Edit list',
     map: 'Fields in a row',
     empty: 'No items in the list match, so nothing shows on the page.',

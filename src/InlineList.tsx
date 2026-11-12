@@ -5,6 +5,7 @@
 // below the last row (`Add list row`) adds one. The parts, the keys and what is kept are the shared ones of InlineItems.tsx and
 // src/inlineRows.mjs; this is the List's markup on them. Depends on the theme's List (themeUi.ts).
 import { LinkSimple, Plus } from '@phosphor-icons/react';
+import type { MouseEvent } from 'react';
 import { Glyph } from './icon';
 import { t } from './i18n';
 import { SiteButton, SiteList, SiteListItem } from './themeUi';
@@ -86,6 +87,8 @@ export function RowsFromList({
   empty,
   editList,
   undo,
+  parts,
+  onPart,
 }: {
   rows: Row[];
   line: string;
@@ -93,7 +96,26 @@ export function RowsFromList({
   editList?: () => void;
   /** The typed rows were set aside by switching to a list: what it says, and Undo. */
   undo?: { note: string; label: string; run: () => void };
+  /** A list with fields to pick from: each part of a row with the field shown there (a text button each), and what a tap on one does. The rows' own
+   * lines, icon and arrow answer a tap too. */
+  parts?: { part: string; text: string }[];
+  onPart?: (part: string) => void;
 }) {
+  // A tap on a row's top line, bottom line, icon or arrow picks the field shown there.
+  const tapped = (e: MouseEvent<HTMLElement>) => {
+    if (!onPart || !(e.target instanceof Element)) return;
+    const hit = e.target.closest('.list-item-headline, .list-item-supporting, .list-item-leading, .list-item-trailing');
+    if (!hit) return;
+    onPart(
+      hit.classList.contains('list-item-headline')
+        ? 'title'
+        : hit.classList.contains('list-item-supporting')
+          ? 'text'
+          : hit.classList.contains('list-item-leading')
+            ? 'icon'
+            : 'href',
+    );
+  };
   return (
     <div className="inline-list-host">
       <p className="inline-list-from">{empty ? `${line}. ${t.blocks.rows.empty}` : line}</p>
@@ -110,7 +132,16 @@ export function RowsFromList({
           {t.blocks.rows.editList}
         </SiteButton>
       )}
-      <SiteList className="block-list inline-list">
+      {parts && onPart && (
+        <div className="inline-list-parts" role="group" aria-label={t.blocks.rows.fieldShown}>
+          {parts.map((p) => (
+            <SiteButton key={p.part} kind="text" className="inline-list-edit" onClick={() => onPart(p.part)}>
+              {p.text}
+            </SiteButton>
+          ))}
+        </div>
+      )}
+      <SiteList className="block-list inline-list" onClick={tapped}>
         {rows.map((r, i) => (
           <SiteListItem
             key={i}

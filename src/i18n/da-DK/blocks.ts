@@ -136,6 +136,10 @@ export const blocks: Messages['blocks'] = {
       ].join(' · '),
     dynamicTip: 'Udfyld fra en liste',
     typedHidden: 'Dine skrevne rækker er gemt, men vises ikke.',
+    /** The parts of a row a dynamic block can fill with a field of its list. */
+    parts: { title: 'Øverste linje', text: 'Nederste linje', icon: 'Ikon', href: 'Link' },
+    noField: 'Ingen',
+    fieldShown: 'Felt der vises',
     editList: 'Rediger liste',
     map: 'Felter i en række',
     empty: 'Ingen poster i listen passer, så der vises ikke noget på siden.',
