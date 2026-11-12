@@ -95,12 +95,11 @@ export const forms = {
     /** The switch at the top of a page with changes waiting (VersionSwitch.tsx). */
     switchLabel: 'Version to edit',
     /** The notice under the switch (VersionSwitch.tsx WaitingNotice). */
-    noticeLiveTitle: 'A draft is waiting',
-    noticeLive:
-      'You are editing the live version. What you save here goes on the website at once, and the draft stays as it is.',
-    noticeWaitingTitle: 'The website shows the published version',
-    noticeWaiting: 'This draft is not on the website yet. Choose Publish changes to put them there.',
-    noticeScheduled: (when: string) => `This draft goes on the website ${when}. Until then the website shows the published version.`,
+    noticeLiveTitle: 'You are editing the live version',
+    noticeLive: 'What you save here goes on the website at once. A draft is waiting and stays as it is.',
+    noticeWaitingTitle: 'This is a draft',
+    noticeWaiting: 'These changes are not on the website yet. Choose Publish changes to put them there.',
+    noticeScheduled: (when: string) => `These changes go on the website ${when}. Until then the website shows the published version.`,
     /** Before Publish changes, when the live version was changed after the waiting changes were saved. */
     overwriteTitle: 'Replace the live version?',
     overwriteText: (post: boolean) =>

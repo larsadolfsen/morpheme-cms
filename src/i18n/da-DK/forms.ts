@@ -74,12 +74,11 @@ export const forms: Messages['forms'] = {
     publish: 'Udgiv',
     publishChanges: 'Udgiv ændringer',
     switchLabel: 'Version at redigere',
-    noticeLiveTitle: 'Der venter en kladde',
-    noticeLive:
-      'Du redigerer den live version. Det, du gemmer her, kommer på hjemmesiden med det samme, og kladden bliver, som den er.',
-    noticeWaitingTitle: 'Hjemmesiden viser den udgivne version',
-    noticeWaiting: 'Denne kladde er ikke på hjemmesiden endnu. Vælg Udgiv ændringer for at sætte dem på.',
-    noticeScheduled: (when) => `Denne kladde kommer på hjemmesiden ${when}. Indtil da viser hjemmesiden den udgivne version.`,
+    noticeLiveTitle: 'Du redigerer den live version',
+    noticeLive: 'Det, du gemmer her, kommer på hjemmesiden med det samme. En kladde venter og bliver, som den er.',
+    noticeWaitingTitle: 'Det her er en kladde',
+    noticeWaiting: 'Disse ændringer er ikke på hjemmesiden endnu. Vælg Udgiv ændringer for at sætte dem på.',
+    noticeScheduled: (when) => `Disse ændringer kommer på hjemmesiden ${when}. Indtil da viser hjemmesiden den udgivne version.`,
     overwriteTitle: 'Erstat den live version?',
     overwriteText: (post) =>
       `${post ? 'Indlægget' : 'Siden'} på hjemmesiden blev ændret, efter at disse ændringer blev gemt. Når du udgiver, erstattes det af disse ændringer.`,
