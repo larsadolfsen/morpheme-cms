@@ -125,7 +125,7 @@ export const forms = {
     savedScheduled: (when: string) => `Scheduled. It goes on the website ${when}.`,
     scheduledCancelled: (what: string) => `Schedule for ${what} cancelled`,
     unpublish: 'Unpublish',
-    discardChanges: 'Discard changes',
+    discardDraft: 'Discard draft',
     /** The top bar's line under the title. */
     draftLine: 'Draft',
     waitingLine: 'Unpublished changes',
@@ -143,8 +143,9 @@ export const forms = {
     unpublishTitle: (post: boolean) => `Unpublish this ${post ? 'post' : 'page'}?`,
     unpublishText: (post: boolean) =>
       `The ${post ? 'post' : 'page'} leaves the website and becomes a draft. Changes that wait to be published stay.`,
-    discardTitle: 'Discard the changes?',
-    discardText: (post: boolean) => `The ${post ? 'post' : 'page'} goes back to the version on the website. You can’t undo this.`,
+    discardTitle: 'Discard draft?',
+    /** `name`: the page or post, as in “Page About us”. */
+    discardText: (name: string) => `Your unpublished changes to ${name} will be deleted. The live version stays.`,
     addressWaiting: 'Publish or discard the changes before you change the address.',
     standardPage: 'This page is chosen as a standard page, so it must stay published.',
     /** Names of what changed, for the message after a save (`what`: the page or post). */
