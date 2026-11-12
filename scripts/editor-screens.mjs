@@ -397,6 +397,7 @@ const inlineBlocks = [
   { name: 'steps', hint: 'Numbered steps.', add: 'Add step', noEdit: true },
   { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button' },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
+  { name: 'pricecards', hint: 'Prices with what is included.', add: 'Add price card', surface: true, field: 'name' },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
   { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
