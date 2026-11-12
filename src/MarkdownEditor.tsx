@@ -89,6 +89,7 @@ import type { Change, Focus, Item as Row } from './InlineItems';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
 import { editorRows } from './standard/rows/view';
 import { fromLine, listPageOf } from './standard/rows/fields';
+import { sourceOf } from './standard/rows/rows.mjs';
 import { inlineBar, type BarAction } from './inlineBar';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
@@ -1046,9 +1047,17 @@ function blockCard(
   let iconOf: number | null = null;
   const settings = () => {
     iconOf = null;
+    dynOpen = false;
     syncRow(true);
   };
+  // A block that can read a list ("Rows from"): the dynamic block is selected (its floating toolbar shows) and its dynamic settings are in
+  // the panel or sheet (`dynOpen`); `dropped`: its typed rows were just set aside by switching to a list, and Undo brings them back.
+  let dynSelected = false;
+  let dynOpen = false;
+  let dropped = false;
   let stopAway = () => {};
+  let syncDynamic: () => void = () => {};
+  let undoDynamic: () => void = () => {};
   const rows = () => (node.attrs.props[spec?.item ?? 'items'] as Row[] | undefined) ?? [];
   const setItems = (items: Row[]) => {
     const here = at();
@@ -1059,6 +1068,7 @@ function blockCard(
   };
   const change = (c: Change) => {
     if ('active' in c) active = c.active ?? null;
+    if (active !== null) dynOpen = false;
     if ('focus' in c) focus = c.focus ?? null;
     if (c.items) setItems(c.items);
     else draw();
@@ -1077,6 +1087,7 @@ function blockCard(
         flushSync(() =>
           root.render(
             <RowsFromList
+              undo={dropped ? { note: t.blocks.rows.typedHidden, label: t.text.undo, run: undoDynamic } : undefined}
               rows={dynamic.rows}
               line={fromLine(node.attrs.props, ask.data)[0] ?? ''}
               empty={dynamic.rows.length === 0}
@@ -1084,9 +1095,11 @@ function blockCard(
             />,
           ),
         );
-        bar?.refresh(false);
+        syncDynamic();
+        bar?.refresh(dynSelected);
         return;
       }
+      dropped = false;
       flushSync(() =>
         root.render(
           <Inline
@@ -1106,7 +1119,7 @@ function blockCard(
         ),
       );
       syncRow(false);
-      bar?.refresh(active !== null);
+      bar?.refresh(active !== null || dynSelected);
       return;
     }
     const lines = block ? describe(block, node.attrs.props, ask.data) : [];
@@ -1194,13 +1207,12 @@ function blockCard(
     const valueOf = (row: Row, names: string[]) => Object.fromEntries(names.map((n) => [n, row[n] ?? rowFieldsOf([n])[0]?.default ?? '']));
     const setFields = (list: Row[], i: number, names: string[], v: BlockProps) =>
       names.reduce((items, n) => setField(items, i, n, String(v[n] ?? ''), spec!.fields[0]), list);
-    // A block with no link, settings or icon (Steps) has no item sheet: no Link action, no Edit button.
-    const hasSheet = itemNames.length > 0 || slotNames.length > 0;
+    // A block with no link, settings or icon (Steps) has no item sheet: no Link action, and no gear unless it has block settings.
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
     const rowActions = (): BarAction[] => {
       const list = rows();
-      if (active === null || active >= list.length || isEmptyRow(list[active])) return [];
+      if (isDynamic() || active === null || active >= list.length || isEmptyRow(list[active])) return [];
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
@@ -1211,21 +1223,91 @@ function blockCard(
         ...(i < list.length - 1 ? [{ kind: 'down' as const, label: t.common.moveDown, action: () => go(moveBy(list, i, 1), i + 1) }] : []),
       ];
     };
+    // The dynamic settings: where the rows come from (the block's `Rows from`, tags and How many, its own fields), live in the panel or sheet.
+    // Only a block with `Rows from` has them. Switching to a list sets the typed rows aside (they stay in the file) and offers Undo.
+    const dynamicNames = ['from', 'tags', 'howMany', 'button'];
+    const dynamicFields = (block?.fields ?? []).filter((f) => dynamicNames.includes(f.name));
+    const canDynamic = dynamicFields.some((f) => f.name === 'from');
+    const isDynamic = () => !!sourceOf(node.attrs.props.from);
+    const setProps = (props: BlockProps) => {
+      const here = at();
+      if (here) view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props }));
+    };
+    const dynamicSpec = () => {
+      const props = node.attrs.props;
+      return {
+        headline: block?.nameOf?.(props) ?? block?.label ?? node.attrs.type,
+        fields: dynamicFields,
+        value: Object.fromEntries(dynamicFields.map((f) => [f.name, props[f.name] ?? (f.multiple ? [] : '')])),
+        onChange: (v: BlockProps) => {
+          const now_ = node.attrs.props;
+          const was = sourceOf(now_.from);
+          const next = { ...now_ };
+          for (const f of dynamicFields) {
+            const value = v[f.name];
+            if (value === undefined || value === '' || (Array.isArray(value) && !value.length)) delete next[f.name];
+            else next[f.name] = value;
+          }
+          const now = sourceOf(next.from);
+          // Another list has other tags and other fields: the tags and the choice of fields start over.
+          if (was !== now) {
+            delete next.tags;
+            delete next.map;
+          }
+          dropped = !was && !!now && rows().some((r) => !isEmptyRow(r));
+          if (!now) dropped = false;
+          setProps(next);
+        },
+      };
+    };
+    // Updates the panel when it shows these settings (not another block's row).
+    syncDynamic = () => {
+      if (dynOpen) asker()?.row(dynamicSpec(), false);
+    };
+    const openDynamic = () => {
+      iconOf = null;
+      active = null;
+      focus = null;
+      dynSelected = true;
+      dynOpen = true;
+      asker()?.row(dynamicSpec(), true);
+      draw();
+    };
+    undoDynamic = () => {
+      dropped = false;
+      const { from: _from, tags: _tags, howMany: _howMany, map: _map, ...rest } = node.attrs.props;
+      setProps(rest);
+      syncDynamic();
+    };
+    if (canDynamic)
+      dom.addEventListener('pointerdown', () => {
+        if (!isDynamic() || dynSelected) return;
+        dynSelected = true;
+        draw();
+      });
     bar = inlineBar({
       name,
       dom,
       rowActions,
-      // A block with nothing to set on an item has the block's own settings behind the gear (the FAQ list), or none (Steps).
-      edit: hasSheet ? settings : spec!.blockSettings === true ? () => void edit() : undefined,
+      // A block that reads a list has the dynamic settings behind the gear; a block with nothing to set on an item has the block's own
+      // settings behind it (the FAQ list), or no gear (Steps).
+      edit: isDynamic()
+        ? openDynamic
+        : itemNames.length || slotNames.length
+          ? settings
+          : spec!.blockSettings === true
+            ? () => void edit()
+            : undefined,
       compact,
       labels: { row: spec!.texts.row, edit: t.common.edit },
+      dynamic: canDynamic ? { label: t.blocks.rows.dynamicTip, on: isDynamic, action: openDynamic } : undefined,
     });
     handle = bar.block;
     // The settings of the active row (its icon and link), live: from expanded in the side panel while a row is active, below it in a bottom
     // sheet that Edit opens (`open`: a row's slot or Edit; else only an open sheet is updated).
     syncRow = (open) => {
       const sheet = asker();
-      if (sheet && active !== null && hasSheet) sheet.row(specOf(active), open || !compact());
+      if (sheet && active !== null && !dynOpen && (itemNames.length || slotNames.length)) sheet.row(specOf(active), open || !compact());
     };
     const specOf = (i: number) => {
       const row = rows()[i] ?? {};
@@ -1254,10 +1336,12 @@ function blockCard(
       target instanceof Element &&
       (dom.contains(target) || bar!.el.contains(target) || !!target.closest('.editor-side-sheet, dialog[open]'));
     const away = (e: Event) => {
-      if (active === null || inside(e.target)) return;
+      if ((active === null && !dynSelected) || inside(e.target)) return;
       active = null;
       iconOf = null;
       focus = null;
+      dynSelected = false;
+      dynOpen = false;
       asker()?.row(null);
       const list = rows();
       const kept = withoutEmpty(list);
