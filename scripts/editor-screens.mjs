@@ -141,7 +141,10 @@ async function checkTextSheet(width = 360) {
       const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? visualViewport.height;
       const sel = getSelection().getRangeAt(0).getBoundingClientRect();
       const names = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getAttribute('aria-label'));
-      const buttons = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getBoundingClientRect().toJSON());
+      const buttons = [...m.querySelectorAll('button:not([hidden])')].map((b) => ({
+        ...b.getBoundingClientRect().toJSON(),
+        group: [...m.querySelectorAll('.editor-selection-group')].indexOf(b.parentElement),
+      }));
       return {
         shown: !m.hidden,
         sheet: m.classList.contains('editor-selection-sheet'),
@@ -186,6 +189,17 @@ async function checkTextSheet(width = 360) {
     const left = Math.min(...row.map((b) => b.left)) - first.r.left;
     const right = first.r.right - Math.max(...row.map((b) => b.right));
     if (Math.abs(left - right) > 2) problems.push(`${width}px text menu: a row of buttons is not centred (${left} left, ${right} right)`);
+  }
+  // A group is never split over two rows; two rows are both filled (no row of one button) and the menu is no wider than its wider row.
+  for (const g of Object.values(Object.groupBy(first.buttons, (b) => b.group)))
+    if (new Set(g.map((b) => Math.round(b.top))).size > 1) problems.push(`${width}px text menu: a group of buttons is split over two rows`);
+  if (rows.length > 2) problems.push(`${width}px text menu: ${rows.length} rows, not at most two`);
+  if (rows.length === 2) {
+    if (rows.some((row) => row.length < 2)) problems.push(`${width}px text menu: a row has a single button`);
+    if (Math.abs(rows[0].length - rows[1].length) > 1)
+      problems.push(`${width}px text menu: the rows are not balanced (${rows[0].length} and ${rows[1].length})`);
+    const widest = Math.max(...rows.map((row) => Math.max(...row.map((b) => b.right)) - Math.min(...row.map((b) => b.left))));
+    if (first.r.width - widest > 12) problems.push(`${width}px text menu: wider than its widest row`);
   }
   if (first.r.top === second.r.top) problems.push(`${width}px text menu: it did not follow the cursor to another line`);
   await page.setViewportSize({ width, height: 420 });
@@ -963,7 +977,7 @@ for (const [width, height] of [
 ])
   await checkUpdatesCard(width, height);
 
-for (const width of [360, 375, 414]) await checkTextSheet(width);
+for (const width of [360, 375, 390, 414]) await checkTextSheet(width);
 for (const [width, height] of [
   [360, 740],
   [375, 800],

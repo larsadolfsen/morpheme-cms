@@ -729,6 +729,10 @@ type Look = (Face | { shows: (state: EditorView['state']) => Face }) & {
   menu?: boolean;
 };
 
+// The groups of the selection menu's buttons, by index in `looks`: the marks (bold, italic, link, colour), the kinds of
+// text (heading, text style) and the list with the alignment. A group is never split over two rows.
+const SELECTION_GROUPS = [4, 3, 2];
+
 // The levels of the top-level headings of a document, in order.
 const levelsOf = (doc: EditorView['state']['doc']): number[] => topHeadings(doc).map(({ node }) => node.attrs.level);
 
@@ -743,6 +747,25 @@ function inSectionHeading(state: EditorView['state']) {
 // Whether the cursor is in a label above a heading (eyebrow.mjs), which has no bold, italic, link or colour.
 const inLabel = (state: EditorView['state']) =>
   ['eyebrow', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(state.selection.$from.parent.type.name);
+
+// One row when the groups fit on one; else two rows as even as they can be: the menu is only as wide as the wider row,
+// and a group is never split (the groups wrap whole).
+function balanceRows(menu: HTMLElement, room: number) {
+  menu.style.width = '';
+  const sizes = [...menu.querySelectorAll<HTMLElement>('.editor-selection-group:not([hidden])')].map((g) => g.offsetWidth);
+  if (sizes.length < 2) return;
+  const style = getComputedStyle(menu);
+  const gap = parseFloat(style.columnGap) || 0;
+  const frame = ['paddingLeft', 'paddingRight', 'borderLeftWidth', 'borderRightWidth'].reduce(
+    (n, k) => n + (parseFloat(style[k as 'paddingLeft']) || 0),
+    0,
+  );
+  const row = (from: number, to: number) => sizes.slice(from, to).reduce((n, w) => n + w, 0) + gap * (to - from - 1);
+  if (row(0, sizes.length) + frame <= room) return;
+  let best = Infinity;
+  for (let k = 1; k < sizes.length; k++) best = Math.min(best, Math.max(row(0, k), row(k, sizes.length)));
+  menu.style.width = `${Math.ceil(best + frame)}px`;
+}
 
 // When a word or more is selected, or the cursor has stood still in a word (STILL_MS, stillCursor.mjs): a row of icons
 // over it, to make it bold, italic, a link, one of the site's colours (a menu under the button, opened by `colors`), a
@@ -928,8 +951,18 @@ function selectionMenu(
             caretDownIcon.replace('<svg', '<svg width="12" height="12" fill="currentColor" aria-hidden="true" class="editor-menu-arrow"'),
           );
       };
-      const buttons = looks.map((look) => {
-        const b = menu.appendChild(document.createElement('button'));
+      const groups = SELECTION_GROUPS.map(() => {
+        const g = menu.appendChild(document.createElement('div'));
+        g.className = 'editor-selection-group';
+        g.setAttribute('role', 'group');
+        return g;
+      });
+      const groupOf = (i: number) => {
+        let end = 0;
+        return groups[SELECTION_GROUPS.findIndex((n) => i < (end += n))];
+      };
+      const buttons = looks.map((look, i) => {
+        const b = groupOf(i).appendChild(document.createElement('button'));
         b.type = 'button';
         if (look.menu) b.setAttribute('aria-haspopup', 'menu');
         draw(b, look, faceOf(look, view.state));
@@ -973,8 +1006,10 @@ function selectionMenu(
           if ('shows' in look) draw(buttons[i], look, look.shows(state));
           if (look.on) buttons[i].setAttribute('aria-pressed', String(look.on(state)));
         });
-        const { offsetWidth: width, offsetHeight: height } = menu;
+        groups.forEach((g) => (g.hidden = [...g.children].every((b) => (b as HTMLElement).hidden)));
         const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
+        balanceRows(menu, screen.width - 8);
+        const { offsetWidth: width, offsetHeight: height } = menu;
         const text = view.dom.getBoundingClientRect();
         const { from, to } = word ?? selection;
         const start = view.coordsAtPos(from);
