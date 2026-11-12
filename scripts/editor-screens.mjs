@@ -303,6 +303,53 @@ async function checkHints() {
   }
 }
 
+/** A section of the whole width (`width` full) reaches the text field's left, right and top edges; one of the text's width stays inset. */
+async function checkFullWidthSection() {
+  for (const width of [375, 1280]) {
+    const page = await browser.newPage({ viewport: { width, height: 740 }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${width}px full-width section: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#new/pages'));
+    await page.waitForSelector('.ProseMirror');
+    await page.click('.ProseMirror');
+    await page.keyboard.type('## Tester');
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('Some text.');
+    const measure = (full) =>
+      page.evaluate((full) => {
+        const pm = document.querySelector('.ProseMirror');
+        const field = pm.closest('.editor-text').getBoundingClientRect();
+        const border = (n) => parseFloat(getComputedStyle(pm.closest('.editor-text'))[n]);
+        const parts = [...pm.children].filter((n) => !n.classList.contains('editor-section-picture'));
+        parts.forEach((el, i) => {
+          el.setAttribute('data-section-color', 'primary');
+          el.setAttribute('data-section-box', parts.length === 1 ? 'only' : i === 0 ? 'start' : i === parts.length - 1 ? 'end' : 'middle');
+          if (full) el.setAttribute('data-section-width', 'full');
+          else el.removeAttribute('data-section-width');
+        });
+        const r = parts[0].getBoundingClientRect();
+        const radius = getComputedStyle(parts[0]).borderStartStartRadius;
+        return {
+          left: r.left - field.left - border('borderLeftWidth'),
+          right: field.right - border('borderRightWidth') - r.right,
+          top: r.top - field.top,
+          radius,
+        };
+      }, full);
+    const inset = await measure(false);
+    if (process.env.SHOTS_FULL) await page.locator('.editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-inset-${width}.png` });
+    const full = await measure(true);
+    if (process.env.SHOTS_FULL) await page.locator('.editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-${width}.png` });
+    if (inset.left < 1 || inset.radius === '0px')
+      problems.push(`${width}px full-width section: the section of the text's width should stay inset with corners`);
+    if (Math.abs(full.left) > 0.5 || Math.abs(full.right) > 0.5 || full.top > 0.5 || full.radius !== '0px')
+      problems.push(
+        `${width}px full-width section: left ${full.left}, right ${full.right}, top ${full.top}, corner ${full.radius}, should all be 0 against the text field's edges`,
+      );
+    await page.close();
+  }
+}
+
 /** Settings lists the six screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
@@ -776,6 +823,7 @@ for (const [width, height] of [
 for (const width of [360, 375, 414]) await checkTextSheet(width);
 await checkEmptyHint();
 await checkHints();
+await checkFullWidthSection();
 
 await browser.close();
 server.close();

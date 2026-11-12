@@ -193,7 +193,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     await closeDialog();
   };
 
-  // A new page, the tab hidden after a few words (the Worker makes the draft page file), then Save changes twice and Publish.
+  // A new page, the tab hidden after a few words (the Worker makes the draft page file), then Save draft twice and Publish.
   await page.goto(`${site}/editor/#new/pages`);
   await page.waitForSelector('[contenteditable=true]');
   await type('From us to you');
@@ -201,10 +201,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (![...repo.written.keys()].some((k) => k.startsWith('src/content/pages/') && k.includes('new-page')))
     fail.push('the autosave made no page file');
   await type(' more');
-  await press('Save changes', 'Save changes after the tab was hidden');
+  await press('Save draft', 'Save draft after the tab was hidden');
   await type(' again');
   await leave();
-  await press('Save changes', 'Save changes again after the tab was hidden');
+  await press('Save draft', 'Save draft again after the tab was hidden');
   await type(' three');
   await press('Publish', 'Publish');
 
@@ -212,10 +212,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const file = [...repo.written.keys()].find((k) => k.includes('new-page') && repo.written.get(k) !== null);
   repo.written.set(file, `${repo.read(file)}\nsomeone else\n`);
   await type(' mine');
-  await page
-    .getByRole('button', { name: /^Publish( changes)?$/ })
-    .first()
-    .click();
+  await page.getByRole('button', { name: 'Publish' }).first().click();
   await page.waitForTimeout(1500);
   if (!(repo.answered.at(-1)?.bad >= 0) || !/changed elsewhere/i.test(await toast()))
     fail.push(`a change made elsewhere was not reported: ${JSON.stringify(repo.answered.at(-1))}`);
