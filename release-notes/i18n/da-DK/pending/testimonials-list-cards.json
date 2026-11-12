@@ -2,5 +2,5 @@
   "id": "testimonials-list-cards",
   "kind": "paragraph",
   "title": "Udtalelser",
-  "text": "Udtalelser findes nu i to blokke. Under Indsæt tilføjer du Udtalelseskort, du kan bladre i, eller en Udtalelsesliste med hele teksten i rækker og knapper for hvert tag. Sider med Udtalelser beholder deres udtalelser: dem, der stod under hinanden, er nu listen."
+  "text": "Udtalelser passer til flere sider, når du vælger udseendet. I en Udtalelser-blok vælger du Visning: Kort, du kan bladre i, eller Liste med hele teksten i rækker og en knap for hvert tag. Eksisterende blokke åbner som Kort."
 }

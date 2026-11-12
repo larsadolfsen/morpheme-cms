@@ -81,17 +81,13 @@ Up to four plans side by side, with what’s included and a button.
 
 <div data-block="pricecards" data-props="{&quot;items&quot;:[{&quot;name&quot;:&quot;Open source&quot;,&quot;price&quot;:&quot;Free&quot;,&quot;text&quot;:&quot;Run Morpheme on your own Cloudflare account.&quot;,&quot;features&quot;:[&quot;The editor and the standard theme&quot;,&quot;MIT license&quot;,&quot;Your own GitHub repository&quot;],&quot;buttons&quot;:[{&quot;label&quot;:&quot;Get started&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/get-started/&quot;,&quot;kind&quot;:&quot;outlined&quot;}]},{&quot;name&quot;:&quot;With apps&quot;,&quot;price&quot;:&quot;Custom&quot;,&quot;text&quot;:&quot;Your site plus apps and themes from the app store.&quot;,&quot;features&quot;:[&quot;Everything in Open source&quot;,&quot;Apps and themes&quot;,&quot;Updates with release notes&quot;],&quot;buttons&quot;:[{&quot;label&quot;:&quot;Browse apps&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/app-store/&quot;,&quot;kind&quot;:&quot;filled&quot;}],&quot;featured&quot;:true,&quot;badge&quot;:&quot;Popular&quot;}]}"></div>
 
-## Testimonial cards
+## Testimonials
 
-Quotes from the Testimonials list as cards to leaf through. These are samples.
+Quotes from the Testimonials list, as cards to leaf through or as a list. These are samples.
 
-<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;all&quot;}"></div>
+<div data-block="testimonials" data-props="{&quot;layout&quot;:&quot;cards&quot;,&quot;show&quot;:&quot;all&quot;}"></div>
 
-## Testimonials list
-
-The same quotes as rows, with buttons to show only those with one tag.
-
-<div data-block="testimoniallist" data-props="{&quot;show&quot;:&quot;all&quot;}"></div>
+<div data-block="testimonials" data-props="{&quot;layout&quot;:&quot;list&quot;,&quot;show&quot;:&quot;all&quot;}"></div>
 
 ## Notice
 

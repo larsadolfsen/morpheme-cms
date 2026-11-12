@@ -243,9 +243,13 @@ export const blocks: Messages['blocks'] = {
     },
   },
   testimonials: {
-    label: 'Udtalelseskort',
-    hint: 'Udtalelser som kort i en karrusel.',
+    label: 'Udtalelser',
+    hint: 'Udtalelser som kort eller i en liste.',
     edit: 'Rediger udtalelser',
+    layout: 'Visning',
+    cards: 'Kort',
+    list: 'Liste',
+    layoutHint: 'Kort kan du bladre i; Liste viser hele teksten.',
     show: 'Hvilke udtalelser',
     all: 'Alle',
     filter: 'Knapper med tags',
@@ -273,8 +277,6 @@ export const blocks: Messages['blocks'] = {
     moreText: 'Læs mere',
     lessText: 'Vis mindre',
     from: (name) => `fra ${name}`,
-    /** What the carousel is called for screen readers, without a heading. */
-    carouselLabel: 'Udtalelser',
     carousel: 'karrusel',
     slide: 'dias',
     slideOf: (n, of) => `${n} af ${of}`,
@@ -282,10 +284,6 @@ export const blocks: Messages['blocks'] = {
     none: 'Ingen udtalelser at vise.',
     filterAll: 'Alle',
     filterLabel: 'Vis udtalelser med tagget',
-  },
-  testimonialList: {
-    label: 'Udtalelsesliste',
-    hint: 'Udtalelser som rækker i en liste.',
   },
   posts: {
     label: 'Blogindlæg',

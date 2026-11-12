@@ -48,7 +48,7 @@ export function promotionTags(d) {
  * @param {Record<string, any>} props
  * @returns {unknown[]} */
 const blockTags = (type, props) => {
-  if (type !== 'posts' && type !== 'testimonials' && type !== 'testimoniallist') return [];
+  if (type !== 'posts' && type !== 'testimonials') return [];
   return [...(Array.isArray(props?.categories) ? props.categories : []), ...(props?.link ? [props.link] : [])];
 };
 
