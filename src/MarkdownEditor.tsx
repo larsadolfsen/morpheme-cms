@@ -87,6 +87,7 @@ import { RowsFromList } from './InlineList';
 import { inlineViews } from './inlineViews';
 import type { Change, Focus, Item as Row } from './InlineItems';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
+import type { Field } from './schema';
 import { editorRows } from './standard/rows/view';
 import { fromLine, listPageOf } from './standard/rows/fields';
 import { inlineBar, type BarAction } from './inlineBar';
@@ -1191,9 +1192,15 @@ function blockCard(
     const itemFields = rowFieldsOf(itemNames);
     // The icon slot of a List opens the icon picker; a card's media slot has the media fields (its kind and what it shows).
     const iconFields = rowFieldsOf(slotNames).map((f) => (spec!.media ? f : { ...f, iconsOpen: true }));
-    const valueOf = (row: Row, names: string[]) => Object.fromEntries(names.map((n) => [n, row[n] ?? rowFieldsOf([n])[0]?.default ?? '']));
+    const emptyOf = (f?: Field) => (f?.type === 'list' ? [] : f?.type === 'boolean' ? false : '');
+    const valueOf = (row: Row, names: string[]) =>
+      Object.fromEntries(names.map((n) => [n, row[n] ?? rowFieldsOf([n])[0]?.default ?? emptyOf(rowFieldsOf([n])[0])]));
     const setFields = (list: Row[], i: number, names: string[], v: BlockProps) =>
-      names.reduce((items, n) => setField(items, i, n, String(v[n] ?? ''), spec!.fields[0]), list);
+      names.reduce(
+        // A switch or a list (a price card's Highlighted and button) is kept as it is, a text as text.
+        (items, n) => setField(items, i, n, typeof v[n] === 'boolean' || Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]),
+        list,
+      );
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
     const rowActions = (): BarAction[] => {

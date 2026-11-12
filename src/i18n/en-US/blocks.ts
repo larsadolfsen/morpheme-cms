@@ -427,6 +427,7 @@ export const blocks = {
     addBelow: 'Add below',
     link: 'Link',
     cardMenu: 'Card',
+    card: 'Card',
     cardSettings: 'Card settings',
     title: 'Heading',
     text: 'Text',
@@ -511,6 +512,18 @@ export const blocks = {
     featuredToggle: ['On', 'Off'] as [string, string],
     badge: 'Label',
     badgeHint: 'If empty, no label is shown.',
+    /** The floating toolbar and the cards of Price cards typed in place. */
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    settingsAction: 'Settings',
+    cardSettings: 'Card settings',
+    addCard: 'Add price card',
+    newCard: 'New card',
+    addFeature: 'Add feature',
+    newFeature: 'New point',
+    newButton: 'Button text',
+    /** A card typed in place: its place, for screen readers (card 2 of 4). */
+    cardOf: (n: number, total: number) => `Card ${n} of ${total}`,
     /** The cards it is shown with where no page has it (in the site's language): the middle one highlighted. */
     example: [
       {

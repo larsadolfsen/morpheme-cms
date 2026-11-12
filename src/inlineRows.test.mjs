@@ -51,3 +51,15 @@ test('another block names its first typed field, and any field with text makes a
   assert.deepEqual(setField([], 0, 'note', 'x', 'name'), [{ name: '', note: 'x' }]);
   assert.equal(isEmptyRow({ name: '', price: '5 kr' }), false);
 });
+
+test('a list or a switch in a row is content, and empty lines of a list are dropped on leaving', () => {
+  assert.equal(isEmptyRow({ name: '', features: ['a'] }), false);
+  assert.equal(isEmptyRow({ name: '', features: [''] }), true);
+  assert.equal(isEmptyRow({ name: '', buttons: [{ label: 'Go' }] }), false);
+  assert.equal(isEmptyRow({ name: '', featured: true }), false);
+  assert.deepEqual(withoutEmpty([{ name: 'A', features: ['x', '', ' '] }]), [{ name: 'A', features: ['x'] }]);
+  const same = [{ name: 'A', features: ['x'] }];
+  assert.equal(withoutEmpty(same), same);
+  assert.deepEqual(setField([{ name: 'A' }], 0, 'featured', true, 'name'), [{ name: 'A', featured: true }]);
+  assert.deepEqual(setField([{ name: 'A', featured: true }], 0, 'featured', false, 'name'), [{ name: 'A' }]);
+});

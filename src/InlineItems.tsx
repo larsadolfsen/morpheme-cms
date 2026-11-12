@@ -87,6 +87,7 @@ export default function InlineItems({
   onChange,
   renderItem,
   wrap,
+  max,
 }: {
   items: Item[];
   /** The item being edited; null while the block is not. */
@@ -101,6 +102,8 @@ export default function InlineItems({
   renderItem: (c: ItemContext) => ReactNode;
   /** The block's own element round its items (the theme's list). */
   wrap?: (items: ReactNode) => ReactNode;
+  /** The most items the block can have: no item is added past it (Enter in the last field, the add button). */
+  max?: number;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const [first, last] = [fields[0], fields[fields.length - 1]];
@@ -121,7 +124,9 @@ export default function InlineItems({
   const editing = active !== null;
   // The empty, faded item that a tap starts is only there while the block has no item; with items, `Add below` and Enter make the next.
   const shown: Item[] = items.length ? items : [{}];
-  const addAfter = (i: number) => onChange({ items: addAt(items, i + 1, first), active: i + 1, focus: { row: i + 1, field: first } });
+  const room = max === undefined || items.length < max;
+  const addAfter = (i: number) =>
+    room && onChange({ items: addAt(items, i + 1, first), active: i + 1, focus: { row: i + 1, field: first } });
 
   const keys = (i: number, name: string, e: KeyboardEvent<HTMLTextAreaElement>) => {
     const item = items[i];
@@ -163,7 +168,7 @@ export default function InlineItems({
   return (
     <div ref={root} className="inline-list-host">
       {wrap ? wrap(body) : body}
-      {editing && items.length > 0 && <InlineAdd label={add} onClick={() => addAfter(items.length - 1)} />}
+      {editing && items.length > 0 && room && <InlineAdd label={add} onClick={() => addAfter(items.length - 1)} />}
     </div>
   );
 }

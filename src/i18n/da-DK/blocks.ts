@@ -390,6 +390,7 @@ export const blocks: Messages['blocks'] = {
     addBelow: 'Tilføj under',
     link: 'Link',
     cardMenu: 'Kort',
+    card: 'Kort',
     cardSettings: 'Kortindstillinger',
     title: 'Overskrift',
     text: 'Tekst',
@@ -468,6 +469,18 @@ export const blocks: Messages['blocks'] = {
     featuredToggle: ['Til', 'Fra'] as [string, string],
     badge: 'Mærkat',
     badgeHint: 'Hvis feltet er tomt, vises intet mærkat.',
+    /** The floating toolbar and the cards of Price cards typed in place. */
+    addAbove: 'Tilføj over',
+    addBelow: 'Tilføj under',
+    settingsAction: 'Indstillinger',
+    cardSettings: 'Kortindstillinger',
+    addCard: 'Tilføj priskort',
+    newCard: 'Nyt kort',
+    addFeature: 'Tilføj punkt',
+    newFeature: 'Nyt punkt',
+    newButton: 'Knaptekst',
+    /** A card typed in place: its place, for screen readers (card 2 of 4). */
+    cardOf: (n: number, total: number) => `Kort ${n} af ${total}`,
     example: [
       {
         name: 'Basis',

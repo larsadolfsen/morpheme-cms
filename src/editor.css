@@ -1427,3 +1427,26 @@ dialog {
     letter-spacing: var(--type-display-medium-tracking);
   }
 }
+
+/* Price cards typed in place: the points are fields in the card's checklist, and the button's label is typed on the button. */
+.editor-text .inline-plans .inline-plan-features .inline-list-field {
+  min-width: 6ch;
+}
+
+.editor-text .inline-plans .block-plan-buttons .inline-button {
+  justify-content: center;
+}
+
+.editor-text .inline-plans .block-plan-buttons .inline-list-field {
+  width: auto;
+  min-width: 3ch;
+  text-align: center;
+}
+
+.editor-text .inline-plans .inline-list-add {
+  align-self: flex-start;
+}
+
+.editor-text .inline-plans .inline-button-faded:not(:focus-within) {
+  opacity: 0.55;
+}

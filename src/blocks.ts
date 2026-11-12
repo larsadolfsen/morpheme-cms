@@ -87,6 +87,8 @@ export type InlineSpec = {
   media?: string[];
   /** Instead of `link`: the fields the link slot opens (a card's page and buttons). */
   settings?: string[];
+  /** The most items it can have (a price list has four): no Add above, Add below or Add item past it. */
+  max?: number;
   /** The block has settings of its own besides its items (a card's type and colour): its menu keeps Edit. */
   blockSettings?: boolean;
   texts: {

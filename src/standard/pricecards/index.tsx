@@ -17,6 +17,23 @@ export default defineBlock({
   label: texts.label,
   icon: CurrencyCircleDollar,
   hint: texts.hint,
+  // Typed in place (InlinePriceCards.tsx): the name, price, unit and text, the points as a list in the card and the button's label where they
+  // stand; Highlighted, its label and where the button leads are in the card's settings. At most four cards.
+  inline: {
+    item: 'items',
+    fields: ['name', 'price', 'unit', 'text'],
+    settings: ['featured', 'badge', 'buttons'],
+    blockSettings: true,
+    max: 4,
+    texts: {
+      addAbove: texts.addAbove,
+      addBelow: texts.addBelow,
+      link: texts.settingsAction,
+      row: texts.card,
+      settings: texts.cardSettings,
+      icon: texts.button,
+    },
+  },
   fields: [
     ...headFields,
     {

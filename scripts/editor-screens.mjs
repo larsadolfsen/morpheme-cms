@@ -362,6 +362,7 @@ async function checkPreviewDraft(width) {
 const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
+  { name: 'pricecards', hint: 'Prices with what is included.', add: 'Add price card', surface: true, field: 'name' },
   { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
 ];
 

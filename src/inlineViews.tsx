@@ -5,6 +5,7 @@ import InlineList from './InlineList';
 import type { BlockData, BlockProps } from './blocks';
 import InlineCards from './InlineCards';
 import InlineFaq from './InlineFaq';
+import InlinePriceCards from './InlinePriceCards';
 import type { Change, Focus, Item } from './InlineItems';
 
 export type InlineViewProps = {
@@ -27,4 +28,5 @@ export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
   list: InlineList as ComponentType<InlineViewProps>,
   cards: InlineCards,
   faq: InlineFaq,
+  pricecards: InlinePriceCards,
 };
