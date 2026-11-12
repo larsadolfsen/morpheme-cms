@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "label": "Services",
+  "label": "Highlights",
   "fields": ["icon", "title", "text", "href"],
   "dropped": []
 }
