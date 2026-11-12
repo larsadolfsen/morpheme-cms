@@ -21,6 +21,7 @@ export default function InlineList({
   onChange,
   onSettings,
   onIcon,
+  show = {},
 }: {
   items: Row[];
   /** The row being edited; null while the list is not. */
@@ -32,9 +33,12 @@ export default function InlineList({
   onSettings: (row: number) => void;
   /** The icon slot of a row is tapped: its icon picker. */
   onIcon: (row: number) => void;
+  /** A list the owner made has the fields it chose: `false` leaves a row's icon, text or link out (a List block has all three). */
+  show?: { icon?: boolean; text?: boolean; href?: boolean };
 }) {
+  const [withIcon, withText, withHref] = [show.icon !== false, show.text !== false, show.href !== false];
   // While one row is active every row has its two lines, so the list does not change height when another is made active; else, as the site.
-  const twoLines = active !== null || items.some((r) => r.text);
+  const twoLines = withText && (active !== null || items.some((r) => r.text));
   return (
     <InlineItems
       items={items as Item[]}
@@ -55,23 +59,23 @@ export default function InlineList({
             className={['inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next'].filter(Boolean).join(' ')}
             // The active row has its icon slot, empty or not; the others their icon, as the site draws them.
             leading={
-              here ? (
+              here && withIcon ? (
                 <InlineSlot label={t.blocks.list.icon} onClick={() => onIcon(i)}>
                   {r.icon ? <Glyph icon={r.icon} size={24} /> : <Plus size={24} />}
                 </InlineSlot>
               ) : undefined
             }
-            leadingIcon={here ? undefined : r.icon || undefined}
+            leadingIcon={here || !withIcon ? undefined : r.icon || undefined}
             headline={field('title', t.blocks.list.title, next ? t.blocks.list.newRow : t.blocks.list.title)}
             supporting={twoLines ? field('text', t.blocks.list.text, t.blocks.list.text) : undefined}
             trailing={
-              here ? (
+              here && withHref ? (
                 <InlineSlot label={t.blocks.list.href} onClick={() => onSettings(i)}>
                   <LinkSimple size={24} />
                 </InlineSlot>
               ) : undefined
             }
-            trailingIcon={here || !r.href ? undefined : 'caret-right'}
+            trailingIcon={here || !withHref || !r.href ? undefined : 'caret-right'}
           />
         );
       }}
