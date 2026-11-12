@@ -19,7 +19,7 @@ released. Today `.github/workflows/publish.yml` publishes when a GitHub release 
 a pull request; `docs/platform.md` says instead that a raised version merged to `main` publishes. This design replaces
 both.
 
-## The flow in one picture
+## The flow in one image
 
 ```text
 branch claude/<task> ──PR──► main ──(each merge)──► npm @next  ──deploy hook──► morpheme-staging (owner tries it)

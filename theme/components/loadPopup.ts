@@ -1,7 +1,7 @@
-// A pop-up's box on the site (PopupView.tsx): its picture with the sizes the site has made of it, and its button
+// A pop-up's box on the site (PopupView.tsx): its image with the sizes the site has made of it, and its button
 // (PopupButton.tsx) with the site's targets and pages.
 import { loadButtons } from '@morphemecms/cms/src/standard/buttons/load';
-import { pictureOf } from '@morphemecms/cms/src/standard/load';
+import { imageOf } from '@morphemecms/cms/src/standard/load';
 import type { Popup } from '@morphemecms/cms/site/popups';
 import type { PopupBoxView } from '@theme/components/PopupView';
 import type { PopupButtonView } from '@theme/components/PopupButton';
@@ -15,7 +15,7 @@ async function buttonOf(button: Popup['button']): Promise<PopupButtonView | unde
 
 export const loadPopup = async (p: Popup): Promise<PopupBoxView> => ({
   slug: p.slug,
-  image: p.image ? pictureOf(p.image) : undefined,
+  image: p.image ? imageOf(p.image) : undefined,
   heading: p.heading,
   text: p.text,
   button: await buttonOf(p.button),

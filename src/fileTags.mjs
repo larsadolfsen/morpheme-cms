@@ -1,7 +1,7 @@
 // The tags of one file in Filer and how they change: its own tags and the tags removed from it.
 // A page's tags reach the file only when it is inserted (tagsFor). Pure; used by fileRecords.mjs and MediaTags.tsx.
 /**
- * @typedef {{ name: string; url: string; source: string }} FileCredit Who a picture is credited to: the photographer, their page and the source it came from (an app's media provider).
+ * @typedef {{ name: string; url: string; source: string }} FileCredit Who an image is credited to: the photographer, their page and the source it came from (an app's media provider).
  * @typedef {{ src: string; categories: string[]; removed: string[]; credit?: FileCredit }} FileRecord
  */
 
@@ -97,7 +97,7 @@ export function inherit(record, src, pageTags) {
 const creditOf = (record) => (record?.credit ? { credit: { ...record.credit } } : {});
 
 /**
- * The record with a credit: who made the picture, as the source gave it.
+ * The record with a credit: who made the image, as the source gave it.
  * @param {FileRecord | undefined} record
  * @param {string} src
  * @param {FileCredit} credit

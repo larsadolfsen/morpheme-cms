@@ -48,7 +48,7 @@
      tokens do, also one corner at a time (a sheet's top, the inner corners of a split button or a menu's groups).
      Changing a step (--mo-shape-medium) changes every part mapped to it; changing a part's variable (--card-radius)
      maps that part to another step. Optical roundness (outer radius - padding = inner radius) only where the theme's
-     own layout always puts something in its container's corner (a card's picture at its top: the card's corners);
+     own layout always puts something in its container's corner (a card's image at its top: the card's corners);
      never on something whose place is the block's or the content's, which keeps its own step. */
   --mo-shape-none: 0rem;
   --mo-shape-extra-small: 0.25rem;
@@ -71,7 +71,7 @@
   --block-control-radius: var(--mo-shape-full);
   --block-shadow: var(--mo-elevation-1-rest-shadow);
   --block-ease: var(--ease);
-  /* Pictures in a list, a row, a step on the time line: large corners. */
+  /* Images in a list, a row, a step on the time line: large corners. */
   --radius-small: var(--mo-shape-large);
 
   /* The standard theme's components (docs/editor.md, "Temaets variabler"). Dialogs (the cookie question, a pop-up):
@@ -92,7 +92,7 @@
   --carousel-item-radius: var(--mo-shape-extra-large);
   --carousel-full-screen-radius: var(--mo-shape-none);
   --carousel-dot-selected-width: 1.5rem;
-  /* The large pictures at the top of a page, a blog post and the blog: extra-large corners. */
+  /* The large images at the top of a page, a blog post and the blog: extra-large corners. */
   --theme-picture-radius: var(--mo-shape-extra-large);
   /* Chips (ui.css): 32px, 8px corners, an outline and no container; a chosen filter chip in the secondary container
      with its check, not in the primary colour. */
@@ -149,7 +149,7 @@
   --button-text-text: var(--mo-primary);
   --button-text-hover: var(--mo-primary-hover);
   /* Icon buttons: 48 by 48 with a 24px icon; standard in on-surface-variant without a container, tonal in the
-     secondary container (the cross on a pop-up, as it can stand on a picture). */
+     secondary container (the cross on a pop-up, as it can stand on an image). */
   --icon-button-size: 3rem;
   --icon-button-icon-size: 1.5rem;
   --icon-button-standard-text: var(--mo-on-surface-variant);
@@ -872,7 +872,7 @@
     }
   }
 
-  /* "Hero": a large picture with extra-large corners. */
+  /* "Hero": a large image with extra-large corners. */
   .block-hero-picture {
     border-radius: var(--mo-shape-extra-large);
   }
@@ -910,7 +910,7 @@
     display: none;
   }
 
-  /* An invitation: a filled card with extra-large corners, its picture with large corners (where it stands is the
+  /* An invitation: a filled card with extra-large corners, its image with large corners (where it stands is the
      block's, so it takes no optical roundness from the card). */
   .block-cta {
     --card-radius: var(--mo-shape-extra-large);
@@ -994,16 +994,16 @@
 }
 
 @layer fallback {
-  /* Long text: pictures with large corners. */
+  /* Long text: images with large corners. */
   .prose :where(img):not(:where(.not-prose img)),
   .picture-crop,
   .prose :where(iframe) {
     border-radius: var(--mo-shape-large);
   }
 
-  /* The mark before the name on a testimonial without a picture: an avatar, a circle in the highest surface container
+  /* The mark before the name on a testimonial without an image: an avatar, a circle in the highest surface container
    (it stands on a container) with the name's first letter (data-initial, Testimonial.tsx), as Material's avatars
-   without a picture, not the standard theme's dot. */
+   without an image, not the standard theme's dot. */
   .block-testimonial-mark {
     display: grid;
     width: 2.5rem;

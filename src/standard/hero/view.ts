@@ -1,20 +1,20 @@
 // What "Banner" shows (its view, drawn by the theme's View.tsx), from the parts of its text (heroParts in fields.ts):
 // its heading (an H2; the page's H1 is the page's), the text before its buttons as HTML (the first paragraph the
-// subtitle, the others the introduction), its picture (beside the text, or behind it), whether it goes across the whole
+// subtitle, the others the introduction), its image (beside the text, or behind it), whether it goes across the whole
 // width of the window, the buttons of its "Buttons" block (its own, else the shared ones, "Blocks" › "Buttons"; none
 // without the block), and the text after them, with a quote written in it. In the editor: viewOf; on the site: load.ts.
 import { markdownNow } from '../../../lib/markdown';
 import { shownAt } from '../../images';
 import { buttonsOf, type ButtonView } from '../buttons/view';
 import type { Button } from '../buttons/fields';
-import type { Picture, ViewOf } from '../view';
+import type { Image, ViewOf } from '../view';
 import { heroParts } from './fields';
 
 export type HeroView = {
   heading?: string;
   html: string;
-  image?: Picture & { alt: string };
-  /** The picture behind the text (`placement` 'behind'), not beside it. */
+  image?: Image & { alt: string };
+  /** The image behind the text (`placement` 'behind'), not beside it. */
   behind?: boolean;
   /** Across the whole width of the window (`width` 'full'), not only the text's. */
   full?: boolean;
@@ -29,8 +29,8 @@ export const viewOf: ViewOf<HeroView> = (props, data) => {
   return {
     heading: parts.heading,
     html: markdownNow(parts.text),
-    image: parts.picture ? { src: shownAt(parts.picture.src), alt: parts.picture.alt } : undefined,
-    behind: props.placement === 'behind' && !!parts.picture,
+    image: parts.image ? { src: shownAt(parts.image.src), alt: parts.image.alt } : undefined,
+    behind: props.placement === 'behind' && !!parts.image,
     full: props.width === 'full',
     buttons: parts.buttons && buttonsOf(parts.buttons.items as Button[] | undefined, data),
     note: parts.after ? markdownNow(parts.after) : undefined,

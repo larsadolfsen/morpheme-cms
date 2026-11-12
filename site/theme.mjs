@@ -423,7 +423,7 @@ export function themeProblems(theme) {
       );
     // The page templates it offers (lib/page-template.mjs); without the key, the standard theme's list.
     for (const p of templateProblems(manifest.templates)) problems.push(`${themeFolder(theme)}/theme.json: ${p}`);
-    // Its own licence and the licences of what it brings (fonts, code, pictures), for "Licenses" and the store.
+    // Its own licence and the licences of what it brings (fonts, code, images), for "Licenses" and the store.
     problems.push(
       ...declarationProblems({
         license: manifest.license,

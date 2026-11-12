@@ -6,7 +6,7 @@
 
 /** @typedef {Record<string, unknown>} Row */
 
-const has = (v) => typeof v === 'string' && v.trim() !== '';
+const has = (v) => (typeof v === 'string' ? v.trim() !== '' : Array.isArray(v) && v.length > 0);
 
 /** A row with nothing in it (no icon, link, heading or text: an icon or a link counts as content; any field with text does). @param {Row | undefined} row */
 export const isEmptyRow = (row) => !row || !Object.values(row).some(has);
@@ -16,8 +16,9 @@ export const withoutEmpty = (rows) => (rows.some(isEmptyRow) ? rows.filter((r) =
 
 /** The rows with one field of a row set (a row at the end, past the last, is the next empty one: it becomes a row). A field that is
  * emptied is left out of the row, but the title stays as typed.
- * @param {Row[]} rows @param {number} i @param {string} field @param {string} value @param {string} [first] the field that stays as typed */
+ * @param {Row[]} rows @param {number} i @param {string} field @param {unknown} value @param {string} [first] the field that stays as typed */
 export function setField(rows, i, field, value, first = 'title') {
+  // `value` is a text, or a list (a row's buttons) that is kept while it has an entry.
   const next = rows.slice();
   const row = { ...(next[i] ?? { [first]: '' }), [field]: value };
   if (field !== first && !has(value)) delete row[field];
@@ -28,6 +29,19 @@ export function setField(rows, i, field, value, first = 'title') {
 
 /** An empty row put in at `at` (0 to rows.length). @param {Row[]} rows @param {number} at @param {string} [first] */
 export const addAt = (rows, at, first = 'title') => [...rows.slice(0, at), { [first]: '' }, ...rows.slice(at)];
+
+/** The lines of a pasted text, each to be one item (a list copied from a document), or null when the paste is left as it is: fewer than
+ * two lines, or a heading among them (`#` in the text, or h1 to h6 in the html a document gives). A list marker at the start of a line
+ * (`-`, `*`, `•`, `1.`) is not part of the line. @param {string} text @param {string} [html] @returns {string[] | null} */
+export function linesFromPaste(text, html = '') {
+  const lines = String(text ?? '')
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  if (lines.length < 2) return null;
+  if (/<h[1-6][\s>]/i.test(html) || lines.some((l) => /^#{1,6}\s/.test(l))) return null;
+  return lines.map((l) => l.replace(/^(?:[-*•]|\d+[.)])\s+/, ''));
+}
 
 /** The row at `i` dropped. @param {Row[]} rows @param {number} i */
 export const removeAt = (rows, i) => rows.filter((_, j) => j !== i);

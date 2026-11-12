@@ -22,7 +22,8 @@ export function inlineBar(opts: {
   name: string;
   dom: HTMLElement;
   rowActions: () => BarAction[];
-  edit: () => void;
+  /** The gear button (the item's settings); a block with no settings has none. */
+  edit?: () => void;
   compact: () => boolean;
   labels: { row: string; edit: string };
   /** The dynamic icon (a shortcut to the block's `Rows from` settings): its label, and whether the block reads a list now (shown pressed). Missing for a block that cannot. */
@@ -102,7 +103,7 @@ export function inlineBar(opts: {
         row.insertAdjacentHTML('beforeend', svg(caretDownIcon, 12));
         row.setAttribute('aria-haspopup', 'menu');
       }
-      button(opts.labels.edit, gearIcon, null, opts.edit);
+      if (opts.edit) button(opts.labels.edit, gearIcon, null, opts.edit);
     } else {
       for (const r of rows) button(r.label, icons[r.kind], null, r.action);
     }

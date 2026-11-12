@@ -14,7 +14,7 @@ export const parts = {
     fieldGroup: 'Fields that belong together, in a frame with their name on it.',
     shownValue: 'What a field holds, shown without being edited here: with its icon, or gray when it is made elsewhere.',
     iconPicker: 'One of many icons: the chosen one with its name, and the button that unfolds them all.',
-    imagePick: 'A picture: a small one of it, the button that picks one, and the button that removes it when it may be left out.',
+    imagePick: 'An image: a small one of it, the button that picks one, and the button that removes it when it may be left out.',
     foldList: 'Items in a frame that each fold out to their fields, with the arrows and Remove beside them.',
     multiChoice:
       'Several picked from a list: the picked ones as chips, and the button that opens the sheet with all the choices. At the bottom of the sheet, a link to make a new one.',
@@ -27,7 +27,7 @@ export const parts = {
       'The search with the buttons beside it, always in the same order: sort, filter, date, Google, and menu or list. Sort is gray while the pages are shown as the menu.',
     choiceTile: 'One of many icons to tap, in a grid.',
     group:
-      'Rows in a frame under a small heading: the start screen and the lists. The icon looks the same everywhere: gray, and in the primary color for the open part in the menu. A small picture or a sample of one of the theme’s values can stand before the name instead. A number may stand at the right. A row can also do something, in the primary color; delete, in the middle; or only be shown, with no color under the mouse and perhaps gray.',
+      'Rows in a frame under a small heading: the start screen and the lists. The icon looks the same everywhere: gray, and in the primary color for the open part in the menu. A small image or a sample of one of the theme’s values can stand before the name instead. A number may stand at the right. A row can also do something, in the primary color; delete, in the middle; or only be shown, with no color under the mouse and perhaps gray.',
     checkList:
       'Things that were checked: a score from 0 to 100 in a ring, a red triangle by what could be better (which folds out with how), and a green dot by what is fine.',
     scoreRing:
@@ -52,7 +52,7 @@ export const parts = {
       'The sheet with a whole page in it (the preview), as tall as the screen. The page is in a frame, as wide as a phone or a computer, and nothing in it runs.',
     foldSection:
       'A section of a long form (a page, a blog post) that folds in and out by its heading. Only the first is open from the start.',
-    sharePreview: "A link to a page as it looks when it is shared: the picture, the website's domain, the title, and the description.",
+    sharePreview: "A link to a page as it looks when it is shared: the image, the website's domain, the title, and the description.",
     formColumns:
       'A form on a wide screen: the text at the left, the status and the other fields on cards at the right. On a smaller screen below each other. The heading over the fields is always the same.',
     mainDrawer:
@@ -113,7 +113,7 @@ export const parts = {
     /** NewChoice: the kinds of a new pop-up. */
     newPopup: 'New pop-up',
     standardKind: 'Standard',
-    standardKindHint: 'With a picture, text, and a button.',
+    standardKindHint: 'With an image, text, and a button.',
     appKind: 'From an app',
     appKindHint: 'With what the app adds.',
     openPage: 'Open a page',
@@ -159,7 +159,7 @@ export const parts = {
         'One of several choices: in the sheet from the bottom, in a narrow menu, side by side, as cards with an icon and a name, as icons, or only shown. A choice can have its own explanation, and a field can be there only with one of the choices.',
       relation:
         'A page, a post, or a tag from the website’s lists. A page is picked with the page picker, the fixed pages too; several picked are chips.',
-      image: 'A picture from Files or a new one.',
+      image: 'An image from Files or a new one.',
       readonly: 'Shown, but not edited here.',
       object: 'A group of fields in a frame.',
       list: 'A list of items that each fold out to their fields, or of single choices.',
@@ -201,7 +201,7 @@ export const parts = {
     post: 'Post',
     tags: 'Tags',
     tagsHint: 'At most 3.',
-    picture: 'Picture',
+    image: 'Image',
     contact: 'Contact',
     name: 'Name',
     questions: 'Questions',
@@ -265,8 +265,8 @@ export const parts = {
       blockRadius: 'Blocks',
       blockRadiusSmall: 'What is smaller in a block',
       blockControlRadius: 'Buttons and fields in blocks',
-      pictureRadius: 'Large pictures',
-      postPictureRadius: 'Pictures in lists',
+      imageRadius: 'Large images',
+      postImageRadius: 'Images in lists',
       logoTileRadius: 'The logo’s tile',
     },
     parts: {
@@ -438,14 +438,14 @@ export const parts = {
     checkboxError: 'Check the box to continue.',
     /** The theme's chips (Chip), a group of their own under "UI components". */
     chips: 'Chips',
-    chip: "Assist (a link to something related), filter (one of a few choices, the chosen one marked), input and suggestion: elevated (on a picture), selected, with an icon or a picture, with a button that removes it, while it is dragged, only shown, and gray when it can't be used.",
+    chip: "Assist (a link to something related), filter (one of a few choices, the chosen one marked), input and suggestion: elevated (on an image), selected, with an icon or an image, with a button that removes it, while it is dragged, only shown, and gray when it can't be used.",
     chipSet: 'Chips side by side in a group: on as many lines as they need, or on one line that scrolls sideways.',
     chipSetLayouts: { wrap: 'Several lines', scroll: 'Scroll sideways' },
     chipKinds: { assist: 'Assist', filter: 'Filter', input: 'Input', suggestion: 'Suggestion' },
     selected: 'Selected',
     plain: 'Only shown',
     elevated: 'Elevated',
-    withAvatar: 'With picture',
+    withAvatar: 'With image',
     dragged: 'Dragged',
     remove: (label: string) => `Remove ${label}`,
     /** The theme's dialog, bottom sheet and carousel (packages/editor/theme/ui/), and what is in the examples. */
@@ -456,7 +456,7 @@ export const parts = {
       bottomSheet:
         'A sheet from the bottom: modal over the page, on a computer as a dialog in the middle, for example, the booking sheet, or standard at the bottom of the screen, with the page usable behind it, dragged up and down.',
       carousel:
-        'Cards or pictures in a row that are swiped sideways, with dots under them: all the same size, in several sizes, one large (from the start or in the middle) and one at a time.',
+        'Cards or images in a row that are swiped sideways, with dots under them: all the same size, in several sizes, one large (from the start or in the middle) and one at a time.',
       dialogKinds: { basic: 'Basic', icon: 'With icon, list, and divider', container: 'Only the box', fullScreen: 'Full screen' },
       sheetKinds: {
         modal: 'Modal, a dialog on a computer',
@@ -497,8 +497,8 @@ export const parts = {
         'On a computer the sheet is a dialog, a side sheet or a sheet with margins, as its example says.',
         'This text only makes the sheet long enough to need scrolling.',
       ],
-      picture: (n: number) => `Picture ${n}`,
-      showPicture: (n: number) => `Show picture ${n}`,
+      image: (n: number) => `Image ${n}`,
+      showImage: (n: number) => `Show image ${n}`,
       heading: 'Heading',
       text: 'A short text about what the box is about.',
       sheetText: 'A short text under the heading',
@@ -730,7 +730,7 @@ export const parts = {
     cardsAndLists: {
       title: 'Cards and lists',
       card: "A surface with what belongs together: outlined, elevated, or filled, also while it's dragged. The whole card can be a link.",
-      list: 'Items under each other on 1, 2, or 3 lines, with an icon, an avatar, a picture, a video, a choice, text, and an arrow, with or without lines between them, or each on its own surface. An item can do something when tapped, have actions beside it, and have its text side by side on a wide screen.',
+      list: 'Items under each other on 1, 2, or 3 lines, with an icon, an avatar, an image, a video, a choice, text, and an arrow, with or without lines between them, or each on its own surface. An item can do something when tapped, have actions beside it, and have its text side by side on a wide screen.',
       kinds: { elevated: 'Elevated', filled: 'Filled', outlined: 'Outlined' },
       link: 'Outlined, a link',
       text: 'What is on the card.',
@@ -746,7 +746,7 @@ export const parts = {
         overline: 'Over the headline',
         long: 'A text under the item that is so long that it takes 2 lines before it is cut short.',
         trailing: '12',
-        headlines: ['Icon', 'Avatar', 'Avatar with a picture', 'Image', 'Video'],
+        headlines: ['Icon', 'Avatar', 'Avatar with an image', 'Image', 'Video'],
         letter: 'S',
         choices: ['Checkbox', 'Radio button', 'Switch', 'Checkbox after the text'],
         selected: 'Selected',

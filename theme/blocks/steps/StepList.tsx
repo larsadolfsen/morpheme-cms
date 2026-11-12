@@ -13,8 +13,8 @@ export default function StepList({ items, className }: { items: Step[]; classNam
             {i + 1}
           </span>
           <div className="block-step-body">
-            <h3 className="block-step-title">{s.title}</h3>
-            <p className="block-step-text">{s.text}</p>
+            {s.title && <h3 className="block-step-title">{s.title}</h3>}
+            {s.text && <p className="block-step-text">{s.text}</p>}
           </div>
         </li>
       ))}

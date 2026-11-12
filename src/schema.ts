@@ -88,7 +88,7 @@ export type Field = {
    * picked when it is made). */
   locked?: boolean;
   /** select: the choices on a page of their own under the form, at its address with the field's name after it
-   * (#apps/content-colors/settings/variant), in place of the sheet, drawn by this with what each gives (a picture of
+   * (#apps/content-colors/settings/variant), in place of the sheet, drawn by this with what each gives (an image of
    * it); the field links there. Only a field of a part's own form (CompanyForm.tsx: an app's settings), not one in a
    * group or a list; elsewhere the choices are in the sheet. */
   page?: ComponentType<FieldPageProps>;
@@ -143,7 +143,7 @@ export type Field = {
    * headings and texts, written in the text above their cards, sections.mjs); its own blocks have theirs (Block.lead). */
   leads?: Record<string, Lead>;
   /** blocks: what the page may have of them (Template). markdown: the blocks that can be put in its text with "+", and
-   * how many (Template `blocks` and `max`; 'image' a picture); without it, none. */
+   * how many (Template `blocks` and `max`; 'image' an image); without it, none. */
   template?: Template;
 };
 
@@ -198,12 +198,12 @@ export type Block = {
   /** Edited elsewhere: "Edit" goes there (without fields), or a link there over its fields. */
   edit?: Edit;
   fields: Field[];
-  /** Its own text and picture are written in the page's text, above its card (sections.mjs): */
+  /** Its own text and image are written in the page's text, above its card (sections.mjs): */
   lead?: Lead;
 };
 
 /** heading: the field of the heading (a "Heading", H2); body: the field of the text under it, one
- * text (paragraphs) or, with `list`, one item per paragraph; image: a picture (`image`, `imageAlt`, `imageDecorative`)
+ * text (paragraphs) or, with `list`, one item per paragraph; image: an image (`image`, `imageAlt`, `imageDecorative`)
  * above the heading, in place of the design's own; upTo: only the body's text before its first block of this type is
  * written above the card (the front page's "Banner": its "Buttons" block), the block and the text after it stay in the
  * field, which the card has too. */
@@ -259,7 +259,7 @@ export type FolderCollection = Base & {
   /** The boolean field that turns an entry on and off (a promotion's "Turned on"/"Turned off"): the list
    * can then be filtered by it, the choices its `toggle` (Library.tsx List). */
   onOff?: string;
-  /** The list's own fields one of its own kinds does not have, by the kind (a bar has no picture or
+  /** The list's own fields one of its own kinds does not have, by the kind (a bar has no image or
    * heading), as AppKind.omit for an app's kinds (apps.ts withKinds). */
   omit?: Record<string, string[]>;
   /** How an entry of one of the list's own kinds looks on the site, by the kind, drawn beside its form
@@ -305,7 +305,7 @@ export type OwnedList = FolderCollection & {
   /** The names of the entry's fields that fill a row of a list block that reads this list ("Rows from"): the title (required), and
    * the text, icon, page link and tags (the relation `categories`) when the list has them. A list without it is not offered there. */
   asRows?: { title: string; text?: string; icon?: string; href?: string; tags?: string };
-  /** Made-up rows, as the files have them, for the parts under "Parts" and an app's pictures for the store (examples.ts). */
+  /** Made-up rows, as the files have them, for the parts under "Parts" and an app's images for the store (examples.ts). */
   examples?: Record<string, unknown>[];
 };
 

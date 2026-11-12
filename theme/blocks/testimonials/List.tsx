@@ -1,4 +1,4 @@
-// The layout List of "Testimonials" (`layout` 'list'): the theme's list (List.tsx in ../../ui/, as "List"), each testimonial an item with its picture (or the name's first
+// The layout List of "Testimonials" (`layout` 'list'): the theme's list (List.tsx in ../../ui/, as "List"), each testimonial an item with its image (or the name's first
 // letter) leading it, its name as the headline, its whole text as the supporting text (its introduction over it as the overline) and its tags
 // after it. With `filters` (two tags or more), filter chips (Chip) over the list (.block-filters): one shows only the testimonials with that
 // tag, "All" all of them again (on the site by script.ts; without JavaScript all are shown and the buttons are hidden; in

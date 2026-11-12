@@ -1,12 +1,12 @@
 // What "Blog posts" shows (its view, drawn by the theme's View.tsx): its heading, its design (a list, or the newest
-// large over the list), its posts (each one's page, title, description, picture, date and reading time), how many it
+// large over the list), its posts (each one's page, title, description, image, date and reading time), how many it
 // shows and whether they are picked at random on each visit (then all it picks from are there), and "All posts"
 // (where it goes and what it says; none when it shows all). In the editor (viewOf) the posts as the site picks them
 // (postsOf: random ones are the newest, and `note` says how many it picks from; of all, the first ones, and `more` says
 // how many more there are, so the card stays short); on the site: load.ts.
 import type { BlockData } from '../../blocks';
 import { siteT } from '../../i18n';
-import { shownPicture, type Picture, type ViewOf } from '../view';
+import { shownImage, type Image, type ViewOf } from '../view';
 import { postsOf } from '.';
 import type { PostChoice } from '../site';
 import { headOf, type HeadView } from '../head';
@@ -15,7 +15,7 @@ export type PostView = {
   href: string;
   title: string;
   description?: string;
-  image?: Picture;
+  image?: Image;
   imageAlt?: string;
   date: string;
   minutes: number;
@@ -38,7 +38,7 @@ export const shownPost = (p: BlockData['site']['posts'][number]): PostView => ({
   href: '',
   title: p.title,
   description: p.description,
-  image: p.image ? shownPicture(p.image) : undefined,
+  image: p.image ? shownImage(p.image) : undefined,
   imageAlt: p.imageAlt,
   date: p.date.toISOString(),
   minutes: p.minutes,

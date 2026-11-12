@@ -374,17 +374,17 @@ async function run(label, bucket) {
   await settle();
 
   // A save: a changed post (a page, when the site has no posts yet), a new file in a new folder, another page deleted and
-  // a new picture.
+  // a new image.
   const b = await browser();
   const files = first.loaded.folders;
   const post = [...files.blog, ...files.pages].find((f) => f.path.endsWith('.md'));
   const page = files.pages.find((f) => f.path.endsWith('.md') && f !== post);
-  const picture = new Uint8Array([0x52, 0x49, 0x46, 0x46, 0, 1, 2, 3, ...new TextEncoder().encode(label)]);
+  const image = new Uint8Array([0x52, 0x49, 0x46, 0x46, 0, 1, 2, 3, ...new TextEncoder().encode(label)]);
   const changes = [
     { path: post.path, content: `${post.text}\nRettet (${label}).\n`, oid: post.oid },
     { path: `${config.folders.data}/ny-${label}/fil.json`, content: `{ "label": ${JSON.stringify(label)} }\n`, oid: null },
     { path: page.path, content: null, oid: page.oid },
-    { path: `${config.folders.media}/ny-${label}.webp`, content: picture, oid: null },
+    { path: `${config.folders.media}/ny-${label}.webp`, content: image, oid: null },
   ];
   const saved = await b.commit(`Editor: ret (${label})`, changes);
   expect(saved.commit === head(), `${label}: the save did not give the new commit`);
@@ -427,19 +427,19 @@ async function run(label, bucket) {
     !(await b.deletedFiles(config.folders.pages)).some((d) => d.path === page.path),
     `${label}: a restored page is among the deleted files`,
   );
-  const pictures = await b.deletedFiles(config.folders.media, { text: false });
-  expect(!pictures.length, `${label}: there are deleted pictures that were not deleted`);
+  const images = await b.deletedFiles(config.folders.media, { text: false });
+  expect(!images.length, `${label}: there are deleted images that were not deleted`);
 
-  // A picture's bytes, and a second time from R2.
+  // An image's bytes, and a second time from R2.
   const oid = saved.blobs[changes[3].path];
-  expect(same([...(await b.loadBytes(oid))], [...picture]), `${label}: the picture's bytes are wrong`);
+  expect(same([...(await b.loadBytes(oid))], [...image]), `${label}: the image's bytes are wrong`);
   const old = files.media.find((f) => f.path.endsWith('.webp'));
   if (old) {
-    expect(same([...(await b.loadBytes(old.oid))], [...bytesOf(old.oid)]), `${label}: a picture's bytes are wrong`);
+    expect(same([...(await b.loadBytes(old.oid))], [...bytesOf(old.oid)]), `${label}: an image's bytes are wrong`);
     await settle();
     const before = asked;
     await (await browser()).loadBytes(old.oid);
-    if (cached) expect(asked === before, `${label}: the picture was fetched from GitHub again`);
+    if (cached) expect(asked === before, `${label}: the image was fetched from GitHub again`);
   }
   // Single files, and only questions through /graphql.
   const [single] = await b.loadFiles([post.path, 'missing/none.md']);

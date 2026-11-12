@@ -1,7 +1,7 @@
 // Tests for src/inlineRows.mjs: the rows of a List typed in place. Run: node --test src/inlineRows.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { addAt, isEmptyRow, moveBy, removeAt, setField, withoutEmpty } from './inlineRows.mjs';
+import { addAt, isEmptyRow, linesFromPaste, moveBy, removeAt, setField, withoutEmpty } from './inlineRows.mjs';
 
 test('a row is empty only with no icon, link, heading and text', () => {
   assert.equal(isEmptyRow({ title: '' }), true);
@@ -23,6 +23,14 @@ test('a field is set, and left out when emptied (the title stays)', () => {
   assert.deepEqual(setField(rows, 0, 'text', ''), [{ title: 'A' }]);
   assert.deepEqual(setField(rows, 0, 'title', ''), [{ title: '', text: 'x' }]);
   assert.deepEqual(rows, [{ title: 'A', text: 'x' }]);
+});
+
+test('a list in a row (its buttons) is kept while it has an entry, and left out when emptied', () => {
+  const buttons = [{ label: 'More', href: '/a/' }];
+  const rows = setField([{ title: 'A' }], 0, 'buttons', buttons);
+  assert.deepEqual(rows, [{ title: 'A', buttons }]);
+  assert.deepEqual(setField(rows, 0, 'buttons', []), [{ title: 'A' }]);
+  assert.equal(isEmptyRow({ title: '', buttons }), false);
 });
 
 test('typing in the next empty row (past the last) makes it a row', () => {
@@ -50,4 +58,13 @@ test('another block names its first typed field, and any field with text makes a
   assert.deepEqual(setField([{ name: 'A', note: 'x' }], 0, 'note', '', 'name'), [{ name: 'A' }]);
   assert.deepEqual(setField([], 0, 'note', 'x', 'name'), [{ name: '', note: 'x' }]);
   assert.equal(isEmptyRow({ name: '', price: '5 kr' }), false);
+});
+
+test('lines pasted become items, but not when the paste has headings among its lines', () => {
+  assert.deepEqual(linesFromPaste('Order\r\nPay\n\n  Get it  '), ['Order', 'Pay', 'Get it']);
+  assert.deepEqual(linesFromPaste('- Order\n2. Pay'), ['Order', 'Pay']);
+  assert.equal(linesFromPaste('One line only'), null);
+  assert.equal(linesFromPaste('# Title\nOrder\nPay'), null);
+  assert.equal(linesFromPaste('Order\nPay', '<h2>Order</h2><p>Pay</p>'), null);
+  assert.deepEqual(linesFromPaste('Order\nPay', '<p>Order</p><p>Pay</p>'), ['Order', 'Pay']);
 });

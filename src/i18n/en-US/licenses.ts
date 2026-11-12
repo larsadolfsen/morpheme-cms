@@ -10,7 +10,7 @@ export const licenses = {
   theme: (name: string) => `The theme ${name}`,
   /** A license that gives no rights ("UNLICENSED"), as its name. */
   unlicensed: 'All rights reserved',
-  kinds: { font: 'Font', icons: 'Icons', library: 'Code', image: 'Pictures' },
+  kinds: { font: 'Font', icons: 'Icons', library: 'Code', image: 'Images' },
   /** Who brings it, after what it is: "Code in the editor and on the site". */
   inEditor: 'in the editor',
   onSite: 'on the site',

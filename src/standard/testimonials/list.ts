@@ -1,6 +1,6 @@
 // "Testimonials", the list the standard block brings: one file per testimonial in the site's data
 // (<config.folders.data>/testimonials/<slug>.json), under "Lists" on every site, in their order (the arrows), each
-// with its picture (optional, round by the name), its tags (the relation `categories`) and whether it is marked "Show
+// with its image (optional, round by the name), its tags (the relation `categories`) and whether it is marked "Show
 // on the front page" (the block's "Which testimonials"). The site reads them for its pages (StandardSite.testimonials, the
 // site's packages/editor/site/testimonials.ts).
 // Made with the texts of a language: the editor's for the screens, the site's (siteT) for the commits (site.ts).

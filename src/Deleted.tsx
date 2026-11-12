@@ -37,10 +37,10 @@ const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1
 const fileName = (path: string) => path.split('/').pop() ?? path;
 
 export default function Deleted({ id, files, env }: { id: string; files: RepoFile[]; env: Env }) {
-  // The files from "Files" (pictures, PDFs, videos, zip files), not a list's.
-  const pictures = id === 'files';
-  const collection = pictures ? undefined : collections.find((c) => c.id === id && restorable(c));
-  const folder = pictures ? MEDIA : collection && collection.kind !== 'files' ? collection.folder : '';
+  // The files from "Files" (images, PDFs, videos, zip files), not a list's.
+  const images = id === 'files';
+  const collection = images ? undefined : collections.find((c) => c.id === id && restorable(c));
+  const folder = images ? MEDIA : collection && collection.kind !== 'files' ? collection.folder : '';
   const [deleted, setDeleted] = useState<DeletedFile[] | null>(null);
   const [problem, setProblem] = useState('');
   const [busy, setBusy] = useState(false);
@@ -52,9 +52,9 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
 
   useEffect(() => {
     if (!folder) return;
-    // Under "Files", the pictures' and the other files' together, newest first.
-    const folders = pictures && FILES ? [folder, FILES] : [folder];
-    Promise.all(folders.map((f) => env.deleted(f, { text: !pictures })))
+    // Under "Files", the images' and the other files' together, newest first.
+    const folders = images && FILES ? [folder, FILES] : [folder];
+    Promise.all(folders.map((f) => env.deleted(f, { text: !images })))
       .then((all) => setDeleted(all.flat().sort((a, b) => +new Date(b.at) - +new Date(a.at))))
       .catch((e) => setProblem(t.history.deletedNotLoaded((e as Error).message)));
   }, [folder]);
@@ -66,11 +66,11 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
       </Screen>
     );
 
-  const label = pictures ? t.history.files : collection!.label;
-  const back = pictures ? { href: '#files', label: t.common.parts.media } : { href: `#list/${id}`, label: collection!.label };
+  const label = images ? t.history.files : collection!.label;
+  const back = images ? { href: '#files', label: t.common.parts.media } : { href: `#list/${id}`, label: collection!.label };
 
   async function open(file: DeletedFile) {
-    if (!pictures) return restore(file);
+    if (!images) return restore(file);
     setBusy(true);
     try {
       const bytes = await env.bytes(file.oid);
@@ -86,13 +86,13 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
 
   async function restore(file: DeletedFile, bytes?: Uint8Array) {
     const name = nameOf(collection, file);
-    if (!pictures && !(await ask(t.history.restoreAsk(name), t.history.restore))) return;
+    if (!images && !(await ask(t.history.restoreAsk(name), t.history.restore))) return;
     setBusy(true);
     setRestoring(true);
     env.notify({ text: t.history.restoring });
     try {
       let content: string | Uint8Array = file.text;
-      if (pictures) content = bytes ?? (await env.bytes(file.oid));
+      if (images) content = bytes ?? (await env.bytes(file.oid));
       else if (collection!.kind === 'markdown') {
         // A post's address is its file name; not when another page or post has it now, or the site
         // sends it on elsewhere (the redirects as they are now).
@@ -106,15 +106,15 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
       }
       // A file from "Files" comes back with its record of tags: the one deleted in the same commit (same time).
       const changes: { path: string; content: string | Uint8Array; oid: string | null }[] = [{ path: file.path, content, oid: null }];
-      if (pictures) {
+      if (images) {
         const deletedRecords = await env.deleted(config.fileRecords, { text: true });
         const record = deletedRecordFor(publicPath(file.path), file.at, deletedRecords, recordsIn(files, config.fileRecords));
         if (record) changes.push({ path: record.path, content: record.text, oid: null });
       }
-      const what = pictures ? siteT.media.kinds[kindOf(file.path)].word : asWritten(collection!).singular;
-      const change = t.app.changes.restored(kindAndName(pictures ? t.media.kinds[kindOf(file.path)].word : collection!.singular, name));
+      const what = images ? siteT.media.kinds[kindOf(file.path)].word : asWritten(collection!).singular;
+      const change = t.app.changes.restored(kindAndName(images ? t.media.kinds[kindOf(file.path)].word : collection!.singular, name));
       const oids = await env.commit(
-        siteT.history.commit.restoreDeleted(what, `"${pictures ? fileName(file.path) : slugOf(file.path, folder)}"`),
+        siteT.history.commit.restoreDeleted(what, `"${images ? fileName(file.path) : slugOf(file.path, folder)}"`),
         changes,
         change,
       );
@@ -126,7 +126,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
       );
       setDeleted((all) => all?.filter((f) => f.path !== file.path) ?? null);
       dialog.current?.close();
-      env.notify({ text: savedText(change), kind: 'saved', edit: pictures ? undefined : { to: file.path, text: t.history.open } });
+      env.notify({ text: savedText(change), kind: 'saved', edit: images ? undefined : { to: file.path, text: t.history.open } });
     } catch (e) {
       env.notify({
         text: e instanceof ConflictError ? e.message : t.history.notRestored((e as Error).message),
@@ -139,7 +139,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
     }
   }
 
-  // A PDF's or zip file's icon, over its name in the sheet (a picture and a video show themselves).
+  // A PDF's or zip file's icon, over its name in the sheet (an image and a video show themselves).
   const shownKind = shown && fileKindOf(shown.file.path);
   const ShownIcon = shownKind && shownKind !== 'video' ? fileIcons[shownKind] : null;
 

@@ -24,7 +24,7 @@ export function responsive(src) {
   return { srcset, width: info.width, height: info.height };
 }
 
-// The sizes of a picture shown `scale` times wider than its box (cut to a format, crop.mjs), e.g.
+// The sizes of an image shown `scale` times wider than its box (cut to a format, crop.mjs), e.g.
 // a list like "720px, calc(100vw - 40px)" twice as wide.
 const scaled = (sizes, scale) =>
   scale === 1
@@ -36,12 +36,12 @@ const scaled = (sizes, scale) =>
         )
         .join(', ');
 
-/** Rehype plugin: adds srcset, sizes, width/height and lazy loading to content images, cuts a picture to
+/** Rehype plugin: adds srcset, sizes, width/height and lazy loading to content images, cuts an image to
  * its format (crop.mjs): in a box of that format, or itself of it without a crop, and draws a decorative
  * one with alt="". */
 export function rehypeResponsiveImages({ sizes }) {
   return (tree, file) => {
-    // A blog post's layout shows its featured image above the text unless the text has the same picture
+    // A blog post's layout shows its featured image above the text unless the text has the same image
     // (heroImage). Then that one is the first image on screen, and every image in the text can wait.
     const featured = file?.data?.astro?.frontmatter?.image;
     const sources = [];
@@ -56,7 +56,7 @@ export function rehypeResponsiveImages({ sizes }) {
         const { src, format, crop, decorative } = splitPicture(node.properties.src);
         const cut = format ? cropStyle(format, crop) : null;
         node.properties.src = src;
-        // A decorative picture (crop.mjs): alt="" and nothing else for screen readers.
+        // A decorative image (crop.mjs): alt="" and nothing else for screen readers.
         if (decorative) {
           node.properties.alt = '';
           delete node.properties.title;
@@ -90,9 +90,9 @@ export function rehypeResponsiveImages({ sizes }) {
   };
 }
 
-// WordPress keeps several versions of one picture: "cropped-x-scaled-1", "x-edited", "x-e1640002824221".
-// The picture's own name is what is left when those additions are removed.
-const pictureName = (src) =>
+// WordPress keeps several versions of one image: "cropped-x-scaled-1", "x-edited", "x-e1640002824221".
+// The image's own name is what is left when those additions are removed.
+const imageName = (src) =>
   src
     .split('#')[0]
     .split('/')
@@ -101,37 +101,37 @@ const pictureName = (src) =>
     .replace(/^cropped-/, '')
     .replace(/([-_](edited|scaled|e\d{9,}|\d))+$/g, '')
     .replace(/([-_](edited|scaled|e\d{9,}|\d))+$/g, '');
-// Crops saved under a new name, so the name does not show they are the same picture (the site's config).
+// Crops saved under a new name, so the name does not show they are the same image (the site's config).
 const sameAs = config.samePictures;
 
-/** True when two image paths show the same picture. */
+/** True when two image paths show the same image. */
 export function samePicture(a, b) {
-  const [x, y] = [a, b].map((s) => sameAs[pictureName(s)] ?? pictureName(s));
+  const [x, y] = [a, b].map((s) => sameAs[imageName(s)] ?? imageName(s));
   return x === y;
 }
 
 const IMAGE = /!\[[^\]]*\]\(([^)\s]+)\)/g;
 
-// The pictures in the text itself, not those in the text of a block in it (a "Banner"'s, on its line of HTML).
-const picturesIn = (body) => [...body.replace(/^<div data-block=.*$/gm, '').matchAll(IMAGE)].map((m) => m[1]);
+// The images in the text itself, not those in the text of a block in it (a "Banner"'s, on its line of HTML).
+const imagesIn = (body) => [...body.replace(/^<div data-block=.*$/gm, '').matchAll(IMAGE)].map((m) => m[1]);
 
-/** The featured image, unless the text already shows the same picture (then undefined). */
+/** The featured image, unless the text already shows the same image (then undefined). */
 export function heroImage(image, body = '') {
   if (!image) return undefined;
-  return picturesIn(body).some((src) => samePicture(src, image)) ? undefined : image;
+  return imagesIn(body).some((src) => samePicture(src, image)) ? undefined : image;
 }
 
-/** The first picture in the text, for a post without a featured image (og:image). */
-export const firstImage = (body = '') => picturesIn(body)[0];
+/** The first image in the text, for a post without a featured image (og:image). */
+export const firstImage = (body = '') => imagesIn(body)[0];
 
-// A picture's address in the text or in a block's data (its props are HTML-escaped JSON, with Markdown in
+// An image's address in the text or in a block's data (its props are HTML-escaped JSON, with Markdown in
 // them): a photo under /images/uploads/, without its format, crop and mark.
 const PHOTO = /\/images\/uploads\/[^\s"'()\\#&;]+\.(?:webp|jpe?g|png|avif)/gi;
-// Smaller than this on both sides, a picture is an icon or a logo, not a picture of the page.
+// Smaller than this on both sides, an image is an icon or a logo, not an image of the page.
 const SMALL = 300;
 
-/** The page's real pictures, in the order they are on it: in its text and in its blocks (a "Hero"'s, a
- * "Cards"'s …); photos only (no SVG or GIF), and none smaller than an icon. Each picture once. */
+/** The page's real images, in the order they are on it: in its text and in its blocks (a "Hero"'s, a
+ * "Cards"'s …); photos only (no SVG or GIF), and none smaller than an icon. Each image once. */
 export function picturesOf(body = '') {
   const text = body.replace(/&quot;/g, '"').replace(/&amp;/g, '&');
   const found = [...new Set(text.match(PHOTO) ?? [])];
@@ -141,7 +141,7 @@ export function picturesOf(body = '') {
   });
 }
 
-/** The first picture in a page's text, its picture when it is shared (og:image, Base.astro): its address without its
+/** The first image in a page's text, its image when it is shared (og:image, Base.astro): its address without its
  * format, crop and the mark of a decorative one, and what it shows (none for a decorative one). */
 export function firstPicture(body = '') {
   const m = body.replace(/^<div data-block=.*$/gm, '').match(/!\[([^\]]*)\]\(([^)\s]+)\)/);
@@ -150,8 +150,8 @@ export function firstPicture(body = '') {
   return { src, alt: (!decorative && m[1]) || undefined };
 }
 
-/** The picture shown when a page is shared (og:image): its 1200 × 630 JPEG from
- * packages/editor/scripts/responsive-images.mjs, else the picture itself (without a format and crop) and no size. */
+/** The image shown when a page is shared (og:image): its 1200 × 630 JPEG from
+ * packages/editor/scripts/responsive-images.mjs, else the image itself (without a format and crop) and no size. */
 export function shareImage(address) {
   const { src } = splitPicture(address);
   const share = load()[src]?.share;

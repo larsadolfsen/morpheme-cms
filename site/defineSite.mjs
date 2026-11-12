@@ -18,15 +18,15 @@
  */
 
 /**
- * What a site can say of itself, else the standard: the owner's picture (beside a blog post, and shown when a page with
+ * What a site can say of itself, else the standard: the owner's image (beside a blog post, and shown when a page with
  * none of its own is shared), the booking page and the pages a booking ends on, the page about the owner, the block
- * drawn after every blog post, the word a page's title can end in, pictures that are the same though their names say
+ * drawn after every blog post, the word a page's title can end in, images that are the same though their names say
  * otherwise, the file of its redirects from old addresses, the logo in the structured data, whether it posts the
  * CMS's releases on its blog, the folder of its files, the address of its testimonials page and the anchor of the
  * directions on its contact page. A site that sets none of the last three and still has the old Danish names keeps them:
  * they are found in its content when it is built (lib/siteSettings.mjs, `settings` in site/settings.ts).
  * @typedef {object} SiteChoices
- * @property {{ src: string; alt: string } | null} picture The owner's picture, or none.
+ * @property {{ src: string; alt: string } | null} picture The owner's image, or none.
  * @property {{ path: string; thanks: string[] }} booking The booking page, where "Book an appointment" goes when no booking sheet
  *   opens ('': the site has none, and the header has no button to it), and the pages a booking or an order ends on: not
  *   for search engines (site/noindex.mjs), and without the action bar.
@@ -34,7 +34,7 @@
  * @property {string} postEnd The block drawn across the page after every blog post (its type, with its shared texts), or ''.
  * @property {string} titleEnd A word a page's title can end in, after a dash, for search engines (" – Copenhagen"): kept in
  *   <title>, left out of the page's heading (displayTitle in site/text.ts). Empty: nothing is left out.
- * @property {Record<string, string>} samePictures Pictures that are the same though their names say otherwise (a crop
+ * @property {Record<string, string>} samePictures Images that are the same though their names say otherwise (a crop
  *   saved under a new name), by name (samePicture in site/images.mjs).
  * @property {{ rules: string; map: string }} siteRedirects The site's other redirects: rules ("<from> <to> 301", one to a
  *   line) and the Worker's map (`{ ids, paths }`, worker/index.js), shown and changed with the editor's own under
@@ -45,7 +45,7 @@
  *   post on the site, minutes after it is released, with its release notes in the site's language (worker/release-post.js),
  *   tagged with `categories` (their ids). Morpheme's own site has it; null: no posts.
  * @property {{ files: string }} folders The folders a site can set, in `folders` (the others are the same on every site):
- *   `files`, the PDFs, videos and zip files shown with the pictures in "Files", "public/files" (at /files/<name> on the site).
+ *   `files`, the PDFs, videos and zip files shown with the images in "Files", "public/files" (at /files/<name> on the site).
  * @property {string} testimonialsPath The address of the page that shows the testimonials, with a slash at both ends: "/testimonials/".
  * @property {string} contactAnchor The anchor on the contact page that the footer's address links to (a heading "Directions"
  *   is `directions`), without #: "directions".
@@ -73,8 +73,8 @@ const CHOICES = {
 const STANDARD = {
   /** The Worker's settings: the editor turns R2 caching on and off in them (Settings › Developer › Caching and builds, src/r2Caching.ts). */
   wrangler: 'wrangler.jsonc',
-  /** The folders the editor loads: the blog posts, the pages, the data files, the pictures and the waiting versions. The folder of the PDFs, videos
-   * and zip files (`files`, shown with the pictures in "Files") is a setting of the site's own (CHOICES). */
+  /** The folders the editor loads: the blog posts, the pages, the data files, the images and the waiting versions. The folder of the PDFs, videos
+   * and zip files (`files`, shown with the images in "Files") is a setting of the site's own (CHOICES). */
   folders: {
     blog: 'src/content/blog',
     pages: 'src/content/pages',

@@ -155,7 +155,7 @@ Our ecosystem has two completely separate repositories, which must **never** be 
   - `theme/styles/`: MD3 design tokens (3-tier: `md.ref.*`, `md.sys.*`, `md.comp.*`), typography (Roboto / Roboto Flex), elevation and color scales.
   - `theme/ui/`: M3 UI components (Buttons, Cards, Chips, Dialogs, Top App Bar, Navigation Bar/Rail/Drawer etc.).
   - `theme/blocks/`: Default blocks and their visual look (`View.tsx`, CSS).
-- **`demo/`**: The CMS's demo, a made-up site laid over the starter, which the CMS is developed and checked with and which the themes' pictures are taken of (`npx morpheme check:demo`). `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in `.morpheme/demo/site/` with a copy of the package as npm would pack it, and `wrangler.jsonc` puts it on the Worker `morpheme-demo`. Each branch gets its own Preview of the demo (Cloudflare's Worker Previews, `npx wrangler preview`), and Cloudflare writes its address on the branch's pull request; login and save do not work there. Agents never send the owner a Preview link for a change to the editor (the owner can't sign in there to see it); only for a change visible on the site.
+- **`demo/`**: The CMS's demo, a made-up site laid over the starter, which the CMS is developed and checked with and which the themes' images are taken of (`npx morpheme check:demo`). `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in `.morpheme/demo/site/` with a copy of the package as npm would pack it, and `wrangler.jsonc` puts it on the Worker `morpheme-demo`. Each branch gets its own Preview of the demo (Cloudflare's Worker Previews, `npx wrangler preview`), and Cloudflare writes its address on the branch's pull request; login and save do not work there. Agents never send the owner a Preview link for a change to the editor (the owner can't sign in there to see it); only for a change visible on the site.
 - **`starter/`**: What a new site starts with (the *Deploy to Cloudflare* button).
 - **`src/` and `pages/`**: The CMS editor itself and the admin interface.
   - `src/`: React-based editor UI, screens, fields, state management (`store.ts`), live preview (`pagePreview.tsx`), block registry (`blocks.ts`) and the start screen's widgets and dashboard (`DashboardGrid.tsx`, `DashboardEdit.tsx`, `widgets/`).
@@ -213,6 +213,7 @@ All wording in UI components, buttons and fields follows the specific guidelines
 
 - **Short, precise sentences in the active form** (Active Voice).
 - **Universal terms:** No local abbreviations or unexplained national concepts.
+- **Image everywhere** (owner rule, 12 Nov): English texts, docs and notes say `image`. `check:language` fails on the old word; stored names (CSS classes, data attributes, saved ids) keep it and are listed in `scripts/check-language.mjs`.
 - **M3 canonical terminology:**
   - Toggles and states: `Enabled` / `Disabled`, `On` / `Off` (their Danish labels are in the `da-DK` language files).
   - Document status: `Draft`, `Published`. A page is scheduled with a date on `Publish` (`Schedule`); `Hidden` is the SEO setting `Hide from search engines`.

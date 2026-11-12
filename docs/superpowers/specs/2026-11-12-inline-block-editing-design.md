@@ -12,7 +12,7 @@ or in the code; Cards is in this spec, first in the order of delivery.
 **What the List does now**
 
 - The block's card in the text is the block drawn as the site draws it (the theme's own list markup), with its text fields as
-  `textarea`s where the text stands. No picture of the block, no sheet when a new one is inserted (`inline: true`, `fresh`).
+  `textarea`s where the text stands. No image of the block, no sheet when a new one is inserted (`inline: true`, `fresh`).
 - Only the **active** item shows its empty fields and slots (icon slot, link slot). The other items show their live look.
 - A dotted outline round the active item, no background colour.
 - While the block has no item, one empty, faded item is there; typing in it starts the first item. Once the block has an item the
@@ -113,7 +113,7 @@ content opens unchanged (the in-place form reads and writes the same props).
    keep drawing them on the site, hide the fields in place, and keep them editable in the sheet only when they are filled
    (so no content is lost); new blocks have none.
 2. **Image and icon slots on Cards.** Recommendation: the same slot as the List's icon slot, opening the existing picker; the image
-   card shows an image slot that is empty and faded until a picture is chosen.
+   card shows an image slot that is empty and faded until an image is chosen.
 3. **Questions and answers: the answer typed open or closed?** Recommendation: the active question is open while it is typed;
    the others show closed, as the site draws them.
 4. **Which blocks may keep the sheet only?** Recommendation: Testimonials, Posts, Cookie notice and HTML (they read from elsewhere

@@ -153,5 +153,5 @@ export const colorRoles: ColorRoles = {
 };
 
 /** The colors a site has until it is given its own ("Use standard colors"): Material 3's scheme of a blue (tonal
- * spot), as the app store's pictures are taken with (packages/editor/scripts/app-screenshots.mjs). */
+ * spot), as the app store's images are taken with (packages/editor/scripts/app-screenshots.mjs). */
 export const defaultColors: Colors = dynamicColors({ source: '#1a73e8', variant: 'tonalSpot', contrast: 'standard' }, colorRoles);
