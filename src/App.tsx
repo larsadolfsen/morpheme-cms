@@ -56,6 +56,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AuthError,
   commit,
+  ConflictError,
   deletedFiles,
   loadBytes,
   loadFiles,
@@ -178,6 +179,7 @@ import { MainMenu } from './MainMenu';
 import { TopBarLayout } from './topBarSlot';
 import { setBuildState } from './buildState';
 import { rememberEdit } from './startStorage';
+import { bulkDeletion } from './bulkDelete.mjs';
 import { Ask, ask } from './ask';
 import { LinkAsk } from './LinkSheet';
 import { type ListRows, type Option, type TestimonialRow } from './fields';
@@ -251,6 +253,8 @@ export type Env = {
   /** A file was saved; more: other files saved with it, and files it removed (a post that moved). */
   onSaved: (file: RepoFile, more?: { files: RepoFile[]; removed: string[] }) => void;
   remove: (collection: Collection & { folder: string }, file: RepoFile, deleting: (b: boolean) => void) => void;
+  /** Deletes the files selected in a list as one commit; true when they were deleted (App.tsx removeMany). */
+  removeMany: (collection: Collection & { folder: string }, files: RepoFile[]) => Promise<boolean>;
   nextOrder: (collection: FolderCollection) => number;
   /** Saves a list in a new order; says what changed (deploy.ts). */
   reorder: (collection: Collection, files: RepoFile[]) => Promise<string>;
@@ -607,6 +611,32 @@ function Editor() {
       } catch (e) {
         notify({ text: t.app.notDeleted((e as Error).message), error: true, kind: 'failed' });
         deleting(false);
+      }
+    },
+    async removeMany(collection, picked) {
+      const { changes, kept } = bulkDeletion(picked, (f: RepoFile) => usedBy(collection, f, files ?? [])?.text);
+      const what = lower(collection.label);
+      if (kept.length) notify({ text: t.app.notDeletedSome(kept.length, what, kept[0].reason), error: true, kind: 'failed' });
+      if (!changes.length) return false;
+      if (!(await ask(t.app.deleteEntries(changes.length, what), t.common.delete))) return false;
+      notify({ text: t.common.deleting });
+      const change = t.app.changes.deleted(`${changes.length} ${what}`);
+      try {
+        // One commit: a file changed elsewhere (a conflict) stops all of them, so none is half deleted.
+        await save(siteT.app.commit.deleteMany(changes.length, asWritten(collection).label.toLowerCase()), changes, change);
+        replace(
+          [],
+          changes.map((c) => c.path),
+        );
+        rememberEdit(
+          '',
+          changes.map((c) => c.path),
+        );
+        notify({ text: t.app.deletedEntries(changes.length, what), kind: 'saved' });
+        return true;
+      } catch (e) {
+        notify({ text: e instanceof ConflictError ? e.message : t.app.notDeleted((e as Error).message), error: true, kind: 'failed' });
+        return false;
       }
     },
     nextOrder(collection) {

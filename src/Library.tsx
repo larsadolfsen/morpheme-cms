@@ -21,12 +21,15 @@ import {
   GoogleLogo,
   List as ListIcon,
   ListBullets,
+  ListChecks,
   Moon,
   Palette,
   Ruler,
   Shapes,
   SignOut,
   Sun,
+  Trash,
+  X,
   type Icon,
 } from '@phosphor-icons/react';
 import { byText, entryData, type Collection, type Part, type PartScreen } from './schema';
@@ -91,6 +94,7 @@ import { fileRating } from './seo';
 import { dateName, headed, letterOf } from './Sheet';
 import type { Env } from './App';
 import { kindAndName, savedText } from './deploy';
+import { togglePath } from './bulkDelete.mjs';
 import { shortDate, when } from './when';
 import { untilTime } from '../lib/notice.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
@@ -1096,6 +1100,11 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   // The move that runs (row and target row, null: none); only its arrow shows busy, all arrows stay disabled meanwhile.
   const [moving, setMoving] = useState<{ from: number; to: number } | null>(null);
   const busy = moving !== null;
+  // Pages and posts can be deleted several at once: a press and hold on a row (a phone) or "Select" (a computer) starts
+  // selecting; then a tap selects or unselects, and the top bar has the count, close and delete (as the notifications do).
+  const [chosen, setChosen] = useState<string[]>([]);
+  const [selectMode, setSelectMode] = useState(false);
+  const [deletingMany, setDeletingMany] = useState(false);
   const items = useMemo(() => itemsOf(collection, files), [collection, files]);
   const pages = collection.id === 'pages';
   // Pages and posts: their address in a column on a computer, and a filter that shows only those with
@@ -1336,11 +1345,43 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
           ? letterOf(item.title)
           : (item.date ?? '').slice(0, 7),
   );
+  const canSelect = collection.kind === 'markdown' && !!collection.deletable;
+  const live = chosen.filter((p) => items.some((i) => i.file?.path === p));
+  const selecting = canSelect && (selectMode || live.length > 0);
+  const closeSelection = () => {
+    setChosen([]);
+    setSelectMode(false);
+  };
+  // Escape unselects.
+  useEffect(() => {
+    if (!selecting) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeSelection();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [selecting]);
+  async function deleteChosen() {
+    const files = items.flatMap((i) => (i.file && live.includes(i.file.path) ? [i.file] : []));
+    setDeletingMany(true);
+    try {
+      if (await env.removeMany(collection as Parameters<Env['removeMany']>[0], files)) closeSelection();
+    } finally {
+      setDeletingMany(false);
+    }
+  }
   const listRow = (item: Item) => {
     const i = shown.indexOf(item);
+    const path = item.file?.path;
     return (
       <ListItem
         key={item.href}
+        {...(canSelect && path
+          ? {
+              selectable: true,
+              selecting,
+              selected: live.includes(path),
+              onSelectedChange: () => setChosen((c) => togglePath(c, path)),
+            }
+          : {})}
         href={item.href}
         leading={ring(item)}
         headline={item.title}
@@ -1388,7 +1429,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
   const privacyScreen = partScreens.find((s) => s.id === 'privacy');
   return (
     <Screen
-      title={collection.label}
+      title={selecting ? t.library.selectedCount(live.length) : collection.label}
       wide
       back={
         collection.id === config.lists.cookies && privacyScreen
@@ -1414,6 +1455,22 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
       }
       actions={
         <>
+          {selecting ? (
+            <>
+              <IconButton icon={X} label={t.library.closeSelection} onClick={closeSelection} />
+              <IconButton
+                icon={Trash}
+                label={t.library.deleteSelected(live.length)}
+                disabled={!live.length || deletingMany}
+                busy={deletingMany}
+                onClick={deleteChosen}
+              />
+            </>
+          ) : (
+            canSelect &&
+            !tree &&
+            items.length > 0 && <IconButton icon={ListChecks} label={t.library.selectEntries} onClick={() => setSelectMode(true)} />
+          )}
           {/* What was deleted from the list, as in "Files". */}
           {restorable(collection) && (
             <IconButton
