@@ -5,8 +5,8 @@
     {
       "id": "apps-turn-off",
       "kind": "paragraph",
-      "title": "Pause an app without losing its settings",
-      "text": "You can now turn an app off and keep its settings. Open the app under Apps and turn off Enabled. Turn it on again whenever you like."
+      "title": "Pausing apps",
+      "text": "A paused app keeps its settings. Open the app under Apps and turn off Enabled. Turn it on again whenever you like; nothing was lost."
     },
     {
       "id": "developer-menu",
@@ -21,8 +21,8 @@
     {
       "id": "editor-footer",
       "kind": "paragraph",
-      "title": "Check GitHub and Cloudflare",
-      "text": "If you can’t save or publish, see whether GitHub and Cloudflare are working. Scroll to the bottom of the editor and tap System status. It checks only the services your website uses."
+      "title": "Editor footer",
+      "text": "You can see why saving or publishing fails. Scroll to the bottom of the editor and tap System status. It checks GitHub and Cloudflare, but only the services your website uses."
     },
     {
       "id": "editor-toolbar-dock",
@@ -32,8 +32,8 @@
     {
       "id": "google-preview-closer",
       "kind": "paragraph",
-      "title": "See your page as Google shows it",
-      "text": "The Google preview now looks like the real result on a phone and a computer, with your main keyword in bold. Open a page or blog post and look under Search engines."
+      "title": "Google preview",
+      "text": "You see your page as Google shows it. Open a page or blog post and look under Search engines. The preview matches the real result on a phone and a computer, with your main keyword in bold."
     },
     {
       "id": "morpheme-connection-page",
@@ -43,8 +43,8 @@
     {
       "id": "quiet-lamps-wander",
       "kind": "paragraph",
-      "title": "See what’s new",
-      "text": "After each update, you now get a short summary of what’s new. You’ll find all the notes on the Morpheme page under Settings."
+      "title": "What’s new",
+      "text": "You see what changed after each update. A short summary opens once the update is in. Find all the notes on the Morpheme page under Settings."
     }
   ]
 }

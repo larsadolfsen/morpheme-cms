@@ -15,8 +15,8 @@
     {
       "id": "update-message-whats-new",
       "kind": "paragraph",
-      "title": "Nyhederne står på din startskærm",
-      "text": "Efter en opdatering viser startskærmen øverst den nye version og de vigtigste nyheder. Tryk på Se, hvad der er nyt for at læse det hele."
+      "title": "Opdateringsbesked",
+      "text": "Du ser nyhederne, uden at lede efter dem. Efter en opdatering viser startskærmen øverst den nye version og de vigtigste nyheder. Tryk på Se, hvad der er nyt for at læse det hele."
     }
   ]
 }
