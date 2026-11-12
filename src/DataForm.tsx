@@ -16,7 +16,8 @@ import { DataFileFields } from './DataFileFields';
 import { dataOf, fieldsOf, listOnly, valuesOf } from './dataFileValues';
 import SectionsField from './SectionsField';
 import { notOffered, withPageBlocks } from './registry';
-import { shownAt, useUploads } from './images';
+import { creditedIn, shownAt, useUploads } from './images';
+import { creditChanges, recordsIn } from './fileRecords.mjs';
 import { splitPicture } from '../lib/crop.mjs';
 import { useMediaPicker } from './Media';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
@@ -101,7 +102,7 @@ function Form({
 
   // Pictures in the text of a fixed page (the front page's picture …), saved with the file.
   const pictures = useUploads(notify);
-  const [pickImage, picker] = useMediaPicker(env.media, pictures);
+  const [pickImage, picker] = useMediaPicker(env.media, pictures, env.files);
   const context: FieldContext = {
     relations: env.relations,
     lists: env.lists,
@@ -152,7 +153,13 @@ function Form({
         : dataFile
           ? siteT.forms.commit.edit(what)
           : siteT.forms.commit.editOne(asWritten(collection).singular, what);
-    const changes = [{ path, content: text, oid: base.oid || null }, ...used.map((u) => ({ path: u.path, content: u.bytes, oid: null }))];
+    // The credit of a picture from an app's source of pictures goes in its record, in the same commit as the picture.
+    const recordChanges = creditChanges([], recordsIn(env.files, config.fileRecords), config.fileRecords, creditedIn(used));
+    const changes = [
+      { path, content: text, oid: base.oid || null },
+      ...used.map((u) => ({ path: u.path, content: u.bytes, oid: null })),
+      ...recordChanges,
+    ];
     const entry = dataFile ? lower(dataFile.label) : kindAndName(collection.singular, nameOf(collection, { path, text }));
     const change = isNew ? t.app.changes.created(entry) : version ? t.app.changes.restored(entry) : t.app.changes.edited(entry);
     setSaving(true);
@@ -165,6 +172,7 @@ function Form({
       setBase(saved);
       setValues(listOnly(dataFile) ? { [dataFile!.root!.name]: JSON.parse(text) } : JSON.parse(text));
       env.onSaved(saved);
+      for (const c of recordChanges) if (typeof c.content === 'string') env.onSaved({ path: c.path, oid: oids[c.path], text: c.content });
       notify({ text: savedText(change), kind: 'saved' });
       // The version is now the one saved: the form as usual again.
       if (version) onVersion(null);
