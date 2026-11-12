@@ -285,7 +285,7 @@ So the heading and text of each row are typed in place, the icon and the link ar
 
 ### Rules every block follows
 
-- Only text is typed in place. Everything that is not text (icon, picture, link, dates, choices) stays in the sheet.
+- Only text is typed in place. Everything that is not text (icon, image, link, dates, choices) stays in the sheet.
 - The block has no label or heading in place: a heading above the block is the text's own.
 - Only the active item shows its empty fields; the others show their live look.
 - `Add` (for example `Add list row`) is a text button below the last item, shown only while the block is active.
