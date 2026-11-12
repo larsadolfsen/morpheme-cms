@@ -318,6 +318,57 @@ async function checkPreviewSection() {
   await page.close();
 }
 
+/** A List typed in the text: while a row is active and the list has rows, the text button "Add list row" is under the last row and adds one, the faded empty row is not there, the active row has a dotted line, and Add above and Add below are icon buttons; when the cursor leaves, the button is gone. */
+async function checkInlineList(width, height) {
+  const label = `${width}px inline list`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  // The tools that do not fit are under "Show more tools".
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('First');
+  await page.waitForTimeout(300);
+  const state = () =>
+    page.evaluate(() => ({
+      rows: document.querySelectorAll('.inline-list-row[data-row]:not(.inline-list-row-next)').length,
+      next: document.querySelectorAll('.inline-list-row-next').length,
+      add: [...document.querySelectorAll('[data-add-row]')].map((b) => b.textContent.trim()),
+      outline: getComputedStyle(document.querySelector('.inline-list-row-active')).outlineStyle,
+      background: getComputedStyle(document.querySelector('.inline-list-row-active')).backgroundColor,
+      bar: [...document.querySelectorAll('.site-block-toolbar button')].map((b) => ({
+        label: b.getAttribute('aria-label'),
+        svg: !!b.querySelector('svg path'),
+      })),
+    }));
+  const one = await state();
+  if (one.next) problems.push(`${label}: the faded empty row shows although the list has a row`);
+  if (one.add.join() !== 'Add list row')
+    problems.push(`${label}: expected the button "Add list row" under an active list, got "${one.add}"`);
+  if (one.outline !== 'dotted') problems.push(`${label}: the active row has outline ${one.outline}, not dotted`);
+  if (one.background !== 'rgba(0, 0, 0, 0)') problems.push(`${label}: the active row has a background colour (${one.background})`);
+  for (const name of ['Add above', 'Add below'])
+    if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
+  await page.click('[data-add-row]');
+  await page.waitForTimeout(300);
+  const two = await state();
+  if (two.rows !== 2) problems.push(`${label}: "Add list row" left ${two.rows} rows, not 2`);
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  if ((await page.locator('[data-add-row]').count()) > 0)
+    problems.push(`${label}: the button "Add list row" stays after the cursor left the list`);
+  await page.close();
+}
+
 /** The hint lines (Type text, or tap Insert …; Write text here…) read on every section colour, light and dark (4.5:1), and start where the text starts. */
 async function checkHints() {
   for (const scheme of ['light', 'dark']) {
@@ -989,6 +1040,7 @@ for (const [width, height] of [
 ])
   await checkDraftsCard(width, height);
 await checkEmptyHint();
+await checkInlineList(375, 740);
 await checkHints();
 await checkFullWidthSection();
 await checkToolbarBox();

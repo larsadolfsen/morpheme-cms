@@ -1,7 +1,8 @@
 // The List block typed in place (batch 5, owner decisions 6 and 14, finding 14): the rows are drawn as the site draws them (the theme's
 // list, the same markup as the theme's blocks/list/Rows.tsx) and each row's heading and text are typed where they stand. Only the active
-// row shows its empty fields (a slot for the icon, the heading, the text, a slot for the link); the others show their live look. After the
-// last row there is always one more, empty and faded: typing in it starts a new row. Enter in the heading goes to the text, Enter in the
+// row shows its empty fields (a slot for the icon, the heading, the text, a slot for the link); the others show their live look. While the
+// list has no row there is one, empty and faded: typing in it starts the first row; while it is active and has rows, a text button
+// below the last row (`Add list row`) adds one. Enter in the heading goes to the text, Enter in the
 // text adds a row below, Backspace in an empty heading drops the row. The rows' changes are told to `onChange` (the rows, which row is
 // active, which field to focus), which the node view in MarkdownEditor.tsx (blockCard) keeps as the block's props. What is changed and
 // kept: src/inlineRows.mjs. Depends on the theme's List (themeUi.ts).
@@ -9,7 +10,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 import { LinkSimple, Plus } from '@phosphor-icons/react';
 import { Glyph } from './icon';
 import { t } from './i18n';
-import { SiteList, SiteListItem } from './themeUi';
+import { SiteButton, SiteList, SiteListItem } from './themeUi';
 import { addAt, removeAt, setField } from './inlineRows.mjs';
 
 export type Row = { icon?: string; title?: string; text?: string; href?: string; heading?: boolean };
@@ -26,6 +27,7 @@ export default function InlineList({
   focus,
   onChange,
   onSettings,
+  onIcon,
 }: {
   items: Row[];
   /** The row being edited; null while the list is not. */
@@ -33,8 +35,10 @@ export default function InlineList({
   /** The field to put the cursor in, once (a new object asks again). */
   focus: Focus | null;
   onChange: (change: Change) => void;
-  /** The icon or the link of a row is asked for (its slot is tapped). */
+  /** The link of a row is asked for (its slot is tapped). */
   onSettings: (row: number) => void;
+  /** The icon slot of a row is tapped: its icon picker. */
+  onIcon: (row: number) => void;
 }) {
   const root = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -54,7 +58,8 @@ export default function InlineList({
   const editing = active !== null;
   // While one row is active every row has its two lines, so the list does not change height when another is made active; else, as the site.
   const twoLines = editing || items.some((r) => r.text);
-  const rows: Row[] = [...items, {}];
+  // The empty, faded row that a tap starts is only there while the list has no row; with rows, `Add below` and Enter make the next.
+  const rows: Row[] = items.length ? items : [{}];
 
   const type = (i: number, field: 'title' | 'text', value: string) => onChange({ items: setField(items, i, field, value), active: i });
   const keys = (i: number, field: 'title' | 'text', e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -108,7 +113,7 @@ export default function InlineList({
                     className="inline-list-slot"
                     aria-label={t.blocks.list.icon}
                     title={t.blocks.list.icon}
-                    onClick={() => onSettings(i)}
+                    onClick={() => onIcon(i)}
                   >
                     {r.icon ? <Glyph icon={r.icon} size={24} /> : <Plus size={24} />}
                   </button>
@@ -135,6 +140,18 @@ export default function InlineList({
           );
         })}
       </SiteList>
+      {editing && items.length > 0 && (
+        <SiteButton
+          kind="text"
+          data-add-row=""
+          className="inline-list-add"
+          onClick={() =>
+            onChange({ items: addAt(items, items.length), active: items.length, focus: { row: items.length, field: 'title' } })
+          }
+        >
+          {t.blocks.list.addRow}
+        </SiteButton>
+      )}
     </div>
   );
 }
