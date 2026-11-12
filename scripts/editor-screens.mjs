@@ -782,6 +782,10 @@ async function checkDraftsCard(width, height) {
     await page
       .waitForFunction(() => location.hash.startsWith('#list/pages'), null, { timeout: 5000 })
       .catch(() => problems.push(`${label}: "Show all" did not open the pages list`));
+    // The list fills in after the screen opens (slower on a runner): wait for the five rows before counting.
+    await page
+      .waitForFunction(() => document.querySelectorAll('a[href*="check-draft-"]').length >= 5, null, { timeout: 10000 })
+      .catch(() => {});
     const listed = await page.locator('a[href*="check-draft-"]').count();
     if (listed !== 5) problems.push(`${label}: the list shows ${listed} of the 5 drafts`);
   }
