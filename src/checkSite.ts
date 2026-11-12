@@ -30,7 +30,7 @@ import { completeColors, dynamicProblems } from '../lib/dynamic-colors';
 import { APP_HOOKS, hooksOf } from '../lib/hooks';
 import { texts } from '@site/texts';
 import { defaultsDaDK } from '../defaults/i18n/da-DK';
-import type { Part } from './schema';
+import { slugOf, type OwnedList, type Part } from './schema';
 import { apps, asStandardTemplate, blockProblems, siteBlocks, standardPageOf, withPageBlocks } from './registry';
 import { installedApps, settingsFile } from './apps';
 import { appFolder, SCREENSHOTS, shotFiles, shotOf } from './store';
@@ -38,6 +38,7 @@ import { appFolders } from './appFiles';
 import { widgetsWithoutComponent } from './widgets';
 import { colorPairs as shownPairs, sharedParts, translator, writtenApps, writtenBlockParts, writtenCollections } from './site';
 import { splitBlocks } from '../lib/blocks.mjs';
+import { ownListProblems } from '../lib/ownList.mjs';
 import { englishOf, splitMissing } from '../lib/translate.mjs';
 import { collections as standardCollections } from '../defaults/collections';
 import { companyParts as standardCompany } from '../defaults/company';
@@ -195,6 +196,27 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
     for (const problem of blockProblems(f.text, asStandardTemplate(template, standard), front ? frontLeads : undefined))
       problems.push(`${f.path}: ${problem}`);
   }
+  // The lists the owner made (`<data>/<id>/_list.json`, lib/ownList.mjs): their definitions and entries, and the blocks that read a list.
+  const tagList = collections.find((c) => c.id === 'categories');
+  const own = ownListProblems(files, {
+    dataFolder: config.folders.data,
+    tags:
+      tagList?.kind === 'folder'
+        ? files.filter((f) => f.path.startsWith(`${tagList.folder}/`)).map((f) => slugOf(f.path, tagList.folder))
+        : [],
+    known: ['posts', 'testimonials', ...collections.filter((c) => c.kind === 'folder' && (c as OwnedList).asRows).map((c) => c.id)],
+    blocks: files.flatMap((f) =>
+      f.path.endsWith('.md')
+        ? splitBlocks(f.text, null).flatMap((part) =>
+            'type' in part && typeof part.props?.from === 'string' && part.props.from.trim()
+              ? [{ path: f.path, from: part.props.from.trim() }]
+              : [],
+          )
+        : [],
+    ),
+  });
+  problems.push(...own.problems);
+  own.paths.forEach((path) => checked.add(path));
   // The site's own rules (a button that opens a promotion that is not on its page).
   problems.push(...siteProblems(files));
   // The file records directly in the records folder: a line for each problem, and each one counts as checked.
