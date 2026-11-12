@@ -8,10 +8,11 @@ export const blockSettings = {
   groups: {
     cards: 'Cards',
     lists: 'Lists',
-    content: 'From your content',
     banners: 'Banners',
     buttons: 'Buttons',
     media: 'Media',
+    content: 'From your content',
+    developer: 'Developer',
   },
   /** In the group of an installed app with neither blocks nor kinds. */
   noBlocks: 'The app has no blocks',

@@ -15,7 +15,11 @@ const folders = readdirSync(new URL('.', import.meta.url), { withFileTypes: true
 const groupOf = (src) => /^\s*group: '(\w+)',/m.exec(src)?.[1];
 
 test('there are a few categories', () => {
-  assert.ok(groups.length >= 2 && groups.length <= 6, groups.join());
+  assert.ok(groups.length >= 2 && groups.length <= 7, groups.join());
+});
+
+test('the sheet shows basic blocks first, then the blocks that bring their own content, then developer', () => {
+  assert.deepEqual(groups, ['cards', 'lists', 'banners', 'buttons', 'media', 'content', 'developer']);
 });
 
 test('every standard block has a category', () => {
