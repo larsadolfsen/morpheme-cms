@@ -9,7 +9,7 @@ export const blocks: Messages['blocks'] = {
   notSaved: (why) => `Blokken kan ikke gemmes endnu. ${why}`,
   picture: {
     label: 'Billede',
-    hint: 'Vælg et billede fra Filer, eller upload et nyt.',
+    hint: 'Vælg eller upload et billede.',
     src: 'Billede',
     alt: 'Alternativ tekst',
     altHint: 'Beskriv billedet med få ord, til dem der ikke kan se det.',
@@ -20,7 +20,7 @@ export const blocks: Messages['blocks'] = {
   noTestimonials: 'Ingen udtalelser endnu',
   html: {
     label: 'HTML-kode',
-    hint: 'Fx en video eller en kalender.',
+    hint: 'Tilføj en video eller kalender.',
     code: 'Kode',
     youtube: 'Video fra YouTube',
     vimeo: 'Video fra Vimeo',
@@ -35,7 +35,7 @@ export const blocks: Messages['blocks'] = {
   subheadingHint: 'Står under overskriften.',
   faq: {
     label: 'FAQ-liste',
-    hint: 'Spørgsmål, der foldes ud med svaret.',
+    hint: 'Spørgsmål, der foldes ud.',
     items: 'Spørgsmål',
     item: 'spørgsmål',
     question: 'Spørgsmål',
@@ -49,7 +49,7 @@ export const blocks: Messages['blocks'] = {
   },
   segmented: {
     label: 'Segmenteret liste',
-    hint: 'Rækker, der foldes ud med en tekst, et link og en knap under sig.',
+    hint: 'Rækker, der foldes ud, med link.',
     items: 'Rækker',
     item: 'række',
     icon: 'Ikon',
@@ -76,7 +76,7 @@ export const blocks: Messages['blocks'] = {
   },
   notice: {
     label: 'Besked',
-    hint: 'En kort besked, fremhævet i en boks.',
+    hint: 'En fremhævet besked.',
     text: 'Tekst',
     until: 'Vis indtil',
     untilHint: 'Hvis feltet er tomt, vises beskeden altid.',
@@ -85,7 +85,7 @@ export const blocks: Messages['blocks'] = {
   },
   links: {
     label: 'Links',
-    hint: 'Links til sider i grupper med en overskrift.',
+    hint: 'Links til sider i grupper.',
     groups: 'Grupper',
     group: 'gruppe',
     title: 'Overskrift',
@@ -97,7 +97,7 @@ export const blocks: Messages['blocks'] = {
   },
   list: {
     label: 'Liste',
-    hint: 'Rækker under hinanden med et ikon, en overskrift og en tekst.',
+    hint: 'Rækker med ikon, overskrift og tekst.',
     items: 'Rækker',
     item: 'række',
     icon: 'Ikon',
@@ -114,7 +114,7 @@ export const blocks: Messages['blocks'] = {
   },
   points: {
     label: 'Punkter med ikon',
-    hint: 'Punkter med et ikon, en overskrift og en tekst.',
+    hint: 'Punkter med ikon og tekst.',
     items: 'Punkter',
     item: 'punkt',
     icon: 'Ikon',
@@ -129,7 +129,7 @@ export const blocks: Messages['blocks'] = {
   },
   steps: {
     label: 'Trin',
-    hint: 'Nummererede trin med overskrift og tekst.',
+    hint: 'Nummererede trin.',
     items: 'Trin',
     item: 'trin',
     title: 'Overskrift',
@@ -137,7 +137,7 @@ export const blocks: Messages['blocks'] = {
   },
   hero: {
     label: 'Banner',
-    hint: 'Sidens top med tekst, billede og knapper.',
+    hint: 'Sidens top med tekst og knapper.',
     text: 'Tekst',
     textHint: 'Det første afsnit er undertitlen. Tilføj billede og knapper med +.',
     placement: 'Placering (billede)',
@@ -149,7 +149,7 @@ export const blocks: Messages['blocks'] = {
   },
   accordion: {
     label: 'Foldeliste',
-    hint: 'Rækker, der foldes ud med en tekst og et link.',
+    hint: 'Rækker, der foldes ud med tekst.',
     edit: 'Rediger standardtekster',
     items: 'Rækker',
     item: 'række',
@@ -191,7 +191,7 @@ export const blocks: Messages['blocks'] = {
   },
   cookies: {
     label: 'Cookieliste',
-    hint: 'Viser de cookies, hjemmesiden sætter.',
+    hint: 'De cookies, din hjemmeside sætter.',
     edit: 'Rediger cookies',
     entries: {
       label: 'Cookies',
@@ -244,7 +244,7 @@ export const blocks: Messages['blocks'] = {
   },
   testimonials: {
     label: 'Udtalelser',
-    hint: 'Udtalelser i en karrusel eller under hinanden.',
+    hint: 'Udtalelser i karrusel eller liste.',
     edit: 'Rediger udtalelser',
     layout: 'Visning',
     slider: 'Karrusel',
@@ -287,7 +287,7 @@ export const blocks: Messages['blocks'] = {
   },
   posts: {
     label: 'Blogindlæg',
-    hint: 'Blogindlæg som en liste: alle, et antal med bestemte tags eller udvalgte.',
+    hint: 'Blogindlæg i en liste.',
     edit: 'Rediger standardtekster',
     design: 'Design',
     designList: 'Liste',
@@ -323,7 +323,7 @@ export const blocks: Messages['blocks'] = {
   },
   cards: {
     label: 'Kort',
-    hint: 'Kort med links til andre sider.',
+    hint: 'Kort med links til sider.',
     edit: 'Rediger standardtekster',
     design: 'Design',
     designText: 'Tekst',
@@ -387,7 +387,7 @@ export const blocks: Messages['blocks'] = {
   },
   checklist: {
     label: 'Tjekliste',
-    hint: 'Punkter med et flueben foran.',
+    hint: 'Punkter med flueben.',
     items: 'Punkter',
     item: 'punkt',
     text: 'Tekst',
@@ -395,7 +395,7 @@ export const blocks: Messages['blocks'] = {
   },
   pricecards: {
     label: 'Priskort',
-    hint: 'Priser side om side med det, der er med.',
+    hint: 'Priser med det, der er med.',
     items: 'Kort',
     item: 'kort',
     name: 'Navn',
