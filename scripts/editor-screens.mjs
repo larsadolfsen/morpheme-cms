@@ -4,7 +4,7 @@
 // packages/editor/src/icon.tsx), there or on one of the built site's pages. An icon drawn from Material Symbols instead
 // of the icon pack (data-icon-fallback) is only listed, with where it is: it does not fail.
 // The screens are found as the editor's own links: from the start screen (the drawer's links are in the page also while it is
-// closed) and "Parts", #developer/parts, "Themes", #appearance/themes, "Search engine optimization", #seo, "Appstore", #settings/appstore, and "Apps", #apps, which the menu no longer links to), and
+// closed) and "Parts", #developer/parts, "Themes", #appearance/themes, "Search engine optimization", #seo, "Appstore", #settings/appstore, and "Apps", #apps, which the menu no longer links to; Connectors and Plugins, #installed/connectors and #installed/plugins, are its rows), and
 // from each screen it opens, two steps down. GitHub is answered from the files in this repository, so it needs no login
 // and changes nothing. It runs on the built site: npm run build && npm run check:screens (or on another
 // folder with a built site, its path after the command: packages/editor/scripts/check-themes.mjs).
@@ -168,18 +168,20 @@ async function checkSettingsAndMenu(width, height) {
     const items = await page.evaluate(shownItems, `${drawer} .navigation-drawer-item`);
     const sections = items.filter((i) => i.tag === 'BUTTON').length;
     const links = items.filter((i) => i.tag === 'A').map((i) => i.href);
-    const apps = ['#', ...['', '/connectors', '/plugins', '/themes'].map((x) => `#settings/appstore${x}`), '#settings'];
+    // Under "Apps": Store, then the pages of the installed connectors, plugins and themes, and no app installed.
+    const appRows = ['#settings/appstore', '#installed/connectors', '#installed/plugins', '#appearance/themes'];
+    const apps = ['#', ...appRows, '#settings'];
     if (sections !== 3 || links.join() !== apps.join())
       problems.push(
         `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 3 and ${apps.join(', ')})`,
       );
     // Each row under "Apps" has an icon.
     const noIcon = await page.evaluate(
-      (d) =>
-        [...document.querySelectorAll(`${d} a[href^="#settings/appstore"]`)]
+      ({ d, appRows }) =>
+        [...document.querySelectorAll(appRows.map((h) => `${d} a[href="${h}"]`).join(', '))]
           .filter((a) => !a.querySelector('.navigation-drawer-icon svg'))
           .map((a) => a.getAttribute('href')),
-      drawer,
+      { d: drawer, appRows },
     );
     if (noIcon.length) problems.push(`${label} menu: no icon on ${noIcon.join(', ')}`);
     checkCog(label, 'menuen', items, height);
@@ -443,7 +445,17 @@ for (const [width, height] of [
   // From the start screen (the drawer's links), and from "Parts", "Themes", "Search engine optimization" and "Appstore"
   // (the apps' pages and their developers'), whose screens are a step further down than the others. "Apps" (the list of
   // the apps installed) has no row in the menu, so it is a start of its own.
-  const starts = ['', 'settings', 'developer/parts', 'appearance/themes', 'seo', 'settings/appstore', 'apps'];
+  const starts = [
+    '',
+    'settings',
+    'developer/parts',
+    'appearance/themes',
+    'seo',
+    'settings/appstore',
+    'installed/connectors',
+    'installed/plugins',
+    'apps',
+  ];
   const seen = new Set(starts);
   let next = starts;
   for (let depth = 0; depth <= 2 && next.length; depth++) {

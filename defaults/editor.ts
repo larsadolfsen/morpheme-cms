@@ -130,9 +130,9 @@ export const icons: Record<string, Icon> = {
   'block-settings': ToggleRight,
   apps: PuzzlePiece,
   appstore: Storefront,
-  'store-plugins': PuzzlePiece,
-  'store-connectors': ShareNetwork,
-  'store-themes': Palette,
+  'installed-plugins': PuzzlePiece,
+  'installed-connectors': ShareNetwork,
+  'installed-themes': Palette,
   'theme-store': Storefront,
   morpheme: Sparkle,
   developer: Wrench,
@@ -168,13 +168,14 @@ export const appearance: Part[] = [
 // and "redirects", Redirects.tsx), the business ("Business": the logo and icon first (company/logo, BrandForm.tsx), then the
 // section of the editor's part "company": its parts, name, contact and booking, are its rows; lib/menu.mjs), the blocks
 // ("Blocks": their shared texts, and "Block selection", which of them can be put in) and the apps ("Apps": the apps that
-// come with the site, src/apps/, AppList.tsx, and "appstore").
+// are four rows: "appstore" and the installed connectors, plugins and themes, AppList.tsx).
 // Appearance, Developer, Licenses, Morpheme and Privacy are not sections of the menu: they are the rows of the Settings
 // screen (`settings` below), opened by the cog at the bottom of the drawer and the rail.
 // Each part is a collection (collections.ts), except those named above, "privacy"'s (partScreens) and the editor's own
 // "company" (companyParts), "blocks" (blockParts), id files (the pictures, PDFs, videos and zip files), "header", "lists"
 // and "block-settings" (BlockSettings.tsx).
-// `flat` (Apps) has no list of its own: its rows stand under its label on the first level, with the apps installed after them.
+// `flat` (Apps) has no list of its own: its rows stand under its label on the first level. An app installed is not a row:
+// it is on the page of its role (Connectors, Plugins) or under Themes.
 export const groups: { id: string; title: string; href?: string; flat?: boolean; ids: string[] }[] = [
   { id: 'home', title: 'Dashboard', href: '#', ids: [] },
   {
@@ -184,7 +185,7 @@ export const groups: { id: string; title: string; href?: string; flat?: boolean;
   },
   { id: 'company', title: 'Business', ids: ['logo', 'company'] },
   { id: 'blocks', title: 'Blocks', ids: ['blocks', 'block-settings'] },
-  { id: 'apps', title: 'Apps', flat: true, ids: ['appstore', 'store-connectors', 'store-plugins', 'store-themes', 'apps'] },
+  { id: 'apps', title: 'Apps', flat: true, ids: ['appstore', 'installed-connectors', 'installed-plugins', 'installed-themes'] },
 ];
 
 /** The rows of the Settings screen (#settings), A–Z by their names there: how the site looks ("Appearance": the theme store,
