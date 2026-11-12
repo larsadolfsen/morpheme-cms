@@ -1198,6 +1198,8 @@ function blockCard(
     const valueOf = (row: Row, names: string[]) => Object.fromEntries(names.map((n) => [n, row[n] ?? rowFieldsOf([n])[0]?.default ?? '']));
     const setFields = (list: Row[], i: number, names: string[], v: BlockProps) =>
       names.reduce((items, n) => setField(items, i, n, String(v[n] ?? ''), spec!.fields[0]), list);
+    // A block with no link, settings or icon (Steps) has no item sheet: no Link action, no Edit button.
+    const hasSheet = itemNames.length > 0 || slotNames.length > 0;
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
     const rowActions = (): BarAction[] => {
@@ -1206,7 +1208,7 @@ function blockCard(
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
-        { kind: 'link', label: spec!.texts.link, action: settings },
+        ...(hasSheet ? [{ kind: 'link' as const, label: spec!.texts.link ?? '', action: settings }] : []),
         { kind: 'above', label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
         { kind: 'below', label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
         ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
@@ -1217,7 +1219,7 @@ function blockCard(
       name,
       dom,
       rowActions,
-      edit: settings,
+      edit: hasSheet ? settings : undefined,
       compact,
       labels: { row: spec!.texts.row, edit: t.common.edit },
     });
@@ -1226,13 +1228,13 @@ function blockCard(
     // sheet that Edit opens (`open`: a row's slot or Edit; else only an open sheet is updated).
     syncRow = (open) => {
       const sheet = asker();
-      if (sheet && active !== null) sheet.row(specOf(active), open || !compact());
+      if (sheet && active !== null && hasSheet) sheet.row(specOf(active), open || !compact());
     };
     const specOf = (i: number) => {
       const row = rows()[i] ?? {};
       if (iconOf === i)
         return {
-          headline: spec!.texts.icon,
+          headline: spec!.texts.icon ?? '',
           fields: iconFields,
           value: valueOf(row, slotNames),
           // The icon picker closes when an icon is picked; the media fields stay open for the next choice.
@@ -1243,7 +1245,7 @@ function blockCard(
           },
         };
       return {
-        headline: spec!.texts.settings,
+        headline: spec!.texts.settings ?? '',
         fields: itemFields,
         value: valueOf(row, itemNames),
         onChange: (v: BlockProps) => setItems(setFields(rows(), i, itemNames, v)),
@@ -1282,7 +1284,8 @@ function blockCard(
       const { rules, locked, stays } = keeps();
       return [
         block?.fields.length
-          ? (!inline || spec?.blockSettings) && !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
+          ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
+            !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
           : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
         block?.shown || (stays && hidden === false)
           ? undefined

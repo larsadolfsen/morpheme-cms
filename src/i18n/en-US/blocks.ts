@@ -167,6 +167,14 @@ export const blocks = {
     item: 'step',
     title: 'Heading',
     text: 'Text',
+    /** The text button under the last step, the empty faded step, and the floating toolbar of Steps typed in place. */
+    step: 'Step',
+    addStep: 'Add step',
+    newStep: 'New step',
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    /** A step typed in place: its place, for screen readers (step 2 of 4). */
+    stepOf: (n: number, total: number) => `Step ${n} of ${total}`,
   },
   hero: {
     label: 'Banner',
