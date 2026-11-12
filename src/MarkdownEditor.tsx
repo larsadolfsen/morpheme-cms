@@ -1631,7 +1631,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     const listLabels = [t.text.list, t.text.bulletList, t.text.checkList, t.text.orderedList];
     const mayWrap = (label: string) =>
       [t.text.undo, t.text.redo, t.text.link].includes(label) ||
-      (arrangement === 'bare' && label === t.text.italic) ||
+      label.startsWith(t.text.alignmentIs('')) ||
       (arrangement === 'bare' && (listLabels.includes(label) || label.startsWith(t.text.listIs(''))));
     const next = nextArrangement(arrangement, {
       any: wrapped.length > 0,

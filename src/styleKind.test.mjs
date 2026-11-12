@@ -88,10 +88,8 @@ test('the body icons are one T at three sizes on one baseline', () => {
     tall[size] = stem[3];
   }
   assert.ok(tall.small < tall.medium && tall.medium < tall.large, 'three sizes');
-  assert.ok(
-    tall.small / tall.large < 0.45 && tall.medium / tall.large > 0.6 && tall.medium / tall.large < 0.75,
-    'a third, two thirds, full',
-  );
+  // Steps of 32 on the grid, never a scaled-down glyph: the smallest is still more than half of the largest.
+  assert.ok(tall.small / tall.large > 0.5 && tall.large - tall.medium === tall.medium - tall.small, 'three even steps');
 });
 
 // Two controls, Text style and List, each with its own general icon and a label that names the current choice.
@@ -156,4 +154,31 @@ test('the alignment has a button in the floating row and in the toolbar', () => 
   assert.match(source, /right: \{ raw: alignRightIcon, node: TextAlignRight \}/);
   assert.match(source, /action: \(button\) => aligns\(button\)/, 'the floating row');
   assert.match(source, /role: 'align'/, 'the top toolbar');
+});
+
+// Every toolbar icon is drawn at the same size and stroke: the T icons of the three body styles (src/icons/text-t-*.svg) are Phosphor's
+// regular weight (16 on the 256 grid, round ends, one baseline) like Bold and Italic, never a thinner or a scaled-down glyph, and each
+// button draws its icon at one size.
+test('the T icons have the same weight and size as Bold and Italic', () => {
+  for (const size of ['small', 'medium', 'large']) {
+    const svg = readFileSync(new URL(`./icons/text-t-${size}.svg`, import.meta.url), 'utf8');
+    assert.match(svg, /viewBox="0 0 256 256"/, size);
+    assert.match(svg, /fill="currentColor"/, size);
+    assert.doesNotMatch(svg, /transform|stroke/, `${size}: no scaled glyph`);
+    const rects = [...svg.matchAll(/<rect x="(\d+)" y="(\d+)" width="(\d+)" height="(\d+)" rx="(\d+)"\/>/g)].map((m) =>
+      m.slice(1).map(Number),
+    );
+    assert.equal(rects.length, 2, `${size}: a bar and a stem`);
+    const [[, barY, barWidth, barHeight, barR], [, stemY, stemWidth, stemHeight, stemR]] = rects;
+    assert.deepEqual([barHeight, stemWidth, barR, stemR], [16, 16, 8, 8], `${size}: Phosphor's regular stroke`);
+    assert.equal(stemY + stemHeight, 216, `${size}: the baseline of Phosphor's T`);
+    assert.equal(barY, stemY, `${size}: the bar is the top of the stem`);
+    assert.ok(stemHeight >= 112 && barWidth >= 80, `${size}: not a scaled-down glyph`);
+  }
+  const phosphor = (name) =>
+    readFileSync(new URL(`../node_modules/@phosphor-icons/core/assets/regular/${name}.svg`, import.meta.url), 'utf8');
+  for (const name of ['text-b', 'text-italic', 'text-t']) assert.match(phosphor(name), /viewBox="0 0 256 256" fill="currentColor"/);
+  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
+  assert.equal(source.match(/replace\('<svg', '<svg width="(\d+)" height="(\d+)"/g)?.[0], `replace('<svg', '<svg width="20" height="20"`);
+  assert.match(readFileSync(new URL('./TextSizeIcons.tsx', import.meta.url), 'utf8'), /size = 20/);
 });
