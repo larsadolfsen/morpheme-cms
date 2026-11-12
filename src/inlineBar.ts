@@ -1,18 +1,20 @@
 // The floating toolbar of a block typed in place (batch 5, owner decision 6, S3's recommendation): one bar, context aware, with the
 // block's row actions (`Add above`, `Add below`, `Move up`, `Move down`, shown while the active row has content) and the block's own menu
 // (its handle: Hide, Move, Remove, MarkdownEditor.tsx cardMenu). Targets are 48 dp. On a computer it sits over the block; on a phone (compact)
-// it is docked above the keyboard (the visual viewport) and above the page's save bar, and folds the row actions under one `Row` button
+// it is docked above the keyboard (the visual viewport) and above the page's save bar, and folds the other row actions (Link, Move up, Move down) under one `Row` button
 // beside `Edit` (the row's settings sheet), so it never overflows 375 px. No dependencies but the icons and the browser.
 import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
 import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
 import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.svg?raw';
 import gearIcon from '@phosphor-icons/core/assets/regular/gear.svg?raw';
-import plusIcon from '@phosphor-icons/core/assets/regular/plus.svg?raw';
+import linkIcon from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
+import rowAboveIcon from '@material-symbols/svg-400/outlined/add_row_above.svg?raw';
+import rowBelowIcon from '@material-symbols/svg-400/outlined/add_row_below.svg?raw';
 import caretDownIcon from '@phosphor-icons/core/assets/bold/caret-down-bold.svg?raw';
 
-export type BarAction = { label: string; kind: 'above' | 'below' | 'up' | 'down'; action: () => void };
+export type BarAction = { label: string; kind: 'above' | 'below' | 'up' | 'down' | 'link'; action: () => void };
 
-const icons = { above: plusIcon, below: plusIcon, up: arrowUpIcon, down: arrowDownIcon };
+const icons = { above: rowAboveIcon, below: rowBelowIcon, up: arrowUpIcon, down: arrowDownIcon, link: linkIcon };
 const svg = (s: string, size = 24) => s.replace('<svg', `<svg width="${size}" height="${size}" fill="currentColor" aria-hidden="true"`);
 
 export function inlineBar(opts: {
@@ -64,7 +66,11 @@ export function inlineBar(opts: {
   function draw() {
     closePopup();
     el.replaceChildren();
-    const rows = opts.rowActions();
+    const all = opts.rowActions();
+    // Add above and Add below are buttons of their own, on a phone too; the rest (Link, Move up, Move down) fold under Row there.
+    const adds = all.filter((r) => r.kind === 'above' || r.kind === 'below');
+    const rows = all.filter((r) => r.kind !== 'above' && r.kind !== 'below');
+    for (const r of adds) button(r.label, icons[r.kind], null, r.action);
     if (opts.compact()) {
       if (rows.length) {
         const row = button(opts.labels.row, null, opts.labels.row, () => {
@@ -90,7 +96,7 @@ export function inlineBar(opts: {
       }
       button(opts.labels.edit, gearIcon, null, opts.edit);
     } else {
-      for (const r of rows) button(r.label, icons[r.kind], r.kind === 'above' || r.kind === 'below' ? r.label : null, r.action);
+      for (const r of rows) button(r.label, icons[r.kind], null, r.action);
     }
     el.appendChild(block);
   }
