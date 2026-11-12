@@ -73,7 +73,6 @@ function SwitchedRow({
           <Switch
             label={t.apps.activeOf(add.label)}
             selected={on}
-            texts={[t.blockSettings.on, t.blockSettings.off]}
             disabled={busy || saving}
             onChange={async (next) => {
               onBusy(true);

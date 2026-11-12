@@ -28,7 +28,7 @@ An app is a connector or a plugin (the field `role`, contract 5; `ROLES` and `ro
 - A connector sends data to, or loads code from, the outside service it is for. A plugin has no outside access. A link the visitor follows is not access.
 - An app does one thing: an app that is a plugin and also needs a service is two apps.
 - The topic categories apply to themes, connectors and plugins alike. The old category `connectors` is read as the role `connector` with no category.
-- An entry with no `role`, or an unknown one, is read as a plugin. A role-less app keeps its `csp` until it declares a role.
+- A declared `role` wins. An entry with no `role`, or an unknown one, is read from what the app does: a connector when it has an `mcp` server or lists any host in its `csp` (in the catalog: in `needs`, `loads` or `sends`), otherwise a plugin.
 - A plugin lists no host in `csp` and declares no `mcp`; the build refuses it otherwise.
 
 ## Rules

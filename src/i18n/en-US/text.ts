@@ -9,8 +9,10 @@ export const text = {
   pageHeading: 'Main heading',
   heading: 'Heading',
   subheading: 'Subheading',
-  paragraph: 'Normal text',
+  /** The text styles are Material 3's body scale; Body medium is the plain paragraph. */
   bodyLarge: 'Body large',
+  bodyMedium: 'Body medium',
+  bodySmall: 'Body small',
   label: 'Label',
   checkList: 'Check list',
   bulletList: 'Bulleted list',
@@ -23,6 +25,8 @@ export const text = {
   /** The kinds of text as one button, when the toolbar is too short. */
   kind: 'Text style',
   kindIs: (kind: string) => `Text style: ${kind}`,
+  list: 'List',
+  listIs: (kind: string) => `List: ${kind}`,
   /** The button at the end of the toolbar when its tools do not fit on one line: the second line shown or hidden. */
   moreTools: 'Show more tools',
   fewerTools: 'Show fewer tools',

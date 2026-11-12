@@ -1,0 +1,6 @@
+{
+  "id": "sticky-toolbar-edge",
+  "kind": "paragraph",
+  "title": "Sticky text toolbar",
+  "text": "Side lines beside the stuck toolbar looked messy. When you scroll through a long text, the toolbar now sticks as the rounded top of the box, with no lines above its corners."
+}

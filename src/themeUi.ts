@@ -43,7 +43,6 @@ export {
   MenuDivider as SiteMenuDivider,
   DropdownMenu as SiteDropdownMenu,
   menuClass as siteMenuClass,
-  menuItemClass as siteMenuItemClass,
 } from '@theme/ui/Menu';
 export { placeMenu as sitePlaceMenu } from '@theme/ui/dropdownMenu.script';
 export { default as SiteExposedDropdownMenu } from '@theme/ui/ExposedDropdownMenu';

@@ -3,7 +3,7 @@
   "notes": [
     {
       "id": "connect-to-store",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Connect your site to the store",
       "text": "Connect your website to the Morpheme store from the Appstore in the editor."
     },

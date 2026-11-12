@@ -3,7 +3,7 @@
 // --screens, also every screen of the editor (check:screens, with Playwright at this repository's version). It takes a
 // few minutes and needs npm's registry. Run: node packages/editor/scripts/check-starter.mjs [--screens]
 import { execFileSync, spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -43,10 +43,47 @@ writeFileSync(file, `${JSON.stringify(manifest, null, 2)}\n`);
 // A repository with one commit, as a new site's is (check:worker reads the files of HEAD).
 run(site, 'git', ['init', '-q']);
 npmRun(site, 'install');
+
+// An installed app with a Worker part, as the store gives it and the editor writes it: app.json in the editor's own
+// form (not Prettier's), and worker/apps.js as `morpheme app-workers` writes it. The site's own `prettier --check .`
+// must leave both alone (starter/.prettierignore), or every site that installs an app breaks its own check.
+const app = join(site, 'src', 'apps', 'app_a030dfba69793996');
+mkdirSync(app, { recursive: true });
+writeFileSync(
+  join(app, 'app.json'),
+  '{"api":4,"label":"Fixture","publisher":"Example","license":"MIT","icon":"event","hint":"An app for this check.","version":"1.0.0"}',
+);
+writeFileSync(join(app, 'LICENSE'), 'MIT License\n\nCopyright (c) Example\n');
+writeFileSync(join(app, 'worker.js'), "export default { async fetch() { return new Response('ok') } }\n");
+writeFileSync(join(site, 'src', 'data', 'apps.json'), `${JSON.stringify({ installed: ['app_a030dfba69793996'] })}\n`);
+npmRun(site, 'exec', '--', 'morpheme', 'app-workers');
+
 run(site, 'git', ['add', '-A']);
 run(site, 'git', ['-c', 'user.name=starter', '-c', 'user.email=starter@example.com', 'commit', '-q', '-m', 'Starter']);
 npmRun(site, 'run', 'check');
 npmRun(site, 'run', 'build');
+// A site updated from before 0.17 has pages with blocks that have become others: its check:editor must still pass (it only says
+// so), `morpheme migrate` writes them in the new form, and then nothing is left to migrate (see lib/migrate-content.mjs).
+{
+  const morpheme = (...args) =>
+    spawnSync(process.execPath, ['node_modules/@morphemecms/cms/bin/morpheme.mjs', ...args], { cwd: site, encoding: 'utf8' });
+  const fixture = join(site, 'src/content/pages/old-blocks.md');
+  cpSync(join(pkgDir, 'scripts', 'fixtures', 'old-blocks.md'), fixture);
+  const expect = (label, result, status, text) => {
+    const out = `${result.stdout}${result.stderr}`;
+    if (result.status !== status || (text && !out.includes(text))) {
+      console.error(out);
+      throw new Error(`${label}: expected exit ${status}${text ? ` and "${text}"` : ''}, got ${result.status}.`);
+    }
+  };
+  expect('check:editor on old blocks', morpheme('check:editor'), 0, 'npx morpheme migrate');
+  expect('migrate --check on old blocks', morpheme('migrate', '--check'), 1, 'old-blocks.md');
+  expect('migrate', morpheme('migrate'), 0, 'migrated: src/content/pages/old-blocks.md');
+  expect('migrate again', morpheme('migrate'), 0, 'Nothing to migrate.');
+  expect('check:editor after migrate', morpheme('check:editor'), 0);
+  expect('check:content after migrate', morpheme('check:content'), 0);
+  rmSync(fixture);
+}
 const playwright = createRequire(join(pkgDir, 'package.json'))('playwright/package.json').version;
 npmRun(site, 'install', '--no-save', `playwright@${playwright}`, ...(process.argv.includes('--screens') ? [] : ['--ignore-scripts']));
 // The scripts the package ships run from node_modules, where Node cannot run TypeScript: the screens check loads its

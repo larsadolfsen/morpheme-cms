@@ -18,6 +18,7 @@
     "check:content": "morpheme check:content",
     "check:editor": "morpheme check:editor",
     "check:worker": "morpheme check:worker",
+    "migrate": "morpheme migrate",
     "check:screens": "morpheme check:screens",
     "check:themes": "morpheme check:themes",
     "format": "prettier --write .",
