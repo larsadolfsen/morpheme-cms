@@ -42,9 +42,13 @@ const viewAt = (pos) => ({
 
 test('the H2 the cursor is in', () =>
   assert.deepEqual(sectionHeading(viewAt(3).state), { pos: 0, level: 2, color: 'surface', picture: null, alt: null, width: null }));
-test('none in a paragraph or an H3', () => {
-  assert.equal(sectionHeading(viewAt(8).state), null);
-  assert.equal(sectionHeading(viewAt(12).state), null);
+test('a paragraph or an H3 belongs to the section above it', () => {
+  assert.equal(sectionHeading(viewAt(8).state)?.pos, 0);
+  assert.equal(sectionHeading(viewAt(12).state)?.pos, 0);
+});
+test('the text before the first H1 or H2 is in no section', () => {
+  const lead = schema.node('doc', null, [node('paragraph', 'x'), node('heading', 'Hours', { level: 2 })]);
+  assert.equal(sectionHeading(EditorState.create({ doc: lead, selection: TextSelection.create(lead, 1) })), null);
 });
 test('sets another colour', () => {
   const view = viewAt(3);
@@ -57,11 +61,13 @@ test('null takes the colour away', () => {
   setSectionColor(view, null);
   assert.equal(view.state.doc.child(0).attrs.section, null);
 });
-test('a colour the theme has not is refused, and nothing happens outside an H2', () => {
+test('a colour the theme has not is refused, and nothing happens before the first H2', () => {
   const view = viewAt(3);
   assert.equal(setSectionColor(view, 'red'), false);
   assert.equal(view.state.doc.child(0).attrs.section, 'surface');
-  assert.equal(setSectionColor(viewAt(8), 'surface'), false);
+  const lead = schema.node('doc', null, [node('paragraph', 'x'), node('heading', 'Hours', { level: 2 })]);
+  const before = { state: EditorState.create({ doc: lead, selection: TextSelection.create(lead, 1) }), dispatch() {} };
+  assert.equal(setSectionColor(before, 'surface'), false);
 });
 test('the H1 the cursor is in', () =>
   assert.deepEqual(sectionHeading(viewAt(17).state), { pos: 15, level: 1, color: 'surface', picture: null, alt: null, width: null }));

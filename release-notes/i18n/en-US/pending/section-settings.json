@@ -1,6 +1,6 @@
 {
   "id": "section-settings",
   "kind": "paragraph",
-  "title": "Give a section a background picture",
-  "text": "You can now make a section Surface, Primary, Secondary or Tertiary, add a background picture and choose its width. The Banner at the top of the front page is now a section too, so its heading can have a picture. Open a section’s settings to try it."
+  "title": "Sections",
+  "text": "A plain page gives no way to make one section stand out. Open a section’s settings with Section settings, make it Surface, Primary, Secondary or Tertiary, add a Background picture, and set its Width to Full width or Like the text."
 }

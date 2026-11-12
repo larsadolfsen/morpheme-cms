@@ -1,6 +1,6 @@
 {
   "id": "toolbar-attached",
   "kind": "paragraph",
-  "title": "Keep the text toolbar in view",
-  "text": "The toolbar now sits on top of the text editor and stays in view while you scroll. Open any page or post to see it."
+  "title": "Text toolbar position",
+  "text": "The toolbar used to float over your text. Now it sits on top of the text editor and stays in view while you scroll. Open any page or post to see it."
 }

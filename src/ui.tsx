@@ -22,6 +22,7 @@ import {
   type FormEvent,
   type MouseEvent,
   type PointerEvent,
+  Fragment,
   isValidElement,
   type ReactElement,
   type ReactNode,
@@ -64,7 +65,6 @@ import {
   SiteMenu,
   SiteMenuItem,
   sitePlaceMenu,
-  siteMenuItemClass,
   SiteCarousel,
   SiteCheckbox,
   SiteChip,
@@ -225,10 +225,13 @@ export function ToolbarButton({
   menu,
   expanded,
   controls,
+  large,
   onClick,
 }: {
   icon: Icon;
   label: string;
+  /** The theme's full size, 48 dp (a tool a phone must be able to hit: Section settings). */
+  large?: boolean;
   /** Marked while it applies where the cursor is (bold); undefined for a tool that is not on or off. */
   selected?: boolean;
   /** It opens a Menu: whether the menu is open. */
@@ -250,7 +253,7 @@ export function ToolbarButton({
   return (
     <>
       {menu === undefined ? (
-        <SiteIconButton icon={<Glyph />} label={label} selected={selected} style={toolbarSize} {...own} />
+        <SiteIconButton icon={<Glyph />} label={label} selected={selected} style={large ? undefined : toolbarSize} {...own} />
       ) : (
         <SiteButton
           kind="text"
@@ -293,8 +296,8 @@ export function Toolbar({
 // The text's toolbar: the room round its tools and no line over it.
 const closeToolbar = {
   '--toolbar-gap': '0.125rem',
-  '--toolbar-docked-padding-block': '0.375rem',
-  '--toolbar-docked-padding-inline': '0.375rem',
+  '--toolbar-docked-padding-block': '0.25rem',
+  '--toolbar-docked-padding-inline': '0.25rem',
   '--toolbar-docked-line-width': '0',
 } as CSSProperties;
 
@@ -1298,11 +1301,9 @@ export function MultiChoice({
           {shown.map((o) => {
             const picked = value.includes(o.value);
             return (
-              <li key={o.value}>
-                <Option selected={picked} disabled={!picked && full} onClick={() => toggle(o.value)}>
-                  {o.label}
-                </Option>
-              </li>
+              <Option key={o.value} selected={picked} disabled={!picked && full} onClick={() => toggle(o.value)}>
+                {o.label}
+              </Option>
             );
           })}
           {!shown.length && <EmptyNote item>{t.forms.noneFound}</EmptyNote>}
@@ -1715,37 +1716,41 @@ export function UnfoldButton({
   );
 }
 
-/** The classes of a choice in a sheet's list (Option), for one with more in it (an icon, a hint): the theme's menu
- * item (Material 3's), the chosen one marked by its aria-pressed, aria-selected or aria-checked. */
-export const optionClass = () => `${siteMenuItemClass} group disabled:opacity-50`;
-
-/** A choice in a sheet's list (the theme's menu item): the chosen one marked, with a tick. */
+/** A choice in a sheet's list: the theme's list item (an <li>, so put it in a list), the chosen one marked, with a tick.
+ * A sheet's rows are always list items (src/sheetRows.test.mjs): `icon` and `supporting` for one with more in it. */
 export function Option({
   selected = false,
   disabled,
   onClick,
   children,
   role,
+  icon,
+  supporting,
+  lang,
 }: {
   selected?: boolean;
   disabled?: boolean;
   onClick: () => void;
   children: ReactNode;
   role?: string;
+  icon?: Icon;
+  supporting?: ReactNode;
+  lang?: string;
 }) {
   return (
-    <button
-      type="button"
+    <ListItem
       role={role}
+      lang={lang}
       aria-pressed={role ? undefined : selected}
       aria-selected={role === 'option' ? selected : undefined}
+      icon={icon}
+      headline={children}
+      supporting={supporting}
+      selected={selected}
       disabled={disabled}
-      className={optionClass()}
+      trailing={selected && <Check size={20} aria-hidden />}
       onClick={onClick}
-    >
-      <span className="min-w-0 flex-1">{children}</span>
-      {selected && <Check size={20} className="shrink-0" />}
-    </button>
+    />
   );
 }
 
@@ -3604,9 +3609,14 @@ function ChoiceSheet<T extends string>({
       <SheetList>
         {!shown.length && <EmptyNote item>{t.common.noMatch}</EmptyNote>}
         {shown.map((o, i) => (
-          <li key={o.value} lang={o.lang}>
-            {o.group && o.group !== shown[i - 1]?.group && <SheetGroupTitle>{o.group}</SheetGroupTitle>}
+          <Fragment key={o.value}>
+            {o.group && o.group !== shown[i - 1]?.group && (
+              <li>
+                <SheetGroupTitle>{o.group}</SheetGroupTitle>
+              </li>
+            )}
             <Option
+              lang={o.lang}
               selected={o.value === value}
               onClick={() => {
                 onChange(o.value);
@@ -3622,7 +3632,7 @@ function ChoiceSheet<T extends string>({
                 o.label
               )}
             </Option>
-          </li>
+          </Fragment>
         ))}
       </SheetList>
     </BottomSheet>
@@ -3709,33 +3719,29 @@ export function Filters({ title, selected, groups }: { title: string; selected?:
                 {lone ? (
                   <SheetGroupTitle>{g.title}</SheetGroupTitle>
                 ) : (
-                  <h3>
-                    <button
-                      type="button"
+                  <ul>
+                    <ListItem
                       aria-expanded={unfolded}
-                      className={`${optionClass()} font-medium`}
+                      headline={g.title}
+                      trailingSupporting={g.options.find((o) => o.value === g.value)?.label}
+                      arrow={unfolded ? CaretUp : CaretDown}
                       onClick={() => toggle(g.title)}
-                    >
-                      <span className="min-w-0 flex-1">{g.title}</span>
-                      <span className="min-w-0 truncate font-normal text-on-surface-variant">
-                        {g.options.find((o) => o.value === g.value)?.label}
-                      </span>
-                      <CaretDown
-                        size={16}
-                        className={`shrink-0 text-on-surface-variant transition-transform ${unfolded ? 'rotate-180' : ''}`}
-                      />
-                    </button>
-                  </h3>
+                    />
+                  </ul>
                 )}
                 {unfolded && (
                   <ul className={lone ? '' : 'pl-3'}>
                     {g.options.map((o, i) => (
-                      <li key={o.value} lang={o.lang}>
-                        {o.group && o.group !== g.options[i - 1]?.group && <SheetGroupTitle>{o.group}</SheetGroupTitle>}
-                        <Option selected={o.value === g.value} onClick={() => g.onChange(o.value)}>
+                      <Fragment key={o.value}>
+                        {o.group && o.group !== g.options[i - 1]?.group && (
+                          <li>
+                            <SheetGroupTitle>{o.group}</SheetGroupTitle>
+                          </li>
+                        )}
+                        <Option lang={o.lang} selected={o.value === g.value} onClick={() => g.onChange(o.value)}>
                           {o.label}
                         </Option>
-                      </li>
+                      </Fragment>
                     ))}
                   </ul>
                 )}
@@ -3989,22 +3995,16 @@ export function NewChoice<T extends string>({
         <SheetTitle title={title} onClose={close} />
         <SheetList>
           {options.map((o) => (
-            <li key={o.value}>
-              <button
-                type="button"
-                className={optionClass()}
-                onClick={() => {
-                  close();
-                  onChange(o.value);
-                }}
-              >
-                <LeadingIcon icon={o.icon} />
-                <span className="min-w-0">
-                  <span className="block font-medium">{o.label}</span>
-                  {o.hint && <span className="block text-sm text-on-surface-variant">{o.hint}</span>}
-                </span>
-              </button>
-            </li>
+            <ListItem
+              key={o.value}
+              icon={o.icon}
+              headline={o.label}
+              supporting={o.hint}
+              onClick={() => {
+                close();
+                onChange(o.value);
+              }}
+            />
           ))}
         </SheetList>
       </BottomSheet>

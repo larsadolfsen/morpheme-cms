@@ -1,6 +1,6 @@
 {
   "id": "build-chip",
   "kind": "paragraph",
-  "title": "See when your website is live",
-  "text": "After you save, a chip in the top bar shows when your website is updating and when it’s live. You no longer have to guess when visitors see your change."
+  "title": "Website status",
+  "text": "Visitors see a saved change only once the website has updated. After you save, a chip in the top bar shows Updating the website… and then Live. There is nothing to set up."
 }

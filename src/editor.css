@@ -102,6 +102,31 @@
   display: none !important;
 }
 
+/* A check list (`- [ ]`, "Check list" in the text style menu): Phosphor's check icon in place of the bullet, in the theme's primary colour
+   when the item is checked, dimmed when not, as the site draws it (theme/styles/blocks.css, .task-list-item). The icon is the item's own
+   ::before, in the padding where the bullet was; a tap on it checks or unchecks the item (checkToggle, MarkdownEditor.tsx). */
+.editor-text .ProseMirror li[data-item-type='task'] {
+  list-style: none;
+  position: relative;
+}
+.editor-text .ProseMirror li[data-item-type='task']::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -1.75em;
+  top: 0.25em;
+  width: 1.25em;
+  height: 1.25em;
+  background-color: color-mix(in srgb, var(--mo-primary) 35%, transparent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  cursor: pointer;
+}
+.editor-text .ProseMirror li[data-item-type='task'][data-checked='true']::before {
+  background-color: var(--mo-primary);
+}
+
 /* Milkdown puts a paragraph in every list item; on the site, short lists have none. */
 .editor-text li > p {
   margin-block: 0;
@@ -171,24 +196,87 @@
   --section-on: var(--block-on-tertiary);
 }
 
-/* The picture behind a section (the widget before its first part): a strip at the top of the section. */
+/* The picture behind a section (the widget before its first part, placed over the section's parts by sectionFrame.ts): it fills
+   the section's box behind the text, darkened from below as on the site (blocks.css, .text-section-picture), and the text on it is
+   the theme's colour for text on a picture. */
+.editor-text .ProseMirror {
+  position: relative;
+}
+
 .editor-text .editor-section-picture {
-  margin-block: var(--editor-section-gap) 0;
-  height: 9rem;
+  --section-shade: var(--block-hero-shade, var(--block-text));
+  position: absolute;
+  z-index: 0;
+  margin: 0;
   overflow: hidden;
-  border-start-start-radius: var(--block-radius);
-  border-start-end-radius: var(--block-radius);
+  pointer-events: none;
+  background: var(--section-shade);
+  border-radius: var(--block-radius);
+}
+
+.editor-text .editor-section-picture[data-color='surface'] {
+  --section-shade: var(--block-surface);
+}
+
+.editor-text .editor-section-picture[data-color='primary'] {
+  --section-shade: var(--block-primary);
+}
+
+.editor-text .editor-section-picture[data-color='secondary'] {
+  --section-shade: var(--block-secondary);
+}
+
+.editor-text .editor-section-picture[data-color='tertiary'] {
+  --section-shade: var(--block-tertiary);
+}
+
+.editor-text .editor-section-picture[data-width='full'] {
+  border-radius: 0;
 }
 
 .editor-text .editor-section-picture > img {
+  margin: 0;
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.editor-text .editor-section-picture + [data-section-part='start'] {
-  margin-block-start: 0;
+.editor-text .editor-section-picture::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--section-shade) 85%, transparent),
+    color-mix(in srgb, var(--section-shade) 55%, transparent) 70%,
+    color-mix(in srgb, var(--section-shade) 40%, transparent)
+  );
+}
+
+.editor-text .ProseMirror > [data-section-picture] {
+  position: relative;
+  z-index: 1;
+}
+
+.editor-text .ProseMirror > [data-section-picture] {
+  background: transparent;
+}
+
+.editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) {
+  --tw-prose-body: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-headings: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-bold: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-links: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-bullets: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-counters: var(--block-hero-on-shade, var(--block-surface));
+  color: var(--block-hero-on-shade, var(--block-surface));
+}
+
+.editor-text .ProseMirror > [data-section-picture][data-section-width='full'] {
+  border-radius: 0;
 }
 
 /* HTML in a line of text is kept as it is but cannot be edited here (on a line of its own it is a
@@ -882,6 +970,16 @@ html {
   max-height: 2.5rem;
 }
 
+.editor-tools-tall.editor-tools-closed {
+  max-height: 3rem;
+}
+
+/* When the tools do not all fit on one line, the lines between the groups go, so the tools that must stay (the kinds of text,
+   "+" and Section settings) have the room (MarkdownEditor.tsx, toolbarOrder.mjs). */
+.editor-tools-compact > span[aria-hidden='true'] {
+  display: none;
+}
+
 .editor-tools-closed > [data-wrapped],
 .editor-tools-line > span[data-line-start],
 .editor-tools-line > span[data-line-end] {
@@ -900,6 +998,38 @@ html {
   background: var(--editor-menu-surface);
   padding: 0.25rem;
   box-shadow: var(--editor-menu-shadow);
+}
+
+/* On a phone the row is a docked standard bottom sheet (Material 3, the theme's --bottom-sheet-* tokens): the whole width
+   of the screen, a fixed height and a fixed place just over "Save changes" or the keyboard, so it never moves with the
+   cursor. Its buttons share the width equally and each is 48 dp. */
+.editor-selection-sheet {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  align-items: center;
+  box-sizing: border-box;
+  height: 4.5rem;
+  gap: 0.25rem;
+  border-width: 1px 0 0;
+  border-radius: var(--bottom-sheet-radius, 1.75rem) var(--bottom-sheet-radius, 1.75rem) 0 0;
+  background: var(--bottom-sheet-surface, var(--editor-menu-surface));
+  padding: 0.75rem 0.5rem;
+  box-shadow: var(--bottom-sheet-shadow, var(--editor-menu-shadow));
+}
+
+.editor-selection-sheet button,
+.editor-selection-sheet button[aria-haspopup='menu'] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: 3rem;
+  padding-inline: 0;
+}
+
+.editor-selection-sheet button:disabled {
+  opacity: 0.38;
 }
 
 .editor-selection-menu[hidden],

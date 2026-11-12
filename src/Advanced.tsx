@@ -2,9 +2,9 @@
 // answers the editor from (packages/editor/worker/files.js), turned on and off with "Enabled" in the Worker's settings (r2Caching.ts),
 // saved at once in its own commit. Off, the Worker asks GitHub for everything. It can only be turned on when Cloudflare
 // has the bucket (the Worker asks, /api/r2), else a deploy would fail; under the switch, why not, and, until the site is
-// built with the change, that it comes then. Above it, where the bucket is kept ("Location": placed by Cloudflare, or
+// built with the change, that it comes then. Above it, where the bucket is kept ("R2 location": placed by Cloudflare, or
 // within the EU, a MenuRow with the choice in a dropdown at the right), changed only while it is off, also in its own commit. Under it, the two build switches ("Builds":
-// fast content builds, paid build plan) in src/data/build.json (buildSettings.ts), each saved at once in its own commit. The paid
+// content-only builds, paid build plan) in src/data/build.json (buildSettings.ts), each saved at once in its own commit. The paid
 // build plan can only be turned on when Cloudflare says the account has Workers Paid (the Worker asks, /api/plan); under it, why not.
 import { useEffect, useState } from 'react';
 import { ArrowSquareOut } from '@phosphor-icons/react';
@@ -145,10 +145,10 @@ export default function Advanced({ env }: { env: Env }) {
   const buildSwitches: { key: BuildSetting; label: string; hint: string; change: string; commit: (on: boolean) => string }[] = [
     {
       key: 'contentLane',
-      label: t.advanced.fastContentBuilds,
-      hint: t.advanced.fastContentBuildsHint,
-      change: t.app.changes.fastContentBuilds,
-      commit: siteT.advanced.fastContentBuildsCommit,
+      label: t.advanced.contentOnlyBuilds,
+      hint: t.advanced.contentOnlyBuildsHint,
+      change: t.app.changes.contentOnlyBuilds,
+      commit: siteT.advanced.contentOnlyBuildsCommit,
     },
     {
       key: 'paidBuilds',

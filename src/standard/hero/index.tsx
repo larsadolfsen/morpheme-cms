@@ -12,7 +12,7 @@ import { t } from '../../i18n';
 import { heroParts } from './fields';
 
 export default defineBlock({
-  group: 'banner',
+  group: 'banners',
   label: t.blocks.hero.label,
   // The Banner is a section now (a heading with a picture behind it and a width, in its settings): one alone in its section is read as
   // that (lib/remark-banner-section.mjs); this block stays for the front page's top and for a Banner with more after it.

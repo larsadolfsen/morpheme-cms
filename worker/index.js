@@ -23,7 +23,7 @@
 // - the visitors' answers in the cookie banner, the consent log (/api/consent, packages/editor/worker/consent.js, in D1), and each hour
 //   those older than two years deleted.
 // - the app problems of the last build, for the app's page in the editor (/api/apps/problems, worker/app-problems.js).
-// - the editor's autosaved drafts in R2 when `Faster editor` is on, moved to git as the waiting version (/api/autosave, packages/editor/worker/autosave.js).
+// - the editor's autosaved drafts in R2 when `R2 caching` is on, moved to git as the waiting version (/api/autosave, packages/editor/worker/autosave.js).
 // - whether R2 caching can be turned on in the editor: whether Cloudflare has its bucket (/api/r2, packages/editor/worker/r2-status.js).
 // - whether the account has Workers Paid, for the switch "Betalt bygning" in the editor (/api/plan, packages/editor/worker/plan-status.js).
 // - the status of GitHub and Cloudflare, for the editor's footer (/api/status, packages/editor/worker/service-status.js).
