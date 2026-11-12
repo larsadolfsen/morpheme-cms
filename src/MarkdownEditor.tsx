@@ -12,6 +12,7 @@ import {
   Fragment as ReactFragment,
   type MouseEvent as ReactMouseEvent,
   useEffect,
+  useLayoutEffect,
   useId,
   useImperativeHandle,
   useRef,
@@ -71,7 +72,7 @@ import { sectionHeading, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
 import { IMAGE, type BlockAsk } from './BlockDialog';
 import SectionSettingsIcon from './SectionSettingsIcon';
-import { toolsInOrder } from './toolbarOrder.mjs';
+import { arrangeTools, nextArrangement } from './toolbarOrder.mjs';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel } from './sheetPlacement.mjs';
@@ -1414,17 +1415,17 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     action: (e: ReactMouseEvent<HTMLButtonElement>) => void;
     on?: string;
     large?: boolean;
+    role?: string;
   }[] = [
     // The settings of the section the cursor's H1 or H2 starts (not a fixed page's text, whose H2s are its sections' names; the front
     // page has it for its H2s, but not for its H1, which stays the banner without a colour). It is 48 dp, as a
-    // tap needs, and comes first (with the kinds of text next, `tools` below), so on a phone it stays on the first line,
-    // not under the arrow with Undo.
+    // tap needs, and `tools` below puts it last on the first line, before the tools that may go under the arrow.
     ...(framed && active.includes('section') && !(sections && active.includes('section-h1')) && (blocks ?? sheetProp)
-      ? [{ label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings, large: true }]
+      ? [{ label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings, large: true, role: 'settings' }]
       : []),
     { label: t.text.bold, icon: TextB, action: () => run(toggleStrongCommand), on: 'strong' },
-    { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis' },
-    { label: t.text.link, icon: LinkSimple, action: link, on: 'link' },
+    { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis', role: 'italic' },
+    { label: t.text.link, icon: LinkSimple, action: link, on: 'link', role: 'link' },
     // On a page the levels in choices (H1 until the text has one); a blog post has H2 and H3.
     ...(h1 ? choices : [2, 3]).map((level) => ({
       label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
@@ -1447,24 +1448,21 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       : addImage
         ? [{ label: t.text.image, icon: Image, action: image }]
         : []),
-    { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) },
-    { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand) },
+    { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand), role: 'undo' },
+    { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand), role: 'redo' },
   ];
 
-  // In a section's heading the toolbar starts with Section settings and the kinds of text, then the marks on the text.
-  const firstTools = (item: (typeof all)[number]) =>
-    item.icon === SectionSettingsIcon || /^(h\d|small|medium|large|label|bullet|check|ordered|quote)$/.test(item.on ?? '');
-  const tools = toolsInOrder(
-    all,
-    firstTools,
-    all.some((item) => item.icon === SectionSettingsIcon),
-  );
+  // The tools in their order (toolbarOrder.mjs): Section settings last on the first line, and what may go under the arrow at the
+  // end, Undo and Redo first and then the link, so "+" stays on the first line. The arrangement is tried from the widest:
+  // 'all' on one line, 'mid' with Section settings before Undo and Redo, 'priority' with the link behind it too, 'lean' with Italic as well.
+  const [arrangement, setArrangement] = useState<'all' | 'mid' | 'priority' | 'lean'>('all');
+  const tools = arrangeTools(all, arrangement);
 
   // When the toolbar is too short for all its buttons, the kinds of text are two buttons: the headings (H1, H2, H3) and the
   // rest (T, the bulleted and the numbered list and the quote), so a heading and T both show from the start. Each shows
   // the kind where the cursor is (else its first: the heading the text can have next, and T), with an arrow and the
   // others of its group under it; a group of one (H1, while a page has none) is that button itself.
-  const hasSettings = tools.some((item) => item.icon === SectionSettingsIcon);
+  const hasSettings = tools.some((item) => item.role === 'settings');
   const kinds = tools.filter((t) =>
     ['h1', 'h2', 'h3', 'small', 'medium', 'large', 'label', 'bullet', 'check', 'ordered', 'quote'].includes(t.on ?? ''),
   );
@@ -1490,6 +1488,28 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const lineId = useId();
   const { overflows, expanded, setExpanded } = useToolbarLines(toolbar, line, [tools.map((item) => item.label).join('|'), narrow]);
   const open = overflows && expanded;
+  // After each measure: which arrangement shows what must stay on the first line (tools wrapped that may not wrap: not
+  // Undo, Redo or the link, and not the arrow). A change of the width starts again from all on one line.
+  useLayoutEffect(() => {
+    const wrapped = [...(line.current?.querySelectorAll<HTMLElement>('button[data-wrapped]') ?? [])];
+    const mayWrap = [t.text.undo, t.text.redo, t.text.link, ...(arrangement === 'lean' ? [t.text.italic] : [])];
+    const next = nextArrangement(arrangement, {
+      any: wrapped.length > 0,
+      kept: wrapped.some((el) => !mayWrap.includes(el.getAttribute('aria-label') ?? '')),
+    });
+    if (next !== arrangement) setArrangement(next);
+  });
+  const barWidth = useRef(0);
+  useEffect(() => {
+    const bar = toolbar.current!;
+    const watch = new ResizeObserver(() => {
+      if (Math.abs(bar.clientWidth - barWidth.current) < 1) return;
+      barWidth.current = bar.clientWidth;
+      setArrangement('all');
+    });
+    watch.observe(bar);
+    return () => watch.disconnect();
+  }, []);
 
   const tool = ({ label, icon, action, on, large }: (typeof tools)[number]) => (
     <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} large={large} onClick={action} />
@@ -1497,11 +1517,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
 
   // The lines between the marks on the text, the kinds of text, "+" (or "Picture") and "Undo".
   const lineBefore = (item: (typeof tools)[number]) =>
-    (hasSettings && item === tools[kinds.length + 1]) ||
-    item === kinds[0] ||
-    item.icon === Plus ||
-    item.icon === Image ||
-    item.icon === ArrowUUpLeft;
+    item.role === 'settings' || item === kinds[0] || item.icon === Plus || item.icon === Image || item.icon === ArrowUUpLeft;
   // A button of the toolbar; when it is too short, each group of kinds of text is one button (at its first), with a menu.
   const button = (item: (typeof tools)[number]) => {
     if (!narrow || !kinds.includes(item)) return tool(item);
@@ -1541,6 +1557,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
             overflows ? 'justify-start' : 'justify-center',
             !open && 'editor-tools-closed',
             hasSettings && 'editor-tools-tall',
+            arrangement !== 'all' && 'editor-tools-compact',
           ]
             .filter(Boolean)
             .join(' ')}
