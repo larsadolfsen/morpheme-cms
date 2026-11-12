@@ -1236,16 +1236,10 @@ function blockCard(
       return {
         headline: t.blocks.list.rowSettings,
         fields: itemFields,
-        value: { icon: row.icon ?? '', href: row.href ?? '', heading: row.heading === true },
+        value: { icon: row.icon ?? '', href: row.href ?? '' },
         onChange: (v: BlockProps) => {
           let items = rows();
           for (const key of ['icon', 'href'] as const) items = setField(items, i, key, String(v[key] ?? ''));
-          // The row as a small heading of the rows after it, or not.
-          items = items.map((r, j) => {
-            if (j !== i) return r;
-            const { heading: _, ...rest } = r;
-            return v.heading === true ? { ...rest, heading: true } : rest;
-          });
           setItems(items);
         },
       };
