@@ -1483,8 +1483,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
 
   // The tools in their order (toolbarOrder.mjs): Section settings last on the first line, and what may go under the arrow at the
   // end, Undo and Redo first, then the link, so "+" stays on the first line. The arrangement is tried from the widest:
-  // 'all' on one line, 'mid' with Section settings before Undo and Redo, 'priority' with the link behind it too, 'lean' with Italic as well, 'bare' with the lists as well (the last to go).
-  const [arrangement, setArrangement] = useState<'all' | 'mid' | 'priority' | 'lean' | 'bare'>('all');
+  // 'all' on one line, 'mid' with Section settings before Undo and Redo, 'priority' with the link behind it too, 'bare' with Italic and the lists as well (the last to go).
+  const [arrangement, setArrangement] = useState<'all' | 'mid' | 'priority' | 'bare'>('all');
   const tools = arrangeTools(all, arrangement);
 
   // When the toolbar is too short for all its buttons, the kinds of text are two buttons: the headings (H1, H2, H3) and the
@@ -1505,9 +1505,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const kindsShown = kindsAt ? (kindGroups.find((group) => groupOf(group) === kindsAt.group) ?? []) : [];
   useEffect(() => {
     const bar = toolbar.current!;
-    // A button is 2.5rem, with 0.125rem between them and 0.375rem around them, and each of the lines
+    // A button is 2.5rem, with 0.125rem between them and 0.25rem around them, and each of the lines
     // between the groups 0.5rem (the classes below).
-    const fits = () => setNarrow(bar.clientWidth < tools.length * 42 + 10 + (3 + (hasSettings ? 1 : 0)) * 10 + (hasSettings ? 8 : 0));
+    const fits = () => setNarrow(bar.clientWidth < tools.length * 42 + 6 + (3 + (hasSettings ? 1 : 0)) * 10 + (hasSettings ? 8 : 0));
     const watch = new ResizeObserver(fits);
     watch.observe(bar);
     return () => watch.disconnect();
@@ -1527,7 +1527,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     const listLabels = [t.text.list, t.text.bulletList, t.text.checkList, t.text.orderedList];
     const mayWrap = (label: string) =>
       [t.text.undo, t.text.redo, t.text.link].includes(label) ||
-      (['lean', 'bare'].includes(arrangement) && label === t.text.italic) ||
+      (arrangement === 'bare' && label === t.text.italic) ||
       (arrangement === 'bare' && (listLabels.includes(label) || label.startsWith(t.text.listIs(''))));
     const next = nextArrangement(arrangement, {
       any: wrapped.length > 0,

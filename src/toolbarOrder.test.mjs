@@ -61,12 +61,7 @@ test('when the link has no room either, it wraps after Section settings and befo
   assert.ok(order.indexOf('insert') < order.indexOf('link') && order.indexOf('insert') < order.indexOf('undo'));
 });
 
-test('as a last resort Italic wraps too, before the link, and Section settings stays', () => {
-  const order = names(arrangeTools(natural, 'lean'));
-  assert.deepEqual(order, ['bold', 'h2', 'style', 'bullet', 'check', 'ordered', 'insert', 'settings', 'italic', 'link', 'undo', 'redo']);
-});
-
-test('only when nothing else fits the lists wrap too, after Italic and before the link; Insert and Section settings stay', () => {
+test('only when nothing else fits Italic and the lists wrap too and before the link; Insert and Section settings stay', () => {
   const order = names(arrangeTools(natural, 'bare'));
   assert.deepEqual(order, ['bold', 'h2', 'style', 'insert', 'settings', 'italic', 'bullet', 'check', 'ordered', 'link', 'undo', 'redo']);
 });
@@ -115,8 +110,6 @@ test('the arrangement is tried in order and stays once it works', () => {
   assert.equal(nextArrangement('mid', { any: true, kept: false }), 'mid');
   assert.equal(nextArrangement('mid', { any: true, kept: true }), 'priority');
   assert.equal(nextArrangement('priority', { any: true, kept: false }), 'priority');
-  assert.equal(nextArrangement('priority', { any: true, kept: true }), 'lean');
-  assert.equal(nextArrangement('lean', { any: true, kept: false }), 'lean');
-  assert.equal(nextArrangement('lean', { any: true, kept: true }), 'bare');
+  assert.equal(nextArrangement('priority', { any: true, kept: true }), 'bare');
   assert.equal(nextArrangement('bare', { any: true, kept: true }), 'bare');
 });

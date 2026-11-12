@@ -296,8 +296,8 @@ export function Toolbar({
 // The text's toolbar: the room round its tools and no line over it.
 const closeToolbar = {
   '--toolbar-gap': '0.125rem',
-  '--toolbar-docked-padding-block': '0.375rem',
-  '--toolbar-docked-padding-inline': '0.375rem',
+  '--toolbar-docked-padding-block': '0.25rem',
+  '--toolbar-docked-padding-inline': '0.25rem',
   '--toolbar-docked-line-width': '0',
 } as CSSProperties;
 
