@@ -721,7 +721,7 @@ type Look = (Face | { shows: (state: EditorView['state']) => Face }) & {
   on?: (state: EditorView['state']) => boolean;
   action: (button: HTMLElement) => void;
   off?: (state: EditorView['state']) => boolean;
-  // Not there on a computer, dimmed on a phone, where the row is a sheet of a fixed size (the marks in a block with none).
+  // Not there (the marks in a block with none).
   dim?: (state: EditorView['state']) => boolean;
   word?: boolean;
   menu?: boolean;
@@ -964,46 +964,42 @@ function selectionMenu(
         menu.hidden = !shown;
         if (!shown) return;
         const state = asShown(view.state);
-        // On a phone the row is a docked sheet of a fixed size (editor.css): every button stays, so its layout never changes with
-        // the cursor, and one that does not apply there is dimmed. On a computer it is left out.
-        const sheet = matchMedia('(pointer: coarse)').matches;
-        menu.classList.toggle('editor-selection-sheet', sheet);
+        // A button that does not apply there (the marks in a block with none) is left out, on a phone too: the row floats by the text.
         looks.forEach((look, i) => {
-          const gone = !!look.off?.(state);
-          const dim = !!look.dim?.(state);
-          buttons[i].hidden = gone || (dim && !sheet);
-          buttons[i].disabled = dim && sheet;
+          buttons[i].hidden = !!look.off?.(state) || !!look.dim?.(state);
           if (buttons[i].hidden) return;
           if ('shows' in look) draw(buttons[i], look, look.shows(state));
           if (look.on) buttons[i].setAttribute('aria-pressed', String(look.on(state)));
         });
         const { offsetWidth: width, offsetHeight: height } = menu;
         const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
-        if (sheet) {
-          // Docked: the sheet's own place, not the cursor's: over "Save changes" when it is there (FormFrame.tsx), and over the
-          // keyboard (the visual viewport's bottom), the whole width of the screen.
-          const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
-          menu.style.left = `${screen.offsetLeft}px`;
-          menu.style.width = `${screen.width}px`;
-          menu.style.top = `${Math.min(screen.offsetTop + screen.height, save) - menu.offsetHeight}px`;
-          return;
-        }
-        menu.style.width = '';
         const text = view.dom.getBoundingClientRect();
         const { from, to } = word ?? selection;
         const start = view.coordsAtPos(from);
         const end = view.coordsAtPos(to);
         const middle = start.top === end.top ? (start.left + end.right) / 2 : text.left + text.width / 2;
-        // Over the selection; under it when the toolbar is there.
+        // Over the selection; under it when there is no room over it (the top toolbar, or the top of the visible screen). Always
+        // inside the visible screen (the visual viewport: not under the keyboard) and above "Save changes".
         const bar = document.querySelector('.editor-tools')?.getBoundingClientRect().bottom ?? 0;
+        const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
+        const floor = Math.max(bar, screen.offsetTop);
+        const ceiling = Math.min(screen.offsetTop + screen.height, save);
         const over = start.top - height - 10;
-        menu.style.left = `${Math.max(4, Math.min(middle - width / 2, innerWidth - width - 4))}px`;
-        menu.style.top = `${over > bar ? over : end.bottom + 10}px`;
+        const under = end.bottom + 10;
+        const left = screen.offsetLeft + 4;
+        menu.style.left = `${Math.max(left, Math.min(middle - width / 2, screen.offsetLeft + screen.width - width - 4))}px`;
+        menu.style.top = `${Math.max(screen.offsetTop, Math.min(over > floor ? over : under, ceiling - height - 4))}px`;
       }
       // Gone when the text is left (not for a tap on the menu itself, which keeps the focus).
       const refresh = () => setTimeout(() => update(view));
       // Where it is follows the page and the keyboard.
-      const follow = () => menu.hidden || update(view);
+      // Again a frame and a quarter of a second later: the page (and "Save changes") has moved by then when the keyboard opened.
+      const follow = () => {
+        if (menu.hidden) return;
+        update(view);
+        requestAnimationFrame(() => menu.hidden || update(view));
+        setTimeout(() => menu.hidden || update(view), 250);
+      };
       view.dom.addEventListener('blur', refresh);
       view.dom.addEventListener('focus', refresh);
       addEventListener('scroll', follow, { passive: true });
