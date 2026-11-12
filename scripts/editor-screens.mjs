@@ -363,10 +363,11 @@ const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
+  { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
 ];
 
-/** `surface`: the item is a card with a container of its own, so it has a background colour. `field`: the first typed field of an item (default title). */
-async function checkInlineBlock(width, height, { name, hint, add, surface, field = 'title' }) {
+/** `surface`: the item is a card with a container of its own, so it has a background colour. */
+async function checkInlineBlock(width, height, { name, hint, add, surface, field = 'title', open }) {
   const label = `${width}px inline ${name}`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
@@ -409,6 +410,14 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, field
   await page.waitForTimeout(300);
   const two = await state();
   if (two.rows !== 2) problems.push(`${label}: "${add}" left ${two.rows} items, not 2`);
+  if (open) {
+    // A folding block: only the active item is open (its answer typed in the panel), the others closed, and a typed item has no Link.
+    const opened = await page.evaluate(() => [...document.querySelectorAll('.inline-list-row[data-row]')].map((d) => d.open));
+    if (opened.join() !== 'false,true') problems.push(`${label}: expected only the active item open, got ${opened}`);
+    if (!(await page.locator('.inline-list-row-active [data-field="answer"]').count()))
+      problems.push(`${label}: no answer field in the open item`);
+    if ((await state()).bar.some((b) => b.label === 'Link')) problems.push(`${label}: the toolbar has a Link button`);
+  }
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   if ((await page.locator('[data-add-row]').count()) > 0)
