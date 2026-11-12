@@ -1,13 +1,13 @@
 // The colours of one page, for the theme (Base.astro, which knows no app by name): the site's own (src/data/colors.json,
 // "Colors"), changed by the active apps (installed, not turned off) that change a page's colours (hooks/page-colors.ts, PageColorsHook in
 // @morphemecms/cms/lib/hooks.ts), in the order of their ids, each given the colours the one before left. An app gets the
-// page's address, its pictures, its own settings, the colours' roles, and the pixels of a picture read small, so it
+// page's address, its images, its own settings, the colours' roles, and the pixels of an image read small, so it
 // never reads the site's files itself; what it gives is kept only when it is the site's colours, by their names, and
 // readable in both modes (colorPairs); else, and when it fails, the page keeps the colours it had, and the build says so.
 // An app with an app.json (contract 4) runs its hook in the build sandbox (lib/sandboxHooks.mjs), with the same input
 // and helpers as data, and what goes wrong is a problem in dist/_apps/_problems.json (lib/appProblems.mjs).
 // Made while the site is built, so the page needs no script. With them, the app whose colours the page has and the
-// picture they came from (the last it read before it gave them), which the page keeps beside its colours (Base.astro)
+// image they came from (the last it read before it gave them), which the page keeps beside its colours (Base.astro)
 // for "Colors" › "Pages" in the editor (packages/editor/scripts/page-colors.mjs).
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -30,17 +30,17 @@ import { splitPicture } from '@morphemecms/cms/lib/crop.mjs';
 const site = completeColors(withMaterialNames(colors as Colors), colorRoles);
 const PUBLIC = path.resolve('public');
 const names = colorFields.map((f) => f.name);
-// Small is enough to find a picture's colours, and quick.
+// Small is enough to find an image's colours, and quick.
 const SIZE = 128;
 
 // Only the apps' index.ts (for their settings) and the hooks of those without an app.json, of the apps installed. A hook of
 // a contract 4 app is never imported here: its code is not run outside the sandbox.
 const appFiles = import.meta.glob<{ default: AppDefinition }>('/src/apps/*/index.ts', { eager: true });
 
-// A picture's pixels, by its address; the same picture is read once in a build.
+// An image's pixels, by its address; the same image is read once in a build.
 const read = new Map<string, Promise<Uint8ClampedArray | undefined>>();
 
-/** A picture on the site made small, as RGBA bytes; undefined for one outside public/ or one that cannot be read. */
+/** An image on the site made small, as RGBA bytes; undefined for one outside public/ or one that cannot be read. */
 function pixels(address: string): Promise<Uint8ClampedArray | undefined> {
   if (!read.has(address))
     read.set(
@@ -105,18 +105,18 @@ const hooksOfApps = () =>
     ].sort((a, b) => a.id.localeCompare(b.id));
   })());
 
-/** The page's colours, and where they came from when an app changed them: the app (its id) and the picture they were
+/** The page's colours, and where they came from when an app changed them: the app (its id) and the image they were
  * made from (the last it read before it gave them). */
 export type PageColors = { colors: Colors; app?: string; picture?: string };
 
-/** The page's colours: the site's, as the apps installed change them for the page at `path` with `pictures` (their
+/** The page's colours: the site's, as the apps installed change them for the page at `path` with `images` (their
  * addresses on the site, in the order they are on it, then the one it is shared with). */
 export async function pageColors(page: { path: string; pictures: (string | undefined)[] }): Promise<PageColors> {
   const pictures = page.pictures.filter((p): p is string => !!p);
   let found: PageColors = { colors: site };
   for (const { id, hook, settings, sandboxed } of await hooksOfApps()) {
     let made: Colors | undefined;
-    // The last picture the app read, the one its colours are from.
+    // The last image the app read, the one its colours are from.
     let last: string | undefined;
     const reading = (picture: string) => {
       last = picture;
@@ -127,7 +127,7 @@ export async function pageColors(page: { path: string; pictures: (string | undef
     };
     try {
       if (sandboxed) {
-        // Only data goes in; the helpers are the only way out, and they read only the page's own pictures. A failed run
+        // Only data goes in; the helpers are the only way out, and they read only the page's own images. A failed run
         // is a problem, kept in the build's list.
         const input = { path: page.path, colors: found.colors, pictures, settings, roles: colorRoles };
         const own = new Set(pictures);

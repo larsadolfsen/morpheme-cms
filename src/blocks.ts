@@ -46,7 +46,7 @@ export type SiteBlock = {
   former?: boolean;
   /** Its heading and text are written in the text above it (sections.mjs); a new one gets a heading. */
   lead?: Lead;
-  /** Typed in place in the text (InlineItems.tsx, MarkdownEditor.tsx): its card is the block drawn with its text as fields, not a picture
+  /** Typed in place in the text (InlineItems.tsx, MarkdownEditor.tsx): its card is the block drawn with its text as fields, not an image
    * of it; a new one goes in at once, without a sheet. Only the List so far (docs/superpowers/specs/2026-11-12-inline-block-editing-design.md). */
   inline?: InlineSpec;
   /** Cannot be hidden on the site (its line in the file has no props to say so: HTML). */
@@ -87,7 +87,7 @@ export type InlineSpec = {
   icon?: string;
   /** The field picked in the link slot (the item's settings). */
   link?: string;
-  /** Instead of `icon`: the fields the media slot opens (a card's media: its kind, icon, picture and video), in the item's sheet. */
+  /** Instead of `icon`: the fields the media slot opens (a card's media: its kind, icon, image and video), in the item's sheet. */
   media?: string[];
   /** Instead of `link`: the fields the link slot opens (a card's page and buttons). */
   settings?: string[];
@@ -125,7 +125,7 @@ export type BlockData = {
 
 // Fields filled in as an example from what they are: a text with its name ("Heading"), a choice
 // with its default or first option, a page or post with the first ones there are, a list with three
-// items; a date or a picture stays empty.
+// items; a date or an image stays empty.
 function exampleFields(fields: Field[], data: BlockData): BlockProps {
   return Object.fromEntries(
     fields.map((f): [string, unknown] => {
@@ -167,7 +167,7 @@ export const exampleOf = (block: SiteBlock, data: BlockData): BlockProps => bloc
 // testimonials). Without anything to show, only its name.
 export const plain = (s: unknown) =>
   withoutColors(String(s))
-    // Without the blocks and pictures in it (a "Banner"'s text).
+    // Without the blocks and images in it (a "Banner"'s text).
     .replace(/<div data-block="[a-z]+"[^>]*><\/div>/g, ' ')
     .replace(/!\[(?:\\.|[^\]])*\]\([^)]*\)/g, ' ')
     .replace(/\]\([^)]*\)/g, ']')

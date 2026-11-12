@@ -27,8 +27,8 @@ test('every standard block has a category', () => {
   for (const f of folders) assert.ok(groups.includes(groupOf(read(`./${f}/index.tsx`))), `src/standard/${f}/index.tsx has no valid group`);
 });
 
-test('the picture and HTML blocks have a category', () => {
-  assert.ok(groups.includes(groupOf(read('../BlockDialog.tsx').split('const picture: SiteBlock')[1])), 'picture');
+test('the image and HTML blocks have a category', () => {
+  assert.ok(groups.includes(groupOf(read('../BlockDialog.tsx').split('const image: SiteBlock')[1])), 'image');
   assert.ok(groups.includes(groupOf(read('../blocks.ts').split('export const htmlBlock')[1])), 'HTML');
 });
 

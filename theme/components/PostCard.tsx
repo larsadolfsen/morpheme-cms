@@ -1,4 +1,4 @@
-// One related post under a blog post (RelatedPosts.astro): a Material card (ui/Card.tsx) with the post's picture, its
+// One related post under a blog post (RelatedPosts.astro): a Material card (ui/Card.tsx) with the post's image, its
 // title, and its date and reading time (PostMeta.tsx). A theme may replace this file to redesign the card.
 import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
 import Card from '@theme/ui/Card';

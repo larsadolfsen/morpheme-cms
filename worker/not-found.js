@@ -13,7 +13,7 @@ import { mayEdit } from './session.js';
 
 const PREFIX = '404:';
 const KEEP = 90 * 24 * 60 * 60;
-// A page: no file ending in the last part (not a picture, a script or /wp-login.php).
+// A page: no file ending in the last part (not an image, a script or /wp-login.php).
 const PAGE = /(^|\/)[^./]*$/;
 // What is not a page of the site, and what robots try on every site.
 const SKIP = /^\/(editor|oauth|api|cdn-cgi|\.well-known|wp-admin|wp-includes|wp-json)(\/|$)/i;

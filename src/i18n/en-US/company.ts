@@ -14,8 +14,8 @@ export const company = {
     iconFromLogo: 'Create the icon from the logo',
     /** brand.ts */
     svgUnreadable: 'The SVG file couldn’t be read',
-    cannotOpen: 'The picture couldn’t be opened. Use an SVG, PNG, JPEG, or WebP picture.',
-    notReady: 'The picture couldn’t be prepared',
+    cannotOpen: 'The image couldn’t be opened. Use an SVG, PNG, JPEG, or WebP image.',
+    notReady: 'The image couldn’t be prepared',
   },
   /** The commits, in the site's language (siteT). */
   commit: {

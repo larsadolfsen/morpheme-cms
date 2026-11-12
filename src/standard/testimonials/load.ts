@@ -1,9 +1,9 @@
 // "Testimonials" on the site (view.ts): all of them (`show: 'all'`), those with any of its tags (`show: 'categories'`,
 // all when it has none; the tags are then not on the cards, except in a list of all), those marked "Show on the front page"
 // ('front'), or those picked ('picked', by file name, in that order), from the site (@site/standard), with their tags'
-// pages, their pictures' sizes and where their whole text is.
+// pages, their images' sizes and where their whole text is.
 import { standard } from '@site/standard';
-import { pictureOf } from '../load';
+import { imageOf } from '../load';
 import type { TestimonialItem } from '../site';
 import type { Load } from '../view';
 import { tagsShown } from '.';
@@ -19,7 +19,7 @@ export const loadTestimonials = (items: TestimonialItem[], showTopic = true): Pr
       return {
         slug: t.slug,
         name: t.name,
-        ...(t.image ? { image: pictureOf(t.image) } : {}),
+        ...(t.image ? { image: imageOf(t.image) } : {}),
         context: t.context,
         quote: t.quote,
         categories: t.categories,

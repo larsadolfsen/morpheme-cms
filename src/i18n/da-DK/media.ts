@@ -16,7 +16,7 @@ export const media: Messages['media'] = {
   tagFilter: 'Tag',
   allTags: 'Alle tags',
   kinds: {
-    picture: {
+    image: {
       plural: 'Billeder',
       word: 'billede',
       rename: 'Omdøb billedet',
@@ -47,7 +47,7 @@ export const media: Messages['media'] = {
   },
   inUse: 'I brug',
   removeFilter: (label) => `Fjern filteret ${label}`,
-  noPictures: 'Ingen billeder',
+  noImages: 'Ingen billeder',
   noFiles: 'Ingen filer',
   pick: 'Vælg billede',
   providers: {

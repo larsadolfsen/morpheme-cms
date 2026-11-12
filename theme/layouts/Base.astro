@@ -33,15 +33,15 @@ interface Props {
   /** The address of the page Google should count as the original (rel=canonical), from the front matter;
    * else this page itself. */
   canonical?: string;
-  /** The page's picture: shown when the page is shared, and in the structured data. */
+  /** The page's image: shown when the page is shared, and in the structured data. */
   image?: string;
-  /** The pictures on the page, in the order they are on it (a blog post's own first, then the real pictures in
+  /** The images on the page, in the order they are on it (a blog post's own first, then the real images in
    * its text and blocks, picturesOf), for an app that changes the page's colours (pageColors), with the one it is
    * shared with after them. */
   pictures?: (string | undefined)[];
   /** What `image` shows (og:image:alt). */
   imageAlt?: string;
-  /** The picture to show when the page is shared, when it is another than `image`. */
+  /** The image to show when the page is shared, when it is another than `image`. */
   shareImage?: string;
   /** The title and description when the page is shared (og:), when they are others than the Google ones. */
   shareTitle?: string;
@@ -73,17 +73,17 @@ const description = Astro.props.seoDescription || entry?.description || Astro.pr
 const ogTitle = Astro.props.shareTitle || fullTitle;
 const ogDescription = Astro.props.shareDescription || description;
 const canonical = new URL(Astro.props.canonical || entry?.canonical || Astro.url.pathname, Astro.site);
-// The picture when the page is shared: the one chosen for that ("Picture when shared" on the page or in
+// The image when the page is shared: the one chosen for that ("Image when shared" on the page or in
 // packages/editor/site/seo.ts), else the page's own, else the site's portrait; none when the site has none either.
 const chosen = Astro.props.shareImage || entry?.image;
 const shared = chosen || image || site.portrait;
 const og = shared ? shareImage(shared) : null;
 const ogImage = og && new URL(og.src, Astro.site);
-// What it shows, when that is known (not for a picture chosen only for sharing).
+// What it shows, when that is known (not for an image chosen only for sharing).
 const ogAlt = chosen ? undefined : image ? Astro.props.imageAlt : site.portraitAlt;
 const current = Astro.url.pathname;
-// The page's colours: the site's, as the apps installed change them for it, given its pictures, in order, then the one
-// it is shared with ("Picture when shared"); with the app that changed them and the picture they came from, kept on their
+// The page's colours: the site's, as the apps installed change them for it, given its images, in order, then the one
+// it is shared with ("Image when shared"); with the app that changed them and the image they came from, kept on their
 // <style> for "Colors" › "Pages" in the editor (packages/editor/scripts/page-colors.mjs).
 const {
   colors,

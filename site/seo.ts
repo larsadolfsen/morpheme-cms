@@ -4,7 +4,7 @@
 // Pages and blog posts in src/content/ have theirs in their own frontmatter (seoTitle, seoDescription, heading).
 // - title: the whole <title> (also og:title). At most about 60 characters.
 // - description: the meta description, hand-written, 140-155 characters, ending with a call to action.
-// - image: the picture shown when the page is shared (og:image); empty: the site's portrait.
+// - image: the image shown when the page is shared (og:image); empty: the site's portrait.
 // - canonical, noindex: as a page's ("Canonical URL", "Hide from search engines").
 // Pages missing here, or with empty fields, fall back to their own title and description (Base.astro).
 import { categories } from './categories';

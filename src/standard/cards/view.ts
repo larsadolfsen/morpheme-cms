@@ -1,11 +1,11 @@
 // What "Cards" shows (its view, drawn by the theme's View.tsx and LinkCards.tsx): its heading, its type (`kind`: 'filled' or
 // 'elevated', else outlined) and, for filled, its colour (`color`: primary, secondary or tertiary, else Material's own), the link's text
-// (its shared text) and each card's media (an icon, a picture, a video or none), headline, text and either its page (the whole card is the
-// link) or its buttons. In the editor: viewOf; on the site: load.ts, with the pictures' sizes, the videos' stills and the buttons' targets.
+// (its shared text) and each card's media (an icon, an image, a video or none), headline, text and either its page (the whole card is the
+// link) or its buttons. In the editor: viewOf; on the site: load.ts, with the images' sizes, the videos' stills and the buttons' targets.
 import type { BlockData } from '../../blocks';
 import { shownAt } from '../../images';
 import { sharedIn } from '../../shared';
-import type { Picture, ViewOf } from '../view';
+import type { Image, ViewOf } from '../view';
 import { headOf, type HeadView } from '../head';
 import { textOf, type Button } from '../buttons/fields';
 import { kindOf, type ButtonView } from '../buttons/view';
@@ -16,7 +16,7 @@ export type CardMedia = 'none' | 'icon' | 'image' | 'video';
 export type LinkCard = {
   media: CardMedia;
   icon?: string;
-  image?: Picture;
+  image?: Image;
   video?: VideoView;
   title: string;
   text: string;
@@ -40,11 +40,11 @@ export type LinkCardProps = {
 
 const MEDIA: CardMedia[] = ['none', 'icon', 'image', 'video'];
 
-/** The cards, with their pictures as `picture` gives them, their videos as `video` and their buttons as `buttons` (the site's are asked for). */
+/** The cards, with their images as `image` gives them, their videos as `video` and their buttons as `buttons` (the site's are asked for). */
 export const cardsOf = (
   items: LinkCardProps[],
   how: {
-    picture: (src: string) => Picture;
+    image: (src: string) => Image;
     video: (url: string, title: string) => VideoView | null;
     buttons: (card: LinkCardProps, i: number) => ButtonView[];
   },
@@ -55,7 +55,7 @@ export const cardsOf = (
     return {
       media,
       ...(media === 'icon' ? { icon: card.icon } : {}),
-      ...(media === 'image' && card.image ? { image: how.picture(card.image) } : {}),
+      ...(media === 'image' && card.image ? { image: how.image(card.image) } : {}),
       ...(video ? { video } : {}),
       title: card.title,
       text: card.text,
@@ -68,7 +68,7 @@ export const cardsOf = (
 /** Cards in the editor. */
 export const shownCards = (items: LinkCardProps[], data: BlockData) =>
   cardsOf(items, {
-    picture: (src) => ({ src: shownAt(src) }),
+    image: (src) => ({ src: shownAt(src) }),
     video: (url, title) => videoViewOf({ url, title }, data),
     buttons: (card) => (card.buttons ?? []).map((b) => ({ href: b.href ?? '', text: textOf(b, data), kind: kindOf(b), icon: b.icon })),
   });

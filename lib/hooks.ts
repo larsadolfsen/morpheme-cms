@@ -4,9 +4,9 @@
 // use, and keeps what it gives back only when it is right; an app reaches nothing of the site but that. Before an app
 // is installed, its page says what it changes ("Permissions", needsOf in src/store.ts, from the files in hooks/).
 //   page-colors  the colours of a page (PageColorsHook): given the page's colours so far (the site's, "Colors", or those
-//                of an app before it), its pictures and the app's settings, it gives the page other colours, or none.
+//                of an app before it), its images and the app's settings, it gives the page other colours, or none.
 //                The site runs it in packages/editor/site/pageColors.ts, which a theme calls for every page (Base.astro).
-//                Its helper contentColors makes the colours from a picture (the engine runs in the build, lib/contentColors.ts).
+//                Its helper contentColors makes the colours from an image (the engine runs in the build, lib/contentColors.ts).
 // No React, browser or Node here: the editor, the build and the check before it use it.
 // ./colors.ts has its extension so Node's test runner can load this file.
 import { colorProblems, MODES, type Colors } from './colors.ts';
@@ -34,23 +34,23 @@ export type PageColorsPage = {
   path: string;
   /** The page's colours so far: the site's own, or those an app before it gave. */
   colors: Colors;
-  /** The page's pictures, in the order they are on it (its own first, then those in its text and blocks), and last
+  /** The page's images, in the order they are on it (its own first, then those in its text and blocks), and last
    * the one it is shared with; their addresses on the site. */
   pictures: string[];
   /** The app's settings, as saved in the editor over those it starts with. */
   settings: Record<string, any>;
   /** The role each of the site's colours takes in a Material 3 scheme (colorRoles), for dynamicColors. */
   roles: ColorRoles;
-  /** A picture's pixels as RGBA bytes, made small (at most 128 px), as sourceColorsOf takes them; undefined for one
+  /** An image's pixels as RGBA bytes, made small (at most 128 px), as sourceColorsOf takes them; undefined for one
    * that cannot be read. */
   pixels: (picture: string) => Promise<Uint8ClampedArray | undefined>;
   /** Whether the text in colours can be read on its background in both modes, as the site requires (WCAG AA). */
   readable: (colors: Colors) => boolean;
-  /** The colours of the site made from one of the page's pictures, by Material's content-based colour (the engine,
+  /** The colours of the site made from one of the page's images, by Material's content-based colour (the engine,
    * lib/contentColors.ts, runs in the site's build, not in the hook): its source colour, then the scheme of the
-   * variant and contrast in `choice`, each of the site's colours by its role, in both modes. undefined for a picture
+   * variant and contrast in `choice`, each of the site's colours by its role, in both modes. undefined for an image
    * that is not one of the page's, cannot be read, has no colour (a grey one), a `choice` that is not a variant and a
-   * contrast, or colours that are hard to read. Quick for a photograph too, and made once for each picture and choice. */
+   * contrast, or colours that are hard to read. Quick for a photograph too, and made once for each image and choice. */
   contentColors: (picture: string, choice: ContentBased) => Promise<Colors | undefined>;
 };
 

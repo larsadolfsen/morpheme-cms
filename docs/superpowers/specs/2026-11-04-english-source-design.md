@@ -173,7 +173,7 @@ suffixes `-soeg` (`-search`) and `-side` (`-page`); they change with their id. `
 
 | Danish    | English   | Kind                | Note                                                      |
 | --------- | --------- | ------------------- | --------------------------------------------------------- |
-| `billede` | `picture` | file name fallback  | `src/images.ts`, when an upload has no usable name.       |
+| `billede` | `image` | file name fallback  | `src/images.ts`, when an upload has no usable name.       |
 | `fil`     | `file`    | file name fallback  | `src/images.ts`, and `lib/scheduled.mjs` (a message word). |
 
 **Site data on disk (not renamed in this batch).** These are names in a site's own folders and addresses. A rename

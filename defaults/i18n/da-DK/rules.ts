@@ -53,5 +53,5 @@ export const rules: Record<string, string> = {
   'the page "{name}" ({address})': 'siden "{name}" ({address})',
   'the blog post "{name}" ({address})': 'blogindlægget "{name}" ({address})',
   'the tag "{name}" on the blog ({address})': 'tagget "{name}" på bloggen ({address})',
-  'the picture {name}': 'billedet {name}',
+  'the image {name}': 'billedet {name}',
 };

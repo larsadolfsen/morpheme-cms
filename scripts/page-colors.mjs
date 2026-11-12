@@ -1,8 +1,8 @@
 // After the build: each page's colours as it was built, in dist/editor/page-colors.json, for "Colors" › "Pages" in the
 // editor (Colors.tsx), while an app changes the pages' colours (hooks/page-colors.ts):
-// { pages: [{ path, light: { bg, … }, dark: { … }, app?, picture? }] }, by address, read from the <style> Base.astro
+// { pages: [{ path, light: { bg, … }, dark: { … }, app?, image? }] }, by address, read from the <style> Base.astro
 // writes them in (data-page-colors, colorsCss in packages/editor/lib/colors.ts: light mode on :root, dark mode on
-// :root[data-theme='dark']), with the app that changed them and the picture they came from (data-app, data-picture;
+// :root[data-theme='dark']), with the app that changed them and the image they came from (data-app, data-picture;
 // packages/editor/site/pageColors.ts), without them for a page with the site's own. Without the new versions under /new/ and the editor.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -29,13 +29,13 @@ for (const file of readdirSync(DIST, { recursive: true, encoding: 'utf8' }).filt
   if (!style) continue;
   const [, attributes, css] = style;
   const app = attribute(attributes, 'data-app');
-  const picture = attribute(attributes, 'data-picture');
+  const image = attribute(attributes, 'data-picture');
   pages.push({
     path,
     light: declarations(LIGHT.exec(css)?.[1]),
     dark: declarations(DARK.exec(css)?.[1]),
     ...(app && { app }),
-    ...(picture && { picture }),
+    ...(image && { image }),
   });
 }
 pages.sort((a, b) => a.path.localeCompare(b.path));

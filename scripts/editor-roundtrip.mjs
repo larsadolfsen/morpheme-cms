@@ -153,7 +153,7 @@ const frontSections = async (body, parts) => [
   }
 }
 
-// The same for the H1's section (a marker before the page's H1 with a picture and a width): the editor and the site give the same top.
+// The same for the H1's section (a marker before the page's H1 with an image and a width): the editor and the site give the same top.
 {
   const topSample = [
     '<div data-section="" data-picture="/images/a.jpg" data-alt="A field" data-width="full"></div>',

@@ -150,7 +150,7 @@ export const textColorSchema = $markSchema('textColor', () => ({
 }));
 
 // The settings of a section (lib/section-marker.mjs): the marker line before an H1 or H2, or before the label above it
-// (eyebrow), is read into the heading's attributes `section` (the colour), `sectionPicture`, `sectionAlt` and `sectionWidth`, and
+// (eyebrow), is read into the heading's attributes `section` (the colour), `sectionImage`, `sectionAlt` and `sectionWidth`, and
 // written back before it. It must be read before remarkSiteBlocks
 // sees it, so it is the first plugin of that kind in makeEditor. A marker with nothing to colour is dropped.
 const htmlOf = (node) => {
@@ -165,7 +165,7 @@ const remarkSectionMarkers = $remark('remarkSectionMarkers', () => () => (tree) 
     const next = isLabelLine(htmlOf(parts[i + 1])) ? parts[i + 2] : parts[i + 1];
     if (next?.type === 'heading' && next.depth <= 2) {
       next.section = marker.color || null;
-      Object.assign(next, { sectionPicture: marker.picture, sectionAlt: marker.alt, sectionWidth: marker.width });
+      Object.assign(next, { sectionImage: marker.image, sectionAlt: marker.alt, sectionWidth: marker.width });
     }
     return false;
   });
@@ -236,7 +236,7 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
     attrs: {
       ...base.attrs,
       section: { default: null, validate: 'string|null' },
-      sectionPicture: { default: null, validate: 'string|null' },
+      sectionImage: { default: null, validate: 'string|null' },
       sectionAlt: { default: null, validate: 'string|null' },
       sectionWidth: { default: null, validate: 'string|null' },
       align: { default: null, validate: 'string|null' },
@@ -249,7 +249,7 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
         state.openNode(type, {
           level: node.depth,
           section: top ? (node.section ?? null) : null,
-          sectionPicture: top ? (node.sectionPicture ?? null) : null,
+          sectionImage: top ? (node.sectionImage ?? null) : null,
           sectionAlt: top ? (node.sectionAlt ?? null) : null,
           sectionWidth: top ? (node.sectionWidth ?? null) : null,
           align: node.depth >= 3 ? (node.align ?? null) : null,
@@ -261,12 +261,12 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
     toMarkdown: {
       match: base.toMarkdown.match,
       runner: (state, node) => {
-        const { level, section, sectionPicture, sectionAlt, sectionWidth } = node.attrs;
+        const { level, section, sectionImage, sectionAlt, sectionWidth } = node.attrs;
         const top = state.top();
         // The document has no children before its first node is written: a heading at the very top starts them.
         if (top && !top.children) top.children = [];
         const written = top?.children;
-        const marker = level <= 2 ? markerHtml({ color: section, picture: sectionPicture, alt: sectionAlt, width: sectionWidth }) : '';
+        const marker = level <= 2 ? markerHtml({ color: section, image: sectionImage, alt: sectionAlt, width: sectionWidth }) : '';
         if (marker && Array.isArray(written)) {
           const last = written.at(-1);
           const at = last?.type === 'html' && isLabelLine(last.value) ? written.length - 1 : written.length;
@@ -345,8 +345,8 @@ export function partsOf(ctx) {
     } else if (node.type.name === 'heading' && node.attrs.level === 1) {
       flush();
       // The settings of the page's H1 section (a marker before it): a part `top`, as partsOfMarkdown has them.
-      const { section, sectionPicture, sectionAlt, sectionWidth } = node.attrs;
-      const top = topOf({ color: section, picture: sectionPicture, alt: sectionAlt, width: sectionWidth });
+      const { section, sectionImage, sectionAlt, sectionWidth } = node.attrs;
+      const top = topOf({ color: section, image: sectionImage, alt: sectionAlt, width: sectionWidth });
       if (top && !h1Seen) parts.push({ top });
       h1Seen = true;
     } else if (!((node.type.name === 'paragraph' || node.type.name === 'heading') && !node.textContent.trim() && !node.childCount))

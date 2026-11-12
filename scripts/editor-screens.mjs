@@ -80,7 +80,7 @@ const { server, site } = await serveBuilt(DIST);
 
 // CHROMIUM_PATH: another Chromium than Playwright's own (one installed for another version of Playwright).
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
-// SCREENS_DIR (the temporary folder's morpheme-screens by default): where the pictures go.
+// SCREENS_DIR (the temporary folder's morpheme-screens by default): where the images go.
 const shots = process.env.SCREENS_DIR || join(tmpdir(), 'morpheme-screens');
 mkdirSync(shots, { recursive: true });
 // The screens opened (each on both).
@@ -891,7 +891,7 @@ async function checkToolbarBox() {
     });
     const pixel = async (x, y) => {
       const png = await page.screenshot({ clip: { x, y, width: 1, height: 1 }, scale: 'css' });
-      // The first pixel of the picture: the IDAT chunks hold the zlib data, a filter byte and then the colour (whatever the filter, the first pixel of the first row is as written).
+      // The first pixel of the image: the IDAT chunks hold the zlib data, a filter byte and then the colour (whatever the filter, the first pixel of the first row is as written).
       const chunks = [];
       for (let at = 8; at < png.length; at += 12 + png.readUInt32BE(at))
         if (png.toString('latin1', at + 4, at + 8) === 'IDAT') chunks.push(png.subarray(at + 8, at + 8 + png.readUInt32BE(at)));
@@ -1497,7 +1497,7 @@ async function checkDraftsCard(width, height) {
   await few.close();
 }
 
-// "Appstore" and "Morpheme" in the three states of the site's key to the store (STORE_STATES): what each shows, and a picture of it in
+// "Appstore" and "Morpheme" in the three states of the site's key to the store (STORE_STATES): what each shows, and an image of it in
 // SCREENS_DIR.
 const keyStates = {
   open: {
