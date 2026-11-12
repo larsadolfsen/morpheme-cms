@@ -130,7 +130,7 @@ import { menuLayout } from '../lib/menu-layout.mjs';
 
 /** The theme's button (Material 3's buttons): filled, the one thing to do; tonal, an important step that is not the
  * main one; elevated, one on a coloured background; outlined, another choice beside it ("Cancel" too); text, a small
- * step on the side (Remove, Add). medium (the default): the width of its text on every screen (Save changes); small: in a line of text or by a field (Change picture, Add tag). */
+ * step on the side (Remove, Add). medium (the default): the width of its text on every screen (Save changes); small: in a line of text or by a field (Change image, Add tag). */
 export type { ButtonKind };
 export type ButtonSize = 'medium' | 'small';
 
@@ -859,7 +859,7 @@ export function SearchBar({
 }: {
   value: string;
   onChange: (value: string) => void;
-  /** What is searched, for screen readers ("Search the pictures"). */
+  /** What is searched, for screen readers ("Search the images"). */
   label: string;
   className?: string;
   inputRef?: Ref<HTMLInputElement>;
@@ -910,7 +910,7 @@ export function SearchRow({
   );
 }
 
-/** The theme's slider, with its name over it (the zoom when cropping a picture): a value between `min` and `max`. */
+/** The theme's slider, with its name over it (the zoom when cropping an image): a value between `min` and `max`. */
 export function Slider(props: {
   label: string;
   min: number;
@@ -1163,7 +1163,7 @@ export function IconPicker({
 }
 const PAGE = 100;
 
-/** A picture: a small one of it (`src`), the button that picks one, from Files or a new one, or another,
+/** An image: a small one of it (`src`), the button that picks one, from Files or a new one, or another,
  * and with `onRemove` (when it may be left out) the button that takes it away. */
 export function ImagePick({ id, src, onPick, onRemove }: { id?: string; src?: string; onPick: () => void; onRemove?: () => void }) {
   return (
@@ -1564,7 +1564,7 @@ export function ChipSet({ label, scroll = false, children }: { label: string; sc
   );
 }
 
-/** The theme's filter chip: one of a few choices side by side (a picture's format), the chosen one marked. Many choices
+/** The theme's filter chip: one of a few choices side by side (an image's format), the chosen one marked. Many choices
  * go in a sheet instead (Choice). */
 export function FilterChip({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: ReactNode }) {
   return <SiteChip kind="filter" label={children} selected={selected} onClick={onClick} />;
@@ -2405,7 +2405,7 @@ export function ChoiceRow({
 // ---------------------------------------------------------------------------------------------------
 // Lists of rows
 
-/** The classes of a list of rows (in Group, and alone in a sheet: where a picture is used): the theme's segmented list
+/** The classes of a list of rows (in Group, and alone in a sheet: where an image is used): the theme's segmented list
  * (Material 3 Expressive's), each row on its own surface. */
 export const listClass = siteListClasses('segmented');
 
@@ -2677,7 +2677,7 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
   );
 }
 
-/** How a link to a page looks when it is shared on social media (Facebook, LinkedIn, a message), as a card: its picture
+/** How a link to a page looks when it is shared on social media (Facebook, LinkedIn, a message), as a card: its image
  * cut to 1.91:1 (one on its side or square keeps its upper part, as the site cuts it), the site's domain in small
  * capitals, the title and the description, each cut off after two lines. It is never wider than 500 px, the width of a link
  * card in the Facebook feed, and sits at the start of its column. Material 3 has none, so it has its own name. */
@@ -2700,7 +2700,7 @@ export function SharePreview({ image, domain, title, description }: { image: str
   );
 }
 
-/** Pictures in the theme's carousel (a theme's or an app's screenshots), each opening a sheet with it whole, under its
+/** Images in the theme's carousel (a theme's or an app's screenshots), each opening a sheet with it whole, under its
  * name. */
 export function ImageCarousel({ label, images }: { label: string; images: { src: string; label: string }[] }) {
   const sheet = useRef<HTMLDialogElement>(null);
@@ -3400,8 +3400,8 @@ export function LeadingIcon({ icon: Glyph, selected = false, children }: { icon?
   );
 }
 
-/** A picture before a name in a row, as a ListItem's `leading` (Material's leading image): small and square, with the
- * corners of a field, beside its row's first two lines, as an icon; the picture a page's colours came from ("Colors" ›
+/** An image before a name in a row, as a ListItem's `leading` (Material's leading image): small and square, with the
+ * corners of a field, beside its row's first two lines, as an icon; the image a page's colours came from ("Colors" ›
  * "Pages"). `alt` empty when the row's text says what it is. */
 export function LeadingImage({ src, alt = '' }: { src: string; alt?: string }) {
   return (

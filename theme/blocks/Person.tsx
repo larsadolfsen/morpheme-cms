@@ -1,17 +1,17 @@
-// A person (.block-person in ../styles/blocks.css): their picture, small, beside their name and their role, at the top of
+// A person (.block-person in ../styles/blocks.css): their image, small, beside their name and their role, at the top of
 // an app's box (@theme/blocks/Person). A theme draws it its own way with its own blocks/Person.tsx, with the same props.
-// The picture with the sizes the site made of it (pictureOf, packages/editor/site/images.mjs); in the editor the picture itself.
-import type { Picture } from '@morphemecms/cms/src/standard/view';
+// The image with the sizes the site made of it (imageOf, packages/editor/site/images.mjs); in the editor the image itself.
+import type { Image } from '@morphemecms/cms/src/standard/view';
 
-export default function Person({ picture, name, role }: { picture: Picture; name: string; role?: string }) {
+export default function Person({ image, name, role }: { image: Image; name: string; role?: string }) {
   return (
     <div className="block-person">
       <img
-        src={picture.src}
-        srcSet={picture.srcset}
-        sizes={picture.srcset ? '56px' : undefined}
-        width={picture.width}
-        height={picture.height}
+        src={image.src}
+        srcSet={image.srcset}
+        sizes={image.srcset ? '56px' : undefined}
+        width={image.width}
+        height={image.height}
         alt=""
         loading="lazy"
         decoding="async"

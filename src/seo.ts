@@ -67,15 +67,15 @@ export function fileRating(text: string, post: boolean, relations: SeoInput['rel
  * keywords, the canonical address and noindex. */
 export const SEO_FIELDS = ['seoTitle', 'seoDescription', 'keyword', 'keywords', 'canonical', 'noindex'];
 
-/** The fields under "Social media", after them: the picture, the title and the description when the page is shared
- * (a fixed page and a tag have only the picture). */
+/** The fields under "Social media", after them: the image, the title and the description when the page is shared
+ * (a fixed page and a tag have only the image). */
 export const SHARE_FIELDS = ['shareImage', 'shareTitle', 'shareDescription'];
 
 /** What a page shows when a link to it is shared (Facebook, LinkedIn, a message), worked out as Base.astro writes its
  * og: tags: the title when shared, else the Google title, else the page's own with the site's name after it (the front
  * page's without; a page without a title: only the site's name, as `searchedAs` has it); the description when shared,
- * else the Google description, else the page's own (`description`: its "Short description", a fixed page's introduction), else the site's; the picture when shared, else the page's own
- * (`image`: "Picture at the top", else the first picture in the text), else the site's. */
+ * else the Google description, else the page's own (`description`: its "Short description", a fixed page's introduction), else the site's; the image when shared, else the page's own
+ * (`image`: "Image at the top", else the first image in the text), else the site's. */
 export type ShareInput = {
   /** The page's own title as the site has it: a page's H1, a post's title, a fixed page's heading, a tag's name. */
   title: string;
@@ -87,8 +87,8 @@ export type ShareInput = {
   shareImage?: string;
   description?: string;
   image?: string;
-  /** The site's name, description and picture (`sharing` in @site/editor). */
-  site: { name: string; description: string; picture: string };
+  /** The site's name, description and image (`sharing` in @site/editor). */
+  site: { name: string; description: string; image: string };
 };
 
 export const sharedAs = (input: ShareInput) => {
@@ -96,13 +96,13 @@ export const sharedAs = (input: ShareInput) => {
   return {
     title: input.shareTitle?.trim() || searched.title,
     description: input.shareDescription?.trim() || searched.description,
-    image: input.shareImage || input.image || input.site.picture,
+    image: input.shareImage || input.image || input.site.image,
   };
 };
 
-/** The first picture in a text (its address), not one in the text of a block in it (a "Banner"'s, on its line of HTML),
+/** The first image in a text (its address), not one in the text of a block in it (a "Banner"'s, on its line of HTML),
  * as the site picks it (firstImage in packages/editor/site/images.mjs). */
-export const firstPicture = (body: string): string | undefined =>
+export const firstImage = (body: string): string | undefined =>
   body.replace(/^<div data-block=.*$/gm, '').match(/!\[[^\]]*\]\(([^)\s]+)\)/)?.[1];
 
 /** The longest a Google title is shown, and the length a Google description is best between. */
@@ -143,7 +143,7 @@ export function h1First(body: string): boolean {
 }
 
 /** The first paragraph of a text, as plain text: the first lines together that are not a heading, a block
- * (HTML), a picture alone, a line across or fenced code. Empty when there is none. */
+ * (HTML), an image alone, a line across or fenced code. Empty when there is none. */
 export function firstParagraph(body: string): string {
   const lines = outsideCode(body);
   const text = (line: string) =>
@@ -160,7 +160,7 @@ export function firstParagraph(body: string): string {
   return plain(paragraph.join(' '));
 }
 
-/** Markdown as plain text: without links' addresses, pictures and the marks for bold, italic and code. */
+/** Markdown as plain text: without links' addresses, images and the marks for bold, italic and code. */
 export function plain(markdown: string): string {
   return markdown
     .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
@@ -179,7 +179,7 @@ export const lengthOf = (text: string) => [...text.trim()].length;
 export const hasWord = (text: string, word: string) =>
   !!word.trim() && plain(text).toLocaleLowerCase().includes(word.trim().replace(/\s+/g, ' ').toLocaleLowerCase());
 
-/** The text of a body outside fenced code, code spans and HTML comments, in paragraphs, so a link or a picture
+/** The text of a body outside fenced code, code spans and HTML comments, in paragraphs, so a link or an image
  * is never read across two of them. */
 function paragraphs(body: string): string[] {
   const kept = new Set(outsideCode(body).map(({ at }) => at));
@@ -192,23 +192,23 @@ function paragraphs(body: string): string[] {
     .map((p) => p.replace(/(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/g, ''));
 }
 
-// A link's or a picture's text in brackets (with escapes and one level of brackets in it, as a picture in a link),
+// A link's or an image's text in brackets (with escapes and one level of brackets in it, as an image in a link),
 // and its address in parentheses (maybe in <>, with a title after it), as Milkdown writes them: the text the first
 // group, the address the second.
 const LABEL = String.raw`((?:\\.|[^\\\[\]]|\[(?:\\.|[^\\\[\]])*\])*)`;
 const DEST = String.raw`\(\s*(<[^>\n]*>|(?:\\.|[^\\()\s]|\((?:\\.|[^\\()\s])*\))*)(?:\s+(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\((?:\\.|[^()\\])*\)))?\s*\)`;
-const PICTURE = new RegExp(String.raw`(?<!\\)!\[${LABEL}\]${DEST}`, 'g');
+const IMAGE = new RegExp(String.raw`(?<!\\)!\[${LABEL}\]${DEST}`, 'g');
 const LINK = new RegExp(String.raw`(?<![\\!])\[${LABEL}\]${DEST}`, 'g');
 const IMG = /(?<!\\)<img\b[^>]*>/gi;
 const ALT = /\salt\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/i;
 const A = /(?<!\\)<a\b[^>]*>([\s\S]*?)<\/a\s*>/gi;
 
-/** The pictures in a text (`![…](…)`, and `<img>` in its HTML), each by its alternative text, as plain text (empty
- * when it has none), and whether it is decorative: marked so in its address ("Decorative picture", crop.mjs), or in
- * HTML with alt="". The blocks (`<div data-block=…>`) are not pictures of the text. */
-export function pictures(body: string): { alt: string; decorative: boolean }[] {
+/** The images in a text (`![…](…)`, and `<img>` in its HTML), each by its alternative text, as plain text (empty
+ * when it has none), and whether it is decorative: marked so in its address ("Decorative image", crop.mjs), or in
+ * HTML with alt="". The blocks (`<div data-block=…>`) are not images of the text. */
+export function images(body: string): { alt: string; decorative: boolean }[] {
   return paragraphs(body).flatMap((p) => [
-    ...[...p.matchAll(PICTURE)].map((m) => ({
+    ...[...p.matchAll(IMAGE)].map((m) => ({
       alt: plain(m[1]),
       decorative: decorativeOf(m[2].replace(/^<(.*)>$/, '$1')).decorative,
     })),
@@ -245,7 +245,7 @@ export function canonicalFound(canonical: string, relations: SeoInput['relations
 
 /** The checks, in the order they are shown: at most ten. First whether Google may show the page at all (noindex and
  * Canonical URL, only when they are set), then its H1, its Google title and description and its keyword, and last
- * the pictures and links of its text (only when it has some). */
+ * the images and links of its text (only when it has some). */
 export function seoRating(input: SeoInput): SeoCheck[] {
   const r = t.forms.seoRating;
   const { post } = input;
@@ -301,9 +301,9 @@ export function seoRating(input: SeoInput): SeoCheck[] {
     const inText = hasWord(firstParagraph(input.body), keyword);
     checks.push({ ok: inText, text: r.keywordInText(keyword, inText), fix: inText ? undefined : r.fixKeywordInText });
   }
-  const shown = pictures(input.body);
+  const shown = images(input.body);
   if (shown.length) {
-    const without = shown.filter((picture) => !picture.alt && !picture.decorative).length;
+    const without = shown.filter((image) => !image.alt && !image.decorative).length;
     checks.push(without ? { ok: false, text: r.noAlt(without), fix: r.fixAlt } : { ok: true, text: r.allAlt });
   }
   const texts = links(input.body);

@@ -8,7 +8,7 @@
 
 The block sheet (`src/BlockDialog.tsx`) shows the fields of a block in a small sheet from the bottom on a phone. On a
 computer it is a dialog in the middle of the screen. A block with many fields, such as Cards, is too crowded there.
-More design options for one block make this worse. The owner stopped the "Picture left" option for Cards for this
+More design options for one block make this worse. The owner stopped the "Image left" option for Cards for this
 reason.
 
 ## Decisions (owner, 5 November 2026)
@@ -64,7 +64,7 @@ These replace the layout table, the header and the bar above and in the Design:
    `leave()` asks the current question (`closeChanged` in `src/ask.ts`). In the side panel, a tap beside it does
    nothing, as today.
 6. **The content.** The order stays: the link to the shared texts (`EditLink`), the preview, the fields, the crop of a
-   picture, the problem note. The content scrolls under the fixed header.
+   image, the problem note. The content scrolls under the fixed header.
 7. **Save with a problem.** The header button calls the current `save()`. `save()` shows the problem and marks the
    wrong field as today (`useWrongField`). The wrong field must come into view, also when it is far down the form.
 
@@ -84,7 +84,7 @@ These replace the layout table, the header and the bar above and in the Design:
 - The "choose" step and the "section" step. They keep `SheetTitle` and `SheetActions`.
 - Other sheets of the editor (links, pages, media).
 - A mini editor for blocks.
-- **Parked: "Picture left" for the Cards block** (a 4th option on the Design switch, value `image-left`, Danish
+- **Parked: "Image left" for the Cards block** (a 4th option on the Design switch, value `image-left`, Danish
   label: Billede til venstre). A mockup with the demo's home-page cards showed a problem. With two cards per row on a
   normal page (66ch text column), the text column of a card is only about 140px wide. One card per row, or a
   full-width page, gives about 300px. Material 3 also shows the opposite direction: a horizontal card on compact

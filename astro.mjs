@@ -1,5 +1,5 @@
 // The Astro config of a site with the CMS: `export default await siteConfig()` in the site's astro.config.mjs. Everything
-// a site is built with: its address and language (src/site/config.ts), Markdown with responsive pictures, internal links
+// a site is built with: its address and language (src/site/config.ts), Markdown with responsive images, internal links
 // and videos, React, the sitemap, each page's Content-Security-Policy, what the apps make after the build, the licences,
 // the CMS's pages (pages/, added as routes) and the Vite plugins and aliases (@site, @data, @saturn, @theme). The site is
 // its root, the working directory; this package is where this file is.

@@ -20,7 +20,7 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
 
 # An SVG file opened on its own (the logo, the favicon) is a page on the site's address, without the <meta> CSP the
-# pages have. Its own CSP lets it draw (its own CSS, a picture inside it as data:) and nothing else: no script runs,
+# pages have. Its own CSP lets it draw (its own CSS, an image inside it as data:) and nothing else: no script runs,
 # nothing is loaded from elsewhere, and it is sandboxed, so it is never the site's address. The logo is also cleaned
 # when it is picked (cleanSvg in packages/editor/lib/svg.mjs); this holds for any SVG in the build.
 /*.svg

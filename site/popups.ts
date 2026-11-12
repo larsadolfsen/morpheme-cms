@@ -17,7 +17,7 @@ type PopupData = {
   /** On every page ("all"), on those in `pages` ("some", and without one), or on the blog posts with one
    * of `tags` and the tags' pages ("tags"). */
   where?: 'all' | 'some' | 'tags';
-  /** The picture at the top (its address on the site). */
+  /** The image at the top (its address on the site). */
   image?: string;
   heading?: string;
   /** Paragraphs separated by a blank line. */

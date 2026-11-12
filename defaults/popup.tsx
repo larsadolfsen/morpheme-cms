@@ -1,12 +1,12 @@
 // The site's own kinds of promotion drawn beside their form in the editor. A pop-up ("Promotion", the
 // kind "Pop-up") as it looks on the site: the theme's box (PopupView.tsx, the same as Popup.astro shows on the
-// site) with the picture, heading and text, and its button: "Book an appointment", "Call" with the number, a page by its name,
+// site) with the image, heading and text, and its button: "Book an appointment", "Call" with the number, a page by its name,
 // or "Download PDF", with the button's own text when it has one; and an app's kind with a part in it (Mailchimp's
 // signup, drawPart: FolderCollection.drawPart). Links and buttons are only drawn.
 import type { BlockData } from '../src/blocks';
 import type { KindPart } from '../src/schema';
 import { buttonsOf } from '../src/standard/buttons/view';
-import { shownPicture } from '../src/standard/view';
+import { shownImage } from '../src/standard/view';
 import PopupView from '@theme/components/PopupView';
 import BottomSheet from '@theme/ui/BottomSheet';
 import Button from '@theme/ui/Button';
@@ -28,7 +28,7 @@ function buttonOf(p: Record<string, any>, data: BlockData): PopupButtonView | un
 export function drawPopup(p: Record<string, any>, data: BlockData, part?: KindPart) {
   const popup = {
     slug: 'preview',
-    image: p.image ? shownPicture(p.image) : undefined,
+    image: p.image ? shownImage(p.image) : undefined,
     heading: String(p.heading ?? ''),
     text: String(p.text ?? '')
       .split(/\n\s*\n/)

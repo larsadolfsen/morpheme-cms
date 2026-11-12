@@ -47,10 +47,10 @@ export const text = {
   sectionSettings: 'Section settings',
   sectionColor: 'Section color',
   sectionColors: { none: 'None', surface: 'Surface', primary: 'Primary', secondary: 'Secondary', tertiary: 'Tertiary' },
-  /** A section's background picture and its width, in the same sheet. */
-  sectionPicture: 'Background picture',
-  sectionPictureAlt: 'Picture description',
-  sectionPictureAltHint: 'Leave it empty for a picture that is only decoration.',
+  /** A section's background image and its width, in the same sheet. */
+  sectionImage: 'Background image',
+  sectionImageAlt: 'Image description',
+  sectionImageAltHint: 'Leave it empty for an image that is only decoration.',
   sectionWidth: 'Width',
   sectionWidthFull: 'Full width',
   sectionWidthText: 'Like the text',

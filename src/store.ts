@@ -4,7 +4,7 @@
 // its id, its version and the version of the contract it is written to (APP_API), its name, who made it, its icon
 // (Phosphor's name), what it does (in a sentence, and more fully), its category and the words it is found by, what it
 // adds (its blocks, the lists it brings and its kinds of the site's lists), what it needs (needsOf), the cookies it
-// sets, its pictures, what is new in each version (its release notes), its texts in the editor's other languages (as an app's texts.ts), its
+// sets, its images, what is new in each version (its release notes), its texts in the editor's other languages (as an app's texts.ts), its
 // licence and those of the third-party work it brings (StoreLicenses), and its folder file by file with their blob ids.
 // Installing one copies its folder into the site's (config.apps.folder/<id>/, each file checked against its id), with a
 // note of where it came from (store.json, StoreRecord; its `ref` is the version), and puts it among the apps installed,
@@ -12,7 +12,7 @@
 // uninstalling deletes the folder, also in one commit each. What was made with it (its settings, its entries) is the
 // site's data and stays.
 // The store has themes too (`themes` in the catalog): each with its id, its version and the version of the contract it
-// is written to (THEME_API), its name, who made it, its picture, what it is and gives the site, its pictures of a site
+// is written to (THEME_API), its name, who made it, its image, what it is and gives the site, its images of a site
 // in it, and its folder file by file. Installing one copies its folder into the site's themes (config.themes/<id>/,
 // with its store.json), and it can then be chosen under "Appearance" › "Themes"; updating and uninstalling are as for
 // an app (themeChanges), and the theme in use cannot be uninstalled.
@@ -98,7 +98,7 @@ export function needsOf(
  * for the cookie list in the cookie policy (the site's packages/editor/site/appCookies.mjs). */
 export type AppCookie = { name?: string; provider?: string; purpose: string; lasts?: string; category?: string; when?: string };
 
-/** A picture of an app in its store page, picked to give an idea of it (`screenshots` in its index.ts, as a theme's):
+/** An image of an app in its store page, picked to give an idea of it (`screenshots` in its index.ts, as a theme's):
  * what it shows (`shows`: one of its blocks, `block:<type>`; a variant of its kind of a list, `kind:<list>:<n>`, 0
  * without variants; one of its lists, `list:<id>`; its settings, `settings`, with made-up `values`, never the
  * site's own; its own page, `page`; the old Danish words still work for one
@@ -106,12 +106,12 @@ export type AppCookie = { name?: string; provider?: string; purpose: string; las
  * site's (packages/editor/scripts/app-screenshots.mjs takes them with the examples). */
 export type AppShot = { shows: string; label: string; values?: Record<string, unknown> };
 
-/** A picture of an app as the catalog has it: its file in the app's screenshots/ and what it says under it. */
+/** An image of an app as the catalog has it: its file in the app's screenshots/ and what it says under it. */
 export type AppScreenshot = { file: string; label: string };
 
 export { shotOf, shotFile, shotFiles } from '../lib/appShots.mjs';
 
-/** The folder of an app's pictures. */
+/** The folder of an app's images. */
 export const SCREENSHOTS = 'screenshots';
 
 /** An app in the store's catalog. */
@@ -141,7 +141,7 @@ export type StoreApp = {
   mcp?: { server: string; auth?: string; tools?: string[] };
   keywords?: string[];
   /** What it needs of the site; the cookies it sets, and whether it asks in the cookie banner first (AppDefinition
-   * .cookies); its pictures. */
+   * .cookies); its images. */
   needs?: AppNeeds;
   /** The names of the kinds of notifications it sends (AppDefinition.notifications). */
   notifies?: string[];
@@ -159,7 +159,7 @@ export type StoreApp = {
   files: StoreFile[];
 };
 
-/** A theme in the store's catalog: as its theme.json has it (its texts by the editor's language), its pictures of a
+/** A theme in the store's catalog: as its theme.json has it (its texts by the editor's language), its images of a
  * site in it (screenshots/<n>-<key>.jpg, t.library.themeShots) and its folder, file by file. */
 export type StoreTheme = {
   id: string;
@@ -402,7 +402,7 @@ export async function readApp(app: {
   );
 }
 
-/** An app's pictures from the store (its screenshots/, AppScreenshot), each as an address in this browser (a blob:)
+/** An app's images from the store (its screenshots/, AppScreenshot), each as an address in this browser (a blob:)
  * with what it shows; one that cannot be read is left out. */
 export async function readScreenshots(app: StoreApp): Promise<{ src: string; label: string }[]> {
   const types: Record<string, string> = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp' };
@@ -422,7 +422,7 @@ export async function readScreenshots(app: StoreApp): Promise<{ src: string; lab
   return read.filter((x) => !!x);
 }
 
-/** A theme's pictures of a site in it from the store (its screenshots/), each as an address in this browser (a blob:)
+/** A theme's images of a site in it from the store (its screenshots/), each as an address in this browser (a blob:)
  * with what it shows (its key, t.library.themeShots); one that cannot be read is left out. */
 export async function readThemeScreenshots(theme: Pick<StoreTheme, 'screenshots' | 'files'>): Promise<{ key: string; src: string }[]> {
   const read = await Promise.all(

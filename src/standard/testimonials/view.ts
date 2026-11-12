@@ -1,6 +1,6 @@
 // What "Testimonials" shows (its view, drawn by the theme's View.tsx, Slider.tsx, List.tsx and Testimonial.tsx): its
 // heading, its layout (to leaf through, or 'list': one after another with the whole text), its testimonials (each
-// one's name, picture, context, paragraphs, tags with their pages, and where its whole text is: `anchor` on the
+// one's name, image, context, paragraphs, tags with their pages, and where its whole text is: `anchor` on the
 // testimonials page, `href` from elsewhere), what the slider is called for screen readers, the tags to filter by in a
 // list (`filters`), and its shared texts ("Read more", "Show less"). In the editor: viewOf, with the testimonials of
 // the list "Testimonials"; on the site: load.ts.
@@ -9,7 +9,7 @@ import type { TestimonialRow } from '../../fields';
 import { siteT } from '../../i18n';
 import { sharedIn } from '../../shared';
 import { shownAt } from '../../images';
-import type { Picture, ViewOf } from '../view';
+import type { Image, ViewOf } from '../view';
 import { chosen, tagsOf, tagsShown } from '.';
 import { headOf, type HeadView } from '../head';
 import shared from './shared';
@@ -17,7 +17,7 @@ import shared from './shared';
 export type TestimonialView = {
   slug: string;
   name: string;
-  image?: Picture;
+  image?: Image;
   context?: string;
   quote: string[];
   categories: string[];

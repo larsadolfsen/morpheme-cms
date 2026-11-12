@@ -1,5 +1,5 @@
 // Checks the Worker's blog post of a new CMS release (packages/editor/worker/release-post.js): nothing on a site without
-// `releasePosts`, one commit with the post and its pictures for a new version, nothing more for the same version, nothing
+// `releasePosts`, one commit with the post and its images for a new version, nothing more for the same version, nothing
 // for a version without notes or one that has a post, and a failure tried again after an hour. npm, GitHub and KV are played
 // here (a fake fetch, files in memory, a fake KV); nothing goes to npm, GitHub or Cloudflare.
 // Run: npm run check:worker

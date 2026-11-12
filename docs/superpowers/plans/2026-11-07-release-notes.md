@@ -226,7 +226,7 @@ Steps:
    title, the paragraph. Use the theme's components. No new CSS value without a token.
 3. Change `src/ReleaseNotes.tsx`: per version, the cards first, then the lines as a list under `alsoInThisVersion`.
 4. Convert this change's own note `quiet-lamps-wander` into a card in both locales. Title en-US "See what's new, with
-   pictures". Text: one friendly paragraph, why then how then what. Danish: same meaning, natural, "du"-form.
+   images". Text: one friendly paragraph, why then how then what. Danish: same meaning, natural, "du"-form.
 5. Take its screenshots: `#morpheme` with a mocked `/api/cms`, 375×812, scale 2, WebP, at most 200 KB, one per locale.
    Save them as `release-notes/i18n/<locale>/pending/quiet-lamps-wander.webp`.
 6. Take review screenshots of the page in both locales with one card and two lines. Save them in

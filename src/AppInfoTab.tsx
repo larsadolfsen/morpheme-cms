@@ -1,4 +1,4 @@
-// What every app's page says about it (AppList.tsx: AppContent and StoreAppPage): its pictures, what it does, what
+// What every app's page says about it (AppList.tsx: AppContent and StoreAppPage): its images, what it does, what
 // is new, what it needs of the site, its notifications (names only), its cookies, its licences, who made it and where it
 // is used. Exposes AppInfoTab (default). Depends on ./ui, ./i18n and AppList.tsx's DeveloperRow.
 import type { ReactNode } from 'react';
@@ -24,13 +24,13 @@ import { DeveloperRow } from './AppList';
 import AppPlaces from './AppPlaces';
 import AppProblems from './AppProblems';
 
-/** What every app's page says about it, from its folder or the store's catalog: its pictures (each opening it whole),
+/** What every app's page says about it, from its folder or the store's catalog: its images (each opening it whole),
  * what it does more fully, what it needs of the site (needsOf, with the access of each of its places, AppPlaces, and what the last
  * build found wrong in it, AppProblems), the cookies it sets (`consent`: the cookie banner asks first), and who made it, with a row to their page. `children`: what stands between its description and what it
  * needs (its settings and what it adds). */
 export default function AppInfoTab({
   id,
-  pictures,
+  images,
   description,
   news = [],
   needs,
@@ -45,7 +45,7 @@ export default function AppInfoTab({
 }: {
   /** Its id, when it is installed: what the last build found wrong in it is shown above "Permissions". */
   id?: string;
-  pictures: { src: string; label: string }[];
+  images: { src: string; label: string }[];
   description?: string;
   news?: { version: string; text: string }[];
   needs?: AppNeeds;
@@ -91,10 +91,10 @@ export default function AppInfoTab({
   const category = (c: AppCookie) => t.blocks.cookies.entries.categories[categoryOf(c)];
   return (
     <>
-      {pictures.length > 0 && (
+      {images.length > 0 && (
         <section className="mb-8">
           <GroupTitle>{t.apps.screenshots}</GroupTitle>
-          <ImageCarousel label={t.apps.screenshots} images={pictures} />
+          <ImageCarousel label={t.apps.screenshots} images={images} />
         </section>
       )}
       {description && (
