@@ -6,7 +6,6 @@ export const app = {
   notFound: 'Not found',
   nothingAt: (route: string) => `There’s nothing at the address ${route}`,
   /** The chip in the top bar: from Save until the website is rebuilt, then when it is, or when it failed. */
-  building: 'Updating the website…',
   /** After a save, when the website has been updated with it (or not); `changes`: what the saves since the last update
    * changed, as a list (changesText in deploy.ts). */
   siteUpdated: (changes: string) => `The website has been updated: ${changes}.`,

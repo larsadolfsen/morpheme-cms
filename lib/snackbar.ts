@@ -22,8 +22,6 @@ export type SnackbarMessage = {
   links?: SnackbarLink[];
   /** How long it stays, when longer than usual (e.g. with links to read). */
   ms?: number;
-  /** A progress bar under the text: true when it is not known how far it is, else how far (0 to 1). */
-  progress?: boolean | number;
   /** The message as the site's theme draws it (its Snackbar part), shown in place of the text and links. */
   element?: HTMLElement;
 };
@@ -53,7 +51,7 @@ export function snackbar(next: SnackbarMessage | null) {
   }
 }
 
-function show(stack: HTMLDivElement, { text, error, links = [], ms, element, progress }: SnackbarMessage) {
+function show(stack: HTMLDivElement, { text, error, links = [], ms, element }: SnackbarMessage) {
   const el = element ?? document.createElement('p');
   el.dataset.text = text;
   if (!element) {
@@ -69,18 +67,6 @@ function show(stack: HTMLDivElement, { text, error, links = [], ms, element, pro
     a.prepend(link.text);
     if (link.onClick) a.addEventListener('click', link.onClick);
     el.append(' ', a);
-  }
-  if (progress !== undefined && progress !== false && !element) {
-    const bar = document.createElement('span');
-    bar.className = 'snackbar-progress';
-    bar.setAttribute('role', 'progressbar');
-    bar.setAttribute('aria-label', text);
-    if (typeof progress === 'number') {
-      const value = Math.min(1, Math.max(0, progress));
-      bar.style.setProperty('--snackbar-progress', String(value));
-      bar.setAttribute('aria-valuenow', String(Math.round(value * 100)));
-    }
-    el.append(bar);
   }
   stack.append(el);
 

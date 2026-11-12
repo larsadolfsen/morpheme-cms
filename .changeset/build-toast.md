@@ -2,4 +2,4 @@
 '@morphemecms/cms': patch
 ---
 
-The website update shows as a message with a progress bar at the bottom instead of a chip in the top bar.
+While the website updates after you publish, the Publish button shows the progress, and a failed update says so with a link to System status.

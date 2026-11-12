@@ -6,7 +6,6 @@ export const app: Messages['app'] = {
   cannotSave: (login) => `${login} har ikke adgang til at gemme. Log ind med en anden GitHub-konto under Konto.`,
   notFound: 'Findes ikke',
   nothingAt: (route) => `Der er ikke noget på adressen ${route}`,
-  building: 'Opdaterer hjemmesiden…',
   siteUpdated: (changes) => `Hjemmesiden er opdateret: ${changes}.`,
   siteNotUpdated: (changes) => `Hjemmesiden blev ikke opdateret (${changes}). Gendan den forrige version under Tidligere versioner.`,
   changes: {

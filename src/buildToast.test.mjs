@@ -1,6 +1,6 @@
-// The website update status is a snackbar with a progress bar, not a chip in the top bar (it squeezed the page title on
-// a phone). The snackbar draws in a browser (`?raw` icon import), so this checks the wiring in the sources.
-// Run: node --test src/buildToast.test.mjs
+// The website update status shows in the form's Publish button (busy while the website updates), not as a chip in the top
+// bar (it squeezed the page title on a phone) and not as a message; only a failure is a message, with a link to System
+// status. Checks the wiring in the sources. Run: node --test src/buildToast.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
@@ -12,19 +12,16 @@ test('the top bar has no build chip', () => {
   assert.doesNotMatch(read('./Screen.tsx'), /BuildChip/);
 });
 
-test('a save shows the update as a snackbar with a progress bar, the result replaces it', () => {
-  const app = read('./App.tsx');
-  assert.match(app, /snackbar\(\{ text: t\.app\.building, progress: true \}\)/);
-  // The text ends with an ellipsis, so the snackbar keeps it until the next message replaces it.
-  assert.match(read('./i18n/en-US/app.ts'), /building: '[^']*…'/);
-  assert.match(read('./i18n/da-DK/app.ts'), /building: '[^']*…'/);
-  // A failed update links to System status.
-  assert.match(app, /edit: online \? undefined : \{ text: t\.footer\.status, to: 'status' \}/);
+test('the Publish button is busy while the website updates and stays until then', () => {
+  const frame = read('./FormFrame.tsx');
+  assert.match(frame, /useBuildState\(\) === 'updating'/);
+  assert.match(frame, /busy=\{publishing\}/);
+  assert.match(frame, /publish\?\.label \|\| publishing/);
 });
 
-test('the snackbar draws a determinate or indeterminate progress bar', () => {
-  const lib = read('../lib/snackbar.ts');
-  assert.match(lib, /progress\?: boolean \| number/);
-  assert.match(lib, /role', 'progressbar'/);
-  assert.match(lib, /aria-valuenow/);
+test('only a failed update is a message, with a link to System status', () => {
+  const app = read('./App.tsx');
+  assert.match(app, /setBuildState\('updating'\)/);
+  assert.match(app, /to: 'status' \} \},\s*!byServer,\s*!online,?\s*\)/);
+  assert.doesNotMatch(app, /progress: true/);
 });
