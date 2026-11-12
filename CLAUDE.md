@@ -213,7 +213,7 @@ All wording in UI components, buttons and fields follows the specific guidelines
 
 - **Short, precise sentences in the active form** (Active Voice).
 - **Universal terms:** No local abbreviations or unexplained national concepts.
-- **Image, never picture** (owner rule, 12 Nov): English texts, docs and notes say `image`. `check:language` fails on `picture`; stored names (CSS classes, data attributes, saved ids) keep it and are listed in `scripts/check-language.mjs`.
+- **Image everywhere** (owner rule, 12 Nov): English texts, docs and notes say `image`. `check:language` fails on the old word; stored names (CSS classes, data attributes, saved ids) keep it and are listed in `scripts/check-language.mjs`.
 - **M3 canonical terminology:**
   - Toggles and states: `Enabled` / `Disabled`, `On` / `Off` (their Danish labels are in the `da-DK` language files).
   - Document status: `Draft`, `Published`. A page is scheduled with a date on `Publish` (`Schedule`); `Hidden` is the SEO setting `Hide from search engines`.
