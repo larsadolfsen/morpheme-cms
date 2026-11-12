@@ -17,7 +17,7 @@ const CASES = [
   ['we', 'Back to our page', 'Page ids'],
   ['we', 'Then I wrote it', 'Id and i18n'],
   ['exclamation', 'Done!', 'Done'],
-  ['ampersand', 'Text & pictures', 'Text and pictures'],
+  ['ampersand', 'Text & images', 'Text and images'],
   ['british', 'Colour', 'Color'],
   ['british', 'Grey boxes', 'Gray boxes'],
   ['internal-name', 'Loading the Worker’s settings', 'Loading settings…'],

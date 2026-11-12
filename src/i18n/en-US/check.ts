@@ -20,7 +20,7 @@ export const check = {
   cannotBeHere: (name: string) => `"${name}" can’t be on this page.`,
   atMost: (name: string, max: number) =>
     max === 1 ? `There can only be one "${name}" on the page.` : `There can be at most ${max} "${name}" on the page.`,
-  /** A block or picture in the text of a field (a "Banner"'s), which may not have it or not so many (Field.template). */
+  /** A block or image in the text of a field (a "Banner"'s), which may not have it or not so many (Field.template). */
   cannotBeInText: (name: string) => `"${name}" can’t be in the text.`,
   atMostInText: (name: string, max: number) =>
     max === 1 ? `There can only be one "${name}" in the text.` : `There can be at most ${max} "${name}" in the text.`,

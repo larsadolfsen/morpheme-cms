@@ -1,5 +1,5 @@
 // The settings of a section in the sheet of BlockDialog.tsx: its colour ("None" and the theme's four, section-marker.mjs), and for an H2
-// the picture behind it, the picture's description and its width (the whole window or the text's). Exposes the default SectionSettings and
+// the image behind it, the image's description and its width (the whole window or the text's). Exposes the default SectionSettings and
 // SectionValues; uses Option (ui.tsx), FieldList (fields.tsx), SECTION_COLORS.
 import { ArrowsInLineHorizontal, ArrowsOutLineHorizontal } from '@phosphor-icons/react';
 import { FieldList } from './fields';
@@ -8,11 +8,11 @@ import { Option } from './ui';
 import { SECTION_COLORS } from '../lib/section-marker.mjs';
 import { t } from './i18n';
 
-/** A section's settings as the sheet holds them: color '' for none, picture '' for none, width 'full' or ''. */
-export type SectionValues = { color: string; picture: string; alt: string; width: string };
+/** A section's settings as the sheet holds them: color '' for none, image '' for none, width 'full' or ''. */
+export type SectionValues = { color: string; image: string; alt: string; width: string };
 
-const PICTURE: Field = { name: 'picture', label: t.text.sectionPicture, type: 'image' };
-const ALT: Field = { name: 'alt', label: t.text.sectionPictureAlt, type: 'string', hint: t.text.sectionPictureAltHint };
+const IMAGE: Field = { name: 'image', label: t.text.sectionImage, type: 'image' };
+const ALT: Field = { name: 'alt', label: t.text.sectionImageAlt, type: 'string', hint: t.text.sectionImageAltHint };
 const WIDTH: Field = {
   name: 'width',
   label: t.text.sectionWidth,
@@ -24,14 +24,14 @@ const WIDTH: Field = {
   ],
 };
 
-/** picture: whether the section can have a picture and a width (any H1's or H2's). */
+/** image: whether the section can have an image and a width (any H1's or H2's). */
 export default function SectionSettings({
   values,
-  picture,
+  image,
   onChange,
 }: {
   values: SectionValues;
-  picture: boolean;
+  image: boolean;
   onChange: (values: SectionValues) => void;
 }) {
   const { color } = values;
@@ -47,14 +47,14 @@ export default function SectionSettings({
           </Option>
         ))}
       </ul>
-      {picture && (
+      {image && (
         <FieldList
-          fields={values.picture ? [PICTURE, ALT, WIDTH] : [PICTURE, WIDTH]}
+          fields={values.image ? [IMAGE, ALT, WIDTH] : [IMAGE, WIDTH]}
           value={values}
           onChange={(next) => {
             const v = next as SectionValues;
-            // Without a picture the description is gone too.
-            onChange(v.picture ? v : { ...v, alt: '' });
+            // Without an image the description is gone too.
+            onChange(v.image ? v : { ...v, alt: '' });
           }}
         />
       )}

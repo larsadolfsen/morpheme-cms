@@ -2,5 +2,5 @@
   "id": "cards-media-kinds",
   "kind": "paragraph",
   "title": "Cards",
-  "text": "Cards look as Material 3 defines them. Pick Outlined, Filled or Elevated in the block’s settings, and give each card an icon, a picture or a video at the top. A card with a page is one link; without one, it can have buttons."
+  "text": "Cards look as Material 3 defines them. Pick Outlined, Filled or Elevated in the block’s settings, and give each card an icon, an image or a video at the top. A card with a page is one link; without one, it can have buttons."
 }

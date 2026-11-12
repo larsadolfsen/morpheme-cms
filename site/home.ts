@@ -16,13 +16,13 @@ type Link = { label: string; href: string };
 
 type Sections = {
   // The standard block "Banner" (type "hero"; text: Markdown, with its heading, the subtitle and the introduction, its
-  // picture, its "Buttons" block and the text under it: heroParts in packages/editor/src/standard/hero/fields.ts).
+  // image, its "Buttons" block and the text under it: heroParts in packages/editor/src/standard/hero/fields.ts).
   hero: { text: string; placement?: string; width?: string };
   // The standard block "Expandable list" with a heading and an introduction.
   accordion: { heading: string; intro: string; items: (Link & { text?: string; more?: Link[] })[] };
   // The standard block "Testimonials" (show 'front': the front page's).
   testimonials: { heading: string; show?: string };
-  // The standard block "Cards" with a heading (design: '' an icon, 'image' a picture, 'text' neither).
+  // The standard block "Cards" with a heading (design: '' an icon, 'image' an image, 'text' neither).
   cards: { heading: string; design?: string; items: { icon?: string; image?: string; title: string; text: string; href?: string }[] };
   steps: { heading: string; items: { title: string; text: string }[] };
   // show "categories" (the default): `count` posts (3 when not set, postCount in the standard block
@@ -30,11 +30,11 @@ type Sections = {
   // the newest or (order "random") picked anew on each visit; "picked": the posts in `picked`.
   posts: { heading: string } & PostChoice;
   text: { heading?: string; body: string };
-  // The page's H1 with section settings (a marker before it, lib/section-marker.mjs: Surface or another colour, a picture behind the
+  // The page's H1 with section settings (a marker before it, lib/section-marker.mjs: Surface or another colour, an image behind the
   // text, the whole width): the heading (drawn by templates/Home.astro) and its `items` up to the next heading or block in one panel.
   // This is the top "Banner" (type "hero") as a section: lib/front-banner.mjs makes it from a Banner at the top of the text.
   top: {
-    settings: { color: string; picture?: string; alt?: string; width?: 'full' };
+    settings: { color: string; image?: string; alt?: string; width?: 'full' };
     items: ({ markdown: string; block?: undefined } | { block: { type: string; props: Record<string, unknown> }; markdown?: undefined })[];
   };
 };

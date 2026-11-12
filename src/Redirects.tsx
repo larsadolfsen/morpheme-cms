@@ -102,7 +102,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
   const [query, setQuery] = useKept('redirects-search', '');
   const q = query.trim().toLowerCase();
   const name = (to: string) => whatIsAt(to, env.relations);
-  // The pages and posts the redirects send to (not a picture or another site), by their names as in the
+  // The pages and posts the redirects send to (not an image or another site), by their names as in the
   // lists, under "Pages" and "Blog posts": the funnel shows only those to one.
   const [page, setPage] = useState('');
   const pathOf = (to: string) => to.split('#')[0];

@@ -5,7 +5,7 @@
 // (ListItem's count, as the counts on the editor's front page), or "Disabled" when it is off. An app's group also has
 // its kinds of the site's lists (Mailchimp's pop-up), each with how many there are at its right (or "Disabled"), as
 // a block; one with neither says so. Tapping a block opens a sheet from the bottom (a dialog on a computer), as a
-// picture in "Files" does: what it is, a switch, and the pages it is on, each a link to it in the editor; a kind's the
+// image in "Files" does: what it is, a switch, and the pages it is on, each a link to it in the editor; a kind's the
 // same, with the entries of it. The switch saves at once, in its own commit. A block that is off is not offered under
 // "Insert", and a new page does not start with it; a kind that is off not under "+" of its list. A block on a page (a
 // kind with entries) cannot be turned off: it is removed from the pages first, so turning a block off never changes the
@@ -47,7 +47,7 @@ import { apps, offBlocks, preview, siteBlocks } from './registry';
 import { activeApps, kindDraw, kindKey, type SiteApp } from './apps';
 import { entriesOf, kindsOf } from './AppList';
 import { asWritten, backFrom, collections } from './site';
-import { examplePicture, kindExample as newOfKind } from './examples';
+import { exampleImage, kindExample as newOfKind } from './examples';
 import { headed, letterOf } from './Sheet';
 import { config } from '@site/editor';
 import { siteT, t } from './i18n';
@@ -108,7 +108,7 @@ function kindExample(app: SiteApp, list: string, files: RepoFile[], data: BlockD
   });
   const onOff = collection?.onOff;
   const copy = copies.find((c) => !onOff || c.props[onOff] !== false) ?? copies[0];
-  const props = copy?.props ?? (collection ? newOfKind(collection, app.id) : { ...t.parts.examples.entry, image: examplePicture });
+  const props = copy?.props ?? (collection ? newOfKind(collection, app.id) : { ...t.parts.examples.entry, image: exampleImage });
   return { node: draw({ ...props, ...kind.variants?.[0]?.props }, data), on: copy?.on };
 }
 

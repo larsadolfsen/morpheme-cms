@@ -7,7 +7,7 @@ export const library: Messages['library'] = {
   firstRunTitle: 'Kom i gang',
   firstRunPage: 'Skriv en side',
   firstRunPost: 'Skriv et indlæg',
-  firstRunPicture: 'Tilføj et billede',
+  firstRunImage: 'Tilføj et billede',
   createNew: 'Opret',
   continueTitle: 'Fortsæt, hvor du slap',
   continueWidgetLabel: 'Fortsæt',

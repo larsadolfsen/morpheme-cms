@@ -1,5 +1,5 @@
 // Cards, as Material 3 has them (Card.tsx in ../../ui/: outlined, the default, filled or elevated): each with its media at the top (an icon,
-// a picture, a video with its play button, or none), a headline, a text and either one link (a card with a page is one: the whole card,
+// an image, a video with its play button, or none), a headline, a text and either one link (a card with a page is one: the whole card,
 // with the link's text at the bottom, `more`, the block's shared text) or the action area (its buttons). Two side by side from small screens
 // (.block-cards in ../blocks.css). `color`: the extra colour of a filled card (primary, secondary, tertiary), else Material's own: the
 // standard block "Cards".
@@ -13,7 +13,7 @@ import Card, { cardKinds, type CardKind } from '@theme/ui/Card';
 
 const sizes = `(min-width: ${BREAKPOINTS.medium}px) 352px, 100vw`;
 
-/** A card's media at the top: its picture, its video with the play button or its icon (nothing for none). */
+/** A card's media at the top: its image, its video with the play button or its icon (nothing for none). */
 export function CardMedia({ card }: { card: LinkCard }) {
   return (
     <>

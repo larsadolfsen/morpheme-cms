@@ -1,7 +1,7 @@
-// The logo and the icons, made in the browser from a picture the owner picks (BrandForm.tsx).
+// The logo and the icons, made in the browser from an image the owner picks (BrandForm.tsx).
 //   Logo: public/logo.svg, shown next to the name on the site as a CSS mask (base.css .logo-mark),
 //     so only its shape counts and it takes the site's colour. An SVG is kept with only what draws (cleanSvg); other
-//     pictures are put inside an SVG.
+//     images are put inside an SVG.
 //   Icon: public/favicon.svg (the browser tab, Google), public/favicon.ico (for what asks for that
 //     address), public/apple-touch-icon.png (the site on an iPhone home screen) and the app icons in
 //     public/editor/, drawn on the site's background colour (light mode, colors.json) with the same
@@ -12,7 +12,7 @@ import { cleanSvg } from '../lib/svg.mjs';
 export const LOGO = 'public/logo.svg';
 export const FAVICON = 'public/favicon.svg';
 const FAVICON_ICO = 'public/favicon.ico';
-// The PNG icons: size in pixels and the picture's share of the width.
+// The PNG icons: size in pixels and the image's share of the width.
 const APP_ICONS: [string, number, number][] = [
   ['public/editor/icon-192.png', 192, 0.7],
   ['public/editor/icon-512.png', 512, 0.7],
@@ -22,10 +22,10 @@ const APP_ICONS: [string, number, number][] = [
 ];
 export const BRAND_FILES = [LOGO, FAVICON, FAVICON_ICO, ...APP_ICONS.map(([path]) => path)];
 
-export type Picture = { image: HTMLImageElement; svg: string | null };
+export type Image = { image: HTMLImageElement; svg: string | null };
 
-// Opens a picture (SVG, PNG, JPEG, WebP).
-export async function openPicture(file: Blob): Promise<Picture> {
+// Opens an image (SVG, PNG, JPEG, WebP).
+export async function openImage(file: Blob): Promise<Image> {
   let svg: string | null = null;
   let blob = file;
   if (file.type === 'image/svg+xml' || (file instanceof File && /\.svg$/i.test(file.name))) {
@@ -54,13 +54,13 @@ export async function openPicture(file: Blob): Promise<Picture> {
   return { image, svg };
 }
 
-// The picture on a square of `px`, as large as `share` of it allows; on `bg` and in `tint` if given.
-function draw({ image }: Picture, px: number, share: number, bg?: string, tint?: string): HTMLCanvasElement {
+// The image on a square of `px`, as large as `share` of it allows; on `bg` and in `tint` if given.
+function draw({ image }: Image, px: number, share: number, bg?: string, tint?: string): HTMLCanvasElement {
   const scale = (px * share) / Math.max(image.naturalWidth, image.naturalHeight);
   const [w, h] = [image.naturalWidth * scale, image.naturalHeight * scale];
-  const picture = document.createElement('canvas');
-  picture.width = picture.height = px;
-  const ctx = picture.getContext('2d')!;
+  const square = document.createElement('canvas');
+  square.width = square.height = px;
+  const ctx = square.getContext('2d')!;
   ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(image, (px - w) / 2, (px - h) / 2, w, h);
   if (tint) {
@@ -68,13 +68,13 @@ function draw({ image }: Picture, px: number, share: number, bg?: string, tint?:
     ctx.fillStyle = tint;
     ctx.fillRect(0, 0, px, px);
   }
-  if (!bg) return picture;
+  if (!bg) return square;
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = px;
   const out = canvas.getContext('2d')!;
   out.fillStyle = bg;
   out.fillRect(0, 0, px, px);
-  out.drawImage(picture, 0, 0);
+  out.drawImage(square, 0, 0);
   return canvas;
 }
 
@@ -91,21 +91,21 @@ function ico(image: Uint8Array, px: number): Uint8Array {
   const file = new Uint8Array(22 + image.length);
   const head = new DataView(file.buffer);
   head.setUint16(2, 1, true); // an icon
-  head.setUint16(4, 1, true); // one picture
+  head.setUint16(4, 1, true); // one image
   file[6] = file[7] = px; // width and height
   head.setUint16(10, 1, true); // colour planes
   head.setUint16(12, 32, true); // bits per pixel
   head.setUint32(14, image.length, true);
-  head.setUint32(18, 22, true); // where the picture starts
+  head.setUint32(18, 22, true); // where the image starts
   file.set(image, 22);
   return file;
 }
 
 const dataUrl = (canvas: HTMLCanvasElement) => canvas.toDataURL('image/png');
 
-// Whether a picture has no see-through background (its corners are solid), so that as a mask it
+// Whether an image has no see-through background (its corners are solid), so that as a mask it
 // would be a plain square.
-export function solid({ image }: Picture): boolean {
+export function solid({ image }: Image): boolean {
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = 32;
   const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
@@ -118,36 +118,36 @@ export function solid({ image }: Picture): boolean {
   ].every(([x, y]) => ctx.getImageData(x, y, 1, 1).data[3] > 250);
 }
 
-// The logo file: an SVG as it is (cleaned, openPicture), another picture (at most 600 px) inside an SVG.
-export function logoFile(picture: Picture): string {
-  if (picture.svg) return picture.svg;
-  const { naturalWidth: w, naturalHeight: h } = picture.image;
+// The logo file: an SVG as it is (cleaned, openImage), another image (at most 600 px) inside an SVG.
+export function logoFile(image: Image): string {
+  if (image.svg) return image.svg;
+  const { naturalWidth: w, naturalHeight: h } = image.image;
   const scale = Math.min(1, 600 / Math.max(w, h));
   const canvas = document.createElement('canvas');
   [canvas.width, canvas.height] = [Math.round(w * scale), Math.round(h * scale)];
-  canvas.getContext('2d')!.drawImage(picture.image, 0, 0, canvas.width, canvas.height);
+  canvas.getContext('2d')!.drawImage(image.image, 0, 0, canvas.width, canvas.height);
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${canvas.width} ${canvas.height}">` +
     `<image href="${dataUrl(canvas)}" width="${canvas.width}" height="${canvas.height}"/></svg>\n`
   );
 }
 
-// The icon files from a picture, on the site's background colour (`bg`). `fromLogo`: the logo's shape in
+// The icon files from an image, on the site's background colour (`bg`). `fromLogo`: the logo's shape in
 // the accent colour (`accent`), like the logo.
 export async function iconFiles(
-  picture: Picture,
+  image: Image,
   fromLogo: boolean,
   { bg: BG, accent }: { bg: string; accent: string },
 ): Promise<{ files: Record<string, string | Uint8Array>; preview: string }> {
   const tint = fromLogo ? accent : undefined;
   const files: Record<string, string | Uint8Array> = {};
-  // The favicon: a rounded square with the picture inside, nested like the one
+  // The favicon: a rounded square with the image inside, nested like the one
   // packages/editor/scripts/editor-icons.mjs reads.
   files[FAVICON] =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="${BG}"/>` +
-    `<svg x="8" y="8" width="48" height="48" viewBox="0 0 256 256"><image href="${dataUrl(draw(picture, 256, 1, undefined, tint))}" width="256" height="256"/></svg></svg>\n`;
-  files[FAVICON_ICO] = ico(await png(draw(picture, 32, 0.75, BG, tint)), 32);
-  for (const [path, px, share] of APP_ICONS) files[path] = await png(draw(picture, px, share, BG, tint));
+    `<svg x="8" y="8" width="48" height="48" viewBox="0 0 256 256"><image href="${dataUrl(draw(image, 256, 1, undefined, tint))}" width="256" height="256"/></svg></svg>\n`;
+  files[FAVICON_ICO] = ico(await png(draw(image, 32, 0.75, BG, tint)), 32);
+  for (const [path, px, share] of APP_ICONS) files[path] = await png(draw(image, px, share, BG, tint));
   const preview = URL.createObjectURL(new Blob([files[APP_ICONS[0][0]] as BlobPart], { type: 'image/png' }));
   return { files, preview };
 }

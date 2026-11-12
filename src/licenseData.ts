@@ -5,12 +5,12 @@
 // of the works the editor and the site bring (splitCms), to be shown first. Depends on PACKAGE (lib/cms-version.mjs).
 import { PACKAGE } from '../lib/cms-version.mjs';
 
-/** What a third-party work is to the site: a font, icons, code (a library, also styles) or pictures. */
+/** What a third-party work is to the site: a font, icons, code (a library, also styles) or images. */
 export type LicenseKind = 'font' | 'icons' | 'library' | 'image';
 
 /** A third-party work an app or a theme brings, as it declares it (`thirdParty`): an npm package it imports (its
  * version, who made it, its licence and its text are its folder's; `author`, and `file`, a file in the app's or the
- * theme's folder with the licence's text, for a package that has neither); or another work (a font or pictures in its
+ * theme's folder with the licence's text, for a package that has neither); or another work (a font or images in its
  * folder), with its name, who made it, its licence's name and the file in its folder with its text. A theme's icon
  * packs (icon-packs/) are not declared here: each pack's manifest says its licence. */
 export type ThirdParty =
