@@ -1101,9 +1101,20 @@ function blockCard(
   let syncDynamic: () => void = () => {};
   let undoDynamic: () => void = () => {};
   let pickPart: (part: string) => void = () => {};
-  const rows = () => (node.attrs.props[spec?.item ?? 'items'] as Row[] | undefined) ?? [];
+  // A block with no list (Notice, Video): its props are its one item.
+  const single = !!spec?.single;
+  const rows = () => (single ? [node.attrs.props as Row] : ((node.attrs.props[spec?.item ?? 'items'] as Row[] | undefined) ?? []));
   const setItems = (items: Row[]) => {
     const here = at();
+    if (here && single) {
+      // The typed fields of the one item are put in the props; one that is emptied is left out, as the text of the block would be.
+      const props: BlockProps = { ...node.attrs.props };
+      for (const [name, value] of Object.entries(items[0] ?? {})) {
+        if (value === '' || value === undefined) delete props[name];
+        else props[name] = value;
+      }
+      return void view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props }));
+    }
     if (here)
       view.dispatch(
         view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props: { ...node.attrs.props, [spec?.item ?? 'items']: items } }),
@@ -1245,7 +1256,7 @@ function blockCard(
   let handle = card;
   if (inline) {
     const rowFieldsOf = (names: string[]) =>
-      (block?.fields.find((f) => f.name === spec!.item)?.fields ?? []).filter((f) => names.includes(f.name));
+      (single ? block!.fields : (block?.fields.find((f) => f.name === spec!.item)?.fields ?? [])).filter((f) => names.includes(f.name));
     // The settings (link and small heading) and the icon picker, which the row's icon slot opens.
     const itemNames = spec!.settings ?? (spec!.link ? [spec!.link] : []);
     const slotNames = spec!.media ?? (spec!.icon ? [spec!.icon] : []);
@@ -1256,17 +1267,19 @@ function blockCard(
     const valueOf = (row: Row, names: string[]) =>
       Object.fromEntries(names.map((n) => [n, row[n] ?? rowFieldsOf([n])[0]?.default ?? emptyOf(rowFieldsOf([n])[0])]));
     const setFields = (list: Row[], i: number, names: string[], v: BlockProps) =>
-      names.reduce(
-        // A switch or a list (a price card's Highlighted and button) is kept as it is, a text as text.
-        (items, n) => setField(items, i, n, typeof v[n] === 'boolean' || Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]),
-        list,
-      );
+      single
+        ? [{ ...list[0], ...Object.fromEntries(names.map((n) => [n, String(v[n] ?? '')])) }]
+        : names.reduce(
+            // A switch or a list (a price card's Highlighted and button) is kept as it is, a text as text.
+            (items, n) => setField(items, i, n, typeof v[n] === 'boolean' || Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]),
+            list,
+          );
     // A block with no link, settings or icon (Steps) has no item sheet: no Link action, and no gear unless it has block settings.
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
     const rowActions = (): BarAction[] => {
       const list = rows();
-      if (isDynamic() || active === null || active >= list.length || isEmptyRow(list[active])) return [];
+      if (single || isDynamic() || active === null || active >= list.length || isEmptyRow(list[active])) return [];
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
@@ -1434,7 +1447,7 @@ function blockCard(
       dynOpen = false;
       asker()?.row(null);
       const list = rows();
-      const kept = withoutEmpty(list);
+      const kept = single ? list : withoutEmpty(list);
       if (kept !== list) setItems(kept);
       else draw();
     };
