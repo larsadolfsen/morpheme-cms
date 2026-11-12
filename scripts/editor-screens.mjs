@@ -125,10 +125,10 @@ async function checkUpdatesCard(width, height) {
   await page.close();
 }
 
-/** On a phone the text's row floats by the selected text (never a docked sheet): inside the visible screen (above the keyboard and "Save changes"), 48 dp buttons, and it follows the line the cursor is on. */
-async function checkTextSheet() {
-  const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
-  page.on('pageerror', (e) => problems.push(`360px text menu: ${e.message}`));
+/** On a phone the text's row floats by the selected text (never a docked sheet): inside the visible screen (above the keyboard and "Save changes"), Bold, Italic and Link first, 48 dp buttons centred in their rows (a second row when they do not fit), and it follows the line the cursor is on. */
+async function checkTextSheet(width = 360) {
+  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px text menu: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#new/pages'));
   await page.waitForSelector('.ProseMirror');
@@ -141,7 +141,7 @@ async function checkTextSheet() {
       const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? visualViewport.height;
       const sel = getSelection().getRangeAt(0).getBoundingClientRect();
       const names = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getAttribute('aria-label'));
-      const small = [...m.querySelectorAll('button:not([hidden])')].filter((b) => b.getBoundingClientRect().height < 47.5).length;
+      const buttons = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getBoundingClientRect().toJSON());
       return {
         shown: !m.hidden,
         sheet: m.classList.contains('editor-selection-sheet'),
@@ -149,7 +149,8 @@ async function checkTextSheet() {
         save,
         sel: sel.toJSON(),
         names,
-        small,
+        buttons,
+        scrolls: m.scrollWidth > m.clientWidth,
         vh: visualViewport.height,
       };
     });
@@ -165,22 +166,33 @@ async function checkTextSheet() {
     ['first line', first],
     ['later line', second],
   ]) {
-    if (!now.shown) problems.push(`360px text menu: not shown at the ${name}`);
-    else if (now.sheet || now.r.width > 359) problems.push(`360px text menu: a docked sheet at the ${name}, not a floating row`);
-    else if (now.r.left < 0 || now.r.right > 360 || now.r.bottom > Math.min(now.save, now.vh) + 1)
-      problems.push(`360px text menu: outside the visible screen at the ${name}`);
+    if (!now.shown) problems.push(`${width}px text menu: not shown at the ${name}`);
+    else if (now.sheet || now.r.width > width - 1) problems.push(`${width}px text menu: a docked sheet at the ${name}, not a floating row`);
+    else if (now.r.left < 0 || now.r.right > width || now.r.bottom > Math.min(now.save, now.vh) + 1)
+      problems.push(`${width}px text menu: outside the visible screen at the ${name}`);
     else if (Math.min(Math.abs(now.r.bottom - now.sel.top), Math.abs(now.r.top - now.sel.bottom)) > 40)
-      problems.push(`360px text menu: not by the text at the ${name}`);
-    if (now.small) problems.push(`360px text menu: a button is under 48 dp at the ${name}`);
+      problems.push(`${width}px text menu: not by the text at the ${name}`);
     if (!now.names.some((n) => n.startsWith('Text style')) || !now.names.includes('List'))
-      problems.push(`360px text menu: the Text style or List button is missing at the ${name}`);
+      problems.push(`${width}px text menu: the Text style or List button is missing at the ${name}`);
   }
-  if (first.r.top === second.r.top) problems.push('360px text menu: it did not follow the cursor to another line');
-  await page.setViewportSize({ width: 360, height: 420 });
+  // Bold, Italic and Link come first, every button is 48 dp, nothing scrolls, and each row is centred (a second row when they do not fit).
+  if (first.names.slice(0, 3).join() !== 'Bold,Italic,Link')
+    problems.push(`${width}px text menu: Bold, Italic and Link are not the first three buttons`);
+  if (first.scrolls || first.buttons.some((b) => b.left < first.r.left - 1 || b.right > first.r.right + 1))
+    problems.push(`${width}px text menu: a button is outside the menu or the menu scrolls`);
+  if (first.buttons.some((b) => b.width < 47.5 || b.height < 47.5)) problems.push(`${width}px text menu: a button is smaller than 48 dp`);
+  const rows = Object.values(Object.groupBy(first.buttons, (b) => Math.round(b.top)));
+  for (const row of rows) {
+    const left = Math.min(...row.map((b) => b.left)) - first.r.left;
+    const right = first.r.right - Math.max(...row.map((b) => b.right));
+    if (Math.abs(left - right) > 2) problems.push(`${width}px text menu: a row of buttons is not centred (${left} left, ${right} right)`);
+  }
+  if (first.r.top === second.r.top) problems.push(`${width}px text menu: it did not follow the cursor to another line`);
+  await page.setViewportSize({ width, height: 420 });
   await page.waitForTimeout(500);
   const keyboard = await read();
-  if (keyboard.r.bottom > Math.min(keyboard.save, keyboard.vh) + 1)
-    problems.push('360px text menu: it is under the keyboard ' + JSON.stringify(keyboard));
+  if (keyboard.r.bottom > Math.min(keyboard.save, keyboard.vh) + 1) problems.push(`${width}px text menu: it is under the keyboard`);
+  if (width !== 360) return void (await page.close());
   // The top toolbar's tools rest in one colour (the kind menus too), and a menu button is never in the accent.
   const colours = await page.evaluate(() => [
     ...new Set(
@@ -189,7 +201,7 @@ async function checkTextSheet() {
         .map((b) => getComputedStyle(b).color),
     ),
   ]);
-  if (colours.length > 1) problems.push(`360px text toolbar: its tools rest in ${colours.length} colours (${colours.join(', ')})`);
+  if (colours.length > 1) problems.push(`${width}px text toolbar: its tools rest in ${colours.length} colours (${colours.join(', ')})`);
   await page.close();
 }
 
@@ -293,6 +305,53 @@ async function checkHints() {
         problems.push(`${width}px ${scheme} hints: the hint starts at ${got.gapLeft}, the text at ${got.textLeft}`);
       await page.close();
     }
+  }
+}
+
+/** A section of the whole width (`width` full) reaches the text field's left, right and top edges; one of the text's width stays inset. */
+async function checkFullWidthSection() {
+  for (const width of [375, 1280]) {
+    const page = await browser.newPage({ viewport: { width, height: 740 }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${width}px full-width section: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#new/pages'));
+    await page.waitForSelector('.ProseMirror');
+    await page.click('.ProseMirror');
+    await page.keyboard.type('## Tester');
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('Some text.');
+    const measure = (full) =>
+      page.evaluate((full) => {
+        const pm = document.querySelector('.ProseMirror');
+        const field = pm.closest('.editor-text').getBoundingClientRect();
+        const border = (n) => parseFloat(getComputedStyle(pm.closest('.editor-text'))[n]);
+        const parts = [...pm.children].filter((n) => !n.classList.contains('editor-section-picture'));
+        parts.forEach((el, i) => {
+          el.setAttribute('data-section-color', 'primary');
+          el.setAttribute('data-section-box', parts.length === 1 ? 'only' : i === 0 ? 'start' : i === parts.length - 1 ? 'end' : 'middle');
+          if (full) el.setAttribute('data-section-width', 'full');
+          else el.removeAttribute('data-section-width');
+        });
+        const r = parts[0].getBoundingClientRect();
+        const radius = getComputedStyle(parts[0]).borderStartStartRadius;
+        return {
+          left: r.left - field.left - border('borderLeftWidth'),
+          right: field.right - border('borderRightWidth') - r.right,
+          top: r.top - field.top,
+          radius,
+        };
+      }, full);
+    const inset = await measure(false);
+    if (process.env.SHOTS_FULL) await page.locator('.editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-inset-${width}.png` });
+    const full = await measure(true);
+    if (process.env.SHOTS_FULL) await page.locator('.editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-${width}.png` });
+    if (inset.left < 1 || inset.radius === '0px')
+      problems.push(`${width}px full-width section: the section of the text's width should stay inset with corners`);
+    if (Math.abs(full.left) > 0.5 || Math.abs(full.right) > 0.5 || full.top > 0.5 || full.radius !== '0px')
+      problems.push(
+        `${width}px full-width section: left ${full.left}, right ${full.right}, top ${full.top}, corner ${full.radius}, should all be 0 against the text field's edges`,
+      );
+    await page.close();
   }
 }
 
@@ -766,9 +825,10 @@ for (const [width, height] of [
 ])
   await checkUpdatesCard(width, height);
 
-await checkTextSheet();
+for (const width of [360, 375, 414]) await checkTextSheet(width);
 await checkEmptyHint();
 await checkHints();
+await checkFullWidthSection();
 
 await browser.close();
 server.close();

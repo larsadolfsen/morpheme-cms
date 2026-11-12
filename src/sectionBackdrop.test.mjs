@@ -10,8 +10,8 @@ test('the picture covers the section from its first part to its last, as wide as
   assert.deepEqual(box, { top: 20, left: 0, width: 358, height: 140 });
 });
 
-test('a section of the whole width reaches the window edges', () => {
-  const box = backdropBox({ top: 100, bottom: 140 }, { top: 140, bottom: 200 }, host, { full: true, windowWidth: 390 });
+test("a section of the whole width reaches the text field's edges", () => {
+  const box = backdropBox({ top: 100, bottom: 140 }, { top: 140, bottom: 200 }, host, { full: true, bleed: 16 });
   assert.deepEqual(box, { top: 0, left: -16, width: 390, height: 100 });
 });
 

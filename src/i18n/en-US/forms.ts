@@ -91,26 +91,25 @@ export const forms = {
   /** A page or post that is published in steps (EntryForm.tsx): a draft, the live version and changes waiting. `post`: a blog post, else a page. */
   versions: {
     publish: 'Publish',
-    publishChanges: 'Publish changes',
     /** The switch at the top of a page with changes waiting (VersionSwitch.tsx). */
     switchLabel: 'Version to edit',
     /** The notice under the switch (VersionSwitch.tsx WaitingNotice). */
-    noticeLiveTitle: 'You are editing the live version',
+    noticeLiveTitle: 'You are editing the published version',
     noticeLive: 'What you save here goes on the website at once. A draft is waiting and stays as it is.',
     noticeWaitingTitle: 'This is a draft',
-    noticeWaiting: 'These changes are not on the website yet. Choose Publish changes to put them there.',
+    noticeWaiting: 'These changes are not on the website yet. Choose Publish to put them there.',
     noticeScheduled: (when: string) => `These changes go on the website ${when}. Until then the website shows the published version.`,
-    /** Before Publish changes, when the live version was changed after the waiting changes were saved. */
-    overwriteTitle: 'Replace the live version?',
+    /** Before Publish, when the published version was changed after the waiting changes were saved. */
+    overwriteTitle: 'Replace the published version?',
     overwriteText: (post: boolean) =>
       `The ${post ? 'post' : 'page'} on the website was changed after these changes were saved. Publishing replaces it with these changes.`,
-    live: 'Live',
+    live: 'Published',
     scheduled: 'Scheduled',
     draft: 'Draft',
     switchTitle: 'Switch version?',
     switchText: 'What you haven’t saved is lost.',
     switchAction: 'Switch',
-    editingLive: 'Editing the live version',
+    editingLive: 'Editing the published version',
     schedule: 'Schedule',
     cancelSchedule: 'Cancel schedule',
     scheduleTitle: 'Choose when it goes live',
@@ -125,6 +124,8 @@ export const forms = {
     scheduledCancelled: (what: string) => `Schedule for ${what} cancelled`,
     unpublish: 'Unpublish',
     discardDraft: 'Discard draft',
+    /** The Save button while the changes are kept as a draft. */
+    saveDraft: 'Save draft',
     /** The top bar's line under the title. */
     draftLine: 'Draft',
     waitingLine: 'Unpublished changes',
@@ -138,13 +139,13 @@ export const forms = {
       restored: 'Your unsaved changes are back',
     },
     /** After saving changes to a published page: the website keeps the version it has. */
-    savedWaiting: 'Changes saved. The website shows the published version until you publish.',
+    savedWaiting: 'Draft saved. The website shows the published version until you publish.',
     unpublishTitle: (post: boolean) => `Unpublish this ${post ? 'post' : 'page'}?`,
     unpublishText: (post: boolean) =>
       `The ${post ? 'post' : 'page'} leaves the website and becomes a draft. Changes that wait to be published stay.`,
     discardTitle: 'Discard draft?',
     /** `name`: the page or post, as in “Page About us”. */
-    discardText: (name: string) => `Your unpublished changes to ${name} will be deleted. The live version stays.`,
+    discardText: (name: string) => `Your unpublished changes to ${name} will be deleted. The published version stays.`,
     addressWaiting: 'Publish or discard the changes before you change the address.',
     standardPage: 'This page is chosen as a standard page, so it must stay published.',
     /** Names of what changed, for the message after a save (`what`: the page or post). */
