@@ -106,6 +106,19 @@ test('a check list comes back as it was', async () => {
   assert.equal((await through(saved)).saved, saved);
 });
 
+test('a check list item checked in the editor is saved as checked', async () => {
+  const editor = await makeEditor(document.createElement('div'), '- [ ] Bring a coat\n- [ ] Book a table\n').create();
+  editor.action((ctx) => {
+    const view = ctx.get(editorViewCtx);
+    const item = view.state.doc.firstChild.child(0);
+    view.dispatch(view.state.tr.setNodeMarkup(2 - 1, undefined, { ...item.attrs, checked: true }));
+  });
+  const saved = editor.action(markdownOf);
+  await editor.destroy();
+  assert.match(saved, /\[x\] Bring a coat\n.*\[ \] Book a table/);
+  assert.equal((await through(saved)).saved, saved);
+});
+
 test('an empty H1 is not written', async () => {
   assert.equal((await through('# \n\nText\n')).saved, 'Text\n');
 });

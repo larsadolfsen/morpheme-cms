@@ -219,6 +219,28 @@ const gapHere = $prose(
     }),
 );
 
+// A tap on the box of a check list item (its ::before, in the padding left of the text; editor.css) checks or unchecks it.
+const checkToggle = $prose(
+  () =>
+    new Plugin({
+      props: {
+        handleDOMEvents: {
+          mousedown: (view, event) => {
+            const item = (event.target as HTMLElement | null)?.closest?.('li[data-item-type="task"]');
+            if (!item || event.target !== item || !(event instanceof MouseEvent)) return false;
+            const at = view.posAtDOM(item, 0);
+            const $at = view.state.doc.resolve(at);
+            const node = $at.parent;
+            if (node.type.name !== 'list_item' || node.attrs.checked == null) return false;
+            view.dispatch(view.state.tr.setNodeMarkup($at.before(), undefined, { ...node.attrs, checked: !node.attrs.checked }));
+            event.preventDefault();
+            return true;
+          },
+        },
+      },
+    }),
+);
+
 // The menu of the card that is open, if any: one at a time; closed by a tap elsewhere or Escape.
 let closeOpenMenu: (() => void) | null = null;
 
@@ -1104,6 +1126,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(looking)
       .use(sectionFrame(framed))
       .use(gapHere)
+      .use(checkToggle)
       .use(history)
       .use(clipboard);
     // A page (h1) keeps its first heading as its H1 and has no other H1 (firstHeading.mjs); a blog post's H1 is its title.
