@@ -50,6 +50,14 @@ export const blocks = {
     button: 'Button text',
     buttonHint: 'A text button under the last question. If empty, there is no button.',
     buttonHref: 'Button page',
+    /** A question typed in place: the add button, the faded question of an empty block, the floating toolbar, a question's place for screen readers. */
+    addQuestion: 'Add question',
+    newQuestion: 'New question',
+    questionOf: (n: number, total: number) => `Question ${n} of ${total}`,
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    questionMenu: 'Question',
+    questionSettings: 'Question settings',
   },
   /** "Segmented list" (standard/segmented/). */
   segmented: {

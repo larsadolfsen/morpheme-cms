@@ -1,0 +1,56 @@
+// The FAQ list typed in place (docs/superpowers/specs/2026-11-12-inline-block-editing-design.md): the rows are drawn as the site draws them (the
+// theme's Accordion: the same markup as blocks/faq/Accordion.tsx). The question is typed in the summary line and the answer in the open panel;
+// the active question is shown open and the others closed, whatever `Only one open` says (that is a setting of the block, in Edit). The answer
+// is plain text here: what is typed is saved as it is, so an answer written with markdown keeps it (Shift+Enter makes a new line; Enter in the
+// answer adds the next question). The parts, the keys and what is kept are InlineItems.tsx and src/inlineRows.mjs. The head and the text button are
+// drawn as the site draws them when they are filled in, and are set in Edit.
+import { t } from './i18n';
+import { Svg } from './icon';
+import InlineItems from './InlineItems';
+import type { InlineViewProps } from './inlineViews';
+import { faqSettings } from './standard/faq/view';
+import { headOf } from './standard/head';
+import BlockHead from '@theme/blocks/BlockHead';
+import ListButton from '@theme/blocks/ListButton';
+
+export default function InlineFaq({ items, props, active, focus, onChange }: InlineViewProps) {
+  const head = headOf(props);
+  return (
+    <>
+      <BlockHead view={head} />
+      <InlineItems
+        items={items}
+        active={active}
+        focus={focus}
+        fields={['question', 'answer']}
+        add={t.blocks.faq.addQuestion}
+        onChange={onChange}
+        wrap={(rows) => <div className="block-accordion">{rows}</div>}
+        renderItem={({ index: i, here, next, field }) => (
+          <details
+            key={i}
+            open={here}
+            data-row={i}
+            aria-current={here ? 'true' : undefined}
+            aria-label={next ? t.blocks.faq.newQuestion : t.blocks.faq.questionOf(i + 1, items.length)}
+            className={['block-accordion-row', 'inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next']
+              .filter(Boolean)
+              .join(' ')}
+          >
+            {/* The question is typed, so the summary does not fold: the active question is the open one. */}
+            <summary className="block-accordion-label" onClick={(e) => e.preventDefault()}>
+              <span className="block-accordion-title">
+                {field('question', t.blocks.faq.question, next ? t.blocks.faq.newQuestion : t.blocks.faq.question)}
+              </span>
+              <Svg name="caret-down" size={20} className="block-accordion-icon" />
+            </summary>
+            <div className="block-accordion-body">
+              {here && <div className="block-accordion-answer">{field('answer', t.blocks.faq.answer, t.blocks.faq.answer)}</div>}
+            </div>
+          </details>
+        )}
+      />
+      <ListButton button={faqSettings(props).button} />
+    </>
+  );
+}
