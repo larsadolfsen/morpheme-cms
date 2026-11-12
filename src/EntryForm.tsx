@@ -1109,11 +1109,14 @@ function Form({
               ? booleanRead(data[f.name], f.missing) === (values[f.name] === true)
               : String(data[f.name] || '') === String(values[f.name] || ''),
         );
-      const changes = (...names: string[]) => isNew || relaid || changed.some((f) => names.includes(f.name));
+      const changes = (...names: string[]) => isNew || relaid || !livePublished || changed.some((f) => names.includes(f.name));
+      // A draft is not on the site yet (its address answers 404), so it too is shown in the page of a published one.
       const others =
-        isNew || relaid
+        isNew || relaid || !livePublished
           ? env.files
-              .filter((f) => f.path.startsWith(`${collection.folder}/`) && f.path.endsWith('.md') && f.path !== base.path)
+              .filter(
+                (f) => f.path.startsWith(`${collection.folder}/`) && f.path.endsWith('.md') && f.path !== base.path && isPublished(f.text),
+              )
               .map((f) => ({ f, data: readFields(splitFrontmatter(f.text).yaml) }))
               .filter(({ data }) => sameLayout(data))
               .map(({ f, data }) => addressNow(collection, f, data))
@@ -1123,7 +1126,7 @@ function Form({
       // A page's H1 is at the top of its text (pageH1); a blog post's is its title.
       const h1 = collection.blocks ? pageH1(markdown ?? parts.body) : undefined;
       return {
-        shell: isNew || (relaid && others.length) ? others : url,
+        shell: isNew || !livePublished || (relaid && others.length) ? others : url,
         heading: h1?.heading ?? (changes('title', 'heading') ? String(values.heading || named().title) : undefined),
         headingHtml: h1?.html,
         // A post has a picture field (a page has its pictures in its text); the preview splits only a post's lead.

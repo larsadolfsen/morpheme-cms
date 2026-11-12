@@ -314,6 +314,42 @@ async function checkPreviewSection() {
   await page.close();
 }
 
+/** The Preview of a draft page (not on the site, so its own address answers 404) opens without an error text, and its bar of window sizes keeps its bar of window sizes inside the screen, scrolling, and apart from the caption, at phone widths. */
+async function checkPreviewDraft(width) {
+  const label = `${width}px draft Preview`;
+  const path = 'src/content/pages/preview-draft-check.md';
+  const text = '---\ntitle: "Preview draft check"\nstatus: "draft"\n---\n\n# Preview draft check\n\nSome text in a draft.\n';
+  const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site, { [path]: text });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.getByRole('button', { name: 'Preview' }).first().click({ timeout: 30_000 });
+  await page.waitForFunction(
+    () => {
+      const d = document.querySelector('dialog[open]');
+      return d && (d.querySelector('iframe') || /Couldn.t create the preview/.test(d.textContent));
+    },
+    null,
+    { timeout: 30_000 },
+  );
+  const failed = await page.evaluate(
+    () => document.querySelector('dialog[open]')?.textContent.match(/Couldn.t create the preview[^]*/)?.[0],
+  );
+  if (failed) problems.push(`${label}: ${failed.slice(0, 120)}`);
+  const bar = await page.evaluate(() => {
+    const caption = document.querySelector('dialog[open] [data-preview-width]').getBoundingClientRect();
+    const area = document.querySelector('dialog[open] [role="group"]').closest('.overflow-x-auto');
+    const a = area.getBoundingClientRect();
+    const apart =
+      a.right <= caption.left + 0.5 || a.left >= caption.right - 0.5 || a.bottom <= caption.top + 0.5 || a.top >= caption.bottom - 0.5;
+    return { apart, inside: a.left >= 0 && a.right <= innerWidth + 0.5, overflowX: getComputedStyle(area).overflowX };
+  });
+  if (!bar.apart) problems.push(`${label}: the size bar overlaps the caption`);
+  if (!bar.inside) problems.push(`${label}: the size bar reaches outside the screen`);
+  if (bar.overflowX !== 'auto') problems.push(`${label}: the size bar does not scroll (${bar.overflowX})`);
+  await page.close();
+}
+
 /** A List typed in the text: while a row is active and the list has rows, the text button "Add list row" is under the last row and adds one, the faded empty row is not there, the active row has a dotted line, and Add above and Add below are icon buttons; when the cursor leaves, the button is gone. */
 async function checkInlineList(width, height) {
   const label = `${width}px inline list`;
@@ -1041,6 +1077,7 @@ await checkHints();
 await checkFullWidthSection();
 await checkToolbarBox();
 await checkPreviewSection();
+for (const w of [360, 375, 390, 414]) await checkPreviewDraft(w);
 
 await browser.close();
 server.close();
