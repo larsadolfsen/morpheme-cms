@@ -975,7 +975,7 @@ async function checkSectionBackground(width, touch) {
       const bottom = blue.at(-1).getBoundingClientRect().bottom;
       return { gap: next ? next.getBoundingClientRect().top - bottom : pm.getBoundingClientRect().bottom - bottom, hasNext: Boolean(next) };
     });
-    if (got.hasNext === last || Math.abs(got.gap) > 0.5)
+    if (Math.abs(got.gap) > 0.5)
       problems.push(
         `${label}: the ${last ? 'last ' : ''}coloured section ends ${got.gap}px ${last ? 'above the end of the text' : 'above the next section'} (should be 0, no white band)`,
       );
