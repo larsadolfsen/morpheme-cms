@@ -954,14 +954,14 @@ function Form({
       setSaving(false);
     }
   }
-  // `Publish` and `Publish changes`: what is unsaved goes with it.
+  // `Publish`: what is unsaved goes with it.
   async function publishNow() {
     // The live version changed after the waiting changes were saved: publishing replaces it, so the owner is asked first.
     if (waiting && livePublished && (await liveChangedAfter())) {
       const answer = await choose({
         title: t.forms.versions.overwriteTitle,
         text: t.forms.versions.overwriteText(post),
-        choices: [{ value: 'publish', label: t.forms.versions.publishChanges }],
+        choices: [{ value: 'publish', label: t.forms.versions.publish }],
       });
       if (!answer) return;
     }
@@ -1088,7 +1088,7 @@ function Form({
     : state === 'draft'
       ? { label: t.forms.versions.publish, onPublish: publishNow, actions: [...scheduleRows, ...discardRow] }
       : {
-          ...(state === 'waiting' || dirty ? { label: t.forms.versions.publishChanges } : {}),
+          ...(state === 'waiting' || dirty ? { label: t.forms.versions.publish } : {}),
           onPublish: publishNow,
           actions: [...scheduleRows, ...(dirty ? [] : [{ label: t.forms.versions.unpublish, onClick: unpublishNow }]), ...discardRow],
         };
@@ -1211,6 +1211,7 @@ function Form({
           onPreview={showPreview}
           onDelete={collection.deletable && !isNew ? () => env.remove(collection, live, setDeleting) : undefined}
           deleteLabel={t.forms.deleteOne(collection.singular)}
+          saveLabel={t.forms.versions.saveDraft}
         >
           {version && <VersionNotice version={version} onCurrent={() => onVersion(null)} />}
           {waiting && !isNew && (
