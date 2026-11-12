@@ -11,7 +11,7 @@ import { headFields } from '../head';
 import { example } from './shared';
 
 export default defineBlock({
-  group: 'questions',
+  group: 'lists',
   // An Expandable list is a Segmented list now (lib/blocks.mjs); this block stays for one with links to more pages in a row.
   former: true,
   label: t.blocks.accordion.label,

@@ -4,7 +4,7 @@
 import type { RepoFile, Viewer } from './github';
 
 /** folders: which folders the files are from (App.tsx FOLDERS), so files kept by an editor that
- * loaded fewer folders (before "Medier") are loaded again. */
+ * loaded fewer folders (before the media folder) are loaded again. */
 export type Cached = { commit: string; files: RepoFile[]; user: Viewer; folders?: string };
 
 const STORE = 'cache';

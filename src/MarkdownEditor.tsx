@@ -72,6 +72,7 @@ import { sectionHeading, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
 import { IMAGE, type BlockAsk } from './BlockDialog';
 import SectionSettingsIcon from './SectionSettingsIcon';
+import { toolsInOrder } from './toolbarOrder.mjs';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel } from './sheetPlacement.mjs';
@@ -570,6 +571,7 @@ export function activeOf(state: EditorView['state']): Set<string> {
   const section = sectionHeading(state);
   if (section) {
     on.add('section');
+    on.add(`section-h${section.level}`);
     if (section.color) on.add(`section-${section.color}`);
   }
   return on;
@@ -1384,7 +1386,20 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
-  const tools: { label: string; icon: typeof TextB; action: (e: ReactMouseEvent<HTMLButtonElement>) => void; on?: string }[] = [
+  const all: {
+    label: string;
+    icon: typeof TextB;
+    action: (e: ReactMouseEvent<HTMLButtonElement>) => void;
+    on?: string;
+    large?: boolean;
+  }[] = [
+    // The settings of the section the cursor's H1 or H2 starts (not a fixed page's text, whose H2s are its sections' names; the front
+    // page has it for its H2s, but not for its H1, which stays the banner without a colour). It is 48 dp, as a
+    // tap needs, and comes first (with the kinds of text next, `tools` below), so on a phone it stays on the first line,
+    // not under the arrow with Undo.
+    ...(framed && active.includes('section') && !(sections && active.includes('section-h1')) && (blocks ?? sheetProp)
+      ? [{ label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings, large: true }]
+      : []),
     { label: t.text.bold, icon: TextB, action: () => run(toggleStrongCommand), on: 'strong' },
     { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis' },
     { label: t.text.link, icon: LinkSimple, action: link, on: 'link' },
@@ -1411,12 +1426,16 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         : []),
     { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) },
     { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand) },
-    // The settings of the section the cursor's H1 or H2 starts (not a fixed page's text, whose H2s are its sections' names; the front
-    // page has it for its H2s, but not for its H1, which stays the banner without a colour).
-    ...(framed && active.includes('section') && !(sections && active.includes('h1')) && (blocks ?? sheetProp)
-      ? [{ label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings }]
-      : []),
   ];
+
+  // In a section's heading the toolbar starts with Section settings and the kinds of text, then the marks on the text.
+  const firstTools = (item: (typeof all)[number]) =>
+    item.icon === SectionSettingsIcon || /^(h\d|text|large|label|bullet|check|ordered|quote)$/.test(item.on ?? '');
+  const tools = toolsInOrder(
+    all,
+    firstTools,
+    all.some((item) => item.icon === SectionSettingsIcon),
+  );
 
   // When the toolbar is too short for all its buttons, the kinds of text are two buttons: the headings (H1, H2, H3) and the
   // rest (T, the bulleted and the numbered list and the quote), so a heading and T both show from the start. Each shows
@@ -1435,7 +1454,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     const bar = toolbar.current!;
     // A button is 2.5rem, with 0.125rem between them and 0.375rem around them, and each of the lines
     // between the groups 0.5rem (the classes below).
-    const fits = () => setNarrow(bar.clientWidth < tools.length * 42 + 10 + (3 + (hasSettings ? 1 : 0)) * 10);
+    const fits = () => setNarrow(bar.clientWidth < tools.length * 42 + 10 + (3 + (hasSettings ? 1 : 0)) * 10 + (hasSettings ? 8 : 0));
     const watch = new ResizeObserver(fits);
     watch.observe(bar);
     return () => watch.disconnect();
@@ -1449,13 +1468,17 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const { overflows, expanded, setExpanded } = useToolbarLines(toolbar, line, [tools.map((item) => item.label).join('|'), narrow]);
   const open = overflows && expanded;
 
-  const tool = ({ label, icon, action, on }: (typeof tools)[number]) => (
-    <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} onClick={action} />
+  const tool = ({ label, icon, action, on, large }: (typeof tools)[number]) => (
+    <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} large={large} onClick={action} />
   );
 
   // The lines between the marks on the text, the kinds of text, "+" (or "Picture") and "Undo".
   const lineBefore = (item: (typeof tools)[number]) =>
-    item === kinds[0] || item.icon === Plus || item.icon === Image || item.icon === ArrowUUpLeft || item.icon === SectionSettingsIcon;
+    (hasSettings && item === tools[kinds.length + 1]) ||
+    item === kinds[0] ||
+    item.icon === Plus ||
+    item.icon === Image ||
+    item.icon === ArrowUUpLeft;
   // A button of the toolbar; when it is too short, each group of kinds of text is one button (at its first), with a menu.
   const button = (item: (typeof tools)[number]) => {
     if (!narrow || !kinds.includes(item)) return tool(item);
@@ -1494,6 +1517,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
             'editor-tools-line flex min-w-0 flex-1 flex-wrap items-center gap-[0.125rem]',
             overflows ? 'justify-start' : 'justify-center',
             !open && 'editor-tools-closed',
+            hasSettings && 'editor-tools-tall',
           ]
             .filter(Boolean)
             .join(' ')}

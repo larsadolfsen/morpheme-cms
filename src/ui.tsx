@@ -225,10 +225,13 @@ export function ToolbarButton({
   menu,
   expanded,
   controls,
+  large,
   onClick,
 }: {
   icon: Icon;
   label: string;
+  /** The theme's full size, 48 dp (a tool a phone must be able to hit: Section settings). */
+  large?: boolean;
   /** Marked while it applies where the cursor is (bold); undefined for a tool that is not on or off. */
   selected?: boolean;
   /** It opens a Menu: whether the menu is open. */
@@ -250,7 +253,7 @@ export function ToolbarButton({
   return (
     <>
       {menu === undefined ? (
-        <SiteIconButton icon={<Glyph />} label={label} selected={selected} style={toolbarSize} {...own} />
+        <SiteIconButton icon={<Glyph />} label={label} selected={selected} style={large ? undefined : toolbarSize} {...own} />
       ) : (
         <SiteButton
           kind="text"
@@ -3989,22 +3992,16 @@ export function NewChoice<T extends string>({
         <SheetTitle title={title} onClose={close} />
         <SheetList>
           {options.map((o) => (
-            <li key={o.value}>
-              <button
-                type="button"
-                className={optionClass()}
-                onClick={() => {
-                  close();
-                  onChange(o.value);
-                }}
-              >
-                <LeadingIcon icon={o.icon} />
-                <span className="min-w-0">
-                  <span className="block font-medium">{o.label}</span>
-                  {o.hint && <span className="block text-sm text-on-surface-variant">{o.hint}</span>}
-                </span>
-              </button>
-            </li>
+            <ListItem
+              key={o.value}
+              icon={o.icon}
+              headline={o.label}
+              supporting={o.hint}
+              onClick={() => {
+                close();
+                onChange(o.value);
+              }}
+            />
           ))}
         </SheetList>
       </BottomSheet>
