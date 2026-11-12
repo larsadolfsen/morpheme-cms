@@ -1,16 +1,32 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { STYLE_KINDS, styleKindOf } from './styleKind.mjs';
+import { LIST_KINDS, STYLE_KINDS, TEXT_KINDS, listKindOf, styleKindOf } from './styleKind.mjs';
 
-test('outside the text the style button shows the generic icon, whatever the cursor was in', () => {
+test('outside the text both buttons show their generic icon, whatever the cursor was in', () => {
   assert.equal(styleKindOf(['check'], false), 'generic');
   assert.equal(styleKindOf([], false), 'generic');
+  assert.equal(listKindOf(['check'], false), 'generic');
+  assert.equal(listKindOf([], false), 'generic');
 });
 
-test('in the text it shows the style of the block, as the menu marks it', () => {
-  for (const kind of ['large', 'medium', 'small', 'label', 'bullet', 'check', 'ordered', 'quote'])
-    assert.equal(styleKindOf([kind, 'strong'], true), kind);
+test('in the text Text style shows the style of the block, as the menu marks it', () => {
+  for (const kind of TEXT_KINDS) assert.equal(styleKindOf([kind, 'strong'], true), kind);
+});
+
+test('in a list List shows the list and Text style is generic; outside a list List is generic', () => {
+  for (const kind of LIST_KINDS) {
+    assert.equal(listKindOf([kind, 'strong'], true), kind);
+    assert.equal(styleKindOf([kind], true), 'generic');
+  }
+  for (const kind of TEXT_KINDS) assert.equal(listKindOf([kind], true), 'generic');
+  assert.equal(listKindOf(['h2'], true), 'generic');
+});
+
+test('the kinds are the text styles, then the lists', () => {
+  assert.deepEqual(TEXT_KINDS, ['small', 'medium', 'large', 'label', 'quote']);
+  assert.deepEqual(LIST_KINDS, ['bullet', 'check', 'ordered']);
+  assert.deepEqual(STYLE_KINDS, [...TEXT_KINDS, ...LIST_KINDS]);
 });
 
 test('in a heading it shows Body large, though Body small is first in the list', () => {
@@ -38,10 +54,9 @@ test('both toolbars take each text style icon from the same table', () => {
   }
 });
 
-// One order everywhere: the body styles from small to large, then Label, the lists and the quote (the sheet, the top toolbar's
+// One order everywhere: the body styles from small to large, then Label and the quote, then the lists (the sheet, the top toolbar's
 // menu, the floating row's menu and button, STYLE_KINDS and KIND_ICONS).
 test('every list of the text styles is in the order of STYLE_KINDS', () => {
-  assert.deepEqual(STYLE_KINDS, ['small', 'medium', 'large', 'label', 'bullet', 'check', 'ordered', 'quote']);
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
   const order = (re) => [...source.matchAll(re)].map((m) => m[1]);
   assert.deepEqual(order(/^ {8}\{ name: '(\w+)', icon: KIND_ICONS\.\w+\.raw/gm), STYLE_KINDS, 'the floating row');
@@ -50,12 +65,7 @@ test('every list of the text styles is in the order of STYLE_KINDS', () => {
     STYLE_KINDS,
     'the top toolbar and the sheet',
   );
-  const filter = source.match(/\['h1', 'h2', 'h3', ((?:'\w+',? ?)+)\]\.includes\(t\.on/)[1];
-  assert.deepEqual(
-    [...filter.matchAll(/'(\w+)'/g)].map((m) => m[1]),
-    STYLE_KINDS,
-    "the list that picks the sheet's styles",
-  );
+  assert.match(source, /\['h1', 'h2', 'h3', \.\.\.STYLE_KINDS\]\.includes\(t\.on/, "the list that picks the sheet's styles is STYLE_KINDS");
 });
 
 // The three body icons are one family: a T at three sizes with Phosphor's stroke (16 on the 256 grid) and one baseline.
@@ -79,4 +89,23 @@ test('the body icons are one T at three sizes on one baseline', () => {
     tall.small / tall.large < 0.45 && tall.medium / tall.large > 0.6 && tall.medium / tall.large < 0.75,
     'a third, two thirds, full',
   );
+});
+
+// Two controls, Text style and List, each with its own general icon and a label that names the current choice.
+test('Text style and List are two buttons that name their choice', () => {
+  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
+  assert.match(source, /list: \{ raw: listIcon, node: ListDashes \}/, 'a general list icon');
+  assert.match(
+    source,
+    /groupFace\(\s*textKinds\.find\(\(\{ name \}\) => name === kind\)!,\s*t\.text\.listIs,?\s*\)/,
+    'the floating row: "List: …"',
+  );
+  assert.match(source, /action: \(button\) => kinds\(button, 'list'\)/, 'the floating row has a List button');
+  assert.match(source, /group === 'list' \? \[GENERIC_ICONS\.list\.node, t\.text\.list, t\.text\.listIs\]/, 'the top toolbar: "List: …"');
+  for (const locale of ['en-US', 'da-DK']) {
+    const text = readFileSync(new URL(`./i18n/${locale}/text.ts`, import.meta.url), 'utf8');
+    assert.match(text, /\n  list: '/);
+    assert.match(text, /\n  listIs: /);
+  }
+  assert.match(readFileSync(new URL('./i18n/en-US/text.ts', import.meta.url), 'utf8'), /listIs: \(kind: string\) => `List: \$\{kind\}`/);
 });

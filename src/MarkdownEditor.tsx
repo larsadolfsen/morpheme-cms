@@ -50,6 +50,7 @@ import {
   LinkSimple,
   ListBullets,
   ListChecks,
+  ListDashes,
   ListNumbers,
   Plus,
   Quotes,
@@ -62,7 +63,7 @@ import {
   TextHTwo,
   TextItalic,
 } from '@phosphor-icons/react';
-import { styleKindOf } from './styleKind.mjs';
+import { LIST_KINDS, STYLE_KINDS, listKindOf, styleKindOf } from './styleKind.mjs';
 import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
 import { h1Of, h1TextOf, h1Written } from './titleH1.mjs';
@@ -107,6 +108,7 @@ import textMediumIcon from './icons/text-t-medium.svg?raw';
 import textSmallIcon from './icons/text-t-small.svg?raw';
 import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
 import textHIcon from '@phosphor-icons/core/assets/regular/text-h.svg?raw';
+import listIcon from '@phosphor-icons/core/assets/regular/list-dashes.svg?raw';
 import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
 import orderedIcon from '@phosphor-icons/core/assets/regular/list-numbers.svg?raw';
 import quoteIcon from '@phosphor-icons/core/assets/regular/quotes.svg?raw';
@@ -612,8 +614,8 @@ export function paint(view: EditorView, color: string | null) {
   view.focus();
 }
 
-// The two groups of kinds of text, each a button with a menu when there is little room: the headings, and T, the lists
-// and the quote.
+// The three groups of kinds of text, each a button with a menu when there is little room: the headings, the text styles
+// (T) and the lists.
 // The icon of each text style, once, for both toolbars: the raw one the floating row draws and the component the top toolbar
 // and the style menu draw. Its names are STYLE_KINDS (styleKind.mjs), checked by styleKind.test.mjs.
 const KIND_ICONS = {
@@ -621,13 +623,18 @@ const KIND_ICONS = {
   medium: { raw: textMediumIcon, node: TextMediumIcon },
   large: { raw: textLargeIcon, node: TextLargeIcon },
   label: { raw: tagIcon, node: Tag },
+  quote: { raw: quoteIcon, node: Quotes },
   bullet: { raw: bulletIcon, node: ListBullets },
   check: { raw: checkIcon, node: ListChecks },
   ordered: { raw: orderedIcon, node: ListNumbers },
-  quote: { raw: quoteIcon, node: Quotes },
+};
+// The icons of the two buttons outside any text style or list: the general text icon and the general list icon.
+const GENERIC_ICONS = {
+  text: { raw: textHIcon, node: TextH },
+  list: { raw: listIcon, node: ListDashes },
 };
 
-type KindGroup = 'headings' | 'text';
+type KindGroup = 'headings' | 'text' | 'list';
 
 // A button's icon (a raw svg) and its name.
 type Face = { icon: string; label: string };
@@ -700,13 +707,13 @@ function selectionMenu(
         { name: 'medium', icon: KIND_ICONS.medium.raw, label: t.text.bodyMedium },
         { name: 'large', icon: KIND_ICONS.large.raw, label: t.text.bodyLarge },
         { name: 'label', icon: KIND_ICONS.label.raw, label: t.text.label },
+        { name: 'quote', icon: KIND_ICONS.quote.raw, label: t.text.quote },
         { name: 'bullet', icon: KIND_ICONS.bullet.raw, label: t.text.bulletList },
         { name: 'check', icon: KIND_ICONS.check.raw, label: t.text.checkList },
         { name: 'ordered', icon: KIND_ICONS.ordered.raw, label: t.text.orderedList },
-        { name: 'quote', icon: KIND_ICONS.quote.raw, label: t.text.quote },
       ];
       // A button with a group's menu shows the kind it is named after: "Text style: …".
-      const groupFace = ({ icon, label }: Face): Face => ({ icon, label: t.text.kindIs(label) });
+      const groupFace = ({ icon, label }: Face, is = t.text.kindIs): Face => ({ icon, label: is(label) });
       const looks: Look[] = [
         {
           icon: boldIcon,
@@ -760,16 +767,30 @@ function selectionMenu(
           off: (s) => levels(s).length < 2,
           menu: true,
         },
-        // T, the lists and the quote, in a menu; not marked either.
+        // The text styles (T) in a menu; not marked either.
         {
-          // The generic H icon when the cursor is not in the text, else the style it is in (styleKind.mjs).
+          // The general text icon when the cursor is not in the text or is in a list, else the style it is in (styleKind.mjs).
           shows: (s) => {
             const kind = styleKindOf(activeOf(s), view.hasFocus());
             return kind === 'generic'
-              ? { icon: textHIcon, label: t.text.kind }
-              : groupFace(textKinds.find(({ name }) => name === kind) ?? textKinds.find(({ name }) => name === 'large')!);
+              ? { icon: GENERIC_ICONS.text.raw, label: t.text.kind }
+              : groupFace(textKinds.find(({ name }) => name === kind)!);
           },
           action: (button) => kinds(button, 'text'),
+          menu: true,
+        },
+        // The lists in a menu, the same way.
+        {
+          shows: (s) => {
+            const kind = listKindOf(activeOf(s), view.hasFocus());
+            return kind === 'generic'
+              ? { icon: GENERIC_ICONS.list.raw, label: t.text.list }
+              : groupFace(
+                  textKinds.find(({ name }) => name === kind)!,
+                  t.text.listIs,
+                );
+          },
+          action: (button) => kinds(button, 'list'),
           menu: true,
         },
       ];
@@ -1244,7 +1265,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const { schema, selection } = view.state;
       const is = (k: string) => activeOf(view.state).has(k);
       const outOfLists = () => {
-        for (let i = 0; i < 10 && (is('bullet') || is('ordered')) && liftListItem(schema.nodes.list_item)(view.state, view.dispatch); i++);
+        for (
+          let i = 0;
+          i < 10 && (is('bullet') || is('check') || is('ordered')) && liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+          i++
+        );
       };
       const outOfQuotes = () => {
         for (let i = 0; i < 10 && is('quote') && lift(view.state, view.dispatch); i++);
@@ -1286,13 +1311,17 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           }
         }
       };
-      if (kind === 'check') {
-        // A check list is a bulleted list whose items have a box (`- [ ]`); again it is a plain bulleted list.
-        if (is('check')) mark(null);
-        else {
-          if (!is('bullet')) setKind('bullet');
-          mark(false);
+      // A list picked again, while the cursor is in it, takes the text out of the list.
+      if (kind === 'check' || kind === 'bullet' || kind === 'ordered') {
+        if (is(kind)) {
+          outOfLists();
+          return view.focus();
         }
+      }
+      if (kind === 'check') {
+        // A check list is a bulleted list whose items have a box (`- [ ]`).
+        if (!is('bullet')) setKind('bullet');
+        mark(false);
         return view.focus();
       }
       if (kind === 'quote') {
@@ -1437,10 +1466,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.bodyMedium, icon: KIND_ICONS.medium.node, action: () => setKind('medium'), on: 'medium' },
     { label: t.text.bodyLarge, icon: KIND_ICONS.large.node, action: () => setKind('large'), on: 'large' },
     { label: t.text.label, icon: KIND_ICONS.label.node, action: () => setKind('label'), on: 'label' },
-    { label: t.text.bulletList, icon: KIND_ICONS.bullet.node, action: () => setKind('bullet'), on: 'bullet' },
-    { label: t.text.checkList, icon: KIND_ICONS.check.node, action: () => setKind('check'), on: 'check' },
-    { label: t.text.orderedList, icon: KIND_ICONS.ordered.node, action: () => setKind('ordered'), on: 'ordered' },
     { label: t.text.quote, icon: KIND_ICONS.quote.node, action: () => setKind('quote'), on: 'quote' },
+    { label: t.text.bulletList, icon: KIND_ICONS.bullet.node, action: () => setKind('bullet'), on: 'bullet', role: 'list' },
+    { label: t.text.checkList, icon: KIND_ICONS.check.node, action: () => setKind('check'), on: 'check', role: 'list' },
+    { label: t.text.orderedList, icon: KIND_ICONS.ordered.node, action: () => setKind('ordered'), on: 'ordered', role: 'list' },
     // A picture and the blocks are put in with "+" (a sheet with them all); without blocks (a blog
     // post) a picture has its own button.
     ...(blocks
@@ -1453,9 +1482,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   ];
 
   // The tools in their order (toolbarOrder.mjs): Section settings last on the first line, and what may go under the arrow at the
-  // end, Undo and Redo first and then the link, so "+" stays on the first line. The arrangement is tried from the widest:
-  // 'all' on one line, 'mid' with Section settings before Undo and Redo, 'priority' with the link behind it too, 'lean' with Italic as well.
-  const [arrangement, setArrangement] = useState<'all' | 'mid' | 'priority' | 'lean'>('all');
+  // end, Undo and Redo first, then the link, so "+" stays on the first line. The arrangement is tried from the widest:
+  // 'all' on one line, 'mid' with Section settings before Undo and Redo, 'priority' with the link behind it too, 'lean' with Italic as well, 'bare' with the lists as well (the last to go).
+  const [arrangement, setArrangement] = useState<'all' | 'mid' | 'priority' | 'lean' | 'bare'>('all');
   const tools = arrangeTools(all, arrangement);
 
   // When the toolbar is too short for all its buttons, the kinds of text are two buttons: the headings (H1, H2, H3) and the
@@ -1463,11 +1492,14 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // the kind where the cursor is (else its first: the heading the text can have next, and T), with an arrow and the
   // others of its group under it; a group of one (H1, while a page has none) is that button itself.
   const hasSettings = tools.some((item) => item.role === 'settings');
-  const kinds = tools.filter((t) =>
-    ['h1', 'h2', 'h3', 'small', 'medium', 'large', 'label', 'bullet', 'check', 'ordered', 'quote'].includes(t.on ?? ''),
-  );
-  const kindGroups = [kinds.filter((t) => /^h\d$/.test(t.on!)), kinds.filter((t) => !/^h\d$/.test(t.on!))].filter((g) => g.length);
-  const groupOf = (group: typeof kinds): KindGroup => (/^h\d$/.test(group[0].on!) ? 'headings' : 'text');
+  const kinds = tools.filter((t) => ['h1', 'h2', 'h3', ...STYLE_KINDS].includes(t.on ?? ''));
+  const isList = (t: (typeof kinds)[number]) => LIST_KINDS.includes(t.on!);
+  const kindGroups = [
+    kinds.filter((t) => /^h\d$/.test(t.on!)),
+    kinds.filter((t) => !/^h\d$/.test(t.on!) && !isList(t)),
+    kinds.filter(isList),
+  ].filter((g) => g.length);
+  const groupOf = (group: typeof kinds): KindGroup => (/^h\d$/.test(group[0].on!) ? 'headings' : isList(group[0]) ? 'list' : 'text');
   const shownOf = (group: typeof kinds) => group.find((t) => active.includes(t.on!)) ?? group.find((t) => t.on === 'large') ?? group[0];
   const [narrow, setNarrow] = useState(false);
   const kindsShown = kindsAt ? (kindGroups.find((group) => groupOf(group) === kindsAt.group) ?? []) : [];
@@ -1492,10 +1524,14 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // Undo, Redo or the link, and not the arrow). A change of the width starts again from all on one line.
   useLayoutEffect(() => {
     const wrapped = [...(line.current?.querySelectorAll<HTMLElement>('button[data-wrapped]') ?? [])];
-    const mayWrap = [t.text.undo, t.text.redo, t.text.link, ...(arrangement === 'lean' ? [t.text.italic] : [])];
+    const listLabels = [t.text.list, t.text.bulletList, t.text.checkList, t.text.orderedList];
+    const mayWrap = (label: string) =>
+      [t.text.undo, t.text.redo, t.text.link].includes(label) ||
+      (['lean', 'bare'].includes(arrangement) && label === t.text.italic) ||
+      (arrangement === 'bare' && (listLabels.includes(label) || label.startsWith(t.text.listIs(''))));
     const next = nextArrangement(arrangement, {
       any: wrapped.length > 0,
-      kept: wrapped.some((el) => !mayWrap.includes(el.getAttribute('aria-label') ?? '')),
+      kept: wrapped.some((el) => !mayWrap(el.getAttribute('aria-label') ?? '')),
     });
     if (next !== arrangement) setArrangement(next);
   });
@@ -1525,15 +1561,18 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     if (!members) return null;
     if (members.length === 1) return tool(item);
     const group = groupOf(members);
-    const generic = group === 'text' && styleKindOf(active, inText) === 'generic';
+    const generic =
+      (group === 'text' && styleKindOf(active, inText) === 'generic') || (group === 'list' && listKindOf(active, inText) === 'generic');
     const shown = shownOf(members);
+    const [genericIcon, genericLabel, labelIs] =
+      group === 'list' ? [GENERIC_ICONS.list.node, t.text.list, t.text.listIs] : [GENERIC_ICONS.text.node, t.text.kind, t.text.kindIs];
     const opened = kindsAt?.group === group && !kindsAt.word;
     // Not marked: it always shows a kind of its group (the menu under it marks the one there is).
     return (
       <ToolbarButton
         key={`kinds-${group}`}
-        icon={generic ? TextH : shown.icon}
-        label={generic ? t.text.kind : t.text.kindIs(shown.label)}
+        icon={generic ? genericIcon : shown.icon}
+        label={generic ? genericLabel : labelIs(shown.label)}
         menu={opened}
         onClick={(e) => setKindsAt(opened ? null : { at: e.currentTarget, group })}
       />
@@ -1591,7 +1630,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           <span className="text-on-surface">{t.text.noColor}</span>
         </MenuItem>
       </Menu>
-      <Menu anchor={kindsAt?.at ?? null} label={t.text.kind} onClose={() => setKindsAt(null)}>
+      <Menu anchor={kindsAt?.at ?? null} label={kindsAt?.group === 'list' ? t.text.list : t.text.kind} onClose={() => setKindsAt(null)}>
         {kindsShown
           .filter(({ on }) => on !== 'label' || active.includes('labelable'))
           .map(({ label, icon, action, on }) => (

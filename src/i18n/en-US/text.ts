@@ -25,6 +25,8 @@ export const text = {
   /** The kinds of text as one button, when the toolbar is too short. */
   kind: 'Text style',
   kindIs: (kind: string) => `Text style: ${kind}`,
+  list: 'List',
+  listIs: (kind: string) => `List: ${kind}`,
   /** The button at the end of the toolbar when its tools do not fit on one line: the second line shown or hidden. */
   moreTools: 'Show more tools',
   fewerTools: 'Show fewer tools',

@@ -22,6 +22,8 @@ export const text: Messages['text'] = {
   redo: 'Gentag',
   kind: 'Teksttype',
   kindIs: (kind) => `Teksttype: ${kind}`,
+  list: 'Liste',
+  listIs: (kind) => `Liste: ${kind}`,
   moreTools: 'Vis flere værktøjer',
   fewerTools: 'Vis færre værktøjer',
   selection: 'Markeret tekst',
