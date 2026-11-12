@@ -170,6 +170,39 @@ const frontSections = async (body, parts) => [
   }
 }
 
+// Aligned text (lib/text-align.mjs): the editor writes the alignment lines back as they were, and the site turns them into the
+// classes of the blocks after them (and leaves no line behind).
+{
+  const { rehypeAlign } = await import('@morphemecms/cms/lib/text-align.mjs');
+  const { default: rehypeRaw } = await import('rehype-raw');
+  const alignSample = [
+    '<div data-align="center"></div>',
+    'A centred **line**',
+    '<div data-align="right"></div>',
+    '<p class="body-small">Small and right</p>',
+    '<div data-align="center"></div>',
+    '### Centred subheading',
+    'Plain.',
+  ].join('\n\n');
+  const editor = await makeEditor(document.createElement('div'), alignSample).create();
+  const saved = editor.action(markdownOf);
+  await editor.destroy();
+  const aligned = await createMarkdownProcessor({ rehypePlugins: [rehypeRaw, rehypeAlign] });
+  const html = (await aligned.render(saved)).code;
+  const ok =
+    saved.trim() === alignSample &&
+    html.includes('<p class="text-align-center">A centred') &&
+    html.includes('<p class="body-small text-align-right">') &&
+    html.includes('<h3 class="text-align-center"') &&
+    !html.includes('data-align');
+  if (!ok) {
+    console.log(
+      `\n✗ aligned text does not give the same text after a save, or the site does not align it\n  saved: ${JSON.stringify(saved)}\n  site:  ${html}`,
+    );
+    process.exit(1);
+  }
+}
+
 for (const file of files) {
   const isPage = file.replaceAll('\\', '/').includes('src/content/pages/');
   if (file.endsWith('.json')) {

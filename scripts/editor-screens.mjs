@@ -126,9 +126,9 @@ async function checkUpdatesCard(width, height) {
 }
 
 /** On a phone the text's floating row is a docked bottom sheet: the same size and the same place (just over "Save changes", or over the keyboard) at every cursor, with all of the Text style, List and heading buttons in it. */
-async function checkTextSheet() {
-  const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
-  page.on('pageerror', (e) => problems.push(`360px text sheet: ${e.message}`));
+async function checkTextSheet(width = 360) {
+  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px text sheet: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#new/pages'));
   await page.waitForSelector('.ProseMirror');
@@ -140,7 +140,16 @@ async function checkTextSheet() {
       const r = m.getBoundingClientRect();
       const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? visualViewport.height;
       const names = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getAttribute('aria-label'));
-      return { shown: !m.hidden, sheet: m.classList.contains('editor-selection-sheet'), r: r.toJSON(), save, names };
+      const buttons = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getBoundingClientRect().toJSON());
+      return {
+        shown: !m.hidden,
+        sheet: m.classList.contains('editor-selection-sheet'),
+        r: r.toJSON(),
+        save,
+        names,
+        buttons,
+        scrolls: m.scrollWidth > m.clientWidth,
+      };
     });
   await page.waitForTimeout(1200);
   const first = await read();
@@ -153,19 +162,32 @@ async function checkTextSheet() {
     ['first line', first],
     ['second line', second],
   ]) {
-    if (!now.shown || !now.sheet) problems.push(`360px text sheet: no docked sheet at the ${name}`);
-    else if (Math.abs(now.r.bottom - now.save) > 1 || now.r.width < 359)
-      problems.push(`360px text sheet: not docked over Save changes at the ${name}`);
+    if (!now.shown || !now.sheet) problems.push(`${width}px text sheet: no docked sheet at the ${name}`);
+    else if (Math.abs(now.r.bottom - now.save) > 1 || now.r.width < width - 1)
+      problems.push(`${width}px text sheet: not docked over Save changes at the ${name}`);
     if (!now.names.some((n) => n.startsWith('Text style')) || !now.names.includes('List'))
-      problems.push(`360px text sheet: the Text style or List button is missing at the ${name}`);
+      problems.push(`${width}px text sheet: the Text style or List button is missing at the ${name}`);
+  }
+  // Every button shows at 48 dp, Bold, Italic and Link come first, nothing scrolls, and each row is centred (a second row when they do not fit).
+  if (first.names.slice(0, 3).join() !== 'Bold,Italic,Link')
+    problems.push(`${width}px text sheet: Bold, Italic and Link are not the first three buttons`);
+  if (first.scrolls || first.buttons.some((b) => b.left < first.r.left - 1 || b.right > first.r.right + 1))
+    problems.push(`${width}px text sheet: a button is outside the sheet or the sheet scrolls`);
+  if (first.buttons.some((b) => b.width < 47.5 || b.height < 47.5)) problems.push(`${width}px text sheet: a button is smaller than 48 dp`);
+  const rows = Object.values(Object.groupBy(first.buttons, (b) => Math.round(b.top)));
+  for (const row of rows) {
+    const left = Math.min(...row.map((b) => b.left)) - first.r.left;
+    const right = first.r.right - Math.max(...row.map((b) => b.right));
+    if (Math.abs(left - right) > 2) problems.push(`${width}px text sheet: a row of buttons is not centred (${left} left, ${right} right)`);
   }
   if (first.r.height !== second.r.height || first.r.top !== second.r.top)
-    problems.push('360px text sheet: the sheet moved or changed size with the cursor');
-  await page.setViewportSize({ width: 360, height: 420 });
+    problems.push(`${width}px text sheet: the sheet moved or changed size with the cursor`);
+  await page.setViewportSize({ width, height: 420 });
   await page.waitForTimeout(500);
   const keyboard = await read();
   if (Math.abs(keyboard.r.bottom - keyboard.save) > 1 || keyboard.r.height !== first.r.height)
-    problems.push('360px text sheet: it does not follow the keyboard at its own size');
+    problems.push(`${width}px text sheet: it does not follow the keyboard at its own size`);
+  if (width !== 360) return void (await page.close());
   // The top toolbar's tools rest in one colour (the kind menus too), and a menu button is never in the accent.
   const colours = await page.evaluate(() => [
     ...new Set(
@@ -174,7 +196,7 @@ async function checkTextSheet() {
         .map((b) => getComputedStyle(b).color),
     ),
   ]);
-  if (colours.length > 1) problems.push(`360px text toolbar: its tools rest in ${colours.length} colours (${colours.join(', ')})`);
+  if (colours.length > 1) problems.push(`${width}px text toolbar: its tools rest in ${colours.length} colours (${colours.join(', ')})`);
   await page.close();
 }
 
@@ -798,7 +820,7 @@ for (const [width, height] of [
 ])
   await checkUpdatesCard(width, height);
 
-await checkTextSheet();
+for (const width of [360, 375, 414]) await checkTextSheet(width);
 await checkEmptyHint();
 await checkHints();
 await checkFullWidthSection();
