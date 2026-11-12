@@ -35,8 +35,6 @@ export const blocks = {
   heading: 'Heading',
   headingHint: 'Optional.',
   /** A block's head (standard/head.ts): the label above its heading and the subheading under it. */
-  eyebrow: 'Label',
-  eyebrowHint: 'Shown in the label style above the heading.',
   subheading: 'Subheading',
   subheadingHint: 'Shown under the heading.',
   faq: {
@@ -140,7 +138,9 @@ export const blocks = {
     addAbove: 'Add above',
     addBelow: 'Add below',
     row: 'Row',
-    rowSettings: 'Row settings',
+    rowSettings: 'List settings',
+    link: 'Link',
+    addRow: 'Add list row',
     newRow: 'New row',
     /** A row of the list typed in place: its place, for screen readers (row 2 of 4). */
     rowOf: (n: number, total: number) => `Row ${n} of ${total}`,

@@ -1025,6 +1025,7 @@ export function IconPicker({
   value,
   options,
   icon,
+  startOpen = false,
   onChange,
 }: {
   id?: string;
@@ -1032,9 +1033,11 @@ export function IconPicker({
   value: string;
   options: { value: string; label: string }[];
   icon: (value: string, size: number) => ReactElement;
+  /** The grid is open from the start (and stays open after a pick). */
+  startOpen?: boolean;
   onChange: (value: string) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(startOpen);
   const own = useId();
   const grid = `${id ?? own}-icons`;
   const chosen = options.find((o) => o.value === value);
@@ -1061,7 +1064,7 @@ export function IconPicker({
               label={o.label}
               onClick={() => {
                 onChange(o.value);
-                setOpen(false);
+                if (!startOpen) setOpen(false);
               }}
             >
               {o.value ? icon(o.value, 24) : <X size={20} className="text-on-surface-variant" />}
@@ -2376,7 +2379,7 @@ export function FormHeading({ first, children }: { first?: boolean; children: Re
 
 /** A section of a long form that folds in and out (the sections of a page; Material 3 has no accordion, so it has its
  * own name): its heading, as large as a FormHeading, is a button with the arrow at its right, which turns while the
- * section is open, and a line under each section. Folded, only the heading is shown; what is in it stays (hidden), so
+ * section is open, and a line under each section. The title's box is trimmed to the capitals and the baseline, so the space above and below the letters is equal. Folded, only the heading is shown; what is in it stays (hidden), so
  * the text and the fields keep what was written, and it shows softly when opened (.editor-reveal). It stops under the
  * top bar when the page scrolls to it. `ref`: the section, for what scrolls to it and marks it. */
 export function FoldSection({
@@ -2405,10 +2408,10 @@ export function FoldSection({
           id={`${id}-title`}
           aria-expanded={open}
           aria-controls={`${id}-body`}
-          className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--block-radius-small) px-3 py-4 text-left text-xl font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+          className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--block-radius-small) px-3 py-[1.125rem] text-left text-xl font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           onClick={onToggle}
         >
-          <span className="min-w-0 flex-1">{title}</span>
+          <span className="min-w-0 flex-1 [text-box:trim-both_cap_alphabetic]">{title}</span>
           <CaretDown
             size={20}
             aria-hidden="true"

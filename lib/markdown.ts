@@ -14,6 +14,7 @@ import { rehypeAlign } from './text-align.mjs';
 import { remarkBannerSections } from './remark-banner-section.mjs';
 import { remarkChecklists } from './remark-checklist.mjs';
 import { remarkListHeads } from './remark-list-head.mjs';
+import { remarkBlockLabels } from './remark-block-label.mjs';
 
 /** The pipeline, also for a whole page's text (pagePreview.tsx). */
 export const processor = unified()
@@ -22,6 +23,7 @@ export const processor = unified()
   .use(remarkBannerSections)
   .use(remarkChecklists)
   .use(remarkListHeads)
+  .use(remarkBlockLabels)
   .use(remarkSmartypants)
   .use(remarkRehype, { allowDangerousHtml: true })
   .use(rehypeRaw)

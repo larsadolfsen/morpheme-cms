@@ -937,9 +937,10 @@ html {
   font-size: 0.875rem;
 }
 
-/* The row being typed in is marked with the state layer; the next empty row after the last is faded. */
+/* The row being typed in has the dotted line of the sections' frame round it, and no other colour; the empty row of an empty list is faded. */
 .editor-text .inline-list-row-active {
-  background: color-mix(in srgb, var(--mo-primary) 8%, transparent);
+  outline: var(--editor-section-frame);
+  outline-offset: -2px;
 }
 
 .editor-text .inline-list-row-next:not(.inline-list-row-active) {

@@ -16,6 +16,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { chromium } from 'playwright';
+import sharp from 'sharp';
 import { mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { constants, inflateSync } from 'node:zlib';
@@ -315,6 +316,57 @@ async function checkPreviewSection() {
   await page.close();
 }
 
+/** A List typed in the text: while a row is active and the list has rows, the text button "Add list row" is under the last row and adds one, the faded empty row is not there, the active row has a dotted line, and Add above and Add below are icon buttons; when the cursor leaves, the button is gone. */
+async function checkInlineList(width, height) {
+  const label = `${width}px inline list`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  // The tools that do not fit are under "Show more tools".
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('First');
+  await page.waitForTimeout(300);
+  const state = () =>
+    page.evaluate(() => ({
+      rows: document.querySelectorAll('.inline-list-row[data-row]:not(.inline-list-row-next)').length,
+      next: document.querySelectorAll('.inline-list-row-next').length,
+      add: [...document.querySelectorAll('[data-add-row]')].map((b) => b.textContent.trim()),
+      outline: getComputedStyle(document.querySelector('.inline-list-row-active')).outlineStyle,
+      background: getComputedStyle(document.querySelector('.inline-list-row-active')).backgroundColor,
+      bar: [...document.querySelectorAll('.site-block-toolbar button')].map((b) => ({
+        label: b.getAttribute('aria-label'),
+        svg: !!b.querySelector('svg path'),
+      })),
+    }));
+  const one = await state();
+  if (one.next) problems.push(`${label}: the faded empty row shows although the list has a row`);
+  if (one.add.join() !== 'Add list row')
+    problems.push(`${label}: expected the button "Add list row" under an active list, got "${one.add}"`);
+  if (one.outline !== 'dotted') problems.push(`${label}: the active row has outline ${one.outline}, not dotted`);
+  if (one.background !== 'rgba(0, 0, 0, 0)') problems.push(`${label}: the active row has a background colour (${one.background})`);
+  for (const name of ['Add above', 'Add below'])
+    if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
+  await page.click('[data-add-row]');
+  await page.waitForTimeout(300);
+  const two = await state();
+  if (two.rows !== 2) problems.push(`${label}: "Add list row" left ${two.rows} rows, not 2`);
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  if ((await page.locator('[data-add-row]').count()) > 0)
+    problems.push(`${label}: the button "Add list row" stays after the cursor left the list`);
+  await page.close();
+}
+
 /** The hint lines (Type text, or tap Insert …; Write text here…) read on every section colour, light and dark (4.5:1), and start where the text starts. */
 async function checkHints() {
   for (const scheme of ['light', 'dark']) {
@@ -472,6 +524,59 @@ async function checkFullWidthSection() {
       );
     await page.close();
   }
+}
+
+/** A page's accordion rows (FoldSection): between its divider lines the title has the same space above and below it (within 1px, measured on the pixels of the first capital, not the line box), the arrow is centred on the title, and the row stays 48px tall or more (360, 375, 390, 414 px and a computer). */
+async function checkFoldRows(width, height) {
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US', deviceScaleFactor: 2 });
+  page.on('pageerror', (e) => problems.push(`${width}px accordion rows: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  const buttons = page.locator('section[aria-labelledby] > h2 > button[aria-expanded]');
+  await buttons.first().waitFor();
+  await page.waitForTimeout(300);
+  const shown = [];
+  for (let i = 0; i < (await buttons.count()); i++) {
+    const button = buttons.nth(i);
+    await button.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+    await page.waitForTimeout(100);
+    const box = await button.boundingBox();
+    const title = button.locator('span');
+    const t = await title.boundingBox();
+    const title_ = await title.textContent();
+    const arrow = await button.locator('svg').boundingBox();
+    // The ink of the title's first capital (the eye's measure, whatever the font): the rows of pixels that differ from the row's background.
+    const scale = 2;
+    const clip = { x: t.x, y: box.y, width: 8, height: box.height };
+    const png = await page.screenshot({ clip });
+    const { data, info } = await sharp(png).raw().toBuffer({ resolveWithObject: true });
+    const bg = [data[0], data[1], data[2]];
+    const inked = [];
+    for (let y = 0; y < info.height; y++)
+      for (let x = 0; x < info.width; x++) {
+        const o = (y * info.width + x) * info.channels;
+        if (Math.abs(data[o] - bg[0]) + Math.abs(data[o + 1] - bg[1]) + Math.abs(data[o + 2] - bg[2]) > 120) {
+          inked.push(y);
+          break;
+        }
+      }
+    if (!inked.length) {
+      problems.push(`${width}px accordion row "${title_}": no letters found`);
+      continue;
+    }
+    const above = Math.min(...inked) / scale;
+    const below = (info.height - 1 - Math.max(...inked)) / scale;
+    shown.push([above, below, box.height]);
+    if (Math.abs(above - below) > 1)
+      problems.push(`${width}px accordion row "${title_}": ${above}px above the letters and ${below}px below, should be equal`);
+    const centre = (Math.min(...inked) + Math.max(...inked) + 1) / 2 / scale + box.y;
+    if (Math.abs(arrow.y + arrow.height / 2 - centre) > 1)
+      problems.push(`${width}px accordion row "${title_}": the arrow is not centred on the title`);
+    if (box.height < 48) problems.push(`${width}px accordion row "${title_}": ${box.height}px tall, should be 48px or more`);
+  }
+  if (!shown.length) problems.push(`${width}px accordion rows: none measured`);
+  console.log(`${width}px accordion rows (above, below, height): ${JSON.stringify(shown)}`);
+  await page.close();
 }
 
 /** Settings lists the seven screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
@@ -1015,8 +1120,17 @@ for (const [width, height] of [
 ])
   await checkDraftsCard(width, height);
 await checkEmptyHint();
+await checkInlineList(375, 740);
 await checkHints();
 await checkFullWidthSection();
+for (const [width, height] of [
+  [360, 740],
+  [375, 800],
+  [390, 844],
+  [414, 896],
+  [1280, 900],
+])
+  await checkFoldRows(width, height);
 await checkToolbarBox();
 await checkPreviewSection();
 
