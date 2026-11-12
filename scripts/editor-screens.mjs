@@ -396,13 +396,68 @@ const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
   { name: 'steps', hint: 'Numbered steps.', add: 'Add step', noEdit: true },
   { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button' },
-  { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
+  { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
   { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
+  // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
+  { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
 ];
 
-/** `surface`: the item is a card with a container of its own, so it has a background colour. */
-async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowButtons, field = 'title', open }) {
+/** The single blocks typed in place (Notice, Video): one item, no add button, no faded empty item. */
+const inlineSingles = [
+  { name: 'notice', hint: 'A highlighted message.', field: 'text', text: 'Hello **there**', slot: false },
+  { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: true },
+];
+
+async function checkInlineSingle(width, height, { name, hint, field, text, slot }) {
+  const label = `${width}px inline ${name}`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await page.locator('dialog[open] button', { hasText: hint }).first().click();
+  await page.waitForSelector(`.site-block-inline [data-field="${field}"]`);
+  await page.keyboard.type(text);
+  await page.waitForTimeout(300);
+  const state = () =>
+    page.evaluate(
+      (f) => ({
+        value: document.querySelector(`.site-block-inline [data-field="${f}"]`)?.value ?? null,
+        add: document.querySelectorAll('[data-add-row]').length,
+        next: document.querySelectorAll('.inline-list-row-next').length,
+        outline: getComputedStyle(document.querySelector('.site-block-inline .inline-list-row-active')).outlineStyle,
+        slot: !!document.querySelector('.site-block-inline .inline-list-slot'),
+      }),
+      field,
+    );
+  const one = await state();
+  if (one.value !== text) problems.push(`${label}: typed "${text}", the field has "${one.value}"`);
+  if (one.add) problems.push(`${label}: a single block has an add button`);
+  if (one.next) problems.push(`${label}: a single block shows a faded empty item`);
+  if (one.outline !== 'dotted') problems.push(`${label}: the active block has outline ${one.outline}, not dotted`);
+  if (one.slot !== slot) problems.push(`${label}: the slot is ${one.slot ? 'shown' : 'missing'}`);
+  await page.screenshot({ path: join(shots, `inline-${name}-${width}.png`) });
+  // Enter does not make a second line or item.
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(200);
+  if ((await state()).value !== text) problems.push(`${label}: Enter changed the text`);
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  if ((await page.locator(`.site-block-inline [data-field="${field}"]`).count()) && name === 'notice')
+    problems.push(`${label}: the notice still shows its field after the cursor left`);
+  await page.close();
+}
+
+/** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
+async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowButtons, field = 'title', open, start = 1 }) {
   const label = `${width}px inline ${name}`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
@@ -419,7 +474,36 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     await page.locator('[aria-label="Show more tools"]:visible').first().click();
   await page.locator('[aria-label="Insert"]:visible').first().click();
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
-  await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`);
+  try {
+    await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
+  } catch {
+    problems.push(`${label}: the block was not typed in place (no active row with a "${field}" field)`);
+    return page.close();
+  }
+  const faded = await page.locator('.inline-list-row-next').count();
+  if (faded !== start) problems.push(`${label}: a new block starts with ${faded} empty, faded items, not ${start}`);
+  if ((await page.locator('.inline-list-row-active').count()) !== 1) problems.push(`${label}: not exactly one active item at the start`);
+  if (name === 'cards') {
+    // The media area is there while the card is active: one button for each kind (icon, image, video); the link is the bar's, not a slot in the card; the action area has the next button, empty and faded.
+    const slots = await page
+      .locator('.inline-list-row-active .inline-list-slot')
+      .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')));
+    if (slots.join() !== 'Icon,Image,Video')
+      problems.push(`${label}: the active card's media buttons are "${slots}", not "Icon,Image,Video"`);
+    if (await page.locator('.inline-list-row-active [aria-label="Link"]').count())
+      problems.push(`${label}: the card has a link slot (the link is in the toolbar)`);
+    const next = await page.locator('.inline-list-row-active .block-card-actions .inline-card-next-button').allTextContents();
+    if (next.join() !== 'Add button')
+      problems.push(`${label}: the active card's action area has "${next}", not the text button "Add button"`);
+    if (width >= 1000 && !(await page.locator('.site-block-toolbar button[aria-label="Link"]').count()))
+      problems.push(`${label}: the toolbar has no Link while the card is still empty`);
+    // The header line of a card is a headline and ONE optional subhead, both typed in place; no badge, date or tags.
+    const fields = await page.evaluate(() =>
+      [...document.querySelectorAll('.inline-list-row-active [data-field]')].map((f) => f.dataset.field),
+    );
+    if (fields.join() !== 'title,subhead,text')
+      problems.push(`${label}: the typed fields of a card are "${fields}", not "title,subhead,text"`);
+  }
   await page.keyboard.type('First');
   await page.waitForTimeout(300);
   const state = () =>
@@ -440,8 +524,86 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   if (one.outline !== 'dotted') problems.push(`${label}: the active row has outline ${one.outline}, not dotted`);
   if (!surface && one.background !== 'rgba(0, 0, 0, 0)')
     problems.push(`${label}: the active row has a background colour (${one.background})`);
+  // Everything the block draws follows the section it is in: the text, the placeholder (4.5:1), the slot icons and the dotted line (3:1)
+  // on each section colour, light and dark, so a new inline block that leaves out a colour fails here.
+  // No transitions while measuring: a colour read right after the section changes is the one it is still moving from.
+  await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; }' });
+  // The pointer is away from the block: a state layer for a row pointed at is a passing state, not the part's colour.
+  await page.mouse.move(0, 0);
+  for (const scheme of ['light', 'dark']) {
+    await page.emulateMedia({ colorScheme: scheme });
+    const colors = await page.evaluate(`(() => { ${ratioOf}
+      const out = {};
+      const row = document.querySelector('.inline-list-row-active');
+      const top = row.closest('.ProseMirror > *');
+      for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
+        top.setAttribute('data-section-color', color);
+        top.setAttribute('data-section-box', 'only');
+        const field = row.querySelector('.inline-list-field');
+        const ph = getComputedStyle(field, '::placeholder');
+        const slot = row.querySelector('.inline-list-slot');
+        const line = getComputedStyle(row);
+        out[color] = {
+          text: ratio(getComputedStyle(field).color, top, 1, field),
+          placeholder: ratio(ph.color, top, parseFloat(ph.opacity), field),
+          slot: slot ? ratio(getComputedStyle(slot).color, top, 1, slot) : null,
+          outline: ratio(line.outlineColor, top, 1, row),
+        };
+      }
+      top.removeAttribute('data-section-color');
+      top.removeAttribute('data-section-box');
+      return out; })()`);
+    for (const [color, got] of Object.entries(colors))
+      for (const [part, min] of [
+        ['text', 4.5],
+        ['placeholder', 4.5],
+        ['slot', 3],
+        ['outline', 3],
+      ])
+        if (got[part] !== null && got[part] < min)
+          problems.push(`${label} (${scheme}): the ${part} on a ${color} section has contrast ${got[part].toFixed(2)}:1, below ${min}`);
+  }
+  await page.emulateMedia({ colorScheme: 'light' });
   for (const name of ['Add above', 'Add below'])
     if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
+  // The card's settings (the toolbar's gear on a phone, a sheet; the panel on a computer already) open with its page and buttons, never an empty page.
+  const cardSettings = async (when) => {
+    if (width >= 1000) return;
+    await page.locator('.site-block-toolbar button[aria-label="Edit"]').click();
+    const sheet = page.locator('dialog[open][aria-label="Card settings"]');
+    await sheet.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the card's settings do not open (${when})`));
+    if (!(await sheet.getByText(/^(Page|Buttons)$/).count())) problems.push(`${label}: the card's settings are empty (${when})`);
+    await sheet
+      .getByRole('button', { name: 'Close' })
+      .click({ timeout: 2000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+  };
+  if (name === 'cards' && width >= 1000) {
+    // A card has a page or buttons, never both: with a button the page is gone from its settings, with a page there are no buttons.
+    const panel = page.locator('.editor-side-sheet');
+    // The card's own Page field, found by its hint (a button has a Page of its own once it is added).
+    const page_ = panel.getByText('With a page, the whole card is the link and has no buttons.');
+    await page_.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the card's settings have no Page`));
+    await panel.getByRole('button', { name: 'Add button' }).click();
+    await page.waitForTimeout(300);
+    if (await page_.count()) problems.push(`${label}: a card with a button still offers a Page`);
+  }
+  if (name === 'cards') {
+    // A button is typed on the button itself, then the next one is there, empty and faded.
+    await page.click('.inline-list-row-active [data-add-button]');
+    await page.keyboard.type('Go');
+    await page.waitForTimeout(300);
+    const typed = await page
+      .locator('.inline-list-row-active .inline-card-button textarea')
+      .last()
+      .inputValue()
+      .catch(() => null);
+    if (typed !== 'Go') problems.push(`${label}: the text typed on a card's new button is "${typed}", not "Go"`);
+    if ((await page.locator('.inline-list-row-active .inline-card-next-button').count()) !== 1)
+      problems.push(`${label}: no next button after the first`);
+  }
+  if (name === 'cards') await cardSettings('a card with a button');
   // A block with no settings (Steps): no Link action and no Edit button, a step has nothing to set.
   if (noEdit)
     for (const name of ['Link', 'Edit'])
@@ -476,6 +638,41 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   await page.waitForTimeout(300);
   if ((await page.locator('[data-add-row]').count()) > 0)
     problems.push(`${label}: the button "${add}" stays after the cursor left the block`);
+  if (name === 'cards') {
+    // A media that is set is changed by a tap on it: an icon is picked from the Icon button, then the icon itself opens the picker and no media button is left.
+    await page.locator('.inline-list-row [data-field="title"]').first().click();
+    await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Icon"]').click();
+    const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
+    await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Icon button did not open the icon picker`));
+    await picker.getByRole('button').nth(1).click();
+    await page.waitForTimeout(400);
+    // The sheet over a phone's screen is closed to get back to the card.
+    await page
+      .locator('dialog[open] button[aria-label="Close"]')
+      .click({ timeout: 2000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+    await page.locator('.inline-list-row [data-field="title"]').first().click();
+    if ((await page.locator('.inline-list-row-active .inline-card-media').count()) !== 1)
+      problems.push(`${label}: a card with an icon does not show the icon as a button`);
+    if (await page.locator('.inline-list-row-active .inline-card-slots').count())
+      problems.push(`${label}: the media buttons show although the card has its icon`);
+    if ((await page.locator('.inline-list-row-active .inline-card-media svg').count()) !== 1)
+      problems.push(`${label}: the card's icon is not shown exactly once`);
+    await cardSettings('a card with an icon');
+    // A video: the Media choice of the first card, then its link.
+    await page.locator('.inline-list-row-active .inline-card-media').click();
+    await page.getByRole('button', { name: 'Video', exact: true }).last().click();
+    await page.getByRole('textbox', { name: 'Video link' }).fill('https://www.youtube.com/watch?v=aqz-KE-bpKQ');
+    await page.waitForTimeout(400);
+    await page
+      .locator('dialog[open] button[aria-label="Close"]')
+      .click({ timeout: 2000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+    await page.locator('.inline-list-row [data-field="title"]').first().click();
+    await cardSettings('a card with a video');
+  }
   await page.close();
 }
 
@@ -656,7 +853,10 @@ async function checkOwnList(width, height) {
   const phone = width < 600;
   const folder = join(ROOT, 'src/data/services');
   mkdirSync(folder, { recursive: true });
-  writeFileSync(join(folder, '_list.json'), JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href'] }));
+  writeFileSync(
+    join(folder, '_list.json'),
+    JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href', 'image', 'tags'] }),
+  );
   writeFileSync(join(folder, 'web-design.json'), JSON.stringify({ order: 1, title: 'Web design', text: 'Sites that last' }));
   writeFileSync(join(folder, 'hosting.json'), JSON.stringify({ order: 2, title: 'Hosting' }));
   try {
@@ -697,6 +897,24 @@ async function checkOwnList(width, height) {
     await page.keyboard.press('Enter');
     if (!(await page.evaluate(() => document.activeElement?.getAttribute('data-field') === 'text')))
       problems.push(`${label}: Enter in the title did not go to the text`);
+    // The image and tags slots are on the active row, since the list has those fields; the tags slot opens the tags.
+    await page.locator('.inline-list-row[data-row="0"] [data-field="title"]').click();
+    for (const slot of ['Image', 'Tags'])
+      if (!(await page.locator(`.inline-list-row-active [aria-label="${slot}"]`).count()))
+        problems.push(`${label}: no ${slot} slot on the active row`);
+    await page.locator('.inline-list-row-active [aria-label="Tags"]').click();
+    await page
+      .locator('dialog[open], .editor-side-sheet')
+      .filter({ hasText: 'Tags' })
+      .first()
+      .waitFor({ timeout: 5000 })
+      .catch(() => problems.push(`${label}: the tags slot did not open the tags`));
+    if (phone)
+      await page
+        .locator('dialog[open] [aria-label="Close"]')
+        .first()
+        .click()
+        .catch(() => {});
     await page
       .locator('main h1, header')
       .first()
@@ -870,6 +1088,86 @@ async function checkIconSearch(width, height) {
   await page.close();
 }
 
+/** Browser-side helpers (a string, put into page.evaluate): ratio(markCss, sectionEl, opacity) is the WCAG contrast of a colour (at an opacity) on a section's background. */
+const ratioOf = `
+    const pixel = (css, over, opacity = 1) => {
+      const c = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+      c.fillStyle = over; c.fillRect(0, 0, 1, 1); c.globalAlpha = opacity; c.fillStyle = css; c.fillRect(0, 0, 1, 1);
+      return [...c.getImageData(0, 0, 1, 1).data.slice(0, 3)];
+    };
+    const lum = (rgb) => { const [R, G, B] = rgb.map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * R + 0.7152 * G + 0.0722 * B; };
+    const ratio = (markCss, sectionEl, opacity = 1, fromEl = sectionEl) => {
+      // The background is what is painted behind the part: the backgrounds from the section down to the part's own item, over the page's.
+      const stack = [];
+      for (let el = fromEl; el; el = el.parentElement) {
+        stack.unshift(getComputedStyle(el).backgroundColor);
+        if (el === sectionEl) break;
+      }
+      let back = pixel(getComputedStyle(document.body).backgroundColor, '#fff');
+      for (const bg of stack) if (bg !== 'rgba(0, 0, 0, 0)') back = pixel(bg, 'rgb(' + back + ')');
+      const front = pixel(markCss, 'rgb(' + back + ')', opacity);
+      return (Math.max(lum(front), lum(back)) + 0.05) / (Math.min(lum(front), lum(back)) + 0.05);
+    };`;
+
+/** The marks of a check list in a text (`- [x]`) keep 3:1 (WCAG, a graphic) against their section, on every section colour, light and dark, in the editor and on the site. */
+async function checkChecklistMarks() {
+  for (const scheme of ['light', 'dark']) {
+    for (const width of [375, 1280]) {
+      const page = await browser.newPage({ viewport: { width, height: 740 }, colorScheme: scheme, locale: 'en-US' });
+      page.on('pageerror', (e) => problems.push(`${width}px ${scheme} check list: ${e.message}`));
+      // The editor: one page with a check list in a section of each colour.
+      const path = 'src/content/pages/check-list-marks.md';
+      const text = ['surface', 'primary', 'secondary', 'tertiary']
+        .map(
+          (c) =>
+            `<div data-section="${c}"></div>\n\n## ${c} section\n\n- [x] Photos are resized for every screen\n- [x] Every page has a Content Security Policy`,
+        )
+        .join('\n\n');
+      await openEditor(page, site, { [path]: `---\ntitle: "Check list marks"\n---\n\n# Check list marks\n\n${text}\n` });
+      await page.goto(`${site}/editor/#${path}`);
+      await page.waitForSelector('.ProseMirror li[data-item-type="task"]', { timeout: 30_000 });
+      const inEditor = await page.evaluate(`(() => { ${ratioOf}
+        const out = {};
+        for (const list of document.querySelectorAll('.ProseMirror > ul')) {
+          const color = list.getAttribute('data-section-color') ?? 'surface';
+          const li = list.querySelector('li');
+          out[color] = ratio(getComputedStyle(li, '::before').backgroundColor, list);
+        }
+        return out; })()`);
+      await page.locator('.ProseMirror > ul').nth(1).scrollIntoViewIfNeeded();
+      await page.screenshot({ path: join(shots, `checklist-editor-${scheme}-${width}.png`) });
+      if (Object.keys(inEditor).length < 4)
+        problems.push(`${width}px ${scheme} check list in the editor: expected 4 section colours, got ${Object.keys(inEditor)}`);
+      for (const [color, ratio] of Object.entries(inEditor))
+        if (ratio < 3)
+          problems.push(
+            `${width}px ${scheme} check list in the editor: the check mark on a ${color} section has contrast ${ratio.toFixed(2)}:1, below 3`,
+          );
+      // The site: the markup the site's text has, in each section class.
+      await page.goto(`${site}/`);
+      const onSite = await page.evaluate(`(() => { ${ratioOf}
+        const out = {};
+        for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
+          const section = document.createElement('section');
+          section.className = 'text-section-' + color;
+          section.innerHTML = '<div class="prose"><ul class="contains-task-list"><li class="task-list-item"><input type="checkbox" checked disabled> Photos are resized</li></ul></div>';
+          document.querySelector('main').append(section);
+          const mark = section.querySelector('input');
+          out[color] = ratio(getComputedStyle(mark).backgroundColor, section);
+          if (color === 'primary') section.scrollIntoView();
+        }
+        return out; })()`);
+      await page.screenshot({ path: join(shots, `checklist-site-${scheme}-${width}.png`) });
+      for (const [color, ratio] of Object.entries(onSite))
+        if (ratio < 3)
+          problems.push(
+            `${width}px ${scheme} check list on the site: the check mark on a ${color} section has contrast ${ratio.toFixed(2)}:1, below 3`,
+          );
+      await page.close();
+    }
+  }
+}
+
 /** The hint lines (Type text, or tap Insert …; Write text here…) read on every section colour, light and dark (4.5:1), and start where the text starts. */
 async function checkHints() {
   for (const scheme of ['light', 'dark']) {
@@ -1027,6 +1325,50 @@ async function checkFullWidthSection() {
       );
     await page.close();
   }
+}
+
+/** A coloured section's background runs down to the next section's divider, or to the end of the text when it is the last (the space below its text is inside the colour, not a white band), in the editor, and in the Preview where the panel has no margin below (375 px with touch, and a computer). */
+async function checkSectionBackground(width, touch) {
+  const path = 'src/content/pages/about.md';
+  const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  const label = `${width}px section background`;
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  for (const last of [false, true]) {
+    const body = `# T\n\nIntro.\n\n<div data-section="primary"></div>\n\n## Blue\n\nBlue text.\n${last ? '' : '\n## Plain\n\nPlain text.\n'}`;
+    await openEditor(page, site, { [path]: `---\ntitle: "T"\ndescription: "d"\n---\n\n${body}` });
+    await page.goto(`${site}/editor/#${path}`);
+    await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
+    const got = await page.evaluate(() => {
+      const pm = document.querySelector('.ProseMirror');
+      const parts = [...pm.children].filter((c) => !c.classList.contains('editor-section-picture'));
+      const blue = parts.filter((c) => c.dataset.sectionColor === 'primary');
+      const next = parts[parts.indexOf(blue.at(-1)) + 1];
+      const bottom = blue.at(-1).getBoundingClientRect().bottom;
+      return { gap: next ? next.getBoundingClientRect().top - bottom : pm.getBoundingClientRect().bottom - bottom, hasNext: Boolean(next) };
+    });
+    if (Math.abs(got.gap) > 0.5)
+      problems.push(
+        `${label}: the ${last ? 'last ' : ''}coloured section ends ${got.gap}px ${last ? 'above the end of the text' : 'above the next section'} (should be 0, no white band)`,
+      );
+  }
+  await openEditor(page, site, {
+    [path]: `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<div data-section="primary"></div>\n\n## Blue\n\nBlue text.\n\n## Plain\n\nPlain text.\n`,
+  });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
+  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const frame = page.frames().find((f) => f !== page.mainFrame());
+  await frame.waitForSelector('section.text-section-primary', { timeout: 30_000 });
+  const panel = await frame.evaluate(() => {
+    const cs = getComputedStyle(document.querySelector('section.text-section-primary'));
+    return { margin: parseFloat(cs.marginBottom), top: parseFloat(cs.paddingTop), bottom: parseFloat(cs.paddingBottom) };
+  });
+  if (panel.margin !== 0 || panel.bottom <= panel.top)
+    problems.push(
+      `${label}: in the Preview the panel has ${panel.margin}px margin and ${panel.bottom}px padding below (the space below belongs inside the colour: no margin, more padding than above)`,
+    );
+  await page.close();
 }
 
 /** A tap below the last section, or between two sections, puts the cursor on a free line there (an empty paragraph that is not saved unless typed in), and typing adds text after the section, not in a heading (375 px with touch, and a computer). */
@@ -1670,8 +2012,9 @@ for (const [width, height] of [
   await checkDraftsCard(width, height);
 await checkEmptyHint();
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
-// (Cards on a computer fails when inserted, `t.map is not a function`: not part of the Steps change.)
-for (const block of inlineBlocks.filter((b) => b.name !== 'cards')) await checkInlineBlock(1280, 900, block);
+// On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
+for (const block of inlineSingles) for (const w of [375, 1280]) await checkInlineSingle(w, w < 600 ? 740 : 900, block);
+for (const block of inlineBlocks) await checkInlineBlock(1280, 900, block);
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
@@ -1691,7 +2034,10 @@ for (const [width, height] of [
 ])
   await checkIconSearch(width, height);
 await checkHints();
+await checkChecklistMarks();
 await checkFullWidthSection();
+await checkSectionBackground(375, true);
+await checkSectionBackground(1280, false);
 await checkTapBelowSection(375, true);
 await checkTapBelowSection(1280, false);
 for (const [width, height] of [

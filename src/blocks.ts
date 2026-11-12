@@ -81,6 +81,9 @@ export type SiteBlock = {
 export type InlineSpec = {
   /** The name of the list field of the items. */
   item: string;
+  /** A block with no list (Notice, Video): the block's own props are its one item, typed where they stand (InlineSingle.tsx); `item` is
+   * not used and the block has no row actions. */
+  single?: boolean;
   /** The typed fields of an item, in order. */
   fields: string[];
   /** The field picked in the icon slot (its icon picker). */
@@ -89,6 +92,8 @@ export type InlineSpec = {
   link?: string;
   /** Instead of `icon`: the fields the media slot opens (a card's media: its kind, icon, image and video), in the item's sheet. */
   media?: string[];
+  /** The block's own fields that the first item's media sheet has too, above the item's (a card's one media choice for every card). */
+  blockMedia?: string[];
   /** Instead of `link`: the fields the link slot opens (a card's page and buttons). */
   settings?: string[];
   /** The block has settings of its own besides its items (a card's type and colour): its menu keeps Edit. A function says it by the

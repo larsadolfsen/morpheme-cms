@@ -172,7 +172,12 @@
 .editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) {
   border-end-start-radius: var(--block-radius);
   border-end-end-radius: var(--block-radius);
-  padding-block-end: var(--editor-section-pad);
+  /* The space below a section's text belongs inside its colour: it runs down to the next section's divider (or the end of the text). */
+  padding-block-end: calc(var(--editor-section-pad) + var(--editor-section-gap));
+}
+/* The gap above the next section's divider is that padding, not a second margin that would show white between them. */
+.editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) + [data-section-part='start'] {
+  margin-block-start: 0;
 }
 
 /* A section of the whole width (`width` full) reaches the text field's edges: no margin or corners at the sides, and none above the
@@ -210,6 +215,8 @@
   --tw-prose-links: var(--section-on);
   --tw-prose-bullets: var(--section-on);
   --tw-prose-counters: var(--section-on);
+  --section-accent: var(--section-fill);
+  --section-on-accent: var(--section-on);
   background: var(--section-fill);
   color: var(--section-on);
 }
@@ -305,6 +312,8 @@
   --tw-prose-links: var(--block-hero-on-shade, var(--block-surface));
   --tw-prose-bullets: var(--block-hero-on-shade, var(--block-surface));
   --tw-prose-counters: var(--block-hero-on-shade, var(--block-surface));
+  --section-accent: var(--block-hero-shade, var(--block-text));
+  --section-on-accent: var(--block-hero-on-shade, var(--block-surface));
   color: var(--block-hero-on-shade, var(--block-surface));
 }
 
@@ -926,8 +935,8 @@ html {
 }
 
 .editor-text .inline-list-field::placeholder {
-  color: var(--mo-on-surface-variant);
-  opacity: 0.7;
+  color: currentColor;
+  opacity: 1;
 }
 
 /* The media and link slots over the headline of the active card. */
@@ -972,13 +981,42 @@ html {
   margin: 0 0 var(--mo-space-8, 8px);
 }
 
-/* The row being typed in has the dotted line of the sections' frame round it, and no other colour; the empty row of an empty list is faded. */
+/* The row being typed in has a dotted line round it in the text's own colour (3:1 on every section colour, unlike the section frame's quiet line); the empty row of an empty list is faded. */
 .editor-text .inline-list-row-active {
-  outline: var(--editor-section-frame);
+  outline: 2px dotted color-mix(in srgb, currentColor 70%, transparent);
   outline-offset: -2px;
 }
 
 .editor-text .inline-list-row-next:not(.inline-list-row-active) {
+  opacity: 0.55;
+}
+/* A card's media that is set: a button over it, a tap changes it (Cards, InlineCards.tsx). */
+.editor-text .inline-card-media {
+  display: block;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.editor-text .inline-list-slot[aria-pressed='true'] {
+  background: var(--mo-secondary-container);
+}
+/* A card's buttons while it is active: the text of each is typed on the button itself (InlineCards.tsx), drawn as a tonal pill. */
+.editor-text .inline-card-button {
+  display: inline-flex;
+  min-width: 6rem;
+  min-height: 2.5rem;
+  align-items: center;
+  border-radius: 9999px;
+  padding-inline: 1rem;
+  background: var(--mo-secondary-container);
+  color: var(--mo-on-secondary-container);
+}
+/* A card's next button: empty and faded until it is made (Cards, InlineCards.tsx). */
+.editor-text .inline-card-next-button {
   opacity: 0.55;
 }
 
@@ -1454,6 +1492,27 @@ dialog {
     font-weight: var(--type-display-medium-weight);
     letter-spacing: var(--type-display-medium-tracking);
   }
+}
+
+/* Notice and Video typed in place: the notice's text and the video's title are typed where the site draws them; the video's title
+   stands under its frame, as text of the page does. */
+.editor-text .inline-notice {
+  display: block;
+  cursor: text;
+}
+
+.editor-text .inline-notice p {
+  margin: 0;
+}
+
+.editor-text .inline-video {
+  display: grid;
+  gap: var(--mo-space-8, 8px);
+}
+
+.editor-text .inline-video-title {
+  margin: 0;
+  color: var(--mo-on-surface-variant);
 }
 
 /* Buttons typed in place: the label is typed on the button itself, which has the width of its text; the default buttons shown while the block has none of its own. */

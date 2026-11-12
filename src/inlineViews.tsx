@@ -5,6 +5,8 @@ import InlineList from './InlineList';
 import type { BlockData, BlockProps } from './blocks';
 import InlineCards from './InlineCards';
 import InlineTable from './InlineTable';
+import InlineNotice from './InlineNotice';
+import InlineVideo from './InlineVideo';
 import InlineSteps from './InlineSteps';
 import InlineSegmented from './InlineSegmented';
 import InlineButtons from './InlineButtons';
@@ -27,12 +29,16 @@ export type InlineViewProps = {
   onSettings: (item: number) => void;
   /** The icon (or image) slot of an item is tapped: its picker. */
   onIcon: (item: number) => void;
+  /** Changes the block's own props (a card's media kind). */
+  onProps: (patch: BlockProps) => void;
 };
 
 export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
   list: InlineList as ComponentType<InlineViewProps>,
   cards: InlineCards,
   table: InlineTable,
+  notice: InlineNotice,
+  video: InlineVideo,
   steps: InlineSteps,
   segmented: InlineSegmented,
   buttons: InlineButtons,

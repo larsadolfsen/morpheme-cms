@@ -8,7 +8,7 @@ export default function Cards({ view }: { view: CardsView }) {
   return (
     <>
       <BlockHead view={view} />
-      <LinkCards items={view.items} kind={view.kind} color={view.color} more={view.more} className={useInText() || undefined} />
+      <LinkCards items={view.items} design={view.design} color={view.color} more={view.more} className={useInText() || undefined} />
     </>
   );
 }
