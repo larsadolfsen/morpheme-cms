@@ -2,5 +2,5 @@
   "id": "build-chip",
   "kind": "paragraph",
   "title": "Website status",
-  "text": "Visitors see a saved change only once the website has updated. After you save, a chip in the top bar shows Updating the website… and then Live. There is nothing to set up."
+  "text": "Visitors see a saved change only once the website has updated. After you save, a message with a progress bar says Updating the website… and then The website has been updated. There is nothing to set up."
 }

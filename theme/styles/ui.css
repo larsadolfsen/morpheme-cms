@@ -5453,6 +5453,45 @@
     text-decoration-line: underline;
     text-underline-offset: 2px;
   }
+  /* A message about something going on: a thin progress bar under the text, indeterminate (a bar sliding along) or,
+     with --snackbar-progress set (0 to 1), as full as that. */
+  .snackbar-progress {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    margin-top: 0.625rem;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--snackbar-action-text, currentColor) 30%, transparent);
+    height: 0.25rem;
+  }
+  .snackbar-progress::before {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    border-radius: inherit;
+    background: var(--snackbar-action-text, currentColor);
+    width: calc(var(--snackbar-progress) * 100%);
+    content: '';
+  }
+  .snackbar-progress:not([aria-valuenow])::before {
+    width: 40%;
+    animation: snackbar-progress 1.4s ease-in-out infinite;
+  }
+  @keyframes snackbar-progress {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(250%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .snackbar-progress:not([aria-valuenow])::before {
+      animation: none;
+      width: 100%;
+      opacity: 0.6;
+    }
+  }
   /* With an action or a close button: the text and then the buttons, in the middle of its height; under the text with
      a longer action. */
   .snackbar:has(> .snackbar-actions) {
