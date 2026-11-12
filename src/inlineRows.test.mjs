@@ -44,3 +44,10 @@ test('rows are added, removed and moved', () => {
   assert.equal(moveBy(rows, 0, -1), rows);
   assert.equal(moveBy(rows, 1, 1), rows);
 });
+
+test('another block names its first typed field, and any field with text makes an item not empty', () => {
+  assert.deepEqual(addAt([], 0, 'name'), [{ name: '' }]);
+  assert.deepEqual(setField([{ name: 'A', note: 'x' }], 0, 'note', '', 'name'), [{ name: 'A' }]);
+  assert.deepEqual(setField([], 0, 'note', 'x', 'name'), [{ name: '', note: 'x' }]);
+  assert.equal(isEmptyRow({ name: '', price: '5 kr' }), false);
+});

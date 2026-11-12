@@ -45,9 +45,9 @@ export type SiteBlock = {
   former?: boolean;
   /** Its heading and text are written in the text above it (sections.mjs); a new one gets a heading. */
   lead?: Lead;
-  /** Typed in place in the text (InlineList.tsx, MarkdownEditor.tsx): its card is the block drawn with its text as fields, not a picture
-   * of it; a new one goes in at once, without a sheet. Only the List so far (batch 5). */
-  inline?: boolean;
+  /** Typed in place in the text (InlineItems.tsx, MarkdownEditor.tsx): its card is the block drawn with its text as fields, not a picture
+   * of it; a new one goes in at once, without a sheet. Only the List so far (docs/superpowers/specs/2026-11-12-inline-block-editing-design.md). */
+  inline?: InlineSpec;
   /** Cannot be hidden on the site (its line in the file has no props to say so: HTML). */
   shown?: boolean;
   /** Drawn in its sheet above the fields, as it is with them now (BlockDialog.tsx): the buttons,
@@ -71,6 +71,35 @@ export type SiteBlock = {
 
 /** A block, in its folder in packages/editor/src/standard/ or src/apps/<app>/blocks/ (index.tsx): all but its type, which
  * is the folder's name, whether it is a standard block, and how it looks (its View.tsx, registry.tsx). */
+/** How a block is typed in place: which of its lists holds the items, which fields of an item are typed (in the order the cursor goes),
+ * which are picked in a slot (an icon or an image, a link: their field names), and what the floating toolbar and the item say (its texts,
+ * in the editor's language). Its drawing is the block's own: inlineViews.tsx. */
+export type InlineSpec = {
+  /** The name of the list field of the items. */
+  item: string;
+  /** The typed fields of an item, in order. */
+  fields: string[];
+  /** The field picked in the icon slot (its icon picker). */
+  icon?: string;
+  /** The field picked in the link slot (the item's settings). */
+  link?: string;
+  /** Instead of `icon`: the fields the media slot opens (a card's media: its kind, icon, picture and video), in the item's sheet. */
+  media?: string[];
+  /** Instead of `link`: the fields the link slot opens (a card's page and buttons). */
+  settings?: string[];
+  /** The block has settings of its own besides its items (a card's type and colour): its menu keeps Edit. */
+  blockSettings?: boolean;
+  texts: {
+    addAbove: string;
+    addBelow: string;
+    link: string;
+    /** The button for the item's settings on a phone ("Row"), and the title of the item's settings. */
+    row: string;
+    settings: string;
+    icon: string;
+  };
+};
+
 export type BlockDefinition = Omit<SiteBlock, 'type' | 'standard' | 'app' | 'draw'>;
 export const defineBlock = (block: BlockDefinition) => block;
 
