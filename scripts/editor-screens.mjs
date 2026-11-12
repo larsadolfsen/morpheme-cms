@@ -399,6 +399,8 @@ const inlineBlocks = [
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
   { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
+  // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
+  { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
 ];
 
 /** The single blocks typed in place (Notice, Video): one item, no add button, no faded empty item. */
@@ -472,7 +474,12 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     await page.locator('[aria-label="Show more tools"]:visible').first().click();
   await page.locator('[aria-label="Insert"]:visible').first().click();
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
-  await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`);
+  try {
+    await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
+  } catch {
+    problems.push(`${label}: the block was not typed in place (no active row with a "${field}" field)`);
+    return page.close();
+  }
   await page.keyboard.type('First');
   await page.waitForTimeout(300);
   const state = () =>
