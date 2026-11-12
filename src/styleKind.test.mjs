@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { LIST_KINDS, STYLE_KINDS, TEXT_KINDS, listKindOf, styleKindOf } from './styleKind.mjs';
+import { LIST_KINDS, STYLE_KINDS, TEXT_KINDS, headingKindOf, listKindOf, styleKindOf } from './styleKind.mjs';
 
 test('outside the text both buttons show their generic icon, whatever the cursor was in', () => {
   assert.equal(styleKindOf(['check'], false), 'generic');
@@ -104,7 +104,7 @@ test('Text style and List are two buttons that name their choice', () => {
     'the floating row: "List: …"',
   );
   assert.match(source, /action: \(button\) => kinds\(button, 'list'\)/, 'the floating row has a List button');
-  assert.match(source, /group === 'list' \? \[GENERIC_ICONS\.list\.node, t\.text\.list, t\.text\.listIs\]/, 'the top toolbar: "List: …"');
+  assert.match(source, /group === 'list'\s*\? \[GENERIC_ICONS\.list\.node, t\.text\.list, t\.text\.listIs\]/, 'the top toolbar: "List: …"');
   for (const locale of ['en-US', 'da-DK']) {
     const text = readFileSync(new URL(`./i18n/${locale}/text.ts`, import.meta.url), 'utf8');
     assert.match(text, /\n  list: '/);
@@ -132,4 +132,18 @@ test('every style has an icon and a label in the floating row and in the toolbar
   assert.match(source, /kinds\(button, 'text'\)/, 'the floating Text style button opens the menu');
   assert.match(source, /kinds\(button, 'list'\)/, 'the floating List button opens the menu');
   assert.match(source, /kinds\(button, 'headings'\)/, 'the floating heading button opens the menu');
+});
+
+test('the heading button shows a level only while a heading is on, else its generic icon', () => {
+  for (const level of ['h1', 'h2', 'h3']) assert.equal(headingKindOf([level, 'strong'], true), level);
+  for (const kind of [...TEXT_KINDS, ...LIST_KINDS]) assert.equal(headingKindOf([kind], true), 'generic');
+  assert.equal(headingKindOf([], true), 'generic');
+  assert.equal(headingKindOf(['h2'], false), 'generic');
+});
+
+test('the generic icons are the general T, H and list of Phosphor', () => {
+  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
+  assert.match(source, /text: \{ raw: textTIcon, node: TextT \}/);
+  assert.match(source, /heading: \{ raw: textHIcon, node: TextH \}/);
+  assert.match(source, /list: \{ raw: listIcon, node: ListDashes \}/);
 });
