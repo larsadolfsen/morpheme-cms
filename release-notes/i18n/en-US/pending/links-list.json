@@ -1,6 +1,6 @@
 {
   "id": "links-list",
   "kind": "paragraph",
-  "title": "Replace links and points with one List",
+  "title": "List",
   "text": "Links and Points with icon did the same job as two blocks. Use List instead: each row has an icon, heading, text and page, and a row can be a small heading. Your existing links and points open as a List with the same content."
 }

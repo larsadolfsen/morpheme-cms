@@ -9,8 +9,8 @@ Announce "Using release-notes". Every pull request into `main` has a changeset (
 notes"); this skill is how its release note is written. Read it whenever a change is something a site owner sees, and
 before writing or changing any note or edition.
 
-**Style: we write release notes like 0.14.0** (`release-notes/i18n/en-US/0.14.0.json`). A paragraph's title says what the owner
-can do, with a verb first (*Pause an app without losing its settings*, *See your page as Google shows it*). Its text
+**Style: we write release notes like 0.14.0** (`release-notes/i18n/en-US/0.14.0.json`). A paragraph's title says what has
+changed, as a short name of the thing (*Sections*, *Text styles*, *Insert sheet*). Its text
 follows *why, how, what* (see "Writing a paragraph" below). Lines are
 short and name the change plainly. Notes have no screenshots: the paragraphs of 0.14.0 have none.
 
@@ -29,8 +29,7 @@ get no note. The note's `id` is this changeset's file name without `.md`, for ex
 of two kinds:
 
 - `paragraph` (under "New in <version>" on the Morpheme page): every change to how the editor or the site looks, a new
-  screen, feature or way to do something, and every selling point (see above). A title and 1–3 short sentences: what the owner gets first,
-  then where to find it. No labels, no screenshot.
+  screen, feature or way to do something, and every selling point (see above). A title (the name of the thing) and 2–3 short sentences: why, how, what. No labels, no screenshot.
 - `line`: every other change, such as a small tweak that changes neither how the editor or the site looks nor what Morpheme
   has over other ways to run a site, or a fix. One short sentence with no
   period, shown in the list "Also in this version".
@@ -85,25 +84,28 @@ Every `paragraph` follows **why, how, what**, in this order, in 2–3 sentences 
 
 Rules: active voice, present tense, *you*; concrete (a screen, a button, a number), no filler (*now*, *new*, *also*,
 *easier*) unless it carries meaning. **One subject per paragraph**: a second feature, a second screen or a second block is
-its own note, a paragraph or a `line`. The title starts with a verb and names the owner's gain (*Keep long lists short*), not the feature.
+its own note, a paragraph or a `line`. **The title says WHAT has changed**: a short name of the
+thing, two or three words, as the editor calls it (*Sections*, *Text styles*, *Insert sheet*), never a sentence about the
+benefit (*Pick from sheets that match your lists*) and never a verb phrase. The gain belongs in the text, as the why. Two
+notes of one version do not share a title.
 
 A selling point (see above) follows the same order: the why is what the owner is protected from or free to do, the how is
 where the proof is, the what is what stays the owner's.
 
-Before (bad: no why, three subjects, a name-list instead of a reason):
+Before (bad: a sentence as the title, no why, three subjects):
 
 > **Fold out rows in a Segmented list**
 > The new Segmented list folds each row out to show its text and link. You can keep only one row open, or show just the
 > first rows with a Show more button for the rest. The FAQ list gets the same button, and Insert now groups the blocks by
 > what they do.
 
-After (why, how, what; the other subjects are their own notes):
+After (a name as the title, then why, how, what; the other subjects are their own notes):
 
-> **Keep long lists short**
+> **Segmented list**
 > A long list no longer fills the page. Add a Segmented list, set Max rows, and visitors open each row to read its text and
 > link, and press Show more for the rest. Turn on Only one open to close the last row when the next one opens.
 
-Danish: the same three parts in the same order, written as a Danish app says it (not word for word), with the editor's
+Danish: the title is the Danish name of the same thing (*Segmenteret liste*), and the text has the same three parts in the same order, written as a Danish app says it (not word for word), with the editor's
 Danish words from `src/i18n/da-DK/`, and the same length cap. Keep `id` and
 `kind` the same in both languages.
 

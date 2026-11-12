@@ -1,6 +1,6 @@
 {
   "id": "autosave-form",
   "kind": "paragraph",
-  "title": "Behold din tekst, hvis fanen lukker",
+  "title": "Automatisk gemning",
   "text": "Du mister ikke længere din tekst, hvis du lukker fanen eller mister forbindelsen. Med R2-caching slået til gemmer editoren en side, et indlæg eller en kladde, mens du skriver, og henter den frem, når du vender tilbage. Linjen under titlen viser Gemmer…, Gemt eller Ikke gemt."
 }

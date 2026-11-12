@@ -1,6 +1,6 @@
 {
   "id": "list-blocks-three",
   "kind": "paragraph",
-  "title": "Keep long lists short",
+  "title": "Segmented list",
   "text": "A long list no longer fills the page. Add a Segmented list, set Max rows, and visitors open each row to read its text and link, and press Show more for the rest. Turn on Only one open to close the last row when the next one opens."
 }
