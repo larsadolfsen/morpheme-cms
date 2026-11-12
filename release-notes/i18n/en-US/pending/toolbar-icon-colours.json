@@ -1,0 +1,6 @@
+{
+  "id": "toolbar-icon-colours",
+  "kind": "paragraph",
+  "title": "Toolbar icons",
+  "text": "The text toolbar looked uneven on a phone. Text style, List and the headings were blue while Bold and Link were dark. Now every tool rests in the same colour, and only a tool that is on is marked. A theme can restyle them."
+}
