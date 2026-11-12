@@ -2,4 +2,4 @@
 '@morphemecms/cms': patch
 ---
 
-On a phone, Section settings is the first tool in the text toolbar when the cursor is in a section's heading, and 48 dp high.
+Section settings is the first tool in the text toolbar anywhere in a section, not only in its heading, and 48 dp high, so it is reachable on a phone.

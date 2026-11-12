@@ -545,6 +545,7 @@ export function activeOf(state: EditorView['state']): Set<string> {
   const section = sectionHeading(state);
   if (section) {
     on.add('section');
+    on.add(`section-h${section.level}`);
     if (section.color) on.add(`section-${section.color}`);
   }
   return on;
@@ -1351,7 +1352,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     // page has it for its H2s, but not for its H1, which stays the banner without a colour). It is 48 dp, as a
     // tap needs, and comes first (with the kinds of text next, `tools` below), so on a phone it stays on the first line,
     // not under the arrow with Undo.
-    ...(framed && active.includes('section') && !(sections && active.includes('h1')) && (blocks ?? sheetProp)
+    ...(framed && active.includes('section') && !(sections && active.includes('section-h1')) && (blocks ?? sheetProp)
       ? [{ label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings, large: true }]
       : []),
     { label: t.text.bold, icon: TextB, action: () => run(toggleStrongCommand), on: 'strong' },
