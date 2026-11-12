@@ -25,6 +25,11 @@ declare module 'virtual:all-icons' {
   export const allIcons: Record<string, string>;
 }
 
+// The same on the server render only; empty in the browser (icon.tsx draws a Phosphor icon of the picker with it).
+declare module 'virtual:all-icons-ssr' {
+  export const allIcons: Record<string, string>;
+}
+
 // How the theme in use covers Material's parts, null for the standard theme (coverageModule in site/themeCoverageFiles.mjs).
 declare module 'virtual:theme-coverage' {
   const coverage: {

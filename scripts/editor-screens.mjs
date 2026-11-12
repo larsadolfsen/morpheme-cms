@@ -365,7 +365,7 @@ async function checkInlineList(width, height) {
   await page.close();
 }
 
-/** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set ("arrow back"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
+/** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set, Material Symbols' ("arrow back") and Phosphor's ("acorn"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
 async function checkIconSearch(width, height) {
   const label = `${width}px icon search`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -433,6 +433,12 @@ async function checkIconSearch(width, height) {
     .getByRole('button', { name: 'Suggested', exact: true })
     .tap()
     .catch(() => {});
+  // Phosphor's own icons are in the search too (acorn: Material Symbols has none of that name).
+  await search.fill('acorn');
+  await picker
+    .getByRole('button', { name: 'acorn', exact: true })
+    .waitFor({ timeout: 8000 })
+    .catch(() => problems.push(`${label}: the search "acorn" did not find Phosphor's acorn`));
   await search.fill('arrow back');
   await hit.waitFor({ timeout: 8000 }).catch(() => {});
   await hit.tap().catch(() => {});
