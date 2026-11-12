@@ -19,8 +19,7 @@ import {
   Choice,
   Filters,
   InputChip,
-  LeadingIcon,
-  optionClass,
+  ListItem,
   Preview,
   SearchRow,
   BottomSheet,
@@ -94,6 +93,7 @@ const SECTION = 'section';
 export const IMAGE = 'image';
 const picture: SiteBlock = {
   type: IMAGE,
+  group: 'media',
   label: t.blocks.picture.label,
   icon: Image,
   hint: t.blocks.picture.hint,
@@ -131,7 +131,7 @@ const INSERT_SORT_KEY = 'editor-sort-insert';
 
 // A block's group: the app's name for an app's block, otherwise the standard blocks (also the picture and HTML).
 // The standard blocks are in groups by what they do (`group`), the same in `Insert`'s headings and its filter.
-const groupOf = (b: SiteBlock) => (b.app ? (apps.find((a) => a.id === b.app)?.label ?? b.app) : t.blockSettings.groups[b.group ?? 'other']);
+const groupOf = (b: SiteBlock) => (b.app ? (apps.find((a) => a.id === b.app)?.label ?? b.app) : t.blockSettings.groups[b.group ?? 'media']);
 const standardGroups: string[] = blockGroups.map((g) => t.blockSettings.groups[g]);
 
 /** crop: a picture can be cut to a format (not in a "Banner"'s text, whose picture the theme lays out). */
@@ -517,19 +517,13 @@ export function useBlockDialog(
                   </li>
                 ),
                 ...h.items.map((b) => (
-                  <li key={b.type}>
-                    <button
-                      type="button"
-                      className={optionClass()}
-                      onClick={() => (b.type === IMAGE ? done({ type: IMAGE, props: {} }) : pick(b.type))}
-                    >
-                      <LeadingIcon icon={b.icon} />
-                      <span className="min-w-0">
-                        <span className="block font-medium">{b.label}</span>
-                        {b.hint && <span className="block text-sm text-on-surface-variant">{b.hint}</span>}
-                      </span>
-                    </button>
-                  </li>
+                  <ListItem
+                    key={b.type}
+                    icon={b.icon}
+                    headline={b.label}
+                    supporting={b.hint}
+                    onClick={() => (b.type === IMAGE ? done({ type: IMAGE, props: {} }) : pick(b.type))}
+                  />
                 )),
               ])}
               {!offered.length && <EmptyNote item>{t.blocks.noneHere}</EmptyNote>}

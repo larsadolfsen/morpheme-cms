@@ -10,7 +10,7 @@ import { headFields } from '../head';
 type Row = { title?: string };
 
 export default defineBlock({
-  group: 'rows',
+  group: 'lists',
   label: t.blocks.list.label,
   icon: ListBullets,
   hint: t.blocks.list.hint,
