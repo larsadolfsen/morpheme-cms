@@ -172,7 +172,12 @@
 .editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) {
   border-end-start-radius: var(--block-radius);
   border-end-end-radius: var(--block-radius);
-  padding-block-end: var(--editor-section-pad);
+  /* The space below a section's text belongs inside its colour: it runs down to the next section's divider (or the end of the text). */
+  padding-block-end: calc(var(--editor-section-pad) + var(--editor-section-gap));
+}
+/* The gap above the next section's divider is that padding, not a second margin that would show white between them. */
+.editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) + [data-section-part='start'] {
+  margin-block-start: 0;
 }
 
 /* A section of the whole width (`width` full) reaches the text field's edges: no margin or corners at the sides, and none above the
@@ -1458,6 +1463,27 @@ dialog {
     font-weight: var(--type-display-medium-weight);
     letter-spacing: var(--type-display-medium-tracking);
   }
+}
+
+/* Notice and Video typed in place: the notice's text and the video's title are typed where the site draws them; the video's title
+   stands under its frame, as text of the page does. */
+.editor-text .inline-notice {
+  display: block;
+  cursor: text;
+}
+
+.editor-text .inline-notice p {
+  margin: 0;
+}
+
+.editor-text .inline-video {
+  display: grid;
+  gap: var(--mo-space-8, 8px);
+}
+
+.editor-text .inline-video-title {
+  margin: 0;
+  color: var(--mo-on-surface-variant);
 }
 
 /* Buttons typed in place: the label is typed on the button itself, which has the width of its text; the default buttons shown while the block has none of its own. */
