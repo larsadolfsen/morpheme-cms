@@ -1,7 +1,7 @@
 // The release notes on the Morpheme page (#morpheme), as an article: its title, then per version a heading ("New in
 // Morpheme Braies 0.14.3"), the day it was released and, under a line's newest version, its edition's photo; its paragraphs
 // in the editor's language (else English) as sections with a title and a text, and its other changes as a list under
-// "Also in this version"; for a version without notes, its text. No screenshots: the start screen's update card
+// "Also in this version"; for a version without notes, its text. No screenshots: the start screen's update message
 // (UpdatesNotice.tsx) shows them. Exposes ReleaseNotes and VersionNotes; it only composes ReleaseNoteSection.tsx and
 // ReleaseNoteLines.tsx. Depends on lib/releaseNotes.mjs (notesFor) and i18n.
 import { locale, t } from './i18n';
