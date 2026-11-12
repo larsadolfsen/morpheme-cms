@@ -2,4 +2,4 @@
 '@morphemecms/cms': patch
 ---
 
-The Save button of a published page or post says Save draft, because it keeps the changes as a draft
+The page and post form has the buttons Save draft and Publish, and its switch says Published and Draft

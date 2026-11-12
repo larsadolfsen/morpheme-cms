@@ -27,7 +27,7 @@ export type Status = { text: string; error?: boolean; edit?: Edit; kind?: Editor
 
 /** What a page or post can do with its waiting version (EntryForm.tsx, lib/versions.mjs). */
 export type Publish = {
-  /** The main action's label (`Publish`, `Publish changes`), or none when there is nothing to publish. */
+  /** The main action's label (`Publish`), or none when there is nothing to publish. */
   label?: string;
   /** Publishes; saves what is unsaved first. True when it was published. */
   onPublish: () => Promise<unknown>;
@@ -58,9 +58,9 @@ type Props<T extends string> = {
   onPreview?: () => void;
   onDelete?: () => void;
   deleteLabel?: string;
-  /** The Save button's label; `Save changes` when not given. */
+  /** The Save button's label; `Save changes` for other forms. */
   saveLabel?: string;
-  /** A page or post that is published in steps: `Publish` (a draft) or `Publish changes` (changes waiting) at the end of the bar, shown
+  /** A page or post that is published in steps: `Publish` at the end of the bar, shown
    * also when nothing is unsaved, and its other actions (`Unpublish`, `Discard draft`) above "Delete". */
   publish?: Publish;
   /** The fields beside the text on a wide computer screen (FormColumns in ui.tsx). */

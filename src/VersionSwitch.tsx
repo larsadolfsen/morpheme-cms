@@ -1,4 +1,4 @@
-// The switch at the top of a page or post that has changes waiting (src/drafts/, lib/versions.mjs): `Live` and `Scheduled` (or `Draft`
+// The switch at the top of a page or post that has changes waiting (src/drafts/, lib/versions.mjs): `Published` and `Scheduled` (or `Draft`
 // when they have no time), to edit either one, so a mistake on the live page can be fixed without touching the waiting changes. It is
 // the named slot `versionSwitch` of an app (AppDefinition.slots): the form draws the one of the first app installed that has it, else this one.
 import type { Version } from '../lib/versions.mjs';
@@ -18,7 +18,7 @@ export type VersionSwitchProps = {
   busy: boolean;
   /** Edits another version: the form asks first when something is unsaved. */
   onEdit: (id: string) => void;
-  /** Make a version live (`Publish changes`). */
+  /** Make a version live (`Publish`). */
   publish: (id?: string) => Promise<unknown>;
   /** Go live at a time ("2026-11-20T08:00", Danish time), or `null` for no time. */
   schedule: (at: string | null, id?: string) => Promise<unknown>;
@@ -46,7 +46,7 @@ export default function VersionSwitch({ versions, editing, busy, onEdit }: Versi
   );
 }
 
-/** The notice under the switch on a page or post that has changes waiting: while `Live` is edited, that what is saved goes on the website at
+/** The notice under the switch on a page or post that has changes waiting: while `Published` is edited, that what is saved goes on the website at
  * once and the waiting changes stay; while they are edited, that the website shows the published version (`when`: when they go live, if they have a time). */
 export function WaitingNotice({
   editsLive,

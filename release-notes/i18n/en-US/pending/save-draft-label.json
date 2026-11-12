@@ -1,5 +1,5 @@
 {
   "id": "save-draft-label",
   "kind": "line",
-  "text": "The Save button of a published page or post says Save draft, and the message after it says Draft saved"
+  "text": "A page or post form has the buttons Save draft and Publish, and its switch says Published and Draft"
 }
