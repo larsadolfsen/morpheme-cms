@@ -11,9 +11,11 @@ Edit pages, posts and photos from any browser, even your phone.
 
 Make a change, tap Save, and it’s live about a minute later: checked, backed up and fast.
 
-![The Morpheme editor open on a phone](/images/uploads/2026/10/editor-start.webp)
+<div data-block="buttons" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;to&quot;:&quot;booking&quot;,&quot;kind&quot;:&quot;filled&quot;,&quot;icon&quot;:&quot;arrow-right&quot;},{&quot;label&quot;:&quot;See what it can do&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/blocks/&quot;,&quot;kind&quot;:&quot;outlined&quot;}]}"></div>
 
-<div data-block="hero" data-props="{&quot;text&quot;:&quot;&lt;div data-block=\&quot;buttons\&quot; data-props=\&quot;{&amp;quot;items&amp;quot;:[{&amp;quot;label&amp;quot;:&amp;quot;&amp;quot;,&amp;quot;to&amp;quot;:&amp;quot;booking&amp;quot;,&amp;quot;kind&amp;quot;:&amp;quot;filled&amp;quot;,&amp;quot;icon&amp;quot;:&amp;quot;arrow-right&amp;quot;},{&amp;quot;label&amp;quot;:&amp;quot;See what it can do&amp;quot;,&amp;quot;to&amp;quot;:&amp;quot;page&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;/blocks/&amp;quot;,&amp;quot;kind&amp;quot;:&amp;quot;outlined&amp;quot;}]}\&quot;&gt;&lt;/div&gt;\n\nFree and open source under the MIT license.&quot;}"></div>
+Free and open source under the MIT license.
+
+![The Morpheme editor open on a phone](/images/uploads/2026/10/editor-start.webp)
 
 <div data-block="list" data-props="{&quot;eyebrow&quot;:&quot;Why Morpheme&quot;,&quot;heading&quot;:&quot;Everything you need, nothing you don’t&quot;,&quot;intro&quot;:&quot;The editor takes care of the careful work, so you can focus on what you want to say.&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;phone&quot;,&quot;title&quot;:&quot;Edit from anywhere&quot;,&quot;text&quot;:&quot;Works in any browser and installs on your phone’s home screen like an app.&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Build with blocks&quot;,&quot;text&quot;:&quot;Cards, steps, FAQs, price tables and more, styled to match your site automatically.&quot;},{&quot;icon&quot;:&quot;book-open&quot;,&quot;title&quot;:&quot;Never lose a thing&quot;,&quot;text&quot;:&quot;Every save is a version you can restore with one tap. Deleted files come back too.&quot;},{&quot;icon&quot;:&quot;lifebuoy&quot;,&quot;title&quot;:&quot;Private by default&quot;,&quot;text&quot;:&quot;No tracking cookies until visitors say yes, and a strict security policy on every page.&quot;}]}"></div>
 

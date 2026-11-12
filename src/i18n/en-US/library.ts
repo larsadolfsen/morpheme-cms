@@ -93,8 +93,6 @@ export const library = {
   onDeviceHint: 'Also when the editor is closed.',
   deviceBlocked: 'The phone or browser doesn’t allow notifications from the editor. Turn them on in its settings.',
   notificationTypes: { site: 'Website updated', saved: 'Saved and deleted', failed: 'Couldn’t save', updates: 'Apps updated' },
-  on: 'On',
-  off: 'Off',
   /** Under a theme's name under "Themes" and on its page: its version and who made it. */
   themeByline: (version: string, author: string) => `Version ${version} · ${author}`,
   /** By the theme the website uses, under "Themes" and on its page. */

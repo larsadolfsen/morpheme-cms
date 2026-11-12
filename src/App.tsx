@@ -121,6 +121,7 @@ import {
   StoreAppPage,
   StorePage,
 } from './AppList';
+import { isSection, type Section } from './sectionChoice.mjs';
 import { activeApps, installedApps } from './apps';
 import {
   DEVELOPER_ROUTE,
@@ -805,6 +806,8 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route.startsWith(`${LICENSES_ROUTE}/`)) return <LicensePage key={route} id={route.slice(LICENSES_ROUTE.length + 1)} />;
   if (route === 'apps') return <Apps env={env} files={files} />;
   if (route === STORE_ROUTE) return <StorePage env={env} files={files} />;
+  if (route.startsWith(`${STORE_ROUTE}/`) && isSection(route.slice(STORE_ROUTE.length + 1)))
+    return <StorePage env={env} files={files} section={route.slice(STORE_ROUTE.length + 1) as Section} />;
   if (route === STORE_THEMES) return <ThemeStoreScreen env={env} />;
   if (route.startsWith(`${DEVELOPER_ROUTE}/`))
     return <DeveloperPage key={route} slug={route.slice(DEVELOPER_ROUTE.length + 1)} env={env} files={files} />;
