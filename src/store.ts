@@ -132,7 +132,7 @@ export type StoreApp = {
    * its new one, one it does not know leaves them out, and the app stays in the catalog. */
   category?: AppCategory;
   subcategory?: string;
-  /** Connector or plugin, as the catalog has it (read with roleOf: none is a plugin), and the service a connector
+  /** Connector or plugin, as the catalog has it (read with roleOf: with none, an outside host or `mcp` makes a connector, else a plugin), and the service a connector
    * connects to (when the entry names it; else its hosts, serviceOf). */
   role?: Role;
   service?: string;
