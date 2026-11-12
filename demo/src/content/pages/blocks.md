@@ -95,9 +95,9 @@ Up to four plans side by side, with what’s included and a button.
 
 Quotes from the Testimonials list, as cards to leaf through or as a list. These are samples.
 
-<div data-block="testimonials" data-props="{&quot;layout&quot;:&quot;cards&quot;,&quot;show&quot;:&quot;all&quot;}"></div>
+<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;all&quot;,&quot;layout&quot;:&quot;cards&quot;}"></div>
 
-<div data-block="testimonials" data-props="{&quot;layout&quot;:&quot;list&quot;,&quot;show&quot;:&quot;all&quot;}"></div>
+<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;all&quot;,&quot;layout&quot;:&quot;list&quot;}"></div>
 
 ## Notice
 
