@@ -106,7 +106,7 @@ test('a thrown send counts as a failure, and a new change tries again', async ()
   assert.equal(a.state(), 'saved');
 });
 
-test('with Faster editor off the state is notSaved and nothing more is sent', async () => {
+test('with R2 caching off the state is notSaved and nothing more is sent', async () => {
   const { a, c, calls } = make([{ ok: false, off: true }]);
   a.autosave('src/content/a.md', 'x');
   await c.tick(100);

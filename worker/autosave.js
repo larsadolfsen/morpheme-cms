@@ -1,6 +1,6 @@
-// Autosaved drafts in R2, for the editor's `Faster editor` (the binding FILES, packages/editor/worker/files.js): the editor sends the text
+// Autosaved drafts in R2, for the editor's `R2 caching` (the binding FILES, packages/editor/worker/files.js): the editor sends the text
 // of the version it is editing a little after each change, the Worker keeps it here, and it goes to git as the waiting version
-// (src/drafts/, lib/versions.mjs `saveDraft`) when the person leaves the page or after a long idle. Without the binding (`Faster editor` off,
+// (src/drafts/, lib/versions.mjs `saveDraft`) when the person leaves the page or after a long idle. Without the binding (`R2 caching` off,
 // or a preview of a branch) nothing is kept: every answer is 409 `off`, and the editor says `Not saved` until `Save`. Only someone who can save
 // the site (write access to the repository on GitHub) can use it. The key: `<owner>/<repo>/autosave/<page file>/<version id>` (lib/autosave.mjs),
 // the value `{ text, savedAt }` as JSON, at most 1 MiB. The id is a version id as in lib/versions.mjs (default `waiting`).

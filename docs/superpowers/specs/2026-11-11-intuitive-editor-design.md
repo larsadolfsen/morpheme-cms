@@ -540,7 +540,7 @@ These are questions that change the plan, each a short read-only investigation o
 | 10 | **The Table block** | A new block with typed cells, the next row and column, `Add row` and `Add column`, a header row on by default (18) | 5, S2 | M | no | none |
 | 11 | **Page head and Preview** | The title, top picture, date and tags drawn in the text for a page and a post; `Preview` full screen with the breakpoint bar and heights (15; question 7) | 4 | L | no | none |
 | 12 | **Drafts and Publish** | The draft file in git; `Save`, `Publish changes`, `Unpublish`, `Discard changes`, `Schedule`; two statuses with `unlisted` and `scheduled` migrated and the SEO setting; the `ci-build` lane for drafts only; the version list kept ready for an app (1, 2, question 2) | S1, 1 | XL | maybe: an app place for the version switch | none |
-| 13 | **Autosave** | With `Faster editor` on: autosave to R2, written to git on leaving or a long idle, and the status `Saving…` / `Saved` / `Not saved` (question 2) | 12 | L | no | none |
+| 13 | **Autosave** | With `R2 caching` on: autosave to R2, written to git on leaving or a long idle, and the status `Saving…` / `Saved` / `Not saved` (question 2) | 12 | L | no | none |
 | 14 | **Live and scheduled versions** | The `Live` / `Scheduled` switch, editing either version, and the warning when a page has a waiting version (question 2) | 12 | M | no | none |
 | 15 | **Pictures and block flow** | Alt text after a picture is picked, the `Hide on the page` wording, the closing of a sheet (6, 7) | 5 | S | no | none |
 | 16 | **Lists from lists** | `Rows from` on the list blocks, the tag filter, `How many`, `Show all`, `Dynamic` in the block name, then `New list` and the list's own page; dynamic cards after the Card block (16, 17) | 7, 9, and 0.16 | XL, split A (a block reads an existing list) then B (`New list`) | **yes**: `Dynamic lists`, app lists | none |
@@ -631,7 +631,7 @@ preset watch paths; if not, test the fallback's build time on `morpheme-staging`
      command (`wrangler preview`) when Previews are on, and starter sets `"previews": {}`, so it still builds; it would
      need Previews off per site (dashboard again) or a branch the build never sees. It also splits history and
      makes Publish a cross-branch merge. Not recommended.
-   - **R2 for sites with Faster editor** (`FILES`): no git commit, no build, instant. Only some sites have R2, so drafts
+   - **R2 for sites with R2 caching** (`FILES`): no git commit, no build, instant. Only some sites have R2, so drafts
      would live in two places and need their own copy and backup rules. Good as a later extra, not as the default.
 
 **Recommendation.**
@@ -731,9 +731,9 @@ contract is needed, only a `slots` field in `AppDefinition`.
    versioned and backed up. `Save` commits it as a separate draft file (for example `drafts/<page>.md`), which the build
    skips, so the live page does not change; `Publish changes` commits the draft into the real page file and removes the
    draft file; `Discard changes` removes it; `Schedule` uses the Worker's existing hourly job. A page never published is a
-   draft as it is today (`status: draft`). **Autosave is added when `Faster editor` is on** (`Settings › Caching and builds`,
+   draft as it is today (`status: draft`). **Autosave is added when `R2 caching` is on** (`Settings › Caching and builds`,
    the R2 cache, `worker/files.js`): the Worker keeps the draft current in R2 as the owner types, with no commit and no
-   build. Without `Faster editor` there is no autosave, and the status shows `Not saved` until the owner presses `Save`.
+   build. Without `R2 caching` there is no autosave, and the status shows `Not saved` until the owner presses `Save`.
    The draft in R2 is written to git when the owner leaves the page or has been idle for several
    minutes (owner, 11 November, not on every pause), so an editing session makes only a few commits and git still holds
    the draft. The idle time is set when it is built. Each such commit starts a site build, though the finished site does

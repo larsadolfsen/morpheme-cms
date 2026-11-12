@@ -505,7 +505,7 @@ async function run(label, bucket) {
   }
 
   // An autosaved draft (autosave.js, lib/autosave.mjs): kept in R2 and read back, listed, deleted, moved to git as the waiting version in the
-  // signed-in person's name (an older autosave also by the hourly sweep), refused above the size limit and without R2 (`Faster editor` off).
+  // signed-in person's name (an older autosave also by the hourly sweep), refused above the size limit and without R2 (`R2 caching` off).
   if (post.path.startsWith('src/content/')) {
     const call = async (method, path, body, headers = { cookie: 'editor_session=token', 'sec-fetch-site': 'same-origin' }) => {
       const res = await handleAutosave(
