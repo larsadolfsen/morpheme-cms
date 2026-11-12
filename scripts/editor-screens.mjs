@@ -16,6 +16,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { chromium } from 'playwright';
+import sharp from 'sharp';
 import { mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -529,6 +530,59 @@ async function checkFullWidthSection() {
       );
     await page.close();
   }
+}
+
+/** A page's accordion rows (FoldSection): between its divider lines the title has the same space above and below it (within 1px, measured on the pixels of the first capital, not the line box), the arrow is centred on the title, and the row stays 48px tall or more (360, 375, 390, 414 px and a computer). */
+async function checkFoldRows(width, height) {
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US', deviceScaleFactor: 2 });
+  page.on('pageerror', (e) => problems.push(`${width}px accordion rows: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  const buttons = page.locator('section[aria-labelledby] > h2 > button[aria-expanded]');
+  await buttons.first().waitFor();
+  await page.waitForTimeout(300);
+  const shown = [];
+  for (let i = 0; i < (await buttons.count()); i++) {
+    const button = buttons.nth(i);
+    await button.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+    await page.waitForTimeout(100);
+    const box = await button.boundingBox();
+    const title = button.locator('span');
+    const t = await title.boundingBox();
+    const title_ = await title.textContent();
+    const arrow = await button.locator('svg').boundingBox();
+    // The ink of the title's first capital (the eye's measure, whatever the font): the rows of pixels that differ from the row's background.
+    const scale = 2;
+    const clip = { x: t.x, y: box.y, width: 8, height: box.height };
+    const png = await page.screenshot({ clip });
+    const { data, info } = await sharp(png).raw().toBuffer({ resolveWithObject: true });
+    const bg = [data[0], data[1], data[2]];
+    const inked = [];
+    for (let y = 0; y < info.height; y++)
+      for (let x = 0; x < info.width; x++) {
+        const o = (y * info.width + x) * info.channels;
+        if (Math.abs(data[o] - bg[0]) + Math.abs(data[o + 1] - bg[1]) + Math.abs(data[o + 2] - bg[2]) > 120) {
+          inked.push(y);
+          break;
+        }
+      }
+    if (!inked.length) {
+      problems.push(`${width}px accordion row "${title_}": no letters found`);
+      continue;
+    }
+    const above = Math.min(...inked) / scale;
+    const below = (info.height - 1 - Math.max(...inked)) / scale;
+    shown.push([above, below, box.height]);
+    if (Math.abs(above - below) > 1)
+      problems.push(`${width}px accordion row "${title_}": ${above}px above the letters and ${below}px below, should be equal`);
+    const centre = (Math.min(...inked) + Math.max(...inked) + 1) / 2 / scale + box.y;
+    if (Math.abs(arrow.y + arrow.height / 2 - centre) > 1)
+      problems.push(`${width}px accordion row "${title_}": the arrow is not centred on the title`);
+    if (box.height < 48) problems.push(`${width}px accordion row "${title_}": ${box.height}px tall, should be 48px or more`);
+  }
+  if (!shown.length) problems.push(`${width}px accordion rows: none measured`);
+  console.log(`${width}px accordion rows (above, below, height): ${JSON.stringify(shown)}`);
+  await page.close();
 }
 
 /** Settings lists the seven screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
@@ -1075,6 +1129,14 @@ await checkEmptyHint();
 await checkInlineList(375, 740);
 await checkHints();
 await checkFullWidthSection();
+for (const [width, height] of [
+  [360, 740],
+  [375, 800],
+  [390, 844],
+  [414, 896],
+  [1280, 900],
+])
+  await checkFoldRows(width, height);
 await checkToolbarBox();
 await checkPreviewSection();
 for (const w of [360, 375, 390, 414]) await checkPreviewDraft(w);
