@@ -6,12 +6,12 @@
  * @param {{ top: number, bottom: number }} first the section's first part
  * @param {{ top: number, bottom: number }} last the section's last part
  * @param {{ top: number, left: number, width: number }} host the text field
- * @param {{ full?: boolean, windowWidth?: number }} [options] full: across the whole window
+ * @param {{ full?: boolean, bleed?: number }} [options] full: across the whole width, out to the text field's edges (bleed: its side padding)
  * @returns {{ top: number, left: number, width: number, height: number }} */
-export function backdropBox(first, last, host, { full = false, windowWidth = 0 } = {}) {
+export function backdropBox(first, last, host, { full = false, bleed = 0 } = {}) {
   const top = first.top - host.top;
   const height = Math.max(0, last.bottom - first.top);
-  // The whole width starts at the window's left edge and ends at its right edge, as on the site (blocks.css, .text-section-full).
-  if (full && windowWidth > 0) return { top, left: -host.left, width: windowWidth, height };
+  // The whole width reaches the text field's edges, past its padding (editor.css, data-section-width).
+  if (full) return { top, left: -bleed, width: host.width + 2 * bleed, height };
   return { top, left: 0, width: host.width, height };
 }

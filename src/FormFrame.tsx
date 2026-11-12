@@ -11,6 +11,7 @@ import { ArrowSquareOut, Binoculars, Trash } from '@phosphor-icons/react';
 import Screen, { type Back } from './Screen';
 import { Button, Group, IconButton, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
 import { hasUnsaved, setUnsaved } from './deploy';
+import { useBuildState } from './buildState';
 import { askToNotify } from './notificationData';
 import { choose } from './ask';
 import { when } from './when';
@@ -26,7 +27,7 @@ export type Status = { text: string; error?: boolean; edit?: Edit; kind?: Editor
 
 /** What a page or post can do with its waiting version (EntryForm.tsx, lib/versions.mjs). */
 export type Publish = {
-  /** The main action's label (`Publish`, `Publish changes`), or none when there is nothing to publish. */
+  /** The main action's label (`Publish`), or none when there is nothing to publish. */
   label?: string;
   /** Publishes; saves what is unsaved first. True when it was published. */
   onPublish: () => Promise<unknown>;
@@ -57,8 +58,10 @@ type Props<T extends string> = {
   onPreview?: () => void;
   onDelete?: () => void;
   deleteLabel?: string;
-  /** A page or post that is published in steps: `Publish` (a draft) or `Publish changes` (changes waiting) at the end of the bar, shown
-   * also when nothing is unsaved, and its other actions (`Unpublish`, `Discard changes`) above "Delete". */
+  /** The Save button's label; `Save changes` for other forms. */
+  saveLabel?: string;
+  /** A page or post that is published in steps: `Publish` at the end of the bar, shown
+   * also when nothing is unsaved, and its other actions (`Unpublish`, `Discard draft`) above "Delete". */
   publish?: Publish;
   /** The fields beside the text on a wide computer screen (FormColumns in ui.tsx). */
   panel?: boolean;
@@ -159,6 +162,7 @@ export default function FormFrame<T extends string>({
   onPreview,
   onDelete,
   deleteLabel,
+  saveLabel,
   publish,
   panel,
   wide,
@@ -166,6 +170,11 @@ export default function FormFrame<T extends string>({
 }: Props<T>) {
   const save = useRef(onSave);
   save.current = onSave;
+  // While the website updates after a publish, the Publish button stays and is busy (it has no label once published).
+  // A form that has had no Publish button shows nothing: the update is only said when it fails.
+  const lastPublishLabel = useRef<string | undefined>(undefined);
+  if (publish?.label) lastPublishLabel.current = publish.label;
+  const publishing = useBuildState() === 'updating' && !!lastPublishLabel.current && !dirty;
   useEffect(() => {
     if (!dirty) return;
     const warn = (e: BeforeUnloadEvent) => e.preventDefault();
@@ -223,7 +232,7 @@ export default function FormFrame<T extends string>({
           </Group>
         </div>
       )}
-      {(dirty || saving || publish?.label) && (
+      {(dirty || saving || publish?.label || publishing) && (
         <div className="editor-save-bar fixed inset-x-0 bottom-0 z-20 border-t border-outline-variant bg-surface-container-lowest/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
           <div className="mx-auto max-w-3xl px-4 py-3 medium:px-6">
             {/* Preview beside Save, at the end of the bar, each as wide as its label. */}
@@ -250,18 +259,19 @@ export default function FormFrame<T extends string>({
                     void onSave();
                   }}
                 >
-                  {t.common.saveChanges}
+                  {saveLabel ?? t.common.saveChanges}
                 </Button>
               )}
-              {publish?.label && (
+              {(publish?.label || publishing) && (
                 <Button
                   disabled={saving}
+                  busy={publishing}
                   onClick={() => {
                     askToNotify();
-                    void publish.onPublish();
+                    void publish?.onPublish();
                   }}
                 >
-                  {publish.label}
+                  {publish?.label ?? lastPublishLabel.current}
                 </Button>
               )}
             </div>

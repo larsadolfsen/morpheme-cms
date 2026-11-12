@@ -84,6 +84,10 @@ export const library = {
    * unselects them. */
   deleteSelected: (count: number) => `Delete ${count} selected`,
   cancelSelection: 'Cancel',
+  /** Pages and posts: the top bar button that starts selecting (a computer's way in; a press and hold on a row does it on a phone), and the bar's count and close. */
+  selectEntries: 'Select',
+  selectedCount: (count: number) => `${count} selected`,
+  closeSelection: 'Close selection',
   /** The link in the top bar of the start screen: the site's home page, in a new tab. */
   openWebsite: 'Open website',
   /** On "Account" › "Notifications" (Library.tsx NotificationChoices, notificationData.ts). */

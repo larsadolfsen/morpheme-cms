@@ -51,6 +51,7 @@ import PagePicker, { PageListItem } from './PagePicker';
 import SectionsField from './SectionsField';
 import { leaveTo } from './FormFrame';
 import { shownAt } from './images';
+import { drawnAddress, isSafePicture } from '../lib/section-marker.mjs';
 import { addressOf } from './addresses';
 import { LinkList } from './LinkList';
 import { ToolSelect } from './ToolSelect';
@@ -218,6 +219,8 @@ export function HeadPicture(props: Props) {
   const context = useContext(Fields)!;
   const { field } = props;
   const text = props.value == null ? '' : String(props.value);
+  // Only an address the section marker's validator accepts is drawn, rebuilt from the allowed characters (lib/section-marker.mjs).
+  const drawn = text && isSafePicture(text) ? drawnAddress(shownAt(text), location.origin) : null;
   const pick = async () => {
     const src = await context.pickImage?.();
     if (src) onChange(src);
@@ -230,8 +233,8 @@ export function HeadPicture(props: Props) {
         aria-label={text ? t.forms.changeImage : t.forms.pickImage}
         className="relative block aspect-[16/10] w-full overflow-hidden rounded-(--theme-picture-radius) bg-surface-container medium:aspect-[16/9]"
       >
-        {text ? (
-          <img src={shownAt(text)} alt="" className="size-full object-cover" />
+        {drawn ? (
+          <img src={drawn} alt="" className="size-full object-cover" />
         ) : (
           <span className="flex size-full items-center justify-center rounded-(--theme-picture-radius) text-on-surface-variant outline-2 -outline-offset-2 outline-outline-variant outline-dashed">
             {t.forms.pickImage}

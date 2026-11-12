@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { LIST_KINDS, STYLE_KINDS, TEXT_KINDS, listKindOf, styleKindOf } from './styleKind.mjs';
+import { LIST_KINDS, STYLE_KINDS, TEXT_KINDS, headingKindOf, listKindOf, styleKindOf } from './styleKind.mjs';
 
 test('outside the text both buttons show their generic icon, whatever the cursor was in', () => {
   assert.equal(styleKindOf(['check'], false), 'generic');
@@ -88,23 +88,21 @@ test('the body icons are one T at three sizes on one baseline', () => {
     tall[size] = stem[3];
   }
   assert.ok(tall.small < tall.medium && tall.medium < tall.large, 'three sizes');
-  assert.ok(
-    tall.small / tall.large < 0.45 && tall.medium / tall.large > 0.6 && tall.medium / tall.large < 0.75,
-    'a third, two thirds, full',
-  );
+  // Steps of 32 on the grid, never a scaled-down glyph: the smallest is still more than half of the largest.
+  assert.ok(tall.small / tall.large > 0.5 && tall.large - tall.medium === tall.medium - tall.small, 'three even steps');
 });
 
 // Two controls, Text style and List, each with its own general icon and a label that names the current choice.
 test('Text style and List are two buttons that name their choice', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
-  assert.match(source, /list: \{ raw: listIcon, node: ListDashes \}/, 'a general list icon');
+  assert.match(source, /list: \{ raw: bulletIcon, node: ListBullets \}/, 'the list button shows the bullet list icon');
   assert.match(
     source,
     /groupFace\(\s*textKinds\.find\(\(\{ name \}\) => name === kind\)!,\s*t\.text\.listIs,?\s*\)/,
     'the floating row: "List: …"',
   );
   assert.match(source, /action: \(button\) => kinds\(button, 'list'\)/, 'the floating row has a List button');
-  assert.match(source, /group === 'list' \? \[GENERIC_ICONS\.list\.node, t\.text\.list, t\.text\.listIs\]/, 'the top toolbar: "List: …"');
+  assert.match(source, /group === 'list'\s*\? \[GENERIC_ICONS\.list\.node, t\.text\.list, t\.text\.listIs\]/, 'the top toolbar: "List: …"');
   for (const locale of ['en-US', 'da-DK']) {
     const text = readFileSync(new URL(`./i18n/${locale}/text.ts`, import.meta.url), 'utf8');
     assert.match(text, /\n  list: '/);
@@ -132,4 +130,55 @@ test('every style has an icon and a label in the floating row and in the toolbar
   assert.match(source, /kinds\(button, 'text'\)/, 'the floating Text style button opens the menu');
   assert.match(source, /kinds\(button, 'list'\)/, 'the floating List button opens the menu');
   assert.match(source, /kinds\(button, 'headings'\)/, 'the floating heading button opens the menu');
+});
+
+test('the heading button shows a level only while a heading is on, else its generic icon', () => {
+  for (const level of ['h1', 'h2', 'h3']) assert.equal(headingKindOf([level, 'strong'], true), level);
+  for (const kind of [...TEXT_KINDS, ...LIST_KINDS]) assert.equal(headingKindOf([kind], true), 'generic');
+  assert.equal(headingKindOf([], true), 'generic');
+  assert.equal(headingKindOf(['h2'], false), 'generic');
+});
+
+test('the generic icons are the general T and H, and the bullet list, of Phosphor', () => {
+  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
+  assert.match(source, /text: \{ raw: textTIcon, node: TextT \}/);
+  assert.match(source, /heading: \{ raw: textHIcon, node: TextH \}/);
+  assert.match(source, /list: \{ raw: bulletIcon, node: ListBullets \}/);
+});
+
+// The alignment button (lib/text-align.mjs) is in both the floating row and the top toolbar, with Phosphor's three alignment icons.
+test('the alignment has a button in the floating row and in the toolbar', () => {
+  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
+  assert.match(source, /left: \{ raw: alignLeftIcon, node: TextAlignLeft \}/);
+  assert.match(source, /center: \{ raw: alignCenterIcon, node: TextAlignCenter \}/);
+  assert.match(source, /right: \{ raw: alignRightIcon, node: TextAlignRight \}/);
+  assert.match(source, /action: \(button\) => aligns\(button\)/, 'the floating row');
+  assert.match(source, /role: 'align'/, 'the top toolbar');
+});
+
+// Every toolbar icon is drawn at the same size and stroke: the T icons of the three body styles (src/icons/text-t-*.svg) are Phosphor's
+// regular weight (16 on the 256 grid, round ends, one baseline) like Bold and Italic, never a thinner or a scaled-down glyph, and each
+// button draws its icon at one size.
+test('the T icons have the same weight and size as Bold and Italic', () => {
+  for (const size of ['small', 'medium', 'large']) {
+    const svg = readFileSync(new URL(`./icons/text-t-${size}.svg`, import.meta.url), 'utf8');
+    assert.match(svg, /viewBox="0 0 256 256"/, size);
+    assert.match(svg, /fill="currentColor"/, size);
+    assert.doesNotMatch(svg, /transform|stroke/, `${size}: no scaled glyph`);
+    const rects = [...svg.matchAll(/<rect x="(\d+)" y="(\d+)" width="(\d+)" height="(\d+)" rx="(\d+)"\/>/g)].map((m) =>
+      m.slice(1).map(Number),
+    );
+    assert.equal(rects.length, 2, `${size}: a bar and a stem`);
+    const [[, barY, barWidth, barHeight, barR], [, stemY, stemWidth, stemHeight, stemR]] = rects;
+    assert.deepEqual([barHeight, stemWidth, barR, stemR], [16, 16, 8, 8], `${size}: Phosphor's regular stroke`);
+    assert.equal(stemY + stemHeight, 216, `${size}: the baseline of Phosphor's T`);
+    assert.equal(barY, stemY, `${size}: the bar is the top of the stem`);
+    assert.ok(stemHeight >= 112 && barWidth >= 80, `${size}: not a scaled-down glyph`);
+  }
+  const phosphor = (name) =>
+    readFileSync(new URL(`../node_modules/@phosphor-icons/core/assets/regular/${name}.svg`, import.meta.url), 'utf8');
+  for (const name of ['text-b', 'text-italic', 'text-t']) assert.match(phosphor(name), /viewBox="0 0 256 256" fill="currentColor"/);
+  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
+  assert.equal(source.match(/replace\('<svg', '<svg width="(\d+)" height="(\d+)"/g)?.[0], `replace('<svg', '<svg width="20" height="20"`);
+  assert.match(readFileSync(new URL('./TextSizeIcons.tsx', import.meta.url), 'utf8'), /size = 20/);
 });

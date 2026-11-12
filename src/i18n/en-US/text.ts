@@ -15,7 +15,7 @@ export const text = {
   bodySmall: 'Body small',
   label: 'Label',
   checkList: 'Check list',
-  bulletList: 'Bulleted list',
+  bulletList: 'Bullet list',
   orderedList: 'Numbered list',
   quote: 'Quote',
   insert: 'Insert',
@@ -27,6 +27,12 @@ export const text = {
   kindIs: (kind: string) => `Text style: ${kind}`,
   list: 'List',
   listIs: (kind: string) => `List: ${kind}`,
+  /** The alignment of a paragraph or a smaller heading, as one button with a menu (packages/editor/lib/text-align.mjs). */
+  alignment: 'Alignment',
+  alignmentIs: (kind: string) => `Alignment: ${kind}`,
+  alignLeft: 'Align left',
+  alignCenter: 'Align center',
+  alignRight: 'Align right',
   /** The button at the end of the toolbar when its tools do not fit on one line: the second line shown or hidden. */
   moreTools: 'Show more tools',
   fewerTools: 'Show fewer tools',

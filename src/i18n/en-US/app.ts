@@ -6,9 +6,6 @@ export const app = {
   notFound: 'Not found',
   nothingAt: (route: string) => `There’s nothing at the address ${route}`,
   /** The chip in the top bar: from Save until the website is rebuilt, then when it is, or when it failed. */
-  building: 'Updating the website…',
-  live: 'Live',
-  buildFailed: 'Not updated',
   /** After a save, when the website has been updated with it (or not); `changes`: what the saves since the last update
    * changed, as a list (changesText in deploy.ts). */
   siteUpdated: (changes: string) => `The website has been updated: ${changes}.`,
@@ -56,6 +53,10 @@ export const app = {
   addressLoop: (loop: string) => `The address can’t be changed, because the redirects would go in a loop (${loop}).`,
   deleteEntry: (singular: string) => `Delete ${singular}? It can be restored under Deleted.`,
   notDeleted: (error: string) => `Couldn’t delete: ${error}`,
+  /** Deleting several pages or posts at once (Library.tsx selecting, App.tsx removeMany). */
+  deleteEntries: (count: number, what: string) => `Delete ${count} ${what}? They can be restored under Deleted.`,
+  deletedEntries: (count: number, what: string) => `${count} ${what} deleted`,
+  notDeletedSome: (count: number, what: string, why: string) => `${count} ${what} weren’t deleted: ${why}`,
   /** The top bar's line under the title, and the save bar (FormFrame.tsx); the dots hop after it. */
   busy: { saving: 'Saving', deleting: 'Deleting' },
   lastSaved: (when: string) => `Last changed ${when}`,
@@ -90,6 +91,7 @@ export const app = {
   /** The commits, in the site's language (siteT). */
   commit: {
     delete: (singular: string, slug: string) => `Editor: delete ${singular} "${slug}"`,
+    deleteMany: (count: number, what: string) => `Editor: delete ${count} ${what}`,
     reorder: (label: string) => `Editor: new order for ${label}`,
   },
 };
