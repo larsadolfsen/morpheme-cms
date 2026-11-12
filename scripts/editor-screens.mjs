@@ -444,6 +444,8 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   // on each section colour, light and dark, so a new inline block that leaves out a colour fails here.
   // No transitions while measuring: a colour read right after the section changes is the one it is still moving from.
   await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; }' });
+  // The pointer is away from the block: a state layer for a row pointed at is a passing state, not the part's colour.
+  await page.mouse.move(0, 0);
   for (const scheme of ['light', 'dark']) {
     await page.emulateMedia({ colorScheme: scheme });
     const colors = await page.evaluate(`(() => { ${ratioOf}
