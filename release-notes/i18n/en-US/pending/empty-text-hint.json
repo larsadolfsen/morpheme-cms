@@ -1,0 +1,5 @@
+{
+  "id": "empty-text-hint",
+  "kind": "line",
+  "text": "Tapping the hint line on a page with only a heading starts the text, and hints read on every section colour"
+}

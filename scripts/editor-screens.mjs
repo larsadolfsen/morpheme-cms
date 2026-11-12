@@ -178,6 +178,109 @@ async function checkTextSheet() {
   await page.close();
 }
 
+/** The contrast (WCAG) of a hint line (a pseudo-element of the element) on each section colour, with the section's own colours set on the element as sectionFrame.ts does. */
+function hintContrasts(page, selector, pseudo) {
+  return page.evaluate(
+    ([selector, pseudo]) => {
+      const el = document.querySelector(selector);
+      const pixel = (css, over) => {
+        const c = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+        c.fillStyle = over;
+        c.fillRect(0, 0, 1, 1);
+        c.fillStyle = css;
+        c.fillRect(0, 0, 1, 1);
+        return [...c.getImageData(0, 0, 1, 1).data.slice(0, 3)];
+      };
+      const lum = (rgb) => {
+        const [R, G, B] = rgb.map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+        return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+      };
+      const out = {};
+      for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
+        el.setAttribute('data-section-color', color);
+        el.setAttribute('data-section-box', 'only');
+        const [style, hint] = [getComputedStyle(el), getComputedStyle(el, pseudo)];
+        const solid =
+          style.backgroundColor === 'rgba(0, 0, 0, 0)' ? getComputedStyle(document.body).backgroundColor : style.backgroundColor;
+        const back = pixel(solid, '#fff');
+        const front = pixel(hint.color, `rgb(${back})`);
+        out[color] = (Math.max(lum(front), lum(back)) + 0.05) / (Math.min(lum(front), lum(back)) + 0.05);
+      }
+      el.removeAttribute('data-section-color');
+      el.removeAttribute('data-section-box');
+      return out;
+    },
+    [selector, pseudo],
+  );
+}
+
+/** On a phone, a tap on the hint under a page's only heading (Type text, or tap Insert …) puts the cursor in an empty paragraph after it. */
+async function checkEmptyHint() {
+  const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`360px empty hint: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.tap('.ProseMirror');
+  await page.keyboard.type('# From us to you');
+  await page.waitForTimeout(500);
+  // The hint is the heading's ::after: tap its line, anywhere across the width.
+  const at = await page.evaluate(() => {
+    const h1 = document.querySelector('.ProseMirror > h1');
+    const range = document.createRange();
+    range.selectNodeContents(h1);
+    const [box, text] = [h1.getBoundingClientRect(), range.getBoundingClientRect()];
+    return { x: box.left + 8, y: box.bottom - 8, height: parseFloat(getComputedStyle(h1, '::after').minHeight) };
+  });
+  if (at.height < 48) problems.push(`360px empty hint: the hint line is ${at.height}px high, not 48`);
+  for (const [color, ratio] of Object.entries(await hintContrasts(page, '.ProseMirror > h1', '::after')))
+    if (ratio < 4.5) problems.push(`360px empty hint: the hint on a ${color} section has contrast ${ratio.toFixed(2)}:1, below 4.5`);
+  await page.touchscreen.tap(at.x, at.y);
+  await page.keyboard.type('Hej');
+  const got = await page.evaluate(() => {
+    const [h1, ...rest] = [...document.querySelector('.ProseMirror').children];
+    return {
+      h1: h1?.textContent,
+      rest: rest.map((n) => `${n.tagName}:${n.textContent}`),
+      hint: !!getComputedStyle(h1, '::after').content.match(/Type text/),
+    };
+  });
+  if (got.h1 !== 'From us to you' || got.rest.join() !== 'P:Hej')
+    problems.push(`360px empty hint: expected the heading and P:Hej, got ${got.h1} ${got.rest}`);
+  if (got.hint) problems.push('360px empty hint: the hint still shows');
+  await page.close();
+}
+
+/** The hint lines (Type text, or tap Insert …; Write text here…) read on every section colour, light and dark (4.5:1), and start where the text starts. */
+async function checkHints() {
+  for (const scheme of ['light', 'dark']) {
+    for (const width of [360, 1280]) {
+      const page = await browser.newPage({ viewport: { width, height: 740 }, colorScheme: scheme, locale: 'en-US' });
+      page.on('pageerror', (e) => problems.push(`${width}px hints: ${e.message}`));
+      await openEditor(page, site);
+      await page.evaluate(() => (location.hash = '#new/pages'));
+      await page.waitForSelector('.ProseMirror');
+      await page.click('.ProseMirror');
+      await page.keyboard.type('# Hej');
+      await page.keyboard.press('Enter');
+      await page.keyboard.type('Some more text.');
+      await page.keyboard.press('Enter');
+      const colors = await hintContrasts(page, '.ProseMirror > p.editor-gap-here', '::before');
+      const got = await page.evaluate(() => {
+        const [h1, text, gap] = [...document.querySelector('.ProseMirror').children];
+        const left = (n) => n.getBoundingClientRect().left + parseFloat(getComputedStyle(n).paddingLeft);
+        return { textLeft: left(text), gapLeft: left(gap), h1Left: left(h1) };
+      });
+      for (const [color, ratio] of Object.entries(colors))
+        if (ratio < 4.5)
+          problems.push(`${width}px ${scheme} hints: the hint on a ${color} section has contrast ${ratio.toFixed(2)}:1, below 4.5`);
+      if (Math.abs(got.gapLeft - got.textLeft) > 0.5 || Math.abs(got.h1Left - got.textLeft) > 0.5)
+        problems.push(`${width}px ${scheme} hints: the hint starts at ${got.gapLeft}, the text at ${got.textLeft}`);
+      await page.close();
+    }
+  }
+}
+
 /** Settings lists the six screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
@@ -649,6 +752,8 @@ for (const [width, height] of [
   await checkUpdatesCard(width, height);
 
 await checkTextSheet();
+await checkEmptyHint();
+await checkHints();
 
 await browser.close();
 server.close();
