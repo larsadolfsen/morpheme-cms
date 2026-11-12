@@ -17,6 +17,16 @@ import { locale } from './i18n';
  * together with the pages (a field with `fixed`). */
 export type Relation = string;
 
+/** A field in use only while another field next to it has one of `is` (`not`: none of them), and, with `and`, while this holds too (a card's
+ * link: not with a video, and not with buttons). */
+export type Only = {
+  field: string;
+  is: string[];
+  /** In use while the field has none of `is` (any value but those). */
+  not?: boolean;
+  and?: Only;
+};
+
 export type Field = {
   name: string;
   label: string;
@@ -126,7 +136,7 @@ export type Field = {
   missing?: unknown;
   /** Shown, checked and saved only while another field next to it (a select) has one of these values,
    * and that field is itself in use. */
-  only?: { field: string; is: string[]; /** In use while the field has none of `is` (any value but those). */ not?: boolean };
+  only?: Only;
   /** boolean: shown as a switch, with what it says when on and when off. */
   toggle?: [string, string];
   /** Its value changes how the page is laid out (its template): "Preview" shows a page whose value

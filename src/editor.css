@@ -953,6 +953,10 @@ html {
 .editor-text .inline-list-row-next:not(.inline-list-row-active) {
   opacity: 0.55;
 }
+/* A card's next button: empty and faded until it is made (Cards, InlineCards.tsx). */
+.editor-text .inline-card-next-button {
+  opacity: 0.55;
+}
 
 .editor-text .inline-list-slot {
   display: grid;

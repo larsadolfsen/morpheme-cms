@@ -361,13 +361,13 @@ async function checkPreviewDraft(width) {
 /** A List typed in the text: while a row is active and the list has rows, the text button "Add list row" is under the last row and adds one, the faded empty row is not there, the active row has a dotted line, and Add above and Add below are icon buttons; when the cursor leaves, the button is gone. */
 const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
-  { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
+  { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
 ];
 
-/** `surface`: the item is a card with a container of its own, so it has a background colour. */
-async function checkInlineBlock(width, height, { name, hint, add, surface }) {
+/** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
+async function checkInlineBlock(width, height, { name, hint, add, surface, start = 1 }) {
   const label = `${width}px inline ${name}`;
-  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: width < 1000, isMobile: width < 1000, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#new/pages'));
@@ -378,10 +378,21 @@ async function checkInlineBlock(width, height, { name, hint, add, surface }) {
   await page.waitForTimeout(300);
   // The tools that do not fit are under "Show more tools".
   if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().tap();
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  const faded = await page.locator('.inline-list-row-next').count();
+  if (faded !== start) problems.push(`${label}: a new block starts with ${faded} empty, faded items, not ${start}`);
+  if ((await page.locator('.inline-list-row-active').count()) !== 1) problems.push(`${label}: not exactly one active item at the start`);
+  if (name === 'cards') {
+    // The header line of a card is a headline and ONE optional subhead, both typed in place; no badge, date or tags.
+    const fields = await page.evaluate(() =>
+      [...document.querySelectorAll('.inline-list-row-active [data-field]')].map((f) => f.dataset.field),
+    );
+    if (fields.join() !== 'title,subhead,text')
+      problems.push(`${label}: the typed fields of a card are "${fields}", not "title,subhead,text"`);
+  }
   await page.keyboard.type('First');
   await page.waitForTimeout(300);
   const state = () =>
@@ -404,6 +415,15 @@ async function checkInlineBlock(width, height, { name, hint, add, surface }) {
     problems.push(`${label}: the active row has a background colour (${one.background})`);
   for (const name of ['Add above', 'Add below'])
     if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
+  if (name === 'cards' && width >= 1000) {
+    // A card has a page or buttons, never both: with a button the page is gone from its settings, with a page there are no buttons.
+    const panel = page.locator('.editor-side-sheet');
+    const page_ = panel.getByText('Page', { exact: true });
+    await page_.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the card's settings have no Page`));
+    await panel.getByRole('button', { name: 'Add button' }).click();
+    await page.waitForTimeout(300);
+    if (await page_.count()) problems.push(`${label}: a card with a button still offers a Page`);
+  }
   await page.click('[data-add-row]');
   await page.waitForTimeout(300);
   const two = await state();
@@ -1254,6 +1274,12 @@ for (const [width, height] of [
   await checkDraftsCard(width, height);
 await checkEmptyHint();
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
+// On a computer the row's settings are in the side panel at once (a card's: its page and its buttons).
+await checkInlineBlock(
+  1280,
+  800,
+  inlineBlocks.find((b) => b.name === 'cards'),
+);
 for (const [width, height] of [
   [360, 740],
   [375, 740],

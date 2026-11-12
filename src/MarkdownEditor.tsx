@@ -1193,11 +1193,42 @@ function blockCard(
     const itemNames = spec!.settings ?? (spec!.link ? [spec!.link] : []);
     const slotNames = spec!.media ?? (spec!.icon ? [spec!.icon] : []);
     const itemFields = rowFieldsOf(itemNames);
-    // The icon slot of a List opens the icon picker; a card's media slot has the media fields (its kind and what it shows).
+    // The icon slot of a List opens the icon picker; a card's media slot has the media fields (what it shows), and the first card's has the
+    // block's one media choice for every card too (`blockMedia`).
     const iconFields = rowFieldsOf(slotNames).map((f) => (spec!.media ? f : { ...f, iconsOpen: true }));
-    const valueOf = (row: Row, names: string[]) => Object.fromEntries(names.map((n) => [n, row[n] ?? rowFieldsOf([n])[0]?.default ?? '']));
+    const blockNames = spec!.blockMedia ?? [];
+    const blockFields = (block?.fields ?? []).filter((f) => blockNames.includes(f.name));
+    // The block's own values that the item's fields depend on (a card's icon, picture or video by the block's media).
+    const blockValue = () =>
+      Object.fromEntries(blockNames.map((n) => [n, node.attrs.props[n] ?? blockFields.find((f) => f.name === n)?.default ?? '']));
+    const valueOf = (row: Row, names: string[]) => ({
+      ...blockValue(),
+      ...Object.fromEntries(
+        names.map((n) => {
+          const field = rowFieldsOf([n])[0];
+          // A list (a card's buttons) is none, not an empty text.
+          return [n, row[n] ?? field?.default ?? (field?.type === 'list' ? [] : '')];
+        }),
+      ),
+    });
+    // A list (a card's buttons) is kept as it is, and left out of the item when it has none.
     const setFields = (list: Row[], i: number, names: string[], v: BlockProps) =>
-      names.reduce((items, n) => setField(items, i, n, String(v[n] ?? ''), spec!.fields[0]), list);
+      names.reduce((items, n) => {
+        const value = v[n];
+        if (!Array.isArray(value)) return setField(items, i, n, String(value ?? ''), spec!.fields[0]);
+        const next = items.slice();
+        const { [n]: _, ...rest } = next[i] ?? { [spec!.fields[0]]: '' };
+        next[Math.min(i, next.length)] = value.length ? { ...rest, [n]: value } : rest;
+        return next;
+      }, list);
+    // The block's props with its own media choice changed (from the first card's sheet) and the items changed, in one step.
+    const setBlockAndItems = (items: Row[], v: BlockProps) => {
+      const here = at();
+      if (!here) return;
+      const own = Object.fromEntries(blockNames.map((n) => [n, v[n]]));
+      const props = { ...node.attrs.props, ...own, [spec!.item]: items };
+      view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props }));
+    };
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
     const rowActions = (): BarAction[] => {
@@ -1233,13 +1264,14 @@ function blockCard(
       if (iconOf === i)
         return {
           headline: spec!.texts.icon,
-          fields: iconFields,
+          fields: i === 0 ? [...blockFields, ...iconFields] : iconFields,
           value: valueOf(row, slotNames),
           // The icon picker closes when an icon is picked; the media fields stay open for the next choice.
           closes: !spec!.media,
           onChange: (v: BlockProps) => {
             if (!spec!.media) iconOf = null;
-            setItems(setFields(rows(), i, slotNames, v));
+            if (i === 0 && blockNames.length) setBlockAndItems(setFields(rows(), i, slotNames, v), v);
+            else setItems(setFields(rows(), i, slotNames, v));
           },
         };
       return {

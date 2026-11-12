@@ -377,17 +377,17 @@ export const blocks = {
     label: 'Cards',
     hint: 'Cards that link to pages.',
     edit: 'Edit default texts',
-    /** The card's type, as Material 3 names them, and the color of a filled card. */
-    kind: 'Type',
-    kindOutlined: 'Outlined',
-    kindFilled: 'Filled',
-    kindElevated: 'Elevated',
+    /** The cards' design, as Material 3 names its three cards, and the container color of a filled card. */
+    design: 'Design',
+    designOutlined: 'Outlined',
+    designFilled: 'Filled',
+    designElevated: 'Elevated',
     color: 'Color',
-    colorStandard: 'Standard',
+    colorSurface: 'Surface',
     colorPrimary: 'Primary',
     colorSecondary: 'Secondary',
     colorTertiary: 'Tertiary',
-    /** What is at the top of a card. */
+    /** What is at the top of every card: one choice for the whole block. */
     media: 'Media',
     mediaNone: 'None',
     mediaIcon: 'Icon',
@@ -396,7 +396,8 @@ export const blocks = {
     video: 'Video link',
     buttons: 'Buttons',
     button: 'button',
-    buttonsHint: 'A card with a page is one link and has no buttons.',
+    newButton: 'New button',
+    buttonsHint: 'A card with buttons has no link.',
     items: 'Cards',
     item: 'card',
     /** A card typed in place: the add button, the faded card of an empty block, the floating toolbar, a card's place for screen readers. */
@@ -409,11 +410,12 @@ export const blocks = {
     cardMenu: 'Card',
     cardSettings: 'Card settings',
     title: 'Heading',
+    subhead: 'Subhead',
     text: 'Text',
     icon: 'Icon',
     image: 'Picture',
     href: 'Page',
-    hrefHint: 'With a page, the whole card is the link. Without one, it can have buttons.',
+    hrefHint: 'With a page, the whole card is the link and has no buttons.',
     /** The shared text ("Blocks" › "Cards"), and what it starts as on a site in this language. */
     more: 'Link text',
     moreText: 'Read more',
