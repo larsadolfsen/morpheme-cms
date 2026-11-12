@@ -97,6 +97,7 @@ export const blocks: Messages['blocks'] = {
     label: 'Besked',
     hint: 'En fremhævet besked.',
     text: 'Tekst',
+    placeholder: 'Tekst til beskeden',
     until: 'Vis indtil',
     untilHint: 'Hvis feltet er tomt, vises beskeden altid.',
     shownUntil: (day, time) => `Vises til ${day} kl. ${time}`,
