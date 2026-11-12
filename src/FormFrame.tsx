@@ -59,7 +59,7 @@ type Props<T extends string> = {
   onDelete?: () => void;
   deleteLabel?: string;
   /** A page or post that is published in steps: `Publish` (a draft) or `Publish changes` (changes waiting) at the end of the bar, shown
-   * also when nothing is unsaved, and its other actions (`Unpublish`, `Discard changes`) above "Delete". */
+   * also when nothing is unsaved, and its other actions (`Unpublish`, `Discard draft`) above "Delete". */
   publish?: Publish;
   /** The fields beside the text on a wide computer screen (FormColumns in ui.tsx). */
   panel?: boolean;
