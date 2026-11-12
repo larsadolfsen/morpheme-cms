@@ -1,0 +1,5 @@
+{
+  "id": "toolbar-corner-line",
+  "kind": "line",
+  "text": "On a phone, the text field’s side lines no longer run past the rounded corners of the toolbar when it sticks to the top"
+}
