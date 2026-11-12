@@ -127,6 +127,22 @@
   background-color: var(--mo-primary);
 }
 
+/* In a section on a colour, or on a picture, the marks are the section's text colour, like the text. */
+.editor-text
+  .ProseMirror
+  > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'])
+  li[data-item-type='task']::before,
+.editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) li[data-item-type='task']::before {
+  background-color: color-mix(in srgb, currentColor 35%, transparent);
+}
+.editor-text
+  .ProseMirror
+  > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'])
+  li[data-item-type='task'][data-checked='true']::before,
+.editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) li[data-item-type='task'][data-checked='true']::before {
+  background-color: currentColor;
+}
+
 /* Milkdown puts a paragraph in every list item; on the site, short lists have none. */
 .editor-text li > p {
   margin-block: 0;

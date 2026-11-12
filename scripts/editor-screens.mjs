@@ -500,6 +500,78 @@ async function checkIconSearch(width, height) {
   await page.close();
 }
 
+/** The marks of a check list in a text (`- [x]`) keep 3:1 (WCAG, a graphic) against their section, on every section colour, light and dark, in the editor and on the site. */
+async function checkChecklistMarks() {
+  const ratioOf = `
+    const pixel = (css, over) => {
+      const c = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+      c.fillStyle = over; c.fillRect(0, 0, 1, 1); c.fillStyle = css; c.fillRect(0, 0, 1, 1);
+      return [...c.getImageData(0, 0, 1, 1).data.slice(0, 3)];
+    };
+    const lum = (rgb) => { const [R, G, B] = rgb.map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * R + 0.7152 * G + 0.0722 * B; };
+    const ratio = (markCss, sectionEl) => {
+      const bg = getComputedStyle(sectionEl).backgroundColor;
+      const back = pixel(bg === 'rgba(0, 0, 0, 0)' ? getComputedStyle(document.body).backgroundColor : bg, '#fff');
+      const front = pixel(markCss, 'rgb(' + back + ')');
+      return (Math.max(lum(front), lum(back)) + 0.05) / (Math.min(lum(front), lum(back)) + 0.05);
+    };`;
+  for (const scheme of ['light', 'dark']) {
+    for (const width of [375, 1280]) {
+      const page = await browser.newPage({ viewport: { width, height: 740 }, colorScheme: scheme, locale: 'en-US' });
+      page.on('pageerror', (e) => problems.push(`${width}px ${scheme} check list: ${e.message}`));
+      // The editor: one page with a check list in a section of each colour.
+      const path = 'src/content/pages/check-list-marks.md';
+      const text = ['surface', 'primary', 'secondary', 'tertiary']
+        .map(
+          (c) =>
+            `<div data-section="${c}"></div>\n\n## ${c} section\n\n- [x] Photos are resized for every screen\n- [x] Every page has a Content Security Policy`,
+        )
+        .join('\n\n');
+      await openEditor(page, site, { [path]: `---\ntitle: "Check list marks"\n---\n\n# Check list marks\n\n${text}\n` });
+      await page.goto(`${site}/editor/#${path}`);
+      await page.waitForSelector('.ProseMirror li[data-item-type="task"]', { timeout: 30_000 });
+      const inEditor = await page.evaluate(`(() => { ${ratioOf}
+        const out = {};
+        for (const list of document.querySelectorAll('.ProseMirror > ul')) {
+          const color = list.getAttribute('data-section-color') ?? 'surface';
+          const li = list.querySelector('li');
+          out[color] = ratio(getComputedStyle(li, '::before').backgroundColor, list);
+        }
+        return out; })()`);
+      await page.locator('.ProseMirror > ul').nth(1).scrollIntoViewIfNeeded();
+      await page.screenshot({ path: join(shots, `checklist-editor-${scheme}-${width}.png`) });
+      if (Object.keys(inEditor).length < 4)
+        problems.push(`${width}px ${scheme} check list in the editor: expected 4 section colours, got ${Object.keys(inEditor)}`);
+      for (const [color, ratio] of Object.entries(inEditor))
+        if (ratio < 3)
+          problems.push(
+            `${width}px ${scheme} check list in the editor: the check mark on a ${color} section has contrast ${ratio.toFixed(2)}:1, below 3`,
+          );
+      // The site: the markup the site's text has, in each section class.
+      await page.goto(`${site}/`);
+      const onSite = await page.evaluate(`(() => { ${ratioOf}
+        const out = {};
+        for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
+          const section = document.createElement('section');
+          section.className = 'text-section-' + color;
+          section.innerHTML = '<div class="prose"><ul class="contains-task-list"><li class="task-list-item"><input type="checkbox" checked disabled> Photos are resized</li></ul></div>';
+          document.querySelector('main').append(section);
+          const mark = section.querySelector('input');
+          out[color] = ratio(getComputedStyle(mark).backgroundColor, section);
+          if (color === 'primary') section.scrollIntoView();
+        }
+        return out; })()`);
+      await page.screenshot({ path: join(shots, `checklist-site-${scheme}-${width}.png`) });
+      for (const [color, ratio] of Object.entries(onSite))
+        if (ratio < 3)
+          problems.push(
+            `${width}px ${scheme} check list on the site: the check mark on a ${color} section has contrast ${ratio.toFixed(2)}:1, below 3`,
+          );
+      await page.close();
+    }
+  }
+}
+
 /** The hint lines (Type text, or tap Insert …; Write text here…) read on every section colour, light and dark (4.5:1), and start where the text starts. */
 async function checkHints() {
   for (const scheme of ['light', 'dark']) {
@@ -1262,6 +1334,7 @@ for (const [width, height] of [
 ])
   await checkIconSearch(width, height);
 await checkHints();
+await checkChecklistMarks();
 await checkFullWidthSection();
 for (const [width, height] of [
   [360, 740],
