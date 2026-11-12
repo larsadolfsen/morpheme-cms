@@ -60,8 +60,6 @@ import {
   TextHOne,
   TextHTwo,
   TextItalic,
-  TextT,
-  TextAlignLeft,
 } from '@phosphor-icons/react';
 import { styleKindOf } from './styleKind.mjs';
 import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
@@ -103,9 +101,10 @@ import linkIcon from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
 import h1Icon from '@phosphor-icons/core/assets/regular/text-h-one.svg?raw';
 import h2Icon from '@phosphor-icons/core/assets/regular/text-h-two.svg?raw';
 import h3Icon from '@phosphor-icons/core/assets/regular/text-h-three.svg?raw';
-import textLargeIcon from '@phosphor-icons/core/assets/regular/text-aa.svg?raw';
-import textMediumIcon from '@phosphor-icons/core/assets/regular/text-t.svg?raw';
-import textSmallIcon from '@phosphor-icons/core/assets/regular/text-align-left.svg?raw';
+import textLargeIcon from './icons/text-t-large.svg?raw';
+import textMediumIcon from './icons/text-t-medium.svg?raw';
+import textSmallIcon from './icons/text-t-small.svg?raw';
+import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
 import textHIcon from '@phosphor-icons/core/assets/regular/text-h.svg?raw';
 import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
 import orderedIcon from '@phosphor-icons/core/assets/regular/list-numbers.svg?raw';
@@ -617,9 +616,9 @@ export function paint(view: EditorView, color: string | null) {
 // The icon of each text style, once, for both toolbars: the raw one the floating row draws and the component the top toolbar
 // and the style menu draw. Its names are STYLE_KINDS (styleKind.mjs), checked by styleKind.test.mjs.
 const KIND_ICONS = {
-  small: { raw: textSmallIcon, node: TextAlignLeft },
-  medium: { raw: textMediumIcon, node: TextT },
-  large: { raw: textLargeIcon, node: TextAa },
+  small: { raw: textSmallIcon, node: TextSmallIcon },
+  medium: { raw: textMediumIcon, node: TextMediumIcon },
+  large: { raw: textLargeIcon, node: TextLargeIcon },
   label: { raw: tagIcon, node: Tag },
   bullet: { raw: bulletIcon, node: ListBullets },
   check: { raw: checkIcon, node: ListChecks },
@@ -1454,7 +1453,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
 
   // In a section's heading the toolbar starts with Section settings and the kinds of text, then the marks on the text.
   const firstTools = (item: (typeof all)[number]) =>
-    item.icon === SectionSettingsIcon || /^(h\d|text|large|label|bullet|check|ordered|quote)$/.test(item.on ?? '');
+    item.icon === SectionSettingsIcon || /^(h\d|small|medium|large|label|bullet|check|ordered|quote)$/.test(item.on ?? '');
   const tools = toolsInOrder(
     all,
     firstTools,

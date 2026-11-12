@@ -50,10 +50,35 @@ test('every list of the text styles is in the order of STYLE_KINDS', () => {
     STYLE_KINDS,
     'the top toolbar and the sheet',
   );
+  const first = source.match(/test\(item\.on \?\? ''\)/) && source.match(/\/\^\(h\\d\|([\w|]+)\)\$\/\.test\(item\.on/)[1];
+  assert.deepEqual(first.split('|'), STYLE_KINDS, 'the styles the toolbar puts first');
   const filter = source.match(/\['h1', 'h2', 'h3', ((?:'\w+',? ?)+)\]\.includes\(t\.on/)[1];
   assert.deepEqual(
     [...filter.matchAll(/'(\w+)'/g)].map((m) => m[1]),
     STYLE_KINDS,
     "the list that picks the sheet's styles",
+  );
+});
+
+// The three body icons are one family: a T at three sizes with Phosphor's stroke (16 on the 256 grid) and one baseline.
+test('the body icons are one T at three sizes on one baseline', () => {
+  const tall = {};
+  for (const size of ['small', 'medium', 'large']) {
+    const file = readFileSync(new URL(`./icons/text-t-${size}.svg`, import.meta.url), 'utf8');
+    const rects = [...file.matchAll(/<rect x="(\d+)" y="(\d+)" width="(\d+)" height="(\d+)" rx="8"\/>/g)].map((m) =>
+      m.slice(1).map(Number),
+    );
+    assert.equal(rects.length, 2, `${size}: a bar and a stem`);
+    const [bar, stem] = rects;
+    assert.equal(bar[3], 16, `${size}: the bar has the stroke`);
+    assert.equal(stem[2], 16, `${size}: the stem has the stroke`);
+    assert.equal(stem[1] + stem[3], 216, `${size}: the baseline`);
+    assert.equal(bar[0] + bar[2] / 2, 128, `${size}: centred`);
+    tall[size] = stem[3];
+  }
+  assert.ok(tall.small < tall.medium && tall.medium < tall.large, 'three sizes');
+  assert.ok(
+    tall.small / tall.large < 0.45 && tall.medium / tall.large > 0.6 && tall.medium / tall.large < 0.75,
+    'a third, two thirds, full',
   );
 });
