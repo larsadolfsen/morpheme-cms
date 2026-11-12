@@ -116,9 +116,11 @@
      the end of the file). The colours are Surface and the theme's Primary, Secondary and Tertiary (--block-primary and the
      like, with their text colours --block-on-primary …). A section from before Tint is Surface, and Accent is Primary. */
   .text-section {
-    margin-block: var(--block-section-margin);
+    margin-block: var(--block-section-margin) 0;
     border-radius: var(--block-radius);
     padding: var(--block-section-padding);
+    /* The space below belongs inside the colour: it runs down to the next section, or to the end of the text. */
+    padding-block-end: calc(var(--block-section-padding) + var(--block-section-margin));
   }
   .text-section-surface {
     background: var(--block-surface);

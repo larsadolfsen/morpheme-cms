@@ -399,6 +399,8 @@ const inlineBlocks = [
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
   { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
+  // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
+  { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
 ];
 
 /** The single blocks typed in place (Notice, Video): one item, no add button, no faded empty item. */
@@ -472,7 +474,12 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     await page.locator('[aria-label="Show more tools"]:visible').first().click();
   await page.locator('[aria-label="Insert"]:visible').first().click();
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
-  await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`);
+  try {
+    await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
+  } catch {
+    problems.push(`${label}: the block was not typed in place (no active row with a "${field}" field)`);
+    return page.close();
+  }
   const faded = await page.locator('.inline-list-row-next').count();
   if (faded !== start) problems.push(`${label}: a new block starts with ${faded} empty, faded items, not ${start}`);
   if ((await page.locator('.inline-list-row-active').count()) !== 1) problems.push(`${label}: not exactly one active item at the start`);
@@ -806,7 +813,10 @@ async function checkOwnList(width, height) {
   const phone = width < 600;
   const folder = join(ROOT, 'src/data/services');
   mkdirSync(folder, { recursive: true });
-  writeFileSync(join(folder, '_list.json'), JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href'] }));
+  writeFileSync(
+    join(folder, '_list.json'),
+    JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href', 'image', 'tags'] }),
+  );
   writeFileSync(join(folder, 'web-design.json'), JSON.stringify({ order: 1, title: 'Web design', text: 'Sites that last' }));
   writeFileSync(join(folder, 'hosting.json'), JSON.stringify({ order: 2, title: 'Hosting' }));
   try {
@@ -847,6 +857,24 @@ async function checkOwnList(width, height) {
     await page.keyboard.press('Enter');
     if (!(await page.evaluate(() => document.activeElement?.getAttribute('data-field') === 'text')))
       problems.push(`${label}: Enter in the title did not go to the text`);
+    // The image and tags slots are on the active row, since the list has those fields; the tags slot opens the tags.
+    await page.locator('.inline-list-row[data-row="0"] [data-field="title"]').click();
+    for (const slot of ['Image', 'Tags'])
+      if (!(await page.locator(`.inline-list-row-active [aria-label="${slot}"]`).count()))
+        problems.push(`${label}: no ${slot} slot on the active row`);
+    await page.locator('.inline-list-row-active [aria-label="Tags"]').click();
+    await page
+      .locator('dialog[open], .editor-side-sheet')
+      .filter({ hasText: 'Tags' })
+      .first()
+      .waitFor({ timeout: 5000 })
+      .catch(() => problems.push(`${label}: the tags slot did not open the tags`));
+    if (phone)
+      await page
+        .locator('dialog[open] [aria-label="Close"]')
+        .first()
+        .click()
+        .catch(() => {});
     await page
       .locator('main h1, header')
       .first()
@@ -1104,6 +1132,50 @@ async function checkFullWidthSection() {
       );
     await page.close();
   }
+}
+
+/** A coloured section's background runs down to the next section's divider, or to the end of the text when it is the last (the space below its text is inside the colour, not a white band), in the editor, and in the Preview where the panel has no margin below (375 px with touch, and a computer). */
+async function checkSectionBackground(width, touch) {
+  const path = 'src/content/pages/about.md';
+  const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  const label = `${width}px section background`;
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  for (const last of [false, true]) {
+    const body = `# T\n\nIntro.\n\n<div data-section="primary"></div>\n\n## Blue\n\nBlue text.\n${last ? '' : '\n## Plain\n\nPlain text.\n'}`;
+    await openEditor(page, site, { [path]: `---\ntitle: "T"\ndescription: "d"\n---\n\n${body}` });
+    await page.goto(`${site}/editor/#${path}`);
+    await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
+    const got = await page.evaluate(() => {
+      const pm = document.querySelector('.ProseMirror');
+      const parts = [...pm.children].filter((c) => !c.classList.contains('editor-section-picture'));
+      const blue = parts.filter((c) => c.dataset.sectionColor === 'primary');
+      const next = parts[parts.indexOf(blue.at(-1)) + 1];
+      const bottom = blue.at(-1).getBoundingClientRect().bottom;
+      return { gap: next ? next.getBoundingClientRect().top - bottom : pm.getBoundingClientRect().bottom - bottom, hasNext: Boolean(next) };
+    });
+    if (Math.abs(got.gap) > 0.5)
+      problems.push(
+        `${label}: the ${last ? 'last ' : ''}coloured section ends ${got.gap}px ${last ? 'above the end of the text' : 'above the next section'} (should be 0, no white band)`,
+      );
+  }
+  await openEditor(page, site, {
+    [path]: `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<div data-section="primary"></div>\n\n## Blue\n\nBlue text.\n\n## Plain\n\nPlain text.\n`,
+  });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
+  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const frame = page.frames().find((f) => f !== page.mainFrame());
+  await frame.waitForSelector('section.text-section-primary', { timeout: 30_000 });
+  const panel = await frame.evaluate(() => {
+    const cs = getComputedStyle(document.querySelector('section.text-section-primary'));
+    return { margin: parseFloat(cs.marginBottom), top: parseFloat(cs.paddingTop), bottom: parseFloat(cs.paddingBottom) };
+  });
+  if (panel.margin !== 0 || panel.bottom <= panel.top)
+    problems.push(
+      `${label}: in the Preview the panel has ${panel.margin}px margin and ${panel.bottom}px padding below (the space below belongs inside the colour: no margin, more padding than above)`,
+    );
+  await page.close();
 }
 
 /** A tap below the last section, or between two sections, puts the cursor on a free line there (an empty paragraph that is not saved unless typed in), and typing adds text after the section, not in a heading (375 px with touch, and a computer). */
@@ -1768,6 +1840,8 @@ for (const [width, height] of [
   await checkIconSearch(width, height);
 await checkHints();
 await checkFullWidthSection();
+await checkSectionBackground(375, true);
+await checkSectionBackground(1280, false);
 await checkTapBelowSection(375, true);
 await checkTapBelowSection(1280, false);
 for (const [width, height] of [
