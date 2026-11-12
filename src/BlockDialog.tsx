@@ -72,7 +72,14 @@ export type BlockAsk = {
 };
 
 /** The settings of the active row of a block typed in place: what the panel or sheet shows and where its changes go. */
-export type RowSpec = { headline: string; fields: Field[]; value: BlockProps; onChange: (value: BlockProps) => void };
+export type RowSpec = {
+  headline: string;
+  fields: Field[];
+  value: BlockProps;
+  onChange: (value: BlockProps) => void;
+  /** The sheet is closed once the value is changed (the icon picker: a pick is all it asks). */
+  closes?: boolean;
+};
 
 /** A section's settings in the text: null for what it has not. */
 export type SectionSettingsOf = { color: string | null; picture?: string | null; alt?: string | null; width?: string | null };
@@ -432,6 +439,7 @@ export function useBlockDialog(
       onChange={(v) => {
         setValues(v as BlockProps);
         rowSpec.current?.onChange(v as BlockProps);
+        if (rowSpec.current?.closes) done(null);
       }}
     />
   );

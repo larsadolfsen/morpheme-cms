@@ -1114,6 +1114,12 @@ function blockCard(
   // Its floating toolbar (made below, with the block's menu).
   let bar: ReturnType<typeof inlineBar> | null = null;
   let syncRow: (open: boolean) => void = () => {};
+  // The row whose icon picker is open instead of its settings.
+  let iconOf: number | null = null;
+  const settings = () => {
+    iconOf = null;
+    syncRow(true);
+  };
   let stopAway = () => {};
   const rows = () => (node.attrs.props.items as Row[] | undefined) ?? [];
   const setItems = (items: Row[]) => {
@@ -1152,7 +1158,12 @@ function blockCard(
             active={active}
             focus={focus}
             onChange={change}
-            onSettings={() => syncRow(true)}
+            onSettings={settings}
+            onIcon={(row) => {
+              // The row's icon slot: the icon picker at once, not the settings.
+              iconOf = row;
+              syncRow(true);
+            }}
           />,
         ),
       );
@@ -1234,9 +1245,11 @@ function blockCard(
   // Typed in place: the floating toolbar (inlineBar.ts) has the row actions, and its last button opens the block's own menu below.
   let handle = card;
   if (inline) {
-    const itemFields = (block?.fields.find((f) => f.name === 'items')?.fields ?? []).filter(
-      (f) => f.name === 'icon' || f.name === 'href' || f.name === 'heading',
-    );
+    const rowFieldsOf = (names: string[]) =>
+      (block?.fields.find((f) => f.name === 'items')?.fields ?? []).filter((f) => names.includes(f.name));
+    // The settings (link and small heading) and the icon picker, which the row's icon slot opens.
+    const itemFields = rowFieldsOf(['href']);
+    const iconFields = rowFieldsOf(['icon']).map((f) => ({ ...f, iconsOpen: true }));
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
     const rowActions = (): BarAction[] => {
@@ -1245,6 +1258,7 @@ function blockCard(
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: 'title' } });
       return [
+        { kind: 'link', label: t.blocks.list.link, action: settings },
         { kind: 'above', label: t.blocks.list.addAbove, action: () => go(addAt(list, i), i) },
         { kind: 'below', label: t.blocks.list.addBelow, action: () => go(addAt(list, i + 1), i + 1) },
         ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
@@ -1255,7 +1269,7 @@ function blockCard(
       name,
       dom,
       rowActions,
-      edit: () => syncRow(true),
+      edit: settings,
       compact,
       labels: { row: t.blocks.list.row, edit: t.common.edit },
     });
@@ -1268,13 +1282,23 @@ function blockCard(
     };
     const specOf = (i: number) => {
       const row = rows()[i] ?? {};
+      if (iconOf === i)
+        return {
+          headline: t.blocks.list.icon,
+          fields: iconFields,
+          value: { icon: row.icon ?? '' },
+          closes: true,
+          onChange: (v: BlockProps) => {
+            iconOf = null;
+            setItems(setField(rows(), i, 'icon', String(v.icon ?? '')));
+          },
+        };
       return {
         headline: t.blocks.list.rowSettings,
         fields: itemFields,
-        value: { icon: row.icon ?? '', href: row.href ?? '' },
+        value: { href: row.href ?? '' },
         onChange: (v: BlockProps) => {
-          let items = rows();
-          for (const key of ['icon', 'href'] as const) items = setField(items, i, key, String(v[key] ?? ''));
+          const items = setField(rows(), i, 'href', String(v.href ?? ''));
           setItems(items);
         },
       };
@@ -1287,6 +1311,7 @@ function blockCard(
     const away = (e: Event) => {
       if (active === null || inside(e.target)) return;
       active = null;
+      iconOf = null;
       focus = null;
       asker()?.row(null);
       const list = rows();

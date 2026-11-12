@@ -74,6 +74,8 @@ export type Field = {
   offered?: 'templates';
   /** select: the options are icons (their names, `icons`), shown as the icons to tap (fields.tsx). */
   icons?: boolean;
+  /** With `icons`: the icons are shown at once, and a pick is the last thing asked (the row sheet of a List typed in place). */
+  iconsOpen?: boolean;
   /** select: the options side by side in a bar, the chosen one raised (SegmentedButton in ui.tsx), for two or
    * three short ones. */
   segments?: boolean;
