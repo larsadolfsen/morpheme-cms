@@ -82,7 +82,15 @@ export type TestimonialItem = {
 };
 
 /** A row a list block gets from a list ("Rows from"): as a typed row, with the tags the item has (for the tag filter). */
-export type SourceItem = { title: string; text?: string; icon?: string; href?: string; tags: string[] };
+export type SourceItem = {
+  title: string;
+  text?: string;
+  icon?: string;
+  href?: string;
+  tags: string[];
+  /** The entry of a list as it is in its file, so the block's `map` can read other fields (lists only, not posts or testimonials). */
+  entry?: Record<string, unknown>;
+};
 
 export type StandardSite = {
   /** The items of a list a list block reads ("Rows from"), by the source's id (`posts`, `testimonials`, or the id of a list that

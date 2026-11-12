@@ -44,6 +44,13 @@ export const blocks: Messages['blocks'] = {
     button: 'Knaptekst',
     buttonHint: 'En tekstknap under det sidste spørgsmål. Hvis feltet er tomt, er der ingen knap.',
     buttonHref: 'Knapside',
+    addQuestion: 'Tilføj spørgsmål',
+    newQuestion: 'Nyt spørgsmål',
+    questionOf: (n: number, total: number) => `Spørgsmål ${n} af ${total}`,
+    addAbove: 'Tilføj over',
+    addBelow: 'Tilføj under',
+    questionMenu: 'Spørgsmål',
+    questionSettings: 'Spørgsmålsindstillinger',
   },
   segmented: {
     label: 'Segmenteret liste',
@@ -111,7 +118,15 @@ export const blocks: Messages['blocks'] = {
     testimonials: 'Udtalelser',
     dynamic: 'Dynamisk',
     named: (label: string) => `Dynamisk ${label.toLowerCase()}`,
-    from_line: (list: string) => `Rækker fra ${list}`,
+    /** The state line of a dynamic block: "From Services · tag home · 3 items". */
+    from_line: (list: string, tags: string[], count: number) =>
+      [
+        `Fra ${list}`,
+        ...(tags.length ? [`${tags.length === 1 ? 'mærke' : 'mærker'} ${tags.join(', ')}`] : []),
+        `${count} ${count === 1 ? 'post' : 'poster'}`,
+      ].join(' · '),
+    editList: 'Rediger liste',
+    map: 'Felter i en række',
     empty: 'Ingen poster i listen passer, så der vises ikke noget på siden.',
   },
   list: {

@@ -362,6 +362,7 @@ async function checkPreviewDraft(width) {
 const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
+  { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
 ];
 
 /** The single blocks typed in place (Notice, Video): one item, no add button, no faded empty item. */
@@ -418,7 +419,7 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
 }
 
 /** `surface`: the item is a card with a container of its own, so it has a background colour. */
-async function checkInlineBlock(width, height, { name, hint, add, surface }) {
+async function checkInlineBlock(width, height, { name, hint, add, surface, field = 'title', open }) {
   const label = `${width}px inline ${name}`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
@@ -434,7 +435,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface }) {
     await page.locator('[aria-label="Show more tools"]:visible').first().tap();
   await page.locator('[aria-label="Insert"]:visible').first().tap();
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
-  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`);
   await page.keyboard.type('First');
   await page.waitForTimeout(300);
   const state = () =>
@@ -461,6 +462,14 @@ async function checkInlineBlock(width, height, { name, hint, add, surface }) {
   await page.waitForTimeout(300);
   const two = await state();
   if (two.rows !== 2) problems.push(`${label}: "${add}" left ${two.rows} items, not 2`);
+  if (open) {
+    // A folding block: only the active item is open (its answer typed in the panel), the others closed, and a typed item has no Link.
+    const opened = await page.evaluate(() => [...document.querySelectorAll('.inline-list-row[data-row]')].map((d) => d.open));
+    if (opened.join() !== 'false,true') problems.push(`${label}: expected only the active item open, got ${opened}`);
+    if (!(await page.locator('.inline-list-row-active [data-field="answer"]').count()))
+      problems.push(`${label}: no answer field in the open item`);
+    if ((await state()).bar.some((b) => b.label === 'Link')) problems.push(`${label}: the toolbar has a Link button`);
+  }
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   if ((await page.locator('[data-add-row]').count()) > 0)
