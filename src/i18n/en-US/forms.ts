@@ -130,7 +130,7 @@ export const forms = {
     draftLine: 'Draft',
     waitingLine: 'Unpublished changes',
     publishedLine: (when: string) => `Published · Changed ${when}`,
-    /** The line under the title while changes to a published page are not saved yet (autosave, with Faster editor on). */
+    /** The line under the title while changes to a published page are not saved yet (autosave, with R2 caching on). */
     autosave: {
       saving: 'Saving…',
       saved: 'Saved',

@@ -17,7 +17,7 @@ a release note (`release-notes` skill, English and `da-DK`). Data model and Work
 - `publish`, `schedule`, `unpublish` and `discard` are plain functions in `lib/versions.mjs` (no browser, no React), so the
   editor, the Worker and an app call the same code.
 - A scheduled publish is run by the Worker's hourly job (`worker/publish.js`), not by the browser.
-- With `Faster editor` off there is no autosave: `Save` commits the draft file and the status shows `Not saved` until then
+- With `R2 caching` off there is no autosave: `Save` commits the draft file and the status shows `Not saved` until then
   (spec, question 2). Autosave to R2 is batch 13, not here.
 - New pages and posts start as Draft.
 - Batch 1 (plain words, PR #279) changes the status words only: this work reads the words from the same i18n keys and
@@ -73,7 +73,7 @@ on the next save).
 ## Autosave, part A (Worker and client logic, batch 13)
 
 Done without a screen: `worker/autosave.js` (`/api/autosave`, `/api/autosave/flush`, the hourly `sweepAutosaves`), `lib/autosave.mjs`
-(key, limits, sweep rule) and `src/autosave.mjs` (`createAutosave`, `autosaveClient`, `watchLeaving`). It only works with `Faster editor` on
+(key, limits, sweep rule) and `src/autosave.mjs` (`createAutosave`, `autosaveClient`, `watchLeaving`). It only works with `R2 caching` on
 (the `FILES` binding); without it every call answers 409 `off` and the client state is `notSaved`.
 
 - R2 key `<owner>/<repo>/autosave/<page file>/<version id>`, value `{ text, savedAt }`, at most 1 MiB (413 above). Signed-in with push access only.
@@ -86,7 +86,7 @@ What part B (the form and the status) needs:
 
 1. Create one `autosaveClient()` per editor, call `autosave(entry.path, text, versionId)` on every change of a version, and
    `watchLeaving(client)` once. Show `client.subscribe` as `Saving…` / `Saved` / `Not saved` (new i18n keys in `en-US` and `da-DK`).
-2. Only when `Faster editor` is on (`r2CachingOn`); with it off, do not call `autosave` and show `Not saved` until `Save`.
+2. Only when `R2 caching` is on (`r2CachingOn`); with it off, do not call `autosave` and show `Not saved` until `Save`.
 3. Call `client.forget(path, id)` and `DELETE /api/autosave?path=…&id=…` after `Save`, `Publish`, `Discard` (they commit the same text or drop it).
 4. On opening a page, `GET /api/autosave?path=…&id=…`: when it exists and is newer than the waiting version in git, load it as the draft
    (`savedAt` against the commit time), and say so. `GET /api/autosave` lists all of them (a banner on the start screen).
@@ -107,7 +107,7 @@ after a live edit clears it, though they may not contain that edit.
 
 Done in `EntryForm.tsx` with `src/useAutosave.ts`: the autosave belongs to the waiting version of a published page (or a draft that has one);
 not the live page being edited, a new page, an earlier version or a changed address. The line under the title says `Saving…`, `Saved` or
-`Not saved` while changes are unsaved (with Faster editor off the Worker says 409 and it stays `Not saved` until `Save`). A page opens with
+`Not saved` while changes are unsaved (with R2 caching off the Worker says 409 and it stays `Not saved` until `Save`). A page opens with
 the kept changes put back when they are newer than git's file (`restorable`). `Save`, `Publish`, `Discard` and the version switch end with
 nothing unsaved, which deletes the autosave; `Discard` in the "Save the changes?" question deletes it when the form closes. When an idle
 flush gives git a new waiting version, the form loads that file (`takeWaiting`) so its blob id is current. A text that cannot be saved yet
