@@ -2,4 +2,4 @@
 '@morphemecms/cms': patch
 ---
 
-HTML code is in its own Developer category in Insert
+Insert shows the basic blocks first, then Blog posts, Testimonials and Cookie list under From your content, and HTML code under Developer

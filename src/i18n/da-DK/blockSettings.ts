@@ -7,10 +7,10 @@ export const blockSettings: Messages['blockSettings'] = {
   groups: {
     cards: 'Kort',
     lists: 'Lister',
-    content: 'Fra dit indhold',
     banners: 'Bannere',
     buttons: 'Knapper',
     media: 'Medier',
+    content: 'Fra dit indhold',
     developer: 'Udvikler',
   },
   noBlocks: 'Appen har ingen blokke',

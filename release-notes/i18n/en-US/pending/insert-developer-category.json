@@ -1,5 +1,6 @@
 {
   "id": "insert-developer-category",
-  "kind": "line",
-  "text": "HTML code is in a Developer category in Insert"
+  "kind": "paragraph",
+  "title": "Insert sheet",
+  "text": "Insert sorts the blocks into groups: Cards, Lists, Banners, Buttons and Media come first, because they look the same wherever you put them. Open Insert to find Blog posts, Testimonials and Cookie list under From your content, and HTML code last, under Developer."
 }

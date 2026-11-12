@@ -18,6 +18,10 @@ test('there are a few categories', () => {
   assert.ok(groups.length >= 2 && groups.length <= 7, groups.join());
 });
 
+test('the sheet shows basic blocks first, then the blocks that bring their own content, then developer', () => {
+  assert.deepEqual(groups, ['cards', 'lists', 'banners', 'buttons', 'media', 'content', 'developer']);
+});
+
 test('every standard block has a category', () => {
   assert.ok(folders.length > 0);
   for (const f of folders) assert.ok(groups.includes(groupOf(read(`./${f}/index.tsx`))), `src/standard/${f}/index.tsx has no valid group`);

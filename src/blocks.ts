@@ -21,8 +21,8 @@ export type DrawBlock = (type: string, props: BlockProps) => ReactNode;
 
 /** The heading of a standard block in `Insert` (BlockDialog.tsx), by what it does. Every standard block has one
  * (src/standard/groups.test.mjs checks it). */
-export type BlockGroup = 'cards' | 'lists' | 'content' | 'banners' | 'buttons' | 'media' | 'developer';
-export const blockGroups: BlockGroup[] = ['cards', 'lists', 'content', 'banners', 'buttons', 'media', 'developer'];
+export type BlockGroup = 'cards' | 'lists' | 'banners' | 'buttons' | 'media' | 'content' | 'developer';
+export const blockGroups: BlockGroup[] = ['cards', 'lists', 'banners', 'buttons', 'media', 'content', 'developer'];
 
 export type SiteBlock = {
   type: string;
