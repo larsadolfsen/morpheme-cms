@@ -101,7 +101,7 @@ const shownItems = (selector) =>
 /** The "New in" card on the start screen, with the tall portrait photo of the 0.16 edition (1280x2272) in place of its own: the photo and the card stay inside the card's own box and above the widgets, never painted over them (375, 690 and 1280 px). */
 async function checkUpdatesCard(width, height) {
   const label = `${width}px`;
-  const tall = readFileSync(resolve(ROOT, '../../../release-notes/editions/0.16.webp'));
+  const tall = readFileSync(fileURLToPath(new URL('../release-notes/editions/0.16.webp', import.meta.url)));
   const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
   page.on('pageerror', (e) => problems.push(`${label} start: ${e.message}`));
   await page.route('**/_astro/*.webp', (r) => r.fulfill({ body: tall, contentType: 'image/webp' }));
