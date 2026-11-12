@@ -125,6 +125,50 @@ async function checkUpdatesCard(width, height) {
   await page.close();
 }
 
+/** On a phone the text's floating row is a docked bottom sheet: the same size and the same place (just over "Save changes", or over the keyboard) at every cursor, with all of the Text style, List and heading buttons in it. */
+async function checkTextSheet() {
+  const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`360px text sheet: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Fro');
+  const read = () =>
+    page.evaluate(() => {
+      const m = document.querySelector('.editor-selection-menu');
+      const r = m.getBoundingClientRect();
+      const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? visualViewport.height;
+      const names = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getAttribute('aria-label'));
+      return { shown: !m.hidden, sheet: m.classList.contains('editor-selection-sheet'), r: r.toJSON(), save, names };
+    });
+  await page.waitForTimeout(1200);
+  const first = await read();
+  await page.keyboard.type(' and more');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Next');
+  await page.waitForTimeout(1200);
+  const second = await read();
+  for (const [name, now] of [
+    ['first line', first],
+    ['second line', second],
+  ]) {
+    if (!now.shown || !now.sheet) problems.push(`360px text sheet: no docked sheet at the ${name}`);
+    else if (Math.abs(now.r.bottom - now.save) > 1 || now.r.width < 359)
+      problems.push(`360px text sheet: not docked over Save changes at the ${name}`);
+    if (!now.names.some((n) => n.startsWith('Text style')) || !now.names.includes('List'))
+      problems.push(`360px text sheet: the Text style or List button is missing at the ${name}`);
+  }
+  if (first.r.height !== second.r.height || first.r.top !== second.r.top)
+    problems.push('360px text sheet: the sheet moved or changed size with the cursor');
+  await page.setViewportSize({ width: 360, height: 420 });
+  await page.waitForTimeout(500);
+  const keyboard = await read();
+  if (Math.abs(keyboard.r.bottom - keyboard.save) > 1 || keyboard.r.height !== first.r.height)
+    problems.push('360px text sheet: it does not follow the keyboard at its own size');
+  await page.close();
+}
+
 /** Settings lists the six screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
@@ -579,6 +623,8 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await checkUpdatesCard(width, height);
+
+await checkTextSheet();
 
 await browser.close();
 server.close();

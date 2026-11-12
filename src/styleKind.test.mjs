@@ -29,8 +29,11 @@ test('the kinds are the text styles, then the lists', () => {
   assert.deepEqual(STYLE_KINDS, [...TEXT_KINDS, ...LIST_KINDS]);
 });
 
-test('in a heading it shows Body medium, though Body small is first in the list', () => {
-  assert.equal(styleKindOf(['h2'], true), 'medium');
+test('in a heading Text style is generic, never a body style, and List is generic too', () => {
+  for (const level of ['h1', 'h2', 'h3']) {
+    assert.equal(styleKindOf([level], true), 'generic');
+    assert.equal(listKindOf([level], true), 'generic');
+  }
 });
 
 // The floating row and the top toolbar draw each style's icon from one table (KIND_ICONS in MarkdownEditor.tsx), so a style
@@ -108,4 +111,25 @@ test('Text style and List are two buttons that name their choice', () => {
     assert.match(text, /\n  listIs: /);
   }
   assert.match(readFileSync(new URL('./i18n/en-US/text.ts', import.meta.url), 'utf8'), /listIs: \(kind: string\) => `List: \$\{kind\}`/);
+});
+
+// Every style of STYLE_KINDS can be picked in both places and is named there: the floating row's list (textKinds) and the top toolbar's
+// tools (all) each have its icon and a label, and the menus of the Text style and List buttons are made from that tools list.
+test('every style has an icon and a label in the floating row and in the toolbar', () => {
+  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
+  for (const name of STYLE_KINDS) {
+    assert.match(
+      source,
+      new RegExp(`name: '${name}', icon: KIND_ICONS\\.${name}\\.raw, label: t\\.text\\.\\w+`),
+      `the floating row has no entry with icon and label for ${name}`,
+    );
+    assert.match(
+      source,
+      new RegExp(`label: t\\.text\\.\\w+, icon: KIND_ICONS\\.${name}\\.node, action: \\(\\) => setKind\\('${name}'\\), on: '${name}'`),
+      `the toolbar has no tool with icon and label for ${name}`,
+    );
+  }
+  assert.match(source, /kinds\(button, 'text'\)/, 'the floating Text style button opens the menu');
+  assert.match(source, /kinds\(button, 'list'\)/, 'the floating List button opens the menu');
+  assert.match(source, /kinds\(button, 'headings'\)/, 'the floating heading button opens the menu');
 });
