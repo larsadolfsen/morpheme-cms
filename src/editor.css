@@ -937,11 +937,39 @@ html {
   margin-bottom: var(--mo-space-4, 4px);
 }
 
+/* The icon and link slots before the heading of the active row of a Segmented list. */
+.editor-text .inline-segmented-slots {
+  display: inline-flex;
+  flex: none;
+  gap: var(--mo-space-4, 4px);
+}
+
+/* The open row being typed in has no background colour of its own (the dotted line marks it), whatever the theme gives an open row. */
+.editor-text .inline-segmented .inline-list-row-active {
+  background: transparent;
+}
+
+/* A row's buttons at the bottom of the active row of a Segmented list: each text typed where it stands, then "Add button". */
+.editor-text .inline-segmented-buttons .inline-segmented-button {
+  display: inline-flex;
+  min-width: 6rem;
+  min-height: 2.5rem;
+  align-items: center;
+}
+
 /* A List that reads a list: the line that says which, over its rows. */
 .editor-text .inline-list-from {
   margin: 0 0 var(--mo-space-8, 8px);
   color: var(--mo-on-surface-variant);
   font-size: 0.875rem;
+}
+
+/* A dynamic block that can pick the fields of its list: a text button for each part of a row (top line, bottom line, icon, link). */
+.editor-text .inline-list-parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--mo-space-8, 8px);
+  margin: 0 0 var(--mo-space-8, 8px);
 }
 
 /* The row being typed in has the dotted line of the sections' frame round it, and no other colour; the empty row of an empty list is faded. */
@@ -1426,4 +1454,16 @@ dialog {
     font-weight: var(--type-display-medium-weight);
     letter-spacing: var(--type-display-medium-tracking);
   }
+}
+
+/* Buttons typed in place: the label is typed on the button itself, which has the width of its text; the default buttons shown while the block has none of its own. */
+.editor-text .inline-buttons .inline-button .inline-list-field {
+  width: auto;
+  min-width: 3ch;
+  text-align: center;
+}
+
+.editor-text .inline-buttons-shared {
+  display: contents;
+  cursor: text;
 }

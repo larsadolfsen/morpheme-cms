@@ -47,6 +47,12 @@ Quick points with a check mark.
 - [x] Photos sized for every screen
 - [x] No tracking before consent
 
+## Table
+
+Rows and columns of text, with a header row on top. On a narrow screen the table scrolls sideways.
+
+<div data-block="table" data-props="{&quot;header&quot;:true,&quot;rows&quot;:[[&quot;Plan&quot;,&quot;Pages&quot;,&quot;Support&quot;],[&quot;Free&quot;,&quot;10&quot;,&quot;Community&quot;],[&quot;Standard&quot;,&quot;100&quot;,&quot;Email&quot;],[&quot;Plus&quot;,&quot;Unlimited&quot;,&quot;Phone and email&quot;]]}"></div>
+
 ## List
 
 Rows under each other, as your theme draws a list.

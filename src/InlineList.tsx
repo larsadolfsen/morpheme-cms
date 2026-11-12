@@ -5,6 +5,7 @@
 // below the last row (`Add list row`) adds one. The parts, the keys and what is kept are the shared ones of InlineItems.tsx and
 // src/inlineRows.mjs; this is the List's markup on them. Depends on the theme's List (themeUi.ts).
 import { LinkSimple, Plus } from '@phosphor-icons/react';
+import type { MouseEvent } from 'react';
 import { Glyph } from './icon';
 import { t } from './i18n';
 import { SiteButton, SiteList, SiteListItem } from './themeUi';
@@ -20,6 +21,7 @@ export default function InlineList({
   onChange,
   onSettings,
   onIcon,
+  show = {},
 }: {
   items: Row[];
   /** The row being edited; null while the list is not. */
@@ -31,9 +33,12 @@ export default function InlineList({
   onSettings: (row: number) => void;
   /** The icon slot of a row is tapped: its icon picker. */
   onIcon: (row: number) => void;
+  /** A list the owner made has the fields it chose: `false` leaves a row's icon, text or link out (a List block has all three). */
+  show?: { icon?: boolean; text?: boolean; href?: boolean };
 }) {
+  const [withIcon, withText, withHref] = [show.icon !== false, show.text !== false, show.href !== false];
   // While one row is active every row has its two lines, so the list does not change height when another is made active; else, as the site.
-  const twoLines = active !== null || items.some((r) => r.text);
+  const twoLines = withText && (active !== null || items.some((r) => r.text));
   return (
     <InlineItems
       items={items as Item[]}
@@ -54,23 +59,23 @@ export default function InlineList({
             className={['inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next'].filter(Boolean).join(' ')}
             // The active row has its icon slot, empty or not; the others their icon, as the site draws them.
             leading={
-              here ? (
+              here && withIcon ? (
                 <InlineSlot label={t.blocks.list.icon} onClick={() => onIcon(i)}>
                   {r.icon ? <Glyph icon={r.icon} size={24} /> : <Plus size={24} />}
                 </InlineSlot>
               ) : undefined
             }
-            leadingIcon={here ? undefined : r.icon || undefined}
+            leadingIcon={here || !withIcon ? undefined : r.icon || undefined}
             headline={field('title', t.blocks.list.title, next ? t.blocks.list.newRow : t.blocks.list.title)}
             supporting={twoLines ? field('text', t.blocks.list.text, t.blocks.list.text) : undefined}
             trailing={
-              here ? (
+              here && withHref ? (
                 <InlineSlot label={t.blocks.list.href} onClick={() => onSettings(i)}>
                   <LinkSimple size={24} />
                 </InlineSlot>
               ) : undefined
             }
-            trailingIcon={here || !r.href ? undefined : 'caret-right'}
+            trailingIcon={here || !withHref || !r.href ? undefined : 'caret-right'}
           />
         );
       }}
@@ -80,16 +85,67 @@ export default function InlineList({
 
 /** A List that reads a list ("Rows from"): its rows as the site draws them, not typed here (they come from the list; Edit has the list, tags and
  * How many). `rows` are the rows the list gives with the filter applied; `line` says which list; `empty` that nothing matches. */
-export function RowsFromList({ rows, line, empty, editList }: { rows: Row[]; line: string; empty: boolean; editList?: () => void }) {
+export function RowsFromList({
+  rows,
+  line,
+  empty,
+  editList,
+  undo,
+  parts,
+  onPart,
+}: {
+  rows: Row[];
+  line: string;
+  empty: boolean;
+  editList?: () => void;
+  /** The typed rows were set aside by switching to a list: what it says, and Undo. */
+  undo?: { note: string; label: string; run: () => void };
+  /** A list with fields to pick from: each part of a row with the field shown there (a text button each), and what a tap on one does. The rows' own
+   * lines, icon and arrow answer a tap too. */
+  parts?: { part: string; text: string }[];
+  onPart?: (part: string) => void;
+}) {
+  // A tap on a row's top line, bottom line, icon or arrow picks the field shown there.
+  const tapped = (e: MouseEvent<HTMLElement>) => {
+    if (!onPart || !(e.target instanceof Element)) return;
+    const hit = e.target.closest('.list-item-headline, .list-item-supporting, .list-item-leading, .list-item-trailing');
+    if (!hit) return;
+    onPart(
+      hit.classList.contains('list-item-headline')
+        ? 'title'
+        : hit.classList.contains('list-item-supporting')
+          ? 'text'
+          : hit.classList.contains('list-item-leading')
+            ? 'icon'
+            : 'href',
+    );
+  };
   return (
     <div className="inline-list-host">
       <p className="inline-list-from">{empty ? `${line}. ${t.blocks.rows.empty}` : line}</p>
+      {undo && (
+        <p className="inline-list-from">
+          {undo.note}{' '}
+          <SiteButton kind="text" className="inline-list-edit" onClick={undo.run}>
+            {undo.label}
+          </SiteButton>
+        </p>
+      )}
       {editList && (
         <SiteButton kind="text" className="inline-list-edit" onClick={editList}>
           {t.blocks.rows.editList}
         </SiteButton>
       )}
-      <SiteList className="block-list inline-list">
+      {parts && onPart && (
+        <div className="inline-list-parts" role="group" aria-label={t.blocks.rows.fieldShown}>
+          {parts.map((p) => (
+            <SiteButton key={p.part} kind="text" className="inline-list-edit" onClick={() => onPart(p.part)}>
+              {p.text}
+            </SiteButton>
+          ))}
+        </div>
+      )}
+      <SiteList className="block-list inline-list" onClick={tapped}>
         {rows.map((r, i) => (
           <SiteListItem
             key={i}

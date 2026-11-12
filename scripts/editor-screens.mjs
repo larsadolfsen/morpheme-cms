@@ -17,7 +17,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { chromium } from 'playwright';
 import sharp from 'sharp';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { constants, inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
@@ -101,7 +101,7 @@ const shownItems = (selector) =>
 /** The "New in" card on the start screen, with the tall portrait photo of the 0.16 edition (1280x2272) in place of its own: the photo and the card stay inside the card's own box and above the widgets, never painted over them (375, 690 and 1280 px). */
 async function checkUpdatesCard(width, height) {
   const label = `${width}px`;
-  const tall = readFileSync(resolve(ROOT, '../../../release-notes/editions/0.16.webp'));
+  const tall = readFileSync(fileURLToPath(new URL('../release-notes/editions/0.16.webp', import.meta.url)));
   const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
   page.on('pageerror', (e) => problems.push(`${label} start: ${e.message}`));
   await page.route('**/_astro/*.webp', (r) => r.fulfill({ body: tall, contentType: 'image/webp' }));
@@ -300,6 +300,39 @@ async function checkEmptyHint() {
   await page.close();
 }
 
+/** The rows of a List, Segmented list and FAQ are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
+async function checkListMarkers(width) {
+  const path = 'src/content/pages/about.md';
+  if (!existsSync(join(ROOT, path))) return;
+  const markers = () =>
+    [...document.querySelectorAll('ul.list')].flatMap((ul) =>
+      [ul, ...ul.children].flatMap((el) => {
+        const s = getComputedStyle(el);
+        const m = getComputedStyle(el, '::marker');
+        const bad = [];
+        if (s.listStyleType !== 'none') bad.push(`list-style-type ${s.listStyleType}`);
+        if (el !== ul && s.display === 'list-item' && m.content !== 'normal' && m.content !== 'none' && m.content !== '""')
+          bad.push(`marker ${m.content}`);
+        if (el === ul && parseFloat(s.paddingInlineStart) !== 0) bad.push(`indent ${s.paddingInlineStart}`);
+        return bad.map((b) => `${el.tagName.toLowerCase()}.${[...el.classList].slice(0, 2).join('.')}: ${b}`);
+      }),
+    );
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`List markers: ${e.message}`));
+  await openEditor(page, site);
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('ul.list', { timeout: 30_000 });
+  const inEditor = await page.evaluate(markers);
+  if (inEditor.length) problems.push(`${width}px editor: a List row has a list marker (${[...new Set(inEditor)].join('; ')})`);
+  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const frame = page.frames().find((f) => f !== page.mainFrame());
+  await frame.waitForSelector('ul.block-list', { timeout: 30_000 });
+  const inPreview = await frame.evaluate(markers);
+  if (inPreview.length) problems.push(`${width}px Preview: a List row has a list marker (${[...new Set(inPreview)].join('; ')})`);
+  await page.close();
+}
+
 /** The Preview (the binoculars) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
 async function checkPreviewSection() {
   const path = 'src/content/pages/about.md';
@@ -361,15 +394,17 @@ async function checkPreviewDraft(width) {
 /** A List typed in the text: while a row is active and the list has rows, the text button "Add list row" is under the last row and adds one, the faded empty row is not there, the active row has a dotted line, and Add above and Add below are icon buttons; when the cursor leaves, the button is gone. */
 const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
+  { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button' },
   // `desktop: false`: not checked on a computer yet (Cards fails there with "t.map is not a function", found by this pass; its own fix).
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, desktop: false },
+  { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
   { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
   { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
 ];
 
 /** `surface`: the item is a card with a container of its own, so it has a background colour. */
-async function checkInlineBlock(width, height, { name, hint, add, surface, field = 'title', open }) {
+async function checkInlineBlock(width, height, { name, hint, add, surface, rowButtons, field = 'title', open }) {
   const label = `${width}px inline ${name}`;
   // On a phone a touch, on a computer a mouse.
   const phone = width < 600;
@@ -416,6 +451,20 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, field
     problems.push(`${label}: the active row has a background colour (${one.background})`);
   for (const name of ['Add above', 'Add below'])
     if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
+  // A row's buttons: under the active row's text the text button `rowButtons` adds a button whose text is typed there.
+  if (rowButtons) {
+    const adds = await page.locator('[data-add-button]').allTextContents();
+    if (adds.map((s) => s.trim()).join() !== rowButtons)
+      problems.push(`${label}: expected the button "${rowButtons}" in the active row, got "${adds}"`);
+    await page.click('[data-add-button]');
+    await page.keyboard.type('More');
+    await page.waitForTimeout(300);
+    const typed = await page
+      .locator('.inline-segmented-button textarea')
+      .inputValue()
+      .catch(() => null);
+    if (typed !== 'More') problems.push(`${label}: the text typed in a row's new button is "${typed}", not "More"`);
+  }
   await page.click('[data-add-row]');
   await page.waitForTimeout(300);
   const two = await state();
@@ -433,6 +482,126 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, field
   if ((await page.locator('[data-add-row]').count()) > 0)
     problems.push(`${label}: the button "${add}" stays after the cursor left the block`);
   await page.close();
+}
+
+/** The dynamic List (the owner's flow): the dynamic icon in the floating toolbar opens the dynamic settings (a bottom sheet on a phone, the side panel on a computer) with `Rows from`; picking a list turns the block into a "Dynamic list" with its state line, `Edit list` and an `Undo` that brings the typed rows back; the toolbar then has no row actions and stays inside the screen. */
+async function checkDynamicList(width, height) {
+  const label = `${width}px dynamic list`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('Typed row');
+  await page.waitForTimeout(300);
+  const bar = () =>
+    page.evaluate(() => {
+      const el = document.querySelector('.site-block-toolbar');
+      const r = el && !el.hidden ? el.getBoundingClientRect() : null;
+      return {
+        labels: [...document.querySelectorAll('.site-block-toolbar button')].map((b) => b.getAttribute('aria-label')),
+        inside: !r || (r.left >= 0 && r.right <= innerWidth + 0.5),
+        small: [...document.querySelectorAll('.site-block-toolbar button')].some((b) => b.getBoundingClientRect().height < 47.5),
+      };
+    });
+  const typed = await bar();
+  if (!typed.labels.includes('Fill from a list')) problems.push(`${label}: the toolbar has no dynamic icon`);
+  if (!typed.inside) problems.push(`${label}: the toolbar reaches outside the screen`);
+  if (typed.small) problems.push(`${label}: a toolbar button is under 48 px high`);
+  await page.locator('.site-block-toolbar [aria-label="Fill from a list"]').click();
+  const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
+  await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
+  await panel.locator('button.text-field-input').first().click();
+  await page.getByText('Testimonials', { exact: true }).locator('visible=true').last().click();
+  await page.waitForTimeout(500);
+  // A phone's bottom sheet covers the block: closed, the block shows its state (the side panel on a computer stays open).
+  if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
+  await page.waitForTimeout(400);
+  const text = await page.locator('.site-block-preview').first().textContent();
+  if (!/From Testimonials · \d+ items?/.test(text ?? ''))
+    problems.push(`${label}: no state line "From Testimonials · n items" (${text?.slice(0, 80)})`);
+  if (!(await page.getByRole('button', { name: 'Edit list' }).count())) problems.push(`${label}: no "Edit list" button`);
+  if (!(await page.getByRole('button', { name: 'Undo', exact: true }).last().count()))
+    problems.push(`${label}: no Undo after the typed rows were set aside`);
+  const dynamic = await bar();
+  if (dynamic.labels.some((l) => /^Add (above|below)$/.test(l ?? ''))) problems.push(`${label}: a dynamic list has Add above or Add below`);
+  if (!dynamic.inside) problems.push(`${label}: the dynamic toolbar reaches outside the screen`);
+  await page.locator('.site-block-preview button', { hasText: 'Undo' }).click();
+  await page.waitForTimeout(400);
+  if (!(await page.locator('.inline-list-row[data-row]').count())) problems.push(`${label}: Undo did not bring the typed rows back`);
+  await page.close();
+}
+
+/** The page of a list the owner made (#list/<id>, OwnListPage.tsx): the List typed in place, its rows the entries of the list. A list with a definition and two entries opens with two rows, no horizontal overflow; the active row has the dotted outline and no background, `Add list row` shows under an active list and is gone when the cursor leaves, the toolbar has Add above and Add below, Enter in the title goes to the text, and only the fields the list has are there (no icon slot, no link slot). */
+async function checkOwnList(width, height) {
+  const label = `${width}px own list`;
+  const phone = width < 600;
+  const folder = join(ROOT, 'src/data/services');
+  mkdirSync(folder, { recursive: true });
+  writeFileSync(join(folder, '_list.json'), JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href'] }));
+  writeFileSync(join(folder, 'web-design.json'), JSON.stringify({ order: 1, title: 'Web design', text: 'Sites that last' }));
+  writeFileSync(join(folder, 'hosting.json'), JSON.stringify({ order: 2, title: 'Hosting' }));
+  try {
+    const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#list/services'));
+    await page
+      .waitForSelector('.inline-list-row[data-row]', { timeout: 15000 })
+      .catch(() => problems.push(`${label}: the list page has no rows`));
+    const rows = await page.locator('.inline-list-row[data-row]:not(.inline-list-row-next)').count();
+    if (rows !== 2) problems.push(`${label}: expected 2 rows, got ${rows}`);
+    if (await page.locator('.inline-list-row-next').count()) problems.push(`${label}: the faded empty row shows while the list has rows`);
+    if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
+      problems.push(`${label}: the list page scrolls sideways`);
+    await page.locator('.inline-list-row[data-row="0"] [data-field="title"]').click();
+    await page.waitForSelector('.inline-list-row-active');
+    const active = await page.evaluate(() => {
+      const row = document.querySelector('.inline-list-row-active');
+      return {
+        outline: getComputedStyle(row).outlineStyle,
+        background: getComputedStyle(row).backgroundColor,
+        icon: !!row.querySelector('[aria-label="Icon"]'),
+        link: !!row.querySelector('[aria-label="Page"], [aria-label="Link"]'),
+      };
+    });
+    if (active.outline !== 'dotted') problems.push(`${label}: the active row has no dotted outline (${active.outline})`);
+    if (!/rgba\(0, 0, 0, 0\)|transparent/.test(active.background))
+      problems.push(`${label}: the active row has a background (${active.background})`);
+    if (active.icon) problems.push(`${label}: an icon slot shows in a list without the icon field`);
+    if (!(await page.getByRole('button', { name: 'Add list row' }).count()))
+      problems.push(`${label}: no "Add list row" under the active list`);
+    const labels = await page.evaluate(() =>
+      [...document.querySelectorAll('.site-block-toolbar button')].map((b) => b.getAttribute('aria-label')),
+    );
+    for (const need of ['Add above', 'Add below'])
+      if (!labels.includes(need)) problems.push(`${label}: the toolbar has no "${need}" (${labels})`);
+    await page.keyboard.press('Enter');
+    if (!(await page.evaluate(() => document.activeElement?.getAttribute('data-field') === 'text')))
+      problems.push(`${label}: Enter in the title did not go to the text`);
+    await page
+      .locator('main h1, header')
+      .first()
+      .click({ position: { x: 5, y: 5 }, force: true })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+    if (await page.locator('.inline-list-row-active').count()) problems.push(`${label}: the row is still active after the cursor left`);
+    if (await page.getByRole('button', { name: 'Add list row' }).count())
+      problems.push(`${label}: "Add list row" stays after the cursor left`);
+    await page.close();
+  } finally {
+    rmSync(folder, { recursive: true, force: true });
+  }
 }
 
 /** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set, Material Symbols' ("arrow back") and Phosphor's ("acorn"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
@@ -1275,6 +1444,10 @@ for (const [width, height] of [
 await checkEmptyHint();
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
 for (const block of inlineBlocks) if (block.desktop !== false) await checkInlineBlock(1280, 900, block);
+await checkDynamicList(375, 740);
+await checkDynamicList(1280, 900);
+await checkOwnList(375, 740);
+await checkOwnList(1280, 900);
 for (const [width, height] of [
   [360, 740],
   [375, 740],
@@ -1294,6 +1467,7 @@ for (const [width, height] of [
   await checkFoldRows(width, height);
 await checkToolbarBox();
 await checkPreviewSection();
+for (const w of [375, 1280]) await checkListMarkers(w);
 for (const w of [360, 375, 390, 414]) await checkPreviewDraft(w);
 
 await browser.close();

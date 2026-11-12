@@ -89,7 +89,9 @@ import {
 } from './deploy';
 import { readCache, writeCache } from './cache';
 import { forgetNotFound, loadNotFound, type Missing } from './notFound';
-import { collectionOf, slugOf, type Collection, type FolderCollection, type Part, type Relation } from './schema';
+import { isEntryPath } from '../lib/ownList.mjs';
+import { collectionOf, slugOf, type Collection, type FolderCollection, type OwnedList, type Part, type Relation } from './schema';
+import OwnListPage from './OwnListPage';
 import EntryForm, { newMarkdown } from './EntryForm';
 import DataForm from './DataForm';
 import CompanyForm from './CompanyForm';
@@ -167,7 +169,19 @@ import {
   MotionSchemes,
   motionOf,
 } from './Library';
-import { appearance, asWritten, blockParts, collections, companyParts, listRowsOf, partScreens, seoParts } from './site';
+import {
+  appearance,
+  asWritten,
+  blockParts,
+  collections,
+  collectionsFor,
+  companyParts,
+  isOwnList,
+  listRowsOf,
+  setOwnRowLists,
+  partScreens,
+  seoParts,
+} from './site';
 import { config, relationsOf, type SiteData, siteName, siteOf, testimonialsOf, usedBy, whatIsAt } from '@site/editor';
 import { themes } from './themes';
 import Screen from './Screen';
@@ -463,7 +477,10 @@ function Editor() {
       { title: t.text.linkPosts, options: relations.blog.map((o) => ({ ...o, value: `/${o.value}/` })) },
     ].filter((g) => g.options.length);
   }, [relations]);
-  const listRows = useMemo(() => listRowsOf(files ?? []), [files]);
+  const listRows = useMemo(() => {
+    setOwnRowLists(files ?? []);
+    return listRowsOf(files ?? []);
+  }, [files]);
   const testimonials = useMemo(() => testimonialsOf(files ?? []), [files]);
 
   // The site's colours as loaded and saved ("Colors"), also before the site is built again with them.
@@ -648,7 +665,9 @@ function Editor() {
       }
     },
     nextOrder(collection) {
-      const own = (files ?? []).filter((f) => f.path.startsWith(`${collection.folder}/`) && f.path.endsWith('.json'));
+      const own = (files ?? []).filter(
+        (f) => f.path.startsWith(`${collection.folder}/`) && f.path.endsWith('.json') && isEntryPath(f.path),
+      );
       return Math.max(0, ...own.map((f) => Number(json(f).order) || 0)) + 1;
     },
     // Numbers the entries 1, 2, 3… in the new order and saves the files whose number changed.
@@ -883,19 +902,23 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (form) return <CompanyForm part={form.part} at={form.at} page={form.page} env={env} files={files} />;
   // A list, or a tab an installed app adds to it (list/<id>/<app>).
   const [, listId, listTab, ...below] = route.split('/');
-  const listed = route.startsWith('list/') && !below.length && collections.find((c) => c.id === listId);
+  const listed = route.startsWith('list/') && !below.length && collectionsFor(files).find((c) => c.id === listId);
+  if (listed && isOwnList(files, listed.id) && listed.kind === 'folder')
+    return <OwnListPage key={listed.id} collection={listed as OwnedList} files={files} env={env} />;
+  if (listed && listed.kind === 'folder' && isOwnList(files, listed.id))
+    return <OwnListPage key={listed.id} collection={listed as OwnedList} files={files} env={env} />;
   if (listed) return <List key={listed.id} collection={listed} tab={listTab} files={files} env={env} />;
 
   // new/<list>, or new/<list>/<kind> for one of its kinds (a pop-up: standard, mailchimp).
   const [, newIn, newKind] = route.split('/');
-  const creating = route.startsWith('new/') && collections.find((c) => c.id === newIn && c.create);
+  const creating = route.startsWith('new/') && collectionsFor(files).find((c) => c.id === newIn && c.create);
   if (creating) {
     if (creating.kind === 'markdown') return <EntryForm collection={creating} file={newMarkdown(creating, notOffered(files))} env={env} />;
     if (creating.kind === 'folder')
       return <DataForm key={route} collection={creating} kind={newKind} file={{ path: '', oid: '', text: '' }} env={env} />;
   }
 
-  const found = collectionOf(collections, route);
+  const found = collectionOf(collectionsFor(files), route);
   // An optional file (the header's) that the site has not got yet opens empty; the first save makes it.
   const file = files.find((f) => f.path === route) ?? (found?.dataFile?.optional ? { path: route, oid: '', text: '{}\n' } : undefined);
   if (!found || !file)
