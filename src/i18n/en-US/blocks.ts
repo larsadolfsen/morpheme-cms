@@ -91,6 +91,8 @@ export const blocks = {
     link: 'Link',
     addRow: 'Add row',
     newRow: 'New row',
+    addButton: 'Add button',
+    buttonText: 'Button text',
     /** A row typed in place: its place, for screen readers (row 2 of 4). */
     rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
   },

@@ -82,6 +82,8 @@ export const blocks: Messages['blocks'] = {
     link: 'Link',
     addRow: 'Tilføj række',
     newRow: 'Ny række',
+    addButton: 'Tilføj knap',
+    buttonText: 'Knaptekst',
     rowOf: (n: number, total: number) => `Række ${n} af ${total}`,
   },
   notice: {

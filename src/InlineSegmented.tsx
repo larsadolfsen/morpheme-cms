@@ -9,7 +9,8 @@ import { LinkSimple, Plus } from '@phosphor-icons/react';
 import { Glyph, Svg } from './icon';
 import { t } from './i18n';
 import { SiteList, SiteListItem } from './themeUi';
-import InlineItems, { InlineSlot } from './InlineItems';
+import InlineItems, { InlineField, InlineSlot, type Item } from './InlineItems';
+import { SiteButton } from './themeUi';
 import type { InlineViewProps } from './inlineViews';
 
 export default function InlineSegmented({ items, props, active, focus, onChange, onSettings, onIcon }: InlineViewProps) {
@@ -25,6 +26,49 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
       </InlineSlot>
     </>
   );
+  // The active row's buttons at the bottom of its text: each button's text is typed where it stands (its page is in the row's sheet, the link
+  // slot); `Add button` adds one, Backspace in an empty one drops it.
+  const buttonsOf = (i: number, row: Item) => {
+    const list = (Array.isArray(row.buttons) ? row.buttons : []) as { label?: string; href?: string }[];
+    const set = (buttons: typeof list, focus?: number) =>
+      onChange({
+        items: items.map((r, j) => (j === i ? (buttons.length ? { ...r, buttons } : (({ buttons: _, ...rest }) => rest)(r)) : r)),
+        active: i,
+        focus: focus === undefined ? null : { row: i, field: `button-${focus}` },
+      });
+    return (
+      <div className="block-row-links inline-segmented-buttons">
+        {list.map((b, n) => (
+          <span key={n} className="inline-segmented-button">
+            <InlineField
+              name={`button-${n}`}
+              value={b.label ?? ''}
+              label={t.blocks.segmented.buttonText}
+              placeholder={t.blocks.segmented.buttonText}
+              onType={(v) => set(list.map((x, m) => (m === n ? { ...x, label: v } : x)))}
+              onFocus={() => {}}
+              onKeys={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+                  e.preventDefault();
+                  if (b.label?.trim()) set([...list.slice(0, n + 1), { label: '', href: '' }, ...list.slice(n + 1)], n + 1);
+                }
+                if (e.key === 'Backspace' && !b.label) {
+                  e.preventDefault();
+                  set(
+                    list.filter((_, m) => m !== n),
+                    Math.max(0, n - 1),
+                  );
+                }
+              }}
+            />
+          </span>
+        ))}
+        <SiteButton kind="text" data-add-button="" onClick={() => set([...list, { label: '', href: '' }], list.length)}>
+          {t.blocks.segmented.addButton}
+        </SiteButton>
+      </div>
+    );
+  };
   return (
     <InlineItems
       items={items}
@@ -83,6 +127,7 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
             </summary>
             <div className="block-accordion-body">
               <div className="block-accordion-answer">{text}</div>
+              {here && buttonsOf(i, item)}
             </div>
           </details>
         );

@@ -361,12 +361,12 @@ async function checkPreviewDraft(width) {
 /** A List typed in the text: while a row is active and the list has rows, the text button "Add list row" is under the last row and adds one, the faded empty row is not there, the active row has a dotted line, and Add above and Add below are icon buttons; when the cursor leaves, the button is gone. */
 const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
-  { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row' },
+  { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button' },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
 ];
 
 /** `surface`: the item is a card with a container of its own, so it has a background colour. */
-async function checkInlineBlock(width, height, { name, hint, add, surface }) {
+async function checkInlineBlock(width, height, { name, hint, add, surface, rowButtons }) {
   const label = `${width}px inline ${name}`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
@@ -405,6 +405,20 @@ async function checkInlineBlock(width, height, { name, hint, add, surface }) {
     problems.push(`${label}: the active row has a background colour (${one.background})`);
   for (const name of ['Add above', 'Add below'])
     if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
+  // A row's buttons: under the active row's text the text button `rowButtons` adds a button whose text is typed there.
+  if (rowButtons) {
+    const adds = await page.locator('[data-add-button]').allTextContents();
+    if (adds.map((s) => s.trim()).join() !== rowButtons)
+      problems.push(`${label}: expected the button "${rowButtons}" in the active row, got "${adds}"`);
+    await page.click('[data-add-button]');
+    await page.keyboard.type('More');
+    await page.waitForTimeout(300);
+    const typed = await page
+      .locator('.inline-segmented-button textarea')
+      .inputValue()
+      .catch(() => null);
+    if (typed !== 'More') problems.push(`${label}: the text typed in a row's new button is "${typed}", not "More"`);
+  }
   await page.click('[data-add-row]');
   await page.waitForTimeout(300);
   const two = await state();
