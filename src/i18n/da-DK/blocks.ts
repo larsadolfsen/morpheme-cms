@@ -124,6 +124,8 @@ export const blocks: Messages['blocks'] = {
         ...(tags.length ? [`${tags.length === 1 ? 'mærke' : 'mærker'} ${tags.join(', ')}`] : []),
         `${count} ${count === 1 ? 'post' : 'poster'}`,
       ].join(' · '),
+    dynamicTip: 'Udfyld fra en liste',
+    typedHidden: 'Dine skrevne rækker er gemt, men vises ikke.',
     editList: 'Rediger liste',
     map: 'Felter i en række',
     empty: 'Ingen poster i listen passer, så der vises ikke noget på siden.',
