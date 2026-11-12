@@ -228,6 +228,31 @@ const gapHere = $prose(
     }),
 );
 
+// A page with only its H1 shows the hint under it (editor.css, h1::after): a tap on that line adds the empty paragraph
+// and puts the cursor in it, with the keyboard open. (With an empty paragraph after the H1 the tap is on the paragraph.)
+const hintTap = $prose(
+  () =>
+    new Plugin({
+      props: {
+        handleDOMEvents: {
+          click: (view, event) => {
+            const { doc, schema } = view.state;
+            const h1 = view.dom.firstElementChild;
+            if (doc.childCount !== 1 || doc.child(0).type.name !== 'heading' || event.target !== h1 || !h1) return false;
+            const range = document.createRange();
+            range.selectNodeContents(h1);
+            if ((event as MouseEvent).clientY <= range.getBoundingClientRect().bottom) return false;
+            const tr = view.state.tr.insert(doc.content.size, schema.nodes.paragraph.create());
+            view.dispatch(tr.setSelection(Selection.near(tr.doc.resolve(tr.doc.content.size - 1), -1)).scrollIntoView());
+            view.focus();
+            event.preventDefault();
+            return true;
+          },
+        },
+      },
+    }),
+);
+
 // A tap on the box of a check list item (its ::before, in the padding left of the text; editor.css) checks or unchecks it.
 const checkToggle = $prose(
   () =>
@@ -1202,6 +1227,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(looking)
       .use(sectionFrame(framed))
       .use(gapHere)
+      .use(hintTap)
       .use(checkToggle)
       .use(history)
       .use(clipboard);

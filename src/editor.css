@@ -1153,13 +1153,23 @@ html {
   pointer-events: none;
 }
 
-/* A page that has only its H1 (the editor adds no empty line after it): the hint sits under the heading. */
+/* The line after the H1 is a tap target of 48dp, the same height with or without text, so typing moves nothing. */
+.editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child {
+  min-height: 3rem;
+  margin-block: 0;
+  line-height: 1.5rem;
+  cursor: text;
+}
+
+/* A page that has only its H1 (the editor adds no empty line after it): the hint sits under the heading;
+   a tap on it adds the paragraph (hintTap, MarkdownEditor.tsx). */
 .editor-spaced .ProseMirror > h1:only-child::after {
   content: var(--editor-empty-text);
   display: block;
-  margin-top: 0.5rem;
+  min-height: 3rem;
   font-size: 1rem;
   line-height: 1.5rem;
+  cursor: text;
   font-weight: 400;
   color: var(--mo-on-surface-variant);
   pointer-events: none;

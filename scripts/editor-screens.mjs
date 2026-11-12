@@ -169,6 +169,41 @@ async function checkTextSheet() {
   await page.close();
 }
 
+/** On a phone, a tap on the hint under a page's only heading (Type text, or tap Insert …) puts the cursor in an empty paragraph after it. */
+async function checkEmptyHint() {
+  const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`360px empty hint: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.tap('.ProseMirror');
+  await page.keyboard.type('# From us to you');
+  await page.waitForTimeout(500);
+  // The hint is the heading's ::after: tap its line, anywhere across the width.
+  const at = await page.evaluate(() => {
+    const h1 = document.querySelector('.ProseMirror > h1');
+    const range = document.createRange();
+    range.selectNodeContents(h1);
+    const [box, text] = [h1.getBoundingClientRect(), range.getBoundingClientRect()];
+    return { x: box.left + 8, y: box.bottom - 8, height: parseFloat(getComputedStyle(h1, '::after').minHeight) };
+  });
+  if (at.height < 48) problems.push(`360px empty hint: the hint line is ${at.height}px high, not 48`);
+  await page.touchscreen.tap(at.x, at.y);
+  await page.keyboard.type('Hej');
+  const got = await page.evaluate(() => {
+    const [h1, ...rest] = [...document.querySelector('.ProseMirror').children];
+    return {
+      h1: h1?.textContent,
+      rest: rest.map((n) => `${n.tagName}:${n.textContent}`),
+      hint: !!getComputedStyle(h1, '::after').content.match(/Type text/),
+    };
+  });
+  if (got.h1 !== 'From us to you' || got.rest.join() !== 'P:Hej')
+    problems.push(`360px empty hint: expected the heading and P:Hej, got ${got.h1} ${got.rest}`);
+  if (got.hint) problems.push('360px empty hint: the hint still shows');
+  await page.close();
+}
+
 /** Settings lists the six screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
@@ -625,6 +660,7 @@ for (const [width, height] of [
   await checkUpdatesCard(width, height);
 
 await checkTextSheet();
+await checkEmptyHint();
 
 await browser.close();
 server.close();
