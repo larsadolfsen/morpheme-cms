@@ -1143,7 +1143,7 @@ function Form({
     if (!inUse(f, collection.fields, values)) return false;
     // A new page has no title field: its H1 is its title, typed in the text (the field comes with the saved page).
     if (f.name === 'title' && collection.blocks && isNew) return false;
-    const shown = f.offered ? templateFieldOf(f, env.files) : f;
+    const shown = f.offered ? templateFieldOf(f, env.files, values[f.name]) : f;
     if (!shown) return false;
     const value = f.offered ? shownTemplate(shown, values[f.name]) : values[f.name];
     const change = f.name === 'title' ? (v: unknown) => onTitle(String(v ?? '')) : (v: unknown) => onChange(f, v);
