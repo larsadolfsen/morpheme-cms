@@ -19,16 +19,17 @@ export type BlockProps = Record<string, unknown>;
  * (preview() in registry.tsx); null when no block has the type. */
 export type DrawBlock = (type: string, props: BlockProps) => ReactNode;
 
-/** The heading of a standard block in `Insert` (BlockDialog.tsx), by what it does; without one, `other`. */
-export type BlockGroup = 'rows' | 'questions' | 'content' | 'prices' | 'banner' | 'other';
-export const blockGroups: BlockGroup[] = ['rows', 'questions', 'content', 'prices', 'banner', 'other'];
+/** The heading of a standard block in `Insert` (BlockDialog.tsx), by what it does. Every standard block has one
+ * (src/standard/groups.test.mjs checks it). */
+export type BlockGroup = 'cards' | 'lists' | 'banners' | 'buttons' | 'media' | 'content' | 'developer';
+export const blockGroups: BlockGroup[] = ['cards', 'lists', 'banners', 'buttons', 'media', 'content', 'developer'];
 
 export type SiteBlock = {
   type: string;
   label: string;
   /** What it is, where one is picked (only where the name is not enough). */
   hint?: string;
-  /** Its heading among the standard blocks in `Insert`. */
+  /** Its heading among the standard blocks in `Insert`; required for a standard block, an app's block has its app's name. */
   group?: BlockGroup;
   /** Edited elsewhere (Block.edit). */
   edit?: Edit;
@@ -44,6 +45,9 @@ export type SiteBlock = {
   former?: boolean;
   /** Its heading and text are written in the text above it (sections.mjs); a new one gets a heading. */
   lead?: Lead;
+  /** Typed in place in the text (InlineList.tsx, MarkdownEditor.tsx): its card is the block drawn with its text as fields, not a picture
+   * of it; a new one goes in at once, without a sheet. Only the List so far (batch 5). */
+  inline?: boolean;
   /** Cannot be hidden on the site (its line in the file has no props to say so: HTML). */
   shown?: boolean;
   /** Drawn in its sheet above the fields, as it is with them now (BlockDialog.tsx): the buttons,
@@ -252,6 +256,7 @@ function htmlLines(code: string): string[] {
  * wherever it is, also on the blog posts. */
 export const htmlBlock: SiteBlock = {
   type: HTML,
+  group: 'developer',
   label: t.blocks.html.label,
   icon: Code,
   hint: t.blocks.html.hint,

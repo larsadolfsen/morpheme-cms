@@ -1,6 +1,6 @@
 {
   "id": "list-blocks-three",
-  "kind": "card",
-  "title": "Fold rækker ud i en segmenteret liste",
-  "text": "Den nye segmenterede liste folder hver række ud med tekst og link og har en tekstknap under den sidste række. FAQ-listen får samme knap, og begge kan holde kun én række åben. Indsæt grupperer nu blokkene efter, hvad de gør."
+  "kind": "paragraph",
+  "title": "Segmenteret liste",
+  "text": "En lang liste fylder ikke længere siden. Tilføj en segmenteret liste, vælg Maks. rækker, og besøgende åbner hver række for at læse tekst og link og trykker på Vis mere for resten. Slå Kun én åben til, så den åbne række lukker, når den næste åbnes."
 }

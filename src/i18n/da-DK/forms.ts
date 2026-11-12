@@ -106,6 +106,7 @@ export const forms: Messages['forms'] = {
     draftLine: 'Kladde',
     waitingLine: 'Ikke udgivne ændringer',
     publishedLine: (when) => `Udgivet · Ændret ${when}`,
+    autosave: { saving: 'Gemmer…', saved: 'Gemt', notSaved: 'Ikke gemt', restored: 'Dine ugemte ændringer er tilbage' },
     savedWaiting: 'Ændringerne er gemt. Hjemmesiden viser den udgivne version, indtil du udgiver.',
     unpublishTitle: (post) => `Fjern ${post ? 'indlægget' : 'siden'} fra hjemmesiden?`,
     unpublishText: (post) =>
@@ -133,6 +134,11 @@ export const forms: Messages['forms'] = {
     move: (singular, from, to) => `Editor: flyt ${singular} fra ${from} til ${to}`,
   },
   entry: {
+    titleTakenTitle: 'Titlen er allerede brugt',
+    titleTakenText: (post) =>
+      `${post ? 'Et andet indlæg' : 'En anden side'} har denne titel. Gem med den foreslåede titel, eller skriv din egen.`,
+    titleStillTaken: 'En anden fil har også den titel. Prøv denne, eller skriv din egen.',
+    titleLabel: 'Titel',
     titleNeedsLetters: 'Titlen skal have bogstaver eller tal.',
     scheduledPast: 'Tidspunktet er allerede passeret. Vælg et senere tidspunkt, eller vælg Udgivet.',
     standardPage: (label, where) => `Siden er valgt som ${label} under ${where} og skal være udgivet. Vælg en anden side dér først.`,

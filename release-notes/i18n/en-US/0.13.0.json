@@ -3,19 +3,19 @@
   "notes": [
     {
       "id": "social-media-links",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Add your social media profiles",
       "text": "Social media profiles are now a list of links. Tap + to add one, and a link to Facebook, X, LinkedIn or Pinterest gets its name and icon on its own."
     },
     {
       "id": "continue-where-left-off",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Pick up where you left off",
       "text": "Your last 3 pages and blog posts now wait at the top of the start screen. Tap one to jump straight back in."
     },
     {
       "id": "notifications-side-sheet",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Read notifications without leaving your page",
       "text": "The bell in the top bar now opens your notifications beside the screen you’re on. On a phone, press and hold a notification to select it and delete it."
     },

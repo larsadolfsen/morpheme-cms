@@ -53,6 +53,8 @@ export const apps = {
   developerApps: 'Apps',
   appCount: (n: number) => (n === 1 ? '1 app' : `${n} apps`),
   /** At the address of a developer no app has. */
+  /** A page of installed connectors, plugins or themes with none: where to find more. */
+  noneInstalled: (what: string) => `No ${what.toLowerCase()} installed yet. Find some in the Store.`,
   noDeveloper: 'There are no apps from that developer',
   /** In the check before the build: a picture in an app's index.ts that shows nothing it has (shotOf), one without
    * its file (screenshots/, packages/editor/scripts/app-screenshots.mjs), and a file there index.ts does not name. */
@@ -96,6 +98,8 @@ export const apps = {
   tabs: 'Sections of the app',
   /** The app store: the button to it over the list of apps, its title, and its search. */
   find: 'Appstore',
+  /** The first row under "Apps" in the menu: the whole store. */
+  store: 'Store',
   searchStore: 'Search for apps',
   loadingStore: 'Loading apps…',
   storeFailed: 'Can’t reach the store. Try again in 10 minutes.',

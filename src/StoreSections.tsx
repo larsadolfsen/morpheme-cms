@@ -8,10 +8,13 @@ import type { RepoFile } from './github';
 import { ThemeStoreScreen } from './ThemeStoreScreen';
 import { RoleStore } from './AppList';
 import { SECTIONS, readSection, saveSection, type Section } from './sectionChoice.mjs';
+import { STORE_ROUTE } from './store';
 import { t } from './i18n';
 
-export default function StoreSections({ env, files }: { env: Env; files: RepoFile[] }) {
-  const [section, setSection] = useState<Section>(() => readSection());
+export default function StoreSections({ env, files, section: opened }: { env: Env; files: RepoFile[]; section?: Section }) {
+  const [chosen, setSection] = useState<Section>(() => readSection());
+  // A section in the address (#settings/appstore/plugins) is the one shown; the switch then goes to the address of the next.
+  const section = opened ?? chosen;
   const header = (
     <div className="mb-6">
       <SegmentedButton
@@ -21,6 +24,7 @@ export default function StoreSections({ env, files }: { env: Env; files: RepoFil
         onChange={(next) => {
           saveSection(undefined, next);
           setSection(next);
+          if (opened) location.hash = `#${STORE_ROUTE}/${next}`;
         }}
       />
     </div>

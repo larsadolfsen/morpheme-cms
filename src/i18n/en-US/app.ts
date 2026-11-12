@@ -45,9 +45,9 @@ export const app = {
     redirect: (from: string) => `redirect from ${from}`,
     logo: 'logo',
     icon: 'icon',
-    r2Caching: 'faster editor',
+    r2Caching: 'R2 caching',
     place: 'storage location',
-    fastContentBuilds: 'faster updates for content',
+    contentOnlyBuilds: 'content-only builds',
     paidBuilds: 'Workers Paid plan',
   },
   /** Why a new page or post cannot have an address. */

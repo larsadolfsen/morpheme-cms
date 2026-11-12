@@ -82,7 +82,7 @@ export const navShown = menu.enabled !== false;
 export const mobileNav: { label: string; href: string }[] = mobileMenu.enabled ? mobileMenu.items : [];
 
 // "Segmented list" has the link text of the "Expandable list" it replaces ("Blocks" › "Expandable list"), so a text a site saved there still shows.
-const withSegmented = (texts: Record<string, Record<string, any>>) => ({ ...texts, segmented: texts.accordion });
+const withSegmented = (texts: Record<string, Record<string, any>>) => ({ ...texts, segmented: { ...texts.accordion, ...texts.segmented } });
 
 /** The texts every copy of a block has ("Blocks" in the editor), with {…} for what differs, by
  * the block's type: those written in its shared.ts, with the saved ones (blocks.json) over them. The
