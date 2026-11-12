@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "label": "Highlights",
+  "fields": ["icon", "title", "text", "href"],
+  "dropped": []
+}

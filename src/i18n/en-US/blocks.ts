@@ -503,6 +503,13 @@ export const blocks = {
     ],
   },
   /** The icons to pick from (iconNames in ../../icon.tsx), by their names. */
+  /** The color of an icon (a row's or a card's): the site's colors, Primary when none is picked. */
+  iconColor: {
+    label: 'Icon color',
+    primary: 'Primary',
+    secondary: 'Secondary',
+    tertiary: 'Tertiary',
+  },
   icons: {
     certificate: 'Diploma',
     heart: 'Heart',

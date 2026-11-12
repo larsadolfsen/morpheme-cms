@@ -848,6 +848,64 @@ async function checkDynamicList(width, height) {
   await page.close();
 }
 
+/** The field picker of a dynamic List: with the demo's own list "Highlights" as its source, the rows show its items, each part of a row has a button with the field now shown, a tap on the bottom line (the button or the row's own line) opens the choice of the list's fields (a bottom sheet on a phone, a menu in the side panel on a computer), and a pick shows in the rows and in the button (it is read from the block's `map`). */
+async function checkDynamicPicker(width, height) {
+  const label = `${width}px dynamic list field picker`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.locator('.site-block-toolbar [aria-label="Fill from a list"]').click();
+  const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
+  await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
+  await panel.locator('button.text-field-input').first().click();
+  await page.getByText('Highlights', { exact: true }).locator('visible=true').last().click();
+  await page.waitForTimeout(500);
+  if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
+  await page.waitForTimeout(400);
+  const block = page.locator('.site-block-preview').first();
+  const lines = () => block.locator('.list-item-supporting').allTextContents();
+  const buttons = () => block.locator('.inline-list-parts button').allTextContents();
+  if ((await block.locator('.list-item-headline').count()) !== 3)
+    problems.push(`${label}: the block does not show the 3 items of the list`);
+  const before = await buttons();
+  if (before.join('|') !== 'Top line: Title|Bottom line: Body text|Icon: Icon|Link: Link')
+    problems.push(`${label}: the part buttons are "${before.join('|')}", not the list's own fields`);
+  await block.locator('.inline-list-parts button', { hasText: 'Bottom line' }).click();
+  const choice = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
+  await choice.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the choice of fields did not open`));
+  await choice.locator('button.text-field-input').first().click();
+  await page.getByText('Title', { exact: true }).locator('visible=true').last().click();
+  await page.waitForTimeout(500);
+  if (phone && (await page.locator('dialog[open]').count())) await page.locator('dialog[open] [aria-label="Close"]').first().click();
+  await page.waitForTimeout(400);
+  const after = await buttons();
+  if (!after.includes('Bottom line: Title'))
+    problems.push(`${label}: the button does not say "Bottom line: Title" after the pick (${after.join('|')})`);
+  if ((await lines())[0] !== 'Edit on your phone')
+    problems.push(`${label}: the bottom line of the first row is "${(await lines())[0]}", not its title`);
+  // A tap on the row's own bottom line opens the same choice.
+  await block.locator('.list-item-supporting').first().click();
+  await page
+    .locator('dialog[open], .editor-side-sheet')
+    .filter({ hasText: 'Field shown' })
+    .first()
+    .waitFor({ timeout: 5000 })
+    .catch(() => problems.push(`${label}: a tap on a row's bottom line did not open the choice of fields`));
+  await page.close();
+}
+
 /** The page of a list the owner made (#list/<id>, OwnListPage.tsx): the List typed in place, its rows the entries of the list. A list with a definition and two entries opens with two rows, no horizontal overflow; the active row has the dotted outline and no background, `Add list row` shows under an active list and is gone when the cursor leaves, the toolbar has Add above and Add below, Enter in the title goes to the text, and only the fields the list has are there (no icon slot, no link slot). */
 async function checkOwnList(width, height) {
   const label = `${width}px own list`;
@@ -929,6 +987,59 @@ async function checkOwnList(width, height) {
   } finally {
     rmSync(folder, { recursive: true, force: true });
   }
+}
+
+/** The color of an icon (`iconColor`): the row's icon picker has the choice next to the icon (Primary, Secondary, Tertiary); a picked color is on the row (`data-icon-color`) and drawn in the theme's color role, in the editor like on the site. */
+async function checkIconColor(width, height) {
+  const label = `${width}px icon color`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('First');
+  await page.locator('.inline-list-row-active .inline-list-slot').first().click();
+  const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
+  await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
+  await picker.getByRole('button').nth(1).click();
+  await page.waitForTimeout(300);
+  const choices = await page.getByRole('button', { name: /^(Primary|Secondary|Tertiary)$/ }).allTextContents();
+  if (choices.map((c) => c.trim()).join() !== 'Primary,Secondary,Tertiary')
+    problems.push(`${label}: the icon's sheet has the colors "${choices}", not Primary, Secondary, Tertiary`);
+  await page.getByRole('button', { name: 'Secondary', exact: true }).click();
+  await page.waitForTimeout(300);
+  await page
+    .locator('dialog[open] button[aria-label="Close"]')
+    .click({ timeout: 2000 })
+    .catch(() => {});
+  await page.waitForTimeout(300);
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(400);
+  const drawn = await page.evaluate(() => {
+    const row = document.querySelector('.inline-list-row[data-icon-color="secondary"]');
+    const probe = document.createElement('i');
+    probe.style.color = 'var(--mo-secondary)';
+    document.body.append(probe);
+    const want = getComputedStyle(probe).color;
+    probe.style.color = 'var(--mo-primary)';
+    const primary = getComputedStyle(probe).color;
+    probe.remove();
+    return { row: !!row, icon: row ? getComputedStyle(row.querySelector('.list-item-leading-icon')).color : null, want, primary };
+  });
+  if (!drawn.row) problems.push(`${label}: the row has no data-icon-color="secondary" after Secondary was picked`);
+  else if (drawn.icon !== drawn.want) problems.push(`${label}: the icon is ${drawn.icon}, not the secondary color ${drawn.want}`);
+  else if (drawn.want === drawn.primary) problems.push(`${label}: secondary and primary are the same color, so the check proves nothing`);
+  await page.close();
 }
 
 /** A Table typed in the text: the first cell is active (dotted line) with the next row and the next column shown faded, typing in the faded column makes it, `Add row` is a text button under the table and adds a row, the toolbar has the row and column actions with icons, the header row is a `th`, and when the cursor leaves, the button and the faded cells are gone and the table has the rows and columns that were typed. */
@@ -2012,6 +2123,11 @@ for (const [width, height] of [
 ])
   await checkDraftsCard(width, height);
 await checkEmptyHint();
+for (const [width, height] of [
+  [375, 740],
+  [1280, 900],
+])
+  await checkIconColor(width, height);
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
 // On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
 for (const block of inlineSingles) for (const w of [375, 1280]) await checkInlineSingle(w, w < 600 ? 740 : 900, block);
@@ -2023,6 +2139,8 @@ for (const [width, height] of [
   await checkSteps(width, height);
 await checkDynamicList(375, 740);
 await checkDynamicList(1280, 900);
+await checkDynamicPicker(375, 740);
+await checkDynamicPicker(1280, 900);
 await checkOwnList(375, 740);
 await checkOwnList(1280, 900);
 await checkInlineTable(375, 740);

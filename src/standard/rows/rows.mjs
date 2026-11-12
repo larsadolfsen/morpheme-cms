@@ -60,14 +60,14 @@ export const mapOf = (map) => {
 /** The parts of a row a block's `map` can set, in the order the owner meets them: the top line, the bottom line, the icon and the link. */
 export const PARTS = /** @type {const} */ (['title', 'text', 'icon', 'href']);
 
-/** The fields of a list that can fill a part of a row: text for the lines, an icon choice for the icon, a page or an address for the link.
+/** The fields of a list that can fill a part of a row: text for the lines, an icon choice (or a typed icon name) for the icon, a page or an address for the link.
  * @param {{ name: string, label: string, type: string, icons?: boolean }[]} fields @param {'icon' | 'title' | 'text' | 'href'} part
  * @returns {{ name: string, label: string }[]} */
 export const fieldsForPart = (fields, part) =>
   fields
     .filter((f) =>
       part === 'icon'
-        ? f.type === 'select' && !!f.icons
+        ? (f.type === 'select' && !!f.icons) || f.type === 'string'
         : part === 'href'
           ? f.type === 'relation' || f.type === 'string'
           : ['string', 'text', 'number'].includes(f.type) || (f.type === 'select' && !f.icons),
