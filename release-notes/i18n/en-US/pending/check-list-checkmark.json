@@ -1,6 +1,6 @@
 {
   "id": "check-list-checkmark",
   "kind": "paragraph",
-  "title": "See a check mark before each check list item",
-  "text": "A check list now shows a check mark before each item, in the editor and on your site. Tap the mark to tick an item or clear it. The text style button shows the style you are in, and a general text icon when you are not in the text."
+  "title": "Tell a check list from a bullet list",
+  "text": "A check list no longer looks like a bullet list. Choose Check list in the text style menu and type your points: each gets a check icon, in the editor and on your site. Tap the icon in the editor to tick or clear it."
 }

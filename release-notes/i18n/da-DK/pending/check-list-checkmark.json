@@ -1,6 +1,6 @@
 {
   "id": "check-list-checkmark",
   "kind": "paragraph",
-  "title": "Se et flueben foran hvert punkt i en tjekliste",
-  "text": "En tjekliste viser nu et flueben foran hvert punkt, både i editoren og på din hjemmeside. Tryk på fluebenet for at sætte eller fjerne det. Knappen til teksttype viser den type, du står i, og et almindeligt tekstikon, når du ikke er i teksten."
+  "title": "Se forskel på en tjekliste og en punktliste",
+  "text": "En tjekliste ligner ikke længere en punktliste. Vælg Tjekliste i menuen med teksttyper, og skriv dine punkter: hvert får et flueben-ikon, både i editoren og på din hjemmeside. Tryk på ikonet i editoren for at sætte eller fjerne det."
 }

@@ -1,0 +1,6 @@
+{
+  "id": "check-list-checkmark-style-icon",
+  "kind": "paragraph",
+  "title": "See which text style you are in",
+  "text": "The text style button no longer shows a style you are not in. Tap into a line and it shows that line’s style, with its own icon for Body large. Outside the text it shows a general text icon."
+}
