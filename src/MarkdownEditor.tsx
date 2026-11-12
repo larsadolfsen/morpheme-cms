@@ -89,7 +89,8 @@ import type { Change, Focus, Item as Row } from './InlineItems';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
 import { editorRows } from './standard/rows/view';
 import { fromLine, listPageOf } from './standard/rows/fields';
-import { sourceOf } from './standard/rows/rows.mjs';
+import { sourceOf, withPart } from './standard/rows/rows.mjs';
+import { rowParts } from './standard/rows/view';
 import { inlineBar, type BarAction } from './inlineBar';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
@@ -1058,6 +1059,7 @@ function blockCard(
   let stopAway = () => {};
   let syncDynamic: () => void = () => {};
   let undoDynamic: () => void = () => {};
+  let pickPart: (part: string) => void = () => {};
   const rows = () => (node.attrs.props[spec?.item ?? 'items'] as Row[] | undefined) ?? [];
   const setItems = (items: Row[]) => {
     const here = at();
@@ -1088,6 +1090,11 @@ function blockCard(
           root.render(
             <RowsFromList
               undo={dropped ? { note: t.blocks.rows.typedHidden, label: t.text.undo, run: undoDynamic } : undefined}
+              parts={rowParts(node.attrs.props)?.map((p) => ({
+                part: p.part,
+                text: `${t.blocks.rows.parts[p.part]}: ${p.nowLabel || t.blocks.rows.noField}`,
+              }))}
+              onPart={rowParts(node.attrs.props) ? (part) => pickPart(part) : undefined}
               rows={dynamic.rows}
               line={fromLine(node.attrs.props, ask.data)[0] ?? ''}
               empty={dynamic.rows.length === 0}
@@ -1277,6 +1284,38 @@ function blockCard(
       const { from: _from, tags: _tags, howMany: _howMany, map: _map, ...rest } = node.attrs.props;
       setProps(rest);
       syncDynamic();
+    };
+    // A part of a row (top line, bottom line, icon, link) set to a field of the list: the choice is in the panel or sheet (a select, as the list is),
+    // and changes the block at once. The block keeps only a choice the list does not make itself (`map`).
+    pickPart = (part: string) => {
+      const info = rowParts(node.attrs.props)?.find((p) => p.part === part);
+      if (!info) return;
+      const none = part !== 'title' ? [{ label: t.blocks.rows.noField, value: '' }] : [];
+      iconOf = null;
+      dynSelected = true;
+      dynOpen = false;
+      asker()?.row(
+        {
+          headline: t.blocks.rows.parts[part as keyof typeof t.blocks.rows.parts],
+          fields: [
+            {
+              name: 'field',
+              label: t.blocks.rows.fieldShown,
+              type: 'select',
+              options: [...none, ...info.choices.map((c) => ({ label: c.label, value: c.name }))],
+            },
+          ],
+          value: { field: info.now ?? '' },
+          closes: true,
+          onChange: (v: BlockProps) => {
+            const map = withPart(info.asRows, node.attrs.props.map, part as 'title', String(v.field ?? ''));
+            const { map: _old, ...rest } = node.attrs.props;
+            setProps(map ? { ...rest, map } : rest);
+          },
+        },
+        true,
+      );
+      draw();
     };
     if (canDynamic)
       dom.addEventListener('pointerdown', () => {

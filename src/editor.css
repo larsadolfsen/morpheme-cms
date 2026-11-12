@@ -944,6 +944,14 @@ html {
   font-size: 0.875rem;
 }
 
+/* A dynamic block that can pick the fields of its list: a text button for each part of a row (top line, bottom line, icon, link). */
+.editor-text .inline-list-parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--mo-space-8, 8px);
+  margin: 0 0 var(--mo-space-8, 8px);
+}
+
 /* The row being typed in has the dotted line of the sections' frame round it, and no other colour; the empty row of an empty list is faded. */
 .editor-text .inline-list-row-active {
   outline: var(--editor-section-frame);
