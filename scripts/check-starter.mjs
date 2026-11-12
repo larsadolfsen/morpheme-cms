@@ -43,6 +43,21 @@ writeFileSync(file, `${JSON.stringify(manifest, null, 2)}\n`);
 // A repository with one commit, as a new site's is (check:worker reads the files of HEAD).
 run(site, 'git', ['init', '-q']);
 npmRun(site, 'install');
+
+// An installed app with a Worker part, as the store gives it and the editor writes it: app.json in the editor's own
+// form (not Prettier's), and worker/apps.js as `morpheme app-workers` writes it. The site's own `prettier --check .`
+// must leave both alone (starter/.prettierignore), or every site that installs an app breaks its own check.
+const app = join(site, 'src', 'apps', 'app_a030dfba69793996');
+mkdirSync(app, { recursive: true });
+writeFileSync(
+  join(app, 'app.json'),
+  '{"api":4,"label":"Fixture","publisher":"Example","license":"MIT","icon":"event","hint":"An app for this check.","version":"1.0.0"}',
+);
+writeFileSync(join(app, 'LICENSE'), 'MIT License\n\nCopyright (c) Example\n');
+writeFileSync(join(app, 'worker.js'), "export default { async fetch() { return new Response('ok') } }\n");
+writeFileSync(join(site, 'src', 'data', 'apps.json'), `${JSON.stringify({ installed: ['app_a030dfba69793996'] })}\n`);
+npmRun(site, 'exec', '--', 'morpheme', 'app-workers');
+
 run(site, 'git', ['add', '-A']);
 run(site, 'git', ['-c', 'user.name=starter', '-c', 'user.email=starter@example.com', 'commit', '-q', '-m', 'Starter']);
 npmRun(site, 'run', 'check');
