@@ -222,3 +222,29 @@ test('deletedRecordFor gives null for an entry of another address', () => {
   const deleted = [{ path: `${F}/x.json`, text: valid(G), at: new Date('2026-11-03T10:00:00Z') }];
   assert.equal(deletedRecordFor(S, '2026-11-03T10:00:00Z', deleted, []), null);
 });
+
+test('a record keeps its credit through text and back, and a credited record is never empty', async () => {
+  const { parseRecord, recordText } = await import('./fileRecords.mjs');
+  const { isEmpty, setTags, withCredit } = await import('./fileTags.mjs');
+  const credit = { name: 'Ann', url: 'https://unsplash.com/@ann?utm_source=Site', source: 'Unsplash' };
+  const record = withCredit(undefined, '/images/a.webp', credit);
+  assert.equal(isEmpty(record), false);
+  assert.deepEqual(parseRecord(recordText(record)), record);
+  assert.deepEqual(setTags(record, '/images/a.webp', ['sea']).credit, credit);
+  assert.equal(parseRecord('{"src":"/a.webp","credit":{"name":"A","url":"http://x","source":"S"}}'), null);
+  assert.equal(parseRecord('{"src":"/a.webp","credit":{"url":"https://x","source":"S"}}'), null);
+});
+
+test('creditChanges puts the credit in the record the save already makes, or makes one', async () => {
+  const { creditChanges, parseRecord } = await import('./fileRecords.mjs');
+  const credit = { name: 'Ann', url: 'https://unsplash.com/@ann', source: 'Unsplash' };
+  const made = { path: 'src/data/files/abcd1234.json', oid: null, content: '{"src":"/images/a.webp","categories":["sea"],"removed":[]}' };
+  const merged = creditChanges([made], [], 'src/data/files', [{ src: '/images/a.webp', credit }]);
+  assert.equal(merged.length, 1);
+  assert.deepEqual(parseRecord(String(merged[0].content)).credit, credit);
+  assert.deepEqual(parseRecord(String(merged[0].content)).categories, ['sea']);
+  const own = creditChanges([], [], 'src/data/files', [{ src: '/images/b.webp', credit }]);
+  assert.equal(own.length, 1);
+  assert.equal(own[0].oid, null);
+  assert.deepEqual(parseRecord(String(own[0].content)).credit, credit);
+});

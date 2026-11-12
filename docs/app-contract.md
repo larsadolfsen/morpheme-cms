@@ -149,11 +149,12 @@ Apps written to contract 2 or 3 build and run as before, and the editor shows ea
 
 ## Contract 5: `role` and `mcp`
 
-Contract 5 is contract 4 with two more optional keys in `app.json`. Everything else is as in contract 4: the same files,
+Contract 5 is contract 4 with three more optional keys in `app.json`. Everything else is as in contract 4: the same files,
 places, hooks and sandbox. The editor reads contracts 4 and 5 (`APP_APIS` in `lib/contracts.mjs`); `APP_API` is 5.
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
+| `mediaProviders` | `MediaProviderDecl[]` | no | Sources of pictures for the picture picker; connectors only, see "Media providers". |
 | `role` | `"connector"` or `"plugin"` | no | What the app is. A connector sends data to, or loads code from, an outside service. A plugin has no outside access. With no role, the editor reads an app with an `mcp` server or any host in its `csp` as a connector, and any other as a plugin. |
 | `mcp` | `{ server, auth, tools }` | no | The MCP server a connector calls. `server` is an https address, `auth` is `"oauth"`, `"token"` or `"none"`, `tools` lists the tools the app may call. |
 
@@ -167,6 +168,13 @@ Rules:
 - An app with `role: "plugin"` lists no host in `csp` (only keywords such as `'self'` and schemes such as `data:`). The build refuses it otherwise.
 - A plugin's `worker.js` and its other code outside the sandbox (`build.mjs`, `slots/`, `blocks/`, `script.ts`) may not use `fetch`, `WebSocket`, `XMLHttpRequest`, `connect` or `import()` of a URL. `npm run check:content` refuses it (`fullCodeProblems` in `lib/sandbox/bundle.mjs`). This scan stops mistakes, not a determined author, which is why `full` places are for first-party publishers only.
 - The site's Content Security Policy is built from the active apps' `csp`. A plugin lists no host, so it adds none, and the browser refuses any load a plugin tries from another host.
+
+### Media providers
+
+A connector may add a source of pictures to the editor's picture picker with the optional key `mediaProviders` (contract 5). It is
+data only: a request template and a mapping. The Worker makes the requests, to the hosts the app lists in `csp` only, and keeps the
+owner's key sealed in D1. The app has no code for it. The shape, the host rules, the credit saved with a picture and the
+checks are in `docs/superpowers/specs/2026-11-11-media-providers.md`.
 
 ### How long contract 4 stays accepted
 
