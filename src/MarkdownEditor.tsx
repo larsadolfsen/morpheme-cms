@@ -57,6 +57,7 @@ import {
   TextB,
   TextH,
   TextHThree,
+  TextSubscript,
   TextHOne,
   TextHTwo,
   TextItalic,
@@ -102,6 +103,7 @@ import h1Icon from '@phosphor-icons/core/assets/regular/text-h-one.svg?raw';
 import h2Icon from '@phosphor-icons/core/assets/regular/text-h-two.svg?raw';
 import h3Icon from '@phosphor-icons/core/assets/regular/text-h-three.svg?raw';
 import textIcon from '@phosphor-icons/core/assets/regular/text-t.svg?raw';
+import textSmallIcon from '@phosphor-icons/core/assets/regular/text-subscript.svg?raw';
 import textLargeIcon from '@phosphor-icons/core/assets/regular/text-aa.svg?raw';
 import textHIcon from '@phosphor-icons/core/assets/regular/text-h.svg?raw';
 import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
@@ -560,12 +562,20 @@ export function activeOf(state: EditorView['state']): Set<string> {
   const ancestors = Array.from({ length: $from.depth }, (_, i) => $from.node(i + 1).type.name);
   if ($from.parent.type.name === 'heading') on.add(`h${$from.parent.attrs.level}`);
   if (labelledHeading(state)) on.add('labelable');
-  if ($from.parent.type.name === 'bodyLarge') on.add('large');
+  // Body large is the plain paragraph, the site's text (a paragraph the editor read from the old `body-large` class is the same).
+  if ($from.parent.type.name === 'bodyMedium') on.add('medium');
+  if ($from.parent.type.name === 'bodySmall') on.add('small');
   if ($from.parent.type.name === 'eyebrow') on.add('label');
   if (ancestors.includes('bullet_list')) on.add(isCheckItem(state) ? 'check' : 'bullet');
   if (ancestors.includes('ordered_list')) on.add('ordered');
   if (ancestors.includes('blockquote')) on.add('quote');
-  if ($from.parent.type.name === 'paragraph' && !on.has('bullet') && !on.has('check') && !on.has('ordered') && !on.has('quote'))
+  if (
+    ['paragraph', 'bodyLarge'].includes($from.parent.type.name) &&
+    !on.has('bullet') &&
+    !on.has('check') &&
+    !on.has('ordered') &&
+    !on.has('quote')
+  )
     on.add('text');
   const section = sectionHeading(state);
   if (section) {
@@ -637,7 +647,8 @@ function inSectionHeading(state: EditorView['state']) {
 }
 
 // Whether the cursor is in a label above a heading (eyebrow.mjs), which has no bold, italic, link or colour.
-const inLabel = (state: EditorView['state']) => ['eyebrow', 'bodyLarge'].includes(state.selection.$from.parent.type.name);
+const inLabel = (state: EditorView['state']) =>
+  ['eyebrow', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(state.selection.$from.parent.type.name);
 
 // When a word or more is selected, or the cursor has stood still in a word (STILL_MS, stillCursor.mjs): a row of icons
 // over it, to make it bold, italic, a link, one of the site's colours (a menu under the button, opened by `colors`), a
@@ -676,8 +687,9 @@ function selectionMenu(
       });
       // The other kinds of text, in the toolbar's order, by their names in activeOf.
       const textKinds = [
-        { name: 'text', icon: textIcon, label: t.text.paragraph },
-        { name: 'large', icon: textLargeIcon, label: t.text.bodyLarge },
+        { name: 'text', icon: textLargeIcon, label: t.text.bodyLarge },
+        { name: 'medium', icon: textIcon, label: t.text.bodyMedium },
+        { name: 'small', icon: textSmallIcon, label: t.text.bodySmall },
         { name: 'label', icon: tagIcon, label: t.text.label },
         { name: 'bullet', icon: bulletIcon, label: t.text.bulletList },
         { name: 'check', icon: checkIcon, label: t.text.checkList },
@@ -1228,20 +1240,20 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         toggleLabel(view);
         return view.focus();
       }
-      // The text styles that are a block of their own (Body large): a paragraph or a heading made into it, or back.
-      if (kind === 'large') {
-        if (!is('large')) {
+      // The text styles that are a block of their own (Body medium, Body small): a paragraph or a heading made into it, or back.
+      if (kind === 'medium' || kind === 'small') {
+        if (!is(kind)) {
           outOfLists();
           outOfQuotes();
           if (is('h1') || is('h2') || is('h3')) callCommand(turnIntoTextCommand.key)(ctx);
           const { $from } = view.state.selection;
-          if ($from.parent.type.name === 'paragraph') {
-            view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes.bodyLarge));
+          if (['paragraph', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes($from.parent.type.name)) {
+            view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes[kind === 'medium' ? 'bodyMedium' : 'bodySmall']));
           }
         }
         return view.focus();
       }
-      if (is('large') || is('label')) {
+      if (['bodyLarge', 'bodyMedium', 'bodySmall', 'eyebrow'].includes(view.state.selection.$from.parent.type.name)) {
         const { $from } = view.state.selection;
         view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes.paragraph));
         if (kind === 'text') return view.focus();
@@ -1395,8 +1407,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       action: () => setKind(`h${level}`),
       on: `h${level}`,
     })),
-    { label: t.text.paragraph, icon: TextT, action: () => setKind('text'), on: 'text' },
-    { label: t.text.bodyLarge, icon: TextAa, action: () => setKind('large'), on: 'large' },
+    { label: t.text.bodyLarge, icon: TextAa, action: () => setKind('text'), on: 'text' },
+    { label: t.text.bodyMedium, icon: TextT, action: () => setKind('medium'), on: 'medium' },
+    { label: t.text.bodySmall, icon: TextSubscript, action: () => setKind('small'), on: 'small' },
     { label: t.text.label, icon: Tag, action: () => setKind('label'), on: 'label' },
     { label: t.text.bulletList, icon: ListBullets, action: () => setKind('bullet'), on: 'bullet' },
     { label: t.text.checkList, icon: ListChecks, action: () => setKind('check'), on: 'check' },
@@ -1424,7 +1437,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // others of its group under it; a group of one (H1, while a page has none) is that button itself.
   const hasSettings = tools.some((item) => item.icon === SectionSettingsIcon);
   const kinds = tools.filter((t) =>
-    ['h1', 'h2', 'h3', 'text', 'large', 'label', 'bullet', 'check', 'ordered', 'quote'].includes(t.on ?? ''),
+    ['h1', 'h2', 'h3', 'text', 'medium', 'small', 'label', 'bullet', 'check', 'ordered', 'quote'].includes(t.on ?? ''),
   );
   const kindGroups = [kinds.filter((t) => /^h\d$/.test(t.on!)), kinds.filter((t) => !/^h\d$/.test(t.on!))].filter((g) => g.length);
   const groupOf = (group: typeof kinds): KindGroup => (/^h\d$/.test(group[0].on!) ? 'headings' : 'text');

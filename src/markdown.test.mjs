@@ -100,6 +100,13 @@ test('an intro paragraph (Body large) comes back as it was', async () => {
   assert.deepEqual(nodes, ['heading', 'bodyLarge', 'paragraph']);
 });
 
+test('Body medium and Body small come back as they were', async () => {
+  const text = '# Title\n\n<p class="body-medium">Medium</p>\n\n<p class="body-small">Small</p>\n\nText\n';
+  const { saved, nodes } = await through(text);
+  assert.equal(saved, text);
+  assert.deepEqual(nodes, ['heading', 'bodyMedium', 'bodySmall', 'paragraph']);
+});
+
 test('a check list comes back as it was', async () => {
   const { saved } = await through('- [ ] Bring a coat\n- [x] Book a table\n');
   assert.match(saved, /\[ \] Bring a coat\n.*\[x\] Book a table/);

@@ -15,6 +15,8 @@ import { remarkBannerSections } from '../lib/remark-banner-section.mjs';
 import { remarkChecklists } from '../lib/remark-checklist.mjs';
 import { topOf } from './sections.mjs';
 import { bodyLargeSchema } from './bodyLarge.mjs';
+import { bodySizeSchemas } from './bodySize.mjs';
+import { bodySizeText } from '../lib/body-sizes.mjs';
 import { eyebrowKeeper, eyebrowKeymap, eyebrowSchema } from './eyebrow.mjs';
 
 // Write Markdown the way imported files are written: "-   " bullets and
@@ -39,6 +41,9 @@ const remarkSiteBlocks = $remark('remarkSiteBlocks', () => () => (tree) => {
     // An intro paragraph (lib/body-large.mjs) is the node bodyLarge.
     const large = bodyLargeText(String(only.value));
     if (large !== null) return { type: 'bodyLarge', value: large };
+    // Body medium and Body small (lib/body-sizes.mjs) are the nodes bodyMedium and bodySmall.
+    const sized = bodySizeText(String(only.value));
+    if (sized) return { type: sized.node, value: sized.text };
     const block = parseBlock(String(only.value), null);
     return block
       ? { type: 'siteBlock', blockType: block.type, props: block.props }
@@ -234,6 +239,7 @@ export function makeEditor(root, markdown) {
       .use(remarkTextColors)
       .use(textColorSchema)
       .use(bodyLargeSchema)
+      .use(bodySizeSchemas.flat())
       .use(eyebrowSchema)
       .use(eyebrowKeeper)
       .use(eyebrowKeymap)
@@ -310,7 +316,8 @@ export function markdownOf(ctx) {
     // Nor an empty H1 (a new page opens with one to type the title in).
     const empty =
       node.content.size === 0 &&
-      (['paragraph', 'eyebrow', 'bodyLarge'].includes(node.type.name) || (node.type.name === 'heading' && node.attrs.level === 1));
+      (['paragraph', 'eyebrow', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(node.type.name) ||
+        (node.type.name === 'heading' && node.attrs.level === 1));
     if (!empty) kept.push(node);
   });
   return ctx.get(serializerCtx)(doc.type.create(null, kept));

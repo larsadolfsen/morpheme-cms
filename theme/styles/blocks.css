@@ -1977,6 +1977,21 @@
     letter-spacing: var(--type-body-large-tracking);
   }
 
+  /* Body medium and Body small in a text (lib/body-sizes.mjs): Material 3's body-medium (14/20, tracking 0.25) and body-small (12/16, tracking
+     0.4) roles. The plain paragraph is body-large (.prose above), so the three differ in size. */
+  .prose .body-medium {
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+  }
+  .prose .body-small {
+    font-size: var(--type-body-small-size);
+    line-height: var(--type-body-small-line-height);
+    font-weight: var(--type-body-small-weight);
+    letter-spacing: var(--type-body-small-tracking);
+  }
+
   /* A check list in a text (`- [ ]`, "Check list" in the editor): Phosphor's check icon in place of the bullet, in the theme's primary
      colour when the item is checked, dimmed when not (the editor draws the same, src/editor.css). The box is the <input>, drawn as the icon. */
   .prose ul.contains-task-list {
