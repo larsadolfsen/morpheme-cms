@@ -852,9 +852,17 @@ function selectionMenu(
           // The general text icon when the cursor is not in the text or is in a list, else the style it is in (styleKind.mjs).
           shows: (s) => {
             const kind = styleKindOf(activeOf(s), view.hasFocus());
-            return kind === 'generic'
-              ? { icon: GENERIC_ICONS.text.raw, label: t.text.kind }
-              : groupFace(textKinds.find(({ name }) => name === kind)!);
+            if (kind !== 'generic') return groupFace(textKinds.find(({ name }) => name === kind)!);
+            // In a heading, its own level, unless the selection reaches into a block of another kind (mixed styles stay generic).
+            const { $from, to } = s.selection;
+            const level = $from.parent.type.name === 'heading' ? ($from.parent.attrs.level as number) : 0;
+            let mixed = false;
+            s.doc.nodesBetween(s.selection.from, to, (n) => {
+              if (n.isTextblock && (n.type.name !== 'heading' || n.attrs.level !== level)) mixed = true;
+            });
+            return level >= 1 && level <= 3 && !mixed && view.hasFocus()
+              ? groupFace(headingFace(level))
+              : { icon: GENERIC_ICONS.text.raw, label: t.text.kind };
           },
           action: (button) => kinds(button, 'text'),
           menu: true,
