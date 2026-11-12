@@ -14,6 +14,8 @@ import { cloneElement, isValidElement, useEffect, useState, type ReactElement } 
 import { materialName, materialNames, resolveIcon } from '../lib/materialIcon.mjs';
 import { svgParts } from '../lib/svg.mjs';
 import ssrMaterial from 'virtual:material-symbols-ssr';
+import widgetsFile from '@material-symbols/svg-400/outlined/widgets.svg?raw';
+import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { allIcons as ssrPhosphor } from 'virtual:all-icons-ssr';
 
 const MATERIAL = '/node_modules/@material-symbols/svg-400/outlined/';
@@ -217,6 +219,24 @@ export function Glyph({ icon, size = 20, className }: { icon: IconRef; size?: nu
     ? cloneElement(icon, { size, className: [icon.props.className, className].filter(Boolean).join(' ') || undefined })
     : null;
 }
+
+/** Material's "widgets" (four squares, one turned): the sign for "insert a block" (the text's toolbar). Phosphor has
+ * no such icon, so it is Material's file itself, bundled (not the lazy set), and shaped as a Phosphor icon so a ToolbarButton takes it. */
+export const WidgetsIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
+  const parts = svgParts(widgetsFile);
+  return (
+    <svg
+      width={size}
+      height={size}
+      fill="currentColor"
+      aria-hidden="true"
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={parts?.viewBox ?? MATERIAL_VIEWBOX}
+      dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
+    />
+  );
+}) as unknown as PhosphorIcon;
 
 /** The same as Svg (the editor's fields and the site's promotions draw their icons with it). */
 export const Icon = Svg;
