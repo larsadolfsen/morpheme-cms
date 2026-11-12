@@ -85,3 +85,54 @@ there is a step, the toolbar icons without Link or Edit, and the saved props are
 **Paste-to-create, in one example:** the owner copies a list from a document (`Order\nPay\nGet it`) and pastes it into an empty Steps
 block. Each line becomes a step with that line as its heading, instead of one long heading with line breaks in it. It would work the
 same in Checklist and Questions and answers, with the same exception. It is not needed for the first version of Steps.
+
+## Reconciled with findings 17 and 18 (`2026-11-11-intuitive-editor-design.md`)
+
+The older spec is where the owner decided Cards and the rule for every block. Checked against what #413 built. The newer
+`2026-11-12-inline-block-editing-design.md` wins where the two disagree (it is the later decision).
+
+**Matches (built or already decided)**
+
+- Three designs Outlined, Elevated, Filled; the old `Design` and `Background` settings go away (`FORMER.cards`, demo migrated).
+- Filled colors: a small fixed set, Surface (default), Primary, Secondary, Tertiary; accent becomes Filled in the primary color.
+- A card with a link has no buttons; a card without a link may have buttons (hidden in the sheet while a Link is set).
+- Media has icon, image or video; a card without media shows no placeholder and no blank space.
+- Checklist is a check list in the text, Points and Links are a List, Expandable list is a Segmented list, Banner is a section: all
+  already migrated (`FORMER` in `lib/blocks.mjs`), so none is built in place.
+- Steps stays its own block, rows with a title and a text, no settings (own plan).
+- Testimonials, Cookies and Blog posts are not typed in place.
+
+**Differences, to settle with the owner**
+
+1. **Media type per card or for the block.** Finding 17: the first card's choice sets the type for every card, so they stay aligned, and
+   there is no block setting. Built: each card chooses its own media. Decide which one.
+2. **Card fields not built:** Subhead, Badge, Date and Tags (finding 17 lists Media, Title, Subhead, Body text, Link, Buttons, Badge, Date,
+   Tags). "Header line" in the owner's list may be the title only or title and subhead.
+3. **Filled color roles.** Finding 17 names Material's `surface-container`, `primary-container`, `secondary-container` and
+   `tertiary-container` (readable text). Built: the solid primary, secondary and tertiary with their on-colors. Change to the container
+   roles, or keep.
+4. **Add Button hides Link.** Finding 17: setting a Link hides the buttons and adding a button hides the Link, each with a short hint
+   saying why. Built: only the first half.
+5. **Buttons.** No fixed maximum; the next button is always shown empty and faded, as rows and cards. Built: a plain list in the sheet.
+6. **A new Card block starts with three empty cards**, the first active. Built: one empty card. The 12 November spec says the empty item
+   is hidden once the block has an item; that is the newer rule and is built for the List and Cards.
+7. **Theme check.** A theme that leaves a design unstyled fails `check:themes`. Not built; only the Material theme styles the three designs
+   and the four colors now.
+8. **Setting name.** Finding 17 calls the setting `Design`; built as `Type` (Material 3 calls them variants). Decide the word.
+9. **Dynamic cards.** A Card block takes its cards from a dynamic list (named `Dynamic card`), and the blog post card becomes a dynamic
+   Card, so Blog posts need no special card. Not built. Own plan.
+10. **Formatting in typed fields.** Finding 14 and 18 say the floating menu offers the tools a field allows (bold, italic and link in body
+    text, none in titles). The typed fields built so far are plain text. Decide per field before Steps and Cards text get formatting.
+11. **Table (new block)** is in finding 18 and not in this plan: cells typed in place, the next row and column shown empty and faded,
+    `Add row`, `Add column`, `Delete row`, `Delete column` in the menu, a header-row setting on by default, scrolls sideways on a
+    narrow screen. Check first whether the editor can create and edit tables (`remark-gfm` renders them). Own plan.
+
+**Order, replacing the list above**
+
+1. #413 (shared parts, Cards model, Cards in place), after the owner settles differences 1, 3 and 8 and the changeset.
+2. Steps (own plan).
+3. Cards follow-ups: differences 2, 4, 5, 6, 7 and the carousel for mobile, as the owner decides.
+4. Segmented list and Questions and answers (`Only one open`, the active row shown open, "Rows from" read-only).
+5. Buttons, Price cards, Notice, Video.
+6. Dynamic cards, Table.
+7. Apps' blocks documented.
