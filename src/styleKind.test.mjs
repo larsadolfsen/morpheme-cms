@@ -169,3 +169,15 @@ test('the T icons have the same weight and size as Bold and Italic', () => {
   assert.equal(source.match(/replace\('<svg', '<svg width="(\d+)" height="(\d+)"/g)?.[0], `replace('<svg', '<svg width="20" height="20"`);
   assert.match(readFileSync(new URL('./TextSizeIcons.tsx', import.meta.url), 'utf8'), /size = 20/);
 });
+
+test('the heading control and the text control never both show a style', () => {
+  const states = [[], ...['h1', 'h2', 'h3', ...TEXT_KINDS, ...LIST_KINDS].map((kind) => [kind, 'strong'])];
+  for (const active of states) {
+    const heading = headingKindOf(active, true);
+    const text = styleKindOf(active, true);
+    assert.ok(heading === 'generic' || text === 'generic', `${active.join()} shows ${heading} and ${text}`);
+    // In a heading only the heading control shows the style; in a text block only the text control does.
+    if (/^h\d$/.test(active[0] ?? '')) assert.equal(heading, active[0]);
+    if (TEXT_KINDS.includes(active[0])) assert.equal(heading, 'generic');
+  }
+});
