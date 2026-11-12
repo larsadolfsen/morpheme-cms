@@ -930,6 +930,91 @@ async function checkOwnList(width, height) {
   }
 }
 
+/** Cards that are a carousel on phones (`phone`, on the demo's Blocks page): at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), a dot for each card, labelled; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 1280 px the same block is the grid, with no dots and no button. */
+async function checkCardsCarousel(width, height) {
+  const label = `${width}px cards carousel`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await page.goto(new URL('/blocks/', site).href);
+  const root = page.locator('[data-cards-carousel]').first();
+  if (!(await root.count())) return (problems.push(`${label}: no Cards carousel on the Blocks page`), page.close());
+  await root.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+  const m = await root.evaluate((el) => {
+    const row = el.querySelector('[data-carousel-items]');
+    const items = [...el.querySelectorAll('[data-carousel-item]')];
+    const rowBox = row.getBoundingClientRect();
+    const [a, b] = items.map((i) => i.getBoundingClientRect());
+    const rs = getComputedStyle(row);
+    const show = el.querySelector('[data-cards-show-all]');
+    return {
+      display: rs.display,
+      overflowX: rs.overflowX,
+      scrolls: row.scrollWidth > row.clientWidth + 1,
+      gap: rs.columnGap,
+      padTop: rs.paddingTop,
+      padBottom: rs.paddingBottom,
+      padLeft: rs.paddingLeft,
+      firstLeft: Math.round(a.left - rowBox.left),
+      firstRight: Math.round(a.right),
+      secondLeft: Math.round(b.left),
+      radius: getComputedStyle(items[0].querySelector('.block-card')).borderTopLeftRadius,
+      dots: el.querySelectorAll('[data-carousel-dot]').length,
+      items: items.length,
+      indicator: getComputedStyle(el.querySelector('[data-carousel-indicator]')).display,
+      showAll: getComputedStyle(show.closest('.block-cards-show-all')).display,
+      region: el.querySelector('[role="region"]')?.getAttribute('aria-label') ?? null,
+      itemLabels: items.map((i) => i.getAttribute('aria-label')),
+      pageOverflow: document.documentElement.scrollWidth > innerWidth + 1,
+    };
+  });
+  if (phone) {
+    if (m.overflowX !== 'auto' || !m.scrolls) problems.push(`${label}: the row does not scroll sideways (${m.overflowX}, ${m.scrolls})`);
+    if (m.firstRight > width || m.secondLeft >= width)
+      problems.push(`${label}: the first card is not whole with the next peeking in (${m.firstRight}, ${m.secondLeft})`);
+    if (m.gap !== '8px') problems.push(`${label}: the gap is ${m.gap}, not 8px`);
+    if (m.padTop !== '8px' || m.padBottom !== '8px')
+      problems.push(`${label}: the padding above and below is ${m.padTop} and ${m.padBottom}, not 8px`);
+    if (m.padLeft !== '16px') problems.push(`${label}: the leading padding is ${m.padLeft}, not 16px`);
+    if (m.radius !== '28px') problems.push(`${label}: the card's corners are ${m.radius}, not 28px`);
+    if (m.dots !== m.items) problems.push(`${label}: ${m.dots} dots for ${m.items} cards`);
+    if (!m.region) problems.push(`${label}: the carousel has no label`);
+    if (m.itemLabels.join() !== m.itemLabels.map((_, i) => `${i + 1} of ${m.items}`).join())
+      problems.push(`${label}: the cards are labelled "${m.itemLabels}", not "n of ${m.items}"`);
+    if (m.pageOverflow) problems.push(`${label}: the page scrolls sideways`);
+    const button = root.locator('[data-cards-show-all]');
+    if ((await button.textContent())?.trim() !== 'Show all') problems.push(`${label}: the button is not "Show all"`);
+    await button.click();
+    await page.waitForTimeout(300);
+    const open = await root.evaluate((el) => ({
+      expanded: el.hasAttribute('data-expanded'),
+      grid: getComputedStyle(el.querySelector('[data-carousel-items]')).display,
+      text: el.querySelector('[data-cards-show-all]').textContent.trim(),
+      pressed: el.querySelector('[data-cards-show-all]').getAttribute('aria-expanded'),
+      focus: document.activeElement === el.querySelector('[data-cards-show-all]'),
+    }));
+    if (!open.expanded || open.grid !== 'grid' || open.text !== 'Show fewer' || open.pressed !== 'true' || !open.focus)
+      problems.push(`${label}: "Show all" did not stack the cards in place with focus kept (${JSON.stringify(open)})`);
+    await button.click();
+    await page.waitForTimeout(300);
+    if (await root.evaluate((el) => el.hasAttribute('data-expanded'))) problems.push(`${label}: "Show fewer" did not return the carousel`);
+    // The arrow keys move between the cards.
+    await root.locator('[data-carousel-item]').first().focus();
+    await page.keyboard.press('ArrowRight');
+    const at = await root.evaluate((el) =>
+      [...el.querySelectorAll('[data-carousel-item]')].indexOf(document.activeElement?.closest('[data-carousel-item]')),
+    );
+    if (at !== 1) problems.push(`${label}: ArrowRight moved the focus to card ${at}, not card 1`);
+    await page.screenshot({ path: join(shots, `cards-carousel-${width}.png`) });
+  } else {
+    if (m.display !== 'grid') problems.push(`${label}: on a computer the cards are not the grid (${m.display})`);
+    if (m.indicator !== 'none' || m.showAll !== 'none')
+      problems.push(`${label}: on a computer the dots (${m.indicator}) or "Show all" (${m.showAll}) show`);
+  }
+  await page.close();
+}
+
 /** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set, Material Symbols' ("arrow back") and Phosphor's ("acorn"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
 async function checkIconSearch(width, height) {
   const label = `${width}px icon search`;
@@ -1938,6 +2023,11 @@ for (const [width, height] of [
 ])
   await checkDraftsCard(width, height);
 await checkEmptyHint();
+for (const [width, height] of [
+  [375, 740],
+  [1280, 900],
+])
+  await checkCardsCarousel(width, height);
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
 // On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
 for (const block of inlineSingles) for (const w of [375, 1280]) await checkInlineSingle(w, w < 600 ? 740 : 900, block);

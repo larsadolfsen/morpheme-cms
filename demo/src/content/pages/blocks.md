@@ -28,6 +28,8 @@ Group related ideas with an icon, a photo or just text, each linking to a page i
 
 <div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;media&quot;:&quot;video&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;With a video&quot;,&quot;text&quot;:&quot;A video shows its still with a play button.&quot;,&quot;video&quot;:&quot;https://www.youtube.com/watch?v=aqz-KE-bpKQ&quot;},{&quot;title&quot;:&quot;The same on every card&quot;,&quot;text&quot;:&quot;The first card sets the media for all of them, so the cards stay aligned.&quot;}]}"></div>
 
+<div data-block="cards" data-props="{&quot;phone&quot;:&quot;carousel&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Swipe on a phone&quot;,&quot;text&quot;:&quot;On a phone these cards slide sideways, and the next one peeks in.&quot;},{&quot;icon&quot;:&quot;hand-heart&quot;,&quot;title&quot;:&quot;Show all&quot;,&quot;text&quot;:&quot;A Show all button under them stacks the cards in place.&quot;},{&quot;icon&quot;:&quot;book-open&quot;,&quot;title&quot;:&quot;A grid elsewhere&quot;,&quot;text&quot;:&quot;From 600 px wide the cards are shown together, as a grid.&quot;},{&quot;icon&quot;:&quot;medal&quot;,&quot;title&quot;:&quot;Snap scrolling&quot;,&quot;text&quot;:&quot;Each swipe settles on a card.&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>
+
 ## Points
 
 Short points with an icon, for what you offer or how to find you.

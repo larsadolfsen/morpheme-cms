@@ -51,6 +51,19 @@ export default defineBlock({
         { label: t.blocks.cards.designElevated, value: 'elevated', icon: Shapes },
       ],
     },
+    // How the cards show on a phone: stacked (the empty choice), or swiped sideways in a carousel (uncontained, Material 3's layout for
+    // text-heavy items). Larger screens show the cards together either way. Fewer than two cards is never a carousel (view.ts).
+    {
+      name: 'phone',
+      label: t.blocks.cards.phone,
+      type: 'select',
+      segments: true,
+      hint: t.blocks.cards.phoneHint,
+      options: [
+        { label: t.blocks.cards.phoneStacked, value: '' },
+        { label: t.blocks.cards.phoneCarousel, value: 'carousel' },
+      ],
+    },
     // A filled card is Material's surface container until another container is picked.
     {
       name: 'color',

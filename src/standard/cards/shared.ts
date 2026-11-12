@@ -15,6 +15,7 @@ export default defineShared({
   preview: {
     props: example,
     variants: [
+      { label: t.blocks.cards.phoneCarousel, props: { phone: 'carousel' } },
       { label: t.blocks.cards.designOutlined, props: {} },
       { label: t.blocks.cards.designFilled, props: { design: 'filled' } },
       { label: t.blocks.cards.designElevated, props: { design: 'elevated' } },
