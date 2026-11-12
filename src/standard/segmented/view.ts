@@ -10,6 +10,8 @@ import { maxRowsOf } from './maxRows.mjs';
 
 export { cutAt, maxRowsOf } from './maxRows.mjs';
 import type { ViewOf } from '../view';
+import { editorRows } from '../rows/view';
+import { withRows } from '../rows/rows.mjs';
 import { headOf, type HeadView } from '../head';
 import type { ListRow } from '../list/view';
 
@@ -73,7 +75,7 @@ export const segmentedOf = (
 /** In the editor a row with a page and no text of its own says it shows the beginning of the page's text. */
 export const viewOf: ViewOf<SegmentedView> = (props, data) => {
   const view = segmentedOf(
-    props,
+    withRows(props, editorRows(props, data)),
     sharedIn(data.site, 'accordion', accordion.values).more,
     sharedIn(data.site, 'segmented', segmentedShared.values).showMore,
   );

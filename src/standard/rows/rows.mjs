@@ -50,3 +50,13 @@ export const rowsFromItems = (items, props) =>
     props.tags,
     props.howMany,
   ).flatMap((i) => rowOf(i) ?? []);
+
+/** The block's fields with the rows of its list as its `items` (and, when it has no page of its own for its text button, the list's page),
+ * or the fields as they are for a block with typed rows.
+ * @param {Record<string, any>} props @param {{ rows: unknown[], page?: string } | undefined} found */
+export const withRows = (props, found) =>
+  found ? { ...props, items: found.rows, buttonHref: props.buttonHref || found.page || undefined } : props;
+
+/** The rows as the questions of a FAQ list: the heading is the question, the text the answer.
+ * @param {{ title: string, text?: string }[]} rows */
+export const asQuestions = (rows) => rows.map((r) => ({ question: r.title, answer: r.text ?? '' }));

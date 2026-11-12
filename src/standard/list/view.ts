@@ -3,6 +3,8 @@
 // rows like that), and one whose page is missing is left out. In the editor: viewOf, from the site's pages; on the site: load.ts. (The label,
 // heading and intro the block had are the text's own now, lib/remark-list-head.mjs.)
 import type { ViewOf } from '../view';
+import { editorRows } from '../rows/view';
+import { withRows } from '../rows/rows.mjs';
 
 export type ListRow = { icon?: string; title: string; text?: string; href?: string; heading?: boolean };
 export type ListView = { items: ListRow[] };
@@ -21,5 +23,5 @@ export const listOf = (props: Record<string, any>, titleOf: (href: string) => st
 
 export const viewOf: ViewOf<ListView> = (props, data) => {
   const byPath = new Map(data.site.pages.map((p) => [p.path, p.title]));
-  return listOf(props, (href) => byPath.get(href));
+  return listOf(withRows(props, editorRows(props, data)), (href) => byPath.get(href));
 };

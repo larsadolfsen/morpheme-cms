@@ -1,8 +1,7 @@
 // "Rows from" in the editor: the rows a list block gets from the list it reads, drawn from the site's data (BlockData), and the choices
 // of `Rows from`. The same rows as the site's (load.ts), but of the data the editor has: posts without their addresses.
 import type { BlockData } from '../../blocks';
-import { collections } from '../../site';
-import type { OwnedList } from '../../schema';
+import { rowLists } from './lists';
 import { itemOfEntry, rowsFromItems, sourceOf } from './rows.mjs';
 import type { SourceItem } from '../site';
 
@@ -12,7 +11,7 @@ export type RowsFrom = { source: string; rows: { icon?: string; title: string; t
 /** A source of rows: its id, its name for the choice, and whether its items have tags. */
 export type RowSource = { value: string; label: string; tags: boolean };
 
-const asRowsLists = () => collections.filter((c): c is OwnedList => 'asRows' in c && !!(c as OwnedList).asRows);
+const asRowsLists = rowLists;
 
 /** The sources a block can read: the blog's posts, the testimonials, and each list that says its fields (`asRows`). */
 export const rowSources = (labels: { posts: string; testimonials: string }): RowSource[] => [
