@@ -36,6 +36,7 @@ import { theme, themes, type ThemeInfo } from './themes';
 import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
 import { StartStatus } from './StartStatus';
+import { FirstRunCard } from './FirstRun';
 import { Dashboard } from './DashboardGrid';
 import { DashboardAction, useDashboard } from './DashboardEdit';
 import { StartDataContext } from './startData';
@@ -113,7 +114,7 @@ import {
   themeUpdateOf,
   useThemeCatalog,
 } from './ThemeStore';
-import { STANDARD_THEME, STORE_ROUTE } from './store';
+import { STANDARD_THEME, STORE_ROUTE, INSTALLED_ROUTE } from './store';
 import { REDIRECTS_ROUTE } from './Redirects';
 import { MOTION_SCHEMES, schemeInUse, type MotionScheme } from '../lib/motion';
 import { applyMotion } from './theme';
@@ -121,6 +122,7 @@ import { colorsOf } from './Colors';
 import { OwnerLicenses } from './Licenses';
 import { CMS_ROUTE } from './CmsPage';
 import { apps } from './site';
+import { waitingOf } from './pageVersions.mjs';
 import { offBlocks } from './registry';
 import { sideChoicesOf, sideSettingOf } from './SideColumn';
 
@@ -143,7 +145,16 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'appearance') return { label: parts.appearance, href: '#appearance', count: null };
   if (id === 'block-settings') return { label: parts.blockSettings, href: '#block-settings', count: null };
   if (id === 'apps') return { label: parts.apps, href: '#apps', count: null };
-  if (id === 'appstore') return { label: t.apps.find, href: `#${STORE_ROUTE}`, count: null };
+  if (id === 'appstore') return { label: t.apps.store, href: `#${STORE_ROUTE}`, count: null };
+  // The installed connectors, plugins and themes (Apps in the menu): their pages, not the store's sections.
+  if (id.startsWith('installed-')) {
+    const section = id.slice('installed-'.length) as keyof typeof t.apps.sections;
+    return {
+      label: t.apps.sections[section],
+      href: section === 'themes' ? '#appearance/themes' : `#${INSTALLED_ROUTE}/${section}`,
+      count: null,
+    };
+  }
   if (id === 'redirects') return { label: parts.redirects, href: `#${REDIRECTS_ROUTE}`, count: null };
   const seoPart = seoParts.find((p) => p.id === id);
   if (seoPart) return { label: seoPart.label, href: `#seo/${id}`, count: null };
@@ -200,6 +211,7 @@ export function Start({ builtAt, files, env }: { builtAt: Date | null; files: Re
       home
     >
       <UpdatesNotice files={files} />
+      <FirstRunCard files={files} />
       <StartDataContext.Provider value={{ files, savedAt: env.savedAt, builtAt }}>
         <Dashboard dash={dash} env={env} files={files} />
       </StartDataContext.Provider>
@@ -788,13 +800,7 @@ function NotificationChoices({ files }: { files: RepoFile[] }) {
   const { off, device } = useNotificationChoices();
   const installed = activeApps(files);
   const choice = (type: string, label: string) => (
-    <SwitchRow
-      key={type}
-      label={label}
-      texts={[t.library.on, t.library.off]}
-      selected={!off.includes(type)}
-      onChange={(on) => setOn(type, on)}
-    />
+    <SwitchRow key={type} label={label} selected={!off.includes(type)} onChange={(on) => setOn(type, on)} />
   );
   return (
     <>
@@ -804,7 +810,6 @@ function NotificationChoices({ files }: { files: RepoFile[] }) {
           <SwitchRow
             label={t.library.onDevice}
             hint={t.library.onDeviceHint}
-            texts={[t.library.on, t.library.off]}
             selected={device}
             onChange={async (on) => {
               if (!(await setDevice(on))) snackbar({ text: t.library.deviceBlocked, error: true });
@@ -901,25 +906,32 @@ type Item = {
 };
 
 // The statuses of a page or post (`status`, packages/editor/lib/status.mjs), in the order of the choices over the list.
-type State = 'published' | 'draft' | 'unlisted' | 'scheduled';
-const STATES: State[] = ['published', 'draft', 'unlisted', 'scheduled'];
-const stateOf = (d: Record<string, unknown>): State =>
-  d.status === 'draft' || d.status === 'unlisted' || d.status === 'scheduled' ? d.status : 'published';
+type State = 'published' | 'draft' | 'scheduled';
+const STATES: State[] = ['published', 'draft', 'scheduled'];
+// `w`: its waiting version in src/drafts/ (pageVersions.mjs waitingOf): a draft with a time on it is Scheduled.
+type Waiting = { publishAt?: string } | undefined;
+const stateOf = (d: Record<string, unknown>, w?: Waiting): State =>
+  d.status === 'draft' ? (w?.publishAt ? 'scheduled' : 'draft') : d.status === 'scheduled' ? 'scheduled' : 'published';
 
-// What a page or post is when not simply published (`status`, packages/editor/lib/status.mjs): "Draft", "Hidden" or
-// "Scheduled Nov 1 at 8:00 AM".
-function statusOf(d: Record<string, unknown>): string | undefined {
-  if (d.status === 'draft') return t.library.status.draft;
-  if (d.status === 'unlisted') return t.library.status.unlisted;
-  if (d.status !== 'scheduled') return undefined;
-  const at = untilTime(String(d.publishAt ?? ''));
-  return at === null ? t.library.status.scheduled : t.library.status.scheduledAt(when(new Date(at)));
+// What a page or post is when not simply published (`status`, packages/editor/lib/status.mjs): "Draft", "Scheduled Nov 1 at 8:00 AM", or
+// "Unpublished changes" (a published one with changes waiting in src/drafts/, `w`; "Scheduled changes Nov 1 at 8:00 AM" with a time).
+function statusOf(d: Record<string, unknown>, w?: Waiting): string | undefined {
+  const timed = (time: unknown, text: (when: string) => string, plain: string) => {
+    const at = untilTime(String(time ?? ''));
+    return at === null ? plain : text(when(new Date(at)));
+  };
+  if (d.status === 'draft')
+    return w?.publishAt ? timed(w.publishAt, t.library.status.scheduledAt, t.library.status.scheduled) : t.library.status.draft;
+  if (d.status === 'scheduled') return timed(d.publishAt, t.library.status.scheduledAt, t.library.status.scheduled);
+  if (!w) return undefined;
+  return timed(w.publishAt, t.library.status.scheduledChanges, t.library.status.unpublishedChanges);
 }
 
 function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
   if (collection.kind === 'files') return collection.files.map((f) => ({ href: `#${f.file}`, title: f.label, detail: f.view }));
   const own = files.filter((f) => f.path.startsWith(`${collection.folder}/`));
   if (collection.kind === 'markdown') {
+    const waiting = waitingOf(files);
     const items: Item[] = own
       .filter((f) => f.path.endsWith('.md'))
       .map((file) => {
@@ -933,8 +945,8 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
           title: String(d.title ?? file.path),
           detail,
           date,
-          status: statusOf(d),
-          state: stateOf(d),
+          status: statusOf(d, waiting.get(file.path)),
+          state: stateOf(d, waiting.get(file.path)),
           file,
           path,
           picks: Object.fromEntries(

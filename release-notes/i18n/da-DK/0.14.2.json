@@ -13,8 +13,8 @@
       "text": "Lister i editoren har større tekst og skiller sig bedre ud fra siden"
     },
     {
-      "id": "update-card-whats-new",
-      "kind": "card",
+      "id": "update-message-whats-new",
+      "kind": "paragraph",
       "title": "Nyhederne står på din startskærm",
       "text": "Efter en opdatering viser startskærmen øverst den nye version og de vigtigste nyheder. Tryk på Se, hvad der er nyt for at læse det hele."
     }

@@ -11,7 +11,7 @@ Morpheme is a website editor for sites built with [Astro](https://astro.build) a
 
 ![The Earth seen from space, with clouds over the ocean](/images/uploads/2026/10/earth-from-space.webp)
 
-<div data-block="points" data-props="{&quot;eyebrow&quot;:&quot;Under the hood&quot;,&quot;heading&quot;:&quot;Three proven parts&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;book-open-text&quot;,&quot;title&quot;:&quot;GitHub&quot;,&quot;text&quot;:&quot;Your content lives as plain files in your own repository. Every save is one commit.&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Astro&quot;,&quot;text&quot;:&quot;Your site is built ahead of time into finished pages that open instantly.&quot;},{&quot;icon&quot;:&quot;lifebuoy&quot;,&quot;title&quot;:&quot;Cloudflare&quot;,&quot;text&quot;:&quot;Pages are served from a location near each visitor, and sign-in runs on Cloudflare Workers.&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;eyebrow&quot;:&quot;Under the hood&quot;,&quot;heading&quot;:&quot;Three proven parts&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;book-open-text&quot;,&quot;title&quot;:&quot;GitHub&quot;,&quot;text&quot;:&quot;Your content lives as plain files in your own repository. Every save is one commit.&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Astro&quot;,&quot;text&quot;:&quot;Your site is built ahead of time into finished pages that open instantly.&quot;},{&quot;icon&quot;:&quot;lifebuoy&quot;,&quot;title&quot;:&quot;Cloudflare&quot;,&quot;text&quot;:&quot;Pages are served from a location near each visitor, and sign-in runs on Cloudflare Workers.&quot;}]}"></div>
 
 <p class="block-eyebrow">Step by step</p>
 
@@ -21,4 +21,11 @@ When you tap Save, the editor first checks the page. If something’s missing, i
 
 Every save is listed under Earlier versions, and deleted photos can be restored from Deleted files.
 
-<div data-block="checklist" data-props="{&quot;eyebrow&quot;:&quot;Fast and safe&quot;,&quot;heading&quot;:&quot;Built in, not bolted on&quot;,&quot;items&quot;:[&quot;Photos are resized for every screen&quot;,&quot;Every page has a Content Security Policy, so only its own scripts run&quot;,&quot;Your sign-in is a cookie only your site’s server can read&quot;,&quot;No tracking or ad cookies before a visitor says yes&quot;]}"></div>
+Fast and safe
+
+**Built in, not bolted on**
+
+- [x] Photos are resized for every screen
+- [x] Every page has a Content Security Policy, so only its own scripts run
+- [x] Your sign-in is a cookie only your site’s server can read
+- [x] No tracking or ad cookies before a visitor says yes

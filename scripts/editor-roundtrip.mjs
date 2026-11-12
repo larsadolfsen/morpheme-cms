@@ -4,7 +4,7 @@
 // be the same text. The fixed pages (src/data/*.json with sections) are loaded as their text with the
 // sections as blocks (packages/editor/src/sections.mjs) and read back: the sections must be the same, a section
 // of text with the same heading and the same HTML. Every page is also read into sections as the front page (as the
-// site reads the page that is the front page without the editor, partsOfMarkdown in sections.mjs, packages/editor/site/home.ts):
+// site reads the page that is the front page without the editor, partsOfMarkdown in sections.mjs, after migrateFrontBanner in lib/front-banner.mjs, packages/editor/site/home.ts):
 // they must be those the editor reads. A page whose template is changed and changed back has the same front matter (the default leaves no key; template-round-trip.mjs). Run: npm run check:editor [files...]
 // A built-in sample with section colours checks that the editor and the site give the front page's sections the same colours.
 // Milkdown needs a DOM; jsdom stands in for the browser.
@@ -34,6 +34,7 @@ const { editorViewCtx } = await import('@milkdown/kit/core');
 const { createMarkdownProcessor } = await import('@astrojs/markdown-remark');
 const { makeEditor, markdownOf, partsOf, spacing } = await import('@morphemecms/cms/src/markdown.mjs');
 const { introOf, partsOfMarkdown, sectionsFromParts, sectionsToMarkdown } = await import('@morphemecms/cms/src/sections.mjs');
+const { migrateFrontBanner } = await import('@morphemecms/cms/lib/front-banner.mjs');
 const { withSiteModules } = await import('../site/siteModules.mjs');
 // The field of the sections of each fixed page (@site/collections): the sections whose text is written
 // above their card (their lead), and the page's introduction above them (intro).
@@ -47,6 +48,7 @@ const textOf = Object.fromEntries(
     .flatMap((c) => c.files)
     .map((f) => [f.file, f.fields.find((x) => x.type === 'blocks')]),
 );
+const { migrateMarkdown } = await import('@morphemecms/cms/lib/migrate-content.mjs');
 const { splitFrontmatter, writeFields } = await import('@morphemecms/cms/src/frontmatter.mjs');
 const { STANDARD_TEMPLATES, templateWritten } = await import('@morphemecms/cms/lib/page-template.mjs');
 
@@ -59,10 +61,15 @@ const fixed = readdirSync('src/data')
   .map((f) => join('src/data', f));
 const files = process.argv.length > 2 ? process.argv.slice(2) : [...walk('src/content/blog'), ...walk('src/content/pages'), ...fixed];
 
-const processor = await createMarkdownProcessor();
+// The site's own Markdown steps (astro.mjs), so a Banner made a section reads the same before and after a save.
+const { remarkBannerSections } = await import('@morphemecms/cms/lib/remark-banner-section.mjs');
+const processor = await createMarkdownProcessor({ remarkPlugins: [remarkBannerSections] });
 const render = async (md) => (await processor.render(md)).code.replace(/\s+/g, ' ').trim();
 
 let failed = 0;
+// Files that still use blocks from before an update (lib/migrate-content.mjs): checked as `morpheme migrate` would write them, and
+// listed at the end. The site's build runs on Cloudflare, which cannot commit, so they must not stop it.
+const unmigrated = [];
 // On a page the first heading is the H1 by itself (src/firstHeading.mjs): after a change to the text, and only then.
 const { firstHeading } = await import('@morphemecms/cms/src/firstHeading.mjs');
 const headingLevelsOf = (view) => {
@@ -127,15 +134,35 @@ const colorSample = [
 ].join('\n\n');
 const frontSections = async (body, parts) => [
   await comparable('', sectionsFromParts(parts, frontLeads, { colors: true })),
-  await comparable('', sectionsFromParts(partsOfMarkdown(body), frontLeads, { colors: true })),
+  await comparable('', sectionsFromParts(partsOfMarkdown(migrateFrontBanner(body)), frontLeads, { colors: true })),
 ];
 {
   const editor = await makeEditor(document.createElement('div'), colorSample).use(spacing).create();
   const [editors, site] = await frontSections(colorSample, editor.action(partsOf));
   await editor.destroy();
-  if (editors !== site || !editors.includes('"sectionColor":"tint"') || !editors.includes('"sectionColor":"accent"')) {
+  if (editors !== site || !editors.includes('"sectionColor":"surface"') || !editors.includes('"sectionColor":"primary"')) {
     console.log(
       `\n✗ a text with section colors gives different sections in the editor and on the site\n  editor: ${editors}\n  site:   ${site}`,
+    );
+    process.exit(1);
+  }
+}
+
+// The same for the H1's section (a marker before the page's H1 with a picture and a width): the editor and the site give the same top.
+{
+  const topSample = [
+    '<div data-section="" data-picture="/images/a.jpg" data-alt="A field" data-width="full"></div>',
+    '# Sample',
+    'Intro.',
+    blockHtml('buttons', {}),
+    blockHtml('steps', {}),
+  ].join('\n\n');
+  const editor = await makeEditor(document.createElement('div'), topSample).use(spacing).create();
+  const [editors, site] = await frontSections(topSample, editor.action(partsOf));
+  await editor.destroy();
+  if (editors !== site || !editors.includes('"type":"top"') || !editors.includes('"width":"full"')) {
+    console.log(
+      `\n✗ the settings of the H1's section give different sections in the editor and on the site\n  editor: ${editors}\n  site:   ${site}`,
     );
     process.exit(1);
   }
@@ -155,7 +182,15 @@ for (const file of files) {
     console.log(`\n✗ ${file}\n  before: ${before.slice(0, 300)}\n  after:  ${after.slice(0, 300)}`);
     continue;
   }
-  const { yaml, body } = splitFrontmatter(readFileSync(file, 'utf8'));
+  const { yaml, body: written } = splitFrontmatter(readFileSync(file, 'utf8'));
+  const body = migrateMarkdown(written);
+  if (body !== written) unmigrated.push(file);
+  // The migration is the same when it is run again.
+  if (migrateMarkdown(body) !== body) {
+    failed++;
+    console.log(`\n✗ ${file}\n  the migration of blocks from before is not the same when it is run again`);
+    continue;
+  }
   if (writeFields(yaml, {}) !== yaml) {
     failed++;
     console.log(`\n✗ ${file}\n  front matter is not written back unchanged`);
@@ -185,7 +220,7 @@ for (const file of files) {
   if (isPage) {
     const [editors, site] = [
       await comparable('', sectionsFromParts(parts, frontLeads)),
-      await comparable('', sectionsFromParts(partsOfMarkdown(body), frontLeads)),
+      await comparable('', sectionsFromParts(partsOfMarkdown(migrateFrontBanner(body)), frontLeads)),
     ];
     const [editorColors, siteColors] = await frontSections(body, parts);
     if (editors !== site || editorColors !== siteColors) {
@@ -204,5 +239,9 @@ for (const file of files) {
     `\n✗ ${file}\n  before: …${before.slice(Math.max(0, i - 80), i + 120)}\n  after:  …${after.slice(Math.max(0, i - 80), i + 120)}`,
   );
 }
+if (unmigrated.length)
+  console.log(
+    `\n! ${unmigrated.length} file(s) use blocks from before this version; the site shows them as the new blocks, and the editor writes the new blocks when a page is saved. Run \`npx morpheme migrate\` and commit the files:\n${unmigrated.map((f) => `  ${f}`).join('\n')}`,
+  );
 console.log(`\n${files.length - failed} of ${files.length} files give the same page after a save in the editor.`);
 process.exit(failed ? 1 : 0);

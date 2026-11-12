@@ -33,6 +33,7 @@ export function chosen(props: BlockProps, data: BlockData) {
 }
 
 export default defineBlock({
+  group: 'content',
   label: t.blocks.testimonials.label,
   icon: Quotes,
   hint: t.blocks.testimonials.hint,

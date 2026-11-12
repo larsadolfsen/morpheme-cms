@@ -8,14 +8,29 @@ import type { ViewOf } from '../view';
 import { headOf, type HeadView } from '../head';
 
 /** A row that folds out: a question and its answer as HTML, or a page's row ("Expandable list", PageRow). */
-export type AccordionRow = { label: string; html: string } | { label: string; page: PageRowView };
+export type AccordionRow =
+  { label: string; html: string; icon?: string; href?: string; link?: string } | { label: string; page: PageRowView };
 
-export type FaqView = HeadView & { group?: string; rows: AccordionRow[] };
+export type FaqView = HeadView & {
+  group?: string;
+  /** Any number of questions can be open at once (`only` is off). */
+  several: boolean;
+  rows: AccordionRow[];
+  /** The text button under the last question. */
+  button?: { label: string; href?: string };
+};
+
+/** What the block's fields say besides its head and questions: whether several can be open, and the button. */
+export const faqSettings = (props: Record<string, any>): Pick<FaqView, 'several' | 'button'> => {
+  const label = typeof props.button === 'string' ? props.button.trim() : '';
+  return { several: props.only === false, button: label ? { label, href: props.buttonHref || undefined } : undefined };
+};
 
 /** A question as its field writes it. */
 export type Question = { question: string; answer?: string };
 
 export const viewOf: ViewOf<FaqView> = (props) => ({
   ...headOf(props),
+  ...faqSettings(props),
   rows: ((props.items ?? []) as Question[]).map((q) => ({ label: q.question, html: markdownNow(q.answer ?? '') })),
 });

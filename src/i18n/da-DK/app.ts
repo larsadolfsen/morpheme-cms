@@ -6,6 +6,9 @@ export const app: Messages['app'] = {
   cannotSave: (login) => `${login} har ikke adgang til at gemme. Log ind med en anden GitHub-konto under Konto.`,
   notFound: 'Findes ikke',
   nothingAt: (route) => `Der er ikke noget på adressen ${route}`,
+  building: 'Opdaterer hjemmesiden…',
+  live: 'Live',
+  buildFailed: 'Ikke opdateret',
   siteUpdated: (changes) => `Hjemmesiden er opdateret: ${changes}.`,
   siteNotUpdated: (changes) => `Hjemmesiden blev ikke opdateret (${changes}). Gendan den forrige version under Tidligere versioner.`,
   changes: {
@@ -52,6 +55,8 @@ export const app: Messages['app'] = {
   unsavedTitle: 'Gem ændringerne?',
   unsaved: 'Du har ændringer, der ikke er gemt',
   discard: 'Kassér',
+  askNotify: 'Vil du have besked, når dine ændringer er live?',
+  askNotifyYes: 'Ja, giv mig besked',
   unsavedSheet: 'Du har ændringer, der ikke er gemt. Vil du beholde dem?',
   viewOnSite: 'Se på hjemmesiden',
   loggedOut: 'Du er blevet logget ud. Log ind igen.',

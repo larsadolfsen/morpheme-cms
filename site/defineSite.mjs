@@ -73,13 +73,15 @@ const CHOICES = {
 const STANDARD = {
   /** The Worker's settings: the editor turns R2 caching on and off in them (Settings › Developer › Caching and builds, src/r2Caching.ts). */
   wrangler: 'wrangler.jsonc',
-  /** The folders the editor loads: the blog posts, the pages, the data files and the pictures. The folder of the PDFs, videos
+  /** The folders the editor loads: the blog posts, the pages, the data files, the pictures and the waiting versions. The folder of the PDFs, videos
    * and zip files (`files`, shown with the pictures in "Files") is a setting of the site's own (CHOICES). */
   folders: {
     blog: 'src/content/blog',
     pages: 'src/content/pages',
     data: 'src/data',
     media: 'public/images/uploads',
+    // The waiting versions of pages and posts (lib/versions.mjs): no build reads them.
+    drafts: 'src/drafts',
   },
   /** The redirects the editor writes when a page or post moves (src/addresses.ts; worker/index.js reads it). */
   redirects: 'src/data/redirects.json',

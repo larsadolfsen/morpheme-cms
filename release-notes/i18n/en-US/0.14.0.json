@@ -4,7 +4,7 @@
   "notes": [
     {
       "id": "apps-turn-off",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Pause an app without losing its settings",
       "text": "You can now turn an app off and keep its settings. Open the app under Apps and turn off Enabled. Turn it on again whenever you like."
     },
@@ -20,7 +20,7 @@
     },
     {
       "id": "editor-footer",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Check GitHub and Cloudflare",
       "text": "If you can’t save or publish, see whether GitHub and Cloudflare are working. Scroll to the bottom of the editor and tap System status. It checks only the services your website uses."
     },
@@ -31,7 +31,7 @@
     },
     {
       "id": "google-preview-closer",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "See your page as Google shows it",
       "text": "The Google preview now looks like the real result on a phone and a computer, with your main keyword in bold. Open a page or blog post and look under Search engines."
     },
@@ -42,7 +42,7 @@
     },
     {
       "id": "quiet-lamps-wander",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "See what’s new",
       "text": "After each update, you now get a short summary of what’s new. You’ll find all the notes on the Morpheme page under Settings."
     }
