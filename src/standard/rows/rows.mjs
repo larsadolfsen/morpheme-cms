@@ -60,3 +60,13 @@ export const withRows = (props, found) =>
 /** The rows as the questions of a FAQ list: the heading is the question, the text the answer.
  * @param {{ title: string, text?: string }[]} rows */
 export const asQuestions = (rows) => rows.map((r) => ({ question: r.title, answer: r.text ?? '' }));
+
+/** What the List block's inline editor draws for a block that reads a list: the rows as the site shows them (tag filter and `How many`
+ * applied), and whether none match. Undefined for a block with typed rows, which is typed in place.
+ * @param {Record<string, any>} props @param {Parameters<typeof rowsFromItems>[0]} items */
+export const inlineRowsOf = (props, items) => {
+  const source = sourceOf(props.from);
+  if (!source) return undefined;
+  const rows = rowsFromItems(items, props);
+  return { source, rows, empty: rows.length === 0 };
+};

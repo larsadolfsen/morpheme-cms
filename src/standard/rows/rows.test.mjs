@@ -1,7 +1,7 @@
 // Tests "Rows from" of the list blocks (rows.mjs). Run: node --test src/standard/rows/rows.test.mjs
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { chosenFrom, howManyOf, itemOfEntry, rowOf, rowsFromItems, sourceOf } from './rows.mjs';
+import { inlineRowsOf, chosenFrom, howManyOf, itemOfEntry, rowOf, rowsFromItems, sourceOf } from './rows.mjs';
 
 test('no source means typed rows', () => {
   assert.equal(sourceOf(undefined), undefined);
@@ -63,4 +63,20 @@ test('filter, count and rows together; untitled items do not count against How m
     rowsFromItems(items, {}).map((r) => r.title),
     ['a', 'c'],
   );
+});
+
+test('the inline editor reads the list for a dynamic block and types for a block with rows', () => {
+  const items = [
+    { title: 'a', tags: ['x'] },
+    { title: 'b', tags: ['y'] },
+    { title: 'c', tags: ['x'] },
+  ];
+  assert.equal(inlineRowsOf({ items: [{ title: 'typed' }] }, items), undefined);
+  assert.equal(inlineRowsOf({ from: '' }, items), undefined);
+  assert.deepEqual(
+    inlineRowsOf({ from: 'posts', tags: ['x'], howMany: 1 }, items)?.rows.map((r) => r.title),
+    ['a'],
+  );
+  assert.equal(inlineRowsOf({ from: 'posts', tags: ['z'] }, items)?.empty, true);
+  assert.equal(inlineRowsOf({ from: 'posts' }, items)?.rows.length, 3);
 });

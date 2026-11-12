@@ -81,8 +81,10 @@ import { useToolbarLines } from './useToolbarLines';
 import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
 import { describe, htmlBlock, type BlockProps } from './blocks';
-import InlineList, { type Change, type Focus, type Row } from './InlineList';
+import InlineList, { RowsFromList, type Change, type Focus, type Row } from './InlineList';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
+import { editorRows } from './standard/rows/view';
+import { fromLine } from './standard/rows/fields';
 import { inlineBar, type BarAction } from './inlineBar';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
@@ -1002,6 +1004,20 @@ function blockCard(
     if (!ask) return;
     if (inline) {
       card.setAttribute('aria-description', hidden ? t.text.hiddenOnPage : '');
+      card.setAttribute('aria-label', block?.nameOf?.(node.attrs.props) ?? block?.label ?? node.attrs.type);
+      // A List that reads a list ("Rows from"): its rows from the list are drawn as they are on the site, none are typed here.
+      const dynamic = editorRows(node.attrs.props, ask.data);
+      if (dynamic) {
+        active = null;
+        focus = null;
+        flushSync(() =>
+          root.render(
+            <RowsFromList rows={dynamic.rows} line={fromLine(node.attrs.props, ask.data)[0] ?? ''} empty={dynamic.rows.length === 0} />,
+          ),
+        );
+        bar?.refresh(false);
+        return;
+      }
       flushSync(() =>
         root.render(
           <InlineList
