@@ -1107,6 +1107,11 @@ html {
 /* A text with blocks (a page, a fixed page's sections): the cards close together, with the free line
    between two of them to write in: thin, until the cursor is in it (editor-gap-here, MarkdownEditor.tsx)
    or the pointer over it, when it opens up and says so. */
+.editor-spaced {
+  /* The hints are the text's own colour (a section's on-colour, or the page's) at placeholder emphasis (85%, for 4.5:1 on every section colour), never a fixed grey. */
+  --editor-hint-color: color-mix(in srgb, currentColor 85%, transparent);
+}
+
 .editor-spaced .site-block {
   margin-block: 0.25rem;
 }
@@ -1114,7 +1119,7 @@ html {
 .editor-spaced .ProseMirror > p:has(> br:only-child) {
   margin-block: 0;
   border-radius: 0.5rem;
-  padding-inline: 0.5rem;
+  padding-inline: 0;
   padding-block: 0.25rem;
   font-size: 0.875rem;
   line-height: 0.5rem;
@@ -1133,7 +1138,7 @@ html {
 .editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child)::before {
   content: var(--editor-gap-text);
   position: absolute;
-  color: var(--mo-on-surface-variant);
+  color: var(--editor-hint-color);
   pointer-events: none;
 }
 
@@ -1145,7 +1150,7 @@ html {
   .editor-spaced .ProseMirror > p:has(> br:only-child):hover::before {
     content: var(--editor-gap-text);
     position: absolute;
-    color: var(--mo-on-surface-variant);
+    color: var(--editor-hint-color);
     pointer-events: none;
   }
 }
@@ -1156,7 +1161,7 @@ html {
 .editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child:has(> br:only-child)::before {
   content: var(--editor-empty-text);
   position: absolute;
-  color: var(--mo-on-surface-variant);
+  color: var(--editor-hint-color);
   pointer-events: none;
 }
 
@@ -1178,7 +1183,7 @@ html {
   line-height: 1.5rem;
   cursor: text;
   font-weight: 400;
-  color: var(--mo-on-surface-variant);
+  color: var(--editor-hint-color);
   pointer-events: none;
 }
 
