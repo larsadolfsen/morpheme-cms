@@ -24,7 +24,7 @@
     --block-tint       a light background (a notice, a video before it is played)
     --block-line       lines between rows and along the steps, the edge of a card
     --block-radius     the corners of a panel
-    --block-radius-small  the corners of something smaller in or beside a panel (a picture in a list, a row, a badge's
+    --block-radius-small  the corners of something smaller in or beside a panel (an image in a list, a row, a badge's
                        square, a step on a time line)
     --block-control-radius  the corners of a button and a tag (a pill when large)
     --block-shadow     the shadow of a raised panel
@@ -34,7 +34,7 @@
     --block-ease       the easing of motion (else the motion scheme's, --motion-ease)
     --block-ease-quick the easing of a quick change of state (a colour, an arrow that turns or moves; else the motion
                        scheme's, --motion-ease-quick)
-    --block-hero-shade, --block-hero-on-shade  (optional) the colour a picture behind a hero's text is darkened with,
+    --block-hero-shade, --block-hero-on-shade  (optional) the colour an image behind a hero's text is darkened with,
                        and the text's on it; without them the text's colour and the surface's
     --block-page-width, --block-gutter  the page's container (its width, gutters included, and its gutter at the
                        side), whose left edge the text starts at: how far a banner across the whole width reaches out
@@ -111,7 +111,7 @@
     margin-block: 2rem;
   }
 
-  /* A section of a page's or post's text with a colour, a picture or the whole width of the window (lib/text-sections.mjs,
+  /* A section of a page's or post's text with a colour, an image or the whole width of the window (lib/text-sections.mjs,
      RichText.astro): a panel the width of the text column, from its heading to the next (its first and last parts' margins: at
      the end of the file). The colours are Surface and the theme's Primary, Secondary and Tertiary (--block-primary and the
      like, with their text colours --block-on-primary …). A section from before Tint is Surface, and Accent is Primary. */
@@ -124,7 +124,7 @@
     background: var(--block-surface);
     box-shadow: var(--block-shadow);
   }
-  /* A picture behind the section (<img class="text-section-image"> first in it, RichText.astro): it fills the panel, darkened
+  /* An image behind the section (<img class="text-section-image"> first in it, RichText.astro): it fills the panel, darkened
      from below with the section's colour (Surface: --block-surface; none: --block-hero-shade, the text's colour unless the theme
      sets it) so the text on it can be read. Without a colour the text is --block-hero-on-shade, the surface's. */
   .text-section-picture {
@@ -190,7 +190,7 @@
   body:has(.text-section-full) {
     overflow-x: clip;
   }
-  /* On a colour with its own text colour (and on a picture without Surface) everything in the text is that colour, links
+  /* On a colour with its own text colour (and on an image without Surface) everything in the text is that colour, links
      too: they are underlined by the prose style. The section's real colours are kept in private variables first
      (--section-…): the blocks in it get the variables swapped (below), and a variable cannot swap with another on the
      same element. */
@@ -227,7 +227,7 @@
     --block-tint: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
     --block-line: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
     --block-shadow: none;
-    /* A hero with its picture behind the text is darkened with the section's own text colour, in its own surface. */
+    /* A hero with its image behind the text is darkened with the section's own text colour, in its own surface. */
     --block-hero-shade: var(--section-text);
     --block-hero-on-shade: var(--section-surface);
   }
@@ -409,7 +409,7 @@
     text-underline-offset: 0.25em;
   }
   /* "Hero" (hero/): its heading, the subtitle (the first paragraph, larger) and the introduction, the buttons, a text
-     under them and a quote, beside the picture on a computer, under it on a phone. */
+     under them and a quote, beside the image on a computer, under it on a phone. */
   .block-hero {
     display: grid;
     gap: 2rem;
@@ -479,7 +479,7 @@
     object-position: 50% 22%;
     border-radius: var(--block-radius);
   }
-  /* The picture behind the text ("Hero", `placement` 'behind'): it fills a panel, darkened from below (--block-hero-shade,
+  /* The image behind the text ("Hero", `placement` 'behind'): it fills a panel, darkened from below (--block-hero-shade,
      the text's colour unless the theme sets it) so the text on it (--block-hero-on-shade, the surface's) can be read. */
   .block-hero-behind {
     position: relative;
@@ -528,7 +528,7 @@
   .block-hero-behind :is(.block-link, .block-hero-note a) {
     color: inherit;
   }
-  /* Across the whole width of the window ("Banner", `width` 'full'): without corners, and without a picture behind it on
+  /* Across the whole width of the window ("Banner", `width` 'full'): without corners, and without an image behind it on
      a band in the tint, its content in a readable width. On the site (in the text, .block-in-text) it reaches out of
      the text to the window's edges, from where the text starts at the left of the page's container (--block-page-width,
      --block-gutter), and its content starts there again and ends at the container's right edge; the page is clipped at
@@ -787,7 +787,7 @@
   .block-testimonial-mark {
     display: none;
   }
-  /* A testimonial's picture before the name: small and round. */
+  /* A testimonial's image before the name: small and round. */
   .block-testimonial-picture {
     width: 2.5rem;
     height: 2.5rem;
@@ -831,7 +831,7 @@
     gap: 0.5rem;
   }
 
-  /* "Cards": Material 3's cards (.card in ui.css: outlined, filled or elevated), each with an icon, a picture, a video or nothing at
+  /* "Cards": Material 3's cards (.card in ui.css: outlined, filled or elevated), each with an icon, an image, a video or nothing at
      the top and either a link (the whole card) or buttons, two side by side from small screens (cards/LinkCards.tsx). */
   .block-cards {
     display: grid;
@@ -843,7 +843,7 @@
     display: flex;
     height: 100%;
     flex-direction: column;
-    /* Its edge a border (the outlined card's line, none on the others), so a picture at the top stays inside it. */
+    /* Its edge a border (the outlined card's line, none on the others), so an image at the top stays inside it. */
     border: 1px solid transparent;
     /* The card's shadow as it is now (ui.css: at rest, pointed at, dragged), without its line. */
     box-shadow: var(--card-shadow, 0 0 #0000);
@@ -861,7 +861,7 @@
   .block-card-icon {
     color: var(--block-accent);
   }
-  /* A video at the top fills it as a picture does, with its play button. */
+  /* A video at the top fills it as an image does, with its play button. */
   .block-card-video {
     display: block;
     margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0.25rem;
@@ -876,7 +876,7 @@
     gap: 0.5rem;
     padding-top: 1.25rem;
   }
-  /* The picture fills the top of the card, out to its edges. */
+  /* The image fills the top of the card, out to its edges. */
   .block-card-picture {
     display: block;
     margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0.25rem;
@@ -1029,7 +1029,7 @@
   .block-checklist .list-item-leading {
     max-height: var(--list-item-headline-line-height, 1lh);
   }
-  /* A picture with a heading, a text and buttons, beside it where there is room for 22rem each, else under it
+  /* An image with a heading, a text and buttons, beside it where there is room for 22rem each, else under it
      (e.g. an app's address block). */
   .block-media {
     display: grid;
@@ -1198,7 +1198,7 @@
     }
   }
 
-  /* A person: a small picture beside the name and a title under it. */
+  /* A person: a small image beside the name and a title under it. */
   .block-person {
     display: flex;
     align-items: center;
@@ -1435,7 +1435,7 @@
     transform: translateX(3px);
   }
 
-  /* An invitation, a filled card (.card in ui.css): a picture, a heading and a text, and buttons under each other
+  /* An invitation, a filled card (.card in ui.css): an image, a heading and a text, and buttons under each other
      (e.g. an app's booking block); on a computer the three side by side. */
   .block-cta {
     display: grid;
@@ -2078,7 +2078,7 @@
   /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
    editor): the accent, or the quiet text's, both readable on the background, the surfaces and the tint (the site's
    pairs of colours, checked under "Colors"). Bold, italic and a link in it have its colour. Outside the layers, as it
-   is in the text's style (.prose), whose colours of bold text and links it goes over. On a picture behind a hero's
+   is in the text's style (.prose), whose colours of bold text and links it goes over. On an image behind a hero's
    text, where only the text's colour can be read, it is the text's. */
   .color-accent,
   .color-accent :is(strong, em, a) {

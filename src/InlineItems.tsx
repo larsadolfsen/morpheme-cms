@@ -4,9 +4,9 @@
 // `InlineField` where a text stands and `InlineSlot` where an icon, image or link is picked. `InlineAdd` is the text button under the last
 // item. What is changed is told to `onChange`; the node view in MarkdownEditor.tsx (blockCard) keeps it as the block's props. Which item is
 // empty, and the items added, moved or dropped: src/inlineRows.mjs.
-import { useEffect, useLayoutEffect, useRef, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, type ClipboardEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { SiteButton } from './themeUi';
-import { addAt, isEmptyRow, removeAt, setField } from './inlineRows.mjs';
+import { addAt, isEmptyRow, linesFromPaste, removeAt, setField } from './inlineRows.mjs';
 
 export type Item = Record<string, any>;
 export type Focus = { row: number; field: string };
@@ -24,6 +24,7 @@ export function InlineField({
   onType,
   onFocus,
   onKeys,
+  onPaste,
 }: {
   name: string;
   value: string;
@@ -32,6 +33,7 @@ export function InlineField({
   onType: (value: string) => void;
   onFocus: () => void;
   onKeys: (e: KeyboardEvent<HTMLTextAreaElement>) => void;
+  onPaste?: (e: ClipboardEvent<HTMLTextAreaElement>) => void;
 }) {
   return (
     <textarea
@@ -44,6 +46,7 @@ export function InlineField({
       onChange={(e) => onType(e.target.value)}
       onFocus={onFocus}
       onKeyDown={onKeys}
+      onPaste={onPaste}
     />
   );
 }
@@ -99,6 +102,7 @@ export default function InlineItems({
   renderItem,
   wrap,
   start = 1,
+  paste,
 }: {
   items: Item[];
   /** The item being edited; null while the block is not. */
@@ -116,6 +120,9 @@ export default function InlineItems({
   /** How many empty, faded items a block shows while it has none (Cards start with three, the first active; else one). Typing in any of
    * them makes the first item. */
   start?: number;
+  /** Lines pasted into the first field of an empty block make one item each (the line in the first field), unless the pasted text has
+   * headings among its lines (linesFromPaste). */
+  paste?: boolean;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const [first, last] = [fields[0], fields[fields.length - 1]];
@@ -155,6 +162,14 @@ export default function InlineItems({
     }
   };
 
+  const pasted = (name: string, e: ClipboardEvent<HTMLTextAreaElement>) => {
+    if (!paste || name !== first || items.some((r) => !isEmptyRow(r))) return;
+    const lines = linesFromPaste(e.clipboardData.getData('text/plain'), e.clipboardData.getData('text/html'));
+    if (!lines) return;
+    e.preventDefault();
+    onChange({ items: lines.map((line) => ({ [first]: line })), active: lines.length - 1, focus: { row: lines.length - 1, field: last } });
+  };
+
   const body = shown.map((item, i) => {
     const next = i >= items.length;
     return renderItem({
@@ -179,6 +194,7 @@ export default function InlineItems({
           }
           onFocus={() => active !== slot(i) && onChange({ active: slot(i) })}
           onKeys={(e) => keys(i, name, e)}
+          onPaste={paste ? (e) => pasted(name, e) : undefined}
         />
       ),
     });

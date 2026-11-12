@@ -13,31 +13,31 @@ the same takes about 55 ms. A sandbox run is a fresh context, so the library is 
 ## Decision
 
 The engine runs in the site's build (`lib/contentColors.ts`, used by `site/pageColors.ts`), not in the hook. The hook
-only decides: which pictures to try, in which order, with which choice (variant and contrast from the app's settings).
+only decides: which images to try, in which order, with which choice (variant and contrast from the app's settings).
 It gets one new helper beside `pixels` and `readable`:
 
 ```ts
-contentColors(picture: string, choice: { variant; contrast }): Promise<Colors | undefined>
+contentColors(image: string, choice: { variant; contrast }): Promise<Colors | undefined>
 ```
 
-The helper makes the source color of the picture (Material's quantizer and score), then the scheme of the choice, each of
-the site's colors by its role, in both modes. It gives `undefined` for a picture that is not one of the page's, cannot be
+The helper makes the source color of the image (Material's quantizer and score), then the scheme of the choice, each of
+the site's colors by its role, in both modes. It gives `undefined` for an image that is not one of the page's, cannot be
 read, has no color (a grey one), a choice that is not a variant and a contrast, or colors that are hard to read.
 
 ## Why this is also the safer design
 
 - The sandbox limits stay as they are (1000 ms, 64 MB). The limits are the wall against a malicious publisher; raising
   them for one app would raise them for all.
-- Everything the hook gives the helper is checked on the host: the picture must be in the page's own list, the choice by
+- Everything the hook gives the helper is checked on the host: the image must be in the page's own list, the choice by
   `dynamicProblems`, the roles are the site's (`colorRoles`, never the hook's) and the colors must be readable. The cost
-  of the helper is fixed (a picture of at most 128 px, at most 128 colors), so it can't be used to stall the build.
-- The sandboxed `pixels` helper read any picture in `public/`. It now reads only the page's own pictures.
+  of the helper is fixed (an image of at most 128 px, at most 128 colors), so it can't be used to stall the build.
+- The sandboxed `pixels` helper read any image in `public/`. It now reads only the page's own images.
 - The hook's bundle no longer carries Material's library, so it is small and loads fast in each fresh context.
 
 ## Speed
 
-A picture is read and quantized once in a build (the shared picture is on every page), and the colors of a picture and a
-choice are made once. The hook is a loop of one call per picture.
+An image is read and quantized once in a build (the shared image is on every page), and the colors of an image and a
+choice are made once. The hook is a loop of one call per image.
 
 ## Compatibility
 

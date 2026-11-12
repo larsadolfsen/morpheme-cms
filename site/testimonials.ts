@@ -1,5 +1,5 @@
 // The site's client testimonials: one JSON file per testimonial in src/data/testimonials/, edited in the
-// editor (/editor/, "Testimonials"). Each has its picture (optional), its tags (`categories`, the same tags as the blog posts,
+// editor (/editor/, "Testimonials"). Each has its image (optional), its tags (`categories`, the same tags as the blog posts,
 // src/data/categories/) and whether it is shown on the front page. `order` is the order on the
 // testimonials page and the front page (set with the arrows in the editor).
 import { settings } from './settings';
@@ -19,7 +19,7 @@ export type Testimonial = {
   /** The file name, e.g. "marie-louise-eriksen" (a "Hero" picks its quote by it). */
   slug: string;
   name: string;
-  /** Its picture (optional), by the name. */
+  /** Its image (optional), by the name. */
   image?: string;
   context?: string;
   /** One string per paragraph. */

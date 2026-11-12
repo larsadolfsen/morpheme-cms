@@ -1,7 +1,7 @@
 // The site's themes, for the editor: the one the site and the editor are built with (src/data/theme.json;
 // packages/editor/site/theme.mjs), by "Themes" on "Appearance", and those installed in src/themes/, each a folder with its
 // theme.json, shown under "Themes" with a page each to swap to it from (Themes and ThemePage in Library.tsx). Only
-// their theme.json, the pictures of the site in them (screenshots/, packages/editor/scripts/theme-screenshots.mjs) and, for one installed
+// their theme.json, the images of the site in them (screenshots/, packages/editor/scripts/theme-screenshots.mjs) and, for one installed
 // from the store (packages/editor/src/store.ts), where it came from (store.json) are read: their code is not loaded.
 import chosen from '@data/theme.json';
 import { STANDARD_THEME, type StoreRecord } from './store';
@@ -15,10 +15,10 @@ export type ThemeInfo = {
   version: string;
   /** Who made it. */
   author: string;
-  /** Its picture, an address on the site. */
+  /** Its image, an address on the site. */
   icon: string;
   /** Its own licence ("UNLICENSED" when all rights are reserved) and the third-party work it brings (fonts, code,
-   * pictures), on its page and under "Licenses" (@morphemecms/cms/lib/licenses.mjs). */
+   * images), on its page and under "Licenses" (@morphemecms/cms/lib/licenses.mjs). */
   license: string;
   thirdParty: ThirdParty[];
   /** Its main category in the store ("category" in its theme.json: one of CATEGORIES in lib/storeCategories.mjs, for a
@@ -36,7 +36,7 @@ export type ThemeInfo = {
   description?: Record<string, string>;
   /** What it gives the site, a few short points by the editor's language, on its page. */
   highlights?: Record<string, string[]>;
-  /** Pictures of the site in it (src/themes/<theme>/screenshots/<n>-<key>.jpg), in their order: what each shows (its
+  /** Images of the site in it (src/themes/<theme>/screenshots/<n>-<key>.jpg), in their order: what each shows (its
    * name in the editor, t.library.themeShots) and its address. */
   screenshots: { key: string; src: string }[];
   /** Whether it is offered in the store (`"store": true` in its theme.json, npm run store:release), and where it came from
@@ -54,15 +54,15 @@ const manifests = {
   ...import.meta.glob<Manifest>('/src/themes/*/theme.json', { eager: true, import: 'default' }),
 };
 const records = import.meta.glob<StoreRecord>('/src/themes/*/store.json', { eager: true, import: 'default' });
-const pictures = {
+const images = {
   ...asStandard(import.meta.glob<string>('@saturn/screenshots/*.jpg', { eager: true, query: '?url', import: 'default' })),
   ...import.meta.glob<string>('/src/themes/*/screenshots/*.jpg', { eager: true, query: '?url', import: 'default' }),
 };
 const idOf = (path: string) => path.split('/')[3];
 
-/** A theme's pictures, by the number in their names. */
+/** A theme's images, by the number in their names. */
 const screenshotsOf = (id: string) =>
-  Object.entries(pictures)
+  Object.entries(images)
     .filter(([path]) => idOf(path) === id)
     .map(([path, src]) => ({
       name: path

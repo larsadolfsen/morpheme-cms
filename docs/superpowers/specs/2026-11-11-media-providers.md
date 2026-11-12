@@ -1,4 +1,4 @@
-# Media providers: an app adds a source to the picture picker
+# Media providers: an app adds a source to the image picker
 
 Status: this pull request (CMS side). The first app is Unsplash, in `morpheme-apps`.
 
@@ -7,7 +7,7 @@ Status: this pull request (CMS side). The first app is Unsplash, in `morpheme-ap
 The old Interstellar CMS had an Unsplash app. It was dropped when the CMS moved here (8533a13). It ran in the editor with
 full access and used a central proxy that no longer exists. Contract 4 and 5 say an app's network access is limited to the
 hosts in its `csp`, and `slots` (like `versionSwitch`) are `full` editor places for first-party apps only. A picker component
-in `editor.ts` would run unsandboxed, with the owner's session, so it is the wrong shape for a source of pictures from the
+in `editor.ts` would run unsandboxed, with the owner's session, so it is the wrong shape for a source of images from the
 internet.
 
 ## Design: data in `app.json`, requests by the Worker
@@ -16,22 +16,22 @@ An app declares `mediaProviders` in `app.json` (contract 5, `role: "connector"` 
 this place, so it gets no access of its own.
 
 - The **editor** draws the picker (`src/MediaProviderPicker.tsx`): a search, a grid, "Show more", and a field for the key.
-  `src/Media.tsx` shows each installed, enabled app's provider as a chip beside "Your pictures" in the picture sheet
+  `src/Media.tsx` shows each installed, enabled app's provider as a chip beside "Your images" in the image sheet
   (`useMediaPicker`).
-- The **Worker** makes every request (`worker/media-providers.js`, `lib/mediaProviders.mjs`): the search, the picture bytes and
+- The **Worker** makes every request (`worker/media-providers.js`, `lib/mediaProviders.mjs`): the search, the image bytes and
   the download tracking call. The browser calls only `/api/media-providers/<app>/<id>/…` on the site.
 - **Hosts.** A request URL must be https, on a name host with no port, no user info and no placeholder in the host, and that
   host must be in the app's `csp` under `connect-src` (`mediaProviders` is refused by `npm run check:content` otherwise).
-  Pictures must be on a host in `connect-src` or `img-src`. The Worker checks the host of every URL again at run time,
+  Images must be on a host in `connect-src` or `img-src`. The Worker checks the host of every URL again at run time,
   also for URLs taken out of the provider's answer, follows no redirect, and times out after 10 s, 1 MB of JSON or 12 MB of
-  picture. An answer entry with an address on another host is dropped.
+  image. An answer entry with an address on another host is dropped.
 - **The key.** The owner enters it once in the provider's tab (`needsKey`). The Worker seals it with `MCP_VAULT_KEY` in D1,
   as a connector's token (table `media_provider_keys`). It is never in the repository, never sent to the browser or the app,
-  and goes only into the headers the declaration lists, to the API host (not to picture hosts). Saving and removing it needs
+  and goes only into the headers the declaration lists, to the API host (not to image hosts). Saving and removing it needs
   the right to save the site. Uninstalling forgets it (`forgetProviderKeys`). *Deviation from the request:* the key is
   entered in the picker, not on the app's settings page, because a settings field is saved in the repository; a `secret`
   settings field is only supported for `mcp` tokens today.
-- **Pictures** are fetched and shown through the Worker (`/image`), so the editor's own CSP needs no change.
+- **Images** are fetched and shown through the Worker (`/image`), so the editor's own CSP needs no change.
 
 ### app.json
 
@@ -77,21 +77,21 @@ this place, so it gets no access of its own.
 | `map` | Dot paths of the parts of one entry (`MEDIA_FIELDS`). `id`, `thumb`, `url`, `width`, `height`, `alt`, `creditName`, `creditUrl` are required; `downloadTrackingUrl` is optional. |
 | `creditParams` | Added to the credit link (Unsplash's `utm_source` and `utm_medium`); `{site}` is the site's name. |
 
-The editor gets `{ url, thumb, width, height, alt, credit: { name, url }, downloadTrackingUrl? }` per picture
+The editor gets `{ url, thumb, width, height, alt, credit: { name, url }, downloadTrackingUrl? }` per image
 (`MediaItem`). An entry that lacks a part, or has an address off the listed hosts, is left out.
 
-## Inserting a picture and its credit
+## Inserting an image and its credit
 
-The picture is fetched through the Worker, made ready like any chosen picture (`prepareImage`: at most 2000 px, WebP) and
+The image is fetched through the Worker, made ready like any chosen image (`prepareImage`: at most 2000 px, WebP) and
 saved with the page in the same commit. Its download tracking URL is called by the Worker when it is inserted (best effort,
-never blocks the insert). The credit is saved in the picture's file record (`src/data/files/<id>.json`, the record
+never blocks the insert). The credit is saved in the image's file record (`src/data/files/<id>.json`, the record
 that holds its tags): `credit: { name, url, source }`, in the same commit (`creditChanges`). A record with a credit is never
 empty, so it is not deleted with the tags; tag changes keep it. `source` is the provider's label ("Unsplash"), so the credit
 reads "Photo by <name> on <source>" (`media.providers.credit`). Showing the credit on the public page is the theme's or
 the app's job and is not part of this change; the data is there for it.
 
-The picture's alt text is not saved: blocks keep alt text, and the picker only returns an address. `alt` from the provider
-is the picture's accessible name in the grid.
+The image's alt text is not saved: blocks keep alt text, and the picker only returns an address. `alt` from the provider
+is the image's accessible name in the grid.
 
 ## What the app side must implement (morpheme-apps, Unsplash)
 

@@ -101,7 +101,7 @@ import {
 import { FieldList, Fields, useWrongField, WrongField, type FieldContext } from './fields';
 import { newValue, problemAt } from './check';
 import { Icon, iconOptions, useAllIconNames, WidgetsIcon } from './icon';
-import { examplePicture, exampleData } from './examples';
+import { exampleImage, exampleData } from './examples';
 import { exampleOf } from './blocks';
 import { siteBlocks } from './registry';
 import type { Field } from './schema';
@@ -143,7 +143,7 @@ export default function Parts({ env }: { env: Env }) {
   const [icon, setIcon] = useState('heart');
   const [searchIcons, setSearchIcons] = useState(false);
   const allIcons = useAllIconNames(searchIcons);
-  const [picture, setPicture] = useState(examplePicture);
+  const [image, setImage] = useState(exampleImage);
   const [folded, setFolded] = useState<number | null>(0);
   const [sectionOpen, setSectionOpen] = useState<number | null>(0);
   const [sectionPicked, setSectionPicked] = useState('content');
@@ -246,7 +246,7 @@ export default function Parts({ env }: { env: Env }) {
             </Part>
 
             <Part name="ImagePick" use={use.imagePick}>
-              <ImagePick src={picture || undefined} onPick={() => setPicture(examplePicture)} onRemove={() => setPicture('')} />
+              <ImagePick src={image || undefined} onPick={() => setImage(exampleImage)} onRemove={() => setImage('')} />
             </Part>
 
             <Part name="FoldList, FoldItem" use={use.foldList}>
@@ -404,9 +404,9 @@ export default function Parts({ env }: { env: Env }) {
                 ))}
                 {/* With a text under its name: the icon beside the first two lines. */}
                 <ListItem href="#developer/parts/editor" icon={Gear} headline={sample.cookieBanner} supporting={sample.cookieHint} arrow />
-                {/* With a picture before its name (the picture a page's colours came from). */}
+                {/* With an image before its name (the image a page's colours came from). */}
                 <ListItem
-                  leading={<LeadingImage src={examplePicture} />}
+                  leading={<LeadingImage src={exampleImage} />}
                   headline={sample.pages}
                   supporting="/"
                   trailing={
@@ -720,7 +720,7 @@ export default function Parts({ env }: { env: Env }) {
             </Part>
 
             <Part name="SharePreview" use={use.sharePreview}>
-              <SharePreview image={examplePicture} domain={sample.domain} title={examples.pages[0]} description={examples.text} />
+              <SharePreview image={exampleImage} domain={sample.domain} title={examples.pages[0]} description={examples.text} />
             </Part>
 
             <Part name="ColorsPreview" use={use.colorsPreview}>
@@ -933,7 +933,7 @@ function fieldTypes(): FieldType[] {
         },
       ],
     },
-    { name: 'image', use: f.use.image, fields: [{ name: 'picture', label: f.picture, type: 'image' }] },
+    { name: 'image', use: f.use.image, fields: [{ name: 'image', label: f.image, type: 'image' }] },
     { name: 'readonly', use: f.use.readonly, fields: [{ name: 'address', label: sample.address, type: 'readonly' }] },
     {
       name: 'object · fields',
@@ -1031,13 +1031,13 @@ function FieldTypes({ env }: { env: Env }) {
     };
   });
   const wrongField = useWrongField((text) => env.notify({ text, error: true }));
-  // The made-up site, and a picture picked here is the plain one: nothing of the site's own.
+  // The made-up site, and an image picked here is the plain one: nothing of the site's own.
   const context: FieldContext = {
     relations: data.relations,
     lists: data.lists,
     testimonials: data.testimonials,
     site: data.site,
-    pickImage: async () => examplePicture,
+    pickImage: async () => exampleImage,
   };
   return (
     <Fields.Provider value={context}>

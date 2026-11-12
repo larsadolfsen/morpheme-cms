@@ -3,7 +3,8 @@
 // looks (draw). The blocks are each a folder, the standard ones in packages/editor/src/standard/ and the site's
 // own in src/apps/<app>/blocks/ (registry.tsx finds them); the sections of a fixed page are blocks in its text too
 // (sectionBlocks, sections.mjs), drawn by the theme's editor/previews.tsx.
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
+import type { InlineViewProps } from './inlineViews';
 import type { Block, Edit, Field, Lead, Relation } from './schema';
 import type { ListRows, Option, TestimonialRow } from './fields';
 import type { SiteData } from '@site/editor';
@@ -45,7 +46,7 @@ export type SiteBlock = {
   former?: boolean;
   /** Its heading and text are written in the text above it (sections.mjs); a new one gets a heading. */
   lead?: Lead;
-  /** Typed in place in the text (InlineItems.tsx, MarkdownEditor.tsx): its card is the block drawn with its text as fields, not a picture
+  /** Typed in place in the text (InlineItems.tsx, MarkdownEditor.tsx): its card is the block drawn with its text as fields, not an image
    * of it; a new one goes in at once, without a sheet. Only the List so far (docs/superpowers/specs/2026-11-12-inline-block-editing-design.md). */
   inline?: InlineSpec;
   /** Cannot be hidden on the site (its line in the file has no props to say so: HTML). */
@@ -61,6 +62,9 @@ export type SiteBlock = {
   /** How it looks on the site, with what is in it now (the card in the text, its sheet): its View.tsx given the view
    * its view.ts (an app's: viewOf.ts) makes (registry.tsx). Without it, the card has the lines of describe. */
   draw?: (props: Record<string, any>, data: BlockData) => ReactNode;
+  /** What draws the block typed in place (its `inline`, InlineSpec): a standard block's is in inlineViews.tsx, an app's is the `Inline.tsx` in
+   * its block's folder (appInlines, registry.tsx). Without it the block keeps its sheet, whatever `inline` says (typedInPlace.mjs). */
+  inlineView?: ComponentType<InlineViewProps>;
   /** Gone from the site by itself (a notice whose time is over): its card is greyed, like a hidden one. */
   over?: (props: BlockProps) => boolean;
   /** One of the editor's standard blocks (packages/editor/src/standard/), not the site's own (src/apps/<app>/blocks/). */
@@ -83,22 +87,24 @@ export type InlineSpec = {
   icon?: string;
   /** The field picked in the link slot (the item's settings). */
   link?: string;
-  /** Instead of `icon`: the fields the media slot opens (a card's media: its kind, icon, picture and video), in the item's sheet. */
+  /** Instead of `icon`: the fields the media slot opens (a card's media: its kind, icon, image and video), in the item's sheet. */
   media?: string[];
   /** The block's own fields that the first item's media sheet has too, above the item's (a card's one media choice for every card). */
   blockMedia?: string[];
   /** Instead of `link`: the fields the link slot opens (a card's page and buttons). */
   settings?: string[];
-  /** The block has settings of its own besides its items (a card's type and colour): its menu keeps Edit. */
-  blockSettings?: boolean;
+  /** The block has settings of its own besides its items (a card's type and colour): its menu keeps Edit. A function says it by the
+   * props (Steps: only while its old heading or subheading is filled). Without `link`, `settings` and `icon` the block has no item sheet. */
+  blockSettings?: boolean | ((props: BlockProps) => boolean);
   texts: {
     addAbove: string;
     addBelow: string;
-    link: string;
-    /** The button for the item's settings on a phone ("Row"), and the title of the item's settings. */
+    /** The Link action and the title of the item's settings: only for a block with a link or settings. */
+    link?: string;
+    /** The button for the item's other actions on a phone ("Row"). */
     row: string;
-    settings: string;
-    icon: string;
+    settings?: string;
+    icon?: string;
   };
 };
 
@@ -121,7 +127,7 @@ export type BlockData = {
 
 // Fields filled in as an example from what they are: a text with its name ("Heading"), a choice
 // with its default or first option, a page or post with the first ones there are, a list with three
-// items; a date or a picture stays empty.
+// items; a date or an image stays empty.
 function exampleFields(fields: Field[], data: BlockData): BlockProps {
   return Object.fromEntries(
     fields.map((f): [string, unknown] => {
@@ -163,7 +169,7 @@ export const exampleOf = (block: SiteBlock, data: BlockData): BlockProps => bloc
 // testimonials). Without anything to show, only its name.
 export const plain = (s: unknown) =>
   withoutColors(String(s))
-    // Without the blocks and pictures in it (a "Banner"'s text).
+    // Without the blocks and images in it (a "Banner"'s text).
     .replace(/<div data-block="[a-z]+"[^>]*><\/div>/g, ' ')
     .replace(/!\[(?:\\.|[^\]])*\]\([^)]*\)/g, ' ')
     .replace(/\]\([^)]*\)/g, ']')

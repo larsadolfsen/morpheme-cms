@@ -32,7 +32,7 @@ export const processor = unified()
   .use(rehypeStringify, { allowDangerousHtml: true });
 
 /** A short text's HTML made to stand inside a <p> of its own: its paragraphs separated by a line break, and anything
- * that cannot stand there (a list, a picture) as its text, still escaped HTML. */
+ * that cannot stand there (a list, an image) as its text, still escaped HTML. */
 export function inlineOf(html: string): string {
   const paragraphs = [...html.matchAll(/<p>([\s\S]*?)<\/p>/g)];
   if (paragraphs.map((m) => m[0]).join('\n') === html) return paragraphs.map((m) => m[1]).join('<br>');

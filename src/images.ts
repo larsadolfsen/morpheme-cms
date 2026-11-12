@@ -1,7 +1,7 @@
-// Pictures added in the editor. Before upload they are made at most 2000 px and WebP (JPEG in
+// Images added in the editor. Before upload they are made at most 2000 px and WebP (JPEG in
 // browsers that cannot write WebP, like Safari), as the old editor did; packages/editor/scripts/responsive-images.mjs
 // makes the smaller sizes when the site is built. They go in public/images/uploads/<year>/<month>/
-// like imported pictures, and are saved in the same commit as the page that uses them (on
+// like imported images, and are saved in the same commit as the page that uses them (on
 // their own from Filer, Media.tsx). PDFs, videos and zip files, from Filer, are saved as they are, in
 // the site's files folder (prepareFile).
 import { useState } from 'react';
@@ -15,14 +15,14 @@ import { settings } from '../site/settings';
 
 const MAX = 2000;
 
-// url: a temporary address of the picture in this browser, shown until the site is rebuilt.
+// url: a temporary address of the image in this browser, shown until the site is rebuilt.
 export type Upload = { url: string; path: string; bytes: Uint8Array; saved: boolean; credit?: FileCredit };
 
-// The pictures made ready in this visit, by their address on the site: shown from the browser
+// The images made ready in this visit, by their address on the site: shown from the browser
 // (shownAt), as the site has them only once it has been rebuilt.
 const fresh = new Map<string, string>();
 export const shownAt = (src: string) => fresh.get(src) ?? src;
-// A picture renamed in this visit is shown from its old address until the site is rebuilt.
+// An image renamed in this visit is shown from its old address until the site is rebuilt.
 export const showMoved = (from: string, to: string) => fresh.set(to, shownAt(from));
 
 /** What a file in the site's folder of files is, by its ending: a PDF, a video or a zip file. */
@@ -42,7 +42,7 @@ const endingOf = (name: string) => /\.([^./]+)$/.exec(name)?.[1].toLowerCase() ?
 /** A file's kind by its name or address, or null for one that is not a PDF, a video or a zip file. */
 export const fileKindOf = (name: string): FileKind | null => ENDINGS[endingOf(name)]?.[0] ?? null;
 
-/** The type a browser shows a file as, by its name ('' for a picture). */
+/** The type a browser shows a file as, by its name ('' for an image). */
 export const typeOf = (name: string) => ENDINGS[endingOf(name)]?.[1] ?? '';
 
 // A picked file's ending: its own, or for one without it the first of its type ("Guide" from a phone,
@@ -53,7 +53,7 @@ const pickedEnding = (file: File) =>
 /** A picked file's kind, by its ending or else its type, or null for one that is not a PDF, a video or a zip file. */
 export const pickedKindOf = (file: File): FileKind | null => ENDINGS[pickedEnding(file)]?.[0] ?? null;
 
-/** A file picked on the phone or computer: a picture, or (`all`, in Filer) a picture, a PDF, a video or a
+/** A file picked on the phone or computer: an image, or (`all`, in Filer) an image, a PDF, a video or a
  * zip file. */
 export function pickImage(all = false): Promise<File | null> {
   return new Promise((resolve) => {
@@ -68,9 +68,9 @@ export function pickImage(all = false): Promise<File | null> {
   });
 }
 
-/** The colours in a picture that are best as a source colour (dynamic colour, sourceColorsOf), best first: one on the
+/** The colours in an image that are best as a source colour (dynamic colour, sourceColorsOf), best first: one on the
  * phone or computer (it is not uploaded), or one at an address of the editor's own. Read small, which is enough and quick. */
-export async function colorsInPicture(file: Blob): Promise<string[]> {
+export async function colorsInImage(file: Blob): Promise<string[]> {
   const bitmap = await createImageBitmap(file);
   const scale = Math.min(1, 128 / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement('canvas');
@@ -84,7 +84,7 @@ export async function colorsInPicture(file: Blob): Promise<string[]> {
 
 export async function prepareImage(file: File): Promise<Upload> {
   const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' }).catch(() => {
-    throw new Error(t.app.pictureNotOpened);
+    throw new Error(t.app.imageNotOpened);
   });
   const scale = Math.min(1, MAX / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement('canvas');
@@ -95,12 +95,12 @@ export async function prepareImage(file: File): Promise<Upload> {
   const encode = (type: string) => new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, type, 0.82));
   let blob = await encode('image/webp');
   if (blob?.type !== 'image/webp') blob = await encode('image/jpeg');
-  if (!blob) throw new Error(t.app.pictureNotReady);
+  if (!blob) throw new Error(t.app.imageNotReady);
 
   const now = new Date();
   const folder = `${config.folders.media}/${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}`;
-  // A short random ending, so two pictures called IMG_1234 do not get the same name.
-  const name = `${slugify(file.name.replace(/\.[^.]*$/, '')) || 'picture'}-${Math.random().toString(36).slice(2, 6)}`;
+  // A short random ending, so two images called IMG_1234 do not get the same name.
+  const name = `${slugify(file.name.replace(/\.[^.]*$/, '')) || 'image'}-${Math.random().toString(36).slice(2, 6)}`;
   const ext = blob.type === 'image/webp' ? 'webp' : 'jpg';
   const upload = {
     url: URL.createObjectURL(blob),
@@ -130,13 +130,13 @@ export async function prepareFile(file: File, taken: string[]): Promise<Upload> 
   return upload;
 }
 
-// The address of an uploaded picture on the site.
+// The address of an uploaded image on the site.
 export const publicPath = (path: string) => path.replace(/^public/, '');
 
-// The pictures added in a form (a page, a fixed page), kept in the browser until "Save", which saves
-// them in the same commit. upload: pick one and make it ready; uploading: true while a chosen picture
+// The images added in a form (a page, a fixed page), kept in the browser until "Save", which saves
+// them in the same commit. upload: pick one and make it ready; uploading: true while a chosen image
 // is made ready (a button shows busy); added: those not saved yet, newest
-// first (offered in the gallery, MediaPicker.tsx); saving: the pictures a text uses.
+// first (offered in the gallery, MediaPicker.tsx); saving: the images a text uses.
 export function useUploads(notify: (status: Status) => void) {
   const [uploads, setUploads] = useState<Upload[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -144,7 +144,7 @@ export function useUploads(notify: (status: Status) => void) {
   async function upload(): Promise<Upload | null> {
     const file = await pickImage();
     if (!file) return null;
-    notify({ text: t.app.preparingPicture });
+    notify({ text: t.app.preparingImage });
     setUploading(true);
     try {
       const prepared = await prepareImage(file);
@@ -159,7 +159,7 @@ export function useUploads(notify: (status: Status) => void) {
     }
   }
 
-  /** A picture from a media provider (an app's source of pictures) made ready like a chosen one, with its credit, which is saved with it. */
+  /** An image from a media provider (an app's source of images) made ready like a chosen one, with its credit, which is saved with it. */
   async function addFile(file: File, credit: FileCredit): Promise<Upload> {
     setUploading(true);
     try {
@@ -172,14 +172,14 @@ export function useUploads(notify: (status: Status) => void) {
   }
 
   const added = uploads.filter((u) => !u.saved).reverse();
-  /** The pictures not saved yet that a text uses. */
+  /** The images not saved yet that a text uses. */
   const usedIn = (text: string) => uploads.filter((u) => !u.saved && text.includes(publicPath(u.path)));
-  const markSaved = (pictures: Upload[]) => setUploads((all) => all.map((u) => (pictures.includes(u) ? { ...u, saved: true } : u)));
+  const markSaved = (images: Upload[]) => setUploads((all) => all.map((u) => (images.includes(u) ? { ...u, saved: true } : u)));
 
   return { upload, addFile, uploading, added, usedIn, markSaved };
 }
 
 export type Uploads = ReturnType<typeof useUploads>;
 
-/** The pictures among `uploads` that came with a credit (from an app's source of pictures), by their address on the site. */
+/** The images among `uploads` that came with a credit (from an app's source of images), by their address on the site. */
 export const creditedIn = (uploads: Upload[]) => uploads.flatMap((u) => (u.credit ? [{ src: publicPath(u.path), credit: u.credit }] : []));

@@ -1,7 +1,7 @@
 // The themes in the app store (store.ts): "Theme store" (#appearance/theme-store, ThemeStoreScreen.tsx, first under Appearance), all themes, those
 // in the store and those installed, with the same search, order and status filter as the apps ("Appstore" only has apps); the page of one that
-// is not installed (#appearance/themes/<id>, StoreThemePage), drawn from the catalog as a theme's page (its picture,
-// name, version, who made it, "Install", its pictures of a site in it, what it is and gives the site, and who made
+// is not installed (#appearance/themes/<id>, StoreThemePage), drawn from the catalog as a theme's page (its image,
+// name, version, who made it, "Install", its images of a site in it, what it is and gives the site, and who made
 // it); and on the page of one installed from the store (ThemePage in Library.tsx) "Update to …" and "Uninstall"
 // (ThemeStoreButtons). Installing copies its folder into the site's themes (config.themes/<id>/, with its store.json),
 // updating copies the newer version over it and uninstalling deletes it, each saved at once in its own commit
@@ -38,8 +38,8 @@ import { kindAndName } from './deploy';
 /** A theme's page (installed, or in the store). */
 export const themeHref = (id: string) => `#appearance/themes/${id}`;
 
-/** A theme's picture (its theme.json's icon), where a row has its icon. */
-export function ThemePicture({ src }: { src: string }) {
+/** A theme's image (its theme.json's icon), where a row has its icon. */
+export function ThemeImage({ src }: { src: string }) {
   return <img src={src} alt="" className="size-9 shrink-0 rounded-(--block-radius-small)" />;
 }
 
@@ -237,13 +237,13 @@ export function allThemes(catalog: ShownTheme[] | null | 'failed') {
   ];
 }
 
-/** A theme's row in "Theme store" and on a developer's page: its picture, its name, its version and who made it, and
+/** A theme's row in "Theme store" and on a developer's page: its image, its name, its version and who made it, and
  * whether it is installed, opening its page. */
 export function ThemeRow({ of }: { of: ReturnType<typeof allThemes>[number] }) {
   return (
     <ListItem
       href={themeHref(of.id)}
-      leading={<ThemePicture src={of.icon} />}
+      leading={<ThemeImage src={of.icon} />}
       headline={of.name}
       supporting={t.library.themeByline(of.version, of.author)}
       truncate
@@ -261,14 +261,14 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
   const [, redraw] = useState(0);
   const of = Array.isArray(catalog) ? catalog.find((x) => x.id === id) : undefined;
   const pending = themePending(id);
-  const [pictures, setPictures] = useState<{ key: string; src: string }[]>([]);
+  const [images, setImages] = useState<{ key: string; src: string }[]>([]);
   useEffect(() => {
     if (!of?.screenshots?.length) return;
     let on = true;
     let made: string[] = [];
     env.store.themeScreenshots(of).then((found) => {
       made = found.map((x) => x.src);
-      if (on) setPictures(found);
+      if (on) setImages(found);
       else made.forEach((src) => URL.revokeObjectURL(src));
     });
     return () => {
@@ -301,10 +301,10 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
               </Button>
             </div>
           )}
-          {pictures.length > 0 && (
+          {images.length > 0 && (
             <section className="mb-8">
               <GroupTitle>{t.library.themeLooks}</GroupTitle>
-              <ImageCarousel label={t.library.themeLooks} images={pictures.map((x) => ({ src: x.src, label: shotName(x.key) }))} />
+              <ImageCarousel label={t.library.themeLooks} images={images.map((x) => ({ src: x.src, label: shotName(x.key) }))} />
             </section>
           )}
           {of.description && (

@@ -1,11 +1,11 @@
 // A chip (m3.material.io/components/chips, .chip in ../styles/ui.css): a short label (`label`), evt. an icon before it
-// (`icon`), or a person's picture (`avatar`: its address, on an input chip) and one after it (`trailingIcon`). Its kind
+// (`icon`), or a person's image (`avatar`: its address, on an input chip) and one after it (`trailingIcon`). Its kind
 // (`kind`) is Material's name; how each looks is the theme's: assist (the default: a link to something related, a post's
 // tag), filter (one of a few that choose what is shown: `selected` is the chosen one, aria-pressed on a button,
 // aria-current="page" on a link; it has a check before its label, which a theme shows on the chosen one or not), input
 // (something entered, evt. selected and with a button after it that removes it, `removeLabel`, its name for screen
 // readers, and what it does in the editor, `onRemove`) and suggestion (evt. selected). Assist, filter and suggestion chips can be `elevated` (with a shadow
-// instead of the edge, on a picture or a colour). Its states: `selected`, `disabled` (it cannot be used: a button
+// instead of the edge, on an image or a colour). Its states: `selected`, `disabled` (it cannot be used: a button
 // disabled, a link only shown) and `dragged` (while it is dragged to another place, with the shadow that lifts it).
 // With `href` it is a link (Link: on the site; in the editor only drawn), with `plain` only shown (a tag without a
 // page), else a <button type="button">; an input chip with `removeLabel` is the chip (a <span>) with its own button and

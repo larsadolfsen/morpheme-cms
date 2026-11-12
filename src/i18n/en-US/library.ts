@@ -10,7 +10,7 @@ export const library = {
   firstRunTitle: 'Get started',
   firstRunPage: 'Write a page',
   firstRunPost: 'Write a blog post',
-  firstRunPicture: 'Add a picture',
+  firstRunImage: 'Add an image',
   /** The start screen's FAB menu (StartFab.tsx), which makes a new page or blog post. */
   createNew: 'Create',
   /** On the start screen (widgets/continue.tsx): the card with the last three pages and blog posts saved. */
@@ -106,7 +106,7 @@ export const library = {
   /** By the theme it is changed to, until the website is updated: under "Themes", and on its page. */
   themeNext: 'Changing to this theme',
   themeChanging: (name: string) => `Changing to ${name} in a few minutes`,
-  /** On a theme's page: the pictures of the site in it (packages/editor/scripts/theme-screenshots.mjs), each by what it shows. */
+  /** On a theme's page: the images of the site in it (packages/editor/scripts/theme-screenshots.mjs), each by what it shows. */
   themeLooks: 'What your website looks like',
   themeShots: {
     front: 'The front page',

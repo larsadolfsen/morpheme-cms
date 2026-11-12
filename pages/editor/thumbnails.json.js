@@ -1,7 +1,7 @@
-// /editor/thumbnails.json: for each uploaded picture (/images/uploads/…), its 480 px wide copy
+// /editor/thumbnails.json: for each uploaded image (/images/uploads/…), its 480 px wide copy
 // (/images/_r/…, made by packages/editor/scripts/responsive-images.mjs before the build), which the grid in "Files"
-// shows instead of the picture itself (packages/editor/src/Media.tsx). A picture without one (it is
-// smaller) is not in it, and the grid shows the picture.
+// shows instead of the image itself (packages/editor/src/Media.tsx). An image without one (it is
+// smaller) is not in it, and the grid shows the image.
 import fs from 'node:fs';
 import path from 'node:path';
 

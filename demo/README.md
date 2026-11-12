@@ -1,21 +1,21 @@
 # Morpheme's demo
 
-A made-up site about Morpheme itself, in American English (`locale: 'en-US'`), which the themes' pictures are taken of
+A made-up site about Morpheme itself, in American English (`locale: 'en-US'`), which the themes' images are taken of
 (`scripts/theme-screenshots.mjs`), so a theme is never shown with a real site's content. It is the starter (`starter/`)
 with this folder laid on top (`scripts/demo-site.mjs`), so only what is different is here: pages and blog posts
 (`src/content/`, the starter's own pages do not come along), the data files the demo changes (`src/data/`), `src/site/config.ts`
-and `colors.ts`, and the logo, the icons and the pictures (`public/`). The contact details are made up, and the testimonials on
+and `colors.ts`, and the logo, the icons and the images (`public/`). The contact details are made up, and the testimonials on
 *Blocks* are marked as examples.
 
 `npx morpheme check:demo` builds the demo with the default theme and checks it. See *Themes › The demo* in `docs/editor.md`.
 
-## Pictures
+## Images
 
-The pictures `editor-*.webp` in `public/images/uploads/2026/10/` are screenshots of the editor with the demo's own content, put
+The images `editor-*.webp` in `public/images/uploads/2026/10/` are screenshots of the editor with the demo's own content, put
 on a background in the demo's colors. The photographs are from [Unsplash](https://unsplash.com) under the
 [Unsplash license](https://unsplash.com/license), made smaller and saved as WebP:
 
-| File | The picture at Unsplash |
+| File | The image at Unsplash |
 | --- | --- |
 | `saturn.webp` | https://images.unsplash.com/photo-1614732414444-096e5f1122d5 |
 | `earth-from-space.webp` | https://images.unsplash.com/photo-1446776811953-b23d57bd21aa |

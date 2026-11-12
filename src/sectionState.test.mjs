@@ -16,7 +16,7 @@ const schema = new Schema({
       attrs: {
         level: { default: 2 },
         section: { default: null },
-        sectionPicture: { default: null },
+        sectionImage: { default: null },
         sectionAlt: { default: null },
         sectionWidth: { default: null },
       },
@@ -41,7 +41,7 @@ const viewAt = (pos) => ({
 });
 
 test('the H2 the cursor is in', () =>
-  assert.deepEqual(sectionHeading(viewAt(3).state), { pos: 0, level: 2, color: 'surface', picture: null, alt: null, width: null }));
+  assert.deepEqual(sectionHeading(viewAt(3).state), { pos: 0, level: 2, color: 'surface', image: null, alt: null, width: null }));
 test('a paragraph or an H3 belongs to the section above it', () => {
   assert.equal(sectionHeading(viewAt(8).state)?.pos, 0);
   assert.equal(sectionHeading(viewAt(12).state)?.pos, 0);
@@ -70,7 +70,7 @@ test('a colour the theme has not is refused, and nothing happens before the firs
   assert.equal(setSectionColor(before, 'surface'), false);
 });
 test('the H1 the cursor is in', () =>
-  assert.deepEqual(sectionHeading(viewAt(17).state), { pos: 15, level: 1, color: 'surface', picture: null, alt: null, width: null }));
+  assert.deepEqual(sectionHeading(viewAt(17).state), { pos: 15, level: 1, color: 'surface', image: null, alt: null, width: null }));
 test('sets a colour on an H1', () => {
   const view = viewAt(17);
   assert.equal(setSectionColor(view, 'primary'), true);
@@ -88,30 +88,30 @@ test('the colour of a section is its H2’s, also after a label', () => {
   assert.equal(sectionColorOf([node('heading', 'A', { level: 2 })], { from: 0, to: 0 }), null);
 });
 
-test('sets a picture, its description and its width on an H2', () => {
+test('sets an image, its description and its width on an H2', () => {
   const view = viewAt(3);
-  assert.equal(setSection(view, { picture: '/a.jpg', alt: 'A field', width: 'full' }), true);
+  assert.equal(setSection(view, { image: '/a.jpg', alt: 'A field', width: 'full' }), true);
   assert.deepEqual(sectionOf(view.state.doc.children ?? [view.state.doc.child(0)], { from: 0, to: 0 }), {
     color: 'surface',
-    picture: '/a.jpg',
+    image: '/a.jpg',
     alt: 'A field',
     width: 'full',
   });
 });
-test('without a picture the description is gone, and the colour stays', () => {
+test('without an image the description is gone, and the colour stays', () => {
   const view = viewAt(3);
-  setSection(view, { picture: '/a.jpg', alt: 'A field' });
-  setSection(view, { picture: null });
+  setSection(view, { image: '/a.jpg', alt: 'A field' });
+  setSection(view, { image: null });
   const attrs = view.state.doc.child(0).attrs;
-  assert.equal(attrs.sectionPicture, null);
+  assert.equal(attrs.sectionImage, null);
   assert.equal(attrs.sectionAlt, null);
   assert.equal(attrs.section, 'surface');
 });
-test('an H1 has a colour, a picture and a width like an H2', () => {
+test('an H1 has a colour, an image and a width like an H2', () => {
   const view = viewAt(17);
-  setSection(view, { color: 'tertiary', picture: '/a.jpg', width: 'full' });
+  setSection(view, { color: 'tertiary', image: '/a.jpg', width: 'full' });
   const attrs = view.state.doc.child(3).attrs;
   assert.equal(attrs.section, 'tertiary');
-  assert.equal(attrs.sectionPicture, '/a.jpg');
+  assert.equal(attrs.sectionImage, '/a.jpg');
   assert.equal(attrs.sectionWidth, 'full');
 });

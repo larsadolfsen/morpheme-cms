@@ -5,7 +5,7 @@
 import type { BlockData } from '../../blocks';
 import { shownAt } from '../../images';
 import { sharedIn } from '../../shared';
-import type { Picture, ViewOf } from '../view';
+import type { Image, ViewOf } from '../view';
 import { headOf, type HeadView } from '../head';
 import { textOf, type Button } from '../buttons/fields';
 import { kindOf, type ButtonView } from '../buttons/view';
@@ -17,7 +17,7 @@ export type LinkCard = {
   /** The block's one choice, the same on every card. */
   media: CardMedia;
   icon?: string;
-  image?: Picture;
+  image?: Image;
   video?: VideoView;
   title: string;
   /** The small line under the headline (a byline, a date, a place: whatever the owner writes). */
@@ -43,12 +43,12 @@ export type LinkCardProps = {
 
 const MEDIA: CardMedia[] = ['none', 'icon', 'image', 'video'];
 
-/** The cards, with their images as `picture` gives them, their videos as `video` and their buttons as `buttons` (the site's are asked for). */
+/** The cards, with their images as `image` gives them, their videos as `video` and their buttons as `buttons` (the site's are asked for). */
 export const cardsOf = (
   items: LinkCardProps[],
   blockMedia: unknown,
   how: {
-    picture: (src: string) => Picture;
+    image: (src: string) => Image;
     video: (url: string, title: string) => VideoView | null;
     buttons: (card: LinkCardProps, i: number) => ButtonView[];
   },
@@ -59,7 +59,7 @@ export const cardsOf = (
     return {
       media,
       ...(media === 'icon' ? { icon: card.icon } : {}),
-      ...(media === 'image' && card.image ? { image: how.picture(card.image) } : {}),
+      ...(media === 'image' && card.image ? { image: how.image(card.image) } : {}),
       ...(video ? { video } : {}),
       title: card.title,
       ...(card.subhead ? { subhead: card.subhead } : {}),
@@ -73,7 +73,7 @@ export const cardsOf = (
 /** Cards in the editor. */
 export const shownCards = (items: LinkCardProps[], data: BlockData, media?: unknown) =>
   cardsOf(items, media, {
-    picture: (src) => ({ src: shownAt(src) }),
+    image: (src) => ({ src: shownAt(src) }),
     video: (url, title) => videoViewOf({ url, title }, data),
     // A button that has no text yet (the next one, being made in the card's sheet) is not drawn.
     buttons: (card) =>

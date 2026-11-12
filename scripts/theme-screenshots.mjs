@@ -1,4 +1,4 @@
-// Takes the pictures of the site in each theme installed (src/themes/), shown on the theme's page in the editor
+// Takes the images of the site in each theme installed (src/themes/), shown on the theme's page in the editor
 // ("Appearance" › "Themes" › the theme, ThemePage in packages/editor/src/Library.tsx): the CMS's demo site (demo/, never the
 // site's own content) built with the theme (demo-site.mjs, in a folder of its own), opened on a phone, and the top of each
 // page in SHOTS taken, into the theme's screenshots/<n>-<key>.jpg (the standard theme's in this package's theme/, another's
@@ -18,7 +18,7 @@ const ROOT = `${process.cwd()}/`;
 const themes = process.argv.length > 2 ? process.argv.slice(2) : installedThemes();
 const standardPages = JSON.parse(readFileSync(new URL('../demo/src/data/standard-pages.json', import.meta.url), 'utf8'));
 
-/** The pictures, in their order: the key (its name in the editor), the page and whether it is in dark mode. */
+/** The images, in their order: the key (its name in the editor), the page and whether it is in dark mode. */
 const SHOTS = [
   { key: 'front', path: '/' },
   { key: 'front-dark', path: '/', dark: true },
@@ -78,7 +78,7 @@ try {
         await page.close();
       }
       server.close();
-      console.log(`${SHOTS.length} pictures in ${themeFolder(theme)}/screenshots/.`);
+      console.log(`${SHOTS.length} images in ${themeFolder(theme)}/screenshots/.`);
     } finally {
       rmSync(demo, { recursive: true, force: true });
     }

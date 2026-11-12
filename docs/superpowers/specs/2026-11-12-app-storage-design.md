@@ -14,7 +14,7 @@ Cloudflare account. The owner sees it in the editor, can delete and export it, a
 ## What exists today
 
 - The Worker has one D1 database, the binding `CONSENT` (`starter/wrangler.jsonc`), created by `wrangler deploy` the first
-  time. The core keeps its own tables in it (consents, MCP sign-in, the store key, picture-provider keys). D1 has no
+  time. The core keeps its own tables in it (consents, MCP sign-in, the store key, image-provider keys). D1 has no
   migrations on deploy, so each file makes its tables with `CREATE TABLE IF NOT EXISTS` and remembers it only after the
   create has finished (`worker/consent.js`, `worker/mcp-store.js`).
 - `consent.js` is the pattern for a list of personal data: only someone who can save the site reads or deletes it, rows are
