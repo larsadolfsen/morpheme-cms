@@ -168,7 +168,18 @@ import {
   MotionSchemes,
   motionOf,
 } from './Library';
-import { appearance, asWritten, blockParts, collections, collectionsFor, companyParts, listRowsOf, partScreens, seoParts } from './site';
+import {
+  appearance,
+  asWritten,
+  blockParts,
+  collections,
+  collectionsFor,
+  companyParts,
+  listRowsOf,
+  setOwnRowLists,
+  partScreens,
+  seoParts,
+} from './site';
 import { config, relationsOf, type SiteData, siteName, siteOf, testimonialsOf, usedBy, whatIsAt } from '@site/editor';
 import { themes } from './themes';
 import Screen from './Screen';
@@ -464,7 +475,10 @@ function Editor() {
       { title: t.text.linkPosts, options: relations.blog.map((o) => ({ ...o, value: `/${o.value}/` })) },
     ].filter((g) => g.options.length);
   }, [relations]);
-  const listRows = useMemo(() => listRowsOf(files ?? []), [files]);
+  const listRows = useMemo(() => {
+    setOwnRowLists(files ?? []);
+    return listRowsOf(files ?? []);
+  }, [files]);
   const testimonials = useMemo(() => testimonialsOf(files ?? []), [files]);
 
   // The site's colours as loaded and saved ("Colors"), also before the site is built again with them.

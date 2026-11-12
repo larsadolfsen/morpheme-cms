@@ -327,6 +327,9 @@ export const collections = [...each(site.collections, local.collection), ...stan
 const ownedLists = [...standardLists, ...listsOf(writtenApps)];
 setRowLists(ownedLists);
 
+/** Told by the app once it has the site's files: "Rows from" offers the owner's lists too. */
+export const setOwnRowLists = (files: { path: string; text: string }[]) => setRowLists([...ownedLists, ...ownListsOf(files)]);
+
 /** The made-up rows of the lists the standard blocks and the apps bring (`examples`), by the list's id, as listRowsOf
  * gives them: what the made-up site (examples.ts) has in them. */
 export const listExamples: ListRows = Object.fromEntries(

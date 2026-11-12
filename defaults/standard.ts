@@ -4,6 +4,7 @@
 // (astro:content) and uses the site's components.
 import type { ListedPost, SourceItem, StandardSite } from '../src/standard/site';
 import { itemOfEntry } from '../src/standard/rows/rows.mjs';
+import { asRowsOf, isEntryPath, parseDefinition } from '../lib/ownList.mjs';
 import {
   categoryName,
   displayTitle,
@@ -56,6 +57,8 @@ const rowLists = new Map<string, { folder: string; asRows: AsRows }>(
     .flatMap((l) => (l.asRows ? [[l.id, { folder: l.folder, asRows: l.asRows }] as const] : [])),
 );
 const dataFiles = import.meta.glob<Record<string, unknown>>('@data/*/*.json', { import: 'default' });
+// The lists the owner made: their definitions, `@data/<id>/_list.json`, as text (lib/ownList.mjs).
+const ownDefinitions = import.meta.glob<string>('@data/*/_list.json', { query: '?raw', import: 'default' });
 
 export const standard: StandardSite = {
   texts: blockTexts,
@@ -75,12 +78,18 @@ export const standard: StandardSite = {
       }));
       return { items, page: testimonialsPath };
     }
-    const list = rowLists.get(id);
-    if (!list) return { items: [] };
+    // An app's list, else a list the owner made (its fields from its definition); no such list gives no items.
+    let list = rowLists.get(id);
+    if (!list) {
+      const file = Object.keys(ownDefinitions).find((f) => f.split('/').slice(-2)[0] === id);
+      const { definition } = file ? parseDefinition(await ownDefinitions[file]()) : {};
+      if (!definition) return { items: [] };
+      list = { folder: id, asRows: asRowsOf(definition) };
+    }
     const folder = list.folder.split('/').pop();
     const entries = await Promise.all(
       Object.entries(dataFiles)
-        .filter(([file]) => file.split('/').slice(-2)[0] === folder)
+        .filter(([file]) => isEntryPath(file) && file.split('/').slice(-2)[0] === folder)
         .sort(([a], [b]) => a.localeCompare(b))
         .map(async ([, load]) => load()),
     );

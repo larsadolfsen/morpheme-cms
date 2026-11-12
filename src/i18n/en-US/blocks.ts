@@ -137,6 +137,8 @@ export const blocks = {
         ...(tags.length ? [`${tags.length === 1 ? 'tag' : 'tags'} ${tags.join(', ')}`] : []),
         `${count} ${count === 1 ? 'item' : 'items'}`,
       ].join(' · '),
+    dynamicTip: 'Fill from a list',
+    typedHidden: 'Your typed rows are kept, not shown.',
     editList: 'Edit list',
     map: 'Fields in a row',
     empty: 'No items in the list match, so nothing shows on the page.',
@@ -180,6 +182,12 @@ export const blocks = {
     moreHint: 'Only shown with a page.',
     exampleTitle: 'Heading',
     exampleText: 'A short text about the point.',
+  },
+  table: {
+    label: 'Table',
+    hint: 'Rows and columns of text.',
+    header: 'Header row',
+    headerToggle: ['On', 'Off'] as [string, string],
   },
   steps: {
     label: 'Steps',
