@@ -849,6 +849,12 @@ html {
   max-height: 3rem;
 }
 
+/* When the tools do not all fit on one line, the lines between the groups go, so the tools that must stay (the kinds of text,
+   "+" and Section settings) have the room (MarkdownEditor.tsx, toolbarOrder.mjs). */
+.editor-tools-compact > span[aria-hidden='true'] {
+  display: none;
+}
+
 .editor-tools-closed > [data-wrapped],
 .editor-tools-line > span[data-line-start],
 .editor-tools-line > span[data-line-end] {
