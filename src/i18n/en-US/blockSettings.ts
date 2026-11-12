@@ -12,6 +12,7 @@ export const blockSettings = {
     banners: 'Banners',
     buttons: 'Buttons',
     media: 'Media',
+    developer: 'Developer',
   },
   /** In the group of an installed app with neither blocks nor kinds. */
   noBlocks: 'The app has no blocks',

@@ -11,6 +11,7 @@ export const blockSettings: Messages['blockSettings'] = {
     banners: 'Bannere',
     buttons: 'Knapper',
     media: 'Medier',
+    developer: 'Udvikler',
   },
   noBlocks: 'Appen har ingen blokke',
   isStandard: 'En standardblok.',
