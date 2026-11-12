@@ -21,6 +21,7 @@ import { decorated, decorativeOf } from '../lib/crop.mjs';
 import { coloredHtml, withoutColors } from '../lib/text-colors.mjs';
 import { MARKER_TAG, isLabelLine, parseMarker } from '../lib/section-marker.mjs';
 import { listHeadsInMarkdown } from '../lib/remark-list-head.mjs';
+import { blockLabelsInMarkdown } from '../lib/remark-block-label.mjs';
 
 // Text that is plain in the file (a heading, a picture's description); in Markdown every sign that
 // could mean something is escaped, and back from Markdown the escapes go again. The page's
@@ -359,7 +360,7 @@ export function partsOfMarkdown(markdown) {
     run = [];
   };
   // A List's label, heading and intro are the text's own lines above it (lib/remark-list-head.mjs), as the editor reads them.
-  for (const line of listHeadsInMarkdown(String(markdown)).split(/\r?\n/)) {
+  for (const line of blockLabelsInMarkdown(listHeadsInMarkdown(String(markdown))).split(/\r?\n/)) {
     const mark = line.match(/^ {0,3}(`{3,}|~{3,})/)?.[1];
     if (fence) {
       if (mark && mark[0] === fence[0] && mark.length >= fence.length) fence = null;

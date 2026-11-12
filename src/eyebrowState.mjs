@@ -3,13 +3,13 @@
 // command (labelledHeading, hasLabel, toggleLabel). Only ProseMirror's state; no Milkdown, no browser.
 import { TextSelection } from '@milkdown/kit/prose/state';
 
-/** The positions of the labels at the top of the text with no heading right after them.
+/** The positions of the labels at the top of the text with no heading or block right after them.
  * @param {import('@milkdown/kit/prose/model').Node} doc @returns {number[]} */
 export function looseLabels(doc) {
   /** @type {number[]} */
   const loose = [];
   doc.forEach((node, at, i) => {
-    if (node.type.name === 'eyebrow' && doc.maybeChild(i + 1)?.type.name !== 'heading') loose.push(at);
+    if (node.type.name === 'eyebrow' && !['heading', 'siteBlock'].includes(doc.maybeChild(i + 1)?.type.name ?? '')) loose.push(at);
   });
   return loose;
 }

@@ -65,7 +65,10 @@ const files = process.argv.length > 2 ? process.argv.slice(2) : [...walk('src/co
 const { remarkBannerSections } = await import('@morphemecms/cms/lib/remark-banner-section.mjs');
 const { remarkChecklists } = await import('@morphemecms/cms/lib/remark-checklist.mjs');
 const { remarkListHeads } = await import('@morphemecms/cms/lib/remark-list-head.mjs');
-const processor = await createMarkdownProcessor({ remarkPlugins: [remarkBannerSections, remarkChecklists, remarkListHeads] });
+const { remarkBlockLabels } = await import('@morphemecms/cms/lib/remark-block-label.mjs');
+const processor = await createMarkdownProcessor({
+  remarkPlugins: [remarkBannerSections, remarkChecklists, remarkListHeads, remarkBlockLabels],
+});
 const render = async (md) => (await processor.render(md)).code.replace(/\s+/g, ' ').trim();
 
 let failed = 0;

@@ -66,6 +66,25 @@ test('the marker comes before a label above the H1', async () => {
   assert.ok(nodes.includes('heading:primary'));
 });
 
+test('a label before a block stays a label and comes back byte for byte', async () => {
+  const text =
+    '<p class="label-medium">How it works</p>\n\n<div data-block="steps" data-props="{&quot;heading&quot;:&quot;Three steps&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;One&quot;}]}"></div>\n';
+  const { saved, nodes } = await through(text);
+  assert.equal(saved, text);
+  assert.ok(nodes.includes('eyebrow'));
+});
+
+test('a block with a label of its own is read as a label line before the block, and written so', async () => {
+  const old =
+    '<div data-block="steps" data-props="{&quot;eyebrow&quot;:&quot;How it works&quot;,&quot;heading&quot;:&quot;Three steps&quot;}"></div>\n';
+  const { saved, nodes } = await through(old);
+  assert.equal(
+    saved,
+    '<p class="label-medium">How it works</p>\n\n<div data-block="steps" data-props="{&quot;heading&quot;:&quot;Three steps&quot;}"></div>\n',
+  );
+  assert.ok(nodes.includes('eyebrow'));
+});
+
 test('a text without markers is written as before', async () => {
   const text = '# Title\n\n## One\n\nText\n';
   assert.equal((await through(text)).saved, text);

@@ -35,8 +35,6 @@ export const blocks = {
   heading: 'Heading',
   headingHint: 'Optional.',
   /** A block's head (standard/head.ts): the label above its heading and the subheading under it. */
-  eyebrow: 'Label',
-  eyebrowHint: 'Shown in the label style above the heading.',
   subheading: 'Subheading',
   subheadingHint: 'Shown under the heading.',
   faq: {

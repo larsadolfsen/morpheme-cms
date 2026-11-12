@@ -1902,9 +1902,8 @@
     }
   }
 
-  /* A block's head with a label above its heading or a subheading under it (BlockHead.tsx in blocks/, an <hgroup>; only a
-   heading is the text's own <h2>, without this): the label in small capitals, spaced out, in the accent; the
-   subheading larger and quiet. Mostly in the text's style (.prose), so outside the layers, like the video above, whose
+  /* A block's head with a subheading under its heading (BlockHead.tsx in blocks/, an <hgroup>; only a
+   heading is the text's own <h2>, without this): the subheading larger and quiet. A label in a text is in small capitals, spaced out, in the accent. Mostly in the text's style (.prose), so outside the layers, like the video above, whose
    margins it sets in place of the text's; a theme that places a block outside the text sets its own (.block-place in
    the standard theme). A label above a heading in a text has the same look. A theme gives it its own look outside the layers too (the standard theme: in the middle). */
   .block-head {
@@ -1914,7 +1913,6 @@
     margin-top: 0;
   }
   .block-head > h2,
-  .block-head > .label-medium,
   .block-head > .block-subheading {
     margin-block: 0;
   }
@@ -1922,10 +1920,6 @@
   .block-head > * + .block-subheading {
     margin-top: 0.75rem;
   }
-  .block-head > .label-medium + h2 {
-    margin-top: 0.5rem;
-  }
-  .block-head > .label-medium,
   .prose .label-medium {
     font-size: var(--type-label-medium-size);
     line-height: var(--type-label-medium-line-height);
