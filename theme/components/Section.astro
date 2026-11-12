@@ -16,7 +16,7 @@ interface Props {
 }
 const { title, intro, class: className, id, color } = Astro.props;
 const Panel = color ? 'div' : Fragment;
-const panel = color ? { class: `text-section text-section-${color} my-0` } : {};
+const panel = color ? { class: `text-section text-section-${color} my-0 pb-(--block-section-padding)` } : {};
 ---
 
 <Container
