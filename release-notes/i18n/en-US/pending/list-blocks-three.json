@@ -1,6 +1,6 @@
 {
   "id": "list-blocks-three",
-  "kind": "card",
+  "kind": "paragraph",
   "title": "Fold out rows in a Segmented list",
   "text": "The new Segmented list folds each row out to show its text and link. You can keep only one row open, or show just the first rows with a Show more button for the rest. The FAQ list gets the same button, and Insert now groups the blocks by what they do."
 }

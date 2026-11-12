@@ -1,6 +1,6 @@
 {
   "id": "list-blocks-three",
-  "kind": "card",
+  "kind": "paragraph",
   "title": "Fold rækker ud i en segmenteret liste",
   "text": "Den nye segmenterede liste folder hver række ud med tekst og link. Du kan holde kun én række åben eller vise kun de første rækker med en Vis mere-knap til resten. FAQ-listen får samme knap, og Indsæt grupperer nu blokkene efter, hvad de gør."
 }

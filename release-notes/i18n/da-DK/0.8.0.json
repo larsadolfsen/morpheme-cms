@@ -3,7 +3,7 @@
   "notes": [
     {
       "id": "richer-blog-post",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Et rigere blogindlæg",
       "text": "Blogindlæg viser nu forfatterens rolle, tags og delingsknapper i toppen, et indledende afsnit og kort til relaterede indlæg. Tilføj dine profiler under Virksomheden › Sociale medier."
     },

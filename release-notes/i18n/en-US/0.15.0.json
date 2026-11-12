@@ -4,7 +4,7 @@
   "notes": [
     {
       "id": "app-contract-4",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Add apps without risking your site",
       "text": "Every app now runs in a sandbox and only reads the site data it asks for. Open an app and look under Permissions to see where it runs and how much access it has."
     },
@@ -20,13 +20,13 @@
     },
     {
       "id": "dashboard-widget-grid",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Arrange your start screen",
       "text": "The start screen now shows widgets in a grid: Continue, Unfinished, Blog rhythm and Site status. Tap Edit dashboard to add, remove and reorder them."
     },
     {
       "id": "edition-photo-card",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Each update has its own place",
       "text": "Every update now comes with a photo and the name of the place it’s named after, like Passo Giau. You’ll find them on the start screen and on the Morpheme page."
     },
@@ -57,7 +57,7 @@
     },
     {
       "id": "md3-color-roles",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "New color names",
       "text": "Colors now use Material 3’s names, with new Surface dim, Surface bright, Scrim and Shadow. Your old colors keep working: open Colors and save to switch them over."
     },
@@ -73,7 +73,7 @@
     },
     {
       "id": "page-settings",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Page settings at the top",
       "text": "A page’s title, status and template now sit together in Page settings. Open a page and tap Page settings to pick the template on cards."
     },
@@ -89,7 +89,7 @@
     },
     {
       "id": "settings-cog",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Settings behind the cog",
       "text": "Appearance, Developer, Licenses, Morpheme and Privacy are now under Settings. Tap the cog at the bottom of the menu."
     },

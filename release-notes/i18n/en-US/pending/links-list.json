@@ -1,6 +1,6 @@
 {
   "id": "links-list",
-  "kind": "card",
+  "kind": "paragraph",
   "title": "Use one List for links and points",
   "text": "Links and Points with icon are now one List, with the same icons, headings, texts and pages. A row can also be a small heading. Expandable lists are now Segmented lists."
 }

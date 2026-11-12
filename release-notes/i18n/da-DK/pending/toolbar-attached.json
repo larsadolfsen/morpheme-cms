@@ -1,6 +1,6 @@
 {
   "id": "toolbar-attached",
-  "kind": "card",
+  "kind": "paragraph",
   "title": "Hav tekstværktøjslinjen i syne",
   "text": "Værktøjslinjen sidder nu øverst i teksteditoren og bliver stående, mens du ruller. Åbn en side eller et indlæg for at se den."
 }

@@ -1,11 +1,11 @@
 // The release notes on the Morpheme page (#morpheme), as an article: its title, then per version a heading ("New in
-// Morpheme Braies 0.14.3"), the day it was released and, under a line's newest version, its edition's photo; its cards
+// Morpheme Braies 0.14.3"), the day it was released and, under a line's newest version, its edition's photo; its paragraphs
 // in the editor's language (else English) as sections with a title and a text, and its other changes as a list under
 // "Also in this version"; for a version without notes, its text. No screenshots: the start screen's update card
 // (UpdatesNotice.tsx) shows them. Exposes ReleaseNotes and VersionNotes; it only composes ReleaseNoteSection.tsx and
 // ReleaseNoteLines.tsx. Depends on lib/releaseNotes.mjs (notesFor) and i18n.
 import { locale, t } from './i18n';
-import { notesFor } from '../lib/releaseNotes.mjs';
+import { isParagraph, notesFor } from '../lib/releaseNotes.mjs';
 import type { Edition, ReleaseNote } from '../lib/releaseNotes.mjs';
 import { ReleaseNoteSection } from './ReleaseNoteSection';
 import { ReleaseNoteLines } from './ReleaseNoteLines';
@@ -23,11 +23,11 @@ export type VersionNotes = {
 const dayOf = (date: string) =>
   new Intl.DateTimeFormat(locale, { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${date}T12:00:00Z`));
 
-type Card = Extract<ReleaseNote, { kind: 'card' }>;
+type Paragraph = Extract<ReleaseNote, { kind: 'paragraph' }>;
 
 function VersionEntry({ entry, photo }: { entry: VersionNotes; photo: boolean }) {
   const notes = notesFor(entry.notes, locale) ?? [];
-  const cards = notes.filter((note): note is Card => note.kind === 'card');
+  const paragraphs = notes.filter((note): note is Paragraph => isParagraph(note));
   const lines = notes.filter((note) => note.kind === 'line');
   // A test version (0.14.3-next-…) is named as the version it leads to.
   const version = entry.version.split('-')[0];
@@ -52,7 +52,7 @@ function VersionEntry({ entry, photo }: { entry: VersionNotes; photo: boolean })
         )}
       </div>
       {!notes.length && entry.text && <p className="text-base">{entry.text}</p>}
-      {cards.map((note) => (
+      {paragraphs.map((note) => (
         <ReleaseNoteSection key={note.id} note={note} />
       ))}
       {lines.length > 0 && <ReleaseNoteLines lines={lines} />}

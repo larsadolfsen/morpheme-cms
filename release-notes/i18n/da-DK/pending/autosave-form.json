@@ -1,6 +1,6 @@
 {
   "id": "autosave-form",
-  "kind": "card",
+  "kind": "paragraph",
   "title": "Behold dine ændringer, mens du skriver",
   "text": "Med Hurtigere editor slået til gemmer editoren nu dine ændringer til en udgivet side, mens du skriver. Hvis du lukker fanen eller mister forbindelsen, går de ikke tabt. Linjen under titlen viser Gemmer…, Gemt eller Ikke gemt."
 }

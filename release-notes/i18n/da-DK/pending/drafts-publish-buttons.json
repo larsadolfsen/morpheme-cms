@@ -1,6 +1,6 @@
 {
   "id": "drafts-publish-buttons",
-  "kind": "card",
+  "kind": "paragraph",
   "title": "Udgiv, når du er klar",
   "text": "Ændringer i en side eller et indlæg venter nu, til du udgiver dem, og en ny starter som kladde. Åbn en, og vælg Udgiv, Udgiv ændringer, Fjern fra hjemmesiden, Kassér ændringer eller Planlæg for at vælge dato og tidspunkt. En side med ventende ændringer siger det i listerne og øverst, hvor en Live- og Planlagt-knap lader dig redigere begge dele."
 }

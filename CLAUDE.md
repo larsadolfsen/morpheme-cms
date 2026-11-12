@@ -98,10 +98,11 @@ the owner approves it with 2FA
 ### Release notes for owners
 
 A change a site owner sees gets a release note in English and Danish, written like the notes of 0.14.0: short
-paragraphs (a title with a verb first, 1–3 sentences) and one-line entries, and no screenshots. A version's editions
-have a photo and a name.
+paragraphs (a title with a verb first, 1–3 sentences) and one-line entries, and no screenshots. **Everything that changes how the editor looks, how the site looks, or gives an edge over WordPress
+(safer, faster, cheaper to run, easier to keep) gets its own paragraph, never a line**; small tweaks and fixes are lines.
+A version's editions have a photo and a name.
 **The skill `release-notes` (`.claude/skills/release-notes/SKILL.md`) must be used** whenever a note, an edition or a
-version's notes are written, changed or fixed: it holds the kinds (`card`, `line`), the files, the writing rules and the editions. The rules are not repeated here.
+version's notes are written, changed or fixed: it holds the kinds (`paragraph`, `line`), the files, the writing rules and the editions. The rules are not repeated here.
 
 # Repository and workflow
 
@@ -146,7 +147,7 @@ Our ecosystem has two completely separate repositories, which must **never** be 
   - The app sandbox (contract 4): `app*.mjs`, `reads.mjs`, `afterBuild.mjs`, `sandboxHooks.mjs`, `contentColors.ts` and `lib/sandbox/` (the QuickJS runner is the security boundary); an app's places and build problems show on its page (`src/AppPlaces.tsx`, `src/AppProblems.tsx`, `worker/app-problems.js`).
 - **`worker/`**: The site's default Cloudflare Worker (login/session, GitHub commit proxy, R2 backup, redirects and scheduled tasks).
 - **`bin/`**: The `morpheme` CLI tool for image processing, build hooks and validation.
-- **`release-notes/`**: Owner-facing release notes in English and Danish: cards (title and text per language) and lines, no screenshots. Each pull request writes `i18n/<locale>/pending/<id>.json`; `release:version` moves them to `i18n/<locale>/<version>.json`. Writing rule: "Changesets and release notes" above.
+- **`release-notes/`**: Owner-facing release notes in English and Danish: paragraphs (title and text per language) and lines, no screenshots. Each pull request writes `i18n/<locale>/pending/<id>.json`; `release:version` moves them to `i18n/<locale>/<version>.json`. Writing rule: "Changesets and release notes" above.
 
 ## 3. Roles and Division of Work
 
