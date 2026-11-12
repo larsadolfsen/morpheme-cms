@@ -1370,6 +1370,8 @@ function blockCard(
       (dom.contains(target) || bar!.el.contains(target) || !!target.closest('.editor-side-sheet, dialog[open]'));
     const away = (e: Event) => {
       if ((active === null && !dynSelected) || inside(e.target)) return;
+      // A dynamic block has no row being typed in: the focus going back to the text (as a sheet opens or closes) is not leaving it, only a tap elsewhere is.
+      if (e.type === 'focusin' && active === null) return;
       active = null;
       iconOf = null;
       focus = null;

@@ -461,10 +461,11 @@ function Editor() {
     if (files && user && commitOf.current) writeCache({ commit: commitOf.current, files, user, folders: FOLDERS_KEY });
   }, [files, user]);
 
-  const relations = useMemo<Record<Relation, Option[]>>(
-    () => ({ ...relationsOf(files ?? []), rowSources: rowSources(t.blocks.rows) }),
-    [files],
-  );
+  // The lists the owner made are known to "Rows from" before its choices are made (rowSources reads them), so they are offered.
+  const relations = useMemo<Record<Relation, Option[]>>(() => {
+    setOwnRowLists(files ?? []);
+    return { ...relationsOf(files ?? []), rowSources: rowSources(t.blocks.rows) };
+  }, [files]);
   // What a link in the text can go to (LinkSheet.tsx): the fixed pages (not those that are also a
   // page), the other pages and the posts, by their addresses.
   const linkGroups = useMemo(() => {
@@ -475,10 +476,7 @@ function Editor() {
       { title: t.text.linkPosts, options: relations.blog.map((o) => ({ ...o, value: `/${o.value}/` })) },
     ].filter((g) => g.options.length);
   }, [relations]);
-  const listRows = useMemo(() => {
-    setOwnRowLists(files ?? []);
-    return listRowsOf(files ?? []);
-  }, [files]);
+  const listRows = useMemo(() => listRowsOf(files ?? []), [files]);
   const testimonials = useMemo(() => testimonialsOf(files ?? []), [files]);
 
   // The site's colours as loaded and saved ("Colors"), also before the site is built again with them.

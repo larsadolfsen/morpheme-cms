@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "label": "Services",
+  "fields": ["icon", "title", "text", "href"],
+  "dropped": []
+}

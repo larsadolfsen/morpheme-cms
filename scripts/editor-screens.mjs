@@ -531,6 +531,64 @@ async function checkDynamicList(width, height) {
   await page.close();
 }
 
+/** The field picker of a dynamic List: with the demo's own list "Services" as its source, the rows show its items, each part of a row has a button with the field now shown, a tap on the bottom line (the button or the row's own line) opens the choice of the list's fields (a bottom sheet on a phone, a menu in the side panel on a computer), and a pick shows in the rows and in the button (it is read from the block's `map`). */
+async function checkDynamicPicker(width, height) {
+  const label = `${width}px dynamic list field picker`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.locator('.site-block-toolbar [aria-label="Fill from a list"]').click();
+  const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
+  await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
+  await panel.locator('button.text-field-input').first().click();
+  await page.getByText('Services', { exact: true }).locator('visible=true').last().click();
+  await page.waitForTimeout(500);
+  if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
+  await page.waitForTimeout(400);
+  const block = page.locator('.site-block-preview').first();
+  const lines = () => block.locator('.list-item-supporting').allTextContents();
+  const buttons = () => block.locator('.inline-list-parts button').allTextContents();
+  if ((await block.locator('.list-item-headline').count()) !== 3)
+    problems.push(`${label}: the block does not show the 3 items of the list`);
+  const before = await buttons();
+  if (before.join('|') !== 'Top line: Title|Bottom line: Body text|Icon: Icon|Link: Link')
+    problems.push(`${label}: the part buttons are "${before.join('|')}", not the list's own fields`);
+  await block.locator('.inline-list-parts button', { hasText: 'Bottom line' }).click();
+  const choice = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
+  await choice.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the choice of fields did not open`));
+  await choice.locator('button.text-field-input').first().click();
+  await page.getByText('Title', { exact: true }).locator('visible=true').last().click();
+  await page.waitForTimeout(500);
+  if (phone && (await page.locator('dialog[open]').count())) await page.locator('dialog[open] [aria-label="Close"]').first().click();
+  await page.waitForTimeout(400);
+  const after = await buttons();
+  if (!after.includes('Bottom line: Title'))
+    problems.push(`${label}: the button does not say "Bottom line: Title" after the pick (${after.join('|')})`);
+  if ((await lines())[0] !== 'Edit on your phone')
+    problems.push(`${label}: the bottom line of the first row is "${(await lines())[0]}", not its title`);
+  // A tap on the row's own bottom line opens the same choice.
+  await block.locator('.list-item-supporting').first().click();
+  await page
+    .locator('dialog[open], .editor-side-sheet')
+    .filter({ hasText: 'Field shown' })
+    .first()
+    .waitFor({ timeout: 5000 })
+    .catch(() => problems.push(`${label}: a tap on a row's bottom line did not open the choice of fields`));
+  await page.close();
+}
+
 /** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set, Material Symbols' ("arrow back") and Phosphor's ("acorn"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
 async function checkIconSearch(width, height) {
   const label = `${width}px icon search`;
@@ -1372,6 +1430,8 @@ await checkEmptyHint();
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
 await checkDynamicList(375, 740);
 await checkDynamicList(1280, 900);
+await checkDynamicPicker(375, 740);
+await checkDynamicPicker(1280, 900);
 for (const [width, height] of [
   [360, 740],
   [375, 740],
