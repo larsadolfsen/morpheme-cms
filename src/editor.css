@@ -1010,6 +1010,28 @@ html {
   --toolbar-standard-surface: var(--editor-menu-surface);
 }
 
+/* The text box's own side lines run up behind the toolbar when it sticks, so the two cut-outs outside its rounded top corners are
+   filled in the page's surface (the same one the body has): the curve is clean, with no line past it. */
+.editor-tools::before,
+.editor-tools::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  width: var(--radius-panel);
+  height: var(--radius-panel);
+  pointer-events: none;
+}
+
+.editor-tools::before {
+  left: -1px;
+  background: radial-gradient(circle at 100% 100%, transparent var(--radius-panel), var(--mo-surface) var(--radius-panel));
+}
+
+.editor-tools::after {
+  right: -1px;
+  background: radial-gradient(circle at 0 100%, transparent var(--radius-panel), var(--mo-surface) var(--radius-panel));
+}
+
 /* Its tools on one line, and the rest on a second while it is open (the arrow at its end, MarkdownEditor.tsx). Closed,
    the line is one button high and those past it are hidden (not clipped, so the focus ring of a tool is whole). */
 .editor-tools-closed {

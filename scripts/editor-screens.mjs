@@ -19,6 +19,7 @@ import { chromium } from 'playwright';
 import sharp from 'sharp';
 import { mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { constants, inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { CMS_STATUS, openEditor, serveBuilt } from './built-site.mjs';
@@ -485,6 +486,35 @@ async function checkToolbarBox() {
     await page.evaluate(() => window.scrollBy(0, 400));
     await page.waitForTimeout(200);
     check('stuck', await read());
+    // The text box's side lines run up behind the stuck toolbar: outside its rounded corner, beside the curve, the page's own
+    // colour shows, never a line past the corner.
+    // (On the short screen the page has scrolled past the end of the box: scroll back until the toolbar is stuck at the top.)
+    await page.evaluate(() => {
+      const bar = document.querySelector('.editor-tools');
+      if (bar.getBoundingClientRect().top < 0) window.scrollBy(0, bar.getBoundingClientRect().top - 1);
+    });
+    await page.waitForTimeout(200);
+    const corner = await page.evaluate(() => {
+      const bar = document.querySelector('.editor-tools').getBoundingClientRect();
+      const radius = parseFloat(getComputedStyle(document.querySelector('.editor-tools')).borderTopLeftRadius);
+      return { page: getComputedStyle(document.body).backgroundColor, left: bar.left, right: bar.right, top: bar.top, radius };
+    });
+    const pixel = async (x, y) => {
+      const png = await page.screenshot({ clip: { x, y, width: 1, height: 1 }, scale: 'css' });
+      // The first pixel of the picture: the IDAT chunks hold the zlib data, a filter byte and then the colour (whatever the filter, the first pixel of the first row is as written).
+      const chunks = [];
+      for (let at = 8; at < png.length; at += 12 + png.readUInt32BE(at))
+        if (png.toString('latin1', at + 4, at + 8) === 'IDAT') chunks.push(png.subarray(at + 8, at + 8 + png.readUInt32BE(at)));
+      const data = inflateSync(Buffer.concat(chunks), { finishFlush: constants.Z_SYNC_FLUSH });
+      return `rgb(${data[1]}, ${data[2]}, ${data[3]})`;
+    };
+    for (const x of [corner.left + 0.5, corner.right - 0.5]) {
+      const got = await pixel(Math.floor(x), Math.floor(corner.top + corner.radius / 2));
+      if (got !== corner.page)
+        problems.push(
+          `${width}x${height}px text toolbar (stuck): the text box's side line runs past the toolbar's rounded corner (${got} at x ${Math.floor(x)}, the page is ${corner.page})`,
+        );
+    }
     await page.close();
   }
 }
