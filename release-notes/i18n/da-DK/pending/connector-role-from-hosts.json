@@ -1,0 +1,6 @@
+{
+  "id": "connector-role-from-hosts",
+  "kind": "paragraph",
+  "title": "Se, hvilke apps der forbinder til eksterne tjenester",
+  "text": "Alle apps, der sender data til eller henter kode fra et andet website, er nu forbindelser, så du kan se, hvor dine data går hen. Åbn Appstore under Indstillinger, og vælg Forbindelser. Apps uden adgang udefra bliver under Plugins."
+}
