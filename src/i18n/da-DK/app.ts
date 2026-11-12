@@ -49,6 +49,9 @@ export const app: Messages['app'] = {
   addressLoop: (loop) => `Adressen kan ikke ændres, fordi videresendelserne ville gå i ring (${loop}).`,
   deleteEntry: (singular) => `Slet ${singular}? Det kan gendannes under Slettede.`,
   notDeleted: (error) => `Kunne ikke slette: ${error}`,
+  deleteEntries: (count, what) => `Slet ${count} ${what}? De kan gendannes under Slettede.`,
+  deletedEntries: (count, what) => `${count} ${what} slettet`,
+  notDeletedSome: (count, what, why) => `${count} ${what} blev ikke slettet: ${why}`,
   busy: { saving: 'Gemmer', deleting: 'Sletter' },
   lastSaved: (when) => `Sidst ændret ${when}`,
   notSavedYet: 'Ikke gemt endnu',
@@ -75,6 +78,7 @@ export const app: Messages['app'] = {
   app: 'App',
   commit: {
     delete: (singular, slug) => `Editor: slet ${singular} "${slug}"`,
+    deleteMany: (count, what) => `Editor: slet ${count} ${what}`,
     reorder: (label) => `Editor: ny rækkefølge for ${label}`,
   },
 };
