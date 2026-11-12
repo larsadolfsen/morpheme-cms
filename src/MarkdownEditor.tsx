@@ -55,12 +55,14 @@ import {
   Tag,
   TextAa,
   TextB,
+  TextH,
   TextHThree,
   TextHOne,
   TextHTwo,
   TextItalic,
   TextT,
 } from '@phosphor-icons/react';
+import { styleKindOf } from './styleKind.mjs';
 import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
 import { h1Of, h1TextOf, h1Written } from './titleH1.mjs';
@@ -101,6 +103,8 @@ import h1Icon from '@phosphor-icons/core/assets/regular/text-h-one.svg?raw';
 import h2Icon from '@phosphor-icons/core/assets/regular/text-h-two.svg?raw';
 import h3Icon from '@phosphor-icons/core/assets/regular/text-h-three.svg?raw';
 import textIcon from '@phosphor-icons/core/assets/regular/text-t.svg?raw';
+import textLargeIcon from '@phosphor-icons/core/assets/regular/text-aa.svg?raw';
+import textHIcon from '@phosphor-icons/core/assets/regular/text-h.svg?raw';
 import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
 import orderedIcon from '@phosphor-icons/core/assets/regular/list-numbers.svg?raw';
 import quoteIcon from '@phosphor-icons/core/assets/regular/quotes.svg?raw';
@@ -216,6 +220,28 @@ const gapHere = $prose(
           empty && $from.depth === 1 && isGap($from.parent)
             ? DecorationSet.create(doc, [Decoration.node($from.before(), $from.after(), { class: 'editor-gap-here' })])
             : null,
+      },
+    }),
+);
+
+// A tap on the box of a check list item (its ::before, in the padding left of the text; editor.css) checks or unchecks it.
+const checkToggle = $prose(
+  () =>
+    new Plugin({
+      props: {
+        handleDOMEvents: {
+          mousedown: (view, event) => {
+            const item = (event.target as HTMLElement | null)?.closest?.('li[data-item-type="task"]');
+            if (!item || event.target !== item || !(event instanceof MouseEvent)) return false;
+            const at = view.posAtDOM(item, 0);
+            const $at = view.state.doc.resolve(at);
+            const node = $at.parent;
+            if (node.type.name !== 'list_item' || node.attrs.checked == null) return false;
+            view.dispatch(view.state.tr.setNodeMarkup($at.before(), undefined, { ...node.attrs, checked: !node.attrs.checked }));
+            event.preventDefault();
+            return true;
+          },
+        },
       },
     }),
 );
@@ -653,7 +679,7 @@ function selectionMenu(
       // The other kinds of text, in the toolbar's order, by their names in activeOf.
       const textKinds = [
         { name: 'text', icon: textIcon, label: t.text.paragraph },
-        { name: 'large', icon: textIcon, label: t.text.bodyLarge },
+        { name: 'large', icon: textLargeIcon, label: t.text.bodyLarge },
         { name: 'label', icon: tagIcon, label: t.text.label },
         { name: 'bullet', icon: bulletIcon, label: t.text.bulletList },
         { name: 'check', icon: checkIcon, label: t.text.checkList },
@@ -717,7 +743,13 @@ function selectionMenu(
         },
         // T, the lists and the quote, in a menu; not marked either.
         {
-          shows: (s) => groupFace(textKinds.find(({ name }) => activeOf(s).has(name)) ?? textKinds[0]),
+          // The generic H icon when the cursor is not in the text, else the style it is in (styleKind.mjs).
+          shows: (s) => {
+            const kind = styleKindOf(activeOf(s), view.hasFocus());
+            return kind === 'generic'
+              ? { icon: textHIcon, label: t.text.kind }
+              : groupFace(textKinds.find(({ name }) => name === kind) ?? textKinds[0]);
+          },
           action: (button) => kinds(button, 'text'),
           menu: true,
         },
@@ -1002,6 +1034,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   looked.current = looks;
   // What applies where the cursor is (activeOf), marked in the toolbar.
   const [active, setActive] = useState<string[]>([]);
+  // Whether the cursor is in the text (the field has the focus): else the text style button shows the generic H icon (styleKind.mjs).
+  const [inText, setInText] = useState(false);
   // The heading levels the toolbar offers on a page (headingChoices): [1] while the text has no H1, then [2, 3].
   const [choices, setChoices] = useState<number[]>([1]);
   // The colour button over the selection, while its menu with the colours is open.
@@ -1035,15 +1069,25 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     const marking = $prose(
       () =>
         new Plugin({
-          view: () => ({
-            update: (view) => {
-              const next = headingChoices(levelsOf(view.state.doc));
-              setChoices((was) => (was.join() === next.join() ? was : next));
-              // On a page the first heading is the H1 by itself (firstHeading.mjs); the Heading button stands for it.
-              const now = [...activeOf(view.state)].map((name) => (h1 && name === 'h1' ? 'h2' : name)).sort();
-              setActive((was) => (was.join() === now.join() ? was : now));
-            },
-          }),
+          view: (view) => {
+            const focus = () => setInText(view.hasFocus());
+            view.dom.addEventListener('focus', focus);
+            view.dom.addEventListener('blur', focus);
+            return {
+              destroy: () => {
+                view.dom.removeEventListener('focus', focus);
+                view.dom.removeEventListener('blur', focus);
+              },
+              update: (view) => {
+                focus();
+                const next = headingChoices(levelsOf(view.state.doc));
+                setChoices((was) => (was.join() === next.join() ? was : next));
+                // On a page the first heading is the H1 by itself (firstHeading.mjs); the Heading button stands for it.
+                const now = [...activeOf(view.state)].map((name) => (h1 && name === 'h1' ? 'h2' : name)).sort();
+                setActive((was) => (was.join() === now.join() ? was : now));
+              },
+            };
+          },
         }),
     );
     // On a page, a change of its H1's text is told too (onH1), with what it was.
@@ -1106,6 +1150,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(looking)
       .use(sectionFrame(framed))
       .use(gapHere)
+      .use(checkToggle)
       .use(history)
       .use(clipboard);
     // A page (h1) keeps its first heading as its H1 and has no other H1 (firstHeading.mjs); a blog post's H1 is its title.
@@ -1440,15 +1485,16 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     const members = kindGroups.find((g) => g[0] === item);
     if (!members) return null;
     if (members.length === 1) return tool(item);
-    const shown = shownOf(members);
     const group = groupOf(members);
+    const generic = group === 'text' && styleKindOf(active, inText) === 'generic';
+    const shown = shownOf(members);
     const opened = kindsAt?.group === group && !kindsAt.word;
     // Not marked: it always shows a kind of its group (the menu under it marks the one there is).
     return (
       <ToolbarButton
         key={`kinds-${group}`}
-        icon={shown.icon}
-        label={t.text.kindIs(shown.label)}
+        icon={generic ? TextH : shown.icon}
+        label={generic ? t.text.kind : t.text.kindIs(shown.label)}
         menu={opened}
         onClick={(e) => setKindsAt(opened ? null : { at: e.currentTarget, group })}
       />

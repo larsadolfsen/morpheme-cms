@@ -1977,7 +1977,8 @@
     letter-spacing: var(--type-body-large-tracking);
   }
 
-  /* A check list in a text (`- [ ]`, "Check list" in the editor): the box in place of the bullet. */
+  /* A check list in a text (`- [ ]`, "Check list" in the editor): Phosphor's check icon in place of the bullet, in the theme's primary
+     colour when the item is checked, dimmed when not (the editor draws the same, src/editor.css). The box is the <input>, drawn as the icon. */
   .prose ul.contains-task-list {
     list-style: none;
     padding-inline-start: 0;
@@ -1988,9 +1989,20 @@
     align-items: baseline;
   }
   .prose li.task-list-item > input[type='checkbox'] {
+    appearance: none;
     flex: none;
-    accent-color: var(--block-accent);
+    width: 1.25em;
+    height: 1.25em;
     margin: 0;
+    align-self: center;
+    background-color: var(--block-accent);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+  .prose li.task-list-item > input[type='checkbox']:not(:checked) {
+    background-color: color-mix(in srgb, var(--block-accent) 35%, transparent);
   }
 
   /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the

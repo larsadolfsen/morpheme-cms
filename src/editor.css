@@ -102,6 +102,31 @@
   display: none !important;
 }
 
+/* A check list (`- [ ]`, "Check list" in the text style menu): Phosphor's check icon in place of the bullet, in the theme's primary colour
+   when the item is checked, dimmed when not, as the site draws it (theme/styles/blocks.css, .task-list-item). The icon is the item's own
+   ::before, in the padding where the bullet was; a tap on it checks or unchecks the item (checkToggle, MarkdownEditor.tsx). */
+.editor-text .ProseMirror li[data-item-type='task'] {
+  list-style: none;
+  position: relative;
+}
+.editor-text .ProseMirror li[data-item-type='task']::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -1.75em;
+  top: 0.25em;
+  width: 1.25em;
+  height: 1.25em;
+  background-color: color-mix(in srgb, var(--mo-primary) 35%, transparent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  cursor: pointer;
+}
+.editor-text .ProseMirror li[data-item-type='task'][data-checked='true']::before {
+  background-color: var(--mo-primary);
+}
+
 /* Milkdown puts a paragraph in every list item; on the site, short lists have none. */
 .editor-text li > p {
   margin-block: 0;
