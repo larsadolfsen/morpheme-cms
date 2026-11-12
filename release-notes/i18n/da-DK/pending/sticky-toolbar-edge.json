@@ -1,6 +1,6 @@
 {
   "id": "sticky-toolbar-edge",
   "kind": "paragraph",
-  "title": "Se en ren øverste kant på tekstværktøjslinjen",
+  "title": "Fastholdt tekstværktøjslinje",
   "text": "Streger ved siden af den fastlåste værktøjslinje så rodede ud. Når du ruller gennem en lang tekst, sidder værktøjslinjen nu fast som boksens afrundede top, uden streger over hjørnerne."
 }
