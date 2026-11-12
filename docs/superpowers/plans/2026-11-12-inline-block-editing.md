@@ -109,11 +109,15 @@ the Cards built in #413 are changed to follow it, in a coding session (this one 
   follow.
 - Filled card colors are the container roles (surface container, primary, secondary and tertiary containers) with readable text.
 - The setting is named `Design` (not `Type`); Danish `Udseende` or the word the owner picks.
-- Card fields Subhead, Badge, Date and Tags are added; adding a button hides the Link; the next button is shown empty and faded with no
+- A `Subhead` field is added (no Badge, Date or Tags, see the Header line below); adding a button hides the Link; the next button is shown empty and faded with no
   maximum; a new Card block starts with three empty cards, the first active (the 12 November spec still hides the empty item once the block has
   one: that newer rule stays).
 - `check:themes` fails a theme that leaves a design unstyled.
-- Open, still to ask: whether "Header line" is the title only or title and subhead, and the carousel for mobile.
+- **Header line follows Material 3 (owner, 12 November: "follow MD3", read from m3.material.io/components/cards/guidelines):** a headline and
+  an optional subhead (M3's "smaller text elements, such as an article byline or a tagged location"), then the supporting text. M3 has no
+  Badge, Date or Tags element, so those are not separate card fields: a date or a tag is written in the subhead. This replaces the
+  Subhead, Badge, Date and Tags fields of finding 17 with one `Subhead` field. Where the older spec and M3 disagree, M3 wins.
+- Open, still to ask: the carousel for mobile.
 
 **Differences, now settled by that decision**
 
