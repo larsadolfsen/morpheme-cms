@@ -52,7 +52,6 @@ import {
   ListBullets,
   ListChecks,
   ListNumbers,
-  Plus,
   Quotes,
   Tag,
   TextAa,
@@ -99,6 +98,7 @@ import { stillTimer } from '../lib/still-timer.mjs';
 import { STILL_MS, wordRange } from './stillCursor.mjs';
 import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
+import { WidgetsIcon, widgetsRaw } from './icon';
 import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -123,7 +123,6 @@ import alignRightIcon from '@phosphor-icons/core/assets/regular/text-align-right
 import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
 import orderedIcon from '@phosphor-icons/core/assets/regular/list-numbers.svg?raw';
 import quoteIcon from '@phosphor-icons/core/assets/regular/quotes.svg?raw';
-import plusIcon from '@phosphor-icons/core/assets/regular/plus.svg?raw';
 import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.svg?raw';
 import caretDownIcon from '@phosphor-icons/core/assets/bold/caret-down-bold.svg?raw';
 import checkIcon from '@phosphor-icons/core/assets/regular/list-checks.svg?raw';
@@ -859,8 +858,8 @@ function selectionMenu(
           off: (s) => levels(s).length < 2,
           menu: true,
         },
-        // The blocks (the same sheet as the toolbar's "+"), where the text has blocks.
-        { icon: plusIcon, label: t.text.insert, action: () => insert()?.(), disabled: () => !insert() },
+        // The blocks (the same sheet as the toolbar's Insert), where the text has blocks.
+        { icon: widgetsRaw, label: t.text.insert, action: () => insert()?.(), disabled: () => !insert() },
         // The rest, in a sheet from the bottom.
         { icon: dotsIcon, label: t.text.more, action: () => more() },
       ];
@@ -1741,10 +1740,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.orderedList, icon: KIND_ICONS.ordered.node, action: () => setKind('ordered'), on: 'ordered', role: 'list' },
     // The alignment of the paragraph or smaller heading, a menu (the icon follows the block's).
     { label: t.text.alignmentIs(alignLabel(alignIn(active))), icon: ALIGN_FACES[alignIn(active)].node, action: () => {}, role: 'align' },
-    // A picture and the blocks are put in with "+" (a sheet with them all); without blocks (a blog
+    // A picture and the blocks are put in with Insert (a sheet with them all); without blocks (a blog
     // post) a picture has its own button.
     ...(blocks
-      ? [{ label: t.text.insert, icon: Plus, action: block }]
+      ? [{ label: t.text.insert, icon: WidgetsIcon, action: block }]
       : addImage
         ? [{ label: t.text.image, icon: Image, action: image }]
         : []),
@@ -1831,9 +1830,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} large={large} onClick={action} />
     );
 
-  // The lines between the marks on the text, the kinds of text, "+" (or "Picture") and "Undo".
+  // The lines between the marks on the text, the kinds of text, Insert (or "Picture") and "Undo".
   const lineBefore = (item: (typeof tools)[number]) =>
-    item.role === 'settings' || item === kinds[0] || item.icon === Plus || item.icon === Image || item.icon === ArrowUUpLeft;
+    item.role === 'settings' || item === kinds[0] || item.icon === WidgetsIcon || item.icon === Image || item.icon === ArrowUUpLeft;
   // A button of the toolbar; when it is too short, each group of kinds of text is one button (at its first), with a menu.
   const button = (item: (typeof tools)[number]) => {
     if (!narrow || !kinds.includes(item)) return tool(item);
