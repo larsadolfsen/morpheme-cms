@@ -13,6 +13,21 @@ export default defineBlock({
   icon: Question,
   nameOf: (p) => nameWith(t.blocks.faq.label, p),
   hint: t.blocks.faq.hint,
+  // Typed in place (InlineFaq.tsx): the question in the summary line, the answer in the open panel. `Only one open`, the button and `Rows
+  // from` stay in Edit; the head (heading, intro) is drawn when filled in and is set in Edit.
+  inline: {
+    item: 'items',
+    fields: ['question', 'answer'],
+    blockSettings: true,
+    texts: {
+      addAbove: t.blocks.faq.addAbove,
+      addBelow: t.blocks.faq.addBelow,
+      link: '',
+      row: t.blocks.faq.questionMenu,
+      settings: t.blocks.faq.questionSettings,
+      icon: '',
+    },
+  },
   fields: [
     ...headFields,
     ...rowsFromFields,
@@ -26,7 +41,7 @@ export default defineBlock({
       required: true,
       fields: [
         { name: 'question', label: t.blocks.faq.question, type: 'string', required: true },
-        { name: 'answer', label: t.blocks.faq.answer, type: 'markdown', required: true },
+        { name: 'answer', label: t.blocks.faq.answer, type: 'markdown' },
       ],
     },
     // One open at a time is how the list has always worked, so a saved list without it has it on.

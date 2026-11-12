@@ -1202,7 +1202,7 @@ function blockCard(
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
-        { kind: 'link', label: spec!.texts.link, action: settings },
+        ...(itemNames.length ? [{ kind: 'link' as const, label: spec!.texts.link, action: settings }] : []),
         { kind: 'above', label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
         { kind: 'below', label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
         ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
@@ -1213,7 +1213,8 @@ function blockCard(
       name,
       dom,
       rowActions,
-      edit: settings,
+      // A block with nothing to set on an item (the FAQ list) has the block's own settings behind the gear.
+      edit: itemNames.length || slotNames.length ? settings : () => void edit(),
       compact,
       labels: { row: spec!.texts.row, edit: t.common.edit },
     });
@@ -1222,7 +1223,7 @@ function blockCard(
     // sheet that Edit opens (`open`: a row's slot or Edit; else only an open sheet is updated).
     syncRow = (open) => {
       const sheet = asker();
-      if (sheet && active !== null) sheet.row(specOf(active), open || !compact());
+      if (sheet && active !== null && (itemNames.length || slotNames.length)) sheet.row(specOf(active), open || !compact());
     };
     const specOf = (i: number) => {
       const row = rows()[i] ?? {};
