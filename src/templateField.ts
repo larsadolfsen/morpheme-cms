@@ -15,8 +15,8 @@ export const offeredTemplatesOf = (files: RepoFile[]): string[] =>
 
 /** The field with the options of the theme. A template that is not available (the sidebar ones while no block is chosen
  * for the column) is not shown, unless the page already uses it (`value`), so nothing is lost. When sidebar templates are
- * left out, a link under the field goes to where the column is chosen (Appearance › Side column, `edit`). One template
- * left (or a theme of one template alone) shows it as the page's, not changed here (`locked`); with none to choose (a
+ * left out, a link under the field goes to where the column is chosen (Appearance › Side column, `edit`). With one template left, the section still shows it as a selected card; a theme of one
+ * template alone shows it as the page's, not changed here (`locked`); with none to choose (a
  * theme of sidebar templates alone), the theme's default is chosen. Null when the field has no `offered`. */
 export function templateFieldOf(field: Field, files: RepoFile[], value?: unknown): Field | null {
   if (field.offered !== 'templates') return null;
@@ -26,7 +26,7 @@ export function templateFieldOf(field: Field, files: RepoFile[], value?: unknown
   return {
     ...field,
     options,
-    ...(options && options.length <= 1 ? { locked: true } : {}),
+    ...(offered.length === 1 ? { locked: true } : {}),
     ...(hidden ? { edit: { to: 'appearance/side-column', text: t.forms.chooseSideColumn } } : {}),
   };
 }
