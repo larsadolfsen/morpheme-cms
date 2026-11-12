@@ -245,10 +245,10 @@
 }
 @layer fallback {
   .prose {
-    font-size: var(--type-body-large-size);
-    line-height: var(--type-body-large-line-height);
-    font-weight: var(--type-body-large-weight);
-    letter-spacing: var(--type-body-large-tracking);
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
   }
   /* A blog post's lead: its first paragraph, one step larger than the text (the lead tokens, ui.css: the title large's
      unless a theme sets them). */

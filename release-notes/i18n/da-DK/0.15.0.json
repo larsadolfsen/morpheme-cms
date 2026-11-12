@@ -4,9 +4,9 @@
   "notes": [
     {
       "id": "app-contract-4",
-      "kind": "card",
-      "title": "Tilføj apps uden at sætte hjemmesiden på spil",
-      "text": "Hver app kører nu afgrænset og læser kun de data, den har bedt om. Åbn en app, og se under Rettigheder, hvor den kører, og hvor meget adgang den har."
+      "kind": "paragraph",
+      "title": "App-sandbox",
+      "text": "En app kan ikke skade din hjemmeside. Hver app kører afgrænset og læser kun de data, den har bedt om. Åbn en app, og se under Rettigheder, hvor den kører, og hvor meget adgang den har."
     },
     {
       "id": "css-variables-mo-prefix",
@@ -20,15 +20,15 @@
     },
     {
       "id": "dashboard-widget-grid",
-      "kind": "card",
-      "title": "Indret din startskærm",
-      "text": "Startskærmen viser nu widgets i et gitter: Fortsæt, Ufærdigt, Blogrytme og Hjemmesidens status. Tryk på Rediger dashboard for at tilføje, fjerne og flytte dem."
+      "kind": "paragraph",
+      "title": "Startskærmens widgets",
+      "text": "Din startskærm viser det, der er vigtigt for dig. Widgets ligger i et gitter: Fortsæt, Ufærdigt, Blogrytme og Hjemmesidens status. Tryk på Rediger dashboard for at tilføje, fjerne og flytte dem."
     },
     {
-      "id": "edition-photo-card",
-      "kind": "card",
-      "title": "Hver opdatering har sit eget sted",
-      "text": "Hver opdatering har nu et foto og navnet på det sted, den er opkaldt efter, som Passo Giau. Du finder dem på startskærmen og på siden Morpheme."
+      "id": "edition-photo-place",
+      "kind": "paragraph",
+      "title": "Udgaver",
+      "text": "Hver opdatering er let at genkende. Den har et foto og navnet på det sted, den er opkaldt efter, som Passo Giau. Du finder dem på startskærmen og på siden Morpheme."
     },
     {
       "id": "english-ids-code",
@@ -57,9 +57,9 @@
     },
     {
       "id": "md3-color-roles",
-      "kind": "card",
-      "title": "Nye farvenavne",
-      "text": "Farverne følger nu Material 3’s navne, med nye Dæmpet flade, Lys flade, Slør og Skygge. Dine gamle farver virker stadig: åbn Farver og gem for at skifte dem over."
+      "kind": "paragraph",
+      "title": "Farvenavne",
+      "text": "Farverne bruger Material 3’s egne navne. Åbn Farver og gem for at skifte dine gamle over; de virker, indtil du gør det. Nye er Dæmpet flade, Lys flade, Slør og Skygge."
     },
     {
       "id": "older-line-editions",
@@ -73,9 +73,9 @@
     },
     {
       "id": "page-settings",
-      "kind": "card",
-      "title": "Sideindstillinger øverst",
-      "text": "En sides titel, status og skabelon ligger nu samlet i Sideindstillinger. Åbn en side og tryk på Sideindstillinger for at vælge skabelonen på kort."
+      "kind": "paragraph",
+      "title": "Sideindstillinger",
+      "text": "En sides grundoplysninger ligger ét sted. Åbn en side og tryk på Sideindstillinger for at ændre titel, status og skabelon, og vælg skabelonen på kort."
     },
     {
       "id": "release-blog-posts",
@@ -89,9 +89,9 @@
     },
     {
       "id": "settings-cog",
-      "kind": "card",
-      "title": "Indstillinger bag tandhjulet",
-      "text": "Udseende, Udvikler, Licenser, Morpheme og Privatliv ligger nu under Indstillinger. Tryk på tandhjulet nederst i menuen."
+      "kind": "paragraph",
+      "title": "Tandhjulet",
+      "text": "Menuen holder sig kort. Tryk på tandhjulet nederst i menuen for at åbne Indstillinger med Udseende, Udvikler, Licenser, Morpheme og Privatliv."
     },
     {
       "id": "short-notification-buttons",

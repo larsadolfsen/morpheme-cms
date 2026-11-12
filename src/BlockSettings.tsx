@@ -187,13 +187,7 @@ function OnOffSwitch({ id, count, texts, env, files }: { id: string; count: numb
   const { on, stuck, saving, turn } = useOnOff(id, count, texts, env, files);
   return (
     <div>
-      <SwitchRow
-        label={texts.label}
-        selected={on}
-        texts={[t.blockSettings.on, t.blockSettings.off]}
-        disabled={stuck || saving}
-        onChange={turn}
-      />
+      <SwitchRow label={texts.label} selected={on} disabled={stuck || saving} onChange={turn} />
       <SupportingText className="mt-2">{stuck ? texts.stuck : on ? texts.onHint : texts.offHint}</SupportingText>
     </div>
   );

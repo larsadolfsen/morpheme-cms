@@ -40,6 +40,7 @@
 //   licenses         "Licenses", under "Settings": the licences of what the site and the editor are made with, and
 //                    licenses/<id> one with its text (Licenses.tsx)
 //   status           "System status", from the footer: GitHub's and Cloudflare's status (ServiceStatus.tsx)
+//   installed/connectors, installed/plugins   the connectors and plugins installed (AppList.tsx Apps with a role); the themes installed are appearance/themes
 //   apps             the apps that come with the site, apps/<app> one with its button to install it and, while it
 //                    is installed, the tabs of its page (AppList.tsx AppPage): Settings at apps/<app>, with its settings
 //                    form (also on the screen with its category, analytics/<app>, AppList.tsx settingsRoute), and
@@ -121,6 +122,7 @@ import {
   StoreAppPage,
   StorePage,
 } from './AppList';
+import { isSection, type Section } from './sectionChoice.mjs';
 import { activeApps, installedApps } from './apps';
 import {
   DEVELOPER_ROUTE,
@@ -132,6 +134,7 @@ import {
   readThemeScreenshots,
   STORE_ROUTE,
   STORE_THEMES,
+  INSTALLED_ROUTE,
   type ShownApp,
   type ShownTheme,
   type StoreApp,
@@ -804,7 +807,11 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === STATUS_ROUTE) return <ServiceStatus />;
   if (route.startsWith(`${LICENSES_ROUTE}/`)) return <LicensePage key={route} id={route.slice(LICENSES_ROUTE.length + 1)} />;
   if (route === 'apps') return <Apps env={env} files={files} />;
+  if (route === `${INSTALLED_ROUTE}/connectors`) return <Apps env={env} files={files} role="connector" />;
+  if (route === `${INSTALLED_ROUTE}/plugins`) return <Apps env={env} files={files} role="plugin" />;
   if (route === STORE_ROUTE) return <StorePage env={env} files={files} />;
+  if (route.startsWith(`${STORE_ROUTE}/`) && isSection(route.slice(STORE_ROUTE.length + 1)))
+    return <StorePage env={env} files={files} section={route.slice(STORE_ROUTE.length + 1) as Section} />;
   if (route === STORE_THEMES) return <ThemeStoreScreen env={env} />;
   if (route.startsWith(`${DEVELOPER_ROUTE}/`))
     return <DeveloperPage key={route} slug={route.slice(DEVELOPER_ROUTE.length + 1)} env={env} files={files} />;

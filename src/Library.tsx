@@ -114,7 +114,7 @@ import {
   themeUpdateOf,
   useThemeCatalog,
 } from './ThemeStore';
-import { STANDARD_THEME, STORE_ROUTE } from './store';
+import { STANDARD_THEME, STORE_ROUTE, INSTALLED_ROUTE } from './store';
 import { REDIRECTS_ROUTE } from './Redirects';
 import { MOTION_SCHEMES, schemeInUse, type MotionScheme } from '../lib/motion';
 import { applyMotion } from './theme';
@@ -145,7 +145,16 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'appearance') return { label: parts.appearance, href: '#appearance', count: null };
   if (id === 'block-settings') return { label: parts.blockSettings, href: '#block-settings', count: null };
   if (id === 'apps') return { label: parts.apps, href: '#apps', count: null };
-  if (id === 'appstore') return { label: t.apps.find, href: `#${STORE_ROUTE}`, count: null };
+  if (id === 'appstore') return { label: t.apps.store, href: `#${STORE_ROUTE}`, count: null };
+  // The installed connectors, plugins and themes (Apps in the menu): their pages, not the store's sections.
+  if (id.startsWith('installed-')) {
+    const section = id.slice('installed-'.length) as keyof typeof t.apps.sections;
+    return {
+      label: t.apps.sections[section],
+      href: section === 'themes' ? '#appearance/themes' : `#${INSTALLED_ROUTE}/${section}`,
+      count: null,
+    };
+  }
   if (id === 'redirects') return { label: parts.redirects, href: `#${REDIRECTS_ROUTE}`, count: null };
   const seoPart = seoParts.find((p) => p.id === id);
   if (seoPart) return { label: seoPart.label, href: `#seo/${id}`, count: null };
@@ -791,13 +800,7 @@ function NotificationChoices({ files }: { files: RepoFile[] }) {
   const { off, device } = useNotificationChoices();
   const installed = activeApps(files);
   const choice = (type: string, label: string) => (
-    <SwitchRow
-      key={type}
-      label={label}
-      texts={[t.library.on, t.library.off]}
-      selected={!off.includes(type)}
-      onChange={(on) => setOn(type, on)}
-    />
+    <SwitchRow key={type} label={label} selected={!off.includes(type)} onChange={(on) => setOn(type, on)} />
   );
   return (
     <>
@@ -807,7 +810,6 @@ function NotificationChoices({ files }: { files: RepoFile[] }) {
           <SwitchRow
             label={t.library.onDevice}
             hint={t.library.onDeviceHint}
-            texts={[t.library.on, t.library.off]}
             selected={device}
             onChange={async (on) => {
               if (!(await setDevice(on))) snackbar({ text: t.library.deviceBlocked, error: true });
