@@ -824,6 +824,54 @@ for (const [width, height] of [
   await checkDashboardEdit(width, height);
 }
 
+/** The start screen's "Drafts" card: with five drafts it shows three rows and the text button "Show all", which opens the pages
+ * list filtered to the drafts (all five, and the filter chip); with up to three drafts there is no button. */
+async function checkDraftsCard(width, height) {
+  const label = `${width}px drafts card`;
+  const draft = (n) => `---\ntitle: "Draft ${n}"\nstatus: draft\n---\n\nText\n`;
+  const many = Object.fromEntries([1, 2, 3, 4, 5].map((n) => [`src/content/pages/check-draft-${n}.md`, draft(n)]));
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site, many);
+  await page.evaluate(() => (location.hash = ''));
+  const card = page.getByRole('region', { name: daLibrary.unfinishedTitle, exact: true });
+  await card
+    .waitFor({ state: 'visible', timeout: 5000 })
+    .catch(() => problems.push(`${label}: the card "${daLibrary.unfinishedTitle}" is missing`));
+  const rows = await card.getByRole('listitem').count();
+  if (rows !== 3) problems.push(`${label}: ${rows} rows instead of 3`);
+  const all = card.getByRole('link', { name: daLibrary.unfinishedShowAll, exact: true });
+  if ((await all.count()) !== 1) problems.push(`${label}: no "${daLibrary.unfinishedShowAll}" button`);
+  else {
+    const box = await all.boundingBox();
+    if (!box || box.x < 0 || box.x + box.width > width) problems.push(`${label}: "${daLibrary.unfinishedShowAll}" is outside the screen`);
+    await card.screenshot({ path: join(shots, `drafts-card-${width}.png`) });
+    await all.click();
+    await page
+      .waitForFunction(() => location.hash.startsWith('#list/pages'), null, { timeout: 5000 })
+      .catch(() => problems.push(`${label}: "Show all" did not open the pages list`));
+    // The list fills in after the screen opens (slower on a runner): wait for the five rows before counting.
+    await page
+      .waitForFunction(() => document.querySelectorAll('a[href*="check-draft-"]').length >= 5, null, { timeout: 10000 })
+      .catch(() => {});
+    const listed = await page.locator('a[href*="check-draft-"]').count();
+    if (listed !== 5) problems.push(`${label}: the list shows ${listed} of the 5 drafts`);
+  }
+  await page.close();
+  // Three drafts or fewer: no button.
+  const few = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
+  few.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(few, site, Object.fromEntries(Object.entries(many).slice(0, 3)));
+  await few.evaluate(() => (location.hash = ''));
+  await few
+    .getByRole('region', { name: daLibrary.unfinishedTitle, exact: true })
+    .waitFor({ timeout: 5000 })
+    .catch(() => problems.push(`${label}: the card is missing with three drafts`));
+  if (await few.getByRole('link', { name: daLibrary.unfinishedShowAll, exact: true }).count())
+    problems.push(`${label}: "${daLibrary.unfinishedShowAll}" is shown with only three drafts`);
+  await few.close();
+}
+
 // "Appstore" and "Morpheme" in the three states of the site's key to the store (STORE_STATES): what each shows, and a picture of it in
 // SCREENS_DIR.
 const keyStates = {
@@ -916,6 +964,12 @@ for (const [width, height] of [
   await checkUpdatesCard(width, height);
 
 for (const width of [360, 375, 414]) await checkTextSheet(width);
+for (const [width, height] of [
+  [360, 740],
+  [375, 800],
+  [1280, 900],
+])
+  await checkDraftsCard(width, height);
 await checkEmptyHint();
 await checkHints();
 await checkFullWidthSection();
