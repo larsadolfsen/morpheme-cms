@@ -300,6 +300,9 @@ export type KindPart = {
 /** A list a standard block or an app brings ("Testimonials", "Prices"), as the site's own, with its icon under "Lists". */
 export type OwnedList = FolderCollection & {
   icon: Icon;
+  /** The names of the entry's fields that fill a row of a list block that reads this list ("Rows from"): the title (required), and
+   * the text, icon, page link and tags (the relation `categories`) when the list has them. A list without it is not offered there. */
+  asRows?: { title: string; text?: string; icon?: string; href?: string; tags?: string };
   /** Made-up rows, as the files have them, for the parts under "Parts" and an app's pictures for the store (examples.ts). */
   examples?: Record<string, unknown>[];
 };
