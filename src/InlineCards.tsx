@@ -1,6 +1,6 @@
 // The Cards block typed in place (docs/superpowers/specs/2026-11-12-inline-block-editing-design.md, section 5): the cards are drawn as the site
 // draws them (the theme's cards: LinkCards.tsx, of the block's type and colour) and each card's headline and text are typed where they
-// stand. A card's media (an icon, a picture or a video), its page and its buttons are not typed: the active card has two slots over its
+// stand. A card's media (an icon, an image or a video), its page and its buttons are not typed: the active card has two slots over its
 // headline, the media and the link, which open the card's sheet (Edit has the block's own type and colour). The parts, the keys and what
 // is kept are InlineItems.tsx and src/inlineRows.mjs; the empty, faded card, `Add card` and the dotted line are as in the List.
 import { LinkSimple, Plus } from '@phosphor-icons/react';

@@ -1,8 +1,8 @@
-// The pictures, PDFs, videos and zip files (Filer, Media.tsx) and cutting a picture to a format (Crop.tsx).
+// The images, PDFs, videos and zip files (Filer, Media.tsx) and cutting an image to a format (Crop.tsx).
 export const media = {
   sorts: { new: 'Newest first', old: 'Oldest first', name: 'Name (A–Z)' },
   sort: 'Sort',
-  searchLabel: 'Search the pictures',
+  searchLabel: 'Search the images',
   searchAll: 'Search the files',
   date: 'Date',
   allDates: 'All dates',
@@ -16,12 +16,12 @@ export const media = {
   allTags: 'All tags',
   /** The kinds of files in Filer: the filter, the buttons in the sheet, and (siteT) in the commits. */
   kinds: {
-    picture: {
-      plural: 'Pictures',
-      word: 'picture',
-      rename: 'Rename the picture',
-      delete: 'Delete picture',
-      deleteAsk: 'Delete the picture? It can be restored under Deleted files.',
+    image: {
+      plural: 'Images',
+      word: 'image',
+      rename: 'Rename the image',
+      delete: 'Delete image',
+      deleteAsk: 'Delete the image? It can be restored under Deleted files.',
     },
     pdf: {
       plural: 'PDFs',
@@ -47,17 +47,17 @@ export const media = {
   },
   inUse: 'In use',
   removeFilter: (label: string) => `Remove the filter ${label}`,
-  noPictures: 'No pictures',
+  noImages: 'No images',
   noFiles: 'No files',
-  pick: 'Choose a picture',
-  /** The sources of pictures that apps add to the picker (media providers). */
+  pick: 'Choose an image',
+  /** The sources of images that apps add to the picker (media providers). */
   providers: {
-    own: 'Your pictures',
+    own: 'Your images',
     search: (source: string) => `Search ${source}`,
-    none: 'No pictures found',
+    none: 'No images found',
     more: 'Show more',
-    loading: 'Loading pictures',
-    failed: 'Could not load pictures from this source. Try again in a moment.',
+    loading: 'Loading images',
+    failed: 'Could not load images from this source. Try again in a moment.',
     keyTitle: (source: string) => `Connect ${source}`,
     keyText: (source: string) => `Enter your ${source} access key once. It is kept safe on your site and never shown again.`,
     keyLabel: 'Access key',
@@ -65,16 +65,16 @@ export const media = {
     keyWrong: 'This key was not accepted. Check it and try again.',
     needsSave: 'Only someone who can save the site can connect this source.',
     removeKey: 'Remove key',
-    using: (name: string) => `Adding the picture by ${name}`,
+    using: (name: string) => `Adding the image by ${name}`,
     credit: (name: string, source: string) => `Photo by ${name} on ${source}`,
   },
-  uploadNew: 'Upload a new picture',
+  uploadNew: 'Upload a new image',
   add: 'Add a file',
-  preparing: 'Preparing the picture…',
+  preparing: 'Preparing the image…',
   notDeleted: (error: string) => `Couldn’t delete: ${error}`,
   nameTaken: 'There’s already a file with that name',
   tooBig: (mb: number) => `The file is too big. It can be at most ${mb} MB.`,
-  notAFile: 'The file can’t be used. Choose a picture, a PDF, a video, or a zip file.',
+  notAFile: 'The file can’t be used. Choose an image, a PDF, a video, or a zip file.',
   name: 'Name',
   saveName: 'Save name',
   openPdf: 'Open PDF',
@@ -86,7 +86,7 @@ export const media = {
   tags: 'Tags',
   addTag: 'Add tag',
   createTag: 'Create a tag',
-  /** The commits, in the site's language (siteT); what: a kind's word ("picture", "PDF"). */
+  /** The commits, in the site's language (siteT); what: a kind's word ("image", "PDF"). */
   commit: {
     add: (what: string, name: string) => `Editor: add ${what} "${name}"`,
     delete: (what: string, name: string) => `Editor: delete ${what} "${name}"`,
@@ -95,10 +95,10 @@ export const media = {
   },
   crop: {
     format: 'Format',
-    formatHint: 'Choose a format to crop the picture.',
+    formatHint: 'Choose a format to crop the image.',
     original: 'Original',
-    frame: 'Cropping. Drag the picture, or use the arrow keys, to move it.',
-    drag: 'Drag the picture to choose the crop.',
+    frame: 'Cropping. Drag the image, or use the arrow keys, to move it.',
+    drag: 'Drag the image to choose the crop.',
     zoom: 'Zoom',
   },
 };

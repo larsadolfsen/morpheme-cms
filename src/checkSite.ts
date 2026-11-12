@@ -130,11 +130,11 @@ export function problemsOf(files: SiteFile[]): { problems: string[]; files: numb
   // Each widget of an app has a component (src/widgets.ts).
   for (const { app, key } of widgetsWithoutComponent(writtenApps))
     problems.push(`${appFolder(app)}/index.ts: ${t.apps.widgetNoComponent(key)}`);
-  // Each picture of an app shows something it has (shotOf) and is in its screenshots/, and each file there is one of them.
+  // Each image of an app shows something it has (shotOf) and is in its screenshots/, and each file there is one of them.
   for (const app of writtenApps) {
     const blocks = siteBlocks.filter((b) => b.app === app.id).map((b) => b.type);
     const files = (appFolders[app.id]?.files ?? []).filter((f) => f.startsWith(`${SCREENSHOTS}/`));
-    // A picture is in the new file name or, until the app's pictures are regenerated, the old one (lib/appShots.mjs).
+    // An image is in the new file name or, until the app's images are regenerated, the old one (lib/appShots.mjs).
     const wanted = (app.screenshots ?? []).map((x, i) => shotFiles(i, x.shows).map((f) => `${SCREENSHOTS}/${f}`));
     for (const x of app.screenshots ?? [])
       if (!shotOf(x.shows, app, blocks)) problems.push(`${appFolder(app.id)}/index.ts: ${t.apps.unknownScreenshot(x.shows)}`);

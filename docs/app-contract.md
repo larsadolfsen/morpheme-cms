@@ -59,9 +59,9 @@ Rules:
 
 ### Screenshot keywords
 
-Each entry of `screenshots` in an app's `index.ts` says what the picture shows with `shows`:
+Each entry of `screenshots` in an app's `index.ts` says what the image shows with `shows`:
 
-| Keyword | Shows | Picture file |
+| Keyword | Shows | Image file |
 | :--- | :--- | :--- |
 | `block:<type>` | one of the app's blocks | `<n>-block-<type>.jpg` |
 | `kind:<list>:<n>` | variant `<n>` of the kind of one of its lists (`0` without variants) | `<n>-kind-<list>-<n>.jpg` |
@@ -72,9 +72,9 @@ Each entry of `screenshots` in an app's `index.ts` says what the picture shows w
 The file `<n>` is the entry's place in the list, from 1. An unknown keyword is a build problem.
 
 The old keywords `blok:<type>`, `slags:<list>:<n>`, `liste:<id>`, `indstillinger` and `side` still work for one release <!-- language-ok: the deprecated words -->
-(`DEPRECATED_SHOT_WORDS` in `lib/appShots.mjs`): they give the same picture as the new ones. A picture is found under
-its new file name and, until the app's pictures are taken again with `npx morpheme app-screenshots`, under the old one
-(`1-blok-<type>.jpg`). Change the keywords in the app, take the pictures again and delete the old files. The old <!-- language-ok: the deprecated words -->
+(`DEPRECATED_SHOT_WORDS` in `lib/appShots.mjs`): they give the same image as the new ones. An image is found under
+its new file name and, until the app's images are taken again with `npx morpheme app-screenshots`, under the old one
+(`1-blok-<type>.jpg`). Change the keywords in the app, take the images again and delete the old files. The old <!-- language-ok: the deprecated words -->
 keywords and file names are removed in the release after the apps are changed.
 
 ### Places
@@ -108,8 +108,8 @@ An app gets only the scopes it lists in `reads`.
 
 A hook is a file `hooks/<place>.ts`. `page-colors` is the only hook today.
 
-- Input: the page's address, pictures, settings, roles and the colors so far.
-- Helpers: `pixels(picture)` and `readable(colors)`.
+- Input: the page's address, images, settings, roles and the colors so far.
+- Helpers: `pixels(image)` and `readable(colors)`.
 - Output: `Colors` or `undefined`. The output is checked as today.
 
 ### After-build
@@ -154,7 +154,7 @@ places, hooks and sandbox. The editor reads contracts 4 and 5 (`APP_APIS` in `li
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
-| `mediaProviders` | `MediaProviderDecl[]` | no | Sources of pictures for the picture picker; connectors only, see "Media providers". |
+| `mediaProviders` | `MediaProviderDecl[]` | no | Sources of images for the image picker; connectors only, see "Media providers". |
 | `role` | `"connector"` or `"plugin"` | no | What the app is. A connector sends data to, or loads code from, an outside service. A plugin has no outside access. With no role, the editor reads an app with an `mcp` server or any host in its `csp` as a connector, and any other as a plugin. |
 | `mcp` | `{ server, auth, tools }` | no | The MCP server a connector calls. `server` is an https address, `auth` is `"oauth"`, `"token"` or `"none"`, `tools` lists the tools the app may call. |
 
@@ -171,9 +171,9 @@ Rules:
 
 ### Media providers
 
-A connector may add a source of pictures to the editor's picture picker with the optional key `mediaProviders` (contract 5). It is
+A connector may add a source of images to the editor's image picker with the optional key `mediaProviders` (contract 5). It is
 data only: a request template and a mapping. The Worker makes the requests, to the hosts the app lists in `csp` only, and keeps the
-owner's key sealed in D1. The app has no code for it. The shape, the host rules, the credit saved with a picture and the
+owner's key sealed in D1. The app has no code for it. The shape, the host rules, the credit saved with an image and the
 checks are in `docs/superpowers/specs/2026-11-11-media-providers.md`.
 
 ### How long contract 4 stays accepted

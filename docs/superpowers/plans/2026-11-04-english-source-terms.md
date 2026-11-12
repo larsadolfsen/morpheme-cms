@@ -74,12 +74,12 @@ Where the two disagree, the row has the `texts` English and the note names the `
 | Bevægelse | Motion | i18n common.parts.motion |  |
 | bevægelse | motion | i18n app.changes.motion |  |
 | Bil | Car | texts |  |
-| Billede | Picture | texts | i18n: "Image" (text.image) |
-| billede | picture | i18n media.kinds.picture.word |  |
-| Billede ved deling | Picture when shared | texts |  |
-| Billede øverst | Picture at the top | texts |  |
-| Billeder | Pictures | i18n media.kinds.picture.plural |  |
-| Billedet kunne ikke klargøres | The picture couldn’t be prepared | i18n app.pictureNotReady |  |
+| Billede | Image | texts | i18n: "Image" (text.image) |
+| billede | image | i18n media.kinds.image.word |  |
+| Billede ved deling | Image when shared | texts |  |
+| Billede øverst | Image at the top | texts |  |
+| Billeder | Images | i18n media.kinds.image.plural |  |
+| Billedet kunne ikke klargøres | The image couldn’t be prepared | i18n app.imageNotReady |  |
 | Blad | Leaf | texts |  |
 | Blog | Blog | texts |  |
 | bloggen | the blog | texts |  |
@@ -123,7 +123,7 @@ Where the two disagree, the row has the `texts` English and the note names the `
 | Dato | Date | texts |  |
 | dd.mm.åååå | mm/dd/yyyy | texts |  |
 | Deaktiveret | Disabled | i18n blockSettings.inactive |  |
-| Dekorativt billede | Decorative picture | texts |  |
+| Dekorativt billede | Decorative image | texts |  |
 | Del | Share | i18n theme.share |  |
 | Del på Facebook | Share on Facebook | texts |  |
 | Del på LinkedIn | Share on LinkedIn | texts |  |
@@ -183,8 +183,8 @@ Where the two disagree, the row has the `texts` English and the note names the `
 | Farvekode | Color code | i18n common.colorSheet.code |  |
 | Farver | Colors | i18n common.parts.colors |  |
 | farver | colors | i18n app.changes.colors |  |
-| Farver fra et billede | Colors from a picture | i18n colors.pages.fromApp |  |
-| Farver fra sidernes billeder | Colors from the pages' pictures | i18n colors.pages.title |  |
+| Farver fra et billede | Colors from an image | i18n colors.pages.fromApp |  |
+| Farver fra sidernes billeder | Colors from the pages' images | i18n colors.pages.title |  |
 | Farver og logo | Colors and logo | i18n library.themeKeptBrand |  |
 | Farver på hjemmesiden | Colors on the website | i18n common.colorSheet.swatches |  |
 | Farvet | Colored | i18n blocks.cards.backgroundAccent |  |
@@ -235,7 +235,7 @@ Where the two disagree, the row has the `texts` English and the note names the `
 | Forsiden i mørk tilstand | The front page in dark mode | i18n library.themeShots.front-dark |  |
 | Fortryd | Undo | i18n text.undo |  |
 | Fra | Off | texts | i18n: "From" (redirects.from) |
-| Fra et billede | From a picture | i18n colors.dynamic.fromPicture |  |
+| Fra et billede | From an image | i18n colors.dynamic.fromImage |  |
 | Fremhævet | Highlighted | i18n blocks.pricecards.featured |  |
 | Fri adgang til materialet | Free access to the material | i18n blocks.checklist.example.2 |  |
 | Fuld bredde | Full width | texts |  |
@@ -329,7 +329,7 @@ Where the two disagree, the row has the `texts` English and the note names the `
 | Indsæt link | Insert link | i18n text.insertLink |  |
 | Info | Info | texts | i18n: "Information" (blocks.icons.info) |
 | Ingen | None | i18n library.sideNone |  |
-| Ingen billeder | No pictures | i18n media.noPictures |  |
+| Ingen billeder | No images | i18n media.noImages |  |
 | Ingen binding | No commitment | i18n blocks.checklist.example.1 |  |
 | Ingen dele passer til søgningen | No parts match the search | i18n parts.screens.none |  |
 | Ingen farve | No color | i18n text.noColor |  |
@@ -438,7 +438,7 @@ Where the two disagree, the row has the `texts` English and the note names the `
 | Mangler formål | No purpose | i18n blocks.cookies.entries.noPurpose |  |
 | Markeret "Vis på forsiden" | Marked "Show on the front page" | i18n blocks.testimonials.front |  |
 | Markeret tekst | Selected text | i18n text.selection |  |
-| Med billede | With picture | i18n parts.screens.withAvatar |  |
+| Med billede | With image | i18n parts.screens.withAvatar |  |
 | Med det samme | At once | texts |  |
 | Med ikon | With icon | i18n parts.screens.withIcon |  |
 | Med links | With links | i18n keywords.linked.with |  |
@@ -510,7 +510,7 @@ Where the two disagree, the row has the `texts` English and the note names the `
 | Om appen | About the app | i18n apps.about |  |
 | Om mig | About me | texts |  |
 | Om temaet | About the theme | i18n library.themeAbout |  |
-| Omdøb billedet | Rename the picture | i18n media.kinds.picture.rename |  |
+| Omdøb billedet | Rename the image | i18n media.kinds.image.rename |  |
 | Omdøb PDF'en | Rename the PDF | i18n media.kinds.pdf.rename |  |
 | Omdøb videoen | Rename the video | i18n media.kinds.video.rename |  |
 | Omdøb zip-filen | Rename the zip file | i18n media.kinds.zip.rename |  |
@@ -539,7 +539,7 @@ Where the two disagree, the row has the `texts` English and the note names the `
 | Pinterest | Pinterest | texts |  |
 | Placering | Location | i18n advanced.place |  |
 | placering | storage location | i18n app.changes.place |  |
-| Placering (billede) | Placement (picture) | i18n blocks.hero.placement |  |
+| Placering (billede) | Placement (image) | i18n blocks.hero.placement |  |
 | Planlagt | Scheduled | texts |  |
 | Pop op-vindue | Pop-up | texts |  |
 | Postnummer og by | Postcode and town | texts |  |
@@ -635,7 +635,7 @@ Where the two disagree, the row has the `texts` English and the note names the `
 | skal være tekst | must be text | i18n check.kinds.text |  |
 | skal være til eller fra | must be on or off | i18n check.kinds.boolean |  |
 | Skift bevægelse | Change motion | i18n library.changeMotion |  |
-| Skift billede | Change picture | i18n forms.changeImage |  |
+| Skift billede | Change image | i18n forms.changeImage |  |
 | Skift ikon | Change icon | i18n forms.changeIcon |  |
 | Skift ikonpakke | Change icon pack | i18n library.changeIconPack |  |
 | Skift sidekolonne | Change side column | i18n library.changeSide |  |
@@ -664,7 +664,7 @@ Where the two disagree, the row has the `texts` English and the note names the `
 | Skærmbilleder | Screenshots | i18n apps.screenshots |  |
 | Slags | Kind | i18n seo.kindFilter |  |
 | Slet | Delete | i18n common.delete |  |
-| Slet billede | Delete picture | i18n media.kinds.picture.delete |  |
+| Slet billede | Delete image | i18n media.kinds.image.delete |  |
 | Slet PDF | Delete PDF | i18n media.kinds.pdf.delete |  |
 | Slet svarene med dette id | Delete the answers with this ID | i18n consents.deleteAll |  |
 | Slet video | Delete video | i18n media.kinds.video.delete |  |
@@ -704,7 +704,7 @@ Where the two disagree, the row has the `texts` English and the note names the `
 | Søg efter samtykke-id | Search by consent ID | i18n consents.searchLabel |  |
 | Søg efter temaer | Search for themes | i18n library.searchThemes |  |
 | Søg i adresserne | Search the addresses | i18n redirects.missing.searchLabel |  |
-| Søg i billederne | Search the pictures | i18n media.searchLabel |  |
+| Søg i billederne | Search the images | i18n media.searchLabel |  |
 | Søg i blokke | Search blocks | i18n blocks.searchInsert |  |
 | Søg i delene | Search the parts | i18n parts.screens.search |  |
 | Søg i filerne | Search the files | i18n media.searchAll |  |
@@ -820,7 +820,7 @@ Where the two disagree, the row has the `texts` English and the note names the `
 | Undermenu | Submenu | texts |  |
 | Underoverskrift | Subheading | i18n text.subheading |  |
 | Upload en PDF | Upload a PDF | texts |  |
-| Upload nyt billede | Upload a new picture | i18n media.uploadNew |  |
+| Upload nyt billede | Upload a new image | i18n media.uploadNew |  |
 | Ur | Clock | texts |  |
 | Valgt | Selected | i18n parts.screens.selected |  |
 | Varighed | Duration | i18n blocks.cookies.entries.lasts |  |
@@ -856,7 +856,7 @@ Where the two disagree, the row has the `texts` English and the note names the `
 | Visning | Layout | i18n blocks.testimonials.layout |  |
 | Vurdering | Rating | i18n seo.ratingFilter |  |
 | Vælg Basis | Choose Basic | i18n blocks.pricecards.example.0.button |  |
-| Vælg billede | Choose picture | i18n forms.pickImage | also: "Choose a picture" (media.pick) |
+| Vælg billede | Choose image | i18n forms.pickImage | also: "Choose an image" (media.pick) |
 | Vælg dato | Select date | texts |  |
 | Vælg datoer | Select dates | texts |  |
 | Vælg en anden adresse | Choose another address | i18n forms.entry.pickOther |  |

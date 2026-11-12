@@ -3,7 +3,7 @@
 // header's own (components/Header.astro, and a theme's own header: the logo, the menu and its button). With a kind it
 // has Material's elements, each in its place: the leading button (`leading`, an icon button: the menu, back), the
 // headline (`headline`, a heading with `headingLevel`, else a <p>) with its subtitle (`subtitle`), and the trailing
-// elements (`trailing`: icon buttons, an avatar or another picture, a filled button). The kinds are M3 Expressive's:
+// elements (`trailing`: icon buttons, an avatar or another image, a filled button). The kinds are M3 Expressive's:
 // `search` (a search bar instead of the headline, `search`: the theme's Search, with its own icons inside it and the
 // leading and trailing ones outside it), `small` (the headline in the bar), and `medium-flexible` and `large-flexible`
 // (a larger headline under the bar, wrapping when it is long, which a component collapses into a small bar with

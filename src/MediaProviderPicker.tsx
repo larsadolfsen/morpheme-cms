@@ -1,4 +1,4 @@
-// One source of pictures an installed app adds to the picker (a media provider): a search, the pictures found and, when the source
+// One source of images an installed app adds to the picker (a media provider): a search, the images found and, when the source
 // needs a key, a field for it. Everything goes through the Worker (src/mediaProviders.ts). Exposes MediaProviderPicker.
 import { useEffect, useState, type ReactElement } from 'react';
 import { Button, EmptyNote, Notice, SearchBar, TextField } from './ui';

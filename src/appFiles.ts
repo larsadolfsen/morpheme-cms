@@ -1,6 +1,6 @@
 // The apps in the site (src/apps/<app>/, packages/editor/src/apps.ts: its own and those installed from the app store),
 // for the editor: what it knows about each (index.ts, or app.json, editor.ts and texts.json from contract 4), where one from the store came from (store.json), what is in its
-// folder (virtual:app-folders, appFoldersPlugin in packages/editor/lib/apps.mjs), its pictures (screenshots/), and the
+// folder (virtual:app-folders, appFoldersPlugin in packages/editor/lib/apps.mjs), its images (screenshots/), and the
 // blocks it adds (blocks/<type>/index.tsx) and their shared texts
 // (shared.ts); the texts of both in the editor's other languages are `appTexts` in texts.ts, apart from
 // these, which load the editor's dictionaries. An app belongs to the site, not to a theme, so it stays when
@@ -23,8 +23,8 @@ export const appTextFiles = import.meta.glob<Record<string, unknown>>('/src/apps
 export const appStores = import.meta.glob<{ default: StoreRecord }>('/src/apps/*/store.json', { eager: true });
 /** What is in each app's folder, by its id: its files and its csp.json, for what it needs (needsOf). */
 export { default as appFolders } from 'virtual:app-folders';
-/** The apps' pictures (screenshots/), by their paths: their addresses. */
-export const appPictures = import.meta.glob<string>('/src/apps/*/screenshots/*.{jpg,jpeg,png,webp}', {
+/** The apps' images (screenshots/), by their paths: their addresses. */
+export const appImages = import.meta.glob<string>('/src/apps/*/screenshots/*.{jpg,jpeg,png,webp}', {
   eager: true,
   query: '?url',
   import: 'default',

@@ -112,7 +112,7 @@ import { kindLists } from './BlockParts';
 import {
   chosenPack,
   chosenTheme,
-  ThemePicture,
+  ThemeImage,
   ThemeStoreButtons,
   themeInstalled,
   themePending,
@@ -318,7 +318,7 @@ function themeStatus(id: string, files: RepoFile[]): string | undefined {
 }
 
 /** "Themes" (#appearance/themes): the themes installed (src/themes/, packages/editor/src/themes.ts; and one from the store the site's build
- * does not have yet, as "Installing…"), by name, each with its picture, its version and who made it, and whether it is
+ * does not have yet, as "Installing…"), by name, each with its image, its version and who made it, and whether it is
  * in use or the store has a newer version, opening its page (ThemePage). More are in "Appstore", under "Settings". */
 export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
   const catalog = useThemeCatalog(env);
@@ -338,7 +338,7 @@ export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
             <ListItem
               key={x.id}
               href={`#appearance/themes/${x.id}`}
-              leading={<ThemePicture src={x.icon} />}
+              leading={<ThemeImage src={x.icon} />}
               headline={x.name}
               supporting={t.library.themeByline(x.version, x.author)}
               truncate
@@ -479,9 +479,9 @@ export function MotionSchemes({ env, files }: { env: Env; files: RepoFile[] }) {
 }
 
 /** A theme's page (#appearance/themes/<id>), the same for every theme, made to show what it would make of the site, so
- * it can be chosen or not: its picture, name, version and who made it, and whether it is in use; "Use the theme", for any
+ * it can be chosen or not: its image, name, version and who made it, and whether it is in use; "Use the theme", for any
  * other than the one chosen, which asks first and then saves it in the site's file (config.theme) at once, in its own
- * commit, and the site is built with it; the pictures of the site in it (its screenshots/, packages/editor/scripts/theme-screenshots.mjs),
+ * commit, and the site is built with it; the images of the site in it (its screenshots/, packages/editor/scripts/theme-screenshots.mjs),
  * each opening a sheet with it whole (ImageCarousel); what it is (its description) and what it gives the site (its highlights), in the
  * editor's language, else the first it has; and what stays as it is. Every theme has every block (what it does not draw
  * itself, the standard theme does), so changing it never leaves a block without its drawing; who made it, a row to their

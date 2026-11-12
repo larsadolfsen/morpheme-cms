@@ -43,7 +43,7 @@ import NavigationRestParts from './NavigationRestParts';
 import PickerParts from './PickerParts';
 import { exampleOf, type BlockData, type BlockProps, type SiteBlock } from './blocks';
 import { apps, preview, siteBlocks, standardTypes } from './registry';
-import { examplePicture, exampleData, kindExample } from './examples';
+import { exampleImage, exampleData, kindExample } from './examples';
 import type { Field, FolderCollection, PreviewVariant } from './schema';
 import { buttonKinds, iconButtonKinds } from './standard/view';
 import { kindDraw } from './apps';
@@ -54,14 +54,14 @@ import { Svg } from './icon';
 const { screens } = t.parts;
 const back = { href: '#developer/parts', label: t.common.parts.editorParts };
 
-// The fields filled in with the plain picture where they have none (a card's, a list's items').
-function pictured(fields: Field[], props: BlockProps): BlockProps {
+// The fields filled in with the plain image where they have none (a card's, a list's items').
+function imaged(fields: Field[], props: BlockProps): BlockProps {
   const filled = { ...props };
   for (const f of fields) {
     const v = filled[f.name];
-    if (f.type === 'image' && !v) filled[f.name] = examplePicture;
-    else if (f.type === 'object' && f.fields) filled[f.name] = pictured(f.fields, (v ?? {}) as BlockProps);
-    else if (f.type === 'list' && f.fields && Array.isArray(v)) filled[f.name] = v.map((item) => pictured(f.fields!, item as BlockProps));
+    if (f.type === 'image' && !v) filled[f.name] = exampleImage;
+    else if (f.type === 'object' && f.fields) filled[f.name] = imaged(f.fields, (v ?? {}) as BlockProps);
+    else if (f.type === 'list' && f.fields && Array.isArray(v)) filled[f.name] = v.map((item) => imaged(f.fields!, item as BlockProps));
   }
   return filled;
 }
@@ -84,13 +84,13 @@ function BlockShown({ block, data }: { block: SiteBlock; data: BlockData }) {
   const example = exampleOf(block, data);
   return versionsOf(block).map((v) => (
     <Part key={v.label} name={v.label ? `${block.label} · ${v.label}` : block.label} use={block.hint}>
-      <Preview>{preview(block.type, pictured(block.fields, { ...example, ...v.props }), data)}</Preview>
+      <Preview>{preview(block.type, imaged(block.fields, { ...example, ...v.props }), data)}</Preview>
     </Part>
   ));
 }
 
-/** The theme's chips, as the site draws them: every kind, elevated on a picture, in every state (chosen, with an icon or
- * a picture, with the button that removes it, dragged, only shown) and disabled. */
+/** The theme's chips, as the site draws them: every kind, elevated on an image, in every state (chosen, with an icon or
+ * an image, with the button that removes it, dragged, only shown) and disabled. */
 function ChipParts() {
   const row = 'flex flex-wrap items-center gap-3';
   const { input, filter, suggestion, assist } = screens.chipKinds;
@@ -103,7 +103,7 @@ function ChipParts() {
               <SiteChip key={k} kind={k} label={screens.chipKinds[k]} />
             ))}
           </div>
-          <div className={`${row} rounded-xl bg-cover bg-center p-4`} style={{ backgroundImage: `url("${examplePicture}")` }}>
+          <div className={`${row} rounded-xl bg-cover bg-center p-4`} style={{ backgroundImage: `url("${exampleImage}")` }}>
             <SiteChip elevated icon="calendar-blank" label={`${assist} · ${screens.elevated}`} />
             <SiteChip elevated kind="filter" label={`${filter} · ${screens.elevated}`} />
             <SiteChip elevated kind="filter" selected label={screens.selected} />
@@ -115,9 +115,9 @@ function ChipParts() {
             <SiteChip kind="suggestion" selected label={`${suggestion} · ${screens.selected}`} />
             <SiteChip icon="calendar-blank" label={screens.withIcon} />
             <SiteChip kind="input" trailingIcon="x" label={input} />
-            <SiteChip kind="input" avatar={examplePicture} removeLabel={screens.remove(screens.withAvatar)} label={screens.withAvatar} />
+            <SiteChip kind="input" avatar={exampleImage} removeLabel={screens.remove(screens.withAvatar)} label={screens.withAvatar} />
             <SiteChip kind="input" selected removeLabel={screens.remove(screens.selected)} label={screens.selected} />
-            <SiteChip kind="input" dragged avatar={examplePicture} label={screens.dragged} />
+            <SiteChip kind="input" dragged avatar={exampleImage} label={screens.dragged} />
             <SiteChip plain label={screens.plain} />
           </div>
           <div className={row}>
@@ -377,7 +377,7 @@ function CardParts() {
   const say = screens.cardsAndLists;
   const [one, link, withIcon] = say.items;
   const lists = say.lists;
-  const [icon, avatar, avatarPicture, image, video] = lists.headlines;
+  const [icon, avatar, avatarImage, image, video] = lists.headlines;
   const [checkbox, radio, switchItem, after] = lists.choices;
   return (
     <>
@@ -444,9 +444,9 @@ function CardParts() {
                   supporting={say.supporting}
                   trailingSupporting={lists.trailing}
                 />
-                <SiteListItem href="" leadingAvatar={{ src: examplePicture }} headline={avatarPicture} supporting={say.supporting} />
-                <SiteListItem href="" leadingImage={{ src: examplePicture }} headline={image} supporting={say.supporting} />
-                <SiteListItem href="" leadingVideo={{ src: examplePicture }} lines={3} headline={video} supporting={lists.long} />
+                <SiteListItem href="" leadingAvatar={{ src: exampleImage }} headline={avatarImage} supporting={say.supporting} />
+                <SiteListItem href="" leadingImage={{ src: exampleImage }} headline={image} supporting={say.supporting} />
+                <SiteListItem href="" leadingVideo={{ src: exampleImage }} lines={3} headline={video} supporting={lists.long} />
               </SiteList>
             </SiteCard>
             <SiteCard>

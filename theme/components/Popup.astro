@@ -1,11 +1,11 @@
 ---
 // Pop-ups (packages/editor/site/popups.ts, "Content" › "Promotion" in the editor): those for this page, as a modal dialog in the
 // middle of the screen over its scrim (dialogModalClass, ui/Dialog.tsx) with their box (PopupView.tsx, as in the
-// editor: a picture at the top, a heading, a text and a button).
+// editor: an image at the top, a heading, a text and a button).
 // A pop-up of a kind an app adds (`type`, e.g. Mailchimp's) has the app's part under the text instead
 // (src/apps/<app>/popups/View.tsx), which shows the button where it wants; it can tell the script that the visitor is
 // done (the event `popup:done`: not shown again) and that it cannot be shown (an element with `data-popup-off`: an app
-// without its settings). The cross to close it is in the top right corner, over the picture. The script shows the
+// without its settings). The cross to close it is in the top right corner, over the image. The script shows the
 // first one the visitor has not closed, `delay` seconds after the page opens, once the page is scrolled `scroll` %
 // down, or as the visitor is about to leave it (`trigger`), and not while the cookie banner is asking or another dialog
 // is open. Closed (the cross, Escape, a tap outside it or its button), it is remembered in the browser and not shown to

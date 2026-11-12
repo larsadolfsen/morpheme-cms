@@ -37,7 +37,7 @@ export async function readFolder(env, folder, depth, ctx, token = env.GITHUB_PUB
   }
 }
 
-/** Saves the files (`{ path, text }`, `{ path, text: null }` to delete one, or `{ path, bytes }` for a picture) in one commit on the branch, if its head is still `head`; returns the new commit's id. */
+/** Saves the files (`{ path, text }`, `{ path, text: null }` to delete one, or `{ path, bytes }` for an image) in one commit on the branch, if its head is still `head`; returns the new commit's id. */
 export async function commitFiles(env, head, headline, changes, ctx, token = env.GITHUB_PUBLISH_TOKEN) {
   const files = filesOf(env, token, ctx);
   try {

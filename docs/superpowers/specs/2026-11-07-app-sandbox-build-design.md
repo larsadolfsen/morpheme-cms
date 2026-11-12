@@ -171,7 +171,7 @@ Each hook place has an input builder, helpers and an output check.
 
 | Place | Input | Helpers | Output |
 |---|---|---|---|
-| `page-colors` | as today (`PageColorsHook`): address, pictures, settings, roles, colours so far | `pixels(picture)`, `readable(colors)` | `Colors` or `undefined`, checked by `colorPairs` as today |
+| `page-colors` | as today (`PageColorsHook`): address, images, settings, roles, colours so far | `pixels(image)`, `readable(colors)` | `Colors` or `undefined`, checked by `colorPairs` as today |
 
 ### After-build (`lib/afterBuild.mjs`)
 

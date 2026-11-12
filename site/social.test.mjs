@@ -108,7 +108,7 @@ test('linkedin', () => {
   ]);
 });
 
-test('pinterest with a picture', () => {
+test('pinterest with an image', () => {
   assert.deepEqual(shareLinks({ url: 'https://a.dk/p/', title: 'T', picture: 'https://a.dk/i.webp' }, ['pinterest']), [
     {
       id: 'pinterest',
@@ -117,7 +117,7 @@ test('pinterest with a picture', () => {
   ]);
 });
 
-test('pinterest without a picture is left out', () => {
+test('pinterest without an image is left out', () => {
   assert.deepEqual(shareLinks({ url: 'https://a.dk/p/', title: 'T' }, ['pinterest', 'copy-link']), [{ id: 'copy-link' }]);
 });
 

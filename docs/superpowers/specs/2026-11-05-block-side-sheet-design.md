@@ -67,7 +67,7 @@ side panel from `large` looks like a second navigation drawer.
 
 - The "choose" step.
 - Other sheets of the editor (links, pages, media).
-- Parked: "Picture left" for the Cards block (see the replaced design).
+- Parked: "Image left" for the Cards block (see the replaced design).
 
 ## Checks
 

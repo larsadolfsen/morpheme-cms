@@ -129,7 +129,7 @@ export const asStandardTemplate = (template: Template | undefined, standard: Sta
 };
 
 /** What is wrong with the blocks in a text (with or without its front matter) by their fields and the template. With
- * `leads` (the front page), a block's heading, text and picture may be the text above its card, as the site reads it. */
+ * `leads` (the front page), a block's heading, text and image may be the text above its card, as the site reads it. */
 export function blockProblems(text: string, template?: Template, leads?: Record<string, Lead>): string[] {
   const name = (type: string) => siteBlocks.find((b) => b.type === type)?.label ?? type;
   const rules = template
@@ -154,7 +154,7 @@ export function blockProblems(text: string, template?: Template, leads?: Record<
   return [...own, ...rules];
 }
 
-/** The block as it looks on the site, or null when there is no picture of it. On a fixed page its
+/** The block as it looks on the site, or null when there is no image of it. On a fixed page its
  * sections (the theme's previews.tsx), or the block of the section's type (Book an appointment); a section can
  * draw a block by its type too (`block`, the prices on the prices page), so the theme never imports one. */
 export function preview(type: string, props: BlockProps, data: BlockData) {

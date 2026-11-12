@@ -12,7 +12,7 @@ import { locale, t } from './i18n';
 
 const fileName = (path: string) => path.split('/').pop() ?? path;
 
-/** What a file of a list is called: a page's or post's title, an entry's name as its list shows it, else (a picture)
+/** What a file of a list is called: a page's or post's title, an entry's name as its list shows it, else (an image)
  * its file name. */
 export function nameOf(collection: Collection | undefined, file: { path: string; text: string }): string {
   try {

@@ -124,7 +124,7 @@ export function setRedirect(all: AllRedirects, from: string, to: string | null):
   return { own, rules, map: { ...all.map, paths } };
 }
 
-/** A redirect from the address of a page (not a picture or another file, not a rule with a *),
+/** A redirect from the address of a page (not an image or another file, not a rule with a *),
  * where to, and the files it is in. */
 export type Entry = { from: string; to: string; files: string[] };
 

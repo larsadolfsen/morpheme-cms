@@ -5,8 +5,8 @@
 // (`dividers`: full-width, the default for a standard list, inset, from where the items' text starts, middle-inset or
 // none) are Material's. An item has one, two or three lines (`lines`): with a supporting text two (also when the text
 // is empty, so the items of a list are alike), with an overline too three; a supporting text of two lines needs
-// `lines={3}`. What leads it: `leading` (anything: an icon, a picture, a block's own), or Material's leading
-// kinds, an icon (`leadingIcon`), an avatar (`leadingAvatar`: a letter or a picture), an image (`leadingImage`) or a
+// `lines={3}`. What leads it: `leading` (anything: an icon, an image, a block's own), or Material's leading
+// kinds, an icon (`leadingIcon`), an avatar (`leadingAvatar`: a letter or an image), an image (`leadingImage`) or a
 // video's thumbnail (`leadingVideo`). What trails it: a trailing supporting text (`trailingSupporting`: a number, a
 // date), anything (`trailing`: swatches, what is chosen) and an icon (`trailingIcon`: an arrow). With `control` the item is a choice, the theme's
 // Checkbox, RadioButton or Switch before or after its text (`at`; a switch after it, the others before it by default),
@@ -79,8 +79,8 @@ export default function List({
   );
 }
 
-/** A picture before an item: its address and what it shows (empty: the headline says it). */
-export type ListItemPicture = { src: string; alt?: string };
+/** An image before an item: its address and what it shows (empty: the headline says it). */
+export type ListItemImage = { src: string; alt?: string };
 
 /** A choice in an item: the theme's checkbox, radio button or switch, before or after the text (`at`). */
 export type ListItemControl = {
@@ -92,7 +92,7 @@ export type ListItemControl = {
   icons?: SwitchIcons;
 };
 
-/** What leads an item: anything (a picture, a block's own). */
+/** What leads an item: anything (an image, a block's own). */
 export function ListItemLeading({ children }: { children: ReactNode }) {
   return <span className="list-item-leading">{children}</span>;
 }
@@ -152,9 +152,9 @@ export function ListItem({
   leading?: ReactNode;
   leadingIcon?: IconRef;
   leadingIconSelected?: boolean;
-  leadingAvatar?: string | ListItemPicture;
-  leadingImage?: ListItemPicture;
-  leadingVideo?: ListItemPicture;
+  leadingAvatar?: string | ListItemImage;
+  leadingImage?: ListItemImage;
+  leadingVideo?: ListItemImage;
   overline?: ReactNode;
   headline: ReactNode;
   supporting?: ReactNode;
@@ -208,9 +208,7 @@ export function ListItem({
     </span>
   );
 
-  const picture = (p: ListItemPicture, kind: string) => (
-    <img src={p.src} alt={p.alt ?? ''} className={`list-item-${kind}`} loading="lazy" />
-  );
+  const image = (p: ListItemImage, kind: string) => <img src={p.src} alt={p.alt ?? ''} className={`list-item-${kind}`} loading="lazy" />;
   const lead =
     control && at === 'leading' ? (
       choice
@@ -223,11 +221,11 @@ export function ListItem({
         <span className="list-item-avatar">{leadingAvatar}</span>
       </span>
     ) : leadingAvatar ? (
-      <span className="list-item-leading list-item-leading-avatar">{picture(leadingAvatar, 'avatar')}</span>
+      <span className="list-item-leading list-item-leading-avatar">{image(leadingAvatar, 'avatar')}</span>
     ) : leadingImage ? (
-      <span className="list-item-leading list-item-leading-image">{picture(leadingImage, 'image')}</span>
+      <span className="list-item-leading list-item-leading-image">{image(leadingImage, 'image')}</span>
     ) : leadingVideo ? (
-      <span className="list-item-leading list-item-leading-video">{picture(leadingVideo, 'video')}</span>
+      <span className="list-item-leading list-item-leading-video">{image(leadingVideo, 'video')}</span>
     ) : null;
 
   const cut = truncate ? ' truncate' : '';

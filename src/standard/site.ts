@@ -30,7 +30,7 @@ export type PostChoice = {
   link?: string;
 };
 
-/** A blog post as "Blog posts" shows it: its address, title, description, picture (its file), date (ISO)
+/** A blog post as "Blog posts" shows it: its address, title, description, image (its file), date (ISO)
  * and reading time in minutes. */
 export type ListedPost = {
   href: string;
@@ -69,11 +69,11 @@ export type StandardSiteData = {
  * lib/cookieCategories.mjs). */
 export type CookieItem = { name: string; provider: string; purpose?: string; lasts?: string; category: CookieCategory };
 
-/** A testimonial as the site has it (its file name, its picture, the quote's paragraphs, its tags). */
+/** A testimonial as the site has it (its file name, its image, the quote's paragraphs, its tags). */
 export type TestimonialItem = {
   slug: string;
   name: string;
-  /** Its picture (optional), by the name. */
+  /** Its image (optional), by the name. */
   image?: string;
   context?: string;
   quote: string[];
@@ -131,8 +131,8 @@ export type StandardSite = {
     list(categories: string[]): Promise<ListedPost[]>;
     /** Where its "All posts" goes: a tag's page, with the tag's name, or the blog. */
     all(choice: PostChoice): { href: string; tag?: string };
-    /** A picture's sizes, for the browser to pick the one that fits (srcset, width and height). Also
-     * the pictures on "Cards" (LinkCards.tsx). */
+    /** An image's sizes, for the browser to pick the one that fits (srcset, width and height). Also
+     * the images on "Cards" (LinkCards.tsx). */
     image(src: string): { srcset?: string; width?: number; height?: number };
   };
 };

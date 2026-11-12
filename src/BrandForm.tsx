@@ -1,12 +1,12 @@
 // "Business" › "Logo and icon" (#company/logo): a new logo (the mark by the site's name) and a new icon (the browser
-// tab, Google and the editor's app icon), made from a picture the owner picks (brand.ts), in the site's colours
+// tab, Google and the editor's app icon), made from an image the owner picks (brand.ts), in the site's colours
 // ("Colors"). Both are saved together in one commit with "Save changes".
 import { useEffect, useState } from 'react';
 import { ConflictError, type RepoFile } from './github';
 import FormFrame from './FormFrame';
 import { Button } from './ui';
 import { pickImage } from './images';
-import { BRAND_FILES, FAVICON, iconFiles, LOGO, logoFile, openPicture, solid, type Picture } from './brand';
+import { BRAND_FILES, FAVICON, iconFiles, LOGO, logoFile, openImage, solid, type Image } from './brand';
 import type { Env } from './App';
 import { colorsOf } from './Colors';
 import { savedText } from './deploy';
@@ -20,7 +20,7 @@ export default function BrandForm({ env }: { env: Env }) {
   const [loaded, setLoaded] = useState<Record<string, RepoFile> | null>(null);
   // The files to save, by path, and what the previews show.
   const [changes, setChanges] = useState<Record<string, string | Uint8Array>>({});
-  const [logo, setLogo] = useState<{ url: string; picture: Picture | null }>({ url: '/logo.svg', picture: null });
+  const [logo, setLogo] = useState<{ url: string; image: Image | null }>({ url: '/logo.svg', image: null });
   const [icon, setIcon] = useState('/editor/icon-192.png');
   const [saving, setSaving] = useState(false);
   // Drawing the icons takes a moment.
@@ -34,14 +34,14 @@ export default function BrandForm({ env }: { env: Env }) {
       .catch((e) => notify({ text: t.company.brand.notLoaded((e as Error).message), error: true }));
   }, []);
 
-  // Asks for a picture and opens it; null if none was picked or it cannot be used.
-  async function pick(): Promise<Picture | null> {
+  // Asks for an image and opens it; null if none was picked or it cannot be used.
+  async function pick(): Promise<Image | null> {
     const file = await pickImage();
     if (!file) return null;
     try {
-      const picture = await openPicture(file);
+      const image = await openImage(file);
       notify(null);
-      return picture;
+      return image;
     } catch (e) {
       notify({ text: (e as Error).message, error: true });
       return null;
@@ -49,20 +49,20 @@ export default function BrandForm({ env }: { env: Env }) {
   }
 
   async function newLogo() {
-    const picture = await pick();
-    if (!picture) return;
-    if (solid(picture)) return notify({ text: t.company.brand.solid, error: true });
-    const text = logoFile(picture);
-    setLogo({ url: svgUrl(text), picture });
+    const image = await pick();
+    if (!image) return;
+    if (solid(image)) return notify({ text: t.company.brand.solid, error: true });
+    const text = logoFile(image);
+    setLogo({ url: svgUrl(text), image });
     setChanges((c) => ({ ...c, [LOGO]: text }));
   }
 
-  async function newIcon(picture: Picture | null, fromLogo: boolean) {
-    if (!picture) return;
+  async function newIcon(image: Image | null, fromLogo: boolean) {
+    if (!image) return;
     setDrawing(true);
     try {
       const { bg, accent } = colorsOf(env.files).light;
-      const { files, preview } = await iconFiles(picture, fromLogo, { bg, accent });
+      const { files, preview } = await iconFiles(image, fromLogo, { bg, accent });
       setIcon(preview);
       setChanges((c) => ({ ...c, ...files }));
     } catch (e) {
@@ -74,13 +74,13 @@ export default function BrandForm({ env }: { env: Env }) {
 
   // The icon from the logo: the new one if one was picked, else the one on the site.
   async function iconFromLogo() {
-    const picture =
-      logo.picture ??
-      (await openPicture(new Blob([loaded![LOGO].text], { type: 'image/svg+xml' })).catch((e) => {
+    const image =
+      logo.image ??
+      (await openImage(new Blob([loaded![LOGO].text], { type: 'image/svg+xml' })).catch((e) => {
         notify({ text: (e as Error).message, error: true });
         return null;
       }));
-    await newIcon(picture, true);
+    await newIcon(image, true);
   }
 
   async function save() {
