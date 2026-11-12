@@ -8,14 +8,14 @@
 // paragraph is the lead (type-lead, ui.css: the --type-lead-* tokens), muted and 52ch wide.
 // data-editor marks what the editor's preview fills in with what is in its form ("Preview",
 // packages/editor/src/pagePreview.tsx): the heading, the text, and the booking prompt at the end.
-// A page whose H1 has a section colour (the marker before it, lib/section-marker.mjs) draws the heading and the text up to the
+// A page whose H1 has section settings (the marker before it, lib/section-marker.mjs: a colour, a picture behind it or the whole width) draws the heading and the text up to the
 // first H2 in one panel (data-editor="h1-section", sectionClass); with a column beside the text the panel holds the heading only.
 import Base from '@theme/layouts/Base.astro';
 import PageHeading from '@theme/components/PageHeading.astro';
 import EndBlock from '@theme/components/EndBlock.astro';
 import Block from '@morphemecms/cms/src/standard/Block.astro';
 import { blockLoads, endBlock, sideBlock } from '@morphemecms/cms/src/standard/views';
-import { getPages, h1SectionColor, pageHeading, pageHeadingHtml, parentPage, withoutH1, type Page } from '@morphemecms/cms/site/content';
+import { getPages, h1Section, pageHeading, pageHeadingHtml, parentPage, withoutH1, type Page } from '@morphemecms/cms/site/content';
 import { hiddenFromSearch } from '@morphemecms/cms/lib/status.mjs';
 import { blockTexts, nav } from '@morphemecms/cms/site/site';
 import { firstPicture, picturesOf } from '@morphemecms/cms/site/images.mjs';
@@ -25,6 +25,7 @@ import { offeredTemplates } from '@morphemecms/cms/site/templates';
 import { markdownHtml } from '@morphemecms/cms/lib/inline';
 import Container from '@theme/components/Container.astro';
 import RichText from '@theme/components/RichText.astro';
+import Img from '@theme/components/Img.astro';
 import { introOf, sectionClass } from '@morphemecms/cms/lib/text-sections.mjs';
 import Snackbar from '@theme/ui/Snackbar';
 import { isPreview, livePath, PREVIEW, previewId } from '@morphemecms/cms/site/noindex.mjs';
@@ -57,8 +58,10 @@ const picture = firstPicture(page.body);
 // Without the H1 at the top of the text (the page's heading, drawn above).
 const text = await Astro.slots.render('default');
 const html = withoutH1(text);
-// The colour of the H1's section (the marker before the H1): the heading and the text up to the first H2 are one panel.
-const h1Color = h1SectionColor(text);
+// The settings of the H1's section (the marker before the H1: colour, picture, width): the heading and the text up to the first H2
+// are one panel.
+const h1Settings = h1Section(text);
+const h1Color = h1Settings ? h1Settings.color : null;
 const end = endBlock(html);
 // The questions in the text's "Questions and answers" blocks (not the hidden ones), for the structured data
 // (an FAQPage, packages/editor/site/schema.ts); the answers as HTML, as on the page (the block's load.ts).
@@ -85,7 +88,7 @@ const side =
     : null;
 // In a coloured H1 section the text up to the first H2 (intro) is in the panel with the heading; with a column beside the text
 // the text stays whole in its grid and the panel holds the heading only.
-const { intro, rest } = h1Color && !side ? introOf(sideText) : { intro: '', rest: sideText };
+const { intro, rest } = h1Settings && !side ? introOf(sideText) : { intro: '', rest: sideText };
 const textClass = side
   ? 'prose max-w-[66ch]'
   : 'prose max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:type-lead [&>p:first-child]:text-on-surface-variant [&>p:first-child]:max-w-[52ch]';
@@ -109,8 +112,16 @@ const textClass = side
 >
   <article data-template={template}>
     <Container as="header" class="pt-8 medium:pt-14">
-      {h1Color ? (
-        <section class={sectionClass(h1Color)} data-editor="h1-section">
+      {h1Settings ? (
+        <section class={sectionClass(h1Color, h1Settings)} data-editor="h1-section">
+          {h1Settings.picture && (
+            <Img
+              src={h1Settings.picture}
+              alt={h1Settings.alt ?? ''}
+              sizes={h1Settings.width === 'full' ? '100vw' : 'min(72rem, 100vw)'}
+              class="text-section-image"
+            />
+          )}
           <PageHeading parent={parent} heading={heading} headingHtml={headingHtml} />
           {intro && (
             <div data-editor="intro" class={textClass}>

@@ -36,6 +36,7 @@ export const apps: Messages['apps'] = {
   developer: 'Udvikler',
   developerApps: 'Apps',
   appCount: (n) => (n === 1 ? '1 app' : `${n} apps`),
+  noneInstalled: (what: string) => `Ingen ${what.toLowerCase()} er installeret endnu. Find nogle i Butik.`,
   noDeveloper: 'Der er ingen apps fra den udvikler',
   unknownScreenshot: (shows) =>
     `Billedet "${shows}" viser intet, appen har: block:<type>, kind:<liste>:<variant>, list:<id>, settings eller page.`,
@@ -63,6 +64,7 @@ export const apps: Messages['apps'] = {
   tabInfo: 'Information',
   tabs: 'Appens dele',
   find: 'Appstore',
+  store: 'Butik',
   searchStore: 'Søg efter apps',
   loadingStore: 'Henter apps…',
   storeFailed: 'Kan ikke nå butikken. Prøv igen om 10 minutter.',

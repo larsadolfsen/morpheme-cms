@@ -593,11 +593,9 @@ export default function Parts({ env }: { env: Env }) {
                   <SheetGroupTitle>{sample.group}</SheetGroupTitle>
                   <ul>
                     {['a', 'b', 'c'].map((v) => (
-                      <li key={v}>
-                        <Option selected={picked === v} onClick={() => setPicked(v)}>
-                          {sample.option(v.toUpperCase())}
-                        </Option>
-                      </li>
+                      <Option key={v} selected={picked === v} onClick={() => setPicked(v)}>
+                        {sample.option(v.toUpperCase())}
+                      </Option>
                     ))}
                   </ul>
                 </SheetList>

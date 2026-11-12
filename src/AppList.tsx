@@ -68,6 +68,7 @@ import { siteT, siteText, t } from './i18n';
 import { OwnerLicenses, StoreLicenseRows } from './Licenses';
 import { StoreNotice, StoreRound, useStoreConnected, useStoreKey } from './StoreStatus';
 import StoreSections from './StoreSections';
+import type { Section } from './sectionChoice.mjs';
 import { StoreSearchRow, useStateFilter } from './StoreSearchRow';
 import { sortChoice, useSort } from './storeSort';
 import { told } from './notificationData';
@@ -237,7 +238,7 @@ const updateOf = (app: SiteApp, catalog: ShownApp[] | null | 'failed') => {
 /** An icon of the store's catalog (Phosphor's name) in front of a row. */
 const storeIcon = (name?: string) => <LeadingIcon>{name && <AnyIcon name={name} size={24} />}</LeadingIcon>;
 
-export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
+export function Apps({ env, files, role }: { env: Env; files: RepoFile[]; role?: Role }) {
   const installed = installedApps(files);
   const { off } = appsState(files);
   const catalog = useCatalog(env);
@@ -278,20 +279,16 @@ export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
   // By the name, who made it and what it does.
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
   const shown = rows
+    .filter((a) => !role || a.role === role)
     .filter((a) => words.every((w) => `${a.label} ${a.publisher} ${a.hint}`.toLowerCase().includes(w)))
     .sort((a, b) => (sort === 'za' ? -1 : 1) * byText(a.label, b.label));
   // Under the first letter of their names (headed, from HEADINGS_FROM apps).
   const groups = headed(shown, (a) => letterOf(a.label));
+  const title = role ? t.apps.sections[role === 'connector' ? 'connectors' : 'plugins'] : t.common.parts.apps;
 
   return (
-    <Screen title={t.common.parts.apps} wide back={backFrom('apps')}>
-      <SearchRow
-        value={query}
-        onChange={setQuery}
-        label={t.common.searchIn(t.common.parts.apps)}
-        sort={sortChoice(sort, pickSort)}
-        className="mb-6"
-      />
+    <Screen title={title} wide back={backFrom('apps')}>
+      <SearchRow value={query} onChange={setQuery} label={t.common.searchIn(title)} sort={sortChoice(sort, pickSort)} className="mb-6" />
       {groups.length ? (
         groups.map((g) => (
           <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
@@ -309,8 +306,10 @@ export function Apps({ env, files }: { env: Env; files: RepoFile[] }) {
             ))}
           </Group>
         ))
-      ) : (
+      ) : !role || rows.some((a) => a.role === role) ? (
         <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
+      ) : (
+        <EmptyNote>{t.apps.noneInstalled(title)}</EmptyNote>
       )}
     </Screen>
   );
@@ -435,8 +434,8 @@ export function DeveloperRow({ name }: { name: string }) {
  * with what it does and whether it is installed, opening its page (the themes are in "Theme store", ThemeStore.tsx).
  * With search (by name, what it does, who made it and the words it is found by, in both languages), the order and the
  * filters by category and by whether it is installed, each picked one as a chip. */
-export function StorePage({ env, files }: { env: Env; files: RepoFile[] }) {
-  return <StoreSections env={env} files={files} />;
+export function StorePage({ env, files, section }: { env: Env; files: RepoFile[]; section?: Section }) {
+  return <StoreSections env={env} files={files} section={section} />;
 }
 
 /** The list of one section of the Appstore (Connectors or Plugins): the apps of that role, with the switch of sections

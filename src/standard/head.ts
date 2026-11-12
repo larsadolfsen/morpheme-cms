@@ -1,5 +1,5 @@
 // A block's head, for the standard blocks that start a section ("Cards", "Points with icon", "Steps", "Testimonials",
-// "Questions and answers", "Blog posts", "Expandable list", "Price cards", "Checklist"): a label in small capitals above the
+// "Questions and answers", "Blog posts", "Expandable list", "Price cards", "Checklist"): a label above the
 // heading ("Label", `eyebrow`), the heading, and a subheading under it ("Subheading", `intro`: the key
 // "Expandable list" had it by before), all optional. Its fields, one definition for all of them (headFields, around where
 // the heading is in a block's fields), and what it shows (headOf, the same in the editor and on the site); drawn by the theme's blocks/BlockHead.tsx.

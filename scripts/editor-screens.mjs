@@ -4,13 +4,13 @@
 // packages/editor/src/icon.tsx), there or on one of the built site's pages. An icon drawn from Material Symbols instead
 // of the icon pack (data-icon-fallback) is only listed, with where it is: it does not fail.
 // The screens are found as the editor's own links: from the start screen (the drawer's links are in the page also while it is
-// closed) and "Parts", #developer/parts, "Themes", #appearance/themes, "Search engine optimization", #seo, "Appstore", #settings/appstore, and "Apps", #apps, which the menu no longer links to), and
+// closed) and "Parts", #developer/parts, "Themes", #appearance/themes, "Search engine optimization", #seo, "Appstore", #settings/appstore, and "Apps", #apps, which the menu no longer links to; Connectors and Plugins, #installed/connectors and #installed/plugins, are its rows), and
 // from each screen it opens, two steps down. GitHub is answered from the files in this repository, so it needs no login
 // and changes nothing. It runs on the built site: npm run build && npm run check:screens (or on another
 // folder with a built site, its path after the command: packages/editor/scripts/check-themes.mjs).
 // It also checks the menu and Settings (#settings, the cog at the bottom of the menu): Settings lists exactly Appearance,
-// Developer, Licenses, Morpheme and Privacy, A-Z by their names; the drawer's first level has only the four sections, the
-// start screen and the cog, which is the last item at the bottom of the drawer and of the collapsed rail (and on a phone,
+// Developer, Licenses, Morpheme and Privacy, A-Z by their names; the drawer's first level has the three sections, the
+// start screen, the rows under the "Apps" label (Store, Connectors, Plugins and Themes, each with an icon) and the cog, which is the last item at the bottom of the drawer and of the collapsed rail (and on a phone,
 // of the modal drawer) and is marked on Settings' screens only; and "Morpheme" (#morpheme) shows its status as text, has
 // an action on every list row, and its Update button and its connection to the store work.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -125,6 +125,50 @@ async function checkUpdatesCard(width, height) {
   await page.close();
 }
 
+/** On a phone the text's floating row is a docked bottom sheet: the same size and the same place (just over "Save changes", or over the keyboard) at every cursor, with all of the Text style, List and heading buttons in it. */
+async function checkTextSheet() {
+  const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`360px text sheet: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Fro');
+  const read = () =>
+    page.evaluate(() => {
+      const m = document.querySelector('.editor-selection-menu');
+      const r = m.getBoundingClientRect();
+      const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? visualViewport.height;
+      const names = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getAttribute('aria-label'));
+      return { shown: !m.hidden, sheet: m.classList.contains('editor-selection-sheet'), r: r.toJSON(), save, names };
+    });
+  await page.waitForTimeout(1200);
+  const first = await read();
+  await page.keyboard.type(' and more');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Next');
+  await page.waitForTimeout(1200);
+  const second = await read();
+  for (const [name, now] of [
+    ['first line', first],
+    ['second line', second],
+  ]) {
+    if (!now.shown || !now.sheet) problems.push(`360px text sheet: no docked sheet at the ${name}`);
+    else if (Math.abs(now.r.bottom - now.save) > 1 || now.r.width < 359)
+      problems.push(`360px text sheet: not docked over Save changes at the ${name}`);
+    if (!now.names.some((n) => n.startsWith('Text style')) || !now.names.includes('List'))
+      problems.push(`360px text sheet: the Text style or List button is missing at the ${name}`);
+  }
+  if (first.r.height !== second.r.height || first.r.top !== second.r.top)
+    problems.push('360px text sheet: the sheet moved or changed size with the cursor');
+  await page.setViewportSize({ width: 360, height: 420 });
+  await page.waitForTimeout(500);
+  const keyboard = await read();
+  if (Math.abs(keyboard.r.bottom - keyboard.save) > 1 || keyboard.r.height !== first.r.height)
+    problems.push('360px text sheet: it does not follow the keyboard at its own size');
+  await page.close();
+}
+
 /** Settings lists the six screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
@@ -168,10 +212,22 @@ async function checkSettingsAndMenu(width, height) {
     const items = await page.evaluate(shownItems, `${drawer} .navigation-drawer-item`);
     const sections = items.filter((i) => i.tag === 'BUTTON').length;
     const links = items.filter((i) => i.tag === 'A').map((i) => i.href);
-    if (sections !== 4 || links.join() !== '#,#settings')
+    // Under "Apps": Store, then the pages of the installed connectors, plugins and themes, and no app installed.
+    const appRows = ['#settings/appstore', '#installed/connectors', '#installed/plugins', '#appearance/themes'];
+    const apps = ['#', ...appRows, '#settings'];
+    if (sections !== 3 || links.join() !== apps.join())
       problems.push(
-        `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 4 and #, #settings)`,
+        `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 3 and ${apps.join(', ')})`,
       );
+    // Each row under "Apps" has an icon.
+    const noIcon = await page.evaluate(
+      ({ d, appRows }) =>
+        [...document.querySelectorAll(appRows.map((h) => `${d} a[href="${h}"]`).join(', '))]
+          .filter((a) => !a.querySelector('.navigation-drawer-icon svg'))
+          .map((a) => a.getAttribute('href')),
+      { d: drawer, appRows },
+    );
+    if (noIcon.length) problems.push(`${label} menu: no icon on ${noIcon.join(', ')}`);
     checkCog(label, 'menuen', items, height);
   } else {
     // The modal drawer: open it with the top bar's button.
@@ -433,7 +489,17 @@ for (const [width, height] of [
   // From the start screen (the drawer's links), and from "Parts", "Themes", "Search engine optimization" and "Appstore"
   // (the apps' pages and their developers'), whose screens are a step further down than the others. "Apps" (the list of
   // the apps installed) has no row in the menu, so it is a start of its own.
-  const starts = ['', 'settings', 'developer/parts', 'appearance/themes', 'seo', 'settings/appstore', 'apps'];
+  const starts = [
+    '',
+    'settings',
+    'developer/parts',
+    'appearance/themes',
+    'seo',
+    'settings/appstore',
+    'installed/connectors',
+    'installed/plugins',
+    'apps',
+  ];
   const seen = new Set(starts);
   let next = starts;
   for (let depth = 0; depth <= 2 && next.length; depth++) {
@@ -557,6 +623,8 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await checkUpdatesCard(width, height);
+
+await checkTextSheet();
 
 await browser.close();
 server.close();

@@ -3,7 +3,7 @@
   "notes": [
     {
       "id": "side-column-block",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Show a block beside your pages",
       "text": "Your website can now show one block in a column beside the text of its pages. Pick it under Appearance › Side column, and turn it off on any page."
     },

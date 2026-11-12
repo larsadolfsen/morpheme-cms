@@ -1,6 +1,6 @@
 // The editor's main menu (App.tsx renders it): the drawer (ui.tsx MainDrawer) in two levels. The first lists Home and the
 // sections; a section opens its list, under a back row, with the open screen marked and its fold-out folded out. Apps lists
-// Appstore and a row per app installed. From medium and wider the first level is also the collapsed navigation rail
+// Store, Connectors, Plugins and Themes (the pages of the installed ones), and no row per app. From medium and wider the first level is also the collapsed navigation rail
 // (MainRailItem), whose sections open the drawer at their list. The drawer's header is the signed-in user (AccountRow), a link
 // to the account. The cog (Settings, #settings) is pinned at the bottom of the first level and of the rail; it is marked on
 // Settings and every screen under it. The levels are not steps in the history: in the modal drawer the phone's back gesture goes to the screen
@@ -12,7 +12,7 @@ import { config, header } from '@site/editor';
 import { currentPlace, menuTree } from '../lib/menu.mjs';
 import { STORE_ROUTE } from './store';
 import { collectionOf } from './schema';
-import { apps, collections, companyParts, groups, icons, lists, partScreens, settings } from './site';
+import { collections, companyParts, groups, icons, lists, partScreens, settings } from './site';
 import { partOf } from './Library';
 import { AccountRow } from './AccountRow';
 import { childrenOf } from './menuChildren';
@@ -24,6 +24,7 @@ import {
   MainDrawerFold,
   MainDrawerItem,
   MainDrawerLevel,
+  MainDrawerSection,
   MainDrawerSectionItem,
   MainDrawerSubitem,
   MainRailItem,
@@ -31,6 +32,9 @@ import {
   useMenuLayout,
 } from './ui';
 import type { RepoFile, Viewer } from './github';
+
+// The icon of a row: a part of the business its own, else the menu's icon for the id.
+const iconOf = (section: string, id: string) => (section === 'company' && companyParts.find((p) => p.id === id)?.icon) || icons[id];
 
 export function MainMenu({ route, files, user }: { route: string; files: RepoFile[] | null; user: Viewer | null }) {
   const { open, setOpen } = useMenuOpen();
@@ -55,17 +59,20 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     settings,
   });
   // The section whose list is shown (null: the first level). It follows the route's section, and the drawer opening.
-  const [shown, setShown] = useState<string | null>(place.section);
+  // A flat section (Apps) has no list of its own: its rows stand under its label on the first level.
+  const flat = groups.filter((g) => g.flat).map((g) => g.id);
+  const sectionOf = place.section && !flat.includes(place.section) ? place.section : null;
+  const [shown, setShown] = useState<string | null>(sectionOf);
   const [focus, setFocus] = useState<'list' | 'top' | undefined>();
   const shownRef = useRef(shown);
   shownRef.current = shown;
   // The section a click in the rail asked for: the drawer opens at its list instead of at the route's section.
   const asked = useRef<string | null>(null);
   useEffect(() => {
-    setShown(asked.current ?? place.section);
+    setShown(asked.current ?? sectionOf);
     setFocus(asked.current ? 'list' : undefined);
     asked.current = null;
-  }, [place.section, open]);
+  }, [sectionOf, open]);
   const openAt = (section: string) => {
     asked.current = section;
     setOpen(true);
@@ -91,7 +98,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     return () => window.removeEventListener('hashchange', close);
   }, [modal, open, setOpen]);
   // Every level stays in the page (the screen check finds the screens from the links); the ones not shown are `hidden`.
-  const sections = tree.filter((entry) => entry.href === undefined);
+  const sections = tree.filter((entry) => entry.href === undefined && !flat.includes(entry.id));
   return (
     <MainDrawer
       label={t.library.navigation}
@@ -111,8 +118,18 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
         ) : undefined
       }
       railFooter={<MainRailItem href="#settings" icon={Gear} label={t.common.parts.settings} selected={!!place.settings} />}
-      rail={tree.map((entry) =>
-        entry.href !== undefined ? (
+      rail={tree.flatMap((entry) =>
+        flat.includes(entry.id) ? (
+          entry.items.map((item) => (
+            <MainRailItem
+              key={item.id}
+              href={item.href}
+              icon={iconOf(entry.id, item.id)}
+              label={item.label}
+              selected={place.section === entry.id && place.item === item.id}
+            />
+          ))
+        ) : entry.href !== undefined ? (
           <MainRailItem key={entry.id} href={entry.href} icon={icons[entry.id]} label={entry.label} selected={route === ''} />
         ) : (
           <MainRailSectionItem
@@ -126,31 +143,46 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
       )}
     >
       <MainDrawerLevel shown={shown === null} focus={focus}>
-        {tree.map((entry) =>
-          entry.href !== undefined ? (
-            <MainDrawerItem key={entry.id} href={entry.href} icon={icons[entry.id]} label={entry.label} selected={route === ''} />
-          ) : (
-            <MainDrawerSectionItem
-              key={entry.id}
-              icon={icons[entry.id]}
-              label={entry.label}
-              selected={place.section === entry.id}
-              onClick={() => show(entry.id)}
-            />
-          ),
-        )}
+        <MainDrawerSection>
+          {tree
+            .filter((entry) => !flat.includes(entry.id))
+            .map((entry) =>
+              entry.href !== undefined ? (
+                <MainDrawerItem key={entry.id} href={entry.href} icon={icons[entry.id]} label={entry.label} selected={route === ''} />
+              ) : (
+                <MainDrawerSectionItem
+                  key={entry.id}
+                  icon={icons[entry.id]}
+                  label={entry.label}
+                  selected={place.section === entry.id}
+                  onClick={() => show(entry.id)}
+                />
+              ),
+            )}
+        </MainDrawerSection>
+        {tree
+          .filter((entry) => flat.includes(entry.id))
+          .map((entry) => (
+            <MainDrawerSection key={entry.id} label={entry.label}>
+              {entry.items.map((item) => (
+                <MainDrawerItem
+                  key={item.id}
+                  href={item.href}
+                  icon={iconOf(entry.id, item.id)}
+                  label={item.label}
+                  selected={place.section === entry.id && place.item === item.id}
+                />
+              ))}
+            </MainDrawerSection>
+          ))}
       </MainDrawerLevel>
       {sections.map((section) => (
         <MainDrawerLevel key={section.id} shown={shown === section.id} focus={focus}>
           {section.items.map(({ id, label, href, count, children }) => {
             const here = place.section === section.id && place.item === id;
             const shownCount = files ? count : null;
-            // An app's row has the app's icon (an installed app is a row of Apps, lib/menu.mjs), a part of the business its
-            // own (a part is a row of Business).
-            const icon =
-              (section.id === 'apps' && apps.find((a) => a.id === id)?.icon) ||
-              (section.id === 'company' && companyParts.find((p) => p.id === id)?.icon) ||
-              icons[id];
+            // A part of the business has its own icon (a part is a row of Business).
+            const icon = iconOf(section.id, id);
             return children ? (
               <MainDrawerFold key={id} href={href} icon={icon} label={label} count={shownCount} selected={here && !place.child} open={here}>
                 {children.map((child) => (

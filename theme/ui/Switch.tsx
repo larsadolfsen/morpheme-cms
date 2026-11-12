@@ -3,8 +3,7 @@
 // click anywhere switches it; the switch is a native <input type="checkbox" role="switch">, so Space switches it and screen readers say
 // "on"/"off". `icons`: the theme's icons in the handle, 'both' (a check when it is on, a cross when it is off) or
 // 'selected' (only the check); none without it. `checked`: on from the start, or, with `onChange` (the editor), whether
-// it is on now; `disabled`: it cannot be changed. `states`: what it is on and off ("On", "Off"), shown before the
-// track (.switch-state; the theme's addition to M3's switch). `hideLabel`: only screen readers say its name (a switch at
+// it is on now; `disabled`: it cannot be changed. `hideLabel`: only screen readers say its name (a switch at
 // the end of a row that names it). Other attributes (`name`, `value`, data-…) go on the <input>, and `className` on the
 // label. An Astro component gives an element the same classes with switchClass.
 import type { ReactNode } from 'react';
@@ -21,7 +20,6 @@ export default function Switch({
   hideLabel,
   supporting,
   checked,
-  states,
   icons,
   className,
   ...rest
@@ -30,7 +28,6 @@ export default function Switch({
   hideLabel?: boolean;
   supporting?: ReactNode;
   checked?: boolean;
-  states?: [string, string];
   icons?: SwitchIcons;
   className?: string;
 } & Record<string, unknown>) {
@@ -43,11 +40,6 @@ export default function Switch({
       label={hideLabel ? null : label}
       supporting={hideLabel ? null : supporting}
     >
-      {states && (
-        <span className="switch-state" aria-hidden="true">
-          {states[checked ? 0 : 1]}
-        </span>
-      )}
       <span className="switch-track">
         <input type="checkbox" role="switch" className="switch-input" aria-label={hideLabel ? label : undefined} {...on} {...rest} />
         <span className="switch-handle">

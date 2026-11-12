@@ -18,7 +18,7 @@ function untilLine(until: unknown): string {
 }
 
 export default defineBlock({
-  group: 'banner',
+  group: 'banners',
   label: t.blocks.notice.label,
   icon: Info,
   hint: t.blocks.notice.hint,

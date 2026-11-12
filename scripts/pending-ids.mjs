@@ -13,7 +13,6 @@ export const PENDING_IDS = [
   'lib/dynamic-colors.ts:farver',
   'site/siteCsp.mjs:adresse',
   'site/theme.mjs:tema',
-  'src/cache.ts:medier',
   'src/consentData.ts:samtykker',
   'src/consentData.ts:privatliv',
   'src/editor.css:tema',
