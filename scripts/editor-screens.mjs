@@ -362,10 +362,11 @@ async function checkPreviewDraft(width) {
 const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
+  { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
 ];
 
-/** `surface`: the item is a card with a container of its own, so it has a background colour. */
-async function checkInlineBlock(width, height, { name, hint, add, surface }) {
+/** `surface`: the item is a card with a container of its own, so it has a background colour. `field`: the first typed field of an item (default title). */
+async function checkInlineBlock(width, height, { name, hint, add, surface, field = 'title' }) {
   const label = `${width}px inline ${name}`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
@@ -381,7 +382,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface }) {
     await page.locator('[aria-label="Show more tools"]:visible').first().tap();
   await page.locator('[aria-label="Insert"]:visible').first().tap();
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
-  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`);
   await page.keyboard.type('First');
   await page.waitForTimeout(300);
   const state = () =>
