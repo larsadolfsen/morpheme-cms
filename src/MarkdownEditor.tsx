@@ -647,6 +647,8 @@ type Look = (Face | { shows: (state: EditorView['state']) => Face }) & {
   on?: (state: EditorView['state']) => boolean;
   action: (button: HTMLElement) => void;
   off?: (state: EditorView['state']) => boolean;
+  // Not there on a computer, dimmed on a phone, where the row is a sheet of a fixed size (the marks in a block with none).
+  dim?: (state: EditorView['state']) => boolean;
   word?: boolean;
   menu?: boolean;
 };
@@ -720,7 +722,7 @@ function selectionMenu(
           label: t.text.bold,
           on: (s) => marked(s, 'strong'),
           action: () => run(toggleStrongCommand),
-          off: inLabel,
+          dim: inLabel,
           word: true,
         },
         {
@@ -728,7 +730,7 @@ function selectionMenu(
           label: t.text.italic,
           on: (s) => marked(s, 'emphasis'),
           action: () => run(toggleEmphasisCommand),
-          off: inLabel,
+          dim: inLabel,
           word: true,
         },
         {
@@ -736,7 +738,7 @@ function selectionMenu(
           label: t.text.link,
           on: (s) => marked(s, 'link'),
           action: () => void editLink(view).then(() => update(view)),
-          off: inLabel,
+          dim: inLabel,
           word: true,
         },
         {
@@ -744,7 +746,7 @@ function selectionMenu(
           label: t.text.color,
           on: (s) => marked(s, 'textColor'),
           action: colors,
-          off: (s) => inLabel(s) || (sections && inSectionHeading(s)),
+          dim: (s) => inLabel(s) || (sections && inSectionHeading(s)),
           word: true,
           menu: true,
         },
@@ -863,21 +865,31 @@ function selectionMenu(
         menu.hidden = !shown;
         if (!shown) return;
         const state = asShown(view.state);
+        // On a phone the row is a docked sheet of a fixed size (editor.css): every button stays, so its layout never changes with
+        // the cursor, and one that does not apply there is dimmed. On a computer it is left out.
+        const sheet = matchMedia('(pointer: coarse)').matches;
+        menu.classList.toggle('editor-selection-sheet', sheet);
         looks.forEach((look, i) => {
-          buttons[i].hidden = !!look.off?.(state);
+          const gone = !!look.off?.(state);
+          const dim = !!look.dim?.(state);
+          buttons[i].hidden = gone || (dim && !sheet);
+          buttons[i].disabled = dim && sheet;
           if (buttons[i].hidden) return;
           if ('shows' in look) draw(buttons[i], look, look.shows(state));
           if (look.on) buttons[i].setAttribute('aria-pressed', String(look.on(state)));
         });
         const { offsetWidth: width, offsetHeight: height } = menu;
         const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
-        if (matchMedia('(pointer: coarse)').matches) {
-          menu.style.left = `${screen.offsetLeft + (screen.width - width) / 2}px`;
-          // Over "Save changes" when it is there (FormFrame.tsx).
+        if (sheet) {
+          // Docked: the sheet's own place, not the cursor's: over "Save changes" when it is there (FormFrame.tsx), and over the
+          // keyboard (the visual viewport's bottom), the whole width of the screen.
           const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
-          menu.style.top = `${Math.min(screen.offsetTop + screen.height, save) - height - 12}px`;
+          menu.style.left = `${screen.offsetLeft}px`;
+          menu.style.width = `${screen.width}px`;
+          menu.style.top = `${Math.min(screen.offsetTop + screen.height, save) - menu.offsetHeight}px`;
           return;
         }
+        menu.style.width = '';
         const text = view.dom.getBoundingClientRect();
         const { from, to } = word ?? selection;
         const start = view.coordsAtPos(from);

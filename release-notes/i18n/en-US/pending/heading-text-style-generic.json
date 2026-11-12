@@ -1,5 +1,6 @@
 {
   "id": "heading-text-style-generic",
-  "kind": "line",
-  "text": "In a heading, Text style no longer says Body large"
+  "kind": "paragraph",
+  "title": "Text menu sheet",
+  "text": "On a phone, the text menu no longer floats over your words. Select text or stop on a word, and a sheet of a fixed size sits above Save changes, with bold, italic, link, color, heading, Text style and List."
 }

@@ -875,6 +875,38 @@ html {
   box-shadow: var(--editor-menu-shadow);
 }
 
+/* On a phone the row is a docked standard bottom sheet (Material 3, the theme's --bottom-sheet-* tokens): the whole width
+   of the screen, a fixed height and a fixed place just over "Save changes" or the keyboard, so it never moves with the
+   cursor. Its buttons share the width equally and each is 48 dp. */
+.editor-selection-sheet {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  align-items: center;
+  box-sizing: border-box;
+  height: 4.5rem;
+  gap: 0.25rem;
+  border-width: 1px 0 0;
+  border-radius: var(--bottom-sheet-radius, 1.75rem) var(--bottom-sheet-radius, 1.75rem) 0 0;
+  background: var(--bottom-sheet-surface, var(--editor-menu-surface));
+  padding: 0.75rem 0.5rem;
+  box-shadow: var(--bottom-sheet-shadow, var(--editor-menu-shadow));
+}
+
+.editor-selection-sheet button,
+.editor-selection-sheet button[aria-haspopup='menu'] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: 3rem;
+  padding-inline: 0;
+}
+
+.editor-selection-sheet button:disabled {
+  opacity: 0.38;
+}
+
 .editor-selection-menu[hidden],
 .editor-selection-menu button[hidden] {
   display: none;
