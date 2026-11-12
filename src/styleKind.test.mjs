@@ -97,7 +97,7 @@ test('the body icons are one T at three sizes on one baseline', () => {
 // Two controls, Text style and List, each with its own general icon and a label that names the current choice.
 test('Text style and List are two buttons that name their choice', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
-  assert.match(source, /list: \{ raw: listIcon, node: ListDashes \}/, 'a general list icon');
+  assert.match(source, /list: \{ raw: bulletIcon, node: ListBullets \}/, 'the list button shows the bullet list icon');
   assert.match(
     source,
     /groupFace\(\s*textKinds\.find\(\(\{ name \}\) => name === kind\)!,\s*t\.text\.listIs,?\s*\)/,
@@ -141,9 +141,19 @@ test('the heading button shows a level only while a heading is on, else its gene
   assert.equal(headingKindOf(['h2'], false), 'generic');
 });
 
-test('the generic icons are the general T, H and list of Phosphor', () => {
+test('the generic icons are the general T and H, and the bullet list, of Phosphor', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
   assert.match(source, /text: \{ raw: textTIcon, node: TextT \}/);
   assert.match(source, /heading: \{ raw: textHIcon, node: TextH \}/);
-  assert.match(source, /list: \{ raw: listIcon, node: ListDashes \}/);
+  assert.match(source, /list: \{ raw: bulletIcon, node: ListBullets \}/);
+});
+
+// The alignment button (lib/text-align.mjs) is in both the floating row and the top toolbar, with Phosphor's three alignment icons.
+test('the alignment has a button in the floating row and in the toolbar', () => {
+  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
+  assert.match(source, /left: \{ raw: alignLeftIcon, node: TextAlignLeft \}/);
+  assert.match(source, /center: \{ raw: alignCenterIcon, node: TextAlignCenter \}/);
+  assert.match(source, /right: \{ raw: alignRightIcon, node: TextAlignRight \}/);
+  assert.match(source, /action: \(button\) => aligns\(button\)/, 'the floating row');
+  assert.match(source, /role: 'align'/, 'the top toolbar');
 });

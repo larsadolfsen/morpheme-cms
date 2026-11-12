@@ -10,6 +10,7 @@ import remarkRehype from 'remark-rehype';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import { rehypeEmphasize } from './rehype-emphasize.mjs';
+import { rehypeAlign } from './text-align.mjs';
 import { remarkBannerSections } from './remark-banner-section.mjs';
 import { remarkChecklists } from './remark-checklist.mjs';
 
@@ -23,6 +24,7 @@ export const processor = unified()
   .use(remarkRehype, { allowDangerousHtml: true })
   .use(rehypeRaw)
   .use(rehypeEmphasize)
+  .use(rehypeAlign)
   .use(rehypeStringify, { allowDangerousHtml: true });
 
 /** A short text's HTML made to stand inside a <p> of its own: its paragraphs separated by a line break, and anything

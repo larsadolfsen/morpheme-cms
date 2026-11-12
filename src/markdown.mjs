@@ -1,7 +1,7 @@
 // The Milkdown setup shared by the editor (/editor/) and packages/editor/scripts/editor-roundtrip.mjs, so the check
 // runs the same Markdown parser and writer as the browser.
 import { Editor, editorViewCtx, rootCtx, defaultValueCtx, remarkStringifyOptionsCtx, serializerCtx } from '@milkdown/kit/core';
-import { commonmark, headingSchema, strongAttr } from '@milkdown/kit/preset/commonmark';
+import { commonmark, headingSchema, paragraphSchema, strongAttr } from '@milkdown/kit/preset/commonmark';
 import { gfm } from '@milkdown/kit/preset/gfm';
 import { $markSchema, $nodeSchema, $prose, $remark } from '@milkdown/kit/utils';
 import { Plugin } from '@milkdown/kit/prose/state';
@@ -12,6 +12,7 @@ import { EMPHASIZE } from '../lib/rehype-emphasize.mjs';
 import { eyebrowText } from '../lib/eyebrow.mjs';
 import { bodyLargeText } from '../lib/body-large.mjs';
 import { bodySizeText } from '../lib/body-size.mjs';
+import { alignClass, alignHtml, alignOf } from '../lib/text-align.mjs';
 import { remarkBannerSections } from '../lib/remark-banner-section.mjs';
 import { remarkChecklists } from '../lib/remark-checklist.mjs';
 import { topOf } from './sections.mjs';
@@ -40,10 +41,10 @@ const remarkSiteBlocks = $remark('remarkSiteBlocks', () => () => (tree) => {
     if (label !== null) return { type: 'eyebrow', value: label };
     // An intro paragraph (lib/body-large.mjs) is the node bodyLarge.
     const large = bodyLargeText(String(only.value));
-    if (large !== null) return { type: 'bodyLarge', value: large };
+    if (large !== null) return { type: 'bodyLarge', value: large, align: child.align ?? null };
     // A paragraph in Body medium or Body small (lib/body-size.mjs) is the node bodyMedium or bodySmall.
     const sized = bodySizeText(String(only.value));
-    if (sized !== null) return { type: sized.size === 'small' ? 'bodySmall' : 'bodyMedium', value: sized.text };
+    if (sized !== null) return { type: sized.size === 'small' ? 'bodySmall' : 'bodyMedium', value: sized.text, align: child.align ?? null };
     const block = parseBlock(String(only.value), null);
     return block
       ? { type: 'siteBlock', blockType: block.type, props: block.props }
@@ -165,6 +166,61 @@ const remarkSectionMarkers = $remark('remarkSectionMarkers', () => () => (tree) 
   });
 });
 
+// The alignment of a block (lib/text-align.mjs): the line before a paragraph, a body style or an H3 or smaller heading is read into
+// that block's attribute `align` ('center' or 'right') and written back before it. A line before anything else stays as it is (an HTML
+// block). It is read before remarkSectionMarkers and remarkSiteBlocks see the text.
+const remarkAlignMarkers = $remark('remarkAlignMarkers', () => () => (tree) => {
+  const parts = tree.children;
+  tree.children = parts.filter((child, i) => {
+    const align = alignOf(htmlOf(child));
+    const next = parts[i + 1];
+    if (!align || !next) return true;
+    const html = htmlOf(next);
+    const target =
+      (next.type === 'heading' && next.depth >= 3) ||
+      (next.type === 'paragraph' && !html) ||
+      (html !== '' && (bodyLargeText(html) !== null || bodySizeText(html) !== null));
+    if (!target) return true;
+    next.align = align;
+    return false;
+  });
+});
+
+// A node's DOM with the class of its alignment (the site's: text-align-center), as the editor draws it.
+export function withAlignClass(dom, node) {
+  const name = alignClass(node.attrs.align);
+  if (!name) return dom;
+  const [tag, attrs, ...rest] = dom;
+  return [tag, { ...attrs, class: [attrs?.class, name].filter(Boolean).join(' ') }, ...rest];
+}
+
+// The commonmark paragraph with its alignment as an attribute, written back as the line before it (in the text's top level only: a
+// paragraph in a list or a quote has none).
+export const paragraphWithAlign = paragraphSchema.extendSchema((prev) => (ctx) => {
+  const base = prev(ctx);
+  return {
+    ...base,
+    attrs: { ...base.attrs, align: { default: null, validate: 'string|null' } },
+    toDOM: (node) => withAlignClass(base.toDOM(node), node),
+    parseMarkdown: {
+      match: base.parseMarkdown.match,
+      runner: (state, node, type) => {
+        state.openNode(type, { align: node.align ?? null });
+        if (node.children) state.next(node.children);
+        else state.addText(node.value || '');
+        state.closeNode();
+      },
+    },
+    toMarkdown: {
+      match: base.toMarkdown.match,
+      runner: (state, node) => {
+        if (node.attrs.align) state.addNode('html', undefined, alignHtml(node.attrs.align));
+        base.toMarkdown.runner(state, node);
+      },
+    },
+  };
+});
+
 // The commonmark heading with the section settings as attributes (only an H1 or H2 has them). Written back before the heading, or
 // before its label, which is already the last thing written (a line of HTML).
 /** @type {import('@milkdown/kit/utils').$NodeSchema<'heading'>} */
@@ -178,7 +234,9 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
       sectionPicture: { default: null, validate: 'string|null' },
       sectionAlt: { default: null, validate: 'string|null' },
       sectionWidth: { default: null, validate: 'string|null' },
+      align: { default: null, validate: 'string|null' },
     },
+    toDOM: (node) => withAlignClass(base.toDOM(node), node),
     parseMarkdown: {
       match: base.parseMarkdown.match,
       runner: (state, node, type) => {
@@ -189,6 +247,7 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
           sectionPicture: top ? (node.sectionPicture ?? null) : null,
           sectionAlt: top ? (node.sectionAlt ?? null) : null,
           sectionWidth: top ? (node.sectionWidth ?? null) : null,
+          align: node.depth >= 3 ? (node.align ?? null) : null,
         });
         state.next(node.children);
         state.closeNode();
@@ -208,6 +267,7 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
           const at = last?.type === 'html' && isLabelLine(last.value) ? written.length - 1 : written.length;
           written.splice(at, 0, { type: 'html', value: marker });
         }
+        if (level >= 3 && node.attrs.align) state.addNode('html', undefined, alignHtml(node.attrs.align));
         base.toMarkdown.runner(state, node);
       },
     },
@@ -229,10 +289,12 @@ export function makeEditor(root, markdown) {
       .use(commonmark)
       .use(gfm)
       .use(headingWithSection)
+      .use(paragraphWithAlign)
       // A Banner alone in its section is read as the section it has become, so the next save writes the section.
       .use($remark('remarkBannerSections', () => remarkBannerSections))
       // A Checklist is read as the check list it has become, so the next save writes the list.
       .use($remark('remarkChecklists', () => remarkChecklists))
+      .use(remarkAlignMarkers)
       .use(remarkSectionMarkers)
       .use(remarkSiteBlocks)
       .use(siteBlockSchema)

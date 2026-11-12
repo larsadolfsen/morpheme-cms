@@ -18,6 +18,7 @@ import { rehypeResponsiveImages } from './site/images.mjs';
 import { linksDigest, rehypeAutoLinks } from './site/autolinks.mjs';
 import { rehypeVideo } from './lib/video.mjs';
 import { rehypeEmphasize } from './lib/rehype-emphasize.mjs';
+import { rehypeAlign } from './lib/text-align.mjs';
 import { remarkBannerSections } from './lib/remark-banner-section.mjs';
 import { remarkChecklists } from './lib/remark-checklist.mjs';
 import { csp, joined } from './lib/csp.mjs';
@@ -120,6 +121,8 @@ export async function siteConfig() {
           rehypeRaw,
           // Bold as <strong class="emphasize">, for a theme to style (lib/rehype-emphasize.mjs).
           rehypeEmphasize,
+          // An alignment line before a block becomes its class (lib/text-align.mjs).
+          rehypeAlign,
           [rehypeResponsiveImages, { sizes: '(min-width: 800px) 720px, calc(100vw - 40px)' }],
           // Internal links from the keywords (src/data/internal-links.json); with what they are made from, so the pages
           // rendered before (node_modules/.astro) are rendered again when it changes (linksDigest).

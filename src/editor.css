@@ -898,8 +898,18 @@ html {
   box-shadow: var(--bottom-sheet-shadow, var(--editor-menu-shadow));
 }
 
-.editor-selection-sheet button,
-.editor-selection-sheet button[aria-haspopup='menu'] {
+/* Eight buttons of 48 dp do not fit on one row of a phone (8 x 48 dp = 384 dp): two rows of four, the same size at every cursor. */
+@media (max-width: 31rem) {
+  .editor-selection-sheet {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-flow: row;
+    height: 7.25rem;
+    padding-block: 0.5rem;
+  }
+}
+
+.editor-selection-menu.editor-selection-sheet button,
+.editor-selection-menu.editor-selection-sheet button[aria-haspopup='menu'] {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -908,7 +918,7 @@ html {
   padding-inline: 0;
 }
 
-.editor-selection-sheet button:disabled {
+.editor-selection-menu.editor-selection-sheet button:disabled {
   opacity: 0.38;
 }
 

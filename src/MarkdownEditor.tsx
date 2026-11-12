@@ -50,12 +50,14 @@ import {
   LinkSimple,
   ListBullets,
   ListChecks,
-  ListDashes,
   ListNumbers,
   Plus,
   Quotes,
   Tag,
   TextAa,
+  TextAlignCenter,
+  TextAlignLeft,
+  TextAlignRight,
   TextB,
   TextH,
   TextHThree,
@@ -110,7 +112,9 @@ import textSmallIcon from './icons/text-t-small.svg?raw';
 import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
 import textHIcon from '@phosphor-icons/core/assets/regular/text-h.svg?raw';
 import textTIcon from '@phosphor-icons/core/assets/regular/text-t.svg?raw';
-import listIcon from '@phosphor-icons/core/assets/regular/list-dashes.svg?raw';
+import alignLeftIcon from '@phosphor-icons/core/assets/regular/text-align-left.svg?raw';
+import alignCenterIcon from '@phosphor-icons/core/assets/regular/text-align-center.svg?raw';
+import alignRightIcon from '@phosphor-icons/core/assets/regular/text-align-right.svg?raw';
 import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
 import orderedIcon from '@phosphor-icons/core/assets/regular/list-numbers.svg?raw';
 import quoteIcon from '@phosphor-icons/core/assets/regular/quotes.svg?raw';
@@ -596,6 +600,11 @@ export function activeOf(state: EditorView['state']): Set<string> {
   if (['bodyLarge', 'bodyMedium', 'bodySmall'].includes($from.parent.type.name))
     on.add({ bodyLarge: 'large', bodyMedium: 'medium', bodySmall: 'small' }[$from.parent.type.name as 'bodyLarge']);
   if ($from.parent.type.name === 'eyebrow') on.add('label');
+  // The alignment of the block at the top of the text the cursor is in (lib/text-align.mjs); 'alignable' when it can have one.
+  if ($from.depth === 1 && alignable($from.parent)) {
+    on.add('alignable');
+    if ($from.parent.attrs.align === 'center' || $from.parent.attrs.align === 'right') on.add(`align-${$from.parent.attrs.align}`);
+  }
   if (ancestors.includes('bullet_list')) on.add(isCheckItem(state) ? 'check' : 'bullet');
   if (ancestors.includes('ordered_list')) on.add('ordered');
   if (ancestors.includes('blockquote')) on.add('quote');
@@ -659,8 +668,42 @@ const KIND_ICONS = {
 const GENERIC_ICONS = {
   text: { raw: textTIcon, node: TextT },
   heading: { raw: textHIcon, node: TextH },
-  list: { raw: listIcon, node: ListDashes },
+  list: { raw: bulletIcon, node: ListBullets },
 };
+
+// The alignments of a paragraph or a smaller heading (lib/text-align.mjs), each with its icon and name; left is the text's own.
+const ALIGN_FACES = {
+  left: { raw: alignLeftIcon, node: TextAlignLeft },
+  center: { raw: alignCenterIcon, node: TextAlignCenter },
+  right: { raw: alignRightIcon, node: TextAlignRight },
+};
+type Align = keyof typeof ALIGN_FACES;
+const alignLabel = (align: Align) => ({ left: t.text.alignLeft, center: t.text.alignCenter, right: t.text.alignRight })[align];
+
+// The alignment where the cursor is, from activeOf's names: left when the block has none.
+const alignIn = (active: Iterable<string>): Align => {
+  const on = new Set(active);
+  return on.has('align-center') ? 'center' : on.has('align-right') ? 'right' : 'left';
+};
+
+// Whether a block at the top of the text can be aligned: a paragraph, a body style or an H3 or smaller heading (not a heading that
+// starts a section, a list, a quote or a label), so the line before it stays before it on the site.
+const alignable = (node: Node) =>
+  ['paragraph', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(node.type.name) || (node.type.name === 'heading' && node.attrs.level >= 3);
+
+/** Aligns every top-level block the selection touches that can be aligned; left takes the alignment away. */
+export function alignSelection(view: EditorView, align: Align) {
+  const { state } = view;
+  const { from, to } = state.selection;
+  const tr = state.tr;
+  state.doc.forEach((node, offset) => {
+    if (offset + node.nodeSize <= from || offset > to || !alignable(node)) return;
+    const next = align === 'left' ? null : align;
+    if ((node.attrs.align ?? null) !== next) tr.setNodeMarkup(offset, undefined, { ...node.attrs, align: next });
+  });
+  if (tr.docChanged) view.dispatch(tr);
+  view.focus();
+}
 
 type KindGroup = 'headings' | 'text' | 'list';
 
@@ -711,6 +754,7 @@ function selectionMenu(
   sections: boolean,
   colors: (button: HTMLElement) => void,
   kinds: (button: HTMLElement, group: KindGroup) => void,
+  aligns: (button: HTMLElement) => void,
 ) {
   return new Plugin({
     view(view) {
@@ -827,6 +871,16 @@ function selectionMenu(
                 );
           },
           action: (button) => kinds(button, 'list'),
+          menu: true,
+        },
+        // The alignment of the block in a menu: its icon follows the block's; dimmed where a block has none (a section's heading, a list).
+        {
+          shows: (s) => {
+            const align = alignIn(activeOf(s));
+            return { icon: ALIGN_FACES[align].raw, label: t.text.alignmentIs(alignLabel(align)) };
+          },
+          action: (button) => aligns(button),
+          dim: (s) => !activeOf(s).has('alignable'),
           menu: true,
         },
       ];
@@ -1138,6 +1192,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     kindsAt.at.setAttribute('aria-expanded', 'true');
     return () => kindsAt.at.setAttribute('aria-expanded', 'false');
   }, [kindsAt]);
+  // The alignment button that opened its menu (over the selection or in the toolbar), while it is open.
+  const [alignAt, setAlignAt] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    alignAt?.setAttribute('aria-expanded', 'true');
+    return () => alignAt?.setAttribute('aria-expanded', 'false');
+  }, [alignAt]);
   // The previews of the blocks, drawn again when what they show from elsewhere changes: the lists,
   // the testimonials, the rest of the site, the page's address or a fixed page's other fields.
   const cards = useRef(new Set<() => void>());
@@ -1198,6 +1258,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         !!sections,
         (button) => setColorsAt((open) => (open ? null : button)),
         (button, group) => setKindsAt((open) => (open?.at === button ? null : { at: button, group, word: true })),
+        (button) => setAlignAt((open) => (open === button ? null : button)),
       ),
     );
     const pictureView = $view(imageSchema.node, () => (node, view, getPos) => pictureCard(node, view, getPos, () => sheeted.current));
@@ -1326,13 +1387,15 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         if (is('h1') || is('h2') || is('h3')) callCommand(turnIntoTextCommand.key)(ctx);
         const { $from } = view.state.selection;
         if ($from.parent.type.name !== 'heading') {
-          view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes[kind === 'small' ? 'bodySmall' : 'bodyLarge']));
+          // Its alignment goes with it.
+          const align = $from.parent.attrs.align ?? null;
+          view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes[kind === 'small' ? 'bodySmall' : 'bodyLarge'], { align }));
         }
         return view.focus();
       }
       if (ownBlocks.includes(view.state.selection.$from.parent.type.name)) {
         const { $from } = view.state.selection;
-        view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes.paragraph));
+        view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes.paragraph, { align: $from.parent.attrs.align ?? null }));
         if (kind === 'medium') return view.focus();
       }
       // The items of the bulleted list the cursor is in get a box (checked false) or lose it (null): a check list.
@@ -1509,6 +1572,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.bulletList, icon: KIND_ICONS.bullet.node, action: () => setKind('bullet'), on: 'bullet', role: 'list' },
     { label: t.text.checkList, icon: KIND_ICONS.check.node, action: () => setKind('check'), on: 'check', role: 'list' },
     { label: t.text.orderedList, icon: KIND_ICONS.ordered.node, action: () => setKind('ordered'), on: 'ordered', role: 'list' },
+    // The alignment of the paragraph or smaller heading, a menu (the icon follows the block's).
+    { label: t.text.alignmentIs(alignLabel(alignIn(active))), icon: ALIGN_FACES[alignIn(active)].node, action: () => {}, role: 'align' },
     // A picture and the blocks are put in with "+" (a sheet with them all); without blocks (a blog
     // post) a picture has its own button.
     ...(blocks
@@ -1586,9 +1651,18 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     return () => watch.disconnect();
   }, []);
 
-  const tool = ({ label, icon, action, on, large }: (typeof tools)[number]) => (
-    <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} large={large} onClick={action} />
-  );
+  const tool = ({ label, icon, action, on, large, role }: (typeof tools)[number]) =>
+    role === 'align' ? (
+      <ToolbarButton
+        key="align"
+        icon={icon}
+        label={label}
+        menu={!!alignAt && alignAt.closest('.editor-selection-menu') === null}
+        onClick={(e) => setAlignAt(alignAt === e.currentTarget ? null : e.currentTarget)}
+      />
+    ) : (
+      <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} large={large} onClick={action} />
+    );
 
   // The lines between the marks on the text, the kinds of text, "+" (or "Picture") and "Undo".
   const lineBefore = (item: (typeof tools)[number]) =>
@@ -1674,6 +1748,21 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         <MenuItem icon={TextAa} selected={!active.includes('textColor')} onClick={() => color(null)}>
           <span className="text-on-surface">{t.text.noColor}</span>
         </MenuItem>
+      </Menu>
+      <Menu anchor={alignAt} label={t.text.alignment} onClose={() => setAlignAt(null)}>
+        {(Object.keys(ALIGN_FACES) as Align[]).map((align) => (
+          <MenuItem
+            key={align}
+            icon={ALIGN_FACES[align].node}
+            selected={alignIn(active) === align}
+            onClick={() => {
+              setAlignAt(null);
+              editor.current?.action((ctx) => alignSelection(ctx.get(editorViewCtx), align));
+            }}
+          >
+            {alignLabel(align)}
+          </MenuItem>
+        ))}
       </Menu>
       <Menu anchor={kindsAt?.at ?? null} label={kindsAt?.group === 'list' ? t.text.list : t.text.kind} onClose={() => setKindsAt(null)}>
         {kindsShown
