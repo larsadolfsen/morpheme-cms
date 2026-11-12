@@ -170,6 +170,11 @@ export const forms = {
   },
   /** A blog post or page (EntryForm.tsx); `post`: a blog post, else a page. */
   entry: {
+    titleTakenTitle: 'Title already used',
+    titleTakenText: (post: boolean) =>
+      `Another ${post ? 'post' : 'page'} has this title. Save with the suggested title, or write your own.`,
+    titleStillTaken: 'Another file has that title too. Try this one, or write your own.',
+    titleLabel: 'Title',
     titleNeedsLetters: 'The title must have letters or digits.',
     /** Planlagt (scheduled), with a time that has passed. */
     scheduledPast: 'The time has already passed. Choose a later time, or choose Published.',
