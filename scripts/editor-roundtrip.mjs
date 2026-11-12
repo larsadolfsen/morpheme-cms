@@ -243,7 +243,7 @@ for (const file of files) {
 }
 if (unmigrated.length)
   console.log(
-    `\n! ${unmigrated.length} file(s) use blocks from before this version; the site shows them as the new blocks, and the editor writes the new blocks when a page is saved. Run \`npx morpheme migrate\` and commit the files:\n${unmigrated.map((f) => `  ${f}`).join('\n')}`,
+    `\n! ${unmigrated.length} file(s) use blocks or labels from before this version; the editor writes the new form when a page is saved. Run \`npx morpheme migrate\` and commit the files:\n${unmigrated.map((f) => `  ${f}`).join('\n')}`,
   );
 console.log(`\n${files.length - failed} of ${files.length} files give the same page after a save in the editor.`);
 process.exit(failed ? 1 : 0);

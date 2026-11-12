@@ -262,6 +262,7 @@ export function ToolbarButton({
           trailingIcon={<CaretDown />}
           aria-label={label}
           aria-haspopup="menu"
+          className="toolbar-menu-button"
           style={toolbarMenuSize}
           {...own}
         >

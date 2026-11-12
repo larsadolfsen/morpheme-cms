@@ -1,19 +1,17 @@
-// Whether the website is being rebuilt after a Save: `updating` from Save until the build is on the site, then `live`
-// for a while, then `idle`. Set by App.tsx save(), shown by BuildChip in the top bar (Screen.tsx).
+// Whether the website is being rebuilt after a Save: `updating` from Save until the build is on the site, else `idle`.
+// Set by App.tsx save(); the Publish button of a form (FormFrame.tsx) shows it as its busy state. No message says it: a
+// failure is the only one (App.tsx notify).
 import { useSyncExternalStore } from 'react';
 
-export type BuildState = 'idle' | 'updating' | 'live' | 'failed';
+export type BuildState = 'idle' | 'updating';
 
 let state: BuildState = 'idle';
-let timer: ReturnType<typeof setTimeout> | undefined;
 const listeners = new Set<() => void>();
 
 export function setBuildState(next: BuildState) {
-  clearTimeout(timer);
+  if (next === state) return;
   state = next;
   listeners.forEach((l) => l());
-  // `Live` is a confirmation, not a status: it goes away by itself.
-  if (next === 'live' || next === 'failed') timer = setTimeout(() => setBuildState('idle'), next === 'live' ? 8000 : 20000);
 }
 
 export const useBuildState = () =>

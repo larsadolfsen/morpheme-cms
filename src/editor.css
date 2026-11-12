@@ -361,11 +361,16 @@
   }
 }
 
-/* A sheet that is dragged up by its top on a phone (SheetTitle in ui.tsx) is as tall as the screen,
-   below the clock, or as tall as what is in it, if that is less. */
+/* A sheet that is dragged up by its top on a phone (SheetTitle in ui.tsx) is as tall as the screen allows
+   (--bottom-sheet-top-gap from the top, and below the clock), or as tall as what is in it, if that is less. A sheet
+   starts at --bottom-sheet-start-max-height at most (ui.css). */
 @media (width < theme(--breakpoint-medium)) {
   .editor-sheet[data-tall] {
-    max-height: calc(100dvh - env(safe-area-inset-top));
+    --editor-sheet-tall: calc(100dvh - max(var(--bottom-sheet-top-gap, 4.5rem), env(safe-area-inset-top)));
+    max-height: var(--editor-sheet-tall);
+  }
+  .editor-sheet.bottom-sheet-full[data-tall] {
+    height: var(--editor-sheet-tall);
   }
 }
 
@@ -1043,7 +1048,7 @@ html {
   height: 2.5rem;
   place-items: center;
   border-radius: 9999px;
-  color: var(--mo-on-surface-variant);
+  color: var(--icon-button-standard-text, var(--mo-on-surface-variant));
 }
 
 .editor-selection-menu button:hover,
@@ -1062,6 +1067,13 @@ html {
   padding-inline: 0.5rem 0.375rem;
 }
 
+/* A tool with a menu in the top toolbar (ToolbarButton in ui.tsx) is the theme's text button, which is in the accent; it
+   rests as the other tools do, in the standard icon button's colour (never the accent: only a tool that is on has it). */
+.toolbar-menu-button,
+.toolbar-menu-button:hover {
+  color: var(--icon-button-standard-text, var(--block-text));
+}
+
 .editor-selection-menu .editor-menu-arrow {
   transition: rotate var(--motion-spatial-fast);
 }
@@ -1072,7 +1084,7 @@ html {
 
 .editor-selection-menu button[aria-pressed='true'] {
   background: var(--mo-surface-container-high);
-  color: var(--mo-primary);
+  color: var(--icon-button-standard-selected-text, var(--block-accent));
 }
 
 /* Only drawn: the taps go to the card. */
@@ -1225,6 +1237,11 @@ html {
 /* A text with blocks (a page, a fixed page's sections): the cards close together, with the free line
    between two of them to write in: thin, until the cursor is in it (editor-gap-here, MarkdownEditor.tsx)
    or the pointer over it, when it opens up and says so. */
+.editor-spaced {
+  /* The hints are the text's own colour (a section's on-colour, or the page's) at placeholder emphasis (85%, for 4.5:1 on every section colour), never a fixed grey. */
+  --editor-hint-color: color-mix(in srgb, currentColor 85%, transparent);
+}
+
 .editor-spaced .site-block {
   margin-block: 0.25rem;
 }
@@ -1232,7 +1249,7 @@ html {
 .editor-spaced .ProseMirror > p:has(> br:only-child) {
   margin-block: 0;
   border-radius: 0.5rem;
-  padding-inline: 0.5rem;
+  padding-inline: 0;
   padding-block: 0.25rem;
   font-size: 0.875rem;
   line-height: 0.5rem;
@@ -1251,7 +1268,7 @@ html {
 .editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child)::before {
   content: var(--editor-gap-text);
   position: absolute;
-  color: var(--mo-on-surface-variant);
+  color: var(--editor-hint-color);
   pointer-events: none;
 }
 
@@ -1263,7 +1280,7 @@ html {
   .editor-spaced .ProseMirror > p:has(> br:only-child):hover::before {
     content: var(--editor-gap-text);
     position: absolute;
-    color: var(--mo-on-surface-variant);
+    color: var(--editor-hint-color);
     pointer-events: none;
   }
 }
@@ -1274,19 +1291,29 @@ html {
 .editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child:has(> br:only-child)::before {
   content: var(--editor-empty-text);
   position: absolute;
-  color: var(--mo-on-surface-variant);
+  color: var(--editor-hint-color);
   pointer-events: none;
 }
 
-/* A page that has only its H1 (the editor adds no empty line after it): the hint sits under the heading. */
+/* The line after the H1 is a tap target of 48dp, the same height with or without text, so typing moves nothing. */
+.editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child {
+  min-height: 3rem;
+  margin-block: 0;
+  line-height: 1.5rem;
+  cursor: text;
+}
+
+/* A page that has only its H1 (the editor adds no empty line after it): the hint sits under the heading;
+   a tap on it adds the paragraph (hintTap, MarkdownEditor.tsx). */
 .editor-spaced .ProseMirror > h1:only-child::after {
   content: var(--editor-empty-text);
   display: block;
-  margin-top: 0.5rem;
+  min-height: 3rem;
   font-size: 1rem;
   line-height: 1.5rem;
+  cursor: text;
   font-weight: 400;
-  color: var(--mo-on-surface-variant);
+  color: var(--editor-hint-color);
   pointer-events: none;
 }
 
