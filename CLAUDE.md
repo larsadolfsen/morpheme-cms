@@ -10,6 +10,14 @@ A `README.md` is written for people. No agent reads one for rules, and no rule l
 Write to the owner short and concise: a brief résumé of what changed and what the owner has to do or decide, in a few
 lines, English only. No long explanations, tables or lists of every step. The owner asks when more is wanted.
 
+## A brainstorm session never codes
+
+When the owner says a session is a brainstorm (or "we are brainstorming"), the session writes no code: no edits to source,
+styles, tests, scripts or content, no builds and no checks run to prove code. It talks, asks, reads the real sources (for
+Material 3 the actual pages, never memory) and writes plans and specs in `docs/superpowers/` only. "Let's build", "continue" and
+"work on" inside a brainstorm are not a go-ahead: the session asks once whether to build, and builds only when the owner says so in
+plain words. The plans go to the PM, who hands them to new sessions.
+
 ## Only the owner releases a new version
 
 **Only the owner releases a new version of `@morphemecms/cms`.** No agent releases, and no agent takes a step towards a

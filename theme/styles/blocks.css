@@ -831,8 +831,8 @@
     gap: 0.5rem;
   }
 
-  /* "Cards": outlined cards (.card in ui.css) that link to other pages, with an icon, a picture or nothing at the top,
-     two side by side from small screens (cards/LinkCards.tsx). */
+  /* "Cards": Material 3's cards (.card in ui.css: outlined, filled or elevated), each with an icon, a picture, a video or nothing at
+     the top and either a link (the whole card) or buttons, two side by side from small screens (cards/LinkCards.tsx). */
   .block-cards {
     display: grid;
     gap: var(--card-gap, 0.5rem);
@@ -843,8 +843,8 @@
     display: flex;
     height: 100%;
     flex-direction: column;
-    /* Its edge a border in the outlined card's line, so a picture at the top stays inside it. */
-    border: 1px solid var(--card-outlined-line, var(--block-line));
+    /* Its edge a border (the outlined card's line, none on the others), so a picture at the top stays inside it. */
+    border: 1px solid transparent;
     /* The card's shadow as it is now (ui.css: at rest, pointed at, dragged), without its line. */
     box-shadow: var(--card-shadow, 0 0 #0000);
     color: inherit;
@@ -855,8 +855,26 @@
       border-color var(--motion-effects),
       box-shadow var(--motion-effects);
   }
+  .block-card.card-outlined {
+    border-color: var(--card-outlined-line, var(--block-line));
+  }
   .block-card-icon {
     color: var(--block-accent);
+  }
+  /* A video at the top fills it as a picture does, with its play button. */
+  .block-card-video {
+    display: block;
+    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0.25rem;
+    overflow: hidden;
+    border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px) 0 0;
+  }
+  /* The action area: its buttons in a row at the bottom of the card. */
+  .block-card-actions {
+    display: flex;
+    margin-top: auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 1.25rem;
   }
   /* The picture fills the top of the card, out to its edges. */
   .block-card-picture {
@@ -901,15 +919,25 @@
   .block-card-arrow {
     transition: translate var(--motion-spatial);
   }
-  /* The cards on the accent ("Cards", `background`): the whole card in it, its text and icon in the colour that is read
-     on it. */
-  .block-cards-accent .block-card {
-    --card-outlined-surface: var(--block-accent);
-    --card-outlined-line: transparent;
-    color: var(--block-on-accent);
+  /* A filled card in one of the section's colours ("Cards", `color`): the whole card in it, its text and icon in the colour that is
+     read on it. Without a colour it is Material's own filled card. */
+  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary) .block-card {
+    --card-filled-line: transparent;
   }
-  .block-cards-accent :is(.block-card-icon, .block-card-text, .block-card-more) {
-    color: var(--block-on-accent);
+  .block-cards-primary .block-card {
+    --card-filled-surface: var(--block-primary);
+    color: var(--block-on-primary);
+  }
+  .block-cards-secondary .block-card {
+    --card-filled-surface: var(--block-secondary);
+    color: var(--block-on-secondary);
+  }
+  .block-cards-tertiary .block-card {
+    --card-filled-surface: var(--block-tertiary);
+    color: var(--block-on-tertiary);
+  }
+  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary) :is(.block-card-icon, .block-card-text, .block-card-more) {
+    color: inherit;
   }
   /* A panel (Panel.tsx): an outlined card (.card in ui.css) for a block that is one box (e.g. an app's about
      or price block), with an icon, a heading and a text at the top, and parts under a line. */

@@ -120,3 +120,34 @@ content opens unchanged (the in-place form reads and writes the same props).
    or are code), plus the former Banner and Expandable list.
 5. **One release or many?** Recommendation: Cards (step 2) is released on its own with a release paragraph; the other repeating
    blocks (steps 3–6) as one paragraph "Type in place in more blocks", the single blocks as a line.
+
+## 5. Cards, as the owner described them (2026-11-12), checked against the M3 pages
+
+Source read from m3.material.io (Cards: overview, guidelines, specs), not from memory.
+
+**What M3 says that decides this**
+- Three variants, named **Elevated, Filled, Outlined**; "the variant you use depends on style alone": each has the same legibility and
+  function. Filled's container is *surface container highest*, elevated's *surface container low* (the theme's `card-*` kinds in
+  `theme/ui/Card.tsx` already carry these names).
+- The container is the only required element; headline, subhead, supporting text, media and actions are all optional.
+- Media is **thumbnail** (avatar or logo), **image** or **video**. M3 has no separate "icon" element: an icon is a thumbnail.
+- Actions: a **primary action area** (the whole card is one touch target) or an **action area** with buttons, icon buttons, chips,
+  links in the text. "Not recommended" to put text or icons on images.
+
+**The owner's card, top to bottom:** media area (icon, image or video) · header line · text area · button area.
+**Card settings (block level):** card type (Outlined, Filled, Elevated) and the link/button rule below.
+
+**The link rule:** a card with a link is one primary action area, so it has **no button area** (the area is hidden while a link is
+set); a card without a link may have buttons. This is the owner's decision; M3 describes both and does not forbid mixing, so it is a rule of
+ours.
+
+**Mapping of saved content (nothing is lost)**
+- `background` '' becomes Outlined, 'accent' becomes Filled; new cards start Outlined (today's look) until the owner says otherwise.
+- `design` 'text' / '' / 'image' becomes: no media / icon media / image media; video is new.
+- A saved `href` stays the card's link; the shared "Read more" line stays for cards that have one.
+
+**Open points**
+1. "Filled (colours like section)": M3's Filled uses *surface container highest*. Does the owner want the section's own colours instead (the
+   old `background: accent`)? That is a theme choice, not M3's.
+2. Video in a card: the card shows the still with a play button (as the Video block does, `lib/video.mjs`); it cannot also be a link.
+3. Button area: one button or several? The M3 action area holds several.

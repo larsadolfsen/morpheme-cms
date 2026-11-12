@@ -880,12 +880,10 @@
     padding: 1rem 1.25rem;
   }
 
-  /* "Cards": filled cards, as Material 3's (their outlined cards on the highest container, with no edge and
-     no shadow at rest, and the first elevation when pointed at), with the card's state layer (ui.css) when pointed at or
-     focused. */
+  /* "Cards": Material 3's three (outlined, filled, elevated: the card's `kind`, ui.css); the filled one on the highest container, with
+     the card's state layer (ui.css) when pointed at or focused. */
   .block-card {
-    border: 0;
-    --card-outlined-surface: var(--mo-surface-container-highest);
+    --card-filled-surface: var(--mo-surface-container-highest);
   }
   .block-card-picture {
     border-radius: var(--card-radius) var(--card-radius) var(--mo-shape-none) var(--mo-shape-none);

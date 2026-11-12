@@ -11,7 +11,8 @@ import { headOf, type HeadView } from '../head';
 
 /** A row that folds out: a question and its answer as HTML, or a page's row ("Expandable list", PageRow). */
 export type AccordionRow =
-  { label: string; html: string; icon?: string; href?: string; link?: string } | { label: string; page: PageRowView };
+  | { label: string; html: string; icon?: string; href?: string; link?: string; buttons?: { label: string; href: string }[] }
+  | { label: string; page: PageRowView };
 
 export type FaqView = HeadView & {
   group?: string;

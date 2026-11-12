@@ -15,7 +15,20 @@ export default defineBlock({
   icon: ListBullets,
   nameOf: (p) => nameWith(t.blocks.list.label, p),
   hint: t.blocks.list.hint,
-  inline: true,
+  inline: {
+    item: 'items',
+    fields: ['title', 'text'],
+    icon: 'icon',
+    link: 'href',
+    texts: {
+      addAbove: t.blocks.list.addAbove,
+      addBelow: t.blocks.list.addBelow,
+      link: t.blocks.list.link,
+      row: t.blocks.list.row,
+      settings: t.blocks.list.rowSettings,
+      icon: t.blocks.list.icon,
+    },
+  },
   fields: [
     ...rowsFromFields,
     {

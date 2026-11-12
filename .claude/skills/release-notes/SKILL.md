@@ -59,6 +59,12 @@ Writing rule: the skill `site-editor-writing` (in `larsadolfsen/morpheme-website
 - Sentence case, contractions with `’`, no *we*, no em dash, no `!`.
 - Write English first, then Danish written as a Danish app says it, not word for word, with the editor's fixed words
   (*Aktiveret*, *Indstillinger*, *hjemmesiden*).
+- **Order is alphabetical (owner rule, 12 Nov).** Within a version, the paragraphs of *New in <version>* are ordered by
+  their title and the lines of *Also in this version* by their text, each language in its own alphabet: English sorted
+  by the English text, Danish by the Danish text. Case-insensitive; the three extra Danish letters (ae-ligature, o-slash, a-ring) sort after z, in that
+  order. `release:version` (`sortedNotes` in `lib/releaseNotes.mjs`) writes this order and the Morpheme page shows it
+  for pending notes; `check:release-notes` fails on a version file from 0.17.0 on that is not in it. Never reorder a
+  released version's file by hand.
 - Keep it short. A paragraph's text is 2–3 sentences, about 45 words at most. A line is one sentence.
 
 Example paragraph: see *Before / After* in "Writing a paragraph: why, how, what" below.
