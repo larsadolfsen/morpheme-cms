@@ -177,7 +177,6 @@ import { Button, EmptyNote, ProblemNote, startRipples } from './ui';
 import { useMenuOpen } from './menuOpen';
 import { MainMenu } from './MainMenu';
 import { TopBarLayout } from './topBarSlot';
-import { setBuildState } from './buildState';
 import { rememberEdit } from './startStorage';
 import { bulkDeletion } from './bulkDelete.mjs';
 import { Ask, ask } from './ask';
@@ -187,6 +186,7 @@ import { endOf, entriesOf, lookup, readAll } from './redirectData';
 import { inForm, leaveTo, type Status } from './FormFrame';
 import { arrived, screenOf, up } from './nav';
 import { siteT, siteText, t } from './i18n';
+import { setBuildState } from './buildState';
 import { snackbar } from '../lib/snackbar';
 import { appRouteOf } from '../lib/appRoute.mjs';
 import { movedRoute } from './movedRoutes.mjs';
@@ -480,10 +480,11 @@ function Editor() {
 
   // A message at the bottom (snackbar in lib/snackbar.ts, the same as on the site), with a link to what it
   // is about; one of a kind kept in the notifications too (notificationData.ts).
-  function notify(next: Status, device = true) {
+  function notify(next: Status, device = true, toast = true) {
     const edit = next?.edit;
     if (next?.kind)
       remember({ text: next.text, type: next.kind, error: next.error, link: edit && { text: edit.text, href: `#${edit.to}` } }, device);
+    if (!toast) return;
     snackbar(
       next && {
         text: next.text,
@@ -515,16 +516,21 @@ function Editor() {
     if (!waitingFor.current.includes(change)) waitingFor.current.push(change);
     const what = changesText(waitingFor.current);
     // The Worker says it on the phone too, also when the editor is closed by then (notificationData.ts).
+    // The form's Publish button shows it until the website is updated (buildState.ts); only a failure is a message.
     setBuildState('updating');
     const onServer = waitOnServer(saved.commit, t.app.siteUpdated(what), t.app.siteNotUpdated(what));
     stopWaiting.current = waitForSite(saved.commit, async (online) => {
       waitingFor.current = [];
-      setBuildState(online ? 'live' : 'failed');
+      setBuildState('idle');
       const text = online ? t.app.siteUpdated(what) : t.app.siteNotUpdated(what);
       // On screen the editor says it, and the Worker does not; else only the Worker sends it to the phone.
       const byServer = document.visibilityState !== 'visible' && (await onServer);
       if (!byServer) stopServerWait();
-      notify({ text, error: !online, kind: 'site' }, !byServer);
+      notify(
+        { text, error: !online, kind: 'site', edit: online ? undefined : { text: t.footer.status, to: 'status' } },
+        !byServer,
+        !online,
+      );
     });
     return saved.blobs;
   }
