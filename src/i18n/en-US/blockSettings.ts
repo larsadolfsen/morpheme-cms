@@ -6,12 +6,12 @@ export const blockSettings = {
   standard: 'Standard blocks',
   /** The headings of the standard blocks in `Insert` (BlockDialog.tsx), by what the blocks do. */
   groups: {
-    rows: 'Rows and cards',
-    questions: 'Questions',
+    cards: 'Cards',
+    lists: 'Lists',
     content: 'From your content',
-    prices: 'Prices',
-    banner: 'Banner and buttons',
-    other: 'Other',
+    banners: 'Banners',
+    buttons: 'Buttons',
+    media: 'Media',
   },
   /** In the group of an installed app with neither blocks nor kinds. */
   noBlocks: 'The app has no blocks',

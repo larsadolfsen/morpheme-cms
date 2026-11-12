@@ -11,7 +11,7 @@ before writing or changing any note or edition.
 
 **Style: we write release notes like 0.14.0** (`release-notes/i18n/en-US/0.14.0.json`). A paragraph's title says what the owner
 can do, with a verb first (*Pause an app without losing its settings*, *See your page as Google shows it*). Its text
-says what is new (*You can now …*, *… now looks like …*), then where to find it (*Open the app under Apps …*). Lines are
+follows *why, how, what* (see "Writing a paragraph" below). Lines are
 short and name the change plainly. Notes have no screenshots: the paragraphs of 0.14.0 have none.
 
 A version's notes have exactly two sections: **New in <version>**, the paragraphs, and **Also in this version**, the lines.
@@ -60,18 +60,52 @@ Writing rule: the skill `site-editor-writing` (in `larsadolfsen/morpheme-website
 - Sentence case, contractions with `’`, no *we*, no em dash, no `!`.
 - Write English first, then Danish written as a Danish app says it, not word for word, with the editor's fixed words
   (*Aktiveret*, *Indstillinger*, *hjemmesiden*).
-- Keep it short. A paragraph's text is 1–3 sentences. A line is one sentence.
+- Keep it short. A paragraph's text is 2–3 sentences, about 45 words at most. A line is one sentence.
 
-Example paragraph (`paragraph`, English):
-
-> **Pick up where you left off**
-> Your last 3 pages and blog posts now wait at the top of the start screen. Tap one to jump straight back in.
+Example paragraph: see *Before / After* in "Writing a paragraph: why, how, what" below.
 
 Example lines:
 
 > Also in this version
 > - Open website opens in a new window
 > - On a phone, the text toolbar no longer scrolls sideways
+
+## Writing a paragraph: why, how, what
+
+Every `paragraph` follows **why, how, what**, in this order, in 2–3 sentences and **at most about 45 words per language**
+(the title does not count). Read the changeset and the code of the change first, so each part is true, not guessed.
+
+1. **Why** (one sentence, first): the problem the owner has, or the gain the owner gets, in the owner's words. Not
+   *You can now …*, and not what the owner wants (*You want to …*): name the gain (*Long lists no longer push the
+   page down.*).
+2. **How** (what the owner does): where to find it and what to press, with the exact UI words from the language files in
+   `src/i18n/` (`Insert`, `Max rows`, `Show more`), never an internal name.
+3. **What** (what is in it, and what stays as it was): the choices it has, or that earlier pages and settings are
+   unchanged. Leave it out only when the why and how already say it.
+
+Rules: active voice, present tense, *you*; concrete (a screen, a button, a number), no filler (*now*, *new*, *also*,
+*easier*) unless it carries meaning. **One subject per paragraph**: a second feature, a second screen or a second block is
+its own note, a paragraph or a `line`. The title starts with a verb and names the owner's gain (*Keep long lists short*), not the feature.
+
+A selling point (see above) follows the same order: the why is what the owner is protected from or free to do, the how is
+where the proof is, the what is what stays the owner's.
+
+Before (bad: no why, three subjects, a name-list instead of a reason):
+
+> **Fold out rows in a Segmented list**
+> The new Segmented list folds each row out to show its text and link. You can keep only one row open, or show just the
+> first rows with a Show more button for the rest. The FAQ list gets the same button, and Insert now groups the blocks by
+> what they do.
+
+After (why, how, what; the other subjects are their own notes):
+
+> **Keep long lists short**
+> A long list no longer fills the page. Add a Segmented list, set Max rows, and visitors open each row to read its text and
+> link, and press Show more for the rest. Turn on Only one open to close the last row when the next one opens.
+
+Danish: the same three parts in the same order, written as a Danish app says it (not word for word), with the editor's
+Danish words from `src/i18n/da-DK/`, and the same length cap. Keep `id` and
+`kind` the same in both languages.
 
 ## Editions
 

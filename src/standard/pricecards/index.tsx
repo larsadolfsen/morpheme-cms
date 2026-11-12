@@ -13,7 +13,7 @@ import type { PriceCardProps } from './view';
 const texts = t.blocks.pricecards;
 
 export default defineBlock({
-  group: 'prices',
+  group: 'cards',
   label: texts.label,
   icon: CurrencyCircleDollar,
   hint: texts.hint,

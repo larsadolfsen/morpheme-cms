@@ -1,6 +1,6 @@
 {
   "id": "r2-caching-name",
   "kind": "paragraph",
-  "title": "See what each build setting does",
-  "text": "Faster editor is now called R2 caching, and Faster updates for content is now called Content-only builds. Each has a short line under it that says what it does and when to use it. Open them under Settings, Developer, Caching and builds."
+  "title": "Know what each caching setting does",
+  "text": "Two settings had names that didn’t say what they do. Open Settings, Developer, Caching and builds. R2 caching keeps a copy of your files in R2 for the editor, and Content-only builds skips the full site check when only content changed."
 }

@@ -1,6 +1,6 @@
 {
   "id": "r2-caching-name",
   "kind": "paragraph",
-  "title": "Se, hvad hver bygningsindstilling gør",
-  "text": "Hurtigere editor hedder nu R2-caching, og Hurtigere opdateringer af indhold hedder nu Bygning kun af indhold. Under hver står en kort linje om, hvad den gør, og hvornår du skal bruge den. Find dem under Indstillinger, Udvikler, Caching og builds."
+  "title": "Vid, hvad hver caching-indstilling gør",
+  "text": "To indstillinger havde navne, der ikke sagde, hvad de gør. Åbn Indstillinger, Udvikler, Caching og builds. R2-caching gemmer en kopi af dine filer i R2 til editoren, og Bygning kun af indhold springer hjemmesidens fulde tjek over, når kun indhold er ændret."
 }

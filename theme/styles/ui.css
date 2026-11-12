@@ -1421,7 +1421,7 @@
     --bottom-sheet-shadow, --bottom-sheet-shadow-large   its shadow on a phone (and a standard one's; level 1), and as
                      a dialog from the medium width (level 3)
     --bottom-sheet-scrim   the shade over the page behind a modal one
-    --bottom-sheet-handle   the drag handle's colour
+    --bottom-sheet-handle, --bottom-sheet-handle-focus   the drag handle's colour, and while it has the focus
     --bottom-sheet-max-width, --bottom-sheet-top-gap   how wide a standard one is at most, and how far from the top it
                      stays when it is expanded
     --bottom-sheet-margin-wide   a standard one with wide="sheet" (from the medium width) stays this far from the
@@ -1694,6 +1694,14 @@
     border-radius: 9999px;
     background: var(--bottom-sheet-handle, var(--block-line));
   }
+  /* The handle shows its focus by a darker bar, as M3's does: a focus ring is cut off by the sheet's rounded top and
+     would show as a coloured line between the handle and the headline. */
+  .bottom-sheet-drag-handle:focus-visible {
+    outline: none;
+  }
+  .bottom-sheet-drag-handle:focus-visible::before {
+    background: var(--bottom-sheet-handle-focus, var(--block-text));
+  }
   .bottom-sheet-header {
     display: flex;
     flex-shrink: 0;
@@ -1846,9 +1854,6 @@
     background: none;
     color: inherit;
     font: inherit;
-  }
-  .bottom-sheet-standard > .bottom-sheet-drag-handle:focus-visible {
-    outline-offset: -0.25rem;
   }
   .bottom-sheet-standard > .bottom-sheet-header {
     cursor: grab;
