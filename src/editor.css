@@ -1300,6 +1300,25 @@ dialog {
   overscroll-behavior: contain;
 }
 
+/* The full-screen Preview (pagePreview.tsx): a <dialog> over the whole screen on every width, hiding the rest of the editor, with
+   its close button at the top (Material 3's full-screen dialog). */
+.editor-preview-screen {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--mo-surface);
+  color: var(--mo-on-surface);
+}
+.editor-preview-screen[open] {
+  display: flex;
+  flex-direction: column;
+}
+
 /* The first heading of a page's text is its title, drawn as the site draws it (.theme-title in the theme's components.css, and
    PageHeading.astro's width): the display role, by the theme's variables, not the weight of a heading in the middle of the text. */
 .editor-text .ProseMirror > h1:first-child {

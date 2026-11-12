@@ -9,13 +9,14 @@ import { slugify } from './schema';
 import { sourceColorsOf } from '../lib/dynamic-colors';
 import { config } from '@site/config';
 import type { Status } from './FormFrame';
+import type { FileCredit } from './fileTags.mjs';
 import { t } from './i18n';
 import { settings } from '../site/settings';
 
 const MAX = 2000;
 
 // url: a temporary address of the picture in this browser, shown until the site is rebuilt.
-export type Upload = { url: string; path: string; bytes: Uint8Array; saved: boolean };
+export type Upload = { url: string; path: string; bytes: Uint8Array; saved: boolean; credit?: FileCredit };
 
 // The pictures made ready in this visit, by their address on the site: shown from the browser
 // (shownAt), as the site has them only once it has been rebuilt.
@@ -158,12 +159,27 @@ export function useUploads(notify: (status: Status) => void) {
     }
   }
 
+  /** A picture from a media provider (an app's source of pictures) made ready like a chosen one, with its credit, which is saved with it. */
+  async function addFile(file: File, credit: FileCredit): Promise<Upload> {
+    setUploading(true);
+    try {
+      const prepared = { ...(await prepareImage(file)), credit };
+      setUploads((u) => [...u, prepared]);
+      return prepared;
+    } finally {
+      setUploading(false);
+    }
+  }
+
   const added = uploads.filter((u) => !u.saved).reverse();
   /** The pictures not saved yet that a text uses. */
   const usedIn = (text: string) => uploads.filter((u) => !u.saved && text.includes(publicPath(u.path)));
   const markSaved = (pictures: Upload[]) => setUploads((all) => all.map((u) => (pictures.includes(u) ? { ...u, saved: true } : u)));
 
-  return { upload, uploading, added, usedIn, markSaved };
+  return { upload, addFile, uploading, added, usedIn, markSaved };
 }
 
 export type Uploads = ReturnType<typeof useUploads>;
+
+/** The pictures among `uploads` that came with a credit (from an app's source of pictures), by their address on the site. */
+export const creditedIn = (uploads: Upload[]) => uploads.flatMap((u) => (u.credit ? [{ src: publicPath(u.path), credit: u.credit }] : []));
