@@ -1185,7 +1185,15 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           view.dispatch(view.state.tr.setMeta('addToHistory', false));
           view.dispatch(view.state.tr.setSelection(Selection.atStart(view.state.doc)).setMeta('addToHistory', false));
         });
-      // A new page: plain text with the cursor at the start (kept out of undo).
+      // A new text (nothing written yet) starts as Body medium, Material 3's body-medium, the default for new text; a stored
+      // plain paragraph stays Body large, as the site draws it (kept out of undo; markdownOf leaves it out while it is empty).
+      created.action((ctx) => {
+        const view = ctx.get(editorViewCtx);
+        const { doc, schema } = view.state;
+        if (doc.childCount === 1 && doc.firstChild?.type.name === 'paragraph' && doc.firstChild.content.size === 0)
+          view.dispatch(view.state.tr.setNodeMarkup(0, schema.nodes.bodyMedium).setMeta('addToHistory', false));
+      });
+      // A new page: the cursor at the start, in plain text, never an H1.
       if (startFocused)
         created.action((ctx) => {
           const view = ctx.get(editorViewCtx);
