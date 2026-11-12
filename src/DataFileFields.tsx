@@ -1,5 +1,5 @@
 // A single data file's fields in a form: its own ("Activated") and, when it is a list (the menus), its items as the menu
-// (MenuList). DataForm.tsx draws a menu with them, and Appearance › Header (HeaderSettings.tsx) both menus. Exposes
+// (MenuList). DataForm.tsx draws a menu with them, and Globals › Header (HeaderSettings.tsx) both menus. Exposes
 // DataFileFields. Uses fields.tsx (FieldList, MenuList).
 import type { DataFile } from './schema';
 import { FieldList, MenuList } from './fields';

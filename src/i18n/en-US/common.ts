@@ -118,24 +118,22 @@ export const common = {
     iconPacks: 'Icon packs',
     /** How the site moves, Material 3's motion schemes (#appearance/motion, MotionSchemes in Library.tsx). */
     motion: 'Motion',
-    /** The block drawn in a column beside the text of the pages (#appearance/side-column, SideColumn.tsx). */
+    /** The block drawn in a column beside the text of the pages (#global/side-column, SideColumn.tsx). */
     sideColumn: 'Side column',
     colors: 'Colors',
     brand: 'Logo and icon',
     blockSettings: 'Block settings',
     /** The apps that come with the site (AppList.tsx, #apps). */
     apps: 'Apps',
-    /** The parts the editor and the site are built of (#developer/parts: Parts.tsx, BlockParts.tsx). */
-    editorParts: 'Parts',
+    /** The parts the editor and the site are built of, a row of Settings (#developer/parts: Parts.tsx, BlockParts.tsx). */
+    editorParts: 'Components',
     /** Under Indstillinger: the redirects and the site's own parts (#seo, Library.tsx Seo). */
     seo: 'Search engine optimization',
     redirects: 'Redirects',
     account: 'Account',
     /** The screen the cog at the bottom of the main drawer opens (#settings), and the first part of the path to a setting (placeOf in site.ts). */
     settings: 'Settings',
-    /** Under Settings: the developer screens, the parts and the caching (#developer, Library.tsx Developer). */
-    developer: 'Developer',
-    /** Under Developer: R2 caching and the build settings (#developer/caching, Advanced.tsx). */
+    /** A row of Settings: R2 caching and the build settings (#developer/caching, Advanced.tsx). */
     caching: 'Caching and builds',
     /** Under Indstillinger: the assistants connected to the site (#assistants, Assistants.tsx). */
     assistants: 'Assistants',

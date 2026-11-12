@@ -3,12 +3,12 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { movedRoute } from './movedRoutes.mjs';
 
-test('the old header screen opens Appearance › Header', () => {
-  assert.equal(movedRoute('header'), 'appearance/header');
+test('the old header screen opens Globals › Header', () => {
+  assert.equal(movedRoute('header'), 'global/header');
 });
 
-test('the old footer form opens Appearance › Footer', () => {
-  assert.equal(movedRoute('src/data/footer.json'), 'appearance/footer');
+test('the old footer form opens Globals › Footer', () => {
+  assert.equal(movedRoute('src/data/footer.json'), 'global/footer');
 });
 
 test('the old logo screen under Appearance opens Business › Logo and icon', () => {
@@ -20,8 +20,20 @@ test('the themes tab of the store opens the Theme store under Appearance', () =>
   assert.equal(movedRoute('settings/appstore'), 'settings/appstore');
 });
 
+test('the screens that left Appearance open where they are now, the rest of the address kept', () => {
+  assert.equal(movedRoute('appearance/header'), 'global/header');
+  assert.equal(movedRoute('appearance/footer'), 'global/footer');
+  assert.equal(movedRoute('appearance/side-column'), 'global/side-column');
+  assert.equal(movedRoute('appearance/colors'), 'company/colors');
+  assert.equal(movedRoute('appearance/colors/fallback-colors'), 'company/colors/fallback-colors');
+  assert.equal(movedRoute('developer'), 'settings');
+});
+
 test('an address that has not moved stays', () => {
-  assert.equal(movedRoute('appearance/header'), 'appearance/header');
+  assert.equal(movedRoute('appearance/themes'), 'appearance/themes');
+  assert.equal(movedRoute('developer/caching'), 'developer/caching');
+  assert.equal(movedRoute('global/header'), 'global/header');
+  assert.equal(movedRoute('company/colors'), 'company/colors');
   assert.equal(movedRoute('lists'), 'lists');
 });
 
@@ -53,7 +65,7 @@ test('old prefixes are renamed, the data after them stays', () => {
   assert.equal(movedRoute('liste/temaer'), 'list/temaer');
   assert.equal(movedRoute('udseende/dele/liste/kontakt'), 'developer/parts/list/kontakt');
   assert.equal(movedRoute('indstillinger/appstore'), 'settings/appstore');
-  assert.equal(movedRoute('udseende/farver'), 'appearance/colors');
+  assert.equal(movedRoute('udseende/farver'), 'company/colors');
 });
 
 test('every old route prefix opens the screen where it is now', () => {
@@ -71,8 +83,9 @@ test('every old route prefix opens the screen where it is now', () => {
     'udseende/temaer/material': 'appearance/themes/material',
     'udseende/ikonpakker': 'appearance/icon-packs',
     'udseende/bevaegelse': 'appearance/motion',
-    'udseende/sidekolonne': 'appearance/side-column',
-    'udseende/farver/reservefarver': 'appearance/colors/fallback-colors',
+    'udseende/sidekolonne': 'global/side-column',
+    'udseende/farver': 'company/colors',
+    'udseende/farver/reservefarver': 'company/colors/fallback-colors',
     'udseende/dele': 'developer/parts',
     'udseende/dele/editor': 'developer/parts/editor',
     'udseende/dele/blokke': 'developer/parts/blocks',
@@ -141,8 +154,8 @@ test('an old route to the app store opens it at its English route', () => {
   assert.equal(movedRoute('indstillinger/appstore'), 'settings/appstore');
 });
 
-test('the old colours route opens the colours screen under Appearance', () => {
-  assert.equal(movedRoute('farver'), 'appearance/colors'); // language-ok: a legacy route id
+test('the old colours route opens the colours screen under Business', () => {
+  assert.equal(movedRoute('farver'), 'company/colors'); // language-ok: a legacy route id
 });
 
 test('an old parts route keeps a list id and opens at its English route', () => {
@@ -157,4 +170,12 @@ test('the old theme routes open the screens under Appearance', () => {
 test('the old booking and newsletter settings open the apps by their permanent ids', () => {
   assert.equal(movedRoute('promovering/calendly'), 'apps/app_a030dfba69793996');
   assert.equal(movedRoute('promovering/mailchimp'), 'apps/app_5c4b6ba067ef127f');
+});
+
+test('no new address is itself an old one: movedRoute is one step, so there is no loop', async () => {
+  const { MOVED, RENAMED } = await import('./movedRoutes.mjs');
+  const keys = new Set([...Object.keys(MOVED), ...Object.keys(RENAMED)]);
+  for (const value of [...Object.values(MOVED), ...Object.values(RENAMED)]) {
+    assert.equal(keys.has(value), false, value);
+  }
 });

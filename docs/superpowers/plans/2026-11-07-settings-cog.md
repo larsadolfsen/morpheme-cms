@@ -1,5 +1,7 @@
 # Settings behind a cog: build plan
 
+> Update 2026-11-12 (0.19, `2026-11-12-menu-and-settings-regroup-plan.md`): the cog's rows are now Appearance, Assistants, Block settings, Caching and builds, Components, Morpheme and Privacy. Developer and Licenses left (the footer links to Licenses; Developer became Caching and builds and Components); Header, Footer and Side column moved to the menu section Globals (was Blocks), Colors to Business.
+
 Status: not started. Agreed with the user on 2026-11-07. Checked against the code on 2026-11-10.
 
 ## Goal

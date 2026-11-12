@@ -1,4 +1,4 @@
-// The layout of a settings screen with several parts (Appearance › Header, Appearance › Footer), as the page form's
+// The layout of a settings screen with several parts (Globals › Header, Globals › Footer), as the page form's
 // (EntryForm.tsx): `top` (the preview) over the sections, each folding in and out under its heading (FoldSection), with
 // their "on this page" list at the window's end edge on large and wider screens (FormColumns, SectionPane, SectionList).
 // The first is open from the start. On a phone (compact) only one is open at a time, an accordion: opening one folds the

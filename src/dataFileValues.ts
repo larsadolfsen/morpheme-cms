@@ -1,5 +1,5 @@
 // A JSON file in a form: its fields, its values in the form (from its text) and its data again (to save), the same for one
-// file on its own screen (DataForm.tsx) and several on one (useDataFiles.ts, Appearance › Header). Exposes fieldsOf,
+// file on its own screen (DataForm.tsx) and several on one (useDataFiles.ts, Globals › Header). Exposes fieldsOf,
 // listOnly, valuesOf, dataOf and dataFileIn. Uses check.ts (withDefaults, clean) and schema.ts.
 import { entryData, type Collection, type DataFile, type Field } from './schema';
 import { clean, withDefaults } from './check';
