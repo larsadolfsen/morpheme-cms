@@ -132,7 +132,7 @@ export type StoreApp = {
    * its new one, one it does not know leaves them out, and the app stays in the catalog. */
   category?: AppCategory;
   subcategory?: string;
-  /** Connector or plugin, as the catalog has it (read with roleOf: none is a plugin), and the service a connector
+  /** Connector or plugin, as the catalog has it (read with roleOf: with none, an outside host or `mcp` makes a connector, else a plugin), and the service a connector
    * connects to (when the entry names it; else its hosts, serviceOf). */
   role?: Role;
   service?: string;
@@ -207,6 +207,9 @@ export type StoreRecord = { version: string; ref: string; files: StoreFile[] };
  * (STORE_THEMES, "Theme store"), and that of a developer's page (DEVELOPER_ROUTE/<slug>); no app can have the id of the
  * last one. The store's old address is in src/movedRoutes.mjs. */
 export const STORE_ROUTE = 'settings/appstore';
+/** The installed connectors and plugins (Apps in the menu): installed/connectors and installed/plugins; the themes are
+ * under appearance/themes. */
+export const INSTALLED_ROUTE = 'installed';
 export const STORE_THEMES = 'appearance/theme-store';
 export const DEVELOPER_ROUTE = 'apps/developer';
 

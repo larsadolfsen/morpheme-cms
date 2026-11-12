@@ -13,6 +13,8 @@ const COMMANDS = {
   /** The Cloudflare build command: the content lane or the full lane, then the build. */
   'ci-build': ['ci-build'],
   'check:content': ['check-content'],
+  /** Rewrites pages and posts that use blocks from before to the form the editor writes (idempotent; --check only lists). */
+  migrate: ['migrate'],
   'check:editor': ['editor-roundtrip'],
   'check:worker': [
     'check-worker',

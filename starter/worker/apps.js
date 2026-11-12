@@ -7,3 +7,6 @@ export const appTexts = {};
 
 // The MCP server of each connector (`mcp` in its app.json), for worker/mcp-client.js.
 export const appMcp = {};
+
+// The media providers of each app (`mediaProviders` in its app.json) and its hosts, for worker/media-providers.js.
+export const appMedia = {};

@@ -1,26 +1,42 @@
 // What the editor draws of an H1 or H2 section of a page or blog post: the dotted line at the start of each H2 section
 // (data-section-part=start), and, for a section with a colour, a box round all its parts as the site draws it
 // (data-section-box=start|middle|end|only and data-section-color on each top-level node), and the picture behind it (a picture
-// strip at its top, data-section-width when it goes across the whole window). editor.css draws them. Exposes sectionFrame (a
-// Milkdown plugin). Uses lib/section-ranges.mjs, src/sectionState.mjs and src/images.ts.
+// box behind its parts, sized by placeBackdrops; data-section-width when it goes across the whole window). editor.css draws them. Exposes sectionFrame (a
+// Milkdown plugin). Uses lib/section-ranges.mjs, src/sectionBackdrop.mjs, src/sectionState.mjs and src/images.ts.
 import { $prose } from '@milkdown/kit/utils';
 import type { Node } from '@milkdown/kit/prose/model';
 import { Plugin } from '@milkdown/kit/prose/state';
-import { Decoration, DecorationSet } from '@milkdown/kit/prose/view';
+import { Decoration, DecorationSet, type EditorView } from '@milkdown/kit/prose/view';
+import { isSafePicture, rebuiltAddress } from '../lib/section-marker.mjs';
 import { partKind, sectionPart, sectionRanges } from '../lib/section-ranges.mjs';
 import { shownAt } from './images';
+import { backdropBox } from './sectionBackdrop.mjs';
 import { sectionOf } from './sectionState.mjs';
 
 type Range = { from: number; to: number };
 
-// The picture behind a section, as a strip at the top of its box (not editable text).
-function pictureStrip(src: string, alt: string): HTMLElement {
+// The picture behind a section: a box behind its parts, sized to them by placeBackdrops (not editable text).
+function pictureStrip(src: string, alt: string, color: string | null, width: string | null, last: number): HTMLElement {
   const strip = document.createElement('div');
   strip.className = 'editor-section-picture';
+  if (color) strip.dataset.color = color;
+  if (width === 'full') strip.dataset.width = 'full';
+  strip.dataset.last = String(last);
   strip.contentEditable = 'false';
+  // Only an address the marker's validator accepts is drawn (lib/section-marker.mjs): a path on the site or an https address.
+  if (!isSafePicture(src)) return strip;
+  // The address drawn is rebuilt and checked again here, right before it is set: a path on the site, an https address, or the
+  // browser's own blob address of a picture made in this visit (shownAt), never a script or data address.
+  const url = new URL(shownAt(src), location.origin);
   const img = document.createElement('img');
-  img.src = shownAt(src);
-  img.alt = alt;
+  let address: string | null = null;
+  if (url.origin === location.origin && url.pathname.startsWith('/') && !url.pathname.startsWith('//')) address = url.pathname + url.search;
+  else if (url.protocol === 'https:' || url.protocol === 'blob:') address = url.href;
+  // Written again from the allowed characters only (lib/section-marker.mjs), so nothing of the original string is assigned.
+  const drawn = address === null ? null : rebuiltAddress(address);
+  if (drawn === null) return strip;
+  img.src = drawn;
+  img.setAttribute('alt', alt);
   img.draggable = false;
   strip.append(img);
   return strip;
@@ -54,9 +70,32 @@ function sectionDecorations(doc: Node): Decoration[] {
     });
     if (picture)
       out.push(
-        Decoration.widget(parts[range.from].pos, () => pictureStrip(picture, alt ?? ''), { side: -1, key: `picture:${picture}:${alt}` }),
+        Decoration.widget(parts[range.from].pos, () => pictureStrip(picture, alt ?? '', color, width, parts[range.to].pos), {
+          side: -1,
+          key: `picture:${picture}:${alt}:${color}:${width}:${parts[range.to].pos}`,
+        }),
       );
     return out;
+  });
+}
+
+// Puts each picture box over its section: from the top of its first part to the bottom of its last (the box is absolute in the text).
+function placeBackdrops(view: EditorView) {
+  const host = view.dom as HTMLElement;
+  const hostRect = host.getBoundingClientRect();
+  host.querySelectorAll<HTMLElement>(':scope > .editor-section-picture').forEach((strip) => {
+    const first = strip.nextElementSibling as HTMLElement | null;
+    let last: HTMLElement | null = null;
+    try {
+      last = view.nodeDOM(Number(strip.dataset.last)) as HTMLElement | null;
+    } catch {
+      last = null;
+    }
+    if (!first || !last || !('getBoundingClientRect' in last)) return;
+    const a = first.getBoundingClientRect();
+    const b = last.getBoundingClientRect();
+    const box = backdropBox(a, b, hostRect, { full: strip.dataset.width === 'full', windowWidth: document.documentElement.clientWidth });
+    Object.assign(strip.style, { top: `${box.top}px`, left: `${box.left}px`, width: `${box.width}px`, height: `${box.height}px` });
   });
 }
 
@@ -66,5 +105,16 @@ export const sectionFrame = (on: boolean) =>
     () =>
       new Plugin({
         props: { decorations: on ? ({ doc }) => DecorationSet.create(doc, sectionDecorations(doc)) : () => null },
+        view: (view) => {
+          let frame = 0;
+          const place = () => {
+            cancelAnimationFrame(frame);
+            frame = requestAnimationFrame(() => placeBackdrops(view));
+          };
+          const resize = new ResizeObserver(place);
+          resize.observe(view.dom);
+          place();
+          return { update: place, destroy: () => (resize.disconnect(), cancelAnimationFrame(frame)) };
+        },
       }),
   );

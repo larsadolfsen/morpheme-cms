@@ -49,3 +49,13 @@ test('a card edits in the panel only at expanded and with fields', () => {
   assert.equal(editsInPanel(true, false), false);
   assert.equal(editsInPanel(false, false), false);
 });
+
+test("'row' below expanded is a bottom sheet and not in the panel", () => {
+  assert.equal(sheetLook('row', false), 'sheet');
+  assert.equal(inPanel('row', false), false);
+});
+
+test("'row' at expanded is a side sheet and in the panel", () => {
+  assert.equal(sheetLook('row', true), 'side-sheet');
+  assert.equal(inPanel('row', true), true);
+});

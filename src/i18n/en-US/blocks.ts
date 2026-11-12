@@ -11,7 +11,7 @@ export const blocks = {
   /** A picture, chosen and changed like a block. */
   picture: {
     label: 'Picture',
-    hint: 'Choose a picture from Files, or upload a new one.',
+    hint: 'Choose or upload a picture.',
     src: 'Picture',
     alt: 'Alt text',
     altHint: 'Describe the picture in a few words, for people who can’t see it.',
@@ -24,7 +24,7 @@ export const blocks = {
   noTestimonials: 'No testimonials yet',
   html: {
     label: 'HTML code',
-    hint: 'For example, a video or a calendar.',
+    hint: 'Add a video or calendar.',
     code: 'Code',
     youtube: 'Video from YouTube',
     vimeo: 'Video from Vimeo',
@@ -36,12 +36,12 @@ export const blocks = {
   headingHint: 'Optional.',
   /** A block's head (standard/head.ts): the label above its heading and the subheading under it. */
   eyebrow: 'Label',
-  eyebrowHint: 'Shown in small capitals above the heading.',
+  eyebrowHint: 'Shown in the label style above the heading.',
   subheading: 'Subheading',
   subheadingHint: 'Shown under the heading.',
   faq: {
     label: 'FAQ list',
-    hint: 'Questions that expand to show the answer.',
+    hint: 'Questions that expand to answers.',
     items: 'Questions',
     item: 'question',
     question: 'Question',
@@ -56,7 +56,7 @@ export const blocks = {
   /** "Segmented list" (standard/segmented/). */
   segmented: {
     label: 'Segmented list',
-    hint: 'Rows that expand to show a text, with a link and a button under them.',
+    hint: 'Rows that expand, with a link.',
     items: 'Rows',
     item: 'row',
     icon: 'Icon',
@@ -70,6 +70,10 @@ export const blocks = {
     show: 'Rows',
     showFold: 'Fold out',
     showAll: 'Always open',
+    maxRows: 'Max rows',
+    maxRowsHint: 'How many rows show at first. A button under them shows the rest. If empty, all rows show.',
+    showMore: 'Button text (show more)',
+    showMoreText: 'Show more',
     button: 'Button text',
     buttonHint: 'A text button under the last row. If empty, there is no button.',
     buttonHref: 'Button page',
@@ -80,7 +84,7 @@ export const blocks = {
   },
   notice: {
     label: 'Notice',
-    hint: 'A short message, highlighted in a box.',
+    hint: 'A highlighted message.',
     text: 'Text',
     until: 'Show until',
     untilHint: 'If empty, the notice is always shown.',
@@ -89,7 +93,7 @@ export const blocks = {
   },
   links: {
     label: 'Links',
-    hint: 'Links to pages in groups with a heading.',
+    hint: 'Links to pages in groups.',
     groups: 'Groups',
     group: 'group',
     title: 'Heading',
@@ -120,7 +124,7 @@ export const blocks = {
   },
   list: {
     label: 'List',
-    hint: 'Rows under each other with an icon, a heading and a text.',
+    hint: 'Rows with icon, heading and text.',
     items: 'Rows',
     item: 'row',
     icon: 'Icon',
@@ -134,10 +138,19 @@ export const blocks = {
     hrefHint: 'If empty, the row isn’t a link.',
     exampleTitle: 'Heading',
     exampleText: 'A short text about the row.',
+    /** The next empty row after the last one, which a tap starts. */
+    /** The floating toolbar of a List typed in place. */
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    row: 'Row',
+    rowSettings: 'Row settings',
+    newRow: 'New row',
+    /** A row of the list typed in place: its place, for screen readers (row 2 of 4). */
+    rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
   },
   points: {
     label: 'Points with icon',
-    hint: 'Points with an icon, a heading, and a text.',
+    hint: 'Points with icon and text.',
     items: 'Points',
     item: 'point',
     icon: 'Icon',
@@ -152,7 +165,7 @@ export const blocks = {
   },
   steps: {
     label: 'Steps',
-    hint: 'Numbered steps with heading and text.',
+    hint: 'Numbered steps.',
     items: 'Steps',
     item: 'step',
     title: 'Heading',
@@ -160,7 +173,7 @@ export const blocks = {
   },
   hero: {
     label: 'Banner',
-    hint: "The page's top with a text, a picture, and buttons.",
+    hint: 'Page top with text and buttons.',
     text: 'Text',
     textHint: 'The first paragraph is the subtitle. Add a picture and buttons with +.',
     placement: 'Placement (picture)',
@@ -172,7 +185,7 @@ export const blocks = {
   },
   accordion: {
     label: 'Expandable list',
-    hint: 'Rows that expand to show a text and a link.',
+    hint: 'Rows that expand to show text.',
     edit: 'Edit default texts',
     items: 'Rows',
     item: 'row',
@@ -218,7 +231,7 @@ export const blocks = {
   },
   cookies: {
     label: 'Cookie list',
-    hint: 'Shows the cookies the website sets.',
+    hint: 'The cookies your site sets.',
     edit: 'Edit cookies',
     /** The list the block brings, "Cookies" under "Lists" (list.ts), and its fields. */
     entries: {
@@ -276,12 +289,12 @@ export const blocks = {
   },
   testimonials: {
     label: 'Testimonials',
-    hint: 'Testimonials in a carousel or one after another.',
+    hint: 'Testimonials as cards or in a list.',
     edit: 'Edit testimonials',
     layout: 'Layout',
-    slider: 'Carousel',
-    list: 'One after another',
-    layoutHint: 'One after another shows the whole text.',
+    cards: 'Cards',
+    list: 'List',
+    layoutHint: 'Cards leaf through; List shows the whole text.',
     show: 'Which testimonials',
     all: 'All',
     filter: 'Buttons with tags',
@@ -322,7 +335,7 @@ export const blocks = {
   },
   posts: {
     label: 'Blog posts',
-    hint: 'Blog posts as a list: all of them, a number with certain tags, or selected ones.',
+    hint: 'Blog posts in a list.',
     edit: 'Edit default texts',
     /** The field "Design" and its choices: a list, or the newest post large over the list. */
     design: 'Design',
@@ -365,7 +378,7 @@ export const blocks = {
   },
   cards: {
     label: 'Cards',
-    hint: 'Cards with links to other pages.',
+    hint: 'Cards that link to pages.',
     edit: 'Edit default texts',
     design: 'Design',
     designText: 'Text',
@@ -424,7 +437,7 @@ export const blocks = {
   },
   video: {
     label: 'Video',
-    hint: 'A video from YouTube or Vimeo.',
+    hint: 'A YouTube or Vimeo video.',
     url: 'Video link',
     urlProblem: 'Paste the link to the video from YouTube or Vimeo',
     title: 'Title',
@@ -433,7 +446,7 @@ export const blocks = {
   /** "Checklist" (standard/checklist/). */
   checklist: {
     label: 'Checklist',
-    hint: 'Points with a check mark before them.',
+    hint: 'Points with check marks.',
     items: 'Points',
     item: 'point',
     text: 'Text',
@@ -443,7 +456,7 @@ export const blocks = {
   /** "Price cards" (standard/pricecards/). */
   pricecards: {
     label: 'Price cards',
-    hint: 'Prices side by side with what is included.',
+    hint: 'Prices with what is included.',
     items: 'Cards',
     item: 'card',
     name: 'Name',

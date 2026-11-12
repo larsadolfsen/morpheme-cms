@@ -1,24 +1,22 @@
-// Testimonials one after another with the whole text (.block-testimonial-list in ../blocks.css), in two columns where
-// there is room, so long and short texts sit well together: the standard block "Testimonials" with `layout` 'list'. With
-// `filters`, filter chips (Chip) with their tags over them (.block-filters; with two tags or more): one shows only those with that
-// tag, "All" all of them again (on the site by script.ts; without JavaScript all are shown and the buttons are hidden;
-// in the editor only drawn, "All" chosen). Each has its anchor, so a short one elsewhere can link to it.
+// The layout List of "Testimonials" (`layout` 'list'): the theme's list (List.tsx in ../../ui/, as "List"), each testimonial an item with its picture (or the name's first
+// letter) leading it, its name as the headline, its whole text as the supporting text (its introduction over it as the overline) and its tags
+// after it. With `filters` (two tags or more), filter chips (Chip) over the list (.block-filters): one shows only the testimonials with that
+// tag, "All" all of them again (on the site by script.ts; without JavaScript all are shown and the buttons are hidden; in
+// the editor only drawn, "All" chosen). Each has its anchor, so a short one elsewhere can link to it.
 import { siteT } from '@morphemecms/cms/src/i18n';
-import type { TestimonialTexts, TestimonialView } from '@morphemecms/cms/src/standard/testimonials/view';
+import type { TestimonialView } from '@morphemecms/cms/src/standard/testimonials/view';
 import { useOnSite } from '@morphemecms/cms/src/standard/view';
-import Testimonial from '@theme/blocks/testimonials/Testimonial';
 import Chip from '@theme/ui/Chip';
+import RowList, { ListItem } from '@theme/ui/List';
 
 const say = siteT.blocks.testimonials;
 
 export default function List({
   testimonials,
-  texts,
   filters,
   className,
 }: {
   testimonials: TestimonialView[];
-  texts: TestimonialTexts;
   filters: { slug: string; name: string }[];
   className?: string;
 }) {
@@ -34,13 +32,21 @@ export default function List({
           ))}
         </div>
       )}
-      <div className="block-testimonial-list">
+      <RowList className="block-testimonial-rows">
         {testimonials.map((t) => (
-          <div key={t.slug} data-tags={t.categories.join(' ')}>
-            <Testimonial testimonial={t} texts={texts} full />
-          </div>
+          <ListItem
+            key={t.slug}
+            id={t.anchor}
+            data-tags={t.categories.join(' ')}
+            leadingAvatar={t.image ? { src: t.image.src } : ([...t.name.trim()][0]?.toLocaleUpperCase() ?? '')}
+            overline={t.context || undefined}
+            headline={t.name}
+            supporting={t.quote.join(' ')}
+            lines={t.context ? 3 : 2}
+            trailingSupporting={t.tags.length ? t.tags.map((tag) => tag.name).join(', ') : undefined}
+          />
         ))}
-      </div>
+      </RowList>
     </div>
   );
 }

@@ -3,7 +3,7 @@
   "notes": [
     {
       "id": "morpheme-updates-itself",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Morpheme opdaterer sig selv",
       "text": "Din hjemmeside installerer nu nye opdateringer af Morpheme inden for en time og fortryder en, hvis hjemmesiden ikke kan bygges. Se Indstillinger › Morpheme."
     },

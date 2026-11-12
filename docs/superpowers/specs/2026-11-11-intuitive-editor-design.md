@@ -16,7 +16,7 @@ repeated as a question below.
 
 1. **Keep the current format: text and blocks.** The page stays one text with blocks in it. No new editor model.
 2. **Add "Body large" and "Label" to the text styles.** Read as: two new entries in the text-style menu `T`
-   (`text.kind`, `text.paragraph` … in `MarkdownEditor.tsx`), next to Heading, Subheading and Normal text. _(Confirmed by the owner: `T` is that menu; `Label` is the small line above a heading, which blocks call `eyebrow` today.)_
+   (`text.kind`, `text.paragraph` … in `MarkdownEditor.tsx`), next to Heading and Subheading (Body large, Body medium and Body small are Material 3's body scale; Body large is the plain paragraph). _(Confirmed by the owner: `T` is that menu; `Label` is the small line above a heading, which blocks call `eyebrow` today.)_
 3. **Remove all regular headings and text from blocks.** Read as: a block keeps only what is its own (rows, pictures,
    buttons, links), and the heading, subheading, label and intro text come from the text around it, in the text styles
    of decision 2. See finding 10.
@@ -209,7 +209,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
 
 ### 11. Text styles: Body large, Label, and the dotted section line
 
-- **Evidence:** the toolbar has `Heading (H1)` (pages only), `Heading`, `Subheading`, `Normal text`, lists and quote
+- **Evidence:** the toolbar has `Heading (H1)` (pages only), `Heading`, `Subheading`, `Normal text` (now Body large), lists and quote
   (`text.ts`). A section is an H2 and what follows (`sectionSettings`); its colour is a box on the site and in the editor.
 - **Fix:** decisions 2 and 4. `Body large` is Material 3's body-large role for an intro paragraph; `Label` the
   label-large role. Both are text styles stored in the markdown (the format of `text-colors.mjs` and `section-marker.mjs`
@@ -507,27 +507,59 @@ Checked on the built demo (`Blocks` page) with Playwright at 375 × 760 (touch, 
 
 ## Batches
 
-Each is one pull request into `main` (or `0.16` where marked), with a release note (`release-notes` skill) and, until
-0.15.1 is out, only a `patch` or empty changeset. Texts change in en-US first, then `da-DK`.
+This plan replaces the earlier letters A–M, which were written before the owner's decisions of 11 November. Each batch
+is one pull request (large ones are split as shown) with a release note (`release-notes` skill) where an owner sees the
+change, and a changeset as the PM's rule for its base branch allows. Texts change in en-US first, then `da-DK`. Sizes are
+rough: S is a day or less, M a few days, L about a week, XL more. The earlier batches B (plain words), C (first run) and D
+(build feedback) were started and archived, and nothing of them is on `main`, so they count as not built.
 
-| Batch | Contents (findings) | Screens touched | Touches 0.16? | Owner decision |
-| ----- | ------------------- | --------------- | ------------- | -------------- |
-| A | **Status made clear:** status in the top/save bar, hints under the field, list badges, save message (1, 2) | `FormFrame`, `EntryForm`, lists, `collections.ts` | no | Q1, Q2 |
-| B | **Plain words:** SEO terms, `CVR number`, hints, `Changing to this theme`, alt-text hint (4, 7, 9 wording) | i18n only, `collections.ts` | no | none |
-| C | **First run:** start card, status sentence, empty-page hint, browser-permission sentence (3, 6 hint, 8) | `Library`, `DashboardGrid`, `widgets/`, `EntryForm`, `notificationData` | no | none |
-| D | **Build feedback:** the `Updating…` chip until live (8) | top bar, `deploy.ts` | no | none |
-| E | **Menu and Settings regroup:** Appearance into the menu, Developer under Advanced, Logo and icon moved (5, 4, 9) | `MainMenu`, `defaults/editor.ts`, Settings | **yes**: Appstore, Settings › Assistants | Q3, Q4 |
-| G | **Text and blocks:** `Body large` and `Label` styles, dotted H2 line, editor opens on H1, blocks lose their head fields with a migration, sheet buttons (10, 11, 12) | `MarkdownEditor`, `BlockDialog`, `standard/*`, `theme/blocks/*`, `lib/section-marker.mjs` | no | none |
-| H | **Group similar blocks:** step 1 of finding 13, headings in the `Insert` picker and sharper hints (13) | `BlockDialog`, `blocks.ts` texts, `da-DK` | no | none |
-| I | **Merge the row blocks:** step 2 of finding 13, with a migration (13) | `standard/*`, `theme/blocks/*`, every theme | no | Q6 |
-| J | **Inline block editing:** fields fold out in the text, no sheet for block fields, one open at a time (14) | `MarkdownEditor`, `BlockDialog`, `sheetPlacement.mjs`, `editor.css` | no | none |
-| K | **WYSIWYG page:** the page head drawn in place (step 1); the frame (step 3) is dropped (15) | `EntryForm`, `MarkdownEditor`, `titleH1.mjs`, `Screen`, theme `editor/previews.tsx` | no | Q7 |
-| L | **Lists from lists:** `Rows from` on the three list blocks, tags filter, then `New list` with the fixed field set (16) | `standard/list*`, `Library` (`Lists`), `site.ts`, `lib/` (list definitions), build | **yes**: `Dynamic lists`, app lists | none |
-| M | **Card block:** one Card with three designs (Filled with a colour) and a `Media` field, the next empty card, migration of Cards, dynamic cards after L (17) | `standard/cards`, `theme/blocks/cards/*`, every theme, `BlockDialog` | no | none |
-| F | **Blocks and pictures flow:** alt after pick, rename `Hide on the page`, sheet-close wording (6, 7) | `BlockDialog`, `Media`, `MarkdownEditor` | no | Q5 |
+### Spikes first
 
-Order: B and C first (no decision, no overlap). A after Q1 and Q2. D any time. **E waits for 0.16**: merge it into `0.16`
-or after it, never before the Appstore and Assistants rows exist. F after A, so the status word is settled. J replaces the sheet buttons of G (finding 12): build G without them and J after G and I, because it uses the single row editor. K step 1 goes with G (the H1 start, the same top of the text); step 3 last. L after 0.16 and after the list blocks of H and I exist; split part A (a block reads an existing list) from part B (`New list`), A first. H can go with B and C (no decision). I only after G, since both change the same block files and the same migration, and after the owner has seen H. G is the largest: split it at its tasks (text styles and the dotted line; the H1 start; the head fields with their migration; the sheet buttons), the migration last and only after the owner has seen the text styles. It changes what every theme draws, so `check:themes` and `check:demo` must pass.
+These are questions that change the plan, each a short read-only investigation or prototype with a written finding.
+
+| Spike | Question | Decides |
+| ----- | -------- | ------- |
+| S1 | What does the Cloudflare deploy step do when `ci-build` exits early (the third lane for drafts only)? | batch 12 |
+| S2 | Can the editor create and edit a table (Milkdown and `remark-gfm`)? | batch 10 |
+| S3 | A 375 px phone check of today's editor, the floating menu and a block's bottom sheet, with screenshots. | batches 5 and 6 |
+| S4 | Can an app add versions to a page (places, hooks, contract 5)? | the later versions app, not 0.17 |
+
+### The batches
+
+| # | Batch | Contents (findings and decisions) | Depends on | Size | Touches 0.16? | Owner decision |
+| - | ----- | --------------------------------- | ---------- | ---- | ------------- | -------------- |
+| 1 | **Plain words** | SEO terms, `CVR number`, hints, `Changing to this theme`, alt-text hint; the status words `Published` and `Draft` only (findings 2, 4, 7, 9) | none | S | no | none |
+| 2 | **First run** | Start card, empty-page hint, browser-permission sentence (3, 6, 8); no H1 hint (decision 5 replaces it) | none | S | no | none |
+| 3 | **Build feedback** | The `Updating…` chip until the site is live (8) | none | S | no | none |
+| 4 | **Text styles and the title** | `Body large`, `Label`, `Check list` in the `T` menu; the dotted H2 line (always in the editor); the editor opens on H1; the title and the H1 follow each other (decisions 1, 2, 4, 5; findings 11, 15) | none | M | no | none |
+| 5 | **Inline pattern, pilot on List** | The in-place pattern on the List block only: typed in place, the active row, the next empty row, the context-aware floating menu, settings in the side panel and the bottom sheet, no `Save` of its own, head fields removed with the migration (decisions 3, 6, 14; findings 12, 14) | S3 | L | no | none |
+| 6 | **Roll the pattern out** | The same on the Steps, Buttons, Notice, Video, Price cards and the FAQ rows; Testimonials and Cookies as a drawn preview with an `Edit` link (18) | 5 | L | no | none |
+| 7 | **The list blocks** | List, Segmented list (with `Only one open` and the text button) and FAQ list; Links, Points with icon and Expandable list fold in with migrations; the Checklist block becomes a check list in the text; the `Insert` picker groups (8, 9, 10, 13, 18) | 5, 4 | L | no | none |
+| 8 | **Section settings** | Section colours (Surface, Primary, Secondary, Tertiary, none; Tint migrates to Surface); a background picture and width; the Banner block folds into a section with its migration (11, 15, 18; question 8) | 4 | M | no | none |
+| 9 | **The Card block** | One Card with three designs (Outlined, Elevated, Filled with a colour), the `Media` field, buttons, whole-card link or buttons, the next empty card, migration of Cards (17) | 5, 8 | L | no | none |
+| 10 | **The Table block** | A new block with typed cells, the next row and column, `Add row` and `Add column`, a header row on by default (18) | 5, S2 | M | no | none |
+| 11 | **Page head and Preview** | The title, top picture, date and tags drawn in the text for a page and a post; `Preview` full screen with the breakpoint bar and heights (15; question 7) | 4 | L | no | none |
+| 12 | **Drafts and Publish** | The draft file in git; `Save`, `Publish changes`, `Unpublish`, `Discard changes`, `Schedule`; two statuses with `unlisted` and `scheduled` migrated and the SEO setting; the `ci-build` lane for drafts only; the version list kept ready for an app (1, 2, question 2) | S1, 1 | XL | maybe: an app place for the version switch | none |
+| 13 | **Autosave** | With `R2 caching` on: autosave to R2, written to git on leaving or a long idle, and the status `Saving…` / `Saved` / `Not saved` (question 2) | 12 | L | no | none |
+| 14 | **Live and scheduled versions** | The `Live` / `Scheduled` switch, editing either version, and the warning when a page has a waiting version (question 2) | 12 | M | no | none |
+| 15 | **Pictures and block flow** | Alt text after a picture is picked, the `Hide on the page` wording, the closing of a sheet (6, 7) | 5 | S | no | none |
+| 16 | **Lists from lists** | `Rows from` on the list blocks, the tag filter, `How many`, `Show all`, `Dynamic` in the block name, then `New list` and the list's own page; dynamic cards after the Card block (16, 17) | 7, 9, and 0.16 | XL, split A (a block reads an existing list) then B (`New list`) | **yes**: `Dynamic lists`, app lists | none |
+| 17 | **Menu and Settings regroup** | Appearance into the menu, Developer under Advanced, Logo and icon moved; the renames (5, 4, 9; questions 3, 4) | **0.16** | M | **yes**: Appstore, Settings › Assistants | Q3, Q4 |
+
+### Order
+
+1. **Now, in parallel:** batches 1, 2 and 3 (small, no decision, no overlap) and the spikes S1 to S3.
+2. **Foundation:** batch 4, then batch 5 (the pilot) once S3 has been read. Batch 5 is where the owner sees the new way of editing for the first time, so nothing after it starts until the owner has seen it.
+3. **Then in parallel, as the files allow:** batches 6, 7, 8 and 11. Batches 6 and 7 both change `standard/*` and the block migrations, so one of them goes first (7, the lists). Batch 9 after 8, batch 10 after S2.
+4. **Drafts:** batch 12 after S1 and batch 1, then 13 and 14. It touches the form the owner meets every day, so it ships as one release with batch 4 and the owner's note.
+5. **After 0.16:** batch 16 (its part A first) and batch 17, which wait for the Appstore and Assistants rows.
+6. **Every batch** that changes what a theme draws (5 to 11) must pass `check:themes` and `check:demo`, and each migration is shown to the owner before it is merged.
+
+**The split (settled, owner, 11 November):** 0.17 has batches 1 to 4, 7, 8 and 12 to 14 (words, first run, build
+feedback, text styles and the title, the list blocks, section settings, drafts and Publish, autosave, and the live and
+scheduled versions). Batches 5, 6, 9, 10, 11 and 15 (the in-place pilot and its roll-out, the Card, the Table, the page
+head with the full-screen Preview, and the picture flow) wait for 0.18, after the owner has seen the pilot. Batches 16
+and 17 come after 0.16.
 
 ## Spike S1: the deploy step when `ci-build` ends early (decides drafts, finding 1 and question 2)
 
@@ -599,7 +631,7 @@ preset watch paths; if not, test the fallback's build time on `morpheme-staging`
      command (`wrangler preview`) when Previews are on, and starter sets `"previews": {}`, so it still builds; it would
      need Previews off per site (dashboard again) or a branch the build never sees. It also splits history and
      makes Publish a cross-branch merge. Not recommended.
-   - **R2 for sites with Faster editor** (`FILES`): no git commit, no build, instant. Only some sites have R2, so drafts
+   - **R2 for sites with R2 caching** (`FILES`): no git commit, no build, instant. Only some sites have R2, so drafts
      would live in two places and need their own copy and backup rules. Good as a later extra, not as the default.
 
 **Recommendation.**
@@ -695,7 +727,20 @@ contract is needed, only a `slots` field in `AppDefinition`.
    functions the editor calls, so an app can call the same ones; (3) the scheduled publish is run by the site's Worker on
    its schedule, not by the browser, so it works when nobody is signed in; (4) the version switch is a place an app can
    extend (apps already have places, `src/AppPlaces.tsx`). Whether apps can add versions to a page is checked when the app
-   is planned. Open: where the draft is kept.
+   is planned. **Where the draft is kept (owner, 11 November):** the waiting version is a file in git, on every site, so it is
+   versioned and backed up. `Save` commits it as a separate draft file (for example `drafts/<page>.md`), which the build
+   skips, so the live page does not change; `Publish changes` commits the draft into the real page file and removes the
+   draft file; `Discard changes` removes it; `Schedule` uses the Worker's existing hourly job. A page never published is a
+   draft as it is today (`status: draft`). **Autosave is added when `R2 caching` is on** (`Settings › Caching and builds`,
+   the R2 cache, `worker/files.js`): the Worker keeps the draft current in R2 as the owner types, with no commit and no
+   build. Without `R2 caching` there is no autosave, and the status shows `Not saved` until the owner presses `Save`.
+   The draft in R2 is written to git when the owner leaves the page or has been idle for several
+   minutes (owner, 11 November, not on every pause), so an editing session makes only a few commits and git still holds
+   the draft. The idle time is set when it is built. Each such commit starts a site build, though the finished site does
+   not change; `morpheme ci-build` (`scripts/ci-build.mjs`) gets a third lane (owner, 11 November): when only draft files changed
+   since the live commit, it stops at once without building, so a draft commit costs seconds, not a build. It ships with
+   the CMS, so every site has it, and no Cloudflare key is needed. To check when it is built: what the deploy step does
+   when the build command exits early.
 3. **Regroup the menu (Appearance out of Settings) in 0.17?** Recommended: yes, after 0.16, in one pass. Alternative: leave the menu.
 4. **May we rename `Dynamic lists`, `Block templates`, `Files` (and `Business`)?** Recommended: yes, but only when the screens
    have been opened and checked; the Danish names change with them.
@@ -706,8 +751,8 @@ contract is needed, only a `slots` field in `AppDefinition`.
    The stored `unlisted` value is migrated: a page with it stays published, with the SEO setting turned on, so no page
    changes. `CLAUDE.md` section 6 lists `Draft`, `Published`, `Scheduled`, `Hidden` as the status words, so that line
    changes with this.
-6. **Only group the similar blocks in the picker, or also merge them into fewer blocks (`Rows`, `Questions`)?** Recommended:
-   group first (batch H), look at it, then decide on the merge (batch I). The merge is larger and changes every theme.
+6. **Only group the similar blocks in the picker, or also merge them into fewer blocks (`Rows`, `Questions`)?** Settled by the owner's
+   decisions on the lists (decisions 8 and 9, findings 13 and 18): three list blocks, built in batch 7.
 7. **The page head is drawn in the text (settled for the head, owner, 11 November).** A page and a blog post look as
    close to the site as they can in the editor: the title, the top picture, the date and the tags are drawn in the text as
    the site shows them (step 1). **The optional frame with the site's header and footer (step 3) is dropped (owner,

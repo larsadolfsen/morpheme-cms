@@ -20,6 +20,7 @@ import { rehypeVideo } from './lib/video.mjs';
 import { rehypeEmphasize } from './lib/rehype-emphasize.mjs';
 import { remarkBannerSections } from './lib/remark-banner-section.mjs';
 import { remarkChecklists } from './lib/remark-checklist.mjs';
+import { remarkListHeads } from './lib/remark-list-head.mjs';
 import { csp, joined } from './lib/csp.mjs';
 import { appBuilds, appFoldersPlugin } from './lib/apps.mjs';
 import { appSelf } from './site/appSelf.mjs';
@@ -113,7 +114,8 @@ export async function siteConfig() {
       processor: unified({
         // A Banner block that stands alone in its section is read as the section it has become (lib/remark-banner-section.mjs).
         // A Checklist block is read as the check list it has become (lib/remark-checklist.mjs).
-        remarkPlugins: [remarkBannerSections, remarkChecklists],
+        // A List's label, heading and intro are the text's own lines above it (lib/remark-list-head.mjs).
+        remarkPlugins: [remarkBannerSections, remarkChecklists, remarkListHeads],
         rehypePlugins: [
           // HTML written in the Markdown (tables, iframes, links) as elements before the plugins below,
           // so they see it too (Astro would parse it only after them).

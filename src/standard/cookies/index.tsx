@@ -8,6 +8,7 @@ import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 
 export default defineBlock({
+  group: 'content',
   label: t.blocks.cookies.label,
   icon: Cookie,
   hint: t.blocks.cookies.hint,
