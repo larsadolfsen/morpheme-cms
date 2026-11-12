@@ -330,6 +330,59 @@ async function checkHints() {
   }
 }
 
+/** The text's toolbar and field read as one closed box on a phone, empty, with the keyboard open and stuck at the top of the screen: the toolbar has a border on its top edge and on each side, and rounded top corners that keep the border. */
+async function checkToolbarBox() {
+  for (const [width, height] of [
+    [360, 740],
+    [375, 740],
+    [414, 740],
+    [360, 380],
+  ]) {
+    const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${width}px toolbar box: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#new/pages'));
+    await page.waitForSelector('.editor-tools');
+    const read = () =>
+      page.evaluate(() => {
+        const bar = document.querySelector('.editor-tools');
+        const cs = getComputedStyle(bar);
+        const side = (n) => `${cs[`border${n}Style`]} ${parseFloat(cs[`border${n}Width`])}px ${cs[`border${n}Color`]}`;
+        return {
+          top: [cs.borderTopStyle, parseFloat(cs.borderTopWidth), cs.borderTopColor],
+          left: parseFloat(cs.borderLeftWidth),
+          right: parseFloat(cs.borderRightWidth),
+          radius: [cs.borderTopLeftRadius, cs.borderTopRightRadius],
+          line: cs.getPropertyValue('--toolbar-docked-line-width').trim(),
+          side: side('Top'),
+        };
+      });
+    const states = { 'at rest': read };
+    const check = (name, got) => {
+      if (got.top[0] === 'none' || got.top[1] < 1 || got.top[2] === 'rgba(0, 0, 0, 0)')
+        problems.push(`${width}x${height}px text toolbar (${name}): its top edge has no border (${got.side})`);
+      if (parseFloat(got.line) < 1)
+        problems.push(
+          `${width}x${height}px text toolbar (${name}): the docked rule's own top line is ${got.line}, so it would leave the top edge open where it wins`,
+        );
+      if (got.left < 1 || got.right < 1) problems.push(`${width}x${height}px text toolbar (${name}): a side has no border`);
+      if (got.radius.some((r) => parseFloat(r) < 1))
+        problems.push(`${width}x${height}px text toolbar (${name}): a top corner is not rounded (${got.radius})`);
+    };
+    for (const [name, fn] of Object.entries(states)) check(name, await fn());
+    // Stuck at the top of the screen, while scrolling through a long text.
+    await page.click('.ProseMirror');
+    for (let i = 0; i < 40; i++) {
+      await page.keyboard.type('Some text on a line');
+      await page.keyboard.press('Enter');
+    }
+    await page.evaluate(() => window.scrollBy(0, 400));
+    await page.waitForTimeout(200);
+    check('stuck', await read());
+    await page.close();
+  }
+}
+
 /** A section of the whole width (`width` full) reaches the text field's left, right and top edges; one of the text's width stays inset. */
 async function checkFullWidthSection() {
   for (const width of [375, 1280]) {
@@ -866,6 +919,7 @@ for (const width of [360, 375, 414]) await checkTextSheet(width);
 await checkEmptyHint();
 await checkHints();
 await checkFullWidthSection();
+await checkToolbarBox();
 await checkPreviewSection();
 
 await browser.close();
