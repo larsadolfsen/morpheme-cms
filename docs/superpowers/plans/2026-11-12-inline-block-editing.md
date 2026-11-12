@@ -73,8 +73,12 @@ simplest in-place block, with no slots and no sheet.
 **Acceptance (screens, phone 375 px and computer):** the add button text, the dotted outline, no background, the faded empty step hidden once
 there is a step, the toolbar icons without Link or Edit, and the saved props are the same as before (`items: [{ title, text }]`).
 
-**Open for the owner**
+**Owner decisions (2026-11-12)**
 
-- Does a step with a heading but no text stay valid? Today both fields are required; typing in place makes empty text natural.
-- Should the numbers be editable (start at another number)? Not today; I suggest no.
-- Paste-to-create: a pasted list of lines becomes steps (heading per line)?
+- A step with a heading and no text is valid: the text field stops being required (a change to the field when this is built).
+- The numbers are not editable: steps always start at 1.
+- Paste-to-create: open, the owner asked what it means (see the next line).
+
+**Paste-to-create, in one example:** the owner copies a list from a document (`Order\nPay\nGet it`) and pastes it into an empty Steps
+block. Each line becomes a step with that line as its heading, instead of one long heading with line breaks in it. It would work the
+same in Checklist and Questions and answers. It is a nice-to-have, not needed for the first version of Steps.
