@@ -237,3 +237,56 @@ export default defineApp({
   },
 });
 ```
+
+## Blocks typed in place (`inline`)
+
+A block can be typed where it stands in the text, with no sheet, instead of being filled in a sheet. The editor's standard blocks List and Cards are the first. A block opts in with `inline` in its `defineBlock` (`InlineSpec`, `src/blocks.ts`); an app's block (`src/apps/<app>/blocks/<type>/index.tsx`) is defined with the same `defineBlock`, so the definition is the same. The plan is in `docs/superpowers/specs/2026-11-12-inline-block-editing-design.md` (row *An app's blocks*) and `docs/superpowers/plans/2026-11-12-inline-block-editing.md`.
+
+> [!WARNING]
+> **An app cannot use `inline` yet. Do not set it in an app's block.** What the editor needs is not open to an app:
+>
+> - The drawing is looked up by the block's type in `inlineViews` (`src/inlineViews.tsx`), a fixed list inside the editor. An app has no way to add its view to it. The check in `MarkdownEditor.tsx` (`!!block?.inline && !!inlineViews[type]`) is false for an app's block, so its card stays the button that opens the sheet.
+> - A new block with `inline` is put in at once, without a sheet (`BlockDialog.tsx`). For an app's block with no view this would insert an empty block and give no way to fill it in.
+> - The shared parts (`InlineItems`, `InlineField`, `InlineSlot` and `InlineAdd` in `src/InlineItems.tsx`) are not among the modules an app may import (*Imports* above). A block is a `full` build place, so only a first-party publisher's app can import them from the package's source today; there is no stable path for it.
+>
+> What is missing: a way for an app to give the editor its view (for example an `inline` view next to `View.tsx` that `registry.tsx` collects the way it collects `viewOf.ts`), and a stable import for the shared parts. No app is moved until that exists, and then each app is moved in its own pull request.
+
+### The definition
+
+```ts
+inline: {
+  item: 'items',            // the name of the list field that holds the items
+  fields: ['title', 'text'], // the typed fields of an item, in the order the cursor goes
+  icon: 'icon',             // the field picked in the icon slot (or `media: [...]` for a card's media)
+  link: 'href',             // the field picked in the link slot (or `settings: [...]`)
+  blockSettings: false,     // true when the block has settings besides its items: its menu keeps Edit
+  texts: { addAbove, addBelow, link, row, settings, icon }, // the toolbar's and the item's words, in the editor's language
+},
+```
+
+The block's own markup is a component in `src/inlineViews.tsx`, built on the shared parts of `src/InlineItems.tsx`, and the block adds one entry to `inlineBlocks` in `scripts/editor-screens.mjs` so `check:screens` opens it on a phone.
+
+### Worked example: List
+
+`src/standard/list/index.tsx` has the items in `items` (each with `icon`, `title`, `text` and `href`) and says:
+
+```ts
+inline: {
+  item: 'items',
+  fields: ['title', 'text'],
+  icon: 'icon',
+  link: 'href',
+  texts: { addAbove: t.blocks.list.addAbove, addBelow: t.blocks.list.addBelow, link: t.blocks.list.link,
+           row: t.blocks.list.row, settings: t.blocks.list.rowSettings, icon: t.blocks.list.icon },
+},
+```
+
+So the heading and text of each row are typed in place, the icon and the link are slots, and `src/InlineList.tsx` (registered as `list` in `inlineViews`) draws the rows as the site draws them.
+
+### Rules every block follows
+
+- Only text is typed in place. Everything that is not text (icon, picture, link, dates, choices) stays in the sheet.
+- The block has no label or heading in place: a heading above the block is the text's own.
+- Only the active item shows its empty fields; the others show their live look.
+- `Add` (for example `Add list row`) is a text button below the last item, shown only while the block is active.
+- Words follow the word-choice rules (short, active verbs), in English first with the Danish in `i18n/da-DK/`.

@@ -1,5 +1,0 @@
-{
-  "id": "remove-small-heading-row",
-  "kind": "line",
-  "text": "Small heading is gone from List row settings; a row that had it stays as a plain row with the same text"
-}
