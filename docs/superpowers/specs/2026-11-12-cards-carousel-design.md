@@ -72,7 +72,9 @@ needs. New for the cards:
   card needs room above and below the row for its shadow, which `overflow-x: auto` would clip: `padding-block` on the row.
 - M3's measurements are set for the Cards carousel on `.block-cards-carousel`: `--carousel-gap: 0.5rem` (8 dp; the theme's default
   is 1 rem), `padding-block` 0.5 rem (8 dp), and the card's corners are the carousel's `--carousel-item-radius` (28 dp, the
-  theme's extra-large shape) so that the item and the card are one shape. `--carousel-bleed` stays the page's gutter (1.25 rem).
+  theme's extra-large shape) so that the item and the card are one shape. The row still reaches the phone's edges (negative margin
+  of `--carousel-bleed`, the page's 1.25 rem gutter), but its leading padding and `scroll-padding-inline` are set to 1 rem
+  (16 dp) instead of the bleed, so the first card starts 16 dp from the screen edge, 4 px left of the text above it, as M3 says.
   `--carousel-dot-*` as they are.
 - `check:themes` (`scripts/check-themes.mjs`) builds the demo with each theme and opens every screen. Add a demo page with a
   Carousel-on-phones Cards block, so each theme is checked with it, and make `check:themes` fail a theme that leaves
@@ -85,7 +87,7 @@ needs. New for the cards:
 | Layout best for text-heavy items | Uncontained. |
 | Items bleed past the padding, the next peeks in | The theme's uncontained row (86 % items, `--carousel-bleed`). |
 | Gap 8 dp, top and bottom padding 8 dp, corners 28 dp | Set on `.block-cards-carousel` (above). |
-| Leading padding 16 dp | The page's gutter, 1.25 rem (20 px), so the first card lines up with the text (see Remaining deviations). |
+| Leading padding 16 dp | 1 rem on the row, with `scroll-padding-inline` the same, so the cards rest 16 dp from the edge. |
 | Up to two lines of text at compact widths unless the background is simple | A card's surface is one colour (outlined, filled or elevated), which M3 counts as simple; the card's text is clamped by the theme as it is in the grid. |
 | Snap-scrolling is for multi-browse, hero and full-screen; uncontained may use either | Snap on (`scroll-snap-type: x mandatory`, already the theme's). |
 | A way to see all items without sideways scrolling | `Show all` (below). |
@@ -135,27 +137,26 @@ needs. New for the cards:
 - **Keyboard and labels (`check:screens`, phone):** Tab reaches the first card and not the container; the arrow keys move
   between cards and scroll them into view; each item reads `n of N`; the container has a label; `Show all` expands the cards
   in place and `Show fewer` returns them, with focus kept on the button; without `.js` the cards are stacked and there is no button.
-- **Measurements (`check:screens`, computed style at 375 px):** gap 8 px, vertical padding 8 px, the card's corners 28 px.
+- **Measurements (`check:screens`, computed style at 375 px):** gap 8 px, vertical padding 8 px, leading padding 16 px, the card's corners 28 px.
 - **Reduced motion:** with `prefers-reduced-motion`, the carousel's dots jump (no smooth scroll), as in `carousel.script.ts`.
 - **Release note:** one *line* (the setting changes what a site shows, but it is opt-in): English and Danish with
   the `release-notes` skill. Changeset: `minor` into a version line that allows it; into `main` `patch` until 0.15.1 is out.
 
 ## Remaining deviations from Material 3
 
-1. **Leading padding is 20 px (the page's gutter), not 16 dp**, so the first card lines up with the text above it. M3's 16 dp is
-   the inset from the screen edge of an app; on a site the page's gutter is the nearest equal. Changing the gutter for one block
-   would misalign it with the rest of the page.
-2. **`Show all` expands the cards in place instead of opening a dedicated page.** M3's recommendation is a page of all items; we
+The owner's condition is that the carousel follows M3, so only these two remain; both were asked for.
+
+1. **`Show all` expands the cards in place instead of opening a dedicated page.** M3's recommendation is a page of all items; we
    have no such page for a block, and a page per block is out of proportion. The requirement itself (all items reachable without
    sideways scrolling) is met, and the PM and owner asked for it in place.
-3. **Larger screens show a grid, not a carousel** (the setting is `On phones`). M3 shows more items at once on larger screens; the grid
+2. **Larger screens show a grid, not a carousel** (the setting is `On phones`). M3 shows more items at once on larger screens; the grid
    shows all of them.
 
 ## Open questions, with my recommendation
 
 1. **Phone only, or larger screens too?** Recommend phone only: the grid shows all cards, which is M3's accessibility rule, and a
    carousel of cards on a computer hides content for nothing. If the owner wants it, a later `On tablets` is a new value.
-2. **`Show all` in place, or a page?** Recommend in place (deviation 2): no new route, no extra build output, works with the
+2. **`Show all` in place, or a page?** Recommend in place (deviation 1): no new route, no extra build output, works with the
    editor's Preview and the demo. A dedicated page would follow M3 to the letter and is a larger build.
 3. **One markup or two?** Recommend one: the `Carousel` markup drawn for the cards and turned into the grid by CSS at `medium`,
    not two lists with one hidden. It keeps one copy of the text and pictures for search and screen readers; the cost is that a
