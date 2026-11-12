@@ -55,15 +55,14 @@ test('when Undo and Redo wrap, Section settings stays before them', () => {
   ]);
 });
 
-test('when the link has no room either, it wraps after Section settings and before Undo and Redo; Insert stays', () => {
-  const order = names(arrangeTools(natural, 'priority'));
-  assert.deepEqual(order, ['bold', 'italic', 'h2', 'style', 'bullet', 'check', 'ordered', 'insert', 'settings', 'link', 'undo', 'redo']);
-  assert.ok(order.indexOf('insert') < order.indexOf('link') && order.indexOf('insert') < order.indexOf('undo'));
+test('the link never moves: Bold, Italic and the link are the first three tools in every arrangement', () => {
+  for (const mode of ARRANGEMENTS) assert.deepEqual(names(arrangeTools(natural, mode)).slice(0, 3), ['bold', 'italic', 'link'], mode);
+  assert.deepEqual(names(arrangeTools(natural, 'priority')), names(arrangeTools(natural, 'mid')));
 });
 
-test('only when nothing else fits Italic and the lists wrap too and before the link; Insert and Section settings stay', () => {
+test('only when nothing else fits the lists wrap too, before Undo and Redo; Insert and Section settings stay', () => {
   const order = names(arrangeTools(natural, 'bare'));
-  assert.deepEqual(order, ['bold', 'h2', 'style', 'insert', 'settings', 'italic', 'bullet', 'check', 'ordered', 'link', 'undo', 'redo']);
+  assert.deepEqual(order, ['bold', 'italic', 'link', 'h2', 'style', 'insert', 'settings', 'bullet', 'check', 'ordered', 'undo', 'redo']);
 });
 
 test('the lists are one group in every arrangement', () => {
@@ -86,19 +85,6 @@ test('without Section settings the same order holds', () => {
     'check',
     'ordered',
     'insert',
-    'undo',
-    'redo',
-  ]);
-  assert.deepEqual(names(arrangeTools(without, 'priority')), [
-    'bold',
-    'italic',
-    'h2',
-    'style',
-    'bullet',
-    'check',
-    'ordered',
-    'insert',
-    'link',
     'undo',
     'redo',
   ]);
