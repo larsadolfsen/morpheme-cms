@@ -327,7 +327,7 @@
   --switch-handle-surface: var(--mo-outline);
   --switch-handle-checked-surface: var(--mo-on-primary);
   --switch-icon-color: var(--mo-surface-container-highest);
-  --switch-icon-checked-color: var(--mo-primary);
+  --switch-icon-checked-color: var(--mo-on-primary-container);
   --switch-disabled-opacity: 0.38;
   /* Radio buttons: 20px, the name after 16px (M3's 48px target around it), as the checkbox. */
   --radio-button-size: 1.25rem;
@@ -718,6 +718,15 @@
   }
   .switch:hover .switch-input:enabled:checked + .switch-handle::before {
     background: var(--mo-primary-hover);
+  }
+  /* Focused and pressed: 10%, as M3's state layers (hover is 8%). */
+  .switch .switch-input:enabled:focus-visible + .switch-handle::before,
+  .switch .switch-input:enabled:active + .switch-handle::before {
+    background: var(--mo-pressed);
+  }
+  .switch .switch-input:enabled:checked:focus-visible + .switch-handle::before,
+  .switch .switch-input:enabled:checked:active + .switch-handle::before {
+    background: color-mix(in srgb, var(--mo-primary) 10%, transparent);
   }
   .switch:hover .switch-input:enabled:not(:checked) + .switch-handle,
   .switch-input:enabled:active:not(:checked) + .switch-handle {

@@ -23,7 +23,7 @@ export const THEME_PARTS = [
   { id: 'SegmentedButton', group: 'ui', prefixes: ['segmented-button'] },
   { id: 'SplitButton', group: 'ui', prefixes: ['split-button'] },
   { id: 'Switch', group: 'ui', prefixes: ['switch'] },
-  { id: 'SettingRow', group: 'ui', prefixes: ['setting-row'] },
+  { id: 'SettingRow', group: 'ui', prefixes: ['setting-row', 'setting-list'] },
   { id: 'RadioButton', group: 'ui', prefixes: ['radio-button', 'radio-group'] },
   { id: 'Slider', group: 'ui', prefixes: ['slider'] },
   { id: 'Divider', group: 'ui', prefixes: ['divider'] },

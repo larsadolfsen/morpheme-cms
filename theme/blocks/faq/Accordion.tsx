@@ -12,12 +12,29 @@ import { Svg } from '@morphemecms/cms/src/icon';
 import { Link } from '@morphemecms/cms/src/standard/view';
 import type { AccordionRow } from '@morphemecms/cms/src/standard/faq/view';
 
-export default function Accordion({ rows, group, several }: { rows: AccordionRow[]; group?: string; several?: boolean }) {
+export default function Accordion({
+  rows,
+  group,
+  several,
+  cut,
+}: {
+  rows: AccordionRow[];
+  group?: string;
+  several?: boolean;
+  /** `Max rows` of "Segmented list": the rows from this one on are extra (MoreRows.tsx). */
+  cut?: number;
+}) {
   const own = useId();
   return (
     <div className="block-accordion">
       {rows.map((row, i) => (
-        <details key={i} name={several ? undefined : (group ?? own)} className="block-accordion-row">
+        <details
+          key={i}
+          name={several ? undefined : (group ?? own)}
+          className="block-accordion-row"
+          {...(cut !== undefined && i >= cut ? { 'data-extra': '' } : {})}
+          {...(cut !== undefined && i === cut - 1 ? { 'data-edge': '' } : {})}
+        >
           <summary className="block-accordion-label">
             {'icon' in row && row.icon && <Svg name={row.icon} size={24} className="block-accordion-lead" />}
             <span className="block-accordion-title">{row.label}</span>

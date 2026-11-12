@@ -3,19 +3,19 @@
   "notes": [
     {
       "id": "page-templates",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Pick a template for each page",
       "text": "Choose how a page is laid out from the templates your theme offers, like single, full or with a sidebar. Template replaces the old Wide and Side options."
     },
     {
       "id": "header-footer-screens",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Edit your header and footer",
       "text": "Appearance now has a screen each for Header and Footer, with every setting and a live preview on a phone and a computer. You can also add an action button to the header."
     },
     {
       "id": "loading-indicators",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "See when a button is working",
       "text": "Buttons now show a loading indicator while their action runs, for example Save, Install, Update and Uninstall."
     },

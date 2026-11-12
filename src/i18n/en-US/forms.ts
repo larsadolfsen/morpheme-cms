@@ -130,6 +130,14 @@ export const forms = {
     draftLine: 'Draft',
     waitingLine: 'Unpublished changes',
     publishedLine: (when: string) => `Published · Changed ${when}`,
+    /** The line under the title while changes to a published page are not saved yet (autosave, with R2 caching on). */
+    autosave: {
+      saving: 'Saving…',
+      saved: 'Saved',
+      notSaved: 'Not saved',
+      /** After opening a page that had changes the editor kept for you. */
+      restored: 'Your unsaved changes are back',
+    },
     /** After saving changes to a published page: the website keeps the version it has. */
     savedWaiting: 'Changes saved. The website shows the published version until you publish.',
     unpublishTitle: (post: boolean) => `Unpublish this ${post ? 'post' : 'page'}?`,
@@ -162,6 +170,11 @@ export const forms = {
   },
   /** A blog post or page (EntryForm.tsx); `post`: a blog post, else a page. */
   entry: {
+    titleTakenTitle: 'Title already used',
+    titleTakenText: (post: boolean) =>
+      `Another ${post ? 'post' : 'page'} has this title. Save with the suggested title, or write your own.`,
+    titleStillTaken: 'Another file has that title too. Try this one, or write your own.',
+    titleLabel: 'Title',
     titleNeedsLetters: 'The title must have letters or digits.',
     /** Planlagt (scheduled), with a time that has passed. */
     scheduledPast: 'The time has already passed. Choose a later time, or choose Published.',

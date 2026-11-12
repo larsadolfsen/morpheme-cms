@@ -1,5 +1,5 @@
-// "Testimonials", a standard block: testimonials to leaf through or one after another with the whole text (`layout`
-// 'list'), with a heading: those with any of the block's tags (all without tags), those marked "Show on the front page", or
+// "Testimonials", a standard block: testimonials as cards to leaf through (`layout` 'cards', the default) or as rows with the whole text, in
+// the theme's list (`layout` 'list'; a `layout` 'slider' from before is 'cards', FORMER in lib/blocks.mjs), with a heading: those with any of the block's tags (all without tags), those marked "Show on the front page", or
 // those picked. The testimonials are in the list the block brings ("Testimonials", list.ts; the relation `testimonials`,
 // and BlockData.testimonials). How it looks is the theme's (packages/editor/theme/blocks/testimonials/View.tsx; what it shows: view.ts, and load.ts on the site).
 import { Columns, Quotes, Rows } from '@phosphor-icons/react';
@@ -45,10 +45,10 @@ export default defineBlock({
       label: t.blocks.testimonials.layout,
       type: 'select',
       segments: true,
-      default: 'slider',
+      default: 'cards',
       hint: t.blocks.testimonials.layoutHint,
       options: [
-        { label: t.blocks.testimonials.slider, value: 'slider', icon: Columns },
+        { label: t.blocks.testimonials.cards, value: 'cards', icon: Columns },
         { label: t.blocks.testimonials.list, value: 'list', icon: Rows },
       ],
     },

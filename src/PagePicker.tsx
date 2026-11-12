@@ -84,20 +84,20 @@ function usePageSheet({ value, groups, required, title, hint, onChange }: Sheet)
       {tools.chips}
       <SheetList div>
         {!required && !q && !tools.filtered && (
-          <Choice role="option" selected={!value} onClick={() => pick('')}>
-            <span className={value ? 'text-on-surface-variant' : ''}>{t.forms.noPage}</span>
-          </Choice>
+          <ul>
+            <Choice role="option" selected={!value} onClick={() => pick('')}>
+              <span className={value ? 'text-on-surface-variant' : ''}>{t.forms.noPage}</span>
+            </Choice>
+          </ul>
         )}
         {found.map((g) => (
           <section key={g.title} className="mt-2">
             {groups.length > 1 && <SheetGroupTitle>{g.title}</SheetGroupTitle>}
             <ul>
               {g.options.map((o) => (
-                <li key={o.value}>
-                  <Choice role="option" selected={o.value === value} onClick={() => pick(o.value)}>
-                    {o.label}
-                  </Choice>
-                </li>
+                <Choice key={o.value} role="option" selected={o.value === value} onClick={() => pick(o.value)}>
+                  {o.label}
+                </Choice>
               ))}
             </ul>
           </section>
