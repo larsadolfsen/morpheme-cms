@@ -56,6 +56,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AuthError,
   commit,
+  ConflictError,
   deletedFiles,
   loadBytes,
   loadFiles,
@@ -613,7 +614,7 @@ function Editor() {
       }
     },
     async removeMany(collection, picked) {
-      const { changes, kept } = bulkDeletion(picked, (f) => usedBy(collection, f, files ?? [])?.text);
+      const { changes, kept } = bulkDeletion(picked, (f: RepoFile) => usedBy(collection, f, files ?? [])?.text);
       const what = lower(collection.label);
       if (kept.length) notify({ text: t.app.notDeletedSome(kept.length, what, kept[0].reason), error: true, kind: 'failed' });
       if (!changes.length) return false;
