@@ -56,7 +56,7 @@ const missingIcon = (name) =>
     : 'an icon is not an SVG file (a question mark instead)';
 
 const fallbackIcon = (name) =>
-  `the icon "${name}" is from Material Symbols (not in the icon pack): give it an icon in each pack's map if it is to stay`;
+  `the icon "${name}" is from the whole of Material Symbols or Phosphor (not in the icon pack): give it an icon in each pack's map if it is to stay`;
 
 // The icons not found on the built site's pages: each one once, with the pages it is on.
 const problems = [];
@@ -404,6 +404,91 @@ async function checkInlineList(width, height) {
   await page.waitForTimeout(300);
   if ((await page.locator('[data-add-row]').count()) > 0)
     problems.push(`${label}: the button "Add list row" stays after the cursor left the list`);
+  await page.close();
+}
+
+/** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set, Material Symbols' ("arrow back") and Phosphor's ("acorn"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
+async function checkIconSearch(width, height) {
+  const label = `${width}px icon search`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('First');
+  await page.locator('.inline-list-row-active .inline-list-slot').first().tap();
+  const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
+  await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
+  const first = await picker.getByRole('button').count();
+  if (first !== 29) problems.push(`${label}: the first view has ${first} tiles instead of 29 (No icon and 28 icons)`);
+  if ((await picker.getByRole('button').first().getAttribute('aria-label')) !== 'No icon')
+    problems.push(`${label}: the first tile is not "No icon"`);
+  const search = page.getByRole('searchbox', { name: 'Search icons' });
+  if (!(await search.count())) return (problems.push(`${label}: no search field "Search icons"`), page.close());
+  const box = await search.boundingBox();
+  if (!box || box.x < 0 || box.x + box.width > width) problems.push(`${label}: the search field is outside the screen`);
+  await search.fill('zzzqqq');
+  await page
+    .getByText('No icons found', { exact: true })
+    .waitFor({ timeout: 8000 })
+    .catch(() => problems.push(`${label}: no "No icons found" for a search without a hit`));
+  await search.fill('arrow back');
+  const hit = picker.getByRole('button', { name: 'arrow back', exact: true });
+  await hit.waitFor({ timeout: 8000 }).catch(() => problems.push(`${label}: the search "arrow back" did not find the icon arrow back`));
+  if ((await picker.getByRole('button').count()) > 100) problems.push(`${label}: more than one page (100) of icons is drawn at once`);
+  // A category: the chips scroll, the first load is 100 icons, "Show more" loads 100 more; the category and the search combine.
+  await search.fill('');
+  const chip = page.getByRole('button', { name: 'Devices', exact: true });
+  await chip.scrollIntoViewIfNeeded().catch(() => {});
+  await chip.tap().catch(() => problems.push(`${label}: no category chip "Devices"`));
+  await page.waitForTimeout(400);
+  const loaded = () => picker.getByRole('button').count();
+  if ((await loaded()) !== 100) problems.push(`${label}: category Devices loaded ${await loaded()} icons first, not 100`);
+  // "Show more" (clicked without a scroll, which would load the next page by itself) loads 100 more; reaching the end of them loads more again.
+  const showMore = page.getByRole('button', { name: 'Show more', exact: true });
+  if (!(await showMore.count())) problems.push(`${label}: no "Show more" under 100 icons`);
+  await showMore.evaluate((b) => b.click()).catch(() => {});
+  await page.waitForTimeout(400);
+  if ((await loaded()) !== 200) problems.push(`${label}: "Show more" left ${await loaded()} icons, not 200`);
+  await showMore.evaluate((b) => b.scrollIntoView({ block: 'center' })).catch(() => {});
+  await page.waitForTimeout(800);
+  if ((await loaded()) <= 200) problems.push(`${label}: scrolling to the end of 200 icons loaded none more (${await loaded()})`);
+  await search.fill('phone');
+  await page.waitForTimeout(400);
+  const names = await picker.getByRole('button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  if (!names.length || names.some((n) => n && n !== 'No icon' && !n.toLowerCase().includes('phone')))
+    problems.push(`${label}: category Devices with the search "phone" shows icons that are not phones`);
+  await page
+    .getByRole('button', { name: 'Suggested', exact: true })
+    .scrollIntoViewIfNeeded()
+    .catch(() => {});
+  await page
+    .getByRole('button', { name: 'Suggested', exact: true })
+    .tap()
+    .catch(() => {});
+  // Phosphor's own icons are in the search too (acorn: Material Symbols has none of that name).
+  await search.fill('acorn');
+  await picker
+    .getByRole('button', { name: 'acorn', exact: true })
+    .waitFor({ timeout: 8000 })
+    .catch(() => problems.push(`${label}: the search "acorn" did not find Phosphor's acorn`));
+  await search.fill('arrow back');
+  await hit.waitFor({ timeout: 8000 }).catch(() => {});
+  await hit.tap().catch(() => {});
+  await page.waitForTimeout(500);
+  const drawn = await page.evaluate(() =>
+    document.querySelector('.inline-list-row-active .inline-list-slot svg')?.getAttribute('data-icon-fallback'),
+  );
+  if (drawn !== 'arrow_back') problems.push(`${label}: the picked icon is "${drawn}" in the row, not arrow_back`);
   await page.close();
 }
 
@@ -1161,6 +1246,13 @@ for (const [width, height] of [
   await checkDraftsCard(width, height);
 await checkEmptyHint();
 await checkInlineList(375, 740);
+for (const [width, height] of [
+  [360, 740],
+  [375, 740],
+  [390, 844],
+  [414, 896],
+])
+  await checkIconSearch(width, height);
 await checkHints();
 await checkFullWidthSection();
 for (const [width, height] of [

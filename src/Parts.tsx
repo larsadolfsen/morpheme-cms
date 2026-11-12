@@ -101,7 +101,7 @@ import {
 } from './ui';
 import { FieldList, Fields, useWrongField, WrongField, type FieldContext } from './fields';
 import { newValue, problemAt } from './check';
-import { Icon, iconOptions } from './icon';
+import { Icon, iconOptions, useAllIconNames } from './icon';
 import { examplePicture, exampleData } from './examples';
 import { exampleOf } from './blocks';
 import { siteBlocks } from './registry';
@@ -142,6 +142,8 @@ export default function Parts({ env }: { env: Env }) {
   const [mail, setMail] = useState(t.parts.fields.values.email.replace(/@.*/, '@'));
   const mailWrong = !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail.trim());
   const [icon, setIcon] = useState('heart');
+  const [searchIcons, setSearchIcons] = useState(false);
+  const allIcons = useAllIconNames(searchIcons);
   const [picture, setPicture] = useState(examplePicture);
   const [folded, setFolded] = useState<number | null>(0);
   const [sectionOpen, setSectionOpen] = useState<number | null>(0);
@@ -237,6 +239,8 @@ export default function Parts({ env }: { env: Env }) {
                 label={sample.icon}
                 value={icon}
                 options={iconOptions(t.blocks.icons)}
+                all={allIcons}
+                onSearch={() => setSearchIcons(true)}
                 icon={(name, size) => <Icon name={name} size={size} />}
                 onChange={setIcon}
               />

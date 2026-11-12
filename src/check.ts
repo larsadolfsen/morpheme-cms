@@ -181,7 +181,10 @@ export function problemAt(fields: Field[], value: Record<string, unknown>, where
     const wrong = (text: string) => ({ text, path });
     if (f.required && empty) return wrong(t.check.fillIn(label));
     if (!empty && !ofItsKind(f, v)) return wrong(t.check.wrong(label, t.check.kinds[kindOf(f)]));
-    if (f.type === 'select' && f.options && !empty && !f.options.some((o) => o.value === v))
+    // An icon field also takes the name of any icon the site draws (Material Symbols', Phosphor's: the icon picker's search); that the
+    // site has it is found where the icon is drawn (data-icon-missing, check:screens).
+    const anyIcon = f.icons && typeof v === 'string' && /^[a-z0-9_-]+$/.test(v);
+    if (f.type === 'select' && f.options && !empty && !anyIcon && !f.options.some((o) => o.value === v))
       return wrong(t.check.notAnOption(label, String(v)));
     const form = typeof v === 'string' && problemOf(f, v);
     if (form) return wrong(t.check.wrong(label, form));
