@@ -363,6 +363,10 @@ export const collectionsFor = (files: { path: string; text: string }[]): Collect
   return mine.length ? [...collections, ...mine] : collections;
 };
 
+/** Whether a list is one the owner made (it has a `_list.json`), not one the code brings. */
+export const isOwnList = (files: { path: string; text: string }[], id: string) =>
+  ownListsOf(files).some((l) => l.id === id) && !collections.some((c) => c.id === id);
+
 /** The icon of each part on the start screen, in the sidebar and under "Lists", by its id: the site's, the
  * standard blocks' and the apps' lists', and those of the parts the menu lists (appearance, seoParts, partScreens). */
 export const icons = {

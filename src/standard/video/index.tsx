@@ -16,7 +16,7 @@ export default defineBlock({
     single: true,
     fields: ['title'],
     settings: ['url'],
-    texts: { addAbove: '', addBelow: '', link: '', row: t.blocks.video.label, settings: t.blocks.video.url, icon: '' },
+    texts: { addAbove: '', addBelow: '', row: t.blocks.video.label, settings: t.blocks.video.url },
   },
   fields: [
     {

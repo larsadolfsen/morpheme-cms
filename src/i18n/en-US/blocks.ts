@@ -151,6 +151,10 @@ export const blocks = {
       ].join(' · '),
     dynamicTip: 'Fill from a list',
     typedHidden: 'Your typed rows are kept, not shown.',
+    /** The parts of a row a dynamic block can fill with a field of its list. */
+    parts: { title: 'Top line', text: 'Bottom line', icon: 'Icon', href: 'Link' },
+    noField: 'None',
+    fieldShown: 'Field shown',
     editList: 'Edit list',
     map: 'Fields in a row',
     empty: 'No items in the list match, so nothing shows on the page.',
@@ -208,6 +212,14 @@ export const blocks = {
     item: 'step',
     title: 'Heading',
     text: 'Text',
+    /** The text button under the last step, the empty faded step, and the floating toolbar of Steps typed in place. */
+    step: 'Step',
+    addStep: 'Add step',
+    newStep: 'New step',
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    /** A step typed in place: its place, for screen readers (step 2 of 4). */
+    stepOf: (n: number, total: number) => `Step ${n} of ${total}`,
   },
   hero: {
     label: 'Banner',

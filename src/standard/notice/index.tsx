@@ -28,7 +28,7 @@ export default defineBlock({
     single: true,
     fields: ['text'],
     settings: ['until'],
-    texts: { addAbove: '', addBelow: '', link: '', row: t.blocks.notice.label, settings: t.blocks.notice.until, icon: '' },
+    texts: { addAbove: '', addBelow: '', row: t.blocks.notice.label, settings: t.blocks.notice.until },
   },
   fields: [
     { name: 'text', label: t.blocks.notice.text, type: 'markdown', required: true },

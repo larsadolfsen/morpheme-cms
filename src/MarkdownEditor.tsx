@@ -84,12 +84,13 @@ import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
 import { describe, htmlBlock, type BlockProps } from './blocks';
 import { RowsFromList } from './InlineList';
-import { inlineViews } from './inlineViews';
+import { typedInPlace } from './typedInPlace.mjs';
 import type { Change, Focus, Item as Row } from './InlineItems';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
 import { editorRows } from './standard/rows/view';
 import { fromLine, listPageOf } from './standard/rows/fields';
-import { sourceOf } from './standard/rows/rows.mjs';
+import { sourceOf, withPart } from './standard/rows/rows.mjs';
+import { rowParts } from './standard/rows/view';
 import { inlineBar, type BarAction } from './inlineBar';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
@@ -1014,9 +1015,9 @@ function blockCard(
   // A block gone from the site by itself (a notice whose time is over) is greyed like a hidden one.
   const over = !!block?.over?.(node.attrs.props);
   // A block typed in place (InlineList.tsx): its card is not a button to tap but the block itself, with its menu on a handle.
-  const inline = !!block?.inline && !!inlineViews[node.attrs.type] && node.attrs.type !== HTML;
+  const inline = typedInPlace(block) && node.attrs.type !== HTML;
   const spec = block?.inline;
-  const Inline = inlineViews[node.attrs.type];
+  const Inline = block?.inlineView!; // drawn only when `inline` (typedInPlace: it has a view)
   const dom = document.createElement('div');
   dom.className = hidden || over ? 'site-block site-block-hidden' : 'site-block';
   dom.contentEditable = 'false';
@@ -1058,6 +1059,7 @@ function blockCard(
   let stopAway = () => {};
   let syncDynamic: () => void = () => {};
   let undoDynamic: () => void = () => {};
+  let pickPart: (part: string) => void = () => {};
   // A block with no list (Notice, Video): its props are its one item.
   const single = !!spec?.single;
   const rows = () => (single ? [node.attrs.props as Row] : ((node.attrs.props[spec?.item ?? 'items'] as Row[] | undefined) ?? []));
@@ -1099,6 +1101,11 @@ function blockCard(
           root.render(
             <RowsFromList
               undo={dropped ? { note: t.blocks.rows.typedHidden, label: t.text.undo, run: undoDynamic } : undefined}
+              parts={rowParts(node.attrs.props)?.map((p) => ({
+                part: p.part,
+                text: `${t.blocks.rows.parts[p.part]}: ${p.nowLabel || t.blocks.rows.noField}`,
+              }))}
+              onPart={rowParts(node.attrs.props) ? (part) => pickPart(part) : undefined}
               rows={dynamic.rows}
               line={fromLine(node.attrs.props, ask.data)[0] ?? ''}
               empty={dynamic.rows.length === 0}
@@ -1221,6 +1228,7 @@ function blockCard(
       single
         ? [{ ...list[0], ...Object.fromEntries(names.map((n) => [n, String(v[n] ?? '')])) }]
         : names.reduce((items, n) => setField(items, i, n, Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]), list);
+    // A block with no link, settings or icon (Steps) has no item sheet: no Link action, and no gear unless it has block settings.
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
     const rowActions = (): BarAction[] => {
@@ -1229,7 +1237,7 @@ function blockCard(
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
-        ...(itemNames.length ? [{ kind: 'link' as const, label: spec!.texts.link, action: settings }] : []),
+        ...(itemNames.length ? [{ kind: 'link' as const, label: spec!.texts.link ?? '', action: settings }] : []),
         { kind: 'above', label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
         { kind: 'below', label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
         ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
@@ -1292,6 +1300,38 @@ function blockCard(
       setProps(rest);
       syncDynamic();
     };
+    // A part of a row (top line, bottom line, icon, link) set to a field of the list: the choice is in the panel or sheet (a select, as the list is),
+    // and changes the block at once. The block keeps only a choice the list does not make itself (`map`).
+    pickPart = (part: string) => {
+      const info = rowParts(node.attrs.props)?.find((p) => p.part === part);
+      if (!info) return;
+      const none = part !== 'title' ? [{ label: t.blocks.rows.noField, value: '' }] : [];
+      iconOf = null;
+      dynSelected = true;
+      dynOpen = false;
+      asker()?.row(
+        {
+          headline: t.blocks.rows.parts[part as keyof typeof t.blocks.rows.parts],
+          fields: [
+            {
+              name: 'field',
+              label: t.blocks.rows.fieldShown,
+              type: 'select',
+              options: [...none, ...info.choices.map((c) => ({ label: c.label, value: c.name }))],
+            },
+          ],
+          value: { field: info.now ?? '' },
+          closes: true,
+          onChange: (v: BlockProps) => {
+            const map = withPart(info.asRows, node.attrs.props.map, part as 'title', String(v.field ?? ''));
+            const { map: _old, ...rest } = node.attrs.props;
+            setProps(map ? { ...rest, map } : rest);
+          },
+        },
+        true,
+      );
+      draw();
+    };
     if (canDynamic)
       dom.addEventListener('pointerdown', () => {
         if (!isDynamic() || dynSelected) return;
@@ -1302,9 +1342,15 @@ function blockCard(
       name,
       dom,
       rowActions,
-      // A block that reads a list has the dynamic settings behind the gear; a block with nothing to set on an item (the FAQ list) has the
-      // block's own settings.
-      edit: () => (isDynamic() ? openDynamic() : itemNames.length || slotNames.length ? settings() : void edit()),
+      // A block that reads a list has the dynamic settings behind the gear; a block with nothing to set on an item has the block's own
+      // settings behind it (the FAQ list), or no gear (Steps).
+      edit: isDynamic()
+        ? openDynamic
+        : itemNames.length || slotNames.length
+          ? settings
+          : spec!.blockSettings === true
+            ? () => void edit()
+            : undefined,
       compact,
       labels: { row: spec!.texts.row, edit: t.common.edit },
       dynamic: canDynamic ? { label: t.blocks.rows.dynamicTip, on: isDynamic, action: openDynamic } : undefined,
@@ -1320,7 +1366,7 @@ function blockCard(
       const row = rows()[i] ?? {};
       if (iconOf === i)
         return {
-          headline: spec!.texts.icon,
+          headline: spec!.texts.icon ?? '',
           fields: iconFields,
           value: valueOf(row, slotNames),
           // The icon picker closes when an icon is picked; the media fields stay open for the next choice.
@@ -1331,7 +1377,7 @@ function blockCard(
           },
         };
       return {
-        headline: spec!.texts.settings,
+        headline: spec!.texts.settings ?? '',
         fields: itemFields,
         value: valueOf(row, itemNames),
         onChange: (v: BlockProps) => setItems(setFields(rows(), i, itemNames, v)),
@@ -1372,7 +1418,8 @@ function blockCard(
       const { rules, locked, stays } = keeps();
       return [
         block?.fields.length
-          ? (!inline || spec?.blockSettings) && !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
+          ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
+            !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
           : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
         block?.shown || (stays && hidden === false)
           ? undefined
@@ -1775,7 +1822,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const view = ctx.get(editorViewCtx);
       const { state } = view;
       const node = siteBlockSchema.type(ctx).create({ type: chosen.type, props: chosen.props });
-      if (blocks!.list.find((b) => b.type === chosen.type)?.inline) fresh.add(chosen.props);
+      if (typedInPlace(blocks!.list.find((b) => b.type === chosen.type))) fresh.add(chosen.props);
       let tr = state.tr;
       // Where the new block ends, when the cursor must be moved past it (-1: it is in text already).
       let end = -1;
