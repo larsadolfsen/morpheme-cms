@@ -1427,3 +1427,24 @@ dialog {
     letter-spacing: var(--type-display-medium-tracking);
   }
 }
+
+/* Notice and Video typed in place: the notice's text and the video's title are typed where the site draws them; the video's title
+   stands under its frame, as text of the page does. */
+.editor-text .inline-notice {
+  display: block;
+  cursor: text;
+}
+
+.editor-text .inline-notice p {
+  margin: 0;
+}
+
+.editor-text .inline-video {
+  display: grid;
+  gap: var(--mo-space-8, 8px);
+}
+
+.editor-text .inline-video-title {
+  margin: 0;
+  color: var(--mo-on-surface-variant);
+}

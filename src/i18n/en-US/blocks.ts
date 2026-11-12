@@ -84,6 +84,7 @@ export const blocks = {
     label: 'Notice',
     hint: 'A highlighted message.',
     text: 'Text',
+    placeholder: 'Notice text',
     until: 'Show until',
     untilHint: 'If empty, the notice is always shown.',
     shownUntil: (day: string, time: string) => `Shown until ${day} at ${time}`,

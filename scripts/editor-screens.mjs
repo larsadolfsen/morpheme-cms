@@ -364,6 +364,59 @@ const inlineBlocks = [
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
 ];
 
+/** The single blocks typed in place (Notice, Video): one item, no add button, no faded empty item. */
+const inlineSingles = [
+  { name: 'notice', hint: 'A highlighted message.', field: 'text', text: 'Hello **there**', slot: false },
+  { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: true },
+];
+
+async function checkInlineSingle(width, height, { name, hint, field, text, slot }) {
+  const label = `${width}px inline ${name}`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await page.locator('dialog[open] button', { hasText: hint }).first().click();
+  await page.waitForSelector(`.site-block-inline [data-field="${field}"]`);
+  await page.keyboard.type(text);
+  await page.waitForTimeout(300);
+  const state = () =>
+    page.evaluate(
+      (f) => ({
+        value: document.querySelector(`.site-block-inline [data-field="${f}"]`)?.value ?? null,
+        add: document.querySelectorAll('[data-add-row]').length,
+        next: document.querySelectorAll('.inline-list-row-next').length,
+        outline: getComputedStyle(document.querySelector('.site-block-inline .inline-list-row-active')).outlineStyle,
+        slot: !!document.querySelector('.site-block-inline .inline-list-slot'),
+      }),
+      field,
+    );
+  const one = await state();
+  if (one.value !== text) problems.push(`${label}: typed "${text}", the field has "${one.value}"`);
+  if (one.add) problems.push(`${label}: a single block has an add button`);
+  if (one.next) problems.push(`${label}: a single block shows a faded empty item`);
+  if (one.outline !== 'dotted') problems.push(`${label}: the active block has outline ${one.outline}, not dotted`);
+  if (one.slot !== slot) problems.push(`${label}: the slot is ${one.slot ? 'shown' : 'missing'}`);
+  await page.screenshot({ path: join(shots, `inline-${name}-${width}.png`) });
+  // Enter does not make a second line or item.
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(200);
+  if ((await state()).value !== text) problems.push(`${label}: Enter changed the text`);
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  if ((await page.locator(`.site-block-inline [data-field="${field}"]`).count()) && name === 'notice')
+    problems.push(`${label}: the notice still shows its field after the cursor left`);
+  await page.close();
+}
+
 /** `surface`: the item is a card with a container of its own, so it has a background colour. */
 async function checkInlineBlock(width, height, { name, hint, add, surface }) {
   const label = `${width}px inline ${name}`;
@@ -1254,6 +1307,7 @@ for (const [width, height] of [
   await checkDraftsCard(width, height);
 await checkEmptyHint();
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
+for (const block of inlineSingles) for (const w of [375, 1280]) await checkInlineSingle(w, w < 600 ? 740 : 900, block);
 for (const [width, height] of [
   [360, 740],
   [375, 740],

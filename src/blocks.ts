@@ -77,6 +77,9 @@ export type SiteBlock = {
 export type InlineSpec = {
   /** The name of the list field of the items. */
   item: string;
+  /** A block with no list (Notice, Video): the block's own props are its one item, typed where they stand (InlineSingle.tsx); `item` is
+   * not used and the block has no row actions. */
+  single?: boolean;
   /** The typed fields of an item, in order. */
   fields: string[];
   /** The field picked in the icon slot (its icon picker). */
