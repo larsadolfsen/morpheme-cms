@@ -58,6 +58,8 @@ type Props<T extends string> = {
   onPreview?: () => void;
   onDelete?: () => void;
   deleteLabel?: string;
+  /** The Save button's label; `Save changes` when not given. */
+  saveLabel?: string;
   /** A page or post that is published in steps: `Publish` (a draft) or `Publish changes` (changes waiting) at the end of the bar, shown
    * also when nothing is unsaved, and its other actions (`Unpublish`, `Discard draft`) above "Delete". */
   publish?: Publish;
@@ -160,6 +162,7 @@ export default function FormFrame<T extends string>({
   onPreview,
   onDelete,
   deleteLabel,
+  saveLabel,
   publish,
   panel,
   wide,
@@ -256,7 +259,7 @@ export default function FormFrame<T extends string>({
                     void onSave();
                   }}
                 >
-                  {t.common.saveChanges}
+                  {saveLabel ?? t.common.saveChanges}
                 </Button>
               )}
               {(publish?.label || publishing) && (

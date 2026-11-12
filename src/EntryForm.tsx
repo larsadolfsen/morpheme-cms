@@ -1175,6 +1175,8 @@ function Form({
           onPreview={showPreview}
           onDelete={collection.deletable && !isNew ? () => env.remove(collection, live, setDeleting) : undefined}
           deleteLabel={t.forms.deleteOne(collection.singular)}
+          // Save keeps the changes as a draft (a waiting version) of a published page; a new or unpublished page has no draft to name.
+          saveLabel={!isNew && !version && !editsLive && (livePublished || !!waiting) ? t.forms.versions.saveDraft : undefined}
         >
           {version && <VersionNotice version={version} onCurrent={() => onVersion(null)} />}
           {waiting && !isNew && (

@@ -125,6 +125,8 @@ export const forms = {
     scheduledCancelled: (what: string) => `Schedule for ${what} cancelled`,
     unpublish: 'Unpublish',
     discardDraft: 'Discard draft',
+    /** The Save button while the changes are kept as a draft. */
+    saveDraft: 'Save draft',
     /** The top bar's line under the title. */
     draftLine: 'Draft',
     waitingLine: 'Unpublished changes',
@@ -138,7 +140,7 @@ export const forms = {
       restored: 'Your unsaved changes are back',
     },
     /** After saving changes to a published page: the website keeps the version it has. */
-    savedWaiting: 'Changes saved. The website shows the published version until you publish.',
+    savedWaiting: 'Draft saved. The website shows the published version until you publish.',
     unpublishTitle: (post: boolean) => `Unpublish this ${post ? 'post' : 'page'}?`,
     unpublishText: (post: boolean) =>
       `The ${post ? 'post' : 'page'} leaves the website and becomes a draft. Changes that wait to be published stay.`,

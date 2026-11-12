@@ -102,11 +102,12 @@ export const forms: Messages['forms'] = {
     scheduledCancelled: (what) => `Planlægningen af ${what} annulleret`,
     unpublish: 'Fjern fra hjemmesiden',
     discardDraft: 'Kassér kladde',
+    saveDraft: 'Gem kladde',
     draftLine: 'Kladde',
     waitingLine: 'Ikke udgivne ændringer',
     publishedLine: (when) => `Udgivet · Ændret ${when}`,
     autosave: { saving: 'Gemmer…', saved: 'Gemt', notSaved: 'Ikke gemt', restored: 'Dine ugemte ændringer er tilbage' },
-    savedWaiting: 'Ændringerne er gemt. Hjemmesiden viser den udgivne version, indtil du udgiver.',
+    savedWaiting: 'Kladden er gemt. Hjemmesiden viser den udgivne version, indtil du udgiver.',
     unpublishTitle: (post) => `Fjern ${post ? 'indlægget' : 'siden'} fra hjemmesiden?`,
     unpublishText: (post) =>
       `${post ? 'Indlægget' : 'Siden'} forsvinder fra hjemmesiden og bliver en kladde. Ændringer, der venter på at blive udgivet, bliver liggende.`,
