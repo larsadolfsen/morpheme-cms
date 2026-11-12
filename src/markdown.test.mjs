@@ -129,3 +129,32 @@ test('a check list item checked in the editor is saved as checked', async () => 
 test('an empty H1 is not written', async () => {
   assert.equal((await through('# \n\nText\n')).saved, 'Text\n');
 });
+
+test('an aligned paragraph, body style and small heading come back as they were, with their alignment', async () => {
+  const text =
+    '# Title\n\n<div data-align="center"></div>\n\nCentred **bold** text\n\n<div data-align="right"></div>\n\n<p class="body-small">Right small</p>\n\n' +
+    '<div data-align="center"></div>\n\n### Centred heading\n\nPlain\n';
+  const { saved } = await through(text);
+  assert.equal(saved, text);
+});
+
+test('the alignment is an attribute of the block and left takes it away', async () => {
+  const editor = await makeEditor(document.createElement('div'), '<div data-align="center"></div>\n\nHello\n\nOther\n').create();
+  const aligns = editor.action((ctx) => {
+    const view = ctx.get(editorViewCtx);
+    const first = view.state.doc.child(0);
+    const before = first.attrs.align;
+    view.dispatch(view.state.tr.setNodeMarkup(0, undefined, { ...first.attrs, align: null }));
+    return [before, view.state.doc.child(0).attrs.align];
+  });
+  const saved = editor.action(markdownOf);
+  await editor.destroy();
+  assert.deepEqual(aligns, ['center', null]);
+  assert.equal(saved, 'Hello\n\nOther\n');
+});
+
+test('an alignment line before an H1, a list or nothing is kept as HTML, not lost', async () => {
+  const text = '<div data-align="center"></div>\n\n# Title\n\n<div data-align="right"></div>\n\n- one\n- two\n';
+  const { saved } = await through(text);
+  assert.equal((saved.match(/data-align/g) ?? []).length, 2);
+});
