@@ -1440,6 +1440,8 @@
                      a dialog from the medium width (level 3)
     --bottom-sheet-scrim   the shade over the page behind a modal one
     --bottom-sheet-handle, --bottom-sheet-handle-focus   the drag handle's colour, and while it has the focus
+    --bottom-sheet-start-max-height   how high a sheet starts on a phone at most (50dvh, Material 3's half-expanded); the
+                     rest is dragged up to
     --bottom-sheet-max-width, --bottom-sheet-top-gap   how wide a standard one is at most, and how far from the top it
                      stays when it is expanded
     --bottom-sheet-margin-wide   a standard one with wide="sheet" (from the medium width) stays this far from the
@@ -1666,18 +1668,23 @@
     background: none;
     box-shadow: none;
   }
-  /* As high as what is in it (bottomSheetFitClass: the editor's sheets), at most most of the screen. */
+  /* The one rule for how high a bottom sheet starts on a phone (Material 3: a sheet opens at most half-expanded; the rest
+     is reached by dragging it up, to --bottom-sheet-top-gap from the top, and the content scrolls inside): the editor's
+     sheets (.bottom-sheet-fit and .bottom-sheet-full) and, through modalStartHeight (lib/sheet-stops.mjs), a site's modal
+     ones all start at --bottom-sheet-start-max-height at most. */
+  /* As high as what is in it (bottomSheetFitClass: the editor's sheets), at most --bottom-sheet-start-max-height. */
   .bottom-sheet-fit {
     height: fit-content;
-    max-height: min(85dvh, 56rem);
+    max-height: min(var(--bottom-sheet-start-max-height, 50dvh), 56rem);
   }
   .bottom-sheet-fit > .bottom-sheet-container {
     max-height: inherit;
   }
-  /* As high as the screen, below a phone's clock (bottomSheetFullClass: a whole page in it, the editor's preview). */
+  /* Starts at --bottom-sheet-start-max-height, dragged up to as high as the screen allows (bottomSheetFullClass: a whole
+     page in it, the editor's preview). */
   .bottom-sheet-full {
     max-width: none;
-    height: calc(100dvh - env(safe-area-inset-top));
+    height: var(--bottom-sheet-start-max-height, 50dvh);
   }
   .bottom-sheet::backdrop {
     background: var(--bottom-sheet-scrim, color-mix(in srgb, var(--block-text) 50%, transparent));
