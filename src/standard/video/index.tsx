@@ -10,6 +10,14 @@ export default defineBlock({
   label: t.blocks.video.label,
   icon: VideoCamera,
   hint: t.blocks.video.hint,
+  // Typed in place (InlineVideo.tsx): the title under the frame; the link is in the sheet, opened by the slot over the frame.
+  inline: {
+    item: '',
+    single: true,
+    fields: ['title'],
+    settings: ['url'],
+    texts: { addAbove: '', addBelow: '', row: t.blocks.video.label, settings: t.blocks.video.url },
+  },
   fields: [
     {
       name: 'url',
