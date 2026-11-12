@@ -1271,7 +1271,8 @@ function blockCard(
         ? [{ ...list[0], ...Object.fromEntries(names.map((n) => [n, String(v[n] ?? '')])) }]
         : names.reduce(
             // A switch or a list (a price card's Highlighted and button) is kept as it is, a text as text.
-            (items, n) => setField(items, i, n, typeof v[n] === 'boolean' || Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]),
+            (items, n) =>
+              setField(items, i, n, typeof v[n] === 'boolean' || Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]),
             list,
           );
     // A block with no link, settings or icon (Steps) has no item sheet: no Link action, and no gear unless it has block settings.
