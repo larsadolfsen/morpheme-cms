@@ -98,9 +98,9 @@ export function PreviewScreen({
 
   return (
     <>
-      <div className="flex shrink-0 items-center gap-2 border-b border-outline-variant py-1 ps-1 pe-3">
+      <div className="flex shrink-0 flex-wrap items-center gap-x-2 border-b border-outline-variant py-1 ps-1 pe-3 min-[600px]:flex-nowrap">
         <IconButton icon={X} label={t.common.close} onClick={onClose} />
-        <div className="min-w-0 flex-1 overflow-x-auto">
+        <div className="order-last min-w-0 basis-full overflow-x-auto pe-2 pb-1 min-[600px]:order-none min-[600px]:flex-1 min-[600px]:basis-0 min-[600px]:pb-0">
           <div className="w-max">
             <SegmentedButton
               label={t.preview.size}
@@ -110,7 +110,7 @@ export function PreviewScreen({
             />
           </div>
         </div>
-        <p className="shrink-0 text-on-surface-variant" aria-live="polite" data-preview-width>
+        <p className="ms-auto shrink-0 text-on-surface-variant min-[600px]:ms-0" aria-live="polite" data-preview-width>
           <span className="text-title-medium text-on-surface tabular-nums">{width}</span> · {t.preview.sizes[size]}
         </p>
       </div>

@@ -11,9 +11,10 @@
 // first time one is drawn); only a name Material Symbols lacks too is MISSING, the question mark, marked with
 // data-icon-missing (its name), which check:screens finds on the built site's pages and the editor's screens.
 import { cloneElement, isValidElement, useEffect, useState, type ReactElement } from 'react';
-import { materialName, resolveIcon } from '../lib/materialIcon.mjs';
+import { materialName, materialNames, resolveIcon } from '../lib/materialIcon.mjs';
 import { svgParts } from '../lib/svg.mjs';
 import ssrMaterial from 'virtual:material-symbols-ssr';
+import { allIcons as ssrPhosphor } from 'virtual:all-icons-ssr';
 
 const MATERIAL = '/node_modules/@material-symbols/svg-400/outlined/';
 /** Material Symbols' viewBox, every file's. */
@@ -27,12 +28,47 @@ const loadMaterial = () =>
   }));
 /** A Material Symbols file by `<name>` or `<name>-fill` (a Material name); undefined until the set is loaded. */
 const materialLookup = () => (materialSet ? (key: string) => materialSet?.[`${MATERIAL}${key}.svg`] : undefined);
+// All Phosphor's icons (regular, the theme's in their place) by their file: at once on the server render, else after the lazy chunk.
+let phosphorSet: Record<string, string> | undefined = import.meta.env.SSR ? ssrPhosphor : undefined;
+let phosphorLoading: Promise<void> | undefined;
+const loadPhosphor = () =>
+  (phosphorLoading ??= import('./allIcons').then((m) => {
+    phosphorSet = m.allIcons;
+  }));
+const PHOSPHOR_REGULAR = '/node_modules/@phosphor-icons/core/assets/regular/';
+const phosphorLookup = () => (phosphorSet ? (name: string) => phosphorSet?.[`${PHOSPHOR_REGULAR}${name}.svg`] : undefined);
+/** The names of Phosphor's icons the site's list does not have and Material Symbols has none of by that name: those drawn
+ * from Phosphor's own set (resolveIcon). */
+const phosphorOnly = (materials: Set<string>) =>
+  Object.keys(phosphorSet ?? {})
+    .map((path) => path.slice(PHOSPHOR_REGULAR.length, -'.svg'.length))
+    .filter((name) => !materials.has(materialName(name) ?? ''));
+
+/** The names of all the icons the site draws by their names but its list: all of Material Symbols' and those of Phosphor's
+ * Material has not. A picked one is stored by its name, and the site draws it as the fallback above. Undefined until the lazy set is loaded, which `wanted` asks for (the icon picker's search). */
+export function useAllIconNames(wanted: boolean): string[] | undefined {
+  const build = () => {
+    if (!materialSet || !phosphorSet) return undefined;
+    const materials = materialNames(Object.keys(materialSet));
+    return [...materials, ...phosphorOnly(new Set(materials))].sort();
+  };
+  const [names, setNames] = useState<string[] | undefined>(build);
+  useEffect(() => {
+    if (!wanted || names) return;
+    Promise.all([loadMaterial(), loadPhosphor()]).then(() => setNames(build()));
+  }, [wanted, names]);
+  return names;
+}
+
 /** Draws again when the lazy set has loaded, after it is asked for (`wanted`). */
 function useMaterialLoaded(wanted: boolean) {
-  const [, redraw] = useState(0);
+  const [again, redraw] = useState(0);
   useEffect(() => {
-    if (wanted && !materialSet) loadMaterial().then(() => redraw((n) => n + 1));
-  }, [wanted]);
+    // Material's set first; Phosphor's own only for a name Material has not.
+    if (!wanted) return;
+    if (!materialSet) loadMaterial().then(() => redraw((n) => n + 1));
+    else if (!phosphorSet) loadPhosphor().then(() => redraw((n) => n + 1));
+  }, [wanted, again]);
 }
 
 const PHOSPHOR = '/node_modules/@phosphor-icons/core/assets/';
@@ -72,7 +108,7 @@ export function Svg({
   className?: string;
   label?: string;
 }) {
-  const found = resolveIcon(name, weight, { list: iconFile, material: materialLookup() });
+  const found = resolveIcon(name, weight, { list: iconFile, material: materialLookup(), phosphor: phosphorLookup() });
   useMaterialLoaded(!!found.pending);
   return (
     <Drawn
@@ -106,7 +142,7 @@ export function AnyIcon({ name, size = 20 }: { name: string; size?: number }) {
       const phosphor = (await import('./allIcons')).allIcons[`${PHOSPHOR}regular/${name}.svg`];
       if (phosphor) return on && setFound({ file: phosphor });
       if (materialName(name)) await loadMaterial();
-      const backup = resolveIcon(name, undefined, { list: () => undefined, material: materialLookup() });
+      const backup = resolveIcon(name, undefined, { list: () => undefined, material: materialLookup(), phosphor: () => undefined });
       if (on) setFound(backup.file ? { file: backup.file, fallback: true } : { file: null });
     })();
     return () => {

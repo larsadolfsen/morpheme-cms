@@ -311,6 +311,9 @@ const fileIcon = (svg) => `export default ${JSON.stringify(themedSvg(svg))};`;
 
 /** The virtual module with all Phosphor's icons (regular) as text (src/allIcons.ts). */
 export const ALL_ICONS = 'virtual:all-icons';
+/** The same on the server render only (the site's pages are drawn with it at once: icon.tsx); in the browser it is empty, so the
+ * set is not in the site's bundle (the browser loads ALL_ICONS lazily, as the editor does). */
+export const ALL_ICONS_SSR = 'virtual:all-icons-ssr';
 /** The virtual module with the theme's coverage of Material's parts (coverageModule). */
 export const THEME_COVERAGE = 'virtual:theme-coverage';
 /** The virtual module with what the site's files tell the site settings (detectFacts, lib/siteFacts.mjs, reduced to what the settings read: reduceFacts; site/settings.ts). */
@@ -510,6 +513,7 @@ export function themePlugin() {
       // The theme's icons import Phosphor's own.
       if (source === PHOSPHOR_REACT) return own && importer !== REACT_ICONS ? REACT_ICONS : null;
       if (source === ALL_ICONS) return '\0' + ALL_ICONS;
+      if (source === ALL_ICONS_SSR) return '\0' + ALL_ICONS_SSR;
       if (source === THEME_COVERAGE) return '\0' + THEME_COVERAGE;
       if (source === SITE_FACTS) return '\0' + SITE_FACTS;
       if (source === MATERIAL_ALL) return MATERIAL_ALL_ID;
@@ -532,6 +536,10 @@ export function themePlugin() {
       if (id === REACT_ICONS) return reactIcons(icons);
       if (id === '\0' + THEME_COVERAGE) return coverageModule(activeTheme());
       if (id === '\0' + SITE_FACTS) return `export default ${JSON.stringify(reduceFacts(detectFacts(process.cwd())))};`;
+      if (id === '\0' + ALL_ICONS_SSR)
+        return options?.ssr
+          ? allIconsModule(fileURLToPath(new URL('node_modules/@phosphor-icons/core/assets/regular/', root)), icons)
+          : 'export const allIcons = {};';
       if (id === '\0' + ALL_ICONS)
         return allIconsModule(fileURLToPath(new URL('node_modules/@phosphor-icons/core/assets/regular/', root)), icons);
       if (id.startsWith(FILE_ICON)) return fileIcon(icons[id.slice(FILE_ICON.length)]);

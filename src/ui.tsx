@@ -110,6 +110,7 @@ import { locale, t } from './i18n';
 import { useRegisterFab } from './fabPresence';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
 import { SvgFile } from './icon';
+import { filterIconNames, ICON_CATEGORIES, iconLabel, inIconCategory } from '../lib/materialIcon.mjs';
 import { countries, countryName, dialCodes, flagOf, regionOf } from './countries';
 import { byText } from './schema';
 import { contrast } from '../lib/colors';
@@ -1016,14 +1017,17 @@ export function ShownValue({ id, icon, muted, children }: { id?: string; icon?: 
   );
 }
 
-/** One of many icons: the chosen one with its name, and a button that unfolds them all in a grid to tap
- * (ChoiceTile, the chosen one marked); a tap picks one and folds them again. The choice with the value
- * '' is no icon (a cross). `icon` draws an icon by its value. */
+/** One of many icons: the chosen one with its name, and a button that unfolds them in a grid to tap (ChoiceTile, the
+ * chosen one marked); a tap picks one and folds them again. The choice with the value '' is no icon (a cross). `icon`
+ * draws an icon by its value. The grid starts with `options`; the search field over it looks in `all` as well (the names of
+ * all the icons there are: they are loaded when the field is first used, `onSearch`) and shows its hits a page at a time. */
 export function IconPicker({
   id,
   label,
   value,
   options,
+  all,
+  onSearch,
   icon,
   startOpen = false,
   onChange,
@@ -1032,49 +1036,132 @@ export function IconPicker({
   label: string;
   value: string;
   options: { value: string; label: string }[];
+  /** The names of all the icons, once loaded (a name as stored). */
+  all?: string[];
+  /** The search field is used for the first time: load `all`. */
+  onSearch?: () => void;
   icon: (value: string, size: number) => ReactElement;
   /** The grid is open from the start (and stays open after a pick). */
   startOpen?: boolean;
   onChange: (value: string) => void;
 }) {
   const [open, setOpen] = useState(startOpen);
+  const [query, setQuery] = useState('');
+  const [shown, setShown] = useState(PAGE);
+  const more = useRef<HTMLDivElement>(null);
   const own = useId();
   const grid = `${id ?? own}-icons`;
   const chosen = options.find((o) => o.value === value);
+  const [category, setCategory] = useState<keyof typeof ICON_CATEGORIES | ''>('');
+  const searching = query.trim() !== '' || category !== '';
+  const hits = useMemo(() => {
+    if (!searching) return options;
+    const words = query
+      .toLowerCase()
+      .split(/[\s_-]+/)
+      .filter(Boolean);
+    const known = options.filter(
+      (o) =>
+        o.value &&
+        words.every((w) => `${o.label} ${o.value}`.toLowerCase().includes(w)) &&
+        (!category || inIconCategory(o.value, category)),
+    );
+    const own = new Set(known.map((o) => o.value));
+    const rest = filterIconNames(all ?? [], query, category)
+      .filter((name) => !own.has(name))
+      .map((name) => ({ value: name, label: iconLabel(name) }));
+    return [...options.filter((o) => !o.value), ...known, ...rest];
+  }, [options, all, query, category, searching]);
+  useEffect(() => setShown(PAGE), [query, category]);
+  // The next page, when the end of the shown ones comes into view.
+  useEffect(() => {
+    const end = more.current;
+    if (!end || !open) return;
+    const watch = new IntersectionObserver((e) => e[0]?.isIntersecting && setShown((n) => n + PAGE), { rootMargin: '200px' });
+    watch.observe(end);
+    return () => watch.disconnect();
+  }, [open, hits, shown]);
+  const loading = searching && !all;
   return (
     <div id={id}>
       <div className="flex items-center gap-3">
         {value && <LeadingIcon>{icon(value, 24)}</LeadingIcon>}
-        <span className="min-w-0 flex-1 truncate">{chosen ? chosen.label : t.forms.noIconYet}</span>
-        <Button kind="outlined" size="small" aria-expanded={open} aria-controls={grid} onClick={() => setOpen(!open)}>
-          {open ? t.forms.hideIcons : value ? t.forms.changeIcon : t.forms.pickIcon}
-        </Button>
+        <span className="min-w-0 flex-1 truncate">{chosen ? chosen.label : value ? iconLabel(value) : t.forms.noIconYet}</span>
+        {!open && (
+          <Button kind="outlined" size="small" aria-expanded={open} aria-controls={grid} onClick={() => setOpen(true)}>
+            {value ? t.forms.changeIcon : t.forms.pickIcon}
+          </Button>
+        )}
       </div>
       {open && (
-        <div
-          id={grid}
-          role="group"
-          aria-label={label}
-          className="editor-reveal mt-3 grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2"
-        >
-          {options.map((o) => (
-            <ChoiceTile
-              key={o.value || 'none'}
-              selected={o.value === value}
-              label={o.label}
-              onClick={() => {
-                onChange(o.value);
-                if (!startOpen) setOpen(false);
+        <div id={grid} className="editor-reveal mt-3">
+          {onSearch && (
+            <TextField
+              type="search"
+              label={t.forms.searchIcons}
+              value={query}
+              autoComplete="off"
+              onFocus={onSearch}
+              onChange={(e) => {
+                onSearch();
+                setQuery(e.target.value);
               }}
-            >
-              {o.value ? icon(o.value, 24) : <X size={20} className="text-on-surface-variant" />}
-            </ChoiceTile>
-          ))}
+            />
+          )}
+          {onSearch && (
+            <div className="mt-3">
+              <ChipSet label={t.forms.iconCategory} scroll>
+                {[
+                  ['', t.forms.iconCategories.suggested] as const,
+                  ...(Object.keys(ICON_CATEGORIES) as (keyof typeof ICON_CATEGORIES)[]).map((c) => [c, t.forms.iconCategories[c]] as const),
+                ].map(([c, name]) => (
+                  <FilterChip
+                    key={c || 'suggested'}
+                    selected={category === c}
+                    onClick={() => {
+                      onSearch();
+                      setCategory(c);
+                    }}
+                  >
+                    {name}
+                  </FilterChip>
+                ))}
+              </ChipSet>
+            </div>
+          )}
+          <div role="group" aria-label={label} className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2">
+            {hits.slice(0, shown).map((o) => (
+              <ChoiceTile
+                key={o.value || 'none'}
+                selected={o.value === value}
+                label={o.label}
+                onClick={() => {
+                  onChange(o.value);
+                  if (!startOpen) setOpen(false);
+                }}
+              >
+                {o.value ? icon(o.value, 24) : <X size={20} className="text-on-surface-variant" />}
+              </ChoiceTile>
+            ))}
+          </div>
+          {hits.length > shown && (
+            <div ref={more} className="mt-3 flex justify-center">
+              <Button kind="text" size="small" onClick={() => setShown((n) => n + PAGE)}>
+                {t.forms.showMoreIcons}
+              </Button>
+            </div>
+          )}
+          {searching && !loading && hits.every((o) => !o.value) && (
+            <p role="status" className="mt-3 text-on-surface-variant">
+              {t.forms.noIconsFound}
+            </p>
+          )}
         </div>
       )}
     </div>
   );
 }
+const PAGE = 100;
 
 /** A picture: a small one of it (`src`), the button that picks one, from Files or a new one, or another,
  * and with `onRemove` (when it may be left out) the button that takes it away. */
@@ -2379,7 +2466,7 @@ export function FormHeading({ first, children }: { first?: boolean; children: Re
 
 /** A section of a long form that folds in and out (the sections of a page; Material 3 has no accordion, so it has its
  * own name): its heading, as large as a FormHeading, is a button with the arrow at its right, which turns while the
- * section is open, and a line under each section. Folded, only the heading is shown; what is in it stays (hidden), so
+ * section is open, and a line under each section. The title's box is trimmed to the capitals and the baseline, so the space above and below the letters is equal. Folded, only the heading is shown; what is in it stays (hidden), so
  * the text and the fields keep what was written, and it shows softly when opened (.editor-reveal). It stops under the
  * top bar when the page scrolls to it. `ref`: the section, for what scrolls to it and marks it. */
 export function FoldSection({
@@ -2408,10 +2495,10 @@ export function FoldSection({
           id={`${id}-title`}
           aria-expanded={open}
           aria-controls={`${id}-body`}
-          className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--block-radius-small) px-3 py-4 text-left text-xl font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+          className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--block-radius-small) px-3 py-[1.125rem] text-left text-xl font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           onClick={onToggle}
         >
-          <span className="min-w-0 flex-1">{title}</span>
+          <span className="min-w-0 flex-1 [text-box:trim-both_cap_alphabetic]">{title}</span>
           <CaretDown
             size={20}
             aria-hidden="true"
