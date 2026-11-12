@@ -111,6 +111,8 @@ export const blocks: Messages['blocks'] = {
     hrefHint: 'Hvis feltet er tomt, er rækken ikke et link.',
     exampleTitle: 'Overskrift',
     exampleText: 'En kort tekst om rækken.',
+    newRow: 'Ny række',
+    rowOf: (n: number, total: number) => `Række ${n} af ${total}`,
   },
   points: {
     label: 'Punkter med ikon',

@@ -515,6 +515,19 @@ async function run(label, bucket) {
       );
       return { status: res.status, ...(await res.json().catch(() => ({}))) };
     };
+    // The page is published here (the check before left it a draft): its autosave is a waiting version.
+    {
+      await settle();
+      const now = await readFiles(env, [post.path], ctx);
+      await commitFiles(
+        env,
+        now.head,
+        `Editor: publish (${label})`,
+        [{ path: post.path, text: `${(now.texts[0] ?? '').replace(/^status: .*\r?\n/m, '')}\nPublished (${label}).\n` }],
+        ctx,
+      );
+      await settle();
+    }
     const waiting = `src/drafts/${post.path.slice('src/content/'.length)}`;
     const query = `path=${encodeURIComponent(post.path)}`;
     const text = `---\ntitle: "Autosaved (${label})"\n---\n\nAutosaved.\n`;
@@ -602,9 +615,108 @@ async function run(label, bucket) {
         env,
         (await readFiles(env, [], ctx)).head,
         `Editor: discard autosave (${label})`,
-        [{ path: waiting, text: null }],
+        // (The page text changes too: the tree after the discard is not the one from before the autosaves, which R2 keeps once.)
+        [
+          { path: waiting, text: null },
+          { path: post.path, text: `${text}Discarded (${label}).\n` },
+        ],
         ctx,
       );
+      // A new page or post, with no file yet (`create`, `to`), and a draft page: its flush writes the page file itself and keeps it a draft.
+      {
+        // Each call is let finish its R2 writes before the next, so a tree is not read from GitHub twice at the same time.
+        const callS = async (...args) => {
+          const answer = await call(...args);
+          await settle();
+          return answer;
+        };
+        const dir = post.path.slice(0, post.path.lastIndexOf('/') + 1);
+        const placeholder = `${dir}new-entry-check1.md`;
+        const wanted = `${dir}autosave-new-${label.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.md`;
+        const stem = wanted.slice(0, -3);
+        const made = `---\ntitle: "New page"\nstatus: "draft"\n---\n\n# Hello\n`;
+        const create = { path: placeholder, create: true, to: wanted };
+        // A new entry without a name to be made as, or one that is flushed as a plain page, is not made.
+        await callS('PUT', '/api/autosave', { path: placeholder, text: made, create: true });
+        expect(
+          (await callS('POST', '/api/autosave/flush', { path: placeholder })).status === 404,
+          `${label}: a new page without a file name was made`,
+        );
+        await callS('PUT', '/api/autosave', { path: placeholder, text: made });
+        expect(
+          (await callS('POST', '/api/autosave/flush', { path: placeholder })).status === 404,
+          `${label}: a flush without create made a page`,
+        );
+        // Made: the draft page file, as a draft even when the text says published, and the autosave is gone.
+        await callS('PUT', '/api/autosave', { ...create, text: made.replace('status: "draft"\n', '') });
+        expect(
+          (await callS('GET', '/api/autosave')).drafts.some((d) => d.path === placeholder),
+          `${label}: the new page's autosave is not listed`,
+        );
+        const first = await callS('POST', '/api/autosave/flush', { path: placeholder });
+        await settle();
+        expect(first.committed === true && first.path === wanted, `${label}: the new page was not made at its name (${first.path})`);
+        const madeText = (await readFiles(env, [wanted, placeholder], ctx)).texts;
+        expect(/status: "draft"/.test(madeText[0] ?? '') && madeText[1] === undefined, `${label}: the new page is not a draft page file`);
+        expect(
+          (await callS('GET', `/api/autosave?path=${encodeURIComponent(placeholder)}`)).status === 404,
+          `${label}: the new page's autosave is still there`,
+        );
+        // The same name taken: the number is added; the same text sent again is the one made, not another.
+        await callS('PUT', '/api/autosave', { ...create, text: `${made}\nTwo.\n` });
+        const second = await callS('POST', '/api/autosave/flush', { path: placeholder });
+        await settle();
+        expect(second.path === `${stem}-2.md`, `${label}: a taken name was not numbered (${second.path})`);
+        const again = await callS('POST', '/api/autosave/flush', { path: placeholder, text: `${made}\nTwo.\n`, create: true, to: wanted });
+        expect(again.committed === false && again.path === `${stem}-2.md`, `${label}: the same new page was made twice`);
+        // A draft page: an autosave writes the page file (not a waiting version) and keeps it a draft.
+        const written = `---\ntitle: "Hello"\nstatus: "published"\n---\n\n# Hello\n\nMore.\n`;
+        await callS('PUT', '/api/autosave', { path: wanted, text: written });
+        const draft = await callS('POST', '/api/autosave/flush', { path: wanted });
+        await settle();
+        const after = (await readFiles(env, [wanted, `src/drafts/${wanted.slice('src/content/'.length)}`], ctx)).texts;
+        expect(draft.committed === true && draft.path === wanted, `${label}: the draft page was not saved`);
+        expect(
+          /status: "draft"/.test(after[0] ?? '') && /More\./.test(after[0] ?? ''),
+          `${label}: the draft page was published or not written`,
+        );
+        expect(after[1] === undefined, `${label}: a draft page got a waiting version`);
+        // After the H1: the draft moves to its new name, and the old file goes. A taken name is numbered, and a published page never moves.
+        const renamed = `${dir}autosave-renamed-${label.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.md`;
+        await callS('PUT', '/api/autosave', { path: wanted, text: written, to: renamed });
+        const moved = await callS('POST', '/api/autosave/flush', { path: wanted });
+        await settle();
+        const gone = (await readFiles(env, [wanted, renamed], ctx)).texts;
+        expect(
+          moved.path === renamed && gone[0] === undefined && /More\./.test(gone[1] ?? ''),
+          `${label}: the draft did not move to its name`,
+        );
+        await callS('PUT', '/api/autosave', { path: post.path, text: `${text}Stays.\n`, to: renamed });
+        const stays = await callS('POST', '/api/autosave/flush', { path: post.path });
+        await settle();
+        expect(stays.path === post.path, `${label}: a published page moved (${stays.path})`);
+        // The hourly sweep makes a new page nobody flushed.
+        const swept2 = `${dir}new-entry-check2.md`;
+        await callS('PUT', '/api/autosave', { path: swept2, text: made, create: true, to: `${stem}-swept.md` });
+        const swept = await sweepAutosaves(env, Date.now() + 25 * 60 * 60 * 1000, ctx);
+        await settle();
+        expect(
+          swept.flushed >= 1 && /status: "draft"/.test((await readFiles(env, [`${stem}-swept.md`], ctx)).texts[0] ?? ''),
+          `${label}: the sweep did not make a new page`,
+        );
+        const left = [wanted, `${stem}-2.md`, renamed, `${stem}-swept.md`, waiting];
+        const there = await readFiles(env, left, ctx);
+        await commitFiles(
+          env,
+          there.head,
+          `Editor: discard autosave pages (${label})`,
+          [
+            ...left.flatMap((path, i) => (there.texts[i] === undefined ? [] : [{ path, text: null }])),
+            { path: post.path, text: `${text}Done (${label}).\n` },
+          ],
+          ctx,
+        );
+      }
     }
   }
   await settle();

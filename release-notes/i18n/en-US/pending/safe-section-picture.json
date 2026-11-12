@@ -1,5 +1,5 @@
 {
   "id": "safe-section-picture",
   "kind": "line",
-  "text": "A section picture must be a path on your site or an https address, other addresses are no longer shown"
+  "text": "A section picture must be a path on your site or an https address"
 }

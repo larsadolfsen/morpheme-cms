@@ -77,6 +77,8 @@ import { useToolbarLines } from './useToolbarLines';
 import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
 import { describe, htmlBlock, type BlockProps } from './blocks';
+import InlineList, { type Change, type Focus, type Row } from './InlineList';
+import { withoutEmpty } from './inlineRows.mjs';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
@@ -92,6 +94,7 @@ import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
 import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
 import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
+import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.svg?raw';
 import trashIcon from '@phosphor-icons/core/assets/regular/trash.svg?raw';
 import boldIcon from '@phosphor-icons/core/assets/regular/text-b.svg?raw';
 import italicIcon from '@phosphor-icons/core/assets/regular/text-italic.svg?raw';
@@ -847,28 +850,36 @@ function selectionMenu(
   });
 }
 
+// The blocks just put in that are typed in place (blockCard starts the first row of each).
+const fresh = new WeakSet<object>();
+
 // A block in the text as a card: the block as it looks on the site (its draw, src/apps/<app>/blocks/), in a thin frame;
 // for screen readers its name and what is in it (describe in blocks.ts). Tapping it opens a row of
 // icons on it to edit, hide or show, move and remove it. cards: how to draw the previews of the
 // text again, when what they show from elsewhere has changed.
 function blockCard(
-  node: Node,
+  first: Node,
   view: EditorView,
   getPos: () => number | undefined,
   asker: () => BlockAsk | undefined,
   cards: Set<() => void>,
 ) {
+  // The block's node: a block typed in place (inline) is changed without being drawn again (update), so the node follows.
+  let node = first;
   const ask = asker();
   const block = node.attrs.type === HTML ? htmlBlock : ask?.list.find((b) => b.type === node.attrs.type);
   const hidden = node.attrs.props.hidden === true;
   // A block gone from the site by itself (a notice whose time is over) is greyed like a hidden one.
   const over = !!block?.over?.(node.attrs.props);
+  // A block typed in place (InlineList.tsx): its card is not a button to tap but the block itself, with its menu on a handle.
+  const inline = !!block?.inline && node.attrs.type !== HTML;
   const dom = document.createElement('div');
   dom.className = hidden || over ? 'site-block site-block-hidden' : 'site-block';
   dom.contentEditable = 'false';
-  const card = dom.appendChild(document.createElement('button'));
-  card.type = 'button';
-  card.className = 'site-block-card';
+  const card = dom.appendChild(document.createElement(inline ? 'div' : 'button'));
+  if (card instanceof HTMLButtonElement) card.type = 'button';
+  else card.setAttribute('role', 'group');
+  card.className = inline ? 'site-block-card site-block-inline' : 'site-block-card';
   const name = block?.label ?? node.attrs.type;
   card.setAttribute('aria-label', name);
   if (hidden) {
@@ -879,11 +890,40 @@ function blockCard(
   }
   const shown = card.appendChild(document.createElement('div'));
   shown.className = ask?.data.page ? 'site-block-preview site-block-section not-prose' : 'site-block-preview not-prose';
-  shown.setAttribute('aria-hidden', 'true');
+  // What is typed in place is for screen readers too; the picture of any other block is not.
+  if (!inline) shown.setAttribute('aria-hidden', 'true');
   const root = createRoot(shown);
+  // Typed in place: which row is active (null: none, the block shows its live look), and the field to put the cursor in.
+  let active: number | null = null;
+  let focus: Focus | null = null;
+  const setItems = (items: Row[]) => {
+    const here = at();
+    if (here) view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props: { ...node.attrs.props, items } }));
+  };
+  const change = (c: Change) => {
+    if ('active' in c) active = c.active ?? null;
+    if ('focus' in c) focus = c.focus ?? null;
+    if (c.items) setItems(c.items);
+    else draw();
+  };
   const draw = () => {
     const ask = asker();
     if (!ask) return;
+    if (inline) {
+      card.setAttribute('aria-description', hidden ? t.text.hiddenOnPage : '');
+      flushSync(() =>
+        root.render(
+          <InlineList
+            items={(node.attrs.props.items as Row[] | undefined) ?? []}
+            active={active}
+            focus={focus}
+            onChange={change}
+            onSettings={() => void edit()}
+          />,
+        ),
+      );
+      return;
+    }
     const lines = block ? describe(block, node.attrs.props, ask.data) : [];
     card.setAttribute('aria-description', [hidden ? t.text.hiddenOnPage : '', ...lines].filter(Boolean).join('. '));
     // Without a picture of it, what is in it, in lines.
@@ -896,6 +936,16 @@ function blockCard(
     );
     flushSync(() => root.render(picture));
   };
+  // A block just put in (a new List) starts with its first row active and the cursor in it (known by its props, which the new node keeps).
+  // The sheet it came from is closing and gives the focus back to what had it: wait until no sheet is open.
+  if (inline && fresh.delete(node.attrs.props)) {
+    let tries = 0;
+    const start = () => {
+      if (document.querySelector('dialog[open]') && tries++ < 30) return void setTimeout(start, 50);
+      change({ active: 0, focus: { row: 0, field: 'title' } });
+    };
+    setTimeout(start);
+  }
   draw();
   cards.add(draw);
 
@@ -944,11 +994,33 @@ function blockCard(
   // Block.edit), no move past the start or end. By the template (collections.ts): a locked block is
   // only edited, and the last shown one of a block the page must have cannot be hidden or removed.
   // From expanded the block's fields are in the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
-  const inPanelNow = () => editsInPanel(atLeastNow('expanded'), !!block?.fields.length);
+  const inPanelNow = () => !inline && editsInPanel(atLeastNow('expanded'), !!block?.fields.length);
+  // Typed in place: the menu is opened with a handle at the block's corner (the block itself is for typing).
+  let handle = card;
+  if (inline) {
+    handle = dom.appendChild(document.createElement('button'));
+    (handle as HTMLButtonElement).type = 'button';
+    handle.className = 'site-block-handle';
+    handle.title = name;
+    handle.setAttribute('aria-label', name);
+    handle.innerHTML = dotsIcon.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
+    // Leaving the block (not for its own handle or menu): the row being edited is done, a row with nothing in it is dropped.
+    dom.addEventListener('focusout', () =>
+      setTimeout(() => {
+        if (dom.contains(document.activeElement) || active === null) return;
+        active = null;
+        focus = null;
+        const rows = (node.attrs.props.items as Row[] | undefined) ?? [];
+        const kept = withoutEmpty(rows);
+        if (kept !== rows) setItems(kept);
+        else draw();
+      }),
+    );
+  }
   const close = cardMenu(
     view,
     dom,
-    card,
+    handle,
     name,
     () => {
       const i = top();
@@ -969,7 +1041,14 @@ function blockCard(
   // A changed block is drawn anew (update false); taps on the card and its menu are not ProseMirror's.
   return {
     dom,
-    update: () => false,
+    // Typed in place: the same block with other rows is kept (the cursor stays in the row); anything else is drawn again.
+    update: (next: Node) => {
+      if (!inline || next.type !== node.type || next.attrs.type !== node.attrs.type || (next.attrs.props.hidden === true) !== hidden)
+        return false;
+      node = next;
+      draw();
+      return true;
+    },
     stopEvent: () => true,
     ignoreMutation: () => true,
     destroy: () => {
@@ -1310,6 +1389,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const view = ctx.get(editorViewCtx);
       const { state } = view;
       const node = siteBlockSchema.type(ctx).create({ type: chosen.type, props: chosen.props });
+      if (blocks!.list.find((b) => b.type === chosen.type)?.inline) fresh.add(chosen.props);
       let tr = state.tr;
       // Where the new block ends, when the cursor must be moved past it (-1: it is in text already).
       let end = -1;

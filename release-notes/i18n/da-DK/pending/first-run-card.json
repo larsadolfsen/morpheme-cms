@@ -1,5 +1,6 @@
 {
   "id": "first-run-card",
-  "kind": "line",
-  "text": "En ny hjemmeside viser et Kom i gang-kort, og editoren spørger, før din browser spørger om at vise beskeder"
+  "kind": "paragraph",
+  "title": "Kom i gang på en ny hjemmeside",
+  "text": "En ny hjemmeside viser nu et Kom i gang-kort på startsiden. Editoren spørger også, før din browser spørger om at vise beskeder."
 }

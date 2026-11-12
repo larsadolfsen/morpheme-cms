@@ -1,6 +1,6 @@
 {
   "id": "autosave-form",
-  "kind": "card",
+  "kind": "paragraph",
   "title": "Keep your changes while you write",
-  "text": "With Faster editor on, the editor now saves your changes to a published page as you type, so closing the tab or losing your connection no longer loses them. The line under the title shows Saving…, Saved or Not saved."
+  "text": "With Faster editor on, the editor now saves your changes as you type, also in a new page or post and in a draft. Closing the tab or losing your connection no longer loses them. The line under the title shows Saving…, Saved or Not saved."
 }

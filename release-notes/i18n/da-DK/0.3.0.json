@@ -3,7 +3,7 @@
   "notes": [
     {
       "id": "side-column-block",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Vis en blok ved siden af dine sider",
       "text": "Din hjemmeside kan nu vise én blok i en kolonne ved siden af sidernes tekst. Vælg den under Udseende › Sidekolonne, og slå den fra på de sider, hvor du ikke vil have den."
     },

@@ -3,19 +3,19 @@
   "notes": [
     {
       "id": "social-media-links",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Tilføj dine profiler på sociale medier",
       "text": "Profiler på sociale medier er nu en liste med links. Tryk på +, og et link til Facebook, X, LinkedIn eller Pinterest får selv sit navn og sit ikon."
     },
     {
       "id": "continue-where-left-off",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Fortsæt, hvor du slap",
       "text": "Dine seneste 3 sider og blogindlæg ligger nu øverst på startskærmen. Tryk på et af dem for at komme lige tilbage."
     },
     {
       "id": "notifications-side-sheet",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Læs notifikationer uden at forlade siden",
       "text": "Klokken i den øverste bjælke åbner nu dine notifikationer ved siden af den skærm, du er på. På en telefon kan du trykke og holde på en notifikation for at vælge den og slette den."
     },

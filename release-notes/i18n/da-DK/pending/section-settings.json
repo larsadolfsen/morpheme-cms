@@ -1,5 +1,6 @@
 {
   "id": "section-settings",
-  "kind": "line",
-  "text": "Sektioner kan være Flade, Primære, Sekundære eller Tertiære og have et baggrundsbillede og en bredde, så et banner nu er en sektion"
+  "kind": "paragraph",
+  "title": "Giv en sektion et baggrundsbillede",
+  "text": "Du kan nu gøre en sektion Flad, Primær, Sekundær eller Tertiær, tilføje et baggrundsbillede og vælge dens bredde. Banneret øverst på forsiden er også en sektion nu, så dens overskrift kan have et billede. Åbn en sektions indstillinger for at prøve det."
 }

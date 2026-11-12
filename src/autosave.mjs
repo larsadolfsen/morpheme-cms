@@ -18,11 +18,11 @@ const RETRY_MS = [1000, 2000, 4000, 8000, 16000];
 
 /**
  * @param {{
- *   send: (call: { action: 'put' | 'flush'; path: string; id: string; text?: string; leaving?: boolean }) => Promise<{ ok: boolean; off?: boolean; committed?: boolean }>,
+ *   send: (call: { action: 'put' | 'flush'; path: string; id: string; text?: string; leaving?: boolean; create?: boolean; to?: string }) => Promise<{ ok: boolean; off?: boolean; committed?: boolean; path?: string }>,
  *   setTimer?: (fn: () => void, ms: number) => unknown,
  *   clearTimer?: (timer: unknown) => void,
  *   debounce?: number, idle?: number, retries?: number[],
- *   onFlushed?: (done: { path: string; id: string }) => void,
+ *   onFlushed?: (done: { path: string; id: string; wrote?: string }) => void,
  * }} options
  */
 export function createAutosave({
@@ -34,7 +34,7 @@ export function createAutosave({
   retries = RETRY_MS,
   onFlushed,
 }) {
-  /** @type {Map<string, { path: string; id: string; text: string; dirty: boolean; unflushed: boolean; sending: boolean; failed: boolean; off: boolean; tries: number; timer?: unknown; idleTimer?: unknown }>} */
+  /** @type {Map<string, { path: string; id: string; text: string; make: { create?: boolean; to?: string }; dirty: boolean; unflushed: boolean; sending: boolean; failed: boolean; off: boolean; tries: number; timer?: unknown; idleTimer?: unknown }>} */
   const items = new Map();
   /** @type {Set<(state: AutosaveState) => void>} */
   const listeners = new Set();
@@ -64,7 +64,7 @@ export function createAutosave({
     const text = item.text;
     let answer;
     try {
-      answer = await send({ action: 'put', path: item.path, id: item.id, text });
+      answer = await send({ action: 'put', path: item.path, id: item.id, text, ...item.make });
     } catch {
       answer = { ok: false };
     }
@@ -88,13 +88,26 @@ export function createAutosave({
     emit();
   }
 
-  /** The text of a page's version changed. */
-  function autosave(path, text, id = 'waiting') {
+  /** The text of a page's version changed. `make`: a new page or post (`create`, with `to` the page file it is made as), or a draft page
+   * that is to move to `to` (the H1 changed): the Worker (worker/autosave.js) does it when it moves the text to git. */
+  function autosave(path, text, id = 'waiting', make = {}) {
     const key = keyOf(path, id);
-    const item = items.get(key) ?? { path, id, text, dirty: false, unflushed: false, sending: false, failed: false, off: false, tries: 0 };
+    const item = items.get(key) ?? {
+      path,
+      id,
+      text,
+      make,
+      dirty: false,
+      unflushed: false,
+      sending: false,
+      failed: false,
+      off: false,
+      tries: 0,
+    };
     items.set(key, item);
     if (item.off) return;
     item.text = text;
+    item.make = make;
     item.dirty = true;
     item.unflushed = true;
     item.failed = false;
@@ -119,7 +132,7 @@ export function createAutosave({
     item.sending = true;
     let answer;
     try {
-      answer = await send({ action: 'flush', path, id, ...(wasDirty ? { text } : {}), leaving });
+      answer = await send({ action: 'flush', path, id, ...(wasDirty ? { text } : {}), ...item.make, leaving });
     } catch {
       answer = { ok: false };
     }
@@ -134,7 +147,8 @@ export function createAutosave({
         item.unflushed = false;
       } else item.timer = setTimer(() => sendNow(item), debounce);
       // Git has a new waiting version: the form takes its file (its blob id) so the next save does not clash with it.
-      if (answer.committed && !leaving) onFlushed?.({ path, id });
+      // (`wrote`: the page file that has it, when the Worker made a new page or moved a draft.)
+      if (answer.committed && !leaving) onFlushed?.({ path, id, ...(answer.path ? { wrote: answer.path } : {}) });
     } else {
       // Not in git: the text is still to be sent (`retry()`, or the next change).
       item.failed = true;
@@ -181,9 +195,15 @@ export function createAutosave({
 
 /** The one the editor uses: requests to the Worker's /api/autosave, the browser's timers. `fetcher`: `fetch`. */
 export function autosaveClient(fetcher = (...args) => fetch(...args), options = {}) {
-  const send = async ({ action, path, id, text, leaving }) => {
+  const send = async ({ action, path, id, text, leaving, create, to }) => {
     const flush = action === 'flush';
-    const body = JSON.stringify({ path, id, ...(text === undefined ? {} : { text }) });
+    const body = JSON.stringify({
+      path,
+      id,
+      ...(text === undefined ? {} : { text }),
+      ...(create ? { create } : {}),
+      ...(to ? { to } : {}),
+    });
     // `keepalive` lets the request finish after the page has gone, but is limited to 64 KB of body.
     const keepalive = leaving && body.length < 60_000;
     const res = await fetcher(flush ? '/api/autosave/flush' : '/api/autosave', {
@@ -199,8 +219,8 @@ export function autosaveClient(fetcher = (...args) => fetch(...args), options = 
       return { ok: false, off: said.error === 'off' };
     }
     // 404 `page` on a flush: the page file is gone and the Worker has thrown the autosave away: nothing more to keep.
-    const committed = flush && res.ok ? (await res.json().catch(() => ({}))).committed === true : false;
-    return { ok: res.ok || (flush && res.status === 404), committed };
+    const said = flush && res.ok ? await res.json().catch(() => ({})) : {};
+    return { ok: res.ok || (flush && res.status === 404), committed: said.committed === true, ...(said.path ? { path: said.path } : {}) };
   };
   return createAutosave({ send, ...options });
 }
