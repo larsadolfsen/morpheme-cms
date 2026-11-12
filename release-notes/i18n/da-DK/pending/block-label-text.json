@@ -1,0 +1,5 @@
+{
+  "id": "block-label-text",
+  "kind": "line",
+  "text": "Blokke har ikke længere feltet Etiket; en eksisterende etiket bliver stående som en Label-linje i teksten lige før blokken"
+}

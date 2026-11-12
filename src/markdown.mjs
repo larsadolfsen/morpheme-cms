@@ -16,6 +16,7 @@ import { alignClass, alignHtml, alignOf } from '../lib/text-align.mjs';
 import { remarkBannerSections } from '../lib/remark-banner-section.mjs';
 import { remarkChecklists } from '../lib/remark-checklist.mjs';
 import { remarkListHeads } from '../lib/remark-list-head.mjs';
+import { remarkBlockLabels } from '../lib/remark-block-label.mjs';
 import { topOf } from './sections.mjs';
 import { bodyLargeSchema } from './bodyLarge.mjs';
 import { bodyMediumSchema, bodySmallSchema } from './bodySize.mjs';
@@ -37,8 +38,11 @@ const remarkSiteBlocks = $remark('remarkSiteBlocks', () => () => (tree) => {
   tree.children = tree.children.map((child, i) => {
     const only = child.type === 'paragraph' && child.children?.length === 1 ? child.children[0] : child;
     if (only.type !== 'html') return child;
-    // A label right before a heading (lib/eyebrow.mjs) is the node eyebrow (eyebrow.mjs), not a block.
-    const label = tree.children[i + 1]?.type === 'heading' ? eyebrowText(String(only.value)) : null;
+    // A label right before a heading or a block (lib/eyebrow.mjs) is the node eyebrow (eyebrow.mjs), not a block.
+    const next = tree.children[i + 1];
+    const nextHtml = next?.type === 'paragraph' && next.children?.length === 1 ? next.children[0] : next;
+    const before = next?.type === 'heading' || (nextHtml?.type === 'html' && parseBlock(String(nextHtml.value), null) !== null);
+    const label = before ? eyebrowText(String(only.value)) : null;
     if (label !== null) return { type: 'eyebrow', value: label };
     // An intro paragraph (lib/body-large.mjs) is the node bodyLarge.
     const large = bodyLargeText(String(only.value));
@@ -297,6 +301,8 @@ export function makeEditor(root, markdown) {
       .use($remark('remarkChecklists', () => remarkChecklists))
       // A List's label, heading and intro are read as the text's own lines above it, so the next save writes them there.
       .use($remark('remarkListHeads', () => remarkListHeads))
+      // A block's label is read as the text's own label line before it, so the next save writes it there.
+      .use($remark('remarkBlockLabels', () => remarkBlockLabels))
       .use(remarkAlignMarkers)
       .use(remarkSectionMarkers)
       .use(remarkSiteBlocks)

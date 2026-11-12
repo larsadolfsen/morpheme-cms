@@ -32,7 +32,7 @@ export const eyebrowSchema = $nodeSchema('eyebrow', () => ({
   },
 }));
 
-// A label whose heading has gone (deleted, or turned into text) is a paragraph with its text.
+// A label whose heading or block has gone (deleted, or turned into text) is a paragraph with its text.
 /** @type {import('@milkdown/kit/utils').$Prose} */
 export const eyebrowKeeper = $prose(
   () =>

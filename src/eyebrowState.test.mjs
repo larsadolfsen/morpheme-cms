@@ -11,6 +11,7 @@ const schema = new Schema({
     paragraph: { group: 'block', content: 'text*' },
     heading: { group: 'block', content: 'text*', attrs: { level: { default: 2 } } },
     eyebrow: { group: 'block', content: 'text*' },
+    siteBlock: { group: 'block', atom: true },
     text: {},
   },
 });
@@ -20,6 +21,10 @@ const labelled = () => schema.node('doc', null, [node('eyebrow', 'Label'), node(
 const stateAt = (doc, pos) => EditorState.create({ doc, selection: TextSelection.create(doc, pos) });
 
 test('a label before its heading is not loose', () => assert.deepEqual(looseLabels(labelled()), []));
+test('a label before a block is not loose', () => {
+  const doc = schema.node('doc', null, [node('eyebrow', 'Label'), schema.node('siteBlock'), node('paragraph', 'x')]);
+  assert.deepEqual(looseLabels(doc), []);
+});
 test('a label without a heading after it is loose', () => {
   const doc = schema.node('doc', null, [node('eyebrow', 'Label'), node('paragraph', 'x'), node('eyebrow', 'End')]);
   assert.deepEqual(looseLabels(doc), [0, 10]);

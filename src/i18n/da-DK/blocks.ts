@@ -29,8 +29,6 @@ export const blocks: Messages['blocks'] = {
   },
   heading: 'Overskrift',
   headingHint: 'Valgfri.',
-  eyebrow: 'Etiket',
-  eyebrowHint: 'Står i etiketstilen over overskriften.',
   subheading: 'Underoverskrift',
   subheadingHint: 'Står under overskriften.',
   faq: {
