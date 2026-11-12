@@ -7,6 +7,12 @@ export const SECTIONS = /** @type {const} */ (['themes', 'connectors', 'plugins'
 
 /** @typedef {typeof SECTIONS[number]} Section */
 
+/** Whether `id` names a section (the last part of #settings/appstore/<section>).
+ * @param {string} id
+ * @returns {id is Section}
+ */
+export const isSection = (id) => SECTIONS.includes(/** @type {Section} */ (id));
+
 /** The section opened first when none is kept. */
 export const FIRST_SECTION = 'plugins';
 

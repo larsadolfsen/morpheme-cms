@@ -27,6 +27,7 @@ import { sectionBlocks } from './blocks';
 import { looksOf, pageH1 } from './sections.mjs';
 import { h1FromTitle, titleFromH1 } from './titleH1.mjs';
 import { useFormSections } from './formSections';
+import { sectionsWithFields } from './formSectionList.mjs';
 import { publicPath, shownAt, useUploads } from './images';
 import { filerAddresses, useMediaPicker } from './Media';
 import { autoTagChanges, newlyUsed } from './autoTags.mjs';
@@ -43,6 +44,7 @@ import {
   CheckList,
   FoldSection,
   FormColumns,
+  LoadingIndicator,
   type NavigationItem,
   SectionList,
   SectionPane,
@@ -64,6 +66,9 @@ import {
   unpublish as unpublishPage,
 } from '../lib/versions.mjs';
 import { commitChanges } from './pageVersions.mjs';
+import { isPagePath } from '../lib/autosave.mjs';
+import { loadAutosave, restorable } from './autosave.mjs';
+import { useAutosave, type AutosaveState } from './useAutosave';
 import VersionSwitch, { WaitingNotice } from './VersionSwitch';
 import { activeApps, versionSwitchOf } from './apps';
 import { usePagePreview } from './pagePreview';
@@ -219,6 +224,10 @@ function Form({
   const editsLive = editing === 'live' && !!waiting;
   // Starts again after changes were discarded: the text editor takes the text of the version it goes back to.
   const [era, setEra] = useState(0);
+  // The text of an autosave put back when the page opened: the text editor starts with it (only in the era it was put back in).
+  const [restoredBody, setRestoredBody] = useState<{ era: number; body: string } | null>(null);
+  const eraNow = useRef(0);
+  eraNow.current = era;
   const parts = useMemo(() => splitFrontmatter(base.text), [base]);
   const initial = useMemo(() => valuesOf(collection, base), [collection, base]);
   // An earlier version: its fields and text, at the address there is now.
@@ -304,7 +313,15 @@ function Form({
   );
   // The form's name, in the top bar and over the sections list (the "on this page" card, on large and wider screens).
   const formTitle = isNew ? collection.create! : String(initial.title || collection.singular);
-  const has = (id: Section) => collection.fields.some(inSection(collection, id));
+  // Whether the form draws a field at all (field(), below): a section with none is not offered, in no list.
+  const fieldShown = (f: Field) =>
+    f.name !== 'status' &&
+    f.name !== 'publishAt' &&
+    inUse(f, collection.fields, values) &&
+    !(f.name === 'title' && collection.blocks && isNew) &&
+    !(f.offered && !templateFieldOf(f, env.files));
+  const withFields = sectionsWithFields(collection.fields, (name) => sectionOf(collection, name), fieldShown);
+  const has = (id: Section) => withFields.has(id);
   const post = collection.id === 'blog';
   const sections: NavigationItem[] = [
     ...(has('settings') ? [{ id: 'settings', label: post ? t.forms.sections.postSettings : t.forms.sections.pageSettings }] : []),
@@ -357,8 +374,68 @@ function Form({
     if (textNear && bodyChanged) readBody();
   }, [textNear]);
   useEffect(() => () => clearTimeout(reading.current), []);
+  // Autosave (src/useAutosave.ts): a published page's changes, kept by the Worker while they are written (Faster editor) and moved to
+  // git as the waiting version when the form is left. Not the live page being edited, a new page, an earlier version or a new address.
+  const typedAddress = addressOf(String(values.path ?? ''), post ? 'post' : 'page');
+  const autosaves =
+    !isNew && !version && !editsLive && (livePublished || !!waiting) && isPagePath(live.path) && (!typedAddress || typedAddress === url);
+  // The text of the version as `Save` writes it, or null when it cannot be saved now.
+  function autosaveText(): string | null {
+    if (problemAt(collection.fields, values)) return null;
+    const saved = inForm(collection.fields, values, offered);
+    const written = changed.filter((f) => f.name !== 'path');
+    const yaml = writeFields(parts.yaml, Object.fromEntries(written.map((f) => [f.name, saved[f.name]])));
+    const markdown = bodyChanged ? text.current?.markdown() : null;
+    const body = markdown == null ? parts.body : `\n${markdown.trim()}\n`;
+    if (blockProblems(body, template, front ? frontLeads : undefined)[0]) return null;
+    const next = `---\n${yaml}\n---\n${body}`;
+    // A picture added is kept in the browser until `Save` uploads it, so a text with one cannot be kept elsewhere yet.
+    return pictures.usedIn(next).length ? null : next;
+  }
+  // Git got the waiting version from the autosave: its file, as it is now, so the next `Save` does not clash with it.
+  async function takeWaiting() {
+    try {
+      const [file] = await env.load([draftPath(live.path)]);
+      if (!file?.text) return;
+      setWaiting(file);
+      env.onSaved(live, { files: [file], removed: [] });
+    } catch {}
+  }
+  const autosave = useAutosave({ on: autosaves, path: live.path, dirty, text: autosaveText, flushed: takeWaiting });
+  // A page opened with changes the Worker kept (the tab was closed, or the editor reloaded): put back, unless git's version is newer.
+  useEffect(() => {
+    if (!autosaves) return;
+    const start = eraNow.current;
+    let alive = true;
+    void (async () => {
+      const stored = await loadAutosave(live.path);
+      if (!stored || !alive) return;
+      const gitPath = waiting?.path ?? live.path;
+      const at = await env.savedAt([gitPath]).then(
+        (times) => times[gitPath],
+        () => undefined,
+      );
+      if (!alive || eraNow.current !== start || !restorable(stored, base.text, at)) return;
+      const file = { ...base, text: stored.text };
+      setValues({ ...valuesOf(collection, file), path: initial.path });
+      setRestoredBody({ era: start + 1, body: splitFrontmatter(stored.text).body });
+      setEra(start + 1);
+      setBodyChanged(true);
+      setBody(splitFrontmatter(stored.text).body);
+      notify({ text: t.forms.versions.autosave.restored });
+      autosave.touch();
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+  // A field changed.
+  useEffect(() => {
+    if (dirty) autosave.touch();
+  }, [values]);
   const onText = () => {
     setBodyChanged(true);
+    autosave.touch();
     if (!near.current) return;
     clearTimeout(reading.current);
     reading.current = window.setTimeout(readBody, 600);
@@ -957,7 +1034,16 @@ function Form({
         <FormFrame
           title={formTitle}
           back={{ href: `#list/${collection.id}`, label: collection.label }}
-          status={versionStatus({ state, editsLive, scheduledAt, savedAt, saving, deleting, isNew })}
+          status={versionStatus({
+            state,
+            editsLive,
+            scheduledAt,
+            savedAt,
+            saving,
+            deleting,
+            isNew,
+            autosave: autosaves && dirty ? autosave.state : undefined,
+          })}
           publish={publishBar}
           view={isNew ? undefined : url}
           dirty={dirty}
@@ -999,7 +1085,7 @@ function Form({
                     <MarkdownEditor
                       key={era}
                       ref={text}
-                      value={shown?.body ?? parts.body}
+                      value={(restoredBody?.era === era ? restoredBody.body : undefined) ?? shown?.body ?? parts.body}
                       onChange={onText}
                       addImage={pickImage}
                       blocks={collection.blocks ? blockAsk : undefined}
@@ -1083,6 +1169,7 @@ function versionStatus({
   saving,
   deleting,
   isNew,
+  autosave,
 }: {
   state: 'draft' | 'published' | 'waiting';
   /** The live page is being edited while changes wait. */
@@ -1093,8 +1180,12 @@ function versionStatus({
   saving: boolean;
   deleting?: boolean;
   isNew?: boolean;
+  /** Changes to a page that can wait are not saved yet: how autosave is doing (useAutosave.ts). */
+  autosave?: AutosaveState;
 }) {
   if (deleting || saving || isNew) return savedStatus({ savedAt, saving, deleting, isNew });
+  if (autosave === 'saving') return <LoadingIndicator>{t.forms.versions.autosave.saving}</LoadingIndicator>;
+  if (autosave) return t.forms.versions.autosave[autosave];
   if (editsLive) return t.forms.versions.editingLive;
   if (scheduledAt && untilTime(scheduledAt) !== null) return t.forms.versions.scheduledLine(timeText(scheduledAt));
   if (state === 'draft') return t.forms.versions.draftLine;

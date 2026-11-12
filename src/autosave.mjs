@@ -18,10 +18,11 @@ const RETRY_MS = [1000, 2000, 4000, 8000, 16000];
 
 /**
  * @param {{
- *   send: (call: { action: 'put' | 'flush'; path: string; id: string; text?: string; leaving?: boolean }) => Promise<{ ok: boolean; off?: boolean }>,
+ *   send: (call: { action: 'put' | 'flush'; path: string; id: string; text?: string; leaving?: boolean }) => Promise<{ ok: boolean; off?: boolean; committed?: boolean }>,
  *   setTimer?: (fn: () => void, ms: number) => unknown,
  *   clearTimer?: (timer: unknown) => void,
  *   debounce?: number, idle?: number, retries?: number[],
+ *   onFlushed?: (done: { path: string; id: string }) => void,
  * }} options
  */
 export function createAutosave({
@@ -31,8 +32,9 @@ export function createAutosave({
   debounce = DEBOUNCE_MS,
   idle = IDLE_MS,
   retries = RETRY_MS,
+  onFlushed,
 }) {
-  /** @type {Map<string, { path: string; id: string; text: string; dirty: boolean; sending: boolean; failed: boolean; off: boolean; tries: number; timer?: unknown; idleTimer?: unknown }>} */
+  /** @type {Map<string, { path: string; id: string; text: string; dirty: boolean; unflushed: boolean; sending: boolean; failed: boolean; off: boolean; tries: number; timer?: unknown; idleTimer?: unknown }>} */
   const items = new Map();
   /** @type {Set<(state: AutosaveState) => void>} */
   const listeners = new Set();
@@ -89,11 +91,12 @@ export function createAutosave({
   /** The text of a page's version changed. */
   function autosave(path, text, id = 'waiting') {
     const key = keyOf(path, id);
-    const item = items.get(key) ?? { path, id, text, dirty: false, sending: false, failed: false, off: false, tries: 0 };
+    const item = items.get(key) ?? { path, id, text, dirty: false, unflushed: false, sending: false, failed: false, off: false, tries: 0 };
     items.set(key, item);
     if (item.off) return;
     item.text = text;
     item.dirty = true;
+    item.unflushed = true;
     item.failed = false;
     item.tries = 0;
     clearTimer(item.timer);
@@ -111,12 +114,12 @@ export function createAutosave({
     clearTimer(item.idleTimer);
     item.timer = item.idleTimer = undefined;
     const text = item.text;
-    // An autosave already in the Worker is flushed without its text; a change not yet sent goes with the flush.
+    // An autosave already in the Worker is flushed without its text (it has it); a change not yet sent goes with the flush.
     const wasDirty = item.dirty;
     item.sending = true;
     let answer;
     try {
-      answer = await send({ action: 'flush', path, id, ...(wasDirty || leaving ? { text } : {}), leaving });
+      answer = await send({ action: 'flush', path, id, ...(wasDirty ? { text } : {}), leaving });
     } catch {
       answer = { ok: false };
     }
@@ -126,8 +129,12 @@ export function createAutosave({
       item.failed = false;
       item.tries = 0;
       // Saved in git: nothing is left in R2 unless the text changed while the flush was on its way.
-      if (item.text === text) item.dirty = false;
-      else item.timer = setTimer(() => sendNow(item), debounce);
+      if (item.text === text) {
+        item.dirty = false;
+        item.unflushed = false;
+      } else item.timer = setTimer(() => sendNow(item), debounce);
+      // Git has a new waiting version: the form takes its file (its blob id) so the next save does not clash with it.
+      if (answer.committed && !leaving) onFlushed?.({ path, id });
     } else {
       // Not in git: the text is still to be sent (`retry()`, or the next change).
       item.failed = true;
@@ -139,9 +146,7 @@ export function createAutosave({
 
   /** The person leaves the page: everything not yet in git is sent in one request each (they cannot wait). */
   async function leave() {
-    await Promise.all(
-      [...items.values()].filter((i) => (i.dirty || i.sending) && !i.off).map((i) => flush(i.path, i.id, { leaving: true })),
-    );
+    await Promise.all([...items.values()].filter((i) => i.unflushed && !i.off).map((i) => flush(i.path, i.id, { leaving: true })));
   }
 
   /** Tries again at once what failed. */
@@ -194,10 +199,35 @@ export function autosaveClient(fetcher = (...args) => fetch(...args), options = 
       return { ok: false, off: said.error === 'off' };
     }
     // 404 `page` on a flush: the page file is gone and the Worker has thrown the autosave away: nothing more to keep.
-    return { ok: res.ok || (flush && res.status === 404) };
+    const committed = flush && res.ok ? (await res.json().catch(() => ({}))).committed === true : false;
+    return { ok: res.ok || (flush && res.status === 404), committed };
   };
   return createAutosave({ send, ...options });
 }
+
+/** What the Worker keeps for a page's version: `{ text, savedAt }`, or null when it has none (or cannot be asked). */
+export async function loadAutosave(path, id = 'waiting', fetcher = (...args) => fetch(...args)) {
+  try {
+    const res = await fetcher(`/api/autosave?${new URLSearchParams({ path, id })}`, { cache: 'no-store' });
+    if (!res.ok) return null;
+    const stored = await res.json();
+    return typeof stored?.text === 'string' && typeof stored.savedAt === 'number' ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Throws away what the Worker keeps for a page's version (it was saved, discarded or left); never fails. */
+export async function deleteAutosave(path, id = 'waiting', fetcher = (...args) => fetch(...args)) {
+  try {
+    await fetcher(`/api/autosave?${new URLSearchParams({ path, id })}`, { method: 'DELETE', keepalive: true });
+  } catch {}
+}
+
+/** Whether a stored autosave is to be put back when a page opens: it has other text than the version in git, and was saved after git's
+ * file was (`gitAt`: when the file was last saved, or null when that is not known). @param {{ text: string; savedAt: number }} stored
+ * @param {string} gitText @param {Date | null | undefined} gitAt */
+export const restorable = (stored, gitText, gitAt) => stored.text !== gitText && (!gitAt || stored.savedAt > gitAt.getTime());
 
 /** Calls `client.leave()` when the page is left or hidden (the tab closed, another app on a phone), and gives the way to stop. */
 export function watchLeaving(client, target = globalThis) {
