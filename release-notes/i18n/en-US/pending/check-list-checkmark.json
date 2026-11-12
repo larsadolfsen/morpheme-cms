@@ -1,6 +1,6 @@
 {
   "id": "check-list-checkmark",
   "kind": "paragraph",
-  "title": "Tick off items in a check list",
-  "text": "A check list in the text editor now shows a box for each item, the same as on your site. Tap the box to tick an item or clear it."
+  "title": "See a check mark before each check list item",
+  "text": "A check list now shows a check mark before each item, in the editor and on your site. Tap the mark to tick an item or clear it. The text style button shows the style you are in, and a general text icon when you are not in the text."
 }

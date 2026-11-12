@@ -1,6 +1,6 @@
 {
   "id": "check-list-checkmark",
   "kind": "paragraph",
-  "title": "Sæt flueben i en tjekliste",
-  "text": "En tjekliste i teksteditoren viser nu en boks ved hvert punkt, ligesom på din hjemmeside. Tryk på boksen for at sætte eller fjerne fluebenet."
+  "title": "Se et flueben foran hvert punkt i en tjekliste",
+  "text": "En tjekliste viser nu et flueben foran hvert punkt, både i editoren og på din hjemmeside. Tryk på fluebenet for at sætte eller fjerne det. Knappen til teksttype viser den type, du står i, og et almindeligt tekstikon, når du ikke er i teksten."
 }
