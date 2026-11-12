@@ -5,6 +5,7 @@ import { ListBullets } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { iconOptions } from '../../icon';
 import { t } from '../../i18n';
+import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
 
 type Row = { title?: string };
 
@@ -12,11 +13,14 @@ export default defineBlock({
   group: 'lists',
   label: t.blocks.list.label,
   icon: ListBullets,
+  nameOf: (p) => nameWith(t.blocks.list.label, p),
   hint: t.blocks.list.hint,
   inline: true,
   fields: [
+    ...rowsFromFields,
     {
       name: 'items',
+      only: typed,
       label: t.blocks.list.items,
       singular: t.blocks.list.item,
       type: 'list',
@@ -44,5 +48,5 @@ export default defineBlock({
       { icon: 'map-pin', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
     ],
   },
-  detail: (p) => [((p.items ?? []) as Row[]).map((r) => r.title ?? '').join(' · ')],
+  detail: (p, data) => (p.from ? [...fromLine(p, data)] : [((p.items ?? []) as Row[]).map((r) => r.title ?? '').join(' · ')]),
 });

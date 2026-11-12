@@ -27,7 +27,7 @@ export function inUse(field: Field, fields: Field[], value: Record<string, unkno
   while (at.around && !at.fields.some((f) => f.name === name)) at = at.around;
   const by = at.fields.find((f) => f.name === name);
   return (
-    field.only.is.includes(String(at.value?.[name] ?? by?.default ?? '')) &&
+    field.only.is.includes(String(at.value?.[name] ?? by?.default ?? '')) !== !!field.only.not &&
     (!by || by === field || inUse(by, at.fields, at.value, at.around))
   );
 }

@@ -966,7 +966,7 @@ function blockCard(
   if (card instanceof HTMLButtonElement) card.type = 'button';
   else card.setAttribute('role', 'group');
   card.className = inline ? 'site-block-card site-block-inline' : 'site-block-card';
-  const name = block?.label ?? node.attrs.type;
+  const name = block?.nameOf?.(node.attrs.props) ?? block?.label ?? node.attrs.type;
   card.setAttribute('aria-label', name);
   if (hidden) {
     // An eye struck through in the corner (for screen readers it says so in the description).

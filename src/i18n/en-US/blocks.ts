@@ -104,6 +104,24 @@ export const blocks = {
     /** The groups it is shown with where no page has it (in the site's language). */
     example: ['First group', 'Second group'],
   },
+  rows: {
+    from: 'Rows from',
+    fromHint: 'Pick a list to show its items as rows. Leave empty to type the rows yourself.',
+    tags: 'Only with these tags',
+    addTag: 'Add tag',
+    tagsHint: 'Leave empty to show all items of the list.',
+    howMany: 'How many',
+    howManyHint: 'Show only the first rows of the list. Leave empty to show all.',
+    showAllHint: 'The text of a button under the rows that goes to the whole list. Leave empty for no button.',
+    posts: 'Blog posts',
+    testimonials: 'Testimonials',
+    dynamic: 'Dynamic',
+    /** The name of a block that reads a list: "Dynamic list". */
+    named: (label: string) => `Dynamic ${label.toLowerCase()}`,
+    /** The line on its card: where its rows come from. */
+    from_line: (list: string) => `Rows from ${list}`,
+    empty: 'No items in the list match, so nothing shows on the page.',
+  },
   list: {
     label: 'List',
     hint: 'Rows with icon, heading and text.',
