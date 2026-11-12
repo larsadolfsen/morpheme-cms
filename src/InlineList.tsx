@@ -1,7 +1,8 @@
 // The List block typed in place (batch 5, owner decisions 6 and 14, finding 14): the rows are drawn as the site draws them (the theme's
 // list, the same markup as the theme's blocks/list/Rows.tsx) and each row's heading and text are typed where they stand. Only the active
 // row shows its empty fields (a slot for the icon, the heading, the text, a slot for the link); the others show their live look. While the
-// list has no row there is one, empty and faded: typing in it starts the first row. Enter in the heading goes to the text, Enter in the
+// list has no row there is one, empty and faded: typing in it starts the first row; while it is active and has rows, a text button
+// below the last row (`Add list row`) adds one. Enter in the heading goes to the text, Enter in the
 // text adds a row below, Backspace in an empty heading drops the row. The rows' changes are told to `onChange` (the rows, which row is
 // active, which field to focus), which the node view in MarkdownEditor.tsx (blockCard) keeps as the block's props. What is changed and
 // kept: src/inlineRows.mjs. Depends on the theme's List (themeUi.ts).
@@ -9,7 +10,7 @@ import { useEffect, useLayoutEffect, useRef } from 'react';
 import { LinkSimple, Plus } from '@phosphor-icons/react';
 import { Glyph } from './icon';
 import { t } from './i18n';
-import { SiteList, SiteListItem } from './themeUi';
+import { SiteButton, SiteList, SiteListItem } from './themeUi';
 import { addAt, removeAt, setField } from './inlineRows.mjs';
 
 export type Row = { icon?: string; title?: string; text?: string; href?: string; heading?: boolean };
@@ -151,6 +152,18 @@ export default function InlineList({
           );
         })}
       </SiteList>
+      {editing && items.length > 0 && (
+        <SiteButton
+          kind="text"
+          data-add-row=""
+          className="inline-list-add"
+          onClick={() =>
+            onChange({ items: addAt(items, items.length), active: items.length, focus: { row: items.length, field: 'title' } })
+          }
+        >
+          {t.blocks.list.addRow}
+        </SiteButton>
+      )}
     </div>
   );
 }

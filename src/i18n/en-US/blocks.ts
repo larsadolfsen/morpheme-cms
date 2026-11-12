@@ -145,6 +145,7 @@ export const blocks = {
     row: 'Row',
     rowSettings: 'List settings',
     link: 'Link',
+    addRow: 'Add list row',
     newRow: 'New row',
     /** A row of the list typed in place: its place, for screen readers (row 2 of 4). */
     rowOf: (n: number, total: number) => `Row ${n} of ${total}`,

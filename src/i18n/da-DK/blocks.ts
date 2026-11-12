@@ -132,6 +132,7 @@ export const blocks: Messages['blocks'] = {
     row: 'Række',
     rowSettings: 'Listeindstillinger',
     link: 'Link',
+    addRow: 'Tilføj listerække',
     newRow: 'Ny række',
     rowOf: (n: number, total: number) => `Række ${n} af ${total}`,
   },
