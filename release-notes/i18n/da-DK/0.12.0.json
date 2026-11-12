@@ -3,13 +3,13 @@
   "notes": [
     {
       "id": "side-panel-tap-block",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Redigér en blok ved siden af siden",
       "text": "På en tablet eller en computer åbner et tryk på en blok eller et billede dens indstillinger i et sidepanel. Fjern ligger i panelet."
     },
     {
       "id": "floating-add-button",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Tilføj med en rund knap",
       "text": "Knappen, der opretter noget nyt i lister, Filer og Videresendelser, er nu en rund knap, der svæver over siden. Har en liste flere slags, åbner den en menu med dem."
     },

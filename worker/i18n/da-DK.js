@@ -25,12 +25,20 @@ export const daDK = {
   Allow: 'Tillad',
   Cancel: 'Annuller',
   'Connect {assistant}?': 'Forbind {assistant}?',
-  'This must be done on the consent page.': 'Det skal gøres på godkendelsessiden.',
+  'This must be done from the consent page of this site.': 'Det skal gøres fra dette sites godkendelsesside.',
+  'Already answered': 'Allerede besvaret',
+  'You can close this page and go back to the assistant.': 'Du kan lukke siden og gå tilbage til assistenten.',
+  'The consent page sent no request to answer.': 'Godkendelsessiden sendte ingen forespørgsel at svare på.',
+  'This browser did not keep the sign-in. Connect it again from the assistant.':
+    'Denne browser beholdt ikke login. Forbind igen fra assistenten.',
   // The page on the editor's old address (worker/editor-host.js). {address} is the link to the new address.
   'The editor has moved': 'Editoren er flyttet',
   'The editor has moved to {address} …': 'Editoren er flyttet til {address} …',
   // The commit of the scheduled pages and posts (worker/publish.js, lib/scheduled.mjs).
   'Publish scheduled: {names}': 'Udgiv planlagt: {names}',
+  // The commit of an autosaved draft that was saved to git (worker/autosave.js). {name} is the page file's path.
+  'Draft: {name}': 'Kladde: {name}',
+  'Move {count} scheduled to waiting versions': 'Flyt {count} planlagte til ventende versioner',
   'blog post': 'blogindlæg',
   page: 'side',
 };

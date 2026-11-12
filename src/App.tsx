@@ -40,6 +40,7 @@
 //   licenses         "Licenses", under "Settings": the licences of what the site and the editor are made with, and
 //                    licenses/<id> one with its text (Licenses.tsx)
 //   status           "System status", from the footer: GitHub's and Cloudflare's status (ServiceStatus.tsx)
+//   installed/connectors, installed/plugins   the connectors and plugins installed (AppList.tsx Apps with a role); the themes installed are appearance/themes
 //   apps             the apps that come with the site, apps/<app> one with its button to install it and, while it
 //                    is installed, the tabs of its page (AppList.tsx AppPage): Settings at apps/<app>, with its settings
 //                    form (also on the screen with its category, analytics/<app>, AppList.tsx settingsRoute), and
@@ -121,6 +122,7 @@ import {
   StoreAppPage,
   StorePage,
 } from './AppList';
+import { isSection, type Section } from './sectionChoice.mjs';
 import { activeApps, installedApps } from './apps';
 import {
   DEVELOPER_ROUTE,
@@ -132,6 +134,7 @@ import {
   readThemeScreenshots,
   STORE_ROUTE,
   STORE_THEMES,
+  INSTALLED_ROUTE,
   type ShownApp,
   type ShownTheme,
   type StoreApp,
@@ -173,6 +176,7 @@ import { Button, EmptyNote, ProblemNote, startRipples } from './ui';
 import { useMenuOpen } from './menuOpen';
 import { MainMenu } from './MainMenu';
 import { TopBarLayout } from './topBarSlot';
+import { setBuildState } from './buildState';
 import { rememberEdit } from './startStorage';
 import { Ask, ask } from './ask';
 import { LinkAsk } from './LinkSheet';
@@ -207,8 +211,9 @@ export type Env = {
   /** Shows a message at the bottom of the screen; null hides it. */
   notify: (status: Status) => void;
   /** Saves files as one commit (github.ts) and later tells when the site has the change. `change`: what it changed, in
-   * the editor's language (t.app.changes, deploy.ts), for that message. Returns the new blob ids. */
-  commit: (message: string, changes: Change[], change: string) => Promise<Record<string, string>>;
+   * the editor's language (t.app.changes, deploy.ts), for that message. `onSite: false`: nothing on the site changes (a
+   * waiting version in src/drafts/), so it does not wait for the site. Returns the new blob ids. */
+  commit: (message: string, changes: Change[], change: string, onSite?: boolean) => Promise<Record<string, string>>;
   /** When some files were last saved (github.ts); a new file is left out. */
   savedAt: (paths: string[]) => Promise<Record<string, Date>>;
   /** The commits that changed a file, and its text in one of them (github.ts; Versions.tsx). */
@@ -497,17 +502,20 @@ function Editor() {
     );
   }
 
-  async function save(message: string, changes: Change[], change: string) {
+  async function save(message: string, changes: Change[], change: string, onSite = true) {
     const saved = await commit(message, changes);
+    if (!onSite) return saved.blobs;
     // One message for all saves: a later save is on the site together with or after the ones before. It says what
     // each of them changed (each once).
     stopWaiting.current?.();
     if (!waitingFor.current.includes(change)) waitingFor.current.push(change);
     const what = changesText(waitingFor.current);
     // The Worker says it on the phone too, also when the editor is closed by then (notificationData.ts).
+    setBuildState('updating');
     const onServer = waitOnServer(saved.commit, t.app.siteUpdated(what), t.app.siteNotUpdated(what));
     stopWaiting.current = waitForSite(saved.commit, async (online) => {
       waitingFor.current = [];
+      setBuildState(online ? 'live' : 'failed');
       const text = online ? t.app.siteUpdated(what) : t.app.siteNotUpdated(what);
       // On screen the editor says it, and the Worker does not; else only the Worker sends it to the phone.
       const byServer = document.visibilityState !== 'visible' && (await onServer);
@@ -519,6 +527,7 @@ function Editor() {
 
   function signOut() {
     stopWaiting.current?.();
+    setBuildState('idle');
     waitingFor.current = [];
     // No notifications on this phone for someone signed out: signed off at the Worker while the sign-in is still there.
     void signOff()
@@ -798,7 +807,11 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === STATUS_ROUTE) return <ServiceStatus />;
   if (route.startsWith(`${LICENSES_ROUTE}/`)) return <LicensePage key={route} id={route.slice(LICENSES_ROUTE.length + 1)} />;
   if (route === 'apps') return <Apps env={env} files={files} />;
+  if (route === `${INSTALLED_ROUTE}/connectors`) return <Apps env={env} files={files} role="connector" />;
+  if (route === `${INSTALLED_ROUTE}/plugins`) return <Apps env={env} files={files} role="plugin" />;
   if (route === STORE_ROUTE) return <StorePage env={env} files={files} />;
+  if (route.startsWith(`${STORE_ROUTE}/`) && isSection(route.slice(STORE_ROUTE.length + 1)))
+    return <StorePage env={env} files={files} section={route.slice(STORE_ROUTE.length + 1) as Section} />;
   if (route === STORE_THEMES) return <ThemeStoreScreen env={env} />;
   if (route.startsWith(`${DEVELOPER_ROUTE}/`))
     return <DeveloperPage key={route} slug={route.slice(DEVELOPER_ROUTE.length + 1)} env={env} files={files} />;

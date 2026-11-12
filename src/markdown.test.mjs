@@ -24,7 +24,7 @@ for (const key of ['addEventListener', 'removeEventListener', 'dispatchEvent']) 
 const { editorViewCtx } = await import('@milkdown/kit/core');
 const { makeEditor, markdownOf } = await import('./markdown.mjs');
 
-// The text loaded and written back, and the nodes it was read as ("heading:tint", "siteBlock", …).
+// The text loaded and written back, and the nodes it was read as ("heading:surface", "siteBlock", …).
 async function through(markdown) {
   const editor = await makeEditor(document.createElement('div'), markdown).create();
   const nodes = [];
@@ -40,24 +40,30 @@ async function through(markdown) {
 const marked = (color, rest) => `<div data-section="${color}"></div>\n\n${rest}`;
 
 test('a coloured section comes back byte for byte', async () => {
-  const text = `# Title\n\nIntro\n\n${marked('tint', '## Opening hours\n\nText\n\n')}${marked('accent', '## Prices\n\nMore\n')}`;
+  const text = `# Title\n\nIntro\n\n${marked('surface', '## Opening hours\n\nText\n\n')}${marked('primary', '## Prices\n\nMore\n')}`;
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
-  assert.deepEqual(nodes, ['heading', 'paragraph', 'heading:tint', 'paragraph', 'heading:accent', 'paragraph']);
+  assert.deepEqual(nodes, ['heading', 'paragraph', 'heading:surface', 'paragraph', 'heading:primary', 'paragraph']);
 });
 
 test('a coloured H1 comes back byte for byte', async () => {
-  const text = marked('tint', '# About\n\nText\n');
+  const text = marked('surface', '# About\n\nText\n');
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
-  assert.deepEqual(nodes, ['heading:tint', 'paragraph']);
+  assert.deepEqual(nodes, ['heading:surface', 'paragraph']);
+});
+
+test('an H1 with a picture behind it and the whole width comes back byte for byte', async () => {
+  const text = '<div data-section="" data-picture="/images/a.jpg" data-alt="A field" data-width="full"></div>\n\n# About\n\nText\n';
+  const { saved } = await through(text);
+  assert.equal(saved, text);
 });
 
 test('the marker comes before a label above the H1', async () => {
-  const text = marked('accent', '<p class="block-eyebrow">Welcome</p>\n\n# About\n\nText\n');
+  const text = marked('primary', '<p class="block-eyebrow">Welcome</p>\n\n# About\n\nText\n');
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
-  assert.ok(nodes.includes('heading:accent'));
+  assert.ok(nodes.includes('heading:primary'));
 });
 
 test('a text without markers is written as before', async () => {
@@ -73,11 +79,11 @@ test('the marker comes before a label above the H2', async () => {
 });
 
 test('a marker not followed by an H1 or H2 is dropped', async () => {
-  assert.deepEqual(await through(marked('tint', 'Plain text\n\n## B\n')), {
+  assert.deepEqual(await through(marked('surface', 'Plain text\n\n## B\n')), {
     saved: 'Plain text\n\n## B\n',
     nodes: ['paragraph', 'heading'],
   });
-  assert.equal((await through(marked('tint', '### Sub\n'))).saved, '### Sub\n');
+  assert.equal((await through(marked('surface', '### Sub\n'))).saved, '### Sub\n');
 });
 
 test('an unknown colour stays the HTML it is', async () => {
@@ -85,4 +91,21 @@ test('an unknown colour stays the HTML it is', async () => {
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
   assert.deepEqual(nodes, ['siteBlock', 'heading']);
+});
+
+test('an intro paragraph (Body large) comes back as it was', async () => {
+  const text = '# Title\n\n<p class="body-large">Welcome to us</p>\n\nText\n';
+  const { saved, nodes } = await through(text);
+  assert.equal(saved, text);
+  assert.deepEqual(nodes, ['heading', 'bodyLarge', 'paragraph']);
+});
+
+test('a check list comes back as it was', async () => {
+  const { saved } = await through('- [ ] Bring a coat\n- [x] Book a table\n');
+  assert.match(saved, /\[ \] Bring a coat\n.*\[x\] Book a table/);
+  assert.equal((await through(saved)).saved, saved);
+});
+
+test('an empty H1 is not written', async () => {
+  assert.equal((await through('# \n\nText\n')).saved, 'Text\n');
 });

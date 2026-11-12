@@ -4,13 +4,13 @@
 // packages/editor/src/icon.tsx), there or on one of the built site's pages. An icon drawn from Material Symbols instead
 // of the icon pack (data-icon-fallback) is only listed, with where it is: it does not fail.
 // The screens are found as the editor's own links: from the start screen (the drawer's links are in the page also while it is
-// closed) and "Parts", #developer/parts, "Themes", #appearance/themes, "Search engine optimization", #seo, "Appstore", #settings/appstore, and "Apps", #apps, which the menu no longer links to), and
+// closed) and "Parts", #developer/parts, "Themes", #appearance/themes, "Search engine optimization", #seo, "Appstore", #settings/appstore, and "Apps", #apps, which the menu no longer links to; Connectors and Plugins, #installed/connectors and #installed/plugins, are its rows), and
 // from each screen it opens, two steps down. GitHub is answered from the files in this repository, so it needs no login
 // and changes nothing. It runs on the built site: npm run build && npm run check:screens (or on another
 // folder with a built site, its path after the command: packages/editor/scripts/check-themes.mjs).
 // It also checks the menu and Settings (#settings, the cog at the bottom of the menu): Settings lists exactly Appearance,
-// Developer, Licenses, Morpheme and Privacy, A-Z by their names; the drawer's first level has only the four sections, the
-// start screen and the cog, which is the last item at the bottom of the drawer and of the collapsed rail (and on a phone,
+// Developer, Licenses, Morpheme and Privacy, A-Z by their names; the drawer's first level has the three sections, the
+// start screen, the rows under the "Apps" label (Store, Connectors, Plugins and Themes, each with an icon) and the cog, which is the last item at the bottom of the drawer and of the collapsed rail (and on a phone,
 // of the modal drawer) and is marked on Settings' screens only; and "Morpheme" (#morpheme) shows its status as text, has
 // an action on every list row, and its Update button and its connection to the store work.
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -96,6 +96,35 @@ const shownItems = (selector) =>
     .map((e) => ({ href: e.getAttribute('href'), text: e.innerText.trim(), tag: e.tagName, ...e.getBoundingClientRect().toJSON() }))
     .filter((e) => e.width > 0 && e.height > 0);
 
+/** The "New in" card on the start screen, with the tall portrait photo of the 0.16 edition (1280x2272) in place of its own: the photo and the card stay inside the card's own box and above the widgets, never painted over them (375, 690 and 1280 px). */
+async function checkUpdatesCard(width, height) {
+  const label = `${width}px`;
+  const tall = readFileSync(resolve(ROOT, '../../../release-notes/editions/0.16.webp'));
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
+  page.on('pageerror', (e) => problems.push(`${label} start: ${e.message}`));
+  await page.route('**/_astro/*.webp', (r) => r.fulfill({ body: tall, contentType: 'image/webp' }));
+  await openEditor(page, site);
+  await page.waitForSelector('#updates-title');
+  await page.waitForTimeout(500);
+  const box = await page.evaluate(() => {
+    const card = document.querySelector('#updates-title').closest('section');
+    const r = (e) => e && e.getBoundingClientRect().toJSON();
+    const cells = [...document.querySelectorAll('main .grid.items-start > *')].map(r);
+    return {
+      card: r(card),
+      img: r(card.querySelector('img')),
+      buttons: [...card.querySelectorAll('.mt-auto a, .mt-auto button')].map(r),
+      cells,
+    };
+  });
+  const inside = (b) =>
+    b.top >= box.card.top - 1 && b.bottom <= box.card.bottom + 1 && b.left >= box.card.left - 1 && b.right <= box.card.right + 1;
+  if (box.img && !inside(box.img)) problems.push(`${label} start: the edition photo is painted outside its card`);
+  if (box.buttons.some((b) => !inside(b))) problems.push(`${label} start: a button of the "New in" card is outside the card`);
+  if (box.cells.some((c) => c.top < box.card.bottom - 1)) problems.push(`${label} start: the "New in" card overlaps the widgets under it`);
+  await page.close();
+}
+
 /** Settings lists the six screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
@@ -139,10 +168,22 @@ async function checkSettingsAndMenu(width, height) {
     const items = await page.evaluate(shownItems, `${drawer} .navigation-drawer-item`);
     const sections = items.filter((i) => i.tag === 'BUTTON').length;
     const links = items.filter((i) => i.tag === 'A').map((i) => i.href);
-    if (sections !== 4 || links.join() !== '#,#settings')
+    // Under "Apps": Store, then the pages of the installed connectors, plugins and themes, and no app installed.
+    const appRows = ['#settings/appstore', '#installed/connectors', '#installed/plugins', '#appearance/themes'];
+    const apps = ['#', ...appRows, '#settings'];
+    if (sections !== 3 || links.join() !== apps.join())
       problems.push(
-        `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 4 and #, #settings)`,
+        `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 3 and ${apps.join(', ')})`,
       );
+    // Each row under "Apps" has an icon.
+    const noIcon = await page.evaluate(
+      ({ d, appRows }) =>
+        [...document.querySelectorAll(appRows.map((h) => `${d} a[href="${h}"]`).join(', '))]
+          .filter((a) => !a.querySelector('.navigation-drawer-icon svg'))
+          .map((a) => a.getAttribute('href')),
+      { d: drawer, appRows },
+    );
+    if (noIcon.length) problems.push(`${label} menu: no icon on ${noIcon.join(', ')}`);
     checkCog(label, 'menuen', items, height);
   } else {
     // The modal drawer: open it with the top bar's button.
@@ -404,7 +445,17 @@ for (const [width, height] of [
   // From the start screen (the drawer's links), and from "Parts", "Themes", "Search engine optimization" and "Appstore"
   // (the apps' pages and their developers'), whose screens are a step further down than the others. "Apps" (the list of
   // the apps installed) has no row in the menu, so it is a start of its own.
-  const starts = ['', 'settings', 'developer/parts', 'appearance/themes', 'seo', 'settings/appstore', 'apps'];
+  const starts = [
+    '',
+    'settings',
+    'developer/parts',
+    'appearance/themes',
+    'seo',
+    'settings/appstore',
+    'installed/connectors',
+    'installed/plugins',
+    'apps',
+  ];
   const seen = new Set(starts);
   let next = starts;
   for (let depth = 0; depth <= 2 && next.length; depth++) {
@@ -521,6 +572,13 @@ for (const [state, checks] of Object.entries(keyStates)) {
   }
   await page.close();
 }
+
+for (const [width, height] of [
+  [375, 800],
+  [690, 860],
+  [1280, 900],
+])
+  await checkUpdatesCard(width, height);
 
 await browser.close();
 server.close();

@@ -1,5 +1,5 @@
 // Checks the pending release notes: each note has its twin in every locale with the same kind, an id that matches its file name,
-// and the fields and screenshot its kind needs (a card: title, text and a screenshot of at most 200 KB; a line: text only).
+// and the fields its kind needs (a paragraph: title and text; a line: text only). Notes have no screenshots; a leftover <id>.webp is a problem.
 // Run by npm run check:release-notes; usage: node scripts/check-release-notes.mjs [root]. Exits 1 and prints each problem.
 import { problemsOf } from '../lib/releaseNotes.mjs';
 import { readPending, repoRoot } from './release-notes-pending.mjs';

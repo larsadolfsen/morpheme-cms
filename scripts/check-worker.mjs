@@ -231,12 +231,14 @@ async function github(url, init) {
 // ---------------------------------------------------------------------------------------------------
 // The Worker, with R2 in memory (or none, or one that fails), and the editor's github.ts in a "browser" whose
 // requests to /api/github/ go to it, signed in.
-const [{ handleGitHub }, { readFiles, commitFiles }, { handleR2 }, { handlePlan, paidFrom }] = await workerModules(
-  'editor-github.js',
-  'github.js',
-  'r2-status.js',
-  'plan-status.js',
-);
+const [
+  { handleGitHub },
+  { readFiles, commitFiles },
+  { handleR2 },
+  { handlePlan, paidFrom },
+  { publishScheduled },
+  { handleAutosave, sweepAutosaves },
+] = await workerModules('editor-github.js', 'github.js', 'r2-status.js', 'plan-status.js', 'publish.js', 'autosave.js');
 
 function memoryBucket() {
   const objects = new Map();
@@ -250,6 +252,13 @@ function memoryBucket() {
     },
     async head(key) {
       return objects.has(key) ? {} : null;
+    },
+    async delete(key) {
+      objects.delete(key);
+    },
+    async list({ prefix = '' } = {}) {
+      const keys = [...objects.keys()].filter((k) => k.startsWith(prefix));
+      return { objects: keys.map((key) => ({ key, size: objects.get(key).length, uploaded: new Date() })), truncated: false };
     },
     async put(key, value) {
       puts.set(key, (puts.get(key) ?? 0) + 1);
@@ -450,6 +459,266 @@ async function run(label, bucket) {
     [{ path: `${config.folders.data}/worker-${label}.json`, text: '{}\n' }],
     ctx,
   );
+  // A waiting version whose time has come replaces its page and its file goes (publish.js, lib/versions.mjs); one that is not due stays.
+  if (post.path.startsWith('src/content/')) {
+    const waiting = `src/drafts/${post.path.slice('src/content/'.length)}`;
+    const text = `---\ntitle: "Waiting (${label})"\npublishAt: "2020-01-01T08:00"\n---\n\nWaiting.\n`;
+    await commitFiles(env, (await readFiles(env, [], ctx)).head, `Editor: draft (${label})`, [{ path: waiting, text }], ctx);
+    await settle();
+    const names = await publishScheduled(env, Date.now(), ctx);
+    await settle();
+    const after = await readFiles(env, [post.path, waiting], ctx);
+    expect(names.length === 1, `${label}: the Worker published ${names.length} pages from a due waiting version, not 1`);
+    expect(
+      after.texts[0] === `---\ntitle: "Waiting (${label})"\n---\n\nWaiting.\n`,
+      `${label}: the waiting version did not replace its page`,
+    );
+    expect(after.texts[1] === undefined, `${label}: the file of a published waiting version is still there`);
+    const later = `---\ntitle: "Later (${label})"\npublishAt: "2999-01-01T08:00"\n---\n`;
+    await commitFiles(env, after.head, `Editor: draft later (${label})`, [{ path: waiting, text: later }], ctx);
+    await settle();
+    expect((await publishScheduled(env, Date.now(), ctx)).length === 0, `${label}: the Worker published a version that is not due`);
+    await commitFiles(env, (await readFiles(env, [], ctx)).head, `Editor: discard (${label})`, [{ path: waiting, text: null }], ctx);
+    // A page on the stored status Scheduled, with a time still to come, becomes a draft with a waiting version that has the time.
+    const old = `---\ntitle: "Old (${label})"\nstatus: "scheduled"\npublishAt: "2999-01-01T08:00"\n---\n\nOld.\n`;
+    await commitFiles(env, (await readFiles(env, [], ctx)).head, `Editor: old scheduled (${label})`, [{ path: post.path, text: old }], ctx);
+    await settle();
+    const legacy = {
+      ...env,
+      ASSETS: { fetch: async () => new Response(JSON.stringify([{ path: post.path, publishAt: '2999-01-01T08:00' }])) },
+    };
+    expect(
+      (await publishScheduled(legacy, Date.now(), ctx)).length === 0,
+      `${label}: the Worker published a Scheduled page that is not due`,
+    );
+    await settle();
+    const moved = await readFiles(env, [post.path, waiting], ctx);
+    expect(
+      /status: "draft"/.test(moved.texts[0] ?? '') && !/publishAt/.test(moved.texts[0] ?? ''),
+      `${label}: a Scheduled page did not become a draft`,
+    );
+    expect(
+      /publishAt: "2999-01-01T08:00"/.test(moved.texts[1] ?? '') && !/status/.test(moved.texts[1] ?? ''),
+      `${label}: its time did not move to a waiting version`,
+    );
+    await commitFiles(env, moved.head, `Editor: discard (${label})`, [{ path: waiting, text: null }], ctx);
+  }
+
+  // An autosaved draft (autosave.js, lib/autosave.mjs): kept in R2 and read back, listed, deleted, moved to git as the waiting version in the
+  // signed-in person's name (an older autosave also by the hourly sweep), refused above the size limit and without R2 (`Faster editor` off).
+  if (post.path.startsWith('src/content/')) {
+    const call = async (method, path, body, headers = { cookie: 'editor_session=token', 'sec-fetch-site': 'same-origin' }) => {
+      const res = await handleAutosave(
+        new Request(`https://editor.example${path}`, { method, headers, ...(body === undefined ? {} : { body: JSON.stringify(body) }) }),
+        env,
+        ctx,
+      );
+      return { status: res.status, ...(await res.json().catch(() => ({}))) };
+    };
+    // The page is published here (the check before left it a draft): its autosave is a waiting version.
+    {
+      await settle();
+      const now = await readFiles(env, [post.path], ctx);
+      await commitFiles(
+        env,
+        now.head,
+        `Editor: publish (${label})`,
+        [{ path: post.path, text: `${(now.texts[0] ?? '').replace(/^status: .*\r?\n/m, '')}\nPublished (${label}).\n` }],
+        ctx,
+      );
+      await settle();
+    }
+    const waiting = `src/drafts/${post.path.slice('src/content/'.length)}`;
+    const query = `path=${encodeURIComponent(post.path)}`;
+    const text = `---\ntitle: "Autosaved (${label})"\n---\n\nAutosaved.\n`;
+    expect(
+      (await call('GET', `/api/autosave?${query}`, undefined, {})).status === 401,
+      `${label}: autosave answered a request without a sign-in`,
+    );
+    if (!bucket) {
+      expect(
+        (await call('PUT', '/api/autosave', { path: post.path, text })).error === 'off',
+        `${label}: autosave without R2 did not say off`,
+      );
+    } else if (!cached) {
+      expect(
+        (await call('PUT', '/api/autosave', { path: post.path, text })).status === 502,
+        `${label}: autosave with a failing R2 did not say failed`,
+      );
+    } else {
+      expect((await call('GET', `/api/autosave?${query}`)).status === 404, `${label}: there is an autosave before one was made`);
+      expect((await call('PUT', '/api/autosave', { path: '../x.md', text })).status === 400, `${label}: autosave accepted a bad path`);
+      expect(
+        (await call('PUT', '/api/autosave', { path: post.path, id: 'Bad Id', text })).status === 400,
+        `${label}: autosave accepted a bad id`,
+      );
+      expect(
+        (await call('PUT', '/api/autosave', { path: post.path, text: 'x'.repeat(1024 * 1024 + 1) })).status === 413,
+        `${label}: autosave accepted too much text`,
+      );
+      expect((await call('PUT', '/api/autosave', { path: post.path, text })).status === 200, `${label}: autosave did not keep a text`);
+      const got = await call('GET', `/api/autosave?${query}`);
+      expect(got.text === text && typeof got.savedAt === 'number', `${label}: the autosave is not as it was put`);
+      const listed = await call('GET', '/api/autosave');
+      expect(
+        same(
+          listed.drafts?.map((d) => [d.path, d.id]),
+          [[post.path, 'waiting']],
+        ),
+        `${label}: the autosave list is wrong`,
+      );
+      // Moved to git: the waiting version has the text, and the autosave is gone; the same text again changes nothing.
+      const flushed = await call('POST', '/api/autosave/flush', { path: post.path });
+      await settle();
+      expect(flushed.committed === true, `${label}: the flush did not commit`);
+      expect((await readFiles(env, [waiting], ctx)).texts[0] === text, `${label}: the waiting version is not the autosaved text`);
+      expect((await call('GET', `/api/autosave?${query}`)).status === 404, `${label}: the autosave is still there after the flush`);
+      expect(
+        (await call('POST', '/api/autosave/flush', { path: post.path })).status === 404,
+        `${label}: a flush without an autosave did not say not found`,
+      );
+      expect(
+        (await call('POST', '/api/autosave/flush', { path: post.path, text })).committed === false,
+        `${label}: the same text was committed again`,
+      );
+      // The page being left: the text goes with the flush, with no autosave before.
+      const last = `${text}More.\n`;
+      expect(
+        (await call('POST', '/api/autosave/flush', { path: post.path, text: last })).committed === true,
+        `${label}: a flush with a text did not commit`,
+      );
+      await settle();
+      expect((await readFiles(env, [waiting], ctx)).texts[0] === last, `${label}: the flushed text is not the waiting version`);
+      // A page that is gone: nothing to keep it for.
+      await call('PUT', '/api/autosave', { path: 'src/content/gone.md', text });
+      expect(
+        (await call('POST', '/api/autosave/flush', { path: 'src/content/gone.md' })).status === 404,
+        `${label}: a flush of a gone page did not say page`,
+      );
+      // The hourly sweep: a fresh autosave stays, an idle one goes to git, an old one that cannot is deleted.
+      await call('PUT', '/api/autosave', { path: post.path, text });
+      expect((await sweepAutosaves(env, Date.now(), ctx)).flushed === 0, `${label}: the sweep moved a fresh autosave`);
+      const day = 25 * 60 * 60 * 1000;
+      const swept = await sweepAutosaves(env, Date.now() + day, ctx);
+      await settle();
+      expect(
+        swept.flushed === 1 && (await readFiles(env, [waiting], ctx)).texts[0] === text,
+        `${label}: the sweep did not move an idle autosave`,
+      );
+      await call('PUT', '/api/autosave', { path: 'src/content/gone.md', text });
+      const old = await sweepAutosaves({ ...env, GITHUB_PUBLISH_TOKEN: undefined }, Date.now() + 31 * day, ctx);
+      expect(
+        old.deleted === 1 && !(await call('GET', '/api/autosave')).drafts.length,
+        `${label}: the sweep did not delete an old autosave`,
+      );
+      await commitFiles(
+        env,
+        (await readFiles(env, [], ctx)).head,
+        `Editor: discard autosave (${label})`,
+        // (The page text changes too: the tree after the discard is not the one from before the autosaves, which R2 keeps once.)
+        [
+          { path: waiting, text: null },
+          { path: post.path, text: `${text}Discarded (${label}).\n` },
+        ],
+        ctx,
+      );
+      // A new page or post, with no file yet (`create`, `to`), and a draft page: its flush writes the page file itself and keeps it a draft.
+      {
+        // Each call is let finish its R2 writes before the next, so a tree is not read from GitHub twice at the same time.
+        const callS = async (...args) => {
+          const answer = await call(...args);
+          await settle();
+          return answer;
+        };
+        const dir = post.path.slice(0, post.path.lastIndexOf('/') + 1);
+        const placeholder = `${dir}new-entry-check1.md`;
+        const wanted = `${dir}autosave-new-${label.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.md`;
+        const stem = wanted.slice(0, -3);
+        const made = `---\ntitle: "New page"\nstatus: "draft"\n---\n\n# Hello\n`;
+        const create = { path: placeholder, create: true, to: wanted };
+        // A new entry without a name to be made as, or one that is flushed as a plain page, is not made.
+        await callS('PUT', '/api/autosave', { path: placeholder, text: made, create: true });
+        expect(
+          (await callS('POST', '/api/autosave/flush', { path: placeholder })).status === 404,
+          `${label}: a new page without a file name was made`,
+        );
+        await callS('PUT', '/api/autosave', { path: placeholder, text: made });
+        expect(
+          (await callS('POST', '/api/autosave/flush', { path: placeholder })).status === 404,
+          `${label}: a flush without create made a page`,
+        );
+        // Made: the draft page file, as a draft even when the text says published, and the autosave is gone.
+        await callS('PUT', '/api/autosave', { ...create, text: made.replace('status: "draft"\n', '') });
+        expect(
+          (await callS('GET', '/api/autosave')).drafts.some((d) => d.path === placeholder),
+          `${label}: the new page's autosave is not listed`,
+        );
+        const first = await callS('POST', '/api/autosave/flush', { path: placeholder });
+        await settle();
+        expect(first.committed === true && first.path === wanted, `${label}: the new page was not made at its name (${first.path})`);
+        const madeText = (await readFiles(env, [wanted, placeholder], ctx)).texts;
+        expect(/status: "draft"/.test(madeText[0] ?? '') && madeText[1] === undefined, `${label}: the new page is not a draft page file`);
+        expect(
+          (await callS('GET', `/api/autosave?path=${encodeURIComponent(placeholder)}`)).status === 404,
+          `${label}: the new page's autosave is still there`,
+        );
+        // The same name taken: the number is added; the same text sent again is the one made, not another.
+        await callS('PUT', '/api/autosave', { ...create, text: `${made}\nTwo.\n` });
+        const second = await callS('POST', '/api/autosave/flush', { path: placeholder });
+        await settle();
+        expect(second.path === `${stem}-2.md`, `${label}: a taken name was not numbered (${second.path})`);
+        const again = await callS('POST', '/api/autosave/flush', { path: placeholder, text: `${made}\nTwo.\n`, create: true, to: wanted });
+        expect(again.committed === false && again.path === `${stem}-2.md`, `${label}: the same new page was made twice`);
+        // A draft page: an autosave writes the page file (not a waiting version) and keeps it a draft.
+        const written = `---\ntitle: "Hello"\nstatus: "published"\n---\n\n# Hello\n\nMore.\n`;
+        await callS('PUT', '/api/autosave', { path: wanted, text: written });
+        const draft = await callS('POST', '/api/autosave/flush', { path: wanted });
+        await settle();
+        const after = (await readFiles(env, [wanted, `src/drafts/${wanted.slice('src/content/'.length)}`], ctx)).texts;
+        expect(draft.committed === true && draft.path === wanted, `${label}: the draft page was not saved`);
+        expect(
+          /status: "draft"/.test(after[0] ?? '') && /More\./.test(after[0] ?? ''),
+          `${label}: the draft page was published or not written`,
+        );
+        expect(after[1] === undefined, `${label}: a draft page got a waiting version`);
+        // After the H1: the draft moves to its new name, and the old file goes. A taken name is numbered, and a published page never moves.
+        const renamed = `${dir}autosave-renamed-${label.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.md`;
+        await callS('PUT', '/api/autosave', { path: wanted, text: written, to: renamed });
+        const moved = await callS('POST', '/api/autosave/flush', { path: wanted });
+        await settle();
+        const gone = (await readFiles(env, [wanted, renamed], ctx)).texts;
+        expect(
+          moved.path === renamed && gone[0] === undefined && /More\./.test(gone[1] ?? ''),
+          `${label}: the draft did not move to its name`,
+        );
+        await callS('PUT', '/api/autosave', { path: post.path, text: `${text}Stays.\n`, to: renamed });
+        const stays = await callS('POST', '/api/autosave/flush', { path: post.path });
+        await settle();
+        expect(stays.path === post.path, `${label}: a published page moved (${stays.path})`);
+        // The hourly sweep makes a new page nobody flushed.
+        const swept2 = `${dir}new-entry-check2.md`;
+        await callS('PUT', '/api/autosave', { path: swept2, text: made, create: true, to: `${stem}-swept.md` });
+        const swept = await sweepAutosaves(env, Date.now() + 25 * 60 * 60 * 1000, ctx);
+        await settle();
+        expect(
+          swept.flushed >= 1 && /status: "draft"/.test((await readFiles(env, [`${stem}-swept.md`], ctx)).texts[0] ?? ''),
+          `${label}: the sweep did not make a new page`,
+        );
+        const left = [wanted, `${stem}-2.md`, renamed, `${stem}-swept.md`, waiting];
+        const there = await readFiles(env, left, ctx);
+        await commitFiles(
+          env,
+          there.head,
+          `Editor: discard autosave pages (${label})`,
+          [
+            ...left.flatMap((path, i) => (there.texts[i] === undefined ? [] : [{ path, text: null }])),
+            { path: post.path, text: `${text}Done (${label}).\n` },
+          ],
+          ctx,
+        );
+      }
+    }
+  }
   await settle();
   const own = await opened(await browser(), `${label}, opening after the Worker's save`);
   if (cached) expect(own.github === 1, `${label}: the opening after the Worker's save asked GitHub ${own.github} times (only the head)`);
@@ -593,16 +862,21 @@ try {
     r2Env = {};
   }
 
-  // Everything in R2 is the repository's, gives its git id, and was written once.
+  // Everything in R2 is the repository's, gives its git id, and was written once; but an autosave (worker/autosave.js), which is written
+  // again at each change and is gone when moved to git: none is left.
   for (const [key, value] of bucket.objects) {
     const [o, r, kind, oid] = key.split('/');
     expect(o === owner && r === name, `R2: ${key} is not the site's repository`);
+    if (kind === 'autosave') {
+      problems.push(`R2: the autosave ${key} was left`);
+      continue;
+    }
     if (kind === 'blob') expect((await blobId(value)) === oid, `R2: ${key} does not give its blob id`);
     else if (kind === 'tree')
       expect((await treeId(JSON.parse(new TextDecoder().decode(value)).entries)) === oid, `R2: ${key} does not give its tree id`);
     else problems.push(`R2: ${key} is neither a blob nor a tree`);
   }
-  for (const [key, n] of bucket.puts) expect(n === 1, `R2: ${key} was written ${n} times`);
+  for (const [key, n] of bucket.puts) expect(n === 1 || key.split('/')[2] === 'autosave', `R2: ${key} was written ${n} times`);
   for (const oid of truncated)
     expect(!bucket.objects.has(`${owner}/${name}/blob/${oid}`), `R2: a file that GitHub gave only a part of was kept`);
 

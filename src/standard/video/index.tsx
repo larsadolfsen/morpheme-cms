@@ -6,6 +6,7 @@ import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 
 export default defineBlock({
+  group: 'banner',
   label: t.blocks.video.label,
   icon: VideoCamera,
   hint: t.blocks.video.hint,

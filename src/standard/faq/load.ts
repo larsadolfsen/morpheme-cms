@@ -3,10 +3,11 @@
 import { markdownHtml } from '../../../lib/inline';
 import type { Load } from '../view';
 import { headOf } from '../head';
-import type { FaqView, Question } from './view';
+import { faqSettings, type FaqView, type Question } from './view';
 
 export const load: Load<FaqView> = async (props, { index }) => ({
   ...headOf(props),
+  ...faqSettings(props),
   group: `faq-${index}`,
   rows: await Promise.all(
     ((props.items ?? []) as Question[]).map(async (q) => ({ label: q.question, html: await markdownHtml(q.answer ?? '') })),

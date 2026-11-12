@@ -175,7 +175,7 @@ export const parts = {
     underNameHint: 'If the field is empty, the website’s name is used.',
     email: 'Email',
     emailForm: 'Write a whole email address',
-    cvr: 'CVR number',
+    cvr: 'Company registration number',
     keyword: 'Main keyword',
     keywords: 'Other keywords',
     linkText: 'Link text',

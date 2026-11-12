@@ -1,5 +1,24 @@
 # @morphemecms/cms
 
+## 0.16.0
+
+### Minor Changes
+
+- 1185af0: Assistants such as Claude can connect to the site and read its pages, posts and app settings: Settings › Assistants gives the address to add and lists the connected assistants, each with Disconnect
+- cfb69ea: A connector can sign in to its service and fill a setting from the service's own list, and its Appstore page shows the address it connects to and the tools it uses before you install it
+- 74c29eb: Contract 5 for apps: the `role` and `mcp` keys in app.json, roles in the store's rule, and plugin limits in the build
+- 0d8f455: A connector can now connect the site to a service's MCP server and fill a setting from the service, with the sign-in kept safely on the server
+- 046d306: The Appstore has three sections: Themes, Connectors and Plugins.
+
+### Patch Changes
+
+- 016b5d8: Assistants find the right tool: each tool says what it returns and which tool to use for the rest, and the server tells which tool answers which question
+- a6ee66d: Claude can connect to the site with its published identity (the default when adding a connector)
+- bffd183: Connecting an assistant no longer ends on "This sign-in can't be finished" after signing in to GitHub.
+- 65cb7a8: Connecting an assistant: the consent page no longer blocks the redirect back to the assistant, and each sign-in step is logged without secrets
+- a0d0ecd: Claude.ai now sees the full lists and details from the site's MCP tools, not just a short summary
+- aad60e9: The "New in" card on the start screen keeps its photo inside the card on a narrow window, so it no longer covers the widgets under it
+
 ## 0.15.1
 
 ### Patch Changes
