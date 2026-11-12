@@ -1,6 +1,6 @@
 {
   "id": "full-screen-preview",
-  "kind": "card",
+  "kind": "paragraph",
   "title": "Se din side i alle vinduesstørrelser",
   "text": "Forhåndsvisning åbner nu på hele skærmen. Vælg en vinduesstørrelse i bjælken øverst, eller træk i sidens kant til en hvilken som helst bredde, og se bredden som et tal. Siden ruller inde i en telefons, tablets eller bærbars højde."
 }
