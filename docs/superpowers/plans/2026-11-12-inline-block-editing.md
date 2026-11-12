@@ -77,8 +77,9 @@ there is a step, the toolbar icons without Link or Edit, and the saved props are
 
 - A step with a heading and no text is valid: the text field stops being required (a change to the field when this is built).
 - The numbers are not editable: steps always start at 1.
-- Paste-to-create: open, the owner asked what it means (see the next line).
+- Paste-to-create: yes, except when the pasted text has headings among its lines: then the paste is left as it is and no steps are
+  made from it. A line that is a heading is one marked as a heading in the pasted text (for example `#` or an H1 to H6 from a document).
 
 **Paste-to-create, in one example:** the owner copies a list from a document (`Order\nPay\nGet it`) and pastes it into an empty Steps
 block. Each line becomes a step with that line as its heading, instead of one long heading with line breaks in it. It would work the
-same in Checklist and Questions and answers. It is a nice-to-have, not needed for the first version of Steps.
+same in Checklist and Questions and answers, with the same exception. It is not needed for the first version of Steps.
