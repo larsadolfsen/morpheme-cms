@@ -695,7 +695,20 @@ contract is needed, only a `slots` field in `AppDefinition`.
    functions the editor calls, so an app can call the same ones; (3) the scheduled publish is run by the site's Worker on
    its schedule, not by the browser, so it works when nobody is signed in; (4) the version switch is a place an app can
    extend (apps already have places, `src/AppPlaces.tsx`). Whether apps can add versions to a page is checked when the app
-   is planned. Open: where the draft is kept.
+   is planned. **Where the draft is kept (owner, 11 November):** the waiting version is a file in git, on every site, so it is
+   versioned and backed up. `Save` commits it as a separate draft file (for example `drafts/<page>.md`), which the build
+   skips, so the live page does not change; `Publish changes` commits the draft into the real page file and removes the
+   draft file; `Discard changes` removes it; `Schedule` uses the Worker's existing hourly job. A page never published is a
+   draft as it is today (`status: draft`). **Autosave is added when `Faster editor` is on** (`Settings › Caching and builds`,
+   the R2 cache, `worker/files.js`): the Worker keeps the draft current in R2 as the owner types, with no commit and no
+   build. Without `Faster editor` there is no autosave, and the status shows `Not saved` until the owner presses `Save`.
+   The draft in R2 is written to git when the owner leaves the page or has been idle for several
+   minutes (owner, 11 November, not on every pause), so an editing session makes only a few commits and git still holds
+   the draft. The idle time is set when it is built. Each such commit starts a site build, though the finished site does
+   not change; `morpheme ci-build` (`scripts/ci-build.mjs`) gets a third lane (owner, 11 November): when only draft files changed
+   since the live commit, it stops at once without building, so a draft commit costs seconds, not a build. It ships with
+   the CMS, so every site has it, and no Cloudflare key is needed. To check when it is built: what the deploy step does
+   when the build command exits early.
 3. **Regroup the menu (Appearance out of Settings) in 0.17?** Recommended: yes, after 0.16, in one pass. Alternative: leave the menu.
 4. **May we rename `Dynamic lists`, `Block templates`, `Files` (and `Business`)?** Recommended: yes, but only when the screens
    have been opened and checked; the Danish names change with them.
