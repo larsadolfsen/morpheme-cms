@@ -930,6 +930,13 @@ html {
   opacity: 0.7;
 }
 
+/* The media and link slots over the headline of the active card. */
+.editor-text .inline-card-slots {
+  display: flex;
+  gap: var(--mo-space-4, 4px);
+  margin-bottom: var(--mo-space-4, 4px);
+}
+
 /* A List that reads a list: the line that says which, over its rows. */
 .editor-text .inline-list-from {
   margin: 0 0 var(--mo-space-8, 8px);

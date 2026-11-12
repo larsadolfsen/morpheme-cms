@@ -83,6 +83,12 @@ export type InlineSpec = {
   icon?: string;
   /** The field picked in the link slot (the item's settings). */
   link?: string;
+  /** Instead of `icon`: the fields the media slot opens (a card's media: its kind, icon, picture and video), in the item's sheet. */
+  media?: string[];
+  /** Instead of `link`: the fields the link slot opens (a card's page and buttons). */
+  settings?: string[];
+  /** The block has settings of its own besides its items (a card's type and colour): its menu keeps Edit. */
+  blockSettings?: boolean;
   texts: {
     addAbove: string;
     addBelow: string;

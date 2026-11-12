@@ -2,10 +2,15 @@
 // parts of InlineItems.tsx). A block that is typed in place is added here.
 import type { ComponentType } from 'react';
 import InlineList from './InlineList';
+import type { BlockData, BlockProps } from './blocks';
+import InlineCards from './InlineCards';
 import type { Change, Focus, Item } from './InlineItems';
 
 export type InlineViewProps = {
   items: Item[];
+  /** The block's own props (a card's type and colour) and the site's data, for what is drawn as the site draws it. */
+  props: BlockProps;
+  data: BlockData;
   /** The item being edited; null while the block is not. */
   active: number | null;
   /** The field to put the cursor in, once (a new object asks again). */
@@ -17,4 +22,7 @@ export type InlineViewProps = {
   onIcon: (item: number) => void;
 };
 
-export const inlineViews: Record<string, ComponentType<InlineViewProps>> = { list: InlineList as ComponentType<InlineViewProps> };
+export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
+  list: InlineList as ComponentType<InlineViewProps>,
+  cards: InlineCards,
+};

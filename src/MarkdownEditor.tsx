@@ -1162,6 +1162,8 @@ function blockCard(
         root.render(
           <Inline
             items={rows()}
+            props={node.attrs.props}
+            data={ask.data}
             active={active}
             focus={focus}
             onChange={change}
@@ -1255,8 +1257,14 @@ function blockCard(
     const rowFieldsOf = (names: string[]) =>
       (block?.fields.find((f) => f.name === spec!.item)?.fields ?? []).filter((f) => names.includes(f.name));
     // The settings (link and small heading) and the icon picker, which the row's icon slot opens.
-    const itemFields = rowFieldsOf(spec!.link ? [spec!.link] : []);
-    const iconFields = rowFieldsOf(spec!.icon ? [spec!.icon] : []).map((f) => ({ ...f, iconsOpen: true }));
+    const itemNames = spec!.settings ?? (spec!.link ? [spec!.link] : []);
+    const slotNames = spec!.media ?? (spec!.icon ? [spec!.icon] : []);
+    const itemFields = rowFieldsOf(itemNames);
+    // The icon slot of a List opens the icon picker; a card's media slot has the media fields (its kind and what it shows).
+    const iconFields = rowFieldsOf(slotNames).map((f) => (spec!.media ? f : { ...f, iconsOpen: true }));
+    const valueOf = (row: Row, names: string[]) => Object.fromEntries(names.map((n) => [n, row[n] ?? rowFieldsOf([n])[0]?.default ?? '']));
+    const setFields = (list: Row[], i: number, names: string[], v: BlockProps) =>
+      names.reduce((items, n) => setField(items, i, n, String(v[n] ?? ''), spec!.fields[0]), list);
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
     const rowActions = (): BarAction[] => {
@@ -1293,21 +1301,19 @@ function blockCard(
         return {
           headline: spec!.texts.icon,
           fields: iconFields,
-          value: { [spec!.icon!]: row[spec!.icon!] ?? '' },
-          closes: true,
+          value: valueOf(row, slotNames),
+          // The icon picker closes when an icon is picked; the media fields stay open for the next choice.
+          closes: !spec!.media,
           onChange: (v: BlockProps) => {
-            iconOf = null;
-            setItems(setField(rows(), i, spec!.icon!, String(v[spec!.icon!] ?? ''), spec!.fields[0]));
+            if (!spec!.media) iconOf = null;
+            setItems(setFields(rows(), i, slotNames, v));
           },
         };
       return {
         headline: spec!.texts.settings,
         fields: itemFields,
-        value: { [spec!.link!]: row[spec!.link!] ?? '' },
-        onChange: (v: BlockProps) => {
-          const items = setField(rows(), i, spec!.link!, String(v[spec!.link!] ?? ''), spec!.fields[0]);
-          setItems(items);
-        },
+        value: valueOf(row, itemNames),
+        onChange: (v: BlockProps) => setItems(setFields(rows(), i, itemNames, v)),
       };
     };
     // Leaving the block (a tap or the focus elsewhere, but not in its toolbar, its menu or its settings): the row being edited is done,
@@ -1343,7 +1349,7 @@ function blockCard(
       const { rules, locked, stays } = keeps();
       return [
         block?.fields.length
-          ? !inline && !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
+          ? (!inline || spec?.blockSettings) && !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
           : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
         block?.shown || (stays && hidden === false)
           ? undefined

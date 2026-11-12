@@ -13,6 +13,36 @@ import Card, { cardKinds, type CardKind } from '@theme/ui/Card';
 
 const sizes = `(min-width: ${BREAKPOINTS.medium}px) 352px, 100vw`;
 
+/** A card's media at the top: its picture, its video with the play button or its icon (nothing for none). */
+export function CardMedia({ card }: { card: LinkCard }) {
+  return (
+    <>
+      {card.media === 'image' && (
+        <span className="block-card-picture">
+          {card.image && (
+            <img
+              src={card.image.src}
+              srcSet={card.image.srcset}
+              sizes={card.image.srcset ? sizes : undefined}
+              width={card.image.width}
+              height={card.image.height}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          )}
+        </span>
+      )}
+      {card.media === 'video' && card.video && (
+        <span className="block-card-video">
+          <Video view={card.video} />
+        </span>
+      )}
+      {card.media === 'icon' && <Svg name={card.icon ?? ''} size={28} className="block-card-icon" />}
+    </>
+  );
+}
+
 export default function LinkCards({
   items,
   more,
@@ -33,28 +63,7 @@ export default function LinkCards({
       {items.map((card, i) => {
         const inside = (
           <>
-            {card.media === 'image' && (
-              <span className="block-card-picture">
-                {card.image && (
-                  <img
-                    src={card.image.src}
-                    srcSet={card.image.srcset}
-                    sizes={card.image.srcset ? sizes : undefined}
-                    width={card.image.width}
-                    height={card.image.height}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                  />
-                )}
-              </span>
-            )}
-            {card.media === 'video' && card.video && (
-              <span className="block-card-video">
-                <Video view={card.video} />
-              </span>
-            )}
-            {card.media === 'icon' && <Svg name={card.icon ?? ''} size={28} className="block-card-icon" />}
+            <CardMedia card={card} />
             <span className="block-card-title">{card.title}</span>
             <span className="block-card-text">{card.text}</span>
             {card.href && (

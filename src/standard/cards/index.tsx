@@ -18,6 +18,23 @@ export default defineBlock({
   icon: Cards,
   hint: t.blocks.cards.hint,
   edit: { to: 'blocks/cards', text: t.blocks.cards.edit },
+  // Typed in place (InlineCards.tsx): the headline and the text where they stand; the media, the page and the buttons are picked in the card's
+  // sheet from the slots, the type and colour in the block's (Edit).
+  inline: {
+    item: 'items',
+    fields: ['title', 'text'],
+    media: ['media', 'icon', 'image', 'video'],
+    settings: ['href', 'buttons'],
+    blockSettings: true,
+    texts: {
+      addAbove: t.blocks.cards.addAbove,
+      addBelow: t.blocks.cards.addBelow,
+      link: t.blocks.cards.link,
+      row: t.blocks.cards.cardMenu,
+      settings: t.blocks.cards.cardSettings,
+      icon: t.blocks.cards.media,
+    },
+  },
   fields: [
     ...headFields,
     // Material 3's three cards; outlined is the empty choice (the cards from before there was a choice).
