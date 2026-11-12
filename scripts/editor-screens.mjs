@@ -365,7 +365,7 @@ async function checkInlineList(width, height) {
   await page.close();
 }
 
-/** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set ("arrow back"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, and the sheet fits the width. */
+/** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set ("arrow back"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
 async function checkIconSearch(width, height) {
   const label = `${width}px icon search`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -402,7 +402,39 @@ async function checkIconSearch(width, height) {
   await search.fill('arrow back');
   const hit = picker.getByRole('button', { name: 'arrow back', exact: true });
   await hit.waitFor({ timeout: 8000 }).catch(() => problems.push(`${label}: the search "arrow back" did not find the icon arrow back`));
-  if ((await picker.getByRole('button').count()) > 61) problems.push(`${label}: more than one page of icons is drawn at once`);
+  if ((await picker.getByRole('button').count()) > 100) problems.push(`${label}: more than one page (100) of icons is drawn at once`);
+  // A category: the chips scroll, the first load is 100 icons, "Show more" loads 100 more; the category and the search combine.
+  await search.fill('');
+  const chip = page.getByRole('button', { name: 'Devices', exact: true });
+  await chip.scrollIntoViewIfNeeded().catch(() => {});
+  await chip.tap().catch(() => problems.push(`${label}: no category chip "Devices"`));
+  await page.waitForTimeout(400);
+  const loaded = () => picker.getByRole('button').count();
+  if ((await loaded()) !== 100) problems.push(`${label}: category Devices loaded ${await loaded()} icons first, not 100`);
+  // "Show more" (clicked without a scroll, which would load the next page by itself) loads 100 more; reaching the end of them loads more again.
+  const showMore = page.getByRole('button', { name: 'Show more', exact: true });
+  if (!(await showMore.count())) problems.push(`${label}: no "Show more" under 100 icons`);
+  await showMore.evaluate((b) => b.click()).catch(() => {});
+  await page.waitForTimeout(400);
+  if ((await loaded()) !== 200) problems.push(`${label}: "Show more" left ${await loaded()} icons, not 200`);
+  await showMore.evaluate((b) => b.scrollIntoView({ block: 'center' })).catch(() => {});
+  await page.waitForTimeout(800);
+  if ((await loaded()) <= 200) problems.push(`${label}: scrolling to the end of 200 icons loaded none more (${await loaded()})`);
+  await search.fill('phone');
+  await page.waitForTimeout(400);
+  const names = await picker.getByRole('button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  if (!names.length || names.some((n) => n && n !== 'No icon' && !n.toLowerCase().includes('phone')))
+    problems.push(`${label}: category Devices with the search "phone" shows icons that are not phones`);
+  await page
+    .getByRole('button', { name: 'Suggested', exact: true })
+    .scrollIntoViewIfNeeded()
+    .catch(() => {});
+  await page
+    .getByRole('button', { name: 'Suggested', exact: true })
+    .tap()
+    .catch(() => {});
+  await search.fill('arrow back');
+  await hit.waitFor({ timeout: 8000 }).catch(() => {});
   await hit.tap().catch(() => {});
   await page.waitForTimeout(500);
   const drawn = await page.evaluate(() =>

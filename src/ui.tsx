@@ -110,7 +110,7 @@ import { locale, t } from './i18n';
 import { useRegisterFab } from './fabPresence';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
 import { SvgFile } from './icon';
-import { iconLabel, searchIconNames } from '../lib/materialIcon.mjs';
+import { filterIconNames, ICON_CATEGORIES, iconLabel, inIconCategory } from '../lib/materialIcon.mjs';
 import { countries, countryName, dialCodes, flagOf, regionOf } from './countries';
 import { byText } from './schema';
 import { contrast } from '../lib/colors';
@@ -1052,21 +1052,27 @@ export function IconPicker({
   const own = useId();
   const grid = `${id ?? own}-icons`;
   const chosen = options.find((o) => o.value === value);
-  const searching = query.trim() !== '';
+  const [category, setCategory] = useState<keyof typeof ICON_CATEGORIES | ''>('');
+  const searching = query.trim() !== '' || category !== '';
   const hits = useMemo(() => {
     if (!searching) return options;
     const words = query
       .toLowerCase()
       .split(/[\s_-]+/)
       .filter(Boolean);
-    const known = options.filter((o) => o.value && words.every((w) => `${o.label} ${o.value}`.toLowerCase().includes(w)));
+    const known = options.filter(
+      (o) =>
+        o.value &&
+        words.every((w) => `${o.label} ${o.value}`.toLowerCase().includes(w)) &&
+        (!category || inIconCategory(o.value, category)),
+    );
     const own = new Set(known.map((o) => o.value));
-    const rest = searchIconNames(all ?? [], query)
+    const rest = filterIconNames(all ?? [], query, category)
       .filter((name) => !own.has(name))
       .map((name) => ({ value: name, label: iconLabel(name) }));
     return [...options.filter((o) => !o.value), ...known, ...rest];
-  }, [options, all, query, searching]);
-  useEffect(() => setShown(PAGE), [query]);
+  }, [options, all, query, category, searching]);
+  useEffect(() => setShown(PAGE), [query, category]);
   // The next page, when the end of the shown ones comes into view.
   useEffect(() => {
     const end = more.current;
@@ -1100,6 +1106,27 @@ export function IconPicker({
               }}
             />
           )}
+          {onSearch && (
+            <div className="mt-3">
+              <ChipSet label={t.forms.iconCategory} scroll>
+                {[
+                  ['', t.forms.iconCategories.suggested] as const,
+                  ...(Object.keys(ICON_CATEGORIES) as (keyof typeof ICON_CATEGORIES)[]).map((c) => [c, t.forms.iconCategories[c]] as const),
+                ].map(([c, name]) => (
+                  <FilterChip
+                    key={c || 'suggested'}
+                    selected={category === c}
+                    onClick={() => {
+                      onSearch();
+                      setCategory(c);
+                    }}
+                  >
+                    {name}
+                  </FilterChip>
+                ))}
+              </ChipSet>
+            </div>
+          )}
           <div role="group" aria-label={label} className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2">
             {hits.slice(0, shown).map((o) => (
               <ChoiceTile
@@ -1115,7 +1142,13 @@ export function IconPicker({
               </ChoiceTile>
             ))}
           </div>
-          {hits.length > shown && <div ref={more} aria-hidden className="h-4" />}
+          {hits.length > shown && (
+            <div ref={more} className="mt-3 flex justify-center">
+              <Button kind="text" size="small" onClick={() => setShown((n) => n + PAGE)}>
+                {t.forms.showMoreIcons}
+              </Button>
+            </div>
+          )}
           {searching && !loading && hits.every((o) => !o.value) && (
             <p role="status" className="mt-3 text-on-surface-variant">
               {t.forms.noIconsFound}
@@ -1126,7 +1159,7 @@ export function IconPicker({
     </div>
   );
 }
-const PAGE = 60;
+const PAGE = 100;
 
 /** A picture: a small one of it (`src`), the button that picks one, from Files or a new one, or another,
  * and with `onRemove` (when it may be left out) the button that takes it away. */
