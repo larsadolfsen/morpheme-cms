@@ -495,9 +495,9 @@ async function checkSteps(width, height) {
     problems.push(`${label}: Move down did not move and renumber the step: ${JSON.stringify(now)}`);
   await page.close();
   // Pasting lines into an empty Steps block makes a step of each; headings among them leave the paste as it is.
-  for (const [html, expected] of [
-    ['<p>Order</p><p>Pay</p><p>Get it</p>', 3],
-    ['<h2>Order</h2><p>Pay</p>', 0],
+  for (const [html, plain, expected] of [
+    ['<p>Order</p><p>Pay</p><p>Get it</p>', 'Order\nPay\nGet it', 3],
+    ['<h2>Order</h2><p>Pay</p>', 'Order\nPay', 0],
   ]) {
     const p2 = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
     p2.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
@@ -513,15 +513,18 @@ async function checkSteps(width, height) {
     await p2.locator('[aria-label="Insert"]:visible').first().click();
     await p2.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
     await p2.waitForSelector('.inline-steps .inline-list-row-active [data-field="title"]');
-    const taken = await p2.evaluate((html) => {
-      const data = new DataTransfer();
-      data.setData('text/plain', html.replace(/<\/p>|<\/h2>/g, '\n').replace(/<[^>]+>/g, ''));
-      data.setData('text/html', html);
-      // true when a step took the paste over (preventDefault), false when it is left to the browser as it is.
-      return !document
-        .querySelector('.inline-steps [data-field="title"]')
-        .dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
-    }, html);
+    const taken = await p2.evaluate(
+      ([html, plain]) => {
+        const data = new DataTransfer();
+        data.setData('text/plain', plain);
+        data.setData('text/html', html);
+        // true when a step took the paste over (preventDefault), false when it is left to the browser as it is.
+        return !document
+          .querySelector('.inline-steps [data-field="title"]')
+          .dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
+      },
+      [html, plain],
+    );
     if (taken !== expected > 0)
       problems.push(`${label}: the paste ${html} was ${taken ? 'taken over' : 'left as it is'}, not the other way`);
     await p2.waitForTimeout(300);
