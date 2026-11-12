@@ -5,6 +5,8 @@ export const preview: Messages['preview'] = {
   title: 'Forhåndsvisning',
   size: 'Vinduesstørrelse',
   sizes: { compact: 'Kompakt', medium: 'Mellem', expanded: 'Udvidet', large: 'Stor', extraLarge: 'Ekstra stor' },
+  pageWidth: 'Sidens bredde',
+  current: (width, size) => `${width} pixels, ${size}`,
   phone: 'Telefon',
   computer: 'Computer',
   making: 'Henter forhåndsvisningen…',
