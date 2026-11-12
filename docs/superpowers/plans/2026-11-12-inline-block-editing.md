@@ -102,7 +102,20 @@ The older spec is where the owner decided Cards and the rule for every block. Ch
 - Steps stays its own block, rows with a title and a text, no settings (own plan).
 - Testimonials, Cookies and Blog posts are not typed in place.
 
-**Differences, to settle with the owner**
+**Owner decision (12 November): findings 17 and 18 are the rule.** Every difference below is settled the way the older spec says, and
+the Cards built in #413 are changed to follow it, in a coding session (this one is a brainstorm). What changes in the code:
+
+- Media is one choice for the block (the first card's choice sets the type for every card), not per card; `FORMER.cards` and the fields
+  follow.
+- Filled card colors are the container roles (surface container, primary, secondary and tertiary containers) with readable text.
+- The setting is named `Design` (not `Type`); Danish `Udseende` or the word the owner picks.
+- Card fields Subhead, Badge, Date and Tags are added; adding a button hides the Link; the next button is shown empty and faded with no
+  maximum; a new Card block starts with three empty cards, the first active (the 12 November spec still hides the empty item once the block has
+  one: that newer rule stays).
+- `check:themes` fails a theme that leaves a design unstyled.
+- Open, still to ask: whether "Header line" is the title only or title and subhead, and the carousel for mobile.
+
+**Differences, now settled by that decision**
 
 1. **Media type per card or for the block.** Finding 17: the first card's choice sets the type for every card, so they stay aligned, and
    there is no block setting. Built: each card chooses its own media. Decide which one.
