@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+.dev.vars
+.env
+.env.*
+.DS_Store
+Thumbs.db
+
+# Written by the build (morpheme images).
+public/images/_r/
+public/images/_s/
+public/images/_video/
+src/data/image-manifest.json

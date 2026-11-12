@@ -1,0 +1,10 @@
+{
+  "version": "0.7.1",
+  "notes": [
+    {
+      "id": "cloudflare-build-icons",
+      "kind": "line",
+      "text": "Your site builds on Cloudflare again without stopping on “Too many open files”"
+    }
+  ]
+}

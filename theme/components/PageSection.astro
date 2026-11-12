@@ -1,0 +1,24 @@
+---
+// A section on a fixed page below its page header (prices, contact, ...): container, the space above
+// (packages/editor/site/sections.ts), reveal on scroll and an optional heading + intro.
+import Container from '@theme/components/Container.astro';
+import Inline from '@theme/components/Inline.astro';
+
+interface Props {
+  title?: string;
+  intro?: string;
+  class?: string;
+  id?: string;
+}
+const { title, intro, class: className, id } = Astro.props;
+---
+
+<Container class={className} id={id} data-reveal>
+  {title && <h2 class="type-headline-large medium:type-display-small">{title}</h2>}
+  {intro && (
+    <p class="mt-3 max-w-[52ch] text-on-surface-variant">
+      <Inline text={intro} />
+    </p>
+  )}
+  <slot />
+</Container>

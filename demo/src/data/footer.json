@@ -1,0 +1,27 @@
+{
+  "text": "The website editor for people who would rather run their business than their website. Free and open source.",
+  "contactHeading": "Contact",
+  "linksHeading": "Explore",
+  "links": [
+    {
+      "label": "Blocks",
+      "href": "/blocks/"
+    },
+    {
+      "label": "App store",
+      "href": "/app-store/"
+    },
+    {
+      "label": "About",
+      "href": "/about/"
+    },
+    {
+      "label": "Blog",
+      "href": "/blog/"
+    },
+    {
+      "label": "Privacy policy",
+      "href": "/privacy-policy/"
+    }
+  ]
+}

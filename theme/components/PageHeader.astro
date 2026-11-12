@@ -1,0 +1,22 @@
+---
+// Title and intro at the top of the bespoke pages (prices, contact, services, blog, 404).
+// Anything placed inside (e.g. category pills) goes below the intro.
+import Container from '@theme/components/Container.astro';
+import Inline from '@theme/components/Inline.astro';
+
+interface Props {
+  title: string;
+  intro?: string;
+}
+const { title, intro } = Astro.props;
+---
+
+<Container as="header" class="pt-8 medium:pt-14">
+  <h1 class="theme-title max-w-[18ch]">{title}</h1>
+  {intro && (
+    <p class="type-body-large medium:type-title-large mt-4 max-w-[52ch] text-on-surface-variant">
+      <Inline text={intro} />
+    </p>
+  )}
+  <slot />
+</Container>

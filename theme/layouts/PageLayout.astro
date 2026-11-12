@@ -1,0 +1,165 @@
+---
+// A page (the standard theme's): back link, title and the text with its blocks (its pictures in it), in one column, or
+// with the block src/data/side.json chooses in a column beside it (sideBlock) when its template is a sidebar one
+// (`template`, lib/page-template.mjs: the theme's "templates"), and the booking prompt across the page when the text ends
+// with it. The wrapper carries data-template, so a theme can style a template; `full` is drawn like `single` here.
+// Width: with a column beside it the text is 66ch wide, blocks and all; without one (single, full) the text column is the
+// container's width, its blocks (not-prose) span it, and its other parts (paragraphs, headings) keep 66ch. Its first
+// paragraph is the lead (type-lead, ui.css: the --type-lead-* tokens), muted and 52ch wide.
+// data-editor marks what the editor's preview fills in with what is in its form ("Preview",
+// packages/editor/src/pagePreview.tsx): the heading, the text, and the booking prompt at the end.
+// A page whose H1 has section settings (the marker before it, lib/section-marker.mjs: a colour, a picture behind it or the whole width) draws the heading and the text up to the
+// first H2 in one panel (data-editor="h1-section", sectionClass); with a column beside the text the panel holds the heading only.
+import Base from '@theme/layouts/Base.astro';
+import PageHeading from '@theme/components/PageHeading.astro';
+import EndBlock from '@theme/components/EndBlock.astro';
+import Block from '@morphemecms/cms/src/standard/Block.astro';
+import { blockLoads, endBlock, sideBlock } from '@morphemecms/cms/src/standard/views';
+import { getPages, h1Section, pageHeading, pageHeadingHtml, parentPage, withoutH1, type Page } from '@morphemecms/cms/site/content';
+import { hiddenFromSearch } from '@morphemecms/cms/lib/status.mjs';
+import { blockTexts, nav } from '@morphemecms/cms/site/site';
+import { firstPicture, picturesOf } from '@morphemecms/cms/site/images.mjs';
+import { splitBlocks } from '@morphemecms/cms/lib/blocks.mjs';
+import { hasSidebar, templateOf } from '@morphemecms/cms/lib/page-template.mjs';
+import { offeredTemplates } from '@morphemecms/cms/site/templates';
+import { markdownHtml } from '@morphemecms/cms/lib/inline';
+import Container from '@theme/components/Container.astro';
+import RichText from '@theme/components/RichText.astro';
+import Img from '@theme/components/Img.astro';
+import { introOf, sectionClass } from '@morphemecms/cms/lib/text-sections.mjs';
+import Snackbar from '@theme/ui/Snackbar';
+import { isPreview, livePath, PREVIEW, previewId } from '@morphemecms/cms/site/noindex.mjs';
+import { siteT } from '@morphemecms/cms/src/i18n';
+
+interface Props {
+  page: Page;
+}
+const { page } = Astro.props;
+const all = await getPages();
+const parentEntry = parentPage(page, all);
+// The parent can also be a bespoke page (e.g. /contact/), which is not in the collection.
+const parentPath = page.data.path.replace(/[^/]+\/$/, '');
+const parentNav = nav.find((n) => n.href === parentPath);
+const parent = parentEntry
+  ? { href: parentEntry.data.path, title: pageHeading(parentEntry) }
+  : parentNav
+    ? { href: parentNav.href, title: parentNav.label }
+    : undefined;
+const { description, path } = page.data;
+const template = templateOf(page.data, offeredTemplates);
+const heading = pageHeading(page);
+// With its colours, when a word in it has one.
+const headingHtml = pageHeadingHtml(page);
+// The picture when the page is shared: the first in its text (a page's pictures are all in its text).
+const picture = firstPicture(page.body);
+// The text with its blocks (RichText.astro). A block at the very end of it whose type goes across the page (endBlock,
+// e.g. "Book an appointment", as on most pages) is shown across the page below the text and the column next to it; not when
+// it is hidden (RichText.astro leaves hidden blocks out).
+// Without the H1 at the top of the text (the page's heading, drawn above).
+const text = await Astro.slots.render('default');
+const html = withoutH1(text);
+// The settings of the H1's section (the marker before the H1: colour, picture, width): the heading and the text up to the first H2
+// are one panel.
+const h1Settings = h1Section(text);
+const h1Color = h1Settings ? h1Settings.color : null;
+const end = endBlock(html);
+// The questions in the text's "Questions and answers" blocks (not the hidden ones), for the structured data
+// (an FAQPage, packages/editor/site/schema.ts); the answers as HTML, as on the page (the block's load.ts).
+const questions = await Promise.all(
+  splitBlocks(html, ['faq'])
+    .flatMap((b) => (b.type === 'faq' ? ((b.props.items ?? []) as { question?: string; answer?: string }[]) : []))
+    .filter((q) => q.question?.trim() && q.answer?.trim())
+    .map(async (q) => ({ question: q.question!.trim(), answer: await markdownHtml(q.answer!) })),
+);
+// A new version of a page (/new/…, packages/editor/site/noindex.mjs): a message at the bottom when the page opens
+// (the theme's Snackbar, shown by ui/snackbar.script.ts with time to read the links) links to the current
+// page and to the page's row on /new/, where what the owner should look at stands; its blocks see it as the
+// current page.
+const preview = isPreview(path);
+const current = livePath(path);
+const review = (page.data.review ?? '').trim();
+// The block beside the text (sideBlock): when its type's load gives a view; else the page is drawn as without one.
+const sideType = sideBlock(template);
+const sideText = end ? end.html : html;
+const side =
+  sideType &&
+  (await blockLoads[sideType].load({}, { texts: blockTexts[sideType] ?? {}, index: 0, path: current, preview, html: sideText })) !== null
+    ? sideType
+    : null;
+// In a coloured H1 section the text up to the first H2 (intro) is in the panel with the heading; with a column beside the text
+// the text stays whole in its grid and the panel holds the heading only.
+const { intro, rest } = h1Settings && !side ? introOf(sideText) : { intro: '', rest: sideText };
+const textClass = side
+  ? 'prose max-w-[66ch]'
+  : 'prose max-w-none [&>:not(.not-prose)]:max-w-[66ch] [&>p:first-child]:type-lead [&>p:first-child]:text-on-surface-variant [&>p:first-child]:max-w-[52ch]';
+---
+
+<Base
+  title={heading}
+  description={description}
+  seoTitle={page.data.seoTitle}
+  seoDescription={page.data.seoDescription}
+  canonical={page.data.canonical}
+  noindex={hiddenFromSearch(page.data)}
+  image={picture?.src}
+  imageAlt={picture?.alt}
+  pictures={picturesOf(page.body)}
+  shareImage={page.data.shareImage}
+  shareTitle={page.data.shareTitle}
+  shareDescription={page.data.shareDescription}
+  crumbs={parent ? [{ name: parent.title, href: parent.href }] : []}
+  questions={questions}
+>
+  <article data-template={template}>
+    <Container as="header" class="pt-8 medium:pt-14">
+      {h1Settings ? (
+        <section class={sectionClass(h1Color, h1Settings)} data-editor="h1-section">
+          {h1Settings.picture && (
+            <Img
+              src={h1Settings.picture}
+              alt={h1Settings.alt ?? ''}
+              sizes={h1Settings.width === 'full' ? '100vw' : 'min(72rem, 100vw)'}
+              class="text-section-image"
+            />
+          )}
+          <PageHeading parent={parent} heading={heading} headingHtml={headingHtml} />
+          {intro && (
+            <div data-editor="intro" class={textClass}>
+              <RichText html={intro} path={current} preview={preview} />
+            </div>
+          )}
+        </section>
+      ) : (
+        <PageHeading parent={parent} heading={heading} headingHtml={headingHtml} />
+      )}
+    </Container>
+
+    <Container as="div" class="mt-8 medium:mt-12">
+      <div {...(side ? { class: 'page-with-side', 'data-side': template === 'sidebar-left' ? 'left' : 'right' } : {})}>
+        <div data-editor="text" class={textClass}>
+          <RichText html={rest} path={current} preview={preview} />
+        </div>
+        {side && (
+          <aside class="page-side">
+            <Block type={side} texts={blockTexts[side]} path={current} preview={preview} html={sideText} />
+          </aside>
+        )}
+      </div>
+    </Container>
+  </article>
+
+  {end && <EndBlock type={end.type} props={end.props} data-editor="end" data-editor-block={end.type} />}
+  {preview && (
+    <template data-snackbar data-ms="8000">
+      <Snackbar
+        text={siteT.theme.reviewNotice}
+        links={[
+          { text: siteT.theme.seeCurrentPage, href: current },
+          review
+            ? { text: siteT.theme.seeChanges, href: `${PREVIEW}#${previewId(path)}` }
+            : { text: siteT.theme.allNewPages, href: PREVIEW },
+        ]}
+      />
+    </template>
+  )}
+</Base>

@@ -1,0 +1,69 @@
+// "Drafts" on the start screen, the widget cms:unfinished (the id is kept, so saved layouts still work): a card with the
+// first three pages and blog posts that are drafts or scheduled, each a row that opens its form, and "Show all" under
+// them, which opens the list of the collection with its Drafts filter, when there are more. Exposes UnfinishedWidget. The rows are unfinished.mjs's, the
+// entries entries.mjs's (from the files in startData.ts), the status texts those of the lists (t.library.status).
+// With nothing unfinished it shows nothing, unless it is being edited: then it renders with its empty text.
+import { useId } from 'react';
+import { t } from '../i18n';
+import { collections, icons } from '../site';
+import { when } from '../when';
+import { entriesOf } from '../entries.mjs';
+import { unfinishedOf } from '../unfinished.mjs';
+import { useStartData } from '../startData';
+import type { WidgetProps } from '../widgets';
+import { SiteCard } from '../themeUi';
+import { ListItem, LinkButton, keep, plainListClass } from '../ui';
+
+/** How many drafts the card shows. */
+const shown = 3;
+
+const lists = collections.flatMap((c) => (c.kind === 'markdown' ? [{ id: c.id, folder: c.folder }] : []));
+
+/** "Draft", "Unpublished changes" or "Scheduled Nov 1 at 8:00 AM" (without the time when publishAt is not usable). */
+const statusText = (status: string, at: number | null) =>
+  status === 'draft'
+    ? t.library.status.draft
+    : status === 'waiting'
+      ? at === null
+        ? t.library.status.unpublishedChanges
+        : t.library.status.scheduledChanges(when(new Date(at)))
+      : at === null
+        ? t.library.status.scheduled
+        : t.library.status.scheduledAt(when(new Date(at)));
+
+export function UnfinishedWidget({ editing }: WidgetProps) {
+  const { files } = useStartData();
+  const titleId = useId();
+  const rows = unfinishedOf(entriesOf(files, lists));
+  if (!rows.length && !editing) return null;
+  return (
+    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="[--card-padding:1rem_0_0.5rem]">
+      <h2 id={titleId} className="ps-4 pe-4 pb-2 font-medium">
+        {t.library.unfinishedTitle}
+      </h2>
+      {rows.length ? (
+        <ul className={plainListClass}>
+          {rows.slice(0, shown).map((row) => (
+            <ListItem
+              key={row.path}
+              href={`#${row.path}`}
+              icon={icons[row.collection]}
+              headline={row.title}
+              supporting={statusText(row.status, row.at)}
+              truncate
+            />
+          ))}
+        </ul>
+      ) : (
+        <p className="px-4 pb-2 text-sm text-on-surface-variant">{t.library.unfinishedEmpty}</p>
+      )}
+      {rows.length > shown && (
+        <div className="flex justify-end px-2 pt-1">
+          <LinkButton kind="text" href={`#list/${rows[0].collection}`} onClick={() => keep(`${rows[0].collection}-status`, 'unfinished')}>
+            {t.library.unfinishedShowAll}
+          </LinkButton>
+        </div>
+      )}
+    </SiteCard>
+  );
+}

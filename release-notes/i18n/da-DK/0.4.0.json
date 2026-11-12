@@ -1,0 +1,26 @@
+{
+  "version": "0.4.0",
+  "notes": [
+    {
+      "id": "morpheme-updates-itself",
+      "kind": "paragraph",
+      "title": "Morpheme opdaterer sig selv",
+      "text": "Din hjemmeside installerer nu nye opdateringer af Morpheme inden for en time og fortryder en, hvis hjemmesiden ikke kan bygges. Se Indstillinger › Morpheme."
+    },
+    {
+      "id": "missing-storage-notice",
+      "kind": "line",
+      "text": "Indstillinger › Morpheme fortæller, når din hjemmeside mangler den lagring, den skal bruge til opdateringer"
+    },
+    {
+      "id": "keep-line-breaks",
+      "kind": "line",
+      "text": "Når du gemmer en side, bevares dens linjeskift, som de var"
+    },
+    {
+      "id": "new-sites-reach-store",
+      "kind": "line",
+      "text": "Nye hjemmesider kan nå Morpheme-butikken på samme Cloudflare-konto"
+    }
+  ]
+}

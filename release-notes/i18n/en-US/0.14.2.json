@@ -1,0 +1,22 @@
+{
+  "version": "0.14.2",
+  "date": "2026-11-07",
+  "notes": [
+    {
+      "id": "footer-scrolls-above-fab",
+      "kind": "line",
+      "text": "On a phone, the add button no longer hides the links at the bottom of the editor"
+    },
+    {
+      "id": "lists-follow-md3",
+      "kind": "line",
+      "text": "Lists in the editor have larger text and stand out more from the page"
+    },
+    {
+      "id": "update-message-whats-new",
+      "kind": "paragraph",
+      "title": "Update message",
+      "text": "You see the news without looking for it. After an update, the top of the start screen shows the new version and its main news. Tap See what’s new to read it all."
+    }
+  ]
+}

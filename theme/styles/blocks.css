@@ -1,0 +1,2078 @@
+/*
+  Material is every theme's fallback: its rules that set more than custom properties sit in @layer fallback (declared last in
+  base.css), so a theme's own unlayered rules win over them, whatever the specificity. Custom properties stay unlayered.
+
+  The look of the standard blocks (their fields: packages/editor/src/standard/; their markup: blocks/ in this theme), on
+  the site and in the editor, in the standard theme. Every colour, shape and motion comes from a CSS variable, which a
+  theme sets to its own design in its own CSS:
+
+    :root { --block-accent: var(--mo-primary); --block-radius: 1.5rem; }
+
+  Without them, the blocks have a plain look of their own (the values below). Sizes and spacing are
+  the blocks' own, in rem; their text has the site's font. Every theme imports this file into its CSS
+  (styles/global.css: the standard theme's, another theme's …), which the editor uses too.
+
+    --block-text       text
+    --block-muted      quieter text (an answer, a step's text)
+    --block-accent     the one colour: a notice's edge, the step numbers, an open row, the play button,
+                       a card's icon and link
+    --block-accent-hover  the accent of a filled button pointed at (ui.css)
+    --block-on-accent  text on the accent (the step numbers, a filled button)
+    --block-primary, --block-secondary, --block-tertiary  the colours of a section (with --block-on-… for the text on them;
+                       the theme's own primary, secondary and tertiary colours)
+    --block-surface    a raised surface (the rows that fold out, the cards)
+    --block-tint       a light background (a notice, a video before it is played)
+    --block-line       lines between rows and along the steps, the edge of a card
+    --block-radius     the corners of a panel
+    --block-radius-small  the corners of something smaller in or beside a panel (a picture in a list, a row, a badge's
+                       square, a step on a time line)
+    --block-control-radius  the corners of a button and a tag (a pill when large)
+    --block-shadow     the shadow of a raised panel
+    --block-section-padding, --block-section-margin  the space inside, and above and below, a coloured section of a text
+                       (.text-section: a panel the width of the text column, on --block-surface, --block-primary, --block-secondary or --block-tertiary; on those colours
+                       the blocks in it get inverted variables: text, accent and line on-accent, surface and tint a veil of it)
+    --block-ease       the easing of motion (else the motion scheme's, --motion-ease)
+    --block-ease-quick the easing of a quick change of state (a colour, an arrow that turns or moves; else the motion
+                       scheme's, --motion-ease-quick)
+    --block-hero-shade, --block-hero-on-shade  (optional) the colour a picture behind a hero's text is darkened with,
+                       and the text's on it; without them the text's colour and the surface's
+    --block-page-width, --block-gutter  the page's container (its width, gutters included, and its gutter at the
+                       side), whose left edge the text starts at: how far a banner across the whole width reaches out
+                       of the text to the window's edges, and where its content starts again (the standard theme's
+                       Container.astro: 72rem, 1.25rem and 2rem from the medium width)
+
+  How things move is the site's motion scheme (Material 3's, chosen under "Appearance" › "Motion"; lib/motion.ts), which
+  Base.astro writes into the <head> as springs, each its duration and curve, for `transition` and `animation`:
+    --motion-spatial-fast, --motion-spatial, --motion-spatial-slow   something that moves, grows or changes shape
+    --motion-effects-fast, --motion-effects, --motion-effects-slow   a colour, a shadow, something that fades
+    --motion-spatial-fast-duration … --motion-effects-slow-duration   each one's duration alone, for what must last as
+                       long as it (a visibility that waits for it, a display … allow-discrete)
+    --motion-ease, --motion-ease-quick   the default spatial and effects curves alone, for a duration of one's own
+  Without them (a page without Base.astro's <head>), the values below: the standard scheme's lengths with Material's
+  standard curve.
+
+  A site sets the class `js` on <html> as early as it can (this site: Base.astro): then a long
+  testimonial is cut with "Read more" from the start; without it, the whole text is shown.
+  The mark before the name on a testimonial (.block-testimonial-mark) is the site's own: it is not shown
+  until the site gives it a look (the standard theme: an avatar with the name's first letter, its data-initial; another:
+  its logo).
+*/
+:where(:root) {
+  --block-text: #1f2328;
+  --block-muted: #59636e;
+  --block-accent: #0969da;
+  --block-accent-hover: #0550ae;
+  --block-on-accent: #ffffff;
+  --block-primary: var(--block-accent);
+  --block-on-primary: var(--block-on-accent);
+  --block-secondary: #565f71;
+  --block-on-secondary: #ffffff;
+  --block-tertiary: #6f5676;
+  --block-on-tertiary: #ffffff;
+  --block-surface: #ffffff;
+  --block-tint: #f2f4f7;
+  --block-line: #d8dee4;
+  --block-radius: 0.75rem;
+  --block-radius-small: 1rem;
+  --block-control-radius: 0.5rem;
+  --block-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  --motion-spatial-fast: 230ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-spatial: 320ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-spatial-slow: 490ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-effects-fast: 150ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-effects: 240ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-effects-slow: 330ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-spatial-fast-duration: 230ms;
+  --motion-spatial-duration: 320ms;
+  --motion-spatial-slow-duration: 490ms;
+  --motion-effects-fast-duration: 150ms;
+  --motion-effects-duration: 240ms;
+  --motion-effects-slow-duration: 330ms;
+  /* Tailwind's transition-colors, transition-opacity … without a duration of their own: the default effects spring. */
+  --default-transition-duration: var(--motion-effects-duration);
+  --default-transition-timing-function: var(--motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
+  --block-ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
+  --block-ease-quick: var(--motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
+  --block-page-width: 72rem;
+  --block-gutter: 1.25rem;
+  --block-section-padding: 1.5rem;
+  --block-section-margin: 2rem;
+}
+@media (width >= theme(--breakpoint-medium)) {
+  :where(:root) {
+    --block-gutter: 2rem;
+  }
+}
+
+/* In a site's layer of components, so the site's utilities (a margin on the steps) win over them. */
+@layer components {
+  /* A block in the text of a page: the space above and below it. */
+  .block-in-text {
+    margin-block: 2rem;
+  }
+
+  /* A section of a page's or post's text with a colour, a picture or the whole width of the window (lib/text-sections.mjs,
+     RichText.astro): a panel the width of the text column, from its heading to the next (its first and last parts' margins: at
+     the end of the file). The colours are Surface and the theme's Primary, Secondary and Tertiary (--block-primary and the
+     like, with their text colours --block-on-primary …). A section from before Tint is Surface, and Accent is Primary. */
+  .text-section {
+    margin-block: var(--block-section-margin);
+    border-radius: var(--block-radius);
+    padding: var(--block-section-padding);
+  }
+  .text-section-surface {
+    background: var(--block-surface);
+    box-shadow: var(--block-shadow);
+  }
+  /* A picture behind the section (<img class="text-section-image"> first in it, RichText.astro): it fills the panel, darkened
+     from below with the section's colour (Surface: --block-surface; none: --block-hero-shade, the text's colour unless the theme
+     sets it) so the text on it can be read. Without a colour the text is --block-hero-on-shade, the surface's. */
+  .text-section-picture {
+    --section-fill: var(--block-hero-shade, var(--block-text));
+    --section-on-fill: var(--block-hero-on-shade, var(--block-surface));
+    --section-shade: var(--section-fill);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--section-fill);
+    box-shadow: none;
+  }
+  .text-section-picture.text-section-surface {
+    --section-shade: var(--block-surface);
+  }
+  .text-section-picture::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--section-shade) 85%, transparent),
+      color-mix(in srgb, var(--section-shade) 55%, transparent) 70%,
+      color-mix(in srgb, var(--section-shade) 40%, transparent)
+    );
+  }
+  .text-section-image {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    object-fit: cover;
+    border-radius: 0;
+  }
+  .text-section-primary {
+    --section-fill: var(--block-primary);
+    --section-on-fill: var(--block-on-primary);
+  }
+  .text-section-secondary {
+    --section-fill: var(--block-secondary);
+    --section-on-fill: var(--block-on-secondary);
+  }
+  .text-section-tertiary {
+    --section-fill: var(--block-tertiary);
+    --section-on-fill: var(--block-on-tertiary);
+  }
+  /* Across the whole width of the window (`width` full): without corners; it reaches out of the text to the window's edges, from
+     where the text starts at the left of the page's container (--block-page-width, --block-gutter), and its content starts there
+     again and ends at the container's right edge. The page is clipped at the window's edges while it has one (100vw is a
+     scrollbar wider). */
+  .text-section-full {
+    --section-inset: calc(max(0px, (100vw - var(--block-page-width)) / 2) + var(--block-gutter));
+    width: 100vw;
+    /* min-width wins over a max-width: a page's text column limits what is in it to a readable width with a utility. */
+    min-width: 100vw;
+    margin-left: calc(-1 * var(--section-inset));
+    border-radius: 0;
+    padding-inline: var(--section-inset);
+  }
+  body:has(.text-section-full) {
+    overflow-x: clip;
+  }
+  /* On a colour with its own text colour (and on a picture without Surface) everything in the text is that colour, links
+     too: they are underlined by the prose style. The section's real colours are kept in private variables first
+     (--section-…): the blocks in it get the variables swapped (below), and a variable cannot swap with another on the
+     same element. */
+  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) {
+    --section-accent: var(--section-fill);
+    --section-on-accent: var(--section-on-fill);
+    --section-text: var(--block-text);
+    --section-surface: var(--block-surface);
+    background: var(--section-accent);
+    color: var(--section-on-accent);
+    --tw-prose-body: var(--section-on-accent);
+    --tw-prose-headings: var(--section-on-accent);
+    --tw-prose-lead: var(--section-on-accent);
+    --tw-prose-links: var(--section-on-accent);
+    --tw-prose-bold: var(--section-on-accent);
+    --tw-prose-counters: var(--section-on-accent);
+    --tw-prose-bullets: var(--section-on-accent);
+    --tw-prose-hr: var(--section-on-accent);
+    --tw-prose-quotes: var(--section-on-accent);
+    --tw-prose-quote-borders: var(--section-on-accent);
+    --tw-prose-captions: var(--section-on-accent);
+    --tw-prose-code: var(--section-on-accent);
+  }
+  /* The blocks in it read as an inverted theme on the accent: text, lines and the accent itself are the text-on-primary
+     colour, a surface is a veil of it, and what was text-on-primary (a filled button's label, a step number) is the
+     accent. Dark mode follows, as the variables do. */
+  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > * {
+    --block-text: var(--section-on-accent);
+    --block-muted: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
+    --block-accent: var(--section-on-accent);
+    --block-accent-hover: color-mix(in srgb, var(--section-on-accent) 88%, var(--section-accent));
+    --block-on-accent: var(--section-accent);
+    --block-surface: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
+    --block-tint: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
+    --block-line: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
+    --block-shadow: none;
+    /* A hero with its picture behind the text is darkened with the section's own text colour, in its own surface. */
+    --block-hero-shade: var(--section-text);
+    --block-hero-on-shade: var(--section-surface);
+  }
+
+  /* "Notice": a short notice in a box with the accent along its left edge (notice/). */
+  .block-notice {
+    border-left: 4px solid var(--block-accent);
+    border-radius: var(--block-radius);
+    background: var(--block-tint);
+    padding: 1rem 1.25rem;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
+  }
+
+  /* "Steps": numbered steps along a line (steps/StepList.tsx). */
+  .block-steps {
+    position: relative;
+    max-width: 48rem;
+  }
+  .block-steps.block-in-text {
+    margin-block: 2.5rem;
+  }
+  .block-steps > :not(:last-child) {
+    margin-bottom: 2.5rem;
+  }
+  .block-steps-line {
+    position: absolute;
+    top: 1.5rem;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    width: 1px;
+    background: var(--block-line);
+  }
+  .block-step {
+    position: relative;
+    display: flex;
+    gap: 1.25rem;
+  }
+  .block-step-number {
+    position: relative;
+    display: grid;
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
+    place-items: center;
+    border-radius: 9999px;
+    background: var(--block-accent);
+    color: var(--block-on-accent);
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
+    font-variant-numeric: tabular-nums;
+  }
+  .block-step-body {
+    padding-top: 0.5rem;
+  }
+  .block-step-title {
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
+  }
+  .block-step-text {
+    margin-top: 0.375rem;
+    max-width: 50ch;
+    color: var(--block-muted);
+  }
+
+  /* "Questions and answers": rows that fold out, one open at a time (faq/Accordion.tsx). */
+  .block-accordion {
+    max-width: 48rem;
+    border-radius: var(--block-radius);
+    background: var(--block-surface);
+    box-shadow: var(--block-shadow);
+  }
+  .block-accordion > :not(:last-child) {
+    border-bottom: 1px solid var(--block-line);
+  }
+  .block-accordion-label {
+    display: flex;
+    min-height: 3.5rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.875rem 1.25rem;
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
+    transition: color var(--motion-effects);
+  }
+  .block-accordion-title {
+    flex: 1;
+  }
+  .block-accordion-lead {
+    flex-shrink: 0;
+    color: var(--block-muted);
+  }
+  /* The text button under the last row of "Segmented list" and "FAQ list" (ListButton.tsx). */
+  .block-list-button {
+    margin-top: 0.5rem;
+  }
+  /* `Max rows` of "Segmented list" (MoreRows.tsx, segmented/more.ts): without script all rows show and the button is hidden; with
+     script (data-cut) the rows after the first ones are hidden until the button shows them. The last row left has no line under it. */
+  .block-more:not([data-cut]) > .block-more-button {
+    display: none;
+  }
+  .block-more[data-cut] [data-extra],
+  .block-more[data-cut] li:has(> [data-extra]) {
+    display: none;
+  }
+  .block-more[data-cut] .block-accordion > [data-edge] {
+    border-bottom: 0;
+  }
+  summary.block-accordion-label {
+    cursor: pointer;
+    list-style: none;
+    /* The focus ring sits inside the row, so the panel's rounded edge never cuts it off. */
+    outline-offset: -3px;
+  }
+  summary.block-accordion-label::-webkit-details-marker {
+    display: none;
+  }
+  .block-accordion-icon {
+    flex-shrink: 0;
+    color: var(--block-muted);
+    transition: rotate var(--motion-spatial);
+  }
+  @media (hover: hover) {
+    summary.block-accordion-label:hover {
+      color: var(--block-accent);
+    }
+  }
+  .block-accordion-row[open] > .block-accordion-label {
+    color: var(--block-accent);
+  }
+  .block-accordion-row[open] .block-accordion-icon {
+    rotate: 180deg;
+    color: var(--block-accent);
+  }
+  .block-accordion-body {
+    padding: 0 1.25rem 1.5rem;
+  }
+  /* An answer as it was written: paragraphs and lists apart, links in the accent. */
+  .block-accordion-answer {
+    max-width: 60ch;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
+    color: var(--block-muted);
+  }
+  .block-accordion-answer * + * {
+    margin-top: 0.75em;
+  }
+  .block-accordion-answer ul {
+    list-style: disc;
+    padding-left: 1.25em;
+  }
+  .block-accordion-answer ol {
+    list-style: decimal;
+    padding-left: 1.25em;
+  }
+  .block-accordion-answer li + li {
+    margin-top: 0.25em;
+  }
+  .block-accordion-answer strong {
+    color: var(--block-text);
+    font-weight: 600;
+  }
+  .block-accordion-answer a {
+    color: var(--block-accent);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+  }
+  /* "Hero" (hero/): its heading, the subtitle (the first paragraph, larger) and the introduction, the buttons, a text
+     under them and a quote, beside the picture on a computer, under it on a phone. */
+  .block-hero {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+  }
+  .block-hero-title {
+    margin: 0 0 1.25rem;
+    font-size: var(--type-display-small-size);
+    line-height: var(--type-display-small-line-height);
+    font-weight: var(--type-display-small-weight);
+    letter-spacing: var(--type-display-small-tracking);
+  }
+  .block-hero-text > :first-child {
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
+  }
+  .block-hero-text > * + * {
+    margin-top: 1rem;
+    color: var(--block-muted);
+  }
+  .block-hero-body > .block-buttons {
+    margin-top: 2rem;
+  }
+  .block-hero-note {
+    margin-top: 1rem;
+    max-width: 44ch;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+    color: var(--block-muted);
+  }
+  .block-hero-note > * + * {
+    margin-top: 0.5rem;
+  }
+  /* A quote in the text under the buttons ("> …"): larger, in the text's colour, along a line in the accent; its last
+     paragraph, when it has more than one, is who said it (with a link to the whole of it). */
+  .block-hero-note > blockquote {
+    margin: 2rem 0 0;
+    border-left: 2px solid var(--block-accent);
+    padding-left: 1rem;
+  }
+  .block-hero-note > blockquote > p {
+    margin: 0;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
+    color: var(--block-text);
+  }
+  .block-hero-note > blockquote > p:last-child:not(:first-child) {
+    margin-top: 0.5rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+    color: var(--block-muted);
+  }
+  .block-hero-picture {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: 50% 22%;
+    border-radius: var(--block-radius);
+  }
+  /* The picture behind the text ("Hero", `placement` 'behind'): it fills a panel, darkened from below (--block-hero-shade,
+     the text's colour unless the theme sets it) so the text on it (--block-hero-on-shade, the surface's) can be read. */
+  .block-hero-behind {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    min-height: 26rem;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-end;
+    overflow: hidden;
+    border-radius: var(--block-radius);
+    padding: 2rem 1.5rem;
+    color: var(--block-hero-on-shade, var(--block-surface));
+  }
+  .block-hero-behind::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--block-hero-shade, var(--block-text)) 85%, transparent),
+      color-mix(in srgb, var(--block-hero-shade, var(--block-text)) 35%, transparent) 70%,
+      color-mix(in srgb, var(--block-hero-shade, var(--block-text)) 20%, transparent)
+    );
+  }
+  .block-hero-behind > .block-hero-picture {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    height: 100%;
+    aspect-ratio: auto;
+    border-radius: 0;
+  }
+  .block-hero-behind .block-hero-text > * + *,
+  .block-hero-behind .block-hero-note,
+  .block-hero-behind .block-hero-note > blockquote > p:last-child:not(:first-child) {
+    color: color-mix(in srgb, var(--block-hero-on-shade, var(--block-surface)) 85%, transparent);
+  }
+  .block-hero-behind .block-hero-note > blockquote {
+    border-left-color: currentColor;
+  }
+  .block-hero-behind .block-hero-note > blockquote > p {
+    color: var(--block-hero-on-shade, var(--block-surface));
+  }
+  .block-hero-behind :is(.block-link, .block-hero-note a) {
+    color: inherit;
+  }
+  /* Across the whole width of the window ("Banner", `width` 'full'): without corners, and without a picture behind it on
+     a band in the tint, its content in a readable width. On the site (in the text, .block-in-text) it reaches out of
+     the text to the window's edges, from where the text starts at the left of the page's container (--block-page-width,
+     --block-gutter), and its content starts there again and ends at the container's right edge; the page is clipped at
+     the window's edges while it has one (100vw is a scrollbar wider). In the editor it is as wide as where it is drawn. */
+  .block-hero.block-hero-full {
+    border-radius: 0;
+  }
+  :where(.block-hero-full:not(.block-hero-behind)) {
+    background: var(--block-tint);
+    padding: 2.5rem 1.5rem;
+  }
+  :where(.block-hero-full) > .block-hero-body {
+    max-width: 44rem;
+  }
+  .block-hero-full.block-in-text {
+    --block-hero-inset: calc(max(0px, (100vw - var(--block-page-width)) / 2) + var(--block-gutter));
+    width: 100vw;
+    max-width: none;
+    margin-left: calc(-1 * var(--block-hero-inset));
+    padding-inline: var(--block-hero-inset);
+  }
+  body:has(.block-hero-full.block-in-text) {
+    overflow-x: clip;
+  }
+  @media (width >= theme(--breakpoint-expanded)) {
+    .block-hero {
+      grid-template-columns: 7fr 5fr;
+      gap: 3rem;
+    }
+    .block-hero-behind {
+      min-height: 32rem;
+      padding: 3.5rem;
+    }
+    :where(.block-hero-full:not(.block-hero-behind)) {
+      padding: 4rem 3.5rem;
+    }
+    .block-hero-title {
+      font-size: var(--type-display-medium-size);
+      line-height: var(--type-display-medium-line-height);
+      font-weight: var(--type-display-medium-weight);
+      letter-spacing: var(--type-display-medium-tracking);
+    }
+    .block-hero-body > .block-buttons {
+      flex-direction: row;
+    }
+  }
+
+  /* "Buttons": buttons in a row, on a phone under each other in the full width (buttons/). The buttons are the
+     theme's (.button in ui.css), each of the kind it was given. */
+  .block-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  /* A form in a block or a pop-up (an app's: Mailchimp's signup): its fields (the theme's text fields, .text-field in
+     ui.css) and its button side by side, wrapping on a phone, and the answer under it. */
+  .block-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .block-form > .button {
+    flex: 1 0 auto;
+  }
+  .block-form > .text-field {
+    flex: 1 1 12rem;
+  }
+  /* The answer to a form, in the accent when it went wrong (data-failed). */
+  .block-message {
+    margin-top: 1rem;
+  }
+  .block-message[data-failed] {
+    color: var(--block-accent);
+  }
+
+  /* A link in a block's text (and in the text under a banner's buttons): in the accent, underlined, thicker when
+     pointed at. */
+  .block-link,
+  .block-hero-note a {
+    color: var(--block-accent);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+  }
+  .block-link:hover,
+  .block-hero-note a:hover {
+    text-decoration-thickness: 2px;
+  }
+  /* A link on its own line with an arrow after it ("All posts →"). */
+  .block-arrow-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: var(--block-accent);
+    text-decoration: none;
+  }
+
+  /* "Blog posts": its posts as the blog shows them (the theme's PostList.tsx and BlogPosts.tsx), "All posts" under
+     them. */
+  .block-posts-in-text.block-in-text {
+    margin-block: 2.5rem;
+  }
+  .block-posts-all {
+    margin-top: 1.5rem;
+  }
+  /* In the editor's drawing: random posts, of how many; under all of them, how many more there are. */
+  .block-posts-note {
+    margin: 0 0 1rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+    color: var(--block-muted);
+  }
+  .block-posts-more {
+    margin: 1rem 0 0;
+  }
+
+  /* Only for screen readers. */
+  .block-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  /* In a drawing in the editor, when there is nothing to show. */
+  .block-empty {
+    border-radius: var(--block-radius);
+    background: var(--block-tint);
+    padding: 1.5rem;
+    color: var(--block-muted);
+  }
+
+  /* "Testimonial cards": testimonials to leaf through (testimonials/Slider.tsx, a carousel: ui.css). */
+  .carousel.block-in-text,
+  .block-testimonials.block-in-text,
+  .block-testimonial.block-in-text {
+    margin-block: 2.5rem;
+  }
+  /* "Testimonials list" (testimoniallist/Rows.tsx): the theme's list; a row the filter hides takes its divider with it. */
+  .block-testimonial-rows > li:has(> [data-tags][hidden]) {
+    display: none;
+  }
+  /* Filter chips (the theme's Chip, ui.css) that filter what is under them ("Testimonials list"). */
+  .block-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .block-filters[hidden] {
+    display: none;
+  }
+  /* One testimonial (testimonials/Testimonial.tsx), an outlined card (.card in ui.css): a big quotation mark, its tags,
+     the text (cut after seven lines with "Read more", or two with a link to the whole text) and the name. */
+  .block-testimonial {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    margin: 0;
+  }
+  .block-testimonial-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .block-testimonial-quote-mark {
+    display: block;
+    height: 2.5rem;
+    margin-bottom: -1rem;
+    font-size: var(--type-display-large-size);
+    line-height: var(--type-display-large-line-height);
+    font-weight: var(--type-display-large-weight);
+    letter-spacing: var(--type-display-large-tracking);
+    color: var(--block-accent);
+  }
+  .block-testimonial-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  .block-testimonial-tags .chip {
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
+  }
+  .block-testimonial-text {
+    margin: 0.75rem 0 0;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
+  }
+  .block-testimonial-text > * {
+    margin: 0;
+  }
+  .block-testimonial-text > :not(:last-child) {
+    margin-bottom: 0.75rem;
+  }
+  .block-testimonial-context {
+    color: var(--block-muted);
+  }
+  .block-testimonial-short {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .block-testimonial-more {
+    position: relative;
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.75rem;
+    border: 0;
+    padding: 0;
+    background: none;
+    font: inherit;
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
+    color: var(--block-accent);
+    text-decoration: none;
+  }
+  .block-testimonial-more[hidden] {
+    display: none;
+  }
+  .block-testimonial-more svg {
+    transition: transform var(--motion-spatial);
+  }
+  .block-testimonial-more[aria-expanded='true'] svg {
+    transform: rotate(180deg);
+  }
+  .block-testimonial-name {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 1.5rem;
+    font-weight: 500;
+  }
+  .block-testimonial-mark {
+    display: none;
+  }
+  /* A testimonial's picture before the name: small and round. */
+  .block-testimonial-picture {
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    object-fit: cover;
+  }
+  .js [data-clamp] {
+    max-height: calc(1.625em * 7);
+    overflow: hidden;
+  }
+  .js [data-clamp][data-overflow] {
+    mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  }
+  .js [data-clamp][data-open] {
+    max-height: none;
+    mask-image: none;
+  }
+
+  /* "Accordion": a row's text, the link to its page and links to more specific pages under it
+     (accordion/PageRow.tsx). */
+  .block-row-text {
+    max-width: 60ch;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
+    color: var(--block-muted);
+  }
+  .block-row-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+    margin-top: 1rem;
+  }
+  .block-row-link {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* "Cards": Material 3's cards (.card in ui.css: outlined, filled or elevated), each with an icon, a picture, a video or nothing at
+     the top and either a link (the whole card) or buttons, two side by side from small screens (cards/LinkCards.tsx). */
+  .block-cards {
+    display: grid;
+    gap: var(--card-gap, 0.5rem);
+    padding: 0;
+    list-style: none;
+  }
+  .block-card {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    /* Its edge a border (the outlined card's line, none on the others), so a picture at the top stays inside it. */
+    border: 1px solid transparent;
+    /* The card's shadow as it is now (ui.css: at rest, pointed at, dragged), without its line. */
+    box-shadow: var(--card-shadow, 0 0 #0000);
+    color: inherit;
+    /* The same with a page (a link, as the site has links) and without one (not a link). */
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      border-color var(--motion-effects),
+      box-shadow var(--motion-effects);
+  }
+  .block-card.card-outlined {
+    border-color: var(--card-outlined-line, var(--block-line));
+  }
+  .block-card-icon {
+    color: var(--block-accent);
+  }
+  /* A video at the top fills it as a picture does, with its play button. */
+  .block-card-video {
+    display: block;
+    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0.25rem;
+    overflow: hidden;
+    border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px) 0 0;
+  }
+  /* The action area: its buttons in a row at the bottom of the card. */
+  .block-card-actions {
+    display: flex;
+    margin-top: auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 1.25rem;
+  }
+  /* The picture fills the top of the card, out to its edges. */
+  .block-card-picture {
+    display: block;
+    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0.25rem;
+    overflow: hidden;
+    border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px) 0 0;
+    background: var(--block-tint);
+    aspect-ratio: 3 / 2;
+  }
+  .block-card-picture img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale var(--motion-spatial-slow);
+  }
+  .block-card-title {
+    margin-top: 1rem;
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
+  }
+  /* Only text: the heading at the top. */
+  .block-card-title:first-child {
+    margin-top: 0;
+  }
+  .block-card-text {
+    margin-top: 0.375rem;
+    color: var(--block-muted);
+  }
+  .block-card-more {
+    display: inline-flex;
+    margin-top: auto;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 1.25rem;
+    font-weight: 500;
+    color: var(--block-accent);
+  }
+  .block-card-arrow {
+    transition: translate var(--motion-spatial);
+  }
+  /* The subhead: the small line under the headline (a byline, a date, a place). */
+  .block-card-subhead {
+    margin-top: 0.125rem;
+    font-size: var(--type-body-medium-size, 0.875rem);
+    line-height: var(--type-body-medium-line-height, 1.25rem);
+    color: var(--block-muted);
+  }
+  /* A filled card on one of Material's containers ("Cards", `color`): the primary, secondary or tertiary container, its text and icon in the
+     colour that is read on it. Without a colour it is the surface container (--card-filled-surface, below). A theme that has no container
+     role has the block's own colours. */
+  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary) .block-card {
+    --card-filled-line: transparent;
+  }
+  .block-cards-primary .block-card {
+    --card-filled-surface: var(--mo-primary-container, var(--block-primary));
+    color: var(--mo-on-primary-container, var(--block-on-primary));
+  }
+  .block-cards-secondary .block-card {
+    --card-filled-surface: var(--mo-secondary-container, var(--block-secondary));
+    color: var(--mo-on-secondary-container, var(--block-on-secondary));
+  }
+  .block-cards-tertiary .block-card {
+    --card-filled-surface: var(--mo-tertiary-container, var(--block-tertiary));
+    color: var(--mo-on-tertiary-container, var(--block-on-tertiary));
+  }
+  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary)
+    :is(.block-card-icon, .block-card-text, .block-card-subhead, .block-card-more) {
+    color: inherit;
+  }
+  /* A panel (Panel.tsx): an outlined card (.card in ui.css) for a block that is one box (e.g. an app's about
+     or price block), with an icon, a heading and a text at the top, and parts under a line. */
+  .block-panel {
+    color: var(--block-text);
+  }
+  .block-panel.block-in-text + .block-panel.block-in-text {
+    margin-top: 1rem;
+  }
+  .block-panel-icon {
+    display: block;
+    margin-bottom: 1rem;
+    color: var(--block-accent);
+  }
+  .block-panel-title {
+    margin: 0;
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
+  }
+  .block-panel-text {
+    margin-top: 0.4rem;
+    color: var(--block-muted);
+  }
+  .block-panel > .block-arrow-link {
+    margin-top: 1rem;
+  }
+  /* Buttons in a panel, and a link after them (an app's: Calendly's, when the calendar does not show). */
+  .block-panel > .block-buttons {
+    margin-top: 1.25rem;
+  }
+  .block-panel > .block-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 1.25rem;
+  }
+  /* Boxes side by side where there is room ("Links", links/LinkGroups.tsx; an app's payment block). */
+  .block-panels {
+    display: grid;
+    /* Two side by side where there is room for 17rem each, never more. */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(17rem, calc(50% - 0.5rem))), 1fr));
+    gap: var(--card-gap, 0.5rem);
+  }
+  .block-panels.block-in-text {
+    margin-block: 2.5rem;
+  }
+  /* Boxes with values to copy: side by side only where each has room for its values with their buttons. */
+  .block-panels:has(.block-copy-rows) {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(23rem, calc(50% - 0.5rem))), 1fr));
+  }
+  /* "Links": a box's heading linking to its page, and its pages under it in a list (.list in ui.css). */
+  .block-panel-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .block-panel-title a:hover {
+    color: var(--block-accent);
+  }
+  .block-panel > .list {
+    margin-top: 1rem;
+  }
+  /* "Points with icon": a list without dividers (.list in ui.css, points/PointList.tsx), its items side by side where
+     there is room for 16rem each. Nothing in it is tapped, so its icons start where the text around it does. */
+  .block-points {
+    --list-item-padding-inline: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    column-gap: 1.5rem;
+  }
+  .block-points.block-in-text {
+    margin-block: 1.5rem;
+  }
+  /* A check's text is its headline alone and can run over more lines, so it starts at the top and the check stands
+     by its first line. */
+  .block-checklist .list-item-container {
+    align-items: flex-start;
+  }
+  .block-checklist .list-item-leading {
+    max-height: var(--list-item-headline-line-height, 1lh);
+  }
+  /* A picture with a heading, a text and buttons, beside it where there is room for 22rem each, else under it
+     (e.g. an app's address block). */
+  .block-media {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    align-items: center;
+    gap: 1.5rem 3rem;
+  }
+  .block-media-picture {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--block-radius);
+    object-fit: cover;
+  }
+  .block-media-title {
+    margin: 0;
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
+  }
+  .block-media-text {
+    margin: 1rem 0 0;
+    font-style: normal;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
+  }
+  .block-media-body > .block-buttons {
+    margin-top: 1.5rem;
+  }
+  /* Values that can be copied, each with its name before it and a button after it (e.g. an app's payment block). */
+  .block-copy-rows {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    margin: 0;
+  }
+  .block-copy-rows dt {
+    color: var(--block-muted);
+  }
+  .block-copy-rows dd {
+    margin: 0;
+  }
+  /* In a narrow box the button goes under its value. */
+  .block-panel:has(> .block-copy-rows) {
+    container-type: inline-size;
+  }
+  @container (width < 18.5rem) {
+    .block-copy-rows {
+      grid-template-columns: auto 1fr;
+    }
+    .block-copy-rows dt {
+      grid-column: 1;
+    }
+    .block-copy-rows dd {
+      grid-column: 2;
+    }
+  }
+  .block-copy-value {
+    white-space: nowrap;
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
+    font-variant-numeric: tabular-nums;
+  }
+  .block-panel > .block-buttons-row {
+    margin-top: 1.25rem;
+  }
+  .block-buttons-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .block-panel-title > svg {
+    display: inline-block;
+    margin-right: 0.5rem;
+    vertical-align: -0.2em;
+    color: var(--block-accent);
+  }
+
+  /* Steps that go from free to the full price, each more coloured than the one before (`--step`, a share of the
+     accent over the tint), the last in the accent; across on a wider screen (e.g. an app's cancellation block). */
+  .block-timeline {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .block-timeline.block-in-text {
+    margin-block: 2rem;
+  }
+  .block-timeline > li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: var(--block-radius-small);
+    background: color-mix(in srgb, var(--block-accent) var(--step, 0%), var(--block-tint));
+    padding: 1.25rem;
+  }
+  .block-timeline > li:last-child {
+    background: var(--block-accent);
+    color: var(--block-on-accent);
+  }
+  .block-timeline-when {
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+    color: var(--block-muted);
+  }
+  .block-timeline > li:last-child .block-timeline-when {
+    color: inherit;
+    opacity: 0.9;
+  }
+  .block-timeline-value {
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .block-timeline {
+      grid-auto-columns: 1fr;
+      grid-auto-flow: column;
+      gap: 0;
+    }
+    .block-timeline > li {
+      flex-direction: column;
+      align-items: flex-start;
+      border-radius: 0;
+      padding: 1.5rem;
+    }
+    .block-timeline > li:first-child {
+      border-start-start-radius: var(--block-radius);
+      border-end-start-radius: var(--block-radius);
+    }
+    .block-timeline > li:last-child {
+      border-start-end-radius: var(--block-radius);
+      border-end-end-radius: var(--block-radius);
+    }
+    .block-timeline-value {
+      margin-top: 1.5rem;
+      font-size: var(--type-headline-small-size);
+      line-height: var(--type-headline-small-line-height);
+      font-weight: var(--type-headline-small-weight);
+      letter-spacing: var(--type-headline-small-tracking);
+    }
+  }
+
+  /* A part of a panel under a line (over the part's own margin and padding: a list, the facts). */
+  .block-panel > .block-panel-part {
+    margin-top: 1.25rem;
+    border-top: 1px solid var(--block-line);
+    padding-top: 1.25rem;
+  }
+  /* Only on phones and tablets (a block a site shows beside the text on a computer). */
+  @media (width >= theme(--breakpoint-expanded)) {
+    .block-small-screens {
+      display: none;
+    }
+  }
+
+  /* A person: a small picture beside the name and a title under it. */
+  .block-person {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .block-person-picture {
+    width: 3.5rem;
+    height: 3.5rem;
+    flex-shrink: 0;
+    border-radius: var(--block-radius-small);
+    object-fit: cover;
+    object-position: 50% 20%;
+  }
+  .block-person-name {
+    display: block;
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
+  }
+  .block-person-role {
+    display: block;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+    color: var(--block-muted);
+  }
+
+  /* A list with an icon in the accent before each line. */
+  .block-icon-list {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+  }
+  .block-icon-list > li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .block-icon-list svg {
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+    color: var(--block-accent);
+  }
+
+  /* Facts side by side, each a quiet name over its value, the last one to the right (a duration and a
+     price). */
+  .block-facts {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    margin: 0;
+  }
+  .block-facts dt {
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+    color: var(--block-muted);
+  }
+  .block-facts dd {
+    margin: 0.15rem 0 0;
+    font-weight: 500;
+  }
+  .block-facts > :last-child {
+    text-align: right;
+  }
+  .block-facts-amount {
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* A table: quiet headings over rows with a thin line between them, the first column (each row's name) a little
+     heavier; wider than the screen, it scrolls sideways ("Cookie list"). */
+  .block-table {
+    overflow-x: auto;
+  }
+  .block-table table {
+    width: 100%;
+    min-width: 40rem;
+    border-collapse: collapse;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+  }
+  .block-table :is(th, td) {
+    padding: 0.625rem 1rem 0.625rem 0;
+    border-bottom: 1px solid var(--block-line);
+    text-align: left;
+    vertical-align: top;
+  }
+  .block-table thead th {
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
+    color: var(--block-muted);
+  }
+  .block-table tbody th {
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .block-table td:not(:nth-child(3)) {
+    white-space: nowrap;
+  }
+  .block-table td:nth-child(3) {
+    min-width: 14rem;
+  }
+
+  /* A badge: a small word over a number in a light square ("Spar / 10%"), and a text beside one. */
+  .block-badge {
+    display: grid;
+    width: 3.5rem;
+    height: 3.5rem;
+    flex-shrink: 0;
+    place-content: center;
+    border-radius: calc(var(--block-radius-small) - 0.25rem);
+    background: var(--block-tint);
+    color: var(--block-accent);
+    text-align: center;
+    line-height: 1.1;
+  }
+  .block-badge > span {
+    font-size: var(--type-label-small-size);
+    line-height: var(--type-label-small-line-height);
+    font-weight: var(--type-label-small-weight);
+    letter-spacing: var(--type-label-small-tracking);
+  }
+  .block-badge > strong {
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
+    font-variant-numeric: tabular-nums;
+  }
+  .block-with-badge {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+  }
+  .block-with-badge > p {
+    margin: 0;
+  }
+
+  /* A quiet link that is one row, an outlined card (.card in ui.css) with smaller corners: a badge or an icon, a text
+     and an arrow, its edge in the accent when pointed at. */
+  .block-link-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    --card-radius: var(--block-radius-small);
+    --card-padding: 0.85rem 1.1rem 0.85rem 0.85rem;
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
+    transition: box-shadow var(--motion-effects);
+  }
+  .block-link-row.block-in-text {
+    margin-block: 1.75rem;
+  }
+  .block-link-row-text {
+    flex: 1;
+  }
+  .block-link-row-arrow {
+    flex-shrink: 0;
+    color: var(--block-accent);
+    transition: transform var(--motion-spatial);
+  }
+  a.block-link-row:hover {
+    --card-outlined-line: var(--block-accent);
+  }
+  a.block-link-row:hover .block-link-row-arrow {
+    transform: translateX(3px);
+  }
+
+  /* An invitation, a filled card (.card in ui.css): a picture, a heading and a text, and buttons under each other
+     (e.g. an app's booking block); on a computer the three side by side. */
+  .block-cta {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .block-cta.block-in-text {
+    margin-block: 2.5rem;
+  }
+  .block-cta-picture {
+    width: 5rem;
+    height: 5rem;
+    border-radius: var(--block-radius-small);
+    object-fit: cover;
+    object-position: 50% 20%;
+  }
+  .block-cta-title {
+    margin: 0;
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
+  }
+  .block-cta-text {
+    margin-top: 0.5rem;
+    max-width: 48ch;
+    color: var(--block-muted);
+  }
+  .block-cta-buttons {
+    display: grid;
+    gap: 0.625rem;
+  }
+
+  /* Prices: the big ones as cards side by side, and the others as a list, a row each with the name and
+     its details to the left and the price to the right, with a text under it. */
+  .block-prices {
+    display: grid;
+    gap: 1rem;
+  }
+  .block-prices.block-in-text {
+    margin-block: 2.5rem;
+  }
+  .block-price-cards {
+    display: grid;
+    gap: var(--card-gap, 0.5rem);
+  }
+  /* A big price, an elevated card (.card in ui.css). */
+  .block-price-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .block-price-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .block-price-card-title {
+    margin: 0;
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
+  }
+  /* A small fact in a light pill (the duration), its icon in the accent. */
+  .block-tag {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.25rem;
+    border-radius: var(--block-control-radius);
+    background: var(--block-tint);
+    padding: 0.25rem 0.75rem;
+    font-size: var(--type-label-large-size);
+    line-height: var(--type-label-large-line-height);
+    font-weight: var(--type-label-large-weight);
+    letter-spacing: var(--type-label-large-tracking);
+  }
+  .block-tag svg {
+    color: var(--block-accent);
+  }
+  .block-price-amount {
+    margin-top: 1.5rem;
+    font-size: var(--type-display-medium-size);
+    line-height: var(--type-display-medium-line-height);
+    font-weight: var(--type-display-medium-weight);
+    letter-spacing: var(--type-display-medium-tracking);
+    font-variant-numeric: tabular-nums;
+  }
+  .block-price-unit {
+    margin-top: 0.25rem;
+    color: var(--block-muted);
+  }
+  /* A punch card's offer in a price card, a filled card with smaller corners. */
+  .block-price-extra {
+    margin-top: 1.5rem;
+    --card-radius: var(--block-radius-small);
+    --card-padding: 1rem;
+  }
+  .block-price-extra-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+  }
+  .block-price-extra-title svg {
+    color: var(--block-accent);
+  }
+  .block-price-extra-text {
+    margin-top: 0.25rem;
+    color: var(--block-muted);
+  }
+  .block-price-extra-text strong {
+    color: var(--block-text);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .block-price-card > .block-arrow-link {
+    align-self: flex-start;
+    margin-top: 1.5rem;
+  }
+  .block-price-list {
+    margin: 0;
+    border: 1px solid var(--block-line);
+    border-radius: var(--block-radius);
+    padding: 0 1.5rem;
+    list-style: none;
+  }
+  .block-price-row {
+    display: grid;
+    gap: 0.25rem 1.5rem;
+    padding-block: 1.25rem;
+  }
+  .block-price-row + .block-price-row {
+    border-top: 1px solid var(--block-line);
+  }
+  .block-price-row-name {
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
+    color: inherit;
+    text-decoration: none;
+  }
+  a.block-price-row-name:hover {
+    color: var(--block-accent);
+  }
+  .block-price-row-text {
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+    color: var(--block-muted);
+  }
+  .block-price-row-note {
+    margin-top: 0.25rem;
+    max-width: 60ch;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+    color: var(--block-muted);
+  }
+  .block-price-row-price {
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
+    font-variant-numeric: tabular-nums;
+  }
+  .block-price-row-price > span {
+    display: block;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+    color: var(--block-muted);
+  }
+  /* A quiet text with an icon before it (the terms under the prices). */
+  .block-terms {
+    display: flex;
+    gap: 0.625rem;
+    margin-top: 1rem;
+    max-width: 70ch;
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+    color: var(--block-muted);
+  }
+  .block-terms svg {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+
+  @media (hover: hover) {
+    a.block-card:hover .block-card-arrow {
+      translate: 0.25rem 0;
+    }
+    a.block-card:hover .block-card-picture img {
+      scale: 1.03;
+    }
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .block-buttons {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+    .block-cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .block-price-row {
+      grid-template-columns: 1fr auto;
+    }
+    .block-price-row-price {
+      text-align: right;
+    }
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .block-testimonial {
+      --card-padding: 1.75rem;
+    }
+    .block-row-text {
+      font-size: var(--type-body-large-size);
+      line-height: var(--type-body-large-line-height);
+      font-weight: var(--type-body-large-weight);
+      letter-spacing: var(--type-body-large-tracking);
+    }
+    .block-notice {
+      padding: 1.25rem 1.5rem;
+    }
+    .block-accordion-label {
+      padding-inline: 2rem;
+      font-size: var(--type-title-medium-size);
+      line-height: var(--type-title-medium-line-height);
+      font-weight: var(--type-title-medium-weight);
+      letter-spacing: var(--type-title-medium-tracking);
+    }
+    .block-accordion-body {
+      padding: 0 2rem 2rem;
+    }
+    .block-accordion-answer {
+      font-size: var(--type-body-large-size);
+      line-height: var(--type-body-large-line-height);
+      font-weight: var(--type-body-large-weight);
+      letter-spacing: var(--type-body-large-tracking);
+    }
+    .block-cta {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: center;
+      gap: 2.5rem;
+      --card-padding: 3rem;
+    }
+    .block-cta-picture {
+      grid-column: span 2;
+      width: 7rem;
+      height: 7rem;
+    }
+    .block-cta-body {
+      grid-column: span 6;
+    }
+    .block-cta-buttons {
+      grid-column: span 4;
+    }
+    .block-cta-title {
+      font-size: var(--type-headline-medium-size);
+      line-height: var(--type-headline-medium-line-height);
+      font-weight: var(--type-headline-medium-weight);
+      letter-spacing: var(--type-headline-medium-tracking);
+    }
+    .block-prices {
+      gap: 1.25rem;
+    }
+    .block-price-cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .block-price-card {
+      --card-padding: 2rem;
+    }
+    .block-price-card-title {
+      font-size: var(--type-headline-medium-size);
+      line-height: var(--type-headline-medium-line-height);
+      font-weight: var(--type-headline-medium-weight);
+      letter-spacing: var(--type-headline-medium-tracking);
+    }
+    .block-price-amount {
+      font-size: var(--type-display-large-size);
+      line-height: var(--type-display-large-line-height);
+      font-weight: var(--type-display-large-weight);
+      letter-spacing: var(--type-display-large-tracking);
+    }
+    .block-price-list {
+      padding-inline: 2rem;
+    }
+  }
+  /* ---- "Checklist" and "Price cards" ---- */
+
+  /* "Checklist" (checklist/Checks.tsx), and what is included on a price card: a list without dividers (.list in
+     ui.css), a check before each line; with six or more (not on a card), two columns where there is room for 16rem
+     each, never more. Nothing in it is tapped, so it is spaced as a bulleted or numbered list in the text (half a
+     line between its lines, not the height of a list item one taps), and its checks start where the text around it
+     does. */
+  .block-checklist {
+    --list-item-min-height: auto;
+    --list-item-padding-block: 0.25em;
+    --list-item-padding-inline: 0;
+  }
+  .block-checklist.block-in-text {
+    margin-block: 1rem;
+  }
+  .block-checklist:not(.block-plan-features):has(> :nth-child(6)) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, max(16rem, calc(50% - 1rem))), 1fr));
+    column-gap: 2rem;
+  }
+
+  /* "Price cards" (pricecards/View.tsx): the cards side by side, as many columns as there are cards where the block has
+     room for them (it is a container: two from 34rem, three from 40rem, four from 56rem; four two by two before that),
+     else under each other. Each card an outlined card (.card in ui.css): its name, its price large with what it is for
+     beside it, its text, what is included under a line (.block-checklist) and its button at the bottom in the card's
+     width, so the buttons of cards side by side are in line; the highlighted one with an edge in the accent and its
+     label in a pill in the accent over its name. */
+  .block-plans {
+    container-type: inline-size;
+  }
+  .block-plans.block-in-text {
+    margin-block: 2.5rem;
+  }
+  .block-plans-list {
+    display: grid;
+    gap: var(--card-gap, 0.5rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @container (width >= 34rem) {
+    .block-plans-2,
+    .block-plans-4 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @container (width >= 40rem) {
+    .block-plans-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @container (width >= 56rem) {
+    .block-plans-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .block-plan {
+    display: flex;
+    flex-direction: column;
+    color: var(--block-text);
+    /* The price is as large as the card has room for (cqi). */
+    container-type: inline-size;
+  }
+  .block-plan-featured {
+    box-shadow: inset 0 0 0 2px var(--block-accent);
+  }
+  .block-plan-badge {
+    align-self: flex-start;
+    margin-bottom: 0.75rem;
+    border-radius: var(--block-control-radius);
+    background: var(--block-accent);
+    color: var(--block-on-accent);
+    padding: 0.25rem 0.75rem;
+    font-size: var(--type-label-medium-size);
+    line-height: var(--type-label-medium-line-height);
+    font-weight: var(--type-label-medium-weight);
+    letter-spacing: var(--type-label-medium-tracking);
+  }
+  .block-plan-name {
+    margin: 0;
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
+  }
+  .block-plan-price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.5rem;
+    margin: 1rem 0 0;
+  }
+  .block-plan-amount {
+    font-size: clamp(var(--type-headline-small-size), 16cqi, var(--type-display-small-size));
+    line-height: var(--type-headline-large-line-height);
+    font-weight: var(--type-headline-large-weight);
+    letter-spacing: var(--type-headline-large-tracking);
+    font-variant-numeric: tabular-nums;
+  }
+  .block-plan-unit {
+    color: var(--block-muted);
+  }
+  .block-plan-text {
+    margin: 0.75rem 0 0;
+    color: var(--block-muted);
+  }
+  .block-plan-features {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--block-line);
+    padding-top: 0.5rem;
+  }
+  .block-buttons.block-plan-buttons {
+    flex-direction: column;
+    margin-top: auto;
+    padding-top: 1.5rem;
+  }
+  /* A narrow card: a long text on its button goes onto two lines rather than out of the card. */
+  .block-plan-buttons .button {
+    padding-block: 0.75rem;
+    padding-inline: 1rem;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
+  }
+
+  /* ---- end of "Checklist" and "Price cards" ---- */
+
+  /* Opening and closing glide where the browser can animate ::details-content (else the script in
+     Accordion.tsx does it); none with reduced motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    .block-accordion {
+      interpolate-size: allow-keywords;
+    }
+    .block-accordion-row::details-content {
+      block-size: 0;
+      overflow-y: clip;
+      transition:
+        block-size var(--motion-spatial),
+        content-visibility var(--motion-spatial-duration) allow-discrete;
+    }
+    .block-accordion-row[open]::details-content {
+      block-size: auto;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .block-accordion-label,
+    .block-accordion-icon,
+    .block-card,
+    .block-card-arrow,
+    .block-card-picture img {
+      transition: none;
+    }
+  }
+}
+
+@layer fallback {
+  /* "Video": the video before it is played (video/, packages/editor/lib/video.mjs); the video takes its
+   place. Outside the layers, as it is a link in the text's style (.prose), whose link style it undoes. */
+  .prose .video-facade {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin-block: 2em;
+    padding: 1.5rem;
+    border-radius: var(--block-radius);
+    background: var(--block-tint);
+    color: var(--block-text);
+    text-align: center;
+    text-decoration: none;
+  }
+  .prose .video-facade svg {
+    color: var(--block-accent);
+    transition: transform var(--motion-spatial);
+  }
+  .prose .video-facade:hover svg {
+    transform: scale(1.08);
+  }
+  /* At most two lines; a longer title ends with "…" (the whole title is still the link's name). */
+  .video-facade-title {
+    display: -webkit-box;
+    max-width: 40ch;
+    overflow: hidden;
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  /* With a still from the video (packages/editor/scripts/video-thumbnails.mjs), as on YouTube: the still fills the
+   box, the white play button in the middle of the box (not of the space above the title), the title
+   at the bottom over a shade. */
+  .prose .video-facade-still {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    padding: 1rem 1.25rem;
+    background: #000;
+    color: #fff;
+    text-align: left;
+  }
+  .prose .video-facade-still::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.15) 40%, rgb(0 0 0 / 0.75));
+  }
+  .prose .video-facade-still .video-facade-image {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    object-fit: cover;
+  }
+  .prose .video-facade-still svg {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    color: #fff;
+    filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.5));
+  }
+  .video-facade-still .video-facade-title {
+    font-size: var(--type-title-small-size);
+    line-height: var(--type-title-small-line-height);
+    font-weight: var(--type-title-small-weight);
+    letter-spacing: var(--type-title-small-tracking);
+    color: #fff;
+    text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .prose .video-facade-still svg {
+      width: 4.5rem;
+      height: 4.5rem;
+    }
+    .video-facade-still .video-facade-title {
+      font-size: var(--type-title-medium-size);
+      line-height: var(--type-title-medium-line-height);
+      font-weight: var(--type-title-medium-weight);
+      letter-spacing: var(--type-title-medium-tracking);
+    }
+  }
+
+  /* A block's head with a subheading under its heading (BlockHead.tsx in blocks/, an <hgroup>; only a
+   heading is the text's own <h2>, without this): the subheading larger and quiet. A label in a text is in small capitals, spaced out, in the accent. Mostly in the text's style (.prose), so outside the layers, like the video above, whose
+   margins it sets in place of the text's; a theme that places a block outside the text sets its own (.block-place in
+   the standard theme). A label above a heading in a text has the same look. A theme gives it its own look outside the layers too (the standard theme: in the middle). */
+  .block-head {
+    margin-block: 2.5em 1.25em;
+  }
+  .block-head:first-child {
+    margin-top: 0;
+  }
+  .block-head > h2,
+  .block-head > .block-subheading {
+    margin-block: 0;
+  }
+  .block-head > * + h2,
+  .block-head > * + .block-subheading {
+    margin-top: 0.75rem;
+  }
+  .prose .label-medium {
+    font-size: var(--type-label-medium-size);
+    line-height: var(--type-label-medium-line-height);
+    font-weight: var(--type-label-medium-weight);
+    letter-spacing: var(--type-label-medium-tracking);
+    color: var(--block-accent);
+  }
+  .block-head > .block-subheading {
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
+    color: var(--block-muted);
+  }
+
+  /* A label above a heading in a text (packages/editor/lib/eyebrow.mjs): a block's label, with the heading's space above
+   it and close to its heading. */
+  .prose .label-medium {
+    margin-block: 2em 0;
+  }
+  .prose .label-medium + :is(h1, h2, h3) {
+    margin-top: 0.5rem;
+  }
+
+  /* The text styles of a text: "Body medium" is the plain paragraph (and a paragraph stored as body-medium);
+   "Body large" (lib/body-large.mjs) and "Body small" (lib/body-size.mjs) are Material 3's body-large and body-small roles. */
+  .prose .body-large {
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
+  }
+  .prose .body-medium {
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+  }
+  .prose .body-small {
+    font-size: var(--type-body-small-size);
+    line-height: var(--type-body-small-line-height);
+    font-weight: var(--type-body-small-weight);
+    letter-spacing: var(--type-body-small-tracking);
+  }
+
+  /* A check list in a text (`- [ ]`, "Check list" in the editor): Phosphor's check icon in place of the bullet, in the theme's primary
+     colour when the item is checked, dimmed when not (the editor draws the same, src/editor.css). The box is the <input>, drawn as the icon. */
+  .prose ul.contains-task-list {
+    list-style: none;
+    padding-inline-start: 0;
+  }
+  .prose li.task-list-item {
+    display: flex;
+    gap: 0.75em;
+    align-items: baseline;
+  }
+  .prose li.task-list-item > input[type='checkbox'] {
+    appearance: none;
+    flex: none;
+    width: 1.25em;
+    height: 1.25em;
+    margin: 0;
+    align-self: center;
+    background-color: var(--block-accent);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+  .prose li.task-list-item > input[type='checkbox']:not(:checked) {
+    background-color: color-mix(in srgb, var(--block-accent) 35%, transparent);
+  }
+
+  /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
+   editor): the accent, or the quiet text's, both readable on the background, the surfaces and the tint (the site's
+   pairs of colours, checked under "Colors"). Bold, italic and a link in it have its colour. Outside the layers, as it
+   is in the text's style (.prose), whose colours of bold text and links it goes over. On a picture behind a hero's
+   text, where only the text's colour can be read, it is the text's. */
+  .color-accent,
+  .color-accent :is(strong, em, a) {
+    color: var(--block-accent);
+  }
+  .color-muted,
+  .color-muted :is(strong, em, a) {
+    color: var(--block-muted);
+  }
+  .block-hero-behind :is(.color-accent, .color-muted),
+  .block-hero-behind :is(.color-accent, .color-muted) :is(strong, em, a) {
+    color: inherit;
+  }
+
+  /* A word in the accent's or the quiet text's colour (above) on a section with the accent as its background would not
+   be read: there it has the section's text colour. */
+  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface))
+    :is(.color-accent, .color-muted),
+  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface))
+    :is(.color-accent, .color-muted)
+    :is(strong, em, a) {
+    color: inherit;
+  }
+
+  /* A paragraph or a smaller heading in a text aligned to the centre or the right (packages/editor/lib/text-align.mjs, the Align
+   button of the editor); left is the text's own. Outside the layers, as the prose style is. */
+  .text-align-center {
+    text-align: center;
+  }
+  .text-align-right {
+    text-align: right;
+  }
+
+  /* The first and last parts of a coloured section lose the prose margins that would add to the panel's padding. Outside
+   the layers, as the prose style (Tailwind's typography) is in the utilities layer, which wins over components. */
+  .text-section > :first-child {
+    margin-top: 0;
+  }
+  .text-section > :last-child {
+    margin-bottom: 0;
+  }
+}

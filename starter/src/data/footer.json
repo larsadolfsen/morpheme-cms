@@ -1,0 +1,15 @@
+{
+  "text": "A short text about the site goes here.",
+  "contactHeading": "Contact",
+  "linksHeading": "Links",
+  "links": [
+    {
+      "label": "Contact",
+      "href": "/contact/"
+    },
+    {
+      "label": "Privacy policy",
+      "href": "/privacy-policy/"
+    }
+  ]
+}

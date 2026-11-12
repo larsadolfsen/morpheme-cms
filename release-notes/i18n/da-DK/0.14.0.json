@@ -1,0 +1,50 @@
+{
+  "version": "0.14.0",
+  "date": "2026-11-07",
+  "notes": [
+    {
+      "id": "apps-turn-off",
+      "kind": "paragraph",
+      "title": "Pause af apps",
+      "text": "En app på pause beholder sine indstillinger. Åbn appen under Apps, og slå Aktiveret fra. Slå den til igen, når du vil; intet er tabt."
+    },
+    {
+      "id": "developer-menu",
+      "kind": "line",
+      "text": "Avanceret under Indstillinger hedder nu Udvikler, og dine gamle links virker stadig"
+    },
+    {
+      "id": "dynamic-lists-page",
+      "kind": "line",
+      "text": "Lister i menuen hedder nu Dynamiske lister og åbner en side med alle dine lister"
+    },
+    {
+      "id": "editor-footer",
+      "kind": "paragraph",
+      "title": "Editorens sidefod",
+      "text": "Du kan se, hvorfor det ikke lykkes at gemme eller udgive. Rul ned til bunden af editoren, og tryk på Driftsstatus. Den tjekker GitHub og Cloudflare, men kun de tjenester, din hjemmeside bruger."
+    },
+    {
+      "id": "editor-toolbar-dock",
+      "kind": "line",
+      "text": "På en telefon fylder værktøjslinjen til tekst mindre"
+    },
+    {
+      "id": "google-preview-closer",
+      "kind": "paragraph",
+      "title": "Google-forhåndsvisning",
+      "text": "Du ser din side, som Google viser den. Åbn en side eller et blogindlæg, og se under Søgemaskiner. Forhåndsvisningen ligner det rigtige resultat på telefon og computer, og dit vigtigste søgeord står med fed."
+    },
+    {
+      "id": "morpheme-connection-page",
+      "kind": "line",
+      "text": "Forbindelse til Appstore ligger nu på siden Morpheme under Indstillinger"
+    },
+    {
+      "id": "quiet-lamps-wander",
+      "kind": "paragraph",
+      "title": "Nyheder",
+      "text": "Du ser, hvad der er ændret efter hver opdatering. Et kort overblik vises, når opdateringen er på plads. Alle noterne finder du på siden Morpheme under Indstillinger."
+    }
+  ]
+}

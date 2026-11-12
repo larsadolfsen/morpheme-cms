@@ -1,0 +1,51 @@
+---
+// /new/: the new versions of pages (/new/<the current page's address>, packages/editor/site/noindex.mjs) next to the current ones,
+// to compare before they replace them, with what to look at on each (`review`; the snackbar on a new version links to
+// its row, /new/#<id>). Not for search engines
+// (noindex, not in the sitemap).
+import Base from '@theme/layouts/Base.astro';
+import Icon from '@theme/components/Icon.astro';
+import Container from '@theme/components/Container.astro';
+import PageHeader from '@theme/components/PageHeader.astro';
+import { displayTitle, getPages, pageHeading } from '@morphemecms/cms/site/content';
+import { isPreview, livePath, previewId } from '@morphemecms/cms/site/noindex.mjs';
+import { siteT } from '@morphemecms/cms/src/i18n';
+
+const pages = await getPages();
+const byPath = new Map(pages.map((p) => [p.data.path, p]));
+const rows = pages
+  .filter((p) => isPreview(p.data.path))
+  .map((p) => ({ page: p, current: byPath.get(livePath(p.data.path)) }))
+  .sort((a, b) => a.page.data.path.localeCompare(b.page.data.path));
+---
+
+<Base title={siteT.theme.newPages} description={siteT.theme.newPagesDescription}>
+  <PageHeader title={siteT.theme.newPages} intro={siteT.theme.newPagesIntro} />
+
+  {rows.length > 0 && (
+    <Container as="section" class="mt-12 medium:mt-16">
+      <ul class="rounded-panel border border-outline-variant px-5 medium:px-7">
+        {rows.map(({ page, current }, i) => (
+          <li id={previewId(page.data.path)} class:list={['scroll-mt-24 py-5', i > 0 && 'border-t border-outline-variant']}>
+            <p class="type-title-medium">{pageHeading(page)}</p>
+            <p class="mt-1.5 flex flex-wrap gap-x-6 gap-y-1">
+              <a href={page.data.path} class="inline-flex items-center gap-1.5 text-primary hover:underline">
+                {siteT.theme.newVersion} <Icon name="arrow-right" size={16} />
+              </a>
+              {current ? (
+                <a href={current.data.path} class="inline-flex items-center gap-1.5 text-on-surface-variant hover:text-primary">
+                  {siteT.theme.currentPage(displayTitle(current.data.title))}
+                </a>
+              ) : (
+                <span class="text-on-surface-variant">{siteT.theme.newPage}</span>
+              )}
+            </p>
+            {page.data.review && (
+              <p class="mt-2 max-w-[75ch] type-body-medium whitespace-pre-line text-on-surface-variant">{page.data.review}</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Container>
+  )}
+</Base>

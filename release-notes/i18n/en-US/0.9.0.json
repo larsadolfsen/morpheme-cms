@@ -1,0 +1,68 @@
+{
+  "version": "0.9.0",
+  "notes": [
+    {
+      "id": "page-templates",
+      "kind": "paragraph",
+      "title": "Pick a template for each page",
+      "text": "Choose how a page is laid out from the templates your theme offers, like single, full or with a sidebar. Template replaces the old Wide and Side options."
+    },
+    {
+      "id": "header-footer-screens",
+      "kind": "paragraph",
+      "title": "Edit your header and footer",
+      "text": "Appearance now has a screen each for Header and Footer, with every setting and a live preview on a phone and a computer. You can also add an action button to the header."
+    },
+    {
+      "id": "loading-indicators",
+      "kind": "paragraph",
+      "title": "See when a button is working",
+      "text": "Buttons now show a loading indicator while their action runs, for example Save, Install, Update and Uninstall."
+    },
+    {
+      "id": "app-tabs",
+      "kind": "line",
+      "text": "An app’s page has the tabs Settings and Information"
+    },
+    {
+      "id": "settings-side-panel-large",
+      "kind": "line",
+      "text": "On a large screen, block and section settings open in a side panel"
+    },
+    {
+      "id": "section-settings-sheet",
+      "kind": "line",
+      "text": "Section color is now in Section settings"
+    },
+    {
+      "id": "cards-follow-md3",
+      "kind": "line",
+      "text": "Cards follow Material 3: more room inside, they rise when pointed at, and cards that link get a tint"
+    },
+    {
+      "id": "drawer-account-domain",
+      "kind": "line",
+      "text": "The menu shows who’s signed in and your site’s domain at the top"
+    },
+    {
+      "id": "buttons-fit-label",
+      "kind": "line",
+      "text": "Buttons in the editor are as wide as their label, never across the screen"
+    },
+    {
+      "id": "toolbar-round-corners",
+      "kind": "line",
+      "text": "The text toolbar has round corners and room all round it"
+    },
+    {
+      "id": "delete-row-error-color",
+      "kind": "line",
+      "text": "The row that deletes what a screen shows, like Delete page, is in the error color"
+    },
+    {
+      "id": "appstore-cant-reach",
+      "kind": "line",
+      "text": "The Appstore says it can’t reach the store after 15 seconds, instead of waiting forever"
+    }
+  ]
+}

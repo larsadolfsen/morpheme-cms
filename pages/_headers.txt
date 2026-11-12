@@ -1,0 +1,31 @@
+# Response headers (Cloudflare reads this file from the assets; on Apache this would be .htaccess).
+# Format: an address (with * for the rest), then its headers, indented, one to a line.
+# They are added to the files and pages from dist/, not to the Worker's own answers (its redirects, /oauth/).
+#
+# Every page and file:
+# - Strict-Transport-Security: always HTTPS, the browser does not try http:// for a year. Not for the
+#   subdomains (no includeSubDomains), so another service on a subdomain is not affected.
+# - X-Content-Type-Options: a file is what its content-type says, nothing else.
+# - Referrer-Policy: other sites see only the domain a visitor came from, not the address of the page.
+# - X-Frame-Options: no other site can show the pages in a frame (Calendly and YouTube are shown in the
+#   site, not the other way round).
+# - Permissions-Policy: camera, microphone and location are never used, also not by Calendly or YouTube.
+# The Content-Security-Policy is in each page itself (a <meta> the build writes: packages/editor/lib/csp.mjs),
+# since it names the page's own scripts by their hashes.
+/*
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# An SVG file opened on its own (the logo, the favicon) is a page on the site's address, without the <meta> CSP the
+# pages have. Its own CSP lets it draw (its own CSS, a picture inside it as data:) and nothing else: no script runs,
+# nothing is loaded from elsewhere, and it is sandboxed, so it is never the site's address. The logo is also cleaned
+# when it is picked (cleanSvg in packages/editor/lib/svg.mjs); this holds for any SVG in the build.
+/*.svg
+  Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; img-src data:; sandbox
+
+# Scripts and fonts from the build get a new name whenever they change, so they can be kept for a year.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

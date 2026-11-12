@@ -1,0 +1,35 @@
+{
+  "enabled": true,
+  "items": [
+    {
+      "label": "Product",
+      "href": "/about/",
+      "children": [
+        {
+          "label": "About Morpheme",
+          "href": "/about/"
+        },
+        {
+          "label": "Blocks",
+          "href": "/blocks/"
+        },
+        {
+          "label": "App store",
+          "href": "/app-store/"
+        }
+      ]
+    },
+    {
+      "label": "Get started",
+      "href": "/get-started/"
+    },
+    {
+      "label": "Blog",
+      "href": "/blog/"
+    },
+    {
+      "label": "Contact",
+      "href": "/contact/"
+    }
+  ]
+}

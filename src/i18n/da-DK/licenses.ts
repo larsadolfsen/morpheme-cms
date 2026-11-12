@@ -1,0 +1,25 @@
+import type { Messages } from '../en-US';
+
+export const licenses: Messages['licenses'] = {
+  icons: 'Ikonpakker',
+  system: 'Editoren og sitet',
+  app: (name) => `Appen ${name}`,
+  theme: (name) => `Temaet ${name}`,
+  unlicensed: 'Alle rettigheder forbeholdt',
+  kinds: { font: 'Skrift', icons: 'Ikoner', library: 'Kode', image: 'Billeder' },
+  inEditor: 'i editoren',
+  onSite: 'på sitet',
+  inApp: (name) => `i appen ${name}`,
+  inTheme: (name) => `i temaet ${name}`,
+  via: (names) => `gennem ${names}`,
+  notShipped: 'hentes ikke fra sitet',
+  offered: 'kan vælges',
+  version: (version) => `Version ${version}`,
+  own: (name) => `${name} selv`,
+  loading: 'Henter licenserne…',
+  missing: 'Licenserne kan ses om et par minutter',
+  text: 'Licenstekst',
+  noText: 'Der er ingen licenstekst, da alle rettigheder er forbeholdt',
+  standardText: (license) => `Pakken har ingen licensfil, så her står standardteksten for ${license}.`,
+  notFound: 'Licensen findes ikke',
+};

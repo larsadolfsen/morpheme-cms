@@ -1,0 +1,12 @@
+{
+  "name": "Passo Giau",
+  "place": {
+    "en-US": "Passo Giau, Dolomites, Italy",
+    "da-DK": "Passo Giau, Dolomitterne, Italien"
+  },
+  "photo": {
+    "by": "Sarmat Batagov",
+    "source": "https://unsplash.com/photos/rocky-mountain-peak-in-golden-light--v3uBhw5J78",
+    "license": "https://unsplash.com/license"
+  }
+}

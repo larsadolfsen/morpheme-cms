@@ -1,0 +1,92 @@
+---
+// The footer in Material: a surface container with extra-large corners at the top, the business as a headline, how to
+// reach it as a list with leading icons, the practical links (footer.json, Globals › Footer in the editor) or
+// what a page puts in the slot `footer-column` instead (a blog post's related posts), and at the bottom the cookie
+// settings and light or dark as text buttons. data-editor marks the footer and the parts its form changes (the editor's
+// preview of Globals › Footer, src/footerPreview.mjs).
+import Icon from '@theme/components/Icon.astro';
+import Container from '@theme/components/Container.astro';
+import LogoMark from '@theme/components/LogoMark.astro';
+import footer from '@data/footer.json';
+import { site } from '@morphemecms/cms/site/site';
+import { cookieBanner } from '@morphemecms/cms/site/consent';
+import { siteT } from '@morphemecms/cms/src/i18n';
+
+// "Cookie settings": when the cookie banner is on and there is something to ask about (as in Base.astro).
+const banner = cookieBanner;
+const contactLinks = [
+  { href: site.phoneHref, icon: 'phone', lines: [site.phone] },
+  { href: `mailto:${site.email}`, icon: 'envelope-simple', lines: [site.email] },
+  { href: `${site.contactPath}#${site.contactAnchor}`, icon: 'map-pin', lines: [site.address.street, site.address.city] },
+];
+---
+
+<footer class="md-footer" data-editor="footer">
+  <Container as="div" class="grid gap-10 py-12 expanded:grid-cols-12 medium:py-16">
+    <div class="expanded:col-span-5">
+      <LogoMark class="block h-12 w-11 bg-primary" />
+      <p class="md-footer-name">{site.name}</p>
+      <p class="md-footer-text" data-editor="footer-text">
+        {footer.text}
+      </p>
+    </div>
+    <div class="expanded:col-span-4">
+      <p class="md-footer-heading" data-editor="footer-contact-heading">
+        {footer.contactHeading}
+      </p>
+      <ul class="md-footer-list">
+        {contactLinks.map((c) => (
+          <li>
+            <a href={c.href} class="md-footer-item">
+              <Icon name={c.icon} size={24} />
+              <span>
+                {c.lines.map((line, i) => (
+                  <>
+                    {i > 0 && <br />}
+                    {line}
+                  </>
+                ))}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="md-footer-column expanded:col-span-3">
+      <slot name="footer-column">
+        <p class="md-footer-heading" data-editor="footer-links-heading">
+          {footer.linksHeading}
+        </p>
+        <ul class="md-footer-list" data-editor="footer-links">
+          {footer.links.map((l) => (
+            <li>
+              <a href={l.href} class="md-footer-item">
+                {l.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </slot>
+    </div>
+    <div class="md-footer-bottom expanded:col-span-12">
+      <span>
+        © {new Date().getFullYear()} {site.name}
+        {site.cvr && <> · CVR {site.cvr}</>}
+      </span>
+      <div class="flex flex-wrap items-center gap-2">
+        {banner && (
+          <button type="button" data-cookie-settings class="button button-text">
+            <Icon name="cookie" size={18} />
+            {siteT.theme.cookieSettings}
+          </button>
+        )}
+        <button type="button" data-theme-toggle class="button button-text">
+          <Icon name="moon" size={18} class="dark-hide" />
+          <Icon name="sun" size={18} class="light-hide" />
+          <span class="dark-hide">{siteT.theme.darkTheme}</span>
+          <span class="light-hide">{siteT.theme.lightTheme}</span>
+        </button>
+      </div>
+    </div>
+  </Container>
+</footer>

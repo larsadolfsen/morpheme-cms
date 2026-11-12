@@ -1,0 +1,22 @@
+---
+// The top of a page's text (PageLayout.astro): the link back to its parent page and the page's H1 (data-editor="heading", which
+// the editor's preview fills in). Props: parent ({ href, title }), heading, headingHtml (the heading with its coloured words).
+import Icon from '@theme/components/Icon.astro';
+
+interface Props {
+  parent?: { href: string; title: string };
+  heading: string;
+  headingHtml?: string;
+}
+const { parent, heading, headingHtml } = Astro.props;
+---
+
+{parent && (
+  <a href={parent.href} class="inline-flex items-center gap-1.5 type-body-medium text-on-surface-variant hover:text-primary">
+    <Icon name="arrow-left" size={16} />
+    {parent.title}
+  </a>
+)}
+<h1 data-editor="heading" class="theme-title mt-3 max-w-[22ch]">
+  {headingHtml ? <Fragment set:html={headingHtml} /> : heading}
+</h1>

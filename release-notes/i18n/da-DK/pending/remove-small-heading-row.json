@@ -1,0 +1,5 @@
+{
+  "id": "remove-small-heading-row",
+  "kind": "line",
+  "text": "Lille overskrift er væk fra rækkeindstillingerne i en liste; en række, der havde den, bliver en almindelig række med den samme tekst"
+}

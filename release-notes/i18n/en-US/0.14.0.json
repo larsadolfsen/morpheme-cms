@@ -1,0 +1,50 @@
+{
+  "version": "0.14.0",
+  "date": "2026-11-07",
+  "notes": [
+    {
+      "id": "apps-turn-off",
+      "kind": "paragraph",
+      "title": "Pausing apps",
+      "text": "A paused app keeps its settings. Open the app under Apps and turn off Enabled. Turn it on again whenever you like; nothing was lost."
+    },
+    {
+      "id": "developer-menu",
+      "kind": "line",
+      "text": "Advanced under Settings is now called Developer, and your old links still work"
+    },
+    {
+      "id": "dynamic-lists-page",
+      "kind": "line",
+      "text": "Lists in the menu is now Dynamic lists and opens a page with all your lists"
+    },
+    {
+      "id": "editor-footer",
+      "kind": "paragraph",
+      "title": "Editor footer",
+      "text": "You can see why saving or publishing fails. Scroll to the bottom of the editor and tap System status. It checks GitHub and Cloudflare, but only the services your website uses."
+    },
+    {
+      "id": "editor-toolbar-dock",
+      "kind": "line",
+      "text": "On a phone, the text toolbar takes up less room"
+    },
+    {
+      "id": "google-preview-closer",
+      "kind": "paragraph",
+      "title": "Google preview",
+      "text": "You see your page as Google shows it. Open a page or blog post and look under Search engines. The preview matches the real result on a phone and a computer, with your main keyword in bold."
+    },
+    {
+      "id": "morpheme-connection-page",
+      "kind": "line",
+      "text": "Store connection is now on the Morpheme page under Settings"
+    },
+    {
+      "id": "quiet-lamps-wander",
+      "kind": "paragraph",
+      "title": "What’s new",
+      "text": "You see what changed after each update. A short summary opens once the update is in. Find all the notes on the Morpheme page under Settings."
+    }
+  ]
+}

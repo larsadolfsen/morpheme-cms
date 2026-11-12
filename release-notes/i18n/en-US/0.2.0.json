@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "notes": [
+    {
+      "id": "install-from-store",
+      "kind": "paragraph",
+      "title": "Install themes and apps from the store",
+      "text": "You can now install themes and apps from the Morpheme store. Connect your website to the store to get started."
+    },
+    {
+      "id": "builds-on-windows",
+      "kind": "line",
+      "text": "Your site builds on Windows"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+---
+// Blog post template. A narrow reading column, the site's owner as author. Order: PostHeader (back link, title, author,
+// byline with tags, share row), the lead (the text's first paragraph), the featured picture, the rest of the text, the
+// end block, RelatedPosts. Without a lead the picture comes before the text.
+// data-editor marks what the editor's preview fills in with what is in its form ("Preview",
+// packages/editor/src/pagePreview.tsx): the heading, the lead, the picture and the text. The text goes through RichText (blocks={false}: a post draws no blocks, but its coloured sections are panels).
+import { splitLead } from '@morphemecms/cms/lib/lead.mjs';
+import { firstImage, heroImage, picturesOf } from '@morphemecms/cms/site/images.mjs';
+import Base from '@theme/layouts/Base.astro';
+import Img from '@theme/components/Img.astro';
+import EndBlock from '@theme/components/EndBlock.astro';
+import RichText from '@theme/components/RichText.astro';
+import { hiddenFromSearch } from '@morphemecms/cms/lib/status.mjs';
+import { categoryName, getPosts, postPath, type Post } from '@morphemecms/cms/site/content';
+import PostHeader from '@theme/components/PostHeader.astro';
+import RelatedPosts from '@theme/components/RelatedPosts.astro';
+import { postViewOf } from '@theme/components/loadPosts';
+import { site } from '@morphemecms/cms/site/site';
+import { isBlogCategory } from '@morphemecms/cms/site/categories';
+import { blogPosting } from '@morphemecms/cms/site/schema';
+import { siteT } from '@morphemecms/cms/src/i18n';
+
+interface Props {
+  post: Post;
+}
+const { post } = Astro.props;
+const { title, description, date, updated, categories } = post.data;
+// A decorative picture (imageDecorative) has no alternative text.
+const imageAlt = post.data.imageDecorative ? undefined : post.data.imageAlt;
+// The tags in the byline: only the blog categories (the others have no page).
+const onBlog = categories.filter(isBlogCategory);
+// Some posts also have their featured image (or another version of it) inside the text; never show it twice.
+const image = heroImage(post.data.image, post.body);
+
+// The picture a share to Pinterest pins: the one chosen for sharing, else the post's own, with the site's address in front.
+const sharePicture = post.data.shareImage || post.data.image || firstImage(post.body);
+const picture = sharePicture?.startsWith('/') ? site.url + sharePicture : sharePicture || undefined;
+
+// The text's first paragraph is the lead, drawn before the featured picture; without one the picture comes first.
+const { lead, rest } = splitLead(await Astro.slots.render('default'));
+// The lead has the text's class too (the editor's preview copies the text's class to the lead) and post-lead.
+const textClass = 'prose mx-auto mt-10 max-w-3xl px-5 medium:mt-14 medium:px-8';
+
+// Related: most shared categories first, then newest.
+const related = (await getPosts())
+  .filter((p) => p.id !== post.id)
+  .map((p) => ({ p, score: p.data.categories.filter((c) => categories.includes(c)).length }))
+  .filter(({ score }) => score > 0)
+  .sort((a, b) => b.score - a.score || b.p.data.date.valueOf() - a.p.data.date.valueOf())
+  .slice(0, 3)
+  .map(({ p }) => p);
+---
+
+<Base
+  title={title}
+  description={description}
+  seoTitle={post.data.seoTitle}
+  seoDescription={post.data.seoDescription}
+  canonical={post.data.canonical}
+  image={post.data.image || firstImage(post.body)}
+  pictures={[post.data.image, ...picturesOf(post.body)]}
+  imageAlt={post.data.image ? imageAlt : undefined}
+  shareImage={post.data.shareImage}
+  shareTitle={post.data.shareTitle}
+  shareDescription={post.data.shareDescription}
+  type="article"
+  published={date}
+  modified={updated}
+  noindex={hiddenFromSearch(post.data)}
+  crumbs={[{ name: siteT.theme.blog, href: '/blog/' }]}
+  schema={[
+    blogPosting({
+      path: postPath(post),
+      title,
+      description,
+      date,
+      updated,
+      image: post.data.image,
+      categories: categories.map(categoryName),
+    }),
+  ]}
+>
+  <article>
+    <PostHeader
+      title={title}
+      post={postViewOf(post)}
+      tags={onBlog.map((c) => ({ label: categoryName(c), href: `/blog/tags/${c}/` }))}
+      share={{ url: site.url + postPath(post), title, picture, share: site.social.share }}
+    />
+
+    {lead && <div data-editor="lead" class={`${textClass} post-lead`} set:html={lead} />}
+
+    {image && (
+      <div data-editor="image" class="mx-auto mt-8 max-w-5xl px-5 medium:mt-12 medium:px-8">
+        <Img
+          src={image}
+          alt={imageAlt ?? ''}
+          fetchpriority="high"
+          class="aspect-[16/10] w-full rounded-(--theme-picture-radius) object-cover medium:aspect-[16/9]"
+          sizes="min(60rem, calc(100vw - 2.5rem))"
+        />
+      </div>
+    )}
+
+    <div data-editor="text" class={textClass}>
+      <RichText html={rest} blocks={false} />
+    </div>
+  </article>
+
+  {site.postEnd && <EndBlock type={site.postEnd} />}
+
+  <RelatedPosts posts={related.map(postViewOf)} />
+</Base>

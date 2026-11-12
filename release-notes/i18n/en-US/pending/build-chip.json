@@ -1,0 +1,6 @@
+{
+  "id": "build-chip",
+  "kind": "paragraph",
+  "title": "Website status",
+  "text": "Visitors see a saved change only once the website has updated. After you publish, the Publish button shows its progress until the website has updated, and tells you if it didn’t. There is nothing to set up."
+}

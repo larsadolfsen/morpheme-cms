@@ -1,0 +1,16 @@
+{
+  "version": "0.14.1",
+  "date": "2026-11-07",
+  "notes": [
+    {
+      "id": "drawer-back-changes-screen",
+      "kind": "line",
+      "text": "On a phone, swiping back with the menu open closes the menu and takes you to the previous screen"
+    },
+    {
+      "id": "notes-from-package",
+      "kind": "line",
+      "text": "Release notes like these now show right after you update"
+    }
+  ]
+}

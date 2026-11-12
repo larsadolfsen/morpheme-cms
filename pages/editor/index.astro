@@ -1,0 +1,79 @@
+---
+// The editor (packages/editor/src/, docs/editor.md). A bare page in the site's style: no menu, footer,
+// cookie banner or tracking, and not in the sitemap or in search engines. It can be installed as an
+// app (/editor/manifest.webmanifest, packages/editor/pages/editor/manifest.webmanifest.js; icons from
+// packages/editor/scripts/editor-icons.mjs) and then opens
+// without the browser's bars. viewport-fit=cover: the app keeps clear of a phone's notch and home bar
+// itself (safe-area padding). interactive-widget=resizes-content: on Android the page gets shorter when
+// the keyboard opens, so the top bar and the text toolbar stay in view while typing. maximum-scale=1
+// (and touch-action in editor.css): no zooming in by a pinch or a double tap, which in Chrome on
+// Android pushes the bar with "Save changes" out of sight below the screen.
+// The manifest has no colours on purpose: Chrome on Android paints the installed app's navigation bar
+// (the strip at the bottom of the screen) in them, and one colour cannot fit both light and dark mode.
+// Without them the bar follows the phone's own light or dark mode; the top bar follows the
+// theme-color tags below.
+// editor-version: the fingerprint of this editor's code, also in /editor/version.json; an editor
+// left open reloads itself when the two differ (packages/editor/src/deploy.ts).
+import '@theme/styles/global.css';
+import App from '@morphemecms/cms/src/App.tsx';
+import { editorVersion } from '@morphemecms/cms/site/editor-version.mjs';
+import { config } from '@site/config';
+// The site's colours (the theme's styles/global.css); the editor puts the ones it has loaded in their place, so
+// a change under "Colors" shows at once (packages/editor/src/theme.ts).
+// A file in the names from before Material 3's roles read as the roles (withMaterialNames), with those a file written before
+// them does not have made (completeColors).
+import colors from '@data/colors.json';
+import { colorsCss, withMaterialNames } from '@morphemecms/cms/lib/colors';
+import { completeColors } from '@morphemecms/cms/lib/dynamic-colors';
+import { colorRoles } from '@site/colors';
+// How the site moves, which the editor moves by too (packages/editor/lib/motion.ts); the editor puts a new choice under
+// "Motion" in its place at once (packages/editor/src/theme.ts).
+import { motionCss } from '@morphemecms/cms/lib/motion';
+import { motionScheme } from '@morphemecms/cms/site/motion';
+import { pageColor } from '@morphemecms/cms/lib/colors';
+
+const shown = completeColors(withMaterialNames(colors), colorRoles);
+---
+
+<!doctype html>
+<html lang={config.locale} data-motion-scheme={motionScheme}>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="editor-version" content={editorVersion()} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/editor/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/editor/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content={config.name} />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <!-- The top bar in the editor's page colour (pageColor), the screens' own and the app bar's at the top; data-color: that
+         of its own mode, for a picked one. -->
+    <meta name="theme-color" content={pageColor(shown.light)} data-color={pageColor(shown.light)} media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content={pageColor(shown.dark)} data-color={pageColor(shown.dark)} media="(prefers-color-scheme: dark)" />
+    <style id="site-colors" is:inline set:html={colorsCss(shown)}></style>
+    <style id="site-motion" is:inline set:html={motionCss(motionScheme)}></style>
+    <!-- Light or dark as picked on "Account" (packages/editor/src/theme.ts), before the page is drawn. The
+         language (lang) is the site's until the editor has picked its own (packages/editor/src/i18n/). -->
+    <script is:inline>
+      try {
+        const theme = localStorage.getItem('editor-theme');
+        if (theme === 'light' || theme === 'dark') {
+          document.documentElement.dataset.theme = theme;
+          const metas = [...document.querySelectorAll('meta[name="theme-color"]')];
+          const own = metas.find((m) => m.media.includes('dark') === (theme === 'dark'));
+          for (const m of metas) m.content = own.dataset.color;
+        }
+      } catch {}
+    </script>
+    <title>{config.name}</title>
+  </head>
+  <body>
+    <App client:only="react" />
+  </body>
+</html>

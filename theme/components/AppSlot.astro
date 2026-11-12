@@ -1,0 +1,21 @@
+---
+// A place on every page where the active apps (installed, not turned off) put what they have for it (src/apps/<app>/slots/
+// <name>.astro, packages/editor/site/apps.ts): `head` in <head> (a script, a stylesheet), `body-end` at the end of
+// <body> (a banner, a dialog). Base.astro has the two places and nothing else about apps. An app that is
+// not installed, or turned off, puts nothing there.
+import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
+import { active } from '@morphemecms/cms/site/apps';
+
+type Props = { name: 'head' | 'body-end' };
+const { name } = Astro.props;
+
+const slots = import.meta.glob<{ default: AstroComponentFactory }>('/src/apps/*/slots/*.astro', { eager: true });
+const here = Object.entries(slots)
+  .filter(([path]) => path.endsWith(`/slots/${name}.astro`) && active.includes(path.split('/apps/')[1].split('/')[0]))
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([, m]) => m.default);
+---
+
+{here.map((Part) => (
+  <Part />
+))}

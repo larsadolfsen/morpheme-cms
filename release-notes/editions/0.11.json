@@ -1,0 +1,12 @@
+{
+  "name": "Multnomah",
+  "place": {
+    "en-US": "Multnomah Falls, Oregon, USA",
+    "da-DK": "Multnomah Falls, Oregon, USA"
+  },
+  "photo": {
+    "by": "Ravi Pinisetti",
+    "source": "https://unsplash.com/photos/bridge-over-waterfalls-sxWyOaHJb0s",
+    "license": "https://unsplash.com/license"
+  }
+}

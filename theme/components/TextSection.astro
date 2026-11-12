@@ -1,0 +1,16 @@
+---
+// A text on the blog page or the 404 page (packages/editor/site/standardPages.ts): an optional heading and Markdown.
+import PageSection from '@theme/components/PageSection.astro';
+import Markdown from '@theme/components/Markdown.astro';
+
+interface Props {
+  heading?: string;
+  body: string;
+  class?: string;
+}
+const { heading, body, class: className } = Astro.props;
+---
+
+<PageSection title={heading} class={className}>
+  <Markdown body={body} class={heading && 'mt-6'} />
+</PageSection>

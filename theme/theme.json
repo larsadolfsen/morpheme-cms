@@ -1,0 +1,30 @@
+{
+  "name": "Material",
+  "version": "1.0.0",
+  "author": "Lars Adolfsen",
+  "icon": "/editor/icon-192.png",
+  "license": "MIT",
+  "category": "appearance",
+  "thirdParty": [],
+  "icons": "material-symbols",
+  "motion": "expressive",
+  "templates": ["single", "sidebar-right", "sidebar-left"],
+  "description": {
+    "da-DK": "Hjemmesiden i Googles Material Design 3, som mange kender fra Android: klar, enkel og velkendt.",
+    "en-US": "The website in Google's Material Design 3, which many know from Android: clear, simple and familiar."
+  },
+  "highlights": {
+    "da-DK": [
+      "Roboto og Materials tekstst\u00f8rrelser",
+      "Tonede flader i stedet for streger",
+      "Materials former, knapper og bev\u00e6gelser",
+      "Materials ikoner"
+    ],
+    "en-US": [
+      "Roboto and Material's type scale",
+      "Tonal surfaces instead of lines",
+      "Material's shapes, buttons and motion",
+      "Material's icons"
+    ]
+  }
+}

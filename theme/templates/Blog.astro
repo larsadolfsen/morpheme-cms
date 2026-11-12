@@ -1,0 +1,38 @@
+---
+// The blog (/blog/): the page chosen as the blog page under "Settings" › "Appearance" › "Default pages"
+// (packages/editor/site/standardPages.ts), which the owner edits as a page in the editor: its heading and introduction at the top
+// with the tags, then its sections: a text, and each block by its type (PageBlock.astro), among them its posts (the
+// standard block "Blog posts", across the page as the front page's blocks; the first close to the tags).
+import BlogIndex from '@theme/components/BlogIndex.astro';
+import TextSection from '@theme/components/TextSection.astro';
+import PageBlock from '@theme/components/home/PageBlock.astro';
+import { space } from '@morphemecms/cms/site/sections';
+import type { StandardPageView } from '@morphemecms/cms/site/standardPages';
+
+type Props = StandardPageView;
+const { page, heading, intro, sections } = Astro.props;
+---
+
+<BlogIndex
+  title={heading}
+  intro={intro ?? ''}
+  seo={{
+    description: page.data.description,
+    seoTitle: page.data.seoTitle,
+    seoDescription: page.data.seoDescription,
+    canonical: page.data.canonical,
+    noindex: page.data.noindex,
+    shareImage: page.data.shareImage,
+    shareTitle: page.data.shareTitle,
+    shareDescription: page.data.shareDescription,
+  }}
+>
+  {sections.map((s, i) => {
+    switch (s.type) {
+      case 'text':
+        return <TextSection heading={s.heading} body={s.body ?? ''} class={space(i)} />;
+      default:
+        return <PageBlock section={s} class={i === 0 ? 'theme-blog-first' : undefined} />;
+    }
+  })}
+</BlogIndex>

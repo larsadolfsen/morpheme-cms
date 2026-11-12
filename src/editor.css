@@ -1,0 +1,1433 @@
+/* The editor's parts are the theme's UI parts (ui.tsx), in the theme's design; its own parts take the theme's variables
+   (--block-radius, --block-radius-small, --block-shadow). Only what is the editor's alone is here. Low specificity
+   (:where), so a theme's :root wins. */
+@reference '../theme/styles/base.css';
+
+:where(:root) {
+  /* The menus and the toolbar of the text: Material 3's menu surface and shadow (elevation level 2). */
+  --editor-menu-surface: var(--mo-surface-container-lowest);
+  --editor-menu-shadow: var(--mo-elevation-2-shadow);
+
+  /* The room a screen leaves for its FAB under the footer: Screen.tsx's padding and --editor-fab-clearance (below medium). */
+  --fab-room: 4.5rem;
+
+  /* How a check went (CheckList: the SEO rating), as PageSpeed shows it: the mark before a check that is fine and one
+     that can be done better, and the score's ring (from 90 good, from 50 average, else bad) with its number and the
+     light circle in it; the same in every theme. */
+  --editor-status-good: #0cce6b;
+  --editor-status-good-text: #008800;
+  --editor-status-good-surface: color-mix(in srgb, #0cce6b 10%, var(--mo-surface-container-lowest));
+  --editor-status-average: #ffa400;
+  --editor-status-average-text: #c33300;
+  --editor-status-average-surface: color-mix(in srgb, #ffa400 10%, var(--mo-surface-container-lowest));
+  --editor-status-bad: #ff4e42;
+  --editor-status-bad-text: #cc0000;
+  --editor-status-bad-surface: color-mix(in srgb, #ff4e42 10%, var(--mo-surface-container-lowest));
+
+  /* A Google result (SearchPreview.tsx) in Google's own colours, light: its background, the title (on a computer, and on a
+     phone), the site's name, the address and the text, the date before the text, and the 8 px band above and below a
+     phone's result. */
+  --google-background: #fff;
+  --google-title: #1a0dab;
+  --google-title-phone: #1558d6;
+  --google-site: #202124;
+  --google-text: #4d5156;
+  --google-date: #70757a;
+  --google-separator: #ecedef;
+  /* The site's circle: its fill and ring and the letter in it, the same in light and dark. */
+  --google-icon-fill: #fff;
+  --google-icon-ring: #dadce0;
+  --google-icon-letter: #202124;
+
+  /* The dotted frame round an H2 section of a page or blog post (sectionFrame.ts): its line, the space between the line and
+     the text, the space above a section, and the space between two parts inside it (em: it scales with the part's text). */
+  --editor-section-frame: 2px dotted var(--block-line);
+  --editor-section-pad: 1rem;
+  --editor-section-gap: 2rem;
+  --editor-section-rhythm: 0.625em;
+
+  /* A form's "on this page" area (SectionPane in ui.tsx) against the window's end edge: its width (the card is as wide as the navigation drawer), the card in it
+     stands --section-pane-gap in from the end edge and from the window's top edge. */
+  --section-pane-width: calc(var(--navigation-drawer-width, 22.5rem) + var(--section-pane-gap));
+  --section-pane-gap: 2rem;
+
+  /* The side panel of a block's fields and the section settings (BlockDialog's standard side sheet from expanded, BottomSheet
+     `panel` in ui.tsx from large): M3's side sheet is 400dp (25rem) wide at most; where the window is narrower it is half
+     the space beside the start panel, the content column taking the other half (see below). */
+  --side-panel-width: min(25rem, calc((100vw - var(--column-start)) / 2));
+}
+
+/* In dark mode the score's number in the light colours, which are read on the dark, and Google's dark colours. */
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme='light'])) {
+    --google-background: #1f1f1f;
+    --google-title: #99c3ff;
+    --google-title-phone: #99c3ff;
+    --google-site: #dadce0;
+    --google-text: #bfbfbf;
+    --google-date: #9aa0a6;
+    --google-separator: #303134;
+    --editor-status-good-text: var(--editor-status-good);
+    --editor-status-average-text: var(--editor-status-average);
+    --editor-status-bad-text: var(--editor-status-bad);
+  }
+}
+:where(:root[data-theme='dark']) {
+  --google-background: #1f1f1f;
+  --google-title: #99c3ff;
+  --google-title-phone: #99c3ff;
+  --google-site: #dadce0;
+  --google-text: #bfbfbf;
+  --google-date: #9aa0a6;
+  --google-separator: #303134;
+  --editor-status-good-text: var(--editor-status-good);
+  --editor-status-average-text: var(--editor-status-average);
+  --editor-status-bad-text: var(--editor-status-bad);
+}
+
+/* The text field (MarkdownEditor.tsx). The rest of the editor uses the site's Tailwind classes. */
+.editor-text .ProseMirror {
+  min-height: 50vh;
+  outline: none;
+}
+
+/* A text in a field (a section of the front page) is short. */
+.editor-text-short .ProseMirror {
+  min-height: 8rem;
+}
+
+/* ProseMirror puts invisible helpers around a picture (empty images and a line break). Next to a
+   full-width picture each gets a line of its own, which shows as empty space; hide them there. */
+.editor-text p:has(> .site-picture) > :is(.ProseMirror-separator, .ProseMirror-trailingBreak) {
+  display: none !important;
+}
+
+/* A check list (`- [ ]`, "Check list" in the text style menu): Phosphor's check icon in place of the bullet, in the theme's primary colour
+   when the item is checked, dimmed when not, as the site draws it (theme/styles/blocks.css, .task-list-item). The icon is the item's own
+   ::before, in the padding where the bullet was; a tap on it checks or unchecks the item (checkToggle, MarkdownEditor.tsx). */
+.editor-text .ProseMirror li[data-item-type='task'] {
+  list-style: none;
+  position: relative;
+}
+.editor-text .ProseMirror li[data-item-type='task']::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -1.75em;
+  top: 0.25em;
+  width: 1.25em;
+  height: 1.25em;
+  background-color: color-mix(in srgb, var(--mo-primary) 35%, transparent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  cursor: pointer;
+}
+.editor-text .ProseMirror li[data-item-type='task'][data-checked='true']::before {
+  background-color: var(--mo-primary);
+}
+
+/* Milkdown puts a paragraph in every list item; on the site, short lists have none. */
+.editor-text li > p {
+  margin-block: 0;
+}
+
+/* The text field's own padding (MarkdownEditor.tsx: px-5 py-4, medium:px-8); a section of the whole width reaches out of it. */
+.editor-text {
+  --editor-pad-x: 1.25rem;
+  --editor-pad-y: 1rem;
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .editor-text {
+    --editor-pad-x: 2rem;
+  }
+}
+
+/* The dotted line at the start of an H2 section (data-section-part='start', sectionFrame.ts): a divider across the text. The line
+   marks where a section starts; it is not the section's box. */
+.editor-text .ProseMirror > [data-section-part='start'] {
+  margin-block-start: var(--editor-section-gap);
+  border-block-start: var(--editor-section-frame);
+  padding-block-start: var(--editor-section-pad);
+}
+
+/* The box of a section with a colour, as the site draws it (data-section-box, data-section-color, sectionFrame.ts): one box made of
+   the parts' own backgrounds. The space between two parts is padding, not margin, so the box has no gaps. */
+.editor-text .ProseMirror > [data-section-box] {
+  margin-block: 0;
+  padding-inline: var(--editor-section-pad);
+  padding-block: var(--editor-section-rhythm);
+}
+
+.editor-text .ProseMirror > :is(ul, ol)[data-section-box] {
+  padding-inline-start: calc(var(--editor-section-pad) + 1.625em);
+}
+
+.editor-text .ProseMirror > :is([data-section-box='start'], [data-section-box='only']) {
+  border-start-start-radius: var(--block-radius);
+  border-start-end-radius: var(--block-radius);
+  padding-block-start: var(--editor-section-pad);
+}
+
+.editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) {
+  border-end-start-radius: var(--block-radius);
+  border-end-end-radius: var(--block-radius);
+  padding-block-end: var(--editor-section-pad);
+}
+
+/* A section of the whole width (`width` full) reaches the text field's edges: no margin or corners at the sides, and none above the
+   first section or below the last. Its text stays where the other text is. */
+.editor-text .ProseMirror > [data-section-box][data-section-width='full'] {
+  margin-inline: calc(-1 * var(--editor-pad-x));
+  padding-inline: calc(var(--editor-pad-x) + var(--editor-section-pad));
+  border-radius: 0;
+}
+.editor-text .ProseMirror > :is(ul, ol)[data-section-box][data-section-width='full'] {
+  padding-inline-start: calc(var(--editor-pad-x) + var(--editor-section-pad) + 1.625em);
+}
+/* flow-root: the first section's negative margin stays on the section, it does not collapse into the text's own. */
+.editor-text .ProseMirror {
+  display: flow-root;
+}
+.editor-text .ProseMirror > [data-section-box][data-section-width='full']:first-child,
+.editor-text .ProseMirror > [data-section-width='full'][data-section-part='start']:first-child {
+  margin-block-start: calc(-1 * var(--editor-pad-y));
+}
+.editor-text .ProseMirror > [data-section-box][data-section-width='full']:last-child {
+  margin-block-end: calc(-1 * var(--editor-pad-y));
+}
+
+/* The colours are the theme's own (blocks.css). On a colour with its own text colour, the prose colours take it, so headings, bold
+   and links stay readable. */
+.editor-text .ProseMirror > [data-section-color='surface'] {
+  background: var(--block-surface);
+}
+
+.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary']) {
+  --tw-prose-body: var(--section-on);
+  --tw-prose-headings: var(--section-on);
+  --tw-prose-bold: var(--section-on);
+  --tw-prose-links: var(--section-on);
+  --tw-prose-bullets: var(--section-on);
+  --tw-prose-counters: var(--section-on);
+  background: var(--section-fill);
+  color: var(--section-on);
+}
+
+.editor-text .ProseMirror > [data-section-color='primary'] {
+  --section-fill: var(--block-primary);
+  --section-on: var(--block-on-primary);
+}
+
+.editor-text .ProseMirror > [data-section-color='secondary'] {
+  --section-fill: var(--block-secondary);
+  --section-on: var(--block-on-secondary);
+}
+
+.editor-text .ProseMirror > [data-section-color='tertiary'] {
+  --section-fill: var(--block-tertiary);
+  --section-on: var(--block-on-tertiary);
+}
+
+/* The picture behind a section (the widget before its first part, placed over the section's parts by sectionFrame.ts): it fills
+   the section's box behind the text, darkened from below as on the site (blocks.css, .text-section-picture), and the text on it is
+   the theme's colour for text on a picture. */
+.editor-text .ProseMirror {
+  position: relative;
+}
+
+.editor-text .editor-section-picture {
+  --section-shade: var(--block-hero-shade, var(--block-text));
+  position: absolute;
+  z-index: 0;
+  margin: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--section-shade);
+  border-radius: var(--block-radius);
+}
+
+.editor-text .editor-section-picture[data-color='surface'] {
+  --section-shade: var(--block-surface);
+}
+
+.editor-text .editor-section-picture[data-color='primary'] {
+  --section-shade: var(--block-primary);
+}
+
+.editor-text .editor-section-picture[data-color='secondary'] {
+  --section-shade: var(--block-secondary);
+}
+
+.editor-text .editor-section-picture[data-color='tertiary'] {
+  --section-shade: var(--block-tertiary);
+}
+
+.editor-text .editor-section-picture[data-width='full'] {
+  border-radius: 0;
+}
+
+.editor-text .editor-section-picture > img {
+  margin: 0;
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.editor-text .editor-section-picture::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--section-shade) 85%, transparent),
+    color-mix(in srgb, var(--section-shade) 55%, transparent) 70%,
+    color-mix(in srgb, var(--section-shade) 40%, transparent)
+  );
+}
+
+.editor-text .ProseMirror > [data-section-picture] {
+  position: relative;
+  z-index: 1;
+}
+
+.editor-text .ProseMirror > [data-section-picture] {
+  background: transparent;
+}
+
+.editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) {
+  --tw-prose-body: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-headings: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-bold: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-links: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-bullets: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-counters: var(--block-hero-on-shade, var(--block-surface));
+  color: var(--block-hero-on-shade, var(--block-surface));
+}
+
+.editor-text .ProseMirror > [data-section-picture][data-section-width='full'] {
+  border-radius: 0;
+}
+
+/* HTML in a line of text is kept as it is but cannot be edited here (on a line of its own it is a
+   block, HTML in markdown.mjs). */
+.editor-text [data-type='html'] {
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  border-radius: 0.5rem;
+  background: var(--mo-surface-container-high);
+  padding: 0 0.4em;
+  font-family: ui-monospace, monospace;
+  font-size: 0.8em;
+  color: var(--mo-on-surface-variant);
+}
+
+/* The bar with "Save" (FormFrame.tsx) slides up when something has been changed; the messages
+   (App.tsx) then go above it. */
+.editor-save-bar {
+  animation: editor-rise var(--motion-spatial-fast);
+}
+
+@keyframes editor-rise {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .editor-save-bar {
+    animation: none;
+  }
+}
+
+/* An element's name as the theme's plain tooltip (useTooltip in ui.tsx): a popover over everything, placed by the
+   script under or over the element; its look is the theme's .tooltip-plain. */
+.editor-tooltip {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  border: 0;
+  width: max-content;
+  pointer-events: none;
+}
+
+/* The field that keeps a form from being saved (WrongField in fields.tsx): the edge of the theme's text field
+   (.text-field-input, its edge a box-shadow) in the accent colour, flashing gently three times; around the whole field
+   when it has no box of its own (a picture, icons, a switcher). It stays until the next try or a change. */
+.editor-wrong .text-field-input {
+  box-shadow:
+    inset 0 0 0 2px var(--mo-primary),
+    0 0 0 3px color-mix(in srgb, var(--mo-primary) 25%, transparent);
+}
+
+.editor-wrong:not(:has(.text-field-input)) {
+  border-radius: 1rem;
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 6px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .editor-wrong .text-field-input {
+    animation: editor-flash 0.8s ease-in-out 3;
+  }
+
+  .editor-wrong:not(:has(.text-field-input)) {
+    animation: editor-flash-around 0.8s ease-in-out 3;
+  }
+}
+
+@keyframes editor-flash {
+  50% {
+    box-shadow:
+      inset 0 0 0 1px var(--mo-outline-variant),
+      0 0 0 3px transparent;
+  }
+}
+
+@keyframes editor-flash-around {
+  50% {
+    outline-color: transparent;
+  }
+}
+
+/* A sheet that is dragged up by its top on a phone (SheetTitle in ui.tsx) is as tall as the screen allows
+   (--bottom-sheet-top-gap from the top, and below the clock), or as tall as what is in it, if that is less. A sheet
+   starts at --bottom-sheet-start-max-height at most (ui.css). */
+@media (width < theme(--breakpoint-medium)) {
+  .editor-sheet[data-tall] {
+    --editor-sheet-tall: calc(100dvh - max(var(--bottom-sheet-top-gap, 4.5rem), env(safe-area-inset-top)));
+    max-height: var(--editor-sheet-tall);
+  }
+  .editor-sheet.bottom-sheet-full[data-tall] {
+    height: var(--editor-sheet-tall);
+  }
+}
+
+/* A little motion, so the editor feels like an app: a sheet slides up from the bottom (on a
+   computer, where it is a dialog in the middle, it fades in and grows a little) and the page behind
+   it darkens (a question, ask.tsx, comes up as the theme's dialog does); a new screen fades in; a message rises up; an item of a
+   list that is opened shows its fields softly; a picture in Files fades in when it has loaded and
+   grows a little under the mouse; a button's colours change softly (pressed, it ripples: the theme's .ripple). Only when
+   the phone or computer does not ask for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .editor-sheet[open] {
+    animation: editor-sheet-in var(--motion-spatial);
+  }
+
+  .editor-sheet[open]::backdrop {
+    animation: editor-fade var(--motion-effects);
+  }
+
+  @media (width >= theme(--breakpoint-medium)) {
+    .editor-sheet[open] {
+      animation: editor-pop var(--motion-spatial-fast);
+    }
+  }
+
+  /* The main drawer (MainDrawer in ui.tsx) slides in from the start edge: the left, the right when the text runs right to left. */
+  .editor-main-drawer[open] {
+    animation: editor-main-drawer-in var(--motion-spatial);
+  }
+
+  .editor-main-drawer[open]::backdrop {
+    animation: editor-fade var(--motion-effects);
+  }
+
+  .editor-screen {
+    animation: editor-enter var(--motion-spatial);
+    /* A chip set that scrolls reaches out to the screen's edges: the screen's gutter (px-4, medium:px-6 in Screen.tsx). */
+    --chip-set-bleed: 1rem;
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .editor-screen {
+      --chip-set-bleed: 1.5rem;
+    }
+  }
+
+  .editor-reveal {
+    animation: editor-enter var(--motion-spatial-fast);
+  }
+
+  .editor-fade-in {
+    opacity: 0;
+    transition:
+      opacity var(--motion-effects),
+      scale var(--motion-spatial);
+  }
+
+  .editor-fade-in[data-loaded] {
+    opacity: 1;
+  }
+
+  /* In the base layer, so a Tailwind class on the button itself still decides. */
+  @layer base {
+    :is(button, a):not(:disabled, .ProseMirror *) {
+      transition:
+        background-color var(--motion-effects-fast),
+        color var(--motion-effects-fast);
+    }
+  }
+}
+
+@keyframes editor-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes editor-main-drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes editor-main-drawer-in-rtl {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+/* A drag along the drawer reaches MainDrawer's swipe to close; scrolling its list still works. */
+.editor-main-drawer {
+  touch-action: pan-y;
+}
+
+.editor-main-drawer:dir(rtl)[open] {
+  animation-name: editor-main-drawer-in-rtl;
+}
+
+/* The main drawer's header row (MainDrawerMenuButton in ui.tsx): the account row is a pill, shaped and shaded as a drawer
+   item is when pointed at. Its inline padding puts the avatar's centre over the items' icons (the avatar is wider than the
+   24px icon: half the difference less than the items' padding). The avatar has a 1px border inside its size.
+   The pill is as high as a drawer item (56px); the row around it is the top bar's height. */
+.editor-main-drawer-header {
+  --list-item-padding-block: 0.375rem;
+  --list-item-two-line-min-height: var(--navigation-drawer-item-height, 3.5rem);
+  --editor-drawer-header-text: var(--navigation-drawer-item-text, var(--block-muted));
+  --editor-drawer-header-padding: calc(
+    var(--navigation-drawer-item-padding-inline, 1rem) - (var(--list-item-avatar-size, 2.5rem) - 1.5rem) / 2
+  );
+  --list-item-padding-inline: var(--editor-drawer-header-padding);
+  --list-item-radius: var(--navigation-drawer-item-radius, 9999px);
+  --list-item-hover-radius: var(--navigation-drawer-item-radius, 9999px);
+  --list-item-hover-surface: var(--navigation-drawer-item-hover, color-mix(in srgb, var(--editor-drawer-header-text) 8%, transparent));
+  --list-item-pressed-surface: var(--navigation-drawer-item-pressed, color-mix(in srgb, var(--editor-drawer-header-text) 10%, transparent));
+  --list-item-hover-text: inherit;
+}
+
+.editor-main-drawer-header .list-item-container:focus-visible {
+  background: var(--list-item-pressed-surface);
+}
+
+.editor-main-drawer-header .list-item-avatar {
+  box-sizing: border-box;
+  border: 1px solid var(--block-line);
+}
+
+/* From medium the drawers (MainDrawer in ui.tsx) take the rail's place (MainRail): they share its icon column, the middle
+   of the rail. On a phone the drawer keeps the theme's (Material 3's navigation drawer). The rail's menu button stands
+   level with the top bar's logo, as the drawers' does; the rail's items keep their place. */
+@media (width >= theme(--breakpoint-medium)) {
+  .editor-main-drawer-panel {
+    --navigation-drawer-inset: 1.25rem;
+  }
+}
+
+.editor-main-rail {
+  --navigation-rail-padding: 0.5rem 0.5rem 1.5rem;
+}
+
+.editor-main-rail .navigation-rail-header {
+  margin-bottom: 1rem;
+}
+
+/* The rail (and the room above it for a phone's notch) in the open drawer's colour, so it does not change when the drawer opens. */
+.editor-main-rail-frame {
+  --navigation-rail-surface: var(--navigation-drawer-surface, var(--mo-surface-container-low, var(--mo-surface)));
+}
+
+@keyframes editor-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes editor-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes editor-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+:root:has(.editor-save-bar) .snackbar-stack {
+  bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+
+/* The screen's main actions (FabMenu in ui.tsx) at the bottom right, above the content; the messages above them. */
+.editor-fab {
+  position: fixed;
+  right: calc(1rem + env(safe-area-inset-right));
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  z-index: 30;
+}
+
+/* Below medium, while a screen leaves room for its FAB under the footer (Screen.tsx, data-clearance), the page is that room
+   taller than the window (the screen's padding less the bare one), so a short screen still has its footer at the bottom of
+   the window and can be scrolled up to show it above the FAB. */
+@media (width < theme(--breakpoint-medium)) {
+  :root:has(.editor-screen[data-clearance='true']) {
+    --editor-fab-clearance: var(--fab-room);
+  }
+}
+
+/* A FAB whose action runs or cannot be used now (FabAction.busy, .disabled): dimmed, and nothing to press. */
+.editor-fab :is(.extended-fab, .fab):disabled {
+  opacity: 0.38;
+  pointer-events: none;
+}
+
+:root:has(.editor-fab) .snackbar-stack {
+  bottom: calc(6rem + env(safe-area-inset-bottom));
+}
+
+/* While a form's save bar is up (FormFrame.tsx) the FAB stands above it, so it does not cover Save; the messages above both. */
+:root:has(.editor-save-bar) .editor-fab {
+  bottom: calc(6.5rem + env(safe-area-inset-bottom));
+}
+
+:root:has(.editor-save-bar):has(.editor-fab) .snackbar-stack {
+  bottom: calc(11.5rem + env(safe-area-inset-bottom));
+}
+
+/* From medium the navigation rail stands at the start edge of the window (MainMenu.tsx), so the messages are in the middle of
+   the content next to it and the save bar starts where it ends; at expanded and wider, while the standard drawer is open
+   in the rail's place, they keep clear of the drawer instead. The widths are the theme's. The top bar and its tabs (Screen.tsx)
+   stand beside the rail and the drawer, so they need no room. */
+@media (width >= theme(--breakpoint-medium)) {
+  .snackbar-stack {
+    padding-left: var(--navigation-rail-width, 5.5rem);
+  }
+  .editor-save-bar {
+    left: var(--navigation-rail-width, 5.5rem);
+  }
+}
+@media (width >= theme(--breakpoint-expanded)) {
+  :root[data-sidebar='open'] .snackbar-stack {
+    padding-left: var(--navigation-drawer-width, 22.5rem);
+  }
+  :root[data-sidebar='open'] .editor-save-bar {
+    left: var(--navigation-drawer-width, 22.5rem);
+  }
+}
+
+/* The type of the "on this page" card (SectionPane and SectionList in ui.tsx), from the theme's type roles: the small
+   caption, the form's name under it, and a section's name (the one in view in medium weight). */
+.section-pane-caption {
+  font-size: var(--type-label-small-size);
+  line-height: var(--type-label-small-line-height);
+  font-weight: var(--type-label-small-weight);
+  letter-spacing: var(--type-label-small-tracking);
+}
+.section-pane-title {
+  font-size: var(--type-headline-small-size);
+  line-height: var(--type-headline-small-line-height);
+  font-weight: var(--type-headline-small-weight);
+  letter-spacing: var(--type-headline-small-tracking);
+}
+.section-list-item {
+  font-size: var(--type-body-medium-size);
+  line-height: var(--type-body-medium-line-height);
+  font-weight: var(--type-body-medium-weight);
+  letter-spacing: var(--type-body-medium-tracking);
+}
+.section-list-item[aria-current='location'] {
+  font-weight: var(--type-label-medium-weight);
+}
+
+/* The content column (.editor-column: Screen.tsx's tabs row and its main) stands centred on the window, not in the space
+   beside the panels. --column-start and --column-end are the widths of the panels beside the content: the navigation
+   rail from medium, the standard drawer instead of it from expanded while it is open (:root[data-sidebar='open']; the
+   modal drawer below expanded is over the content, so the rail counts), and the "on this page" area at the end from large
+   (.editor-section-pane). The column keeps its width (--column-width, set by Screen.tsx) and moves off the middle only as
+   far as it must to stay clear of the panels: its start margin is the middle of the window less the start panel, but
+   not less than nothing and not more than the space left between the panels less the column. Only when that space is
+   smaller than the column does it get narrower. (Measured against the window's width, 100vw, scrollbar and all.) Below
+   medium nothing stands beside the content and the column is centred by auto margins. While the side panel is open (see
+   the end of this block) the column is centred in the space between the start panel and the side panel by auto margins
+   (the content's end padding keeps it clear of the panel), still no wider than --column-width. */
+:root {
+  --column-start: 0px;
+  --column-end: 0px;
+}
+.editor-column {
+  max-width: var(--column-width);
+  margin-inline: auto;
+}
+@media (width >= theme(--breakpoint-medium)) {
+  :root {
+    --column-start: var(--navigation-rail-width, 5.5rem);
+  }
+  .editor-column {
+    margin-inline-start: clamp(
+      0px,
+      (100vw - var(--column-width)) / 2 - var(--column-start),
+      100vw - var(--column-start) - var(--column-end) - var(--column-width)
+    );
+    margin-inline-end: auto;
+  }
+}
+@media (width >= theme(--breakpoint-expanded)) {
+  :root[data-sidebar='open'] {
+    --column-start: var(--navigation-drawer-width, 22.5rem);
+  }
+}
+
+/* The "on this page" area (FormColumns' `pane` in ui.tsx) stands against the window's end edge on large and wider: the
+   content keeps clear of it (its end padding; --column-end tells the column, so it stays centred on the window while
+   there is room), and the save bar ends where the area begins. */
+@media (width >= theme(--breakpoint-large)) {
+  :root:has(.editor-section-pane) {
+    --column-end: var(--section-pane-width);
+  }
+  .editor-content:has(.editor-section-pane) {
+    padding-inline-end: var(--section-pane-width);
+  }
+  :root:has(.editor-section-pane) .editor-save-bar {
+    right: var(--section-pane-width);
+  }
+
+  /* BottomSheet's `panel` (.editor-side-panel): the theme's modal side sheet at the window's end edge, the full window
+     height like the standard one; its backdrop is clear. */
+  .editor-side-panel {
+    inset: 0 0 0 auto;
+    width: var(--side-panel-width);
+    height: 100dvh;
+  }
+  .editor-side-panel:dir(rtl) {
+    inset: 0 auto 0 0;
+  }
+  .editor-side-panel::backdrop {
+    background: transparent;
+  }
+}
+
+/* The block dialog's standard side sheet (.editor-side-sheet: BlockDialog.tsx, not modal, from expanded) stands at the window's
+   end edge from the top of the window to its bottom (M3), with its divider the whole height. BlockDialog.tsx sets
+   [data-side-panel] on the root while it is open: the top bar (.editor-top-bar-slot, topBarSlot.tsx) ends at the sheet's
+   start edge, it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
+@media (width >= theme(--breakpoint-expanded)) {
+  :root[data-side-panel] {
+    --column-end: var(--side-panel-width);
+  }
+  :root[data-side-panel] .editor-section-pane {
+    display: none;
+  }
+  :root[data-side-panel] .editor-content {
+    padding-inline-end: var(--side-panel-width);
+  }
+  :root[data-side-panel] .editor-column {
+    margin-inline: auto;
+  }
+  :root[data-side-panel] .editor-save-bar {
+    right: var(--side-panel-width);
+  }
+  .editor-side-sheet {
+    position: fixed;
+    inset: 0 0 0 auto;
+    z-index: 20;
+    width: var(--side-panel-width);
+    max-width: none;
+    height: 100dvh;
+  }
+  .editor-side-sheet:dir(rtl) {
+    inset: 0 auto 0 0;
+  }
+  :root[data-side-panel] .editor-top-bar-slot {
+    padding-inline-end: var(--side-panel-width);
+  }
+}
+
+/* Like an app: no grey flash when tapping links and buttons on a phone, and no zoom on a double tap.
+   Nothing sticks out at the side: on Android, anything wider than the screen, even for a moment while
+   the page opens, makes Chrome lay the whole page out wider than the screen, and as zooming is off
+   (pages/editor/index.astro) it then stays cut off on the right. */
+html,
+body {
+  overflow-x: clip;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* A block of the site in the text (Book an appointment, Testimonials …; MarkdownEditor.tsx): the block as it
+   looks on the site (src/apps/<app>/blocks/, previews.tsx) in a thin, dashed square frame, not text. Tapping it opens a row
+   of icons on it with what can be done with it. The frame stands out a little to the sides, so the block
+   lines up with the text. A picture in the text is a card like it (in its paragraph). */
+.editor-text .site-block {
+  position: relative;
+  margin-block: 1.5em;
+  user-select: none;
+}
+
+.editor-text .site-picture {
+  display: block;
+  margin-block: 0;
+}
+
+.editor-text .site-picture :is(img, .picture-crop) {
+  margin-block: 0;
+}
+
+.editor-text .site-block-card {
+  display: block;
+  width: calc(100% + 1.25rem);
+  margin-inline: -0.625rem;
+  position: relative;
+  border-radius: 0;
+  border: 1.5px dashed color-mix(in srgb, var(--mo-on-surface-variant) 45%, transparent);
+  padding: 0.5rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--motion-effects);
+}
+
+.editor-text .site-block-card:hover,
+.editor-text .site-block-card[aria-expanded='true'] {
+  border-color: var(--mo-primary);
+}
+
+.editor-text .site-block-card:focus-visible {
+  outline: 2px solid var(--mo-primary);
+  outline-offset: 2px;
+  border-radius: 0;
+}
+
+.editor-text .site-block-hidden-badge {
+  position: absolute;
+  z-index: 1;
+  top: 1rem;
+  right: 1rem;
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 9999px;
+  background: var(--mo-on-surface);
+  color: var(--mo-surface);
+}
+
+/* A block typed in place (InlineList.tsx, MarkdownEditor.tsx): the block as the site draws it, its text as fields. The frame is the
+   block itself, not a button; it shows the focus ring while a row is being typed in, and the menu sits on a handle at its corner. */
+.editor-text .site-block-inline {
+  cursor: text;
+}
+
+.editor-text .site-block-inline .site-block-preview {
+  pointer-events: auto;
+}
+
+.editor-text .site-block-inline:focus-within {
+  border-color: var(--mo-primary);
+}
+
+/* The floating toolbar of a block typed in place (inlineBar.ts): over the block on a computer, docked above the keyboard on a phone; every
+   button a 48 dp target. */
+.site-block-toolbar {
+  position: fixed;
+  z-index: 40;
+  display: flex;
+  max-width: calc(100vw - 1rem);
+  align-items: center;
+  gap: 0.125rem;
+  border: 1px solid var(--mo-outline-variant);
+  border-radius: 9999px;
+  background: var(--editor-menu-surface);
+  padding: 0.25rem;
+  box-shadow: var(--editor-menu-shadow);
+}
+
+.site-block-toolbar[hidden] {
+  display: none;
+}
+
+.site-block-toolbar button {
+  display: inline-flex;
+  min-width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  padding-inline: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.site-block-toolbar button:hover,
+.site-block-toolbar button:focus-visible,
+.site-block-toolbar button[aria-expanded='true'] {
+  outline: none;
+  background: var(--mo-surface-container-high);
+}
+
+.site-block-toolbar-menu {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--mo-outline-variant);
+  border-radius: 1rem;
+  background: var(--editor-menu-surface);
+  padding: 0.25rem;
+  box-shadow: var(--editor-menu-shadow);
+}
+
+.site-block-toolbar-menu button {
+  justify-content: flex-start;
+}
+
+/* A field typed in a row: no frame of its own, the text of the row as the site draws it, and the height of its text. */
+.editor-text .inline-list-field {
+  display: block;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  resize: none;
+  overflow: hidden;
+  field-sizing: content;
+  user-select: text;
+}
+
+.editor-text .inline-list-field:focus {
+  outline: none;
+}
+
+.editor-text .inline-list-field::placeholder {
+  color: var(--mo-on-surface-variant);
+  opacity: 0.7;
+}
+
+/* The media and link slots over the headline of the active card. */
+.editor-text .inline-card-slots {
+  display: flex;
+  gap: var(--mo-space-4, 4px);
+  margin-bottom: var(--mo-space-4, 4px);
+}
+
+/* A List that reads a list: the line that says which, over its rows. */
+.editor-text .inline-list-from {
+  margin: 0 0 var(--mo-space-8, 8px);
+  color: var(--mo-on-surface-variant);
+  font-size: 0.875rem;
+}
+
+/* The row being typed in has the dotted line of the sections' frame round it, and no other colour; the empty row of an empty list is faded. */
+.editor-text .inline-list-row-active {
+  outline: var(--editor-section-frame);
+  outline-offset: -2px;
+}
+
+.editor-text .inline-list-row-next:not(.inline-list-row-active) {
+  opacity: 0.55;
+}
+/* A card's next button: empty and faded until it is made (Cards, InlineCards.tsx). */
+.editor-text .inline-card-next-button {
+  opacity: 0.55;
+}
+
+.editor-text .inline-list-slot {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 9999px;
+  color: var(--mo-on-surface-variant);
+}
+
+.editor-text .inline-list-slot:hover,
+.editor-text .inline-list-slot:focus-visible {
+  background: var(--mo-surface-container-high);
+  outline: none;
+}
+
+/* The block's menu: a row of icons on the top edge of the frame, in the middle. */
+.editor-text .site-block-menu {
+  position: absolute;
+  z-index: 15;
+  top: -1.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  max-width: calc(100% - 0.5rem);
+  align-items: center;
+  gap: 0.125rem;
+  border: 1px solid var(--mo-outline-variant);
+  border-radius: 9999px;
+  background: var(--editor-menu-surface);
+  padding: 0.25rem;
+  box-shadow: var(--editor-menu-shadow);
+}
+
+.editor-text .site-block-menu button {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 9999px;
+}
+
+.editor-text .site-block-menu button:hover,
+.editor-text .site-block-menu button:focus-visible {
+  outline: none;
+  background: var(--mo-surface-container-high);
+}
+
+.editor-text .site-block-menu .site-block-danger {
+  color: var(--mo-primary);
+}
+
+/* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
+   shadow, so it stands in front of the editor's page also in a theme whose menu has the page's colour and no shadow. */
+.editor-menu {
+  --menu-shadow: var(--editor-menu-shadow);
+}
+
+/* The text's toolbar (MarkdownEditor.tsx, Toolbar in ui.tsx): the box's top edge, in the box's own surface. */
+.editor-tools {
+  --toolbar-standard-surface: var(--editor-menu-surface);
+}
+
+/* The text box's own side lines run up behind the toolbar when it sticks, so the two cut-outs outside its rounded top corners are
+   filled in the page's surface (the same one the body has): the curve is clean, with no line past it. */
+.editor-tools::before,
+.editor-tools::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  width: var(--radius-panel);
+  height: var(--radius-panel);
+  pointer-events: none;
+}
+
+.editor-tools::before {
+  left: -1px;
+  background: radial-gradient(circle at 100% 100%, transparent var(--radius-panel), var(--mo-surface) var(--radius-panel));
+}
+
+.editor-tools::after {
+  right: -1px;
+  background: radial-gradient(circle at 0 100%, transparent var(--radius-panel), var(--mo-surface) var(--radius-panel));
+}
+
+/* Its tools on one line, and the rest on a second while it is open (the arrow at its end, MarkdownEditor.tsx). Closed,
+   the line is one button high and those past it are hidden (not clipped, so the focus ring of a tool is whole). */
+.editor-tools-closed {
+  max-height: 2.5rem;
+}
+
+.editor-tools-tall.editor-tools-closed {
+  max-height: 3rem;
+}
+
+/* When the tools do not all fit on one line, the lines between the groups go, so the tools that must stay (the kinds of text,
+   "+" and Section settings) have the room (MarkdownEditor.tsx, toolbarOrder.mjs). */
+.editor-tools-compact > span[aria-hidden='true'] {
+  display: none;
+}
+
+.editor-tools-closed > [data-wrapped],
+.editor-tools-line > span[data-line-start],
+.editor-tools-line > span[data-line-end] {
+  visibility: hidden;
+}
+
+/* The one row of icons over the selected text, on a phone too (selectionMenu in MarkdownEditor.tsx): floating by the text, 48 dp targets on a phone. */
+.editor-selection-menu {
+  position: fixed;
+  z-index: 40;
+  display: flex;
+  flex-wrap: nowrap;
+  max-width: calc(100vw - 0.5rem);
+  gap: 0.125rem;
+  border: 1px solid var(--mo-outline-variant);
+  border-radius: 9999px;
+  background: var(--editor-menu-surface);
+  padding: 0.25rem;
+  box-shadow: var(--editor-menu-shadow);
+}
+
+.editor-selection-menu[hidden],
+.editor-selection-menu button[hidden] {
+  display: none;
+}
+
+.editor-selection-menu button {
+  display: grid;
+  width: var(--selection-button, 2.5rem);
+  height: var(--selection-button, 2.5rem);
+  place-items: center;
+  border-radius: 9999px;
+  color: var(--icon-button-standard-text, var(--mo-on-surface-variant));
+}
+
+.editor-selection-menu {
+  --selection-button: 2.5rem;
+}
+
+/* On a phone the buttons are 48 dp, centred in the one row (the rest is under "More"). */
+@media (pointer: coarse) {
+  .editor-selection-menu {
+    --selection-button: 3rem;
+    justify-content: center;
+    border-radius: 1.75rem;
+  }
+
+  .editor-selection-menu button,
+  .editor-selection-menu button[aria-haspopup='menu'] {
+    flex: none;
+    min-width: 3rem;
+    height: 3rem;
+    padding-inline: 0.25rem;
+  }
+}
+
+.editor-selection-menu button:hover,
+.editor-selection-menu button:focus-visible {
+  outline: none;
+  background: var(--mo-surface-container-high);
+  color: var(--mo-on-surface);
+}
+
+/* A button there that opens a menu (the colours): its icon with a small arrow down after it, a little wider. */
+.editor-selection-menu button[aria-haspopup='menu'] {
+  display: flex;
+  align-items: center;
+  width: auto;
+  gap: 0.125rem;
+  padding-inline: 0.5rem 0.375rem;
+}
+
+/* A tool with a menu in the top toolbar (ToolbarButton in ui.tsx) is the theme's text button, which is in the accent; it
+   rests as the other tools do, in the standard icon button's colour (never the accent: only a tool that is on has it). */
+.toolbar-menu-button,
+.toolbar-menu-button:hover {
+  color: var(--icon-button-standard-text, var(--block-text));
+}
+
+.editor-selection-menu .editor-menu-arrow {
+  transition: rotate var(--motion-spatial-fast);
+}
+
+.editor-selection-menu button[aria-expanded='true'] .editor-menu-arrow {
+  rotate: 180deg;
+}
+
+.editor-selection-menu button:disabled {
+  opacity: 0.38;
+  pointer-events: none;
+}
+
+.editor-selection-menu button[aria-pressed='true'] {
+  background: var(--mo-surface-container-high);
+  color: var(--icon-button-standard-selected-text, var(--block-accent));
+}
+
+/* Only drawn: the taps go to the card. */
+.editor-text .site-block-preview {
+  pointer-events: none;
+}
+
+/* The space a block keeps around it on the site (a price card, a panel) is the frame's here. */
+.editor-text .site-block-preview > :first-child {
+  margin-top: 0;
+}
+
+.editor-text .site-block-preview > :last-child {
+  margin-bottom: 0;
+}
+
+/* A section of a fixed page in the type of the site's pages, not that of the text. */
+.editor-text .site-block-section {
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+.editor-text .site-block-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0 0.25rem;
+  color: var(--mo-on-surface-variant);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+/* A fixed page's text as on the site (data-look, looksOf in sections.mjs): the headings of the
+   sections (SectionHeading, PageSection, the boxes on the front page and the prices page), the text
+   a section takes as its own, the front page's subtitle and introduction (home/Hero.astro) and a
+   page's introduction (PageHeader). Sizes, line heights and colours as the components' classes. */
+.editor-text .ProseMirror > [data-look] {
+  margin-block: 1rem 0;
+  max-width: none;
+}
+
+.editor-text .ProseMirror > h2[data-look] {
+  margin-block: 2.5rem 0.75rem;
+  color: var(--mo-on-surface);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+.editor-text .ProseMirror > [data-look='section'] {
+  font-size: 2.1rem;
+}
+
+.editor-text .ProseMirror > [data-look='page-section'] {
+  font-size: 2rem;
+}
+
+.editor-text .ProseMirror > h2[data-look='card-title'] {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.editor-text .ProseMirror > h2[data-look='urgent'] {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.editor-text .ProseMirror > [data-look~='section-intro'],
+.editor-text .ProseMirror > [data-look~='page-intro'] {
+  max-width: 52ch;
+  color: var(--mo-on-surface-variant);
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+.editor-text .ProseMirror > [data-look~='page-section-intro'] {
+  max-width: 52ch;
+  color: var(--mo-on-surface-variant);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+.editor-text .ProseMirror > [data-look~='about'],
+.editor-text .ProseMirror > [data-look~='large'] {
+  font-size: 1.125rem;
+  line-height: 1.625;
+}
+
+.editor-text .ProseMirror > [data-look~='about'][data-look~='rest'],
+.editor-text .ProseMirror > [data-look~='note'] {
+  color: var(--mo-on-surface-variant);
+}
+
+.editor-text .ProseMirror > [data-look~='note'] {
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+
+.editor-text .ProseMirror > [data-look~='small-note'] {
+  color: var(--mo-on-surface-variant);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.editor-text .ProseMirror > [data-look='hero-subtitle'] {
+  max-width: 30ch;
+  margin-top: 0;
+  font-size: 1.5rem;
+  line-height: 1.375;
+}
+
+.editor-text .ProseMirror > [data-look='hero-intro'] {
+  max-width: 40ch;
+  color: var(--mo-on-surface-variant);
+  font-size: 1.125rem;
+  line-height: 1.625;
+}
+
+@media (width >= theme(--breakpoint-medium)) {
+  .editor-text .ProseMirror > [data-look='section'] {
+    font-size: 3rem;
+  }
+
+  .editor-text .ProseMirror > [data-look='page-section'] {
+    font-size: 2.25rem;
+  }
+
+  .editor-text .ProseMirror > h2[data-look='card-title'] {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+
+  .editor-text .ProseMirror > [data-look='hero-subtitle'] {
+    font-size: 1.875rem;
+    line-height: 1.375;
+  }
+
+  .editor-text .ProseMirror > [data-look~='page-intro'] {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+/* A block hidden on the site: faded and grey. */
+.editor-text .site-block-hidden .site-block-preview {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+/* A text with blocks (a page, a fixed page's sections): the cards close together, with the free line
+   between two of them to write in: thin, until the cursor is in it (editor-gap-here, MarkdownEditor.tsx)
+   or the pointer over it, when it opens up and says so. */
+.editor-spaced {
+  /* The hints are the text's own colour (a section's on-colour, or the page's) at placeholder emphasis (85%, for 4.5:1 on every section colour), never a fixed grey. */
+  --editor-hint-color: color-mix(in srgb, currentColor 85%, transparent);
+}
+
+.editor-spaced .site-block {
+  margin-block: 0.25rem;
+}
+
+.editor-spaced .ProseMirror > p:has(> br:only-child) {
+  margin-block: 0;
+  border-radius: 0.5rem;
+  padding-inline: 0;
+  padding-block: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 0.5rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .editor-spaced .ProseMirror > p:has(> br:only-child) {
+    transition: line-height var(--motion-spatial-fast);
+  }
+}
+
+.editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child) {
+  line-height: 1.5rem;
+}
+
+.editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child)::before {
+  content: var(--editor-gap-text);
+  position: absolute;
+  color: var(--editor-hint-color);
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .editor-spaced .ProseMirror > p:has(> br:only-child):hover {
+    line-height: 1.5rem;
+  }
+
+  .editor-spaced .ProseMirror > p:has(> br:only-child):hover::before {
+    content: var(--editor-gap-text);
+    position: absolute;
+    color: var(--editor-hint-color);
+    pointer-events: none;
+  }
+}
+
+/* A page with no text and no block yet: one line says what to do (the Insert button is in the toolbar). */
+/* A page that opens on its H1 has the heading first, so the empty line after it counts too. */
+.editor-spaced .ProseMirror > p:only-child:has(> br:only-child)::before,
+.editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child:has(> br:only-child)::before {
+  content: var(--editor-empty-text);
+  position: absolute;
+  color: var(--editor-hint-color);
+  pointer-events: none;
+}
+
+/* The line after the H1 is a tap target of 48dp, the same height with or without text, so typing moves nothing. */
+.editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child {
+  min-height: 3rem;
+  margin-block: 0;
+  line-height: 1.5rem;
+  cursor: text;
+}
+
+/* A page that has only its H1 (the editor adds no empty line after it): the hint sits under the heading;
+   a tap on it adds the paragraph (hintTap, MarkdownEditor.tsx). */
+.editor-spaced .ProseMirror > h1:only-child::after {
+  content: var(--editor-empty-text);
+  display: block;
+  min-height: 3rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  cursor: text;
+  font-weight: 400;
+  color: var(--editor-hint-color);
+  pointer-events: none;
+}
+
+/* While a sheet or a dialog is open (shown modally, showModal), the page under it does not scroll (only the sheet does).
+   Not a <dialog> drawn open in the page, like the search view on "Dele › Tema" (NavigationRestParts.tsx). */
+html:has(dialog:modal) {
+  overflow: hidden;
+}
+
+dialog {
+  overscroll-behavior: contain;
+}
+
+/* The full-screen Preview (pagePreview.tsx): a <dialog> over the whole screen on every width, hiding the rest of the editor, with
+   its close button at the top (Material 3's full-screen dialog). */
+.editor-preview-screen {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--mo-surface);
+  color: var(--mo-on-surface);
+}
+.editor-preview-screen[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The first heading of a page's text is its title, drawn as the site draws it (.theme-title in the theme's components.css, and
+   PageHeading.astro's width): the display role, by the theme's variables, not the weight of a heading in the middle of the text. */
+.editor-text .ProseMirror > h1:first-child {
+  max-width: 22ch;
+  font-size: var(--theme-title-size);
+  line-height: var(--theme-title-leading);
+  font-weight: var(--type-display-small-weight);
+  letter-spacing: var(--type-display-small-tracking);
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .editor-text .ProseMirror > h1:first-child {
+    font-size: var(--theme-title-size-large);
+    font-weight: var(--type-display-medium-weight);
+    letter-spacing: var(--type-display-medium-tracking);
+  }
+}

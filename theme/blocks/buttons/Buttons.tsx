@@ -1,0 +1,38 @@
+// Buttons (Button.tsx in ../../ui/): the standard block "Buttons", and a site's or an app's own buttons (this site's
+// front page, the price cards, the action bar). Only the buttons: the caller lays them out (.block-buttons in a row).
+// What each shows is made by the contract (@morphemecms/cms/src/standard/buttons/view.ts: buttonsOf in the editor,
+// loadButtons on the site), its kind too. `className`: the site's own classes on each button, e.g. its width. The arrow
+// goes after the text (Button's trailingIcon), the other icons before it. `onClick`: what each button does when clicked.
+import Button from '@theme/ui/Button';
+import type { ButtonView } from '@morphemecms/cms/src/standard/buttons/view';
+
+export default function Buttons({
+  buttons,
+  className,
+  onClick,
+}: {
+  buttons: ButtonView[];
+  className?: string;
+  /** Called when a button is clicked (the navigation drawer closes). */
+  onClick?: () => void;
+}) {
+  return (
+    <>
+      {buttons.map((b, i) => (
+        <Button
+          key={i}
+          href={b.href}
+          kind={b.kind}
+          icon={b.icon !== 'arrow-right' ? b.icon : undefined}
+          trailingIcon={b.icon === 'arrow-right' ? 'arrow-right' : undefined}
+          data-open={b.open}
+          className={className}
+          aria-label={b.label}
+          onClick={onClick}
+        >
+          {b.text}
+        </Button>
+      ))}
+    </>
+  );
+}

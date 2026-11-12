@@ -1,0 +1,257 @@
+// A thin Worker in front of the static site (dist/), the same for every site: what it has of the site comes from
+// `@site/config` and `@site/worker` (the aliases in the site's wrangler.jsonc; this site's are src/site/config.ts and
+// src/site/worker.js). Everything is served from the assets, including the rules in public/_redirects. The Worker
+// only adds what static files cannot:
+// - noindex on the staging hostname (*.workers.dev). NEVER on the site's own domain.
+// - the site's redirects from its old addresses (`oldAddresses`, `{ ids, paths }`), e.g. from WordPress: files in
+//   all sizes, attachment pages and ?attachment_id= / ?p= / ?page_id= (query strings, which _redirects cannot match).
+// - redirects for pages and posts that got a new address in the editor (src/data/redirects.json,
+//   packages/editor/src/addresses.ts), followed to where they end, also after one of the redirects above or
+//   in public/_redirects, so a visitor is sent on once.
+// - the public addresses that got a new name (worker/movedAddresses.js, shipped with the CMS), to the new ones in one hop, also at
+//   the end of a chain.
+// - the own addresses of the pages that are the front page and the blog page (src/data/standard-pages.json) to / and
+//   /blog/, where they are shown, also at the end of a redirect.
+// - GitHub sign-in for the editor at /editor/ (/oauth/*, packages/editor/worker/oauth.js), kept in a cookie only the Worker reads
+//   (packages/editor/worker/session.js), and what the editor asks of GitHub with it (/api/github/*, packages/editor/worker/editor-github.js), the site's
+//   files through the cache in R2 (packages/editor/worker/files.js).
+// - what the editor asks of the app store (/api/store/catalog and /api/store/files/<oid>, packages/editor/worker/store.js), with the
+//   site's key (MORPHEME_STORE_KEY, or the one from "Connect to Morpheme", /api/store/connection, packages/editor/worker/store-connection.js, in D1)
+//   that never leaves the Worker.
+// - the addresses visitors came to that do not exist, for the editor (/api/not-found, packages/editor/worker/not-found.js).
+// - each person's dashboard on the start screen (/api/dashboard, worker/dashboard.js), kept in KV by their GitHub user id.
+// - the visitors' answers in the cookie banner, the consent log (/api/consent, packages/editor/worker/consent.js, in D1), and each hour
+//   those older than two years deleted.
+// - the app problems of the last build, for the app's page in the editor (/api/apps/problems, worker/app-problems.js).
+// - the editor's autosaved drafts in R2 when `R2 caching` is on, moved to git as the waiting version (/api/autosave, packages/editor/worker/autosave.js).
+// - whether R2 caching can be turned on in the editor: whether Cloudflare has its bucket (/api/r2, packages/editor/worker/r2-status.js).
+// - whether the account has Workers Paid, for the switch "Betalt bygning" in the editor (/api/plan, packages/editor/worker/plan-status.js).
+// - the status of GitHub and Cloudflare, for the editor's footer (/api/status, packages/editor/worker/service-status.js).
+// - the site's MCP server for assistants such as Claude, read-only (/mcp, worker/mcp.js), their OAuth sign-in with GitHub as the
+//   identity (/oauth/mcp/*, /.well-known/oauth-*, worker/mcp-oauth.js, kept in D1, worker/mcp-store.js) and the list of the
+//   connected assistants for the editor (/api/mcp/connections, worker/mcp-connections.js).
+// - the editor on its own address when EDITOR_HOST is set (packages/editor/worker/editor-host.js); noindex there too.
+// - each hour, the pages and posts that are Planlagt published once their time has come (scheduled, packages/editor/worker/publish.js).
+// - the editor's notifications on the phone, also when the editor is closed (/api/push, packages/editor/worker/push.js): each minute,
+//   whether the site has been built with a save, and an app's notifications (`notify` in its tools).
+// - the CMS's own updates (/api/cms, packages/editor/worker/cms-update.js): each hour, whether npm has a newer @morphemecms/cms to commit, and
+//   each minute, whether the update built, else it is undone.
+// - on a site that posts the CMS's releases on its blog (`releasePosts` in its config), each minute, whether npm has a new release
+//   to post (packages/editor/worker/release-post.js).
+// - a connector's MCP connection (/api/mcp-client/<app>, worker/mcp-client.js): its credentials in D1, its tools called by the Worker.
+// - the apps' own parts (src/apps/<app>/worker.js, worker/apps.js), while they are installed and not turned off: their addresses under
+//   /api/<app>/ and what they do each hour (scheduled), e.g. Cookiescanner's scan of the site's cookies, and their texts
+//   for their notifications. What the apps
+//   put in the build (dist/_apps/<app>/, packages/editor/lib/apps.mjs) is served to no one; the apps read it.
+import * as siteWorker from '@site/worker';
+import { config } from '@site/config';
+import { apps, appTexts, appWorkers, moved, oldAddresses as map, standard } from '@site/worker';
+import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
+import { handleOAuth } from './oauth.js';
+import { handleMcpOAuth } from './mcp-oauth.js';
+import { handleMcp } from './mcp.js';
+import { handleMcpConnections } from './mcp-connections.js';
+import { MOVED_PREFIXES, movedAddress } from './movedAddresses.js';
+import { editorHost } from './editor-host.js';
+import { handleNotFound, isVisit, json, recordNotFound } from './not-found.js';
+import { forgetOldConsents, handleConsent } from './consent.js';
+import { handleDashboard } from './dashboard.js';
+import { handleAppProblems } from './app-problems.js';
+import { access, mayEdit } from './session.js';
+import { handleGitHub } from './editor-github.js';
+import { handleConnection } from './store-connection.js';
+import { handleStore } from './store.js';
+import { callTool, forgetUninstalled, handleMcpClient } from './mcp-client.js';
+import { forgetProviderKeys, handleMediaProviders } from './media-providers.js';
+import { handlePlan } from './plan-status.js';
+import { handleStatus } from './service-status.js';
+import { handleR2 } from './r2-status.js';
+import { publishScheduled, SCHEDULED_LIST } from './publish.js';
+import { handleAutosave, sweepAutosaves } from './autosave.js';
+import { commitFiles, readFiles } from './github.js';
+import { handlePush, notifyAll, waitForBuilds } from './push.js';
+import { checkForUpdate, handleCms, watchUpdate } from './cms-update.js';
+import { postRelease } from './release-post.js';
+
+const STAGING = /\.workers\.dev$/i;
+// The cron in wrangler.jsonc that runs each minute.
+const EACH_MINUTE = '* * * * *';
+
+// The parts of the Worker of the apps installed and not turned off (src/data/apps.json), by the app's id. One turned off
+// answers 404 at its addresses and has no `scheduled` run.
+const active = activeOf(readAppsFile(JSON.stringify(apps)));
+const installed = Object.fromEntries(Object.entries(appWorkers).filter(([id]) => active.includes(id)));
+// The MCP servers of the connectors installed and not turned off (`mcp` in app.json, written to worker/apps.js), by the app's id. Read
+// by name from the namespace, so a site whose src/site/worker.js is older than this still builds (it has none).
+const appMcp = Object.fromEntries(Object.entries(siteWorker.appMcp ?? {}).filter(([id]) => active.includes(id)));
+// The media providers of the apps installed and not turned off (`mediaProviders` in app.json), with the hosts each lists, by the app's id.
+const appMedia = Object.fromEntries(Object.entries(siteWorker.appMedia ?? {}).filter(([id]) => active.includes(id)));
+// What an app is given, besides the request: whether its sender can save the site (signed in with GitHub), an answer
+// in JSON, the Worker's own saves to the repository (`github`, packages/editor/worker/github.js: `read` and `commit`, with the request's
+// `ctx`, so the cache in R2 is written after the answer has gone; given a request as the last argument, with its sender's
+// sign-in instead, in their name, when they can save the site: a save they asked for in the editor) and its notifications on the phone
+// (`notify(env, { type, id, text, error, to })`, packages/editor/worker/push.js: `type` one of the types in `notifications` in its
+// index.ts, `text` as written in the site's language, `to` the editor's screen it opens).
+const tools = (app, ctx) => ({
+  mayEdit,
+  json,
+  github: {
+    read: async (env, paths, as) => readFiles(env, paths, ctx, as && (await signedIn(as))),
+    commit: async (env, head, headline, files, as) => commitFiles(env, head, headline, files, ctx, as && (await signedIn(as))),
+  },
+  // A listed tool of the app's own MCP server (its `mcp` in app.json), called with the credentials the owner connected; kept in D1, never given to the app.
+  mcp: { call: (env, tool, args) => callTool(env, app, appMcp[app], tool, args) },
+  notify: (env, n) => notifyAll(env, { ...n, type: `${app}/${n.type}` }, appTexts[app]),
+});
+
+/** The sign-in of a request from someone who can save the site, for a save they asked for; else it fails. */
+async function signedIn(request) {
+  const signIn = await access(request);
+  if (!signIn?.push) throw new Error('Only someone who can save the site can save.');
+  return signIn.token;
+}
+
+/** The answer of an installed app's part of the Worker at its address (/api/<app>/…), or undefined for another one. */
+function appAnswer(request, url, env, ctx) {
+  const id = /^\/api\/([\w-]+)(?:\/|$)/.exec(url.pathname)?.[1];
+  if (!id || !(id in appWorkers)) return undefined;
+  const app = installed[id];
+  return app?.fetch ? app.fetch(request, env, ctx, tools(id, ctx)) : json({ error: 'not installed' }, 404);
+}
+
+// Where the front page and the blog page are shown, by their own addresses.
+const shownAt = (pages) => ({ [pages.front]: '/', [pages.blog]: '/blog/' });
+
+// Where an address ends after the editor's redirects (at most ten, against a loop; the editor checks
+// for them before it saves), and the front page's and the blog page's own addresses at / and /blog/.
+export function onward(target, redirects = moved, pages = standard, prefixes = MOVED_PREFIXES) {
+  let to = target;
+  for (let i = 0; i < 10 && redirects[to.split('#')[0]]; i++) to = redirects[to.split('#')[0]];
+  const [from, hash] = to.split('#');
+  // A chain that ends at an address that has a new name goes to the new one (`/blog/kategori/x/` to `/blog/tags/x/`).  // language-ok: an old public address
+  const path = movedAddress(from, prefixes) ?? from;
+  const at = shownAt(pages)[path];
+  if (at) return `${at}${hash === undefined ? '' : `#${hash}`}`;
+  return path === from ? to : `${path}${hash === undefined ? '' : `#${hash}`}`;
+}
+
+export function redirectFor(url, prefixes = MOVED_PREFIXES) {
+  // WordPress answered these on the front page only: /?attachment_id=123, /?p=123, /?page_id=123.
+  const id =
+    url.pathname === '/' && (url.searchParams.get('attachment_id') ?? url.searchParams.get('p') ?? url.searchParams.get('page_id'));
+  if (id && map.ids[id]) return onward(map.ids[id], moved, standard, prefixes);
+  const path = decoded(url.pathname);
+  const at = shownAt(standard)[path];
+  if (at) return at;
+  const target = moved[path] ?? map.paths[path];
+  if (target) return onward(target, moved, standard, prefixes);
+  // After the exact maps: an address under a renamed prefix, 301 to the new one with the query string kept.
+  // An address without the trailing slash (/blog/kategori/x) gets it here, so it is one hop and not two.  // language-ok: an old public address
+  const renamed = movedAddress(url.pathname, prefixes);
+  const slashed = renamed && !renamed.endsWith('/') && !/\.[a-z0-9]+$/i.test(renamed) ? `${renamed}/` : renamed;
+  return slashed && slashed + url.search;
+}
+
+// An address with a broken %-sign (/%E0%A4%A/) cannot be decoded; it is looked up as it is (and ends
+// on the 404 page) rather than making the Worker fail.
+function decoded(path) {
+  try {
+    return decodeURIComponent(path);
+  } catch {
+    return path;
+  }
+}
+
+// Old links without the trailing slash (/kontakt instead of /kontakt/): the assets only redirect those
+// for pages that exist, and _redirects rules only match the exact address. Look up the address with
+// the slash and send straight to where that ends, so there is one redirect and no 404.
+async function withSlash(url, request, env) {
+  if (url.pathname.endsWith('/') || /\.[a-z0-9]+$/i.test(url.pathname)) return undefined;
+  const slashed = new URL(url);
+  slashed.pathname += '/';
+  const mapped = redirectFor(slashed);
+  if (mapped) return mapped;
+  const res = await env.ASSETS.fetch(new Request(slashed, { method: 'HEAD', headers: request.headers, redirect: 'manual' }));
+  if (res.status >= 300 && res.status < 400) return onwardOf(res.headers.get('location'), url) ?? undefined;
+  return res.ok ? slashed.pathname + slashed.search : undefined;
+}
+
+// A redirect from the assets (public/_redirects) to an address the editor has sent on: straight on.
+function onwardOf(location, url) {
+  if (!location) return location;
+  const to = new URL(location, url.origin);
+  const end = to.origin === url.origin ? onward(to.pathname + to.hash) : to.pathname + to.hash;
+  return end === to.pathname + to.hash ? location : end;
+}
+
+export default {
+  async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+    // The editor on its own address: what belongs on the other one is sent there.
+    const elsewhere = editorHost(url, env, request);
+    if (elsewhere) return elsewhere;
+    // Sign-in for /editor/ first: /oauth/auth has no trailing slash and must not be redirected.
+    const oauth = url.pathname.startsWith('/oauth/') ? ((await handleMcpOAuth(request, env)) ?? (await handleOAuth(request, env))) : null;
+    // The assistants' MCP server and the discovery of its sign-in.
+    if (url.pathname === '/mcp') return handleMcp(request, env, ctx);
+    if (url.pathname.startsWith('/.well-known/oauth-'))
+      return (await handleMcpOAuth(request, env)) ?? new Response('Not found', { status: 404 });
+    if (/^\/api\/mcp\/connections(\/[\w-]+)?$/.test(url.pathname)) return handleMcpConnections(request, env);
+    if (url.pathname === '/api/not-found') return handleNotFound(request, env);
+    if (url.pathname === '/api/consent') return handleConsent(request, env);
+    if (url.pathname === '/api/dashboard') return handleDashboard(request, env);
+    if (url.pathname === '/api/apps/problems') return handleAppProblems(request, env, mayEdit);
+    if (url.pathname === '/api/autosave' || url.pathname === '/api/autosave/flush') return handleAutosave(request, env, ctx);
+    if (url.pathname === '/api/r2') return handleR2(request, env);
+    if (url.pathname === '/api/plan') return handlePlan(request, env);
+    if (url.pathname === '/api/status') return handleStatus(request, env);
+    if (url.pathname.startsWith('/api/github/')) return handleGitHub(request, env, ctx);
+    if (url.pathname === '/api/store/connection') return handleConnection(request, env, ctx);
+    if (url.pathname.startsWith('/api/store/')) return handleStore(request, env, ctx);
+    if (url.pathname.startsWith('/api/mcp-client/')) return handleMcpClient(request, env, { mcp: appMcp, access });
+    if (url.pathname === '/api/media-providers' || url.pathname.startsWith('/api/media-providers/'))
+      return handleMediaProviders(request, env, { media: appMedia, access, site: config.name });
+    if (/^\/api\/push(\/wait)?\/?$/.test(url.pathname)) return handlePush(request, env);
+    if (/^\/api\/cms(\/update|\/note-image\/.*)?\/?$/.test(url.pathname)) return handleCms(request, env, ctx);
+    const answer = appAnswer(request, url, env, ctx);
+    if (answer) return answer;
+    // The build's lists (what is Planlagt) and the apps' files (what the cookie scan visits) are the Worker's own.
+    if (url.pathname === SCHEDULED_LIST || url.pathname.startsWith('/_apps/')) return new Response('Not found', { status: 404 });
+    const target = oauth ? undefined : (redirectFor(url) ?? (await withSlash(url, request, env)));
+    let response = target
+      ? new Response(null, { status: 301, headers: { location: new URL(target, url.origin).href } })
+      : (oauth ?? (await env.ASSETS.fetch(request)));
+    const location = !target && !oauth && response.status >= 300 && response.status < 400 && response.headers.get('location');
+    const end = location && onwardOf(location, url);
+    if (end && end !== location)
+      response = new Response(null, { status: response.status, headers: { location: new URL(end, url.origin).href } });
+
+    const editor = url.hostname === env.EDITOR_HOST?.trim().toLowerCase();
+    const staging = STAGING.test(url.hostname) || editor;
+    // A visitor on the site's 404 page: the address is kept for the editor, after the answer has gone.
+    // Also on *.workers.dev, the site's address until its own domain points here; the previews of
+    // branches have no storage and keep nothing.
+    if (!editor && response.status === 404 && isVisit(request, url)) ctx.waitUntil(recordNotFound(request, url, env));
+    if (!staging) return response;
+    const staged = new Response(response.body, response);
+    staged.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    return staged;
+  },
+
+  // The crons in wrangler.jsonc: each minute, whether the site has been built with a save (packages/editor/worker/push.js), the CMS's
+  // update and a new release to post; each hour, the rest (also the answers in the consent log older than two years deleted).
+  async scheduled(controller, env, ctx) {
+    if (controller.cron === EACH_MINUTE) return ctx.waitUntil(Promise.allSettled([waitForBuilds(env), watchUpdate(env), postRelease(env)]));
+    ctx.waitUntil(
+      Promise.all([
+        publishScheduled(env),
+        sweepAutosaves(env, Date.now(), ctx).catch((e) => console.error(`Autosaves could not be swept: ${e.message}`)),
+        checkForUpdate(env),
+        forgetOldConsents(env),
+        forgetUninstalled(env, appMcp),
+        forgetProviderKeys(env, appMedia),
+        ...Object.entries(installed).map(([id, app]) => app.scheduled?.(env, ctx, tools(id, ctx))),
+      ]),
+    );
+  },
+};

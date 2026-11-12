@@ -1,0 +1,413 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+/* Material's rules sit in the last layer, fallback: a theme's own unlayered rules beat them, whatever their specificity. */
+@layer theme, base, components, utilities, fallback;
+/* The theme's UI components, as Material 3 names them (buttons, icon buttons), and the standard blocks of the editor,
+   in this site's design (their variables below). */
+@import './ui.css';
+@import './blocks.css';
+/* The theme's variables and the classes the standard theme's components use with them. */
+@import './components.css';
+
+/*
+  Material is every theme's fallback: its rules that set more than custom properties sit in @layer fallback (declared last in
+  base.css), so a theme's own unlayered rules win over them, whatever the specificity. Custom properties stay unlayered.
+
+  The standard theme's base: what every theme builds on, plain and neutral. The system's own font, a small radius on
+  panels, a light shadow, full pills on controls; the classes the standard theme's components use (.link, .prose,
+  the motion …) besides the UI components (ui.css: buttons, icon buttons, chips, snackbars). The standard theme's own look is over it, in global.css; a theme with a look of its
+  own from a design system (Material) imports only this file, so that look does not mix into its own. Another theme sets
+  its own (its styles/global.css); what it does not draw itself is drawn by the standard theme's components and blocks,
+  in its CSS.
+  Dark mode follows the system unless the visitor picks one (data-theme on <html>).
+
+  The theme's variables have two owners, told apart by their prefix. --mo-… is the contract every theme shares: the base
+  reads it and a theme sets it, and none else invents its own (a theme sets --mo-shape-large, it does not add --mo-wide).
+  --<theme>-… (--venus-glass) is a theme's own and nothing outside the theme reads it. A name with no prefix is a part's
+  variable (--card-radius, --block-gutter) or the site's data, not the contract. What is in the contract:
+  - The colours are Material 3's colour roles by their own names after the prefix (m3.material.io/styles/color/roles):
+    --mo-primary, --mo-secondary, --mo-tertiary and --mo-error, each with --mo-on-…, --mo-…-container and
+    --mo-on-…-container, and --mo-primary-fixed, --mo-primary-fixed-dim, --mo-on-primary-fixed and
+    --mo-on-primary-fixed-variant (and the same for secondary and tertiary); --mo-surface-dim, --mo-surface,
+    --mo-surface-bright and the five --mo-surface-container… ones; --mo-on-surface, --mo-on-surface-variant,
+    --mo-outline and --mo-outline-variant; --mo-inverse-surface, --mo-inverse-on-surface and --mo-inverse-primary;
+    --mo-scrim and --mo-shadow. They are colours: a shadow is never --mo-shadow (that is --mo-elevation-N-shadow). In the
+    site's data (src/data/colors.json) the keys are the same names without the prefix.
+  - An elevation level, 0 to 5, is two things a theme sets one at a time: --mo-elevation-N-color (the surface colour at the
+    level, M3's way) and --mo-elevation-N-shadow (its shadow); --mo-elevation-N-rest-shadow is the shadow a part has at rest.
+  - The corner steps (--mo-shape-…), the state layers (--mo-hover, --mo-pressed, --mo-primary-hover) and --mo-scrim-overlay.
+  The colours are not here: they are data, src/data/colors.json, which the owner changes under "Colors" in the editor.
+  Base.astro and the editor's page write them into <head> (colorsCss, packages/editor/lib/colors.ts), for
+  light mode and dark mode as below; the editor checks them to WCAG AA before they are saved
+  (colorPairs in @site/colors). Everything here uses them by name.
+*/
+:root {
+  --radius: 0.75rem;
+  /* The corners of something smaller in or beside a panel: a picture in a list, a row in a menu, an icon's square. */
+  --radius-small: 1rem;
+  --panel-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px -12px rgb(0 0 0 / 0.18);
+  /* The motion scheme's curve (blocks.css, lib/motion.ts). */
+  --ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
+
+  /* The standard blocks (blocks.css) in this design; in dark mode too, as they
+     follow the tokens above. */
+  --block-text: var(--mo-on-surface);
+  --block-muted: var(--mo-on-surface-variant);
+  --block-accent: var(--mo-primary);
+  --block-accent-hover: color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary));
+  --block-on-accent: var(--mo-on-primary);
+  --block-primary: var(--mo-primary);
+  --block-on-primary: var(--mo-on-primary);
+  --block-secondary: var(--mo-secondary);
+  --block-on-secondary: var(--mo-on-secondary);
+  --block-tertiary: var(--mo-tertiary);
+  --block-on-tertiary: var(--mo-on-tertiary);
+  --block-surface: var(--mo-surface-container-lowest);
+  --block-tint: var(--mo-surface-container-high);
+  --block-line: var(--mo-outline-variant);
+  --block-radius: var(--radius);
+  --block-radius-small: var(--radius-small);
+  --block-control-radius: 9999px;
+  --block-shadow: var(--panel-shadow);
+  --block-ease: var(--ease);
+  /* How far a carousel reaches out to the edges of a phone's screen (ui.css): Container.astro's gutter there (px-5). */
+  --carousel-bleed: 1.25rem;
+  /* The same for a chip set that scrolls (ui.css). */
+  --chip-set-bleed: 1.25rem;
+}
+@layer fallback {
+  :root {
+    color-scheme: light;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --panel-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 20px 40px -24px rgb(0 0 0 / 0.7);
+  }
+}
+
+@layer fallback {
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      color-scheme: dark;
+    }
+  }
+}
+
+:root[data-theme='dark'] {
+  --panel-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 20px 40px -24px rgb(0 0 0 / 0.7);
+}
+
+@layer fallback {
+  :root[data-theme='dark'] {
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --color-primary: var(--mo-primary);
+  --color-on-primary: var(--mo-on-primary);
+  --color-primary-container: var(--mo-primary-container);
+  --color-on-primary-container: var(--mo-on-primary-container);
+  --color-secondary: var(--mo-secondary);
+  --color-on-secondary: var(--mo-on-secondary);
+  --color-secondary-container: var(--mo-secondary-container);
+  --color-on-secondary-container: var(--mo-on-secondary-container);
+  --color-tertiary: var(--mo-tertiary);
+  --color-on-tertiary: var(--mo-on-tertiary);
+  --color-tertiary-container: var(--mo-tertiary-container);
+  --color-on-tertiary-container: var(--mo-on-tertiary-container);
+  --color-error: var(--mo-error);
+  --color-on-error: var(--mo-on-error);
+  --color-error-container: var(--mo-error-container);
+  --color-on-error-container: var(--mo-on-error-container);
+  --color-primary-fixed: var(--mo-primary-fixed);
+  --color-primary-fixed-dim: var(--mo-primary-fixed-dim);
+  --color-on-primary-fixed: var(--mo-on-primary-fixed);
+  --color-on-primary-fixed-variant: var(--mo-on-primary-fixed-variant);
+  --color-secondary-fixed: var(--mo-secondary-fixed);
+  --color-secondary-fixed-dim: var(--mo-secondary-fixed-dim);
+  --color-on-secondary-fixed: var(--mo-on-secondary-fixed);
+  --color-on-secondary-fixed-variant: var(--mo-on-secondary-fixed-variant);
+  --color-tertiary-fixed: var(--mo-tertiary-fixed);
+  --color-tertiary-fixed-dim: var(--mo-tertiary-fixed-dim);
+  --color-on-tertiary-fixed: var(--mo-on-tertiary-fixed);
+  --color-on-tertiary-fixed-variant: var(--mo-on-tertiary-fixed-variant);
+  --color-surface-dim: var(--mo-surface-dim);
+  --color-surface: var(--mo-surface);
+  --color-surface-bright: var(--mo-surface-bright);
+  --color-surface-container-lowest: var(--mo-surface-container-lowest);
+  --color-surface-container-low: var(--mo-surface-container-low);
+  --color-surface-container: var(--mo-surface-container);
+  --color-surface-container-high: var(--mo-surface-container-high);
+  --color-surface-container-highest: var(--mo-surface-container-highest);
+  --color-on-surface: var(--mo-on-surface);
+  --color-on-surface-variant: var(--mo-on-surface-variant);
+  --color-outline: var(--mo-outline);
+  --color-outline-variant: var(--mo-outline-variant);
+  --color-inverse-surface: var(--mo-inverse-surface);
+  --color-inverse-on-surface: var(--mo-inverse-on-surface);
+  --color-inverse-primary: var(--mo-inverse-primary);
+  --color-scrim: var(--mo-scrim);
+  --color-shadow: var(--mo-shadow);
+  --radius-panel: var(--radius);
+  --radius-panel-small: var(--radius-small);
+  --shadow-soft: var(--panel-shadow);
+  --ease-soft: var(--ease);
+}
+
+/* Material 3's breakpoints (m3.material.io/foundations/layout/breakpoints): Tailwind's medium:, expanded:, large: and
+   extra-large: (and max-…:), and theme(--breakpoint-…) in a @media; the same as lib/breakpoints.mjs for scripts. `static`
+   puts them on :root of every page, so the editor's Preview reads the breakpoints the site has (previewBreakpoints.ts). */
+@theme static {
+  --breakpoint-*: initial;
+  --breakpoint-medium: 37.5rem;
+  --breakpoint-expanded: 52.5rem;
+  --breakpoint-large: 75rem;
+  --breakpoint-extra-large: 100rem;
+}
+
+/* z-index scale (documented, no ad-hoc values): action bar 30, header 40, cookie banner 42 (under the
+   open menu, which must stay usable), menu 45, skip link 50 */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5.5rem;
+  }
+  body {
+    background: var(--mo-surface);
+    color: var(--mo-on-surface);
+    font-family: var(--font-sans);
+    font-size: var(--type-body-large-size);
+    line-height: var(--type-body-large-line-height);
+    font-weight: var(--type-body-large-weight);
+    letter-spacing: var(--type-body-large-tracking);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--mo-primary);
+    color: var(--mo-on-primary);
+  }
+  :focus-visible {
+    outline: 2px solid var(--mo-primary);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    font-weight: var(--type-headline-large-weight);
+    letter-spacing: var(--type-headline-large-tracking);
+  }
+  p {
+    text-wrap: pretty;
+  }
+  /* Grid children may contain horizontal scrollers; never let them widen the track. */
+  .grid > * {
+    min-width: 0;
+  }
+}
+
+@layer components {
+  .link {
+    color: var(--mo-primary);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+  }
+  .link:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
+/* Long-form text (migrated pages and blog posts). */
+.prose {
+  --tw-prose-body: var(--mo-on-surface);
+  --tw-prose-headings: var(--mo-on-surface);
+  --tw-prose-lead: var(--mo-on-surface-variant);
+  --tw-prose-links: var(--mo-primary);
+  --tw-prose-bold: var(--mo-on-surface);
+  --tw-prose-counters: var(--mo-on-surface-variant);
+  --tw-prose-bullets: var(--mo-primary);
+  --tw-prose-hr: var(--mo-outline-variant);
+  --tw-prose-quotes: var(--mo-on-surface);
+  --tw-prose-quote-borders: var(--mo-primary);
+  --tw-prose-captions: var(--mo-on-surface-variant);
+  --tw-prose-th-borders: var(--mo-outline-variant);
+  --tw-prose-td-borders: var(--mo-outline-variant);
+  --tw-prose-code: var(--mo-on-surface);
+}
+@layer fallback {
+  .prose {
+    font-size: var(--type-body-medium-size);
+    line-height: var(--type-body-medium-line-height);
+    font-weight: var(--type-body-medium-weight);
+    letter-spacing: var(--type-body-medium-tracking);
+  }
+  /* A blog post's lead: its first paragraph, one step larger than the text (the lead tokens, ui.css: the title large's
+     unless a theme sets them). */
+  .prose.post-lead {
+    font-size: var(--type-lead-size);
+    line-height: var(--type-lead-line-height);
+    font-weight: var(--type-lead-weight);
+    letter-spacing: var(--type-lead-tracking);
+  }
+  /* The text right after the lead (no picture between): the space the prose puts between paragraphs (1.25em), not the
+   larger space of a text under a picture. Unlayered on purpose: it must beat the mt-10 / medium:mt-14 utilities (a layer). */
+  .prose.post-lead + .prose {
+    margin-top: 1.25em;
+  }
+  /* The text's headings: a headline, a title under it and a smaller title under that (the type scale, ui.css). */
+  .prose :where(h2) {
+    font-size: var(--type-headline-medium-size);
+    line-height: var(--type-headline-medium-line-height);
+    font-weight: var(--type-headline-medium-weight);
+    letter-spacing: var(--type-headline-medium-tracking);
+  }
+  .prose :where(h3) {
+    font-size: var(--type-title-large-size);
+    line-height: var(--type-title-large-line-height);
+    font-weight: var(--type-title-large-weight);
+    letter-spacing: var(--type-title-large-tracking);
+  }
+  .prose :where(h4) {
+    font-size: var(--type-title-medium-size);
+    line-height: var(--type-title-medium-line-height);
+    font-weight: var(--type-title-medium-weight);
+    letter-spacing: var(--type-title-medium-tracking);
+  }
+  /* Code in a line (cookie names in the privacy policy): on a tint, without the plugin's backticks. */
+  .prose :where(:not(pre) > code):not(:where(.not-prose code)) {
+    background: var(--mo-surface-container-high);
+    border-radius: 0.3em;
+    padding: 0.1em 0.35em;
+    font-weight: 500;
+  }
+  .prose :where(:not(pre) > code):not(:where(.not-prose code))::before,
+  .prose :where(:not(pre) > code):not(:where(.not-prose code))::after {
+    content: none;
+  }
+  /* Not the links of a block in the text (not-prose): their look is the block's. */
+  .prose :where(a):not(:where(.not-prose a)) {
+    font-weight: 500;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+  /* Pictures in the text; not those in a block of the site in it (not-prose, RichText.astro). */
+  .prose :where(img):not(:where(.not-prose img)) {
+    border-radius: var(--radius);
+    width: 100%;
+    height: auto;
+  }
+  /* A picture in the text cut to a format in the editor (packages/editor/lib/crop.mjs): the box is the format, the
+   picture in it as large and as far moved as the part chosen. */
+  .picture-crop {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius);
+    margin-block: 2em;
+  }
+  .picture-crop > img {
+    position: absolute;
+    inset: 0 auto auto 0;
+    max-width: none;
+    height: auto;
+    margin: 0;
+    border-radius: 0;
+  }
+  /* Video embeds (an embed that needs another size, an app's calendar, sets its own). */
+  .prose :where(iframe) {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    border: 0;
+    border-radius: var(--radius);
+    margin-block: 2em;
+  }
+
+  /* Motion.
+   [data-reveal]: sections fade up once when scrolled into view (packages/editor/theme/scripts/motion.ts).
+   The top of a page stands still from the first paint; from another page of the site it fades in (components.css).
+   Off for visitors who prefer reduced motion, and with the calm motion scheme ("Motion", data-motion-scheme). */
+  @media (prefers-reduced-motion: no-preference) {
+    .js:not([data-motion-scheme='calm']) [data-reveal] {
+      opacity: 0;
+    }
+  }
+
+  /* The site's logo (public/logo.svg), colored by background-color via a mask. */
+  .logo-mark {
+    display: inline-block;
+    -webkit-mask: url('/logo.svg') center / contain no-repeat;
+    mask: url('/logo.svg') center / contain no-repeat;
+  }
+
+  /* A block the theme places outside the text (Block.astro in EndBlock.astro and on the prices page): its
+   place gives the space around it, not the text's (.block-in-text). */
+  .block-place > .block-in-text {
+    margin-block: 0;
+  }
+  /* The heading of a block placed outside the text (a front-page section): as the theme's other section headings
+   (SectionHeading.tsx), not the text's; with a label or a subheading (.block-head, blocks.css) the space under the
+   whole head. */
+  .block-place > h2,
+  .block-place > .block-head {
+    margin-block: 0 2rem;
+  }
+  .block-place > h2,
+  .block-place > .block-head > h2 {
+    font-size: var(--type-headline-large-size);
+    line-height: var(--type-headline-large-line-height);
+    font-weight: var(--type-headline-large-weight);
+    letter-spacing: var(--type-headline-large-tracking);
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .block-place > h2,
+    .block-place > .block-head > h2 {
+      font-size: var(--type-display-medium-size);
+      line-height: var(--type-display-medium-line-height);
+      font-weight: var(--type-display-medium-weight);
+      letter-spacing: var(--type-display-medium-tracking);
+    }
+  }
+  /* Cards placed in the page's full width (a front-page section, PageBlock.astro): three in a row on a computer, as
+   there is room for (in the text, two). */
+  @media (width >= theme(--breakpoint-expanded)) {
+    .block-place .block-cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* The mark before the name on a testimonial (the standard block's card): a small dot in the accent, which the standard
+   theme's own look (global.css) makes an avatar with the initial. Another mark (e.g. a logo) is that
+   theme's own (its global.css), not the standard theme's. */
+  .block-testimonial-mark {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background-color: var(--mo-primary);
+  }
+
+  /* Boxes side by side ("Links", an app's boxes): the site's panels (outlined cards, ui.css, without a shadow), with
+   more room on a computer and the heading of a section in it. */
+  .block-panels .block-panel-title {
+    font-size: var(--type-headline-small-size);
+    line-height: var(--type-headline-small-line-height);
+    font-weight: var(--type-headline-small-weight);
+    letter-spacing: var(--type-headline-small-tracking);
+  }
+}
+@media (width >= theme(--breakpoint-medium)) {
+  .block-panels > .block-panel {
+    --card-padding: 2rem;
+  }
+}

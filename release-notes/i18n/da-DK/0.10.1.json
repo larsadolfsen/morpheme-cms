@@ -1,0 +1,10 @@
+{
+  "version": "0.10.1",
+  "notes": [
+    {
+      "id": "open-website-start-screen",
+      "kind": "line",
+      "text": "På startskærmen viser den øverste bjælke Åbn hjemmesiden i stedet for kontoikonet"
+    }
+  ]
+}

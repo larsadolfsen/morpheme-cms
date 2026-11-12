@@ -1,0 +1,23 @@
+---
+// The site's logo (public/logo.svg, "Tema" › "Logo og ikon") + its name and role ("Virksomheden"), in the theme's
+// variables (--theme-logo-*, styles/components.css).
+// The mark is a CSS mask over public/logo.svg, so it takes the theme's accent color
+// and the 20 KB file is downloaded once and cached.
+import LogoMark from '@theme/components/LogoMark.astro';
+import { site } from '@morphemecms/cms/site/site';
+
+interface Props {
+  size?: 'sm' | 'md';
+}
+const { size = 'md' } = Astro.props;
+---
+
+<span class="flex items-center gap-2.5">
+  <span class="theme-logo-tile">
+    <LogoMark class:list={['theme-logo-mark', size === 'sm' && 'theme-logo-mark-small']} />
+  </span>
+  <span class="leading-tight">
+    <span class="theme-logo-name block tracking-tight">{site.name}</span>
+    <span class="theme-logo-role type-body-small text-on-surface-variant">{site.role}</span>
+  </span>
+</span>

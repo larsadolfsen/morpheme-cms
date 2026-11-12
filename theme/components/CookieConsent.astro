@@ -1,0 +1,121 @@
+---
+// Cookie banner: asks about each category of cookies the apps' tags set (consentCategories in packages/editor/site/consent.ts:
+// preferences, statistics, marketing, targeting), so a yes to one is not a yes to another, before those tags are loaded
+// (afterConsent in src/scripts/tracking.ts). "Yes, thanks" says yes to all of them and "No, thanks" no, equally easy; "Advanced"
+// shows each category with what it is for and a box to tick (the theme's Checkbox), and "Save choices" saves what is
+// ticked. The necessary cookies are shown too, always on. "Cookie settings" in the footer opens it again, with the
+// categories, the visitor's answer and the id of their answers in the consent log (packages/editor/worker/consent.js), and so does
+// ?cookiebanner in the address (the editor's "View on the website"). It asks again when it
+// asks about a category the visitor has not answered.
+// The texts are in src/data/cookies.json, which the owner edits in the editor ("Settings" › "Privacy" ›
+// "Cookie banner"); "Read more" goes to the cookie policy ("Default pages", cookiesHref in packages/editor/site/standardPages.ts).
+// Its `enabled` is read by Base.astro: switched off, neither the banner nor this script (and so no
+// Google tag) is on the site.
+import type { CookieCategory } from '@morphemecms/cms/lib/cookieCategories.mjs';
+import { buttonClass } from '@theme/ui/Button';
+import Checkbox from '@theme/ui/Checkbox';
+import { dialogClass } from '@theme/ui/Dialog';
+import cookies from '@data/cookies.json';
+import { cookiesHref } from '@morphemecms/cms/site/standardPages';
+import { consentCategories } from '../../site/consent';
+import { siteT } from '@morphemecms/cms/src/i18n';
+
+const more = await cookiesHref();
+// Each category with its name and what it is for.
+const category = (id: CookieCategory) => ({ id, label: cookies[id], text: cookies[`${id}Text`] });
+const choices = consentCategories.map(category);
+const necessary = category('necessary');
+---
+
+<div
+  id="cookie-consent"
+  role="region"
+  aria-label={siteT.theme.cookies}
+  hidden
+  class:list={[
+    dialogClass,
+    'fixed inset-x-3 bottom-3 z-[42] max-h-[calc(100dvh-1.5rem)] max-w-md overflow-y-auto p-5 medium:inset-x-auto medium:bottom-6 medium:left-6 medium:p-6',
+  ]}
+  style="margin-bottom: env(safe-area-inset-bottom)"
+>
+  <p class="type-title-large">{cookies.heading}</p>
+  <p class="mt-2 type-body-medium text-on-surface-variant">
+    {cookies.text}{' '}
+    <a href={more} class="text-primary underline underline-offset-4">
+      {cookies.more}
+    </a>
+  </p>
+  <fieldset data-choices hidden class="mt-4 space-y-3">
+    <legend class="sr-only">{cookies.choose}</legend>
+    <Checkbox label={necessary.label} supporting={necessary.text} checked disabled />
+    {choices.map((c) => (
+      <Checkbox label={c.label} supporting={c.text} name="consent" value={c.id} />
+    ))}
+  </fieldset>
+  <div class="mt-4 grid grid-cols-2 gap-2.5">
+    <button type="button" data-consent="denied" class={buttonClass('outlined')}>
+      {cookies.no}
+    </button>
+    <button type="button" data-consent="granted" class={buttonClass('outlined')}>
+      {cookies.yes}
+    </button>
+  </div>
+  <button type="button" data-consent="choose" class="link mt-3 type-body-medium">
+    {cookies.choose}
+  </button>
+  <button type="button" data-consent="save" hidden class={`${buttonClass('outlined')} mt-2.5 w-full`}>
+    {cookies.save}
+  </button>
+  <p data-consent-id hidden class="type-body-small mt-3 break-all text-on-surface-variant">
+    {cookies.consentId}: <span></span>
+  </p>
+</div>
+
+<script>
+  import type { ConsentCategory } from '@morphemecms/cms/lib/cookieCategories.mjs';
+  import { choose, consentId, storedConsent } from '../../site/tracking.client';
+
+  const banner = document.getElementById('cookie-consent');
+  if (banner) {
+    const boxes = [...banner.querySelectorAll<HTMLInputElement>('input[name="consent"]')];
+    const choices = banner.querySelector<HTMLElement>('[data-choices]')!;
+    const button = (what: string) => banner.querySelector<HTMLButtonElement>(`[data-consent="${what}"]`)!;
+    const category = (box: HTMLInputElement) => box.value as ConsentCategory;
+
+    // Shows the banner, with the categories (`choosing`) ticked as the visitor answered last.
+    const open = (choosing: boolean) => {
+      const stored = storedConsent();
+      for (const box of boxes) box.checked = stored?.[category(box)] === true;
+      choices.hidden = !choosing;
+      // The id of the visitor's answers in the consent log, once they have answered.
+      const id = consentId();
+      const idLine = banner.querySelector<HTMLElement>('[data-consent-id]')!;
+      idLine.hidden = !id;
+      idLine.querySelector('span')!.textContent = id ?? '';
+      button('choose').hidden = choosing;
+      button('save').hidden = !choosing;
+      banner.hidden = false;
+    };
+    const answer = (yes: (box: HTMLInputElement) => boolean) => {
+      banner.hidden = true;
+      choose(Object.fromEntries(boxes.map((box) => [category(box), yes(box)])));
+    };
+
+    const stored = storedConsent();
+    if (!stored || boxes.some((box) => stored[category(box)] === undefined) || new URLSearchParams(location.search).has('cookiebanner'))
+      open(false);
+    button('granted').addEventListener('click', () => answer(() => true));
+    button('denied').addEventListener('click', () => answer(() => false));
+    button('save').addEventListener('click', () => answer((box) => box.checked));
+    button('choose').addEventListener('click', () => {
+      open(true);
+      boxes[0]?.focus();
+    });
+    document.querySelectorAll('[data-cookie-settings]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        open(!!storedConsent());
+        (storedConsent() ? boxes[0] : button('denied'))?.focus();
+      }),
+    );
+  }
+</script>

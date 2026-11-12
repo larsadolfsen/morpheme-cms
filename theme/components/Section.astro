@@ -1,0 +1,36 @@
+---
+// A front-page section: container, spacing above, reveal on scroll and an optional heading + intro; with a `color`
+// the content sits in a panel (.text-section-<color>, blocks.css) inside the container, none without one.
+import Container from '@theme/components/Container.astro';
+import SectionHeading from '@theme/components/SectionHeading';
+import Inline from '@theme/components/Inline.astro';
+
+interface Props {
+  title?: string;
+  intro?: string;
+  class?: string;
+  /** Id for the heading; the section is then labelled by it (aria-labelledby). */
+  id?: string;
+  /** The colour of the panel behind the section (`sectionColor` from the front page's heading, as in a page's text-section). */
+  color?: string;
+}
+const { title, intro, class: className, id, color } = Astro.props;
+const Panel = color ? 'div' : Fragment;
+const panel = color ? { class: `text-section text-section-${color} my-0` } : {};
+---
+
+<Container
+  class:list={['pt-(--theme-section-space) medium:pt-(--theme-section-space-large)', className]}
+  aria-labelledby={title && id ? id : undefined}
+  data-reveal
+>
+  <Panel {...panel}>
+    {title && <SectionHeading id={id} text={title} />}
+    {intro && (
+      <p class="type-body-large mt-3 max-w-[52ch] text-on-surface-variant">
+        <Inline text={intro} />
+      </p>
+    )}
+    <slot />
+  </Panel>
+</Container>

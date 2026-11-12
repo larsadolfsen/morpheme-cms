@@ -1,0 +1,24 @@
+---
+// One block by its type, outside the text of a page: for a theme that shows a block in a place of its own
+// (a fixed page's section "Book an appointment", the one at the end of a page), as RichText.astro shows it in the
+// text. The theme only places it; the block is the standard one's or the app's (sites.ts), so the theme
+// never imports from an app. Nothing is shown for a type no block has.
+import { blockSites } from './sites';
+
+interface Props {
+  type: string;
+  /** The block's fields, as in its line in the text. */
+  props?: Record<string, unknown>;
+  /** Its shared texts, when the block takes them as RichText.astro gives them (blockTexts). */
+  texts?: Record<string, unknown>;
+  /** The page's address, and whether it is a new version, for a block that needs them (PageLayout.astro's column). */
+  path?: string;
+  preview?: boolean;
+  /** The page's text as HTML, for a block drawn beside it. */
+  html?: string;
+}
+const { type, props = {}, texts, path, preview, html } = Astro.props;
+const Site = blockSites[type];
+---
+
+{Site && <Site type={type} props={props} path={path} preview={preview} texts={texts} html={html} />}

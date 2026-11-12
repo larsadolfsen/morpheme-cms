@@ -1,0 +1,74 @@
+---
+// The action bar at the bottom of a phone's screen ("Content" › "Promotion", the kind "Action bar", stored as
+// `bookingbar`, packages/editor/site/popups.ts): the first one that is on and shown on this page, with its one or two
+// items, each a button (the first filled, a second with a line) or a text: a list row of two lines, its heading over
+// its text (the theme's List and ListItem, .theme-action-bar-text: beside the button, in the room it leaves; one button alone takes the whole width, two share it, styles/components.css). Each button goes
+// where a button of "Buttons" can, and is drawn by the same component (Buttons.tsx, with `bar`): "Book an appointment" opens
+// what books on the page (`data-open="booking"`: an app's booking sheet) or goes to the booking page, "Call" calls, "Open
+// promotion" opens a pop-up or an app's booking sheet, and a page is a link. A standard bottom
+// sheet (ui/BottomSheet.tsx: fixed at the bottom, its surface, top corners and shadow, without handle, one state,
+// .theme-action-bar in styles/components.css) with the theme's docked toolbar in it (toolbarClass, ui/Toolbar.tsx, the
+// row .theme-action-bar-row, without a surface of its own) and its buttons (ui/Button.tsx); only the first bar on a page is
+// shown, and it moves away while the buttons at the top of the front page are on screen (data-action-bar, the script in Base.astro). Not on a page one of its buttons goes to (the booking
+// page for "Book an appointment") or the thank-you page.
+import Buttons from '@theme/blocks/buttons/Buttons';
+import BottomSheet from '@theme/ui/BottomSheet';
+import List, { ListItem } from '@theme/ui/List';
+import { toolbarClass } from '@theme/ui/Toolbar';
+import { loadButtons } from '@morphemecms/cms/src/standard/buttons/load';
+import type { Button } from '@morphemecms/cms/src/standard/buttons/fields';
+import { popupsAt } from '@morphemecms/cms/site/popups';
+import { site } from '@morphemecms/cms/site/site';
+import { siteT } from '@morphemecms/cms/src/i18n';
+
+const path = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+// An item of the bar: a button, or a text (`type`; without one, a button).
+type Item = Button & { type?: string; heading?: string; text?: string };
+const isText = (b: Item) => b.type === 'text';
+const goesHere = (b: Item) => !isText(b) && (b.to === 'page' ? b.href === path : b.to === 'booking' && path.startsWith(site.bookingPath));
+const bar = site.thanks.includes(path)
+  ? undefined
+  : (await popupsAt(path)).find((p) => p.type === 'bookingbar' && !((p.data.buttons ?? []) as Item[]).some(goesHere));
+const items = ((bar?.data.buttons ?? []) as Item[]).slice(0, 2);
+// The first button filled, a second with a line.
+const first = items.findIndex((b) => !isText(b));
+// Each in its place: a text, or a button (none when what it opens is gone, loadButtons).
+const shown = await Promise.all(
+  items.map(async (b, i) =>
+    isText(b)
+      ? { heading: b.heading?.trim() ?? '', text: b.text?.trim() || undefined }
+      : {
+          button: (
+            await loadButtons(
+              [{ label: b.label, to: b.to, href: b.href, open: b.open, kind: i === first ? 'filled' : 'outlined' }],
+              undefined,
+              { bar: true },
+            )
+          )[0],
+        },
+  ),
+);
+---
+
+{shown.some((s) => s.heading || s.button) && (
+  <BottomSheet
+    kind="standard"
+    dragHandle={false}
+    states={['expanded']}
+    label={siteT.theme.actions}
+    className="theme-action-bar"
+    data-action-bar=""
+  >
+    <div class={`${toolbarClass()} theme-action-bar-row`} role="toolbar" aria-label={siteT.theme.actions}>
+      {shown.map((s) =>
+        s.button ? (
+          <Buttons buttons={[s.button]} />
+        ) : s.heading ? (
+          <List dividers="none" className="theme-action-bar-text">
+            <ListItem headline={s.heading} supporting={s.text} />
+          </List>
+        ) : null,
+      )}
+    </div>
+  </BottomSheet>
+)}

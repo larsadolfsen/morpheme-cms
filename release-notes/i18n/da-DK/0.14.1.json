@@ -1,0 +1,16 @@
+{
+  "version": "0.14.1",
+  "date": "2026-11-07",
+  "notes": [
+    {
+      "id": "drawer-back-changes-screen",
+      "kind": "line",
+      "text": "Swiper du tilbage på en telefon, mens menuen er åben, lukker menuen, og du kommer til skærmen før"
+    },
+    {
+      "id": "notes-from-package",
+      "kind": "line",
+      "text": "Nyheder som disse vises nu, lige når du har opdateret"
+    }
+  ]
+}
