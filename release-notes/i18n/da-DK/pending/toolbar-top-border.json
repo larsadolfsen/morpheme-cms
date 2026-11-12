@@ -1,5 +1,6 @@
 {
   "id": "toolbar-top-border",
-  "kind": "line",
-  "text": "Tekstværktøjslinjen har en kant foroven, så den ser lukket ud på en telefon"
+  "kind": "paragraph",
+  "title": "Se tekstværktøjslinjen som en lukket boks",
+  "text": "Tekstværktøjslinjen har nu en kant foroven, så den ikke længere ser åben ud foroven på en telefon. Åbn en side eller et indlæg for at se den."
 }

@@ -1,5 +1,6 @@
 {
   "id": "toolbar-top-border",
-  "kind": "line",
-  "text": "The text toolbar has a border on its top, so it looks closed on a phone"
+  "kind": "paragraph",
+  "title": "See the text toolbar as a closed box",
+  "text": "The text toolbar now has a border on its top, so it no longer looks open above on a phone. Open any page or post to see it."
 }
