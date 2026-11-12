@@ -48,6 +48,7 @@ const textOf = Object.fromEntries(
     .flatMap((c) => c.files)
     .map((f) => [f.file, f.fields.find((x) => x.type === 'blocks')]),
 );
+const { migrateMarkdown } = await import('@morphemecms/cms/lib/migrate-content.mjs');
 const { splitFrontmatter, writeFields } = await import('@morphemecms/cms/src/frontmatter.mjs');
 const { STANDARD_TEMPLATES, templateWritten } = await import('@morphemecms/cms/lib/page-template.mjs');
 
@@ -66,6 +67,9 @@ const processor = await createMarkdownProcessor({ remarkPlugins: [remarkBannerSe
 const render = async (md) => (await processor.render(md)).code.replace(/\s+/g, ' ').trim();
 
 let failed = 0;
+// Files that still use blocks from before an update (lib/migrate-content.mjs): checked as `morpheme migrate` would write them, and
+// listed at the end. The site's build runs on Cloudflare, which cannot commit, so they must not stop it.
+const unmigrated = [];
 // On a page the first heading is the H1 by itself (src/firstHeading.mjs): after a change to the text, and only then.
 const { firstHeading } = await import('@morphemecms/cms/src/firstHeading.mjs');
 const headingLevelsOf = (view) => {
@@ -178,7 +182,15 @@ for (const file of files) {
     console.log(`\n✗ ${file}\n  before: ${before.slice(0, 300)}\n  after:  ${after.slice(0, 300)}`);
     continue;
   }
-  const { yaml, body } = splitFrontmatter(readFileSync(file, 'utf8'));
+  const { yaml, body: written } = splitFrontmatter(readFileSync(file, 'utf8'));
+  const body = migrateMarkdown(written);
+  if (body !== written) unmigrated.push(file);
+  // The migration is the same when it is run again.
+  if (migrateMarkdown(body) !== body) {
+    failed++;
+    console.log(`\n✗ ${file}\n  the migration of blocks from before is not the same when it is run again`);
+    continue;
+  }
   if (writeFields(yaml, {}) !== yaml) {
     failed++;
     console.log(`\n✗ ${file}\n  front matter is not written back unchanged`);
@@ -227,5 +239,9 @@ for (const file of files) {
     `\n✗ ${file}\n  before: …${before.slice(Math.max(0, i - 80), i + 120)}\n  after:  …${after.slice(Math.max(0, i - 80), i + 120)}`,
   );
 }
+if (unmigrated.length)
+  console.log(
+    `\n! ${unmigrated.length} file(s) use blocks from before this version; the site shows them as the new blocks, and the editor writes the new blocks when a page is saved. Run \`npx morpheme migrate\` and commit the files:\n${unmigrated.map((f) => `  ${f}`).join('\n')}`,
+  );
 console.log(`\n${files.length - failed} of ${files.length} files give the same page after a save in the editor.`);
 process.exit(failed ? 1 : 0);
