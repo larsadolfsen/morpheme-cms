@@ -32,8 +32,10 @@ Own pull request after #413; it changes what a site shows, so it needs a release
 
 ## Order of the rest
 
-1. Points with icon, Steps, Checklist (one pull request, the shape of the List).
-2. Segmented list and Questions and answers (check that "Rows from" shows the read-only list and is not typed).
+0. Correction (checked in the code): Points with icon is a List now (`FORMER.points` in `lib/blocks.mjs`) and Checklist is a check list written
+   in the text (`lib/remark-checklist.mjs`, `former: true`), so neither is built. The spec's inventory of them is out of date.
+1. Steps (own plan: `2026-11-12-inline-steps.md`).
+2. Segmented list (the next block, chosen 2026-11-12) and Questions and answers (check that "Rows from" shows the read-only list and is not typed).
 3. Price cards (nested features) and Buttons (the label typed on the button).
 4. Links (two levels: `Add group`, `Add page`).
 5. Notice and Video (the `until` date stays in the sheet).
