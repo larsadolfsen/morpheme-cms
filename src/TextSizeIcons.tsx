@@ -6,6 +6,7 @@ import type { Icon } from '@phosphor-icons/react';
 import large from './icons/text-t-large.svg?raw';
 import medium from './icons/text-t-medium.svg?raw';
 import small from './icons/text-t-small.svg?raw';
+import plainH from './icons/text-h-plain.svg?raw';
 
 const insideOf = (file: string) => file.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
 
@@ -26,3 +27,5 @@ const fromFile = (file: string) =>
 export const TextLargeIcon = fromFile(large);
 export const TextMediumIcon = fromFile(medium);
 export const TextSmallIcon = fromFile(small);
+/** A plain capital H, the general icon of the headings (no level), in the same stroke. */
+export const TextHPlainIcon = fromFile(plainH);

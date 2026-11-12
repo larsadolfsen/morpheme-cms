@@ -36,7 +36,7 @@ test('in a heading Text style is generic, never a body style, and List is generi
   }
 });
 
-// The floating row and the top toolbar draw each style's icon from one table (KIND_ICONS in MarkdownEditor.tsx), so a style
+// The "More" sheet and the top toolbar draw each style's icon from one table (KIND_ICONS in MarkdownEditor.tsx), so a style
 // never has two icons, and every style of STYLE_KINDS has one.
 test('both toolbars take each text style icon from the same table', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
@@ -48,7 +48,6 @@ test('both toolbars take each text style icon from the same table', () => {
   );
   assert.equal(new Set(names.map((m) => m[2])).size, STYLE_KINDS.length, 'each style has its own icon');
   for (const [, name] of names) {
-    assert.match(source, new RegExp(`name: '${name}', icon: KIND_ICONS\\.${name}\\.raw`), `the floating row draws ${name} from the table`);
     assert.match(
       source,
       new RegExp(`icon: KIND_ICONS\\.${name}\\.node, action: \\(\\) => setKind\\('${name}'\\)`),
@@ -58,11 +57,10 @@ test('both toolbars take each text style icon from the same table', () => {
 });
 
 // One order everywhere: the body styles from small to large, then Label and the quote, then the lists (the sheet, the top toolbar's
-// menu, the floating row's menu and button, STYLE_KINDS and KIND_ICONS).
+// menu, STYLE_KINDS and KIND_ICONS).
 test('every list of the text styles is in the order of STYLE_KINDS', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
   const order = (re) => [...source.matchAll(re)].map((m) => m[1]);
-  assert.deepEqual(order(/^ {8}\{ name: '(\w+)', icon: KIND_ICONS\.\w+\.raw/gm), STYLE_KINDS, 'the floating row');
   assert.deepEqual(
     order(/^ {4}\{ label: [\w.]+, icon: KIND_ICONS\.\w+\.node, action: \(\) => setKind\('(\w+)'\)/gm),
     STYLE_KINDS,
@@ -96,12 +94,8 @@ test('the body icons are one T at three sizes on one baseline', () => {
 test('Text style and List are two buttons that name their choice', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
   assert.match(source, /list: \{ raw: bulletIcon, node: ListBullets \}/, 'the list button shows the bullet list icon');
-  assert.match(
-    source,
-    /groupFace\(\s*textKinds\.find\(\(\{ name \}\) => name === kind\)!,\s*t\.text\.listIs,?\s*\)/,
-    'the floating row: "List: …"',
-  );
-  assert.match(source, /action: \(button\) => kinds\(button, 'list'\)/, 'the floating row has a List button');
+  assert.match(source, /<SheetGroupTitle>\{title\}<\/SheetGroupTitle>/, 'the More sheet names Text style and List');
+  assert.match(source, /\[t\.text\.list, all\.filter/, 'the More sheet has the lists');
   assert.match(source, /group === 'list'\s*\? \[GENERIC_ICONS\.list\.node, t\.text\.list, t\.text\.listIs\]/, 'the top toolbar: "List: …"');
   for (const locale of ['en-US', 'da-DK']) {
     const text = readFileSync(new URL(`./i18n/${locale}/text.ts`, import.meta.url), 'utf8');
@@ -111,24 +105,17 @@ test('Text style and List are two buttons that name their choice', () => {
   assert.match(readFileSync(new URL('./i18n/en-US/text.ts', import.meta.url), 'utf8'), /listIs: \(kind: string\) => `List: \$\{kind\}`/);
 });
 
-// Every style of STYLE_KINDS can be picked in both places and is named there: the floating row's list (textKinds) and the top toolbar's
-// tools (all) each have its icon and a label, and the menus of the Text style and List buttons are made from that tools list.
-test('every style has an icon and a label in the floating row and in the toolbar', () => {
+// Every style of STYLE_KINDS can be picked in both places and is named there: the top toolbar's tools (all) have its icon and a label, and the menus and the More sheet are made from that tools list.
+test('every style has an icon and a label in the toolbar, which the More sheet lists', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
   for (const name of STYLE_KINDS) {
-    assert.match(
-      source,
-      new RegExp(`name: '${name}', icon: KIND_ICONS\\.${name}\\.raw, label: t\\.text\\.\\w+`),
-      `the floating row has no entry with icon and label for ${name}`,
-    );
     assert.match(
       source,
       new RegExp(`label: t\\.text\\.\\w+, icon: KIND_ICONS\\.${name}\\.node, action: \\(\\) => setKind\\('${name}'\\), on: '${name}'`),
       `the toolbar has no tool with icon and label for ${name}`,
     );
   }
-  assert.match(source, /kinds\(button, 'text'\)/, 'the floating Text style button opens the menu');
-  assert.match(source, /kinds\(button, 'list'\)/, 'the floating List button opens the menu');
+  assert.match(source, /TEXT_KINDS_IN_SHEET\.includes/, 'the More sheet lists the text styles from the tools');
   assert.match(source, /kinds\(button, 'headings'\)/, 'the floating heading button opens the menu');
 });
 
@@ -142,17 +129,17 @@ test('the heading button shows a level only while a heading is on, else its gene
 test('the generic icons are the general T and H, and the bullet list, of Phosphor', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
   assert.match(source, /text: \{ raw: textTIcon, node: TextT \}/);
-  assert.match(source, /heading: \{ raw: textHIcon, node: TextH \}/);
+  assert.match(source, /heading: \{ raw: textHIcon, node: TextHPlainIcon \}/);
   assert.match(source, /list: \{ raw: bulletIcon, node: ListBullets \}/);
 });
 
-// The alignment button (lib/text-align.mjs) is in both the floating row and the top toolbar, with Phosphor's three alignment icons.
-test('the alignment has a button in the floating row and in the toolbar', () => {
+// The alignment button (lib/text-align.mjs) is in both the floating row's More sheet and the top toolbar, with Phosphor's three alignment icons.
+test('the alignment has a choice in the More sheet and a button in the toolbar', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
   assert.match(source, /left: \{ raw: alignLeftIcon, node: TextAlignLeft \}/);
   assert.match(source, /center: \{ raw: alignCenterIcon, node: TextAlignCenter \}/);
   assert.match(source, /right: \{ raw: alignRightIcon, node: TextAlignRight \}/);
-  assert.match(source, /action: \(button\) => aligns\(button\)/, 'the floating row');
+  assert.match(source, /<SheetChoice\s+key=\{align\}/, 'the More sheet');
   assert.match(source, /role: 'align'/, 'the top toolbar');
 });
 

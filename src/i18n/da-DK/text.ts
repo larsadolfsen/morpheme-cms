@@ -30,6 +30,7 @@ export const text: Messages['text'] = {
   alignCenter: 'Centreret',
   alignRight: 'Højrejusteret',
   moreTools: 'Vis flere værktøjer',
+  more: 'Mere',
   fewerTools: 'Vis færre værktøjer',
   selection: 'Markeret tekst',
   color: 'Farve',

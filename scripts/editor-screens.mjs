@@ -16,6 +16,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { chromium } from 'playwright';
+import sharp from 'sharp';
 import { mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -143,7 +144,6 @@ async function checkTextSheet(width = 360) {
       const names = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getAttribute('aria-label'));
       const buttons = [...m.querySelectorAll('button:not([hidden])')].map((b) => ({
         ...b.getBoundingClientRect().toJSON(),
-        group: [...m.querySelectorAll('.editor-selection-group')].indexOf(b.parentElement),
       }));
       return {
         shown: !m.hidden,
@@ -175,8 +175,12 @@ async function checkTextSheet(width = 360) {
       problems.push(`${width}px text menu: outside the visible screen at the ${name}`);
     else if (Math.min(Math.abs(now.r.bottom - now.sel.top), Math.abs(now.r.top - now.sel.bottom)) > 40)
       problems.push(`${width}px text menu: not by the text at the ${name}`);
-    if (!now.names.some((n) => n.startsWith('Text style')) || !now.names.includes('List'))
-      problems.push(`${width}px text menu: the Text style or List button is missing at the ${name}`);
+    if (
+      !now.names.some((n) => n.endsWith('heading') || n.endsWith('Heading')) ||
+      !now.names.includes('Insert') ||
+      now.names.at(-1) !== 'More'
+    )
+      problems.push(`${width}px text menu: Heading, Insert (+) and More (three dots, last) are not all there at the ${name}`);
   }
   // Bold, Italic and Link come first, every button is 48 dp, nothing scrolls, and each row is centred (a second row when they do not fit).
   if (first.names.slice(0, 3).join() !== 'Bold,Italic,Link')
@@ -190,22 +194,23 @@ async function checkTextSheet(width = 360) {
     const right = first.r.right - Math.max(...row.map((b) => b.right));
     if (Math.abs(left - right) > 2) problems.push(`${width}px text menu: a row of buttons is not centred (${left} left, ${right} right)`);
   }
-  // A group is never split over two rows; two rows are both filled (no row of one button) and the menu is no wider than its wider row.
-  for (const g of Object.values(Object.groupBy(first.buttons, (b) => b.group)))
-    if (new Set(g.map((b) => Math.round(b.top))).size > 1) problems.push(`${width}px text menu: a group of buttons is split over two rows`);
-  if (rows.length > 2) problems.push(`${width}px text menu: ${rows.length} rows, not at most two`);
-  if (rows.length === 2) {
-    if (rows.some((row) => row.length < 2)) problems.push(`${width}px text menu: a row has a single button`);
-    if (Math.abs(rows[0].length - rows[1].length) > 1)
-      problems.push(`${width}px text menu: the rows are not balanced (${rows[0].length} and ${rows[1].length})`);
-    const widest = Math.max(...rows.map((row) => Math.max(...row.map((b) => b.right)) - Math.min(...row.map((b) => b.left))));
-    if (first.r.width - widest > 12) problems.push(`${width}px text menu: wider than its widest row`);
-  }
+  // Never two rows: one row at every width (the rest is under More).
+  if (rows.length !== 1) problems.push(`${width}px text menu: ${rows.length} rows, not one`);
   if (first.r.top === second.r.top) problems.push(`${width}px text menu: it did not follow the cursor to another line`);
   await page.setViewportSize({ width, height: 420 });
   await page.waitForTimeout(500);
   const keyboard = await read();
   if (keyboard.r.bottom > Math.min(keyboard.save, keyboard.vh) + 1) problems.push(`${width}px text menu: it is under the keyboard`);
+  // More opens the sheet from the bottom with the colours, the text styles, the lists and the alignment.
+  await page.setViewportSize({ width, height: 740 });
+  await page.waitForTimeout(300);
+  await page.click('.editor-selection-menu button[aria-label="More"]');
+  await page.waitForTimeout(500);
+  const sheetText = await page.evaluate(() => document.querySelector('dialog[open][aria-label="More"]')?.textContent ?? '');
+  for (const word of ['Color', 'Text style', 'List'])
+    if (!sheetText.includes(word)) problems.push(`${width}px text menu: the More sheet lacks "${word}"`);
+  if (!sheetText) problems.push(`${width}px text menu: More does not open its sheet`);
+  await page.keyboard.press('Escape');
   if (width !== 360) return void (await page.close());
   // The top toolbar's tools rest in one colour (the kind menus too), and a menu button is never in the accent.
   const colours = await page.evaluate(() => [
@@ -578,6 +583,59 @@ async function checkFullWidthSection() {
       );
     await page.close();
   }
+}
+
+/** A page's accordion rows (FoldSection): between its divider lines the title has the same space above and below it (within 1px, measured on the pixels of the first capital, not the line box), the arrow is centred on the title, and the row stays 48px tall or more (360, 375, 390, 414 px and a computer). */
+async function checkFoldRows(width, height) {
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US', deviceScaleFactor: 2 });
+  page.on('pageerror', (e) => problems.push(`${width}px accordion rows: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  const buttons = page.locator('section[aria-labelledby] > h2 > button[aria-expanded]');
+  await buttons.first().waitFor();
+  await page.waitForTimeout(300);
+  const shown = [];
+  for (let i = 0; i < (await buttons.count()); i++) {
+    const button = buttons.nth(i);
+    await button.evaluate((el) => el.scrollIntoView({ block: 'center' }));
+    await page.waitForTimeout(100);
+    const box = await button.boundingBox();
+    const title = button.locator('span');
+    const t = await title.boundingBox();
+    const title_ = await title.textContent();
+    const arrow = await button.locator('svg').boundingBox();
+    // The ink of the title's first capital (the eye's measure, whatever the font): the rows of pixels that differ from the row's background.
+    const scale = 2;
+    const clip = { x: t.x, y: box.y, width: 8, height: box.height };
+    const png = await page.screenshot({ clip });
+    const { data, info } = await sharp(png).raw().toBuffer({ resolveWithObject: true });
+    const bg = [data[0], data[1], data[2]];
+    const inked = [];
+    for (let y = 0; y < info.height; y++)
+      for (let x = 0; x < info.width; x++) {
+        const o = (y * info.width + x) * info.channels;
+        if (Math.abs(data[o] - bg[0]) + Math.abs(data[o + 1] - bg[1]) + Math.abs(data[o + 2] - bg[2]) > 120) {
+          inked.push(y);
+          break;
+        }
+      }
+    if (!inked.length) {
+      problems.push(`${width}px accordion row "${title_}": no letters found`);
+      continue;
+    }
+    const above = Math.min(...inked) / scale;
+    const below = (info.height - 1 - Math.max(...inked)) / scale;
+    shown.push([above, below, box.height]);
+    if (Math.abs(above - below) > 1)
+      problems.push(`${width}px accordion row "${title_}": ${above}px above the letters and ${below}px below, should be equal`);
+    const centre = (Math.min(...inked) + Math.max(...inked) + 1) / 2 / scale + box.y;
+    if (Math.abs(arrow.y + arrow.height / 2 - centre) > 1)
+      problems.push(`${width}px accordion row "${title_}": the arrow is not centred on the title`);
+    if (box.height < 48) problems.push(`${width}px accordion row "${title_}": ${box.height}px tall, should be 48px or more`);
+  }
+  if (!shown.length) problems.push(`${width}px accordion rows: none measured`);
+  console.log(`${width}px accordion rows (above, below, height): ${JSON.stringify(shown)}`);
+  await page.close();
 }
 
 /** Settings lists the seven screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
@@ -1131,6 +1189,14 @@ for (const [width, height] of [
   await checkIconSearch(width, height);
 await checkHints();
 await checkFullWidthSection();
+for (const [width, height] of [
+  [360, 740],
+  [375, 800],
+  [390, 844],
+  [414, 896],
+  [1280, 900],
+])
+  await checkFoldRows(width, height);
 await checkToolbarBox();
 await checkPreviewSection();
 

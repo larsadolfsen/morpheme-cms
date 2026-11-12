@@ -35,6 +35,7 @@ export const text = {
   alignRight: 'Align right',
   /** The button at the end of the toolbar when its tools do not fit on one line: the second line shown or hidden. */
   moreTools: 'Show more tools',
+  more: 'More',
   fewerTools: 'Show fewer tools',
   /** The menu over a selection. */
   selection: 'Selected text',

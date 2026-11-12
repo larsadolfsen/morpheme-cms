@@ -11,6 +11,7 @@ import {
   forwardRef,
   Fragment as ReactFragment,
   type MouseEvent as ReactMouseEvent,
+  type ReactNode,
   useEffect,
   useLayoutEffect,
   useId,
@@ -59,7 +60,6 @@ import {
   TextAlignLeft,
   TextAlignRight,
   TextB,
-  TextH,
   TextHThree,
   TextHOne,
   TextHTwo,
@@ -78,7 +78,7 @@ import { IMAGE, type BlockAsk } from './BlockDialog';
 import SectionSettingsIcon from './SectionSettingsIcon';
 import { arrangeTools, nextArrangement } from './toolbarOrder.mjs';
 import { askLink } from './LinkSheet';
-import { atLeastNow, Menu, MenuItem, Toolbar, ToolbarButton } from './ui';
+import { atLeastNow, BottomSheet, Menu, MenuItem, SheetBody, SheetGroupTitle, SheetTitle, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel } from './sheetPlacement.mjs';
 import { useToolbarLines } from './useToolbarLines';
 import { shownAt } from './images';
@@ -114,8 +114,8 @@ import h3Icon from '@phosphor-icons/core/assets/regular/text-h-three.svg?raw';
 import textLargeIcon from './icons/text-t-large.svg?raw';
 import textMediumIcon from './icons/text-t-medium.svg?raw';
 import textSmallIcon from './icons/text-t-small.svg?raw';
-import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
-import textHIcon from '@phosphor-icons/core/assets/regular/text-h.svg?raw';
+import { TextHPlainIcon, TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
+import textHIcon from './icons/text-h-plain.svg?raw';
 import textTIcon from '@phosphor-icons/core/assets/regular/text-t.svg?raw';
 import alignLeftIcon from '@phosphor-icons/core/assets/regular/text-align-left.svg?raw';
 import alignCenterIcon from '@phosphor-icons/core/assets/regular/text-align-center.svg?raw';
@@ -123,7 +123,8 @@ import alignRightIcon from '@phosphor-icons/core/assets/regular/text-align-right
 import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
 import orderedIcon from '@phosphor-icons/core/assets/regular/list-numbers.svg?raw';
 import quoteIcon from '@phosphor-icons/core/assets/regular/quotes.svg?raw';
-import paletteIcon from '@phosphor-icons/core/assets/regular/palette.svg?raw';
+import plusIcon from '@phosphor-icons/core/assets/regular/plus.svg?raw';
+import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.svg?raw';
 import caretDownIcon from '@phosphor-icons/core/assets/bold/caret-down-bold.svg?raw';
 import checkIcon from '@phosphor-icons/core/assets/regular/list-checks.svg?raw';
 import tagIcon from '@phosphor-icons/core/assets/regular/tag.svg?raw';
@@ -670,9 +671,37 @@ const KIND_ICONS = {
   ordered: { raw: orderedIcon, node: ListNumbers },
 };
 // The icons of the three buttons when their style is not on: the general text (T), heading (H) and list icons.
+// The text styles in the "More" sheet, in the toolbar's order (the headings are the H button's).
+const TEXT_KINDS_IN_SHEET = ['small', 'medium', 'large', 'label', 'quote'];
+
+// A choice in the "More" sheet: its icon and name, checked when it is the one there is.
+function SheetChoice({
+  icon: Glyph,
+  selected,
+  onClick,
+  children,
+}: {
+  icon?: typeof TextB;
+  selected: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className="flex min-h-12 w-full items-center gap-3 rounded-full px-4 text-left text-on-surface hover:bg-surface-container-high aria-pressed:bg-surface-container-high aria-pressed:font-medium"
+    >
+      {Glyph && <Glyph aria-hidden="true" size={24} />}
+      {children}
+    </button>
+  );
+}
+
 const GENERIC_ICONS = {
   text: { raw: textTIcon, node: TextT },
-  heading: { raw: textHIcon, node: TextH },
+  heading: { raw: textHIcon, node: TextHPlainIcon },
   list: { raw: bulletIcon, node: ListBullets },
 };
 
@@ -725,13 +754,11 @@ type Look = (Face | { shows: (state: EditorView['state']) => Face }) & {
   off?: (state: EditorView['state']) => boolean;
   // Not there (the marks in a block with none).
   dim?: (state: EditorView['state']) => boolean;
+  // Shown but not usable now ("+" where the text has nothing to insert).
+  disabled?: (state: EditorView['state']) => boolean;
   word?: boolean;
   menu?: boolean;
 };
-
-// The groups of the selection menu's buttons, by index in `looks`: the marks (bold, italic, link, colour), the kinds of
-// text (heading, text style) and the list with the alignment. A group is never split over two rows.
-const SELECTION_GROUPS = [4, 3, 2];
 
 // The levels of the top-level headings of a document, in order.
 const levelsOf = (doc: EditorView['state']['doc']): number[] => topHeadings(doc).map(({ node }) => node.attrs.level);
@@ -748,41 +775,19 @@ function inSectionHeading(state: EditorView['state']) {
 const inLabel = (state: EditorView['state']) =>
   ['eyebrow', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(state.selection.$from.parent.type.name);
 
-// One row when the groups fit on one; else two rows as even as they can be: the menu is only as wide as the wider row,
-// and a group is never split (the groups wrap whole).
-function balanceRows(menu: HTMLElement, room: number) {
-  menu.style.width = '';
-  const sizes = [...menu.querySelectorAll<HTMLElement>('.editor-selection-group:not([hidden])')].map((g) => g.offsetWidth);
-  if (sizes.length < 2) return;
-  const style = getComputedStyle(menu);
-  const gap = parseFloat(style.columnGap) || 0;
-  const frame = ['paddingLeft', 'paddingRight', 'borderLeftWidth', 'borderRightWidth'].reduce(
-    (n, k) => n + (parseFloat(style[k as 'paddingLeft']) || 0),
-    0,
-  );
-  const row = (from: number, to: number) => sizes.slice(from, to).reduce((n, w) => n + w, 0) + gap * (to - from - 1);
-  if (row(0, sizes.length) + frame <= room) return;
-  let best = Infinity;
-  for (let k = 1; k < sizes.length; k++) best = Math.min(best, Math.max(row(0, k), row(k, sizes.length)));
-  menu.style.width = `${Math.ceil(best + frame)}px`;
-}
-
-// When a word or more is selected, or the cursor has stood still in a word (STILL_MS, stillCursor.mjs): a row of icons
-// over it, to make it bold, italic, a link, one of the site's colours (a menu under the button, opened by `colors`), a
-// kind of text and a label above the heading; the ones that apply are marked. The kinds of text are two buttons, as in
-// the toolbar when it is short: the headings (`h1`: a page's, only the levels headingChoices gives for the text) and the
-// rest (T, the lists and the quote). Each shows the kind there is (else its group's first) and opens a menu with its
-// group (`kinds`); a group of one (H1, while a page has none) is that heading's own button. At a still cursor, bold,
-// italic, link and colour act on the whole word, the kinds on the line; a move or a keypress hides the row. On a phone,
-// where the phone's own menu is over the selection and its handles under it, the row is at the bottom of the screen,
-// over the keyboard. sections: no colour in a heading (H1 or H2), the name of a section.
+// When a word or more is selected, or the cursor has stood still in a word (STILL_MS, stillCursor.mjs): one row of icons
+// over it, never two: bold, italic, link, the headings (H, a menu with the levels headingChoices gives for the text; a
+// page's H1 alone is that heading's own button), "+" (always there: the blocks or a picture; greyed where there is nothing to insert) and "More" (three dots), which
+// opens a sheet from the bottom with the rest: the colours, the text styles, the lists and the alignment. At a still
+// cursor, bold, italic and link act on the whole word, the headings on the line; a move or a keypress hides the row. On a
+// phone, where the phone's own menu is over the selection and its handles under it, the row is at the bottom of the
+// screen, over the keyboard.
 function selectionMenu(
   ctx: Ctx,
   h1: boolean,
-  sections: boolean,
-  colors: (button: HTMLElement) => void,
   kinds: (button: HTMLElement, group: KindGroup) => void,
-  aligns: (button: HTMLElement) => void,
+  insert: () => (() => void) | null,
+  more: () => void,
 ) {
   return new Plugin({
     view(view) {
@@ -803,19 +808,6 @@ function selectionMenu(
         icon: [h1Icon, h2Icon, h3Icon][level - 1],
         label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
       });
-      // The other kinds of text, in the toolbar's order, by their names in activeOf.
-      const textKinds = [
-        { name: 'small', icon: KIND_ICONS.small.raw, label: t.text.bodySmall },
-        { name: 'medium', icon: KIND_ICONS.medium.raw, label: t.text.bodyMedium },
-        { name: 'large', icon: KIND_ICONS.large.raw, label: t.text.bodyLarge },
-        { name: 'label', icon: KIND_ICONS.label.raw, label: t.text.label },
-        { name: 'quote', icon: KIND_ICONS.quote.raw, label: t.text.quote },
-        { name: 'bullet', icon: KIND_ICONS.bullet.raw, label: t.text.bulletList },
-        { name: 'check', icon: KIND_ICONS.check.raw, label: t.text.checkList },
-        { name: 'ordered', icon: KIND_ICONS.ordered.raw, label: t.text.orderedList },
-      ];
-      // A button with a group's menu shows the kind it is named after: "Text style: …".
-      const groupFace = ({ icon, label }: Face, is = t.text.kindIs): Face => ({ icon, label: is(label) });
       const looks: Look[] = [
         {
           icon: boldIcon,
@@ -841,19 +833,10 @@ function selectionMenu(
           dim: inLabel,
           word: true,
         },
-        {
-          icon: paletteIcon,
-          label: t.text.color,
-          on: (s) => marked(s, 'textColor'),
-          action: colors,
-          dim: (s) => inLabel(s) || (sections && inSectionHeading(s)),
-          word: true,
-          menu: true,
-        },
         // The only heading offered (H1, while a page has none): its own button, marked when it is one; again to make it
         // text.
         {
-          shows: (s) => headingFace(levels(s)[0]),
+          shows: (s) => ({ icon: GENERIC_ICONS.heading.raw, label: headingFace(levels(s)[0]).label }),
           on: (s) => heading(s, levels(s)[0]),
           action: () => {
             const [level] = levels(view.state);
@@ -862,63 +845,24 @@ function selectionMenu(
           },
           off: (s) => levels(s).length > 1,
         },
-        // The headings offered, in a menu. Not marked: it always shows one of them (the menu marks the one there is).
+        // The headings offered, in a menu: a plain H (the menu marks the level there is, the button's name says it). Not
+        // marked: it is the one control that shows the heading's level.
         {
-          // The general H icon unless the cursor is in a heading (styleKind.mjs).
           shows: (s) => {
             const level = levels(s).find((l) => heading(s, l));
-            return headingKindOf(activeOf(s), view.hasFocus()) === 'generic' && level === undefined
-              ? { icon: GENERIC_ICONS.heading.raw, label: t.text.heading }
-              : groupFace(headingFace(level ?? levels(s)[0]));
+            return {
+              icon: GENERIC_ICONS.heading.raw,
+              label: level === undefined ? t.text.heading : headingFace(level).label,
+            };
           },
           action: (button) => kinds(button, 'headings'),
           off: (s) => levels(s).length < 2,
           menu: true,
         },
-        // The text styles (T) in a menu; not marked either.
-        {
-          // The general text icon when the cursor is not in the text or is in a list, else the style it is in (styleKind.mjs).
-          shows: (s) => {
-            const kind = styleKindOf(activeOf(s), view.hasFocus());
-            if (kind !== 'generic') return groupFace(textKinds.find(({ name }) => name === kind)!);
-            // In a heading, its own level, unless the selection reaches into a block of another kind (mixed styles stay generic).
-            const { $from, to } = s.selection;
-            const level = $from.parent.type.name === 'heading' ? ($from.parent.attrs.level as number) : 0;
-            let mixed = false;
-            s.doc.nodesBetween(s.selection.from, to, (n) => {
-              if (n.isTextblock && (n.type.name !== 'heading' || n.attrs.level !== level)) mixed = true;
-            });
-            return level >= 1 && level <= 3 && !mixed && view.hasFocus()
-              ? groupFace(headingFace(level))
-              : { icon: GENERIC_ICONS.text.raw, label: t.text.kind };
-          },
-          action: (button) => kinds(button, 'text'),
-          menu: true,
-        },
-        // The lists in a menu, the same way.
-        {
-          shows: (s) => {
-            const kind = listKindOf(activeOf(s), view.hasFocus());
-            return kind === 'generic'
-              ? { icon: GENERIC_ICONS.list.raw, label: t.text.list }
-              : groupFace(
-                  textKinds.find(({ name }) => name === kind)!,
-                  t.text.listIs,
-                );
-          },
-          action: (button) => kinds(button, 'list'),
-          menu: true,
-        },
-        // The alignment of the block in a menu: its icon follows the block's; dimmed where a block has none (a section's heading, a list).
-        {
-          shows: (s) => {
-            const align = alignIn(activeOf(s));
-            return { icon: ALIGN_FACES[align].raw, label: t.text.alignmentIs(alignLabel(align)) };
-          },
-          action: (button) => aligns(button),
-          dim: (s) => !activeOf(s).has('alignable'),
-          menu: true,
-        },
+        // The blocks (the same sheet as the toolbar's "+"), where the text has blocks.
+        { icon: plusIcon, label: t.text.insert, action: () => insert()?.(), disabled: () => !insert() },
+        // The rest, in a sheet from the bottom.
+        { icon: dotsIcon, label: t.text.more, action: () => more() },
       ];
       // Where the cursor stood still in a word, so the row is shown for that word; null after a move. A change made by
       // a button (acting) is no move.
@@ -951,18 +895,8 @@ function selectionMenu(
             caretDownIcon.replace('<svg', '<svg width="12" height="12" fill="currentColor" aria-hidden="true" class="editor-menu-arrow"'),
           );
       };
-      const groups = SELECTION_GROUPS.map(() => {
-        const g = menu.appendChild(document.createElement('div'));
-        g.className = 'editor-selection-group';
-        g.setAttribute('role', 'group');
-        return g;
-      });
-      const groupOf = (i: number) => {
-        let end = 0;
-        return groups[SELECTION_GROUPS.findIndex((n) => i < (end += n))];
-      };
       const buttons = looks.map((look, i) => {
-        const b = groupOf(i).appendChild(document.createElement('button'));
+        const b = menu.appendChild(document.createElement('button'));
         b.type = 'button';
         if (look.menu) b.setAttribute('aria-haspopup', 'menu');
         draw(b, look, faceOf(look, view.state));
@@ -1004,11 +938,10 @@ function selectionMenu(
           buttons[i].hidden = !!look.off?.(state) || !!look.dim?.(state);
           if (buttons[i].hidden) return;
           if ('shows' in look) draw(buttons[i], look, look.shows(state));
+          buttons[i].disabled = !!look.disabled?.(state);
           if (look.on) buttons[i].setAttribute('aria-pressed', String(look.on(state)));
         });
-        groups.forEach((g) => (g.hidden = [...g.children].every((b) => (b as HTMLElement).hidden)));
         const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
-        balanceRows(menu, screen.width - 8);
         const { offsetWidth: width, offsetHeight: height } = menu;
         const text = view.dom.getBoundingClientRect();
         const { from, to } = word ?? selection;
@@ -1395,12 +1328,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const [inText, setInText] = useState(false);
   // The heading levels the toolbar offers on a page (headingChoices): [1] while the text has no H1, then [2, 3].
   const [choices, setChoices] = useState<number[]>([1]);
-  // The colour button over the selection, while its menu with the colours is open.
-  const [colorsAt, setColorsAt] = useState<HTMLElement | null>(null);
-  useEffect(() => {
-    colorsAt?.setAttribute('aria-expanded', 'true');
-    return () => colorsAt?.setAttribute('aria-expanded', 'false');
-  }, [colorsAt]);
+  // The sheet from the bottom behind the selection menu's "More" (three dots): the colours, the text styles, the lists and
+  // the alignment. `noColor`: the words there have none (a label above a heading, the name of a section).
+  const moreSheet = useRef<HTMLDialogElement>(null);
+  const [noColor, setNoColor] = useState(false);
+  const moreRef = useRef(() => {});
+  const insertRef = useRef<(() => void) | null>(null);
   // The button that opened a menu with kinds of text, and its group, while it is open: in the toolbar, or over the
   // selection (word), whose button says it is open as the colour button does.
   const [kindsAt, setKindsAt] = useState<{ at: HTMLElement; group: KindGroup; word?: boolean } | null>(null);
@@ -1472,10 +1405,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       selectionMenu(
         ctx,
         !!h1,
-        !!sections,
-        (button) => setColorsAt((open) => (open ? null : button)),
         (button, group) => setKindsAt((open) => (open?.at === button ? null : { at: button, group, word: true })),
-        (button) => setAlignAt((open) => (open === button ? null : button)),
+        () => insertRef.current,
+        () => moreRef.current(),
       ),
     );
     const pictureView = $view(imageSchema.node, () => (node, view, getPos) => pictureCard(node, view, getPos, () => sheeted.current));
@@ -1685,6 +1617,20 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     editor.current?.action((ctx) => paint(ctx.get(editorViewCtx), name));
   }
 
+  // Opens the sheet behind "More" (what applies there is marked, from `active`); a choice closes it and gives the text its focus back.
+  moreRef.current = () => {
+    editor.current?.action((ctx) => {
+      const state = ctx.get(editorViewCtx).state;
+      setNoColor(inLabel(state) || (!!sections && inSectionHeading(state)));
+    });
+    moreSheet.current?.showModal();
+  };
+  const chosen = (change: () => void) => {
+    moreSheet.current?.close();
+    change();
+    editor.current?.action((ctx) => ctx.get(editorViewCtx).focus());
+  };
+
   // The sheet with the settings of the section the cursor is in (its colour, picture and width), then those set.
   async function sectionSettings() {
     let current: ReturnType<typeof sectionHeading> = null;
@@ -1757,6 +1703,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       view.focus();
     });
   }
+
+  // "+" in the selection menu: the blocks, or a picture where the text has only pictures (a blog post); else nothing.
+  insertRef.current = blocks ? () => void block() : addImage ? () => void image() : null;
 
   const all: {
     label: string;
@@ -1955,18 +1904,58 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           />
         )}
       </Toolbar>
-      {/* The site's colours (text-colors.mjs), each named in its colour, as it is in the text (its class), and "Ingen
-          farve" in the text's own. */}
-      <Menu anchor={colorsAt} label={t.text.color} onClose={() => setColorsAt(null)}>
-        {TEXT_COLORS.map((name) => (
-          <MenuItem key={name} icon={TextAa} selected={active.includes(colorClass(name))} onClick={() => color(name)}>
-            <span className={colorClass(name)}>{t.text.colors[name as keyof typeof t.text.colors]}</span>
-          </MenuItem>
-        ))}
-        <MenuItem icon={TextAa} selected={!active.includes('textColor')} onClick={() => color(null)}>
-          <span className="text-on-surface">{t.text.noColor}</span>
-        </MenuItem>
-      </Menu>
+      {/* The rest of the selection menu: the site's colours (text-colors.mjs), each named in its colour, as it is in the text
+          (its class), and "No color" in the text's own; then the text styles, the lists and the alignment. */}
+      <BottomSheet ref={moreSheet} aria-label={t.text.more}>
+        <SheetTitle title={t.text.more} onClose={() => moreSheet.current?.close()} />
+        <SheetBody>
+          {!noColor && (
+            <>
+              <SheetGroupTitle>{t.text.color}</SheetGroupTitle>
+              {TEXT_COLORS.map((name) => (
+                <SheetChoice key={name} selected={active.includes(colorClass(name))} onClick={() => chosen(() => color(name))}>
+                  <span className={colorClass(name)}>{t.text.colors[name as keyof typeof t.text.colors]}</span>
+                </SheetChoice>
+              ))}
+              <SheetChoice selected={!active.includes('textColor')} onClick={() => chosen(() => color(null))}>
+                <span className="text-on-surface">{t.text.noColor}</span>
+              </SheetChoice>
+            </>
+          )}
+          {(
+            [
+              [t.text.kind, all.filter(({ on }) => TEXT_KINDS_IN_SHEET.includes(on ?? ''))],
+              [t.text.list, all.filter(({ on }) => LIST_KINDS.includes(on ?? ''))],
+            ] as const
+          ).map(([title, items]) => (
+            <ReactFragment key={title}>
+              <SheetGroupTitle>{title}</SheetGroupTitle>
+              {items
+                .filter(({ on }) => on !== 'label' || active.includes('labelable'))
+                .map(({ label, icon: Glyph, on }) => (
+                  <SheetChoice key={label} icon={Glyph} selected={active.includes(on!)} onClick={() => chosen(() => setKind(on!))}>
+                    {label}
+                  </SheetChoice>
+                ))}
+            </ReactFragment>
+          ))}
+          {active.includes('alignable') && (
+            <>
+              <SheetGroupTitle>{t.text.alignment}</SheetGroupTitle>
+              {(Object.keys(ALIGN_FACES) as Align[]).map((align) => (
+                <SheetChoice
+                  key={align}
+                  icon={ALIGN_FACES[align].node}
+                  selected={alignIn(active) === align}
+                  onClick={() => chosen(() => editor.current?.action((ctx) => alignSelection(ctx.get(editorViewCtx), align)))}
+                >
+                  {alignLabel(align)}
+                </SheetChoice>
+              ))}
+            </>
+          )}
+        </SheetBody>
+      </BottomSheet>
       <Menu anchor={alignAt} label={t.text.alignment} onClose={() => setAlignAt(null)}>
         {(Object.keys(ALIGN_FACES) as Align[]).map((align) => (
           <MenuItem
