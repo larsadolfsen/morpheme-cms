@@ -439,6 +439,8 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, field
     problems.push(`${label}: the active row has a background colour (${one.background})`);
   // Everything the block draws follows the section it is in: the text, the placeholder (4.5:1), the slot icons and the dotted line (3:1)
   // on each section colour, light and dark, so a new inline block that leaves out a colour fails here.
+  // No transitions while measuring: a colour read right after the section changes is the one it is still moving from.
+  await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; }' });
   for (const scheme of ['light', 'dark']) {
     await page.emulateMedia({ colorScheme: scheme });
     const colors = await page.evaluate(`(() => { ${ratioOf}
@@ -453,10 +455,10 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, field
         const slot = row.querySelector('.inline-list-slot');
         const line = getComputedStyle(row);
         out[color] = {
-          text: ratio(getComputedStyle(field).color, top),
-          placeholder: ratio(ph.color, top, parseFloat(ph.opacity)),
-          slot: slot ? ratio(getComputedStyle(slot).color, top) : null,
-          outline: ratio(line.outlineColor, top),
+          text: ratio(getComputedStyle(field).color, top, 1, field),
+          placeholder: ratio(ph.color, top, parseFloat(ph.opacity), field),
+          slot: slot ? ratio(getComputedStyle(slot).color, top, 1, slot) : null,
+          outline: ratio(line.outlineColor, top, 1, row),
         };
       }
       top.removeAttribute('data-section-color');
@@ -645,9 +647,15 @@ const ratioOf = `
       return [...c.getImageData(0, 0, 1, 1).data.slice(0, 3)];
     };
     const lum = (rgb) => { const [R, G, B] = rgb.map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * R + 0.7152 * G + 0.0722 * B; };
-    const ratio = (markCss, sectionEl, opacity = 1) => {
-      const bg = getComputedStyle(sectionEl).backgroundColor;
-      const back = pixel(bg === 'rgba(0, 0, 0, 0)' ? getComputedStyle(document.body).backgroundColor : bg, '#fff');
+    const ratio = (markCss, sectionEl, opacity = 1, fromEl = sectionEl) => {
+      // The background is what is painted behind the part: the backgrounds from the section down to the part's own item, over the page's.
+      const stack = [];
+      for (let el = fromEl; el; el = el.parentElement) {
+        stack.unshift(getComputedStyle(el).backgroundColor);
+        if (el === sectionEl) break;
+      }
+      let back = pixel(getComputedStyle(document.body).backgroundColor, '#fff');
+      for (const bg of stack) if (bg !== 'rgba(0, 0, 0, 0)') back = pixel(bg, 'rgb(' + back + ')');
       const front = pixel(markCss, 'rgb(' + back + ')', opacity);
       return (Math.max(lum(front), lum(back)) + 0.05) / (Math.min(lum(front), lum(back)) + 0.05);
     };`;

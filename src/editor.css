@@ -930,7 +930,7 @@ html {
 }
 
 .editor-text .inline-list-field::placeholder {
-  color: color-mix(in srgb, currentColor 85%, transparent);
+  color: currentColor;
   opacity: 1;
 }
 

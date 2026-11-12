@@ -217,7 +217,9 @@
   /* The blocks in it read as an inverted theme on the accent: text, lines and the accent itself are the text-on-primary
      colour, a surface is a veil of it, and what was text-on-primary (a filled button's label, a step number) is the
      accent. Dark mode follows, as the variables do. */
-  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > * {
+  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+  /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+  .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
     --block-text: var(--section-on-accent);
     --block-muted: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
     --block-accent: var(--section-on-accent);
