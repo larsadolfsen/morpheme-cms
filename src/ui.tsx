@@ -225,10 +225,13 @@ export function ToolbarButton({
   menu,
   expanded,
   controls,
+  large,
   onClick,
 }: {
   icon: Icon;
   label: string;
+  /** The theme's full size, 48 dp (a tool a phone must be able to hit: Section settings). */
+  large?: boolean;
   /** Marked while it applies where the cursor is (bold); undefined for a tool that is not on or off. */
   selected?: boolean;
   /** It opens a Menu: whether the menu is open. */
@@ -250,7 +253,7 @@ export function ToolbarButton({
   return (
     <>
       {menu === undefined ? (
-        <SiteIconButton icon={<Glyph />} label={label} selected={selected} style={toolbarSize} {...own} />
+        <SiteIconButton icon={<Glyph />} label={label} selected={selected} style={large ? undefined : toolbarSize} {...own} />
       ) : (
         <SiteButton
           kind="text"
