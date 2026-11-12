@@ -1,17 +1,17 @@
 // A pop-up's box, a dialog (Dialog.tsx; Popup.astro shows it modally on the site, the editor draws it beside its
-// form): the cross to close it in the top right corner (a tonal icon button, as it can stand on a picture), over the
-// picture at the top (to the edges in 3:2, as on the cards with a picture), the heading, the text and its button
+// form): the cross to close it in the top right corner (a tonal icon button, as it can stand on an image), over the
+// image at the top (to the edges in 3:2, as on the cards with an image), the heading, the text and its button
 // (PopupButton.tsx). A pop-up of a kind an app adds (`type`, e.g. Mailchimp's) has the app's part under the text
 // instead (`Part`, src/apps/<app>/popups/View.tsx, given its view and the button), which shows the button where it
 // wants.
 import type { ComponentType, ReactNode } from 'react';
-import type { Picture } from '@morphemecms/cms/src/standard/view';
+import type { Image } from '@morphemecms/cms/src/standard/view';
 import Dialog from '@theme/ui/Dialog';
 import IconButton from '@theme/ui/IconButton';
 import PopupButton, { type PopupButtonView } from '@theme/components/PopupButton';
 import { siteT } from '@morphemecms/cms/src/i18n';
 
-export type PopupBoxView = { slug: string; image?: Picture; heading: string; text: string[]; button?: PopupButtonView };
+export type PopupBoxView = { slug: string; image?: Image; heading: string; text: string[]; button?: PopupButtonView };
 
 /** An app's part of a pop-up: its view, and the pop-up's own button to show where it wants. */
 export type PopupPart<V = any> = ComponentType<{ view: V; button: ReactNode }>;

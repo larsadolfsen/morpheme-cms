@@ -26,7 +26,7 @@ editor's language (English and Danish). `CHANGELOG.md` stays the developer log.
 | Scope | Only changes that a site owner sees. Developer-only changes get no note. |
 | Main change | A card: screenshot, title, a paragraph of 1–3 sentences. No labels. |
 | Other change | One short line in the list "Also in this version". |
-| Screenshot | One per language, so the picture shows the editor in the reader's language. |
+| Screenshot | One per language, so the image shows the editor in the reader's language. |
 | Image source | The site's own Worker. The editor makes no third-party request. |
 | 0.13.0 and older | No new notes. The page shows the old text for these versions. |
 | Tone | Friendly, "you", present tense. A card paragraph starts with why, then how, then what. |
@@ -82,7 +82,7 @@ Rules (checked by `check:release-notes`):
 
 Screenshot: the editor at phone width (375 CSS pixels), device scale factor 2, cropped to the part that changed, at
 most 400 CSS pixels high. So the file is 750 pixels wide and at most 800 pixels high. Saved as WebP. The card shows
-the whole picture.
+the whole image.
 
 KV, in the site's Worker (`PUSH`). KV holds only the versions still to come. The notes of the running minor line are in the
 installed package:

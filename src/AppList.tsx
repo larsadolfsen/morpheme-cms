@@ -13,7 +13,7 @@
 // adds (AppAdds.tsx: its blocks, the lists it brings: "Prices", each opening its list, and its kinds of the site's lists:
 // a Mailchimp popup; each with its switch at the end of its row and opening a sheet with where it is used and the same
 // switch, as under "Block settings", and a kind's button to a new one, while it is on), its notifications with their
-// switches, and "Uninstall", AppSettingsTab.tsx) and "Information" (#apps/<app>/about, AppInfoTab.tsx: its pictures, what
+// switches, and "Uninstall", AppSettingsTab.tsx) and "Information" (#apps/<app>/about, AppInfoTab.tsx: its images, what
 // it does more fully ("About the app"), what it needs of the site ("Permissions", needsOf in store.ts: its code on every page,
 // the addresses it loads from and sends forms to, its part of the Worker, a step in the build), the cookies it sets (and
 // whether the cookie banner asks first), who made it (a row to their page, #apps/developer/<name>, with all their apps),
@@ -774,16 +774,16 @@ function AppHead({
   );
 }
 
-/** An app's pictures from the store (readScreenshots), once its entry in the catalog is read; none until then. */
-function useStorePictures(env: Env, app: ShownApp | undefined) {
-  const [pictures, setPictures] = useState<{ src: string; label: string }[]>([]);
+/** An app's images from the store (readScreenshots), once its entry in the catalog is read; none until then. */
+function useStoreImages(env: Env, app: ShownApp | undefined) {
+  const [images, setImages] = useState<{ src: string; label: string }[]>([]);
   useEffect(() => {
     if (!app?.screenshots?.length) return;
     let on = true;
     let made: string[] = [];
     env.store.screenshots(app).then((found) => {
       made = found.map((x) => x.src);
-      if (on) setPictures(found);
+      if (on) setImages(found);
       else made.forEach((src) => URL.revokeObjectURL(src));
     });
     return () => {
@@ -791,7 +791,7 @@ function useStorePictures(env: Env, app: ShownApp | undefined) {
       made.forEach((src) => URL.revokeObjectURL(src));
     };
   }, [app?.id, app?.version]);
-  return pictures;
+  return images;
 }
 
 /** The page of an app in the store that is not installed, or installed but not yet built (#apps/<app>), from the
@@ -801,7 +801,7 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
   const { saving, busy, install, uninstall } = useStoreActions(env, files);
   const pending = installedApps(files).includes(id);
   const app = Array.isArray(catalog) ? catalog.find((a) => a.id === id) : undefined;
-  const pictures = useStorePictures(env, app);
+  const images = useStoreImages(env, app);
 
   const row = (a: StoreAdd, key: string) => <ListItem key={key} leading={storeIcon(a.icon)} headline={a.label} supporting={a.hint} />;
   // Its kinds under the name of the list they are added to ("Promotion").
@@ -828,7 +828,7 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
             </div>
           )}
           <AppInfoTab
-            pictures={pictures}
+            images={images}
             description={app.description}
             news={newsOf(app.releaseNotes, app.version)}
             needs={app.needs}
@@ -935,7 +935,7 @@ export function AppScreenPage({ app, id, env }: { app: SiteApp; id: string; env:
 /** What every app's page has, in this order: its name, who made it, whether it is installed, its version (from the
  * store) and what it does; "Install" (or, from the store, "Update" when it has a newer version); then, installed on
  * the Settings tab, its settings form (`fields`) and what AppSettingsTab has, else what AppInfoTab has (what it adds,
- * not installed, with the pictures, what it needs, its cookies, who made it and where it is used). */
+ * not installed, with the images, what it needs, its cookies, who made it and where it is used). */
 function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; fields?: ReactNode }) {
   const notify = env.notify;
   const [toggling, setToggling] = useState<'install' | 'uninstall' | 'switch' | null>(null);
@@ -1048,7 +1048,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
       ) : (
         <AppInfoTab
           id={app.id}
-          pictures={app.pictures}
+          images={app.images}
           description={app.description}
           news={app.store ? newsOf(inStore?.releaseNotes ?? app.releaseNotes, update?.version ?? versionOf(app)) : []}
           needs={app.needs}

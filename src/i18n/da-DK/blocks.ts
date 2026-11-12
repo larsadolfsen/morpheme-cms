@@ -194,6 +194,12 @@ export const blocks: Messages['blocks'] = {
     item: 'trin',
     title: 'Overskrift',
     text: 'Tekst',
+    step: 'Trin',
+    addStep: 'Tilføj trin',
+    newStep: 'Nyt trin',
+    addAbove: 'Tilføj over',
+    addBelow: 'Tilføj under',
+    stepOf: (n: number, total: number) => `Trin ${n} af ${total}`,
   },
   hero: {
     label: 'Banner',

@@ -1,5 +1,5 @@
 ---
-// A page (the standard theme's): back link, title and the text with its blocks (its pictures in it), in one column, or
+// A page (the standard theme's): back link, title and the text with its blocks (its images in it), in one column, or
 // with the block src/data/side.json chooses in a column beside it (sideBlock) when its template is a sidebar one
 // (`template`, lib/page-template.mjs: the theme's "templates"), and the booking prompt across the page when the text ends
 // with it. The wrapper carries data-template, so a theme can style a template; `full` is drawn like `single` here.
@@ -8,7 +8,7 @@
 // paragraph is the lead (type-lead, ui.css: the --type-lead-* tokens), muted and 52ch wide.
 // data-editor marks what the editor's preview fills in with what is in its form ("Preview",
 // packages/editor/src/pagePreview.tsx): the heading, the text, and the booking prompt at the end.
-// A page whose H1 has section settings (the marker before it, lib/section-marker.mjs: a colour, a picture behind it or the whole width) draws the heading and the text up to the
+// A page whose H1 has section settings (the marker before it, lib/section-marker.mjs: a colour, an image behind it or the whole width) draws the heading and the text up to the
 // first H2 in one panel (data-editor="h1-section", sectionClass); with a column beside the text the panel holds the heading only.
 import Base from '@theme/layouts/Base.astro';
 import PageHeading from '@theme/components/PageHeading.astro';
@@ -50,15 +50,15 @@ const template = templateOf(page.data, offeredTemplates);
 const heading = pageHeading(page);
 // With its colours, when a word in it has one.
 const headingHtml = pageHeadingHtml(page);
-// The picture when the page is shared: the first in its text (a page's pictures are all in its text).
-const picture = firstPicture(page.body);
+// The image when the page is shared: the first in its text (a page's images are all in its text).
+const image = firstPicture(page.body);
 // The text with its blocks (RichText.astro). A block at the very end of it whose type goes across the page (endBlock,
 // e.g. "Book an appointment", as on most pages) is shown across the page below the text and the column next to it; not when
 // it is hidden (RichText.astro leaves hidden blocks out).
 // Without the H1 at the top of the text (the page's heading, drawn above).
 const text = await Astro.slots.render('default');
 const html = withoutH1(text);
-// The settings of the H1's section (the marker before the H1: colour, picture, width): the heading and the text up to the first H2
+// The settings of the H1's section (the marker before the H1: colour, image, width): the heading and the text up to the first H2
 // are one panel.
 const h1Settings = h1Section(text);
 const h1Color = h1Settings ? h1Settings.color : null;
@@ -101,9 +101,9 @@ const textClass = side
   seoDescription={page.data.seoDescription}
   canonical={page.data.canonical}
   noindex={hiddenFromSearch(page.data)}
-  image={picture?.src}
-  imageAlt={picture?.alt}
-  pictures={picturesOf(page.body)}
+  image={image?.src}
+  imageAlt={image?.alt}
+  images={picturesOf(page.body)}
   shareImage={page.data.shareImage}
   shareTitle={page.data.shareTitle}
   shareDescription={page.data.shareDescription}
@@ -114,9 +114,9 @@ const textClass = side
     <Container as="header" class="pt-8 medium:pt-14">
       {h1Settings ? (
         <section class={sectionClass(h1Color, h1Settings)} data-editor="h1-section">
-          {h1Settings.picture && (
+          {h1Settings.image && (
             <Img
-              src={h1Settings.picture}
+              src={h1Settings.image}
               alt={h1Settings.alt ?? ''}
               sizes={h1Settings.width === 'full' ? '100vw' : 'min(72rem, 100vw)'}
               class="text-section-image"

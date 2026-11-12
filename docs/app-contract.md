@@ -59,9 +59,9 @@ Rules:
 
 ### Screenshot keywords
 
-Each entry of `screenshots` in an app's `index.ts` says what the picture shows with `shows`:
+Each entry of `screenshots` in an app's `index.ts` says what the image shows with `shows`:
 
-| Keyword | Shows | Picture file |
+| Keyword | Shows | Image file |
 | :--- | :--- | :--- |
 | `block:<type>` | one of the app's blocks | `<n>-block-<type>.jpg` |
 | `kind:<list>:<n>` | variant `<n>` of the kind of one of its lists (`0` without variants) | `<n>-kind-<list>-<n>.jpg` |
@@ -72,9 +72,9 @@ Each entry of `screenshots` in an app's `index.ts` says what the picture shows w
 The file `<n>` is the entry's place in the list, from 1. An unknown keyword is a build problem.
 
 The old keywords `blok:<type>`, `slags:<list>:<n>`, `liste:<id>`, `indstillinger` and `side` still work for one release <!-- language-ok: the deprecated words -->
-(`DEPRECATED_SHOT_WORDS` in `lib/appShots.mjs`): they give the same picture as the new ones. A picture is found under
-its new file name and, until the app's pictures are taken again with `npx morpheme app-screenshots`, under the old one
-(`1-blok-<type>.jpg`). Change the keywords in the app, take the pictures again and delete the old files. The old <!-- language-ok: the deprecated words -->
+(`DEPRECATED_SHOT_WORDS` in `lib/appShots.mjs`): they give the same image as the new ones. An image is found under
+its new file name and, until the app's images are taken again with `npx morpheme app-screenshots`, under the old one
+(`1-blok-<type>.jpg`). Change the keywords in the app, take the images again and delete the old files. The old <!-- language-ok: the deprecated words -->
 keywords and file names are removed in the release after the apps are changed.
 
 ### Places
@@ -108,8 +108,8 @@ An app gets only the scopes it lists in `reads`.
 
 A hook is a file `hooks/<place>.ts`. `page-colors` is the only hook today.
 
-- Input: the page's address, pictures, settings, roles and the colors so far.
-- Helpers: `pixels(picture)` and `readable(colors)`.
+- Input: the page's address, images, settings, roles and the colors so far.
+- Helpers: `pixels(image)` and `readable(colors)`.
 - Output: `Colors` or `undefined`. The output is checked as today.
 
 ### After-build
@@ -154,7 +154,7 @@ places, hooks and sandbox. The editor reads contracts 4 and 5 (`APP_APIS` in `li
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
-| `mediaProviders` | `MediaProviderDecl[]` | no | Sources of pictures for the picture picker; connectors only, see "Media providers". |
+| `mediaProviders` | `MediaProviderDecl[]` | no | Sources of images for the image picker; connectors only, see "Media providers". |
 | `role` | `"connector"` or `"plugin"` | no | What the app is. A connector sends data to, or loads code from, an outside service. A plugin has no outside access. With no role, the editor reads an app with an `mcp` server or any host in its `csp` as a connector, and any other as a plugin. |
 | `mcp` | `{ server, auth, tools }` | no | The MCP server a connector calls. `server` is an https address, `auth` is `"oauth"`, `"token"` or `"none"`, `tools` lists the tools the app may call. |
 
@@ -171,9 +171,9 @@ Rules:
 
 ### Media providers
 
-A connector may add a source of pictures to the editor's picture picker with the optional key `mediaProviders` (contract 5). It is
+A connector may add a source of images to the editor's image picker with the optional key `mediaProviders` (contract 5). It is
 data only: a request template and a mapping. The Worker makes the requests, to the hosts the app lists in `csp` only, and keeps the
-owner's key sealed in D1. The app has no code for it. The shape, the host rules, the credit saved with a picture and the
+owner's key sealed in D1. The app has no code for it. The shape, the host rules, the credit saved with an image and the
 checks are in `docs/superpowers/specs/2026-11-11-media-providers.md`.
 
 ### How long contract 4 stays accepted
@@ -242,14 +242,14 @@ export default defineApp({
 
 A block can be typed where it stands in the text, with no sheet, instead of being filled in a sheet. The editor's standard blocks List and Cards are the first. A block opts in with `inline` in its `defineBlock` (`InlineSpec`, `src/blocks.ts`); an app's block (`src/apps/<app>/blocks/<type>/index.tsx`) is defined with the same `defineBlock`, so the definition is the same. The plan is in `docs/superpowers/specs/2026-11-12-inline-block-editing-design.md` (row *An app's blocks*) and `docs/superpowers/plans/2026-11-12-inline-block-editing.md`.
 
-> [!WARNING]
-> **An app cannot use `inline` yet. Do not set it in an app's block.** What the editor needs is not open to an app:
->
-> - The drawing is looked up by the block's type in `inlineViews` (`src/inlineViews.tsx`), a fixed list inside the editor. An app has no way to add its view to it. The check in `MarkdownEditor.tsx` (`!!block?.inline && !!inlineViews[type]`) is false for an app's block, so its card stays the button that opens the sheet.
-> - A new block with `inline` is put in at once, without a sheet (`BlockDialog.tsx`). For an app's block with no view this would insert an empty block and give no way to fill it in.
-> - The shared parts (`InlineItems`, `InlineField`, `InlineSlot` and `InlineAdd` in `src/InlineItems.tsx`) are not among the modules an app may import (*Imports* above). A block is a `full` build place, so only a first-party publisher's app can import them from the package's source today; there is no stable path for it.
->
-> What is missing: a way for an app to give the editor its view (for example an `inline` view next to `View.tsx` that `registry.tsx` collects the way it collects `viewOf.ts`), and a stable import for the shared parts. No app is moved until that exists, and then each app is moved in its own pull request.
+An app's block opts in with two things: `inline` in its `index.tsx` and an `Inline.tsx` next to its `View.tsx`, which draws it. The editor types the block in place only when it has both.
+
+- `src/apps/<app>/blocks/<type>/Inline.tsx` has the view as its default export, a component given `InlineViewProps` (`@morphemecms/cms/src/inline`). `src/registry.tsx` collects it the way it collects `View.tsx` and `viewOf.ts` (`appInlines`, `src/appFiles.ts`), and the editor draws that component for the block (`inlineView` on the block).
+- It is built on the shared parts, imported from `@morphemecms/cms/src/inline`: `InlineItems`, `InlineField`, `InlineSlot` and `InlineAdd`, with the types `InlineViewProps`, `Change`, `Focus`, `Item` and `ItemContext`. That path is the one an app imports; the files behind it may move.
+- A block with `inline` and no `Inline.tsx` keeps its card that opens the sheet, and a new one is made in the sheet (`BlockDialog.tsx`), so it can always be filled in. A block without `inline` is not affected.
+- An app's view is never looked up by the block's type in the editor's own list, so an app that names its block `list` or `cards` does not get the standard block's drawing.
+
+This opens nothing to the sandbox. A block is a `full` place that runs in the editor, as `View.tsx` does; hooks and after-build steps still import only the three modules of *Imports*, and the sandbox that runs them (QuickJS) is unchanged. It is not a change of contract: no key and no file an app has today changes meaning, so `APP_API` stays 5 and apps written to contract 4 or 5 work as before. (`APP_API` rises only when an app written to the one before stops working.)
 
 ### The definition
 
@@ -264,7 +264,7 @@ inline: {
 },
 ```
 
-The block's own markup is a component in `src/inlineViews.tsx`, built on the shared parts of `src/InlineItems.tsx`, and the block adds one entry to `inlineBlocks` in `scripts/editor-screens.mjs` so `check:screens` opens it on a phone.
+A standard block's markup is a component in `src/inlineViews.tsx`; an app's is its `Inline.tsx`. Both are built on the shared parts (`src/InlineItems.tsx`; an app imports them from `@morphemecms/cms/src/inline`), and the block adds one entry to `inlineBlocks` in `scripts/editor-screens.mjs` so `check:screens` opens it on a phone.
 
 ### Worked example: List
 
@@ -285,7 +285,7 @@ So the heading and text of each row are typed in place, the icon and the link ar
 
 ### Rules every block follows
 
-- Only text is typed in place. Everything that is not text (icon, picture, link, dates, choices) stays in the sheet.
+- Only text is typed in place. Everything that is not text (icon, image, link, dates, choices) stays in the sheet.
 - The block has no label or heading in place: a heading above the block is the text's own.
 - Only the active item shows its empty fields; the others show their live look.
 - `Add` (for example `Add list row`) is a text button below the last item, shown only while the block is active.

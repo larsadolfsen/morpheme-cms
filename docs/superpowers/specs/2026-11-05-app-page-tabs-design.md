@@ -15,7 +15,7 @@ The head (`AppHead`: icon, name, developer, status, version) and the Update butt
 | Tab | Route | Content, in this order |
 |---|---|---|
 | Settings (opens first) | `#apps/<id>` | the app's settings form inline (`appSettingsPart`, the same form and file as the old settings screen); the app's own page part (`app.page`); what it adds with its switches (Blocks, Lists, kinds); Notifications with their switches; Uninstall |
-| Information | `#apps/<id>/om` | Pictures, About the app, What's new, Permissions (`needs`), Cookies, Licences, Developer, Where it is used |
+| Information | `#apps/<id>/om` | Images, About the app, What's new, Permissions (`needs`), Cookies, Licences, Developer, Where it is used |
 
 - An app without a settings form still has the Settings tab: it has its switches and Uninstall.
 - An app that is not installed has no tabs. Its page shows the head, the Install button and the Information content,

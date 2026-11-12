@@ -1,7 +1,7 @@
 // Tests for src/inlineRows.mjs: the rows of a List typed in place. Run: node --test src/inlineRows.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { addAt, isEmptyRow, moveBy, removeAt, setField, withoutEmpty } from './inlineRows.mjs';
+import { addAt, isEmptyRow, linesFromPaste, moveBy, removeAt, setField, withoutEmpty } from './inlineRows.mjs';
 
 test('a row is empty only with no icon, link, heading and text', () => {
   assert.equal(isEmptyRow({ title: '' }), true);
@@ -70,4 +70,13 @@ test('a list or a switch in a row is content, and empty lines of a list are drop
   assert.equal(withoutEmpty(same), same);
   assert.deepEqual(setField([{ name: 'A' }], 0, 'featured', true, 'name'), [{ name: 'A', featured: true }]);
   assert.deepEqual(setField([{ name: 'A', featured: true }], 0, 'featured', false, 'name'), [{ name: 'A' }]);
+});
+
+test('lines pasted become items, but not when the paste has headings among its lines', () => {
+  assert.deepEqual(linesFromPaste('Order\r\nPay\n\n  Get it  '), ['Order', 'Pay', 'Get it']);
+  assert.deepEqual(linesFromPaste('- Order\n2. Pay'), ['Order', 'Pay']);
+  assert.equal(linesFromPaste('One line only'), null);
+  assert.equal(linesFromPaste('# Title\nOrder\nPay'), null);
+  assert.equal(linesFromPaste('Order\nPay', '<h2>Order</h2><p>Pay</p>'), null);
+  assert.deepEqual(linesFromPaste('Order\nPay', '<p>Order</p><p>Pay</p>'), ['Order', 'Pay']);
 });

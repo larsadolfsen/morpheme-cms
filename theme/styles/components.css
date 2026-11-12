@@ -11,7 +11,7 @@
   /* The colour of the shade over the page behind a pop-up (the dialog's scrim, ui.css) and the navigation drawer
      (ui.css), seen through: the text's, in dark mode the page's. */
   --theme-scrim-colour: var(--mo-on-surface);
-  /* The large picture at the top of a page or a blog post, and the newest post's on the blog. */
+  /* The large image at the top of a page or a blog post, and the newest post's on the blog. */
   --theme-picture-radius: var(--radius);
   /* How long one page fades into the next when a link is followed (below). */
   --theme-page-fade: 0.35s;
@@ -38,7 +38,7 @@
   --theme-logo-name-size: 1em;
   --theme-logo-role-display: block;
   --theme-logo-role-display-large: block;
-  /* The pictures in the list of posts (PostList.tsx, the blog's other posts). */
+  /* The images in the list of posts (PostList.tsx, the blog's other posts). */
   --theme-post-picture-radius: var(--radius-small);
   /* A page's and a post's title (.theme-title): display small on a phone, display medium from md (the type scale,
      ui.css). */
@@ -95,7 +95,7 @@
       display: var(--theme-logo-role-display-large);
     }
   }
-  /* A picture in the list of posts (PostList.tsx). */
+  /* An image in the list of posts (PostList.tsx). */
   .theme-post-picture {
     border-radius: var(--theme-post-picture-radius);
   }
@@ -192,9 +192,9 @@
 }
 
 @layer fallback {
-  /* A picture that opens the text (a paragraph of its own) starts where a paragraph would: its space above would come on
+  /* An image that opens the text (a paragraph of its own) starts where a paragraph would: its space above would come on
    top of the space under the page's heading. For every theme, also one with its own text style; outside the
-   layers, like the pictures' own space in the text. */
+   layers, like the images' own space in the text. */
   .prose > p:first-child > :where(img, .picture-crop):only-child {
     margin-top: 0;
   }

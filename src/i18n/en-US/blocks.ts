@@ -8,16 +8,16 @@ export const blocks = {
   gone: (type: string) => `The block "${type}" no longer exists. Remove it from the text.`,
   /** A block whose fields cannot be saved, and why (a message from check.ts). */
   notSaved: (why: string) => `The block can't be saved yet. ${why}`,
-  /** A picture, chosen and changed like a block. */
+  /** An image, chosen and changed like a block. */
   picture: {
-    label: 'Picture',
-    hint: 'Choose or upload a picture.',
-    src: 'Picture',
+    label: 'Image',
+    hint: 'Choose or upload an image.',
+    src: 'Image',
     alt: 'Alt text',
-    altHint: 'Describe the picture in a few words, for people who can’t see it.',
-    /** A picture that is only decoration: drawn with alt="", without an alternative text. */
-    decorative: 'Decorative picture',
-    decorativeHint: 'Screen readers skip the picture.',
+    altHint: 'Describe the image in a few words, for people who can’t see it.',
+    /** An image that is only decoration: drawn with alt="", without an alternative text. */
+    decorative: 'Decorative image',
+    decorativeHint: 'Screen readers skip the image.',
     decorativeToggle: ['On', 'Off'] as [string, string],
   },
   /** The lines of the testimonials on the cards. */
@@ -211,13 +211,21 @@ export const blocks = {
     item: 'step',
     title: 'Heading',
     text: 'Text',
+    /** The text button under the last step, the empty faded step, and the floating toolbar of Steps typed in place. */
+    step: 'Step',
+    addStep: 'Add step',
+    newStep: 'New step',
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    /** A step typed in place: its place, for screen readers (step 2 of 4). */
+    stepOf: (n: number, total: number) => `Step ${n} of ${total}`,
   },
   hero: {
     label: 'Banner',
     hint: 'Page top with text and buttons.',
     text: 'Text',
-    textHint: 'The first paragraph is the subtitle. Add a picture and buttons with +.',
-    placement: 'Placement (picture)',
+    textHint: 'The first paragraph is the subtitle. Add an image and buttons with +.',
+    placement: 'Placement (image)',
     placementBeside: 'Beside',
     placementBehind: 'Behind the text',
     width: 'Width',
@@ -362,7 +370,7 @@ export const blocks = {
       singular: 'testimonial',
       create: 'New testimonial',
       name: 'Name',
-      image: 'Picture',
+      image: 'Image',
       context: 'Introduction',
       quote: 'Testimonial',
       createTag: 'Create a tag',
@@ -445,7 +453,7 @@ export const blocks = {
     media: 'Media',
     mediaNone: 'None',
     mediaIcon: 'Icon',
-    mediaImage: 'Picture',
+    mediaImage: 'Image',
     mediaVideo: 'Video',
     video: 'Video link',
     buttons: 'Buttons',
@@ -465,7 +473,7 @@ export const blocks = {
     title: 'Heading',
     text: 'Text',
     icon: 'Icon',
-    image: 'Picture',
+    image: 'Image',
     href: 'Page',
     hrefHint: 'With a page, the whole card is the link. Without one, it can have buttons.',
     /** The shared text ("Blocks" › "Cards"), and what it starts as on a site in this language. */

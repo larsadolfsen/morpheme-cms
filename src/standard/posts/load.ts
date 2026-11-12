@@ -2,16 +2,16 @@
 // with "All posts" under those it picks (to a tag, "All posts about …", when it goes to one; its shared texts). Nothing
 // when there are none, but where the newest of all would be large (the blog page): there the theme says there are none.
 import { standard } from '@site/standard';
-import { pictureOf } from '../load';
+import { imageOf } from '../load';
 import type { ListedPost } from '../site';
 import type { Load } from '../view';
 import { headOf } from '../head';
 import shared, { allPostsText, postCount } from './shared';
 import { designOf, type PostView, type PostsView } from './view';
 
-/** Posts as the site lists them, with their pictures' sizes. */
+/** Posts as the site lists them, with their images' sizes. */
 export const loadPosts = (posts: ListedPost[]): PostView[] =>
-  posts.map(({ image, ...p }) => ({ ...p, image: image ? pictureOf(image) : undefined }));
+  posts.map(({ image, ...p }) => ({ ...p, image: image ? imageOf(image) : undefined }));
 
 export const load: Load<PostsView> = async (props, { texts }) => {
   const design = designOf(props);

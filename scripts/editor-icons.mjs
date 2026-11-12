@@ -47,10 +47,10 @@ for (const [name, px, size] of [
 const image = await png(32, 0.75);
 const head = Buffer.alloc(22);
 head.writeUInt16LE(1, 2); // an icon
-head.writeUInt16LE(1, 4); // one picture
+head.writeUInt16LE(1, 4); // one image
 head[6] = head[7] = 32; // width and height
 head.writeUInt16LE(1, 10); // colour planes
 head.writeUInt16LE(32, 12); // bits per pixel
 head.writeUInt32LE(image.length, 14);
-head.writeUInt32LE(22, 18); // where the picture starts
+head.writeUInt32LE(22, 18); // where the image starts
 await fs.writeFile(path.join(OUT, 'favicon.ico'), Buffer.concat([head, image]));

@@ -4,7 +4,7 @@
 //   index.ts      what the editor knows about it (defineApp): its name, who made it, its icon, what it does (in a
 //                 sentence, and more fully), the cookies it sets and its settings (settings.ts in the folder, with
 //                 defineSettings); in the store also its version, its category and the words it is found by;
-//   screenshots/  the pictures it is shown with in the store, picked to give an idea of it (`screenshots` in
+//   screenshots/  the images it is shown with in the store, picked to give an idea of it (`screenshots` in
 //                 index.ts, packages/editor/scripts/app-screenshots.mjs), on its page;
 //   texts.ts      its texts in the editor's other languages, as a block's;
 //   blocks/<type>/  the blocks it adds, each a folder like a standard block's (index.tsx, viewOf.ts, load.ts,
@@ -70,7 +70,7 @@ export const defineSettings = (settings: AppSettings) => settings;
 
 /** A kind of entry an app adds to one of the site's lists (its value is the app's id): its name and
  * icon where one is picked under "+", what it is, and fields of its own, shown only for it. `omit`: the
- * list's own fields it does not have (a bar at the bottom of the screen has no picture or heading); the
+ * list's own fields it does not have (a bar at the bottom of the screen has no image or heading); the
  * fields that depend on one of them go with it (Field.only), and they must not depend on another
  * themselves. `draw`: how one looks on the site, by the form of an entry of it (DataForm.tsx), once for each
  * of `variants` (its states, e.g. before and after a signup), under its name, with its props over the entry's; or
@@ -136,7 +136,7 @@ export type AppDefinition = {
   /** Its own licence: an SPDX expression ("MIT", with its text in LICENSE in its folder), or "UNLICENSED" when all
    * rights are reserved. Under "Licenses" and on its page, also in the store. */
   license: string;
-  /** The third-party work it brings (fonts, icons, code, pictures), each with its licence (ThirdParty): every package
+  /** The third-party work it brings (fonts, icons, code, images), each with its licence (ThirdParty): every package
    * its code imports that is not the editor's (npm run check:content says which are missing), or a work with its
    * licence file in its folder; [] when it brings none. Under "Licenses" and on its page, also in the store. */
   thirdParty: ThirdParty[];
@@ -145,7 +145,7 @@ export type AppDefinition = {
   hint: string;
   /** What it does and how, more fully, on its page under "About the app": a paragraph for each blank line. */
   description?: string;
-  /** The pictures it is shown with on its page (as a theme's), a few picked to give an idea of it, each with what it
+  /** The images it is shown with on its page (as a theme's), a few picked to give an idea of it, each with what it
    * shows and what it says under it (AppShot); taken by packages/editor/scripts/app-screenshots.mjs with made-up content only. */
   screenshots?: AppShot[];
   /** The cookies it sets, on its page under "Cookies"; without any, it sets none. What the cookie banner asks about
@@ -200,7 +200,7 @@ export type AppDefinition = {
    * the top of a page or post that has changes waiting, with its versions, in place of the core's `Live` / `Scheduled`
    * (VersionSwitch.tsx). It is a `full` editor place, like `tabs`, so for first-party apps; with none, the core's is drawn. */
   slots?: { versionSwitch?: ComponentType<VersionSwitchProps> };
-  /** Sources of pictures it adds to the editor's picture picker while it is installed (`mediaProviders` in app.json, contract 5):
+  /** Sources of images it adds to the editor's image picker while it is installed (`mediaProviders` in app.json, contract 5):
    * only the label and icon are here; the request is the Worker's (worker/media-providers.js, lib/mediaProviders.mjs). */
   mediaProviders?: { id: string; label: string; icon: Icon }[];
   notifications?: AppNotifications;
@@ -271,13 +271,13 @@ export function appFromManifest(
 }
 
 /** An app with its id, the name of its folder (src/apps/<id>/), the types of the blocks it adds, what it needs of the
- * site (needsOf, from its folder), the addresses of its pictures with what each says under it, and where it came from when it was installed from the
+ * site (needsOf, from its folder), the addresses of its images with what each says under it, and where it came from when it was installed from the
  * app store (its store.json; the site's own have none). */
 export type SiteApp = AppDefinition & {
   id: string;
   blocks: string[];
   needs: AppNeeds;
-  pictures: { src: string; label: string }[];
+  images: { src: string; label: string }[];
   store?: StoreRecord;
 };
 

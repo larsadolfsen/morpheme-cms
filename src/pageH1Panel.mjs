@@ -4,11 +4,11 @@
 import { sectionClass } from '../lib/text-sections.mjs';
 
 /** Puts the page's header (the layout's `article > header`) in a panel with these settings (h1Section in lib/without-h1.mjs: a colour,
- * a picture behind it, the whole width), with the intro (HTML, in the text's own class) after it; no settings (null) leaves the
- * header without a panel. A panel the site's page has is first taken away. `src`: the picture's address as the preview shows it.
- * @param {Document} doc @param {{ color: string, picture?: string, alt?: string, width?: string } | null} settings @param {string} introHtml
+ * an image behind it, the whole width), with the intro (HTML, in the text's own class) after it; no settings (null) leaves the
+ * header without a panel. A panel the site's page has is first taken away. `src`: the image's address as the preview shows it.
+ * @param {Document} doc @param {{ color: string, image?: string, alt?: string, width?: string } | null} settings @param {string} introHtml
  * @param {string} [src] */
-export function setH1Panel(doc, settings, introHtml, src = settings?.picture) {
+export function setH1Panel(doc, settings, introHtml, src = settings?.image) {
   const header = doc.querySelector('article > header');
   const text = doc.querySelector('[data-editor="text"]');
   if (!header || !text) return;
@@ -22,10 +22,10 @@ export function setH1Panel(doc, settings, introHtml, src = settings?.picture) {
   const panel = doc.createElement('section');
   panel.setAttribute('data-editor', 'h1-section');
   panel.className = sectionClass(settings.color, settings);
-  if (settings.picture) {
+  if (settings.image) {
     const img = doc.createElement('img');
     img.className = 'text-section-image';
-    img.src = src ?? settings.picture;
+    img.src = src ?? settings.image;
     img.alt = settings.alt ?? '';
     panel.append(img);
   }

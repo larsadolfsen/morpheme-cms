@@ -27,8 +27,8 @@ const shape: Token[] = [
   { token: '--block-radius', label: say.shape.blockRadius },
   { token: '--block-radius-small', label: say.shape.blockRadiusSmall },
   { token: '--block-control-radius', label: say.shape.blockControlRadius },
-  { token: '--theme-picture-radius', label: say.shape.pictureRadius },
-  { token: '--theme-post-picture-radius', label: say.shape.postPictureRadius },
+  { token: '--theme-picture-radius', label: say.shape.imageRadius },
+  { token: '--theme-post-picture-radius', label: say.shape.postImageRadius },
   { token: '--theme-logo-tile-radius', label: say.shape.logoTileRadius },
 ];
 
