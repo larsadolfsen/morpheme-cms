@@ -89,7 +89,7 @@ the changeset, and merges when it is right. It never merges the Release PR.
 waiting to merge, sessions that went quiet without a pull request (it starts a fresh session with the whole task in its
 first prompt when a session stays stuck), release notes and changesets a merged change still lacks, follow-ups the
 sessions report, branches that are fully merged, and open questions for the owner. It archives a session once its work
-is merged (after checking it has no open question for the owner and no unmerged branch). It tells the owner only what the owner has to do or decide, such as approving a `next` build on npmjs.com,
+is merged (after checking it has no open question for the owner and no unmerged branch), and it goes through its sessions every 30 minutes to archive the finished ones. It tells the owner only what the owner has to do or decide, such as approving a `next` build on npmjs.com,
 and which version to approve, because every merge to `main` stages a new `next` build that only the owner approves. A pull request the owner has to see is assigned to the owner; the owner does not see the rest.
 
 **Cloudflare builds.** The PM also keeps an eye out for failed Cloudflare builds: the `Workers Builds: …` check on every
