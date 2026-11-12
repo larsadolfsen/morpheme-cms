@@ -1,5 +1,6 @@
 {
   "id": "links-list",
-  "kind": "line",
-  "text": "Links er nu lister, og en række i en liste kan være en lille overskrift"
+  "kind": "card",
+  "title": "Brug én liste til links og punkter",
+  "text": "Links og Punkter med ikon er nu én liste med de samme ikoner, overskrifter, tekster og sider. En række kan også være en lille overskrift. Udfoldelige lister er nu segmenterede lister."
 }

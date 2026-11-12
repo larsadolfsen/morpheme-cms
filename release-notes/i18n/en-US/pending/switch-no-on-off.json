@@ -1,5 +1,6 @@
 {
   "id": "switch-no-on-off",
-  "kind": "line",
-  "text": "Switches no longer show On and Off words, and a check or a cross in the switch shows whether it is on"
+  "kind": "card",
+  "title": "Read a switch at a glance",
+  "text": "Switches no longer show the words On and Off. A check or a cross in the switch shows whether it’s on."
 }

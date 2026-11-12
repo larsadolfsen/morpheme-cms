@@ -1,5 +1,6 @@
 {
   "id": "switch-no-on-off",
-  "kind": "line",
-  "text": "Kontakter viser ikke længere ordene Til og Fra, og et flueben eller et kryds i kontakten viser, om den er slået til"
+  "kind": "card",
+  "title": "Aflæs en kontakt med et blik",
+  "text": "Kontakter viser ikke længere ordene Til og Fra. Et flueben eller et kryds i kontakten viser, om den er slået til."
 }
