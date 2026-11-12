@@ -2,7 +2,7 @@
 // of `Rows from`. The same rows as the site's (load.ts), but of the data the editor has: posts without their addresses.
 import type { BlockData } from '../../blocks';
 import { rowLists } from './lists';
-import { itemOfEntry, rowsFromItems, sourceOf } from './rows.mjs';
+import { inlineRowsOf, itemOfEntry } from './rows.mjs';
 import type { SourceItem } from '../site';
 
 /** The rows a block got from its list, which list, and the page of the list (where `Show all` goes; empty in the editor). */
@@ -36,6 +36,7 @@ export const sourceItems = (id: string, data: BlockData): SourceItem[] => {
 
 /** The rows a block takes from its list in the editor; undefined for a block with typed rows. */
 export const editorRows = (props: Record<string, any>, data: BlockData): RowsFrom | undefined => {
-  const source = sourceOf(props.from);
-  return source ? { source, rows: rowsFromItems(sourceItems(source, data), props) } : undefined;
+  const source = typeof props.from === 'string' ? props.from.trim() : '';
+  const found = source ? inlineRowsOf(props, sourceItems(source, data)) : undefined;
+  return found ? { source: found.source, rows: found.rows } : undefined;
 };

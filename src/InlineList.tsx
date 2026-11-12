@@ -150,3 +150,24 @@ export default function InlineList({
     </div>
   );
 }
+
+/** A List that reads a list ("Rows from"): its rows as the site draws them, not typed here (they come from the list; Edit has the list, tags and
+ * How many). `rows` are the rows the list gives with the filter applied; `line` says which list; `empty` that nothing matches. */
+export function RowsFromList({ rows, line, empty }: { rows: Row[]; line: string; empty: boolean }) {
+  return (
+    <div className="inline-list-host">
+      <p className="inline-list-from">{empty ? `${line}. ${t.blocks.rows.empty}` : line}</p>
+      <SiteList className="block-list inline-list">
+        {rows.map((r, i) => (
+          <SiteListItem
+            key={i}
+            headline={r.title}
+            supporting={r.text || undefined}
+            leadingIcon={r.icon || undefined}
+            trailingIcon={r.href ? 'caret-right' : undefined}
+          />
+        ))}
+      </SiteList>
+    </div>
+  );
+}
