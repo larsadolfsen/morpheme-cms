@@ -33,6 +33,20 @@ export default defineBlock({
         { name: 'title', label: t.blocks.segmented.title, type: 'string', required: true },
         { name: 'text', label: t.blocks.segmented.text, type: 'text' },
         { name: 'href', label: t.blocks.segmented.href, type: 'relation', to: 'pages', hint: t.blocks.segmented.hrefHint },
+        // Text buttons at the bottom of an open row (the "more" links of an old Expandable list); not in a list whose rows are always open.
+        {
+          name: 'buttons',
+          label: t.blocks.segmented.rowButtons,
+          singular: t.blocks.segmented.rowButton,
+          hint: t.blocks.segmented.rowButtonsHint,
+          type: 'list',
+          summary: 'label',
+          only: { field: 'show', is: ['all'], not: true },
+          fields: [
+            { name: 'label', label: t.blocks.segmented.rowButtonText, type: 'string', max: 30, required: true },
+            { name: 'href', label: t.blocks.segmented.href, type: 'relation', to: 'pages', required: true },
+          ],
+        },
       ],
     },
     {
