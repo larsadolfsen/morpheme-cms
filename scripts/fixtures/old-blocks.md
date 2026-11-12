@@ -28,6 +28,12 @@ Lead text.
 
 <div data-block="list" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;One&quot;,&quot;text&quot;:&quot;First&quot;}]}"></div>
 
+## Cards
+
+<div data-block="cards" data-props="{&quot;design&quot;:&quot;icon&quot;,&quot;background&quot;:&quot;&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;heart&quot;,&quot;title&quot;:&quot;Standard&quot;,&quot;text&quot;:&quot;An old Standard card: outlined now.&quot;,&quot;href&quot;:&quot;/a/&quot;}]}"></div>
+
+<div data-block="cards" data-props="{&quot;design&quot;:&quot;text&quot;,&quot;background&quot;:&quot;accent&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Colored&quot;,&quot;text&quot;:&quot;The old colored background: a filled card in the primary container.&quot;}]}"></div>
+
 ## Banner
 
 <div data-block="hero" data-props="{&quot;text&quot;:&quot;## Join us\n\nToday&quot;}"></div>

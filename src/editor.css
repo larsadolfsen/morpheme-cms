@@ -986,6 +986,35 @@ html {
 .editor-text .inline-list-row-next:not(.inline-list-row-active) {
   opacity: 0.55;
 }
+/* A card's media that is set: a button over it, a tap changes it (Cards, InlineCards.tsx). */
+.editor-text .inline-card-media {
+  display: block;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.editor-text .inline-list-slot[aria-pressed='true'] {
+  background: var(--mo-secondary-container);
+}
+/* A card's buttons while it is active: the text of each is typed on the button itself (InlineCards.tsx), drawn as a tonal pill. */
+.editor-text .inline-card-button {
+  display: inline-flex;
+  min-width: 6rem;
+  min-height: 2.5rem;
+  align-items: center;
+  border-radius: 9999px;
+  padding-inline: 1rem;
+  background: var(--mo-secondary-container);
+  color: var(--mo-on-secondary-container);
+}
+/* A card's next button: empty and faded until it is made (Cards, InlineCards.tsx). */
+.editor-text .inline-card-next-button {
+  opacity: 0.55;
+}
 
 .editor-text .inline-list-slot {
   display: grid;

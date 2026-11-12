@@ -396,7 +396,7 @@ const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
   { name: 'steps', hint: 'Numbered steps.', add: 'Add step', noEdit: true },
   { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button' },
-  { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true },
+  { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
   { name: 'faq', hint: 'Questions that expand to answers.', add: 'Add question', field: 'question', open: true, surface: true },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
@@ -456,8 +456,8 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
   await page.close();
 }
 
-/** `surface`: the item is a card with a container of its own, so it has a background colour. */
-async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowButtons, field = 'title', open }) {
+/** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
+async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowButtons, field = 'title', open, start = 1 }) {
   const label = `${width}px inline ${name}`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
@@ -479,6 +479,30 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   } catch {
     problems.push(`${label}: the block was not typed in place (no active row with a "${field}" field)`);
     return page.close();
+  }
+  const faded = await page.locator('.inline-list-row-next').count();
+  if (faded !== start) problems.push(`${label}: a new block starts with ${faded} empty, faded items, not ${start}`);
+  if ((await page.locator('.inline-list-row-active').count()) !== 1) problems.push(`${label}: not exactly one active item at the start`);
+  if (name === 'cards') {
+    // The media area is there while the card is active: one button for each kind (icon, image, video); the link is the bar's, not a slot in the card; the action area has the next button, empty and faded.
+    const slots = await page
+      .locator('.inline-list-row-active .inline-list-slot')
+      .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')));
+    if (slots.join() !== 'Icon,Image,Video')
+      problems.push(`${label}: the active card's media buttons are "${slots}", not "Icon,Image,Video"`);
+    if (await page.locator('.inline-list-row-active [aria-label="Link"]').count())
+      problems.push(`${label}: the card has a link slot (the link is in the toolbar)`);
+    const next = await page.locator('.inline-list-row-active .block-card-actions .inline-card-next-button').allTextContents();
+    if (next.join() !== 'Add button')
+      problems.push(`${label}: the active card's action area has "${next}", not the text button "Add button"`);
+    if (width >= 1000 && !(await page.locator('.site-block-toolbar button[aria-label="Link"]').count()))
+      problems.push(`${label}: the toolbar has no Link while the card is still empty`);
+    // The header line of a card is a headline and ONE optional subhead, both typed in place; no badge, date or tags.
+    const fields = await page.evaluate(() =>
+      [...document.querySelectorAll('.inline-list-row-active [data-field]')].map((f) => f.dataset.field),
+    );
+    if (fields.join() !== 'title,subhead,text')
+      problems.push(`${label}: the typed fields of a card are "${fields}", not "title,subhead,text"`);
   }
   await page.keyboard.type('First');
   await page.waitForTimeout(300);
@@ -502,6 +526,44 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     problems.push(`${label}: the active row has a background colour (${one.background})`);
   for (const name of ['Add above', 'Add below'])
     if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
+  // The card's settings (the toolbar's gear on a phone, a sheet; the panel on a computer already) open with its page and buttons, never an empty page.
+  const cardSettings = async (when) => {
+    if (width >= 1000) return;
+    await page.locator('.site-block-toolbar button[aria-label="Edit"]').click();
+    const sheet = page.locator('dialog[open][aria-label="Card settings"]');
+    await sheet.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the card's settings do not open (${when})`));
+    if (!(await sheet.getByText(/^(Page|Buttons)$/).count())) problems.push(`${label}: the card's settings are empty (${when})`);
+    await sheet
+      .getByRole('button', { name: 'Close' })
+      .click({ timeout: 2000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+  };
+  if (name === 'cards' && width >= 1000) {
+    // A card has a page or buttons, never both: with a button the page is gone from its settings, with a page there are no buttons.
+    const panel = page.locator('.editor-side-sheet');
+    // The card's own Page field, found by its hint (a button has a Page of its own once it is added).
+    const page_ = panel.getByText('With a page, the whole card is the link and has no buttons.');
+    await page_.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the card's settings have no Page`));
+    await panel.getByRole('button', { name: 'Add button' }).click();
+    await page.waitForTimeout(300);
+    if (await page_.count()) problems.push(`${label}: a card with a button still offers a Page`);
+  }
+  if (name === 'cards') {
+    // A button is typed on the button itself, then the next one is there, empty and faded.
+    await page.click('.inline-list-row-active [data-add-button]');
+    await page.keyboard.type('Go');
+    await page.waitForTimeout(300);
+    const typed = await page
+      .locator('.inline-list-row-active .inline-card-button textarea')
+      .last()
+      .inputValue()
+      .catch(() => null);
+    if (typed !== 'Go') problems.push(`${label}: the text typed on a card's new button is "${typed}", not "Go"`);
+    if ((await page.locator('.inline-list-row-active .inline-card-next-button').count()) !== 1)
+      problems.push(`${label}: no next button after the first`);
+  }
+  if (name === 'cards') await cardSettings('a card with a button');
   // A block with no settings (Steps): no Link action and no Edit button, a step has nothing to set.
   if (noEdit)
     for (const name of ['Link', 'Edit'])
@@ -536,6 +598,41 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   await page.waitForTimeout(300);
   if ((await page.locator('[data-add-row]').count()) > 0)
     problems.push(`${label}: the button "${add}" stays after the cursor left the block`);
+  if (name === 'cards') {
+    // A media that is set is changed by a tap on it: an icon is picked from the Icon button, then the icon itself opens the picker and no media button is left.
+    await page.locator('.inline-list-row [data-field="title"]').first().click();
+    await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Icon"]').click();
+    const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
+    await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Icon button did not open the icon picker`));
+    await picker.getByRole('button').nth(1).click();
+    await page.waitForTimeout(400);
+    // The sheet over a phone's screen is closed to get back to the card.
+    await page
+      .locator('dialog[open] button[aria-label="Close"]')
+      .click({ timeout: 2000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+    await page.locator('.inline-list-row [data-field="title"]').first().click();
+    if ((await page.locator('.inline-list-row-active .inline-card-media').count()) !== 1)
+      problems.push(`${label}: a card with an icon does not show the icon as a button`);
+    if (await page.locator('.inline-list-row-active .inline-card-slots').count())
+      problems.push(`${label}: the media buttons show although the card has its icon`);
+    if ((await page.locator('.inline-list-row-active .inline-card-media svg').count()) !== 1)
+      problems.push(`${label}: the card's icon is not shown exactly once`);
+    await cardSettings('a card with an icon');
+    // A video: the Media choice of the first card, then its link.
+    await page.locator('.inline-list-row-active .inline-card-media').click();
+    await page.getByRole('button', { name: 'Video', exact: true }).last().click();
+    await page.getByRole('textbox', { name: 'Video link' }).fill('https://www.youtube.com/watch?v=aqz-KE-bpKQ');
+    await page.waitForTimeout(400);
+    await page
+      .locator('dialog[open] button[aria-label="Close"]')
+      .click({ timeout: 2000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+    await page.locator('.inline-list-row [data-field="title"]').first().click();
+    await cardSettings('a card with a video');
+  }
   await page.close();
 }
 
@@ -1722,9 +1819,9 @@ for (const [width, height] of [
   await checkDraftsCard(width, height);
 await checkEmptyHint();
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
+// On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
 for (const block of inlineSingles) for (const w of [375, 1280]) await checkInlineSingle(w, w < 600 ? 740 : 900, block);
-// (Cards on a computer fails when inserted, `t.map is not a function`: not part of the Steps change.)
-for (const block of inlineBlocks.filter((b) => b.name !== 'cards')) await checkInlineBlock(1280, 900, block);
+for (const block of inlineBlocks) await checkInlineBlock(1280, 900, block);
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
