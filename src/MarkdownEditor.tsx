@@ -50,20 +50,23 @@ import {
   LinkSimple,
   ListBullets,
   ListChecks,
-  ListDashes,
   ListNumbers,
   Plus,
   Quotes,
   Tag,
   TextAa,
+  TextAlignCenter,
+  TextAlignLeft,
+  TextAlignRight,
   TextB,
   TextH,
   TextHThree,
   TextHOne,
   TextHTwo,
   TextItalic,
+  TextT,
 } from '@phosphor-icons/react';
-import { LIST_KINDS, STYLE_KINDS, listKindOf, styleKindOf } from './styleKind.mjs';
+import { LIST_KINDS, STYLE_KINDS, headingKindOf, listKindOf, styleKindOf } from './styleKind.mjs';
 import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
 import { h1Of, h1TextOf, h1Written } from './titleH1.mjs';
@@ -113,7 +116,10 @@ import textMediumIcon from './icons/text-t-medium.svg?raw';
 import textSmallIcon from './icons/text-t-small.svg?raw';
 import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
 import textHIcon from '@phosphor-icons/core/assets/regular/text-h.svg?raw';
-import listIcon from '@phosphor-icons/core/assets/regular/list-dashes.svg?raw';
+import textTIcon from '@phosphor-icons/core/assets/regular/text-t.svg?raw';
+import alignLeftIcon from '@phosphor-icons/core/assets/regular/text-align-left.svg?raw';
+import alignCenterIcon from '@phosphor-icons/core/assets/regular/text-align-center.svg?raw';
+import alignRightIcon from '@phosphor-icons/core/assets/regular/text-align-right.svg?raw';
 import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
 import orderedIcon from '@phosphor-icons/core/assets/regular/list-numbers.svg?raw';
 import quoteIcon from '@phosphor-icons/core/assets/regular/quotes.svg?raw';
@@ -229,6 +235,31 @@ const gapHere = $prose(
           empty && $from.depth === 1 && isGap($from.parent)
             ? DecorationSet.create(doc, [Decoration.node($from.before(), $from.after(), { class: 'editor-gap-here' })])
             : null,
+      },
+    }),
+);
+
+// A page with only its H1 shows the hint under it (editor.css, h1::after): a tap on that line adds the empty paragraph
+// and puts the cursor in it, with the keyboard open. (With an empty paragraph after the H1 the tap is on the paragraph.)
+const hintTap = $prose(
+  () =>
+    new Plugin({
+      props: {
+        handleDOMEvents: {
+          click: (view, event) => {
+            const { doc, schema } = view.state;
+            const h1 = view.dom.firstElementChild;
+            if (doc.childCount !== 1 || doc.child(0).type.name !== 'heading' || event.target !== h1 || !h1) return false;
+            const range = document.createRange();
+            range.selectNodeContents(h1);
+            if ((event as MouseEvent).clientY <= range.getBoundingClientRect().bottom) return false;
+            const tr = view.state.tr.insert(doc.content.size, schema.nodes.paragraph.create());
+            view.dispatch(tr.setSelection(Selection.near(tr.doc.resolve(tr.doc.content.size - 1), -1)).scrollIntoView());
+            view.focus();
+            event.preventDefault();
+            return true;
+          },
+        },
       },
     }),
 );
@@ -574,6 +605,11 @@ export function activeOf(state: EditorView['state']): Set<string> {
   if (['bodyLarge', 'bodyMedium', 'bodySmall'].includes($from.parent.type.name))
     on.add({ bodyLarge: 'large', bodyMedium: 'medium', bodySmall: 'small' }[$from.parent.type.name as 'bodyLarge']);
   if ($from.parent.type.name === 'eyebrow') on.add('label');
+  // The alignment of the block at the top of the text the cursor is in (lib/text-align.mjs); 'alignable' when it can have one.
+  if ($from.depth === 1 && alignable($from.parent)) {
+    on.add('alignable');
+    if ($from.parent.attrs.align === 'center' || $from.parent.attrs.align === 'right') on.add(`align-${$from.parent.attrs.align}`);
+  }
   if (ancestors.includes('bullet_list')) on.add(isCheckItem(state) ? 'check' : 'bullet');
   if (ancestors.includes('ordered_list')) on.add('ordered');
   if (ancestors.includes('blockquote')) on.add('quote');
@@ -633,11 +669,46 @@ const KIND_ICONS = {
   check: { raw: checkIcon, node: ListChecks },
   ordered: { raw: orderedIcon, node: ListNumbers },
 };
-// The icons of the two buttons outside any text style or list: the general text icon and the general list icon.
+// The icons of the three buttons when their style is not on: the general text (T), heading (H) and list icons.
 const GENERIC_ICONS = {
-  text: { raw: textHIcon, node: TextH },
-  list: { raw: listIcon, node: ListDashes },
+  text: { raw: textTIcon, node: TextT },
+  heading: { raw: textHIcon, node: TextH },
+  list: { raw: bulletIcon, node: ListBullets },
 };
+
+// The alignments of a paragraph or a smaller heading (lib/text-align.mjs), each with its icon and name; left is the text's own.
+const ALIGN_FACES = {
+  left: { raw: alignLeftIcon, node: TextAlignLeft },
+  center: { raw: alignCenterIcon, node: TextAlignCenter },
+  right: { raw: alignRightIcon, node: TextAlignRight },
+};
+type Align = keyof typeof ALIGN_FACES;
+const alignLabel = (align: Align) => ({ left: t.text.alignLeft, center: t.text.alignCenter, right: t.text.alignRight })[align];
+
+// The alignment where the cursor is, from activeOf's names: left when the block has none.
+const alignIn = (active: Iterable<string>): Align => {
+  const on = new Set(active);
+  return on.has('align-center') ? 'center' : on.has('align-right') ? 'right' : 'left';
+};
+
+// Whether a block at the top of the text can be aligned: a paragraph, a body style or an H3 or smaller heading (not a heading that
+// starts a section, a list, a quote or a label), so the line before it stays before it on the site.
+const alignable = (node: Node) =>
+  ['paragraph', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(node.type.name) || (node.type.name === 'heading' && node.attrs.level >= 3);
+
+/** Aligns every top-level block the selection touches that can be aligned; left takes the alignment away. */
+export function alignSelection(view: EditorView, align: Align) {
+  const { state } = view;
+  const { from, to } = state.selection;
+  const tr = state.tr;
+  state.doc.forEach((node, offset) => {
+    if (offset + node.nodeSize <= from || offset > to || !alignable(node)) return;
+    const next = align === 'left' ? null : align;
+    if ((node.attrs.align ?? null) !== next) tr.setNodeMarkup(offset, undefined, { ...node.attrs, align: next });
+  });
+  if (tr.docChanged) view.dispatch(tr);
+  view.focus();
+}
 
 type KindGroup = 'headings' | 'text' | 'list';
 
@@ -652,7 +723,7 @@ type Look = (Face | { shows: (state: EditorView['state']) => Face }) & {
   on?: (state: EditorView['state']) => boolean;
   action: (button: HTMLElement) => void;
   off?: (state: EditorView['state']) => boolean;
-  // Not there on a computer, dimmed on a phone, where the row is a sheet of a fixed size (the marks in a block with none).
+  // Not there (the marks in a block with none).
   dim?: (state: EditorView['state']) => boolean;
   word?: boolean;
   menu?: boolean;
@@ -688,6 +759,7 @@ function selectionMenu(
   sections: boolean,
   colors: (button: HTMLElement) => void,
   kinds: (button: HTMLElement, group: KindGroup) => void,
+  aligns: (button: HTMLElement) => void,
 ) {
   return new Plugin({
     view(view) {
@@ -769,7 +841,13 @@ function selectionMenu(
         },
         // The headings offered, in a menu. Not marked: it always shows one of them (the menu marks the one there is).
         {
-          shows: (s) => groupFace(headingFace(levels(s).find((level) => heading(s, level)) ?? levels(s)[0])),
+          // The general H icon unless the cursor is in a heading (styleKind.mjs).
+          shows: (s) => {
+            const level = levels(s).find((l) => heading(s, l));
+            return headingKindOf(activeOf(s), view.hasFocus()) === 'generic' && level === undefined
+              ? { icon: GENERIC_ICONS.heading.raw, label: t.text.heading }
+              : groupFace(headingFace(level ?? levels(s)[0]));
+          },
           action: (button) => kinds(button, 'headings'),
           off: (s) => levels(s).length < 2,
           menu: true,
@@ -779,9 +857,17 @@ function selectionMenu(
           // The general text icon when the cursor is not in the text or is in a list, else the style it is in (styleKind.mjs).
           shows: (s) => {
             const kind = styleKindOf(activeOf(s), view.hasFocus());
-            return kind === 'generic'
-              ? { icon: GENERIC_ICONS.text.raw, label: t.text.kind }
-              : groupFace(textKinds.find(({ name }) => name === kind)!);
+            if (kind !== 'generic') return groupFace(textKinds.find(({ name }) => name === kind)!);
+            // In a heading, its own level, unless the selection reaches into a block of another kind (mixed styles stay generic).
+            const { $from, to } = s.selection;
+            const level = $from.parent.type.name === 'heading' ? ($from.parent.attrs.level as number) : 0;
+            let mixed = false;
+            s.doc.nodesBetween(s.selection.from, to, (n) => {
+              if (n.isTextblock && (n.type.name !== 'heading' || n.attrs.level !== level)) mixed = true;
+            });
+            return level >= 1 && level <= 3 && !mixed && view.hasFocus()
+              ? groupFace(headingFace(level))
+              : { icon: GENERIC_ICONS.text.raw, label: t.text.kind };
           },
           action: (button) => kinds(button, 'text'),
           menu: true,
@@ -798,6 +884,16 @@ function selectionMenu(
                 );
           },
           action: (button) => kinds(button, 'list'),
+          menu: true,
+        },
+        // The alignment of the block in a menu: its icon follows the block's; dimmed where a block has none (a section's heading, a list).
+        {
+          shows: (s) => {
+            const align = alignIn(activeOf(s));
+            return { icon: ALIGN_FACES[align].raw, label: t.text.alignmentIs(alignLabel(align)) };
+          },
+          action: (button) => aligns(button),
+          dim: (s) => !activeOf(s).has('alignable'),
           menu: true,
         },
       ];
@@ -870,46 +966,42 @@ function selectionMenu(
         menu.hidden = !shown;
         if (!shown) return;
         const state = asShown(view.state);
-        // On a phone the row is a docked sheet of a fixed size (editor.css): every button stays, so its layout never changes with
-        // the cursor, and one that does not apply there is dimmed. On a computer it is left out.
-        const sheet = matchMedia('(pointer: coarse)').matches;
-        menu.classList.toggle('editor-selection-sheet', sheet);
+        // A button that does not apply there (the marks in a block with none) is left out, on a phone too: the row floats by the text.
         looks.forEach((look, i) => {
-          const gone = !!look.off?.(state);
-          const dim = !!look.dim?.(state);
-          buttons[i].hidden = gone || (dim && !sheet);
-          buttons[i].disabled = dim && sheet;
+          buttons[i].hidden = !!look.off?.(state) || !!look.dim?.(state);
           if (buttons[i].hidden) return;
           if ('shows' in look) draw(buttons[i], look, look.shows(state));
           if (look.on) buttons[i].setAttribute('aria-pressed', String(look.on(state)));
         });
         const { offsetWidth: width, offsetHeight: height } = menu;
         const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
-        if (sheet) {
-          // Docked: the sheet's own place, not the cursor's: over "Save changes" when it is there (FormFrame.tsx), and over the
-          // keyboard (the visual viewport's bottom), the whole width of the screen.
-          const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
-          menu.style.left = `${screen.offsetLeft}px`;
-          menu.style.width = `${screen.width}px`;
-          menu.style.top = `${Math.min(screen.offsetTop + screen.height, save) - menu.offsetHeight}px`;
-          return;
-        }
-        menu.style.width = '';
         const text = view.dom.getBoundingClientRect();
         const { from, to } = word ?? selection;
         const start = view.coordsAtPos(from);
         const end = view.coordsAtPos(to);
         const middle = start.top === end.top ? (start.left + end.right) / 2 : text.left + text.width / 2;
-        // Over the selection; under it when the toolbar is there.
+        // Over the selection; under it when there is no room over it (the top toolbar, or the top of the visible screen). Always
+        // inside the visible screen (the visual viewport: not under the keyboard) and above "Save changes".
         const bar = document.querySelector('.editor-tools')?.getBoundingClientRect().bottom ?? 0;
+        const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
+        const floor = Math.max(bar, screen.offsetTop);
+        const ceiling = Math.min(screen.offsetTop + screen.height, save);
         const over = start.top - height - 10;
-        menu.style.left = `${Math.max(4, Math.min(middle - width / 2, innerWidth - width - 4))}px`;
-        menu.style.top = `${over > bar ? over : end.bottom + 10}px`;
+        const under = end.bottom + 10;
+        const left = screen.offsetLeft + 4;
+        menu.style.left = `${Math.max(left, Math.min(middle - width / 2, screen.offsetLeft + screen.width - width - 4))}px`;
+        menu.style.top = `${Math.max(screen.offsetTop, Math.min(over > floor ? over : under, ceiling - height - 4))}px`;
       }
       // Gone when the text is left (not for a tap on the menu itself, which keeps the focus).
       const refresh = () => setTimeout(() => update(view));
       // Where it is follows the page and the keyboard.
-      const follow = () => menu.hidden || update(view);
+      // Again a frame and a quarter of a second later: the page (and "Save changes") has moved by then when the keyboard opened.
+      const follow = () => {
+        if (menu.hidden) return;
+        update(view);
+        requestAnimationFrame(() => menu.hidden || update(view));
+        setTimeout(() => menu.hidden || update(view), 250);
+      };
       view.dom.addEventListener('blur', refresh);
       view.dom.addEventListener('focus', refresh);
       addEventListener('scroll', follow, { passive: true });
@@ -1289,6 +1381,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     kindsAt.at.setAttribute('aria-expanded', 'true');
     return () => kindsAt.at.setAttribute('aria-expanded', 'false');
   }, [kindsAt]);
+  // The alignment button that opened its menu (over the selection or in the toolbar), while it is open.
+  const [alignAt, setAlignAt] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    alignAt?.setAttribute('aria-expanded', 'true');
+    return () => alignAt?.setAttribute('aria-expanded', 'false');
+  }, [alignAt]);
   // The previews of the blocks, drawn again when what they show from elsewhere changes: the lists,
   // the testimonials, the rest of the site, the page's address or a fixed page's other fields.
   const cards = useRef(new Set<() => void>());
@@ -1349,6 +1447,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         !!sections,
         (button) => setColorsAt((open) => (open ? null : button)),
         (button, group) => setKindsAt((open) => (open?.at === button ? null : { at: button, group, word: true })),
+        (button) => setAlignAt((open) => (open === button ? null : button)),
       ),
     );
     const pictureView = $view(imageSchema.node, () => (node, view, getPos) => pictureCard(node, view, getPos, () => sheeted.current));
@@ -1387,6 +1486,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(looking)
       .use(sectionFrame(framed))
       .use(gapHere)
+      .use(hintTap)
       .use(checkToggle)
       .use(history)
       .use(clipboard);
@@ -1476,13 +1576,15 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         if (is('h1') || is('h2') || is('h3')) callCommand(turnIntoTextCommand.key)(ctx);
         const { $from } = view.state.selection;
         if ($from.parent.type.name !== 'heading') {
-          view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes[kind === 'small' ? 'bodySmall' : 'bodyLarge']));
+          // Its alignment goes with it.
+          const align = $from.parent.attrs.align ?? null;
+          view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes[kind === 'small' ? 'bodySmall' : 'bodyLarge'], { align }));
         }
         return view.focus();
       }
       if (ownBlocks.includes(view.state.selection.$from.parent.type.name)) {
         const { $from } = view.state.selection;
-        view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes.paragraph));
+        view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes.paragraph, { align: $from.parent.attrs.align ?? null }));
         if (kind === 'medium') return view.focus();
       }
       // The items of the bulleted list the cursor is in get a box (checked false) or lose it (null): a check list.
@@ -1660,6 +1762,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.bulletList, icon: KIND_ICONS.bullet.node, action: () => setKind('bullet'), on: 'bullet', role: 'list' },
     { label: t.text.checkList, icon: KIND_ICONS.check.node, action: () => setKind('check'), on: 'check', role: 'list' },
     { label: t.text.orderedList, icon: KIND_ICONS.ordered.node, action: () => setKind('ordered'), on: 'ordered', role: 'list' },
+    // The alignment of the paragraph or smaller heading, a menu (the icon follows the block's).
+    { label: t.text.alignmentIs(alignLabel(alignIn(active))), icon: ALIGN_FACES[alignIn(active)].node, action: () => {}, role: 'align' },
     // A picture and the blocks are put in with "+" (a sheet with them all); without blocks (a blog
     // post) a picture has its own button.
     ...(blocks
@@ -1717,7 +1821,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     const listLabels = [t.text.list, t.text.bulletList, t.text.checkList, t.text.orderedList];
     const mayWrap = (label: string) =>
       [t.text.undo, t.text.redo, t.text.link].includes(label) ||
-      (arrangement === 'bare' && label === t.text.italic) ||
+      label.startsWith(t.text.alignmentIs('')) ||
       (arrangement === 'bare' && (listLabels.includes(label) || label.startsWith(t.text.listIs(''))));
     const next = nextArrangement(arrangement, {
       any: wrapped.length > 0,
@@ -1737,9 +1841,18 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     return () => watch.disconnect();
   }, []);
 
-  const tool = ({ label, icon, action, on, large }: (typeof tools)[number]) => (
-    <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} large={large} onClick={action} />
-  );
+  const tool = ({ label, icon, action, on, large, role }: (typeof tools)[number]) =>
+    role === 'align' ? (
+      <ToolbarButton
+        key="align"
+        icon={icon}
+        label={label}
+        menu={!!alignAt && alignAt.closest('.editor-selection-menu') === null}
+        onClick={(e) => setAlignAt(alignAt === e.currentTarget ? null : e.currentTarget)}
+      />
+    ) : (
+      <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} large={large} onClick={action} />
+    );
 
   // The lines between the marks on the text, the kinds of text, "+" (or "Picture") and "Undo".
   const lineBefore = (item: (typeof tools)[number]) =>
@@ -1752,10 +1865,16 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     if (members.length === 1) return tool(item);
     const group = groupOf(members);
     const generic =
-      (group === 'text' && styleKindOf(active, inText) === 'generic') || (group === 'list' && listKindOf(active, inText) === 'generic');
+      (group === 'headings' && headingKindOf(active, inText) === 'generic') ||
+      (group === 'text' && styleKindOf(active, inText) === 'generic') ||
+      (group === 'list' && listKindOf(active, inText) === 'generic');
     const shown = shownOf(members);
     const [genericIcon, genericLabel, labelIs] =
-      group === 'list' ? [GENERIC_ICONS.list.node, t.text.list, t.text.listIs] : [GENERIC_ICONS.text.node, t.text.kind, t.text.kindIs];
+      group === 'list'
+        ? [GENERIC_ICONS.list.node, t.text.list, t.text.listIs]
+        : group === 'headings'
+          ? [GENERIC_ICONS.heading.node, t.text.heading, t.text.kindIs]
+          : [GENERIC_ICONS.text.node, t.text.kind, t.text.kindIs];
     const opened = kindsAt?.group === group && !kindsAt.word;
     // Not marked: it always shows a kind of its group (the menu under it marks the one there is).
     return (
@@ -1819,6 +1938,21 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         <MenuItem icon={TextAa} selected={!active.includes('textColor')} onClick={() => color(null)}>
           <span className="text-on-surface">{t.text.noColor}</span>
         </MenuItem>
+      </Menu>
+      <Menu anchor={alignAt} label={t.text.alignment} onClose={() => setAlignAt(null)}>
+        {(Object.keys(ALIGN_FACES) as Align[]).map((align) => (
+          <MenuItem
+            key={align}
+            icon={ALIGN_FACES[align].node}
+            selected={alignIn(active) === align}
+            onClick={() => {
+              setAlignAt(null);
+              editor.current?.action((ctx) => alignSelection(ctx.get(editorViewCtx), align));
+            }}
+          >
+            {alignLabel(align)}
+          </MenuItem>
+        ))}
       </Menu>
       <Menu anchor={kindsAt?.at ?? null} label={kindsAt?.group === 'list' ? t.text.list : t.text.kind} onClose={() => setKindsAt(null)}>
         {kindsShown

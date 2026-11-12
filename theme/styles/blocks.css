@@ -2039,6 +2039,15 @@
     color: inherit;
   }
 
+  /* A paragraph or a smaller heading in a text aligned to the centre or the right (packages/editor/lib/text-align.mjs, the Align
+   button of the editor); left is the text's own. Outside the layers, as the prose style is. */
+  .text-align-center {
+    text-align: center;
+  }
+  .text-align-right {
+    text-align: right;
+  }
+
   /* The first and last parts of a coloured section lose the prose margins that would add to the panel's padding. Outside
    the layers, as the prose style (Tailwind's typography) is in the utilities layer, which wins over components. */
   .text-section > :first-child {

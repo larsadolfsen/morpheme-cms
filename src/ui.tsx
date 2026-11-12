@@ -262,6 +262,7 @@ export function ToolbarButton({
           trailingIcon={<CaretDown />}
           aria-label={label}
           aria-haspopup="menu"
+          className="toolbar-menu-button"
           style={toolbarMenuSize}
           {...own}
         >
@@ -293,12 +294,15 @@ export function Toolbar({
   );
 }
 
-// The text's toolbar: the room round its tools and no line over it.
+// The text's toolbar: the room round its tools and the box's own line on its top edge too. The docked rule draws its
+// top edge from these two variables, so the edge is the same line as the sides (MarkdownEditor.tsx) whichever of the two
+// rules wins, and never the theme's "no line" (0), which left the top edge and the rounded top corners open.
 const closeToolbar = {
   '--toolbar-gap': '0.125rem',
   '--toolbar-docked-padding-block': '0.25rem',
   '--toolbar-docked-padding-inline': '0.25rem',
-  '--toolbar-docked-line-width': '0',
+  '--toolbar-docked-line-width': '1px',
+  '--toolbar-docked-line': 'var(--color-outline-variant)',
 } as CSSProperties;
 
 // A tool's size in the text's toolbar.

@@ -125,10 +125,10 @@ async function checkUpdatesCard(width, height) {
   await page.close();
 }
 
-/** On a phone the text's floating row is a docked bottom sheet: the same size and the same place (just over "Save changes", or over the keyboard) at every cursor, with all of the Text style, List and heading buttons in it. */
-async function checkTextSheet() {
-  const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
-  page.on('pageerror', (e) => problems.push(`360px text sheet: ${e.message}`));
+/** On a phone the text's row floats by the selected text (never a docked sheet): inside the visible screen (above the keyboard and "Save changes"), Bold, Italic and Link first, 48 dp buttons centred in their rows (a second row when they do not fit), and it follows the line the cursor is on. */
+async function checkTextSheet(width = 360) {
+  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px text menu: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#new/pages'));
   await page.waitForSelector('.ProseMirror');
@@ -139,34 +139,295 @@ async function checkTextSheet() {
       const m = document.querySelector('.editor-selection-menu');
       const r = m.getBoundingClientRect();
       const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? visualViewport.height;
+      const sel = getSelection().getRangeAt(0).getBoundingClientRect();
       const names = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getAttribute('aria-label'));
-      return { shown: !m.hidden, sheet: m.classList.contains('editor-selection-sheet'), r: r.toJSON(), save, names };
+      const buttons = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getBoundingClientRect().toJSON());
+      return {
+        shown: !m.hidden,
+        sheet: m.classList.contains('editor-selection-sheet'),
+        r: r.toJSON(),
+        save,
+        sel: sel.toJSON(),
+        names,
+        buttons,
+        scrolls: m.scrollWidth > m.clientWidth,
+        vh: visualViewport.height,
+      };
     });
   await page.waitForTimeout(1200);
   const first = await read();
   await page.keyboard.type(' and more');
   await page.keyboard.press('Enter');
+  for (let i = 0; i < 4; i++) await page.keyboard.press('Enter');
   await page.keyboard.type('Next');
   await page.waitForTimeout(1200);
   const second = await read();
   for (const [name, now] of [
     ['first line', first],
-    ['second line', second],
+    ['later line', second],
   ]) {
-    if (!now.shown || !now.sheet) problems.push(`360px text sheet: no docked sheet at the ${name}`);
-    else if (Math.abs(now.r.bottom - now.save) > 1 || now.r.width < 359)
-      problems.push(`360px text sheet: not docked over Save changes at the ${name}`);
+    if (!now.shown) problems.push(`${width}px text menu: not shown at the ${name}`);
+    else if (now.sheet || now.r.width > width - 1) problems.push(`${width}px text menu: a docked sheet at the ${name}, not a floating row`);
+    else if (now.r.left < 0 || now.r.right > width || now.r.bottom > Math.min(now.save, now.vh) + 1)
+      problems.push(`${width}px text menu: outside the visible screen at the ${name}`);
+    else if (Math.min(Math.abs(now.r.bottom - now.sel.top), Math.abs(now.r.top - now.sel.bottom)) > 40)
+      problems.push(`${width}px text menu: not by the text at the ${name}`);
     if (!now.names.some((n) => n.startsWith('Text style')) || !now.names.includes('List'))
-      problems.push(`360px text sheet: the Text style or List button is missing at the ${name}`);
+      problems.push(`${width}px text menu: the Text style or List button is missing at the ${name}`);
   }
-  if (first.r.height !== second.r.height || first.r.top !== second.r.top)
-    problems.push('360px text sheet: the sheet moved or changed size with the cursor');
-  await page.setViewportSize({ width: 360, height: 420 });
+  // Bold, Italic and Link come first, every button is 48 dp, nothing scrolls, and each row is centred (a second row when they do not fit).
+  if (first.names.slice(0, 3).join() !== 'Bold,Italic,Link')
+    problems.push(`${width}px text menu: Bold, Italic and Link are not the first three buttons`);
+  if (first.scrolls || first.buttons.some((b) => b.left < first.r.left - 1 || b.right > first.r.right + 1))
+    problems.push(`${width}px text menu: a button is outside the menu or the menu scrolls`);
+  if (first.buttons.some((b) => b.width < 47.5 || b.height < 47.5)) problems.push(`${width}px text menu: a button is smaller than 48 dp`);
+  const rows = Object.values(Object.groupBy(first.buttons, (b) => Math.round(b.top)));
+  for (const row of rows) {
+    const left = Math.min(...row.map((b) => b.left)) - first.r.left;
+    const right = first.r.right - Math.max(...row.map((b) => b.right));
+    if (Math.abs(left - right) > 2) problems.push(`${width}px text menu: a row of buttons is not centred (${left} left, ${right} right)`);
+  }
+  if (first.r.top === second.r.top) problems.push(`${width}px text menu: it did not follow the cursor to another line`);
+  await page.setViewportSize({ width, height: 420 });
   await page.waitForTimeout(500);
   const keyboard = await read();
-  if (Math.abs(keyboard.r.bottom - keyboard.save) > 1 || keyboard.r.height !== first.r.height)
-    problems.push('360px text sheet: it does not follow the keyboard at its own size');
+  if (keyboard.r.bottom > Math.min(keyboard.save, keyboard.vh) + 1) problems.push(`${width}px text menu: it is under the keyboard`);
+  if (width !== 360) return void (await page.close());
+  // The top toolbar's tools rest in one colour (the kind menus too), and a menu button is never in the accent.
+  const colours = await page.evaluate(() => [
+    ...new Set(
+      [...document.querySelectorAll('.editor-tools button:not([aria-pressed="true"])')]
+        .filter((b) => b.querySelector('svg'))
+        .map((b) => getComputedStyle(b).color),
+    ),
+  ]);
+  if (colours.length > 1) problems.push(`${width}px text toolbar: its tools rest in ${colours.length} colours (${colours.join(', ')})`);
   await page.close();
+}
+
+/** The contrast (WCAG) of a hint line (a pseudo-element of the element) on each section colour, with the section's own colours set on the element as sectionFrame.ts does. */
+function hintContrasts(page, selector, pseudo) {
+  return page.evaluate(
+    ([selector, pseudo]) => {
+      const el = document.querySelector(selector);
+      const pixel = (css, over) => {
+        const c = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+        c.fillStyle = over;
+        c.fillRect(0, 0, 1, 1);
+        c.fillStyle = css;
+        c.fillRect(0, 0, 1, 1);
+        return [...c.getImageData(0, 0, 1, 1).data.slice(0, 3)];
+      };
+      const lum = (rgb) => {
+        const [R, G, B] = rgb.map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+        return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+      };
+      const out = {};
+      for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
+        el.setAttribute('data-section-color', color);
+        el.setAttribute('data-section-box', 'only');
+        const [style, hint] = [getComputedStyle(el), getComputedStyle(el, pseudo)];
+        const solid =
+          style.backgroundColor === 'rgba(0, 0, 0, 0)' ? getComputedStyle(document.body).backgroundColor : style.backgroundColor;
+        const back = pixel(solid, '#fff');
+        const front = pixel(hint.color, `rgb(${back})`);
+        out[color] = (Math.max(lum(front), lum(back)) + 0.05) / (Math.min(lum(front), lum(back)) + 0.05);
+      }
+      el.removeAttribute('data-section-color');
+      el.removeAttribute('data-section-box');
+      return out;
+    },
+    [selector, pseudo],
+  );
+}
+
+/** On a phone, a tap on the hint under a page's only heading (Type text, or tap Insert …) puts the cursor in an empty paragraph after it. */
+async function checkEmptyHint() {
+  const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`360px empty hint: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.tap('.ProseMirror');
+  await page.keyboard.type('# From us to you');
+  await page.waitForTimeout(500);
+  // The hint is the heading's ::after: tap its line, anywhere across the width.
+  const at = await page.evaluate(() => {
+    const h1 = document.querySelector('.ProseMirror > h1');
+    const range = document.createRange();
+    range.selectNodeContents(h1);
+    const [box, text] = [h1.getBoundingClientRect(), range.getBoundingClientRect()];
+    return { x: box.left + 8, y: box.bottom - 8, height: parseFloat(getComputedStyle(h1, '::after').minHeight) };
+  });
+  if (at.height < 48) problems.push(`360px empty hint: the hint line is ${at.height}px high, not 48`);
+  for (const [color, ratio] of Object.entries(await hintContrasts(page, '.ProseMirror > h1', '::after')))
+    if (ratio < 4.5) problems.push(`360px empty hint: the hint on a ${color} section has contrast ${ratio.toFixed(2)}:1, below 4.5`);
+  await page.touchscreen.tap(at.x, at.y);
+  await page.keyboard.type('Hej');
+  const got = await page.evaluate(() => {
+    const [h1, ...rest] = [...document.querySelector('.ProseMirror').children];
+    return {
+      h1: h1?.textContent,
+      rest: rest.map((n) => `${n.tagName}:${n.textContent}`),
+      hint: !!getComputedStyle(h1, '::after').content.match(/Type text/),
+    };
+  });
+  if (got.h1 !== 'From us to you' || got.rest.join() !== 'P:Hej')
+    problems.push(`360px empty hint: expected the heading and P:Hej, got ${got.h1} ${got.rest}`);
+  if (got.hint) problems.push('360px empty hint: the hint still shows');
+  await page.close();
+}
+
+/** The Preview (the binoculars) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
+async function checkPreviewSection() {
+  const path = 'src/content/pages/about.md';
+  if (!existsSync(join(ROOT, path))) return;
+  const text = readFileSync(join(ROOT, path), 'utf8').replace(/(\n)(## [^\n]+)/, '$1<div data-section="tertiary"></div>\n\n$2');
+  const page = await browser.newPage({ viewport: { width: 390, height: 800 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`Preview section: ${e.message}`));
+  await openEditor(page, site, { [path]: text });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
+  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const frame = page.frames().find((f) => f !== page.mainFrame());
+  await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
+  const got = await frame.evaluate(() => {
+    const section = document.querySelector('section.text-section-tertiary');
+    return section ? getComputedStyle(section).backgroundColor : null;
+  });
+  if (!got || got === 'rgba(0, 0, 0, 0)') problems.push(`Preview section: a section with a background has none in the Preview (${got})`);
+  await page.close();
+}
+
+/** The hint lines (Type text, or tap Insert …; Write text here…) read on every section colour, light and dark (4.5:1), and start where the text starts. */
+async function checkHints() {
+  for (const scheme of ['light', 'dark']) {
+    for (const width of [360, 1280]) {
+      const page = await browser.newPage({ viewport: { width, height: 740 }, colorScheme: scheme, locale: 'en-US' });
+      page.on('pageerror', (e) => problems.push(`${width}px hints: ${e.message}`));
+      await openEditor(page, site);
+      await page.evaluate(() => (location.hash = '#new/pages'));
+      await page.waitForSelector('.ProseMirror');
+      await page.click('.ProseMirror');
+      await page.keyboard.type('# Hej');
+      await page.keyboard.press('Enter');
+      await page.keyboard.type('Some more text.');
+      await page.keyboard.press('Enter');
+      const colors = await hintContrasts(page, '.ProseMirror > p.editor-gap-here', '::before');
+      const got = await page.evaluate(() => {
+        const [h1, text, gap] = [...document.querySelector('.ProseMirror').children];
+        const left = (n) => n.getBoundingClientRect().left + parseFloat(getComputedStyle(n).paddingLeft);
+        return { textLeft: left(text), gapLeft: left(gap), h1Left: left(h1) };
+      });
+      for (const [color, ratio] of Object.entries(colors))
+        if (ratio < 4.5)
+          problems.push(`${width}px ${scheme} hints: the hint on a ${color} section has contrast ${ratio.toFixed(2)}:1, below 4.5`);
+      if (Math.abs(got.gapLeft - got.textLeft) > 0.5 || Math.abs(got.h1Left - got.textLeft) > 0.5)
+        problems.push(`${width}px ${scheme} hints: the hint starts at ${got.gapLeft}, the text at ${got.textLeft}`);
+      await page.close();
+    }
+  }
+}
+
+/** The text's toolbar and field read as one closed box on a phone, empty, with the keyboard open and stuck at the top of the screen: the toolbar has a border on its top edge and on each side, and rounded top corners that keep the border. */
+async function checkToolbarBox() {
+  for (const [width, height] of [
+    [360, 740],
+    [375, 740],
+    [414, 740],
+    [360, 380],
+  ]) {
+    const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${width}px toolbar box: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#new/pages'));
+    await page.waitForSelector('.editor-tools');
+    const read = () =>
+      page.evaluate(() => {
+        const bar = document.querySelector('.editor-tools');
+        const cs = getComputedStyle(bar);
+        const side = (n) => `${cs[`border${n}Style`]} ${parseFloat(cs[`border${n}Width`])}px ${cs[`border${n}Color`]}`;
+        return {
+          top: [cs.borderTopStyle, parseFloat(cs.borderTopWidth), cs.borderTopColor],
+          left: parseFloat(cs.borderLeftWidth),
+          right: parseFloat(cs.borderRightWidth),
+          radius: [cs.borderTopLeftRadius, cs.borderTopRightRadius],
+          line: cs.getPropertyValue('--toolbar-docked-line-width').trim(),
+          side: side('Top'),
+        };
+      });
+    const states = { 'at rest': read };
+    const check = (name, got) => {
+      if (got.top[0] === 'none' || got.top[1] < 1 || got.top[2] === 'rgba(0, 0, 0, 0)')
+        problems.push(`${width}x${height}px text toolbar (${name}): its top edge has no border (${got.side})`);
+      if (parseFloat(got.line) < 1)
+        problems.push(
+          `${width}x${height}px text toolbar (${name}): the docked rule's own top line is ${got.line}, so it would leave the top edge open where it wins`,
+        );
+      if (got.left < 1 || got.right < 1) problems.push(`${width}x${height}px text toolbar (${name}): a side has no border`);
+      if (got.radius.some((r) => parseFloat(r) < 1))
+        problems.push(`${width}x${height}px text toolbar (${name}): a top corner is not rounded (${got.radius})`);
+    };
+    for (const [name, fn] of Object.entries(states)) check(name, await fn());
+    // Stuck at the top of the screen, while scrolling through a long text.
+    await page.click('.ProseMirror');
+    for (let i = 0; i < 40; i++) {
+      await page.keyboard.type('Some text on a line');
+      await page.keyboard.press('Enter');
+    }
+    await page.evaluate(() => window.scrollBy(0, 400));
+    await page.waitForTimeout(200);
+    check('stuck', await read());
+    await page.close();
+  }
+}
+
+/** A section of the whole width (`width` full) reaches the text field's left, right and top edges; one of the text's width stays inset. */
+async function checkFullWidthSection() {
+  for (const width of [375, 1280]) {
+    const page = await browser.newPage({ viewport: { width, height: 740 }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${width}px full-width section: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#new/pages'));
+    await page.waitForSelector('.ProseMirror');
+    await page.click('.ProseMirror');
+    await page.keyboard.type('## Tester');
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('Some text.');
+    const measure = (full) =>
+      page.evaluate((full) => {
+        const pm = document.querySelector('.ProseMirror');
+        const field = pm.closest('.editor-text').getBoundingClientRect();
+        const border = (n) => parseFloat(getComputedStyle(pm.closest('.editor-text'))[n]);
+        const parts = [...pm.children].filter((n) => !n.classList.contains('editor-section-picture'));
+        parts.forEach((el, i) => {
+          el.setAttribute('data-section-color', 'primary');
+          el.setAttribute('data-section-box', parts.length === 1 ? 'only' : i === 0 ? 'start' : i === parts.length - 1 ? 'end' : 'middle');
+          if (full) el.setAttribute('data-section-width', 'full');
+          else el.removeAttribute('data-section-width');
+        });
+        const r = parts[0].getBoundingClientRect();
+        const radius = getComputedStyle(parts[0]).borderStartStartRadius;
+        return {
+          left: r.left - field.left - border('borderLeftWidth'),
+          right: field.right - border('borderRightWidth') - r.right,
+          top: r.top - field.top,
+          radius,
+        };
+      }, full);
+    const inset = await measure(false);
+    if (process.env.SHOTS_FULL) await page.locator('.editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-inset-${width}.png` });
+    const full = await measure(true);
+    if (process.env.SHOTS_FULL) await page.locator('.editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-${width}.png` });
+    if (inset.left < 1 || inset.radius === '0px')
+      problems.push(`${width}px full-width section: the section of the text's width should stay inset with corners`);
+    if (Math.abs(full.left) > 0.5 || Math.abs(full.right) > 0.5 || full.top > 0.5 || full.radius !== '0px')
+      problems.push(
+        `${width}px full-width section: left ${full.left}, right ${full.right}, top ${full.top}, corner ${full.radius}, should all be 0 against the text field's edges`,
+      );
+    await page.close();
+  }
 }
 
 /** Settings lists the seven screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
@@ -531,6 +792,21 @@ for (const [width, height] of [
         missing: [...document.querySelectorAll('[data-icon-missing]')].map((e) => e.getAttribute('data-icon-missing')),
         fallback: [...document.querySelectorAll('[data-icon-fallback]')].map((e) => e.getAttribute('data-icon-fallback')),
       }));
+      // No sheet from the bottom starts taller than --bottom-sheet-start-max-height (half the screen, Material 3), on a phone.
+      if (width < 600) {
+        const tooTall = await page.evaluate(() => {
+          const cap = innerHeight / 2 + 1;
+          const bad = [];
+          for (const d of document.querySelectorAll('dialog.editor-sheet.bottom-sheet:not(.editor-side-panel)')) {
+            if (d.open) continue;
+            d.showModal();
+            if (d.offsetHeight > cap) bad.push(`${d.getAttribute('aria-label') ?? d.className} (${Math.round(d.offsetHeight)}px)`);
+            d.close();
+          }
+          return bad;
+        });
+        for (const name of tooTall) problems.push(`${width}px #${hash}: the sheet ${name} starts taller than half the screen`);
+      }
       for (const name of new Set(state.fallback)) fallbackAt(name, `${width}px #${hash}`);
       for (const name of new Set(state.missing)) problems.push(`${width}px #${hash}: ${missingIcon(name)}`);
       if (state.empty) problems.push(`${width}px #${hash}: the screen is empty`);
@@ -639,7 +915,12 @@ for (const [width, height] of [
 ])
   await checkUpdatesCard(width, height);
 
-await checkTextSheet();
+for (const width of [360, 375, 414]) await checkTextSheet(width);
+await checkEmptyHint();
+await checkHints();
+await checkFullWidthSection();
+await checkToolbarBox();
+await checkPreviewSection();
 
 await browser.close();
 server.close();

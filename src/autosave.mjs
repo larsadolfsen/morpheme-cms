@@ -36,6 +36,8 @@ export function createAutosave({
 }) {
   /** @type {Map<string, { path: string; id: string; text: string; make: { create?: boolean; to?: string }; dirty: boolean; unflushed: boolean; sending: boolean; failed: boolean; off: boolean; tries: number; timer?: unknown; idleTimer?: unknown }>} */
   const items = new Map();
+  // What git got while the page was being left, by item: the form is told when the person is back (`resume`).
+  const missed = new Map();
   /** @type {Set<(state: AutosaveState) => void>} */
   const listeners = new Set();
   let last = /** @type {AutosaveState} */ ('saved');
@@ -148,7 +150,13 @@ export function createAutosave({
       } else item.timer = setTimer(() => sendNow(item), debounce);
       // Git has a new waiting version: the form takes its file (its blob id) so the next save does not clash with it.
       // (`wrote`: the page file that has it, when the Worker made a new page or moved a draft.)
-      if (answer.committed && !leaving) onFlushed?.({ path, id, ...(answer.path ? { wrote: answer.path } : {}) });
+      // When the page is being left it is told when the person is back (`resume`): the tab is only hidden, and the form must have the
+      // blob ids git has now, or its next save is refused as changed elsewhere.
+      if (answer.committed) {
+        const done = { path, id, ...(answer.path ? { wrote: answer.path } : {}) };
+        if (leaving) missed.set(keyOf(path, id), done);
+        else onFlushed?.(done);
+      }
     } else {
       // Not in git: the text is still to be sent (`retry()`, or the next change).
       item.failed = true;
@@ -156,6 +164,13 @@ export function createAutosave({
     }
     emit();
     return answer.ok === true;
+  }
+
+  /** The person is back on the page: it is told of what git got while it was hidden (see `flush`). */
+  function resume() {
+    const done = [...missed.values()];
+    missed.clear();
+    for (const d of done) onFlushed?.(d);
   }
 
   /** The person leaves the page: everything not yet in git is sent in one request each (they cannot wait). */
@@ -182,6 +197,7 @@ export function createAutosave({
     autosave,
     flush,
     leave,
+    resume,
     retry,
     forget,
     state,
@@ -253,12 +269,17 @@ export const restorable = (stored, gitText, gitAt) => stored.text !== gitText &&
 export function watchLeaving(client, target = globalThis) {
   const onHide = () => {
     if (target.document?.visibilityState === 'hidden' || target.document === undefined) client.leave();
+    else client.resume?.();
   };
   const onPageHide = () => client.leave();
+  // The page comes back from the back-forward cache: as when a hidden tab is shown.
+  const onPageShow = () => client.resume?.();
   target.addEventListener('pagehide', onPageHide);
+  target.addEventListener('pageshow', onPageShow);
   target.document?.addEventListener('visibilitychange', onHide);
   return () => {
     target.removeEventListener('pagehide', onPageHide);
+    target.removeEventListener('pageshow', onPageShow);
     target.document?.removeEventListener('visibilitychange', onHide);
   };
 }
