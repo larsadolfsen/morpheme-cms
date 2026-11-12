@@ -11,7 +11,7 @@
 // first time one is drawn); only a name Material Symbols lacks too is MISSING, the question mark, marked with
 // data-icon-missing (its name), which check:screens finds on the built site's pages and the editor's screens.
 import { cloneElement, isValidElement, useEffect, useState, type ReactElement } from 'react';
-import { materialName, resolveIcon } from '../lib/materialIcon.mjs';
+import { materialName, materialNames, resolveIcon } from '../lib/materialIcon.mjs';
 import { svgParts } from '../lib/svg.mjs';
 import ssrMaterial from 'virtual:material-symbols-ssr';
 
@@ -27,6 +27,17 @@ const loadMaterial = () =>
   }));
 /** A Material Symbols file by `<name>` or `<name>-fill` (a Material name); undefined until the set is loaded. */
 const materialLookup = () => (materialSet ? (key: string) => materialSet?.[`${MATERIAL}${key}.svg`] : undefined);
+/** The names of all of Material Symbols' icons (a picked one is stored by its name, and the site draws it as the fallback
+ * above): undefined until the lazy set is loaded, which `wanted` asks for (the icon picker's search). */
+export function useAllIconNames(wanted: boolean): string[] | undefined {
+  const [names, setNames] = useState<string[] | undefined>(() => (materialSet ? materialNames(Object.keys(materialSet)) : undefined));
+  useEffect(() => {
+    if (!wanted || names) return;
+    loadMaterial().then(() => materialSet && setNames(materialNames(Object.keys(materialSet))));
+  }, [wanted, names]);
+  return names;
+}
+
 /** Draws again when the lazy set has loaded, after it is asked for (`wanted`). */
 function useMaterialLoaded(wanted: boolean) {
   const [, redraw] = useState(0);

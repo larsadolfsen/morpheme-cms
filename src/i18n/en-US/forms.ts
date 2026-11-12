@@ -210,6 +210,8 @@ export const forms = {
   noIcon: 'No icon',
   /** Under a page's templates while the side-panel ones are greyed: the link to Globals › Side column. */
   chooseSideColumn: 'Choose a block for the side column',
+  searchIcons: 'Search icons',
+  noIconsFound: 'No icons found',
   pickIcon: 'Choose an icon',
   noIconYet: 'No icon yet',
   changeIcon: 'Change icon',

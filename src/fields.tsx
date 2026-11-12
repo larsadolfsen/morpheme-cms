@@ -58,7 +58,7 @@ import { ToolSelect } from './ToolSelect';
 import { MoveButtons } from './MoveButtons';
 import { movedList } from './moveItem.mjs';
 import { clean, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, problemOf, type Around, type Problem } from './check';
-import { Icon } from './icon';
+import { Icon, useAllIconNames } from './icon';
 import { t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 
@@ -420,18 +420,7 @@ function FieldControl({ field, value, onChange }: Props) {
       }
       if (field.icons) {
         // The chosen icon, and all of them to tap (IconPicker).
-        const choices = [...(field.required ? [] : [{ label: t.forms.noIcon, value: '' }]), ...field.options!];
-        control = (
-          <IconPicker
-            id={id}
-            label={field.label}
-            value={text}
-            options={choices}
-            startOpen={field.iconsOpen}
-            icon={(name, size) => <Icon name={name} size={size} />}
-            onChange={onChange}
-          />
-        );
+        control = <IconField id={id} field={field} text={text} onChange={onChange} />;
         break;
       }
       {
@@ -1080,5 +1069,25 @@ function AddItem({ field, sub = false, onClick }: { field: Field; sub?: boolean;
     <Button kind="text" size="small" icon={Plus} className={sub ? 'mt-1 ml-5' : 'mt-1'} onClick={onClick}>
       {t.forms.addOne(field.singular ?? t.forms.item)}
     </Button>
+  );
+}
+
+/** A field with `icons`: the choices to tap, and a search in all the icons there are (IconPicker). */
+function IconField({ id, field, text, onChange }: { id?: string; field: Field; text: string; onChange: (value: string) => void }) {
+  const [wanted, setWanted] = useState(false);
+  const all = useAllIconNames(wanted);
+  const choices = [...(field.required ? [] : [{ label: t.forms.noIcon, value: '' }]), ...field.options!];
+  return (
+    <IconPicker
+      id={id}
+      label={field.label}
+      value={text}
+      options={choices}
+      all={all}
+      onSearch={() => setWanted(true)}
+      startOpen={field.iconsOpen}
+      icon={(name, size) => <Icon name={name} size={size} />}
+      onChange={onChange}
+    />
   );
 }

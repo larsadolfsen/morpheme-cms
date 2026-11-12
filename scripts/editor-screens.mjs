@@ -365,6 +365,53 @@ async function checkInlineList(width, height) {
   await page.close();
 }
 
+/** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set ("arrow back"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, and the sheet fits the width. */
+async function checkIconSearch(width, height) {
+  const label = `${width}px icon search`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('First');
+  await page.locator('.inline-list-row-active .inline-list-slot').first().tap();
+  const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
+  await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
+  const first = await picker.getByRole('button').count();
+  if (first !== 29) problems.push(`${label}: the first view has ${first} tiles instead of 29 (No icon and 28 icons)`);
+  if ((await picker.getByRole('button').first().getAttribute('aria-label')) !== 'No icon')
+    problems.push(`${label}: the first tile is not "No icon"`);
+  const search = page.getByRole('searchbox', { name: 'Search icons' });
+  if (!(await search.count())) return (problems.push(`${label}: no search field "Search icons"`), page.close());
+  const box = await search.boundingBox();
+  if (!box || box.x < 0 || box.x + box.width > width) problems.push(`${label}: the search field is outside the screen`);
+  await search.fill('zzzqqq');
+  await page
+    .getByText('No icons found', { exact: true })
+    .waitFor({ timeout: 8000 })
+    .catch(() => problems.push(`${label}: no "No icons found" for a search without a hit`));
+  await search.fill('arrow back');
+  const hit = picker.getByRole('button', { name: 'arrow back', exact: true });
+  await hit.waitFor({ timeout: 8000 }).catch(() => problems.push(`${label}: the search "arrow back" did not find the icon arrow back`));
+  if ((await picker.getByRole('button').count()) > 61) problems.push(`${label}: more than one page of icons is drawn at once`);
+  await hit.tap().catch(() => {});
+  await page.waitForTimeout(500);
+  const drawn = await page.evaluate(() =>
+    document.querySelector('.inline-list-row-active .inline-list-slot svg')?.getAttribute('data-icon-fallback'),
+  );
+  if (drawn !== 'arrow_back') problems.push(`${label}: the picked icon is "${drawn}" in the row, not arrow_back`);
+  await page.close();
+}
+
 /** The hint lines (Type text, or tap Insert …; Write text here…) read on every section colour, light and dark (4.5:1), and start where the text starts. */
 async function checkHints() {
   for (const scheme of ['light', 'dark']) {
@@ -1037,6 +1084,13 @@ for (const [width, height] of [
   await checkDraftsCard(width, height);
 await checkEmptyHint();
 await checkInlineList(375, 740);
+for (const [width, height] of [
+  [360, 740],
+  [375, 740],
+  [390, 844],
+  [414, 896],
+])
+  await checkIconSearch(width, height);
 await checkHints();
 await checkFullWidthSection();
 await checkToolbarBox();

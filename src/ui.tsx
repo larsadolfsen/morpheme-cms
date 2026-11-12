@@ -110,6 +110,7 @@ import { locale, t } from './i18n';
 import { useRegisterFab } from './fabPresence';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
 import { SvgFile } from './icon';
+import { iconLabel, searchIconNames } from '../lib/materialIcon.mjs';
 import { countries, countryName, dialCodes, flagOf, regionOf } from './countries';
 import { byText } from './schema';
 import { contrast } from '../lib/colors';
@@ -1016,14 +1017,17 @@ export function ShownValue({ id, icon, muted, children }: { id?: string; icon?: 
   );
 }
 
-/** One of many icons: the chosen one with its name, and a button that unfolds them all in a grid to tap
- * (ChoiceTile, the chosen one marked); a tap picks one and folds them again. The choice with the value
- * '' is no icon (a cross). `icon` draws an icon by its value. */
+/** One of many icons: the chosen one with its name, and a button that unfolds them in a grid to tap (ChoiceTile, the
+ * chosen one marked); a tap picks one and folds them again. The choice with the value '' is no icon (a cross). `icon`
+ * draws an icon by its value. The grid starts with `options`; the search field over it looks in `all` as well (the names of
+ * all the icons there are: they are loaded when the field is first used, `onSearch`) and shows its hits a page at a time. */
 export function IconPicker({
   id,
   label,
   value,
   options,
+  all,
+  onSearch,
   icon,
   startOpen = false,
   onChange,
@@ -1032,49 +1036,97 @@ export function IconPicker({
   label: string;
   value: string;
   options: { value: string; label: string }[];
+  /** The names of all the icons, once loaded (a name as stored). */
+  all?: string[];
+  /** The search field is used for the first time: load `all`. */
+  onSearch?: () => void;
   icon: (value: string, size: number) => ReactElement;
   /** The grid is open from the start (and stays open after a pick). */
   startOpen?: boolean;
   onChange: (value: string) => void;
 }) {
   const [open, setOpen] = useState(startOpen);
+  const [query, setQuery] = useState('');
+  const [shown, setShown] = useState(PAGE);
+  const more = useRef<HTMLDivElement>(null);
   const own = useId();
   const grid = `${id ?? own}-icons`;
   const chosen = options.find((o) => o.value === value);
+  const searching = query.trim() !== '';
+  const hits = useMemo(() => {
+    if (!searching) return options;
+    const words = query
+      .toLowerCase()
+      .split(/[\s_-]+/)
+      .filter(Boolean);
+    const known = options.filter((o) => o.value && words.every((w) => `${o.label} ${o.value}`.toLowerCase().includes(w)));
+    const own = new Set(known.map((o) => o.value));
+    const rest = searchIconNames(all ?? [], query)
+      .filter((name) => !own.has(name))
+      .map((name) => ({ value: name, label: iconLabel(name) }));
+    return [...options.filter((o) => !o.value), ...known, ...rest];
+  }, [options, all, query, searching]);
+  useEffect(() => setShown(PAGE), [query]);
+  // The next page, when the end of the shown ones comes into view.
+  useEffect(() => {
+    const end = more.current;
+    if (!end || !open) return;
+    const watch = new IntersectionObserver((e) => e[0]?.isIntersecting && setShown((n) => n + PAGE), { rootMargin: '200px' });
+    watch.observe(end);
+    return () => watch.disconnect();
+  }, [open, hits, shown]);
+  const loading = searching && !all;
   return (
     <div id={id}>
       <div className="flex items-center gap-3">
         {value && <LeadingIcon>{icon(value, 24)}</LeadingIcon>}
-        <span className="min-w-0 flex-1 truncate">{chosen ? chosen.label : t.forms.noIconYet}</span>
+        <span className="min-w-0 flex-1 truncate">{chosen ? chosen.label : value ? iconLabel(value) : t.forms.noIconYet}</span>
         <Button kind="outlined" size="small" aria-expanded={open} aria-controls={grid} onClick={() => setOpen(!open)}>
           {open ? t.forms.hideIcons : value ? t.forms.changeIcon : t.forms.pickIcon}
         </Button>
       </div>
       {open && (
-        <div
-          id={grid}
-          role="group"
-          aria-label={label}
-          className="editor-reveal mt-3 grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2"
-        >
-          {options.map((o) => (
-            <ChoiceTile
-              key={o.value || 'none'}
-              selected={o.value === value}
-              label={o.label}
-              onClick={() => {
-                onChange(o.value);
-                if (!startOpen) setOpen(false);
+        <div id={grid} className="editor-reveal mt-3">
+          {onSearch && (
+            <TextField
+              type="search"
+              label={t.forms.searchIcons}
+              value={query}
+              autoComplete="off"
+              onFocus={onSearch}
+              onChange={(e) => {
+                onSearch();
+                setQuery(e.target.value);
               }}
-            >
-              {o.value ? icon(o.value, 24) : <X size={20} className="text-on-surface-variant" />}
-            </ChoiceTile>
-          ))}
+            />
+          )}
+          <div role="group" aria-label={label} className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2">
+            {hits.slice(0, shown).map((o) => (
+              <ChoiceTile
+                key={o.value || 'none'}
+                selected={o.value === value}
+                label={o.label}
+                onClick={() => {
+                  onChange(o.value);
+                  if (!startOpen) setOpen(false);
+                }}
+              >
+                {o.value ? icon(o.value, 24) : <X size={20} className="text-on-surface-variant" />}
+              </ChoiceTile>
+            ))}
+          </div>
+          {hits.length > shown && <div ref={more} aria-hidden className="h-4" />}
+          {searching && !loading && hits.every((o) => !o.value) && (
+            <p role="status" className="mt-3 text-on-surface-variant">
+              {t.forms.noIconsFound}
+            </p>
+          )}
         </div>
       )}
     </div>
   );
 }
+const PAGE = 60;
 
 /** A picture: a small one of it (`src`), the button that picks one, from Files or a new one, or another,
  * and with `onRemove` (when it may be left out) the button that takes it away. */
