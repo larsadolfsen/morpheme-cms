@@ -127,22 +127,6 @@
   background-color: var(--mo-primary);
 }
 
-/* In a section on a colour, or on a picture, the marks are the section's text colour, like the text. */
-.editor-text
-  .ProseMirror
-  > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'])
-  li[data-item-type='task']::before,
-.editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) li[data-item-type='task']::before {
-  background-color: color-mix(in srgb, currentColor 35%, transparent);
-}
-.editor-text
-  .ProseMirror
-  > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'])
-  li[data-item-type='task'][data-checked='true']::before,
-.editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) li[data-item-type='task'][data-checked='true']::before {
-  background-color: currentColor;
-}
-
 /* Milkdown puts a paragraph in every list item; on the site, short lists have none. */
 .editor-text li > p {
   margin-block: 0;
@@ -226,6 +210,8 @@
   --tw-prose-links: var(--section-on);
   --tw-prose-bullets: var(--section-on);
   --tw-prose-counters: var(--section-on);
+  --section-accent: var(--section-fill);
+  --section-on-accent: var(--section-on);
   background: var(--section-fill);
   color: var(--section-on);
 }
@@ -321,6 +307,8 @@
   --tw-prose-links: var(--block-hero-on-shade, var(--block-surface));
   --tw-prose-bullets: var(--block-hero-on-shade, var(--block-surface));
   --tw-prose-counters: var(--block-hero-on-shade, var(--block-surface));
+  --section-accent: var(--block-hero-shade, var(--block-text));
+  --section-on-accent: var(--block-hero-on-shade, var(--block-surface));
   color: var(--block-hero-on-shade, var(--block-surface));
 }
 
@@ -942,8 +930,8 @@ html {
 }
 
 .editor-text .inline-list-field::placeholder {
-  color: var(--mo-on-surface-variant);
-  opacity: 0.7;
+  color: color-mix(in srgb, currentColor 85%, transparent);
+  opacity: 1;
 }
 
 /* The media and link slots over the headline of the active card. */
@@ -960,9 +948,9 @@ html {
   font-size: 0.875rem;
 }
 
-/* The row being typed in has the dotted line of the sections' frame round it, and no other colour; the empty row of an empty list is faded. */
+/* The row being typed in has a dotted line round it in the text's own colour (3:1 on every section colour, unlike the section frame's quiet line); the empty row of an empty list is faded. */
 .editor-text .inline-list-row-active {
-  outline: var(--editor-section-frame);
+  outline: 2px dotted color-mix(in srgb, currentColor 70%, transparent);
   outline-offset: -2px;
 }
 

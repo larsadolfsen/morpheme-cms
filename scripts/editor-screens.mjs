@@ -402,6 +402,42 @@ async function checkInlineBlock(width, height, { name, hint, add, surface }) {
   if (one.outline !== 'dotted') problems.push(`${label}: the active row has outline ${one.outline}, not dotted`);
   if (!surface && one.background !== 'rgba(0, 0, 0, 0)')
     problems.push(`${label}: the active row has a background colour (${one.background})`);
+  // Everything the block draws follows the section it is in: the text, the placeholder (4.5:1), the slot icons and the dotted line (3:1)
+  // on each section colour, light and dark, so a new inline block that leaves out a colour fails here.
+  for (const scheme of ['light', 'dark']) {
+    await page.emulateMedia({ colorScheme: scheme });
+    const colors = await page.evaluate(`(() => { ${ratioOf}
+      const out = {};
+      const row = document.querySelector('.inline-list-row-active');
+      const top = row.closest('.ProseMirror > *');
+      for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
+        top.setAttribute('data-section-color', color);
+        top.setAttribute('data-section-box', 'only');
+        const field = row.querySelector('.inline-list-field');
+        const ph = getComputedStyle(field, '::placeholder');
+        const slot = row.querySelector('.inline-list-slot');
+        const line = getComputedStyle(row);
+        out[color] = {
+          text: ratio(getComputedStyle(field).color, top),
+          placeholder: ratio(ph.color, top, parseFloat(ph.opacity)),
+          slot: slot ? ratio(getComputedStyle(slot).color, top) : null,
+          outline: ratio(line.outlineColor, top),
+        };
+      }
+      top.removeAttribute('data-section-color');
+      top.removeAttribute('data-section-box');
+      return out; })()`);
+    for (const [color, got] of Object.entries(colors))
+      for (const [part, min] of [
+        ['text', 4.5],
+        ['placeholder', 4.5],
+        ['slot', 3],
+        ['outline', 3],
+      ])
+        if (got[part] !== null && got[part] < min)
+          problems.push(`${label} (${scheme}): the ${part} on a ${color} section has contrast ${got[part].toFixed(2)}:1, below ${min}`);
+  }
+  await page.emulateMedia({ colorScheme: 'light' });
   for (const name of ['Add above', 'Add below'])
     if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
   await page.click('[data-add-row]');
@@ -500,21 +536,23 @@ async function checkIconSearch(width, height) {
   await page.close();
 }
 
-/** The marks of a check list in a text (`- [x]`) keep 3:1 (WCAG, a graphic) against their section, on every section colour, light and dark, in the editor and on the site. */
-async function checkChecklistMarks() {
-  const ratioOf = `
-    const pixel = (css, over) => {
+/** Browser-side helpers (a string, put into page.evaluate): ratio(markCss, sectionEl, opacity) is the WCAG contrast of a colour (at an opacity) on a section's background. */
+const ratioOf = `
+    const pixel = (css, over, opacity = 1) => {
       const c = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
-      c.fillStyle = over; c.fillRect(0, 0, 1, 1); c.fillStyle = css; c.fillRect(0, 0, 1, 1);
+      c.fillStyle = over; c.fillRect(0, 0, 1, 1); c.globalAlpha = opacity; c.fillStyle = css; c.fillRect(0, 0, 1, 1);
       return [...c.getImageData(0, 0, 1, 1).data.slice(0, 3)];
     };
     const lum = (rgb) => { const [R, G, B] = rgb.map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * R + 0.7152 * G + 0.0722 * B; };
-    const ratio = (markCss, sectionEl) => {
+    const ratio = (markCss, sectionEl, opacity = 1) => {
       const bg = getComputedStyle(sectionEl).backgroundColor;
       const back = pixel(bg === 'rgba(0, 0, 0, 0)' ? getComputedStyle(document.body).backgroundColor : bg, '#fff');
-      const front = pixel(markCss, 'rgb(' + back + ')');
+      const front = pixel(markCss, 'rgb(' + back + ')', opacity);
       return (Math.max(lum(front), lum(back)) + 0.05) / (Math.min(lum(front), lum(back)) + 0.05);
     };`;
+
+/** The marks of a check list in a text (`- [x]`) keep 3:1 (WCAG, a graphic) against their section, on every section colour, light and dark, in the editor and on the site. */
+async function checkChecklistMarks() {
   for (const scheme of ['light', 'dark']) {
     for (const width of [375, 1280]) {
       const page = await browser.newPage({ viewport: { width, height: 740 }, colorScheme: scheme, locale: 'en-US' });
