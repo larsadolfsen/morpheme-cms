@@ -2,8 +2,8 @@
 // version in package.json and package-lock.json, and each minute watches the commit's check run, undoing a version that did not build.
 // Exposes RUNNING, checkForUpdate, startUpdate, watchUpdate, cmsStatus and handleCms (/api/cms, and GET /api/cms/note-image/<version>/<locale>/<id>,
 // behind the same login check). Needs GITHUB_PUBLISH_TOKEN and the KV binding PUSH. Keeps each new version's changelog text and release
-// notes (en-US, da-DK) as cms:notes:<version> and each card screenshot as cms:note-image:<version>:<locale>:<id>; cmsStatus returns
-// the notes to come, with the screenshot address on each card. Depends on github.js, session.js, push.js and lib/{lockfile,cms-version,changelog,releaseNotes}.mjs;
+// notes (en-US, da-DK) as cms:notes:<version> and each paragraph's screenshot as cms:note-image:<version>:<locale>:<id>; cmsStatus returns
+// the notes to come, with the screenshot address on each paragraph. Depends on github.js, session.js, push.js and lib/{lockfile,cms-version,changelog,releaseNotes}.mjs;
 // I/O is injected (`deps`).
 import { config } from '@site/config';
 import { cms as cmsEn } from '../src/i18n/en-US/cms';
