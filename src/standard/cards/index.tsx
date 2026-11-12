@@ -124,7 +124,7 @@ export default defineBlock({
           label: t.blocks.cards.buttons,
           singular: t.blocks.cards.button,
           hint: t.blocks.cards.buttonsHint,
-          only: { field: 'href', is: [''] },
+          only: { field: 'href', is: [''], loose: true },
         },
       ],
     },

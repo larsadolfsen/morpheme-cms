@@ -24,6 +24,8 @@ export type Only = {
   is: string[];
   /** In use while the field has none of `is` (any value but those). */
   not?: boolean;
+  /** Also while that field is itself not in use (its own `only` says no): a card's buttons by its link, which a video has not. */
+  loose?: boolean;
   and?: Only;
 };
 

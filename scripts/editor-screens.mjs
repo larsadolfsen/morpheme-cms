@@ -428,10 +428,25 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, start
     problems.push(`${label}: the active row has a background colour (${one.background})`);
   for (const name of ['Add above', 'Add below'])
     if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
+  // The card's settings (the toolbar's gear on a phone, a sheet; the panel on a computer already) open with its page and buttons, never an empty page.
+  const cardSettings = async (when) => {
+    if (width >= 1000) return;
+    await page.locator('.site-block-toolbar button[aria-label="Edit"]').click();
+    const sheet = page.locator('dialog[open][aria-label="Card settings"]');
+    await sheet.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the card's settings do not open (${when})`));
+    if (!(await sheet.getByText(/^(Page|Buttons)$/).count())) problems.push(`${label}: the card's settings are empty (${when})`);
+    await sheet
+      .getByRole('button', { name: 'Close' })
+      .click({ timeout: 2000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+  };
+  if (name === 'cards') await cardSettings('an empty card');
   if (name === 'cards' && width >= 1000) {
     // A card has a page or buttons, never both: with a button the page is gone from its settings, with a page there are no buttons.
     const panel = page.locator('.editor-side-sheet');
-    const page_ = panel.getByText('Page', { exact: true });
+    // The card's own Page field, found by its hint (a button has a Page of its own once it is added).
+    const page_ = panel.getByText('With a page, the whole card is the link and has no buttons.');
     await page_.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the card's settings have no Page`));
     await panel.getByRole('button', { name: 'Add button' }).click();
     await page.waitForTimeout(300);
@@ -464,6 +479,21 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, start
       problems.push(`${label}: a card with an icon does not show the icon as a button`);
     if (await page.locator('.inline-list-row-active .inline-card-slots').count())
       problems.push(`${label}: the media buttons show although the card has its icon`);
+    if ((await page.locator('.inline-list-row-active .inline-card-media svg').count()) !== 1)
+      problems.push(`${label}: the card's icon is not shown exactly once`);
+    await cardSettings('a card with an icon');
+    // A video: the Media choice of the first card, then its link.
+    await page.locator('.inline-list-row-active .inline-card-media').click();
+    await page.getByRole('button', { name: 'Video', exact: true }).last().click();
+    await page.getByRole('textbox', { name: 'Video link' }).fill('https://www.youtube.com/watch?v=aqz-KE-bpKQ');
+    await page.waitForTimeout(400);
+    await page
+      .locator('dialog[open] button[aria-label="Close"]')
+      .click({ timeout: 2000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+    await page.locator('.inline-list-row [data-field="title"]').first().click();
+    await cardSettings('a card with a video');
   }
   await page.close();
 }

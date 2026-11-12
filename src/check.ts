@@ -37,7 +37,7 @@ export function inUse(
     const by = at.fields.find((f) => f.name === name);
     const holds =
       only.is.includes(String(at.value?.[name] ?? by?.default ?? '')) !== !!only.not &&
-      (!by || by === field || here.includes(by) || inUse(by, at.fields, at.value, at.around, here));
+      (!by || by === field || only.loose || here.includes(by) || inUse(by, at.fields, at.value, at.around, here));
     if (!holds) return false;
   }
   return true;
