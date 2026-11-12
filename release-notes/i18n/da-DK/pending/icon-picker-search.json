@@ -1,5 +1,6 @@
 {
   "id": "icon-picker-search",
-  "kind": "line",
-  "text": "Ikonvælgeren har et søgefelt og kategorier, der finder alle 5.260 ikoner fra Material Symbols og Phosphor, 100 ad gangen"
+  "kind": "paragraph",
+  "title": "Søg i alle ikoner",
+  "text": "Det var svært at finde det rigtige ikon blandt 28. I ikonvælgeren kan du søge eller trykke på en kategori og se et af 5.260 ikoner fra Material Symbols og Phosphor, 100 ad gangen."
 }

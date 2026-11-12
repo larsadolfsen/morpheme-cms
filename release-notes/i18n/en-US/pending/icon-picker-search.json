@@ -1,5 +1,6 @@
 {
   "id": "icon-picker-search",
-  "kind": "line",
-  "text": "The icon picker has a search field and categories that find all 5,260 icons of Material Symbols and Phosphor, 100 at a time"
+  "kind": "paragraph",
+  "title": "Search all icons",
+  "text": "Finding the right icon among 28 was hard. In the icon picker, search or tap a category to see any of 5,260 icons from Material Symbols and Phosphor, 100 at a time."
 }
