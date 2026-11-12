@@ -76,7 +76,7 @@ export const colors = {
   },
   standard: 'Reset to default colors',
   standardHint: 'Takes effect when you save.',
-  icons: 'Edit the logo and icon under Appearance › Logo and icon.',
+  icons: 'Edit the logo and icon under Business › Logo and icon.',
   /** The commit, in the site's language (siteT). */
   commit: 'Editor: new colors',
 };

@@ -5,6 +5,8 @@
 import { markdownNow } from '../../../lib/markdown';
 import type { PageRowView } from '../accordion/view';
 import type { ViewOf } from '../view';
+import { editorRows } from '../rows/view';
+import { asQuestions, withRows } from '../rows/rows.mjs';
 import { headOf, type HeadView } from '../head';
 
 /** A row that folds out: a question and its answer as HTML, or a page's row ("Expandable list", PageRow). */
@@ -29,8 +31,15 @@ export const faqSettings = (props: Record<string, any>): Pick<FaqView, 'several'
 /** A question as its field writes it. */
 export type Question = { question: string; answer?: string };
 
-export const viewOf: ViewOf<FaqView> = (props) => ({
-  ...headOf(props),
-  ...faqSettings(props),
-  rows: ((props.items ?? []) as Question[]).map((q) => ({ label: q.question, html: markdownNow(q.answer ?? '') })),
-});
+export const viewOf: ViewOf<FaqView> = (all, data) => {
+  const found = editorRows(all, data);
+  const props = withRows(all, found);
+  return {
+    ...headOf(props),
+    ...faqSettings(props),
+    rows: ((found ? asQuestions(found.rows) : (props.items ?? [])) as Question[]).map((q) => ({
+      label: q.question,
+      html: markdownNow(q.answer ?? ''),
+    })),
+  };
+};

@@ -2,7 +2,8 @@
 // `@site/standard` (StandardSite in packages/editor/src/standard/site.ts): only their load.ts and the
 // site's own pages that draw the same parts import it, never the editor, so it reads the content
 // (astro:content) and uses the site's components.
-import type { ListedPost, StandardSite } from '../src/standard/site';
+import type { ListedPost, SourceItem, StandardSite } from '../src/standard/site';
+import { itemOfEntry } from '../src/standard/rows/rows.mjs';
 import {
   categoryName,
   displayTitle,
@@ -42,8 +43,50 @@ let pages: Promise<Map<string, Page>> | undefined;
 let tagPages: Promise<Set<string>> | undefined;
 const byPath = () => (pages ??= getPages().then((all) => new Map(all.map((p) => [p.data.path, p]))));
 
+// The lists the apps bring that say which of their fields fill a row (`asRows`, app.json), by id, with the folder their entries are in.
+type AsRows = { title: string; text?: string; icon?: string; href?: string; tags?: string };
+const rowLists = new Map<string, { folder: string; asRows: AsRows }>(
+  Object.values(
+    import.meta.glob<{ lists?: { id: string; folder: string; asRows?: AsRows }[] }>('/src/apps/*/app.json', {
+      eager: true,
+      import: 'default',
+    }),
+  )
+    .flatMap((manifest) => manifest.lists ?? [])
+    .flatMap((l) => (l.asRows ? [[l.id, { folder: l.folder, asRows: l.asRows }] as const] : [])),
+);
+const dataFiles = import.meta.glob<Record<string, unknown>>('@data/*/*.json', { import: 'default' });
+
 export const standard: StandardSite = {
   texts: blockTexts,
+  // The items a list block reads: the blog's posts (their tags), the testimonials (the quote's first paragraph), or the entries of an app's
+  // list that says its fields (`asRows`), in their order.
+  async source(id): Promise<{ items: SourceItem[]; page?: string }> {
+    if (id === 'posts') {
+      const items = (await getPosts()).map((p) => ({ ...listedPost(p), text: p.data.description, tags: p.data.categories }));
+      return { items, page: this.posts.all({}).href };
+    }
+    if (id === 'testimonials') {
+      const items = testimonials.map((t) => ({
+        title: t.name,
+        text: t.quote[0],
+        href: `${testimonialsPath}#${testimonialId(t)}`,
+        tags: t.categories,
+      }));
+      return { items, page: testimonialsPath };
+    }
+    const list = rowLists.get(id);
+    if (!list) return { items: [] };
+    const folder = list.folder.split('/').pop();
+    const entries = await Promise.all(
+      Object.entries(dataFiles)
+        .filter(([file]) => file.split('/').slice(-2)[0] === folder)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(async ([, load]) => load()),
+    );
+    entries.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+    return { items: entries.map((e) => itemOfEntry(e, list.asRows) as SourceItem) };
+  },
   // A new version of a page (/new/…) shows the openings of the new versions of the pages it links to.
   async pageOpening(href, preview) {
     const all = await byPath();

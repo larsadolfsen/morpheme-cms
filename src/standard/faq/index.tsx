@@ -5,16 +5,20 @@ import { Question } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 import { headFields } from '../head';
+import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
 
 export default defineBlock({
   group: 'lists',
   label: t.blocks.faq.label,
   icon: Question,
+  nameOf: (p) => nameWith(t.blocks.faq.label, p),
   hint: t.blocks.faq.hint,
   fields: [
     ...headFields,
+    ...rowsFromFields,
     {
       name: 'items',
+      only: typed,
       label: t.blocks.faq.items,
       singular: t.blocks.faq.item,
       type: 'list',
@@ -38,5 +42,6 @@ export default defineBlock({
     { name: 'button', label: t.blocks.faq.button, type: 'string', max: 30, hint: t.blocks.faq.buttonHint },
     { name: 'buttonHref', label: t.blocks.faq.buttonHref, type: 'relation', to: 'pages' },
   ],
-  detail: (p) => [((p.items ?? []) as { question?: string }[]).map((q) => q.question).join(' · ')],
+  detail: (p, data) =>
+    p.from ? [...fromLine(p, data)] : [((p.items ?? []) as { question?: string }[]).map((q) => q.question).join(' · ')],
 });

@@ -605,7 +605,7 @@ function FieldControl({ field, value, onChange }: Props) {
 // that depends on one there (inUse).
 const AroundHere = createContext<Around | undefined>(undefined);
 
-/** An object field's own fields without its group, whose heading is elsewhere (a section of Appearance › Header: "Action
+/** An object field's own fields without its group, whose heading is elsewhere (a section of Globals › Header: "Action
  * button"), at the object's path, so a wrong one is marked as it is in the group (WrongField). */
 export function ObjectFields({ field, value, onChange }: Props) {
   return (
@@ -910,7 +910,7 @@ export function MenuList({
   value: unknown[];
   onChange: (v: unknown) => void;
   depth?: number;
-  /** "Add …" under the list too, where the top bar has no "+" for it (two menus on one screen: Appearance › Header). */
+  /** "Add …" under the list too, where the top bar has no "+" for it (two menus on one screen: Globals › Header). */
   add?: boolean;
 }) {
   const [open, setOpen] = useState<number | null>(null);

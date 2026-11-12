@@ -1,4 +1,4 @@
-// "Appearance" › "Header" (#appearance/header): what is in the header on every page, on one screen laid out as a page's form
+// "Globals" › "Header" (#global/header): what is in the header on every page, on one screen laid out as a page's form
 // (SettingsSections.tsx): a preview of the header as the form has it, on a phone and a computer (partPreview.tsx), over the
 // sections Main menu (menu.json), Mobile menu (mobile-menu.json), Call to action and Menu button (header.json). "Save
 // changes" saves each changed file in its own commit (useDataFiles.ts). Exposes HeaderSettings (default). Uses
@@ -13,7 +13,7 @@ import { PartPreview } from './partPreview';
 import type { BlockData } from './blocks';
 import { headerDraft, swapHeader } from './headerPreview.mjs';
 import { headerThemeOf } from './headerTheme';
-import { collections } from './site';
+import { backFrom, collections } from './site';
 import type { FilesCollection } from './schema';
 import type { Env } from './App';
 import { t } from './i18n';
@@ -51,7 +51,7 @@ const shapeOf = (values: Values) => ({
   header: values[at(FILES.header)] ?? {},
 });
 
-const back = { href: '#appearance', label: t.common.parts.appearance };
+const back = backFrom('header');
 
 export default function HeaderSettings({ env }: { env: Env }) {
   const layout = useSettingsSections(places);

@@ -75,6 +75,16 @@ Questions that unfold to reveal the answer, ready for Google to show in search r
 
 <div data-block="faq" data-props="{&quot;items&quot;:[{&quot;question&quot;:&quot;Can I use a block more than once on a page?&quot;,&quot;answer&quot;:&quot;Yes. Each copy has its own content.&quot;},{&quot;question&quot;:&quot;Can I turn a block off?&quot;,&quot;answer&quot;:&quot;Yes, under Block settings. It can’t be added again until you turn it back on.&quot;}]}"></div>
 
+## Rows from a list
+
+A List, Segmented list or FAQ list can take its rows from an existing list, such as the blog or the testimonials, instead of typed rows.
+
+<div data-block="list" data-props="{&quot;from&quot;:&quot;posts&quot;,&quot;howMany&quot;:3}"></div>
+
+<div data-block="segmented" data-props="{&quot;from&quot;:&quot;testimonials&quot;,&quot;howMany&quot;:3,&quot;button&quot;:&quot;Show all&quot;}"></div>
+
+<div data-block="faq" data-props="{&quot;from&quot;:&quot;posts&quot;,&quot;howMany&quot;:2}"></div>
+
 ## Price cards
 
 Up to four plans side by side, with what’s included and a button.
@@ -85,9 +95,9 @@ Up to four plans side by side, with what’s included and a button.
 
 Quotes from the Testimonials list, as cards to leaf through or as a list. These are samples.
 
-<div data-block="testimonials" data-props="{&quot;layout&quot;:&quot;cards&quot;,&quot;show&quot;:&quot;all&quot;}"></div>
+<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;all&quot;,&quot;layout&quot;:&quot;cards&quot;}"></div>
 
-<div data-block="testimonials" data-props="{&quot;layout&quot;:&quot;list&quot;,&quot;show&quot;:&quot;all&quot;}"></div>
+<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;all&quot;,&quot;layout&quot;:&quot;list&quot;}"></div>
 
 ## Notice
 

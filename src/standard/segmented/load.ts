@@ -4,12 +4,16 @@
 // time in each list (its own group, by its place in the text).
 import { standard } from '@site/standard';
 import type { Load } from '../view';
+import { loadRows } from '../rows/load';
+import { withRows } from '../rows/rows.mjs';
 import accordion from '../accordion/shared';
 import shared from './shared';
 import { segmentedOf, type FoldRow, type SegmentedView } from './view';
 
-export const load: Load<SegmentedView> = async (props, { index, texts, preview }) => {
-  const view = segmentedOf(props, texts.more ?? accordion.values.more, texts.showMore ?? shared.values.showMore);
+export const load: Load<SegmentedView> = async (all, { index, texts, preview }) => {
+  const found = await loadRows(all);
+  if (found && !found.rows.length) return null;
+  const view = segmentedOf(withRows(all, found), texts.more ?? accordion.values.more, texts.showMore ?? shared.values.showMore);
   const rows = view.all
     ? view.rows
     : (

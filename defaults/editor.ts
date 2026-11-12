@@ -3,10 +3,10 @@
 // standard parts: a site has them unless its src/site/ has a file of the same name (siteFile in site/theme.mjs), which
 // may take the standard one from @morphemecms/cms/defaults/<file> and add its own.
 //   collections   the parts of the site and their fields (collections.ts)
-//   groups, settings, lists, header, icons   the menu (five sections), the rows of the Settings screen (Appearance, Developer,
-//                 Licenses, Morpheme, Privacy) and the start screen ("Appearance" starts with "Theme store", the store's themes)
+//   groups, settings, lists, header, icons   the menu (five sections), the rows of the Settings screen (Appearance, Assistants,
+//                 Block settings, Caching and builds, Components, Morpheme, Privacy) and the start screen ("Appearance" starts with "Theme store", the store's themes)
 //   appearance    the site's own parts under "Appearance" (a row of Settings), after the colours ("Default pages")
-//   companyParts, blockParts   the screens under "Business" and "Blocks" (company.ts, blockTexts.ts)
+//   companyParts, blockParts   the screens under "Business" and "Block templates" (company.ts, blockTexts.ts)
 //   partScreens   parts of the start screen that are screens with parts of their own (privacy.ts)
 //   seoParts      the site's own parts under "Search engine optimization" (#seo/<id>), in the menu under "Content" (internalLinks.ts)
 //   relationsOf, usedBy, keptBy   what a field picks from, what cannot be deleted, and what cannot be saved so (rules.ts)
@@ -136,6 +136,8 @@ export const icons: Record<string, Icon> = {
   'theme-store': Storefront,
   morpheme: Sparkle,
   developer: Wrench,
+  caching: Wrench,
+  components: Shapes,
   licenses: Certificate,
   assistants: Chats,
   // The screens under "Appearance" (Library.tsx Theme), the first the store's themes.
@@ -166,10 +168,11 @@ export const appearance: Part[] = [
 // start screen (`href`) without a list; the others have a list of parts, each an id: the content the owner writes and
 // uploads ("Content": the pages, the blog, the short lists, the pop-ups, the tags, the files, "internal links" (seoParts)
 // and "redirects", Redirects.tsx), the business ("Business": the logo and icon first (company/logo, BrandForm.tsx), then the
-// section of the editor's part "company": its parts, name, contact and booking, are its rows; lib/menu.mjs), the blocks
-// ("Blocks": their shared texts, and "Block selection", which of them can be put in) and the apps ("Apps": the apps that
+// section of the editor's part "company": its parts, name, contact and booking, are its rows; lib/menu.mjs; "colors" is
+// the second row), what every page shares ("Globals", id `global`: the header, the footer, the side column and the block
+// templates, their shared texts) and the apps ("Apps": the apps that
 // are four rows: "appstore" and the installed connectors, plugins and themes, AppList.tsx).
-// Appearance, Developer, Licenses, Morpheme and Privacy are not sections of the menu: they are the rows of the Settings
+// Appearance, Block settings, Caching and builds, Components, Morpheme and Privacy are not sections of the menu: they are the rows of the Settings
 // screen (`settings` below), opened by the cog at the bottom of the drawer and the rail.
 // Each part is a collection (collections.ts), except those named above, "privacy"'s (partScreens) and the editor's own
 // "company" (companyParts), "blocks" (blockParts), id files (the pictures, PDFs, videos and zip files), "header", "lists"
@@ -183,20 +186,21 @@ export const groups: { id: string; title: string; href?: string; flat?: boolean;
     title: 'Content',
     ids: ['pages', 'blog', 'lists', 'popups', 'tags', 'files', internalLinks.id, 'redirects'],
   },
-  { id: 'company', title: 'Business', ids: ['logo', 'company'] },
-  { id: 'blocks', title: 'Blocks', ids: ['blocks', 'block-settings'] },
+  { id: 'company', title: 'Business', ids: ['logo', 'colors', 'company'] },
+  { id: 'global', title: 'Globals', ids: ['header', 'footer', 'side-column', 'blocks'] },
   { id: 'apps', title: 'Apps', flat: true, ids: ['appstore', 'installed-connectors', 'installed-plugins', 'installed-themes'] },
 ];
 
-/** The rows of the Settings screen (#settings), A–Z by their names there: how the site looks ("Appearance": the theme store,
- * the header with the menus and the footer, the theme, the icon packs, the motion, the side column, the colors, the
- * standard pages (appearance) and the editor's parts: Colors.tsx, BrandForm.tsx and Parts.tsx), the developer screens,
- * the licenses, the CMS ("Morpheme") and "Privacy" (privacy.ts). Not in `groups`: the cog opens them. */
-export const settings: string[] = ['appearance', 'assistants', 'developer', 'licenses', 'morpheme', 'privacy'];
+/** The rows of the Settings screen (#settings), A–Z by their names there: how the site is built ("Appearance": the theme
+ * store, the themes, the icon packs, the motion and the standard pages (appearance)), "Block settings" (which blocks can
+ * be put in, BlockSettings.tsx), "Caching and builds" (Advanced.tsx, #developer/caching), "Components" (the editor's
+ * parts, Parts.tsx, #developer/parts), the CMS ("Morpheme") and "Privacy" (privacy.ts). The licenses are not a row: the
+ * footer links to them. Not in `groups`: the cog opens them. */
+export const settings: string[] = ['appearance', 'assistants', 'block-settings', 'caching', 'components', 'morpheme', 'privacy'];
 
 /** The site's own short lists, on a screen of their own under "Lists" (#lists), with those the standard blocks
  * bring ("Testimonials") and the apps (their lists.ts). */
 export const lists: string[] = [];
 
-/** What is in the header on every page, on one screen under "Appearance" › "Header" (#appearance/header, HeaderSettings.tsx). */
+/** What is in the header on every page, on one screen under "Globals" › "Header" (#global/header, HeaderSettings.tsx). */
 export const header = ['menu', 'mobile-menu', 'header-button'];

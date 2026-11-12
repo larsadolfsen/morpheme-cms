@@ -14,7 +14,7 @@ import { DRAFTS } from '../lib/versions.mjs';
 import { ConflictError, type RepoFile } from './github';
 import type { Env } from './App';
 import { savedText } from './deploy';
-import { backToDeveloper } from './Library';
+import { backFrom } from './site';
 import {
   bucketOf,
   JURISDICTIONS,
@@ -192,7 +192,7 @@ export default function Advanced({ env }: { env: Env }) {
   }
 
   return (
-    <Screen title={t.common.parts.caching} wide back={backToDeveloper}>
+    <Screen title={t.common.parts.caching} wide back={backFrom('caching')}>
       <section className="mb-8">
         <GroupTitle>{t.advanced.r2Caching}</GroupTitle>
         <div className="setting-list px-4">

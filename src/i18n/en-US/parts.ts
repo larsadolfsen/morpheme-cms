@@ -361,7 +361,7 @@ export const parts = {
    * ones and the apps') and the lists of kinds ("Promotion"). */
   screens: {
     editor: 'Editor',
-    components: 'UI components',
+    components: 'Theme components',
     blocks: 'Blocks',
     values: 'Values',
     componentsIntro: "The theme's buttons, fields, lists, and other parts in all their kinds and states. The theme gives them their look.",

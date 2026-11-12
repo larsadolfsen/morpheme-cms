@@ -124,7 +124,7 @@ export type Field = {
   missing?: unknown;
   /** Shown, checked and saved only while another field next to it (a select) has one of these values,
    * and that field is itself in use. */
-  only?: { field: string; is: string[] };
+  only?: { field: string; is: string[]; /** In use while the field has none of `is` (any value but those). */ not?: boolean };
   /** boolean: shown as a switch, with what it says when on and when off. */
   toggle?: [string, string];
   /** Its value changes how the page is laid out (its template): "Preview" shows a page whose value
@@ -300,6 +300,9 @@ export type KindPart = {
 /** A list a standard block or an app brings ("Testimonials", "Prices"), as the site's own, with its icon under "Lists". */
 export type OwnedList = FolderCollection & {
   icon: Icon;
+  /** The names of the entry's fields that fill a row of a list block that reads this list ("Rows from"): the title (required), and
+   * the text, icon, page link and tags (the relation `categories`) when the list has them. A list without it is not offered there. */
+  asRows?: { title: string; text?: string; icon?: string; href?: string; tags?: string };
   /** Made-up rows, as the files have them, for the parts under "Parts" and an app's pictures for the store (examples.ts). */
   examples?: Record<string, unknown>[];
 };

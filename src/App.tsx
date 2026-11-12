@@ -23,11 +23,11 @@
 //                    post (SeoScores.tsx); and seo/<part> the site's own (seoParts)
 //   appearance         how the site looks (Library.tsx Theme): appearance/theme-store the store's themes (ThemeStoreScreen.tsx), appearance/themes the themes installed (Themes) and appearance/themes/<theme>
 //                    a theme's page, with the button that swaps to it (ThemePage), appearance/icon-packs the icon packs (IconPacks),
-//                    appearance/motion how it moves (MotionSchemes), appearance/side-column the block beside the pages' text (SideColumn),
-//                    appearance/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
-//                    appearance/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
-//                    appearance/colors the colours (Colors.tsx;
-//                    appearance/colors/fallback-colors the site's own while an app changes the pages'),
+//                    appearance/motion how it moves (MotionSchemes), global/side-column the block beside the pages' text (SideColumn),
+//                    global/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
+//                    global/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
+//                    company/colors the colours (Colors.tsx;
+//                    company/colors/fallback-colors the site's own while an app changes the pages'),
 //   developer          the developer screens (Library.tsx Developer), under "Settings": developer/caching the copy of the site's files in R2 and the build settings (Advanced.tsx), and
 //                    developer/parts the parts (Library.tsx PartsHome): developer/parts/editor the editor's, every
 //                    one in every state (Parts.tsx), developer/parts/ui the theme's UI components, developer/parts/blocks the
@@ -152,10 +152,8 @@ import {
   Account,
   Blocks,
   Company,
-  DEV_MENU_ROUTE,
   SETTINGS_ROUTE,
   SettingsScreen,
-  Developer,
   List,
   Lists,
   PartsHome,
@@ -181,6 +179,7 @@ import { rememberEdit } from './startStorage';
 import { bulkDeletion } from './bulkDelete.mjs';
 import { Ask, ask } from './ask';
 import { LinkAsk } from './LinkSheet';
+import { rowSources } from './standard/rows/view';
 import { type ListRows, type Option, type TestimonialRow } from './fields';
 import { endOf, entriesOf, lookup, readAll } from './redirectData';
 import { inForm, leaveTo, type Status } from './FormFrame';
@@ -450,7 +449,10 @@ function Editor() {
     if (files && user && commitOf.current) writeCache({ commit: commitOf.current, files, user, folders: FOLDERS_KEY });
   }, [files, user]);
 
-  const relations = useMemo(() => relationsOf(files ?? []), [files]);
+  const relations = useMemo<Record<Relation, Option[]>>(
+    () => ({ ...relationsOf(files ?? []), rowSources: rowSources(t.blocks.rows) }),
+    [files],
+  );
   // What a link in the text can go to (LinkSheet.tsx): the fixed pages (not those that are also a
   // page), the other pages and the posts, by their addresses.
   const linkGroups = useMemo(() => {
@@ -820,21 +822,19 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'appearance/themes') return <Themes env={env} files={files} />;
   if (route === 'appearance/icon-packs') return <IconPacks env={env} files={files} />;
   if (route === 'appearance/motion') return <MotionSchemes env={env} files={files} />;
-  if (route === 'appearance/side-column') return <SideColumn env={env} files={files} />;
-  if (route === 'appearance/header') return <HeaderSettings env={env} />;
-  if (route === 'appearance/footer') return <FooterSettings env={env} />;
+  if (route === 'global/side-column') return <SideColumn env={env} files={files} />;
+  if (route === 'global/header') return <HeaderSettings env={env} />;
+  if (route === 'global/footer') return <FooterSettings env={env} />;
   // A theme installed has its page; one from the store that is not (or not yet built), its page in the store.
   const themeShown = route.startsWith('appearance/themes/') && themes.find((x) => x.id === route.slice('appearance/themes/'.length));
   if (themeShown) return <ThemePage key={themeShown.id} of={themeShown} env={env} files={files} />;
   if (/^appearance\/themes\/[^/]+$/.test(route))
     return <StoreThemePage key={route} id={route.slice('appearance/themes/'.length)} env={env} />;
   // The colours, or the site's own on a page of the same form while an app changes the pages' (FALLBACK_ROUTE).
-  if (route === 'appearance/colors' || route === FALLBACK_ROUTE)
-    return <Colors env={env} files={files} fallback={route === FALLBACK_ROUTE} />;
+  if (route === 'company/colors' || route === FALLBACK_ROUTE) return <Colors env={env} files={files} fallback={route === FALLBACK_ROUTE} />;
   if (route === 'company/logo') return <BrandForm env={env} />;
   if (route === 'block-settings') return <BlockSettings env={env} files={files} />;
   if (route === SETTINGS_ROUTE) return <SettingsScreen />;
-  if (route === DEV_MENU_ROUTE) return <Developer />;
   if (route === CACHING_ROUTE) return <Advanced env={env} />;
   if (route === CMS_ROUTE) return <CmsPage />;
   if (route.startsWith(`${CMS_ROUTE}/`)) return <VersionLinePage key={route} line={route.slice(CMS_ROUTE.length + 1)} />;

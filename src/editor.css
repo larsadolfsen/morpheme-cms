@@ -930,6 +930,13 @@ html {
   opacity: 0.7;
 }
 
+/* A List that reads a list: the line that says which, over its rows. */
+.editor-text .inline-list-from {
+  margin: 0 0 var(--mo-space-8, 8px);
+  color: var(--mo-on-surface-variant);
+  font-size: 0.875rem;
+}
+
 /* The row being typed in is marked with the state layer; the next empty row after the last is faded. */
 .editor-text .inline-list-row-active {
   background: color-mix(in srgb, var(--mo-primary) 8%, transparent);

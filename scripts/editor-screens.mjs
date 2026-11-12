@@ -9,7 +9,7 @@
 // and changes nothing. It runs on the built site: npm run build && npm run check:screens (or on another
 // folder with a built site, its path after the command: packages/editor/scripts/check-themes.mjs).
 // It also checks the menu and Settings (#settings, the cog at the bottom of the menu): Settings lists exactly Appearance,
-// Developer, Licenses, Morpheme and Privacy, A-Z by their names; the drawer's first level has the three sections, the
+// Assistants, Block settings, Caching and builds, Components, Morpheme and Privacy, A-Z by their names; the drawer's first level has the three sections (Content, Business, Globals), the
 // start screen, the rows under the "Apps" label (Store, Connectors, Plugins and Themes, each with an icon) and the cog, which is the last item at the bottom of the drawer and of the collapsed rail (and on a phone,
 // of the modal drawer) and is marked on Settings' screens only; and "Morpheme" (#morpheme) shows its status as text, has
 // an action on every list row, and its Update button and its connection to the store work.
@@ -377,10 +377,10 @@ async function checkFullWidthSection() {
   }
 }
 
-/** Settings lists the six screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
+/** Settings lists the seven screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
-  const moved = ['appearance', 'assistants', 'privacy', 'developer', 'licenses', 'morpheme'];
+  const moved = ['appearance', 'assistants', 'block-settings', 'developer/caching', 'developer/parts', 'morpheme', 'privacy'];
   const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
   page.on('pageerror', (e) => problems.push(`${label} menu: ${e.message}`));
   await openEditor(page, site);
@@ -389,12 +389,12 @@ async function checkSettingsAndMenu(width, height) {
     await page.waitForTimeout(250);
   };
 
-  // Settings: six rows, A-Z by the names the editor shows.
+  // Settings: seven rows, A-Z by the names the editor shows.
   await go('settings');
   const rows = await page.evaluate(settingsRows);
   const sorted = [...rows].sort((a, b) => a.text.localeCompare(b.text, 'da'));
   const names = rows.map((r) => `${r.text} (${r.href})`).join(', ');
-  if (rows.length !== 6) problems.push(`${label} #settings: ${rows.length} rows instead of 6: ${names}`);
+  if (rows.length !== 7) problems.push(`${label} #settings: ${rows.length} rows instead of 7: ${names}`);
   else if (rows.some((r, i) => r.href !== sorted[i].href))
     problems.push(`${label} #settings: the rows are not in alphabetical order by name: ${names}`);
   const hrefs = rows.map((r) => r.href).sort();
@@ -450,8 +450,17 @@ async function checkSettingsAndMenu(width, height) {
   const current = () =>
     page.evaluate((d) => document.querySelector(`${d} a[href="#settings"]`)?.getAttribute('aria-current') ?? null, drawer);
   for (const [hash, marked] of [
-    ['appearance/colors', true],
+    ['appearance/theme-store', true],
+    ['block-settings', true],
     ['developer/caching', true],
+    ['developer/parts', true],
+    ['developer/parts/editor', true],
+    ['company/colors', false],
+    ['global/header', false],
+    ['global/footer', false],
+    ['global/side-column', false],
+    ['blocks', false],
+    ['licenses', false],
     ['privacy', true],
     ['settings', true],
     ['list/pages', false],
@@ -471,8 +480,10 @@ async function checkSettingsAndMenu(width, height) {
       go(hash).then(() =>
         page.evaluate(() => document.querySelector('nav.editor-main-rail a[href="#settings"]')?.getAttribute('aria-current')),
       );
-    if ((await railCurrent('appearance/colors')) !== 'page')
-      problems.push(`${label} the rail #appearance/colors: the cog must be selected`);
+    if ((await railCurrent('developer/caching')) !== 'page')
+      problems.push(`${label} the rail #developer/caching: the cog must be selected`);
+    for (const hash of ['company/colors', 'global/header', 'licenses'])
+      if ((await railCurrent(hash)) === 'page') problems.push(`${label} the rail #${hash}: the cog must not be selected`);
     if ((await railCurrent('list/pages')) === 'page') problems.push(`${label} the rail #list/pages: the cog must not be selected`);
     await page.screenshot({ path: join(shots, 'rail.png') });
   }
@@ -701,6 +712,10 @@ for (const [width, height] of [
     '',
     'settings',
     'developer/parts',
+    'company/colors',
+    'global/header',
+    'global/side-column',
+    'licenses',
     'appearance/themes',
     'seo',
     'settings/appstore',

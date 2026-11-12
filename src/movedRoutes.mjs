@@ -3,17 +3,19 @@
 
 /** Where each moved screen is now, by its old address. */
 export const MOVED = /** @type {Record<string, string>} */ ({
-  farver: 'appearance/colors',
+  farver: 'company/colors',
   'virksomheden/logo': 'company/logo',
   'tema/blokvalg': 'block-settings',
   dele: 'developer/parts',
   tema: 'appearance',
-  'tema/farver': 'appearance/colors',
+  'tema/farver': 'company/colors',
   'tema/logo': 'company/logo',
   'tema/dele': 'developer/parts',
   'tema/dele/editor': 'developer/parts/editor',
-  // "Advanced" is "Caching and builds" under "Developer" now.
+  // "Advanced" is "Caching and builds" now (its address keeps `developer/`).
   advanced: 'developer/caching',
+  // The Developer screen is gone (0.19): its two rows, Caching and builds and Components, are rows of Settings.
+  developer: 'settings',
   'virksomheden/bank': 'company/payment/bank',
   videresendelser: 'seo/redirects',
   'videresendelser/alle': 'seo/redirects/all',
@@ -22,10 +24,10 @@ export const MOVED = /** @type {Record<string, string>} */ ({
   promovering: 'apps',
   'promovering/calendly': 'apps/app_a030dfba69793996',
   'promovering/mailchimp': 'apps/app_5c4b6ba067ef127f',
-  // The header's menus and settings were on a screen of their own under "Globals"; they are under "Appearance" now.
-  header: 'appearance/header',
-  // The footer's form was the file's own screen; it is under "Appearance" now.
-  'src/data/footer.json': 'appearance/footer',
+  // The header's menus and settings were on a screen of their own, then under "Appearance"; they are under "Globals" now.
+  header: 'global/header',
+  // The footer's form was the file's own screen, then under "Appearance"; it is under "Globals" now.
+  'src/data/footer.json': 'global/footer',
   // "Logo and icon" was under "Appearance"; it is under the business now.
   'appearance/logo': 'company/logo',
   'udseende/logo': 'company/logo',
@@ -52,9 +54,15 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   'udseende/temaer': 'appearance/themes',
   'udseende/ikonpakker': 'appearance/icon-packs',
   'udseende/bevaegelse': 'appearance/motion',
-  'udseende/sidekolonne': 'appearance/side-column',
-  'udseende/farver': 'appearance/colors',
-  'udseende/farver/reservefarver': 'appearance/colors/fallback-colors',
+  'udseende/sidekolonne': 'global/side-column',
+  'udseende/farver': 'company/colors',
+  'udseende/farver/reservefarver': 'company/colors/fallback-colors',
+  // The colours, the header, the footer and the side column left "Appearance" (0.19): the colours are under Business, the
+  // others under Globals. The rest of the address (the fallback colours page) is kept.
+  'appearance/colors': 'company/colors',
+  'appearance/header': 'global/header',
+  'appearance/footer': 'global/footer',
+  'appearance/side-column': 'global/side-column',
   // "Parts" moved from Appearance to Developer, with all its screens.
   'appearance/parts': 'developer/parts',
   'udseende/dele': 'developer/parts',

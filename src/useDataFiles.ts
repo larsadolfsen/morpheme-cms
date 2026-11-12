@@ -1,4 +1,4 @@
-// Several single data files edited on one screen (Appearance › Header: the two menus and header.json): each one's values
+// Several single data files edited on one screen (Globals › Header: the two menus and header.json): each one's values
 // in the form and as they were saved, a change to them, whether any is changed, the field that keeps one from being saved,
 // and "Save changes", which saves each changed file in its own commit, as SideColumn.tsx saves its file. Exposes
 // useDataFiles. Uses dataFileValues.ts, check.ts (problemAt), fields.tsx (useWrongField) and Env (App.tsx).
