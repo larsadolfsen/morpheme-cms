@@ -3,7 +3,7 @@
   "notes": [
     {
       "id": "richer-blog-post",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "A richer blog post",
       "text": "Blog posts now show the author’s role, tags and share buttons in the header, a lead paragraph and cards for related posts. Add your profiles under Business › Social media."
     },

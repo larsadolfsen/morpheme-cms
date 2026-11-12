@@ -1,5 +1,6 @@
 {
   "id": "toolbar-attached",
-  "kind": "line",
-  "text": "Tekstredigeringens værktøjslinje sidder øverst i editoren og bliver stående, mens du ruller"
+  "kind": "paragraph",
+  "title": "Hav tekstværktøjslinjen i syne",
+  "text": "Værktøjslinjen sidder nu øverst i teksteditoren og bliver stående, mens du ruller. Åbn en side eller et indlæg for at se den."
 }
