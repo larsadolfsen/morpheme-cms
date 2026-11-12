@@ -1032,12 +1032,12 @@ html {
   visibility: hidden;
 }
 
-/* The icons over the selected text, on a phone too (selectionMenu in MarkdownEditor.tsx): floating by the text, 48 dp targets on a phone. */
+/* The one row of icons over the selected text, on a phone too (selectionMenu in MarkdownEditor.tsx): floating by the text, 48 dp targets on a phone. */
 .editor-selection-menu {
   position: fixed;
   z-index: 40;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   max-width: calc(100vw - 0.5rem);
   gap: 0.125rem;
   border: 1px solid var(--mo-outline-variant);
@@ -1048,16 +1048,8 @@ html {
 }
 
 .editor-selection-menu[hidden],
-.editor-selection-menu button[hidden],
-.editor-selection-group[hidden] {
+.editor-selection-menu button[hidden] {
   display: none;
-}
-
-/* A group of buttons stays whole on its row (balanceRows in MarkdownEditor.tsx sets the menu's width). */
-.editor-selection-group {
-  display: flex;
-  flex: none;
-  gap: 0.125rem;
 }
 
 .editor-selection-menu button {
@@ -1073,7 +1065,7 @@ html {
   --selection-button: 2.5rem;
 }
 
-/* On a phone the buttons are 48 dp, centred in the row; when they do not fit on one row they wrap to a second (nothing hides or scrolls). */
+/* On a phone the buttons are 48 dp, centred in the one row (the rest is under "More"). */
 @media (pointer: coarse) {
   .editor-selection-menu {
     --selection-button: 3rem;
@@ -1119,6 +1111,11 @@ html {
 
 .editor-selection-menu button[aria-expanded='true'] .editor-menu-arrow {
   rotate: 180deg;
+}
+
+.editor-selection-menu button:disabled {
+  opacity: 0.38;
+  pointer-events: none;
 }
 
 .editor-selection-menu button[aria-pressed='true'] {
