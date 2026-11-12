@@ -729,9 +729,9 @@ type Look = (Face | { shows: (state: EditorView['state']) => Face }) & {
   menu?: boolean;
 };
 
-// The groups of the selection menu's buttons, by index in `looks`: the marks (bold, italic, link, colour), the kinds of
-// text (heading, text style) and the list with the alignment. A group is never split over two rows.
-const SELECTION_GROUPS = [4, 3, 2];
+// The groups of the selection menu's buttons, by index in `looks`, kept in pairs so two rows can be even (bold and italic; link
+// and the headings; text style and list; alignment and colour, last). A group is never split over two rows.
+const SELECTION_GROUPS = [2, 3, 2, 2];
 
 // The levels of the top-level headings of a document, in order.
 const levelsOf = (doc: EditorView['state']['doc']): number[] => topHeadings(doc).map(({ node }) => node.attrs.level);
@@ -841,15 +841,6 @@ function selectionMenu(
           dim: inLabel,
           word: true,
         },
-        {
-          icon: paletteIcon,
-          label: t.text.color,
-          on: (s) => marked(s, 'textColor'),
-          action: colors,
-          dim: (s) => inLabel(s) || (sections && inSectionHeading(s)),
-          word: true,
-          menu: true,
-        },
         // The only heading offered (H1, while a page has none): its own button, marked when it is one; again to make it
         // text.
         {
@@ -881,16 +872,8 @@ function selectionMenu(
           shows: (s) => {
             const kind = styleKindOf(activeOf(s), view.hasFocus());
             if (kind !== 'generic') return groupFace(textKinds.find(({ name }) => name === kind)!);
-            // In a heading, its own level, unless the selection reaches into a block of another kind (mixed styles stay generic).
-            const { $from, to } = s.selection;
-            const level = $from.parent.type.name === 'heading' ? ($from.parent.attrs.level as number) : 0;
-            let mixed = false;
-            s.doc.nodesBetween(s.selection.from, to, (n) => {
-              if (n.isTextblock && (n.type.name !== 'heading' || n.attrs.level !== level)) mixed = true;
-            });
-            return level >= 1 && level <= 3 && !mixed && view.hasFocus()
-              ? groupFace(headingFace(level))
-              : { icon: GENERIC_ICONS.text.raw, label: t.text.kind };
+            // In a heading the headings button shows the level (or the quick heading button), so this one stays general.
+            return { icon: GENERIC_ICONS.text.raw, label: t.text.kind };
           },
           action: (button) => kinds(button, 'text'),
           menu: true,
@@ -917,6 +900,15 @@ function selectionMenu(
           },
           action: (button) => aligns(button),
           dim: (s) => !activeOf(s).has('alignable'),
+          menu: true,
+        },
+        {
+          icon: paletteIcon,
+          label: t.text.color,
+          on: (s) => marked(s, 'textColor'),
+          action: colors,
+          dim: (s) => inLabel(s) || (sections && inSectionHeading(s)),
+          word: true,
           menu: true,
         },
       ];

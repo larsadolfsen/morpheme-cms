@@ -181,6 +181,9 @@ async function checkTextSheet(width = 360) {
   // Bold, Italic and Link come first, every button is 48 dp, nothing scrolls, and each row is centred (a second row when they do not fit).
   if (first.names.slice(0, 3).join() !== 'Bold,Italic,Link')
     problems.push(`${width}px text menu: Bold, Italic and Link are not the first three buttons`);
+  // Colour is the last button, at the right end, after the other groups; groups of three, never split.
+  if (first.names.at(-1) !== 'Colour' && first.names.at(-1) !== 'Color' && !/colou?r/i.test(first.names.at(-1) ?? ''))
+    problems.push(`${width}px text menu: the colour button is not the last one`);
   if (first.scrolls || first.buttons.some((b) => b.left < first.r.left - 1 || b.right > first.r.right + 1))
     problems.push(`${width}px text menu: a button is outside the menu or the menu scrolls`);
   if (first.buttons.some((b) => b.width < 47.5 || b.height < 47.5)) problems.push(`${width}px text menu: a button is smaller than 48 dp`);
