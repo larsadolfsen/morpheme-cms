@@ -1280,15 +1280,20 @@ function blockCard(
       ...Object.fromEntries(
         names.map((n) => {
           const field = rowFieldsOf([n])[0];
-          // A list (a card's buttons) is none, not an empty text.
-          return [n, row[n] ?? field?.default ?? (field?.type === 'list' ? [] : '')];
+          // A list (a card's buttons) is none, not an empty text; a switch is off.
+          return [n, row[n] ?? field?.default ?? (field?.type === 'list' ? [] : field?.type === 'boolean' ? false : '')];
         }),
       ),
     });
     const setFields = (list: Row[], i: number, names: string[], v: BlockProps) =>
       single
         ? [{ ...list[0], ...Object.fromEntries(names.map((n) => [n, String(v[n] ?? '')])) }]
-        : names.reduce((items, n) => setField(items, i, n, Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]), list);
+        : names.reduce(
+            // A switch or a list (a price card's Highlighted and button) is kept as it is, a text as text.
+            (items, n) =>
+              setField(items, i, n, typeof v[n] === 'boolean' || Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]),
+            list,
+          );
     // The block's props with its own media choice changed (from the first card's sheet) and the items changed, in one step.
     const setBlockAndItems = (items: Row[], v: BlockProps) => {
       const here = at();
@@ -1310,8 +1315,12 @@ function blockCard(
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
         ...(itemNames.length ? [{ kind: 'link' as const, label: spec!.texts.link ?? '', action: settings }] : []),
-        { kind: 'above', label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
-        { kind: 'below', label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
+        ...(spec!.max === undefined || list.length < spec!.max
+          ? [
+              { kind: 'above' as const, label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
+              { kind: 'below' as const, label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
+            ]
+          : []),
         ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
         ...(i < list.length - 1 ? [{ kind: 'down' as const, label: t.common.moveDown, action: () => go(moveBy(list, i, 1), i + 1) }] : []),
       ];
