@@ -49,3 +49,32 @@ Each block adds its drawing to `src/inlineViews.tsx`, an `inline` definition to 
 3. The minor changeset of #413 (main takes `patch` or empty by the rule).
 4. Paste-to-create items: a pasted list of lines becomes items (Checklist, Steps, Questions and answers).
 5. Converting a block into another (List to Segmented list, keeping the items).
+
+## Steps: user stories
+
+Steps has a heading and a text per step, numbered along a line, and nothing else to pick: no icon, no media, no link. So it is the
+simplest in-place block, with no slots and no sheet.
+
+**As a site owner,**
+
+1. I insert Steps and start typing at once, with no sheet. I see one faded, empty step numbered 1; typing in it makes the first step.
+2. I type each step's heading and text where they stand, drawn as the site draws them (the numbers and the line included).
+3. Enter in the heading goes to the text. Enter in the text adds the next step below. Backspace in an empty heading removes the step.
+4. While the block is active, a text button `Add step` is under the last step. It is gone when I leave the block.
+5. The active step has the dotted outline and no background color; the other steps show their live look.
+6. A floating toolbar has `Add above`, `Add below`, `Move up`, `Move down` and the block's menu (Hide, Move, Remove). There is no Link and
+   no Edit button, because a step has nothing to set.
+7. Moving a step renumbers all steps at once.
+8. A heading written above the block is the block's heading; Steps has no heading, label or intro field of its own in place (the spec's
+   owner rule). Old Steps that have `heading` or `intro` keep showing them on the site, and they stay editable in the block's sheet only
+   when filled.
+9. Steps I saved before open unchanged and are saved back in the same form.
+
+**Acceptance (screens, phone 375 px and computer):** the add button text, the dotted outline, no background, the faded empty step hidden once
+there is a step, the toolbar icons without Link or Edit, and the saved props are the same as before (`items: [{ title, text }]`).
+
+**Open for the owner**
+
+- Does a step with a heading but no text stay valid? Today both fields are required; typing in place makes empty text natural.
+- Should the numbers be editable (start at another number)? Not today; I suggest no.
+- Paste-to-create: a pasted list of lines becomes steps (heading per line)?
