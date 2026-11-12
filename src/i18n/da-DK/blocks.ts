@@ -226,6 +226,16 @@ export const blocks: Messages['blocks'] = {
     iconHint: 'Pilen vises efter teksten, de øvrige ikoner foran.',
     arrow: 'Pil',
     calendar: 'Kalender',
+    /** The floating toolbar of Buttons typed in place. */
+    addAbove: 'Tilføj over',
+    addBelow: 'Tilføj under',
+    settingsAction: 'Indstillinger',
+    button: 'Knap',
+    buttonSettings: 'Knapindstillinger',
+    addButton: 'Tilføj knap',
+    newButton: 'Ny knap',
+    /** A button typed in place: its place, for screen readers (button 2 of 4). */
+    buttonOf: (n: number, total: number) => `Knap ${n} af ${total}`,
   },
   cookies: {
     label: 'Cookieliste',
