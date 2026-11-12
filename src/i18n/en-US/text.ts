@@ -9,8 +9,10 @@ export const text = {
   pageHeading: 'Main heading',
   heading: 'Heading',
   subheading: 'Subheading',
-  paragraph: 'Normal text',
+  /** The text styles are Material 3's body scale; Body large is the plain paragraph. */
   bodyLarge: 'Body large',
+  bodyMedium: 'Body medium',
+  bodySmall: 'Body small',
   label: 'Label',
   checkList: 'Check list',
   bulletList: 'Bulleted list',

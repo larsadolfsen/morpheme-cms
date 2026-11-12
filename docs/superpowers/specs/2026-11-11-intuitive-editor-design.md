@@ -16,7 +16,7 @@ repeated as a question below.
 
 1. **Keep the current format: text and blocks.** The page stays one text with blocks in it. No new editor model.
 2. **Add "Body large" and "Label" to the text styles.** Read as: two new entries in the text-style menu `T`
-   (`text.kind`, `text.paragraph` … in `MarkdownEditor.tsx`), next to Heading, Subheading and Normal text. _(Confirmed by the owner: `T` is that menu; `Label` is the small line above a heading, which blocks call `eyebrow` today.)_
+   (`text.kind`, `text.paragraph` … in `MarkdownEditor.tsx`), next to Heading and Subheading (Body large, Body medium and Body small are Material 3's body scale; Body large is the plain paragraph). _(Confirmed by the owner: `T` is that menu; `Label` is the small line above a heading, which blocks call `eyebrow` today.)_
 3. **Remove all regular headings and text from blocks.** Read as: a block keeps only what is its own (rows, pictures,
    buttons, links), and the heading, subheading, label and intro text come from the text around it, in the text styles
    of decision 2. See finding 10.
@@ -209,7 +209,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
 
 ### 11. Text styles: Body large, Label, and the dotted section line
 
-- **Evidence:** the toolbar has `Heading (H1)` (pages only), `Heading`, `Subheading`, `Normal text`, lists and quote
+- **Evidence:** the toolbar has `Heading (H1)` (pages only), `Heading`, `Subheading`, `Normal text` (now Body large), lists and quote
   (`text.ts`). A section is an H2 and what follows (`sectionSettings`); its colour is a box on the site and in the editor.
 - **Fix:** decisions 2 and 4. `Body large` is Material 3's body-large role for an intro paragraph; `Label` the
   label-large role. Both are text styles stored in the markdown (the format of `text-colors.mjs` and `section-marker.mjs`

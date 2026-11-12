@@ -8,10 +8,10 @@ test('outside the text the style button shows the generic icon, whatever the cur
 });
 
 test('in the text it shows the style of the block, as the menu marks it', () => {
-  for (const kind of ['text', 'large', 'label', 'bullet', 'check', 'ordered', 'quote'])
+  for (const kind of ['large', 'medium', 'small', 'label', 'bullet', 'check', 'ordered', 'quote'])
     assert.equal(styleKindOf([kind, 'strong'], true), kind);
 });
 
-test('in a heading it shows the paragraph, the first of the list', () => {
-  assert.equal(styleKindOf(['h2'], true), 'text');
+test('in a heading it shows Body large, the first of the list', () => {
+  assert.equal(styleKindOf(['h2'], true), 'large');
 });

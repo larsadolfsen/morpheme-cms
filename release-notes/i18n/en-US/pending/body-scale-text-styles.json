@@ -1,0 +1,6 @@
+{
+  "id": "body-scale-text-styles",
+  "kind": "paragraph",
+  "title": "Pick Body large, medium or small for your text",
+  "text": "The text styles now follow Material 3’s body scale, so each size matches the type your theme already uses. Open the text style menu and choose Body large, Body medium or Body small. A new page starts as plain text, not a heading."
+}

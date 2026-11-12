@@ -61,6 +61,7 @@ import {
   TextHTwo,
   TextItalic,
   TextT,
+  TextAlignLeft,
 } from '@phosphor-icons/react';
 import { styleKindOf } from './styleKind.mjs';
 import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
@@ -101,8 +102,9 @@ import linkIcon from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
 import h1Icon from '@phosphor-icons/core/assets/regular/text-h-one.svg?raw';
 import h2Icon from '@phosphor-icons/core/assets/regular/text-h-two.svg?raw';
 import h3Icon from '@phosphor-icons/core/assets/regular/text-h-three.svg?raw';
-import textIcon from '@phosphor-icons/core/assets/regular/text-t.svg?raw';
 import textLargeIcon from '@phosphor-icons/core/assets/regular/text-aa.svg?raw';
+import textMediumIcon from '@phosphor-icons/core/assets/regular/text-t.svg?raw';
+import textSmallIcon from '@phosphor-icons/core/assets/regular/text-align-left.svg?raw';
 import textHIcon from '@phosphor-icons/core/assets/regular/text-h.svg?raw';
 import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
 import orderedIcon from '@phosphor-icons/core/assets/regular/list-numbers.svg?raw';
@@ -141,8 +143,8 @@ type Props = {
   sheet?: BlockAsk;
   short?: boolean;
   h1?: boolean;
-  /** A new page (with `h1`): opens with an empty H1 at the top and the cursor in it, ready to type the title. */
-  startOnH1?: boolean;
+  /** A new page or text: opens as plain text with the cursor at the start, never in a heading. */
+  startFocused?: boolean;
   /** A page (`h1`): the text of its H1 changed (typed, pasted, undone), with what it was; null without one (titleH1.mjs). */
   onH1?: (now: string | null, before: string | null) => void;
   /** How each part of the text looks on the site (looksOf in sections.mjs), shown so (editor.css). */
@@ -544,7 +546,7 @@ async function editLink(view: EditorView) {
 }
 
 /** What applies where the cursor is, or to all of the selection: 'strong', 'emphasis', 'link',
- * 'h2', 'h3', 'text' (a paragraph, not in a list or quote), 'bullet', 'ordered' and 'quote'; with a colour
+ * 'h2', 'h3', 'large' (a paragraph, not in a list or quote), 'medium', 'small', 'bullet', 'ordered' and 'quote'; with a colour
  * (text-colors.mjs) 'textColor' and the colour's class ('color-accent'). For the toolbar and the selection's menu,
  * 'section' and 'section-<colour>' in a top-level H1 or H2 (sectionState.mjs), which mark them. */
 export function activeOf(state: EditorView['state']): Set<string> {
@@ -560,13 +562,15 @@ export function activeOf(state: EditorView['state']): Set<string> {
   const ancestors = Array.from({ length: $from.depth }, (_, i) => $from.node(i + 1).type.name);
   if ($from.parent.type.name === 'heading') on.add(`h${$from.parent.attrs.level}`);
   if (labelledHeading(state)) on.add('labelable');
-  if ($from.parent.type.name === 'bodyLarge') on.add('large');
+  // Body large is the plain paragraph (and the older intro paragraph, which draws the same).
+  if (['bodyLarge', 'bodyMedium', 'bodySmall'].includes($from.parent.type.name))
+    on.add({ bodyLarge: 'large', bodyMedium: 'medium', bodySmall: 'small' }[$from.parent.type.name as 'bodyLarge']);
   if ($from.parent.type.name === 'eyebrow') on.add('label');
   if (ancestors.includes('bullet_list')) on.add(isCheckItem(state) ? 'check' : 'bullet');
   if (ancestors.includes('ordered_list')) on.add('ordered');
   if (ancestors.includes('blockquote')) on.add('quote');
   if ($from.parent.type.name === 'paragraph' && !on.has('bullet') && !on.has('check') && !on.has('ordered') && !on.has('quote'))
-    on.add('text');
+    on.add('large');
   const section = sectionHeading(state);
   if (section) {
     on.add('section');
@@ -637,7 +641,8 @@ function inSectionHeading(state: EditorView['state']) {
 }
 
 // Whether the cursor is in a label above a heading (eyebrow.mjs), which has no bold, italic, link or colour.
-const inLabel = (state: EditorView['state']) => ['eyebrow', 'bodyLarge'].includes(state.selection.$from.parent.type.name);
+const inLabel = (state: EditorView['state']) =>
+  ['eyebrow', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(state.selection.$from.parent.type.name);
 
 // When a word or more is selected, or the cursor has stood still in a word (STILL_MS, stillCursor.mjs): a row of icons
 // over it, to make it bold, italic, a link, one of the site's colours (a menu under the button, opened by `colors`), a
@@ -676,8 +681,9 @@ function selectionMenu(
       });
       // The other kinds of text, in the toolbar's order, by their names in activeOf.
       const textKinds = [
-        { name: 'text', icon: textIcon, label: t.text.paragraph },
         { name: 'large', icon: textLargeIcon, label: t.text.bodyLarge },
+        { name: 'medium', icon: textMediumIcon, label: t.text.bodyMedium },
+        { name: 'small', icon: textSmallIcon, label: t.text.bodySmall },
         { name: 'label', icon: tagIcon, label: t.text.label },
         { name: 'bullet', icon: bulletIcon, label: t.text.bulletList },
         { name: 'check', icon: checkIcon, label: t.text.checkList },
@@ -1014,7 +1020,7 @@ function blockCard(
 }
 
 export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
-  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, startOnH1, onH1, looks, sections, frame },
+  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, startFocused, onH1, looks, sections, frame },
   ref,
 ) {
   const spaced = !!blocks;
@@ -1164,15 +1170,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           view.dispatch(view.state.tr.setMeta('addToHistory', false));
           view.dispatch(view.state.tr.setSelection(Selection.atStart(view.state.doc)).setMeta('addToHistory', false));
         });
-      // A new page: an empty H1 at the top with the cursor in it (kept out of undo; markdownOf leaves it out while it is empty).
-      if (h1 && startOnH1)
+      // A new page: plain text with the cursor at the start (kept out of undo).
+      if (startFocused)
         created.action((ctx) => {
           const view = ctx.get(editorViewCtx);
-          const tr = h1TextOf(view.state.doc) === null ? h1Written(view.state, '') : null;
-          if (tr) view.dispatch(tr.setMeta('addToHistory', false));
-          const found = h1Of(view.state.doc);
-          if (found)
-            view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, found.pos + 1)).setMeta('addToHistory', false));
+          view.dispatch(view.state.tr.setSelection(Selection.atStart(view.state.doc)).setMeta('addToHistory', false));
           view.focus();
         });
       loaded = true;
@@ -1210,7 +1212,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     editor.current?.action(callCommand(command.key, payload));
   }
 
-  // Makes the text where the cursor is a heading ('h1', 'h2', 'h3'), a paragraph ('text'), a list
+  // Makes the text where the cursor is a heading ('h1', 'h2', 'h3'), a paragraph ('large'), a list
   // ('bullet', 'ordered') or a quote ('quote'), whatever it is now: a list becomes the other kind of
   // list, and the text of a list or a quote comes out of it to be something else.
   function setKind(kind: string) {
@@ -1228,23 +1230,23 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         toggleLabel(view);
         return view.focus();
       }
-      // The text styles that are a block of their own (Body large): a paragraph or a heading made into it, or back.
-      if (kind === 'large') {
-        if (!is('large')) {
-          outOfLists();
-          outOfQuotes();
-          if (is('h1') || is('h2') || is('h3')) callCommand(turnIntoTextCommand.key)(ctx);
-          const { $from } = view.state.selection;
-          if ($from.parent.type.name === 'paragraph') {
-            view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes.bodyLarge));
-          }
+      // The text styles that are a block of their own (Body medium and Body small): a paragraph or a heading made into it,
+      // or back. Body large is the plain paragraph.
+      const ownBlocks = ['bodyLarge', 'bodyMedium', 'bodySmall', 'eyebrow'];
+      if (kind === 'medium' || kind === 'small') {
+        outOfLists();
+        outOfQuotes();
+        if (is('h1') || is('h2') || is('h3')) callCommand(turnIntoTextCommand.key)(ctx);
+        const { $from } = view.state.selection;
+        if ($from.parent.type.name !== 'heading') {
+          view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes[kind === 'small' ? 'bodySmall' : 'bodyMedium']));
         }
         return view.focus();
       }
-      if (is('large') || is('label')) {
+      if (ownBlocks.includes(view.state.selection.$from.parent.type.name)) {
         const { $from } = view.state.selection;
         view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes.paragraph));
-        if (kind === 'text') return view.focus();
+        if (kind === 'large') return view.focus();
       }
       // The items of the bulleted list the cursor is in get a box (checked false) or lose it (null): a check list.
       const mark = (checked: boolean | null) => {
@@ -1298,7 +1300,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       }
       outOfLists();
       outOfQuotes();
-      if (kind === 'text') callCommand(turnIntoTextCommand.key)(ctx);
+      if (kind === 'large') callCommand(turnIntoTextCommand.key)(ctx);
       else callCommand(wrapInHeadingCommand.key, Number(kind.slice(1)))(ctx);
       view.focus();
     });
@@ -1395,8 +1397,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       action: () => setKind(`h${level}`),
       on: `h${level}`,
     })),
-    { label: t.text.paragraph, icon: TextT, action: () => setKind('text'), on: 'text' },
     { label: t.text.bodyLarge, icon: TextAa, action: () => setKind('large'), on: 'large' },
+    { label: t.text.bodyMedium, icon: TextT, action: () => setKind('medium'), on: 'medium' },
+    { label: t.text.bodySmall, icon: TextAlignLeft, action: () => setKind('small'), on: 'small' },
     { label: t.text.label, icon: Tag, action: () => setKind('label'), on: 'label' },
     { label: t.text.bulletList, icon: ListBullets, action: () => setKind('bullet'), on: 'bullet' },
     { label: t.text.checkList, icon: ListChecks, action: () => setKind('check'), on: 'check' },
@@ -1424,7 +1427,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // others of its group under it; a group of one (H1, while a page has none) is that button itself.
   const hasSettings = tools.some((item) => item.icon === SectionSettingsIcon);
   const kinds = tools.filter((t) =>
-    ['h1', 'h2', 'h3', 'text', 'large', 'label', 'bullet', 'check', 'ordered', 'quote'].includes(t.on ?? ''),
+    ['h1', 'h2', 'h3', 'large', 'medium', 'small', 'label', 'bullet', 'check', 'ordered', 'quote'].includes(t.on ?? ''),
   );
   const kindGroups = [kinds.filter((t) => /^h\d$/.test(t.on!)), kinds.filter((t) => !/^h\d$/.test(t.on!))].filter((g) => g.length);
   const groupOf = (group: typeof kinds): KindGroup => (/^h\d$/.test(group[0].on!) ? 'headings' : 'text');

@@ -1151,7 +1151,7 @@ function Form({
                       addImage={pickImage}
                       blocks={collection.blocks ? blockAsk : undefined}
                       h1={!!collection.blocks}
-                      startOnH1={isNew}
+                      startFocused={isNew}
                       onH1={collection.blocks ? onH1 : undefined}
                       sheet={blockAsk}
                       looks={
