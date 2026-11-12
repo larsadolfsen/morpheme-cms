@@ -1,6 +1,6 @@
 {
   "id": "list-in-place",
-  "kind": "card",
+  "kind": "paragraph",
   "title": "Skriv din liste direkte i teksten",
   "text": "En liste ser nu ud på siden, som den gør på hjemmesiden, og du skriver hver række, hvor den står. Rækken, du er i, viser sine tomme felter, og den næste række er altid klar under den. Tryk på Enter for at gå videre."
 }
