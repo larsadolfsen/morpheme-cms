@@ -1,4 +1,4 @@
-// "Appearance" › "Side column" (#appearance/side-column): the block drawn in a column beside the text of the pages, chosen
+// "Globals" › "Side column" (#global/side-column): the block drawn in a column beside the text of the pages, chosen
 // among "None" and the installed blocks that can be (`beside` in their load.ts), saved in the site's file (config.side)
 // in its own commit. Exposes SideColumn, sideSettingOf and sideChoicesOf (also used by the page form and by Library.tsx).
 // Uses ui.tsx (ChoiceRow, Group), registry.tsx (siteBlocks) and lib/side-block.mjs.
@@ -12,6 +12,7 @@ import { kindAndName } from './deploy';
 import { ask } from './ask';
 import { activeApps } from './apps';
 import { siteBlocks } from './registry';
+import { backFrom } from './site';
 import { locale, siteT, t } from './i18n';
 import { sideChoices } from '../lib/side-block.mjs';
 
@@ -24,7 +25,7 @@ const sources: Record<string, string> = Object.fromEntries(
 );
 
 const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
-const back = { href: '#appearance', label: t.common.parts.appearance };
+const back = backFrom('side-column');
 
 /** The block type the site's file (config.side) chooses, or null. */
 export function sideSettingOf(files: { path: string; text: string }[]): string | null {

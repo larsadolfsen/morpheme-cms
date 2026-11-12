@@ -46,10 +46,10 @@ import { blocksIn } from '../lib/blocks.mjs';
 import { apps, offBlocks, preview, siteBlocks } from './registry';
 import { activeApps, kindDraw, kindKey, type SiteApp } from './apps';
 import { entriesOf, kindsOf } from './AppList';
-import { asWritten, collections } from './site';
+import { asWritten, backFrom, collections } from './site';
 import { examplePicture, kindExample as newOfKind } from './examples';
 import { headed, letterOf } from './Sheet';
-import { config, siteName } from '@site/editor';
+import { config } from '@site/editor';
 import { siteT, t } from './i18n';
 
 // In alphabetical order, as under "Insert" (BlockDialog.tsx).
@@ -448,7 +448,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
   })();
 
   return (
-    <Screen title={t.common.parts.blockSettings} wide back={{ href: '#', label: siteName }}>
+    <Screen title={t.common.parts.blockSettings} wide back={backFrom('block-settings')}>
       <SearchRow
         value={query}
         onChange={setQuery}

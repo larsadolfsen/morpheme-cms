@@ -318,9 +318,9 @@ function Form({
           title={dataFile ? dataFile.label : isNew ? collection.create! : entryName(folder!, clean(fields, initial)) || kindLabel}
           back={
             header.includes(collection.id)
-              ? { href: '#appearance/header', label: t.common.parts.header }
+              ? { href: '#global/header', label: t.common.parts.header }
               : collection.id === 'footer'
-                ? { href: '#appearance/footer', label: t.common.parts.footer }
+                ? { href: '#global/footer', label: t.common.parts.footer }
                 : collection.kind === 'files' && collection.files.length === 1
                   ? { href: '#', label: siteName }
                   : { href: `#list/${collection.id}`, label: collection.label }

@@ -14,7 +14,7 @@ export const offeredTemplatesOf = (files: RepoFile[]): string[] =>
   templatesOf(themes.find((x) => x.id === chosenTheme(files)) ?? null) as string[];
 
 /** The field with the options of the theme: the sidebar ones greyed (`disabled`) while no block is chosen for the column,
- * with a link there under the field (Appearance › Side column, `edit`). A theme of one template alone shows it as the
+ * with a link there under the field (Globals › Side column, `edit`). A theme of one template alone shows it as the
  * page's, not changed here (`locked`); with none to choose (a theme of sidebar templates alone), the theme's default is
  * chosen. Null when the field has no `offered`. */
 export function templateFieldOf(field: Field, files: RepoFile[]): Field | null {
@@ -30,7 +30,7 @@ export function templateFieldOf(field: Field, files: RepoFile[]): Field | null {
     ...field,
     options,
     ...(offered.length === 1 ? { locked: true } : {}),
-    ...(greyed ? { edit: { to: 'appearance/side-column', text: t.forms.chooseSideColumn } } : {}),
+    ...(greyed ? { edit: { to: 'global/side-column', text: t.forms.chooseSideColumn } } : {}),
   };
 }
 

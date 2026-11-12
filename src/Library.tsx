@@ -49,6 +49,7 @@ import {
   blockParts,
   collections,
   companyParts,
+  groups,
   icons,
   lists,
   listsShown,
@@ -137,8 +138,10 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   const { parts } = t.common;
   if (id === 'company') return { label: parts.company, href: '#company', count: null };
   if (id === 'logo') return { label: parts.brand, href: '#company/logo', count: null };
-  if (id === 'header') return { label: parts.header, href: '#appearance/header', count: null };
-  if (id === 'footer') return { label: parts.footer, href: '#appearance/footer', count: null };
+  if (id === 'header') return { label: parts.header, href: '#global/header', count: null };
+  if (id === 'footer') return { label: parts.footer, href: '#global/footer', count: null };
+  if (id === 'side-column') return { label: parts.sideColumn, href: '#global/side-column', count: null };
+  if (id === 'colors') return { label: parts.colors, href: '#company/colors', count: null };
   if (id === 'lists') return { label: parts.lists, href: '#lists', count: listsShown(files).length };
   if (id === 'blocks') return { label: parts.blocks, href: '#blocks', count: blockParts.length };
   if (id === 'files') return { label: parts.media, href: '#files', count: mediaOf(files).length + filesOf(files).length };
@@ -164,8 +167,6 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
     themes: parts.themes,
     'icon-packs': parts.iconPacks,
     motion: parts.motion,
-    'side-column': parts.sideColumn,
-    colors: parts.colors,
   }[id];
   const appearancePart = appearanceLabel ?? appearance.find((p) => p.id === id)?.label;
   if (appearancePart) return { label: appearancePart, href: `#appearance/${id}`, count: null };
@@ -175,7 +176,10 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
     if (own) return { label: own.label, href: own.href ?? `#${screen.id}/${id}`, count: null };
   }
   if (id === 'morpheme') return { label: parts.morpheme, href: `#${CMS_ROUTE}`, count: null };
-  if (id === 'developer') return { label: parts.developer, href: `#${DEV_MENU_ROUTE}`, count: null };
+  if (id === 'caching') return { label: parts.caching, href: '#developer/caching', count: null };
+  if (id === 'components') return { label: parts.editorParts, href: '#developer/parts', count: null };
+  // A site's own old `settings` may still have the row `developer` (gone in 0.19): it opens Caching and builds.
+  if (id === 'developer') return { label: parts.caching, href: '#developer/caching', count: null };
   if (id === 'licenses') return { label: parts.licenses, href: '#licenses', count: null };
   if (id === 'assistants') return { label: parts.assistants, href: '#assistants', count: null };
   const screen = partScreens.find((s) => s.id === id);
@@ -220,7 +224,8 @@ export function Start({ builtAt, files, env }: { builtAt: Date | null; files: Re
   );
 }
 
-// "Business": its screen has "Logo and icon" (BrandForm.tsx, #company/logo) first, then its parts (CompanyForm.tsx), each on a screen of its own; or one of them with parts
+// "Business": its screen has "Logo and icon" (BrandForm.tsx, #company/logo) first, then "Colors" (Colors.tsx, #company/colors, with the
+// swatches), then its parts (CompanyForm.tsx), each on a screen of its own; or one of them with parts
 // of its own ("Payment"), and the settings of the apps installed of its kinds (Part.apps: MobilePay), going back to
 // "Business".
 export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
@@ -237,25 +242,25 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
     <Parts
       title={t.common.parts.company}
       route="company"
-      parts={[{ id: 'logo', label: t.common.parts.brand, icon: icons.logo }, ...companyParts]}
+      parts={[
+        { id: 'logo', label: t.common.parts.brand, icon: icons.logo },
+        { id: 'colors', label: t.common.parts.colors, icon: icons.colors, trailing: <ThemeColors files={files} /> },
+        ...companyParts,
+      ]}
     />
   );
 }
 
-// Appearance: first "Theme store" (the store's themes, ThemeStoreScreen.tsx), then the header with its menus and its preview
-// (HeaderSettings.tsx) and the footer with its preview (FooterSettings.tsx), then "Themes" (Themes), with the theme the site
+// Appearance: first "Theme store" (the store's themes, ThemeStoreScreen.tsx), then "Themes" (Themes), with the theme the site
 // is built with at the end of its row (or, after a swap, until the site is built with the new one, that one), "Icon packs"
-// (IconPacks), with the pack chosen, "Motion" (MotionSchemes), with the scheme chosen, "Side column" (SideColumn.tsx),
-// with the block chosen, and the colours (Colors.tsx); then the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Default pages", a
+// (IconPacks), with the pack chosen, and "Motion" (MotionSchemes), with the scheme chosen; then the site's own parts there (appearance in packages/editor/defaults/editor.ts: "Default pages", a
 // screen of its own, CompanyForm.tsx, going back here), and how the editor and the blocks look, their parts ("Parts", PartsHome), each on a
-// screen of its own, with the icons the site gives them. The logo and icon (BrandForm.tsx) are under "Business" (Company).
-// The blocks that can be put in are under "Blocks" ("Block settings", BlockSettings.tsx).
+// screen of its own, with the icons the site gives them. The logo and icon (BrandForm.tsx) and the colours (Colors.tsx) are under "Business" (Company);
+// the header, the footer and the side column are under "Globals" (`groups`). The blocks that can be put in are a row of Settings ("Block settings", BlockSettings.tsx).
 export function Theme({ files }: { files: RepoFile[] }) {
   const chosen = themes.find((x) => x.id === chosenTheme(files)) ?? theme;
   const parts: Part[] = [
     { id: 'theme-store', label: t.common.parts.themeStore, icon: icons['theme-store'] },
-    { id: 'header', label: t.common.parts.header, icon: icons.header },
-    { id: 'footer', label: t.common.parts.footer, icon: icons.footer },
     { id: 'themes', label: t.common.parts.themes, icon: icons.themes, detail: chosen.name },
     {
       id: 'icon-packs',
@@ -264,15 +269,28 @@ export function Theme({ files }: { files: RepoFile[] }) {
       detail: iconPacks.find((x) => x.id === chosenPack(files))?.name,
     },
     { id: 'motion', label: t.common.parts.motion, icon: icons.motion, detail: t.library.motionSchemes[motionOf(files)] },
-    {
+    ...appearance,
+  ];
+  // A site with its own old `groups` (no section has these): the rows stay here, at the same screens (they open at their new addresses).
+  const placed = (id: string) => groups.some((g) => g.ids.includes(id));
+  if (!placed('header')) parts.splice(1, 0, { id: 'header', label: t.common.parts.header, icon: icons.header, href: '#global/header' });
+  if (!placed('footer')) parts.splice(2, 0, { id: 'footer', label: t.common.parts.footer, icon: icons.footer, href: '#global/footer' });
+  if (!placed('side-column'))
+    parts.push({
       id: 'side-column',
       label: t.common.parts.sideColumn,
       icon: icons['side-column'],
+      href: '#global/side-column',
       detail: sideChoicesOf(files).find((x) => x.type === sideSettingOf(files))?.label ?? t.library.sideNone,
-    },
-    { id: 'colors', label: t.common.parts.colors, icon: icons.colors, trailing: <ThemeColors files={files} /> },
-    ...appearance,
-  ];
+    });
+  if (!placed('colors'))
+    parts.push({
+      id: 'colors',
+      label: t.common.parts.colors,
+      icon: icons.colors,
+      href: '#company/colors',
+      trailing: <ThemeColors files={files} />,
+    });
   return <Parts title={t.common.parts.appearance} route="appearance" parts={parts} back={backFrom('appearance')} />;
 }
 
@@ -546,7 +564,7 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
   );
 }
 
-/** "Parts" (#developer/parts): the parts the editor and the site are built of, each on a screen of its own: the editor's
+/** "Components" (#developer/parts, a row of Settings): the parts the editor and the site are built of, each on a screen of its own: the editor's
  * (Parts.tsx), the theme's UI components, the blocks (the standard ones and the apps') and each list of kinds
  * ("Promotion", its own kinds and the apps'), as the theme shows them (BlockParts.tsx), and the theme's design tokens ("Values", Tokens.tsx). */
 export function PartsHome() {
@@ -557,30 +575,17 @@ export function PartsHome() {
     ...kindLists().map((c) => ({ id: `list/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lists })),
     { id: 'values', label: t.parts.screens.values, icon: Ruler },
   ];
-  return <Parts title={t.common.parts.editorParts} route="developer/parts" parts={parts} back={backToDeveloper} />;
+  return <Parts title={t.common.parts.editorParts} route="developer/parts" parts={parts} back={backFrom('components')} />;
 }
 
 export const SETTINGS_ROUTE = 'settings';
 
 /** "Settings" (#settings), opened by the cog at the bottom of the main drawer and the rail (MainMenu.tsx): a row for each of
- * `settings` (Appearance, Developer, Licenses, Morpheme, Privacy), A-Z by their names in the editor's language, each opening its
+ * `settings` (Appearance, Assistants, Block settings, Caching and builds, Components, Morpheme, Privacy), A-Z by their names in the editor's language, each opening its
  * own screen. Going back to the start screen. `settings` is matched exactly: settings/appstore is the app store. */
 export function SettingsScreen() {
   const parts: Part[] = partsIn(settings, []).map((p) => ({ id: p.id, label: p.label, icon: icons[p.id], href: p.href }));
   return <Parts title={t.common.parts.settings} route={SETTINGS_ROUTE} parts={parts} back={backFrom(SETTINGS_ROUTE)} />;
-}
-
-export const DEV_MENU_ROUTE = 'developer';
-export const backToDeveloper = { href: `#${DEV_MENU_ROUTE}`, label: t.common.parts.developer };
-
-/** "Developer" (#developer), under "Settings": "Parts" (PartsHome, #developer/parts) and "Caching and builds"
- * (Advanced.tsx, #developer/caching), A–Z by their names. */
-export function Developer() {
-  const parts: Part[] = [
-    { id: 'parts', label: t.common.parts.editorParts, icon: icons.parts },
-    { id: 'caching', label: t.common.parts.caching, icon: icons.developer },
-  ].sort((a, b) => byText(a.label, b.label));
-  return <Parts title={t.common.parts.developer} route={DEV_MENU_ROUTE} parts={parts} back={backFrom(DEV_MENU_ROUTE)} />;
 }
 
 /** "Search engine optimization" (#seo), no longer in the menu: "Redirects" (Redirects.tsx, #seo/redirects) and then
@@ -1396,7 +1401,7 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
           : lists.includes(collection.id)
             ? { href: '#lists', label: t.common.parts.lists }
             : header.includes(collection.id)
-              ? { href: '#appearance/header', label: t.common.parts.header }
+              ? { href: '#global/header', label: t.common.parts.header }
               : { href: '#', label: siteName }
       }
       tabs={

@@ -3393,7 +3393,7 @@ export function BottomSheet({
 /** A web page in a frame, in a full BottomSheet (the preview of a page): `html` is the whole page, drawn as
  * wide as `width` (one of Material 3's window sizes) and made smaller to fit, scrolled in the frame. Nothing
  * in it runs (no scripts), and its links lead nowhere. With `part` (a selector: the header) only that part of the page is
- * shown, as high as it is (measured when the page is in the frame), in the frame's own place: Appearance › Header. */
+ * shown, as high as it is (measured when the page is in the frame), in the frame's own place: Globals › Header. */
 export function PageFrame({ html, width, title, part }: { html: string; width: number; title: string; part?: string }) {
   const box = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });

@@ -1,4 +1,4 @@
-// "Appearance" › "Footer" (#appearance/footer): the footer's text under the name, its two headings and its links (footer.json),
+// "Globals" › "Footer" (#global/footer): the footer's text under the name, its two headings and its links (footer.json),
 // on one screen laid out as a page's form (SettingsSections.tsx): a preview of the footer as the form has it, on a phone and
 // a computer (partPreview.tsx), over the sections Text, Contact and Links. "Save changes" saves the file in its own
 // commit (useDataFiles.ts). Exposes FooterSettings (default). Uses fields.tsx and footerPreview.mjs.
@@ -9,7 +9,7 @@ import { useDataFiles, type DataFilePart } from './useDataFiles';
 import { SettingsSections, useSettingsSections, type SettingsSection } from './SettingsSections';
 import { PartPreview } from './partPreview';
 import { footerDraft, swapFooter } from './footerPreview.mjs';
-import { collections } from './site';
+import { backFrom, collections } from './site';
 import type { FilesCollection } from './schema';
 import type { Env } from './App';
 import { t } from './i18n';
@@ -30,7 +30,7 @@ const placeOf = (path: string) => places.find((p) => p.names.includes(path.split
 // The class of a link in the footer (Footer.astro), for a footer whose page has no link to copy.
 const THEME = { linkClass: 'md-footer-item' };
 
-const back = { href: '#appearance', label: t.common.parts.appearance };
+const back = backFrom('footer');
 
 export default function FooterSettings({ env }: { env: Env }) {
   const layout = useSettingsSections(places);

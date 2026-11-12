@@ -4,7 +4,7 @@ export const editor: Record<string, string> = {
   'Default pages': 'Standardsider',
   Dashboard: 'Oversigt',
   Content: 'Indhold',
-  Blocks: 'Blokke',
+  Globals: 'Globale dele',
   Business: 'Virksomheden',
   Appearance: 'Udseende',
   Privacy: 'Privatliv',

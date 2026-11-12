@@ -338,7 +338,7 @@ export const parts: Messages['parts'] = {
   },
   screens: {
     editor: 'Editor',
-    components: 'UI-komponenter',
+    components: 'Temaets komponenter',
     blocks: 'Blokke',
     values: 'Værdier',
     componentsIntro: 'Temaets knapper, felter, lister og andre dele i alle deres slags og tilstande. Temaet giver dem deres udseende.',
