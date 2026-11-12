@@ -1,6 +1,6 @@
 // The editor's main menu (App.tsx renders it): the drawer (ui.tsx MainDrawer) in two levels. The first lists Home and the
 // sections; a section opens its list, under a back row, with the open screen marked and its fold-out folded out. Apps lists
-// Appstore and a row per app installed. From medium and wider the first level is also the collapsed navigation rail
+// Store, Connectors, Plugins and Themes (the pages of the installed ones), and no row per app. From medium and wider the first level is also the collapsed navigation rail
 // (MainRailItem), whose sections open the drawer at their list. The drawer's header is the signed-in user (AccountRow), a link
 // to the account. The cog (Settings, #settings) is pinned at the bottom of the first level and of the rail; it is marked on
 // Settings and every screen under it. The levels are not steps in the history: in the modal drawer the phone's back gesture goes to the screen
@@ -12,7 +12,7 @@ import { config, header } from '@site/editor';
 import { currentPlace, menuTree } from '../lib/menu.mjs';
 import { STORE_ROUTE } from './store';
 import { collectionOf } from './schema';
-import { apps, collections, companyParts, groups, icons, lists, partScreens, settings } from './site';
+import { collections, companyParts, groups, icons, lists, partScreens, settings } from './site';
 import { partOf } from './Library';
 import { AccountRow } from './AccountRow';
 import { childrenOf } from './menuChildren';
@@ -33,11 +33,8 @@ import {
 } from './ui';
 import type { RepoFile, Viewer } from './github';
 
-// The icon of a row: an app's own, a part of the business its own, else the menu's icon for the id.
-const iconOf = (section: string, id: string) =>
-  (section === 'apps' && apps.find((a) => a.id === id)?.icon) ||
-  (section === 'company' && companyParts.find((p) => p.id === id)?.icon) ||
-  icons[id];
+// The icon of a row: a part of the business its own, else the menu's icon for the id.
+const iconOf = (section: string, id: string) => (section === 'company' && companyParts.find((p) => p.id === id)?.icon) || icons[id];
 
 export function MainMenu({ route, files, user }: { route: string; files: RepoFile[] | null; user: Viewer | null }) {
   const { open, setOpen } = useMenuOpen();
@@ -123,17 +120,15 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
       railFooter={<MainRailItem href="#settings" icon={Gear} label={t.common.parts.settings} selected={!!place.settings} />}
       rail={tree.flatMap((entry) =>
         flat.includes(entry.id) ? (
-          entry.items
-            .filter((item) => !apps.some((a) => a.id === item.id))
-            .map((item) => (
-              <MainRailItem
-                key={item.id}
-                href={item.href}
-                icon={iconOf(entry.id, item.id)}
-                label={item.label}
-                selected={place.section === entry.id && place.item === item.id}
-              />
-            ))
+          entry.items.map((item) => (
+            <MainRailItem
+              key={item.id}
+              href={item.href}
+              icon={iconOf(entry.id, item.id)}
+              label={item.label}
+              selected={place.section === entry.id && place.item === item.id}
+            />
+          ))
         ) : entry.href !== undefined ? (
           <MainRailItem key={entry.id} href={entry.href} icon={icons[entry.id]} label={entry.label} selected={route === ''} />
         ) : (
@@ -186,8 +181,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
           {section.items.map(({ id, label, href, count, children }) => {
             const here = place.section === section.id && place.item === id;
             const shownCount = files ? count : null;
-            // An app's row has the app's icon (an installed app is a row of Apps, lib/menu.mjs), a part of the business its
-            // own (a part is a row of Business).
+            // A part of the business has its own icon (a part is a row of Business).
             const icon = iconOf(section.id, id);
             return children ? (
               <MainDrawerFold key={id} href={href} icon={icon} label={label} count={shownCount} selected={here && !place.child} open={here}>
