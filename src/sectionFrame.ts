@@ -7,7 +7,7 @@ import { $prose } from '@milkdown/kit/utils';
 import type { Node } from '@milkdown/kit/prose/model';
 import { Plugin } from '@milkdown/kit/prose/state';
 import { Decoration, DecorationSet, type EditorView } from '@milkdown/kit/prose/view';
-import { isSafePicture, rebuiltAddress } from '../lib/section-marker.mjs';
+import { drawnAddress, isSafePicture } from '../lib/section-marker.mjs';
 import { partKind, sectionPart, sectionRanges } from '../lib/section-ranges.mjs';
 import { shownAt } from './images';
 import { backdropBox } from './sectionBackdrop.mjs';
@@ -25,15 +25,10 @@ function pictureStrip(src: string, alt: string, color: string | null, width: str
   strip.contentEditable = 'false';
   // Only an address the marker's validator accepts is drawn (lib/section-marker.mjs): a path on the site or an https address.
   if (!isSafePicture(src)) return strip;
-  // The address drawn is rebuilt and checked again here, right before it is set: a path on the site, an https address, or the
-  // browser's own blob address of a picture made in this visit (shownAt), never a script or data address.
-  const url = new URL(shownAt(src), location.origin);
+  // The address drawn is rebuilt and checked again here, right before it is set (drawnAddress): a path on the site, an https address, or the
+  // browser's own blob address of a picture made in this visit (shownAt), written again from the allowed characters only.
   const img = document.createElement('img');
-  let address: string | null = null;
-  if (url.origin === location.origin && url.pathname.startsWith('/') && !url.pathname.startsWith('//')) address = url.pathname + url.search;
-  else if (url.protocol === 'https:' || url.protocol === 'blob:') address = url.href;
-  // Written again from the allowed characters only (lib/section-marker.mjs), so nothing of the original string is assigned.
-  const drawn = address === null ? null : rebuiltAddress(address);
+  const drawn = drawnAddress(shownAt(src), location.origin);
   if (drawn === null) return strip;
   img.src = drawn;
   img.setAttribute('alt', alt);
