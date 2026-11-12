@@ -9,15 +9,15 @@
     },
     {
       "id": "assistants-read-site",
-      "kind": "card",
-      "title": "Let an assistant read your website",
-      "text": "Claude and other assistants can now read your site info, pages, posts and apps with their settings, but can’t change anything. Open Settings, then Assistants, copy the address into your assistant, sign in with GitHub and tap Allow. Disconnect removes an assistant again."
+      "kind": "paragraph",
+      "title": "Assistants",
+      "text": "An assistant such as Claude can read your site but can’t change anything. Open Settings, then Assistants, copy the address into your assistant, sign in with GitHub and tap Allow. Disconnect removes it."
     },
     {
       "id": "connectors-connect-services",
-      "kind": "card",
-      "title": "Connect an app to its service and pick from its lists",
-      "text": "A connector can now sign in to its service, such as Calendly, and fill a setting from the service’s own list, so you no longer copy an id by hand. Before you install it, its page shows the address it connects to and what it uses. Open Appstore under Settings and choose Connectors."
+      "kind": "paragraph",
+      "title": "Connectors",
+      "text": "You no longer copy an id by hand. A connector signs in to its service, such as Calendly, and fills a setting from the service’s own list. Open Appstore under Settings and choose Connectors; each page shows where it connects."
     },
     {
       "id": "plugin-no-outside-access",
@@ -26,9 +26,9 @@
     },
     {
       "id": "three-store-sections",
-      "kind": "card",
-      "title": "Find themes, connectors and plugins in the Appstore",
-      "text": "The Appstore now has three sections: Themes, Connectors and Plugins. A connector says which service it connects to, and a plugin has no outside access. Open Appstore under Settings and pick a section at the top."
+      "kind": "paragraph",
+      "title": "Appstore sections",
+      "text": "Themes, connectors and plugins are easy to tell apart. Open Appstore under Settings and pick Themes, Connectors or Plugins at the top. A connector names its service, and a plugin has no outside access."
     }
   ]
 }

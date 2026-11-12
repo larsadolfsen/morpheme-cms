@@ -3,19 +3,19 @@
   "notes": [
     {
       "id": "page-templates",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Vælg en skabelon til hver side",
       "text": "Vælg, hvordan en side er opbygget, blandt de skabeloner, dit tema tilbyder, som enkelt, fuld eller med sidekolonne. Skabelon erstatter de gamle valg Bred og Side."
     },
     {
       "id": "header-footer-screens",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Redigér din header og footer",
       "text": "Under Udseende har Header og Footer nu hver sin skærm med alle indstillinger og en levende forhåndsvisning på telefon og computer. Du kan også tilføje en handlingsknap i headeren."
     },
     {
       "id": "loading-indicators",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Se, når en knap arbejder",
       "text": "Knapper viser nu en indlæsningsindikator, mens deres handling kører, for eksempel Gem, Installer, Opdater og Afinstaller."
     },

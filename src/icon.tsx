@@ -37,7 +37,7 @@ function useMaterialLoaded(wanted: boolean) {
 
 const PHOSPHOR = '/node_modules/@phosphor-icons/core/assets/';
 const regular = import.meta.glob<string>(
-  '/node_modules/@phosphor-icons/core/assets/regular/{arrow-left,arrow-right,arrow-square-out,arrow-up-right,bank,bicycle,book-open,book-open-text,bus,calendar-blank,car,caret-down,caret-left,caret-right,caret-up,certificate,chats,check,clock,coffee,cookie,copy,device-mobile,door-open,download-simple,envelope-simple,eye,eye-slash,facebook-logo,flower-lotus,graduation-cap,hand-heart,handshake,heart,house,info,keyboard,leaf,lifebuoy,lightbulb,link-simple,linkedin-logo,list,magnifying-glass,map-pin,map-trifold,medal,minus,moon,pencil-simple,phone,pinterest-logo,question,sun,ticket,train,trash,user,users,users-three,video-camera,warning-circle,wheelchair,x,x-logo}.svg',
+  '/node_modules/@phosphor-icons/core/assets/regular/{arrow-left,arrow-right,arrow-square-out,arrow-up-right,bank,bicycle,book-open,book-open-text,bus,calendar-blank,car,caret-down,caret-left,caret-right,caret-up,certificate,chats,check,clock,coffee,cookie,copy,device-mobile,door-open,download-simple,envelope-simple,eye,eye-slash,facebook-logo,flower-lotus,graduation-cap,hand-heart,handshake,heart,house,info,keyboard,leaf,lifebuoy,lightbulb,link-simple,linkedin-logo,list,magnifying-glass,map-pin,map-trifold,medal,minus,moon,pencil-simple,phone,pinterest-logo,question,rows,sun,ticket,train,trash,user,users,users-three,video-camera,warning-circle,wheelchair,x,x-logo}.svg',
   { query: '?raw', import: 'default', eager: true },
 );
 // The filled ones ("Video": its play button; the navigation drawer's active item).

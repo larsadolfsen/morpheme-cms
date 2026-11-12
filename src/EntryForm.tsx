@@ -17,6 +17,7 @@ import { addressOf, moveRedirects, REDIRECTS, retarget } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES, setRedirect } from './redirectData';
 import { TAB_ROUTES } from './Redirects';
 import { choose } from './ask';
+import { freeTitle } from '../lib/freeTitle.mjs';
 import { offeredTemplatesOf, shownTemplate, templateFieldOf } from './templateField';
 import { templateOf, templateWritten } from '../lib/page-template.mjs';
 import { booleanRead, booleanWrite, readFields, splitFrontmatter, writeFields } from './frontmatter.mjs';
@@ -27,10 +28,11 @@ import { sectionBlocks } from './blocks';
 import { looksOf, pageH1 } from './sections.mjs';
 import { h1FromTitle, titleFromH1 } from './titleH1.mjs';
 import { useFormSections } from './formSections';
-import { publicPath, shownAt, useUploads } from './images';
+import { sectionsWithFields } from './formSectionList.mjs';
+import { creditedIn, publicPath, shownAt, useUploads } from './images';
 import { filerAddresses, useMediaPicker } from './Media';
 import { autoTagChanges, newlyUsed } from './autoTags.mjs';
-import { recordsIn } from './fileRecords.mjs';
+import { creditChanges, recordsIn } from './fileRecords.mjs';
 import { inUse, problemAt } from './check';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
@@ -43,6 +45,7 @@ import {
   CheckList,
   FoldSection,
   FormColumns,
+  LoadingIndicator,
   type NavigationItem,
   SectionList,
   SectionPane,
@@ -59,11 +62,16 @@ import {
   schedule,
   timeOf,
   draftPath,
+  isDraftPage,
   published as isPublished,
   publish as publishPage,
   unpublish as unpublishPage,
 } from '../lib/versions.mjs';
 import { commitChanges } from './pageVersions.mjs';
+import { isPagePath } from '../lib/autosave.mjs';
+import { entryName, untouched } from '../lib/entryNames.mjs';
+import { loadAutosave, restorable } from './autosave.mjs';
+import { useAutosave, type AutosaveState } from './useAutosave';
 import VersionSwitch, { WaitingNotice } from './VersionSwitch';
 import { activeApps, versionSwitchOf } from './apps';
 import { usePagePreview } from './pagePreview';
@@ -219,6 +227,10 @@ function Form({
   const editsLive = editing === 'live' && !!waiting;
   // Starts again after changes were discarded: the text editor takes the text of the version it goes back to.
   const [era, setEra] = useState(0);
+  // The text of an autosave put back when the page opened: the text editor starts with it (only in the era it was put back in).
+  const [restoredBody, setRestoredBody] = useState<{ era: number; body: string } | null>(null);
+  const eraNow = useRef(0);
+  eraNow.current = era;
   const parts = useMemo(() => splitFrontmatter(base.text), [base]);
   const initial = useMemo(() => valuesOf(collection, base), [collection, base]);
   // An earlier version: its fields and text, at the address there is now.
@@ -304,7 +316,15 @@ function Form({
   );
   // The form's name, in the top bar and over the sections list (the "on this page" card, on large and wider screens).
   const formTitle = isNew ? collection.create! : String(initial.title || collection.singular);
-  const has = (id: Section) => collection.fields.some(inSection(collection, id));
+  // Whether the form draws a field at all (field(), below): a section with none is not offered, in no list.
+  const fieldShown = (f: Field) =>
+    f.name !== 'status' &&
+    f.name !== 'publishAt' &&
+    inUse(f, collection.fields, values) &&
+    !(f.name === 'title' && collection.blocks && isNew) &&
+    !(f.offered && !templateFieldOf(f, env.files));
+  const withFields = sectionsWithFields(collection.fields, (name) => sectionOf(collection, name), fieldShown);
+  const has = (id: Section) => withFields.has(id);
   const post = collection.id === 'blog';
   const sections: NavigationItem[] = [
     ...(has('settings') ? [{ id: 'settings', label: post ? t.forms.sections.postSettings : t.forms.sections.pageSettings }] : []),
@@ -357,8 +377,158 @@ function Form({
     if (textNear && bodyChanged) readBody();
   }, [textNear]);
   useEffect(() => () => clearTimeout(reading.current), []);
+  // Autosave (src/useAutosave.ts): what is written is kept by the Worker (R2 caching) and moved to git when the form is left or idle: a
+  // published page's changes as its waiting version, a draft page as the page file itself (it has no live version to protect, and stays a
+  // draft whatever the text says), and a NEW page or post, which has no file yet, as a draft page file made then (`create`), named
+  // `New page` until the H1 (a post's title) says another, and renamed with it (`to`). Not the live page being edited, an earlier version
+  // or a new address. With R2 caching off the Worker says so and nothing is kept until `Save`, as before.
+  const typedAddress = addressOf(String(values.path ?? ''), post ? 'post' : 'page');
+  // The key of a new entry's autosave: a file name that never exists, so two new pages in two tabs do not overwrite each other.
+  const [placeholder] = useState(() => `${collection.folder}/new-entry-${Math.random().toString(36).slice(2, 10)}.md`);
+  // A draft made by autosave from a new entry in this form: until the address is written by hand, its name follows the H1.
+  const [followsH1, setFollowsH1] = useState(false);
+  const ownNames = useMemo(
+    () =>
+      new Set(
+        env.files
+          .filter((f) => f.path.startsWith(`${collection.folder}/`) && f.path.endsWith('.md'))
+          .map((f) => slugOf(f.path, collection.folder))
+          .filter((name) => !name.includes('/')),
+      ),
+    [env.files, collection],
+  );
+  const fileName = live.path ? slugOf(live.path, collection.folder) : '';
+  // What the entry is called now (a new one, or a draft that follows the H1): the title, the file name, and whether the name is by hand.
+  const target = entryName({
+    create: collection.create ?? collection.singular,
+    title: String(values.title ?? ''),
+    typed: typedAddress && (isNew || typedAddress !== url) ? (typedAddress.split('/').at(-2) ?? '') : '',
+    taken: (name) => name !== fileName && ownNames.has(name),
+    slugify,
+  });
+  const targetPath = `${collection.folder}/${target.name}.md`;
+  const autosaves =
+    !version &&
+    (isNew
+      ? isPagePath(placeholder)
+      : !editsLive &&
+        (livePublished || !!waiting || isDraftPage(live.text)) &&
+        isPagePath(live.path) &&
+        (!typedAddress || typedAddress === url));
+  // The text of the version as `Save` writes it, or null when it cannot be saved now.
+  function autosaveText(): string | null {
+    const given = isNew ? { ...values, title: target.title } : values;
+    if (problemAt(collection.fields, given)) return null;
+    const saved = inForm(collection.fields, given, offered);
+    const written = (isNew ? collection.fields.filter((f) => !same(saved[f.name], []) && f.type !== 'readonly') : changed).filter(
+      (f) => f.name !== 'path',
+    );
+    // A new page whose address was written by hand, and is not its file name, has it as its own `path` (as `Save` writes it).
+    const own = isNew && !post && target.byHand && typedAddress !== `/${target.name}/` ? { path: typedAddress } : {};
+    const yaml = writeFields(isNew ? '' : parts.yaml, { ...Object.fromEntries(written.map((f) => [f.name, saved[f.name]])), ...own });
+    const markdown = bodyChanged ? text.current?.markdown() : null;
+    const body = markdown == null ? parts.body : `\n${markdown.trim()}\n`;
+    if (blockProblems(body, template, front ? frontLeads : undefined)[0]) return null;
+    const next = `---\n${yaml}\n---\n${body}`;
+    // A picture added is kept in the browser until `Save` uploads it, so a text with one cannot be kept elsewhere yet.
+    return pictures.usedIn(next).length ? null : next;
+  }
+  // A new page nobody wrote in (or written in and erased again) is as the form opened it: nothing is kept and no file is made.
+  const isUntouched = () =>
+    untouched({
+      changed: changed.filter((f) => f.name !== 'title' || String(values.title ?? '').trim() !== '').map((f) => f.name),
+      bodyChanged,
+      bare: text.current?.bare() ?? true,
+      h1: text.current?.h1() ?? null,
+      markdown: text.current?.markdown() ?? '',
+      start: parts.body,
+    });
+  // The file the Worker made or moved, or the waiting version it made: taken as it is now, so the next `Save` does not clash with it.
+  async function takeFlushed(wrote?: string) {
+    try {
+      if (isNew || (wrote && wrote !== live.path)) {
+        const [file] = await env.load([wrote ?? live.path]);
+        if (!file?.text) return;
+        const was = live.path;
+        const oldUrl = url;
+        const taken = { ...file, path: file.path };
+        // A new entry got the title it was written with (`New page`), as the file has it.
+        const titled = isNew && !String(values.title ?? '').trim() ? target.title : null;
+        if (titled) title.current = titled;
+        setLive(taken);
+        setBase((b) => ({ ...b, path: taken.path, oid: taken.oid }));
+        if (isNew) setFollowsH1(!target.byHand);
+        // The address in the form follows the file (a page's is its file name, until another is written).
+        setValues((v) => ({
+          ...v,
+          ...(titled && !String(v.title ?? '').trim() ? { title: titled } : {}),
+          path: String(v.path ?? '') === oldUrl || !v.path ? addressNow(collection, taken, {}) : v.path,
+        }));
+        env.onSaved(taken, { files: [], removed: was ? [was] : [] });
+        autosave.touch();
+        return;
+      }
+      if (isDraftPage(live.text) && !waiting) {
+        const [file] = await env.load([live.path]);
+        if (!file?.text) return;
+        setLive(file);
+        env.onSaved(file, { files: [], removed: [] });
+        return;
+      }
+      const [file] = await env.load([draftPath(live.path)]);
+      if (!file?.text) return;
+      setWaiting(file);
+      env.onSaved(live, { files: [file], removed: [] });
+    } catch {}
+  }
+  const autosave = useAutosave({
+    on: autosaves,
+    path: isNew ? placeholder : live.path,
+    dirty,
+    text: autosaveText,
+    flushed: takeFlushed,
+    make: () =>
+      isNew
+        ? { create: true, to: targetPath }
+        : followsH1 && !livePublished && !waiting && !target.byHand && targetPath !== live.path
+          ? { to: targetPath }
+          : {},
+    skip: () => isNew && isUntouched(),
+  });
+  // A page opened with changes the Worker kept (the tab was closed, or the editor reloaded): put back, unless git's version is newer.
+  useEffect(() => {
+    if (!autosaves || isNew) return;
+    const start = eraNow.current;
+    let alive = true;
+    void (async () => {
+      const stored = await loadAutosave(live.path);
+      if (!stored || !alive) return;
+      const gitPath = waiting?.path ?? live.path;
+      const at = await env.savedAt([gitPath]).then(
+        (times) => times[gitPath],
+        () => undefined,
+      );
+      if (!alive || eraNow.current !== start || !restorable(stored, base.text, at)) return;
+      const file = { ...base, text: stored.text };
+      setValues({ ...valuesOf(collection, file), path: initial.path });
+      setRestoredBody({ era: start + 1, body: splitFrontmatter(stored.text).body });
+      setEra(start + 1);
+      setBodyChanged(true);
+      setBody(splitFrontmatter(stored.text).body);
+      notify({ text: t.forms.versions.autosave.restored });
+      autosave.touch();
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+  // A field changed.
+  useEffect(() => {
+    if (dirty) autosave.touch();
+  }, [values]);
   const onText = () => {
     setBodyChanged(true);
+    autosave.touch();
     if (!near.current) return;
     clearTimeout(reading.current);
     reading.current = window.setTimeout(readBody, 600);
@@ -398,7 +568,7 @@ function Form({
   // now and did not in its last saved version (a picture, a PDF field, a link) gets the page's tags at "Save" (autoTags.mjs).
   const tagged = collection.fields.some((f) => f.name === 'categories' && f.type === 'relation' && f.to === 'categories');
   const pictures = useUploads(notify);
-  const [pickImage, picker] = useMediaPicker(env.media, pictures);
+  const [pickImage, picker] = useMediaPicker(env.media, pictures, env.files);
 
   const fields: FieldContext = {
     relations: env.relations,
@@ -410,23 +580,56 @@ function Form({
     page: collection.id === 'pages' && url ? url : undefined,
   };
 
-  // A new page or post without a title is called "New page 1", "New page 2" … (in the site's language,
-  // the first that no page or post of its kind has as its title or file name).
-  function untitled() {
-    const own = env.files.filter((f) => f.path.startsWith(`${collection.folder}/`) && f.path.endsWith('.md'));
-    const titles = new Set(own.map((f) => String(readFields(splitFrontmatter(f.text).yaml).title ?? '')));
-    const names = new Set(own.map((f) => slugOf(f.path, collection.folder).split('/').at(-1)));
-    for (let n = 1; ; n++) {
-      const title = `${asWritten(collection).create} ${n}`;
-      if (!titles.has(title) && !names.has(slugify(title))) return title;
+  // A new page or post without a title is called "New page", "New page 2" … (in the editor's language, `target`, above).
+  const named = () => (isNew && !String(values.title ?? '').trim() ? { ...values, title: target.title } : values);
+
+  // A new page or post whose title another file has: a dialog with the next free title (freeTitle.mjs), which the owner
+  // may change; a title that is taken too is answered with the next free one. null: "Cancel". `also`: a title the
+  // server says is taken, which this browser did not know.
+  async function otherTitle(title: string, loaded: RepoFile[], also?: string) {
+    const used = (candidate: string) => {
+      const free = slugify(candidate);
+      return (
+        candidate === also ||
+        !!env.taken(`/${free}/`, loaded) ||
+        env.files.some((f) => f.path.startsWith(`${collection.folder}/`) && slugOf(f.path, collection.folder) === free)
+      );
+    };
+    let proposal = freeTitle(title, used);
+    let text = t.forms.entry.titleTakenText(post);
+    for (;;) {
+      const answer = await choose({
+        title: t.forms.entry.titleTakenTitle,
+        text,
+        input: { label: t.forms.entry.titleLabel, value: proposal },
+        choices: [{ value: 'save', label: t.common.save }],
+      });
+      if (!answer) return null;
+      const chosen = answer.text.trim();
+      if (!slugify(chosen)) text = t.forms.entry.titleNeedsLetters;
+      else if (!used(chosen)) return chosen;
+      else {
+        proposal = freeTitle(chosen, used);
+        text = t.forms.entry.titleStillTaken;
+      }
     }
   }
-  const named = () => (isNew && !String(values.title ?? '').trim() ? { ...values, title: untitled() } : values);
+
+  // The title the owner chose in that dialog, written to the form (and a page's H1), and the save made again with it.
+  function saveTitled(
+    chosen: string,
+    values: Record<string, unknown>,
+    intent: 'save' | 'publish' | 'schedule',
+    at: string,
+  ): Promise<unknown> {
+    onTitle(chosen);
+    return save(undefined, { ...values, title: chosen }, intent, at);
+  }
 
   // `other`: an address chosen in the dialog for a taken one (below), saved instead of the one typed.
   // `intent` 'publish': also puts it on the website (a draft is published, waiting changes replace the live version);
   // 'schedule': keeps it as a waiting version that goes live at `at` (Danish time, "2026-11-20T08:00").
-  async function save(other?: string, values = named(), intent: 'save' | 'publish' | 'schedule' = 'save', at = '') {
+  async function save(other?: string, values = named(), intent: 'save' | 'publish' | 'schedule' = 'save', at = ''): Promise<unknown> {
     if (wrongField.stop(problemAt(collection.fields, values))) return;
     // A standard page is on the site: it cannot be a draft or wait for its time.
     if (
@@ -439,24 +642,36 @@ function Form({
     if (isNew && !slug) return notify({ text: t.forms.entry.titleNeedsLetters, error: true });
     // The address: the one typed, or for a new one /<title>/. A post's is its file name; a page's
     // is its file name too when new, and its own `path` when that is another.
-    const typed = addressOf(other ?? String(values.path ?? ''), post ? 'post' : 'page');
+    // A draft made by autosave whose name follows the H1 and has not caught up yet moves to its name now, with no redirect (it was never
+    // on the site), and the file moves with it.
+    const renaming =
+      followsH1 &&
+      !isNew &&
+      !livePublished &&
+      !waiting &&
+      !version &&
+      !target.byHand &&
+      intent !== 'schedule' &&
+      other === undefined &&
+      targetPath !== live.path;
+    const typed = addressOf(other ?? (renaming ? `/${target.name}/` : String(values.path ?? '')), post ? 'post' : 'page');
     const address = typed || (isNew ? `/${slug}/` : url);
     const moved = !isNew && address !== url;
     if (moved && intent === 'schedule') return notify({ text: t.forms.versions.scheduleWithAddress, error: true });
     // A new address takes its redirect at once, so it cannot wait with the changes: they are published or discarded first.
     if (moved && waiting) return notify({ text: t.forms.versions.addressWaiting, error: true });
-    const name = post || isNew ? address.split('/').at(-2)! : slugOf(base.path, collection.folder);
-    const path = isNew || (post && moved) ? `${collection.folder}/${name}.md` : base.path;
+    const name = post || isNew || renaming ? address.split('/').at(-2)! : slugOf(base.path, collection.folder);
+    const path = isNew || renaming || (post && moved) ? `${collection.folder}/${name}.md` : base.path;
     // A new page or post, or a new address: not where another page is, or an address the site sends on
     // elsewhere (the files of the redirects as they are now, redirectData.ts).
     let loaded: RepoFile[] = [];
-    if (isNew || moved)
+    if (isNew || (moved && !renaming))
       try {
         loaded = await env.load(REDIRECT_FILES);
       } catch (e) {
         return notify({ text: t.forms.entry.redirectsNotLoaded((e as Error).message), error: true });
       }
-    const reason = isNew || moved ? env.taken(address, loaded) : null;
+    const reason = isNew || (moved && !renaming) ? env.taken(address, loaded) : null;
     // An address the site sends on elsewhere: the owner is told where to, and chooses to remove the redirect
     // (saved with the page) or another address.
     const freeing = !!reason?.redirect;
@@ -484,6 +699,9 @@ function Form({
         set('path', chosen);
         return save(chosen);
       }
+    } else if (reason && isNew && !typed) {
+      const chosen = await otherTitle(String(values.title), loaded);
+      return chosen ? saveTitled(chosen, values, intent, at) : undefined;
     } else if (reason)
       return notify({
         text: t.forms.entry.taken(reason.text, !!typed, post),
@@ -495,8 +713,13 @@ function Form({
       env.files.some(
         (f) => f.path !== base.path && slugOf(f.path, collection.folder) === name && f.path.startsWith(`${collection.folder}/`),
       )
-    )
+    ) {
+      if (isNew && !typed) {
+        const chosen = await otherTitle(String(values.title), loaded);
+        return chosen ? saveTitled(chosen, values, intent, at) : undefined;
+      }
       return notify({ text: t.forms.entry.fileExists(name), error: true });
+    }
 
     // A new file gets all its filled-in fields in the order of the form; an existing one only the changed. As saved:
     // the values given (a new one without a title has its name, "New page 1", named()), not only those in the form.
@@ -504,7 +727,7 @@ function Form({
     const written = (isNew ? collection.fields.filter((f) => !same(saved[f.name], []) && f.type !== 'readonly') : changed).filter(
       (f) => f.name !== 'path',
     );
-    const own = !post && (moved || (isNew && address !== `/${name}/`)) ? { path: address } : {};
+    const own = !post && ((moved && !renaming) || (isNew && address !== `/${name}/`)) ? { path: address } : {};
     const yaml = writeFields(isNew ? '' : parts.yaml, { ...Object.fromEntries(written.map((f) => [f.name, saved[f.name]])), ...own });
     const markdown = bodyChanged ? text.current?.markdown() : null;
     if (isNew && !markdown?.trim()) {
@@ -524,7 +747,7 @@ function Form({
     // first go straight to where it sent them), the old address sends on to the new one, the new
     // address is the page's (the editor's own redirect from it goes), and none sends on through another.
     let redirectChanges: Change[] = [];
-    if (isNew || moved) {
+    if (isNew || (moved && !renaming)) {
       let all = readAll(loaded);
       if (freeing) {
         const flat = flatten(all);
@@ -567,7 +790,7 @@ function Form({
     const used = pictures.usedIn(next);
     const removed = base.path && path !== base.path ? [base.path] : [];
     // The page's tags to the files in "Files" it newly refers to (the text as last saved against the text now), in the same commit.
-    const recordChanges = tagged
+    const autoRecordChanges = tagged
       ? autoTagChanges(
           recordsIn(env.files, config.fileRecords),
           config.fileRecords,
@@ -577,6 +800,8 @@ function Form({
           Array.isArray(saved.categories) ? (saved.categories as string[]) : [],
         )
       : [];
+    // The credit of a picture from an app's source of pictures goes in its record, in the same commit as the picture.
+    const recordChanges = creditChanges(autoRecordChanges, recordsIn(env.files, config.fileRecords), config.fileRecords, creditedIn(used));
     // The waiting version: the text of the form without `status`, with the time it already has.
     const waitingPath = viaDraft ? draftPath(isNew ? path : live.path) : '';
     const asDraft = (text: string) =>
@@ -654,6 +879,7 @@ function Form({
       }
       const saved = { path, oid: oids[path], text: next };
       setLive(saved);
+      if (intent === 'publish') setFollowsH1(false);
       if (foldWaiting) setWaiting(null);
       pictures.markSaved(used);
       setBase(saved);
@@ -678,7 +904,7 @@ function Form({
       if (version) onVersion(null);
       // A new address: the owner is told, in a dialog that stays until it is closed, that the old one now
       // sends on to it, and where the redirects are.
-      if (moved) {
+      if (moved && !renaming) {
         void choose({
           title: t.forms.entry.movedTitle,
           text: t.forms.entry.movedText(address, url, post, redirectsPath()),
@@ -691,6 +917,15 @@ function Form({
       }
       return true;
     } catch (e) {
+      // The server has a file with that name that this browser did not know: the same dialog as for a title it knows.
+      if (e instanceof ConflictError && e.exists && isNew && !typed) {
+        const chosen = await otherTitle(String(values.title), loaded, String(values.title));
+        if (chosen) {
+          setSaving(false);
+          return saveTitled(chosen, values, intent, at);
+        }
+        return;
+      }
       notify({ text: e instanceof ConflictError ? e.message : t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
     } finally {
       setSaving(false);
@@ -957,7 +1192,16 @@ function Form({
         <FormFrame
           title={formTitle}
           back={{ href: `#list/${collection.id}`, label: collection.label }}
-          status={versionStatus({ state, editsLive, scheduledAt, savedAt, saving, deleting, isNew })}
+          status={versionStatus({
+            state,
+            editsLive,
+            scheduledAt,
+            savedAt,
+            saving,
+            deleting,
+            isNew,
+            autosave: autosaves && dirty ? autosave.state : undefined,
+          })}
           publish={publishBar}
           view={isNew ? undefined : url}
           dirty={dirty}
@@ -999,12 +1243,12 @@ function Form({
                     <MarkdownEditor
                       key={era}
                       ref={text}
-                      value={shown?.body ?? parts.body}
+                      value={(restoredBody?.era === era ? restoredBody.body : undefined) ?? shown?.body ?? parts.body}
                       onChange={onText}
                       addImage={pickImage}
                       blocks={collection.blocks ? blockAsk : undefined}
                       h1={!!collection.blocks}
-                      startOnH1={isNew}
+                      startFocused={isNew}
                       onH1={collection.blocks ? onH1 : undefined}
                       sheet={blockAsk}
                       looks={
@@ -1083,6 +1327,7 @@ function versionStatus({
   saving,
   deleting,
   isNew,
+  autosave,
 }: {
   state: 'draft' | 'published' | 'waiting';
   /** The live page is being edited while changes wait. */
@@ -1093,8 +1338,13 @@ function versionStatus({
   saving: boolean;
   deleting?: boolean;
   isNew?: boolean;
+  /** Changes to a page that can wait are not saved yet: how autosave is doing (useAutosave.ts). */
+  autosave?: AutosaveState;
 }) {
-  if (deleting || saving || isNew) return savedStatus({ savedAt, saving, deleting, isNew });
+  if (deleting || saving) return savedStatus({ savedAt, saving, deleting, isNew });
+  if (autosave === 'saving') return <LoadingIndicator>{t.forms.versions.autosave.saving}</LoadingIndicator>;
+  if (autosave) return t.forms.versions.autosave[autosave];
+  if (isNew) return savedStatus({ savedAt, saving, deleting, isNew });
   if (editsLive) return t.forms.versions.editingLive;
   if (scheduledAt && untilTime(scheduledAt) !== null) return t.forms.versions.scheduledLine(timeText(scheduledAt));
   if (state === 'draft') return t.forms.versions.draftLine;

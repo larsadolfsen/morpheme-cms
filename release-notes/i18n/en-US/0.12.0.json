@@ -3,13 +3,13 @@
   "notes": [
     {
       "id": "side-panel-tap-block",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Edit a block beside the page",
       "text": "On a tablet or a computer, tap a block or a picture to open its settings in a side panel. You’ll find Remove in the panel."
     },
     {
       "id": "floating-add-button",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Add with a round button",
       "text": "The button that creates something new in lists, Files and Redirects is now a round button that floats above the page. If a list has several kinds, it opens a menu of them."
     },
