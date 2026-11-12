@@ -34,10 +34,14 @@ test('every icon of the text toolbar is Phosphor, or one of the text sizes drawn
   const imports = [...editor.matchAll(/^import \w+ from '([^']+\.svg\?raw)';/gm)].map((m) => m[1]);
   assert.ok(imports.length > 10);
   for (const file of imports) {
-    assert.match(file, /^@phosphor-icons\/core\/assets\/(regular|bold)\/|^\.\/icons\/text-t-(small|medium|large)\.svg\?raw$/, file);
+    assert.match(
+      file,
+      /^@phosphor-icons\/core\/assets\/(regular|bold)\/|^\.\/icons\/text-(t-(small|medium|large)|h-plain)\.svg\?raw$/,
+      file,
+    );
   }
-  for (const size of ['small', 'medium', 'large']) {
-    const svg = read(`./icons/text-t-${size}.svg`);
+  for (const name of ['t-small', 't-medium', 't-large', 'h-plain']) {
+    const svg = read(`./icons/text-${name}.svg`);
     assert.match(svg, /viewBox="0 0 256 256"/);
     assert.doesNotMatch(svg, /#[0-9a-f]{3,8}\b|fill="(?!currentColor|none)/i);
   }

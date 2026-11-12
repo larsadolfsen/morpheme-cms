@@ -60,7 +60,6 @@ import {
   TextAlignLeft,
   TextAlignRight,
   TextB,
-  TextH,
   TextHThree,
   TextHOne,
   TextHTwo,
@@ -115,8 +114,8 @@ import h3Icon from '@phosphor-icons/core/assets/regular/text-h-three.svg?raw';
 import textLargeIcon from './icons/text-t-large.svg?raw';
 import textMediumIcon from './icons/text-t-medium.svg?raw';
 import textSmallIcon from './icons/text-t-small.svg?raw';
-import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
-import textHIcon from '@phosphor-icons/core/assets/regular/text-h.svg?raw';
+import { TextHPlainIcon, TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
+import textHIcon from './icons/text-h-plain.svg?raw';
 import textTIcon from '@phosphor-icons/core/assets/regular/text-t.svg?raw';
 import alignLeftIcon from '@phosphor-icons/core/assets/regular/text-align-left.svg?raw';
 import alignCenterIcon from '@phosphor-icons/core/assets/regular/text-align-center.svg?raw';
@@ -702,7 +701,7 @@ function SheetChoice({
 
 const GENERIC_ICONS = {
   text: { raw: textTIcon, node: TextT },
-  heading: { raw: textHIcon, node: TextH },
+  heading: { raw: textHIcon, node: TextHPlainIcon },
   list: { raw: bulletIcon, node: ListBullets },
 };
 
@@ -755,6 +754,8 @@ type Look = (Face | { shows: (state: EditorView['state']) => Face }) & {
   off?: (state: EditorView['state']) => boolean;
   // Not there (the marks in a block with none).
   dim?: (state: EditorView['state']) => boolean;
+  // Shown but not usable now ("+" where the text has nothing to insert).
+  disabled?: (state: EditorView['state']) => boolean;
   word?: boolean;
   menu?: boolean;
 };
@@ -776,7 +777,7 @@ const inLabel = (state: EditorView['state']) =>
 
 // When a word or more is selected, or the cursor has stood still in a word (STILL_MS, stillCursor.mjs): one row of icons
 // over it, never two: bold, italic, link, the headings (H, a menu with the levels headingChoices gives for the text; a
-// page's H1 alone is that heading's own button), "+" (the blocks, only where there are any) and "More" (three dots), which
+// page's H1 alone is that heading's own button), "+" (always there: the blocks or a picture; greyed where there is nothing to insert) and "More" (three dots), which
 // opens a sheet from the bottom with the rest: the colours, the text styles, the lists and the alignment. At a still
 // cursor, bold, italic and link act on the whole word, the headings on the line; a move or a keypress hides the row. On a
 // phone, where the phone's own menu is over the selection and its handles under it, the row is at the bottom of the
@@ -859,7 +860,7 @@ function selectionMenu(
           menu: true,
         },
         // The blocks (the same sheet as the toolbar's "+"), where the text has blocks.
-        { icon: plusIcon, label: t.text.insert, action: () => insert()?.(), off: () => !insert() },
+        { icon: plusIcon, label: t.text.insert, action: () => insert()?.(), disabled: () => !insert() },
         // The rest, in a sheet from the bottom.
         { icon: dotsIcon, label: t.text.more, action: () => more() },
       ];
@@ -937,6 +938,7 @@ function selectionMenu(
           buttons[i].hidden = !!look.off?.(state) || !!look.dim?.(state);
           if (buttons[i].hidden) return;
           if ('shows' in look) draw(buttons[i], look, look.shows(state));
+          buttons[i].disabled = !!look.disabled?.(state);
           if (look.on) buttons[i].setAttribute('aria-pressed', String(look.on(state)));
         });
         const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
@@ -1702,7 +1704,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
-  insertRef.current = blocks ? () => void block() : null;
+  // "+" in the selection menu: the blocks, or a picture where the text has only pictures (a blog post); else nothing.
+  insertRef.current = blocks ? () => void block() : addImage ? () => void image() : null;
 
   const all: {
     label: string;

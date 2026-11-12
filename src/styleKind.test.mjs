@@ -129,7 +129,7 @@ test('the heading button shows a level only while a heading is on, else its gene
 test('the generic icons are the general T and H, and the bullet list, of Phosphor', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
   assert.match(source, /text: \{ raw: textTIcon, node: TextT \}/);
-  assert.match(source, /heading: \{ raw: textHIcon, node: TextH \}/);
+  assert.match(source, /heading: \{ raw: textHIcon, node: TextHPlainIcon \}/);
   assert.match(source, /list: \{ raw: bulletIcon, node: ListBullets \}/);
 });
 

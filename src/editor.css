@@ -1113,6 +1113,11 @@ html {
   rotate: 180deg;
 }
 
+.editor-selection-menu button:disabled {
+  opacity: 0.38;
+  pointer-events: none;
+}
+
 .editor-selection-menu button[aria-pressed='true'] {
   background: var(--mo-surface-container-high);
   color: var(--icon-button-standard-selected-text, var(--block-accent));
