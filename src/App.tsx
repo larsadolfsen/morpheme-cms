@@ -90,7 +90,8 @@ import {
 import { readCache, writeCache } from './cache';
 import { forgetNotFound, loadNotFound, type Missing } from './notFound';
 import { isEntryPath } from '../lib/ownList.mjs';
-import { collectionOf, slugOf, type Collection, type FolderCollection, type Part, type Relation } from './schema';
+import { collectionOf, slugOf, type Collection, type FolderCollection, type OwnedList, type Part, type Relation } from './schema';
+import OwnListPage from './OwnListPage';
 import EntryForm, { newMarkdown } from './EntryForm';
 import DataForm from './DataForm';
 import CompanyForm from './CompanyForm';
@@ -175,6 +176,7 @@ import {
   collections,
   collectionsFor,
   companyParts,
+  isOwnList,
   listRowsOf,
   setOwnRowLists,
   partScreens,
@@ -901,6 +903,10 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   // A list, or a tab an installed app adds to it (list/<id>/<app>).
   const [, listId, listTab, ...below] = route.split('/');
   const listed = route.startsWith('list/') && !below.length && collectionsFor(files).find((c) => c.id === listId);
+  if (listed && isOwnList(files, listed.id) && listed.kind === 'folder')
+    return <OwnListPage key={listed.id} collection={listed as OwnedList} files={files} env={env} />;
+  if (listed && listed.kind === 'folder' && isOwnList(files, listed.id))
+    return <OwnListPage key={listed.id} collection={listed as OwnedList} files={files} env={env} />;
   if (listed) return <List key={listed.id} collection={listed} tab={listTab} files={files} env={env} />;
 
   // new/<list>, or new/<list>/<kind> for one of its kinds (a pop-up: standard, mailchimp).

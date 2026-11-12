@@ -17,7 +17,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { chromium } from 'playwright';
 import sharp from 'sharp';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { constants, inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
@@ -514,6 +514,68 @@ async function checkDynamicList(width, height) {
   await page.waitForTimeout(400);
   if (!(await page.locator('.inline-list-row[data-row]').count())) problems.push(`${label}: Undo did not bring the typed rows back`);
   await page.close();
+}
+
+/** The page of a list the owner made (#list/<id>, OwnListPage.tsx): the List typed in place, its rows the entries of the list. A list with a definition and two entries opens with two rows, no horizontal overflow; the active row has the dotted outline and no background, `Add list row` shows under an active list and is gone when the cursor leaves, the toolbar has Add above and Add below, Enter in the title goes to the text, and only the fields the list has are there (no icon slot, no link slot). */
+async function checkOwnList(width, height) {
+  const label = `${width}px own list`;
+  const phone = width < 600;
+  const folder = join(ROOT, 'src/data/services');
+  mkdirSync(folder, { recursive: true });
+  writeFileSync(join(folder, '_list.json'), JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href'] }));
+  writeFileSync(join(folder, 'web-design.json'), JSON.stringify({ order: 1, title: 'Web design', text: 'Sites that last' }));
+  writeFileSync(join(folder, 'hosting.json'), JSON.stringify({ order: 2, title: 'Hosting' }));
+  try {
+    const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#list/services'));
+    await page
+      .waitForSelector('.inline-list-row[data-row]', { timeout: 15000 })
+      .catch(() => problems.push(`${label}: the list page has no rows`));
+    const rows = await page.locator('.inline-list-row[data-row]:not(.inline-list-row-next)').count();
+    if (rows !== 2) problems.push(`${label}: expected 2 rows, got ${rows}`);
+    if (await page.locator('.inline-list-row-next').count()) problems.push(`${label}: the faded empty row shows while the list has rows`);
+    if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
+      problems.push(`${label}: the list page scrolls sideways`);
+    await page.locator('.inline-list-row[data-row="0"] [data-field="title"]').click();
+    await page.waitForSelector('.inline-list-row-active');
+    const active = await page.evaluate(() => {
+      const row = document.querySelector('.inline-list-row-active');
+      return {
+        outline: getComputedStyle(row).outlineStyle,
+        background: getComputedStyle(row).backgroundColor,
+        icon: !!row.querySelector('[aria-label="Icon"]'),
+        link: !!row.querySelector('[aria-label="Page"], [aria-label="Link"]'),
+      };
+    });
+    if (active.outline !== 'dotted') problems.push(`${label}: the active row has no dotted outline (${active.outline})`);
+    if (!/rgba\(0, 0, 0, 0\)|transparent/.test(active.background))
+      problems.push(`${label}: the active row has a background (${active.background})`);
+    if (active.icon) problems.push(`${label}: an icon slot shows in a list without the icon field`);
+    if (!(await page.getByRole('button', { name: 'Add list row' }).count()))
+      problems.push(`${label}: no "Add list row" under the active list`);
+    const labels = await page.evaluate(() =>
+      [...document.querySelectorAll('.site-block-toolbar button')].map((b) => b.getAttribute('aria-label')),
+    );
+    for (const need of ['Add above', 'Add below'])
+      if (!labels.includes(need)) problems.push(`${label}: the toolbar has no "${need}" (${labels})`);
+    await page.keyboard.press('Enter');
+    if (!(await page.evaluate(() => document.activeElement?.getAttribute('data-field') === 'text')))
+      problems.push(`${label}: Enter in the title did not go to the text`);
+    await page
+      .locator('main h1, header')
+      .first()
+      .click({ position: { x: 5, y: 5 }, force: true })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+    if (await page.locator('.inline-list-row-active').count()) problems.push(`${label}: the row is still active after the cursor left`);
+    if (await page.getByRole('button', { name: 'Add list row' }).count())
+      problems.push(`${label}: "Add list row" stays after the cursor left`);
+    await page.close();
+  } finally {
+    rmSync(folder, { recursive: true, force: true });
+  }
 }
 
 /** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set, Material Symbols' ("arrow back") and Phosphor's ("acorn"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
@@ -1357,6 +1419,8 @@ await checkEmptyHint();
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
 await checkDynamicList(375, 740);
 await checkDynamicList(1280, 900);
+await checkOwnList(375, 740);
+await checkOwnList(1280, 900);
 for (const [width, height] of [
   [360, 740],
   [375, 740],
