@@ -13,7 +13,7 @@ test('in the text it shows the style of the block, as the menu marks it', () => 
     assert.equal(styleKindOf([kind, 'strong'], true), kind);
 });
 
-test('in a heading it shows Body large, the first of the list', () => {
+test('in a heading it shows Body large, though Body small is first in the list', () => {
   assert.equal(styleKindOf(['h2'], true), 'large');
 });
 
@@ -36,4 +36,24 @@ test('both toolbars take each text style icon from the same table', () => {
       `the top toolbar draws ${name} from the table`,
     );
   }
+});
+
+// One order everywhere: the body styles from small to large, then Label, the lists and the quote (the sheet, the top toolbar's
+// menu, the floating row's menu and button, STYLE_KINDS and KIND_ICONS).
+test('every list of the text styles is in the order of STYLE_KINDS', () => {
+  assert.deepEqual(STYLE_KINDS, ['small', 'medium', 'large', 'label', 'bullet', 'check', 'ordered', 'quote']);
+  const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
+  const order = (re) => [...source.matchAll(re)].map((m) => m[1]);
+  assert.deepEqual(order(/^ {8}\{ name: '(\w+)', icon: KIND_ICONS\.\w+\.raw/gm), STYLE_KINDS, 'the floating row');
+  assert.deepEqual(
+    order(/^ {4}\{ label: [\w.]+, icon: KIND_ICONS\.\w+\.node, action: \(\) => setKind\('(\w+)'\)/gm),
+    STYLE_KINDS,
+    'the top toolbar and the sheet',
+  );
+  const filter = source.match(/\['h1', 'h2', 'h3', ((?:'\w+',? ?)+)\]\.includes\(t\.on/)[1];
+  assert.deepEqual(
+    [...filter.matchAll(/'(\w+)'/g)].map((m) => m[1]),
+    STYLE_KINDS,
+    "the list that picks the sheet's styles",
+  );
 });

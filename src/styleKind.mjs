@@ -1,10 +1,11 @@
 // Which text style the text-style button shows (the toolbar's and the selection toolbar's): 'generic' (the H icon) when the cursor is
 // not in the text, else the style the cursor is in, the one the menu marks, from activeOf's names (MarkdownEditor.tsx). A cursor in a
-// block with no style of the list (a heading) shows the first, Body large (the plain paragraph).
-export const STYLE_KINDS = ['large', 'medium', 'small', 'label', 'bullet', 'check', 'ordered', 'quote'];
+// block with no style of the list (a heading) shows Body large (the plain paragraph). The order is the order of every list of the styles: the
+// body styles from small to large, then Label, the lists and the quote.
+export const STYLE_KINDS = ['small', 'medium', 'large', 'label', 'bullet', 'check', 'ordered', 'quote'];
 
 export function styleKindOf(active, focused) {
   if (!focused) return 'generic';
   const on = new Set(active);
-  return STYLE_KINDS.find((name) => on.has(name)) ?? STYLE_KINDS[0];
+  return STYLE_KINDS.find((name) => on.has(name)) ?? 'large';
 }

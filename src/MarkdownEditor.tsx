@@ -617,9 +617,9 @@ export function paint(view: EditorView, color: string | null) {
 // The icon of each text style, once, for both toolbars: the raw one the floating row draws and the component the top toolbar
 // and the style menu draw. Its names are STYLE_KINDS (styleKind.mjs), checked by styleKind.test.mjs.
 const KIND_ICONS = {
-  large: { raw: textLargeIcon, node: TextAa },
-  medium: { raw: textMediumIcon, node: TextT },
   small: { raw: textSmallIcon, node: TextAlignLeft },
+  medium: { raw: textMediumIcon, node: TextT },
+  large: { raw: textLargeIcon, node: TextAa },
   label: { raw: tagIcon, node: Tag },
   bullet: { raw: bulletIcon, node: ListBullets },
   check: { raw: checkIcon, node: ListChecks },
@@ -696,9 +696,9 @@ function selectionMenu(
       });
       // The other kinds of text, in the toolbar's order, by their names in activeOf.
       const textKinds = [
-        { name: 'large', icon: KIND_ICONS.large.raw, label: t.text.bodyLarge },
-        { name: 'medium', icon: KIND_ICONS.medium.raw, label: t.text.bodyMedium },
         { name: 'small', icon: KIND_ICONS.small.raw, label: t.text.bodySmall },
+        { name: 'medium', icon: KIND_ICONS.medium.raw, label: t.text.bodyMedium },
+        { name: 'large', icon: KIND_ICONS.large.raw, label: t.text.bodyLarge },
         { name: 'label', icon: KIND_ICONS.label.raw, label: t.text.label },
         { name: 'bullet', icon: KIND_ICONS.bullet.raw, label: t.text.bulletList },
         { name: 'check', icon: KIND_ICONS.check.raw, label: t.text.checkList },
@@ -767,7 +767,7 @@ function selectionMenu(
             const kind = styleKindOf(activeOf(s), view.hasFocus());
             return kind === 'generic'
               ? { icon: textHIcon, label: t.text.kind }
-              : groupFace(textKinds.find(({ name }) => name === kind) ?? textKinds[0]);
+              : groupFace(textKinds.find(({ name }) => name === kind) ?? textKinds.find(({ name }) => name === 'large')!);
           },
           action: (button) => kinds(button, 'text'),
           menu: true,
@@ -1433,9 +1433,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       action: () => setKind(`h${level}`),
       on: `h${level}`,
     })),
-    { label: t.text.bodyLarge, icon: KIND_ICONS.large.node, action: () => setKind('large'), on: 'large' },
-    { label: t.text.bodyMedium, icon: KIND_ICONS.medium.node, action: () => setKind('medium'), on: 'medium' },
     { label: t.text.bodySmall, icon: KIND_ICONS.small.node, action: () => setKind('small'), on: 'small' },
+    { label: t.text.bodyMedium, icon: KIND_ICONS.medium.node, action: () => setKind('medium'), on: 'medium' },
+    { label: t.text.bodyLarge, icon: KIND_ICONS.large.node, action: () => setKind('large'), on: 'large' },
     { label: t.text.label, icon: KIND_ICONS.label.node, action: () => setKind('label'), on: 'label' },
     { label: t.text.bulletList, icon: KIND_ICONS.bullet.node, action: () => setKind('bullet'), on: 'bullet' },
     { label: t.text.checkList, icon: KIND_ICONS.check.node, action: () => setKind('check'), on: 'check' },
@@ -1467,11 +1467,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // others of its group under it; a group of one (H1, while a page has none) is that button itself.
   const hasSettings = tools.some((item) => item.icon === SectionSettingsIcon);
   const kinds = tools.filter((t) =>
-    ['h1', 'h2', 'h3', 'large', 'medium', 'small', 'label', 'bullet', 'check', 'ordered', 'quote'].includes(t.on ?? ''),
+    ['h1', 'h2', 'h3', 'small', 'medium', 'large', 'label', 'bullet', 'check', 'ordered', 'quote'].includes(t.on ?? ''),
   );
   const kindGroups = [kinds.filter((t) => /^h\d$/.test(t.on!)), kinds.filter((t) => !/^h\d$/.test(t.on!))].filter((g) => g.length);
   const groupOf = (group: typeof kinds): KindGroup => (/^h\d$/.test(group[0].on!) ? 'headings' : 'text');
-  const shownOf = (group: typeof kinds) => group.find((t) => active.includes(t.on!)) ?? group[0];
+  const shownOf = (group: typeof kinds) => group.find((t) => active.includes(t.on!)) ?? group.find((t) => t.on === 'large') ?? group[0];
   const [narrow, setNarrow] = useState(false);
   const kindsShown = kindsAt ? (kindGroups.find((group) => groupOf(group) === kindsAt.group) ?? []) : [];
   useEffect(() => {
