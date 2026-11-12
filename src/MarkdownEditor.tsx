@@ -89,7 +89,7 @@ import { inlineViews } from './inlineViews';
 import type { Change, Focus, Item as Row } from './InlineItems';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
 import { editorRows } from './standard/rows/view';
-import { fromLine } from './standard/rows/fields';
+import { fromLine, listPageOf } from './standard/rows/fields';
 import { inlineBar, type BarAction } from './inlineBar';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
@@ -1085,7 +1085,12 @@ function blockCard(
         focus = null;
         flushSync(() =>
           root.render(
-            <RowsFromList rows={dynamic.rows} line={fromLine(node.attrs.props, ask.data)[0] ?? ''} empty={dynamic.rows.length === 0} />,
+            <RowsFromList
+              rows={dynamic.rows}
+              line={fromLine(node.attrs.props, ask.data)[0] ?? ''}
+              empty={dynamic.rows.length === 0}
+              editList={listPageOf(node.attrs.props) ? () => (location.hash = listPageOf(node.attrs.props)!) : undefined}
+            />,
           ),
         );
         bar?.refresh(false);

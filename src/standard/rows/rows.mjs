@@ -34,6 +34,7 @@ export const rowOf = (item) => {
 /** An item of a list that says which of its fields fill a row (`asRows` of the list: field names), by the entry's values.
  * @param {Record<string, unknown>} entry @param {{ title: string, text?: string, icon?: string, href?: string, tags?: string }} map */
 export const itemOfEntry = (entry, map) => ({
+  entry,
   title: entry[map.title],
   text: map.text ? entry[map.text] : undefined,
   icon: map.icon ? entry[map.icon] : undefined,
@@ -41,15 +42,43 @@ export const itemOfEntry = (entry, map) => ({
   tags: map.tags && Array.isArray(entry[map.tags]) ? /** @type {string[]} */ (entry[map.tags]) : [],
 });
 
-/** The rows a source's items give for a block's fields: tag filter, `How many`, then rows (an item without a title is left out).
- * @param {{ title?: unknown, text?: unknown, icon?: unknown, href?: unknown, tags?: string[] }[]} items
- * @param {{ tags?: unknown, howMany?: unknown }} props */
-export const rowsFromItems = (items, props) =>
-  chosenFrom(
-    items.filter((i) => rowOf(i)),
+/** The block's own choice of which field of its list fills each part of a row (`map` on the block: `{ icon?, title?, text?, href? }`, field
+ * names), or undefined for the list's own (`asRows`). A part missing from the map keeps the list's field; an empty text means none (not
+ * for the title). Only a text per part counts, so a saved block that has no or a broken `map` reads as before.
+ * @param {unknown} map @returns {Partial<Record<'icon' | 'title' | 'text' | 'href', string>> | undefined} */
+export const mapOf = (map) => {
+  if (!map || typeof map !== 'object') return undefined;
+  /** @type {Partial<Record<'icon' | 'title' | 'text' | 'href', string>>} */
+  const out = {};
+  for (const part of /** @type {const} */ (['icon', 'title', 'text', 'href'])) {
+    const v = /** @type {Record<string, unknown>} */ (map)[part];
+    if (typeof v === 'string' && (v.trim() !== '' || part !== 'title')) out[part] = v.trim();
+  }
+  return Object.keys(out).length ? out : undefined;
+};
+
+/** An item with the block's `map` applied: the parts it names are read from the item's entry (items of posts and testimonials have none, and
+ * stay as they are). @template {{ entry?: Record<string, unknown> }} T @param {T} item @param {ReturnType<typeof mapOf>} map */
+export const mapped = (item, map) => {
+  if (!map || !item.entry) return item;
+  const entry = item.entry;
+  const pick = (/** @type {'icon' | 'title' | 'text' | 'href'} */ part) =>
+    map[part] === undefined ? {} : { [part]: map[part] ? entry[/** @type {string} */ (map[part])] : undefined };
+  return { ...item, ...pick('title'), ...pick('text'), ...pick('icon'), ...pick('href') };
+};
+
+/** The rows a source's items give for a block's fields: the block's `map`, tag filter, `How many`, then rows (an item without a title is
+ * left out).
+ * @param {{ title?: unknown, text?: unknown, icon?: unknown, href?: unknown, tags?: string[], entry?: Record<string, unknown> }[]} items
+ * @param {{ tags?: unknown, howMany?: unknown, map?: unknown }} props */
+export const rowsFromItems = (items, props) => {
+  const map = mapOf(props.map);
+  return chosenFrom(
+    items.map((i) => mapped(i, map)).filter((i) => rowOf(i)),
     props.tags,
     props.howMany,
   ).flatMap((i) => rowOf(i) ?? []);
+};
 
 /** The block's fields with the rows of its list as its `items` (and, when it has no page of its own for its text button, the list's page),
  * or the fields as they are for a block with typed rows.
