@@ -12,6 +12,7 @@ import {
   Fragment as ReactFragment,
   type MouseEvent as ReactMouseEvent,
   useEffect,
+  useLayoutEffect,
   useId,
   useImperativeHandle,
   useRef,
@@ -49,18 +50,20 @@ import {
   LinkSimple,
   ListBullets,
   ListChecks,
+  ListDashes,
   ListNumbers,
   Plus,
   Quotes,
   Tag,
   TextAa,
   TextB,
+  TextH,
   TextHThree,
   TextHOne,
   TextHTwo,
   TextItalic,
-  TextT,
 } from '@phosphor-icons/react';
+import { LIST_KINDS, STYLE_KINDS, listKindOf, styleKindOf } from './styleKind.mjs';
 import { HTML, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
 import { h1Of, h1TextOf, h1Written } from './titleH1.mjs';
@@ -70,6 +73,7 @@ import { sectionHeading, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
 import { IMAGE, type BlockAsk } from './BlockDialog';
 import SectionSettingsIcon from './SectionSettingsIcon';
+import { arrangeTools, nextArrangement } from './toolbarOrder.mjs';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel } from './sheetPlacement.mjs';
@@ -77,6 +81,9 @@ import { useToolbarLines } from './useToolbarLines';
 import { shownAt } from './images';
 import { cropStyle, joinPicture, splitPicture } from '../lib/crop.mjs';
 import { describe, htmlBlock, type BlockProps } from './blocks';
+import InlineList, { type Change, type Focus, type Row } from './InlineList';
+import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
+import { inlineBar, type BarAction } from './inlineBar';
 import { preview } from './registry';
 import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
@@ -99,7 +106,12 @@ import linkIcon from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
 import h1Icon from '@phosphor-icons/core/assets/regular/text-h-one.svg?raw';
 import h2Icon from '@phosphor-icons/core/assets/regular/text-h-two.svg?raw';
 import h3Icon from '@phosphor-icons/core/assets/regular/text-h-three.svg?raw';
-import textIcon from '@phosphor-icons/core/assets/regular/text-t.svg?raw';
+import textLargeIcon from './icons/text-t-large.svg?raw';
+import textMediumIcon from './icons/text-t-medium.svg?raw';
+import textSmallIcon from './icons/text-t-small.svg?raw';
+import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
+import textHIcon from '@phosphor-icons/core/assets/regular/text-h.svg?raw';
+import listIcon from '@phosphor-icons/core/assets/regular/list-dashes.svg?raw';
 import bulletIcon from '@phosphor-icons/core/assets/regular/list-bullets.svg?raw';
 import orderedIcon from '@phosphor-icons/core/assets/regular/list-numbers.svg?raw';
 import quoteIcon from '@phosphor-icons/core/assets/regular/quotes.svg?raw';
@@ -137,8 +149,8 @@ type Props = {
   sheet?: BlockAsk;
   short?: boolean;
   h1?: boolean;
-  /** A new page (with `h1`): opens with an empty H1 at the top and the cursor in it, ready to type the title. */
-  startOnH1?: boolean;
+  /** A new page or text: opens as plain text with the cursor at the start, never in a heading. */
+  startFocused?: boolean;
   /** A page (`h1`): the text of its H1 changed (typed, pasted, undone), with what it was; null without one (titleH1.mjs). */
   onH1?: (now: string | null, before: string | null) => void;
   /** How each part of the text looks on the site (looksOf in sections.mjs), shown so (editor.css). */
@@ -215,6 +227,28 @@ const gapHere = $prose(
           empty && $from.depth === 1 && isGap($from.parent)
             ? DecorationSet.create(doc, [Decoration.node($from.before(), $from.after(), { class: 'editor-gap-here' })])
             : null,
+      },
+    }),
+);
+
+// A tap on the box of a check list item (its ::before, in the padding left of the text; editor.css) checks or unchecks it.
+const checkToggle = $prose(
+  () =>
+    new Plugin({
+      props: {
+        handleDOMEvents: {
+          mousedown: (view, event) => {
+            const item = (event.target as HTMLElement | null)?.closest?.('li[data-item-type="task"]');
+            if (!item || event.target !== item || !(event instanceof MouseEvent)) return false;
+            const at = view.posAtDOM(item, 0);
+            const $at = view.state.doc.resolve(at);
+            const node = $at.parent;
+            if (node.type.name !== 'list_item' || node.attrs.checked == null) return false;
+            view.dispatch(view.state.tr.setNodeMarkup($at.before(), undefined, { ...node.attrs, checked: !node.attrs.checked }));
+            event.preventDefault();
+            return true;
+          },
+        },
       },
     }),
 );
@@ -518,7 +552,7 @@ async function editLink(view: EditorView) {
 }
 
 /** What applies where the cursor is, or to all of the selection: 'strong', 'emphasis', 'link',
- * 'h2', 'h3', 'text' (a paragraph, not in a list or quote), 'bullet', 'ordered' and 'quote'; with a colour
+ * 'h2', 'h3', 'large', 'medium' (a paragraph, not in a list or quote), 'small', 'bullet', 'ordered' and 'quote'; with a colour
  * (text-colors.mjs) 'textColor' and the colour's class ('color-accent'). For the toolbar and the selection's menu,
  * 'section' and 'section-<colour>' in a top-level H1 or H2 (sectionState.mjs), which mark them. */
 export function activeOf(state: EditorView['state']): Set<string> {
@@ -534,16 +568,19 @@ export function activeOf(state: EditorView['state']): Set<string> {
   const ancestors = Array.from({ length: $from.depth }, (_, i) => $from.node(i + 1).type.name);
   if ($from.parent.type.name === 'heading') on.add(`h${$from.parent.attrs.level}`);
   if (labelledHeading(state)) on.add('labelable');
-  if ($from.parent.type.name === 'bodyLarge') on.add('large');
+  // Body medium is the plain paragraph (and a paragraph stored as body-medium, which draws the same).
+  if (['bodyLarge', 'bodyMedium', 'bodySmall'].includes($from.parent.type.name))
+    on.add({ bodyLarge: 'large', bodyMedium: 'medium', bodySmall: 'small' }[$from.parent.type.name as 'bodyLarge']);
   if ($from.parent.type.name === 'eyebrow') on.add('label');
   if (ancestors.includes('bullet_list')) on.add(isCheckItem(state) ? 'check' : 'bullet');
   if (ancestors.includes('ordered_list')) on.add('ordered');
   if (ancestors.includes('blockquote')) on.add('quote');
   if ($from.parent.type.name === 'paragraph' && !on.has('bullet') && !on.has('check') && !on.has('ordered') && !on.has('quote'))
-    on.add('text');
+    on.add('medium');
   const section = sectionHeading(state);
   if (section) {
     on.add('section');
+    on.add(`section-h${section.level}`);
     if (section.color) on.add(`section-${section.color}`);
   }
   return on;
@@ -580,9 +617,27 @@ export function paint(view: EditorView, color: string | null) {
   view.focus();
 }
 
-// The two groups of kinds of text, each a button with a menu when there is little room: the headings, and T, the lists
-// and the quote.
-type KindGroup = 'headings' | 'text';
+// The three groups of kinds of text, each a button with a menu when there is little room: the headings, the text styles
+// (T) and the lists.
+// The icon of each text style, once, for both toolbars: the raw one the floating row draws and the component the top toolbar
+// and the style menu draw. Its names are STYLE_KINDS (styleKind.mjs), checked by styleKind.test.mjs.
+const KIND_ICONS = {
+  small: { raw: textSmallIcon, node: TextSmallIcon },
+  medium: { raw: textMediumIcon, node: TextMediumIcon },
+  large: { raw: textLargeIcon, node: TextLargeIcon },
+  label: { raw: tagIcon, node: Tag },
+  quote: { raw: quoteIcon, node: Quotes },
+  bullet: { raw: bulletIcon, node: ListBullets },
+  check: { raw: checkIcon, node: ListChecks },
+  ordered: { raw: orderedIcon, node: ListNumbers },
+};
+// The icons of the two buttons outside any text style or list: the general text icon and the general list icon.
+const GENERIC_ICONS = {
+  text: { raw: textHIcon, node: TextH },
+  list: { raw: listIcon, node: ListDashes },
+};
+
+type KindGroup = 'headings' | 'text' | 'list';
 
 // A button's icon (a raw svg) and its name.
 type Face = { icon: string; label: string };
@@ -595,6 +650,8 @@ type Look = (Face | { shows: (state: EditorView['state']) => Face }) & {
   on?: (state: EditorView['state']) => boolean;
   action: (button: HTMLElement) => void;
   off?: (state: EditorView['state']) => boolean;
+  // Not there on a computer, dimmed on a phone, where the row is a sheet of a fixed size (the marks in a block with none).
+  dim?: (state: EditorView['state']) => boolean;
   word?: boolean;
   menu?: boolean;
 };
@@ -611,7 +668,8 @@ function inSectionHeading(state: EditorView['state']) {
 }
 
 // Whether the cursor is in a label above a heading (eyebrow.mjs), which has no bold, italic, link or colour.
-const inLabel = (state: EditorView['state']) => ['eyebrow', 'bodyLarge'].includes(state.selection.$from.parent.type.name);
+const inLabel = (state: EditorView['state']) =>
+  ['eyebrow', 'bodyLarge', 'bodyMedium', 'bodySmall'].includes(state.selection.$from.parent.type.name);
 
 // When a word or more is selected, or the cursor has stood still in a word (STILL_MS, stillCursor.mjs): a row of icons
 // over it, to make it bold, italic, a link, one of the site's colours (a menu under the button, opened by `colors`), a
@@ -650,23 +708,24 @@ function selectionMenu(
       });
       // The other kinds of text, in the toolbar's order, by their names in activeOf.
       const textKinds = [
-        { name: 'text', icon: textIcon, label: t.text.paragraph },
-        { name: 'large', icon: textIcon, label: t.text.bodyLarge },
-        { name: 'label', icon: tagIcon, label: t.text.label },
-        { name: 'bullet', icon: bulletIcon, label: t.text.bulletList },
-        { name: 'check', icon: checkIcon, label: t.text.checkList },
-        { name: 'ordered', icon: orderedIcon, label: t.text.orderedList },
-        { name: 'quote', icon: quoteIcon, label: t.text.quote },
+        { name: 'small', icon: KIND_ICONS.small.raw, label: t.text.bodySmall },
+        { name: 'medium', icon: KIND_ICONS.medium.raw, label: t.text.bodyMedium },
+        { name: 'large', icon: KIND_ICONS.large.raw, label: t.text.bodyLarge },
+        { name: 'label', icon: KIND_ICONS.label.raw, label: t.text.label },
+        { name: 'quote', icon: KIND_ICONS.quote.raw, label: t.text.quote },
+        { name: 'bullet', icon: KIND_ICONS.bullet.raw, label: t.text.bulletList },
+        { name: 'check', icon: KIND_ICONS.check.raw, label: t.text.checkList },
+        { name: 'ordered', icon: KIND_ICONS.ordered.raw, label: t.text.orderedList },
       ];
       // A button with a group's menu shows the kind it is named after: "Text style: …".
-      const groupFace = ({ icon, label }: Face): Face => ({ icon, label: t.text.kindIs(label) });
+      const groupFace = ({ icon, label }: Face, is = t.text.kindIs): Face => ({ icon, label: is(label) });
       const looks: Look[] = [
         {
           icon: boldIcon,
           label: t.text.bold,
           on: (s) => marked(s, 'strong'),
           action: () => run(toggleStrongCommand),
-          off: inLabel,
+          dim: inLabel,
           word: true,
         },
         {
@@ -674,7 +733,7 @@ function selectionMenu(
           label: t.text.italic,
           on: (s) => marked(s, 'emphasis'),
           action: () => run(toggleEmphasisCommand),
-          off: inLabel,
+          dim: inLabel,
           word: true,
         },
         {
@@ -682,7 +741,7 @@ function selectionMenu(
           label: t.text.link,
           on: (s) => marked(s, 'link'),
           action: () => void editLink(view).then(() => update(view)),
-          off: inLabel,
+          dim: inLabel,
           word: true,
         },
         {
@@ -690,7 +749,7 @@ function selectionMenu(
           label: t.text.color,
           on: (s) => marked(s, 'textColor'),
           action: colors,
-          off: (s) => inLabel(s) || (sections && inSectionHeading(s)),
+          dim: (s) => inLabel(s) || (sections && inSectionHeading(s)),
           word: true,
           menu: true,
         },
@@ -713,10 +772,30 @@ function selectionMenu(
           off: (s) => levels(s).length < 2,
           menu: true,
         },
-        // T, the lists and the quote, in a menu; not marked either.
+        // The text styles (T) in a menu; not marked either.
         {
-          shows: (s) => groupFace(textKinds.find(({ name }) => activeOf(s).has(name)) ?? textKinds[0]),
+          // The general text icon when the cursor is not in the text or is in a list, else the style it is in (styleKind.mjs).
+          shows: (s) => {
+            const kind = styleKindOf(activeOf(s), view.hasFocus());
+            return kind === 'generic'
+              ? { icon: GENERIC_ICONS.text.raw, label: t.text.kind }
+              : groupFace(textKinds.find(({ name }) => name === kind)!);
+          },
           action: (button) => kinds(button, 'text'),
+          menu: true,
+        },
+        // The lists in a menu, the same way.
+        {
+          shows: (s) => {
+            const kind = listKindOf(activeOf(s), view.hasFocus());
+            return kind === 'generic'
+              ? { icon: GENERIC_ICONS.list.raw, label: t.text.list }
+              : groupFace(
+                  textKinds.find(({ name }) => name === kind)!,
+                  t.text.listIs,
+                );
+          },
+          action: (button) => kinds(button, 'list'),
           menu: true,
         },
       ];
@@ -789,21 +868,31 @@ function selectionMenu(
         menu.hidden = !shown;
         if (!shown) return;
         const state = asShown(view.state);
+        // On a phone the row is a docked sheet of a fixed size (editor.css): every button stays, so its layout never changes with
+        // the cursor, and one that does not apply there is dimmed. On a computer it is left out.
+        const sheet = matchMedia('(pointer: coarse)').matches;
+        menu.classList.toggle('editor-selection-sheet', sheet);
         looks.forEach((look, i) => {
-          buttons[i].hidden = !!look.off?.(state);
+          const gone = !!look.off?.(state);
+          const dim = !!look.dim?.(state);
+          buttons[i].hidden = gone || (dim && !sheet);
+          buttons[i].disabled = dim && sheet;
           if (buttons[i].hidden) return;
           if ('shows' in look) draw(buttons[i], look, look.shows(state));
           if (look.on) buttons[i].setAttribute('aria-pressed', String(look.on(state)));
         });
         const { offsetWidth: width, offsetHeight: height } = menu;
         const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
-        if (matchMedia('(pointer: coarse)').matches) {
-          menu.style.left = `${screen.offsetLeft + (screen.width - width) / 2}px`;
-          // Over "Save changes" when it is there (FormFrame.tsx).
+        if (sheet) {
+          // Docked: the sheet's own place, not the cursor's: over "Save changes" when it is there (FormFrame.tsx), and over the
+          // keyboard (the visual viewport's bottom), the whole width of the screen.
           const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
-          menu.style.top = `${Math.min(screen.offsetTop + screen.height, save) - height - 12}px`;
+          menu.style.left = `${screen.offsetLeft}px`;
+          menu.style.width = `${screen.width}px`;
+          menu.style.top = `${Math.min(screen.offsetTop + screen.height, save) - menu.offsetHeight}px`;
           return;
         }
+        menu.style.width = '';
         const text = view.dom.getBoundingClientRect();
         const { from, to } = word ?? selection;
         const start = view.coordsAtPos(from);
@@ -847,28 +936,36 @@ function selectionMenu(
   });
 }
 
+// The blocks just put in that are typed in place (blockCard starts the first row of each).
+const fresh = new WeakSet<object>();
+
 // A block in the text as a card: the block as it looks on the site (its draw, src/apps/<app>/blocks/), in a thin frame;
 // for screen readers its name and what is in it (describe in blocks.ts). Tapping it opens a row of
 // icons on it to edit, hide or show, move and remove it. cards: how to draw the previews of the
 // text again, when what they show from elsewhere has changed.
 function blockCard(
-  node: Node,
+  first: Node,
   view: EditorView,
   getPos: () => number | undefined,
   asker: () => BlockAsk | undefined,
   cards: Set<() => void>,
 ) {
+  // The block's node: a block typed in place (inline) is changed without being drawn again (update), so the node follows.
+  let node = first;
   const ask = asker();
   const block = node.attrs.type === HTML ? htmlBlock : ask?.list.find((b) => b.type === node.attrs.type);
   const hidden = node.attrs.props.hidden === true;
   // A block gone from the site by itself (a notice whose time is over) is greyed like a hidden one.
   const over = !!block?.over?.(node.attrs.props);
+  // A block typed in place (InlineList.tsx): its card is not a button to tap but the block itself, with its menu on a handle.
+  const inline = !!block?.inline && node.attrs.type !== HTML;
   const dom = document.createElement('div');
   dom.className = hidden || over ? 'site-block site-block-hidden' : 'site-block';
   dom.contentEditable = 'false';
-  const card = dom.appendChild(document.createElement('button'));
-  card.type = 'button';
-  card.className = 'site-block-card';
+  const card = dom.appendChild(document.createElement(inline ? 'div' : 'button'));
+  if (card instanceof HTMLButtonElement) card.type = 'button';
+  else card.setAttribute('role', 'group');
+  card.className = inline ? 'site-block-card site-block-inline' : 'site-block-card';
   const name = block?.label ?? node.attrs.type;
   card.setAttribute('aria-label', name);
   if (hidden) {
@@ -879,11 +976,47 @@ function blockCard(
   }
   const shown = card.appendChild(document.createElement('div'));
   shown.className = ask?.data.page ? 'site-block-preview site-block-section not-prose' : 'site-block-preview not-prose';
-  shown.setAttribute('aria-hidden', 'true');
+  // What is typed in place is for screen readers too; the picture of any other block is not.
+  if (!inline) shown.setAttribute('aria-hidden', 'true');
   const root = createRoot(shown);
+  // Typed in place: which row is active (null: none, the block shows its live look), and the field to put the cursor in.
+  let active: number | null = null;
+  let focus: Focus | null = null;
+  // Its floating toolbar (made below, with the block's menu).
+  let bar: ReturnType<typeof inlineBar> | null = null;
+  let syncRow: (open: boolean) => void = () => {};
+  let stopAway = () => {};
+  const rows = () => (node.attrs.props.items as Row[] | undefined) ?? [];
+  const setItems = (items: Row[]) => {
+    const here = at();
+    if (here) view.dispatch(view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props: { ...node.attrs.props, items } }));
+  };
+  const change = (c: Change) => {
+    if ('active' in c) active = c.active ?? null;
+    if ('focus' in c) focus = c.focus ?? null;
+    if (c.items) setItems(c.items);
+    else draw();
+  };
   const draw = () => {
     const ask = asker();
     if (!ask) return;
+    if (inline) {
+      card.setAttribute('aria-description', hidden ? t.text.hiddenOnPage : '');
+      flushSync(() =>
+        root.render(
+          <InlineList
+            items={(node.attrs.props.items as Row[] | undefined) ?? []}
+            active={active}
+            focus={focus}
+            onChange={change}
+            onSettings={() => syncRow(true)}
+          />,
+        ),
+      );
+      syncRow(false);
+      bar?.refresh(active !== null);
+      return;
+    }
     const lines = block ? describe(block, node.attrs.props, ask.data) : [];
     card.setAttribute('aria-description', [hidden ? t.text.hiddenOnPage : '', ...lines].filter(Boolean).join('. '));
     // Without a picture of it, what is in it, in lines.
@@ -896,6 +1029,16 @@ function blockCard(
     );
     flushSync(() => root.render(picture));
   };
+  // A block just put in (a new List) starts with its first row active and the cursor in it (known by its props, which the new node keeps).
+  // The sheet it came from is closing and gives the focus back to what had it: wait until no sheet is open.
+  if (inline && fresh.delete(node.attrs.props)) {
+    let tries = 0;
+    const start = () => {
+      if (document.querySelector('dialog[open]') && tries++ < 30) return void setTimeout(start, 50);
+      change({ active: 0, focus: { row: 0, field: 'title' } });
+    };
+    setTimeout(start);
+  }
   draw();
   cards.add(draw);
 
@@ -944,18 +1087,94 @@ function blockCard(
   // Block.edit), no move past the start or end. By the template (collections.ts): a locked block is
   // only edited, and the last shown one of a block the page must have cannot be hidden or removed.
   // From expanded the block's fields are in the side panel: a tap opens it, and the menu has no pen or trash (Remove is in the panel).
-  const inPanelNow = () => editsInPanel(atLeastNow('expanded'), !!block?.fields.length);
+  const inPanelNow = () => !inline && editsInPanel(atLeastNow('expanded'), !!block?.fields.length);
+  // Typed in place: the floating toolbar (inlineBar.ts) has the row actions, and its last button opens the block's own menu below.
+  let handle = card;
+  if (inline) {
+    const itemFields = (block?.fields.find((f) => f.name === 'items')?.fields ?? []).filter(
+      (f) => f.name === 'icon' || f.name === 'href' || f.name === 'heading',
+    );
+    const compact = () => !atLeastNow('expanded');
+    // The active row has something in it (the row actions are for a row, not for the empty one being started).
+    const rowActions = (): BarAction[] => {
+      const list = rows();
+      if (active === null || active >= list.length || isEmptyRow(list[active])) return [];
+      const i = active;
+      const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: 'title' } });
+      return [
+        { kind: 'above', label: t.blocks.list.addAbove, action: () => go(addAt(list, i), i) },
+        { kind: 'below', label: t.blocks.list.addBelow, action: () => go(addAt(list, i + 1), i + 1) },
+        ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
+        ...(i < list.length - 1 ? [{ kind: 'down' as const, label: t.common.moveDown, action: () => go(moveBy(list, i, 1), i + 1) }] : []),
+      ];
+    };
+    bar = inlineBar({
+      name,
+      dom,
+      rowActions,
+      edit: () => syncRow(true),
+      compact,
+      labels: { row: t.blocks.list.row, edit: t.common.edit },
+    });
+    handle = bar.block;
+    // The settings of the active row (its icon and link), live: from expanded in the side panel while a row is active, below it in a bottom
+    // sheet that Edit opens (`open`: a row's slot or Edit; else only an open sheet is updated).
+    syncRow = (open) => {
+      const sheet = asker();
+      if (sheet && active !== null) sheet.row(specOf(active), open || !compact());
+    };
+    const specOf = (i: number) => {
+      const row = rows()[i] ?? {};
+      return {
+        headline: t.blocks.list.rowSettings,
+        fields: itemFields,
+        value: { icon: row.icon ?? '', href: row.href ?? '', heading: row.heading === true },
+        onChange: (v: BlockProps) => {
+          let items = rows();
+          for (const key of ['icon', 'href'] as const) items = setField(items, i, key, String(v[key] ?? ''));
+          // The row as a small heading of the rows after it, or not.
+          items = items.map((r, j) => {
+            if (j !== i) return r;
+            const { heading: _, ...rest } = r;
+            return v.heading === true ? { ...rest, heading: true } : rest;
+          });
+          setItems(items);
+        },
+      };
+    };
+    // Leaving the block (a tap or the focus elsewhere, but not in its toolbar, its menu or its settings): the row being edited is done,
+    // its settings close, and a row with nothing in it is dropped.
+    const inside = (target: EventTarget | null) =>
+      target instanceof Element &&
+      (dom.contains(target) || bar!.el.contains(target) || !!target.closest('.editor-side-sheet, dialog[open]'));
+    const away = (e: Event) => {
+      if (active === null || inside(e.target)) return;
+      active = null;
+      focus = null;
+      asker()?.row(null);
+      const list = rows();
+      const kept = withoutEmpty(list);
+      if (kept !== list) setItems(kept);
+      else draw();
+    };
+    document.addEventListener('pointerdown', away, true);
+    document.addEventListener('focusin', away, true);
+    stopAway = () => {
+      document.removeEventListener('pointerdown', away, true);
+      document.removeEventListener('focusin', away, true);
+    };
+  }
   const close = cardMenu(
     view,
     dom,
-    card,
+    handle,
     name,
     () => {
       const i = top();
       const { rules, locked, stays } = keeps();
       return [
         block?.fields.length
-          ? !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
+          ? !inline && !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
           : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
         block?.shown || (stays && hidden === false)
           ? undefined
@@ -969,11 +1188,21 @@ function blockCard(
   // A changed block is drawn anew (update false); taps on the card and its menu are not ProseMirror's.
   return {
     dom,
-    update: () => false,
+    // Typed in place: the same block with other rows is kept (the cursor stays in the row); anything else is drawn again.
+    update: (next: Node) => {
+      if (!inline || next.type !== node.type || next.attrs.type !== node.attrs.type || (next.attrs.props.hidden === true) !== hidden)
+        return false;
+      node = next;
+      draw();
+      return true;
+    },
     stopEvent: () => true,
     ignoreMutation: () => true,
     destroy: () => {
       close();
+      stopAway();
+      bar?.destroy();
+      if (inline) asker()?.row(null);
       cards.delete(draw);
       // Not while React may be drawing (the editor goes with its form).
       queueMicrotask(() => root.unmount());
@@ -982,7 +1211,7 @@ function blockCard(
 }
 
 export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
-  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, startOnH1, onH1, looks, sections, frame },
+  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, startFocused, onH1, looks, sections, frame },
   ref,
 ) {
   const spaced = !!blocks;
@@ -1000,6 +1229,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   looked.current = looks;
   // What applies where the cursor is (activeOf), marked in the toolbar.
   const [active, setActive] = useState<string[]>([]);
+  // Whether the cursor is in the text (the field has the focus): else the text style button shows the generic H icon (styleKind.mjs).
+  const [inText, setInText] = useState(false);
   // The heading levels the toolbar offers on a page (headingChoices): [1] while the text has no H1, then [2, 3].
   const [choices, setChoices] = useState<number[]>([1]);
   // The colour button over the selection, while its menu with the colours is open.
@@ -1033,15 +1264,25 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     const marking = $prose(
       () =>
         new Plugin({
-          view: () => ({
-            update: (view) => {
-              const next = headingChoices(levelsOf(view.state.doc));
-              setChoices((was) => (was.join() === next.join() ? was : next));
-              // On a page the first heading is the H1 by itself (firstHeading.mjs); the Heading button stands for it.
-              const now = [...activeOf(view.state)].map((name) => (h1 && name === 'h1' ? 'h2' : name)).sort();
-              setActive((was) => (was.join() === now.join() ? was : now));
-            },
-          }),
+          view: (view) => {
+            const focus = () => setInText(view.hasFocus());
+            view.dom.addEventListener('focus', focus);
+            view.dom.addEventListener('blur', focus);
+            return {
+              destroy: () => {
+                view.dom.removeEventListener('focus', focus);
+                view.dom.removeEventListener('blur', focus);
+              },
+              update: (view) => {
+                focus();
+                const next = headingChoices(levelsOf(view.state.doc));
+                setChoices((was) => (was.join() === next.join() ? was : next));
+                // On a page the first heading is the H1 by itself (firstHeading.mjs); the Heading button stands for it.
+                const now = [...activeOf(view.state)].map((name) => (h1 && name === 'h1' ? 'h2' : name)).sort();
+                setActive((was) => (was.join() === now.join() ? was : now));
+              },
+            };
+          },
         }),
     );
     // On a page, a change of its H1's text is told too (onH1), with what it was.
@@ -1104,6 +1345,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(looking)
       .use(sectionFrame(framed))
       .use(gapHere)
+      .use(checkToggle)
       .use(history)
       .use(clipboard);
     // A page (h1) keeps its first heading as its H1 and has no other H1 (firstHeading.mjs); a blog post's H1 is its title.
@@ -1119,15 +1361,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           view.dispatch(view.state.tr.setMeta('addToHistory', false));
           view.dispatch(view.state.tr.setSelection(Selection.atStart(view.state.doc)).setMeta('addToHistory', false));
         });
-      // A new page: an empty H1 at the top with the cursor in it (kept out of undo; markdownOf leaves it out while it is empty).
-      if (h1 && startOnH1)
+      // A new page: the cursor at the start, in plain text, never an H1.
+      if (startFocused)
         created.action((ctx) => {
           const view = ctx.get(editorViewCtx);
-          const tr = h1TextOf(view.state.doc) === null ? h1Written(view.state, '') : null;
-          if (tr) view.dispatch(tr.setMeta('addToHistory', false));
-          const found = h1Of(view.state.doc);
-          if (found)
-            view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, found.pos + 1)).setMeta('addToHistory', false));
+          view.dispatch(view.state.tr.setSelection(Selection.atStart(view.state.doc)).setMeta('addToHistory', false));
           view.focus();
         });
       loaded = true;
@@ -1165,7 +1403,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     editor.current?.action(callCommand(command.key, payload));
   }
 
-  // Makes the text where the cursor is a heading ('h1', 'h2', 'h3'), a paragraph ('text'), a list
+  // Makes the text where the cursor is a heading ('h1', 'h2', 'h3'), a paragraph ('medium'), a list
   // ('bullet', 'ordered') or a quote ('quote'), whatever it is now: a list becomes the other kind of
   // list, and the text of a list or a quote comes out of it to be something else.
   function setKind(kind: string) {
@@ -1174,7 +1412,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const { schema, selection } = view.state;
       const is = (k: string) => activeOf(view.state).has(k);
       const outOfLists = () => {
-        for (let i = 0; i < 10 && (is('bullet') || is('ordered')) && liftListItem(schema.nodes.list_item)(view.state, view.dispatch); i++);
+        for (
+          let i = 0;
+          i < 10 && (is('bullet') || is('check') || is('ordered')) && liftListItem(schema.nodes.list_item)(view.state, view.dispatch);
+          i++
+        );
       };
       const outOfQuotes = () => {
         for (let i = 0; i < 10 && is('quote') && lift(view.state, view.dispatch); i++);
@@ -1183,23 +1425,23 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         toggleLabel(view);
         return view.focus();
       }
-      // The text styles that are a block of their own (Body large): a paragraph or a heading made into it, or back.
-      if (kind === 'large') {
-        if (!is('large')) {
-          outOfLists();
-          outOfQuotes();
-          if (is('h1') || is('h2') || is('h3')) callCommand(turnIntoTextCommand.key)(ctx);
-          const { $from } = view.state.selection;
-          if ($from.parent.type.name === 'paragraph') {
-            view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes.bodyLarge));
-          }
+      // The text styles that are a block of their own (Body large and Body small): a paragraph or a heading made into it,
+      // or back. Body medium is the plain paragraph.
+      const ownBlocks = ['bodyLarge', 'bodyMedium', 'bodySmall', 'eyebrow'];
+      if (kind === 'large' || kind === 'small') {
+        outOfLists();
+        outOfQuotes();
+        if (is('h1') || is('h2') || is('h3')) callCommand(turnIntoTextCommand.key)(ctx);
+        const { $from } = view.state.selection;
+        if ($from.parent.type.name !== 'heading') {
+          view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes[kind === 'small' ? 'bodySmall' : 'bodyLarge']));
         }
         return view.focus();
       }
-      if (is('large') || is('label')) {
+      if (ownBlocks.includes(view.state.selection.$from.parent.type.name)) {
         const { $from } = view.state.selection;
         view.dispatch(view.state.tr.setNodeMarkup($from.before(), schema.nodes.paragraph));
-        if (kind === 'text') return view.focus();
+        if (kind === 'medium') return view.focus();
       }
       // The items of the bulleted list the cursor is in get a box (checked false) or lose it (null): a check list.
       const mark = (checked: boolean | null) => {
@@ -1216,13 +1458,17 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           }
         }
       };
-      if (kind === 'check') {
-        // A check list is a bulleted list whose items have a box (`- [ ]`); again it is a plain bulleted list.
-        if (is('check')) mark(null);
-        else {
-          if (!is('bullet')) setKind('bullet');
-          mark(false);
+      // A list picked again, while the cursor is in it, takes the text out of the list.
+      if (kind === 'check' || kind === 'bullet' || kind === 'ordered') {
+        if (is(kind)) {
+          outOfLists();
+          return view.focus();
         }
+      }
+      if (kind === 'check') {
+        // A check list is a bulleted list whose items have a box (`- [ ]`).
+        if (!is('bullet')) setKind('bullet');
+        mark(false);
         return view.focus();
       }
       if (kind === 'quote') {
@@ -1253,7 +1499,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       }
       outOfLists();
       outOfQuotes();
-      if (kind === 'text') callCommand(turnIntoTextCommand.key)(ctx);
+      if (kind === 'medium') callCommand(turnIntoTextCommand.key)(ctx);
       else callCommand(wrapInHeadingCommand.key, Number(kind.slice(1)))(ctx);
       view.focus();
     });
@@ -1267,17 +1513,17 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     editor.current?.action((ctx) => paint(ctx.get(editorViewCtx), name));
   }
 
-  // The sheet with the settings of the section the cursor is in (its colour, and an H2's picture and width), then those set.
+  // The sheet with the settings of the section the cursor is in (its colour, picture and width), then those set.
   async function sectionSettings() {
     let current: ReturnType<typeof sectionHeading> = null;
     editor.current?.action((ctx) => void (current = sectionHeading(ctx.get(editorViewCtx).state)));
     const at = current as ReturnType<typeof sectionHeading>;
     if (!at) return;
-    const answered = await (blocks ?? sheetProp)?.section(at, { picture: at.level === 2 });
+    const answered = await (blocks ?? sheetProp)?.section(at, { picture: true });
     if (!answered) return;
     editor.current?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
-      setSection(view, at.level === 2 ? answered : { color: answered.color });
+      setSection(view, answered);
       view.focus();
     });
   }
@@ -1310,6 +1556,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const view = ctx.get(editorViewCtx);
       const { state } = view;
       const node = siteBlockSchema.type(ctx).create({ type: chosen.type, props: chosen.props });
+      if (blocks!.list.find((b) => b.type === chosen.type)?.inline) fresh.add(chosen.props);
       let tr = state.tr;
       // Where the new block ends, when the cursor must be moved past it (-1: it is in text already).
       let end = -1;
@@ -1339,10 +1586,23 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     });
   }
 
-  const tools: { label: string; icon: typeof TextB; action: (e: ReactMouseEvent<HTMLButtonElement>) => void; on?: string }[] = [
+  const all: {
+    label: string;
+    icon: typeof TextB;
+    action: (e: ReactMouseEvent<HTMLButtonElement>) => void;
+    on?: string;
+    large?: boolean;
+    role?: string;
+  }[] = [
+    // The settings of the section the cursor's H1 or H2 starts (not a fixed page's text, whose H2s are its sections' names; the front
+    // page has it for its H2s, but not for its H1, which stays the banner without a colour). It is 48 dp, as a
+    // tap needs, and `tools` below puts it last on the first line, before the tools that may go under the arrow.
+    ...(framed && active.includes('section') && !(sections && active.includes('section-h1')) && (blocks ?? sheetProp)
+      ? [{ label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings, large: true, role: 'settings' }]
+      : []),
     { label: t.text.bold, icon: TextB, action: () => run(toggleStrongCommand), on: 'strong' },
-    { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis' },
-    { label: t.text.link, icon: LinkSimple, action: link, on: 'link' },
+    { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis', role: 'italic' },
+    { label: t.text.link, icon: LinkSimple, action: link, on: 'link', role: 'link' },
     // On a page the levels in choices (H1 until the text has one); a blog post has H2 and H3.
     ...(h1 ? choices : [2, 3]).map((level) => ({
       label: [t.text.pageHeading, t.text.heading, t.text.subheading][level - 1],
@@ -1350,13 +1610,14 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       action: () => setKind(`h${level}`),
       on: `h${level}`,
     })),
-    { label: t.text.paragraph, icon: TextT, action: () => setKind('text'), on: 'text' },
-    { label: t.text.bodyLarge, icon: TextAa, action: () => setKind('large'), on: 'large' },
-    { label: t.text.label, icon: Tag, action: () => setKind('label'), on: 'label' },
-    { label: t.text.bulletList, icon: ListBullets, action: () => setKind('bullet'), on: 'bullet' },
-    { label: t.text.checkList, icon: ListChecks, action: () => setKind('check'), on: 'check' },
-    { label: t.text.orderedList, icon: ListNumbers, action: () => setKind('ordered'), on: 'ordered' },
-    { label: t.text.quote, icon: Quotes, action: () => setKind('quote'), on: 'quote' },
+    { label: t.text.bodySmall, icon: KIND_ICONS.small.node, action: () => setKind('small'), on: 'small' },
+    { label: t.text.bodyMedium, icon: KIND_ICONS.medium.node, action: () => setKind('medium'), on: 'medium' },
+    { label: t.text.bodyLarge, icon: KIND_ICONS.large.node, action: () => setKind('large'), on: 'large' },
+    { label: t.text.label, icon: KIND_ICONS.label.node, action: () => setKind('label'), on: 'label' },
+    { label: t.text.quote, icon: KIND_ICONS.quote.node, action: () => setKind('quote'), on: 'quote' },
+    { label: t.text.bulletList, icon: KIND_ICONS.bullet.node, action: () => setKind('bullet'), on: 'bullet', role: 'list' },
+    { label: t.text.checkList, icon: KIND_ICONS.check.node, action: () => setKind('check'), on: 'check', role: 'list' },
+    { label: t.text.orderedList, icon: KIND_ICONS.ordered.node, action: () => setKind('ordered'), on: 'ordered', role: 'list' },
     // A picture and the blocks are put in with "+" (a sheet with them all); without blocks (a blog
     // post) a picture has its own button.
     ...(blocks
@@ -1364,33 +1625,37 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       : addImage
         ? [{ label: t.text.image, icon: Image, action: image }]
         : []),
-    { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) },
-    { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand) },
-    // The settings of the section the cursor's H1 or H2 starts (not a fixed page's text, whose H2s are its sections' names; the front
-    // page has it for its H2s, but not for its H1, which stays the banner without a colour).
-    ...(framed && active.includes('section') && !(sections && active.includes('h1')) && (blocks ?? sheetProp)
-      ? [{ label: t.text.sectionSettings, icon: SectionSettingsIcon, action: sectionSettings }]
-      : []),
+    { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand), role: 'undo' },
+    { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand), role: 'redo' },
   ];
+
+  // The tools in their order (toolbarOrder.mjs): Section settings last on the first line, and what may go under the arrow at the
+  // end, Undo and Redo first, then the link, so "+" stays on the first line. The arrangement is tried from the widest:
+  // 'all' on one line, 'mid' with Section settings before Undo and Redo, 'priority' with the link behind it too, 'bare' with Italic and the lists as well (the last to go).
+  const [arrangement, setArrangement] = useState<'all' | 'mid' | 'priority' | 'bare'>('all');
+  const tools = arrangeTools(all, arrangement);
 
   // When the toolbar is too short for all its buttons, the kinds of text are two buttons: the headings (H1, H2, H3) and the
   // rest (T, the bulleted and the numbered list and the quote), so a heading and T both show from the start. Each shows
   // the kind where the cursor is (else its first: the heading the text can have next, and T), with an arrow and the
   // others of its group under it; a group of one (H1, while a page has none) is that button itself.
-  const hasSettings = tools.some((item) => item.icon === SectionSettingsIcon);
-  const kinds = tools.filter((t) =>
-    ['h1', 'h2', 'h3', 'text', 'large', 'label', 'bullet', 'check', 'ordered', 'quote'].includes(t.on ?? ''),
-  );
-  const kindGroups = [kinds.filter((t) => /^h\d$/.test(t.on!)), kinds.filter((t) => !/^h\d$/.test(t.on!))].filter((g) => g.length);
-  const groupOf = (group: typeof kinds): KindGroup => (/^h\d$/.test(group[0].on!) ? 'headings' : 'text');
-  const shownOf = (group: typeof kinds) => group.find((t) => active.includes(t.on!)) ?? group[0];
+  const hasSettings = tools.some((item) => item.role === 'settings');
+  const kinds = tools.filter((t) => ['h1', 'h2', 'h3', ...STYLE_KINDS].includes(t.on ?? ''));
+  const isList = (t: (typeof kinds)[number]) => LIST_KINDS.includes(t.on!);
+  const kindGroups = [
+    kinds.filter((t) => /^h\d$/.test(t.on!)),
+    kinds.filter((t) => !/^h\d$/.test(t.on!) && !isList(t)),
+    kinds.filter(isList),
+  ].filter((g) => g.length);
+  const groupOf = (group: typeof kinds): KindGroup => (/^h\d$/.test(group[0].on!) ? 'headings' : isList(group[0]) ? 'list' : 'text');
+  const shownOf = (group: typeof kinds) => group.find((t) => active.includes(t.on!)) ?? group.find((t) => t.on === 'medium') ?? group[0];
   const [narrow, setNarrow] = useState(false);
   const kindsShown = kindsAt ? (kindGroups.find((group) => groupOf(group) === kindsAt.group) ?? []) : [];
   useEffect(() => {
     const bar = toolbar.current!;
-    // A button is 2.5rem, with 0.125rem between them and 0.375rem around them, and each of the lines
+    // A button is 2.5rem, with 0.125rem between them and 0.25rem around them, and each of the lines
     // between the groups 0.5rem (the classes below).
-    const fits = () => setNarrow(bar.clientWidth < tools.length * 42 + 10 + (3 + (hasSettings ? 1 : 0)) * 10);
+    const fits = () => setNarrow(bar.clientWidth < tools.length * 42 + 6 + (3 + (hasSettings ? 1 : 0)) * 10 + (hasSettings ? 8 : 0));
     const watch = new ResizeObserver(fits);
     watch.observe(bar);
     return () => watch.disconnect();
@@ -1403,29 +1668,59 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const lineId = useId();
   const { overflows, expanded, setExpanded } = useToolbarLines(toolbar, line, [tools.map((item) => item.label).join('|'), narrow]);
   const open = overflows && expanded;
+  // After each measure: which arrangement shows what must stay on the first line (tools wrapped that may not wrap: not
+  // Undo, Redo or the link, and not the arrow). A change of the width starts again from all on one line.
+  useLayoutEffect(() => {
+    const wrapped = [...(line.current?.querySelectorAll<HTMLElement>('button[data-wrapped]') ?? [])];
+    const listLabels = [t.text.list, t.text.bulletList, t.text.checkList, t.text.orderedList];
+    const mayWrap = (label: string) =>
+      [t.text.undo, t.text.redo, t.text.link].includes(label) ||
+      (arrangement === 'bare' && label === t.text.italic) ||
+      (arrangement === 'bare' && (listLabels.includes(label) || label.startsWith(t.text.listIs(''))));
+    const next = nextArrangement(arrangement, {
+      any: wrapped.length > 0,
+      kept: wrapped.some((el) => !mayWrap(el.getAttribute('aria-label') ?? '')),
+    });
+    if (next !== arrangement) setArrangement(next);
+  });
+  const barWidth = useRef(0);
+  useEffect(() => {
+    const bar = toolbar.current!;
+    const watch = new ResizeObserver(() => {
+      if (Math.abs(bar.clientWidth - barWidth.current) < 1) return;
+      barWidth.current = bar.clientWidth;
+      setArrangement('all');
+    });
+    watch.observe(bar);
+    return () => watch.disconnect();
+  }, []);
 
-  const tool = ({ label, icon, action, on }: (typeof tools)[number]) => (
-    <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} onClick={action} />
+  const tool = ({ label, icon, action, on, large }: (typeof tools)[number]) => (
+    <ToolbarButton key={label} icon={icon} label={label} selected={on ? active.includes(on) : undefined} large={large} onClick={action} />
   );
 
   // The lines between the marks on the text, the kinds of text, "+" (or "Picture") and "Undo".
   const lineBefore = (item: (typeof tools)[number]) =>
-    item === kinds[0] || item.icon === Plus || item.icon === Image || item.icon === ArrowUUpLeft || item.icon === SectionSettingsIcon;
+    item.role === 'settings' || item === kinds[0] || item.icon === Plus || item.icon === Image || item.icon === ArrowUUpLeft;
   // A button of the toolbar; when it is too short, each group of kinds of text is one button (at its first), with a menu.
   const button = (item: (typeof tools)[number]) => {
     if (!narrow || !kinds.includes(item)) return tool(item);
     const members = kindGroups.find((g) => g[0] === item);
     if (!members) return null;
     if (members.length === 1) return tool(item);
-    const shown = shownOf(members);
     const group = groupOf(members);
+    const generic =
+      (group === 'text' && styleKindOf(active, inText) === 'generic') || (group === 'list' && listKindOf(active, inText) === 'generic');
+    const shown = shownOf(members);
+    const [genericIcon, genericLabel, labelIs] =
+      group === 'list' ? [GENERIC_ICONS.list.node, t.text.list, t.text.listIs] : [GENERIC_ICONS.text.node, t.text.kind, t.text.kindIs];
     const opened = kindsAt?.group === group && !kindsAt.word;
     // Not marked: it always shows a kind of its group (the menu under it marks the one there is).
     return (
       <ToolbarButton
         key={`kinds-${group}`}
-        icon={shown.icon}
-        label={t.text.kindIs(shown.label)}
+        icon={generic ? genericIcon : shown.icon}
+        label={generic ? genericLabel : labelIs(shown.label)}
         menu={opened}
         onClick={(e) => setKindsAt(opened ? null : { at: e.currentTarget, group })}
       />
@@ -1433,14 +1728,13 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   };
 
   return (
-    <div className="rounded-panel border border-outline-variant bg-surface-container-lowest">
-      {/* A bar with round corners and room all round it, inside the text's box. Stays at the top while scrolling through the text, a little under the app's top bar (Screen.tsx,
-          4rem and its line). The buttons are centred on one line; when they do not fit, the line starts at the left and
+    <div className="rounded-panel bg-surface-container-lowest">
+      {/* The top edge of the text's box: it draws its own border and rounded corners, so the box's side lines start under it and never run past it when it sticks; no shadow. Stays at the top of the screen while scrolling through the text (under the safe area, as the top bar scrolls away). The buttons are centred on one line; when they do not fit, the line starts at the left and
           the arrow at its end shows the rest on a second line (measure above). */}
       <Toolbar
         ref={toolbar}
         label={t.text.tools}
-        className="editor-tools sticky top-[calc(env(safe-area-inset-top)+--spacing(2))] z-10 m-2 items-start rounded-panel border border-outline-variant pb-(--toolbar-docked-padding-block)"
+        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 items-start rounded-t-panel border border-outline-variant pb-(--toolbar-docked-padding-block)"
       >
         <div
           ref={line}
@@ -1449,6 +1743,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
             'editor-tools-line flex min-w-0 flex-1 flex-wrap items-center gap-[0.125rem]',
             overflows ? 'justify-start' : 'justify-center',
             !open && 'editor-tools-closed',
+            hasSettings && 'editor-tools-tall',
+            arrangement !== 'all' && 'editor-tools-compact',
           ]
             .filter(Boolean)
             .join(' ')}
@@ -1482,7 +1778,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           <span className="text-on-surface">{t.text.noColor}</span>
         </MenuItem>
       </Menu>
-      <Menu anchor={kindsAt?.at ?? null} label={t.text.kind} onClose={() => setKindsAt(null)}>
+      <Menu anchor={kindsAt?.at ?? null} label={kindsAt?.group === 'list' ? t.text.list : t.text.kind} onClose={() => setKindsAt(null)}>
         {kindsShown
           .filter(({ on }) => on !== 'label' || active.includes('labelable'))
           .map(({ label, icon, action, on }) => (
@@ -1493,7 +1789,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       </Menu>
       <div
         ref={root}
-        className={`editor-text prose max-w-none px-5 py-4 medium:px-8 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
+        className={`editor-text prose max-w-none rounded-b-panel border-x border-b border-outline-variant px-5 py-4 medium:px-8 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
         style={
           { '--editor-gap-text': JSON.stringify(t.text.typeHere), '--editor-empty-text': JSON.stringify(t.text.emptyHint) } as CSSProperties
         }

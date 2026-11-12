@@ -4,9 +4,9 @@
   "notes": [
     {
       "id": "apps-turn-off",
-      "kind": "card",
-      "title": "Sæt en app på pause uden at miste indstillingerne",
-      "text": "Nu kan du slå en app fra og beholde dens indstillinger. Åbn appen under Apps, og slå Aktiveret fra. Slå den til igen, når du vil."
+      "kind": "paragraph",
+      "title": "Pause af apps",
+      "text": "En app på pause beholder sine indstillinger. Åbn appen under Apps, og slå Aktiveret fra. Slå den til igen, når du vil; intet er tabt."
     },
     {
       "id": "developer-menu",
@@ -20,9 +20,9 @@
     },
     {
       "id": "editor-footer",
-      "kind": "card",
-      "title": "Tjek GitHub og Cloudflare",
-      "text": "Hvis du ikke kan gemme eller udgive, så se, om GitHub og Cloudflare virker. Rul ned til bunden af editoren, og tryk på Driftsstatus. Den tjekker kun de tjenester, din hjemmeside bruger."
+      "kind": "paragraph",
+      "title": "Editorens sidefod",
+      "text": "Du kan se, hvorfor det ikke lykkes at gemme eller udgive. Rul ned til bunden af editoren, og tryk på Driftsstatus. Den tjekker GitHub og Cloudflare, men kun de tjenester, din hjemmeside bruger."
     },
     {
       "id": "editor-toolbar-dock",
@@ -31,9 +31,9 @@
     },
     {
       "id": "google-preview-closer",
-      "kind": "card",
-      "title": "Se din side, som Google viser den",
-      "text": "Forhåndsvisningen af Google-resultatet ligner nu Googles eget på både telefon og computer, og dit vigtigste søgeord står med fed. Åbn en side eller et blogindlæg, og se under Søgemaskiner."
+      "kind": "paragraph",
+      "title": "Google-forhåndsvisning",
+      "text": "Du ser din side, som Google viser den. Åbn en side eller et blogindlæg, og se under Søgemaskiner. Forhåndsvisningen ligner det rigtige resultat på telefon og computer, og dit vigtigste søgeord står med fed."
     },
     {
       "id": "morpheme-connection-page",
@@ -42,9 +42,9 @@
     },
     {
       "id": "quiet-lamps-wander",
-      "kind": "card",
-      "title": "Se, hvad der er nyt",
-      "text": "Efter hver opdatering får du nu et kort overblik over, hvad der er nyt. Alle noterne finder du på siden Morpheme under Indstillinger."
+      "kind": "paragraph",
+      "title": "Nyheder",
+      "text": "Du ser, hvad der er ændret efter hver opdatering. Et kort overblik vises, når opdateringen er på plads. Alle noterne finder du på siden Morpheme under Indstillinger."
     }
   ]
 }

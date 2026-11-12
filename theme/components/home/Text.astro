@@ -4,10 +4,11 @@ import Section from '@theme/components/Section.astro';
 import Markdown from '@theme/components/Markdown.astro';
 import type { HomeSection } from '@morphemecms/cms/site/home';
 
-type Props = Extract<HomeSection, { type: 'text' }> & { class?: string };
-const { heading, body, sectionColor, class: className } = Astro.props;
+// `lead`: its first paragraph is the lead (type-lead), as the first paragraph of a page's text is: the text just under the front page's heading.
+type Props = Extract<HomeSection, { type: 'text' }> & { class?: string; lead?: boolean };
+const { heading, body, sectionColor, class: className, lead } = Astro.props;
 ---
 
 <Section title={heading} class={className} color={sectionColor}>
-  <Markdown body={body} class={heading && 'mt-6'} />
+  <Markdown body={body} class:list={[heading && 'mt-6', lead && '[&>p:first-child]:type-lead']} />
 </Section>

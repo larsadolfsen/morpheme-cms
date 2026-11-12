@@ -3,7 +3,7 @@
   "notes": [
     {
       "id": "morpheme-updates-itself",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Morpheme updates itself",
       "text": "Your website now installs new updates of Morpheme within the hour, and undoes one if your site can’t be built. See Settings › Morpheme."
     },

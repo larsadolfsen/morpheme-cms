@@ -13,13 +13,7 @@ export default function AppNotificationSwitches({ notifies }: { notifies: { labe
       <GroupTitle>{t.apps.notifications}</GroupTitle>
       <div className="space-y-5 px-4">
         {notifies.map((n) => (
-          <SwitchRow
-            key={n.type}
-            label={n.label}
-            texts={[t.library.on, t.library.off]}
-            selected={!off.includes(n.type!)}
-            onChange={(yes) => setOn(n.type!, yes)}
-          />
+          <SwitchRow key={n.type} label={n.label} selected={!off.includes(n.type!)} onChange={(yes) => setOn(n.type!, yes)} />
         ))}
       </div>
     </section>
