@@ -1123,7 +1123,9 @@ function Form({
               ? { src: String(values.image), alt: values.imageDecorative === true ? '' : String(values.imageAlt ?? '') }
               : null
             : undefined,
-        body: isNew || relaid || markdown != null ? (markdown ?? parts.body) : undefined,
+        // Always the text in the form, saved or not: the site's own page may not be rebuilt yet after a save, and would then lack
+        // what the editor shows (a section's background).
+        body: markdown ?? shown?.body ?? parts.body,
         data: { lists: env.lists, testimonials: env.testimonials, site: env.site, relations: env.relations, path: url },
       };
     });

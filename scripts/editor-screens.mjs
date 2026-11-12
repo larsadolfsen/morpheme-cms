@@ -251,6 +251,28 @@ async function checkEmptyHint() {
   await page.close();
 }
 
+/** The Preview (the binoculars) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
+async function checkPreviewSection() {
+  const path = 'src/content/pages/about.md';
+  if (!existsSync(join(ROOT, path))) return;
+  const text = readFileSync(join(ROOT, path), 'utf8').replace(/(\n)(## [^\n]+)/, '$1<div data-section="tertiary"></div>\n\n$2');
+  const page = await browser.newPage({ viewport: { width: 390, height: 800 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`Preview section: ${e.message}`));
+  await openEditor(page, site, { [path]: text });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
+  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const frame = page.frames().find((f) => f !== page.mainFrame());
+  await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
+  const got = await frame.evaluate(() => {
+    const section = document.querySelector('section.text-section-tertiary');
+    return section ? getComputedStyle(section).backgroundColor : null;
+  });
+  if (!got || got === 'rgba(0, 0, 0, 0)') problems.push(`Preview section: a section with a background has none in the Preview (${got})`);
+  await page.close();
+}
+
 /** The hint lines (Type text, or tap Insert …; Write text here…) read on every section colour, light and dark (4.5:1), and start where the text starts. */
 async function checkHints() {
   for (const scheme of ['light', 'dark']) {
@@ -802,6 +824,7 @@ await checkTextSheet();
 await checkEmptyHint();
 await checkHints();
 await checkFullWidthSection();
+await checkPreviewSection();
 
 await browser.close();
 server.close();
