@@ -180,6 +180,12 @@ export const blocks = {
     exampleTitle: 'Heading',
     exampleText: 'A short text about the point.',
   },
+  table: {
+    label: 'Table',
+    hint: 'Rows and columns of text.',
+    header: 'Header row',
+    headerToggle: ['On', 'Off'] as [string, string],
+  },
   steps: {
     label: 'Steps',
     hint: 'Numbered steps.',

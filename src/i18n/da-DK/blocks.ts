@@ -165,6 +165,12 @@ export const blocks: Messages['blocks'] = {
     exampleTitle: 'Overskrift',
     exampleText: 'En kort tekst om punktet.',
   },
+  table: {
+    label: 'Tabel',
+    hint: 'Rækker og kolonner med tekst.',
+    header: 'Overskriftsrække',
+    headerToggle: ['Til', 'Fra'] as [string, string],
+  },
   steps: {
     label: 'Trin',
     hint: 'Nummererede trin.',
