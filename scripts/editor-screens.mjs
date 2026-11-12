@@ -1030,6 +1030,50 @@ async function checkFullWidthSection() {
   }
 }
 
+/** A coloured section's background runs down to the next section's divider, or to the end of the text when it is the last (the space below its text is inside the colour, not a white band), in the editor, and in the Preview where the panel has no margin below (375 px with touch, and a computer). */
+async function checkSectionBackground(width, touch) {
+  const path = 'src/content/pages/about.md';
+  const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  const label = `${width}px section background`;
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  for (const last of [false, true]) {
+    const body = `# T\n\nIntro.\n\n<div data-section="primary"></div>\n\n## Blue\n\nBlue text.\n${last ? '' : '\n## Plain\n\nPlain text.\n'}`;
+    await openEditor(page, site, { [path]: `---\ntitle: "T"\ndescription: "d"\n---\n\n${body}` });
+    await page.goto(`${site}/editor/#${path}`);
+    await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
+    const got = await page.evaluate(() => {
+      const pm = document.querySelector('.ProseMirror');
+      const parts = [...pm.children].filter((c) => !c.classList.contains('editor-section-picture'));
+      const blue = parts.filter((c) => c.dataset.sectionColor === 'primary');
+      const next = parts[parts.indexOf(blue.at(-1)) + 1];
+      const bottom = blue.at(-1).getBoundingClientRect().bottom;
+      return { gap: next ? next.getBoundingClientRect().top - bottom : pm.getBoundingClientRect().bottom - bottom, hasNext: Boolean(next) };
+    });
+    if (Math.abs(got.gap) > 0.5)
+      problems.push(
+        `${label}: the ${last ? 'last ' : ''}coloured section ends ${got.gap}px ${last ? 'above the end of the text' : 'above the next section'} (should be 0, no white band)`,
+      );
+  }
+  await openEditor(page, site, {
+    [path]: `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<div data-section="primary"></div>\n\n## Blue\n\nBlue text.\n\n## Plain\n\nPlain text.\n`,
+  });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
+  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const frame = page.frames().find((f) => f !== page.mainFrame());
+  await frame.waitForSelector('section.text-section-primary', { timeout: 30_000 });
+  const panel = await frame.evaluate(() => {
+    const cs = getComputedStyle(document.querySelector('section.text-section-primary'));
+    return { margin: parseFloat(cs.marginBottom), top: parseFloat(cs.paddingTop), bottom: parseFloat(cs.paddingBottom) };
+  });
+  if (panel.margin !== 0 || panel.bottom <= panel.top)
+    problems.push(
+      `${label}: in the Preview the panel has ${panel.margin}px margin and ${panel.bottom}px padding below (the space below belongs inside the colour: no margin, more padding than above)`,
+    );
+  await page.close();
+}
+
 /** A tap below the last section, or between two sections, puts the cursor on a free line there (an empty paragraph that is not saved unless typed in), and typing adds text after the section, not in a heading (375 px with touch, and a computer). */
 async function checkTapBelowSection(width, touch) {
   const label = `${width}px tap below a section`;
@@ -1692,6 +1736,8 @@ for (const [width, height] of [
   await checkIconSearch(width, height);
 await checkHints();
 await checkFullWidthSection();
+await checkSectionBackground(375, true);
+await checkSectionBackground(1280, false);
 await checkTapBelowSection(375, true);
 await checkTapBelowSection(1280, false);
 for (const [width, height] of [
