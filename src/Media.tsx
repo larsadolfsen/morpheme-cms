@@ -428,7 +428,11 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads, files: Repo
         ) : null}
         {provider ? (
           <>
-            {problem ? <Notice role="alert">{problem}</Notice> : null}
+            {problem ? (
+              <Notice role="alert" title={problem}>
+                {null}
+              </Notice>
+            ) : null}
             <MediaProviderPicker
               key={`${provider.app}/${provider.id}`}
               provider={provider}

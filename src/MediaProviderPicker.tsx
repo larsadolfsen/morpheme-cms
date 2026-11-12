@@ -124,7 +124,11 @@ export default function MediaProviderPicker({
   return (
     <div className="flex flex-col gap-3">
       <SearchBar value={query} onChange={setQuery} label={text.search(provider.label)} />
-      {error ? <Notice role="alert">{error}</Notice> : null}
+      {error ? (
+        <Notice role="alert" title={error}>
+          {null}
+        </Notice>
+      ) : null}
       {items.length ? (
         <ul className="grid grid-cols-3 gap-1.5 medium:grid-cols-4 expanded:grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] expanded:gap-2">
           {items.map((item) => (
