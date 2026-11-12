@@ -126,7 +126,7 @@ test('the fields that can fill each part, the field now shown, and the map after
   const names = (/** @type {any} */ part) => fieldsForPart(fields, part).map((f) => f.name);
   assert.deepEqual(PARTS, ['title', 'text', 'icon', 'href']);
   assert.deepEqual(names('title'), ['name', 'about', 'kind']);
-  assert.deepEqual(names('icon'), ['icon']);
+  assert.deepEqual(names('icon'), ['name', 'icon']);
   assert.deepEqual(names('href'), ['name', 'page', 'tags']);
   const asRows = { title: 'name', text: 'about', icon: 'icon' };
   assert.equal(fieldOfPart(asRows, undefined, 'text'), 'about');
