@@ -10,6 +10,7 @@ import { getPages, type Page, type PostChoice } from './content';
 import { isBlogCategory } from './categories';
 import { pageH1, partsOfMarkdown, sectionsFromParts } from '@morphemecms/cms/src/sections.mjs';
 import { frontLeads } from '@site/standardPages';
+import { migrateFrontBanner } from '@morphemecms/cms/lib/front-banner.mjs';
 
 type Link = { label: string; href: string };
 
@@ -29,6 +30,13 @@ type Sections = {
   // the newest or (order "random") picked anew on each visit; "picked": the posts in `picked`.
   posts: { heading: string } & PostChoice;
   text: { heading?: string; body: string };
+  // The page's H1 with section settings (a marker before it, lib/section-marker.mjs: Surface or another colour, a picture behind the
+  // text, the whole width): the heading (drawn by templates/Home.astro) and its `items` up to the next heading or block in one panel.
+  // This is the top "Banner" (type "hero") as a section: lib/front-banner.mjs makes it from a Banner at the top of the text.
+  top: {
+    settings: { color: string; picture?: string; alt?: string; width?: 'full' };
+    items: ({ markdown: string; block?: undefined } | { block: { type: string; props: Record<string, unknown> }; markdown?: undefined })[];
+  };
 };
 
 /** The category its "All posts" goes to: the one picked for the link (`link`), else the one its
@@ -57,8 +65,10 @@ export type FrontPage = { page: Page; heading: string; headingHtml?: string; sec
 export async function frontPage(): Promise<FrontPage> {
   const page = (await getPages({ previews: false })).find((p) => p.data.path === frontPath);
   if (!page) throw new Error(`src/data/standard-pages.json: the front page, ${frontPath}, does not exist, or it is a draft.`);
-  const sections = sectionsFromParts(partsOfMarkdown(page.body ?? ''), frontLeads, { colors: true }) as HomeSection[];
-  const h1 = pageH1(page.body);
+  // A Banner at the top of the text, under the H1, is read as the H1's section (lib/front-banner.mjs), as the editor reads it.
+  const body = migrateFrontBanner(page.body ?? '');
+  const sections = sectionsFromParts(partsOfMarkdown(body), frontLeads, { colors: true }) as HomeSection[];
+  const h1 = pageH1(body);
   return { page, heading: h1.heading || page.data.title, headingHtml: h1.html, sections: sections.filter((s) => !s.hidden) };
 }
 

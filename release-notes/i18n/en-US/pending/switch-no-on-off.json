@@ -1,0 +1,5 @@
+{
+  "id": "switch-no-on-off",
+  "kind": "line",
+  "text": "Switches no longer show On and Off words, and a check or a cross in the switch shows whether it is on"
+}

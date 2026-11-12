@@ -345,6 +345,18 @@
   .block-list-button {
     margin-top: 0.5rem;
   }
+  /* `Max rows` of "Segmented list" (MoreRows.tsx, segmented/more.ts): without script all rows show and the button is hidden; with
+     script (data-cut) the rows after the first ones are hidden until the button shows them. The last row left has no line under it. */
+  .block-more:not([data-cut]) > .block-more-button {
+    display: none;
+  }
+  .block-more[data-cut] [data-extra],
+  .block-more[data-cut] li:has(> [data-extra]) {
+    display: none;
+  }
+  .block-more[data-cut] .block-accordion > [data-edge] {
+    border-bottom: 0;
+  }
   summary.block-accordion-label {
     cursor: pointer;
     list-style: none;

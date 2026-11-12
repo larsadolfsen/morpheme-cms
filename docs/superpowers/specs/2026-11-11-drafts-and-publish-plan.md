@@ -102,3 +102,13 @@ waiting changes stay; while they are edited: the website shows the published ver
 draft with a waiting time is Scheduled); and a question before `Publish changes` when the page file was saved after the waiting version
 (`env.savedAt`: when each was last saved; unknown means no question). The check is an approximation: saving the waiting changes again
 after a live edit clears it, though they may not contain that edit.
+
+## Autosave, part B (the form)
+
+Done in `EntryForm.tsx` with `src/useAutosave.ts`: the autosave belongs to the waiting version of a published page (or a draft that has one);
+not the live page being edited, a new page, an earlier version or a changed address. The line under the title says `Saving…`, `Saved` or
+`Not saved` while changes are unsaved (with Faster editor off the Worker says 409 and it stays `Not saved` until `Save`). A page opens with
+the kept changes put back when they are newer than git's file (`restorable`). `Save`, `Publish`, `Discard` and the version switch end with
+nothing unsaved, which deletes the autosave; `Discard` in the "Save the changes?" question deletes it when the form closes. When an idle
+flush gives git a new waiting version, the form loads that file (`takeWaiting`) so its blob id is current. A text that cannot be saved yet
+(a field that is wrong, a picture not uploaded yet) shows `Not saved`.
