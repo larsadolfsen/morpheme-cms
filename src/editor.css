@@ -757,6 +757,10 @@ html {
   max-height: 2.5rem;
 }
 
+.editor-tools-tall.editor-tools-closed {
+  max-height: 3rem;
+}
+
 .editor-tools-closed > [data-wrapped],
 .editor-tools-line > span[data-line-start],
 .editor-tools-line > span[data-line-end] {
