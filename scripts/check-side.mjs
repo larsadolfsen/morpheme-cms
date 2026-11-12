@@ -3,9 +3,9 @@
 // in the site, builds it in a folder of its own and looks in the HTML for the template and the column the theme's
 // "templates" give each, and for the width of the text (PageLayout.astro: 66ch with a column; without one the blocks span
 // the column and the first paragraph is the lead). Exposes checkSide(root), expectedFor and columnOf; used by check-themes.mjs. Removes what it
-// put in the site, and the side.json it wrote, however it ends.
+// put in the site, however it ends; a side.json the site already has is kept and put back as it was.
 import { execFileSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hasSidebar, templateOf, templatesOf } from '@morphemecms/cms/lib/page-template.mjs';
@@ -52,14 +52,17 @@ function offeredBy(root) {
 
 /** Builds the site with the fixture and checks the cases for the theme in use; throws with what is wrong. */
 export function checkSide(root) {
-  const put = [BLOCK, 'src/data/side.json', ...PAGES.map(([p]) => `src/content/pages/${p}.md`)].map((f) => join(root, f));
+  const put = [BLOCK, ...PAGES.map(([p]) => `src/content/pages/${p}.md`)].map((f) => join(root, f));
+  // A site has its own src/data/side.json (the column's blocks): the fixture's replaces it while the check runs, and it is put back after.
+  const sideFile = join(root, 'src/data/side.json');
+  const ownSide = existsSync(sideFile) ? readFileSync(sideFile) : null;
   if (put.some(existsSync)) throw new Error('Remove the side-fixture files from src/ first (scripts/check-side.mjs puts them there).');
   const out = buildOutDir(root, 'column');
   try {
     const offered = offeredBy(root);
     mkdirSync(join(root, BLOCK), { recursive: true });
     cpSync(join(fixtures, 'block'), join(root, BLOCK), { recursive: true });
-    cpSync(join(fixtures, 'side.json'), join(root, 'src/data/side.json'));
+    cpSync(join(fixtures, 'side.json'), sideFile);
     for (const [p] of PAGES) cpSync(join(fixtures, `${p}.md`), join(root, `src/content/pages/${p}.md`));
     execFileSync(process.execPath, [binOf('astro'), 'build', '--outDir', out], { cwd: root, stdio: 'inherit' });
     const problems = [];
@@ -79,5 +82,7 @@ export function checkSide(root) {
     rmSync(out, { recursive: true, force: true });
     rmSync(join(root, 'src/apps/side-fixture'), { recursive: true, force: true });
     for (const f of put.slice(1)) rmSync(f, { force: true });
+    if (ownSide) writeFileSync(sideFile, ownSide);
+    else rmSync(sideFile, { force: true });
   }
 }

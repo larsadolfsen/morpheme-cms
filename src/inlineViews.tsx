@@ -6,6 +6,7 @@ import type { BlockData, BlockProps } from './blocks';
 import InlineCards from './InlineCards';
 import InlineNotice from './InlineNotice';
 import InlineVideo from './InlineVideo';
+import InlineSegmented from './InlineSegmented';
 import InlineButtons from './InlineButtons';
 import InlineFaq from './InlineFaq';
 import type { Change, Focus, Item } from './InlineItems';
@@ -31,6 +32,7 @@ export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
   cards: InlineCards,
   notice: InlineNotice,
   video: InlineVideo,
+  segmented: InlineSegmented,
   buttons: InlineButtons,
   faq: InlineFaq,
 };
