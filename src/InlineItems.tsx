@@ -10,7 +10,12 @@ import { addAt, isEmptyRow, removeAt, setField } from './inlineRows.mjs';
 
 export type Item = Record<string, any>;
 export type Focus = { row: number; field: string };
-export type Change = { items?: Item[]; active?: number | null; focus?: Focus | null };
+export type Change = {
+  items?: Item[];
+  active?: number | null;
+  focus?: Focus | null;
+  /** A grid's active column (the Table). */ col?: number | null;
+};
 
 // A textarea that has the height of its text: the browser's own where it can (CSS field-sizing), else set here.
 const fits = typeof CSS !== 'undefined' && CSS.supports?.('field-sizing', 'content');

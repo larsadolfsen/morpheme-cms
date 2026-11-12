@@ -89,6 +89,9 @@ export type InlineSpec = {
   settings?: string[];
   /** The block has settings of its own besides its items (a card's type and colour): its menu keeps Edit. */
   blockSettings?: boolean;
+  /** The block is a grid of cells (the Table): `item` is its list of rows, each a list of texts; the cursor is in a cell (row and column), and
+   * the toolbar has these actions of its own (a row is added with `addAbove` and `addBelow`). */
+  grid?: { addColumnBefore: string; addColumnAfter: string; deleteRow: string; deleteColumn: string };
   texts: {
     addAbove: string;
     addBelow: string;

@@ -458,6 +458,79 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, field
   await page.close();
 }
 
+/** A Table typed in the text: the first cell is active (dotted line) with the next row and the next column shown faded, typing in the faded column makes it, `Add row` is a text button under the table and adds a row, the toolbar has the row and column actions with icons, the header row is a `th`, and when the cursor leaves, the button and the faded cells are gone and the table has the rows and columns that were typed. */
+async function checkInlineTable(width, height) {
+  const label = `${width}px inline table`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.waitForSelector('.inline-table-cell-active textarea');
+  await page.keyboard.type('Plan');
+  await page.waitForTimeout(300);
+  const state = () =>
+    page.evaluate(() => ({
+      rows: document.querySelectorAll('.inline-table tr[data-row]').length,
+      next: document.querySelectorAll('.inline-table-cell-next').length,
+      header: document.querySelectorAll('.inline-table thead th[scope="col"]').length,
+      add: [...document.querySelectorAll('[data-add-row]')].map((b) => b.textContent.trim()),
+      outline: getComputedStyle(document.querySelector('.inline-table-cell-active')).outlineStyle,
+      faded: getComputedStyle(document.querySelector('.inline-table-cell-next') ?? document.body).opacity,
+      scroll: document.querySelector('.inline-table').scrollWidth <= document.querySelector('.inline-table').clientWidth + 1,
+      bar: [...document.querySelectorAll('.site-block-toolbar button')].map((b) => ({
+        label: b.getAttribute('aria-label'),
+        svg: !!b.querySelector('svg path'),
+      })),
+    }));
+  const one = await state();
+  // One cell typed, with the next row and the next column faded (their corner has no cell): 2 rows, 2 faded cells.
+  if (one.rows !== 2) problems.push(`${label}: expected the typed row and the next row, got ${one.rows} rows`);
+  if (one.next !== 2) problems.push(`${label}: expected 2 faded cells (next row and next column), got ${one.next}`);
+  if (one.header !== 2) problems.push(`${label}: expected a header row of 2 th cells, got ${one.header}`);
+  if (one.add.join() !== 'Add row') problems.push(`${label}: expected the button "Add row", got "${one.add}"`);
+  if (one.outline !== 'dotted') problems.push(`${label}: the active cell has outline ${one.outline}, not dotted`);
+  if (!(Number(one.faded) < 1)) problems.push(`${label}: the next cells are not faded (${one.faded})`);
+  for (const name of ['Add row above', 'Add row below'])
+    if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
+  if (width > 500)
+    for (const name of ['Add column before', 'Add column after'])
+      if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
+  // Typing in the next column makes it.
+  await page.locator('.inline-table-cell-next textarea').first().click();
+  await page.keyboard.type('Pages');
+  await page.waitForTimeout(300);
+  const two = await state();
+  if (two.next !== 3)
+    problems.push(`${label}: after typing in the next column expected 3 faded cells (next row 2, next column 1), got ${two.next}`);
+  await page.screenshot({ path: join(shots, `inline-table-${width}.png`) });
+  await page.click('[data-add-row]');
+  await page.waitForTimeout(300);
+  const three = await state();
+  if (three.rows !== 3) problems.push(`${label}: "Add row" left ${three.rows} rows, not 3 (typed row, the added one and the next)`);
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  const after = await page.evaluate(() => ({
+    add: document.querySelectorAll('[data-add-row]').length,
+    next: document.querySelectorAll('.inline-table-cell-next').length,
+    rows: document.querySelectorAll('.inline-table tr[data-row]').length,
+    cols: document.querySelectorAll('.inline-table thead th').length,
+  }));
+  if (after.add || after.next) problems.push(`${label}: the add button or the faded cells stay after the cursor left the table`);
+  // The added row was empty at the end of the table: it is dropped with the other unused end.
+  if (after.rows !== 1 || after.cols !== 2)
+    problems.push(`${label}: expected 1 row of 2 columns after leaving, got ${after.rows} rows of ${after.cols}`);
+  await page.close();
+}
+
 /** The icon picker of a List row (the slot before the title, a sheet on a phone): the first view has the "No icon" tile and the 28 icons, the search field finds an icon of the whole set, Material Symbols' ("arrow back") and Phosphor's ("acorn"), a picked one is drawn in the slot (stored by its name, drawn by the site as the fallback), a search without a hit says so, a category filters (with the search too) 100 icons at a time with "Show more", and the sheet fits the width. */
 async function checkIconSearch(width, height) {
   const label = `${width}px icon search`;
@@ -1297,6 +1370,8 @@ for (const [width, height] of [
   await checkDraftsCard(width, height);
 await checkEmptyHint();
 for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
+await checkInlineTable(375, 740);
+await checkInlineTable(1280, 800);
 for (const [width, height] of [
   [360, 740],
   [375, 740],
