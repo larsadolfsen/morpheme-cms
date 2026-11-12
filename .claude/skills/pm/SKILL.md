@@ -36,6 +36,8 @@ repository has no `check` job (`morpheme-appstore`), the green Cloudflare `Worke
 session reports are the condition. After a merge the PM archives the session whose work it was (`archive_session`), once
 it has no open question for the owner and no unmerged branch. Never merge the Release PR on its own: it is merged only inside a release, as Phase 5 says.
 
+**Every 30 minutes** the PM lists its sessions (`list_sessions`) and archives (`archive_session`) each one whose work is finished: its pull request is merged or closed (or it opened none and its report was read and acted on), it has no open question for the owner, no unmerged branch and no pull request still waiting. It never archives a session of the owner's own (one the PM did not start) or one that is blocked on a question. Before archiving, it makes sure the session's follow-ups are on its list (nothing left behind).
+
 ## Phase 4 - Plan the release
 
 When the line looks ready, say so and say what the Release PR will contain: the changesets, the release notes, and the

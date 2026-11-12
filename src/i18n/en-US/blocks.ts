@@ -50,6 +50,14 @@ export const blocks = {
     button: 'Button text',
     buttonHint: 'A text button under the last question. If empty, there is no button.',
     buttonHref: 'Button page',
+    /** A question typed in place: the add button, the faded question of an empty block, the floating toolbar, a question's place for screen readers. */
+    addQuestion: 'Add question',
+    newQuestion: 'New question',
+    questionOf: (n: number, total: number) => `Question ${n} of ${total}`,
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    questionMenu: 'Question',
+    questionSettings: 'Question settings',
   },
   /** "Segmented list" (standard/segmented/). */
   segmented: {
@@ -133,7 +141,15 @@ export const blocks = {
     /** The name of a block that reads a list: "Dynamic list". */
     named: (label: string) => `Dynamic ${label.toLowerCase()}`,
     /** The line on its card: where its rows come from. */
-    from_line: (list: string) => `Rows from ${list}`,
+    /** The state line of a dynamic block: "From Services · tag home · 3 items". */
+    from_line: (list: string, tags: string[], count: number) =>
+      [
+        `From ${list}`,
+        ...(tags.length ? [`${tags.length === 1 ? 'tag' : 'tags'} ${tags.join(', ')}`] : []),
+        `${count} ${count === 1 ? 'item' : 'items'}`,
+      ].join(' · '),
+    editList: 'Edit list',
+    map: 'Fields in a row',
     empty: 'No items in the list match, so nothing shows on the page.',
   },
   list: {
