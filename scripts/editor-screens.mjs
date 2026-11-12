@@ -709,7 +709,10 @@ async function checkOwnList(width, height) {
   const phone = width < 600;
   const folder = join(ROOT, 'src/data/services');
   mkdirSync(folder, { recursive: true });
-  writeFileSync(join(folder, '_list.json'), JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href'] }));
+  writeFileSync(
+    join(folder, '_list.json'),
+    JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text', 'href', 'image', 'tags'] }),
+  );
   writeFileSync(join(folder, 'web-design.json'), JSON.stringify({ order: 1, title: 'Web design', text: 'Sites that last' }));
   writeFileSync(join(folder, 'hosting.json'), JSON.stringify({ order: 2, title: 'Hosting' }));
   try {
@@ -750,6 +753,24 @@ async function checkOwnList(width, height) {
     await page.keyboard.press('Enter');
     if (!(await page.evaluate(() => document.activeElement?.getAttribute('data-field') === 'text')))
       problems.push(`${label}: Enter in the title did not go to the text`);
+    // The image and tags slots are on the active row, since the list has those fields; the tags slot opens the tags.
+    await page.locator('.inline-list-row[data-row="0"] [data-field="title"]').click();
+    for (const slot of ['Image', 'Tags'])
+      if (!(await page.locator(`.inline-list-row-active [aria-label="${slot}"]`).count()))
+        problems.push(`${label}: no ${slot} slot on the active row`);
+    await page.locator('.inline-list-row-active [aria-label="Tags"]').click();
+    await page
+      .locator('dialog[open], .editor-side-sheet')
+      .filter({ hasText: 'Tags' })
+      .first()
+      .waitFor({ timeout: 5000 })
+      .catch(() => problems.push(`${label}: the tags slot did not open the tags`));
+    if (phone)
+      await page
+        .locator('dialog[open] [aria-label="Close"]')
+        .first()
+        .click()
+        .catch(() => {});
     await page
       .locator('main h1, header')
       .first()
