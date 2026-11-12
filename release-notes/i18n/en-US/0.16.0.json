@@ -9,13 +9,13 @@
     },
     {
       "id": "assistants-read-site",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Let an assistant read your website",
       "text": "Claude and other assistants can now read your site info, pages, posts and apps with their settings, but can’t change anything. Open Settings, then Assistants, copy the address into your assistant, sign in with GitHub and tap Allow. Disconnect removes an assistant again."
     },
     {
       "id": "connectors-connect-services",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Connect an app to its service and pick from its lists",
       "text": "A connector can now sign in to its service, such as Calendly, and fill a setting from the service’s own list, so you no longer copy an id by hand. Before you install it, its page shows the address it connects to and what it uses. Open Appstore under Settings and choose Connectors."
     },
@@ -26,7 +26,7 @@
     },
     {
       "id": "three-store-sections",
-      "kind": "card",
+      "kind": "paragraph",
       "title": "Find themes, connectors and plugins in the Appstore",
       "text": "The Appstore now has three sections: Themes, Connectors and Plugins. A connector says which service it connects to, and a plugin has no outside access. Open Appstore under Settings and pick a section at the top."
     }

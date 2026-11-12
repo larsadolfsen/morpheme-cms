@@ -1,1 +1,6 @@
-{ "id": "build-chip", "kind": "line", "text": "After a save, a chip in the top bar shows when the website is updating and when it is live" }
+{
+  "id": "build-chip",
+  "kind": "paragraph",
+  "title": "See when your website is live",
+  "text": "After you save, a chip in the top bar shows when your website is updating and when it’s live. You no longer have to guess when visitors see your change."
+}

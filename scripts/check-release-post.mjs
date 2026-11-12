@@ -29,7 +29,7 @@ const tarball = async (...entries) => {
 };
 
 const NOTES = [
-  { id: 'a', kind: 'card', title: 'Pick up where you left off', text: 'Your last pages wait on the start screen.' },
+  { id: 'a', kind: 'paragraph', title: 'Pick up where you left off', text: 'Your last pages wait on the start screen.' },
   { id: 'b', kind: 'line', text: 'Lists have larger text' },
 ];
 const EDITION = {
