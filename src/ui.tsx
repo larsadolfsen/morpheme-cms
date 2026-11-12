@@ -3989,22 +3989,16 @@ export function NewChoice<T extends string>({
         <SheetTitle title={title} onClose={close} />
         <SheetList>
           {options.map((o) => (
-            <li key={o.value}>
-              <button
-                type="button"
-                className={optionClass()}
-                onClick={() => {
-                  close();
-                  onChange(o.value);
-                }}
-              >
-                <LeadingIcon icon={o.icon} />
-                <span className="min-w-0">
-                  <span className="block font-medium">{o.label}</span>
-                  {o.hint && <span className="block text-sm text-on-surface-variant">{o.hint}</span>}
-                </span>
-              </button>
-            </li>
+            <ListItem
+              key={o.value}
+              icon={o.icon}
+              headline={o.label}
+              supporting={o.hint}
+              onClick={() => {
+                close();
+                onChange(o.value);
+              }}
+            />
           ))}
         </SheetList>
       </BottomSheet>

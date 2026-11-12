@@ -9,7 +9,8 @@ export const blockSettings = {
     cards: 'Cards',
     lists: 'Lists',
     content: 'From your content',
-    banner: 'Banner and buttons',
+    banners: 'Banners',
+    buttons: 'Buttons',
     media: 'Media',
   },
   /** In the group of an installed app with neither blocks nor kinds. */
