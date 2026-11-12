@@ -683,22 +683,17 @@
     color: var(--block-muted);
   }
 
-  /* "Testimonials": testimonials to leaf through (testimonials/Slider.tsx, a carousel: ui.css). */
+  /* "Testimonial cards": testimonials to leaf through (testimonials/Slider.tsx, a carousel: ui.css). */
   .carousel.block-in-text,
   .block-testimonials.block-in-text,
   .block-testimonial.block-in-text {
     margin-block: 2.5rem;
   }
-  /* "Testimonials" one after another (testimonials/List.tsx): two columns where there is room. */
-  .block-testimonial-list {
-    columns: 2 18rem;
-    column-gap: var(--card-gap, 0.5rem);
+  /* "Testimonials list" (testimoniallist/Rows.tsx): the theme's list; a row the filter hides takes its divider with it. */
+  .block-testimonial-rows > li:has(> [data-tags][hidden]) {
+    display: none;
   }
-  .block-testimonial-list > * {
-    break-inside: avoid;
-    margin-bottom: var(--card-gap, 0.5rem);
-  }
-  /* Filter chips (the theme's Chip, ui.css) that filter what is under them ("Testimonials" one under another). */
+  /* Filter chips (the theme's Chip, ui.css) that filter what is under them ("Testimonials list"). */
   .block-filters {
     display: flex;
     flex-wrap: wrap;

@@ -1,7 +1,7 @@
-// "Testimonials" on the site (view.ts): all of them (`show: 'all'`), those with any of its tags (`show: 'categories'`,
-// all when it has none; the tags are then not on the cards, except in a list of all), those marked "Show on the front page"
+// "Testimonial cards" on the site (view.ts): all of them (`show: 'all'`), those with any of its tags (`show: 'categories'`,
+// all when it has none; the tags are then not on the cards), those marked "Show on the front page"
 // ('front'), or those picked ('picked', by file name, in that order), from the site (@site/standard), with their tags'
-// pages, their pictures' sizes and where their whole text is.
+// pages, their pictures' sizes and where their whole text is. "Testimonials list" picks the same way (chosenOnSite).
 import { standard } from '@site/standard';
 import { pictureOf } from '../load';
 import type { TestimonialItem } from '../site';
@@ -33,26 +33,22 @@ export const loadTestimonials = (items: TestimonialItem[], showTopic = true): Pr
 /** Its shared texts, with those saved over them. */
 export const testimonialTexts = (texts?: Record<string, any>): TestimonialTexts => ({ ...shared.values, ...texts }) as TestimonialTexts;
 
-export const load: Load<TestimonialsView> = async (props, { texts }) => {
+/** The testimonials a block shows on the site, as its `show` says. */
+export const chosenOnSite = (props: Record<string, any>): TestimonialItem[] => {
   const all = standard.testimonials.list;
-  const chosen = () => {
-    if (props.show === 'all') return all;
-    if (props.show === 'categories') {
-      const wanted: string[] = props.categories ?? [];
-      return all.filter((t) => !wanted.length || t.categories.some((c) => wanted.includes(c)));
-    }
-    if (props.show === 'picked')
-      return ((props.picked ?? []) as string[]).map((slug) => all.find((t) => t.slug === slug)).filter((t) => t !== undefined);
-    return all.filter((t) => t.frontPage);
-  };
-  const items = chosen();
-  const slugs = props.layout === 'list' && props.filter !== false ? [...new Set(items.flatMap((t) => t.categories))] : [];
-  return {
-    ...headOf(props),
-    layout: props.layout,
-    testimonials: await loadTestimonials(items, tagsShown(props)),
-    label: labelOf(props),
-    filters: await Promise.all(slugs.map(async (slug) => ({ slug, name: (await standard.testimonials.tag(slug)).name }))),
-    texts: testimonialTexts(texts),
-  };
+  if (props.show === 'all') return all;
+  if (props.show === 'categories') {
+    const wanted: string[] = props.categories ?? [];
+    return all.filter((t) => !wanted.length || t.categories.some((c) => wanted.includes(c)));
+  }
+  if (props.show === 'picked')
+    return ((props.picked ?? []) as string[]).map((slug) => all.find((t) => t.slug === slug)).filter((t) => t !== undefined);
+  return all.filter((t) => t.frontPage);
 };
+
+export const load: Load<TestimonialsView> = async (props, { texts }) => ({
+  ...headOf(props),
+  testimonials: await loadTestimonials(chosenOnSite(props), tagsShown(props)),
+  label: labelOf(props),
+  texts: testimonialTexts(texts),
+});

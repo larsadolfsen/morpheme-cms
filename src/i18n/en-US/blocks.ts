@@ -261,13 +261,9 @@ export const blocks = {
     },
   },
   testimonials: {
-    label: 'Testimonials',
-    hint: 'Testimonials in a carousel or list.',
+    label: 'Testimonial cards',
+    hint: 'Testimonials as cards in a carousel.',
     edit: 'Edit testimonials',
-    layout: 'Layout',
-    slider: 'Carousel',
-    list: 'One after another',
-    layoutHint: 'One after another shows the whole text.',
     show: 'Which testimonials',
     all: 'All',
     filter: 'Buttons with tags',
@@ -298,6 +294,8 @@ export const blocks = {
     lessText: 'Show less',
     /** On the site and in the drawings (in the site's language): for screen readers, and when there are none. */
     from: (name: string) => `from ${name}`,
+    /** What the carousel is called for screen readers, without a heading. */
+    carouselLabel: 'Testimonials',
     carousel: 'carousel',
     slide: 'slide',
     slideOf: (n: number, of: number) => `${n} of ${of}`,
@@ -305,6 +303,10 @@ export const blocks = {
     none: 'No testimonials to show',
     filterAll: 'All',
     filterLabel: 'Show testimonials with the tag',
+  },
+  testimonialList: {
+    label: 'Testimonials list',
+    hint: 'Testimonials as rows in a list.',
   },
   posts: {
     label: 'Blog posts',
