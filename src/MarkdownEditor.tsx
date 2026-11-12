@@ -614,6 +614,19 @@ export function paint(view: EditorView, color: string | null) {
 
 // The two groups of kinds of text, each a button with a menu when there is little room: the headings, and T, the lists
 // and the quote.
+// The icon of each text style, once, for both toolbars: the raw one the floating row draws and the component the top toolbar
+// and the style menu draw. Its names are STYLE_KINDS (styleKind.mjs), checked by styleKind.test.mjs.
+const KIND_ICONS = {
+  large: { raw: textLargeIcon, node: TextAa },
+  medium: { raw: textMediumIcon, node: TextT },
+  small: { raw: textSmallIcon, node: TextAlignLeft },
+  label: { raw: tagIcon, node: Tag },
+  bullet: { raw: bulletIcon, node: ListBullets },
+  check: { raw: checkIcon, node: ListChecks },
+  ordered: { raw: orderedIcon, node: ListNumbers },
+  quote: { raw: quoteIcon, node: Quotes },
+};
+
 type KindGroup = 'headings' | 'text';
 
 // A button's icon (a raw svg) and its name.
@@ -683,14 +696,14 @@ function selectionMenu(
       });
       // The other kinds of text, in the toolbar's order, by their names in activeOf.
       const textKinds = [
-        { name: 'large', icon: textLargeIcon, label: t.text.bodyLarge },
-        { name: 'medium', icon: textMediumIcon, label: t.text.bodyMedium },
-        { name: 'small', icon: textSmallIcon, label: t.text.bodySmall },
-        { name: 'label', icon: tagIcon, label: t.text.label },
-        { name: 'bullet', icon: bulletIcon, label: t.text.bulletList },
-        { name: 'check', icon: checkIcon, label: t.text.checkList },
-        { name: 'ordered', icon: orderedIcon, label: t.text.orderedList },
-        { name: 'quote', icon: quoteIcon, label: t.text.quote },
+        { name: 'large', icon: KIND_ICONS.large.raw, label: t.text.bodyLarge },
+        { name: 'medium', icon: KIND_ICONS.medium.raw, label: t.text.bodyMedium },
+        { name: 'small', icon: KIND_ICONS.small.raw, label: t.text.bodySmall },
+        { name: 'label', icon: KIND_ICONS.label.raw, label: t.text.label },
+        { name: 'bullet', icon: KIND_ICONS.bullet.raw, label: t.text.bulletList },
+        { name: 'check', icon: KIND_ICONS.check.raw, label: t.text.checkList },
+        { name: 'ordered', icon: KIND_ICONS.ordered.raw, label: t.text.orderedList },
+        { name: 'quote', icon: KIND_ICONS.quote.raw, label: t.text.quote },
       ];
       // A button with a group's menu shows the kind it is named after: "Text style: …".
       const groupFace = ({ icon, label }: Face): Face => ({ icon, label: t.text.kindIs(label) });
@@ -1412,14 +1425,14 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       action: () => setKind(`h${level}`),
       on: `h${level}`,
     })),
-    { label: t.text.bodyLarge, icon: TextAa, action: () => setKind('large'), on: 'large' },
-    { label: t.text.bodyMedium, icon: TextT, action: () => setKind('medium'), on: 'medium' },
-    { label: t.text.bodySmall, icon: TextAlignLeft, action: () => setKind('small'), on: 'small' },
-    { label: t.text.label, icon: Tag, action: () => setKind('label'), on: 'label' },
-    { label: t.text.bulletList, icon: ListBullets, action: () => setKind('bullet'), on: 'bullet' },
-    { label: t.text.checkList, icon: ListChecks, action: () => setKind('check'), on: 'check' },
-    { label: t.text.orderedList, icon: ListNumbers, action: () => setKind('ordered'), on: 'ordered' },
-    { label: t.text.quote, icon: Quotes, action: () => setKind('quote'), on: 'quote' },
+    { label: t.text.bodyLarge, icon: KIND_ICONS.large.node, action: () => setKind('large'), on: 'large' },
+    { label: t.text.bodyMedium, icon: KIND_ICONS.medium.node, action: () => setKind('medium'), on: 'medium' },
+    { label: t.text.bodySmall, icon: KIND_ICONS.small.node, action: () => setKind('small'), on: 'small' },
+    { label: t.text.label, icon: KIND_ICONS.label.node, action: () => setKind('label'), on: 'label' },
+    { label: t.text.bulletList, icon: KIND_ICONS.bullet.node, action: () => setKind('bullet'), on: 'bullet' },
+    { label: t.text.checkList, icon: KIND_ICONS.check.node, action: () => setKind('check'), on: 'check' },
+    { label: t.text.orderedList, icon: KIND_ICONS.ordered.node, action: () => setKind('ordered'), on: 'ordered' },
+    { label: t.text.quote, icon: KIND_ICONS.quote.node, action: () => setKind('quote'), on: 'quote' },
     // A picture and the blocks are put in with "+" (a sheet with them all); without blocks (a blog
     // post) a picture has its own button.
     ...(blocks
