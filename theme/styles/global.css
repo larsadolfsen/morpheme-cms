@@ -17,7 +17,9 @@
   colour), and every text on them keeps the contrast the editor checks (colorPairs), in light and dark mode.
 */
 :root,
-:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > * {
+:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* State layers: on-surface (or primary) over the element, 8% pointed at, 10% pressed. */
   --mo-hover: color-mix(in srgb, var(--mo-on-surface) 8%, transparent);
   --mo-pressed: color-mix(in srgb, var(--mo-on-surface) 10%, transparent);
@@ -475,7 +477,9 @@
    it, and the list above (the M3 aliases and the parts' variables, which are resolved where they are declared) is
    declared again on them (the selector of its rule), so every part takes the swapped colours. The section's own
    colours are in --section-… (blocks.css). */
-:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > * {
+:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   --mo-on-surface: var(--section-on-accent);
   --mo-on-surface-variant: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
   --mo-outline-variant: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
@@ -880,10 +884,10 @@
     padding: 1rem 1.25rem;
   }
 
-  /* "Cards": Material 3's three (outlined, filled, elevated: the card's `kind`, ui.css); the filled one on the highest container, with
-     the card's state layer (ui.css) when pointed at or focused. */
+  /* "Cards": Material 3's three (outlined, filled, elevated: the card's `design`, ui.css); the filled one on the surface container (or the
+     primary, secondary or tertiary container: blocks.css), with the card's state layer (ui.css) when pointed at or focused. */
   .block-card {
-    --card-filled-surface: var(--mo-surface-container-highest);
+    --card-filled-surface: var(--mo-surface-container);
   }
   .block-card-picture {
     border-radius: var(--card-radius) var(--card-radius) var(--mo-shape-none) var(--mo-shape-none);

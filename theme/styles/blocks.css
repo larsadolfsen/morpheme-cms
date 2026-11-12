@@ -116,9 +116,11 @@
      the end of the file). The colours are Surface and the theme's Primary, Secondary and Tertiary (--block-primary and the
      like, with their text colours --block-on-primary …). A section from before Tint is Surface, and Accent is Primary. */
   .text-section {
-    margin-block: var(--block-section-margin);
+    margin-block: var(--block-section-margin) 0;
     border-radius: var(--block-radius);
     padding: var(--block-section-padding);
+    /* The space below belongs inside the colour: it runs down to the next section, or to the end of the text. */
+    padding-block-end: calc(var(--block-section-padding) + var(--block-section-margin));
   }
   .text-section-surface {
     background: var(--block-surface);
@@ -217,7 +219,9 @@
   /* The blocks in it read as an inverted theme on the accent: text, lines and the accent itself are the text-on-primary
      colour, a surface is a veil of it, and what was text-on-primary (a filled button's label, a step number) is the
      accent. Dark mode follows, as the variables do. */
-  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > * {
+  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+  /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+  .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
     --block-text: var(--section-on-accent);
     --block-muted: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
     --block-accent: var(--section-on-accent);
@@ -919,24 +923,33 @@
   .block-card-arrow {
     transition: translate var(--motion-spatial);
   }
-  /* A filled card in one of the section's colours ("Cards", `color`): the whole card in it, its text and icon in the colour that is
-     read on it. Without a colour it is Material's own filled card. */
+  /* The subhead: the small line under the headline (a byline, a date, a place). */
+  .block-card-subhead {
+    margin-top: 0.125rem;
+    font-size: var(--type-body-medium-size, 0.875rem);
+    line-height: var(--type-body-medium-line-height, 1.25rem);
+    color: var(--block-muted);
+  }
+  /* A filled card on one of Material's containers ("Cards", `color`): the primary, secondary or tertiary container, its text and icon in the
+     colour that is read on it. Without a colour it is the surface container (--card-filled-surface, below). A theme that has no container
+     role has the block's own colours. */
   :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary) .block-card {
     --card-filled-line: transparent;
   }
   .block-cards-primary .block-card {
-    --card-filled-surface: var(--block-primary);
-    color: var(--block-on-primary);
+    --card-filled-surface: var(--mo-primary-container, var(--block-primary));
+    color: var(--mo-on-primary-container, var(--block-on-primary));
   }
   .block-cards-secondary .block-card {
-    --card-filled-surface: var(--block-secondary);
-    color: var(--block-on-secondary);
+    --card-filled-surface: var(--mo-secondary-container, var(--block-secondary));
+    color: var(--mo-on-secondary-container, var(--block-on-secondary));
   }
   .block-cards-tertiary .block-card {
-    --card-filled-surface: var(--block-tertiary);
-    color: var(--block-on-tertiary);
+    --card-filled-surface: var(--mo-tertiary-container, var(--block-tertiary));
+    color: var(--mo-on-tertiary-container, var(--block-on-tertiary));
   }
-  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary) :is(.block-card-icon, .block-card-text, .block-card-more) {
+  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary)
+    :is(.block-card-icon, .block-card-text, .block-card-subhead, .block-card-more) {
     color: inherit;
   }
   /* A panel (Panel.tsx): an outlined card (.card in ui.css) for a block that is one box (e.g. an app's about

@@ -12,6 +12,7 @@ import { activeTheme, installedThemes } from '@morphemecms/cms/site/theme.mjs';
 import { binOf } from './bin.mjs';
 import { buildOutDir } from './build-out.mjs';
 import { checkSide } from './check-side.mjs';
+import { cardDesignProblems, cssIn } from './card-designs.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const file = join(ROOT, 'src/data/theme.json');
@@ -39,6 +40,12 @@ try {
     try {
       run(process.execPath, [fileURLToPath(new URL('check-content.mjs', import.meta.url))]);
       run(process.execPath, [binOf('astro'), 'build', '--outDir', out]);
+      // Every card design is styled by the theme (Outlined, Filled, Elevated and the filled colors), so a card never lacks one.
+      const cards = cardDesignProblems(cssIn(out));
+      if (cards.length) {
+        console.error(cards.map((p) => `  ${p}`).join('\n'));
+        throw new Error(`${theme}: a card design is not styled`);
+      }
       run(process.execPath, [fileURLToPath(new URL('editor-screens.mjs', import.meta.url)), out]);
       checkSide(ROOT);
     } catch {

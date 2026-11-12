@@ -17,6 +17,11 @@ import { ConflictError, type RepoFile } from './github';
 import { siteT, t } from './i18n';
 import { lower, savedText } from './deploy';
 import { slugOf, type OwnedList } from './schema';
+import { config } from '@site/editor';
+import { Fields, type FieldContext } from './fields';
+import { creditedIn, useUploads } from './images';
+import { useMediaPicker } from './Media';
+import { creditChanges, recordsIn } from './fileRecords.mjs';
 import type { Env } from './App';
 
 /** A row with a key of its own (a number, so it is not content), which stays while the page is open. */
@@ -27,7 +32,13 @@ const SAVE_AFTER = 800;
 export default function OwnListPage({ collection, files, env }: { collection: OwnedList; files: RepoFile[]; env: Env }) {
   const folder = collection.folder;
   const names = collection.fields.map((f) => f.name);
-  const show = { icon: names.includes('icon'), text: names.includes('text'), href: names.includes('href') };
+  const show = {
+    icon: names.includes('icon'),
+    text: names.includes('text'),
+    href: names.includes('href'),
+    image: names.includes('image'),
+    tags: names.includes('tags'),
+  };
   const next = useRef(1);
   // What the page starts with: the entries as rows (by `order`, then the file name), each with the file it is.
   const start = useMemo(() => {
@@ -65,6 +76,10 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
   const chain = useRef<Promise<unknown>>(Promise.resolve());
   const host = useRef<HTMLDivElement>(null);
 
+  // A picture is picked from the gallery, or uploaded; an uploaded one is saved in the commit of the entry that uses it (as in DataForm.tsx).
+  const pictures = useUploads(env.notify);
+  const [pickImage, picker] = useMediaPicker(env.media, pictures, env.files);
+  const context: FieldContext = { relations: env.relations, lists: env.lists, testimonials: env.testimonials, site: env.site, pickImage };
   const listBlock = siteBlocks.find((b) => b.type === 'list');
   const [asker, dialog] = useBlockDialog(siteBlocks, {
     lists: env.lists,
@@ -80,9 +95,13 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
       const plan = savePlan({ folder, rows: now.current.items, known: known.current, slugs: slugs.current, visible: names });
       if (!plan.writes.length && !plan.deletes.length) return;
       const change = t.app.changes.edited(lower(collection.label));
+      const used = plan.writes.flatMap((w) => pictures.usedIn(w.content));
+      const records = creditChanges([], recordsIn(env.files, config.fileRecords), config.fileRecords, creditedIn(used));
       const changes = [
         ...plan.writes.map((w) => ({ path: w.path, content: w.content, oid: w.oid })),
         ...plan.deletes.map((d) => ({ path: d.path, content: null, oid: d.oid })),
+        ...used.map((u) => ({ path: u.path, content: u.bytes, oid: null })),
+        ...records,
       ];
       setSaving(true);
       env.notify({ text: t.common.saving });
@@ -92,6 +111,8 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
           known.current.set(w.path, { oid: oids[w.path], text: w.content });
           env.onSaved({ path: w.path, oid: oids[w.path], text: w.content });
         }
+        pictures.markSaved(used);
+        for (const c of records) if (typeof c.content === 'string') env.onSaved({ path: c.path, oid: oids[c.path], text: c.content });
         for (const d of plan.deletes) known.current.delete(d.path);
         if (plan.deletes.length) env.forget(plan.deletes.map((d) => d.path));
         slugs.current = plan.slugs;
@@ -123,24 +144,45 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
   // The icon and link of the active row: the List block's own fields, in the sheet or the side panel (BlockDialog.tsx `row`).
   const rowFields = (fields: string[]) =>
     (listBlock?.fields.find((f) => f.name === 'items')?.fields ?? []).filter((f) => fields.includes(f.name));
-  const settingsOf = (i: number, icon: boolean): RowSpec => {
-    const names_ = icon ? ['icon'] : ['href'];
+  // The image and the tags are the list's own fields (the picture from the gallery, the tags of the relation `categories`).
+  const SLOTS = { icon: 'icon', link: 'href', image: 'image', tags: 'tags' } as const;
+  const settingsOf = (i: number, slot: keyof typeof SLOTS): RowSpec => {
+    const name = SLOTS[slot];
     const row = (now.current.items[i] ?? {}) as Record<string, unknown>;
+    const own = slot === 'image' || slot === 'tags';
+    const fields = own
+      ? collection.fields.filter((f) => f.name === name)
+      : rowFields([name]).map((f) => (slot === 'icon' ? { ...f, iconsOpen: true } : f));
     return {
-      headline: icon ? t.blocks.list.icon : t.blocks.list.rowSettings,
-      fields: rowFields(names_).map((f) => (icon ? { ...f, iconsOpen: true } : f)),
-      value: Object.fromEntries(names_.map((n) => [n, row[n] ?? ''])),
-      closes: icon,
+      headline:
+        slot === 'icon'
+          ? t.blocks.list.icon
+          : slot === 'image'
+            ? t.ownList.image
+            : slot === 'tags'
+              ? t.ownList.tags
+              : t.blocks.list.rowSettings,
+      fields,
+      value: { [name]: row[name] ?? (slot === 'tags' ? [] : '') },
+      closes: slot === 'icon',
       onChange: (v) => {
         let list: Item[] = now.current.items;
-        for (const n of names_) list = setField(list, i, n, String(v[n] ?? ''));
+        // The tags are a list, not text: set whole (and left out when none), as the rest of a row's keys.
+        if (slot === 'tags') {
+          const tags = Array.isArray(v.tags) ? v.tags : [];
+          list = list.map((r, j) => {
+            if (j !== i) return r;
+            const { tags: _gone, ...rest } = r;
+            return tags.length ? { ...rest, tags } : rest;
+          });
+        } else list = setField(list, i, name, String(v[name] ?? ''));
         change({ items: list });
       },
     };
   };
-  const openRow = (i: number, icon: boolean) => {
+  const openRow = (i: number, slot: keyof typeof SLOTS) => {
     setActive(i);
-    asker.row(settingsOf(i, icon), true);
+    asker.row(settingsOf(i, slot), true);
   };
 
   // The floating toolbar (inlineBar.ts), over the list: the row actions; the menu of a block has no place here.
@@ -149,7 +191,7 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
     const { items: list, active: i } = now.current;
     if (i === null || i >= list.length || isEmptyRow(list[i])) return [];
     return [
-      ...(show.href ? [{ kind: 'link' as const, label: t.blocks.list.link, action: () => openRow(i, false) }] : []),
+      ...(show.href ? [{ kind: 'link' as const, label: t.blocks.list.link, action: () => openRow(i, 'link') }] : []),
       { kind: 'above', label: t.blocks.list.addAbove, action: () => go(addAt(list, i, 'title'), i) },
       { kind: 'below', label: t.blocks.list.addBelow, action: () => go(addAt(list, i + 1, 'title'), i + 1) },
       ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
@@ -163,7 +205,7 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
       name: collection.label,
       dom: host.current!,
       rowActions: () => latest.current(),
-      edit: () => now.current.active !== null && openRow(now.current.active, false),
+      edit: () => now.current.active !== null && openRow(now.current.active, 'link'),
       compact: () => !atLeastNow('expanded'),
       labels: { row: t.blocks.list.row, edit: t.common.edit },
     });
@@ -198,21 +240,28 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
   }, []);
 
   return (
-    <Screen title={collection.label} back={{ href: '#lists', label: t.common.parts.lists }} status={saving ? t.app.busy.saving : undefined}>
-      <div className="editor-text" ref={host}>
-        <InlineList
-          items={items}
-          active={active}
-          focus={focus}
-          show={show}
-          onChange={change}
-          onSettings={(i) => openRow(i, false)}
-          onIcon={(i) => {
-            openRow(i, true);
-          }}
-        />
-      </div>
-      {dialog}
-    </Screen>
+    <Fields.Provider value={context}>
+      <Screen
+        title={collection.label}
+        back={{ href: '#lists', label: t.common.parts.lists }}
+        status={saving ? t.app.busy.saving : undefined}
+      >
+        <div className="editor-text" ref={host}>
+          <InlineList
+            items={items}
+            active={active}
+            focus={focus}
+            show={show}
+            onChange={change}
+            onSettings={(i) => openRow(i, 'link')}
+            onIcon={(i) => openRow(i, 'icon')}
+            onImage={(i) => openRow(i, 'image')}
+            onTags={(i) => openRow(i, 'tags')}
+          />
+        </div>
+        {dialog}
+        {picker}
+      </Screen>
+    </Fields.Provider>
   );
 }

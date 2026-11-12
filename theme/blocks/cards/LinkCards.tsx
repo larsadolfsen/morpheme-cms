@@ -1,8 +1,8 @@
-// Cards, as Material 3 has them (Card.tsx in ../../ui/: outlined, the default, filled or elevated): each with its media at the top (an icon,
-// an image, a video with its play button, or none), a headline, a text and either one link (a card with a page is one: the whole card,
-// with the link's text at the bottom, `more`, the block's shared text) or the action area (its buttons). Two side by side from small screens
-// (.block-cards in ../blocks.css). `color`: the extra colour of a filled card (primary, secondary, tertiary), else Material's own: the
-// standard block "Cards".
+// Cards, as Material 3 has them (Card.tsx in ../../ui/: outlined, the default, filled or elevated): each with the block's one media at the top
+// (an icon, an image, a video with its play button, or none), a headline, a subhead, a text and either one link (a card with a page is one:
+// the whole card, with the link's text at the bottom, `more`, the block's shared text) or the action area (its buttons). Two side by side from
+// small screens (.block-cards in ../blocks.css). `color`: the container of a filled card (primary, secondary, tertiary), else the surface
+// container: the standard block "Cards".
 // `className`: the site's own classes on the list, e.g. its margin.
 import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
 import { Svg } from '@morphemecms/cms/src/icon';
@@ -17,20 +17,18 @@ const sizes = `(min-width: ${BREAKPOINTS.medium}px) 352px, 100vw`;
 export function CardMedia({ card }: { card: LinkCard }) {
   return (
     <>
-      {card.media === 'image' && (
+      {card.media === 'image' && card.image && (
         <span className="block-card-picture">
-          {card.image && (
-            <img
-              src={card.image.src}
-              srcSet={card.image.srcset}
-              sizes={card.image.srcset ? sizes : undefined}
-              width={card.image.width}
-              height={card.image.height}
-              alt=""
-              loading="lazy"
-              decoding="async"
-            />
-          )}
+          <img
+            src={card.image.src}
+            srcSet={card.image.srcset}
+            sizes={card.image.srcset ? sizes : undefined}
+            width={card.image.width}
+            height={card.image.height}
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
         </span>
       )}
       {card.media === 'video' && card.video && (
@@ -38,7 +36,7 @@ export function CardMedia({ card }: { card: LinkCard }) {
           <Video view={card.video} />
         </span>
       )}
-      {card.media === 'icon' && <Svg name={card.icon ?? ''} size={28} className="block-card-icon" />}
+      {card.media === 'icon' && card.icon && <Svg name={card.icon ?? ''} size={28} className="block-card-icon" />}
     </>
   );
 }
@@ -46,17 +44,17 @@ export function CardMedia({ card }: { card: LinkCard }) {
 export default function LinkCards({
   items,
   more,
-  kind,
+  design,
   color,
   className,
 }: {
   items: LinkCard[];
   more: string;
-  kind?: string;
+  design?: string;
   color?: string;
   className?: string;
 }) {
-  const type: CardKind = cardKinds.find((k) => k === kind) ?? 'outlined';
+  const type: CardKind = cardKinds.find((k) => k === design) ?? 'outlined';
   const colored = type === 'filled' && color ? `block-cards-${color}` : undefined;
   return (
     <ul className={['block-cards', colored, className].filter(Boolean).join(' ')}>
@@ -65,6 +63,7 @@ export default function LinkCards({
           <>
             <CardMedia card={card} />
             <span className="block-card-title">{card.title}</span>
+            {card.subhead && <span className="block-card-subhead">{card.subhead}</span>}
             <span className="block-card-text">{card.text}</span>
             {card.href && (
               <span className="block-card-more">
