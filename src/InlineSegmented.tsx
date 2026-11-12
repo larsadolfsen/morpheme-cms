@@ -7,6 +7,7 @@
 // line are as in the List. A Segmented list that reads a list ("Rows from") is drawn by RowsFromList (InlineList.tsx), not typed.
 import { LinkSimple, Plus } from '@phosphor-icons/react';
 import { Glyph, Svg } from './icon';
+import { iconColorOf } from './iconColor';
 import { t } from './i18n';
 import { SiteList, SiteListItem } from './themeUi';
 import InlineItems, { InlineField, InlineSlot, type Item } from './InlineItems';
@@ -101,6 +102,7 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
               className={classes}
               leading={here ? <span className="inline-segmented-slots">{slots(i, item.icon)}</span> : undefined}
               leadingIcon={here ? undefined : item.icon || undefined}
+              data-icon-color={item.icon ? iconColorOf(item.iconColor) : undefined}
               headline={title}
               supporting={twoLines ? text : undefined}
               trailingIcon={here || !item.href ? undefined : 'caret-right'}
@@ -120,7 +122,7 @@ export default function InlineSegmented({ items, props, active, focus, onChange,
               {here ? (
                 <span className="inline-segmented-slots">{slots(i, item.icon)}</span>
               ) : (
-                item.icon && <Svg name={item.icon} size={24} className="block-accordion-lead" />
+                item.icon && <Svg name={item.icon} size={24} className="block-accordion-lead" iconColor={iconColorOf(item.iconColor)} />
               )}
               <span className="block-accordion-title">{title}</span>
               <Svg name="caret-down" size={20} className="block-accordion-icon" />

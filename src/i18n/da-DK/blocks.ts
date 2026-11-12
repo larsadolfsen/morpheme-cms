@@ -446,6 +446,12 @@ export const blocks: Messages['blocks'] = {
       { icon: 'chats', title: 'Kontakt', text: 'Sådan finder du mig, og sådan booker du en tid.' },
     ],
   },
+  iconColor: {
+    label: 'Ikonfarve',
+    primary: 'Primær',
+    secondary: 'Sekundær',
+    tertiary: 'Tertiær',
+  },
   icons: {
     certificate: 'Diplom',
     heart: 'Hjerte',

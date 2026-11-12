@@ -37,7 +37,14 @@ export default function Accordion({
           {...(cut !== undefined && i === cut - 1 ? { 'data-edge': '' } : {})}
         >
           <summary className="block-accordion-label">
-            {'icon' in row && row.icon && <Svg name={row.icon} size={24} className="block-accordion-lead" />}
+            {'icon' in row && row.icon && (
+              <Svg
+                name={row.icon}
+                size={24}
+                className="block-accordion-lead"
+                iconColor={'iconColor' in row ? String(row.iconColor ?? '') || undefined : undefined}
+              />
+            )}
             <span className="block-accordion-title">{row.label}</span>
             <Svg name="caret-down" size={20} className="block-accordion-icon" />
           </summary>
