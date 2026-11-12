@@ -1431,3 +1431,15 @@ dialog {
     letter-spacing: var(--type-display-medium-tracking);
   }
 }
+
+/* Buttons typed in place: the label is typed on the button itself, which has the width of its text; the default buttons shown while the block has none of its own. */
+.editor-text .inline-buttons .inline-button .inline-list-field {
+  width: auto;
+  min-width: 3ch;
+  text-align: center;
+}
+
+.editor-text .inline-buttons-shared {
+  display: contents;
+  cursor: text;
+}

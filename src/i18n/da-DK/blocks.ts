@@ -44,6 +44,13 @@ export const blocks: Messages['blocks'] = {
     button: 'Knaptekst',
     buttonHint: 'En tekstknap under det sidste spørgsmål. Hvis feltet er tomt, er der ingen knap.',
     buttonHref: 'Knapside',
+    addQuestion: 'Tilføj spørgsmål',
+    newQuestion: 'Nyt spørgsmål',
+    questionOf: (n: number, total: number) => `Spørgsmål ${n} af ${total}`,
+    addAbove: 'Tilføj over',
+    addBelow: 'Tilføj under',
+    questionMenu: 'Spørgsmål',
+    questionSettings: 'Spørgsmålsindstillinger',
   },
   segmented: {
     label: 'Segmenteret liste',
@@ -110,7 +117,17 @@ export const blocks: Messages['blocks'] = {
     testimonials: 'Udtalelser',
     dynamic: 'Dynamisk',
     named: (label: string) => `Dynamisk ${label.toLowerCase()}`,
-    from_line: (list: string) => `Rækker fra ${list}`,
+    /** The state line of a dynamic block: "From Services · tag home · 3 items". */
+    from_line: (list: string, tags: string[], count: number) =>
+      [
+        `Fra ${list}`,
+        ...(tags.length ? [`${tags.length === 1 ? 'mærke' : 'mærker'} ${tags.join(', ')}`] : []),
+        `${count} ${count === 1 ? 'post' : 'poster'}`,
+      ].join(' · '),
+    dynamicTip: 'Udfyld fra en liste',
+    typedHidden: 'Dine skrevne rækker er gemt, men vises ikke.',
+    editList: 'Rediger liste',
+    map: 'Felter i en række',
     empty: 'Ingen poster i listen passer, så der vises ikke noget på siden.',
   },
   list: {
@@ -149,6 +166,12 @@ export const blocks: Messages['blocks'] = {
     moreHint: 'Vises kun med en side.',
     exampleTitle: 'Overskrift',
     exampleText: 'En kort tekst om punktet.',
+  },
+  table: {
+    label: 'Tabel',
+    hint: 'Rækker og kolonner med tekst.',
+    header: 'Overskriftsrække',
+    headerToggle: ['Til', 'Fra'] as [string, string],
   },
   steps: {
     label: 'Trin',
@@ -211,6 +234,16 @@ export const blocks: Messages['blocks'] = {
     iconHint: 'Pilen vises efter teksten, de øvrige ikoner foran.',
     arrow: 'Pil',
     calendar: 'Kalender',
+    /** The floating toolbar of Buttons typed in place. */
+    addAbove: 'Tilføj over',
+    addBelow: 'Tilføj under',
+    settingsAction: 'Indstillinger',
+    button: 'Knap',
+    buttonSettings: 'Knapindstillinger',
+    addButton: 'Tilføj knap',
+    newButton: 'Ny knap',
+    /** A button typed in place: its place, for screen readers (button 2 of 4). */
+    buttonOf: (n: number, total: number) => `Knap ${n} af ${total}`,
   },
   cookies: {
     label: 'Cookieliste',
