@@ -16,7 +16,14 @@ import { headOf, type HeadView } from '../head';
 import type { ListRow } from '../list/view';
 
 /** A row that folds out: its heading, its text as HTML (empty without one), its icon and its page with the link's text. */
-export type FoldRow = { label: string; html: string; icon?: string; href?: string; link?: string };
+export type FoldRow = {
+  label: string;
+  html: string;
+  icon?: string;
+  href?: string;
+  link?: string;
+  buttons?: { label: string; href: string }[];
+};
 
 export type SegmentedView = HeadView & {
   /** The rows folded out (closed, one open at a time when `group`) or always open (`all`: the rows of a "List"). */
@@ -46,6 +53,15 @@ export const paragraphs = (text: string) =>
 /** The link in an open row: the shared text of "Expandable list" ("Read more about {topic}") with the row's heading in it. */
 const linkFor = (more: string, title: string) => filledLink(more, title.toLowerCase());
 
+/** A row's text buttons: those with a text and a page, none when there are none (the "more" links of an old Expandable list). */
+const buttonsOf = (buttons: unknown): FoldRow['buttons'] => {
+  const list = (Array.isArray(buttons) ? buttons : []).filter(
+    (b): b is { label: string; href: string } =>
+      typeof b?.label === 'string' && b.label.trim() !== '' && typeof b?.href === 'string' && b.href !== '',
+  );
+  return list.length ? list : undefined;
+};
+
 /** The view from the block's fields, without what only the site can know (its group). */
 export const segmentedOf = (
   props: Record<string, any>,
@@ -65,6 +81,7 @@ export const segmentedOf = (
       icon: r.icon || undefined,
       href: r.href || undefined,
       link: r.href ? linkFor(more, r.title) : undefined,
+      buttons: buttonsOf(r.buttons),
     })),
     button: label ? { label, href: props.buttonHref || undefined } : undefined,
     max: maxRowsOf(props.maxRows),

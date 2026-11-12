@@ -5,7 +5,7 @@ import type { ViewOf } from '../view';
 import { editorRows } from '../rows/view';
 import { withRows } from '../rows/rows.mjs';
 
-export type ListRow = { icon?: string; title: string; text?: string; href?: string };
+export type ListRow = { icon?: string; title: string; text?: string; href?: string; buttons?: { label: string; href: string }[] };
 export type ListView = { items: ListRow[] };
 
 /** A row as its fields write it: without a heading of its own when it has a page. */
