@@ -91,16 +91,18 @@ export type InlineSpec = {
   media?: string[];
   /** Instead of `link`: the fields the link slot opens (a card's page and buttons). */
   settings?: string[];
-  /** The block has settings of its own besides its items (a card's type and colour): its menu keeps Edit. */
-  blockSettings?: boolean;
+  /** The block has settings of its own besides its items (a card's type and colour): its menu keeps Edit. A function says it by the
+   * props (Steps: only while its old heading or subheading is filled). Without `link`, `settings` and `icon` the block has no item sheet. */
+  blockSettings?: boolean | ((props: BlockProps) => boolean);
   texts: {
     addAbove: string;
     addBelow: string;
-    link: string;
-    /** The button for the item's settings on a phone ("Row"), and the title of the item's settings. */
+    /** The Link action and the title of the item's settings: only for a block with a link or settings. */
+    link?: string;
+    /** The button for the item's other actions on a phone ("Row"). */
     row: string;
-    settings: string;
-    icon: string;
+    settings?: string;
+    icon?: string;
   };
 };
 

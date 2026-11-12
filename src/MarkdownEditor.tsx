@@ -1215,6 +1215,7 @@ function blockCard(
       Object.fromEntries(names.map((n) => [n, row[n] ?? rowFieldsOf([n])[0]?.default ?? (rowFieldsOf([n])[0]?.type === 'list' ? [] : '')]));
     const setFields = (list: Row[], i: number, names: string[], v: BlockProps) =>
       names.reduce((items, n) => setField(items, i, n, Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]), list);
+    // A block with no link, settings or icon (Steps) has no item sheet: no Link action, and no gear unless it has block settings.
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
     const rowActions = (): BarAction[] => {
@@ -1223,7 +1224,7 @@ function blockCard(
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
-        ...(itemNames.length ? [{ kind: 'link' as const, label: spec!.texts.link, action: settings }] : []),
+        ...(itemNames.length ? [{ kind: 'link' as const, label: spec!.texts.link ?? '', action: settings }] : []),
         { kind: 'above', label: spec!.texts.addAbove, action: () => go(addAt(list, i, spec!.fields[0]), i) },
         { kind: 'below', label: spec!.texts.addBelow, action: () => go(addAt(list, i + 1, spec!.fields[0]), i + 1) },
         ...(i > 0 ? [{ kind: 'up' as const, label: t.common.moveUp, action: () => go(moveBy(list, i, -1), i - 1) }] : []),
@@ -1328,9 +1329,15 @@ function blockCard(
       name,
       dom,
       rowActions,
-      // A block that reads a list has the dynamic settings behind the gear; a block with nothing to set on an item (the FAQ list) has the
-      // block's own settings.
-      edit: () => (isDynamic() ? openDynamic() : itemNames.length || slotNames.length ? settings() : void edit()),
+      // A block that reads a list has the dynamic settings behind the gear; a block with nothing to set on an item has the block's own
+      // settings behind it (the FAQ list), or no gear (Steps).
+      edit: isDynamic()
+        ? openDynamic
+        : itemNames.length || slotNames.length
+          ? settings
+          : spec!.blockSettings === true
+            ? () => void edit()
+            : undefined,
       compact,
       labels: { row: spec!.texts.row, edit: t.common.edit },
       dynamic: canDynamic ? { label: t.blocks.rows.dynamicTip, on: isDynamic, action: openDynamic } : undefined,
@@ -1346,7 +1353,7 @@ function blockCard(
       const row = rows()[i] ?? {};
       if (iconOf === i)
         return {
-          headline: spec!.texts.icon,
+          headline: spec!.texts.icon ?? '',
           fields: iconFields,
           value: valueOf(row, slotNames),
           // The icon picker closes when an icon is picked; the media fields stay open for the next choice.
@@ -1357,7 +1364,7 @@ function blockCard(
           },
         };
       return {
-        headline: spec!.texts.settings,
+        headline: spec!.texts.settings ?? '',
         fields: itemFields,
         value: valueOf(row, itemNames),
         onChange: (v: BlockProps) => setItems(setFields(rows(), i, itemNames, v)),
@@ -1398,7 +1405,8 @@ function blockCard(
       const { rules, locked, stays } = keeps();
       return [
         block?.fields.length
-          ? (!inline || spec?.blockSettings) && !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
+          ? (!inline || (typeof spec?.blockSettings === 'function' ? spec.blockSettings(node.attrs.props) : spec?.blockSettings)) &&
+            !inPanelNow() && { icon: pencilIcon, label: t.common.edit, action: edit }
           : block?.edit && { icon: pencilIcon, label: block.edit.text, action: () => leaveTo(`#${block.edit!.to}`) },
         block?.shown || (stays && hidden === false)
           ? undefined
