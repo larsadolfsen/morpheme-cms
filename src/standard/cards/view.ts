@@ -4,6 +4,7 @@
 // text and either its page (the whole card is the link) or its buttons. In the editor: viewOf; on the site: load.ts, with the images' sizes, the videos' stills and the buttons' targets.
 import type { BlockData } from '../../blocks';
 import { shownAt } from '../../images';
+import { iconColorOf } from '../../iconColor';
 import { sharedIn } from '../../shared';
 import type { Image, ViewOf } from '../view';
 import { headOf, type HeadView } from '../head';
@@ -17,6 +18,8 @@ export type LinkCard = {
   /** The block's one choice, the same on every card. */
   media: CardMedia;
   icon?: string;
+  /** A color role of the site for the icon (src/iconColor.ts); Primary without one. */
+  iconColor?: string;
   image?: Image;
   video?: VideoView;
   title: string;
@@ -32,6 +35,7 @@ export type CardsView = HeadView & { design?: string; color?: string; more: stri
 /** A card as its field writes it. */
 export type LinkCardProps = {
   icon?: string;
+  iconColor?: string;
   image?: string;
   video?: string;
   title: string;
@@ -58,7 +62,7 @@ export const cardsOf = (
     const video = media === 'video' && card.video ? how.video(card.video, card.title) : null;
     return {
       media,
-      ...(media === 'icon' ? { icon: card.icon } : {}),
+      ...(media === 'icon' ? { icon: card.icon, ...(iconColorOf(card.iconColor) ? { iconColor: iconColorOf(card.iconColor) } : {}) } : {}),
       ...(media === 'image' && card.image ? { image: how.image(card.image) } : {}),
       ...(video ? { video } : {}),
       title: card.title,

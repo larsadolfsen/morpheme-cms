@@ -7,12 +7,22 @@
 import { ImageSquare, LinkSimple, Plus, Tag } from '@phosphor-icons/react';
 import type { MouseEvent } from 'react';
 import { Glyph } from './icon';
+import { iconColorOf } from './iconColor';
 import { t } from './i18n';
 import { SiteButton, SiteList, SiteListItem } from './themeUi';
 import InlineItems, { InlineSlot, type Change, type Focus, type Item } from './InlineItems';
 
 export type { Change, Focus };
-export type Row = { icon?: string; title?: string; text?: string; href?: string; heading?: boolean; image?: string; tags?: string[] };
+export type Row = {
+  icon?: string;
+  iconColor?: string;
+  title?: string;
+  text?: string;
+  href?: string;
+  heading?: boolean;
+  image?: string;
+  tags?: string[];
+};
 
 export default function InlineList({
   items,
@@ -71,6 +81,7 @@ export default function InlineList({
               ) : undefined
             }
             leadingIcon={here || !withIcon ? undefined : r.icon || undefined}
+            data-icon-color={r.icon ? iconColorOf(r.iconColor) : undefined}
             headline={field('title', t.blocks.list.title, next ? t.blocks.list.newRow : t.blocks.list.title)}
             supporting={
               twoLines || (here && (show.image || show.tags)) ? (
