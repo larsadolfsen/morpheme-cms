@@ -77,13 +77,13 @@ Example lines:
 
 Each minor line is an edition named after a place: one free nature photo from [Unsplash](https://unsplash.com) (never
 Unsplash+) and the name of where it was taken, for every version of the line (0.14.0, 0.14.1, … and its test versions).
-After an update, the start screen shows the photo and "Morpheme <name> <version>" in a small card; the Morpheme page
+After an update, the start screen shows the photo and "Morpheme <name> <version>" in a small message; the Morpheme page
 shows it under the line's newest version.
 
-- `release-notes/editions/<line>.json` (e.g. `0.14.json`): `name` (the place, short, in the update card's headline), `place`
-  (the full place per locale, `en-US` and `da-DK`, the update card's subhead) and `photo` (`by`, `source` and `license`).
+- `release-notes/editions/<line>.json` (e.g. `0.14.json`): `name` (the place, short, in the update message’s headline), `place`
+  (the full place per locale, `en-US` and `da-DK`, the update message’s subhead) and `photo` (`by`, `source` and `license`).
 - `release-notes/editions/<line>.webp`: the whole photo, uncropped as on Unsplash, 1280 px wide, at most 200 KB. Its
-  page under Licenses shows all of it; the card crops it to 3:2 from the middle: above the text on a phone, beside it
+  page under Licenses shows all of it; the update message crops it to 3:2 from the middle: above the text on a phone, beside it
   on larger screens.
 
 A new minor line needs a new edition; a line without one shows no photo. An edition may leave out its `name`, `place`

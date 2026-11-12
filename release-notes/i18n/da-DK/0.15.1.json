@@ -3,9 +3,9 @@
   "date": "2026-11-11",
   "notes": [
     {
-      "id": "update-card-first-visit",
+      "id": "update-message-first-visit",
       "kind": "line",
-      "text": "Opdateringskortet på startskærmen vises, første gang du åbner editoren i en browser"
+      "text": "Opdateringsbeskeden på startskærmen vises, første gang du åbner editoren i en browser"
     }
   ]
 }
