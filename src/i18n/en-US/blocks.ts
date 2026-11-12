@@ -91,6 +91,18 @@ export const blocks = {
     more: 'Read more about {topic}',
     exampleTitle: 'Heading',
     exampleText: 'A short text about the row.',
+    /** The floating toolbar of a Segmented list typed in place. */
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    row: 'Row',
+    rowSettings: 'Row settings',
+    link: 'Link',
+    addRow: 'Add row',
+    newRow: 'New row',
+    addButton: 'Add button',
+    buttonText: 'Button text',
+    /** A row typed in place: its place, for screen readers (row 2 of 4). */
+    rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
   },
   notice: {
     label: 'Notice',
@@ -136,6 +148,8 @@ export const blocks = {
         ...(tags.length ? [`${tags.length === 1 ? 'tag' : 'tags'} ${tags.join(', ')}`] : []),
         `${count} ${count === 1 ? 'item' : 'items'}`,
       ].join(' · '),
+    dynamicTip: 'Fill from a list',
+    typedHidden: 'Your typed rows are kept, not shown.',
     editList: 'Edit list',
     map: 'Fields in a row',
     empty: 'No items in the list match, so nothing shows on the page.',
@@ -179,6 +193,12 @@ export const blocks = {
     moreHint: 'Only shown with a page.',
     exampleTitle: 'Heading',
     exampleText: 'A short text about the point.',
+  },
+  table: {
+    label: 'Table',
+    hint: 'Rows and columns of text.',
+    header: 'Header row',
+    headerToggle: ['On', 'Off'] as [string, string],
   },
   steps: {
     label: 'Steps',
@@ -245,6 +265,16 @@ export const blocks = {
     iconHint: 'The arrow is shown after the text, the other icons before it.',
     arrow: 'Arrow',
     calendar: 'Calendar',
+    /** The floating toolbar of Buttons typed in place. */
+    addAbove: 'Add above',
+    addBelow: 'Add below',
+    settingsAction: 'Settings',
+    button: 'Button',
+    buttonSettings: 'Button settings',
+    addButton: 'Add button',
+    newButton: 'New button',
+    /** A button typed in place: its place, for screen readers (button 2 of 4). */
+    buttonOf: (n: number, total: number) => `Button ${n} of ${total}`,
   },
   cookies: {
     label: 'Cookie list',

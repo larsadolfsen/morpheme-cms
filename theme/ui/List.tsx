@@ -42,9 +42,15 @@ export type ListItemLines = 1 | 2 | 3;
 /** A list's class. */
 export const listClass = 'list';
 
+/** A list is never in the text's style (prose, which gives a <ul> its bullets, its indent and its space): its rows are
+ * Material's, wherever it is drawn (the site, the editor, the Preview). */
+const listOutOfProse = 'not-prose';
+
 /** A list's classes: its kind's (none for standard) and its dividers' (none for full-width; a segmented list has none). */
 export const listClasses = (kind: ListKind = 'standard', dividers: ListDividers = kind === 'segmented' ? 'none' : 'full-width') =>
-  [listClass, kind === 'segmented' && 'list-segmented', dividers !== 'full-width' && `list-dividers-${dividers}`].filter(Boolean).join(' ');
+  [listClass, listOutOfProse, kind === 'segmented' && 'list-segmented', dividers !== 'full-width' && `list-dividers-${dividers}`]
+    .filter(Boolean)
+    .join(' ');
 
 /** A multi-action item's class (Material's): on what holds an item's container, its primary action (a link or a button
  * with listItemClass), and its secondary actions (icon buttons, a switch) beside it, on one row, which has the primary

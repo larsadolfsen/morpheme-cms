@@ -8,6 +8,7 @@ import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
 import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.svg?raw';
 import gearIcon from '@phosphor-icons/core/assets/regular/gear.svg?raw';
 import linkIcon from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
+import dynamicIcon from '@material-symbols/svg-400/outlined/dynamic_feed.svg?raw';
 import rowAboveIcon from '@material-symbols/svg-400/outlined/add_row_above.svg?raw';
 import rowBelowIcon from '@material-symbols/svg-400/outlined/add_row_below.svg?raw';
 import caretDownIcon from '@phosphor-icons/core/assets/bold/caret-down-bold.svg?raw';
@@ -24,6 +25,8 @@ export function inlineBar(opts: {
   edit: () => void;
   compact: () => boolean;
   labels: { row: string; edit: string };
+  /** The dynamic icon (a shortcut to the block's `Rows from` settings): its label, and whether the block reads a list now (shown pressed). Missing for a block that cannot. */
+  dynamic?: { label: string; on: () => boolean; action: () => void };
 }) {
   const el = document.body.appendChild(document.createElement('div'));
   el.className = 'site-block-toolbar';
@@ -71,6 +74,11 @@ export function inlineBar(opts: {
     const adds = all.filter((r) => r.kind === 'above' || r.kind === 'below');
     const rows = all.filter((r) => r.kind !== 'above' && r.kind !== 'below');
     for (const r of adds) button(r.label, icons[r.kind], null, r.action);
+    if (opts.dynamic) {
+      const d = button(opts.dynamic.label, dynamicIcon, null, opts.dynamic.action);
+      d.setAttribute('aria-pressed', String(opts.dynamic.on()));
+      d.classList.toggle('site-block-toolbar-on', opts.dynamic.on());
+    }
     if (opts.compact()) {
       if (rows.length) {
         const row = button(opts.labels.row, null, opts.labels.row, () => {

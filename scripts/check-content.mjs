@@ -93,6 +93,23 @@ try {
   const { problemsOf, untranslated } = await server.ssrLoadModule('@morphemecms/cms/src/checkSite.ts');
   result = problemsOf(files);
   missing = untranslated();
+  // Own lists (src/ownLists.ts): a site with no `_list.json` gets exactly the lists it had, and a made-up one is read as a list.
+  const mine = await server.ssrLoadModule('@morphemecms/cms/src/site.ts');
+  if (!files.some((f) => f.path.endsWith('/_list.json'))) {
+    if (mine.collectionsFor(files) !== mine.collections)
+      result.problems.push('Own lists: a site without a _list.json must have the same lists as before.');
+  }
+  const fixture = [
+    {
+      path: `${config.folders.data}/services/_list.json`,
+      text: JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text'] }),
+    },
+    { path: `${config.folders.data}/services/web.json`, text: JSON.stringify({ title: 'Web', order: 1 }) },
+  ];
+  const own = mine.collectionsFor(fixture).find((c) => c.id === 'services');
+  const rows = mine.listRowsOf(fixture).services;
+  if (!own || !mine.listsShown(fixture).includes('services') || rows?.length !== 1 || rows[0].slug !== 'web')
+    result.problems.push('Own lists: a list made from a _list.json is not read as a list (src/ownLists.ts).');
   // The editor's English texts against Material 3's rules for writing (text-problems.mjs).
   enTexts = textProblems((await server.ssrLoadModule('@morphemecms/cms/src/i18n/en-US/index.ts')).enUS);
   if (existsSync('store/catalog.json')) catalog = JSON.parse(readFileSync('store/catalog.json', 'utf8'));
