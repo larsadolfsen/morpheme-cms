@@ -20,8 +20,8 @@ const fieldOf = (id: string): Field => {
       return { name: 'title', label: say.title, type: 'string', required: true };
     case 'text':
       return { name: 'text', label: say.text, type: 'text' };
-    case 'picture':
-      return { name: 'picture', label: say.picture, type: 'image' };
+    case 'image':
+      return { name: 'image', label: say.image, type: 'image' };
     case 'href':
       return { name: 'href', label: say.href, type: 'string' };
     default:

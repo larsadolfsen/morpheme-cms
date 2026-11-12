@@ -3,7 +3,7 @@ export const ownList = {
   icon: 'Icon',
   title: 'Title',
   text: 'Body text',
-  picture: 'Picture',
+  image: 'Image',
   href: 'Link',
   tags: 'Tags',
   addTag: 'Add tag',

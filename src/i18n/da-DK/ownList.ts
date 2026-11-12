@@ -5,7 +5,7 @@ export const ownList: Messages['ownList'] = {
   icon: 'Ikon',
   title: 'Overskrift',
   text: 'Brødtekst',
-  picture: 'Billede',
+  image: 'Billede',
   href: 'Link',
   tags: 'Tags',
   addTag: 'Tilføj tag',
