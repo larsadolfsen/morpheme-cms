@@ -1905,23 +1905,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         )}
       </Toolbar>
       {/* The rest of the selection menu: the site's colours (text-colors.mjs), each named in its colour, as it is in the text
-          (its class), and "No color" in the text's own; then the text styles, the lists and the alignment. */}
+          (its class), and "No color" in the text's own, last; before it the text styles, the lists and the alignment. */}
       <BottomSheet ref={moreSheet} aria-label={t.text.more}>
         <SheetTitle title={t.text.more} onClose={() => moreSheet.current?.close()} />
         <SheetBody>
-          {!noColor && (
-            <>
-              <SheetGroupTitle>{t.text.color}</SheetGroupTitle>
-              {TEXT_COLORS.map((name) => (
-                <SheetChoice key={name} selected={active.includes(colorClass(name))} onClick={() => chosen(() => color(name))}>
-                  <span className={colorClass(name)}>{t.text.colors[name as keyof typeof t.text.colors]}</span>
-                </SheetChoice>
-              ))}
-              <SheetChoice selected={!active.includes('textColor')} onClick={() => chosen(() => color(null))}>
-                <span className="text-on-surface">{t.text.noColor}</span>
-              </SheetChoice>
-            </>
-          )}
           {(
             [
               [t.text.kind, all.filter(({ on }) => TEXT_KINDS_IN_SHEET.includes(on ?? ''))],
@@ -1952,6 +1939,19 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
                   {alignLabel(align)}
                 </SheetChoice>
               ))}
+            </>
+          )}
+          {!noColor && (
+            <>
+              <SheetGroupTitle>{t.text.color}</SheetGroupTitle>
+              {TEXT_COLORS.map((name) => (
+                <SheetChoice key={name} selected={active.includes(colorClass(name))} onClick={() => chosen(() => color(name))}>
+                  <span className={colorClass(name)}>{t.text.colors[name as keyof typeof t.text.colors]}</span>
+                </SheetChoice>
+              ))}
+              <SheetChoice selected={!active.includes('textColor')} onClick={() => chosen(() => color(null))}>
+                <span className="text-on-surface">{t.text.noColor}</span>
+              </SheetChoice>
             </>
           )}
         </SheetBody>
