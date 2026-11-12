@@ -29,8 +29,11 @@ test('the kinds are the text styles, then the lists', () => {
   assert.deepEqual(STYLE_KINDS, [...TEXT_KINDS, ...LIST_KINDS]);
 });
 
-test('in a heading it shows Body large, though Body small is first in the list', () => {
-  assert.equal(styleKindOf(['h2'], true), 'large');
+test('in a heading Text style is generic, never Body large, and List is generic too', () => {
+  for (const level of ['h1', 'h2', 'h3']) {
+    assert.equal(styleKindOf([level], true), 'generic');
+    assert.equal(listKindOf([level], true), 'generic');
+  }
 });
 
 // The floating row and the top toolbar draw each style's icon from one table (KIND_ICONS in MarkdownEditor.tsx), so a style
