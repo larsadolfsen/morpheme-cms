@@ -53,8 +53,35 @@ decides: the product uses **Large, Medium, Small**. M3's numbers are the sizes b
 M3's steps -2 and -3 stay in the mechanism (a theme may use them) but the editor does not offer them: the owner's image has three
 choices.
 
-**Sources I could not read.** M3's button and list-item Specs pages do not show their default heights as text in the rendered page, and
-the M3 pages do not give density numbers for any part but the segmented button. I wrote no value from memory: where a number is not
+**What M3's component pages say about density** (owner rule, 2026-11-13: follow M3 everywhere except the editor's own tools; every
+page below read in Chromium with its collapsed sections opened, address `m3.material.io/components/<part>/<tab>`):
+
+- **Text fields**, `text-fields/guidelines`: "Dense text fields enable people to scan and take action on large amounts of information."
+  (with the image "A form with dense text fields"); "Don't apply density to text fields by default. This lowers their targets below the
+  recommended 48x48 CSS pixels. Instead, give people a way to choose a higher density, like selecting a denser layout or changing the
+  theme." So M3 allows dense text fields in forms as an opt-in.
+- **Chips**, `chips/accessibility` and `chips/guidelines`: "Don't apply density to chips by default"; "Keep an 8dp minimum space between
+  chips. Chips must also have a minimum 48dp target size, regardless of placement or density."
+- **Checkbox, radio button, switch, tabs**, each `…/accessibility`: "Don't apply density to <part> by default" (the same sentence, "give
+  people a way to choose a higher density"), and the controls that change density keep 48x48 CSS pixels.
+- **Icon buttons**, `icon-buttons/accessibility`: quoted in section 2.3.
+- **Menus**, `menus/guidelines`: "On web only, density levels control the spacing between elements. Increasing density decreases the top
+  and bottom padding." with an image "Density of menus from 0 to -3". The menu list item is 48dp (`menus/specs`). **This disagrees with
+  the density page**, which says "Don't increase density in UIs that involve focused tasks, such as selecting from a menu". M3 contradicts
+  itself here; section 2.2 says what the spec does.
+- **Button groups**, `button-groups/specs`: "Button groups adapt to density of the buttons inside." "… to the height of the buttons inside,
+  including when density is applied."
+- **Date picker**, `date-pickers/accessibility`: "Increasing density would negatively impact accessibility by limiting tappable/clickable
+  targets." **Time picker**, `time-pickers/guidelines`: "Don't apply density to the time picker dial when the viewport is constrained.
+  Instead, use an input picker."
+- **Tabs**, `tabs/specs`: container height 48dp (label only) and 64dp (icon and label), no density numbers.
+- No density text on the Specs or Guidelines pages of cards, app bars, search, sliders, bottom and side sheets, toolbars, tooltips,
+  badges, progress indicators, navigation bar, rail and drawer, carousel, split button, FAB or extended FAB (the FAB pages return "not
+  found" at `components/fab/…`; I did not find their address).
+
+**Sources I could not read.** M3's button and list-item Specs pages do not show their default heights as text in the rendered page (the
+button sizes are in an image), and no M3 page gives density numbers for a part except the segmented button (4dp per step) and the
+menu's image "0 to -3", whose sizes are not text. I wrote no value from memory: where a number is not
 read, the spec says so (section 2.2).
 
 ## 2. The design
@@ -74,6 +101,8 @@ read, the spec says so (section 2.2).
 - A copy on the device (`localStorage` key `editor-density`, as `editor-theme` in `src/theme.ts`) lets a script in the head set
   `data-density` before the first paint, so the page does not jump. When the editor loads, the account's value replaces the copy; a
   change writes both. Where there is no account value (a preview), the copy alone is used.
+- **The editor's own tools are an exception to M3 (owner-decided, `#519` section 8):** the bar, the ⋮ menus and the text and block menus
+  are fixed 44 x 44 buttons and never follow the person's density.
 - **Scope (owner, 2026-11-13).** It applies to the whole editor **except the editing area of a page and a blog post**. What is typed in
   place there (text, and the blocks as drawn on the page) must stay as close to the real site as possible, so density never changes how
   that content is drawn: it keeps the theme's own spacing for the site, at every step. Everything around it follows density: menus,
@@ -139,14 +168,19 @@ editor outside the page and post editing area, except where a group says otherwi
 | Group | Parts | Large (+1) | Medium (0) | Small (-1) | -2 and -3 |
 | --- | --- | --- | --- | --- | --- |
 | **Data-heavy** (people scan a lot) | list rows (the Library, Files, Redirects, the start screen's page and post lists, own lists), tables (`DataTable`), the headers and filter chips directly above a list | +4 | standard | -4 | yes, -8 and -12, but only for a theme that asks; the editor's menu does not offer them |
-| **Layout** (space around things) | gaps between sections, screen and column padding, toolbars, tabs, chip rows, buttons outside a dialog or menu | +4 | standard | -4 | no |
-| **Focused single-task** | menus and dropdowns (including the exposed dropdown), dialogs, bottom and side sheets, snackbars, date, time, colour and icon pickers, the fields and switches inside a settings form (the form's gaps are Layout), the density setting's own rows, the FAB | +4 | standard | stays standard | never |
+| **Layout** (space around things) | gaps between sections, screen and column padding, toolbars, tabs, chip rows, buttons, and **the fields, switches, checkboxes and radio buttons in a settings form** (M3 allows these as an opt-in, with the 48 dp target kept) | +4 | standard | -4 | no |
+| **Focused single-task** | dialogs, snackbars, the date picker, the time picker, bottom and side sheets, the colour and icon pickers, the density setting's own rows, the FAB, and **menus and dropdowns in the theme** (the density page says not to; see below) | +4 | standard | stays standard | never |
 
-**Where M3 is silent.** M3 names menus, selecting from a menu, snackbars and dialogs as no-go. It says nothing about text fields,
-switches and other controls inside a settings form, or about toolbars, tabs and chips. For these the spec applies the page's general
-rule (use density where people scan a lot, not in focused tasks) and records the choice here so the owner can see it: the controls in
-a settings form are a focused task and stay Medium; toolbars, tabs, chips, buttons and the gaps between form fields are layout and
-follow the three steps. The owner decided to follow M3 (2026-11-13).
+**M3 and the menu.** M3 says two things: the density page, "Don't increase density in UIs that involve focused tasks, such as selecting
+from a menu", and the menus page, density levels 0 to -3 "on web only". The owner's rule (5) is the first, so the spec keeps menus at
+Medium or looser. The editor's own bar, the ⋮ menus and the text and block menus are a separate, owner-decided exception to M3
+(`#519` section 8): fixed 44 x 44 buttons that never follow the person's density. If the owner wants the theme's `Menu` part to follow
+the menus page instead, it is one clamp changed from `--mo-density-focus` to `--mo-density-layout`.
+
+**What changed since the earlier draft.** The earlier draft put the fields and switches of a settings form in the focused group because
+it found M3 silent. That was wrong: M3's text-field page ("Dense text fields enable people to scan …"), and the accessibility pages
+of checkbox, radio button and switch, treat them as parts that can take density as an opt-in. They now follow the three steps, keeping
+their targets, 48 dp on touch and 44 dp for a mouse (section 2.3).
 
 So Large is allowed on every group (it is less dense, which M3 does not warn against). Small and below never shrink a focused
 single-task part: at Small a menu is still a Medium menu. The page and post editing area is outside all three groups: density never
@@ -321,9 +355,9 @@ audit's sizes where they differ.
 builds it adds the entry to `docs/material-deviations.md`), Medium = 0 (standard), Small = -1. The names are the ones on M3's density
 page, as the owner's screenshot shows.
 
-Also decided (owner, 2026-11-13): follow the M3 density page and nothing beyond it. Where M3 is silent, the page's general rule
-applies (section 2.2). The editor's menu offers the three steps; -2 and -3 are for data-heavy parts in themes (our proposal, not
-asked).
+Also decided (owner, 2026-11-13, standing rule): follow M3 everywhere except the editor's own tools, and check every M3 page. Where M3
+is silent, the density page's general rule applies (section 2.2). The editor's menu offers the three steps; -2 and -3 are for
+data-heavy parts in themes (our proposal, not asked).
 
 Also decided (owner, 2026-11-13): where it is kept. In the editor it is per user, kept on the user (section 2.1). On the site there is no visitor setting; if a theme ever wants one,
 it is a cookie in the browser (section 2.4, later); no front-end sign-ins.
