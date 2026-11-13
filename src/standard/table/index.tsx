@@ -21,6 +21,10 @@ export default defineBlock({
       addColumnAfter: t.blocks.table.addColumnAfter,
       deleteRow: t.blocks.table.deleteRow,
       deleteColumn: t.blocks.table.deleteColumn,
+      alignLeft: t.blocks.table.alignLeft,
+      alignCenter: t.blocks.table.alignCenter,
+      alignRight: t.blocks.table.alignRight,
+      alignAuto: t.blocks.table.alignAuto,
     },
     texts: {
       addAbove: t.blocks.table.addAbove,

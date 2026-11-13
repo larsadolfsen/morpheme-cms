@@ -14,7 +14,7 @@ export default function Table({ view }: { view: TableView }) {
           <thead>
             <tr>
               {first.map((c, i) => (
-                <th key={i} scope="col">
+                <th key={i} scope="col" className={`block-table-${view.align[i]}`}>
                   {c}
                 </th>
               ))}
@@ -25,7 +25,9 @@ export default function Table({ view }: { view: TableView }) {
           {body.map((r, i) => (
             <tr key={i}>
               {r.map((c, j) => (
-                <td key={j}>{c}</td>
+                <td key={j} className={`block-table-${view.align[j]}`}>
+                  {c}
+                </td>
               ))}
             </tr>
           ))}

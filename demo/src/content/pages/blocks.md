@@ -53,9 +53,9 @@ Quick points with a check mark.
 
 ## Table
 
-Rows and columns of text, with a header row on top. On a narrow screen the table scrolls sideways.
+Rows and columns of text, with a header row on top. A column of numbers is aligned right. On a narrow screen the table scrolls sideways.
 
-<div data-block="table" data-props="{&quot;header&quot;:true,&quot;rows&quot;:[[&quot;Plan&quot;,&quot;Pages&quot;,&quot;Support&quot;],[&quot;Free&quot;,&quot;10&quot;,&quot;Community&quot;],[&quot;Standard&quot;,&quot;100&quot;,&quot;Email&quot;],[&quot;Plus&quot;,&quot;Unlimited&quot;,&quot;Phone and email&quot;]]}"></div>
+<div data-block="table" data-props="{&quot;header&quot;:true,&quot;rows&quot;:[[&quot;Plan&quot;,&quot;Pages&quot;,&quot;Editors&quot;,&quot;Support&quot;],[&quot;Free&quot;,&quot;10&quot;,&quot;1&quot;,&quot;Community&quot;],[&quot;Standard&quot;,&quot;100&quot;,&quot;5&quot;,&quot;Email&quot;],[&quot;Plus&quot;,&quot;Unlimited&quot;,&quot;25&quot;,&quot;Phone and email&quot;]]}"></div>
 
 ## List
 
