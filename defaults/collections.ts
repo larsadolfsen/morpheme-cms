@@ -404,6 +404,7 @@ export const collections: Collection[] = [
     label: 'Pages',
     singular: 'page',
     folder: 'src/content/pages',
+    deletable: true,
     fields: [
       ...status(),
       { name: 'title', label: 'Title', type: 'string', required: true },

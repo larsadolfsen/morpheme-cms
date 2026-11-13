@@ -263,6 +263,67 @@ function hintContrasts(page, selector, pseudo) {
   );
 }
 
+/** On a phone, a press and hold on a row of the pages list selects it (and the blog's the same), and the top bar's Delete asks before it deletes; a default page (the front page) is not deleted, with the reason. */
+async function checkLongPressDelete() {
+  const page = await browser.newPage({ viewport: { width: 390, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`long press: ${e.message}`));
+  await openEditor(page, site);
+  const cdp = await page.context().newCDPSession(page);
+  for (const list of ['pages', 'blog']) {
+    await page.evaluate((l) => (location.hash = `#list/${l}`), list);
+    await page.waitForSelector('main a.list-item-container');
+    await page.waitForTimeout(500);
+    const rows = page.locator('main a.list-item-container');
+    // A row that is not a default page.
+    const row = list === 'pages' ? rows.filter({ hasText: 'Get started' }).first() : rows.last();
+    await row.scrollIntoViewIfNeeded();
+    const box = await row.boundingBox();
+    const [x, y] = [box.x + box.width / 2, box.y + box.height / 2];
+    const hold = async () => {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+      await page.waitForTimeout(800);
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await page.waitForTimeout(300);
+    };
+    const here = await page.evaluate(() => location.hash);
+    await hold();
+    if ((await page.evaluate(() => location.hash)) !== here)
+      problems.push(`long press (${list}): a press and hold opened the row instead of selecting it`);
+    const del = page.getByRole('button', { name: /^Delete 1 selected$/ });
+    if (!(await del.count())) {
+      problems.push(`long press (${list}): a press and hold on a row does not select it (no "Delete 1 selected" in the top bar)`);
+      continue;
+    }
+    await del.click();
+    const sure = page.getByRole('dialog').getByRole('button', { name: 'Delete', exact: true });
+    await sure.waitFor({ timeout: 3000 }).catch(() => problems.push(`long press (${list}): Delete does not ask before it deletes`));
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+  }
+  // The front page: a press and hold selects it, but Delete says why it is kept.
+  await page.reload();
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForSelector('main a.list-item-container');
+  await page.waitForTimeout(500);
+  const home = page.locator('main a.list-item-container', { hasText: 'Home' }).first();
+  if (await home.count()) {
+    await home.scrollIntoViewIfNeeded();
+    const box = await home.boundingBox();
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: box.x + box.width / 2, y: box.y + box.height / 2 }],
+    });
+    await page.waitForTimeout(800);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await page.waitForTimeout(300);
+    await page.getByRole('button', { name: /^Delete 1 selected$/ }).click();
+    await page.waitForTimeout(500);
+    if (!(await page.getByText('is a default page', { exact: false }).count()))
+      problems.push('long press: deleting the front page did not say it is a default page');
+  }
+  await page.close();
+}
+
 /** On a phone, a tap on the hint under a page's only heading (Type text, or tap Insert …) puts the cursor in an empty paragraph after it. */
 async function checkEmptyHint() {
   const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -2208,6 +2269,7 @@ for (const [width, height] of [
 ])
   await checkDraftsCard(width, height);
 await checkEmptyHint();
+await checkLongPressDelete();
 for (const [width, height] of [
   [375, 740],
   [1280, 900],
