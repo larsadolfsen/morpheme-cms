@@ -1705,10 +1705,10 @@
   /* A bottom sheet. */
   .bottom-sheet {
     position: fixed;
-    inset: auto 0 0 0;
+    inset: auto 0 var(--keyboard-inset, 0px) 0;
     width: 100%;
     max-width: 44rem;
-    height: min(92dvh, 56rem);
+    height: min(92dvh, 56rem, var(--visual-height, 100dvh));
     max-height: none;
     margin: 0 auto;
     padding: 0;
@@ -1731,16 +1731,22 @@
   /* As high as what is in it (bottomSheetFitClass: the editor's sheets), at most --bottom-sheet-start-max-height. */
   .bottom-sheet-fit {
     height: fit-content;
-    max-height: min(var(--bottom-sheet-start-max-height, 50dvh), 56rem);
+    max-height: min(var(--bottom-sheet-start-max-height, 50dvh), 56rem, var(--visual-height, 100dvh));
   }
   .bottom-sheet-fit > .bottom-sheet-container {
     max-height: inherit;
+  }
+  /* With the on-screen keyboard up (followKeyboard() in bottomSheetControl.ts) the sheet ends at the keyboard's top
+     (--keyboard-inset), is at most as high as what is visible (--visual-height, the content scrolls inside) and has no
+     safe-area space under it: the keyboard covers it. */
+  .bottom-sheet[data-keyboard] > .bottom-sheet-container {
+    padding-bottom: 0;
   }
   /* Starts at --bottom-sheet-start-max-height, dragged up to as high as the screen allows (bottomSheetFullClass: a whole
      page in it, the editor's preview). */
   .bottom-sheet-full {
     max-width: none;
-    height: var(--bottom-sheet-start-max-height, 50dvh);
+    height: min(var(--bottom-sheet-start-max-height, 50dvh), var(--visual-height, 100dvh));
   }
   .bottom-sheet::backdrop {
     background: var(--bottom-sheet-scrim, color-mix(in srgb, var(--block-text) 50%, transparent));

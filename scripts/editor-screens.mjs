@@ -218,6 +218,50 @@ async function checkStartSubtitle() {
   }
 }
 
+/** A modal sheet with a text field on a phone with its on-screen keyboard up (the Source color sheet on Colors, the shared
+ * BottomSheet, followKeyboard() in theme/ui/bottomSheetControl.ts): a keyboard shrinks only the visual viewport, which is
+ * emulated here by a smaller visualViewport. The sheet must end exactly at the keyboard's top (no strip of the page
+ * between), and its hex field and its buttons (Use and lock, Cancel, Use color) must be visible and inside the visible screen. */
+async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300) {
+  const label = `${width}px keyboard sheet`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#company/colors'));
+  await page.getByRole('button', { name: 'Source color: pick a color' }).click();
+  const sheet = page.locator('dialog[open][aria-label="Source color"]');
+  await sheet.waitFor();
+  const code = sheet.getByRole('textbox', { name: 'Color code' });
+  await code.focus();
+  // The keyboard: the visual viewport gets shorter, the layout viewport stays (what a phone does).
+  await page.evaluate((h) => {
+    const screen = visualViewport;
+    for (const key of ['height']) Object.defineProperty(screen, key, { configurable: true, get: () => h });
+    screen.dispatchEvent(new Event('resize'));
+  }, height - keyboard);
+  await page.waitForTimeout(400);
+  const got = await page.evaluate(() => {
+    const dialog = document.querySelector('dialog[open][aria-label="Source color"]');
+    const box = (el) => el.getBoundingClientRect();
+    const buttons = [...dialog.querySelectorAll('button')].filter((b) => /^(Use and lock|Cancel|Use color)$/.test(b.textContent.trim()));
+    const field = dialog.querySelector('input[aria-label="Color code"], input');
+    return {
+      visible: visualViewport.height,
+      sheet: box(dialog.querySelector('.bottom-sheet-container')),
+      buttons: buttons.map((b) => [b.textContent.trim(), box(b)]),
+      field: box(field),
+    };
+  });
+  if (Math.abs(got.sheet.bottom - got.visible) > 1)
+    problems.push(`${label}: the sheet ends at ${got.sheet.bottom}, not at the keyboard's top (${got.visible})`);
+  if (got.buttons.length !== 3) problems.push(`${label}: ${got.buttons.length} of the 3 buttons are in the sheet`);
+  for (const [name, r] of got.buttons)
+    if (r.top < 0 || r.bottom > got.visible + 1) problems.push(`${label}: "${name}" is outside the visible screen`);
+  if (got.field.top < 0 || got.field.bottom > got.visible + 1)
+    problems.push(`${label}: the color code field is outside the visible screen`);
+  await page.close();
+}
+
 /** The bar's Insert: on the bar, or in the ⋮ menu when it did not fit (a phone with the cursor in text). `how`: 'click' or 'tap'. */
 async function pressInsert(page, how = 'click') {
   const direct = page.locator('.editor-tools [aria-label="Insert"]:visible');
@@ -956,6 +1000,49 @@ async function checkSelectionBox() {
     }
     await page.close();
   }
+}
+
+/** Density on "Account": Large, Medium and Small set data-density on <html> and are kept on the account (PUT /api/settings) and in this browser (editor-density), the head script sets it again before the page is drawn, and the account's step replaces the browser's copy. */
+async function checkDensitySetting(width, height) {
+  const sent = [];
+  let kept = null;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density setting: ${e.message}`));
+  await page.route(`${site}/api/settings`, (r) => {
+    if (r.request().method() === 'PUT') {
+      sent.push(JSON.parse(r.request().postData() || 'null'));
+      return r.fulfill({ status: 204 });
+    }
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ settings: kept ? { density: kept } : null }) });
+  });
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#account'));
+  const attribute = () => page.evaluate(() => document.documentElement.dataset.density ?? null);
+  const stored = () => page.evaluate(() => localStorage.getItem('editor-density'));
+  for (const [label, want, store] of [
+    ['Small', '-1', 'small'],
+    ['Large', '1', 'large'],
+    ['Medium', '0', null],
+  ]) {
+    await page.getByRole('button', { name: label, exact: true }).click();
+    if ((await attribute()) !== want || (await stored()) !== store)
+      problems.push(`${width}px density setting: ${label} gave data-density ${await attribute()} and ${await stored()} in the browser`);
+  }
+  if (sent.map((b) => b.density).join() !== 'small,large,medium')
+    problems.push(`${width}px density setting: the account got ${JSON.stringify(sent)}, not small, large, medium`);
+  // The head script, before the page is drawn: a copy in the browser is on <html> at once.
+  await page.evaluate(() => localStorage.setItem('editor-density', 'small'));
+  await page.reload({ waitUntil: 'commit' });
+  await page.waitForFunction(() => document.documentElement.dataset.density, null, { timeout: 5000 }).catch(() => {});
+  if ((await attribute()) !== '-1')
+    problems.push(`${width}px density setting: after a reload the copy in the browser did not give data-density -1`);
+  // The account's step replaces the copy.
+  kept = 'large';
+  await page.reload();
+  await page.waitForFunction(() => document.documentElement.dataset.density === '1', null, { timeout: 10000 }).catch(() => {});
+  if ((await attribute()) !== '1' || (await stored()) !== 'large')
+    problems.push(`${width}px density setting: the account's Large did not replace the copy (${await attribute()}, ${await stored()})`);
+  await page.close();
 }
 
 /** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
@@ -2611,6 +2698,37 @@ async function checkNewList(width, height, label) {
       .last()
       .waitFor({ timeout: 5000 })
       .catch(() => problems.push(`${label}: the new list is not offered under Rows from`));
+    // Picked, the block's parts name the list's fields: with no title field the first body text is the top line and the second the bottom line; the
+    // bottom line can be set to the first body text (this block only), and no image or other kind is offered for it.
+    await page.getByText('ZZ Fresh list', { exact: true }).locator('visible=true').last().click();
+    const part = (name) => page.getByRole('button', { name: new RegExp(`^${name}:`) }).first();
+    // On a phone the dynamic settings are a sheet over the block: close it to reach the parts.
+    if (phone)
+      await page
+        .locator('dialog[open] [aria-label="Close"]')
+        .first()
+        .click()
+        .catch(() => {});
+    await page.waitForTimeout(400);
+    await part('Bottom line')
+      .waitFor({ timeout: 8000 })
+      .catch(() => problems.push(`${label}: the picked list shows no Bottom line part`));
+    const parts = await page.evaluate(() => [...document.querySelectorAll('.inline-list-parts button')].map((b) => b.textContent.trim()));
+    if (parts[0] !== 'Top line: Body text' || parts[1] !== 'Bottom line: Body text 2')
+      problems.push(`${label}: the parts do not name the list's fields (${parts})`);
+    await part('Bottom line').click();
+    const field = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
+    await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Bottom line choice did not open`));
+    await field.locator('button.text-field-input').first().click();
+    const offered = await page.evaluate(() => {
+      // The open choice is labelled with the field's name (Field shown), as a menu or a sheet of options.
+      const choices = [...document.querySelectorAll('[aria-label="Field shown"]')].flatMap((m) =>
+        [...m.querySelectorAll('[role="menuitem"], [role="option"], [role="menuitemradio"], li')].map((o) => o.textContent.trim()),
+      );
+      return choices;
+    });
+    if (!offered.includes('Body text') || !offered.includes('Body text 2') || offered.includes('Image'))
+      problems.push(`${label}: the Bottom line offers the wrong fields (${offered})`);
   } finally {
     await page.close();
     rmSync(folder, { recursive: true, force: true });
@@ -4426,6 +4544,7 @@ await checkStartSubtitle();
 
 for (const width of [360, 375, 390, 414]) await checkTextBar(width);
 await checkTextBarWide();
+await checkSheetKeyboard(375);
 for (const [width, height] of [
   [360, 740],
   [375, 800],
@@ -4517,6 +4636,8 @@ await checkFooterTargets(false);
 await checkToolbarBox();
 await checkDensity(375, 740);
 await checkDensity(1280, 900);
+await checkDensitySetting(375, 740);
+await checkDensitySetting(1280, 900);
 await checkPreviewSection();
 await checkFullSection();
 await checkH1SectionGap();

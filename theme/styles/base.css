@@ -111,10 +111,10 @@
   --block-control-radius: var(--mo-shape-full);
   --block-shadow: var(--panel-shadow);
   --block-ease: var(--ease);
-  /* How far a carousel reaches out to the edges of a phone's screen (ui.css): Container.astro's gutter there (px-5). */
-  --carousel-bleed: 1.25rem;
+  /* How far a carousel reaches out to the edges of a phone's screen (ui.css): Container.astro's gutter there (px-4). */
+  --carousel-bleed: 1rem;
   /* The same for a chip set that scrolls (ui.css). */
-  --chip-set-bleed: 1.25rem;
+  --chip-set-bleed: 1rem;
 }
 
 /* The editor's Density setting (Large, Medium, Small) as the person's step. A site never sets the attribute. A box that must not follow it
