@@ -64,8 +64,8 @@ export function fileRating(text: string, post: boolean, relations: SeoInput['rel
 }
 
 /** The fields under "Search engines", in every form that has them (EntryForm.tsx, DataForm.tsx): the Google texts, the
- * keywords, the canonical address and noindex. */
-export const SEO_FIELDS = ['seoTitle', 'seoDescription', 'keyword', 'keywords', 'canonical', 'noindex'];
+ * keywords, the canonical address, noindex and nofollow. */
+export const SEO_FIELDS = ['seoTitle', 'seoDescription', 'keyword', 'keywords', 'canonical', 'noindex', 'nofollow'];
 
 /** The fields under "Social media", after them: the image, the title and the description when the page is shared
  * (a fixed page and a tag have only the image). */

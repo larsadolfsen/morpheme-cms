@@ -75,6 +75,14 @@ const noindex: Field = {
   hint: 'The page is not shown in Google.',
 };
 
+// Right after noindex: search engines do not follow the page's links (the robots meta tag says `nofollow`). Under "Search engines" too.
+const nofollow: Field = {
+  name: 'nofollow',
+  label: 'Don’t follow links',
+  type: 'boolean',
+  hint: 'Google does not follow the links on the page.',
+};
+
 // A post only: kept out of the blog and every list of posts, but open at its address, in Google and in the sitemap (not
 // `noindex`, "Hide from search engines"). In the settings with the status (EntryForm.tsx; packages/editor/lib/status.mjs).
 const unlisted: Field = {
@@ -408,6 +416,7 @@ export const collections: Collection[] = [
       ...keywords,
       canonical,
       noindex,
+      nofollow,
     ],
   },
   {
@@ -460,6 +469,7 @@ export const collections: Collection[] = [
       ...keywords,
       canonical,
       noindex,
+      nofollow,
     ],
     blocks: true,
     // One "Book an appointment" a page (at the very end it goes across the page, PageLayout.astro). A new page

@@ -204,6 +204,7 @@ function Form({
     values.seoDescription,
     values.keyword,
     values.noindex,
+    values.nofollow,
     values.canonical,
   ]);
   const rating = useMemo(() => {

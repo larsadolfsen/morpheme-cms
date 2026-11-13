@@ -13,6 +13,8 @@ export const collections: Record<string, string> = {
   'The page Google should show instead of this one.': 'Den side, Google skal vise i stedet for denne.',
   'Hide from search engines': 'Skjul for søgemaskiner',
   'The page is not shown in Google.': 'Siden vises ikke i Google.',
+  'Don’t follow links': 'Følg ikke links',
+  'Google does not follow the links on the page.': 'Google følger ikke linkene på siden.',
   'Decorative image': 'Dekorativt billede',
   On: 'Til',
   Off: 'Fra',
