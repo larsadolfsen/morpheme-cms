@@ -54,7 +54,10 @@ Word choice follows Material 3: short, active, `image` everywhere. Setting names
 - **Images already have tags.** Each image has a record `src/data/files/<id>.json` (`src/fileRecords.mjs`) with `categories`
   (its tags), `removed` and an optional `credit`. The Library edits them with `MediaTags.tsx` (chips and `Add tag`, one commit
   per change). These are the same tags (`categories`) that posts use.
-- Images have **no alt text of their own**. Alt text lives where the image is used, in the page's text. So the grid needs one.
+- Images have **no alt text in the Library**. Alt text is written only where the image is used. An image in a page's or
+  post's text has it in the Markdown (`![alt](src)`, edited in the image's sheet, `MarkdownEditor.tsx`); an image marked
+  decorative has none (a mark in its address, `lib/crop.mjs`). A section's or hero's image has its own `alt` field
+  (`BlockDialog.tsx`, `hero/fields.ts`). So every use today has a **local** alt text and no base one.
 - The theme already has `Chip` (filter kind, `selected`), `Dialog` with the `full-screen` kind, `ChipSet`, and block scripts
   (`theme/blocks/cards/script.ts` is the model: one small script run on every page by `Base.astro`, doing nothing without
   the block).
@@ -62,13 +65,41 @@ Word choice follows Material 3: short, active, `image` everywhere. Setting names
 
 ## 3. What has to be added
 
-1. **Alt text on the image record.** Add `alt` (and optional `caption`) to the file record, edited in the Library next to the
-   tags (`Describe the image`, with the `Decorative image` choice the Image block has). The grid uses it. If an image has
-   none, the grid draws `alt=""` and the editor shows a hint on the block (see question 3).
+1. **A base alt text on the image record** (owner decision). Add `alt` (and optional `caption`) to the file record, edited in
+   the Library next to the tags (`Describe the image`, with `Decorative image`). It is the text every use starts from.
+   See section 3a for how it meets the local text.
 2. **Width and height for the tiles.** The manifest has them for the site. The editor's `thumbnails.json` gets them too (the
    audit already plans this, row 3), so the grid reserves each box before the image loads.
 3. **A site reader.** The block's `load.ts` reads the records and the manifest at build time and gives the view the list
    `{ src, alt, width, height, tags }`. The site ships no record file the visitor does not need.
+
+## 3a. Alt text: two levels, one rule
+
+Owner decision: the Library record holds a **base** alt text, and each use (a page, a blog post or a block) can set its own
+**local** text.
+
+**One rule for every image use** (the grid, the Image in a text, the hero and section images, the post's top image):
+
+1. If the use has a local alt text, it is used.
+2. Else the Library's base text is used.
+3. Else there is none (question 3 below).
+
+Decorative follows the same order: a use marked decorative draws `alt=""` whatever the Library says; a Library image marked
+decorative is decorative in every use that has no local text.
+
+**What the editor shows.** In a use's sheet the alt field is empty when nothing is set locally and shows the Library's text
+as its hint (placeholder), with the line `Using the image's text. Type to change it for this use only.` Typing saves only on
+this use and never writes back to the Library. Clearing the field goes back to the Library's text. To change the base
+text for everywhere, the owner edits it in the Library.
+
+**What exists.** The Image in a text, the hero and section images and the post's top image already have a local alt text
+(and `Decorative image`), so the local level exists today. What is new is only the Library's base text and the fall-back to
+it. The same rule is written once, in a small pure function (`altFor(local, record)`), used by every image use, with a
+unit test, so the uses cannot differ. Moving the existing uses to it is a follow-up (PR 3b), without changing a saved page.
+
+**The grid.** The grid has no local text per image in its card (many images, one block). It draws each image's base text from
+the Library. A block can still set a local text for one image in its sheet (`Images`, pick an image, `Describe the image`),
+which wins by the rule above. Most grids will use the base texts only.
 
 ## 4. The block's settings
 
@@ -144,7 +175,8 @@ shown, so the owner's reference look stays.
   and `Close`. Keys: `Left` and `Right` move, `Escape` closes, focus is trapped and goes back to the tile. It moves only among
   the images the filter shows. The image is the 1200 px copy; alt text is read, the caption (if on) is shown under it.
   Without JavaScript a tile is a link to the image itself, so it still opens.
-- **Alt text.** Every tile has `alt` from the record. A decorative image has `alt=""`.
+- **Alt text.** Every card's image has `alt` by the rule in section 3a (the block's local text, else the Library's). A
+  decorative image has `alt=""`.
 - **Captions.** Off by default (the owner said tiles without names). When `Caption` is on in `Card shows`, it shows on the
   card and also under the image in the lightbox. When off, the lightbox still shows the caption if the record has one,
   since the card stays quiet and the bigger view has room.
@@ -193,7 +225,8 @@ Order matters: the tile first.
 | - | --- | --- | --- |
 | 1 | Media slot and selected state on the theme's `Card`, `ImageTile` as its wrapper, and the staggered grid layout (audit row 3); Library moves to it | medium to large | the audit PR #515 |
 | 2 | `width` and `height` in `thumbnails.json` (and use in the Library tile) | small | 1 (can go with it) |
-| 3 | Alt text (and caption) on the file record: schema, `fileRecords.mjs`, Library field, unit tests | medium | none |
+| 3 | Base alt text (and caption) on the file record: schema, `fileRecords.mjs`, Library field, `altFor` and its unit test | medium | none |
+| 3b | Every image use falls back to the Library's text by `altFor`, local text kept; hints in the sheets | small to medium | 3 |
 | 4 | Standard block `imagegrid`: contract, `Card shows` and `Card style` settings, `load.ts`, `view.ts`, `filter.mjs` + unit test, texts (en and da), `View.tsx` without script (all images, links) | medium | 1, 2, 3 |
 | 5 | Filter and lightbox script (`script.ts`), chips, keys, `aria-live` | medium | 4 and the full-screen `Dialog` (exists) |
 | 6 | Editor side: inline card, `Add images`, settings sheet, `check:screens` entry; demo section; release-note paragraph | small to medium | 4 |
@@ -209,8 +242,7 @@ Each pull request adds a changeset; PRs 4–6 are `minor` into `0.17`, never `ma
 
 ## 9. Open questions for the owner (one at a time)
 
-1. **Where does the alt text live?** On the image's Library record, so it is written once and used everywhere.
-   *Recommendation:* yes, on the record, with a way to override it per block later if needed.
+1. ~~Where does the alt text live?~~ Decided by the owner: a base text on the Library record, changeable locally on the page, post or block; the local text wins (section 3a).
 2. **Can a visitor pick more than one tag at once?** *Recommendation:* no, one tag at a time, tap again to clear. It is the
    simplest to understand on a phone.
 3. **What if an image has no alt text?** *Recommendation:* the editor shows a warning on the block and the Library tile, and
