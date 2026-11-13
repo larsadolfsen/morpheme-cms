@@ -111,10 +111,10 @@
   --block-control-radius: var(--mo-shape-full);
   --block-shadow: var(--panel-shadow);
   --block-ease: var(--ease);
-  /* How far a carousel reaches out to the edges of a phone's screen (ui.css): Container.astro's gutter there (px-5). */
-  --carousel-bleed: 1.25rem;
+  /* How far a carousel reaches out to the edges of a phone's screen (ui.css): Container.astro's gutter there (px-4). */
+  --carousel-bleed: 1rem;
   /* The same for a chip set that scrolls (ui.css). */
-  --chip-set-bleed: 1.25rem;
+  --chip-set-bleed: 1rem;
 }
 
 /* The editor's Density setting (Large, Medium, Small) as the person's step. A site never sets the attribute. A box that must not follow it
@@ -371,11 +371,29 @@
     line-height: var(--type-lead-line-height);
     font-weight: var(--type-lead-weight);
     letter-spacing: var(--type-lead-tracking);
+    --prose-space: 1.5rem;
   }
-  /* The text right after the lead (no image between): the space the prose puts between paragraphs (1.25em), not the
-   larger space of a text under an image. Unlayered on purpose: it must beat the mt-10 / medium:mt-14 utilities (a layer). */
+  /* The text right after the lead (no image between): the space the prose puts between paragraphs (16px), not the
+   larger space of a text under an image. In the fallback layer on purpose: it must beat the mt-10 / medium:mt-14 utilities. */
   .prose.post-lead + .prose {
-    margin-top: 1.25em;
+    margin-top: 1rem;
+  }
+  /* The text's spaces are on the 4dp grid (Material 3's spacing units are multiples of 4dp and 8dp; it prints no paragraph
+   or heading space, so these are the nearest rule): a paragraph 16px, a lead paragraph 24px (--prose-space, set by .type-lead
+   and .post-lead), a title above 32px and below 12px (the h2's 56 and 28 are on the grid already). They replace the typography
+   plugin's em spaces (17.5, 27.5, 35.19, 13.2), which land off the grid. Not the paragraphs of a list item, which the
+   plugin spaces itself, and the first and last child keep no space, as the plugin has it. */
+  .prose :where(p):not(:where(li > p)) {
+    margin-block: 0 var(--prose-space, 1rem);
+  }
+  .prose :where(h3) {
+    margin-block: 2rem 0.75rem;
+  }
+  .prose > :first-child {
+    margin-top: 0;
+  }
+  .prose > :last-child {
+    margin-bottom: 0;
   }
   /* The text's headings: a headline, a title under it and a smaller title under that (the type scale, ui.css). */
   .prose :where(h2) {

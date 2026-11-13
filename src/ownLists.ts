@@ -70,6 +70,7 @@ export function ownListOf(id: string, definition: Definition): OwnedList {
     summary: (d) => labelOfEntry(definition, d) || say.singular,
     fields: fieldsOf(definition).map((f: { id: string; kind: string }) => fieldOf(f, nameOf(definition, f, names))),
     asRows: asRowsOf(definition),
+    fieldKinds: Object.fromEntries((fieldsOf(definition) as { id: string; kind: string }[]).map((f) => [f.id, f.kind])),
   };
 }
 

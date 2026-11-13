@@ -156,7 +156,8 @@ export const blocks = {
     dynamicTip: 'Fill from a list',
     typedHidden: 'Your typed rows are kept, not shown.',
     /** The parts of a row a dynamic block can fill with a field of its list. */
-    parts: { title: 'Top line', text: 'Bottom line', icon: 'Icon', href: 'Link' },
+    parts: { title: 'Top line', text: 'Bottom line', icon: 'Icon', href: 'Link', tags: 'Tags to filter by' },
+    removedField: 'Removed field',
     noField: 'None',
     fieldShown: 'Field shown',
     editList: 'Edit list',

@@ -20,6 +20,7 @@ const COMMANDS = {
     'check-worker',
     'check-consent',
     'check-dashboard',
+    'check-settings',
     'check-cms-update',
     'check-release-post',
     'check-store',
