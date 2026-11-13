@@ -204,6 +204,7 @@ import { snackbar } from '../lib/snackbar';
 import { appRouteOf } from '../lib/appRoute.mjs';
 import { movedRoute } from './movedRoutes.mjs';
 import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, syncDevice, told, waitOnServer } from './notificationData';
+import { syncDensity } from './density';
 import Notifications from './Notifications';
 import { openNotifications } from './notificationsOpen';
 import { EditorOwn, InEditor } from './standard/view';
@@ -355,6 +356,10 @@ function Editor() {
   // "On the phone" is on (notificationData.ts).
   useEffect(() => {
     if (signedIn) syncDevice();
+  }, [signedIn]);
+  // Density kept on the person's account replaces the copy in this browser (density.ts).
+  useEffect(() => {
+    if (signedIn) syncDensity();
   }, [signedIn]);
   // A tap on such a notification while the editor is open: to the screen it is about (packages/editor/pages/editor/sw.js).
   useEffect(() => {

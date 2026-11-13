@@ -218,6 +218,50 @@ async function checkStartSubtitle() {
   }
 }
 
+/** A modal sheet with a text field on a phone with its on-screen keyboard up (the Source color sheet on Colors, the shared
+ * BottomSheet, followKeyboard() in theme/ui/bottomSheetControl.ts): a keyboard shrinks only the visual viewport, which is
+ * emulated here by a smaller visualViewport. The sheet must end exactly at the keyboard's top (no strip of the page
+ * between), and its hex field and its buttons (Use and lock, Cancel, Use color) must be visible and inside the visible screen. */
+async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300) {
+  const label = `${width}px keyboard sheet`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#company/colors'));
+  await page.getByRole('button', { name: 'Source color: pick a color' }).click();
+  const sheet = page.locator('dialog[open][aria-label="Source color"]');
+  await sheet.waitFor();
+  const code = sheet.getByRole('textbox', { name: 'Color code' });
+  await code.focus();
+  // The keyboard: the visual viewport gets shorter, the layout viewport stays (what a phone does).
+  await page.evaluate((h) => {
+    const screen = visualViewport;
+    for (const key of ['height']) Object.defineProperty(screen, key, { configurable: true, get: () => h });
+    screen.dispatchEvent(new Event('resize'));
+  }, height - keyboard);
+  await page.waitForTimeout(400);
+  const got = await page.evaluate(() => {
+    const dialog = document.querySelector('dialog[open][aria-label="Source color"]');
+    const box = (el) => el.getBoundingClientRect();
+    const buttons = [...dialog.querySelectorAll('button')].filter((b) => /^(Use and lock|Cancel|Use color)$/.test(b.textContent.trim()));
+    const field = dialog.querySelector('input[aria-label="Color code"], input');
+    return {
+      visible: visualViewport.height,
+      sheet: box(dialog.querySelector('.bottom-sheet-container')),
+      buttons: buttons.map((b) => [b.textContent.trim(), box(b)]),
+      field: box(field),
+    };
+  });
+  if (Math.abs(got.sheet.bottom - got.visible) > 1)
+    problems.push(`${label}: the sheet ends at ${got.sheet.bottom}, not at the keyboard's top (${got.visible})`);
+  if (got.buttons.length !== 3) problems.push(`${label}: ${got.buttons.length} of the 3 buttons are in the sheet`);
+  for (const [name, r] of got.buttons)
+    if (r.top < 0 || r.bottom > got.visible + 1) problems.push(`${label}: "${name}" is outside the visible screen`);
+  if (got.field.top < 0 || got.field.bottom > got.visible + 1)
+    problems.push(`${label}: the color code field is outside the visible screen`);
+  await page.close();
+}
+
 /** The bar's Insert: on the bar, or in the ⋮ menu when it did not fit (a phone with the cursor in text). `how`: 'click' or 'tap'. */
 async function pressInsert(page, how = 'click') {
   const direct = page.locator('.editor-tools [aria-label="Insert"]:visible');
@@ -768,6 +812,127 @@ async function checkSelection() {
     }
     await page.close();
   }
+}
+
+/** Density on "Account": Large, Medium and Small set data-density on <html> and are kept on the account (PUT /api/settings) and in this browser (editor-density), the head script sets it again before the page is drawn, and the account's step replaces the browser's copy. */
+async function checkDensitySetting(width, height) {
+  const sent = [];
+  let kept = null;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density setting: ${e.message}`));
+  await page.route(`${site}/api/settings`, (r) => {
+    if (r.request().method() === 'PUT') {
+      sent.push(JSON.parse(r.request().postData() || 'null'));
+      return r.fulfill({ status: 204 });
+    }
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ settings: kept ? { density: kept } : null }) });
+  });
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#account'));
+  const attribute = () => page.evaluate(() => document.documentElement.dataset.density ?? null);
+  const stored = () => page.evaluate(() => localStorage.getItem('editor-density'));
+  for (const [label, want, store] of [
+    ['Small', '-1', 'small'],
+    ['Large', '1', 'large'],
+    ['Medium', '0', null],
+  ]) {
+    await page.getByRole('button', { name: label, exact: true }).click();
+    if ((await attribute()) !== want || (await stored()) !== store)
+      problems.push(`${width}px density setting: ${label} gave data-density ${await attribute()} and ${await stored()} in the browser`);
+  }
+  if (sent.map((b) => b.density).join() !== 'small,large,medium')
+    problems.push(`${width}px density setting: the account got ${JSON.stringify(sent)}, not small, large, medium`);
+  // The head script, before the page is drawn: a copy in the browser is on <html> at once.
+  await page.evaluate(() => localStorage.setItem('editor-density', 'small'));
+  await page.reload({ waitUntil: 'commit' });
+  await page.waitForFunction(() => document.documentElement.dataset.density, null, { timeout: 5000 }).catch(() => {});
+  if ((await attribute()) !== '-1')
+    problems.push(`${width}px density setting: after a reload the copy in the browser did not give data-density -1`);
+  // The account's step replaces the copy.
+  kept = 'large';
+  await page.reload();
+  await page.waitForFunction(() => document.documentElement.dataset.density === '1', null, { timeout: 10000 }).catch(() => {});
+  if ((await attribute()) !== '1' || (await stored()) !== 'large')
+    problems.push(`${width}px density setting: the account's Large did not replace the copy (${await attribute()}, ${await stored()})`);
+  await page.close();
+}
+
+/** The parts read density (theme/styles/ui.css): at Large, Medium and Small a button, a chip, a segmented button and a text field are 4 px taller or lower (the chip 2 px a side), a list row follows the data-heavy step, a target keeps its size (an invisible area of at least --mo-target, 48 on a phone and 44 on a computer), a part in the page editing area or in a row that picks the density does not change, and a menu stays at Medium. */
+async function checkDensityParts(width, height, touch) {
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density parts: ${e.message}`));
+  await openEditor(page, site);
+  const parts = `
+    <button class="button" data-part="button">Label</button>
+    <button class="chip" data-part="chip">Label</button>
+    <div class="segmented-button"><button class="segmented-button-segment" data-part="segment">One</button><button class="segmented-button-segment">Two</button></div>
+    <div class="text-field text-field-outlined"><div class="text-field-container"><input class="text-field-input" data-part="field"></div></div>
+    <div class="list-item-container" data-part="row"><div class="list-item-content"><span class="list-item-headline">Row</span></div></div>
+    <div class="menu-item" data-part="menu-item">Item</div>`;
+  const measure = (attr) =>
+    page.evaluate(
+      ([attr, parts]) => {
+        const root = document.documentElement;
+        if (attr === null) root.removeAttribute('data-density');
+        else root.setAttribute('data-density', attr);
+        const host = document.createElement('div');
+        host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
+        host.innerHTML = `<div data-where="screen">${parts}</div><div class="editor-text"><div class="ProseMirror" data-where="content">${parts}</div></div><div data-density-fixed data-where="fixed">${parts}</div>`;
+        document.body.append(host);
+        const got = {};
+        for (const where of host.querySelectorAll('[data-where]'))
+          for (const part of where.querySelectorAll('[data-part]')) {
+            const box = part.getBoundingClientRect().height;
+            const after = parseFloat(getComputedStyle(part, '::after').height);
+            got[`${where.dataset.where}/${part.dataset.part}`] = [Math.round(box * 100) / 100, Number.isNaN(after) ? 0 : after];
+          }
+        got.target = parseFloat(getComputedStyle(root).getPropertyValue('--mo-target'));
+        host.remove();
+        root.removeAttribute('data-density');
+        return got;
+      },
+      [attr, parts],
+    );
+  const [large, medium, small] = [await measure('1'), await measure('0'), await measure('-1')];
+  const target = medium.target;
+  if (target !== (touch ? 48 : 44)) problems.push(`${width}px density parts: --mo-target is ${target}, not ${touch ? 48 : 44}`);
+  const expect = (what, ok) => ok || problems.push(`${width}px density parts: ${what}`);
+  for (const part of ['button', 'chip', 'segment', 'field']) {
+    const key = `screen/${part}`;
+    expect(
+      `${part} is ${large[key][0]} / ${medium[key][0]} / ${small[key][0]} px at Large / Medium / Small, not 4 px apart`,
+      large[key][0] - medium[key][0] === 4 && medium[key][0] - small[key][0] === 4,
+    );
+  }
+  // The row: a data-heavy part, 4 px a step, never below the target.
+  expect(
+    `a list row is ${large['screen/row'][0]} / ${medium['screen/row'][0]} / ${small['screen/row'][0]} px, not 4 px apart`,
+    large['screen/row'][0] - medium['screen/row'][0] === 4 && medium['screen/row'][0] - small['screen/row'][0] === 4,
+  );
+  expect(`a list row at Small is ${small['screen/row'][0]} px, below the target ${target}`, small['screen/row'][0] >= target);
+  // A target keeps its size: the part or its invisible area is at least --mo-target, at every step.
+  for (const [name, m] of [
+    ['Large', large],
+    ['Medium', medium],
+    ['Small', small],
+  ])
+    for (const part of ['button', 'chip', 'segment'])
+      expect(
+        `${part} at ${name} has a target of ${Math.max(...m[`screen/${part}`])} px, below ${target}`,
+        Math.max(...m[`screen/${part}`]) >= target,
+      );
+  // The page editing area and the rows that pick the density are drawn the same at every step; a menu stays at Medium.
+  for (const where of ['content', 'fixed'])
+    for (const part of ['button', 'chip', 'segment', 'field', 'row'])
+      expect(
+        `${part} in ${where} is ${large[`${where}/${part}`][0]} / ${medium[`${where}/${part}`][0]} / ${small[`${where}/${part}`][0]} px, not the same at every step`,
+        large[`${where}/${part}`][0] === medium[`${where}/${part}`][0] && medium[`${where}/${part}`][0] === small[`${where}/${part}`][0],
+      );
+  expect(
+    `a menu item changes with the step (${large['screen/menu-item'][0]} / ${medium['screen/menu-item'][0]} / ${small['screen/menu-item'][0]} px): it must not get denser than Medium`,
+    small['screen/menu-item'][0] === medium['screen/menu-item'][0],
+  );
+  await page.close();
 }
 
 /** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
@@ -2423,6 +2588,37 @@ async function checkNewList(width, height, label) {
       .last()
       .waitFor({ timeout: 5000 })
       .catch(() => problems.push(`${label}: the new list is not offered under Rows from`));
+    // Picked, the block's parts name the list's fields: with no title field the first body text is the top line and the second the bottom line; the
+    // bottom line can be set to the first body text (this block only), and no image or other kind is offered for it.
+    await page.getByText('ZZ Fresh list', { exact: true }).locator('visible=true').last().click();
+    const part = (name) => page.getByRole('button', { name: new RegExp(`^${name}:`) }).first();
+    // On a phone the dynamic settings are a sheet over the block: close it to reach the parts.
+    if (phone)
+      await page
+        .locator('dialog[open] [aria-label="Close"]')
+        .first()
+        .click()
+        .catch(() => {});
+    await page.waitForTimeout(400);
+    await part('Bottom line')
+      .waitFor({ timeout: 8000 })
+      .catch(() => problems.push(`${label}: the picked list shows no Bottom line part`));
+    const parts = await page.evaluate(() => [...document.querySelectorAll('.inline-list-parts button')].map((b) => b.textContent.trim()));
+    if (parts[0] !== 'Top line: Body text' || parts[1] !== 'Bottom line: Body text 2')
+      problems.push(`${label}: the parts do not name the list's fields (${parts})`);
+    await part('Bottom line').click();
+    const field = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
+    await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Bottom line choice did not open`));
+    await field.locator('button.text-field-input').first().click();
+    const offered = await page.evaluate(() => {
+      // The open choice is labelled with the field's name (Field shown), as a menu or a sheet of options.
+      const choices = [...document.querySelectorAll('[aria-label="Field shown"]')].flatMap((m) =>
+        [...m.querySelectorAll('[role="menuitem"], [role="option"], [role="menuitemradio"], li')].map((o) => o.textContent.trim()),
+      );
+      return choices;
+    });
+    if (!offered.includes('Body text') || !offered.includes('Body text 2') || offered.includes('Image'))
+      problems.push(`${label}: the Bottom line offers the wrong fields (${offered})`);
   } finally {
     await page.close();
     rmSync(folder, { recursive: true, force: true });
@@ -2534,6 +2730,80 @@ async function checkCardsCarousel(width, height) {
     }),
   );
   for (const f of flush) problems.push(`${label}: a card's media is not flush with the card (${f})`);
+  await page.close();
+}
+
+/** The spacing of a "Cards" block on the site (the demo's Blocks page), at 375 and 1280 px: one rule for stacked cards, a grid and the carousel. Material 3 prints 16dp left and right padding and "8dp max" between cards (m3.material.io/components/cards/specs, Measurements), and is silent inside a card, so the room there is on the 4dp half-step and the 8dp grid: the media or icon to the headline 16, the headline to the subhead 4, to the text 8, the text to the link 16. Fails on the old 2, 6 and 20 px. */
+async function checkCardsSpacing(width, height) {
+  const label = `${width}px cards spacing`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  const m = await page.evaluate(() => {
+    const r = (e) => e.getBoundingClientRect();
+    const px = (n) => Math.round(n * 10) / 10;
+    const list = document.querySelector('ul.block-cards');
+    const cards = [...list.querySelectorAll('.block-card')];
+    const ls = getComputedStyle(list);
+    const within = (card) => {
+      const c = r(card);
+      const q = (sel) => card.querySelector(sel);
+      const icon = q('.block-card-icon');
+      const title = q('.block-card-title');
+      const subhead = q('.block-card-subhead');
+      const text = q('.block-card-text');
+      const more = q('.block-card-more');
+      const border = parseFloat(getComputedStyle(card).borderTopWidth);
+      return {
+        left: px(r(title).left - c.left - border),
+        right: px(c.right - border - r(title).right),
+        mediaToTitle: icon ? px(r(title).top - r(icon).bottom) : null,
+        titleToSubhead: subhead ? px(r(subhead).top - r(title).bottom) : null,
+        toText: px(r(text).top - r(subhead || title).bottom),
+        textToMore: more ? px(r(more).top + parseFloat(getComputedStyle(more).paddingTop) - r(text).bottom) : null,
+        moreBottom: more ? px(c.bottom - border - r(more).bottom) : null,
+        top: px(r(title).top - c.top - border),
+      };
+    };
+    const subheadCard = cards.find((c) => c.querySelector('.block-card-subhead'));
+    const linkCard = cards.find((c) => c.querySelector('.block-card-more'));
+    const iconCard = cards.find((c) => c.querySelector('.block-card-icon'));
+    const colGap = cards.length > 1 ? px(r(cards[1]).left - r(cards[0]).right) : null;
+    const rowGap = cards.length > 2 ? px(r(cards[2]).top - r(cards[0]).bottom) : null;
+    const carousel = document.querySelector('[data-cards-carousel] [data-carousel-items]');
+    return {
+      css: ls.rowGap,
+      cols: ls.gridTemplateColumns.split(' ').length,
+      stacked: px(r(cards[1]).top - r(cards[0]).bottom),
+      colGap,
+      rowGap,
+      padding: getComputedStyle(cards[0]).paddingLeft,
+      carouselGap: carousel ? getComputedStyle(carousel).columnGap : null,
+      iconCard: iconCard && within(iconCard),
+      subheadCard: subheadCard && within(subheadCard),
+      linkCard: linkCard && within(linkCard),
+    };
+  });
+  const want = (what, got, expected) => {
+    if (got !== expected) problems.push(`${label}: ${what} is ${got}, not ${expected}`);
+  };
+  if (m.cols === 1) want('the gap between stacked cards', m.stacked, 8);
+  else {
+    want('the gap between cards in a row', m.colGap, 8);
+    want('the gap between cards in a column', m.rowGap, 8);
+  }
+  want('the gap in the CSS', m.css, '8px');
+  want('the card padding', m.padding, '16px');
+  want("the carousel gap (the same as the cards' own)", m.carouselGap, m.css);
+  want("the room from a card's edge to its text on the left", m.iconCard.left, 16);
+  want("the room from a card's edge to its text on the right", m.iconCard.right, 16);
+  want('the icon to the headline', m.iconCard.mediaToTitle, 16);
+  want('the headline to the text', m.iconCard.toText, 8);
+  want('the headline to the subhead', m.subheadCard.titleToSubhead, 4);
+  want('the subhead to the text', m.subheadCard.toText, 8);
+  want('the text to the link', m.linkCard.textToMore, 16);
+  want("the link to the card's bottom edge", m.linkCard.moreBottom, 16);
   await page.close();
 }
 
@@ -4238,6 +4508,7 @@ await checkStartSubtitle();
 
 for (const width of [360, 375, 390, 414]) await checkTextBar(width);
 await checkTextBarWide();
+await checkSheetKeyboard(375);
 for (const [width, height] of [
   [360, 740],
   [375, 800],
@@ -4253,6 +4524,7 @@ for (const [width, height] of [
   [1280, 900],
 ]) {
   await checkCardsCarousel(width, height);
+  await checkCardsSpacing(width, height);
   for (const scheme of ['light', 'dark']) await checkIconColor(width, height, scheme);
 }
 for (const [width, height] of [
@@ -4328,6 +4600,10 @@ await checkFooterTargets(false);
 await checkToolbarBox();
 await checkDensity(375, 740);
 await checkDensity(1280, 900);
+await checkDensityParts(375, 740, true);
+await checkDensityParts(1280, 900, false);
+await checkDensitySetting(375, 740);
+await checkDensitySetting(1280, 900);
 await checkPreviewSection();
 await checkFullSection();
 await checkH1SectionGap();

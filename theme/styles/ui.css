@@ -302,6 +302,8 @@
   letter-spacing: var(--type-title-large-tracking);
 }
 @utility type-lead {
+  /* The space of a lead paragraph in a text (.prose, base.css): 24px, on the 4dp grid. */
+  --prose-space: 1.5rem;
   font-size: var(--type-lead-size);
   line-height: var(--type-lead-line-height);
   font-weight: var(--type-lead-weight);
@@ -357,6 +359,23 @@
 }
 
 @layer components {
+  /* A target keeps its size at every density step (m3.material.io/foundations/layout/grids-spacing/density: "Accessible targets should
+     retain a minimum of 48x48dp, even if the visual element, such as an icon, is smaller"; --mo-target is 48 on touch and 44 for a
+     mouse): an invisible area over a part that is lower than that, down from its middle. A part with a field, a button or a link in it
+     (a removable chip, a button the editor types in) has none: the area would cover them. Low specificity (:where), so a part's own position wins. */
+  :where(.button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
+    :not(:has(input, textarea, select, button, a))
+  ) {
+    position: relative;
+  }
+  :where(.button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
+      :not(:has(input, textarea, select, button, a))
+    )::after {
+    content: '';
+    position: absolute;
+    inset-block: min(0px, calc((100% - var(--mo-target)) / 2));
+    inset-inline: 0;
+  }
   /* Buttons (m3.material.io/components/buttons): a label, an icon before it and optionally one after it (the arrow). */
   .button {
     --button-box: var(--button-height, 3rem);
@@ -375,7 +394,7 @@
     white-space: nowrap;
     border: 0;
     border-radius: var(--button-corners);
-    min-height: var(--button-box);
+    min-height: calc(var(--button-box) + var(--mo-density-layout) * var(--mo-density-step));
     padding: 0 var(--button-inline);
     font-family: inherit;
     font-weight: var(--button-weight, var(--type-title-medium-weight));
@@ -881,6 +900,8 @@
   /* Text fields (m3.material.io/components/text-fields): the container draws the field (its surface and edge), with
      what is in it in a row: the icon, the prefix, the <input>, the suffix and the icons and buttons at the end. */
   .text-field {
+    /* The field's height with the person's and the theme's density (--mo-density-layout, in base.css): 4 px a step, never the text. */
+    --text-field-box: calc(var(--text-field-height, 3rem) + var(--mo-density-layout) * var(--mo-density-step));
     position: relative;
     display: grid;
     min-width: 0;
@@ -890,7 +911,7 @@
     display: flex;
     align-items: center;
     min-width: 0;
-    min-height: var(--text-field-height, 3rem);
+    min-height: var(--text-field-box, var(--text-field-height, 3rem));
     border-radius: var(--text-field-radius, var(--block-control-radius));
     transition:
       box-shadow var(--motion-effects),
@@ -900,7 +921,7 @@
     flex: 1;
     align-self: stretch;
     min-width: 0;
-    min-height: var(--text-field-height, 3rem);
+    min-height: var(--text-field-box, var(--text-field-height, 3rem));
     border: 0;
     border-radius: inherit;
     padding: 0 var(--text-field-padding, 1.25rem);
@@ -988,7 +1009,7 @@
   .text-field-label {
     --text-field-label-start: var(--text-field-padding, 1.25rem);
     position: absolute;
-    top: calc(var(--text-field-height, 3rem) / 2);
+    top: calc(var(--text-field-box, var(--text-field-height, 3rem)) / 2);
     left: var(--text-field-label-start);
     max-width: calc(100% - var(--text-field-label-start) - var(--text-field-padding, 1.25rem));
     overflow: hidden;
@@ -1149,7 +1170,7 @@
     border-radius: min(var(--text-field-radius, var(--block-control-radius)), var(--text-field-multiline-radius, var(--block-radius)));
   }
   .text-field-multiline .text-field-input {
-    padding-block: calc((var(--text-field-height, 3rem) - 1lh) / 2);
+    padding-block: calc((var(--text-field-box, var(--text-field-height, 3rem)) - 1lh) / 2);
     resize: none;
   }
   .text-field-multiline .text-field-input[data-text-field-grow] {
@@ -1157,13 +1178,13 @@
     overflow: hidden;
   }
   .text-field-multiline :is(.text-field-leading-icon, .text-field-trailing-icon) {
-    margin-top: calc((var(--text-field-height, 3rem) - var(--text-field-icon-size, 1.25rem)) / 2);
+    margin-top: calc((var(--text-field-box, var(--text-field-height, 3rem)) - var(--text-field-icon-size, 1.25rem)) / 2);
   }
   .text-field-multiline :is(.text-field-prefix, .text-field-suffix) {
-    margin-top: calc((var(--text-field-height, 3rem) - 1lh) / 2);
+    margin-top: calc((var(--text-field-box, var(--text-field-height, 3rem)) - 1lh) / 2);
   }
   .text-field-multiline .text-field-trailing-action {
-    margin-top: calc((var(--text-field-height, 3rem) - var(--icon-button-size, 2.75rem)) / 2);
+    margin-top: calc((var(--text-field-box, var(--text-field-height, 3rem)) - var(--icon-button-size, 2.75rem)) / 2);
   }
 
   /* The line under it, and the counter at its end. */
@@ -1274,10 +1295,12 @@
     display: inline-flex;
     align-items: center;
     gap: var(--chip-gap, 0.5rem);
-    min-height: var(--chip-height, auto);
+    min-height: calc(var(--chip-height, 0px) + var(--mo-density-layout) * var(--mo-density-step));
     border: 0;
     border-radius: var(--chip-radius, var(--block-control-radius));
     padding: var(--chip-padding, 0.55rem 1rem);
+    /* Density takes 2 px off each side, never the text; --chip-padding-block (else 0.55rem) is the room today. */
+    padding-block: calc(var(--chip-padding-block, 0.55rem) + var(--mo-density-layout) * var(--mo-density-step) / 2);
     background: var(--chip-surface, var(--block-surface));
     box-shadow: inset 0 0 0 1px var(--chip-line, var(--block-line));
     font-family: inherit;
@@ -1705,10 +1728,10 @@
   /* A bottom sheet. */
   .bottom-sheet {
     position: fixed;
-    inset: auto 0 0 0;
+    inset: auto 0 var(--keyboard-inset, 0px) 0;
     width: 100%;
     max-width: 44rem;
-    height: min(92dvh, 56rem);
+    height: min(92dvh, 56rem, var(--visual-height, 100dvh));
     max-height: none;
     margin: 0 auto;
     padding: 0;
@@ -1731,16 +1754,22 @@
   /* As high as what is in it (bottomSheetFitClass: the editor's sheets), at most --bottom-sheet-start-max-height. */
   .bottom-sheet-fit {
     height: fit-content;
-    max-height: min(var(--bottom-sheet-start-max-height, 50dvh), 56rem);
+    max-height: min(var(--bottom-sheet-start-max-height, 50dvh), 56rem, var(--visual-height, 100dvh));
   }
   .bottom-sheet-fit > .bottom-sheet-container {
     max-height: inherit;
+  }
+  /* With the on-screen keyboard up (followKeyboard() in bottomSheetControl.ts) the sheet ends at the keyboard's top
+     (--keyboard-inset), is at most as high as what is visible (--visual-height, the content scrolls inside) and has no
+     safe-area space under it: the keyboard covers it. */
+  .bottom-sheet[data-keyboard] > .bottom-sheet-container {
+    padding-bottom: 0;
   }
   /* Starts at --bottom-sheet-start-max-height, dragged up to as high as the screen allows (bottomSheetFullClass: a whole
      page in it, the editor's preview). */
   .bottom-sheet-full {
     max-width: none;
-    height: var(--bottom-sheet-start-max-height, 50dvh);
+    height: min(var(--bottom-sheet-start-max-height, 50dvh), var(--visual-height, 100dvh));
   }
   .bottom-sheet::backdrop {
     background: var(--bottom-sheet-scrim, color-mix(in srgb, var(--block-text) 50%, transparent));
@@ -2080,7 +2109,7 @@
   /* A carousel: its items in a row to swipe, and the page indicator under them. */
   .carousel-items {
     display: flex;
-    gap: var(--carousel-gap, 1rem);
+    gap: var(--carousel-gap, 0.5rem);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
@@ -2211,7 +2240,9 @@
   .card-dragged while it is dragged to another place. What is on it (its icon, heading, text, image) is the block's
   own (block-…).
     --card-radius, --card-padding   its corners and the room inside it (16px, as Material 3's)
-    --card-gap                      the room between cards (8px; the grid or list of cards sets it as its gap)
+    --card-gap                      the room between cards (8px, Material 3's at most; the grid, list or carousel of cards sets it as its gap)
+    --card-media-gap, --card-subhead-gap, --card-text-gap, --card-action-gap   inside a "Cards" card (blocks.css): the media to the
+                                    headline (16px), the headline to the subhead (4px), to the text (8px), the text to the link or buttons (16px)
     --card-hover-layer, --card-focus-layer   the state layer of a card that links, in its text's colour: pointed at 8%,
                                     focused 10% (opacity)
     --card-<kind>-surface, --card-<kind>-line, --card-<kind>-shadow   each kind's surface, its edge (a 1px line inside
@@ -2367,8 +2398,20 @@
     /* The height of its first two lines (the headline and the supporting text's first line), where what stands
        beside the text stands (below). */
     --list-item-first-lines: calc(var(--list-item-headline-line-height, 1lh) + var(--list-item-supporting-line-height, 1lh));
+    /* The heights with the density of lists (--mo-density, which goes to -3: a list is read in bulk), 4 px a step, and never
+       below the target (--mo-target): the row is the target, so a row that is denser than the target stays at it. */
+    --list-item-density: calc(var(--mo-density) * var(--mo-density-step));
+    --list-item-box: max(var(--mo-target), calc(var(--list-item-min-height) + var(--list-item-density)));
+    --list-item-two-line-box: max(
+      var(--mo-target),
+      calc(var(--list-item-two-line-min-height, var(--list-item-min-height)) + var(--list-item-density))
+    );
+    --list-item-three-line-box: max(
+      var(--mo-target),
+      calc(var(--list-item-three-line-min-height, var(--list-item-min-height)) + var(--list-item-density))
+    );
     display: flex;
-    min-height: var(--list-item-min-height, auto);
+    min-height: var(--list-item-box, auto);
     align-items: center;
     gap: var(--list-item-gap, 1.5rem);
     border-radius: var(--list-item-shape);
@@ -2383,7 +2426,7 @@
      rows). */
   .list-item-two-line,
   .list-item-container:not(.list-item-three-line):has(> .list-item-content > .list-item-supporting) {
-    min-height: var(--list-item-two-line-min-height, var(--list-item-min-height, auto));
+    min-height: var(--list-item-two-line-box, var(--list-item-box, auto));
   }
   /* Room enough over and under its two lines for its height, so they and what stands beside them are in the middle
      of an item whose text has no more lines, and at the same place in one whose text runs over more (not with a
@@ -2391,13 +2434,10 @@
   :is(.list-item-two-line, .list-item-container:not(.list-item-three-line):has(> .list-item-content > .list-item-supporting)):not(
     :has(> :is(.list-item-leading-image, .list-item-leading-video))
   ) {
-    padding-block: max(
-      var(--list-item-padding-block, 0.85rem),
-      (var(--list-item-two-line-min-height, 0px) - var(--list-item-first-lines)) / 2
-    );
+    padding-block: max(var(--list-item-padding-block, 0.85rem), (var(--list-item-two-line-box, 0px) - var(--list-item-first-lines)) / 2);
   }
   .list-item-three-line {
-    min-height: var(--list-item-three-line-min-height, var(--list-item-min-height, auto));
+    min-height: var(--list-item-three-line-box, var(--list-item-box, auto));
   }
   .list-item-leading,
   .list-item-trailing {
@@ -3375,7 +3415,7 @@
   }
   /* Nothing chosen yet: the name stands in the field, as on an empty text field. */
   .exposed-dropdown-menu:has(.exposed-dropdown-menu-empty:checked) .exposed-dropdown-menu-select:not(:focus) + .text-field-label {
-    top: calc(var(--text-field-height, 3rem) / 2);
+    top: calc(var(--text-field-box, var(--text-field-height, 3rem)) / 2);
     margin-left: 0;
     padding: 0;
     background: none;
@@ -4183,7 +4223,7 @@
   .segmented-button-segment {
     display: inline-flex;
     min-width: 3rem;
-    min-height: calc(var(--segmented-button-height, var(--button-height, 3rem)) - 2px);
+    min-height: calc(var(--segmented-button-height, var(--button-height, 3rem)) - 2px + var(--mo-density-layout) * var(--mo-density-step));
     align-items: center;
     justify-content: center;
     gap: var(--segmented-button-gap, var(--button-xsmall-gap, 0.5rem));
@@ -4556,11 +4596,12 @@
      list item's padding, so the rows stand apart the same way; what sets a row is centred on it. A button after the
      rows (.setting-list-action) has its icon at the left edge of the names. */
   .setting-list > .setting-row {
-    min-height: var(--list-item-min-height);
+    /* A settings form follows the layout density, and its row stays a target. */
+    min-height: max(var(--mo-target), calc(var(--list-item-min-height) + var(--mo-density-layout) * var(--mo-density-step)));
     padding-block: var(--list-item-padding-block);
   }
   .setting-list > .setting-row:has(.setting-row-supporting) {
-    min-height: var(--list-item-two-line-min-height);
+    min-height: max(var(--mo-target), calc(var(--list-item-two-line-min-height) + var(--mo-density-layout) * var(--mo-density-step)));
   }
   .setting-list > .setting-row > :not(.setting-row-text) {
     align-self: center;
@@ -6631,14 +6672,14 @@
   .date-picker-field-button,
   .time-picker-field-button {
     position: absolute;
-    top: calc((var(--text-field-height, 3rem) - var(--icon-button-size, 2.75rem)) / 2);
+    top: calc((var(--text-field-box, var(--text-field-height, 3rem)) - var(--icon-button-size, 2.75rem)) / 2);
     right: 0.25rem;
   }
 
   /* Where it opens: under the field (docked), or in the middle of the screen (modal: .dialog-modal, its scrim). */
   .date-picker-popover {
     position: absolute;
-    inset: calc(var(--text-field-height, 3rem) + 0.25rem) auto auto 0;
+    inset: calc(var(--text-field-box, var(--text-field-height, 3rem)) + 0.25rem) auto auto 0;
     z-index: 35;
     width: min(var(--date-picker-width, 22.5rem), calc(100vw - 2rem));
     margin: 0;

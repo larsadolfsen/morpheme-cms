@@ -300,7 +300,10 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                 </div>
               </FormField>
               {/* Named by the harmony chosen, else (a file with a variant) "Harmony". */}
-              <FormField label={choice.harmony ? d.harmonies[choice.harmony] : d.harmony} hint={d.harmonyHint}>
+              <FormField
+                label={choice.harmony && choice.harmony !== 'custom' ? d.harmonies[choice.harmony] : d.harmony}
+                hint={d.harmonyHint}
+              >
                 <div className="space-y-4">
                   <ChipSet label={d.harmony} scroll>
                     {HARMONIES.map((h) => (

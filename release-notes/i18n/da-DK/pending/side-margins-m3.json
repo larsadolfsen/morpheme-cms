@@ -1,0 +1,6 @@
+{
+  "id": "side-margins-m3",
+  "kind": "paragraph",
+  "title": "Sidemargener",
+  "text": "Tekst og billeder på dine sider får mere plads på en mobil. Margenen i siderne er nu 16 px på en mobil og 24 px på en tablet eller computer, som Material 3 foreskriver. Tabeller, karruseller og bannere flugter stadig med teksten."
+}
