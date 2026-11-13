@@ -2466,7 +2466,7 @@ export function FormHeading({ first, children }: { first?: boolean; children: Re
 
 /** A section of a long form that folds in and out (the sections of a page; Material 3 has no accordion, so it has its
  * own name): its heading, as large as a FormHeading, is a button with the arrow at its right, which turns while the
- * section is open, and a line under each section. The title's box is trimmed to the capitals and the baseline, so the space above and below the letters is equal. Folded, only the heading is shown; what is in it stays (hidden), so
+ * section is open, and a line under each section. The title's box is trimmed to the capitals and the baseline, so the space above and below the letters is equal; sections that follow each other touch (no gap from a parent's `space-y`), so the line above a title is as far from it as the line below. Folded, only the heading is shown; what is in it stays (hidden), so
  * the text and the fields keep what was written, and it shows softly when opened (.editor-reveal). It stops under the
  * top bar when the page scrolls to it. `ref`: the section, for what scrolls to it and marks it. */
 export function FoldSection({
@@ -2487,7 +2487,8 @@ export function FoldSection({
     <section
       ref={ref}
       aria-labelledby={`${id}-title`}
-      className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-outline-variant"
+      data-fold-section=""
+      className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-outline-variant [&:has(+[data-fold-section])]:mb-0 [[data-fold-section]+&]:mt-0"
     >
       <h2>
         <button

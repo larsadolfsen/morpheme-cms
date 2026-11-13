@@ -215,6 +215,11 @@
   --tw-prose-links: var(--section-on);
   --tw-prose-bullets: var(--section-on);
   --tw-prose-counters: var(--section-on);
+  --tw-prose-code: var(--section-on);
+  --tw-prose-quotes: var(--section-on);
+  --tw-prose-quote-borders: var(--section-on);
+  --tw-prose-captions: var(--section-on);
+  --tw-prose-hr: var(--section-on);
   --section-accent: var(--section-fill);
   --section-on-accent: var(--section-on);
   background: var(--section-fill);
@@ -852,27 +857,29 @@ html {
   border-color: var(--mo-primary);
 }
 
-/* The floating toolbar of a block typed in place (inlineBar.ts): over the block on a computer, docked above the keyboard on a phone; every
+/* The contextual menu of a block typed in place (contextualMenu.ts): over the block on a computer, docked above the keyboard on a phone; every
    button a 48 dp target. */
-.site-block-toolbar {
+.contextual-menu {
   position: fixed;
   z-index: 40;
   display: flex;
   max-width: calc(100vw - 1rem);
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: 0.125rem;
   border: 1px solid var(--mo-outline-variant);
-  border-radius: var(--mo-shape-full);
+  border-radius: var(--mo-shape-extra-large);
   background: var(--editor-menu-surface);
   padding: 0.25rem;
   box-shadow: var(--editor-menu-shadow);
 }
 
-.site-block-toolbar[hidden] {
+.contextual-menu[hidden] {
   display: none;
 }
 
-.site-block-toolbar button {
+.contextual-menu button {
   display: inline-flex;
   min-width: 3rem;
   height: 3rem;
@@ -887,28 +894,11 @@ html {
   white-space: nowrap;
 }
 
-.site-block-toolbar button:hover,
-.site-block-toolbar button:focus-visible,
-.site-block-toolbar button[aria-expanded='true'] {
+.contextual-menu button:hover,
+.contextual-menu button:focus-visible,
+.contextual-menu button[aria-expanded='true'] {
   outline: none;
   background: var(--mo-surface-container-high);
-}
-
-.site-block-toolbar-menu {
-  position: absolute;
-  bottom: calc(100% + 0.5rem);
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--mo-outline-variant);
-  border-radius: var(--mo-shape-large);
-  background: var(--editor-menu-surface);
-  padding: 0.25rem;
-  box-shadow: var(--editor-menu-shadow);
-}
-
-.site-block-toolbar-menu button {
-  justify-content: flex-start;
 }
 
 /* A field typed in a row: no frame of its own, the text of the row as the site draws it, and the height of its text. */
@@ -1020,9 +1010,9 @@ html {
   background: var(--mo-secondary-container);
   color: var(--mo-on-secondary-container);
 }
-/* A card's next button: empty and faded until it is made (Cards, InlineCards.tsx). */
+/* A card's next button: empty and quiet (on-surface-variant, not an opacity, which kept it under 3:1) until it is made (Cards, InlineCards.tsx). */
 .editor-text .inline-card-next-button {
-  opacity: 0.55;
+  color: var(--mo-on-surface-variant);
 }
 
 .editor-text .inline-list-slot {
@@ -1574,4 +1564,12 @@ dialog {
 
 .editor-text .inline-plans .inline-button-faded:not(:focus-within) {
   opacity: 0.55;
+}
+
+/* The FAQ's text button typed in place under its questions (while the block is active): its text, then the slot for its page. */
+.editor-text .inline-faq-button {
+  display: flex;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: var(--mo-space-8, 8px);
 }
