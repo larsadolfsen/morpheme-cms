@@ -20,8 +20,9 @@ block or row you tapped. A **part** is a ready-made piece of the theme (`theme/u
 **spring** is the theme's motion (`--motion-spatial-fast`, `motionTiming`, `motionSpring` in `lib/motion.ts`).
 
 This spec does not change inline block editing (`2026-11-12-inline-block-editing-design.md`): the same actions, the same
-`BarAction` list, only a new place and shell. The touch-selection spec (PR #529) has a `SelectionBar`; it becomes this same
-bar's contextual part (a list screen's selection actions slide in where a block's would), not a second bar.
+`BarAction` list, only a new place and shell. The touch-selection spec (PR #529) has a `SelectionBar`; if that spec
+chooses to use this bar, it is this same bar's contextual part, not a second bar; list screens are not the editor's own workspace, so what they
+do follows what M3 prints, as #529 decides.
 
 ## 1. What exists today
 
@@ -307,7 +308,7 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
 | Testimonials, Posts | Edit (opens the list page), Settings, `⋮` |
 | HTML | Settings, `⋮` |
 | Banner (section) | Section settings, `⋮` |
-| A list screen's selection (PR #529) | the selection's actions and a close button, in the same place |
+| A list screen's selection (PR #529; not the editor's workspace, so it follows what M3 prints, decided in that spec) | only if #529 decides to use this bar: the selection's actions and a close button, in the same place |
 
 ## 7. Risks, checks, size
 
