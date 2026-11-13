@@ -1528,6 +1528,32 @@ dialog {
   cursor: text;
 }
 
+/* The Table typed in place: the cells as the site draws them, each a field; the active cell has the dotted line, and the next row and the next
+   column (shown while the block is active) are faded until typed in. */
+.editor-text .inline-table :is(th, td) {
+  height: auto;
+}
+
+.editor-text .inline-table .inline-table-cell-active {
+  outline: var(--editor-section-frame);
+  outline-offset: -2px;
+}
+
+.editor-text .inline-table .inline-table-cell-next:not(.inline-table-cell-active) {
+  opacity: 0.55;
+}
+
+/* The table over its `Add row` button, the table the full width of the text. */
+.editor-text .inline-table-host {
+  display: grid;
+  justify-items: start;
+  gap: var(--mo-space-8, 8px);
+}
+
+.editor-text .inline-table-host > .inline-table {
+  width: 100%;
+}
+
 /* Price cards typed in place: the points are fields in the card's checklist, and the button's label is typed on the button. */
 .editor-text .inline-plans .inline-plan-features .inline-list-field {
   min-width: 6ch;

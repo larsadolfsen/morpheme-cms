@@ -87,6 +87,7 @@ import { RowsFromList } from './InlineList';
 import { typedInPlace } from './typedInPlace.mjs';
 import type { Change, Focus, Item as Row } from './InlineItems';
 import { addAt, isEmptyRow, moveBy, setField, withoutEmpty } from './inlineRows.mjs';
+import { addColumnAt, addRowAt, removeColumnAt, removeRowAt, trimmed } from './inlineGrid.mjs';
 import { editorRows } from './standard/rows/view';
 import { fromLine, listPageOf } from './standard/rows/fields';
 import { sourceOf, withPart } from './standard/rows/rows.mjs';
@@ -1081,6 +1082,8 @@ function blockCard(
   // Typed in place: which row is active (null: none, the block shows its live look), and the field to put the cursor in.
   let active: number | null = null;
   let focus: Focus | null = null;
+  // A grid (the Table): the column of the active cell.
+  let col: number | null = null;
   // Its floating toolbar (made below, with the block's menu).
   let bar: ReturnType<typeof inlineBar> | null = null;
   let syncRow: (open: boolean) => void = () => {};
@@ -1123,6 +1126,7 @@ function blockCard(
     if ('active' in c) active = c.active ?? null;
     if (active !== null) dynOpen = false;
     if ('focus' in c) focus = c.focus ?? null;
+    if ('col' in c) col = c.col ?? null;
     if (c.items) setItems(c.items);
     else draw();
   };
@@ -1165,6 +1169,7 @@ function blockCard(
             props={node.attrs.props}
             data={ask.data}
             active={active}
+            col={col}
             focus={focus}
             onChange={change}
             onSettings={settings}
@@ -1305,8 +1310,34 @@ function blockCard(
     // A block with no link, settings or icon (Steps) has no item sheet: no Link action, and no gear unless it has block settings.
     const compact = () => !atLeastNow('expanded');
     // The active row has something in it (the row actions are for a row, not for the empty one being started).
+    // A grid (the Table): a row or a column of the active cell is added (before or after) or deleted; the cursor stays in the cell.
+    const gridActions = (g: NonNullable<typeof spec>['grid'] & object, list: string[][]): BarAction[] => {
+      if (active === null) return [];
+      const [r, c] = [active, col ?? 0];
+      const go = (cells: string[][], row: number, column: number) =>
+        change({ items: cells as unknown as Row[], active: row, col: column, focus: { row, field: String(column) } });
+      return [
+        { kind: 'above', label: spec!.texts.addAbove, action: () => go(addRowAt(list, r), r, c) },
+        { kind: 'below', label: spec!.texts.addBelow, action: () => go(addRowAt(list, r + 1), r + 1, c) },
+        { kind: 'column-before', label: g.addColumnBefore, action: () => go(addColumnAt(list, c), r, c) },
+        { kind: 'column-after', label: g.addColumnAfter, action: () => go(addColumnAt(list, c + 1), r, c + 1) },
+        ...(list.length > 1 && r < list.length
+          ? [{ kind: 'delete' as const, label: g.deleteRow, action: () => go(removeRowAt(list, r), Math.min(r, list.length - 2), c) }]
+          : []),
+        ...((list[0]?.length ?? 1) > 1 && c < (list[0]?.length ?? 1)
+          ? [
+              {
+                kind: 'delete' as const,
+                label: g.deleteColumn,
+                action: () => go(removeColumnAt(list, c), r, Math.min(c, (list[0]?.length ?? 1) - 2)),
+              },
+            ]
+          : []),
+      ];
+    };
     const rowActions = (): BarAction[] => {
       const list = rows();
+      if (spec!.grid) return gridActions(spec!.grid, list as unknown as string[][]);
       // A card's link is the bar's Link, also while the card is still empty (its sheet has the page and the buttons).
       if (!single && !isDynamic() && active !== null && spec!.settings && (active >= list.length || isEmptyRow(list[active])))
         return [{ kind: 'link', label: spec!.texts.link ?? '', action: settings }];
@@ -1475,14 +1506,16 @@ function blockCard(
       // A dynamic block has no row being typed in: the focus going back to the text (as a sheet opens or closes) is not leaving it, only a tap elsewhere is.
       if (e.type === 'focusin' && active === null) return;
       active = null;
+      col = null;
       iconOf = null;
       focus = null;
       dynSelected = false;
       dynOpen = false;
       asker()?.row(null);
       const list = rows();
-      const kept = single ? list : withoutEmpty(list);
-      if (kept !== list) setItems(kept);
+      // A grid loses the empty rows and columns at its end (what was started in the next one and left); a list its empty rows.
+      const kept = spec!.grid ? (trimmed(list as unknown as string[][]) as unknown as Row[]) : single ? list : withoutEmpty(list);
+      if (spec!.grid ? JSON.stringify(kept) !== JSON.stringify(list) : kept !== list) setItems(kept);
       else draw();
     };
     document.addEventListener('pointerdown', away, true);

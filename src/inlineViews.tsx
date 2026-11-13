@@ -4,6 +4,7 @@ import type { ComponentType } from 'react';
 import InlineList from './InlineList';
 import type { BlockData, BlockProps } from './blocks';
 import InlineCards from './InlineCards';
+import InlineTable from './InlineTable';
 import InlineNotice from './InlineNotice';
 import InlineVideo from './InlineVideo';
 import InlineSteps from './InlineSteps';
@@ -20,6 +21,8 @@ export type InlineViewProps = {
   data: BlockData;
   /** The item being edited; null while the block is not. */
   active: number | null;
+  /** A grid's active column (the Table); null while no cell is. */
+  col: number | null;
   /** The field to put the cursor in, once (a new object asks again). */
   focus: Focus | null;
   onChange: (change: Change) => void;
@@ -34,6 +37,7 @@ export type InlineViewProps = {
 export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
   list: InlineList as ComponentType<InlineViewProps>,
   cards: InlineCards,
+  table: InlineTable,
   notice: InlineNotice,
   video: InlineVideo,
   steps: InlineSteps,
