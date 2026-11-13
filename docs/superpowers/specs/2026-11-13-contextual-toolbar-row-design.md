@@ -184,23 +184,22 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   **What the Text style menu and the list rows show in a list item and in a heading (owner decision: "No headings in the list item text list. And no list
   item in the menu if in a heading."; hidden, not disabled).** Decided: headings are hidden in a list item; the list buttons and rows are hidden in a
   heading. The rest follows the same logic from what the code does today (`setKind`, `MarkdownEditor.tsx`): only what would take the item out
-  of its list, or make a heading a list, is hidden; the rest I list as shown and flag, and the owner has not decided it.
+  of its list, make a heading a list, or take a heading away is hidden; the rest is shown.
 
   | Cursor in | Row or button | Shown or hidden | Why (what it does today) |
   | --- | --- | --- | --- |
   | a list item | H1, H2, H3 | **hidden** (decided) | picking one lifts the item out of its list (`outOfLists`) |
   | a list item | Body small, medium, large | shown | a size is a mark on the item's text and keeps the list (`sizeListText`; Body medium takes it away) |
-  | a list item | Quote | **hidden** (my logic, not decided) | it lifts the item out of its list first, then wraps it in a quote |
+  | a list item | Quote | **hidden** (hidden, not separately decided; the owner did not object) | it lifts the item out of its list first, then wraps it in a quote |
   | a list item | Label | hidden (already) | a label is only for the line above a heading (`labelable`), never in a list |
   | a list item | Bulleted, Check, Numbered | shown | they change the kind of list, or picked again take the item out (as today) |
   | a heading | Bulleted, Check, Numbered, and the List button on a wide screen | **hidden** (decided) | each would turn the heading into a list item (`turnIntoText`, then wrap in a list) |
   | a heading | H1, H2, H3 | shown, the current one marked | it is how the level changes |
   | a heading | Body small, medium, large | shown | it is how a heading becomes body text (`turnIntoText`, or its own block) |
-  | a heading | Quote | shown (my logic, flagged) | it turns the heading into text and wraps it in a quote: the heading is lost, but not made a list; the owner has not decided |
+  | a heading | Quote | **hidden** (decided: "Hide quote in heading.") | it would turn the heading into text and wrap it in a quote, losing the heading |
   | a heading | Label | shown where the line is `labelable` | only a line above a heading can be a label |
 
-  Flagged in one line for the owner, not decided: **Quote in a list item (hidden here) and Quote in a heading (shown here)** follow my reading of "hide only what
-  takes the item out of its list or makes a heading a list"; if the owner wants Quote hidden in a heading too, one row of this table changes. On a phone, where
+  Decided by the owner: **Quote is hidden in a heading** ("Hide quote in heading."). Quote in a list item is hidden too (hidden, not separately decided; the owner did not object). On a phone, where
   the lists are in `⋮`, the Lists group is absent from the `⋮` menu in a heading.
 
 - **The divider** is the theme's `Divider` part (`theme/ui/Divider.tsx`), vertical, in the theme's outline-variant colour, between the
