@@ -35,7 +35,7 @@ import {
   hexFromArgb,
   sanitizeDegreesDouble,
 } from '@material/material-color-utilities';
-import { isColor, MODES, type ColorSet, type Colors, type Mode } from './colors';
+import { contrast, isColor, MODES, type ColorSet, type Colors, type Mode } from './colors';
 
 /** Material's scheme variants, in the order they are offered (the first is Material's default). */
 export const VARIANTS = [
@@ -107,6 +107,10 @@ function placed(source: Hct, harmony: Harmony, which: 'secondary' | 'tertiary'):
   return { hue: sanitizeDegreesDouble(hue(source, w)), chroma: harmonyChroma(source.chroma) * share };
 }
 
+/** The generator's sixth choice (M3: "Define your own baseline scheme"): Primary, Secondary and Tertiary chosen freely, nothing
+ * generated between them. The chosen colours are the site's Primary, Secondary and Tertiary exactly (see roleHex). */
+export const CUSTOM = 'custom';
+
 /** The generator's three base colours, in order: the source colour (primary), the second (secondary) and the third
  * (tertiary). */
 export const BASE_COLORS = ['source', 'secondary', 'tertiary'] as const;
@@ -118,10 +122,15 @@ export type BaseColor = (typeof BASE_COLORS)[number];
  * which the harmony makes from it, cannot be changed on their own. */
 export type Dynamic = {
   source: string;
-  harmony?: Harmony;
+  harmony?: Harmony | typeof CUSTOM;
   variant?: Variant;
   contrast: Contrast;
   sourceLocked?: boolean;
+  /** Custom only: the second and third colour, chosen freely (`source` is Primary). */
+  secondary?: string;
+  tertiary?: string;
+  /** Custom only: the owner kept Primary as chosen though it is hard to read as text (primaryProblem). */
+  kept?: 'primary'[];
 };
 
 /** The choice for content-based colour, as an app gives it (AppDefinition.pageColors): the source colour is the image's. */
@@ -181,6 +190,9 @@ export type Role =
 /** The role each of a site's colours takes, by its name; one role, or one in each mode. */
 export type ColorRoles = Record<string, Role | Record<Mode, Role>>;
 
+const TEXT_MIN = 4.5;
+const GRAPHIC_MIN = 3;
+
 function roleColor(scheme: DynamicScheme, role: Role): string {
   return hexFromArgb(scheme[role]);
 }
@@ -196,9 +208,15 @@ function schemeOf(dynamic: Dynamic, isDark: boolean): DynamicScheme {
   const source = Hct.fromInt(argbFromHex(dynamic.source));
   const contrastLevel = CONTRASTS[dynamic.contrast];
   if (!dynamic.harmony) return new SCHEMES[dynamic.variant ?? VARIANTS[0]](source, isDark, contrastLevel);
+  const { harmony } = dynamic;
   const { hue, chroma } = source;
+  // Custom: each base colour gives its own palette, from its own hue and chroma; the neutrals still come from Primary.
   const around = (which: 'secondary' | 'tertiary') => {
-    const p = placed(source, dynamic.harmony!, which);
+    if (harmony === CUSTOM) {
+      const own = Hct.fromInt(argbFromHex(dynamic[which] ?? dynamic.source));
+      return TonalPalette.fromHueAndChroma(own.hue, own.chroma);
+    }
+    const p = placed(source, harmony, which);
     return TonalPalette.fromHueAndChroma(p.hue, p.chroma);
   };
   const scheme = new DynamicScheme({
@@ -217,12 +235,39 @@ function schemeOf(dynamic: Dynamic, isDark: boolean): DynamicScheme {
   return scheme;
 }
 
+/** The text colour on a fill: `preferred` (Material's: tone 100 in light mode, 20 in dark) where it gives 4.5:1, else white or
+ * black, whichever gives more. One of the two is always at least 4.58:1, so a fill always has readable text. */
+export function onColor(fill: string, preferred?: string): string {
+  if (preferred && contrast(preferred, fill) >= TEXT_MIN) return preferred;
+  return contrast('#ffffff', fill) >= contrast('#000000', fill) ? '#ffffff' : '#000000';
+}
+
+// In Custom the roles Primary, Secondary and Tertiary are the chosen colours, exactly, in both modes and at every contrast
+// level (M3's fidelity: "adjusts tones … to produce the intended visual results"), and their on-colours are `onColor` of them.
+// Every other role is the scheme's (containers, on-containers, fixed roles, surfaces, inverse roles, outline: Material's tones).
+const CHOSEN = {
+  primary: ['source', 'onPrimary'],
+  secondary: ['secondary', 'onSecondary'],
+  tertiary: ['tertiary', 'onTertiary'],
+} as const;
+
+function roleHex(dynamic: Dynamic, scheme: DynamicScheme, role: Role): string {
+  if (dynamic.harmony === CUSTOM) {
+    for (const [fill, [key, on]] of Object.entries(CHOSEN)) {
+      const chosen = hexFromArgb(argbFromHex(dynamic[key] ?? dynamic.source));
+      if (role === fill) return chosen;
+      if (role === on) return onColor(chosen, roleColor(scheme, role));
+    }
+  }
+  return roleColor(scheme, role);
+}
+
 /** The site's colours in both modes, made from the choice, each by its role. */
 export function dynamicColors(dynamic: Dynamic, roles: ColorRoles): Colors {
   const set = (mode: Mode): ColorSet => {
     const scheme = schemeOf(dynamic, mode === 'dark');
     return Object.fromEntries(
-      Object.entries(roles).map(([name, role]) => [name, roleColor(scheme, typeof role === 'string' ? role : role[mode])]),
+      Object.entries(roles).map(([name, role]) => [name, roleHex(dynamic, scheme, typeof role === 'string' ? role : role[mode])]),
     );
   };
   return { light: set('light'), dark: set('dark') };
@@ -304,14 +349,80 @@ export function dynamicProblems(value: unknown, key: 'dynamic' | 'contentBased' 
   const bad = (name: string) => `${key}.${name}: ${JSON.stringify(d[name] ?? null)}`;
   // A harmony instead of a variant only in a file of colours, the generator's.
   const harmony = key === 'dynamic' && d.harmony !== undefined;
+  const custom = key === 'dynamic' && d.harmony === CUSTOM;
   return [
     ...(key === 'contentBased' || isColor(d.source) ? [] : [bad('source')]),
-    ...(harmony ? (HARMONIES.includes(d.harmony as Harmony) ? [] : [bad('harmony')]) : []),
+    ...(harmony ? (custom || HARMONIES.includes(d.harmony as Harmony) ? [] : [bad('harmony')]) : []),
     ...((harmony ? d.variant === undefined : VARIANTS.includes(d.variant as Variant)) ? [] : [bad('variant')]),
     ...(Object.hasOwn(CONTRASTS, d.contrast as string) ? [] : [bad('contrast')]),
-    // The lock on the source colour, only in a file of colours.
-    ...(d.sourceLocked === undefined || (key === 'dynamic' && d.sourceLocked === true) ? [] : [bad('sourceLocked')]),
+    // The lock on the source colour, only in a file of colours, and not in Custom (nothing there moves a colour but its own pen).
+    ...(d.sourceLocked === undefined || (key === 'dynamic' && !custom && d.sourceLocked === true) ? [] : [bad('sourceLocked')]),
+    // Custom has both its other colours; nothing else has them.
+    ...(['secondary', 'tertiary'] as const).flatMap((name) =>
+      custom ? (isColor(d[name]) ? [] : [bad(name)]) : d[name] === undefined ? [] : [bad(name)],
+    ),
+    // The owner's answer "Keep" for Primary, only in Custom.
+    ...(d.kept === undefined || (custom && Array.isArray(d.kept) && d.kept.length === 1 && d.kept[0] === 'primary') ? [] : [bad('kept')]),
   ];
+}
+
+// What a colour must reach on the page (Surface): 4.5:1 as text, 3:1 as a graphic (M3, "Color contrast").
+
+/** The backgrounds Primary is text on (`colorPairs`: "Primary on Surface" and three containers). */
+const PRIMARY_TEXT_ON = ['surfaceContainerHigh', 'surfaceContainerLow', 'surfaceContainerLowest', 'surface'] as const;
+const roleName = (role: (typeof PRIMARY_TEXT_ON)[number]) => role.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+
+/** Primary as text in a mode: its contrast on the page and the containers (the lowest of the four `colorPairs`), and the
+ * one it is lowest on. */
+function primaryText(dynamic: Dynamic, mode: Mode, primary?: string) {
+  const scheme = schemeOf(dynamic, mode === 'dark');
+  const color = primary ?? roleHex(dynamic, scheme, 'primary');
+  return PRIMARY_TEXT_ON.map((role) => ({ on: roleName(role), ratio: contrast(color, roleColor(scheme, role)) })).reduce((a, b) =>
+    b.ratio < a.ratio ? b : a,
+  );
+}
+
+/** The question about Primary (Custom): in each mode where Primary, as text, is below 4.5:1 on Surface or a container (the four
+ * `primary on …` pairs), its lowest contrast and the background it is lowest on; [] when Primary reads everywhere. A harmony's
+ * Primary is Material's and never asks. The editor then asks "Fix this to improve accessibility?"; it never changes Primary itself. */
+export function primaryProblem(dynamic: Dynamic): { mode: Mode; ratio: number; min: number; on: string }[] {
+  return MODES.flatMap((mode) => {
+    const { ratio, on } = primaryText(dynamic, mode);
+    return ratio < TEXT_MIN ? [{ mode, ratio, min: TEXT_MIN, on }] : [];
+  });
+}
+
+/** What "Fix" gives Primary in a mode: the same hue and chroma at the nearest tone that reaches 4.5:1 as text (searched from
+ * the chosen tone: darker in light mode, lighter in dark mode, never past Material's own tone 40 or 80, which passes by
+ * construction); undefined when Primary already does. The on-color of the fixed colour is `onColor` of it. */
+export function fixedTone(dynamic: Dynamic, mode: Mode): string | undefined {
+  const chosen = roleHex(dynamic, schemeOf(dynamic, mode === 'dark'), 'primary');
+  if (primaryText(dynamic, mode).ratio >= TEXT_MIN) return undefined;
+  const { hue, chroma, tone } = Hct.fromInt(argbFromHex(chosen));
+  // Material's own tone for Primary at this contrast level (40 or 80 at Standard, further out at Medium and High).
+  const limit = Hct.fromInt(schemeOf(dynamic, mode === 'dark').primary).tone;
+  const step = mode === 'dark' ? 0.25 : -0.25;
+  for (let t = tone + step; mode === 'dark' ? t <= limit : t >= limit; t += step) {
+    const hex = hexFromArgb(Hct.from(hue, chroma, t).toInt());
+    if (primaryText(dynamic, mode, hex).ratio >= TEXT_MIN) return hex;
+  }
+  return hexFromArgb(TonalPalette.fromHueAndChroma(hue, chroma).tone(Math.round(limit)));
+}
+
+/** Secondary's or Tertiary's contrast on Surface in each mode (Custom; a harmony's are Material's). */
+export function pageContrast(dynamic: Dynamic, which: 'secondary' | 'tertiary'): Record<Mode, number> {
+  const of = (mode: Mode) => {
+    const scheme = schemeOf(dynamic, mode === 'dark');
+    return contrast(roleHex(dynamic, scheme, which), roleColor(scheme, 'surface'));
+  };
+  return { light: of('light'), dark: of('dark') };
+}
+
+/** Whether Secondary or Tertiary has low contrast on the page: below 3:1 on Surface in light or dark mode. Such a colour still
+ * fills (its text is checked) but is not offered as an icon color; nothing is asked and nothing is adjusted. */
+export function lowOnPage(dynamic: Dynamic, which: 'secondary' | 'tertiary'): boolean {
+  const { light, dark } = pageContrast(dynamic, which);
+  return light < GRAPHIC_MIN || dark < GRAPHIC_MIN;
 }
 
 // Material's quantizer in JavaScript (QuantizerWsmeans) starts its clusters from Math.random, so the same image could
@@ -393,7 +504,15 @@ function onWheel(hue: number, chroma: number, tone?: number): WheelDot {
 export function wheelDots(dynamic: Dynamic): WheelDot[] {
   const scheme = schemeOf(dynamic, false);
   const { tone } = Hct.fromInt(argbFromHex(dynamic.source));
+  const custom = dynamic.harmony === CUSTOM;
   return [scheme.primaryPalette, scheme.secondaryPalette, scheme.tertiaryPalette].map((p, i) => {
+    // Custom: each dot is its own colour, in its own tone.
+    if (custom)
+      return onWheel(
+        p.hue,
+        p.chroma,
+        Hct.fromInt(argbFromHex([dynamic.source, dynamic.secondary, dynamic.tertiary][i] ?? dynamic.source)).tone,
+      );
     const dot = onWheel(p.hue, p.chroma, i ? undefined : tone);
     return i ? { ...dot, color: hexFromArgb(DislikeAnalyzer.fixIfDisliked(Hct.fromInt(argbFromHex(dot.color))).toInt()) } : dot;
   });
@@ -401,13 +520,16 @@ export function wheelDots(dynamic: Dynamic): WheelDot[] {
 
 /** Whether a base colour can be changed on its own (its edit sheet): the source colour always; the secondary and
  * tertiary colour while the source colour is not locked, as they are made from it. */
-export const canSetBaseColor = (dynamic: Dynamic, which: BaseColor) => which === 'source' || !dynamic.sourceLocked;
+export const canSetBaseColor = (dynamic: Dynamic, which: BaseColor) =>
+  which === 'source' || dynamic.harmony === CUSTOM || !dynamic.sourceLocked;
 
 /** A choice with one of its base colours set to `color` (its edit sheet): the source colour is that colour (locked with
  * `lock`); for the secondary or tertiary colour (canSetBaseColor) the source colour turns, in its tone, so the harmony
  * (the first, without one) gives that colour's hue, or the closest it can (Material's warm and cool colours do not
  * reach every hue: no colour has a purple complement), and takes the chroma that gives that colour's chroma. */
 export function withBaseColor(dynamic: Dynamic, which: BaseColor, color: string, lock = false): Dynamic {
+  // Custom: a pen sets its own colour and nothing else, and there is no lock.
+  if (dynamic.harmony === CUSTOM) return { ...dynamic, [which]: color };
   if (which === 'source') return { ...dynamic, source: color, ...(lock && { sourceLocked: true }) };
   if (!canSetBaseColor(dynamic, which)) return dynamic;
   const harmony = dynamic.harmony ?? HARMONIES[0];
