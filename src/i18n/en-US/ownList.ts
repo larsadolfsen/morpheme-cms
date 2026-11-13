@@ -23,9 +23,15 @@ export const ownList = {
   menu: 'List menu',
   name: 'Name',
   fields: 'Fields',
-  titleOn: 'The title is always on.',
+  addField: 'Add field',
+  /** What an empty list's page says, above its `Add field` button. */
+  noFields: 'This list has no fields yet. Add the first one.',
+  /** A field's name in `Edit list` (the kind's name until the owner changes it). */
+  fieldName: 'Field name',
+  shown: 'Shown',
   /** Under a field that was switched off: its data is still in the items. */
   held: (n: number) => `The data in ${n} ${n === 1 ? 'item' : 'items'} stays until you remove it.`,
+  removeField: 'Remove field',
   removeData: 'Remove data',
   removeDataAsk: (field: string, n: number) => `Remove ${field.toLowerCase()} from ${n} ${n === 1 ? 'item' : 'items'} for good?`,
   /** `Delete list` is refused while a page or an app reads the list. */
