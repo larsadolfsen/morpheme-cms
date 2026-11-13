@@ -53,6 +53,10 @@ decides: the product uses **Large, Medium, Small**. M3's numbers are the sizes b
 M3's steps -2 and -3 stay in the mechanism (a theme may use them) but the editor does not offer them: the owner's image has three
 choices.
 
+**Sources I could not read.** M3's button and list-item Specs pages do not show their default heights as text in the rendered page, and
+the M3 pages do not give density numbers for any part but the segmented button. I wrote no value from memory: where a number is not
+read, the spec says so (section 2.2).
+
 ## 2. The design
 
 ### 2.1 The setting in the editor
@@ -88,20 +92,24 @@ A part writes its size as `calc(<default> + var(--mo-density) * var(--mo-density
 that does nothing about density never changes. Only the steps move, in M3's 4dp: the height or the top and bottom padding, never the
 text size.
 
-What each part does per step, from M3's numbers (Medium = default, Small = -1, then -2 and -3 for themes; Large = +1 adds 4dp the other way):
+What each part does per step, in dp (Medium = default, Small = -1, then -2 and -3 for themes):
 
-| Part | Default | -1 | -2 | -3 | Note |
+| Part | Default | -1 | -2 | -3 | Source of the default |
 | --- | --- | --- | --- | --- | --- |
-| Segmented button | 40 | 36 | 32 | 28 | M3's own spec |
-| Chip | 32 | 28 | 24 | 20 | from the rule "4dp per step" |
-| Button (medium) | 40 | 36 | 32 | 28 | same rule |
-| Text field | 56 | 52 | 48 | 44 | label stays centred |
-| List row | today's 56 / 72 / 88 | -4 | -8 | -12 | padding, not text |
-| Table row (`DataTable`) | 52 | 48 | 44 | 40 | replaces the table's `density` (section 3) |
-| Gaps between rows and sections in the editor, outside the page and post editing area | today's | -4 | -8 | -12 | layout density, from the spacing tokens |
+| Segmented button | 40 | 36 | 32 | 28 | read on M3's segmented-button Specs page, with its density rule |
+| Chip | 32 | 28 | 24 | 20 | read on M3's chips Specs page |
+| Text field | 56 | 52 | 48 | 44 | read on M3's text-field Specs page ("Container height 56dp") |
+| Table row (`DataTable`) | 52 | 48 | 44 | 40 | MD2's data-table spec, as in the table spec; M3 has no table |
+| Button, list row, gaps | not read | -4 | -8 | -12 | see below |
 
-The sizes in the table are the rule applied by us; only the segmented button is a number M3 prints. The PR that builds a part checks
-it against the Specs page of that part and corrects this table.
+Large (+1) adds 4 to each default. Only the segmented button's density rule is printed by M3 (the 4dp step and "only applied to the
+height"). For every other part the sizes are **our application of M3's general sentence** ("Higher density is typically applied by
+decreasing the top and bottom padding or overall height by 4dp"), not a number M3 gives for that part.
+
+**Not read.** I could not read the default heights of M3's button and list item from their Specs pages (the sizes sit in tabs that did
+not render with the container height as text), so this spec gives no number for them: the part's PR takes today's value from
+`theme/ui/` and subtracts 4dp per step, and checks it against M3 by hand in a browser. The gap between rows and sections in the editor
+(outside the page and post editing area) is likewise today's value minus 4dp per step, from the spacing tokens.
 
 Not changed at any step (M3: "Don't increase density" here): menus and their items, dialogs, snackbars, the density setting's own
 rows, the navigation parts' targets.
@@ -143,8 +151,7 @@ What the PM should change in that spec (I did not edit it):
 - The row of the table is built **in the `DataTable` part (PR 0)** as `calc(52px + var(--mo-density) * 4px)`, so the editor and the site
   share the same rule. The Table block's own `density` prop sets `--mo-density` on the table only.
 - In the editor (a table inside the editor, if one ever comes), the table follows the editor's density unless the block sets its own.
-- The "Storage" cell stays: adds `density` (a step), absent is `0`. A note on the 48 dp rule: table rows hold no tap targets except
-  links (a link is its own target; its text is at least 24 dp tall under WCAG 2.2, 2.5.8; M3's 48 dp applies on touch with a hit area).
+- The "Storage" cell stays: adds `density` (a step), absent is Medium (0). A note on the 48 dp rule: a link in a cell is its own tap target; on touch it keeps a 48 dp hit area (section 2.3), whatever the row height.
 - Release note: line (as before).
 
 ## 4. Order of work
