@@ -3,7 +3,7 @@
 // nothing from here. `ownListsOf(files)` makes them as lists (OwnedList), as the standard blocks' and the apps' are.
 import { ListChecks } from '@phosphor-icons/react';
 import { config } from '@site/config';
-import { asRowsOf, DEFINITION_FILE, fieldsOf, parseDefinition } from '../lib/ownList.mjs';
+import { asRowsOf, DEFINITION_FILE, fieldsOf, labelOfEntry, nameOf, parseDefinition } from '../lib/ownList.mjs';
 import { t } from './i18n';
 import type { Field, OwnedList } from './schema';
 
@@ -11,23 +11,30 @@ type Files = { path: string; text: string }[];
 
 const own = () => t.ownList;
 
-const fieldOf = (id: string): Field => {
+/** The names of the kinds, as `nameOf` (lib/ownList.mjs) numbers them. */
+export const kindNames = (): Record<string, string> => {
   const say = own();
-  switch (id) {
+  return { icon: say.icon, title: say.title, text: say.text, image: say.image, href: say.href, tags: say.tags };
+};
+
+/** The editor's field for one of the list's fields: its name is the field's id, so a row stores its value under it. */
+const fieldOf = (f: { id: string; kind: string }, label: string): Field => {
+  const say = own();
+  switch (f.kind) {
     case 'icon':
-      return { name: 'icon', label: say.icon, type: 'string' };
+      return { name: f.id, label, type: 'string' };
     case 'title':
-      return { name: 'title', label: say.title, type: 'string', required: true };
+      return { name: f.id, label, type: 'string' };
     case 'text':
-      return { name: 'text', label: say.text, type: 'text' };
+      return { name: f.id, label, type: 'text' };
     case 'image':
-      return { name: 'image', label: say.image, type: 'image' };
+      return { name: f.id, label, type: 'image' };
     case 'href':
-      return { name: 'href', label: say.href, type: 'string' };
+      return { name: f.id, label, type: 'string' };
     default:
       return {
-        name: 'tags',
-        label: say.tags,
+        name: f.id,
+        label,
         type: 'relation',
         to: 'categories',
         multiple: true,
@@ -37,9 +44,18 @@ const fieldOf = (id: string): Field => {
   }
 };
 
+/** What a new entry's file is named after: the title fields, then the body texts, else `item` (as lib/ownListSave.mjs). */
+const slugFrom = (definition: Definition): string[] => {
+  const fields = fieldsOf(definition) as { id: string; kind: string }[];
+  return ['title', 'text'].flatMap((kind) => fields.filter((f) => f.kind === kind).map((f) => f.id));
+};
+
+type Definition = Parameters<typeof fieldsOf>[0] & { label: string };
+
 /** One owner's list from its definition (a parsed `_list.json`) as a list the editor shows. */
-export function ownListOf(id: string, definition: { label: string; fields: string[]; dropped?: string[] }): OwnedList {
+export function ownListOf(id: string, definition: Definition): OwnedList {
   const say = own();
+  const names = kindNames();
   return {
     kind: 'folder',
     id,
@@ -50,10 +66,10 @@ export function ownListOf(id: string, definition: { label: string; fields: strin
     folder: `${config.folders.data}/${id}`,
     deletable: true,
     orderable: true,
-    slugFrom: 'title',
-    summary: (d) => String(d.title ?? ''),
-    fields: fieldsOf(definition as Parameters<typeof fieldsOf>[0]).map((f) => fieldOf(f.id)),
-    asRows: asRowsOf(definition as Parameters<typeof asRowsOf>[0]),
+    slugFrom: slugFrom(definition),
+    summary: (d) => labelOfEntry(definition, d) || say.singular,
+    fields: fieldsOf(definition).map((f: { id: string; kind: string }) => fieldOf(f, nameOf(definition, f, names))),
+    asRows: asRowsOf(definition),
   };
 }
 
