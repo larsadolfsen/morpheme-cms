@@ -78,6 +78,70 @@ for (const [name, pages] of missingOn) {
 
 const { server, site } = await serveBuilt(DIST);
 
+// A site is not the demo: what a check needs and the site does not have (a page, a post, a list), the check makes itself, as
+// files in src/ that the editor reads (answered here, never saved) and removes at the end. A site that has the thing is left alone.
+const made = [];
+const make = (path, text) => {
+  const file = join(ROOT, path);
+  mkdirSync(join(file, '..'), { recursive: true });
+  writeFileSync(file, text);
+  made.push(file);
+};
+const clean = () => {
+  for (const file of made.splice(0)) rmSync(file, { force: true });
+};
+process.on('exit', clean);
+const has = (path) => existsSync(join(ROOT, path)) && readdirSync(join(ROOT, path)).length > 0;
+/** The file of a page the site has built with the text in the page, which its Preview is made of (the blog's list page has none): the demo's About, or the first page of the site's own that is built, never the front page. */
+const builtPages = existsSync(join(ROOT, 'src/content/pages'))
+  ? readdirSync(join(ROOT, 'src/content/pages'))
+      .filter(
+        (f) =>
+          f.endsWith('.md') &&
+          f !== 'home.md' &&
+          existsSync(join(DIST, f.slice(0, -3), 'index.html')) &&
+          readFileSync(join(DIST, f.slice(0, -3), 'index.html'), 'utf8').includes('data-editor="text"'),
+      )
+      .sort()
+  : [];
+const BUILT_PAGE = `src/content/pages/${builtPages.includes('about.md') ? 'about.md' : (builtPages[0] ?? 'about.md')}`;
+/** A page's text with a List, a Segmented list and an FAQ, for the checks of their rows: a site's page need not have them. */
+const block = (name, props) => `<div data-block="${name}" data-props="${JSON.stringify(props).replaceAll('"', '&quot;')}"></div>`;
+const LIST_PAGE = [
+  '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
+  block('list', {
+    items: [
+      { icon: 'clock', title: 'One', text: 'First' },
+      { icon: 'info', title: 'Two', text: 'Second' },
+    ],
+  }),
+  block('segmented', { items: [{ title: 'Row', text: 'Text' }] }),
+  block('faq', { items: [{ question: 'Why?', answer: 'Because.' }] }),
+].join('\n\n');
+/** A page's text of our own for the checks that put a section on a heading: a site's page need not have one. */
+const PAGE_SOURCE = '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n## Tinted\n\nTinted text.\n';
+/** The title of a page the long press, the link and the lists checks use: the demo's, or the one made here. */
+const FIXTURE_PAGE = 'Check page';
+make(
+  'src/content/pages/zz-check-page.md',
+  `---\ntitle: "${FIXTURE_PAGE}"\n---\n\n# ${FIXTURE_PAGE}\n\nMade by check:screens, never saved.\n`,
+);
+/** A post that is not on the blog: the demo's, or the one made here. */
+const UNLISTED_POST = existsSync(join(ROOT, 'src/content/blog/not-on-the-blog.md'))
+  ? 'A post only for those with the link'
+  : 'Check post only for those with the link';
+make('src/content/blog/zz-check-post.md', `---\ntitle: "Check post"\ndate: 2026-01-01\n---\n\nMade by check:screens, never saved.\n`);
+make(
+  'src/content/blog/zz-check-unlisted.md',
+  `---\ntitle: "${UNLISTED_POST}"\ndate: 2026-01-02\nunlisted: true\n---\n\nMade by check:screens, never saved.\n`,
+);
+// The lists the dynamic List checks read: the demo's Testimonials and Highlights, or two made here with the same names.
+for (const list of ['highlights', 'testimonials'])
+  if (!has(`src/data/${list}`)) {
+    const from = fileURLToPath(new URL(`../demo/src/data/${list}/`, import.meta.url));
+    for (const name of readdirSync(from)) make(`src/data/${list}/${name}`, readFileSync(join(from, name), 'utf8'));
+  }
+
 // CHROMIUM_PATH: another Chromium than Playwright's own (one installed for another version of Playwright).
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
 // SCREENS_DIR (the temporary folder's morpheme-screens by default): where the images go.
@@ -154,103 +218,226 @@ async function checkStartSubtitle() {
   }
 }
 
-/** On a phone the text's row floats by the selected text (never a docked sheet): inside the visible screen (above the keyboard and "Save changes"), Bold, Italic and Link first, 48 dp buttons centred in their rows (a second row when they do not fit), and it follows the line the cursor is on. */
-async function checkTextSheet(width = 360) {
+/** The bar's Insert: on the bar, or in the ⋮ menu when it did not fit (a phone with the cursor in text). `how`: 'click' or 'tap'. */
+async function pressInsert(page, how = 'click') {
+  const direct = page.locator('.editor-tools [aria-label="Insert"]:visible');
+  if (await direct.count()) return void (await direct.first()[how]());
+  await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
+  await page
+    .locator('[role=menu] [role^=menuitem]')
+    .filter({ hasText: /^Insert$/ })
+    .first()
+    [how]();
+}
+
+/** The text's one bar (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, PR 1). On a phone, with the cursor in text: one bar, 44 dp tall, every button 44 x 44 dp, never scrolling, with the divider, Undo and Redo and the ⋮ at its end (at 360 and 375 px exactly Bold, Italic, Link, Text style, Undo, Redo, More); the ⋮ is a pop-up menu (not a sheet) inside the visible screen, with rows of 44 dp, which keeps the cursor and closes on Escape; Undo works; the bar has the same height idle (no divider then); the Text style menu has at most 8 rows of 44 dp, a page's first heading offers Main heading, a blog post Heading and Subheading, a list item no heading rows and no Quote, a heading no list rows and no Quote. On a computer all tools are on the bar and there is no ⋮. */
+async function checkTextBar(width = 360) {
   const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
-  page.on('pageerror', (e) => problems.push(`${width}px text menu: ${e.message}`));
+  const label = `${width}px text bar`;
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#new/pages'));
   await page.waitForSelector('.ProseMirror');
   await page.click('.ProseMirror');
   await page.keyboard.type('Fro');
-  const read = () =>
+  await page.waitForSelector('.editor-tools hr[aria-orientation="vertical"]', { timeout: 5000 }).catch(() => {});
+  const readBar = () =>
     page.evaluate(() => {
-      const m = document.querySelector('.editor-selection-menu');
-      const r = m.getBoundingClientRect();
-      const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? visualViewport.height;
-      const sel = getSelection().getRangeAt(0).getBoundingClientRect();
-      const names = [...m.querySelectorAll('button:not([hidden])')].map((b) => b.getAttribute('aria-label'));
-      const buttons = [...m.querySelectorAll('button:not([hidden])')].map((b) => ({
+      const bar = document.querySelector('.editor-tools');
+      const buttons = [...bar.querySelectorAll('button:not([hidden])')].map((b) => ({
+        name: b.getAttribute('aria-label'),
         ...b.getBoundingClientRect().toJSON(),
       }));
+      const divider = bar.querySelector('hr[aria-orientation="vertical"]');
       return {
-        shown: !m.hidden,
-        sheet: m.classList.contains('editor-selection-sheet'),
-        r: r.toJSON(),
-        save,
-        sel: sel.toJSON(),
-        names,
+        height: bar.getBoundingClientRect().height,
+        barWidth: bar.clientWidth,
+        names: buttons.map((b) => b.name),
         buttons,
-        scrolls: m.scrollWidth > m.clientWidth,
-        vh: visualViewport.height,
+        scrolls: bar.scrollWidth > bar.clientWidth + 2,
+        divider: !!divider && divider.getBoundingClientRect().height > 0,
+        pageScrolls: document.documentElement.scrollWidth > innerWidth,
+        groups: [...bar.querySelectorAll('[role=group]')].map((g) => g.getAttribute('aria-label')),
+        kept: document.activeElement?.closest('.ProseMirror') !== null,
       };
     });
-  await page.waitForTimeout(1200);
-  const first = await read();
-  await page.keyboard.type(' and more');
-  await page.keyboard.press('Enter');
-  for (let i = 0; i < 4; i++) await page.keyboard.press('Enter');
-  await page.keyboard.type('Next');
-  await page.waitForTimeout(1200);
-  const second = await read();
-  for (const [name, now] of [
-    ['first line', first],
-    ['later line', second],
-  ]) {
-    if (!now.shown) problems.push(`${width}px text menu: not shown at the ${name}`);
-    else if (now.sheet || now.r.width > width - 1) problems.push(`${width}px text menu: a docked sheet at the ${name}, not a floating row`);
-    else if (now.r.left < 0 || now.r.right > width || now.r.bottom > Math.min(now.save, now.vh) + 1)
-      problems.push(`${width}px text menu: outside the visible screen at the ${name}`);
-    else if (Math.min(Math.abs(now.r.bottom - now.sel.top), Math.abs(now.r.top - now.sel.bottom)) > 40)
-      problems.push(`${width}px text menu: not by the text at the ${name}`);
-    if (
-      !now.names.some((n) => n.endsWith('heading') || n.endsWith('Heading')) ||
-      now.names.includes('Insert') ||
-      now.names.at(-1) !== 'More'
-    )
-      problems.push(`${width}px text menu: Heading and More (three dots, last) are not all there, or Insert is at the ${name}`);
+  const inText = await readBar();
+  const slots = Math.floor((inText.barWidth - 17) / 44);
+  if (inText.height < 44 || inText.height > 46)
+    problems.push(`${label}: the bar is ${inText.height} px tall, not 44 (plus its 1 px edges)`);
+  if (inText.scrolls || inText.pageScrolls) problems.push(`${label}: the bar or the page scrolls sideways`);
+  if (inText.buttons.some((b) => Math.abs(b.height - 44) > 0.6 || b.width < 43.4))
+    problems.push(
+      `${label}: a button of the bar is not 44 x 44 dp (${inText.buttons.map((b) => `${b.name} ${b.width}x${b.height}`).join(', ')})`,
+    );
+  if (!inText.divider) problems.push(`${label}: no divider between the text tools and the main tools`);
+  if (inText.names.length > slots) problems.push(`${label}: ${inText.names.length} buttons but room for ${slots}`);
+  if (inText.names.slice(0, 3).join() !== 'Bold,Italic,Link' || !inText.names[3]?.startsWith('Text style'))
+    problems.push(`${label}: Bold, Italic, Link and Text style are not the first four (${inText.names.join(', ')})`);
+  if (!inText.names.includes('Undo') || !inText.names.includes('Redo') || inText.names.at(-1) !== 'More')
+    problems.push(`${label}: Undo, Redo and More (last) are not all there (${inText.names.join(', ')})`);
+  if (width === 360 || width === 375) {
+    const want = 'Bold,Italic,Link,Text style: Body medium,Undo,Redo,More';
+    if (inText.names.join() !== want) problems.push(`${label}: the bar has ${inText.names.join()}, not ${want}`);
   }
-  // Bold, Italic and Link come first, every button is 48 dp, nothing scrolls, and each row is centred (a second row when they do not fit).
-  if (first.names.slice(0, 3).join() !== 'Bold,Italic,Link')
-    problems.push(`${width}px text menu: Bold, Italic and Link are not the first three buttons`);
-  if (first.scrolls || first.buttons.some((b) => b.left < first.r.left - 1 || b.right > first.r.right + 1))
-    problems.push(`${width}px text menu: a button is outside the menu or the menu scrolls`);
-  if (first.buttons.some((b) => b.width < 47.5 || b.height < 47.5)) problems.push(`${width}px text menu: a button is smaller than 48 dp`);
-  const rows = Object.values(Object.groupBy(first.buttons, (b) => Math.round(b.top)));
-  for (const row of rows) {
-    const left = Math.min(...row.map((b) => b.left)) - first.r.left;
-    const right = first.r.right - Math.max(...row.map((b) => b.right));
-    if (Math.abs(left - right) > 2) problems.push(`${width}px text menu: a row of buttons is not centred (${left} left, ${right} right)`);
-  }
-  // Never two rows: one row at every width (the rest is under More).
-  if (rows.length !== 1) problems.push(`${width}px text menu: ${rows.length} rows, not one`);
-  if (first.r.top === second.r.top) problems.push(`${width}px text menu: it did not follow the cursor to another line`);
-  await page.setViewportSize({ width, height: 420 });
-  await page.waitForTimeout(500);
-  const keyboard = await read();
-  if (keyboard.r.bottom > Math.min(keyboard.save, keyboard.vh) + 1) problems.push(`${width}px text menu: it is under the keyboard`);
-  // More opens the sheet from the bottom with the text styles, the lists, the alignment and last the colours.
-  await page.setViewportSize({ width, height: 740 });
-  await page.waitForTimeout(300);
-  await page.click('.editor-selection-menu button[aria-label="More"]');
-  await page.waitForTimeout(500);
-  const sheetText = await page.evaluate(() => document.querySelector('dialog[open][aria-label="More"]')?.textContent ?? '');
-  for (const word of ['Color', 'Text style', 'List'])
-    if (!sheetText.includes(word)) problems.push(`${width}px text menu: the More sheet lacks "${word}"`);
-  if (sheetText.indexOf('Color') < sheetText.indexOf('Text style'))
-    problems.push(`${width}px text menu: Color is not last in the More sheet`);
-  if (!sheetText) problems.push(`${width}px text menu: More does not open its sheet`);
+  if (inText.groups.join() !== 'Text tools,Page tools') problems.push(`${label}: the groups are ${inText.groups.join()}`);
+  // Undo works.
+  const typed = await page.locator('.ProseMirror').innerText();
+  await page.keyboard.type(' more');
+  await page.locator('.editor-tools [aria-label="Undo"]').click();
+  const undone = await page.locator('.ProseMirror').innerText();
+  if (undone.length >= typed.length + ' more'.length) problems.push(`${label}: Undo on the bar did not take back the typing`);
+  await page.locator('.ProseMirror').click();
+  // The ⋮ is a pop-up menu under its button, inside the screen, rows of 44 dp, and the cursor stays.
+  const more = page.locator('.editor-tools [aria-label="More"]');
+  await more.click();
+  await page.waitForSelector('[role=menu][aria-label="More"]', { timeout: 3000 });
+  const menu = await page.evaluate(() => {
+    const m = document.querySelector('[role=menu][aria-label="More"]');
+    const r = m.getBoundingClientRect();
+    const b = document.querySelector('.editor-tools [aria-label="More"]').getBoundingClientRect();
+    return {
+      sheet: !!m.closest('dialog'),
+      r: r.toJSON(),
+      buttonBottom: b.bottom,
+      rows: [...m.querySelectorAll('[role^=menuitem]')].map((x) => ({ name: x.textContent.trim(), h: x.getBoundingClientRect().height })),
+      kept: document.activeElement?.closest('.ProseMirror') !== null,
+      vh: visualViewport.height,
+    };
+  });
+  if (menu.sheet) problems.push(`${label}: the ⋮ is a sheet, not a pop-up menu`);
+  if (menu.r.left < 0 || menu.r.right > width || menu.r.bottom > menu.vh + 1 || menu.r.top < menu.buttonBottom - 1)
+    problems.push(`${label}: the ⋮ menu is outside the visible screen or not under its button`);
+  if (menu.rows.some((x) => x.h < 43.4)) problems.push(`${label}: a row of the ⋮ menu is under 44 dp`);
+  const listOnBar = inText.names.some((n) => n === 'List' || n.startsWith('List:'));
+  for (const name of [...(listOnBar ? [] : ['Bullet list', 'Check list', 'Numbered list']), 'Color', 'Insert'])
+    if (!menu.rows.some((x) => x.name === name))
+      problems.push(`${label}: the ⋮ menu lacks "${name}" (${menu.rows.map((x) => x.name).join(', ')})`);
+  if (!menu.rows.some((x) => x.name.startsWith('Alignment'))) problems.push(`${label}: the ⋮ menu lacks Alignment`);
+  if (!menu.kept) problems.push(`${label}: the ⋮ took the cursor out of the text`);
   await page.keyboard.press('Escape');
+  if (await page.locator('[role=menu][aria-label="More"]').count()) problems.push(`${label}: Escape did not close the ⋮ menu`);
+  // With the keyboard open (a short screen) the menu stays inside what is visible and scrolls.
+  await page.setViewportSize({ width, height: 420 });
+  await page.waitForTimeout(300);
+  await more.click();
+  const short = await page.evaluate(() => {
+    const m = document.querySelector('[role=menu][aria-label="More"]');
+    return {
+      bottom: m.getBoundingClientRect().bottom,
+      vh: visualViewport.height,
+      scrolls: m.scrollHeight > m.clientHeight,
+      overflow: getComputedStyle(m).overflowY,
+    };
+  });
+  if (short.bottom > short.vh + 1) problems.push(`${label}: the ⋮ menu is under the bottom of a short screen`);
+  if (short.overflow !== 'auto' && short.overflow !== 'scroll')
+    problems.push(`${label}: the ⋮ menu does not scroll when it is too long (${short.overflow})`);
+  await page.keyboard.press('Escape');
+  await page.setViewportSize({ width, height: 740 });
+  await page.waitForTimeout(200);
+  // The Text style menu: one button, at most 8 rows of 44 dp, a page's first heading is Main heading.
+  const rowsOf = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll('[role=menu] [role^=menuitem]')].map((x) => ({
+        name: x.textContent.trim(),
+        h: x.getBoundingClientRect().height,
+      })),
+    );
+  const styleButtons = await page.locator('.editor-tools [aria-label^="Text style"]:visible').count();
+  if (styleButtons !== 1) problems.push(`${label}: ${styleButtons} Text style buttons on the bar, not 1`);
+  await page.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
+  const style = await rowsOf();
+  if (style.length > 8 || style.some((x) => x.h < 43.4))
+    problems.push(`${label}: the Text style menu has ${style.length} rows or one is under 44 dp`);
+  if (!style.some((x) => x.name === 'Main heading') || style.some((x) => x.name === 'Subheading'))
+    problems.push(`${label}: a page's first heading should offer Main heading only (${style.map((x) => x.name).join(', ')})`);
+  for (const name of ['Body small', 'Body medium', 'Body large', 'Quote'])
+    if (!style.some((x) => x.name === name)) problems.push(`${label}: the Text style menu lacks ${name}`);
+  // In a heading: no Quote, no list rows (on the bar's ⋮ or the List menu).
+  await page
+    .locator('[role=menu] [role^=menuitem]')
+    .filter({ hasText: /^Main heading$/ })
+    .first()
+    .click();
+  await page.keyboard.type('Title');
+  await page.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
+  if ((await rowsOf()).some((x) => x.name === 'Quote')) problems.push(`${label}: Quote is offered in a heading`);
+  await page.keyboard.press('Escape');
+  await more.click();
+  const inHeading = await rowsOf();
+  if (inHeading.some((x) => /list$/i.test(x.name)))
+    problems.push(`${label}: list rows are offered in a heading (${inHeading.map((x) => x.name).join(', ')})`);
+  if ((await readBar()).names.some((n) => n === 'List' || n.startsWith('List:')))
+    problems.push(`${label}: the List button is on the bar in a heading`);
+  await page.keyboard.press('Escape');
+  // Idle: the cursor leaves the text; the main tools only, no divider, the same bar height, nothing scrolls.
+  await page.evaluate(() => document.activeElement?.blur());
+  await page.waitForTimeout(200);
+  const idle = await readBar();
+  if (idle.divider || idle.names.join() !== 'Insert,Undo,Redo')
+    problems.push(`${label}: idle the bar has ${idle.names.join()}${idle.divider ? ' and a divider' : ''}, not Insert, Undo, Redo`);
+  if (Math.abs(idle.height - inText.height) > 0.6)
+    problems.push(`${label}: the bar is ${idle.height} px tall idle and ${inText.height} in text`);
   if (width !== 360) return void (await page.close());
-  // The top toolbar's tools rest in one colour (the kind menus too), and a menu button is never in the accent.
+  // The bar's tools rest in one colour (the menu buttons too), and a menu button is never in the accent.
+  await page.click('.ProseMirror');
   const colours = await page.evaluate(() => [
     ...new Set(
-      [...document.querySelectorAll('.editor-tools button:not([aria-pressed="true"])')]
+      [...document.querySelectorAll('.editor-tools button:not([aria-pressed="true"]):not(:disabled)')]
         .filter((b) => b.querySelector('svg'))
         .map((b) => getComputedStyle(b).color),
     ),
   ]);
   if (colours.length > 1) problems.push(`${width}px text toolbar: its tools rest in ${colours.length} colours (${colours.join(', ')})`);
+  await page.close();
+  // A blog post: the first heading offers Heading and Subheading (H2, H3), no Main heading.
+  const blog = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  blog.on('pageerror', (e) => problems.push(`${label} (blog): ${e.message}`));
+  await openEditor(blog, site);
+  await blog.evaluate(() => (location.hash = '#new/blog'));
+  await blog.waitForSelector('.ProseMirror');
+  await blog.click('.ProseMirror');
+  await blog.keyboard.type('Fro');
+  await blog.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
+  const blogRows = await blog.evaluate(() =>
+    [...document.querySelectorAll('[role=menu] [role^=menuitem]')].map((x) => x.textContent.trim()),
+  );
+  if (!blogRows.includes('Heading') || !blogRows.includes('Subheading') || blogRows.includes('Main heading'))
+    problems.push(`${label} (blog): a post offers ${blogRows.join(', ')}, not Heading and Subheading`);
+  await blog.close();
+}
+
+/** On a computer (1280 px) all tools are on the one bar, in two groups with the divider between, 44 dp tall, with no ⋮; idle only the main tools. */
+async function checkTextBarWide() {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 800 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`1280px text bar: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Fro');
+  const got = await page.evaluate(() => {
+    const bar = document.querySelector('.editor-tools');
+    const buttons = [...bar.querySelectorAll('button:not([hidden])')];
+    return {
+      width: bar.clientWidth,
+      height: bar.getBoundingClientRect().height,
+      names: buttons.map((b) => b.getAttribute('aria-label')),
+      small: buttons.filter((b) => Math.abs(b.getBoundingClientRect().height - 44) > 0.6 || b.getBoundingClientRect().width < 43.4).length,
+      scrolls: bar.scrollWidth > bar.clientWidth + 2,
+      divider: !!bar.querySelector('hr[aria-orientation="vertical"]'),
+    };
+  });
+  const want = ['Bold', 'Italic', 'Link', 'Text style', 'List', 'Alignment', 'Color', 'Insert', 'Undo', 'Redo'];
+  for (const name of want)
+    if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)))
+      problems.push(`1280px text bar: no ${name} (${got.names.join(', ')})`);
+  if (got.names.includes('More')) problems.push('1280px text bar: a ⋮ on a bar where everything fits');
+  if (got.height < 44 || got.height > 46 || got.small || got.scrolls || !got.divider)
+    problems.push(
+      `1280px text bar: height ${got.height}, ${got.small} buttons not 44 x 44, scrolls ${got.scrolls}, divider ${got.divider}`,
+    );
   await page.close();
 }
 
@@ -290,14 +477,14 @@ function hintContrasts(page, selector, pseudo) {
   );
 }
 
-/** A blog post that is not on the blog (`unlisted: true`, the demo's "A post only for those with the link") shows its status in the posts list, and the Status filter offers it. */
+/** A blog post that is not on the blog (`unlisted: true`, the demo's "A post only for those with the link", or the one the check makes) shows its status in the posts list, and the Status filter offers it. */
 async function checkUnlistedPost() {
   const page = await browser.newPage({ viewport: { width: 1200, height: 900 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`hidden post: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#list/blog'));
   await page.waitForSelector('main a.list-item-container');
-  const row = page.locator('main a.list-item-container').filter({ hasText: 'A post only for those with the link' });
+  const row = page.locator('main a.list-item-container').filter({ hasText: UNLISTED_POST });
   if (!(await row.count())) return problems.push('hidden post: the posts list has no row for the post that is not on the blog');
   if (!(await row.first().innerText()).includes('Hidden')) problems.push('hidden post: the posts list does not say "Hidden" on its row');
   await page.close();
@@ -315,7 +502,7 @@ async function checkLongPressDelete() {
     await page.waitForTimeout(500);
     const rows = page.locator('main a.list-item-container');
     // A row that is not a default page.
-    const row = list === 'pages' ? rows.filter({ hasText: 'Get started' }).first() : rows.last();
+    const row = list === 'pages' ? rows.filter({ hasText: FIXTURE_PAGE }).first() : rows.filter({ hasText: 'Check post' }).first();
     await row.scrollIntoViewIfNeeded();
     const box = await row.boundingBox();
     const [x, y] = [box.x + box.width / 2, box.y + box.height / 2];
@@ -388,6 +575,35 @@ async function checkSelection() {
       .first()
       .textContent();
   const checked = (page, scope) => page.locator(`${scope} [role=checkbox][aria-checked=true]`).count();
+  // The swapped top bar's select-all box (SelectionBar.tsx), with one row selected: indeterminate, 48 px, the bar never
+  // scrolls sideways; ticking selects all, unticking selects none and keeps the mode, and the bar's buttons are 48 px.
+  const barCheck = async (page, label, rows, stays) => {
+    const box = page.getByRole('checkbox', { name: 'Select all' });
+    if ((await box.count()) !== 1) return problems.push(`${label}: the top bar has no select-all checkbox`);
+    if (!(await box.evaluate((el) => el.indeterminate)))
+      problems.push(`${label}: the select-all checkbox is not indeterminate with one row selected`);
+    const target = await box.evaluate((el) => {
+      const r = el.closest('label').getBoundingClientRect();
+      return [r.width, r.height];
+    });
+    if (target[0] < 48 || target[1] < 48) problems.push(`${label}: the select-all target is ${target[0]}x${target[1]}, under 48 px`);
+    for (const name of ['Close selection', /^Delete 1 selected$/]) {
+      const b = await page.getByRole('button', { name }).first().boundingBox();
+      if (!b || b.width < 48 || b.height < 48) problems.push(`${label}: "${name}" is under 48 px (${b?.width}x${b?.height})`);
+    }
+    if (await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth))
+      problems.push(`${label}: the page scrolls sideways while selecting`);
+    await box.check();
+    const total = await rows.count();
+    if ((await checked(page, 'main')) !== total || (await box.evaluate((el) => el.indeterminate || !el.checked)))
+      problems.push(`${label}: ticking select all does not select all ${total} rows`);
+    await box.click();
+    await page.waitForTimeout(200);
+    if ((await checked(page, 'main')) !== 0 || (await box.count()) !== (stays ? 1 : 0))
+      problems.push(
+        `${label}: unticking select all does not unselect all ${stays ? 'and stay in selecting (started with Select)' : 'and end selecting (started on a row)'}`,
+      );
+  };
   for (const w of [375, 1280]) {
     const touch = w < 600;
     const label = `selection ${w}`;
@@ -442,6 +658,8 @@ async function checkSelection() {
       await hold(x0, y0);
       await page.getByRole('button', { name: 'Close selection' }).click();
       if (await checked(page, 'main')) problems.push(`${label}: Close selection does not unselect`);
+      await hold(x0, y0);
+      await barCheck(page, label, rows, false);
       // Back leaves selecting first and stays on the list; a second Back leaves the list. Close left no step behind.
       await hold(x0, y0);
       await page.goBack();
@@ -484,6 +702,11 @@ async function checkSelection() {
       await page.keyboard.press('Escape');
       if (await checked(page, 'main')) problems.push(`${label}: Escape does not unselect`);
       if (await page.getByRole('button', { name: 'Close selection' }).count()) problems.push(`${label}: Escape does not end selecting`);
+      await page.getByRole('button', { name: 'Select', exact: true }).click();
+      await rows.nth(0).focus();
+      await page.keyboard.press('Space');
+      await barCheck(page, label, rows, true);
+      await page.getByRole('button', { name: 'Close selection' }).click();
       await rows.nth(0).focus();
       await page.keyboard.press('Shift+ArrowDown');
       if ((await checked(page, 'main')) !== 2) problems.push(`${label}: Shift+Arrow does not select a range`);
@@ -536,6 +759,66 @@ async function checkSelection() {
   }
 }
 
+/** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
+async function checkDensity(width, height) {
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density: ${e.message}`));
+  await openEditor(page, site);
+  const read = (attr, base) =>
+    page.evaluate(
+      ([attr, base]) => {
+        const root = document.documentElement;
+        if (attr === null) root.removeAttribute('data-density');
+        else root.setAttribute('data-density', attr);
+        root.style.setProperty('--mo-density-base', base);
+        const probe = document.createElement('div');
+        probe.style.height = 'calc(52px + var(--mo-density) * var(--mo-density-step))';
+        document.body.append(probe);
+        const style = getComputedStyle(root);
+        // A variable's text is not resolved (clamp(…)): a margin of 1px per step is, and may be negative.
+        const step = (name) => {
+          probe.style.marginLeft = `calc(var(${name}) * 1px)`;
+          return parseFloat(getComputedStyle(probe).marginLeft);
+        };
+        const got = {
+          all: step('--mo-density'),
+          layout: step('--mo-density-layout'),
+          focus: step('--mo-density-focus'),
+          row: 0,
+          space: style.getPropertyValue('--mo-space-100').trim(),
+        };
+        probe.style.marginLeft = '';
+        got.row = probe.getBoundingClientRect().height;
+        probe.remove();
+        root.removeAttribute('data-density');
+        root.style.removeProperty('--mo-density-base');
+        return got;
+      },
+      [attr, base],
+    );
+  // [data-density, the theme's step, the three variables (data-heavy, layout, focused), a 52px row]
+  const cases = [
+    [null, '0', [0, 0, 0], 52],
+    ['0', '0', [0, 0, 0], 52],
+    ['1', '0', [1, 1, 1], 56],
+    ['-1', '0', [-1, -1, 0], 48],
+    ['-1', '-1', [-2, -1, 0], 44],
+    ['-1', '-3', [-3, -1, 0], 40],
+    ['1', '1', [1, 1, 1], 56],
+    [null, '-1', [-1, -1, 0], 48],
+  ];
+  for (const [attr, base, [all, layout, focus], row] of cases) {
+    const got = await read(attr, base);
+    const want = `${all}/${layout}/${focus}/${row}`;
+    const have = `${got.all}/${got.layout}/${got.focus}/${got.row}`;
+    if (have !== want || got.space !== '8px')
+      problems.push(
+        `${width}px density: data-density ${attr}, theme step ${base}: expected ${want} (data-heavy/layout/focused/row), got ${have}, space-100 ${got.space}`,
+      );
+  }
+  await page.close();
+}
+
 /** On a phone, a tap on the hint under a page's only heading (Type text, or tap Insert …) puts the cursor in an empty paragraph after it. */
 async function checkEmptyHint() {
   const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -575,8 +858,7 @@ async function checkEmptyHint() {
 
 /** The rows of a List, Segmented list and FAQ are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
 async function checkListMarkers(width) {
-  const path = 'src/content/pages/about.md';
-  if (!existsSync(join(ROOT, path))) return;
+  const path = BUILT_PAGE;
   const markers = () =>
     [...document.querySelectorAll('ul.list')].flatMap((ul) =>
       [ul, ...ul.children].flatMap((el) => {
@@ -592,7 +874,7 @@ async function checkListMarkers(width) {
     );
   const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`List markers: ${e.message}`));
-  await openEditor(page, site);
+  await openEditor(page, site, { [path]: LIST_PAGE });
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('ul.list', { timeout: 30_000 });
   const inEditor = await page.evaluate(markers);
@@ -640,13 +922,14 @@ async function checkListsAndBlocks(width) {
   const left = (await tops()).join();
   if (left !== 'ul,p,ul') problems.push(`${label}: Backspace at the start of a list item gives ${left}, not ul,p,ul`);
   await page.keyboard.press('Control+z');
-  // A list item is not a heading, so the heading controls are not offered in a list, on the first line or under the arrow.
-  if (await page.locator('[aria-label="Show more tools"]:visible').count())
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  // A list item is not a heading, so the Text style menu has no heading rows in a list (they are hidden, not disabled), and no Quote.
+  await page.locator('.ProseMirror li > p').nth(0).click();
+  await page.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
   const offered = await page
-    .locator('.editor-tools button:visible')
-    .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')).filter((n) => /^(Page heading|Heading|Subheading)\b/.test(n ?? '')));
-  if (offered.length) problems.push(`${label}: the toolbar offers ${offered.join(', ')} in a list item`);
+    .locator('[role=menu] [role^=menuitem]:visible')
+    .evaluateAll((rows) => rows.map((x) => x.textContent.trim()).filter((n) => /^(Main heading|Heading|Subheading|Quote)\b/.test(n ?? '')));
+  if (offered.length) problems.push(`${label}: the Text style menu offers ${offered.join(', ')} in a list item`);
+  await page.keyboard.press('Escape');
   // A text size picked in a list keeps the list: the text of the item gets the size (a span), and Body medium takes it away.
   await page.locator('.ProseMirror li > p').nth(0).click();
   const pick = async (name) => {
@@ -664,14 +947,10 @@ async function checkListsAndBlocks(width) {
   await pick('Body medium');
   if (await page.locator('.ProseMirror ul li span.body-small').count())
     problems.push(`${label}: Body medium in a list item leaves its size`);
-  if (await page.locator('[aria-label="Show fewer tools"]:visible').count())
-    await page.locator('[aria-label="Show fewer tools"]:visible').first().click();
   // A block inserted in the first item ends the list there, at the top level, and the rest follows it.
   await page.locator('.ProseMirror li > p').nth(0).click();
   await page.keyboard.press('End');
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
   await page.waitForSelector('.ProseMirror .site-block, .ProseMirror [data-site-block]', { timeout: 8000 }).catch(() => {});
   const shape = await page.evaluate(() =>
@@ -692,9 +971,10 @@ async function checkListsAndBlocks(width) {
 
 /** The Preview (the binoculars) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
 async function checkPreviewSection() {
-  const path = 'src/content/pages/about.md';
-  if (!existsSync(join(ROOT, path))) return;
-  const text = readFileSync(join(ROOT, path), 'utf8').replace(/(\n)(## [^\n]+)/, '$1<div data-section="tertiary"></div>\n\n$2');
+  const path = BUILT_PAGE;
+  // (A text of its own: a site's page need not have a heading to put the section on.)
+  const text =
+    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<div data-section="tertiary"></div>\n\n## Tinted\n\nTinted text.\n';
   const page = await browser.newPage({ viewport: { width: 390, height: 800 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`Preview section: ${e.message}`));
   await openEditor(page, site, { [path]: text });
@@ -714,9 +994,8 @@ async function checkPreviewSection() {
 
 /** A page whose H1 section has a background (a colour or an image) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar. */
 async function checkH1SectionGap() {
-  const path = 'src/content/pages/about.md';
-  if (!existsSync(join(ROOT, path))) return;
-  const source = readFileSync(join(ROOT, path), 'utf8');
+  const path = BUILT_PAGE;
+  const source = PAGE_SOURCE;
   const picture = '/images/uploads/2026/10/earth-from-space.webp';
   const variants = [
     { name: 'colour', marker: '<div data-section="tertiary"></div>\n\n', background: true },
@@ -765,12 +1044,8 @@ async function checkH1SectionGap() {
 
 /** A full-width section has the whole width only as its background: on the built site and in the Preview, its content has the same left edge as the page's text, inside the centred container, at 840, 1200 and 1600, and nothing overflows sideways at 375. */
 async function checkFullSection() {
-  const path = 'src/content/pages/about.md';
-  if (!existsSync(join(ROOT, path))) return;
-  const text = readFileSync(join(ROOT, path), 'utf8').replace(
-    /(\n)(## [^\n]+)/,
-    '$1<div data-section="tertiary" data-width="full"></div>\n\n$2',
-  );
+  const path = BUILT_PAGE;
+  const text = PAGE_SOURCE.replace(/(\n)(## [^\n]+)/, '$1<div data-section="tertiary" data-width="full"></div>\n\n$2');
   const measure = () => {
     const box = (e) => (e ? e.getBoundingClientRect() : null);
     const section = document.querySelector('section.text-section-full');
@@ -883,7 +1158,8 @@ const inlineBlocks = [
   },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
   { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
-];
+  // (Only a site that has the demo's app: another site does not have the block.)
+].filter((b) => b.name !== 'tickets' || existsSync(join(ROOT, 'src/apps/inline-example')));
 
 /** The blocks that read a list of the site (Testimonials, Blog posts), typed in place: drawn as the site draws them with the demo's real items, the heading typed above. */
 const liveLists = [
@@ -903,9 +1179,7 @@ async function checkLiveList(width, height, { name, hint, items }) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
   try {
     await page.waitForSelector('.site-block-inline [data-field="heading"]', { timeout: 8000 });
@@ -983,9 +1257,7 @@ async function checkEmptyRow(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   const dialog = page.locator('dialog[open]');
@@ -1039,9 +1311,7 @@ async function checkEmptyRow(width, height) {
   const makeList = async () => {
     await page.click('.ProseMirror > p');
     await page.keyboard.press('Enter');
-    if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-      await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-    await page.locator('[aria-label="Insert"]:visible').first().tap();
+    await pressInsert(page, 'tap');
     await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
     await page.waitForSelector('.inline-list-row-active [data-field="title"]');
     await page.keyboard.type('First');
@@ -1115,9 +1385,7 @@ async function checkInsertNeverOpensSheet(width, height) {
         await page.keyboard.press('Enter');
         await page.waitForTimeout(300);
       }
-      if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-        await page.locator('[aria-label="Show more tools"]:visible').first().click();
-      await page.locator('[aria-label="Insert"]:visible').first().click();
+      await pressInsert(page, 'click');
       await page.locator('dialog[open] button', { hasText: hint }).first().click();
       await page.waitForTimeout(800);
       const state = await page.evaluate(() => ({
@@ -1142,9 +1410,7 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
   await page.waitForSelector(`.site-block-inline [data-field="${field}"]`);
   await page.keyboard.type(text);
@@ -1192,9 +1458,7 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
   await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
   await page.keyboard.type('One');
@@ -1255,9 +1519,7 @@ async function checkSegmentedArrow(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]', { timeout: 8000 });
   await page.keyboard.type('First');
@@ -1265,7 +1527,7 @@ async function checkSegmentedArrow(width, height) {
   // Row 1 gets a page (its link), in the row's settings.
   if (phone) await page.locator('.contextual-menu button[aria-label="Edit"]').first().click();
   await page.locator('[aria-label="Row settings"] button.text-field-input, .editor-side-sheet button.text-field-input').first().click();
-  await page.getByText('About Morpheme', { exact: true }).locator('visible=true').last().click();
+  await page.getByText(FIXTURE_PAGE, { exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(400);
   if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
   await page.waitForTimeout(400);
@@ -1299,7 +1561,7 @@ async function checkSegmentedArrow(width, height) {
   const tapped = await page.evaluate(() => document.querySelector('.inline-list-row-active')?.dataset.row);
   if (tapped !== '0') problems.push(`${label}: the arrow did not make its row active (row ${tapped})`);
   const settings = phone ? page.locator('dialog[open][aria-label="Row settings"]') : page.locator('.editor-side-sheet');
-  if (!(await settings.getByText('Page', { exact: true }).count()) || !(await settings.getByText('About Morpheme').count()))
+  if (!(await settings.getByText('Page', { exact: true }).count()) || !(await settings.getByText(FIXTURE_PAGE).count()))
     problems.push(`${label}: the arrow did not open the row's link settings with its page`);
   await page.close();
 }
@@ -1320,10 +1582,8 @@ async function checkInlineBlock(
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  // The tools that do not fit are under "Show more tools".
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  // The tools that do not fit are in the ⋮ menu.
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
   try {
     await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
@@ -1687,9 +1947,7 @@ async function checkSteps(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
   await page.waitForSelector('.inline-steps .inline-list-row-active [data-field="title"]');
   const steps = () =>
@@ -1760,9 +2018,7 @@ async function checkSteps(width, height) {
     await p2.keyboard.type('Hello');
     await p2.keyboard.press('Enter');
     await p2.waitForTimeout(300);
-    if (!(await p2.locator('[aria-label="Insert"]:visible').count()))
-      await p2.locator('[aria-label="Show more tools"]:visible').first().click();
-    await p2.locator('[aria-label="Insert"]:visible').first().click();
+    await pressInsert(p2, 'click');
     await p2.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
     await p2.waitForSelector('.inline-steps .inline-list-row-active [data-field="title"]');
     const taken = await p2.evaluate(
@@ -1799,9 +2055,7 @@ async function checkDynamicList(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   await page.keyboard.type('Typed row');
@@ -1857,9 +2111,7 @@ async function checkDynamicPicker(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   await page.locator('.contextual-menu [aria-label="Fill from a list"]').click();
@@ -2056,8 +2308,8 @@ async function checkNewList(width, height, label) {
     else if (state.cancelBg === state.createBg) problems.push(`${label}: Cancel and Create look alike (${state.cancelBg})`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the dialog scrolls sideways`);
-    // A name that is taken ("Blog posts" folder, a collection) is refused.
-    await dialog.getByLabel('Name').fill('Categories');
+    // A name that is taken (the blog's collection, which every site has) is refused.
+    await dialog.getByLabel('Name').fill('Blog');
     await dialog.getByRole('button', { name: 'Create' }).click();
     await dialog
       .getByText('A list with this name exists. Choose another name.')
@@ -2146,9 +2398,7 @@ async function checkNewList(width, height, label) {
     await page.keyboard.type('Hello');
     await page.keyboard.press('Enter');
     await page.waitForTimeout(300);
-    if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-      await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-    await page.locator('[aria-label="Insert"]:visible').first().click();
+    await pressInsert(page, 'click');
     await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
     await page.waitForSelector('.inline-list-row-active [data-field="title"]');
     await page.keyboard.type('Typed row');
@@ -2168,13 +2418,21 @@ async function checkNewList(width, height, label) {
   }
 }
 
+/** Opens the demo's Blocks page (/blocks/), which these checks measure. A site that is not the demo has none: the check says it is skipped, and nothing fails. */
+async function onDemoBlocksPage(page, label) {
+  const response = await page.goto(new URL('/blocks/', site).href).catch(() => null);
+  if (response && response.status() < 400) return true;
+  console.log(`${label}: skipped, the site has no Blocks page (/blocks/) to measure, which the demo has.`);
+  return false;
+}
+
 /** Cards that are a carousel on phones (`phone`, on the demo's Blocks page): at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), a dot for each card, labelled; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 1280 px the same block is the grid, with no dots and no button. */
 async function checkCardsCarousel(width, height) {
   const label = `${width}px cards carousel`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  await page.goto(new URL('/blocks/', site).href);
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
   const root = page.locator('[data-cards-carousel]').first();
   if (!(await root.count())) return (problems.push(`${label}: no Cards carousel on the Blocks page`), page.close());
   await root.scrollIntoViewIfNeeded();
@@ -2361,9 +2619,7 @@ async function checkIconColor(width, height, scheme = 'light') {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().click();
-  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
@@ -2536,9 +2792,7 @@ async function checkInlineTable(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
   await page.waitForSelector('.inline-table-cell-active textarea');
   await page.keyboard.type('Plan');
@@ -2670,24 +2924,26 @@ async function checkTableAlign(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   // The built site: the demo's Table has a column of numbers (Editors) and text columns.
-  await page.goto(`${site}/blocks/`);
-  const built = await page.evaluate(() => {
-    const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
-    return {
-      textHead: at('.block-table-grid thead th:nth-child(1)'),
-      textCell: at('.block-table-grid tbody tr:first-child td:nth-child(1)'),
-      numberHead: at('.block-table-grid thead th:nth-child(3)'),
-      numberCell: at('.block-table-grid tbody tr:first-child td:nth-child(3)'),
-      mixedCell: at('.block-table-grid tbody tr:first-child td:nth-child(2)'),
-    };
-  });
+  const built =
+    (await onDemoBlocksPage(page, label)) &&
+    (await page.evaluate(() => {
+      const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
+      return {
+        textHead: at('.block-table-grid thead th:nth-child(1)'),
+        textCell: at('.block-table-grid tbody tr:first-child td:nth-child(1)'),
+        numberHead: at('.block-table-grid thead th:nth-child(3)'),
+        numberCell: at('.block-table-grid tbody tr:first-child td:nth-child(3)'),
+        mixedCell: at('.block-table-grid tbody tr:first-child td:nth-child(2)'),
+      };
+    }));
   const start = (v) => v === 'start' || v === 'left';
   const end = (v) => v === 'end' || v === 'right';
-  if (!start(built.textHead) || !start(built.textCell))
+  if (built && (!start(built.textHead) || !start(built.textCell)))
     problems.push(`${label}: the site's text column is not left-aligned (${built.textHead}, ${built.textCell})`);
-  if (!end(built.numberHead) || !end(built.numberCell))
+  if (built && (!end(built.numberHead) || !end(built.numberCell)))
     problems.push(`${label}: the site's number column is not right-aligned (${built.numberHead}, ${built.numberCell})`);
-  if (!start(built.mixedCell)) problems.push(`${label}: a column with a word in it is not left-aligned on the site (${built.mixedCell})`);
+  if (built && !start(built.mixedCell))
+    problems.push(`${label}: a column with a word in it is not left-aligned on the site (${built.mixedCell})`);
   await openEditor(page, site);
   const commits = [];
   await page.route('**/api/github/commit', (r) => {
@@ -2700,9 +2956,7 @@ async function checkTableAlign(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
   await page.waitForSelector('.inline-table-cell-active textarea');
   const cellField = (r, c) => page.locator(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
@@ -2802,7 +3056,7 @@ async function checkTableRadius(width, height) {
   const label = `${width}px table radius`;
   const page = await browser.newPage({ viewport: { width, height } });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  await page.goto(new URL('/blocks/', site).href);
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
   const got = await page.evaluate(() => {
     const card = document.querySelector('.card.block-card');
     const host = card?.parentElement;
@@ -2840,9 +3094,7 @@ async function checkIconSearch(width, height) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
-    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
-  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
@@ -2933,6 +3185,76 @@ const ratioOf = `
       const front = pixel(markCss, 'rgb(' + back + ')', opacity);
       return (Math.max(lum(front), lum(back)) + 0.05) / (Math.min(lum(front), lum(back)) + 0.05);
     };`;
+
+/** A section on an image (no colour): the text, the placeholder, the icons and the arrow of a list row typed in place are the theme's colour for text on an image, as on the site, and read on the image's scrim (4.5:1 for text, 3:1 for an icon), on a dark and on a bright photo, light and dark mode, on a phone and a computer. The contrast is taken against the scrim as drawn (the shade over the photo's average colour at the height of the part), so a part drawn in the page's own colours instead (dark on the dark scrim) fails. */
+async function checkSectionOnImage() {
+  const path = BUILT_PAGE;
+  const list =
+    '<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;List heading&quot;,&quot;text&quot;:&quot;Hej&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>';
+  const photos = { dark: '/images/uploads/2026/10/moon.webp', bright: '/images/uploads/2026/10/earth-from-space.webp' };
+  for (const [photo, image] of Object.entries(photos))
+    for (const scheme of ['light', 'dark'])
+      for (const width of [375, 1280]) {
+        const label = `${width}px ${scheme} section on a ${photo} image`;
+        const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: scheme, locale: 'en-US' });
+        page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+        // The photos are the demo's (the package carries them): a site that does not have them gets them here.
+        await page.route(`**${image}`, (route) => {
+          const own = join(DIST, image);
+          const file = existsSync(own) ? own : fileURLToPath(new URL(`../demo/public${image}`, import.meta.url));
+          return route.fulfill({ body: readFileSync(file), contentType: 'image/webp' });
+        });
+        const text = `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<div data-section="" data-picture="${image}" data-alt="A photo"></div>\n\n## Her kommer indhold\n\nBody text.\n\n${list}\n\n## Plain\n\nPlain.\n`;
+        await openEditor(page, site, { [path]: text });
+        await page.goto(`${site}/editor/#${path}`);
+        await page.waitForSelector('.ProseMirror > [data-section-picture]', { timeout: 30_000 });
+        await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; }' });
+        // The list row is the active one: the row typed in place, with its icon and arrow.
+        await page
+          .click('.site-block-inline [data-field="title"]')
+          .catch(() => problems.push(`${label}: the list row cannot be typed in place`));
+        await page.mouse.move(0, 0);
+        await page.waitForFunction((src) => document.querySelector('.editor-section-picture img')?.complete, image);
+        const got = await page.evaluate(`(() => { ${ratioOf}
+          const strip = document.querySelector('.editor-section-picture');
+          const img = strip.querySelector('img');
+          const c = document.createElement('canvas'); c.width = c.height = 1;
+          const g = c.getContext('2d'); g.drawImage(img, 0, 0, 1, 1);
+          const photo = [...g.getImageData(0, 0, 1, 1).data.slice(0, 3)];
+          const shade = pixel(getComputedStyle(strip).backgroundColor, 'rgb(0,0,0)');
+          const box = strip.getBoundingClientRect();
+          const lumOf = lum;
+          const contrast = (el, css) => {
+            const r = el.getBoundingClientRect();
+            const up = 1 - Math.min(1, Math.max(0, (r.top + r.height / 2 - box.top) / box.height));
+            // The scrim runs from 85% at the bottom to 55% at 70% up and 40% at the top (editor.css, as blocks.css).
+            const a = up <= 0.7 ? 0.85 + (0.55 - 0.85) * (up / 0.7) : 0.55 + (0.4 - 0.55) * ((up - 0.7) / 0.3);
+            const back = photo.map((v, i) => Math.round(v * (1 - a) + shade[i] * a));
+            const front = pixel(css, 'rgb(' + back + ')');
+            return (Math.max(lumOf(front), lumOf(back)) + 0.05) / (Math.min(lumOf(front), lumOf(back)) + 0.05);
+          };
+          const row = document.querySelector('.inline-list-row-active');
+          const parts = {
+            heading: document.querySelector('.ProseMirror > h2'),
+            body: document.querySelector('.ProseMirror > h2 + p'),
+            rowTitle: row.querySelector('[data-field="title"]'),
+            rowText: row.querySelector('[data-field="text"]'),
+            icon: row.querySelector('.inline-list-slot'),
+            chevron: row.querySelector('.list-item-trailing'),
+          };
+          const out = {};
+          for (const [name, el] of Object.entries(parts)) if (el) out[name] = contrast(el, getComputedStyle(el).color);
+          const ph = row.querySelector('[data-field="title"]');
+          out.placeholder = contrast(ph, getComputedStyle(ph, '::placeholder').color);
+          out.outline = contrast(row, getComputedStyle(row).outlineColor);
+          return out; })()`);
+        for (const [part, ratio] of Object.entries(got)) {
+          const min = ['icon', 'chevron', 'outline'].includes(part) ? 3 : 4.5;
+          if (ratio < min) problems.push(`${label}: the ${part} has contrast ${ratio.toFixed(2)}:1 on the scrim, below ${min}`);
+        }
+        await page.close();
+      }
+}
 
 /** A list row's heading is the same colour as the section's heading and text, on every section colour, light and dark, on a phone and a computer; its icon and arrow too (and the supporting text on a coloured section; on Surface it is the quieter, as the section's other secondary text). */
 async function checkListRowColors() {
@@ -3197,7 +3519,7 @@ async function checkFullWidthSection() {
 
 /** A coloured section's background runs down to the next section's divider, or to the end of the text when it is the last (the space below its text is inside the colour, not a white band), in the editor, and in the Preview where the panel has no margin below (375 px with touch, and a computer). */
 async function checkSectionBackground(width, touch) {
-  const path = 'src/content/pages/about.md';
+  const path = BUILT_PAGE;
   const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   const label = `${width}px section background`;
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
@@ -3977,7 +4299,8 @@ for (const [width, height] of [
 
 await checkStartSubtitle();
 
-for (const width of [360, 375, 390, 414]) await checkTextSheet(width);
+for (const width of [360, 375, 390, 414]) await checkTextBar(width);
+await checkTextBarWide();
 for (const [width, height] of [
   [360, 740],
   [375, 800],
@@ -4017,6 +4340,7 @@ for (const [w, h] of [
   await checkSegmentedArrow(w, h);
 for (const block of liveLists) for (const w of [375, 1280]) await checkLiveList(w, w < 600 ? 740 : 900, block);
 await checkListRowColors();
+await checkSectionOnImage();
 await checkInsertNeverOpensSheet(375, 740);
 await checkEmptyRow(375, 740);
 await checkInsertNeverOpensSheet(1280, 900);
@@ -4066,6 +4390,8 @@ for (const [width, height] of [
 await checkFooterTargets(true);
 await checkFooterTargets(false);
 await checkToolbarBox();
+await checkDensity(375, 740);
+await checkDensity(1280, 900);
 await checkPreviewSection();
 await checkFullSection();
 await checkH1SectionGap();

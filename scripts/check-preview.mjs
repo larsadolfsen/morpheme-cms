@@ -2,7 +2,7 @@
 // (what the owner approves is what visitors get), and the same computed style for the header, the sections, the blocks and the footer, at
 // 390 and 1280 px, light and dark. The site's page is the built one; the Preview is opened from the editor on the same text.
 // Run on the built site: npm run build && npm run check:preview (in .morpheme/demo/site/ by `npx morpheme check:preview`).
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { openEditor, serveBuilt } from './built-site.mjs';
@@ -13,7 +13,22 @@ if (!existsSync(join(DIST, 'editor/index.html'))) {
   console.error(`There is no built site in ${DIST}. Run npm run build first.`);
   process.exit(1);
 }
-const PAGES = (process.env.PREVIEW_PAGES ?? 'blocks,about,get-started,app-store,contact').split(',');
+// The pages compared: PREVIEW_PAGES, else the demo's pages that the site has, else the first five pages of the site's own (never a
+// page the site does not have: a site is not the demo). The front page (home) is the site's address itself.
+const builtAt = (name) => existsSync(join(DIST, name === 'home' ? '' : name, 'index.html'));
+const ofSite = existsSync(join(ROOT, 'src/content/pages'))
+  ? readdirSync(join(ROOT, 'src/content/pages'))
+      .filter((f) => f.endsWith('.md'))
+      .map((f) => f.slice(0, -3))
+      .filter(builtAt)
+      .sort()
+  : [];
+const demoPages = ['blocks', 'about', 'get-started', 'app-store', 'contact'].filter((name) => ofSite.includes(name));
+const PAGES = process.env.PREVIEW_PAGES ? process.env.PREVIEW_PAGES.split(',') : demoPages.length ? demoPages : ofSite.slice(0, 5);
+if (!PAGES.length) {
+  console.log('The site has no built page to compare the Preview with: skipped.');
+  process.exit(0);
+}
 const WIDTHS = [390, 1280];
 const problems = [];
 const { server, site } = await serveBuilt(DIST);
@@ -164,7 +179,7 @@ for (const scheme of ['light', 'dark']) {
       if (process.env.PREVIEW_VERBOSE) console.log(`${label}: frame ${frameWidth}px, ${liveRows.length} / ${previewRows.length} elements`);
       const live = await context.newPage();
       await live.setViewportSize({ width: frameWidth, height: 900 });
-      await live.goto(`${site}/${name}/`);
+      await live.goto(name === 'home' ? `${site}/` : `${site}/${name}/`);
       await live.waitForSelector('main');
       await live.waitForTimeout(300);
       const liveRows = await live.evaluate(measure, STYLES);
