@@ -284,7 +284,7 @@
     height: 3rem;
     flex-shrink: 0;
     place-items: center;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     background: var(--block-accent);
     color: var(--block-on-accent);
     font-size: var(--type-title-medium-size);
@@ -801,7 +801,7 @@
     width: 2.5rem;
     height: 2.5rem;
     flex-shrink: 0;
-    border-radius: 9999px;
+    border-radius: var(--mo-shape-full);
     object-fit: cover;
   }
   .js [data-clamp] {

@@ -127,6 +127,33 @@ async function checkUpdatesCard(width, height) {
   await page.close();
 }
 
+/** The start screen's subtitle in the top bar ("Updated 1:42 PM", or "Updated Nov 12" on an earlier day) never truncates on a phone: no ellipsis (scrollWidth <= clientWidth) and no "yesterday at" or "today at", in English and Danish, 375 and 390 px, with the widest time (11:42 PM) today. (At 360 px the bar leaves the subtitle about 100 px, which "Updated 11:42 PM" does not fit.) */
+async function checkStartSubtitle() {
+  const today = new Date();
+  today.setHours(23, 42, 0, 0);
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  for (const [locale, width] of [
+    ['en-US', 375],
+    ['en-US', 390],
+    ['da-DK', 375],
+  ]) {
+    for (const builtAt of [today, yesterday]) {
+      const label = `${width}px ${locale} start subtitle (${builtAt.toDateString()})`;
+      const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: true, isMobile: true, locale });
+      page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+      await page.route('**/editor/version.json', (r) => r.fulfill({ json: { commit: 'a'.repeat(40), builtAt: builtAt.toISOString() } }));
+      await openEditor(page, site);
+      const subtitle = await page.waitForSelector('[data-subtitle]', { timeout: 30_000 });
+      await page.waitForFunction((e) => /\d/.test(e.textContent), subtitle, { timeout: 10_000 }).catch(() => {});
+      const got = await subtitle.evaluate((e) => ({ text: e.innerText.trim(), scroll: e.scrollWidth, client: e.clientWidth }));
+      if (got.scroll > got.client) problems.push(`${label}: "${got.text}" is cut off (${got.scroll} > ${got.client})`);
+      if (/yesterday|today|\bat\b/i.test(got.text)) problems.push(`${label}: the long form is back: "${got.text}"`);
+      await page.close();
+    }
+  }
+}
+
 /** On a phone the text's row floats by the selected text (never a docked sheet): inside the visible screen (above the keyboard and "Save changes"), Bold, Italic and Link first, 48 dp buttons centred in their rows (a second row when they do not fit), and it follows the line the cursor is on. */
 async function checkTextSheet(width = 360) {
   const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -2586,6 +2613,8 @@ for (const [width, height] of [
   [1280, 900],
 ])
   await checkUpdatesCard(width, height);
+
+await checkStartSubtitle();
 
 for (const width of [360, 375, 390, 414]) await checkTextSheet(width);
 for (const [width, height] of [
