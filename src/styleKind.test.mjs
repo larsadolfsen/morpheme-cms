@@ -14,10 +14,12 @@ test('in the text Text style shows the style of the block, as the menu marks it'
   for (const kind of TEXT_KINDS) assert.equal(styleKindOf([kind, 'strong'], true), kind);
 });
 
-test('in a list List shows the list and Text style is generic; outside a list List is generic', () => {
+test('in a list List shows the list and Text style shows the size of its text; outside a list List is generic', () => {
   for (const kind of LIST_KINDS) {
     assert.equal(listKindOf([kind, 'strong'], true), kind);
-    assert.equal(styleKindOf([kind], true), 'generic');
+    assert.equal(styleKindOf([kind], true), 'medium');
+    assert.equal(styleKindOf([kind, 'small'], true), 'small');
+    assert.equal(styleKindOf([kind, 'large'], true), 'large');
   }
   for (const kind of TEXT_KINDS) assert.equal(listKindOf([kind], true), 'generic');
   assert.equal(listKindOf(['h2'], true), 'generic');

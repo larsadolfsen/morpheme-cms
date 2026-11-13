@@ -486,7 +486,7 @@
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   --mo-on-surface: var(--section-on-accent);
-  --mo-on-surface-variant: color-mix(in srgb, var(--section-on-accent) 80%, transparent);
+  --mo-on-surface-variant: var(--section-on-accent);
   --mo-outline-variant: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
   --mo-outline: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
   --mo-surface: var(--section-accent);
@@ -494,21 +494,21 @@
   --mo-on-primary: var(--section-accent);
   --mo-surface-dim: color-mix(in srgb, var(--section-on-accent) 18%, transparent);
   --mo-surface-bright: var(--section-accent);
-  --mo-surface-container-lowest: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
-  --mo-surface-container-low: color-mix(in srgb, var(--section-on-accent) 12%, transparent);
-  --mo-surface-container: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
-  --mo-surface-container-high: color-mix(in srgb, var(--section-on-accent) 18%, transparent);
-  --mo-surface-container-highest: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
+  --mo-surface-container-lowest: color-mix(in srgb, var(--section-on-accent) 6%, transparent);
+  --mo-surface-container-low: color-mix(in srgb, var(--section-on-accent) 8%, transparent);
+  --mo-surface-container: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
+  --mo-surface-container-high: color-mix(in srgb, var(--section-on-accent) 12%, transparent);
+  --mo-surface-container-highest: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
   --mo-secondary: var(--section-on-accent);
   --mo-on-secondary: var(--section-accent);
-  --mo-secondary-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
-  --mo-on-secondary-container: var(--section-on-accent);
+  --mo-secondary-container: var(--section-container, color-mix(in srgb, var(--section-on-accent) 22%, transparent));
+  --mo-on-secondary-container: var(--section-on-container, var(--section-on-accent));
   --mo-tertiary: var(--section-on-accent);
   --mo-on-tertiary: var(--section-accent);
-  --mo-tertiary-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
-  --mo-on-tertiary-container: var(--section-on-accent);
-  --mo-primary-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
-  --mo-on-primary-container: var(--section-on-accent);
+  --mo-tertiary-container: var(--section-container, color-mix(in srgb, var(--section-on-accent) 22%, transparent));
+  --mo-on-tertiary-container: var(--section-on-container, var(--section-on-accent));
+  --mo-primary-container: var(--section-container, color-mix(in srgb, var(--section-on-accent) 22%, transparent));
+  --mo-on-primary-container: var(--section-on-container, var(--section-on-accent));
   /* The elevation levels' colours (ui.css, resolved at :root) are the surface containers: declared again here, so an elevated
      card, button, chip or sheet in the section takes the section's own containers, not the page's (white on near-white). */
   --mo-elevation-0-color: var(--mo-surface);

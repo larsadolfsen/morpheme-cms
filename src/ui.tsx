@@ -1017,6 +1017,46 @@ export function ShownValue({ id, icon, muted, children }: { id?: string; icon?: 
   );
 }
 
+/** The round control of an icon, an image or a link, the same in a typed-in-place row and in a form: a 40 dp button with what is picked
+ * (the icon) or a plus while nothing is. A tap opens its picker. Rows use it through InlineSlot and InlineIcon (InlineItems.tsx), the
+ * icon field (IconPicker) uses it itself, so every place that picks an icon has this one control. */
+export function SlotButton({
+  label,
+  onClick,
+  pressed,
+  expanded,
+  controls,
+  iconColor,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  /** One of several kinds, and the one that is chosen. */
+  pressed?: boolean;
+  /** It opens something below it, shown or not. */
+  expanded?: boolean;
+  controls?: string;
+  /** The color role of the icon it shows (src/iconColor.ts), as the site draws it. */
+  iconColor?: string;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className="inline-list-slot"
+      aria-label={label}
+      aria-pressed={pressed}
+      aria-expanded={expanded}
+      aria-controls={controls}
+      data-icon-color={iconColor}
+      title={label}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
 /** One of many icons: the chosen one with its name, and a button that unfolds them in a grid to tap (ChoiceTile, the
  * chosen one marked); a tap picks one and folds them again. The choice with the value '' is no icon (a cross). `icon`
  * draws an icon by its value. The grid starts with `options`; the search field over it looks in `all` as well (the names of
@@ -1085,13 +1125,16 @@ export function IconPicker({
   return (
     <div id={id}>
       <div className="flex items-center gap-3">
-        {value && <LeadingIcon>{icon(value, 24)}</LeadingIcon>}
+        {/* The icon, or a plus while there is none: the round control of the rows (SlotButton); a tap opens the icons. */}
+        <SlotButton
+          label={value ? t.forms.changeIcon : t.forms.pickIcon}
+          expanded={open}
+          controls={grid}
+          onClick={() => setOpen((o) => !o)}
+        >
+          {value ? icon(value, 24) : <Plus size={24} />}
+        </SlotButton>
         <span className="min-w-0 flex-1 truncate">{chosen ? chosen.label : value ? iconLabel(value) : t.forms.noIconYet}</span>
-        {!open && (
-          <Button kind="outlined" size="small" aria-expanded={open} aria-controls={grid} onClick={() => setOpen(true)}>
-            {value ? t.forms.changeIcon : t.forms.pickIcon}
-          </Button>
-        )}
       </div>
       {open && (
         <div id={grid} className="editor-reveal mt-3">
@@ -2165,7 +2208,7 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
       role="img"
       className="space-y-3 rounded-2xl border border-outline-variant bg-surface p-4 text-on-surface"
     >
-      <p className="text-lg font-medium tracking-tight">{p.heading}</p>
+      <p className="text-body-large font-medium">{p.heading}</p>
       <p className="text-sm text-on-surface-variant">{p.text}</p>
       <p>
         <span className="link">{p.link}</span>
@@ -2415,7 +2458,7 @@ export const plainListClass = siteListClasses('standard');
 /** The small heading over a Group, and over what stands as one (the themes on Account): in Material 3's title small, as
  * written (not in capitals, Material 2's subheader), muted as a group's heading in a sheet (SheetGroupTitle). */
 export function GroupTitle({ children }: { children: ReactNode }) {
-  return <h2 className="mb-2 px-4 text-sm font-medium tracking-[0.00625rem] text-on-surface-variant">{children}</h2>;
+  return <h2 className="mb-2 px-4 text-title-small text-on-surface-variant">{children}</h2>;
 }
 
 /** The theme's ripple on every part the editor draws that is pressed (its buttons, rows, chips …), as on the site:
@@ -2461,7 +2504,7 @@ export function ProblemNote({ alert, children }: { alert?: boolean; children: Re
 /** A heading over fields in a form (Other fields, SEO); `first` at the top of a column, without the space
  * above it on a wide screen. */
 export function FormHeading({ first, children }: { first?: boolean; children: ReactNode }) {
-  return <h2 className={`pt-4 text-xl font-semibold ${first ? 'large:pt-0' : ''}`}>{children}</h2>;
+  return <h2 className={`pt-4 text-title-large font-semibold ${first ? 'large:pt-0' : ''}`}>{children}</h2>;
 }
 
 /** A section of a long form that folds in and out (the sections of a page; Material 3 has no accordion, so it has its
@@ -2496,7 +2539,7 @@ export function FoldSection({
           id={`${id}-title`}
           aria-expanded={open}
           aria-controls={`${id}-body`}
-          className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--block-radius-small) px-3 py-[1.125rem] text-left text-xl font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+          className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--block-radius-small) px-3 py-[1.125rem] text-left text-title-large font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
           onClick={onToggle}
         >
           <span className="min-w-0 flex-1 [text-box:trim-both_cap_alphabetic]">{title}</span>
@@ -2665,11 +2708,11 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
               className={`transition-[stroke-dasharray] duration-[1200ms] ease-out motion-reduce:transition-none ${seen && score > 0 ? '' : 'opacity-0'} ${tone.stroke}`}
             />
           </svg>
-          <span aria-hidden="true" className={`absolute inset-0 grid place-items-center text-4xl tabular-nums ${tone.text}`}>
+          <span aria-hidden="true" className={`absolute inset-0 grid place-items-center text-display-small tabular-nums ${tone.text}`}>
             {shown}
           </span>
         </div>
-        {title && <h3 className="text-xl font-medium">{title}</h3>}
+        {title && <h3 className="text-title-large font-medium">{title}</h3>}
         <span className="sr-only">{t.common.check.score(good.length, items.length)}</span>
       </div>
       {bad.length > 0 && <Group title={`${t.common.check.notOk} (${bad.length})`}>{bad.map(row)}</Group>}

@@ -36,9 +36,14 @@ export const allow = [
   },
   {
     file: /^src\/.*\.tsx$/,
-    line: /^(text-(lg|xl|4xl)|rounded-md|rounded-\[[0-9.]+(px|rem)\]|text-\[20px\]|leading-\[2[26]px\]|tracking-\[0\.00625rem\]|border-\[[0-9.]+px\])$/,
+    line: /^(text-\[20px\]|leading-\[2[26]px\])$/,
+    reason: "the search-result preview is Google's own look: 20px/26px title and 22px lines, not M3 steps",
+  },
+  {
+    file: /^src\/.*\.tsx$/,
+    line: /^(rounded-\[3px\]|rounded-\[1\.375rem\]|border-\[1\.5px\]|border-\[3px\])$/,
     reason:
-      "the editor's own chrome: off-scale sizes (18, 20, 36 px text; 6 px, 3 px and 22 px corners; 1.5 and 3 px lines) that move to a step in a pull request that changes how the editor looks (the owner decides)",
+      "a crop handle's 3px corner and 1.5px line, the app icon's 22px corner (the icon's own shape, as on a phone's home screen) and a 3px line: not steps of a scale",
   },
   {
     file: /blocks\.css$|ui\.css$|global\.css$|base\.css$|components\.css$/,

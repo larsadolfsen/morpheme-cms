@@ -5,7 +5,7 @@ import type { ReleaseNote } from '../lib/releaseNotes.mjs';
 export function ReleaseNoteSection({ note }: { note: Extract<ReleaseNote, { kind: 'paragraph' }> }) {
   return (
     <div className="space-y-1">
-      <h4 className="text-lg font-medium">{note.title}</h4>
+      <h4 className="text-body-large font-medium">{note.title}</h4>
       <p className="text-base">{note.text}</p>
     </div>
   );

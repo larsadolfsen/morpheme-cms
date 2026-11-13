@@ -226,19 +226,34 @@
   color: var(--section-on);
 }
 
+.editor-text .ProseMirror {
+  --page-primary-container: var(--mo-primary-container, var(--block-tint));
+  --page-on-primary-container: var(--mo-on-primary-container, var(--block-text));
+  --page-secondary-container: var(--mo-secondary-container, var(--block-tint));
+  --page-on-secondary-container: var(--mo-on-secondary-container, var(--block-text));
+  --page-tertiary-container: var(--mo-tertiary-container, var(--block-tint));
+  --page-on-tertiary-container: var(--mo-on-tertiary-container, var(--block-text));
+}
+
 .editor-text .ProseMirror > [data-section-color='primary'] {
   --section-fill: var(--block-primary);
   --section-on: var(--block-on-primary);
+  --section-container: var(--page-primary-container);
+  --section-on-container: var(--page-on-primary-container);
 }
 
 .editor-text .ProseMirror > [data-section-color='secondary'] {
   --section-fill: var(--block-secondary);
   --section-on: var(--block-on-secondary);
+  --section-container: var(--page-secondary-container);
+  --section-on-container: var(--page-on-secondary-container);
 }
 
 .editor-text .ProseMirror > [data-section-color='tertiary'] {
   --section-fill: var(--block-tertiary);
   --section-on: var(--block-on-tertiary);
+  --section-container: var(--page-tertiary-container);
+  --section-on-container: var(--page-on-tertiary-container);
 }
 
 /* The image behind a section (the widget before its first part, placed over the section's parts by sectionFrame.ts): it fills
@@ -889,7 +904,7 @@ html {
   gap: 0.375rem;
   border-radius: var(--mo-shape-full);
   padding-inline: 0.75rem;
-  font-size: 0.875rem;
+  font-size: var(--type-body-medium-size);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -932,15 +947,15 @@ html {
 /* The media and link slots over the headline of the active card. */
 .editor-text .inline-card-slots {
   display: flex;
-  gap: var(--mo-space-4, 4px);
-  margin-bottom: var(--mo-space-4, 4px);
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
 }
 
 /* The icon and link slots before the heading of the active row of a Segmented list. */
 .editor-text .inline-segmented-slots {
   display: inline-flex;
   flex: none;
-  gap: var(--mo-space-4, 4px);
+  gap: 0.25rem;
 }
 
 /* A row's buttons at the bottom of the active row of a Segmented list: each text typed where it stands, then "Add button". */
@@ -953,17 +968,17 @@ html {
 
 /* A List that reads a list: the line that says which, over its rows. */
 .editor-text .inline-list-from {
-  margin: 0 0 var(--mo-space-8, 8px);
+  margin: 0 0 0.5rem;
   color: var(--mo-on-surface-variant);
-  font-size: 0.875rem;
+  font-size: var(--type-body-medium-size);
 }
 
 /* A dynamic block that can pick the fields of its list: a text button for each part of a row (top line, bottom line, icon, link). */
 .editor-text .inline-list-parts {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 var(--mo-space-8, 8px);
-  margin: 0 0 var(--mo-space-8, 8px);
+  gap: 0 0.5rem;
+  margin: 0 0 0.5rem;
 }
 
 /* The row being typed in has a dotted line round it in the text's own colour (3:1 on every section colour, unlike the section frame's quiet line); the empty row of an empty list is faded. */
@@ -978,12 +993,12 @@ html {
 /* The chip over Cards that are a carousel on phones: in place they are typed stacked, so the choice is not forgotten. */
 .editor-text .inline-cards-chip {
   display: inline-block;
-  margin-bottom: var(--mo-space-8, 8px);
+  margin-bottom: 0.5rem;
   border-radius: var(--mo-shape-full);
   padding: 2px 10px;
   background: var(--mo-secondary-container);
   color: var(--mo-on-secondary-container);
-  font-size: 0.75rem;
+  font-size: var(--type-body-small-size);
 }
 /* A card's media that is set: a button over it, a tap changes it (Cards, InlineCards.tsx). */
 .editor-text .inline-card-media {
@@ -998,6 +1013,7 @@ html {
 }
 .editor-text .inline-list-slot[aria-pressed='true'] {
   background: var(--mo-secondary-container);
+  color: var(--mo-on-secondary-container);
 }
 /* A card's buttons while it is active: the text of each is typed on the button itself (InlineCards.tsx), drawn as a tonal pill. */
 .editor-text .inline-card-button {
@@ -1015,7 +1031,7 @@ html {
   color: var(--mo-on-surface-variant);
 }
 
-.editor-text .inline-list-slot {
+.inline-list-slot {
   display: grid;
   width: 2.5rem;
   height: 2.5rem;
@@ -1024,8 +1040,12 @@ html {
   color: var(--mo-on-surface-variant);
 }
 
-.editor-text .inline-list-slot:hover,
-.editor-text .inline-list-slot:focus-visible {
+.inline-list-slot[data-icon-color] {
+  color: var(--icon-color);
+}
+
+.inline-list-slot:hover,
+.inline-list-slot:focus-visible {
   background: var(--mo-surface-container-high);
   outline: none;
 }
@@ -1502,7 +1522,7 @@ dialog {
 
 .editor-text .inline-video {
   display: grid;
-  gap: var(--mo-space-8, 8px);
+  gap: 0.5rem;
 }
 
 .editor-text .inline-video-title {
@@ -1516,6 +1536,21 @@ dialog {
   width: auto;
   min-width: 3ch;
   text-align: center;
+}
+
+.editor-text .inline-buttons .inline-button .inline-list-slot {
+  color: inherit;
+}
+
+/* The text of an empty button, and its hint, are the button kind's own on-colour (filled on-primary, tonal on-secondary-container, elevated
+   and outlined primary), the hint at the placeholder emphasis; never the text colour of the page. */
+.editor-text .inline-buttons .inline-button .inline-list-field {
+  color: inherit;
+}
+
+.editor-text .inline-buttons .inline-button .inline-list-field::placeholder {
+  color: inherit;
+  opacity: 0.92;
 }
 
 .editor-text .inline-buttons-shared {
@@ -1542,7 +1577,7 @@ dialog {
 .editor-text .inline-table-host {
   display: grid;
   justify-items: start;
-  gap: var(--mo-space-8, 8px);
+  gap: 0.5rem;
 }
 
 .editor-text .inline-table-host > .inline-table {
@@ -1571,5 +1606,5 @@ dialog {
   display: flex;
   min-height: 2.5rem;
   align-items: center;
-  gap: var(--mo-space-8, 8px);
+  gap: 0.5rem;
 }
