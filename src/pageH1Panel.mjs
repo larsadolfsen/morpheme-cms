@@ -18,6 +18,11 @@ export function setH1Panel(doc, settings, introHtml, src = settings?.image) {
     old.querySelector(':scope > img.text-section-image')?.remove();
     old.replaceWith(...Array.from(old.childNodes));
   }
+  // The layout's header has no space above a panel with a background (PageLayout.astro), and the usual space without one.
+  const background = Boolean(settings && (settings.color || settings.image));
+  header.classList.toggle('pt-8', !background);
+  header.classList.toggle('medium:pt-14', !background);
+  header.classList.toggle('[&>.text-section]:mt-0', background);
   if (!settings) return;
   const panel = doc.createElement('section');
   panel.setAttribute('data-editor', 'h1-section');
