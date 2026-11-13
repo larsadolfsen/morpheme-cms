@@ -422,6 +422,8 @@ async function checkListsAndBlocks(width) {
   // Backspace at the start of the second item takes it out of the list: a paragraph between two lists.
   await page.locator('.ProseMirror li > p').nth(1).click();
   await page.keyboard.press('Home');
+  // The editor reads the moved cursor from the page a moment later.
+  await page.waitForTimeout(150);
   await page.keyboard.press('Backspace');
   const left = (await tops()).join();
   if (left !== 'ul,p,ul') problems.push(`${label}: Backspace at the start of a list item gives ${left}, not ul,p,ul`);
