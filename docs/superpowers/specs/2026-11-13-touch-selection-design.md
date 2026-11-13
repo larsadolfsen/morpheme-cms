@@ -1,6 +1,6 @@
 # Selecting things in the editor, on touch and with a mouse (design)
 
-Status: proposal for the owner. Design only, no code. Written for a phone: plain words, short.
+Status: ready for the owner's read. Design only, no code. Every question in section 7 is decided (by the owner or by what M3 prints); the one open choice that remains is #519's "Undo only", which belongs to that spec. Written for a phone: plain words, short.
 
 Owner's ask: "How should we implement touch in the backend?" That is: how the editor (`/editor/`) lets people select items on
 touch screens and with a mouse, following Material 3 Selection. Builds on the contextual toolbar spec (PR #519, "the one bar") and
@@ -338,7 +338,7 @@ Checks (`check:screens`, 375 with touch emulation and 1280, the demo's Blocks pa
 - With two or more blocks selected every handle is disabled (`aria-disabled` or `disabled`, the disabled look, not focusable) and a drag does nothing; with one selected a handle drags; Move up and Move down are disabled when the selected blocks are not next to each other and each carries its reason as `aria-description`.
 - The bar never overflows or scrolls at 375, the bar's group has exactly 7 slots (Close with count of 2, Move up, Move down, Undo, Redo, `⋮`), `⋮` lists, with one block selected, Duplicate, Hide / Show, Remove and Select all (Duplicate is absent with two or more), every button is 44 × 44 dp as #519 says (the block cards' checkboxes are 48 dp), contrast and colours pass (`check:contrast`, `check:editor-colors`).
 
-## 7. Questions for the owner (the PM asks them one at a time)
+## 7. Decisions (every question is answered; none is open)
 
 1. ~~Where does the selection bar go?~~ **Decided by the owner:** it swaps the top bar's title and buttons (count, Close, actions), not the docked row of #519.
 2. ~~How does selection look in a list?~~ **Decided by M3's printed text, as the owner's rule says ("We follow MD3")**: a trailing checkbox on rows that have a leading icon, ring or image (M3: "With leading icon and trailing checkbox"; all four list screens), a leading checkbox on text-only rows ("With leading checkbox"), plus the selected surface and the 16 dp corner; one selection interaction per row; the leading icon does not change. The tinted-row-and-filled-icon look of the Lists screenshot is not printed by M3 and is not used unless the owner says so in words.
@@ -358,4 +358,4 @@ Checks (`check:screens`, 375 with touch emulation and 1280, the demo's Blocks pa
 16. ~~Where does the drag handle sit on a block?~~ **Decided by the owner ("Top right")**: the drag handle is at the **end (top-right)** of the block; the select mark keeps the top-left (M3's photo-grid example).
 17. ~~Duplicate~~ **Decided by the owner:** "Only show Duplicate when one is selected. Insert the block right after." Hidden with two or more selected; the copy goes right after the block.
 18. ~~Hide with a mix of shown and hidden blocks~~ **Decided by the owner ("Yes, hide all of them")**: with a mix the button reads Hide and hides all; when every selected block is hidden it reads Show and shows all.
-19. **Files screen: where do the count and the actions sit?** The example prints a "× N" count control above the grid and shows no actions; the owner decided that list screens swap the top bar (question 1). Recommendation: **tiles follow the example**: the "× N" control above the grid is the count and the way out, and the Delete action sits in the top bar's own buttons (the page's tools); lists keep the swapped bar.
+19. ~~Files screen: where do the count and the actions sit?~~ **Decided by the owner ("Yes, follow the example")**: tiles follow M3's photo-grid example. The "× N" control above the grid is the count and the way out, and Delete sits in the top bar's own buttons; lists keep the swapped top bar.
