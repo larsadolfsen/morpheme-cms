@@ -496,7 +496,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     const next = await page.locator('.inline-list-row-active .block-card-actions .inline-card-next-button').allTextContents();
     if (next.join() !== 'Add button')
       problems.push(`${label}: the active card's action area has "${next}", not the text button "Add button"`);
-    if (width >= 1000 && !(await page.locator('.site-block-toolbar button[aria-label="Link"]').count()))
+    if (width >= 1000 && !(await page.locator('.contextual-menu button[aria-label="Link"]').count()))
       problems.push(`${label}: the toolbar has no Link while the card is still empty`);
     // The header line of a card is a headline and ONE optional subhead, both typed in place; no badge, date or tags.
     const fields = await page.evaluate(() =>
@@ -514,12 +514,17 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       add: [...document.querySelectorAll('[data-add-row]')].map((b) => b.textContent.trim()),
       outline: getComputedStyle(document.querySelector('.inline-list-row-active')).outlineStyle,
       background: getComputedStyle(document.querySelector('.inline-list-row-active')).backgroundColor,
-      bar: [...document.querySelectorAll('.site-block-toolbar button')].map((b) => ({
+      bar: [...document.querySelectorAll('.contextual-menu button')].map((b) => ({
         label: b.getAttribute('aria-label'),
         svg: !!b.querySelector('svg path'),
       })),
+      // A dropdown is a button with a text label and a chevron ; the contextual menu has none, only icon buttons.
+      dropdowns: [...document.querySelectorAll('.contextual-menu button')]
+        .filter((b) => b.textContent.trim() || b.querySelector('svg[width="12"]'))
+        .map((b) => b.getAttribute('aria-label')),
     }));
   const one = await state();
+  if (one.dropdowns.length) problems.push(`${label}: the contextual menu has a dropdown (${one.dropdowns}); it holds icon buttons only`);
   if (one.next) problems.push(`${label}: the faded empty item shows although the block has an item`);
   if (one.add.join() !== add) problems.push(`${label}: expected the button "${add}" under an active block, got "${one.add}"`);
   if (one.outline !== 'dotted') problems.push(`${label}: the active row has outline ${one.outline}, not dotted`);
@@ -570,7 +575,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   // The card's settings (the toolbar's gear on a phone, a sheet; the panel on a computer already) open with its page and buttons, never an empty page.
   const cardSettings = async (when) => {
     if (width >= 1000) return;
-    await page.locator('.site-block-toolbar button[aria-label="Edit"]').click();
+    await page.locator('.contextual-menu button[aria-label="Edit"]').click();
     const sheet = page.locator('dialog[open][aria-label="Card settings"]');
     await sheet.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the card's settings do not open (${when})`));
     if (!(await sheet.getByText(/^(Page|Buttons)$/).count())) problems.push(`${label}: the card's settings are empty (${when})`);
@@ -742,8 +747,7 @@ async function checkSteps(width, height) {
   // Moving a step renumbers.
   await page.locator('.inline-steps [data-row="0"] [data-field="title"]').click();
   await page.waitForTimeout(200);
-  const down = page.locator('.site-block-toolbar button[aria-label="Move down"]');
-  if (phone) await page.locator('.site-block-toolbar button[aria-label="Step"]').click();
+  const down = page.locator('.contextual-menu button[aria-label="Move down"]');
   await down.first().click();
   await page.waitForTimeout(200);
   now = await steps();
@@ -790,7 +794,7 @@ async function checkSteps(width, height) {
   }
 }
 
-/** The dynamic List (the owner's flow): the dynamic icon in the floating toolbar opens the dynamic settings (a bottom sheet on a phone, the side panel on a computer) with `Rows from`; picking a list turns the block into a "Dynamic list" with its state line, `Edit list` and an `Undo` that brings the typed rows back; the toolbar then has no row actions and stays inside the screen. */
+/** The dynamic List (the owner's flow): the dynamic icon in the contextual menu opens the dynamic settings (a bottom sheet on a phone, the side panel on a computer) with `Rows from`; picking a list turns the block into a "Dynamic list" with its state line, `Edit list` and an `Undo` that brings the typed rows back; the toolbar then has no row actions and stays inside the screen. */
 async function checkDynamicList(width, height) {
   const label = `${width}px dynamic list`;
   const phone = width < 600;
@@ -812,19 +816,19 @@ async function checkDynamicList(width, height) {
   await page.waitForTimeout(300);
   const bar = () =>
     page.evaluate(() => {
-      const el = document.querySelector('.site-block-toolbar');
+      const el = document.querySelector('.contextual-menu');
       const r = el && !el.hidden ? el.getBoundingClientRect() : null;
       return {
-        labels: [...document.querySelectorAll('.site-block-toolbar button')].map((b) => b.getAttribute('aria-label')),
+        labels: [...document.querySelectorAll('.contextual-menu button')].map((b) => b.getAttribute('aria-label')),
         inside: !r || (r.left >= 0 && r.right <= innerWidth + 0.5),
-        small: [...document.querySelectorAll('.site-block-toolbar button')].some((b) => b.getBoundingClientRect().height < 47.5),
+        small: [...document.querySelectorAll('.contextual-menu button')].some((b) => b.getBoundingClientRect().height < 47.5),
       };
     });
   const typed = await bar();
   if (!typed.labels.includes('Fill from a list')) problems.push(`${label}: the toolbar has no dynamic icon`);
   if (!typed.inside) problems.push(`${label}: the toolbar reaches outside the screen`);
   if (typed.small) problems.push(`${label}: a toolbar button is under 48 px high`);
-  await page.locator('.site-block-toolbar [aria-label="Fill from a list"]').click();
+  await page.locator('.contextual-menu [aria-label="Fill from a list"]').click();
   const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
   await panel.locator('button.text-field-input').first().click();
@@ -866,7 +870,7 @@ async function checkDynamicPicker(width, height) {
   await page.locator('[aria-label="Insert"]:visible').first().click();
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
   await page.waitForSelector('.inline-list-row-active [data-field="title"]');
-  await page.locator('.site-block-toolbar [aria-label="Fill from a list"]').click();
+  await page.locator('.contextual-menu [aria-label="Fill from a list"]').click();
   const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
   await panel.locator('button.text-field-input').first().click();
@@ -955,7 +959,7 @@ async function checkOwnList(width, height) {
     if (!(await page.getByRole('button', { name: 'Add list row' }).count()))
       problems.push(`${label}: no "Add list row" under the active list`);
     const labels = await page.evaluate(() =>
-      [...document.querySelectorAll('.site-block-toolbar button')].map((b) => b.getAttribute('aria-label')),
+      [...document.querySelectorAll('.contextual-menu button')].map((b) => b.getAttribute('aria-label')),
     );
     for (const need of ['Add above', 'Add below'])
       if (!labels.includes(need)) problems.push(`${label}: the toolbar has no "${need}" (${labels})`);
@@ -1179,7 +1183,7 @@ async function checkInlineTable(width, height) {
       outline: getComputedStyle(document.querySelector('.inline-table-cell-active')).outlineStyle,
       faded: getComputedStyle(document.querySelector('.inline-table-cell-next') ?? document.body).opacity,
       scroll: document.querySelector('.inline-table').scrollWidth <= document.querySelector('.inline-table').clientWidth + 1,
-      bar: [...document.querySelectorAll('.site-block-toolbar button')].map((b) => ({
+      bar: [...document.querySelectorAll('.contextual-menu button')].map((b) => ({
         label: b.getAttribute('aria-label'),
         svg: !!b.querySelector('svg path'),
       })),
