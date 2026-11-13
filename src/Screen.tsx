@@ -148,7 +148,7 @@ export default function Screen<T extends string>({
           </a>
         )}
         <div className="flex min-w-0 flex-1 flex-col pl-1 expanded:hidden">
-          <h1 className="truncate text-xl leading-tight">{title}</h1>
+          <h1 className="truncate text-title-large">{title}</h1>
           {status && (
             <p data-subtitle className="truncate text-xs text-on-surface-variant">
               {status}
