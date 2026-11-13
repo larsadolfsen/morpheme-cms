@@ -181,6 +181,28 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   menu of the three (as today's list group), showing the current kind. The tooltip of the Text style button is its name and the current style ("Text style, Body
   medium"); the keys `Mod-Alt-5` to `Mod-Alt-8` (found in the engine; the PM says they are headings: I found the key names, not which command each runs)
   show as trailing text in the menu rows they belong to, once tested.
+  **What the Text style menu and the list rows show in a list item and in a heading (owner decision: "No headings in the list item text list. And no list
+  item in the menu if in a heading."; hidden, not disabled).** Decided: headings are hidden in a list item; the list buttons and rows are hidden in a
+  heading. The rest follows the same logic from what the code does today (`setKind`, `MarkdownEditor.tsx`): only what would take the item out
+  of its list, or make a heading a list, is hidden; the rest I list as shown and flag, and the owner has not decided it.
+
+  | Cursor in | Row or button | Shown or hidden | Why (what it does today) |
+  | --- | --- | --- | --- |
+  | a list item | H1, H2, H3 | **hidden** (decided) | picking one lifts the item out of its list (`outOfLists`) |
+  | a list item | Body small, medium, large | shown | a size is a mark on the item's text and keeps the list (`sizeListText`; Body medium takes it away) |
+  | a list item | Quote | **hidden** (my logic, not decided) | it lifts the item out of its list first, then wraps it in a quote |
+  | a list item | Label | hidden (already) | a label is only for the line above a heading (`labelable`), never in a list |
+  | a list item | Bulleted, Check, Numbered | shown | they change the kind of list, or picked again take the item out (as today) |
+  | a heading | Bulleted, Check, Numbered, and the List button on a wide screen | **hidden** (decided) | each would turn the heading into a list item (`turnIntoText`, then wrap in a list) |
+  | a heading | H1, H2, H3 | shown, the current one marked | it is how the level changes |
+  | a heading | Body small, medium, large | shown | it is how a heading becomes body text (`turnIntoText`, or its own block) |
+  | a heading | Quote | shown (my logic, flagged) | it turns the heading into text and wraps it in a quote: the heading is lost, but not made a list; the owner has not decided |
+  | a heading | Label | shown where the line is `labelable` | only a line above a heading can be a label |
+
+  Flagged in one line for the owner, not decided: **Quote in a list item (hidden here) and Quote in a heading (shown here)** follow my reading of "hide only what
+  takes the item out of its list or makes a heading a list"; if the owner wants Quote hidden in a heading too, one row of this table changes. On a phone, where
+  the lists are in `⋮`, the Lists group is absent from the `⋮` menu in a heading.
+
 - **The divider** is the theme's `Divider` part (`theme/ui/Divider.tsx`), vertical, in the theme's outline-variant colour, between the
   contextual and main tools. It is hidden when there is no context (idle). In the `⋮` list a `MenuDivider` (also the theme's
   `Divider`) separates the groups.
@@ -207,8 +229,8 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   "Table" or "Cards", or "Text tools"; "Page tools" for the main tools). `⋮` has `aria-haspopup` and `aria-expanded`, its name is
   "More". Every button keeps its `aria-label` and `title`; toggles keep `aria-pressed`. Escape closes the `⋮` list and returns the
   focus to the cursor. A tap on the bar never takes the cursor (mouse and touch down are cancelled, as `press()` does today).
-  A tool that is in `⋮` for lack of room is disabled-not-removed in the list when it does not apply (M3: "it should appear disabled
-  rather than be removed").
+  The two cases the owner decided (a list item, a heading; section 3, "Text style") hide the rows that do not apply; for any other tool that does
+  not apply, M3's "it should appear disabled rather than be removed" is the default, until the owner says otherwise.
 - **Block pop-up.** The card menu `.site-block-menu` (Edit, Hide, Move, Remove) and the block's `⋮` become the one `⋮`: after the
   tools, a divider, then Hide, Move, Remove.
 
@@ -355,10 +377,9 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
      `editor-screens.mjs` (the empty hint, the accordion row) are other parts and stay at 48.
      **The Text style merge also goes in with step 1** (`MarkdownEditor.tsx`): `kindGroups` loses `'headings'` and `'text'` for one `'style'` group (with
      `headingKindOf` and `styleKindOf` joined into one `styleOf`, and one generic icon), the menu under `kindsAt` lists the heading levels, a divider
-     and the body sizes, label and quote. **In a list item** the heading rows are shown **disabled, not removed** (M3 prints this for menus: "When a
-     menu item can only be used under specific conditions, it should appear disabled rather than be removed"; today the controls are left out). The
-     `check:screens` rules that must change: line 476 (`/^(Page heading|Heading|Subheading)\b/` buttons "in a list item": the heading rows of the Text
-     style menu are disabled there instead), lines 207 to 211 and 238 to 240 (the selection pill's "Heading and More" and the *More* sheet's group
+     and the body sizes, label and quote. **In a list item the heading rows are hidden, and in a heading the list rows are hidden** (owner decision; section 3, "Text style"). The
+     `check:screens` rules that must change: line 476 (`/^(Page heading|Heading|Subheading)\b/` buttons "in a list item": the check now reads the Text
+     style menu: no heading rows in a list item, and the list rows and the List button absent in a heading), lines 207 to 211 and 238 to 240 (the selection pill's "Heading and More" and the *More* sheet's group
      titles: both go with the pill and the sheet). The `pick` helper at line 484 (`[aria-label^="Text style"]`, then a menu row by its name) keeps
      working if the merged button's name begins with "Text style". New rules: one Text style button on the bar in text; its menu has at most 8 rows,
      the current one marked, each row 44 dp; a page's first heading offers H1, a blog post offers H2 and H3.
@@ -431,6 +452,7 @@ lists are in section 3.
   owner's choice; I did not read M3's icon size for an icon button in a toolbar (the Icon buttons spec page has an "Icon size" heading with the
   numbers in images and token tables I could not read), so for the bar's buttons I cannot say whether 20 matches. The audit PR #520 says the Expressive
   list spec also prints 20; I did not re-read the Lists token tables, so I confirm it only for menus. Date 2026-11-13.
+- *Rows that do not apply are hidden, not disabled (Text style in a list item or a heading).* **M3 says:** "When a menu item can only be used under specific conditions, it should appear disabled rather than be removed." (menus/guidelines, Menu items.) **We do:** in a list item the heading rows are hidden, and in a heading the list rows and the List button are hidden. **Why:** owner's decision ("No headings in the list item text list. And no list item in the menu if in a heading."); editor workspace. Date 2026-11-13.
 - *Overlay scrollbar of the `⋮` pop-up on a phone.* **M3 says:** "Menus can scroll when all menu items can't display at once. In this state, menus show a persistent scrollbar." (menus/guidelines, Scrolling.) **We do:** `scrollbar-width: thin` and `scrollbar-gutter: stable` on the editor's menu, so a persistent scrollbar shows where the browser allows it (a computer); on a phone the browser's overlay scrollbar hides when idle and cannot be forced, so there we do not match; the cue is a half-cut last row. **Why:** the platform. Date 2026-11-13. M3 also says "Don't use gaps in scrollable menus": the `⋮` menu uses dividers only.
 - Not a deviation: the tooltip with a shortcut. M3's plain tooltip "briefly describe[s] a UI element" and says nothing for or against a
   shortcut; menu items may carry "keyboard commands" as trailing text.
