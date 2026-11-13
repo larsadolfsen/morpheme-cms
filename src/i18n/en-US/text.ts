@@ -19,7 +19,7 @@ export const text = {
   orderedList: 'Numbered list',
   quote: 'Quote',
   insert: 'Insert',
-  /** The Insert row of the bar's ⋮ menu (the bar's own button is just Insert). */
+  /** The bar's Insert button: it inserts a block (an image on a blog post). It is never in the ⋮ menu. */
   insertBlock: 'Insert block',
   image: 'Image',
   undo: 'Undo',

@@ -1825,7 +1825,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const lists = listRows(active);
   const settingsShown =
     framed && active.includes('section') && !(sections && active.includes('section-h1')) && !!(blocks ?? sheetProp) && textContext;
-  const insertLabel = blocks ? t.text.insert : t.text.image;
+  const insertLabel = blocks ? t.text.insertBlock : t.text.image;
   const hasInsert = !!blocks || !!addImage;
   const contextIds = block_
     ? blockToolIds(block_).map((id) => `block:${id}`)
@@ -1833,7 +1833,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       ? ['bold', 'italic', 'link', 'style', ...(lists.length ? ['list'] : []), 'align', 'color']
       : [];
   const blockMenu = block_?.menu ?? [];
-  const mainIds = [...(hasInsert ? ['insert'] : []), 'undo', 'redo', ...(settingsShown ? ['settings'] : [])];
+  // Undo, Redo and Section settings, a divider, then Insert block (never in the ⋮) and the ⋮.
+  const mainIds = ['undo', 'redo', ...(settingsShown ? ['settings'] : []), ...(hasInsert ? ['insert'] : [])];
   useLayoutEffect(() => {
     const bar = toolbar.current!;
     const measure = () => setBarWidth(bar.clientWidth);
@@ -1845,7 +1846,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // A menu of one of the ⋮ menu's rows is open under the ⋮ button.
   const underMore = [kindsAt?.at, alignAt, colorAt].some((at) => !!at && at === moreButton.current);
   const plan = planBar({
-    slots: slotsFor(barWidth, contextIds.length > 0),
+    slots: slotsFor(barWidth, (contextIds.length > 0 ? 1 : 0) + (hasInsert ? 1 : 0)),
     context: contextIds,
     main: mainIds,
     more: blockMenu.length > 0,
@@ -1961,7 +1962,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     const { label, icon, action, on, pressed } = toolOf(id);
     return (
       <MenuItem key={id} icon={icon} selected={on ? active.includes(on) : pressed} onClick={action}>
-        {id === 'insert' && blocks ? t.text.insertBlock : label}
+        {label}
       </MenuItem>
     );
   };
@@ -1985,7 +1986,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         )}
         {plan.bar.context.length > 0 && <ToolbarDivider />}
         <div role="group" aria-label={t.text.pageTools} className="editor-tools-group">
-          {plan.bar.main.map(barButton)}
+          {plan.bar.main.filter((id) => id !== 'insert').map(barButton)}
+          {plan.bar.main.includes('insert') && plan.bar.main.length > 1 && <ToolbarDivider />}
+          {plan.bar.main.filter((id) => id === 'insert').map(barButton)}
         </div>
         {plan.overflow && (
           <ToolbarButton

@@ -168,11 +168,21 @@ async function pressMore(page, name, how = 'click') {
   await row.first()[how]();
 }
 
-/** The bar's Insert (on the bar, or in the ⋮ menu when it did not fit). */
+/** The bar's Insert block (always on the bar, never in the ⋮ menu). */
 async function pressInsert(page, how = 'click') {
-  const direct = page.locator('.editor-tools button[aria-label="Insert"]:visible');
-  if (await direct.count()) return void (await direct.first()[how]());
-  await pressMore(page, 'Insert block', how);
+  await page.locator('.editor-tools button[aria-label="Insert block"]:visible').first()[how]();
+}
+
+/** The Text style menu: the bar's button, or its row in the ⋮ menu (which opens the menu under the ⋮) when the button did not fit. */
+async function openStyleMenu(page) {
+  const direct = page.locator('.editor-tools [aria-label^="Text style"]:visible');
+  if (await direct.count()) return void (await direct.first().click());
+  await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+  await page
+    .locator('[role=menu][aria-label="More"] [role^=menuitem]')
+    .filter({ hasText: /^Text style/ })
+    .first()
+    .click();
 }
 
 /** What the bar and its ⋮ menu hold now: `bar` its buttons (name, title, icon, size, pressed), `more` the rows of the ⋮ menu (opened and closed again by its button, so the cursor stays in its field). */
@@ -256,7 +266,7 @@ async function checkTextBar(width = 360) {
   const inText = await readBar();
   const divided = dividerProblem(inText.dividerBox, inText.buttonBox);
   if (divided) problems.push(`${label}: ${divided}`);
-  const slots = Math.floor((inText.barWidth - 17) / 44);
+  const slots = Math.floor((inText.barWidth - 2 * 17) / 44);
   if (inText.height < 44 || inText.height > 46)
     problems.push(`${label}: the bar is ${inText.height} px tall, not 44 (plus its 1 px edges)`);
   if (inText.scrolls || inText.pageScrolls) problems.push(`${label}: the bar or the page scrolls sideways`);
@@ -289,12 +299,14 @@ async function checkTextBar(width = 360) {
   )
     problems.push(`${label}: the ⋮ icon is not Material's more_vert at 20 dp (${JSON.stringify(dots)})`);
   if (inText.names.length > slots) problems.push(`${label}: ${inText.names.length} buttons but room for ${slots}`);
-  if (inText.names.slice(0, 3).join() !== 'Bold,Italic,Link' || !inText.names[3]?.startsWith('Text style'))
-    problems.push(`${label}: Bold, Italic, Link and Text style are not the first four (${inText.names.join(', ')})`);
-  if (!inText.names.includes('Undo') || !inText.names.includes('Redo') || inText.names.at(-1) !== 'More')
-    problems.push(`${label}: Undo, Redo and More (last) are not all there (${inText.names.join(', ')})`);
+  if (inText.names.slice(0, 2).join() !== 'Bold,Italic')
+    problems.push(`${label}: Bold and Italic are not the first two (${inText.names.join(', ')})`);
+  if (!['Undo', 'Redo', 'Insert block'].every((n) => inText.names.includes(n)) || inText.names.at(-1) !== 'More')
+    problems.push(`${label}: Undo, Redo, Insert block and More (last) are not all there (${inText.names.join(', ')})`);
+  if (inText.names.indexOf('Insert block') !== inText.names.length - 2)
+    problems.push(`${label}: Insert block is not right before the ⋮ (${inText.names.join(', ')})`);
   if (width === 360 || width === 375) {
-    const want = 'Bold,Italic,Link,Text style: Body medium,Undo,Redo,More';
+    const want = 'Bold,Italic,Undo,Redo,Insert block,More';
     if (inText.names.join() !== want) problems.push(`${label}: the bar has ${inText.names.join()}, not ${want}`);
   }
   if (inText.groups.join() !== 'Text tools,Page tools') problems.push(`${label}: the groups are ${inText.groups.join()}`);
@@ -327,11 +339,12 @@ async function checkTextBar(width = 360) {
     problems.push(`${label}: the ⋮ menu is outside the visible screen or not under its button`);
   if (menu.rows.some((x) => x.h < 43.4)) problems.push(`${label}: a row of the ⋮ menu is under 44 dp`);
   const listOnBar = inText.names.some((n) => n === 'List' || n.startsWith('List:'));
-  for (const name of [...(listOnBar ? [] : ['Bullet list', 'Check list', 'Numbered list']), 'Color', 'Insert block'])
+  for (const name of [...(listOnBar ? [] : ['Bullet list', 'Check list', 'Numbered list']), 'Color'])
     if (!menu.rows.some((x) => x.name === name))
       problems.push(`${label}: the ⋮ menu lacks "${name}" (${menu.rows.map((x) => x.name).join(', ')})`);
   if (!menu.rows.some((x) => x.name === 'Align left'))
     problems.push(`${label}: the ⋮ menu's alignment row does not read just "Align left" (${menu.rows.map((x) => x.name)})`);
+  if (menu.rows.some((x) => /^Insert/.test(x.name))) problems.push(`${label}: Insert block is in the ⋮ menu, not on the bar`);
   if (!menu.kept) problems.push(`${label}: the ⋮ took the cursor out of the text`);
   await page.keyboard.press('Escape');
   if (await page.locator('[role=menu][aria-label="More"]').count()) problems.push(`${label}: Escape did not close the ⋮ menu`);
@@ -383,9 +396,9 @@ async function checkTextBar(width = 360) {
         h: x.getBoundingClientRect().height,
       })),
     );
-  const styleButtons = await page.locator('.editor-tools [aria-label^="Text style"]:visible').count();
-  if (styleButtons !== 1) problems.push(`${label}: ${styleButtons} Text style buttons on the bar, not 1`);
-  await page.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
+  const styleTools = (await barTools(page)).names.filter((n) => n.startsWith('Text style'));
+  if (styleTools.length !== 1) problems.push(`${label}: ${styleTools.length} Text style tools on the bar and in the ⋮, not 1`);
+  await openStyleMenu(page);
   const style = await rowsOf();
   if (style.length > 8 || style.some((x) => x.h < 43.4))
     problems.push(`${label}: the Text style menu has ${style.length} rows or one is under 44 dp`);
@@ -408,7 +421,7 @@ async function checkTextBar(width = 360) {
     .first()
     .click();
   await page.keyboard.type('Title');
-  await page.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
+  await openStyleMenu(page);
   if ((await rowsOf()).some((x) => x.name === 'Quote')) problems.push(`${label}: Quote is offered in a heading`);
   await page.keyboard.press('Escape');
   await more.click();
@@ -422,8 +435,8 @@ async function checkTextBar(width = 360) {
   await page.evaluate(() => document.activeElement?.blur());
   await page.waitForTimeout(200);
   const idle = await readBar();
-  if (idle.divider || idle.names.join() !== 'Insert,Undo,Redo')
-    problems.push(`${label}: idle the bar has ${idle.names.join()}${idle.divider ? ' and a divider' : ''}, not Insert, Undo, Redo`);
+  if (idle.divider || idle.names.join() !== 'Undo,Redo,Insert block')
+    problems.push(`${label}: idle the bar has ${idle.names.join()}${idle.divider ? ' and a divider' : ''}, not Undo, Redo, Insert block`);
   if (Math.abs(idle.height - inText.height) > 0.6)
     problems.push(`${label}: the bar is ${idle.height} px tall idle and ${inText.height} in text`);
   if (width !== 360) return void (await page.close());
@@ -446,13 +459,83 @@ async function checkTextBar(width = 360) {
   await blog.waitForSelector('.ProseMirror');
   await blog.click('.ProseMirror');
   await blog.keyboard.type('Fro');
-  await blog.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
+  await openStyleMenu(blog);
   const blogRows = await blog.evaluate(() =>
     [...document.querySelectorAll('[role=menu] [role^=menuitem]')].map((x) => x.textContent.trim()),
   );
   if (!blogRows.includes('Heading') || !blogRows.includes('Subheading') || blogRows.includes('Main heading'))
     problems.push(`${label} (blog): a post offers ${blogRows.join(', ')}, not Heading and Subheading`);
   await blog.close();
+}
+
+/** Insert block is always on the bar and never in the ⋮ (320, 375 and 1280 px, in text, with a block active and idle): a 44 x 44 dp button with the widgets icon, right before the ⋮ (or last), behind a divider that sits between Redo and it (centred on the buttons, as tall as they are); it opens the block picker. */
+async function checkInsertBlock(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px Insert block`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  const read = () =>
+    page.evaluate(() => {
+      const bar = document.querySelector('.editor-tools');
+      const rect = (el) => el && el.getBoundingClientRect().toJSON();
+      const named = (name) => bar.querySelector(`button[aria-label="${name}"]`);
+      return {
+        insert: rect(named('Insert block')),
+        redo: rect(named('Redo')),
+        more: rect(named('More')),
+        undo: rect(named('Undo')),
+        icon: named('Insert block')?.querySelector('svg')?.getAttribute('viewBox'),
+        dividers: [...bar.querySelectorAll('hr[aria-orientation="vertical"]')].map(rect),
+        names: [...bar.querySelectorAll('button')].map((b) => b.getAttribute('aria-label')),
+        scrolls: bar.scrollWidth > bar.clientWidth + 2,
+      };
+    });
+  const check = (state, got) => {
+    const where = `${label} (${state})`;
+    if (!got.insert) return void problems.push(`${where}: no Insert block on the bar (${got.names})`);
+    if (Math.abs(got.insert.width - 44) > 0.6 || Math.abs(got.insert.height - 44) > 0.6)
+      problems.push(`${where}: Insert block is ${got.insert.width} x ${got.insert.height}, not 44 x 44`);
+    if (got.icon !== '0 -960 960 960') problems.push(`${where}: Insert block has no Material widgets icon (viewBox ${got.icon})`);
+    if (got.scrolls) problems.push(`${where}: the bar scrolls`);
+    // Undo, Redo, a divider, Insert block, then the ⋮ (when there is one).
+    const between = got.dividers.filter((d) => d.left >= got.redo.right - 1 && d.right <= got.insert.left + 1);
+    if (!got.redo || between.length !== 1)
+      problems.push(`${where}: there is not exactly one divider between Redo and Insert block (${got.dividers.length} dividers)`);
+    else {
+      const mid = (r) => r.top + r.height / 2;
+      if (Math.abs(mid(between[0]) - mid(got.insert)) > 1 || Math.abs(between[0].height - got.insert.height) > 1)
+        problems.push(`${where}: the divider before Insert block is not centred on the buttons and as tall as they are`);
+    }
+    if (got.undo && got.redo && !(got.undo.right <= got.redo.left + 1 && got.redo.right <= got.insert.left))
+      problems.push(`${where}: the order is not Undo, Redo, Insert block`);
+    if (got.more && got.more.left < got.insert.right - 1) problems.push(`${where}: the ⋮ is not after Insert block`);
+  };
+  check('idle', await read());
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Fro');
+  await page.waitForTimeout(300);
+  const text = await read();
+  check('in text', text);
+  if (phone && text.names.some((n) => n === 'Insert block') && !text.names.includes('Undo'))
+    problems.push(`${label}: Insert block pushed Undo off the bar`);
+  // The ⋮ menu has no Insert row.
+  if (text.more) {
+    await page.locator('.editor-tools [aria-label="More"]').click();
+    const rows = await page.evaluate(() =>
+      [...document.querySelectorAll('[role=menu][aria-label="More"] [role^=menuitem]')].map((x) => x.textContent.trim()),
+    );
+    if (rows.some((r) => /^Insert/.test(r))) problems.push(`${label}: the ⋮ menu has an Insert row (${rows})`);
+    await page.locator('.editor-tools [aria-label="More"]').click();
+  }
+  // It opens the block picker.
+  await page.locator('.editor-tools button[aria-label="Insert block"]').click();
+  await page
+    .waitForSelector('dialog[open]', { timeout: 4000 })
+    .catch(() => problems.push(`${label}: Insert block did not open the block picker`));
+  await page.close();
 }
 
 /** A block typed in place has its tools on the text's one bar (PR 2 of the contextual toolbar plan): with a List active the bar has the block's group (named by the block), Add above and Add below as 44 x 44 dp buttons, no floating bar anywhere, the block's own menu (Hide on the page, Remove) in the ⋮ (never a second ⋮ on the card), Undo and Redo, no scrolling; the cursor back in the text brings the text tools back. */
@@ -533,7 +616,7 @@ async function checkTextBarWide() {
   });
   const dividerWide = dividerProblem(got.dividerBox, got.buttonBox);
   if (dividerWide) problems.push(`1280px text bar: ${dividerWide}`);
-  const want = ['Bold', 'Italic', 'Link', 'Text style', 'List', 'Alignment', 'Color', 'Insert', 'Undo', 'Redo'];
+  const want = ['Bold', 'Italic', 'Link', 'Text style', 'List', 'Alignment', 'Color', 'Undo', 'Redo', 'Insert block'];
   for (const name of want)
     if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)))
       problems.push(`1280px text bar: no ${name} (${got.names.join(', ')})`);
@@ -993,7 +1076,7 @@ async function checkListsAndBlocks(width) {
   await page.keyboard.press('Control+z');
   // A list item is not a heading, so the Text style menu has no heading rows in a list (they are hidden, not disabled), and no Quote.
   await page.locator('.ProseMirror li > p').nth(0).click();
-  await page.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
+  await openStyleMenu(page);
   const offered = await page
     .locator('[role=menu] [role^=menuitem]:visible')
     .evaluateAll((rows) => rows.map((x) => x.textContent.trim()).filter((n) => /^(Main heading|Heading|Subheading|Quote)\b/.test(n ?? '')));
@@ -1005,7 +1088,7 @@ async function checkListsAndBlocks(width) {
     const direct = page.locator(`.editor-tools [aria-label="${name}"]:visible`);
     if (await direct.count()) await direct.first().click();
     else {
-      await page.locator('.editor-tools [aria-label^="Text style"]:visible').first().click();
+      await openStyleMenu(page);
       await page.locator('[role=menu] button, [role=menuitem], [role=menuitemradio]').filter({ hasText: name }).first().click();
     }
   };
@@ -2811,8 +2894,10 @@ async function checkInlineTable(width, height) {
   if (one.header !== 1) problems.push(`${label}: expected a header row of 1 th cell, got ${one.header}`);
   if (one.extra || one.faded) problems.push(`${label}: the table has "Next row", "Next column" or "Add row" in it`);
   if (one.outline !== 'dotted') problems.push(`${label}: the active cell has outline ${one.outline}, not dotted`);
+  // Row above and Row below are on a phone's bar, the column tools may be in its ⋮ (Insert block, Undo and Redo have their places).
+  const tableTools = await barTools(page);
   for (const name of ['Add row above', 'Add row below', 'Add column before', 'Add column after'])
-    if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the bar has no icon button "${name}"`);
+    if (!tableTools.names.includes(name)) problems.push(`${label}: the bar and its ⋮ have no "${name}"`);
   for (const name of ['Delete row', 'Delete column'])
     if ((await barTools(page)).names.includes(name)) problems.push(`${label}: "${name}" is offered for a one-cell table`);
   // The menu makes the first column and the first body row of a one-cell table.
@@ -4270,6 +4355,7 @@ await checkStartSubtitle();
 for (const width of [360, 375, 390, 414]) await checkTextBar(width);
 await checkTextBarWide();
 for (const width of [375, 1280]) await checkBlockBar(width);
+for (const width of [320, 375, 1280]) await checkInsertBlock(width);
 for (const [width, height] of [
   [360, 740],
   [375, 800],
