@@ -302,6 +302,8 @@
   letter-spacing: var(--type-title-large-tracking);
 }
 @utility type-lead {
+  /* The space of a lead paragraph in a text (.prose, base.css): 24px, on the 4dp grid. */
+  --prose-space: 1.5rem;
   font-size: var(--type-lead-size);
   line-height: var(--type-lead-line-height);
   font-weight: var(--type-lead-weight);
@@ -1726,10 +1728,10 @@
   /* A bottom sheet. */
   .bottom-sheet {
     position: fixed;
-    inset: auto 0 0 0;
+    inset: auto 0 var(--keyboard-inset, 0px) 0;
     width: 100%;
     max-width: 44rem;
-    height: min(92dvh, 56rem);
+    height: min(92dvh, 56rem, var(--visual-height, 100dvh));
     max-height: none;
     margin: 0 auto;
     padding: 0;
@@ -1752,16 +1754,22 @@
   /* As high as what is in it (bottomSheetFitClass: the editor's sheets), at most --bottom-sheet-start-max-height. */
   .bottom-sheet-fit {
     height: fit-content;
-    max-height: min(var(--bottom-sheet-start-max-height, 50dvh), 56rem);
+    max-height: min(var(--bottom-sheet-start-max-height, 50dvh), 56rem, var(--visual-height, 100dvh));
   }
   .bottom-sheet-fit > .bottom-sheet-container {
     max-height: inherit;
+  }
+  /* With the on-screen keyboard up (followKeyboard() in bottomSheetControl.ts) the sheet ends at the keyboard's top
+     (--keyboard-inset), is at most as high as what is visible (--visual-height, the content scrolls inside) and has no
+     safe-area space under it: the keyboard covers it. */
+  .bottom-sheet[data-keyboard] > .bottom-sheet-container {
+    padding-bottom: 0;
   }
   /* Starts at --bottom-sheet-start-max-height, dragged up to as high as the screen allows (bottomSheetFullClass: a whole
      page in it, the editor's preview). */
   .bottom-sheet-full {
     max-width: none;
-    height: var(--bottom-sheet-start-max-height, 50dvh);
+    height: min(var(--bottom-sheet-start-max-height, 50dvh), var(--visual-height, 100dvh));
   }
   .bottom-sheet::backdrop {
     background: var(--bottom-sheet-scrim, color-mix(in srgb, var(--block-text) 50%, transparent));
@@ -2232,7 +2240,9 @@
   .card-dragged while it is dragged to another place. What is on it (its icon, heading, text, image) is the block's
   own (block-…).
     --card-radius, --card-padding   its corners and the room inside it (16px, as Material 3's)
-    --card-gap                      the room between cards (8px; the grid or list of cards sets it as its gap)
+    --card-gap                      the room between cards (8px, Material 3's at most; the grid, list or carousel of cards sets it as its gap)
+    --card-media-gap, --card-subhead-gap, --card-text-gap, --card-action-gap   inside a "Cards" card (blocks.css): the media to the
+                                    headline (16px), the headline to the subhead (4px), to the text (8px), the text to the link or buttons (16px)
     --card-hover-layer, --card-focus-layer   the state layer of a card that links, in its text's colour: pointed at 8%,
                                     focused 10% (opacity)
     --card-<kind>-surface, --card-<kind>-line, --card-<kind>-shadow   each kind's surface, its edge (a 1px line inside

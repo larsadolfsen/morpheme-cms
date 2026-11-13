@@ -218,6 +218,50 @@ async function checkStartSubtitle() {
   }
 }
 
+/** A modal sheet with a text field on a phone with its on-screen keyboard up (the Source color sheet on Colors, the shared
+ * BottomSheet, followKeyboard() in theme/ui/bottomSheetControl.ts): a keyboard shrinks only the visual viewport, which is
+ * emulated here by a smaller visualViewport. The sheet must end exactly at the keyboard's top (no strip of the page
+ * between), and its hex field and its buttons (Use and lock, Cancel, Use color) must be visible and inside the visible screen. */
+async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300) {
+  const label = `${width}px keyboard sheet`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#company/colors'));
+  await page.getByRole('button', { name: 'Source color: pick a color' }).click();
+  const sheet = page.locator('dialog[open][aria-label="Source color"]');
+  await sheet.waitFor();
+  const code = sheet.getByRole('textbox', { name: 'Color code' });
+  await code.focus();
+  // The keyboard: the visual viewport gets shorter, the layout viewport stays (what a phone does).
+  await page.evaluate((h) => {
+    const screen = visualViewport;
+    for (const key of ['height']) Object.defineProperty(screen, key, { configurable: true, get: () => h });
+    screen.dispatchEvent(new Event('resize'));
+  }, height - keyboard);
+  await page.waitForTimeout(400);
+  const got = await page.evaluate(() => {
+    const dialog = document.querySelector('dialog[open][aria-label="Source color"]');
+    const box = (el) => el.getBoundingClientRect();
+    const buttons = [...dialog.querySelectorAll('button')].filter((b) => /^(Use and lock|Cancel|Use color)$/.test(b.textContent.trim()));
+    const field = dialog.querySelector('input[aria-label="Color code"], input');
+    return {
+      visible: visualViewport.height,
+      sheet: box(dialog.querySelector('.bottom-sheet-container')),
+      buttons: buttons.map((b) => [b.textContent.trim(), box(b)]),
+      field: box(field),
+    };
+  });
+  if (Math.abs(got.sheet.bottom - got.visible) > 1)
+    problems.push(`${label}: the sheet ends at ${got.sheet.bottom}, not at the keyboard's top (${got.visible})`);
+  if (got.buttons.length !== 3) problems.push(`${label}: ${got.buttons.length} of the 3 buttons are in the sheet`);
+  for (const [name, r] of got.buttons)
+    if (r.top < 0 || r.bottom > got.visible + 1) problems.push(`${label}: "${name}" is outside the visible screen`);
+  if (got.field.top < 0 || got.field.bottom > got.visible + 1)
+    problems.push(`${label}: the color code field is outside the visible screen`);
+  await page.close();
+}
+
 /** The bar's Insert: on the bar, or in the ⋮ menu when it did not fit (a phone with the cursor in text). `how`: 'click' or 'tap'. */
 async function pressInsert(page, how = 'click') {
   const direct = page.locator('.editor-tools [aria-label="Insert"]:visible');
@@ -2533,6 +2577,37 @@ async function checkNewList(width, height, label) {
       .last()
       .waitFor({ timeout: 5000 })
       .catch(() => problems.push(`${label}: the new list is not offered under Rows from`));
+    // Picked, the block's parts name the list's fields: with no title field the first body text is the top line and the second the bottom line; the
+    // bottom line can be set to the first body text (this block only), and no image or other kind is offered for it.
+    await page.getByText('ZZ Fresh list', { exact: true }).locator('visible=true').last().click();
+    const part = (name) => page.getByRole('button', { name: new RegExp(`^${name}:`) }).first();
+    // On a phone the dynamic settings are a sheet over the block: close it to reach the parts.
+    if (phone)
+      await page
+        .locator('dialog[open] [aria-label="Close"]')
+        .first()
+        .click()
+        .catch(() => {});
+    await page.waitForTimeout(400);
+    await part('Bottom line')
+      .waitFor({ timeout: 8000 })
+      .catch(() => problems.push(`${label}: the picked list shows no Bottom line part`));
+    const parts = await page.evaluate(() => [...document.querySelectorAll('.inline-list-parts button')].map((b) => b.textContent.trim()));
+    if (parts[0] !== 'Top line: Body text' || parts[1] !== 'Bottom line: Body text 2')
+      problems.push(`${label}: the parts do not name the list's fields (${parts})`);
+    await part('Bottom line').click();
+    const field = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
+    await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Bottom line choice did not open`));
+    await field.locator('button.text-field-input').first().click();
+    const offered = await page.evaluate(() => {
+      // The open choice is labelled with the field's name (Field shown), as a menu or a sheet of options.
+      const choices = [...document.querySelectorAll('[aria-label="Field shown"]')].flatMap((m) =>
+        [...m.querySelectorAll('[role="menuitem"], [role="option"], [role="menuitemradio"], li')].map((o) => o.textContent.trim()),
+      );
+      return choices;
+    });
+    if (!offered.includes('Body text') || !offered.includes('Body text 2') || offered.includes('Image'))
+      problems.push(`${label}: the Bottom line offers the wrong fields (${offered})`);
   } finally {
     await page.close();
     rmSync(folder, { recursive: true, force: true });
@@ -2644,6 +2719,80 @@ async function checkCardsCarousel(width, height) {
     }),
   );
   for (const f of flush) problems.push(`${label}: a card's media is not flush with the card (${f})`);
+  await page.close();
+}
+
+/** The spacing of a "Cards" block on the site (the demo's Blocks page), at 375 and 1280 px: one rule for stacked cards, a grid and the carousel. Material 3 prints 16dp left and right padding and "8dp max" between cards (m3.material.io/components/cards/specs, Measurements), and is silent inside a card, so the room there is on the 4dp half-step and the 8dp grid: the media or icon to the headline 16, the headline to the subhead 4, to the text 8, the text to the link 16. Fails on the old 2, 6 and 20 px. */
+async function checkCardsSpacing(width, height) {
+  const label = `${width}px cards spacing`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  const m = await page.evaluate(() => {
+    const r = (e) => e.getBoundingClientRect();
+    const px = (n) => Math.round(n * 10) / 10;
+    const list = document.querySelector('ul.block-cards');
+    const cards = [...list.querySelectorAll('.block-card')];
+    const ls = getComputedStyle(list);
+    const within = (card) => {
+      const c = r(card);
+      const q = (sel) => card.querySelector(sel);
+      const icon = q('.block-card-icon');
+      const title = q('.block-card-title');
+      const subhead = q('.block-card-subhead');
+      const text = q('.block-card-text');
+      const more = q('.block-card-more');
+      const border = parseFloat(getComputedStyle(card).borderTopWidth);
+      return {
+        left: px(r(title).left - c.left - border),
+        right: px(c.right - border - r(title).right),
+        mediaToTitle: icon ? px(r(title).top - r(icon).bottom) : null,
+        titleToSubhead: subhead ? px(r(subhead).top - r(title).bottom) : null,
+        toText: px(r(text).top - r(subhead || title).bottom),
+        textToMore: more ? px(r(more).top + parseFloat(getComputedStyle(more).paddingTop) - r(text).bottom) : null,
+        moreBottom: more ? px(c.bottom - border - r(more).bottom) : null,
+        top: px(r(title).top - c.top - border),
+      };
+    };
+    const subheadCard = cards.find((c) => c.querySelector('.block-card-subhead'));
+    const linkCard = cards.find((c) => c.querySelector('.block-card-more'));
+    const iconCard = cards.find((c) => c.querySelector('.block-card-icon'));
+    const colGap = cards.length > 1 ? px(r(cards[1]).left - r(cards[0]).right) : null;
+    const rowGap = cards.length > 2 ? px(r(cards[2]).top - r(cards[0]).bottom) : null;
+    const carousel = document.querySelector('[data-cards-carousel] [data-carousel-items]');
+    return {
+      css: ls.rowGap,
+      cols: ls.gridTemplateColumns.split(' ').length,
+      stacked: px(r(cards[1]).top - r(cards[0]).bottom),
+      colGap,
+      rowGap,
+      padding: getComputedStyle(cards[0]).paddingLeft,
+      carouselGap: carousel ? getComputedStyle(carousel).columnGap : null,
+      iconCard: iconCard && within(iconCard),
+      subheadCard: subheadCard && within(subheadCard),
+      linkCard: linkCard && within(linkCard),
+    };
+  });
+  const want = (what, got, expected) => {
+    if (got !== expected) problems.push(`${label}: ${what} is ${got}, not ${expected}`);
+  };
+  if (m.cols === 1) want('the gap between stacked cards', m.stacked, 8);
+  else {
+    want('the gap between cards in a row', m.colGap, 8);
+    want('the gap between cards in a column', m.rowGap, 8);
+  }
+  want('the gap in the CSS', m.css, '8px');
+  want('the card padding', m.padding, '16px');
+  want("the carousel gap (the same as the cards' own)", m.carouselGap, m.css);
+  want("the room from a card's edge to its text on the left", m.iconCard.left, 16);
+  want("the room from a card's edge to its text on the right", m.iconCard.right, 16);
+  want('the icon to the headline', m.iconCard.mediaToTitle, 16);
+  want('the headline to the text', m.iconCard.toText, 8);
+  want('the headline to the subhead', m.subheadCard.titleToSubhead, 4);
+  want('the subhead to the text', m.subheadCard.toText, 8);
+  want('the text to the link', m.linkCard.textToMore, 16);
+  want("the link to the card's bottom edge", m.linkCard.moreBottom, 16);
   await page.close();
 }
 
@@ -4348,6 +4497,7 @@ await checkStartSubtitle();
 
 for (const width of [360, 375, 390, 414]) await checkTextBar(width);
 await checkTextBarWide();
+await checkSheetKeyboard(375);
 for (const [width, height] of [
   [360, 740],
   [375, 800],
@@ -4363,6 +4513,7 @@ for (const [width, height] of [
   [1280, 900],
 ]) {
   await checkCardsCarousel(width, height);
+  await checkCardsSpacing(width, height);
   for (const scheme of ['light', 'dark']) await checkIconColor(width, height, scheme);
 }
 for (const [width, height] of [

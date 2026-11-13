@@ -42,48 +42,60 @@ export const itemOfEntry = (entry, map) => ({
   tags: map.tags && Array.isArray(entry[map.tags]) ? /** @type {string[]} */ (entry[map.tags]) : [],
 });
 
-/** The block's own choice of which field of its list fills each part of a row (`map` on the block: `{ icon?, title?, text?, href? }`, field
+/** @typedef {'title' | 'text' | 'icon' | 'href' | 'tags'} Part */
+
+/** The block's own choice of which field of its list fills each part of a row (`map` on the block: `{ icon?, title?, text?, href?, tags? }`, field
  * names), or undefined for the list's own (`asRows`). A part missing from the map keeps the list's field; an empty text means none (not
  * for the title). Only a text per part counts, so a saved block that has no or a broken `map` reads as before.
- * @param {unknown} map @returns {Partial<Record<'icon' | 'title' | 'text' | 'href', string>> | undefined} */
+ * @param {unknown} map @returns {Partial<Record<Part, string>> | undefined} */
 export const mapOf = (map) => {
   if (!map || typeof map !== 'object') return undefined;
-  /** @type {Partial<Record<'icon' | 'title' | 'text' | 'href', string>>} */
+  /** @type {Partial<Record<Part, string>>} */
   const out = {};
-  for (const part of /** @type {const} */ (['icon', 'title', 'text', 'href'])) {
+  for (const part of PARTS) {
     const v = /** @type {Record<string, unknown>} */ (map)[part];
     if (typeof v === 'string' && (v.trim() !== '' || part !== 'title')) out[part] = v.trim();
   }
   return Object.keys(out).length ? out : undefined;
 };
 
-/** The parts of a row a block's `map` can set, in the order the owner meets them: the top line, the bottom line, the icon and the link. */
-export const PARTS = /** @type {const} */ (['title', 'text', 'icon', 'href']);
+/** The parts of a row a block's `map` can set, in the order the owner meets them: the top line, the bottom line, the icon and the link, then the tags the
+ * block filters on. The one place that lists the slots: a block that draws one more (an image) adds it here. */
+export const PARTS = /** @type {const} */ (['title', 'text', 'icon', 'href', 'tags']);
 
-/** The fields of a list that can fill a part of a row: text for the lines, an icon choice (or a typed icon name) for the icon, a page or an address for the link.
- * @param {{ name: string, label: string, type: string, icons?: boolean }[]} fields @param {'icon' | 'title' | 'text' | 'href'} part
+/** The kinds of field a part takes, for a list whose fields have kinds (an own list's): the lines take the title and body text, the icon an icon, the link a link. */
+const KINDS_OF_PART = { title: ['title', 'text'], text: ['title', 'text'], icon: ['icon'], href: ['href'], tags: ['tags'] };
+
+/** The fields of a list that can fill a part of a row. With `kinds` (`{ <field name>: kind }`, an own list's) a part offers the fields of its kinds only,
+ * so a list with several fields of one kind offers each of them where it fits and no other. Without (an app's or a standard list's): text for the lines,
+ * an icon choice (or a typed icon name) for the icon, a page or an address for the link, a relation with several for the tags.
+ * @param {{ name: string, label: string, type: string, icons?: boolean, multiple?: boolean }[]} fields @param {Part} part @param {Record<string, string>} [kinds]
  * @returns {{ name: string, label: string }[]} */
-export const fieldsForPart = (fields, part) =>
+export const fieldsForPart = (fields, part, kinds) =>
   fields
     .filter((f) =>
-      part === 'icon'
-        ? (f.type === 'select' && !!f.icons) || f.type === 'string'
-        : part === 'href'
-          ? f.type === 'relation' || f.type === 'string'
-          : ['string', 'text', 'number'].includes(f.type) || (f.type === 'select' && !f.icons),
+      kinds
+        ? KINDS_OF_PART[part].includes(kinds[f.name])
+        : part === 'icon'
+          ? (f.type === 'select' && !!f.icons) || f.type === 'string'
+          : part === 'href'
+            ? f.type === 'relation' || f.type === 'string'
+            : part === 'tags'
+              ? f.type === 'relation' && !!f.multiple
+              : ['string', 'text', 'number'].includes(f.type) || (f.type === 'select' && !f.icons),
     )
     .map((f) => ({ name: f.name, label: f.label }));
 
 /** The field that fills a part: the block's own choice (`map`), else the list's (`asRows`); undefined for none.
- * @param {{ title: string, text?: string, icon?: string, href?: string }} asRows @param {unknown} map @param {'icon' | 'title' | 'text' | 'href'} part */
+ * @param {{ title: string, text?: string, icon?: string, href?: string, tags?: string }} asRows @param {unknown} map @param {Part} part */
 export const fieldOfPart = (asRows, map, part) => {
   const own = mapOf(map)?.[part];
   return (own === undefined ? asRows[part] : own) || undefined;
 };
 
 /** The `map` after a part was set to a field (`''`: none): a choice the list has already is not kept, and no choice at all is no `map`.
- * @param {{ title: string, text?: string, icon?: string, href?: string }} asRows @param {unknown} map @param {'icon' | 'title' | 'text' | 'href'} part @param {string} field
- * @returns {Partial<Record<'icon' | 'title' | 'text' | 'href', string>> | undefined} */
+ * @param {{ title: string, text?: string, icon?: string, href?: string, tags?: string }} asRows @param {unknown} map @param {Part} part @param {string} field
+ * @returns {Partial<Record<Part, string>> | undefined} */
 export const withPart = (asRows, map, part, field) => {
   const next = { ...mapOf(map) };
   if (field === (asRows[part] ?? '')) delete next[part];
@@ -92,13 +104,15 @@ export const withPart = (asRows, map, part, field) => {
 };
 
 /** An item with the block's `map` applied: the parts it names are read from the item's entry (items of posts and testimonials have none, and
- * stay as they are). @template {{ entry?: Record<string, unknown> }} T @param {T} item @param {ReturnType<typeof mapOf>} map */
+ * stay as they are). The tags are the field the block filters on. A part whose field the entry has no value for shows nothing there.
+ * @template {{ entry?: Record<string, unknown> }} T @param {T} item @param {ReturnType<typeof mapOf>} map */
 export const mapped = (item, map) => {
   if (!map || !item.entry) return item;
   const entry = item.entry;
   const pick = (/** @type {'icon' | 'title' | 'text' | 'href'} */ part) =>
     map[part] === undefined ? {} : { [part]: map[part] ? entry[/** @type {string} */ (map[part])] : undefined };
-  return { ...item, ...pick('title'), ...pick('text'), ...pick('icon'), ...pick('href') };
+  const tags = map.tags === undefined ? {} : { tags: Array.isArray(entry[map.tags]) ? /** @type {string[]} */ (entry[map.tags]) : [] };
+  return { ...item, ...pick('title'), ...pick('text'), ...pick('icon'), ...pick('href'), ...tags };
 };
 
 /** The rows a source's items give for a block's fields: the block's `map`, tag filter, `How many`, then rows (an item without a title is

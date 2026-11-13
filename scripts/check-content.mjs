@@ -120,6 +120,9 @@ try {
     { path: `${config.folders.data}/team/anna.json`, text: JSON.stringify({ text: 'Anna', 'text-2': 'Lead', order: 1 }) },
   ];
   const own = mine.collectionsFor(fixture).find((c) => c.id === 'services');
+  const team = mine.collectionsFor(fixture).find((c) => c.id === 'team');
+  if (JSON.stringify(team?.fieldKinds) !== JSON.stringify({ text: 'text', 'text-2': 'text' }))
+    result.problems.push('Own lists: a list with two body texts does not give each field its kind (fieldKinds).');
   const rows = mine.listRowsOf(fixture).services;
   if (
     !own ||
