@@ -13,8 +13,9 @@ it bigger over the page.
 
 A new standard block, **Image grid**, for the site. It shows images from the site's Library in the staggered grid the
 editor's Library will use (audit decision 3, spec `2026-11-13-editor-uses-theme-parts-audit.md`, row 3): each image in its
-own proportions, rounded corners, a quiet tinted surface, no names or captions. Visitors can tap a tag to show only those
-images, and tap a image to see it bigger.
+own proportions, rounded corners, a quiet tinted surface. By default a card is only the image, no names or captions. The
+owner chooses what a card shows, and the card is drawn by the theme's Material 3 `Card` (section 4a), not a custom tile.
+Visitors can tap a tag to show only those images, and tap an image to see it bigger.
 
 On a phone (2 columns):
 
@@ -44,7 +45,7 @@ On a computer (4 columns):
 
 Name in the editor: **Image grid** (group `content`, icon Phosphor `SquaresFour`; the Danish name is in the `da-DK` file).
 Word choice follows Material 3: short, active, `image` everywhere. Setting names: `Images`, `Tags`, `Show filter`,
-`Start with`, `Order`, `Open images bigger`, `Show captions`.
+`Start with`, `Order`, `Open images bigger`, `Card shows`, `Card style`.
 
 ## 2. What exists today (read from the code)
 
@@ -81,7 +82,8 @@ sheet on insert, like the Image block.
 | `Start with` | `All` or one tag | All |
 | `Order` | `Newest`, `Oldest`, `Library order` (picked), `Random each build` | Newest |
 | `Open images bigger` | on / off | on |
-| `Show captions` | on / off | off |
+| `Card shows` | any of `Caption`, `Tags`, `Credit` (the image is always shown) | none: image only |
+| `Card style` | `Filled`, `Elevated`, `Outlined` | Filled |
 | `Columns` | `Auto` or `2`, `3`, `4` on a computer | Auto |
 | `Limit` | `All` or 6, 12, 24 with `Show more` | 12 |
 
@@ -89,6 +91,49 @@ sheet on insert, like the Image block.
 (large, 1200 dp and up) 4. The gap is 8 dp on a phone and 16 dp above. Breakpoints come from `lib/breakpoints.mjs` and the
 CSS (`--breakpoint-*`), never a number in the block. The columns are CSS columns or a masonry-style grid chosen in
 PR 1, not a script.
+
+## 4a. The card: what it shows, and how it looks
+
+Owner: the grid has a setting for what each card shows, and the card is designed by that, following Google's Material 3
+cards. So the card is the theme's `Card` part (`theme/ui/Card.tsx`, kinds `elevated`, `filled`, `outlined`), the same part
+every block uses. There is no separate tile look.
+
+- **`Card shows`** picks the extra parts under the image: `Caption` (from the image's record), `Tags` (its tags, as plain
+  small text, not buttons; filtering is done by the chips above the grid) and `Credit` (the photographer, when the record has
+  one). The image itself is always shown.
+- **`Card style`** picks the card kind: `Filled` (default, the quiet tinted surface the owner described), `Elevated`
+  (a shadow) or `Outlined` (a line).
+- The theme draws the rest: corner, surface, text styles, elevation. A theme restyles the cards by restyling `Card`.
+
+What each choice gives (M3 "card with media"):
+
+| `Card shows` | Card |
+| --- | --- |
+| nothing (default) | Media card: the image fills the card edge to edge, no text area. The card is the image with the kind's surface, corner and (selected or focused) outline. This is the owner's tile. |
+| `Caption` | Media card with supporting text: image on top, the caption under it, 8 dp inside edge. |
+| `Tags` | Media card: image on top, one line of small tag text under it. |
+| `Caption` and `Tags` or `Credit` | Image on top; caption, then one line with tags and credit. Text uses M3 body-medium and label-small. |
+
+```
+ Image only          With caption        Caption + tags
+ +--------+          +--------+          +--------+
+ |        |          |        |          |        |
+ |  image |          |  image |          |  image |
+ |        |          +--------+          +--------+
+ +--------+          | Sunset |          | Sunset |
+                     +--------+          | Sea · Food
+                                         +--------+
+```
+
+**How it fits the staggered grid.** The grid is unchanged: columns of cards of different heights. The image keeps its own
+proportions (real `width` and `height`), so a card's height is the image's height plus its text rows, and the text never
+crops the image. Cards do not break across columns. With nothing chosen the grid looks exactly as in section 1. Text is
+at most 2 lines for a caption and 1 for tags, then cut with an ellipsis; the full caption is in the lightbox.
+
+**What changes in the audit's `ImageTile` (row 3).** It is no longer a new part. PR 1 adds a media slot to the theme's
+`Card` (an image box with the card's corner, `card-media`, no padding) and a selected state (ring and check) for the editor,
+and `ImageTile` becomes a thin wrapper of `Card` with a media. The editor's Library uses it with `Filled` and nothing else
+shown, so the owner's reference look stays.
 
 ## 5. How it behaves on the site
 
@@ -100,8 +145,9 @@ PR 1, not a script.
   the images the filter shows. The image is the 1200 px copy; alt text is read, the caption (if on) is shown under it.
   Without JavaScript a tile is a link to the image itself, so it still opens.
 - **Alt text.** Every tile has `alt` from the record. A decorative image has `alt=""`.
-- **Captions.** Off by default (the owner said tiles without names). When on, the caption shows under the image in the
-  lightbox only, never on the tile, so the grid stays quiet.
+- **Captions.** Off by default (the owner said tiles without names). When `Caption` is on in `Card shows`, it shows on the
+  card and also under the image in the lightbox. When off, the lightbox still shows the caption if the record has one,
+  since the card stays quiet and the bigger view has room.
 - **Images.** `<img>` with `srcset` and `sizes` from the manifest (the site's responsive images, same as `Img.astro`),
   `loading="lazy"`, `decoding="async"`, and `width` and `height` of the real image, so the box is reserved and the page does
   not jump (CLS). The first row is not lazy.
@@ -136,7 +182,7 @@ PR 1, not a script.
 ## 7. Posts with images
 
 Should a post list use the same tile? A post card has a title and text, so it is not an image-only tile. Recommendation: **no**.
-The post cards keep their own part. A later block option `Show posts' top images as a grid` can reuse the same `ImageTile`
+The post cards keep their own look (they already use `Card`). A later block option `Show posts' top images as a grid` can reuse the same `Card` with media
 and grid layout, since both are theme parts. Not in this work.
 
 ## 8. Pull requests
@@ -145,10 +191,10 @@ Order matters: the tile first.
 
 | # | Pull request | Size | Needs |
 | - | --- | --- | --- |
-| 1 | Theme part `ImageTile` and the staggered grid layout (audit row 3), with the selected state; Library moves to it | medium to large | the audit PR #515 |
+| 1 | Media slot and selected state on the theme's `Card`, `ImageTile` as its wrapper, and the staggered grid layout (audit row 3); Library moves to it | medium to large | the audit PR #515 |
 | 2 | `width` and `height` in `thumbnails.json` (and use in the Library tile) | small | 1 (can go with it) |
 | 3 | Alt text (and caption) on the file record: schema, `fileRecords.mjs`, Library field, unit tests | medium | none |
-| 4 | Standard block `imagegrid`: contract, `load.ts`, `view.ts`, `filter.mjs` + unit test, texts (en and da), `View.tsx` without script (all images, links) | medium | 1, 2, 3 |
+| 4 | Standard block `imagegrid`: contract, `Card shows` and `Card style` settings, `load.ts`, `view.ts`, `filter.mjs` + unit test, texts (en and da), `View.tsx` without script (all images, links) | medium | 1, 2, 3 |
 | 5 | Filter and lightbox script (`script.ts`), chips, keys, `aria-live` | medium | 4 and the full-screen `Dialog` (exists) |
 | 6 | Editor side: inline card, `Add images`, settings sheet, `check:screens` entry; demo section; release-note paragraph | small to medium | 4 |
 
