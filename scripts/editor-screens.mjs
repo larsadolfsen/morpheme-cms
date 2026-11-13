@@ -2499,6 +2499,37 @@ async function checkNewList(width, height, label) {
       .last()
       .waitFor({ timeout: 5000 })
       .catch(() => problems.push(`${label}: the new list is not offered under Rows from`));
+    // Picked, the block's parts name the list's fields: with no title field the first body text is the top line and the second the bottom line; the
+    // bottom line can be set to the first body text (this block only), and no image or other kind is offered for it.
+    await page.getByText('ZZ Fresh list', { exact: true }).locator('visible=true').last().click();
+    const part = (name) => page.getByRole('button', { name: new RegExp(`^${name}:`) }).first();
+    // On a phone the dynamic settings are a sheet over the block: close it to reach the parts.
+    if (phone)
+      await page
+        .locator('dialog[open] [aria-label="Close"]')
+        .first()
+        .click()
+        .catch(() => {});
+    await page.waitForTimeout(400);
+    await part('Bottom line')
+      .waitFor({ timeout: 8000 })
+      .catch(() => problems.push(`${label}: the picked list shows no Bottom line part`));
+    const parts = await page.evaluate(() => [...document.querySelectorAll('.inline-list-parts button')].map((b) => b.textContent.trim()));
+    if (parts[0] !== 'Top line: Body text' || parts[1] !== 'Bottom line: Body text 2')
+      problems.push(`${label}: the parts do not name the list's fields (${parts})`);
+    await part('Bottom line').click();
+    const field = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
+    await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Bottom line choice did not open`));
+    await field.locator('button.text-field-input').first().click();
+    const offered = await page.evaluate(() => {
+      // The open choice is labelled with the field's name (Field shown), as a menu or a sheet of options.
+      const choices = [...document.querySelectorAll('[aria-label="Field shown"]')].flatMap((m) =>
+        [...m.querySelectorAll('[role="menuitem"], [role="option"], [role="menuitemradio"], li')].map((o) => o.textContent.trim()),
+      );
+      return choices;
+    });
+    if (!offered.includes('Body text') || !offered.includes('Body text 2') || offered.includes('Image'))
+      problems.push(`${label}: the Bottom line offers the wrong fields (${offered})`);
   } finally {
     await page.close();
     rmSync(folder, { recursive: true, force: true });
