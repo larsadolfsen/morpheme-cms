@@ -78,7 +78,12 @@ export default function InlineTable({ items, props, active, col, focus, onChange
   const all = Array.from({ length: rows.length }, (_, r) => r);
   return (
     <div ref={root} className="inline-list-host inline-table-host">
-      <div className="block-table block-table-grid inline-table" role="region" aria-label={t.blocks.table.label}>
+      <div
+        className="block-table block-table-grid inline-table-box"
+        role="region"
+        aria-label={t.blocks.table.label}
+        data-striped={props.striped === true || undefined}
+      >
         <table>
           {header && <thead>{line(0)}</thead>}
           <tbody>{all.slice(header ? 1 : 0).map(line)}</tbody>
