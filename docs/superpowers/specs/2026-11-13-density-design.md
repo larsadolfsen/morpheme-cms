@@ -42,7 +42,7 @@ Density menu with three choices and an icon of lines each. In the frame I render
 may show different words in different frames or versions; I could not see Large / Medium / Small myself. The owner's screenshot
 decides: the product uses **Large, Medium, Small**. M3's numbers are the sizes behind them.
 
-**Mapping (our decision, question 1).** The numbers only go down from 0, so M3 has no step above the default. We map:
+**Mapping (decided by the owner).** The numbers only go down from 0, so M3 has no step above the default. We map:
 
 | Name | Step | What it does |
 | --- | --- | --- |
@@ -175,18 +175,19 @@ audit's sizes where they differ.
 - A theme that offers a site setting: that theme's own note, not this package's.
 - The spacing tokens (PR 0) and the check: empty changeset, nothing visible changes.
 
-## 5. Open questions for the owner
+## 5. Decided, and open questions for the owner
 
-The PM asks them one at a time.
+**Decided (owner, 2026-11-13):** Large is a looser step than Medium. Large = +1 (our own extension of M3's numbers; the PR that
+builds it adds the entry to `docs/material-deviations.md`), Medium = 0 (standard), Small = -1. The names are the ones on M3's density
+page, as the owner's screenshot shows.
 
-1. **Large above Medium.** The owner's menu has Large, Medium, Small, but M3's numbers only go down from the default. Do we map Large to +1
-   (4dp more, our own step, one entry in the deviations file)? **Recommendation:** yes, as in the table in section 1. The other way
-   is Large = today's default, with Medium and Small denser; then the editor looks denser than today on first open.
-2. **Which steps does the editor offer?** **Recommendation:** only the three. Steps -2 and -3 exist for themes. M3 says dense is an
+Open questions. The PM asks them one at a time, in this order.
+
+1. **Which steps does the editor offer?** **Recommendation:** only the three. Steps -2 and -3 exist for themes. M3 says dense is an
    opt-in, and three names fit a phone menu.
+2. **Where it is kept.** **Recommendation:** per user on the device (`localStorage`, like Light / Dark): no sign-in needed, a phone
+   and a computer can differ. The other choice is per site, stored in the site's settings, so everyone who edits it sees the same.
 3. **How low on a mouse screen.** On a computer with a mouse, how small may a target get? **Recommendation:** 32 dp, with the 48 dp
    hit area kept on any touch screen. M3 allows density as an opt-in, with 48 dp as the default.
 4. **Default theme: a site setting?** **Recommendation:** no site setting in `Material` now; only the Table block's own `density`.
    A theme author can add one. (Say yes if the owner wants visitors' pages denser by site.)
-5. **Where it is kept.** **Recommendation:** per user on the device (`localStorage`, like Light / Dark): no sign-in needed, a phone
-   and a computer can differ. The other choice is per site, stored in the site's settings, so everyone who edits it sees the same.
