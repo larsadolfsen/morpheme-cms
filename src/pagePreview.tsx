@@ -29,6 +29,7 @@ import { introOf, sectionClass, sectionsOf } from '../lib/text-sections.mjs';
 import { h1Section, withoutH1 } from '../lib/without-h1.mjs';
 import { BREAKPOINTS, type Breakpoint } from '../lib/breakpoints.mjs';
 import { processor } from '../lib/markdown';
+import { autoLinkTree, linkPattern } from '../lib/autolink-tree.mjs';
 import { splitPicture } from '../lib/crop.mjs';
 import { isPostPage, leadFill } from './postLead.mjs';
 import { preview as drawBlock, siteBlocks } from './registry';
@@ -61,6 +62,29 @@ export type PageDraft = {
 // but those that read the site's files.
 const markdownHtml = async (markdown: string) => String(await processor.process(markdown));
 
+// The words the site links, as it was last built (/editor/links.json, made by scripts/link-counts.mjs), read once per visit: the same words and
+// settings, run through the same function (lib/autolink-tree.mjs), so the Preview has the links the site has. None when the site has no such file.
+type Links = { enabled: boolean; maxPerPage: number; words: Map<string, string>; pattern: RegExp };
+let linkWords: Promise<Links | null> | undefined;
+const siteLinks = () =>
+  (linkWords ??= fetch('/editor/links.json', { cache: 'no-store' })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((found: { enabled?: boolean; maxPerPage?: number; words?: Record<string, { href: string }> } | null) => {
+      const words = new Map(Object.entries(found?.words ?? {}).map(([word, { href }]) => [word, href] as [string, string]));
+      return words.size
+        ? { enabled: found?.enabled !== false, maxPerPage: found?.maxPerPage ?? 8, words, pattern: linkPattern(words.keys()) }
+        : null;
+    })
+    .catch(() => null));
+
+// A page's text as HTML, with the site's automatic links in it (the page's own address `self` is never linked to).
+async function pageHtml(markdown: string, self: string) {
+  const links = await siteLinks();
+  if (!links?.enabled) return markdownHtml(markdown);
+  const linked = processor().use(() => (tree: unknown) => autoLinkTree(tree, self, links));
+  return String(await linked.process(markdown));
+}
+
 /** What React draws (a block, a part of the header drawn with the theme's components), as HTML. */
 export function htmlOf(drawn: ReactNode) {
   if (!drawn) return '';
@@ -73,7 +97,7 @@ export function htmlOf(drawn: ReactNode) {
 }
 
 // A block drawn as in the editor, as HTML.
-const blockHtml = (type: string, props: Record<string, unknown>, data: BlockData) => htmlOf(drawBlock(type, props, data));
+const blockHtml = (type: string, props: Record<string, unknown>, data: BlockData) => htmlOf(drawBlock(type, props, data, true));
 
 // An image made ready in this visit, which the site does not have yet (images.ts shownAt), in the
 // page itself.
@@ -148,9 +172,10 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
   if (draft.body !== undefined) {
     // A page's H1 at the top of its text is drawn in its own place above (draft.heading), as on the site; the colour of its
     // section (the marker before it) puts the heading and the text up to the first H2 in one panel (setH1Panel).
-    const whole = isPostPage(draft) ? '' : await markdownHtml(draft.body);
+    const self = typeof draft.shell === 'string' ? draft.shell : '';
+    const whole = isPostPage(draft) ? '' : await pageHtml(draft.body, self);
     const h1Settings = h1Section(whole);
-    let html = isPostPage(draft) ? await markdownHtml(pageH1(draft.body).rest) : withoutH1(whole);
+    let html = isPostPage(draft) ? await pageHtml(pageH1(draft.body).rest, self) : withoutH1(whole);
     // A block that ends the text, where the layout puts it.
     const end = doc.querySelector('[data-editor="end"]');
     const type = end?.getAttribute('data-editor-block');
