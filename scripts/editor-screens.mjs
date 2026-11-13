@@ -2532,7 +2532,7 @@ async function checkCardsSpacing(width, height) {
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  await page.goto(new URL('/blocks/', site).href);
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
   const m = await page.evaluate(() => {
     const r = (e) => e.getBoundingClientRect();
     const px = (n) => Math.round(n * 10) / 10;
