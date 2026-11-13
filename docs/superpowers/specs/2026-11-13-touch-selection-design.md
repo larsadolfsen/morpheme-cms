@@ -25,7 +25,7 @@ selected); Escape ends it.
 | Deleted files and pages | Same; Restore | Checkboxes always shown (primary, decided) | **Build** |
 | Redirects, own-list entries | Same; Delete | Hover checkbox | **Build, later** |
 | Apps, categories, tags, keywords | Nothing: each item is its own control | Nothing | **No selection** |
-| Blocks of a page | One active block, the row shows its actions | Same | **No batch select** (long press is the OS's in text) |
+| Blocks of a page (page editor) | Long press on a block's handle or card, or its handle menu; tap adds; Move, Duplicate, Hide, Remove together | Hover checkbox on the card; all blocks after one is selected | **Build, after the lists** (section 6; the page editor is the editor workspace) |
 | Table cells and rows, List-block rows | One active cell or row, the row's actions | Same | **No batch select** |
 | Text | The OS handles and magnifier; the row's text tools | Mouse select, double and triple click | **Not this model** |
 
@@ -122,7 +122,7 @@ Selection is for **lists of many like things where an action applies to several 
 | Deleted files / pages | yes, new | Restore | **primary** (decided by the owner) |
 | Redirects | yes, new, late | Delete | secondary |
 | Apps, categories, tags, keywords | **no** — each item is its own control or a chip; nothing is done to many | — | — |
-| Blocks of a page | **no batch selection in this spec.** One active block with the row (#519). Open question 6 | — | — |
+| Blocks of a page | **yes, section 6** (owner: "Add block selection"): Move as a group, Duplicate, Hide/Show, Remove | — | secondary; checkbox on hover, all after one is selected |
 | Table cells, rows; List-block rows | **no.** One active cell or row; actions on it (#519). A range of cells is a later question | — | — |
 | Text | **not this model.** The OS or the browser selects; the row's text tools act on it (#519, Inputs page) | — | — |
 
@@ -227,6 +227,7 @@ Into `main`, each with a changeset. S = a day or less, M = a day or two, L = mor
 5. **S each — Deleted files and pages (primary: checkboxes always visible, Restore), Redirects (secondary, Delete), own-list entries (secondary, Delete).**
 6. **M — long press and drag across rows** (decided: follow M3), after PR 2 and 3, on every selection list (none of them moves items by drag); the touch-move scroll guard and the edge auto-scroll of 3.2 item 4.
 7. **S — two-finger touch** in the same hook as the long press (3.2 item 5), together with PR 2 or on its own.
+8. **M/L — selecting several blocks of a page** (section 6), after PRs 1 to 5 and after #519 step 3.
 
 **What the checks must prove** (`scripts/editor-screens.mjs`, run by `check:screens`; and `node --test`):
 - **At 375 with touch emulation** (Playwright context `hasTouch`, `isMobile`; a long press made with real touch events through CDP `Input.dispatchTouchEvent`: touchStart, 600 ms, touchEnd): the row becomes selected (`aria-checked="true"`, selected surface), the top bar swaps to "1 selected", a tap on a second row toggles it **without opening it** (the URL hash is unchanged), a tap on the leading icon of a third row on a fresh list enters the mode, unselecting the last ends the mode and removes the bar, the close button ends it; a long press that moves more than 10 px does nothing; a mouse press of 600 ms does nothing.
@@ -239,14 +240,69 @@ Into `main`, each with a changeset. S = a day or less, M = a day or two, L = mor
 
 **Release note:** yes, one **paragraph** when step 4 lands (Files can be cleared out in bulk and every list now selects the same way): for example "Select several at once" — "Press and hold a row or tap its image to select it, then tap more. On a computer a box appears when you point at a row." English and Danish with the `release-notes` skill. The existing pending note `bulk-delete-lists` (pages and posts) is a line-sized change on its own; this note replaces it when it goes into the same version, so only one paragraph is written.
 
-## 6. Questions for the owner (the PM asks them one at a time)
+## 6. Selecting several blocks of a page (page editor; decided by the owner)
+
+The page editor is the **editor workspace**, where the owner allows deviations from M3. What follows is built from the real block UI
+(`MarkdownEditor.tsx`, `blockCard` and `contextualMenu.ts`) and from the contextual toolbar spec (#519, read in full).
+
+### 6.1 What a block is today
+
+- A page's blocks are top-level `siteBlock` nodes of the text. Each is drawn by `blockCard` as a card, `contentEditable = false`.
+- **A block that is not typed in place** (Image, Video, HTML, Notice and others): the card is a `<button class="site-block-card">`. A tap opens its sheet or side panel and a small menu (`.site-block-menu`: Edit, Show/Hide on page, Move up, Move down, Remove). A finger on the card also makes the text read-only for a moment (`pointerdown` lock) so the phone keeps its keyboard shut.
+- **A block typed in place** (List, Cards, Steps, FAQ, Table and the rest): the card is a `role="group"` with the live rows inside; its menu is on a **handle**, and its contextual bar has the row actions (`contextualMenu.ts`). Text typed in place is text, so a long press **inside** it is the OS's (it starts the text selection).
+- **Actions that exist for one block:** Edit, Show/Hide on page (`hidden` prop), Move up, Move down (`moves`), Remove, plus Add above/below, Link, Settings, Fill from a list (typed in place, #519 section 6). **Duplicate does not exist anywhere** in the editor; it is a new action.
+- **Rules from the template** (`keeps()`: `rules`, `locked`, `stays`): a locked block cannot be moved or removed, and the last shown one of a block the page must have cannot be hidden or removed. Several-block actions obey the same rules.
+
+### 6.2 How a person enters selection
+
+- **Touch.** Material prints: "Selection shortcut, if available, such as tapping an avatar". A block has no avatar, so the shortcut is **the block's handle** (the one the typed-in-place blocks already have for their menu; non-typed blocks get the same small handle in the card's corner, drawn by `blockCard`). Two ways, both safe from the OS text long press:
+  1. **Long press on the handle**, or on a **non-typed block's card** (it is a button, not text: nothing of the OS to clash with, and the 500 ms hold is the one lists use, `useLongPress`). **Not** a long press in typed-in-place text.
+  2. **A menu item *Select*** in the block's menu (`.site-block-menu` and the contextual bar's `⋮`): the way for the keyboard and for anyone who does not find the long press. M3 is silent on a menu item; it is our addition, like the Select button of lists.
+  Then a **tap on any block's card or handle adds or removes it** (it does not open its sheet while selecting); two-finger touch works on a card too (section 3.2 item 5, a non-typed card; not inside typed text).
+- **Mouse.** The same rule as lists (owner decision): a **checkbox on the card's corner on hover**; once one block is selected, **all blocks show their checkbox**; hover-only again when none is. A click on the checkbox toggles; a click on a card while selecting toggles it.
+- **Keyboard.** Cards are focusable (button or group). **Space** or the *Select* menu item starts and toggles; **Shift+Click** selects a range; **Shift+Arrow** extends from the focused card; **Escape** clears; **Back** (phone) clears first; **Ctrl/Cmd+A** selects all blocks while in selection.
+- **Long press and drag across blocks** (3.2 item 4) is **not planned for blocks**: blocks sit between typed text, where a drag on a phone scrolls the page and a drag with a mouse selects text, and a long press in typed text is the OS's. Blocks are selected one by one.
+
+### 6.3 The text cursor, and tables and rows
+
+- Entering selection **takes the text cursor out of the page** and makes the text read-only while selecting (the editor already does this for a finger on a card: the card menu code in `MarkdownEditor.tsx` sets `view.setProps({ editable: () => false })` on `pointerdown`); the phone's keyboard closes. Leaving selection gives the text back with the cursor where it was.
+- **A Table's active cell and a list's active row are single**: while blocks are selected they are not active (their row actions are not offered); a Table or a List is a block like any other here (selected as a whole).
+
+### 6.4 Actions for several blocks
+
+Only actions that make sense for many are offered (the same blocks must all allow them):
+
+| Action | For several | Rule |
+| --- | --- | --- |
+| **Move up / Move down** | yes, as a group | Offered when the selected blocks are next to each other; they move one place together, keeping their order, and not past a locked block. Not next to each other: the buttons are disabled with the reason as their tooltip (recommendation, question 14) |
+| **Duplicate** (new) | yes | A copy of each, in order, **right after the last selected block**; copies are selected afterwards. A block the template allows only once is skipped and named |
+| **Hide / Show on page** | yes | If any selected block is shown the action is *Hide on page* and hides all; if all are hidden it is *Show on page*. Blocks that `stays` shown are skipped and named (the same rule as files) |
+| **Remove** | yes | A **dialog with the count** (the theme's Dialog: "Remove 3 blocks?", the block names listed if five or fewer, *Remove* and *Cancel*, destructive style). Locked and staying blocks are skipped, named, and stay selected; the text's Undo takes the removal back in one step |
+| Edit (sheet or panel), Settings, Link, Fill from a list, Add above/below, row actions, the list page | **no** | They are about one block's own fields or one row |
+
+### 6.5 Where the actions sit: the bar
+
+The page editor has one contextual bar (#519: the docked **row** under the main toolbar, with a group of tools that follows the selection and a `⋮`).
+**Recommendation: the multi-block actions are that row's contextual group** (not the swapped top bar of lists): the row already is "what applies to the selection", the main toolbar keeps the global tools (Insert, Undo, Redo) and the page header keeps Save and Preview, so swapping the top bar would hide them. The group starts with **Close** and the count (**"3 blocks selected"**, `aria-live`), then Move up, Move down, Duplicate, Hide/Show, and `⋮` with Remove and Select all. On a phone: Close 48 dp, the count as the row's label, four tools and `⋮` of 48 dp each fit the 343 dp of #519's 375 px rule with the count shortened ("3 selected"). #519 is a proposal still; this PR follows its step 3 (the block bar moves into the row) and does not start before it. If #519 changes, merge main.
+
+### 6.6 PR and checks
+
+**PR 8 — M/L, after PRs 1 to 5 and #519 step 3:** the handle and checkbox on `blockCard`, the selection state of the page's blocks (one hook, `useSelection`, with the block's index as key), the group actions in the row, the Remove dialog, Duplicate, and the text read-only rule. Release note: part of the selection paragraph, or a line of its own.
+Checks (`check:screens`, 375 with touch emulation and 1280, the demo's Blocks page):
+- Long press (CDP touch events, 600 ms) on a non-typed block's card and on a typed-in-place block's handle selects it and shows "1 selected" in the row; a long press in typed-in-place text starts no selection and the browser's own text selection works; a tap on a second block toggles it **without opening its sheet**; the text cursor is gone and the keyboard is closed.
+- 1280: no checkbox before hover; hover shows one; after one is selected all blocks show theirs; Shift+Click selects the range; Shift+Arrow extends; Escape clears; Back clears first.
+- *Move down* moves two next-to-each-other blocks together (the saved Markdown shows the new order); not next to each other, the buttons are disabled; a locked block is not passed.
+- *Duplicate* adds N copies after the last selected block; *Hide on page* hides all and a `stays` block is named and skipped; *Remove* shows the dialog with the count, removes, one *Undo* restores all, and a locked block stays selected with its name in the message.
+- The row never overflows at 375 and every button is at least 48 dp (#519's checks), contrast and colours pass (`check:contrast`, `check:editor-colors`).
+
+## 7. Questions for the owner (the PM asks them one at a time)
 
 1. ~~Where does the selection bar go?~~ **Decided by the owner:** it swaps the top bar's title and buttons (count, Close, actions), not the docked row of #519.
 2. **How does selection look in a list?** M3 prints the variants "With leading icon and trailing checkbox" and "With leading checkbox", the selected surface and the 16 dp corner, and one selection interaction per row. Recommendation: **a trailing checkbox on rows that have a leading icon, ring or image (all four list screens), a leading checkbox on text-only rows, plus the selected surface; the leading icon does not change.** Alternative, not printed by M3: a filled leading icon and a tinted row with no checkbox (the Lists screenshot); I do not recommend it, because the pages do not describe it and a screen reader and a mouse user have no control to find.
 3. ~~Computer: when is the checkbox shown?~~ **Decided by the owner:** on a computer a checkbox shows on hover (selection is secondary). "When one item is selected the selection becomes the primary activity": once one is selected, all rows and tiles show their checkbox (M3: "For all items after one item is selected"; "checkboxes are always visible when selection is the primary activity"), and it is hover-only again when nothing is selected.
 4. ~~Long press and drag across rows to select a batch?~~ **Decided by the owner ("follow MD3")**: yes, in a later PR, only where the gesture does not move items; M3 prints nothing about scrolling, so the spec's guard is our engineering (3.2 item 4).
 5. ~~Delete several files when some are in use?~~ **Decided by the owner:** skip the used ones and tell which they are; keep them selected. The message is short, in M3 word choice, for example "2 of 5 files are used on pages and were kept: a.jpg, b.png" (with the pages when known); the deleted files leave the selection; selection mode stays on while any remain.
-6. **Select several blocks of a page (move, delete, duplicate together)?** Blocks and text are typed in place, where a long press is the OS's. Recommendation: **no**: one active block with the row; revisit with *Duplicate* if owners ask. Tables and List-block rows likewise stay on one row or cell.
+6. ~~Select several blocks of a page?~~ **Decided by the owner:** "Add block selection"; section 6 and PR 8. Tables and List-block rows stay on one row or cell.
 7. ~~Two-finger touch~~ **Decided by M3**: the Selection page prints it as a way to select on touch, so it is built (3.2 item 5).
 8. **Keep the *Select* button in the top bar on a computer next to the hover checkboxes?** M3 is silent: the Selection page prints hover checkboxes and says selection can be done by "tap, cursor, keyboard, or voice", but names no Select button. The button exists today (Library). Recommendation: **keep it**, as the way to start selecting from the keyboard and for people who do not hover; the nearest M3 pattern is the hover checkbox, which stays.
 9. ~~Back gesture~~ **Decided by the owner** ("Back should leave selection mode"): Back clears the selection and the screen stays; a second Back leaves the screen. M3 is silent on it.
@@ -254,3 +310,8 @@ Into `main`, each with a changeset. S = a day or less, M = a day or two, L = mor
 11. **Files grid tiles:** a checkbox on the tile (M3: "Cards can also include ... checkboxes"), top-left on its own contained surface, plus the selected surface? Recommendation: **yes**; M3 is silent on where it sits, so this is our choice.
 12. **Table rows:** a checkbox column with select-all in the header, only where a screen becomes a real table (Material's own table caption shows one)? Recommendation: **yes**.
 13. ~~Deleted files and pages on a computer~~ **Decided by the owner:** "On deleted selection is the primary": checkboxes are always visible there.
+14. **Move up and Move down when the selected blocks are not next to each other?** (a) Disabled, with the reason as the tooltip; (b) they gather next to each other first. Recommendation: **(a)**, no surprise.
+15. **Block selection: the #519 row (recommended) or the swapped top bar as on lists?** The page editor is the workspace; swapping would hide Save and Preview. Recommendation: **the row**.
+16. **Entry on touch:** a long press on the block's handle or on a non-typed card, plus a *Select* menu item? Recommendation: **yes, both**; no long press inside typed text.
+17. **Duplicate:** the copies go right after the last selected block and become the selection? Recommendation: **yes**.
+18. **Hide with a mix of shown and hidden blocks:** hide all if any is shown (recommended), or follow the first block?
