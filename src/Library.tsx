@@ -99,6 +99,8 @@ import { kindAndName, savedText } from './deploy';
 import { togglePath } from './bulkDelete.mjs';
 import { shortDate, when } from './when';
 import { isEntryPath } from '../lib/ownList.mjs';
+import { CreateFab } from './CreateFab';
+import NewListDialog from './NewListDialog';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
 import { browserLocale, locale, localeName, locales, savedLocale, setLocale, siteLocale, siteT, siteText, t, type Locale } from './i18n';
@@ -781,7 +783,17 @@ function PartsOf({ title, ids, files }: { title: string; ids: string[]; files: R
   );
 }
 
-export const Lists = ({ files }: { files: RepoFile[] }) => <PartsOf title={t.common.parts.lists} ids={listsShown(files)} files={files} />;
+/** "Lists" (#lists): the lists as rows, and `New list` (a FAB; NewListDialog.tsx) to make one of your own. */
+export function Lists({ files, env }: { files: RepoFile[]; env: Env }) {
+  const [making, setMaking] = useState(false);
+  return (
+    <>
+      <PartsOf title={t.common.parts.lists} ids={listsShown(files)} files={files} />
+      <CreateFab label={t.ownList.new} onClick={() => setMaking(true)} />
+      <NewListDialog files={files} env={env} open={making} onClose={() => setMaking(false)} />
+    </>
+  );
+}
 
 // The account: who is logged in, light or dark, the language, and "Log out".
 export function Account({ user, files, onLogout }: { user: Viewer | null; files: RepoFile[]; onLogout: () => void }) {
