@@ -62,7 +62,7 @@ export const forms = {
     keywordInH1: (word: string, post: boolean, found: boolean) =>
       `The keyword "${word}" is ${found ? '' : 'not '}in the ${post ? 'title' : 'main heading'}`,
     keywordInText: (word: string, found: boolean) => `The keyword "${word}" is ${found ? '' : 'not '}in the first paragraph`,
-    /** "Hide from search engines (noindex)" is ticked. */
+    /** "No index" (noindex) is ticked. */
     noindex: (post: boolean) => `The ${post ? 'post' : 'page'} is hidden from Google`,
     /** "Canonical URL" is a page the editor does not know. */
     noCanonical: 'The original page (the page Google should list) points to a page that doesn’t exist',
@@ -79,7 +79,7 @@ export const forms = {
     fixDescription: 'Write a Google description of about 140–155 characters.',
     fixKeywordInH1: (post: boolean) => `Use the keyword in the ${post ? 'title' : 'main heading'}.`,
     fixKeywordInText: 'Use the keyword in the first paragraph.',
-    fixNoindex: (post: boolean) => `Uncheck Hide from search engines if the ${post ? 'post' : 'page'} should be found.`,
+    fixNoindex: (post: boolean) => `Turn off No index if the ${post ? 'post' : 'page'} should be found.`,
     fixCanonical: 'Choose a page that exists, or choose No page.',
     fixAlt: 'Tap each image, choose Edit, and describe it in the Alt text field.',
     fixLink: 'Write what the link leads to, for example, "See the prices."',
