@@ -938,11 +938,6 @@ html {
   gap: var(--mo-space-4, 4px);
 }
 
-/* The open row being typed in has no background colour of its own (the dotted line marks it), whatever the theme gives an open row. */
-.editor-text .inline-segmented .inline-list-row-active {
-  background: transparent;
-}
-
 /* A row's buttons at the bottom of the active row of a Segmented list: each text typed where it stands, then "Add button". */
 .editor-text .inline-segmented-buttons .inline-segmented-button {
   display: inline-flex;
