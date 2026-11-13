@@ -21,12 +21,19 @@ export function outsideCode(body: string): { line: string; at: number }[] {
   return out;
 }
 
+/** A text with every match of a pattern removed, again until none is left (removing one can join the rest into another). */
+function stripped(text: string, pattern: RegExp): string {
+  let out = text;
+  for (let before = ''; before !== out;) {
+    before = out;
+    out = out.replace(pattern, '');
+  }
+  return out;
+}
+
 /** Markdown as plain text: without links' addresses, images and the marks for bold, italic and code. */
 export function plain(markdown: string): string {
-  return markdown
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
-    .replace(/<[^>]+>/g, '')
+  return stripped(markdown.replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1'), /<[^>]+>/g)
     .replace(/[*_`~]+/g, '')
     .replace(/\\(.)/g, '$1')
     .replace(/\s+/g, ' ')
@@ -37,11 +44,13 @@ export function plain(markdown: string): string {
  * is never read across two of them. */
 export function paragraphs(body: string): string[] {
   const kept = new Set(outsideCode(body).map(({ at }) => at));
-  return body
-    .split(/\r?\n/)
-    .map((line, at) => (kept.has(at) ? line : ''))
-    .join('\n')
-    .replace(/<!--[\s\S]*?-->/g, '')
+  return stripped(
+    body
+      .split(/\r?\n/)
+      .map((line, at) => (kept.has(at) ? line : ''))
+      .join('\n'),
+    /<!--[\s\S]*?-->/g,
+  )
     .split(/\n[ \t]*\n/)
     .map((p) => p.replace(/(?<!`)(`+)(?!`)[\s\S]*?(?<!`)\1(?!`)/g, ''));
 }
