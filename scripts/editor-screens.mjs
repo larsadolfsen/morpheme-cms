@@ -623,6 +623,21 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       .catch(() => null);
     if (typed !== 'More') problems.push(`${label}: the text typed in a row's new button is "${typed}", not "More"`);
   }
+  if (phone) {
+    // A touch screen has no hover (hover: none), but the browser leaves :hover on what was tapped: the add button stays a text button, without the pointed-at background.
+    const session = await page.context().newCDPSession(page);
+    await session.send('Emulation.setEmulatedMedia', { features: [{ name: 'hover', value: 'none' }] });
+    await page.locator('[data-add-row]').hover();
+    await page.waitForTimeout(400);
+    const sticky = await page.evaluate(() => {
+      const b = document.querySelector('[data-add-row]');
+      const c = getComputedStyle(b);
+      return { pointed: b.matches(':hover'), background: c.backgroundColor, shadow: c.boxShadow };
+    });
+    if (!sticky.pointed || sticky.background !== 'rgba(0, 0, 0, 0)' || sticky.shadow !== 'none')
+      problems.push(`${label}: "${add}" tapped on a touch screen is no longer a text button (${JSON.stringify(sticky)})`);
+    await session.send('Emulation.setEmulatedMedia', { features: [] });
+  }
   await page.click('[data-add-row]');
   await page.waitForTimeout(300);
   const two = await state();

@@ -485,9 +485,11 @@
     color: var(--button-filled-text, var(--block-on-accent));
     box-shadow: var(--button-filled-shadow, var(--mo-elevation-0-shadow));
   }
-  .button-filled:hover {
-    background: var(--button-filled-hover, var(--block-accent-hover));
-    box-shadow: var(--button-filled-hover-shadow, var(--button-filled-shadow, var(--mo-elevation-1-shadow)));
+  @media (hover: hover) {
+    .button-filled:hover {
+      background: var(--button-filled-hover, var(--block-accent-hover));
+      box-shadow: var(--button-filled-hover-shadow, var(--button-filled-shadow, var(--mo-elevation-1-shadow)));
+    }
   }
   /* Tonal: an important step that is not the main one, on the tint. */
   .button-tonal {
@@ -495,9 +497,11 @@
     color: var(--button-tonal-text, var(--block-text));
     box-shadow: var(--button-tonal-shadow, var(--mo-elevation-0-shadow));
   }
-  .button-tonal:hover {
-    background: var(--button-tonal-hover, color-mix(in srgb, var(--block-text) 8%, var(--block-tint)));
-    box-shadow: var(--button-tonal-hover-shadow, var(--button-tonal-shadow, var(--mo-elevation-1-shadow)));
+  @media (hover: hover) {
+    .button-tonal:hover {
+      background: var(--button-tonal-hover, color-mix(in srgb, var(--block-text) 8%, var(--block-tint)));
+      box-shadow: var(--button-tonal-hover-shadow, var(--button-tonal-shadow, var(--mo-elevation-1-shadow)));
+    }
   }
   /* Elevated: on a surface with its shadow, where the page behind it has a colour. */
   .button-elevated {
@@ -505,8 +509,10 @@
     color: var(--button-elevated-text, var(--block-accent));
     box-shadow: var(--button-elevated-shadow, var(--mo-elevation-1-rest-shadow));
   }
-  .button-elevated:hover {
-    box-shadow: var(--button-elevated-hover-shadow, var(--button-elevated-shadow, var(--mo-elevation-2-shadow)));
+  @media (hover: hover) {
+    .button-elevated:hover {
+      box-shadow: var(--button-elevated-hover-shadow, var(--button-elevated-shadow, var(--mo-elevation-2-shadow)));
+    }
   }
   /* Pressed: back at rest (M3: only pointing at it lifts it). */
   .button-filled:active {
@@ -524,9 +530,11 @@
     color: var(--button-outlined-text, var(--block-text));
     box-shadow: inset 0 0 0 1px var(--button-outlined-line, var(--block-line));
   }
-  .button-outlined:hover {
-    color: var(--button-outlined-hover-text, var(--block-accent));
-    box-shadow: inset 0 0 0 1px var(--button-outlined-hover-line, var(--block-accent));
+  @media (hover: hover) {
+    .button-outlined:hover {
+      color: var(--button-outlined-hover-text, var(--block-accent));
+      box-shadow: inset 0 0 0 1px var(--button-outlined-hover-line, var(--block-accent));
+    }
   }
   /* Text: a small step beside the others, only its label in the accent. */
   .button-text {
@@ -534,8 +542,10 @@
     background: transparent;
     color: var(--button-text-text, var(--block-accent));
   }
-  .button-text:hover {
-    background: var(--button-text-hover, color-mix(in srgb, var(--block-accent) 8%, transparent));
+  @media (hover: hover) {
+    .button-text:hover {
+      background: var(--button-text-hover, color-mix(in srgb, var(--block-accent) 8%, transparent));
+    }
   }
 
   /* Toggle buttons (aria-pressed): a filled one that is off would look on, so it is in the toggle's surface; the others
@@ -545,9 +555,11 @@
     color: var(--button-toggle-text, var(--block-text));
     box-shadow: var(--mo-elevation-0-shadow);
   }
-  .button-filled[aria-pressed='false']:hover {
-    background: var(--button-toggle-hover, color-mix(in srgb, var(--block-text) 8%, var(--block-tint)));
-    box-shadow: var(--mo-elevation-1-shadow);
+  @media (hover: hover) {
+    .button-filled[aria-pressed='false']:hover {
+      background: var(--button-toggle-hover, color-mix(in srgb, var(--block-text) 8%, var(--block-tint)));
+      box-shadow: var(--mo-elevation-1-shadow);
+    }
   }
   .button-filled[aria-pressed='false']:active {
     box-shadow: var(--mo-elevation-0-shadow);
@@ -557,9 +569,11 @@
     color: var(--button-toggle-selected-text, var(--block-on-accent));
     box-shadow: var(--button-toggle-selected-shadow, var(--mo-elevation-0-shadow));
   }
-  .button-filled[aria-pressed='true']:hover {
-    background: var(--button-toggle-selected-hover, var(--block-accent-hover));
-    box-shadow: var(--button-toggle-selected-hover-shadow, var(--button-toggle-selected-shadow, var(--mo-elevation-1-shadow)));
+  @media (hover: hover) {
+    .button-filled[aria-pressed='true']:hover {
+      background: var(--button-toggle-selected-hover, var(--block-accent-hover));
+      box-shadow: var(--button-toggle-selected-hover-shadow, var(--button-toggle-selected-shadow, var(--mo-elevation-1-shadow)));
+    }
   }
   .button-filled[aria-pressed='true']:active {
     box-shadow: var(--button-toggle-selected-shadow, var(--mo-elevation-0-shadow));
@@ -568,15 +582,19 @@
     background: var(--button-tonal-selected-surface, var(--mo-secondary));
     color: var(--button-tonal-selected-text, var(--mo-on-secondary));
   }
-  .button-tonal[aria-pressed='true']:hover {
-    background: var(--button-tonal-selected-hover, color-mix(in srgb, var(--mo-on-secondary) 10%, var(--mo-secondary)));
+  @media (hover: hover) {
+    .button-tonal[aria-pressed='true']:hover {
+      background: var(--button-tonal-selected-hover, color-mix(in srgb, var(--mo-on-secondary) 10%, var(--mo-secondary)));
+    }
   }
   .button-elevated[aria-pressed='true'] {
     background: var(--button-elevated-selected-surface, var(--block-accent));
     color: var(--button-elevated-selected-text, var(--block-on-accent));
   }
-  .button-elevated[aria-pressed='true']:hover {
-    background: var(--button-elevated-selected-hover, var(--block-accent-hover));
+  @media (hover: hover) {
+    .button-elevated[aria-pressed='true']:hover {
+      background: var(--button-elevated-selected-hover, var(--block-accent-hover));
+    }
   }
   /* On, the outlined one is turned round: the text's colour as its surface, without its edge. */
   .button-outlined[aria-pressed='true'] {
@@ -584,10 +602,12 @@
     color: var(--button-outlined-selected-text, var(--block-surface));
     box-shadow: none;
   }
-  .button-outlined[aria-pressed='true']:hover {
-    background: var(--button-outlined-selected-hover, color-mix(in srgb, var(--block-surface) 14%, var(--block-text)));
-    color: var(--button-outlined-selected-text, var(--block-surface));
-    box-shadow: none;
+  @media (hover: hover) {
+    .button-outlined[aria-pressed='true']:hover {
+      background: var(--button-outlined-selected-hover, color-mix(in srgb, var(--block-surface) 14%, var(--block-text)));
+      color: var(--button-outlined-selected-text, var(--block-surface));
+      box-shadow: none;
+    }
   }
   /* A toggle's icon filled while it is on, where the site draws it filled. */
   .button[aria-pressed='true'] > .button-unselected-icon,
@@ -690,8 +710,10 @@
     color: var(--icon-button-standard-text, var(--block-text));
     box-shadow: inset 0 0 0 1px var(--icon-button-standard-line, transparent);
   }
-  .icon-button-standard:hover {
-    background: color-mix(in srgb, currentColor 8%, var(--icon-button-standard-surface, transparent));
+  @media (hover: hover) {
+    .icon-button-standard:hover {
+      background: color-mix(in srgb, currentColor 8%, var(--icon-button-standard-surface, transparent));
+    }
   }
   /* Filled: the main action, in the accent. */
   .icon-button-filled {
@@ -699,8 +721,10 @@
     color: var(--icon-button-filled-text, var(--block-on-accent));
     box-shadow: inset 0 0 0 1px var(--icon-button-filled-line, transparent);
   }
-  .icon-button-filled:hover {
-    background: var(--icon-button-filled-hover, var(--block-accent-hover));
+  @media (hover: hover) {
+    .icon-button-filled:hover {
+      background: var(--icon-button-filled-hover, var(--block-accent-hover));
+    }
   }
   /* Tonal: on the tint, also where it stands on an image (the cross on a pop-up). */
   .icon-button-tonal {
@@ -708,8 +732,10 @@
     color: var(--icon-button-tonal-text, var(--block-text));
     box-shadow: inset 0 0 0 1px var(--icon-button-tonal-line, transparent);
   }
-  .icon-button-tonal:hover {
-    background: color-mix(in srgb, currentColor 8%, var(--icon-button-tonal-surface, var(--block-tint)));
+  @media (hover: hover) {
+    .icon-button-tonal:hover {
+      background: color-mix(in srgb, currentColor 8%, var(--icon-button-tonal-surface, var(--block-tint)));
+    }
   }
   /* Outlined: with a thin edge. */
   .icon-button-outlined {
@@ -717,9 +743,11 @@
     color: var(--icon-button-outlined-text, var(--block-text));
     box-shadow: inset 0 0 0 1px var(--icon-button-outlined-line, var(--block-line));
   }
-  .icon-button-outlined:hover {
-    color: var(--block-accent);
-    box-shadow: inset 0 0 0 1px var(--block-accent);
+  @media (hover: hover) {
+    .icon-button-outlined:hover {
+      color: var(--block-accent);
+      box-shadow: inset 0 0 0 1px var(--block-accent);
+    }
   }
 
   /* Toggle icon buttons (aria-pressed): the standard one's icon in the accent when on; the filled one off and on as a
@@ -732,44 +760,54 @@
     background: var(--button-toggle-surface, var(--block-tint));
     color: var(--button-toggle-text, var(--block-text));
   }
-  .icon-button-filled[aria-pressed='false']:hover {
-    background: var(--button-toggle-hover, color-mix(in srgb, var(--block-text) 8%, var(--block-tint)));
+  @media (hover: hover) {
+    .icon-button-filled[aria-pressed='false']:hover {
+      background: var(--button-toggle-hover, color-mix(in srgb, var(--block-text) 8%, var(--block-tint)));
+    }
   }
   .icon-button-filled[aria-pressed='true'] {
     background: var(--button-toggle-selected-surface, var(--block-accent));
     color: var(--button-toggle-selected-text, var(--block-on-accent));
     box-shadow: var(--button-toggle-selected-shadow, none);
   }
-  .icon-button-filled[aria-pressed='true']:hover {
-    background: var(--button-toggle-selected-hover, var(--block-accent-hover));
+  @media (hover: hover) {
+    .icon-button-filled[aria-pressed='true']:hover {
+      background: var(--button-toggle-selected-hover, var(--block-accent-hover));
+    }
   }
   .icon-button-tonal[aria-pressed='false'] {
     background: var(--icon-button-tonal-unselected-surface, color-mix(in srgb, var(--block-line) 55%, var(--block-surface)));
     color: var(--icon-button-tonal-unselected-text, var(--block-muted));
   }
-  .icon-button-tonal[aria-pressed='false']:hover {
-    background: color-mix(
-      in srgb,
-      currentColor 8%,
-      var(--icon-button-tonal-unselected-surface, color-mix(in srgb, var(--block-line) 55%, var(--block-surface)))
-    );
+  @media (hover: hover) {
+    .icon-button-tonal[aria-pressed='false']:hover {
+      background: color-mix(
+        in srgb,
+        currentColor 8%,
+        var(--icon-button-tonal-unselected-surface, color-mix(in srgb, var(--block-line) 55%, var(--block-surface)))
+      );
+    }
   }
   .icon-button-tonal[aria-pressed='true'] {
     background: var(--icon-button-tonal-selected-surface, var(--mo-secondary-container));
     color: var(--icon-button-tonal-selected-text, var(--mo-on-secondary-container));
   }
-  .icon-button-tonal[aria-pressed='true']:hover {
-    background: color-mix(in srgb, currentColor 8%, var(--icon-button-tonal-selected-surface, var(--mo-secondary-container)));
+  @media (hover: hover) {
+    .icon-button-tonal[aria-pressed='true']:hover {
+      background: color-mix(in srgb, currentColor 8%, var(--icon-button-tonal-selected-surface, var(--mo-secondary-container)));
+    }
   }
   .icon-button-outlined[aria-pressed='true'] {
     background: var(--icon-button-outlined-selected-surface, var(--block-text));
     color: var(--icon-button-outlined-selected-text, var(--block-surface));
     box-shadow: none;
   }
-  .icon-button-outlined[aria-pressed='true']:hover {
-    background: color-mix(in srgb, currentColor 14%, var(--icon-button-outlined-selected-surface, var(--block-text)));
-    color: var(--icon-button-outlined-selected-text, var(--block-surface));
-    box-shadow: none;
+  @media (hover: hover) {
+    .icon-button-outlined[aria-pressed='true']:hover {
+      background: color-mix(in srgb, currentColor 14%, var(--icon-button-outlined-selected-surface, var(--block-text)));
+      color: var(--icon-button-outlined-selected-text, var(--block-surface));
+      box-shadow: none;
+    }
   }
   .icon-button[aria-pressed='true'] > .icon-button-unselected-icon,
   .icon-button:not([aria-pressed='true']) > .icon-button-selected-icon {

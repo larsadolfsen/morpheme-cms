@@ -557,8 +557,10 @@
     transform: none;
     border-radius: var(--mo-shape-medium);
   }
-  .button-outlined:hover {
-    background: var(--mo-primary-hover);
+  @media (hover: hover) {
+    .button-outlined:hover {
+      background: var(--mo-primary-hover);
+    }
   }
   .button-text:focus-visible {
     background: color-mix(in srgb, var(--mo-primary) 10%, transparent);
@@ -795,24 +797,32 @@
   .icon-button:active {
     transform: none;
   }
-  .icon-button-standard:hover,
-  .icon-button-outlined:hover {
-    background: var(--mo-hover);
-    color: var(--mo-on-surface-variant);
+  @media (hover: hover) {
+    .icon-button-standard:hover,
+    .icon-button-outlined:hover {
+      background: var(--mo-hover);
+      color: var(--mo-on-surface-variant);
+    }
   }
-  .icon-button-outlined:hover {
-    box-shadow: inset 0 0 0 1px var(--mo-outline);
+  @media (hover: hover) {
+    .icon-button-outlined:hover {
+      box-shadow: inset 0 0 0 1px var(--mo-outline);
+    }
   }
-  .icon-button-tonal:hover {
-    background: color-mix(in srgb, var(--mo-on-surface) 8%, var(--mo-surface-container-high));
+  @media (hover: hover) {
+    .icon-button-tonal:hover {
+      background: color-mix(in srgb, var(--mo-on-surface) 8%, var(--mo-surface-container-high));
+    }
   }
   /* On a snackbar (the inverse surface): the state layers in its colours. */
   .snackbar .button-text:focus-visible {
     background: color-mix(in srgb, var(--mo-inverse-primary) 10%, transparent);
   }
-  .snackbar .icon-button-standard:hover {
-    background: color-mix(in srgb, var(--mo-inverse-on-surface) 8%, transparent);
-    color: var(--mo-inverse-on-surface);
+  @media (hover: hover) {
+    .snackbar .icon-button-standard:hover {
+      background: color-mix(in srgb, var(--mo-inverse-on-surface) 8%, transparent);
+      color: var(--mo-inverse-on-surface);
+    }
   }
   .bottom-sheet-header {
     --icon-button-size: 2.5rem;
