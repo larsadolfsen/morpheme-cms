@@ -88,6 +88,7 @@ export const library = {
   cancelSelection: 'Cancel',
   /** Pages and posts: the top bar button that starts selecting (a computer's way in; a press and hold on a row does it on a phone), and the bar's count and close. */
   selectEntries: 'Select',
+  selectAll: 'Select all',
   selectedCount: (count: number) => `${count} selected`,
   closeSelection: 'Close selection',
   /** The link in the top bar of the start screen: the site's home page, in a new tab. */
@@ -196,6 +197,9 @@ export const library = {
     `The new version of ${name} doesn’t have the icon pack ${pack}, which is in use. Choose another icon pack first.`,
   theme: 'Appearance',
   themes: { light: 'Light', auto: 'Auto', dark: 'Dark' },
+  density: 'Density',
+  densityNotSaved: 'Density is changed here, but not saved to your account.',
+  densities: { large: 'Large', medium: 'Medium', small: 'Small' },
   language: 'Language',
   /** The browser's language, else the site's, with the one it is now. */
   languageAuto: (name: string) => `Automatic: ${name}`,
