@@ -743,13 +743,8 @@ async function checkInlineBlock(
       if (hintColor !== rowColor || fieldColor !== rowColor)
         problems.push(`${label}: the ${kind} button's hint is ${hintColor} and its text ${fieldColor}, not its own ${rowColor}`);
     {
-      // On a computer the toolbar's Settings; on a phone the "Button" menu's Settings.
-      if (width < 1000)
-        await page
-          .locator('.site-block-toolbar button[aria-label="Button"]')
-          .click({ timeout: 4000 })
-          .catch(() => {});
-      const link = page.locator('.site-block-toolbar [aria-label="Settings"]:visible').first();
+      // The contextual menu's Settings, a plain icon button on a computer and a phone.
+      const link = page.locator('.contextual-menu [aria-label="Settings"]:visible').first();
       await link.click({ timeout: 4000 }).catch(() => problems.push(`${label}: the toolbar has no way to open the button's settings`));
       const kinds = ['Filled', 'Tonal', 'Elevated', 'Outlined', 'Text'];
       const group = page.locator('[role="group"][aria-label="Style"], [aria-label="Style"]').last();
