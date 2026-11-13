@@ -2,7 +2,7 @@
 // opens (Screen.tsx NotificationsButton, notificationsOpen.ts): the notifications of the editor and the apps
 // (notificationData.ts), newest first, each with when it came and, when it had one, a link to what it is about; an app's
 // with the app's icon. Opening it marks them seen; at the bottom one button clears them and another opens "Account", where
-// each type is turned on or off (NotificationActions.tsx). On a phone a long press selects one (ListItem `selectable`), and then a tap selects or
+// each type is turned on or off (NotificationActions.tsx). A long press selects one (useSelection.ts, ListItem `selectable`), and then a tap selects or
 // unselects the others; while some are selected the buttons delete them or unselect them. Closing unselects them (when it has slid out, which keeps the list until then). Its
 // cross, Escape, a tap on the scrim, the phone's back gesture (only the sheet) and going to another address (a
 // notification's link) close it; Escape while some are selected only unselects them. Its open, close and
@@ -11,6 +11,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Info, WarningCircle } from '@phosphor-icons/react';
 import { EmptyNote, Group, ListItem } from './ui';
+import { useSelection } from './useSelection';
 import NotificationActions from './NotificationActions';
 import { SiteSideSheet, siteSideSheet, siteSideSheetDialogClass } from './themeUi';
 import { apps } from './registry';
@@ -27,16 +28,15 @@ import { useSheetBack } from './useSheetBack';
 import { when } from './when';
 import { t } from './i18n';
 
-type RowProps = Notification & { selected: boolean; selecting: boolean; onSelectedChange: (selected: boolean) => void };
+type RowProps = Notification & { selection: Record<string, unknown> };
 
-function Row({ text, type, error, at, link, selected, selecting, onSelectedChange }: RowProps) {
+function Row({ text, type, error, at, link, selection }: RowProps) {
   const app = apps.find((a) => type?.startsWith(`${a.id}/`));
   return (
     <ListItem
-      selectable
-      selected={selected}
-      selecting={selecting}
-      onSelectedChange={onSelectedChange}
+      {...selection}
+      // Without a link the row is a plain item: the keys (Space) need it in the tab order.
+      tabIndex={link ? undefined : 0}
       href={link?.href}
       icon={app?.icon ?? (error ? WarningCircle : Info)}
       headline={text}
@@ -52,11 +52,11 @@ export default function Notifications() {
   const id = useId();
   const dialog = useRef<HTMLDialogElement>(null);
   const controls = useRef<ReturnType<typeof siteSideSheet> | null>(null);
-  // The keys of those selected (notificationKey), kept to those still there.
-  const [picked, setPicked] = useState<string[]>([]);
   const [kept, setKept] = useState(false);
-  const selected = picked.filter((k) => items.some((n) => notificationKey(n) === k));
-  const pick = (key: string) => (on: boolean) => setPicked((p) => (on ? [...p, key] : p.filter((k) => k !== key)));
+  // The notifications selected (notificationKey), kept to those still there; its keys count only in the sheet.
+  const selection = useSelection({ order: items.map(notificationKey), root: dialog });
+  const selected = selection.keys;
+  const { clear: unselect } = selection;
 
   // The theme's control, once. Its cross, Escape and the scrim close the sheet through the open state, so the bell knows.
   useEffect(() => {
@@ -83,7 +83,7 @@ export default function Notifications() {
     void controls.current?.close().then(() => {
       if (reopened) return;
       setKept(false);
-      setPicked([]);
+      unselect();
     });
     return () => {
       reopened = true;
@@ -109,11 +109,9 @@ export default function Notifications() {
       ref={dialog}
       className={siteSideSheetDialogClass}
       aria-labelledby={id}
-      // Escape while some are selected only unselects them; the dialog's own close (cancel) does not follow.
+      // Escape while some are selected only unselects them (useSelection); the dialog's own close (cancel) does not follow.
       onKeyDown={(e) => {
-        if (e.key !== 'Escape' || !selected.length) return;
-        e.preventDefault();
-        setPicked([]);
+        if (e.key === 'Escape' && selected.length) e.preventDefault();
       }}
     >
       <SiteSideSheet
@@ -127,9 +125,9 @@ export default function Notifications() {
             hasItems={items.length > 0}
             onDelete={() => {
               removeNotifications(selected);
-              setPicked([]);
+              selection.removed();
             }}
-            onUnselect={() => setPicked([])}
+            onUnselect={selection.clear}
             onClear={clearNotifications}
           />
         }
@@ -139,9 +137,7 @@ export default function Notifications() {
             <Group>
               {items.map((n) => {
                 const key = notificationKey(n);
-                return (
-                  <Row key={key} {...n} selected={selected.includes(key)} selecting={selected.length > 0} onSelectedChange={pick(key)} />
-                );
+                return <Row key={key} {...n} selection={selection.row(key)} />;
               })}
             </Group>
           ) : (
