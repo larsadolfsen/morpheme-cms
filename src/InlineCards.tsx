@@ -79,71 +79,74 @@ export default function InlineCards({ items, props, data, active, focus, onChang
     );
   };
   return (
-    <InlineItems
-      items={items}
-      active={active}
-      focus={focus}
-      fields={['title', 'subhead', 'text']}
-      start={3}
-      add={t.blocks.cards.addCard}
-      onChange={onChange}
-      wrap={(list) => <ul className={['block-cards', 'inline-cards', colored].filter(Boolean).join(' ')}>{list}</ul>}
-      renderItem={({ item, index: i, here, next, field }) => {
-        const card = cards[i];
-        return (
-          <li key={i}>
-            <SiteCard
-              kind={type}
-              data-row={i}
-              aria-current={here ? 'true' : undefined}
-              aria-label={next ? t.blocks.cards.newCard : t.blocks.cards.cardOf(i + 1, items.length)}
-              className={['block-card', 'inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next']
-                .filter(Boolean)
-                .join(' ')}
-            >
-              {card && here && hasMedia(card) ? (
-                // A media that is set is changed by a tap on it: its picker, to replace or remove it.
-                <button type="button" className="inline-card-media" aria-label={t.blocks.cards.media} onClick={() => onIcon(i)}>
-                  <CardMedia card={card} />
-                </button>
-              ) : (
-                <>
-                  {card && <CardMedia card={card} />}
-                  {here && (
-                    <span className="inline-card-slots">
-                      {kinds.map(({ kind, label, Icon }) => (
-                        <InlineSlot
-                          key={kind}
-                          label={label}
-                          pressed={media === kind}
-                          onClick={() => {
-                            onProps({ media: kind });
-                            onIcon(i);
-                          }}
-                        >
-                          <Icon size={24} />
-                        </InlineSlot>
-                      ))}
-                    </span>
-                  )}
-                </>
-              )}
-              <span className="block-card-title">
-                {field('title', t.blocks.cards.title, next ? t.blocks.cards.newCard : t.blocks.cards.title)}
-              </span>
-              <span className="block-card-subhead">{field('subhead', t.blocks.cards.subhead, t.blocks.cards.subhead)}</span>
-              <span className="block-card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
-              {card?.href && <span className="block-card-more">{more}</span>}
-              {!card?.href && here && buttonsOf(i, item)}
-              {!card?.href && !here && (card?.buttons.length ?? 0) > 0 && (
-                <span className="block-card-actions">
-                  <Buttons buttons={card!.buttons} />
+    <>
+      {props.phone === 'carousel' && <span className="inline-cards-chip">{t.blocks.cards.carouselChip}</span>}
+      <InlineItems
+        items={items}
+        active={active}
+        focus={focus}
+        fields={['title', 'subhead', 'text']}
+        start={3}
+        add={t.blocks.cards.addCard}
+        onChange={onChange}
+        wrap={(list) => <ul className={['block-cards', 'inline-cards', colored].filter(Boolean).join(' ')}>{list}</ul>}
+        renderItem={({ item, index: i, here, next, field }) => {
+          const card = cards[i];
+          return (
+            <li key={i}>
+              <SiteCard
+                kind={type}
+                data-row={i}
+                aria-current={here ? 'true' : undefined}
+                aria-label={next ? t.blocks.cards.newCard : t.blocks.cards.cardOf(i + 1, items.length)}
+                className={['block-card', 'inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next']
+                  .filter(Boolean)
+                  .join(' ')}
+              >
+                {card && here && hasMedia(card) ? (
+                  // A media that is set is changed by a tap on it: its picker, to replace or remove it.
+                  <button type="button" className="inline-card-media" aria-label={t.blocks.cards.media} onClick={() => onIcon(i)}>
+                    <CardMedia card={card} />
+                  </button>
+                ) : (
+                  <>
+                    {card && <CardMedia card={card} />}
+                    {here && (
+                      <span className="inline-card-slots">
+                        {kinds.map(({ kind, label, Icon }) => (
+                          <InlineSlot
+                            key={kind}
+                            label={label}
+                            pressed={media === kind}
+                            onClick={() => {
+                              onProps({ media: kind });
+                              onIcon(i);
+                            }}
+                          >
+                            <Icon size={24} />
+                          </InlineSlot>
+                        ))}
+                      </span>
+                    )}
+                  </>
+                )}
+                <span className="block-card-title">
+                  {field('title', t.blocks.cards.title, next ? t.blocks.cards.newCard : t.blocks.cards.title)}
                 </span>
-              )}
-            </SiteCard>
-          </li>
-        );
-      }}
-    />
+                <span className="block-card-subhead">{field('subhead', t.blocks.cards.subhead, t.blocks.cards.subhead)}</span>
+                <span className="block-card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
+                {card?.href && <span className="block-card-more">{more}</span>}
+                {!card?.href && here && buttonsOf(i, item)}
+                {!card?.href && !here && (card?.buttons.length ?? 0) > 0 && (
+                  <span className="block-card-actions">
+                    <Buttons buttons={card!.buttons} />
+                  </span>
+                )}
+              </SiteCard>
+            </li>
+          );
+        }}
+      />
+    </>
   );
 }

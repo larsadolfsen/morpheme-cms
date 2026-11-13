@@ -30,7 +30,18 @@ export type LinkCard = {
   /** The action area: none on a card with a page. */
   buttons: ButtonView[];
 };
-export type CardsView = HeadView & { design?: string; color?: string; more: string; items: LinkCard[] };
+export type CardsView = HeadView & {
+  design?: string;
+  color?: string;
+  /** 'carousel': swiped sideways on a phone (two cards or more); else stacked. */
+  phone?: 'carousel';
+  more: string;
+  items: LinkCard[];
+};
+
+/** The cards on a phone as the block says: a carousel needs two cards at least. */
+export const phoneOf = (props: Record<string, any>): 'carousel' | undefined =>
+  props.phone === 'carousel' && Array.isArray(props.items) && props.items.length >= 2 ? 'carousel' : undefined;
 
 /** A card as its field writes it. */
 export type LinkCardProps = {
@@ -88,6 +99,7 @@ export const viewOf: ViewOf<CardsView> = (props, data) => ({
   ...headOf(props),
   design: props.design || undefined,
   color: props.design === 'filled' ? props.color || undefined : undefined,
+  phone: phoneOf(props),
   more: sharedIn(data.site, 'cards', shared.values).more,
   items: shownCards(props.items ?? [], data, props.media),
 });

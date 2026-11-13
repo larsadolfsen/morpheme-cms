@@ -990,6 +990,16 @@ html {
 .editor-text .inline-list-row-next:not(.inline-list-row-active) {
   opacity: 0.55;
 }
+/* The chip over Cards that are a carousel on phones: in place they are typed stacked, so the choice is not forgotten. */
+.editor-text .inline-cards-chip {
+  display: inline-block;
+  margin-bottom: var(--mo-space-8, 8px);
+  border-radius: 9999px;
+  padding: 2px 10px;
+  background: var(--mo-secondary-container);
+  color: var(--mo-on-secondary-container);
+  font-size: 0.75rem;
+}
 /* A card's media that is set: a button over it, a tap changes it (Cards, InlineCards.tsx). */
 .editor-text .inline-card-media {
   display: block;

@@ -923,6 +923,60 @@
   .block-card-arrow {
     transition: translate var(--motion-spatial);
   }
+  /* "Cards" on a phone as a carousel (`phone`, LinkCards.tsx): Material 3's uncontained layout (m3.material.io/components/carousel), which M3 gives to
+     text-heavy items. Below 600 px the cards are swiped sideways: items 8 dp apart, 8 dp above and below (room for an elevated card's shadow),
+     corners of 28 dp, the first 16 dp from the screen's edge, the next one peeking in; `Show all` under the dots turns it into the stacked cards
+     in place (data-expanded, set by script.ts). From 600 px the cards are the grid, with no dots and no button. */
+  .block-cards-carousel .block-card {
+    border-radius: var(--carousel-item-radius, var(--mo-shape-extra-large, 1.75rem));
+  }
+  .block-cards-show-all {
+    display: none;
+  }
+  @media (width < theme(--breakpoint-medium)) {
+    .block-cards-carousel .carousel-items {
+      overflow-x: auto;
+      gap: var(--carousel-gap, 0.5rem);
+      padding-block: 0.5rem;
+      padding-inline: 1rem;
+      scroll-padding-inline: 1rem;
+    }
+    .block-cards-carousel .carousel-item {
+      width: 85%;
+    }
+    .js .block-cards-show-all {
+      display: flex;
+      justify-content: center;
+      padding: 0.25rem;
+    }
+    .block-cards-carousel[data-expanded] .carousel-items {
+      display: grid;
+      overflow-x: visible;
+      margin: 0;
+      padding-inline: 0;
+      scroll-padding-inline: 0;
+    }
+    .block-cards-carousel[data-expanded] .carousel-item {
+      width: auto;
+    }
+    .block-cards-carousel[data-expanded] .carousel-indicator {
+      display: none;
+    }
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .block-cards-carousel .carousel-items {
+      display: grid;
+      overflow-x: visible;
+      gap: var(--card-gap, 0.5rem);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .block-cards-carousel .carousel-item {
+      width: auto;
+    }
+    .block-cards-carousel .carousel-indicator {
+      display: none;
+    }
+  }
   /* The subhead: the small line under the headline (a byline, a date, a place). */
   .block-card-subhead {
     margin-top: 0.125rem;
