@@ -538,6 +538,53 @@ const inlineBlocks = [
   { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
 ];
 
+/** The blocks that read a list of the site (Testimonials, Blog posts), typed in place: drawn as the site draws them with the demo's real items, the heading typed above. */
+const liveLists = [
+  { name: 'testimonials', hint: 'Testimonials as cards or in a list.', items: '[data-testimonial]' },
+  { name: 'posts', hint: 'Blog posts in a list.', items: '.block-posts-in-text li' },
+];
+
+async function checkLiveList(width, height, { name, hint, items }) {
+  const label = `${width}px inline ${name}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await page.locator('dialog[open] button', { hasText: hint }).first().click();
+  try {
+    await page.waitForSelector('.site-block-inline [data-field="heading"]', { timeout: 8000 });
+  } catch {
+    problems.push(`${label}: the block was not typed in place (no heading field)`);
+    return page.close();
+  }
+  if (await page.locator('dialog[open]').count()) problems.push(`${label}: Insert opened a sheet`);
+  if (!(await page.locator(`.site-block-inline ${items}`).count())) problems.push(`${label}: the block shows none of the demo's items`);
+  await page.keyboard.type('Our list');
+  await page.click('.ProseMirror > p');
+  await page.waitForTimeout(300);
+  const drawn = await page.evaluate(
+    (sel) => ({
+      field: !!document.querySelector('.site-block-inline [data-field="heading"]'),
+      heading: document.querySelector('.site-block-inline h2')?.textContent ?? '',
+      items: document.querySelectorAll(`.site-block-inline ${sel}`).length,
+    }),
+    items,
+  );
+  if (drawn.field) problems.push(`${label}: the head is still a field after the cursor left`);
+  if (drawn.heading !== 'Our list') problems.push(`${label}: the typed heading is drawn as "${drawn.heading}", not "Our list"`);
+  if (!drawn.items) problems.push(`${label}: the items are gone after the cursor left`);
+  await page.close();
+}
+
 /** The single blocks typed in place (Notice, Video): one item, no add button, no faded empty item. */
 const inlineSingles = [
   { name: 'notice', hint: 'A highlighted message.', field: 'text', text: 'Hello **there**', slot: false },
@@ -547,7 +594,7 @@ const inlineSingles = [
 /** Insert of every block typed in place (the lists above and the Table) puts the block in the text, on an empty page and after a line of text: it never opens a sheet. A new typed-in-place block goes in `inlineBlocks`, `inlineSingles` or here. */
 async function checkInsertNeverOpensSheet(width, height) {
   const phone = width < 600;
-  const hints = [...inlineBlocks, ...inlineSingles, { name: 'table', hint: 'Rows and columns of text.' }];
+  const hints = [...inlineBlocks, ...inlineSingles, ...liveLists, { name: 'table', hint: 'Rows and columns of text.' }];
   for (const { name, hint } of hints) {
     for (const typed of [false, true]) {
       const label = `${width}px Insert of ${name}${typed ? '' : ' on an empty page'}`;
@@ -2498,6 +2545,7 @@ for (const block of inlineBlocks) await checkInlineBlock(375, 740, block);
 // On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
 for (const block of inlineSingles) for (const w of [375, 1280]) await checkInlineSingle(w, w < 600 ? 740 : 900, block);
 for (const block of inlineBlocks) await checkInlineBlock(1280, 900, block);
+for (const block of liveLists) for (const w of [375, 1280]) await checkLiveList(w, w < 600 ? 740 : 900, block);
 await checkInsertNeverOpensSheet(375, 740);
 await checkInsertNeverOpensSheet(1280, 900);
 for (const [width, height] of [
