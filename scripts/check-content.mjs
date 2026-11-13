@@ -105,10 +105,29 @@ try {
       text: JSON.stringify({ version: 1, label: 'Services', fields: ['title', 'text'] }),
     },
     { path: `${config.folders.data}/services/web.json`, text: JSON.stringify({ title: 'Web', order: 1 }) },
+    // A list that starts empty and has two body texts (version 2).
+    {
+      path: `${config.folders.data}/team/_list.json`,
+      text: JSON.stringify({
+        version: 2,
+        label: 'Team',
+        fields: [
+          { id: 'text', kind: 'text' },
+          { id: 'text-2', kind: 'text', label: 'Role' },
+        ],
+      }),
+    },
+    { path: `${config.folders.data}/team/anna.json`, text: JSON.stringify({ text: 'Anna', 'text-2': 'Lead', order: 1 }) },
   ];
   const own = mine.collectionsFor(fixture).find((c) => c.id === 'services');
   const rows = mine.listRowsOf(fixture).services;
-  if (!own || !mine.listsShown(fixture).includes('services') || rows?.length !== 1 || rows[0].slug !== 'web')
+  if (
+    !own ||
+    !mine.listsShown(fixture).includes('services') ||
+    rows?.length !== 1 ||
+    rows[0].slug !== 'web' ||
+    mine.listRowsOf(fixture).team?.length !== 1
+  )
     result.problems.push('Own lists: a list made from a _list.json is not read as a list (src/ownLists.ts).');
   // The editor's English texts against Material 3's rules for writing (text-problems.mjs).
   enTexts = textProblems((await server.ssrLoadModule('@morphemecms/cms/src/i18n/en-US/index.ts')).enUS);
