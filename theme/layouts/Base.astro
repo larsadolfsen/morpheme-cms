@@ -22,6 +22,7 @@ import { seo } from '@morphemecms/cms/site/seo';
 import { cookieBanner } from '../../site/consent';
 import { shareImage } from '@morphemecms/cms/site/images.mjs';
 import { isNoindex } from '@morphemecms/cms/site/noindex.mjs';
+import { robotsContent } from '@morphemecms/cms/lib/status.mjs';
 import { siteT } from '@morphemecms/cms/src/i18n';
 
 interface Props {
@@ -51,6 +52,8 @@ interface Props {
   published?: Date;
   modified?: Date;
   noindex?: boolean;
+  /** Search engines do not follow the page's links. */
+  nofollow?: boolean;
   /** Breadcrumbs between the front page and this page, for the structured data. */
   crumbs?: Crumb[];
   /** The questions and answers on the page, which make it an FAQPage in the structured data. */
@@ -63,6 +66,7 @@ const { title, image, type = 'website', crumbs, questions, schema = [] } = Astro
 // else packages/editor/site/seo.ts (the pages built in code), else the title and description props.
 const entry = seo[Astro.url.pathname];
 const noindex = Astro.props.noindex || entry?.noindex || isNoindex(Astro.url.pathname);
+const robots = robotsContent({ noindex, nofollow: Astro.props.nofollow || entry?.nofollow });
 // `||`, not `??`: an empty field (the content schemas default to '') falls through to the next.
 // A page without a title shows only the site's name, without " | " (pageTitle in src/googleResult.mjs).
 const fullTitle =
@@ -115,7 +119,7 @@ const jsonLd = {
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {!noindex && <link rel="canonical" href={canonical} />}
-    {noindex && <meta name="robots" content="noindex" />}
+    {robots && <meta name="robots" content={robots} />}
     <meta property="og:type" content={type} />
     <meta property="og:title" content={ogTitle} />
     <meta property="og:description" content={ogDescription} />

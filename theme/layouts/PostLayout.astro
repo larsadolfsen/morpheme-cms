@@ -10,7 +10,7 @@ import Base from '@theme/layouts/Base.astro';
 import Img from '@theme/components/Img.astro';
 import EndBlock from '@theme/components/EndBlock.astro';
 import RichText from '@theme/components/RichText.astro';
-import { hiddenFromSearch } from '@morphemecms/cms/lib/status.mjs';
+import { hiddenFromSearch, nofollowLinks } from '@morphemecms/cms/lib/status.mjs';
 import { categoryName, getPosts, postPath, type Post } from '@morphemecms/cms/site/content';
 import PostHeader from '@theme/components/PostHeader.astro';
 import RelatedPosts from '@theme/components/RelatedPosts.astro';
@@ -67,6 +67,7 @@ const related = (await getPosts())
   published={date}
   modified={updated}
   noindex={hiddenFromSearch(post.data, 'post')}
+  nofollow={nofollowLinks(post.data)}
   crumbs={[{ name: siteT.theme.blog, href: '/blog/' }]}
   schema={[
     blogPosting({

@@ -3132,6 +3132,48 @@ async function checkEntrySettings(width, height) {
   }
 }
 
+/** "Search engines" of a new page and a new post has the switch "No follow" (off) directly after "No index" (width, height). */
+async function checkNofollowSwitch(width, height) {
+  for (const hash of ['#new/pages', '#new/blog']) {
+    const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${width}px ${hash} nofollow: ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate((h) => (location.hash = h), hash);
+    const buttons = page.locator('section[aria-labelledby] > h2 > button[aria-expanded]');
+    await buttons.first().waitFor();
+    await page.waitForTimeout(300);
+    const seo = buttons.filter({ hasText: 'Search engines' });
+    if (!(await seo.count())) {
+      problems.push(`${width}px ${hash} nofollow: no "Search engines" fold`);
+      await page.close();
+      continue;
+    }
+    if ((await seo.first().getAttribute('aria-expanded')) !== 'true') await seo.first().click();
+    const section = page
+      .locator('section[aria-labelledby]')
+      .filter({ has: page.locator('h2', { hasText: 'Search engines' }) })
+      .first();
+    const labels = await section
+      .locator('[role="switch"], input[type="checkbox"]')
+      .evaluateAll((els) =>
+        els.map((el) => (el.closest('label') ?? el.parentElement)?.textContent?.trim() ?? el.getAttribute('aria-label') ?? ''),
+      );
+    const at = (text) => labels.findIndex((l) => l.includes(text));
+    const [hide, follow] = [at('No index'), at('No follow')];
+    if (hide < 0) problems.push(`${width}px ${hash} nofollow: no "No index" switch (${labels.join(' | ')})`);
+    else if (follow !== hide + 1)
+      problems.push(`${width}px ${hash} nofollow: "No follow" is not the switch right after "No index" (${labels.join(' | ')})`);
+    else {
+      const on = await section
+        .locator('[role="switch"], input[type="checkbox"]')
+        .nth(follow)
+        .evaluate((el) => el.getAttribute('aria-checked') ?? String(el.checked));
+      if (on !== 'false') problems.push(`${width}px ${hash} nofollow: the switch is not off by default`);
+    }
+    await page.close();
+  }
+}
+
 /** Settings lists the seven screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
@@ -3749,6 +3791,7 @@ for (const [width, height] of [
 ]) {
   await checkFoldRows(width, height);
   await checkEntrySettings(width, height);
+  await checkNofollowSwitch(width, height);
 }
 await checkToolbarBox();
 await checkPreviewSection();
