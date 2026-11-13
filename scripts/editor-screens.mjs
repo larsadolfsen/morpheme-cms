@@ -120,8 +120,18 @@ if (!has('src/data/highlights')) {
   );
 }
 if (!has('src/data/testimonials')) {
-  make('src/data/testimonials/_list.json', JSON.stringify({ version: 1, label: 'Testimonials', fields: ['title', 'text'], dropped: [] }));
-  make('src/data/testimonials/one.json', JSON.stringify({ order: 1, title: 'A customer', text: 'Made by check:screens' }));
+  // (Testimonials is the editor's own list: items only, no _list.json.)
+  make(
+    'src/data/testimonials/one.json',
+    JSON.stringify({
+      order: 1,
+      name: 'A customer',
+      context: 'Made by check:screens',
+      quote: 'It works.',
+      categories: [],
+      frontPage: false,
+    }),
+  );
 }
 
 // CHROMIUM_PATH: another Chromium than Playwright's own (one installed for another version of Playwright).
