@@ -884,7 +884,7 @@
   /* A video at the top fills it as an image does, with its play button. */
   .block-card-video {
     display: block;
-    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0.25rem;
+    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0;
     overflow: hidden;
     border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px) 0 0;
   }
@@ -894,12 +894,12 @@
     margin-top: auto;
     flex-wrap: wrap;
     gap: 0.5rem;
-    padding-top: 1.25rem;
+    padding-top: var(--card-action-gap, 1rem);
   }
   /* The image fills the top of the card, out to its edges. */
   .block-card-picture {
     display: block;
-    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0.25rem;
+    margin: calc(-1 * var(--card-padding, 1rem)) calc(-1 * var(--card-padding, 1rem)) 0;
     overflow: hidden;
     border-radius: calc(var(--card-radius, var(--block-radius)) - 1px) calc(var(--card-radius, var(--block-radius)) - 1px) 0 0;
     background: var(--block-tint);
@@ -913,7 +913,7 @@
     transition: scale var(--motion-spatial-slow);
   }
   .block-card-title {
-    margin-top: 1rem;
+    margin-top: var(--card-media-gap, 1rem);
     font-size: var(--type-title-large-size);
     line-height: var(--type-title-large-line-height);
     font-weight: var(--type-title-large-weight);
@@ -924,7 +924,7 @@
     margin-top: 0;
   }
   .block-card-text {
-    margin-top: 0.375rem;
+    margin-top: var(--card-text-gap, 0.5rem);
     color: var(--block-muted);
   }
   .block-card-more {
@@ -932,7 +932,7 @@
     margin-top: auto;
     align-items: center;
     gap: 0.5rem;
-    padding-top: 1.25rem;
+    padding-top: var(--card-action-gap, 1rem);
     font-weight: 500;
     color: var(--block-accent);
   }
@@ -952,7 +952,7 @@
   @media (width < theme(--breakpoint-medium)) {
     .block-cards-carousel .carousel-items {
       overflow-x: auto;
-      gap: var(--carousel-gap, 0.5rem);
+      gap: var(--card-gap, 0.5rem);
       padding-block: 0.5rem;
       padding-inline: 1rem;
       scroll-padding-inline: 1rem;
@@ -995,7 +995,7 @@
   }
   /* The subhead: the small line under the headline (a byline, a date, a place). */
   .block-card-subhead {
-    margin-top: 0.125rem;
+    margin-top: var(--card-subhead-gap, 0.25rem);
     font-size: var(--type-body-medium-size, 0.875rem);
     line-height: var(--type-body-medium-line-height, 1.25rem);
     color: var(--block-muted);
