@@ -52,7 +52,6 @@ export const library: Messages['library'] = {
   clearNotifications: 'Ryd',
   deleteSelected: (count) => `Slet ${count} valgte`,
   cancelSelection: 'Annuller',
-  selectEntries: 'Vælg',
   selectAll: 'Vælg alle',
   selectedCount: (count) => `${count} valgt`,
   closeSelection: 'Luk markering',

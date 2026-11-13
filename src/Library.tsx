@@ -1501,9 +1501,6 @@ export function List({ collection, tab, files, env }: { collection: Collection; 
       }
       actions={
         <>
-          {canSelect && !tree && items.length > 0 && (
-            <IconButton icon={ListChecks} label={t.library.selectEntries} onClick={selection.start} />
-          )}
           {/* What was deleted from the list, as in "Files". */}
           {restorable(collection) && (
             <IconButton

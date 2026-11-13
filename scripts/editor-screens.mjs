@@ -576,7 +576,7 @@ async function checkSelection() {
       .textContent();
   const checked = (page, scope) => page.locator(`${scope} [role=checkbox][aria-checked=true]`).count();
   // The swapped top bar's select-all box (SelectionBar.tsx), with one row selected: indeterminate, 48 px, the bar never
-  // scrolls sideways; ticking selects all, unticking selects none and keeps the mode, and the bar's buttons are 48 px.
+  // scrolls sideways; ticking selects all, unticking selects none and ends selecting, and the bar's buttons are 48 px.
   const barCheck = async (page, label, rows, stays) => {
     const box = page.getByRole('checkbox', { name: 'Select all' });
     if ((await box.count()) !== 1) return problems.push(`${label}: the top bar has no select-all checkbox`);
@@ -696,12 +696,9 @@ async function checkSelection() {
         await page.waitForSelector('main a.list-item-container');
         await page.waitForTimeout(500);
       }
-      await rows.nth(0).focus();
-      await page.keyboard.press('Space');
-      if (await checked(page, 'main')) problems.push(`${label}: Space selected a row before selecting had started`);
-      // Space on a link scrolls the page, as it does today.
-      await page.evaluate(() => window.scrollTo(0, 0));
-      await page.getByRole('button', { name: 'Select', exact: true }).click();
+      // The list's header has no Select button: selecting starts from a row (Space on a focused row here).
+      if (await page.getByRole('button', { name: 'Select', exact: true }).count())
+        problems.push(`${label}: the header still has a Select button`);
       await rows.nth(0).focus();
       await page.keyboard.press('Space');
       if ((await rows.nth(0).getAttribute('aria-checked')) !== 'true') problems.push(`${label}: Space does not select the row in focus`);
@@ -715,10 +712,9 @@ async function checkSelection() {
       await page.keyboard.press('Escape');
       if (await checked(page, 'main')) problems.push(`${label}: Escape does not unselect`);
       if (await page.getByRole('button', { name: 'Close selection' }).count()) problems.push(`${label}: Escape does not end selecting`);
-      await page.getByRole('button', { name: 'Select', exact: true }).click();
       await rows.nth(0).focus();
       await page.keyboard.press('Space');
-      await barCheck(page, label, rows, true);
+      await barCheck(page, label, rows, false);
       await page.getByRole('button', { name: 'Close selection' }).click();
       await rows.nth(0).focus();
       await page.keyboard.press('Shift+ArrowDown');

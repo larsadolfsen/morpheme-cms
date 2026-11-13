@@ -1,6 +1,6 @@
 // Selecting several rows of a list (the pages and posts of Library.tsx, the notifications of Notifications.tsx), one
 // way for all: `useSelection({ order })` keeps what is selected (the keys of the rows, kept to those still shown) and
-// whether the list is in selection mode (some row selected, or `start()` from a "Select" button). `row(key)` gives a
+// whether the list is in selection mode (some row selected). `row(key)` gives a
 // theme ListItem its props: `selectable` (a long press with a touch or a pen selects it, theme/ui/longPress.ts; while
 // selecting a tap or a click toggles it), and the marks the keys find the row by. The keys, which the rules of
 // selectionRules.mjs decide (tested): Space toggles the row in focus, Shift+click and Shift+Arrow add a range, Ctrl or
@@ -34,9 +34,8 @@ export function useSelection({
 }) {
   const id = useId();
   const [picked, setPicked] = useState<string[]>([]);
-  const [mode, setMode] = useState(false);
   const keys: string[] = useMemo(() => (enabled ? pruneKeys(picked, order) : []), [picked, order, enabled]);
-  const selecting = enabled && (mode || keys.length > 0);
+  const selecting = enabled && keys.length > 0;
   // The row last toggled: where a range starts and where focus returns to.
   const last = useRef<string | undefined>(undefined);
   // A focus move that waits for the rows to change (after a delete): the index the deleted rows had.
@@ -60,19 +59,16 @@ export function useSelection({
   }, []);
   const clear = useCallback(() => {
     setPicked([]);
-    setMode(false);
     focusRow(last.current);
   }, []);
-  const start = useCallback(() => setMode(true), []);
   const selectAll = useCallback(() => setPicked(selectAllKeys(latest.current.order)), []);
-  /** Unselects every row but stays in selection mode (the bar's select-all box, unticked). */
+  /** Unselects every row, which ends selecting (the bar's select-all box, unticked). */
   const unselectAll = useCallback(() => setPicked([]), []);
   /** Call after the selected rows were deleted: ends the mode and moves focus to the row in their place. */
   const removed = useCallback(() => {
     const first = Math.min(...latest.current.keys.map((k: string) => latest.current.order.indexOf(k)).filter((i: number) => i >= 0));
     refocus.current = Number.isFinite(first) ? first : null;
     setPicked([]);
-    setMode(false);
   }, []);
 
   // After a delete: focus the row now at the place of the first deleted one (the last row when it was the last).
@@ -165,5 +161,5 @@ export function useSelection({
         }
       : {};
 
-  return { keys, count: keys.length, selecting, row, start, clear, selectAll, unselectAll, removed, total: order.length };
+  return { keys, count: keys.length, selecting, row, clear, selectAll, unselectAll, removed, total: order.length };
 }
