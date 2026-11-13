@@ -40,4 +40,5 @@ jobs:
       # The demo built with the standard theme.
       - run: npm run check:demo
       # The starter as a new site with the package from npm pack: its own checks (with check:worker) and its build.
-      - run: npm run check:starter
+      # With its screens: every screen of the editor on the starter too, so the checks sites run never lean on the demo's content.
+      - run: npm run check:starter -- --screens

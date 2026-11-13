@@ -10,7 +10,7 @@
 // 4.5:1 for text, 3:1 for large text (24 px, or 18.66 px bold), icons and the border of a control (outlined button, field).
 // A background that is an image or a gradient cannot be read: the pair is listed as "manual", never as a failure.
 // Placeholders and disabled controls: placeholders are checked (4.5:1), disabled controls are exempt (WCAG 1.4.3).
-import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
@@ -194,7 +194,12 @@ function unique(records, view) {
 }
 
 // The test page: the Blocks page on each section colour, one after the other.
-const blocksText = readFileSync(join(ROOT, 'src/content/pages/blocks.md'), 'utf8');
+// (The site's own Blocks page if it has one, else the demo's, which the package carries: a site is not the demo.)
+const siteBlocks = join(ROOT, 'src/content/pages/blocks.md');
+const blocksText = readFileSync(
+  existsSync(siteBlocks) ? siteBlocks : fileURLToPath(new URL('../demo/src/content/pages/blocks.md', import.meta.url)),
+  'utf8',
+);
 const body = blocksText.replace(/^---[\s\S]*?---\n/, '');
 // Every kind of button (Material's five), whatever the Blocks page shows.
 const kinds = `## Button kinds\n\n${blockHtml('buttons', {

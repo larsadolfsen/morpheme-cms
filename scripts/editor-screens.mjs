@@ -78,6 +78,70 @@ for (const [name, pages] of missingOn) {
 
 const { server, site } = await serveBuilt(DIST);
 
+// A site is not the demo: what a check needs and the site does not have (a page, a post, a list), the check makes itself, as
+// files in src/ that the editor reads (answered here, never saved) and removes at the end. A site that has the thing is left alone.
+const made = [];
+const make = (path, text) => {
+  const file = join(ROOT, path);
+  mkdirSync(join(file, '..'), { recursive: true });
+  writeFileSync(file, text);
+  made.push(file);
+};
+const clean = () => {
+  for (const file of made.splice(0)) rmSync(file, { force: true });
+};
+process.on('exit', clean);
+const has = (path) => existsSync(join(ROOT, path)) && readdirSync(join(ROOT, path)).length > 0;
+/** The file of a page the site has built with the text in the page, which its Preview is made of (the blog's list page has none): the demo's About, or the first page of the site's own that is built, never the front page. */
+const builtPages = existsSync(join(ROOT, 'src/content/pages'))
+  ? readdirSync(join(ROOT, 'src/content/pages'))
+      .filter(
+        (f) =>
+          f.endsWith('.md') &&
+          f !== 'home.md' &&
+          existsSync(join(DIST, f.slice(0, -3), 'index.html')) &&
+          readFileSync(join(DIST, f.slice(0, -3), 'index.html'), 'utf8').includes('data-editor="text"'),
+      )
+      .sort()
+  : [];
+const BUILT_PAGE = `src/content/pages/${builtPages.includes('about.md') ? 'about.md' : (builtPages[0] ?? 'about.md')}`;
+/** A page's text with a List, a Segmented list and an FAQ, for the checks of their rows: a site's page need not have them. */
+const block = (name, props) => `<div data-block="${name}" data-props="${JSON.stringify(props).replaceAll('"', '&quot;')}"></div>`;
+const LIST_PAGE = [
+  '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
+  block('list', {
+    items: [
+      { icon: 'clock', title: 'One', text: 'First' },
+      { icon: 'info', title: 'Two', text: 'Second' },
+    ],
+  }),
+  block('segmented', { items: [{ title: 'Row', text: 'Text' }] }),
+  block('faq', { items: [{ question: 'Why?', answer: 'Because.' }] }),
+].join('\n\n');
+/** A page's text of our own for the checks that put a section on a heading: a site's page need not have one. */
+const PAGE_SOURCE = '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n## Tinted\n\nTinted text.\n';
+/** The title of a page the long press, the link and the lists checks use: the demo's, or the one made here. */
+const FIXTURE_PAGE = 'Check page';
+make(
+  'src/content/pages/zz-check-page.md',
+  `---\ntitle: "${FIXTURE_PAGE}"\n---\n\n# ${FIXTURE_PAGE}\n\nMade by check:screens, never saved.\n`,
+);
+/** A post that is not on the blog: the demo's, or the one made here. */
+const UNLISTED_POST = existsSync(join(ROOT, 'src/content/blog/not-on-the-blog.md'))
+  ? 'A post only for those with the link'
+  : 'Check post only for those with the link';
+make('src/content/blog/zz-check-post.md', `---\ntitle: "Check post"\ndate: 2026-01-01\n---\n\nMade by check:screens, never saved.\n`);
+make(
+  'src/content/blog/zz-check-unlisted.md',
+  `---\ntitle: "${UNLISTED_POST}"\ndate: 2026-01-02\nunlisted: true\n---\n\nMade by check:screens, never saved.\n`,
+);
+// The lists the dynamic List checks read: the demo's Testimonials and Highlights, or two made here with the same names.
+for (const list of ['highlights', 'testimonials'])
+  if (!has(`src/data/${list}`)) {
+    const from = fileURLToPath(new URL(`../demo/src/data/${list}/`, import.meta.url));
+    for (const name of readdirSync(from)) make(`src/data/${list}/${name}`, readFileSync(join(from, name), 'utf8'));
+  }
+
 // CHROMIUM_PATH: another Chromium than Playwright's own (one installed for another version of Playwright).
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
 // SCREENS_DIR (the temporary folder's morpheme-screens by default): where the images go.
@@ -413,14 +477,14 @@ function hintContrasts(page, selector, pseudo) {
   );
 }
 
-/** A blog post that is not on the blog (`unlisted: true`, the demo's "A post only for those with the link") shows its status in the posts list, and the Status filter offers it. */
+/** A blog post that is not on the blog (`unlisted: true`, the demo's "A post only for those with the link", or the one the check makes) shows its status in the posts list, and the Status filter offers it. */
 async function checkUnlistedPost() {
   const page = await browser.newPage({ viewport: { width: 1200, height: 900 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`hidden post: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#list/blog'));
   await page.waitForSelector('main a.list-item-container');
-  const row = page.locator('main a.list-item-container').filter({ hasText: 'A post only for those with the link' });
+  const row = page.locator('main a.list-item-container').filter({ hasText: UNLISTED_POST });
   if (!(await row.count())) return problems.push('hidden post: the posts list has no row for the post that is not on the blog');
   if (!(await row.first().innerText()).includes('Hidden')) problems.push('hidden post: the posts list does not say "Hidden" on its row');
   await page.close();
@@ -438,7 +502,7 @@ async function checkLongPressDelete() {
     await page.waitForTimeout(500);
     const rows = page.locator('main a.list-item-container');
     // A row that is not a default page.
-    const row = list === 'pages' ? rows.filter({ hasText: 'Get started' }).first() : rows.last();
+    const row = list === 'pages' ? rows.filter({ hasText: FIXTURE_PAGE }).first() : rows.filter({ hasText: 'Check post' }).first();
     await row.scrollIntoViewIfNeeded();
     const box = await row.boundingBox();
     const [x, y] = [box.x + box.width / 2, box.y + box.height / 2];
@@ -758,8 +822,7 @@ async function checkEmptyHint() {
 
 /** The rows of a List, Segmented list and FAQ are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
 async function checkListMarkers(width) {
-  const path = 'src/content/pages/about.md';
-  if (!existsSync(join(ROOT, path))) return;
+  const path = BUILT_PAGE;
   const markers = () =>
     [...document.querySelectorAll('ul.list')].flatMap((ul) =>
       [ul, ...ul.children].flatMap((el) => {
@@ -775,7 +838,7 @@ async function checkListMarkers(width) {
     );
   const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`List markers: ${e.message}`));
-  await openEditor(page, site);
+  await openEditor(page, site, { [path]: LIST_PAGE });
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('ul.list', { timeout: 30_000 });
   const inEditor = await page.evaluate(markers);
@@ -872,9 +935,10 @@ async function checkListsAndBlocks(width) {
 
 /** The Preview (the binoculars) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
 async function checkPreviewSection() {
-  const path = 'src/content/pages/about.md';
-  if (!existsSync(join(ROOT, path))) return;
-  const text = readFileSync(join(ROOT, path), 'utf8').replace(/(\n)(## [^\n]+)/, '$1<div data-section="tertiary"></div>\n\n$2');
+  const path = BUILT_PAGE;
+  // (A text of its own: a site's page need not have a heading to put the section on.)
+  const text =
+    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<div data-section="tertiary"></div>\n\n## Tinted\n\nTinted text.\n';
   const page = await browser.newPage({ viewport: { width: 390, height: 800 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`Preview section: ${e.message}`));
   await openEditor(page, site, { [path]: text });
@@ -894,9 +958,8 @@ async function checkPreviewSection() {
 
 /** A page whose H1 section has a background (a colour or an image) has it start right under the navigation bar (gap 0 ±1px), on the site and in the Preview at 390 and 600; a page whose H1 section has none keeps its space under the bar. */
 async function checkH1SectionGap() {
-  const path = 'src/content/pages/about.md';
-  if (!existsSync(join(ROOT, path))) return;
-  const source = readFileSync(join(ROOT, path), 'utf8');
+  const path = BUILT_PAGE;
+  const source = PAGE_SOURCE;
   const picture = '/images/uploads/2026/10/earth-from-space.webp';
   const variants = [
     { name: 'colour', marker: '<div data-section="tertiary"></div>\n\n', background: true },
@@ -945,12 +1008,8 @@ async function checkH1SectionGap() {
 
 /** A full-width section has the whole width only as its background: on the built site and in the Preview, its content has the same left edge as the page's text, inside the centred container, at 840, 1200 and 1600, and nothing overflows sideways at 375. */
 async function checkFullSection() {
-  const path = 'src/content/pages/about.md';
-  if (!existsSync(join(ROOT, path))) return;
-  const text = readFileSync(join(ROOT, path), 'utf8').replace(
-    /(\n)(## [^\n]+)/,
-    '$1<div data-section="tertiary" data-width="full"></div>\n\n$2',
-  );
+  const path = BUILT_PAGE;
+  const text = PAGE_SOURCE.replace(/(\n)(## [^\n]+)/, '$1<div data-section="tertiary" data-width="full"></div>\n\n$2');
   const measure = () => {
     const box = (e) => (e ? e.getBoundingClientRect() : null);
     const section = document.querySelector('section.text-section-full');
@@ -1063,7 +1122,8 @@ const inlineBlocks = [
   },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
   { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
-];
+  // (Only a site that has the demo's app: another site does not have the block.)
+].filter((b) => b.name !== 'tickets' || existsSync(join(ROOT, 'src/apps/inline-example')));
 
 /** The blocks that read a list of the site (Testimonials, Blog posts), typed in place: drawn as the site draws them with the demo's real items, the heading typed above. */
 const liveLists = [
@@ -1431,7 +1491,7 @@ async function checkSegmentedArrow(width, height) {
   // Row 1 gets a page (its link), in the row's settings.
   if (phone) await page.locator('.contextual-menu button[aria-label="Edit"]').first().click();
   await page.locator('[aria-label="Row settings"] button.text-field-input, .editor-side-sheet button.text-field-input').first().click();
-  await page.getByText('About Morpheme', { exact: true }).locator('visible=true').last().click();
+  await page.getByText(FIXTURE_PAGE, { exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(400);
   if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
   await page.waitForTimeout(400);
@@ -1465,7 +1525,7 @@ async function checkSegmentedArrow(width, height) {
   const tapped = await page.evaluate(() => document.querySelector('.inline-list-row-active')?.dataset.row);
   if (tapped !== '0') problems.push(`${label}: the arrow did not make its row active (row ${tapped})`);
   const settings = phone ? page.locator('dialog[open][aria-label="Row settings"]') : page.locator('.editor-side-sheet');
-  if (!(await settings.getByText('Page', { exact: true }).count()) || !(await settings.getByText('About Morpheme').count()))
+  if (!(await settings.getByText('Page', { exact: true }).count()) || !(await settings.getByText(FIXTURE_PAGE).count()))
     problems.push(`${label}: the arrow did not open the row's link settings with its page`);
   await page.close();
 }
@@ -2212,8 +2272,8 @@ async function checkNewList(width, height, label) {
     else if (state.cancelBg === state.createBg) problems.push(`${label}: Cancel and Create look alike (${state.cancelBg})`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the dialog scrolls sideways`);
-    // A name that is taken ("Blog posts" folder, a collection) is refused.
-    await dialog.getByLabel('Name').fill('Categories');
+    // A name that is taken (the blog's collection, which every site has) is refused.
+    await dialog.getByLabel('Name').fill('Blog');
     await dialog.getByRole('button', { name: 'Create' }).click();
     await dialog
       .getByText('A list with this name exists. Choose another name.')
@@ -2322,13 +2382,21 @@ async function checkNewList(width, height, label) {
   }
 }
 
+/** Opens the demo's Blocks page (/blocks/), which these checks measure. A site that is not the demo has none: the check says it is skipped, and nothing fails. */
+async function onDemoBlocksPage(page, label) {
+  const response = await page.goto(new URL('/blocks/', site).href).catch(() => null);
+  if (response && response.status() < 400) return true;
+  console.log(`${label}: skipped, the site has no Blocks page (/blocks/) to measure, which the demo has.`);
+  return false;
+}
+
 /** Cards that are a carousel on phones (`phone`, on the demo's Blocks page): at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), a dot for each card, labelled; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 1280 px the same block is the grid, with no dots and no button. */
 async function checkCardsCarousel(width, height) {
   const label = `${width}px cards carousel`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  await page.goto(new URL('/blocks/', site).href);
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
   const root = page.locator('[data-cards-carousel]').first();
   if (!(await root.count())) return (problems.push(`${label}: no Cards carousel on the Blocks page`), page.close());
   await root.scrollIntoViewIfNeeded();
@@ -2746,24 +2814,26 @@ async function checkTableAlign(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   // The built site: the demo's Table has a column of numbers (Editors) and text columns.
-  await page.goto(`${site}/blocks/`);
-  const built = await page.evaluate(() => {
-    const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
-    return {
-      textHead: at('.block-table-grid thead th:nth-child(1)'),
-      textCell: at('.block-table-grid tbody tr:first-child td:nth-child(1)'),
-      numberHead: at('.block-table-grid thead th:nth-child(3)'),
-      numberCell: at('.block-table-grid tbody tr:first-child td:nth-child(3)'),
-      mixedCell: at('.block-table-grid tbody tr:first-child td:nth-child(2)'),
-    };
-  });
+  const built =
+    (await onDemoBlocksPage(page, label)) &&
+    (await page.evaluate(() => {
+      const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
+      return {
+        textHead: at('.block-table-grid thead th:nth-child(1)'),
+        textCell: at('.block-table-grid tbody tr:first-child td:nth-child(1)'),
+        numberHead: at('.block-table-grid thead th:nth-child(3)'),
+        numberCell: at('.block-table-grid tbody tr:first-child td:nth-child(3)'),
+        mixedCell: at('.block-table-grid tbody tr:first-child td:nth-child(2)'),
+      };
+    }));
   const start = (v) => v === 'start' || v === 'left';
   const end = (v) => v === 'end' || v === 'right';
-  if (!start(built.textHead) || !start(built.textCell))
+  if (built && (!start(built.textHead) || !start(built.textCell)))
     problems.push(`${label}: the site's text column is not left-aligned (${built.textHead}, ${built.textCell})`);
-  if (!end(built.numberHead) || !end(built.numberCell))
+  if (built && (!end(built.numberHead) || !end(built.numberCell)))
     problems.push(`${label}: the site's number column is not right-aligned (${built.numberHead}, ${built.numberCell})`);
-  if (!start(built.mixedCell)) problems.push(`${label}: a column with a word in it is not left-aligned on the site (${built.mixedCell})`);
+  if (built && !start(built.mixedCell))
+    problems.push(`${label}: a column with a word in it is not left-aligned on the site (${built.mixedCell})`);
   await openEditor(page, site);
   const commits = [];
   await page.route('**/api/github/commit', (r) => {
@@ -2876,7 +2946,7 @@ async function checkTableRadius(width, height) {
   const label = `${width}px table radius`;
   const page = await browser.newPage({ viewport: { width, height } });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  await page.goto(new URL('/blocks/', site).href);
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
   const got = await page.evaluate(() => {
     const card = document.querySelector('.card.block-card');
     const host = card?.parentElement;
@@ -3008,7 +3078,7 @@ const ratioOf = `
 
 /** A section on an image (no colour): the text, the placeholder, the icons and the arrow of a list row typed in place are the theme's colour for text on an image, as on the site, and read on the image's scrim (4.5:1 for text, 3:1 for an icon), on a dark and on a bright photo, light and dark mode, on a phone and a computer. The contrast is taken against the scrim as drawn (the shade over the photo's average colour at the height of the part), so a part drawn in the page's own colours instead (dark on the dark scrim) fails. */
 async function checkSectionOnImage() {
-  const path = 'src/content/pages/about.md';
+  const path = BUILT_PAGE;
   const list =
     '<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;List heading&quot;,&quot;text&quot;:&quot;Hej&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>';
   const photos = { dark: '/images/uploads/2026/10/moon.webp', bright: '/images/uploads/2026/10/earth-from-space.webp' };
@@ -3018,6 +3088,12 @@ async function checkSectionOnImage() {
         const label = `${width}px ${scheme} section on a ${photo} image`;
         const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: scheme, locale: 'en-US' });
         page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+        // The photos are the demo's (the package carries them): a site that does not have them gets them here.
+        await page.route(`**${image}`, (route) => {
+          const own = join(DIST, image);
+          const file = existsSync(own) ? own : fileURLToPath(new URL(`../demo/public${image}`, import.meta.url));
+          return route.fulfill({ body: readFileSync(file), contentType: 'image/webp' });
+        });
         const text = `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<div data-section="" data-picture="${image}" data-alt="A photo"></div>\n\n## Her kommer indhold\n\nBody text.\n\n${list}\n\n## Plain\n\nPlain.\n`;
         await openEditor(page, site, { [path]: text });
         await page.goto(`${site}/editor/#${path}`);
@@ -3333,7 +3409,7 @@ async function checkFullWidthSection() {
 
 /** A coloured section's background runs down to the next section's divider, or to the end of the text when it is the last (the space below its text is inside the colour, not a white band), in the editor, and in the Preview where the panel has no margin below (375 px with touch, and a computer). */
 async function checkSectionBackground(width, touch) {
-  const path = 'src/content/pages/about.md';
+  const path = BUILT_PAGE;
   const page = await browser.newPage({ viewport: { width, height: 800 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   const label = `${width}px section background`;
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
