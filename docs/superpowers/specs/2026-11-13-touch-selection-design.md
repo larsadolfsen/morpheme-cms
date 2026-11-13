@@ -10,6 +10,24 @@ docked contextual `Toolbar` row.
 Words: **selection mode** is the state where a tap on an item adds it to the selection instead of opening it. The **row** is the
 docked contextual toolbar under the main toolbar (#519). A **part** is a ready-made piece of the theme (`theme/ui/`).
 
+## Short answer: where touch selection goes and what it does
+
+Touch means: a long press (or a tap on the row's image or icon) starts selection; a tap adds more; the docked row (#519) shows the
+count and the actions; unselecting the last one, or Close, ends it. On a computer a checkbox shows on hover (on all rows once one is
+selected); Escape ends it.
+
+| Place | Touch | Computer | Recommendation |
+| --- | --- | --- | --- |
+| Pages and posts lists | Long press or tap the ring; tap adds; Delete | Hover checkbox; *Select* button | **Keep and improve** (exists today) |
+| Notifications | Same; Delete | Hover checkbox | **Keep and improve** (exists today) |
+| Files (images and other files) | Long press or tap the thumbnail; Delete (files in use are kept) | Hover checkbox | **Build** (needs the image tile) |
+| Deleted files and pages | Same; Restore | Checkboxes always shown (primary) | **Build** |
+| Redirects, own-list entries | Same; Delete | Hover checkbox | **Build, later** |
+| Apps, categories, tags, keywords | Nothing: each item is its own control | Nothing | **No selection** |
+| Blocks of a page | One active block, the row shows its actions | Same | **No batch select** (long press is the OS's in text) |
+| Table cells and rows, List-block rows | One active cell or row, the row's actions | Same | **No batch select** |
+| Text | The OS handles and magnifier; the row's text tools | Mouse select, double and triple click | **Not this model** |
+
 ## 1. What Material says (read 13 November 2026 with Playwright)
 
 Pages read with Chromium (`goto` with `networkidle`, 4 s wait, `document.body.innerText`). Quotes are exact.
