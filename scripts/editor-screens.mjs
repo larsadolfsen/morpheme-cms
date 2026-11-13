@@ -2544,6 +2544,68 @@ async function onDemoBlocksPage(page, label) {
   return false;
 }
 
+/** A card's icon with no color of its own (`iconColor`) is drawn in the text colour (the card's title), on an outlined, a filled and an elevated card, light and dark, and reads at 3:1 (WCAG non-text) on what is behind it. */
+async function checkCardIconText(width, height, scheme) {
+  const label = `${width}px card icon text color (${scheme})`;
+  const phone = width < 600;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: phone,
+    isMobile: phone,
+    locale: 'en-US',
+    colorScheme: scheme,
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onDemoBlocksPage(page, label))) return page.close();
+  const found = await page.evaluate(() => {
+    const pixel = (css) => {
+      const c = document.createElement('canvas').getContext('2d');
+      c.canvas.width = c.canvas.height = 1;
+      c.fillStyle = '#000';
+      c.fillRect(0, 0, 1, 1);
+      c.fillStyle = css;
+      c.fillRect(0, 0, 1, 1);
+      return [...c.getImageData(0, 0, 1, 1).data];
+    };
+    const lum = ([r, g, b]) =>
+      [r, g, b]
+        .map((v) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+        .reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0);
+    const behind = (el) => {
+      for (let n = el.parentElement; n; n = n.parentElement) {
+        const bg = getComputedStyle(n).backgroundColor;
+        if (!/rgba\(.*, 0\)|transparent/.test(bg)) return bg;
+      }
+      return 'rgb(255, 255, 255)';
+    };
+    const designs = new Set();
+    const out = [];
+    for (const card of document.querySelectorAll('.block-card')) {
+      const icon = card.querySelector('.block-card-icon');
+      if (!icon || icon.hasAttribute('data-icon-color')) continue;
+      const design = ['card-outlined', 'card-filled', 'card-elevated'].find((c) => card.classList.contains(c)) ?? 'other';
+      designs.add(design);
+      const [a, b] = [lum(pixel(getComputedStyle(icon).color)), lum(pixel(behind(icon)))].sort((x, y) => y - x);
+      out.push({
+        design,
+        icon: getComputedStyle(icon).color,
+        title: getComputedStyle(card.querySelector('.block-card-title')).color,
+        contrast: (a + 0.05) / (b + 0.05),
+      });
+    }
+    return out;
+  });
+  const designs = new Set(found.map((f) => f.design));
+  for (const d of ['card-outlined', 'card-filled', 'card-elevated'])
+    if (!designs.has(d)) problems.push(`${label}: no ${d} card with an icon and no color on the Blocks page`);
+  for (const f of found) {
+    console.log(`card icon contrast ${width}px ${scheme} ${f.design}: ${f.contrast.toFixed(2)}`);
+    if (f.icon !== f.title) problems.push(`${label}: a ${f.design} card's icon is ${f.icon}, not the text colour ${f.title}`);
+    if (f.contrast < 3) problems.push(`${label}: a ${f.design} card's icon has contrast ${f.contrast.toFixed(2)}:1, under 3:1`);
+  }
+  await page.close();
+}
+
 /** Cards that are a carousel on phones (`phone`, on the demo's Blocks page): at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), a dot for each card, labelled; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 1280 px the same block is the grid, with no dots and no button. */
 async function checkCardsCarousel(width, height) {
   const label = `${width}px cards carousel`;
@@ -4474,6 +4536,7 @@ for (const [width, height] of [
 ]) {
   await checkCardsCarousel(width, height);
   await checkCardsSpacing(width, height);
+  for (const scheme of ['light', 'dark']) await checkCardIconText(width, height, scheme);
   for (const scheme of ['light', 'dark']) await checkIconColor(width, height, scheme);
 }
 for (const [width, height] of [

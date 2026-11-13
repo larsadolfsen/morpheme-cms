@@ -878,8 +878,9 @@
   .block-card.card-outlined {
     border-color: var(--card-outlined-line, var(--block-line));
   }
+  /* An icon without a colour of its own (`iconColor`) is the text colour, as a row's icon is (Text in the editor's Icon color); v0.16.0 drew it in the accent. */
   .block-card-icon {
-    color: var(--block-accent);
+    color: var(--block-text);
   }
   /* A video at the top fills it as an image does, with its play button. */
   .block-card-video {
@@ -1006,7 +1007,7 @@
     --list-item-leading-icon-color: var(--block-text);
     --list-item-trailing-text: var(--block-text);
   }
-  /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles; without one, the theme's own (Text in a row, the accent in a card). */
+  /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles; without one, the text colour (Text in the editor). */
   [data-icon-color='primary'] {
     --list-item-leading-icon-color: var(--mo-primary, var(--block-accent));
     --icon-color: var(--mo-primary, var(--block-accent));
