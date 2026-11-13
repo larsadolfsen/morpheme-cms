@@ -1976,7 +1976,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // Not a heading control and no text size in a list item: it cannot be a heading, and a list has no size (choosing one took the
   // text out of the list, which the owner did not mean).
   const inList = ['bullet', 'check', 'ordered'].some((name) => active.includes(name));
-  const all: {
+  const allTools: {
     label: string;
     icon: typeof TextB;
     action: (e: ReactMouseEvent<HTMLButtonElement>) => void;
@@ -2000,9 +2000,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       action: () => setKind(`h${level}`),
       on: `h${level}`,
     })),
-    ...(inList ? [] : [{ label: t.text.bodySmall, icon: KIND_ICONS.small.node, action: () => setKind('small'), on: 'small' }]),
-    ...(inList ? [] : [{ label: t.text.bodyMedium, icon: KIND_ICONS.medium.node, action: () => setKind('medium'), on: 'medium' }]),
-    ...(inList ? [] : [{ label: t.text.bodyLarge, icon: KIND_ICONS.large.node, action: () => setKind('large'), on: 'large' }]),
+    { label: t.text.bodySmall, icon: KIND_ICONS.small.node, action: () => setKind('small'), on: 'small' },
+    { label: t.text.bodyMedium, icon: KIND_ICONS.medium.node, action: () => setKind('medium'), on: 'medium' },
+    { label: t.text.bodyLarge, icon: KIND_ICONS.large.node, action: () => setKind('large'), on: 'large' },
     { label: t.text.label, icon: KIND_ICONS.label.node, action: () => setKind('label'), on: 'label' },
     { label: t.text.quote, icon: KIND_ICONS.quote.node, action: () => setKind('quote'), on: 'quote' },
     { label: t.text.bulletList, icon: KIND_ICONS.bullet.node, action: () => setKind('bullet'), on: 'bullet', role: 'list' },
@@ -2020,6 +2020,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand), role: 'undo' },
     { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand), role: 'redo' },
   ];
+
+  const all = inList ? allTools.filter(({ on }) => !['small', 'medium', 'large'].includes(on ?? '')) : allTools;
 
   // The tools in their order (toolbarOrder.mjs): Section settings last on the first line, and what may go under the arrow at the
   // end, Undo and Redo first, then the link, so Insert stays on the first line. The arrangement is tried from the widest:
