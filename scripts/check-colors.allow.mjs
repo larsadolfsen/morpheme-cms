@@ -74,14 +74,6 @@ export const allow = [
     line: /--badge-(ok|minor|major)/,
     reason: 'status badges: Material 3 has no success or warning role',
   },
-  // todo: each group has its own fix pull request.
-  {
-    kind: 'fixed-colour',
-    file: /^theme\/styles\/blocks\.css$/,
-    line: /^\s*--block-/,
-    reason: 'todo (block fallback palette): use the roles',
-    todo: true,
-  },
   {
     kind: 'state-layer',
     file: /^src\/pagePreview\.tsx$/,
