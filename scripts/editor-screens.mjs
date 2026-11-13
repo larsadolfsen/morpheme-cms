@@ -721,7 +721,7 @@ async function checkFoldRows(width, height) {
   await page.close();
 }
 
-/** A page's and a post's form has no "Other fields" fold: "Page settings" ("Post settings") holds the URL, the Short description and the Tags, and no "For review" box is lost to it (width, height). */
+/** A page's and a post's form has no "Other fields" fold: "Page settings" ("Post settings") holds the URL, the Short description and the Tags, and the "For review" box (width, height). */
 async function checkEntrySettings(width, height) {
   for (const [hash, folds, fields] of [
     ['#new/pages', 'Page settings', ['URL', 'Short description', 'Tags']],
