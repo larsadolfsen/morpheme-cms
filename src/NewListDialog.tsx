@@ -1,32 +1,27 @@
-// `New list` (docs/superpowers/plans/2026-11-12-new-list.md, batch 7): the dialog the `New list` button on the `Lists` screen opens, with the
-// list's name and a switch for each of the six fields (the title is always on). `Create` writes `src/data/<id>/_list.json` as one commit and opens
-// the new list's page. The parts are ui.tsx's and the dialog is the editor's one pattern (ask.tsx): `Cancel` outlined, the main choice filled,
-// no initial focus. The rules are lib/ownList.mjs (`idOf` refuses a name that is taken, `FIELDS` is the fixed set).
+// `New list` (docs/superpowers/plans/2026-11-12-new-list.md, batch 7; the owner's decision of 13 November): the dialog the `New list` button on the
+// `Lists` screen opens, with only the list's name. `Create` writes `src/data/<id>/_list.json` with no fields as one commit and opens the new list's
+// page, where the owner adds fields one at a time (`Add field`). The parts are ui.tsx's and the dialog is the editor's one pattern (ask.tsx): `Cancel` outlined, the main choice filled,
+// no initial focus. The rules are lib/ownList.mjs (`idOf` refuses a name that is taken).
 import { useEffect, useRef, useState } from 'react';
 import { config } from '@site/editor';
-import { Button, Dialog, SwitchRow, SupportingText, TextField } from './ui';
+import { Button, Dialog, TextField } from './ui';
 import { ConflictError, type RepoFile } from './github';
 import { siteT, t } from './i18n';
 import { kindAndName, lower, savedText } from './deploy';
 import { collectionsFor } from './site';
-import { DEFINITION_FILE, FIELDS, idOf } from '../lib/ownList.mjs';
+import { DEFINITION_FILE, DEFINITION_VERSION, idOf } from '../lib/ownList.mjs';
 import { definitionText } from '../lib/ownListEdit.mjs';
 import type { Env } from './App';
-
-/** The fields a new list starts with; the owner switches the others on. */
-const START = ['icon', 'title', 'text', 'href'];
 
 export default function NewListDialog({ files, env, open, onClose }: { files: RepoFile[]; env: Env; open: boolean; onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [label, setLabel] = useState('');
-  const [fields, setFields] = useState<string[]>(START);
   const [problem, setProblem] = useState('');
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     const el = dialog.current;
     if (open && el && !el.open) {
       setLabel('');
-      setFields(START);
       setProblem('');
       el.showModal();
       // No button or field has the focus to begin with, so none looks chosen (as the editor's other dialogs).
@@ -48,12 +43,7 @@ export default function NewListDialog({ files, env, open, onClose }: { files: Re
     const id = named.id;
     const name = label.trim();
     const path = `${config.folders.data}/${id}/${DEFINITION_FILE}`;
-    const text = definitionText({
-      version: 1,
-      label: name,
-      fields: FIELDS.map((f: { id: string }) => f.id).filter((f: string) => fields.includes(f)),
-      dropped: [],
-    });
+    const text = definitionText({ version: DEFINITION_VERSION, label: name, fields: [], dropped: [] });
     const change = t.app.changes.created(kindAndName(t.ownList.list, name));
     setBusy(true);
     env.notify({ text: t.common.saving });
@@ -92,18 +82,6 @@ export default function NewListDialog({ files, env, open, onClose }: { files: Re
           problem={problem || undefined}
           onChange={(e) => (setLabel(e.target.value), setProblem(''))}
         />
-        <p className="mt-4 mb-1 font-medium">{t.ownList.fields}</p>
-        {FIELDS.map((f: { id: string }) => (
-          <div key={f.id}>
-            <SwitchRow
-              label={t.ownList[f.id as 'icon']}
-              selected={fields.includes(f.id)}
-              disabled={busy || f.id === 'title'}
-              onChange={(on) => setFields(on ? [...fields, f.id] : fields.filter((x) => x !== f.id))}
-            />
-            {f.id === 'title' && <SupportingText className="mt-1">{t.ownList.titleOn}</SupportingText>}
-          </div>
-        ))}
         <div className="mt-6 flex justify-end gap-2">
           <Button kind="outlined" type="button" onClick={() => dialog.current?.close()}>
             {t.common.cancel}

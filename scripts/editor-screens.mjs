@@ -1755,8 +1755,12 @@ async function checkOwnList(width, height) {
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
     const sheet = page.locator('dialog[open]').filter({ hasText: 'Fields' });
     await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Edit list did not open its sheet`));
+    // The list was made in the first format (fields as kind names): it reads as it did. Each of its five fields has the owner's own `Shown` switch (on) and `Remove field`; and `Add field` is there.
     const switches = await sheet.locator('input[type="checkbox"]').count();
-    if (switches !== 6) problems.push(`${label}: Edit list has ${switches} switches, not 6`);
+    if (switches !== 5) problems.push(`${label}: Edit list has ${switches} switches, not 5`);
+    const removes = await sheet.getByRole('button', { name: 'Remove field' }).count();
+    if (removes !== 5) problems.push(`${label}: Edit list has ${removes} Remove field buttons, not 5`);
+    if (!(await sheet.getByRole('button', { name: 'Add field' }).count())) problems.push(`${label}: Edit list has no Add field`);
     if (!(await sheet.getByRole('button', { name: 'Delete list' }).count())) problems.push(`${label}: Edit list has no Delete list`);
     if (!(await sheet.getByLabel('Name').count())) problems.push(`${label}: Edit list has no name field`);
     await sheet.locator('[aria-label="Close"]').first().click();
@@ -1775,7 +1779,10 @@ async function checkOwnList(width, height) {
   }
 }
 
-/** `New list` on the Lists screen (batch 7): the button opens the dialog (name, the six fields, `Cancel` outlined, `Create` filled, no initial focus); a name that is taken is refused; `Create` makes the list, which opens, and shows under Lists and in Rows from. No horizontal overflow. */
+/** The text of a committed file: the commit proxy gets it base64 encoded. */
+const decoded = (content) => Buffer.from(content ?? '', 'base64').toString() || '{}';
+
+/** `New list` on the Lists screen: the button opens the dialog (the name only, `Cancel` outlined, `Create` filled, no initial focus); a name that is taken is refused; `Create` makes a list with no fields, which opens saying so with `Add field`; two body text fields are added, a row is typed in both and both values are saved and shown; the list shows under Lists and in Rows from. No horizontal overflow. */
 async function checkNewList(width, height, label) {
   label = `${label} new`;
   const phone = width < 600;
@@ -1793,9 +1800,9 @@ async function checkNewList(width, height, label) {
     const button = page.getByRole('button', { name: 'New list' }).first();
     await button.waitFor({ timeout: 15000 }).catch(() => problems.push(`${label}: no New list button on Lists`));
     await button.click();
-    const dialog = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    const dialog = page.locator('dialog[open][aria-label="New list"]');
     await dialog.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: New list did not open its dialog`));
-    if ((await dialog.locator('input[type="checkbox"]').count()) !== 6) problems.push(`${label}: the dialog has not 6 field switches`);
+    if ((await dialog.locator('input[type="checkbox"]').count()) !== 0) problems.push(`${label}: the dialog still has field switches`);
     const state = await page.evaluate(() => {
       const d = document.querySelector('dialog[open]');
       const kind = (name) =>
@@ -1826,9 +1833,66 @@ async function checkNewList(width, height, label) {
     await page
       .waitForFunction(() => location.hash === '#list/zz-fresh-list', null, { timeout: 15000 })
       .catch(() => problems.push(`${label}: Create did not open the new list (${'#' + new URL(page.url()).hash})`));
+    // The list starts empty: its page says so and has `Add field`; the definition has no field.
     await page
-      .waitForSelector('.inline-list-row-next, .inline-list-row[data-row]', { timeout: 15000 })
-      .catch(() => problems.push(`${label}: the new list's page has no row`));
+      .getByText('This list has no fields yet. Add the first one.')
+      .waitFor({ timeout: 15000 })
+      .catch(() => problems.push(`${label}: the new list's page does not say it has no fields`));
+    if (await page.locator('.inline-list-row').locator('visible=true').count()) problems.push(`${label}: an empty list shows a row`);
+    const made = commits[0]?.changes.find((x) => x.path.endsWith('_list.json'));
+    if (JSON.parse(decoded(made?.content)).fields?.length !== 0)
+      problems.push(`${label}: the new list's definition is not empty (${made?.content})`);
+    // Two body texts: the empty page's Add field, then Body text; the second through Edit list (the empty page's button is gone once there is a field).
+    const pick = async (n) => {
+      await page
+        .getByRole('menuitem', { name: 'Body text' })
+        .locator('visible=true')
+        .first()
+        .click()
+        .catch(() => problems.push(`${label}: Add field has no Body text (${n})`));
+      await page.waitForTimeout(700);
+    };
+    await page
+      .getByRole('button', { name: 'Add field' })
+      .first()
+      .click()
+      .catch(() => problems.push(`${label}: no Add field on the empty list`));
+    await pick(0);
+    await page.getByRole('button', { name: 'List menu' }).first().click();
+    await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
+    const edit = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    await edit.getByRole('button', { name: 'Add field' }).click();
+    await pick(1);
+    if ((await edit.locator('input[type="checkbox"]').count()) !== 2)
+      problems.push(`${label}: Edit list does not show two fields with a switch each`);
+    await edit.locator('[aria-label="Close"]').first().click();
+    await page.waitForTimeout(300);
+    await page
+      .waitForSelector('.inline-list-row-next [data-field="text"]', { timeout: 15000 })
+      .catch(() => problems.push(`${label}: the first body text field did not show on the list's page`));
+    // The name is inside the text field; the second body text is numbered.
+    await page.locator('.inline-list-row-next [data-field="text"]').first().click();
+    await page
+      .waitForSelector('.inline-list-row-active [data-field="text-2"]', { timeout: 15000 })
+      .catch(() => problems.push(`${label}: two body text fields did not show on the active row`));
+    const names = await page.evaluate(() =>
+      [...document.querySelectorAll('.inline-list-row-active [data-field]')].map((f) => f.getAttribute('placeholder')),
+    );
+    if (names.join() !== 'Body text,Body text 2') problems.push(`${label}: the fields are not named Body text and Body text 2 (${names})`);
+    // A row typed in both fields: both values are saved (one file, both ids) and shown.
+    await page.keyboard.type('First line');
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('Second line');
+    await page.waitForTimeout(1800);
+    const entry = commits.flatMap((c) => c.changes).find((x) => /src\/data\/zz-fresh-list\/(?!_)[^/]+\.json$/.test(x.path));
+    const saved = JSON.parse(decoded(entry?.content));
+    if (saved.text !== 'First line' || saved['text-2'] !== 'Second line')
+      problems.push(`${label}: the row was not saved with both body texts (${entry?.content})`);
+    const shown = await page.evaluate(() => [...document.querySelectorAll('.inline-list-row [data-field]')].map((f) => f.value));
+    if (!shown.includes('First line') || !shown.includes('Second line'))
+      problems.push(`${label}: the row does not show both values (${shown})`);
+    if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
+      problems.push(`${label}: the list page scrolls sideways with two fields`);
     // It shows under Lists and in Rows from.
     await page.evaluate(() => (location.hash = '#lists'));
     await page
@@ -1838,8 +1902,8 @@ async function checkNewList(width, height, label) {
       .catch(() => problems.push(`${label}: the new list does not show under Lists`));
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) problems.push(`${label}: Lists scrolls sideways`);
     const paths = commits.flatMap((c) => c.changes.map((x) => x.path));
-    if (commits.length !== 1 || !paths.some((p) => p.endsWith('src/data/zz-fresh-list/_list.json')))
-      problems.push(`${label}: Create did not commit the definition once (${commits.length} commits: ${paths})`);
+    if (!paths.some((p) => p.endsWith('src/data/zz-fresh-list/_list.json')))
+      problems.push(`${label}: Create did not commit the definition (${paths})`);
     // Rows from offers it: a list typed on a new page, its dynamic settings, the choice of lists.
     await page.evaluate(() => (location.hash = '#new/pages'));
     await page.waitForSelector('.ProseMirror');
