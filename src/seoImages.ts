@@ -89,8 +89,8 @@ const stringsIn = (value: unknown): string[] =>
 /** The images in a text, each by its alternative text, as plain text (empty when it has none), and whether it is decorative:
  * marked so in its address ("Decorative image", crop.mjs), or in HTML with alt="". Counted: the images of the Markdown, the
  * image behind a section (its description in the section's settings, never decorative), and the images in the texts of the
- * blocks (the Markdown in their props, also in a block inside a block). A Cards block's images have no description field (the
- * site draws them with an empty one), so they are not counted. */
+ * blocks (the Markdown in their props, also in a block inside a block). A Cards block's images have no description field yet, so
+ * each counts as missing. */
 export function images(body: string): ImageUse[] {
   const found = textImages(body);
   for (const p of paragraphs(body)) {
@@ -98,7 +98,12 @@ export function images(body: string): ImageUse[] {
       const marker = parseMarker(line);
       if (marker?.image) found.push({ alt: marker.alt ?? '', decorative: false });
     }
-    for (const block of blocksIn(p, true)) found.push(...stringsIn(block.props).flatMap(textImages));
+    for (const block of blocksIn(p, true)) {
+      found.push(...stringsIn(block.props).flatMap(textImages));
+      // Cards' images have no description field yet (the site draws them with an empty one): they count as missing.
+      if (block.type === 'cards' && block.props.media === 'image' && Array.isArray(block.props.items))
+        for (const card of block.props.items) if (card?.image) found.push({ alt: '', decorative: false });
+    }
   }
   return found;
 }

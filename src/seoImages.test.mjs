@@ -36,8 +36,9 @@ test('an image in the text of a block counts, also in a block in a block', () =>
   assert.equal(without(blockHtml('hero', { text: `x\n${inner}` })), 1);
 });
 
-test('a Cards block has no description field for its images, so they are not counted', () => {
-  assert.equal(images(blockHtml('cards', { media: 'image', items: [{ title: 'A', image: '/a.jpg' }] })).length, 0);
+test('a Cards block has no description field for its images, so each counts as missing', () => {
+  assert.equal(without(blockHtml('cards', { media: 'image', items: [{ title: 'A', image: '/a.jpg' }, { title: 'B' }] })), 1);
+  assert.equal(without(blockHtml('cards', { media: 'icon', items: [{ title: 'A', image: '/a.jpg' }] })), 0);
 });
 
 test('an image is counted once, also when its block sits among the text', () => {
