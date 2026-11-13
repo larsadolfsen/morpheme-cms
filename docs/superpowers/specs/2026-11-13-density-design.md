@@ -171,11 +171,11 @@ editor outside the page and post editing area, except where a group says otherwi
 | **Layout** (space around things) | gaps between sections, screen and column padding, toolbars, tabs, chip rows, buttons, and **the fields, switches, checkboxes and radio buttons in a settings form** (M3 allows these as an opt-in, with the 48 dp target kept) | +4 | standard | -4 | no |
 | **Focused single-task** | dialogs, snackbars, the date picker, the time picker, bottom and side sheets, the colour and icon pickers, the density setting's own rows, the FAB, and **menus and dropdowns in the theme** (the density page says not to; see below) | +4 | standard | stays standard | never |
 
-**M3 and the menu.** M3 says two things: the density page, "Don't increase density in UIs that involve focused tasks, such as selecting
-from a menu", and the menus page, density levels 0 to -3 "on web only". The owner's rule (5) is the first, so the spec keeps menus at
-Medium or looser. The editor's own bar, the ⋮ menus and the text and block menus are a separate, owner-decided exception to M3
-(`#519` section 8): fixed 44 x 44 buttons that never follow the person's density. If the owner wants the theme's `Menu` part to follow
-the menus page instead, it is one clamp changed from `--mo-density-focus` to `--mo-density-layout`.
+**M3 and the menu (decided by the owner, 2026-11-13: "They don't. Except the editor menus.").** M3 says two things: the density page,
+"Don't increase density in UIs that involve focused tasks, such as selecting from a menu", and the menus page, density levels 0 to -3
+"on web only". The owner chose the density page. So the theme's `Menu` and its dropdowns stay in the focused group: Large (+1) is
+allowed, Small stays Medium, never denser than Medium. The editor's own bar, the ⋮ menus and the text and block menus are a separate,
+owner-decided exception to M3 (`#519` section 8): fixed 44 x 44 buttons that never follow the person's density, Large included.
 
 **What changed since the earlier draft.** The earlier draft put the fields and switches of a settings form in the focused group because
 it found M3 silent. That was wrong: M3's text-field page ("Dense text fields enable people to scan …"), and the accessibility pages
@@ -368,5 +368,8 @@ is gone (section 2.3).
 Also decided (owner, 2026-11-13): the theme carries density (the `--mo-density` variables and the 4dp-per-step rules in the shared parts, for
 the editor and for theme authors, Large / Medium / Small). The default theme offers **no** visitor-facing setting on the site: no cookie
 and no switch for now (section 2.4). The Table block has no density setting of its own; this rule replaces it (section 3).
+
+Also decided (owner, 2026-11-13): menus. The theme's menus and dropdowns never get denser than Medium (section 2.2); the editor's own
+menus are fixed at 44 px and ignore density.
 
 **Open questions: none.** Every question is decided.
