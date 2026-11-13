@@ -731,8 +731,8 @@ async function checkEmptyRow(width, height) {
     if ((await sayOf()) !== 'Segmented list has no rows. The block will be deleted.')
       problems.push(`${label}: the dialog says "${await sayOf()}"`);
     const got = await buttons();
-    if (got.join('|') !== 'Delete and publish|Cancel')
-      problems.push(`${label}: the dialog has "${got.join('|')}", not "Delete and publish|Cancel"`);
+    if (got.join('|') !== 'Cancel|Delete and publish')
+      problems.push(`${label}: the dialog has "${got.join('|')}", not "Cancel|Delete and publish"`);
     const kinds = await dialog.getByRole('button').evaluateAll((b) => b.map((x) => x.className));
     if (kinds.length !== 2 || kinds[0] === kinds[1]) problems.push(`${label}: the main choice is not the only filled button`);
     if (await dialog.locator('button:focus').count()) problems.push(`${label}: a button has the focus`);
@@ -758,6 +758,7 @@ async function checkEmptyRow(width, height) {
       );
   }
   // A list with an empty row between its rows: Remove item takes that row, Save draft saves without it.
+  const first = commits.length;
   const makeList = async () => {
     await page.click('.ProseMirror > p');
     await page.keyboard.press('Enter');
@@ -788,14 +789,14 @@ async function checkEmptyRow(width, height) {
       problems.push(`${label}: the dialog has "${got.join('|')}", not "Remove item|Save draft|Cancel"`);
     await dialog.getByRole('button', { name: 'Remove item' }).tap();
     await page.waitForTimeout(400);
-    if (commits.length || (await rows()) !== 2 || (await blocks()) !== 1)
+    if (commits.length !== first || (await rows()) !== 2 || (await blocks()) !== 1)
       problems.push(`${label}: Remove item left ${await rows()} rows (not 2), ${commits.length} commits`);
   }
   // Saved as it is now: no question, and no empty row in the file.
   await press('Save draft', true);
   if (await dialog.count()) problems.push(`${label}: a list without an empty row still asked`);
-  if (!commits.length) problems.push(`${label}: a list without an empty row was not saved`);
-  else if (/"title":""/.test(sent(0).join('\n'))) problems.push(`${label}: the saved page has an empty row`);
+  if (commits.length === first) problems.push(`${label}: a list without an empty row was not saved`);
+  else if (/"title":""/.test(sent(first).join('\n'))) problems.push(`${label}: the saved page has an empty row`);
   // An empty row again, and the third button: the page is saved with the row left out, and the list in the editor has two.
   const before = commits.length;
   await page
