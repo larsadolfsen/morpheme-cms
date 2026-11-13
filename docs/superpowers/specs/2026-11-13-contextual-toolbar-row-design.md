@@ -59,7 +59,7 @@ Pages read: `m3.material.io/components/toolbars/` overview, specs, guidelines, a
   owner's design and not in M3. Deviation.
 - **Sizes and targets.** "By default all toolbars are 64dp high ... minimum outside padding of 16dp." "All elements need a
   minimum 48x48dp target area." "Consider making touch targets at least 48 x 48dp" (foundations/structure). "Only shrink the height
-  and use extra small buttons if vertical space is limited." Our bar is 40 dp high (step -2, section 8), with 48 dp targets on touch.
+  and use extra small buttons if vertical space is limited." Our bar is 40 dp high (step -2, section 8), with 44 dp targets (the owner's decision, a deviation).
 - **Keyboard and role.** "On web, the toolbar container should have the toolbar role." "Tab or Arrows: Navigate between
   interactive elements; Space or Enter: Activate." The theme's `Toolbar` has one Tab stop with arrows inside.
 - **Tabs instead of a menu.** See section 3: not used.
@@ -85,21 +85,21 @@ Decided by the owner: the bar never scrolls sideways ("No scroll in the menu" re
 in the `⋮` drop-down, and the `⋮` holds tools). Whether the `⋮` list may scroll when it is long was not decided: question 3.
 
 ```
-PHONE 375 px (room: 343 dp = 375 minus two 16 dp edges; 6 slots of 48 dp = 288 dp, the rest is gaps and the divider)
+PHONE 375 px (room: 343 dp = 375 minus two 16 dp edges; 7 hit areas of 44 dp = 308 dp, 35 dp left for the divider and gaps)
 
 Idle (focus outside the text and blocks): all four fit, no ⋮
 +--------------------------------------------+
 | [+] [Undo] [Redo]  ▏ [Section settings]    |
 +--------------------------------------------+
 
-Cursor in text: text tools slide in from the left, the main tools are pushed out; Undo stays, the rest is in ⋮
+Cursor in text: text tools slide in from the left, the main tools are pushed out; Undo and Redo stay, the rest is in ⋮
 +--------------------------------------------+
-| [B] [I] [Link] [H]  ▏  [Undo]  [⋮]         |
+| [B] [I] [Link] [H]  ▏  [Undo] [Redo] [⋮]   |
 +--------------------------------------------+
 
 A Table is active:
 +--------------------------------------------+
-| [row↑] [row↓] [col←] [col→]  ▏  [Undo] [⋮] |
+| [row↑] [row↓] [col←] [col→] ▏ [Undo][Redo][⋮] |
 +--------------------------------------------+
 
 COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Remove, and is absent in text):
@@ -115,31 +115,35 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   (the order in the lists below; a `ResizeObserver` measures the bar like `useToolbarLines` does now, and no timer is used). This is
   M3's own rule ("put them in an overflow menu in the trailing slot", "become visible again at larger sizes"), so the scroll
   deviation of the earlier drafts is gone.
-- **The rule at 375 px.** 6 slots: up to five tools plus `⋮`, or a divider and Undo counted as slots. A context's own tools come first,
-  then the divider and **Undo** (the one main tool kept in view; question 1), then `⋮`. Everything else of the context and of the main
-  tools is in `⋮`, in groups, the context's tools first, then the page tools, then (blocks) Hide, Move, Remove. A 360 px phone has
-  room for the same 6 slots (360 − 32 = 328 dp; 6 × 48 = 288 dp).
-- **Exact lists at 375 px** (bar | in `⋮`). The bar lists are the tools to show first; if a window is narrower, the last tool of a list moves into `⋮` first.
+- **The rule at 375 px (owner: one 44 × 44 hit area, section 8).** `slots = floor((width − 32 − divider) / 44)`: 343 / 44 = 7.8, so **7
+  slots at 375 px**, and 7 at 360 px too (328 / 44 = 7.45). A slot is a tool, Undo, Redo or `⋮`. A context's own tools come first, then the
+  divider, **Undo and Redo** (the main tools kept in view; question 1), then `⋮`. Everything else of the context and of the main tools is
+  in `⋮`, in groups: the context's tools first, then the page tools, then (blocks) Hide, Move, Remove. At 320 px (288 dp) 6 slots fit and
+  the bar drops Redo into `⋮`.
+- **Exact lists at 375 px** (bar | in `⋮`). The bar lists are the tools to show first; in a narrower window the last tool of a list moves into `⋮` first.
 
-| State | On the bar | In `⋮` (groups in order, a divider between groups) |
+| State | On the bar (7 slots) | In `⋮` (groups in order, a divider between groups) |
 | --- | --- | --- |
 | Nothing active | Insert, Undo, Redo, divider, Section settings (when it applies) | no `⋮` |
-| Text | Bold, Italic, Link, Heading, divider, Undo, `⋮` | Text size, Alignment, Lists (Bulleted, Check, Numbered), Colour; divider; Redo, Insert, Section settings (when it applies) |
-| Table | Row above, Row below, Column before, Column after, divider, Undo, `⋮` | Table settings, Delete row, Delete column; divider; Redo, Insert; divider; Hide, Move, Remove |
-| List, Cards, Points, Segmented list | Add above, Add below, Move up, Move down, divider, Undo, `⋮` | Link, Settings, Fill from a list (List, Segmented list); divider; Redo, Insert; divider; Hide, Move, Remove |
-| Steps, Checklist | Add above, Add below, Move up, Move down, divider, Undo, `⋮` | Redo, Insert; divider; Hide, Move, Remove |
-| Buttons, Price cards, Questions and answers, Links | Add above, Add below, Move up, Move down, divider, Undo, `⋮` | Link (Buttons), Settings, Fill from a list (Questions and answers); divider; Redo, Insert; divider; Hide, Move, Remove |
-| Image | Change image, Crop, Alt text, divider, Undo, `⋮` | Settings; divider; Redo, Insert; divider; Hide, Move, Remove |
-| Video, Notice, Testimonials, Posts, HTML, Banner | Settings (or Edit for Testimonials and Posts), divider, Undo, `⋮` | Redo, Insert; divider; Hide, Move, Remove |
+| Text | Bold, Italic, Link, Heading, divider, Undo, Redo, `⋮` | Text size, Alignment, Lists (Bulleted, Check, Numbered), Colour; divider; Insert, Section settings (when it applies) |
+| Table | Row above, Row below, Column before, Column after, divider, Undo, Redo, `⋮` | Table settings, Delete row, Delete column; divider; Insert; divider; Hide, Move, Remove |
+| List, Cards, Points, Segmented list | Add above, Add below, Move up, Move down, divider, Undo, Redo, `⋮` | Link, Settings, Fill from a list (List, Segmented list); divider; Insert; divider; Hide, Move, Remove |
+| Steps, Checklist | Add above, Add below, Move up, Move down, divider, Undo, Redo, `⋮` | Insert; divider; Hide, Move, Remove |
+| Buttons, Price cards, Questions and answers, Links | Add above, Add below, Move up, Move down, divider, Undo, Redo, `⋮` | Link (Buttons), Settings, Fill from a list (Questions and answers); divider; Insert; divider; Hide, Move, Remove |
+| Image | Change image, Crop, Alt text, Settings, divider, Undo, Redo, `⋮` | Insert; divider; Hide, Move, Remove |
+| Video, Notice, Testimonials, Posts, HTML, Banner | Settings (Video: Change address first; Testimonials and Posts: Edit), divider, Undo, Redo, `⋮` | Insert; divider; Hide, Move, Remove |
 
-  **How long the `⋮` list gets.** At 48 dp a row, Text has 4 + 3 groups of rows: Text size, Alignment, Bulleted, Check, Numbered, Colour,
-  Redo, Insert, Section settings = 9 rows + 2 dividers, about 440 dp. The longest block (Table, List) has 9 or 10 rows + 3 dividers, about
-  480 to 500 dp. A 375 × 667 px phone has about 667 − 48 (bar) − 24 (status bar) = 595 dp under the bar with no keyboard: it fits whole.
-  With the keyboard open (about 290 dp high, not read from a source: my estimate for a phone) only about 300 dp remain: 6 rows. Opening
-  a sheet or a menu can close the keyboard (a dialog takes the focus), and the existing *More* bottom sheet does so; so on a phone the
-  `⋮` opens the bottom sheet (M3: "Consider adapting menus into bottom sheets on small screens"), not a popover menu (question 2).
-  On a computer it is a `Menu` under the button; there everything fits and the list is short (Hide, Move, Remove, plus what does
-  not fit in a narrow window).
+  The other choice for question 1, Undo only, frees one slot: the contextual tools get a fifth (Text: Text size; List: Link; Table: Table
+  settings; Image and the single blocks: nothing more to add), and Redo goes into `⋮`.
+
+  **How long the `⋮` list gets.** Rows are 44 dp (the same hit area). The longest list is Text with Section settings: Text size,
+  Alignment, Bulleted, Check, Numbered, Colour, Insert, Section settings = 8 rows, about 352 dp plus one divider. Table and List have 7
+  rows (about 308 dp) plus 2 dividers. A 375 × 667 px phone has about 667 − 40 (bar) − 24 (status bar) = 600 dp under the bar with no
+  keyboard: it fits whole. With the keyboard open (about 290 dp high, not read from a source: my estimate for a phone) about 300 dp are left:
+  6 rows, so Text just misses. Opening a sheet or a menu can close the keyboard (a dialog takes the focus), and the existing *More*
+  bottom sheet does so; so on a phone the `⋮` opens the bottom sheet (M3: "Consider adapting menus into bottom sheets on small screens"), not
+  a popover menu (question 2). On a computer it is a `Menu` under the button; there everything fits and the list is short (Hide, Move, Remove,
+  plus what does not fit in a narrow window).
 - **The divider** is the theme's `Divider` part (`theme/ui/Divider.tsx`), vertical, in the theme's outline-variant colour, between the
   contextual and main tools. It is hidden when there is no context (idle). In the `⋮` list a `MenuDivider` (also the theme's
   `Divider`) separates the groups.
@@ -286,12 +290,12 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
   moment it closes with the focus elsewhere; (4) the push moves main tools the owner expects at one place (Undo): acceptable
   because on idle and on wide screens they are where they were; (5) a theme that styles `Toolbar` badly breaks the whole editor:
   the bar uses only `--toolbar-*` tokens and the `Divider` part; (6) the old bars' tests (`.contextual-menu` in
-  `scripts/editor-screens.mjs`) must move; (7) the invisible hit area reaches 4 dp over the text box's edge (section 8): a tap in that strip must hit the tool, and
+  `scripts/editor-screens.mjs`) must move; (7) the invisible hit area reaches 2 dp over the text box's edge (section 8): a tap in that strip must hit the tool, and
   `check:screens` measures it.
 - **Checks:** `check:screens` at 375 and 1280: one bar, 40 dp high, the same height idle, in text and on every block; the divider
   shows only with a context; at 375 the bar holds exactly the lists of section 3 (Text, Table, List, Image: tool names read from the bar and from the
   `⋮` sheet), never scrolls (`scrollWidth` equals `clientWidth`), and Undo stays on it and works; the `⋮` sheet lists Redo, Insert
-  and the rest; at 1280 both groups fit and are visible; no hit area under 48 dp on touch (44 dp with a mouse; a `::before` hit area is measured, not the visible 40 dp); no horizontal page scroll; the slide runs with `prefers-reduced-motion: no-preference` (assert the
+  and the rest; at 1280 both groups fit and are visible; no hit area of the bar, the `⋮` or its rows under 44 dp (the `::before` hit area is measured, not the visible 40 dp); no horizontal page scroll; the slide runs with `prefers-reduced-motion: no-preference` (assert the
   animation exists, with the theme's duration) and is absent with `reduce`; `check:contrast` and `check:editor-colors` on the bar in each
   section colour; `check:css-values` finds no literal motion or spacing in the new CSS. Not covered by the scripts: the keyboard on a
   real phone, and how a theme looks; both by hand. The Preview of the branch cannot sign in, so the owner reads screenshots from
@@ -300,6 +304,16 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
   1. *Medium:* the one-bar shell. The main toolbar becomes the bar: main tools, divider, a slot for the contextual group; the text
      tools move into the slot; the selection pill, the second line and its arrow, `stillTimer` and `STILL_MS` are removed. The bar's overflow into `⋮`
      (sheet on a phone, menu on a computer). No slide yet. Empty changeset until visible.
+     **The 44 dp hit area goes in with this step, so no check fails:** (a) `check:screens` has rules written for 48:
+     `scripts/editor-screens.mjs` line 218 (the text menu's buttons "smaller than 48 dp", for the pill that is deleted) goes with the pill, and
+     line 1644 (`.contextual-menu button` height under 47.5) is replaced by one rule for the bar: every button of the bar, the `⋮` and its
+     rows has a hit area of at least 44 × 44 dp (measured through the `::before`), and no other part of the editor drops under 48; (b) the bar's
+     CSS (`.contextual-menu button` and `.editor-selection-menu button` are 3rem today) gives way to the bar's own tokens: the theme's icon
+     button box defaults to `var(--icon-button-size, 2.75rem)` (`theme/styles/ui.css:642`, 44 px), while `docs/material-deviations.md` (CSS
+     sweep 4) says the icon button is drawn at 48 dp; I did not trace which value is live, step 1 does; the bar sets `--icon-button-size`
+     for itself; (c) the deviation entry of section 8 goes into `docs/material-deviations.md` in the same pull request, so the deviation
+     check does not flag it; (d) `check:contrast` and the other checks do not look at target size, and the line-385 and line-3088 rules of
+     `editor-screens.mjs` (the empty hint, the accordion row) are other parts and stay at 48.
   2. *Medium:* blocks move in. `contextualMenu.ts` becomes the bar's contextual group (`BarAction` stays); the Table's seven; the
      tests move; the floating `.contextual-menu` CSS is deleted. The touch-selection worker's `SelectionBar` plugs in here.
   3. *Small:* the slide and push (FLIP with `motionTiming`), the fade between contexts, reduced motion.
@@ -328,10 +342,16 @@ density choice of PR #518; they are fixed as below. Checked against M3 (Playwrig
    token, to be measured in step 1). **-2 makes the bar 40 dp tall, -3 makes it 36 dp.** A 24 dp icon in 40 dp leaves 8 dp above and
    below; in 36 dp only 6 dp, or a 20 dp icon. Recommendation: -2 with 24 dp icons (the owner's range is 20 to 24 dp: the
    card menu draws 20 dp icons today; whether the `⋮` rows use 20 or 24 dp is decided in step 1).
-3. **Hit areas: 48 dp on touch, 44 dp with a mouse, whatever the bar looks like.** The visible button is 40 dp tall, its hit area is
-   extended by an invisible `::before` (pointer events on, no background): 48 × 48 dp when `(pointer: coarse)`, 44 × 44 dp when
-   `(pointer: fine)`. It reaches 4 dp (2 dp for a mouse) above and below the bar; at the bottom it covers the first 4 dp of the text
-   box's edge, and the bar wins a tap there. The hit areas never overlap each other (the pitch along the bar is the hit width).
+3. **One hit area of 44 × 44 dp, on mouse and on touch, for the bar's buttons and the `⋮` rows (owner decision: "Let's make the editor
+   menu 44x44 px, breaking the MD3 rules, but following Apple").** Only the editor's bar, its `⋮` and the rows of its menu or sheet; every
+   other part of the editor and of the theme stays on M3's 48 dp. The visible button is 40 dp tall (the bar); its hit area is extended by an
+   invisible `::before` (pointer events on, no background) to 44 × 44 dp, 2 dp above and below the bar. At the bottom it covers the first 2 dp
+   of the text box's edge, and the bar wins a tap there. The hit areas never overlap each other (the pitch along the bar is 44 dp).
+   **Apple, read 13 November 2026 on `developer.apple.com/design/human-interface-guidelines/buttons`:** "As a general rule, a button needs a
+   hit region of at least 44x44 pt — in visionOS, 60x60 pt — to ensure that people can select it easily, whether they use a fingertip, a
+   pointer, their eyes, or a remote." and, on `/accessibility`, a table "Default control size | Minimum control size": iOS and iPadOS 44x44 pt
+   | 28x28 pt. Apple's 44 applies to a pointer as well as a finger, which is why one size serves mouse and touch. (The toolbars page of the
+   Human Interface Guidelines gave no number I could read; the 44 is the buttons page's.)
 4. **Hover and focus:** M3's 8% state layer on hover (read: "Hovered (8% state layer)") and the focus ring, from the theme's icon
    button; the pressed state of a toggle (Bold) is clear.
 5. **A tooltip on every icon-only button of the bar and its menus**, as today (the theme's plain tooltip, `useTooltip` in
@@ -344,12 +364,10 @@ density choice of PR #518; they are fixed as below. Checked against M3 (Playwrig
    block's actions on a block (section 6), and the `⋮` is grouped, never one long list. A right-click context menu and a command palette
    are not part of this spec: they are a separate spec (the PM starts it).
 
-**Slots at 375 px with the new height (real numbers).** The bar is 40 dp tall, but the width is set by the hit area, not by how the
-buttons look: a touch button needs a 48 dp hit width, so the pitch is 48 dp on a phone. Room is 343 dp (375 − 2 × 16): **7 hit areas of
-48 dp fit only if there is no gap at all (336 dp + a 1 dp divider = 337 dp); 6 fit with 49 dp to spare, and at 360 px (328 dp of room)
-only 6 fit.** So the lists of section 3 stay at 6 slots; the lower density gives the page more height, not the bar more tools. With a
-mouse the pitch is 44 dp: a narrow desktop window of 500 px has 468 dp, which is 10 slots. The rule the bar uses:
-`slots = floor((width − 32 − divider) / pitch)`, with the pitch 48 (touch) or 44 (mouse), measured, never a timer.
+**Slots at 375 px with 44 dp hit areas (real numbers).** The bar is 40 dp tall; the width is set by the hit area, 44 dp. Room is 343 dp
+(375 − 2 × 16): 343 / 44 = 7.8, so **7 slots fit at 375 px** (308 dp, 35 dp left for the divider and gaps), **7 at 360 px** (328 / 44 =
+7.45) and 6 at 320 px. With 48 dp it would have been 6. The rule the bar uses: `slots = floor((width − 32 − divider) / 44)`, measured, never a
+timer. The exact lists are in section 3.
 
 **M3 deviations of this exception** (entries for `docs/material-deviations.md`, with step 1):
 - *Editor bar and menus ignore the user's density.* **M3 says:** "People can change density as long as the density controls are
@@ -358,10 +376,11 @@ mouse the pitch is 44 dp: a narrow desktop window of 500 px has 468 dp, which is
   setting. **Why:** owner's decision, 13 November: an editor's own UI should take little room. Date 2026-11-13.
 - *Step -2 on a toolbar and its menus.* **M3 says:** "Don't increase density in UIs that involve focused tasks, such as selecting from a
   menu. It reduces usability by limiting selectable space." **We do:** the `⋮` list rows and the formatting menus are also at step -2,
-  but each row keeps its 48 dp (touch) or 44 dp (mouse) hit height, so the space to select is not reduced. **Why:** same.
-- *44 dp mouse target.* **M3 says:** "For most platforms, consider making touch targets at least 48 x 48dp." **We do:** 44 × 44 dp
-  with a mouse, 48 × 48 dp on touch (`pointer: coarse`). **Why:** owner's decision. (Not read: whether any M3 page gives a separate,
-  smaller target for a mouse; I found none.)
+  but each row keeps its 44 dp hit height, so the space to select is not reduced. **Why:** same.
+- *44 × 44 hit area in the editor's bar and menus.* **M3 says:** "All elements need a minimum 48x48dp target area to be accessible." (toolbars/guidelines,
+  Anatomy) and "For most platforms, consider making touch targets at least 48 x 48dp." (foundations/structure). **We do:** 44 × 44 dp on mouse
+  and touch, only for the editor's bar, its `⋮` and the rows of its menu or sheet; everything else stays on 48. **Why:** owner's decision, 13
+  November, following Apple's Human Interface Guidelines ("a button needs a hit region of at least 44x44 pt"). Date 2026-11-13.
 - Not a deviation: the tooltip with a shortcut. M3's plain tooltip "briefly describe[s] a UI element" and says nothing for or against a
   shortcut; menu items may carry "keyboard commands" as trailing text.
 
@@ -375,9 +394,10 @@ roll back; a divider between them; the main part is Insert, Undo, Redo, Section 
 text; the bar and its menus are fixed at high density, outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools; question 1 of the earlier list); no sticky
 question (one bar stays at the top).
 
-1. **Which main tool stays on the bar on a phone while a context is active?** Recommendation: Undo only (the others, Redo, Insert and
-   Section settings, are in `⋮`), because Undo is the one used while writing and there is room for one. Options: Undo and Redo (one
-   contextual tool less on the bar), or none (all in `⋮`).
+1. **Which main tools stay on the bar on a phone while a context is active?** With 44 dp hit areas there are 7 slots, so there is room for
+   two. Recommendation: **Undo and Redo** (they are a pair, and an editor needs both at hand), with 4 contextual tools and `⋮` (Insert and
+   Section settings in `⋮`). Options: Undo only (one more contextual tool on the bar, Redo in `⋮`), or none (all in `⋮`). This changed from my
+   earlier recommendation of Undo only, which was for 6 slots.
 2. **On a phone, does `⋮` open the bottom sheet (the existing *More*) or a popover menu under the bar?** Recommendation: the bottom
    sheet: it has room for up to 10 rows, it closes the keyboard, and M3 says "Consider adapting menus into bottom sheets on small
    screens". On a computer it is a menu.
@@ -391,4 +411,4 @@ question (one bar stays at the top).
    (recommendation), so the bar is calm while you click around. (b) When focus goes to the page header, a sheet or another screen: the bar
    rolls back at once, but not while a sheet that the bar opened (More, Settings) is open (recommendation).
 6. **Which density step for the bar and menus: -2 (40 dp tall, recommended) or -3 (36 dp)?** M3 has both; each takes 4 dp off the height. With
-   -2 a 24 dp icon keeps 8 dp of air above and below; with -3, 6 dp. The hit areas stay 48 dp (touch) and 44 dp (mouse) either way.
+   -2 a 24 dp icon keeps 8 dp of air above and below; with -3, 6 dp. The hit areas are 44 dp either way.
