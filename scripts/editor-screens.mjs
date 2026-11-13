@@ -940,6 +940,8 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   await page.keyboard.type('Two');
   await page.waitForTimeout(300);
   const slotOf = (row) => page.locator(`[data-row="${row}"] .inline-list-slot[aria-label="Icon"]`);
+  // A card that has its media shows it as the button (a tap on it opens the picker); the other blocks show the round control.
+  const controlOf = (row) => (name === 'cards' ? page.locator(`[data-row="${row}"] .inline-card-media`) : slotOf(row));
   // The active row has the control, empty: a plus, as a round button.
   if ((await slotOf(1).count()) !== 1) problems.push(`${label}: the active row has no icon control`);
   else if (!(await slotOf(1).evaluate((b) => b.tagName === 'BUTTON' && b.querySelectorAll('svg').length === 1)))
@@ -958,9 +960,9 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   await page.locator(`[data-row="1"] [data-field="${field}"]`).click();
   await page.waitForTimeout(300);
   if (!(await page.locator('[data-row="1"].inline-list-row-active').count())) problems.push(`${label}: the second row is not active`);
-  if ((await slotOf(0).count()) !== 1) problems.push(`${label}: a row with an icon that is not active has no icon control`);
+  if ((await controlOf(0).count()) !== 1) problems.push(`${label}: a row with an icon that is not active has no icon control`);
   else {
-    await slotOf(0).click();
+    await controlOf(0).click();
     await page.waitForTimeout(400);
     if (
       !(await page
@@ -2913,7 +2915,7 @@ for (const [width, height] of [
   [375, 740],
   [1280, 900],
 ])
-  for (const name of ['list', 'segmented', 'buttons'])
+  for (const name of ['list', 'segmented', 'buttons', 'cards'])
     await checkIconSlots(
       width,
       height,
