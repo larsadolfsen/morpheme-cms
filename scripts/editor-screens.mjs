@@ -2331,14 +2331,14 @@ async function checkCardsSpacing(width, height) {
   want('the gap in the CSS', m.css, '8px');
   want('the card padding', m.padding, '16px');
   want("the carousel gap (the same as the cards' own)", m.carouselGap, m.css);
-  want("the room from a card's edge to its text on the left", m.iconCard.left, 17);
-  want("the room from a card's edge to its text on the right", m.iconCard.right, 17);
+  want("the room from a card's edge to its text on the left", m.iconCard.left, 16);
+  want("the room from a card's edge to its text on the right", m.iconCard.right, 16);
   want('the icon to the headline', m.iconCard.mediaToTitle, 16);
   want('the headline to the text', m.iconCard.toText, 8);
   want('the headline to the subhead', m.subheadCard.titleToSubhead, 4);
   want('the subhead to the text', m.subheadCard.toText, 8);
   want('the text to the link', m.linkCard.textToMore, 16);
-  want("the link to the card's bottom edge", m.linkCard.moreBottom, 17);
+  want("the link to the card's bottom edge", m.linkCard.moreBottom, 16);
   await page.close();
 }
 
