@@ -421,6 +421,77 @@ async function checkListMarkers(width) {
   await page.close();
 }
 
+/** A block put in a list item, or after a list, is a block of the page (never indented in the list), and Backspace at the start of a list item leaves the list. */
+async function checkListsAndBlocks(width) {
+  const label = `${width}px text lists`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('- one');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('two');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('three');
+  await page.waitForTimeout(300);
+  const tops = () =>
+    page.evaluate(() =>
+      [...document.querySelector('.ProseMirror').children].map(
+        (c) => c.tagName.toLowerCase() + (c.matches('.site-block, [data-site-block]') || c.querySelector('.site-block') ? ':block' : ''),
+      ),
+    );
+  if ((await tops()).join() !== 'ul') {
+    problems.push(`${label}: typing "- " does not start a list (${await tops()})`);
+    return page.close();
+  }
+  // Backspace at the start of the second item takes it out of the list: a paragraph between two lists.
+  await page.locator('.ProseMirror li > p').nth(1).click();
+  await page.keyboard.press('Home');
+  // The editor reads the moved cursor from the page a moment later.
+  await page.waitForTimeout(150);
+  await page.keyboard.press('Backspace');
+  const left = (await tops()).join();
+  if (left !== 'ul,p,ul') problems.push(`${label}: Backspace at the start of a list item gives ${left}, not ul,p,ul`);
+  await page.keyboard.press('Control+z');
+  // A list item is not a heading and a list has no text size: those controls are not offered in a list, on the first line or under the arrow.
+  if (await page.locator('[aria-label="Show more tools"]:visible').count())
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  const offered = await page
+    .locator('.editor-tools button:visible')
+    .evaluateAll((b) =>
+      b
+        .map((x) => x.getAttribute('aria-label'))
+        .filter((n) => /^(Page heading|Heading|Subheading|Body (small|medium|large))\b/.test(n ?? '')),
+    );
+  if (offered.length) problems.push(`${label}: the toolbar offers ${offered.join(', ')} in a list item`);
+  if (await page.locator('[aria-label="Show fewer tools"]:visible').count())
+    await page.locator('[aria-label="Show fewer tools"]:visible').first().click();
+  // A block inserted in the first item ends the list there, at the top level, and the rest follows it.
+  await page.locator('.ProseMirror li > p').nth(0).click();
+  await page.keyboard.press('End');
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().click();
+  await page.locator('[aria-label="Insert"]:visible').first().click();
+  await page.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
+  await page.waitForSelector('.ProseMirror .site-block, .ProseMirror [data-site-block]', { timeout: 8000 }).catch(() => {});
+  const shape = await page.evaluate(() =>
+    [...document.querySelector('.ProseMirror').children].map((c) =>
+      c.tagName === 'UL'
+        ? `ul${c.querySelectorAll(':scope > li').length}`
+        : c.className.includes('site-block') || c.querySelector('.site-block')
+          ? 'block'
+          : c.tagName.toLowerCase(),
+    ),
+  );
+  const joined = shape.join();
+  if (!/^ul1,block(,p)?,ul\d$/.test(joined))
+    problems.push(`${label}: a block inserted in a list item is not at the top level of the page (${joined})`);
+  if (await page.locator('.ProseMirror li .site-block').count()) problems.push(`${label}: a block is drawn inside a list item`);
+  await page.close();
+}
+
 /** The Preview (the binoculars) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
 async function checkPreviewSection() {
   const path = 'src/content/pages/about.md';
@@ -2616,6 +2687,7 @@ await checkToolbarBox();
 await checkPreviewSection();
 await checkFullSection();
 for (const w of [375, 1280]) await checkListMarkers(w);
+for (const w of [375, 1280]) await checkListsAndBlocks(w);
 for (const w of [360, 375, 390, 414]) await checkPreviewDraft(w);
 
 await browser.close();
