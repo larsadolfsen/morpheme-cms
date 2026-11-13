@@ -594,13 +594,13 @@ async function checkSelection() {
     if (await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth))
       problems.push(`${label}: the page scrolls sideways while selecting`);
     // While selecting, the top bar has only the selection's own actions (Close selection, Select all, Delete); the screen's
-    // History, the notifications' bell and the like are not drawn. The drawer's menu button at the start is navigation.
+    // History, the notifications' bell and the like are not drawn. The menu button, back arrow and logo at the start are navigation.
     const stray = await page.evaluate(() => {
       const visible = (el) => {
         const r = el.getBoundingClientRect();
         return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden';
       };
-      return [...document.querySelectorAll('header button, header a[href], header [role=checkbox], header input')]
+      return [...document.querySelectorAll('header button, header [role=checkbox], header input')]
         .filter(visible)
         .map((el) => el.getAttribute('aria-label') || el.closest('label')?.textContent?.trim() || el.textContent?.trim() || el.title)
         .filter((n) => !/^(Close selection|Select all|Delete \d+ selected|Open menu|Close menu)$/.test(n || ''));

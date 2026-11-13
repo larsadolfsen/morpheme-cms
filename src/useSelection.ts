@@ -23,12 +23,15 @@ const modalOpen = () => {
 export function useSelection({
   order,
   enabled = true,
+  spaceStarts = false,
   root,
 }: {
   /** The keys of the rows shown, top to bottom. */
   order: string[];
   /** False: the list cannot be selected (nothing is, no key does anything). */
   enabled?: boolean;
+  /** Space on a focused row starts selecting (the keyboard's way in, where no button starts it). */
+  spaceStarts?: boolean;
   /** Keys and clicks count only inside it (a sheet's own list); without it, only while no modal dialog is open. */
   root?: RefObject<Element | null>;
 }) {
@@ -110,7 +113,7 @@ export function useSelection({
     const onKey = (e: KeyboardEvent) => {
       if (!inScope(e.target) || (e.defaultPrevented && e.key !== 'Escape')) return;
       const row = own(rowOf(e.target));
-      const action = keyAction(e, { selecting: latest.current.selecting, onRow: !!row && !typing(e.target as Element) });
+      const action = keyAction(e, { selecting: latest.current.selecting, onRow: !!row && !typing(e.target as Element), spaceStarts });
       if (!action) return;
       if (action === 'clear') {
         // The dialog's own Escape (Notifications.tsx) is stopped by the caller; this only unselects.
@@ -146,7 +149,7 @@ export function useSelection({
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('click', onClick, true);
     };
-  }, [enabled, root, id, clear, selectAll, toggle]);
+  }, [enabled, root, id, clear, selectAll, toggle, spaceStarts]);
 
   /** The props of a ListItem for the row with this key. */
   const row = (key: string) =>

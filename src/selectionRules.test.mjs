@@ -49,7 +49,8 @@ test('neighbourKey steps and clamps', () => {
 test('keyAction maps the keys', () => {
   const k = (key, extra = {}) => ({ key, shiftKey: false, ctrlKey: false, metaKey: false, ...extra });
   assert.equal(keyAction(k(' '), { selecting: true, onRow: true }), 'toggle');
-  assert.equal(keyAction(k(' '), { selecting: false, onRow: true }), 'toggle');
+  assert.equal(keyAction(k(' '), { selecting: false, onRow: true }), null);
+  assert.equal(keyAction(k(' '), { selecting: false, onRow: true, spaceStarts: true }), 'toggle');
   assert.equal(keyAction(k(' '), { selecting: true, onRow: false }), null);
   assert.equal(keyAction(k('ArrowDown', { shiftKey: true }), { selecting: true, onRow: true }), 'range-next');
   assert.equal(keyAction(k('ArrowUp', { shiftKey: true }), { selecting: true, onRow: true }), 'range-prev');
