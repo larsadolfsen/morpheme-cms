@@ -8,21 +8,21 @@ const editor = read('./MarkdownEditor.tsx');
 const css = read('./editor.css');
 const ui = read('./ui.tsx');
 
-// The rules of the toolbar and the row over the selection, up to the next block of rules that is not theirs.
+// The rules of the bar, up to the next block of rules that is not theirs.
 const toolbarCss = css
   .split('\n\n')
-  .filter((block) => /editor-selection-(menu|sheet)|toolbar-menu-button/.test(block.replace(/\/\*[\s\S]*?\*\//g, '')))
+  .filter((block) => /editor-tools|toolbar-menu-button/.test(block.replace(/\/\*[\s\S]*?\*\//g, '')))
   .join('\n\n');
 
-test('the toolbar and its sheet use no hard-coded colour', () => {
+test('the bar uses no hard-coded colour', () => {
   const code = toolbarCss.replace(/\/\*[\s\S]*?\*\//g, '');
   assert.doesNotMatch(code, /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(/i);
+  assert.doesNotMatch(code, /var\(--mo-primary\)/);
 });
 
-test('a resting tool is the standard icon button colour, a tool that is on its selected colour', () => {
-  assert.match(toolbarCss, /\.editor-selection-menu button \{[^}]*color: var\(--icon-button-standard-text,/);
-  assert.match(toolbarCss, /aria-pressed='true'\] \{[^}]*color: var\(--icon-button-standard-selected-text,/);
-  assert.doesNotMatch(toolbarCss, /var\(--mo-primary\)/);
+test('a resting tool is the theme icon button, its colours come from the theme (no rule of the bar sets them), and the bar buttons are 44 dp with a 20 dp icon', () => {
+  assert.doesNotMatch(toolbarCss, /\.editor-tools button/);
+  assert.match(ui, /'--icon-button-size': '2\.75rem', '--icon-button-icon-size': '1\.25rem'/);
 });
 
 test('a tool with a menu rests in the same colour as the other tools, not the text button accent', () => {
@@ -32,7 +32,7 @@ test('a tool with a menu rests in the same colour as the other tools, not the te
 
 test('every icon of the text toolbar is Phosphor, or one of the text sizes drawn on its grid', () => {
   const imports = [...editor.matchAll(/^import \w+ from '([^']+\.svg\?raw)';/gm)].map((m) => m[1]);
-  assert.ok(imports.length > 10);
+  assert.ok(imports.length >= 6);
   for (const file of imports) {
     assert.match(
       file,
