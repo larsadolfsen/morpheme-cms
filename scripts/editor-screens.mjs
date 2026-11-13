@@ -689,6 +689,137 @@ const inlineSingles = [
   { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: true },
 ];
 
+/** An empty row in a block typed in place (the Segmented list's "New row" left empty) is not a snackbar and a page that cannot be saved: Save draft or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
+async function checkEmptyRow(width, height) {
+  const label = `${width}px empty row`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const commits = [];
+  await page.route('**/api/github/commit', (r) => {
+    commits.push(JSON.parse(r.request().postData() || '{}'));
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'head', blobs: {} }) });
+  });
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+    await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+  await page.locator('[aria-label="Insert"]:visible').first().tap();
+  await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
+  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  const dialog = page.locator('dialog[open]');
+  const rows = () => page.locator('.inline-list-row[data-row]:not(.inline-list-row-next)').count();
+  const blocks = () => page.locator('.site-block-inline').count();
+  // A tap on the bar's button; `keys`: the button pressed with the cursor still in the block (a key, not a tap), so the empty row is still there.
+  const press = async (name, keys) => {
+    const button = page.getByRole('button', { name, exact: true }).first();
+    if (keys) await button.evaluate((b) => b.click());
+    else await button.tap();
+    await page.waitForTimeout(700);
+  };
+  const buttons = () => dialog.getByRole('button').allTextContents();
+  const sayOf = () => dialog.locator('p').first().textContent();
+  const sent = (n) => commits.slice(n).flatMap((c) => c.changes.map((x) => Buffer.from(x.content ?? '', 'base64').toString('utf8')));
+  // The block has no row at all (the faded "New row", left empty): Publish asks to delete the block, with the block marked and in view.
+  await press('Publish');
+  if (!(await dialog.count())) problems.push(`${label}: a block with no row on Publish did not open a dialog`);
+  else {
+    if ((await sayOf()) !== 'Segmented list has no rows. The block will be deleted.')
+      problems.push(`${label}: the dialog says "${await sayOf()}"`);
+    const got = await buttons();
+    if (got.join('|') !== 'Cancel|Delete and publish')
+      problems.push(`${label}: the dialog has "${got.join('|')}", not "Cancel|Delete and publish"`);
+    const kinds = await dialog.getByRole('button').evaluateAll((b) => b.map((x) => x.className));
+    if (kinds.length !== 2 || kinds[0] === kinds[1]) problems.push(`${label}: the main choice is not the only filled button`);
+    if (await dialog.locator('button:focus').count()) problems.push(`${label}: a button has the focus`);
+    const marked = await page.evaluate(() => {
+      const el = document.querySelector('.editor-wrong');
+      const r = el?.getBoundingClientRect();
+      return !!el && r.bottom > 0 && r.top < innerHeight;
+    });
+    if (!marked) problems.push(`${label}: the block is not marked and in view behind the dialog`);
+    await page.screenshot({ path: join(shots, `empty-block-${width}.png`) });
+    // Cancel closes it and changes nothing.
+    await dialog.getByRole('button', { name: 'Cancel' }).tap();
+    await page.waitForTimeout(300);
+    if ((await dialog.count()) || commits.length || (await blocks()) !== 1)
+      problems.push(`${label}: Cancel changed something (commits ${commits.length}, blocks ${await blocks()})`);
+    // Delete and publish: the block goes and the page is saved without it.
+    await press('Publish');
+    await dialog.getByRole('button', { name: 'Delete and publish' }).tap();
+    await page.waitForTimeout(1200);
+    if ((await dialog.count()) || !commits.length || (await blocks()) !== 0 || /data-block/.test(sent(0).join('\n')))
+      problems.push(
+        `${label}: Delete and publish left ${await blocks()} blocks, ${commits.length} commits, dialog ${await dialog.count()}`,
+      );
+  }
+  // A list with an empty row between its rows: Remove item takes that row, Save draft saves without it.
+  const first = commits.length;
+  const makeList = async () => {
+    await page.click('.ProseMirror > p');
+    await page.keyboard.press('Enter');
+    if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+      await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+    await page.locator('[aria-label="Insert"]:visible').first().tap();
+    await page.locator('dialog[open] button', { hasText: 'Rows that expand, with a link.' }).first().click();
+    await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+    await page.keyboard.type('First');
+    for (const word of ['Second', 'Third']) {
+      await page.locator('[data-add-row]').tap();
+      await page.waitForTimeout(200);
+      await page.keyboard.type(word);
+    }
+    // The middle row is emptied (Delete, not Backspace, which would drop an empty row).
+    await page.locator('.inline-list-row[data-row="1"] [data-field="title"]').click();
+    await page.keyboard.press('Control+A');
+    await page.keyboard.press('Delete');
+    await page.waitForTimeout(200);
+  };
+  await makeList();
+  if ((await rows()) !== 3) problems.push(`${label}: expected 3 rows before saving, got ${await rows()}`);
+  await press('Save draft', true);
+  if (!(await dialog.count())) problems.push(`${label}: an empty row between rows on Save draft did not open a dialog`);
+  else {
+    const got = await buttons();
+    if (got.join('|') !== 'Remove item|Save draft|Cancel')
+      problems.push(`${label}: the dialog has "${got.join('|')}", not "Remove item|Save draft|Cancel"`);
+    await dialog.getByRole('button', { name: 'Remove item' }).tap();
+    await page.waitForTimeout(400);
+    if (commits.length !== first || (await rows()) !== 2 || (await blocks()) !== 1)
+      problems.push(`${label}: Remove item left ${await rows()} rows (not 2), ${commits.length} commits`);
+  }
+  // Saved as it is now: no question, and no empty row in the file.
+  await press('Save draft', true);
+  if (await dialog.count()) problems.push(`${label}: a list without an empty row still asked`);
+  if (commits.length === first) problems.push(`${label}: a list without an empty row was not saved`);
+  else if (/"title":""/.test(sent(first).join('\n'))) problems.push(`${label}: the saved page has an empty row`);
+  // An empty row again, and the third button: the page is saved with the row left out, and the list in the editor has two.
+  const before = commits.length;
+  await page
+    .locator('[data-add-row]')
+    .count()
+    .catch(() => 0);
+  await page.locator('.inline-list-row[data-row="0"] [data-field="title"]').click();
+  await page.keyboard.type(' again');
+  await page.locator('[data-add-row]').tap();
+  await page.waitForTimeout(300);
+  if ((await rows()) !== 3) problems.push(`${label}: expected 3 rows with a new empty one, got ${await rows()}`);
+  await press('Save draft', true);
+  if (!(await dialog.count())) problems.push(`${label}: the new empty row did not open the dialog`);
+  else {
+    await dialog.getByRole('button', { name: 'Save draft' }).tap();
+    await page.waitForTimeout(1200);
+    if (commits.length === before) problems.push(`${label}: Save draft in the dialog saved nothing`);
+    else if (/"title":""/.test(sent(before).join('\n'))) problems.push(`${label}: Save draft in the dialog saved the empty row`);
+    if ((await rows()) !== 2) problems.push(`${label}: after Save draft in the dialog the list has ${await rows()} rows, not 2`);
+  }
+  await page.close();
+}
+
 /** Insert of every block typed in place (the lists above and the Table) puts the block in the text, on an empty page and after a line of text: it never opens a sheet. A new typed-in-place block goes in `inlineBlocks`, `inlineSingles` or here. */
 async function checkInsertNeverOpensSheet(width, height) {
   const phone = width < 600;
@@ -2709,6 +2840,7 @@ for (const block of inlineSingles) for (const w of [375, 1280]) await checkInlin
 for (const block of inlineBlocks) await checkInlineBlock(1280, 900, block);
 for (const block of liveLists) for (const w of [375, 1280]) await checkLiveList(w, w < 600 ? 740 : 900, block);
 await checkInsertNeverOpensSheet(375, 740);
+await checkEmptyRow(375, 740);
 await checkInsertNeverOpensSheet(1280, 900);
 for (const [width, height] of [
   [375, 740],
