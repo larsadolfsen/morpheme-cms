@@ -14,6 +14,10 @@
           "href": "/blocks/"
         },
         {
+          "label": "Typography",
+          "href": "/typography/"
+        },
+        {
           "label": "App store",
           "href": "/app-store/"
         }
