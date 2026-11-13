@@ -262,6 +262,78 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300) {
   await page.close();
 }
 
+/** What is fixed to the bottom of a form (the page form's Save draft and Publish buttons, FormFrame.tsx) is the theme's standard
+ * bottom sheet (ActionSheet in src/ui.tsx), not a bar of its own: the same surface and top corners as a BottomSheet container,
+ * at the bottom of the screen, above the on-screen keyboard when it is up (emulated by a smaller visual viewport), and the
+ * form's last field scrolls clear of it. At 375 px with the keyboard closed and open, and at 1280 px. */
+async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = false) {
+  const label = `${width}px bottom sheet bar${keyboardUp ? ' with keyboard' : ''}`;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: width < 600, isMobile: width < 600, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.waitForTimeout(500);
+  if (keyboardUp) {
+    await page.evaluate((h) => {
+      Object.defineProperty(visualViewport, 'height', { configurable: true, get: () => h });
+      visualViewport.dispatchEvent(new Event('resize'));
+    }, height - keyboard);
+    await page.waitForTimeout(400);
+  }
+  const got = await page.evaluate(() => {
+    const bar = document.querySelector('.editor-save-bar');
+    if (!bar) return null;
+    const ref = document.body.appendChild(document.createElement('div'));
+    ref.className = 'bottom-sheet-container';
+    const refStyle = getComputedStyle(ref);
+    const style = getComputedStyle(bar);
+    const out = {
+      standard: bar.classList.contains('bottom-sheet-container') && bar.classList.contains('bottom-sheet-standard'),
+      background: style.backgroundColor,
+      refBackground: refStyle.backgroundColor,
+      radius: style.borderTopLeftRadius,
+      refRadius: refStyle.borderTopLeftRadius,
+      position: style.position,
+      bottomRight: style.borderTopRightRadius,
+      rect: bar.getBoundingClientRect().toJSON(),
+      visible: visualViewport.height,
+      buttons: [...bar.querySelectorAll('button')].map((b) => b.textContent.trim()),
+    };
+    ref.remove();
+    // The last field of the form, scrolled to the end of the page.
+    scrollTo(0, document.documentElement.scrollHeight);
+    return out;
+  });
+  if (!got) problems.push(`${label}: the page form has no bar`);
+  else {
+    if (!got.standard) problems.push(`${label}: the bottom surface is not the theme's standard bottom sheet`);
+    if (got.background !== got.refBackground)
+      problems.push(`${label}: its surface ${got.background} is not a bottom sheet's ${got.refBackground}`);
+    if (got.radius !== got.refRadius || got.radius === '0px')
+      problems.push(`${label}: its top radius is ${got.radius}, a bottom sheet's is ${got.refRadius}`);
+    if (got.position !== 'fixed') problems.push(`${label}: it is ${got.position}, not fixed`);
+    if (!got.buttons.includes('Publish')) problems.push(`${label}: Publish is not in it (${got.buttons.join('|')})`);
+    if (got.rect.bottom > got.visible + 1 || (keyboardUp && Math.abs(got.rect.bottom - got.visible) > 1))
+      problems.push(`${label}: it ends at ${got.rect.bottom}, not at the visible screen's end (${got.visible})`);
+    await page.waitForTimeout(300);
+    const clear = await page.evaluate(() => {
+      const bar = document.querySelector('.editor-save-bar').getBoundingClientRect();
+      const fields = [
+        ...document.querySelectorAll('.editor-screen input, .editor-screen textarea, .editor-screen select, .editor-screen .ProseMirror'),
+      ];
+      const last = fields.filter((f) => f.getBoundingClientRect().height > 0).pop();
+      return last ? { bottom: last.getBoundingClientRect().bottom, top: bar.top } : null;
+    });
+    if (!clear) problems.push(`${label}: the form has no field`);
+    else if (clear.bottom > clear.top + 1)
+      problems.push(`${label}: the last field (bottom ${clear.bottom}) stays behind the sheet (top ${clear.top})`);
+  }
+  await page.close();
+}
+
 /** The bar's Insert: on the bar, or in the ⋮ menu when it did not fit (a phone with the cursor in text). `how`: 'click' or 'tap'. */
 async function pressInsert(page, how = 'click') {
   const direct = page.locator('.editor-tools [aria-label="Insert"]:visible');
@@ -4420,6 +4492,9 @@ await checkStartSubtitle();
 for (const width of [360, 375, 390, 414]) await checkTextBar(width);
 await checkTextBarWide();
 await checkSheetKeyboard(375);
+await checkBottomSheetBar(375, 740);
+await checkBottomSheetBar(375, 740, 300, true);
+await checkBottomSheetBar(1280, 900);
 for (const [width, height] of [
   [360, 740],
   [375, 800],
