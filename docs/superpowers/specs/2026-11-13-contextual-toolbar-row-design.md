@@ -350,7 +350,7 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
 
 ## 8. Owner input: editor menus (decisions)
 
-Owner's advice: (a) in an editor the UI around the content should take as little room as possible; (b) icons drawn 20 to 24 dp, buttons 44 ×
+Owner's advice: (a) in an editor the UI around the content should take as little room as possible; (b) icons drawn 20 to 24 dp (decided: 20), buttons 44 ×
 44 (Apple); (c) icon-only buttons need clear hover states and tooltips that show the keyboard shortcut; (d) do not put everything in one long
 scrolling drop-down: a quick toolbar (top actions only), context menus where the user works, and a command palette. **Owner decisions
 (13 November):** "Let us make the editor menu an exception to the user choice and follow what I gave you." and "Let's make the editor menu 44x44 px,
@@ -363,8 +363,8 @@ PR #518. Checked against M3 (Playwright: `/foundations/layout/understanding-layo
 
 1. **Fixed size, outside the user's density choice.** The bar, the `⋮` list and the formatting menus have one fixed size (below). They do not read
    #518's density setting; a theme can still restyle them through the bar's own tokens.
-2. **Real 44 × 44 dp buttons, 24 dp icons.** Every button of the bar and every row of the `⋮` menu and the formatting menus is 44 dp high and at
-   least 44 dp wide: the visible button itself, with no hit area drawn beyond it. The icon is 24 dp (10 dp of air round it). The bar's height is
+2. **Real 44 × 44 dp buttons, 20 dp icons (owner: "Icons are 20px on the menu").** Every button of the bar and every row of the `⋮` menu and the formatting menus is 44 dp high and at
+   least 44 dp wide: the visible button itself, with no hit area drawn beyond it. The icon is 20 dp, in the bar's buttons and in the rows of the `⋮` menu and the formatting menus alike (12 dp of air round it). The bar's height is
    that 44: **bar padding above and below 0, so the bar is 44 dp tall (plus the theme's 1 px edge line)** (my recommendation: the least padding that
    keeps 44; any padding adds to the bar and takes room from the text). Side padding 16 dp (M3: "minimum outside padding of 16dp"); no gap
    between buttons; the divider has 8 dp each side. Menu rows are 44 dp already (`--menu-item-height: 2.75rem`, `theme/styles/global.css:262`). Every
@@ -401,11 +401,12 @@ lists are in section 3.
   density page, "Accessible targets should retain a minimum of 48x48dp, even if the visual element, such as an icon, is smaller." **We do:** the
   buttons and rows are 44 × 44 dp themselves, on mouse and touch, only in the editor's bar, its `⋮` and its menus; everything else stays on 48.
   **Why:** owner's decision, following Apple's Human Interface Guidelines ("a button needs a hit region of at least 44x44 pt"). Date 2026-11-13.
+- *20 dp icons in the editor's bar and menu rows.* **M3 says** (Menus specs, baseline menu, read 13 November 2026 on `m3.material.io/components/menus/specs`): "Leading/trailing icon size 24dp" (with "List item height 48dp"). The Lists specs page prints "24dp" for its icons too. **We do:** 20 dp icons in the bar's buttons and the `⋮` rows, in 44 dp buttons and rows. **Does it match M3?** Not the page text I could read: the baseline menu prints 24. The audit PR #520 says the M3 Expressive list spec prints 20 for list icons ("icons 20 as the Expressive spec says"); I could not reproduce that: the vertical menus' (Expressive) specs on the Menus page are in images and token tables with no text, and I found no "20dp" in the text of the Menus or Lists specs pages. So 20 is a deviation from the printed baseline value, and may match Expressive; unconfirmed. **Why:** owner's decision. Date 2026-11-13.
 - *Overlay scrollbar of the `⋮` pop-up on a phone.* **M3 says:** "Menus can scroll when all menu items can't display at once. In this state, menus show a persistent scrollbar." (menus/guidelines, Scrolling.) **We do:** `scrollbar-width: thin` and `scrollbar-gutter: stable` on the editor's menu, so a persistent scrollbar shows where the browser allows it (a computer); on a phone the browser's overlay scrollbar hides when idle and cannot be forced, so there we do not match; the cue is a half-cut last row. **Why:** the platform. Date 2026-11-13. M3 also says "Don't use gaps in scrollable menus": the `⋮` menu uses dividers only.
 - Not a deviation: the tooltip with a shortcut. M3's plain tooltip "briefly describe[s] a UI element" and says nothing for or against a
   shortcut; menu items may carry "keyboard commands" as trailing text.
 
-**Not read:** the icon sizes of the icon button (images),
+**Not read:** the icon size of the icon button and the vertical (Expressive) menu's icon size (images and token tables),
 and any M3 text on shortcuts in tooltips.
 
 ### Our longest menus today (counted from the code, 13 November 2026)
@@ -433,7 +434,7 @@ when idle. M3: "In this state, menus show a persistent scrollbar." So it does **
 
 Decided by the owner: one bar, no second row; the contextual tools slide in from the left, push the main tools right and out, and
 roll back; a divider between them; the main part is Insert, Undo, Redo, Section settings; text tools always show with the cursor in
-text; the bar and its menus are fixed at 44 × 44 dp buttons with 24 dp icons (bar 44 dp tall, no extra padding), outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools); on a phone the `⋮` is a pop-up menu, not a bottom sheet; the editor's bar and menus use a 44 × 44 dp hit area and are fixed at high density; Undo and Redo stay on the bar next to `⋮` while a context is active; between contexts the tools fade in place (no second slide; only the first entry from nothing slides; theme spring and effects tokens, no delay, reduced motion = no slide); the bar rolls back at once when focus or selection leaves, except while a sheet that the bar opened (Settings) is open; the main tools stand at the left edge when idle on every screen size, and on a wide screen all tools show at once (nothing hidden, nothing scrolls; the main tools still slide right when a context starts); the `⋮` pop-up may scroll when it does not fit, with a persistent scrollbar where the platform allows, dividers (no gaps) in it, the most used rows first and a half-cut last row as the cue on a phone; no sticky
+text; the bar and its menus are fixed at 44 × 44 dp buttons with 20 dp icons (bar 44 dp tall, no extra padding), outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools); on a phone the `⋮` is a pop-up menu, not a bottom sheet; the editor's bar and menus use a 44 × 44 dp hit area and are fixed at high density; Undo and Redo stay on the bar next to `⋮` while a context is active; between contexts the tools fade in place (no second slide; only the first entry from nothing slides; theme spring and effects tokens, no delay, reduced motion = no slide); the bar rolls back at once when focus or selection leaves, except while a sheet that the bar opened (Settings) is open; the main tools stand at the left edge when idle on every screen size, and on a wide screen all tools show at once (nothing hidden, nothing scrolls; the main tools still slide right when a context starts); the `⋮` pop-up may scroll when it does not fit, with a persistent scrollbar where the platform allows, dividers (no gaps) in it, the most used rows first and a half-cut last row as the cue on a phone; no sticky
 question (one bar stays at the top).
 
 None. Every question has an owner answer.
