@@ -13,7 +13,7 @@ if (!existsSync(join(DIST, 'editor/index.html'))) {
   console.error(`There is no built site in ${DIST}. Run npm run build first.`);
   process.exit(1);
 }
-const PAGES = (process.env.PREVIEW_PAGES ?? 'blocks,about,home').split(',');
+const PAGES = (process.env.PREVIEW_PAGES ?? 'blocks,about,get-started,app-store,contact').split(',');
 const WIDTHS = [390, 1280];
 const problems = [];
 const { server, site } = await serveBuilt(DIST);
@@ -164,7 +164,7 @@ for (const scheme of ['light', 'dark']) {
       if (process.env.PREVIEW_VERBOSE) console.log(`${label}: frame ${frameWidth}px, ${liveRows.length} / ${previewRows.length} elements`);
       const live = await context.newPage();
       await live.setViewportSize({ width: frameWidth, height: 900 });
-      await live.goto(`${site}/${name === 'home' ? '' : name + '/'}`);
+      await live.goto(`${site}/${name}/`);
       await live.waitForSelector('main');
       await live.waitForTimeout(300);
       const liveRows = await live.evaluate(measure, STYLES);
