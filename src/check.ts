@@ -4,7 +4,7 @@
 // and the forms), and the site before it is built (packages/editor/scripts/check-content.mjs), so what the editor
 // would not save does not reach the site either. Also how a value is saved (clean) and a new one
 // (newValue). No React here, so the build can use it.
-import type { Field, Template } from './schema';
+import type { Field, Only, Template } from './schema';
 import { addressOf } from './addresses';
 import { codeAt, regionOf } from './countries';
 import { blocksIn } from '../lib/blocks.mjs';
@@ -20,16 +20,27 @@ export type Around = { fields: Field[]; value: Record<string, unknown> | undefin
  * values (its default when it has none yet) and is in use itself (a pop-up's delay, by when it opens,
  * which a kind without it does not have). That field is next to it or, for a field of an item in a
  * list, next to the list (`around`): a card's icon by the block's design. */
-export function inUse(field: Field, fields: Field[], value: Record<string, unknown> | undefined, around?: Around): boolean {
+export function inUse(
+  field: Field,
+  fields: Field[],
+  value: Record<string, unknown> | undefined,
+  around?: Around,
+  /** The fields being asked about already: two that hide each other (a card's link and its buttons) do not ask for ever. */
+  asked: Field[] = [],
+): boolean {
   if (!field.only) return true;
-  const name = field.only.field;
-  let at: Around = { fields, value, around };
-  while (at.around && !at.fields.some((f) => f.name === name)) at = at.around;
-  const by = at.fields.find((f) => f.name === name);
-  return (
-    field.only.is.includes(String(at.value?.[name] ?? by?.default ?? '')) !== !!field.only.not &&
-    (!by || by === field || inUse(by, at.fields, at.value, at.around))
-  );
+  const here = [...asked, field];
+  for (let only: Only | undefined = field.only; only; only = only.and) {
+    const name = only.field;
+    let at: Around = { fields, value, around };
+    while (at.around && !at.fields.some((f) => f.name === name)) at = at.around;
+    const by = at.fields.find((f) => f.name === name);
+    const holds =
+      only.is.includes(String(at.value?.[name] ?? by?.default ?? '')) !== !!only.not &&
+      (!by || by === field || only.loose || here.includes(by) || inUse(by, at.fields, at.value, at.around, here));
+    if (!holds) return false;
+  }
+  return true;
 }
 
 // The block an item of a list of blocks is (undefined for a type the editor does not know).
@@ -249,17 +260,17 @@ export function clean(fields: Field[], value: Record<string, unknown>, around?: 
   return out;
 }
 
-// A picture in Markdown (MarkdownEditor.tsx puts them in).
-const PICTURES = /!\[(?:\\.|[^\]])*\]\([^)\s]+/g;
+// An image in Markdown (MarkdownEditor.tsx puts them in).
+const IMAGES = /!\[(?:\\.|[^\]])*\]\([^)\s]+/g;
 
-// A block's name by its type: a standard block's (the editor's texts), a picture's, else its type.
+// A block's name by its type: a standard block's (the editor's texts), an image's, else its type.
 const nameOf = (type: string) =>
   type === 'image' ? t.blocks.picture.label : ((t.blocks as unknown as Record<string, { label?: string }>)[type]?.label ?? type);
 
-/** What is wrong with the blocks and pictures in the text of a markdown field by its template (Field.template): one
- * that cannot be there, and too many of a type ('image': the pictures). */
+/** What is wrong with the blocks and images in the text of a markdown field by its template (Field.template): one
+ * that cannot be there, and too many of a type ('image': the images). */
 export function textProblems(template: Template, markdown: string): string[] {
-  const types = [...blocksIn(markdown).map((b) => b.type), ...[...markdown.matchAll(PICTURES)].map(() => 'image')];
+  const types = [...blocksIn(markdown).map((b) => b.type), ...[...markdown.matchAll(IMAGES)].map(() => 'image')];
   const problems: string[] = [];
   for (const type of new Set(types)) {
     if (template.blocks && !template.blocks.includes(type)) problems.push(t.check.cannotBeInText(nameOf(type)));

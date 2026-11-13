@@ -17,6 +17,7 @@ import { addressOf, moveRedirects, REDIRECTS, retarget } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES, setRedirect } from './redirectData';
 import { TAB_ROUTES } from './Redirects';
 import { choose } from './ask';
+import { firstEmptyRow, withoutEmptyRows } from './pageEmptyRows';
 import { freeTitle } from '../lib/freeTitle.mjs';
 import { offeredTemplatesOf, shownTemplate, templateFieldOf } from './templateField';
 import { templateOf, templateWritten } from '../lib/page-template.mjs';
@@ -37,7 +38,7 @@ import { inUse, problemAt } from './check';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
 import { asStandardTemplate, blockProblems, notOffered, siteBlocks } from './registry';
-import { FieldInput, Fields, HeadPicture, HeadTitle, useWrongField, WrongField, type FieldContext } from './fields';
+import { FieldInput, Fields, HeadImage, HeadTitle, useWrongField, WrongField, type FieldContext } from './fields';
 import { SearchPreview } from './SearchPreview';
 import { searchedAs } from './googleResult.mjs';
 import {
@@ -81,34 +82,37 @@ import { savedOn, VersionList, VersionNotice, WithVersions, type ShownVersion } 
 import type { Env } from './App';
 import { kindAndName, savedText } from './deploy';
 import { siteT, siteText, t } from './i18n';
-import { firstPicture, SEO_FIELDS, seoInputOf, seoRating, SHARE_FIELDS, sharedAs, type SeoCheck } from './seo';
+import { firstImage, SEO_FIELDS, seoInputOf, seoRating, SHARE_FIELDS, sharedAs, type SeoCheck } from './seo';
 
 // "Page settings" (a post's "Post settings"), the first section: the status (Draft, Published, Scheduled and the time
 // for Scheduled), a page's title (its name in the lists and the menu; its H1 is in its text) and the template (Field.offered).
 // A post's title is its H1, written above its text: at the top of "Content", as a heading of a collection that has one.
 const TOP = ['title', 'heading'];
-// A blog post's head, drawn in the text as the site draws it (PostHead): the title, the top picture and its text, the date and the tags.
+// A blog post's head, drawn in the text as the site draws it (PostHead): the title, the top image and its text, the date and the tags.
 const POST_HEAD = ['title', 'image', 'imageDecorative', 'imageAlt', 'date', 'categories'];
 const STATUS = ['status', 'publishAt'];
-// Under their own headings at the bottom: the Google texts, the keywords and the canonical address; then the picture, title
+// Under their own headings at the bottom: the Google texts, the keywords and the canonical address; then the image, title
 // and description when the page is shared.
 const SEO = SEO_FIELDS;
 const SHARE = SHARE_FIELDS;
 // The sections of the form, under each other on one page, each folding in and out under its heading (FoldSection in
 // ui.tsx): the settings (open from the start on a tablet or computer; folded on a phone, so the text is in reach), the
-// text (open from the start), the other fields, those for search engines, those for social media, and the earlier
-// versions (folded from the start, so the page is short; nothing is remembered till the next time). Its list (an "on
+// text (open from the start), those for search engines, those for social media, and the history (folded from the start,
+// so the page is short; nothing is remembered till the next time). Its list (an "on
 // this page" card at the end of the form, on large and wider screens only) opens one and scrolls to it, and marks the
 // one in view. A field that keeps the form from being saved has its section opened and is scrolled to (FieldInput in
 // fields.tsx).
-type Section = 'settings' | 'content' | 'other' | 'seo' | 'share' | 'versions';
+type Section = 'settings' | 'content' | 'seo' | 'share' | 'versions';
+// The fields only the settings have: the status, `unlisted`, a page's title and the template. A field of none of the other
+// sections is a setting too (the URL, the short description, the tags …), after these.
+const isOwnSetting = (collection: MarkdownCollection, name: string) =>
+  STATUS.includes(name) ||
+  name === 'unlisted' ||
+  (!!collection.blocks && name === 'title') ||
+  collection.fields.some((f) => f.name === name && f.offered === 'templates');
 const sectionOf = (collection: MarkdownCollection, path: string): Section => {
   const name = path.split('.')[0];
-  const settings =
-    STATUS.includes(name) ||
-    (!!collection.blocks && name === 'title') ||
-    collection.fields.some((f) => f.name === name && f.offered === 'templates');
-  return settings
+  return isOwnSetting(collection, name)
     ? 'settings'
     : TOP.includes(name) || (collection.id === 'blog' && POST_HEAD.includes(name))
       ? 'content'
@@ -116,7 +120,7 @@ const sectionOf = (collection: MarkdownCollection, path: string): Section => {
         ? 'seo'
         : SHARE.includes(name)
           ? 'share'
-          : 'other';
+          : 'settings';
 };
 // The section the next page or post opened starts at: "Search engines" when it is opened from "SEO rating"
 // (SeoScores.tsx), else the text.
@@ -124,13 +128,14 @@ let opening: Section | null = null;
 export const openAtSeo = () => {
   opening = 'seo';
 };
-// The fields of a section (the other fields are those of none of the others); in the settings the status first (narrow,
-// Field.narrow), with its time, then the title.
+// The fields of a section (the settings also have those of none of the others, last); in the settings the status first
+// (narrow, Field.narrow), with its time, then the title and the template, then the others.
 const inSection = (collection: MarkdownCollection, id: Section) => (f: Field) => sectionOf(collection, f.name) === id;
 const FIRST = [...STATUS, 'title'];
-const rank = (f: Field) => (FIRST.includes(f.name) ? FIRST.indexOf(f.name) : FIRST.length);
+const rank = (collection: MarkdownCollection) => (f: Field) =>
+  FIRST.includes(f.name) ? FIRST.indexOf(f.name) : isOwnSetting(collection, f.name) ? FIRST.length : FIRST.length + 1;
 const fieldsIn = (collection: MarkdownCollection, id: Section) =>
-  collection.fields.filter(inSection(collection, id)).sort((a, b) => rank(a) - rank(b));
+  collection.fields.filter(inSection(collection, id)).sort((a, b) => rank(collection)(a) - rank(collection)(b));
 
 // A new file starts as a Draft (nothing goes live by accident); a blog post gets today's date; a page has the blocks its template
 // starts it with (Template.start), e.g. "Book an appointment" at the end like the other pages, but not one that
@@ -158,8 +163,8 @@ function addressNow(collection: MarkdownCollection, file: RepoFile, data: Record
 }
 
 function valuesOf(collection: MarkdownCollection, file: RepoFile): Record<string, unknown> {
-  // A stored `unlisted` is read as published with `noindex` (lib/status.mjs); the next save writes that.
-  const data = migrateStatus(readFields(splitFrontmatter(file.text).yaml));
+  // A stored `unlisted` is read as published with `noindex` on a page and `unlisted: true` on a post (lib/status.mjs); the next save writes that.
+  const data = migrateStatus(readFields(splitFrontmatter(file.text).yaml), collection.id === 'blog' ? 'post' : 'page');
   return Object.fromEntries(
     collection.fields.map((f) => {
       const v = data[f.name];
@@ -250,7 +255,7 @@ function Form({
   // checked by the template alone when saved).
   const off = useMemo(() => notOffered(env.files), [env.files]);
   // A page chosen as a standard page ("Settings" › "Appearance" › "Default pages", packages/editor/defaults/standardPages.ts) has its
-  // rules too (the blog page has "Blog posts"). The front page is written as it looks: the heading, text and picture of a
+  // rules too (the blog page has "Blog posts"). The front page is written as it looks: the heading, text and image of a
   // block as the text above its card (its lead), and its top ("Hero") first.
   const paths = standardPaths(env.files.find((f) => f.path === config.standardPages)?.text);
   const standard = url ? standardPages.find((p) => paths[p.key] === url) : undefined;
@@ -284,6 +289,15 @@ function Form({
   const was = useMemo(() => inForm(collection.fields, initial, offered), [collection, initial, offered]);
   const changed = collection.fields.filter((f) => !same(asSaved[f.name], was[f.name]));
   const dirty = bodyChanged || changed.length > 0;
+  // A stored `unlisted` (0.16) was read as `noindex` on a page and `unlisted: true` on a post (valuesOf): a save writes it, though
+  // it is not a change in the form (the status is taken from the file when it is published, clean() in lib/versions.mjs).
+  const migrated = !isNew && readFields(parts.yaml).status === 'unlisted' ? (collection.id === 'blog' ? 'unlisted' : 'noindex') : '';
+  // The fields a save writes: all those filled in for a new file, else the changed (and the migrated one).
+  const writtenOf = (saved: Record<string, unknown>) =>
+    (isNew
+      ? collection.fields.filter((f) => !same(saved[f.name], []) && f.type !== 'readonly')
+      : collection.fields.filter((f) => changed.includes(f) || f.name === migrated)
+    ).filter((f) => f.name !== 'path');
 
   const set = (name: string, value: unknown) => setValues((v) => ({ ...v, [name]: value }));
   const notify = env.notify;
@@ -329,7 +343,6 @@ function Form({
   const sections: NavigationItem[] = [
     ...(has('settings') ? [{ id: 'settings', label: post ? t.forms.sections.postSettings : t.forms.sections.pageSettings }] : []),
     { id: 'content', label: t.forms.sections.content },
-    ...(has('other') ? [{ id: 'other', label: t.forms.otherFields }] : []),
     ...(has('seo') ? [{ id: 'seo', label: t.forms.seo }] : []),
     ...(has('share') ? [{ id: 'share', label: t.forms.share }] : []),
     ...(isNew ? [] : [{ id: 'versions', label: t.history.versions }]),
@@ -359,7 +372,7 @@ function Form({
 
   // The SEO rating at the top of "Search engines" (seo.ts), again with every change of a field while that is open and near
   // the screen (`seoBox`, what is in the section, is hidden while it is folded); the same for the preview of a shared link
-  // at the top of "Social media" (its first picture in the text). The text is read from the editor when one of them is
+  // at the top of "Social media" (its first image in the text). The text is read from the editor when one of them is
   // opened or comes near the screen, and while it is there a moment after the text was last changed: not on every
   // keystroke, nor while they are folded or out of view (then the rating keeps what it had; it is worked out once from
   // the start, so it does not move what is under it when it comes into view).
@@ -420,9 +433,7 @@ function Form({
     const given = isNew ? { ...values, title: target.title } : values;
     if (problemAt(collection.fields, given)) return null;
     const saved = inForm(collection.fields, given, offered);
-    const written = (isNew ? collection.fields.filter((f) => !same(saved[f.name], []) && f.type !== 'readonly') : changed).filter(
-      (f) => f.name !== 'path',
-    );
+    const written = writtenOf(saved);
     // A new page whose address was written by hand, and is not its file name, has it as its own `path` (as `Save` writes it).
     const own = isNew && !post && target.byHand && typedAddress !== `/${target.name}/` ? { path: typedAddress } : {};
     const yaml = writeFields(isNew ? '' : parts.yaml, { ...Object.fromEntries(written.map((f) => [f.name, saved[f.name]])), ...own });
@@ -430,8 +441,8 @@ function Form({
     const body = markdown == null ? parts.body : `\n${markdown.trim()}\n`;
     if (blockProblems(body, template, front ? frontLeads : undefined)[0]) return null;
     const next = `---\n${yaml}\n---\n${body}`;
-    // A picture added is kept in the browser until `Save` uploads it, so a text with one cannot be kept elsewhere yet.
-    return pictures.usedIn(next).length ? null : next;
+    // An image added is kept in the browser until `Save` uploads it, so a text with one cannot be kept elsewhere yet.
+    return images.usedIn(next).length ? null : next;
   }
   // A new page nobody wrote in (or written in and erased again) is as the form opened it: nothing is kept and no file is made.
   const isUntouched = () =>
@@ -539,9 +550,9 @@ function Form({
     [seoNear, post, body, values, env.relations],
   );
   lastRating.current = rating;
-  // The link as it is shared: as Base.astro writes it, from a page's H1 (pageH1) or a post's title, and its picture
-  // (a post's "Picture at the top", else the first in the text; a page has its pictures in its text, and the front page shows
-  // the site's picture, as Home.astro).
+  // The link as it is shared: as Base.astro writes it, from a page's H1 (pageH1) or a post's title, and its image
+  // (a post's "Image at the top", else the first in the text; a page has its images in its text, and the front page shows
+  // the site's image, as Home.astro).
   const shared = {
     title: (!post && pageH1(body).heading) || String(values.title ?? ''),
     front,
@@ -555,7 +566,7 @@ function Form({
     shareTitle: String(values.shareTitle ?? ''),
     shareDescription: String(values.shareDescription ?? ''),
     shareImage: String(values.shareImage ?? ''),
-    image: front ? undefined : String(values.image ?? '') || firstPicture(body),
+    image: front ? undefined : String(values.image ?? '') || firstImage(body),
   });
   // The Google result (SearchPreview), at the address the page or post has now: the one typed in "URL" or, for a new
   // one without, /<title>/, as "Save" works it out; the front page is at /.
@@ -564,11 +575,11 @@ function Form({
     ? '/'
     : addressOf(String(values.path ?? ''), post ? 'post' : 'page') || (isNew ? `/${slugify(String(values.title ?? ''))}/` : url);
 
-  // A picture is kept in the browser until "Save", which uploads it with the page. A file in "Files" the page refers to
-  // now and did not in its last saved version (a picture, a PDF field, a link) gets the page's tags at "Save" (autoTags.mjs).
+  // An image is kept in the browser until "Save", which uploads it with the page. A file in "Files" the page refers to
+  // now and did not in its last saved version (an image, a PDF field, a link) gets the page's tags at "Save" (autoTags.mjs).
   const tagged = collection.fields.some((f) => f.name === 'categories' && f.type === 'relation' && f.to === 'categories');
-  const pictures = useUploads(notify);
-  const [pickImage, picker] = useMediaPicker(env.media, pictures, env.files);
+  const images = useUploads(notify);
+  const [pickImage, picker] = useMediaPicker(env.media, images, env.files);
 
   const fields: FieldContext = {
     relations: env.relations,
@@ -724,9 +735,7 @@ function Form({
     // A new file gets all its filled-in fields in the order of the form; an existing one only the changed. As saved:
     // the values given (a new one without a title has its name, "New page 1", named()), not only those in the form.
     const saved = inForm(collection.fields, values, offered);
-    const written = (isNew ? collection.fields.filter((f) => !same(saved[f.name], []) && f.type !== 'readonly') : changed).filter(
-      (f) => f.name !== 'path',
-    );
+    const written = writtenOf(saved);
     const own = !post && ((moved && !renaming) || (isNew && address !== `/${name}/`)) ? { path: address } : {};
     const yaml = writeFields(isNew ? '' : parts.yaml, { ...Object.fromEntries(written.map((f) => [f.name, saved[f.name]])), ...own });
     const markdown = bodyChanged ? text.current?.markdown() : null;
@@ -734,7 +743,36 @@ function Form({
       goTo('content', textBox.current);
       return notify({ text: t.forms.entry.empty(post), error: true });
     }
-    const body = markdown == null ? parts.body : `\n${markdown.trim()}\n`;
+    let body = markdown == null ? parts.body : `\n${markdown.trim()}\n`;
+    // An empty row in a block typed in place: the page is shown there and the owner chooses to remove it, or to save without it (every
+    // empty row of the page is left out, as the site draws none).
+    const emptyRow = firstEmptyRow(body);
+    if (emptyRow) {
+      goTo('content', textBox.current);
+      text.current?.showBlock(emptyRow.at);
+      const action = intent === 'publish' ? 'Publish' : intent === 'schedule' ? 'Schedule' : 'Save';
+      const labels = {
+        Publish: [t.forms.versions.publish, t.forms.entry.deleteAndPublish],
+        Schedule: [t.forms.versions.schedule, t.forms.entry.deleteAndSchedule],
+        Save: [t.forms.versions.saveDraft, t.forms.entry.deleteAndSave],
+      }[action];
+      // A block with no row at all has its own question: the block goes (nothing to remove first). Else an empty row among the rows.
+      const whole = emptyRow.kind === 'block';
+      const answer = await choose({
+        text: whole ? t.forms.entry.emptyBlock(emptyRow.name, emptyRow.items) : t.forms.entry.emptyRow(emptyRow.name, emptyRow.word),
+        choices: whole
+          ? [{ value: 'save', label: labels[1] }]
+          : [
+              { value: 'remove', label: t.forms.entry.removeItem },
+              { value: 'save', label: labels[0] },
+            ],
+      });
+      if (!answer) return;
+      if (answer.choice === 'remove') return text.current?.removeEmptyRows(emptyRow.at);
+      text.current?.removeEmptyRows();
+      const now = markdown == null ? null : text.current?.markdown();
+      body = now == null ? withoutEmptyRows(body) : `\n${now.trim()}\n`;
+    }
     // The blocks in the text by their own fields and the template, as the site checks them before it is built.
     const [wrongBlock] = blockProblems(body, template, front ? frontLeads : undefined);
     if (wrongBlock) {
@@ -786,8 +824,8 @@ function Form({
       setBodyChanged(false);
       return notify({ text: t.forms.nothingToSave });
     }
-    // Pictures that were added and are still used.
-    const used = pictures.usedIn(next);
+    // Images that were added and are still used.
+    const used = images.usedIn(next);
     const removed = base.path && path !== base.path ? [base.path] : [];
     // The page's tags to the files in "Files" it newly refers to (the text as last saved against the text now), in the same commit.
     const autoRecordChanges = tagged
@@ -800,7 +838,7 @@ function Form({
           Array.isArray(saved.categories) ? (saved.categories as string[]) : [],
         )
       : [];
-    // The credit of a picture from an app's source of pictures goes in its record, in the same commit as the picture.
+    // The credit of an image from an app's source of images goes in its record, in the same commit as the image.
     const recordChanges = creditChanges(autoRecordChanges, recordsIn(env.files, config.fileRecords), config.fileRecords, creditedIn(used));
     // The waiting version: the text of the form without `status`, with the time it already has.
     const waitingPath = viaDraft ? draftPath(isNew ? path : live.path) : '';
@@ -866,7 +904,7 @@ function Form({
           : legacyText !== undefined
             ? { ...live, oid: oids[live.path], text: legacyText }
             : live;
-        pictures.markSaved(used);
+        images.markSaved(used);
         setLive(kept);
         setWaiting(draft);
         setBase({ ...kept, text: waitingText });
@@ -881,7 +919,7 @@ function Form({
       setLive(saved);
       if (intent === 'publish') setFollowsH1(false);
       if (foldWaiting) setWaiting(null);
-      pictures.markSaved(used);
+      images.markSaved(used);
       setBase(saved);
       setValues(valuesOf(collection, saved));
       setBodyChanged(false);
@@ -1129,9 +1167,9 @@ function Form({
         shell: isNew || !livePublished || (relaid && others.length) ? others : url,
         heading: h1?.heading ?? (changes('title', 'heading') ? String(values.heading || named().title) : undefined),
         headingHtml: h1?.html,
-        // A post has a picture field (a page has its pictures in its text); the preview splits only a post's lead.
+        // A post has an image field (a page has its images in its text); the preview splits only a post's lead.
         post: collection.fields.some((f) => f.name === 'image'),
-        // A post's picture at the top.
+        // A post's image at the top.
         image:
           collection.fields.some((f) => f.name === 'image') && changes('image', 'imageAlt', 'imageDecorative')
             ? values.image
@@ -1167,7 +1205,7 @@ function Form({
     return <FieldInput key={f.name} field={shown} value={value} onChange={change} />;
   };
 
-  // A blog post's head in the text, in the order of the site's PostHeader: the title, the author, the picture at the top (tap to
+  // A blog post's head in the text, in the order of the site's PostHeader: the title, the author, the image at the top (tap to
   // change) with its text, then a row of facts, the date and the tags.
   const headField = (name: string) => collection.fields.find((f) => f.name === name);
   const titleField = headField('title');
@@ -1182,7 +1220,7 @@ function Form({
         </p>
       )}
       <div className="space-y-4">
-        {headField('image') && <HeadPicture field={headField('image')!} value={values.image} onChange={(v) => set('image', v)} />}
+        {headField('image') && <HeadImage field={headField('image')!} value={values.image} onChange={(v) => set('image', v)} />}
         {['imageDecorative', 'imageAlt'].map((n) => headField(n) && field(headField(n)!))}
       </div>
       <div className="flex flex-wrap items-start gap-x-6 gap-y-4 border-t border-outline-variant pt-4 *:min-w-48 *:flex-1">
@@ -1273,7 +1311,6 @@ function Form({
                     />
                   </div>
                 </FoldSection>
-                {shows('other') && <FoldSection {...sectionProps('other')}>{fieldsIn(collection, 'other').map(field)}</FoldSection>}
                 {shows('seo') && (
                   <FoldSection {...sectionProps('seo')}>
                     <div ref={seoBox} className="space-y-6">

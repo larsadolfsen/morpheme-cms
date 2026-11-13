@@ -17,7 +17,7 @@ type PopupData = {
   /** On every page ("all"), on those in `pages` ("some", and without one), or on the blog posts with one
    * of `tags` and the tags' pages ("tags"). */
   where?: 'all' | 'some' | 'tags';
-  /** The picture at the top (its address on the site). */
+  /** The image at the top (its address on the site). */
   image?: string;
   heading?: string;
   /** Paragraphs separated by a blank line. */
@@ -92,7 +92,7 @@ export const popups: Popup[] = Object.entries(files)
 export async function popupsAt(path: string) {
   const at = path.endsWith('/') ? path : `${path}/`;
   const tag = at.match(/^\/blog\/tags\/([^/]+)\/$/)?.[1];
-  const post = !tag && popups.some((p) => p.tags.length) ? (await getPosts()).find((p) => postPath(p) === at) : undefined;
+  const post = !tag && popups.some((p) => p.tags.length) ? (await getPosts({ unlisted: true })).find((p) => postPath(p) === at) : undefined;
   const tags = tag ? [tag] : (post?.data.categories ?? []);
   return popups.filter((p) => p.everywhere || p.pages.includes(at) || p.tags.some((t) => tags.includes(t)));
 }

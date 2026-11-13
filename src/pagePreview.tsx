@@ -4,7 +4,7 @@
 //
 // The page as it is on the site gives everything around what the form changes: the header, the footer,
 // the layout and the site's CSS. The site's layouts mark what the form changes (data-editor): the
-// heading, the picture at the top (a blog post's), the text, and the place at the end of the page where the layout
+// heading, the image at the top (a blog post's), the text, and the place at the end of the page where the layout
 // puts a block that ends the text (data-editor="end", with its type in data-editor-block). Only what
 // was changed is put in, so the rest is exactly as on the site. The text is the site's Markdown
 // (Astro's pipeline, with the HTML written in it), and its blocks are drawn as in the editor
@@ -15,11 +15,11 @@
 //
 // The page is shown in a frame without scripts (sandbox), so nothing of the site runs on the editor's
 // address, where its login is kept, and its links lead nowhere. A new page or post is shown in the
-// page of another one. As on the site but for this: a changed text has the pictures themselves (not
+// page of another one. As on the site but for this: a changed text has the images themselves (not
 // the sizes the build makes), its words are not yet links to other pages (packages/editor/site/autolinks.mjs), and
 // a video written in it as HTML is the video.
 //
-// A post's text starts with its lead, a paragraph drawn larger and before the picture (data-editor="lead",
+// A post's text starts with its lead, a paragraph drawn larger and before the image (data-editor="lead",
 // theme/layouts/PostLayout.astro; lib/lead.mjs). The preview splits the text the same way, for a post only (postLead.mjs).
 import { useRef, useState, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -29,6 +29,7 @@ import { introOf, sectionClass, sectionsOf } from '../lib/text-sections.mjs';
 import { h1Section, withoutH1 } from '../lib/without-h1.mjs';
 import { BREAKPOINTS, type Breakpoint } from '../lib/breakpoints.mjs';
 import { processor } from '../lib/markdown';
+import { autoLinkTree, linkPattern } from '../lib/autolink-tree.mjs';
 import { splitPicture } from '../lib/crop.mjs';
 import { isPostPage, leadFill } from './postLead.mjs';
 import { preview as drawBlock, siteBlocks } from './registry';
@@ -47,7 +48,7 @@ export type PageDraft = {
   heading?: string;
   /** The heading as HTML with its colours, when a word in it has one (pageH1 in sections.mjs). */
   headingHtml?: string;
-  /** The picture at the top (a blog post's); null: none. */
+  /** The image at the top (a blog post's); null: none. */
   image?: { src: string; alt: string } | null;
   /** A blog post (not a page): only its text starts with a lead. */
   post?: boolean;
@@ -61,6 +62,29 @@ export type PageDraft = {
 // but those that read the site's files.
 const markdownHtml = async (markdown: string) => String(await processor.process(markdown));
 
+// The words the site links, as it was last built (/editor/links.json, made by scripts/link-counts.mjs), read once per visit: the same words and
+// settings, run through the same function (lib/autolink-tree.mjs), so the Preview has the links the site has. None when the site has no such file.
+type Links = { enabled: boolean; maxPerPage: number; words: Map<string, string>; pattern: RegExp };
+let linkWords: Promise<Links | null> | undefined;
+const siteLinks = () =>
+  (linkWords ??= fetch('/editor/links.json', { cache: 'no-store' })
+    .then((res) => (res.ok ? res.json() : null))
+    .then((found: { enabled?: boolean; maxPerPage?: number; words?: Record<string, { href: string }> } | null) => {
+      const words = new Map(Object.entries(found?.words ?? {}).map(([word, { href }]) => [word, href] as [string, string]));
+      return words.size
+        ? { enabled: found?.enabled !== false, maxPerPage: found?.maxPerPage ?? 8, words, pattern: linkPattern(words.keys()) }
+        : null;
+    })
+    .catch(() => null));
+
+// A page's text as HTML, with the site's automatic links in it (the page's own address `self` is never linked to).
+async function pageHtml(markdown: string, self: string) {
+  const links = await siteLinks();
+  if (!links?.enabled) return markdownHtml(markdown);
+  const linked = processor().use(() => (tree: unknown) => autoLinkTree(tree, self, links));
+  return String(await linked.process(markdown));
+}
+
 /** What React draws (a block, a part of the header drawn with the theme's components), as HTML. */
 export function htmlOf(drawn: ReactNode) {
   if (!drawn) return '';
@@ -73,9 +97,9 @@ export function htmlOf(drawn: ReactNode) {
 }
 
 // A block drawn as in the editor, as HTML.
-const blockHtml = (type: string, props: Record<string, unknown>, data: BlockData) => htmlOf(drawBlock(type, props, data));
+const blockHtml = (type: string, props: Record<string, unknown>, data: BlockData) => htmlOf(drawBlock(type, props, data, true));
 
-// A picture made ready in this visit, which the site does not have yet (images.ts shownAt), in the
+// An image made ready in this visit, which the site does not have yet (images.ts shownAt), in the
 // page itself.
 async function inline(src: string) {
   const here = shownAt(src);
@@ -113,7 +137,7 @@ export async function siteShell(addresses: string | string[], has: string): Prom
   throw new Error(t.preview.notHere);
 }
 
-/** A page made ready (siteShell) as HTML for a frame, with the pictures made ready in this visit in it. */
+/** A page made ready (siteShell) as HTML for a frame, with the images made ready in this visit in it. */
 export async function documentHtml(doc: Document): Promise<string> {
   await Promise.all(
     [...doc.querySelectorAll('img')].map(async (img) => img.setAttribute('src', await inline(img.getAttribute('src') ?? ''))),
@@ -132,7 +156,7 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
   const top = doc.querySelector('[data-editor="image"]');
   if (top && draft.image !== undefined) {
     const { src } = splitPicture(draft.image?.src ?? '');
-    // The layout leaves out a picture that is also in the text (heroImage in packages/editor/site/images.mjs).
+    // The layout leaves out an image that is also in the text (heroImage in packages/editor/site/images.mjs).
     if (!src || (draft.body ?? '').includes(src)) top.remove();
     else {
       top.querySelectorAll('source').forEach((s) => s.remove());
@@ -148,9 +172,10 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
   if (draft.body !== undefined) {
     // A page's H1 at the top of its text is drawn in its own place above (draft.heading), as on the site; the colour of its
     // section (the marker before it) puts the heading and the text up to the first H2 in one panel (setH1Panel).
-    const whole = isPostPage(draft) ? '' : await markdownHtml(draft.body);
+    const self = typeof draft.shell === 'string' ? draft.shell : '';
+    const whole = isPostPage(draft) ? '' : await pageHtml(draft.body, self);
     const h1Settings = h1Section(whole);
-    let html = isPostPage(draft) ? await markdownHtml(pageH1(draft.body).rest) : withoutH1(whole);
+    let html = isPostPage(draft) ? await pageHtml(pageH1(draft.body).rest, self) : withoutH1(whole);
     // A block that ends the text, where the layout puts it.
     const end = doc.querySelector('[data-editor="end"]');
     const type = end?.getAttribute('data-editor-block');
@@ -161,7 +186,7 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
       end.innerHTML = blockHtml(block.type, block.props, draft.data);
     } else end?.remove();
     const text = doc.querySelector('[data-editor="text"]')!;
-    // A post's lead goes before its picture (or before its text when it has none), as in PostLayout.astro.
+    // A post's lead goes before its image (or before its text when it has none), as in PostLayout.astro.
     const { lead, rest } = leadFill(html, isPostPage(draft));
     let leadBox = doc.querySelector('[data-editor="lead"]');
     if (!lead) leadBox?.remove();
@@ -184,15 +209,13 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
             .map((p) => ('html' in p ? p.html : blockHtml(p.type, p.props, draft.data)))
             .join('');
           if (run.color === null) return inner;
-          const picture = run.picture
-            ? `<img class="text-section-image" src="${attr(shownAt(run.picture))}" alt="${attr(run.alt ?? '')}">`
-            : '';
-          return `<section class="${sectionClass(run.color, run)}">${picture}${inner}</section>`;
+          const image = run.image ? `<img class="text-section-image" src="${attr(shownAt(run.image))}" alt="${attr(run.alt ?? '')}">` : '';
+          return `<section class="${sectionClass(run.color, run)}">${image}${inner}</section>`;
         })
         .join('');
     // With a column beside the text the panel holds the heading only, as on the site.
     const { intro, rest: below } = h1Settings && !text.closest('[data-side]') ? introOf(rest) : { intro: '', rest };
-    setH1Panel(doc, h1Settings, runs(intro), h1Settings?.picture ? shownAt(h1Settings.picture) : undefined);
+    setH1Panel(doc, h1Settings, runs(intro), h1Settings?.image ? shownAt(h1Settings.image) : undefined);
     text.innerHTML = runs(below);
   }
   return documentHtml(doc);

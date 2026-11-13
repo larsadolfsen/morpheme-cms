@@ -1,4 +1,4 @@
-// The editor's frame (App.tsx, FormFrame.tsx, ask.tsx), logging in and saving to GitHub (github.ts, cache.ts), pictures (images.ts) and addresses (addresses.ts, checkSite.ts).
+// The editor's frame (App.tsx, FormFrame.tsx, ask.tsx), logging in and saving to GitHub (github.ts, cache.ts), images (images.ts) and addresses (addresses.ts, checkSite.ts).
 export const app = {
   logIn: 'Log in with GitHub',
   loading: 'Loading the website’s content…',
@@ -9,7 +9,7 @@ export const app = {
   /** After a save, when the website has been updated with it (or not); `changes`: what the saves since the last update
    * changed, as a list (changesText in deploy.ts). */
   siteUpdated: (changes: string) => `The website has been updated: ${changes}.`,
-  siteNotUpdated: (changes: string) => `The website wasn’t updated (${changes}). Restore the previous version under Earlier versions.`,
+  siteNotUpdated: (changes: string) => `The website wasn’t updated (${changes}). Restore the previous version under History.`,
   /** What a save changed (deploy.ts): said right after it and, with the other saves since, when the website has been
    * updated. Each starts with a small letter, as it stands inside a sentence; `what` is a thing (`named`: its kind and
    * its name) or a part of the website. */
@@ -74,14 +74,14 @@ export const app = {
   /** GitHub (github.ts). */
   loggedOut: 'You have been logged out. Log in again.',
   githubAnswered: (status: number) => `GitHub returned error ${status}. Try again.`,
-  pictureNotLoaded: 'The picture couldn’t be loaded from GitHub. Check your connection and try again.',
-  pictureNotWhole: 'The picture couldn’t be loaded completely. Try again.',
+  imageNotLoaded: 'The image couldn’t be loaded from GitHub. Check your connection and try again.',
+  imageNotWhole: 'The image couldn’t be loaded completely. Try again.',
   changedElsewhere: 'The file was changed elsewhere. Copy your text and reload the page.',
   fileExists: 'There’s already a file with that name. Try again, or choose another title.',
-  /** A picture made ready before upload (images.ts). */
-  pictureNotOpened: 'The picture couldn’t be opened. Use a JPEG, PNG, or WebP picture.',
-  pictureNotReady: 'The picture couldn’t be prepared',
-  preparingPicture: 'Preparing the picture…',
+  /** An image made ready before upload (images.ts). */
+  imageNotOpened: 'The image couldn’t be opened. Use a JPEG, PNG, or WebP image.',
+  imageNotReady: 'The image couldn’t be prepared',
+  preparingImage: 'Preparing the image…',
   /** The check before the website is updated (checkSite.ts). */
   invalidJson: 'The file isn’t valid JSON',
   blocksOff: 'Turned off',

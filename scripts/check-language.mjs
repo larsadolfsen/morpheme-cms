@@ -121,8 +121,37 @@ for (const entry of stale) {
   count++;
 }
 
+// The owner's rule (12 Nov): English texts say "image", never "picture". Checked in the English texts, the docs, the notes
+// and the instructions. Code keeps the stored names it must (see the list below).
+const PICTURE_PATHS =
+  /^(src\/i18n\/en-US\/|defaults\/i18n\/en-US\/|docs\/|\.claude\/|\.agents\/|\.changeset\/.*\.md$|release-notes\/i18n\/[^/]+\/pending\/|demo\/|starter\/|[^/]+\.md$)/;
+/** What may keep the word, each with its reason. Removed from a line before it is checked. */
+const PICTURE_ALLOWED = [
+  { token: /picture-in-picture/g, why: 'the HTML allow value of the browser feature' },
+  {
+    token: /[\w-]*(?:-picture|picture-crop)[\w-]*|--theme-(?:post-)?picture-radius/g,
+    why: 'stored names: CSS classes, data attributes and theme tokens that sites rely on, and the id of a pending note',
+  },
+  { token: /\bblocks\.picture\b|^\s*picture: \{/g, why: 'the i18n key of the image block texts: a code name, not a text' },
+];
+for (const path of names) {
+  if (!PICTURE_PATHS.test(path) || path === 'CHANGELOG.md' || /^release-notes\/i18n\/[^/]+\/\d/.test(path)) continue;
+  if (!existsSync(`${root}${path}`) || isBinary(`${root}${path}`)) continue;
+  readFileSync(`${root}${path}`, 'utf8')
+    .split('\n')
+    .forEach((text, i) => {
+      const rest = PICTURE_ALLOWED.reduce((line, { token }) => line.replace(token, ''), text);
+      if (!/pictures?/i.test(rest)) return;
+      console.log(`${path}:${i + 1}  Say "image", not "picture"`);
+      count++;
+      filesWithMatches.add(path);
+    });
+}
+
 if (count > 0) {
-  console.log(`${count} Danish texts in ${filesWithMatches.size} files outside the language files, or stale PENDING_IDS entries.`);
+  console.log(
+    `${count} Danish texts in ${filesWithMatches.size} files outside the language files, stale PENDING_IDS entries, or the word picture.`,
+  );
   process.exitCode = 1;
 } else {
   console.log('No Danish outside the language files.');

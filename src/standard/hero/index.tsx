@@ -1,7 +1,7 @@
 // "Banner" (type "hero", as it was called before), a standard block no longer offered (`former`: it is a section now): a text written as a page's (Markdown), in which a
-// picture and a "Buttons" block can be put with "+" (one of each): a heading at its top is its own heading (not the
+// image and a "Buttons" block can be put with "+" (one of each): a heading at its top is its own heading (not the
 // page's H1), the first paragraph the subtitle, the others the introduction, and the text after the buttons is under
-// them, a quote ("> …") in it too (fields.ts); the picture beside the text or behind it (`placement`), across the whole
+// them, a quote ("> …") in it too (fields.ts); the image beside the text or behind it (`placement`), across the whole
 // width of the window or as wide as the text (`width`); at the top of a page or anywhere in its text. At the top of the
 // front page its text up to the buttons is written as the text above its card (`lead.ts` in this folder,
 // sections.mjs). How it looks is the theme's
@@ -14,13 +14,13 @@ import { heroParts } from './fields';
 export default defineBlock({
   group: 'banners',
   label: t.blocks.hero.label,
-  // The Banner is a section now (a heading with a picture behind it and a width, in its settings): one alone in its section is read as
+  // The Banner is a section now (a heading with an image behind it and a width, in its settings): one alone in its section is read as
   // that (lib/remark-banner-section.mjs); this block stays for the front page's top and for a Banner with more after it.
   former: true,
   icon: Sparkle,
   hint: t.blocks.hero.hint,
   fields: [
-    // A picture ('image', IMAGE in BlockDialog.tsx) and a "Buttons" block, at most one of each.
+    // An image ('image', IMAGE in BlockDialog.tsx) and a "Buttons" block, at most one of each.
     {
       name: 'text',
       label: t.blocks.hero.text,
@@ -28,7 +28,7 @@ export default defineBlock({
       hint: t.blocks.hero.textHint,
       template: { blocks: ['image', 'buttons'], max: { image: 1, buttons: 1 } },
     },
-    // Where the picture is: beside the text (empty, as the banners from before there was a choice) or behind it.
+    // Where the image is: beside the text (empty, as the banners from before there was a choice) or behind it.
     {
       name: 'placement',
       label: t.blocks.hero.placement,

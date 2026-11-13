@@ -51,6 +51,7 @@ import {
   blockGroups,
   blockParts,
   collections,
+  collectionsFor,
   companyParts,
   groups,
   icons,
@@ -97,7 +98,11 @@ import type { Env } from './App';
 import { kindAndName, savedText } from './deploy';
 import { togglePath } from './bulkDelete.mjs';
 import { shortDate, when } from './when';
-import { untilTime } from '../lib/notice.mjs';
+import { isEntryPath } from '../lib/ownList.mjs';
+import { CreateFab } from './CreateFab';
+import NewListDialog from './NewListDialog';
+import { isOver, untilTime } from '../lib/notice.mjs';
+import { isUnlisted } from '../lib/status.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
 import { browserLocale, locale, localeName, locales, savedLocale, setLocale, siteLocale, siteT, siteText, t, type Locale } from './i18n';
 import { appType, EDITOR_TYPES, setDevice, setOn, useNotificationChoices } from './notificationData';
@@ -112,7 +117,7 @@ import { kindLists } from './BlockParts';
 import {
   chosenPack,
   chosenTheme,
-  ThemePicture,
+  ThemeImage,
   ThemeStoreButtons,
   themeInstalled,
   themePending,
@@ -135,7 +140,9 @@ import { sideChoicesOf, sideSettingOf } from './SideColumn';
 export const hrefOf = (c: Collection) => (c.kind === 'files' && c.files.length === 1 ? `#${c.files[0].file}` : `#list/${c.id}`);
 
 const countOf = (c: Collection, files: RepoFile[]): number =>
-  c.kind === 'files' ? c.files.length : files.filter((f) => f.path.startsWith(`${c.folder}/`)).length;
+  c.kind === 'files'
+    ? c.files.length
+    : files.filter((f) => f.path.startsWith(`${c.folder}/`) && (c.kind !== 'folder' || isEntryPath(f.path))).length;
 
 // A part's name, where it opens, and how many entries it has (null for one file): for the main drawer (MainMenu.tsx).
 export function partOf(id: string, files: RepoFile[]): { label: string; href: string; count: number | null } {
@@ -189,7 +196,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   const screen = partScreens.find((s) => s.id === id);
   if (screen) return { label: screen.label, href: `#${id}`, count: null };
   if (id === 'seo') return { label: parts.seo, href: '#seo', count: null };
-  const c = collections.find((x) => x.id === id)!;
+  const c = collectionsFor(files).find((x) => x.id === id)!;
   return { label: c.label, href: hrefOf(c), count: c.kind === 'files' && c.files.length === 1 ? null : countOf(c, files) };
 }
 
@@ -201,7 +208,7 @@ export { LeadingIcon };
 
 // A part of the site as a row: its icon, its name and how many entries it has.
 function PartRow({ id, label, href, count }: { id: string } & ReturnType<typeof partOf>) {
-  return <ListItem href={href} icon={icons[id]} headline={label} count={count} arrow />;
+  return <ListItem href={href} icon={icons[id] ?? ListChecks} headline={label} count={count} arrow />;
 }
 
 // The start screen: the site's name, the CMS version and when the site was last updated (built on Cloudflare, App.tsx), as StartStatus.tsx shows them, under it, and the FAB
@@ -318,7 +325,7 @@ function themeStatus(id: string, files: RepoFile[]): string | undefined {
 }
 
 /** "Themes" (#appearance/themes): the themes installed (src/themes/, packages/editor/src/themes.ts; and one from the store the site's build
- * does not have yet, as "Installing…"), by name, each with its picture, its version and who made it, and whether it is
+ * does not have yet, as "Installing…"), by name, each with its image, its version and who made it, and whether it is
  * in use or the store has a newer version, opening its page (ThemePage). More are in "Appstore", under "Settings". */
 export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
   const catalog = useThemeCatalog(env);
@@ -338,7 +345,7 @@ export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
             <ListItem
               key={x.id}
               href={`#appearance/themes/${x.id}`}
-              leading={<ThemePicture src={x.icon} />}
+              leading={<ThemeImage src={x.icon} />}
               headline={x.name}
               supporting={t.library.themeByline(x.version, x.author)}
               truncate
@@ -479,9 +486,9 @@ export function MotionSchemes({ env, files }: { env: Env; files: RepoFile[] }) {
 }
 
 /** A theme's page (#appearance/themes/<id>), the same for every theme, made to show what it would make of the site, so
- * it can be chosen or not: its picture, name, version and who made it, and whether it is in use; "Use the theme", for any
+ * it can be chosen or not: its image, name, version and who made it, and whether it is in use; "Use the theme", for any
  * other than the one chosen, which asks first and then saves it in the site's file (config.theme) at once, in its own
- * commit, and the site is built with it; the pictures of the site in it (its screenshots/, packages/editor/scripts/theme-screenshots.mjs),
+ * commit, and the site is built with it; the images of the site in it (its screenshots/, packages/editor/scripts/theme-screenshots.mjs),
  * each opening a sheet with it whole (ImageCarousel); what it is (its description) and what it gives the site (its highlights), in the
  * editor's language, else the first it has; and what stays as it is. Every theme has every block (what it does not draw
  * itself, the standard theme does), so changing it never leaves a block without its drawing; who made it, a row to their
@@ -777,7 +784,17 @@ function PartsOf({ title, ids, files }: { title: string; ids: string[]; files: R
   );
 }
 
-export const Lists = ({ files }: { files: RepoFile[] }) => <PartsOf title={t.common.parts.lists} ids={listsShown(files)} files={files} />;
+/** "Lists" (#lists): the lists as rows, and `New list` (a FAB; NewListDialog.tsx) to make one of your own. */
+export function Lists({ files, env }: { files: RepoFile[]; env: Env }) {
+  const [making, setMaking] = useState(false);
+  return (
+    <>
+      <PartsOf title={t.common.parts.lists} ids={listsShown(files)} files={files} />
+      <CreateFab label={t.ownList.new} onClick={() => setMaking(true)} />
+      <NewListDialog files={files} env={env} open={making} onClose={() => setMaking(false)} />
+    </>
+  );
+}
 
 // The account: who is logged in, light or dark, the language, and "Log out".
 export function Account({ user, files, onLogout }: { user: Viewer | null; files: RepoFile[]; onLogout: () => void }) {
@@ -917,30 +934,41 @@ type Item = {
 };
 
 // The statuses of a page or post (`status`, packages/editor/lib/status.mjs), in the order of the choices over the list.
-type State = 'published' | 'draft' | 'scheduled';
-const STATES: State[] = ['published', 'draft', 'scheduled'];
+type State = 'published' | 'draft' | 'unlisted' | 'scheduled';
+const STATES: State[] = ['published', 'draft', 'unlisted', 'scheduled'];
 // `w`: its waiting version in src/drafts/ (pageVersions.mjs waitingOf): a draft with a time on it is Scheduled.
 type Waiting = { publishAt?: string } | undefined;
-const stateOf = (d: Record<string, unknown>, w?: Waiting): State =>
-  d.status === 'draft' ? (w?.publishAt ? 'scheduled' : 'draft') : d.status === 'scheduled' ? 'scheduled' : 'published';
+// `post`: a blog post, the only kind that can be Hidden (`unlisted`; on a page it is read as published, lib/status.mjs).
+const stateOf = (d: Record<string, unknown>, w?: Waiting, post = false): State =>
+  d.status === 'draft'
+    ? w?.publishAt
+      ? 'scheduled'
+      : 'draft'
+    : d.status === 'scheduled' && !isOver(String(d.publishAt ?? ''))
+      ? 'scheduled'
+      : post && isUnlisted(d)
+        ? 'unlisted'
+        : 'published';
 
 // What a page or post is when not simply published (`status`, packages/editor/lib/status.mjs): "Draft", "Scheduled Nov 1 at 8:00 AM", or
 // "Unpublished changes" (a published one with changes waiting in src/drafts/, `w`; "Scheduled changes Nov 1 at 8:00 AM" with a time).
-function statusOf(d: Record<string, unknown>, w?: Waiting): string | undefined {
+function statusOf(d: Record<string, unknown>, w?: Waiting, post = false): string | undefined {
   const timed = (time: unknown, text: (when: string) => string, plain: string) => {
     const at = untilTime(String(time ?? ''));
     return at === null ? plain : text(when(new Date(at)));
   };
   if (d.status === 'draft')
     return w?.publishAt ? timed(w.publishAt, t.library.status.scheduledAt, t.library.status.scheduled) : t.library.status.draft;
-  if (d.status === 'scheduled') return timed(d.publishAt, t.library.status.scheduledAt, t.library.status.scheduled);
-  if (!w) return undefined;
+  // A stored Scheduled whose time has passed is on the site (lib/status.mjs stateOf): published, with no status line.
+  if (d.status === 'scheduled' && !isOver(String(d.publishAt ?? '')))
+    return timed(d.publishAt, t.library.status.scheduledAt, t.library.status.scheduled);
+  if (!w) return post && isUnlisted(d) ? t.library.status.unlisted : undefined;
   return timed(w.publishAt, t.library.status.scheduledChanges, t.library.status.unpublishedChanges);
 }
 
 function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
   if (collection.kind === 'files') return collection.files.map((f) => ({ href: `#${f.file}`, title: f.label, detail: f.view }));
-  const own = files.filter((f) => f.path.startsWith(`${collection.folder}/`));
+  const own = files.filter((f) => f.path.startsWith(`${collection.folder}/`) && (collection.kind !== 'folder' || isEntryPath(f.path)));
   if (collection.kind === 'markdown') {
     const waiting = waitingOf(files);
     const items: Item[] = own
@@ -956,9 +984,11 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
           title: String(d.title ?? file.path),
           detail,
           date,
-          status: statusOf(d, waiting.get(file.path)),
-          state: stateOf(d, waiting.get(file.path)),
-          unfinished: stateOf(d, waiting.get(file.path)) !== 'published' || !!waiting.get(file.path),
+          status: statusOf(d, waiting.get(file.path), collection.id === 'blog'),
+          state: stateOf(d, waiting.get(file.path), collection.id === 'blog'),
+          // Hidden is on the site, so nothing is unfinished about it.
+          unfinished:
+            !['published', 'unlisted'].includes(stateOf(d, waiting.get(file.path), collection.id === 'blog')) || !!waiting.get(file.path),
           file,
           path,
           picks: Object.fromEntries(

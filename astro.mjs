@@ -1,5 +1,5 @@
 // The Astro config of a site with the CMS: `export default await siteConfig()` in the site's astro.config.mjs. Everything
-// a site is built with: its address and language (src/site/config.ts), Markdown with responsive pictures, internal links
+// a site is built with: its address and language (src/site/config.ts), Markdown with responsive images, internal links
 // and videos, React, the sitemap, each page's Content-Security-Policy, what the apps make after the build, the licences,
 // the CMS's pages (pages/, added as routes) and the Vite plugins and aliases (@site, @data, @saturn, @theme). The site is
 // its root, the working directory; this package is where this file is.
@@ -69,8 +69,8 @@ const themesBuilt = () => [...new Set([activeTheme(), STANDARD_THEME])];
 const frontMatter = (file) => fs.readFileSync(file, 'utf8').match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '';
 
 // Pages and posts that name another page as the original (`canonical`), are not for search engines
-// (`noindex: true`) or a stored `status: "unlisted"` (migrated to `noindex`, packages/editor/lib/status.mjs):
-// not in the sitemap. Drafts are not built, so not in it either.
+// (`noindex: true`) or, on a page, a stored `status: "unlisted"` (migrated to `noindex`, packages/editor/lib/status.mjs):
+// not in the sitemap. An unlisted post is (it is only kept out of the blog). Drafts are not built, so not in it either.
 /** @param {string} fm @param {string} name */
 const field = (fm, name) => fm.match(new RegExp(`^${name}: *"?(.*?)"?\\s*$`, 'm'))?.[1] ?? '';
 /** The .md files in a folder (none when the site has no folder of them yet). @param {string} dir */
@@ -79,13 +79,15 @@ const markdown = (dir) =>
 const elsewhere = [
   ...markdown('src/content/pages').map((f) => {
     const fm = frontMatter(`src/content/pages/${f}`);
-    return [field(fm, 'path') || `/${f.slice(0, -3)}/`, fm];
+    return [field(fm, 'path') || `/${f.slice(0, -3)}/`, fm, true];
   }),
-  ...markdown('src/content/blog').map((f) => [`/${f.slice(0, -3)}/`, frontMatter(`src/content/blog/${f}`)]),
+  ...markdown('src/content/blog').map((f) => [`/${f.slice(0, -3)}/`, frontMatter(`src/content/blog/${f}`), false]),
 ]
   .filter(
-    ([own, fm]) =>
-      (field(fm, 'canonical') && field(fm, 'canonical') !== own) || field(fm, 'noindex') === 'true' || field(fm, 'status') === 'unlisted',
+    ([own, fm, page]) =>
+      (field(fm, 'canonical') && field(fm, 'canonical') !== own) ||
+      field(fm, 'noindex') === 'true' ||
+      (page && field(fm, 'status') === 'unlisted'),
   )
   .map(([own]) => own);
 // The blog page (src/data/standard-pages.json) is shown at /blog/, so its canonical URL (another than /blog/) or noindex

@@ -1,14 +1,14 @@
-// "Files" under "Content": the pictures uploaded to the site (public/images/uploads/<year>/<month>/,
+// "Files" under "Content": the images uploaded to the site (public/images/uploads/<year>/<month>/,
 // imported or added in the editor, images.ts) and the PDFs, videos and zip files (the site's files folder, public/files/,
 // /files/ on the site), newest first, with search, the order (newest, oldest, by name), a month or year,
 // the type (Billeder, PDF'er, Videoer, Zip-filer) and whether a page uses them (Gallery). A file that is
-// not a picture is a square with its icon and name. Tapping one opens a sheet from the bottom with the
+// not an image is a square with its icon and name. Tapping one opens a sheet from the bottom with the
 // file (FileView.tsx), its file name and where it is used, each a link to that page or post, or
-// "Delete picture" (…) when nothing uses it (also not the site's own code, /editor/code-images.json). Its
+// "Delete image" (…) when nothing uses it (also not the site's own code, /editor/code-images.json). Its
 // name, under the title, can be changed with the pencil after it (not one the site's code uses),
 // saved with the tick: the file moves, the pages that use it get the new address in the same commit,
 // and the old address sends on to it (addresses.ts). The FAB uploads a new file, saved at once. The same
-// pictures (not the other files) are the gallery a picture is chosen from in the forms (useMediaPicker).
+// images (not the other files) are the gallery an image is chosen from in the forms (useMediaPicker).
 // The buttons that run (add, rename, delete, upload new) show the loading indicator while they do.
 // The funnel in Filer also filters by a tag (fileTagFilter.mjs; only tags some file has).
 // The clock in the top bar, "Deleted files", opens the files that were deleted (Deleted.tsx).
@@ -65,7 +65,7 @@ export const MEDIA = config.folders.media;
 /** The folder of PDFs, videos and zip files (/files/ on the site; the site's setting, found when it is built). */
 export const FILES: string = settings.filesFolder;
 
-/** The uploaded pictures among the files, newest first (by their folder, then name). */
+/** The uploaded images among the files, newest first (by their folder, then name). */
 export const mediaOf = (files: RepoFile[]) =>
   files.filter((f) => f.path.startsWith(`${MEDIA}/`)).sort((a, b) => b.path.localeCompare(a.path, locale));
 
@@ -75,12 +75,12 @@ export const filesOf = (files: RepoFile[]) =>
     ? files.filter((f) => f.path.startsWith(`${FILES}/`) && fileKindOf(f.path)).sort((a, b) => a.path.localeCompare(b.path, locale))
     : [];
 
-/** The addresses on the site of every file Filer lists: the pictures, then the PDFs, videos and zip files. */
+/** The addresses on the site of every file Filer lists: the images, then the PDFs, videos and zip files. */
 export const filerAddresses = (files: RepoFile[]): string[] => [...mediaOf(files), ...filesOf(files)].map((f) => publicPath(f.path));
 
-// What a file that uses a picture or another file is called: a page's or post's title, a fixed page's name, an
+// What a file that uses an image or another file is called: a page's or post's title, a fixed page's name, an
 // entry's as its list shows it (a pop-up); null for a file the editor does not open (the list of
-// picture sizes, image-manifest.json).
+// image sizes, image-manifest.json).
 function nameOf(file: RepoFile): string | null {
   for (const c of collections)
     if (c.kind === 'files') {
@@ -98,18 +98,18 @@ function nameOf(file: RepoFile): string | null {
   return null;
 }
 
-// A picture's file name without its folder, and split from its ending ("foto", ".webp").
+// An image's file name without its folder, and split from its ending ("foto", ".webp").
 const fileName = (src: string) => src.split('/').pop() ?? '';
 const stemOf = (src: string) => fileName(src).replace(/\.[^.]*$/, '');
 const endingOf = (src: string) => fileName(src).slice(stemOf(src).length);
 
-// A text with a picture's address changed to another: wherever it stands (Markdown, HTML, JSON), but
+// A text with an image's address changed to another: wherever it stands (Markdown, HTML, JSON), but
 // not a longer file name that starts with it.
 const readdress = (text: string, from: string, to: string) =>
   text.replace(new RegExp(`${from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w.-])`, 'g'), to);
 
-// The small copies of the pictures the site has (thumbnails.json, made when it is built), by their
-// address; {} when they could not be asked (then the pictures themselves are shown).
+// The small copies of the images the site has (thumbnails.json, made when it is built), by their
+// address; {} when they could not be asked (then the images themselves are shown).
 let small: Promise<Record<string, string>> | null = null;
 const thumbnails = () =>
   (small ??= fetch('/editor/thumbnails.json')
@@ -123,9 +123,9 @@ function scrollerOf(el: Element) {
   return null;
 }
 
-// A picture in the grid, fetched only when it is about to be scrolled into view (a screen's height
-// before), and as its small copy when there is one: a picture from this visit (shownAt) as it is,
-// a renamed one by its old address. The picture itself, if the copy cannot be fetched.
+// An image in the grid, fetched only when it is about to be scrolled into view (a screen's height
+// before), and as its small copy when there is one: an image from this visit (shownAt) as it is,
+// a renamed one by its old address. The image itself, if the copy cannot be fetched.
 function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, string> | null }) {
   const ref = useRef<HTMLImageElement>(null);
   const [near, setNear] = useState(false);
@@ -170,7 +170,7 @@ function FileTile({ src }: { src: string }) {
   );
 }
 
-// The pictures (and the other files) as squares, by their address on the site: three to four in a row
+// The images (and the other files) as squares, by their address on the site: three to four in a row
 // on a phone, as many as there is room for on a computer. picked: the one shown beside the grid (Filer
 // on a computer), marked.
 function Grid({ srcs, picked, onPick }: { srcs: string[]; picked?: string | null; onPick: (src: string) => void }) {
@@ -199,12 +199,12 @@ type Sort = 'new' | 'old' | 'name';
 const SORTS: Sort[] = ['new', 'old', 'name'];
 const SORT_KEY = 'editor-media-sort';
 const nameOfSrc = (src: string) => src.split('/').pop()!;
-// The month a picture was uploaded, as "2025-06" (its folder), or '' outside such a folder.
+// The month an image was uploaded, as "2025-06" (its folder), or '' outside such a folder.
 const monthOf = (src: string) => {
   const m = /\/(\d{4})\/(\d{2})\/[^/]+$/.exec(src);
   return m ? `${m[1]}-${m[2]}` : '';
 };
-/** The pictures with search, their order and the filters, and the month between them when they are
+/** The images with search, their order and the filters, and the month between them when they are
  * in the order of their dates, the first letter when by name. used: the files a page uses (Filer): then
  * the funnel opens a sheet with the filters by use and by type, and by tag when tags is given (each file's
  * tags, from tagIndex) and some file has one of the tagOptions. picked: the file shown beside it. */
@@ -223,7 +223,7 @@ function Gallery({
   picked?: string | null;
   onPick: (src: string) => void;
 }) {
-  // All the files, not only pictures (Filer), with their type.
+  // All the files, not only images (Filer), with their type.
   const all = !!used;
   // In Filer, kept for coming back to it (from a file's page); in a picker, from the start each time.
   const [kind, setKind] = useKept<'' | Kind>(all ? 'files-type' : null, '');
@@ -246,7 +246,7 @@ function Gallery({
     } catch {}
   }
 
-  // The years and months there are pictures from, newest first.
+  // The years and months there are images from, newest first.
   const months = [...new Set(srcs.map(monthOf))].sort().reverse();
   const years = [...new Set(months.filter(Boolean).map((m) => m.slice(0, 4)))];
   // The types there are files of (and the one chosen); the filter by type only when there are two or more.
@@ -359,19 +359,19 @@ function Gallery({
           <Grid srcs={g.items} picked={picked} onPick={onPick} />
         </section>
       ))}
-      {!shown.length && <EmptyNote>{all ? t.media.noFiles : t.media.noPictures}</EmptyNote>}
+      {!shown.length && <EmptyNote>{all ? t.media.noFiles : t.media.noImages}</EmptyNote>}
     </div>
   );
 }
 
-/** Asks for a picture from the gallery, or a new one (kept with the form's pictures, images.ts, and
+/** Asks for an image from the gallery, or a new one (kept with the form's images, images.ts, and
  * saved with it); its address on the site, or null. The sheet goes on top of a block's sheet. With `files` (the site's files),
- * each source of pictures an installed app adds (a media provider) is a tab beside the site's own pictures; a picture from it
- * is kept with its credit, which is saved with the picture. */
-export function useMediaPicker(media: RepoFile[], pictures: Uploads, files: RepoFile[] = []): [() => Promise<string | null>, ReactElement] {
+ * each source of images an installed app adds (a media provider) is a tab beside the site's own images; an image from it
+ * is kept with its credit, which is saved with the image. */
+export function useMediaPicker(media: RepoFile[], images: Uploads, files: RepoFile[] = []): [() => Promise<string | null>, ReactElement] {
   const dialog = useRef<HTMLDialogElement>(null);
   const answer = useRef<(src: string | null) => void>(() => {});
-  const srcs = [...new Set([...pictures.added, ...mediaOf(media)].map((f) => publicPath(f.path)))];
+  const srcs = [...new Set([...images.added, ...mediaOf(media)].map((f) => publicPath(f.path)))];
   const providers = mediaProvidersOf(apps, activeApps(files));
   const [source, setSource] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -395,11 +395,11 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads, files: Repo
     setAdding(true);
     setProblem(null);
     try {
-      const upload = await pictures.addFile(await providerFile(provider, item), { ...item.credit, source: provider.label });
+      const upload = await images.addFile(await providerFile(provider, item), { ...item.credit, source: provider.label });
       trackProviderDownload(provider, item);
       done(publicPath(upload.path));
     } catch (e) {
-      setProblem((e as Error).message === 'picture' ? t.media.providers.failed : (e as Error).message);
+      setProblem((e as Error).message === 'image' ? t.media.providers.failed : (e as Error).message);
     } finally {
       setAdding(false);
     }
@@ -436,7 +436,7 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads, files: Repo
             <MediaProviderPicker
               key={`${provider.app}/${provider.id}`}
               provider={provider}
-              busy={adding || pictures.uploading}
+              busy={adding || images.uploading}
               onPick={(item) => void pickFrom(item)}
             />
           </>
@@ -445,9 +445,9 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads, files: Repo
             <Button
               kind="outlined"
               icon={UploadSimple}
-              busy={pictures.uploading}
+              busy={images.uploading}
               onClick={async () => {
-                const added = await pictures.upload();
+                const added = await images.upload();
                 if (added) done(publicPath(added.path));
               }}
             >
@@ -462,7 +462,7 @@ export function useMediaPicker(media: RepoFile[], pictures: Uploads, files: Repo
   return [ask, element];
 }
 
-// The pictures the site's own code uses (its design, e.g. the front page and a portrait), as it
+// The images the site's own code uses (its design, e.g. the front page and a portrait), as it
 // was built; null until known, or when it could not be asked (then nothing can be deleted).
 let inCode: Promise<string[] | null> | null = null;
 const codeImages = () =>
@@ -472,22 +472,22 @@ const codeImages = () =>
 
 // open: the address of a file to show picked at once (the route files/<address>); ignored when no such file exists.
 export default function Media({ files, env, open }: { files: RepoFile[]; env: Env; open?: string }) {
-  // The pictures and the other files.
-  const pictures = [...mediaOf(files), ...filesOf(files)];
+  // The images and the other files.
+  const images = [...mediaOf(files), ...filesOf(files)];
   const [code, setCode] = useState<string[] | null>(null);
   useEffect(() => void codeImages().then(setCode), []);
-  // The addresses of the pictures some page, post or fixed page uses (its text has the address), or
+  // The addresses of the images some page, post or fixed page uses (its text has the address), or
   // the site's own code.
   const used = useMemo(() => {
     const texts = files
       .filter((f) => f.text && !f.path.startsWith(`${MEDIA}/`) && !(FILES && f.path.startsWith(`${FILES}/`)) && nameOf(f) !== null)
       .map((f) => f.text);
-    return new Set(pictures.map((p) => publicPath(p.path)).filter((src) => code?.includes(src) || texts.some((t) => t.includes(src))));
+    return new Set(images.map((p) => publicPath(p.path)).filter((src) => code?.includes(src) || texts.some((t) => t.includes(src))));
   }, [files, code]);
   // Each file's tags, for the filter by tag.
   const tags = useMemo(() => tagIndex(recordsIn(files, config.fileRecords)), [files]);
   const dialog = useRef<HTMLDialogElement>(null);
-  const opened = open && pictures.some((p) => publicPath(p.path) === open) ? open : null;
+  const opened = open && images.some((p) => publicPath(p.path) === open) ? open : null;
   const [src, setSrc] = useState<string | null>(opened);
   // On a computer the file picked is beside the grid; on a phone in a sheet.
   const wide = useAtLeast('expanded');
@@ -515,8 +515,8 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
   const [renaming, setRenaming] = useState(false);
   // The name being changed: the field shown instead of the pencil after the name.
   const [editing, setEditing] = useState(false);
-  // A new file, saved on its own at once (with a page, a picture is saved with the page instead): a
-  // PDF, a video or a zip file as it is, a picture made ready as in the forms.
+  // A new file, saved on its own at once (with a page, an image is saved with the page instead): a
+  // PDF, a video or a zip file as it is, an image made ready as in the forms.
   async function add() {
     const file = await pickImage(!!FILES);
     if (!file) return;
@@ -525,21 +525,21 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
     setAdding(true);
     if (!kind) env.notify({ text: t.media.preparing });
     try {
-      const picture = kind
+      const image = kind
         ? await prepareFile(
             file,
             files.map((f) => f.path),
           )
         : await prepareImage(file);
       env.notify({ text: t.common.saving });
-      const name = picture.path.split('/').pop()!;
-      const change = t.app.changes.added(kindAndName(t.media.kinds[kind ?? 'picture'].word, name));
+      const name = image.path.split('/').pop()!;
+      const change = t.app.changes.added(kindAndName(t.media.kinds[kind ?? 'image'].word, name));
       const oids = await env.commit(
-        siteT.media.commit.add(siteT.media.kinds[kind ?? 'picture'].word, name),
-        [{ path: picture.path, content: picture.bytes, oid: null }],
+        siteT.media.commit.add(siteT.media.kinds[kind ?? 'image'].word, name),
+        [{ path: image.path, content: image.bytes, oid: null }],
         change,
       );
-      env.onSaved({ path: picture.path, oid: oids[picture.path], text: '' });
+      env.onSaved({ path: image.path, oid: oids[image.path], text: '' });
       env.notify({ text: savedText(change), kind: 'saved' });
     } catch (e) {
       env.notify({ text: t.common.notSaved((e as Error).message), error: true, kind: 'failed' });
@@ -550,7 +550,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
 
   // A file nothing uses, deleted at once in its own commit (after asking), with its record of tags.
   async function remove(src: string) {
-    const file = pictures.find((p) => publicPath(p.path) === src);
+    const file = images.find((p) => publicPath(p.path) === src);
     if (!file || !(await ask(t.media.kinds[kindOf(src)].deleteAsk, t.common.delete))) return;
     setDeleting(true);
     env.notify({ text: t.common.deleting });
@@ -572,11 +572,11 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
     }
   }
 
-  // A new name for a picture, saved at once in one commit: the file under its new name (same folder
+  // A new name for an image, saved at once in one commit: the file under its new name (same folder
   // and ending), the old one deleted, the texts with its address changed, the redirect and the file's record of tags (same
   // record file, its address changed).
   async function rename(src: string) {
-    const file = pictures.find((p) => publicPath(p.path) === src);
+    const file = images.find((p) => publicPath(p.path) === src);
     const stem = slugify(name);
     if (!file || !stem || name === stemOf(src) || stem === stemOf(src)) return;
     const path = `${file.path.slice(0, file.path.lastIndexOf('/'))}/${stem}${endingOf(src)}`;
@@ -641,7 +641,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
     }
   }
 
-  // The pages, posts and fixed pages whose text has the picture's address.
+  // The pages, posts and fixed pages whose text has the image's address.
   const usedBy = src
     ? files.flatMap((f) => {
         const name = f.text.includes(src) && nameOf(f);

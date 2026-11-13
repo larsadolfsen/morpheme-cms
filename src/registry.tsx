@@ -20,8 +20,9 @@ import { config, everyFixedPage, fixedPages, standardPages, standardPaths, Texts
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { partsOfMarkdown, sectionsFromParts } from './sections.mjs';
 import { blockViews } from './standard/themeBlocks';
-import { InEditor, type View, type ViewOf } from './standard/view';
-import { appBlocks, appViewOfs, appViews } from './appFiles';
+import { InEditor, OnSite, type View, type ViewOf } from './standard/view';
+import { appBlocks, appInlines, appViewOfs, appViews } from './appFiles';
+import { inlineViews } from './inlineViews';
 import { blocksIn, splitBlocks } from '../lib/blocks.mjs';
 import { t } from './i18n';
 import { localSiteBlock } from './site';
@@ -54,6 +55,7 @@ export const siteBlocks: SiteBlock[] = [
   ...Object.entries(standard).map(([path, m]) => ({
     ...m.default,
     draw: drawn(blockViews[typeOf(path)], views[beside(path, 'view.ts')]?.viewOf),
+    inlineView: inlineViews[typeOf(path)],
     type: typeOf(path),
     standard: true,
   })),
@@ -61,6 +63,8 @@ export const siteBlocks: SiteBlock[] = [
     localSiteBlock({
       ...m.default,
       draw: drawn(appViews[beside(path, 'View.tsx')]?.default, appViewOfs[beside(path, 'viewOf.ts')]?.viewOf),
+      // An app's own: never a standard block's, whatever the app calls its block.
+      inlineView: appInlines[beside(path, 'Inline.tsx')]?.default,
       type: typeOf(path),
       app: appIdOf(path),
     }),
@@ -129,7 +133,7 @@ export const asStandardTemplate = (template: Template | undefined, standard: Sta
 };
 
 /** What is wrong with the blocks in a text (with or without its front matter) by their fields and the template. With
- * `leads` (the front page), a block's heading, text and picture may be the text above its card, as the site reads it. */
+ * `leads` (the front page), a block's heading, text and image may be the text above its card, as the site reads it. */
 export function blockProblems(text: string, template?: Template, leads?: Record<string, Lead>): string[] {
   const name = (type: string) => siteBlocks.find((b) => b.type === type)?.label ?? type;
   const rules = template
@@ -154,20 +158,22 @@ export function blockProblems(text: string, template?: Template, leads?: Record<
   return [...own, ...rules];
 }
 
-/** The block as it looks on the site, or null when there is no picture of it. On a fixed page its
+/** The block as it looks on the site, or null when there is no image of it. On a fixed page its
  * sections (the theme's previews.tsx), or the block of the section's type (Book an appointment); a section can
  * draw a block by its type too (`block`, the prices on the prices page), so the theme never imports one. */
-export function preview(type: string, props: BlockProps, data: BlockData) {
+export function preview(type: string, props: BlockProps, data: BlockData, onSite = false) {
   const file = data.page?.file;
   const drawOf = (t: string) => siteBlocks.find((b) => b.type === t)?.draw;
   const block: DrawBlock = (t, p) => drawOf(t)?.(p, data) ?? null;
   const draw = file ? (fixedPages[file]?.[type] ?? everyFixedPage[type] ?? drawOf(type)) : drawOf(type);
+  // `onSite`: as the built page draws it (the Preview of a page, pagePreview.tsx), not as the editor's image of the block.
+  const Where = onSite ? OnSite : InEditor;
   return draw ? (
-    <InEditor>
+    <Where>
       <Texts.Provider value={data.site}>
         <Drawn draw={draw} props={props as Props} data={data} block={block} />
       </Texts.Provider>
-    </InEditor>
+    </Where>
   ) : null;
 }
 

@@ -1,7 +1,7 @@
-// A picture with the sizes the site made of it (pictureOf, packages/editor/site/images.mjs), so the browser downloads one that fits
-// the screen; in the editor the picture itself. `sizes` is the width it is shown in; a picture fetched first
+// An image with the sizes the site made of it (imageOf, packages/editor/site/images.mjs), so the browser downloads one that fits
+// the screen; in the editor the image itself. `sizes` is the width it is shown in; an image fetched first
 // (`fetchPriority` 'high') is not lazy.
-import type { Picture } from '@morphemecms/cms/src/standard/view';
+import type { Image } from '@morphemecms/cms/src/standard/view';
 
 export default function Img({
   image,
@@ -10,7 +10,7 @@ export default function Img({
   className,
   fetchPriority,
 }: {
-  image: Picture;
+  image: Image;
   alt: string;
   sizes: string;
   className?: string;

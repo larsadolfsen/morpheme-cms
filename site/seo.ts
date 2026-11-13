@@ -4,14 +4,14 @@
 // Pages and blog posts in src/content/ have theirs in their own frontmatter (seoTitle, seoDescription, heading).
 // - title: the whole <title> (also og:title). At most about 60 characters.
 // - description: the meta description, hand-written, 140-155 characters, ending with a call to action.
-// - image: the picture shown when the page is shared (og:image); empty: the site's portrait.
-// - canonical, noindex: as a page's ("Canonical URL", "Hide from search engines").
+// - image: the image shown when the page is shared (og:image); empty: the site's portrait.
+// - canonical, noindex, nofollow: as a page's ("Canonical URL", "No index", "No follow").
 // Pages missing here, or with empty fields, fall back to their own title and description (Base.astro).
 import { categories } from './categories';
 
-export type Seo = { title?: string; description?: string; image?: string; canonical?: string; noindex?: boolean };
+export type Seo = { title?: string; description?: string; image?: string; canonical?: string; noindex?: boolean; nofollow?: boolean };
 
-type Texts = { seoTitle?: string; seoDescription?: string; shareImage?: string; canonical?: string; noindex?: boolean };
+type Texts = { seoTitle?: string; seoDescription?: string; shareImage?: string; canonical?: string; noindex?: boolean; nofollow?: boolean };
 const pages: [string, Texts][] = categories.map((c): [string, Texts] => [`/blog/tags/${c.slug}/`, c]);
 
 export const seo: Record<string, Seo> = Object.fromEntries(
@@ -23,6 +23,7 @@ export const seo: Record<string, Seo> = Object.fromEntries(
       image: t.shareImage || undefined,
       canonical: t.canonical || undefined,
       noindex: t.noindex === true || undefined,
+      nofollow: t.nofollow === true || undefined,
     },
   ]),
 );

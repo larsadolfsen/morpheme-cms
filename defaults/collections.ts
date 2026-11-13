@@ -70,20 +70,38 @@ const canonical: Field = {
 // Not for search engines: noindex, and not in the sitemap. Under "Search engines" too.
 const noindex: Field = {
   name: 'noindex',
-  label: 'Hide from search engines',
+  label: 'No index',
   type: 'boolean',
   hint: 'The page is not shown in Google.',
 };
 
-// The text of the picture at the top of a post (a page has its pictures in its text): "Decorative picture" (drawn with alt="", screen readers skip
+// Right after noindex: search engines do not follow the page's links (the robots meta tag says `nofollow`). Under "Search engines" too.
+const nofollow: Field = {
+  name: 'nofollow',
+  label: 'No follow',
+  type: 'boolean',
+  hint: 'Google does not follow the links on the page.',
+};
+
+// A post only: kept out of the blog and every list of posts, but open at its address, in Google and in the sitemap (not
+// `noindex`, "No index"). In the settings with the status (EntryForm.tsx; packages/editor/lib/status.mjs).
+const unlisted: Field = {
+  name: 'unlisted',
+  label: 'Hidden',
+  type: 'boolean',
+  toggle: ['On', 'Off'],
+  hint: 'Not shown on the blog or in lists of posts, but open at its address and in Google.',
+};
+
+// The text of the image at the top of a post (a page has its images in its text): "Decorative image" (drawn with alt="", screen readers skip
 // it), else its alt text.
 const topImageText: Field[] = [
   {
     name: 'imageDecorative',
-    label: 'Decorative picture',
+    label: 'Decorative image',
     type: 'boolean',
     toggle: ['On', 'Off'],
-    hint: 'Screen readers skip the picture.',
+    hint: 'Screen readers skip the image.',
   },
   { name: 'imageAlt', label: 'Alt text', type: 'string', only: { field: 'imageDecorative', is: ['', 'false'] } },
 ];
@@ -101,11 +119,13 @@ const status = (): Field[] => [
     options: [
       { value: 'draft', label: 'Draft', hint: 'Not on the website yet. Not even at its address.' },
       { value: '', label: 'Published', hint: 'On the website for everyone.' },
+      // An older site's stored status: saving it keeps working (the check accepts it); `Schedule` moves it to a waiting version.
+      { value: 'scheduled', label: 'Scheduled', hint: 'On the website from its time.', stored: true },
     ],
   },
 ];
 
-// The Google texts, and the picture when the page is shared, which the editor shows under "Social media" (SHARE_FIELDS
+// The Google texts, and the image when the page is shared, which the editor shows under "Social media" (SHARE_FIELDS
 // in packages/editor/src/seo.ts).
 const seo: Field[] = [
   {
@@ -125,14 +145,14 @@ const seo: Field[] = [
   // og:image (Base.astro), cut to 1200 × 630 by packages/editor/scripts/responsive-images.mjs.
   {
     name: 'shareImage',
-    label: 'Picture when shared',
+    label: 'Image when shared',
     type: 'image',
     hint: 'Shown when the page is shared, e.g. on Facebook.',
   },
 ];
 
 // The title and description when a page or post is shared (og:title, og:description in Base.astro), under "Social
-// media" with the picture.
+// media" with the image.
 const shareTexts: Field[] = [
   {
     name: 'shareTitle',
@@ -239,7 +259,7 @@ export const socialFields: Field[] = [
   },
   { name: 'shareX', label: 'X', type: 'boolean' },
   { name: 'shareLinkedin', label: 'LinkedIn', type: 'boolean' },
-  { name: 'sharePinterest', label: 'Pinterest', type: 'boolean', hint: 'Shown only when the post has a picture.' },
+  { name: 'sharePinterest', label: 'Pinterest', type: 'boolean', hint: 'Shown only when the post has an image.' },
   { name: 'shareCopyLink', label: 'Copy link', type: 'boolean' },
 ];
 
@@ -375,6 +395,7 @@ export const collections: Collection[] = [
     deletable: true,
     fields: [
       ...status(),
+      unlisted,
       { name: 'title', label: 'Title', type: 'string', required: true },
       { name: 'date', label: 'Date', type: 'date', required: true },
       { name: 'path', label: 'URL', type: 'string', address: 'post' },
@@ -388,13 +409,14 @@ export const collections: Collection[] = [
         add: 'Add tag',
         edit: { to: 'new/tags', text: 'Create a tag' },
       },
-      { name: 'image', label: 'Picture at the top', type: 'image' },
+      { name: 'image', label: 'Image at the top', type: 'image' },
       ...topImageText,
       ...seo,
       ...shareTexts,
       ...keywords,
       canonical,
       noindex,
+      nofollow,
     ],
   },
   {
@@ -404,6 +426,7 @@ export const collections: Collection[] = [
     label: 'Pages',
     singular: 'page',
     folder: 'src/content/pages',
+    deletable: true,
     fields: [
       ...status(),
       { name: 'title', label: 'Title', type: 'string', required: true },
@@ -446,6 +469,7 @@ export const collections: Collection[] = [
       ...keywords,
       canonical,
       noindex,
+      nofollow,
     ],
     blocks: true,
     // One "Book an appointment" a page (at the very end it goes across the page, PageLayout.astro). A new page
@@ -517,7 +541,7 @@ export const collections: Collection[] = [
         // Without one (those made before there were kinds), it is the standard one.
         default: 'standard',
         options: [
-          { label: 'Pop-up', value: 'standard', icon: AppWindow, hint: 'With a picture, text and a button.' },
+          { label: 'Pop-up', value: 'standard', icon: AppWindow, hint: 'With an image, text and a button.' },
           {
             label: 'Action bar',
             value: 'bookingbar',
@@ -533,8 +557,8 @@ export const collections: Collection[] = [
         toggle: ['On', 'Off'],
         default: true,
       },
-      // At the top of the box, to its edges in 3:2, as on the cards with a picture ("Cards").
-      { name: 'image', label: 'Picture', type: 'image', hint: 'Shown at the top, cropped to 3:2.' },
+      // At the top of the box, to its edges in 3:2, as on the cards with an image ("Cards").
+      { name: 'image', label: 'Image', type: 'image', hint: 'Shown at the top, cropped to 3:2.' },
       { name: 'heading', label: 'Heading', type: 'string', required: true, max: 80 },
       { name: 'text', label: 'Text', type: 'text' },
       // Where it is shown, for every kind: on every page, on those picked (without `where`, from

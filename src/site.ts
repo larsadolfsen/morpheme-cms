@@ -7,10 +7,12 @@ import * as site from '@site/editor';
 import type { ColorPair } from '../lib/colors';
 import { backTarget, placeOf as menuPlaceOf } from '../lib/menu.mjs';
 import { activeApps, appFromManifest, appIdOf, withKinds, type AppDefinition, type AppList, type SiteApp } from './apps';
-import { appBlocks, appEditors, appFiles, appFolders, appManifests, appPictures, appShared, appStores, appTextFiles } from './appFiles';
+import { appBlocks, appEditors, appFiles, appFolders, appManifests, appImages, appShared, appStores, appTextFiles } from './appFiles';
 import type { AppManifest } from '../lib/appManifest.mjs';
 import type { BlockDefinition, SiteBlock } from './blocks';
 import type { ListRows } from './fields';
+import { isEntryPath } from '../lib/ownList.mjs';
+import { ownListsOf } from './ownLists';
 import { setRowLists } from './standard/rows/lists';
 import { inSiteLanguage, siteT, siteText, t, translatingSite } from './i18n';
 import { byText, type Block, type Collection, type DataFile, type Edit, type Field, type OwnedList, type Part } from './schema';
@@ -235,7 +237,7 @@ export const localSiteBlock = (b: SiteBlock): SiteBlock => (translatingSite ? lo
 export const localApp = <A extends AppDefinition>(a: A): A => (translatingSite ? local.app(a) : a);
 
 // The apps in the site (src/apps/<app>/index.ts, apps.ts), each with the blocks it adds (its blocks/), what it needs
-// (from its folder), its pictures and, from the app store, where it came from (its store.json), by their names: as the
+// (from its folder), its images and, from the app store, where it came from (its store.json), by their names: as the
 // site wrote them, and in the editor's language.
 const appBlockPaths = Object.keys(appBlocks);
 // An app with an app.json (contract 4) is made from it, its editor.ts and its texts.json; one with only an index.ts (contract 2 or 3)
@@ -263,24 +265,24 @@ export const writtenApps: SiteApp[] = [...fromManifests, ...fromIndexes]
         Object.keys(definition.widgets ?? {}).length > 0,
         manifest,
       ),
-      pictures: [],
+      images: [],
       ...(store ? { store } : {}),
     };
   })
-  .map((a) => withPictures(a))
+  .map((a) => withImages(a))
   .sort((a, b) => byText(a.label, b.label));
-export const apps: SiteApp[] = writtenApps.map((a) => withPictures(localApp(a))).sort((a, b) => byText(a.label, b.label));
+export const apps: SiteApp[] = writtenApps.map((a) => withImages(localApp(a))).sort((a, b) => byText(a.label, b.label));
 
-/** An app with the addresses of its pictures (its `screenshots`, in their order), each with what it says under it. */
-function withPictures(app: SiteApp): SiteApp {
+/** An app with the addresses of its images (its `screenshots`, in their order), each with what it says under it. */
+function withImages(app: SiteApp): SiteApp {
   const folder = `/${appFolder(app.id)}/${SCREENSHOTS}/`;
-  const pictures = (app.screenshots ?? []).flatMap((x, i) => {
-    // The new file name first, then the old one (DEPRECATED_SHOT_WORDS) for an app whose pictures are not regenerated yet.
-    const file = shotFiles(i, x.shows).find((f) => appPictures[folder + f]);
-    const src = file && appPictures[folder + file];
+  const images = (app.screenshots ?? []).flatMap((x, i) => {
+    // The new file name first, then the old one (DEPRECATED_SHOT_WORDS) for an app whose images are not regenerated yet.
+    const file = shotFiles(i, x.shows).find((f) => appImages[folder + f]);
+    const src = file && appImages[folder + file];
     return src ? [{ src, label: x.label }] : [];
   });
-  return { ...app, pictures };
+  return { ...app, images };
 }
 
 // Which app a block's screen under "Standard blocks" comes from, by its type: the app with a block of that type
@@ -325,6 +327,9 @@ export const collections = [...each(site.collections, local.collection), ...stan
 const ownedLists = [...standardLists, ...listsOf(writtenApps)];
 setRowLists(ownedLists);
 
+/** Told by the app once it has the site's files: "Rows from" offers the owner's lists too. */
+export const setOwnRowLists = (files: { path: string; text: string }[]) => setRowLists([...ownedLists, ...ownListsOf(files)]);
+
 /** The made-up rows of the lists the standard blocks and the apps bring (`examples`), by the list's id, as listRowsOf
  * gives them: what the made-up site (examples.ts) has in them. */
 export const listExamples: ListRows = Object.fromEntries(
@@ -335,10 +340,10 @@ export const listExamples: ListRows = Object.fromEntries(
  * file's name), each with its `slug`: what the blocks show from them (BlockData.lists). */
 export const listRowsOf = (files: { path: string; text: string }[]): ListRows =>
   Object.fromEntries(
-    ownedLists.map((l) => [
+    [...ownedLists, ...ownListsOf(files)].map((l) => [
       l.id,
       files
-        .filter((f) => f.path.startsWith(`${l.folder}/`) && f.path.endsWith('.json'))
+        .filter((f) => f.path.startsWith(`${l.folder}/`) && f.path.endsWith('.json') && isEntryPath(f.path))
         .sort((a, b) => a.path.localeCompare(b.path))
         .flatMap((f): Record<string, unknown>[] => {
           try {
@@ -350,6 +355,17 @@ export const listRowsOf = (files: { path: string; text: string }[]): ListRows =>
         .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0)),
     ]),
   );
+
+/** Every list the editor shows for these files: the code's (`collections`) and the ones the owner made (src/ownLists.ts). Without
+ * a `_list.json` in the files it is `collections` itself. */
+export const collectionsFor = (files: { path: string; text: string }[]): Collection[] => {
+  const mine = ownListsOf(files).filter((l) => !collections.some((c) => c.id === l.id));
+  return mine.length ? [...collections, ...mine] : collections;
+};
+
+/** Whether a list is one the owner made (it has a `_list.json`), not one the code brings. */
+export const isOwnList = (files: { path: string; text: string }[], id: string) =>
+  ownListsOf(files).some((l) => l.id === id) && !collections.some((c) => c.id === id);
 
 /** The icon of each part on the start screen, in the sidebar and under "Lists", by its id: the site's, the
  * standard blocks' and the apps' lists', and those of the parts the menu lists (appearance, seoParts, partScreens). */
@@ -369,7 +385,10 @@ export const lists = [...site.lists, ...ownedLists.map((l) => l.id)];
  * list, which is a row under "Privacy" (privacy.ts). */
 export const listsShown = (files: { path: string; text: string }[]) => {
   const installed = activeApps(files);
-  return [...site.lists, ...[...standardLists, ...listsOf(writtenApps.filter((a) => installed.includes(a.id)))].map((l) => l.id)].filter(
-    (id) => id !== site.config.lists.cookies,
-  );
+  const own = ownListsOf(files).map((l) => l.id);
+  return [
+    ...site.lists,
+    ...[...standardLists, ...listsOf(writtenApps.filter((a) => installed.includes(a.id)))].map((l) => l.id),
+    ...own.filter((id) => !collections.some((c) => c.id === id)),
+  ].filter((id) => id !== site.config.lists.cookies);
 };

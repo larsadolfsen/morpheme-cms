@@ -1,8 +1,8 @@
-// The CMS's demo site: a made-up site about Morpheme itself, with pages, blog posts, pictures and settings of its
+// The CMS's demo site: a made-up site about Morpheme itself, with pages, blog posts, images and settings of its
 // own, and nothing of any real site's. It is the starter (starter/, the site a new site begins with) with demo/ laid on
 // top: demo/ holds only what differs (its pages and posts, the data files it changes, its src/site/ parts, its logo,
-// icons and pictures), so the two cannot drift apart. demoSite() puts it in a folder of its own with one of the site's
-// themes, ready to build: the pictures of the themes are taken of it (theme-screenshots.mjs), so a theme is never shown
+// icons and images), so the two cannot drift apart. demoSite() puts it in a folder of its own with one of the site's
+// themes, ready to build: the images of the themes are taken of it (theme-screenshots.mjs), so a theme is never shown
 // with a site's own content. `morpheme check:demo` builds it with the standard theme and checks its content
 // (check-demo.mjs), so it keeps up with the CMS.
 import { cpSync, mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -15,7 +15,7 @@ const STARTER = fileURLToPath(new URL('../starter/', import.meta.url));
 const DEMO = fileURLToPath(new URL('../demo/', import.meta.url));
 
 /** The demo site in a new folder, with the theme (a folder in the site's src/themes/, or the standard theme) as its theme,
- * the site's packages and its pictures' smaller sizes (`morpheme images`), from the site at `root`. Its folder;
+ * the site's packages and its images' smaller sizes (`morpheme images`), from the site at `root`. Its folder;
  * the caller deletes it. */
 export function demoSite(theme = STANDARD_THEME, root = process.cwd()) {
   // In the site's .morpheme/ (git-ignored), not the system's temporary folder: Astro takes a file in a folder that has

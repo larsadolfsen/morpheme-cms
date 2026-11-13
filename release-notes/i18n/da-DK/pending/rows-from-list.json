@@ -1,6 +1,6 @@
 {
   "id": "rows-from-list",
   "kind": "paragraph",
-  "title": "Fyld en liste fra bloggen eller udtalelserne",
-  "text": "En Liste, Segmenteret liste eller FAQ-liste kan nu hente sine rækker fra en liste på hjemmesiden i stedet for skrevne rækker. Vælg Rækker fra i blokkens indstillinger, vælg mærker og hvor mange, og tilføj en tekstknap, der går til hele listen."
+  "title": "Dynamisk liste",
+  "text": "En liste viser poster fra hjemmesiden, uden at du skriver dem igen. Tryk på Udfyld fra en liste i værktøjslinjen, vælg liste, mærker og Hvor mange, og tryk på en del af en række for at vælge dens felt. Fortryd henter dine skrevne rækker tilbage."
 }

@@ -6,19 +6,27 @@
 // `draw`. The parts a theme's drawings are made of (Buttons, LinkCards …) are React components too, which the site's
 // Astro components show the same way. What differs between the two is said here, so the drawing is the same: a link
 // is a link only on the site (Link), and only there does a block stand in the text (useInText). A drawing is on the
-// site unless the editor says otherwise (InEditor, around the editor and its pictures of the blocks).
+// site unless the editor says otherwise (InEditor, around the editor and its images of the blocks).
 import { createContext, useContext, type ComponentType, type ReactNode } from 'react';
 import type { BlockData } from '../blocks';
 import { shownAt } from '../images';
 
 const Editor = createContext(false);
 // The editor's own screens, which are drawn with the theme's UI parts too (packages/editor/src/ui.tsx): their links lead
-// somewhere. What the editor draws of the site in them (a preview, a picture of a block) is InEditor again.
+// somewhere. What the editor draws of the site in them (a preview, an image of a block) is InEditor again.
 const Own = createContext(false);
 
-/** What is drawn in it is in the editor: the editor (App.tsx) and its pictures of the blocks (registry.tsx, Preview). */
+/** What is drawn in it is in the editor: the editor (App.tsx) and its images of the blocks (registry.tsx, Preview). */
 export const InEditor = ({ children }: { children: ReactNode }) => (
   <Editor.Provider value={true}>
+    <Own.Provider value={false}>{children}</Own.Provider>
+  </Editor.Provider>
+);
+
+/** What is drawn in it is as on the site: the same classes, space and links as in the built page (the editor's Preview, pagePreview.tsx,
+ * which must look as the site does). Its links are the site's `a`; the Preview's frame has no scripts and opens no popups, so they lead nowhere. */
+export const OnSite = ({ children }: { children: ReactNode }) => (
+  <Editor.Provider value={false}>
     <Own.Provider value={false}>{children}</Own.Provider>
   </Editor.Provider>
 );
@@ -64,12 +72,12 @@ export function Link({
   );
 }
 
-/** A picture with the sizes the site has made of it (srcset, width and height), for the browser to pick the one that
- * fits (pictureOf, load.ts); in the editor only the picture. */
-export type Picture = { src: string; srcset?: string; width?: number; height?: number };
+/** An image with the sizes the site has made of it (srcset, width and height), for the browser to pick the one that
+ * fits (imageOf, load.ts); in the editor only the image. */
+export type Image = { src: string; srcset?: string; width?: number; height?: number };
 
-/** A picture in the editor: as it is shown there (shownAt: one made ready in this visit, from the browser). */
-export const shownPicture = (src: string): Picture => ({ src: shownAt(src) });
+/** An image in the editor: as it is shown there (shownAt: one made ready in this visit, from the browser). */
+export const shownImage = (src: string): Image => ({ src: shownAt(src) });
 
 /** What a block's contract makes its view from in the editor (view.ts): its fields and the site's data. Null: nothing
  * is shown. */

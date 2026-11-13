@@ -2,7 +2,7 @@
 // (Deleted.tsx).
 export const history = {
   /** The button in the top bar of a form, and the sheet it opens. */
-  versions: 'Earlier versions',
+  versions: 'History',
   loading: 'Loading the versions…',
   notLoaded: (error: string) => `Couldn’t load the versions: ${error}`,
   none: 'There are no earlier versions',

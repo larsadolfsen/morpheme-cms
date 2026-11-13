@@ -6,7 +6,7 @@
 //   PUT    /api/media-providers/<app>/<id>/key                   { key }: saves the key (needs the right to save the site)
 //   DELETE /api/media-providers/<app>/<id>/key                   deletes the key
 //   GET    /api/media-providers/<app>/<id>/search?query&page     { items, totalPages }: lib/mediaProviders.mjs MediaItem
-//   GET    /api/media-providers/<app>/<id>/image?url             the picture's bytes, from a listed host only
+//   GET    /api/media-providers/<app>/<id>/image?url             the image's bytes, from a listed host only
 //   POST   /api/media-providers/<app>/<id>/track  { url }        the provider's download tracking call, a listed host only
 // A call goes to a listed host only (the `csp` of the app), over https, follows no redirect, and ends with an error after
 // TIMEOUT_MS or over MAX_JSON / MAX_IMAGE bytes.
@@ -141,10 +141,10 @@ export async function handleMediaProviders(request, env, deps) {
       if (request.method !== 'GET') return json({ error: 'method' }, 405);
       const target = allowedUrl(url.searchParams.get('url'), hosts);
       if (!target) return json({ error: 'host not allowed' }, 400);
-      // A picture needs no key: the provider's picture hosts are open, and the key goes to the API host alone.
+      // An image needs no key: the provider's image hosts are open, and the key goes to the API host alone.
       const res = await fetched(ask, target, {});
       const type = res.headers.get('content-type') ?? '';
-      if (!res.ok || !/^image\/(jpeg|png|webp|avif|gif)/.test(type)) return json({ error: 'not a picture' }, 502);
+      if (!res.ok || !/^image\/(jpeg|png|webp|avif|gif)/.test(type)) return json({ error: 'not an image' }, 502);
       return new Response(await bytesOf(res, MAX_IMAGE), {
         headers: { 'content-type': type, 'cache-control': 'private, max-age=86400', 'x-content-type-options': 'nosniff' },
       });

@@ -9,7 +9,7 @@ export const forms = {
   sections: { title: 'Sections', content: 'Content', pageSettings: 'Page settings', postSettings: 'Post settings' },
   otherFields: 'Other fields',
   seo: 'Search engines',
-  /** The section after it: the picture, title and description when the page is shared, under a preview of how a link
+  /** The section after it: the image, title and description when the page is shared, under a preview of how a link
    * to it looks (SharePreview in ui.tsx). */
   share: 'Social media',
   sharePreview: 'How a link to the page looks when it is shared',
@@ -62,12 +62,12 @@ export const forms = {
     keywordInH1: (word: string, post: boolean, found: boolean) =>
       `The keyword "${word}" is ${found ? '' : 'not '}in the ${post ? 'title' : 'main heading'}`,
     keywordInText: (word: string, found: boolean) => `The keyword "${word}" is ${found ? '' : 'not '}in the first paragraph`,
-    /** "Hide from search engines (noindex)" is ticked. */
+    /** "No index" (noindex) is ticked. */
     noindex: (post: boolean) => `The ${post ? 'post' : 'page'} is hidden from Google`,
     /** "Canonical URL" is a page the editor does not know. */
     noCanonical: 'The original page (the page Google should list) points to a page that doesn’t exist',
-    allAlt: 'All pictures have an alt text',
-    noAlt: (n: number) => `${n} ${n === 1 ? 'picture has' : 'pictures have'} no alt text`,
+    allAlt: 'All images have an alt text',
+    noAlt: (n: number) => `${n} ${n === 1 ? 'image has' : 'images have'} no alt text`,
     goodLinks: (n: number): string => (n === 1 ? 'The link has a descriptive text' : 'The links have descriptive text'),
     /** The first link whose text is only "click here", "read more" and the like. */
     vagueLink: (text: string) => `The link "${text}" doesn’t say where it leads`,
@@ -79,9 +79,9 @@ export const forms = {
     fixDescription: 'Write a Google description of about 140–155 characters.',
     fixKeywordInH1: (post: boolean) => `Use the keyword in the ${post ? 'title' : 'main heading'}.`,
     fixKeywordInText: 'Use the keyword in the first paragraph.',
-    fixNoindex: (post: boolean) => `Uncheck Hide from search engines if the ${post ? 'post' : 'page'} should be found.`,
+    fixNoindex: (post: boolean) => `Turn off No index if the ${post ? 'post' : 'page'} should be found.`,
     fixCanonical: 'Choose a page that exists, or choose No page.',
-    fixAlt: 'Tap each picture, choose Edit, and describe it in the Alt text field.',
+    fixAlt: 'Tap each image, choose Edit, and describe it in the Alt text field.',
     fixLink: 'Write what the link leads to, for example, "See the prices."',
   },
   /** Over the places that use an entry (a tag), DataForm.tsx. */
@@ -176,6 +176,14 @@ export const forms = {
       `Another ${post ? 'post' : 'page'} has this title. Save with the suggested title, or write your own.`,
     titleStillTaken: 'Another file has that title too. Try this one, or write your own.',
     titleLabel: 'Title',
+    /** An empty row in a block typed in place when the page is saved; `name`: the block ("Segmented list"), `word`: its row ("row"). */
+    emptyRow: (name: string, word: string) => `You have an empty ${name.toLowerCase()} ${word}.`,
+    removeItem: 'Remove item',
+    /** A block typed in place with no row at all when the page is saved; `items`: its rows ("rows"). */
+    emptyBlock: (name: string, items: string) => `${name} has no ${items}. The block will be deleted.`,
+    deleteAndPublish: 'Delete and publish',
+    deleteAndSave: 'Delete and save draft',
+    deleteAndSchedule: 'Delete and schedule',
     titleNeedsLetters: 'The title must have letters or digits.',
     /** Planlagt (scheduled), with a time that has passed. */
     scheduledPast: 'The time has already passed. Choose a later time, or choose Published.',
@@ -244,8 +252,8 @@ export const forms = {
   noChoice: 'None',
   /** A value that is not among the choices (a removed page). */
   missing: (value: string) => `${value} (doesn’t exist)`,
-  changeImage: 'Change picture',
-  pickImage: 'Choose picture',
+  changeImage: 'Change image',
+  pickImage: 'Choose image',
   add: 'Add',
   noneFound: 'No results',
   removeOne: (what: string) => `Remove ${what}`,

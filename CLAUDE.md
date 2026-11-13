@@ -155,7 +155,7 @@ Our ecosystem has two completely separate repositories, which must **never** be 
   - `theme/styles/`: MD3 design tokens (3-tier: `md.ref.*`, `md.sys.*`, `md.comp.*`), typography (Roboto / Roboto Flex), elevation and color scales.
   - `theme/ui/`: M3 UI components (Buttons, Cards, Chips, Dialogs, Top App Bar, Navigation Bar/Rail/Drawer etc.).
   - `theme/blocks/`: Default blocks and their visual look (`View.tsx`, CSS).
-- **`demo/`**: The CMS's demo, a made-up site laid over the starter, which the CMS is developed and checked with and which the themes' pictures are taken of (`npx morpheme check:demo`). `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in `.morpheme/demo/site/` with a copy of the package as npm would pack it, and `wrangler.jsonc` puts it on the Worker `morpheme-demo`. Each branch gets its own Preview of the demo (Cloudflare's Worker Previews, `npx wrangler preview`), and Cloudflare writes its address on the branch's pull request; login and save do not work there. Agents never send the owner a Preview link for a change to the editor (the owner can't sign in there to see it); only for a change visible on the site.
+- **`demo/`**: The CMS's demo, a made-up site laid over the starter, which the CMS is developed and checked with and which the themes' images are taken of (`npx morpheme check:demo`). `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in `.morpheme/demo/site/` with a copy of the package as npm would pack it, and `wrangler.jsonc` puts it on the Worker `morpheme-demo`. Each branch gets its own Preview of the demo (Cloudflare's Worker Previews, `npx wrangler preview`), and Cloudflare writes its address on the branch's pull request; login and save do not work there. Agents never send the owner a Preview link for a change to the editor (the owner can't sign in there to see it); only for a change visible on the site.
 - **`starter/`**: What a new site starts with (the *Deploy to Cloudflare* button).
 - **`src/` and `pages/`**: The CMS editor itself and the admin interface.
   - `src/`: React-based editor UI, screens, fields, state management (`store.ts`), live preview (`pagePreview.tsx`), block registry (`blocks.ts`) and the start screen's widgets and dashboard (`DashboardGrid.tsx`, `DashboardEdit.tsx`, `widgets/`).
@@ -184,6 +184,7 @@ Before changes are approved or published, verify the following from the root of 
 | `node ../../../bin/morpheme.mjs check:themes` (in `.morpheme/demo/site/`) | The same with each of the other themes. |
 | `npm run check:starter` | The starter works as a site with the package from `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. |
 | `npm run check:demo` | The demo builds with the default theme and follows the editor's rules. |
+| `npm run check:contrast` | By hand, after `npm run build` (about 4 minutes per theme, not in CI): WCAG AA contrast of every block's text, icons and control borders on each section colour, on the site and typed in place in the editor, light and dark, phone and computer. `--all` runs every installed theme. |
 
 ### Worker rule: no pending I/O promise in module memory
 
@@ -213,6 +214,7 @@ All wording in UI components, buttons and fields follows the specific guidelines
 
 - **Short, precise sentences in the active form** (Active Voice).
 - **Universal terms:** No local abbreviations or unexplained national concepts.
+- **Image everywhere** (owner rule, 12 Nov): English texts, docs and notes say `image`. `check:language` fails on the old word; stored names (CSS classes, data attributes, saved ids) keep it and are listed in `scripts/check-language.mjs`.
 - **M3 canonical terminology:**
   - Toggles and states: `Enabled` / `Disabled`, `On` / `Off` (their Danish labels are in the `da-DK` language files).
   - Document status: `Draft`, `Published`. A page is scheduled with a date on `Publish` (`Schedule`); `Hidden` is the SEO setting `Hide from search engines`.
@@ -226,3 +228,11 @@ Owner, 13 Nov 2026: "We follow MD3 everywhere except the editor. You need to loo
 2. Before a spec or a change, read the real pages of every component involved (they are script-rendered: use Playwright, which is pre-installed; expand collapsed token tables; read specs, guidelines and accessibility pages) and quote them. Never write from memory. If a page can't be read, say so plainly instead of guessing.
 3. Never invent a part, mark, size or behaviour M3 does not print. Where M3 is silent, say so and use the nearest M3 pattern.
 4. A deviation is allowed only in the editor workspace or when the owner says so in words. Record it with the M3 quote in `docs/material-deviations.md` if it exists in your checkout, otherwise in the spec or PR.
+
+## Colours in editor-drawn block parts
+
+Colours in the editor's block parts (`src/editor.css`, `src/Inline*.tsx`) come only from the theme's context tokens: the `--mo-*`
+roles, `currentColor` and `color-mix` of them, never a fixed value. A section on a colour swaps those roles to its on-colours once, in
+`theme/styles/global.css` (the site's `.text-section-*` and the editor's `[data-section-color]` nodes), so a part that uses the normal
+tokens follows every section colour by itself. `npm run check:editor-colors` fails on a fixed colour (its allowlist gives the
+reasons), and `check:screens` checks text, placeholder, slot icons and outline of every entry of `inlineBlocks` on every section colour.

@@ -194,8 +194,8 @@ export function writeRecords(records, folder, updates, random = Math.random) {
 }
 
 /**
- * Adds the credit of pictures to the changes of their records: into the change that already makes the record (the page's tags
- * reach a new picture's record in the same save), else as a change of its own.
+ * Adds the credit of images to the changes of their records: into the change that already makes the record (the page's tags
+ * reach a new image's record in the same save), else as a change of its own.
  * @param {RecordChange[]} changes
  * @param {StoredRecord[]} records
  * @param {string} folder

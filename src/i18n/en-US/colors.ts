@@ -30,10 +30,10 @@ export const colors = {
     /** The tab with dynamic color, beside the modes'. */
     tab: 'Generator',
     source: 'Source color',
-    fromPicture: 'From a picture',
-    fromPictureDone: 'The source color was taken from the picture',
-    /** A picture without color enough to make the colors from (a grey one). */
-    noColorInPicture: 'The picture has no color that can be used as a source color',
+    fromImage: 'From an image',
+    fromImageDone: 'The source color was taken from the image',
+    /** An image without color enough to make the colors from (a grey one). */
+    noColorInImage: 'The image has no color that can be used as a source color',
     /** The generator's three base colors at the top (ColorTiles), under this heading and named by it for screen readers. */
     base: 'Colors',
     /** The color wheel with the color harmonies (lib/dynamic-colors.ts HARMONIES). */
@@ -60,14 +60,14 @@ export const colors = {
     intro: "Each page's colors, as they were when the website was last updated.",
     /** At the top of the modes: the apps that give the pages their colors, by their names, and the way to the site's
      * own, the fallback. */
-    title: "Colors from the pages' pictures",
-    byApps: (apps: string) => `${apps} gives the pages colors from their pictures. Where it doesn’t, the fallback colors are used.`,
+    title: "Colors from the pages' images",
+    byApps: (apps: string) => `${apps} gives the pages colors from their images. Where it doesn’t, the fallback colors are used.`,
     showFallback: 'Show fallback colors',
     /** The page with the site's own colors (FALLBACK_ROUTE), and what they are. */
     fallback: 'Fallback colors',
     fallbackIntro: (apps: string) => `The website’s own colors are used on pages where ${apps} doesn’t give colors.`,
     apps: 'Apps',
-    fromApp: 'Colors from a picture',
+    fromApp: 'Colors from an image',
     own: "The website's colors",
     loading: "Loading the pages' colors…",
     missing: "The pages' colors can be seen in a few minutes",

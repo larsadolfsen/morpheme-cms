@@ -16,7 +16,7 @@
 //                    privacy/cookie-banner, privacy/privacy-pages, or one of the editor's own screens (Part.opens):
 //                    privacy/consents the visitors' answers in the cookie banner (Consents.tsx); and the settings of the apps installed with
 //                    its category: analytics/google-analytics
-//   files            the uploaded pictures, PDFs, videos and zip files (Media.tsx)
+//   files            the uploaded images, PDFs, videos and zip files (Media.tsx)
 //   seo              "Search engine optimization" (Library.tsx Seo): seo/redirects the redirects' two lists
 //                    (Redirects.tsx): seo/redirects/all the redirects, and seo/redirects/not-found
 //                    the addresses visitors came to that do not exist; seo/rating the SEO rating of every page and
@@ -89,7 +89,9 @@ import {
 } from './deploy';
 import { readCache, writeCache } from './cache';
 import { forgetNotFound, loadNotFound, type Missing } from './notFound';
-import { collectionOf, slugOf, type Collection, type FolderCollection, type Part, type Relation } from './schema';
+import { isEntryPath } from '../lib/ownList.mjs';
+import { collectionOf, slugOf, type Collection, type FolderCollection, type OwnedList, type Part, type Relation } from './schema';
+import OwnListPage from './OwnListPage';
 import EntryForm, { newMarkdown } from './EntryForm';
 import DataForm from './DataForm';
 import CompanyForm from './CompanyForm';
@@ -167,7 +169,19 @@ import {
   MotionSchemes,
   motionOf,
 } from './Library';
-import { appearance, asWritten, blockParts, collections, companyParts, listRowsOf, partScreens, seoParts } from './site';
+import {
+  appearance,
+  asWritten,
+  blockParts,
+  collections,
+  collectionsFor,
+  companyParts,
+  isOwnList,
+  listRowsOf,
+  setOwnRowLists,
+  partScreens,
+  seoParts,
+} from './site';
 import { config, relationsOf, type SiteData, siteName, siteOf, testimonialsOf, usedBy, whatIsAt } from '@site/editor';
 import { themes } from './themes';
 import Screen from './Screen';
@@ -205,7 +219,7 @@ export type Env = {
   testimonials: TestimonialRow[];
   /** The rest of the site, for the previews of the blocks (sitedata.ts). */
   site: SiteData;
-  /** The pictures uploaded to the site (Media.tsx), for the gallery a picture is chosen from. */
+  /** The images uploaded to the site (Media.tsx), for the gallery an image is chosen from. */
   media: RepoFile[];
   /** All the files the editor has, for what links to a page that moves (addresses.ts). */
   files: RepoFile[];
@@ -229,7 +243,7 @@ export type Env = {
   load: (paths: string[]) => Promise<RepoFile[]>;
   /** All the files in a folder of the site, at any depth (an app's, to install, update or uninstall it). */
   folder: (path: string) => Promise<RepoFile[]>;
-  /** The app store (store.ts): its apps and its themes, an app's or a theme's files from it, and their pictures (as
+  /** The app store (store.ts): its apps and its themes, an app's or a theme's files from it, and their images (as
    * addresses in this browser). */
   store: {
     connected: () => Promise<boolean>;
@@ -239,7 +253,7 @@ export type Env = {
     screenshots: (app: StoreApp) => Promise<{ src: string; label: string }[]>;
     themeScreenshots: (theme: Pick<StoreTheme, 'screenshots' | 'files'>) => Promise<{ key: string; src: string }[]>;
   };
-  /** A picture's bytes by its blob id (github.ts loadBytes). */
+  /** An image's bytes by its blob id (github.ts loadBytes). */
   bytes: (oid: string, address?: string) => Promise<Uint8Array>;
   /** The addresses visitors came to that do not exist (notFound.ts; null: the site does not keep
    * them), and taking some off that list. */
@@ -259,7 +273,7 @@ export type Env = {
   reorder: (collection: Collection, files: RepoFile[]) => Promise<string>;
 };
 
-// The uploaded pictures only by their paths (no text), for "Files" (Media.tsx).
+// The uploaded images only by their paths (no text), for "Files" (Media.tsx).
 const FOLDERS = config.folders;
 const FOLDERS_KEY = JSON.stringify(FOLDERS);
 
@@ -449,10 +463,11 @@ function Editor() {
     if (files && user && commitOf.current) writeCache({ commit: commitOf.current, files, user, folders: FOLDERS_KEY });
   }, [files, user]);
 
-  const relations = useMemo<Record<Relation, Option[]>>(
-    () => ({ ...relationsOf(files ?? []), rowSources: rowSources(t.blocks.rows) }),
-    [files],
-  );
+  // The lists the owner made are known to "Rows from" before its choices are made (rowSources reads them), so they are offered.
+  const relations = useMemo<Record<Relation, Option[]>>(() => {
+    setOwnRowLists(files ?? []);
+    return { ...relationsOf(files ?? []), rowSources: rowSources(t.blocks.rows) };
+  }, [files]);
   // What a link in the text can go to (LinkSheet.tsx): the fixed pages (not those that are also a
   // page), the other pages and the posts, by their addresses.
   const linkGroups = useMemo(() => {
@@ -648,7 +663,9 @@ function Editor() {
       }
     },
     nextOrder(collection) {
-      const own = (files ?? []).filter((f) => f.path.startsWith(`${collection.folder}/`) && f.path.endsWith('.json'));
+      const own = (files ?? []).filter(
+        (f) => f.path.startsWith(`${collection.folder}/`) && f.path.endsWith('.json') && isEntryPath(f.path),
+      );
       return Math.max(0, ...own.map((f) => Number(json(f).order) || 0)) + 1;
     },
     // Numbers the entries 1, 2, 3… in the new order and saves the files whose number changed.
@@ -803,7 +820,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'account') return <Account user={user} files={files} onLogout={onLogout} />;
   // The old address of the notifications, now a side sheet: the start screen, with the sheet over it (App).
   if (route === 'notifications') return <Start builtAt={builtAt} files={files} env={env} />;
-  if (route === 'lists') return <Lists files={files} />;
+  if (route === 'lists') return <Lists files={files} env={env} />;
   if (route === 'company') return <Company files={files} />;
   if (route === 'blocks') return <Blocks files={files} />;
   if (route === 'files' || route.startsWith('files/'))
@@ -883,19 +900,23 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (form) return <CompanyForm part={form.part} at={form.at} page={form.page} env={env} files={files} />;
   // A list, or a tab an installed app adds to it (list/<id>/<app>).
   const [, listId, listTab, ...below] = route.split('/');
-  const listed = route.startsWith('list/') && !below.length && collections.find((c) => c.id === listId);
+  const listed = route.startsWith('list/') && !below.length && collectionsFor(files).find((c) => c.id === listId);
+  if (listed && isOwnList(files, listed.id) && listed.kind === 'folder')
+    return <OwnListPage key={listed.id} collection={listed as OwnedList} files={files} env={env} />;
+  if (listed && listed.kind === 'folder' && isOwnList(files, listed.id))
+    return <OwnListPage key={listed.id} collection={listed as OwnedList} files={files} env={env} />;
   if (listed) return <List key={listed.id} collection={listed} tab={listTab} files={files} env={env} />;
 
   // new/<list>, or new/<list>/<kind> for one of its kinds (a pop-up: standard, mailchimp).
   const [, newIn, newKind] = route.split('/');
-  const creating = route.startsWith('new/') && collections.find((c) => c.id === newIn && c.create);
+  const creating = route.startsWith('new/') && collectionsFor(files).find((c) => c.id === newIn && c.create);
   if (creating) {
     if (creating.kind === 'markdown') return <EntryForm collection={creating} file={newMarkdown(creating, notOffered(files))} env={env} />;
     if (creating.kind === 'folder')
       return <DataForm key={route} collection={creating} kind={newKind} file={{ path: '', oid: '', text: '' }} env={env} />;
   }
 
-  const found = collectionOf(collections, route);
+  const found = collectionOf(collectionsFor(files), route);
   // An optional file (the header's) that the site has not got yet opens empty; the first save makes it.
   const file = files.find((f) => f.path === route) ?? (found?.dataFile?.optional ? { path: route, oid: '', text: '{}\n' } : undefined);
   if (!found || !file)

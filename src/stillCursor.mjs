@@ -12,7 +12,7 @@ export function wordRange(state) {
   const { $from, empty } = state.selection;
   const block = $from.parent;
   if (!empty || !block.isTextblock) return null;
-  // One character for each picture or line break, so a place in the text is the same place in the block.
+  // One character for each image or line break, so a place in the text is the same place in the block.
   const word = wordAt(block.textBetween(0, block.content.size, undefined, '￼'), $from.parentOffset);
   const start = $from.start();
   return word && { from: start + word.from, to: start + word.to };

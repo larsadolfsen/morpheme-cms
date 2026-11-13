@@ -6,7 +6,7 @@ Status: done. Checked against the code on 2026-11-10.
 > runner or Sonnet agent). Steps use checkbox (`- [ ]`) syntax for tracking. The plan gives interfaces and test cases,
 > not code.
 
-**Goal:** A blog post page with a richer header, a lead paragraph, the featured picture after the lead and related-post
+**Goal:** A blog post page with a richer header, a lead paragraph, the featured image after the lead and related-post
 cards, plus the settings part Company › Social media.
 
 **Spec:** `docs/superpowers/specs/2026-11-05-post-page-header-design.md`. Read it first.
@@ -75,7 +75,7 @@ Tasks 1, 2, 4 and 7 can run at the same time. The runner takes one task at a tim
 
 **Rules:**
 - `lead` is the outer HTML of the first element when it is a `<p>` with text. Else `lead` is `''`.
-- A `<p>` with only an `<img>` or `<picture>` (and whitespace) has no text. It is not a lead.
+- A `<p>` with only an `<img>` or `<image>` (and whitespace) has no text. It is not a lead.
 - `rest` is the HTML after the lead, with its leading whitespace removed. With no lead, `rest` is the full `html`.
 - Leading whitespace and HTML comments before the first element are ignored.
 - Use string and regular-expression work only. No DOM, no dependency. The function runs in Node and in a browser.
@@ -86,7 +86,7 @@ Tasks 1, 2, 4 and 7 can run at the same time. The runner takes one task at a tim
 |---|---|---|
 | text paragraph first | `<p>Hello <a href="/x">you</a>.</p>\n<h2>Next</h2>` | `{ lead: '<p>Hello <a href="/x">you</a>.</p>', rest: '<h2>Next</h2>' }` |
 | heading first | `<h2>Title</h2><p>Text</p>` | `{ lead: '', rest: '<h2>Title</h2><p>Text</p>' }` |
-| picture-only paragraph first | `<p><img src="/a.webp" alt=""></p><p>Text</p>` | `{ lead: '', rest: <same input> }` |
+| image-only paragraph first | `<p><img src="/a.webp" alt=""></p><p>Text</p>` | `{ lead: '', rest: <same input> }` |
 | block first | `<div data-block="points" data-props="{}"></div><p>Text</p>` | `{ lead: '', rest: <same input> }` |
 | leading whitespace | `\n  <p>Hi</p><p>More</p>` | `{ lead: '<p>Hi</p>', rest: '<p>More</p>' }` |
 | empty text | `''` | `{ lead: '', rest: '' }` |
@@ -119,7 +119,7 @@ type ProfileId = (typeof PROFILE_IDS)[number];
 type ShareId = (typeof SHARE_IDS)[number];
 type Social = { profiles: { id: ProfileId; url: string }[]; share: ShareId[] };
 export function socialOf(raw: Record<string, unknown> | undefined): Social;
-export function shareLinks(post: { url: string; title: string; picture?: string }, share: ShareId[]): { id: ShareId; href?: string }[];
+export function shareLinks(post: { url: string; title: string; image?: string }, share: ShareId[]): { id: ShareId; href?: string }[];
 export function sameAsOf(profiles: Social['profiles']): string[];
 ```
 
@@ -127,7 +127,7 @@ export function sameAsOf(profiles: Social['profiles']): string[];
 - `socialOf`: a profile is kept when its value is a non-empty string after `trim()`. Profiles follow `PROFILE_IDS` order.
 - `socialOf`: the switch key of a share id is `share` + its id in PascalCase: `shareFacebook`, `shareX`, `shareLinkedin`, `sharePinterest`, `shareCopyLink`. A missing switch, or any value other than `false`, means on. Share ids follow `SHARE_IDS` order.
 - `shareLinks`: one item per id in `share`, in that order. Addresses as the spec's table "Share addresses". Encode each value with `encodeURIComponent`.
-- `shareLinks`: leave out `pinterest` when `picture` is missing or empty. `copy-link` has no `href`.
+- `shareLinks`: leave out `pinterest` when `image` is missing or empty. `copy-link` has no `href`.
 - `sameAsOf`: the `url` of each profile, in order.
 
 - [ ] **Step 1:** Write the tests in `site/social.test.mjs`.
@@ -142,8 +142,8 @@ export function sameAsOf(profiles: Social['profiles']): string[];
 | encoded | `shareLinks({ url: 'https://a.dk/b c/', title: 'Hi & bye' }, ['x'])` | `[{ id: 'x', href: 'https://x.com/intent/post?url=https%3A%2F%2Fa.dk%2Fb%20c%2F&text=Hi%20%26%20bye' }]` |
 | facebook | `shareLinks({ url: 'https://a.dk/p/', title: 'T' }, ['facebook'])` | `href: 'https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fa.dk%2Fp%2F'` |
 | linkedin | same post, `['linkedin']` | `href: 'https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fa.dk%2Fp%2F'` |
-| pinterest with picture | `{ url: 'https://a.dk/p/', title: 'T', picture: 'https://a.dk/i.webp' }`, `['pinterest']` | `href: 'https://pinterest.com/pin/create/button/?url=https%3A%2F%2Fa.dk%2Fp%2F&media=https%3A%2F%2Fa.dk%2Fi.webp&description=T'` |
-| pinterest without picture | `{ url: 'https://a.dk/p/', title: 'T' }`, `['pinterest', 'copy-link']` | `[{ id: 'copy-link' }]` |
+| pinterest with image | `{ url: 'https://a.dk/p/', title: 'T', image: 'https://a.dk/i.webp' }`, `['pinterest']` | `href: 'https://pinterest.com/pin/create/button/?url=https%3A%2F%2Fa.dk%2Fp%2F&media=https%3A%2F%2Fa.dk%2Fi.webp&description=T'` |
+| pinterest without image | `{ url: 'https://a.dk/p/', title: 'T' }`, `['pinterest', 'copy-link']` | `[{ id: 'copy-link' }]` |
 | sameAs none | `sameAsOf([])` | `[]` |
 | sameAs order | `sameAsOf([{ id: 'facebook', url: 'https://f' }, { id: 'x', url: 'https://x' }])` | `['https://f', 'https://x']` |
 
@@ -219,7 +219,7 @@ Runner check: `npx prettier --check site/site.ts site/schema.ts starter/src/data
 
 **Interfaces:**
 - Consumes: `shareLinks`, type `ShareId` (Task 2); `ui/IconButton.tsx` (`iconButtonClass` for Astro); `@morphemecms/cms/lib/snackbar` (`snackbar({ text })`).
-- Produces: `ShareRow.astro` with props `{ url: string; title: string; picture?: string; share: ShareId[] }`. It draws nothing when `shareLinks` gives an empty list.
+- Produces: `ShareRow.astro` with props `{ url: string; title: string; image?: string; share: ShareId[] }`. It draws nothing when `shareLinks` gives an empty list.
 - Produces: texts `siteT.theme.share`, `siteT.theme.shareOn(network: string)`, `siteT.theme.copyLink`, `siteT.theme.linkCopied`.
 
 **Rules:**
@@ -243,7 +243,7 @@ Runner check: `npx prettier --check site/site.ts site/schema.ts starter/src/data
 
 - [ ] **Step 1:** Add the texts to both dictionaries.
 - [ ] **Step 2:** Create `ShareRow.astro` and `copyLink.script.ts`.
-- [ ] **Step 3:** Use `ShareRow` once in `theme/layouts/PostLayout.astro` under the byline, so the icons are in use: `<ShareRow url={site.url + postPath(post)} title={title} picture={picture} share={site.social.share} />`. `picture` is `post.data.shareImage || post.data.image || firstImage(post.body)`, made absolute with `site.url` when it starts with `/`; `undefined` when none. Task 6 moves it into `PostHeader.astro`.
+- [ ] **Step 3:** Use `ShareRow` once in `theme/layouts/PostLayout.astro` under the byline, so the icons are in use: `<ShareRow url={site.url + postPath(post)} title={title} image={image} share={site.social.share} />`. `image` is `post.data.shareImage || post.data.image || firstImage(post.body)`, made absolute with `site.url` when it starts with `/`; `undefined` when none. Task 6 moves it into `PostHeader.astro`.
 - [ ] **Step 4:** Run `npm run icons`. Confirm each system pack in `icons/` has the five icons.
 - [ ] **Step 5:** Run `npx prettier --check .` and `npm run build`. Expected: pass, exit 0.
 - [ ] **Step 6:** Commit in two commits. First: the icons (`icons/`, `site/icons.mjs` when changed), message `Add the share icons to the icon packs`. Second: the rest, message `Add share buttons to the blog post`.
@@ -259,9 +259,9 @@ Runner check: `npx prettier --check site/site.ts site/schema.ts starter/src/data
 
 **Interfaces:**
 - Consumes: `ShareRow.astro` (Task 5); `site.social` (Task 3); `PostView` (`theme/components/posts.ts`).
-- Produces: `PostAuthor.astro` props `{ name: string; role?: string; portrait?: string }`. Picture `size-11 rounded-full`, as in `PostLayout.astro` today; name `font-medium`; role in `type-body-medium text-muted`.
+- Produces: `PostAuthor.astro` props `{ name: string; role?: string; portrait?: string }`. Image `size-11 rounded-full`, as in `PostLayout.astro` today; name `font-medium`; role in `type-body-medium text-muted`.
 - Produces: `PostMeta.tsx` gets `tags?: { label: string; href: string }[]`. With tags: after the reading time, a `·` and the tags as links (`hover:text-accent`, underlined), separated by `, `. Without tags: as today.
-- Produces: `PostHeader.astro` props `{ title: string; post: PostView; tags: { label: string; href: string }[]; share: { url: string; title: string; picture?: string; share: ShareId[] } }`. It draws, in order: the back link (as today), the `<h1 data-editor="heading" class="theme-title mt-3">`, `PostAuthor`, `PostMeta` with the tags, `ShareRow`. Layout A of the spec: all left-aligned.
+- Produces: `PostHeader.astro` props `{ title: string; post: PostView; tags: { label: string; href: string }[]; share: { url: string; title: string; image?: string; share: ShareId[] } }`. It draws, in order: the back link (as today), the `<h1 data-editor="heading" class="theme-title mt-3">`, `PostAuthor`, `PostMeta` with the tags, `ShareRow`. Layout A of the spec: all left-aligned.
 - `PostHeader.astro` reads the author from `site` (`site.name`, `site.role`, `site.portrait`), and nothing else.
 
 **Steps:**
@@ -282,7 +282,7 @@ Runner check: `npx prettier --check site/site.ts site/schema.ts starter/src/data
 
 **Interfaces:**
 - Consumes: `PostView` (`theme/components/posts.ts`), `ui/Card.tsx` (`Card`, `kind`, `href`), `Img` (`theme/components/Img.tsx`), `PostMeta` (`theme/components/PostMeta.tsx`), `siteT.theme.relatedPosts`.
-- Produces: `PostCard.tsx`: `export default function PostCard({ post }: { post: PostView })`. A `Card` with `href={post.href}`, `as="article"`. Inside: the picture (when `post.image`) with `aspect-[4/3] w-full object-cover rounded-(--theme-picture-radius)`, `alt={post.imageAlt ?? ''}`, `sizes="(min-width: 768px) 33vw, 100vw"`; then the title in `type-title-medium`; then `PostMeta` with `post`.
+- Produces: `PostCard.tsx`: `export default function PostCard({ post }: { post: PostView })`. A `Card` with `href={post.href}`, `as="article"`. Inside: the image (when `post.image`) with `aspect-[4/3] w-full object-cover rounded-(--theme-picture-radius)`, `alt={post.imageAlt ?? ''}`, `sizes="(min-width: 768px) 33vw, 100vw"`; then the title in `type-title-medium`; then `PostMeta` with `post`.
 - Produces: `RelatedPosts.astro`: props `{ posts: PostView[] }`. Nothing when the list is empty. Else a `<section aria-labelledby>` in the page width (`Container.astro`) with an `<h2>` `siteT.theme.relatedPosts` in `type-headline-small`, and a `<ul>` grid: 1 column, 3 columns from `md`. Each `<li>` holds one `PostCard`.
 
 **Steps:**
@@ -307,8 +307,8 @@ Runner check: `npx prettier --check theme/components/PostCard.tsx theme/componen
 
 **Rules:**
 - Render the post's text with `await Astro.slots.render('default')`. Split it with `splitLead`.
-- With a lead: `<div data-editor="lead" class="prose mx-auto mt-10 max-w-3xl px-5 md:px-8 post-lead">` with the lead (`set:html`), then the featured picture block (`data-editor="image"`, as today), then `<div data-editor="text" class="prose …">` with the rest.
-- Without a lead: no lead element; the picture, then the text, as today.
+- With a lead: `<div data-editor="lead" class="prose mx-auto mt-10 max-w-3xl px-5 md:px-8 post-lead">` with the lead (`set:html`), then the featured image block (`data-editor="image"`, as today), then `<div data-editor="text" class="prose …">` with the rest.
+- Without a lead: no lead element; the image, then the text, as today.
 - `post-lead`: the first paragraph in the body-large type. Add the rule to the theme's CSS where `.prose` is styled, with the type token (`type-body-large` values), not a new size.
 - After the text: `EndBlock` (as today), then `RelatedPosts` with the related posts (rule as today, mapped with `postViewOf`).
 - Remove the `footer-column` fragment.
@@ -322,7 +322,7 @@ Runner check: `npx prettier --check theme/components/PostCard.tsx theme/componen
 - [ ] **Step 2:** Run `node --test lib/*.test.mjs site/*.test.mjs`. Expected: all pass.
 - [ ] **Step 3:** Run `npx prettier --check .` and `npm run build`. Expected: pass, exit 0.
 - [ ] **Step 4:** Open a built demo post (`.morpheme/demo/site/dist/`, served with `npx wrangler dev`). Confirm the order. Take a screenshot at 375 px and 1280 px width.
-- [ ] **Step 5:** Commit. Message: `Put the lead before the featured picture and related posts under the post`.
+- [ ] **Step 5:** Commit. Message: `Put the lead before the featured image and related posts under the post`.
 
 ---
 
@@ -336,7 +336,7 @@ Runner check: `npx prettier --check theme/components/PostCard.tsx theme/componen
 
 **Rules:**
 - After the text HTML is made (blocks expanded, the end block taken out), split it with `splitLead`.
-- With a lead: fill `[data-editor="lead"]` with it. When the page has no lead element, create one with the same classes as `PostLayout.astro` uses, before `[data-editor="image"]` (or before `[data-editor="text"]` when there is no picture). Fill `[data-editor="text"]` with the rest.
+- With a lead: fill `[data-editor="lead"]` with it. When the page has no lead element, create one with the same classes as `PostLayout.astro` uses, before `[data-editor="image"]` (or before `[data-editor="text"]` when there is no image). Fill `[data-editor="text"]` with the rest.
 - Without a lead: remove `[data-editor="lead"]`. Fill `[data-editor="text"]` with the full text.
 - Pages have no `data-editor="lead"` and their text often starts with a paragraph: split only when the page is a post. A post is a page whose built document has `[data-editor="lead"]`, or whose draft is a blog post (use what `PageDraft` already says; report what you used).
 - Keep the behaviour for pages unchanged.
@@ -345,8 +345,8 @@ Runner check: `npx prettier --check theme/components/PostCard.tsx theme/componen
 
 - [ ] **Step 1:** Change `pageDocument`.
 - [ ] **Step 2:** Run `npx prettier --check src/pagePreview.tsx` and `npm run build`. Expected: pass, exit 0.
-- [ ] **Step 3:** In the local editor, open a demo post. Edit the first paragraph. Confirm the preview shows it larger, before the picture. Change the text to start with a heading. Confirm the picture moves above the text. Open a page. Confirm its preview is as before.
-- [ ] **Step 4:** Commit. Message: `Show the post's lead before its picture in the editor's preview`.
+- [ ] **Step 3:** In the local editor, open a demo post. Edit the first paragraph. Confirm the preview shows it larger, before the image. Change the text to start with a heading. Confirm the image moves above the text. Open a page. Confirm its preview is as before.
+- [ ] **Step 4:** Commit. Message: `Show the post's lead before its image in the editor's preview`.
 
 ---
 
@@ -354,7 +354,7 @@ Runner check: `npx prettier --check theme/components/PostCard.tsx theme/componen
 
 - [ ] **Step 1:** Add `.changeset/post-page-header.md`, `minor`, with the note from the spec section "Release".
 - [ ] **Step 2:** Run `node --test lib/*.test.mjs site/*.test.mjs`, `npx prettier --check .`, `npx changeset status --since=origin/main` and `npm run build`. Expected: all pass.
-- [ ] **Step 3:** Do the hand checks of the spec section "Tests" on the branch's Cloudflare Preview: phone and computer width; copy link; each share button; a post without tags, without a picture, without related posts.
+- [ ] **Step 3:** Do the hand checks of the spec section "Tests" on the branch's Cloudflare Preview: phone and computer width; copy link; each share button; a post without tags, without an image, without related posts.
 - [ ] **Step 4:** Venus: no command here (`check:themes` runs in `morpheme-website`). Confirm `morpheme-apps/themes/venus` has no file named in `THEME_FILES` beyond `theme.json` and `styles/global.css`. Look at the page on a Venus site after the release.
 - [ ] **Step 5:** Commit the changeset. Open the PR. Merge per the standing go-ahead when the checks pass.
 - [ ] **Step 6:** Tell the owner the release is ready for `/release` and the npm approval. After the release, confirm the demo shows the new post page.

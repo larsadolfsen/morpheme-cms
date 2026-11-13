@@ -3,6 +3,7 @@ title: "Privacy policy"
 description: "What this site stores and which cookies it sets."
 seoTitle: "Privacy policy | Morpheme"
 seoDescription: "What the Morpheme demo stores about you, and which cookies it sets."
+nofollow: true
 ---
 
 # Privacy policy

@@ -24,13 +24,13 @@ const blog = defineCollection({
     categories: z.array(z.string()).optional().default([]),
     image: z.string().optional(),
     imageAlt: z.string().optional(),
-    // "Decorative picture": `image` is drawn with alt="" (screen readers skip it), whatever `imageAlt` says.
+    // "Decorative image": `image` is drawn with alt="" (screen readers skip it), whatever `imageAlt` says.
     imageDecorative: z.boolean().optional(),
     ...status,
     // Google title and description (the <title> and meta description). Empty: built from the title.
     seoTitle: z.string().optional(),
     seoDescription: z.string().optional(),
-    // The picture shown when it is shared (og:image). Empty: `image`, else the first picture in the text.
+    // The image shown when it is shared (og:image). Empty: `image`, else the first image in the text.
     shareImage: z.string().optional(),
     // The title and description when it is shared (og:title, og:description). Empty: the Google title and description.
     shareTitle: z.string().optional(),
@@ -43,6 +43,10 @@ const blog = defineCollection({
     canonical: z.string().optional(),
     // Not for search engines: noindex (Base.astro) and not in the sitemap (packages/editor/astro.mjs).
     noindex: z.boolean().optional().default(false),
+    // Search engines do not follow its links: `nofollow` in the robots meta tag (Base.astro; lib/status.mjs `robotsOf`).
+    nofollow: z.boolean().optional().default(false),
+    // A post kept out of the blog and every list of posts, but open at its address and in Google (lib/status.mjs isUnlisted).
+    unlisted: z.boolean().optional().default(false),
   }),
 });
 
@@ -64,7 +68,7 @@ const pages = defineCollection({
     // Google title and description (the <title> and meta description). Empty: built from the title.
     seoTitle: z.string().optional(),
     seoDescription: z.string().optional(),
-    // The picture shown when it is shared (og:image). Empty: the first picture in the text.
+    // The image shown when it is shared (og:image). Empty: the first image in the text.
     shareImage: z.string().optional(),
     // The title and description when it is shared (og:title, og:description). Empty: the Google title and description.
     shareTitle: z.string().optional(),
@@ -77,6 +81,8 @@ const pages = defineCollection({
     canonical: z.string().optional(),
     // Not for search engines: noindex (Base.astro) and not in the sitemap (packages/editor/astro.mjs).
     noindex: z.boolean().optional().default(false),
+    // Search engines do not follow its links: `nofollow` in the robots meta tag (Base.astro; lib/status.mjs `robotsOf`).
+    nofollow: z.boolean().optional().default(false),
     // The page's template, one the theme offers (lib/page-template.mjs; PageLayout.astro). Left out: the theme's first.
     template: z.enum(PAGE_TEMPLATES as [string, ...string[]]).optional(),
     // A new version of a page (/new/…): what the owner should look at or answer before it replaces the

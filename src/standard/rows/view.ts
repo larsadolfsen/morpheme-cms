@@ -1,8 +1,8 @@
 // "Rows from" in the editor: the rows a list block gets from the list it reads, drawn from the site's data (BlockData), and the choices
-// of `Rows from`. The same rows as the site's (load.ts), but of the data the editor has: posts without their addresses.
+// of `Rows from`. The same rows as the site's (load.ts), but of the data the editor has, so the Preview of a page shows the same rows as the site.
 import type { BlockData } from '../../blocks';
 import { rowLists } from './lists';
-import { inlineRowsOf, itemOfEntry } from './rows.mjs';
+import { PARTS, fieldOfPart, fieldsForPart, inlineRowsOf, itemOfEntry } from './rows.mjs';
 import type { SourceItem } from '../site';
 
 /** The rows a block got from its list, which list, and the page of the list (where `Show all` goes; empty in the editor). */
@@ -23,7 +23,7 @@ export const rowSources = (labels: { posts: string; testimonials: string }): Row
 /** The items of a source as the editor has them. */
 export const sourceItems = (id: string, data: BlockData): SourceItem[] => {
   if (id === 'posts')
-    return data.site.posts.map((p) => ({ title: p.title, text: p.description, href: undefined, tags: p.categories }) as SourceItem);
+    return data.site.posts.map((p) => ({ title: p.title, text: p.description, href: `/${p.slug}/`, tags: p.categories }) as SourceItem);
   if (id === 'testimonials')
     return data.testimonials.map((t) => ({
       title: t.name,
@@ -39,4 +39,17 @@ export const editorRows = (props: Record<string, any>, data: BlockData): RowsFro
   const source = typeof props.from === 'string' ? props.from.trim() : '';
   const found = source ? inlineRowsOf(props, sourceItems(source, data)) : undefined;
   return found ? { source: found.source, rows: found.rows } : undefined;
+};
+
+/** The parts of a row the owner can set to a field of the list the block reads, each with the field now shown and the fields to pick from
+ * (the list's own `asRows` and the block's `map`). Undefined for the blog's posts and the testimonials, which have fixed parts. */
+export const rowParts = (props: Record<string, any>) => {
+  const list = asRowsLists().find((l) => l.id === (typeof props.from === 'string' ? props.from.trim() : ''));
+  if (!list?.asRows) return undefined;
+  const asRows = list.asRows;
+  return PARTS.map((part) => {
+    const choices = fieldsForPart(list.fields ?? [], part);
+    const now = fieldOfPart(asRows, props.map, part);
+    return { part, now, nowLabel: choices.find((c) => c.name === now)?.label ?? now ?? '', choices, asRows };
+  }).filter((p) => p.choices.length > 0 || p.now);
 };

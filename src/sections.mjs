@@ -5,11 +5,11 @@
 // each heading starts a section of text, and text before the first heading after a block is a
 // section without a heading.
 //
-// What of a section is only text and pictures is written as text above its card (its `lead`,
-// collections.ts): a picture, its heading (H2) and its text; back from the editor, the last heading
-// before the card and the text after it, and a picture just before that heading, are the section's.
+// What of a section is only text and images is written as text above its card (its `lead`,
+// collections.ts): an image, its heading (H2) and its text; back from the editor, the last heading
+// before the card and the text after it, and an image just before that heading, are the section's.
 // The front page's top (a "Banner", type "hero") is text too: its text (`text`, Markdown) up to its "Buttons" block
-// (the lead's `upTo`), with its heading, subtitle, introduction and picture, is the text at the very top, before its
+// (the lead's `upTo`), with its heading, subtitle, introduction and image, is the text at the very top, before its
 // card; the block and the text after it stay in the card's `text`, with the quote. On the other pages the text at the
 // very top, before the first heading or card, is the page's introduction.
 // The front page is an ordinary page (packages/editor/defaults/standardPages.ts): its text is read into sections the same way, by the editor
@@ -23,7 +23,7 @@ import { MARKER_TAG, isLabelLine, parseMarker } from '../lib/section-marker.mjs'
 import { listHeadsInMarkdown } from '../lib/remark-list-head.mjs';
 import { blockLabelsInMarkdown } from '../lib/remark-block-label.mjs';
 
-// Text that is plain in the file (a heading, a picture's description); in Markdown every sign that
+// Text that is plain in the file (a heading, an image's description); in Markdown every sign that
 // could mean something is escaped, and back from Markdown the escapes go again. The page's
 // introduction and the text a section takes as its own are Markdown in the file too (bold, italic and
 // links, shown so on the site: packages/editor/lib/inline.ts), and are kept as they are.
@@ -33,11 +33,11 @@ const escape = (s) =>
     .replace(/^(\s*)([-+]|\d+(?=\.))/gm, '$1\\$2');
 const unescape = (s) => s.replace(/\\([!-/:-@[-`{-~])/g, '$1');
 
-const PICTURE = /!\[((?:\\.|[^\]])*)\]\(([^)\s]+)\)/;
-// A section's picture (`image`, `imageAlt`, and `imageDecorative`: "Decorative picture", marked in its address as a
-// picture in the text is, crop.mjs) as a picture in the text, and back.
-const picture = (image, alt, decorative) => `![${String(alt ?? '').replace(/[[\]]/g, '\\$&')}](${decorated(image, decorative === true)})`;
-const pictureOf = (m) => {
+const IMAGE = /!\[((?:\\.|[^\]])*)\]\(([^)\s]+)\)/;
+// A section's image (`image`, `imageAlt`, and `imageDecorative`: "Decorative image", marked in its address as a
+// image in the text is, crop.mjs) as an image in the text, and back.
+const image = (image, alt, decorative) => `![${String(alt ?? '').replace(/[[\]]/g, '\\$&')}](${decorated(image, decorative === true)})`;
+const imageOf = (m) => {
   const { address, decorative } = decorativeOf(m[2]);
   return { image: address, imageAlt: unescape(m[1]), ...(decorative ? { imageDecorative: true } : {}) };
 };
@@ -71,7 +71,7 @@ export function sectionsToMarkdown(sections, leads = {}, intro) {
       const heading = lead.heading ? take(lead.heading) : undefined;
       const body = lead.body ? take(lead.body) : undefined;
       const paragraphs = Array.isArray(body) ? body : body ? String(body).split(/\n\s*\n/) : [];
-      return [image && picture(image, imageAlt, imageDecorative), heading && `## ${escape(heading)}`, ...paragraphs, blockHtml(type, rest)]
+      return [image && image(image, imageAlt, imageDecorative), heading && `## ${escape(heading)}`, ...paragraphs, blockHtml(type, rest)]
         .filter(Boolean)
         .join('\n\n');
     })
@@ -89,7 +89,7 @@ export function introOf(parts) {
   return [paragraphs.join('\n\n'), parts.slice(1)];
 }
 
-// The front page's top from the text before its card: that text, its heading and its picture in it (heroParts in
+// The front page's top from the text before its card: that text, its heading and its image in it (heroParts in
 // standard/hero/fields.ts finds them), then the card's own text (its "Buttons" block and the text after it).
 function hero(lead, props) {
   const markdown = lead.map((p) => ('heading' in p ? `## ${p.heading}` : p.markdown)).join('\n\n');
@@ -99,7 +99,7 @@ function hero(lead, props) {
 }
 
 // A section with a lead from the text before its card (`run`): what is left of the run first, as
-// sections of text, then the section with its picture, heading and text.
+// sections of text, then the section with its image, heading and text.
 function withLead(run, block, lead, blockColor) {
   let rest = [...run];
   let heading;
@@ -121,13 +121,13 @@ function withLead(run, block, lead, blockColor) {
   } else if (lead.body && rest.length && !('heading' in rest[rest.length - 1])) {
     body = rest.pop().markdown;
   }
-  // The picture: at the end of the text just before the heading (or the card).
+  // The image: at the end of the text just before the heading (or the card).
   let image;
   const last = rest[rest.length - 1];
   if (lead.image && last?.markdown) {
-    const m = last.markdown.match(new RegExp(`${PICTURE.source}\\s*$`));
+    const m = last.markdown.match(new RegExp(`${IMAGE.source}\\s*$`));
     if (m) {
-      image = pictureOf(m);
+      image = imageOf(m);
       const before = last.markdown.slice(0, m.index).trim();
       rest = before ? [...rest.slice(0, -1), { markdown: before }] : rest.slice(0, -1);
     }
@@ -157,7 +157,7 @@ function withColors(parts) {
 
 /** The sections for the parts of the text (partsOf in markdown.mjs); leads as for sectionsToMarkdown. `colors`: the front
  * page: each section also has the colour of its H2 as `sectionColor` (the top, the "Banner", has none), and an H1 with section settings
- * is a section `top` of its own: its `settings` (colour, picture, description and width, as parseMarker gives them) and its `items`
+ * is a section `top` of its own: its `settings` (colour, image, description and width, as parseMarker gives them) and its `items`
  * (text as `{ markdown }`, the Buttons block as `{ block }`) up to the next heading or other block. */
 export function sectionsFromParts(parts, leads = {}, options = {}) {
   // The H1's section (a marker before the H1: a part `top`): the front page draws the heading, the text and the Buttons block up to the
@@ -246,7 +246,7 @@ export const leadsOfField = (field) => ({ ...(field?.leads ?? {}), ...leadsOf(fi
 // subtitle and introduction, and a page's introduction. The looks of each fixed page's sections are
 // the site's (`sectionLooks` and `headingLooks`, LOOKS and HEADINGS in a theme's editor/looks.mjs).
 /** The look of each part of the text (null: as text), from its parts in order: { kind: 'block', type }
- * for a card, 'heading' (H2), 'p' (with image: a picture), 'gap' (a free line) or 'other'. The text a
+ * for a card, 'heading' (H2), 'p' (with image: an image), 'gap' (a free line) or 'other'. The text a
  * section takes as its own is found as in sectionsFromParts. A text after the first is marked "rest". */
 export function looksOf(items, { file, leads = {}, intro = false, sectionLooks = {}, headingLooks = {} }) {
   const looks = items.map(() => null);
@@ -330,13 +330,13 @@ export function pageH1(markdown) {
 const MARKER_LINE = new RegExp(`^ {0,3}${MARKER_TAG}[ \\t]*$`);
 
 /** The settings of an H1's section as a part `top` holds them: the marker's (parseMarker), or the editor's heading attributes
- * (`section`, `sectionPicture`, `sectionAlt`, `sectionWidth`); null when there are none.
- * @param {{ color?: string | null, picture?: string | null, alt?: string | null, width?: string | null } | null} found */
+ * (`section`, `sectionImage`, `sectionAlt`, `sectionWidth`); null when there are none.
+ * @param {{ color?: string | null, image?: string | null, alt?: string | null, width?: string | null } | null} found */
 export const topOf = (found) => {
-  if (!found || (!found.color && !found.picture && !found.width)) return null;
+  if (!found || (!found.color && !found.image && !found.width)) return null;
   return {
     color: found.color || '',
-    ...(found.picture ? { picture: found.picture, ...(found.alt ? { alt: found.alt } : {}) } : {}),
+    ...(found.image ? { image: found.image, ...(found.alt ? { alt: found.alt } : {}) } : {}),
     ...(found.width === 'full' ? { width: 'full' } : {}),
   };
 };

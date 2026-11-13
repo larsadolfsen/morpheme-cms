@@ -8,7 +8,7 @@
 // not built (it is not found, so it shows the 404 page). The contact page is shown at its own address; the contact bar's
 // "Contact", the footer's "Find us" and Google's contact details (the structured data) go to it. The privacy policy and
 // the cookie policy are shown at their own addresses too; the cookie banner's "Read more" goes to the cookie policy (its
-// heading about cookies, when it is the privacy policy: cookiesHref in packages/editor/site/standardPages.ts). What of a section of the front page is only text and pictures is
+// heading about cookies, when it is the privacy policy: cookiesHref in packages/editor/site/standardPages.ts). What of a section of the front page is only text and images is
 // written as text above its card (its lead, lead.ts in the block's folder, frontLeads.ts; packages/editor/src/sections.mjs): in the editor, when that page is open
 // (EntryForm.tsx), and on the site, when it is read into sections. No React here, so the build can use it.
 import type { Template } from '../src/schema';

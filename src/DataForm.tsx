@@ -100,9 +100,9 @@ function Form({
   // When a fixed page was last saved, in the top bar as on the pages.
   const [savedAt, setSavedAt] = useSavedAt(env, fixed ? base.path : '');
 
-  // Pictures in the text of a fixed page (the front page's picture …), saved with the file.
-  const pictures = useUploads(notify);
-  const [pickImage, picker] = useMediaPicker(env.media, pictures, env.files);
+  // Images in the text of a fixed page (the front page's image …), saved with the file.
+  const images = useUploads(notify);
+  const [pickImage, picker] = useMediaPicker(env.media, images, env.files);
   const context: FieldContext = {
     relations: env.relations,
     lists: env.lists,
@@ -145,7 +145,7 @@ function Form({
     const kept = !isNew && !dataFile ? keptBy(collection, path, data as Record<string, unknown>, env.files) : null;
     if (kept) return notify(kept);
     const what = dataFile ? asWritten(dataFile).label.toLowerCase() : `"${slugOf(path, (collection as FolderCollection).folder)}"`;
-    const used = pictures.usedIn(text);
+    const used = images.usedIn(text);
     const message = isNew
       ? siteT.forms.commit.create(asWritten(collection).create!, what)
       : version
@@ -153,7 +153,7 @@ function Form({
         : dataFile
           ? siteT.forms.commit.edit(what)
           : siteT.forms.commit.editOne(asWritten(collection).singular, what);
-    // The credit of a picture from an app's source of pictures goes in its record, in the same commit as the picture.
+    // The credit of an image from an app's source of images goes in its record, in the same commit as the image.
     const recordChanges = creditChanges([], recordsIn(env.files, config.fileRecords), config.fileRecords, creditedIn(used));
     const changes = [
       { path, content: text, oid: base.oid || null },
@@ -166,7 +166,7 @@ function Form({
     notify({ text: t.common.saving });
     try {
       const oids = await env.commit(message, changes, change);
-      pictures.markSaved(used);
+      images.markSaved(used);
       if (fixed) setSavedAt(new Date());
       const saved = { path, oid: oids[path], text };
       setBase(saved);
@@ -192,7 +192,7 @@ function Form({
   // The fields for search engines (a fixed page's, a tag's) in their own section at the end, which folds in and out, with
   // the SEO rating first, as on a page (EntryForm.tsx): its H1 is its own field (the heading, a tag's name), and an empty
   // Google description is the introduction's (a tag's: a text with the number of its posts, Category.astro). Then the
-  // picture when it is shared under "Social media", under a preview of the shared link, as on a page.
+  // image when it is shared under "Social media", under a preview of the shared link, as on a page.
   const seoFields = others.filter((f) => SEO_FIELDS.includes(f.name));
   const shareFields = others.filter((f) => SHARE_FIELDS.includes(f.name));
   const rest = others.filter((f) => !seoFields.includes(f) && !shareFields.includes(f));
@@ -204,6 +204,7 @@ function Form({
     values.seoDescription,
     values.keyword,
     values.noindex,
+    values.nofollow,
     values.canonical,
   ]);
   const rating = useMemo(() => {

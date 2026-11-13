@@ -1,5 +1,5 @@
 // "Blog posts": its head in the text (BlockHead.tsx), then its posts as the blog shows them, with the spacing of a
-// block in the text: a list (the theme's PostList.tsx: picture, date and reading time, title and description), or the
+// block in the text: a list (the theme's PostList.tsx: image, date and reading time, title and description), or the
 // newest post large over the list (BlogPosts.tsx, as on the blog page), with "All posts" under them when it has it. In
 // the editor: when the posts are picked at random, how many it picks from, and when it shows all, how many more there
 // are.

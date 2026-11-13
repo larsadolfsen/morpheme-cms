@@ -3,10 +3,13 @@
 import { Editor, editorViewCtx, rootCtx, defaultValueCtx, remarkStringifyOptionsCtx, serializerCtx } from '@milkdown/kit/core';
 import { commonmark, headingSchema, paragraphSchema, strongAttr } from '@milkdown/kit/preset/commonmark';
 import { gfm } from '@milkdown/kit/preset/gfm';
-import { $markSchema, $nodeSchema, $prose, $remark } from '@milkdown/kit/utils';
-import { Plugin } from '@milkdown/kit/prose/state';
+import { $markSchema, $nodeSchema, $prose, $remark, $useKeymap } from '@milkdown/kit/utils';
+import { NodeSelection, Plugin } from '@milkdown/kit/prose/state';
+import { canSplit } from '@milkdown/kit/prose/transform';
+import { liftListItem } from '@milkdown/kit/prose/schema-list';
 import { blockHtml, parseBlock } from '../lib/blocks.mjs';
 import { COLOR_CLOSE, TEXT_COLORS, colorClass, colorOpen, colorOpened } from '../lib/text-colors.mjs';
+import { SIZE_CLOSE, TEXT_SIZES, sizeClass, sizeOpen, sizeOpened } from '../lib/text-sizes.mjs';
 import { isLabelLine, markerHtml, parseMarker } from '../lib/section-marker.mjs';
 import { EMPHASIZE } from '../lib/rehype-emphasize.mjs';
 import { eyebrowText } from '../lib/eyebrow.mjs';
@@ -57,6 +60,39 @@ const remarkSiteBlocks = $remark('remarkSiteBlocks', () => () => (tree) => {
   });
 });
 
+// A block written inside a list item (indented, as an older save of a block put in a list item wrote it) is a block of the page, not a
+// part of the list: the list ends before it and what is left of the list follows it, so the block is drawn and written at the top level.
+const remarkBlocksOutOfLists = $remark('remarkBlocksOutOfLists', () => () => (tree) => {
+  const isBlock = (n) => {
+    const only = n.type === 'paragraph' && n.children?.length === 1 ? n.children[0] : n;
+    return only.type === 'html' && parseBlock(String(only.value), null) !== null;
+  };
+  const split = (list) => {
+    const out = [];
+    let rest = null;
+    const keep = (item) => (rest ??= { ...list, children: [] }).children.push(item);
+    const flush = () => rest && out.push(rest) && (rest = null);
+    for (const item of list.children) {
+      const at = item.children?.findIndex(isBlock) ?? -1;
+      if (at < 0) {
+        keep(item);
+        continue;
+      }
+      const before = item.children.slice(0, at);
+      if (before.length) keep({ ...item, children: before });
+      flush();
+      out.push(...item.children.slice(at).filter(isBlock));
+      const after = item.children.slice(at).filter((n) => !isBlock(n));
+      if (after.length) keep({ ...item, checked: null, children: after });
+    }
+    flush();
+    return out;
+  };
+  tree.children = tree.children.flatMap((child) =>
+    child.type === 'list' && child.children.some((item) => item.children?.some(isBlock)) ? split(child) : [child],
+  );
+});
+
 // One node per block, with its type and its props. How it looks in the editor: MarkdownEditor.tsx.
 /** @type {import('@milkdown/kit/utils').$NodeSchema<'siteBlock'>} */
 export const siteBlockSchema = $nodeSchema('siteBlock', () => ({
@@ -105,6 +141,35 @@ function colorRuns(children) {
   return out;
 }
 
+// The same for a size (lib/text-sizes.mjs): `<span class="body-small">…</span>` is the text with the mark textSize.
+function sizeRuns(children) {
+  const out = [];
+  for (let i = 0; i < children.length; i++) {
+    const size = children[i].type === 'html' ? sizeOpened(children[i].value) : null;
+    let end = -1;
+    for (let j = i + 1, depth = 0; size && j < children.length && end < 0; j++) {
+      const node = children[j];
+      if (node.type !== 'html') continue;
+      if (/^<span\b/.test(node.value)) depth++;
+      else if (node.value === SIZE_CLOSE && depth-- === 0) end = j;
+    }
+    if (end < 0) out.push(children[i]);
+    else {
+      out.push({ type: 'textSize', size, children: children.slice(i + 1, end) });
+      i = end;
+    }
+  }
+  return out;
+}
+
+function textSizeMarkdown(node, _, state, info) {
+  const tracker = state.createTracker(info);
+  let value = tracker.move(sizeOpen(node.size));
+  value += tracker.move(state.containerPhrasing(node, { ...tracker.current(), before: '>', after: '<' }));
+  return value + tracker.move(SIZE_CLOSE);
+}
+textSizeMarkdown.peek = () => '<';
+
 function textColorMarkdown(node, _, state, info) {
   const tracker = state.createTracker(info);
   let value = tracker.move(colorOpen(node.color));
@@ -118,10 +183,10 @@ const remarkTextColors = $remark(
   () =>
     function () {
       const data = this.data();
-      (data.toMarkdownExtensions ??= []).push({ handlers: { textColor: textColorMarkdown } });
+      (data.toMarkdownExtensions ??= []).push({ handlers: { textColor: textColorMarkdown, textSize: textSizeMarkdown } });
       const walk = (node) => {
         if (!node.children) return;
-        node.children = colorRuns(node.children);
+        node.children = sizeRuns(colorRuns(node.children));
         node.children.forEach(walk);
       };
       return walk;
@@ -149,8 +214,29 @@ export const textColorSchema = $markSchema('textColor', () => ({
   },
 }));
 
+/** @type {import('@milkdown/kit/utils').$MarkSchema<'textSize'>} */
+export const textSizeSchema = $markSchema('textSize', () => ({
+  attrs: { size: { default: TEXT_SIZES[0] } },
+  parseDOM: TEXT_SIZES.map((size) => ({ tag: `span.${sizeClass(size)}`, attrs: { size } })),
+  toDOM: (mark) => ['span', { class: sizeClass(mark.attrs.size) }],
+  parseMarkdown: {
+    match: (node) => node.type === 'textSize',
+    runner: (state, node, markType) => {
+      state.openMark(markType, { size: node.size });
+      state.next(node.children);
+      state.closeMark(markType);
+    },
+  },
+  toMarkdown: {
+    match: (mark) => mark.type.name === 'textSize',
+    runner: (state, mark) => {
+      state.withMark(mark, 'textSize', undefined, { size: mark.attrs.size });
+    },
+  },
+}));
+
 // The settings of a section (lib/section-marker.mjs): the marker line before an H1 or H2, or before the label above it
-// (eyebrow), is read into the heading's attributes `section` (the colour), `sectionPicture`, `sectionAlt` and `sectionWidth`, and
+// (eyebrow), is read into the heading's attributes `section` (the colour), `sectionImage`, `sectionAlt` and `sectionWidth`, and
 // written back before it. It must be read before remarkSiteBlocks
 // sees it, so it is the first plugin of that kind in makeEditor. A marker with nothing to colour is dropped.
 const htmlOf = (node) => {
@@ -165,7 +251,7 @@ const remarkSectionMarkers = $remark('remarkSectionMarkers', () => () => (tree) 
     const next = isLabelLine(htmlOf(parts[i + 1])) ? parts[i + 2] : parts[i + 1];
     if (next?.type === 'heading' && next.depth <= 2) {
       next.section = marker.color || null;
-      Object.assign(next, { sectionPicture: marker.picture, sectionAlt: marker.alt, sectionWidth: marker.width });
+      Object.assign(next, { sectionImage: marker.image, sectionAlt: marker.alt, sectionWidth: marker.width });
     }
     return false;
   });
@@ -236,7 +322,7 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
     attrs: {
       ...base.attrs,
       section: { default: null, validate: 'string|null' },
-      sectionPicture: { default: null, validate: 'string|null' },
+      sectionImage: { default: null, validate: 'string|null' },
       sectionAlt: { default: null, validate: 'string|null' },
       sectionWidth: { default: null, validate: 'string|null' },
       align: { default: null, validate: 'string|null' },
@@ -249,7 +335,7 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
         state.openNode(type, {
           level: node.depth,
           section: top ? (node.section ?? null) : null,
-          sectionPicture: top ? (node.sectionPicture ?? null) : null,
+          sectionImage: top ? (node.sectionImage ?? null) : null,
           sectionAlt: top ? (node.sectionAlt ?? null) : null,
           sectionWidth: top ? (node.sectionWidth ?? null) : null,
           align: node.depth >= 3 ? (node.align ?? null) : null,
@@ -261,12 +347,12 @@ export const headingWithSection = headingSchema.extendSchema((prev) => (ctx) => 
     toMarkdown: {
       match: base.toMarkdown.match,
       runner: (state, node) => {
-        const { level, section, sectionPicture, sectionAlt, sectionWidth } = node.attrs;
+        const { level, section, sectionImage, sectionAlt, sectionWidth } = node.attrs;
         const top = state.top();
         // The document has no children before its first node is written: a heading at the very top starts them.
         if (top && !top.children) top.children = [];
         const written = top?.children;
-        const marker = level <= 2 ? markerHtml({ color: section, picture: sectionPicture, alt: sectionAlt, width: sectionWidth }) : '';
+        const marker = level <= 2 ? markerHtml({ color: section, image: sectionImage, alt: sectionAlt, width: sectionWidth }) : '';
         if (marker && Array.isArray(written)) {
           const last = written.at(-1);
           const at = last?.type === 'html' && isLabelLine(last.value) ? written.length - 1 : written.length;
@@ -305,16 +391,19 @@ export function makeEditor(root, markdown) {
       .use($remark('remarkBlockLabels', () => remarkBlockLabels))
       .use(remarkAlignMarkers)
       .use(remarkSectionMarkers)
+      .use(remarkBlocksOutOfLists)
       .use(remarkSiteBlocks)
       .use(siteBlockSchema)
       .use(remarkTextColors)
       .use(textColorSchema)
+      .use(textSizeSchema)
       .use(bodyLargeSchema)
       .use(bodyMediumSchema)
       .use(bodySmallSchema)
       .use(eyebrowSchema)
       .use(eyebrowKeeper)
       .use(eyebrowKeymap)
+      .use(listKeymap)
   );
 }
 
@@ -345,8 +434,8 @@ export function partsOf(ctx) {
     } else if (node.type.name === 'heading' && node.attrs.level === 1) {
       flush();
       // The settings of the page's H1 section (a marker before it): a part `top`, as partsOfMarkdown has them.
-      const { section, sectionPicture, sectionAlt, sectionWidth } = node.attrs;
-      const top = topOf({ color: section, picture: sectionPicture, alt: sectionAlt, width: sectionWidth });
+      const { section, sectionImage, sectionAlt, sectionWidth } = node.attrs;
+      const top = topOf({ color: section, image: sectionImage, alt: sectionAlt, width: sectionWidth });
       if (top && !h1Seen) parts.push({ top });
       h1Seen = true;
     } else if (!((node.type.name === 'paragraph' || node.type.name === 'heading') && !node.textContent.trim() && !node.childCount))
@@ -356,7 +445,7 @@ export function partsOf(ctx) {
   return parts;
 }
 
-// Keeps a free line (an empty paragraph) between two blocks and before and after them, so there is
+// Keeps a free line (an empty paragraph) between two blocks, before and after them and between a block and the next section's heading, so there is
 // always a place to write a text between them. Not part of undo. Used by the editor (MarkdownEditor.tsx)
 // and the check, which writes the text back with the free lines in it.
 /** @type {import('@milkdown/kit/utils').$Prose} */
@@ -368,6 +457,8 @@ export const spacing = $prose(
         let before = null;
         state.doc.forEach((node, at) => {
           if (node.type.name === 'siteBlock' && (!before || before.type.name === 'siteBlock')) gaps.push(at);
+          // A block that ends a section has a free line after it, before the heading of the next.
+          else if (before?.type.name === 'siteBlock' && node.type.name === 'heading' && node.attrs.level <= 2) gaps.push(at);
           before = node;
         });
         if (state.doc.lastChild?.type.name === 'siteBlock') gaps.push(state.doc.content.size);
@@ -378,6 +469,48 @@ export const spacing = $prose(
       },
     }),
 );
+
+/** A transaction that puts a block (a siteBlock node) at the top level of the text, never inside a list item or a quote: in a paragraph
+ * it splits the paragraph around it; in a list item or a quote it ends the list (or quote) after the item the cursor is in, the rest of
+ * it follows the block as a list of its own. `end` is where the block ends. */
+export function insertBlock(state, node) {
+  let tr = state.tr;
+  if (state.selection instanceof NodeSelection && state.selection.$from.depth === 0) {
+    tr = tr.insert(state.selection.to, node);
+    return { tr, end: state.selection.to + node.nodeSize };
+  }
+  const nested = (s) => s.$from.depth > 1 || (s.$from.depth === 1 && !s.$from.parent.isTextblock);
+  if (!nested(state.selection)) {
+    tr = tr.replaceSelectionWith(node);
+    return { tr, end: tr.selection instanceof NodeSelection ? tr.selection.to : -1 };
+  }
+  if (!state.selection.empty) tr = tr.deleteSelection();
+  const { $from } = tr.selection;
+  let item = -1;
+  for (let d = $from.depth; d > 0 && item < 0; d--) if ($from.node(d).type.name === 'list_item') item = d;
+  const pos = item > 0 ? $from.after(item) : $from.after($from.depth);
+  const depth = tr.doc.resolve(pos).depth;
+  let at;
+  if (depth > 0 && canSplit(tr.doc, pos, depth)) {
+    tr = tr.split(pos, depth);
+    at = pos + depth;
+  } else at = $from.after(1);
+  tr = tr.insert(at, node);
+  return { tr, end: at + node.nodeSize };
+}
+
+/** Backspace at the very start of a list item leaves the list one step (an outdent; out of a top-level list it is a paragraph), as in every
+ * editor, instead of joining the item to the text before it. Not in an item that is not the first block of it. */
+export const leaveListAtStart = (state, dispatch) => {
+  const { $from, empty } = state.selection;
+  if (!empty || $from.parentOffset !== 0 || $from.depth < 2) return false;
+  const item = $from.node($from.depth - 1);
+  if (item.type.name !== 'list_item' || $from.index($from.depth - 1) !== 0) return false;
+  return liftListItem(item.type)(state, dispatch);
+};
+export const listKeymap = $useKeymap('list', {
+  LeaveListAtStart: { shortcuts: 'Backspace', priority: 100, command: () => leaveListAtStart },
+});
 
 // The Markdown of the text, without its empty paragraphs (the free lines between the blocks).
 export function markdownOf(ctx) {

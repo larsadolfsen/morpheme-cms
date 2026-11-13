@@ -6,7 +6,7 @@
 
 ## Goal
 
-A new site owner can make a page, write a post, add a picture, publish and schedule without help, and always knows what
+A new site owner can make a page, write a post, add an image, publish and schedule without help, and always knows what
 state their work is in.
 
 ## Owner decisions on text and headings (11 November 2026)
@@ -17,7 +17,7 @@ repeated as a question below.
 1. **Keep the current format: text and blocks.** The page stays one text with blocks in it. No new editor model.
 2. **Add "Body large" and "Label" to the text styles.** Read as: two new entries in the text-style menu `T`
    (`text.kind`, `text.paragraph` … in `MarkdownEditor.tsx`), next to Heading and Subheading (Body large, Body medium and Body small are Material 3's body scale; Body large is the plain paragraph). _(Confirmed by the owner: `T` is that menu; `Label` is the small line above a heading, which blocks call `eyebrow` today.)_
-3. **Remove all regular headings and text from blocks.** Read as: a block keeps only what is its own (rows, pictures,
+3. **Remove all regular headings and text from blocks.** Read as: a block keeps only what is its own (rows, images,
    buttons, links), and the heading, subheading, label and intro text come from the text around it, in the text styles
    of decision 2. See finding 10.
 4. **An H2 section is a dotted line across the editor, not a box.** Today an H2 with its text is a coloured section with
@@ -30,7 +30,7 @@ repeated as a question below.
    pre-filled with that text, but only while the document is empty, so typing a title never overwrites text that is already
    there.
 
-6. **Edit blocks inline; the panel holds settings only.** A block is drawn as the site shows it and its text is typed in place (a list row's top and bottom line). Settings (icon, picture, link) are in the side panel on desktop, open all the time while the cursor is in the block, and on a phone in a bottom sheet opened with the `Edit` button in the same menu as the text tools. Clicking out returns the block to its live look; an unset icon takes no space. There is no `+` under the rows: the floating menu has `Add above` and `Add below` for the active row.
+6. **Edit blocks inline; the panel holds settings only.** A block is drawn as the site shows it and its text is typed in place (a list row's top and bottom line). Settings (icon, image, link) are in the side panel on desktop, open all the time while the cursor is in the block, and on a phone in a bottom sheet opened with the `Edit` button in the same menu as the text tools. Clicking out returns the block to its live look; an unset icon takes no space. There is no `+` under the rows: the floating menu has `Add above` and `Add below` for the active row.
    This replaces `2026-11-05-block-side-sheet-design.md` for block fields. _(Scope read as block fields only; short pickers such
    as page, link and colour stay sheets until the owner says otherwise.)_
 
@@ -41,7 +41,7 @@ repeated as a question below.
    designs (`theme/ui/List.tsx` already has both, `ListKind`). Other row blocks (Cards, Points, Steps and the rest) are
    decided against this base in finding 13. _(Read from the owner's "MD3 has two types, this is our base".)_
 
-9. **Three list blocks in `Insert`, ready-made and built on the base:** **List** (an optional icon or picture on the left;
+9. **Three list blocks in `Insert`, ready-made and built on the base:** **List** (an optional icon or image on the left;
    a row with a link gets an arrow by itself), **Segmented list**, and **FAQ list** (rows that expand). The owner picks
    one; there is no version to choose afterwards. This replaces the idea of one `Rows` block with a design choice.
 10. **A segmented list can end with an optional text button** (for example `See all` or `Book a time`), under the last row.
@@ -121,7 +121,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   menu is `New page` / `New blog post`. There is no sentence that says what to do first.
 - **Likely hesitation:** an owner opens the editor and sees mostly empty cards and a lone plus button.
 - **Fix:** a first-run card at the top while the site has no page or post of its own: three rows (`Write a page`,
-  `Write a blog post`, `Add a picture`, each a link), which goes away on its own and can be dismissed. `Create` stays.
+  `Write a blog post`, `Add an image`, each a link), which goes away on its own and can be dismissed. `Create` stays.
   Plain text above the cards names the site and its state (`Your website is live` / `Updating…`), using `StartStatus`.
 
 ### 4. Words that only a developer knows, in the owner's path
@@ -164,25 +164,25 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   keep `Hide` and rename the status `Hidden` to `Unlisted` in one pass (Q5). Sheet close: `Keep your changes in the page?` with
   `Keep` / `Discard`.
 
-### 7. Pictures: upload and alt text
+### 7. Images: upload and alt text
 
-- **Evidence:** `Choose picture` (`forms.pickImage`), `Choose a picture` / `Upload a new picture` (`media.pick`,
+- **Evidence:** `Choose image` (`forms.pickImage`), `Choose an image` / `Upload a new image` (`media.pick`,
   `uploadNew`), the section is called `Files` (`common.parts.media`). `Alt text`'s hint is `For screen readers and search
-  engines.` (`blocks.picture.altHint`); the fix text under the SEO check is `Tap each picture, choose Edit, and write an alt
-  text.` (`seoRating.fixAlt`). `Decorative picture` has an On/Off switch and the hint `Screen readers skip the picture.`
+  engines.` (`blocks.picture.altHint`); the fix text under the SEO check is `Tap each image, choose Edit, and write an alt
+  text.` (`seoRating.fixAlt`). `Decorative image` has an On/Off switch and the hint `Screen readers skip the image.`
 - **Likely hesitation:** `Alt text` is unknown to most owners; the SEO score nags about it before they know what it is.
-- **Fix:** hint: `Describe the picture in a few words, for people who can’t see it.` Rename `Files` to `Pictures and files`
-  or `Media` (Q4). Show the alt field right after a picture is chosen, not behind Edit.
+- **Fix:** hint: `Describe the image in a few words, for people who can’t see it.` Rename `Files` to `Images and files`
+  or `Media` (Q4). Show the alt field right after an image is chosen, not behind Edit.
 
 ### 8. Feedback after Save: the build is invisible
 
 - **Evidence:** the save message promises a notification (`common.saved`); the first Save asks the browser for
   permission (`notificationData.ts` `askToNotify`) with no text of the editor's own before the browser's prompt. The
   start screen's `Last published …` / `Publish time unknown` (`library.lastPublished`, `publishUnknown`) is the only
-  persistent signal; a failed update says `Restore the previous version under Earlier versions.` (`app.siteNotUpdated`).
+  persistent signal; a failed update says `Restore the previous version under History.` (`app.siteNotUpdated`).
 - **Fix:** a small `Updating the website…` chip in the top bar from Save until the build finishes (the data is there:
   `siteUpdated` notifies when done), then `Live`. A sentence before the browser's permission prompt: `Get a message when
-  your changes are live?` Rename `Earlier versions` to `History` only if the owner agrees (the word is clear; low priority).
+  your changes are live?` Rename `Earlier versions` to `History` (done).
 
 ### 9. Settings and apps: depth and state words
 
@@ -228,7 +228,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   The whole card opens the sheet (keep `Edit` as the accessible name). With decision 3 most blocks have only their rows, so
   the sheet is shorter and can open at its full height on a phone.
   The picker's `Insert` list keeps its search, order and group filter (`BlockDialog.tsx`), but shows a one-line hint and a
-  small picture per block, which `Preview` (`ui.tsx`) already draws.
+  small image per block, which `Preview` (`ui.tsx`) already draws.
 
 ### 13. Many blocks are the same list in a different design
 
@@ -239,7 +239,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
     (Checklist: only `Text`), most with an `Icon` and an optional `Page` link. Their hints are near-synonyms
     (`Cards with links to other pages`, `Rows under each other with a heading and a text`, `Points with an icon, a heading,
     and a text`, `Numbered steps with heading and text`, `Points with a check mark before them`). Cards even has a
-    `Design` (Text, Icon, Picture) and List a `Design` (Standard, Segmented), so a design choice already exists inside two of them.
+    `Design` (Text, Icon, Image) and List a `Design` (Standard, Segmented), so a design choice already exists inside two of them.
   - **Questions and answers, Expandable list:** both are rows that expand; one has `Question`/`Answer`, the other `Heading`/`Text`/`Page`.
   - **Testimonials, Blog posts:** both are lists filled from the site's content (tags, selected, all).
 - **Likely hesitation:** the picker is one flat A–Z list (`BlockDialog.tsx`: order A–Z, Z–A or by group, where "group" means
@@ -249,8 +249,8 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   1. **Group in the picker (no model change).** Under `Insert`, standard blocks get headings by what they do:
      `Rows and cards` (Cards, List, Points with icon, Steps, Checklist, Links), `Questions` (Questions and answers,
      Expandable list), `From your content` (Testimonials, Blog posts), `Prices`, `Banner and buttons` (Banner, Buttons,
-     Notice, Video), `Other`. Each block keeps its picture and hint; hints say how it differs from its neighbours
-     (`Numbered`, `With a check mark`, `With a picture`). Apps keep their own groups.
+     Notice, Video), `Other`. Each block keeps its image and hint; hints say how it differs from its neighbours
+     (`Numbered`, `With a check mark`, `With an image`). Apps keep their own groups.
   2. **Build on the base (owner decision 8).** The list block has the two M3 types, Standard and Segmented, and starts as
      Standard. The other designs are either variants of it or separate blocks; which is open (question 6). Older text:
   Owner decision 9 settles the shape: three ready-made blocks, List, Segmented list and FAQ list. **Steps is a special block (owner,
@@ -278,7 +278,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   form and is saved with the page's `Save`, and `Undo` in the text toolbar undoes it. A new block is added where the cursor is
   from `Insert` (the picker, still a sheet) and arrives open with its required fields marked.
 - **Owner's final shape (11 November):** supersedes the fold-out below. Text is typed in the drawn block; the side panel (desktop, always open while the block is active) or the bottom sheet (phone, `Edit` button in the text menu) holds only settings. The panel must keep the page's single save model (no `Save` or `Cancel` of its own).
-- **Active row:** a new list is added selected, with its first row active. Only the active row shows its empty fields (icon or picture slot, top line, bottom line, link), so the owner sees what can be filled in. The other rows show their live look. When the owner clicks out, empty fields disappear.
+- **Active row:** a new list is added selected, with its first row active. Only the active row shows its empty fields (icon or image slot, top line, bottom line, link), so the owner sees what can be filled in. The other rows show their live look. When the owner clicks out, empty fields disappear.
 - **Next row (owner, 11 November, decision 14):** after the last row the list always shows one more row, empty and faded, ready to edit. Clicking it makes it the active row and a new empty one appears after it. It is not saved, and not shown on the site, until it has content, and it is not the `+` under the rows that decision 6 removed: it is the next row itself. `Add above` and `Add below` stay in the floating menu (below) for adding in the middle.
 - **Menu for a selected list:** while a list is selected, the floating menu shows `Add above` and `Add below` (and on a phone `Edit`). They add an empty row next to the active row, which becomes active. There is no `+` under the rows. Rows are sorted with `Move up` and `Move down` in the same menu, and on desktop also with a drag handle on the active row's left edge. On a phone the four row actions (`Add above`, `Add below`, `Move up`, `Move down`) sit under one `Row` menu beside `Edit`. `Add above`, `Add below`, `Move up` and `Move down` show only when the active row has content. While the list has no content, the menu shows a dynamic icon instead, which opens the panel on the dynamic settings (`Rows from`, tag filter, `How many`). Once a row has content the icon is gone: a list is typed by hand or pulled from a dynamic list, never both. A dynamic list drops the row actions and shows `Edit list` and a way back to typing rows by hand.
 - **One pattern for all blocks:** the list is the first case, not the exception. Every block is drawn as the site shows it, its text is typed in place, the floating text menu shows that block's actions while it is selected (a list: `Add above`, `Add below`, `Edit` on a phone), and its settings sit in the side panel on desktop or the bottom sheet on a phone. This replaces today's block cards and sheets. **The floating menu is context aware (owner, 11 November):** it shows only what applies where the cursor is. In normal
@@ -296,10 +296,10 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   2. The side panel turns into the dynamic settings; on a phone the bottom sheet opens with them.
   3. The owner chooses which dynamic list the data is pulled from.
   4. In the dynamic settings the owner can choose a tag to filter by (and `How many`).
-  5. The owner clicks a field in a row (top line, bottom line, icon or picture, link). A submenu opens on desktop, and a bottom sheet on a phone, with the fields of the chosen list, and the owner picks which one is shown there.
+  5. The owner clicks a field in a row (top line, bottom line, icon or image, link). A submenu opens on desktop, and a bottom sheet on a phone, with the fields of the chosen list, and the owner picks which one is shown there.
   6. The block updates live on every change, so it always shows how it will look on the page.
   The content of a dynamic list (its items and their fields) is edited only on the dynamic list's own page, never in the block. In the block the owner chooses which list, which tag and which field is shown where; the rows are not typed in place, so the row actions (`Add above`, `Add below`, `Move up`, `Move down`) do not apply to a dynamic block. `Edit list` on the block opens the list's page. A dynamic block has an option `Show all`. When the list has more matching items than `How many`, a text button under the last row (for example `Show all`) shows the rest.
-  **The dynamic list's own page:** under `Lists` in the menu the owner presses `New list` and names it, and picks its fields from Icon, Title, Body text, Picture, Link and Tags. The owner adds items, each with the chosen fields and its tags. Items are added, sorted and deleted on this page, and an item edited here changes on every page that shows the list. Removing a field keeps its data until the owner confirms.
+  **The dynamic list's own page:** under `Lists` in the menu the owner presses `New list` and names it, and picks its fields from Icon, Title, Body text, Image, Link and Tags. The owner adds items, each with the chosen fields and its tags. Items are added, sorted and deleted on this page, and an item edited here changes on every page that shows the list. Removing a field keeps its data until the owner confirms.
 - **Design rules (UX and Material Design 3):**
   1. A list pulled from a dynamic list shows its state on the block (`From Services · tag home · 3 items`) with `Edit list`, because its rows cannot be edited in place.
   2. A block pulled from a dynamic list takes the word `Dynamic` in its name: `List` becomes `Dynamic list`, `Cards` becomes `Dynamic cards`. The picker has no separate dynamic entries and stays short; the dynamic icon in the floating menu is how an empty block becomes dynamic.
@@ -309,12 +309,12 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   6. The layout stays stable when the active row changes: fixed line heights, and the empty slots appear with a short transition.
   7. Only a completely empty row is dropped when the list is deselected (an icon or a link counts as content), and `Undo` brings it back.
   8. Below `medium` the settings use the modal bottom sheet and from `medium` the standard side sheet, as today. A selected row and the focused item use M3 state layers and the focus ring.
-  9. A row follows the M3 list item: leading icon or picture, headline (top line), supporting text (bottom line), trailing arrow when the row has a link. The pill and the panel are reachable by keyboard, and the active row is announced to screen readers. `Move up` and `Move down` are the keyboard alternative to the drag handle.
+  9. A row follows the M3 list item: leading icon or image, headline (top line), supporting text (bottom line), trailing arrow when the row has a link. The pill and the panel are reachable by keyboard, and the active row is announced to screen readers. `Move up` and `Move down` are the keyboard alternative to the drag handle.
 - **Cost and risk:** the editor loses the page-stays-usable side panel and gains long fold-outs for blocks with many rows. The
   fields are the editor's own (`fields.tsx`) and need no change; `BlockDialog.tsx`'s picker, section settings and
   `sheetPlacement.mjs` stay for their own steps. Needs a check on a phone at 375 px (keyboard, scroll to the open block) which
   this spec could not make.
-- **Not changed:** the pickers (page, link, colour, country code), Preview, Earlier versions, Notifications and widget
+- **Not changed:** the pickers (page, link, colour, country code), Preview, History, Notifications and widget
   settings keep their sheets. Whether they follow is a later decision.
 
 ### 15. How close the editor is to the site, and what is missing
@@ -324,7 +324,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   `[data-section-color]`, with readable prose colours); heading and text looks follow the theme (`looks`, `sectionLooks`,
   `headingLooks`); the editor uses the theme's fonts and tokens (the shared theme principle in `CLAUDE.md`).
 - **Evidence, what is not:**
-  - A page's **title, status, template, tags, short description, top picture** and a post's **date** are fields in a form
+  - A page's **title, status, template, tags, short description, top image** and a post's **date** are fields in a form
     section (`forms.sections`: `Content`, `Page settings`/`Post settings`, `STATUS`/`FIRST` in `EntryForm.tsx`), not on the
     page. The page's title and its H1 are kept together (`titleH1.mjs`), but are two things on two places for a page.
   - The **page frame** (header, menu, footer, the side column and the page's width by template) is not around the text;
@@ -333,7 +333,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   - Decision 4 draws an H2 as a dotted line in the editor, which is less like the site than the coloured box is today.
 - **Fix, in three steps:**
   1. **The top of the page is the page.** The editor's top area draws the page's head the way the theme does: the H1 (the
-     title), the top picture (tap to change), and for a post its date and tags as chips. `Status` stays in the top bar.
+     title), the top image (tap to change), and for a post its date and tags as chips. `Status` stays in the top bar.
      `Page settings` keeps the rest (address, template, Google, share).
   2. **Inline block editing with the block drawn above its fields** (finding 14): the owner edits fields right beneath the
      block as it looks, and where the block's text is plain (a row's heading and text) it is edited on the drawn block itself,
@@ -359,7 +359,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   hand (the same choices as `Which testimonials`), and `How many` (all, or a number such as 3 or 4, in the list's order). The same list can be shown on many pages with different tags; one place
   to edit the text.
 - **Design, part B, the owner creates lists:** `Dynamic lists` gets `New list`. The owner names it and chooses its fields from
-  a fixed set, each optional: `Icon`, `Title` (always), `Body text`, `Picture`, `Link`, `Tags`. The entries are files
+  a fixed set, each optional: `Icon`, `Title` (always), `Body text`, `Image`, `Link`, `Tags`. The entries are files
   like the other lists' (`src/data/<list>/<slug>.json`); the list's definition is a small file beside them, read by the editor and the build. This
   is **new**: today a list's fields live in code, so the editor must learn collections whose fields come from a file.
   A list the owner made cannot have a field the fixed set lacks (no free field types), so check:content and the build stay
@@ -381,7 +381,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   (`theme/components/PostCard.tsx`) are separate. The theme's surface kinds are Material's three: Outlined, Filled and
   Elevated (`theme/ui/Card.tsx`). M3 has no card types beyond these surfaces; link, price and quote cards are our content
   layouts. _(From general knowledge of Material 3, not checked on m3.material.io.)_
-- **Fields (owner, 11 November):** Icon or picture or video (one `Media` field), Title, Subhead, Body text, Link, Buttons,
+- **Fields (owner, 11 November):** Icon or image or video (one `Media` field), Title, Subhead, Body text, Link, Buttons,
   Badge, Date and Tags. Only fields with content show, as in a list row. **Price and Quote are not card fields:** Price
   cards and Testimonials stay their own blocks.
 - **Design:** one setting, `Design`, with three predefined designs, the same in every theme: **Outlined** (a border),
@@ -404,7 +404,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
 - **Media field:** the top of a card is one `Media` field, with the choice Icon, Image or Video, like the icon field of a
   list. The first card's choice sets the type for every card in the block, so they stay aligned; there is no block setting
   for it. It shows only if it has content. A card without media does not show the media (owner, 11
-  November): no placeholder, no empty picture and no blank space, so the card is simply shorter. In the editor only the
+  November): no placeholder, no empty image and no blank space, so the card is simply shorter. In the editor only the
   active card shows its empty media slot.
 - **Buttons (owner, 11 November):** a card can have buttons at the bottom, none, one or several. Each is a text button or
   a real button (the kinds the Buttons block has: filled, tonal, elevated, outlined and text), with its text and where it
@@ -466,12 +466,12 @@ one is checked when it is built. A table filled from the owner's lists could com
    The text toolbar gets a `Check list` style next to the bullet and numbered lists, and the Checklist block leaves
    `Insert`. A migration turns each existing Checklist block into a check list in the text, so no page changes look.
    **Steps stays its own block**, with its numbered rows (1, 2, 3 …), each with a title and a text.
-2. **Banner (settled, owner, 11 November):** the Banner block goes away. A banner is already an H2 heading, a picture,
+2. **Banner (settled, owner, 11 November):** the Banner block goes away. A banner is already an H2 heading, an image,
    text and a `Buttons` block in one text (`src/standard/hero/fields.ts`), which is what a section is. A section gets the
-   banner's settings in its panel (bottom sheet on a phone), next to the colour it has today: a background picture and
+   banner's settings in its panel (bottom sheet on a phone), next to the colour it has today: a background image and
    the width of the background. The owner types the heading and text in the section as normal text, and adds a Buttons
    block inside it for buttons. A section is the regular editor, so any block can go in it (owner, 11 November). A migration turns each Banner block into a section with those settings, so no page
-   changes look. The text stays readable over a picture because the theme decides it, as on the site today.
+   changes look. The text stays readable over an image because the theme decides it, as on the site today.
 3. **Expandable list (settled, owner, 11 November):** an Expandable list is a Segmented list, so the block goes away.
    Each row's page link is the row's Link, and the closing link is the Segmented list's optional text button
    (decision 10). A migration turns each Expandable list into a Segmented list. The rows of a Segmented list are closed by default and expand
@@ -482,7 +482,7 @@ one is checked when it is built. A table filled from the owner's lists could com
 
 ### 19. Spike S3: today's editor on a 375 px phone (11 November)
 
-Checked on the built demo (`Blocks` page) with Playwright at 375 × 760 (touch, mobile) and at 1280 × 900. Pictures: `editor-phone-check/`. No console errors, no horizontal scroll. The soft keyboard is not simulated, so the keyboard questions of decision 14 stay open for a device check.
+Checked on the built demo (`Blocks` page) with Playwright at 375 × 760 (touch, mobile) and at 1280 × 900. Images: `editor-phone-check/`. No console errors, no horizontal scroll. The soft keyboard is not simulated, so the keyboard questions of decision 14 stay open for a device check.
 
 ![Page editor](editor-phone-check/phone-1-page-editor.webp) ![Text selected](editor-phone-check/phone-2-text-selected.webp) ![Block menu](editor-phone-check/phone-3-block-menu.webp) ![Block sheet](editor-phone-check/phone-4-block-sheet.webp) ![Insert](editor-phone-check/phone-5-insert.webp) ![Desktop panel](editor-phone-check/desktop-block-panel.webp)
 
@@ -493,7 +493,7 @@ Checked on the built demo (`Blocks` page) with Playwright at 375 × 760 (touch, 
 1. **A block's settings are not a bottom sheet today.** Below `expanded`, `sheetLook('fields')` is a *modal side sheet*: 319 px of 375 px, full height, with a 56 px strip of dimmed page left. The page behind is not usable and the open block is not visible. Only Insert and section settings are bottom sheets.
 2. **Two text toolbars at once.** A fixed bar (two rows when open: `B I link H2 T` and `+ undo redo`, 85 px tall) sits at the top, and a second floating bar (`B I link colour H2 T`) appears under a selection. Bold, Italic and Link are on screen twice; the open top bar takes 85 px of the 760 px height.
 3. **Touch targets under 48 dp.** Bold, Italic, Link, Insert, Undo, Redo, Section settings, Show more tools and Close: 40 × 40. The style menus: 54 × 40 and 48 × 40. Colour: 48 × 40. The block menu (`Edit`, `Hide on the page`, `Move up`, `Move down`, `Remove`): 40 × 40 each, 8 px apart. In the sheet: `Edit default texts` link 133 × 20, the Design and Background segmented buttons 38 px high, `Save` and `Cancel` 40 px high, the Insert rows 44 px.
-4. **The block menu covers the block.** Tapping a block shows a pill above it that hides the block's first line (the `List` text in the picture). On a phone the settings need a second tap on `Edit`; on desktop a tap opens the panel at once, with its own `Save` and `Cancel`, which decision 6 removes.
+4. **The block menu covers the block.** Tapping a block shows a pill above it that hides the block's first line (the `List` text in the image). On a phone the settings need a second tap on `Edit`; on desktop a tap opens the panel at once, with its own `Save` and `Cancel`, which decision 6 removes.
 5. **Long sheets.** The `Cards` sheet needs about four screens of scrolling: three text fields first, then Design, Background and the cards, with `Save` and `Cancel` pinned at the bottom. A row's `Move up`, `Move down` and delete icons are in the sheet beside a name cut short (`App st…`).
 6. **Selection toolbar and pill hang over the text.** The floating bar sits at the bottom of the viewport when the selection is near the top, which is where the soft keyboard will be.
 
@@ -502,7 +502,7 @@ Checked on the built demo (`Blocks` page) with Playwright at 375 × 760 (touch, 
 - Keep typing in the drawn block. Do not fold the rows out under the block on a phone; the rows are 301 px wide and the fold-out would be taller than the screen.
 - Use **one** floating toolbar, docked above the keyboard (visual viewport), not a bar at the top and a second under the selection. It is context aware as decided: text tools in text, block actions on a block, with `Text`, `Row` and `Edit` as folded menus. Every button is 48 × 48 dp (the pill may keep a 40 dp icon with a 48 dp target) and at most five fit in 375 px, which is why the folding is needed.
 - Settings open in a **modal bottom sheet that can sit at half height** (as the Insert sheet does), so the open block stays visible above it. Replace the modal side sheet below `expanded`; this is a change to `sheetPlacement.mjs`, which decision 14 said would stay, and it is cheap because `Insert` already has the component. Keep `Make the sheet taller` for long blocks.
-- The sheet holds settings only (icon, picture, link, design, dynamic list), so it is one screen, with no `Save` and `Cancel` of its own (decision 6).
+- The sheet holds settings only (icon, image, link, design, dynamic list), so it is one screen, with no `Save` and `Cancel` of its own (decision 6).
 - Scroll the open block to just above the sheet or toolbar when either opens. This and the keyboard need a device check before batch 5 is closed.
 
 ## Batches
@@ -535,14 +535,14 @@ These are questions that change the plan, each a short read-only investigation o
 | 5 | **Inline pattern, pilot on List** | The in-place pattern on the List block only: typed in place, the active row, the next empty row, the context-aware floating menu, settings in the side panel and the bottom sheet, no `Save` of its own, head fields removed with the migration (decisions 3, 6, 14; findings 12, 14) | S3 | L | no | none |
 | 6 | **Roll the pattern out** | The same on the Steps, Buttons, Notice, Video, Price cards and the FAQ rows; Testimonials and Cookies as a drawn preview with an `Edit` link (18) | 5 | L | no | none |
 | 7 | **The list blocks** | List, Segmented list (with `Only one open` and the text button) and FAQ list; Links, Points with icon and Expandable list fold in with migrations; the Checklist block becomes a check list in the text; the `Insert` picker groups (8, 9, 10, 13, 18) | 5, 4 | L | no | none |
-| 8 | **Section settings** | Section colours (Surface, Primary, Secondary, Tertiary, none; Tint migrates to Surface); a background picture and width; the Banner block folds into a section with its migration (11, 15, 18; question 8) | 4 | M | no | none |
+| 8 | **Section settings** | Section colours (Surface, Primary, Secondary, Tertiary, none; Tint migrates to Surface); a background image and width; the Banner block folds into a section with its migration (11, 15, 18; question 8) | 4 | M | no | none |
 | 9 | **The Card block** | One Card with three designs (Outlined, Elevated, Filled with a colour), the `Media` field, buttons, whole-card link or buttons, the next empty card, migration of Cards (17) | 5, 8 | L | no | none |
 | 10 | **The Table block** | A new block with typed cells, the next row and column, `Add row` and `Add column`, a header row on by default (18) | 5, S2 | M | no | none |
-| 11 | **Page head and Preview** | The title, top picture, date and tags drawn in the text for a page and a post; `Preview` full screen with the breakpoint bar and heights (15; question 7) | 4 | L | no | none |
+| 11 | **Page head and Preview** | The title, top image, date and tags drawn in the text for a page and a post; `Preview` full screen with the breakpoint bar and heights (15; question 7) | 4 | L | no | none |
 | 12 | **Drafts and Publish** | The draft file in git; `Save`, `Publish changes`, `Unpublish`, `Discard changes`, `Schedule`; two statuses with `unlisted` and `scheduled` migrated and the SEO setting; the `ci-build` lane for drafts only; the version list kept ready for an app (1, 2, question 2) | S1, 1 | XL | maybe: an app place for the version switch | none |
 | 13 | **Autosave** | With `R2 caching` on: autosave to R2, written to git on leaving or a long idle, and the status `Saving…` / `Saved` / `Not saved` (question 2) | 12 | L | no | none |
 | 14 | **Live and scheduled versions** | The `Live` / `Scheduled` switch, editing either version, and the warning when a page has a waiting version (question 2) | 12 | M | no | none |
-| 15 | **Pictures and block flow** | Alt text after a picture is picked, the `Hide on the page` wording, the closing of a sheet (6, 7) | 5 | S | no | none |
+| 15 | **Images and block flow** | Alt text after an image is picked, the `Hide on the page` wording, the closing of a sheet (6, 7) | 5 | S | no | none |
 | 16 | **Lists from lists** | `Rows from` on the list blocks, the tag filter, `How many`, `Show all`, `Dynamic` in the block name, then `New list` and the list's own page; dynamic cards after the Card block (16, 17) | 7, 9, and 0.16 | XL, split A (a block reads an existing list) then B (`New list`) | **yes**: `Dynamic lists`, app lists | none |
 | 17 | **Menu and Settings regroup** | Appearance into the menu, Developer under Advanced, Logo and icon moved; the renames (5, 4, 9; questions 3, 4) | **0.16** | M | **yes**: Appstore, Settings › Assistants | Q3, Q4 |
 
@@ -558,7 +558,7 @@ These are questions that change the plan, each a short read-only investigation o
 **The split (settled, owner, 11 November):** 0.17 has batches 1 to 4, 7, 8 and 12 to 14 (words, first run, build
 feedback, text styles and the title, the list blocks, section settings, drafts and Publish, autosave, and the live and
 scheduled versions). Batches 5, 6, 9, 10, 11 and 15 (the in-place pilot and its roll-out, the Card, the Table, the page
-head with the full-screen Preview, and the picture flow) wait for 0.18, after the owner has seen the pilot. Batches 16
+head with the full-screen Preview, and the image flow) wait for 0.18, after the owner has seen the pilot. Batches 16
 and 17 come after 0.16.
 
 ## Spike S1: the deploy step when `ci-build` ends early (decides drafts, finding 1 and question 2)
@@ -754,7 +754,7 @@ contract is needed, only a `slots` field in `AppDefinition`.
 6. **Only group the similar blocks in the picker, or also merge them into fewer blocks (`Rows`, `Questions`)?** Settled by the owner's
    decisions on the lists (decisions 8 and 9, findings 13 and 18): three list blocks, built in batch 7.
 7. **The page head is drawn in the text (settled for the head, owner, 11 November).** A page and a blog post look as
-   close to the site as they can in the editor: the title, the top picture, the date and the tags are drawn in the text as
+   close to the site as they can in the editor: the title, the top image, the date and the tags are drawn in the text as
    the site shows them (step 1). **The optional frame with the site's header and footer (step 3) is dropped (owner,
    11 November):** `Preview` already shows the page with the site's own header, footer and layout at each window size, so a
    frame in the editor would only repeat it. `Preview` stays, with one change (owner, 11 November): it opens full screen, hiding

@@ -1,6 +1,5 @@
 {
   "id": "testimonials-list-cards",
-  "kind": "paragraph",
-  "title": "Testimonials",
-  "text": "Quotes fit more pages when you choose how they look. In a Testimonials block, set Layout to Cards to leaf through them, or List to show the whole text in rows with a button for each tag. Existing blocks open as Cards."
+  "kind": "line",
+  "text": "A Testimonials block’s Layout says Cards or List instead of Carousel or One after another"
 }

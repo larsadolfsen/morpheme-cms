@@ -1,0 +1,74 @@
+# Deviations from Material Design
+
+Every place where we deliberately do something other than Material Design 3 (M3) is listed here, so we know we took the
+decision. Each entry says what Material says, what we do instead, why, the date and the pull request. A deviation that
+is not listed here is a bug. Add the entry in the same pull request as the change.
+
+Entries from the colour sweep and the CSS sweep were sent by those workers on 2026-11-13; the owner decisions on section
+colours are from the contrast work of the same day (`npm run check:contrast`, `scripts/check-contrast.mjs`).
+
+## Section colours (contrast)
+
+Source: `theme/styles/global.css` (the section swap block), `theme/styles/blocks.css`, `src/editor.css`.
+
+### 1. A coloured section is an inverted theme, not M3's role set
+
+- **Material:** the colour roles keep their meaning everywhere; a surface is a tone of the scheme, text on it is its `on-*` role.
+- **We do:** in a section on Primary, Secondary or Tertiary the roles are swapped once for the blocks in it: `--mo-surface` is the section colour, `--mo-on-surface` and `--mo-primary` are the section's text colour, `--mo-on-primary` is the section colour.
+- **Why:** every block has one set of styles and follows every section colour by itself, in the site and in the editor.
+- **Date:** 2026-11-13 (listed; the design is older). **PR:** none.
+
+### 2. Surface containers in a section are veils of the text colour, not opaque tones
+
+- **Material:** `surface-container-lowest` to `-highest` are opaque tones of the scheme.
+- **We do:** in a coloured section they are the section's text colour at 6, 8, 10, 12 and 14% over the section colour (were 10, 12, 14, 18 and 22%).
+- **Why:** the section stays one colour with quiet tiles, and text on every tile keeps 4.5:1 or more in light and dark mode. The elevation levels (`--mo-elevation-N-color`) take these containers, so an elevated part is a tone, not a white overlay.
+- **Date:** 2026-11-13, owner decision. **PR:** #491 (elevation colours: #473).
+
+### 3. Quieter text in a section is the full text colour
+
+- **Material:** `on-surface-variant` is a lower-emphasis role than `on-surface`.
+- **We do:** in a coloured section `--mo-on-surface-variant` and `--block-muted` are the section's full text colour. The hierarchy is the type size and weight.
+- **Why:** at 80% no tile keeps 4.5:1 in light mode (3.1 to 4.2:1 measured).
+- **Date:** 2026-11-13, owner decision. **PR:** #492.
+
+### 4. Placeholders and icons are held to WCAG AA, not M3's 60% and 38%
+
+- **Material:** a placeholder is 60% of the on-colour and a disabled part is 38%.
+- **We do:** placeholders keep 4.5:1, slot icons and control borders 3:1 on every section colour (`check:screens`, `check:contrast`). Disabled parts are exempt, as in WCAG 1.4.3.
+- **Why:** 60% fails 4.5:1 on most backgrounds. A part that is not disabled is never drawn at 38%; the faded "Add button" under a card takes `on-surface-variant` instead of an opacity.
+- **Date:** 2026-11-13. **PR:** #476.
+
+## Colour sweep
+
+Allow-list: `scripts/check-colors.allow.mjs` (came in with #469). Audit: `docs/superpowers/2026-11-13-colour-sweep-audit.md`.
+
+1. **Status badges** (`--badge-ok`, `--badge-minor`, `--badge-major`, `theme/styles/global.css`). M3 has no success or warning role. We use fixed colours, darker in light mode and brighter in dark mode, because no role fits. The M3 way is custom or extended colours, a seed per status harmonised with the primary, each generating four roles; that is proposed as a later decision in the audit doc and not built. 2026-11-13. #469.
+2. **PageSpeed ratings in the editor** (`--editor-status-good/average/bad`, `src/editor.css`). PageSpeed's own red, orange and green, fixed so they match what the tool reports. 2026-11-13. #469.
+3. **Google search-result preview** (`--google-*`, `src/editor.css`, light and dark). It imitates Google's own look, so it is fixed. 2026-11-13. #469.
+4. **Colour picker** (`src/ui.tsx`, `src/Parts.tsx`): hue and saturation gradients, default swatches, and black or white text on a swatch chosen by contrast. The owner's chosen colour is not a role. 2026-11-13. #469.
+5. **Preview frame** (`bg-white` in `PreviewScreen.tsx` and `ui.tsx`) and the white picker thumb (`border-white`). The Preview shows the page on paper, whatever the editor's colours; the thumb is white over any colour. 2026-11-13. #469.
+6. **Video still** (`.video-facade-*` in `theme/styles/blocks.css`): white title and play button over a black gradient scrim on an image. M3 would use the scrim role plus an on-colour. We use fixed black and white because the image is arbitrary and the title must stay readable on it. 2026-11-13. #469.
+7. **Image masks** (`mask-image: linear-gradient(#000 …)` in `blocks.css` and `Testimonial.tsx`). Only alpha matters, so `#000` is just the opaque stop. 2026-11-13. #469.
+8. **Scrim and shadow roles** are `#000000` in `lib/dynamic-colors.ts`, which is M3's own definition. The scheme seeds in `defaults/colors.ts` and `demo/src/site/colors.ts` are fixed `source: '#…'`. 2026-11-13. #469.
+9. **Brand mark favicons and the example SVG image** in `src/examples.ts`. They are images, not themed parts. 2026-11-13. #469.
+10. **Sign-in page of the AI connection** (`worker/mcp-oauth.js`). A standalone page with no theme CSS, so it uses CSS system colours (`ButtonFace`, `AccentColor`, …) and `color-scheme: light dark` instead of M3 roles. 2026-11-13. #478.
+11. **Block variable defaults** (`--block-*` in `blocks.css`). Older non-M3 variable names kept as aliases of the roles; the defaults now map to the roles, as `base.css` does. Kept because the blocks and every theme use them. 2026-11-13. #480.
+12. **Elevation and panel shadows** (`--mo-elevation-N-shadow`, `--panel-shadow`). They use `--mo-shadow`, but the blur and spread values are our own, softer than Material's. Not yet compared with the M3 spec: check before relying on it. 2026-11-13. #470.
+
+Not deviations, fixed to M3: hover 5% and 6% became M3's 8% (#474), and the snackbar fallbacks use the inverse roles (#471).
+
+## CSS sweep
+
+Allow-list: #477.
+
+1. **Dialog corner:** 28dp (extra-large) or 32dp (extra-large-increased), the Expressive set. Owner decision. 2026-11-13. No PR.
+2. **Menu corner:** 4dp in the old tokens; we use 16dp (large), the Expressive vertical menu. 2026-11-13. No PR.
+3. **Hero buttons 56px and list rows 56, 72 and 88px:** the Expressive sizes, kept on purpose. 2026-11-13. No PR.
+4. **Icon button:** M3 has a 40dp container with a 48dp target; we draw 48dp, so the target is always met. 2026-11-13. No PR.
+5. **Focus ring:** matches the part's shape, with one 6px round-off for any element. `base.css`. 2026-11-13. #477.
+6. **Checkbox error ring:** corner 3px over the 2px box (M3 2dp). `ui.css`. 2026-11-13. #477.
+7. **Slider inner track corner** 2px (= M3), **inline code corner** 0.3em (follows the text size), and the fallback corners in `base.css` and `blocks.css` for themes with no steps. 2026-11-13. #477.
+8. **Spacing:** there are no `--mo-space-*` tokens; Tailwind's 4dp scale is M3's 4dp grid. The undefined `var(--mo-space-4, 4px)` fallbacks became plain values. 2026-11-13. #488.
+9. **Type:** the editor's page preview draws the site's headings and texts at the sizes of the components' classes (`[data-look]` sizes, `editor.css`), not M3 steps, so the preview matches the site; they move together with the site's blocks. Site `text-lg`, `text-xl` and `text-4xl`, `rounded-md` and the tracking value moved to M3 steps in #490. Some `font-size`, `line-height` and `letter-spacing` in `blocks.css`, `ui.css`, `global.css`, `base.css` and `components.css` are not yet moved to the type scale (tracked for the next pull request of the shape and type sweep). 2026-11-13. #477, #490.
+10. **Search-result preview and crop handles** (`scripts/check-css-values.allow.mjs`): `text-[20px]` with `leading-[22px]` and `leading-[26px]` are Google's own look (20px and 26px title, 22px lines), not M3 steps; `rounded-[3px]` (a crop handle's corner), `rounded-[1.375rem]` (the app icon's own 22px corner, as on a phone's home screen), `border-[1.5px]` (the crop handle's line) and `border-[3px]` are not steps of a scale. 2026-11-13. #477, #490.

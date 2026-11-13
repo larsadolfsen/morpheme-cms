@@ -2,7 +2,7 @@
 // The front page (the standard theme's): the page chosen under "Settings" › "Appearance" › "Default pages" (packages/editor/site/home.ts), its
 // heading, then its sections in order: a text, and a block by its type in a section of its own (PageBlock.astro): the
 // standard ones' and the apps', the top ("Hero") among them. A page whose H1 has section settings (a marker before it: a colour, a
-// picture behind the text, the whole width; the top "Banner" is migrated to this, lib/front-banner.mjs) draws the heading, its text and
+// image behind the text, the whole width; the top "Banner" is migrated to this, lib/front-banner.mjs) draws the heading, its text and
 // its Buttons block in one panel, as PageLayout.astro does, in place of the heading above.
 import Base from '@theme/layouts/Base.astro';
 import Container from '@theme/components/Container.astro';
@@ -30,8 +30,9 @@ const panel = sections.find((s) => s.type === 'top');
   seoDescription={page.data.seoDescription}
   canonical={page.data.canonical}
   noindex={page.data.noindex}
+  nofollow={page.data.nofollow}
   shareImage={page.data.shareImage}
-  pictures={picturesOf(page.body)}
+  images={picturesOf(page.body)}
   shareTitle={page.data.shareTitle}
   shareDescription={page.data.shareDescription}
 >
@@ -44,14 +45,14 @@ const panel = sections.find((s) => s.type === 'top');
     const first = i === 0 ? 'theme-home-first' : undefined;
     if (s.type === 'top')
       return (
-        <Container class="pt-8 medium:pt-16">
+        <Container class={s.settings.color || s.settings.image ? '[&>.text-section]:mt-0' : 'pt-8 medium:pt-16'}>
           <section
-            class={s.settings.color || s.settings.picture || s.settings.width ? sectionClass(s.settings.color, s.settings) : undefined}
+            class={s.settings.color || s.settings.image || s.settings.width ? sectionClass(s.settings.color, s.settings) : undefined}
             data-editor="h1-section"
           >
-            {s.settings.picture && (
+            {s.settings.image && (
               <Img
-                src={s.settings.picture}
+                src={s.settings.image}
                 alt={s.settings.alt ?? ''}
                 sizes={s.settings.width === 'full' ? '100vw' : 'min(72rem, 100vw)'}
                 class="text-section-image"

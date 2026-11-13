@@ -2,19 +2,21 @@
 // theme's Accordion: the same markup as blocks/faq/Accordion.tsx). The question is typed in the summary line and the answer in the open panel;
 // the active question is shown open and the others closed, whatever `Only one open` says (that is a setting of the block, in Edit). The answer
 // is plain text here: what is typed is saved as it is, so an answer written with markdown keeps it (Shift+Enter makes a new line; Enter in the
-// answer adds the next question). The parts, the keys and what is kept are InlineItems.tsx and src/inlineRows.mjs. The head and the text button are
-// drawn as the site draws them when they are filled in, and are set in Edit.
+// answer adds the next question). The parts, the keys and what is kept are InlineItems.tsx and src/inlineRows.mjs. The head is drawn as the site draws it when it is filled in and is set in Edit. The text button under the list is typed in a
+// field under `Add question` while the block is active (empty: none) and its page is picked in the link slot (Edit).
+import { LinkSimple } from '@phosphor-icons/react';
 import { t } from './i18n';
 import { Svg } from './icon';
-import InlineItems from './InlineItems';
+import InlineItems, { InlineField, InlineSlot } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
 import { faqSettings } from './standard/faq/view';
 import { headOf } from './standard/head';
 import BlockHead from '@theme/blocks/BlockHead';
 import ListButton from '@theme/blocks/ListButton';
 
-export default function InlineFaq({ items, props, active, focus, onChange }: InlineViewProps) {
+export default function InlineFaq({ items, props, active, focus, onChange, onProps, onEdit }: InlineViewProps) {
   const head = headOf(props);
+  const button = faqSettings(props).button;
   return (
     <>
       <BlockHead view={head} />
@@ -50,7 +52,28 @@ export default function InlineFaq({ items, props, active, focus, onChange }: Inl
           </details>
         )}
       />
-      <ListButton button={faqSettings(props).button} />
+      {/* While the block is active the button under the list is typed where it stands (empty: no button) and its page is picked in a slot
+          (Edit); else it is drawn as the site draws it. */}
+      {active !== null && items.length > 0 ? (
+        <div className="block-list-button inline-faq-button">
+          <InlineField
+            name="button"
+            value={typeof props.button === 'string' ? props.button : ''}
+            label={t.blocks.faq.button}
+            placeholder={t.blocks.faq.buttonPlaceholder}
+            onType={(v) => onProps({ button: v.replace(/\n/g, ' ').slice(0, 30) })}
+            onFocus={() => {}}
+            onKeys={(e) => e.key === 'Enter' && e.preventDefault()}
+          />
+          {onEdit && (
+            <InlineSlot label={t.blocks.faq.buttonHref} onClick={onEdit}>
+              <LinkSimple size={24} />
+            </InlineSlot>
+          )}
+        </div>
+      ) : (
+        <ListButton button={button} />
+      )}
     </>
   );
 }

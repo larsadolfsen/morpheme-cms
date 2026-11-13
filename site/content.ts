@@ -5,7 +5,7 @@ import { categories, isBlogCategory } from './categories';
 import { displayTitle } from './text';
 import { isPreview } from './noindex.mjs';
 import { renamedPreview } from '../lib/previewAddress.mjs';
-import { stateOf } from '@morphemecms/cms/lib/status.mjs';
+import { isUnlisted, stateOf } from '@morphemecms/cms/lib/status.mjs';
 import { pageH1 } from '@morphemecms/cms/src/sections.mjs';
 import { h1Section, h1SectionColor, withoutH1 } from '@morphemecms/cms/lib/without-h1.mjs';
 
@@ -25,9 +25,10 @@ const stateHere = (data: { status?: string; publishAt?: string }) => {
   const state = stateOf(data);
   return state === 'draft' && import.meta.env.DEV ? 'published' : state;
 };
-// The posts on the blog and in every list of posts. A draft is not on the site.
-export async function getPosts() {
-  return (await getCollection('blog', ({ data }) => stateHere(data) === 'published')).sort(
+// The posts on the blog and in every list of posts. A draft is not on the site; an unlisted post (lib/status.mjs) is, but not in
+// a list: only with `unlisted: true`, for what builds the post's own address or looks one up by it.
+export async function getPosts({ unlisted = false } = {}) {
+  return (await getCollection('blog', ({ data }) => stateHere(data) === 'published' && (unlisted || !isUnlisted(data)))).sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
   );
 }

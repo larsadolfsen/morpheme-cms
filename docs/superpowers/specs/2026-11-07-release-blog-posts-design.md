@@ -26,14 +26,14 @@ nothing new needs a key: a commit from `publish.yml` in this repository would ne
     `description` (the cards' titles, else the first line), `categories`, `image` (the edition's photo) and `imageAlt`
     (its place);
   - each card as a heading, its text and its screenshot; the lines under *Also in this version*; the photo's credit.
-  The pictures go in `public/images/uploads/<year>/<month>/`, as the editor puts them, in the same commit as the post.
+  The images go in `public/images/uploads/<year>/<month>/`, as the editor puts them, in the same commit as the post.
 - **Once.** `cms:release-post` keeps `{ version, state, at }`: `posted` (with the commit), `exists` (the site already has
   the file, e.g. KV was emptied: never overwritten), `no-notes` (a developer-only release gets no post) or `failed`
   (tried again after an hour). A test version on `latest` is never posted.
 
 ## Checks
 
-- `lib/releasePost.test.mjs`: the post and its pictures, and that its front matter is what the editor writes
+- `lib/releasePost.test.mjs`: the post and its images, and that its front matter is what the editor writes
   (`writeFields`).
 - `scripts/check-release-post.mjs` (in `check:worker`): the Worker with npm, GitHub and KV played.
 - A post made from the real 0.14.2 notes passed `check:editor` (the same page after a save) and `check:content`, and was

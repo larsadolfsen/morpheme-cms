@@ -22,6 +22,14 @@ export default defineBlock({
   label: t.blocks.notice.label,
   icon: Info,
   hint: t.blocks.notice.hint,
+  // Typed in place (InlineNotice.tsx): the text in the notice; `Show until` is in the sheet.
+  inline: {
+    item: '',
+    single: true,
+    fields: ['text'],
+    settings: ['until'],
+    texts: { addAbove: '', addBelow: '', row: t.blocks.notice.label, settings: t.blocks.notice.until },
+  },
   fields: [
     { name: 'text', label: t.blocks.notice.text, type: 'markdown', required: true },
     { name: 'until', label: t.blocks.notice.until, type: 'datetime', hint: t.blocks.notice.untilHint },
