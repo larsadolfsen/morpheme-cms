@@ -48,6 +48,7 @@
     "check:types": "tsc -p tsconfig.types.json --noEmit",
     "check:editor": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:editor",
     "check:screens": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:screens && node ../../../scripts/check-save-twice.mjs",
+    "check:contrast": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:contrast",
     "check:demo": "node bin/morpheme.mjs check:demo",
     "check:starter": "node scripts/check-starter.mjs",
     "test": "node --test \"{lib,scripts,site,src,theme,worker}/**/*.test.mjs\"",

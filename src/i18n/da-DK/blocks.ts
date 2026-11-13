@@ -44,6 +44,8 @@ export const blocks: Messages['blocks'] = {
     button: 'Knaptekst',
     buttonHint: 'En tekstknap under det sidste spørgsmål. Hvis feltet er tomt, er der ingen knap.',
     buttonHref: 'Knapside',
+    /** The button typed in place under the questions: the empty field's text. */
+    buttonPlaceholder: 'Knaptekst',
     addQuestion: 'Tilføj spørgsmål',
     newQuestion: 'Nyt spørgsmål',
     questionOf: (n: number, total: number) => `Spørgsmål ${n} af ${total}`,

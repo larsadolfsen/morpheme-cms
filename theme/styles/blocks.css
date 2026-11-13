@@ -177,8 +177,8 @@
     --section-on-fill: var(--block-on-tertiary);
   }
   /* Across the whole width of the window (`width` full): without corners; it reaches out of the text to the window's edges, from
-     where the text starts at the left of the page's container (--block-page-width, --block-gutter), and its content starts there
-     again and ends at the container's right edge. The page is clipped at the window's edges while it has one (100vw is a
+     where the text starts at the left of the page's container (--block-page-width, --block-gutter), and its content stays in the text
+     column from there (the rule below). The page is clipped at the window's edges while it has one (100vw is a
      scrollbar wider). */
   .text-section-full {
     --section-inset: calc(max(0px, (100vw - var(--block-page-width)) / 2) + var(--block-gutter));
@@ -188,6 +188,11 @@
     margin-left: calc(-1 * var(--section-inset));
     border-radius: 0;
     padding-inline: var(--section-inset);
+  }
+  /* Only the background is the whole width: the content stays in the page's text column, as the text outside a section does (the
+     page's text keeps its paragraphs and headings at 66ch, PageLayout.astro; blocks, not-prose, span the container). */
+  .text-section-full > :not(.not-prose, .text-section-image) {
+    max-width: 66ch;
   }
   body:has(.text-section-full) {
     overflow-x: clip;
