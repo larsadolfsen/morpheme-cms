@@ -59,6 +59,7 @@ export default defineBlock({
           singular: t.blocks.segmented.rowButton,
           hint: t.blocks.segmented.rowButtonsHint,
           type: 'list',
+          maxItems: 1,
           summary: 'label',
           fields: [
             { name: 'label', label: t.blocks.segmented.rowButtonText, type: 'string', max: 30, required: true },

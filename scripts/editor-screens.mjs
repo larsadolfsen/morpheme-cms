@@ -623,6 +623,12 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       .inputValue()
       .catch(() => null);
     if (typed !== 'More') problems.push(`${label}: the text typed in a row's new button is "${typed}", not "More"`);
+    // A row has at most one button: with one, `Add button` is gone and Enter in its text adds no second.
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(300);
+    if ((await page.locator('[data-add-button]').count()) !== 0)
+      problems.push(`${label}: "${rowButtons}" stays although the row has a button`);
+    if ((await page.locator('.inline-segmented-button').count()) !== 1) problems.push(`${label}: a row got a second button`);
   }
   if (phone) {
     // A touch screen has no hover (hover: none), but the browser leaves :hover on what was tapped: the add button stays a text button, without the pointed-at background.
