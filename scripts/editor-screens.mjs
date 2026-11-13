@@ -205,6 +205,16 @@ async function barTools(page) {
   return { bar, more, names: [...bar.map((b) => b.label), ...more.map((m) => m.label)] };
 }
 
+/** The divider of the one bar is the height of the buttons and centred on them (not stretched to the bar's edges), 1 dp wide; `d`: its box, `b`: a button's. Returns a problem text, or ''. */
+function dividerProblem(d, b) {
+  if (!d || !b) return 'no divider or no button to measure';
+  const off = d.top + d.height / 2 - (b.top + b.height / 2);
+  if (Math.abs(off) > 1) return `the divider is ${off.toFixed(1)} px off the centre of the buttons`;
+  if (Math.abs(d.height - b.height) > 1) return `the divider is ${d.height} px high, the buttons ${b.height}`;
+  if (d.width > 2) return `the divider is ${d.width} px wide`;
+  return '';
+}
+
 /** The text's one bar (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, PR 1). On a phone, with the cursor in text: one bar, 44 dp tall, every button 44 x 44 dp, never scrolling, with the divider, Undo and Redo and the ⋮ at its end (at 360 and 375 px exactly Bold, Italic, Link, Text style, Undo, Redo, More); the ⋮ is a pop-up menu (not a sheet) inside the visible screen, with rows of 44 dp, which keeps the cursor and closes on Escape; Undo works; the bar has the same height idle (no divider then); the Text style menu has at most 8 rows of 44 dp, a page's first heading offers Main heading, a blog post Heading and Subheading, a list item no heading rows and no Quote, a heading no list rows and no Quote. On a computer all tools are on the bar and there is no ⋮. */
 async function checkTextBar(width = 360) {
   const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -224,7 +234,10 @@ async function checkTextBar(width = 360) {
         ...b.getBoundingClientRect().toJSON(),
       }));
       const divider = bar.querySelector('hr[aria-orientation="vertical"]');
+      const button = bar.querySelector('button');
       return {
+        dividerBox: divider && divider.getBoundingClientRect().toJSON(),
+        buttonBox: button && button.getBoundingClientRect().toJSON(),
         height: bar.getBoundingClientRect().height,
         barWidth: bar.clientWidth,
         names: buttons.map((b) => b.name),
@@ -237,6 +250,8 @@ async function checkTextBar(width = 360) {
       };
     });
   const inText = await readBar();
+  const divided = dividerProblem(inText.dividerBox, inText.buttonBox);
+  if (divided) problems.push(`${label}: ${divided}`);
   const slots = Math.floor((inText.barWidth - 17) / 44);
   if (inText.height < 44 || inText.height > 46)
     problems.push(`${label}: the bar is ${inText.height} px tall, not 44 (plus its 1 px edges)`);
@@ -455,8 +470,12 @@ async function checkTextBarWide() {
       small: buttons.filter((b) => Math.abs(b.getBoundingClientRect().height - 44) > 0.6 || b.getBoundingClientRect().width < 43.4).length,
       scrolls: bar.scrollWidth > bar.clientWidth + 2,
       divider: !!bar.querySelector('hr[aria-orientation="vertical"]'),
+      dividerBox: bar.querySelector('hr[aria-orientation="vertical"]')?.getBoundingClientRect().toJSON(),
+      buttonBox: bar.querySelector('button')?.getBoundingClientRect().toJSON(),
     };
   });
+  const dividerWide = dividerProblem(got.dividerBox, got.buttonBox);
+  if (dividerWide) problems.push(`1280px text bar: ${dividerWide}`);
   const want = ['Bold', 'Italic', 'Link', 'Text style', 'List', 'Alignment', 'Color', 'Insert', 'Undo', 'Redo'];
   for (const name of want)
     if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)))
@@ -1619,7 +1638,11 @@ async function checkInlineBlock(
         problems.push(`${label}: the ${kind} button's hint is ${hintColor} and its text ${fieldColor}, not its own ${rowColor}`);
     {
       // The contextual menu's Settings, a plain icon button on a computer and a phone.
-      await pressTool(page, 'Settings').catch(async (e) => problems.push(`${label}: the toolbar has no way to open the button's settings ${JSON.stringify((await barTools(page)).names)} ${e.message.slice(0, 200)}`));
+      await pressTool(page, 'Settings').catch(async (e) =>
+        problems.push(
+          `${label}: the toolbar has no way to open the button's settings ${JSON.stringify((await barTools(page)).names)} ${e.message.slice(0, 200)}`,
+        ),
+      );
       const kinds = ['Filled', 'Tonal', 'Elevated', 'Outlined', 'Text'];
       const group = page.locator('[role="group"][aria-label="Style"], [aria-label="Style"]').last();
       await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Style choice`));
@@ -3279,14 +3302,22 @@ async function checkHints() {
 /** The text's toolbar and field read as one closed box on a phone, empty, with the keyboard open and stuck at the top of the screen: the toolbar has a border on its top edge and on each side, and rounded top corners that keep the border. */
 async function checkToolbarBox() {
   // TEMP-DEBUG
-if (process.env.ONLY_BLOCK) {
-  for (const [w, h] of [[375, 740], [1280, 900]]) await checkInlineBlock(w, h, inlineBlocks.find((b) => b.name === process.env.ONLY_BLOCK));
-  await browser.close();
-  server.close();
-  console.log(problems.join('\n') || 'ok');
-  process.exit(0);
-}
-for (const [width, height] of [
+  if (process.env.ONLY_BLOCK) {
+    for (const [w, h] of [
+      [375, 740],
+      [1280, 900],
+    ])
+      await checkInlineBlock(
+        w,
+        h,
+        inlineBlocks.find((b) => b.name === process.env.ONLY_BLOCK),
+      );
+    await browser.close();
+    server.close();
+    console.log(problems.join('\n') || 'ok');
+    process.exit(0);
+  }
+  for (const [width, height] of [
     [360, 740],
     [375, 740],
     [414, 740],
