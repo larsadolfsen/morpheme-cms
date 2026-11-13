@@ -39,7 +39,7 @@ const picture = sharePicture?.startsWith('/') ? site.url + sharePicture : shareP
 // The text's first paragraph is the lead, drawn before the featured image; without one the image comes first.
 const { lead, rest } = splitLead(await Astro.slots.render('default'));
 // The lead has the text's class too (the editor's preview copies the text's class to the lead) and post-lead.
-const textClass = 'prose mx-auto mt-10 max-w-3xl px-5 medium:mt-14 medium:px-8';
+const textClass = 'prose mx-auto mt-10 max-w-3xl px-4 medium:mt-14 medium:px-6';
 
 // Related: most shared categories first, then newest.
 const related = (await getPosts())
@@ -92,7 +92,7 @@ const related = (await getPosts())
     {lead && <div data-editor="lead" class={`${textClass} post-lead`} set:html={lead} />}
 
     {image && (
-      <div data-editor="image" class="mx-auto mt-8 max-w-5xl px-5 medium:mt-12 medium:px-8">
+      <div data-editor="image" class="mx-auto mt-8 max-w-5xl px-4 medium:mt-12 medium:px-6">
         <Img
           src={image}
           alt={imageAlt ?? ''}
