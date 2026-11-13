@@ -1,6 +1,6 @@
 {
   "id": "section-settings",
   "kind": "paragraph",
-  "title": "Section image and width",
-  "text": "A section can carry an image behind it and stretch across the page. Open Section settings, add a Background image, and set its Width to Full width or Like the text. Colors work as before."
+  "title": "Section color, image and width",
+  "text": "A section can stand out in more ways. Open Section settings, choose Surface, Primary, Secondary or Tertiary, add a Background image, and set its Width to Full width or Like the text."
 }
