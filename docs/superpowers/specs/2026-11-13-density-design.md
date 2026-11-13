@@ -64,9 +64,16 @@ read, the spec says so (section 2.2).
 - A **Density** choice with three steps: `Large` (+1), `Medium` (0) and `Small` (-1). Default `Medium`: today's look, exactly. A menu with an icon of lines per choice, as on the M3 page.
 - Where: the account settings in the Library screen, beside Light / Auto / Dark (`src/Library.tsx`, `setTheme`). It is the same kind of
   thing: a taste of the person at that screen.
-- Stored: **per user on the device**, in `localStorage` key `editor-density`, as the theme choice is (`src/theme.ts`, key
-  `editor-theme`). Not per site: a phone and a desktop want different answers (M3: "Consider density settings in the context of a
-  device"). A script in the head sets it before the first paint, so the page does not jump.
+- Stored (owner, 2026-11-13): **per user, kept on the user**, not only on the device. The editor already keeps per-person settings in
+  one place: the Worker's `worker/dashboard.js` keeps each person's start-screen dashboard in the Workers KV namespace `NOT_FOUND`
+  (`wrangler.jsonc`), one key `dashboard:<GitHub user id>`, no expiry, read and written through `GET` and `PUT /api/dashboard`. The
+  id comes from GitHub with the person's sign-in, so no one can read or write another person's. Density takes the same road: a key
+  `settings:<GitHub user id>` with `{ density }` and `GET` / `PUT /api/settings` (or a `density` field in that record if the owner's
+  later per-user settings also go there), same sign-in rule, same "someone who can save the site" rule, same "no KV in a branch
+  preview, so nothing is kept and the editor says so".
+- A copy on the device (`localStorage` key `editor-density`, as `editor-theme` in `src/theme.ts`) lets a script in the head set
+  `data-density` before the first paint, so the page does not jump. When the editor loads, the account's value replaces the copy; a
+  change writes both. Where there is no account value (a preview), the copy alone is used.
 - **Scope (owner, 2026-11-13).** It applies to the whole editor **except the editing area of a page and a blog post**. What is typed in
   place there (text, and the blocks as drawn on the page) must stay as close to the real site as possible, so density never changes how
   that content is drawn: it keeps the theme's own spacing for the site, at every step. Everything around it follows density: menus,
@@ -148,14 +155,37 @@ not render with the container height as text), so this spec gives no number for 
 `theme/ui/` and subtracts 4dp per step, and checks it against M3 by hand in a browser. The gap between rows and sections in the editor
 (outside the page and post editing area) is likewise today's value minus 4dp per step, from the spacing tokens.
 
-### 2.3 The 48dp rule
+### 2.3 Touch targets
 
-On a touch screen (`pointer: coarse`) every tappable part keeps a 48 × 48 dp target at every step (rule 4). The image shrinks; an invisible
-hit area (a `::after` of 48 dp) keeps the target. Where two small targets would then overlap, the gap between them grows back to
-keep them apart. The existing 48 dp icon button (`docs/material-deviations.md`, CSS sweep 4) already does this.
+What the M3 pages say (read on 2026-11-13 with Chromium):
 
-On a mouse screen (`pointer: fine`) the target may follow the visual size, but never below 32 dp. (M3 says 48 as the default and
-allows density as an opt-in. 32 is our floor; question 2.)
+- m3.material.io/foundations/designing/structure ("Target sizes"): "For most platforms, consider making touch targets at least 48 x
+  48dp." "Touch targets are the parts of the screen that respond to user input, extending beyond the visual bounds of an element. For
+  example, an icon may appear to be 24 x 24dp, but the padding surrounding it comprises the full 48 x 48dp touch target."
+  **"Pointer targets" ** (mouse, stylus): "Consider making pointer targets minimums 44 x 44dp." **"Target spacing":** "In most cases,
+  targets separated by 8dp of space or more promote balanced information density and usability." (Its note: iOS recommends 44.)
+- m3.material.io/foundations/layout/grids-spacing/density: "The default target size should be at least 48x48 CSS pixels." "Don't
+  apply component scaling by default if it would result in a target below 48x48 CSS pixels." "Accessible targets should retain a
+  minimum of 48x48dp, even if the visual element, such as an icon, is smaller." The density settings' own controls "must use default
+  target sizes (48x48 CSS pixels)".
+- m3.material.io/components/icon-buttons/accessibility: "Don't apply density to icon buttons by default. This lowers their targets
+  below the required 48x48 CSS pixels minimum size. Provide density options that allow people to choose a higher density … Controls
+  for adjusting density must maintain a target size of at least 48x48 CSS pixels."
+- Component Specs pages: target size 48dp for the segmented button, the radio button, the checkbox and the switch; "Min 48dp" for a
+  chip's close icon; "Target size must be at least 48x48dp" for a list item; "Extra small and small icon buttons must have a target
+  size of 48x48dp or larger" (buttons and icon buttons). The text field's page gives a 56dp target.
+- **A width rule: I could not find one.** The owner remembers that a target may be smaller than 48 on mobile when it has a certain
+  width. In every page above I found no such exception: only 48 for touch, 44 for a pointer, and 8dp between targets. It may be on a page
+  I did not open (for example a component's own page); I will not guess it. The owner or the PM can point me to the page.
+
+What the spec does with it:
+
+- **Touch** (`pointer: coarse`): every tappable part keeps a 48 × 48 dp target at every step. The image shrinks; an invisible hit area
+  (a `::after` of 48 dp) keeps the target, as the existing 48 dp icon button does (`docs/material-deviations.md`, CSS sweep 4). Where
+  two targets would overlap, the gap grows to keep them at least 8 dp apart.
+- **Mouse** (`pointer: fine`): M3 names 44 × 44 dp as the minimum. The spec uses **44** (it was 32 in the first draft, which was
+  ours and not M3's).
+- The density setting's own rows are always at the default size.
 
 ### 2.4 The site's front end
 
@@ -169,7 +199,28 @@ does not turn it on.
   layout needs it", and a public page is not a data screen. The site's blocks stay at `0`. The only exception is the Table block's rows
   (section 3), which can offer a `density` per table, because a table is where M3 says density helps ("such as a data table").
   If the owner wants a site-wide setting later, it is one more theme setting with no change to the mechanism.
-- The editor's density and the site's density are separate. The editor's choice (on the device) never reaches the site.
+- The editor's density and the site's density are separate. The editor's choice (kept on the user) never reaches the site.
+- **When a theme offers density to visitors (owner, 2026-11-13): a cookie in the browser.** There are no front-end sign-ins and none
+  planned, so nothing is kept per visitor on a server. What I found in the code:
+  - The default theme already remembers a visitor's light or dark choice, but in `localStorage` (key `theme`), not a cookie:
+    `theme/layouts/Base.astro` has an inline script in `<head>` that reads it and sets `data-theme` on `<html>` before the first
+    paint, and a click handler that writes it. A density choice can follow the same pattern with a cookie.
+  - Proposed cookie: name `density`; value `large`, `medium` or `small`; `Max-Age=31536000` (one year); `Path=/`; `SameSite=Lax`;
+    `Secure`; not `HttpOnly`, because the page's own script has to read and write it. It is written by the theme's script when the
+    visitor picks a step.
+  - **No flash:** the site is built static, so the server cannot answer differently per visitor. An inline script in `<head>`, like
+    the theme's, reads the cookie and sets `data-density` on `<html>` before the first paint; the theme's CSS reads `[data-density]`.
+  - **What the theme must do:** read `--mo-density` in its parts; carry the inline script and the control; and not set the attribute
+    on pages when it offers no setting.
+  - **The cookie banner: what the code says.** Cookies have categories (`lib/cookieCategories.mjs`): `necessary` is set without
+    asking; `preferences`, `statistics`, `marketing` and `targeting` are asked in the banner, one by one. A cookie's category is declared
+    in the site's cookie list and in an app's `cookies.json`. The banner shows only when cookies are enabled and at least one
+    installed **app** asks for a category (`site/consent.ts`: `cookieBanner = cookies.enabled && consentCategories.length > 0`). A
+    theme has no way to declare a cookie or to make the banner ask today, and the default theme's `theme` choice in `localStorage` is not
+    in the cookie list. So a density cookie would be `preferences` by our own categories, but nothing in the code makes the banner ask for
+    it. **I cannot tell from the code whether the law needs a yes for a cookie that only keeps a layout choice**, and that is not
+    something the code decides; the owner or the site's privacy owner has to say. If a yes is needed, the theme needs a way to declare
+    its cookie (a `cookies.json` as an app has), which is a separate piece of work.
 - Other themes in the store need no change. The only contract is: `--mo-density` is a number the theme *may* read, and missing means 0.
 
 ## 3. The table spec's `density`
@@ -196,7 +247,7 @@ after the first step of #515's row 11.
 | # | PR | Cost | Depends on |
 | --- | --- | --- | --- |
 | 0 | **Spacing tokens** (#515 row 11, step a): `--mo-space-*` on M3's 4dp grid, and the one switch `--mo-density` / `--mo-density-step` plus `data-density` on the root. At `0` nothing changes. | small | none; this *is* step (a) of #515's row 11 and adds only the density switch to it |
-| 1 | The setting in the Library: three steps, `localStorage`, head script. Does nothing visible until a part reads it. | small | PR 0 |
+| 1 | The setting in the Library: three steps, kept on the user (`/api/settings` in the Worker, like the dashboard) with a copy on the device and a head script. Does nothing visible until a part reads it. | medium | PR 0 |
 | 2 | Parts read it: segmented button, chip, button, text field, list row, in `theme/ui/` (each from M3's Specs page, 48 dp hit area on touch) | medium | PR 0, PR 1 |
 | 3 | Layout density: the editor's gaps and paddings use `--mo-space-*` times density | large | #515 row 11 steps (c) and (d) (moving the 73 CSS lines and the Tailwind sizes to tokens); until then the editor's layout has nothing to scale |
 | 4 | The table's density (the `DataTable` part and the Table block's `density`) | small | PR 0, `DataTable` (table spec PR 0), PR 3 of #502 changed as in section 3 |
@@ -236,11 +287,13 @@ Also decided (owner, 2026-11-13): follow the M3 density page and nothing beyond 
 applies (section 2.2). The editor's menu offers the three steps; -2 and -3 are for data-heavy parts in themes (our proposal, not
 asked).
 
+Also decided (owner, 2026-11-13): where it is kept. In the editor it is per user, kept on the user (section 2.1). On the site, when a
+theme offers density, it is a cookie in the browser (section 2.4); no front-end sign-ins.
+
 Open questions. The PM asks them one at a time, in this order.
 
-1. **Where it is kept.** **Recommendation:** per user on the device (`localStorage`, like Light / Dark): no sign-in needed, a phone
-   and a computer can differ. The other choice is per site, stored in the site's settings, so everyone who edits it sees the same.
-2. **How low on a mouse screen.** On a computer with a mouse, how small may a target get? **Recommendation:** 32 dp, with the 48 dp
-   hit area kept on any touch screen. M3 allows density as an opt-in, with 48 dp as the default.
-3. **Default theme: a site setting?** **Recommendation:** no site setting in `Material` now; only the Table block's own `density`.
+1. **The smallest target for a mouse.** M3 says touch targets at least 48 x 48 dp and "pointer targets minimums 44 x 44dp", with 8dp
+   between targets (section 2.3). I found no width exception. Do we follow M3 exactly: 48 on touch, 44 for a mouse?
+   **Recommendation:** yes. If the owner knows the page with the width rule, send it and the spec will quote it.
+2. **Default theme: a site setting?** **Recommendation:** no site setting in `Material` now; only the Table block's own `density`.
    A theme author can add one. (Say yes if the owner wants visitors' pages denser by site.)
