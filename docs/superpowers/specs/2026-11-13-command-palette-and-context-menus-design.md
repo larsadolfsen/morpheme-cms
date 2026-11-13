@@ -1,6 +1,7 @@
 # Command palette, one action registry, and no custom context menu (design)
 
-Status: proposal for the owner. Design only, no code. Written for a phone: plain words, short.
+Status: **postponed past 0.17** (owner, 13 November: "The whole command palette" is postponed to the edition after 0.17; 0.17 is not extended). A complete proposal for the owner, kept for
+that edition. Design only, no code. Written for a phone: plain words, short.
 
 **Decided by the owner (13 November):**
 1. `Ctrl+K` / `⌘K` always opens the palette, also while typing text. *Link* gets no key.
@@ -9,7 +10,22 @@ Status: proposal for the owner. Design only, no code. Written for a phone: plain
    and Paste, and then reversed it after hearing that the browser and the phone already do those. Only the last word stands.) Section 5.
 3. **Tools that do not exist in the editor today (Resize image, Duplicate block, and any other) are postponed past 0.17, each with a separate spec.** Owner: write specs for the missing
    things, but do not build them in 0.17 and do not extend 0.17. The palette lists **only actions that exist today** (an action is registered only when its feature exists, section 3).
-Still open with the owner: the palette's search scope, the top-bar search button, and whether the phone palette lists text actions (section 11).
+4. **The whole command palette, and with it the shared action registry, is postponed to the edition after 0.17.** D1 and D2 stay recorded as decided for then. No owner question is open now:
+   the three that were left (search scope, top-bar search button, text actions on a phone) wait with the palette (section 11).
+
+## What 0.17 keeps, and what it does not depend on
+
+Nothing in this spec is in 0.17. Everything below is already specified elsewhere or exists today, and **does not depend on the palette or the registry**:
+
+- **The one bar (#519)** and its `⋮`: built on today's `BarAction` list and tool lists. #519 (checked at its head `bceb998`) says "the same `BarAction` list, only a new place and shell", fixes
+  its `⋮` lists per context in section 3, and says "A right-click context menu and a command palette are not part of this spec: they are a separate spec" (this one).
+- **Tooltips with shortcuts (#519, section 8):** each tool that has a key gets the key in its tooltip and `aria-keyshortcuts`, for every tool that has a key, built in the tooltip code. No registry is needed.
+- **Selection (#529, latest commit `0503838`):** the shared `SelectionBar` that swaps the top bar on list screens, and block selection in the one bar's contextual group (section 6 of #529). Neither
+  uses a registry: I searched both specs for "registry" and "actions.ts" and found none, and for "palette" (only #519 names it, as this separate spec).
+- **Ctrl/⌘+K is not used in 0.17.** Until the palette is built the key stays the browser's.
+
+**Result of the check:** no dependency found. The registry is postponed with the palette. When it is built (the edition after 0.17), #519's `BarAction` list and #529's block actions move into it
+once, through an adapter first, so the bar looks the same.
 
 Owner's words (editor menus, 13 November): editor interfaces are content-first, so the UI around the content takes little room.
 Do not stuff every feature into one scrolling drop-down or drawer. Three layers: (1) a **quick toolbar** with only the top actions
@@ -166,7 +182,7 @@ So nothing of ours is read as M3. "Nearest M3" is the pattern I used where the p
   the drafts plan (`2026-11-11-drafts-and-publish-plan.md`) when built. I found no *Publish* text in `en-US` yet, so the registry
   step reads the real set from the code.
 - **Shortcuts:** none of the editor's own. Grep finds no global key handler; only Escape in the Library, Notifications, menus and
-  sheets. The text engine (Milkdown) has `Mod-b`, `Mod-i`, `Mod-z` and others (#519 section 8c lists them; not tested here, and none for Link).
+  sheets. The text engine (Milkdown) has `Mod-b`, `Mod-i`, `Mod-z` and others (#519 section 8 lists them; not tested here, and none for Link).
 - **Context menus:** none. `onContextMenu` appears only in `theme/ui/longPress.ts`, to keep the browser's menu away from a long press.
 - **Search:** `SearchBar` and `SearchRow` (a field that narrows a list in place, `ui.tsx` 879–911). The theme's `Search` part
   (`theme/ui/Search.tsx`) has the search *view* (a `<dialog class="search-view">` with a combobox field, a `listbox` of options, a back
@@ -176,7 +192,7 @@ So nothing of ours is read as M3. "Nearest M3" is the pattern I used where the p
   `MenuItem` has icon, `selected`, `disabled`, and a tap keeps the cursor in the text. The theme's `MenuItem`
   (`theme/ui/Menu.tsx`) also has `trailingSupporting` (a shortcut), `submenu`, `checked` and groups with a divider.
 - **Tooltips:** `useTooltip` (`ui.tsx`): the name, after 500 ms under a mouse, at once on keyboard focus, not on touch. No shortcut in
-  it and no `aria-keyshortcuts` (also #519 section 8c).
+  it and no `aria-keyshortcuts` (also #519 section 8).
 - **Recent things:** `useKept` keeps a list's search in memory only. `sidebar.ts` shows the pattern for a value kept in
   `localStorage` with `try/catch`.
 
@@ -214,8 +230,8 @@ type EditorAction = {
   query to actions) gives the pages and posts by title from `files`, so they are not thousands of registered actions.
 - **The bar becomes a view.** #519's `BarAction` and `allTools` collapse into registry entries with a `bar` place; #519's
   section 3 table (what is on the bar and what is in `⋮` at 375 px) is the `order` and `overflow` of those entries. **This spec does not
-  change the bar's design;** it changes where its list comes from. Order: the registry lands first (steps 1 and 2) and feeds today's
-  `contextualMenu.ts`; the bar moves over when #519 steps 1 and 2 land (section 8).
+  change the bar's design;** it changes where its list comes from. **Postponed with the palette:** 0.17 builds #519 and #529 on today's `BarAction` and tool lists. When the registry is built (the edition after 0.17), the bar's list and #529's block actions move into it once, through
+  an adapter, so nothing looks different.
 - **Shortcuts live in one place.** Keys for the text engine stay in its keymap (`handledBy: 'text'`: the registry only
   documents them in tooltips, the `⋮` and the palette). Global keys (only `Mod+K` here) are one `keydown` listener. A unit test fails
   on two actions with the same key in overlapping scopes and on a key the browser keeps (`Ctrl+T`, `Ctrl+W`, `Ctrl+L`, `Ctrl+N`, `Ctrl+R`,
@@ -374,14 +390,16 @@ The same registry entries, shown by the one bar of #519 (its contextual group, t
 ### 5.3 Phone and touch
 
 - This spec adds **no long press**. In text the long press is the phone's own (M3 Inputs: "When interacting using touch, always show touch controls").
-  On a list screen it selects (#529; M3 Gestures: "Long pressing a list item selects it"). On blocks and images there is no long press action: #529 says there is
-  **no batch selection of blocks** (its question 6 recommends no) and one active block with the bar. So nothing in #531 contradicts #529.
-- The earlier idea of a bottom sheet on a long press on blocks and images is removed: #529 gives none, and the bar and `⋮` have those actions.
+  On a list screen it selects (#529; M3 Gestures: "Long pressing a list item selects it"). **#529 now also selects blocks** (its section 6, owner decisions): a long press on a block's part
+  that is not typed text selects the block, and in typed text the phone's own selection stays. That is #529's, built for 0.17, and this spec neither uses nor changes it.
+- **Nothing in this spec contradicts #529 on long press.** Because there is no custom context menu, no long press opens a menu anywhere. My earlier idea of a bottom sheet on a long press on blocks and images is
+  removed (it would have clashed with #529's block selection).
 - `useLongPress` (`theme/ui/longPress.ts`) stays as #529 uses it; no new use here.
 
 ### 5.4 Tooltips with shortcuts (icon-only buttons)
 
-`useTooltip` adds the shortcut after the name from the registry: "Bold  Ctrl+B" ("Bold  ⌘B" on a Mac). Only actions with a tested key
+**In 0.17 this is #519's** (built in the tooltip code, no registry). In the later edition the registry becomes the one source of the key strings.
+`useTooltip` adds the shortcut after the name: "Bold  Ctrl+B" ("Bold  ⌘B" on a Mac). Only actions with a tested key
 have one, and `aria-keyshortcuts` goes on the button. M3 has nothing on shortcuts in tooltips (not found), so this is an addition and not a
 deviation; plain tooltips stay short ("Avoid wrapping text to multiple lines"). The format is one function (`formatShortcut`, tested), used by the
 tooltip, a `⋮` menu item (M3: "Menu items can include ... keyboard commands"), the palette and the `Keyboard shortcuts` list.
@@ -432,20 +450,18 @@ is a proposal for the owner to read; the build PR writes it in `da-DK/` and `che
 
 ## 8. How it relates to #519 and #529
 
-- **#519 (the one bar).** Untouched in design. The bar's tool lists and `⋮` groups become the `bar` place of registry entries, so the bar,
-  `⋮` and the palette stay in step. #519 section 8d said a right-click menu "reuses `Menu`; it is not part of this spec" and a
+- **#519 (the one bar).** Untouched in design, and not dependent on this spec (see "What 0.17 keeps"). Later, the bar's tool lists and `⋮` groups become the `bar` place of registry entries, so the bar,
+  `⋮` and the palette stay in step. #519 section 8 said a right-click menu "reuses `Menu`; it is not part of this spec" and a
   palette "as a later, separate spec": this is that spec, and the owner has since ruled out the right-click menu (section 5).
-  #519's questions (what stays on a phone bar, sheet or popover, scrolling `⋮`) are not decided here and do not block the registry.
-- **#529 (selection).** A long press on a list screen selects; this spec adds no long press and never takes it. A right click on a list row stays the
-  browser's, as #529 section 3.3 says, and now everywhere else too. While a list selection exists its actions (*Delete N selected*, *Close selection* today; *Restore* and *Select all* when #529 lands) are
-  registry entries with a `selection` context, so the palette offers them, and the selection bar (#529's docked row) is another view of
-  the same entries. Text and block selection (#519) and list selection (#529) are different `Ctx` states, never both at once.
+- **#529 (selection).** A long press on a list screen selects, and now a long press on a block selects it (#529 section 6); this spec adds no long press and never takes either. A right click on a list row stays the
+  browser's, as #529 section 3.3 says, and now everywhere else too. #529's `SelectionBar` swaps the top bar on list screens; its block actions (Move, Hide, Remove together, Duplicate with one) sit in #519's one bar. Later
+  they are registry entries with a `selection` context, so the palette offers them (*Delete N selected*, *Close selection* today; *Restore*, *Select all* and a single-block *Duplicate* only once #529 has landed). List and
+  block selection are different `Ctx` states, never both at once.
 - **#515 and #520** (theme parts audit, Material conformance) are named in #529; I did not read them for this spec. The one missing part
   above (a controlled search view) belongs in the same audit.
-- **Density (#518).** `⋮` rows and palette rows use #518's step tokens, so they follow the owner's density setting; the 48 dp hit area stays
-  (M3 density page, quoted in #519 section 8a).
+- **Density.** The palette is outside the editor workspace, so its rows are at least 48 dp (M3 Lists specs: "Target size must be at least 48x48dp."). The bar's 44 dp buttons are #519's own decision and deviation.
 
-## 9. Deviations from Material (entries for `docs/material-deviations.md`, added with step 4)
+## 9. Deviations from Material (entries for `docs/material-deviations.md`, added with the first palette PR, in the edition after 0.17)
 
 Each: Material says / we do / why / date / PR (PR number filled in when built). The PM's rule: a deviation is allowed only in the editor
 workspace (the bar, its `⋮`, the text and block menus), or when the owner says so in words. Both entries rest on the owner's words. What the pages are silent on is **not**
@@ -467,12 +483,12 @@ a deviation: it is listed in 1b and in section 11.
      (Inputs, text selection); "A secondary click, like a right-click on a mouse or a two-finger tap on a trackpad, opens a context menu." (Menus).
    - **We do:** a right click opens the browser's own menu everywhere in the editor. The editor draws no context menu.
    - **Why:** the system menu does Cut, Copy and Paste, spell-check and link items better than we can; the tools are on the bar, its `⋮` and the palette. The browser's
-     menu is itself a context menu, so this may not be a deviation in a strict reading; it is listed because the PM asked for it. **Date:** 2026-11-13. **PR:** step 4 (the entry
-     goes in with the first merged step).
+     menu is itself a context menu, so this may not be a deviation in a strict reading; it is listed because the PM asked for it. **Date:** 2026-11-13. **PR:** none yet. The editor has no context menu today, so this entry can go in now as a docs-only change (the PM decides);
+     otherwise it goes in with the first palette PR.
 
-## 10. Build plan (small PRs into `main`, each with a changeset)
+## 10. Build plan (for the edition after 0.17; none of it is in 0.17)
 
-S = a day or less, M = a day or two. All are patch or empty changesets until step 4 is visible.
+S = a day or less, M = a day or two. All are patch or empty changesets until step 4 is visible. Steps 1 to 3 may start only after 0.17 is released.
 
 1. **S, `lib/actionRules.mjs` and tests.** Folding, ranking, context filter, shortcut parse and format, conflict check. No UI. Empty changeset.
 2. **S, `src/actions.ts` registry and the navigation provider.** Register, dispose, `Ctx`, "Go to" actions from `menuTree`, Insert actions from `blocks.ts`, pages and
@@ -497,12 +513,13 @@ S = a day or less, M = a day or two. All are patch or empty changesets until ste
 - `check:contrast`, `check:editor-colors` and `check:css-values` on the new CSS in each section colour; nothing drawn that is not a theme part.
 - **Not covered by the scripts:** `Ctrl+K` in each browser, VoiceOver and TalkBack. By hand, by the owner or the PM.
 
-## 11. For the owner (the PM asks them one at a time)
+## 11. Decisions and questions (the questions are postponed with the palette)
 
 **Decided:** (D1) `Ctrl+K` / `⌘K` always opens the palette, also in text; *Link* keeps no key. (D2) No custom right-click menu anywhere; the browser's or the OS's stays.
 (D3) Resize image, Duplicate block and any other tool that does not exist today: specs are written separately, building is postponed past 0.17, and the palette lists only what exists today.
+(D4) The whole command palette, and the shared action registry with it, is postponed to the edition after 0.17.
 
-**Open, in the order to ask:**
+**Postponed with the palette (not owner questions now; the order to ask when the palette is picked up):**
 
 1. **What does the first palette search?** (a) actions only; (b) actions, navigation and page and post titles; (c) also files. Recommendation: **(b)**; files
    later (a provider, step 6).
