@@ -198,19 +198,6 @@ async function checkTextBar(width = 360) {
       };
     });
   const inText = await readBar();
-  if (process.env.ONLY_BAR)
-    console.log(
-      width,
-      await page.evaluate(() => {
-        const b = document.querySelector('.editor-tools');
-        return [
-          b.clientWidth,
-          b.scrollWidth,
-          getComputedStyle(b).paddingLeft,
-          [...b.querySelectorAll('button')].map((x) => Math.round(x.getBoundingClientRect().width)).join('/'),
-        ].join(' ');
-      }),
-    );
   const slots = Math.floor((inText.barWidth - 17) / 44);
   if (inText.height < 44 || inText.height > 46)
     problems.push(`${label}: the bar is ${inText.height} px tall, not 44 (plus its 1 px edges)`);
