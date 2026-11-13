@@ -101,6 +101,8 @@ const status = (): Field[] => [
     options: [
       { value: 'draft', label: 'Draft', hint: 'Not on the website yet. Not even at its address.' },
       { value: '', label: 'Published', hint: 'On the website for everyone.' },
+      // An older site's stored status: saving it keeps working (the check accepts it); `Schedule` moves it to a waiting version.
+      { value: 'scheduled', label: 'Scheduled', hint: 'On the website from its time.', stored: true },
     ],
   },
 ];
@@ -404,6 +406,7 @@ export const collections: Collection[] = [
     label: 'Pages',
     singular: 'page',
     folder: 'src/content/pages',
+    deletable: true,
     fields: [
       ...status(),
       { name: 'title', label: 'Title', type: 'string', required: true },

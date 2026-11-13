@@ -75,8 +75,9 @@ export type Field = {
   /** `icon`: shown before its name (only with `segments`; with `cards` over it). `hint`: shown under the label while it is
    * chosen, in place of the field's own (the status of a page: what each one means). `onPage`: offered only while
    * that relation has a choice on the page being edited (a button that opens a promotion); chosen, it is still shown.
+   * `stored`: a value an older site may still have stored: accepted when saved, but not offered to choose (shown while chosen).
    * `disabled`: shown, greyed, but not to choose (with `cards`: a side-panel template while no block is chosen for the side column). */
-  options?: { label: string; value: string; icon?: Icon; hint?: string; onPage?: Relation; disabled?: boolean }[];
+  options?: { label: string; value: string; icon?: Icon; hint?: string; onPage?: Relation; disabled?: boolean; stored?: boolean }[];
   /** select: the options come from a tool of the app's MCP server (`options.from` in app.json): `app`, the tool, and the keys of an item
    * that give each option's label and value. The field loads them through the Worker (fields.tsx, ToolSelect). */
   optionsFrom?: { app: string; tool: string; label: string; value: string };

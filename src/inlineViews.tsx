@@ -12,6 +12,8 @@ import InlineSegmented from './InlineSegmented';
 import InlineButtons from './InlineButtons';
 import InlineFaq from './InlineFaq';
 import InlinePriceCards from './InlinePriceCards';
+import InlineTestimonials from './InlineTestimonials';
+import InlinePosts from './InlinePosts';
 import type { Change, Focus, Item } from './InlineItems';
 
 export type InlineViewProps = {
@@ -32,6 +34,8 @@ export type InlineViewProps = {
   onIcon: (item: number) => void;
   /** Changes the block's own props (a card's media kind). */
   onProps: (patch: BlockProps) => void;
+  /** Opens the block's Edit sheet (a block with a setting that is not typed in place, like the FAQ's button page). */
+  onEdit?: () => void;
 };
 
 export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
@@ -45,4 +49,6 @@ export const inlineViews: Record<string, ComponentType<InlineViewProps>> = {
   buttons: InlineButtons,
   faq: InlineFaq,
   pricecards: InlinePriceCards,
+  testimonials: InlineTestimonials,
+  posts: InlinePosts,
 };

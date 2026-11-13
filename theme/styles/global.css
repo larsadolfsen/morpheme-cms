@@ -27,11 +27,16 @@
   /* M3's elevation levels (m3.material.io/styles/elevation, as material-web draws them: a key and an ambient shadow),
      the same in light and dark mode. Every part takes its M3 level from them by default (ui.css). */
   --mo-elevation-0-shadow: 0 0 #0000;
-  --mo-elevation-1-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
-  --mo-elevation-2-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
-  --mo-elevation-3-shadow: 0 1px 3px rgb(0 0 0 / 0.3), 0 4px 8px 3px rgb(0 0 0 / 0.15);
-  --mo-elevation-4-shadow: 0 2px 3px rgb(0 0 0 / 0.3), 0 6px 10px 4px rgb(0 0 0 / 0.15);
-  --mo-elevation-5-shadow: 0 4px 4px rgb(0 0 0 / 0.3), 0 8px 12px 6px rgb(0 0 0 / 0.15);
+  --mo-elevation-1-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 1px 3px 1px color-mix(in srgb, var(--mo-shadow) 15%, transparent);
+  --mo-elevation-2-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 2px 6px 2px color-mix(in srgb, var(--mo-shadow) 15%, transparent);
+  --mo-elevation-3-shadow:
+    0 1px 3px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 4px 8px 3px color-mix(in srgb, var(--mo-shadow) 15%, transparent);
+  --mo-elevation-4-shadow:
+    0 2px 3px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 6px 10px 4px color-mix(in srgb, var(--mo-shadow) 15%, transparent);
+  --mo-elevation-5-shadow:
+    0 4px 4px color-mix(in srgb, var(--mo-shadow) 30%, transparent), 0 8px 12px 6px color-mix(in srgb, var(--mo-shadow) 15%, transparent);
   /* M3 shows elevation by colour: the theme's parts have no shadow at rest. Only the FAB (below) and the lift when a part
      is pointed at or dragged have one. */
   --mo-elevation-1-rest-shadow: var(--mo-elevation-0-shadow);
@@ -504,6 +509,14 @@
   --mo-on-tertiary-container: var(--section-on-accent);
   --mo-primary-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
   --mo-on-primary-container: var(--section-on-accent);
+  /* The elevation levels' colours (ui.css, resolved at :root) are the surface containers: declared again here, so an elevated
+     card, button, chip or sheet in the section takes the section's own containers, not the page's (white on near-white). */
+  --mo-elevation-0-color: var(--mo-surface);
+  --mo-elevation-1-color: var(--mo-surface-container-low);
+  --mo-elevation-2-color: var(--mo-surface-container);
+  --mo-elevation-3-color: var(--mo-surface-container-high);
+  --mo-elevation-4-color: var(--mo-surface-container-highest);
+  --mo-elevation-5-color: var(--mo-surface-container-highest);
   --block-shadow: none;
   --panel-shadow: none;
 }

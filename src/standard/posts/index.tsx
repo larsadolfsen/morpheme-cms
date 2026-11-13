@@ -50,6 +50,15 @@ export default defineBlock({
   label: t.blocks.posts.label,
   icon: Newspaper,
   hint: t.blocks.posts.hint,
+  // Typed in place (InlineLiveList.tsx): drawn as the site draws it, with the site's own items; the heading and subheading are typed above them,
+  // the rest (which items, layout, tags, design) is in Edit.
+  inline: {
+    item: '',
+    single: true,
+    fields: ['heading', 'intro'],
+    blockSettings: true,
+    texts: { addAbove: '', addBelow: '', row: t.blocks.posts.label },
+  },
   edit: { to: 'blocks/posts', text: t.blocks.posts.edit },
   fields: [
     ...headFields,
