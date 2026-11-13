@@ -206,7 +206,7 @@ export const library = {
   status: {
     draft: 'Draft',
     /** A blog post that is open at its address, in Google and in the sitemap, but not on the blog or in a list of posts. */
-    unlisted: 'Not on the blog',
+    unlisted: 'Hidden',
     scheduled: 'Scheduled',
     /** "Planlagt 1. nov. kl. 8.00" (`when`, when.ts). */
     scheduledAt: (when: string) => `Scheduled ${when}`,
@@ -222,7 +222,7 @@ export const library = {
     all: 'All',
     published: 'Published',
     draft: 'Draft',
-    unlisted: 'Not on the blog',
+    unlisted: 'Hidden',
     scheduled: 'Scheduled',
   },
   sort: 'Sort',

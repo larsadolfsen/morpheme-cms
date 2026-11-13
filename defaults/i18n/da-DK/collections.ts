@@ -18,7 +18,7 @@ export const collections: Record<string, string> = {
   Off: 'Fra',
   'Screen readers skip the image.': 'Skærmlæsere springer billedet over.',
   'Alt text': 'Alternativ tekst',
-  'Not on the blog': 'Ikke på bloggen',
+  'Hidden': 'Skjult',
   'Not shown on the blog or in lists of posts, but open at its address and in Google.':
     'Vises ikke på bloggen eller i lister over indlæg, men kan åbnes på sin adresse og findes i Google.',
   Draft: 'Kladde',

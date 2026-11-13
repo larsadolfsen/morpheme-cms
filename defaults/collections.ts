@@ -79,7 +79,7 @@ const noindex: Field = {
 // `noindex`, "Hide from search engines"). In the settings with the status (EntryForm.tsx; packages/editor/lib/status.mjs).
 const unlisted: Field = {
   name: 'unlisted',
-  label: 'Not on the blog',
+  label: 'Hidden',
   type: 'boolean',
   toggle: ['On', 'Off'],
   hint: 'Not shown on the blog or in lists of posts, but open at its address and in Google.',

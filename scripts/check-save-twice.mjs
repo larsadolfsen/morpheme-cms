@@ -124,7 +124,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     ['hidden-now', 'unlisted: true'],
     ['hidden-old', 'status: unlisted'],
   ])
-    repo.written.set(`src/content/blog/${name}.md`, `---\ntitle: "Not on the blog ${name}"\ndate: 2026-10-03\n${front}\n---\n\nText\n`);
+    repo.written.set(`src/content/blog/${name}.md`, `---\ntitle: "Hidden post ${name}"\ndate: 2026-10-03\n${front}\n---\n\nText\n`);
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
   const page = await (await browser.newContext({ viewport: { width: 360, height: 740 }, deviceScaleFactor: 1 })).newPage();
   if (process.env.DEBUG_REQ) {

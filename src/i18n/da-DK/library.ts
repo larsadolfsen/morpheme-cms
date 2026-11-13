@@ -140,7 +140,7 @@ export const library: Messages['library'] = {
   orderNotSaved: (error) => `Kunne ikke gemme rækkefølgen: ${error}`,
   status: {
     draft: 'Kladde',
-    unlisted: 'Ikke på bloggen',
+    unlisted: 'Skjult',
     scheduled: 'Planlagt',
     scheduledAt: (when) => `Planlagt ${when}`,
     unpublishedChanges: 'Ikke udgivne ændringer',
@@ -152,7 +152,7 @@ export const library: Messages['library'] = {
     all: 'Alle',
     published: 'Udgivet',
     draft: 'Kladde',
-    unlisted: 'Ikke på bloggen',
+    unlisted: 'Skjult',
     scheduled: 'Planlagt',
   },
   sort: 'Sortér',

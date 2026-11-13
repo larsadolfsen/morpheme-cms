@@ -926,7 +926,7 @@ type State = 'published' | 'draft' | 'unlisted' | 'scheduled';
 const STATES: State[] = ['published', 'draft', 'unlisted', 'scheduled'];
 // `w`: its waiting version in src/drafts/ (pageVersions.mjs waitingOf): a draft with a time on it is Scheduled.
 type Waiting = { publishAt?: string } | undefined;
-// `post`: a blog post, the only kind that can be Not on blog (`unlisted`; on a page it is read as published, lib/status.mjs).
+// `post`: a blog post, the only kind that can be Hidden (`unlisted`; on a page it is read as published, lib/status.mjs).
 const stateOf = (d: Record<string, unknown>, w?: Waiting, post = false): State =>
   d.status === 'draft'
     ? w?.publishAt
@@ -974,7 +974,7 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
           date,
           status: statusOf(d, waiting.get(file.path), collection.id === 'blog'),
           state: stateOf(d, waiting.get(file.path), collection.id === 'blog'),
-          // Not on blog is on the site, so nothing is unfinished about it.
+          // Hidden is on the site, so nothing is unfinished about it.
           unfinished:
             !['published', 'unlisted'].includes(stateOf(d, waiting.get(file.path), collection.id === 'blog')) || !!waiting.get(file.path),
           file,

@@ -293,14 +293,14 @@ function hintContrasts(page, selector, pseudo) {
 /** A blog post that is not on the blog (`unlisted: true`, the demo's "A post only for those with the link") shows its status in the posts list, and the Status filter offers it. */
 async function checkUnlistedPost() {
   const page = await browser.newPage({ viewport: { width: 1200, height: 900 }, locale: 'en-US' });
-  page.on('pageerror', (e) => problems.push(`not on the blog: ${e.message}`));
+  page.on('pageerror', (e) => problems.push(`hidden post: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#list/blog'));
   await page.waitForSelector('main a.list-item-container');
   const row = page.locator('main a.list-item-container').filter({ hasText: 'A post only for those with the link' });
-  if (!(await row.count())) return problems.push('not on the blog: the posts list has no row for the post that is not on the blog');
-  if (!(await row.first().innerText()).includes('Not on the blog'))
-    problems.push('not on the blog: the posts list does not say "Not on the blog" on its row');
+  if (!(await row.count())) return problems.push('hidden post: the posts list has no row for the post that is not on the blog');
+  if (!(await row.first().innerText()).includes('Hidden'))
+    problems.push('hidden post: the posts list does not say "Hidden" on its row');
   await page.close();
 }
 
