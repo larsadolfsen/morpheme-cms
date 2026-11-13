@@ -4,6 +4,7 @@ import {
   demoBlocksPage,
   demoBlocksProblems,
   editorBlocks,
+  exampleProblems,
   legacyBlocks,
   offeredValues,
   styleProblems,
@@ -62,4 +63,15 @@ test('a missing button kind or card design is reported', () => {
   const problems = styleProblems(text);
   assert.ok(problems.some((p) => /"text" button/.test(p)));
   assert.ok(problems.some((p) => /"cards" with design "elevated"/.test(p)));
+});
+
+test('the real Blocks page names every example and has no two alike', () => {
+  assert.deepEqual(exampleProblems(demoBlocksPage()), []);
+});
+
+test('an example without a subheading, or a copy of another, is reported', () => {
+  const a = '<div data-block="faq" data-props="{&quot;x&quot;:1}"></div>';
+  assert.match(exampleProblems(`${a}\n\n${a}`)[0], /no "###" subheading/);
+  assert.ok(exampleProblems(`### One\n\n${a}\n\n### Two\n\n${a}`).some((p) => /are the same/.test(p)));
+  assert.deepEqual(exampleProblems(`${a}`), []);
 });

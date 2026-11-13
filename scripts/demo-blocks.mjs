@@ -109,4 +109,38 @@ export function styleProblems(text, dir = join(root, 'src/standard')) {
   return problems;
 }
 
+/** Blocks shown more than once: each example has a "###" subheading naming it right above, the subheadings differ, and no two examples are the same. */
+export function exampleProblems(text) {
+  const problems = [];
+  const lines = text.split('\n');
+  const seen = new Map();
+  const headings = new Set();
+  let last = '';
+  for (const line of lines) {
+    const m = line.match(/^<div data-block="([^"]+)"(?: data-props="([^"]*)")?/);
+    if (!m) {
+      if (line.trim()) last = line;
+      continue;
+    }
+    const [, type, props = ''] = m;
+    const list = seen.get(type) ?? [];
+    list.push({ props, heading: last.startsWith('### ') ? last.slice(4).trim() : '' });
+    seen.set(type, list);
+    last = line;
+  }
+  for (const [type, list] of seen) {
+    if (list.length < 2) continue;
+    for (const [i, e] of list.entries()) {
+      if (!e.heading) problems.push(`Example ${i + 1} of "${type}" on the Blocks page has no "###" subheading naming it.`);
+      else if (headings.has(e.heading)) problems.push(`Two examples on the Blocks page share the subheading "${e.heading}".`);
+      headings.add(e.heading);
+      if (list.findIndex((o) => o.props === e.props) !== i)
+        problems.push(
+          `Two examples of "${type}" on the Blocks page are the same${e.heading ? ` ("${e.heading}")` : ''}; show a real difference.`,
+        );
+    }
+  }
+  return problems;
+}
+
 export const demoBlocksPage = () => readFileSync(join(root, 'demo/src/content/pages/blocks.md'), 'utf8');
