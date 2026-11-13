@@ -15,7 +15,7 @@ No, but most of it is. The editor's screens are made of about 115 parts in `src/
 (button, icon button, text field, checkbox, switch, chip, list row, menu, dialog, side sheet, tabs, FAB, navigation
 drawer, rail, badge, tooltip, progress) are the theme's parts, brought in through `src/themeUi.ts`. Outside `ui.tsx` there is
 almost no raw markup: one `<button>` family in a handful of files and no raw `<input>`. What is **not** shared is a small
-set of things: three hand-made floating toolbars and menus (about 150 lines in `src/editor.css`), picture tiles drawn as
+set of things: three hand-made floating toolbars and menus (about 150 lines in `src/editor.css`), image tiles drawn as
 plain buttons, a few rows and headers drawn as plain buttons with Tailwind classes, the full-screen Preview dialog, the
 save bar, the score ring, the "choose one" cards, and the table (about to be fixed by `DataTable`). The checks catch fixed
 colours and corner and type values well, but they do not look at spacing, motion, shadows, z-index or opacity, and they have
@@ -30,7 +30,7 @@ Size: small = under a day, medium = a day or two, large = a week or a design dec
 | - | --- | --- | --- | --- |
 | 1 | Check coverage: `scripts/check-css-values.allow.mjs`, `check-editor-colors.mjs` | The blanket pass for `font-size`, `line-height`, `letter-spacing` in `editor.css` (about 32 literal type values); no check on spacing, z-index, opacity, motion or arbitrary Tailwind sizes (`w-[…]`, `p-[…]`, about 30 in `src/*.tsx`); `check-editor-colors` only reads `editor.css` and `Inline*.tsx`. See section 3. | small | 1 |
 | 2 | Floating menus: `.contextual-menu`, `.site-block-menu`, `.editor-selection-menu` in `src/editor.css` (lines 877-1240) | Three hand-made toolbars (corner, border, background, shadow, button size 40 and 48 px all written in the editor). Their surface and shadow come from `--editor-menu-surface` and `--editor-menu-shadow`, defined in `editor.css:8-9`, not in the theme. The theme already has a floating `Toolbar` (`theme/ui/Toolbar.tsx`, kind `floating`). | medium | 2 |
-| 3 | Picture tiles: `Media.tsx:183`, `MediaProviderPicker.tsx:136`, `ui.tsx:2764` (`ImageCarousel`), `fields.tsx:231` (`ImagePick`) | A plain `<button>` with `aspect-square rounded-lg bg-surface-container-high` and a hand-made selected ring. There is no theme part for a tappable picture, so a theme cannot change the tile's corner, ring or hover. | medium (one new theme part, four users) | 3 |
+| 3 | Image tiles: `Media.tsx:183`, `MediaProviderPicker.tsx:136`, `ui.tsx:2764` (`ImageCarousel`), `fields.tsx:231` (`ImagePick`) | A plain `<button>` with `aspect-square rounded-lg bg-surface-container-high` and a hand-made selected ring. There is no theme part for a tappable image, so a theme cannot change the tile's corner, ring or hover. | medium (one new theme part, four users) | 3 |
 | 4 | Plain buttons used as rows or controls: `MarkdownEditor.tsx:752` (menu-like row), `ui.tsx:2898` (`SectionList` item, class `.section-list-item`), `ui.tsx:2538` (`FoldSection` header), `ui.tsx:1044` (`SlotButton`, class `.inline-list-slot`), `UpdatesNotice.tsx:80` (info button), `ui.tsx:763` (colour swatch button) | Each is a `<button>` with its own Tailwind classes for size, corner, hover and focus ring. Each has a theme part that fits: `MenuItem`/`ListItem`, a navigation item, the accordion's header, `IconButton`. | small each (six small fixes) | 4 |
 | 5 | `ChoiceCards` and `ChoiceTile` (`ui.tsx:1702`) | A `<label>` that wears the theme's outlined-card class and then sets the card's private variables (`--card-outlined-line`, `--card-outlined-surface`) from the editor to show "selected". A theme that changes the card's insides breaks this. | medium (a selectable card kind in `theme/ui/Card`) | 5 |
 | 6 | Preview screen: `<dialog class="editor-preview-screen">` in `pagePreview.tsx:231`, `editor.css:1483` | A full-screen dialog drawn by the editor. M3 has a full-screen dialog; the theme's `Dialog` has no such kind. | medium | 6 |
@@ -51,7 +51,7 @@ text sizes (CSS sweep 9).
 | What | Why | What they would have to override, and where |
 | --- | --- | --- |
 | Floating text toolbar and block menus | Rows 2 | `.contextual-menu`, `.editor-selection-menu`, `.site-block-menu` and `--editor-menu-*` in `src/editor.css` |
-| Picture tiles in the Library and pickers | Row 3 | Tailwind classes in four `.tsx` files; there is no class to target |
+| Image tiles in the Library and pickers | Row 3 | Tailwind classes in four `.tsx` files; there is no class to target |
 | Selected "choose one" card | Row 5 | The card's private variables, set in `ui.tsx` |
 | Preview screen | Row 6 | `.editor-preview-screen` in `editor.css` |
 | Save bar | Row 7 | Tailwind classes in `FormFrame.tsx` |
@@ -96,8 +96,8 @@ Spacing literals (row 11) are left out until the owner decides whether themes sh
    editor's layout would need a retest on every theme.
 2. **Replace the three hand-made floating menus with the theme's floating `Toolbar`?** Recommendation: yes. It is the
    biggest block of editor-only CSS and the theme part already exists.
-3. **Add a theme part for a tappable picture (a tile)?** Recommendation: yes, one small part used in four places, with a
-   selected state, so a theme can style the Library's pictures.
+3. **Add a theme part for a tappable image (a tile)?** Recommendation: yes, one small part used in four places, with a
+   selected state, so a theme can style the Library's images.
 4. **Add a full-screen dialog kind to the theme's `Dialog` for the Preview?** Recommendation: yes, M3 has it; do it after the
    toolbar work.
 5. **Should the save bar's see-through blur stay?** It is not M3. Recommendation: drop it and use the theme's docked
