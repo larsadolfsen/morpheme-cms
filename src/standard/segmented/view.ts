@@ -2,6 +2,7 @@
 // whether they fold out (closed to begin with, one open at a time with `only`) or are always open (`all`, a "List" from before with each
 // row on its own surface), and the text button under the last row. In the editor: viewOf; on the site: load.ts.
 import { siteT } from '../../i18n';
+import { oneLine } from '../../../lib/one-line.mjs';
 import { sharedIn } from '../../shared';
 import { filledLink } from '../accordion/topic.mjs';
 import accordion from '../accordion/shared';
@@ -49,7 +50,7 @@ export const paragraphs = (text: string) =>
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter(Boolean)
-    .map((p) => `<p>${escape(p).replace(/\s*\n\s*/g, ' ')}</p>`)
+    .map((p) => `<p>${oneLine(escape(p))}</p>`)
     .join('');
 
 /** The link in an open row: the shared text of "Expandable list" ("Read more about {topic}") with the row's heading in it. */
