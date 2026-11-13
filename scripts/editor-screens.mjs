@@ -2065,6 +2065,46 @@ async function checkInlineTable(width, height) {
   await page.waitForTimeout(300);
   const three = await state();
   if (three.rows !== 3) problems.push(`${label}: "Add row" left ${three.rows} rows, not 3 (typed row, the added one and the next)`);
+  // Typing in the added row keeps it (an empty last row is dropped), and a second typed row makes two body rows, which stay when the block is not active.
+  await page.keyboard.type('Row');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('More');
+  await page.waitForTimeout(300);
+  // The header's square corners never poke out past the box's rounded border: the box is a block that clips (overflow not visible) with a radius,
+  // and no table class collides with a Tailwind utility (display: inline-table made the box a table that did not clip).
+  const box = await page.evaluate(() => {
+    const e = document.querySelector('.inline-table-box');
+    const c = getComputedStyle(e);
+    return { display: c.display, overflowX: c.overflowX, overflowY: c.overflowY, radius: parseFloat(c.borderTopLeftRadius) };
+  });
+  if (box.display !== 'block' || box.overflowX === 'visible' || box.overflowY === 'visible' || !(box.radius > 0))
+    problems.push(`${label}: the table's box does not clip its header to the rounded corner (${JSON.stringify(box)})`);
+  // The gear has "Striped rows" (off), and turning it on gives every second body row a background that the others and the header do not have.
+  const rowBg = () =>
+    page.evaluate(() => [...document.querySelectorAll('.inline-table-box tbody tr')].map((r) => getComputedStyle(r).backgroundColor));
+  const plain = await rowBg();
+  // The table's own button in the toolbar (on a computer) shows the block's frame with its Edit button.
+  if (width > 600) await page.locator('button[aria-label="Table"]:visible').first().click();
+  await page.locator('button[aria-label="Edit"]:visible').first().click();
+  const stripes = page.locator('dialog[open], .editor-side-sheet').getByRole('switch', { name: 'Striped rows' });
+  await stripes.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the table's settings have no "Striped rows" switch`));
+  if ((await stripes.count()) && (await stripes.isChecked())) problems.push(`${label}: "Striped rows" is not off by default`);
+  await stripes.click({ timeout: 3000 }).catch(() => {});
+  await page
+    .getByRole('button', { name: 'Save', exact: true })
+    .last()
+    .click({ timeout: 3000 })
+    .catch(() => {});
+  await page.waitForTimeout(400);
+  const striped = await rowBg();
+  if (!(await page.locator('.inline-table-box[data-striped]').count()))
+    problems.push(`${label}: "Striped rows" on does not mark the table`);
+  if (new Set(plain).size !== 1) problems.push(`${label}: rows have different backgrounds before "Striped rows" is on (${plain})`);
+  if (striped.length < 2 || striped[0] === striped[1])
+    problems.push(`${label}: with "Striped rows" on, the second body row has no background of its own (${striped})`);
+  // Back in the table: a click in its first cell makes the block active again (the Add row button).
+  await page.locator('.inline-table-box th textarea').first().click();
+  await page.waitForSelector('[data-add-row]');
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   const after = await page.evaluate(() => ({
@@ -2074,9 +2114,9 @@ async function checkInlineTable(width, height) {
     cols: document.querySelectorAll('.inline-table-box thead th').length,
   }));
   if (after.add || after.next) problems.push(`${label}: the add button or the faded cells stay after the cursor left the table`);
-  // The added row was empty at the end of the table: it is dropped with the other unused end.
-  if (after.rows !== 1 || after.cols !== 2)
-    problems.push(`${label}: expected 1 row of 2 columns after leaving, got ${after.rows} rows of ${after.cols}`);
+  // The typed rows stay (the header and the two typed rows) and the unused end is dropped.
+  if (after.rows !== 3 || after.cols !== 2)
+    problems.push(`${label}: expected 3 rows of 2 columns after leaving, got ${after.rows} rows of ${after.cols}`);
   await page.close();
 }
 

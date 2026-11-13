@@ -22,6 +22,7 @@
                        the theme's own primary, secondary and tertiary colours)
     --block-surface    a raised surface (the rows that fold out, the cards)
     --block-tint       a light background (a notice, a video before it is played)
+    --block-stripe     a quieter background than the tint, for every second row of a striped table
     --block-line       lines between rows and along the steps, the edge of a card
     --block-radius     the corners of a panel
     --block-radius-small  the corners of something smaller in or beside a panel (an image in a list, a row, a badge's
@@ -71,6 +72,7 @@
   --block-on-tertiary: var(--mo-on-tertiary);
   --block-surface: var(--mo-surface-container-lowest);
   --block-tint: var(--mo-surface-container-high);
+  --block-stripe: var(--mo-surface-container);
   --block-line: var(--mo-outline-variant);
   --block-radius: 0.75rem;
   --block-radius-small: 1rem;
@@ -240,6 +242,7 @@
     --block-on-accent: var(--section-accent);
     --block-surface: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
     --block-tint: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
+    --block-stripe: color-mix(in srgb, var(--section-on-accent) 7%, transparent);
     --block-line: color-mix(in srgb, var(--section-on-accent) 35%, transparent);
     --block-shadow: none;
     /* A hero with its image behind the text is darkened with the section's own text colour, in its own surface. */
@@ -1452,9 +1455,22 @@
   .block-table-grid tr:last-child :is(th, td) {
     border-bottom: 0;
   }
+  /* "Striped rows": every second body row in the quieter --block-stripe (the header keeps the tint). */
+  .block-table-grid[data-striped] tbody tr:nth-child(even) {
+    background: var(--block-stripe);
+  }
   @media (hover: hover) {
     .block-table-grid tbody tr:hover {
       background: var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent));
+    }
+    /* The state layer over the stripe, so a striped row stays striped under the pointer. */
+    .block-table-grid[data-striped] tbody tr:nth-child(even):hover {
+      background:
+        linear-gradient(
+          var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent)),
+          var(--mo-hover, color-mix(in srgb, var(--block-text) 8%, transparent))
+        ),
+        var(--block-stripe);
     }
   }
 

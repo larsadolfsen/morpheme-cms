@@ -67,6 +67,7 @@
   --block-on-tertiary: var(--mo-on-tertiary);
   --block-surface: var(--mo-surface-container-lowest);
   --block-tint: var(--mo-surface-container-high);
+  --block-stripe: var(--mo-surface-container);
   --block-line: var(--mo-outline-variant);
   --block-radius: var(--radius);
   --block-radius-small: var(--radius-small);
