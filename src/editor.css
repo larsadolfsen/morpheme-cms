@@ -226,19 +226,34 @@
   color: var(--section-on);
 }
 
+.editor-text .ProseMirror {
+  --page-primary-container: var(--mo-primary-container, var(--block-tint));
+  --page-on-primary-container: var(--mo-on-primary-container, var(--block-text));
+  --page-secondary-container: var(--mo-secondary-container, var(--block-tint));
+  --page-on-secondary-container: var(--mo-on-secondary-container, var(--block-text));
+  --page-tertiary-container: var(--mo-tertiary-container, var(--block-tint));
+  --page-on-tertiary-container: var(--mo-on-tertiary-container, var(--block-text));
+}
+
 .editor-text .ProseMirror > [data-section-color='primary'] {
   --section-fill: var(--block-primary);
   --section-on: var(--block-on-primary);
+  --section-container: var(--page-primary-container);
+  --section-on-container: var(--page-on-primary-container);
 }
 
 .editor-text .ProseMirror > [data-section-color='secondary'] {
   --section-fill: var(--block-secondary);
   --section-on: var(--block-on-secondary);
+  --section-container: var(--page-secondary-container);
+  --section-on-container: var(--page-on-secondary-container);
 }
 
 .editor-text .ProseMirror > [data-section-color='tertiary'] {
   --section-fill: var(--block-tertiary);
   --section-on: var(--block-on-tertiary);
+  --section-container: var(--page-tertiary-container);
+  --section-on-container: var(--page-on-tertiary-container);
 }
 
 /* The image behind a section (the widget before its first part, placed over the section's parts by sectionFrame.ts): it fills
@@ -998,6 +1013,7 @@ html {
 }
 .editor-text .inline-list-slot[aria-pressed='true'] {
   background: var(--mo-secondary-container);
+  color: var(--mo-on-secondary-container);
 }
 /* A card's buttons while it is active: the text of each is typed on the button itself (InlineCards.tsx), drawn as a tonal pill. */
 .editor-text .inline-card-button {
