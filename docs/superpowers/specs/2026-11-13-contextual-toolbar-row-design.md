@@ -82,7 +82,7 @@ so the theme's `Toolbar` is our own build of the design.
 ## 3. The bar
 
 Decided by the owner: the bar never scrolls sideways ("No scroll in the menu" read as: the bar does not scroll; what does not fit goes
-in the `⋮` drop-down, and the `⋮` holds tools). Whether the `⋮` list may scroll when it is long was not decided: question 3.
+in the `⋮` drop-down, and the `⋮` holds tools). Whether the `⋮` list may scroll when it is long was not decided: question 2.
 
 ```
 PHONE 375 px (room: 343 dp = 375 minus two 16 dp edges; 7 hit areas of 44 dp = 308 dp, 35 dp left for the divider and gaps)
@@ -161,7 +161,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   **The keyboard is usually open** when the `⋮` is used in text (the bar's buttons keep the cursor, so the keyboard stays), so the realistic cases
   are the second and fourth rows: the Text list does not fit and must scroll, in portrait after 6 rows. The pop-up is placed inside the
   visible screen (`visualViewport`, the bar is at the top so it opens downward into the room above the keyboard), with `max-height` set to the room,
-  not to the theme's `calc(100dvh - 2rem)`. **Recommendation on scrolling (question 3):** yes, let it scroll. The theme's `.menu` already has
+  not to the theme's `calc(100dvh - 2rem)`. **Recommendation on scrolling (question 2):** yes, let it scroll. The theme's `.menu` already has
   `overflow-y: auto`. M3 says "Menus can scroll when all menu items can't display at once. In this state, menus show a persistent scrollbar."
   The theme sets no scrollbar rule on `.menu`, so on a phone the browser's overlay scrollbar hides when idle: not a persistent one. To meet M3,
   the editor's menu sets `scrollbar-width: thin` and `scrollbar-gutter: stable` (a desktop browser then keeps it visible; a phone's overlay
@@ -176,8 +176,8 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
 - **Entering a context** (the cursor goes into text, or a block or row becomes active): the contextual tools slide in from the left
   and the main tools are pushed to the right and out of view (section 4); the tools that do not fit are then in `⋮`, and Undo stays at
   its place after the divider. **Leaving it:** the same movement the other way. **Changing from one context to another** is not a slide: the
-  contextual tools change in place with the theme's fade (`--motion-effects`); question 5.
-- **Wide screens** (my recommendation, question 4): when the contextual and main tools both fit, nothing is pushed out of sight: the
+  contextual tools change in place with the theme's fade (`--motion-effects`); question 4.
+- **Wide screens** (my recommendation, question 3): when the contextual and main tools both fit, nothing is pushed out of sight: the
   contextual tools slide in at the left, the main tools shift right only as far as the room needs and stay visible, with the divider
   between, and no `⋮` for tools (only the block's Hide, Move, Remove). When they do not fit (a narrow window) it behaves as on a phone.
 - **Sticky.** The bar stays at the top while the text scrolls, as the main toolbar does today (M3: "Docked toolbars can either
@@ -359,7 +359,7 @@ density choice of PR #518; they are fixed as below. Checked against M3 (Playwrig
 
 1. **Fixed high density for the bar, the `⋮` list and the formatting menus.** They read their own density tokens (set to step -2 in the
    editor's CSS), not the user's density setting, and not the theme's default. A theme can still restyle them through the same tokens.
-2. **Step -2, not -3 (my proposal, owner decides the step: question 6).** M3: each step takes 4 dp off the height ("Higher density is
+2. **Step -2, not -3 (my proposal, owner decides the step: question 5).** M3: each step takes 4 dp off the height ("Higher density is
    typically applied by decreasing the top and bottom padding or overall height by 4dp"). The bar is 48 dp tall at step 0 in this spec
    (the button height, no extra padding; the height the theme's `Toolbar` draws today I have not measured, its docked padding is a
    token, to be measured in step 1). **-2 makes the bar 40 dp tall, -3 makes it 36 dp.** A 24 dp icon in 40 dp leaves 8 dp above and
