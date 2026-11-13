@@ -43,7 +43,6 @@ import { lift } from '@milkdown/kit/prose/commands';
 import {
   ArrowUUpLeft,
   ArrowUUpRight,
-  DotsThreeVertical,
   Image,
   LinkSimple,
   ListBullets,
@@ -103,7 +102,7 @@ import { t } from './i18n';
 import { motionTiming } from '../lib/motion';
 import { hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { WidgetsIcon } from './icon';
+import { MoreVertIcon, WidgetsIcon } from './icon';
 import pencilIcon from '@phosphor-icons/core/assets/regular/pencil-simple.svg?raw';
 import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -1991,7 +1990,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         {plan.overflow && (
           <ToolbarButton
             ref={moreButton}
-            icon={DotsThreeVertical}
+            icon={MoreVertIcon}
             label={t.text.more}
             popup={!!moreAt || underMore}
             onClick={(e) => {

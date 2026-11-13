@@ -265,6 +265,29 @@ async function checkTextBar(width = 360) {
       `${label}: a button of the bar is not 44 x 44 dp (${inText.buttons.map((b) => `${b.name} ${b.width}x${b.height}`).join(', ')})`,
     );
   if (!inText.divider) problems.push(`${label}: no divider between the text tools and the main tools`);
+  // The ⋮ is Material Symbols' more_vert (three dots in a column, 20 dp), drawn by the icon system, not Phosphor's.
+  const dots = await page.evaluate(() => {
+    const svg = document.querySelector('.editor-tools [aria-label="More"] svg');
+    const r = svg?.getBoundingClientRect();
+    return (
+      svg && {
+        icon: svg.getAttribute('data-icon'),
+        path: svg.querySelector('path')?.getAttribute('d') ?? '',
+        viewBox: svg.getAttribute('viewBox'),
+        w: r.width,
+        h: r.height,
+      }
+    );
+  });
+  if (!dots) problems.push(`${label}: the ⋮ button has no icon`);
+  else if (
+    dots.icon !== 'more_vert' ||
+    !dots.path ||
+    dots.viewBox !== '0 -960 960 960' ||
+    Math.abs(dots.w - 20) > 0.6 ||
+    Math.abs(dots.h - 20) > 0.6
+  )
+    problems.push(`${label}: the ⋮ icon is not Material's more_vert at 20 dp (${JSON.stringify(dots)})`);
   if (inText.names.length > slots) problems.push(`${label}: ${inText.names.length} buttons but room for ${slots}`);
   if (inText.names.slice(0, 3).join() !== 'Bold,Italic,Link' || !inText.names[3]?.startsWith('Text style'))
     problems.push(`${label}: Bold, Italic, Link and Text style are not the first four (${inText.names.join(', ')})`);

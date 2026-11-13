@@ -15,6 +15,7 @@ import { materialName, materialNames, resolveIcon } from '../lib/materialIcon.mj
 import { svgParts } from '../lib/svg.mjs';
 import ssrMaterial from 'virtual:material-symbols-ssr';
 import widgetsFile from '@material-symbols/svg-400/outlined/widgets.svg?raw';
+import moreVertFile from '@material-symbols/svg-400/outlined/more_vert.svg?raw';
 import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { allIcons as ssrPhosphor } from 'virtual:all-icons-ssr';
 
@@ -237,6 +238,25 @@ export const WidgetsIcon = (({ size = 20, className }: { size?: number | string;
       height={size}
       fill="currentColor"
       aria-hidden="true"
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={parts?.viewBox ?? MATERIAL_VIEWBOX}
+      dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
+    />
+  );
+}) as unknown as PhosphorIcon;
+
+/** Material's "more_vert" (three dots in a column, m3.material.io Icons "More Vert"): the text bar's overflow button (`⋮`). Material Symbols' own file,
+ * bundled like WidgetsIcon (the bar is drawn at once, not after the lazy Material set), and shaped as a Phosphor icon so a ToolbarButton takes it. */
+export const MoreVertIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
+  const parts = svgParts(moreVertFile);
+  return (
+    <svg
+      width={size}
+      height={size}
+      fill="currentColor"
+      aria-hidden="true"
+      data-icon="more_vert"
       className={className}
       xmlns="http://www.w3.org/2000/svg"
       viewBox={parts?.viewBox ?? MATERIAL_VIEWBOX}
