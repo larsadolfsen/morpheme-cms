@@ -92,10 +92,16 @@ const clean = () => {
 };
 process.on('exit', clean);
 const has = (path) => existsSync(join(ROOT, path)) && readdirSync(join(ROOT, path)).length > 0;
-/** The file of a page the site has built (its Preview is made of the built page): the demo's About, or the first page of the site's own that is built, never the front page. */
+/** The file of a page the site has built with the text in the page, which its Preview is made of (the blog's list page has none): the demo's About, or the first page of the site's own that is built, never the front page. */
 const builtPages = existsSync(join(ROOT, 'src/content/pages'))
   ? readdirSync(join(ROOT, 'src/content/pages'))
-      .filter((f) => f.endsWith('.md') && f !== 'home.md' && existsSync(join(DIST, f.slice(0, -3), 'index.html')))
+      .filter(
+        (f) =>
+          f.endsWith('.md') &&
+          f !== 'home.md' &&
+          existsSync(join(DIST, f.slice(0, -3), 'index.html')) &&
+          readFileSync(join(DIST, f.slice(0, -3), 'index.html'), 'utf8').includes('data-editor="text"'),
+      )
       .sort()
   : [];
 const BUILT_PAGE = `src/content/pages/${builtPages.includes('about.md') ? 'about.md' : (builtPages[0] ?? 'about.md')}`;
