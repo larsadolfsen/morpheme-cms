@@ -7,7 +7,7 @@ export const app: Messages['app'] = {
   notFound: 'Findes ikke',
   nothingAt: (route) => `Der er ikke noget på adressen ${route}`,
   siteUpdated: (changes) => `Hjemmesiden er opdateret: ${changes}.`,
-  siteNotUpdated: (changes) => `Hjemmesiden blev ikke opdateret (${changes}). Gendan den forrige version under Tidligere versioner.`,
+  siteNotUpdated: (changes) => `Hjemmesiden blev ikke opdateret (${changes}). Gendan den forrige version under Historik.`,
   changes: {
     named: (kind, name) => `${kind} “${name}”`,
     edited: (what) => `${what} ændret`,

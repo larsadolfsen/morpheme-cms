@@ -26,6 +26,7 @@ const COMMANDS = {
     'check-store-connection',
   ],
   'check:screens': ['editor-screens'],
+  'check:preview': ['check-preview'],
   'check:themes': ['check-themes'],
   'check:contrast': ['check-contrast'],
   'check:demo': ['check-demo'],

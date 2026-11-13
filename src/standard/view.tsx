@@ -23,6 +23,14 @@ export const InEditor = ({ children }: { children: ReactNode }) => (
   </Editor.Provider>
 );
 
+/** What is drawn in it is as on the site: the same classes, space and links as in the built page (the editor's Preview, pagePreview.tsx,
+ * which must look as the site does). Its links are the site's `a`; the Preview's frame has no scripts and opens no popups, so they lead nowhere. */
+export const OnSite = ({ children }: { children: ReactNode }) => (
+  <Editor.Provider value={false}>
+    <Own.Provider value={false}>{children}</Own.Provider>
+  </Editor.Provider>
+);
+
 /** The editor's own screens (App.tsx), in the editor: a Link in them is a link. */
 export const EditorOwn = ({ children }: { children: ReactNode }) => <Own.Provider value={true}>{children}</Own.Provider>;
 
