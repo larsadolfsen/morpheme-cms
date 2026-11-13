@@ -536,6 +536,49 @@ async function checkSelection() {
   }
 }
 
+/** Density on "Account": Large, Medium and Small set data-density on <html> and are kept on the account (PUT /api/settings) and in this browser (editor-density), the head script sets it again before the page is drawn, and the account's step replaces the browser's copy. */
+async function checkDensitySetting(width, height) {
+  const sent = [];
+  let kept = null;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density setting: ${e.message}`));
+  await page.route(`${site}/api/settings`, (r) => {
+    if (r.request().method() === 'PUT') {
+      sent.push(JSON.parse(r.request().postData() || 'null'));
+      return r.fulfill({ status: 204 });
+    }
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ settings: kept ? { density: kept } : null }) });
+  });
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#account'));
+  const attribute = () => page.evaluate(() => document.documentElement.dataset.density ?? null);
+  const stored = () => page.evaluate(() => localStorage.getItem('editor-density'));
+  for (const [label, want, store] of [
+    ['Small', '-1', 'small'],
+    ['Large', '1', 'large'],
+    ['Medium', '0', null],
+  ]) {
+    await page.getByRole('button', { name: label, exact: true }).click();
+    if ((await attribute()) !== want || (await stored()) !== store)
+      problems.push(`${width}px density setting: ${label} gave data-density ${await attribute()} and ${await stored()} in the browser`);
+  }
+  if (sent.map((b) => b.density).join() !== 'small,large,medium')
+    problems.push(`${width}px density setting: the account got ${JSON.stringify(sent)}, not small, large, medium`);
+  // The head script, before the page is drawn: a copy in the browser is on <html> at once.
+  await page.evaluate(() => localStorage.setItem('editor-density', 'small'));
+  await page.reload({ waitUntil: 'commit' });
+  await page.waitForFunction(() => document.documentElement.dataset.density, null, { timeout: 5000 }).catch(() => {});
+  if ((await attribute()) !== '-1')
+    problems.push(`${width}px density setting: after a reload the copy in the browser did not give data-density -1`);
+  // The account's step replaces the copy.
+  kept = 'large';
+  await page.reload();
+  await page.waitForFunction(() => document.documentElement.dataset.density === '1', null, { timeout: 10000 }).catch(() => {});
+  if ((await attribute()) !== '1' || (await stored()) !== 'large')
+    problems.push(`${width}px density setting: the account's Large did not replace the copy (${await attribute()}, ${await stored()})`);
+  await page.close();
+}
+
 /** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
 async function checkDensity(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
@@ -4118,6 +4161,8 @@ await checkFooterTargets(false);
 await checkToolbarBox();
 await checkDensity(375, 740);
 await checkDensity(1280, 900);
+await checkDensitySetting(375, 740);
+await checkDensitySetting(1280, 900);
 await checkPreviewSection();
 await checkFullSection();
 await checkH1SectionGap();

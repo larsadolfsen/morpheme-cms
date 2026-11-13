@@ -196,6 +196,9 @@ export const library = {
     `The new version of ${name} doesn’t have the icon pack ${pack}, which is in use. Choose another icon pack first.`,
   theme: 'Appearance',
   themes: { light: 'Light', auto: 'Auto', dark: 'Dark' },
+  density: 'Density',
+  densityNotSaved: 'Density is changed here, but not saved to your account.',
+  densities: { large: 'Large', medium: 'Medium', small: 'Small' },
   language: 'Language',
   /** The browser's language, else the site's, with the one it is now. */
   languageAuto: (name: string) => `Automatic: ${name}`,

@@ -13,7 +13,7 @@ import { access } from './session.js';
 const MAX_BYTES = 16 * 1024;
 
 /** The person's GitHub user id, or a Response when GitHub does not say (401: the sign-in is no good, 502: it failed). */
-async function userId(token, ask) {
+export async function userId(token, ask) {
   let res;
   try {
     res = await ask('https://api.github.com/user', {

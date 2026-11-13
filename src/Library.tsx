@@ -17,6 +17,7 @@ import {
   Check,
   ClockCounterClockwise,
   CircleHalf,
+  Rows,
   FileText,
   GoogleLogo,
   List as ListIcon,
@@ -104,6 +105,7 @@ import NewListDialog from './NewListDialog';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { isUnlisted } from '../lib/status.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
+import { saveDensity, savedDensity, setDensity, type Density } from './density';
 import { browserLocale, locale, localeName, locales, savedLocale, setLocale, siteLocale, siteT, siteText, t, type Locale } from './i18n';
 import { appType, EDITOR_TYPES, setDevice, setOn, useNotificationChoices } from './notificationData';
 import { snackbar } from '../lib/snackbar';
@@ -811,6 +813,10 @@ export function Account({ user, files, onLogout }: { user: Viewer | null; files:
         <GroupTitle>{t.library.theme}</GroupTitle>
         <ThemePicker />
       </section>
+      <section className="mb-8">
+        <GroupTitle>{t.library.density}</GroupTitle>
+        <DensityPicker />
+      </section>
       <LocalePicker />
       <NotificationChoices files={files} />
       <Group>
@@ -874,6 +880,30 @@ function ThemePicker() {
       onChange={(value) => {
         pick(value);
         setTheme(value);
+      }}
+    />
+  );
+}
+
+// How much fits on the screen, as three buttons side by side: Large (looser), Medium (the default) or Small (denser), with
+// an icon of lines each. It is kept on the person's account and in this browser (density.ts). The buttons never follow it
+// themselves, so a person can always go back.
+function DensityPicker() {
+  const [density, pick] = useState(savedDensity);
+  const choices: { value: Density; label: string; icon: Icon }[] = [
+    { value: 'large', label: t.library.densities.large, icon: Rows },
+    { value: 'medium', label: t.library.densities.medium, icon: ListIcon },
+    { value: 'small', label: t.library.densities.small, icon: ListBullets },
+  ];
+  return (
+    <SegmentedButton
+      label={t.library.density}
+      value={density}
+      options={choices}
+      onChange={(value) => {
+        pick(value);
+        setDensity(value);
+        saveDensity(value).catch(() => snackbar({ text: t.library.densityNotSaved, error: true }));
       }}
     />
   );
