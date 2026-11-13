@@ -68,6 +68,130 @@ Date: 2026-11-13. Audit only: no product code changed. Follows the Material 3 co
 
 28 rows: 17 equal or on the scale, 3 M3-silent and on the scale, 8 differ: the two side margins (rows 1 and 2, the most visible: every page at every width), the two em-based text spaces (rows 4 and 5), the Testimonials carousel gap (13), the Checklist row padding (17), the footer's column gap (8) and the Posts' column gap (24, borderline). **Cards (rows 10 and 11) are already equal on `main`.** On a phone the Cards are one column, 8 apart with 16 padding: this is what Material prints ("8dp max"), so no measured value is outside the rule. If the other session changes the gap, the line to hold is "8dp max", the same in both directions.
 
+## Corners (from the token lists)
+
+The corner values ARE on the pages. The component pages' Specs tab has a token viewer; its "shape" tokens show a drawing in the table, but clicking a token opens a panel that prints "Shape family: Rounded corners" and "Default size: 12dp" (or "Circular"). Every value below was read from those panels with Playwright (`m3.material.io/components/<name>/specs`, token set named in the table) and compared with the computed `border-radius` of the same part on the editor's Parts screen (`#developer/parts/ui`, demo build, 1280px; the phone gave the same) and of the blocks on `/blocks/`. #520 said these values could not be read; they can, and that note is out of date. The FAB page and the Bottom sheet page have no token viewer, and the Slider page has none: not read. M3 prints no shape for dividers, progress and the radio button.
+
+### Parts (M3 token, value, ours)
+
+| Part | M3 token and value (page) | Ours (measured) | Result |
+| ---- | ------------------------- | --------------- | ------ |
+| Card (elevated, filled, outlined) | `md.comp.*-card.container.shape` 12dp (`/components/cards/specs`) | 12 | = |
+| Dialog, basic | `md.comp.dialog.container.shape` 28dp (`/dialogs/specs`) | 32 | **4 too round** |
+| Dialog, full screen | `full-screen-dialog.container.shape` 0dp | 32 as drawn in the Parts frame | differs; check whether the real full-screen dialog fills the window (then 0) |
+| Date picker, docked / modal | docked 16dp, modal 28dp; date input 28dp (`/date-pickers/specs`) | docked 16, modal 32 | docked =, **modal 4 too round** |
+| Time picker, time input | container 28dp; selectors 8dp (`/time-pickers/specs`) | container 32 | **4 too round** |
+| Menu | `menus.container.shape` 16dp (the Expressive menu; the baseline `menu.container.shape` is 4dp); item 4dp, first and last child 12dp, selected 12dp (`/menus/specs`) | container 16; every item 12 | container =; **items are 12, M3's middle items are 4** |
+| Snackbar | 4dp (`/snackbar/specs`) | 4 | = |
+| Tooltip | plain 4dp, rich 12dp (`/tooltips/specs`) | plain 4 | = |
+| Chips | 8dp (assist, filter, input, suggestion) | 8 | = |
+| Buttons | round: circular; square XS 12, S 12, M 16, L 28, XL 28; pressed 8, 8, 12, 16, 16 (`/buttons/specs`) | round (20 at 40 high = full) | = (square and pressed not drawn on any measured part) |
+| Icon buttons | round: circular; square XS 12, S 12, M 16, L 28, XL 28 | circular; square 12, 12, 16 measured | = |
+| Segmented button, split button, search bar, badge, loading indicator, switch (track, handle), toolbar (standard, vibrant, floating) | circular | 9999 | = (the switch track computes 0: it is drawn with another clip, not verified) |
+| FAB menu (close button, items) | circular | items 9999; close button 0 on the measured wrapper | items =; wrapper is not the drawn shape, not verified |
+| Extended FAB | small 16, medium 20, large 28 (`/extended-fab/specs`) | 16, 20 | = |
+| FAB (56, 80, 96) | not read (no token viewer) | 16, 20, 28 | nearest: the extended FAB's 16, 20, 28 |
+| Navigation bar, top app bar, docked toolbar | container 0dp | 0 | = |
+| Navigation rail | collapsed 0, expanded 0, expanded modal 16dp | 0; modal 0/16/16/0 | = |
+| Navigation drawer | `navigation-drawer.container.shape` 0dp (`/navigation-drawer/specs`) | standard drawer 0/16/16/0 | **16 on the free edge, M3 prints 0** |
+| Tabs | container 0dp; primary active indicator 3dp | 0 | = |
+| Text field | outlined 4dp; filled: the panel prints "Default size 0dp" (`/text-fields/specs`) | outlined 4; filled 4/4/0/0 | outlined =; filled: the panel prints 0, ours has 4 on top (the drawing may be a top-only corner; not settled) |
+| Checkbox | container 2dp | box not measured: its wrapper is a 40px circle | not verified |
+| Carousel | item 28dp (`/carousel/specs`) | 28 | = |
+| List | container 16dp; item 4dp (Expressive); hovered 12, focused, pressed, selected 16; leading avatar circular; leading image 8dp (Expressive), video 8dp (`/lists/specs`) | row 4; segmented list container 12 | rows =; **segmented container 12 vs 16** |
+| List, expand (the FAQ's kind of row) | container 16dp (`/lists/specs`, "List - Expand") | rows 16 outer and 4 inner; the `.block-accordion` wrapper 12 | rows =; **wrapper 12 vs 16** |
+| Bottom sheet | not read (no token viewer) | 28 top | nearest: the dialog's 28 |
+| Side sheet | docked 0, detached 16dp (`/side-sheets/specs`) | not on the Parts screen | not measured |
+| App bars | container 0dp; search bar circular | 0 | = |
+
+### Blocks: which surface follows the Card corner
+
+Blocks are mostly cards, and the Card corner is 12 (`--card-radius`, `global.css` 190, `var(--mo-shape-medium)`). Measured on `/blocks/`:
+
+| Block surface | Radius (variable) | Result |
+| ------------- | ----------------- | ------ |
+| Cards (all three kinds), Price card, Testimonial | 12 (`--card-radius` through the `Card` part) | = |
+| Cards inside the phone carousel (`.block-cards-carousel .carousel-item .card`) | 28 (`--carousel-item-radius` 1.75rem) | M3 Carousel prints 28 for an item; as a Card it is 12. Equal to the Carousel page, not to the Cards page |
+| Notice (`.block-notice`) | 12 (`--block-radius`) | = in value, but it reads `--block-radius`, not the Card variable |
+| Table box (`.block-table-grid`) | 12 (`--card-radius`, fallback `--block-radius-small`) | = |
+| Video facade (`.prose .video-facade`) | 12 (`--block-radius`) | = in value, own variable |
+| Banner image (the Banner image classes) | `--block-radius` 12 | = in value (not on the demo: measured from CSS) |
+| Accordion wrapper / rows | 12 / 16 outer, 4 inner | wrapper differs from the List-expand token (16) |
+| Segmented list | 12 container, 4 inner | differs from the List token (16) |
+| Posts thumbnail (the post thumbnail class) | 16 (`--block-radius-small`) | M3 list image is 8dp; M3 card media follows the card, 12 |
+| Filter chips, buttons, badges, step numbers | 8, full, full, full | = (M3: chips 8; circular for avatars and badges) |
+
+`--block-radius` is 12 here, `--block-radius-small` is 16 and `--block-control-radius` is full, set per theme in `global.css` 75 to 79. Two variables for what M3 calls one Card corner is the root of the Notice, Video and Banner differences: they are equal today only because the theme sets both to 12.
+
+## Cards: component or own CSS
+
+Checked in `theme/blocks/*` (imports) and measured. "Part" means the block draws the theme's `Card` (`theme/ui/Card.tsx`, `.card` in `ui.css`) or `ListItem`; "own" means a box in `theme/styles/blocks.css` or Tailwind.
+
+| Block | Uses | Radius | Padding | Gap between items |
+| ----- | ---- | ------ | ------- | ----------------- |
+| Cards | `Card` (`cards/LinkCards.tsx`) | 12 (`--card-radius`) | 16 | 8 (`--card-gap`) |
+| Price cards | `Card` (`pricecards/View.tsx`) | 12 | 16 | 8 |
+| Testimonials | `Card` (`Testimonial.tsx`), `Chip`, `Carousel`, `RowList` | 12 | 16 at 375, **28 at 1280** | grid 8; phone carousel **16** (row 13) |
+| Links | `Panel` (`Panel.tsx`, a `Card`) with a `List` (`links/LinkGroups.tsx`) | 12 | not on the demo | `--card-gap` |
+| List, Points with icon, Checklist | `ListItem` (`ui/List`) | row 4, no box | 16 | 0 |
+| Segmented | `ListItem`, `list-segmented` | 12 / 4 | 16 | 2 |
+| FAQ / Accordion | own `details` rows (`faq/Accordion.tsx`; `Button` only for its row link) | 12 wrapper, 16/4 rows | 16/24 | 2 |
+| Notice | own (`.block-notice`) | 12 (`--block-radius`) | 16/24 | n/a |
+| Table, Cookies | own (`.block-table-grid`) | 12 (`--card-radius`) | 16 per cell (M2) | n/a |
+| Posts | own (Tailwind in `PostList.tsx`) | thumb 16 | 20 above and below, on a rule | 0 vertical, 48 columns |
+| Steps | own (`StepList.tsx`), no box | number circle | n/a | 40 |
+| Video | own (`.video-facade`) | 12 | 24 | n/a |
+| Banner (Hero) | own | image 12 | none | 32 or 48 |
+| Buttons | `Button` | full | 0 / 24 | 12 |
+
+So four blocks use the `Card` part (Cards, Price cards, Testimonials, Links through Panel), five use `ListItem`, and Notice, Table, Posts, Steps, Video, Banner and the Accordion draw their own boxes. The Cards worker's branch `card-spacing-m3` (read: `origin/card-spacing-m3`, two commits) changes only the Cards block and adds `--card-subhead-gap` 4, `--card-text-gap` 8, `--card-media-gap` 16 and `--card-action-gap` 16 to `global.css`, makes the phone carousel use `--card-gap`, and keeps `--card-gap` at 8. This audit treats those five variables as shared and does not redefine them.
+
+### Inner spacing of the other card blocks (not covered by that branch)
+
+| Block | Measured inside the card | M3 | Result |
+| ----- | ------------------------ | -- | ------ |
+| Price card | padding 16; badge to name 12; name to price 16; price to text 12; text to features 24; features to buttons 0 | Cards prints only 16 left and right and 8 between cards; the 4dp unit and 8dp scale | all on the grid; 12 and 24 are not the Cards block's 8 and 16, so the two card blocks space the same parts differently |
+| Testimonial | padding 16 (375) and 28 (1280); head to text 12; text to name 0 (375) and 24 (1280) | 16, and "Density shouldn't automatically change across breakpoints" | **28 and 24 only at 1280: the card changes with the window** |
+| Panel (Links) | not on the demo; takes its gap from `--card-gap`, its inside is its own CSS | same | not measured |
+
+## Standard parts for blocks that draw their own box
+
+For each block with its own box: the standard part that fits, what would change, and the move (all small, visual change stated). M3 has no part for a notice, a stepper or a hero; where none fits, that is said.
+
+| Block | Fitting part | What changes visually | Move |
+| ----- | ------------ | --------------------- | ---- |
+| Notice | `Card`, filled, no media (M3 Cards page; M3 has no banner) | Corner now `--card-radius` (12, same value); padding 16/24 becomes the Card's 16; same fill | small |
+| Table, Cookies | `Card` outlined as the frame around the M2 table | None: it already draws the outlined card's border and 12 corner; the corner would come from one place | small |
+| FAQ / Accordion | `ListItem` expandable, the M3 List "expand" kind (container 16, item 4) | Wrapper 12 becomes 16; rows unchanged; the open/close arrow comes from the part | medium |
+| Segmented | already `ListItem`; only the container radius var | 12 becomes 16 (row 4 in this table's Corners result) | small |
+| Posts | `ListItem` with a leading image and dividers (M3 Lists: leading image 8dp, row 72 or 88) | Thumbnail corner 16 becomes 8 and the row loses its custom 20 padding for the list's 16; rule between rows stays | medium |
+| Video | `Card` with media (Cards page: media follows the card corner) | None in value (12); the corner comes from the Card | small |
+| Banner | no M3 part; the image takes the Card media corner | None in value | none |
+| Steps | no M3 part (M3 has no stepper); the number could be a `ListItem` leading avatar (circular, as printed) with the 40 gap kept | Only if the owner wants the connector line dropped | not planned |
+| Links, Testimonials, Price cards, Cards | already `Card` | n/a | n/a |
+
+## Icons and touch targets of parts #520 did not open (measured live)
+
+Measured on `#developer/parts/ui` at 1280px (the phone sizes are the same). "Box" is the element's own size; "target" is a `::before` or `::after` box where one is drawn. M3's rule (`/foundations/designing/structure` in #520, row 6): targets at least 48 by 48dp, pointers 44.
+
+| Part | Icon size | Box and target | Material says | Result |
+| ---- | --------- | -------------- | ------------- | ------ |
+| Snackbar | 24 (close icon button); the link's arrow 14 | one line 48 high, two line 68; action button 40 high with a 48 target; close 40 | snackbar icon 24 (#520); one-line 48 | icon = ; the 14px arrow inside the snackbar link is not 24 (M3 prints no size for it); target = |
+| Dialog | 24 (the icon); the check glyph in the box 14 | actions 40 high, 48 target on one button, none on the other (92.5 by 40) | dialog icon 24 | = for the icon; **one action button has no 48 target** |
+| Navigation bar | 24 | items 64 to 68 high, 96 to 140 wide | bar 64; icon 24 | = |
+| Navigation rail | 24 | items 48, 56 and 80 by 52, collapsed rail 96 wide | rail 96 | = |
+| Menu | 20 | item 44 high | menu items 44, icon 20 (Expressive); baseline 48 and 24 (#520) | = to the Expressive set; under the 48 pointer-target rule M3 gives for lists |
+| FAB menu | 24 (items) | items 56 high | FAB menu items 24 (#520) | = |
+| Icon button, small | 24 | box 48 by 48 (circle 24 radius) and 40 by 40 for the "standard" kind | small: 40 with a 48 target | = (the 48 is the target; the visible shape is 48, not 40: see #520 row 3) |
+| Icon button, XS | 20 | 36 by 36, no target box drawn | XS 32 with a 48 target (#520 row 3) | **target 36, under 48** |
+| Icon button, narrow | 24 | 38.4 by 48 | narrow small 32 wide with a 48 target | **width 38.4, under 48** |
+| Icon button, medium | 24 | 60 by 60 | medium 56 (#520) | 4 too big |
+| Chip | 18 | 32 high, no target box | chip 32 high (#520, row 7) | **height 32 under 48, no extended target** |
+| Tab | n/a | 48 and 64 high | tabs 48, 64 | = |
+| List row | 20 | 56, 60, 68, 72, 76, 88 high | rows 56, 72, 88 | = for 56, 72, 88 |
+| Checkbox, radio | glyph 14 in an 18 box | 40 by 40 state layer | checkbox 18, state layer 40 | = |
+| Switch | 16 | track 52 by 32 | track 52 by 32 | = |
+
 ## Build plan
 
 Small pull requests, in this order. Each is one task for one session; each adds a patch changeset and a release note line only where the owner sees the change.
@@ -78,6 +202,12 @@ Small pull requests, in this order. Each is one task for one session; each adds 
 4. **Checklist row padding to 4** (row 17). File: `theme/styles/blocks.css` near 1137 (the feature list's `--list-item-padding-block`). Small.
 5. **Footer and Posts column gaps to 24 from medium** (rows 8, 24). Files: `theme/components/Footer.astro` (`gap-10` to `gap-6`), `theme/components/PostList.tsx` (`gap-x-12` to `gap-x-6`). Small; ask the owner first whether the Posts' wider gap is wanted.
 6. **A check against drift.** Add a script to `npm run check:css-values` (or beside it) that fails when a block's `margin`, `padding` or `gap` is not a multiple of 4px in the demo at 375 and 1280, with an allowlist for the printed nested units (2, 6, 10). Medium. Only after 1 to 5, so the rule starts green.
-7. **Cards gap**: not in this plan; session_01GGzusM2gXx6wxMdYVzg6xj owns it. When it lands, re-run this audit's Cards rows (10, 11) and confirm: gap at most 8 and the same in both directions.
+7. **Cards gap**: not in this plan; session_01GGzusM2gXx6wxMdYVzg6xj owns it (`card-spacing-m3`, with `--card-subhead-gap`, `--card-text-gap`, `--card-media-gap`, `--card-action-gap`, which stay as they are). When it lands, re-run the Cards rows (10, 11) and confirm the gap is at most 8 and the same in both directions. The PRs below start after it, because they touch the same files (`blocks.css`, `global.css`).
+8. **Corner values** (Corners section). Files: `theme/styles/ui.css` and `global.css`. Dialog, modal date picker, time picker 32 to 28 (`--dialog-radius` and the pickers' variables); menu items 12 to 4 with the first and last child 12; navigation drawer's free-edge corner 16 to 0 (decide with the owner: the owner may want it); segmented list container 12 to 16 (`--list-segmented-radius`, `global.css` and `ui.css` 2263). Small each, one PR for the dialogs and pickers, one for the menu, one for the drawer and list. Re-run `check:screens`.
+9. **One Card corner for block surfaces** (Corners and Cards sections). Files: `theme/styles/blocks.css` (`.block-notice` 256, `.prose .video-facade` 2036, the Banner image rule 501, `.block-accordion` 323, `.block-table-grid` 1447), `theme/styles/global.css` 75 to 79. Make Notice, Video, Banner image and Table read `--card-radius`; make the accordion wrapper read the list's 16. No visible change today (all 12); it removes the second variable. Small.
+10. **Move card-like block surfaces onto the Card part** (Standard parts section), one PR each, in this order: Notice to `Card` filled (`theme/blocks/notice/View.tsx`); Table and Cookies to a `Card` outlined frame (`theme/blocks/table/View.tsx`, `cookies/View.tsx`); Video to a `Card` with media (`theme/blocks/video/View.tsx`). Each small; the editor's preview follows because it uses the same views. Check with `check:screens` and the editor's block shots.
+11. **Move row-like blocks onto `ListItem`**: Posts to a list with a leading image (`theme/components/PostList.tsx`, thumbnail 16 to 8, rows 72 or 88; ask the owner before, it changes how the post list looks) and the FAQ to the List "expand" kind (`theme/blocks/faq/Accordion.tsx`, `theme/blocks/accordion/PageRow.tsx`). Medium each.
+12. **One inner spacing for the card blocks**: Price cards and Testimonials take the Cards block's tokens (`--card-text-gap` 8, `--card-media-gap` 16, `--card-action-gap` 16) where they space the same parts, and Testimonials keep 16 padding at every width (28 and 24 at 1280 go). Files: `theme/blocks/pricecards/`, `theme/blocks/testimonials/`, `blocks.css` 1616 and 1903. Medium. After 7.
+13. **Touch targets** (Icons and touch targets section). Files: `theme/styles/ui.css`: XS icon button and narrow icon button get a 48 by 48 target (`::after` as the small button has), the chip gets a 48 high target, the second dialog action button gets its target. Small each, one PR. Needs the owner to confirm that the chip's target may overlap its neighbour as M3 draws it.
 
-Not measured: the site's header (app bar spacing is drawn as images on the M3 app bars page), the editor's own workspace (outside this rule), other themes (`check:themes`), and the Image grid block (still a spec, #521).
+Not measured: the site's header (app bar spacing is drawn as images on the M3 app bars page), the editor's own workspace (outside this rule), other themes (`check:themes`), the Image grid block (still a spec, #521), the Links block and its Panel (not on the demo), the FAB, bottom sheet and slider corners (no token viewer on their pages), the side sheet (not on the Parts screen) and the switch track and checkbox corner (drawn with a clip that computes as 0).
