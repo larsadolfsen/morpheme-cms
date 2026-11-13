@@ -2,6 +2,8 @@
 
 Status: proposal for the owner. Design only, no code. Written for a phone: plain words, short.
 
+**Decided by the owner (13 November):** Q1 `Ctrl+K` / `⌘K` always opens the palette, also while typing text, and *Link* gets no key. Q2 "Right click opens the contextual menu": a right click in typed text opens **our** text menu, whether or not text is selected, not the browser's. The owner then asked "Should we handle paste and copy and cut text?": yes, section 5.4. Q3 (resize an image, duplicate a block) is still open with the owner.
+
 Owner's words (editor menus, 13 November): editor interfaces are content-first, so the UI around the content takes little room.
 Do not stuff every feature into one scrolling drop-down or drawer. Three layers: (1) a **quick toolbar** with only the top actions
 (the one bar of PR #519, not redone here); (2) **context menus** (right click, secondary click) with the actions where the user
@@ -21,9 +23,10 @@ on the thing you point at. A **part** is a ready-made piece of the theme (`theme
 - **Palette:** `Ctrl+K` (`⌘K` on a Mac) and a search icon in the top bar open it. It lists what you can do here first, then
   everything else, and runs the one you pick. It uses the theme's **Search** view (full screen on a phone, docked from medium),
   not a dialog.
-- **Context menus:** a right click on a block, an image, a table cell, a list row or selected text opens a `Menu` with only that
-  thing's actions. On a phone a long press opens it as a bottom sheet, but never inside text (the phone's own long press owns
-  text) and never on a list screen (there it starts selection, #529).
+- **Context menus:** a right click on typed text, a block, an image, a table cell or the empty line opens a `Menu` with only that
+  thing's actions; in text that includes **Cut, Copy and Paste** (section 5.4). On a phone a long press opens it as a bottom sheet on
+  blocks and images; **inside text a long press stays the phone's own** (question 11 asks whether that is right), and never on a list
+  screen (there it starts selection, #529).
 - **Nothing new is drawn.** Menu and Search are theme parts. Two parts are missing and must be added to the theme: a menu that
   opens at a point (`Menu` with `at`), and a Search view that React can drive (the one today is only drawn in the editor).
 - **M3 has no command palette page.** The palette is the owner's request (their words are quoted above), so it is built from what M3
@@ -185,7 +188,7 @@ type EditorAction = {
   group: 'go' | 'page' | 'text' | 'insert' | 'block' | 'image' | 'table' | 'list' | 'setting' | 'app'
   words?: string[]                 // other names to search (English and Danish): 'bold' → 'strong', 'fed'
   shortcut?: { key: string }       // 'Mod+K': Mod is ⌘ on a Mac, Ctrl elsewhere; shown, and set as aria-keyshortcuts
-  handledBy?: 'registry' | 'text'  // who listens to the key: 'text' = the text engine's keymap (it stays there)
+  handledBy?: 'registry' | 'text' | 'browser'  // who listens to the key: 'text' = the text engine's keymap, 'browser' = Ctrl/⌘ X C V (both stay where they are)
   where: {                         // which views show it, and in what order
     bar?: { context: Context; order: number; overflow?: string }   // #519's lists and their ⋮ groups
     menu?: { target: Target; order: number; section?: string }     // context menu of that target
@@ -287,7 +290,7 @@ folding, the context boost, recent ordering, the 30 cap and the stable order.
 | Go to | Home, every section and row of the main menu, Settings, Notifications, Account, Files, Redirects, SEO rating, Status, Apps, App store, Themes, Icon packs, Motion, Colours, Logo and icon, Block settings, Caching and builds, Assistants, Licences, Morpheme, Deleted pages and files | `menuTree`, `App.tsx` routes |
 | Pages and posts | Open "<title>", New page, New post | `files`, `new/<list>` |
 | Page | Save changes, Preview (draft and publish actions when the drafts plan lands) | `t.common.saveChanges`, `t.common.preview` |
-| Text | Bold, Italic, Link, Main heading, Heading, Subheading, Body small, medium, large, Label, Quote, Bullet list, Check list, Numbered list, Align left, centre, right, Text colour, Undo, Redo | `allTools` |
+| Text | Bold, Italic, Link, Main heading, Heading, Subheading, Body small, medium, large, Label, Quote, Bullet list, Check list, Numbered list, Align left, centre, right, Text colour, Undo, Redo, **Cut, Copy, Paste** (section 5.4) | `allTools`, new |
 | Insert | Insert image, one *Insert <block>* per block (Table, Cards, List, Steps, Buttons, Price cards, Video, Notice, Testimonials, Posts, HTML, …) | `blocks.ts`, `BlockGroup` |
 | Section | Section settings, Section colour, Background image, Width | `t.text.section*` |
 | Block | Add above, Add below, Move up, Move down, Link, Settings, Fill from a list, Hide, Show, Remove, Edit | `BarAction`, `cardMenu`, `moves` |
@@ -342,7 +345,7 @@ One rule from the owner: **the menu shows only the actions of the thing you poin
 
 | Target (right click on …) | Menu items (groups in order, a divider between them) |
 | --- | --- |
-| **Selected text** (a selection, not just the caret) | Cut, Copy, Paste; Bold, Italic, Link; Text style ›, List ›, Alignment ›, Text colour ›; Undo, Redo. (Only text actions: no block or page action.) |
+| **Typed text** (a right click anywhere in the text, with or without a selection) | Cut, Copy, Paste; Bold, Italic, Link; Text style ›, List ›, Alignment ›, Text colour ›; Undo, Redo. (Only text actions: no block or page action.) With nothing selected Cut and Copy are disabled, not removed. |
 | **Image** (the image card or an image block) | Change image, Crop, Alt text; Settings; Add above, Add below, Move up, Move down; Hide, Remove |
 | **Table cell** | Row above, Row below, Delete row; Column before, Column after, Delete column; Align column ›; Settings |
 | **List-type block row** (List, Cards, Points, Steps, Checklist, Accordion, Price cards, Buttons) | Add above, Add below, Move up, Move down; Link, Settings, Fill from a list (where the block has them); Hide, Remove |
@@ -356,7 +359,7 @@ One rule from the owner: **the menu shows only the actions of the thing you poin
 - **What does not open our menu (this version):** a right click on a **link** (a list row, a menu row, a link in the text) or on a
   **text field** keeps the browser's menu, which has "Open in new tab", "Copy link", spelling and paste that we cannot replace. This is
   also what #529 says of a list row ("Right click is the browser's menu on a row; we do not take it"), and the list screens
-  keep their actions in the selection bar. A collapsed caret in text also keeps the browser's menu (spelling suggestions). Question 3.
+  keep their actions in the selection bar. **Typed text does open ours, selected or not** (owner, Q2). **What is lost:** the browser's own menu in text, so its spell-check suggestions ("Add to dictionary", the corrections), "Look up", "Search the web for …", translate and the browser's own *Paste as plain text* item. The browser's squiggle under a misspelled word stays. A text field (a `TextField`, the palette's own field) keeps the browser's menu. Whether a list row or link keeps it is Q7 (still open).
 - **Dashboard widgets and other screens** may get one later by registering `menu` places; no screen needs a new mechanism.
 
 ### 5.2 Keyboard and opening
@@ -377,8 +380,11 @@ One rule from the owner: **the menu shows only the actions of the thing you poin
   place) and on the empty line. The press is `useLongPress` (`theme/ui/longPress.ts`: 500 ms, 10 px, touch and pen only, a short
   vibration, the click after it swallowed), not the browser's `contextmenu` event, because I do not know that every phone fires one
   (not tested; Android Chrome does on a long press, iOS Safari I could not confirm).
-- **Never inside text.** A long press there starts the phone's own text selection with its handles and magnifier (M3 Inputs: "When
-  interacting using touch, always show touch controls"). The text tools are on the bar. So **text selected on a phone gets no context menu**.
+- **Not inside text (recommended; question 11).** A long press there starts the phone's own text selection with its handles and magnifier (M3 Inputs: "When
+  interacting using touch, always show touch controls"). The text tools are on the bar. The PM's message asked for the text menu on a long press
+  too; I kept the OS's, because a second menu on the same press would fight the selection handles, and M3 prints the touch rule above. I could
+  not test a phone, so I cannot say what the OS toolbar offers on each. Owner's call: if ours, it opens from a long press on the *empty*
+  line only, or after the OS selection exists (not designed here).
 - **Never on a list screen.** There a long press selects (M3 Gestures; #529).
 - **A bottom sheet, not a popover** (M3: "Consider adapting menus into bottom sheets on small screens"). The editor's `Menu` already does this
   under `medium`. The sheet is titled with the target's name and capped at half the screen at first (M3: "can't exceed 50% of the screen
@@ -386,7 +392,58 @@ One rule from the owner: **the menu shows only the actions of the thing you poin
 - The sheet is the same one as the bar's `⋮` on a phone (#519 question 2), and the phone palette is the same family: all open from the bottom or
   fill the screen, none shows two layers.
 
-### 5.4 Tooltips with shortcuts (icon-only buttons)
+### 5.4 Cut, Copy and Paste
+
+Owner: "Should we handle paste and copy and cut text?" Yes. The text menu (right click) has **Cut, Copy and Paste**, and the same three are in the palette
+(group *Text*). `Ctrl/⌘ X`, `C` and `V` stay the browser's (`handledBy: 'browser'`): the menu shows them as trailing text and the registry does not listen.
+
+**What I checked, and how.** I read `@milkdown/plugin-clipboard@7.23.0` (`src/index.ts`, the version the package uses) and ran the real Milkdown editor
+(commonmark, history and clipboard presets, as `MarkdownEditor.tsx` uses them) in the pre-installed Chromium with Playwright, on a plain page
+(`file://`). The editor's own plugins, blocks and schema extras were not in that test. **I did not check Firefox or Safari**: only Chromium is installed, and
+MDN, the pages I wanted to read for their clipboard behaviour, could not be reached from this environment (the proxy refused the host).
+Where I say "Chromium", that is what I saw; anything else is listed under "Not verified".
+
+**How the editor handles clipboard today (code and test)**
+- **Copy and cut:** ProseMirror's own handlers run, and Milkdown adds `clipboardTextSerializer`. Result in Chromium for a whole line with bold: `text/plain` is the
+  **Markdown** (`Hello **bold** world and plain`) and `text/html` is `<p data-pm-slice="0 0 []">Hello <strong>bold</strong> world and plain</p>`. A selection of plain words gives
+  `text/plain` with those words only. Cut removes the selection (the text was empty afterwards).
+- **Paste (a real paste event):** Milkdown's `handlePaste`. With `text/html` on the clipboard the HTML is parsed into the editor's schema: bold, italic and links
+  stay, **colours and other styles are dropped** (test: `<b>rich</b> <i>it</i> <span style="color:red">red</span> <a href=…>lnk</a>` became `**rich** *it* red [lnk](https://x.io)`).
+  Google Docs' wrapper element is stripped first (in the plugin). With **only `text/plain`**, the text is parsed **as Markdown**: pasting the text "**md** and `code`" gave bold and code,
+  not the characters. A real `Ctrl+V` of `typed **bold** via Ctrl+V` gave bold text. A paste into a code block is left to the browser; a paste copied from VS Code with a language makes a code block.
+- **Paste as plain text:** the editor has no such action. In a browser `Ctrl+Shift+V` sends only `text/plain`, which Milkdown still reads as Markdown, so it is not literal.
+  A literal paste is cheap: read the text and insert it as characters (`tr.insertText`), about one function. It does not exist today. Question 12.
+
+**Cut and Copy from the menu**
+- `document.execCommand('copy')` and `('cut')` run from the menu click, with the selection in the editor. They fire the editor's own copy and cut handlers, so the clipboard gets
+  the same Markdown text and HTML as `Ctrl+C` (test: `execCommand('copy')` returned `true`, and `navigator.clipboard.read()` returned `text/plain` and `text/html` as above; `cut` returned `true` and removed the text).
+- **What it needs:** the focus and selection still in the text when the item is chosen (the menu item already cancels the mouse down, and the test kept the focus in the editor), and a user
+  click (a menu click is one). I did not read the current status of `execCommand` (MDN unreachable); it is the older API and still worked in Chromium. If it returns `false`, fall back to
+  `navigator.clipboard.writeText` with the selected text, which loses the Markdown and HTML (not tested in a refused case).
+- With nothing selected, Cut and Copy are **disabled** (M3: "disabled rather than removed").
+
+**Paste from the menu**
+- A web page cannot read the clipboard without the browser agreeing: `navigator.clipboard.readText()` or `read()`. **Chromium, no permission given:** rejected with
+  `NotAllowedError: Read permission denied` (seen). **Chromium, permission granted:** `readText()` returned the text and `read()` returned `text/plain` (seen, headless with the
+  permission pre-granted). **What a person sees in a normal Chrome** (a prompt on the first use, then a permission for the site) I could not test: headless Chromium reports the state as `denied`
+  and shows no prompt. **Firefox and Safari:** not verified. I expect each to ask in its own way, but I have not seen it.
+- `document.execCommand('paste')` returned `false` in Chromium: it cannot be used.
+- **What the menu does:** (1) call `navigator.clipboard.read()` (so HTML is kept; fall back to `readText()` when `read()` is missing or fails for lack of a type); (2) put the result in a
+  `DataTransfer` and send the editor a `paste` event with it (`new ClipboardEvent('paste', { clipboardData })`, which reaches Milkdown's `handlePaste`), so a menu paste behaves **exactly** like
+  `Ctrl+V`: same HTML clean-up, same Markdown reading of plain text. Test in Chromium: both a text-only and an HTML event went through `handlePaste` as above. A paste event made by script is
+  not a trusted event; ProseMirror did not mind it in the test.
+- **When the browser refuses or does not answer:** nothing is pasted, and a short message says what to do: "Paste is blocked here. Press Ctrl+V instead." (`⌘V` on a Mac). The menu item stays enabled
+  (we cannot know the clipboard is empty without reading it). No retry loop, no second prompt.
+- **Paste as plain text** (if the owner says yes, question 12): the same read, then `insertText` of `text/plain` with no Markdown reading. Shown under Paste, `Ctrl+Shift+V` as trailing text (the browser's own key, which still reads Markdown; the menu item is the literal one, so no shortcut is printed on it).
+
+**Not verified**
+- Firefox and Safari: the paste permission or prompt, whether `read()` returns HTML, and whether a script-made `paste` event reaches ProseMirror (Safari's `ClipboardEvent` may ignore `clipboardData`). The step 7 PR tests them by hand and in the screens check where the browsers allow it.
+- A normal (headed) Chrome's permission prompt, and whether the choice is remembered per site.
+- Any phone: the OS's own Cut, Copy and Paste on a long press.
+- The editor with its block cards and sections: pasting a block, a table or an image from another page.
+- Texts of the editor's own plugins that act on paste (`firstHeading`, `titleH1`): they run on the paste transaction, as for `Ctrl+V`; not tested.
+
+### 5.5 Tooltips with shortcuts (icon-only buttons)
 
 `useTooltip` adds the shortcut after the name from the registry: "Bold  Ctrl+B" ("Bold  ⌘B" on a Mac). Only actions with a tested key
 have one, and `aria-keyshortcuts` goes on the button. M3 has nothing on shortcuts in tooltips (not found), so this is an addition and not a
@@ -432,6 +489,9 @@ words) and `t.palette`. Short, active, per M3 word choice (`site-editor-writing`
 | `palette.nothingToUndo`, `nothingToRedo` | Nothing to undo · Nothing to redo | Intet at fortryde · Intet at gentage |
 | group titles | Go to · Pages and posts · Page · Text · Insert · Section · Block · Table · Image · List · Settings · Apps | Gå til · Sider og indlæg · Side · Tekst · Indsæt · Sektion · Blok · Tabel · Billede · Liste · Indstillinger · Apps |
 | `shortcuts.title` | Keyboard shortcuts | Tastaturgenveje |
+| `text.cut`, `text.copy`, `text.paste` | Cut · Copy · Paste | Klip · Kopiér · Sæt ind (not *Indsæt*: that is `Insert`) |
+| `text.pastePlain` (question 12) | Paste as plain text | Sæt ind som almindelig tekst |
+| `text.pasteBlocked` | Paste is blocked here. Press Ctrl+V instead. | Indsætning er blokeret her. Tryk Ctrl+V i stedet. |
 
 Action labels keep today's words (`Bold` = `Fed`, `Undo` = `Fortryd`, `Redo` = `Gentag`, `Move up` = `Flyt op`, from `da-DK`). The Danish above
 is a proposal for the owner to read; the build PR writes it in `da-DK/` and `check:language` keeps it out of everything else. The word **image** is
@@ -474,10 +534,10 @@ words; entries 2 and 3 are inside it. What the pages are silent on is **not** a 
    - **Why:** the owner's rule that selected text shows only text actions; a menu of every action disabled would be the long list the owner
      does not want. **Date:** 2026-11-13. **PR:** step 6. (The palette keeps M3's rule: a current-context action that cannot run is shown
      disabled, section 4.1.)
-3. **Our menu replaces the browser's on selected text only, and never on a link or field** (editor workspace).
+3. **Our menu replaces the browser's in typed text and on blocks, never in a field** (editor workspace; owner: "Right click opens the contextual menu").
    - **Material:** "A secondary click ... opens a context menu." and, for text, "When using a mouse, trackpad, or stylus, show the I-beam and context menu".
-   - **We do:** only on selected text, blocks, images, table cells and the empty line. A link, a text field and a collapsed caret keep the
-     browser's menu. **Why:** the browser's menu has "Open in new tab", spelling and paste we cannot replace. **Date:** 2026-11-13. **PR:** step 6 (depends on question 3).
+   - **We do:** in typed text (selected or not), on blocks, images, table cells and the empty line. A text field keeps the browser's menu; a link
+     row is Q7. **Why:** the owner's decision. What is lost is stated in 5.1: the browser's spell-check suggestions. **Date:** 2026-11-13. **PR:** step 6.
 
 Not deviations: a bottom sheet on a phone (M3: "Consider adapting menus into bottom sheets"), the long press (M3: "right-click or press-and-hold"; text left to
 the OS, "always show touch controls"), a divider and no gaps on web, shortcuts as trailing text ("keyboard commands"), a search icon button
@@ -499,7 +559,8 @@ S = a day or less, M = a day or two. All are patch or empty changesets until ste
    and 2 not yet landed this is an adapter, and the bar's order is today's). The palette lists them. Shortcuts in tooltips and `aria-keyshortcuts`.
 6. **M, context menus.** Blocks, images, tables, list rows and the empty line: right click, `Shift+F10`, long press on blocks and images (phone
    bottom sheet). Deviation entries 2 and 3.
-7. **S, selected text.** Our menu with Cut, Copy and Paste (the clipboard calls), only after question 3 is answered.
+7. **S to M, the text menu and clipboard.** Right click in typed text, with Cut, Copy and Paste as in 5.4 (including the refused-paste message and, if the owner
+   wants it, *Paste as plain text*). A Playwright check of the clipboard calls (like the one in 5.4) goes in `scripts/`.
 8. **S, polish.** Clear recent on sign-out, *Keyboard shortcuts* list, files as a provider (if the owner wants, question 2).
 
 **What the checks must prove** (`scripts/editor-screens.mjs` through `check:screens`; `node --test`):
@@ -518,14 +579,10 @@ S = a day or less, M = a day or two. All are patch or empty changesets until ste
 
 ## 11. Open questions for the owner (the PM asks them one at a time)
 
-1. **`Ctrl+K` / `⌘K` opens the palette, also when the cursor is in text?** Google Docs, Slack and Notion use it for *Link* there. Recommendation:
-   **yes, the palette** (your words); *Link* keeps no key for now and stays on the bar and in the palette.
+1. **DECIDED (owner: "Yes."):** `Ctrl+K` / `⌘K` opens the palette, also when the cursor is in text; *Link* keeps no key and stays on the bar and in the palette.
 2. **What does the first palette search?** (a) actions only; (b) actions, navigation and page and post titles; (c) also files. Recommendation: **(b)**; files
    later (a provider, step 8).
-3. **A right click in selected text: our menu or the browser's?** Ours loses the browser's spelling suggestions and its own Cut, Copy and Paste
-   unless we add them (we would, with the clipboard calls; paste may ask permission and I have not tested each browser). Options: (a) ours on selected
-   text only, the browser's on a collapsed caret; (b) always the browser's, text actions only on the bar and the palette; (c) (a), and Shift plus
-   right click gives the browser's (I could not confirm every browser does that). Recommendation: **(a)**, built last (step 7) so the rest ships first.
+3. **DECIDED (owner: "Right click opens the contextual menu."):** a right click in typed text, selected or not, opens our text menu. The browser's spell-check suggestions are lost (5.1).
 4. **A right click on a list row or a link stays the browser's** (as #529 says), and the row's actions stay in the selection bar. Recommendation: **yes** for
    now; a row menu with Open, Select, Delete can come later.
 5. **A search icon button in the top app bar on every screen size?** M3 prints that an app bar "can also include global product controls, such as
@@ -541,3 +598,5 @@ S = a day or less, M = a day or two. All are patch or empty changesets until ste
     view opened by a button or a key, and the Search size tokens could not be read. Options: (a) the theme's Search view as it is built now (it docks
     where a bar would be); (b) full screen on every size, which M3 prints for compact and needs no bar. Recommendation: **(a)**, so no size or place is
     invented; if it looks wrong in the screens, (b).
+11. **Long press in text on a phone: the phone's own selection (recommended) or our menu?** The PM's note asked for ours; I kept the phone's own, so its handles keep working. Other choice: ours, on the empty line only.
+12. **Add *Paste as plain text* to the text menu?** It does not exist today (5.4); one small function. Recommendation: **yes**, because pasting from a web page or Word is common. Other choice: leave it to the browser's `Ctrl+Shift+V`, which still reads the text as Markdown.
