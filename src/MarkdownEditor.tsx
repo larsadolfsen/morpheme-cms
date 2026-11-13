@@ -1962,7 +1962,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       const chosenBlock = blocks!.list.find((b) => b.type === chosen.type);
       if (chosenBlock?.lead?.heading) {
         let at = -1;
-        tr.doc.forEach((n, offset) => void (n === node && (at = offset)));
+        tr.doc.forEach((n: Node, offset: number) => void (n === node && (at = offset)));
         if (at >= 0) {
           tr = tr.insert(at, state.schema.nodes.heading.create({ level: 2 }, state.schema.text(chosenBlock.label)));
           tr = tr.setSelection(TextSelection.create(tr.doc, at + 1, at + 1 + chosenBlock.label.length));
