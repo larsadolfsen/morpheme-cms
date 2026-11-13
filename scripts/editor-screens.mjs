@@ -105,6 +105,19 @@ const builtPages = existsSync(join(ROOT, 'src/content/pages'))
       .sort()
   : [];
 const BUILT_PAGE = `src/content/pages/${builtPages.includes('about.md') ? 'about.md' : (builtPages[0] ?? 'about.md')}`;
+/** A page's text with a List, a Segmented list and an FAQ, for the checks of their rows: a site's page need not have them. */
+const block = (name, props) => `<div data-block="${name}" data-props="${JSON.stringify(props).replaceAll('"', '&quot;')}"></div>`;
+const LIST_PAGE = [
+  '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
+  block('list', {
+    items: [
+      { icon: 'clock', title: 'One', text: 'First' },
+      { icon: 'info', title: 'Two', text: 'Second' },
+    ],
+  }),
+  block('segmented', { items: [{ title: 'Row', text: 'Text' }] }),
+  block('faq', { items: [{ question: 'Why?', answer: 'Because.' }] }),
+].join('\n\n');
 /** A page's text of our own for the checks that put a section on a heading: a site's page need not have one. */
 const PAGE_SOURCE = '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n## Tinted\n\nTinted text.\n';
 /** The title of a page the long press, the link and the lists checks use: the demo's, or the one made here. */
@@ -490,7 +503,7 @@ async function checkListMarkers(width) {
     );
   const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`List markers: ${e.message}`));
-  await openEditor(page, site);
+  await openEditor(page, site, { [path]: LIST_PAGE });
   await page.goto(`${site}/editor/#${path}`);
   await page.waitForSelector('ul.list', { timeout: 30_000 });
   const inEditor = await page.evaluate(markers);
