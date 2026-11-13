@@ -41,7 +41,7 @@ Same trick as crop: a word after the address, no new files, no front matter chan
 
 - `size` is one of `small`, `medium`, `large`, `full`; with free width, a number 10–100 (percent of the column).
 - No `size` means today's look. Old pages and old sites are untouched, and a site that updates the package sees no change.
-- Unknown values are ignored, as `crop` does now. `lib/crop.mjs` gets the parse and write (`splitPicture`, `joinPicture`); the unit tests there cover the old addresses unchanged.
+- Unknown values are ignored, as `crop` does now. `lib/crop.mjs` gets the parse and write; the unit tests there cover the old addresses unchanged.
 - Image fields in front matter (hero, cards, share image) get no size in this version: they have a place of their own and a format. Only images in the text and the Image/Banner blocks (question 4).
 
 ## The site's build
