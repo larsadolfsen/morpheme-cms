@@ -1948,7 +1948,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     if (id === 'align')
       return (
         <MenuItem key={id} icon={ALIGN_FACES[alignNow].node} disabled={!alignOn} onClick={under(() => setAlignAt(moreButton.current))}>
-          {t.text.alignmentIs(alignLabel(alignNow))}
+          {alignLabel(alignNow)}
         </MenuItem>
       );
     if (id === 'color')

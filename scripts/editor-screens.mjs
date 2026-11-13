@@ -303,7 +303,8 @@ async function checkTextBar(width = 360) {
   for (const name of [...(listOnBar ? [] : ['Bullet list', 'Check list', 'Numbered list']), 'Color', 'Insert'])
     if (!menu.rows.some((x) => x.name === name))
       problems.push(`${label}: the ⋮ menu lacks "${name}" (${menu.rows.map((x) => x.name).join(', ')})`);
-  if (!menu.rows.some((x) => x.name.startsWith('Alignment'))) problems.push(`${label}: the ⋮ menu lacks Alignment`);
+  if (!menu.rows.some((x) => x.name === 'Align left'))
+    problems.push(`${label}: the ⋮ menu's alignment row does not read just "Align left" (${menu.rows.map((x) => x.name)})`);
   if (!menu.kept) problems.push(`${label}: the ⋮ took the cursor out of the text`);
   await page.keyboard.press('Escape');
   if (await page.locator('[role=menu][aria-label="More"]').count()) problems.push(`${label}: Escape did not close the ⋮ menu`);
