@@ -23,8 +23,18 @@ const types = {
 
 /** Serves the built site in `dist`; gives the server and its address. */
 export async function serveBuilt(dist) {
+  // The front page's and the blog page's own addresses are shown at / and /blog/, as the site's Worker does (worker/index.js shownAt).
+  const standard = (() => {
+    try {
+      const pages = JSON.parse(readFileSync(join(ROOT, 'src/data/standard-pages.json'), 'utf8'));
+      return { [pages.front]: '/', [pages.blog]: '/blog/' };
+    } catch {
+      return {};
+    }
+  })();
   const server = createServer((req, res) => {
-    let path = join(dist, decodeURIComponent(new URL(req.url, 'http://x').pathname));
+    const asked = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+    let path = join(dist, standard[asked] ?? asked);
     if (existsSync(path) && statSync(path).isDirectory()) path = join(path, 'index.html');
     if (!existsSync(path)) return res.writeHead(404).end();
     res.writeHead(200, { 'content-type': types[extname(path)] ?? 'application/octet-stream' }).end(readFileSync(path));
