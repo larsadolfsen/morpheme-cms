@@ -102,6 +102,8 @@ export type Field = {
   /** select: the options side by side in a bar, the chosen one raised (SegmentedButton in ui.tsx), for two or
    * three short ones. */
   segments?: boolean;
+  /** Only with `segments`: choosing the chosen segment again clears the field (no segment chosen; M3's single-select allows unselecting). */
+  deselect?: boolean;
   /** select: the options as cards side by side, each with its icon over its name, the chosen one marked (ChoiceCards in
    * ui.tsx): a page's template. */
   cards?: boolean;
