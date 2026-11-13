@@ -494,11 +494,11 @@
   --mo-on-primary: var(--section-accent);
   --mo-surface-dim: color-mix(in srgb, var(--section-on-accent) 18%, transparent);
   --mo-surface-bright: var(--section-accent);
-  --mo-surface-container-lowest: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
-  --mo-surface-container-low: color-mix(in srgb, var(--section-on-accent) 12%, transparent);
-  --mo-surface-container: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
-  --mo-surface-container-high: color-mix(in srgb, var(--section-on-accent) 18%, transparent);
-  --mo-surface-container-highest: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
+  --mo-surface-container-lowest: color-mix(in srgb, var(--section-on-accent) 6%, transparent);
+  --mo-surface-container-low: color-mix(in srgb, var(--section-on-accent) 8%, transparent);
+  --mo-surface-container: color-mix(in srgb, var(--section-on-accent) 10%, transparent);
+  --mo-surface-container-high: color-mix(in srgb, var(--section-on-accent) 12%, transparent);
+  --mo-surface-container-highest: color-mix(in srgb, var(--section-on-accent) 14%, transparent);
   --mo-secondary: var(--section-on-accent);
   --mo-on-secondary: var(--section-accent);
   --mo-secondary-container: var(--section-container, color-mix(in srgb, var(--section-on-accent) 22%, transparent));
