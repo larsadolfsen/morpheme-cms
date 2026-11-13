@@ -3,13 +3,16 @@
 // `entriesOf`. Depends on frontmatter.mjs.
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { waitingOf } from './pageVersions.mjs';
+import { isOver } from '../lib/notice.mjs';
 
 /** @typedef {{ path: string; collection: string; title: string; status: 'published' | 'draft' | 'scheduled'; publishAt: string | undefined; date: string | undefined; waiting?: { publishAt?: string } }} Entry */
 
 /** What `status` in the front matter says a page or post is, as the lists show it (Library.tsx).
  * @param {unknown} status
  * @returns {Entry['status']} */
-const statusOf = (status) => (status === 'draft' || status === 'scheduled' ? status : 'published');
+// A stored `scheduled` whose time has passed is published (lib/status.mjs stateOf).
+const statusOf = (status, publishAt) =>
+  status === 'draft' ? status : status === 'scheduled' && !isOver(String(publishAt ?? '')) ? status : 'published';
 
 /** @param {unknown} value @returns {string | undefined} */
 const textOf = (value) => (value === undefined || value === null || value === '' ? undefined : String(value));
@@ -30,7 +33,7 @@ export function entriesOf(files, collections) {
         path: file.path,
         collection: collection.id,
         title: String(d.title ?? file.path),
-        status: statusOf(d.status),
+        status: statusOf(d.status, d.publishAt),
         publishAt: textOf(d.publishAt),
         date: textOf(d.date),
       },
