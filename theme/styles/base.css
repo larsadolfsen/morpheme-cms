@@ -42,6 +42,43 @@
   (colorPairs in @site/colors). Everything here uses them by name.
 */
 :root {
+  /* M3's spacing scale (m3.material.io/m3/pages/spacing: "The spacing system is measured on an 8dp scale, where space100 = 8dp"):
+     Space 0, 25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 400, 450, 500, 600, 700, 800 and 900 are 0, 2, 4, 6, 8, 10, 12, 14, 16, 20,
+     24, 32, 36, 40, 48, 56, 64 and 72 dp. A theme sets their values; a part reads them by name. */
+  --mo-space-0: 0px;
+  --mo-space-25: 2px;
+  --mo-space-50: 4px;
+  --mo-space-75: 6px;
+  --mo-space-100: 8px;
+  --mo-space-125: 10px;
+  --mo-space-150: 12px;
+  --mo-space-175: 14px;
+  --mo-space-200: 16px;
+  --mo-space-250: 20px;
+  --mo-space-300: 24px;
+  --mo-space-400: 32px;
+  --mo-space-450: 36px;
+  --mo-space-500: 40px;
+  --mo-space-600: 48px;
+  --mo-space-700: 56px;
+  --mo-space-800: 64px;
+  --mo-space-900: 72px;
+
+  /* Density (m3.material.io/foundations/layout/grids-spacing/density: "The density scale is numbered, starting at 0 for a component's
+     default density", "Higher density is typically applied by decreasing the top and bottom padding or overall height by 4dp").
+     Two steps add up: the theme's own (--mo-density-base, a theme sets it: 0 is Medium, 1 Large, -1 Small, down to -3) and the
+     person's (--mo-density-user, set only by the editor through data-density on <html>; a site has none, so it is 0 there).
+     A part writes its size as calc(<default> + var(--mo-density) * var(--mo-density-step)), so at 0 it is the default.
+     Which one a part reads depends on its group: --mo-density for data-heavy parts (lists, tables: -3 to 1), --mo-density-layout for
+     layout and controls (-1 to 1), --mo-density-focus for focused single-task parts (menus, dialogs: never denser than Medium, 0 to 1).
+     Only height and vertical padding follow it, never the text size or the horizontal padding. */
+  --mo-density-base: 0;
+  --mo-density-user: 0;
+  --mo-density-step: 4px;
+  --mo-density: clamp(-3, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
+  --mo-density-layout: clamp(-1, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
+  --mo-density-focus: clamp(0, calc(var(--mo-density-base) + var(--mo-density-user)), 1);
+
   /* M3's full corner (a pill or a circle): the fallback for a theme that does not set the corner steps (global.css sets all ten). */
   --mo-shape-full: 9999px;
   --radius: 0.75rem;
@@ -78,6 +115,15 @@
   --carousel-bleed: 1.25rem;
   /* The same for a chip set that scrolls (ui.css). */
   --chip-set-bleed: 1.25rem;
+}
+
+/* The editor's Density setting (Large, Medium, Small) as the person's step. A site never sets the attribute. A box that must not follow it
+   re-declares --mo-density-user and the three derived variables above, which are computed where they are declared. */
+:root[data-density='1'] {
+  --mo-density-user: 1;
+}
+:root[data-density='-1'] {
+  --mo-density-user: -1;
 }
 @layer fallback {
   :root {
