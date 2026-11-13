@@ -82,7 +82,7 @@ so the theme's `Toolbar` is our own build of the design.
 ## 3. The bar
 
 Decided by the owner: the bar never scrolls sideways ("No scroll in the menu" read as: the bar does not scroll; what does not fit goes
-in the `⋮` drop-down, and the `⋮` holds tools). Whether the `⋮` list may scroll when it is long was not decided: question 2.
+in the `⋮` drop-down, and the `⋮` holds tools). Whether the `⋮` list may scroll when it is long was decided: yes, it may scroll (section 3).
 
 ```
 PHONE 375 px (room: 343 dp = 375 minus two 16 dp edges; 7 hit areas of 44 dp = 308 dp, 35 dp left for the divider and gaps)
@@ -161,7 +161,7 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
   **The keyboard is usually open** when the `⋮` is used in text (the bar's buttons keep the cursor, so the keyboard stays), so the realistic cases
   are the second and fourth rows: the Text list does not fit and must scroll, in portrait after 6 rows. The pop-up is placed inside the
   visible screen (`visualViewport`, the bar is at the top so it opens downward into the room above the keyboard), with `max-height` set to the room,
-  not to the theme's `calc(100dvh - 2rem)`. **Recommendation on scrolling (question 2):** yes, let it scroll. The theme's `.menu` already has
+  not to the theme's `calc(100dvh - 2rem)`. **Decided by the owner: yes, the pop-up may scroll when it does not fit.** The theme's `.menu` already has
   `overflow-y: auto`. M3 says "Menus can scroll when all menu items can't display at once. In this state, menus show a persistent scrollbar."
   The theme sets no scrollbar rule on `.menu`, so on a phone the browser's overlay scrollbar hides when idle: not a persistent one. To meet M3,
   the editor's menu sets `scrollbar-width: thin` and `scrollbar-gutter: stable` (a desktop browser then keeps it visible; a phone's overlay
@@ -176,8 +176,8 @@ COMPUTER 1280 px (everything fits, so ⋮ holds only the block's Hide, Move, Rem
 - **Entering a context** (the cursor goes into text, or a block or row becomes active): the contextual tools slide in from the left
   and the main tools are pushed to the right and out of view (section 4); the tools that do not fit are then in `⋮`, and Undo stays at
   its place after the divider. **Leaving it:** the same movement the other way. **Changing from one context to another** is not a slide: the
-  contextual tools change in place with the theme's fade (`--motion-effects`); question 4.
-- **Wide screens** (my recommendation, question 3): when the contextual and main tools both fit, nothing is pushed out of sight: the
+  contextual tools change in place with the theme's fade (`--motion-effects`); question 3.
+- **Wide screens** (my recommendation, question 2): when the contextual and main tools both fit, nothing is pushed out of sight: the
   contextual tools slide in at the left, the main tools shift right only as far as the room needs and stay visible, with the divider
   between, and no `⋮` for tools (only the block's Hide, Move, Remove). When they do not fit (a narrow window) it behaves as on a phone.
 - **Sticky.** The bar stays at the top while the text scrolls, as the main toolbar does today (M3: "Docked toolbars can either
@@ -359,7 +359,7 @@ density choice of PR #518; they are fixed as below. Checked against M3 (Playwrig
 
 1. **Fixed high density for the bar, the `⋮` list and the formatting menus.** They read their own density tokens (set to step -2 in the
    editor's CSS), not the user's density setting, and not the theme's default. A theme can still restyle them through the same tokens.
-2. **Step -2, not -3 (my proposal, owner decides the step: question 5).** M3: each step takes 4 dp off the height ("Higher density is
+2. **Step -2, not -3 (my proposal, owner decides the step: question 4).** M3: each step takes 4 dp off the height ("Higher density is
    typically applied by decreasing the top and bottom padding or overall height by 4dp"). The bar is 48 dp tall at step 0 in this spec
    (the button height, no extra padding; the height the theme's `Toolbar` draws today I have not measured, its docked padding is a
    token, to be measured in step 1). **-2 makes the bar 40 dp tall, -3 makes it 36 dp.** A 24 dp icon in 40 dp leaves 8 dp above and
@@ -404,6 +404,7 @@ timer. The exact lists are in section 3.
   Anatomy) and "For most platforms, consider making touch targets at least 48 x 48dp." (foundations/structure). **We do:** 44 × 44 dp on mouse
   and touch, only for the editor's bar, its `⋮` and the rows of its menu or sheet; everything else stays on 48. **Why:** owner's decision, 13
   November, following Apple's Human Interface Guidelines ("a button needs a hit region of at least 44x44 pt"). Date 2026-11-13.
+- *Overlay scrollbar of the `⋮` pop-up on a phone.* **M3 says:** "Menus can scroll when all menu items can't display at once. In this state, menus show a persistent scrollbar." (menus/guidelines, Scrolling.) **We do:** `scrollbar-width: thin` and `scrollbar-gutter: stable` on the editor's menu, so a persistent scrollbar shows where the browser allows it (a computer); on a phone the browser's overlay scrollbar hides when idle and cannot be forced, so there we do not match; the cue is a half-cut last row. **Why:** the platform. Date 2026-11-13. M3 also says "Don't use gaps in scrollable menus": the `⋮` menu uses dividers only.
 - Not a deviation: the tooltip with a shortcut. M3's plain tooltip "briefly describe[s] a UI element" and says nothing for or against a
   shortcut; menu items may carry "keyboard commands" as trailing text.
 
@@ -435,22 +436,18 @@ when idle. M3: "In this state, menus show a persistent scrollbar." So it does **
 
 Decided by the owner: one bar, no second row; the contextual tools slide in from the left, push the main tools right and out, and
 roll back; a divider between them; the main part is Insert, Undo, Redo, Section settings; text tools always show with the cursor in
-text; the bar and its menus are fixed at high density, outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools); on a phone the `⋮` is a pop-up menu, not a bottom sheet; the editor's bar and menus use a 44 × 44 dp hit area and are fixed at high density; no sticky
+text; the bar and its menus are fixed at high density, outside the user's density choice (section 8); the bar never scrolls and what does not fit is in `⋮` (the `⋮` holds tools); on a phone the `⋮` is a pop-up menu, not a bottom sheet; the editor's bar and menus use a 44 × 44 dp hit area and are fixed at high density; the `⋮` pop-up may scroll when it does not fit, with a persistent scrollbar where the platform allows, dividers (no gaps) in it, the most used rows first and a half-cut last row as the cue on a phone; no sticky
 question (one bar stays at the top).
 
 1. **Which main tools stay on the bar on a phone while a context is active?** With 44 dp hit areas there are 7 slots, so there is room for
    two. Recommendation: **Undo and Redo** (they are a pair, and an editor needs both at hand), with 4 contextual tools and `⋮` (Insert and
    Section settings in `⋮`). Options: Undo only (one more contextual tool on the bar, Redo in `⋮`), or none (all in `⋮`). This changed from my
    earlier recommendation of Undo only, which was for 6 slots.
-2. **May the `⋮` pop-up scroll when it does not fit?** (Section 3 has the heights with and without the keyboard.) Recommendation: yes: the
-   Text list does not fit with the keyboard open (6 rows show of 8 in portrait), the theme's `Menu` already scrolls, and the editor's menu
-   gets `scrollbar-width: thin` and `scrollbar-gutter: stable` so M3's "persistent scrollbar" holds where the browser allows it; a half-cut last row is
-   the cue on a phone. The other choice is a shorter list with no scroll (move Colour and Lists to a second pop-up).
-3. **On a wide screen, are the main tools pushed out of sight too, or do both groups stay visible; and when idle, are the main tools
+2. **On a wide screen, are the main tools pushed out of sight too, or do both groups stay visible; and when idle, are the main tools
    at the left edge or centred as today?** Recommendation: both stay visible when they fit, and the main tools stand at the left edge when
    idle, so the slide-in from the left reads as a push.
-4. **Two small behaviours.** (a) Moving from one context to another (text to a Table, Table to Cards): a fade in place, not another slide
+3. **Two small behaviours.** (a) Moving from one context to another (text to a Table, Table to Cards): a fade in place, not another slide
    (recommendation), so the bar is calm while you click around. (b) When focus goes to the page header, a sheet or another screen: the bar
    rolls back at once, but not while a sheet that the bar opened (More, Settings) is open (recommendation).
-5. **Which density step for the bar and menus: -2 (40 dp tall, recommended) or -3 (36 dp)?** M3 has both; each takes 4 dp off the height. With
+4. **Which density step for the bar and menus: -2 (40 dp tall, recommended) or -3 (36 dp)?** M3 has both; each takes 4 dp off the height. With
    -2 a 24 dp icon keeps 8 dp of air above and below; with -3, 6 dp. The hit areas are 44 dp either way.
