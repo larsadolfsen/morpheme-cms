@@ -174,6 +174,12 @@ What the M3 pages say (read on 2026-11-13 with Chromium):
 - Component Specs pages: target size 48dp for the segmented button, the radio button, the checkbox and the switch; "Min 48dp" for a
   chip's close icon; "Target size must be at least 48x48dp" for a list item; "Extra small and small icon buttons must have a target
   size of 48x48dp or larger" (buttons and icon buttons). The text field's page gives a 56dp target.
+- **Desktop, plainly.** The only desktop (pointer) number M3 gives is the 44 x 44dp above, on the "Designing" > "Structure" page. I also
+  read the other pages under Foundations > Designing (overview, color contrast, flow, elements), Building for all, Layout overview and
+  Interaction (inputs, selection, states, gestures): none gives another target size or a desktop density rule. The inputs page
+  (m3.material.io/foundations/interaction/inputs) covers mouse and cursor behaviour, with no sizes. The structure page's own figure
+  caption says "Touch target on both: 48dp", while its text says 44 for pointers; I quote both and do not pick between them. A page
+  titled "Accessibility basics" does not exist at the address I tried (404), and I found no other accessibility page that has sizes.
 - **A width rule: I could not find one.** The owner remembers that a target may be smaller than 48 on mobile when it has a certain
   width. In every page above I found no such exception: only 48 for touch, 44 for a pointer, and 8dp between targets. It may be on a page
   I did not open (for example a component's own page); I will not guess it. The owner or the PM can point me to the page.
@@ -185,6 +191,9 @@ What the spec does with it:
   two targets would overlap, the gap grows to keep them at least 8 dp apart.
 - **Mouse** (`pointer: fine`): M3 names 44 × 44 dp as the minimum. The spec uses **44** (it was 32 in the first draft, which was
   ours and not M3's).
+- **How it fits the steps.** The steps change the picture only: height and vertical padding, by 4dp, down to -3 (12dp). The target
+  stays 48 on touch and 44 for a mouse at every step. A part that is already near the target (a 40dp button at -1 is 36dp) keeps the
+  rest of the target as invisible hit area, so no step ever shrinks a target.
 - The density setting's own rows are always at the default size.
 
 ### 2.4 The site's front end
