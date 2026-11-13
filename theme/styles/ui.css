@@ -302,6 +302,8 @@
   letter-spacing: var(--type-title-large-tracking);
 }
 @utility type-lead {
+  /* The space of a lead paragraph in a text (.prose, base.css): 24px, on the 4dp grid. */
+  --prose-space: 1.5rem;
   font-size: var(--type-lead-size);
   line-height: var(--type-lead-line-height);
   font-weight: var(--type-lead-weight);
