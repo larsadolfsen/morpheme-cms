@@ -215,6 +215,11 @@
   --tw-prose-links: var(--section-on);
   --tw-prose-bullets: var(--section-on);
   --tw-prose-counters: var(--section-on);
+  --tw-prose-code: var(--section-on);
+  --tw-prose-quotes: var(--section-on);
+  --tw-prose-quote-borders: var(--section-on);
+  --tw-prose-captions: var(--section-on);
+  --tw-prose-hr: var(--section-on);
   --section-accent: var(--section-fill);
   --section-on-accent: var(--section-on);
   background: var(--section-fill);
