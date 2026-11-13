@@ -299,8 +299,7 @@ async function checkUnlistedPost() {
   await page.waitForSelector('main a.list-item-container');
   const row = page.locator('main a.list-item-container').filter({ hasText: 'A post only for those with the link' });
   if (!(await row.count())) return problems.push('hidden post: the posts list has no row for the post that is not on the blog');
-  if (!(await row.first().innerText()).includes('Hidden'))
-    problems.push('hidden post: the posts list does not say "Hidden" on its row');
+  if (!(await row.first().innerText()).includes('Hidden')) problems.push('hidden post: the posts list does not say "Hidden" on its row');
   await page.close();
 }
 
