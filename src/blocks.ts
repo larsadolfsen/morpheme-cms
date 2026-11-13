@@ -96,6 +96,8 @@ export type InlineSpec = {
   blockMedia?: string[];
   /** Instead of `link`: the fields the link slot opens (a card's page and buttons). */
   settings?: string[];
+  /** `false`: the toolbar has no Link action; the block's own view opens the item's settings (Segmented: at the bottom of the row). */
+  barLink?: boolean;
   /** The most items it can have (a price list has four): no Add above, Add below or Add item past it. */
   max?: number;
   /** The block has settings of its own besides its items (a card's type and colour): its menu keeps Edit. A function says it by the

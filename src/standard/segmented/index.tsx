@@ -26,6 +26,7 @@ export default defineBlock({
     media: ['icon', 'iconColor'],
     settings: ['href', 'buttons'],
     blockSettings: true,
+    barLink: false,
     texts: {
       addAbove: t.blocks.segmented.addAbove,
       addBelow: t.blocks.segmented.addBelow,
