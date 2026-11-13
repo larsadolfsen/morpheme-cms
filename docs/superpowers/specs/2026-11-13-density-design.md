@@ -36,9 +36,9 @@ icon buttons; github.com/material-components/material-web.
 - **material-web has no density tokens.** Its roadmap lists "Density and spacing tokens" as work not done. Its component tokens
   (for example `--md-filled-button-container-height`) are one fixed height each.
 
-**The names.** The page's text names no steps. Its demo picture (an "Appearance settings" panel next to a mail list) has a
+**The names.** The page's text names no steps. Its demo image (an "Appearance settings" panel next to a mail list) has a
 Density menu with three choices and an icon of lines each. In the frame I rendered, the labels read Cozy, Comfortable and Compact
-(Compact selected). The owner's phone screenshot of the same page shows Large, Medium (standard, selected) and Small. The picture
+(Compact selected). The owner's phone screenshot of the same page shows Large, Medium (standard, selected) and Small. The image
 may show different words in different frames or versions; I could not see Large / Medium / Small myself. The owner's screenshot
 decides: the product uses **Large, Medium, Small**. M3's numbers are the sizes behind them.
 
@@ -50,7 +50,7 @@ decides: the product uses **Large, Medium, Small**. M3's numbers are the sizes b
 | Medium | 0 | the default, today's look exactly |
 | Small | -1 | M3 step -1: 4dp less |
 
-M3's steps -2 and -3 stay in the mechanism (a theme may use them) but the editor does not offer them: the owner's picture has three
+M3's steps -2 and -3 stay in the mechanism (a theme may use them) but the editor does not offer them: the owner's image has three
 choices.
 
 ## 2. The design
@@ -101,7 +101,7 @@ rows, the navigation parts' targets.
 
 ### 2.3 The 48dp rule
 
-On a touch screen (`pointer: coarse`) every tappable part keeps a 48 × 48 dp target at every step. The picture shrinks; an invisible
+On a touch screen (`pointer: coarse`) every tappable part keeps a 48 × 48 dp target at every step. The image shrinks; an invisible
 hit area (a `::after` of 48 dp) keeps the target. Where two small targets would then overlap, the gap between them grows back to
 keep them apart. The existing 48 dp icon button (`docs/material-deviations.md`, CSS sweep 4) already does this.
 
