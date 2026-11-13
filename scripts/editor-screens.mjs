@@ -536,6 +536,59 @@ async function checkSelection() {
   }
 }
 
+/** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
+async function checkDensity(width, height) {
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density: ${e.message}`));
+  await openEditor(page, site);
+  const read = (attr, base) =>
+    page.evaluate(
+      ([attr, base]) => {
+        const root = document.documentElement;
+        if (attr === null) root.removeAttribute('data-density');
+        else root.setAttribute('data-density', attr);
+        root.style.setProperty('--mo-density-base', base);
+        const probe = document.createElement('div');
+        probe.style.height = 'calc(52px + var(--mo-density) * var(--mo-density-step))';
+        document.body.append(probe);
+        const style = getComputedStyle(root);
+        const got = {
+          all: style.getPropertyValue('--mo-density').trim(),
+          layout: style.getPropertyValue('--mo-density-layout').trim(),
+          focus: style.getPropertyValue('--mo-density-focus').trim(),
+          row: probe.getBoundingClientRect().height,
+          space: style.getPropertyValue('--mo-space-100').trim(),
+        };
+        probe.remove();
+        root.removeAttribute('data-density');
+        root.style.removeProperty('--mo-density-base');
+        return got;
+      },
+      [attr, base],
+    );
+  // [data-density, the theme's step, the three variables (data-heavy, layout, focused), a 52px row]
+  const cases = [
+    [null, '0', [0, 0, 0], 52],
+    ['0', '0', [0, 0, 0], 52],
+    ['1', '0', [1, 1, 1], 56],
+    ['-1', '0', [-1, -1, 0], 48],
+    ['-1', '-1', [-2, -1, 0], 44],
+    ['-1', '-3', [-3, -1, 0], 40],
+    ['1', '1', [1, 1, 1], 56],
+    [null, '-1', [-1, -1, 0], 48],
+  ];
+  for (const [attr, base, [all, layout, focus], row] of cases) {
+    const got = await read(attr, base);
+    const want = `${all}/${layout}/${focus}/${row}`;
+    const have = `${got.all}/${got.layout}/${got.focus}/${got.row}`;
+    if (have !== want || got.space !== '8px')
+      problems.push(
+        `${width}px density: data-density ${attr}, theme step ${base}: expected ${want} (data-heavy/layout/focused/row), got ${have}, space-100 ${got.space}`,
+      );
+  }
+  await page.close();
+}
+
 /** On a phone, a tap on the hint under a page's only heading (Type text, or tap Insert …) puts the cursor in an empty paragraph after it. */
 async function checkEmptyHint() {
   const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -3991,6 +4044,8 @@ for (const [width, height] of [
 await checkFooterTargets(true);
 await checkFooterTargets(false);
 await checkToolbarBox();
+await checkDensity(375, 740);
+await checkDensity(1280, 900);
 await checkPreviewSection();
 await checkFullSection();
 await checkH1SectionGap();
