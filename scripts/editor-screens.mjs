@@ -536,6 +536,66 @@ async function checkSelection() {
   }
 }
 
+/** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
+async function checkDensity(width, height) {
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density: ${e.message}`));
+  await openEditor(page, site);
+  const read = (attr, base) =>
+    page.evaluate(
+      ([attr, base]) => {
+        const root = document.documentElement;
+        if (attr === null) root.removeAttribute('data-density');
+        else root.setAttribute('data-density', attr);
+        root.style.setProperty('--mo-density-base', base);
+        const probe = document.createElement('div');
+        probe.style.height = 'calc(52px + var(--mo-density) * var(--mo-density-step))';
+        document.body.append(probe);
+        const style = getComputedStyle(root);
+        // A variable's text is not resolved (clamp(…)): a margin of 1px per step is, and may be negative.
+        const step = (name) => {
+          probe.style.marginLeft = `calc(var(${name}) * 1px)`;
+          return parseFloat(getComputedStyle(probe).marginLeft);
+        };
+        const got = {
+          all: step('--mo-density'),
+          layout: step('--mo-density-layout'),
+          focus: step('--mo-density-focus'),
+          row: 0,
+          space: style.getPropertyValue('--mo-space-100').trim(),
+        };
+        probe.style.marginLeft = '';
+        got.row = probe.getBoundingClientRect().height;
+        probe.remove();
+        root.removeAttribute('data-density');
+        root.style.removeProperty('--mo-density-base');
+        return got;
+      },
+      [attr, base],
+    );
+  // [data-density, the theme's step, the three variables (data-heavy, layout, focused), a 52px row]
+  const cases = [
+    [null, '0', [0, 0, 0], 52],
+    ['0', '0', [0, 0, 0], 52],
+    ['1', '0', [1, 1, 1], 56],
+    ['-1', '0', [-1, -1, 0], 48],
+    ['-1', '-1', [-2, -1, 0], 44],
+    ['-1', '-3', [-3, -1, 0], 40],
+    ['1', '1', [1, 1, 1], 56],
+    [null, '-1', [-1, -1, 0], 48],
+  ];
+  for (const [attr, base, [all, layout, focus], row] of cases) {
+    const got = await read(attr, base);
+    const want = `${all}/${layout}/${focus}/${row}`;
+    const have = `${got.all}/${got.layout}/${got.focus}/${got.row}`;
+    if (have !== want || got.space !== '8px')
+      problems.push(
+        `${width}px density: data-density ${attr}, theme step ${base}: expected ${want} (data-heavy/layout/focused/row), got ${have}, space-100 ${got.space}`,
+      );
+  }
+  await page.close();
+}
+
 /** On a phone, a tap on the hint under a page's only heading (Type text, or tap Insert …) puts the cursor in an empty paragraph after it. */
 async function checkEmptyHint() {
   const page = await browser.newPage({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -2891,6 +2951,70 @@ const ratioOf = `
       return (Math.max(lum(front), lum(back)) + 0.05) / (Math.min(lum(front), lum(back)) + 0.05);
     };`;
 
+/** A section on an image (no colour): the text, the placeholder, the icons and the arrow of a list row typed in place are the theme's colour for text on an image, as on the site, and read on the image's scrim (4.5:1 for text, 3:1 for an icon), on a dark and on a bright photo, light and dark mode, on a phone and a computer. The contrast is taken against the scrim as drawn (the shade over the photo's average colour at the height of the part), so a part drawn in the page's own colours instead (dark on the dark scrim) fails. */
+async function checkSectionOnImage() {
+  const path = 'src/content/pages/about.md';
+  const list =
+    '<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;List heading&quot;,&quot;text&quot;:&quot;Hej&quot;,&quot;href&quot;:&quot;/about/&quot;}]}"></div>';
+  const photos = { dark: '/images/uploads/2026/10/moon.webp', bright: '/images/uploads/2026/10/earth-from-space.webp' };
+  for (const [photo, image] of Object.entries(photos))
+    for (const scheme of ['light', 'dark'])
+      for (const width of [375, 1280]) {
+        const label = `${width}px ${scheme} section on a ${photo} image`;
+        const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: scheme, locale: 'en-US' });
+        page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+        const text = `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<div data-section="" data-picture="${image}" data-alt="A photo"></div>\n\n## Her kommer indhold\n\nBody text.\n\n${list}\n\n## Plain\n\nPlain.\n`;
+        await openEditor(page, site, { [path]: text });
+        await page.goto(`${site}/editor/#${path}`);
+        await page.waitForSelector('.ProseMirror > [data-section-picture]', { timeout: 30_000 });
+        await page.addStyleTag({ content: '*, *::before, *::after { transition: none !important; }' });
+        // The list row is the active one: the row typed in place, with its icon and arrow.
+        await page
+          .click('.site-block-inline [data-field="title"]')
+          .catch(() => problems.push(`${label}: the list row cannot be typed in place`));
+        await page.mouse.move(0, 0);
+        await page.waitForFunction((src) => document.querySelector('.editor-section-picture img')?.complete, image);
+        const got = await page.evaluate(`(() => { ${ratioOf}
+          const strip = document.querySelector('.editor-section-picture');
+          const img = strip.querySelector('img');
+          const c = document.createElement('canvas'); c.width = c.height = 1;
+          const g = c.getContext('2d'); g.drawImage(img, 0, 0, 1, 1);
+          const photo = [...g.getImageData(0, 0, 1, 1).data.slice(0, 3)];
+          const shade = pixel(getComputedStyle(strip).backgroundColor, 'rgb(0,0,0)');
+          const box = strip.getBoundingClientRect();
+          const lumOf = lum;
+          const contrast = (el, css) => {
+            const r = el.getBoundingClientRect();
+            const up = 1 - Math.min(1, Math.max(0, (r.top + r.height / 2 - box.top) / box.height));
+            // The scrim runs from 85% at the bottom to 55% at 70% up and 40% at the top (editor.css, as blocks.css).
+            const a = up <= 0.7 ? 0.85 + (0.55 - 0.85) * (up / 0.7) : 0.55 + (0.4 - 0.55) * ((up - 0.7) / 0.3);
+            const back = photo.map((v, i) => Math.round(v * (1 - a) + shade[i] * a));
+            const front = pixel(css, 'rgb(' + back + ')');
+            return (Math.max(lumOf(front), lumOf(back)) + 0.05) / (Math.min(lumOf(front), lumOf(back)) + 0.05);
+          };
+          const row = document.querySelector('.inline-list-row-active');
+          const parts = {
+            heading: document.querySelector('.ProseMirror > h2'),
+            body: document.querySelector('.ProseMirror > h2 + p'),
+            rowTitle: row.querySelector('[data-field="title"]'),
+            rowText: row.querySelector('[data-field="text"]'),
+            icon: row.querySelector('.inline-list-slot'),
+            chevron: row.querySelector('.list-item-trailing'),
+          };
+          const out = {};
+          for (const [name, el] of Object.entries(parts)) if (el) out[name] = contrast(el, getComputedStyle(el).color);
+          const ph = row.querySelector('[data-field="title"]');
+          out.placeholder = contrast(ph, getComputedStyle(ph, '::placeholder').color);
+          out.outline = contrast(row, getComputedStyle(row).outlineColor);
+          return out; })()`);
+        for (const [part, ratio] of Object.entries(got)) {
+          const min = ['icon', 'chevron', 'outline'].includes(part) ? 3 : 4.5;
+          if (ratio < min) problems.push(`${label}: the ${part} has contrast ${ratio.toFixed(2)}:1 on the scrim, below ${min}`);
+        }
+        await page.close();
+      }
+}
+
 /** A list row's heading is the same colour as the section's heading and text, on every section colour, light and dark, on a phone and a computer; its icon and arrow too (and the supporting text on a coloured section; on Surface it is the quieter, as the section's other secondary text). */
 async function checkListRowColors() {
   for (const scheme of ['light', 'dark']) {
@@ -3973,6 +4097,7 @@ for (const [w, h] of [
   await checkSegmentedArrow(w, h);
 for (const block of liveLists) for (const w of [375, 1280]) await checkLiveList(w, w < 600 ? 740 : 900, block);
 await checkListRowColors();
+await checkSectionOnImage();
 await checkInsertNeverOpensSheet(375, 740);
 await checkEmptyRow(375, 740);
 await checkInsertNeverOpensSheet(1280, 900);
@@ -4022,6 +4147,8 @@ for (const [width, height] of [
 await checkFooterTargets(true);
 await checkFooterTargets(false);
 await checkToolbarBox();
+await checkDensity(375, 740);
+await checkDensity(1280, 900);
 await checkPreviewSection();
 await checkFullSection();
 await checkH1SectionGap();

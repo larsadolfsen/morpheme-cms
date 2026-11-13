@@ -325,16 +325,26 @@
   background: transparent;
 }
 
+/* The page's own colours, kept before a section's parts swap them (the site keeps them on the section itself, blocks.css; here the parts
+   are the swapped nodes, so they are kept one level up). A part on an image reads them, never its own swapped --block-… (that would
+   point at itself and every colour of the part would be lost: the text then falls back to the page's, dark on the dark scrim). */
+.editor-text .ProseMirror {
+  --section-text: var(--block-text);
+  --section-surface: var(--block-surface);
+  --section-picture-fill: var(--block-hero-shade, var(--block-text));
+  --section-picture-on-fill: var(--block-hero-on-shade, var(--block-surface));
+}
+
 .editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) {
-  --tw-prose-body: var(--block-hero-on-shade, var(--block-surface));
-  --tw-prose-headings: var(--block-hero-on-shade, var(--block-surface));
-  --tw-prose-bold: var(--block-hero-on-shade, var(--block-surface));
-  --tw-prose-links: var(--block-hero-on-shade, var(--block-surface));
-  --tw-prose-bullets: var(--block-hero-on-shade, var(--block-surface));
-  --tw-prose-counters: var(--block-hero-on-shade, var(--block-surface));
-  --section-accent: var(--block-hero-shade, var(--block-text));
-  --section-on-accent: var(--block-hero-on-shade, var(--block-surface));
-  color: var(--block-hero-on-shade, var(--block-surface));
+  --tw-prose-body: var(--section-picture-on-fill);
+  --tw-prose-headings: var(--section-picture-on-fill);
+  --tw-prose-bold: var(--section-picture-on-fill);
+  --tw-prose-links: var(--section-picture-on-fill);
+  --tw-prose-bullets: var(--section-picture-on-fill);
+  --tw-prose-counters: var(--section-picture-on-fill);
+  --section-accent: var(--section-picture-fill);
+  --section-on-accent: var(--section-picture-on-fill);
+  color: var(--section-picture-on-fill);
 }
 
 .editor-text .ProseMirror > [data-section-picture][data-section-width='full'] {
