@@ -75,8 +75,9 @@ so the theme's `Toolbar` is our own build of the design.
    (the bar stays with the text). Why: it belongs to the text box; the bottom is the keyboard and the save bar.
 3. *Contextual tools slide in and push the main tools out.* M3: no such behaviour is described. We: the contextual tools slide in
    from the leading side and push the main tools out of view; they slide back when the context is left. Why: owner's decision.
-4. *Scroll instead of an overflow menu.* M3: "put them in an overflow menu in the trailing slot". We: the bar scrolls sideways
-   on a phone. Why: owner's choice, 13 November.
+4. *Scroll for the pushed-out main tools* (and, if the owner keeps "scroll only", for every tool that does not fit). M3: "put them in an
+   overflow menu in the trailing slot". We: the bar scrolls sideways on a phone; with the recommended option the contextual tools use
+   the overflow menu and only the main tools are reached by scrolling. Why: owner's choice, 13 November.
 5. *Bar height 48 dp, not 64 dp.* M3 allows shorter "if vertical space is limited". We: 48 dp on every screen size. Why: it
    sits over the text; a phone is short.
 
@@ -131,23 +132,72 @@ COMPUTER 1280 px (both fit, nothing is pushed out of sight):
   and timers). iOS Safari can pan the page when the keyboard opens and a sticky top bar then slides away: if the device check
   shows this, a tiny listener sets one CSS variable from `visualViewport.offsetTop` (no timer, applied in the event). This needs a
   check on a real phone before the work is closed.
-- **375 px.** The first six contextual tools of Text (Bold, Italic, Link, Heading, Text size, Alignment) are visible at 48 dp each
-  = 288 dp of the 343 dp (16 dp edges); a part of the seventh shows at the edge as the hint that there is more (our version of M3
-  tabs' "Offset the first scrollable tab 52dp from the leading edge so it's clear that more content is available"). The Table's
-  seven tools are 336 dp: all of them in the strip, the last one cut by the edge.
+- **375 px** (with the recommended overflow, question 1). Text: Bold, Italic, Link, Heading, Text size and `⋮` (Alignment, Lists,
+  Colour) are 6 × 48 = 288 dp of the 343 dp (16 dp edges); the divider and the start of the main tools show at the edge as the hint
+  that there is more (our version of M3 tabs' "Offset the first scrollable tab 52dp from the leading edge so it's clear that more
+  content is available"). Table: row above, row below, column before, column after, Settings, `⋮` (Delete row, Delete column, Hide, Move,
+  Remove) = 6 buttons. With "scroll only" the first six text tools show and the Table's seven are 336 dp, the last one cut by the edge.
 - **Focus order and names.** One Tab stop for the bar, arrow keys inside (the theme's `Toolbar`, M3: "Tab or Arrows"), moving
   through the contextual group, the divider (skipped) and the main group. Each group is `role="group"` with its name (the
   block's name, "Table" or "Cards", or "Text tools"; and "Page tools" for the main tools). The divider is a separator. Every button
   keeps its `aria-label` and `title`; toggles keep `aria-pressed`. Escape returns the focus to the cursor. A tap on the bar never
   takes the cursor (mouse and touch down are cancelled, as `press()` does today).
 - **Block pop-up.** The card menu `.site-block-menu` (Edit, Hide, Move, Remove) and the block's `⋮` become buttons at the end of the
-  contextual group, before the divider. Where Remove or Hide have no room on a phone they are reached by scrolling.
+  contextual group, before the divider. On a phone they sit in the `⋮` menu (after a divider); on a wide screen `⋮` keeps only them.
 
-**Why not tabs or a menu (the owner's question, answered).** Tabs "organize groups of related content" and M3 says "Avoid using more
-than four tabs at once"; the active context here changes by itself with the selection, while a tab is chosen by the user; the
-Toolbars pages say nothing about tabs in a toolbar; and tabs add a row, which the owner has now removed. An overflow menu is
-M3's text for toolbars but costs a tap and hides the pressed state of a tool such as Bold. Scrolling, with the main tools reachable
-by scroll, is the owner's choice and uses only the `Toolbar` part.
+### What M3 says about drop-downs and overflow (read 13 November 2026, Playwright)
+
+Owner: "If Material Design 3 wants drop-downs, I guess we need to implement that as well." Pages: `/components/toolbars/guidelines`,
+`/components/menus/` overview and guidelines, `/components/top-app-bar/guidelines` (the page `/app-bars/guidelines` gives the same text),
+`/components/icon-buttons/guidelines`.
+
+- **Toolbar, when tools do not fit:** "If there's not enough space for all items, put them in an overflow menu in the trailing
+  slot. As the breakpoint expands, more actions can be revealed." And: "Actions at the trailing edge of the toolbar can collapse into
+  an overflow menu at smaller breakpoints, and become visible again at larger sizes." (toolbars/guidelines, Adaptive design.) For a floating
+  toolbar: "If more actions are needed, use an overflow menu." For a docked toolbar the page says "Be cautious of including too many
+  controls" and gives no scroll behaviour. So yes: M3 wants an overflow menu, at the trailing end, for what does not fit, and shown
+  directly again on a wider screen.
+- **What a menu is for:** "Use a menu to show a temporary set of actions. To show actions on screen at all times, use a toolbar
+  instead." Menus are used for "Overflow menus, Text field dropdown menus, Select menus, Context menus." (menus/guidelines.) M3
+  calls dropdown and exposed dropdown "menu" now: "they differ only in the element which opens the menu surface" (overview).
+- **On a phone:** "Consider adapting menus into bottom sheets on small screens. They have more space to display additional items
+  and longer labels." On medium and larger windows "menus are most effective as they appear in context". (Adaptive design.)
+- **Items:** "When a menu item can only be used under specific conditions, it should appear disabled rather than be removed."
+  Items can be grouped "by adding a divider". "Targets should be 48x48dp or larger." "Don't add buttons, switches, or other direct
+  actions into the menu item." Menus "can open instantly" in dense products; on desktop menus use an enter and exit transition otherwise.
+- **App bars:** "If the product has many actions, place those in a toolbar. Avoid placing an overflow menu in the app bar when
+  possible." (top-app-bar/guidelines.) That is about the top app bar, not the toolbar, but it shows M3 prefers a toolbar of
+  many actions over a menu in the bar.
+
+**Not read:** the pictures of the menus, and any M3 text that says which actions to put in an overflow menu: it gives no rule for
+that, only "the most essential actions" (floating toolbar, "Choose the most essential actions to show on screen by default"). So
+which tools go in the menu is our choice.
+
+**Is there a drop-down part to reuse?** Yes, no new part is needed. The theme has `Menu` and `MenuItem` (`theme/ui/Menu.tsx`, with
+groups, dividers, `checked`, `disabled`, submenus) and `DropdownMenu` (a button that opens a menu on the site, `dropdownMenu.script.ts`). The editor
+already opens a `Menu` from a toolbar button (the alignment and text-style menus in `MarkdownEditor.tsx`) and has a bottom sheet
+for *More* (`moreSheet`). On a phone a menu becomes that bottom sheet (M3: "adapting menus into bottom sheets").
+
+**Three ways, with the one-bar decision kept (main tools, contextual tools sliding in from the left, divider):**
+
+| | Scroll only (current) | Scroll + overflow drop-down (recommended) | Drop-down only |
+| --- | --- | --- | --- |
+| What shows on a phone | all contextual tools in the strip; the pushed-out main tools by scrolling | the most used contextual tools, then a trailing `⋮`; the pushed-out main tools by scrolling | the same, and the main tools too go in a menu |
+| Tools behind the `⋮` | none | Text: Alignment, Lists, Colour (the existing *More* sheet). Blocks: the less used actions (Table: Delete row, Delete column), then a divider, then Hide, Move, Remove | everything past six |
+| Taps to a hidden tool | a swipe + 1 | 2 (open `⋮`, pick) | 2 |
+| M3 | deviation (no scroll in a toolbar) | follows "overflow menu in the trailing slot"; the scroll is only for the main tools the push moved out (owner's design) | follows it fully, but drops the main tools from view, against "main tools pushed right, reached by scrolling" |
+| Wide screens | all shown | all shown directly; `⋮` keeps only Hide, Move, Remove ("become visible again at larger sizes") | same |
+
+**Recommendation: scroll + overflow drop-down.** The contextual group stays short and fits on screen on a phone (Text: Bold,
+Italic, Link, Heading, Text size, then `⋮` = 6 buttons = 288 dp of the 343 dp; Table: row above, row below, column before, column
+after, Settings, `⋮` = 6 buttons), which is what M3 asks and keeps the pressed state of Bold visible. The owner's "scroll" then does
+the job it was chosen for: reaching the main tools the push has moved out, and any bar too long for a narrow window. On a wide
+screen every tool shows directly, and `⋮` keeps only the block's Hide, Move and Remove. The cost: a hidden tool is two taps, and
+the Table's Delete is inside the menu on a phone (Undo takes it back).
+
+**Why not tabs (the owner's earlier question).** Tabs "organize groups of related content" and M3 says "Avoid using more than four
+tabs at once"; the active context here changes by itself with the selection, while a tab is chosen by the user; the Toolbars pages
+say nothing about tabs in a toolbar; and tabs add a row, which the owner has now removed.
 
 ## 4. Remove the delay, and the motion
 
@@ -196,7 +246,7 @@ The main part is short, so on a phone it fits on screen when idle, and on a wide
 ## 6. What moves where, by block
 
 The contextual part follows the selection. "Row" = the active row or item of a repeating block. `⋮` = the block's own menu (Hide,
-Move, Remove). Actions are today's, from the inline spec; this spec only moves them. On a phone every row scrolls.
+Move, Remove). Actions are today's, from the inline spec; this spec only moves them. The tools in the table are the ones shown at 1280 px; on a phone, with the recommended overflow (question 1), the last ones sit behind `⋮`.
 
 | Block | Contextual tools |
 | --- | --- |
@@ -251,16 +301,19 @@ Move, Remove). Actions are today's, from the inline spec; this spec only moves t
 
 Decided by the owner: one bar, no second row; the contextual tools slide in from the left, push the main tools right and out, and
 roll back; a divider between them; the main part is Insert, Undo, Redo, Section settings; text tools always show with the cursor in
-text; phone: the bar scrolls; no sticky question (one bar stays at the top).
+text; no sticky question (one bar stays at the top). Reopened by the owner, now question 1: how tools that do not fit on a phone are handled (the "scroll" answer holds until then).
 
-1. **On a wide screen, are the main tools pushed out of sight too, or do both groups stay visible?** My recommendation: both stay
+1. **Tools that do not fit on a phone: scroll only, scroll + overflow drop-down, or drop-down only?** M3 says put them in an
+   overflow menu in the trailing slot (section 3). Recommendation: scroll + overflow drop-down. The contextual tools stay short with a
+   trailing `⋮` (a bottom sheet or menu from the existing parts) and scrolling reaches the main tools the push moved out.
+2. **On a wide screen, are the main tools pushed out of sight too, or do both groups stay visible?** My recommendation: both stay
    visible when they fit (the push only moves the main tools as far as needed), because nothing needs hiding when there is room.
    The other option: the same push as on a phone, so the main tools disappear on a computer too.
-2. **When idle, are the main tools at the left edge or centred as today?** Recommendation: at the left edge, so the slide-in from
+3. **When idle, are the main tools at the left edge or centred as today?** Recommendation: at the left edge, so the slide-in from
    the left reads as a push. (M3: "In medium breakpoints and larger ... centering all elements" is allowed, not required.)
-3. **Moving from one context to another (text to a Table, Table to Cards): slide again, or change in place with a fade?**
+4. **Moving from one context to another (text to a Table, Table to Cards): slide again, or change in place with a fade?**
    Recommendation: a fade in place; the slide only on entering or leaving, so the bar is calm while you click around.
-4. **When you tap the page header, a sheet or another screen, how fast does the bar roll back?** Recommendation: at once when the focus
+5. **When you tap the page header, a sheet or another screen, how fast does the bar roll back?** Recommendation: at once when the focus
    goes elsewhere, but not while a sheet that the bar opened (More, Settings) is open.
-5. **A half-visible tool at the edge of the phone bar as the hint that there is more, and a fade on the cut edge?** Recommendation:
-   yes (section 3); the alternative is no hint.
+6. **On the phone bar, should the start of the main tools show at the right edge (and the cut edge fade) as the hint that there is
+   more to scroll to?** Recommendation: yes (section 3); the alternative is no hint.
