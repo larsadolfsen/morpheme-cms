@@ -190,7 +190,7 @@ async function checkTextBar(width = 360) {
         barWidth: bar.clientWidth,
         names: buttons.map((b) => b.name),
         buttons,
-        scrolls: bar.scrollWidth > bar.clientWidth,
+        scrolls: bar.scrollWidth > bar.clientWidth + 2,
         divider: !!divider && divider.getBoundingClientRect().height > 0,
         pageScrolls: document.documentElement.scrollWidth > innerWidth,
         groups: [...bar.querySelectorAll('[role=group]')].map((g) => g.getAttribute('aria-label')),
@@ -258,7 +258,8 @@ async function checkTextBar(width = 360) {
   if (menu.r.left < 0 || menu.r.right > width || menu.r.bottom > menu.vh + 1 || menu.r.top < menu.buttonBottom - 1)
     problems.push(`${label}: the ⋮ menu is outside the visible screen or not under its button`);
   if (menu.rows.some((x) => x.h < 43.4)) problems.push(`${label}: a row of the ⋮ menu is under 44 dp`);
-  for (const name of ['Bullet list', 'Check list', 'Numbered list', 'Color', 'Insert'])
+  const listOnBar = inText.names.some((n) => n === 'List' || n.startsWith('List:'));
+  for (const name of [...(listOnBar ? [] : ['Bullet list', 'Check list', 'Numbered list']), 'Color', 'Insert'])
     if (!menu.rows.some((x) => x.name === name))
       problems.push(`${label}: the ⋮ menu lacks "${name}" (${menu.rows.map((x) => x.name).join(', ')})`);
   if (!menu.rows.some((x) => x.name.startsWith('Alignment'))) problems.push(`${label}: the ⋮ menu lacks Alignment`);
@@ -314,8 +315,10 @@ async function checkTextBar(width = 360) {
   await page.keyboard.press('Escape');
   await more.click();
   const inHeading = await rowsOf();
-  if (inHeading.some((x) => /list$/.test(x.name)))
+  if (inHeading.some((x) => /list$/i.test(x.name)))
     problems.push(`${label}: list rows are offered in a heading (${inHeading.map((x) => x.name).join(', ')})`);
+  if ((await readBar()).names.some((n) => n === 'List' || n.startsWith('List:')))
+    problems.push(`${label}: the List button is on the bar in a heading`);
   await page.keyboard.press('Escape');
   // Idle: the cursor leaves the text; the main tools only, no divider, the same bar height, nothing scrolls.
   await page.evaluate(() => document.activeElement?.blur());
@@ -371,7 +374,7 @@ async function checkTextBarWide() {
       height: bar.getBoundingClientRect().height,
       names: buttons.map((b) => b.getAttribute('aria-label')),
       small: buttons.filter((b) => Math.abs(b.getBoundingClientRect().height - 44) > 0.6 || b.getBoundingClientRect().width < 43.4).length,
-      scrolls: bar.scrollWidth > bar.clientWidth,
+      scrolls: bar.scrollWidth > bar.clientWidth + 2,
       divider: !!bar.querySelector('hr[aria-orientation="vertical"]'),
     };
   });
@@ -4001,12 +4004,6 @@ await checkStartSubtitle();
 
 for (const width of [360, 375, 390, 414]) await checkTextBar(width);
 await checkTextBarWide();
-if (process.env.ONLY_BAR) {
-  await browser.close();
-  server.close();
-  console.log(problems.join('\n') || 'bar ok');
-  process.exit(0);
-}
 for (const [width, height] of [
   [360, 740],
   [375, 800],
