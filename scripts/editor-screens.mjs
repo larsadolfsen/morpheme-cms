@@ -416,6 +416,71 @@ async function checkPreviewSection() {
   await page.close();
 }
 
+/** A full-width section has the whole width only as its background: on the built site and in the Preview, its content has the same left edge as the page's text, inside the centred container, at 840, 1200 and 1600, and nothing overflows sideways at 375. */
+async function checkFullSection() {
+  const path = 'src/content/pages/about.md';
+  if (!existsSync(join(ROOT, path))) return;
+  const text = readFileSync(join(ROOT, path), 'utf8').replace(
+    /(\n)(## [^\n]+)/,
+    '$1<div data-section="tertiary" data-width="full"></div>\n\n$2',
+  );
+  const measure = () => {
+    const box = (e) => (e ? e.getBoundingClientRect() : null);
+    const section = document.querySelector('section.text-section-full');
+    const column = box(document.querySelector('[data-editor="text"]'));
+    const [h2, p] = [section?.querySelector('h2'), section?.querySelector('p')].map(box);
+    const intro = box(document.querySelector('[data-editor="text"] > p'));
+    return { width: innerWidth, scroll: document.documentElement.scrollWidth, section: box(section), column, h2, p, intro };
+  };
+  const verify = (label, m) => {
+    if (!m.section) return problems.push(`${label}: there is no full-width section`);
+    if (m.scroll > m.width) problems.push(`${label}: the page scrolls sideways (${m.scroll} > ${m.width})`);
+    if (Math.abs(m.section.left) > 0.5 || Math.abs(m.section.right - m.width) > 0.5)
+      problems.push(`${label}: the background does not reach both edges (${m.section.left}-${m.section.right})`);
+    for (const [name, b] of [
+      ['heading', m.h2],
+      ['text', m.p],
+    ])
+      if (Math.abs(b.left - m.column.left) > 0.5)
+        problems.push(`${label}: the section's ${name} starts at ${b.left}, not at the page text's ${m.column.left}`);
+    // The column is centred in the window, and a section's lines are shorter than the column (66ch) while the column is wider.
+    if (Math.abs(m.column.left - (m.width - m.column.right)) > 1) problems.push(`${label}: the page column is not centred`);
+    if (m.width > 600 && m.p.width >= m.column.width - 1)
+      problems.push(`${label}: the section's text runs the whole column (${Math.round(m.p.width)}px)`);
+  };
+  const page = await browser.newPage({ viewport: { width: 1700, height: 1000 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`Full section: ${e.message}`));
+  await openEditor(page, site, { [path]: text });
+  await page.goto(`${site}/editor/#${path}`);
+  await page.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
+  await page.getByRole('button', { name: 'Preview' }).first().click();
+  await page.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const slider = page.locator('dialog[open] [role="slider"]').first();
+  const width = async () => Number(await slider.getAttribute('aria-valuenow'));
+  for (const w of [840, 1200, 1600]) {
+    await slider.focus();
+    await page.keyboard.press('Home');
+    while ((await width()) < w) await page.keyboard.press('Shift+ArrowRight');
+    while ((await width()) > w) await page.keyboard.press('ArrowLeft');
+    await page.waitForTimeout(500);
+    const frame = page.frames().find((f) => f !== page.mainFrame());
+    await frame.waitForSelector('section.text-section-full', { timeout: 30_000 });
+    verify(`${w}px Preview full section`, await frame.evaluate(measure));
+  }
+  await page.close();
+  // On a phone the Preview is as wide as the screen: the section's background is the window, and nothing scrolls sideways.
+  const phone = await browser.newPage({ viewport: { width: 375, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  await openEditor(phone, site, { [path]: text });
+  await phone.goto(`${site}/editor/#${path}`);
+  await phone.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 30_000 });
+  await phone.getByRole('button', { name: 'Preview' }).first().click();
+  await phone.waitForFunction(() => document.querySelector('dialog[open] iframe'), null, { timeout: 30_000 });
+  const small = phone.frames().find((f) => f !== phone.mainFrame());
+  await small.waitForSelector('section.text-section-full', { timeout: 30_000 });
+  verify('375px Preview full section', await small.evaluate(measure));
+  await phone.close();
+}
+
 /** The Preview of a draft page (not on the site, so its own address answers 404) opens without an error text, and its bar of window sizes keeps its bar of window sizes inside the screen, scrolling, and apart from the caption, at phone widths. */
 async function checkPreviewDraft(width) {
   const label = `${width}px draft Preview`;
@@ -2419,6 +2484,7 @@ for (const [width, height] of [
   await checkFoldRows(width, height);
 await checkToolbarBox();
 await checkPreviewSection();
+await checkFullSection();
 for (const w of [375, 1280]) await checkListMarkers(w);
 for (const w of [360, 375, 390, 414]) await checkPreviewDraft(w);
 
