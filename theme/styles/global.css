@@ -504,6 +504,14 @@
   --mo-on-tertiary-container: var(--section-on-accent);
   --mo-primary-container: color-mix(in srgb, var(--section-on-accent) 22%, transparent);
   --mo-on-primary-container: var(--section-on-accent);
+  /* The elevation levels' colours (ui.css, resolved at :root) are the surface containers: declared again here, so an elevated
+     card, button, chip or sheet in the section takes the section's own containers, not the page's (white on near-white). */
+  --mo-elevation-0-color: var(--mo-surface);
+  --mo-elevation-1-color: var(--mo-surface-container-low);
+  --mo-elevation-2-color: var(--mo-surface-container);
+  --mo-elevation-3-color: var(--mo-surface-container-high);
+  --mo-elevation-4-color: var(--mo-surface-container-highest);
+  --mo-elevation-5-color: var(--mo-surface-container-highest);
   --block-shadow: none;
   --panel-shadow: none;
 }

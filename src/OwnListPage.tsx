@@ -1,6 +1,6 @@
 // The page of a list the owner made (`#list/<id>`, docs/superpowers/plans/2026-11-12-new-list.md, batch 4): the List typed in place
 // (InlineList.tsx), not a new design: its rows are the entries of the list, one file each. The rows, the active row, the keys and the
-// toolbar are the List block's (InlineItems.tsx, inlineBar.ts); what is new here is only what a node view gave them: the state, the
+// toolbar are the List block's (InlineItems.tsx, contextualMenu.ts); what is new here is only what a node view gave them: the state, the
 // row-to-file saving (lib/ownListSave.mjs, saved a moment after typing stops, as one commit) and the sheet of a row's icon and link.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Screen from './Screen';
@@ -8,7 +8,7 @@ import OwnListSheet from './OwnListSheet';
 import { DotsThreeVertical, PencilSimple, Trash } from '@phosphor-icons/react';
 import InlineList, { type Row } from './InlineList';
 import type { Change, Focus, Item } from './InlineItems';
-import { inlineBar, type BarAction } from './inlineBar';
+import { contextualMenu, type BarAction } from './contextualMenu';
 import { useBlockDialog, type RowSpec } from './BlockDialog';
 import { siteBlocks } from './registry';
 import { atLeastNow, IconButton, Menu, MenuItem } from './ui';
@@ -198,8 +198,8 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
     asker.row(settingsOf(i, slot), true);
   };
 
-  // The floating toolbar (inlineBar.ts), over the list: the row actions; the menu of a block has no place here.
-  const bar = useRef<ReturnType<typeof inlineBar> | undefined>(undefined);
+  // The contextual menu (contextualMenu.ts), over the list: the row actions; the menu of a block has no place here.
+  const bar = useRef<ReturnType<typeof contextualMenu> | undefined>(undefined);
   const rowActions = (): BarAction[] => {
     const { items: list, active: i } = now.current;
     if (i === null || i >= list.length || isEmptyRow(list[i])) return [];
@@ -214,13 +214,13 @@ export default function OwnListPage({ collection, files, env }: { collection: Ow
   const latest = useRef(rowActions);
   latest.current = rowActions;
   useEffect(() => {
-    const made = inlineBar({
+    const made = contextualMenu({
       name: collection.label,
       dom: host.current!,
       rowActions: () => latest.current(),
       edit: () => now.current.active !== null && openRow(now.current.active, 'link'),
       compact: () => !atLeastNow('expanded'),
-      labels: { row: t.blocks.list.row, edit: t.common.edit },
+      labels: { edit: t.common.edit },
     });
     made.block.hidden = true;
     bar.current = made;
