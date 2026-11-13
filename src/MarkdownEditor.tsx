@@ -1348,25 +1348,25 @@ function blockCard(
       const list = saved.length ? saved : [['']];
       const [r, c] = [active, col ?? 0];
       const width = list[0]?.length ?? 1;
-      const saved = node.attrs.props.align;
-      const go = (cells: string[][], row: number, column: number, align: unknown = saved) =>
+      const own = node.attrs.props.align;
+      const go = (cells: string[][], row: number, column: number, align: unknown = own) =>
         change({ items: cells as unknown as Row[], props: { align }, active: row, col: column, focus: { row, field: String(column) } });
       // The alignment of the column of the active cell (`null`: automatic, by the cells); it stays in step as columns are added and deleted.
-      const chosen = c < width ? chosenAlign(saved, width)[c] : null;
+      const chosen = c < width ? chosenAlign(own, width)[c] : null;
       const aligned = (value: 'left' | 'center' | 'right' | null, kind: BarAction['kind'], label: string): BarAction => ({
         kind,
         label,
         pressed: chosen === value,
-        action: () => go(list, r, c, withAlign(saved, width, c, value)),
+        action: () => go(list, r, c, withAlign(own, width, c, value)),
       });
       return [
         { kind: 'above', label: spec!.texts.addAbove, action: () => go(addRowAt(list, r), r, c) },
         { kind: 'below', label: spec!.texts.addBelow, action: () => go(addRowAt(list, r + 1), r + 1, c) },
-        { kind: 'column-before', label: g.addColumnBefore, action: () => go(addColumnAt(list, c), r, c, alignAddedAt(saved, width, c)) },
+        { kind: 'column-before', label: g.addColumnBefore, action: () => go(addColumnAt(list, c), r, c, alignAddedAt(own, width, c)) },
         {
           kind: 'column-after',
           label: g.addColumnAfter,
-          action: () => go(addColumnAt(list, c + 1), r, c + 1, alignAddedAt(saved, width, c + 1)),
+          action: () => go(addColumnAt(list, c + 1), r, c + 1, alignAddedAt(own, width, c + 1)),
         },
         ...(list.length > 1 && r < list.length
           ? [{ kind: 'delete' as const, label: g.deleteRow, action: () => go(removeRowAt(list, r), Math.min(r, list.length - 2), c) }]
@@ -1376,7 +1376,7 @@ function blockCard(
               {
                 kind: 'delete' as const,
                 label: g.deleteColumn,
-                action: () => go(removeColumnAt(list, c), r, Math.min(c, width - 2), alignRemovedAt(saved, width, c)),
+                action: () => go(removeColumnAt(list, c), r, Math.min(c, width - 2), alignRemovedAt(own, width, c)),
               },
             ]
           : []),
