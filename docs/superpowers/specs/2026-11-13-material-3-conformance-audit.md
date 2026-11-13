@@ -11,9 +11,9 @@ Date: 2026-11-13 (second pass the same day). Audit only: no product code changed
 
 ## 1. Does it follow Material 3?
 
-Mostly yes. Checked against the M3 pages and equal: all 15 type roles (size, line height, weight, tracking); the 10-step corner scale (0, 4, 8, 12, 16, 20, 28, 32, 48, full); the 8% hover, 10% focus and 10% press state layers; FAB (56, 80, 96 with 24, 28, 36 icons) and extended FAB (56, 80, 96, padding 16, 26, 28); switch, checkbox, radio and chip (32 high, 18 icon); the menu (item 44, icons 20); the list (rows 56, 72, 88, icons 20 as the Expressive spec says, padding 10, 16, gap 12, 2 between segments); navigation bar (64, indicator 56 by 32), rail (96, expanded from 220), drawer (360); the slider (track 16, handle 4 by 44); tabs (48 and 64); split button inner corners; the Standard springs. **No live element has a corner outside the scale.** The Table block matches Material 2's numbers (header 56, row 52, padding 16, medium-weight header).
+Mostly yes. Checked against the M3 pages and equal: all 15 type roles (size, line height, weight, tracking); the 10-step corner scale (0, 4, 8, 12, 16, 20, 28, 32, 48, full); the 8% hover, 10% focus and 10% press state layers; FAB (56, 80, 96 with 24, 28, 36 icons) and extended FAB (56, 80, 96, padding 16, 26, 28); switch, checkbox, radio and chip (32 high, 18 icon); the menu (item 44, icons 20); the list (rows 56, 72, 88, icons 20 as the Expressive spec says, padding 10, 16, gap 12, 2 between segments); navigation bar (64, indicator 56 by 32), rail (96, expanded from 220), drawer (360); the slider (track 16, handle 4 by 44); tabs (48 and 64); split button inner corners; the Standard springs. **No live element has a corner outside the scale.** The Table block keeps Material 2's structure (header 56, row 52, padding 16) with Material 3's look (corner, header fill, divider, hover, type), as the owner decided.
 
-What differs: **31 findings** (23 in the parts and the table, 8 in the words): 24 small, 5 medium, 2 large. **1 is already recorded** in `docs/material-deviations.md` (icon button 48) and 2 partly; **1 entry there is out of date** (colour sweep 12, shadows). The biggest are: buttons are not Material's sizes (the default is 40 high with 24 padding; M3's Medium is 56, and its Small has 16), loose Tailwind text sizes instead of the type roles (about 130 places), disabled parts faded at 35 to 60%, text field icons 20 where M3 says 24, hand-written animation timings, tap targets under 44, and some English texts. Contrast is fine: 6,378 pairs checked, 0 fail.
+What differs: **28 findings** (20 in the parts, 8 in the words): 21 small, 5 medium, 2 large. **1 is already recorded** in `docs/material-deviations.md` (icon button 48) and 2 partly; **1 entry there is out of date** (colour sweep 12, shadows). The biggest are: buttons are not Material's sizes (the default is 40 high with 24 padding; M3's Medium is 56, and its Small has 16), loose Tailwind text sizes instead of the type roles (about 130 places), disabled parts faded at 35 to 60%, text field icons 20 where M3 says 24, hand-written animation timings, tap targets under 44, and some English texts. Contrast is fine: 6,378 pairs checked, 0 fail.
 
 ## 2. Every difference
 
@@ -88,17 +88,24 @@ Equal and not listed: 70 uses of 8%, 15 of 10%, 4 of 12% (the rest are the recor
 
 Loading and progress indicators loop by design and are exempt. The 5,000 transitions measured on the live screens otherwise use the spring variables. The Standard springs equal the page's (1400, 700, 300 at 0.9; effects 3800, 1600, 800 at 1); the Expressive ones (800/0.6, 380/0.8, 200/0.8) could not be checked.
 
-### Data tables (Material 2; `m2.material.io/components/data-tables`)
+### Data tables (structure from Material 2, look from Material 3)
 
-The Table block (`.block-table-grid`) matches Material 2 on header row 56, row 52, padding 16, body 14/20 and the medium-weight header. It differs here:
+Rule (owner, 2026-11-13): "We need to adapt it to MD3 styles." The table keeps Material 2's structure and behaviour (columns, alignment, sort, pagination, a header row, 52px rows, 56px header row, 16px side padding: `m2.material.io/components/data-tables`, which prints "The baseline row height is 52dp, and the column header row height is 56dp" and "Padding: 16dp"). Its look comes from M3 tokens. The M3 density page (`/foundations/layout/understanding-layout/density`) gives no table row height, so the 52 and the 56 come from the M2 page only. Checked on the Table block (`.block-table-grid`, measured and read in `blocks.css` 1437 to 1480):
 
-| # | Where | What we have | What Material 2 says (source) | Fix | Recorded |
-| - | ----- | ------------ | ----------------------------- | --- | -------- |
-| 21 | Corner of the table box | 12px (`--card-radius`) | "Table corner radius: 4dp" (the page) | small | no |
-| 22 | Header row | filled with a tint (`--block-tint`) | the table is one surface; a 12% on-surface divider separates the rows (the page: Container Surface, Divider 12%; `@material/data-table` `$header-row-fill-color: surface`) | small | no |
-| 23 | Row hover | 8% | 4% of on-surface (`$row-hover-fill-color: rgba(on-surface, 0.04)`) | small | no |
+| Part | What we have | M3 token it should be | Result |
+| ---- | ------------ | --------------------- | ------ |
+| Corner | 12px (`--card-radius`) | the shape scale's medium, 12dp, the card corner (`/styles/shape/corner-radius-scale`) | equal |
+| Header row fill | `--block-tint`, which is the `surface-container-high` role | a surface container | equal |
+| Dividers and outline | `--block-line`, the `outline-variant` role, 1px | outline variant | equal |
+| Row hover | `--mo-hover`, 8% | state layer, hover 8% (`/foundations/interaction/states/state-layers`) | equal |
+| Type | header 14/20/500 with 0.1 (label large), body 14/20/400 with 0.25 (body medium) | the M3 roles | equal |
+| Focus | 3px outline, 2px offset | focus indicator 3dp, offset 2dp | equal |
 
-### Words (`src/i18n/en-US/`, 2,668 strings)
+So there is **no difference** left in the Table block. (Earlier in this audit it was listed against M2's 4dp corner, tinted header and 4% hover; those are M2's own look and are replaced by the M3 ones by the owner's rule, so they are not findings.) The two rules, "structure from M2, look from M3 tokens", are the same split `docs/superpowers/specs/2026-11-13-table-md2-design.md` states (lines 17 to 19). That spec still lists the container as "4 dp corners" (line 46) and an M3 "small shape" (line 18); by this rule the corner is medium, 12dp, as built: the PM should align it.
+
+Row numbers 21 to 23 are not used (they were the Table block's, withdrawn above).
+
+### Words (`src/i18n/en-US/, 2,668 strings)
 
 | # | Where | Offender | Better (M3 word choice) | Fix |
 | - | ----- | -------- | ----------------------- | --- |
@@ -126,7 +133,7 @@ Add these (after the owner agrees), and correct entry 12 of the colour sweep.
 1. **No shadow at rest in the Material theme** (row 17): M3 gives elevated cards, menus, dialogs and the like a resting level 1 to 3; we show those by colour only, and use a shadow for the FAB, for lifting and for dragging. Why: flat, quiet pages and the section-colour rule (deviation 2).
 2. **Elevation values**: replace colour sweep 12 with: "The Material theme's shadows are Material's (checked 2026-11-13). The fallback shadows in `ui.css` are softer; used by themes that do not set their own." (or fix row 16 and delete the sentence).
 3. **Icon button 48px** (row 3): add the XS and medium sizes (36 and 60) if they are meant, with the 48px target as the reason.
-4. **Table block** (rows 21 to 23): if the owner prefers its look, record: "The Table block follows Material 2's data table for size and type, and our card look for corner, header and hover, so it sits with the cards."
+4. **Data tables:** record the rule, not a deviation: "A data table keeps Material 2's structure and behaviour (row 52, header 56, padding 16, sort, alignment, pagination) and takes its look from M3 tokens (medium corner, surface container header, outline variant dividers, 8% hover, type roles). Owner decision 2026-11-13."
 5. **Footer links 24px high** (row 6): not needed; the owner decided to make them 48px.
 6. **Settle times** (row 18): if kept, record that the springs are Material's but the duration is where the curve is 0.1% from its end, not Material's rounded 350, 500, 650.
 
@@ -139,7 +146,7 @@ Order:
 3. Rows 5, 6, 7 (field icons, tap targets): changes the layout slightly, needs the screens checked.
 4. Rows 1, 2, 3, 4 (button sizes): changes every button; decide first (question 1).
 5. Rows 8 to 12 (type): the large one; move loose Tailwind sizes to the role classes by screen.
-6. Rows 13, 16, 17, 21 to 23 and words 29, 30: decide first (questions below), then do.
+6. Rows 13, 16, 17 and words 29, 30: decide first (questions below), then do.
 
 One check: extend **`check:css-values`** (`scripts/check-css-values.mjs`). It already fails on literal corners and type values. Add three rules: (a) a `transition`, `animation` or `animation-duration` that is not a `var(--motion-*)` (allow-list for loops and the ripple); (b) an `opacity` on `:disabled` other than 0.38; (c) a color-mix percentage in a `hover` or `focus` rule other than 8, 10 or 16. Add `text-sm`, `text-xs`, `text-base`, `font-medium` and `font-semibold` to its off-scale pattern, with the existing count as the allow-list start. In `check:screens`, one more measure: the button sizes (XS, S, M, L, XL) at the heights, paddings and icons of the M3 page, from the classes, as `scripts/editor-screens.mjs` already measures other parts. A small test in `scripts/check-language.mjs`: no straight apostrophe between letters in `src/i18n/en-US/`, and no "cancelled", "deactivate", "pop-up", "dropdown". No new workflow.
 
@@ -149,6 +156,6 @@ One check: extend **`check:css-values`** (`scripts/check-css-values.mjs`). It al
 2. **Shadows at rest (row 17):** keep colour-only elevation? Recommendation: keep, record it; add a shadow only to the menu, the dialog and the snackbar, which float over the page.
 3. **Icon sizes (row 5): decided by the owner:** every icon is 24dp unless the component's own M3 page prints another size, quoted in the section "Icons" above; no split is recommended beyond what those pages print. To do: text field icons and the select's arrow to 24, the FAB menu's close icon to 20.
 4. **Footer links (row 6): decided by the owner:** 48px, implemented in its own pull request (not in this one).
-5. **Table block (rows 21 to 23):** make it exactly Material 2 (4px corner, plain header, 4% hover) or keep the card look? Recommendation: 4% hover and plain header with a divider, and keep the 12px corner so the table sits with the cards.
+5. **Table block: decided by the owner:** adapt it to MD3 styles (structure from Material 2, look from M3 tokens). Nothing is left to change in the Table block today; see "Data tables".
 6. **"Hidden" (row 27): decided by the owner.** "Hidden" stays the status name, not "Unlisted"; the search engine setting is "No index" (and "No follow" beside it). To do: (a) fix the demo's two texts to the sentence below; (b) rename the setting "Hide from search engines" to "No index", add "No follow", and update the CLAUDE.md line that calls Hidden the SEO setting (a product change, its own pull request). Proposed help text for Hidden: English "Not listed on the blog or in lists of posts. It still opens at its address; the No index setting keeps it out of Google." Danish: "Vises ikke på bloggen eller i lister over indlæg. Siden kan stadig åbnes på sin adresse; indstillingen No index holder den ude af Google." (the Danish name of the setting is not decided, so the sentence names it in English).
 7. **Full stops on hints (row 30):** none on fragments? Recommendation: yes, and the check in section 4 keeps it so.
