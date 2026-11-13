@@ -1813,6 +1813,16 @@ async function checkFoldRows(width, height) {
     if (Math.abs(arrow.y + arrow.height / 2 - centre) > 1)
       problems.push(`${width}px accordion row "${title_}": the arrow is not centred on the title`);
     if (box.height < 48) problems.push(`${width}px accordion row "${title_}": ${box.height}px tall, should be 48px or more`);
+    // The line above the title is the divider under the section before it: nothing may sit between them (a parent's `space-y` gave 24px, twice as far above the title as below it).
+    const gap = await button.evaluate((el) => {
+      const before = el.closest('section').previousElementSibling;
+      if (!before?.matches('section[aria-labelledby]')) return 0;
+      return el.closest('section').getBoundingClientRect().top - before.getBoundingClientRect().bottom;
+    });
+    if (Math.abs(gap) > 1)
+      problems.push(
+        `${width}px accordion row "${title_}": ${gap}px between the divider above and the row, so the title is farther from the line above than from the line below`,
+      );
   }
   if (!shown.length) problems.push(`${width}px accordion rows: none measured`);
   console.log(`${width}px accordion rows (above, below, height): ${JSON.stringify(shown)}`);
