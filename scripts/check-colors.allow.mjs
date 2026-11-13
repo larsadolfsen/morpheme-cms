@@ -97,13 +97,6 @@ export const allow = [
     todo: true,
   },
   {
-    kind: 'fixed-colour',
-    file: /^worker\/mcp-oauth\.js$/,
-    line: any,
-    reason: 'todo (the sign-in page of the AI connection has its own fixed palette)',
-    todo: true,
-  },
-  {
     kind: 'state-layer',
     file: /^theme\/styles\/ui\.css$/,
     line: /segmented-(hover|pressed)|tab-(hover|pressed)/,
