@@ -229,6 +229,19 @@ function dividerProblem(d, b) {
   return '';
 }
 
+/** The icons of the menus that are open (`[role=menu]`) that are not 20 x 20 px: a list of "<row>: <w> x <h>". */
+function menuIconProblems(page) {
+  return page.evaluate(() => {
+    const bad = [];
+    for (const svg of document.querySelectorAll('[role=menu] svg')) {
+      const r = svg.getBoundingClientRect();
+      if (Math.abs(r.width - 20) > 0.6 || Math.abs(r.height - 20) > 0.6)
+        bad.push(`${svg.closest('[role^=menuitem]')?.textContent.trim() ?? 'menu'}: ${r.width} x ${r.height}`);
+    }
+    return bad;
+  });
+}
+
 /** The text's one bar (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md, PR 1). On a phone, with the cursor in text: one bar, 44 dp tall, every button 44 x 44 dp, never scrolling, with the divider, Undo and Redo and the ⋮ at its end (at 360 and 375 px exactly Bold, Italic, Link, Text style, Undo, Redo, More); the ⋮ is a pop-up menu (not a sheet) inside the visible screen, with rows of 44 dp, which keeps the cursor and closes on Escape; Undo works; the bar has the same height idle (no divider then); the Text style menu has at most 8 rows of 44 dp, a page's first heading offers Main heading, a blog post Heading and Subheading, a list item no heading rows and no Quote, a heading no list rows and no Quote. On a computer all tools are on the bar and there is no ⋮. */
 async function checkTextBar(width = 360) {
   const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -334,6 +347,8 @@ async function checkTextBar(width = 360) {
       vh: visualViewport.height,
     };
   });
+  const moreIcons = await menuIconProblems(page);
+  if (moreIcons.length) problems.push(`${label}: icons in the ⋮ menu are not 20 x 20 px (${moreIcons})`);
   if (menu.sheet) problems.push(`${label}: the ⋮ is a sheet, not a pop-up menu`);
   if (menu.r.left < 0 || menu.r.right > width || menu.r.bottom > menu.vh + 1 || menu.r.top < menu.buttonBottom - 1)
     problems.push(`${label}: the ⋮ menu is outside the visible screen or not under its button`);
@@ -405,6 +420,22 @@ async function checkTextBar(width = 360) {
   if (!style.some((x) => x.name === 'Main heading') || style.some((x) => x.name === 'Subheading'))
     problems.push(`${label}: a page's first heading should offer Main heading only (${style.map((x) => x.name).join(', ')})`);
   // A divider under the headings and another between the body styles and Quote, the same divider part.
+  const styleIcons = await menuIconProblems(page);
+  if (styleIcons.length) problems.push(`${label}: icons in the Text style menu are not 20 x 20 px (${styleIcons})`);
+  // The three body styles share one icon, Aa (Material's match_case); the other rows keep theirs.
+  const rowIcons = await page.evaluate(() =>
+    Object.fromEntries(
+      [...document.querySelectorAll('[role=menu] [role^=menuitem]')].map((x) => [
+        x.textContent.trim(),
+        x.querySelector('svg')?.getAttribute('data-icon') ?? (x.querySelector('svg') ? 'other' : 'none'),
+      ]),
+    ),
+  );
+  for (const name of ['Body small', 'Body medium', 'Body large'])
+    if (rowIcons[name] !== 'match_case') problems.push(`${label}: ${name} has icon ${rowIcons[name]}, not Aa (match_case)`);
+  for (const name of ['Main heading', 'Quote'])
+    if (rowIcons[name] === 'match_case' || rowIcons[name] === 'none')
+      problems.push(`${label}: ${name} lost its own icon (${rowIcons[name]})`);
   const order = await page.evaluate(() =>
     [...document.querySelectorAll('[role=menu] > li')].map((li) => (li.classList.contains('menu-divider') ? '-' : li.textContent.trim())),
   );
@@ -616,6 +647,13 @@ async function checkTextBarWide() {
   });
   const dividerWide = dividerProblem(got.dividerBox, got.buttonBox);
   if (dividerWide) problems.push(`1280px text bar: ${dividerWide}`);
+  // Every icon in the bar's menus is 20 x 20 px: Text style, List, Alignment and Color.
+  for (const name of ['Text style', 'List', 'Alignment', 'Color']) {
+    await page.locator(`.editor-tools [aria-label^="${name}"]`).first().click();
+    const bad = await menuIconProblems(page);
+    if (bad.length) problems.push(`1280px text bar: icons in the ${name} menu are not 20 x 20 px (${bad})`);
+    await page.keyboard.press('Escape');
+  }
   const want = ['Bold', 'Italic', 'Link', 'Text style', 'List', 'Alignment', 'Color', 'Undo', 'Redo', 'Insert block'];
   for (const name of want)
     if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)))
