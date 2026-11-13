@@ -75,6 +75,16 @@ const noindex: Field = {
   hint: 'The page is not shown in Google.',
 };
 
+// A post only: kept out of the blog and every list of posts, but open at its address, in Google and in the sitemap (not
+// `noindex`, "Hide from search engines"). In the settings with the status (EntryForm.tsx; packages/editor/lib/status.mjs).
+const unlisted: Field = {
+  name: 'unlisted',
+  label: 'Hidden',
+  type: 'boolean',
+  toggle: ['On', 'Off'],
+  hint: 'Not shown on the blog or in lists of posts, but open at its address and in Google.',
+};
+
 // The text of the image at the top of a post (a page has its images in its text): "Decorative image" (drawn with alt="", screen readers skip
 // it), else its alt text.
 const topImageText: Field[] = [
@@ -377,6 +387,7 @@ export const collections: Collection[] = [
     deletable: true,
     fields: [
       ...status(),
+      unlisted,
       { name: 'title', label: 'Title', type: 'string', required: true },
       { name: 'date', label: 'Date', type: 'date', required: true },
       { name: 'path', label: 'URL', type: 'string', address: 'post' },

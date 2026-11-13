@@ -43,6 +43,8 @@ const blog = defineCollection({
     canonical: z.string().optional(),
     // Not for search engines: noindex (Base.astro) and not in the sitemap (packages/editor/astro.mjs).
     noindex: z.boolean().optional().default(false),
+    // A post kept out of the blog and every list of posts, but open at its address and in Google (lib/status.mjs isUnlisted).
+    unlisted: z.boolean().optional().default(false),
   }),
 });
 

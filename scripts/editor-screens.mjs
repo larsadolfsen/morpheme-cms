@@ -290,6 +290,19 @@ function hintContrasts(page, selector, pseudo) {
   );
 }
 
+/** A blog post that is not on the blog (`unlisted: true`, the demo's "A post only for those with the link") shows its status in the posts list, and the Status filter offers it. */
+async function checkUnlistedPost() {
+  const page = await browser.newPage({ viewport: { width: 1200, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`hidden post: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#list/blog'));
+  await page.waitForSelector('main a.list-item-container');
+  const row = page.locator('main a.list-item-container').filter({ hasText: 'A post only for those with the link' });
+  if (!(await row.count())) return problems.push('hidden post: the posts list has no row for the post that is not on the blog');
+  if (!(await row.first().innerText()).includes('Hidden')) problems.push('hidden post: the posts list does not say "Hidden" on its row');
+  await page.close();
+}
+
 /** On a phone, a press and hold on a row of the pages list selects it (and the blog's the same), and the top bar's Delete asks before it deletes; a default page (the front page) is not deleted, with the reason. */
 async function checkLongPressDelete() {
   const page = await browser.newPage({ viewport: { width: 390, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -2965,6 +2978,7 @@ for (const [width, height] of [
   await checkDraftsCard(width, height);
 await checkEmptyHint();
 await checkLongPressDelete();
+await checkUnlistedPost();
 for (const [width, height] of [
   [375, 740],
   [1280, 900],

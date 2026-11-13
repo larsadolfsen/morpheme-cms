@@ -205,6 +205,8 @@ export const library = {
   orderNotSaved: (error: string) => `Couldn’t save the order: ${error}`,
   status: {
     draft: 'Draft',
+    /** A blog post that is open at its address, in Google and in the sitemap, but not on the blog or in a list of posts. */
+    unlisted: 'Hidden',
     scheduled: 'Scheduled',
     /** "Planlagt 1. nov. kl. 8.00" (`when`, when.ts). */
     scheduledAt: (when: string) => `Scheduled ${when}`,
@@ -215,7 +217,14 @@ export const library = {
   /** The filter over the pages and posts that shows only those with one status. */
   statusFilter: 'Status',
   /** Its choices: all, and each status there is. */
-  statusShown: { unfinished: 'Drafts', all: 'All', published: 'Published', draft: 'Draft', scheduled: 'Scheduled' },
+  statusShown: {
+    unfinished: 'Drafts',
+    all: 'All',
+    published: 'Published',
+    draft: 'Draft',
+    unlisted: 'Hidden',
+    scheduled: 'Scheduled',
+  },
   sort: 'Sort',
   sorts: {
     newest: 'Newest first',
