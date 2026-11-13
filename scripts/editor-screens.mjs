@@ -1740,8 +1740,103 @@ async function checkOwnList(width, height) {
       .waitFor({ timeout: 5000 })
       .catch(() => problems.push(`${label}: Delete list was not refused while a page reads the list`));
     await page.close();
+    await checkNewList(width, height, label);
   } finally {
     rmSync(pagePath, { force: true });
+    rmSync(folder, { recursive: true, force: true });
+  }
+}
+
+/** `New list` on the Lists screen (batch 7): the button opens the dialog (name, the six fields, `Cancel` outlined, `Create` filled, no initial focus); a name that is taken is refused; `Create` makes the list, which opens, and shows under Lists and in Rows from. No horizontal overflow. */
+async function checkNewList(width, height, label) {
+  label = `${label} new`;
+  const phone = width < 600;
+  const folder = join(ROOT, 'src/data/zz-fresh-list');
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  try {
+    await openEditor(page, site);
+    const commits = [];
+    await page.route('**/api/github/commit', (r) => {
+      commits.push(JSON.parse(r.request().postData() || '{}'));
+      return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'head', blobs: {} }) });
+    });
+    await page.evaluate(() => (location.hash = '#lists'));
+    const button = page.getByRole('button', { name: 'New list' }).first();
+    await button.waitFor({ timeout: 15000 }).catch(() => problems.push(`${label}: no New list button on Lists`));
+    await button.click();
+    const dialog = page.locator('dialog[open]').filter({ hasText: 'Fields' });
+    await dialog.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: New list did not open its dialog`));
+    if ((await dialog.locator('input[type="checkbox"]').count()) !== 6) problems.push(`${label}: the dialog has not 6 field switches`);
+    const state = await page.evaluate(() => {
+      const d = document.querySelector('dialog[open]');
+      const kind = (name) =>
+        d.querySelector(`button:is([type="button"],[type="submit"])`) &&
+        [...d.querySelectorAll('button')].find((b) => b.textContent.trim() === name);
+      const cancel = kind('Cancel');
+      const create = kind('Create');
+      return {
+        focusedInside: !!d.contains(document.activeElement) && document.activeElement !== d,
+        cancelBg: cancel && getComputedStyle(cancel).backgroundColor,
+        createBg: create && getComputedStyle(create).backgroundColor,
+      };
+    });
+    if (state.focusedInside) problems.push(`${label}: the dialog puts the focus on a field or button to begin with`);
+    if (!state.cancelBg || !state.createBg) problems.push(`${label}: the dialog lacks Cancel or Create`);
+    else if (state.cancelBg === state.createBg) problems.push(`${label}: Cancel and Create look alike (${state.cancelBg})`);
+    if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
+      problems.push(`${label}: the dialog scrolls sideways`);
+    // A name that is taken ("Blog posts" folder, a collection) is refused.
+    await dialog.getByLabel('Name').fill('Categories');
+    await dialog.getByRole('button', { name: 'Create' }).click();
+    await dialog
+      .getByText('A list with this name exists. Choose another name.')
+      .waitFor({ timeout: 5000 })
+      .catch(() => problems.push(`${label}: a taken name was not refused`));
+    await dialog.getByLabel('Name').fill('ZZ Fresh list');
+    await dialog.getByRole('button', { name: 'Create' }).click();
+    await page
+      .waitForFunction(() => location.hash === '#list/zz-fresh-list', null, { timeout: 15000 })
+      .catch(() => problems.push(`${label}: Create did not open the new list (${'#' + new URL(page.url()).hash})`));
+    await page
+      .waitForSelector('.inline-list-row-next, .inline-list-row[data-row]', { timeout: 15000 })
+      .catch(() => problems.push(`${label}: the new list's page has no row`));
+    // It shows under Lists and in Rows from.
+    await page.evaluate(() => (location.hash = '#lists'));
+    await page
+      .getByText('ZZ Fresh list')
+      .first()
+      .waitFor({ timeout: 10000 })
+      .catch(() => problems.push(`${label}: the new list does not show under Lists`));
+    if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)) problems.push(`${label}: Lists scrolls sideways`);
+    const paths = commits.flatMap((c) => c.changes.map((x) => x.path));
+    if (commits.length !== 1 || !paths.some((p) => p.endsWith('src/data/zz-fresh-list/_list.json')))
+      problems.push(`${label}: Create did not commit the definition once (${commits.length} commits: ${paths})`);
+    // Rows from offers it: a list typed on a new page, its dynamic settings, the choice of lists.
+    await page.evaluate(() => (location.hash = '#new/pages'));
+    await page.waitForSelector('.ProseMirror');
+    await page.click('.ProseMirror');
+    await page.keyboard.type('Hello');
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(300);
+    if (!(await page.locator('[aria-label="Insert"]:visible').count()))
+      await page.locator('[aria-label="Show more tools"]:visible').first().tap();
+    await page.locator('[aria-label="Insert"]:visible').first().click();
+    await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+    await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+    await page.keyboard.type('Typed row');
+    await page.locator('.contextual-menu [aria-label="Fill from a list"]').click();
+    const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
+    await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
+    await panel.locator('button.text-field-input').first().click();
+    await page
+      .getByText('ZZ Fresh list', { exact: true })
+      .locator('visible=true')
+      .last()
+      .waitFor({ timeout: 5000 })
+      .catch(() => problems.push(`${label}: the new list is not offered under Rows from`));
+  } finally {
+    await page.close();
     rmSync(folder, { recursive: true, force: true });
   }
 }

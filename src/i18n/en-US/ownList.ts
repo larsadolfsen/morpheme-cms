@@ -13,6 +13,11 @@ export const ownList = {
   singular: 'Item',
   /** What a list is called in a commit message and a change. */
   list: 'list',
+  /** The button on the Lists screen, and the title of its dialog. */
+  new: 'New list',
+  make: 'Create',
+  nameNeeded: 'Give the list a name with letters or numbers.',
+  nameTaken: 'A list with this name exists. Choose another name.',
   edit: 'Edit list',
   delete: 'Delete list',
   menu: 'List menu',
