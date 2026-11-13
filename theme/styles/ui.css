@@ -302,6 +302,8 @@
   letter-spacing: var(--type-title-large-tracking);
 }
 @utility type-lead {
+  /* The space of a lead paragraph in a text (.prose, base.css): 24px, on the 4dp grid. */
+  --prose-space: 1.5rem;
   font-size: var(--type-lead-size);
   line-height: var(--type-lead-line-height);
   font-weight: var(--type-lead-weight);
@@ -2217,7 +2219,9 @@
   .card-dragged while it is dragged to another place. What is on it (its icon, heading, text, image) is the block's
   own (block-…).
     --card-radius, --card-padding   its corners and the room inside it (16px, as Material 3's)
-    --card-gap                      the room between cards (8px; the grid or list of cards sets it as its gap)
+    --card-gap                      the room between cards (8px, Material 3's at most; the grid, list or carousel of cards sets it as its gap)
+    --card-media-gap, --card-subhead-gap, --card-text-gap, --card-action-gap   inside a "Cards" card (blocks.css): the media to the
+                                    headline (16px), the headline to the subhead (4px), to the text (8px), the text to the link or buttons (16px)
     --card-hover-layer, --card-focus-layer   the state layer of a card that links, in its text's colour: pointed at 8%,
                                     focused 10% (opacity)
     --card-<kind>-surface, --card-<kind>-line, --card-<kind>-shadow   each kind's surface, its edge (a 1px line inside
