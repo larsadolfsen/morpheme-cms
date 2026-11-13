@@ -3738,7 +3738,9 @@ async function checkFooterTargets(width, touch) {
     const box = (el) => el.getBoundingClientRect().toJSON();
     const links = [...document.querySelectorAll('footer nav a')].map((a) => {
       const range = document.createRange();
-      range.selectNodeContents(a);
+      // The label's own text only (the status badge has a visually hidden text of its own).
+      const text = [...a.childNodes].find((n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+      range.selectNodeContents(text);
       return { name: a.textContent.trim(), ...box(a), labelWidth: range.getBoundingClientRect().width };
     });
     const dividers = [...document.querySelectorAll('footer nav [data-divider]')].map((d) => ({
