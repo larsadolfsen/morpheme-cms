@@ -106,6 +106,7 @@ const sectionOf = (collection: MarkdownCollection, path: string): Section => {
   const name = path.split('.')[0];
   const settings =
     STATUS.includes(name) ||
+    name === 'unlisted' ||
     (!!collection.blocks && name === 'title') ||
     collection.fields.some((f) => f.name === name && f.offered === 'templates');
   return settings
@@ -158,8 +159,8 @@ function addressNow(collection: MarkdownCollection, file: RepoFile, data: Record
 }
 
 function valuesOf(collection: MarkdownCollection, file: RepoFile): Record<string, unknown> {
-  // A stored `unlisted` is read as published with `noindex` (lib/status.mjs); the next save writes that.
-  const data = migrateStatus(readFields(splitFrontmatter(file.text).yaml));
+  // A stored `unlisted` is read as published with `noindex` on a page and `unlisted: true` on a post (lib/status.mjs); the next save writes that.
+  const data = migrateStatus(readFields(splitFrontmatter(file.text).yaml), collection.id === 'blog' ? 'post' : 'page');
   return Object.fromEntries(
     collection.fields.map((f) => {
       const v = data[f.name];
@@ -284,6 +285,15 @@ function Form({
   const was = useMemo(() => inForm(collection.fields, initial, offered), [collection, initial, offered]);
   const changed = collection.fields.filter((f) => !same(asSaved[f.name], was[f.name]));
   const dirty = bodyChanged || changed.length > 0;
+  // A stored `unlisted` (0.16) was read as `noindex` on a page and `unlisted: true` on a post (valuesOf): a save writes it, though
+  // it is not a change in the form (the status is taken from the file when it is published, clean() in lib/versions.mjs).
+  const migrated = !isNew && readFields(parts.yaml).status === 'unlisted' ? (collection.id === 'blog' ? 'unlisted' : 'noindex') : '';
+  // The fields a save writes: all those filled in for a new file, else the changed (and the migrated one).
+  const writtenOf = (saved: Record<string, unknown>) =>
+    (isNew
+      ? collection.fields.filter((f) => !same(saved[f.name], []) && f.type !== 'readonly')
+      : collection.fields.filter((f) => changed.includes(f) || f.name === migrated)
+    ).filter((f) => f.name !== 'path');
 
   const set = (name: string, value: unknown) => setValues((v) => ({ ...v, [name]: value }));
   const notify = env.notify;
@@ -420,9 +430,7 @@ function Form({
     const given = isNew ? { ...values, title: target.title } : values;
     if (problemAt(collection.fields, given)) return null;
     const saved = inForm(collection.fields, given, offered);
-    const written = (isNew ? collection.fields.filter((f) => !same(saved[f.name], []) && f.type !== 'readonly') : changed).filter(
-      (f) => f.name !== 'path',
-    );
+    const written = writtenOf(saved);
     // A new page whose address was written by hand, and is not its file name, has it as its own `path` (as `Save` writes it).
     const own = isNew && !post && target.byHand && typedAddress !== `/${target.name}/` ? { path: typedAddress } : {};
     const yaml = writeFields(isNew ? '' : parts.yaml, { ...Object.fromEntries(written.map((f) => [f.name, saved[f.name]])), ...own });
@@ -724,9 +732,7 @@ function Form({
     // A new file gets all its filled-in fields in the order of the form; an existing one only the changed. As saved:
     // the values given (a new one without a title has its name, "New page 1", named()), not only those in the form.
     const saved = inForm(collection.fields, values, offered);
-    const written = (isNew ? collection.fields.filter((f) => !same(saved[f.name], []) && f.type !== 'readonly') : changed).filter(
-      (f) => f.name !== 'path',
-    );
+    const written = writtenOf(saved);
     const own = !post && ((moved && !renaming) || (isNew && address !== `/${name}/`)) ? { path: address } : {};
     const yaml = writeFields(isNew ? '' : parts.yaml, { ...Object.fromEntries(written.map((f) => [f.name, saved[f.name]])), ...own });
     const markdown = bodyChanged ? text.current?.markdown() : null;

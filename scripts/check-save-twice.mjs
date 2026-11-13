@@ -118,6 +118,13 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     'src/content/pages/old-scheduled.md',
     '---\ntitle: "Old scheduled"\nstatus: scheduled\npublishAt: "2099-01-01T08:00"\n---\n\nText\n',
   );
+  // A post that is not on the blog (`unlisted: true`) and one stored as Hidden (`status: unlisted`, 0.16) are saved twice and published: each
+  // keeps `unlisted: true`, with no `status`, and is never refused.
+  for (const [name, front] of [
+    ['hidden-now', 'unlisted: true'],
+    ['hidden-old', 'status: unlisted'],
+  ])
+    repo.written.set(`src/content/blog/${name}.md`, `---\ntitle: "Not on the blog ${name}"\ndate: 2026-10-03\n${front}\n---\n\nText\n`);
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
   const page = await (await browser.newContext({ viewport: { width: 360, height: 740 }, deviceScaleFactor: 1 })).newPage();
   if (process.env.DEBUG_REQ) {
@@ -215,6 +222,21 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     if (/one of the choices/i.test(await toast()) || repo.answered.length === before)
       fail.push(`a page stored as Scheduled was refused on ${name}: ${(await toast()).slice(0, 120)}`);
     await closeDialog();
+  }
+
+  for (const name of ['hidden-now', 'hidden-old']) {
+    const post = `src/content/blog/${name}.md`;
+    await page.goto(`${site}/editor/#${post}`);
+    await page.waitForSelector('[contenteditable=true]', { timeout: 15_000 }).catch(() => fail.push(`${name} did not open in the editor`));
+    await type(' one');
+    await press('Save draft', `${name}: Save draft`);
+    await type(' two');
+    await press('Save draft', `${name}: Save draft again`);
+    await type(' three');
+    await press('Publish', `${name}: Publish`);
+    const saved = repo.read(post) ?? '';
+    if (!/^unlisted: true$/m.test(saved) || /^status:/m.test(saved) || !saved.includes('three'))
+      fail.push(`${name} was not saved as not on the blog: ${JSON.stringify(saved.slice(0, 200))}`);
   }
 
   // A new page, the tab hidden after a few words (the Worker makes the draft page file), then Save draft twice and Publish.

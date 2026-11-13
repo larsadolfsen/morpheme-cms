@@ -100,6 +100,7 @@ import { togglePath } from './bulkDelete.mjs';
 import { shortDate, when } from './when';
 import { isEntryPath } from '../lib/ownList.mjs';
 import { isOver, untilTime } from '../lib/notice.mjs';
+import { isUnlisted } from '../lib/status.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
 import { browserLocale, locale, localeName, locales, savedLocale, setLocale, siteLocale, siteT, siteText, t, type Locale } from './i18n';
 import { appType, EDITOR_TYPES, setDevice, setOn, useNotificationChoices } from './notificationData';
@@ -921,22 +922,25 @@ type Item = {
 };
 
 // The statuses of a page or post (`status`, packages/editor/lib/status.mjs), in the order of the choices over the list.
-type State = 'published' | 'draft' | 'scheduled';
-const STATES: State[] = ['published', 'draft', 'scheduled'];
+type State = 'published' | 'draft' | 'unlisted' | 'scheduled';
+const STATES: State[] = ['published', 'draft', 'unlisted', 'scheduled'];
 // `w`: its waiting version in src/drafts/ (pageVersions.mjs waitingOf): a draft with a time on it is Scheduled.
 type Waiting = { publishAt?: string } | undefined;
-const stateOf = (d: Record<string, unknown>, w?: Waiting): State =>
+// `post`: a blog post, the only kind that can be Not on blog (`unlisted`; on a page it is read as published, lib/status.mjs).
+const stateOf = (d: Record<string, unknown>, w?: Waiting, post = false): State =>
   d.status === 'draft'
     ? w?.publishAt
       ? 'scheduled'
       : 'draft'
     : d.status === 'scheduled' && !isOver(String(d.publishAt ?? ''))
       ? 'scheduled'
-      : 'published';
+      : post && isUnlisted(d)
+        ? 'unlisted'
+        : 'published';
 
 // What a page or post is when not simply published (`status`, packages/editor/lib/status.mjs): "Draft", "Scheduled Nov 1 at 8:00 AM", or
 // "Unpublished changes" (a published one with changes waiting in src/drafts/, `w`; "Scheduled changes Nov 1 at 8:00 AM" with a time).
-function statusOf(d: Record<string, unknown>, w?: Waiting): string | undefined {
+function statusOf(d: Record<string, unknown>, w?: Waiting, post = false): string | undefined {
   const timed = (time: unknown, text: (when: string) => string, plain: string) => {
     const at = untilTime(String(time ?? ''));
     return at === null ? plain : text(when(new Date(at)));
@@ -946,7 +950,7 @@ function statusOf(d: Record<string, unknown>, w?: Waiting): string | undefined {
   // A stored Scheduled whose time has passed is on the site (lib/status.mjs stateOf): published, with no status line.
   if (d.status === 'scheduled' && !isOver(String(d.publishAt ?? '')))
     return timed(d.publishAt, t.library.status.scheduledAt, t.library.status.scheduled);
-  if (!w) return undefined;
+  if (!w) return post && isUnlisted(d) ? t.library.status.unlisted : undefined;
   return timed(w.publishAt, t.library.status.scheduledChanges, t.library.status.unpublishedChanges);
 }
 
@@ -968,9 +972,11 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
           title: String(d.title ?? file.path),
           detail,
           date,
-          status: statusOf(d, waiting.get(file.path)),
-          state: stateOf(d, waiting.get(file.path)),
-          unfinished: stateOf(d, waiting.get(file.path)) !== 'published' || !!waiting.get(file.path),
+          status: statusOf(d, waiting.get(file.path), collection.id === 'blog'),
+          state: stateOf(d, waiting.get(file.path), collection.id === 'blog'),
+          // Not on blog is on the site, so nothing is unfinished about it.
+          unfinished:
+            !['published', 'unlisted'].includes(stateOf(d, waiting.get(file.path), collection.id === 'blog')) || !!waiting.get(file.path),
           file,
           path,
           picks: Object.fromEntries(

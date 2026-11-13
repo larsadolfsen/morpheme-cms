@@ -2,4 +2,4 @@
 '@morphemecms/cms': minor
 ---
 
-The Hidden status is gone: a hidden page or post stays published and has Hide from search engines turned on, so it now also shows on the blog and in lists
+The Hidden status is gone for pages: a hidden page stays published and has Hide from search engines turned on (a hidden post has the Not on the blog switch)

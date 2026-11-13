@@ -9,7 +9,7 @@ import { getPages, getPosts, type Page, type Post } from '@morphemecms/cms/site/
 import { standardPaths } from '@morphemecms/cms/site/standardPages';
 
 export async function getStaticPaths() {
-  const [posts, pages] = await Promise.all([getPosts(), getPages()]);
+  const [posts, pages] = await Promise.all([getPosts({ unlisted: true }), getPages()]);
   const seen = new Map<string, string>();
   const claim = (slug: string, source: string) => {
     if (seen.has(slug)) throw new Error(`URL /${slug}/ is used by both ${seen.get(slug)} and ${source}`);
