@@ -2078,6 +2078,21 @@ async function checkCardsCarousel(width, height) {
     if (m.indicator !== 'none' || m.showAll !== 'none')
       problems.push(`${label}: on a computer the dots (${m.indicator}) or "Show all" (${m.showAll}) show`);
   }
+  // A card's media (image or video still) sits flush against the card's top and sides: no padding or margin above it.
+  const flush = await page.evaluate(() =>
+    [...document.querySelectorAll('.block-card')].flatMap((card) => {
+      const media = card.querySelector('.block-card-picture, .block-card-video');
+      if (!media) return [];
+      const c = card.getBoundingClientRect();
+      const m = media.getBoundingClientRect();
+      const border = parseFloat(getComputedStyle(card).borderTopWidth);
+      const gaps = [m.top - c.top - border, m.left - c.left - border, c.right - border - m.right].map((n) => Math.round(n * 10) / 10);
+      return gaps.some((g) => Math.abs(g) > 0.5)
+        ? [`${card.querySelector('.block-card-title')?.textContent}: top, left, right gaps ${gaps}`]
+        : [];
+    }),
+  );
+  for (const f of flush) problems.push(`${label}: a card's media is not flush with the card (${f})`);
   await page.close();
 }
 
