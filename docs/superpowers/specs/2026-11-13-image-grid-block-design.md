@@ -5,16 +5,16 @@ Date: 2026-11-13. Design only, no code. Written for the owner, who reads on a ph
 Owner's words: "the image grid that we are making would also be a nice block to have, where you can sort by tags. So you can
 use it in the front end as well to show images."
 
-Words used here: a **tile** is one picture in the grid. A **tag** is a label on an image (like a post's tag). A **filter
-chip** is a small button above the grid that shows only the images with one tag. **Lightbox** means tapping a picture to see
+Words used here: a **tile** is one image in the grid. A **tag** is a label on an image (like a post's tag). A **filter
+chip** is a small button above the grid that shows only the images with one tag. **Lightbox** means tapping a image to see
 it bigger over the page.
 
 ## 1. What the block is
 
-A new standard block, **Image grid**, for the site. It shows pictures from the site's Library in the staggered grid the
-editor's Library will use (audit decision 3, spec `2026-11-13-editor-uses-theme-parts-audit.md`, row 3): each picture in its
+A new standard block, **Image grid**, for the site. It shows images from the site's Library in the staggered grid the
+editor's Library will use (audit decision 3, spec `2026-11-13-editor-uses-theme-parts-audit.md`, row 3): each image in its
 own proportions, rounded corners, a quiet tinted surface, no names or captions. Visitors can tap a tag to show only those
-pictures, and tap a picture to see it bigger.
+images, and tap a image to see it bigger.
 
 On a phone (2 columns):
 
@@ -93,19 +93,19 @@ PR 1, not a script.
 ## 5. How it behaves on the site
 
 - **Filter.** `Chip` (filter kind, selected state). First chip `All`. Tapping a selected tag chip again clears it (back to
-  `All`). One tag at a time (question 2). Chips carry `aria-pressed`. Hidden pictures get `hidden`, so they are out of the
+  `All`). One tag at a time (question 2). Chips carry `aria-pressed`. Hidden images get `hidden`, so they are out of the
   tab order and the screen reader. The count is announced politely (`aria-live`): "12 images".
-- **Lightbox.** Tap a picture: the theme's full-screen `Dialog` (audit decision 4) opens with the picture, `Previous`, `Next`
+- **Lightbox.** Tap a image: the theme's full-screen `Dialog` (audit decision 4) opens with the image, `Previous`, `Next`
   and `Close`. Keys: `Left` and `Right` move, `Escape` closes, focus is trapped and goes back to the tile. It moves only among
-  the pictures the filter shows. The picture is the 1200 px copy; alt text is read, the caption (if on) is shown under it.
+  the images the filter shows. The image is the 1200 px copy; alt text is read, the caption (if on) is shown under it.
   Without JavaScript a tile is a link to the image itself, so it still opens.
 - **Alt text.** Every tile has `alt` from the record. A decorative image has `alt=""`.
-- **Captions.** Off by default (the owner said tiles without names). When on, the caption shows under the picture in the
+- **Captions.** Off by default (the owner said tiles without names). When on, the caption shows under the image in the
   lightbox only, never on the tile, so the grid stays quiet.
-- **Pictures.** `<img>` with `srcset` and `sizes` from the manifest (the site's responsive images, same as `Img.astro`),
+- **Images.** `<img>` with `srcset` and `sizes` from the manifest (the site's responsive images, same as `Img.astro`),
   `loading="lazy"`, `decoding="async"`, and `width` and `height` of the real image, so the box is reserved and the page does
   not jump (CLS). The first row is not lazy.
-- **No JavaScript.** All pictures show in one grid and each opens as a link to the image. The filter chips are rendered
+- **No JavaScript.** All images show in one grid and each opens as a link to the image. The filter chips are rendered
   hidden and the script shows them (progressive).
 - **Script.** `theme/blocks/imagegrid/script.ts`, registered like `cards/script.ts`; it does nothing on pages without the
   block. The filter logic is a pure function in `src/standard/imagegrid/filter.mjs` (unit tested), the script only wires it.
@@ -169,6 +169,6 @@ Each pull request adds a changeset; PRs 4–6 are `minor` into `0.17`, never `ma
    simplest to understand on a phone.
 3. **What if an image has no alt text?** *Recommendation:* the editor shows a warning on the block and the Library tile, and
    the grid draws it as decorative (`alt=""`). It never invents text.
-4. **Should tapping a picture open it bigger by default?** *Recommendation:* yes, on by default; the owner can turn it off.
+4. **Should tapping a image open it bigger by default?** *Recommendation:* yes, on by default; the owner can turn it off.
 5. **How many images show at first?** *Recommendation:* 12, then a `Show more` button; the owner can choose `All`.
 6. **Do posts get the same grid later?** *Recommendation:* not now; reuse the tile part later if wanted (section 7).
