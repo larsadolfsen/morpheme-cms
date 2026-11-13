@@ -757,7 +757,8 @@ const inlineBlocks = [
   },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
   { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
-];
+  // (Only a site that has the demo's app: another site does not have the block.)
+].filter((b) => b.name !== 'tickets' || existsSync(join(ROOT, 'src/apps/inline-example')));
 
 /** The blocks that read a list of the site (Testimonials, Blog posts), typed in place: drawn as the site draws them with the demo's real items, the heading typed above. */
 const liveLists = [
