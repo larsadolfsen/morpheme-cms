@@ -127,7 +127,7 @@ sheet on insert, like the Image block.
 | `Card shows` | any of `Caption`, `Tags`, `Credit` (the image is always shown) | none: image only |
 | `Card style` | `Filled`, `Elevated`, `Outlined` | Filled |
 | `Columns` | `Auto` or `2`, `3`, `4` on a computer | Auto |
-| `Limit` | `All` or 6, 12, 24 with `Show more` | 12 |
+| `Show at most` | a number, 1 to 500; empty = the default of 100 | empty (100) |
 
 **Columns follow M3 layout:** phone (compact, under 600 dp) 2 columns, tablet (medium to expanded, 600–1199 dp) 3, computer
 (large, 1200 dp and up) 4. The gap is 8 dp on a phone and 16 dp above. Breakpoints come from `lib/breakpoints.mjs` and the
@@ -222,9 +222,33 @@ shown, so the owner's reference look stays.
 - **Captions.** Off by default (the owner said tiles without names). When `Caption` is on in `Card shows`, it shows on the
   card and also under the image in the lightbox. When off, the lightbox still shows the caption if the record has one,
   since the card stays quiet and the bigger view has room.
-- **Images.** `<img>` with `srcset` and `sizes` from the manifest (the site's responsive images, same as `Img.astro`),
-  `loading="lazy"`, `decoding="async"`, and `width` and `height` of the real image, so the box is reserved and the page does
-  not jump (CLS). The first row is not lazy.
+- **How many, and loading (owner decision).** `Show at most` is a number; left empty it means 100 (the common practice of
+  shops: show many, not few). There is no `Show more` button: the images load as the visitor scrolls. A `Show more` button
+  is kept out on purpose, because it hides images from search engines and visitors, and lazy loading already keeps the
+  page light. If the owner sets a number lower than the images there are, the rest are simply not on the page.
+  - **All images are in the HTML**, up to the limit, each an `<img>` with its real `width` and `height` from the manifest, so the
+    browser reserves each box at its own proportions before anything loads (CLS stays at 0 from the grid).
+  - **Lazy.** `loading="lazy"` and `decoding="async"` on every image except the first row. The first row (the number of
+    columns at the widest size, so the first 4) is `loading="eager"` and the very first image `fetchpriority="high"`
+    (the site's `Img.astro` already takes both). The block's view passes this by position, so it is the same HTML on
+    the server and in the editor.
+  - **Small images.** `srcset` from the existing sizes (160, 480, 800 and 1200 px wide webp, `scripts/responsive-images.mjs`)
+    and `sizes` from the real column widths (`(min-width: 75rem) 25vw, (min-width: 37.5rem) 33vw, 50vw`). A phone with two
+    columns takes the 480 px copy, a computer with four the 480 or 800 px copy, never the 1200 px original; the 1200 px copy
+    is only for the lightbox.
+  - **Long grids.** `content-visibility: auto` with `contain-intrinsic-size` from the image's own ratio on each card, so the
+    browser skips drawing cards far from the screen. No script, no IntersectionObserver: the images are already in the
+    page, so no search engine misses them. If the measurement below shows a problem, the script can later render only
+    part of the DOM; the spec does not plan it.
+  - **Filtering** only toggles `hidden`; it loads nothing new.
+- **What I could and could not verify.** *Read from the code:* the sizes above, that `Img.astro` supports `loading`,
+  `fetchpriority`, `srcset` and `sizes`, and that the build writes each image's width and height. *Not measured:* this
+  spec is written with no built grid, so there is no PageSpeed, LCP, CLS or weight number for it. A rough estimate, not a
+  measurement: 100 images at the 480 px size are in the order of a few MB if every one were fetched, but lazy loading
+  fetches only those near the screen, so the first view is the first row and a little more. The first pull request that has
+  the grid (PR 4 and 5) must measure it on the demo with 100 images: Lighthouse on a phone profile (LCP, CLS, total
+  bytes, the number of requests before scrolling) and record the numbers in that PR. If LCP is above 2.5 s or CLS above
+  0.1 on the demo, the default (100) is lowered before release.
 - **No JavaScript.** All images show in one grid and each opens as a link to the image. The filter chips are rendered
   hidden and the script shows them (progressive).
 - **Script.** `theme/blocks/imagegrid/script.ts`, registered like `cards/script.ts`; it does nothing on pages without the
@@ -287,11 +311,11 @@ Each pull request adds a changeset; PRs 4–6 are `minor` into `0.17`, never `ma
 - A test that no tile renders without `alt`, `width`, `height` and that the no-JavaScript HTML lists every image.
 - Record the grid's deviations in `docs/material-deviations.md` if any (for example the grid is not an M3 carousel).
 
-## 9. Open questions for the owner (one at a time)
+## 9. Questions for the owner (all six decided)
 
 1. ~~Where does the alt text live?~~ Decided by the owner: a base text on the Library record, changeable locally on the page, post or block; the local text wins (section 3a).
 2. ~~Can a visitor pick more than one tag at once?~~ Decided by the owner: yes, and an image shows only if it has all the chosen tags (section 5).
 3. ~~What if an image has no alt text?~~ Decided by the owner: no warning on the block or the Library tile; it shows in the SEO score (section 3b). The grid draws such an image with `alt=""`.
 4. ~~Should tapping an image open it bigger?~~ Decided by the owner: yes, on by default, can be turned off; in the editor a tap opens the image's settings (section 5).
-5. **How many images show at first?** *Recommendation:* 12, then a `Show more` button; the owner can choose `All`.
-6. **Do posts get the same grid later?** *Recommendation:* not now; reuse the tile part later if wanted (section 7).
+5. ~~How many images show at first?~~ Decided by the owner: a `Show at most` setting, default 100 when empty, images load as the visitor scrolls, no `Show more` button (section 5).
+6. ~~Do posts get the same grid later?~~ Decided by the owner: no, not now (section 7).
