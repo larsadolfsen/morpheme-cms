@@ -11,7 +11,16 @@ export default defineBlock({
   label: t.blocks.table.label,
   icon: Table,
   hint: t.blocks.table.hint,
-  fields: [{ name: 'header', label: t.blocks.table.header, type: 'boolean', default: true, toggle: t.blocks.table.headerToggle }],
+  fields: [
+    { name: 'header', label: t.blocks.table.header, type: 'boolean', default: true, toggle: t.blocks.table.headerToggle },
+    {
+      name: 'striped',
+      label: t.blocks.table.striped,
+      type: 'boolean',
+      toggle: t.blocks.table.stripedToggle,
+      hint: t.blocks.table.stripedHint,
+    },
+  ],
   inline: {
     item: 'rows',
     fields: ['0'],

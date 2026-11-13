@@ -1565,11 +1565,11 @@ dialog {
 
 /* The Table typed in place: the cells as the site draws them, each a field; the active cell has the dotted line, and the next row and the next
    column (shown while the block is active) are faded until typed in. */
-.editor-text .inline-table :is(th, td) {
+.editor-text .inline-table-box :is(th, td) {
   height: auto;
 }
 
-.editor-text .inline-table .inline-table-cell-active {
+.editor-text .inline-table-box .inline-table-cell-active {
   outline: var(--editor-section-frame);
   outline-offset: -2px;
 }
@@ -1580,7 +1580,7 @@ dialog {
   justify-items: start;
 }
 
-.editor-text .inline-table-host > .inline-table {
+.editor-text .inline-table-host > .inline-table-box {
   width: 100%;
 }
 
