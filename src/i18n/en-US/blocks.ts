@@ -84,6 +84,8 @@ export const blocks = {
     maxRowsHint: 'How many rows show at first. A button under them shows the rest. If empty, all rows show.',
     showMore: 'Button text (show more)',
     showMoreText: 'Show more',
+    /** The link in an open row, without the row's heading (in the site's language). */
+    readMore: 'Read more',
     button: 'Button text',
     buttonHint: 'A text button under the last row. If empty, there is no button.',
     buttonHref: 'Button page',

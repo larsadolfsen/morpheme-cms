@@ -395,7 +395,7 @@ async function checkPreviewDraft(width) {
 const inlineBlocks = [
   { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row' },
   { name: 'steps', hint: 'Numbered steps.', add: 'Add step', noEdit: true },
-  { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button' },
+  { name: 'segmented', hint: 'Rows that expand, with a link.', add: 'Add row', rowButtons: 'Add button', surface: true },
   { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
   { name: 'pricecards', hint: 'Prices with what is included.', add: 'Add price card', surface: true, field: 'name' },
   { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
@@ -533,6 +533,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       add: [...document.querySelectorAll('[data-add-row]')].map((b) => b.textContent.trim()),
       outline: getComputedStyle(document.querySelector('.inline-list-row-active')).outlineStyle,
       background: getComputedStyle(document.querySelector('.inline-list-row-active')).backgroundColor,
+      activeRow: document.querySelector('.inline-list-row-active').dataset.row,
       bar: [...document.querySelectorAll('.site-block-toolbar button')].map((b) => ({
         label: b.getAttribute('aria-label'),
         svg: !!b.querySelector('svg path'),
@@ -641,6 +642,27 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       .inputValue()
       .catch(() => null);
     if (typed !== 'More') problems.push(`${label}: the text typed in a row's new button is "${typed}", not "More"`);
+    // A row has at most one button: with one, `Add button` is gone and Enter in its text adds no second.
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(300);
+    if ((await page.locator('[data-add-button]').count()) !== 0)
+      problems.push(`${label}: "${rowButtons}" stays although the row has a button`);
+    if ((await page.locator('.inline-segmented-button').count()) !== 1) problems.push(`${label}: a row got a second button`);
+  }
+  if (phone) {
+    // A touch screen has no hover (hover: none), but the browser leaves :hover on what was tapped: the add button stays a text button, without the pointed-at background.
+    const session = await page.context().newCDPSession(page);
+    await session.send('Emulation.setEmulatedMedia', { features: [{ name: 'hover', value: 'none' }] });
+    await page.locator('[data-add-row]').hover();
+    await page.waitForTimeout(400);
+    const sticky = await page.evaluate(() => {
+      const b = document.querySelector('[data-add-row]');
+      const c = getComputedStyle(b);
+      return { pointed: b.matches(':hover'), background: c.backgroundColor, shadow: c.boxShadow };
+    });
+    if (!sticky.pointed || sticky.background !== 'rgba(0, 0, 0, 0)' || sticky.shadow !== 'none')
+      problems.push(`${label}: "${add}" tapped on a touch screen is no longer a text button (${JSON.stringify(sticky)})`);
+    await session.send('Emulation.setEmulatedMedia', { features: [] });
   }
   await page.click('[data-add-row]');
   await page.waitForTimeout(300);
@@ -658,6 +680,13 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   await page.waitForTimeout(300);
   if ((await page.locator('[data-add-row]').count()) > 0)
     problems.push(`${label}: the button "${add}" stays after the cursor left the block`);
+  // The row keeps the colour it has on the site while it is typed in: its background is the same once the cursor has left it.
+  const kept = await page.evaluate(
+    (i) => getComputedStyle(document.querySelector(`.inline-list-row[data-row="${i}"]`)).backgroundColor,
+    one.activeRow,
+  );
+  if (kept !== one.background)
+    problems.push(`${label}: the row has background ${one.background} while typed in, ${kept} when the cursor left it`);
   if (name === 'cards') {
     // A media that is set is changed by a tap on it: an icon is picked from the Icon button, then the icon itself opens the picker and no media button is left.
     await page.locator('.inline-list-row [data-field="title"]').first().click();

@@ -76,6 +76,8 @@ export const blocks: Messages['blocks'] = {
     maxRowsHint: 'Hvor mange rækker der vises først. En knap under dem viser resten. Hvis feltet er tomt, vises alle rækker.',
     showMore: 'Knaptekst (vis mere)',
     showMoreText: 'Vis mere',
+    /** The link in an open row, without the row's heading (in the site's language). */
+    readMore: 'Læs mere',
     button: 'Knaptekst',
     buttonHint: 'En tekstknap under den sidste række. Hvis feltet er tomt, er der ingen knap.',
     buttonHref: 'Knapside',

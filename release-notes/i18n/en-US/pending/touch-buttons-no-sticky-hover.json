@@ -1,0 +1,5 @@
+{
+  "id": "touch-buttons-no-sticky-hover",
+  "kind": "line",
+  "text": "On a phone, a button no longer keeps its pointed-at look after a tap"
+}
