@@ -350,6 +350,9 @@
   /* The text button under the last row of "Segmented list" and "FAQ list" (ListButton.tsx). */
   .block-list-button {
     margin-top: 0.5rem;
+    /* A text button has no container at rest, so its label stands in from its edge by the button's side padding (Material's
+       12dp): the button moves out by that much and its label lines up with the list's edge. */
+    margin-inline-start: calc(-1 * var(--button-text-padding, 1rem));
   }
   /* `Max rows` of "Segmented list" (MoreRows.tsx, segmented/more.ts): without script all rows show and the button is hidden; with
      script (data-cut) the rows after the first ones are hidden until the button shows them. The last row left has no line under it. */
@@ -841,6 +844,11 @@
     align-items: center;
     gap: 0.75rem 1.5rem;
     margin-top: 1rem;
+  }
+  /* Text buttons under a row's text (faq/Accordion.tsx): the same shift, so their labels line up with the text above. */
+  .block-row-links:has(> .button-text) {
+    margin-inline-start: calc(-1 * var(--button-text-padding, 1rem));
+    column-gap: 0.5rem;
   }
   .block-row-link {
     display: inline-flex;
