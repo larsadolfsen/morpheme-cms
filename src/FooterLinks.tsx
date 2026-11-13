@@ -17,7 +17,7 @@ export default function FooterLinks({ state }: { state: ServiceState }) {
   const row = useRef<HTMLElement>(null);
   useStrayDividers(row);
   return (
-    <nav ref={row} className="flex flex-wrap items-center justify-center">
+    <nav ref={row} className="flex flex-wrap items-center justify-center gap-y-2">
       {visibleLinks(FOOTER_LINKS).map(({ id, href }, i) => (
         <Fragment key={id}>
           {i > 0 && <FooterDivider />}

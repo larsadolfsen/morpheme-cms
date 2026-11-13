@@ -2906,6 +2906,28 @@ async function checkTapBelowSection(width, touch) {
   await page.close();
 }
 
+/** The editor's footer links (Support, System status, the legal links, Licenses) are touch targets of at least 48px high at 375px with touch, 44px with a pointer (m3.material.io/foundations/designing/structure), and the lines of a wrapped row are 8px apart or more. */
+async function checkFooterTargets(touch) {
+  const width = touch ? 375 : 1280;
+  const page = await browser.newPage({ viewport: { width, height: touch ? 800 : 900 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px footer links: ${e.message}`));
+  await openEditor(page, site);
+  await page.waitForSelector('footer nav a');
+  const boxes = await page.evaluate(() =>
+    [...document.querySelectorAll('footer nav a')].map((a) => ({ name: a.textContent.trim(), ...a.getBoundingClientRect().toJSON() })),
+  );
+  const min = touch ? 48 : 44;
+  if (boxes.length < 4) problems.push(`${width}px footer links: only ${boxes.length} found`);
+  for (const b of boxes)
+    if (b.height < min - 0.5 || b.width < min - 0.5)
+      problems.push(`${width}px footer link "${b.name}": ${b.width}x${b.height}px, should be ${min}px or more each way`);
+  for (const a of boxes)
+    for (const b of boxes)
+      if (a !== b && b.top >= a.bottom - 0.5 && b.top - a.bottom < 8 - 0.5 && b.left < a.right && b.right > a.left)
+        problems.push(`${width}px footer links "${a.name}" and "${b.name}": ${b.top - a.bottom}px apart, should be 8px or more`);
+  await page.close();
+}
+
 /** A page's accordion rows (FoldSection): between its divider lines the title has the same space above and below it (within 1px, measured on the pixels of the first capital, not the line box), the arrow is centred on the title, and the row stays 48px tall or more (360, 375, 390, 414 px and a computer). */
 async function checkFoldRows(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US', deviceScaleFactor: 2 });
@@ -3614,6 +3636,8 @@ for (const [width, height] of [
   await checkFoldRows(width, height);
   await checkEntrySettings(width, height);
 }
+await checkFooterTargets(true);
+await checkFooterTargets(false);
 await checkToolbarBox();
 await checkPreviewSection();
 await checkFullSection();
