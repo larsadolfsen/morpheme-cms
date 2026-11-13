@@ -21,7 +21,7 @@ Morpheme is a website editor for sites built with [Astro](https://astro.build) a
 
 When you tap Save, the editor first checks the page. If something’s missing, it tells you what and highlights the field until it’s fixed. Then your change is saved to GitHub, Cloudflare rebuilds your site, and you get a notification when it’s live.
 
-Every save is listed under Earlier versions, and deleted photos can be restored from Deleted files.
+Every save is listed under History, and deleted photos can be restored from Deleted files.
 
 Fast and safe
 

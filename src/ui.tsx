@@ -2823,7 +2823,7 @@ function useMedia(query: string) {
 }
 
 /** Whether `box` is in view (or within `margin` of it), kept up to date while the screen scrolls: so a part of a long
- * form does its work only when it is seen (the SEO rating, the earlier versions in EntryForm.tsx). */
+ * form does its work only when it is seen (the SEO rating, the history in EntryForm.tsx). */
 export function useInView(box: RefObject<Element | null>, margin = '0px') {
   const [seen, setSeen] = useState(false);
   useEffect(() => {
@@ -2878,7 +2878,7 @@ export function SideSheet({ title, onClose, children }: { title: string; onClose
 /** One entry of a SectionList: its id, its name and optionally the theme's Badge (how many are new there; or a dot). */
 export type NavigationItem = { id: string; label: string; badge?: number | boolean };
 
-/** The sections of a long form (a page's, a post's: Content, Status, Other fields …) as an "on this page" list, as on
+/** The sections of a long form (a page's, a post's: Content, Page settings, History …) as an "on this page" list, as on
  * m3.material.io: plain text, no icons and no surface; the one in view (`value`) in the accent colour and medium
  * weight (`aria-current="location"`). A tap calls `onChange` with its id (EntryForm scrolls to it). Optionally the theme's
  * Badge after the name. `title` names the navigation. In a SectionPane. */

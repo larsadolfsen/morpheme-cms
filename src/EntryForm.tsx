@@ -97,20 +97,22 @@ const SEO = SEO_FIELDS;
 const SHARE = SHARE_FIELDS;
 // The sections of the form, under each other on one page, each folding in and out under its heading (FoldSection in
 // ui.tsx): the settings (open from the start on a tablet or computer; folded on a phone, so the text is in reach), the
-// text (open from the start), the other fields, those for search engines, those for social media, and the earlier
-// versions (folded from the start, so the page is short; nothing is remembered till the next time). Its list (an "on
+// text (open from the start), those for search engines, those for social media, and the history (folded from the start,
+// so the page is short; nothing is remembered till the next time). Its list (an "on
 // this page" card at the end of the form, on large and wider screens only) opens one and scrolls to it, and marks the
 // one in view. A field that keeps the form from being saved has its section opened and is scrolled to (FieldInput in
 // fields.tsx).
-type Section = 'settings' | 'content' | 'other' | 'seo' | 'share' | 'versions';
+type Section = 'settings' | 'content' | 'seo' | 'share' | 'versions';
+// The fields only the settings have: the status, `unlisted`, a page's title and the template. A field of none of the other
+// sections is a setting too (the URL, the short description, the tags …), after these.
+const isOwnSetting = (collection: MarkdownCollection, name: string) =>
+  STATUS.includes(name) ||
+  name === 'unlisted' ||
+  (!!collection.blocks && name === 'title') ||
+  collection.fields.some((f) => f.name === name && f.offered === 'templates');
 const sectionOf = (collection: MarkdownCollection, path: string): Section => {
   const name = path.split('.')[0];
-  const settings =
-    STATUS.includes(name) ||
-    name === 'unlisted' ||
-    (!!collection.blocks && name === 'title') ||
-    collection.fields.some((f) => f.name === name && f.offered === 'templates');
-  return settings
+  return isOwnSetting(collection, name)
     ? 'settings'
     : TOP.includes(name) || (collection.id === 'blog' && POST_HEAD.includes(name))
       ? 'content'
@@ -118,7 +120,7 @@ const sectionOf = (collection: MarkdownCollection, path: string): Section => {
         ? 'seo'
         : SHARE.includes(name)
           ? 'share'
-          : 'other';
+          : 'settings';
 };
 // The section the next page or post opened starts at: "Search engines" when it is opened from "SEO rating"
 // (SeoScores.tsx), else the text.
@@ -126,13 +128,14 @@ let opening: Section | null = null;
 export const openAtSeo = () => {
   opening = 'seo';
 };
-// The fields of a section (the other fields are those of none of the others); in the settings the status first (narrow,
-// Field.narrow), with its time, then the title.
+// The fields of a section (the settings also have those of none of the others, last); in the settings the status first
+// (narrow, Field.narrow), with its time, then the title and the template, then the others.
 const inSection = (collection: MarkdownCollection, id: Section) => (f: Field) => sectionOf(collection, f.name) === id;
 const FIRST = [...STATUS, 'title'];
-const rank = (f: Field) => (FIRST.includes(f.name) ? FIRST.indexOf(f.name) : FIRST.length);
+const rank = (collection: MarkdownCollection) => (f: Field) =>
+  FIRST.includes(f.name) ? FIRST.indexOf(f.name) : isOwnSetting(collection, f.name) ? FIRST.length : FIRST.length + 1;
 const fieldsIn = (collection: MarkdownCollection, id: Section) =>
-  collection.fields.filter(inSection(collection, id)).sort((a, b) => rank(a) - rank(b));
+  collection.fields.filter(inSection(collection, id)).sort((a, b) => rank(collection)(a) - rank(collection)(b));
 
 // A new file starts as a Draft (nothing goes live by accident); a blog post gets today's date; a page has the blocks its template
 // starts it with (Template.start), e.g. "Book an appointment" at the end like the other pages, but not one that
@@ -340,7 +343,6 @@ function Form({
   const sections: NavigationItem[] = [
     ...(has('settings') ? [{ id: 'settings', label: post ? t.forms.sections.postSettings : t.forms.sections.pageSettings }] : []),
     { id: 'content', label: t.forms.sections.content },
-    ...(has('other') ? [{ id: 'other', label: t.forms.otherFields }] : []),
     ...(has('seo') ? [{ id: 'seo', label: t.forms.seo }] : []),
     ...(has('share') ? [{ id: 'share', label: t.forms.share }] : []),
     ...(isNew ? [] : [{ id: 'versions', label: t.history.versions }]),
@@ -1309,7 +1311,6 @@ function Form({
                     />
                   </div>
                 </FoldSection>
-                {shows('other') && <FoldSection {...sectionProps('other')}>{fieldsIn(collection, 'other').map(field)}</FoldSection>}
                 {shows('seo') && (
                   <FoldSection {...sectionProps('seo')}>
                     <div ref={seoBox} className="space-y-6">
