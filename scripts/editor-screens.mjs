@@ -2268,6 +2268,80 @@ async function checkCardsCarousel(width, height) {
   await page.close();
 }
 
+/** The spacing of a "Cards" block on the site (the demo's Blocks page), at 375 and 1280 px: one rule for stacked cards, a grid and the carousel. Material 3 prints 16dp left and right padding and "8dp max" between cards (m3.material.io/components/cards/specs, Measurements), and is silent inside a card, so the room there is on the 4dp half-step and the 8dp grid: the media or icon to the headline 16, the headline to the subhead 4, to the text 8, the text to the link 16. Fails on the old 2, 6 and 20 px. */
+async function checkCardsSpacing(width, height) {
+  const label = `${width}px cards spacing`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await page.goto(new URL('/blocks/', site).href);
+  const m = await page.evaluate(() => {
+    const r = (e) => e.getBoundingClientRect();
+    const px = (n) => Math.round(n * 10) / 10;
+    const list = document.querySelector('ul.block-cards');
+    const cards = [...list.querySelectorAll('.block-card')];
+    const ls = getComputedStyle(list);
+    const within = (card) => {
+      const c = r(card);
+      const q = (sel) => card.querySelector(sel);
+      const icon = q('.block-card-icon');
+      const title = q('.block-card-title');
+      const subhead = q('.block-card-subhead');
+      const text = q('.block-card-text');
+      const more = q('.block-card-more');
+      const border = parseFloat(getComputedStyle(card).borderTopWidth);
+      return {
+        left: px(r(title).left - c.left - border),
+        right: px(c.right - border - r(title).right),
+        mediaToTitle: icon ? px(r(title).top - r(icon).bottom) : null,
+        titleToSubhead: subhead ? px(r(subhead).top - r(title).bottom) : null,
+        toText: px(r(text).top - r(subhead || title).bottom),
+        textToMore: more ? px(r(more).top + parseFloat(getComputedStyle(more).paddingTop) - r(text).bottom) : null,
+        moreBottom: more ? px(c.bottom - border - r(more).bottom) : null,
+        top: px(r(title).top - c.top - border),
+      };
+    };
+    const subheadCard = cards.find((c) => c.querySelector('.block-card-subhead'));
+    const linkCard = cards.find((c) => c.querySelector('.block-card-more'));
+    const iconCard = cards.find((c) => c.querySelector('.block-card-icon'));
+    const colGap = cards.length > 1 ? px(r(cards[1]).left - r(cards[0]).right) : null;
+    const rowGap = cards.length > 2 ? px(r(cards[2]).top - r(cards[0]).bottom) : null;
+    const carousel = document.querySelector('[data-cards-carousel] [data-carousel-items]');
+    return {
+      css: ls.rowGap,
+      cols: ls.gridTemplateColumns.split(' ').length,
+      stacked: px(r(cards[1]).top - r(cards[0]).bottom),
+      colGap,
+      rowGap,
+      padding: getComputedStyle(cards[0]).paddingLeft,
+      carouselGap: carousel ? getComputedStyle(carousel).columnGap : null,
+      iconCard: iconCard && within(iconCard),
+      subheadCard: subheadCard && within(subheadCard),
+      linkCard: linkCard && within(linkCard),
+    };
+  });
+  const want = (what, got, expected) => {
+    if (got !== expected) problems.push(`${label}: ${what} is ${got}, not ${expected}`);
+  };
+  if (m.cols === 1) want('the gap between stacked cards', m.stacked, 8);
+  else {
+    want('the gap between cards in a row', m.colGap, 8);
+    want('the gap between cards in a column', m.rowGap, 8);
+  }
+  want('the gap in the CSS', m.css, '8px');
+  want('the card padding', m.padding, '16px');
+  want("the carousel gap (the same as the cards' own)", m.carouselGap, m.css);
+  want("the room from a card's edge to its text on the left", m.iconCard.left, 17);
+  want("the room from a card's edge to its text on the right", m.iconCard.right, 17);
+  want('the icon to the headline', m.iconCard.mediaToTitle, 16);
+  want('the headline to the text', m.iconCard.toText, 8);
+  want('the headline to the subhead', m.subheadCard.titleToSubhead, 4);
+  want('the subhead to the text', m.subheadCard.toText, 8);
+  want('the text to the link', m.linkCard.textToMore, 16);
+  want("the link to the card's bottom edge", m.linkCard.moreBottom, 17);
+  await page.close();
+}
+
 /** The color of an icon (`iconColor`): the row's icon picker has the choice next to the icon (Primary, Secondary, Tertiary); a picked color is on the row (`data-icon-color`) and drawn in the theme's color role, in the editor like on the site. */
 async function checkIconColor(width, height, scheme = 'light') {
   const label = `${width}px icon color (${scheme})`;
@@ -3919,6 +3993,7 @@ for (const [width, height] of [
   [1280, 900],
 ]) {
   await checkCardsCarousel(width, height);
+  await checkCardsSpacing(width, height);
   for (const scheme of ['light', 'dark']) await checkIconColor(width, height, scheme);
 }
 for (const [width, height] of [

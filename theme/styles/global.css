@@ -190,6 +190,13 @@
   --card-radius: var(--mo-shape-medium);
   /* The room between cards side by side or under each other: 8px (Material 3's at most). */
   --card-gap: 0.5rem;
+  /* Inside a "Cards" card, on the 4dp half-step and the 8dp grid (Material 3 prints only the 16px left and right padding and 8px
+     between cards): the headline to the subhead 4px, the headline or subhead to the text 8px, the media (and a card's icon) to the
+     headline 16px, the text to the link or the buttons 16px. */
+  --card-subhead-gap: 0.25rem;
+  --card-text-gap: 0.5rem;
+  --card-media-gap: 1rem;
+  --card-action-gap: 1rem;
   --card-filled-surface: var(--mo-surface-container-highest);
   --card-outlined-surface: var(--mo-surface);
   --card-outlined-line: var(--mo-outline-variant);
