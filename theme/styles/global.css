@@ -230,6 +230,7 @@
   --list-item-pressed-surface: var(--mo-pressed);
   --list-item-hover-icon-color: var(--mo-on-surface-variant);
   --list-item-focus-surface: var(--mo-pressed);
+  /* M3 (Lists › Specs, token table): md.comp.list.focus.indicator.color = md.sys.color.secondary. */
   --list-item-focus-indicator-color: var(--mo-secondary);
   --list-item-hover-text: var(--mo-on-surface);
   --list-item-hover-trailing-shift: 0;
