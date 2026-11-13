@@ -1,34 +1,37 @@
-# Command palette and context menus (design)
+# Command palette, one action registry, and no custom context menu (design)
 
 Status: proposal for the owner. Design only, no code. Written for a phone: plain words, short.
 
-**Decided by the owner (13 November):** Q1 `Ctrl+K` / `⌘K` always opens the palette, also while typing text, and *Link* gets no key. Q2 "Right click opens the contextual menu": a right click in typed text opens **our** text menu, whether or not text is selected, not the browser's. The owner then asked "Should we handle paste and copy and cut text?": yes, section 5.4. Q3 (resize an image, duplicate a block) is still open with the owner.
+**Decided by the owner (13 November):**
+1. `Ctrl+K` / `⌘K` always opens the palette, also while typing text. *Link* gets no key.
+2. **No custom right-click (context) menu anywhere in the editor:** "So we keep the no right click menu." The browser's or the operating system's own menu
+   stays in text, on blocks, images, table cells, rows, files and links. (The owner first said "Right click opens the contextual menu", asked about Cut, Copy
+   and Paste, and then reversed it after hearing that the browser and the phone already do those. Only the last word stands.) Section 5.
+Still open with the owner: resize an image and duplicate a block, the palette's search scope, the top-bar search button, and whether the phone palette lists text
+actions (section 11).
 
 Owner's words (editor menus, 13 November): editor interfaces are content-first, so the UI around the content takes little room.
 Do not stuff every feature into one scrolling drop-down or drawer. Three layers: (1) a **quick toolbar** with only the top actions
 (the one bar of PR #519, not redone here); (2) **context menus** (right click, secondary click) with the actions where the user
-works: text selected, only text actions; an image selected, crop and resize actions; (3) a **command palette** (Cmd/Ctrl+K, like
+works: text selected, only text actions; an image selected, crop and resize actions (**later decided against**, see above and section 5); (3) a **command palette** (Cmd/Ctrl+K, like
 VS Code, Figma, Notion): a floating search bar where the user types the action. Icon-only buttons get tooltips with the keyboard
 shortcut.
 
 Words: the **bar** is the one toolbar of #519. An **action** is one thing the editor can do (Bold, Move up, Go to Files). The
-**registry** is the one list of actions (section 3). The **palette** is the search over the registry. A **context menu** is a menu
-on the thing you point at. A **part** is a ready-made piece of the theme (`theme/ui/`) that a theme can restyle.
+**registry** is the one list of actions (section 3). The **palette** is the search over the registry. A **part** is a ready-made piece of the theme (`theme/ui/`) that a theme can restyle.
 
 ## Short answer
 
-- **One registry, four views.** Every action is defined once (`src/actions.ts`): its name, icon, shortcut, where it applies, when
-  it can run, and what it does. The bar, its `⋮`, the context menus and the palette are four views of that list. A new tool is
-  added in one place and shows up in all four, with the same name and shortcut.
+- **One registry, three views.** Every action is defined once (`src/actions.ts`): its name, icon, shortcut, where it applies, when
+  it can run, and what it does. The bar, its `⋮` and the palette are three views of that list. A new tool is
+  added in one place and shows up in all three, with the same name and shortcut.
 - **Palette:** `Ctrl+K` (`⌘K` on a Mac) and a search icon in the top bar open it. It lists what you can do here first, then
   everything else, and runs the one you pick. It uses the theme's **Search** view (full screen on a phone, docked from medium),
   not a dialog.
-- **Context menus:** a right click on typed text, a block, an image, a table cell or the empty line opens a `Menu` with only that
-  thing's actions; in text that includes **Cut, Copy and Paste** (section 5.4). On a phone a long press opens it as a bottom sheet on
-  blocks and images; **inside text a long press stays the phone's own** (question 11 asks whether that is right), and never on a list
-  screen (there it starts selection, #529).
-- **Nothing new is drawn.** Menu and Search are theme parts. Two parts are missing and must be added to the theme: a menu that
-  opens at a point (`Menu` with `at`), and a Search view that React can drive (the one today is only drawn in the editor).
+- **No custom context menu.** The browser's or the OS's menu stays everywhere (owner). The actions of text, an image, a table cell or a block are
+  on the bar, in its `⋮` and in the palette (section 5). This spec adds **no long press** either, so it cannot clash with #529.
+- **Nothing new is drawn.** Search is a theme part and one is missing: a Search view that React can drive (the one today is only drawn in the editor).
+  A menu that opens at a point is **not** needed any more (only right click and a long press menu needed it).
 - **M3 has no command palette page.** The palette is the owner's request (their words are quoted above), so it is built from what M3
   does print: the Search view, a List, a top app bar icon button, tooltips. Everything the pages do not print is marked **M3 silent**
   in section 1b, with the nearest M3 pattern, and is not presented as M3.
@@ -139,8 +142,8 @@ So nothing of ours is read as M3. "Nearest M3" is the pattern I used where the p
 | Piece of the palette | M3 prints | Where M3 is silent: ours, and the nearest M3 pattern |
 | --- | --- | --- |
 | A palette that runs actions | Search "helps people find information quickly" in "products with many items to manage" | **No M3 page for running actions from a search.** Owner's request. Nearest: Search (focused search, results in a list) |
-| Entry | "Search icon button: Use when search is a secondary action"; the top app bar "can also include global product controls, such as search" | The key `Ctrl+K`: **M3 silent** on shortcuts for search. Nearest: none; owner's words. The app bar "should only have one action, two if necessary": the number of actions the top bar has today decides whether the button fits (question 5) |
-| Layout | Full-screen is the default for compact; docked "best for medium and expanded" and it "opens a list below the search bar" | Docked **without a bar**: M3 silent. Nearest: the theme's Search view as it is (it docks where the bar is); where that is for a button, not a bar, is question 10 |
+| Entry | "Search icon button: Use when search is a secondary action"; the top app bar "can also include global product controls, such as search" | The key `Ctrl+K`: **M3 silent** on shortcuts for search. Nearest: none; owner's words. The app bar "should only have one action, two if necessary": the number of actions the top bar has today decides whether the button fits (question 3) |
+| Layout | Full-screen is the default for compact; docked "best for medium and expanded" and it "opens a list below the search bar" | Docked **without a bar**: M3 silent. Nearest: the theme's Search view as it is (it docks where the bar is); where that is for a button, not a bar, is default 3 in section 11 |
 | Before typing | "Show historical suggestions before typing"; "Category labels, like Recent, ... or Suggestions" | How many (our 5 and 6), and which stored: ours |
 | Results | A list, "Leading icons", "Category labels", "Use gaps to separate a list of suggestions or results into groups", a clear icon, back icon; trailing text on a list item | The ranking, the 30 cap, folding `æøå`, the fuzzy rule and every score in 4.3: **ours**, tuning values for step 1, not M3 |
 | Keys | Arrows between results; Tab; Space or Enter activate (Search, Lists accessibility); Escape "dismiss elements" (Inputs) | `aria-activedescendant`, `Home`/`End`, `Enter` runs: ours, WAI-ARIA practice. M3 gives no web role for search |
@@ -188,10 +191,9 @@ type EditorAction = {
   group: 'go' | 'page' | 'text' | 'insert' | 'block' | 'image' | 'table' | 'list' | 'setting' | 'app'
   words?: string[]                 // other names to search (English and Danish): 'bold' → 'strong', 'fed'
   shortcut?: { key: string }       // 'Mod+K': Mod is ⌘ on a Mac, Ctrl elsewhere; shown, and set as aria-keyshortcuts
-  handledBy?: 'registry' | 'text' | 'browser'  // who listens to the key: 'text' = the text engine's keymap, 'browser' = Ctrl/⌘ X C V (both stay where they are)
+  handledBy?: 'registry' | 'text'  // who listens to the key: 'text' = the text engine's keymap (it stays there)
   where: {                         // which views show it, and in what order
     bar?: { context: Context; order: number; overflow?: string }   // #519's lists and their ⋮ groups
-    menu?: { target: Target; order: number; section?: string }     // context menu of that target
     palette?: boolean | { rank?: number }                          // default true
   }
   state: (ctx: Ctx) => 'enabled' | 'disabled' | 'hidden'  // + `reason` for a disabled one
@@ -202,7 +204,7 @@ type EditorAction = {
 
 - **Ctx** is where the user is now: the route, whether text, a block, an image, a table cell, a list row or a list selection is
   active (and which block type), the text's selection, whether there is something to undo or redo. The same Ctx drives the bar (#519's
-  states), the menus and the palette, so *Move up* is disabled in all four at once.
+  states), its `⋮` and the palette, so *Move up* is disabled in all three at once.
 - **Who registers.** A screen or editor registers its actions while it is mounted and gets back a dispose function.
   `App.tsx` registers navigation from `menuTree` (so every part, app and list in the menu is a "Go to" action by itself, and an
   installed app's pages appear with no work). `MarkdownEditor.tsx` registers the text and block actions with its `view` in hand (a
@@ -214,7 +216,7 @@ type EditorAction = {
   change the bar's design;** it changes where its list comes from. Order: the registry lands first (steps 1 and 2) and feeds today's
   `contextualMenu.ts`; the bar moves over when #519 steps 1 and 2 land (section 8).
 - **Shortcuts live in one place.** Keys for the text engine stay in its keymap (`handledBy: 'text'`: the registry only
-  documents them in tooltips, menus and the palette). Global keys (only `Mod+K` here) are one `keydown` listener. A unit test fails
+  documents them in tooltips, the `⋮` and the palette). Global keys (only `Mod+K` here) are one `keydown` listener. A unit test fails
   on two actions with the same key in overlapping scopes and on a key the browser keeps (`Ctrl+T`, `Ctrl+W`, `Ctrl+L`, `Ctrl+N`, `Ctrl+R`,
   `Ctrl+Tab`, `F5` and similar).
 - **A tool is defined once, so the owner sees the same word everywhere**, and the `check:language` rule (no Danish outside
@@ -250,12 +252,13 @@ PHONE 375 px (full screen)               COMPUTER 1280 px (docked, scrim behind)
   (Bold: checked).
 - **Actions that cannot run now.** Only the **current context's** actions that are unavailable are shown, disabled, with the reason
   under the name ("Nothing to redo", "Select text first"): M3 "disabled rather than removed". Actions of a context you are not in
-  (table actions with the cursor in a paragraph) are not listed at all: they would be noise (deviation 2, section 9: allowed in the workspace; in the palette the current-context rule keeps M3's disabled items, and other contexts are left out as M3 silent on searches).
+  (table actions with the cursor in a paragraph) are not listed at all: they would be noise. M3 prints nothing on this for a search (**M3 silent**, 1b);
+  its "disabled rather than removed" is a menu rule.
 - **Empty result:** "Nothing found for “x”". The field stays focused.
 
 ### 4.2 Opening, closing, running
 
-- **Open:** `Ctrl+K` (`⌘K`) from anywhere in the editor, also with the cursor in text (question 1), and a **search icon button** in the top
+- **Open:** `Ctrl+K` (`⌘K`) from anywhere in the editor, also with the cursor in text (decided, D1 in section 11), and a **search icon button** in the top
   app bar (M3: "Search icon button: Use when search is a secondary action"). The button is how a phone, a tablet and anyone who does not
   know the key finds it; its tooltip says "Search actions  Ctrl+K". The key calls `preventDefault`, so a browser that uses it for its
   own search (Chrome and Firefox on Windows and Linux use `Ctrl+K` for the address or search bar) does not take it; I did not
@@ -290,7 +293,7 @@ folding, the context boost, recent ordering, the 30 cap and the stable order.
 | Go to | Home, every section and row of the main menu, Settings, Notifications, Account, Files, Redirects, SEO rating, Status, Apps, App store, Themes, Icon packs, Motion, Colours, Logo and icon, Block settings, Caching and builds, Assistants, Licences, Morpheme, Deleted pages and files | `menuTree`, `App.tsx` routes |
 | Pages and posts | Open "<title>", New page, New post | `files`, `new/<list>` |
 | Page | Save changes, Preview (draft and publish actions when the drafts plan lands) | `t.common.saveChanges`, `t.common.preview` |
-| Text | Bold, Italic, Link, Main heading, Heading, Subheading, Body small, medium, large, Label, Quote, Bullet list, Check list, Numbered list, Align left, centre, right, Text colour, Undo, Redo, **Cut, Copy, Paste** (section 5.4) | `allTools`, new |
+| Text | Bold, Italic, Link, Main heading, Heading, Subheading, Body small, medium, large, Label, Quote, Bullet list, Check list, Numbered list, Align left, centre, right, Text colour, Undo, Redo | `allTools` |
 | Insert | Insert image, one *Insert <block>* per block (Table, Cards, List, Steps, Buttons, Price cards, Video, Notice, Testimonials, Posts, HTML, …) | `blocks.ts`, `BlockGroup` |
 | Section | Section settings, Section colour, Background image, Width | `t.text.section*` |
 | Block | Add above, Add below, Move up, Move down, Link, Settings, Fill from a list, Hide, Show, Remove, Edit | `BarAction`, `cardMenu`, `moves` |
@@ -299,7 +302,7 @@ folding, the context boost, recent ordering, the 30 cap and the stable order.
 | List screens | Delete N selected, Restore N selected, Select all, Close selection (only while a selection exists) | #529 |
 
 *Resize* for an image is **not** in the code: the editor has Crop (the zoom slider in `Crop.tsx`), no resize action. The owner's
-example "crop/resize" therefore lists Crop only, and a resize is a new feature (question 8). The same goes for *Duplicate* (none in
+example "crop/resize" therefore lists Crop only, and a resize is a new feature (question 1). The same goes for *Duplicate* (none in
 the code, #529 says so too).
 
 ### 4.5 Phone
@@ -307,11 +310,11 @@ the code, #529 says so too).
 - **Full screen** on compact (M3: "Full-screen layout: Default for compact breakpoints"): the back arrow, the field, the clear button, then the
   results, each row 48 dp or more. The keyboard opens with the sheet; the results scroll above it.
 - It is opened by the **top-bar search button** (no key on a phone). A text action from the palette on a phone works the same way (the
-  selection is restored), though most phone users will use the bar; the palette still lists them (question 6).
+  selection is restored), though most phone users will use the bar; the palette still lists them (question 4).
 - Closing: the back gesture closes the palette before it leaves the screen (`useSheetBack`).
 - **From medium and wider:** the theme's Search view in its **docked** layout, with its own sizes and scrim, unchanged (M3: "Docked layout:
   Best for medium and expanded windows"). Where it stands when a button and not a search bar opens it is **M3 silent** (1b); I give no
-  position or width. Question 10.
+  position or width (default 3 in section 11).
 
 ### 4.6 Recent actions
 
@@ -337,118 +340,49 @@ the code, #529 says so too).
 - **Keys:** `↑` `↓` move, `Home` `End` first and last, `Enter` runs, `Esc` closes, `Tab` stays inside (to the back and clear buttons).
 - **Targets 48 dp, contrast and motion** from the theme tokens (`--search-*`, `--motion-*`, which honour reduced motion).
 
-## 5. Context menus
+## 5. No custom context menu (owner decision)
 
-### 5.1 What each target shows
+### 5.1 The decision
 
-One rule from the owner: **the menu shows only the actions of the thing you point at.** The registry's `menu.target` says which.
+Owner, 13 November: "So we keep the no right click menu." The browser's or the operating system's own menu stays **everywhere**: in text, on blocks, images,
+table cells, rows, files and links. Reasons given to the owner and accepted: the system menu does Cut, Copy and Paste best (the keyboard, the phone's
+selection bubble and the desktop right-click menu already work), the browser's spell-check suggestions and "Open link in new tab" stay, and the tools are
+already on the bar, its `⋮` and the palette.
 
-| Target (right click on …) | Menu items (groups in order, a divider between them) |
-| --- | --- |
-| **Typed text** (a right click anywhere in the text, with or without a selection) | Cut, Copy, Paste; Bold, Italic, Link; Text style ›, List ›, Alignment ›, Text colour ›; Undo, Redo. (Only text actions: no block or page action.) With nothing selected Cut and Copy are disabled, not removed. |
-| **Image** (the image card or an image block) | Change image, Crop, Alt text; Settings; Add above, Add below, Move up, Move down; Hide, Remove |
-| **Table cell** | Row above, Row below, Delete row; Column before, Column after, Delete column; Align column ›; Settings |
-| **List-type block row** (List, Cards, Points, Steps, Checklist, Accordion, Price cards, Buttons) | Add above, Add below, Move up, Move down; Link, Settings, Fill from a list (where the block has them); Hide, Remove |
-| **Any other block card** (Video, Notice, Testimonials, Posts, HTML, Banner) | Edit or Settings; Add above, Add below, Move up, Move down; Hide, Remove |
-| **Empty line** | Insert › (the block groups: Cards, Lists, Banners, Buttons, Media, Content, from `blockGroups`, each a submenu of its blocks), Insert image, Paste |
+What is **not** built, so it is not in the build plan: a `contextmenu` handler (the editor has none today: `onContextMenu` is only in `theme/ui/longPress.ts`,
+to keep the browser's menu away from a long press that selects a list row), Cut, Copy and Paste items, *Paste as plain text*, a `Shift+F10` or Menu key
+handler, a long press menu, and the theme part "a menu that opens at a point". Nothing of the earlier right-click proposal is kept. (The clipboard calls were tested in
+Chromium with the real Milkdown editor before the decision; nothing is built on them and the test is not kept.)
 
-- `›` is a submenu: on a computer next to the item (M3: "Submenus should open next to the parent menu item without overlapping
-  it", "best used on large screens"); on a phone the same items are a **group with a title** in the bottom sheet (no submenu).
-- **Toggles and choices** show their state (`checked`: Bold, the current alignment). An item that cannot run now is **disabled, not removed**
-  (Move up on the first block, Redo with nothing to redo).
-- **What does not open our menu (this version):** a right click on a **link** (a list row, a menu row, a link in the text) or on a
-  **text field** keeps the browser's menu, which has "Open in new tab", "Copy link", spelling and paste that we cannot replace. This is
-  also what #529 says of a list row ("Right click is the browser's menu on a row; we do not take it"), and the list screens
-  keep their actions in the selection bar. **Typed text does open ours, selected or not** (owner, Q2). **What is lost:** the browser's own menu in text, so its spell-check suggestions ("Add to dictionary", the corrections), "Look up", "Search the web for …", translate and the browser's own *Paste as plain text* item. The browser's squiggle under a misspelled word stays. A text field (a `TextField`, the palette's own field) keeps the browser's menu. Whether a list row or link keeps it is Q7 (still open).
-- **Dashboard widgets and other screens** may get one later by registering `menu` places; no screen needs a new mechanism.
+M3 prints the opposite, so this is a deviation on the owner's words (entry 2, section 9).
 
-### 5.2 Keyboard and opening
+### 5.2 Where each target's actions are instead
 
-- **Mouse and trackpad:** `contextmenu` event (right click, two-finger tap). The menu opens **at the pointer** and flips to stay in the
-  window (M3: "reposition to appear to the left, right, or above"). It opens at once on a computer (M3: "menus can open instantly").
-- **Keyboard:** `Shift+F10` and the Menu key open the menu for the focused target, at the target's box. Without it a keyboard user
-  would have no way in; the same actions are on the bar and in the palette, so nothing is only in the context menu.
-- **Focus:** the first item (M3 accessibility). Arrows, `Home`, `End`, letters (type-ahead: "Letters: Focus moves to the next menu item
-  starting with letter"), Enter or Space run, `→` opens a submenu, `←` or Esc closes it, Esc closes the menu and the **focus and selection
-  return to the target** (no scroll). A tap or click on an item never moves the text cursor (`MenuItem` already cancels the mouse down).
-- **Names:** `role="menu"` with `aria-label` the target's name (the block's name, "Table", "Image", "Text"); items `role="menuitem"`,
-  `menuitemcheckbox` for a toggle, `aria-disabled`, the shortcut as trailing text and `aria-keyshortcuts`; icons decorative.
+The same registry entries, shown by the one bar of #519 (its contextual group, then `⋮`) and by the palette:
+
+| Target | On the bar and in `⋮` (#519 sections 3 and 6) | In the palette (group) |
+| --- | --- | --- |
+| Text | Bold, Italic, Link, Heading, Text size, Alignment, Lists, Colour | Text |
+| Image | Change image, Crop, Alt text, Settings; Hide, Move, Remove in `⋮` | Image, Block |
+| Table cell | Row above and below, Column before and after, Delete row, Delete column, Settings | Table |
+| Row of a List, Cards, Points, Steps, Checklist, Accordion, Price cards, Buttons | Add above and below, Move up and down, Link, Settings, Fill from a list; Hide, Move, Remove in `⋮` | List, Block |
+| Other block (Video, Notice, Testimonials, Posts, HTML, Banner) | Settings or Edit; Hide, Move, Remove in `⋮` | Block |
+| Empty line | Insert | Insert (one entry per block) |
 
 ### 5.3 Phone and touch
 
-- **Long press opens the menu only where nothing else owns the long press:** on a block card and an image (the cards that are not typed in
-  place) and on the empty line. The press is `useLongPress` (`theme/ui/longPress.ts`: 500 ms, 10 px, touch and pen only, a short
-  vibration, the click after it swallowed), not the browser's `contextmenu` event, because I do not know that every phone fires one
-  (not tested; Android Chrome does on a long press, iOS Safari I could not confirm).
-- **Not inside text (recommended; question 11).** A long press there starts the phone's own text selection with its handles and magnifier (M3 Inputs: "When
-  interacting using touch, always show touch controls"). The text tools are on the bar. The PM's message asked for the text menu on a long press
-  too; I kept the OS's, because a second menu on the same press would fight the selection handles, and M3 prints the touch rule above. I could
-  not test a phone, so I cannot say what the OS toolbar offers on each. Owner's call: if ours, it opens from a long press on the *empty*
-  line only, or after the OS selection exists (not designed here).
-- **Never on a list screen.** There a long press selects (M3 Gestures; #529).
-- **A bottom sheet, not a popover** (M3: "Consider adapting menus into bottom sheets on small screens"). The editor's `Menu` already does this
-  under `medium`. The sheet is titled with the target's name and capped at half the screen at first (M3: "can't exceed 50% of the screen
-  height"), scrolls when long, and closes on a tap on an item, the scrim, a swipe down or the back gesture. Rows are 48 dp.
-- The sheet is the same one as the bar's `⋮` on a phone (#519 question 2), and the phone palette is the same family: all open from the bottom or
-  fill the screen, none shows two layers.
+- This spec adds **no long press**. In text the long press is the phone's own (M3 Inputs: "When interacting using touch, always show touch controls").
+  On a list screen it selects (#529; M3 Gestures: "Long pressing a list item selects it"). On blocks and images there is no long press action: #529 says there is
+  **no batch selection of blocks** (its question 6 recommends no) and one active block with the bar. So nothing in #531 contradicts #529.
+- The earlier idea of a bottom sheet on a long press on blocks and images is removed: #529 gives none, and the bar and `⋮` have those actions.
+- `useLongPress` (`theme/ui/longPress.ts`) stays as #529 uses it; no new use here.
 
-### 5.4 Cut, Copy and Paste
-
-Owner: "Should we handle paste and copy and cut text?" Yes. The text menu (right click) has **Cut, Copy and Paste**, and the same three are in the palette
-(group *Text*). `Ctrl/⌘ X`, `C` and `V` stay the browser's (`handledBy: 'browser'`): the menu shows them as trailing text and the registry does not listen.
-
-**What I checked, and how.** I read `@milkdown/plugin-clipboard@7.23.0` (`src/index.ts`, the version the package uses) and ran the real Milkdown editor
-(commonmark, history and clipboard presets, as `MarkdownEditor.tsx` uses them) in the pre-installed Chromium with Playwright, on a plain page
-(`file://`). The editor's own plugins, blocks and schema extras were not in that test. **I did not check Firefox or Safari**: only Chromium is installed, and
-MDN, the pages I wanted to read for their clipboard behaviour, could not be reached from this environment (the proxy refused the host).
-Where I say "Chromium", that is what I saw; anything else is listed under "Not verified".
-
-**How the editor handles clipboard today (code and test)**
-- **Copy and cut:** ProseMirror's own handlers run, and Milkdown adds `clipboardTextSerializer`. Result in Chromium for a whole line with bold: `text/plain` is the
-  **Markdown** (`Hello **bold** world and plain`) and `text/html` is `<p data-pm-slice="0 0 []">Hello <strong>bold</strong> world and plain</p>`. A selection of plain words gives
-  `text/plain` with those words only. Cut removes the selection (the text was empty afterwards).
-- **Paste (a real paste event):** Milkdown's `handlePaste`. With `text/html` on the clipboard the HTML is parsed into the editor's schema: bold, italic and links
-  stay, **colours and other styles are dropped** (test: `<b>rich</b> <i>it</i> <span style="color:red">red</span> <a href=…>lnk</a>` became `**rich** *it* red [lnk](https://x.io)`).
-  Google Docs' wrapper element is stripped first (in the plugin). With **only `text/plain`**, the text is parsed **as Markdown**: pasting the text "**md** and `code`" gave bold and code,
-  not the characters. A real `Ctrl+V` of `typed **bold** via Ctrl+V` gave bold text. A paste into a code block is left to the browser; a paste copied from VS Code with a language makes a code block.
-- **Paste as plain text:** the editor has no such action. In a browser `Ctrl+Shift+V` sends only `text/plain`, which Milkdown still reads as Markdown, so it is not literal.
-  A literal paste is cheap: read the text and insert it as characters (`tr.insertText`), about one function. It does not exist today. Question 12.
-
-**Cut and Copy from the menu**
-- `document.execCommand('copy')` and `('cut')` run from the menu click, with the selection in the editor. They fire the editor's own copy and cut handlers, so the clipboard gets
-  the same Markdown text and HTML as `Ctrl+C` (test: `execCommand('copy')` returned `true`, and `navigator.clipboard.read()` returned `text/plain` and `text/html` as above; `cut` returned `true` and removed the text).
-- **What it needs:** the focus and selection still in the text when the item is chosen (the menu item already cancels the mouse down, and the test kept the focus in the editor), and a user
-  click (a menu click is one). I did not read the current status of `execCommand` (MDN unreachable); it is the older API and still worked in Chromium. If it returns `false`, fall back to
-  `navigator.clipboard.writeText` with the selected text, which loses the Markdown and HTML (not tested in a refused case).
-- With nothing selected, Cut and Copy are **disabled** (M3: "disabled rather than removed").
-
-**Paste from the menu**
-- A web page cannot read the clipboard without the browser agreeing: `navigator.clipboard.readText()` or `read()`. **Chromium, no permission given:** rejected with
-  `NotAllowedError: Read permission denied` (seen). **Chromium, permission granted:** `readText()` returned the text and `read()` returned `text/plain` (seen, headless with the
-  permission pre-granted). **What a person sees in a normal Chrome** (a prompt on the first use, then a permission for the site) I could not test: headless Chromium reports the state as `denied`
-  and shows no prompt. **Firefox and Safari:** not verified. I expect each to ask in its own way, but I have not seen it.
-- `document.execCommand('paste')` returned `false` in Chromium: it cannot be used.
-- **What the menu does:** (1) call `navigator.clipboard.read()` (so HTML is kept; fall back to `readText()` when `read()` is missing or fails for lack of a type); (2) put the result in a
-  `DataTransfer` and send the editor a `paste` event with it (`new ClipboardEvent('paste', { clipboardData })`, which reaches Milkdown's `handlePaste`), so a menu paste behaves **exactly** like
-  `Ctrl+V`: same HTML clean-up, same Markdown reading of plain text. Test in Chromium: both a text-only and an HTML event went through `handlePaste` as above. A paste event made by script is
-  not a trusted event; ProseMirror did not mind it in the test.
-- **When the browser refuses or does not answer:** nothing is pasted, and a short message says what to do: "Paste is blocked here. Press Ctrl+V instead." (`⌘V` on a Mac). The menu item stays enabled
-  (we cannot know the clipboard is empty without reading it). No retry loop, no second prompt.
-- **Paste as plain text** (if the owner says yes, question 12): the same read, then `insertText` of `text/plain` with no Markdown reading. Shown under Paste, `Ctrl+Shift+V` as trailing text (the browser's own key, which still reads Markdown; the menu item is the literal one, so no shortcut is printed on it).
-
-**Not verified**
-- Firefox and Safari: the paste permission or prompt, whether `read()` returns HTML, and whether a script-made `paste` event reaches ProseMirror (Safari's `ClipboardEvent` may ignore `clipboardData`). The step 7 PR tests them by hand and in the screens check where the browsers allow it.
-- A normal (headed) Chrome's permission prompt, and whether the choice is remembered per site.
-- Any phone: the OS's own Cut, Copy and Paste on a long press.
-- The editor with its block cards and sections: pasting a block, a table or an image from another page.
-- Texts of the editor's own plugins that act on paste (`firstHeading`, `titleH1`): they run on the paste transaction, as for `Ctrl+V`; not tested.
-
-### 5.5 Tooltips with shortcuts (icon-only buttons)
+### 5.4 Tooltips with shortcuts (icon-only buttons)
 
 `useTooltip` adds the shortcut after the name from the registry: "Bold  Ctrl+B" ("Bold  ⌘B" on a Mac). Only actions with a tested key
 have one, and `aria-keyshortcuts` goes on the button. M3 has nothing on shortcuts in tooltips (not found), so this is an addition and not a
 deviation; plain tooltips stay short ("Avoid wrapping text to multiple lines"). The format is one function (`formatShortcut`, tested), used by the
-tooltip, the menu, the palette and the `Keyboard shortcuts` list.
+tooltip, a `⋮` menu item (M3: "Menu items can include ... keyboard commands"), the palette and the `Keyboard shortcuts` list.
 
 ## 6. Parts: what exists and what is missing
 
@@ -456,9 +390,9 @@ The editor draws only theme parts. Nothing here is custom.
 
 | Need | Part | Exists? |
 | --- | --- | --- |
-| Context menu, bar `⋮` | `Menu`, `MenuItem`, `MenuGroup`, `MenuDivider` (`theme/ui/Menu.tsx`), editor wrapper `Menu` (`ui.tsx`) | **Yes**, with `trailingSupporting` (shortcut), `submenu`, `checked`, `disabled`, divider groups, bottom sheet on a phone |
-| Menu **at a point** (the pointer, or a target's box) | `Menu` | **Missing.** The editor's `Menu` and the theme's `sitePlaceMenu` take an `anchor` element. Add `at={{x, y}}` (or a rect) to the placement and keep the flip logic. A zero-size fake element would work but is a hack a theme author cannot restyle or read |
-| Type-ahead letters in a menu | `Menu` | **Missing in the editor's `moveInMenu`** (`ui.tsx`): the theme's `dropdownMenu.script.ts` has it; share it |
+| Bar `⋮` | `Menu`, `MenuItem`, `MenuGroup`, `MenuDivider` (`theme/ui/Menu.tsx`), editor wrapper `Menu` (`ui.tsx`) | **Yes**, with `trailingSupporting` (shortcut), `submenu`, `checked`, `disabled`, divider groups, bottom sheet on a phone |
+| Menu **at a point** | `Menu` | **Not needed any more.** Only a right click or a long press menu would have used it, and both are dropped (section 5). The `⋮` stays under its button |
+| Type-ahead letters in the `⋮` menu | `Menu` | **Missing in the editor's `moveInMenu`** (`ui.tsx`): the theme's `dropdownMenu.script.ts` has it; share it (M3 menus accessibility: "Letters: Focus moves to the next menu item starting with letter") |
 | Palette view | `Search` view (`theme/ui/Search.tsx`) | **Partly.** Drawn (field, listbox, back, clear, empty text) but script-driven; **missing: a controlled version** (`open`, `query`, `onQueryChange`, `activeId`, `onActivate`, a live count) with **grouped results** (a label per group, M3 "Category labels") and a trailing shortcut. Add it to `Search.tsx`, with the site script untouched |
 | Group label in a list | `List` | The editor has `SheetGroupTitle` (an editor composition, `ui.tsx` 2123); the theme `List` has no group header. **Missing**, or reuse `SheetGroupTitle`'s look through the theme (decided in step 3) |
 | Rows | `List`, `ListItem` (`role="option"`, trailing supporting text) | Yes |
@@ -466,7 +400,7 @@ The editor draws only theme parts. Nothing here is custom.
 | Dialog or SideSheet | `Dialog`, `SideSheet` | **Not used.** M3: dialogs are for "critical information"; a side sheet is a persistent pane, not a search |
 | Tooltip with a shortcut | `Tooltip`, `useTooltip` | Yes (text only) |
 | Search icon button | `IconButton` | Yes |
-| Long press | `useLongPress` | Yes; one new use (blocks and images) |
+| Long press | `useLongPress` | Yes; no new use here |
 | Divider | `Divider` | Yes |
 
 ## 7. Texts (English first; Danish in `src/i18n/da-DK/`)
@@ -489,9 +423,6 @@ words) and `t.palette`. Short, active, per M3 word choice (`site-editor-writing`
 | `palette.nothingToUndo`, `nothingToRedo` | Nothing to undo · Nothing to redo | Intet at fortryde · Intet at gentage |
 | group titles | Go to · Pages and posts · Page · Text · Insert · Section · Block · Table · Image · List · Settings · Apps | Gå til · Sider og indlæg · Side · Tekst · Indsæt · Sektion · Blok · Tabel · Billede · Liste · Indstillinger · Apps |
 | `shortcuts.title` | Keyboard shortcuts | Tastaturgenveje |
-| `text.cut`, `text.copy`, `text.paste` | Cut · Copy · Paste | Klip · Kopiér · Sæt ind (not *Indsæt*: that is `Insert`) |
-| `text.pastePlain` (question 12) | Paste as plain text | Sæt ind som almindelig tekst |
-| `text.pasteBlocked` | Paste is blocked here. Press Ctrl+V instead. | Indsætning er blokeret her. Tryk Ctrl+V i stedet. |
 
 Action labels keep today's words (`Bold` = `Fed`, `Undo` = `Fortryd`, `Redo` = `Gentag`, `Move up` = `Flyt op`, from `da-DK`). The Danish above
 is a proposal for the owner to read; the build PR writes it in `da-DK/` and `check:language` keeps it out of everything else. The word **image** is
@@ -500,23 +431,23 @@ is a proposal for the owner to read; the build PR writes it in `da-DK/` and `che
 ## 8. How it relates to #519 and #529
 
 - **#519 (the one bar).** Untouched in design. The bar's tool lists and `⋮` groups become the `bar` place of registry entries, so the bar,
-  `⋮`, the menus and the palette stay in step. #519 section 8d said a right-click menu "reuses `Menu`; it is not part of this spec" and a
-  palette "as a later, separate spec": this is that spec. The `⋮` bottom sheet on a phone and the context menu's sheet are one component.
+  `⋮` and the palette stay in step. #519 section 8d said a right-click menu "reuses `Menu`; it is not part of this spec" and a
+  palette "as a later, separate spec": this is that spec, and the owner has since ruled out the right-click menu (section 5).
   #519's questions (what stays on a phone bar, sheet or popover, scrolling `⋮`) are not decided here and do not block the registry.
-- **#529 (selection).** A long press on a list screen selects; this spec never takes it. A right click on a list row stays the browser's, as
-  #529 section 3.3 says. While a list selection exists its actions (*Delete N selected*, *Restore*, *Select all*, *Close selection*) are
+- **#529 (selection).** A long press on a list screen selects; this spec adds no long press and never takes it. A right click on a list row stays the
+  browser's, as #529 section 3.3 says, and now everywhere else too. While a list selection exists its actions (*Delete N selected*, *Restore*, *Select all*, *Close selection*) are
   registry entries with a `selection` context, so the palette offers them, and the selection bar (#529's docked row) is another view of
   the same entries. Text and block selection (#519) and list selection (#529) are different `Ctx` states, never both at once.
-- **#515 and #520** (theme parts audit, Material conformance) are named in #529; I did not read them for this spec. The two missing parts
-  above (menu at a point, controlled search view) belong in the same audit.
-- **Density (#518).** Menu rows and palette rows use #518's step tokens, so they follow the owner's density setting; the 48 dp hit area stays
+- **#515 and #520** (theme parts audit, Material conformance) are named in #529; I did not read them for this spec. The one missing part
+  above (a controlled search view) belongs in the same audit.
+- **Density (#518).** `⋮` rows and palette rows use #518's step tokens, so they follow the owner's density setting; the 48 dp hit area stays
   (M3 density page, quoted in #519 section 8a).
 
-## 9. Deviations from Material (entries for `docs/material-deviations.md`, added in the PR that builds each one)
+## 9. Deviations from Material (entries for `docs/material-deviations.md`, added with step 4)
 
 Each: Material says / we do / why / date / PR (PR number filled in when built). The PM's rule: a deviation is allowed only in the editor
-workspace (the bar, its `⋮`, the text and block menus), or when the owner says so in words. Entry 1 is outside the workspace and rests on the owner's
-words; entries 2 and 3 are inside it. What the pages are silent on is **not** a deviation: it is listed in 1b and in question 10.
+workspace (the bar, its `⋮`, the text and block menus), or when the owner says so in words. Both entries rest on the owner's words. What the pages are silent on is **not**
+a deviation: it is listed in 1b and in section 11.
 
 1. **A command palette is built from the Search view** (outside the workspace; owner's words).
    - **Owner:** "a command palette: if the editor has dozens of functions, a floating search bar (Cmd/Ctrl+K, like VS Code, Figma, Notion) where the
@@ -527,21 +458,15 @@ words; entries 2 and 3 are inside it. What the pages are silent on is **not** a 
      button with a tooltip, menus).
    - **Why:** the owner's request (the editor has dozens of functions); Search is the closest M3 part, and a dialog is the wrong one ("Dialogs
      are purposefully interruptive ... used sparingly"). **Date:** 2026-11-13. **PR:** step 4.
-2. **A context menu shows only the target's actions, not every action disabled** (editor workspace).
-   - **Material:** "When a menu item can only be used under specific conditions, it should appear disabled rather than be removed."
-   - **We do:** within the target's own actions that rule holds (Redo is disabled, not removed). Actions that belong to another target (table
-     actions on a paragraph, block actions on selected text) are not in the menu or the palette's current-context list at all.
-   - **Why:** the owner's rule that selected text shows only text actions; a menu of every action disabled would be the long list the owner
-     does not want. **Date:** 2026-11-13. **PR:** step 6. (The palette keeps M3's rule: a current-context action that cannot run is shown
-     disabled, section 4.1.)
-3. **Our menu replaces the browser's in typed text and on blocks, never in a field** (editor workspace; owner: "Right click opens the contextual menu").
-   - **Material:** "A secondary click ... opens a context menu." and, for text, "When using a mouse, trackpad, or stylus, show the I-beam and context menu".
-   - **We do:** in typed text (selected or not), on blocks, images, table cells and the empty line. A text field keeps the browser's menu; a link
-     row is Q7. **Why:** the owner's decision. What is lost is stated in 5.1: the browser's spell-check suggestions. **Date:** 2026-11-13. **PR:** step 6.
-
-Not deviations: a bottom sheet on a phone (M3: "Consider adapting menus into bottom sheets"), the long press (M3: "right-click or press-and-hold"; text left to
-the OS, "always show touch controls"), a divider and no gaps on web, shortcuts as trailing text ("keyboard commands"), a search icon button
-("Search icon button: ... secondary action"), `aria-disabled` focusable items.
+2. **No custom context menu: the browser's or the OS's menu stays** (editor workspace; owner's words).
+   - **Owner:** "So we keep the no right click menu." (13 November)
+   - **Material:** "A secondary click (whether using a single button or two fingers on a trackpad) should activate a context menu. The context menu shows
+     additional options for the object that's clicked." (Inputs); "When using a mouse, trackpad, or stylus to select text, use the right-click context menu"
+     (Inputs, text selection); "A secondary click, like a right-click on a mouse or a two-finger tap on a trackpad, opens a context menu." (Menus).
+   - **We do:** a right click opens the browser's own menu everywhere in the editor. The editor draws no context menu.
+   - **Why:** the system menu does Cut, Copy and Paste, spell-check and link items better than we can; the tools are on the bar, its `⋮` and the palette. The browser's
+     menu is itself a context menu, so this may not be a deviation in a strict reading; it is listed because the PM asked for it. **Date:** 2026-11-13. **PR:** step 4 (the entry
+     goes in with the first merged step).
 
 ## 10. Build plan (small PRs into `main`, each with a changeset)
 
@@ -550,18 +475,14 @@ S = a day or less, M = a day or two. All are patch or empty changesets until ste
 1. **S, `lib/actionRules.mjs` and tests.** Folding, ranking, context filter, shortcut parse and format, conflict check. No UI. Empty changeset.
 2. **S, `src/actions.ts` registry and the navigation provider.** Register, dispose, `Ctx`, "Go to" actions from `menuTree`, Insert actions from `blocks.ts`, pages and
    posts provider. No UI. Tests: a route in the menu is an action; an app's page appears.
-3. **M, theme: a controlled Search view, grouped results, menu at a point (`at`).** In `theme/ui/` with the parts page (`#developer/parts`) updated, a
-   `check:screens` entry, tokens only, and the shared type-ahead. Minor or patch (the owner decides).
+3. **M, theme: a controlled Search view with grouped results** (and the shared type-ahead for the `⋮` menu, if #519 has not added it). In `theme/ui/` with the parts
+   page (`#developer/parts`) updated, a `check:screens` entry and tokens only. Minor or patch (the owner decides).
 4. **M, the palette.** `CommandPalette.tsx`, the top-bar search button, `Ctrl/⌘+K`, recent, navigation, page and settings actions, phone full screen, focus
-   return, live region, the Danish texts. Deviation entry 1. **One release note paragraph** (it changes how the editor is used; `release-notes`
+   return, live region, the Danish texts. Deviation entries 1 and 2. **One release note paragraph** (it changes how the editor is used; `release-notes`
    skill, English and Danish): for example "Find anything with one key".
 5. **M, text and block actions in the registry.** `MarkdownEditor.tsx` and `contextualMenu.ts` register their actions (the bar reads them; with #519 steps 1
    and 2 not yet landed this is an adapter, and the bar's order is today's). The palette lists them. Shortcuts in tooltips and `aria-keyshortcuts`.
-6. **M, context menus.** Blocks, images, tables, list rows and the empty line: right click, `Shift+F10`, long press on blocks and images (phone
-   bottom sheet). Deviation entries 2 and 3.
-7. **S to M, the text menu and clipboard.** Right click in typed text, with Cut, Copy and Paste as in 5.4 (including the refused-paste message and, if the owner
-   wants it, *Paste as plain text*). A Playwright check of the clipboard calls (like the one in 5.4) goes in `scripts/`.
-8. **S, polish.** Clear recent on sign-out, *Keyboard shortcuts* list, files as a provider (if the owner wants, question 2).
+6. **S, polish.** Clear recent on sign-out, *Keyboard shortcuts* list, files as a provider (if the owner wants, question 2).
 
 **What the checks must prove** (`scripts/editor-screens.mjs` through `check:screens`; `node --test`):
 - **Unit tests:** every rule of section 4.3, the registry (context filter, a disabled action, dispose), the shortcut format on both platforms and the
@@ -570,33 +491,30 @@ S = a day or less, M = a day or two. All are patch or empty changesets until ste
   the selected words are bold; Escape closes it and the focus is back in the text; `aria-activedescendant` follows the arrows; the live region reads the
   count; the empty query shows Recent and Suggested; no horizontal scroll; every row and button is at least 48 × 48 CSS px; the phone view is full
   screen and the desktop one docked.
-- **Context menu:** a right click on an image block opens a menu whose items equal the registry's `image` entries; on selected text only text items; a
-  right click on a link or a list row leaves the browser's menu (the event is not prevented); `Shift+F10` opens it; Escape returns the focus; at 375 a
-  600 ms touch on an image opens the bottom sheet, a 600 ms touch in text does not, on a list screen it selects.
+- **No custom context menu:** a right click (`contextmenu` event) in text, on a block, an image and a table cell is **not** prevented, so the browser's menu opens.
 - `check:contrast`, `check:editor-colors` and `check:css-values` on the new CSS in each section colour; nothing drawn that is not a theme part.
-- **Not covered by the scripts:** the real phone's long press and haptics, whether iOS fires `contextmenu`, `Ctrl+K` in each browser, VoiceOver and
-  TalkBack. By hand, by the owner or the PM.
+- **Not covered by the scripts:** `Ctrl+K` in each browser, VoiceOver and TalkBack. By hand, by the owner or the PM.
 
-## 11. Open questions for the owner (the PM asks them one at a time)
+## 11. For the owner (the PM asks them one at a time)
 
-1. **DECIDED (owner: "Yes."):** `Ctrl+K` / `⌘K` opens the palette, also when the cursor is in text; *Link* keeps no key and stays on the bar and in the palette.
+**Decided:** (D1) `Ctrl+K` / `⌘K` always opens the palette, also in text; *Link* keeps no key. (D2) No custom right-click menu anywhere; the browser's or the OS's stays.
+
+**Open, in the order to ask:**
+
+1. **Resize an image and duplicate a block** are in your examples and in neither the code nor #519 or #529. Recommendation: **not in this work**; Crop is listed. If you
+   want them, each is its own small spec (resize needs a rule for how images are sized on the site).
 2. **What does the first palette search?** (a) actions only; (b) actions, navigation and page and post titles; (c) also files. Recommendation: **(b)**; files
-   later (a provider, step 8).
-3. **DECIDED (owner: "Right click opens the contextual menu."):** a right click in typed text, selected or not, opens our text menu. The browser's spell-check suggestions are lost (5.1).
-4. **A right click on a list row or a link stays the browser's** (as #529 says), and the row's actions stay in the selection bar. Recommendation: **yes** for
-   now; a row menu with Open, Select, Delete can come later.
-5. **A search icon button in the top app bar on every screen size?** M3 prints that an app bar "can also include global product controls, such as
+   later (a provider, step 6).
+3. **A search icon button in the top app bar on every screen size?** M3 prints that an app bar "can also include global product controls, such as
    search" and that it "should only have one action, two if necessary". Recommendation: **yes, if the top bar has room for it under that
    rule** (step 4 counts today's actions on each screen); a phone has no key. If it is full, the button goes in the main menu's header instead.
-6. **On a phone, does the palette list the text actions?** Recommendation: **yes** (the selection is restored), so one list works everywhere.
-7. **Recent actions** kept in the browser only, cleared on sign-out and by *Clear recent actions*? Recommendation: **yes**.
-8. **Actions that do not exist yet:** Resize an image and Duplicate a block are in your examples and in neither the code nor #519 or #529. Recommendation: **not in
-   this work**; Crop is listed. If you want them, each is its own small spec (resize needs a rule for how images are sized on the site).
-9. **Other shortcuts** (Save `Ctrl+S`, New page, Go to page)? The editor autosaves and has none now. Recommendation: **none beyond `Ctrl+K`** until you ask;
-   the registry and its conflict test make adding one a one-line change.
-10. **Where does the docked palette stand on a computer?** M3 prints only that a docked view "opens a list below the search bar"; it says nothing for a
-    view opened by a button or a key, and the Search size tokens could not be read. Options: (a) the theme's Search view as it is built now (it docks
-    where a bar would be); (b) full screen on every size, which M3 prints for compact and needs no bar. Recommendation: **(a)**, so no size or place is
-    invented; if it looks wrong in the screens, (b).
-11. **Long press in text on a phone: the phone's own selection (recommended) or our menu?** The PM's note asked for ours; I kept the phone's own, so its handles keep working. Other choice: ours, on the empty line only.
-12. **Add *Paste as plain text* to the text menu?** It does not exist today (5.4); one small function. Recommendation: **yes**, because pasting from a web page or Word is common. Other choice: leave it to the browser's `Ctrl+Shift+V`, which still reads the text as Markdown.
+4. **On a phone, does the palette list the text actions?** Recommendation: **yes** (the selection is restored), so one list works everywhere. Other choice: leave them out on a phone, where the bar has them.
+
+**Defaults, no owner decision needed unless you want one:**
+- (1) **Recent actions** kept in this browser only, cleared at sign-out and by *Clear recent actions*.
+- (2) **No other shortcuts** beyond `Ctrl+K` (Save, New page, Go to page): the editor autosaves and has none now; the registry and its conflict test make adding one a one-line change.
+- (3) **Where the docked palette stands on a computer:** the theme's Search view as it is built now (M3 prints only that a docked view "opens a list below the search bar" and is silent for
+  a button or a key; the size tokens could not be read). If it looks wrong in the screens, full screen on every size instead.
+
+**Moot after the decision:** a right click on a list row or link (the browser's menu stays), a long press in text on a phone (the phone's own stays), *Paste as plain text*, and the
+Cut, Copy and Paste wiring.
