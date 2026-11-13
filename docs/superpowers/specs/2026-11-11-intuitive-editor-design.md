@@ -179,10 +179,10 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
 - **Evidence:** the save message promises a notification (`common.saved`); the first Save asks the browser for
   permission (`notificationData.ts` `askToNotify`) with no text of the editor's own before the browser's prompt. The
   start screen's `Last published …` / `Publish time unknown` (`library.lastPublished`, `publishUnknown`) is the only
-  persistent signal; a failed update says `Restore the previous version under Earlier versions.` (`app.siteNotUpdated`).
+  persistent signal; a failed update says `Restore the previous version under History.` (`app.siteNotUpdated`).
 - **Fix:** a small `Updating the website…` chip in the top bar from Save until the build finishes (the data is there:
   `siteUpdated` notifies when done), then `Live`. A sentence before the browser's permission prompt: `Get a message when
-  your changes are live?` Rename `Earlier versions` to `History` only if the owner agrees (the word is clear; low priority).
+  your changes are live?` Rename `Earlier versions` to `History` (done).
 
 ### 9. Settings and apps: depth and state words
 
@@ -314,7 +314,7 @@ Rank 1 affects every owner at their first save; rank 5 only owners who reach dev
   fields are the editor's own (`fields.tsx`) and need no change; `BlockDialog.tsx`'s picker, section settings and
   `sheetPlacement.mjs` stay for their own steps. Needs a check on a phone at 375 px (keyboard, scroll to the open block) which
   this spec could not make.
-- **Not changed:** the pickers (page, link, colour, country code), Preview, Earlier versions, Notifications and widget
+- **Not changed:** the pickers (page, link, colour, country code), Preview, History, Notifications and widget
   settings keep their sheets. Whether they follow is a later decision.
 
 ### 15. How close the editor is to the site, and what is missing

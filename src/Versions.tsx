@@ -1,4 +1,4 @@
-// "Earlier versions": the commits that changed a form's file (github.ts versionsOf), newest first, with when and by
+// "History": the commits that changed a form's file (github.ts versionsOf), newest first, with when and by
 // whom, 20 at a time: the last section of a page's or a post's form (VersionList), and in the other forms a sheet
 // opened by the clock in the top bar (VersionsButton). The newest is the
 // version saved now. Tapping an earlier one opens it in the form as changes that are not saved yet

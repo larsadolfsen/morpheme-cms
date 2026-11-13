@@ -9,7 +9,7 @@ export const app = {
   /** After a save, when the website has been updated with it (or not); `changes`: what the saves since the last update
    * changed, as a list (changesText in deploy.ts). */
   siteUpdated: (changes: string) => `The website has been updated: ${changes}.`,
-  siteNotUpdated: (changes: string) => `The website wasn’t updated (${changes}). Restore the previous version under Earlier versions.`,
+  siteNotUpdated: (changes: string) => `The website wasn’t updated (${changes}). Restore the previous version under History.`,
   /** What a save changed (deploy.ts): said right after it and, with the other saves since, when the website has been
    * updated. Each starts with a small letter, as it stands inside a sentence; `what` is a thing (`named`: its kind and
    * its name) or a part of the website. */
